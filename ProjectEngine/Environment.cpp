@@ -1,0 +1,202 @@
+#include <iostream>
+#include "JSONHandler.cpp"
+#include <string>
+#include <map>
+#include <utility>
+#include <vector>
+#include "RenderObject.cpp"
+
+#pragma once
+
+#define RENDEROBJECTCONTAINER_COUNT 5
+
+class Environment {
+public:
+	//-----------------------------------------------------------
+	//Constructor
+
+	Environment() {
+		
+	}
+	Environment(const Environment& other) {
+		//doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
+		//for (const auto& entry : other.roc)
+	}
+
+	//-----------------------------------------------------------
+	//Destructor
+	~Environment() {
+		//TODO
+	};
+
+	//-----------------------------------------------------------
+	//Marshalling
+	std::string serializeOld() {
+		// Initialize RapidJSON document
+		rapidjson::Document doc;
+		doc.SetObject();
+
+		// Set up allocator
+		rapidjson::Document::AllocatorType& allocator = doc.GetAllocator();
+
+		// Serialize each container and add to the document
+		std::string serializedContainers[RENDEROBJECTCONTAINER_COUNT];
+		for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
+			serializedContainers[i] = roc[i].serialize();
+
+			// Parse the serialized string to a JSON object
+			rapidjson::Document containerDoc;
+			containerDoc.Parse(serializedContainers[i].c_str());
+
+			// Add the container JSON object to the main document
+			std::string key = "containerLayer" + std::to_string(i);
+			doc.AddMember(rapidjson::Value(key.c_str(), allocator).Move(), containerDoc, allocator);
+		}
+
+		// Convert the document to a string
+		rapidjson::StringBuffer buffer;
+		rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+		doc.Accept(writer);
+
+		return buffer.GetString();
+	}
+
+	std::string serialize() {
+		// Initialize RapidJSON document
+		rapidjson::Document doc;
+		doc.SetObject();
+
+		// Set up allocator
+		rapidjson::Document::AllocatorType& allocator = doc.GetAllocator();
+
+		// Serialize each container and add to the document
+		std::string serializedContainers[RENDEROBJECTCONTAINER_COUNT];
+		for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
+			serializedContainers[i] = roc[i].serialize();
+
+			// Parse the serialized string to a JSON object
+			rapidjson::Document containerDoc;
+			containerDoc.Parse(serializedContainers[i].c_str());
+
+			if (containerDoc.HasParseError()) {
+				std::cerr << "JSON parse error: " << containerDoc.GetParseError() << std::endl;
+				continue; // Skip this container if there's an error
+			}
+
+			// Create a Value to hold the containerDoc contents
+			rapidjson::Value containerValue;
+			containerValue.CopyFrom(containerDoc, allocator);
+
+			// Add the container JSON object to the main document
+			std::string key = "containerLayer" + std::to_string(i);
+			doc.AddMember(rapidjson::Value(key.c_str(), allocator).Move(), containerValue, allocator);
+		}
+
+		// Convert the document to a string
+		rapidjson::StringBuffer buffer;
+		rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+		doc.Accept(writer);
+
+		return buffer.GetString();
+	}
+
+
+	void deserialize(std::string serialOrLink, int dispResX,int dispResY,int THREADSIZE) {
+		rapidjson::Document doc;
+		doc = JSONHandler::deserialize(serialOrLink);
+
+		// doc has values for containerLayer0 to containerLayer4
+		for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
+			std::string key = "containerLayer" + std::to_string(i);
+
+			// Check if the key exists in the document
+			if (doc.HasMember(key.c_str())) {
+				// Extract the value corresponding to the key
+				const rapidjson::Value& layer = doc[key.c_str()];
+
+				// Convert the JSON object to a pretty-printed string
+				rapidjson::StringBuffer buffer;
+				rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+				layer.Accept(writer);
+
+				
+				std::string str = buffer.GetString();
+
+				roc[i].deserialize(str,dispResX,dispResY,THREADSIZE);
+			}
+			else {
+				std::cerr << "Key " << key << " not found in the document!" << std::endl;
+			}
+		}
+	}
+	
+	
+	void append(RenderObject toAttach,int dispResX, int dispResY,int THREADSIZE, int layer = 0) {
+		if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
+			roc[layer].append(toAttach, dispResX, dispResY, THREADSIZE);
+		}
+		else {
+			roc[0].append(toAttach, dispResX, dispResY, THREADSIZE);
+		}
+	}
+	void update(int tileXpos,int tileYpos,int dispResX,int dispResY, int THREADSIZE) {
+		for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
+			roc[i].update(tileXpos,tileYpos,dispResX,dispResY,THREADSIZE);
+		}
+	}
+	void update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE) {
+		for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
+			roc[i].update_withThreads(tileXpos, tileYpos, dispResX, dispResY, THREADSIZE);
+		}
+	}
+
+	auto& getContainerAt(int x, int y, int layer) {
+		if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
+			return roc[layer].getContainerAt(x,y);
+		}
+		else {
+			return roc[0].getContainerAt(x, y);
+		}
+	}
+	bool isValidPosition(int x, int y, int layer) {
+		if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
+			return roc[layer].isValidPosition(x, y);
+		}
+		else {
+			return roc[0].isValidPosition(x, y);
+		}
+	}
+
+	void purgeObjects() {
+		// Release resources for ObjectContainer
+		for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
+			roc[i].purgeObjects();
+		}
+	}
+	void purgeLayer(int layer) {
+		if (layer >= 0 && layer < RENDEROBJECTCONTAINER_COUNT) {
+			roc[layer].purgeObjects();
+		}
+	}
+
+	size_t getObjectCount(bool excludeTopLayer = true) {
+		// Calculate the total item count
+		size_t totalCount = 0;
+
+		for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT - (int)excludeTopLayer; i++) {
+			totalCount += roc[i].getObjectCount();
+		}
+		return totalCount;
+	}
+
+	enum RenderObjectLayers {
+		background,
+		general,
+		foreground,
+		effects,
+		menue
+	};
+private:
+	RenderObjectContainer roc[RENDEROBJECTCONTAINER_COUNT];
+};
+

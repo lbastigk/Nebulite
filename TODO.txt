@@ -1,0 +1,2 @@
+optionsmenu no freeze
+class for input not freeze
