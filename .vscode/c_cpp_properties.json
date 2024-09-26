@@ -4,9 +4,9 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "ProjectEngine",
-                "ProjectEditor",
-                "ProjectTestEnvironment"
+                "ProjectEngine/",
+                "ProjectEditor/",
+                "ProjectTestEnvironment/"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",
