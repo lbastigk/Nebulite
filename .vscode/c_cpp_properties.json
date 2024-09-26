@@ -3,7 +3,10 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "ProjectEngine",
+                "ProjectEditor",
+                "ProjectTestEnvironment"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",
