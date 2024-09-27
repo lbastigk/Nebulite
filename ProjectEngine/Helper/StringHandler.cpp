@@ -2,8 +2,12 @@
 #include <iomanip>
 #include <sstream>
 #include <locale>
-#include <Windows.h>
+#include <cstdint> // For fixed-width integer types
+//#include <Windows.h>
 #include <vector>
+#include <codecvt>
+
+typedef uint64_t UINT64;
 
 class StringHandler {
 public:
@@ -54,4 +58,10 @@ public:
         ss.seekp(-1, std::ios_base::end);
         return ss.str();
     }
+
+    std::wstring stringToWstring(const std::string& str) {
+        std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+        return converter.from_bytes(str);
+    }
+
 };

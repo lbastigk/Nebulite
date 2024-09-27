@@ -1,3 +1,5 @@
+#ifdef _WIN32 
+
 #include "rapidjson-master/include/rapidjson/document.h"
 #include "rapidjson-master/include/rapidjson/writer.h"
 #include "rapidjson-master/include/rapidjson/stringbuffer.h"
@@ -5,6 +7,18 @@
 #include "rapidjson-master/include/rapidjson/encodings.h"
 #include "rapidjson-master/include/rapidjson/istreamwrapper.h"
 #include "rapidjson-master/include/rapidjson/ostreamwrapper.h"
+
+#else
+
+#include "document.h"
+#include "writer.h"
+#include "stringbuffer.h"
+#include "prettywriter.h"
+#include "encodings.h"
+#include "istreamwrapper.h"
+#include "ostreamwrapper.h"
+
+#endif
 
 #include <type_traits>
 #include <fstream>
@@ -18,6 +32,20 @@
 
 //using namespace rapidjson;
 
+
+//&Doc template specializations
+//need to be global for C++
+template <typename T>
+struct is_rapidjson_document_ptr : std::false_type {};
+
+template <>
+struct is_rapidjson_document_ptr<rapidjson::Document*> : std::true_type {};
+
+
+template <typename T>
+struct is_rapidjson_value_ptr : std::false_type {};
+template <>
+struct is_rapidjson_value_ptr<rapidjson::Value&> : std::true_type {};
 
 //One space to handle Rapidjson read/write operations
 class JSONHandler {
@@ -345,19 +373,6 @@ private:
 
     template <typename T1, typename T2>
     struct is_pair<std::pair<T1, T2>> : std::true_type {};
-
-    //&Doc
-    template <typename T>
-    struct is_rapidjson_document_ptr : std::false_type {};
-
-    template <>
-    struct is_rapidjson_document_ptr<rapidjson::Document*> : std::true_type {};
-
-
-    template <typename T>
-    struct is_rapidjson_value_ptr : std::false_type {};
-    template <>
-    struct is_rapidjson_value_ptr<rapidjson::Value&> : std::true_type {};
 
     //----------------------------------------------------------------------
     // Helper function to convert data to JSON values (specializations may be required for custom types)

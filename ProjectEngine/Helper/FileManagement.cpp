@@ -2,7 +2,7 @@
 #include <string>
 #include <cstring>
 #include <vector>
-#include <direct.h> // For _getcwd
+//#include <direct.h> // For _getcwd
 
 #include <iostream>
 #include <sstream>
@@ -11,7 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <Windows.h>
+//#include <Windows.h>
+#include <unistd.h> // For getcwd
+#include "Platform.h"
 
 #pragma once
 
@@ -25,7 +27,7 @@ public:
     }
     static std::string currentDir() {
         char currentDir[150];
-        (void)_getcwd(currentDir, sizeof(currentDir));
+        (void)getcwd(currentDir, sizeof(currentDir));
         std::string currentDirStr = currentDir;
         return currentDirStr;
     }
@@ -73,17 +75,7 @@ public:
 
         if (std::filesystem::exists(fullPath) && std::filesystem::is_regular_file(fullPath)) {
             // Use ShellExecute to open the file with the default program
-            HINSTANCE result = ShellExecute(nullptr, L"open", fullPath.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
-
-            // Check the result
-            if ((intptr_t)result > 32) {
-                // Success
-                return true;
-            }
-            else {
-                // Failed to open the file
-                return false;
-            }
+            return Platform::openFile(fullPath);
         }
         else {
             // File does not exist or is not a regular file

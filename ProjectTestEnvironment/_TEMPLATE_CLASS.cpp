@@ -1,10 +1,11 @@
 #pragma once
 
+
 #include <iostream>
 #include <sstream>
 
-#include "NamenKonventionen.cpp"
 #include "JSONHandler.cpp"
+#include "NamenKonventionen.cpp"
 
 
 class MyTemplate {
@@ -67,3 +68,5 @@ public:
 private:
 	rapidjson::Document doc;
 };
+
+

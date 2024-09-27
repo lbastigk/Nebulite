@@ -3,16 +3,26 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
+                "${workspaceFolder}/**",       // Your project files
+                "/usr/include/SDL2",           // Path to SDL2 headers on Linux
+                "/usr/include/rapidjson/",     // rapidjson
                 "ProjectEngine/",
                 "ProjectEditor/",
-                "ProjectTestEnvironment/"
+                "ProjectTestEnvironment/",
+                "Platform/"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/g++",
-            "cStandard": "c17",
-            "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64"
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "linux-gcc-x64",
+            "browse": {
+                "path": [
+                    "/usr/include/SDL2",       // Path to SDL2 headers
+                    "${workspaceFolder}/**"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
         }
     ],
     "version": 4

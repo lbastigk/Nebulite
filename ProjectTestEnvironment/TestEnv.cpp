@@ -1,6 +1,6 @@
 #pragma once
 
-#include "_TEMPLATE_CLASS.cpp"
+//#include "_TEMPLATE_CLASS.cpp"
 #include "FileManagement.cpp"
 #include "JSONHandler.cpp"
 #include "Kreatur.cpp"

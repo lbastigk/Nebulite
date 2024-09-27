@@ -2,12 +2,15 @@
 #include <sstream>
 #include <string>
 
-#include <Windows.h>
-#include <Psapi.h>
-#include <conio.h>
+//#include <Windows.h>
+//#include <Psapi.h>
+//#include <conio.h>
 
+#include <ranges>
 #include <algorithm>
 #include <ctype.h>
+
+#include "Platform.h"
 
 #pragma once
 
@@ -15,13 +18,7 @@ class DsaDebug {
 public:
     // Function to get used memory by the program itself on Windows, in kB
     static double getMemoryUsagekB() {
-        PROCESS_MEMORY_COUNTERS_EX pmc;
-        GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
-
-        // Convert bytes to kilobytes as double
-        double usedMemKB = static_cast<double>(pmc.PrivateUsage) / 1024.0;
-
-        return usedMemKB;
+        return Platform::getMemoryUsagekB();
     }
 
     static void printWithPrefix(const std::string& str, const std::string& prefix) {
@@ -85,12 +82,12 @@ public:
             std::cout << after;
 
             //Get new input
-            while (!_kbhit()) {
+            while (!Platform::hasKeyBoardInput()) {
                 //wait for input
             }
-            input = _getch();
-            if (_kbhit()) {
-                input2 = _getch();
+            input = Platform::getCharacter();
+            if (Platform::hasKeyBoardInput()) {
+                input2 = Platform::getCharacter();
             }
             else {
                 input2 = ' ';
@@ -103,8 +100,9 @@ private:
     void menueScreenTemplate() {
         system("cls");
         int opt = 0;
+        int ranges = -1;
         std::string options = "Example1\nQuit";
-        while (opt != std::ranges::count(options, '\n')) {
+        while (opt != ranges) {
             opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
             system("cls");
 
@@ -113,6 +111,7 @@ private:
 
                 break;
             }
+            //ranges = std::ranges::count(options, '\n');
         }
 
     }

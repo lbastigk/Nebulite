@@ -1,7 +1,7 @@
 #pragma once
 
-#include "NamenKonventionen.cpp"
-#include "JSONHandler.cpp"
+#include "Helper/NamenKonventionen.h"
+#include "JSONHandler.h"
 
 
 class Basiswerte {

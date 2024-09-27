@@ -9,6 +9,8 @@
 
 #include <thread>
 
+#include <stdint.h>
+
 #define WINDOWNAME "coolgame"
 
 class Renderer {
@@ -209,7 +211,7 @@ public:
 				//This part is called ever second when fps is recalculated
 
 				//Implement PID for int epsillon
-				//epsillon is a µs delay to get closer to goal FPS
+				//epsillon is a ï¿½s delay to get closer to goal FPS
 
 				//Current implementation is a simple counter
 				if (fps > SCREEN_FPS) {
@@ -400,7 +402,7 @@ public:
 		const static int KEY_I = 105;
 		const static int KEY_O = 111;
 		const static int KEY_P = 112;
-		const static int KEY_Ü = 252;
+		const static int KEY_ï¿½ = 252;
 
 		const static int KEY_A = 97;
 		const static int KEY_S = 115;
@@ -411,8 +413,8 @@ public:
 		const static int KEY_J = 106;
 		const static int KEY_K = 107;
 		const static int KEY_L = 108;
-		const static int KEY_Ö = 246;
-		const static int KEY_Ä = 228;
+		const static int KEY_ï¿½ = 246;
+		const static int KEY_ï¿½ = 228;
 
 		const static int KEY_Y = 121;
 		const static int KEY_X = 120;
@@ -441,8 +443,8 @@ private:
 	Options generalOptions;
 	std::string directory;
 
-	INT16 Xpos;
-	INT16 Ypos;
+	int16_t Xpos;
+	int16_t Ypos;
 	unsigned int tileXpos;
 	unsigned int tileYpos;
 	unsigned int dispResX;
@@ -472,12 +474,12 @@ private:
 
 	//Extra delay in microseconds
 	//Start value based on experience?
-	INT64 epsillon = 0;
+	int64_t epsillon = 0;
 	int kp = 2;
 	int ki = 10;
 	int kd = 1;
-	INT64 integral = 0;
-	INT64 prevError = 0;
+	int64_t integral = 0;
+	int64_t prevError = 0;
 
 	//-------------------------------------------------------------------------------------
 	//Other

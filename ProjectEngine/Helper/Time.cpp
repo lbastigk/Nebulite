@@ -13,12 +13,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <conio.h>
-#include <Windows.h>
+//#include <conio.h>
+//#include <Windows.h>
 #include <iomanip>
 #include <format>
 #include <sys/stat.h>
-#include <direct.h>
+//#include <direct.h>
 #include <utility>
 
 #pragma warning( disable : 4996 )
