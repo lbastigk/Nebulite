@@ -8,8 +8,8 @@
 #include <vector>
 
 
-#include <Kreatur.cpp>
-#include <Savegame.cpp>
+#include <Kreatur.h>
+#include <Savegame.h>
 
 #pragma once
 
@@ -25,8 +25,8 @@
 // - Typ:Inventargegenstand
 //   * Class: ID des objektes [String]
 //   * Subclass: vergleichsoperand, 
-//				 meistens muss Inventar größergleich sein, 
-//				 aber eventuell für einige nodes ist auch kleiner gleich interessant
+//				 meistens muss Inventar grï¿½ï¿½ergleich sein, 
+//				 aber eventuell fï¿½r einige nodes ist auch kleiner gleich interessant
 //   * value: Anzahl
 // - Typ: Quest
 //   * Class: ID der Quest
@@ -34,7 +34,7 @@
 //   * value: Stage zu vergleichen, bei 0 ist Quest als ganzes zu nehmen
 // - Typ: Basiswerte
 //   *
-//   //Umstellen Basiswerte auf std::map, um einfach string zu übergeben?
+//   //Umstellen Basiswerte auf std::map, um einfach string zu ï¿½bergeben?
 // - Typ: NPC
 //   * Class: [TODO, was lohnt sich hier?]
 //   * Subclass: [TODO, was lohnt sich hier?]
@@ -42,11 +42,11 @@
 //   // eventuell Sachen wie Tot, Lebendig
 //   // Sachen wie z.B.
 // - Typ: none
-//   // Dieser Typ wird verwendet, um eine Queststage direkt zu überspringen. 
+//   // Dieser Typ wird verwendet, um eine Queststage direkt zu ï¿½berspringen. 
 //   // Diese kann dann als QuestReq verwendet werden
-//   // Also im prinzip zum erstellen von Queststages, die als "Anker" für andere Sachen dienen.
+//   // Also im prinzip zum erstellen von Queststages, die als "Anker" fï¿½r andere Sachen dienen.
 //
-class interactionRequirement {
+class InteractionRequirement {
 	enum from {
 		mainCharacter,
 		groupAnyone,
@@ -59,15 +59,5 @@ class interactionRequirement {
 	std::string requirementSubclass;
 	int value;
 
-	interactionRequirement() {
-		// Beispiel
-		requiredFrom = mainCharacter;
-		requirementType = namenKonvention.talente._self;
-		requirementClass = namenKonvention.talente.koerper._self;
-		requirementSubclass = namenKonvention.talente.koerper.sinnesschaerfe;
-		value = 10;
-	}
-
-	//TODO
-	// From and to JSON, once full data structure is clear!
+	InteractionRequirement()
 };

@@ -1,171 +1,150 @@
 #pragma once
 
-#include <Eigenschaften.cpp>
-#include <Talente.cpp>
-#include <Basiswerte.cpp>
+#include "Inventar.h"
 
-#include "NamenKonventionen.cpp"
-#include "JSONHandler.cpp"
+//-----------------------------------------------------------------
+// InventarObjekt
 
+//-----------------------------------------------------------
+//Constructor
 
-class InventarObjekt {
-public:
+InventarObjekt::InventarObjekt() {
 	//-----------------------------------------------------------
-	//Constructor
+	//Allgemein
 
-	InventarObjekt() {
-		//-----------------------------------------------------------
-		//Allgemein
+	//ID
+	JSONHandler::Set::Any(doc, namenKonvention.inventarObjekt.id, 0);
 
-		//ID
-		JSONHandler::Set::Any(doc, namenKonvention.inventarObjekt.id, 0);
+	//Typ
+	std::pair <std::string, std::string> typPair = std::make_pair(namenKonvention.inventarObjekt.typ.verbrauchsGegenstand._self, namenKonvention.inventarObjekt.typ.text.notiz);
+	JSONHandler::Set::Any(doc, namenKonvention.inventarObjekt.typ._self, typPair);
 
-		//Typ
-		std::pair <std::string, std::string> typPair = std::make_pair(namenKonvention.inventarObjekt.typ.verbrauchsGegenstand._self, namenKonvention.inventarObjekt.typ.text.notiz);
-		JSONHandler::Set::Any(doc, namenKonvention.inventarObjekt.typ._self, typPair);
-
-		//Effektdauer in Sekunden
-		JSONHandler::Set::Any(doc, namenKonvention.inventarObjekt.effektDauer, 0);
-
-		//-----------------------------------------------------------
-		//Effekte und Benötigt zum doc ergänzen
-
-		//Objekte
-		Basiswerte Basiswerte;
-		Eigenschaften Eigenschaften;
-		Talente Talente;
-
-		//Subdocs
-		rapidjson::Document docEffekt;
-		rapidjson::Document docBenötigt;
-
-		//Subdocs füllen
-		JSONHandler::Set::Any(docEffekt, namenKonvention.inventarObjekt.effekt.Basiswerte, Basiswerte.getDoc());
-		JSONHandler::Set::Any(docEffekt, namenKonvention.inventarObjekt.effekt.Eigenschaften, Eigenschaften.getDoc());
-		JSONHandler::Set::Any(docEffekt, namenKonvention.inventarObjekt.effekt.Talente, Talente.getDoc());
-		JSONHandler::Set::Any(docBenötigt, namenKonvention.inventarObjekt.effekt.Basiswerte, Basiswerte.getDoc());
-		JSONHandler::Set::Any(docBenötigt, namenKonvention.inventarObjekt.effekt.Eigenschaften, Eigenschaften.getDoc());
-		JSONHandler::Set::Any(docBenötigt, namenKonvention.inventarObjekt.effekt.Talente, Talente.getDoc());
-		
-		//Zu hauptdoc hinzufügen
-		JSONHandler::Set::Any(doc, namenKonvention.inventarObjekt.effekt._self, &docEffekt);
-		JSONHandler::Set::Any(doc, namenKonvention.inventarObjekt.benötigt._self, &docBenötigt);
-
-		docEffekt.Empty();
-		docBenötigt.Empty();
-	}
-	InventarObjekt(const InventarObjekt& other) {
-		doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
-	}
-	InventarObjekt& operator=(const InventarObjekt& other) {  // Assignment operator overload
-		if (this != &other) {
-			JSONHandler::copyDoc(doc, other.getDoc());
-		}
-		return *this;
-	}
+	//Effektdauer in Sekunden
+	JSONHandler::Set::Any(doc, namenKonvention.inventarObjekt.effektDauer, 0);
 
 	//-----------------------------------------------------------
-	//Destructor
-	~InventarObjekt() {
-		if (doc.IsArray()) {
-			doc.Empty();
-		}
-	};
+	//Effekte und Benï¿½tigt zum doc ergï¿½nzen
 
-	//-----------------------------------------------------------
-	//Marshalling
+	//Objekte
+	Basiswerte Basiswerte;
+	Eigenschaften Eigenschaften;
+	Talente Talente;
 
-	std::string serialize() {
-		return JSONHandler::serialize(doc);
-	}
+	//Subdocs
+	rapidjson::Document docEffekt;
+	rapidjson::Document docBenï¿½tigt;
 
-	void deserialize(std::string serialOrLink) {
-		doc = JSONHandler::deserialize(serialOrLink);
-	}
-
-	//-----------------------------------------------------------
-	// Setting/Getting specific values
-	template <typename T> void valueSet(std::string key, const T data) {
-		JSONHandler::Set::Any(doc, key, data);
-	}
-
-	rapidjson::Document* getDoc() const {
-		return const_cast<rapidjson::Document*>(&doc);
-	}
-
-	template <typename T> T valueGet(std::string key, const T& defaultValue = T()) {
-		JSONHandler::Get::Any(doc, key, defaultValue);
-	}
-
-	//-----------------------------------------------------------
-	// TODO...
+	//Subdocs fï¿½llen
+	JSONHandler::Set::Any(docEffekt, namenKonvention.inventarObjekt.effekt.Basiswerte, Basiswerte.getDoc());
+	JSONHandler::Set::Any(docEffekt, namenKonvention.inventarObjekt.effekt.Eigenschaften, Eigenschaften.getDoc());
+	JSONHandler::Set::Any(docEffekt, namenKonvention.inventarObjekt.effekt.Talente, Talente.getDoc());
+	JSONHandler::Set::Any(docBenï¿½tigt, namenKonvention.inventarObjekt.effekt.Basiswerte, Basiswerte.getDoc());
+	JSONHandler::Set::Any(docBenï¿½tigt, namenKonvention.inventarObjekt.effekt.Eigenschaften, Eigenschaften.getDoc());
+	JSONHandler::Set::Any(docBenï¿½tigt, namenKonvention.inventarObjekt.effekt.Talente, Talente.getDoc());
 	
-	
-private:
-	rapidjson::Document doc;
+	//Zu hauptdoc hinzufï¿½gen
+	JSONHandler::Set::Any(doc, namenKonvention.inventarObjekt.effekt._self, &docEffekt);
+	JSONHandler::Set::Any(doc, namenKonvention.inventarObjekt.benï¿½tigt._self, &docBenï¿½tigt);
+
+	docEffekt.Empty();
+	docBenï¿½tigt.Empty();
+}
+InventarObjekt::InventarObjekt(const InventarObjekt& other) {
+	doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
+}
+InventarObjekt::InventarObjekt& operator=(const InventarObjekt& other) {  // Assignment operator overload
+	if (this != &other) {
+		JSONHandler::copyDoc(doc, other.getDoc());
+	}
+	return *this;
+}
+
+//-----------------------------------------------------------
+//Destructor
+InventarObjekt::~InventarObjekt() {
+	if (doc.IsArray()) {
+		doc.Empty();
+	}
 };
 
+//-----------------------------------------------------------
+//Marshalling
 
-class Inventar {
-public:
-	//-----------------------------------------------------------
-	//Constructor
+std::string InventarObjekt::serialize() {
+	return JSONHandler::serialize(doc);
+}
 
-	Inventar() {
-		
-	}
-	Inventar(const Inventar& other) {
+void InventarObjekt::deserialize(std::string serialOrLink) {
+	doc = JSONHandler::deserialize(serialOrLink);
+}
+
+//-----------------------------------------------------------
+// Setting/Getting specific values
+template <typename T> void InventarObjekt::valueSet(std::string key, const T data) {
+	JSONHandler::Set::Any(doc, key, data);
+}
+
+rapidjson::Document* InventarObjekt::getDoc() const {
+	return const_cast<rapidjson::Document*>(&doc);
+}
+
+template <typename T> T InventarObjekt::valueGet(std::string key, const T& defaultValue = T()) {
+	JSONHandler::Get::Any(doc, key, defaultValue);
+}
+
+//--------------------------------------------------------------------------
+// Inventar
+
+//-----------------------------------------------------------
+//Constructor
+
+Inventar::Inventar() {
+	
+}
+Inventar::Inventar(const Inventar& other) {
+	doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
+}
+Inventar::Inventar& operator=(const Inventar& other) {  // Assignment operator overload
+	// Check for self-assignment
+	if (this != &other) {
+		// Deep copy the rapidjson::Document
 		doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
+		// Alternatively, you can use the assignment operator: doc = other.doc;
 	}
-	Inventar& operator=(const Inventar& other) {  // Assignment operator overload
-		// Check for self-assignment
-		if (this != &other) {
-			// Deep copy the rapidjson::Document
-			doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
-			// Alternatively, you can use the assignment operator: doc = other.doc;
-		}
-		return *this;
+	return *this;
+}
+
+//-----------------------------------------------------------
+//Destructor
+Inventar::~Inventar() {
+	if (doc.IsArray()) {
+		doc.Empty();
 	}
-
-	//-----------------------------------------------------------
-	//Destructor
-	~Inventar() {
-		if (doc.IsArray()) {
-			doc.Empty();
-		}
-	};
-
-	//-----------------------------------------------------------
-	//Marshalling
-
-	std::string serialize() {
-		return JSONHandler::serialize(doc);
-	}
-
-	void deserialize(std::string serialOrLink) {
-		doc = JSONHandler::deserialize(serialOrLink);
-	}
-
-	//-----------------------------------------------------------
-	// Setting/Getting specific values
-
-	template <typename T> void valueSet(std::string key, const T data) {
-		return JSONHandler::Set::Any<T>(doc, key, data);
-	}
-
-	template <typename T> T valueGet(std::string key, const T& defaultValue = T()) {
-		return JSONHandler::Get::Any<T>(doc, key, defaultValue);
-	}
-
-	rapidjson::Document* getDoc() const {
-		//return &doc;
-		return const_cast<rapidjson::Document*>(&doc);
-	}
-
-	//-----------------------------------------------------------
-	// TODO...
-
-
-private:
-	rapidjson::Document doc;
 };
+
+//-----------------------------------------------------------
+//Marshalling
+
+std::string Inventar::serialize() {
+	return JSONHandler::serialize(doc);
+}
+
+void Inventar::deserialize(std::string serialOrLink) {
+	doc = JSONHandler::deserialize(serialOrLink);
+}
+
+//-----------------------------------------------------------
+// Setting/Getting specific values
+
+template <typename T> void Inventar::valueSet(std::string key, const T data) {
+	return JSONHandler::Set::Any<T>(doc, key, data);
+}
+
+template <typename T> T Inventar::valueGet(std::string key, const T& defaultValue = T()) {
+	return JSONHandler::Get::Any<T>(doc, key, defaultValue);
+}
+
+rapidjson::Document* Inventar::getDoc() const {
+	//return &doc;
+	return const_cast<rapidjson::Document*>(&doc);
+}

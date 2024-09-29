@@ -5,6 +5,7 @@
 #include <cstdint> // For fixed-width integer types
 //#include <Windows.h>
 #include <vector>
+#include <locale.h>
 #include <codecvt>
 
 typedef uint64_t UINT64;
@@ -59,9 +60,14 @@ public:
         return ss.str();
     }
 
-    std::wstring stringToWstring(const std::string& str) {
+    static std::wstring stringToWstring(const std::string& str) {
         std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
         return converter.from_bytes(str);
+    }
+
+    static std::string wstringToString(const std::wstring& wstr) {
+        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+        return converter.to_bytes(wstr);
     }
 
 };

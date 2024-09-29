@@ -1,6 +1,4 @@
 #pragma once
 
-class Zauber {
-
-};
+#include "Zauber.h"
 
