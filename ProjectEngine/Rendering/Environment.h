@@ -1,0 +1,64 @@
+#include <iostream>
+#include "JSONHandler.h"
+#include <string>
+#include <map>
+#include <utility>
+#include <vector>
+#include "RenderObject.h"
+
+#pragma once
+
+#define RENDEROBJECTCONTAINER_COUNT 5
+
+class Environment {
+public:
+	//-----------------------------------------------------------
+	//Constructor
+
+	Environment() {
+		
+	}
+	Environment(const Environment& other) {
+		//doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
+		//for (const auto& entry : other.roc)
+	}
+
+	//-----------------------------------------------------------
+	//Destructor
+	~Environment() {
+		//TODO
+	};
+
+	//-----------------------------------------------------------
+	//Marshalling
+	std::string serializeOld();
+
+	std::string serialize();
+
+
+	void deserialize(std::string serialOrLink, int dispResX,int dispResY,int THREADSIZE);
+	
+	
+	void append(RenderObject toAttach,int dispResX, int dispResY,int THREADSIZE, int layer = 0);
+	void update(int tileXpos,int tileYpos,int dispResX,int dispResY, int THREADSIZE);
+	void update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE);
+
+	auto& getContainerAt(int x, int y, int layer);
+	bool isValidPosition(int x, int y, int layer);
+
+	void purgeObjects();
+	void purgeLayer(int layer);
+
+	size_t getObjectCount(bool excludeTopLayer = true);
+
+	enum RenderObjectLayers {
+			background,
+			general,
+			foreground,
+			effects,
+			menue
+	};
+private:
+	RenderObjectContainer roc[RENDEROBJECTCONTAINER_COUNT];
+};
+
