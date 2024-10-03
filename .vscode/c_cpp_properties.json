@@ -3,23 +3,34 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",       // Your project files
+                "${workspaceFolder}/**",       // Covers everything in the project
                 "/usr/include/SDL2",           // Path to SDL2 headers on Linux
-                "/usr/include/rapidjson/",     // rapidjson
-                "ProjectEngine/",
-                "ProjectEditor/",
-                "ProjectTestEnvironment/",
-                "Platform/"
+                "/usr/include/rapidjson/",     // Path to rapidjson
+                "${workspaceFolder}/ProjectEngine",          // ProjectEngine root
+                "${workspaceFolder}/ProjectEngine/GameLoop", // ProjectEngine subdirectories
+                "${workspaceFolder}/ProjectEngine/GameVars",
+                "${workspaceFolder}/ProjectEngine/Helper",
+                "${workspaceFolder}/ProjectEngine/Rendering",
+                "${workspaceFolder}/ProjectEditor",           // ProjectEditor
+                "${workspaceFolder}/ProjectTestEnvironment",  // ProjectTestEnvironment
+                "${workspaceFolder}/Platform"                 // Platform
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/gcc",
+            "compilerPath": "/usr/bin/g++",
             "cStandard": "c11",
             "cppStandard": "c++20",
             "intelliSenseMode": "linux-gcc-x64",
             "browse": {
                 "path": [
-                    "/usr/include/SDL2",       // Path to SDL2 headers
-                    "${workspaceFolder}/**"
+                    "/usr/include/SDL2",       // SDL2 headers
+                    "${workspaceFolder}/ProjectEngine",
+                    "${workspaceFolder}/ProjectEngine/GameLoop",
+                    "${workspaceFolder}/ProjectEngine/GameVars",
+                    "${workspaceFolder}/ProjectEngine/Helper",
+                    "${workspaceFolder}/ProjectEngine/Rendering",
+                    "${workspaceFolder}/ProjectEditor",
+                    "${workspaceFolder}/ProjectTestEnvironment",
+                    "${workspaceFolder}/Platform"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             }
