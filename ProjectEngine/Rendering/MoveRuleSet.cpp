@@ -12,7 +12,7 @@ MoveRuleSet::MoveRuleSet(rapidjson::Document& toCopy) {
 MoveRuleSet::MoveRuleSet(const MoveRuleSet& other) {
 	doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
 }
-MoveRuleSet::MoveRuleSet& operator=(const MoveRuleSet& other) {  // Assignment operator overload
+MoveRuleSet& MoveRuleSet::operator=(const MoveRuleSet& other) {  // Assignment operator overload
 	// Check for self-assignment
 	if (this != &other) {
 		JSONHandler::copyDoc(doc, other.getDoc());

@@ -1,0 +1,169 @@
+#include <SDL.h>
+#include <SDL_ttf.h>
+#include <SDL_image.h>
+
+#include "Optionsloader.h"
+#include "Environment.h"
+#include "FileManagement.h"
+#include "Time.h"
+
+#include <thread>
+
+#include <stdint.h>
+
+#define WINDOWNAME "coolgame"
+
+class Renderer {
+public:
+	Renderer();
+	
+	//Destructor
+	~Renderer();
+
+	//Marshalling
+	std::string serialize();
+	std::string serializeEnvironment();
+	void deserializeEnvironment(std::string serialOrLink, int dispResX, int dispResY, int THREADSIZE);
+	
+	//-----------------------------------------------------------
+	// Pipeline
+	void append(RenderObject toAppend);
+	void update();
+	void update_withThreads();
+	
+	//-----------------------------------------------------------
+	// Purge
+	void purgeObjects();
+	void purgeLayer(int layer);
+	void purgeTextures();
+	void destroy();
+	
+	//-----------------------------------------------------------
+	// Manipulation
+	void changeWindowSize();
+	void updatePosition(int x, int y);
+	void moveCam(int dX, int dY);
+	
+	//-----------------------------------------------------------
+	// Rendering
+	bool timeToRender();
+	int renderFrame(bool drawTileGrid = false);
+	void renderFPS();
+	void showFrame();
+	int handleEvent();
+	SDL_Event getEventHandle();
+	
+	//-----------------------------------------------------------
+	// Setting
+	void setFPS(int fps);
+	void setThreadSize(unsigned int size);
+	
+	//-----------------------------------------------------------
+	// Getting
+	int getEps();
+	size_t getTextureAmount();
+	size_t getObjectCount();
+	int getResX();
+	int getResY();
+	int getThreadSize();
+	int getFPS();
+
+	class SDL {
+	public:
+		const static int KEY_ESC = 27;
+		const static int KEY_SPACE = 32;
+		const static int KEY_ENTER = 13;
+
+		const static int KEY_Q = 113;
+		const static int KEY_W = 119;
+		const static int KEY_E = 101;
+		const static int KEY_R = 114;
+		const static int KEY_T = 116;
+		const static int KEY_Z = 122;
+		const static int KEY_U = 117;
+		const static int KEY_I = 105;
+		const static int KEY_O = 111;
+		const static int KEY_P = 112;
+		const static int KEY_� = 252;
+
+		const static int KEY_A = 97;
+		const static int KEY_S = 115;
+		const static int KEY_D = 100;
+		const static int KEY_F = 102;
+		const static int KEY_G = 103;
+		const static int KEY_H = 104;
+		const static int KEY_J = 106;
+		const static int KEY_K = 107;
+		const static int KEY_L = 108;
+		const static int KEY_� = 246;
+		const static int KEY_� = 228;
+
+		const static int KEY_Y = 121;
+		const static int KEY_X = 120;
+		const static int KEY_C = 99;
+		const static int KEY_V = 118;
+		const static int KEY_B = 98;
+		const static int KEY_N = 110;
+		const static int KEY_M = 109;
+	};
+
+private:
+	//-------------------------------------------------------------------------------------
+	//General Variables
+
+	Environment env;
+
+	std::map<std::string, SDL_Texture*> TextureContainer;
+
+	unsigned int THREADSIZE = 2;
+
+	
+	Options generalOptions;
+	std::string directory;
+
+	int16_t Xpos;
+	int16_t Ypos;
+	unsigned int tileXpos;
+	unsigned int tileYpos;
+	unsigned int dispResX;
+	unsigned int dispResY;
+
+	SDL_Event event;
+	SDL_Window* window;
+	SDL_Renderer* renderer;
+	SDL_Rect rect;
+	TTF_Font* font;
+
+	//-------------------------------------------------------------------------------------
+	//For FPS Count
+
+	// Define font properties
+	int fontSize = 16; // Adjust as needed
+	SDL_Color textColor = { 255, 255, 255, 255 }; // White color
+
+	bool control_fps = false;
+	int SCREEN_FPS = 500; // Target framerate (e.g., 60 FPS)
+	int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS; // Milliseconds per frame
+	Uint64 prevTicks = SDL_GetTicks64();
+	Uint64 lastFPSRender = SDL_GetTicks64();
+	Uint64 totalframes = 0;
+	int fpsCount = 0;
+	int fps = 0;
+
+	//Extra delay in microseconds
+	//Start value based on experience?
+	int64_t epsillon = 0;
+	int kp = 2;
+	int ki = 10;
+	int kd = 1;
+	int64_t integral = 0;
+	int64_t prevError = 0;
+
+	
+
+	//-------------------------------------------------------------------------------------
+	//Other
+
+	// Function to load texture from file
+	void loadTexture(RenderObject& toAppend);
+};

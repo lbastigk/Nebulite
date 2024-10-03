@@ -15,19 +15,12 @@ public:
 	//-----------------------------------------------------------
 	//Constructor
 
-	Environment() {
-		
-	}
-	Environment(const Environment& other) {
-		//doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
-		//for (const auto& entry : other.roc)
-	}
+	Environment();
+	Environment(const Environment& other);
 
 	//-----------------------------------------------------------
 	//Destructor
-	~Environment() {
-		//TODO
-	};
+	~Environment();
 
 	//-----------------------------------------------------------
 	//Marshalling
