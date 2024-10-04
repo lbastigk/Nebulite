@@ -1,7 +1,9 @@
+#pragma once
+
 #include <vector>
 #include <map>
 
-#pragma once
+
 
 //Wird:
 // - Im Savegame gespeichert

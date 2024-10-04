@@ -1,12 +1,13 @@
 #pragma once
 
 #include <thread>
+#include "SDL.h"
 
 #include "NamenKonventionen.h"
 #include "JSONHandler.h"
-#include "SDL.h"
 #include "MoveRuleSet.h"
 
+class MoveRuleSet;
 class RenderObject {
 public:
 	//-----------------------------------------------------------
@@ -35,15 +36,30 @@ public:
 	void calculateSrcRect();
 	//-----------------------------------------------------------
 	void update();
-	void loadMoveSet(MoveRuleSet mrs);
 	void exampleMoveSet(std::string val = namenKonvention.renderObject.positionX);
 	//TODO
 	bool hasMoveSet();
+
+	void loadMoveSet(MoveRuleSet mrs);
+
 private:
 	rapidjson::Document doc;
 	SDL_Rect dstRect;
 	SDL_Rect srcRect;
 };
+
+//-----------------------------------------------------------
+// Setting/Getting specific values
+template <typename T> void RenderObject::valueSet(std::string key, const T data) {
+	JSONHandler::Set::Any(doc, key, data);
+	calculateDstRect();
+	calculateSrcRect();
+}
+
+template <typename T> T RenderObject::valueGet(std::string key, const T& defaultValue){
+	return JSONHandler::Get::Any<T>(doc, key, defaultValue);
+}
+
 
 class RenderObjectContainer {
 public:
@@ -64,7 +80,7 @@ public:
 	void update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE);
 	void update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE);
 	bool isValidPosition(int x, int y) const;
-	auto& getContainerAt(int x, int y);
+	std::vector<std::vector<RenderObject>>& getContainerAt(int x, int y);
 	void purgeObjects();
 	size_t getObjectCount();
 

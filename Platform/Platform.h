@@ -1,3 +1,5 @@
+#pragma once
+
 //-----------------------------------------
 //Includes, general
 #include <iostream>

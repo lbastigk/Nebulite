@@ -115,7 +115,7 @@ void Environment::deserialize(std::string serialOrLink, int dispResX,int dispRes
 	}
 }
 
-void Environment::append(RenderObject toAttach,int dispResX, int dispResY,int THREADSIZE, int layer = 0) {
+void Environment::append(RenderObject toAttach,int dispResX, int dispResY,int THREADSIZE, int layer) {
 	if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
 		roc[layer].append(toAttach, dispResX, dispResY, THREADSIZE);
 	}
@@ -136,7 +136,7 @@ void Environment::update_withThreads(int tileXpos, int tileYpos, int dispResX, i
 	}
 }
 
-auto& Environment::getContainerAt(int x, int y, int layer) {
+std::vector<std::vector<RenderObject>>& Environment::getContainerAt(int x, int y, int layer) {
 	if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
 		return roc[layer].getContainerAt(x,y);
 	}
@@ -167,7 +167,7 @@ void Environment::purgeLayer(int layer) {
 	}
 }
 
-size_t Environment::getObjectCount(bool excludeTopLayer = true) {
+size_t Environment::getObjectCount(bool excludeTopLayer) {
 	// Calculate the total item count
 	size_t totalCount = 0;
 

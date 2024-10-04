@@ -16,3 +16,6 @@ GraphicsCreation/
 # Ignore all Debug and Release folders
 **/Debug/
 **/Release/
+
+# ignore TestMain
+_TestMain/

@@ -1,7 +1,5 @@
 #include "InteractionRequirement.h"
 
-#pragma once
-
 InteractionRequirement::InteractionRequirement() {
 		// Beispiel
 		requiredFrom = mainCharacter;

@@ -176,7 +176,7 @@ bool Renderer::timeToRender() {
 	}
 }
 
-int Renderer::renderFrame(bool drawTileGrid = false) {
+int Renderer::renderFrame(bool drawTileGrid) {
 	//------------------------------------------------
 	// FPS Count
 

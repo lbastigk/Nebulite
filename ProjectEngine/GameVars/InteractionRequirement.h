@@ -1,3 +1,5 @@
+#pragma once
+
 //
 // RETIRED!
 // 
@@ -8,10 +10,8 @@
 #include <vector>
 
 
-#include <Kreatur.h>
-#include <Savegame.h>
-
-#pragma once
+#include "Kreatur.h"
+#include "Savegame.h"
 
 //Requirement Ideeen:
 // - Typ:Talente
@@ -59,5 +59,5 @@ class InteractionRequirement {
 	std::string requirementSubclass;
 	int value;
 
-	InteractionRequirement()
+	InteractionRequirement();
 };

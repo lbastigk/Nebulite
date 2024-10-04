@@ -94,15 +94,13 @@ std::string FileManagement::preferred_separator() {
 
 //------------------------------------------------
 // FileTypeCollector functions
-
-FileManagement::FileTypeCollector::FileTypeCollector(const std::string& directory, const std::string& fileType, bool processSubDirectories = true) {
+FileManagement::FileTypeCollector::FileTypeCollector(std::string directory, std::string fileType, bool processSubDirectories) {
     process(directory, fileType, processSubDirectories);
 }
 
 const std::vector<std::string>& FileManagement::FileTypeCollector::getFileDirectories() const {
     return fileDirectories;
 }
-
 
 void FileManagement::FileTypeCollector::process(const std::string& directory, const std::string& fileType, bool processSubDirectories) {
     std::string fullDirectory;

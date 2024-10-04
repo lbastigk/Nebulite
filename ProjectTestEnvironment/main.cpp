@@ -1,4 +1,4 @@
-#include "TestEnv.cpp"
+#include "TestEnv.h"
 
 int main(int argc, char* argv[]) {
 	system("cls");

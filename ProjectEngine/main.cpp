@@ -1,9 +1,6 @@
-//Libraries_Self
-#include "Environment.cpp"
-#include "FileManagement.cpp"
-#include "Renderer.cpp"
-
-//#include <crtdbg.h>
+#include "Environment.h"
+#include "FileManagement.h"
+#include "Renderer.h"
 
 int main(int argc, char* argv[]) {
 	//Renderer Object

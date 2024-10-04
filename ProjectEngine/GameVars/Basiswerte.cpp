@@ -51,7 +51,7 @@ template <typename T> void Basiswerte::valueSet(std::string key, const T data) {
 	return JSONHandler::Set::Any<T>(doc, key, data);
 }
 
-template <typename T> T Basiswerte::valueGet(std::string key, const T& defaultValue = T()) {
+template <typename T> T Basiswerte::valueGet(std::string key, const T& defaultValue) {
 	return JSONHandler::Get::Any<T>(doc, key, defaultValue);
 }
 

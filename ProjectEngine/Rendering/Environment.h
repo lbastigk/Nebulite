@@ -1,12 +1,15 @@
+#pragma once
+
 #include <iostream>
-#include "JSONHandler.h"
 #include <string>
 #include <map>
 #include <utility>
 #include <vector>
+
+#include "JSONHandler.h"
 #include "RenderObject.h"
 
-#pragma once
+
 
 #define RENDEROBJECTCONTAINER_COUNT 5
 
@@ -36,7 +39,7 @@ public:
 	void update(int tileXpos,int tileYpos,int dispResX,int dispResY, int THREADSIZE);
 	void update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE);
 
-	auto& getContainerAt(int x, int y, int layer);
+	std::vector<std::vector<RenderObject>>& getContainerAt(int x, int y, int layer);
 	bool isValidPosition(int x, int y, int layer);
 
 	void purgeObjects();

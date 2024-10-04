@@ -1,12 +1,15 @@
 #pragma once
 
-#include <iostream>
+//#include <iostream>
 #include <sstream>
 
 #include "NamenKonventionen.h"
 #include "JSONHandler.h"
 #include "Calculator.h"
+#include "RenderObject.h"
 
+// Forward declaration for compiler
+class RenderObject;
 class MoveRuleSet {
 public:
 	//-----------------------------------------------------------
@@ -62,5 +65,17 @@ public:
 private:
 	rapidjson::Document doc;
 
-	void loadOperatorValues(double& a, double& b, std::string& operation, rapidjson::Value& arr, int& counter, rapidjson::Document& memberMemberDoc, std::string& memberKey, auto& obj, rapidjson::Document* mainDoc);
+	void loadOperatorValues(double& a, double& b, std::string& operation, rapidjson::Value& arr, int& counter, rapidjson::Document& memberMemberDoc, std::string& memberKey, RenderObject& obj, rapidjson::Document* mainDoc);
 };
+
+//-----------------------------------------------------------
+// Setting/Getting specific values
+
+template <typename T> void MoveRuleSet::valueSet(std::string key, const T data) {
+	JSONHandler::Set::Any<T>(doc, key, data);
+}
+
+template <typename T> T MoveRuleSet::valueGet(std::string key, const T& defaultValue) const {
+	return JSONHandler::Get::Any<T>(doc, key, defaultValue);
+}
+

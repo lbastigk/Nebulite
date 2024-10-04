@@ -29,7 +29,7 @@ std::string StringHandler::replaceAll(std::string target, std::string toReplace,
 }
 
 //use %i in before/after for line count
-std::string StringHandler::parseArray(std::vector<std::string> arr, std::string before = "", std::string after = "\n") {
+std::string StringHandler::parseArray(std::vector<std::string> arr, std::string before, std::string after) {
     std::stringstream ss;
     int i = 1;
     for (const auto& line : arr) {

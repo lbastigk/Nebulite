@@ -1,6 +1,5 @@
 #include "MoveRuleSet.h"
 
-
 //-----------------------------------------------------------
 //Constructor
 MoveRuleSet::MoveRuleSet() {
@@ -39,16 +38,6 @@ void MoveRuleSet::deserialize(std::string serialOrLink) {
 	doc = JSONHandler::deserialize(serialOrLink);
 }
 
-//-----------------------------------------------------------
-// Setting/Getting specific values
-
-template <typename T> void MoveRuleSet::valueSet(std::string key, const T data) {
-	JSONHandler::Set::Any<T>(doc, key, data);
-}
-
-template <typename T> T MoveRuleSet::valueGet(std::string key, const T& defaultValue = T()) const {
-	return JSONHandler::Get::Any<T>(doc, key, defaultValue);
-}
 
 rapidjson::Document* MoveRuleSet::getDoc() const {
 	return const_cast<rapidjson::Document*>(&doc);
@@ -277,7 +266,7 @@ void MoveRuleSet::update(auto& obj) {
 
 
 
-void MoveRuleSet::loadOperatorValues(double& a, double& b, std::string& operation, rapidjson::Value& arr, int& counter, rapidjson::Document& memberMemberDoc, std::string& memberKey, auto& obj, rapidjson::Document* mainDoc) {
+void MoveRuleSet::loadOperatorValues(double& a, double& b, std::string& operation, rapidjson::Value& arr, int& counter, rapidjson::Document& memberMemberDoc, std::string& memberKey, RenderObject& obj, rapidjson::Document* mainDoc) {
 	
 	// First is string operation, assuming it's a string
 	operation = arr[counter][0].GetString();
@@ -439,7 +428,7 @@ MoveRuleSet MoveRuleSet::Examples::sin(std::string var, int radius, double phase
 	return mrs;
 }
 
-MoveRuleSet MoveRuleSet::Examples::linearIncrease(std::string var, int amount, int diff = 1, bool repeat = false, bool setback = false, int waitTime = 0) {
+MoveRuleSet MoveRuleSet::Examples::linearIncrease(std::string var, int amount, int diff, bool repeat, bool setback, int waitTime) {
 	MoveRuleSet mrs;
 
 	if (amount != 0) {
@@ -484,7 +473,7 @@ MoveRuleSet MoveRuleSet::Examples::linearIncrease(std::string var, int amount, i
 	return mrs;
 }
 
-MoveRuleSet MoveRuleSet::Examples::upAndDown(std::string var, int amount, int diff = 1, bool repeat = false, int waitTime = 0) {
+MoveRuleSet MoveRuleSet::Examples::upAndDown(std::string var, int amount, int diff, bool repeat, int waitTime) {
 	MoveRuleSet mrs;
 
 	if (amount != 0) {
@@ -548,7 +537,7 @@ MoveRuleSet MoveRuleSet::Examples::upAndDown(std::string var, int amount, int di
 	return mrs;
 }
 
-MoveRuleSet MoveRuleSet::Examples::Move::linear(int xAmount, int yAmount, int dX = 1, int dY = 1, bool repeat = false) {
+MoveRuleSet MoveRuleSet::Examples::Move::linear(int xAmount, int yAmount, int dX, int dY, bool repeat) {
 	MoveRuleSet mrs;
 
 	//X Movement

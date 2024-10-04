@@ -1,5 +1,7 @@
-#include "JSONHandler.h"
-#include "Renderer.h"
+#pragma once
+
+#include "Helper/JSONHandler.h"
+#include "Rendering/Renderer.h"
 
 class GameLoop {
 public:

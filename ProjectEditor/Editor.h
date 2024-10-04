@@ -1,5 +1,10 @@
 #include "DsaDebug.h"
 #include "FileManagement.h"
+#include "Environment.h"
+
+#include "LevelEditor.h"
+#include "Renderer.h"
+#include "Time.h"
 
 #pragma once
 

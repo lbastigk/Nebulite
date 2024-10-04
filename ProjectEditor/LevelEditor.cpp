@@ -154,10 +154,10 @@ void LevelEditor::EditorConsole::mainScreen() {
 }
 
 void LevelEditor::EditorConsole::waitForInput() {
-	while (!kbhit()) {
+	while (!Platform::hasKeyBoardInput()) {
 
 	}
-	(void)_getch();
+	(void)Platform::getCharacter();
 }
 
 void LevelEditor::EditorConsole::helpScreen() {

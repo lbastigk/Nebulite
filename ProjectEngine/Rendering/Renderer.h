@@ -1,9 +1,13 @@
+#pragma once
+
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 
-#include "Optionsloader.h"
+#include "OptionsLoader.h"
+
 #include "Environment.h"
+
 #include "FileManagement.h"
 #include "Time.h"
 
@@ -84,7 +88,7 @@ public:
 		const static int KEY_I = 105;
 		const static int KEY_O = 111;
 		const static int KEY_P = 112;
-		const static int KEY_� = 252;
+		//const static int KEY_� = 252;
 
 		const static int KEY_A = 97;
 		const static int KEY_S = 115;
@@ -95,8 +99,8 @@ public:
 		const static int KEY_J = 106;
 		const static int KEY_K = 107;
 		const static int KEY_L = 108;
-		const static int KEY_� = 246;
-		const static int KEY_� = 228;
+		//const static int KEY_� = 246;
+		//const static int KEY_� = 228;
 
 		const static int KEY_Y = 121;
 		const static int KEY_X = 120;

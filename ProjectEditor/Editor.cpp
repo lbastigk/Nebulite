@@ -166,7 +166,7 @@ void Editor::CreateRenderobject() {
         else if (lastOptionChoosen < opts.size()){
             if (opts.at(lastOptionChoosen) == "Serialize") {
                 std::cout << ro.serialize();
-                Sleep(3000);
+                Time::wait(3000);
             }
         }
     }

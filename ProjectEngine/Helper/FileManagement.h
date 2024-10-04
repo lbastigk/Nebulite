@@ -1,3 +1,5 @@
+#pragma once
+
 #include <filesystem>
 #include <string>
 #include <cstring>
@@ -13,10 +15,11 @@
 
 //#include <Windows.h>
 #include <unistd.h> // For getcwd
+
 #include "Platform.h"
 #include "StringHandler.h"
 
-#pragma once
+
 
 class FileManagement{
 public:
@@ -35,7 +38,7 @@ public:
 
     class FileTypeCollector {
     public:
-        FileTypeCollector(const std::string& directory, const std::string& fileType, bool processSubDirectories = true);
+        FileTypeCollector(std::string directory, std::string fileType, bool processSubDirectories = true);
 
         const std::vector<std::string>& getFileDirectories() const;
 

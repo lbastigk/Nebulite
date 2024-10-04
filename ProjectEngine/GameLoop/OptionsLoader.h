@@ -1,11 +1,14 @@
-#include <iostream>
-#include <fstream>
-#include <map>
+#pragma once
+
+#include <string.h>
+
 #include "document.h"
 #include "writer.h"
 #include "stringbuffer.h"
 
-#include "Helper/NamenKonventionen.h"
+#include "FileManagement.h"
+#include "NamenKonventionen.h"
+#include "JSONHandler.h"
 
 class Options {
 public:
@@ -13,10 +16,10 @@ public:
     Options();
 
     // Method to set an option
-    void SetOption(const std::string& key, const std::string& value);
+    void SetOption(std::string key, std::string value);
 
     // Method to get an option
-    std::string GetOption(const std::string& key);
+    std::string GetOption(std::string key);
 
     // Method to save options to a JSON file
     bool Save();
@@ -31,6 +34,6 @@ public:
 
 private:
     // A map to store available options and their values
-    std::map<std::string, std::string> attr;
+    rapidjson::Document doc;
     std::string filename_;
 };

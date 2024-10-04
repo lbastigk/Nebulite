@@ -21,8 +21,8 @@ RenderObject::RenderObject() {
 	JSONHandler::Set::Any(doc, namenKonvention.renderObject.spritesheetSizeY, 0);
 
 	//Move rules
-	MoveRuleSet MoveRuleSet;
-	JSONHandler::Set::subDoc(doc, namenKonvention.moveRuleSet._self, *MoveRuleSet.getDoc());
+	//MoveRuleSet MoveRuleSet;
+	//JSONHandler::Set::subDoc(doc, namenKonvention.moveRuleSet._self, *MoveRuleSet.getDoc());
 
 	//Build Rect on creation
 	calculateDstRect();
@@ -61,17 +61,6 @@ void RenderObject::deserialize(std::string serialOrLink) {
 	doc = JSONHandler::deserialize(serialOrLink);
 }
 
-//-----------------------------------------------------------
-// Setting/Getting specific values
-template <typename T> void RenderObject::valueSet(std::string key, const T data) {
-	JSONHandler::Set::Any(doc, key, data);
-	calculateDstRect();
-	calculateSrcRect();
-}
-
-template <typename T> T RenderObject::valueGet(std::string key, const T& defaultValue = T()){
-	return JSONHandler::Get::Any<T>(doc, key, defaultValue);
-}
 
 rapidjson::Document* RenderObject::getDoc() const {
 	return const_cast<rapidjson::Document*>(&doc);
@@ -159,7 +148,7 @@ void RenderObject::loadMoveSet(MoveRuleSet mrs) {
 	JSONHandler::empty(tmpDoc);
 }
 
-void RenderObject::exampleMoveSet(std::string val = namenKonvention.renderObject.positionX) {
+void RenderObject::exampleMoveSet(std::string val) {
 	//Template Moveset
 	MoveRuleSet tmpMrs = MoveRuleSet::Examples::zickZack(namenKonvention.renderObject.positionX);
 
@@ -538,7 +527,8 @@ bool RenderObjectContainer::isValidPosition(int x, int y) const {
 	return false;
 }
 
-auto& RenderObjectContainer::getContainerAt(int x, int y) {
+
+std::vector<std::vector<RenderObject>>& RenderObjectContainer::getContainerAt(int x, int y) {
 	return ObjectContainer[x][y];
 }
 

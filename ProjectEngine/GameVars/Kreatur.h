@@ -1,7 +1,6 @@
+#pragma once
+
 #include <iostream>
-#include "rapidjson-master/include/rapidjson/document.h"
-#include "rapidjson-master/include/rapidjson/writer.h"
-#include "rapidjson-master/include/rapidjson/stringbuffer.h"
 #include <string>
 #include <sstream>
 #include <map>
@@ -10,8 +9,10 @@
 #include "Talente.h"
 #include "Basiswerte.h"
 #include "Inventar.h"
+
 #include "NamenKonventionen.h"
 #include "JSONHandler.h"
+
 
 
 class Kreatur {
@@ -46,6 +47,16 @@ public:
 private:
     rapidjson::Document doc;
 };
+
+//-----------------------------------------------------------
+// Setting/Getting specific values
+template <typename T> void Kreatur::valueSet(std::string key, const T data) {
+    JSONHandler::Set::Any(doc, key, data);
+}
+
+template <typename T> T Kreatur::valueGet(std::string key, const T& defaultValue) {
+    JSONHandler::Get::Any(doc, key, defaultValue);
+}
 
 
 

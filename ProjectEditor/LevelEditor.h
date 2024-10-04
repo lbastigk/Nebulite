@@ -76,6 +76,6 @@ private:
 	//std::function map and functions for arguments
 	std::map<std::string, std::function<std::string()>> userInputMap;
 	
-	bool getRenderObjectFromList(RenderObject& ro)
+	bool getRenderObjectFromList(RenderObject& ro);
 };
 

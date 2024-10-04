@@ -1,5 +1,5 @@
-#include "Editor.cpp"
-#include "DsaDebug.cpp"
+#include "Editor.h"
+#include "DsaDebug.h"
 
 
 int main(int argc, char* argv[]) {

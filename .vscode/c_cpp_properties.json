@@ -3,17 +3,20 @@
         {
             "name": "Linux",
             "includePath": [
+                "/usr/include/c++/13/",
+                "/usr/include/x86_64-linux-gnu/c++/13/",
+                "/usr/include/",
                 "${workspaceFolder}/**",       // Covers everything in the project
-                "/usr/include/SDL2",           // Path to SDL2 headers on Linux
+                "/usr/include/SDL2/",           // Path to SDL2 headers on Linux
                 "/usr/include/rapidjson/",     // Path to rapidjson
-                "${workspaceFolder}/ProjectEngine",          // ProjectEngine root
-                "${workspaceFolder}/ProjectEngine/GameLoop", // ProjectEngine subdirectories
-                "${workspaceFolder}/ProjectEngine/GameVars",
-                "${workspaceFolder}/ProjectEngine/Helper",
-                "${workspaceFolder}/ProjectEngine/Rendering",
-                "${workspaceFolder}/ProjectEditor",           // ProjectEditor
-                "${workspaceFolder}/ProjectTestEnvironment",  // ProjectTestEnvironment
-                "${workspaceFolder}/Platform"                 // Platform
+                "${workspaceFolder}/ProjectEngine/",          // ProjectEngine root
+                "${workspaceFolder}/ProjectEngine/GameLoop/", // ProjectEngine subdirectories
+                "${workspaceFolder}/ProjectEngine/GameVars/",
+                "${workspaceFolder}/ProjectEngine/Helper/",
+                "${workspaceFolder}/ProjectEngine/Rendering/",
+                "${workspaceFolder}/ProjectEditor/",           // ProjectEditor
+                "${workspaceFolder}/ProjectTestEnvironment/",  // ProjectTestEnvironment
+                "${workspaceFolder}/Platform/"                 // Platform
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

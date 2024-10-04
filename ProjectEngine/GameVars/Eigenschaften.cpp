@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Eigenschaften.h"
 
 
@@ -19,7 +17,7 @@ Eigenschaften::Eigenschaften() {
 Eigenschaften::Eigenschaften(const Eigenschaften& other) {
 	doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
 }
-Eigenschaften::Eigenschaften& operator=(const Eigenschaften& other) {  // Assignment operator overload
+Eigenschaften& Eigenschaften::operator=(const Eigenschaften& other) {  // Assignment operator overload
 	if (this != &other) {
 		JSONHandler::copyDoc(doc, other.getDoc());
 	}
@@ -47,16 +45,7 @@ void Eigenschaften::deserialize(std::string serialOrLink) {
 
 
 
-//-----------------------------------------------------------
-// Setting/Getting specific values
 
-template <typename T> void Eigenschaften::valueSet(std::string key, const T data) {
-	return JSONHandler::Set::Any<T>(doc, key, data);
-}
-
-template <typename T> T Eigenschaften::valueGet(std::string key, const T& defaultValue = T()) {
-	return JSONHandler::Get::Any<T>(doc, key, defaultValue);
-}
 
 rapidjson::Document* Eigenschaften::getDoc() const {
 	return const_cast<rapidjson::Document*>(&doc);

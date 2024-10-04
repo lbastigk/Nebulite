@@ -1,7 +1,10 @@
+#pragma once
+
 #include <string>
 #include <vector>
 #include <stdio.h>
 #include <iostream>
+
 #include "Platform.h"
 
 class MenueScreen {

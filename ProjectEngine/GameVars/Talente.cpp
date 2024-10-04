@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Talente.h"
 
 
@@ -78,7 +76,7 @@ Talente::Talente() {
 Talente::Talente(const Talente& other) {
     doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
 }
-Talente::Talente& operator=(const Talente& other) {  // Assignment operator overload
+Talente& Talente::operator=(const Talente& other) {  // Assignment operator overload
     if (this != &other) {
         JSONHandler::copyDoc(doc, other.getDoc());
     }
@@ -106,16 +104,7 @@ void Talente::deserialize(std::string serialOrLink) {
 
 
 
-//-----------------------------------------------------------
-// Setting/Getting specific values
 
-template <typename T> void Talente::valueSet(std::string key, const T data) {
-    return JSONHandler::Set::Any<T>(doc, key, data);
-}
-
-template <typename T> T Talente::valueGet(std::string key, const T& defaultValue = T()) {
-    return JSONHandler::Get::Any<T>(doc, key, defaultValue);
-}
 
 rapidjson::Document* Talente::getDoc() const {
     return const_cast<rapidjson::Document*>(&doc);

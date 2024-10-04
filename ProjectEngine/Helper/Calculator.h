@@ -1,12 +1,14 @@
 #pragma once
 
-#include "NamenKonventionen.h"
+
 
 #include <cmath>
 #include <iostream>
 #include <functional>
 #include <map>
 #include <string>
+
+#include "NamenKonventionen.h"
 
 class Calculator {
 public:

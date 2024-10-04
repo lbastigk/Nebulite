@@ -1,3 +1,5 @@
+#pragma once
+
 #ifdef _WIN32 
 
 #include "rapidjson-master/include/rapidjson/document.h"
@@ -26,9 +28,10 @@
 #include <iostream>
 #include <map>
 #include <vector>
+
 #include "FileManagement.h"
 
-#pragma once
+
 
 //using namespace rapidjson;
 
@@ -64,6 +67,7 @@ public:
     public:
         template <typename T>
         static void Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists = false);
+        
         static void subDoc(rapidjson::Document& doc, const std::string& key, rapidjson::Value& subdoc);
     };
 
@@ -105,3 +109,109 @@ private:
     template <typename T>
     static void ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& result);
 };
+
+template <typename T>
+T JSONHandler::Get::Any(rapidjson::Document& doc, const std::string& fullKey, const T& defaultValue) {
+    //Handle edge case where first char might be '-'
+    // TODO...
+    
+    //Handle key nesting:
+    int pos = fullKey.find('-');
+    if (pos != -1) {
+        //Key nesting present, get subdoc, call get Any again
+        rapidjson::Document tmp;
+
+        //Get subdoc
+        JSONHandler::Get::subDoc(doc, fullKey.substr(0, pos), tmp);
+
+        //Get subvalue from doc
+        return Any(tmp, fullKey.substr(pos + 1), defaultValue);
+    }
+    else {
+        //No key nesting, return value from doc
+
+        if (doc.IsObject() && doc.HasMember(fullKey.c_str())) {
+            const rapidjson::Value& value = doc[fullKey.c_str()];
+
+            if (!value.IsNull()) {
+                try {
+                    T result;
+                    ConvertFromJSONValue(value, result);
+                    return result;
+                }
+                catch (const std::exception&) {
+                    // Handle potential conversion errors here
+                    // You can throw an exception, log an error, or handle the error in any way you prefer.
+                }
+            }
+            else {
+                // Handle the case where the value is null or missing
+                // You can throw an exception, log an error, or set a default value.
+            }
+        }
+        else {
+            // Handle the case where the key is not found in the document or the document is not an object
+            // You can throw an exception, log an error, or set a default value.
+        }
+
+        // Return the default value if any error occurs
+        return defaultValue;
+    }  
+}
+
+
+template <typename T>
+void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
+    
+    // Ensure that doc is initialized as an object
+    if (!doc.IsObject()) {
+        doc.SetObject();
+    }
+
+    //Handle edge case where first char might be '-'
+    // TODO...
+
+    //Handle key nesting:
+    int pos = fullKey.find('-');
+    if (pos != -1) {
+        //Key nesting present
+
+        //Check if doc has member
+        if (!doc.HasMember(fullKey.substr(0, pos).c_str())) {
+            //Add an object to doc, with:
+            // key = fullKey.substr(0, pos)
+            // so that:
+            //doc{"key":{}}
+            rapidjson::Value newObject(rapidjson::kObjectType);
+            doc.AddMember(rapidjson::StringRef(fullKey.substr(0, pos).c_str()), newObject, doc.GetAllocator());
+        }
+
+        //Get subdoc, call set Any again
+        rapidjson::Document tmp;
+
+        //Get subdoc
+        JSONHandler::Get::subDoc(doc, fullKey.substr(0, pos), tmp);
+
+        //manipulate temp
+        Any(tmp, fullKey.substr(pos + 1), data, onlyIfExists);
+
+        //Insert temp back into main doc
+        subDoc(doc, fullKey.substr(0, pos), tmp);
+    }
+    else {
+        //No key nesting
+
+        // Convert the data to a JSON value using the helper function
+        rapidjson::Value jsonValue;
+        ConvertToJSONValue(data, jsonValue, doc.GetAllocator());
+
+        // Add the JSON value to the document with the specified name
+        rapidjson::Value jsonVarName(fullKey.c_str(), doc.GetAllocator());
+        if (doc.HasMember(jsonVarName)) {
+            doc[jsonVarName] = jsonValue;
+        }
+        else if (!onlyIfExists) {
+            doc.AddMember(jsonVarName, jsonValue, doc.GetAllocator());
+        }
+    }    
+}

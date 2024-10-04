@@ -38,3 +38,14 @@ public:
 private:
 	rapidjson::Document doc;
 };
+
+//-----------------------------------------------------------
+// Setting/Getting specific values
+
+template <typename T> void Eigenschaften::valueSet(std::string key, const T data) {
+	return JSONHandler::Set::Any<T>(doc, key, data);
+}
+
+template <typename T> T Eigenschaften::valueGet(std::string key, const T& defaultValue) {
+	return JSONHandler::Get::Any<T>(doc, key, defaultValue);
+}

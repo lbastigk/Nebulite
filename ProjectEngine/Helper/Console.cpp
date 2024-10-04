@@ -56,7 +56,6 @@ char Console::getLastKeystroke() {
 }
 
 bool Console::isNewLastKeystroke() {
-
 	if (_isNewLastKeystroke) {
 		_isNewLastKeystroke = false;
 		return true;
@@ -64,5 +63,4 @@ bool Console::isNewLastKeystroke() {
 	else {
 		return false;
 	}
-	return isNewLastKeystroke;
 }

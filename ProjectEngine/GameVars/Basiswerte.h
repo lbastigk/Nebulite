@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Helper/NamenKonventionen.h"
+#include "NamenKonventionen.h"
 #include "JSONHandler.h"
 
 

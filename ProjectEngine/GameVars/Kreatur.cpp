@@ -23,7 +23,7 @@ Kreatur::Kreatur() {
 Kreatur::Kreatur(const Kreatur& other) {
     doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
 }
-Kreatur::Kreatur& operator=(const Kreatur& other) {  // Assignment operator overload
+Kreatur& Kreatur::operator=(const Kreatur& other) {  // Assignment operator overload
     if (this != &other) {
         JSONHandler::copyDoc(doc, other.getDoc());
     }
@@ -49,15 +49,6 @@ void Kreatur::deserialize(std::string serialOrLink) {
     doc = JSONHandler::deserialize(serialOrLink);
 }
 
-//-----------------------------------------------------------
-// Setting/Getting specific values
-template <typename T> void Kreatur::valueSet(std::string key, const T data) {
-    JSONHandler::Set::Any(doc, key, data);
-}
-
-template <typename T> T Kreatur::valueGet(std::string key, const T& defaultValue = T()) {
-    JSONHandler::Get::Any(doc, key, defaultValue);
-}
 
 rapidjson::Document* Kreatur::getDoc() const {
     return const_cast<rapidjson::Document*>(&doc);

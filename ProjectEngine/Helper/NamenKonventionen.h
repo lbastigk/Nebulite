@@ -1,6 +1,6 @@
-#include <string>
-
 #pragma once
+
+#include <string>
 
 const struct namenKonventionenStruct {
     const struct kreatur {
@@ -107,12 +107,12 @@ const struct namenKonventionenStruct {
             std::string Talente = "Talente";
             std::string Basiswerte = "Basiswerte";
         }effekt; 
-        struct benötigt{
-            std::string _self = "benötigt";
+        struct benÃ¶tigt{
+            std::string _self = "benÃ¶tigt";
             std::string Eigenschaften = "Eigenschaften";
             std::string Talente = "Talente";
             std::string Basiswerte = "Basiswerte";
-        }benötigt;
+        }benÃ¶tigt;
         struct typ{
             std::string _self = "typ";
             struct equipment {
@@ -122,12 +122,12 @@ const struct namenKonventionenStruct {
                 std::string EinArmWaffe = "EinArmWaffe";
                 std::string ZweiArmWaffe = "ZweiArmWaffe";
                 std::string Schild = "Schild";
-                std::string Oberkörper = "Oberkörper";
+                std::string Oberkoerper = "Oberkoerper";
                 std::string Schuhe = "Schuhe";
                 std::string Beinschienen = "Beinschienen";
                 std::string Handschuhe = "Handschuhe";
                 std::string Armschienen = "Armschienen";
-                std::string Köcher = "Köcher";
+                std::string KÃ¶cher = "KÃ¶cher";
                 std::string Halskette = "Halskette";
                 std::string Ring = "Ring";
             }equipment;
@@ -139,7 +139,7 @@ const struct namenKonventionenStruct {
                 std::string _self = "text";
                 std::string buch = "buch";
                 std::string dokument = "dokument";
-                std::string notiz = "notiz"; //für eigene Notizen?
+                std::string notiz = "notiz"; //fÃ¼r eigene Notizen?
             }text;
         }typ;
     }inventarObjekt;
