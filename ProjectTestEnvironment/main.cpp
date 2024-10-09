@@ -3,7 +3,7 @@
 int main(int argc, char* argv[]) {
 	Platform::clearScreen();
 
-	int opt = 7;
+	int opt = 5;
 	std::string options = "FileManagement\nGeneral\nInventarObjekt\nJSONHandler\nKreatur\nMoveRuleSet\nRenderObject\nRenderer\nTalente\nTemplate\nQuit";
 	while (opt != std::ranges::count(options,'\n')) {
 		opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
