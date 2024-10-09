@@ -22,7 +22,7 @@ This repository contains 3 distinct projects that work together to support the f
 | | - Rendering with SDL.
 | | - Game logic and entity management.
 | | - Level loading and object management using RapidJSON for structured data.
-| --------------------------------------------------------------------------------------------------------------------------------------
+| -----------------------------------------------------------------------------------------------------------------
 |
 |
 | Editor (ProjectEditor)
@@ -31,7 +31,7 @@ This repository contains 3 distinct projects that work together to support the f
 | |
 | | - Allows users to define RenderObjects, configure their attributes,
 | | - Create Environments
-| --------------------------------------------------------------------------------------------------------------------------------------
+| -----------------------------------------------------------------------------------------------------------------
 |
 |
 | Test Environment (ProjectTestEnvironment)
@@ -42,9 +42,10 @@ This repository contains 3 distinct projects that work together to support the f
 | | - Validate performance, rendering, and game logic under various scenarios.
 | | - Experiment with new features before merging them into the main engine.
 | |
-| | Current implementation for various classes in a 2 level Menue, select the class first and then the specific test you wish to perform.
-| --------------------------------------------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------------------------------------------
+| | Current implementation for various classes in a 2 level Menue,
+| | select the class first and then the specific test you wish to perform.
+| -----------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------
 
 
 | Dependencies
@@ -57,5 +58,5 @@ This repository contains 3 distinct projects that work together to support the f
 | - RapidJSON for parsing and structuring game data in JSON format.
 |
 | [Todo: Add install shell script]
-----------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------
 
