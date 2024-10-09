@@ -21,8 +21,8 @@ RenderObject::RenderObject() {
 	JSONHandler::Set::Any(doc, namenKonvention.renderObject.spritesheetSizeY, 0);
 
 	//Move rules
-	//MoveRuleSet MoveRuleSet;
-	//JSONHandler::Set::subDoc(doc, namenKonvention.moveRuleSet._self, *MoveRuleSet.getDoc());
+	MoveRuleSet MoveRuleSet;
+	JSONHandler::Set::subDoc(doc, namenKonvention.moveRuleSet._self, *MoveRuleSet.getDoc());
 
 	//Build Rect on creation
 	calculateDstRect();
@@ -128,6 +128,7 @@ void RenderObject::update() {
 }
 
 void RenderObject::loadMoveSet(MoveRuleSet mrs) {
+
 	//Temporary files
 	rapidjson::Document tmpDoc;
 
@@ -139,6 +140,8 @@ void RenderObject::loadMoveSet(MoveRuleSet mrs) {
 		// Insert the member into the new document
 		rapidjson::Document::AllocatorType& allocator = tmpDoc.GetAllocator();
 		rapidjson::Value key(it->name, allocator);
+
+		// add member
 		tmpDoc.AddMember(key, it->value, allocator);
 	}
 
