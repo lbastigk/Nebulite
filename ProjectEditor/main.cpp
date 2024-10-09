@@ -6,12 +6,12 @@ int main(int argc, char* argv[]) {
     Editor Editor;
 
     //Options menue
-    system("cls");
+    Platform::clearScreen();
     int opt = 0;
     std::string options = "Load Level\nCreate Renderobject\nCreate Moveruleset\nQuit";
     while (opt != std::ranges::count(options, '\n')) {
         opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
-        system("cls");
+        Platform::clearScreen();
 
         switch (opt) {
         case 0:

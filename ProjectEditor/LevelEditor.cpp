@@ -108,7 +108,8 @@ std::string LevelEditor::save() {
 	return "Saved";
 }
 
-bool getRenderObjectFromList(RenderObject& ro) {
+// Choosing from a list of created renderobjects in the RenderObjects directory
+bool LevelEditor::getRenderObjectFromList(RenderObject& ro) {
 	std::string dir = FileManagement::currentDir();
 	std::string fullDir = FileManagement::CombinePaths(dir, std::string("Resources/Renderobjects"));
 	FileManagement::FileTypeCollector ftc(fullDir,".txt",true);
@@ -145,7 +146,7 @@ void LevelEditor::EditorConsole::print(std::string str) {
 }
 
 void LevelEditor::EditorConsole::clear() {
-	system("cls");
+	Platform::clearScreen();
 }
 
 void LevelEditor::EditorConsole::mainScreen() {

@@ -81,13 +81,7 @@ void FileManagement::WriteFile(const char filename[], std::string text) {
 }
 
 std::string FileManagement::preferred_separator() {
-    // Get the preferred separator as a wide character
-    wchar_t separator = std::filesystem::path::preferred_separator;
-
-    // Convert the wide character to an std::string
-    std::string separatorStr(1, static_cast<char>(separator));
-
-    return separatorStr;
+    return std::string(1, FILESYSTEM_SEPARATOR);  // Create a string with 1 occurrence of the char
 }
 
 

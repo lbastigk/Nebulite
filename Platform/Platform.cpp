@@ -5,6 +5,9 @@
 
 //Function definitions
 #ifdef _WIN32 // Windows
+
+
+
     int Platform::hasKeyBoardInput(){
         return _kbhit();
     }
@@ -18,7 +21,7 @@
         return (intptr_t)result > 32;
     }
 
-    int Platform::getCharacter(){
+    char Platform::getCharacter(){
         return _getch();
     }
 
@@ -33,6 +36,11 @@
     }
 
 #elif defined(__linux__) // Linux
+
+
+
+    static struct termios old, current;
+    
     int Platform::hasKeyBoardInput(){
         struct termios oldt, newt;
         int ch;
@@ -81,25 +89,49 @@
         }
     }
 
-    int Platform::getCharacter(){
-        struct termios oldt, newt;
-        int ch;
 
-        // Get the current terminal attributes
-        tcgetattr(STDIN_FILENO, &oldt);
-        newt = oldt;
+    int Platform::getCharacter() {
+        // Disable echo of pressed characters while function is active
+        // Flush stdin at function call so rest of buffer from previous chars isn't used
 
-        // Set the terminal to raw mode
-        newt.c_lflag &= ~(ICANON | ECHO);
-        tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+        char buf[4] = {0}; // Buffer to hold 2 characters + null terminator
+        struct termios old = {0};
+        
+        fflush(stdout);
+        if(tcgetattr(0, &old) < 0){
+            std::cout << "Error tcgetattr()";
+            perror("tcgetattr()");
+        }
+            
+        
+        struct termios newattr = old;
+        newattr.c_lflag &= ~ICANON; // Disable canonical mode
+        newattr.c_lflag &= ~ECHO;   // Disable echo
+        newattr.c_cc[VMIN] = 1;      // Minimum number of characters to read
+        newattr.c_cc[VTIME] = 0;     // No timeout
+        
+        // Set the new terminal attributes
+        if(tcsetattr(0, TCSANOW, &newattr) < 0){
+            std::cout << "Error tcsetattr ICANON";
+            perror("tcsetattr ICANON");
+        } 
 
-        // Read a character
-        ch = getchar();
+        // Read the first character
+        read(0, &buf[0], 4);
 
         // Restore the old terminal attributes
-        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-        
-        return ch;
+        if(tcsetattr(0, TCSANOW, &old) < 0){
+            std::cout << "Error tcsetattr ~ICANON";
+            perror("tcsetattr ~ICANON");
+        }
+
+        int val = 0;
+        val += (int)buf[0] << 8*0;
+        val += (int)buf[1] << 8*1;
+        val += (int)buf[2] << 8*2;
+        val += (int)buf[3] << 8*4;
+
+        return val;
     }
 
     double Platform::getMemoryUsagekB() {
@@ -131,6 +163,8 @@
         return usedMemKB;
     }
 
+
+
 #else
-        
+      
 #endif

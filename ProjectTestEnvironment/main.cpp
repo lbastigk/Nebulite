@@ -1,14 +1,14 @@
 #include "TestEnv.h"
 
 int main(int argc, char* argv[]) {
-	system("cls");
+	Platform::clearScreen();
 
-	int opt = 6;
+	int opt = 7;
 	std::string options = "FileManagement\nGeneral\nInventarObjekt\nJSONHandler\nKreatur\nMoveRuleSet\nRenderObject\nRenderer\nTalente\nTemplate\nQuit";
 	while (opt != std::ranges::count(options,'\n')) {
 		opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
 
-		system("cls");
+		Platform::clearScreen();
 
 		switch (opt) {
 		case 0:

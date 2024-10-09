@@ -2,6 +2,7 @@
 
 
 Renderer::Renderer(){
+
 	//Options
 	generalOptions.setFileName("options.txt");
 
@@ -42,7 +43,10 @@ Renderer::Renderer(){
 	}
 
 	//Load font
-	std::string fontpath = FileManagement::CombinePaths(directory, "Resources\\Fonts\\Arimo-Regular.ttf");
+	std::string sep = FileManagement::preferred_separator();
+	std::string fontDir = std::string("Resources") + sep + std::string("Fonts") + sep + std::string("Arimo-Regular.ttf");
+	std::string fontpath = FileManagement::CombinePaths(directory, fontDir);
+	
 	//std::cout << fontpath;
 	font = TTF_OpenFont(fontpath.c_str(), 60); // Adjust size as needed
 	if (font == NULL) {

@@ -2,9 +2,9 @@
 
 // Constructor initializes the default options
 Options::Options() {
-    doc[namenKonvention.options.dispResX.c_str()] = "1080";
-    doc[namenKonvention.options.dispResY.c_str()] = "1080";
-    doc[namenKonvention.options.windowName.c_str()] = "coolgame";
+    JSONHandler::Set::Any<std::string>(doc,namenKonvention.options.dispResX,"1080");
+    JSONHandler::Set::Any<std::string>(doc,namenKonvention.options.dispResY,"1080");
+    JSONHandler::Set::Any<std::string>(doc,namenKonvention.options.windowName,"coolgame");
 }
 
 // Method to set an option

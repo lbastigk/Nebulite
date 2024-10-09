@@ -46,4 +46,15 @@ private:
 	rapidjson::Document doc;
 };
 
+//-----------------------------------------------------------
+// Setting/Getting specific values
 
+template <typename T> 
+void MyTemplate::valueSet(std::string key, const T data) {
+	JSONHandler::Set::Any<T>(doc, key, data);
+}
+
+template <typename T> 
+T MyTemplate::valueGet(std::string key, const T& defaultValue) const {
+	return JSONHandler::Get::Any<T>(doc, key, defaultValue);
+}

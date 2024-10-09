@@ -27,6 +27,8 @@ public:
     std::string countObjects();
     std::string help();
     std::string save();
+
+	
 private:
 	class EditorConsole {
 	public:
@@ -57,7 +59,7 @@ private:
         std::string serializeRendererEnvironment();
 		void deserializeEnvironment(std::string serialFile);
 		size_t objectCount();
-private:
+	private:
 		RenderObject Cursor;
 		RenderObject Selection;
 		int MousePosX = 0;
@@ -77,5 +79,6 @@ private:
 	std::map<std::string, std::function<std::string()>> userInputMap;
 	
 	bool getRenderObjectFromList(RenderObject& ro);
+	
 };
 

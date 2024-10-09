@@ -5,7 +5,7 @@
 // FileManagement
 
 void TestEnv::_FileManagement::testMenue() {
-    system("cls");
+    Platform::clearScreen();
 
     int opt = 0;
     std::string options = "Show files in ressource folder\nOpen file in ressource folder\nQuit";
@@ -13,7 +13,7 @@ void TestEnv::_FileManagement::testMenue() {
 
         opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
 
-        system("cls");
+        Platform::clearScreen();
 
         switch (opt) {
         case 0:
@@ -56,7 +56,7 @@ void TestEnv::_FileManagement::testFileCollectorMenue() {
 // General
 
 void TestEnv::_General::testMenue() {
-    system("cls");
+    Platform::clearScreen();
 
     int opt = 0;
     std::string options = "benchmarkStringConversion\nQuit";
@@ -64,7 +64,7 @@ void TestEnv::_General::testMenue() {
 
         opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
 
-        system("cls");
+        Platform::clearScreen();
 
         switch (opt) {
         case 0:
@@ -116,7 +116,7 @@ void TestEnv::_General::benchmarkStringConversion() {
 // InventarObjekt
 
 void TestEnv::_InventarObjekt::testMenue() {
-    system("cls");
+    Platform::clearScreen();
 
     int opt = 0;
     std::string options = "serialize\nQuit";
@@ -124,7 +124,7 @@ void TestEnv::_InventarObjekt::testMenue() {
 
         opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
 
-        system("cls");
+        Platform::clearScreen();
 
         switch (opt) {
         case 0:
@@ -145,7 +145,7 @@ void TestEnv::_InventarObjekt::serialize() {
 // JSONHandler
 
 void TestEnv::_JSONHandler::testMenue() {
-    system("cls");
+    Platform::clearScreen();
 
     int opt = 0;
     std::string options = "listOfKeys\nQuit";
@@ -153,7 +153,7 @@ void TestEnv::_JSONHandler::testMenue() {
 
         opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
 
-        system("cls");
+        Platform::clearScreen();
 
         switch (opt) {
         case 0:
@@ -394,7 +394,7 @@ void TestEnv::_JSONHandler::Retired::testMemLeak() {
 // Kreatur
 
 void TestEnv::_Kreatur::testMenue() {
-    system("cls");
+    Platform::clearScreen();
 
     int opt = 0;
     std::string options = "serialize\nQuit";
@@ -402,7 +402,7 @@ void TestEnv::_Kreatur::testMenue() {
 
         opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
 
-        system("cls");
+        Platform::clearScreen();
 
         switch (opt) {
         case 0:
@@ -422,7 +422,7 @@ void TestEnv::_Kreatur::serialize() {
 // MoveRuleSet
 
 void TestEnv::_MoveRuleSet::testMenue() {
-    system("cls");
+    Platform::clearScreen();
 
     int opt = 2;
     std::string options = "serialize\ntestMoveSet\ntest single obj\nQuit";
@@ -430,7 +430,7 @@ void TestEnv::_MoveRuleSet::testMenue() {
 
         opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
 
-        system("cls");
+        Platform::clearScreen();
 
         switch (opt) {
         case 0:
@@ -593,7 +593,7 @@ void TestEnv::_MoveRuleSet::testSingleObject() {
 // RenderObject
 
 void TestEnv::_RenderObject::testMenue() {
-    system("cls");
+    Platform::clearScreen();
 
     int opt = 1;
     std::string options = "Test Spritesheets\nTest Pokemon Sprite\ntestRuleSets\nQuit";
@@ -601,7 +601,7 @@ void TestEnv::_RenderObject::testMenue() {
 
         opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
 
-        system("cls");
+        Platform::clearScreen();
 
         switch (opt) {
         case 0:
@@ -682,7 +682,7 @@ void TestEnv::_RenderObject::testSpriteSheets() {
                 break;
             }
             
-            system("cls");
+            Platform::clearScreen();
             std::cout << Renderer.serializeEnvironment();
         }
     }
@@ -759,7 +759,7 @@ void TestEnv::_RenderObject::testPokemonSprites() {
                 break;
             }
 
-            //system("cls");
+            //Platform::clearScreen();
             //std::cout << Renderer.serializeEnvironment();
             //std::cout << "\n";
         }
@@ -815,31 +815,34 @@ void TestEnv::_RenderObject::testRuleSets() {
 // Renderer
 
 void TestEnv::_Renderer::testMenue() {
-    system("cls");
+    Platform::clearScreen();
 
-    int opt = 4;
-    std::string options = "randomImages\ncircleBenchmark\nThreadTest\ntestRendererMemLeak\nmovement\nQuit";
+    int opt = 5;
+    std::string options = "Simple SDL Window\nrandomImages\ncircleBenchmark\nThreadTest\ntestRendererMemLeak\nmovement\nQuit";
     while (opt != std::ranges::count(options, '\n')) {
 
         opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
 
-        system("cls");
+        Platform::clearScreen();
 
         switch (opt) {
-            
+
         case 0:
+            TestEnv::_Renderer::simpleSdlWindow();
+            break;    
+        case 1:
             TestEnv::_Renderer::randomImages();
             break;
-        case 1:
+        case 2:
             TestEnv::_Renderer::circleBenchmark();
             break;
-        case 2:
+        case 3:
             TestEnv::_Renderer::ThreadTest();
             break;
-        case 3:
+        case 4:
             TestEnv::_Renderer::testRendererMemLeak();
             break;
-        case 4:
+        case 5:
             TestEnv::_Renderer::movement();
             break;
         }
@@ -998,6 +1001,7 @@ void TestEnv::_Renderer::testRendererMemLeak(int loopamount, bool dump) {
 };
 
 int TestEnv::_Renderer::movement() {
+    std::cout << "Movement test...\n\n";
 
     //Renderer Object
     Renderer Renderer;
@@ -1007,10 +1011,12 @@ int TestEnv::_Renderer::movement() {
     bool quit = false;
     int event = 0;
 
+    std::cout << "Creating Player...\n";
     RenderObject player;
     player.valueSet(namenKonvention.renderObject.positionX, 500);
     player.valueSet(namenKonvention.renderObject.positionY, 500);
 
+    std::cout << "Entering main Loop...\n";
     while (!quit) {
         //Event handling
         SDL_Event sdlEvent = Renderer.getEventHandle();
@@ -1044,21 +1050,31 @@ int TestEnv::_Renderer::movement() {
             quit = true;
         }
 
+        
         if (Renderer.timeToRender()) {
+            std::cout << "Player obj:\n";
+            std::cout << player.serialize() << "\n\n";
+            std::cout << "Updating Player...\n";
+            
             player.update();
 
+            std::cout << "Appending Player...\n";
             Renderer.append(player);
 
-            //Render Current instances
+            // Render Current instances
+            std::cout << "Render Current instances...\n";
             Renderer.renderFrame();
 
-            //Render FPS
+            // Render FPS
+            std::cout << "Render FPS...\n";
             Renderer.renderFPS();
 
             // Present the renderer
+            std::cout << "Present the renderer...\n";
             Renderer.showFrame();
 
-            //Delete objects
+            // Delete objects
+            std::cout << "Delete objects...\n";
             Renderer.purgeObjects();
         }
     }
@@ -1067,6 +1083,52 @@ int TestEnv::_Renderer::movement() {
 
     return 0;
 
+}
+
+void TestEnv::_Renderer::simpleSdlWindow(){
+    std::cout << "Creating a simple SDL window for debugging...\n\n";
+
+    std::cout << "Creating Renderer...\n";
+    Renderer Renderer;
+
+    std::cout << "Setting FPS...\n";
+    Renderer.setFPS(60);
+
+    //General Variables
+    bool quit = false;
+    int event = 0;
+
+    while (!quit) {
+        //Event handling
+        std::cout << "";
+        SDL_Event sdlEvent = Renderer.getEventHandle();
+
+        if (sdlEvent.type == SDL_QUIT) {
+            quit = true;
+        }
+
+        if (Renderer.timeToRender()) {
+
+            //Render Current instances
+            std::cout << "Render Current instances...\n";
+            Renderer.renderFrame();
+
+            //Render FPS
+            std::cout << "Render FPS...\n";
+            Renderer.renderFPS();
+
+            // Present the renderer
+            std::cout << "Present the renderer...\n";
+            Renderer.showFrame();
+
+            //Delete objects
+            std::cout << "Delete objects...\n";
+            Renderer.purgeObjects();
+        }
+    }
+    //End of Program!
+    std::cout << "Destroying Renderer...\n";
+    Renderer.destroy();
 }
 
 void TestEnv::_Renderer::createRandomObjects(Renderer& Renderer, int amount, int radius) {
@@ -1228,7 +1290,7 @@ UINT64 TestEnv::_Renderer::stressTest(int objCount, int ringCount, int threadSiz
 // Talente
     
 void TestEnv::_Talente::testMenue() {
-    system("cls");
+    Platform::clearScreen();
 
     int opt = 0;
     std::string options = "testTalentJson\nQuit";
@@ -1236,7 +1298,7 @@ void TestEnv::_Talente::testMenue() {
 
         opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
 
-        system("cls");
+        Platform::clearScreen();
 
         switch (opt) {
         case 0:
@@ -1259,7 +1321,7 @@ void TestEnv::_Talente::testTalentJson() {
 // Template
 
 void TestEnv::_Template::testMenue() {
-    system("cls");
+    Platform::clearScreen();
 
     int opt = 0;
     std::string options = "Template serialization test\nQuit";
@@ -1267,7 +1329,7 @@ void TestEnv::_Template::testMenue() {
 
         opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
 
-        system("cls");
+        Platform::clearScreen();
 
         switch (opt) {
         case 0:

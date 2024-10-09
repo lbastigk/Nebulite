@@ -17,17 +17,17 @@ void Editor::LoadLevel() {
     options += "New File\nQuit";
 
     //Create options menue
-    system("cls");
+    Platform::clearScreen();
     int opt = 0;
     while (opt != std::ranges::count(options, '\n')) {
         opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
-        system("cls");
+        Platform::clearScreen();
 
         //New file
         std::string levelname;
         if (opt == files.size()) {
             //Get file name
-            system("cls");
+            Platform::clearScreen();
             std::cout << "File name: ";
             std::string name;
             std::cin >> name;
@@ -61,7 +61,7 @@ void Editor::LoadLevel() {
 }
 
 void Editor::CreateRenderobject() {
-    system("cls");
+    Platform::clearScreen();
     RenderObject ro;
     ro.valueSet(namenKonvention.renderObject.positionX, 200);
     ro.valueSet(namenKonvention.renderObject.positionY, 200);

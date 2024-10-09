@@ -89,6 +89,7 @@ public:
         static void ThreadTest(int objCount = 1024, int ringCount = 16, int framesToRender = 30);
         static void testRendererMemLeak(int loopamount = 128, bool dump = true);
         static int movement();
+        static void simpleSdlWindow();
     private:
         static void createRandomObjects(Renderer& Renderer, int amount, int radius);
         static void createCircleOLD(Renderer& Renderer, int amount, int radius);

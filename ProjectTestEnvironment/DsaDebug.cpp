@@ -23,19 +23,19 @@ int DsaDebug::menueScreen(const std::string options, int startoption,std::string
     }
     int linecount = i;
     int option = startoption;
-    char input = ' ';
-    char input2 = ' ';
-    while (input != '\r') {
-        if (input == 'w' || input == -32 && input2 == 72) {
+    
+    int input = ' ';
+    while (input != Platform::KeyPress::Enter) {
+        if (input == 'w' || input == Platform::KeyPress::arrowUp) {
             option -= 1;
             option += linecount;
             option %= linecount;
         }
-        else if (input == 's' || input == -32 && input2 == 80) {
+        else if (input == 's' || input == Platform::KeyPress::arrowDown) {
             option += 1;
             option %= linecount;
         }
-        system("cls");
+        Platform::clearScreen();
         std::cout << before;
         ss.clear();
         ss.str(options);
@@ -69,24 +69,18 @@ int DsaDebug::menueScreen(const std::string options, int startoption,std::string
             //wait for input
         }
         input = Platform::getCharacter();
-        if (Platform::hasKeyBoardInput()) {
-            input2 = Platform::getCharacter();
-        }
-        else {
-            input2 = ' ';
-        }
     }
     return option;
 }
 
 void DsaDebug::menueScreenTemplate() {
-    system("cls");
+    Platform::clearScreen();
     int opt = 0;
     int ranges = -1;
     std::string options = "Example1\nQuit";
     while (opt != ranges) {
         opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
-        system("cls");
+        Platform::clearScreen();
 
         switch (opt) {
         case 0:

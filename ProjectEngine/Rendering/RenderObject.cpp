@@ -105,6 +105,7 @@ void RenderObject::calculateSrcRect() {
 
 //-----------------------------------------------------------
 void RenderObject::update() {
+
 	//Temporary files
 	rapidjson::Document tmpDoc;
 

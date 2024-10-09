@@ -56,3 +56,14 @@ std::string StringHandler::wstringToString(const std::wstring& wstr) {
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     return converter.to_bytes(wstr);
 }
+
+std::string StringHandler::getBinaryString(int toConvert){
+    std::string out = "0b";
+    for (int i = 0; i < sizeof(int)*8; i++){
+        if(i%8 == 0 && i != 0){
+            out += " ";
+        }
+        out += std::to_string((toConvert >> i) && 1);
+    }
+    return out;
+}

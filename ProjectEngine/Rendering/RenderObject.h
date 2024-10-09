@@ -37,6 +37,7 @@ public:
 	//-----------------------------------------------------------
 	void update();
 	void exampleMoveSet(std::string val = namenKonvention.renderObject.positionX);
+	
 	//TODO
 	bool hasMoveSet();
 
