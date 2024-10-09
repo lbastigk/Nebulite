@@ -540,11 +540,12 @@ void TestEnv::_MoveRuleSet::testMoveSet(int objCount, int ringCount) {
 }
 
 void TestEnv::_MoveRuleSet::testSingleObject() {
+
     //Renderer
     Renderer Renderer;
     Renderer.setFPS(60);
 
-    //Add object
+    //Add object with Moveruleset for X and Y
     RenderObject Obj;
     Obj.loadMoveSet(MoveRuleSet::Examples::sin(namenKonvention.renderObject.positionX, 100, 0, 0.01));
     Obj.loadMoveSet(MoveRuleSet::Examples::sin(namenKonvention.renderObject.positionY, 100, 0, 0.01));
@@ -559,7 +560,9 @@ void TestEnv::_MoveRuleSet::testSingleObject() {
     int event = 0;
     while (!quit) {
         if (Renderer.timeToRender()) {
+            // Purging all objects from renderer
             Renderer.purgeObjects();
+
             Obj.update();
             Renderer.append(Obj);
 
@@ -1001,7 +1004,6 @@ void TestEnv::_Renderer::testRendererMemLeak(int loopamount, bool dump) {
 };
 
 int TestEnv::_Renderer::movement() {
-    std::cout << "Movement test...\n\n";
 
     //Renderer Object
     Renderer Renderer;
@@ -1011,12 +1013,11 @@ int TestEnv::_Renderer::movement() {
     bool quit = false;
     int event = 0;
 
-    std::cout << "Creating Player...\n";
+
     RenderObject player;
     player.valueSet(namenKonvention.renderObject.positionX, 500);
     player.valueSet(namenKonvention.renderObject.positionY, 500);
 
-    std::cout << "Entering main Loop...\n";
     while (!quit) {
         //Event handling
         SDL_Event sdlEvent = Renderer.getEventHandle();
@@ -1052,29 +1053,19 @@ int TestEnv::_Renderer::movement() {
 
         
         if (Renderer.timeToRender()) {
-            std::cout << "Player obj:\n";
-            std::cout << player.serialize() << "\n\n";
-            std::cout << "Updating Player...\n";
-            
             player.update();
-
-            std::cout << "Appending Player...\n";
             Renderer.append(player);
 
             // Render Current instances
-            std::cout << "Render Current instances...\n";
             Renderer.renderFrame();
 
             // Render FPS
-            std::cout << "Render FPS...\n";
             Renderer.renderFPS();
 
             // Present the renderer
-            std::cout << "Present the renderer...\n";
             Renderer.showFrame();
 
             // Delete objects
-            std::cout << "Delete objects...\n";
             Renderer.purgeObjects();
         }
     }

@@ -86,8 +86,6 @@ template <typename T> T MoveRuleSet::valueGet(std::string key, const T& defaultV
 //
 // Going through ruleset, updating object attached to ruleset
 void MoveRuleSet::update(auto& obj) {
-	std::cout << "\t Updating Renderobject ...\n\n";
-	
 
 	//-----------------------------------------------------------
 	// About obj:
@@ -136,16 +134,13 @@ void MoveRuleSet::update(auto& obj) {
 
 	//Copy to temp, rebuild doc
 	//Finished MRS are not copied back into doc
-	std::cout << "\t Copy doc ...\n";
 	tempMainDoc.CopyFrom(doc, tempMainDoc.GetAllocator());	
 	JSONHandler::empty(doc);
 
 	//Go through all MRS
-	std::cout << "\t Go through all MRS ...\n";
 	for (auto it = tempMainDoc.MemberBegin(); it != tempMainDoc.MemberEnd(); ++it) {
 		//----------------------------------------------
 		// From the doc iterator it, extract subdoc "memberDoc"
-		std::cout << "\t From the doc iterator it, extract subdoc memberDoc ...\n";
 		memberKey = it->name.GetString();
 		JSONHandler::Set::subDoc(memberDoc, memberKey, it->value);
 
