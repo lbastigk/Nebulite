@@ -68,5 +68,6 @@
         "variant": "cpp",
         "ranges": "cpp",
         "locale": "cpp"
-    }
+    },
+    "cmake.ignoreCMakeListsMissing": true
 }
