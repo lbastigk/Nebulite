@@ -807,27 +807,22 @@ void TestEnv::_RenderObject::testPokemonSprites() {
     //Spritesheet
     obj1.valueSet(namenKonvention.renderObject.imageLocation, "Resources/Sprites/Pokemon/Game Boy Advance - Pokemon FireRed LeafGreen - Overworld NPCs.png");
     obj1.valueSet(namenKonvention.renderObject.isSpritesheet, true);
-    obj1.valueSet(namenKonvention.renderObject.spritesheetOffsetX, 9);
-    obj1.valueSet(namenKonvention.renderObject.spritesheetOffsetY, 42);
+    //obj1.valueSet(namenKonvention.renderObject.spritesheetOffsetX, 9);
+    //obj1.valueSet(namenKonvention.renderObject.spritesheetOffsetY, 42);
     obj1.valueSet(namenKonvention.renderObject.spritesheetSizeX, 16);
     obj1.valueSet(namenKonvention.renderObject.spritesheetSizeY, 24);
 
     //Sprite Movement
-    MoveRuleSet posX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, true,3);
-    obj1.loadMoveSet(posX);
+    MoveRuleSet startValueOffsetX = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetX, 9);
+    MoveRuleSet startValueOffsetY = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetY, 42);
+    MoveRuleSet spritePosX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3);
 
-    //DEBUG
-    std::cout << "\nDST: ";
-    std::cout << "\tx: " << obj1.getDstRect().x;
-    std::cout << "\ty: " << obj1.getDstRect().y;
-    std::cout << "\tw: " << obj1.getDstRect().w;
-    std::cout << "\th: " << obj1.getDstRect().h;
+    MoveRuleSet pos = MoveRuleSet::Examples::Move::linear(0,160,5,40);
 
-    std::cout << "SRC: ";
-    std::cout << "\tx: " << obj1.getSrcRect()->x;
-    std::cout << "\ty: " << obj1.getSrcRect()->y;
-    std::cout << "\tw: " << obj1.getSrcRect()->w;
-    std::cout << "\th: " << obj1.getSrcRect()->h;
+    //obj1.loadMoveSet(startValueOffsetX);
+    //obj1.loadMoveSet(startValueOffsetY);
+    //obj1.loadMoveSet(spritePosX);
+    obj1.loadMoveSet(pos);
 
     std::cout << obj1.serialize();
 

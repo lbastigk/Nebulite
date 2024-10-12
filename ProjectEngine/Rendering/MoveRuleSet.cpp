@@ -75,6 +75,29 @@ void MoveRuleSet::loadOperatorValues(double& a, double& b, std::string& operatio
 //-------------------------------------------------------------------------
 // EXAMPLES
 
+MoveRuleSet MoveRuleSet::Examples::setValue(std::string var, int value){
+	MoveRuleSet mrs;
+
+	//Make example moveset1
+	std::vector<std::pair<std::string, std::string>> ruleSet;
+	ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.set), std::to_string(value)));
+
+	//Temp doc for var
+	rapidjson::Document rule1;
+	JSONHandler::Set::Any(rule1, namenKonvention.moveRuleSet.arrRuleSet, ruleSet);	//RuleSet
+	JSONHandler::Set::Any(rule1, namenKonvention.moveRuleSet.counter, 0);				//RuleSet
+
+	//Add to main doc
+	//rule1 is rapidjson doc, how to convert to value?
+	JSONHandler::Set::subDoc(*mrs.getDoc(), var, rule1);
+
+	//Empty temp doc
+	JSONHandler::empty(rule1);
+
+	//Return
+	return mrs;	
+}
+
 MoveRuleSet MoveRuleSet::Examples::goUp(std::string var) {
 	MoveRuleSet mrs;
 
@@ -253,7 +276,7 @@ MoveRuleSet MoveRuleSet::Examples::linearIncrease(std::string var, int amount, i
 	return mrs;
 }
 
-MoveRuleSet MoveRuleSet::Examples::upAndDown(std::string var, int amount, int diff, bool repeat, int waitTime) {
+MoveRuleSet MoveRuleSet::Examples::upAndDown(std::string var, int amount, int diff, int repeat, int waitTime) {
 	MoveRuleSet mrs;
 
 	if (amount != 0) {
@@ -299,10 +322,8 @@ MoveRuleSet MoveRuleSet::Examples::upAndDown(std::string var, int amount, int di
 		
 
 		//Handle repeats
-
-
-		if (repeat) {
-			ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.moveRuleSet.loop), std::string("0")));
+		if (repeat>0) {
+			ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.moveRuleSet.loop), std::to_string(repeat)));
 		}
 
 		//Temp doc for var 1
