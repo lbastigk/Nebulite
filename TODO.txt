@@ -1,2 +1,10 @@
 optionsmenu no freeze
 class for input not freeze
+
+Full implementation of windows compiling in vscode, perhaps cross-compiling with mingw32 ?
+-> Better integration of everything in tasks.json
+
+Implement a shell script for installing all relevent environments, test with docker environment?
+
+Offload classes into dlls?
+Learn CMake
