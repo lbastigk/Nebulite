@@ -10,15 +10,18 @@ Kreatur::Kreatur() {
     JSONHandler::Set::Any(doc, namenKonvention.kreatur.steigerungsPunkte, 0);
     JSONHandler::Set::Any(doc, namenKonvention.kreatur.stufe, 1);
 
+    std::cout << JSONHandler::serialize(doc);
+
     Basiswerte basiswerte;
     Eigenschaften eigenschaften;
     Talente talente;
     Inventar inventar;
 
-    JSONHandler::Set::Any(doc, namenKonvention.basiswerte._self, basiswerte.getDoc());
-    JSONHandler::Set::Any(doc, namenKonvention.eigenschaften._self, eigenschaften.getDoc());
-    JSONHandler::Set::Any(doc, namenKonvention.talente._self, talente.getDoc());
-    JSONHandler::Set::Any(doc, namenKonvention.inventar._self, inventar.getDoc());
+    JSONHandler::Set::subDoc(doc, namenKonvention.basiswerte._self, *basiswerte.getDoc());
+    JSONHandler::Set::subDoc(doc, namenKonvention.eigenschaften._self, *eigenschaften.getDoc());
+    JSONHandler::Set::subDoc(doc, namenKonvention.talente._self, *talente.getDoc());
+    JSONHandler::Set::subDoc(doc, namenKonvention.inventar._self, *inventar.getDoc());
+
 }
 Kreatur::Kreatur(const Kreatur& other) {
     doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
