@@ -26,22 +26,23 @@ InventarObjekt::InventarObjekt() {
 	//-----------------------------------------------------------
 	//Effekte und Benötigt zum doc ergänzen
 
-	//Objekte
-	Basiswerte Basiswerte;
-	Eigenschaften Eigenschaften;
-	Talente Talente;
-
-	//Subdocs
+	//Subdoc für Effekte
+	Basiswerte Basiswerte1;
+	Eigenschaften Eigenschaften1;
+	Talente Talente1;
 	rapidjson::Document docEffekt;
-	rapidjson::Document docBenötigt;
+	JSONHandler::Set::subDoc(docEffekt, namenKonvention.inventarObjekt.effekt.Basiswerte, *Basiswerte1.getDoc());
+	JSONHandler::Set::subDoc(docEffekt, namenKonvention.inventarObjekt.effekt.Eigenschaften, *Eigenschaften1.getDoc());
+	JSONHandler::Set::subDoc(docEffekt, namenKonvention.inventarObjekt.effekt.Talente, *Talente1.getDoc());
 
-	//Subdocs füllen
-	JSONHandler::Set::Any(docEffekt, namenKonvention.inventarObjekt.effekt.Basiswerte, Basiswerte.getDoc());
-	JSONHandler::Set::Any(docEffekt, namenKonvention.inventarObjekt.effekt.Eigenschaften, Eigenschaften.getDoc());
-	JSONHandler::Set::Any(docEffekt, namenKonvention.inventarObjekt.effekt.Talente, Talente.getDoc());
-	JSONHandler::Set::Any(docBenötigt, namenKonvention.inventarObjekt.effekt.Basiswerte, Basiswerte.getDoc());
-	JSONHandler::Set::Any(docBenötigt, namenKonvention.inventarObjekt.effekt.Eigenschaften, Eigenschaften.getDoc());
-	JSONHandler::Set::Any(docBenötigt, namenKonvention.inventarObjekt.effekt.Talente, Talente.getDoc());
+	//Subdocs für Benötigt
+	Basiswerte Basiswerte2;
+	Eigenschaften Eigenschaften2;
+	Talente Talente2;
+	rapidjson::Document docBenötigt;
+	JSONHandler::Set::subDoc(docBenötigt, namenKonvention.inventarObjekt.effekt.Basiswerte, *Basiswerte2.getDoc());
+	JSONHandler::Set::subDoc(docBenötigt, namenKonvention.inventarObjekt.effekt.Eigenschaften, *Eigenschaften2.getDoc());
+	JSONHandler::Set::subDoc(docBenötigt, namenKonvention.inventarObjekt.effekt.Talente, *Talente2.getDoc());
 	
 	//Zu hauptdoc hinzufügen
 	JSONHandler::Set::subDoc(doc, namenKonvention.inventarObjekt.effekt._self, docEffekt);
