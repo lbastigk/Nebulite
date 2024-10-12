@@ -9,6 +9,7 @@
 //Constructor
 
 InventarObjekt::InventarObjekt() {
+
 	//-----------------------------------------------------------
 	//Allgemein
 
@@ -23,7 +24,7 @@ InventarObjekt::InventarObjekt() {
 	JSONHandler::Set::Any(doc, namenKonvention.inventarObjekt.effektDauer, 0);
 
 	//-----------------------------------------------------------
-	//Effekte und Ben�tigt zum doc erg�nzen
+	//Effekte und Benötigt zum doc ergänzen
 
 	//Objekte
 	Basiswerte Basiswerte;
@@ -34,7 +35,7 @@ InventarObjekt::InventarObjekt() {
 	rapidjson::Document docEffekt;
 	rapidjson::Document docBenötigt;
 
-	//Subdocs f�llen
+	//Subdocs füllen
 	JSONHandler::Set::Any(docEffekt, namenKonvention.inventarObjekt.effekt.Basiswerte, Basiswerte.getDoc());
 	JSONHandler::Set::Any(docEffekt, namenKonvention.inventarObjekt.effekt.Eigenschaften, Eigenschaften.getDoc());
 	JSONHandler::Set::Any(docEffekt, namenKonvention.inventarObjekt.effekt.Talente, Talente.getDoc());
@@ -43,11 +44,8 @@ InventarObjekt::InventarObjekt() {
 	JSONHandler::Set::Any(docBenötigt, namenKonvention.inventarObjekt.effekt.Talente, Talente.getDoc());
 	
 	//Zu hauptdoc hinzufügen
-	JSONHandler::Set::Any(doc, namenKonvention.inventarObjekt.effekt._self, &docEffekt);
-	JSONHandler::Set::Any(doc, namenKonvention.inventarObjekt.benötigt._self, &docBenötigt);
-
-	docEffekt.Empty();
-	docBenötigt.Empty();
+	JSONHandler::Set::subDoc(doc, namenKonvention.inventarObjekt.effekt._self, docEffekt);
+	JSONHandler::Set::subDoc(doc, namenKonvention.inventarObjekt.benötigt._self, docBenötigt);
 }
 InventarObjekt::InventarObjekt(const InventarObjekt& other) {
 	doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
