@@ -71,11 +71,11 @@
         system("clear");
     }
 
-    bool Platform::openFile(std::string fullPath){
+    bool Platform::openFile(std::string fullPath) {
         // Using fork and exec to run a program
         pid_t pid = fork();
         if (pid == 0) { // Child process
-            execlp(fullPath.c_str(), fullPath.c_str(), nullptr);
+            execlp("xdg-open", "xdg-open", fullPath.c_str(), nullptr);
             // If execlp fails
             std::cerr << "Failed to open file: " << fullPath << std::endl;
             exit(EXIT_FAILURE);
@@ -88,6 +88,7 @@
             return false;
         }
     }
+
 
 
     int Platform::getCharacter() {
