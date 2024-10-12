@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm> //for std::remove_if
 #include <thread>
 #include "SDL.h"
 

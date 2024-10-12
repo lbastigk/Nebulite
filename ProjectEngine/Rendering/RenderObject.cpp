@@ -117,6 +117,9 @@ void RenderObject::update() {
 
 	//Update
 	tmpMrs.update(*this);
+
+	if(hasMoveSet())std::cout << serialize() << "\n";
+
 	//MoveRuleSet::update_static(*this, tmpDoc);
 
 	//Pushing back into RenderObject doc
