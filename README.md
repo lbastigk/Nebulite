@@ -1,8 +1,9 @@
-# DSA Game Engine
+# Nebulite Game Engine
+Created by **lbastigk**.
 
 ## Overview
 
-**DSA Game Engine** is a C++ based game engine for the _"Das Schwarze Auge"_ (The Dark Eye) role-playing game system. This engine is built using **SDL** for rendering and **RapidJSON** to handle the structuring of game data such as `RenderObjects`, `Levels`, and their respective attributes.
+**Nebulite** is a C++ based game engine for the _"Das Schwarze Auge"_ (The Dark Eye) role-playing game system. This engine is built using **SDL** for rendering and **RapidJSON** to handle the structuring of game data such as `RenderObjects`, `Levels`, and their respective attributes.
 
 ## Projects
 
@@ -49,15 +50,5 @@ The DSA Game Engine relies on the following libraries:
 - **SDL_image** for handling more image formats.
 - **RapidJSON** for parsing and structuring game data in JSON format.
 
----
 
-## Todo
-
-- Add installation shell script.
-
----
-
-### Author
-
-Created by **lbastigk**.
 
