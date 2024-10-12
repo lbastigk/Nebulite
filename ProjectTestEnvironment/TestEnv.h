@@ -71,7 +71,8 @@ public:
     public:
         static void testMenue();
         static void serialize();
-        static void testMoveSet(int objCount = 32, int ringCount = 16);
+        static void testMoveSetWithoutThreads(int objCount = 32, int ringCount = 16);
+        static void testMoveSetWithThreads(int objCount = 32, int ringCount = 16);
         static void testSingleObject();
     };
     class _RenderObject {
