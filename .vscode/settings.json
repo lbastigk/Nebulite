@@ -67,7 +67,8 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "ranges": "cpp",
-        "locale": "cpp"
+        "locale": "cpp",
+        "text_encoding": "cpp"
     },
     "cmake.ignoreCMakeListsMissing": true
 }
