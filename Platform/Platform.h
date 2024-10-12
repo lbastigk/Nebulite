@@ -31,13 +31,18 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include <sys/ioctl.h>
+#include <termios.h>
+
 #endif
 
 class Platform{
 public:
-    static void init();
+    //static void init();
 
-    static int hasKeyBoardInput();
+    static void flushKeyboardInput();
+
+    static bool hasKeyBoardInput();
 
     static void clearScreen();
 

@@ -1,12 +1,16 @@
 // Platform depending functions
 #include "Platform.h"
 
-
-
 //Function definitions
 #ifdef _WIN32 // Windows
 
-
+    void Platform::flushKeyboardInput() {
+        // Get the handle to the standard input
+        HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+        
+        // Flush the input buffer
+        FlushConsoleInputBuffer(hInput);
+    }
 
     int Platform::hasKeyBoardInput(){
         return _kbhit();
@@ -37,35 +41,56 @@
 
 #elif defined(__linux__) // Linux
 
-
+    void Platform::flushKeyboardInput() {
+        // tcflush requires a file descriptor, we use STDIN_FILENO for standard input
+        tcflush(STDIN_FILENO, TCIFLUSH);
+    }
 
     static struct termios old, current;
-    
-    int Platform::hasKeyBoardInput(){
-        struct termios oldt, newt;
-        int ch;
-        int oldf;
+    /*
+    bool Platform::hasKeyBoardInputOld(){
         
-        tcgetattr(STDIN_FILENO, &oldt);
-        newt = oldt;
-        newt.c_lflag &= ~(ICANON | ECHO);
-        tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-        oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-        fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
-        
-        ch = getchar();
-        
-        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-        fcntl(STDIN_FILENO, F_SETFL, oldf);
-        
-        if(ch != EOF)
-        {
-            ungetc(ch, stdin);
-            return 1;
-        }
-        
-        return 0;
+        termios term;
+        tcgetattr(0, &term);
+
+        termios term2 = term;
+        term2.c_lflag &= ~ICANON;
+        tcsetattr(0, TCSANOW, &term2);
+
+        int byteswaiting;
+        ioctl(0, FIONREAD, &byteswaiting);
+
+        tcsetattr(0, TCSANOW, &term);
+
+        return byteswaiting > 0;
+
+
     }
+    */
+
+    //TODO: does not work with enter or space
+    bool Platform::hasKeyBoardInput() {
+        // Save the current terminal settings
+        struct termios oldt;
+        tcgetattr(STDIN_FILENO, &oldt);
+
+        // Modify terminal settings for non-canonical mode (disable line buffering)
+        struct termios newt = oldt;
+        newt.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode and echo
+        tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
+        // Check if input is available
+        int byteswaiting = 0;
+        ioctl(STDIN_FILENO, FIONREAD, &byteswaiting);
+
+        // Restore the old terminal settings
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+
+        // Return true if there are bytes waiting to be read
+        return byteswaiting > 0;
+    }
+
+    
 
     void Platform::clearScreen(){
         system("clear");
@@ -88,8 +113,6 @@
             return false;
         }
     }
-
-
 
     int Platform::getCharacter() {
         // Disable echo of pressed characters while function is active
@@ -163,7 +186,6 @@
 
         return usedMemKB;
     }
-
 
 
 #else
