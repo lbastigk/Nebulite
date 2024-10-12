@@ -15,6 +15,7 @@
 
 #include <stdint.h>
 
+
 #define WINDOWNAME "coolgame"
 
 class Renderer {
