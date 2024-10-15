@@ -52,7 +52,7 @@ public:
 	//-----------------------------------------------------------
 	// Rendering
 	bool timeToRender();
-	int renderFrame(bool drawTileGrid = false);
+	void renderFrame(bool drawTileGrid = false);
 	void renderFPS();
 	void showFrame();
 	int handleEvent();
@@ -111,6 +111,8 @@ public:
 		const static int KEY_N = 110;
 		const static int KEY_M = 109;
 	};
+
+	bool windowExists();
 
 private:
 	//-------------------------------------------------------------------------------------

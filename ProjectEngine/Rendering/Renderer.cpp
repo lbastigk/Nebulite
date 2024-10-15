@@ -47,17 +47,16 @@ Renderer::Renderer(){
 	std::string fontDir = std::string("Resources") + sep + std::string("Fonts") + sep + std::string("Arimo-Regular.ttf");
 	std::string fontpath = FileManagement::CombinePaths(directory, fontDir);
 	
-	//std::cout << fontpath;
 	font = TTF_OpenFont(fontpath.c_str(), 60); // Adjust size as needed
 	if (font == NULL) {
 		// Handle font loading error
-		std::cout << "\nCould not load Font: " << TTF_GetError() << "\n\n";
+		std::cerr << "\nCould not load Font: " << TTF_GetError() << "\n";
 	}
 
 	// Create a renderer
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	if (!renderer) {
-		printf("Renderer creation failed: %s\n", SDL_GetError());
+		std::cerr << "Renderer creation failed: << SDL_GetError()" << std::endl;
 	}
 
 	// Get screen resolution
@@ -180,7 +179,7 @@ bool Renderer::timeToRender() {
 	}
 }
 
-int Renderer::renderFrame(bool drawTileGrid) {
+void Renderer::renderFrame(bool drawTileGrid) {
 	//------------------------------------------------
 	// FPS Count
 
@@ -248,8 +247,11 @@ int Renderer::renderFrame(bool drawTileGrid) {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
 	SDL_RenderClear(renderer);
 
+	int error = 0;
+
 	//Render Objects
 	//For all layers, starting at 0
+	std::cerr << "Rendering new Frame..." << std::endl;
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
 		//Between dx +-1
 		for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
@@ -263,26 +265,29 @@ int Renderer::renderFrame(bool drawTileGrid) {
 						for (auto& obj : batch) {
 							//Texture loading is handled in append
 							std::string innerdir = obj.valueGet<std::string>(namenKonvention.renderObject.imageLocation);
+
 							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
 								loadTexture(obj);
 								obj.calculateDstRect();
 								obj.calculateSrcRect();
 							}
+							obj.calculateSrcRect();
 
 							rect = obj.getDstRect();
 							rect.x -= Xpos;	//subtract camera posX
 							rect.y -= Ypos;	//subtract camera posY
 
-							// Render the texture to the window with scaling
-							SDL_RenderCopy(renderer, TextureContainer[innerdir], obj.getSrcRect(), &rect);
+							// Render the texture to the window
+							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj.getSrcRect(), &rect);
+							if (error != 0){
+								std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
+							}
 						}
 					}
 				}
 			}
 		}
 	}
-	
-	return 0;
 }
 
 void Renderer::renderFPS() {
@@ -386,7 +391,9 @@ int Renderer::getFPS() {
 	return fps;
 }
 
-
+bool Renderer::windowExists(){
+	return !!Renderer::window;
+}
 
 void Renderer::loadTexture(RenderObject& toAppend) {
 	std::string innerdir = toAppend.valueGet<std::string>(namenKonvention.renderObject.imageLocation);
