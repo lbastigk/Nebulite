@@ -179,29 +179,8 @@ void MoveRuleSet::update(auto& obj) {
 			//load all values each loop
 			loadOperatorValues(a, b, operation, arr, counter, memberMemberDoc, memberKey, obj, mainDoc);
 
-			//check if operation is repeat
-			if (operation == namenKonvention.moveRuleSet.repeat) {
-				
-				if (currentTick == (int)b) {
-					//ticks back to 0
-					currentTick = 0;
-
-					//Increase counter
-					int size = arr.Size();
-					if (counter == (size - 1)) {
-						//Delete mrs, end reached!
-						endreached = true;
-					}
-					counter = (counter + 1) % size;
-				}
-				else {
-					currentTick++;							//Increase ticks
-					counter = (counter - 1) % arr.Size();	//Increase counter
-				}
-			}
-
 			//check for looping
-			else if (operation == namenKonvention.moveRuleSet.loop) {
+			if (operation == namenKonvention.moveRuleSet.loop) {
 				//reset counter and ticks to 0
 				if (b == 0) {
 					counter = 0;
@@ -211,8 +190,6 @@ void MoveRuleSet::update(auto& obj) {
 				}
 				currentTick = 0;
 			}
-
-			// TODO: Buggy, sets var back to 0!!!
 			// check if operation is wait
 			// This sets updateDone to true
 			else if (operation == namenKonvention.moveRuleSet.wait) {
@@ -237,6 +214,7 @@ void MoveRuleSet::update(auto& obj) {
 			}
 
 			// Check for setnoskip
+			// TODO: not needed if a separate mrs is used in combination with the main one
 			else if (operation == namenKonvention.calculator.setNoSkip) {
 				double result = a;
 
