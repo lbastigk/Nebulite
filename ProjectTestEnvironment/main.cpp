@@ -1,6 +1,10 @@
 #include "TestEnv.h"
 
 int main(int argc, char* argv[]) {
+	// Redirect std::cerr to a file
+    freopen("error_log.txt", "w", stderr);
+    std::cerr << "Test log...\n";
+
 	Platform::clearScreen();
 
 	int opt = 5;
