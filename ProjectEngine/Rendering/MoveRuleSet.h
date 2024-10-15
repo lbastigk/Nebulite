@@ -52,7 +52,7 @@ public:
 		static MoveRuleSet zickZack(std::string var);
 		static MoveRuleSet sin(std::string var, int radius, double phase, double addPerTick);
 		static MoveRuleSet linearIncrease(std::string var, int amount, int diff = 1, bool repeat = false, bool setback = false, int waitTime = 0);
-		static MoveRuleSet upAndDown(std::string var, int amount, int diff = 1, int repeat = 0, int waitTime = 0);
+		static MoveRuleSet upAndDown(std::string var, int amount, int diff = 1, int repeat = 0, int waitTime = 0, int additional = 0);
 
 		class Move {
 		public:

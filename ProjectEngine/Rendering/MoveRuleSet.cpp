@@ -276,7 +276,7 @@ MoveRuleSet MoveRuleSet::Examples::linearIncrease(std::string var, int amount, i
 	return mrs;
 }
 
-MoveRuleSet MoveRuleSet::Examples::upAndDown(std::string var, int amount, int diff, int repeat, int waitTime) {
+MoveRuleSet MoveRuleSet::Examples::upAndDown(std::string var, int amount, int diff, int repeat, int waitTime, int additional) {
 	MoveRuleSet mrs;
 
 	if (amount != 0) {
@@ -324,6 +324,16 @@ MoveRuleSet MoveRuleSet::Examples::upAndDown(std::string var, int amount, int di
 		//Handle repeats
 		if (repeat>0) {
 			ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.moveRuleSet.loop), std::to_string(repeat)));
+		}
+
+		//Add additional
+		
+		//TODO: Does not work? MRS seemingly stops once repeat matches
+		if(additional){
+			for (int j = 0; j < waitTime; j++) {
+				ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(0)));
+			}
+			ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(additional)));
 		}
 
 		//Temp doc for var 1
