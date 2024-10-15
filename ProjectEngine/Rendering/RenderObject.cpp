@@ -29,10 +29,11 @@ RenderObject::RenderObject() {
 	calculateSrcRect();
 }
 RenderObject::RenderObject(const RenderObject& other) {
-	dstRect = other.dstRect;
 	doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
-	//calculateRect();
+	calculateDstRect();
+	calculateSrcRect();
 }
+/*
 RenderObject& RenderObject::operator=(const RenderObject& other) {  // Assignment operator overload
 	if (this != &other) {
 		dstRect = other.dstRect;
@@ -40,6 +41,10 @@ RenderObject& RenderObject::operator=(const RenderObject& other) {  // Assignmen
 	}
 	return *this;
 }
+*/
+
+
+
 
 //-----------------------------------------------------------
 //Destructor
@@ -59,6 +64,8 @@ std::string RenderObject::serialize() {
 
 void RenderObject::deserialize(std::string serialOrLink) {
 	doc = JSONHandler::deserialize(serialOrLink);
+	calculateDstRect();
+	calculateSrcRect();
 }
 
 
@@ -388,69 +395,10 @@ void RenderObjectContainer::update_withThreads(int tileXpos, int tileYpos, int d
 
 	//--------------------------------------------------------------------------------
 	//restructure the updated tiles
-
-	double valget;
-	int64_t placeholder;
-
-	unsigned int correspondingTileXpos;
-	unsigned int correspondingTileYpos;
-
-	for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
-		for (int dY = (tileYpos == 0 ? 0 : -1); dY <= 1; dY++) {
-			if (isValidPosition(tileXpos + dX, tileYpos + dY)) {
-				for (auto& batch : ObjectContainer[tileYpos + dY][tileXpos + dX]) {
-					for (auto& obj : batch) {
-						//-------------------------------------
-						// Get new position in tile
-
-						//X
-						valget = obj.valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
-						placeholder = (int64_t)(valget / (double)dispResX);
-						if (placeholder < 0) {
-							correspondingTileXpos = (unsigned int)(-placeholder);
-						}
-						else {
-							correspondingTileXpos = (unsigned int)(placeholder);
-						}
-
-						//Y
-						valget = obj.valueGet<double>(namenKonvention.renderObject.positionY, 0.0); // Use positionY here
-						placeholder = (int64_t)(valget / (double)dispResY);
-						if (placeholder < 0) {
-							correspondingTileYpos = (unsigned int)(-placeholder);
-						}
-						else {
-							correspondingTileYpos = (unsigned int)(placeholder);
-						}
-
-						//-----------------------------------------
-						// Check if it's in a new tile
-						if (correspondingTileXpos != tileXpos + dX || correspondingTileYpos != tileYpos + dY) {
-							// Pop render object out of container
-							auto& tileContainer = ObjectContainer[correspondingTileYpos][correspondingTileXpos];
-							for (auto& batch : tileContainer) {
-								batch.erase(std::remove_if(
-									batch.begin(),
-									batch.end(),
-									[&obj](const RenderObject& objInTile) {
-										return &objInTile == &obj;
-									}
-								), batch.end());
-							}
-
-							// Call append function to re-insert
-							append(obj,dispResX,dispResY,THREADSIZE);
-						}
-					}
-
-
-				}
-			}
-		}
-	}
+	update(tileXpos, tileYpos, dispResX, dispResY, THREADSIZE, true);
 }
 
-void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE) {
+void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE, bool onlyRestructure) {
 	// Calculate tile position based on screen resolution
 	//+- in same container
 	double valget;
@@ -463,12 +411,18 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 	//--------------------------------------------------------------------------------
 	// Update only tiles that might be visible
 	// since one tile is size of screen, a max of 9 tiles
+
+	std::vector<RenderObject> toReinsert;
 	for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
 		for (int dY = (tileYpos == 0 ? 0 : -1); dY <= 1; dY++) {
 			if (isValidPosition(tileXpos + dX, tileYpos + dY)) {
 				for (auto& batch : ObjectContainer[tileYpos + dY][tileXpos + dX]) {
+					std::vector<RenderObject> newBatch;
 					for (auto& obj : batch) {
-						obj.update();
+						if(!onlyRestructure){
+							obj.update();
+						}
+						
 
 						//-------------------------------------
 						// Get new position in tile
@@ -496,27 +450,20 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 						//-----------------------------------------
 						// Check if it's in a new tile
 						if (correspondingTileXpos != tileXpos + dX || correspondingTileYpos != tileYpos + dY) {
-							// Pop render object out of container
-							auto& tileContainer = ObjectContainer[correspondingTileYpos][correspondingTileXpos];
-							for (auto& batch : tileContainer) {
-								batch.erase(std::remove_if(
-									batch.begin(),
-									batch.end(),
-									[&obj](const RenderObject& objInTile) {
-										return &objInTile == &obj;
-									}
-								), batch.end());
-							}
-
-							// Call append function to re-insert (assuming it's a member function of the current class)
-							append(obj,dispResX,dispResY,THREADSIZE);
+							toReinsert.push_back(obj);
+						}
+						else{
+							newBatch.push_back(obj);
 						}
 					}
+					batch = std::move(newBatch);
 				}
 			}
 		}
 	}
-
+	for(const auto& obj : toReinsert){
+		append(obj, dispResX, dispResY, THREADSIZE);
+	}
 }
 
 bool RenderObjectContainer::isValidPosition(int x, int y) const {

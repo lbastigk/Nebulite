@@ -15,7 +15,7 @@ public:
 	//Constructor
 	RenderObject();
 	RenderObject(const RenderObject& other);
-	RenderObject& operator=(const RenderObject& other);
+	//RenderObject& operator=(const RenderObject& other);
 
 	//-----------------------------------------------------------
 	//Destructor
@@ -80,7 +80,7 @@ public:
 	// Pipeline
 	void append(RenderObject toAppend, int dispResX, int dispResY, int THREADSIZE);
 	void update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE);
-	void update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE);
+	void update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE,bool onlyRestructure = false);
 	bool isValidPosition(int x, int y) const;
 	std::vector<std::vector<RenderObject>>& getContainerAt(int x, int y);
 	void purgeObjects();
