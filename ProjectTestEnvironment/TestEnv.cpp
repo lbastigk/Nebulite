@@ -814,9 +814,15 @@ void TestEnv::_RenderObject::testPokemonSprites() {
 
     //Sprite Movement
     MoveRuleSet startValueOffsetX = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetX, 9);
+    std::cout << "SetValueOffsetX" << std::endl;
     MoveRuleSet startValueOffsetY = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetY, 42);
-    MoveRuleSet spriteOffsetX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3,17);
+    std::cout << "SetValueOffsetY" << std::endl;
+    MoveRuleSet spriteOffsetX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 5,3,17);
+    std::cout << "OffsetX" << std::endl;
+    
+    
     MoveRuleSet pos = MoveRuleSet::Examples::Move::linear(0,160,0,5);
+    std::cout << "LinearMovement" << std::endl;
 
     obj1.loadMoveSet(startValueOffsetX);
     obj1.loadMoveSet(startValueOffsetY);

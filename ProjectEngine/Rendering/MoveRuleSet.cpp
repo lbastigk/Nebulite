@@ -286,49 +286,64 @@ MoveRuleSet MoveRuleSet::Examples::upAndDown(std::string var, int amount, int di
 		int rest = abs(amount) % abs(diff) * diff / abs(diff);
 		amount = abs(amount) / abs(diff);
 
-		//#############################
-		//UP
-		for (int i = 0; i < amount; i++) {
-			ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(diff)));
+		for(int k = 0; k < repeat; k++){
+			//#############################
+			//UP
+			for (int i = 0; i < amount; i++) {
+				ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(diff)));
+
+				//Add "wait" only if its not the last one
+				if(i != amount-1){
+					for (int j = 0; j < waitTime; j++) {
+						ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(0)));
+					}
+				}
+			}
+
+			//Rest movement
+			if (rest != 0) {
+				for (int j = 0; j < waitTime; j++) {
+					ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(0)));
+				}
+				ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(rest)));
+			}
+
+			//#############################
+			//Wait between up and down
 			for (int j = 0; j < waitTime; j++) {
 				ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(0)));
 			}
-		}
 
-		//Rest movement
-		if (rest != 0) {
-			ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(rest)));
-			for (int j = 0; j < waitTime; j++) {
-				ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(0)));
+			//#############################
+			//DOWN
+			for (int i = 0; i < amount; i++) {
+				ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(-diff)));
+				//Add "wait" only if its not the last one
+				if(i != amount-1){
+					for (int j = 0; j < waitTime; j++) {
+						ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(0)));
+					}
+				}
 			}
-		}
 
-		//#############################
-		//DOWN
-		for (int i = 0; i < amount; i++) {
-			ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(-diff)));
-			for (int j = 0; j < waitTime; j++) {
-				ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(0)));
+			//Rest movement
+			if (rest != 0) {
+				for (int j = 0; j < waitTime; j++) {
+					ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(0)));
+				}
+				ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(-rest)));
 			}
-		}
 
-		//Rest movement
-		if (rest != 0) {
-			ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(-rest)));
-			for (int j = 0; j < waitTime; j++) {
-				ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(0)));
+			//#############################
+			//Wait between up and down
+			if(k != repeat-1){
+				for (int j = 0; j < waitTime; j++) {
+					ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(0)));
+				}
 			}
-		}
-		
-
-		//Handle repeats
-		if (repeat>0) {
-			ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.moveRuleSet.loop), std::to_string(repeat)));
 		}
 
 		//Add additional
-		
-		//TODO: Does not work? MRS seemingly stops once repeat matches
 		if(additional){
 			for (int j = 0; j < waitTime; j++) {
 				ruleSet.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(0)));
@@ -357,8 +372,10 @@ MoveRuleSet MoveRuleSet::Examples::Move::linear(int xAmount, int yAmount, int dX
 		dX = abs(dX) * (xAmount) / abs(xAmount);
 		int rest = abs(xAmount) % abs(dX) * dX/abs(dX);
 		xAmount = abs(xAmount) / abs(dX);
-		ruleSetX.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(dX)));
-		ruleSetX.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.moveRuleSet.repeat), std::to_string(xAmount - 1)));
+
+		for(int j = 0; j < xAmount; j++){
+			ruleSetX.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(dX)));
+		}
 		if (rest != 0) {
 			ruleSetX.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(rest)));
 		}
@@ -381,8 +398,10 @@ MoveRuleSet MoveRuleSet::Examples::Move::linear(int xAmount, int yAmount, int dX
 		dY = abs(dY) * (yAmount) / abs(yAmount);
 		int rest = abs(yAmount) % abs(dY) * dY / abs(dY);;
 		yAmount = abs(yAmount) / abs(dY);
-		ruleSetY.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(dY)));
-		ruleSetY.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.moveRuleSet.repeat), std::to_string(yAmount - 1)));
+
+		for(int j = 0; j < yAmount; j++){
+			ruleSetY.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(dY)));
+		}
 		if (rest != 0) {
 			ruleSetY.push_back(std::make_pair<std::string, std::string>(std::string(namenKonvention.calculator.add), std::to_string(rest)));
 		}
