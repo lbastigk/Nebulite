@@ -796,27 +796,35 @@ void TestEnv::_RenderObject::testSpriteSheets() {
 
 void TestEnv::_RenderObject::testPokemonSprites() {
     Renderer Renderer;
-    RenderObject obj1;
+    RenderObject Player;
+    RenderObject background;
 
-    //Standard stuff
-    obj1.valueSet(namenKonvention.renderObject.positionX, 200);
-    obj1.valueSet(namenKonvention.renderObject.positionY, 200);
-    obj1.valueSet(namenKonvention.renderObject.pixelSizeX, 160);
-    obj1.valueSet(namenKonvention.renderObject.pixelSizeY, 240);
-
-    //Spritesheet, standard values
-    obj1.valueSet(namenKonvention.renderObject.imageLocation, "Resources/Sprites/Pokemon/Game Boy Advance - Pokemon FireRed LeafGreen - Overworld NPCs.png");
-    obj1.valueSet(namenKonvention.renderObject.isSpritesheet, true);
-    obj1.valueSet(namenKonvention.renderObject.spritesheetOffsetX, 9+17);
-    obj1.valueSet(namenKonvention.renderObject.spritesheetOffsetY, 42);
-    obj1.valueSet(namenKonvention.renderObject.spritesheetSizeX, 16);
-    obj1.valueSet(namenKonvention.renderObject.spritesheetSizeY, 24);
-
+    //Background
+    background.valueSet(namenKonvention.renderObject.layer,(int)Environment::RenderObjectLayers::background);
+    background.valueSet(namenKonvention.renderObject.positionX, 0);
+    background.valueSet(namenKonvention.renderObject.positionY, 0);
+    background.valueSet(namenKonvention.renderObject.pixelSizeX, 4770);
+    background.valueSet(namenKonvention.renderObject.pixelSizeY, 8000);
+    background.valueSet(namenKonvention.renderObject.imageLocation, "Resources/Sprites/Pokemon_Transparent/Game Boy Advance - Pokemon FireRed LeafGreen - Tileset 2.png");
+    background.valueSet(namenKonvention.renderObject.isSpritesheet, false);
+    background.update();
     
 
-    std::cout << obj1.serialize();
 
-    //Renderer.append(obj1);
+    //Standard stuff
+    Player.valueSet(namenKonvention.renderObject.layer,(int)Environment::RenderObjectLayers::foreground);
+    Player.valueSet(namenKonvention.renderObject.positionX, 200);
+    Player.valueSet(namenKonvention.renderObject.positionY, 200);
+    Player.valueSet(namenKonvention.renderObject.pixelSizeX, 160);
+    Player.valueSet(namenKonvention.renderObject.pixelSizeY, 240);
+
+    //Spritesheet, standard values
+    Player.valueSet(namenKonvention.renderObject.imageLocation, "Resources/Sprites/Pokemon_Transparent/Game Boy Advance - Pokemon FireRed LeafGreen - Overworld NPCs.png");
+    Player.valueSet(namenKonvention.renderObject.isSpritesheet, true);
+    Player.valueSet(namenKonvention.renderObject.spritesheetOffsetX, 9+17);
+    Player.valueSet(namenKonvention.renderObject.spritesheetOffsetY, 42);
+    Player.valueSet(namenKonvention.renderObject.spritesheetSizeX, 16);
+    Player.valueSet(namenKonvention.renderObject.spritesheetSizeY, 24);
 
     Renderer.setFPS(30);
 
@@ -825,137 +833,138 @@ void TestEnv::_RenderObject::testPokemonSprites() {
     MoveRuleSet spriteOffsetX;
     MoveRuleSet pos;
 
+    int i = 0;
+    int startSpritePosX,startSpritePosY,vecX,vecY;
+
+
+    
+
     //General Variables
-    bool quit = false;
-    int event = 0;
-    while (!quit) {
+    SDL_Event sdlEvent;
+    while (sdlEvent.type != SDL_QUIT) {
+
+        //Event handling
+        SDL_Event sdlEvent = Renderer.getEventHandle();
+
         if (Renderer.timeToRender()) {
 
-
-            //Event handling
-            SDL_Event sdlEvent = Renderer.getEventHandle();
+            // Get the current state of all keys
+            const Uint8* keystates = SDL_GetKeyboardState(NULL);
 
             // add movement depending on keydown, and only if player isnt already moving
-            if(sdlEvent.type == SDL_KEYDOWN){  
-                int startSpritePosX,startSpritePosY,vecX,vecY;
 
-                //dummy renderobject to check if player is standing
-                RenderObject obj2 = obj1;
-                obj2.update();
-                if(!obj2.hasMoveSet()){
-                    obj1.update();
+            // Check if a specific key is currently pressed (e.g., space key)
 
-                    switch(sdlEvent.key.keysym.sym){
-                    case Renderer::SDL::KEY_W:
-                        //Move Up
-                        //------------------------------------------
-                        startSpritePosX = 9 + 1*3*17;
-                        startSpritePosY = 42;
-                        vecX = 0;
-                        vecY = -1;
+            //dummy renderobject to check if player is standing
+            RenderObject dummy = Player;
+            dummy.update();
+            if(!dummy.hasMoveSet()){
+                if (keystates[SDL_SCANCODE_W]) {
+                    //Move Up
+                    //------------------------------------------
+                    startSpritePosX = 9 + 1*3*17;
+                    startSpritePosY = 42;
+                    vecX = 0;
+                    vecY = -1;
 
-                        //Set start sprite
-                        startValueOffsetX = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetX, startSpritePosX);
-                        startValueOffsetY = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetY, startSpritePosY);
+                    //Set start sprite
+                    startValueOffsetX = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetX, startSpritePosX);
+                    startValueOffsetY = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetY, startSpritePosY);
 
-                        //Sprite Movement
-                        spriteOffsetX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3,17);
+                    //Sprite Movement
+                    spriteOffsetX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3,17);
 
-                        //Object Movement
-                        pos = MoveRuleSet::Examples::Move::linear(vecX*160,vecY*160,10,10);
+                    //Object Movement
+                    pos = MoveRuleSet::Examples::Move::linear(vecX*160,vecY*160,10,10);
 
-                        //Load
-                        obj1.loadMoveSet(startValueOffsetX);
-                        obj1.loadMoveSet(startValueOffsetY);
-                        obj1.loadMoveSet(spriteOffsetX);
-                        obj1.loadMoveSet(pos);
-                        break;
-                    case Renderer::SDL::KEY_A:
-                        //Move Left
-                        //------------------------------------------
-                        startSpritePosX = 9 + 2*3*17;
-                        startSpritePosY = 42;
-                        vecX = -1;
-                        vecY = 0;
+                    //Load
+                    Player.update();
+                    Player.loadMoveSet(startValueOffsetX);
+                    Player.loadMoveSet(startValueOffsetY);
+                    Player.loadMoveSet(spriteOffsetX);
+                    Player.loadMoveSet(pos);
+                }
+                else if (keystates[SDL_SCANCODE_A]) {
+                    //Move Left
+                    //------------------------------------------
+                    startSpritePosX = 9 + 2*3*17;
+                    startSpritePosY = 42;
+                    vecX = -1;
+                    vecY = 0;
 
-                        //Set start sprite
-                        startValueOffsetX = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetX, startSpritePosX);
-                        startValueOffsetY = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetY, startSpritePosY);
+                    //Set start sprite
+                    startValueOffsetX = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetX, startSpritePosX);
+                    startValueOffsetY = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetY, startSpritePosY);
 
-                        //Sprite Movement
-                        spriteOffsetX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3,17);
+                    //Sprite Movement
+                    spriteOffsetX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3,17);
 
-                        //Object Movement
-                        pos = MoveRuleSet::Examples::Move::linear(vecX*160,vecY*160,10,10);
+                    //Object Movement
+                    pos = MoveRuleSet::Examples::Move::linear(vecX*160,vecY*160,10,10);
 
-                        //Load
-                        obj1.loadMoveSet(startValueOffsetX);
-                        obj1.loadMoveSet(startValueOffsetY);
-                        obj1.loadMoveSet(spriteOffsetX);
-                        obj1.loadMoveSet(pos);
-                        break;
-                    case Renderer::SDL::KEY_S:
-                        //Move Down
-                        //------------------------------------------
-                        startSpritePosX = 9 + 0*3*17;
-                        startSpritePosY = 42;
-                        vecX = 0;
-                        vecY = 1;
+                    //Load
+                    Player.update();
+                    Player.loadMoveSet(startValueOffsetX);
+                    Player.loadMoveSet(startValueOffsetY);
+                    Player.loadMoveSet(spriteOffsetX);
+                    Player.loadMoveSet(pos);
+                }
+                else if (keystates[SDL_SCANCODE_S]) {
+                    //Move Down
+                    //------------------------------------------
+                    startSpritePosX = 9 + 0*3*17;
+                    startSpritePosY = 42;
+                    vecX = 0;
+                    vecY = 1;
 
-                        //Set start sprite
-                        startValueOffsetX = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetX, startSpritePosX);
-                        startValueOffsetY = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetY, startSpritePosY);
+                    //Set start sprite
+                    startValueOffsetX = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetX, startSpritePosX);
+                    startValueOffsetY = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetY, startSpritePosY);
 
-                        //Sprite Movement
-                        spriteOffsetX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3,17);
+                    //Sprite Movement
+                    spriteOffsetX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3,17);
 
-                        //Object Movement
-                        pos = MoveRuleSet::Examples::Move::linear(vecX*160,vecY*160,10,10);
+                    //Object Movement
+                    pos = MoveRuleSet::Examples::Move::linear(vecX*160,vecY*160,10,10);
 
-                        //Load
-                        obj1.loadMoveSet(startValueOffsetX);
-                        obj1.loadMoveSet(startValueOffsetY);
-                        obj1.loadMoveSet(spriteOffsetX);
-                        obj1.loadMoveSet(pos);
-                        break;
-                    case Renderer::SDL::KEY_D:
-                        //Move Right
-                        //------------------------------------------
-                        startSpritePosX = 9 + 3*3*17;
-                        startSpritePosY = 42;
-                        vecX = 1;
-                        vecY = 0;
+                    //Load
+                    Player.update();
+                    Player.loadMoveSet(startValueOffsetX);
+                    Player.loadMoveSet(startValueOffsetY);
+                    Player.loadMoveSet(spriteOffsetX);
+                    Player.loadMoveSet(pos);                    
+                }
+                else if (keystates[SDL_SCANCODE_D]) {
+                    //Move Right
+                    //------------------------------------------
+                    startSpritePosX = 9 + 3*3*17;
+                    startSpritePosY = 42;
+                    vecX = 1;
+                    vecY = 0;
 
-                        //Set start sprite
-                        startValueOffsetX = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetX, startSpritePosX);
-                        startValueOffsetY = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetY, startSpritePosY);
+                    //Set start sprite
+                    startValueOffsetX = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetX, startSpritePosX);
+                    startValueOffsetY = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetY, startSpritePosY);
 
-                        //Sprite Movement
-                        spriteOffsetX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3,17);
+                    //Sprite Movement
+                    spriteOffsetX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3,17);
 
-                        //Object Movement
-                        pos = MoveRuleSet::Examples::Move::linear(vecX*160,vecY*160,10,10);
+                    //Object Movement
+                    pos = MoveRuleSet::Examples::Move::linear(vecX*160,vecY*160,10,10);
 
-                        //Load
-                        obj1.loadMoveSet(startValueOffsetX);
-                        obj1.loadMoveSet(startValueOffsetY);
-                        obj1.loadMoveSet(spriteOffsetX);
-                        obj1.loadMoveSet(pos);
-                        break;    
-                    }  
-                
-                    obj1.update();
+                    //Load
+                    Player.update();
+                    Player.loadMoveSet(startValueOffsetX);
+                    Player.loadMoveSet(startValueOffsetY);
+                    Player.loadMoveSet(spriteOffsetX);
+                    Player.loadMoveSet(pos);                    
                 }
             }
-             
-
-
 
             // Append test obj
-            Renderer.append(obj1);
-            Renderer.update();      //renderer needs to update AFTER appending (creating rects?)
-            obj1.update();          //update obj1 separately to keep track of it
-            
+            Renderer.append(Player);
+            Renderer.append(background);
+            Player.update();          //update obj1 separately
 
             //Render Current instances
             Renderer.renderFrame();
@@ -969,15 +978,7 @@ void TestEnv::_RenderObject::testPokemonSprites() {
             // Purge
             Renderer.purgeObjects();
 
-            // Update objects
-            Renderer.update();
 
-            //Analyze event:
-            switch (event) {
-            case SDL_QUIT:
-                quit = true;
-                break;
-            }
         }
     }
     //End of Program!
@@ -1001,8 +1002,6 @@ void TestEnv::_RenderObject::testRuleSets() {
         obj[i].loadMoveSet(MoveRuleSet::Examples::sin(namenKonvention.renderObject.positionY, 300, 20*i / 7 + 3.1415 / 2, 0.01));
         Renderer.append(obj[i]);
     }
-
-    //std::cout << obj[0].serialize();
     
 
     //Renderer.serializeObjects();
