@@ -1,9 +1,9 @@
 {
     "version": "2.0.0",
     "tasks": [
-        // ENGINE
+        // ENGINE, LINUX
         {
-            "label": "Build Engine",
+            "label": "Build Engine on Linux",
             "type": "shell",
             "command": "/usr/bin/g++",
             "args": [
@@ -73,9 +73,9 @@
             "problemMatcher": ["$gcc"],
             "detail": "DSA Engine Main Engine project"
         },
-        // EDITOR
+        // EDITOR, LINUX
         {
-            "label": "Build Editor",
+            "label": "Build Editor on Linux",
             "type": "shell",
             "command": "/usr/bin/g++",
             "args": [
@@ -145,9 +145,9 @@
             "problemMatcher": ["$gcc"],
             "detail": "DSA Engine Editor project"
         },
-        // TEST ENV
+        // TEST ENV, LINUX
         {
-            "label": "Build Test Environment",
+            "label": "Build Test Environment on Linux",
             "type": "shell",
             "command": "/usr/bin/g++",
             "args": [
@@ -217,15 +217,463 @@
             "problemMatcher": ["$gcc"],
             "detail": "DSA Engine Test Environment project"
         },
-        // BUILD ALL MAIN PROJECTS
+        // BUILD ALL MAIN PROJECTS, LINUX
         {
-            "label": "Build All Main Projects",
-            "dependsOn": ["Build Engine", "Build Editor", "Build Test Environment"],
+            "label": "Build All Main Projects on Linux",
+            "dependsOn": ["Build Engine on Linux", "Build Editor on Linux", "Build Test Environment on Linux"],
             "group": {
                 "kind": "build"
             }
         },
-        // BUILD TEST EXECUTABLE
+                // ENGINE, LINUX
+        {
+            "label": "Build Engine on Linux",
+            "type": "shell",
+            "command": "/usr/bin/g++",
+            "args": [
+                "-g",                       // Generate debug information
+                "-w",                       // Suppress all warnings
+                "${workspaceFolder}/ProjectEngine/main.cpp",  // Specify main file
+                "-o",                       // Specify the output file
+                "${workspaceFolder}/bin/Engine",  // Output to a specific directory
+                //-------------------------------------------------------------------
+                //Include cpp files
+                //MAIN
+                //"${workspaceFolder}/ProjectEditor/main.cpp",
+                //"${workspaceFolder}/ProjectEngine/main.cpp",
+                //"${workspaceFolder}/ProjectTestEnvironment/main.cpp",
+                //OTHER
+                "${workspaceFolder}/Platform/Platform.cpp",
+                "${workspaceFolder}/ProjectEditor/Editor.cpp",
+                "${workspaceFolder}/ProjectEditor/LevelEditor.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/GameLoop.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/OptionsLoader.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/Savegame.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Basiswerte.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Eigenschaften.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/InteractionRequirement.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Inventar.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Kreatur.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Quest.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Talente.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Zauber.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Calculator.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Console.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/FileManagement.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/JSONHandler.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/MenueScreen.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/StringHandler.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Time.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/Environment.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/MoveRuleSet.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/Renderer.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/RenderObject.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/DsaDebug.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/Milestones.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/QuickNotes.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/TestEnv.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/_TEMPLATE_CLASS.cpp",
+                //Include Paths:
+                "-I${workspaceFolder}/ProjectEngine",           // Add include paths here
+                "-I${workspaceFolder}/ProjectEngine/Rendering", // Path to Environment.h
+                "-I${workspaceFolder}/ProjectEngine/GameLoop",  // Example, add others as needed
+                "-I${workspaceFolder}/ProjectEngine/Helper",
+                "-I${workspaceFolder}/ProjectEngine/GameVars",
+                "-I${workspaceFolder}/Platform",
+                "-I${workspaceFolder}/ProjectEditor",
+                "-I${workspaceFolder}/ProjectTestEnvironment",
+                "-I/usr/include/SDL2",           // External includes if needed
+                "-I/usr/include/rapidjson",      // External includes if needed
+                //SDL2 Links
+                "-lSDL2",
+                "-lSDL2_ttf",
+                "-lSDL2_image",
+                //Set c++ standard
+                "-std=c++20"
+            ],
+            "group": {
+                "kind": "build"
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "DSA Engine Main Engine project"
+        },
+        // EDITOR, LINUX
+        {
+            "label": "Build Editor on Linux",
+            "type": "shell",
+            "command": "/usr/bin/g++",
+            "args": [
+                "-g",                       // Generate debug information
+                "-w",                       // Suppress all warnings
+                "${workspaceFolder}/ProjectEditor/main.cpp",  // Specify main file
+                "-o",                       // Specify the output file
+                "${workspaceFolder}/bin/Editor",  // Output to a specific directory
+                //-------------------------------------------------------------------
+                //Include cpp files
+                //MAIN
+                "${workspaceFolder}/ProjectEditor/main.cpp",
+                //"${workspaceFolder}/ProjectEngine/main.cpp",
+                //"${workspaceFolder}/ProjectTestEnvironment/main.cpp",
+                //OTHER
+                "${workspaceFolder}/Platform/Platform.cpp",
+                "${workspaceFolder}/ProjectEditor/Editor.cpp",
+                "${workspaceFolder}/ProjectEditor/LevelEditor.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/GameLoop.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/OptionsLoader.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/Savegame.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Basiswerte.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Eigenschaften.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/InteractionRequirement.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Inventar.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Kreatur.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Quest.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Talente.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Zauber.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Calculator.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Console.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/FileManagement.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/JSONHandler.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/MenueScreen.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/StringHandler.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Time.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/Environment.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/MoveRuleSet.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/Renderer.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/RenderObject.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/DsaDebug.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/Milestones.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/QuickNotes.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/TestEnv.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/_TEMPLATE_CLASS.cpp",
+                //Include Paths:
+                "-I${workspaceFolder}/ProjectEngine",           // Add include paths here
+                "-I${workspaceFolder}/ProjectEngine/Rendering", // Path to Environment.h
+                "-I${workspaceFolder}/ProjectEngine/GameLoop",  // Example, add others as needed
+                "-I${workspaceFolder}/ProjectEngine/Helper",
+                "-I${workspaceFolder}/ProjectEngine/GameVars",
+                "-I${workspaceFolder}/Platform",
+                "-I${workspaceFolder}/ProjectEditor",
+                "-I${workspaceFolder}/ProjectTestEnvironment",
+                "-I/usr/include/SDL2",           // External includes if needed
+                "-I/usr/include/rapidjson",      // External includes if needed
+                //SDL2 Links
+                "-lSDL2",
+                "-lSDL2_ttf",
+                "-lSDL2_image",
+                //Set c++ standard
+                "-std=c++20"
+            ],
+            "group": {
+                "kind": "build"
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "DSA Engine Editor project"
+        },
+        // TEST ENV, LINUX
+        {
+            "label": "Build Test Environment on Linux",
+            "type": "shell",
+            "command": "/usr/bin/g++",
+            "args": [
+                "-g",                       // Generate debug information
+                "-w",                       // Suppress all warnings
+                "${workspaceFolder}/ProjectTestEnvironment/main.cpp",  // Specify main file
+                "-o",                       // Specify the output file
+                "${workspaceFolder}/bin/TestEnvironment",  // Output to a specific directory
+                //-------------------------------------------------------------------
+                //Include cpp files
+                //MAIN
+                //"${workspaceFolder}/ProjectEditor/main.cpp",
+                //"${workspaceFolder}/ProjectEngine/main.cpp",
+                //"${workspaceFolder}/ProjectTestEnvironment/main.cpp",
+                //OTHER
+                "${workspaceFolder}/Platform/Platform.cpp",
+                "${workspaceFolder}/ProjectEditor/Editor.cpp",
+                "${workspaceFolder}/ProjectEditor/LevelEditor.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/GameLoop.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/OptionsLoader.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/Savegame.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Basiswerte.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Eigenschaften.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/InteractionRequirement.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Inventar.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Kreatur.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Quest.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Talente.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Zauber.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Calculator.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Console.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/FileManagement.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/JSONHandler.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/MenueScreen.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/StringHandler.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Time.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/Environment.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/MoveRuleSet.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/Renderer.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/RenderObject.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/DsaDebug.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/Milestones.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/QuickNotes.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/TestEnv.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/_TEMPLATE_CLASS.cpp",
+                //Include Paths:
+                "-I${workspaceFolder}/ProjectEngine",           // Add include paths here
+                "-I${workspaceFolder}/ProjectEngine/Rendering", // Path to Environment.h
+                "-I${workspaceFolder}/ProjectEngine/GameLoop",  // Example, add others as needed
+                "-I${workspaceFolder}/ProjectEngine/Helper",
+                "-I${workspaceFolder}/ProjectEngine/GameVars",
+                "-I${workspaceFolder}/Platform",
+                "-I${workspaceFolder}/ProjectEditor",
+                "-I${workspaceFolder}/ProjectTestEnvironment",
+                "-I/usr/include/SDL2",           // External includes if needed
+                "-I/usr/include/rapidjson",      // External includes if needed
+                //SDL2 Links
+                "-lSDL2",
+                "-lSDL2_ttf",
+                "-lSDL2_image",
+                //Set c++ standard
+                "-std=c++20"
+            ],
+            "group": {
+                "kind": "build"
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "DSA Engine Test Environment project"
+        },
+        // BUILD ALL MAIN PROJECTS, LINUX
+        {
+            "label": "Build All Main Projects on Linux",
+            "dependsOn": ["Build Engine on Linux", "Build Editor on Linux", "Build Test Environment on Linux"],
+            "group": {
+                "kind": "build"
+            }
+        },
+        // ENGINE, WINDOWS
+        {
+            "label": "Build Engine on Windows",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-g",                       // Generate debug information
+                "-w",                       // Suppress all warnings
+                "${workspaceFolder}/ProjectEngine/main.cpp",  // Specify main file
+                "-o",                       // Specify the output file
+                "${workspaceFolder}/bin/Engine",  // Output to a specific directory
+                //-------------------------------------------------------------------
+                //Include cpp files
+                //MAIN
+                //"${workspaceFolder}/ProjectEditor/main.cpp",
+                //"${workspaceFolder}/ProjectEngine/main.cpp",
+                //"${workspaceFolder}/ProjectTestEnvironment/main.cpp",
+                //OTHER
+                "${workspaceFolder}/Platform/Platform.cpp",
+                "${workspaceFolder}/ProjectEditor/Editor.cpp",
+                "${workspaceFolder}/ProjectEditor/LevelEditor.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/GameLoop.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/OptionsLoader.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/Savegame.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Basiswerte.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Eigenschaften.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/InteractionRequirement.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Inventar.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Kreatur.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Quest.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Talente.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Zauber.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Calculator.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Console.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/FileManagement.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/JSONHandler.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/MenueScreen.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/StringHandler.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Time.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/Environment.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/MoveRuleSet.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/Renderer.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/RenderObject.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/DsaDebug.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/Milestones.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/QuickNotes.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/TestEnv.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/_TEMPLATE_CLASS.cpp",
+                //Include Paths:
+                "-I${workspaceFolder}/ProjectEngine",           // Add include paths here
+                "-I${workspaceFolder}/ProjectEngine/Rendering", // Path to Environment.h
+                "-I${workspaceFolder}/ProjectEngine/GameLoop",  // Example, add others as needed
+                "-I${workspaceFolder}/ProjectEngine/Helper",
+                "-I${workspaceFolder}/ProjectEngine/GameVars",
+                "-I${workspaceFolder}/Platform",
+                "-I${workspaceFolder}/ProjectEditor",
+                "-I${workspaceFolder}/ProjectTestEnvironment",
+                "-I/usr/include/SDL2",           // External includes if needed
+                "-I/usr/include/rapidjson",      // External includes if needed
+                //SDL2 Links
+                "-lSDL2",
+                "-lSDL2_ttf",
+                "-lSDL2_image",
+                //Set c++ standard
+                "-std=c++20"
+            ],
+            "group": {
+                "kind": "build"
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "DSA Engine Main Engine project"
+        },
+        // EDITOR, WINDOWS
+        {
+            "label": "Build Editor on Windows",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-g",                       // Generate debug information
+                "-w",                       // Suppress all warnings
+                "${workspaceFolder}/ProjectEditor/main.cpp",  // Specify main file
+                "-o",                       // Specify the output file
+                "${workspaceFolder}/bin/Editor",  // Output to a specific directory
+                //-------------------------------------------------------------------
+                //Include cpp files
+                //MAIN
+                "${workspaceFolder}/ProjectEditor/main.cpp",
+                //"${workspaceFolder}/ProjectEngine/main.cpp",
+                //"${workspaceFolder}/ProjectTestEnvironment/main.cpp",
+                //OTHER
+                "${workspaceFolder}/Platform/Platform.cpp",
+                "${workspaceFolder}/ProjectEditor/Editor.cpp",
+                "${workspaceFolder}/ProjectEditor/LevelEditor.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/GameLoop.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/OptionsLoader.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/Savegame.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Basiswerte.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Eigenschaften.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/InteractionRequirement.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Inventar.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Kreatur.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Quest.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Talente.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Zauber.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Calculator.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Console.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/FileManagement.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/JSONHandler.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/MenueScreen.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/StringHandler.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Time.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/Environment.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/MoveRuleSet.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/Renderer.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/RenderObject.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/DsaDebug.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/Milestones.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/QuickNotes.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/TestEnv.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/_TEMPLATE_CLASS.cpp",
+                //Include Paths:
+                "-I${workspaceFolder}/ProjectEngine",           // Add include paths here
+                "-I${workspaceFolder}/ProjectEngine/Rendering", // Path to Environment.h
+                "-I${workspaceFolder}/ProjectEngine/GameLoop",  // Example, add others as needed
+                "-I${workspaceFolder}/ProjectEngine/Helper",
+                "-I${workspaceFolder}/ProjectEngine/GameVars",
+                "-I${workspaceFolder}/Platform",
+                "-I${workspaceFolder}/ProjectEditor",
+                "-I${workspaceFolder}/ProjectTestEnvironment",
+                "-I/usr/include/SDL2",           // External includes if needed
+                "-I/usr/include/rapidjson",      // External includes if needed
+                //SDL2 Links
+                "-lSDL2",
+                "-lSDL2_ttf",
+                "-lSDL2_image",
+                //Set c++ standard
+                "-std=c++20"
+            ],
+            "group": {
+                "kind": "build"
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "DSA Engine Editor project"
+        },
+        // TEST ENV, WINDOWS
+        {
+            "label": "Build Test Environment on Windows",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-g",                       // Generate debug information
+                "-w",                       // Suppress all warnings
+                "${workspaceFolder}/ProjectTestEnvironment/main.cpp",  // Specify main file
+                "-o",                       // Specify the output file
+                "${workspaceFolder}/bin/TestEnvironment",  // Output to a specific directory
+                //-------------------------------------------------------------------
+                //Include cpp files
+                //MAIN
+                //"${workspaceFolder}/ProjectEditor/main.cpp",
+                //"${workspaceFolder}/ProjectEngine/main.cpp",
+                //"${workspaceFolder}/ProjectTestEnvironment/main.cpp",
+                //OTHER
+                "${workspaceFolder}/Platform/Platform.cpp",
+                "${workspaceFolder}/ProjectEditor/Editor.cpp",
+                "${workspaceFolder}/ProjectEditor/LevelEditor.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/GameLoop.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/OptionsLoader.cpp",
+                "${workspaceFolder}/ProjectEngine/GameLoop/Savegame.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Basiswerte.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Eigenschaften.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/InteractionRequirement.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Inventar.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Kreatur.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Quest.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Talente.cpp",
+                "${workspaceFolder}/ProjectEngine/GameVars/Zauber.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Calculator.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Console.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/FileManagement.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/JSONHandler.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/MenueScreen.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/StringHandler.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/Time.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/Environment.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/MoveRuleSet.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/Renderer.cpp",
+                "${workspaceFolder}/ProjectEngine/Rendering/RenderObject.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/DsaDebug.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/Milestones.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/QuickNotes.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/TestEnv.cpp",
+                "${workspaceFolder}/ProjectTestEnvironment/_TEMPLATE_CLASS.cpp",
+                //Include Paths:
+                "-I${workspaceFolder}/ProjectEngine",           // Add include paths here
+                "-I${workspaceFolder}/ProjectEngine/Rendering", // Path to Environment.h
+                "-I${workspaceFolder}/ProjectEngine/GameLoop",  // Example, add others as needed
+                "-I${workspaceFolder}/ProjectEngine/Helper",
+                "-I${workspaceFolder}/ProjectEngine/GameVars",
+                "-I${workspaceFolder}/Platform",
+                "-I${workspaceFolder}/ProjectEditor",
+                "-I${workspaceFolder}/ProjectTestEnvironment",
+                "-I/usr/include/SDL2",           // External includes if needed
+                "-I/usr/include/rapidjson",      // External includes if needed
+                //SDL2 Links
+                "-lSDL2",
+                "-lSDL2_ttf",
+                "-lSDL2_image",
+                //Set c++ standard
+                "-std=c++20"
+            ],
+            "group": {
+                "kind": "build"
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "DSA Engine Test Environment project"
+        },
+        // BUILD ALL MAIN PROJECTS, WINDOWS
+        {
+            "label": "Build All Main Projects on Windows",
+            "dependsOn": ["Build Engine on Windows", "Build Editor on Windows", "Build Test Environment on Windows"],
+            "group": {
+                "kind": "build"
+            }
+        },
+        // BUILD TEST EXECUTABLE, LINUX
         {
             "label": "Build Test Main",
             "type": "shell",
@@ -297,7 +745,7 @@
             "problemMatcher": ["$gcc"],
             "detail": "DSA Engine Test project",
         },
-        // BUILD AND RUN TEST EXECUTABLE
+        // BUILD AND RUN TEST EXECUTABLE, LINUX
         {
             "label": "Build and Run Test Main",
             "type": "shell",
