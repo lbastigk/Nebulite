@@ -804,29 +804,27 @@ void TestEnv::_RenderObject::testPokemonSprites() {
     obj1.valueSet(namenKonvention.renderObject.pixelSizeX, 160);
     obj1.valueSet(namenKonvention.renderObject.pixelSizeY, 240);
 
-    //Spritesheet
+    //Spritesheet, standard values
     obj1.valueSet(namenKonvention.renderObject.imageLocation, "Resources/Sprites/Pokemon/Game Boy Advance - Pokemon FireRed LeafGreen - Overworld NPCs.png");
     obj1.valueSet(namenKonvention.renderObject.isSpritesheet, true);
-    //obj1.valueSet(namenKonvention.renderObject.spritesheetOffsetX, 9);
-    //obj1.valueSet(namenKonvention.renderObject.spritesheetOffsetY, 42);
+    obj1.valueSet(namenKonvention.renderObject.spritesheetOffsetX, 9);
+    obj1.valueSet(namenKonvention.renderObject.spritesheetOffsetY, 42+17);
     obj1.valueSet(namenKonvention.renderObject.spritesheetSizeX, 16);
     obj1.valueSet(namenKonvention.renderObject.spritesheetSizeY, 24);
 
     //Sprite Movement
     MoveRuleSet startValueOffsetX = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetX, 9);
     MoveRuleSet startValueOffsetY = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetY, 42);
-    MoveRuleSet spritePosX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3);
+    MoveRuleSet spriteOffsetX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3,17);
+    MoveRuleSet pos = MoveRuleSet::Examples::Move::linear(0,160,0,5);
 
-    MoveRuleSet pos = MoveRuleSet::Examples::Move::linear(0,160,5,40);
-
-    //obj1.loadMoveSet(startValueOffsetX);
-    //obj1.loadMoveSet(startValueOffsetY);
-    //obj1.loadMoveSet(spritePosX);
+    obj1.loadMoveSet(startValueOffsetX);
+    obj1.loadMoveSet(startValueOffsetY);
+    obj1.loadMoveSet(spriteOffsetX);
     obj1.loadMoveSet(pos);
 
     std::cout << obj1.serialize();
 
-    // Append test obj
     Renderer.append(obj1);
 
     Renderer.setFPS(30);
@@ -839,6 +837,25 @@ void TestEnv::_RenderObject::testPokemonSprites() {
             //Event handling
             event = Renderer.handleEvent();
 
+            /*
+            switch(event){
+                case Renderer::SDL::KEY_W:
+                    break;
+                case Renderer::SDL::KEY_A:
+                    break;
+                case Renderer::SDL::KEY_S:
+                    break;
+                case Renderer::SDL::KEY_D:
+                    break;    
+            }            
+            */
+
+
+
+            // Append test obj
+            //obj1.update();
+            
+
             //Render Current instances
             Renderer.renderFrame();
 
@@ -847,6 +864,9 @@ void TestEnv::_RenderObject::testPokemonSprites() {
 
             // Present the renderer
             Renderer.showFrame();
+
+            // Purge
+            // Renderer.purgeObjects();
 
             // Update objects
             Renderer.update();
@@ -857,10 +877,6 @@ void TestEnv::_RenderObject::testPokemonSprites() {
                 quit = true;
                 break;
             }
-
-            //Platform::clearScreen();
-            //std::cout << Renderer.serializeEnvironment();
-            //std::cout << "\n";
         }
     }
     //End of Program!
