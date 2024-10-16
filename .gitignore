@@ -1,10 +1,14 @@
 # Ignore everything inside the _LIBS directory
 _LIBS/
 
-# Ignore changes in the game ressources
-# since game files moved to ./bin for direct use assets moved as well:
-GameName/
-bin/
+# Ignore game resources
+Application/Resources/
+
+# Ignore binaries
+Application/bin/
+
+# Ignore dlls
+*.dll
 
 # Ignore segment for graphics Creation, for now
 GraphicsCreation/

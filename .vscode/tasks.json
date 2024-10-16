@@ -11,7 +11,7 @@
                 "-w",                       // Suppress all warnings
                 "${workspaceFolder}/ProjectEngine/main.cpp",  // Specify main file
                 "-o",                       // Specify the output file
-                "${workspaceFolder}/bin/Engine",  // Output to a specific directory
+                "${workspaceFolder}/Application/bin/Engine",  // Output to a specific directory
                 //-------------------------------------------------------------------
                 //Include cpp files
                 //MAIN
@@ -37,8 +37,7 @@
                 "${workspaceFolder}/ProjectEngine/Helper/Console.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/FileManagement.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/JSONHandler.cpp",
-                "${workspaceFolder}/ProjectEngine/Helper/MenuScreen.cpp",
-                "${workspaceFolder}/ProjectEngine/Helper/Optionsmenu.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/OptionsMenu.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/StringHandler.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/Time.cpp",
                 "${workspaceFolder}/ProjectEngine/Rendering/Environment.cpp",
@@ -84,7 +83,7 @@
                 "-w",                       // Suppress all warnings
                 "${workspaceFolder}/ProjectEditor/main.cpp",  // Specify main file
                 "-o",                       // Specify the output file
-                "${workspaceFolder}/bin/Editor",  // Output to a specific directory
+                "${workspaceFolder}/Application/bin/Editor",  // Output to a specific directory
                 //-------------------------------------------------------------------
                 //Include cpp files
                 //MAIN
@@ -110,8 +109,7 @@
                 "${workspaceFolder}/ProjectEngine/Helper/Console.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/FileManagement.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/JSONHandler.cpp",
-                "${workspaceFolder}/ProjectEngine/Helper/MenuScreen.cpp",
-                "${workspaceFolder}/ProjectEngine/Helper/Optionsmenu.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/OptionsMenu.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/StringHandler.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/Time.cpp",
                 "${workspaceFolder}/ProjectEngine/Rendering/Environment.cpp",
@@ -157,7 +155,7 @@
                 "-w",                       // Suppress all warnings
                 "${workspaceFolder}/ProjectTestEnvironment/main.cpp",  // Specify main file
                 "-o",                       // Specify the output file
-                "${workspaceFolder}/bin/TestEnvironment",  // Output to a specific directory
+                "${workspaceFolder}/Application/bin/TestEnvironment",  // Output to a specific directory
                 //-------------------------------------------------------------------
                 //Include cpp files
                 //MAIN
@@ -183,8 +181,7 @@
                 "${workspaceFolder}/ProjectEngine/Helper/Console.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/FileManagement.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/JSONHandler.cpp",
-                "${workspaceFolder}/ProjectEngine/Helper/MenuScreen.cpp",
-                "${workspaceFolder}/ProjectEngine/Helper/Optionsmenu.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/OptionsMenu.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/StringHandler.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/Time.cpp",
                 "${workspaceFolder}/ProjectEngine/Rendering/Environment.cpp",
@@ -238,7 +235,7 @@
                 "-w",                       // Suppress all warnings
                 "${workspaceFolder}/ProjectEngine/main.cpp",  // Specify main file
                 "-o",                       // Specify the output file
-                "${workspaceFolder}/bin/Engine",  // Output to a specific directory
+                "${workspaceFolder}/Application/bin/Engine",  // Output to a specific directory
                 //-------------------------------------------------------------------
                 //Include cpp files
                 //MAIN
@@ -264,8 +261,7 @@
                 "${workspaceFolder}/ProjectEngine/Helper/Console.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/FileManagement.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/JSONHandler.cpp",
-                "${workspaceFolder}/ProjectEngine/Helper/MenuScreen.cpp",
-                "${workspaceFolder}/ProjectEngine/Helper/Optionsmenu.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/OptionsMenu.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/StringHandler.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/Time.cpp",
                 "${workspaceFolder}/ProjectEngine/Rendering/Environment.cpp",
@@ -311,7 +307,7 @@
                 "-w",                       // Suppress all warnings
                 "${workspaceFolder}/ProjectEditor/main.cpp",  // Specify main file
                 "-o",                       // Specify the output file
-                "${workspaceFolder}/bin/Editor",  // Output to a specific directory
+                "${workspaceFolder}/Application/bin/Editor",  // Output to a specific directory
                 //-------------------------------------------------------------------
                 //Include cpp files
                 //MAIN
@@ -337,8 +333,7 @@
                 "${workspaceFolder}/ProjectEngine/Helper/Console.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/FileManagement.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/JSONHandler.cpp",
-                "${workspaceFolder}/ProjectEngine/Helper/MenuScreen.cpp",
-                "${workspaceFolder}/ProjectEngine/Helper/Optionsmenu.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/OptionsMenu.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/StringHandler.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/Time.cpp",
                 "${workspaceFolder}/ProjectEngine/Rendering/Environment.cpp",
@@ -384,7 +379,7 @@
                 "-w",                       // Suppress all warnings
                 "${workspaceFolder}/ProjectTestEnvironment/main.cpp",  // Specify main file
                 "-o",                       // Specify the output file
-                "${workspaceFolder}/bin/TestEnvironment",  // Output to a specific directory
+                "${workspaceFolder}/Application/bin/TestEnvironment",  // Output to a specific directory
                 //-------------------------------------------------------------------
                 //Include cpp files
                 //MAIN
@@ -410,8 +405,7 @@
                 "${workspaceFolder}/ProjectEngine/Helper/Console.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/FileManagement.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/JSONHandler.cpp",
-                "${workspaceFolder}/ProjectEngine/Helper/MenuScreen.cpp",
-                "${workspaceFolder}/ProjectEngine/Helper/Optionsmenu.cpp",
+                "${workspaceFolder}/ProjectEngine/Helper/OptionsMenu.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/StringHandler.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/Time.cpp",
                 "${workspaceFolder}/ProjectEngine/Rendering/Environment.cpp",
@@ -465,7 +459,7 @@
                 "-w",                       // Suppress all warnings
                 "${workspaceFolder}/_TestMain/main.cpp",  // Specify main file
                 "-o",                       // Specify the output file
-                "${workspaceFolder}/bin/TestMain",  // Output to a specific directory
+                "${workspaceFolder}/Application/bin/TestMain",  // Output to a specific directory
                 //-------------------------------------------------------------------
                 //Include cpp files
                 //MAIN
@@ -491,8 +485,7 @@
                 // "${workspaceFolder}/ProjectEngine/Helper/Console.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/FileManagement.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/JSONHandler.cpp",
-                // "${workspaceFolder}/ProjectEngine/Helper/MenuScreen.cpp",
-                // "${workspaceFolder}/ProjectEngine/Helper/Optionsmenu.cpp",
+                // "${workspaceFolder}/ProjectEngine/Helper/OptionsMenu.cpp",
                 "${workspaceFolder}/ProjectEngine/Helper/StringHandler.cpp",
                 // "${workspaceFolder}/ProjectEngine/Helper/Time.cpp",
                 // "${workspaceFolder}/ProjectEngine/Rendering/Environment.cpp",
@@ -532,7 +525,7 @@
         {
             "label": "Build and Run Test Main",
             "type": "shell",
-            "command": "${workspaceFolder}/bin/TestMain",
+            "command": "${workspaceFolder}/Application/bin/TestMain",
             "group": {
                 "kind": "build"
             },
