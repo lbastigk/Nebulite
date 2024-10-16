@@ -66,6 +66,38 @@ public:
             const static int arrowDown = 4348699;
             const static int arrowLeft = 4479771;
             const static int arrowRight = 4414235;
+            // First row
+            const static int Q = 113;
+            const static int W = 119;
+            const static int E = 101;
+            const static int R = 114;
+            const static int T = 116;
+            const static int Z = 122;
+            const static int U = 117;
+            const static int I = 105;
+            const static int O = 111;
+            const static int P = 112;
+            const static int Ü = -17469;
+            // Second row
+            const static int A = 97;
+            const static int S = 115;
+            const static int D = 100;
+            const static int F = 102;
+            const static int G = 103;
+            const static int H = 104;
+            const static int J = 106;
+            const static int K = 107;
+            const static int L = 108;
+            const static int Ö = -19005;
+            const static int Ä = -23613;
+            // Third row
+            const static int Y = 121;
+            const static int X = 120;
+            const static int C = 99;
+            const static int V = 118;
+            const static int B = 98;
+            const static int N = 110;
+            const static int M = 109;
         #endif
         
     };
