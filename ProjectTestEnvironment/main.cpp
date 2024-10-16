@@ -3,50 +3,25 @@
 int main(int argc, char* argv[]) {
 	// Redirect std::cerr to a file
     freopen("error_log.txt", "w", stderr);
-    std::cerr << "Test log...\n";
 
-	Platform::clearScreen();
-
-	int opt = 5;
-	std::string options = "FileManagement\nGeneral\nInventarObjekt\nJSONHandler\nKreatur\nMoveRuleSet\nRenderObject\nRenderer\nTalente\nTemplate\nQuit";
-	while (opt != std::ranges::count(options,'\n')) {
-		opt = DsaDebug::menueScreen(options, opt, "OPTIONS:\n----------------------\n", "\n----------------------");
-
-		Platform::clearScreen();
-
-		switch (opt) {
-		case 0:
-			TestEnv::_FileManagement::testMenue();
-			break;
-		case 1:
-			TestEnv::_General::testMenue();
-			break;
-		case 2:
-			TestEnv::_InventarObjekt::testMenue();
-			break;
-		case 3:
-			TestEnv::_JSONHandler::testMenue();
-			break;
-		case 4:
-			TestEnv::_Kreatur::testMenue();
-			break;
-		case 5:
-			TestEnv::_MoveRuleSet::testMenue();
-			break;
-		case 6:
-			TestEnv::_RenderObject::testMenue();
-			break;
-		case 7:
-			TestEnv::_Renderer::testMenue();
-			break;
-		case 8:
-			TestEnv::_Talente::testMenue();
-			break;
-		case 9:
-			TestEnv::_Template::testMenue();
-			break;
-		}
-	}
+	// Create options menu
+	OptionsMenu optM;
+	optM.setOption(6);	//Start option
+	optM.attachFunction(TestEnv::_FileManagement::testMenue,	"FileManagement");
+	optM.attachFunction(TestEnv::_General::testMenue,			"General");
+	optM.attachFunction(TestEnv::_InventarObjekt::testMenue,	"InventarObjekt");
+	optM.attachFunction(TestEnv::_JSONHandler::testMenue,		"JSONHandler");
+	optM.attachFunction(TestEnv::_Kreatur::testMenue,			"Kreatur");
+	optM.attachFunction(TestEnv::_MoveRuleSet::testMenue,		"MoveRuleSet");
+	optM.attachFunction(TestEnv::_RenderObject::testMenue,		"RenderObject");
+	optM.attachFunction(TestEnv::_Renderer::testMenue,			"Renderer");
+	optM.attachFunction(TestEnv::_Talente::testMenue,			"Talente");
+	optM.attachFunction(TestEnv::_Template::testMenue,			"Template");
+	optM.render();		//First render for display
+	
+	//Loop until exit is chosen
+	volatile int status = 0;
+	while(status != OptionsMenu::statusExit){status = optM.update();}
 
 	return 0;
 }

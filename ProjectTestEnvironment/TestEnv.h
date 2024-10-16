@@ -1,5 +1,7 @@
 #pragma once
 
+#include "OptionsMenu.h"
+
 #include "_TEMPLATE_CLASS.h"
 #include "FileManagement.h"
 #include "JSONHandler.h"
@@ -9,6 +11,7 @@
 #include "MoveRuleSet.h"
 #include "DsaDebug.h"
 #include "StringHandler.h"
+
 
 class TestEnv {
 public:
@@ -71,8 +74,8 @@ public:
     public:
         static void testMenue();
         static void serialize();
-        static void testMoveSetWithoutThreads(int objCount = 32, int ringCount = 16);
-        static void testMoveSetWithThreads(int objCount = 32, int ringCount = 16);
+        static void testMoveSetWithoutThreads();
+        static void testMoveSetWithThreads();
         static void testSingleObject();
     };
     class _RenderObject {
@@ -85,10 +88,10 @@ public:
     class _Renderer {
     public:
         static void testMenue();
-        static int randomImages(int objectCount = 128);
-        static int circleBenchmark(int objectCount = 128);
-        static void ThreadTest(int objCount = 1024, int ringCount = 16, int framesToRender = 30);
-        static void testRendererMemLeak(int loopamount = 128, bool dump = true);
+        static int randomImages();
+        static int circleBenchmark();
+        static void ThreadTest();
+        static void testRendererMemLeak();
         static int movement();
         static void simpleSdlWindow();
     private:
