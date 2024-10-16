@@ -59,7 +59,8 @@ int TestEnv::_Renderer::circleBenchmark() {
     int i = 0;
     float radmax = 400;
     float radmin = 50;
-    Renderer.updatePosition(0, 0);
+    
+    //Renderer.updatePosition(0, 0);
 
     
 

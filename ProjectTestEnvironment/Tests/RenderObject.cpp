@@ -239,7 +239,7 @@ void TestEnv::_RenderObject::testPokemonSprites() {
             // Set Render Position
             int playerPosX = (int)Player.valueGet<double>(namenKonvention.renderObject.positionX) + (int)(Player.valueGet<double>(namenKonvention.renderObject.pixelSizeX)/2);
             int playerPosY = (int)Player.valueGet<double>(namenKonvention.renderObject.positionY) + (int)(Player.valueGet<double>(namenKonvention.renderObject.pixelSizeY)/2);
-            Renderer.updatePosition(playerPosX,playerPosY);
+            Renderer.updatePosition(playerPosX,playerPosY,true);
 
             // Append test obj
             Renderer.append(Player);
