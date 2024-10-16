@@ -1,4 +1,5 @@
 #include "DsaDebug.h"
+int FUNCTION_DEPTH = 0;  // Define FUNCTION_DEPTH
 
 double DsaDebug::getMemoryUsagekB() {
     return Platform::getMemoryUsagekB();

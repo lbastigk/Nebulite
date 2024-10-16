@@ -12,6 +12,12 @@
 
 #include "Platform.h"
 
+extern int FUNCTION_DEPTH;
+
+#define LOG_FUNC_I() 			std::cerr << "Entering:\t"; for(int it_depth=0;it_depth<FUNCTION_DEPTH;it_depth++){std::cerr << '\t';} std::cerr << typeid(*this).name() << "::" << __func__ << " D" << FUNCTION_DEPTH << std::endl;FUNCTION_DEPTH++;
+#define LOG_FUNC_O() FUNCTION_DEPTH--; 	std::cerr << "Exiting: \t"; for(int it_depth=0;it_depth<FUNCTION_DEPTH;it_depth++){std::cerr << '\t';} std::cerr << typeid(*this).name() << "::" << __func__ << std::endl;
+#define LOG_FDEPTH() std::cerr << "         \t"; for(int it_depth=0;it_depth<FUNCTION_DEPTH;it_depth++){std::cerr << '\t';}
+
 
 class DsaDebug {
 public:
