@@ -1,10 +1,10 @@
-#include "MenueScreen.h"
+#include "MenuScreen.h"
 
-MenueScreen::MenueScreen() {
+MenuScreen::MenuScreen() {
 	opts.push_back("No options created!");
 }
 
-void MenueScreen::addOption(std::string opt) {
+void MenuScreen::addOption(std::string opt) {
 	if (!hasOptions) {
 		opts.clear();
 		hasOptions = true;
@@ -12,17 +12,17 @@ void MenueScreen::addOption(std::string opt) {
 	opts.push_back(opt);
 }
 
-void MenueScreen::clearOptions() {
+void MenuScreen::clearOptions() {
 	opts.clear();
 	opts.push_back("No options created!");
 	hasOptions = false;
 }
 
-void MenueScreen::setWriteBefore(std::string toWrite) {
+void MenuScreen::setWriteBefore(std::string toWrite) {
 	writeBefore = toWrite;
 }
 
-void MenueScreen::update(char lastKeyStroke) {
+void MenuScreen::update(char lastKeyStroke) {
 	if (lastKeyStroke == 'w') {
 
 	}
@@ -35,14 +35,14 @@ void MenueScreen::update(char lastKeyStroke) {
 
 }
 
-bool MenueScreen::optionWasEntered() {
+bool MenuScreen::optionWasEntered() {
 	return optionEntered;
 }
-int MenueScreen::getCurrentOption() {
+int MenuScreen::getCurrentOption() {
 	return optionPointer;
 }
 
-void MenueScreen::reWrite() {
+void MenuScreen::reWrite() {
 	Platform::clearScreen();
 	std::cout << writeBefore;
 

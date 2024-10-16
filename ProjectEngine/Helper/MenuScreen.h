@@ -7,9 +7,9 @@
 
 #include "Platform.h"
 
-class MenueScreen {
+class MenuScreen {
 public:
-	MenueScreen();
+	MenuScreen();
 
 	void addOption(std::string opt);
 

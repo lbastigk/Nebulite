@@ -12,8 +12,8 @@ public:
 
     OptionsMenu() : currentOption(0) {}
 
-    void OptionsMenu::setTextBefore(std::string text);
-    void OptionsMenu::setTextAfter(std::string text);
+    void setTextBefore(std::string text);
+    void setTextAfter(std::string text);
 
     // Update, get input and manipulate
     // return is 0 if no option was chosen
