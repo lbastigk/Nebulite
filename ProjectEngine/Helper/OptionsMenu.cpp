@@ -1,7 +1,5 @@
 #include "OptionsMenu.h"
 
-
-
 void OptionsMenu::setTextBefore(std::string text){
     textBefore = text;
 }
@@ -11,22 +9,34 @@ void OptionsMenu::setTextAfter(std::string text){
 }
 
 int OptionsMenu::update(bool renderScreen) {
-    int val = -1;
-    int input = Platform::getCharacter();
-    switch(input){
-        case Platform::KeyPress::arrowUp:
-            currentOption = (currentOption - 1 + functions.size() + 1) % (functions.size() + 1);
-            break;
-        case Platform::KeyPress::arrowDown:
-            currentOption = (currentOption + 1 + functions.size() + 1) % (functions.size() + 1);
-            break;
-        case Platform::KeyPress::Enter:
-            val = currentOption;
-            functions.at(currentOption).first();
-            break;
-    }
-    if(renderScreen){
-        render();
+    int size = functions.size();
+    int val = 0;
+    if(Platform::hasKeyBoardInput()){
+        int input = Platform::getCharacter();
+        switch(input){
+            case Platform::KeyPress::arrowUp:
+            case Platform::KeyPress::W:
+                currentOption = (currentOption - 1 + size + 1) % (size + 1);
+                break;
+            case Platform::KeyPress::arrowDown:
+            case Platform::KeyPress::S:
+                currentOption = (currentOption + 1 + size + 1) % (size + 1);
+                break;
+            case Platform::KeyPress::Enter:
+                val = currentOption;
+                if(currentOption < size){
+                    functions.at(currentOption).first();
+                }
+                else{
+                    val = statusExit;
+                }
+                break;
+            default:
+                break;
+        }
+        if(renderScreen){
+            render();
+        }
     }
     return val;
 }
@@ -71,4 +81,8 @@ void OptionsMenu::attachFunction(FunctionPtr func, const std::string& text) {
 void OptionsMenu::clearEntries() {
     functions.clear();
     currentOption = 0;  // Reset current option
+}
+
+void OptionsMenu::setOption(int opt){
+    currentOption = opt;
 }

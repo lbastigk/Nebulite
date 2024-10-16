@@ -32,11 +32,15 @@ public:
     // Clear all function entries
     void clearEntries();
 
+    void setOption(int opt);
+
+    const static int statusExit = -1;
+
 private:
     std::string textBefore = "";
     std::string textAfter = "";
 
     std::vector<std::pair<FunctionPtr, std::string>> functions;  // Vector of function-text pairs
     bool showExitEntry = true;  // Whether to show the exit entry
-    int currentOption;           // Current option index
+    int currentOption = 0;           // Current option index
 };
