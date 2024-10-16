@@ -1,8 +1,9 @@
 # Ignore everything inside the _LIBS directory
 _LIBS/
 
-# Ignore game resources
+# Ignore game resources and error logs
 Application/Resources/
+*log.txt
 
 # Ignore binaries
 Application/bin/
