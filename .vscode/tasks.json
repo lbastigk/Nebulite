@@ -87,7 +87,7 @@
                 //-------------------------------------------------------------------
                 //Include cpp files
                 //MAIN
-                "${workspaceFolder}/ProjectEditor/main.cpp",
+                //"${workspaceFolder}/ProjectEditor/main.cpp",
                 //"${workspaceFolder}/ProjectEngine/main.cpp",
                 //"${workspaceFolder}/ProjectTestEnvironment/main.cpp",
                 //OTHER
