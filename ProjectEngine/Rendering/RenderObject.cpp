@@ -1,5 +1,7 @@
 #include "RenderObject.h"
 
+#include <iostream>
+
 
 //-----------------------------------------------------------
 //Constructor
@@ -112,7 +114,6 @@ void RenderObject::calculateSrcRect() {
 
 //-----------------------------------------------------------
 void RenderObject::update() {
-
 	//Temporary files
 	rapidjson::Document tmpDoc;
 
@@ -135,7 +136,6 @@ void RenderObject::update() {
 }
 
 void RenderObject::loadMoveSet(MoveRuleSet mrs) {
-
 	//Temporary files
 	rapidjson::Document tmpDoc;
 
@@ -167,7 +167,6 @@ void RenderObject::exampleMoveSet(std::string val) {
 	JSONHandler::Set::subDoc(doc, namenKonvention.moveRuleSet._self, *tmpMrs.getDoc());
 }
 
-//TODO
 bool RenderObject::hasMoveSet() {
 	rapidjson::Document mrs;
 	JSONHandler::Get::subDoc(doc, namenKonvention.moveRuleSet._self, mrs);
@@ -236,7 +235,6 @@ std::string RenderObjectContainer::serialize() {
 }
 
 void RenderObjectContainer::deserialize(const std::string& serialOrLink, int dispResX, int dispResY, int THREADSIZE) {
-
 	// Deserialize and copy into "doc"
 	rapidjson::Document doc = JSONHandler::deserialize(serialOrLink);
 
@@ -284,6 +282,7 @@ void RenderObjectContainer::deserialize(const std::string& serialOrLink, int dis
 //-----------------------------------------------------------
 // Pipeline
 
+/*
 void RenderObjectContainer::append(RenderObject toAppend, int dispResX, int dispResY, int THREADSIZE) {
 	//new tile position
 	unsigned int correspondingTileXpos;
@@ -308,7 +307,7 @@ void RenderObjectContainer::append(RenderObject toAppend, int dispResX, int disp
 		correspondingTileXpos = (unsigned int)(placeholder);
 	}
 
-	valget = toAppend.valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
+	valget = toAppend.valueGet<double>(namenKonvention.renderObject.positionY, 0.0);
 	placeholder = (int64_t)(valget / (double)dispResY);
 	if (placeholder < 0) {
 		correspondingTileYpos = (unsigned int)(-placeholder);
@@ -356,9 +355,63 @@ void RenderObjectContainer::append(RenderObject toAppend, int dispResX, int disp
 	//loadTexture(toAppend);
 }
 
-void RenderObjectContainer::update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE) {
-	//auto time1 = Time::gettime();
+*/
 
+void RenderObjectContainer::append(RenderObject toAppend, int dispResX, int dispResY, int THREADSIZE) {
+    // new tile position
+    unsigned int correspondingTileXpos;
+    unsigned int correspondingTileYpos;
+
+    // Calculate tile position based on screen resolution
+    double valget;
+    int64_t placeholder;
+
+    // Calculate correspondingTileXpos using positionX
+    valget = toAppend.valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
+    placeholder = (int64_t)(valget / (double)dispResX);
+    correspondingTileXpos = (placeholder < 0) ? (unsigned int)(-placeholder) : (unsigned int)(placeholder);
+
+    // Calculate correspondingTileYpos using positionY
+    valget = toAppend.valueGet<double>(namenKonvention.renderObject.positionY, 0.0);
+    placeholder = (int64_t)(valget / (double)dispResY);
+    correspondingTileYpos = (placeholder < 0) ? (unsigned int)(-placeholder) : (unsigned int)(placeholder);
+
+    // Ensure the position is valid, grow the ObjectContainer if necessary
+    if (!isValidPosition(correspondingTileXpos, correspondingTileYpos)) {
+        // Ensure the row exists
+        while (ObjectContainer.size() <= correspondingTileYpos) {
+            ObjectContainer.emplace_back(std::vector<std::vector<std::vector<RenderObject>>>());
+        }
+
+        // Ensure the column exists
+        while (ObjectContainer[correspondingTileYpos].size() <= correspondingTileXpos) {
+            ObjectContainer[correspondingTileYpos].emplace_back(std::vector<std::vector<RenderObject>>());
+        }
+    }
+
+    // Try to append to an existing batch, respecting the THREADSIZE limit
+    bool appended = false;
+    for (auto& batch : ObjectContainer[correspondingTileYpos][correspondingTileXpos]) {
+        if (batch.size() < THREADSIZE) {
+            batch.push_back(toAppend);
+            appended = true;
+            break;
+        }
+    }
+
+    // If no batch was available or full, create a new batch and append
+    if (!appended) {
+        ObjectContainer[correspondingTileYpos][correspondingTileXpos].emplace_back();  // Add new batch
+        auto& lastBatch = ObjectContainer[correspondingTileYpos][correspondingTileXpos].back();
+        lastBatch.push_back(toAppend);
+    }
+
+    // Load the associated image (assuming loadTexture is defined elsewhere)
+    // loadTexture(toAppend);
+}
+
+
+void RenderObjectContainer::update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE) {
 	//Thread vector
 	std::vector<std::thread> threads;
 
@@ -467,20 +520,27 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 }
 
 bool RenderObjectContainer::isValidPosition(int x, int y) const {
-	// Check if ObjectContainer is not empty
-	if (!ObjectContainer.empty()) {
-		// Check if y is within the valid range of rows
-		if (y >= 0 && y < ObjectContainer.size()) {
-			// Check if x is within the valid range of columns for the given row
-			return x >= 0 && x < ObjectContainer[y].size();
-		}
-	}
-	return false;
+    // Check if ObjectContainer is not empty
+    if (!ObjectContainer.empty()) {
+        // Check if y is within the valid range of rows
+        if (y >= 0 && y < ObjectContainer.size()) {
+            // Check if x is within the valid range of columns
+            if (x >= 0 && x < ObjectContainer[y].size()) {
+                // Check if there are any batches (inner vectors) in this position
+                if (!ObjectContainer[y][x].empty()) {
+                    // Return true if there is at least one non-empty batch in this position
+                    return !ObjectContainer[y][x].empty();
+                }
+            }
+        }
+    }
+    return false;
 }
 
 
+
 std::vector<std::vector<RenderObject>>& RenderObjectContainer::getContainerAt(int x, int y) {
-	return ObjectContainer[x][y];
+	return ObjectContainer[y][x];
 }
 
 void RenderObjectContainer::purgeObjects() {

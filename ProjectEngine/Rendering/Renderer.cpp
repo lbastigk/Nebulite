@@ -251,7 +251,6 @@ void Renderer::renderFrame(bool drawTileGrid) {
 
 	//Render Objects
 	//For all layers, starting at 0
-	std::cerr << "Rendering new Frame..." << std::endl;
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
 		//Between dx +-1
 		for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
@@ -265,7 +264,6 @@ void Renderer::renderFrame(bool drawTileGrid) {
 						for (auto& obj : batch) {
 							//Texture loading is handled in append
 							std::string innerdir = obj.valueGet<std::string>(namenKonvention.renderObject.imageLocation);
-
 							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
 								loadTexture(obj);
 								obj.calculateDstRect();
