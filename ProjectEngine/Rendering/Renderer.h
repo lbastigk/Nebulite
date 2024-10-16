@@ -46,7 +46,7 @@ public:
 	//-----------------------------------------------------------
 	// Manipulation
 	void changeWindowSize();
-	void updatePosition(int x, int y);
+	void updatePosition(int x, int y, bool isMiddle = true);
 	void moveCam(int dX, int dY);
 	
 	//-----------------------------------------------------------

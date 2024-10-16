@@ -150,9 +150,9 @@ void Renderer::changeWindowSize() {
 	
 }
 
-void Renderer::updatePosition(int x, int y) {
-	Xpos = x;
-	Ypos = y;
+void Renderer::updatePosition(int x, int y, bool isMiddle) {
+	Xpos = x - (int)(stoi(generalOptions.GetOption(namenKonvention.options.dispResX)) / 2);
+	Ypos = y - (int)(stoi(generalOptions.GetOption(namenKonvention.options.dispResY)) / 2);
 	tileXpos = Xpos / stoi(generalOptions.GetOption(namenKonvention.options.dispResX));
 	tileYpos = Ypos / stoi(generalOptions.GetOption(namenKonvention.options.dispResY));
 }

@@ -88,8 +88,6 @@ void TestEnv::_RenderObject::testPokemonSprites() {
     background.valueSet(namenKonvention.renderObject.imageLocation, "Resources/Sprites/Pokemon_Transparent/Game Boy Advance - Pokemon FireRed LeafGreen - Tileset 2.png");
     background.valueSet(namenKonvention.renderObject.isSpritesheet, false);
     background.update();
-    
-
 
     //Standard stuff
     Player.valueSet(namenKonvention.renderObject.layer,(int)Environment::RenderObjectLayers::foreground);
@@ -115,9 +113,6 @@ void TestEnv::_RenderObject::testPokemonSprites() {
 
     int i = 0;
     int startSpritePosX,startSpritePosY,vecX,vecY;
-
-
-    
 
     //General Variables
     SDL_Event sdlEvent;
@@ -241,6 +236,11 @@ void TestEnv::_RenderObject::testPokemonSprites() {
                 }
             }
 
+            // Set Render Position
+            int playerPosX = (int)Player.valueGet<double>(namenKonvention.renderObject.positionX) + (int)(Player.valueGet<double>(namenKonvention.renderObject.pixelSizeX)/2);
+            int playerPosY = (int)Player.valueGet<double>(namenKonvention.renderObject.positionY) + (int)(Player.valueGet<double>(namenKonvention.renderObject.pixelSizeY)/2);
+            Renderer.updatePosition(playerPosX,playerPosY);
+
             // Append test obj
             Renderer.append(Player);
             Renderer.append(background);
@@ -257,8 +257,6 @@ void TestEnv::_RenderObject::testPokemonSprites() {
 
             // Purge
             Renderer.purgeObjects();
-
-
         }
     }
     //End of Program!
