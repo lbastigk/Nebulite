@@ -133,7 +133,7 @@ void TestEnv::_RenderObject::testPokemonSprites() {
             //dummy renderobject to check if player is standing
             RenderObject dummy = Player;
             dummy.update();
-            if(!dummy.hasMoveSet()){
+            if(0 && !dummy.hasMoveSet()){
                 if (keystates[SDL_SCANCODE_W]) {
                     //Move Up
                     //------------------------------------------
@@ -210,6 +210,109 @@ void TestEnv::_RenderObject::testPokemonSprites() {
                     Player.loadMoveSet(pos);                    
                 }
                 else if (keystates[SDL_SCANCODE_D]) {
+                    //Move Right
+                    //------------------------------------------
+                    startSpritePosX = 9 + 3*3*17;
+                    startSpritePosY = 42;
+                    vecX = 1;
+                    vecY = 0;
+
+                    //Set start sprite
+                    startValueOffsetX = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetX, startSpritePosX);
+                    startValueOffsetY = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetY, startSpritePosY);
+
+                    //Sprite Movement
+                    spriteOffsetX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3,17);
+
+                    //Object Movement
+                    pos = MoveRuleSet::Examples::Move::linear(vecX*160,vecY*160,10,10);
+
+                    //Load
+                    Player.update();
+                    Player.loadMoveSet(startValueOffsetX);
+                    Player.loadMoveSet(startValueOffsetY);
+                    Player.loadMoveSet(spriteOffsetX);
+                    Player.loadMoveSet(pos);                    
+                }
+            }
+            if(!dummy.hasMoveSet()){
+                int choice = int(10*(((double)rand())/RAND_MAX));
+                if (choice == 0) {
+                    //Move Up
+                    //------------------------------------------
+                    startSpritePosX = 9 + 1*3*17;
+                    startSpritePosY = 42;
+                    vecX = 0;
+                    vecY = -1;
+
+                    //Set start sprite
+                    startValueOffsetX = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetX, startSpritePosX);
+                    startValueOffsetY = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetY, startSpritePosY);
+
+                    //Sprite Movement
+                    spriteOffsetX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3,17);
+
+                    //Object Movement
+                    pos = MoveRuleSet::Examples::Move::linear(vecX*160,vecY*160,10,10);
+
+                    //Load
+                    Player.update();
+                    Player.loadMoveSet(startValueOffsetX);
+                    Player.loadMoveSet(startValueOffsetY);
+                    Player.loadMoveSet(spriteOffsetX);
+                    Player.loadMoveSet(pos);
+                }
+                else if (choice == 1) {
+                    //Move Left
+                    //------------------------------------------
+                    startSpritePosX = 9 + 2*3*17;
+                    startSpritePosY = 42;
+                    vecX = -1;
+                    vecY = 0;
+
+                    //Set start sprite
+                    startValueOffsetX = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetX, startSpritePosX);
+                    startValueOffsetY = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetY, startSpritePosY);
+
+                    //Sprite Movement
+                    spriteOffsetX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3,17);
+
+                    //Object Movement
+                    pos = MoveRuleSet::Examples::Move::linear(vecX*160,vecY*160,10,10);
+
+                    //Load
+                    Player.update();
+                    Player.loadMoveSet(startValueOffsetX);
+                    Player.loadMoveSet(startValueOffsetY);
+                    Player.loadMoveSet(spriteOffsetX);
+                    Player.loadMoveSet(pos);
+                }
+                else if (choice == 2) {
+                    //Move Down
+                    //------------------------------------------
+                    startSpritePosX = 9 + 0*3*17;
+                    startSpritePosY = 42;
+                    vecX = 0;
+                    vecY = 1;
+
+                    //Set start sprite
+                    startValueOffsetX = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetX, startSpritePosX);
+                    startValueOffsetY = MoveRuleSet::Examples::setValue(namenKonvention.renderObject.spritesheetOffsetY, startSpritePosY);
+
+                    //Sprite Movement
+                    spriteOffsetX = MoveRuleSet::Examples::upAndDown(namenKonvention.renderObject.spritesheetOffsetX, 17 * 2, 17, 1,3,17);
+
+                    //Object Movement
+                    pos = MoveRuleSet::Examples::Move::linear(vecX*160,vecY*160,10,10);
+
+                    //Load
+                    Player.update();
+                    Player.loadMoveSet(startValueOffsetX);
+                    Player.loadMoveSet(startValueOffsetY);
+                    Player.loadMoveSet(spriteOffsetX);
+                    Player.loadMoveSet(pos);                    
+                }
+                else if (choice == 3) {
                     //Move Right
                     //------------------------------------------
                     startSpritePosX = 9 + 3*3*17;
