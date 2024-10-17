@@ -11,6 +11,7 @@
 #include <variant>
 #include <locale>
 #include <codecvt>
+#include <vector>
 
 //-----------------------------------------
 //Platform depending includes
@@ -50,6 +51,10 @@ public:
 
     static int getCharacter();
 
+    static void putCharacter(int character);
+
+    static std::string vectorToString(const std::vector<int>& characterVector);
+
     static double getMemoryUsagekB();
 
     class KeyPress{
@@ -61,7 +66,23 @@ public:
             const static int arrowLeft = 0;
             const static int arrowRight = 0;
         #elif defined(__linux__)
+            // Special
             const static int Enter = 10;
+            const static int Backspace = 127;
+            const static int Space = 32;
+            const static int Tab = 9;
+            // Numbers
+            const static int NO_0 = 48;
+            const static int NO_1 = 49;
+            const static int NO_2 = 50;
+            const static int NO_3 = 51;
+            const static int NO_4 = 52;
+            const static int NO_5 = 53;
+            const static int NO_6 = 54;
+            const static int NO_7 = 55;
+            const static int NO_8 = 56;
+            const static int NO_9 = 57;
+            // Arrows
             const static int arrowUp = 4283163;
             const static int arrowDown = 4348699;
             const static int arrowLeft = 4479771;
@@ -101,6 +122,13 @@ public:
         #endif
         
     };
+
+    #ifdef WIN32
+        static const bool hasDefaultEcho = false;
+    #elif defined(__linux__)
+        static const bool hasDefaultEcho = true;
+    #endif
+    
 private:
 
 };

@@ -158,6 +158,53 @@
         return val;
     }
 
+    void Platform::putCharacter(int character) {
+        // Buffer to hold the character bytes
+        char buf[4] = {0};  // A maximum of 4 bytes to handle UTF-8 encoded characters
+
+        // Convert the integer into its byte representation
+        buf[0] = (character >> 8*0) & 0xFF;
+        buf[1] = (character >> 8*1) & 0xFF;
+        buf[2] = (character >> 8*2) & 0xFF;
+        buf[3] = (character >> 8*3) & 0xFF;
+
+        // Determine the number of bytes to write
+        int numBytes = 0;
+        if (buf[3]) numBytes = 4;
+        else if (buf[2]) numBytes = 3;
+        else if (buf[1]) numBytes = 2;
+        else numBytes = 1;
+
+        // Write the character bytes to stdout
+        write(1, buf, numBytes);
+    }
+
+    std::string Platform::vectorToString(const std::vector<int>& characterVector) {
+    std::string result;
+    
+    // Iterate through each integer in the vector
+    for (int character : characterVector) {
+        char buf[4] = {0}; // Buffer to hold the bytes of each character
+        
+        // Extract the bytes from the integer
+        buf[0] = character & 0xFF;
+        buf[1] = (character >> 8) & 0xFF;
+        buf[2] = (character >> 16) & 0xFF;
+        buf[3] = (character >> 24) & 0xFF;
+        
+        // Determine how many bytes are needed to represent the character
+        int numBytes = 1;
+        if (buf[1] != 0) numBytes = 2;
+        if (buf[2] != 0) numBytes = 3;
+        if (buf[3] != 0) numBytes = 4;
+        
+        // Append the character(s) to the result string
+        result.append(buf, numBytes);
+    }
+
+    return result;
+}
+
     double Platform::getMemoryUsagekB() {
         std::ifstream statmFile("/proc/self/statm");
         if (!statmFile.is_open()) {
