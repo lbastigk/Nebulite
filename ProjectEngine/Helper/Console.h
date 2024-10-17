@@ -2,6 +2,7 @@
 
 
 #include <string>
+#include <vector>
 #include <stdio.h>
 #include <iostream>
 
@@ -19,9 +20,9 @@ public:
 	char getLastKeystroke();
 	bool isNewLastKeystroke();
 private:
-	std::string consoleBuffer;
-	std::string consoleBufferTemp;
+	std::vector<int> consoleBuffer;
+	std::vector<int> consoleBufferTemp;
 
-	char _lastKeystroke = ' ';
+	int _lastKeystroke = Platform::KeyPress::Space;
 	bool _isNewLastKeystroke = false;
 };

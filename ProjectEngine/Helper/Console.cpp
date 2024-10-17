@@ -7,20 +7,20 @@ Console::Console() {
 
 void Console::refresh() {
 	if (Platform::hasKeyBoardInput()) {
-		char c = Platform::getCharacter();
+		int c = Platform::getCharacter();
 		_lastKeystroke = c;
 		_isNewLastKeystroke = true;
 
 		//Enter
-		if (c == '\r') {
+		if (c == Platform::KeyPress::Enter) {
 			consoleBuffer = consoleBufferTemp;
 			consoleBufferTemp.clear();
 		}
 		//Backspace
-		else if (c == 0x08) {
-			std::cout << c;
-			std::cout << ' ';
-			std::cout << c;
+		else if (c == Platform::KeyPress::Backspace) {
+			Platform::putCharacter(Platform::KeyPress::Backspace);
+			Platform::putCharacter(Platform::KeyPress::Space);
+			Platform::putCharacter(Platform::KeyPress::Backspace);
 
 			//Delete last from string
 			if (!consoleBufferTemp.empty()) {
@@ -29,10 +29,12 @@ void Console::refresh() {
 		}
 		else {
 			//Append to string
-			consoleBufferTemp += c;
+			consoleBufferTemp.push_back(c);
 
 			//Add to out
-			std::cout << c;
+			if(!Platform::hasDefaultEcho){
+				Platform::putCharacter(c);
+			}
 		}
 	}
 }
@@ -46,7 +48,7 @@ bool Console::hasInputInTemp() {
 }
 
 std::string Console::getInput() {
-	std::string tmp = consoleBuffer;
+	std::string tmp = Platform::vectorToString(consoleBuffer);
 	consoleBuffer.clear();
 	return tmp;
 }
