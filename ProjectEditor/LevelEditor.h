@@ -5,6 +5,7 @@
 #include "Renderer.h"
 #include "DsaDebug.h"
 #include "Console.h"
+#include "OptionsMenu.h"
 
 #pragma once
 
@@ -20,32 +21,16 @@ public:
 	bool status();
 
 	//Console input functions
-    std::string placeItem();
-    std::string deleteItem();
-    std::string clearConsole();
-    std::string serializeEnvironment();
-    std::string countObjects();
-    std::string help();
-    std::string save();
+    void placeItem();
+    void deleteItem();
+    void clearConsole();
+    void serializeEnvironment();
+    void countObjects();
+    void help();
+    void save();
 
 	
 private:
-	class EditorConsole {
-	public:
-		EditorConsole();
-		void print(std::string str);
-        void clear();
-        void mainScreen();
-        void waitForInput();
-        void helpScreen();
-		void update();
-		bool checkForInput();
-		std::string getInput();
-	private:
-		Console Console;
-		std::string input;
-		std::string inputTemp;
-	};
 	class Display {	
 	public:
 		Display();
@@ -68,15 +53,18 @@ private:
 		Renderer Renderer;
 	};
 
+	OptionsMenu optM;
+
 	Display Display;
-	EditorConsole EditorConsole;
+	// EditorConsole EditorConsole;
+
 	//Environment Environment;
 	std::string environmentLink;
 
 	bool levelEditorStatus = true;
 
 	//std::function map and functions for arguments
-	std::map<std::string, std::function<std::string()>> userInputMap;
+	// std::map<std::string, std::function<std::string()>> userInputMap;
 	
 	bool getRenderObjectFromList(RenderObject& ro);
 	

@@ -4,39 +4,24 @@
 // LevelEditor Class
 
 LevelEditor::LevelEditor() {
-	EditorConsole.clear();
 	Display.start();
-	EditorConsole.mainScreen();
 
 	//Create userInputMap:
-	userInputMap["place"] = [this]() {return this->placeItem(); };
-	userInputMap["delete"] = [this]() {return this->deleteItem(); };
-	userInputMap["clear"] = [this]() {return this->clearConsole(); };
-	userInputMap["serialize"] = [this]() {return this->serializeEnvironment(); };
-	userInputMap["count"] = [this]() {return this->countObjects(); };
-	userInputMap["help"] = [this]() {return this->help(); };
-	userInputMap["save"] = [this]() {return this->save(); };
+	optM.attachFunction(std::bind(&LevelEditor::placeItem,this),"place","...");
+	optM.attachFunction(std::bind(&LevelEditor::deleteItem,this),"delete","...");
+	optM.attachFunction(std::bind(&LevelEditor::clearConsole,this),"clear","...");
+	optM.attachFunction(std::bind(&LevelEditor::serializeEnvironment,this),"serialize","...");
+	optM.attachFunction(std::bind(&LevelEditor::countObjects,this),"count","...");
+	optM.attachFunction(std::bind(&LevelEditor::save,this),"save","...");
+
+	
+	optM.changeType(OptionsMenu::typeKonsole);
+	clearConsole();
 }
 
 void LevelEditor::update() {
-		Display.update();
-		EditorConsole.update();
-
-		if (EditorConsole.checkForInput()) {
-			doInput();
-		}
-	}
-
-void LevelEditor::doInput() {
-	std::string in = EditorConsole.getInput();
-
-	if (userInputMap.find(in) != userInputMap.end()) {
-		std::string returnValue = userInputMap[in]();
-		EditorConsole.print(returnValue);
-	}
-	else {
-		EditorConsole.print("Command not found");
-	}
+	Display.update();
+	levelEditorStatus = optM.update() != OptionsMenu::statusExit;
 }
 
 void LevelEditor::saveEnvironment() {
@@ -55,7 +40,7 @@ bool LevelEditor::status() {
 }
 
 //Console input functions
-std::string LevelEditor::placeItem() {
+void LevelEditor::placeItem() {
 	//Create and append renderobject to level at selection position
 	RenderObject ro;
 
@@ -63,49 +48,29 @@ std::string LevelEditor::placeItem() {
 		ro.valueSet(namenKonvention.renderObject.positionX, Display.getSelectionX());
 		ro.valueSet(namenKonvention.renderObject.positionY, Display.getSelectionY());
 		Display.appendObject(ro);
-
-		return "Object placed! Is:\n" + ro.serialize();
-	}
-	else {
-		return "Aborted, no object was placed.";
 	}
 }
 
-std::string LevelEditor::deleteItem() {
+void LevelEditor::deleteItem() {
 	Display.deleteObject();
-
-	return "Object deleted!";
 }
 
-std::string LevelEditor::clearConsole() {
-	EditorConsole.clear();
-	EditorConsole.mainScreen();
-
-	return "";
+void LevelEditor::clearConsole() {
+	Platform::clearScreen();
+	std::cout << "DSA Engine Editor V0.1" << "\n";
+	std::cout << "........................................." << "\n";
 }
 
-std::string LevelEditor::serializeEnvironment() {
-	EditorConsole.print(Display.serializeRendererEnvironment());
-
-	return "";
+void LevelEditor::serializeEnvironment() {
+	std::cout << Display.serializeRendererEnvironment();
 }
 
-std::string LevelEditor::countObjects(){
-	EditorConsole.print(std::to_string(Display.objectCount()));
-
-	return "";
+void LevelEditor::countObjects(){
+	std::cout << std::to_string(Display.objectCount());
 }
 
-std::string LevelEditor::help() {
-	EditorConsole.helpScreen();
-
-	return "";
-}
-
-std::string LevelEditor::save() {
+void LevelEditor::save() {
 	saveEnvironment();
-
-	return "Saved";
 }
 
 // Choosing from a list of created renderobjects in the RenderObjects directory
@@ -115,73 +80,26 @@ bool LevelEditor::getRenderObjectFromList(RenderObject& ro) {
 	FileManagement::FileTypeCollector ftc(fullDir,".txt",true);
 	auto list = ftc.getFileDirectories();
 	std::string listAsString;
+
+	OptionsMenu roEntries;
+	roEntries.setTextBefore("Choose a Renderobject to place\n\n");
 	for (auto entry : list) {
-		listAsString += entry;
-		listAsString += "\n";
+		roEntries.attachFunction([](){},entry);	//Lambda expresion to attach an empty function
 	}
-	listAsString += "exit";
 
-
-	int opt = DsaDebug::menueScreen(listAsString, 0, "Choose a Renderobject to place\n\n", "", false);
-
-	if (opt == list.size()) {
+	int opt = 0;
+	while(opt == 0){
+		opt = optM.update();
+	}
+	if (opt == -1) {
 		return false;
 	}
 	else {
-		std::string link = list.at(opt);
+		std::string link = list.at(opt-1);
 		std::string file = FileManagement::LoadFile(link);
 		ro.deserialize(file);
 	}
 }
-
-
-//---------------------------------------------
-// LevelEditor::EditorConsole Class
-LevelEditor::EditorConsole::EditorConsole() {
-
-}
-
-void LevelEditor::EditorConsole::print(std::string str) {
-	std::cout << str << "\n";
-}
-
-void LevelEditor::EditorConsole::clear() {
-	Platform::clearScreen();
-}
-
-void LevelEditor::EditorConsole::mainScreen() {
-	print("DSA Engine Editor V0.1");
-	print(".........................................");
-}
-
-void LevelEditor::EditorConsole::waitForInput() {
-	while (!Platform::hasKeyBoardInput()) {
-
-	}
-	(void)Platform::getCharacter();
-}
-
-void LevelEditor::EditorConsole::helpScreen() {
-	clear();
-	print("place\t\t-\t\tPlace object at current position");
-	print("delete\t\t-\t\tDelete object at current position");
-	print("clear\t\t-\t\tClear console");
-	print("Serialize\t-\t\tSerialize level");
-	print("Count\t\t-\t\tCount total of renderobjects in level");
-}
-
-void LevelEditor::EditorConsole::update() {
-	Console.refresh();
-}
-
-bool LevelEditor::EditorConsole::checkForInput() {
-	return Console.hasInput();
-}
-
-std::string LevelEditor::EditorConsole::getInput() {
-	return Console.getInput();
-}
-
 
 //---------------------------------------------
 // LevelEditor::Display Class
