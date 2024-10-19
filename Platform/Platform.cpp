@@ -66,29 +66,20 @@
 
 
     }
+
+    
     */
 
-    //TODO: does not work with enter or space
     bool Platform::hasKeyBoardInput() {
-        // Save the current terminal settings
-        struct termios oldt;
-        tcgetattr(STDIN_FILENO, &oldt);
-
-        // Modify terminal settings for non-canonical mode (disable line buffering)
-        struct termios newt = oldt;
-        newt.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode and echo
-        tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-
         // Check if input is available
         int byteswaiting = 0;
         ioctl(STDIN_FILENO, FIONREAD, &byteswaiting);
 
-        // Restore the old terminal settings
-        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-
         // Return true if there are bytes waiting to be read
         return byteswaiting > 0;
     }
+
+
 
     
 
