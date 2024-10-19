@@ -1,10 +1,14 @@
+#pragma once
+
 #include "Platform.h"
 
 #include <iostream>
 #include <vector>
+#include <tuple>
 #include <functional>
 #include <string>
 #include <sstream>
+#include <Console.h>
 
 class OptionsMenu {
 public:
@@ -27,20 +31,33 @@ public:
     std::string createText();
 
     // Attach a function to the menu
-    void attachFunction(FunctionPtr func, const std::string& text);
+    void attachFunction(FunctionPtr func, const std::string& text, const std::string& description = "");
 
     // Clear all function entries
     void clearEntries();
 
+    // Set current option
     void setOption(int opt);
 
+    // Change type of Menu
+    void changeType(int type);
+
+
+
+    // Constants
     const static int statusExit = -1;
+    const static int typeScrollingMenu = 0;
+    const static int typeKonsole = 1;
 
 private:
+    Console console;
+
+    int menuType = 0;
+
     std::string textBefore = "";
     std::string textAfter = "";
 
-    std::vector<std::pair<FunctionPtr, std::string>> functions;  // Vector of function-text pairs
+    std::vector<std::tuple<FunctionPtr, std::string, std::string>> functions;  // Vector of function-name-description tuple
     bool showExitEntry = true;  // Whether to show the exit entry
     int currentOption = 0;           // Current option index
 };
