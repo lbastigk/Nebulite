@@ -47,12 +47,12 @@ public:
     // Constants
     const static int statusExit = -1;
     const static int typeScrollingMenu = 0;
-    const static int typeKonsole = 1;
+    const static int typeConsole = 1;
 
 private:
     Console console;
 
-    int menuType = 0;
+    int menuType = typeScrollingMenu;
 
     std::string textBefore = "";
     std::string textAfter = "";

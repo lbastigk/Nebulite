@@ -43,7 +43,7 @@ int OptionsMenu::update(bool renderScreen) {
             }
         }
     }
-    else if(menuType == typeKonsole){
+    else if(menuType == typeConsole){
         console.refresh();
         if(console.hasInput()){
             std::string arg = console.getInput();

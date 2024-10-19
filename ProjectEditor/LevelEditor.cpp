@@ -15,7 +15,7 @@ LevelEditor::LevelEditor() {
 	optM.attachFunction(std::bind(&LevelEditor::save,this),"save","...");
 
 	
-	optM.changeType(OptionsMenu::typeKonsole);
+	optM.changeType(OptionsMenu::typeConsole);
 	clearConsole();
 }
 
