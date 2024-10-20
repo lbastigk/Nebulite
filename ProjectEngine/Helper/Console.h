@@ -13,11 +13,17 @@
 class Console {
 public:
 	Console();
-	void refresh();
+	bool refresh(bool enterMeansReturnBuffer = true);
+
 	bool hasInput();
 	bool hasInputInTemp();
-	std::string getInput();
-	char getLastKeystroke();
+
+	int inputSize();
+	int tempInputSize();
+
+	std::string getInput(bool clearBuffer = true);
+	std::string getTempInput(bool clearBuffer = true);
+	int getLastKeystroke();
 	bool isNewLastKeystroke();
 private:
 	std::vector<int> consoleBuffer;

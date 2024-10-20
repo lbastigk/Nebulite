@@ -23,7 +23,7 @@ public:
     // return is 0 if no option was chosen
     // return is positive if option n was chosen and the corresponding function was executed
     // return is -1 if exit was chosen
-    int update(bool render = true);
+    int update(bool forceRefresh = false);
 
     // Renders all available options, where the current option has an arrow next to it
     void render();

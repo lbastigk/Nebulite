@@ -66,10 +66,12 @@ int DsaDebug::menueScreen(const std::string options, int startoption,std::string
         std::cout << after;
 
         //Get new input
-        while (!Platform::hasKeyBoardInput()) {
-            //wait for input
-        }
         input = Platform::getCharacter();
+        while (!input) {
+            //wait for input
+            input = Platform::getCharacter();
+        }
+        
     }
     return option;
 }

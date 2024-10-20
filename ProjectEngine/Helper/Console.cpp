@@ -5,14 +5,15 @@ Console::Console() {
 
 }
 
-void Console::refresh() {
-	if (Platform::hasKeyBoardInput()) {
-		int c = Platform::getCharacter();
+//returns true if new input
+bool Console::refresh(bool enterMeansReturnBuffer) {
+	int c = Platform::getCharacter();
+	if (c) {
 		_lastKeystroke = c;
 		_isNewLastKeystroke = true;
 
 		//Enter
-		if (c == Platform::KeyPress::Enter) {
+		if (c == Platform::KeyPress::Enter && enterMeansReturnBuffer) {
 			consoleBuffer = consoleBufferTemp;
 			consoleBufferTemp.clear();
 		}
@@ -37,23 +38,42 @@ void Console::refresh() {
 			}
 		}
 	}
+	return !!c;
 }
 
 bool Console::hasInput() {
 	return !!consoleBuffer.size();
 }
 
+int Console::inputSize(){
+	return consoleBuffer.size();
+}
+
 bool Console::hasInputInTemp() {
 	return !!consoleBufferTemp.size();
 }
 
-std::string Console::getInput() {
+int Console::tempInputSize() {
+	return consoleBufferTemp.size();
+}
+
+
+
+std::string Console::getInput(bool clearBuffer) {
 	std::string tmp = Platform::vectorToString(consoleBuffer);
-	consoleBuffer.clear();
+	if(clearBuffer)consoleBuffer.clear();
 	return tmp;
 }
 
-char Console::getLastKeystroke() {
+std::string Console::getTempInput(bool clearBuffer) {
+	std::string tmp = Platform::vectorToString(consoleBufferTemp);
+	if(clearBuffer)consoleBufferTemp.clear();
+	return tmp;
+}
+
+
+
+int Console::getLastKeystroke() {
 	return _lastKeystroke;
 }
 

@@ -7,16 +7,16 @@ LevelEditor::LevelEditor() {
 	Display.start();
 
 	//Create userInputMap:
+	optM.setTextBefore(
+		std::string("DSA Engine Editor V0.1\n")+
+		std::string("........................................."));
 	optM.attachFunction(std::bind(&LevelEditor::placeItem,this),"place","...");
 	optM.attachFunction(std::bind(&LevelEditor::deleteItem,this),"delete","...");
-	optM.attachFunction(std::bind(&LevelEditor::clearConsole,this),"clear","...");
 	optM.attachFunction(std::bind(&LevelEditor::serializeEnvironment,this),"serialize","...");
 	optM.attachFunction(std::bind(&LevelEditor::countObjects,this),"count","...");
 	optM.attachFunction(std::bind(&LevelEditor::save,this),"save","...");
-
-	
 	optM.changeType(OptionsMenu::typeConsole);
-	clearConsole();
+	optM.update(true);
 }
 
 void LevelEditor::update() {
@@ -43,7 +43,6 @@ bool LevelEditor::status() {
 void LevelEditor::placeItem() {
 	//Create and append renderobject to level at selection position
 	RenderObject ro;
-
 	if (getRenderObjectFromList(ro)) {
 		ro.valueSet(namenKonvention.renderObject.positionX, Display.getSelectionX());
 		ro.valueSet(namenKonvention.renderObject.positionY, Display.getSelectionY());
@@ -53,12 +52,6 @@ void LevelEditor::placeItem() {
 
 void LevelEditor::deleteItem() {
 	Display.deleteObject();
-}
-
-void LevelEditor::clearConsole() {
-	Platform::clearScreen();
-	std::cout << "DSA Engine Editor V0.1" << "\n";
-	std::cout << "........................................." << "\n";
 }
 
 void LevelEditor::serializeEnvironment() {
@@ -75,21 +68,22 @@ void LevelEditor::save() {
 
 // Choosing from a list of created renderobjects in the RenderObjects directory
 bool LevelEditor::getRenderObjectFromList(RenderObject& ro) {
+	int i = 0;
 	std::string dir = FileManagement::currentDir();
 	std::string fullDir = FileManagement::CombinePaths(dir, std::string("Resources/Renderobjects"));
 	FileManagement::FileTypeCollector ftc(fullDir,".txt",true);
 	auto list = ftc.getFileDirectories();
-	std::string listAsString;
-
 	OptionsMenu roEntries;
 	roEntries.setTextBefore("Choose a Renderobject to place\n\n");
 	for (auto entry : list) {
 		roEntries.attachFunction([](){},entry);	//Lambda expresion to attach an empty function
 	}
 
+	// Choose from renderobjects
+	roEntries.render();
 	int opt = 0;
 	while(opt == 0){
-		opt = optM.update();
+		opt = roEntries.update();
 	}
 	if (opt == -1) {
 		return false;

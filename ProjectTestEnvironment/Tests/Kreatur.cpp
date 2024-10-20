@@ -6,6 +6,8 @@ void TestEnv::_Kreatur::serialize() {
     std::cout << tee.serialize();
     std::cout << "\n\nPress any key to return.\n";
     Time::wait(500);
-    Platform::flushKeyboardInput();
-    (void)Platform::getCharacter();
+    int c = Platform::getCharacter();
+    while(!c){
+        c = Platform::getCharacter();
+    }
 }

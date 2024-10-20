@@ -41,10 +41,6 @@ class Platform{
 public:
     //static void init();
 
-    static void flushKeyboardInput();
-
-    static bool hasKeyBoardInput();
-
     static void clearScreen();
 
     static bool openFile(std::string fullPath);

@@ -5,8 +5,10 @@ void TestEnv::_MoveRuleSet::serialize() {
     std::cout << mrs.serialize();
     std::cout << "\n\nPress any key to return.\n";
     Time::wait(500);
-    Platform::flushKeyboardInput();
-    (void)Platform::getCharacter();
+    int c = Platform::getCharacter();
+    while(!c){
+        c = Platform::getCharacter();
+    }
 }
 
 void TestEnv::_MoveRuleSet::testMoveSetWithoutThreads() {

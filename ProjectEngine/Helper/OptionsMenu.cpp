@@ -8,15 +8,15 @@ void OptionsMenu::setTextAfter(std::string text){
     textAfter = text;
 }
 
-int OptionsMenu::update(bool renderScreen) {
+int OptionsMenu::update(bool forceRefresh) {
     int size = functions.size();
     int val = 0;
 
     // Depending on type
     if(menuType == typeScrollingMenu){
         // Change happens only if keyboard has input
-        if(Platform::hasKeyBoardInput()){
-            int input = Platform::getCharacter();
+        int input = Platform::getCharacter();
+        if(input || forceRefresh){
             switch(input){
                 case Platform::KeyPress::arrowUp:
                 case Platform::KeyPress::W:
@@ -27,9 +27,9 @@ int OptionsMenu::update(bool renderScreen) {
                     currentOption = (currentOption + 1 + size + 1) % (size + 1);
                     break;
                 case Platform::KeyPress::Enter:
-                    val = currentOption;
                     if(currentOption < size){
                         std::get<0>(functions.at(currentOption))();
+                        val = currentOption + 1;
                     }
                     else{
                         val = statusExit;
@@ -38,13 +38,46 @@ int OptionsMenu::update(bool renderScreen) {
                 default:
                     break;
             }
-            if(renderScreen){
-                render();
-            }
+            render();
         }
     }
     else if(menuType == typeConsole){
+        //Refresh console
         console.refresh();
+
+        // Build screen
+        if(console.isNewLastKeystroke() || forceRefresh){
+            std::string out = "";
+            std::string userInput = console.getTempInput(false);
+
+            if(textBefore.size()){
+                out += textBefore;
+                out += "\n";
+            }
+            out += ">> ";
+            out += userInput;
+            
+            out += "\n";
+            out += std::string(userInput.size()+2,' ');
+            out += '^';
+            out += "\n";
+            if(textAfter.size()){
+                out += "\n";
+                out += textAfter;
+            }
+            
+            // First iteration: Build text larger to refresh console
+            Platform::clearScreen();
+            std::cout << out;
+            std::cout << out;
+
+            // Actual output
+            Platform::clearScreen();
+            std::cout << out;
+            
+        }
+
+        //Check for new input
         if(console.hasInput()){
             std::string arg = console.getInput();
 
@@ -56,6 +89,7 @@ int OptionsMenu::update(bool renderScreen) {
                 if(std::get<1>(function) == arg){
                     // execute function
                     std::get<0>(function)();
+                    std::cout << "\n\n";
                     break;
                 }
             }
@@ -93,7 +127,7 @@ int OptionsMenu::update(bool renderScreen) {
             else if(arg == std::string("exit")){
                 val = -1;
             }
-            else{
+            else if (val >= functions.size()){
                 std::cout <<"Command not found" << "\n";
                 val = 0;
             }
@@ -152,4 +186,5 @@ void OptionsMenu::setOption(int opt){
 void OptionsMenu::changeType(int type){
     menuType = type;
     Platform::clearScreen();
+    
 }

@@ -23,7 +23,6 @@ public:
 	//Console input functions
     void placeItem();
     void deleteItem();
-    void clearConsole();
     void serializeEnvironment();
     void countObjects();
     void help();
