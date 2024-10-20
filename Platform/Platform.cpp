@@ -107,44 +107,64 @@
 
     int Platform::getCharacter() {
         // Disable echo of pressed characters while function is active
-        // Flush stdin at function call so rest of buffer from previous chars isn't used
-
-        char buf[4] = {0}; // Buffer to hold 2 characters + null terminator
+        char buf[4] = {0}; // Buffer for up to 4 bytes
         struct termios old = {0};
         
         fflush(stdout);
-        if(tcgetattr(0, &old) < 0){
+        if (tcgetattr(0, &old) < 0) {
             std::cout << "Error tcgetattr()";
             perror("tcgetattr()");
         }
-            
-        
+
         struct termios newattr = old;
         newattr.c_lflag &= ~ICANON; // Disable canonical mode
         newattr.c_lflag &= ~ECHO;   // Disable echo
-        newattr.c_cc[VMIN] = 1;      // Minimum number of characters to read
-        newattr.c_cc[VTIME] = 0;     // No timeout
-        
+        newattr.c_cc[VMIN] = 1;     // Minimum number of characters to read
+        newattr.c_cc[VTIME] = 0;    // No timeout
+
         // Set the new terminal attributes
-        if(tcsetattr(0, TCSANOW, &newattr) < 0){
+        if (tcsetattr(0, TCSANOW, &newattr) < 0) {
             std::cout << "Error tcsetattr ICANON";
             perror("tcsetattr ICANON");
-        } 
+        }
 
-        // Read the first character
-        read(0, &buf[0], 4);
+        // Read at least the first byte
+        read(0, &buf[0], 1);
+
+        // Determine the number of bytes for the character based on the first byte
+        int numBytes = 1;
+        unsigned char firstByte = buf[0];
+
+        if ((firstByte & 0x80) == 0x00) {
+            // Single-byte character (ASCII)
+            numBytes = 1;
+        } else if ((firstByte & 0xE0) == 0xC0) {
+            // Two-byte character
+            numBytes = 2;
+        } else if ((firstByte & 0xF0) == 0xE0) {
+            // Three-byte character
+            numBytes = 3;
+        } else if ((firstByte & 0xF8) == 0xF0) {
+            // Four-byte character
+            numBytes = 4;
+        }
+
+        // Read the remaining bytes of the multi-byte character, if any
+        if (numBytes > 1) {
+            read(0, &buf[1], numBytes - 1);
+        }
 
         // Restore the old terminal attributes
-        if(tcsetattr(0, TCSANOW, &old) < 0){
+        if (tcsetattr(0, TCSANOW, &old) < 0) {
             std::cout << "Error tcsetattr ~ICANON";
             perror("tcsetattr ~ICANON");
         }
 
+        // Return the character as an integer, combining the bytes
         int val = 0;
-        val += (int)buf[0] << 8*0;
-        val += (int)buf[1] << 8*1;
-        val += (int)buf[2] << 8*2;
-        val += (int)buf[3] << 8*4;
+        for (int i = 0; i < numBytes; ++i) {
+            val += (int)((unsigned char)buf[i]) << (8 * i);
+        }
 
         return val;
     }
@@ -169,6 +189,7 @@
         // Write the character bytes to stdout
         write(1, buf, numBytes);
     }
+
 
     std::string Platform::vectorToString(const std::vector<int>& characterVector) {
     std::string result;
