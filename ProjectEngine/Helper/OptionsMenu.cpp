@@ -128,7 +128,7 @@ int OptionsMenu::update(bool forceRefresh) {
                 val = -1;
             }
             else if (val >= functions.size()){
-                std::cout <<"Command not found" << "\n";
+                std::cout << arg << " : Command not found" << "\n";
                 val = 0;
             }
         }
