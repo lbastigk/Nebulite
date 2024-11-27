@@ -92,8 +92,19 @@ FileManagement::FileTypeCollector::FileTypeCollector(std::string directory, std:
     process(directory, fileType, processSubDirectories);
 }
 
-const std::vector<std::string>& FileManagement::FileTypeCollector::getFileDirectories() const {
-    return fileDirectories;
+std::vector<std::string> FileManagement::FileTypeCollector::getFileDirectories(bool useFullDir) {
+    if (useFullDir) {
+        return fileDirectories;
+    } else {
+        std::vector<std::string> shortenedDirectories;
+        for (const auto& entry : fileDirectories) {
+            std::string shortened = entry.substr(
+                std::filesystem::current_path().string().size(),
+                entry.size() - std::filesystem::current_path().string().size());
+            shortenedDirectories.push_back(std::string(".") + shortened);
+        }
+        return shortenedDirectories;
+    }
 }
 
 void FileManagement::FileTypeCollector::process(const std::string& directory, const std::string& fileType, bool processSubDirectories) {

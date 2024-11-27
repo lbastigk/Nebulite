@@ -40,7 +40,7 @@ public:
     public:
         FileTypeCollector(std::string directory, std::string fileType, bool processSubDirectories = true);
 
-        const std::vector<std::string>& getFileDirectories() const;
+        std::vector<std::string> getFileDirectories(bool useFullDir=false);
 
     private:
         std::vector<std::string> fileDirectories;

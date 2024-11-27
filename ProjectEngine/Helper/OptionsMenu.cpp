@@ -43,10 +43,10 @@ int OptionsMenu::update(bool forceRefresh) {
     }
     else if(menuType == typeConsole){
         //Refresh console
-        console.refresh();
+        if(!forceRefresh)console.refresh();
 
         // Build screen
-        if(console.isNewLastKeystroke() || forceRefresh){
+        if(forceRefresh || console.isNewLastKeystroke()){
             std::string out = "";
             std::string userInput = console.getTempInput(false);
 
@@ -83,10 +83,11 @@ int OptionsMenu::update(bool forceRefresh) {
 
             // Check all functions
             // linear search should be enough, for larger menues an std::map might be preferred
+            bool found = false;
             for(auto& function : functions){
-                
                 val++;
                 if(std::get<1>(function) == arg){
+                    found = true;
                     // execute function
                     std::get<0>(function)();
                     std::cout << "\n\n";
@@ -127,7 +128,7 @@ int OptionsMenu::update(bool forceRefresh) {
             else if(arg == std::string("exit")){
                 val = -1;
             }
-            else if (val >= functions.size()){
+            else if (!found){
                 std::cout << arg << " : Command not found" << "\n";
                 val = 0;
             }

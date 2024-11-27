@@ -39,6 +39,7 @@ public:
 	//-----------------------------------------------------------
 	// Purge
 	void purgeObjects();
+	void purgeObjectsAt(int x, int y);
 	void purgeLayer(int layer);
 	void purgeTextures();
 	void destroy();
@@ -52,7 +53,8 @@ public:
 	//-----------------------------------------------------------
 	// Rendering
 	bool timeToRender();
-	void renderFrame(bool drawTileGrid = false);
+	void renderFrame();
+	void renderFrameNoThreads();
 	void renderFPS();
 	void showFrame();
 	int handleEvent();
@@ -72,6 +74,8 @@ public:
 	int getResY();
 	int getThreadSize();
 	int getFPS();
+	int getPosX();
+	int getPosY();
 
 	class SDL {
 	public:

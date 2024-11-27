@@ -74,6 +74,7 @@ void TestEnv::_RenderObject::testSpriteSheets() {
     Renderer.destroy();
 }
 
+// First test for spritesheet based rendering, using pokemon sprite animations as a basis
 void TestEnv::_RenderObject::testPokemonSprites() {
     Renderer Renderer;
     RenderObject Player;
@@ -119,7 +120,7 @@ void TestEnv::_RenderObject::testPokemonSprites() {
     while (sdlEvent.type != SDL_QUIT) {
 
         //Event handling
-        SDL_Event sdlEvent = Renderer.getEventHandle();
+        sdlEvent = Renderer.getEventHandle();
 
         if (Renderer.timeToRender()) {
 

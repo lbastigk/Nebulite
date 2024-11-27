@@ -6,7 +6,7 @@ Editor::Editor() {
 
 void Editor::LoadLevel() {
     //Check files in directory "Levels"
-    FileManagement::FileTypeCollector ftc(directory.levels, std::string(".txt"), false);
+    FileManagement::FileTypeCollector ftc(directory.levels, std::string(".json"), false);
     std::vector<std::string> files = ftc.getFileDirectories();
 
     //Create options string
@@ -33,13 +33,12 @@ void Editor::LoadLevel() {
             std::cin >> name;
 
             //Add file ending
-            name += ".txt";
+            name += ".json";
 
             //Create dummy environment and save it
             Environment env;
             name = FileManagement::CombinePaths(directory.levels, name);
             FileManagement::WriteFile(name.c_str(), env.serialize());
-            //env.~Environment();
 
             //Set file name to Editor
             levelname = name;
@@ -109,6 +108,7 @@ void Editor::CreateRenderobject() {
 
     //Other opts
     opts.push_back("Serialize");
+    opts.push_back("Save");
 
     std::string stringOfOpts;
     for (auto opt : opts) {
@@ -166,7 +166,15 @@ void Editor::CreateRenderobject() {
         else if (lastOptionChoosen < opts.size()){
             if (opts.at(lastOptionChoosen) == "Serialize") {
                 std::cout << ro.serialize();
-                Time::wait(3000);
+                Platform::getCharacter();
+            }
+            if(opts.at(lastOptionChoosen) == "Save"){
+                std::cout << "\n\nEnter file name: ./Resources/Renderobjects/";
+                char buffer[200];
+                std::cin.getline(buffer, sizeof(buffer));
+                std::string newVal(buffer);
+                newVal = "./Resources/Renderobjects/"+newVal;
+                FileManagement::WriteFile(newVal.c_str(),ro.serialize());
             }
         }
     }

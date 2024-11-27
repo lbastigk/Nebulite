@@ -84,7 +84,10 @@ public:
 	bool isValidPosition(int x, int y) const;
 	std::vector<std::vector<RenderObject>>& getContainerAt(int x, int y);
 	void purgeObjects();
+	void purgeObjectsAt(int x, int y, int dispResX, int dispResY);
 	size_t getObjectCount();
+
+	SDL_Texture* getTexture(int screenSizeX, int screenSizeY, SDL_Renderer *renderer, int tileXpos, int tileYpos, int Xpos, int Ypos, auto& TextureContainer);
 
 private:
 	//tileY		tileX		#			Batches		of Objects

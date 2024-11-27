@@ -427,7 +427,6 @@ void RenderObjectContainer::update_withThreads(int tileXpos, int tileYpos, int d
 						// Perform batch update logic here
 						// For example, update each object in the batch
 						for (auto& obj : batch) {
-							// Your update logic for each object in the batch
 							obj.update();
 						}
 						});
@@ -537,8 +536,6 @@ bool RenderObjectContainer::isValidPosition(int x, int y) const {
     return false;
 }
 
-
-
 std::vector<std::vector<RenderObject>>& RenderObjectContainer::getContainerAt(int x, int y) {
 	return ObjectContainer[y][x];
 }
@@ -554,6 +551,46 @@ void RenderObjectContainer::purgeObjects() {
 	}
 }
 
+void RenderObjectContainer::purgeObjectsAt(int x, int y, int dispResX, int dispResY){
+	// new tile position
+    unsigned int correspondingTileXpos;
+    unsigned int correspondingTileYpos;
+
+    // Calculate tile position based on screen resolution
+    int64_t placeholder;
+    placeholder = (int64_t)(x / (double)dispResX);
+    correspondingTileXpos = (placeholder < 0) ? (unsigned int)(-placeholder) : (unsigned int)(placeholder);
+	placeholder = (int64_t)(y / (double)dispResX);
+    correspondingTileYpos = (placeholder < 0) ? (unsigned int)(-placeholder) : (unsigned int)(placeholder);
+
+	if (isValidPosition(correspondingTileXpos, correspondingTileYpos)) {
+		auto& batches = ObjectContainer[correspondingTileYpos][correspondingTileXpos];
+		std::vector<std::vector<RenderObject>> newBatches;
+
+		for (auto& batch : batches) {
+			std::vector<RenderObject> newBatch;
+
+			for (auto& object : batch) {
+				if (!(object.valueGet<int>(namenKonvention.renderObject.positionX) == x &&
+					object.valueGet<int>(namenKonvention.renderObject.positionY) == y)) {
+					// Retain objects that don't match the condition
+					newBatch.push_back(object);
+				}
+			}
+
+			// Only add non-empty batches to the newBatches vector
+			if (!newBatch.empty()) {
+				newBatches.push_back(std::move(newBatch));
+			}
+		}
+
+		// Replace the old batches with the new ones
+		ObjectContainer[correspondingTileYpos][correspondingTileXpos] = std::move(newBatches);
+	
+	}	
+
+}
+
 size_t RenderObjectContainer::getObjectCount() {
 	// Calculate the total item count
 	size_t totalCount = 0;
@@ -566,4 +603,53 @@ size_t RenderObjectContainer::getObjectCount() {
 		}
 	}
 	return totalCount;
+}
+
+SDL_Texture* RenderObjectContainer::getTexture(int screenSizeX, int screenSizeY, SDL_Renderer *renderer, int tileXpos, int tileYpos, int Xpos, int Ypos, auto& TextureContainer){
+	// Create a texture to use as a render target
+	// Each tile grid is the size of screen, this way the entire screen is always tiled
+	SDL_Texture* sceneTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 3*screenSizeX, 3*screenSizeY);
+
+	// Set the render target to the sceneTexture
+	SDL_SetRenderTarget(renderer, sceneTexture);
+
+	// Clear the render target (optional, depending on if you want transparency)
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_RenderClear(renderer);
+
+	SDL_Rect rect;
+	int error;
+
+	//Between dx +-1
+	for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
+		// And dy +-1
+		for (int dY = (tileYpos == 0 ? 0 : -1); dY <= 1; dY++) {
+			// If valid
+			if (isValidPosition(tileXpos + dX, tileYpos + dY)) {
+				// For all batches inside
+				for (auto& batch : (getContainerAt(tileXpos + dX, tileYpos + dY))) {
+					// For all objects inside each batch
+					for (auto& obj : batch) {
+						//Texture loading is handled in append
+						std::string innerdir = obj.valueGet<std::string>(namenKonvention.renderObject.imageLocation);
+						obj.calculateSrcRect();
+
+						rect = obj.getDstRect();
+						rect.x -= Xpos;	//subtract camera posX
+						rect.y -= Ypos;	//subtract camera posY
+
+						// Render the texture to the window
+						error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj.getSrcRect(), &rect);
+						if (error != 0){
+							std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
+						}
+					}
+				}
+			}
+		}
+	}
+	// Reset standard target
+	SDL_SetRenderTarget(renderer, nullptr);
+
+	return sceneTexture;
 }

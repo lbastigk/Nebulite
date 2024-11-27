@@ -38,6 +38,13 @@ private:
 		void appendObject(RenderObject ro);
 		int getSelectionX();
         int getSelectionY();
+
+		int getLastSelectionX();
+		int getLastSelectionY();
+
+		void setLastSelectionX(int x);
+		void setLastSelectionY(int y);
+
 		void deleteObject();
 		std::string serializeRenderer();
         std::string serializeRendererEnvironment();
@@ -48,6 +55,20 @@ private:
 		RenderObject Selection;
 		int MousePosX = 0;
 		int MousePosY = 0;
+
+		int lastMousePosX = 0;
+		int lastMousePosY = 0;
+
+		int lastRenderPosX = 0;
+		int lastRenderPosY = 0;
+
+		int lastCursorPosX = 0;
+		int lastCursorPosY = 0;
+
+		uint32_t lastMouseState = 0;
+		uint32_t mouseState = 0;
+
+		RenderObject lastPlaced;
 
 		Renderer Renderer;
 	};

@@ -7,9 +7,14 @@ LevelEditor::LevelEditor() {
 	Display.start();
 
 	//Create userInputMap:
+	int cursorX = Display.getSelectionX();
+	int cursorY = Display.getSelectionY();
 	optM.setTextBefore(
-		std::string("DSA Engine Editor V0.1\n")+
-		std::string("........................................."));
+	std::string("Nebulite Level Editor V0.1\n")+
+	std::string("Current cursor position: ") + 
+	std::to_string(cursorX) + std::string("(") + std::to_string(cursorX%160) + std::string(")  |  ") +
+	std::to_string(cursorY) + std::string("(") + std::to_string(cursorY%160) + std::string(")\n") +
+	std::string("........................................."));
 	optM.attachFunction(std::bind(&LevelEditor::placeItem,this),"place","...");
 	optM.attachFunction(std::bind(&LevelEditor::deleteItem,this),"delete","...");
 	optM.attachFunction(std::bind(&LevelEditor::serializeEnvironment,this),"serialize","...");
@@ -22,6 +27,25 @@ LevelEditor::LevelEditor() {
 void LevelEditor::update() {
 	Display.update();
 	levelEditorStatus = optM.update() != OptionsMenu::statusExit;
+
+	int cursorX = Display.getSelectionX();
+	int cursorY = Display.getSelectionY();
+
+	if((cursorX != Display.getLastSelectionX()) || (cursorY != Display.getLastSelectionY())){
+		optM.setTextBefore(
+		std::string("Nebulite Level Editor V0.1\n")+
+		std::string("Current cursor position: ") + 
+		std::to_string(cursorX) + std::string("(") + std::to_string(cursorX%160) + std::string(")  |  ") +
+		std::to_string(cursorY) + std::string("(") + std::to_string(cursorY%160) + std::string(")\n") +
+		std::string("........................................."));
+
+		optM.update(true);
+
+		Display.setLastSelectionX(cursorX);
+		Display.setLastSelectionY(cursorY);
+	}
+
+	
 }
 
 void LevelEditor::saveEnvironment() {
@@ -71,8 +95,9 @@ bool LevelEditor::getRenderObjectFromList(RenderObject& ro) {
 	int i = 0;
 	std::string dir = FileManagement::currentDir();
 	std::string fullDir = FileManagement::CombinePaths(dir, std::string("Resources/Renderobjects"));
-	FileManagement::FileTypeCollector ftc(fullDir,".txt",true);
+	FileManagement::FileTypeCollector ftc(fullDir,".json",true);
 	auto list = ftc.getFileDirectories();
+
 	OptionsMenu roEntries;
 	roEntries.setTextBefore("Choose a Renderobject to place\n\n");
 	for (auto entry : list) {
@@ -85,6 +110,8 @@ bool LevelEditor::getRenderObjectFromList(RenderObject& ro) {
 	while(opt == 0){
 		opt = roEntries.update();
 	}
+	roEntries.update();
+
 	if (opt == -1) {
 		return false;
 	}
@@ -92,13 +119,16 @@ bool LevelEditor::getRenderObjectFromList(RenderObject& ro) {
 		std::string link = list.at(opt-1);
 		std::string file = FileManagement::LoadFile(link);
 		ro.deserialize(file);
+		return true;
 	}
+	return false;
 }
 
 //---------------------------------------------
 // LevelEditor::Display Class
 LevelEditor::Display::Display() {
 	SDL_ShowCursor(SDL_DISABLE); // This hides the cursor
+	mouseState = SDL_GetMouseState(&MousePosX, &MousePosY);
 }
 
 void LevelEditor::Display::start() {
@@ -119,13 +149,16 @@ void LevelEditor::Display::start() {
 
 void LevelEditor::Display::update() {
 	//Mouse state
-	uint32_t mouseState = SDL_GetMouseState(&MousePosX, &MousePosY);
+	lastMouseState = mouseState;
+	mouseState = SDL_GetMouseState(&MousePosX, &MousePosY);
 	
 	//Append Cursor obj at Mouse position
 	Cursor.valueSet(namenKonvention.renderObject.positionX, MousePosX);
 	Cursor.valueSet(namenKonvention.renderObject.positionY, MousePosY);
 
 	//Create Selection position
+	uint32_t lms;
+	RenderObject ro;
 	switch (mouseState & (SDL_BUTTON_LMASK | SDL_BUTTON_RMASK | SDL_BUTTON_MMASK | SDL_BUTTON_X1MASK | SDL_BUTTON_X2MASK)) {
 	case SDL_BUTTON_LMASK:
 		// Left mouse button pressed
@@ -134,14 +167,24 @@ void LevelEditor::Display::update() {
 		Selection.valueSet(namenKonvention.renderObject.positionY, MousePosY - (MousePosY % 32));
 		break;
 	case SDL_BUTTON_RMASK:
-		// Right mouse button pressed
-		// Handle right mouse button press
-		Selection.valueSet(namenKonvention.renderObject.positionX, -100);
-		Selection.valueSet(namenKonvention.renderObject.positionY, -100);
+		lms = (lastMouseState & (SDL_BUTTON_LMASK | SDL_BUTTON_RMASK | SDL_BUTTON_MMASK | SDL_BUTTON_X1MASK | SDL_BUTTON_X2MASK));
+		if (lms != SDL_BUTTON_RMASK){
+			lastMousePosX = MousePosX;
+			lastMousePosY = MousePosY;
+		}
+		Renderer.moveCam(MousePosX - lastMousePosX,MousePosY - lastMousePosY);
+		lastMousePosX = MousePosX;
+		lastMousePosY = MousePosY;
 		break;
 	case SDL_BUTTON_MMASK:
-		// Middle mouse button pressed
-		// Handle middle mouse button press
+		// Middle button pressed
+		lms = (lastMouseState & (SDL_BUTTON_LMASK | SDL_BUTTON_RMASK | SDL_BUTTON_MMASK | SDL_BUTTON_X1MASK | SDL_BUTTON_X2MASK));
+		if (lms != SDL_BUTTON_MMASK){
+			ro.deserialize(lastPlaced.serialize());
+			ro.valueSet(namenKonvention.renderObject.positionX,getSelectionX());
+			ro.valueSet(namenKonvention.renderObject.positionY,getSelectionY());
+			appendObject(ro);
+		}
 		break;
 	case SDL_BUTTON_X1MASK:
 		// X1 mouse button pressed (usually back or extra mouse button)
@@ -182,6 +225,7 @@ void LevelEditor::Display::update() {
 
 void LevelEditor::Display::appendObject(RenderObject ro) {
 	Renderer.append(ro);
+	lastPlaced.deserialize(ro.serialize());
 }
 
 int LevelEditor::Display::getSelectionX() {
@@ -192,11 +236,25 @@ int LevelEditor::Display::getSelectionY() {
 	return Selection.valueGet<int>(namenKonvention.renderObject.positionY);
 }
 
+
+int LevelEditor::Display::getLastSelectionX(){
+	return lastCursorPosX;
+};
+int LevelEditor::Display::getLastSelectionY(){
+	return lastCursorPosY;
+};
+
+void LevelEditor::Display::setLastSelectionX(int x){
+	lastCursorPosX = x;
+};
+void LevelEditor::Display::setLastSelectionY(int y){
+	lastCursorPosY = y;
+};
+
 void LevelEditor::Display::deleteObject() {
 	int posX = Selection.valueGet<int>(namenKonvention.renderObject.positionX);
 	int posY = Selection.valueGet<int>(namenKonvention.renderObject.positionY);
-
-	
+	Renderer.purgeObjectsAt(posX,posY);
 }
 
 std::string LevelEditor::Display::serializeRenderer() {

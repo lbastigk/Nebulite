@@ -165,6 +165,12 @@ void Environment::purgeObjects() {
 	}
 }
 
+void Environment::purgeObjectsAt(int x, int y, int dispResX, int dispResY){
+	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
+		roc[i].purgeObjectsAt(x, y, dispResX, dispResY);
+	}
+}
+
 void Environment::purgeLayer(int layer) {
 	if (layer >= 0 && layer < RENDEROBJECTCONTAINER_COUNT) {
 		roc[layer].purgeObjects();

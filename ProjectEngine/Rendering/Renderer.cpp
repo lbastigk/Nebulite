@@ -124,6 +124,10 @@ void Renderer::purgeObjects() {
 	env.purgeObjects();
 }
 
+void Renderer::purgeObjectsAt(int x, int y){
+	env.purgeObjectsAt(x,y,dispResX,dispResY);
+}
+
 void Renderer::purgeLayer(int layer) {
 	env.purgeLayer(layer);
 }
@@ -186,7 +190,11 @@ bool Renderer::timeToRender() {
 	}
 }
 
-void Renderer::renderFrame(bool drawTileGrid) {
+// TODO: Multithreading ...
+// Needed changes:
+// - texture container for multi threading (MUTEX?)
+//
+void Renderer::renderFrame() {
 	//------------------------------------------------
 	// FPS Count
 
@@ -295,6 +303,116 @@ void Renderer::renderFrame(bool drawTileGrid) {
 	}
 }
 
+void Renderer::renderFrameNoThreads() {
+	//------------------------------------------------
+	// FPS Count
+
+	//Additional microsecond delay
+	Time::waitmicroseconds(epsillon);
+
+	//Ticks and FPS
+	totalframes++;
+	fpsCount++;
+	prevTicks = SDL_GetTicks64();
+
+	//Calculate fps
+	if (prevTicks - lastFPSRender >= 1000) {
+		fps = fpsCount;
+		fpsCount = 0;
+		lastFPSRender = prevTicks;
+
+		if (control_fps) {
+			//FPS-Control
+			/*
+			//int fps is current fps
+			//int SCREEN_FPS is goal
+			//This part is called ever second when fps is recalculated
+
+			//Implement PID for int epsillon
+			//epsillon is a �s delay to get closer to goal FPS
+
+			//Current implementation is a simple counter
+			if (fps > SCREEN_FPS) {
+				epsillon += 1;
+			}
+			else if (fps < SCREEN_FPS) {
+				//Eps cant be under 0
+				if (epsillon > 0) {
+					epsillon -= 1;
+				}
+			}
+			*/
+
+			//D and I summation
+			int error = fps - SCREEN_FPS;
+			integral += error;
+
+			//Terms
+			double pTerm = kp * error;
+			double iTerm = ki * integral;
+			double dTerm = kd * (error - prevError);
+
+			// Calculate the new epsilon value
+			int depsillon = static_cast<int>(pTerm + iTerm + dTerm);
+
+			//Sum up: PID * s controller
+			epsillon += depsillon;
+
+			prevError = error;
+		}
+	}
+
+	
+
+	//------------------------------------------------
+	// Rendering
+
+	// Clear the window with a specified color (e.g., black)
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
+	SDL_RenderClear(renderer);
+
+	int error = 0;
+
+	//Render Objects
+	//For all layers, starting at 0
+	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
+		//Between dx +-1
+		for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
+			// And dy +-1
+			for (int dY = (tileYpos == 0 ? 0 : -1); dY <= 1; dY++) {
+				// If valid
+				if (env.isValidPosition(tileXpos + dX, tileYpos + dY,i)) {
+					// For all batches inside
+					for (auto& batch : (env.getContainerAt(tileXpos + dX, tileYpos + dY, i))) {
+						// For all objects inside each batch
+						for (auto& obj : batch) {
+							//Texture loading is handled in append
+							std::string innerdir = obj.valueGet<std::string>(namenKonvention.renderObject.imageLocation);
+							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
+								loadTexture(obj);
+								obj.calculateDstRect();
+								obj.calculateSrcRect();
+							}
+							obj.calculateSrcRect();
+
+							rect = obj.getDstRect();
+							rect.x -= Xpos;	//subtract camera posX
+							rect.y -= Ypos;	//subtract camera posY
+
+							// Render the texture to the window
+							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj.getSrcRect(), &rect);
+							if (error != 0){
+								std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+
 void Renderer::renderFPS() {
 	// Create a string with the FPS value
 	std::string fpsText = "FPS: " + std::to_string(fps);
@@ -367,35 +485,18 @@ void Renderer::setThreadSize(unsigned int size) {
 
 //-----------------------------------------------------------
 // Getting
+int Renderer::getEps() {return epsillon;}
+size_t Renderer::getTextureAmount() {return TextureContainer.size();}
+size_t Renderer::getObjectCount() {return env.getObjectCount();}
+int Renderer::getResX() {return dispResX;}
+int Renderer::getResY() {return dispResY;}
+int Renderer::getThreadSize() {return THREADSIZE;}
+int Renderer::getFPS() {return fps;}
+int Renderer::getPosX(){return Xpos;};
+int Renderer::getPosY(){return Ypos;};
 
-int Renderer::getEps() {
-	return epsillon;
-}
-
-size_t Renderer::getTextureAmount() {
-	return TextureContainer.size();
-}
-
-size_t Renderer::getObjectCount() {
-	return env.getObjectCount();
-}
-
-int Renderer::getResX() {
-	return dispResX;
-}
-
-int Renderer::getResY() {
-	return dispResY;
-}
-
-int Renderer::getThreadSize() {
-	return THREADSIZE;
-}
-
-int Renderer::getFPS() {
-	return fps;
-}
-
+//-----------------------------------------------------------
+// Other
 bool Renderer::windowExists(){
 	return !!Renderer::window;
 }

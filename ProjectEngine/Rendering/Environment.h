@@ -43,6 +43,7 @@ public:
 	bool isValidPosition(int x, int y, int layer);
 
 	void purgeObjects();
+	void purgeObjectsAt(int x, int y, int dispResX, int dispResY);
 	void purgeLayer(int layer);
 
 	size_t getObjectCount(bool excludeTopLayer = true);
