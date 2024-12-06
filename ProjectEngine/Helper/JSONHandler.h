@@ -1,17 +1,5 @@
 #pragma once
 
-#ifdef _WIN32 
-
-#include "rapidjson-master/include/rapidjson/document.h"
-#include "rapidjson-master/include/rapidjson/writer.h"
-#include "rapidjson-master/include/rapidjson/stringbuffer.h"
-#include "rapidjson-master/include/rapidjson/prettywriter.h"
-#include "rapidjson-master/include/rapidjson/encodings.h"
-#include "rapidjson-master/include/rapidjson/istreamwrapper.h"
-#include "rapidjson-master/include/rapidjson/ostreamwrapper.h"
-
-#else
-
 #include "document.h"
 #include "writer.h"
 #include "stringbuffer.h"
@@ -20,7 +8,6 @@
 #include "istreamwrapper.h"
 #include "ostreamwrapper.h"
 
-#endif
 
 #include <type_traits>
 #include <fstream>

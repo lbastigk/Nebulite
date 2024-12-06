@@ -19,5 +19,5 @@ int main() {
     optm.attachFunction([](){},"7","Option 7");
     optm.attachFunction([](){},"8","Option 8");
     optm.attachFunction([](){},"9","Option 9");
-    while(optm.update() != -1)
+    while(optm.update() != -1){};
 }

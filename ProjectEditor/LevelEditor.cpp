@@ -72,6 +72,10 @@ void LevelEditor::placeItem() {
 		ro.valueSet(namenKonvention.renderObject.positionY, Display.getSelectionY());
 		Display.appendObject(ro);
 	}
+	// For resetting the screen
+	std::cerr << "Before update\n";
+	optM.update(true);
+	std::cerr << "After update\n";
 }
 
 void LevelEditor::deleteItem() {

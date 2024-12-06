@@ -134,7 +134,7 @@ void TestEnv::_RenderObject::testPokemonSprites() {
             //dummy renderobject to check if player is standing
             RenderObject dummy = Player;
             dummy.update();
-            if(0 && !dummy.hasMoveSet()){
+            if(!dummy.hasMoveSet()){
                 if (keystates[SDL_SCANCODE_W]) {
                     //Move Up
                     //------------------------------------------
@@ -236,7 +236,9 @@ void TestEnv::_RenderObject::testPokemonSprites() {
                     Player.loadMoveSet(pos);                    
                 }
             }
-            if(!dummy.hasMoveSet()){
+            
+            // Test: Random movement
+            if(0 && !dummy.hasMoveSet()){
                 int choice = int(10*(((double)rand())/RAND_MAX));
                 if (choice == 0) {
                     //Move Up
