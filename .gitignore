@@ -26,3 +26,9 @@ GraphicsCreation/
 
 # ignore build directories
 **/build/
+
+# ignore cmake files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
