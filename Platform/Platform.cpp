@@ -4,39 +4,145 @@
 //Function definitions
 #ifdef _WIN32 // Windows
 
-    void Platform::flushKeyboardInput() {
-        // Get the handle to the standard input
-        HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
-        
-        // Flush the input buffer
-        FlushConsoleInputBuffer(hInput);
-    }
-
-    int Platform::hasKeyBoardInput(){
-        return _kbhit();
-    }
-
     void Platform::clearScreen(){
         system("cls");
     }
 
-    bool Platform::openFile(std::string fullPath){
-        HINSTANCE result = ShellExecute(nullptr, L"open", std::wstring(fullPath.begin(), fullPath.end()).c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+    bool Platform::openFile(std::string fullPath) {
+        // Convert std::string to std::wstring
+        std::wstring wFullPath(fullPath.begin(), fullPath.end());
+
+        // Use ShellExecuteW (wide character version of ShellExecute)
+        HINSTANCE result = ShellExecuteW(nullptr, L"open", wFullPath.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+
         return (intptr_t)result > 32;
     }
 
-    char Platform::getCharacter(){
-        return _getch();
+    int Platform::getCharacter() {
+        // Set console mode to raw input
+        DWORD dwMode;
+        HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+        if (hStdin == INVALID_HANDLE_VALUE) {
+            std::cerr << "Error: GetStdHandle" << std::endl;
+            return -1;
+        }
+
+        // Get the current console input mode
+        if (!GetConsoleMode(hStdin, &dwMode)) {
+            std::cerr << "Error: GetConsoleMode" << std::endl;
+            return -1;
+        }
+
+        // Disable line input and echoing
+        dwMode &= ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
+        if (!SetConsoleMode(hStdin, dwMode)) {
+            std::cerr << "Error: SetConsoleMode" << std::endl;
+            return -1;
+        }
+
+        // Non-blocking key press check using kbhit
+        if (_kbhit()) {
+            // Read the first byte
+            unsigned char buf[4] = {0};
+            buf[0] = _getch();  // This reads a single character (may be multi-byte in UTF-8)
+
+            // Determine the number of bytes for the character (handling UTF-8)
+            int numBytes = 1;
+            unsigned char firstByte = buf[0];
+
+            if ((firstByte & 0x80) == 0x00) {
+                numBytes = 1;  // Single-byte character (ASCII)
+            } else if ((firstByte & 0xE0) == 0xC0) {
+                numBytes = 2;  // Two-byte character
+            } else if ((firstByte & 0xF0) == 0xE0) {
+                numBytes = 3;  // Three-byte character
+            } else if ((firstByte & 0xF8) == 0xF0) {
+                numBytes = 4;  // Four-byte character
+            }
+
+            // Read the remaining bytes of the multi-byte character, if any
+            for (int i = 1; i < numBytes; ++i) {
+                buf[i] = _getch();  // Read the next byte
+            }
+
+            // Combine the bytes into a single integer (character)
+            int val = 0;
+            for (int i = 0; i < numBytes; ++i) {
+                val |= (int)((unsigned char)buf[i]) << (8 * i);
+            }
+
+            // Restore console mode to normal
+            SetConsoleMode(hStdin, dwMode);
+
+            return val;
+        }
+
+        // If no key is pressed, return 0
+        SetConsoleMode(hStdin, dwMode);
+        return 0;
+    }
+
+    void Platform::putCharacter(int character) {
+        // Buffer to hold the character bytes
+        char buf[4] = {0};  // A maximum of 4 bytes to handle UTF-8 encoded characters
+
+        // Convert the integer into its byte representation
+        buf[0] = (character >> 8*0) & 0xFF;
+        buf[1] = (character >> 8*1) & 0xFF;
+        buf[2] = (character >> 8*2) & 0xFF;
+        buf[3] = (character >> 8*3) & 0xFF;
+
+        // Determine the number of bytes to write
+        int numBytes = 0;
+        if (buf[3]) numBytes = 4;
+        else if (buf[2]) numBytes = 3;
+        else if (buf[1]) numBytes = 2;
+        else numBytes = 1;
+
+        // Get the standard output handle
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+        // If the handle is valid, write the character bytes to the console
+        if (hConsole != INVALID_HANDLE_VALUE) {
+            DWORD bytesWritten;
+            // Write the character bytes to the console (UTF-8 encoded output)
+            WriteFile(hConsole, buf, numBytes, &bytesWritten, nullptr);
+        }
+    }
+
+    std::string Platform::vectorToString(const std::vector<int>& characterVector) {
+        std::string result;
+        
+        // Iterate through each integer in the vector
+        for (int character : characterVector) {
+            char buf[4] = {0}; // Buffer to hold the bytes of each character
+            
+            // Extract the bytes from the integer
+            buf[0] = character & 0xFF;
+            buf[1] = (character >> 8) & 0xFF;
+            buf[2] = (character >> 16) & 0xFF;
+            buf[3] = (character >> 24) & 0xFF;
+            
+            // Determine how many bytes are needed to represent the character
+            int numBytes = 1;
+            if (buf[1] != 0) numBytes = 2;
+            if (buf[2] != 0) numBytes = 3;
+            if (buf[3] != 0) numBytes = 4;
+            
+            // Append the character(s) to the result string
+            result.append(buf, numBytes);
+        }
+        return result;
     }
 
     double Platform::getMemoryUsagekB() {
         PROCESS_MEMORY_COUNTERS_EX pmc;
-        GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
-
-        // Convert bytes to kilobytes as double
-        double usedMemKB = static_cast<double>(pmc.PrivateUsage) / 1024.0;
-
-        return usedMemKB;
+        if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc))) {
+            // Convert bytes to kilobytes as double
+            double usedMemKB = static_cast<double>(pmc.PrivateUsage) / 1024.0;
+            return usedMemKB;
+        }
+        return 0.0;  // Return 0 if the memory usage info couldn't be retrieved
     }
 
 #elif defined(__linux__) // Linux
@@ -62,73 +168,6 @@
             return false;
         }
     }
-
-    /*
-        int Platform::getCharacter() {
-        // Disable echo of pressed characters while function is active
-        char buf[4] = {0}; // Buffer for up to 4 bytes
-        struct termios old = {0};
-        
-        fflush(stdout);
-        if (tcgetattr(0, &old) < 0) {
-            std::cout << "Error tcgetattr()";
-            perror("tcgetattr()");
-        }
-
-        struct termios newattr = old;
-        newattr.c_lflag &= ~ICANON; // Disable canonical mode
-        newattr.c_lflag &= ~ECHO;   // Disable echo
-        newattr.c_cc[VMIN] = 1;     // Minimum number of characters to read
-        newattr.c_cc[VTIME] = 0;    // No timeout
-
-        // Set the new terminal attributes
-        if (tcsetattr(0, TCSANOW, &newattr) < 0) {
-            std::cout << "Error tcsetattr ICANON";
-            perror("tcsetattr ICANON");
-        }
-
-        // Read at least the first byte
-        read(0, &buf[0], 1);
-
-        // Determine the number of bytes for the character based on the first byte
-        int numBytes = 1;
-        unsigned char firstByte = buf[0];
-
-        if ((firstByte & 0x80) == 0x00) {
-            // Single-byte character (ASCII)
-            numBytes = 1;
-        } else if ((firstByte & 0xE0) == 0xC0) {
-            // Two-byte character
-            numBytes = 2;
-        } else if ((firstByte & 0xF0) == 0xE0) {
-            // Three-byte character
-            numBytes = 3;
-        } else if ((firstByte & 0xF8) == 0xF0) {
-            // Four-byte character
-            numBytes = 4;
-        }
-
-        // Read the remaining bytes of the multi-byte character, if any
-        if (numBytes > 1) {
-            read(0, &buf[1], numBytes - 1);
-        }
-
-        // Restore the old terminal attributes
-        if (tcsetattr(0, TCSANOW, &old) < 0) {
-            std::cout << "Error tcsetattr ~ICANON";
-            perror("tcsetattr ~ICANON");
-        }
-
-        // Return the character as an integer, combining the bytes
-        int val = 0;
-        for (int i = 0; i < numBytes; ++i) {
-            val += (int)((unsigned char)buf[i]) << (8 * i);
-        }
-
-        return val;
-    }
-
-    */
 
     int Platform::getCharacter() {
         // Buffer for up to 4 bytes (UTF-8 character handling)

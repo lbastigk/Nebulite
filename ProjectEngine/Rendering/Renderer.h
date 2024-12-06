@@ -11,6 +11,7 @@
 #include "FileManagement.h"
 #include "Time.h"
 
+#include <pthread.h>
 #include <thread>
 
 #include <stdint.h>

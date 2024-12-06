@@ -3,7 +3,7 @@
     "tasks": [
         // BUILD FOR LINUX, USING CMAKE
         {
-            "label": "Build with CMake",
+            "label": "Full Build for Linux",
             "type": "shell",
             "command": "cmake ./ && make",
             "group": {
@@ -15,7 +15,7 @@
         },
         // BUILD ON WINDOWS, USING CMAKE
         {
-            "label": "Build with CMake for Windows",
+            "label": "Full Build for Windows",
             "type": "shell",
             "command": "cmake -DCMAKE_TOOLCHAIN_FILE=mingw-toolchain.cmake -B ./Application/bin -S . && cmake --build ./Application/bin",
             "group": {
