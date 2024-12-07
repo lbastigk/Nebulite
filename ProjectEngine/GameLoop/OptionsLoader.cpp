@@ -27,7 +27,7 @@ bool Options::Save() {
 }
 
 // Method to load options from a JSON file
-bool Options::Load() {
+void Options::Load() {
     std::string file = FileManagement::LoadFile(FileManagement::CombinePaths(FileManagement::currentDir(),filename_));
     doc = JSONHandler::deserialize(file);
 }

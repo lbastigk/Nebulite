@@ -4,11 +4,22 @@ project(Nebulite)
 # Echo the start of the configuration
 message(STATUS "Starting configuration for project Nebulite")
 
+
+#  ▗▖ ▗▖▗▄▄▄▖▗▖  ▗▖▗▄▄▄  ▗▄▖ ▗▖ ▗▖ ▗▄▄▖     ▗▄▄▖▗▄▄▖ ▗▄▄▄▖ ▗▄▄▖▗▄▄▄▖▗▄▄▄▖▗▄▄▄▖ ▗▄▄▖
+#  ▐▌ ▐▌  █  ▐▛▚▖▐▌▐▌  █▐▌ ▐▌▐▌ ▐▌▐▌       ▐▌   ▐▌ ▐▌▐▌   ▐▌     █  ▐▌     █  ▐▌
+#  ▐▌ ▐▌  █  ▐▌ ▝▜▌▐▌  █▐▌ ▐▌▐▌ ▐▌ ▝▀▚▖     ▝▀▚▖▐▛▀▘ ▐▛▀▀▘▐▌     █  ▐▛▀▀▘  █  ▐▌
+#  ▐▙█▟▌▗▄█▄▖▐▌  ▐▌▐▙▄▄▀▝▚▄▞▘▐▙█▟▌▗▄▄▞▘    ▗▄▄▞▘▐▌   ▐▙▄▄▖▝▚▄▄▖▗▄█▄▖▐▌   ▗▄█▄▖▝▚▄▄▖
+#
+#
+#
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    message(STATUS "If the build fails, please try using the POSIX threading model:")
+    message(STATUS "sudo update-alternatives --config x86_64-w64-mingw32-g++")
+
     message(STATUS "Configuring for Windows")
 
     # Specify where to store the compiled binaries on Windows
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Application/bin)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/)
     message(STATUS "Binary output directory set to: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
     # Include MinGW SDL2 directories explicitly
@@ -47,6 +58,14 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread -lstdc++")
 
     message(STATUS "Threading configured for MinGW (using -pthread and -mthreads)")
+
+#  ▗▖   ▗▄▄▄▖▗▖  ▗▖▗▖ ▗▖▗▖  ▗▖     ▗▄▄▖▗▄▄▖ ▗▄▄▄▖ ▗▄▄▖▗▄▄▄▖▗▄▄▄▖▗▄▄▄▖ ▗▄▄▖
+#  ▐▌     █  ▐▛▚▖▐▌▐▌ ▐▌ ▝▚▞▘     ▐▌   ▐▌ ▐▌▐▌   ▐▌     █  ▐▌     █  ▐▌
+#  ▐▌     █  ▐▌ ▝▜▌▐▌ ▐▌  ▐▌       ▝▀▚▖▐▛▀▘ ▐▛▀▀▘▐▌     █  ▐▛▀▀▘  █  ▐▌
+#  ▐▙▄▄▖▗▄█▄▖▐▌  ▐▌▝▚▄▞▘▗▞▘▝▚▖    ▗▄▄▞▘▐▌   ▐▙▄▄▖▝▚▄▄▖▗▄█▄▖▐▌   ▗▄█▄▖▝▚▄▄▖
+#
+#
+#
 else()
     message(STATUS "Configuring for Linux")
 
@@ -55,6 +74,7 @@ else()
     message(STATUS "Binary output directory set to: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
     # Link SDL2 libraries specific to Linux
+    include_directories(/usr/include/SDL2)
     set(SDL2_LIBS SDL2 SDL2_ttf SDL2_image)
     message(STATUS "Linking SDL2 libraries: SDL2, SDL2_ttf, SDL2_image")
 
@@ -67,7 +87,16 @@ else()
     message(STATUS "Added compiler options: -g -w")
 endif()
 
+#  ▗▄▄▄▖▗▖  ▗▖ ▗▄▄▖▗▖   ▗▖ ▗▖▗▄▄▄ ▗▄▄▄▖ ▗▄▄▖
+#    █  ▐▛▚▖▐▌▐▌   ▐▌   ▐▌ ▐▌▐▌  █▐▌   ▐▌
+#    █  ▐▌ ▝▜▌▐▌   ▐▌   ▐▌ ▐▌▐▌  █▐▛▀▀▘ ▝▀▚▖
+#  ▗▄█▄▖▐▌  ▐▌▝▚▄▄▖▐▙▄▄▖▝▚▄▞▘▐▙▄▄▀▐▙▄▄▖▗▄▄▞▘
+#
+#
+#
+
 # Include directories common for both platforms
+message(STATUS "Setting Include directories")
 include_directories(
     ${CMAKE_SOURCE_DIR}/ProjectEngine
     ${CMAKE_SOURCE_DIR}/ProjectEngine/Rendering
@@ -77,16 +106,23 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Platform
     ${CMAKE_SOURCE_DIR}/ProjectEditor
     ${CMAKE_SOURCE_DIR}/ProjectTestEnvironment
-    /usr/include/SDL2
     /usr/include/rapidjson
 )
 
+#   ▗▄▄▖ ▗▄▖ ▗▖ ▗▖▗▄▄▖  ▗▄▄▖▗▄▄▄▖    ▗▄▄▄▖▗▄▄▄▖▗▖   ▗▄▄▄▖ ▗▄▄▖
+#  ▐▌   ▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌   ▐▌       ▐▌     █  ▐▌   ▐▌   ▐▌
+#   ▝▀▚▖▐▌ ▐▌▐▌ ▐▌▐▛▀▚▖▐▌   ▐▛▀▀▘    ▐▛▀▀▘  █  ▐▌   ▐▛▀▀▘ ▝▀▚▖
+#  ▗▄▄▞▘▝▚▄▞▘▝▚▄▞▘▐▌ ▐▌▝▚▄▄▖▐▙▄▄▖    ▐▌   ▗▄█▄▖▐▙▄▄▖▐▙▄▄▖▗▄▄▞▘
+#
+#
+#
+
 # Common source files
+message(STATUS "Setting source files in project")
 set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/Platform/Platform.cpp
     ${CMAKE_SOURCE_DIR}/ProjectEditor/Editor.cpp
     ${CMAKE_SOURCE_DIR}/ProjectEditor/LevelEditor.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/GameLoop/GameLoop.cpp
     ${CMAKE_SOURCE_DIR}/ProjectEngine/GameLoop/OptionsLoader.cpp
     ${CMAKE_SOURCE_DIR}/ProjectEngine/GameLoop/Savegame.cpp
     ${CMAKE_SOURCE_DIR}/ProjectEngine/GameVars/Basiswerte.cpp
@@ -114,6 +150,16 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/ProjectTestEnvironment/TestEnv.cpp
     ${CMAKE_SOURCE_DIR}/ProjectTestEnvironment/_TEMPLATE_CLASS.cpp
 )
+
+#   ▗▄▖ ▗▖ ▗▖▗▄▄▄▖▗▄▄▖ ▗▖ ▗▖▗▄▄▄▖
+#  ▐▌ ▐▌▐▌ ▐▌  █  ▐▌ ▐▌▐▌ ▐▌  █
+#  ▐▌ ▐▌▐▌ ▐▌  █  ▐▛▀▘ ▐▌ ▐▌  █
+#  ▝▚▄▞▘▝▚▄▞▘  █  ▐▌   ▝▚▄▞▘  █
+#
+#
+#
+
+message(STATUS "Setting targets...")
 
 # Engine target
 add_executable(Engine

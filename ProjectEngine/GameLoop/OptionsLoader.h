@@ -25,7 +25,7 @@ public:
     bool Save();
 
     // Method to load options from a JSON file
-    bool Load();
+    void Load();
 
     void setFileName(std::string link);
 
