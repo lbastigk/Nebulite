@@ -157,8 +157,8 @@ void LevelEditor::Display::update() {
 	mouseState = SDL_GetMouseState(&MousePosX, &MousePosY);
 	
 	//Append Cursor obj at Mouse position
-	Cursor.valueSet(namenKonvention.renderObject.positionX, MousePosX);
-	Cursor.valueSet(namenKonvention.renderObject.positionY, MousePosY);
+	Cursor.valueSet(namenKonvention.renderObject.positionX, MousePosX + Renderer.getPosX());
+	Cursor.valueSet(namenKonvention.renderObject.positionY, MousePosY + Renderer.getPosY());
 
 	//Create Selection position
 	uint32_t lms;
@@ -166,11 +166,14 @@ void LevelEditor::Display::update() {
 	switch (mouseState & (SDL_BUTTON_LMASK | SDL_BUTTON_RMASK | SDL_BUTTON_MMASK | SDL_BUTTON_X1MASK | SDL_BUTTON_X2MASK)) {
 	case SDL_BUTTON_LMASK:
 		// Left mouse button pressed
-		// Handle left mouse button press
+		// move selector
 		Selection.valueSet(namenKonvention.renderObject.positionX, MousePosX - (MousePosX % 32));
 		Selection.valueSet(namenKonvention.renderObject.positionY, MousePosY - (MousePosY % 32));
 		break;
 	case SDL_BUTTON_RMASK:
+		// Right mouse button pressed
+		// move cam
+		SDL_SetRelativeMouseMode(SDL_TRUE);
 		lms = (lastMouseState & (SDL_BUTTON_LMASK | SDL_BUTTON_RMASK | SDL_BUTTON_MMASK | SDL_BUTTON_X1MASK | SDL_BUTTON_X2MASK));
 		if (lms != SDL_BUTTON_RMASK){
 			lastMousePosX = MousePosX;
@@ -182,6 +185,7 @@ void LevelEditor::Display::update() {
 		break;
 	case SDL_BUTTON_MMASK:
 		// Middle button pressed
+		// Place last object
 		lms = (lastMouseState & (SDL_BUTTON_LMASK | SDL_BUTTON_RMASK | SDL_BUTTON_MMASK | SDL_BUTTON_X1MASK | SDL_BUTTON_X2MASK));
 		if (lms != SDL_BUTTON_MMASK){
 			ro.deserialize(lastPlaced.serialize());
@@ -200,8 +204,10 @@ void LevelEditor::Display::update() {
 		break;
 	default:
 		// No mouse buttons pressed
+		SDL_SetRelativeMouseMode(SDL_FALSE);
 		break;
 	}
+	
 
 	// Append additional objects
 	Renderer.append(Cursor);

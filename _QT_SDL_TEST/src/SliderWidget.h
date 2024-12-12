@@ -7,6 +7,7 @@
 
 class SliderWidget : public QWidget {
     Q_OBJECT
+
     QSlider *slider;
 
 public:

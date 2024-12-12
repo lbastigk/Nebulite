@@ -14,4 +14,5 @@ cmake ..
 # Build the project using make
 make
 
-./SDLEncodedQtApp
+# Start the app
+./app
