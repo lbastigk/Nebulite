@@ -33,6 +33,7 @@ public:
 	//-----------------------------------------------------------
 	// Pipeline
 	void append(RenderObject toAppend);
+	void reinsertAllObjects();
 	void update();
 	void update_withThreads();
 	
@@ -46,7 +47,7 @@ public:
 	
 	//-----------------------------------------------------------
 	// Manipulation
-	void changeWindowSize();
+	void changeWindowSize(int w, int h);
 	void updatePosition(int x, int y, bool isMiddle = false);
 	void moveCam(int dX, int dY);
 	
@@ -76,6 +77,8 @@ public:
 	int getFPS();
 	int getPosX();
 	int getPosY();
+
+	SDL_Renderer* getSdlRenderer();
 
 	class SDL {
 	public:

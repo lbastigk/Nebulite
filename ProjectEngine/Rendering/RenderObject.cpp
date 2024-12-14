@@ -518,6 +518,23 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 	}
 }
 
+
+void RenderObjectContainer::reinsertAllObjects(int dispResX, int dispResY, int THREADSIZE) {
+	std::vector<RenderObject> toReinsert;
+	for(auto& Y : ObjectContainer){
+		for(auto& X : Y){
+			for(auto& batch : X){
+				for(auto& obj : batch){
+					toReinsert.push_back(obj);
+				}
+			}
+		}
+	}
+	for(const auto& obj : toReinsert){
+		append(obj, dispResX, dispResY, THREADSIZE);
+	}
+}
+
 bool RenderObjectContainer::isValidPosition(int x, int y) const {
     // Check if ObjectContainer is not empty
     if (!ObjectContainer.empty()) {

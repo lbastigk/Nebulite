@@ -38,6 +38,7 @@ public:
 	void append(RenderObject toAttach,int dispResX, int dispResY,int THREADSIZE, int layer = 0);
 	void update(int tileXpos,int tileYpos,int dispResX,int dispResY, int THREADSIZE);
 	void update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE);
+	void reinsertAllObjects(int dispResX,int dispResY, int THREADSIZE);
 
 	std::vector<std::vector<RenderObject>>& getContainerAt(int x, int y, int layer);
 	bool isValidPosition(int x, int y, int layer);

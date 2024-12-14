@@ -109,8 +109,12 @@ void Renderer::append(RenderObject toAppend) {
 	loadTexture(toAppend);
 }
 
+void Renderer::reinsertAllObjects(){
+	env.reinsertAllObjects(dispResX,dispResY,THREADSIZE);
+}
+
 void Renderer::update() {
-	env.update(tileXpos, tileYpos, dispResX, dispResY, THREADSIZE);
+	env.update(tileXpos,tileYpos,dispResX, dispResY, THREADSIZE);
 }
 
 void Renderer::update_withThreads() {
@@ -150,8 +154,9 @@ void Renderer::destroy() {
 //-----------------------------------------------------------
 // Manipulation
 
-void Renderer::changeWindowSize() {
-	
+void Renderer::changeWindowSize(int w, int h) {
+	SDL_SetWindowSize(window, w, h);
+	reinsertAllObjects();
 }
 
 void Renderer::updatePosition(int x, int y, bool isMiddle) {

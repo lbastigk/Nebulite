@@ -4,7 +4,6 @@ project(Nebulite)
 # Echo the start of the configuration
 message(STATUS "Starting configuration for project Nebulite")
 
-
 #  ▗▖ ▗▖▗▄▄▄▖▗▖  ▗▖▗▄▄▄  ▗▄▖ ▗▖ ▗▖ ▗▄▄▖     ▗▄▄▖▗▄▄▖ ▗▄▄▄▖ ▗▄▄▖▗▄▄▄▖▗▄▄▄▖▗▄▄▄▖ ▗▄▄▖
 #  ▐▌ ▐▌  █  ▐▛▚▖▐▌▐▌  █▐▌ ▐▌▐▌ ▐▌▐▌       ▐▌   ▐▌ ▐▌▐▌   ▐▌     █  ▐▌     █  ▐▌
 #  ▐▌ ▐▌  █  ▐▌ ▝▜▌▐▌  █▐▌ ▐▌▐▌ ▐▌ ▝▀▚▖     ▝▀▚▖▐▛▀▘ ▐▛▀▀▘▐▌     █  ▐▛▀▀▘  █  ▐▌
@@ -59,6 +58,24 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
     message(STATUS "Threading configured for MinGW (using -pthread and -mthreads)")
 
+    # Ensure DLLs are found at runtime by adding the current directory to rpath
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,.")
+    message(STATUS "Added runtime search path for DLLs: Current directory")
+
+    # -----------------
+    # Add custom commands to copy the necessary SDL2 DLLs to the output directory
+
+    # Specify SDL2 DLL paths (modify these if necessary based on where your SDL2 DLLs are located)
+    set(SDL2_DLL_PATH "/usr/x86_64-w64-mingw32/bin")
+
+    # List of required DLLs
+    set(SDL2_DLLS
+        "${SDL2_DLL_PATH}/SDL2.dll"
+        "${SDL2_DLL_PATH}/SDL2_ttf.dll"
+        "${SDL2_DLL_PATH}/SDL2_image.dll"
+    )
+
+    message(STATUS "Copying necessary SDL2 DLLs to the runtime output directory")
 #  ▗▖   ▗▄▄▄▖▗▖  ▗▖▗▖ ▗▖▗▖  ▗▖     ▗▄▄▖▗▄▄▖ ▗▄▄▄▖ ▗▄▄▖▗▄▄▄▖▗▄▄▄▖▗▄▄▄▖ ▗▄▄▖
 #  ▐▌     █  ▐▛▚▖▐▌▐▌ ▐▌ ▝▚▞▘     ▐▌   ▐▌ ▐▌▐▌   ▐▌     █  ▐▌     █  ▐▌
 #  ▐▌     █  ▐▌ ▝▜▌▐▌ ▐▌  ▐▌       ▝▀▚▖▐▛▀▘ ▐▛▀▀▘▐▌     █  ▐▛▀▀▘  █  ▐▌
@@ -186,3 +203,24 @@ target_link_libraries(TestEnvironment ${SDL2_LIBS})
 add_custom_target(BuildAll
     DEPENDS Engine Editor TestEnvironment
 )
+
+# Windows-Specific dll targets:
+# Now, after the targets are created, add the custom commands
+message(STATUS "Copying necessary SDL2 DLLs to the runtime output directory")
+foreach(DLL ${SDL2_DLLS})
+    add_custom_command(TARGET Engine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${DLL}
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/
+    )
+    add_custom_command(TARGET Editor POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${DLL}
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/
+    )
+    add_custom_command(TARGET TestEnvironment POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${DLL}
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/
+    )
+endforeach()

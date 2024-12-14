@@ -43,7 +43,7 @@ private:
     bool initializeSDL();
     void cleanupSDL();
     void renderContent();
-    void updateImage();
+    void updateImage(ImageWidget &img);
 
 private slots:
     void toggleRotation();

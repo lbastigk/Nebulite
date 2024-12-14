@@ -12,12 +12,12 @@ MainWindow::MainWindow(QWidget *parent)
     // Initialize widgets
     imageWidget             = new ImageWidget(this);   // Main Image Widget
     showcaseImageWidget     = new ImageWidget(this);
-    rotateButton            = new ButtonWidget("Start Rotation", this);
+    rotateButton            = new ButtonWidget("Stop Rotation", this);
     speedSlider             = new SliderWidget(1, 10, 2, this);
     explorerWidget          = new ExplorerWidget(this);
 
     // Setup sdl placeholder widget
-    showcaseImageWidget->setFixedSize(200, 150);   // Set size for SDL placeholder
+    showcaseImageWidget->setFixedSize(600, 450);   // Set size for SDL placeholder
     showcaseImageWidget->updateImage(QImage());    // Set a placeholder image (empty or static)
 
     // Create control layout (vertical)
@@ -36,8 +36,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Initialize timer and connect signals
     timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &MainWindow::updateImage);
-    timer->start(16);
+    connect(timer, &QTimer::timeout, this, [this]() { updateImage(*imageWidget); });
+    timer->start(16);   //16ms?
+
+    connect(timer, &QTimer::timeout, this, [this]() { updateImage(*showcaseImageWidget); });
 
     connect(rotateButton, &ButtonWidget::buttonClicked, this, &MainWindow::toggleRotation);
     connect(speedSlider, &SliderWidget::valueChanged, this, &MainWindow::updateRotationSpeed);
@@ -117,12 +119,12 @@ void MainWindow::renderContent() {
     SDL_RenderCopyEx(renderer, whiteTexture, nullptr, &whiteSquare, angle, &center, SDL_FLIP_NONE);
 }
 
-void MainWindow::updateImage() {
+void MainWindow::updateImage(ImageWidget &img) {    //[for GPT] updated this to pass image pointer instead of using imageWidget from class itself
     SDL_SetRenderTarget(renderer, texture);
     renderContent();
 
     QImage image = captureRendererContentToQImage(renderer, SDL_WINDOW_WIDTH, SDL_WINDOW_HEIGHT);
-    imageWidget->updateImage(image);
+    img.updateImage(image);
 }
 
 void MainWindow::toggleRotation() {

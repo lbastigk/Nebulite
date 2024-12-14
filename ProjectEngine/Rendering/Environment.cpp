@@ -130,6 +130,12 @@ void Environment::update(int tileXpos,int tileYpos,int dispResX,int dispResY, in
 	}
 }
 
+void Environment::reinsertAllObjects(int dispResX,int dispResY, int THREADSIZE){
+	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
+		roc[i].reinsertAllObjects(dispResX,dispResY,THREADSIZE);
+	}
+}
+
 void Environment::update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE) {
 	// Update all objects in each layer
 
