@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef EXAMPLEWINDOW_H
+#define EXAMPLEWINDOW_H
 
 #include <QWidget>
 #include <QTimer>
@@ -19,7 +19,7 @@
 #define QT_WINDOW_WIDTH 1000 // Increased to accommodate the sidebar
 #define QT_WINDOW_HEIGHT 640
 
-class MainWindow : public QWidget {
+class _ExampleWindow : public QWidget {
     Q_OBJECT
 
     ImageWidget *imageWidget;
@@ -30,14 +30,16 @@ class MainWindow : public QWidget {
 
     SDL_Renderer *renderer;
     SDL_Texture *texture;
-    QTimer *timer;
+
+    QTimer *mainTimer;
+    QTimer *othrTimer;
 
     double rotationSpeed;
     SDL_Texture *whiteTexture;
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    explicit _ExampleWindow(QWidget *parent = nullptr);
+    ~_ExampleWindow();
 
 private:
     bool initializeSDL();
@@ -50,4 +52,4 @@ private slots:
     void updateRotationSpeed(int value);
 };
 
-#endif // MAINWINDOW_H
+#endif // EXAMPLEWINDOW_H

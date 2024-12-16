@@ -9,12 +9,17 @@
                 "${workspaceFolder}/**",       // Covers everything in the project
                 "/usr/include/SDL2/",           // Path to SDL2 headers on Linux
                 "/usr/include/rapidjson/",     // Path to rapidjson
-                "${workspaceFolder}/ProjectEngine/",          // ProjectEngine root
-                "${workspaceFolder}/ProjectEngine/GameLoop/", // ProjectEngine subdirectories
+                "/usr/include/x86_64-linux-gnu/qt5/",           //QT5
+                "/usr/include/x86_64-linux-gnu/qt5/QtCore",
+                "/usr/include/x86_64-linux-gnu/qt5/QtGui",
+                "/usr/include/x86_64-linux-gnu/qt5/QtWidgets",
+                "${workspaceFolder}/ProjectEngine/",            // ProjectEngine root
+                "${workspaceFolder}/ProjectEngine/GameLoop/",   // ProjectEngine subdirectories
                 "${workspaceFolder}/ProjectEngine/GameVars/",
                 "${workspaceFolder}/ProjectEngine/Helper/",
                 "${workspaceFolder}/ProjectEngine/Rendering/",
-                "${workspaceFolder}/ProjectEditor/",           // ProjectEditor
+                "${workspaceFolder}/ProjectEditor/",           // ProjectEditor root
+                "${workspaceFolder}/ProjectEditor/QT/",
                 "${workspaceFolder}/ProjectTestEnvironment/",  // ProjectTestEnvironment
                 "${workspaceFolder}/Platform/"                 // Platform
             ],
@@ -25,13 +30,14 @@
             "intelliSenseMode": "linux-gcc-x64",
             "browse": {
                 "path": [
-                    "/usr/include/SDL2",       // SDL2 headers
+                    "/usr/include/SDL2",
                     "${workspaceFolder}/ProjectEngine",
                     "${workspaceFolder}/ProjectEngine/GameLoop",
                     "${workspaceFolder}/ProjectEngine/GameVars",
                     "${workspaceFolder}/ProjectEngine/Helper",
                     "${workspaceFolder}/ProjectEngine/Rendering",
                     "${workspaceFolder}/ProjectEditor",
+                    "${workspaceFolder}/ProjectEditor/QT/",
                     "${workspaceFolder}/ProjectTestEnvironment",
                     "${workspaceFolder}/Platform"
                 ],

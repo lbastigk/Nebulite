@@ -24,6 +24,18 @@
             },
             "problemMatcher": [],
             "detail": "Build the project by running 'cmake' and 'make' in the appropriate directories"
-        }
+        },
+        // BUILD EXAMPLE QT5 MAIN
+        {
+            "label": "Example QT5 app",
+            "type": "shell",
+            "command": "cd ./ProjectEditor/ExampleBuild/ && ./build.sh",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [],
+            "detail": "Builds the _ExampleMain"
+        },
     ]
 }

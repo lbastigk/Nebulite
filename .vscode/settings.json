@@ -69,7 +69,9 @@
         "ranges": "cpp",
         "locale": "cpp",
         "text_encoding": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "qhboxlayout": "cpp",
+        "qvboxlayout": "cpp"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

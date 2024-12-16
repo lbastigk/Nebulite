@@ -1,12 +1,12 @@
 #include <QApplication>
 
 
-#include <MainWindow.h>
+#include <_ExampleWindow.h>
 
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    MainWindow window;
+    _ExampleWindow window;
     window.setWindowTitle("SDL and Qt Integration");
     window.show();
     return app.exec();

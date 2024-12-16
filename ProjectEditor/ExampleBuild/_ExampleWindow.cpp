@@ -1,9 +1,9 @@
-#include "MainWindow.h"
+#include "_ExampleWindow.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include "captureRendererContentToQImage.h"  // Helper function to capture SDL output as QImage
 
-MainWindow::MainWindow(QWidget *parent)
+_ExampleWindow::_ExampleWindow(QWidget *parent)
     : QWidget(parent), renderer(nullptr), texture(nullptr), rotationSpeed(2.0), whiteTexture(nullptr) {
     if (!initializeSDL()) {
         qFatal("Failed to initialize SDL");
@@ -32,30 +32,36 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout->addLayout(controlLayout);     // Controls in the middle (with SDL placeholder)
     mainLayout->addWidget(imageWidget);       // Main image on the right
 
+    // MAIN Layout
     setLayout(mainLayout);
 
-    // Initialize timer and connect signals
-    timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, [this]() { updateImage(*imageWidget); });
-    timer->start(16);   //16ms?
+    // MAIN LOOP
+    mainTimer = new QTimer(this);
+    othrTimer = new QTimer(this);
+    connect(mainTimer, &QTimer::timeout, this, [this]() { updateImage(*imageWidget); });
+    connect(othrTimer, &QTimer::timeout, this, [this]() { updateImage(*showcaseImageWidget); });
+    mainTimer->start(16);   //16ms?
+    othrTimer->start(160);
 
-    connect(timer, &QTimer::timeout, this, [this]() { updateImage(*showcaseImageWidget); });
-
-    connect(rotateButton, &ButtonWidget::buttonClicked, this, &MainWindow::toggleRotation);
-    connect(speedSlider, &SliderWidget::valueChanged, this, &MainWindow::updateRotationSpeed);
+    //connections
+    
+    connect(rotateButton, &ButtonWidget::buttonClicked, this, &_ExampleWindow::toggleRotation);
+    connect(speedSlider, &SliderWidget::valueChanged, this, &_ExampleWindow::updateRotationSpeed);
     connect(explorerWidget, &ExplorerWidget::fileSelected, [](const QString &filePath) {
         qDebug() << "Selected file:" << filePath;
     });
+
+    
 }
 
 
 
 
-MainWindow::~MainWindow() {
+_ExampleWindow::~_ExampleWindow() {
     cleanupSDL();
 }
 
-bool MainWindow::initializeSDL() {
+bool _ExampleWindow::initializeSDL() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         qWarning("Unable to initialize SDL: %s", SDL_GetError());
         return false;
@@ -87,14 +93,14 @@ bool MainWindow::initializeSDL() {
     return true;
 }
 
-void MainWindow::cleanupSDL() {
+void _ExampleWindow::cleanupSDL() {
     if (whiteTexture) SDL_DestroyTexture(whiteTexture);
     if (texture) SDL_DestroyTexture(texture);
     if (renderer) SDL_DestroyRenderer(renderer);
     SDL_Quit();
 }
 
-void MainWindow::renderContent() {
+void _ExampleWindow::renderContent() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
@@ -119,7 +125,7 @@ void MainWindow::renderContent() {
     SDL_RenderCopyEx(renderer, whiteTexture, nullptr, &whiteSquare, angle, &center, SDL_FLIP_NONE);
 }
 
-void MainWindow::updateImage(ImageWidget &img) {    //[for GPT] updated this to pass image pointer instead of using imageWidget from class itself
+void _ExampleWindow::updateImage(ImageWidget &img) {    //[for GPT] updated this to pass image pointer instead of using imageWidget from class itself
     SDL_SetRenderTarget(renderer, texture);
     renderContent();
 
@@ -127,11 +133,11 @@ void MainWindow::updateImage(ImageWidget &img) {    //[for GPT] updated this to 
     img.updateImage(image);
 }
 
-void MainWindow::toggleRotation() {
+void _ExampleWindow::toggleRotation() {
     rotationSpeed = (rotationSpeed == 0.0) ? 2.0 : 0.0;
     rotateButton->setText(rotationSpeed == 0.0 ? "Start Rotation" : "Stop Rotation");
 }
 
-void MainWindow::updateRotationSpeed(int value) {
+void _ExampleWindow::updateRotationSpeed(int value) {
     rotationSpeed = value * 0.2;
 }
