@@ -15,4 +15,7 @@ cmake ..
 make
 
 # Start the app
+mv ./app ../../../Application/
+
+cd ../../../Application/
 ./app

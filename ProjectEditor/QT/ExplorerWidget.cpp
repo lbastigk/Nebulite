@@ -12,6 +12,12 @@ ExplorerWidget::ExplorerWidget(QWidget *parent)
     treeView->setModel(fileModel);
     treeView->setRootIndex(fileModel->index("./"));
 
+    // Set column widths
+    treeView->setColumnWidth(0, 300); // Column 0: Name
+    treeView->setColumnWidth(1, 100); // Column 1: Size
+    treeView->setColumnWidth(2, 100); // Column 2: Type
+    treeView->setColumnWidth(3, 100); // Column 3: Date Modified
+
     // Connect the clicked signal to our custom slot
     connect(treeView, &QTreeView::clicked, this, &ExplorerWidget::onFileClicked);
 

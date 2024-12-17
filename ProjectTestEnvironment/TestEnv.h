@@ -94,6 +94,7 @@ public:
         static void testRendererMemLeak();
         static int movement();
         static void simpleSdlWindow();
+        static void twoSdlWindows();
     private:
         static void createRandomObjects(Renderer& Renderer, int amount, int radius);
         static void createCircleOLD(Renderer& Renderer, int amount, int radius);

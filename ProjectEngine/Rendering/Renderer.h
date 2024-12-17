@@ -20,7 +20,7 @@
 
 class Renderer {
 public:
-	Renderer();
+	Renderer(bool flag_hidden = false);
 	
 	//Destructor
 	~Renderer();

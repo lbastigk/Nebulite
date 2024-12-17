@@ -282,6 +282,92 @@ void TestEnv::_Renderer::simpleSdlWindow(){
     Renderer.destroy();
 }
 
+void TestEnv::_Renderer::twoSdlWindows(){
+    std::cout << "Creating two simple SDL window for debugging...\n\n";
+
+    std::cout << "Creating Renderer...\n";
+    Renderer Renderer1;
+    Renderer Renderer2;
+
+    std::cout << "Setting FPS...\n";
+    Renderer1.setFPS(60);
+    Renderer2.setFPS(60);
+
+    //General Variables
+    bool quit = false;
+    int event = 0;
+
+    while (!quit) {
+        //Event handling
+        std::cout << "";
+        SDL_Event sdlEvent1 = Renderer1.getEventHandle();
+        SDL_Event sdlEvent2 = Renderer2.getEventHandle();
+
+        RenderObject ro1;
+        ro1.valueSet<int>(namenKonvention.renderObject.positionX,200);
+        ro1.valueSet<int>(namenKonvention.renderObject.positionY,200);
+        ro1.valueSet<int>(namenKonvention.renderObject.pixelSizeX,100);
+        ro1.valueSet<int>(namenKonvention.renderObject.pixelSizeY,100);
+        RenderObject ro2;
+        ro2.valueSet<int>(namenKonvention.renderObject.positionX,400);
+        ro2.valueSet<int>(namenKonvention.renderObject.positionY,400);
+
+        if (sdlEvent1.type == SDL_QUIT) {
+            quit = true;
+        }
+        if (sdlEvent2.type == SDL_QUIT) {
+            quit = true;
+        }
+
+        if (Renderer1.timeToRender()) {
+
+            // Attach Object
+            Renderer1.append(ro1);
+
+            //Render Current instances
+            std::cout << "1: Render Current instances...\n";
+            Renderer1.renderFrame();
+
+            // Render FPS
+            std::cout << "1: Render FPS...\n";
+            Renderer1.renderFPS();
+
+            // Present the renderer
+            std::cout << "1: Present the renderer...\n";
+            Renderer1.showFrame();
+
+            // Delete objects
+            std::cout << "1: Delete objects...\n";
+            Renderer1.purgeObjects();
+        }
+        if (Renderer2.timeToRender()) {
+
+            // Attach Object
+            Renderer2.append(ro2);
+
+            // Render Current instances
+            std::cout << "2: Render Current instances...\n";
+            Renderer2.renderFrame();
+
+            // Render FPS
+            std::cout << "2: Render FPS...\n";
+            Renderer2.renderFPS();
+
+            // Present the renderer
+            std::cout << "2: Present the renderer...\n";
+            Renderer2.showFrame();
+
+            // Delete objects
+            std::cout << "2: Delete objects...\n";
+            Renderer2.purgeObjects();
+        }
+    }
+    //End of Program!
+    std::cout << "Destroying Renderer...\n";
+    Renderer1.destroy();
+    Renderer2.destroy();
+}
+
 void TestEnv::_Renderer::createRandomObjects(Renderer& Renderer, int amount, int radius) {
 
     for (int i = 0; i < (amount > 128 ? 128 : amount); i++) {

@@ -71,7 +71,12 @@
         "text_encoding": "cpp",
         "set": "cpp",
         "qhboxlayout": "cpp",
-        "qvboxlayout": "cpp"
+        "qvboxlayout": "cpp",
+        "csignal": "cpp",
+        "complex": "cpp",
+        "list": "cpp",
+        "shared_mutex": "cpp",
+        "qimage": "cpp"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

@@ -1,7 +1,7 @@
 #include "Renderer.h"
 
 
-Renderer::Renderer(){
+Renderer::Renderer(bool flag_hidden){
 
 	//Options
 	generalOptions.setFileName("options.txt");
@@ -28,7 +28,7 @@ Renderer::Renderer(){
 		SDL_WINDOWPOS_CENTERED,
 		atoi(generalOptions.GetOption("dispResX").c_str()),                        // Width
 		atoi(generalOptions.GetOption("dispResY").c_str()),                        // Height
-		SDL_WINDOW_SHOWN
+		flag_hidden ? SDL_WINDOW_HIDDEN :SDL_WINDOW_SHOWN
 	);
 	if (!window) {
 		// Window creation failed
@@ -88,7 +88,8 @@ Renderer::~Renderer() {
 
 //Marshalling
 std::string Renderer::serialize() {
-	//TODO?
+	//TODO?+
+	return env.serialize();
 }
 
 std::string Renderer::serializeEnvironment() {
@@ -417,7 +418,6 @@ void Renderer::renderFrameNoThreads() {
 	}
 }
 
-
 void Renderer::renderFPS() {
 	// Create a string with the FPS value
 	std::string fpsText = "FPS: " + std::to_string(fps);
@@ -499,6 +499,7 @@ int Renderer::getThreadSize() {return THREADSIZE;}
 int Renderer::getFPS() {return fps;}
 int Renderer::getPosX(){return Xpos;};
 int Renderer::getPosY(){return Ypos;};
+SDL_Renderer* Renderer::getSdlRenderer(){return renderer;};
 
 //-----------------------------------------------------------
 // Other

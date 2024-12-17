@@ -1,7 +1,8 @@
 #include "ButtonWidget.h"
 
 ButtonWidget::ButtonWidget(const QString &buttonText, QWidget *parent)
-    : QWidget(parent), button(new QPushButton(buttonText, this)) {
+    :   QWidget(parent), 
+        button(new QPushButton(buttonText, this)){
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(button);
 

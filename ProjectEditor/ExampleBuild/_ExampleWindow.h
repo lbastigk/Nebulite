@@ -11,7 +11,8 @@
 #include "SliderWidget.h"
 #include "ExplorerWidget.h"
 
-#include <SDL2/SDL.h>
+#include "Renderer.h"
+
 
 // Define window size macros for both SDL and Qt
 #define SDL_WINDOW_WIDTH 640
@@ -24,32 +25,29 @@ class _ExampleWindow : public QWidget {
 
     ImageWidget *imageWidget;
     ImageWidget *showcaseImageWidget;
+
     ButtonWidget *rotateButton;
     SliderWidget *speedSlider;
     ExplorerWidget *explorerWidget;
 
-    SDL_Renderer *renderer;
-    SDL_Texture *texture;
-
     QTimer *mainTimer;
     QTimer *othrTimer;
 
-    double rotationSpeed;
-    SDL_Texture *whiteTexture;
+    Renderer nebuliteRenderer;
+    Renderer nebuliteShowcaseRenderer;
+
+    SDL_Texture *textureMain;
+    SDL_Texture *textureOther;
 
 public:
     explicit _ExampleWindow(QWidget *parent = nullptr);
-    ~_ExampleWindow();
 
 private:
-    bool initializeSDL();
-    void cleanupSDL();
     void renderContent();
-    void updateImage(ImageWidget &img);
+    void updateImage(ImageWidget &img,SDL_Renderer *renderer, SDL_Texture *texture, float scalar);
 
 private slots:
-    void toggleRotation();
-    void updateRotationSpeed(int value);
+
 };
 
 #endif // EXAMPLEWINDOW_H

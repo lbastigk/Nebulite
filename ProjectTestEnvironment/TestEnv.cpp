@@ -141,6 +141,7 @@ void TestEnv::_Renderer::testMenue() {
 	OptionsMenu optM;
 	optM.setOption(0);	//Start option
 	optM.attachFunction( TestEnv::_Renderer::simpleSdlWindow ,	    "Simple SDL Window with debug in each step");
+	optM.attachFunction( TestEnv::_Renderer::twoSdlWindows ,	    "Two SDL Windows with debug in each step");
     optM.attachFunction( TestEnv::_Renderer::randomImages ,	        "Random images");
     optM.attachFunction( TestEnv::_Renderer::circleBenchmark ,	    "Circle Benchmark");
     optM.attachFunction( TestEnv::_Renderer::ThreadTest ,	        "Thread Test");
