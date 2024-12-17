@@ -16,7 +16,7 @@ class ImageWidget : public QWidget {
 public:
     explicit ImageWidget(QWidget *parent = nullptr);
     void updateImage();
-    QImage convertSdlToImage(SDL_Renderer *renderer, int rendererWidth, int rendererHeight, int imageWidth, int imageHeight);
+    void convertSdlToImage(SDL_Renderer *renderer, int rendererWidth, int rendererHeight, int imageWidth, int imageHeight);
     void mouseEvent(QMouseEvent *event);
 private:
     QImage currentImage;

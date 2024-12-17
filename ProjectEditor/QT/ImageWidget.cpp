@@ -27,12 +27,17 @@ void ImageWidget::mouseEvent(QMouseEvent *event){
     }
 }
 
-QImage ImageWidget::convertSdlToImage(SDL_Renderer *renderer, int rendererWidth, int rendererHeight, int imageWidth, int imageHeight) {
+void ImageWidget::convertSdlToImage(SDL_Renderer *renderer, int rendererWidth, int rendererHeight, int imageWidth, int imageHeight) {
+    // Debug, empty image:
+    // currentImage = QImage(imageWidth,imageHeight,QImage::Format_RGBA8888);
+    // currentImage.fill(Qt::GlobalColor::black);
+    // return;
+
     // Create a surface for pixel data
     SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, rendererWidth, rendererHeight, 32, SDL_PIXELFORMAT_RGBA8888);
     if (!surface) {
         qWarning("Failed to create surface: %s", SDL_GetError());
-        return QImage();
+        return;
     }
 
     // Ensure there's a valid render target
@@ -47,14 +52,14 @@ QImage ImageWidget::convertSdlToImage(SDL_Renderer *renderer, int rendererWidth,
 
         if (!currentTarget) {
             SDL_FreeSurface(surface);
-            return QImage();
+            return;
         }
 
         // Set the temporary render target
         if (SDL_SetRenderTarget(renderer, currentTarget) != 0) {
             SDL_DestroyTexture(currentTarget);
             SDL_FreeSurface(surface);
-            return QImage();
+            return;
         }
     }
 
@@ -67,16 +72,12 @@ QImage ImageWidget::convertSdlToImage(SDL_Renderer *renderer, int rendererWidth,
     if (SDL_RenderReadPixels(renderer, nullptr, SDL_PIXELFORMAT_RGBA32, surface->pixels, surface->pitch) != 0) {
         qWarning("Failed to read pixels: %s", SDL_GetError());
         SDL_FreeSurface(surface);
-        return QImage();
+        return;
     }
 
     // Scale the image to the desired size
     currentImage = image.scaled(imageWidth, imageHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    QImage finalImage = currentImage.copy();
 
     // Free the original surface memory
     SDL_FreeSurface(surface);
-
-    // Return the scaled QImage
-    return finalImage;
 }

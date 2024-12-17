@@ -2,7 +2,11 @@
 _LIBS/
 
 # Ignore game resources and error logs
-Application/Resources/
+*.bmp
+*.png
+*.jpeg
+*.zip
+*.ttf
 *log.txt
 
 # Ignore binaries
