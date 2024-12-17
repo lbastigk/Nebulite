@@ -5,6 +5,9 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QImage>
+#include <QPixmap>  // Needed for displaying QImage in QLabel
+#include <QMouseEvent>
+#include <SDL2/SDL.h>
 
 class ImageWidget : public QWidget {
     Q_OBJECT
@@ -12,7 +15,11 @@ class ImageWidget : public QWidget {
 
 public:
     explicit ImageWidget(QWidget *parent = nullptr);
-    void updateImage(const QImage &image);
+    void updateImage();
+    QImage convertSdlToImage(SDL_Renderer *renderer, int rendererWidth, int rendererHeight, int imageWidth, int imageHeight);
+    void mouseEvent(QMouseEvent *event);
+private:
+    QImage currentImage;
 };
 
 #endif // IMAGEWIDGET_H

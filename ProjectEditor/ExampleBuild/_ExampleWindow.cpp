@@ -33,10 +33,10 @@ _ExampleWindow::_ExampleWindow(QWidget *parent)
     // MAIN LOOP
     mainTimer = new QTimer(this);
     othrTimer = new QTimer(this);
-    connect(mainTimer, &QTimer::timeout, this, [this]() { updateImage(*imageWidget,nebuliteRenderer.getSdlRenderer(),textureMain,                   1.0); });
-    connect(othrTimer, &QTimer::timeout, this, [this]() { updateImage(*showcaseImageWidget,nebuliteShowcaseRenderer.getSdlRenderer(),textureOther,  0.5); });
+    connect(mainTimer, &QTimer::timeout, this, [this]() { updateImage(*imageWidget,nebuliteRenderer,textureMain,                   1.0); });
+    connect(othrTimer, &QTimer::timeout, this, [this]() { updateImage(*showcaseImageWidget,nebuliteShowcaseRenderer,textureOther,  0.5); });
     mainTimer->start(16);   //16ms?
-    othrTimer->start(160);
+    othrTimer->start(16);
 
     //connections
     connect(explorerWidget, &ExplorerWidget::fileSelected, [](const QString &filePath) {
@@ -47,29 +47,18 @@ _ExampleWindow::_ExampleWindow(QWidget *parent)
 }
 
 
-void _ExampleWindow::renderContent() {
-    RenderObject ro;
-
-    SDL_SetRenderTarget(nebuliteRenderer.getSdlRenderer(), textureMain);
-    nebuliteRenderer.append(ro);
-    nebuliteRenderer.update();
-    nebuliteRenderer.renderFrame();
-    nebuliteRenderer.renderFPS();
-    nebuliteRenderer.showFrame();
-    nebuliteRenderer.purgeObjects();
-
-    SDL_SetRenderTarget(nebuliteShowcaseRenderer.getSdlRenderer(), textureMain);
-    nebuliteShowcaseRenderer.update();
-    nebuliteShowcaseRenderer.renderFrame();
-    nebuliteShowcaseRenderer.renderFPS();
-    nebuliteShowcaseRenderer.showFrame();
+void _ExampleWindow::renderContent(Renderer &Renderer, SDL_Texture *texture) {
+    SDL_SetRenderTarget(nebuliteRenderer.getSdlRenderer(), texture);
+    Renderer.update();
+    Renderer.renderFrame();
+    Renderer.renderFPS();
+    Renderer.showFrame();
+    Renderer.purgeObjects();
 }
 
-void _ExampleWindow::updateImage(ImageWidget &img, SDL_Renderer *renderer, SDL_Texture *texture, float scalar) {
-    SDL_SetRenderTarget(renderer, texture);
-    renderContent();
-    // Ignoring for now, just using empty QIMAGE for now
-    QImage image = captureRendererContentToQImage(renderer, SDL_WINDOW_WIDTH, SDL_WINDOW_HEIGHT, (int)(scalar*SDL_WINDOW_WIDTH), (int)(scalar*SDL_WINDOW_HEIGHT));
-    img.updateImage(image);
+void _ExampleWindow::updateImage(ImageWidget &img, Renderer &renderer, SDL_Texture *texture, float scalar) {
+    renderContent(renderer,texture);
+    img.convertSdlToImage(renderer.getSdlRenderer(), SDL_WINDOW_WIDTH, SDL_WINDOW_HEIGHT, (int)(scalar*SDL_WINDOW_WIDTH), (int)(scalar*SDL_WINDOW_HEIGHT));
+    img.updateImage();
 }
 

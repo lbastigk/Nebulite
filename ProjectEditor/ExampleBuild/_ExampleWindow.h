@@ -43,8 +43,8 @@ public:
     explicit _ExampleWindow(QWidget *parent = nullptr);
 
 private:
-    void renderContent();
-    void updateImage(ImageWidget &img,SDL_Renderer *renderer, SDL_Texture *texture, float scalar);
+    void renderContent(Renderer &Renderer, SDL_Texture *texture);
+    void updateImage(ImageWidget &img,Renderer &renderer,SDL_Texture *texture, float scalar);
 
 private slots:
 

@@ -15,7 +15,7 @@ cmake ..
 make
 
 # Start the app
-mv ./app ../../../Application/
+mv ./app ../../../Application/bin/
 
 cd ../../../Application/
-./app
+./_StartQtApp.sh
