@@ -1,6 +1,29 @@
 #include "ImageWidget.h"
 
+#include <iostream>
 
+
+void dumpImageAsBinary(const QImage &image, const QString &fileName) {
+    // Create a QBuffer to store the image in a byte array (acting as an in-memory file)
+    QBuffer buffer;
+    buffer.open(QIODevice::WriteOnly);
+
+    // Save the QImage to the buffer in PNG format (you can change the format)
+    if (!image.save(&buffer, "PNG")) {
+        std::cerr << "Failed to save image to byte array!" << std::endl;
+        return;
+    }
+
+    // Open the output file in binary mode
+    QFile file(fileName);
+    if (file.open(QIODevice::WriteOnly)) {
+        // Write the byte array from the buffer to the file
+        file.write(buffer.data());
+        file.close();
+    } else {
+        std::cerr << "Failed to open file for writing!" << std::endl;
+    }
+}
 
 ImageWidget::ImageWidget(QWidget *parent)
     : QWidget(parent), label(new QLabel(this)) {
@@ -9,7 +32,8 @@ ImageWidget::ImageWidget(QWidget *parent)
 }
 
 void ImageWidget::updateImage() {
-    label->setPixmap(QPixmap::fromImage(currentImage));
+    dumpImageAsBinary(currentImage,"textImageInUpdateImage.png");
+    label->setPixmap(QPixmap::fromImage(currentImage)); //Program crashes here
 }
 
 void ImageWidget::mouseEvent(QMouseEvent *event){
@@ -28,11 +52,6 @@ void ImageWidget::mouseEvent(QMouseEvent *event){
 }
 
 void ImageWidget::convertSdlToImage(SDL_Renderer *renderer, int rendererWidth, int rendererHeight, int imageWidth, int imageHeight) {
-    // Debug, empty image:
-    // currentImage = QImage(imageWidth,imageHeight,QImage::Format_RGBA8888);
-    // currentImage.fill(Qt::GlobalColor::black);
-    // return;
-
     // Create a surface for pixel data
     SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, rendererWidth, rendererHeight, 32, SDL_PIXELFORMAT_RGBA8888);
     if (!surface) {
@@ -64,7 +83,6 @@ void ImageWidget::convertSdlToImage(SDL_Renderer *renderer, int rendererWidth, i
     }
 
     // Create a QImage initialized to black using the allocated pixels
-
     QImage image((uchar*)surface->pixels, rendererWidth, rendererHeight, QImage::Format_RGBA8888);
     image.fill(Qt::black); // Initialize all pixels to black
 
@@ -76,8 +94,16 @@ void ImageWidget::convertSdlToImage(SDL_Renderer *renderer, int rendererWidth, i
     }
 
     // Scale the image to the desired size
-    currentImage = image.scaled(imageWidth, imageHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    currentImage = image.scaled(imageWidth, imageHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation).copy();
+
+    if (currentImage.isNull()) {
+        std::cerr << "Error: currentImage is null or empty!" << std::endl;
+        return;
+    }
 
     // Free the original surface memory
     SDL_FreeSurface(surface);
 }
+
+
+

@@ -6,6 +6,9 @@
 #include <QVBoxLayout>
 #include <QImage>
 #include <QPixmap>  // Needed for displaying QImage in QLabel
+#include <QFile>
+#include <QBuffer>
+#include <QByteArray>
 #include <QMouseEvent>
 #include <SDL2/SDL.h>
 

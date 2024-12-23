@@ -58,6 +58,7 @@ public:
         static void subDoc(rapidjson::Document& doc, const std::string& key, rapidjson::Value& subdoc);
     };
 
+    static bool isValid(std::string str);
     static rapidjson::Document deserialize(std::string serialOrLink);
     static std::string serialize(const rapidjson::Document& doc);
     static std::string serializeVal(const rapidjson::Value& val);

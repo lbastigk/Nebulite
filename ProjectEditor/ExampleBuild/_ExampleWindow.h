@@ -46,6 +46,10 @@ private:
     void renderContent(Renderer &Renderer, SDL_Texture *texture);
     void updateImage(ImageWidget &img,Renderer &renderer,SDL_Texture *texture, float scalar);
 
+    void updateShowcase(const QString &filePath);
+
+    RenderObject showcase;
+
 private slots:
 
 };

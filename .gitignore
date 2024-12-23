@@ -36,3 +36,6 @@ CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 Makefile
+
+# ignore license file
+*License.txt

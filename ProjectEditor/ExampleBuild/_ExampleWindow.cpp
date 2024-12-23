@@ -39,13 +39,14 @@ _ExampleWindow::_ExampleWindow(QWidget *parent)
     othrTimer->start(16);
 
     //connections
-    connect(explorerWidget, &ExplorerWidget::fileSelected, [](const QString &filePath) {
-        qDebug() << "Selected file:" << filePath;
-    });
+    connect(explorerWidget, &ExplorerWidget::fileSelected, this, [this](const QString &filePath) {updateShowcase(filePath);});
 
     resize(2200, 1200); // Set the window size
 }
 
+void _ExampleWindow::updateShowcase(const QString &filePath){
+    //std::cerr << "New File: " << filePath.toStdString() << std::endl;
+}
 
 void _ExampleWindow::renderContent(Renderer &Renderer, SDL_Texture *texture) {
     SDL_SetRenderTarget(nebuliteRenderer.getSdlRenderer(), texture);
@@ -53,7 +54,6 @@ void _ExampleWindow::renderContent(Renderer &Renderer, SDL_Texture *texture) {
     Renderer.renderFrame();
     Renderer.renderFPS();
     Renderer.showFrame();
-    Renderer.purgeObjects();
 }
 
 void _ExampleWindow::updateImage(ImageWidget &img, Renderer &renderer, SDL_Texture *texture, float scalar) {

@@ -195,6 +195,24 @@ void JSONHandler::empty(rapidjson::Document &doc) {
     doc.GetAllocator().Clear();
 }
 
+// Checks if str is a valid json doc
 
+bool JSONHandler::isValid(std::string str) {
+    rapidjson::Document document;
+
+    // Parse the JSON string
+    document.Parse(str.c_str());
+
+    // Check if parsing was successful
+    if (document.HasParseError()) {
+        // Optionally, print the error message
+        // const rapidjson::ParseErrorCode errorCode = document.GetParseError();
+        // const char* errorMessage = rapidjson::GetParseError_En(errorCode);
+        // std::cerr << "Parse error: " << errorMessage << std::endl;
+
+        return false; 
+    }
+    return true;
+}
 
 
