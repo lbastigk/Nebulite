@@ -26,8 +26,8 @@ class _ExampleWindow : public QWidget {
     ImageWidget *imageWidget;
     ImageWidget *showcaseImageWidget;
 
-    ButtonWidget *rotateButton;
-    SliderWidget *speedSlider;
+    ButtonWidget *testButton;
+    SliderWidget *xSlider;
     ExplorerWidget *explorerWidget;
 
     QTimer *mainTimer;
@@ -46,7 +46,10 @@ private:
     void renderContent(Renderer &Renderer, SDL_Texture *texture);
     void updateImage(ImageWidget &img,Renderer &renderer,SDL_Texture *texture, float scalar);
 
-    void updateShowcase(const QString &filePath);
+    void updateShowcaseWindow();
+    void updateMainWindow();
+
+    void updateShowcaseObject(const QString &filePath);
 
     RenderObject showcase;
 

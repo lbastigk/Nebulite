@@ -36,18 +36,25 @@ void ImageWidget::updateImage() {
     label->setPixmap(QPixmap::fromImage(currentImage)); //Program crashes here
 }
 
-void ImageWidget::mouseEvent(QMouseEvent *event){
-    // Get the cursor position relative to the widget
-    QPoint cursorPos = event->pos();
+void ImageWidget::pollMousePosition() {
+    // Get the global cursor position
+    QPoint globalCursorPos = QCursor::pos();
+    QPoint widgetCursorPos = mapFromGlobal(globalCursorPos); // Convert to widget-relative position
 
-    // Make sure the cursor is within the bounds of the QImage
-    if (currentImage.rect().contains(cursorPos)) {
-        // Get the pixel color from the QImage at the cursor position
-        QColor pixelColor = currentImage.pixelColor(cursorPos);
+    // Update the stored cursor position
+    currentCursorPos = widgetCursorPos;
 
-        // Output the pixel position and color
-        // qDebug() << "Cursor Position:" << cursorPos;
-        // qDebug() << "Pixel Color:" << pixelColor.name(); // Output the color in hexadecimal
+    // Ensure the cursor is within the bounds of the QImage
+    if (currentImage.rect().contains(currentCursorPos)) {
+        // Update the pixel color from the QImage at the cursor position
+        currentPixelColor = currentImage.pixelColor(currentCursorPos);
+
+        // Output for debugging
+        // qDebug() << "Cursor Position:" << currentCursorPos;
+        // qDebug() << "Pixel Color:" << currentPixelColor.name(); // Hexadecimal color
+    } else {
+        // Handle cursor being outside the image bounds
+        currentPixelColor = QColor(); // Reset to default invalid color
     }
 }
 

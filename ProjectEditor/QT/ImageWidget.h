@@ -10,6 +10,7 @@
 #include <QBuffer>
 #include <QByteArray>
 #include <QMouseEvent>
+#include <QCursor>
 #include <SDL2/SDL.h>
 
 class ImageWidget : public QWidget {
@@ -20,8 +21,13 @@ public:
     explicit ImageWidget(QWidget *parent = nullptr);
     void updateImage();
     void convertSdlToImage(SDL_Renderer *renderer, int rendererWidth, int rendererHeight, int imageWidth, int imageHeight);
-    void mouseEvent(QMouseEvent *event);
+    void pollMousePosition();
+
+    QPoint getCursorPos(){return currentCursorPos;};
 private:
+    QPoint currentCursorPos;
+    QColor currentPixelColor;
+
     QImage currentImage;
 };
 

@@ -166,8 +166,8 @@ void Renderer::updatePosition(int x, int y, bool isMiddle) {
 		Ypos = y - (int)(stoi(generalOptions.GetOption(namenKonvention.options.dispResY)) / 2);
 	}
 	else{
-		Xpos = x - stoi(generalOptions.GetOption(namenKonvention.options.dispResX));
-		Ypos = y - stoi(generalOptions.GetOption(namenKonvention.options.dispResY));
+		Xpos = x;
+		Ypos = y;
 	}
 	
 	tileXpos = Xpos / stoi(generalOptions.GetOption(namenKonvention.options.dispResX));
