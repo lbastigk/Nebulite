@@ -36,8 +36,8 @@ class _ExampleWindow : public QWidget {
     Renderer nebuliteRenderer;
     Renderer nebuliteShowcaseRenderer;
 
-    SDL_Texture *textureMain;
-    SDL_Texture *textureOther;
+    SDL_Texture *textureMain  = SDL_CreateTexture(nebuliteRenderer.getSdlRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SDL_WINDOW_WIDTH, SDL_WINDOW_HEIGHT);
+    SDL_Texture *textureOther = SDL_CreateTexture(nebuliteShowcaseRenderer.getSdlRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SDL_WINDOW_WIDTH, SDL_WINDOW_HEIGHT);;
 
 public:
     explicit _ExampleWindow(QWidget *parent = nullptr);

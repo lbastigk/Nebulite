@@ -14,6 +14,10 @@ class ExplorerWidget : public QWidget {
 public:
     explicit ExplorerWidget(QWidget *parent = nullptr);
 
+    void changePath(const char* path){
+        treeView->setRootIndex(fileModel->index(path));
+    }
+
 signals:
     void fileSelected(const QString &filePath);
 

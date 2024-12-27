@@ -32,7 +32,7 @@ ImageWidget::ImageWidget(QWidget *parent)
 }
 
 void ImageWidget::updateImage() {
-    dumpImageAsBinary(currentImage,"textImageInUpdateImage.png");
+    //dumpImageAsBinary(currentImage,"textImageInUpdateImage.png");
     label->setPixmap(QPixmap::fromImage(currentImage)); //Program crashes here
 }
 
@@ -52,6 +52,7 @@ void ImageWidget::mouseEvent(QMouseEvent *event){
 }
 
 void ImageWidget::convertSdlToImage(SDL_Renderer *renderer, int rendererWidth, int rendererHeight, int imageWidth, int imageHeight) {
+    
     // Create a surface for pixel data
     SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, rendererWidth, rendererHeight, 32, SDL_PIXELFORMAT_RGBA8888);
     if (!surface) {
