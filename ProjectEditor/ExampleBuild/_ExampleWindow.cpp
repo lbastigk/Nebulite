@@ -7,18 +7,18 @@ _ExampleWindow::_ExampleWindow(QWidget *parent)
     nebuliteRenderer(true),  // Passing true for hidden window
     nebuliteShowcaseRenderer(true)  {
 
-    nebuliteRenderer.changeWindowSize(SDL_WINDOW_WIDTH,SDL_WINDOW_HEIGHT);
+    nebuliteRenderer.changeWindowSize(SDL_RENDER_WIDTH,SDL_RENDER_HEIGHT);
     nebuliteRenderer.deserializeEnvironment("./Resources/Levels/example.json", nebuliteRenderer.getResX(), nebuliteRenderer.getResY(), nebuliteRenderer.getThreadSize());
 
-    nebuliteShowcaseRenderer.changeWindowSize(SDL_WINDOW_WIDTH,SDL_WINDOW_HEIGHT);
+    nebuliteShowcaseRenderer.changeWindowSize(SDL_RENDER_WIDTH,SDL_RENDER_HEIGHT);
 
     //-------------------------------------------------------------------------
     // Initialize widgets
     imageWidget             = new ImageWidget(this);   // Main Image Widget
     showcaseImageWidget     = new ImageWidget(this);
     testButton              = new ButtonWidget("Test", this);
-    xSlider                 = new SliderWidget(-1000, 1000, 0,true,  this);
-    ySlider                 = new SliderWidget(-1000, 1000, 0,false, this);
+    xSlider                 = new SliderWidget(0, 3000, 0,true,  this);
+    ySlider                 = new SliderWidget(-3000, 0, 0,false, this);
     explorerWidget          = new ExplorerWidget(this);
 
     //-------------------------------------------------------------------------
@@ -56,7 +56,7 @@ _ExampleWindow::_ExampleWindow(QWidget *parent)
     // Create Image Widget with x and y sliders
     QHBoxLayout *imgWithSliderY = new QHBoxLayout();
     imgWithSliderY->addWidget(ySlider);
-    imgWithSliderY->addWidget(imageWidget);
+    imgWithSliderY->addWidget(imageWidget, 0, Qt::AlignCenter);
 
     QVBoxLayout *imgWithSliders = new QVBoxLayout();
     imgWithSliders->addLayout(imgWithSliderY);
@@ -134,9 +134,20 @@ _ExampleWindow::_ExampleWindow(QWidget *parent)
         int wheelDelta = imageWidget->getWheelDelta();
 
         // Updating label
-        mouseStateLabel->setText(QString("Mouse State: %1  Wheel delta: %2").arg(ams.currentMouseButtonState).arg(wheelDelta)); // Update the label text
+        mouseStateLabel->setText(QString("Mouse Position: (%1, %2)  Mouse State: %3  Wheel delta: %4")
+            .arg(ams.currentCursorPos.x())
+            .arg(ams.currentCursorPos.y())
+            .arg(ams.currentMouseButtonState)
+            .arg(wheelDelta)
+        ); // Update the label text
 
         if(wheelDelta > 0 && renderScroller > 0){
+            // Zoom in
+
+            //TODO:
+            // Get position of mouse, set as new middle point
+            
+
             renderScroller--;
             nebuliteRenderer.changeWindowSize(renderScrollSizes[renderScroller].first,renderScrollSizes[renderScroller].second);
 
@@ -149,6 +160,8 @@ _ExampleWindow::_ExampleWindow(QWidget *parent)
             );
         }
         if(wheelDelta < 0 && renderScroller < (RENDERER_SCROLLIZE_COUNT - 1)){
+            // Zoom out
+
             renderScroller++;
             nebuliteRenderer.changeWindowSize(renderScrollSizes[renderScroller].first,renderScrollSizes[renderScroller].second);
 
@@ -184,8 +197,8 @@ void _ExampleWindow::updateShowcaseObject(const QString &filePath){
             if (pixX < 0){pixX = 1;}
             if (pixY < 0){pixY = 1;}
 
-            int scalarX = floor((float)SDL_WINDOW_HEIGHT / (float)pixX);
-            int scalarY = floor((float)SDL_WINDOW_WIDTH  / (float)pixY);
+            int scalarX = floor((float)SDL_RENDER_HEIGHT / (float)pixX);
+            int scalarY = floor((float)SDL_RENDER_WIDTH  / (float)pixY);
 
             int scalar;
             if(scalarX < scalarY){
@@ -223,23 +236,23 @@ void _ExampleWindow::renderContent(Renderer &Renderer, SDL_Texture *texture, flo
     SDL_SetRenderTarget(Renderer.getSdlRenderer(), texture);
     Renderer.update_withThreads();
     Renderer.renderFrame();
-    Renderer.renderFPS(fpsScalar);
+    //Renderer.renderFPS(fpsScalar);    // text too small for lower zoom-ins, new approach needed!
     Renderer.showFrame();
 }
 
 void _ExampleWindow::updateShowcaseWindow(){
-    updateImage(*showcaseImageWidget,nebuliteShowcaseRenderer,textureOther,  0.5,1.0);
+    updateImage(*showcaseImageWidget,nebuliteShowcaseRenderer,textureOther,  2.0,1.0);
 }
 
 void _ExampleWindow::updateMainWindow(){
     imageWidget->pollMouseState();
-    float scalar = (float)nebuliteRenderer.getResX() / (float)SDL_WINDOW_WIDTH;
-    updateImage(*imageWidget,nebuliteRenderer,textureMain,1.0,scalar);
+    float scalar = (float)nebuliteRenderer.getResX() / (float)SDL_RENDER_WIDTH;
+    updateImage(*imageWidget,nebuliteRenderer,textureMain,4.0,scalar);
 }
 
 void _ExampleWindow::updateImage(ImageWidget &img, Renderer &renderer, SDL_Texture *texture, float imageScalar, float rendererScalar) {
-    renderContent(renderer,texture,rendererScalar);
-    img.convertSdlToImage(renderer.getSdlRenderer(), (int)(rendererScalar*(float)SDL_WINDOW_WIDTH) , (int)(rendererScalar*(float)SDL_WINDOW_HEIGHT), (int)(imageScalar*(float)SDL_WINDOW_WIDTH), (int)(imageScalar*(float)SDL_WINDOW_HEIGHT));
+    renderContent(renderer,texture,rendererScalar/4);
+    img.convertSdlToImage(renderer.getSdlRenderer(), (int)(rendererScalar*(float)SDL_RENDER_WIDTH) , (int)(rendererScalar*(float)SDL_RENDER_HEIGHT), (int)(imageScalar*(float)SDL_RENDER_WIDTH), (int)(imageScalar*(float)SDL_RENDER_HEIGHT));
     img.updateImage();
 }
 

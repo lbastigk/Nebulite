@@ -169,6 +169,7 @@ const struct namenKonventionenStruct {
         std::string spritesheetSizeY = "spritesheetSizeY";
         std::string spritesheetOffsetX = "spritesheetOffsetX";
         std::string spritesheetOffsetY = "spritesheetOffsetY";
+        std::string deleteFlag = "deleteFlag";
     }renderObject;
     const struct MyTemplate {
         std::string _self = "MyTemplate";

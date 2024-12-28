@@ -15,6 +15,8 @@ RenderObject::RenderObject() {
 	JSONHandler::Set::Any(doc, namenKonvention.renderObject.imageLocation, "Resources/Sprites/TEST_BMP_SMALL.bmp");
 	JSONHandler::Set::Any(doc, namenKonvention.renderObject.layer, 0);
 
+	JSONHandler::Set::Any(doc, namenKonvention.renderObject.deleteFlag, false);
+
 	//for spritesheets
 	JSONHandler::Set::Any(doc, namenKonvention.renderObject.isSpritesheet, false);
 	JSONHandler::Set::Any(doc, namenKonvention.renderObject.spritesheetOffsetX, 0);
@@ -475,37 +477,43 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 							obj.update();
 						}
 						
-
-						//-------------------------------------
-						// Get new position in tile
-
-						//X
-						valget = obj.valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
-						placeholder = (int64_t)(valget / (double)dispResX);
-						if (placeholder < 0) {
-							correspondingTileXpos = (unsigned int)(-placeholder);
-						}
-						else {
-							correspondingTileXpos = (unsigned int)(placeholder);
-						}
-
-						//Y
-						valget = obj.valueGet<double>(namenKonvention.renderObject.positionY, 0.0); // Use positionY here
-						placeholder = (int64_t)(valget / (double)dispResY);
-						if (placeholder < 0) {
-							correspondingTileYpos = (unsigned int)(-placeholder);
-						}
-						else {
-							correspondingTileYpos = (unsigned int)(placeholder);
-						}
-
 						//-----------------------------------------
-						// Check if it's in a new tile
-						if (correspondingTileXpos != tileXpos + dX || correspondingTileYpos != tileYpos + dY) {
-							toReinsert.push_back(obj);
+						// Check delete flag
+						if (!obj.valueGet(namenKonvention.renderObject.deleteFlag,false)){
+							
+							//-------------------------------------
+							// Get new position in tile
+							//X
+							valget = obj.valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
+							placeholder = (int64_t)(valget / (double)dispResX);
+							if (placeholder < 0) {
+								correspondingTileXpos = (unsigned int)(-placeholder);
+							}
+							else {
+								correspondingTileXpos = (unsigned int)(placeholder);
+							}
+
+							//Y
+							valget = obj.valueGet<double>(namenKonvention.renderObject.positionY, 0.0); // Use positionY here
+							placeholder = (int64_t)(valget / (double)dispResY);
+							if (placeholder < 0) {
+								correspondingTileYpos = (unsigned int)(-placeholder);
+							}
+							else {
+								correspondingTileYpos = (unsigned int)(placeholder);
+							}
+
+							//-----------------------------------------
+							// Check if it's in a new tile
+							if (correspondingTileXpos != tileXpos + dX || correspondingTileYpos != tileYpos + dY) {
+								toReinsert.push_back(obj);
+							}
+							else{
+								newBatch.push_back(obj);
+							}
 						}
 						else{
-							newBatch.push_back(obj);
+							//dont reinsert: gets deleted
 						}
 					}
 					batch = std::move(newBatch);

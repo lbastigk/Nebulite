@@ -44,12 +44,26 @@ void ImageWidget::wheelEvent(QWheelEvent *event) {
 void ImageWidget::pollMouseState() {
     // Get the global cursor position
     QPoint globalCursorPos = QCursor::pos();
-    QPoint widgetCursorPos = mapFromGlobal(globalCursorPos); // Convert to widget-relative position
+
+    // Convert the global position to widget-relative position
+    QPoint widgetCursorPos = mapFromGlobal(globalCursorPos);
+
+    // Find the center of the widget
+    QPoint widgetCenter = rect().center(); // rect() gives the rectangle of the widget
+
+    // Calculate the position relative to the center of the widget
+    QPoint centeredCursorPos = widgetCursorPos - widgetCenter;
+
+    QPoint imageCursorPos = centeredCursorPos + QPoint(currentImage.width()/2,currentImage.height()/2);
 
     // Ensure the cursor is within the bounds of the QImage
-    if (currentImage.rect().contains(widgetCursorPos)) {
+    if (imageCursorPos.x() >= 0 && 
+        imageCursorPos.x() <= currentImage.width() && 
+        imageCursorPos.y() >= 0 && 
+        imageCursorPos.y() <= currentImage.height()) {
+
         // Update the stored cursor position
-        currentCursorPos = widgetCursorPos;
+        currentCursorPos = imageCursorPos;
 
         // Update the pixel color from the QImage at the cursor position
         currentPixelColor = currentImage.pixelColor(currentCursorPos);
@@ -96,7 +110,8 @@ void ImageWidget::convertSdlToImage(SDL_Renderer *renderer, int rendererWidth, i
     }
 
     // Scale the image to the desired size
-    currentImage = cachedImage.scaled(imageWidth, imageHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation).copy();
+    //currentImage = cachedImage.scaled(imageWidth, imageHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation).copy();   // produces blurry images
+    currentImage = cachedImage.scaled(imageWidth, imageHeight, Qt::KeepAspectRatio, Qt::FastTransformation).copy();
 
     if (currentImage.isNull()) {
         std::cerr << "Error: currentImage is null or empty!" << std::endl;

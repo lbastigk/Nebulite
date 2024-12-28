@@ -1,9 +1,9 @@
 {
     "isOverlay": false,
-    "posX": 200,
-    "posY": 200,
-    "pixSizeX": 160,
-    "pixSizeY": 160,
+    "posX": 0,
+    "posY": 0,
+    "pixSizeX": 16,
+    "pixSizeY": 16,
     "imgLocation": "Resources/Sprites/Pokemon/Game Boy Advance - Pokemon FireRed LeafGreen - Tileset 2.png",
     "layer": 0,
     "isSpritesheet": true,

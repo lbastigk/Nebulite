@@ -1,7 +1,7 @@
 {
     "isOverlay": false,
-    "posX": 200,
-    "posY": 200,
+    "posX": 0,
+    "posY": 0,
     "pixSizeX": 32,
     "pixSizeY": 32,
     "imgLocation": "Resources/Sprites/TEST_BMP_SMALL.bmp",

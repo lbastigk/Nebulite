@@ -15,8 +15,9 @@
 
 
 // Define window size macros for both SDL and Qt
-#define SDL_WINDOW_WIDTH 640
-#define SDL_WINDOW_HEIGHT 640
+#define SDL_RENDER_WIDTH 160
+#define SDL_RENDER_HEIGHT 160
+
 #define QT_WINDOW_WIDTH 2200
 #define QT_WINDOW_HEIGHT 1200
 
@@ -43,15 +44,15 @@ class _ExampleWindow : public QWidget {
         nebuliteRenderer.getSdlRenderer(), 
         SDL_PIXELFORMAT_RGBA8888, 
         SDL_TEXTUREACCESS_TARGET, 
-        SDL_WINDOW_WIDTH, 
-        SDL_WINDOW_HEIGHT
+        SDL_RENDER_WIDTH, 
+        SDL_RENDER_HEIGHT
     );
     SDL_Texture *textureOther = SDL_CreateTexture(
         nebuliteShowcaseRenderer.getSdlRenderer(), 
         SDL_PIXELFORMAT_RGBA8888, 
-        SDL_TEXTUREACCESS_TARGET,    // 
-        SDL_WINDOW_WIDTH, 
-        SDL_WINDOW_HEIGHT
+        SDL_TEXTUREACCESS_TARGET,
+        SDL_RENDER_WIDTH, 
+        SDL_RENDER_HEIGHT
     );
 
     RenderObject selection;
@@ -70,10 +71,10 @@ public:
     AppMouseState ams;
 
     std::pair<int,int> renderScrollSizes[RENDERER_SCROLLIZE_COUNT] = {
-        std::make_pair<int,int>(1*SDL_WINDOW_WIDTH,1*SDL_WINDOW_HEIGHT) , 
-        std::make_pair<int,int>(2*SDL_WINDOW_WIDTH,2*SDL_WINDOW_HEIGHT) ,
-        std::make_pair<int,int>(4*SDL_WINDOW_WIDTH,4*SDL_WINDOW_HEIGHT) ,
-        std::make_pair<int,int>(8*SDL_WINDOW_WIDTH,8*SDL_WINDOW_HEIGHT)
+        std::make_pair<int,int>(1 * SDL_RENDER_WIDTH,1 * SDL_RENDER_HEIGHT) , 
+        std::make_pair<int,int>(2 * SDL_RENDER_WIDTH,2 * SDL_RENDER_HEIGHT) ,  
+        std::make_pair<int,int>(4 * SDL_RENDER_WIDTH,4 * SDL_RENDER_HEIGHT) , 
+        std::make_pair<int,int>(8 * SDL_RENDER_WIDTH,8 * SDL_RENDER_HEIGHT) 
         };
 
 private:
