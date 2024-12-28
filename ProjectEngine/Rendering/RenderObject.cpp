@@ -527,6 +527,7 @@ void RenderObjectContainer::reinsertAllObjects(int dispResX, int dispResY, int T
 				for(auto& obj : batch){
 					toReinsert.push_back(obj);
 				}
+				batch.clear();
 			}
 		}
 	}

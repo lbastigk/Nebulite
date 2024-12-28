@@ -156,7 +156,9 @@ void Renderer::destroy() {
 // Manipulation
 
 void Renderer::changeWindowSize(int w, int h) {
-	SDL_SetWindowSize(window, w, h);
+	dispResX = w;
+	dispResY = h;
+	SDL_SetWindowSize(window, dispResX, dispResY);
 	reinsertAllObjects();
 }
 
