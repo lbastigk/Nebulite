@@ -17,8 +17,10 @@
 // Define window size macros for both SDL and Qt
 #define SDL_WINDOW_WIDTH 640
 #define SDL_WINDOW_HEIGHT 640
-#define QT_WINDOW_WIDTH 1000 // Increased to accommodate the sidebar
-#define QT_WINDOW_HEIGHT 640
+#define QT_WINDOW_WIDTH 2200
+#define QT_WINDOW_HEIGHT 1200
+
+#define RENDERER_SCROLLIZE_COUNT 4
 
 class _ExampleWindow : public QWidget {
     Q_OBJECT
@@ -28,6 +30,7 @@ class _ExampleWindow : public QWidget {
 
     ButtonWidget *testButton;
     SliderWidget *xSlider;
+    SliderWidget *ySlider;
     ExplorerWidget *explorerWidget;
 
     QTimer *mainTimer;
@@ -36,15 +39,46 @@ class _ExampleWindow : public QWidget {
     Renderer nebuliteRenderer;
     Renderer nebuliteShowcaseRenderer;
 
-    SDL_Texture *textureMain  = SDL_CreateTexture(nebuliteRenderer.getSdlRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SDL_WINDOW_WIDTH, SDL_WINDOW_HEIGHT);
-    SDL_Texture *textureOther = SDL_CreateTexture(nebuliteShowcaseRenderer.getSdlRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SDL_WINDOW_WIDTH, SDL_WINDOW_HEIGHT);;
+    SDL_Texture *textureMain  = SDL_CreateTexture(
+        nebuliteRenderer.getSdlRenderer(), 
+        SDL_PIXELFORMAT_RGBA8888, 
+        SDL_TEXTUREACCESS_TARGET, 
+        SDL_WINDOW_WIDTH, 
+        SDL_WINDOW_HEIGHT
+    );
+    SDL_Texture *textureOther = SDL_CreateTexture(
+        nebuliteShowcaseRenderer.getSdlRenderer(), 
+        SDL_PIXELFORMAT_RGBA8888, 
+        SDL_TEXTUREACCESS_TARGET,    // 
+        SDL_WINDOW_WIDTH, 
+        SDL_WINDOW_HEIGHT
+    );
+
+    RenderObject selection;
 
 public:
     explicit _ExampleWindow(QWidget *parent = nullptr);
 
+    class AppMouseState{
+        public:
+            QPoint currentCursorPos;
+            QPoint lastCursorPos;
+
+            Qt::MouseButtons currentMouseButtonState;
+            Qt::MouseButtons lastMouseButtonState;
+    };
+    AppMouseState ams;
+
+    std::pair<int,int> renderScrollSizes[RENDERER_SCROLLIZE_COUNT] = {
+        std::make_pair<int,int>(1*SDL_WINDOW_WIDTH,1*SDL_WINDOW_HEIGHT) , 
+        std::make_pair<int,int>(2*SDL_WINDOW_WIDTH,2*SDL_WINDOW_HEIGHT) ,
+        std::make_pair<int,int>(4*SDL_WINDOW_WIDTH,4*SDL_WINDOW_HEIGHT) ,
+        std::make_pair<int,int>(8*SDL_WINDOW_WIDTH,8*SDL_WINDOW_HEIGHT)
+        };
+
 private:
-    void renderContent(Renderer &Renderer, SDL_Texture *texture);
-    void updateImage(ImageWidget &img,Renderer &renderer,SDL_Texture *texture, float scalar);
+    void renderContent(Renderer &Renderer, SDL_Texture *texture, float fpsScalar);
+    void updateImage(ImageWidget &img,Renderer &renderer,SDL_Texture *texture, float imageScalar, float rendererScalar);
 
     void updateShowcaseWindow();
     void updateMainWindow();
@@ -52,6 +86,8 @@ private:
     void updateShowcaseObject(const QString &filePath);
 
     RenderObject showcase;
+
+    int renderScroller = 0;
 
 private slots:
 

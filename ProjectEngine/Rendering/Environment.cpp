@@ -193,4 +193,13 @@ size_t Environment::getObjectCount(bool excludeTopLayer) {
 	return totalCount;
 }
 
+size_t Environment::getObjectCountAtTile(int x, int y,bool excludeTopLayer) {
+	// Calculate the total item count
+	size_t totalCount = 0;
+
+	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT - (int)excludeTopLayer; i++) {
+		totalCount += roc[i].getObjectCountAtTile(x,y);
+	}
+	return totalCount;
+}
 

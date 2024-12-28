@@ -56,7 +56,7 @@ public:
 	bool timeToRender();
 	void renderFrame();
 	void renderFrameNoThreads();
-	void renderFPS();
+	void renderFPS(float scalar = 1.0);
 	void showFrame();
 	int handleEvent();
 	SDL_Event getEventHandle();
@@ -77,6 +77,9 @@ public:
 	int getFPS();
 	int getPosX();
 	int getPosY();
+
+	unsigned int getTileXpos(){return tileXpos;};
+	unsigned int getTileYpos(){return tileYpos;};
 
 	SDL_Renderer* getSdlRenderer();
 
@@ -152,7 +155,6 @@ private:
 	//For FPS Count
 
 	// Define font properties
-	int fontSize = 16; // Adjust as needed
 	SDL_Color textColor = { 255, 255, 255, 255 }; // White color
 
 	bool control_fps = false;

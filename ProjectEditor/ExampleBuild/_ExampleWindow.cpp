@@ -7,16 +7,18 @@ _ExampleWindow::_ExampleWindow(QWidget *parent)
     nebuliteRenderer(true),  // Passing true for hidden window
     nebuliteShowcaseRenderer(true)  {
 
+    nebuliteRenderer.changeWindowSize(SDL_WINDOW_WIDTH,SDL_WINDOW_HEIGHT);
     nebuliteRenderer.deserializeEnvironment("./Resources/Levels/example.json", nebuliteRenderer.getResX(), nebuliteRenderer.getResY(), nebuliteRenderer.getThreadSize());
 
-    std::cerr << "Position: x" << nebuliteRenderer.getPosX() << " y" << nebuliteRenderer.getPosY() << std::endl;
+    nebuliteShowcaseRenderer.changeWindowSize(SDL_WINDOW_WIDTH,SDL_WINDOW_HEIGHT);
 
     //-------------------------------------------------------------------------
     // Initialize widgets
     imageWidget             = new ImageWidget(this);   // Main Image Widget
     showcaseImageWidget     = new ImageWidget(this);
-    testButton            = new ButtonWidget("Test", this);
-    xSlider                 = new SliderWidget(-1000, 1000, 0, this);
+    testButton              = new ButtonWidget("Test", this);
+    xSlider                 = new SliderWidget(-1000, 1000, 0,true,  this);
+    ySlider                 = new SliderWidget(-1000, 1000, 0,false, this);
     explorerWidget          = new ExplorerWidget(this);
 
     //-------------------------------------------------------------------------
@@ -26,35 +28,44 @@ _ExampleWindow::_ExampleWindow(QWidget *parent)
     //-------------------------------------------------------------------------
     // Create control layout (vertical)
     QVBoxLayout *controlLayout = new QVBoxLayout();
+
+    // Showcase
     controlLayout->addWidget(showcaseImageWidget,0,Qt::AlignCenter);  // SDL placeholder on top
+
+    // Test Button
     controlLayout->addWidget(testButton);
-    controlLayout->addWidget(xSlider);
 
     //-------------------------------------------------------------------------
     // Create output layout (vertical)
     QVBoxLayout *outputLayout = new QVBoxLayout();
 
+    // Mouse state label
+    QLabel *mouseStateLabel = new QLabel(this);
+
     // Make sure cursorPositionLabel is valid throughout the object's lifetime
     QLabel *cursorPositionLabel = new QLabel(this);
-    cursorPositionLabel->setText("Cursor Position: (0, 0)");
+    cursorPositionLabel->setText("Cursor Position: (00000, 00000)");
 
-    QTimer *labelUpdateTimer = new QTimer(this);
-    connect(labelUpdateTimer, &QTimer::timeout, this, [this, cursorPositionLabel]() {
-        if (!this || !cursorPositionLabel) {
-            std::cerr << "Error: Object or label is null!";
-            return;
-        }
+    // Ensure the sliders do not stretch
+    ySlider->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding); // Vertical slider fixed width
+    xSlider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed); // Horizontal slider fixed height
 
-        imageWidget->pollMousePosition();
-        QPoint csr = imageWidget->getCursorPos();
-        cursorPositionLabel->setText(QString("Cursor Position: (%1, %2)").arg(csr.x()).arg(csr.y())); // Update the label text
-    });
+    // Set the image widget to expand and fill the available space
+    imageWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    labelUpdateTimer->start(16); // Update at ~60Hz
+    // Create Image Widget with x and y sliders
+    QHBoxLayout *imgWithSliderY = new QHBoxLayout();
+    imgWithSliderY->addWidget(ySlider);
+    imgWithSliderY->addWidget(imageWidget);
+
+    QVBoxLayout *imgWithSliders = new QVBoxLayout();
+    imgWithSliders->addLayout(imgWithSliderY);
+    imgWithSliders->addWidget(xSlider);
 
     // Add widgets to layout
-    outputLayout->addWidget(imageWidget, 0, Qt::AlignCenter);
+    outputLayout->addLayout(imgWithSliders);
     outputLayout->addWidget(cursorPositionLabel, 0, Qt::AlignCenter);
+    outputLayout->addWidget(mouseStateLabel,     0, Qt::AlignCenter);
     
     //-------------------------------------------------------------------------
     // Create main layout (horizontal)
@@ -76,16 +87,86 @@ _ExampleWindow::_ExampleWindow(QWidget *parent)
 
     //-------------------------------------------------------------------------
     // Other connections
+
+    // File path info
     connect(explorerWidget, &ExplorerWidget::fileSelected, this, [this](const QString &filePath) {updateShowcaseObject(filePath);});
 
+    // X and Y slider
     connect(xSlider, &SliderWidget::valueChanged, [this](int value){
-        nebuliteRenderer.updatePosition(value,0,false);
-        std::cerr << "Position: x" << nebuliteRenderer.getPosX() << " y" << nebuliteRenderer.getPosY() << std::endl;
+        nebuliteRenderer.updatePosition(value, nebuliteRenderer.getPosY(), false);
     });
+    connect(ySlider, &SliderWidget::valueChanged, [this](int value) {
+        nebuliteRenderer.updatePosition(nebuliteRenderer.getPosX(), -value, false);
+    });
+
+    // X Y position Label
+    QTimer *labelUpdateTimer = new QTimer(this);
+    connect(labelUpdateTimer, &QTimer::timeout, this, [this, cursorPositionLabel]() {
+        if (!this || !cursorPositionLabel) {
+            std::cerr << "Error: Object or label is null!";
+            return;
+        }
+        // Polling
+        imageWidget->pollMouseState();
+
+        ams.lastCursorPos = ams.currentCursorPos;
+        ams.lastMouseButtonState = ams.currentMouseButtonState;
+
+        ams.currentCursorPos = imageWidget->getCursorPos();
+        ams.currentMouseButtonState = imageWidget->getMouseState();
+        
+        // Updating label
+        cursorPositionLabel->setText(
+            QString("Pos: (%1 %2)  Res: (%3 %4)  Tile: (%5 %6)")
+            .arg(nebuliteRenderer.getPosX())
+            .arg(nebuliteRenderer.getPosY())
+            .arg(nebuliteRenderer.getResX())
+            .arg(nebuliteRenderer.getResY())
+            .arg(nebuliteRenderer.getTileXpos())
+            .arg(nebuliteRenderer.getTileYpos())
+        );
+    });
+    labelUpdateTimer->start(16); // Update at ~60Hz
+
+    // Mouse state label
+    QTimer *stateUpdateTimer = new QTimer(this);
+    connect(stateUpdateTimer, &QTimer::timeout, this, [this, mouseStateLabel]() {       
+        int wheelDelta = imageWidget->getWheelDelta();
+
+        // Updating label
+        mouseStateLabel->setText(QString("Mouse State: %1  Wheel delta: %2").arg(ams.currentMouseButtonState).arg(wheelDelta)); // Update the label text
+
+        if(wheelDelta > 0 && renderScroller > 0){
+            renderScroller--;
+            nebuliteRenderer.changeWindowSize(renderScrollSizes[renderScroller].first,renderScrollSizes[renderScroller].second);
+
+            textureMain  = SDL_CreateTexture(
+                nebuliteRenderer.getSdlRenderer(), 
+                SDL_PIXELFORMAT_RGBA8888, 
+                SDL_TEXTUREACCESS_TARGET, 
+                nebuliteRenderer.getResX(), 
+                nebuliteRenderer.getResY()
+            );
+        }
+        if(wheelDelta < 0 && renderScroller < (RENDERER_SCROLLIZE_COUNT - 1)){
+            renderScroller++;
+            nebuliteRenderer.changeWindowSize(renderScrollSizes[renderScroller].first,renderScrollSizes[renderScroller].second);
+
+            textureMain  = SDL_CreateTexture(
+                nebuliteRenderer.getSdlRenderer(), 
+                SDL_PIXELFORMAT_RGBA8888, 
+                SDL_TEXTUREACCESS_TARGET, 
+                nebuliteRenderer.getResX(), 
+                nebuliteRenderer.getResY()
+            );
+        }
+    });
+    stateUpdateTimer->start(16); // Update at ~60Hz
+
 
     //-------------------------------------------------------------------------
     // App size
-    resize(2200, 1200); // Set the window size
+    resize(QT_WINDOW_WIDTH, QT_WINDOW_HEIGHT); // Set the window size
 }
 
 void _ExampleWindow::updateShowcaseObject(const QString &filePath){
@@ -128,7 +209,7 @@ void _ExampleWindow::updateShowcaseObject(const QString &filePath){
     
 }
 
-void _ExampleWindow::renderContent(Renderer &Renderer, SDL_Texture *texture) {
+void _ExampleWindow::renderContent(Renderer &Renderer, SDL_Texture *texture, float fpsScalar) {
     if (!Renderer.getSdlRenderer()) {
         std::cerr << "Error: SDL Renderer is null!\n";
         return;
@@ -139,25 +220,27 @@ void _ExampleWindow::renderContent(Renderer &Renderer, SDL_Texture *texture) {
     }
 
 
-    SDL_SetRenderTarget(Renderer.getSdlRenderer(), texture);    //< Crashes when calling updateImage of showcaseImageWidget
-    Renderer.update();
+    SDL_SetRenderTarget(Renderer.getSdlRenderer(), texture);
+    Renderer.update_withThreads();
     Renderer.renderFrame();
-    //Renderer.renderFPS();
+    Renderer.renderFPS(fpsScalar);
     Renderer.showFrame();
 }
 
 void _ExampleWindow::updateShowcaseWindow(){
-    updateImage(*showcaseImageWidget,nebuliteShowcaseRenderer,textureOther,  0.5);
+    updateImage(*showcaseImageWidget,nebuliteShowcaseRenderer,textureOther,  0.5,1.0);
 }
 
 void _ExampleWindow::updateMainWindow(){
-    imageWidget->pollMousePosition();
-    updateImage(*imageWidget,nebuliteRenderer,textureMain,                   1.0);
+    imageWidget->pollMouseState();
+    float scalar = (float)nebuliteRenderer.getResX() / (float)SDL_WINDOW_WIDTH;
+    updateImage(*imageWidget,nebuliteRenderer,textureMain,1.0,scalar);
 }
 
-void _ExampleWindow::updateImage(ImageWidget &img, Renderer &renderer, SDL_Texture *texture, float scalar) {
-    renderContent(renderer,texture);
-    img.convertSdlToImage(renderer.getSdlRenderer(), SDL_WINDOW_WIDTH, SDL_WINDOW_HEIGHT, (int)(scalar*SDL_WINDOW_WIDTH), (int)(scalar*SDL_WINDOW_HEIGHT));
+void _ExampleWindow::updateImage(ImageWidget &img, Renderer &renderer, SDL_Texture *texture, float imageScalar, float rendererScalar) {
+    renderContent(renderer,texture,rendererScalar);
+    img.convertSdlToImage(renderer.getSdlRenderer(), (int)(rendererScalar*(float)SDL_WINDOW_WIDTH) , (int)(rendererScalar*(float)SDL_WINDOW_HEIGHT), (int)(imageScalar*(float)SDL_WINDOW_WIDTH), (int)(imageScalar*(float)SDL_WINDOW_HEIGHT));
+    //img.readTextureToImage(texture,(int)(rendererScalar*(float)SDL_WINDOW_WIDTH) , (int)(rendererScalar*(float)SDL_WINDOW_HEIGHT), (int)(imageScalar*(float)SDL_WINDOW_WIDTH), (int)(imageScalar*(float)SDL_WINDOW_HEIGHT));
     img.updateImage();
 }
 

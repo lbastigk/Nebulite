@@ -17,6 +17,10 @@ Renderer::Renderer(bool flag_hidden){
 	// Get the current directory as a std::string
 	directory = FileManagement::currentDir();
 
+	// Get screen resolution
+	dispResX = atoi(generalOptions.GetOption(namenKonvention.options.dispResX).c_str());
+	dispResY = atoi(generalOptions.GetOption(namenKonvention.options.dispResY).c_str());
+
 	//Create SDL window
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		// SDL initialization failed
@@ -26,8 +30,8 @@ Renderer::Renderer(bool flag_hidden){
 		generalOptions.GetOption("windowName").c_str(),            // Window title
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		atoi(generalOptions.GetOption("dispResX").c_str()),                        // Width
-		atoi(generalOptions.GetOption("dispResY").c_str()),                        // Height
+		dispResX,                        // Width
+		dispResY,                        // Height
 		flag_hidden ? SDL_WINDOW_HIDDEN :SDL_WINDOW_SHOWN
 	);
 	if (!window) {
@@ -58,10 +62,6 @@ Renderer::Renderer(bool flag_hidden){
 	if (!renderer) {
 		std::cerr << "Renderer creation failed: << SDL_GetError()" << std::endl;
 	}
-
-	// Get screen resolution
-	dispResX = atoi(generalOptions.GetOption(namenKonvention.options.dispResX).c_str());
-	dispResY = atoi(generalOptions.GetOption(namenKonvention.options.dispResY).c_str());
 
 	//Rect
 	rect = SDL_Rect();
@@ -156,31 +156,40 @@ void Renderer::destroy() {
 // Manipulation
 
 void Renderer::changeWindowSize(int w, int h) {
-	dispResX = w;
-	dispResY = h;
-	SDL_SetWindowSize(window, dispResX, dispResY);
-	reinsertAllObjects();
+    dispResX = w;
+    dispResY = h;
+    
+    // Update the window size
+    SDL_SetWindowSize(window, dispResX, dispResY);
+
+    // Set the renderer's logical size to match the new window size
+	std::cerr << "Setting new logical size: " << dispResX << " " << dispResY << " Status: ";
+    std::cerr << SDL_RenderSetLogicalSize(renderer, dispResX, dispResY);
+	std::cerr << std::endl;
+
+    // Reinsert objects or do any additional resizing logic here
+    reinsertAllObjects();
 }
 
 void Renderer::updatePosition(int x, int y, bool isMiddle) {
 	if(isMiddle){
-		Xpos = x - (int)(stoi(generalOptions.GetOption(namenKonvention.options.dispResX)) / 2);
-		Ypos = y - (int)(stoi(generalOptions.GetOption(namenKonvention.options.dispResY)) / 2);
+		Xpos = x - (int)(dispResX / 2);
+		Ypos = y - (int)(dispResY / 2);
 	}
 	else{
 		Xpos = x;
 		Ypos = y;
 	}
 	
-	tileXpos = Xpos / stoi(generalOptions.GetOption(namenKonvention.options.dispResX));
-	tileYpos = Ypos / stoi(generalOptions.GetOption(namenKonvention.options.dispResY));
+	tileXpos = Xpos / dispResX;
+	tileYpos = Ypos / dispResY;
 }
 
 void Renderer::moveCam(int dX, int dY) {
 	Xpos += dX;
 	Ypos += dY;
-	tileXpos = Xpos / stoi(generalOptions.GetOption(namenKonvention.options.dispResX));
-	tileYpos = Ypos / stoi(generalOptions.GetOption(namenKonvention.options.dispResY));
+	tileXpos = Xpos / dispResX;
+	tileYpos = Ypos / dispResY;
 };
 
 //-----------------------------------------------------------
@@ -420,14 +429,16 @@ void Renderer::renderFrameNoThreads() {
 	}
 }
 
-void Renderer::renderFPS() {
+void Renderer::renderFPS(float scalar) {
 	// Create a string with the FPS value
 	std::string fpsText = "FPS: " + std::to_string(fps);
 
+	float fontSize = 16;
+
 	// Define the destination rectangle for rendering the text
-	SDL_Rect textRect = { 10, 10, 0, 0 }; // Adjust position as needed
-	textRect.w = fontSize * fpsText.length(); // Width based on text length
-	textRect.h = (int)(fontSize * 1.5);
+	SDL_Rect textRect = { (int)(scalar*10.0), (int)(scalar*10.0), 0, 0 }; // Adjust position as needed
+	textRect.w = scalar * fontSize * fpsText.length(); // Width based on text length
+	textRect.h = (int)((float)fontSize * 1.5 * scalar);
 
 	// Clear the area where the FPS text will be rendered
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Set background color (black)

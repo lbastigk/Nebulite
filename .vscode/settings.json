@@ -76,7 +76,8 @@
         "complex": "cpp",
         "list": "cpp",
         "shared_mutex": "cpp",
-        "qimage": "cpp"
+        "qimage": "cpp",
+        "qbytearray": "cpp"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

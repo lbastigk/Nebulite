@@ -529,8 +529,12 @@ void RenderObjectContainer::reinsertAllObjects(int dispResX, int dispResY, int T
 				}
 				batch.clear();
 			}
+			X.clear();
 		}
+		Y.clear();
 	}
+	ObjectContainer.clear();
+
 	for(const auto& obj : toReinsert){
 		append(obj, dispResX, dispResY, THREADSIZE);
 	}
@@ -622,6 +626,22 @@ size_t RenderObjectContainer::getObjectCount() {
 	}
 	return totalCount;
 }
+
+size_t RenderObjectContainer::getObjectCountAtTile(int x, int y) {
+	// Calculate the total item count
+	size_t totalCount = 0;
+
+	if(isValidPosition(x,y)){
+		for (auto& batch : ObjectContainer[y][x]) {
+				totalCount += batch.size();
+			}
+		return totalCount;
+	}
+	else{
+		return 0;
+	}
+}
+
 
 SDL_Texture* RenderObjectContainer::getTexture(int screenSizeX, int screenSizeY, SDL_Renderer *renderer, int tileXpos, int tileYpos, int Xpos, int Ypos, auto& TextureContainer){
 	// Create a texture to use as a render target

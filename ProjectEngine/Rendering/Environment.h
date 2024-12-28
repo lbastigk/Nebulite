@@ -48,6 +48,7 @@ public:
 	void purgeLayer(int layer);
 
 	size_t getObjectCount(bool excludeTopLayer = true);
+	size_t getObjectCountAtTile(int x, int y,bool excludeTopLayer = true);
 
 	enum RenderObjectLayers {
 			background,

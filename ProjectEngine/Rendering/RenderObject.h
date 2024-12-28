@@ -87,6 +87,7 @@ public:
 	void purgeObjects();
 	void purgeObjectsAt(int x, int y, int dispResX, int dispResY);
 	size_t getObjectCount();
+	size_t getObjectCountAtTile(int x, int y);
 
 	SDL_Texture* getTexture(int screenSizeX, int screenSizeY, SDL_Renderer *renderer, int tileXpos, int tileYpos, int Xpos, int Ypos, auto& TextureContainer);
 

@@ -36,27 +36,32 @@ void ImageWidget::updateImage() {
     label->setPixmap(QPixmap::fromImage(currentImage)); //Program crashes here
 }
 
-void ImageWidget::pollMousePosition() {
+void ImageWidget::wheelEvent(QWheelEvent *event) {
+    wheelDelta += event->angleDelta().y(); // Accumulate the vertical scroll delta
+    event->accept();
+}
+
+void ImageWidget::pollMouseState() {
     // Get the global cursor position
     QPoint globalCursorPos = QCursor::pos();
     QPoint widgetCursorPos = mapFromGlobal(globalCursorPos); // Convert to widget-relative position
 
-    // Update the stored cursor position
-    currentCursorPos = widgetCursorPos;
-
     // Ensure the cursor is within the bounds of the QImage
-    if (currentImage.rect().contains(currentCursorPos)) {
+    if (currentImage.rect().contains(widgetCursorPos)) {
+        // Update the stored cursor position
+        currentCursorPos = widgetCursorPos;
+
         // Update the pixel color from the QImage at the cursor position
         currentPixelColor = currentImage.pixelColor(currentCursorPos);
 
-        // Output for debugging
-        // qDebug() << "Cursor Position:" << currentCursorPos;
-        // qDebug() << "Pixel Color:" << currentPixelColor.name(); // Hexadecimal color
+        // Check the state of the mouse buttons
+        mouseState = QApplication::mouseButtons();
     } else {
         // Handle cursor being outside the image bounds
         currentPixelColor = QColor(); // Reset to default invalid color
     }
 }
+
 
 void ImageWidget::convertSdlToImage(SDL_Renderer *renderer, int rendererWidth, int rendererHeight, int imageWidth, int imageHeight) {
     
@@ -92,7 +97,7 @@ void ImageWidget::convertSdlToImage(SDL_Renderer *renderer, int rendererWidth, i
 
     // Create a QImage initialized to black using the allocated pixels
     QImage image((uchar*)surface->pixels, rendererWidth, rendererHeight, QImage::Format_RGBA8888);
-    image.fill(Qt::black); // Initialize all pixels to black
+    image.fill(Qt::magenta); // Initialize all pixels to a certain color to distinguish rendered from background
 
     // Copy rendered pixels into the memory pointed to by 'pixels'
     if (SDL_RenderReadPixels(renderer, nullptr, SDL_PIXELFORMAT_RGBA32, surface->pixels, surface->pitch) != 0) {
@@ -115,3 +120,22 @@ void ImageWidget::convertSdlToImage(SDL_Renderer *renderer, int rendererWidth, i
 
 
 
+void ImageWidget::readTextureToImage(SDL_Texture *texture, int textureWidth, int textureHeight, int imageWidth, int imageHeight) {
+    void *pixels = nullptr;
+    int pitch = 0;
+
+    // Lock the texture to access its pixel data
+    if (SDL_LockTexture(texture, nullptr, &pixels, &pitch) != 0) {
+        qWarning("Failed to lock texture: %s", SDL_GetError());
+        return;
+    }
+
+    // Create a QImage using the locked pixel data
+    QImage image((uchar*)pixels, textureWidth, textureHeight, pitch, QImage::Format_RGBA8888);
+
+    // Scale the image to the desired size
+    currentImage = image.scaled(imageWidth, imageHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation).copy();
+
+    // Unlock the texture after use
+    SDL_UnlockTexture(texture);
+}

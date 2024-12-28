@@ -11,7 +11,7 @@ class SliderWidget : public QWidget {
     QSlider *slider;
 
 public:
-    explicit SliderWidget(int min, int max, int initialValue, QWidget *parent = nullptr);
+    explicit SliderWidget(int min, int max, int initialValue, bool isHorizontal, QWidget *parent = nullptr);
 
 signals:
     void valueChanged(int value);
