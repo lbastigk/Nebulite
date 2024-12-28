@@ -161,11 +161,7 @@ void Renderer::changeWindowSize(int w, int h) {
     
     // Update the window size
     SDL_SetWindowSize(window, dispResX, dispResY);
-
-    // Set the renderer's logical size to match the new window size
-	std::cerr << "Setting new logical size: " << dispResX << " " << dispResY << " Status: ";
-    std::cerr << SDL_RenderSetLogicalSize(renderer, dispResX, dispResY);
-	std::cerr << std::endl;
+	SDL_RenderSetLogicalSize(renderer, dispResX, dispResY);
 
     // Reinsert objects or do any additional resizing logic here
     reinsertAllObjects();

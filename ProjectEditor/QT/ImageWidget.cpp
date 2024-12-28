@@ -64,78 +64,47 @@ void ImageWidget::pollMouseState() {
 
 
 void ImageWidget::convertSdlToImage(SDL_Renderer *renderer, int rendererWidth, int rendererHeight, int imageWidth, int imageHeight) {
-    
-    // Create a surface for pixel data
-    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, rendererWidth, rendererHeight, 32, SDL_PIXELFORMAT_RGBA8888);
-    if (!surface) {
-        qWarning("Failed to create surface: %s", SDL_GetError());
-        return;
+    if (!cachedSurface || cachedWidth != rendererWidth || cachedHeight != rendererHeight) {
+        if (cachedSurface) {
+            SDL_FreeSurface(cachedSurface);
+        }
+        cachedSurface = SDL_CreateRGBSurfaceWithFormat(0, rendererWidth, rendererHeight, 32, SDL_PIXELFORMAT_RGBA8888);
+        if (!cachedSurface) {
+            qWarning("Failed to create cached surface: %s", SDL_GetError());
+            return;
+        }
     }
 
     // Ensure there's a valid render target
-    SDL_Texture *currentTarget = SDL_GetRenderTarget(renderer);
-    if (!currentTarget) {
-        currentTarget = SDL_CreateTexture(
-            renderer,
-            SDL_PIXELFORMAT_RGBA8888,
-            SDL_TEXTUREACCESS_TARGET,
-            rendererWidth, rendererHeight
-        );
-
-        if (!currentTarget) {
-            SDL_FreeSurface(surface);
-            return;
-        }
-
-        // Set the temporary render target
-        if (SDL_SetRenderTarget(renderer, currentTarget) != 0) {
-            SDL_DestroyTexture(currentTarget);
-            SDL_FreeSurface(surface);
-            return;
-        }
+    if (!SDL_GetRenderTarget(renderer)) {
+        std::cerr << "No correct render target!" << std::endl;
+        return;
     }
 
-    // Create a QImage initialized to black using the allocated pixels
-    QImage image((uchar*)surface->pixels, rendererWidth, rendererHeight, QImage::Format_RGBA8888);
-    image.fill(Qt::magenta); // Initialize all pixels to a certain color to distinguish rendered from background
+    // Create a QImage using the allocated pixels
+    if(cachedWidth != rendererWidth || cachedHeight != rendererHeight){
+        // Re-init cachedImage
+        cachedImage = QImage((uchar*)cachedSurface->pixels, rendererWidth, rendererHeight, QImage::Format_RGBA8888);
+    }
+    cachedImage.fill(Qt::magenta); // Initialize all pixels to a certain color to distinguish rendered from background
 
     // Copy rendered pixels into the memory pointed to by 'pixels'
-    if (SDL_RenderReadPixels(renderer, nullptr, SDL_PIXELFORMAT_RGBA32, surface->pixels, surface->pitch) != 0) {
+    if (SDL_RenderReadPixels(renderer, nullptr, SDL_PIXELFORMAT_RGBA32, cachedSurface->pixels, cachedSurface->pitch) != 0) {
         qWarning("Failed to read pixels: %s", SDL_GetError());
-        SDL_FreeSurface(surface);
+        SDL_FreeSurface(cachedSurface);
         return;
     }
 
     // Scale the image to the desired size
-    currentImage = image.scaled(imageWidth, imageHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation).copy();
+    currentImage = cachedImage.scaled(imageWidth, imageHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation).copy();
 
     if (currentImage.isNull()) {
         std::cerr << "Error: currentImage is null or empty!" << std::endl;
         return;
     }
 
-    // Free the original surface memory
-    SDL_FreeSurface(surface);
+    // Set new sizes for cached width and height
+    cachedWidth = rendererWidth;
+    cachedHeight = rendererHeight;
 }
 
-
-
-void ImageWidget::readTextureToImage(SDL_Texture *texture, int textureWidth, int textureHeight, int imageWidth, int imageHeight) {
-    void *pixels = nullptr;
-    int pitch = 0;
-
-    // Lock the texture to access its pixel data
-    if (SDL_LockTexture(texture, nullptr, &pixels, &pitch) != 0) {
-        qWarning("Failed to lock texture: %s", SDL_GetError());
-        return;
-    }
-
-    // Create a QImage using the locked pixel data
-    QImage image((uchar*)pixels, textureWidth, textureHeight, pitch, QImage::Format_RGBA8888);
-
-    // Scale the image to the desired size
-    currentImage = image.scaled(imageWidth, imageHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation).copy();
-
-    // Unlock the texture after use
-    SDL_UnlockTexture(texture);
-}

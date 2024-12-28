@@ -240,7 +240,6 @@ void _ExampleWindow::updateMainWindow(){
 void _ExampleWindow::updateImage(ImageWidget &img, Renderer &renderer, SDL_Texture *texture, float imageScalar, float rendererScalar) {
     renderContent(renderer,texture,rendererScalar);
     img.convertSdlToImage(renderer.getSdlRenderer(), (int)(rendererScalar*(float)SDL_WINDOW_WIDTH) , (int)(rendererScalar*(float)SDL_WINDOW_HEIGHT), (int)(imageScalar*(float)SDL_WINDOW_WIDTH), (int)(imageScalar*(float)SDL_WINDOW_HEIGHT));
-    //img.readTextureToImage(texture,(int)(rendererScalar*(float)SDL_WINDOW_WIDTH) , (int)(rendererScalar*(float)SDL_WINDOW_HEIGHT), (int)(imageScalar*(float)SDL_WINDOW_WIDTH), (int)(imageScalar*(float)SDL_WINDOW_HEIGHT));
     img.updateImage();
 }
 

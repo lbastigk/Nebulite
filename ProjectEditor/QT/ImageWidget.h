@@ -37,6 +37,12 @@ private:
 
     QImage currentImage;
     int wheelDelta = 0;
+
+    // For image conversion from renderer
+    SDL_Surface *cachedSurface = nullptr; // Cached surface for reuse
+    QImage cachedImage;
+    int cachedWidth = 0;
+    int cachedHeight = 0;
 protected:
     void wheelEvent(QWheelEvent *event) override;
 };
