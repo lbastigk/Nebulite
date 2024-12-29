@@ -1,7 +1,7 @@
 #include <QApplication>
 
 
-#include <_ExampleWindow.h>
+#include <EditorApp.h>
 
 
 int main(int argc, char *argv[]) {
@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
     freopen("error_log.txt", "w", stderr);
 
     QApplication app(argc, argv);
-    _ExampleWindow window;
+    EditorApp window;
     window.setWindowTitle("SDL and Qt Integration");
     window.show();
     return app.exec();

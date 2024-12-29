@@ -1,11 +1,63 @@
-#include "_ExampleWindow.h"
+#include "EditorApp.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-_ExampleWindow::_ExampleWindow(QWidget *parent)
-    : QWidget(parent),
+EditorApp::EditorApp(QWidget *parent)
+    : QWidget(parent), { // Pass the parent to the base class constructor
+
+    resize(QT_WINDOW_WIDTH, QT_WINDOW_HEIGHT); // Set the window size
+
+    tabWidget = new QTabWidget(this); // Attach QTabWidget to this widget
+
+    // Create instances of each tab
+    tab1 = new Tab::RenderObjectEditor();
+    tab2 = new Tab::LevelEditor();
+    tab3 = new Tab::MoveRuleSetEditor();
+
+    // Create QWidget wrappers for layouts
+    QWidget *tab1Widget = new QWidget();
+    tab1Widget->setLayout(tab1->getLayout());
+
+    QWidget *tab2Widget = new QWidget();
+    tab2Widget->setLayout(tab2->getLayout());
+
+    QWidget *tab3Widget = new QWidget();
+    tab3Widget->setLayout(tab3->getLayout());
+
+    // Add tabs to the QTabWidget
+    tabWidget->addTab(tab1Widget, "Tab 1");
+    tabWidget->addTab(tab2Widget, "Tab 2");
+    tabWidget->addTab(tab3Widget, "Tab 3");
+
+    // Set main layout
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->addWidget(tabWidget);
+    setLayout(mainLayout);
+
+    //-------------------------------------------------------------------------
+    // App size
+    resize(QT_WINDOW_WIDTH, QT_WINDOW_HEIGHT); // Set the window size
+}
+
+
+//--------------------------------------------------------------------
+// 
+// TAB: RenderObjectEditor
+//
+//--------------------------------------------------------------------
+
+
+
+
+//--------------------------------------------------------------------
+// 
+// TAB: LevelEditor
+//
+//--------------------------------------------------------------------
+
+EditorApp::Tab::LevelEditor() :
     nebuliteRenderer(true),  // Passing true for hidden window
-    nebuliteShowcaseRenderer(true)  {
+    nebuliteShowcaseRenderer(true){
 
     nebuliteRenderer.changeWindowSize(SDL_RENDER_WIDTH,SDL_RENDER_HEIGHT);
     nebuliteRenderer.deserializeEnvironment("./Resources/Levels/example.json", nebuliteRenderer.getResX(), nebuliteRenderer.getResY(), nebuliteRenderer.getThreadSize());
@@ -146,7 +198,6 @@ _ExampleWindow::_ExampleWindow(QWidget *parent)
 
             //TODO:
             // Get position of mouse, set as new middle point
-            
 
             renderScroller--;
             nebuliteRenderer.changeWindowSize(renderScrollSizes[renderScroller].first,renderScrollSizes[renderScroller].second);
@@ -175,14 +226,10 @@ _ExampleWindow::_ExampleWindow(QWidget *parent)
         }
     });
     stateUpdateTimer->start(16); // Update at ~60Hz
-
-
-    //-------------------------------------------------------------------------
-    // App size
-    resize(QT_WINDOW_WIDTH, QT_WINDOW_HEIGHT); // Set the window size
+    
 }
 
-void _ExampleWindow::updateShowcaseObject(const QString &filePath){
+void EditorApp::Tab::LevelEditor::updateShowcaseObject(const QString &filePath){
     std::cerr << "New File: " << filePath.toStdString() << std::endl;
 
     if(filePath.toStdString().ends_with(".json")){
@@ -217,12 +264,10 @@ void _ExampleWindow::updateShowcaseObject(const QString &filePath){
             nebuliteShowcaseRenderer.purgeObjects();
             nebuliteShowcaseRenderer.append(roc);
         }
-    }
-
-    
+    } 
 }
 
-void _ExampleWindow::renderContent(Renderer &Renderer, SDL_Texture *texture, float fpsScalar) {
+void EditorApp::Tab::LevelEditor::renderContent(Renderer &Renderer, SDL_Texture *texture, float fpsScalar) {
     if (!Renderer.getSdlRenderer()) {
         std::cerr << "Error: SDL Renderer is null!\n";
         return;
@@ -231,8 +276,6 @@ void _ExampleWindow::renderContent(Renderer &Renderer, SDL_Texture *texture, flo
         std::cerr << "Error: SDL Texture is null!\n";
         return;
     }
-
-
     SDL_SetRenderTarget(Renderer.getSdlRenderer(), texture);
     Renderer.update_withThreads();
     Renderer.renderFrame();
@@ -240,19 +283,18 @@ void _ExampleWindow::renderContent(Renderer &Renderer, SDL_Texture *texture, flo
     Renderer.showFrame();
 }
 
-void _ExampleWindow::updateShowcaseWindow(){
+void EditorApp::Tab::LevelEditor::updateShowcaseWindow(){
     updateImage(*showcaseImageWidget,nebuliteShowcaseRenderer,textureOther,  2.0,1.0);
 }
 
-void _ExampleWindow::updateMainWindow(){
+void EditorApp::Tab::LevelEditor::updateMainWindow(){
     imageWidget->pollMouseState();
     float scalar = (float)nebuliteRenderer.getResX() / (float)SDL_RENDER_WIDTH;
     updateImage(*imageWidget,nebuliteRenderer,textureMain,4.0,scalar);
 }
 
-void _ExampleWindow::updateImage(ImageWidget &img, Renderer &renderer, SDL_Texture *texture, float imageScalar, float rendererScalar) {
+void EditorApp::Tab::LevelEditor::updateImage(ImageWidget &img, Renderer &renderer, SDL_Texture *texture, float imageScalar, float rendererScalar) {
     renderContent(renderer,texture,rendererScalar/4);
     img.convertSdlToImage(renderer.getSdlRenderer(), (int)(rendererScalar*(float)SDL_RENDER_WIDTH) , (int)(rendererScalar*(float)SDL_RENDER_HEIGHT), (int)(imageScalar*(float)SDL_RENDER_WIDTH), (int)(imageScalar*(float)SDL_RENDER_HEIGHT));
     img.updateImage();
 }
-
