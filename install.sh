@@ -10,3 +10,5 @@ ls
 
 cmake ./
 make
+
+echo "Installer is done!"
