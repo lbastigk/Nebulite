@@ -49,7 +49,7 @@ public:
             QBoxLayout* getLayout(){return mainLayout;};
         private:
             QHBoxLayout *mainLayout;
-        }renderObjectEditor;
+        };
         class LevelEditor{
         public:
             LevelEditor();
@@ -68,20 +68,8 @@ public:
             Renderer nebuliteRenderer;
             Renderer nebuliteShowcaseRenderer;
 
-            SDL_Texture *textureMain  = SDL_CreateTexture(
-                nebuliteRenderer.getSdlRenderer(), 
-                SDL_PIXELFORMAT_RGBA8888, 
-                SDL_TEXTUREACCESS_TARGET, 
-                SDL_RENDER_WIDTH, 
-                SDL_RENDER_HEIGHT
-            );
-            SDL_Texture *textureOther = SDL_CreateTexture(
-                nebuliteShowcaseRenderer.getSdlRenderer(), 
-                SDL_PIXELFORMAT_RGBA8888, 
-                SDL_TEXTUREACCESS_TARGET,
-                SDL_RENDER_WIDTH, 
-                SDL_RENDER_HEIGHT
-            );
+            SDL_Texture *textureMain;
+            SDL_Texture *textureOther;
 
             std::pair<int,int> renderScrollSizes[RENDERER_SCROLLIZE_COUNT] = {
                 std::make_pair<int,int>(1 * SDL_RENDER_WIDTH,1 * SDL_RENDER_HEIGHT) , 
@@ -99,14 +87,14 @@ public:
             void updateShowcaseObject(const QString &filePath);
             RenderObject showcase;
             int renderScroller = 0;
-        }levelEditor;
+        };
         class MoveRuleSetEditor{
         public:
             MoveRuleSetEditor();
             QBoxLayout* getLayout(){return mainLayout;};
         private:
             QHBoxLayout *mainLayout;
-        }moveRuleSetEditor;
+        };
     }tab;
 private:
     QTabWidget *tabWidget;

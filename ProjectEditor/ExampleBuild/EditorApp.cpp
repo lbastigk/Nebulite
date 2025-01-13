@@ -46,7 +46,12 @@ EditorApp::EditorApp(QWidget *parent)
 //
 //--------------------------------------------------------------------
 
+EditorApp::Tab::RenderObjectEditor::RenderObjectEditor() {
+    // Allocate memory for the layout and setup
+    mainLayout = new QHBoxLayout();
 
+
+}
 
 
 //--------------------------------------------------------------------
@@ -57,7 +62,23 @@ EditorApp::EditorApp(QWidget *parent)
 
 EditorApp::Tab::LevelEditor() :
     nebuliteRenderer(true),  // Passing true for hidden window
-    nebuliteShowcaseRenderer(true){
+    nebuliteShowcaseRenderer(true),
+    textureMain(SDL_CreateTexture(
+        nebuliteRenderer.getSdlRenderer(), 
+        SDL_PIXELFORMAT_RGBA8888, 
+        SDL_TEXTUREACCESS_TARGET, 
+        SDL_RENDER_WIDTH, 
+        SDL_RENDER_HEIGHT
+    )),
+    textureOther(SDL_CreateTexture(
+        nebuliteShowcaseRenderer.getSdlRenderer(), 
+        SDL_PIXELFORMAT_RGBA8888, 
+        SDL_TEXTUREACCESS_TARGET,
+        SDL_RENDER_WIDTH, 
+        SDL_RENDER_HEIGHT
+    )){
+
+    
 
     nebuliteRenderer.changeWindowSize(SDL_RENDER_WIDTH,SDL_RENDER_HEIGHT);
     nebuliteRenderer.deserializeEnvironment("./Resources/Levels/example.json", nebuliteRenderer.getResX(), nebuliteRenderer.getResY(), nebuliteRenderer.getThreadSize());
