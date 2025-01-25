@@ -1,5 +1,4 @@
 #include "OptionsMenu.h"
-#include <functional> // For std::bind
 #include "Editor.h"
 #include "DsaDebug.h"
 
@@ -14,10 +13,25 @@ int main(int argc, char* argv[]) {
 	// Create options menu
 	OptionsMenu optM;
 	optM.setOption(0);	//Start option
-	// Attach functions using std::bind to bind the member functions to the object
-	optM.attachFunction(std::bind(&Editor::LoadLevel, &editor), "Load Level");
-	optM.attachFunction(std::bind(&Editor::CreateRenderobject, &editor), "Create Renderobject");
-    optM.attachFunction(std::bind(&Editor::CreateMoveRuleSet, &editor), "Create Moveruleset");
+	optM.changeType(OptionsMenu::typeScrollingMenu);	// Type scrolling for now, as console type needs some rework
+														// Scrolling works like this:
+														// MENU TEXT:
+														// -> Option1
+														//    Option2
+														//    ...
+														//
+														// Console should work like this:
+														// foo arg1 arg2 arg3
+														//
+														// In the future, scolling menu should still be supported, 
+														// although only functions without args are reasonable with this approach
+	optM.setTextBefore("Nebulite Editor GUI pre-alpha\n");
+
+	// Functions
+	optM.attachFunction([&editor]() { editor.LoadLevel(); }, "Load Level");
+	optM.attachFunction([&editor]() { editor.CreateRenderobject(); }, "Create Renderobject");
+	optM.attachFunction([&editor]() { editor.CreateMoveRuleSet(); }, "Create Moveruleset");
+
 	
 	optM.render();		//First render for display
 	
