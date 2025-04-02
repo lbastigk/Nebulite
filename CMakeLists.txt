@@ -153,6 +153,7 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper/Calculator.cpp
     ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper/Console.cpp
     ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper/FileManagement.cpp
+    ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper/FuncTree.cpp
     ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper/JSONHandler.cpp
     ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper/OptionsMenu.cpp
     ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper/StringHandler.cpp
@@ -166,6 +167,7 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/ProjectTestEnvironment/QuickNotes.cpp
     ${CMAKE_SOURCE_DIR}/ProjectTestEnvironment/TestEnv.cpp
     ${CMAKE_SOURCE_DIR}/ProjectTestEnvironment/_TEMPLATE_CLASS.cpp
+
 )
 
 #   ▗▄▖ ▗▖ ▗▖▗▄▄▄▖▗▄▄▖ ▗▖ ▗▖▗▄▄▄▖
