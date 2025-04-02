@@ -72,6 +72,7 @@ void TestEnv::_JSONHandler::testMenue() {
 	OptionsMenu optM;
 	optM.setOption(0);	//Start option
 	optM.attachFunction(TestEnv::_JSONHandler::listOfKeys,	    "List keys in an object");
+	optM.attachFunction(TestEnv::_JSONHandler::KeyNesting,	    "Test key nesting");
 	optM.render();		//First render for display
 	
 	//Loop until exit is chosen

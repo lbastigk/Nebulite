@@ -69,21 +69,21 @@ void TestEnv::_JSONHandler::KeyNesting() {
     rapidjson::Document mainDoc;
     
     //insert intop main doc
-    JSONHandler::Set::Any<double>(mainDoc, std::string("level1-double"), 3.14);
-    JSONHandler::Set::Any<int>(mainDoc, std::string("level1-level2-int"), 10);
+    JSONHandler::Set::Any<double>(mainDoc, std::string("level1.double"), 3.14);
+    JSONHandler::Set::Any<int>(mainDoc, std::string("level1.level2.int"), 10);
 
     //first step: get
     std::cout << "Getting:\n-------------------------------------------------\n";
     std::cout << "Main Doc:\n\n" << JSONHandler::serialize(mainDoc) << "\n\n";
-    std::cout << "level 2 int:" << JSONHandler::Get::Any<int>(mainDoc, std::string("level1-level2-int"),0);
+    std::cout << "level 2 int:" << JSONHandler::Get::Any<int>(mainDoc, std::string("level1.level2.int"),0);
     
     //second step, setting int inside level2 to another value
     std::cout << "\n\nSetting int to 11:\n-------------------------------------------------\n";
-    JSONHandler::Set::Any<int>(mainDoc, std::string("level1-level2-int"),11);
+    JSONHandler::Set::Any<int>(mainDoc, std::string("level1.level2.int"),11);
 
     //Check if it's correct, show full doc and test get function again.
     std::cout << "Main Doc:\n\n" << JSONHandler::serialize(mainDoc) << "\n\n";
-    std::cout << "level 2 int:" << JSONHandler::Get::Any<int>(mainDoc, std::string("level1-level2-int"), 0);
+    std::cout << "level 2 int:" << JSONHandler::Get::Any<int>(mainDoc, std::string("level1.level2.int"), 0);
 
     //For viewing result
     Time::wait(20000);
