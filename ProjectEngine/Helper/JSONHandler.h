@@ -1,6 +1,10 @@
 #pragma once
 
-//One space to handle Rapidjson read/write operations
+// CLASS: JSONHandler
+//
+// A tool to unify rapidjson document handling in one place
+// and make modifications easier
+//
 
 //-------------------------------------------------------
 // Dependencies
@@ -61,11 +65,15 @@ public:
         static void subDoc(rapidjson::Document& doc, const std::string& key, rapidjson::Value& subdoc);
     };
 
-    static bool isValid(std::string str);
+    // General JSONHandler functions
+    
+    // Serialization and deserialization
     static rapidjson::Document deserialize(std::string serialOrLink);
     static std::string serialize(const rapidjson::Document& doc);
     static std::string serializeVal(const rapidjson::Value& val);
     static std::string ConvertJSONValue(rapidjson::Value& jsonValue);
+
+    static bool isValid(std::string str);
     static void copyDoc(rapidjson::Document& destination, rapidjson::Document *toCopy);
     static void empty(rapidjson::Document &doc);
 private:
@@ -170,14 +178,9 @@ void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey,
         // Check if doc does not have member
         // create member
         if (!doc.HasMember(fullKey.substr(0, pos).c_str())) {
-            //Add an object to doc, with:
-            // key = fullKey.substr(0, pos)
-            // so that:
-            //doc{"key":{}}
-            std::cout << "[NESTED] Adding new subdoc with key: " << fullKey.substr(0, pos).c_str() << "\n";
-
-            rapidjson::Value newObject(rapidjson::kObjectType);
-            doc.AddMember(rapidjson::StringRef(fullKey.substr(0, pos).c_str()), newObject, doc.GetAllocator());
+            rapidjson::Value key(fullKey.substr(0, pos).c_str(), doc.GetAllocator());
+            rapidjson::Value value(rapidjson::kObjectType);
+            doc.AddMember(key, value, doc.GetAllocator());
         }
 
         //Get subdoc, call set Any again
@@ -198,7 +201,6 @@ void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey,
     }
     else {
         //No key nesting
-        std::cout << "[NON-NESTED] Adding new value with key: " << fullKey.c_str() << "\n";
 
         // Convert the data to a JSON value using the helper function
         rapidjson::Value jsonValue;

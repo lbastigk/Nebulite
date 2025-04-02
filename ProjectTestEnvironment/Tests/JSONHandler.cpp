@@ -85,9 +85,12 @@ void TestEnv::_JSONHandler::KeyNesting() {
     std::cout << "Main Doc:\n\n" << JSONHandler::serialize(mainDoc) << "\n\n";
     std::cout << "level 2 int:" << JSONHandler::Get::Any<int>(mainDoc, std::string("level1.level2.int"), 0);
 
+    std::cout << "Result should be: \n";
+    std::cout << "level1.double = 3.14 \n";
+    std::cout << "level1.level2.int = 10 or 11 \n";
+
     //For viewing result
     Time::wait(20000);
-
 }
 
 void TestEnv::_JSONHandler::listOfKeys() {

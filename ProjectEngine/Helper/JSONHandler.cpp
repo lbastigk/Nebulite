@@ -3,7 +3,6 @@
 //------------------------------------------------
 // Get
 
-
 void JSONHandler::Get::subDocOld(rapidjson::Document& doc, const std::string& key, rapidjson::Document& destination) {
     // Check if the main document is an object
     if (!doc.IsObject()) {
@@ -195,7 +194,7 @@ void JSONHandler::empty(rapidjson::Document &doc) {
     doc.GetAllocator().Clear();
 }
 
-// Checks if str is a valid json doc
+// Checks if string is a valid json doc
 
 bool JSONHandler::isValid(std::string str) {
     rapidjson::Document document;
