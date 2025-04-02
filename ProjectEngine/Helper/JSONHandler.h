@@ -1,5 +1,11 @@
 #pragma once
 
+//One space to handle Rapidjson read/write operations
+
+//-------------------------------------------------------
+// Dependencies
+
+// Rapidjson dependencies
 #include "document.h"
 #include "writer.h"
 #include "stringbuffer.h"
@@ -8,7 +14,10 @@
 #include "istreamwrapper.h"
 #include "ostreamwrapper.h"
 
+// Nebulite dependencies
+#include "FileManagement.h"
 
+// Other dependencies
 #include <type_traits>
 #include <fstream>
 #include <string>
@@ -16,13 +25,8 @@
 #include <map>
 #include <vector>
 
-#include "FileManagement.h"
 
-
-
-//using namespace rapidjson;
-
-
+//-------------------------------------------------------
 //&Doc template specializations
 //need to be global for C++
 template <typename T>
@@ -31,13 +35,12 @@ struct is_rapidjson_document_ptr : std::false_type {};
 template <>
 struct is_rapidjson_document_ptr<rapidjson::Document*> : std::true_type {};
 
-
 template <typename T>
 struct is_rapidjson_value_ptr : std::false_type {};
 template <>
 struct is_rapidjson_value_ptr<rapidjson::Value&> : std::true_type {};
 
-//One space to handle Rapidjson read/write operations
+
 class JSONHandler {
 public:
     class Get {
@@ -102,11 +105,8 @@ private:
 
 template <typename T>
 T JSONHandler::Get::Any(rapidjson::Document& doc, const std::string& fullKey, const T& defaultValue) {
-    //Handle edge case where first char might be '-'
-    // TODO...
-    
     //Handle key nesting:
-    int pos = fullKey.find('-');
+    int pos = fullKey.find('.');
     if (pos != -1) {
         //Key nesting present, get subdoc, call get Any again
         rapidjson::Document tmp;
@@ -119,7 +119,6 @@ T JSONHandler::Get::Any(rapidjson::Document& doc, const std::string& fullKey, co
     }
     else {
         //No key nesting, return value from doc
-
         if (doc.IsObject() && doc.HasMember(fullKey.c_str())) {
             const rapidjson::Value& value = doc[fullKey.c_str()];
 
@@ -138,10 +137,6 @@ T JSONHandler::Get::Any(rapidjson::Document& doc, const std::string& fullKey, co
                 // Handle the case where the value is null or missing
                 // You can throw an exception, log an error, or set a default value.
             }
-        }
-        else {
-            // Handle the case where the key is not found in the document or the document is not an object
-            // You can throw an exception, log an error, or set a default value.
         }
 
         // Return the default value if any error occurs
@@ -162,16 +157,25 @@ void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey,
     // TODO...
 
     //Handle key nesting:
-    int pos = fullKey.find('-');
+    int pos = fullKey.find('.');
     if (pos != -1) {
-        //Key nesting present
+        //Key nesting present, go key by key:
+        // e.g. key1.rest , meaning rest could be one key or more.
+        // 1.) load subdoc of key1
+        // 2.) call function recursively on subdoc, this time using rest as key
+        // 3.) insert subdoc into main doc
 
-        //Check if doc has member
+        //-------------------------------------
+        // 1.)
+        // Check if doc does not have member
+        // create member
         if (!doc.HasMember(fullKey.substr(0, pos).c_str())) {
             //Add an object to doc, with:
             // key = fullKey.substr(0, pos)
             // so that:
             //doc{"key":{}}
+            std::cout << "[NESTED] Adding new subdoc with key: " << fullKey.substr(0, pos).c_str() << "\n";
+
             rapidjson::Value newObject(rapidjson::kObjectType);
             doc.AddMember(rapidjson::StringRef(fullKey.substr(0, pos).c_str()), newObject, doc.GetAllocator());
         }
@@ -182,14 +186,19 @@ void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey,
         //Get subdoc
         JSONHandler::Get::subDoc(doc, fullKey.substr(0, pos), tmp);
 
-        //manipulate temp
-        Any(tmp, fullKey.substr(pos + 1), data, onlyIfExists);
+        //-------------------------------------
+        // 2.)
+        //manipulate temp subdoc
+        JSONHandler::Set::Any(tmp, fullKey.substr(pos + 1), data, onlyIfExists);
 
+        //-------------------------------------
+        // 3.)
         //Insert temp back into main doc
-        subDoc(doc, fullKey.substr(0, pos), tmp);
+        JSONHandler::Set::subDoc(doc, fullKey.substr(0, pos), tmp);
     }
     else {
         //No key nesting
+        std::cout << "[NON-NESTED] Adding new value with key: " << fullKey.c_str() << "\n";
 
         // Convert the data to a JSON value using the helper function
         rapidjson::Value jsonValue;
@@ -296,8 +305,8 @@ void JSONHandler::ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue,
     else if constexpr (is_rapidjson_value_ptr<T>::value) {
         return data;
     }
-    
 
+    
     //ELSE, rapidjson value directly
     else {
         
@@ -362,11 +371,7 @@ void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& res
     else if constexpr (is_rapidjson_document_ptr<T>::value) {
         result.CopyFrom(jsonValue, result->GetAllocator());
     }
-    // Add more conversions for other types as needed
-    // ...
-
     else {
-        std::cout << "???\n";
-        // Handle other data types here or provide specializations as needed
+        result = "null";
     }
 }
