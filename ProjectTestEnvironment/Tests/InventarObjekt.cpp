@@ -1,6 +1,6 @@
 #include "TestEnv.h"
 
-void TestEnv::_InventarObjekt::serialize() {
+int TestEnv::_InventarObjekt::serialize(int argc, char* argv[]) {
     InventarObjekt tee;
     std::cout << tee.serialize();
 

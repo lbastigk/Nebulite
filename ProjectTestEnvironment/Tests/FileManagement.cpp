@@ -2,7 +2,7 @@
 
 
 //Shows all files in ressources folder
-void TestEnv::_FileManagement::testFileCollector(){
+int TestEnv::_FileManagement::testFileCollector(int argc, char* argv[]){
     FileManagement::FileTypeCollector ftc(std::string("Resources"),std::string(".bmp"));
 
     std::cout << StringHandler::parseArray(ftc.getFileDirectories(),"Entry %i :\t","\n");
@@ -11,7 +11,7 @@ void TestEnv::_FileManagement::testFileCollector(){
 }
 
 //Same as before, but with opening
-void TestEnv::_FileManagement::testFileCollectorMenue() {
+int TestEnv::_FileManagement::testFileCollectorMenue(int argc, char* argv[]) {
     FileManagement::FileTypeCollector ftc(std::string("Resources"), std::string(".bmp"));
 
     std::string options = StringHandler::parseArray(ftc.getFileDirectories(), "Entry %i :\t", "\n");

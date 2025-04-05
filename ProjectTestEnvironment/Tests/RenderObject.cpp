@@ -1,7 +1,7 @@
 #include "TestEnv.h"
 
 
-void TestEnv::_RenderObject::testSpriteSheets() {
+int TestEnv::_RenderObject::testSpriteSheets(int argc, char* argv[]) {
     Renderer Renderer;
     RenderObject obj1;
     obj1.valueSet(namenKonvention.renderObject.positionX, 200);
@@ -75,7 +75,7 @@ void TestEnv::_RenderObject::testSpriteSheets() {
 }
 
 // First test for spritesheet based rendering, using pokemon sprite animations as a basis
-void TestEnv::_RenderObject::testPokemonSprites() {
+int TestEnv::_RenderObject::testPokemonSprites(int argc, char* argv[]) {
     Renderer Renderer;
     RenderObject Player;
     RenderObject background;
@@ -369,7 +369,7 @@ void TestEnv::_RenderObject::testPokemonSprites() {
     Renderer.destroy();
 }
 
-void TestEnv::_RenderObject::testRuleSets() {
+int TestEnv::_RenderObject::testRuleSets(int argc, char* argv[]) {
     Renderer Renderer;
     
     RenderObject obj[20];

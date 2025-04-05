@@ -1,6 +1,6 @@
 #include "TestEnv.h"
 
-int TestEnv::_Renderer::randomImages() {
+int TestEnv::_Renderer::randomImages(int argc, char* argv[]) {
     int objectCount = 128;
 
     //Renderer Object
@@ -43,7 +43,7 @@ int TestEnv::_Renderer::randomImages() {
     return 0;
 }
 
-int TestEnv::_Renderer::circleBenchmark() {
+int TestEnv::_Renderer::circleBenchmark(int argc, char* argv[]) {
     int objectCount = 128;
 
     //Renderer Object
@@ -113,7 +113,7 @@ int TestEnv::_Renderer::circleBenchmark() {
     return 0;
 }
 
-void TestEnv::_Renderer::ThreadTest() {
+int TestEnv::_Renderer::ThreadTest(int argc, char* argv[]) {
     int objCount = 1024;
     int ringCount = 16;
     int framesToRender = 30;
@@ -137,7 +137,7 @@ void TestEnv::_Renderer::ThreadTest() {
     }
 }
 
-void TestEnv::_Renderer::testRendererMemLeak() {
+int TestEnv::_Renderer::testRendererMemLeak(int argc, char* argv[]) {
     int loopamount = 128;
     bool dump = true;
 
@@ -163,7 +163,7 @@ void TestEnv::_Renderer::testRendererMemLeak() {
     }
 };
 
-int TestEnv::_Renderer::movement() {
+int TestEnv::_Renderer::movement(int argc, char* argv[]) {
 
     //Renderer Object
     Renderer Renderer;
@@ -236,7 +236,7 @@ int TestEnv::_Renderer::movement() {
 
 }
 
-void TestEnv::_Renderer::simpleSdlWindow(){
+int TestEnv::_Renderer::simpleSdlWindow(int argc, char* argv[]){
     std::cout << "Creating a simple SDL window for debugging...\n\n";
 
     std::cout << "Creating Renderer...\n";
@@ -282,7 +282,7 @@ void TestEnv::_Renderer::simpleSdlWindow(){
     Renderer.destroy();
 }
 
-void TestEnv::_Renderer::twoSdlWindows(){
+int TestEnv::_Renderer::twoSdlWindows(int argc, char* argv[]){
     std::cout << "Creating two simple SDL window for debugging...\n\n";
 
     std::cout << "Creating Renderer...\n";
@@ -368,6 +368,8 @@ void TestEnv::_Renderer::twoSdlWindows(){
     Renderer2.destroy();
 }
 
+//--------------------------------------------------------------------------------
+// Private members
 void TestEnv::_Renderer::createRandomObjects(Renderer& Renderer, int amount, int radius) {
 
     for (int i = 0; i < (amount > 128 ? 128 : amount); i++) {

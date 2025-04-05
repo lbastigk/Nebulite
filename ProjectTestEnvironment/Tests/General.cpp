@@ -1,6 +1,6 @@
 #include "TestEnv.h"
 
-void TestEnv::_General::benchmarkStringConversion() {
+int TestEnv::_General::benchmarkStringConversion(int argc, char* argv[]) {
     // Seed the random number generator with the current time
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 

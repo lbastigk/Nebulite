@@ -1,6 +1,6 @@
 #include "TestEnv.h"
 
-void TestEnv::_Template::testMyTemplate() {
+int TestEnv::_Template::testMyTemplate(int argc, char* argv[]) {
     MyTemplate temp1;
     MyTemplate temp2;
     temp1.valueSet("testString", "zero");

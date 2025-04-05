@@ -1,6 +1,6 @@
 #include "TestEnv.h"
 
-void TestEnv::_Talente::testTalentJson() {
+int TestEnv::_Talente::testTalentJson(int argc, char* argv[]) {
     Talente talente;
     std::cout << talente.serialize();
 

@@ -15,102 +15,108 @@
 
 class TestEnv {
 public:
+    int passArgs(int argc, char* argv[]){
+
+    };
     class _FileManagement {
     public:
-        static void testMenue();
+        int passArgs(int argc, char* argv[]);
 
         //Shows all files in ressources folder
-        static void testFileCollector();
+        int testFileCollector(int argc, char* argv[]);
 
        //Same as before, but with opening
-        static void testFileCollectorMenue();
+        int testFileCollectorMenue(int argc, char* argv[]);
     };
 	class _General {
     public:
-        static void testMenue();
-        static void benchmarkStringConversion();
+        int passArgs(int argc, char* argv[]);
+
+        int benchmarkStringConversion(int argc, char* argv[]);
 	};
     class _InventarObjekt {
     public:
-        static void testMenue();
-        static void serialize();
+        int passArgs(int argc, char* argv[]);
+
+        int serialize(int argc, char* argv[]);
     };
     class _JSONHandler {
     public:
-        static void testMenue();
-        static void speed(int loopAmount);
-        static void setGet();
-        static void KeyNesting();
-        static void listOfKeys();
+        int passArgs(int argc, char* argv[]);
+
+        int speed(int loopAmount);
+        int setGet(int argc, char* argv[]);
+        int KeyNesting(int argc, char* argv[]);
+        int listOfKeys(int argc, char* argv[]);
         class Memoryleak {
         public:
             //Sets a value of the doc for 'amount' many times. Value increases by 1 with each iteration
             //Return value should match amount on return!
             //Value type is double
             //Debug to see value each 100 iterations
-            static double setAny(UINT64 amount, bool debug = false);
+            double setAny(int argc, char* argv[]);
             //Sets a value of the doc for 'amount' many times. Value in subdoc increases by 1 with each Iteration
             //Subdoc is rebuild from main doc with each iteration
             //Return string is entire doc
             //Debug to see full doc each 100 iterations
-            static std::string addGetSubDoc(UINT64 amount, bool debug = false);
+            std::string addGetSubDoc(int argc, char* argv[]);
             //Full memory leak test
-            static void fullTest(UINT64 amount = 10000000);
+            int fullTest(int argc, char* argv[]);
         };
 
         class Retired {
             //Also good for benchmarking
             // Times in ms for 1 000 000 iterations:
             //[2024-02-14] : 2564
-            static void testMemLeak();
+            int testMemLeak(int argc, char* argv[]);
         };
-    };
-    class _Kreatur {
-    public:
-        static void testMenue();
-        static void serialize();
     };
     class _MoveRuleSet {
     public:
-        static void testMenue();
-        static void serialize();
-        static void testMoveSetWithoutThreads();
-        static void testMoveSetWithThreads();
-        static void testSingleObject();
+        int passArgs(int argc, char* argv[]);
+
+        int serialize(int argc, char* argv[]);
+        int testMoveSetWithoutThreads(int argc, char* argv[]);
+        int testMoveSetWithThreads(int argc, char* argv[]);
+        int testSingleObject(int argc, char* argv[]);
     };
     class _RenderObject {
     public:
-        static void testMenue();
-        static void testSpriteSheets();
-        static void testPokemonSprites();
-        static void testRuleSets();
+        int passArgs(int argc, char* argv[]);
+
+        int testSpriteSheets(int argc, char* argv[]);
+        int testPokemonSprites(int argc, char* argv[]);
+        int testRuleSets(int argc, char* argv[]);
     };
     class _Renderer {
     public:
-        static void testMenue();
-        static int randomImages();
-        static int circleBenchmark();
-        static void ThreadTest();
-        static void testRendererMemLeak();
-        static int movement();
-        static void simpleSdlWindow();
-        static void twoSdlWindows();
+        int passArgs(int argc, char* argv[]);
+
+        int randomImages(int argc, char* argv[]);
+        int circleBenchmark(int argc, char* argv[]);
+        int ThreadTest(int argc, char* argv[]);
+        int testRendererMemLeak(int argc, char* argv[]);
+        int movement(int argc, char* argv[]);
+        int simpleSdlWindow(int argc, char* argv[]);
+        int twoSdlWindows(int argc, char* argv[]);
     private:
-        static void createRandomObjects(Renderer& Renderer, int amount, int radius);
-        static void createCircleOLD(Renderer& Renderer, int amount, int radius);
-        static void createCircle001P(Renderer& Renderer, int amount, int radius, int colour128, int _dX, int _dY);
-        static void createCircle100P(Renderer& Renderer, int amount, int radius, int colour128, int _dX, int _dY);
+        void createRandomObjects(Renderer& Renderer, int amount, int radius);
+        void createCircleOLD(Renderer& Renderer, int amount, int radius);
+        void createCircle001P(Renderer& Renderer, int amount, int radius, int colour128, int _dX, int _dY);
+        void createCircle100P(Renderer& Renderer, int amount, int radius, int colour128, int _dX, int _dY);
         //Returns render time for x frames
-        static UINT64 stressTest(int objCount = 512, int ringCount = 8, int threadSize = 1024, unsigned int framesToRender = 300, bool bypassThreads = false);
+        UINT64 stressTest(int objCount = 512, int ringCount = 8, int threadSize = 1024, unsigned int framesToRender = 300, bool bypassThreads = false);
 	};
     class _Talente {
     public:
-        static void testMenue();
-        static void testTalentJson();
+        int passArgs(int argc, char* argv[]);
+
+        int testTalentJson(int argc, char* argv[]);
     };
     class _Template {
     public:
-        static void testMenue();
-        static void testMyTemplate();
+        int passArgs(int argc, char* argv[]);
+        
+        int testMyTemplate(int argc, char* argv[]);
 	};
 };

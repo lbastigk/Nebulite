@@ -1,7 +1,7 @@
 #include "TestEnv.h"
 
 
-void TestEnv::_JSONHandler::speed(int loopAmount) {
+int TestEnv::_JSONHandler::speed(int argc, char* argv[]) {
     uint64_t starttime = Time::gettime();
 
     //--------------------------------------------
@@ -58,14 +58,14 @@ void TestEnv::_JSONHandler::speed(int loopAmount) {
     printf("\n\nTime taken: %i ms\n", (int)(Time::gettime() - starttime));
 };
 
-void TestEnv::_JSONHandler::setGet() {
+int TestEnv::_JSONHandler::setGet(int argc, char* argv[]) {
     rapidjson::Document doc;
 
     JSONHandler::Set::Any(doc, namenKonvention.MyTemplate._self, namenKonvention.MyTemplate.bsp1);
     std::cout << JSONHandler::Get::Any<std::string>(doc, namenKonvention.MyTemplate._self, "");
 }
 
-void TestEnv::_JSONHandler::KeyNesting() {
+int TestEnv::_JSONHandler::KeyNesting(int argc, char* argv[]) {
     rapidjson::Document mainDoc;
     
     //insert intop main doc
@@ -93,7 +93,7 @@ void TestEnv::_JSONHandler::KeyNesting() {
     Time::wait(20000);
 }
 
-void TestEnv::_JSONHandler::listOfKeys() {
+int TestEnv::_JSONHandler::listOfKeys(int argc, char* argv[]) {
     rapidjson::Document doc;
     JSONHandler::Set::Any(doc, "test1", "lol");
     JSONHandler::Set::Any(doc, "test2", 123);
@@ -115,9 +115,9 @@ void TestEnv::_JSONHandler::listOfKeys() {
 //Return value should match amount on return!
 //Value type is double
 //Debug to see value each 100 iterations
-double TestEnv::_JSONHandler::Memoryleak::setAny(UINT64 amount, bool debug) {
+int TestEnv::_JSONHandler::Memoryleak::setAny(int argc, char* argv[]) {
     rapidjson::Document doc;
-    double fromDoc = 0;
+    int fromDoc = 0;
     for (UINT64 i = 0; i < amount; i++) {
         JSONHandler::Set::Any<double>(doc, "tee", (double)i+1.0);
         fromDoc = JSONHandler::Get::Any<double>(doc, "tee");
