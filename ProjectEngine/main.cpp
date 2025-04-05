@@ -3,6 +3,9 @@
 #include "Renderer.h"
 
 #include "FuncTree.h"
+
+#include "TestEnv.h"
+
 int foo(int argc, char* argv[]);
 int bar(int argc, char* argv[]);
 
@@ -113,13 +116,17 @@ int gameEntry(int argc, char* argv[]){
 }
 
 int main(int argc, char* argv[]) {
-	std::cout << "argc is " << argc << std::endl;
+    // Environments:
+    TestEnv TestEnv;
 
+    // Build main tree
 	FuncTree mainTree;
 	mainTree.attachFunction(gameEntry,"session","start normal session");
 	mainTree.attachFunction(foo,"foo","does foo");
 	mainTree.attachFunction(bar,"bar","does bar");
+    mainTree.attachFunction([&TestEnv](int argc, char* argv[]) -> int {return TestEnv.passArgs(argc, argv);},"test", "Testing Engine Capabilities");
 
+    // Process args
 	if (argc == 1){
 		// assume normal session
 		const char* defaultArgs[] = {argv[0], "session"};

@@ -5,7 +5,6 @@
 #include "_TEMPLATE_CLASS.h"
 #include "FileManagement.h"
 #include "JSONHandler.h"
-#include "Kreatur.h"
 #include "Renderer.h"
 #include "Time.h"
 #include "MoveRuleSet.h"
@@ -16,7 +15,21 @@
 class TestEnv {
 public:
     int passArgs(int argc, char* argv[]){
+        FuncTree ft;
 
+        // Check for provided args starting with '--' or '-'
+        
+
+        // Attach functions
+        ft.attachFunction(_General::passArgs,"general","General Tests");
+        ft.attachFunction(_FileManagement::passArgs,"file-management","Tests for File Management");
+        ft.attachFunction(_JSONHandler::passArgs,"json-handler","Tests for JSONHandler");
+        ft.attachFunction(_Renderer::passArgs,"renderer","Tests for Renderer");
+        ft.attachFunction(_RenderObject::passArgs,"render-object","Tests for Render Objects");
+        ft.attachFunction(_MoveRuleSet::passArgs,"move-rule-set","Tests for MoveRuleSets");
+        
+        // parse
+        return ft.parse(argc, argv);
     };
     class _FileManagement {
     public:
@@ -34,12 +47,6 @@ public:
 
         int benchmarkStringConversion(int argc, char* argv[]);
 	};
-    class _InventarObjekt {
-    public:
-        int passArgs(int argc, char* argv[]);
-
-        int serialize(int argc, char* argv[]);
-    };
     class _JSONHandler {
     public:
         int passArgs(int argc, char* argv[]);
@@ -106,17 +113,5 @@ public:
         void createCircle100P(Renderer& Renderer, int amount, int radius, int colour128, int _dX, int _dY);
         //Returns render time for x frames
         UINT64 stressTest(int objCount = 512, int ringCount = 8, int threadSize = 1024, unsigned int framesToRender = 300, bool bypassThreads = false);
-	};
-    class _Talente {
-    public:
-        int passArgs(int argc, char* argv[]);
-
-        int testTalentJson(int argc, char* argv[]);
-    };
-    class _Template {
-    public:
-        int passArgs(int argc, char* argv[]);
-        
-        int testMyTemplate(int argc, char* argv[]);
 	};
 };

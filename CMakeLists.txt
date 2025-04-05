@@ -187,25 +187,6 @@ add_executable(Engine
 )
 target_link_libraries(Engine ${SDL2_LIBS})
 
-# Editor target
-add_executable(Editor
-    ${CMAKE_SOURCE_DIR}/ProjectEditor/main.cpp
-    ${COMMON_SOURCES}
-)
-target_link_libraries(Editor ${SDL2_LIBS})
-
-# Test Environment target
-add_executable(TestEnvironment
-    ${CMAKE_SOURCE_DIR}/ProjectTestEnvironment/main.cpp
-    ${COMMON_SOURCES}
-)
-target_link_libraries(TestEnvironment ${SDL2_LIBS})
-
-# Optional: Add a target to build all
-add_custom_target(BuildAll
-    DEPENDS Engine Editor TestEnvironment
-)
-
 # Windows-Specific dll targets:
 # Now, after the targets are created, add the custom commands
 message(STATUS "Copying necessary SDL2 DLLs to the runtime output directory")
