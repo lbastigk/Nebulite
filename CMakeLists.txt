@@ -115,14 +115,14 @@ endif()
 # Include directories common for both platforms
 message(STATUS "Setting Include directories")
 include_directories(
-    ${CMAKE_SOURCE_DIR}/ProjectEngine
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/Rendering
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/GameLoop
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/GameVars
+    ${CMAKE_SOURCE_DIR}/Engine
+    ${CMAKE_SOURCE_DIR}/Engine/Rendering
+    ${CMAKE_SOURCE_DIR}/Engine/GameLoop
+    ${CMAKE_SOURCE_DIR}/Engine/Helper
+    ${CMAKE_SOURCE_DIR}/Engine/GameVars
     ${CMAKE_SOURCE_DIR}/Platform
-    ${CMAKE_SOURCE_DIR}/ProjectEditor
-    ${CMAKE_SOURCE_DIR}/ProjectTestEnvironment
+    ${CMAKE_SOURCE_DIR}/Editor
+    ${CMAKE_SOURCE_DIR}/Tests
     /usr/include/rapidjson
 )
 
@@ -138,33 +138,33 @@ include_directories(
 message(STATUS "Setting source files in project")
 set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/Platform/Platform.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEditor/Editor.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEditor/LevelEditor.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/GameVars/Basiswerte.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/GameVars/Eigenschaften.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/GameVars/InteractionRequirement.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/GameVars/Inventar.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/GameVars/Kreatur.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/GameVars/Quest.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/GameVars/Talente.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/GameVars/Zauber.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper/Calculator.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper/Console.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper/FileManagement.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper/FuncTree.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper/JSONHandler.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper/OptionsMenu.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper/StringHandler.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/Helper/Time.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/Rendering/Environment.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/Rendering/MoveRuleSet.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/Rendering/Renderer.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/Rendering/RenderObject.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectTestEnvironment/DsaDebug.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectTestEnvironment/Milestones.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectTestEnvironment/QuickNotes.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectTestEnvironment/TestEnv.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectTestEnvironment/_TEMPLATE_CLASS.cpp
+    ${CMAKE_SOURCE_DIR}/Editor/Editor.cpp
+    ${CMAKE_SOURCE_DIR}/Editor/LevelEditor.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/GameVars/Basiswerte.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/GameVars/Eigenschaften.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/GameVars/InteractionRequirement.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/GameVars/Inventar.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/GameVars/Kreatur.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/GameVars/Quest.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/GameVars/Talente.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/GameVars/Zauber.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/Helper/Calculator.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/Helper/Console.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/Helper/FileManagement.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/Helper/FuncTree.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/Helper/JSONHandler.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/Helper/OptionsMenu.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/Helper/StringHandler.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/Helper/Time.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/Rendering/Environment.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/Rendering/MoveRuleSet.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/Rendering/Renderer.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/Rendering/RenderObject.cpp
+    ${CMAKE_SOURCE_DIR}/Tests/DsaDebug.cpp
+    ${CMAKE_SOURCE_DIR}/Tests/Milestones.cpp
+    ${CMAKE_SOURCE_DIR}/Tests/QuickNotes.cpp
+    ${CMAKE_SOURCE_DIR}/Tests/TestEnv.cpp
+    ${CMAKE_SOURCE_DIR}/Tests/_TEMPLATE_CLASS.cpp
 
 )
 
@@ -180,7 +180,7 @@ message(STATUS "Setting targets...")
 
 # Engine target
 add_executable(Nebulite
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/main.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/main.cpp
     ${COMMON_SOURCES}
 )
 target_link_libraries(Nebulite ${SDL2_LIBS})
