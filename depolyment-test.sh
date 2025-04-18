@@ -1,12 +1,21 @@
 #!/bin/bash
 
 # Automatic build test for Nebulite
-mkdir -p _deployment-test
+rm -rf      ./_deployment-test
+mkdir -p    ./_deployment-test
 
+# Subdir for test
 cd _deployment-test
 
-gh clone lbastigk/Nebulite
+# Clone
+gh repo clone lbastigk/Nebulite
 cd ./Nebulite
 
+# install & build
 chmod +x ./install.sh
 ./install.sh
+
+# start
+cd ./Application
+chmod +x ./Nebulite.sh
+./Nebulite.sh
