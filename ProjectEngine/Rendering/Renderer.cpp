@@ -96,7 +96,7 @@ std::string Renderer::serializeEnvironment() {
 	return env.serialize();
 }
 
-void Renderer::deserializeEnvironment(std::string serialOrLink, int dispResX, int dispResY, int THREADSIZE) {
+void Renderer::deserializeEnvironment(std::string serialOrLink) {
 	env.deserialize(serialOrLink, dispResX, dispResY, THREADSIZE);
 }
 

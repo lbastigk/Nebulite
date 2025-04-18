@@ -7,9 +7,12 @@
 int gameEntry(int argc, char* argv[]){
 	std::cout << "Starting normal session..." << std::endl;
 	
+    
+
     Renderer Renderer;
 
     Renderer.setFPS(60);
+    Renderer.deserializeEnvironment("./Resources/Levels/example.json");
 
     //General Variables
     bool quit = false;

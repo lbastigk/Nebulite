@@ -28,7 +28,7 @@ public:
 	//Marshalling
 	std::string serialize();
 	std::string serializeEnvironment();
-	void deserializeEnvironment(std::string serialOrLink, int dispResX, int dispResY, int THREADSIZE);
+	void deserializeEnvironment(std::string serialOrLink);
 	
 	//-----------------------------------------------------------
 	// Pipeline
@@ -137,6 +137,9 @@ private:
 	
 	Options generalOptions;
 	std::string directory;
+
+
+	int16_t zoom = 1;
 
 	int16_t Xpos;
 	int16_t Ypos;

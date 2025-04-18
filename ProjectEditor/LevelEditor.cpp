@@ -276,7 +276,7 @@ std::string LevelEditor::Display::serializeRendererEnvironment() {
 }
 
 void LevelEditor::Display::deserializeEnvironment(std::string serialFile) {
-	Renderer.deserializeEnvironment(serialFile, Renderer.getResX(), Renderer.getResY(), Renderer.getThreadSize());
+	Renderer.deserializeEnvironment(serialFile);
 }
 
 size_t LevelEditor::Display::objectCount() {
