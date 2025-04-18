@@ -1,5 +1,6 @@
-# Ignore everything inside the _LIBS directory
-_LIBS/
+# Ignore builds inside external directory
+external/SDL2_build/
+external/qt5_build/
 
 # Ignore game resources and error logs
 *.bmp

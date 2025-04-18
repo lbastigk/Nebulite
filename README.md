@@ -48,6 +48,7 @@ Nebulite relies on the following libraries:
 - **SDL_image** for handling more image formats.
 - **RapidJSON** for parsing and structuring game data in JSON format.
 - **QT5** for editor GUI.
+- **Exprtk** for expressions
 
 
 

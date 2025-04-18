@@ -7,20 +7,18 @@
                 "/usr/include/x86_64-linux-gnu/c++/13/",
                 "/usr/include/",
                 "${workspaceFolder}/**",       // Covers everything in the project
-                "/usr/include/SDL2/",           // Path to SDL2 headers on Linux
-                "/usr/include/rapidjson/",     // Path to rapidjson
-                "/usr/include/x86_64-linux-gnu/qt5/",           //QT5
-                "/usr/include/x86_64-linux-gnu/qt5/QtCore",
-                "/usr/include/x86_64-linux-gnu/qt5/QtGui",
-                "/usr/include/x86_64-linux-gnu/qt5/QtWidgets",
-                "${workspaceFolder}/ProjectEngine/",            // ProjectEngine root
-                "${workspaceFolder}/ProjectEngine/GameLoop/",   // ProjectEngine subdirectories
-                "${workspaceFolder}/ProjectEngine/GameVars/",
-                "${workspaceFolder}/ProjectEngine/Helper/",
-                "${workspaceFolder}/ProjectEngine/Rendering/",
-                "${workspaceFolder}/ProjectEditor/",           // ProjectEditor root
-                "${workspaceFolder}/ProjectEditor/QT/",
-                "${workspaceFolder}/ProjectTestEnvironment/",  // ProjectTestEnvironment
+                "${workspaceFolder}/external/SDL2_build/include/SDL2",           // Local SDL installation
+                "${workspaceFolder}/external/rapidjson/include/rapidjson",       // Local rapidjson
+                "${workspaceFolder}/external/qt5_build/include/QtCore",
+                "${workspaceFolder}/external/qt5_build/include/QtGui",
+                "${workspaceFolder}/external/qt5_build/include/QtWidgets",
+                "${workspaceFolder}/Engine/",            // ProjectEngine root
+                "${workspaceFolder}/Engine/GameVars/",
+                "${workspaceFolder}/Engine/Helper/",
+                "${workspaceFolder}/Engine/Rendering/",
+                "${workspaceFolder}/Editor/",           // ProjectEditor root
+                "${workspaceFolder}/Editor/QT/",
+                "${workspaceFolder}/Tests/",  // ProjectTestEnvironment
                 "${workspaceFolder}/Platform/"                 // Platform
             ],
             "defines": [],
@@ -31,14 +29,13 @@
             "browse": {
                 "path": [
                     "/usr/include/SDL2",
-                    "${workspaceFolder}/ProjectEngine",
-                    "${workspaceFolder}/ProjectEngine/GameLoop",
-                    "${workspaceFolder}/ProjectEngine/GameVars",
-                    "${workspaceFolder}/ProjectEngine/Helper",
-                    "${workspaceFolder}/ProjectEngine/Rendering",
-                    "${workspaceFolder}/ProjectEditor",
-                    "${workspaceFolder}/ProjectEditor/QT/",
-                    "${workspaceFolder}/ProjectTestEnvironment",
+                    "${workspaceFolder}/Engine",
+                    "${workspaceFolder}/Engine/GameVars",
+                    "${workspaceFolder}/Engine/Helper",
+                    "${workspaceFolder}/Engine/Rendering",
+                    "${workspaceFolder}/Editor",
+                    "${workspaceFolder}/Editor/QT/",
+                    "${workspaceFolder}/Tests",
                     "${workspaceFolder}/Platform"
                 ],
                 "limitSymbolsToIncludedHeaders": true
