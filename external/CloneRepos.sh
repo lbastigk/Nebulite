@@ -69,14 +69,17 @@ build_sdl_library() {
 
 # Download externals for SDL_ttf
 cd ./SDL_ttf/external/
-# Only download freetype and harfbuzz if not already present
-if [ ! -d "./freetype" ] || [ ! -d "./harfbuzz" ]; then
-    echo "➡️ Missing freetype or harfbuzz — downloading..."
+# Only download freetype and harfbuzz if not already present or are too small
+FREETYPE_SIZE=$(du -k ./freetype 2>/dev/null | awk '{print $1}')
+HARFBUZZ_SIZE=$(du -k ./harfbuzz 2>/dev/null | awk '{print $1}')
+
+if [ "$FREETYPE_SIZE" -lt 10 ] || [ "$HARFBUZZ_SIZE" -lt 10 ]; then
+    echo "➡️ freetype or harfbuzz missing or too small — downloading..."
     rm -rf ./freetype/
     rm -rf ./harfbuzz/
     ./download.sh
 else
-    echo "✅ freetype and harfbuzz already exist, skipping download."
+    echo "✅ freetype and harfbuzz already exist and are large enough, skipping download."
 fi
 cd "$externalsDir"
 
