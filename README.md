@@ -7,7 +7,7 @@ Created by **lbastigk**.
 
 ## Projects
 
-This repository contains 3 distinct projects that work together to support the full game development cycle:
+Source files are split into 3 distinct directories to support the full game development cycle:
 
 ### Main Engine (ProjectEngine)
 
@@ -19,7 +19,7 @@ The main engine provides the core functionality of the game, handling:
 
 ---
 
-### Editor (ProjectEditor)
+### Editor
 
 The Editor is designed for developers to create and manage game assets and levels:
 
@@ -28,22 +28,20 @@ The Editor is designed for developers to create and manage game assets and level
 
 ---
 
-### Test Environment (ProjectTestEnvironment)
-
-A dedicated testing environment where developers can:
+### Test Environment
 
 - Run automated and manual tests on the core engine.
 - Validate performance, rendering, and game logic under various scenarios.
 - Experiment with new features before merging them into the main engine.
 
-Current implementation includes a 2-level menu:
-- Select the class first and then the specific test you wish to perform.
+Current implementation is done inside the main Engine binary through argument passing, e.g.:
+`Nebulite test renderer circle-benchmark`
 
 ---
 
 ## Dependencies
 
-The DSA Game Engine relies on the following libraries:
+Nebulite relies on the following libraries:
 
 - **SDL2** (Simple DirectMedia Layer) for rendering and input handling.
 - **SDL_ttf** for fonts.
