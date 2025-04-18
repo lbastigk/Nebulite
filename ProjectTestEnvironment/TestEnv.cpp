@@ -18,13 +18,18 @@
 // FileManagement
 
 int TestEnv::_FileManagement::passArgs(int argc, char* argv[]) {
-	FuncTree ft;
+	FuncTree ft("File Management");
 
 	// Check for provided args starting with '--' or '-'
 	
 
 	// Attach functions
-	ft.attachFunction(testFileCollector,"file-collector","Show files in ressource folder");
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return testFileCollector(argc, argv);
+		}, 
+		"file-collector", "Show files in ressource folder"
+	);
 	
 	// parse
 	return ft.parse(argc, argv);
@@ -35,14 +40,19 @@ int TestEnv::_FileManagement::passArgs(int argc, char* argv[]) {
 // General
 
 int TestEnv::_General::passArgs(int argc, char* argv[]) {
-	FuncTree ft;
+	FuncTree ft("General");
 
 	// Check for provided args starting with '--' or '-'
 	
 
 	// Attach functions
-	ft.attachFunction(benchmarkStringConversion,"benchmark-String-Conversion","String conversion Benchmark");
-	
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return benchmarkStringConversion(argc, argv);
+		}, 
+		"benchmark-String-Conversion","String conversion Benchmark"
+	);
+
 	// parse
 	return ft.parse(argc, argv);
 }
@@ -52,14 +62,24 @@ int TestEnv::_General::passArgs(int argc, char* argv[]) {
 // JSONHandler
 
 int TestEnv::_JSONHandler::passArgs(int argc, char* argv[]) {
-	FuncTree ft;
+	FuncTree ft("JSON Handler");
 
 	// Check for provided args starting with '--' or '-'
 	
 
 	// Attach functions
-	ft.attachFunction(listOfKeys,"list-keys",	"List keys in an object");
-	ft.attachFunction(KeyNesting,"key-nesting",	"Test key nesting");
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return listOfKeys(argc, argv);
+		}, 
+		"list-keys",	"List keys in an object"
+	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return KeyNesting(argc, argv);
+		}, 
+		"key-nesting",	"Test key nesting"
+	);
 	
 	// parse
 	return ft.parse(argc, argv);
@@ -70,16 +90,36 @@ int TestEnv::_JSONHandler::passArgs(int argc, char* argv[]) {
 // MoveRuleSet
 
 int TestEnv::_MoveRuleSet::passArgs(int argc, char* argv[]) {
-	FuncTree ft;
+	FuncTree ft("MoveRuleSet");
 
 	// Check for provided args starting with '--' or '-'
 	
 
 	// Attach functions
-	ft.attachFunction(serialize,				"serialize",				"Serialize MoveRuleSet");
-	ft.attachFunction(testMoveSetWithoutThreads,"moveset-without-threads",	"Test MoveRuleSet without threads");
-	ft.attachFunction(testMoveSetWithThreads,	"moveset-with-threads",		"Test MoveRuleSet with threads");
-	ft.attachFunction(testSingleObject,			"single-object",			"Test single object");
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return serialize(argc, argv);
+		}, 
+		"serialize",				"Serialize MoveRuleSet"
+	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return testMoveSetWithoutThreads(argc, argv);
+		}, 
+		"moveset-without-threads",	"Test MoveRuleSet without threads"
+	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return testMoveSetWithThreads(argc, argv);
+		}, 
+		"moveset-with-threads",		"Test MoveRuleSet with threads"
+	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return testSingleObject(argc, argv);
+		}, 
+		"single-object",			"Test single object"
+	);
 	
 	// parse
 	return ft.parse(argc, argv);
@@ -90,15 +130,30 @@ int TestEnv::_MoveRuleSet::passArgs(int argc, char* argv[]) {
 // RenderObject
 
 int TestEnv::_RenderObject::passArgs(int argc, char* argv[]) {
-	FuncTree ft;
+	FuncTree ft("RenderObject");
 
 	// Check for provided args starting with '--' or '-'
 	
 
 	// Attach functions
-	ft.attachFunction(testSpriteSheets,		"sprite-sheets",	"Test Spritesheets");
-	ft.attachFunction(testPokemonSprites,	"pokemon-sprites",	"Test Pokemon Sprite");
-	ft.attachFunction(testRuleSets,			"rule-sets",		"Test Rulesets");
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return testSpriteSheets(argc, argv);
+		}, 
+		"sprite-sheets",	"Test Spritesheets"
+	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return testPokemonSprites(argc, argv);
+		}, 
+		"pokemon-sprites",	"Test Pokemon Sprite"
+	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return testRuleSets(argc, argv);
+		}, 
+		"rule-sets",		"Test Rulesets"
+	);
 	
 	// parse
 	return ft.parse(argc, argv);
@@ -109,19 +164,54 @@ int TestEnv::_RenderObject::passArgs(int argc, char* argv[]) {
 // Renderer
 
 int TestEnv::_Renderer::passArgs(int argc, char* argv[]) {
-	FuncTree ft;
+	FuncTree ft("Renderer");
 
 	// Check for provided args starting with '--' or '-'
 	
 
 	// Attach functions
-	ft.attachFunction(simpleSdlWindow,		"simple-window",		"Simple SDL Window with debug in each step");
-	ft.attachFunction(twoSdlWindows,		"two-windows",			"Two SDL Windows with debug in each step");
-	ft.attachFunction(randomImages,			"random-images",		"Random images");
-	ft.attachFunction(circleBenchmark,		"circle-benchmark",		"Circle Benchmark");
-	ft.attachFunction(ThreadTest,			"thread-test",			"Thread Test");
-	ft.attachFunction(testRendererMemLeak,	"renderer-memory-leak",	"Test for memory leak");
-	ft.attachFunction(movement,				"movement",				"Movement test");
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return simpleSdlWindow(argc, argv);
+		}, 
+		"simple-window",		"Simple SDL Window with debug in each step"
+	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return twoSdlWindows(argc, argv);
+		}, 
+		"two-windows",			"Two SDL Windows with debug in each step"
+	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return randomImages(argc, argv);
+		}, 
+		"random-images",		"Random images"
+	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return circleBenchmark(argc, argv);
+		}, 
+		"circle-benchmark",		"Circle Benchmark"
+	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return ThreadTest(argc, argv);
+		}, 
+		"thread-test",			"Thread Test"
+	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return testRendererMemLeak(argc, argv);
+		}, 
+		"renderer-memory-leak",	"Test for memory leak"
+	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return movement(argc, argv);
+		}, 
+		"movement",				"Movement test"
+	);
 	
 	// parse
 	return ft.parse(argc, argv);

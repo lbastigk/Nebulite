@@ -26,7 +26,7 @@
 
 class FuncTree{
 public:
-    FuncTree();
+    FuncTree(std::string treeName);
 
     // functions get std::string as args and return an int
     using FunctionPtr = std::function<int(int argc, char* argv[])>;  // Define the function pointer type
@@ -52,5 +52,5 @@ private:
     int help(int argc, char* argv[]);
     std::map<std::string, std::pair<FunctionPtr,  std::string>> functions;
     std::map<std::string, std::pair<std::string*, std::string>> argumentPtrs;
-
+    std::string TreeName;
 };

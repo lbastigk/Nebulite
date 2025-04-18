@@ -34,6 +34,4 @@ int TestEnv::_General::benchmarkStringConversion(int argc, char* argv[]) {
 
     printf(" Task ints took \t%010i ms for %i instances\n", (int)(end_int - start_int), arraySize);
     printf(" Task floats took\t%010i ms for %i instances\n\n", (int)(end_float - start_float), arraySize);
-
-    Time::wait(5000);
 }

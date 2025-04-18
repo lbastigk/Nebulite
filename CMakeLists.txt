@@ -181,11 +181,11 @@ set(COMMON_SOURCES
 message(STATUS "Setting targets...")
 
 # Engine target
-add_executable(Engine
+add_executable(Nebulite
     ${CMAKE_SOURCE_DIR}/ProjectEngine/main.cpp
     ${COMMON_SOURCES}
 )
-target_link_libraries(Engine ${SDL2_LIBS})
+target_link_libraries(Nebulite ${SDL2_LIBS})
 
 # Windows-Specific dll targets:
 # Now, after the targets are created, add the custom commands

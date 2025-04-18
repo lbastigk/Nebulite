@@ -1,8 +1,10 @@
 #include "FuncTree.h"
+#include <iomanip>  // For std::setw
 
-FuncTree::FuncTree(){
+FuncTree::FuncTree(std::string treeName){
     // Attach the help function to read out the description of all attached functions
     // using lambda
+    TreeName = treeName;
     (void) attachFunction([this](int argc, char* argv[]) { return this->help(argc, argv); },"help","TODO... If you read this, you have called 'help' of 'help'");
 }
 
@@ -50,7 +52,6 @@ int FuncTree::parse(int argc, char* argv[]) {
     }
 
     // Execute the function corresponding to funcName with the remaining arguments
-    std::cout << "Function name is: " << funcName << std::endl;
     int result = executeFunction(funcName, newArgc, newArgv);
 
     // Return the result from the function execution
@@ -89,14 +90,40 @@ int FuncTree::executeFunction(const std::string& name, int argc, char* argv[]) {
     }
 }
 
-
 int FuncTree::help(int argc, char* argv[]) {
-    for (int i=1; i<argc;i++){
+    std::cout << "\n\tHelp for " << TreeName << "\n\n";
+
+    // If no arguments are provided, list all functions
+    if (argc <= 1) {
+        std::cout << "Available functions:\n";
+        for (const auto& entry : functions) {
+            // Help is not presented
+            if (entry.first != "help"){
+                std::cout << "  " 
+                      << std::setw(20) << std::left << entry.first  // Fixed width of 20, left-aligned
+                      << " - " 
+                      << entry.second.second 
+                      << std::endl;
+            }
+        }
+        return 0;  // No error
+    }
+
+    // Otherwise, display help for the provided functions
+    for (int i = 1; i < argc; i++) {
+        if (argv[i] == nullptr) {
+            std::cout << "Error: Null argument found.\n";
+            continue;  // Skip null arguments
+        }
+
         auto it = functions.find(std::string(argv[i]));
         if (it != functions.end()) {
+            std::cout << std::string(argv[i]) << std::endl;
             std::cout << it->second.second << std::endl;  // Print function description
         } else {
             std::cout << "Function '" << argv[i] << "' not found.\n";
         }
     }
+
+    return 0;
 }

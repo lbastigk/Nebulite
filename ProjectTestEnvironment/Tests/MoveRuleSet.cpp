@@ -1,17 +1,12 @@
 #include "TestEnv.h"
 
-void TestEnv::_MoveRuleSet::serialize() {
+int TestEnv::_MoveRuleSet::serialize(int argc, char* argv[]) {
     MoveRuleSet mrs = MoveRuleSet::Examples::Move::linear(3,3,1);
     std::cout << mrs.serialize();
-    std::cout << "\n\nPress any key to return.\n";
-    Time::wait(500);
-    int c = Platform::getCharacter();
-    while(!c){
-        c = Platform::getCharacter();
-    }
+    return 0;
 }
 
-void TestEnv::_MoveRuleSet::testMoveSetWithoutThreads() {
+int TestEnv::_MoveRuleSet::testMoveSetWithoutThreads(int argc, char* argv[]) {
     int objCount = 32;
     int ringCount = 16;
     
@@ -100,9 +95,11 @@ void TestEnv::_MoveRuleSet::testMoveSetWithoutThreads() {
     }
     //End of Program!
     Renderer.destroy();
+
+    return 0;
 }
 
-void TestEnv::_MoveRuleSet::testMoveSetWithThreads() {
+int TestEnv::_MoveRuleSet::testMoveSetWithThreads(int argc, char* argv[]) {
     int objCount = 32;
     int ringCount = 16;
 
@@ -191,9 +188,11 @@ void TestEnv::_MoveRuleSet::testMoveSetWithThreads() {
     }
     //End of Program!
     Renderer.destroy();
+
+    return 0;
 }
 
-void TestEnv::_MoveRuleSet::testSingleObject() {
+int TestEnv::_MoveRuleSet::testSingleObject(int argc, char* argv[]) {
 
     //Renderer
     Renderer Renderer;
@@ -244,4 +243,6 @@ void TestEnv::_MoveRuleSet::testSingleObject() {
     }
     //End of Program!
     Renderer.destroy();
+
+    return 0;
 }

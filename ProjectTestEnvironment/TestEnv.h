@@ -14,23 +14,53 @@
 
 class TestEnv {
 public:
-    int passArgs(int argc, char* argv[]){
-        FuncTree ft;
+    // Main function to call when attaching args and functions
+    int passArgs(int argc, char* argv[]) {
+        FuncTree ft("Test Environment");
 
-        // Check for provided args starting with '--' or '-'
-        
+        // Attach functions with existing instances (no need to create new instances)
+        ft.attachFunction(
+            [this](int argc, char* argv[]) -> int {
+                return general.passArgs(argc, argv);
+            }, 
+            "general", "General Tests"
+        );
+        ft.attachFunction(
+            [this](int argc, char* argv[]) -> int {
+                return fileManagement.passArgs(argc, argv);
+            },
+            "file-management", "Tests for File Management"
+        );
+        ft.attachFunction(
+            [this](int argc, char* argv[]) -> int {
+                return jsonHandler.passArgs(argc, argv);
+            },
+            "json-handler", "Tests for JSONHandler"
+        );
+        ft.attachFunction(
+            [this](int argc, char* argv[]) -> int {
+                return renderer.passArgs(argc, argv);
+            },
+            "renderer", "Tests for Renderer"
+        );
+        ft.attachFunction(
+            [this](int argc, char* argv[]) -> int {
+                return renderObject.passArgs(argc, argv);
+            },
+            "render-object", "Tests for Render Objects"
+        );
+        ft.attachFunction(
+            [this](int argc, char* argv[]) -> int {
+                return moveRuleSet.passArgs(argc, argv);
+            },
+            "move-rule-set", "Tests for MoveRuleSets"
+        );
 
-        // Attach functions
-        ft.attachFunction(_General::passArgs,"general","General Tests");
-        ft.attachFunction(_FileManagement::passArgs,"file-management","Tests for File Management");
-        ft.attachFunction(_JSONHandler::passArgs,"json-handler","Tests for JSONHandler");
-        ft.attachFunction(_Renderer::passArgs,"renderer","Tests for Renderer");
-        ft.attachFunction(_RenderObject::passArgs,"render-object","Tests for Render Objects");
-        ft.attachFunction(_MoveRuleSet::passArgs,"move-rule-set","Tests for MoveRuleSets");
-        
-        // parse
+        // Parse arguments
         return ft.parse(argc, argv);
-    };
+    }
+
+private:
     class _FileManagement {
     public:
         int passArgs(int argc, char* argv[]);
@@ -51,32 +81,10 @@ public:
     public:
         int passArgs(int argc, char* argv[]);
 
-        int speed(int loopAmount);
+        int speed(int argc, char* argv[]);
         int setGet(int argc, char* argv[]);
         int KeyNesting(int argc, char* argv[]);
         int listOfKeys(int argc, char* argv[]);
-        class Memoryleak {
-        public:
-            //Sets a value of the doc for 'amount' many times. Value increases by 1 with each iteration
-            //Return value should match amount on return!
-            //Value type is double
-            //Debug to see value each 100 iterations
-            double setAny(int argc, char* argv[]);
-            //Sets a value of the doc for 'amount' many times. Value in subdoc increases by 1 with each Iteration
-            //Subdoc is rebuild from main doc with each iteration
-            //Return string is entire doc
-            //Debug to see full doc each 100 iterations
-            std::string addGetSubDoc(int argc, char* argv[]);
-            //Full memory leak test
-            int fullTest(int argc, char* argv[]);
-        };
-
-        class Retired {
-            //Also good for benchmarking
-            // Times in ms for 1 000 000 iterations:
-            //[2024-02-14] : 2564
-            int testMemLeak(int argc, char* argv[]);
-        };
     };
     class _MoveRuleSet {
     public:
@@ -114,4 +122,13 @@ public:
         //Returns render time for x frames
         UINT64 stressTest(int objCount = 512, int ringCount = 8, int threadSize = 1024, unsigned int framesToRender = 300, bool bypassThreads = false);
 	};
+
+    // Member variables for nested classes
+    _General general;
+    _FileManagement fileManagement;
+    _JSONHandler jsonHandler;
+    _Renderer renderer;
+    _RenderObject renderObject;
+    _MoveRuleSet moveRuleSet;
+
 };
