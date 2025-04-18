@@ -140,8 +140,6 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/Platform/Platform.cpp
     ${CMAKE_SOURCE_DIR}/ProjectEditor/Editor.cpp
     ${CMAKE_SOURCE_DIR}/ProjectEditor/LevelEditor.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/GameLoop/OptionsLoader.cpp
-    ${CMAKE_SOURCE_DIR}/ProjectEngine/GameLoop/Savegame.cpp
     ${CMAKE_SOURCE_DIR}/ProjectEngine/GameVars/Basiswerte.cpp
     ${CMAKE_SOURCE_DIR}/ProjectEngine/GameVars/Eigenschaften.cpp
     ${CMAKE_SOURCE_DIR}/ProjectEngine/GameVars/InteractionRequirement.cpp

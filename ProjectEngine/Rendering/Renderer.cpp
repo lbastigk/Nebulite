@@ -1,10 +1,9 @@
 #include "Renderer.h"
 
 
-Renderer::Renderer(bool flag_hidden){
+Renderer::Renderer(bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y){
 
-	//Options
-	generalOptions.setFileName("options.txt");
+	RenderZoom=zoom;
 
 	//Basic variables
 	Xpos = 0;
@@ -12,14 +11,23 @@ Renderer::Renderer(bool flag_hidden){
 	tileXpos = 0;
 	tileYpos = 0;
 
+	// Init Event
 	event = SDL_Event();
 
-	// Get the current directory as a std::string
+	// Init Rect
+	rect = SDL_Rect();
+
+	// Get the current directory
 	directory = FileManagement::currentDir();
 
 	// Get screen resolution
-	dispResX = atoi(generalOptions.GetOption(namenKonvention.options.dispResX).c_str());
-	dispResY = atoi(generalOptions.GetOption(namenKonvention.options.dispResY).c_str());
+	std::cout << "Resolution setting\n"; 	
+	dispResX = X;
+	dispResY = Y;
+
+	
+
+	
 
 	//Create SDL window
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -27,11 +35,11 @@ Renderer::Renderer(bool flag_hidden){
 		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
 	}
 	window = SDL_CreateWindow(
-		generalOptions.GetOption("windowName").c_str(),            // Window title
+		"Nebulite",            // Window title
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		dispResX,                        // Width
-		dispResY,                        // Height
+		dispResX*zoom,                        // Width
+		dispResY*zoom,                        // Height
 		flag_hidden ? SDL_WINDOW_HIDDEN :SDL_WINDOW_SHOWN
 	);
 	if (!window) {
@@ -63,8 +71,10 @@ Renderer::Renderer(bool flag_hidden){
 		std::cerr << "Renderer creation failed: << SDL_GetError()" << std::endl;
 	}
 
-	//Rect
-	rect = SDL_Rect();
+	// Set virtual rendering size
+	SDL_RenderSetLogicalSize(renderer, (int)dispResX, (int)dispResY);
+
+	
 }
 
 //Destructor
@@ -426,6 +436,8 @@ void Renderer::renderFrameNoThreads() {
 }
 
 void Renderer::renderFPS(float scalar) {
+	scalar = scalar / (float)RenderZoom;
+
 	// Create a string with the FPS value
 	std::string fpsText = "FPS: " + std::to_string(fps);
 

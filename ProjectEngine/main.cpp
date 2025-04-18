@@ -9,14 +9,16 @@ int gameEntry(int argc, char* argv[]){
 	
     
 
-    Renderer Renderer;
+    Renderer Renderer(false,4,160,160);
 
     Renderer.setFPS(60);
     Renderer.deserializeEnvironment("./Resources/Levels/example.json");
+    
 
     //General Variables
     bool quit = false;
     int event = 0;
+    
 
     while (!quit) {
         //Event handling
@@ -47,6 +49,8 @@ int gameEntry(int argc, char* argv[]){
 }
 
 int main(int argc, char* argv[]) {
+    std::cerr.rdbuf(std::cout.rdbuf());  // Redirect cerr to cout
+
     // Environments:
     TestEnv TestEnv;
 

@@ -11,7 +11,6 @@
 
 
 #include "Kreatur.h"
-#include "Savegame.h"
 
 //Requirement Ideeen:
 // - Typ:Talente

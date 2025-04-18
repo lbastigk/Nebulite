@@ -4,7 +4,7 @@
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 
-#include "OptionsLoader.h"
+//#include "OptionsLoader.h"
 
 #include "Environment.h"
 
@@ -20,7 +20,7 @@
 
 class Renderer {
 public:
-	Renderer(bool flag_hidden = false);
+	Renderer(bool flag_hidden = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
 	
 	//Destructor
 	~Renderer();
@@ -133,13 +133,11 @@ private:
 	std::map<std::string, SDL_Texture*> TextureContainer;
 
 	unsigned int THREADSIZE = 2;
-
 	
-	Options generalOptions;
 	std::string directory;
 
 
-	int16_t zoom = 1;
+	unsigned int RenderZoom = 1;
 
 	int16_t Xpos;
 	int16_t Ypos;
