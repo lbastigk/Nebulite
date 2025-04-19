@@ -8,10 +8,9 @@ message(STATUS "Starting configuration for project Nebulite")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Application/bin)
 message(STATUS "Binary output directory set to: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
-# Set paths to local SDL2, SDL_ttf, SDL_image, and RapidJSON libraries
+# Set paths to local SDL2 and RapidJSON libraries
 set(SDL2_PATH       "${CMAKE_SOURCE_DIR}/external/SDL2_build")
 set(RAPIDJSON_PATH  "${CMAKE_SOURCE_DIR}/external/rapidjson")
-set(QT5_PATH        "${CMAKE_SOURCE_DIR}/external/qt5_build")
 
 # Define SDL_DISABLE_IMPLEMENTS to use old names (for compatibility)
 add_definitions(-DSDL_DISABLE_IMPLEMENTS)
@@ -40,10 +39,6 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Tests
     ${SDL2_PATH}/include/SDL2/
     ${RAPIDJSON_PATH}/include/rapidjson
-    ${QT5_PATH}/include
-    ${QT5_PATH}/include/QtCore
-    ${QT5_PATH}/include/QtGui
-    ${QT5_PATH}/include/QtWidgets
 )
 
 #####################
@@ -80,7 +75,6 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/Tests/QuickNotes.cpp
     ${CMAKE_SOURCE_DIR}/Tests/TestEnv.cpp
     ${CMAKE_SOURCE_DIR}/Tests/_TEMPLATE_CLASS.cpp
-
 )
 
 #####################
@@ -98,24 +92,3 @@ target_link_libraries(Nebulite PRIVATE
     ${SDL2_PATH}/lib/libSDL2_ttf.a
     ${SDL2_PATH}/lib/libSDL2_image.a
 )
-
-# Windows-Specific dll targets:
-# Now, after the targets are created, add the custom commands
-message(STATUS "Copying necessary SDL2 DLLs to the runtime output directory")
-foreach(DLL ${SDL2_DLLS})
-    add_custom_command(TARGET Engine POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${DLL}
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/
-    )
-    add_custom_command(TARGET Editor POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${DLL}
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/
-    )
-    add_custom_command(TARGET TestEnvironment POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${DLL}
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/
-    )
-endforeach()
