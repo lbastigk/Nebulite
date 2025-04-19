@@ -157,6 +157,7 @@ const struct namenKonventionenStruct {
     }options;
     const struct renderObject{
         std::string _self = "renderObject";
+        std::string id = "id";
         std::string isOverlay = "isOverlay";
         std::string positionX = "posX";
         std::string positionY = "posY";

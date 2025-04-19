@@ -70,12 +70,9 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/Engine/Helper/StringHandler.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Helper/Time.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Rendering/Environment.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/Rendering/MoveRuleSet.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Rendering/Renderer.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Rendering/RenderObject.cpp
     ${CMAKE_SOURCE_DIR}/Tests/DsaDebug.cpp
-    ${CMAKE_SOURCE_DIR}/Tests/Milestones.cpp
-    ${CMAKE_SOURCE_DIR}/Tests/QuickNotes.cpp
     ${CMAKE_SOURCE_DIR}/Tests/TestEnv.cpp
     ${CMAKE_SOURCE_DIR}/Tests/_TEMPLATE_CLASS.cpp
 )

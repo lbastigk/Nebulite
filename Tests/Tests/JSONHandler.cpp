@@ -119,3 +119,27 @@ int TestEnv::_JSONHandler::listOfKeys(int argc, char* argv[]) {
 
     Time::wait(5000);
 }
+
+int TestEnv::_JSONHandler::full(int argc, char* argv[]){
+    std::cout << "Creating subdoc outside" << std::endl;
+    rapidjson::Document doc;
+
+    // setting value:
+    JSONHandler::Set::Any<int>(doc,"int",123);
+    JSONHandler::Set::Any<double>(doc,"double",3.141);
+    JSONHandler::Set::Any<std::string>(doc,"string","string");
+
+    // Set subdoc
+    if(true){
+        rapidjson::Document subDoc;
+        JSONHandler::Set::Any<int>(subDoc,"int",123);
+        JSONHandler::Set::Any<double>(subDoc,"double",3.141);
+        JSONHandler::Set::Any<std::string>(subDoc,"string","string");
+        JSONHandler::Set::subDoc(doc,"subDoc",subDoc);
+    }
+    
+
+    std::cout << JSONHandler::serialize(doc);
+
+    return 0;
+}

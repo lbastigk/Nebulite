@@ -11,6 +11,7 @@
 #include "FileManagement.h"
 #include "Time.h"
 
+#include "Invoke.h"
 #include <thread>
 
 #include <stdint.h>
@@ -32,6 +33,7 @@ public:
 	
 	//-----------------------------------------------------------
 	// Pipeline
+	void appendInvokePtr(Invoke* invoke);
 	void append(RenderObject toAppend);
 	void reinsertAllObjects();
 	void update();
@@ -127,6 +129,9 @@ public:
 private:
 	//-------------------------------------------------------------------------------------
 	//General Variables
+	uint32_t id_counter = 1;
+	Invoke* rendererInvokeObj = nullptr;
+	
 
 	Environment env;
 

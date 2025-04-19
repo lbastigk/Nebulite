@@ -4,9 +4,9 @@
 #include <thread>
 #include "SDL.h"
 
+#include "Invoke.h"
 #include "NamenKonventionen.h"
 #include "JSONHandler.h"
-#include "MoveRuleSet.h"
 
 class MoveRuleSet;
 class RenderObject {
@@ -15,7 +15,7 @@ public:
 	//Constructor
 	RenderObject();
 	RenderObject(const RenderObject& other);
-	//RenderObject& operator=(const RenderObject& other);
+	RenderObject& operator=(const RenderObject& other);
 
 	//-----------------------------------------------------------
 	//Destructor
@@ -30,13 +30,17 @@ public:
 	// Setting/Getting specific values
 	template <typename T> void valueSet(std::string key, const T data);
 	template <typename T> T valueGet(std::string key, const T& defaultValue = T());
+	void subDocSet(std::string key,rapidjson::Document& subDoc);
+
+	void appendInvoke(InvokeCommand toAppend);
+
 	rapidjson::Document* getDoc() const;
 	SDL_Rect& getDstRect();
 	void calculateDstRect();
 	SDL_Rect* getSrcRect();
 	void calculateSrcRect();
 	//-----------------------------------------------------------
-	void update();
+	void update(Invoke* globalInvoke=nullptr);
 	void exampleMoveSet(std::string val = namenKonvention.renderObject.positionX);
 	
 	//TODO
@@ -79,8 +83,8 @@ public:
 	//-----------------------------------------------------------
 	// Pipeline
 	void append(RenderObject toAppend, int dispResX, int dispResY, int THREADSIZE);
-	void update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE);
-	void update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE,bool onlyRestructure = false);
+	void update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE,Invoke* globalInvoke=nullptr);
+	void update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE,Invoke* globalInvoke=nullptr,bool onlyRestructure = false);
 	void reinsertAllObjects(int dispResX, int dispResY, int THREADSIZE);
 	bool isValidPosition(int x, int y) const;
 	std::vector<std::vector<RenderObject>>& getContainerAt(int x, int y);

@@ -36,48 +36,27 @@ Global enables other powerful settings such as:
 This also allows to store stuff for other objects to change that are currently not in memory
 */
 
+// Forward declaration of RenderObject
+class RenderObject;
 
 #include <string>
 #include <vector>
 #include "exprtk.hpp"
-
 #include <JSONHandler.h>
-
-#include <Renderer.h>
-
-// Resolving Vars inside string recursively
-// Find first $( and fitting ) , meaning same depth
-// Call function on everything between
-// if no $( exists, no more resolving, return same string
-// else, check if it starts with self, other or global
-// if it starts with $( but has no self,other,global at the start and no other $() inside, evaluate with exprtk
-//
-// e.g.:
-// $(global.test) + 1  -> "test + 1" as the + 1 is not inside a $()
-// $($(global.pi) + 1) -> "4.14159..."
-// 
-// Always return as string. If the answer is a logical expression, return 0 or 1
-//
-// Using JSONHandler:
-//
-// JSONHandler::Get::Any<std::string>(rapidjson::Document& doc, const std::string& fullKey, const T& defaultValue = T());
-// full key for global.test1.test2 would be: "test1.test2"
-// A default value of "0" is used
-//
 
 
 struct InvokeCommand{
-    std::string selfID;         // since each invoke lasts one tick, perhaps location + num would be an idea?
-    std::string logicalArg;     //e.g. $self.posX > $other.posY
-    std::string selfChangeType; //set, append, add, multiply etc.
-    std::string selfKey;        // what key to change in self
-    std::string selfValue;      // value
+    RenderObject *selfPtr;          // store self
+    std::string logicalArg;         //e.g. $self.posX > $other.posY
+    std::string selfChangeType;     //set, append, add, multiply etc.
+    std::string selfKey;            // what key to change in self
+    std::string selfValue;          // value
     std::string otherChangeType;
     std::string otherKey;
     std::string otherValue;
-    std::string globalChangeType; //set, append etc.
-    std::string globalKey;        // what key to change in self
-    std::string globalValue;      // value
+    std::string globalChangeType;
+    std::string globalKey;
+    std::string globalValue;
 };
 
 class Invoke{
@@ -89,31 +68,21 @@ public:
     void append(InvokeCommand toAppend);
 
     // Check Renderobject against invokes, modify
-    // For now, perhaps checking each object against another? so N! many checks...
-    // later on, using IDs to check "up" and "down":
-    // - check1(other)
-    // - check2(self)
-    // -> Meaning, self does invoke, object info is stored
-    // if an other is found on next renderer update, manipulate other first, keep track that self is to be changed
-    // at the end of the renderer update, go through all self changes, update them too
-    // IDs are used to determine who self is (perhaps using pos and an additional id?)
-    // If two obj have same id and pos, update id
-    // But this is only for later, for now lets just manually check N*(N-1) outside of class
-    // or, storing pointer to self??
-    void check(RenderObject& selfObj, RenderObject& otherObj);    
+    void check(InvokeCommand cmd, RenderObject& otherObj); 
     
+    // Check against list
+    void checkAgainstList(RenderObject& obj);
+    
+    // Get Invokes for next frame
+    void getNewInvokes();
 
-    // Clear all invokes (should be called each frame)
-    void clear();
-
-    static std::string evaluateExpression(const std::string& expr);
+    // For evaluating sing expression
+    static double evaluateExpression(const std::string& expr);
     static std::string resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global);
 
 private:
     rapidjson::Document* global = nullptr;
-    std::vector<InvokeCommand> commands;    // each update, do all commands and then delete them
-
-    // make it 2 vectors? One for only self-manipulation since this one needs no overhead
-    
+    std::vector<InvokeCommand> commands;
+    std::vector<InvokeCommand> nextCommands; 
 };
 

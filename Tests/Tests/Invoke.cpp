@@ -69,10 +69,16 @@ int TestEnv::_Invoke::example(int argc, char* argv[]) {
 }
 
 int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
+    std::cout << std::endl << std::endl;
+    std::cout << "//------------------------------------------------" << std::endl;
+    std::cout << "Checking grav with invoke fully inside render loop" << std::endl;
+
     Renderer Renderer;
     Renderer.setFPS(60);
 
     // OBJECTS
+    std::vector<RenderObject> bodies;
+
     RenderObject obj1;
     obj1.valueSet<int>(namenKonvention.renderObject.pixelSizeX,10);
     obj1.valueSet<int>(namenKonvention.renderObject.pixelSizeY,10);
@@ -80,10 +86,11 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
     obj1.valueSet<double>("posX",350); //renderer expects int here, but should automatically convert
     obj1.valueSet<double>("posY",500); //renderer expects int here, but should automatically convert
     obj1.valueSet<double>("physics.isGrav",1.0);
-    obj1.valueSet<double>("physics.vX",0.0);
-    obj1.valueSet<double>("physics.aX",0.0);
-    obj1.valueSet<double>("physics.vY",-10.0);
-    obj1.valueSet<double>("physics.aY",0.0);
+    obj1.valueSet<double>("physics.aX", 0.0);
+    obj1.valueSet<double>("physics.aY", 0.0);
+    obj1.valueSet<double>("physics.vX", 0.0);
+    obj1.valueSet<double>("physics.vY", 0.0);
+    //bodies.push_back(obj1);
 
     RenderObject obj2;
     obj2.valueSet<int>(namenKonvention.renderObject.pixelSizeX,10);
@@ -92,107 +99,121 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
     obj2.valueSet<double>("posX",650); //renderer expects int here, but should automatically convert
     obj2.valueSet<double>("posY",500); //renderer expects int here, but should automatically convert
     obj2.valueSet<double>("physics.isGrav",1.0);
-    obj2.valueSet<double>("physics.vX", 0.0);
     obj2.valueSet<double>("physics.aX", 0.0);
-    obj2.valueSet<double>("physics.vY",10.0);
     obj2.valueSet<double>("physics.aY", 0.0);
+    obj2.valueSet<double>("physics.vX", 0.0);
+    obj2.valueSet<double>("physics.vY", 0.0);
+    //bodies.push_back(obj2);
 
+    // SUN
     RenderObject obj3;
     obj3.valueSet<std::string>(namenKonvention.renderObject.imageLocation,"./Resources/Sprites/TEST100P/17.bmp");
     obj3.valueSet<int>(namenKonvention.renderObject.pixelSizeX,50);
     obj3.valueSet<int>(namenKonvention.renderObject.pixelSizeY,50);
-    obj3.valueSet<int>("ID",2);
     obj3.valueSet<double>("physics.mass",200000.0);
     obj3.valueSet<double>("posX",500); //renderer expects int here, but should automatically convert
     obj3.valueSet<double>("posY",500); //renderer expects int here, but should automatically convert
     obj3.valueSet<double>("physics.isGrav",1.0);
-    obj3.valueSet<double>("physics.vX", 0.0);
     obj3.valueSet<double>("physics.aX", 0.0);
-    obj3.valueSet<double>("physics.vY", 0.0);
     obj3.valueSet<double>("physics.aY", 0.0);
+    obj3.valueSet<double>("physics.vX", 10.0);
+    obj3.valueSet<double>("physics.vY", 0.0);
+    bodies.push_back(obj3);
 
-    std::vector<RenderObject*> bodies = { &obj1, &obj2, &obj3};
+    std::cerr << "Start Values for Bodies:" << std::endl;
+    for (auto& body : bodies){
+        std::cerr << body.serialize() << std::endl;
+    }
 
     // Global Values
     rapidjson::Document global;
     JSONHandler::Set::Any<double>(global,"dt",0);
     JSONHandler::Set::Any<double>(global,"G",0.1);
 
-    // for now, invoke is done manually. Later, the invokes should be coded inside the renderobject and called by the renderer itself
-    InvokeCommand gravInvokeX;
-    gravInvokeX.logicalArg = "$(other.physics.isGrav)";
-    gravInvokeX.selfChangeType = "add";
-    gravInvokeX.selfKey = "physics.aX";
-    gravInvokeX.selfValue = "$(( $(global.G)  * $(other.physics.mass) * ( $(other.posX) - $(self.posX) ))  / ( ( ($(other.posX) - $(self.posX))^2 + ($(other.posY) - $(self.posY))^2 + 1e-3) )^(3/2))";
-    gravInvokeX.otherChangeType = "add";
-    gravInvokeX.otherKey = "physics.aX";
-    gravInvokeX.otherValue = "$(( $(global.G) * $(self.physics.mass)  * ( $(self.posX)  - $(other.posX) )) / ( ( ($(other.posX) - $(self.posX))^2 + ($(other.posY) - $(self.posY))^2 + 1e-3) )^(3/2))";
+    // Grav ruleset
 
-    InvokeCommand gravInvokeY;
-    gravInvokeY.logicalArg = "$(other.physics.isGrav)";
-    gravInvokeY.selfChangeType = "add";
-    gravInvokeY.selfKey = "physics.aY";
-    gravInvokeY.selfValue =  "$(( $(global.G) * $(other.physics.mass) * ( $(other.posY) - $(self.posY) ))  / ( ( ($(other.posX) - $(self.posX))^2 + ($(other.posY) - $(self.posY))^2 + 1e-3) )^(3/2))";
-    gravInvokeY.otherChangeType = "add";
-    gravInvokeY.otherKey = "physics.aY";
-    gravInvokeY.otherValue = "$(( $(global.G) * $(self.physics.mass)  * ( $(self.posY)  - $(other.posY) )) / ( ( ($(other.posX) - $(self.posX))^2 + ($(other.posY) - $(self.posY))^2 + 1e-3) )^(3/2))";
+    // Only attract if ids are different
+    InvokeCommand aX;
+    aX.logicalArg="($(self.id) != $(other.id)) and $(other.physics.isGrav)";
+    aX.selfChangeType="add";
+    aX.selfKey="physics.aX";
+    aX.selfValue=   "$(( $(global.G) * $(other.physics.mass) * ( $(other.posX) - $(self.posX) ))  / ( ( ($(other.posX) - $(self.posX))^2 + ($(other.posY) - $(self.posY))^2 + 1e-3) )^(3/2))";
+    aX.otherChangeType="add";
+    aX.otherKey="physics.aX";
+    aX.otherValue=  "$(( $(global.G) * $(self.physics.mass)  * ( $(self.posX)  - $(other.posX) )) / ( ( ($(other.posX) - $(self.posX))^2 + ($(other.posY) - $(self.posY))^2 + 1e-3) )^(3/2))";
+
+    InvokeCommand aY;
+    aY.logicalArg="($(self.id) != $(other.id)) and $(other.physics.isGrav)";
+    aY.selfKey="physics.aY";
+    aY.selfChangeType="add";
+    aY.selfValue=   "$(( $(global.G) * $(other.physics.mass) * ( $(other.posY) - $(self.posY) ))  / ( ( ($(other.posX) - $(self.posX))^2 + ($(other.posY) - $(self.posY))^2 + 1e-3) )^(3/2))";
+    aY.otherKey="physics.aY";
+    aY.otherChangeType="add";
+    aY.otherValue=  "$(( $(global.G) * $(self.physics.mass)  * ( $(self.posY)  - $(other.posY) )) / ( ( ($(other.posX) - $(self.posX))^2 + ($(other.posY) - $(self.posY))^2 + 1e-3) )^(3/2))";
+
+    // Velocity ruleset
+
+    // apply only to itself (id-match)
+    InvokeCommand vX;
+    vX.logicalArg="$(self.id) == $(other.id)";
+    vX.selfKey="physics.vX";
+    vX.selfChangeType="add";
+    vX.selfValue="$(self.physics.aX) * $(global.dt)";
+
+    InvokeCommand vY;
+    vY.logicalArg="$(self.id) == $(other.id)";
+    vY.selfKey="physics.vY";
+    vY.selfChangeType="add";
+    vY.selfValue="$(self.physics.aY) * $(global.dt)";
+
+    // Position ruleset
+
+    // apply only to itself (id-match)
+    InvokeCommand pX;
+    pX.logicalArg="$(self.id) == $(other.id)";
+    pX.selfKey="posX";
+    pX.selfChangeType="add";
+    pX.selfValue="$(self.physics.vX) * $(global.dt)";
+
+    InvokeCommand pY;
+    pY.logicalArg="$(self.id) == $(other.id)";
+    pY.selfKey="posY";
+    pY.selfChangeType="add";
+    pY.selfValue="$(self.physics.vY) * $(global.dt)";
+
+    // Insert objects
+    for (auto& o : bodies) {
+        // make new doc from string
+        //o.appendInvoke(aX);
+        //o.appendInvoke(aY);
+        //o.appendInvoke(vX);
+        //o.appendInvoke(vY);
+        o.appendInvoke(pX);
+        o.appendInvoke(pY);
+
+        // Append
+        Renderer.append(o);
+    }
 
     // Invoke Object
     Invoke Invoke(global);
+    Renderer.appendInvokePtr(&Invoke);
     
     //General Variables
     uint64_t currentTime = Time::gettime();
     uint64_t lastTime = Time::gettime();
-    double dt;
-    double pX,pY,vX,vY,aX,aY;
 
     bool quit = false;
     int event = 0;
     while (!quit) {
         if (Renderer.timeToRender()) {
-            // —– compute and read dt —–
+            // —– compute dt —–
             currentTime = Time::gettime();
             JSONHandler::Set::Any<double>(global, "dt", (currentTime - lastTime) / 1000.0);
-            dt = JSONHandler::Get::Any<double>(global, "dt", 0.0);
             lastTime = currentTime;
 
-            // —– zero out previous accelerations —–
-            for (auto* o : bodies) {
-            o->valueSet<double>("physics.aX", 0.0);
-            o->valueSet<double>("physics.aY", 0.0);
-            }
-
-            // —– queue up gravity invokes —–
-            Invoke.append(gravInvokeX);
-            Invoke.append(gravInvokeY);
-
-            // —– apply to every pair, accumulating forces —–
-            for (size_t i = 0; i < bodies.size(); ++i) {
-            for (size_t j = i + 1; j < bodies.size(); ++j) {
-                Invoke.check(*bodies[i], *bodies[j]);
-            }
-            }
-            Invoke.clear();
-
-            // —– integrate velocity & position —–
-            for (auto* o : bodies) {
-            double aX = o->valueGet<double>("physics.aX");
-            double aY = o->valueGet<double>("physics.aY");
-            double vX = o->valueGet<double>("physics.vX") + aX * dt;
-            double vY = o->valueGet<double>("physics.vY") + aY * dt;
-            o->valueSet<double>("physics.vX", vX);
-            o->valueSet<double>("physics.vY", vY);
-
-            double pX = o->valueGet<double>("posX");
-            double pY = o->valueGet<double>("posY");
-            o->valueSet<double>("posX", pX + vX * dt);
-            o->valueSet<double>("posY", pY + vY * dt);
-            }
-
-            // Reinsert objects
-            for (auto* o : bodies) {
-                Renderer.append(*o);
-            }
+            // Update
+            Renderer.update();
 
             //Event handling
             event = Renderer.handleEvent();
@@ -206,15 +227,16 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
             // Present the renderer
             Renderer.showFrame();
 
-            //Delete objects
-            Renderer.purgeObjects();
-
             //Analyze event:
             switch (event) {
             case SDL_QUIT:
                 quit = true;
                 break;
             }
+            
+            //Platform::clearScreen();
+            //std::cerr << JSONHandler::serialize(global);
+            //std::cerr << Renderer.serializeEnvironment();
         }
     }
     //End of Program!

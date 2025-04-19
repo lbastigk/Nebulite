@@ -1,7 +1,10 @@
 #!/bin/bash
+#./bin/Nebulite test
+#./bin/Nebulite test help
 
-./bin/Nebulite test help
-./bin/Nebulite test invoke example
+#./bin/Nebulite test json-handler full
+
+#./bin/Nebulite test invoke example
 ./bin/Nebulite test invoke gravity
 
 #./bin/Nebulite test renderer help

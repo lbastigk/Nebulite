@@ -49,7 +49,15 @@ int gameEntry(int argc, char* argv[]){
 }
 
 int main(int argc, char* argv[]) {
-    std::cerr.rdbuf(std::cout.rdbuf());  // Redirect cerr to cout
+    std::ofstream errorFile("errors.log");
+    if (!errorFile) {
+        std::cerr << "Failed to open error file." << std::endl;
+        return 1;
+    }
+
+    // Redirect cerr to the file
+    std::cerr.rdbuf(errorFile.rdbuf());
+    //std::cerr.rdbuf(std::cout.rdbuf());  // Redirect cerr to cout
 
     // Environments:
     TestEnv TestEnv;

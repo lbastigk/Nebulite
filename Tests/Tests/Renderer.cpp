@@ -163,79 +163,6 @@ int TestEnv::_Renderer::testRendererMemLeak(int argc, char* argv[]) {
     }
 };
 
-int TestEnv::_Renderer::movement(int argc, char* argv[]) {
-
-    //Renderer Object
-    Renderer Renderer;
-    Renderer.setFPS(60);
-
-    //General Variables
-    bool quit = false;
-    int event = 0;
-
-
-    RenderObject player;
-    player.valueSet(namenKonvention.renderObject.positionX, 500);
-    player.valueSet(namenKonvention.renderObject.positionY, 500);
-
-    while (!quit) {
-        //Event handling
-        SDL_Event sdlEvent = Renderer.getEventHandle();
-
-        if (sdlEvent.type == SDL_KEYDOWN) {
-            switch (sdlEvent.key.keysym.sym) {
-            case Renderer::SDL::KEY_W:
-                if (!player.hasMoveSet()) {
-                    player.loadMoveSet(MoveRuleSet::Examples::Move::linear(0, -32, 5, 5));
-                }
-                break;
-            case Renderer::SDL::KEY_S:
-                if (!player.hasMoveSet()) {
-                    player.loadMoveSet(MoveRuleSet::Examples::Move::linear(0, 32, 5, 5));
-                }
-                break;
-            case Renderer::SDL::KEY_A:
-                if (!player.hasMoveSet()) {
-                    player.loadMoveSet(MoveRuleSet::Examples::Move::linear(-32, 0, 5, 5));
-                }
-                break;
-            case Renderer::SDL::KEY_D:
-                if (!player.hasMoveSet()) {
-                    player.loadMoveSet(MoveRuleSet::Examples::Move::linear(32, 0, 5, 5));
-                }
-                break;
-            }
-
-        }
-        if (sdlEvent.type == SDL_QUIT) {
-            quit = true;
-        }
-
-        
-        if (Renderer.timeToRender()) {
-            player.update();
-            Renderer.append(player);
-
-            // Render Current instances
-            Renderer.renderFrame();
-
-            // Render FPS
-            Renderer.renderFPS();
-
-            // Present the renderer
-            Renderer.showFrame();
-
-            // Delete objects
-            Renderer.purgeObjects();
-        }
-    }
-    //End of Program!
-    Renderer.destroy();
-
-    return 0;
-
-}
-
 int TestEnv::_Renderer::simpleSdlWindow(int argc, char* argv[]){
     std::cout << "Creating a simple SDL window for debugging...\n\n";
 
@@ -473,9 +400,6 @@ UINT64 TestEnv::_Renderer::stressTest(int objCount, int ringCount, int threadSiz
             obj.valueSet(namenKonvention.renderObject.pixelSizeY, 5);
 
             obj.valueSet(namenKonvention.renderObject.imageLocation, namenKonvention.testImages.folder100 + std::to_string(5 + 6 * j) + ".bmp");
-
-            obj.loadMoveSet(MoveRuleSet::Examples::sin(namenKonvention.renderObject.positionX, 540, (i * 2 * 3.141 / objCount), 1));
-            obj.loadMoveSet(MoveRuleSet::Examples::sin(namenKonvention.renderObject.positionY, 540, (i * 2 * 3.141 / objCount) + (j * 3.141 / 8) + 3.141 / 4, 0.8));
             Renderer.append(obj);
         }
     }

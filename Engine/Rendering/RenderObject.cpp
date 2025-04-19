@@ -1,5 +1,6 @@
 #include "RenderObject.h"
 
+#include "Invoke.h"
 #include <iostream>
 
 
@@ -7,6 +8,8 @@
 //Constructor
 
 RenderObject::RenderObject() {
+	JSONHandler::Set::Any(doc, namenKonvention.renderObject.id,0);
+
 	JSONHandler::Set::Any(doc, namenKonvention.renderObject.isOverlay, false);
 	JSONHandler::Set::Any(doc, namenKonvention.renderObject.positionX, 0);
 	JSONHandler::Set::Any(doc, namenKonvention.renderObject.positionY, 0);
@@ -24,20 +27,21 @@ RenderObject::RenderObject() {
 	JSONHandler::Set::Any(doc, namenKonvention.renderObject.spritesheetSizeX, 0);
 	JSONHandler::Set::Any(doc, namenKonvention.renderObject.spritesheetSizeY, 0);
 
-	//Move rules
-	MoveRuleSet MoveRuleSet;
-	JSONHandler::Set::subDoc(doc, namenKonvention.moveRuleSet._self, *MoveRuleSet.getDoc());
+	// Set doc["invokes"] as an empty array
+	doc.AddMember("invokes", rapidjson::Value(rapidjson::kArrayType), doc.GetAllocator());
 
 	//Build Rect on creation
 	calculateDstRect();
 	calculateSrcRect();
 }
+
+
 RenderObject::RenderObject(const RenderObject& other) {
 	doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
 	calculateDstRect();
 	calculateSrcRect();
 }
-/*
+
 RenderObject& RenderObject::operator=(const RenderObject& other) {  // Assignment operator overload
 	if (this != &other) {
 		dstRect = other.dstRect;
@@ -45,7 +49,7 @@ RenderObject& RenderObject::operator=(const RenderObject& other) {  // Assignmen
 	}
 	return *this;
 }
-*/
+
 
 
 
@@ -75,6 +79,10 @@ void RenderObject::deserialize(std::string serialOrLink) {
 
 rapidjson::Document* RenderObject::getDoc() const {
 	return const_cast<rapidjson::Document*>(&doc);
+}
+
+void RenderObject::subDocSet(std::string key,rapidjson::Document& subDoc){
+	JSONHandler::Set::subDoc(doc,key,subDoc);
 }
 
 SDL_Rect& RenderObject::getDstRect() {
@@ -115,64 +123,61 @@ void RenderObject::calculateSrcRect() {
 }
 
 //-----------------------------------------------------------
-void RenderObject::update() {
-	//Temporary files
-	rapidjson::Document tmpDoc;
+void RenderObject::update(Invoke* globalInvoke) {
 
-	//Getting info from Renderobject subdoc
-	JSONHandler::Get::subDoc(doc, namenKonvention.moveRuleSet._self, tmpDoc);
+	//------------------------------------
+	// Check all invokes
+	if (globalInvoke) {
+        globalInvoke->checkAgainstList(*this);
 
-	//Pushing into temporary MoveruleSet object
-	MoveRuleSet tmpMrs(tmpDoc);
+		// Next step: append invokes from object itself:
+		rapidjson::Document invokes;
+		JSONHandler::Get::subDoc(*this->getDoc(),"invokes",invokes);
+		if (invokes.IsArray()) {
+			// Loop over each element in the 'invokes' array
+			for (rapidjson::SizeType i = 0; i < invokes.Size(); ++i) {
+				// Each element in the array is a Document (or Value)
+				rapidjson::Value& invokeDoc = invokes[i];  // Access each document
 
-	//Update
-	tmpMrs.update(*this);
-	//MoveRuleSet::update_static(*this, tmpDoc);
+				InvokeCommand cmd;
+				cmd.selfPtr 			= this;
+				cmd.globalChangeType 	= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"globalChangeType","");
+				cmd.globalKey 			= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"globalKey","");
+				cmd.globalValue 		= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"globalValue","");
+				cmd.logicalArg 			= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"logicalArg","");
+				cmd.otherChangeType 	= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"otherChangeType","");
+				cmd.otherKey 			= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"otherKey","");
+				cmd.otherValue 			= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"otherValue","");
+				cmd.selfKey 			= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"selfKey","");
+				cmd.selfValue 			= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"selfValue","");
+				cmd.selfChangeType 		= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"selfChangeType","");
+				globalInvoke->append(cmd);
+			}
+		}
+    }else{
+		std::cerr << "Invoke is nullptr!" << std::endl;
+	}
 
-	//Pushing back into RenderObject doc
-	JSONHandler::Set::subDoc(doc, namenKonvention.moveRuleSet._self, *tmpMrs.getDoc());
-
+	//------------------------------------
 	//recalc rect
 	calculateDstRect();
 	calculateSrcRect();
 }
 
-void RenderObject::loadMoveSet(MoveRuleSet mrs) {
-	//Temporary files
-	rapidjson::Document tmpDoc;
+void RenderObject::appendInvoke(InvokeCommand toAppend) {
+    rapidjson::Value rule(rapidjson::kObjectType);
+    auto& alloc = doc.GetAllocator();
 
-	//Getting info from Renderobject subdoc
-	JSONHandler::Get::subDoc(doc, namenKonvention.moveRuleSet._self, tmpDoc); //{"var":{moverules}}
+    rule.AddMember("logicalArg",        rapidjson::Value(toAppend.logicalArg.c_str(), alloc), alloc);
+    rule.AddMember("selfChangeType",    rapidjson::Value(toAppend.selfChangeType.c_str(), alloc), alloc);
+    rule.AddMember("selfKey",           rapidjson::Value(toAppend.selfKey.c_str(), alloc), alloc);
+    rule.AddMember("selfValue",         rapidjson::Value(toAppend.selfValue.c_str(), alloc), alloc);
+    rule.AddMember("otherChangeType",   rapidjson::Value(toAppend.otherChangeType.c_str(), alloc), alloc);
+    rule.AddMember("otherKey",          rapidjson::Value(toAppend.otherKey.c_str(), alloc), alloc);
+    rule.AddMember("otherValue",        rapidjson::Value(toAppend.otherValue.c_str(), alloc), alloc);
 
-	//Add moveset to doc
-	for (auto it = mrs.getDoc()->MemberBegin(); it != mrs.getDoc()->MemberEnd(); ++it) {
-		// Insert the member into the new document
-		rapidjson::Document::AllocatorType& allocator = tmpDoc.GetAllocator();
-		rapidjson::Value key(it->name, allocator);
-
-		// add member
-		tmpDoc.AddMember(key, it->value, allocator);
-	}
-
-	//Pushing back into RenderObject doc
-	JSONHandler::Set::subDoc(doc, namenKonvention.moveRuleSet._self, tmpDoc);
-
-	//Empty tmp
-	JSONHandler::empty(tmpDoc);
-}
-
-void RenderObject::exampleMoveSet(std::string val) {
-	//Template Moveset
-	MoveRuleSet tmpMrs = MoveRuleSet::Examples::zickZack(namenKonvention.renderObject.positionX);
-
-	//Pushing back into RenderObject doc
-	JSONHandler::Set::subDoc(doc, namenKonvention.moveRuleSet._self, *tmpMrs.getDoc());
-}
-
-bool RenderObject::hasMoveSet() {
-	rapidjson::Document mrs;
-	JSONHandler::Get::subDoc(doc, namenKonvention.moveRuleSet._self, mrs);
-	return JSONHandler::Get::keyAmount(mrs) != 0;
+    // Append to invokes array
+    doc["invokes"].PushBack(rule, alloc);
 }
 
 //--------------------------------------------------------------------------------------
@@ -413,7 +418,7 @@ void RenderObjectContainer::append(RenderObject toAppend, int dispResX, int disp
 }
 
 
-void RenderObjectContainer::update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE) {
+void RenderObjectContainer::update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE,Invoke* globalInvoke) {
 	//Thread vector
 	std::vector<std::thread> threads;
 
@@ -449,10 +454,12 @@ void RenderObjectContainer::update_withThreads(int tileXpos, int tileYpos, int d
 
 	//--------------------------------------------------------------------------------
 	//restructure the updated tiles
-	update(tileXpos, tileYpos, dispResX, dispResY, THREADSIZE, true);
+	update(tileXpos, tileYpos, dispResX, dispResY, THREADSIZE,globalInvoke, true);
 }
 
-void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE, bool onlyRestructure) {
+
+
+void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE, Invoke* globalInvoke, bool onlyRestructure) {
 	// Calculate tile position based on screen resolution
 	//+- in same container
 	double valget;
@@ -465,6 +472,12 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 	//--------------------------------------------------------------------------------
 	// Update only tiles that might be visible
 	// since one tile is size of screen, a max of 9 tiles
+	// [P] - Tile with Player
+	// [ ] - loaded Tiles
+	//
+	// [ ][ ][ ]
+	// [ ][P][ ]
+	// [ ][ ][ ]
 
 	std::vector<RenderObject> toReinsert;
 	for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
@@ -474,7 +487,7 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 					std::vector<RenderObject> newBatch;
 					for (auto& obj : batch) {
 						if(!onlyRestructure){
-							obj.update();
+							obj.update(globalInvoke);
 						}
 						
 						//-----------------------------------------

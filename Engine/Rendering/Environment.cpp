@@ -124,9 +124,9 @@ void Environment::append(RenderObject toAttach,int dispResX, int dispResY,int TH
 	}
 }
 
-void Environment::update(int tileXpos,int tileYpos,int dispResX,int dispResY, int THREADSIZE) {
+void Environment::update(int tileXpos,int tileYpos,int dispResX,int dispResY, int THREADSIZE,Invoke* globalInvoke) {
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
-		roc[i].update(tileXpos,tileYpos,dispResX,dispResY,THREADSIZE);
+		roc[i].update(tileXpos,tileYpos,dispResX,dispResY,THREADSIZE,globalInvoke);
 	}
 }
 
@@ -136,7 +136,7 @@ void Environment::reinsertAllObjects(int dispResX,int dispResY, int THREADSIZE){
 	}
 }
 
-void Environment::update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE) {
+void Environment::update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE,Invoke* globalInvoke) {
 	// Update all objects in each layer
 
 	// TODO:

@@ -112,7 +112,16 @@ void Renderer::deserializeEnvironment(std::string serialOrLink) {
 
 //-----------------------------------------------------------
 // Pipeline
+void Renderer::appendInvokePtr(Invoke* invoke){
+	rendererInvokeObj = invoke;
+}
+
 void Renderer::append(RenderObject toAppend) {
+	// Set ID
+	toAppend.valueSet<uint32_t>(namenKonvention.renderObject.id,id_counter);
+	std::cerr << "Object Appended. ID is: " << toAppend.valueGet<uint32_t>(namenKonvention.renderObject.id) << std::endl;
+	id_counter ++;
+
 	//Append to environment, based on layer
 	env.append(toAppend, dispResX, dispResY, THREADSIZE, toAppend.valueGet(namenKonvention.renderObject.layer, 0));
 
@@ -125,11 +134,17 @@ void Renderer::reinsertAllObjects(){
 }
 
 void Renderer::update() {
-	env.update(tileXpos,tileYpos,dispResX, dispResY, THREADSIZE);
+	env.update(tileXpos,tileYpos,dispResX, dispResY, THREADSIZE,rendererInvokeObj);
+	if(rendererInvokeObj != nullptr){
+		rendererInvokeObj->getNewInvokes();
+	}
 }
 
 void Renderer::update_withThreads() {
-	env.update_withThreads(tileXpos, tileYpos, dispResX, dispResY, THREADSIZE);
+	env.update_withThreads(tileXpos, tileYpos, dispResX, dispResY, THREADSIZE,rendererInvokeObj);
+	if(rendererInvokeObj != nullptr){
+		rendererInvokeObj->getNewInvokes();
+	}
 }
 
 

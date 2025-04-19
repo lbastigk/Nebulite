@@ -51,6 +51,8 @@ public:
     public:
         template <typename T>
         static T Any(rapidjson::Document& doc, const std::string& fullKey, const T& defaultValue = T());
+        template <typename T>
+        static T AnyFromValue(rapidjson::Value& doc, const std::string& fullKey, const T& defaultValue = T());
         static void subDocOld(rapidjson::Document& doc, const std::string& key, rapidjson::Document& destination);
         static void subDoc(rapidjson::Document& doc, const std::string& key, rapidjson::Document& destination);
         static void listOfKeys(rapidjson::Document& doc, std::vector<std::string>& keys);
@@ -152,6 +154,38 @@ T JSONHandler::Get::Any(rapidjson::Document& doc, const std::string& fullKey, co
     }  
 }
 
+template <typename T>
+T JSONHandler::Get::AnyFromValue(rapidjson::Value& value, const std::string& fullKey, const T& defaultValue) {
+    int pos = fullKey.find('.');
+    if (pos != -1) {
+        // We need to go deeper
+        std::string currentKey = fullKey.substr(0, pos);
+        std::string remainingKeys = fullKey.substr(pos + 1);
+
+        if (value.IsObject() && value.HasMember(currentKey.c_str())) {
+            rapidjson::Value& next = value[currentKey.c_str()];
+            return AnyFromValue<T>(next, remainingKeys, defaultValue);
+        } else {
+            return defaultValue;
+        }
+    } else {
+        // Final key
+        if (value.IsObject() && value.HasMember(fullKey.c_str())) {
+            const rapidjson::Value& finalValue = value[fullKey.c_str()];
+            if (!finalValue.IsNull()) {
+                try {
+                    T result;
+                    ConvertFromJSONValue(finalValue, result);
+                    return result;
+                }
+                catch (const std::exception&) {
+                    // Log or handle conversion failure
+                }
+            }
+        }
+        return defaultValue;
+    }
+}
 
 template <typename T>
 void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
@@ -236,6 +270,9 @@ void JSONHandler::ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue,
     }
     else if constexpr (std::is_same_v<T, int>) {
         jsonValue.SetInt(data);
+    }
+    else if constexpr (std::is_same_v<T, uint32_t>) {
+        jsonValue.SetUint(data);
     }
     else if constexpr (std::is_same_v<T, float>) {
         jsonValue.SetFloat(data);
@@ -322,6 +359,9 @@ void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& res
     }
     else if constexpr (std::is_same_v<T, int>) {
         result = jsonValue.GetInt();
+    }
+    else if constexpr (std::is_same_v<T, uint32_t>) {
+        result = jsonValue.GetUint();
     }
     else if constexpr (std::is_same_v<T, float>) {
         result = jsonValue.GetFloat();

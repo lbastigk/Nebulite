@@ -7,7 +7,6 @@
 #include "JSONHandler.h"
 #include "Renderer.h"
 #include "Time.h"
-#include "MoveRuleSet.h"
 #include "DsaDebug.h"
 #include "StringHandler.h"
 #include "FuncTree.h"
@@ -55,12 +54,6 @@ public:
             },
             "render-object", "Tests for Render Objects"
         );
-        ft.attachFunction(
-            [this](int argc, char* argv[]) -> int {
-                return moveRuleSet.passArgs(argc, argv);
-            },
-            "move-rule-set", "Tests for MoveRuleSets"
-        );
 
         // Parse arguments
         return ft.parse(argc, argv);
@@ -91,6 +84,8 @@ private:
         int example(int argc, char* argv[]);
 
         int gravity(int argc, char* argv[]);
+
+        int gravityV2(int argc, char* argv[]);
     };
     class _JSONHandler {
     public:
@@ -100,23 +95,13 @@ private:
         int setGet(int argc, char* argv[]);
         int KeyNesting(int argc, char* argv[]);
         int listOfKeys(int argc, char* argv[]);
-    };
-    class _MoveRuleSet {
-    public:
-        int passArgs(int argc, char* argv[]);
-
-        int serialize(int argc, char* argv[]);
-        int testMoveSetWithoutThreads(int argc, char* argv[]);
-        int testMoveSetWithThreads(int argc, char* argv[]);
-        int testSingleObject(int argc, char* argv[]);
+        int full(int argc, char* argv[]);
     };
     class _RenderObject {
     public:
         int passArgs(int argc, char* argv[]);
 
-        int testSpriteSheets(int argc, char* argv[]);
-        int testPokemonSprites(int argc, char* argv[]);
-        int testRuleSets(int argc, char* argv[]);
+        int basic(int argc, char* argv[]);
     };
     class _Renderer {
     public:
@@ -145,6 +130,5 @@ private:
     _JSONHandler jsonHandler;
     _Renderer renderer;
     _RenderObject renderObject;
-    _MoveRuleSet moveRuleSet;
 
 };
