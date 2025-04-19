@@ -10,7 +10,7 @@
 #include "MoveRuleSet.h"
 #include "DsaDebug.h"
 #include "StringHandler.h"
-
+#include "FuncTree.h"
 
 class TestEnv {
 public:
@@ -18,7 +18,13 @@ public:
     int passArgs(int argc, char* argv[]) {
         FuncTree ft("Test Environment");
 
-        // Attach functions with existing instances (no need to create new instances)
+        // Attach functions with existing instances
+        ft.attachFunction(
+            [this](int argc, char* argv[]) -> int {
+                return fileManagement.passArgs(argc, argv);
+            },
+            "file-management", "Tests for File Management"
+        );
         ft.attachFunction(
             [this](int argc, char* argv[]) -> int {
                 return general.passArgs(argc, argv);
@@ -27,9 +33,9 @@ public:
         );
         ft.attachFunction(
             [this](int argc, char* argv[]) -> int {
-                return fileManagement.passArgs(argc, argv);
+                return invoke.passArgs(argc, argv);
             },
-            "file-management", "Tests for File Management"
+            "invoke", "Tests for Invoke"
         );
         ft.attachFunction(
             [this](int argc, char* argv[]) -> int {
@@ -77,6 +83,15 @@ private:
 
         int benchmarkStringConversion(int argc, char* argv[]);
 	};
+    
+    class _Invoke{
+    public:
+        int passArgs(int argc, char* argv[]);
+
+        int example(int argc, char* argv[]);
+
+        int gravity(int argc, char* argv[]);
+    };
     class _JSONHandler {
     public:
         int passArgs(int argc, char* argv[]);
@@ -124,8 +139,9 @@ private:
 	};
 
     // Member variables for nested classes
-    _General general;
     _FileManagement fileManagement;
+    _General general;
+    _Invoke invoke;
     _JSONHandler jsonHandler;
     _Renderer renderer;
     _RenderObject renderObject;

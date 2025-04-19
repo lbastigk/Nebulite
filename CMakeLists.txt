@@ -11,6 +11,7 @@ message(STATUS "Binary output directory set to: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY
 # Set paths to local SDL2 and RapidJSON libraries
 set(SDL2_PATH       "${CMAKE_SOURCE_DIR}/external/SDL2_build")
 set(RAPIDJSON_PATH  "${CMAKE_SOURCE_DIR}/external/rapidjson")
+set(EXPRTK_PATH     "${CMAKE_SOURCE_DIR}/external/exprtk")
 
 # Define SDL_DISABLE_IMPLEMENTS to use old names (for compatibility)
 add_definitions(-DSDL_DISABLE_IMPLEMENTS)
@@ -39,6 +40,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Tests
     ${SDL2_PATH}/include/SDL2/
     ${RAPIDJSON_PATH}/include/rapidjson
+    ${EXPRTK_PATH}/
 )
 
 #####################
@@ -62,6 +64,7 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/Engine/Helper/Console.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Helper/FileManagement.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Helper/FuncTree.cpp
+    ${CMAKE_SOURCE_DIR}/Engine/Helper/Invoke.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Helper/JSONHandler.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Helper/OptionsMenu.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Helper/StringHandler.cpp

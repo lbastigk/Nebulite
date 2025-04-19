@@ -1,6 +1,6 @@
-# Ignore builds inside external directory
-external/SDL2_build/
-external/qt5_build/
+# Ignore external directory, but not script
+external
+!external/CloneRepos.sh
 
 # Ignore game resources and error logs
 *.bmp

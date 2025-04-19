@@ -9,6 +9,7 @@
 // Include Tests
 #include "Tests/FileManagement.cpp"
 #include "Tests/General.cpp"
+#include "Tests/Invoke.cpp"
 #include "Tests/JSONHandler.cpp"
 #include "Tests/MoveRuleSet.cpp"
 #include "Tests/Renderer.cpp"
@@ -57,6 +58,32 @@ int TestEnv::_General::passArgs(int argc, char* argv[]) {
 	return ft.parse(argc, argv);
 }
 
+//---------------------------------------------------------------
+// Invoke
+
+int TestEnv::_Invoke::passArgs(int argc, char* argv[]){
+	FuncTree ft("Invoke");
+
+	// Check for provided args starting with '--' or '-'
+	
+
+	// Attach functions
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return example(argc, argv);
+		}, 
+		"example","Example invoke"
+	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return gravity(argc, argv);
+		}, 
+		"gravity","Gravity test"
+	);
+
+	// parse
+	return ft.parse(argc, argv);
+}
 
 //---------------------------------------------------------------
 // JSONHandler

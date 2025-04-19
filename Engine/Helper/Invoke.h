@@ -43,6 +43,8 @@ This also allows to store stuff for other objects to change that are currently n
 
 #include <JSONHandler.h>
 
+#include <Renderer.h>
+
 // Resolving Vars inside string recursively
 // Find first $( and fitting ) , meaning same depth
 // Call function on everything between
@@ -63,69 +65,6 @@ This also allows to store stuff for other objects to change that are currently n
 // A default value of "0" is used
 //
 
-std::string evaluateExpression(const std::string& expr) {
-    typedef exprtk::expression<double> expression_t;
-    typedef exprtk::parser<double> parser_t;
-
-    exprtk::symbol_table<double> symbol_table;
-    expression_t expression;
-    expression.register_symbol_table(symbol_table);
-    parser_t parser;
-
-    double result = 0.0;
-    if (parser.compile(expr, expression)) {
-        result = expression.value();
-    }
-
-    return std::to_string(result);
-}
-
-std::string resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global) {
-    std::string result = input;
-    
-    size_t pos = 0;
-    while ((pos = result.find("$(", pos)) != std::string::npos) {
-        size_t start = pos + 2;
-        int depth = 1;
-        size_t end = start;
-        while (end < result.size() && depth > 0) {
-            if (result[end] == '(') depth++;
-            else if (result[end] == ')') depth--;
-            ++end;
-        }
-
-        if (depth != 0) {
-            // Unmatched parentheses
-            break;
-        }
-
-        std::string inner = result.substr(start, end - start - 1);
-        std::string resolved;
-
-        // === RECURSIVE RESOLUTION ===
-        inner = resolveVars(inner, self, other, global);
-
-        // === VARIABLE ACCESS ===
-        if (inner.rfind("self.", 0) == 0) {
-            resolved = JSONHandler::Get::Any<std::string>(self, inner.substr(5), "0");
-        } else if (inner.rfind("other.", 0) == 0) {
-            resolved = JSONHandler::Get::Any<std::string>(other, inner.substr(6), "0");
-        } else if (inner.rfind("global.", 0) == 0) {
-            resolved = JSONHandler::Get::Any<std::string>(global, inner.substr(7), "0");
-        } else {
-            // === EXPRTK EVALUATION ===
-            resolved = evaluateExpression(inner);
-        }
-
-        // Replace the $(...) with resolved value
-        result.replace(pos, end - pos, resolved);
-
-        // Restart search from current position
-        pos += resolved.size();
-    }
-
-    return result;
-}
 
 struct InvokeCommand{
     std::string selfID;         // since each invoke lasts one tick, perhaps location + num would be an idea?
@@ -142,11 +81,39 @@ struct InvokeCommand{
 };
 
 class Invoke{
-    Invoke(rapidjson::Document& global);
+public:
+    // Setting up invoke by linking it to a global doc
+    Invoke(rapidjson::Document& globalDocPtr);
+    
+    // Append invoke command
+    void append(InvokeCommand toAppend);
+
+    // Check Renderobject against invokes, modify
+    // For now, perhaps checking each object against another? so N! many checks...
+    // later on, using IDs to check "up" and "down":
+    // - check1(other)
+    // - check2(self)
+    // -> Meaning, self does invoke, object info is stored
+    // if an other is found on next renderer update, manipulate other first, keep track that self is to be changed
+    // at the end of the renderer update, go through all self changes, update them too
+    // IDs are used to determine who self is (perhaps using pos and an additional id?)
+    // If two obj have same id and pos, update id
+    // But this is only for later, for now lets just manually check N*(N-1) outside of class
+    // or, storing pointer to self??
+    void check(RenderObject& selfObj, RenderObject& otherObj);    
     
 
-private:
+    // Clear all invokes (should be called each frame)
+    void clear();
 
+    static std::string evaluateExpression(const std::string& expr);
+    static std::string resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global);
+
+private:
+    rapidjson::Document* global = nullptr;
     std::vector<InvokeCommand> commands;    // each update, do all commands and then delete them
+
+    // make it 2 vectors? One for only self-manipulation since this one needs no overhead
+    
 };
 
