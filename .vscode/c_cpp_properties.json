@@ -9,9 +9,10 @@
                 "${workspaceFolder}/**",       // Covers everything in the project
                 "${workspaceFolder}/external/SDL2_build/include/SDL2",           // Local SDL installation
                 "${workspaceFolder}/external/rapidjson/include/rapidjson",       // Local rapidjson
-                "${workspaceFolder}/external/qt5_build/include/QtCore",
-                "${workspaceFolder}/external/qt5_build/include/QtGui",
-                "${workspaceFolder}/external/qt5_build/include/QtWidgets",
+                "/usr/include/x86_64-linux-gnu/qt5/",
+                "/usr/include/x86_64-linux-gnu/qt5/QtCore",
+                "/usr/include/x86_64-linux-gnu/qt5/QtGui",
+                "/usr/include/x86_64-linux-gnu/qt5/QtWidgets",
                 "${workspaceFolder}/Engine/",            // ProjectEngine root
                 "${workspaceFolder}/Engine/GameVars/",
                 "${workspaceFolder}/Engine/Helper/",

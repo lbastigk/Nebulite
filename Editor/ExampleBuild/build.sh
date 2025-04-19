@@ -15,8 +15,10 @@ cmake ..
 make
 
 mv ./app ../../../Application/bin/Editor
+cd ../
+rm -rf ./build
 
-cd ../../../Application/
+cd ../../Application/
 ./Editor.sh
 
 # Starting the app after build is not used anymore, as this, for some reason, breaks the explorer widget from time to time...

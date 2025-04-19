@@ -70,7 +70,7 @@ private:
 
 		RenderObject lastPlaced;
 
-		Renderer Renderer;
+		Renderer renderer;
 	};
 
 	OptionsMenu optM;

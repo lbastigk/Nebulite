@@ -96,45 +96,6 @@ for lib in SDL2 SDL_ttf SDL_image; do
     rm -rf "$lib/build/"
 done
 
-
-####################
-# Build Qt5 (minimal setup for Core + Gui + Widgets)
-
-# Clone if missing
-clone_if_missing https://code.qt.io/qt/qt5.git qt5
-
-# Enter qt5 and init only what we need
-cd qt5
-./init-repository --module-subset=qtbase,qttools,qtsvg
-
-# Build inside qt5/build
-mkdir -p build
-cd build
-
-# Configure and build only qtbase
-../qtbase/configure \
-    -prefix "$PWD/install" \
-    -opensource \
-    -confirm-license \
-    -release \
-    -nomake tests \
-    -nomake examples \
-    -static \
-    -skip qtwebengine \
-    -skip qtwebkit || exit 1
-
-make -j$(nproc)
-make install
-
-cd "$externalsDir"
-rm -rf qt5_build
-mkdir -p qt5_build
-
-# Sync only installed files (binaries, headers, libs, etc.)
-rsync -a --progress ./qt5/build/install/ qt5_build/
-rm -rf ./qt5/build/
-
-
 ####################
 # Final message
 echo ""
@@ -146,3 +107,58 @@ echo "./qt5"
 echo "./SDL_image"
 echo "./SDL_ttf"
 echo "./SDL2"
+exit
+
+# Skipping QT5 for now....
+
+####################
+# Build Qt5 (minimal setup for Core + Gui + Widgets)
+
+# Clone if missing
+clone_if_missing https://code.qt.io/qt/qt5.git qt5
+
+# Enter qt5 and init only what we need
+cd qt5
+git checkout 5.15
+
+# Init all
+perl init-repository --force --module-subset=default,-qtwebengine
+
+# Manually pull needed submodules
+git submodule update --init --recursive
+
+
+
+# Build
+mkdir -p build
+./configure \
+  -prefix "$PWD/build" \
+  -opensource \
+  -confirm-license \
+  -release \
+  -static \
+  -nomake tests \
+  -nomake examples \
+  -qt-zlib \
+  -qt-libpng \
+  -qt-libjpeg \
+  -qt-freetype \
+  -qt-harfbuzz \
+  -qt-pcre \
+  -opengl desktop \
+  -no-warnings-are-errors \
+  -xcb
+gmake -j$(nproc) > ../log_build.log   2>&1
+gmake install    > ../log_install.log 2>&1
+
+
+# Move to build dir
+cd "$externalsDir"
+rm -rf qt5_build
+mkdir -p qt5_build
+rsync -a ./qt5/build/ qt5_build/
+rm -rf ./qt5/build/
+
+
+
+

@@ -136,7 +136,7 @@ LevelEditor::Display::Display() {
 }
 
 void LevelEditor::Display::start() {
-	Renderer.setFPS(60);
+	renderer.setFPS(60);
 
 	Cursor.valueSet(namenKonvention.renderObject.pixelSizeX, 24);
 	Cursor.valueSet(namenKonvention.renderObject.pixelSizeY, 24);
@@ -157,8 +157,8 @@ void LevelEditor::Display::update() {
 	mouseState = SDL_GetMouseState(&MousePosX, &MousePosY);
 	
 	//Append Cursor obj at Mouse position
-	Cursor.valueSet(namenKonvention.renderObject.positionX, MousePosX + Renderer.getPosX());
-	Cursor.valueSet(namenKonvention.renderObject.positionY, MousePosY + Renderer.getPosY());
+	Cursor.valueSet(namenKonvention.renderObject.positionX, MousePosX + renderer.getPosX());
+	Cursor.valueSet(namenKonvention.renderObject.positionY, MousePosY + renderer.getPosY());
 
 	//Create Selection position
 	uint32_t lms;
@@ -179,7 +179,7 @@ void LevelEditor::Display::update() {
 			lastMousePosX = MousePosX;
 			lastMousePosY = MousePosY;
 		}
-		Renderer.moveCam(MousePosX - lastMousePosX,MousePosY - lastMousePosY);
+		renderer.moveCam(MousePosX - lastMousePosX,MousePosY - lastMousePosY);
 		lastMousePosX = MousePosX;
 		lastMousePosY = MousePosY;
 		break;
@@ -210,31 +210,31 @@ void LevelEditor::Display::update() {
 	
 
 	// Append additional objects
-	Renderer.append(Cursor);
-	Renderer.append(Selection);
+	renderer.append(Cursor);
+	renderer.append(Selection);
 
 	//Render
-	Renderer.handleEvent();
-	if (Renderer.timeToRender()) {
+	renderer.handleEvent();
+	if (renderer.timeToRender()) {
 		//Render Current instances
-		Renderer.renderFrame();
+		renderer.renderFrame();
 
 		//Render FPS
-		Renderer.renderFPS();
+		renderer.renderFPS();
 
 		// Present the renderer
-		Renderer.showFrame();
+		renderer.showFrame();
 
 		//Update all visible
-		Renderer.update();		
+		renderer.update();
 	}
 
 	// Delete menue objects
-	Renderer.purgeLayer(Environment::RenderObjectLayers::menue);
+	renderer.purgeLayer(Environment::RenderObjectLayers::menue);
 }
 
 void LevelEditor::Display::appendObject(RenderObject ro) {
-	Renderer.append(ro);
+	renderer.append(ro);
 	lastPlaced.deserialize(ro.serialize());
 }
 
@@ -264,21 +264,21 @@ void LevelEditor::Display::setLastSelectionY(int y){
 void LevelEditor::Display::deleteObject() {
 	int posX = Selection.valueGet<int>(namenKonvention.renderObject.positionX);
 	int posY = Selection.valueGet<int>(namenKonvention.renderObject.positionY);
-	Renderer.purgeObjectsAt(posX,posY);
+	renderer.purgeObjectsAt(posX,posY);
 }
 
 std::string LevelEditor::Display::serializeRenderer() {
-	return Renderer.serialize();
+	return renderer.serialize();
 }
 
 std::string LevelEditor::Display::serializeRendererEnvironment() {
-	return Renderer.serializeEnvironment();
+	return renderer.serializeEnvironment();
 }
 
 void LevelEditor::Display::deserializeEnvironment(std::string serialFile) {
-	Renderer.deserializeEnvironment(serialFile);
+	renderer.deserializeEnvironment(serialFile);
 }
 
 size_t LevelEditor::Display::objectCount() {
-	return Renderer.getObjectCount();
+	return renderer.getObjectCount();
 }
