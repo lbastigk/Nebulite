@@ -140,6 +140,7 @@ void RenderObject::update(Invoke* globalInvoke) {
 				rapidjson::Value& invokeDoc = invokes[i];  // Access each document
 
 				InvokeCommand cmd;
+				cmd.type 				= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"type","");
 				cmd.selfPtr 			= this;
 				cmd.globalChangeType 	= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"globalChangeType","");
 				cmd.globalKey 			= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"globalKey","");
@@ -168,6 +169,7 @@ void RenderObject::appendInvoke(InvokeCommand toAppend) {
     rapidjson::Value rule(rapidjson::kObjectType);
     auto& alloc = doc.GetAllocator();
 
+	rule.AddMember("type",        		rapidjson::Value(toAppend.type.c_str(), alloc), alloc);
     rule.AddMember("logicalArg",        rapidjson::Value(toAppend.logicalArg.c_str(), alloc), alloc);
     rule.AddMember("selfChangeType",    rapidjson::Value(toAppend.selfChangeType.c_str(), alloc), alloc);
     rule.AddMember("selfKey",           rapidjson::Value(toAppend.selfKey.c_str(), alloc), alloc);
@@ -175,6 +177,9 @@ void RenderObject::appendInvoke(InvokeCommand toAppend) {
     rule.AddMember("otherChangeType",   rapidjson::Value(toAppend.otherChangeType.c_str(), alloc), alloc);
     rule.AddMember("otherKey",          rapidjson::Value(toAppend.otherKey.c_str(), alloc), alloc);
     rule.AddMember("otherValue",        rapidjson::Value(toAppend.otherValue.c_str(), alloc), alloc);
+	rule.AddMember("globalChangeType",  rapidjson::Value(toAppend.globalChangeType.c_str(), alloc), alloc);
+    rule.AddMember("globalKey",         rapidjson::Value(toAppend.globalKey.c_str(), alloc), alloc);
+    rule.AddMember("globalValue",       rapidjson::Value(toAppend.globalValue.c_str(), alloc), alloc);
 
     // Append to invokes array
     doc["invokes"].PushBack(rule, alloc);
@@ -209,7 +214,7 @@ std::string RenderObjectContainer::serialize() {
 		for (auto& vec2 : vec1) {
 			for (auto& batch : vec2) {
 				for (auto& obj : batch) {
-					std::string objStr = obj.serialize();
+					std::string objStr = obj->serialize();
 
 					// Parse the serialized string to a JSON object
 					rapidjson::Document objDoc;
@@ -289,82 +294,59 @@ void RenderObjectContainer::deserialize(const std::string& serialOrLink, int dis
 //-----------------------------------------------------------
 // Pipeline
 
-/*
-void RenderObjectContainer::append(RenderObject toAppend, int dispResX, int dispResY, int THREADSIZE) {
-	//new tile position
-	unsigned int correspondingTileXpos;
-	unsigned int correspondingTileYpos;
+void RenderObjectContainer::appendPtr(std::shared_ptr<RenderObject> ptr, int dispResX, int dispResY, int THREADSIZE) {
+    // new tile position
+    unsigned int correspondingTileXpos;
+    unsigned int correspondingTileYpos;
 
-	// Get screen resolution
-	//int dispResX = atoi(generalOptions.GetOption(namenKonvention.options.dispResX).c_str());
-	//int dispResY = atoi(generalOptions.GetOption(namenKonvention.options.dispResY).c_str());
+    // Calculate tile position based on screen resolution
+    double valget;
+    int64_t placeholder;
 
-	// Calculate tile position based on screen resolution
-	//+- in same container
-	double valget;
-	int64_t placeholder;
-	
+    // Calculate correspondingTileXpos using positionX
+    valget = ptr->valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
+    placeholder = (int64_t)(valget / (double)dispResX);
+    correspondingTileXpos = (placeholder < 0) ? (unsigned int)(-placeholder) : (unsigned int)(placeholder);
 
-	valget = toAppend.valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
-	placeholder = (int64_t)(valget / (double)dispResX);
-	if (placeholder < 0) {
-		correspondingTileXpos = (unsigned int)(-placeholder);
-	}
-	else {
-		correspondingTileXpos = (unsigned int)(placeholder);
-	}
+    // Calculate correspondingTileYpos using positionY
+    valget = ptr->valueGet<double>(namenKonvention.renderObject.positionY, 0.0);
+    placeholder = (int64_t)(valget / (double)dispResY);
+    correspondingTileYpos = (placeholder < 0) ? (unsigned int)(-placeholder) : (unsigned int)(placeholder);
 
-	valget = toAppend.valueGet<double>(namenKonvention.renderObject.positionY, 0.0);
-	placeholder = (int64_t)(valget / (double)dispResY);
-	if (placeholder < 0) {
-		correspondingTileYpos = (unsigned int)(-placeholder);
-	}
-	else {
-		correspondingTileYpos = (unsigned int)(placeholder);
-	}
+    // Ensure the position is valid, grow the ObjectContainer if necessary
+    if (!isValidPosition(correspondingTileXpos, correspondingTileYpos)) {
+        // Ensure the row exists
+        while (ObjectContainer.size() <= correspondingTileYpos) {
+            ObjectContainer.emplace_back(std::vector<std::vector<std::vector<std::shared_ptr<RenderObject>>>>());
+        }
 
-	// Check if tileXpos and tileYpos are within valid range before appending
-	if (!isValidPosition(correspondingTileXpos, correspondingTileYpos)) {
-		// Handle the case where the position is out of bounds
-		// Create vector at that spot to append to
+        // Ensure the column exists
+        while (ObjectContainer[correspondingTileYpos].size() <= correspondingTileXpos) {
+            ObjectContainer[correspondingTileYpos].emplace_back(std::vector<std::vector<std::shared_ptr<RenderObject>>>());
+        }
+    }
 
-		// Make sure the new row exists
-		while (ObjectContainer.size() <= correspondingTileYpos) {
-			ObjectContainer.emplace_back(std::vector<std::vector<std::vector<RenderObject>>>());
-		}
+    // Try to append to an existing batch, respecting the THREADSIZE limit
+    bool appended = false;
+    for (auto& batch : ObjectContainer[correspondingTileYpos][correspondingTileXpos]) {
+        if (batch.size() < THREADSIZE) {
+            batch.push_back(ptr);
+            appended = true;
+            break;
+        }
+    }
 
-		// Make sure the new column exists
-		while (ObjectContainer[correspondingTileYpos].size() <= correspondingTileXpos) {
-			ObjectContainer[correspondingTileYpos].emplace_back();
-		}
-	}
-
-	// Add ObjectInstance to the new spot
-	bool appended = false;
-	for (auto& batch : ObjectContainer[correspondingTileYpos][correspondingTileXpos]) {
-		// Only append to batch if size limit isn't reached
-		if (batch.size() < THREADSIZE) {
-			batch.push_back(toAppend);
-			appended = true;
-			break;  // Exit the loop after appending to the first available batch
-		}
-	}
-
-	// If not appended, add a new batch
-	if (!appended) {
-		ObjectContainer[correspondingTileYpos][correspondingTileXpos].emplace_back();
-		// push into the last batch:
-		auto& lastBatch = ObjectContainer[correspondingTileYpos][correspondingTileXpos].back();
-		lastBatch.push_back(toAppend);
-	}
-
-	// Load the associated image
-	//loadTexture(toAppend);
+    // If no batch was available or full, create a new batch and append
+    if (!appended) {
+        ObjectContainer[correspondingTileYpos][correspondingTileXpos].emplace_back();  // Add new batch
+        auto& lastBatch = ObjectContainer[correspondingTileYpos][correspondingTileXpos].back();
+        lastBatch.push_back(ptr);
+    }
 }
 
-*/
-
 void RenderObjectContainer::append(RenderObject toAppend, int dispResX, int dispResY, int THREADSIZE) {
+	auto ptr = std::make_shared<RenderObject>(std::move(toAppend));
+
     // new tile position
     unsigned int correspondingTileXpos;
     unsigned int correspondingTileYpos;
@@ -387,12 +369,12 @@ void RenderObjectContainer::append(RenderObject toAppend, int dispResX, int disp
     if (!isValidPosition(correspondingTileXpos, correspondingTileYpos)) {
         // Ensure the row exists
         while (ObjectContainer.size() <= correspondingTileYpos) {
-            ObjectContainer.emplace_back(std::vector<std::vector<std::vector<RenderObject>>>());
+            ObjectContainer.emplace_back(std::vector<std::vector<std::vector<std::shared_ptr<RenderObject>>>>());
         }
 
         // Ensure the column exists
         while (ObjectContainer[correspondingTileYpos].size() <= correspondingTileXpos) {
-            ObjectContainer[correspondingTileYpos].emplace_back(std::vector<std::vector<RenderObject>>());
+            ObjectContainer[correspondingTileYpos].emplace_back(std::vector<std::vector<std::shared_ptr<RenderObject>>>());
         }
     }
 
@@ -400,7 +382,7 @@ void RenderObjectContainer::append(RenderObject toAppend, int dispResX, int disp
     bool appended = false;
     for (auto& batch : ObjectContainer[correspondingTileYpos][correspondingTileXpos]) {
         if (batch.size() < THREADSIZE) {
-            batch.push_back(toAppend);
+            batch.push_back(ptr);
             appended = true;
             break;
         }
@@ -410,11 +392,8 @@ void RenderObjectContainer::append(RenderObject toAppend, int dispResX, int disp
     if (!appended) {
         ObjectContainer[correspondingTileYpos][correspondingTileXpos].emplace_back();  // Add new batch
         auto& lastBatch = ObjectContainer[correspondingTileYpos][correspondingTileXpos].back();
-        lastBatch.push_back(toAppend);
+        lastBatch.push_back(ptr);
     }
-
-    // Load the associated image (assuming loadTexture is defined elsewhere)
-    // loadTexture(toAppend);
 }
 
 
@@ -434,7 +413,7 @@ void RenderObjectContainer::update_withThreads(int tileXpos, int tileYpos, int d
 						// Perform batch update logic here
 						// For example, update each object in the batch
 						for (auto& obj : batch) {
-							obj.update();
+							obj->update();
 						}
 						});
 				}
@@ -457,8 +436,6 @@ void RenderObjectContainer::update_withThreads(int tileXpos, int tileYpos, int d
 	update(tileXpos, tileYpos, dispResX, dispResY, THREADSIZE,globalInvoke, true);
 }
 
-
-
 void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE, Invoke* globalInvoke, bool onlyRestructure) {
 	// Calculate tile position based on screen resolution
 	//+- in same container
@@ -479,25 +456,25 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 	// [ ][P][ ]
 	// [ ][ ][ ]
 
-	std::vector<RenderObject> toReinsert;
+	std::vector<std::shared_ptr<RenderObject>> toReinsert;
 	for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
 		for (int dY = (tileYpos == 0 ? 0 : -1); dY <= 1; dY++) {
 			if (isValidPosition(tileXpos + dX, tileYpos + dY)) {
 				for (auto& batch : ObjectContainer[tileYpos + dY][tileXpos + dX]) {
-					std::vector<RenderObject> newBatch;
+					std::vector<std::shared_ptr<RenderObject>> newBatch;
 					for (auto& obj : batch) {
 						if(!onlyRestructure){
-							obj.update(globalInvoke);
+							obj->update(globalInvoke);
 						}
 						
 						//-----------------------------------------
 						// Check delete flag
-						if (!obj.valueGet(namenKonvention.renderObject.deleteFlag,false)){
+						if (!obj->valueGet(namenKonvention.renderObject.deleteFlag,false)){
 							
 							//-------------------------------------
 							// Get new position in tile
 							//X
-							valget = obj.valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
+							valget = obj->valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
 							placeholder = (int64_t)(valget / (double)dispResX);
 							if (placeholder < 0) {
 								correspondingTileXpos = (unsigned int)(-placeholder);
@@ -507,7 +484,7 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 							}
 
 							//Y
-							valget = obj.valueGet<double>(namenKonvention.renderObject.positionY, 0.0); // Use positionY here
+							valget = obj->valueGet<double>(namenKonvention.renderObject.positionY, 0.0); // Use positionY here
 							placeholder = (int64_t)(valget / (double)dispResY);
 							if (placeholder < 0) {
 								correspondingTileYpos = (unsigned int)(-placeholder);
@@ -518,6 +495,8 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 
 							//-----------------------------------------
 							// Check if it's in a new tile
+
+							// [TODO] make sure it keeps the same ptr!!!
 							if (correspondingTileXpos != tileXpos + dX || correspondingTileYpos != tileYpos + dY) {
 								toReinsert.push_back(obj);
 							}
@@ -529,35 +508,37 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 							//dont reinsert: gets deleted
 						}
 					}
+					//todo: std move isnt possible either
 					batch = std::move(newBatch);
 				}
 			}
 		}
 	}
 	for(const auto& obj : toReinsert){
-		append(obj, dispResX, dispResY, THREADSIZE);
+		appendPtr(obj, dispResX, dispResY, THREADSIZE);
 	}
 }
 
-
 void RenderObjectContainer::reinsertAllObjects(int dispResX, int dispResY, int THREADSIZE) {
-	std::vector<RenderObject> toReinsert;
-	for(auto& Y : ObjectContainer){
-		for(auto& X : Y){
-			for(auto& batch : X){
-				for(auto& obj : batch){
-					toReinsert.push_back(obj);
-				}
-				batch.clear();
-			}
-			X.clear();
-		}
-		Y.clear();
-	}
-	ObjectContainer.clear();
+	std::vector<std::shared_ptr<RenderObject>> toReinsert;
 
-	for(const auto& obj : toReinsert){
-		append(obj, dispResX, dispResY, THREADSIZE);
+	for (auto& Y : ObjectContainer) {
+		for (auto& X : Y) {
+			for (auto& batch : X) {
+				for (auto& obj : batch) {
+					toReinsert.push_back(obj); // Keep shared_ptr reference
+				}
+				batch.clear(); // Clear batch after move
+			}
+			X.clear(); // Clear tile row
+		}
+		Y.clear(); // Clear tile column
+	}
+	ObjectContainer.clear(); // Fully reset
+
+	// Reinsert with consistent pointer ownership
+	for (const auto& obj : toReinsert) {
+		appendPtr(obj, dispResX, dispResY, THREADSIZE);
 	}
 }
 
@@ -579,7 +560,7 @@ bool RenderObjectContainer::isValidPosition(int x, int y) const {
     return false;
 }
 
-std::vector<std::vector<RenderObject>>& RenderObjectContainer::getContainerAt(int x, int y) {
+std::vector<std::vector<std::shared_ptr<RenderObject>>>& RenderObjectContainer::getContainerAt(int x, int y) {
 	return ObjectContainer[y][x];
 }
 
@@ -608,14 +589,14 @@ void RenderObjectContainer::purgeObjectsAt(int x, int y, int dispResX, int dispR
 
 	if (isValidPosition(correspondingTileXpos, correspondingTileYpos)) {
 		auto& batches = ObjectContainer[correspondingTileYpos][correspondingTileXpos];
-		std::vector<std::vector<RenderObject>> newBatches;
+		std::vector<std::vector<std::shared_ptr<RenderObject>>> newBatches;
 
 		for (auto& batch : batches) {
-			std::vector<RenderObject> newBatch;
+			std::vector<std::shared_ptr<RenderObject>> newBatch;
 
 			for (auto& object : batch) {
-				if (!(object.valueGet<int>(namenKonvention.renderObject.positionX) == x &&
-					object.valueGet<int>(namenKonvention.renderObject.positionY) == y)) {
+				if (!(object->valueGet<int>(namenKonvention.renderObject.positionX) == x &&
+					object->valueGet<int>(namenKonvention.renderObject.positionY) == y)) {
 					// Retain objects that don't match the condition
 					newBatch.push_back(object);
 				}
@@ -626,12 +607,9 @@ void RenderObjectContainer::purgeObjectsAt(int x, int y, int dispResX, int dispR
 				newBatches.push_back(std::move(newBatch));
 			}
 		}
-
 		// Replace the old batches with the new ones
 		ObjectContainer[correspondingTileYpos][correspondingTileXpos] = std::move(newBatches);
-	
 	}	
-
 }
 
 size_t RenderObjectContainer::getObjectCount() {
@@ -663,7 +641,6 @@ size_t RenderObjectContainer::getObjectCountAtTile(int x, int y) {
 	}
 }
 
-
 SDL_Texture* RenderObjectContainer::getTexture(int screenSizeX, int screenSizeY, SDL_Renderer *renderer, int tileXpos, int tileYpos, int Xpos, int Ypos, auto& TextureContainer){
 	// Create a texture to use as a render target
 	// Each tile grid is the size of screen, this way the entire screen is always tiled
@@ -690,15 +667,15 @@ SDL_Texture* RenderObjectContainer::getTexture(int screenSizeX, int screenSizeY,
 					// For all objects inside each batch
 					for (auto& obj : batch) {
 						//Texture loading is handled in append
-						std::string innerdir = obj.valueGet<std::string>(namenKonvention.renderObject.imageLocation);
-						obj.calculateSrcRect();
+						std::string innerdir = obj->valueGet<std::string>(namenKonvention.renderObject.imageLocation);
+						obj->calculateSrcRect();
 
-						rect = obj.getDstRect();
+						rect = obj->getDstRect();
 						rect.x -= Xpos;	//subtract camera posX
 						rect.y -= Ypos;	//subtract camera posY
 
 						// Render the texture to the window
-						error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj.getSrcRect(), &rect);
+						error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj->getSrcRect(), &rect);
 						if (error != 0){
 							std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
 						}

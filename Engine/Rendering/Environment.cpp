@@ -146,7 +146,7 @@ void Environment::update_withThreads(int tileXpos, int tileYpos, int dispResX, i
 	}
 }
 
-std::vector<std::vector<RenderObject>>& Environment::getContainerAt(int x, int y, int layer) {
+std::vector<std::vector<std::shared_ptr<RenderObject>>>& Environment::getContainerAt(int x, int y, int layer) {
 	if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
 		return roc[layer].getContainerAt(x,y);
 	}

@@ -12,26 +12,24 @@ void Invoke::check(InvokeCommand cmd, RenderObject& otherObj) {
     // Same send
     bool skipOther = false;
     if(cmd.selfPtr == &otherObj){
-        std::cerr << "Same Pointers! - Same Object" << std::endl;
-
         if (cmd.otherChangeType.empty() && cmd.otherKey.empty() &&  cmd.otherValue.empty()){
             skipOther = true;
-            std::cerr << "\nSkipping other" << std::endl;
         }
-        else{
+        else{ 
             return;
-            std::cerr << "\nNot skipping other" << std::endl;
         }
     }
 
     // Resolve logical statement
     std::string logic = resolveVars(cmd.logicalArg, *cmd.selfPtr->getDoc(), *otherObj.getDoc(), *global);
-    if (evaluateExpression(logic) == 0.0) return;
+    if (evaluateExpression(logic) == 0.0){
+        return;
+    }
 
     // === SELF update ===
     if (!cmd.selfKey.empty() && !cmd.selfChangeType.empty()) {
         std::string valStr = resolveVars(cmd.selfValue, *cmd.selfPtr->getDoc(), *otherObj.getDoc(), *global);
-        double val = std::stod(valStr);
+        double val = evaluateExpression(valStr);
         double oldVal = JSONHandler::Get::Any<double>(*cmd.selfPtr->getDoc(), cmd.selfKey, 0.0);
 
         if (cmd.selfChangeType == "set") {
@@ -46,10 +44,11 @@ void Invoke::check(InvokeCommand cmd, RenderObject& otherObj) {
         }
     }
 
+
     // === OTHER update ===
-    if (!cmd.otherKey.empty() && !cmd.otherChangeType.empty()) {
+    if (!skipOther) {
         std::string valStr = resolveVars(cmd.otherValue,  *cmd.selfPtr->getDoc(), *otherObj.getDoc(), *global);
-        double val = std::stod(valStr);
+        double val = evaluateExpression(valStr);
         double oldVal = JSONHandler::Get::Any<double>(*otherObj.getDoc(), cmd.otherKey, 0.0);
 
         if (cmd.otherChangeType == "set") {
@@ -65,9 +64,9 @@ void Invoke::check(InvokeCommand cmd, RenderObject& otherObj) {
     }
 
     // === GLOBAL update ===
-    if (!skipOther && !cmd.globalKey.empty() && !cmd.globalChangeType.empty()) {
+    if (!cmd.globalKey.empty() && !cmd.globalChangeType.empty()) {
         std::string valStr = resolveVars(cmd.globalValue,  *cmd.selfPtr->getDoc(), *otherObj.getDoc(), *global);
-        double val = std::stod(valStr);
+        double val = evaluateExpression(valStr);
         double oldVal = JSONHandler::Get::Any<double>(*global, cmd.globalKey, 0.0);
 
         if (cmd.globalChangeType == "set") {
@@ -84,11 +83,19 @@ void Invoke::check(InvokeCommand cmd, RenderObject& otherObj) {
 }
 
 void Invoke::checkAgainstList(RenderObject& obj){
-    std::cerr << commands.size() << " to check" << std::endl;
     for (auto& cmd : commands){
         check(cmd,obj);
     }
 }
+void Invoke::checkLoop(){
+    loopCommands.clear();
+    loopCommands.swap(nextLoopCommands);
+    for (auto& cmd : loopCommands){
+        check(cmd,*cmd.selfPtr);
+    }
+    
+}
+
 
 void Invoke::getNewInvokes(){
     commands.clear();
@@ -96,8 +103,11 @@ void Invoke::getNewInvokes(){
     commands.swap(nextCommands);
 }
 
+
+
 void Invoke::append(InvokeCommand cmd){
-    nextCommands.push_back(cmd);
+    if      (!cmd.type.compare("continous"))   nextCommands.push_back(cmd);
+    else if (!cmd.type.compare("loop"))        nextLoopCommands.push_back(cmd);
 }
 
 
@@ -114,14 +124,12 @@ double Invoke::evaluateExpression(const std::string& expr) {
     if (parser.compile(expr, expression)) {
         result = expression.value();
     }
-
+    
     return result;
 }
 
 std::string Invoke::resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global) {
-
     std::string result = input;
-    
     size_t pos = 0;
     while ((pos = result.find("$(", pos)) != std::string::npos) {
         size_t start = pos + 2;
@@ -162,7 +170,6 @@ std::string Invoke::resolveVars(const std::string& input, rapidjson::Document& s
         // Restart search from current position
         pos += resolved.size();
     }
-
     return result;
 }
 

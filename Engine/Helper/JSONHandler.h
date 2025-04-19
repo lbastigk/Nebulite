@@ -274,6 +274,9 @@ void JSONHandler::ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue,
     else if constexpr (std::is_same_v<T, uint32_t>) {
         jsonValue.SetUint(data);
     }
+    else if constexpr (std::is_same_v<T, uint64_t>) {
+        jsonValue.SetUint64(data);
+    }
     else if constexpr (std::is_same_v<T, float>) {
         jsonValue.SetFloat(data);
     }
@@ -362,6 +365,9 @@ void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& res
     }
     else if constexpr (std::is_same_v<T, uint32_t>) {
         result = jsonValue.GetUint();
+    }
+    else if constexpr (std::is_same_v<T, uint64_t>) {
+        result = jsonValue.GetUint64();
     }
     else if constexpr (std::is_same_v<T, float>) {
         result = jsonValue.GetFloat();

@@ -41,7 +41,7 @@ public:
 	void update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE, Invoke* globalInvoke=nullptr);
 	void reinsertAllObjects(int dispResX,int dispResY, int THREADSIZE);
 
-	std::vector<std::vector<RenderObject>>& getContainerAt(int x, int y, int layer);
+	std::vector<std::vector<std::shared_ptr<RenderObject>>>& getContainerAt(int x, int y, int layer);
 	bool isValidPosition(int x, int y, int layer);
 
 	void purgeObjects();

@@ -9,6 +9,7 @@ external
 *.zip
 *.ttf
 *log.txt
+*.log
 
 # Ignore binaries
 Application/bin/

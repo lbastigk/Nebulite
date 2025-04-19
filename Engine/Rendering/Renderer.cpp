@@ -119,8 +119,7 @@ void Renderer::appendInvokePtr(Invoke* invoke){
 void Renderer::append(RenderObject toAppend) {
 	// Set ID
 	toAppend.valueSet<uint32_t>(namenKonvention.renderObject.id,id_counter);
-	std::cerr << "Object Appended. ID is: " << toAppend.valueGet<uint32_t>(namenKonvention.renderObject.id) << std::endl;
-	id_counter ++;
+	id_counter++;
 
 	//Append to environment, based on layer
 	env.append(toAppend, dispResX, dispResY, THREADSIZE, toAppend.valueGet(namenKonvention.renderObject.layer, 0));
@@ -316,20 +315,20 @@ void Renderer::renderFrame() {
 						// For all objects inside each batch
 						for (auto& obj : batch) {
 							//Texture loading is handled in append
-							std::string innerdir = obj.valueGet<std::string>(namenKonvention.renderObject.imageLocation);
+							std::string innerdir = obj->valueGet<std::string>(namenKonvention.renderObject.imageLocation);
 							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
-								loadTexture(obj);
-								obj.calculateDstRect();
-								obj.calculateSrcRect();
+								loadTexture(*obj);
+								obj->calculateDstRect();
+								obj->calculateSrcRect();
 							}
-							obj.calculateSrcRect();
+							obj->calculateSrcRect();
 
-							rect = obj.getDstRect();
+							rect = obj->getDstRect();
 							rect.x -= Xpos;	//subtract camera posX
 							rect.y -= Ypos;	//subtract camera posY
 
 							// Render the texture to the window
-							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj.getSrcRect(), &rect);
+							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj->getSrcRect(), &rect);
 							if (error != 0){
 								std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
 							}
@@ -425,20 +424,20 @@ void Renderer::renderFrameNoThreads() {
 						// For all objects inside each batch
 						for (auto& obj : batch) {
 							//Texture loading is handled in append
-							std::string innerdir = obj.valueGet<std::string>(namenKonvention.renderObject.imageLocation);
+							std::string innerdir = obj->valueGet<std::string>(namenKonvention.renderObject.imageLocation);
 							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
-								loadTexture(obj);
-								obj.calculateDstRect();
-								obj.calculateSrcRect();
+								loadTexture(*obj);
+								obj->calculateDstRect();
+								obj->calculateSrcRect();
 							}
-							obj.calculateSrcRect();
+							obj->calculateSrcRect();
 
-							rect = obj.getDstRect();
+							rect = obj->getDstRect();
 							rect.x -= Xpos;	//subtract camera posX
 							rect.y -= Ypos;	//subtract camera posY
 
 							// Render the texture to the window
-							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj.getSrcRect(), &rect);
+							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj->getSrcRect(), &rect);
 							if (error != 0){
 								std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
 							}

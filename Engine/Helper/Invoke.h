@@ -57,6 +57,7 @@ struct InvokeCommand{
     std::string globalChangeType;
     std::string globalKey;
     std::string globalValue;
+    std::string type = "continous";
 };
 
 class Invoke{
@@ -69,12 +70,14 @@ public:
 
     // Check Renderobject against invokes, modify
     void check(InvokeCommand cmd, RenderObject& otherObj); 
+    void checkLoop();
     
     // Check against list
     void checkAgainstList(RenderObject& obj);
     
     // Get Invokes for next frame
     void getNewInvokes();
+    
 
     // For evaluating sing expression
     static double evaluateExpression(const std::string& expr);
@@ -84,5 +87,8 @@ private:
     rapidjson::Document* global = nullptr;
     std::vector<InvokeCommand> commands;
     std::vector<InvokeCommand> nextCommands; 
+
+    std::vector<InvokeCommand> loopCommands;
+    std::vector<InvokeCommand> nextLoopCommands;
 };
 
