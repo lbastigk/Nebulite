@@ -1,5 +1,5 @@
 # Ignore external directory, but not script
-external
+./external/
 !external/CloneRepos.sh
 
 # Ignore game resources and error logs
