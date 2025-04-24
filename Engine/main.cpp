@@ -8,7 +8,7 @@ int gameEntry(int argc, char* argv[]){
 	std::cout << "Starting normal session..." << std::endl;
 	
     
-
+    
     Renderer Renderer(false,4,160,160);
 
     Renderer.setFPS(60);

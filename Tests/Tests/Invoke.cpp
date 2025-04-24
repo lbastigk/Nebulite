@@ -245,7 +245,8 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
 
     // Main Render loop
     while (!quit) {
-        if (Renderer.timeToRender()) {
+        // for now ,see max fps
+        if (true || Renderer.timeToRender()) {
             // increase loop time
             JSONHandler::Set::Any<double>(global, "t", (currentTime-starttime)/1000.0);
 
@@ -255,8 +256,11 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
             lastTime = currentTime;
 
             // Update
-            Invoke.checkLoop();
-            Renderer.update();
+            Invoke.checkLoop(); // Checks all renderobjects on screen against loop invokes for manipulation
+            Renderer.update();  // Updates Renderer:
+                                // - Update Renderobjects
+                                // - Each RO is checked against invokes
+                                // - draw ROs new position
 
             //Event handling
             event = Renderer.handleEvent();

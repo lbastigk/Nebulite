@@ -171,6 +171,7 @@ const struct namenKonventionenStruct {
         std::string spritesheetOffsetX = "spritesheetOffsetX";
         std::string spritesheetOffsetY = "spritesheetOffsetY";
         std::string deleteFlag = "deleteFlag";
+        std::string reloadInvokes = "reloadInvokes";
     }renderObject;
     const struct MyTemplate {
         std::string _self = "MyTemplate";

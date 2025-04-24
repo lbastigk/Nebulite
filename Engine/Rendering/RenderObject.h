@@ -48,10 +48,14 @@ public:
 
 	void loadMoveSet(MoveRuleSet mrs);
 
+	void reloadInvokes();
+
 private:
 	rapidjson::Document doc;
 	SDL_Rect dstRect;
 	SDL_Rect srcRect;
+
+	std::vector<InvokeCommand> cmds;
 };
 
 //-----------------------------------------------------------

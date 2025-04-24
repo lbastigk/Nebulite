@@ -33,6 +33,10 @@ RenderObject::RenderObject() {
 	//Build Rect on creation
 	calculateDstRect();
 	calculateSrcRect();
+
+	// Insert Invokes
+	//reloadInvokes();	// Cant be done on creation: invokes is empty!
+	JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, 1);
 }
 
 
@@ -122,38 +126,51 @@ void RenderObject::calculateSrcRect() {
 	}
 }
 
+void RenderObject::reloadInvokes(){
+	cmds.clear();
+
+	rapidjson::Document invokes;
+	JSONHandler::Get::subDoc(*this->getDoc(),"invokes",invokes);
+	if (invokes.IsArray()) {
+		// Loop over each element in the 'invokes' array
+		for (rapidjson::SizeType i = 0; i < invokes.Size(); ++i) {
+			// Each element in the array is a Document (or Value)
+			rapidjson::Value& invokeDoc = invokes[i];  // Access each document
+
+			InvokeCommand cmd;
+			cmd.type 				= JSONHandler::Get::Any<std::string>(invokeDoc,"type","");
+			cmd.selfPtr 			= this;
+			cmd.globalChangeType 	= JSONHandler::Get::Any<std::string>(invokeDoc,"globalChangeType","");
+			cmd.globalKey 			= JSONHandler::Get::Any<std::string>(invokeDoc,"globalKey","");
+			cmd.globalValue 		= JSONHandler::Get::Any<std::string>(invokeDoc,"globalValue","");
+			cmd.logicalArg 			= JSONHandler::Get::Any<std::string>(invokeDoc,"logicalArg","");
+			cmd.otherChangeType 	= JSONHandler::Get::Any<std::string>(invokeDoc,"otherChangeType","");
+			cmd.otherKey 			= JSONHandler::Get::Any<std::string>(invokeDoc,"otherKey","");
+			cmd.otherValue 			= JSONHandler::Get::Any<std::string>(invokeDoc,"otherValue","");
+			cmd.selfKey 			= JSONHandler::Get::Any<std::string>(invokeDoc,"selfKey","");
+			cmd.selfValue 			= JSONHandler::Get::Any<std::string>(invokeDoc,"selfValue","");
+			cmd.selfChangeType 		= JSONHandler::Get::Any<std::string>(invokeDoc,"selfChangeType","");
+			cmds.push_back(cmd);
+		}
+	}
+	JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, 0);
+}
+
 //-----------------------------------------------------------
 void RenderObject::update(Invoke* globalInvoke) {
 
 	//------------------------------------
 	// Check all invokes
 	if (globalInvoke) {
+		// Checks this object against all conventional invokes for manipulation
         globalInvoke->checkAgainstList(*this);
 
 		// Next step: append invokes from object itself:
-		rapidjson::Document invokes;
-		JSONHandler::Get::subDoc(*this->getDoc(),"invokes",invokes);
-		if (invokes.IsArray()) {
-			// Loop over each element in the 'invokes' array
-			for (rapidjson::SizeType i = 0; i < invokes.Size(); ++i) {
-				// Each element in the array is a Document (or Value)
-				rapidjson::Value& invokeDoc = invokes[i];  // Access each document
-
-				InvokeCommand cmd;
-				cmd.type 				= JSONHandler::Get::Any<std::string>(invokeDoc,"type","");
-				cmd.selfPtr 			= this;
-				cmd.globalChangeType 	= JSONHandler::Get::Any<std::string>(invokeDoc,"globalChangeType","");
-				cmd.globalKey 			= JSONHandler::Get::Any<std::string>(invokeDoc,"globalKey","");
-				cmd.globalValue 		= JSONHandler::Get::Any<std::string>(invokeDoc,"globalValue","");
-				cmd.logicalArg 			= JSONHandler::Get::Any<std::string>(invokeDoc,"logicalArg","");
-				cmd.otherChangeType 	= JSONHandler::Get::Any<std::string>(invokeDoc,"otherChangeType","");
-				cmd.otherKey 			= JSONHandler::Get::Any<std::string>(invokeDoc,"otherKey","");
-				cmd.otherValue 			= JSONHandler::Get::Any<std::string>(invokeDoc,"otherValue","");
-				cmd.selfKey 			= JSONHandler::Get::Any<std::string>(invokeDoc,"selfKey","");
-				cmd.selfValue 			= JSONHandler::Get::Any<std::string>(invokeDoc,"selfValue","");
-				cmd.selfChangeType 		= JSONHandler::Get::Any<std::string>(invokeDoc,"selfChangeType","");
-				globalInvoke->append(cmd);
-			}
+		if (valueGet<int>(namenKonvention.renderObject.reloadInvokes,1)){
+			reloadInvokes();
+		}
+		for (const auto& cmd : cmds){
+			globalInvoke->append(cmd);
 		}
     }else{
 		std::cerr << "Invoke is nullptr!" << std::endl;

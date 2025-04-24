@@ -25,10 +25,6 @@ Renderer::Renderer(bool flag_hidden, unsigned int zoom, unsigned int X, unsigned
 	dispResX = X;
 	dispResY = Y;
 
-	
-
-	
-
 	//Create SDL window
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		// SDL initialization failed
@@ -232,6 +228,7 @@ bool Renderer::timeToRender() {
 // - texture container for multi threading (MUTEX?)
 //
 void Renderer::renderFrame() {
+	
 	//------------------------------------------------
 	// FPS Count
 
@@ -290,8 +287,6 @@ void Renderer::renderFrame() {
 		}
 	}
 
-	
-
 	//------------------------------------------------
 	// Rendering
 
@@ -316,11 +311,11 @@ void Renderer::renderFrame() {
 						for (auto& obj : batch) {
 							//Texture loading is handled in append
 							std::string innerdir = obj->valueGet<std::string>(namenKonvention.renderObject.imageLocation);
-							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
-								loadTexture(*obj);
-								obj->calculateDstRect();
-								obj->calculateSrcRect();
-							}
+							//if (TextureContainer.find(innerdir) == TextureContainer.end()) {
+							//	loadTexture(*obj);
+							//	obj->calculateDstRect();
+							//	//obj->calculateSrcRect();
+							//}
 							obj->calculateSrcRect();
 
 							rect = obj->getDstRect();
@@ -338,6 +333,7 @@ void Renderer::renderFrame() {
 			}
 		}
 	}
+
 }
 
 void Renderer::renderFrameNoThreads() {
