@@ -4,16 +4,19 @@
 // Needs to be linked to a doc containing global variables
 Invoke::Invoke(rapidjson::Document& globalDocPtr) {
     global = &globalDocPtr;
+
+    // Global table elements?
+    expression.register_symbol_table(symbol_table);
 }
 
 // Checks a given invoke cmd against objects in buffer
 // as objects have constant pointers, using RenderObject& is possible
-void Invoke::check(InvokeCommand cmd, RenderObject& otherObj) {
+void Invoke::check(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj) {
 
     // Same send
     bool skipOther = false;
-    if(cmd.selfPtr == &otherObj){
-        if (cmd.otherChangeType.empty() && cmd.otherKey.empty() &&  cmd.otherValue.empty()){
+    if(cmd->selfPtr == &otherObj){
+        if (cmd->otherChangeType.empty() && cmd->otherKey.empty() &&  cmd->otherValue.empty()){
             skipOther = true;
         }
         else{ 
@@ -22,63 +25,63 @@ void Invoke::check(InvokeCommand cmd, RenderObject& otherObj) {
     }
 
     // Resolve logical statement
-    std::string logic = resolveVars(cmd.logicalArg, *cmd.selfPtr->getDoc(), *otherObj.getDoc(), *global);
+    std::string logic = resolveVars(cmd->logicalArg, *cmd->selfPtr->getDoc(), *otherObj.getDoc(), *global);
     if (evaluateExpression(logic) == 0.0){
         return;
     }
 
     // === SELF update ===
-    if (!cmd.selfKey.empty() && !cmd.selfChangeType.empty()) {
-        std::string valStr = resolveVars(cmd.selfValue, *cmd.selfPtr->getDoc(), *otherObj.getDoc(), *global);
+    if (!cmd->selfKey.empty() && !cmd->selfChangeType.empty()) {
+        std::string valStr = resolveVars(cmd->selfValue, *cmd->selfPtr->getDoc(), *otherObj.getDoc(), *global);
         double val = evaluateExpression(valStr);
-        double oldVal = JSONHandler::Get::Any<double>(*cmd.selfPtr->getDoc(), cmd.selfKey, 0.0);
+        double oldVal = JSONHandler::Get::Any<double>(*cmd->selfPtr->getDoc(), cmd->selfKey, 0.0);
 
-        if (cmd.selfChangeType == "set") {
-            cmd.selfPtr->valueSet<double>(cmd.selfKey, val);
-        } else if (cmd.selfChangeType == "add") {
-            cmd.selfPtr->valueSet<double>(cmd.selfKey, oldVal + val);
-        } else if (cmd.selfChangeType == "multiply") {
-            cmd.selfPtr->valueSet<double>(cmd.selfKey, oldVal * val);
-        } else if (cmd.selfChangeType == "append") {
-            std::string oldStr = JSONHandler::Get::Any<std::string>(*cmd.selfPtr->getDoc(), cmd.selfKey, "");
-            cmd.selfPtr->valueSet<std::string>(cmd.selfKey, oldStr + valStr);
+        if (cmd->selfChangeType == "set") {
+            cmd->selfPtr->valueSet<double>(cmd->selfKey, val);
+        } else if (cmd->selfChangeType == "add") {
+            cmd->selfPtr->valueSet<double>(cmd->selfKey, oldVal + val);
+        } else if (cmd->selfChangeType == "multiply") {
+            cmd->selfPtr->valueSet<double>(cmd->selfKey, oldVal * val);
+        } else if (cmd->selfChangeType == "append") {
+            std::string oldStr = JSONHandler::Get::Any<std::string>(*cmd->selfPtr->getDoc(), cmd->selfKey, "");
+            cmd->selfPtr->valueSet<std::string>(cmd->selfKey, oldStr + valStr);
         }
     }
 
 
     // === OTHER update ===
     if (!skipOther) {
-        std::string valStr = resolveVars(cmd.otherValue,  *cmd.selfPtr->getDoc(), *otherObj.getDoc(), *global);
+        std::string valStr = resolveVars(cmd->otherValue,  *cmd->selfPtr->getDoc(), *otherObj.getDoc(), *global);
         double val = evaluateExpression(valStr);
-        double oldVal = JSONHandler::Get::Any<double>(*otherObj.getDoc(), cmd.otherKey, 0.0);
+        double oldVal = JSONHandler::Get::Any<double>(*otherObj.getDoc(), cmd->otherKey, 0.0);
 
-        if (cmd.otherChangeType == "set") {
-            otherObj.valueSet<double>(cmd.otherKey, val);
-        } else if (cmd.otherChangeType == "add") {
-            otherObj.valueSet<double>(cmd.otherKey, oldVal + val);
-        } else if (cmd.otherChangeType == "multiply") {
-            otherObj.valueSet<double>(cmd.otherKey, oldVal * val);
-        } else if (cmd.otherChangeType == "append") {
-            std::string oldStr = JSONHandler::Get::Any<std::string>(*otherObj.getDoc(), cmd.otherKey, "");
-            otherObj.valueSet<std::string>(cmd.otherKey, oldStr + valStr);
+        if (cmd->otherChangeType == "set") {
+            otherObj.valueSet<double>(cmd->otherKey, val);
+        } else if (cmd->otherChangeType == "add") {
+            otherObj.valueSet<double>(cmd->otherKey, oldVal + val);
+        } else if (cmd->otherChangeType == "multiply") {
+            otherObj.valueSet<double>(cmd->otherKey, oldVal * val);
+        } else if (cmd->otherChangeType == "append") {
+            std::string oldStr = JSONHandler::Get::Any<std::string>(*otherObj.getDoc(), cmd->otherKey, "");
+            otherObj.valueSet<std::string>(cmd->otherKey, oldStr + valStr);
         }
     }
 
     // === GLOBAL update ===
-    if (!cmd.globalKey.empty() && !cmd.globalChangeType.empty()) {
-        std::string valStr = resolveVars(cmd.globalValue,  *cmd.selfPtr->getDoc(), *otherObj.getDoc(), *global);
+    if (!cmd->globalKey.empty() && !cmd->globalChangeType.empty()) {
+        std::string valStr = resolveVars(cmd->globalValue,  *cmd->selfPtr->getDoc(), *otherObj.getDoc(), *global);
         double val = evaluateExpression(valStr);
-        double oldVal = JSONHandler::Get::Any<double>(*global, cmd.globalKey, 0.0);
+        double oldVal = JSONHandler::Get::Any<double>(*global, cmd->globalKey, 0.0);
 
-        if (cmd.globalChangeType == "set") {
-            JSONHandler::Set::Any<double>(*global, cmd.globalKey, val);
-        } else if (cmd.globalChangeType == "add") {
-            JSONHandler::Set::Any<double>(*global, cmd.globalKey, oldVal + val);
-        } else if (cmd.globalChangeType == "multiply") {
-            JSONHandler::Set::Any<double>(*global, cmd.globalKey, oldVal * val);
-        } else if (cmd.globalChangeType == "append") {
-            std::string oldStr = JSONHandler::Get::Any<std::string>(*global, cmd.globalKey, "");
-            JSONHandler::Set::Any<std::string>(*global, cmd.globalKey, oldStr + valStr);
+        if (cmd->globalChangeType == "set") {
+            JSONHandler::Set::Any<double>(*global, cmd->globalKey, val);
+        } else if (cmd->globalChangeType == "add") {
+            JSONHandler::Set::Any<double>(*global, cmd->globalKey, oldVal + val);
+        } else if (cmd->globalChangeType == "multiply") {
+            JSONHandler::Set::Any<double>(*global, cmd->globalKey, oldVal * val);
+        } else if (cmd->globalChangeType == "append") {
+            std::string oldStr = JSONHandler::Get::Any<std::string>(*global, cmd->globalKey, "");
+            JSONHandler::Set::Any<std::string>(*global, cmd->globalKey, oldStr + valStr);
         }
     }
 }
@@ -92,7 +95,7 @@ void Invoke::checkLoop(){
     loopCommands.clear();
     loopCommands.swap(nextLoopCommands);
     for (auto& cmd : loopCommands){
-        check(cmd,*cmd.selfPtr);
+        check(cmd,*cmd->selfPtr);
     }
     
 }
@@ -106,26 +109,19 @@ void Invoke::getNewInvokes(){
 
 
 
-void Invoke::append(InvokeCommand cmd){
-    if      (!cmd.type.compare("continous"))   nextCommands.push_back(cmd);
-    else if (!cmd.type.compare("loop"))        nextLoopCommands.push_back(cmd);
+void Invoke::append(std::shared_ptr<InvokeCommand> toAppend){
+    if      (!toAppend->type.compare("continous"))   nextCommands.push_back(toAppend);
+    else if (!toAppend->type.compare("loop"))        nextLoopCommands.push_back(toAppend);
 }
 
 
 double Invoke::evaluateExpression(const std::string& expr) {
-    typedef exprtk::expression<double> expression_t;
-    typedef exprtk::parser<double> parser_t;
-
-    exprtk::symbol_table<double> symbol_table;
-    expression_t expression;
-    expression.register_symbol_table(symbol_table);
-    parser_t parser;
+    
 
     double result = 0.0;
     if (parser.compile(expr, expression)) {
         result = expression.value();
     }
-    
     return result;
 }
 

@@ -66,10 +66,10 @@ public:
     Invoke(rapidjson::Document& globalDocPtr);
     
     // Append invoke command
-    void append(InvokeCommand toAppend);
+    void append(std::shared_ptr<InvokeCommand> toAppend);
 
     // Check Renderobject against invokes, modify
-    void check(InvokeCommand cmd, RenderObject& otherObj); 
+    void check(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj); 
     void checkLoop();
     
     // Check against list
@@ -80,15 +80,23 @@ public:
     
 
     // For evaluating sing expression
-    static double evaluateExpression(const std::string& expr);
-    static std::string resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global);
+    double evaluateExpression(const std::string& expr);
+    std::string resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global);
 
 private:
     rapidjson::Document* global = nullptr;
-    std::vector<InvokeCommand> commands;
-    std::vector<InvokeCommand> nextCommands; 
+    std::vector<std::shared_ptr<InvokeCommand>> commands;
+    std::vector<std::shared_ptr<InvokeCommand>> nextCommands; 
 
-    std::vector<InvokeCommand> loopCommands;
-    std::vector<InvokeCommand> nextLoopCommands;
+    std::vector<std::shared_ptr<InvokeCommand>> loopCommands;
+    std::vector<std::shared_ptr<InvokeCommand>> nextLoopCommands;
+
+    // exprtk stuff:
+    typedef exprtk::expression<double> expression_t;
+    typedef exprtk::parser<double> parser_t;
+
+    exprtk::symbol_table<double> symbol_table;
+    expression_t expression;
+    parser_t parser;
 };
 

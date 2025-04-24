@@ -86,6 +86,8 @@ private:
         int gravity(int argc, char* argv[]);
 
         int gravityV2(int argc, char* argv[]);
+
+        int resolveVars(int argc, char* argv[]);
     };
     class _JSONHandler {
     public:

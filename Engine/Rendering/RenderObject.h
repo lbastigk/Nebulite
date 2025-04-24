@@ -55,7 +55,7 @@ private:
 	SDL_Rect dstRect;
 	SDL_Rect srcRect;
 
-	std::vector<InvokeCommand> cmds;
+	std::vector<std::shared_ptr<InvokeCommand>> cmds;
 };
 
 //-----------------------------------------------------------

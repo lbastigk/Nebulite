@@ -43,7 +43,6 @@ int gameEntry(int argc, char* argv[]){
         }
     }
     //End of Program!
-    std::cout << "Destroying Renderer...\n";
     Renderer.destroy();
     return 0;
 }
@@ -84,5 +83,6 @@ int main(int argc, char* argv[]) {
 	else{
 		return mainTree.parse(argc, argv);
 	}
+    return 0;
 }
 

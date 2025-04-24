@@ -150,7 +150,10 @@ void RenderObject::reloadInvokes(){
 			cmd.selfKey 			= JSONHandler::Get::Any<std::string>(invokeDoc,"selfKey","");
 			cmd.selfValue 			= JSONHandler::Get::Any<std::string>(invokeDoc,"selfValue","");
 			cmd.selfChangeType 		= JSONHandler::Get::Any<std::string>(invokeDoc,"selfChangeType","");
-			cmds.push_back(cmd);
+
+			//InvokeCommand cmd;
+			auto ptr = std::make_shared<InvokeCommand>(std::move(cmd));
+			cmds.push_back(ptr);
 		}
 	}
 	JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, 0);

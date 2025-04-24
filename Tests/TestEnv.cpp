@@ -79,6 +79,12 @@ int TestEnv::_Invoke::passArgs(int argc, char* argv[]){
 		}, 
 		"gravity","Gravity test"
 	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
+			return resolveVars(argc, argv);
+		}, 
+		"resolve-vars","ResolveVars speed test"
+	);
 
 	// parse
 	return ft.parse(argc, argv);
