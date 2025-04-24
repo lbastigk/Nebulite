@@ -1,5 +1,5 @@
 # Ignore external directory, but not script
-external/*
+external/
 external/SDL2_build
 !external/CloneRepos.sh
 
@@ -13,8 +13,10 @@ Application/*.data
 *.jpeg
 *.zip
 *.ttf
-*log.txt
+*.log.txt
 *.log
+Application/Resources/Fonts/* 
+Application/errors.log  
 
 # Ignore binaries
 Application/bin/
@@ -22,18 +24,11 @@ Application/bin/
 # Ignore dlls
 *.dll
 
-# Ignore segment for graphics Creation, for now
-GraphicsCreation/
-
 # Ignore vs files
 .vs/
 
 # Ignore all .exe files
 *.exe
-
-# Ignore all Debug and Release folders
-**/Debug/
-**/Release/
 
 # ignore build directories
 **/build/
@@ -44,5 +39,5 @@ CMakeCache.txt
 cmake_install.cmake
 Makefile
 
-# ignore license file
-*License.txt
+
+
