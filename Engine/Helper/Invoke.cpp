@@ -1,12 +1,13 @@
 #include "Invoke.h"
 #include "RenderObject.h"  // include full definition of RenderObject
 
-
+// Needs to be linked to a doc containing global variables
 Invoke::Invoke(rapidjson::Document& globalDocPtr) {
     global = &globalDocPtr;
 }
 
-
+// Checks a given invoke cmd against objects in buffer
+// as objects have constant pointers, using RenderObject& is possible
 void Invoke::check(InvokeCommand cmd, RenderObject& otherObj) {
 
     // Same send

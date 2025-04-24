@@ -49,11 +49,8 @@ class JSONHandler {
 public:
     class Get {
     public:
-        template <typename T>
-        static T Any(rapidjson::Document& doc, const std::string& fullKey, const T& defaultValue = T());
-        template <typename T>
-        static T AnyFromValue(rapidjson::Value& doc, const std::string& fullKey, const T& defaultValue = T());
-        static void subDocOld(rapidjson::Document& doc, const std::string& key, rapidjson::Document& destination);
+        template <typename T, typename JSONValueType>
+        static T Any(JSONValueType& value, const std::string& fullKey, const T& defaultValue);
         static void subDoc(rapidjson::Document& doc, const std::string& key, rapidjson::Document& destination);
         static void listOfKeys(rapidjson::Document& doc, std::vector<std::string>& keys);
         static int keyAmount(rapidjson::Document& doc);
@@ -114,7 +111,7 @@ private:
 // Defining template functions here, otherwise the linker spits out errors en masse...
 
 template <typename T>
-T JSONHandler::Get::Any(rapidjson::Document& doc, const std::string& fullKey, const T& defaultValue) {
+T _OLD_Get_Any(rapidjson::Document& doc, const std::string& fullKey, const T& defaultValue) {
     //Handle key nesting:
     int pos = fullKey.find('.');
     if (pos != -1) {
@@ -154,8 +151,43 @@ T JSONHandler::Get::Any(rapidjson::Document& doc, const std::string& fullKey, co
     }  
 }
 
+template <typename T, typename JSONValueType>
+T JSONHandler::Get::Any(JSONValueType& value, const std::string& fullKey, const T& defaultValue) {
+    const rapidjson::Value* current = &value;
+    size_t start = 0;
+
+    while (start < fullKey.length()) {
+        size_t end = fullKey.find('.', start);
+        std::string key = (end == std::string::npos)
+                          ? fullKey.substr(start)
+                          : fullKey.substr(start, end - start);
+
+        if (!current->IsObject() || !current->HasMember(key.c_str())) {
+            return defaultValue;
+        }
+
+        current = &(*current)[key.c_str()];
+
+        if (end == std::string::npos) break;
+        start = end + 1;
+    }
+
+    if (!current->IsNull()) {
+        try {
+            T result;
+            ConvertFromJSONValue(*current, result);
+            return result;
+        } catch (const std::exception&) {
+            // Handle conversion failure
+        }
+    }
+
+    return defaultValue;
+}
+
+
 template <typename T>
-T JSONHandler::Get::AnyFromValue(rapidjson::Value& value, const std::string& fullKey, const T& defaultValue) {
+T _OLD_Get_AnyFromValue(rapidjson::Value& value, const std::string& fullKey, const T& defaultValue) {
     int pos = fullKey.find('.');
     if (pos != -1) {
         // We need to go deeper
@@ -188,7 +220,7 @@ T JSONHandler::Get::AnyFromValue(rapidjson::Value& value, const std::string& ful
 }
 
 template <typename T>
-void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
+void _OLD_Set_Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
     
     // Ensure that doc is initialized as an object
     if (!doc.IsObject()) {
@@ -251,6 +283,52 @@ void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey,
     }    
 }
 
+template <typename T>
+void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
+    if (!doc.IsObject()) {
+        doc.SetObject();
+    }
+
+    rapidjson::Value* current = &doc;
+    size_t start = 0;
+
+    // Traverse or create nested objects
+    while (true) {
+        size_t end = fullKey.find('.', start);
+        std::string key = (end == std::string::npos)
+                          ? fullKey.substr(start)
+                          : fullKey.substr(start, end - start);
+
+        if (!current->IsObject()) {
+            current->SetObject();
+        }
+
+        if (end != std::string::npos) {
+            // We're not at the final key, ensure the sub-object exists
+            if (!current->HasMember(key.c_str())) {
+                rapidjson::Value keyVal(key.c_str(), doc.GetAllocator());
+                rapidjson::Value newObj(rapidjson::kObjectType);
+                current->AddMember(keyVal, newObj, doc.GetAllocator());
+            }
+
+            current = &(*current)[key.c_str()];
+            start = end + 1;
+        } else {
+            // Final key reached: set the value
+            rapidjson::Value keyVal(key.c_str(), doc.GetAllocator());
+            rapidjson::Value jsonValue;
+            ConvertToJSONValue(data, jsonValue, doc.GetAllocator());
+
+            if (current->HasMember(key.c_str())) {
+                (*current)[key.c_str()] = jsonValue;
+            } else if (!onlyIfExists) {
+                current->AddMember(keyVal, jsonValue, doc.GetAllocator());
+            }
+            break;
+        }
+    }
+}
+
 
 //----------------------------------------------------------------------
 // Helper functions to convert data to JSON values (specializations may be required for custom types)
@@ -282,9 +360,6 @@ void JSONHandler::ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue,
     }
     else if constexpr (std::is_same_v<T, double>) {
         jsonValue.SetDouble(data);
-    }
-    else if constexpr (std::is_same_v<T, float>) {
-        jsonValue.SetDouble(static_cast<double>(data));
     }
 
     //Strings and similiar
@@ -354,6 +429,7 @@ void JSONHandler::ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue,
         
     }
 }
+
 template <typename T>
 void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& result) {
     // Implement the reverse conversion logic for each supported type

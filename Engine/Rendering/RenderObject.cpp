@@ -140,18 +140,18 @@ void RenderObject::update(Invoke* globalInvoke) {
 				rapidjson::Value& invokeDoc = invokes[i];  // Access each document
 
 				InvokeCommand cmd;
-				cmd.type 				= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"type","");
+				cmd.type 				= JSONHandler::Get::Any<std::string>(invokeDoc,"type","");
 				cmd.selfPtr 			= this;
-				cmd.globalChangeType 	= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"globalChangeType","");
-				cmd.globalKey 			= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"globalKey","");
-				cmd.globalValue 		= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"globalValue","");
-				cmd.logicalArg 			= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"logicalArg","");
-				cmd.otherChangeType 	= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"otherChangeType","");
-				cmd.otherKey 			= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"otherKey","");
-				cmd.otherValue 			= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"otherValue","");
-				cmd.selfKey 			= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"selfKey","");
-				cmd.selfValue 			= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"selfValue","");
-				cmd.selfChangeType 		= JSONHandler::Get::AnyFromValue<std::string>(invokeDoc,"selfChangeType","");
+				cmd.globalChangeType 	= JSONHandler::Get::Any<std::string>(invokeDoc,"globalChangeType","");
+				cmd.globalKey 			= JSONHandler::Get::Any<std::string>(invokeDoc,"globalKey","");
+				cmd.globalValue 		= JSONHandler::Get::Any<std::string>(invokeDoc,"globalValue","");
+				cmd.logicalArg 			= JSONHandler::Get::Any<std::string>(invokeDoc,"logicalArg","");
+				cmd.otherChangeType 	= JSONHandler::Get::Any<std::string>(invokeDoc,"otherChangeType","");
+				cmd.otherKey 			= JSONHandler::Get::Any<std::string>(invokeDoc,"otherKey","");
+				cmd.otherValue 			= JSONHandler::Get::Any<std::string>(invokeDoc,"otherValue","");
+				cmd.selfKey 			= JSONHandler::Get::Any<std::string>(invokeDoc,"selfKey","");
+				cmd.selfValue 			= JSONHandler::Get::Any<std::string>(invokeDoc,"selfValue","");
+				cmd.selfChangeType 		= JSONHandler::Get::Any<std::string>(invokeDoc,"selfChangeType","");
 				globalInvoke->append(cmd);
 			}
 		}
