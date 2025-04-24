@@ -1,5 +1,6 @@
 # Ignore external directory, but not script
-./external/
+external/*
+external/SDL2_build
 !external/CloneRepos.sh
 
 # Ignore created data
