@@ -28,7 +28,7 @@
         {
             "label": "Full Build for Linux + Testing + Profiling",
             "type": "shell",
-            "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 && sudo sysctl -w kernel.kptr_restrict=0 && cmake ./ && make && cd ./Application && perf record ./Tests.sh && perf report",
+            "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 && sudo sysctl -w kernel.kptr_restrict=0 && cmake ./ && make && cd ./Application && timeout 5s perf record -a -g -- ./Tests.sh ; perf report",
             "group": {
                 "kind": "build",
                 "isDefault": false
