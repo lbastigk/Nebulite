@@ -2,6 +2,10 @@
 external
 !external/CloneRepos.sh
 
+# Ignore created data
+Application/*.data.old
+Application/*.data
+
 # Ignore game resources and error logs
 *.bmp
 *.png

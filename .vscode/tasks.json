@@ -13,6 +13,29 @@
             "problemMatcher": [],
             "detail": "Build the project by running 'make' and 'cmake' in the appropriate directories"
         },
+        // BUILD FOR LINUX, USING CMAKE + start Test
+        {
+            "label": "Full Build for Linux + Testing",
+            "type": "shell",
+            "command": "cmake ./ && make && cd ./Application/ && ./Tests.sh",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [],
+            "detail": "Build the project by running 'make' and 'cmake' in the appropriate directories"
+        },   
+        {
+            "label": "Profile with Perf",
+            "type": "shell",
+            "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 && sudo sysctl -w kernel.kptr_restrict=0 && cmake ./ && make && cd ./Application && perf record ./Tests.sh && perf report",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [],
+            "detail": "Build the project and run Tests.sh under perf to profile performance."
+        },           
         // BUILD ON WINDOWS, USING CMAKE
         {
             "label": "Full Build for Windows",
