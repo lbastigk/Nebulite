@@ -26,7 +26,7 @@
             "detail": "Build the project by running 'make' and 'cmake' in the appropriate directories"
         },   
         {
-            "label": "Profile with Perf",
+            "label": "Full Build for Linux + Testing + Profiling",
             "type": "shell",
             "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 && sudo sysctl -w kernel.kptr_restrict=0 && cmake ./ && make && cd ./Application && perf record ./Tests.sh && perf report",
             "group": {
