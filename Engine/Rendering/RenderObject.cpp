@@ -4,6 +4,8 @@
 #include <iostream>
 
 
+
+
 //-----------------------------------------------------------
 //Constructor
 
@@ -37,6 +39,13 @@ RenderObject::RenderObject() {
 	// Insert Invokes
 	//reloadInvokes();	// Cant be done on creation: invokes is empty!
 	JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, 1);
+
+	// Create text
+	// Create a surface with the text
+	JSONHandler::Set::Any(doc,namenKonvention.renderObject.textStr,"");
+	JSONHandler::Set::Any(doc,namenKonvention.renderObject.textFontsize,0);
+
+	
 }
 
 
@@ -80,6 +89,33 @@ void RenderObject::deserialize(std::string serialOrLink) {
 	calculateSrcRect();
 }
 
+void RenderObject::calculateTxtRect(SDL_Renderer* renderer,TTF_Font* font){
+	float scalar = 1;
+	float fontSize = valueGet<float>(namenKonvention.renderObject.textFontsize);
+	std::string text = valueGet<std::string>(namenKonvention.renderObject.textStr);
+	SDL_Color textColor = { 255, 255, 255, 255 }; // White color
+
+	//textRect = { (int)(scalar*10.0), (int)(scalar*10.0), 0, 0 };
+	textRect.x = valueGet<float>(namenKonvention.renderObject.positionX) + valueGet<float>(namenKonvention.renderObject.textDx);
+	textRect.y = valueGet<float>(namenKonvention.renderObject.positionY) + valueGet<float>(namenKonvention.renderObject.textDy);
+	textRect.w = scalar * fontSize * text.length(); // Width based on text length
+	textRect.h = (int)((float)fontSize * 1.5 * scalar);
+	//textRect.x = valueGet<int>(namenKonvention.renderObject.positionX);
+	//textRect.y = valueGet<int>(namenKonvention.renderObject.positionY);
+
+	textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
+
+	// Create a texture from the text surface
+	textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+}
+
+SDL_Texture& RenderObject::getTextTexture(){
+	return *textTexture;
+}
+
+SDL_Rect* RenderObject::getTextRect(){
+	return &textRect;
+}
 
 rapidjson::Document* RenderObject::getDoc() const {
 	return const_cast<rapidjson::Document*>(&doc);

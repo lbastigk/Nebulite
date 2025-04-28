@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 
+
 Renderer::Renderer(bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y){
 
 	RenderZoom=zoom;
@@ -213,9 +214,10 @@ void Renderer::moveCam(int dX, int dY) {
 
 bool Renderer::timeToRender() {
 	if (control_fps) {
-		if (epsillon < 0) {
-			return SDL_GetTicks64() >= (prevTicks + SCREEN_TICKS_PER_FRAME + epsillon / 1000);
-		}
+		// FPS control is currently buggy, perhaps overflow?
+		//if (epsillon < 0) {
+		//	return SDL_GetTicks64() >= (prevTicks + SCREEN_TICKS_PER_FRAME + epsillon / 1000);
+		//}
 		return SDL_GetTicks64() >= (prevTicks + SCREEN_TICKS_PER_FRAME);
 	}
 	else {
@@ -247,27 +249,6 @@ void Renderer::renderFrame() {
 		lastFPSRender = prevTicks;
 
 		if (control_fps) {
-			//FPS-Control
-			/*
-			//int fps is current fps
-			//int SCREEN_FPS is goal
-			//This part is called ever second when fps is recalculated
-
-			//Implement PID for int epsillon
-			//epsillon is a �s delay to get closer to goal FPS
-
-			//Current implementation is a simple counter
-			if (fps > SCREEN_FPS) {
-				epsillon += 1;
-			}
-			else if (fps < SCREEN_FPS) {
-				//Eps cant be under 0
-				if (epsillon > 0) {
-					epsillon -= 1;
-				}
-			}
-			*/
-
 			//D and I summation
 			int error = fps - SCREEN_FPS;
 			integral += error;
@@ -324,6 +305,10 @@ void Renderer::renderFrame() {
 
 							// Render the texture to the window
 							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj->getSrcRect(), &rect);
+							if (obj->valueGet<float>(namenKonvention.renderObject.textFontsize)>0){
+								obj->calculateTxtRect(renderer,font);
+								SDL_RenderCopy(renderer,&obj->getTextTexture(),NULL,obj->getTextRect());
+							}
 							if (error != 0){
 								std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
 							}

@@ -4,6 +4,8 @@
 #include <thread>
 #include "SDL.h"
 
+#include <SDL_ttf.h>
+
 #include "Invoke.h"
 #include "NamenKonventionen.h"
 #include "JSONHandler.h"
@@ -39,6 +41,9 @@ public:
 	void calculateDstRect();
 	SDL_Rect* getSrcRect();
 	void calculateSrcRect();
+	SDL_Texture& getTextTexture();
+	void calculateTxtRect(SDL_Renderer* renderer,TTF_Font* font);
+	SDL_Rect* getTextRect();
 	//-----------------------------------------------------------
 	void update(Invoke* globalInvoke=nullptr);
 	void exampleMoveSet(std::string val = namenKonvention.renderObject.positionX);
@@ -54,6 +59,10 @@ private:
 	rapidjson::Document doc;
 	SDL_Rect dstRect;
 	SDL_Rect srcRect;
+
+	SDL_Surface* textSurface;
+	SDL_Texture* textTexture;
+	SDL_Rect textRect;
 
 	std::vector<std::shared_ptr<InvokeCommand>> cmds;
 };

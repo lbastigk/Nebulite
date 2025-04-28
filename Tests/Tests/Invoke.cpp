@@ -80,12 +80,12 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
     //------------------------------------------------
     // Renderer Settings
     Renderer Renderer;
-    Renderer.setFPS(60);
+    Renderer.setFPS(1000);
 
     // Global Values
     rapidjson::Document global;
     JSONHandler::Set::Any<double>(global,"dt",0);
-    JSONHandler::Set::Any<double>(global,"G",0.1);
+    JSONHandler::Set::Any<double>(global,"G",0.1 * 100);
 
     // Invoke Object
     Invoke Invoke(global);
@@ -105,8 +105,12 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
     obj1.valueSet<double>("physics.isGrav",1.0);
     obj1.valueSet<double>("physics.aX", 0.0);
     obj1.valueSet<double>("physics.aY", 0.0);
-    obj1.valueSet<double>("physics.vX",  3.0);
-    obj1.valueSet<double>("physics.vY",-12.0);
+    obj1.valueSet<double>("physics.vX",  30.0);
+    obj1.valueSet<double>("physics.vY",-120.0);
+    obj1.valueSet<std::string>(namenKonvention.renderObject.textStr,"OBJ1");
+    obj1.valueSet<double>(namenKonvention.renderObject.textFontsize,16);
+    obj1.valueSet<double>(namenKonvention.renderObject.textDx,0);
+    obj1.valueSet<double>(namenKonvention.renderObject.textDy,-30);
     bodies.push_back(obj1);
 
     RenderObject obj2;
@@ -118,8 +122,12 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
     obj2.valueSet<double>("physics.isGrav",1.0);
     obj2.valueSet<double>("physics.aX", 0.0);
     obj2.valueSet<double>("physics.aY", 0.0);
-    obj2.valueSet<double>("physics.vX", -3.0);
-    obj2.valueSet<double>("physics.vY", 12.0);
+    obj2.valueSet<double>("physics.vX", -30.0);
+    obj2.valueSet<double>("physics.vY", 120.0);
+    obj2.valueSet<std::string>(namenKonvention.renderObject.textStr,"OBJ2");
+    obj2.valueSet<double>(namenKonvention.renderObject.textFontsize,16);
+    obj2.valueSet<double>(namenKonvention.renderObject.textDx,0);
+    obj2.valueSet<double>(namenKonvention.renderObject.textDy,-30);
     bodies.push_back(obj2);
 
     // SUN
@@ -135,7 +143,36 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
     obj3.valueSet<double>("physics.aY", 0.0);
     obj3.valueSet<double>("physics.vX", 0.0);
     obj3.valueSet<double>("physics.vY", 0.0);
+    obj3.valueSet<std::string>(namenKonvention.renderObject.textStr,"SUN");
+    obj3.valueSet<double>(namenKonvention.renderObject.textFontsize,16);
+    obj3.valueSet<double>(namenKonvention.renderObject.textDx,0);
+    obj3.valueSet<double>(namenKonvention.renderObject.textDy,-30);
     bodies.push_back(obj3);
+
+    // Add some smaller to the simulation for performance testing:
+    /*
+    for (int i=1;i<10;i++){
+        std::string name = "AST_" + std::to_string(i);
+
+        RenderObject obj;
+        obj.valueSet<int>(namenKonvention.renderObject.pixelSizeX,5);
+        obj.valueSet<int>(namenKonvention.renderObject.pixelSizeY,5);
+        obj.valueSet<double>("physics.mass",5.0);
+        obj.valueSet<double>("posX",1000.0*((float)random()/(float)RAND_MAX));
+        obj.valueSet<double>("posY",1000.0*((float)random()/(float)RAND_MAX));
+        obj.valueSet<double>("physics.isGrav",1.0);
+        obj.valueSet<double>("physics.aX", 0.0);
+        obj.valueSet<double>("physics.aY", 0.0);
+        obj.valueSet<double>("physics.vX", 10.0-20.0*((float)random()/(float)RAND_MAX));
+        obj.valueSet<double>("physics.vY", 10.0-20.0*((float)random()/(float)RAND_MAX));
+        obj.valueSet<std::string>(namenKonvention.renderObject.textStr,name.c_str());
+        obj.valueSet<double>(namenKonvention.renderObject.textFontsize,16);
+        obj.valueSet<double>(namenKonvention.renderObject.textDx,0);
+        obj.valueSet<double>(namenKonvention.renderObject.textDy,-30);
+        bodies.push_back(obj);
+    }
+    //*/
+    
 
     //------------------------------------------------
     // Gravity ruleset
@@ -249,11 +286,12 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
     // Main Render loop
     while (!quit) {
         // for now ,see max fps
-        if (Renderer.timeToRender()) {
+        //if (true) {
+        if (true || Renderer.timeToRender()) {
             // increase loop time
             JSONHandler::Set::Any<double>(global, "t", (currentTime-starttime)/1000.0);
 
-            // —– compute dt —–
+            // compute dt
             currentTime = Time::gettime();
             JSONHandler::Set::Any<double>(global, "dt", (currentTime - lastTime) / 1000.0);
             lastTime = currentTime;
@@ -285,9 +323,9 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
             }
             
             // Debug:
-            Platform::clearScreen();
-            std::cout << JSONHandler::serialize(global);
-            std::cout << Renderer.serializeEnvironment();
+            //Platform::clearScreen();
+            //std::cout << JSONHandler::serialize(global);
+            //std::cout << Renderer.serializeEnvironment();
         }
     }
     //End of Program!
