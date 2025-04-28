@@ -78,7 +78,7 @@ public:
     
 
     void checkAgainstList(RenderObject& obj);
-    bool isTrue(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj);
+    bool isTrue(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj, bool resolveEqual=false);
     void update();
     void updatePair(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj);
     
@@ -110,5 +110,7 @@ private:
     exprtk::symbol_table<double> symbol_table;
     expression_t expression;
     parser_t parser;
+
+    void updateKey(std::string type, std::string key,std::string valStr, rapidjson::Document *doc);
 };
 

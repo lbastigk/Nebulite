@@ -1,6 +1,6 @@
 {
     "type": "loop",
-    "logicalArg": "$(self.id) == $(other.id)",
+    "logicalArg": "1",
     "selfChangeType": "add",
     "selfKey": "physics.vY",
     "selfValue": "$(self.physics.aY) * $(global.dt)",

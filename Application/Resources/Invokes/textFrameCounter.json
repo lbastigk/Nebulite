@@ -1,9 +1,9 @@
 {
     "type": "loop",
     "logicalArg": "1",
-    "selfChangeType": "add",
-    "selfKey": "physics.vX",
-    "selfValue": "$(self.physics.aX) * $(global.dt)",
+    "selfChangeType": "setStr",
+    "selfKey": "text.str",
+    "selfValue": "Count: $(global.frameCount)",
     "otherChangeType": "",
     "otherKey": "",
     "otherValue": "",

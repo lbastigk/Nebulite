@@ -155,6 +155,7 @@ void JSONHandler::Set::subDoc(rapidjson::Document& doc, const std::string& key, 
 
 //------------------------------------------------
 // General Functions
+/*
 rapidjson::Document JSONHandler::deserialize(std::string serialOrLink) {
     rapidjson::Document doc;
     if(serialOrLink.starts_with("{")){
@@ -167,6 +168,48 @@ rapidjson::Document JSONHandler::deserialize(std::string serialOrLink) {
     }
     return doc;
 }
+*/
+
+rapidjson::Document JSONHandler::deserialize(std::string serialOrLink) {
+    rapidjson::Document doc;
+
+    if (serialOrLink.starts_with("{")) {
+        rapidjson::ParseResult res = doc.Parse(serialOrLink.c_str());
+    } else {
+        // Split the input string by '|'
+        std::vector<std::string> tokens;
+        size_t start = 0;
+        size_t end = 0;
+        while ((end = serialOrLink.find('|', start)) != std::string::npos) {
+            tokens.push_back(serialOrLink.substr(start, end - start));
+            start = end + 1;
+        }
+        tokens.push_back(serialOrLink.substr(start)); // Last part
+
+        if (tokens.empty()) {
+            // Error: No file path given
+            return doc; // or handle error properly
+        }
+
+        // Load the JSON file
+        std::string JSONString = FileManagement::LoadFile(tokens[0].c_str());
+        doc.Parse(JSONString.c_str());
+
+        // Now apply modifications
+        for (size_t i = 1; i < tokens.size(); ++i) {
+            const std::string& assignment = tokens[i];
+            size_t eqPos = assignment.find('=');
+            if (eqPos != std::string::npos) {
+                std::string key = assignment.substr(0, eqPos);
+                std::string value = assignment.substr(eqPos + 1);
+
+                JSONHandler::Set::Any<std::string>(doc, key, value);
+            }
+        }
+    }
+    return doc;
+}
+
 
 // Only used for loading/saving, not recommended during loop due to performance!
 // Use Get/Set instead

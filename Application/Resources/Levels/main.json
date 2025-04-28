@@ -5,7 +5,8 @@
     },
     "containerLayer0": {
         "objects": [
-            "./Resources/Renderobjects/info.json"
+            "./Resources/Renderobjects/frameInfoBox.json|posX=100|posY=100",
+            "./Resources/Renderobjects/clickCountBox.json|posX=100|posY=500"
         ]
     },
     "containerLayer1": {

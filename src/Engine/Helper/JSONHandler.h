@@ -446,10 +446,20 @@ void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& res
         result = jsonValue.GetUint64();
     }
     else if constexpr (std::is_same_v<T, float>) {
-        result = jsonValue.GetFloat();
+        if (jsonValue.IsNumber()){
+            result = jsonValue.GetFloat();
+        }
+        else{
+            result = (float)std::stod(jsonValue.GetString());
+        }
     }
     else if constexpr (std::is_same_v<T, double>) {
-        result = jsonValue.GetDouble();
+        if (jsonValue.IsNumber()){
+            result = jsonValue.GetDouble();
+        }
+        else{
+            result = std::stod(jsonValue.GetString());
+        }
     }
     else if constexpr (std::is_same_v<T, std::string>) {
         //allow more flexibility for return type string:

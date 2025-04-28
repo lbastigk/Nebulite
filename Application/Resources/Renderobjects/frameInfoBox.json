@@ -1,0 +1,26 @@
+{
+    "id": 1,
+    "isOverlay": false,
+    "posX": 350.0,
+    "posY": 400.0,
+    "pixSizeX": 350,
+    "pixSizeY": 40,
+    "imgLocation": "./Resources/Sprites/TEST001P/5.bmp",
+    "layer": 0,
+    "deleteFlag": false,
+    "isSpritesheet": false,
+    "spritesheetOffsetX": 0,
+    "spritesheetOffsetY": 0,
+    "spritesheetSizeX": 0,
+    "spritesheetSizeY": 0,
+    "invokes": [
+        "./Resources/Invokes/textFrameCounter.json"
+    ],
+    "reloadInvokes": 1,
+    "text": {
+        "str": "0",
+        "fontsize": 24.0,
+        "dx": 3.0,
+        "dy": 3.0
+    }
+}
