@@ -7,7 +7,7 @@
 int gameEntry(int argc, char* argv[]){
     std::cout << "Loading level: " << argv[1] << std::endl;
     Renderer Renderer;
-    Renderer.setFPS(300);
+    Renderer.setFPS(1000);
     Renderer.deserializeEnvironment(argv[1]);
     
     // Main Render loop

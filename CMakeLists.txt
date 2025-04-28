@@ -50,23 +50,12 @@ include_directories(
 message(STATUS "Setting source files in project")
 set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/Platform/Platform.cpp
-    ${CMAKE_SOURCE_DIR}/Editor/Editor.cpp
-    ${CMAKE_SOURCE_DIR}/Editor/LevelEditor.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/GameVars/Basiswerte.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/GameVars/Eigenschaften.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/GameVars/InteractionRequirement.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/GameVars/Inventar.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/GameVars/Kreatur.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/GameVars/Quest.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/GameVars/Talente.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/GameVars/Zauber.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/Helper/Calculator.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/Helper/Console.cpp
+    #${CMAKE_SOURCE_DIR}/Editor/Editor.cpp
+    #${CMAKE_SOURCE_DIR}/Editor/LevelEditor.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Helper/FileManagement.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Helper/FuncTree.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Helper/Invoke.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Helper/JSONHandler.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/Helper/OptionsMenu.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Helper/StringHandler.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Helper/Time.cpp
     ${CMAKE_SOURCE_DIR}/Engine/Rendering/Environment.cpp
@@ -74,7 +63,6 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/Engine/Rendering/RenderObject.cpp
     ${CMAKE_SOURCE_DIR}/Tests/DsaDebug.cpp
     ${CMAKE_SOURCE_DIR}/Tests/TestEnv.cpp
-    ${CMAKE_SOURCE_DIR}/Tests/_TEMPLATE_CLASS.cpp
 )
 
 #####################

@@ -1,8 +1,5 @@
 #pragma once
 
-#include "OptionsMenu.h"
-
-#include "_TEMPLATE_CLASS.h"
 #include "FileManagement.h"
 #include "JSONHandler.h"
 #include "Renderer.h"
