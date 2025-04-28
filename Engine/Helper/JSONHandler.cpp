@@ -157,9 +157,12 @@ void JSONHandler::Set::subDoc(rapidjson::Document& doc, const std::string& key, 
 // General Functions
 rapidjson::Document JSONHandler::deserialize(std::string serialOrLink) {
     rapidjson::Document doc;
-    rapidjson::ParseResult res = doc.Parse(serialOrLink.c_str());
-    if (res.IsError()) {
+    if(serialOrLink.starts_with("{")){
+        rapidjson::ParseResult res = doc.Parse(serialOrLink.c_str());
+    }
+    else{
         std::string JSONString = FileManagement::LoadFile(serialOrLink.c_str());
+        //std::cerr << "Loading file for:" << serialOrLink << std::endl;
         doc.Parse(JSONString.c_str());
     }
     return doc;

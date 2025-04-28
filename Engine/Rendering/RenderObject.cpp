@@ -85,6 +85,7 @@ std::string RenderObject::serialize() {
 
 void RenderObject::deserialize(std::string serialOrLink) {
 	doc = JSONHandler::deserialize(serialOrLink);
+	//std::cerr << "Doc was deserialized! From: \n" << serialOrLink << "\n to: \n" << JSONHandler::serialize(doc) << std::endl << std::endl;
 	calculateDstRect();
 	calculateSrcRect();
 }
@@ -343,7 +344,10 @@ void RenderObjectContainer::deserialize(const std::string& serialOrLink, int dis
 				append(ro, dispResX, dispResY, THREADSIZE);
 			}
 			else {
-				std::cerr << "Array item is not an object at index " << i << std::endl;
+				RenderObject ro;
+				ro.deserialize(item.GetString());
+				append(ro, dispResX, dispResY, THREADSIZE);
+				//std::cerr << "Array item is not an object at index " << i << std::endl;
 			}
 		}
 	}
