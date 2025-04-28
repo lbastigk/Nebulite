@@ -1,0 +1,13 @@
+{
+    "type": "loop",
+    "logicalArg": "1",
+    "selfChangeType": "add",
+    "selfKey": "posY",
+    "selfValue": "$(global.keyboard.s) - $(global.keyboard.w)",
+    "otherChangeType": "",
+    "otherKey": "",
+    "otherValue": "",
+    "globalChangeType": "",
+    "globalKey": "",
+    "globalValue": ""
+}

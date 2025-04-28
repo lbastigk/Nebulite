@@ -1,0 +1,13 @@
+{
+    "type": "loop",
+    "logicalArg": "$(self.id) == $(other.id)",
+    "selfChangeType": "add",
+    "selfKey": "physics.vX",
+    "selfValue": "$(self.physics.aX) * $(global.dt)",
+    "otherChangeType": "",
+    "otherKey": "",
+    "otherValue": "",
+    "globalChangeType": "",
+    "globalKey": "",
+    "globalValue": ""
+}

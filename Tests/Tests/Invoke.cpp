@@ -71,6 +71,7 @@ int TestEnv::_Invoke::example(int argc, char* argv[]) {
     return 0;
 }
 
+// TODO: Delete. Now completely described in gravity.json
 int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
     std::cout << std::endl << std::endl;
     std::cout << "//------------------------------------------------" << std::endl;

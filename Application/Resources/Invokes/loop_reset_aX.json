@@ -1,0 +1,13 @@
+{
+    "type": "loop",
+    "logicalArg": "1",
+    "selfChangeType": "set",
+    "selfKey": "physics.aX",
+    "selfValue": "0",
+    "otherChangeType": "",
+    "otherKey": "",
+    "otherValue": "",
+    "globalChangeType": "",
+    "globalKey": "",
+    "globalValue": ""
+}

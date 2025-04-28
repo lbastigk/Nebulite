@@ -162,7 +162,7 @@ void RenderObject::calculateSrcRect() {
 		};
 	}
 }
-
+/*
 void RenderObject::reloadInvokes(){
 	cmds.clear();
 
@@ -173,6 +173,12 @@ void RenderObject::reloadInvokes(){
 		for (rapidjson::SizeType i = 0; i < invokes.Size(); ++i) {
 			// Each element in the array is a Document (or Value)
 			rapidjson::Value& invokeDoc = invokes[i];  // Access each document
+
+			// Ignore for now
+			//if(invokeDoc.IsString()){
+			//	rapidjson::Document tmp = JSONHandler::deserialize(invokeDoc.GetString());
+			//	
+			//}
 
 			InvokeCommand cmd;
 			cmd.type 				= JSONHandler::Get::Any<std::string>(invokeDoc,"type","");
@@ -195,6 +201,49 @@ void RenderObject::reloadInvokes(){
 	}
 	JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, 0);
 }
+	
+
+*/
+
+void RenderObject::reloadInvokes() {
+    cmds.clear();
+
+    auto& doc = *this->getDoc(); // convenience reference
+    if (doc.HasMember("invokes") && doc["invokes"].IsArray()) {
+        rapidjson::Value& invokes = doc["invokes"]; // directly reference the array
+
+        for (rapidjson::SizeType i = 0; i < invokes.Size(); ++i) {
+            // Check if the entry is still a link to another json file
+            if (invokes[i].IsString()) {
+				// using a tmp doc is fine here since this is only done once
+                rapidjson::Document tmp = JSONHandler::deserialize(invokes[i].GetString());
+
+				// setting ivokes[i] to tmp
+				invokes[i] = tmp.GetObj();
+            }
+
+            InvokeCommand cmd;
+            cmd.type               = JSONHandler::Get::Any<std::string>(invokes[i], "type", "");
+            cmd.selfPtr            = this;
+            cmd.globalChangeType   = JSONHandler::Get::Any<std::string>(invokes[i], "globalChangeType", "");
+            cmd.globalKey          = JSONHandler::Get::Any<std::string>(invokes[i], "globalKey", "");
+            cmd.globalValue        = JSONHandler::Get::Any<std::string>(invokes[i], "globalValue", "");
+            cmd.logicalArg         = JSONHandler::Get::Any<std::string>(invokes[i], "logicalArg", "");
+            cmd.otherChangeType    = JSONHandler::Get::Any<std::string>(invokes[i], "otherChangeType", "");
+            cmd.otherKey           = JSONHandler::Get::Any<std::string>(invokes[i], "otherKey", "");
+            cmd.otherValue         = JSONHandler::Get::Any<std::string>(invokes[i], "otherValue", "");
+            cmd.selfKey            = JSONHandler::Get::Any<std::string>(invokes[i], "selfKey", "");
+            cmd.selfValue          = JSONHandler::Get::Any<std::string>(invokes[i], "selfValue", "");
+            cmd.selfChangeType     = JSONHandler::Get::Any<std::string>(invokes[i], "selfChangeType", "");
+
+            auto ptr = std::make_shared<InvokeCommand>(std::move(cmd));
+            cmds.push_back(ptr);
+        }
+    }
+    
+    JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, 0);
+}
+
 
 //-----------------------------------------------------------
 // TODO: Change this to be a two-part:
