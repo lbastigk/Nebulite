@@ -29,6 +29,9 @@ public:
 	//Marshalling
 	std::string serialize();
 	std::string serializeEnvironment();
+	std::string serializeGlobal(){
+		return env.serializeGlobal();
+	}
 	void deserializeEnvironment(std::string serialOrLink);
 	
 	//-----------------------------------------------------------
@@ -38,6 +41,10 @@ public:
 	void reinsertAllObjects();
 	void update();
 	void update_withThreads();
+	void setGlobalValues();
+	bool isQuit(){
+		return quit;
+	}
 	
 	//-----------------------------------------------------------
 	// Purge
@@ -60,7 +67,7 @@ public:
 	void renderFrameNoThreads();
 	void renderFPS(float scalar = 1.0);
 	void showFrame();
-	int handleEvent();
+	void pollEvent();
 	SDL_Event getEventHandle();
 	
 	//-----------------------------------------------------------
@@ -130,20 +137,19 @@ private:
 	//-------------------------------------------------------------------------------------
 	//General Variables
 	uint32_t id_counter = 1;
-	Invoke* rendererInvokeObj = nullptr;
-	
+	uint64_t starttime;
+    uint64_t currentTime;
+    uint64_t lastTime;
 
+	// Subclasses
 	Environment env;
+	Invoke Invoke;
 
-	std::map<std::string, SDL_Texture*> TextureContainer;
-
+	//Settings
 	unsigned int THREADSIZE = 2;
-	
 	std::string directory;
 
-
-	unsigned int RenderZoom = 1;
-
+	// Positions
 	int16_t Xpos;
 	int16_t Ypos;
 	unsigned int tileXpos;
@@ -151,11 +157,23 @@ private:
 	unsigned int dispResX;
 	unsigned int dispResY;
 
-	SDL_Event event;
+	// Rendering
+	unsigned int RenderZoom = 1;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 	SDL_Rect rect;
 	TTF_Font* font;
+	std::map<std::string, SDL_Texture*> TextureContainer;
+
+	// Events etc
+	SDL_Event event;
+	bool quit = false;
+	int MousePosX = 0;
+	int MousePosY = 0;
+	int lastMousePosX = 0;
+	int lastMousePosY = 0;
+	Uint32 lastMouseState;
+	Uint32 mouseState;
 
 	//-------------------------------------------------------------------------------------
 	//For FPS Count
@@ -180,7 +198,6 @@ private:
 	int kd = 1;
 	int64_t integral = 0;
 	int64_t prevError = 0;
-
 	
 
 	//-------------------------------------------------------------------------------------

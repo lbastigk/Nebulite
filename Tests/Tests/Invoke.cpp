@@ -31,7 +31,7 @@ int TestEnv::_Invoke::example(int argc, char* argv[]) {
     JSONHandler::Set::Any<int>(globalDoc,"quest.stage",2);
 
     // Invoke
-    Invoke invoke(globalDoc);
+    Invoke invoke;
 
     //------------------------------------------------
     // Show docs
@@ -81,15 +81,7 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
     // Renderer Settings
     Renderer Renderer;
     Renderer.setFPS(1000);
-
-    // Global Values
-    rapidjson::Document global;
-    JSONHandler::Set::Any<double>(global,"dt",0);
-    JSONHandler::Set::Any<double>(global,"G",0.1 * 100);
-
-    // Invoke Object
-    Invoke Invoke(global);
-    Renderer.appendInvokePtr(&Invoke);
+    
 
 
     //------------------------------------------------
@@ -147,6 +139,21 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
     obj3.valueSet<double>(namenKonvention.renderObject.textFontsize,16);
     obj3.valueSet<double>(namenKonvention.renderObject.textDx,0);
     obj3.valueSet<double>(namenKonvention.renderObject.textDy,-30);
+
+    InvokeCommand sun_dX;
+    sun_dX.type="loop";
+    sun_dX.logicalArg="1";
+    sun_dX.selfKey=namenKonvention.renderObject.positionX;
+    sun_dX.selfChangeType="add";
+    sun_dX.selfValue=   "$(global.keyboard.d) - $(global.keyboard.a)";
+    InvokeCommand sun_dY;
+    sun_dY.type="loop";
+    sun_dY.logicalArg="1";
+    sun_dY.selfKey=namenKonvention.renderObject.positionY;
+    sun_dY.selfChangeType="add";
+    sun_dY.selfValue=   "$(global.keyboard.s) - $(global.keyboard.w)";
+    obj3.appendInvoke(sun_dX);
+    obj3.appendInvoke(sun_dY);
     bodies.push_back(obj3);
 
     // Add some smaller to the simulation for performance testing:
@@ -270,41 +277,23 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
         // Append
         Renderer.append(o);
     }
-    
-    //General Variables
-    uint64_t starttime = Time::gettime();
-    uint64_t currentTime = Time::gettime();
-    uint64_t lastTime = Time::gettime();
-
-    // Render loop variables
-    bool quit = false;
-    int event = 0;
 
     // [TODO]: add global vars to Environment!
-    //FileManagement::WriteFile("gravity.json",Renderer.serializeEnvironment());
+    FileManagement::WriteFile("gravity.json",Renderer.serializeEnvironment());
 
     // Main Render loop
-    while (!quit) {
+    while (!Renderer.isQuit()) {
         // for now ,see max fps
         //if (true) {
         if (true || Renderer.timeToRender()) {
-            // increase loop time
-            JSONHandler::Set::Any<double>(global, "t", (currentTime-starttime)/1000.0);
-
-            // compute dt
-            currentTime = Time::gettime();
-            JSONHandler::Set::Any<double>(global, "dt", (currentTime - lastTime) / 1000.0);
-            lastTime = currentTime;
-
             // Update
-            Invoke.checkLoop(); // Checks all renderobjects on screen against loop invokes for manipulation
             Renderer.update();  // Updates Renderer:
+                                // - update invoke
                                 // - Update Renderobjects
                                 // - Each RO is checked against invokes
                                 // - draw ROs new position
 
-            //Event handling
-            event = Renderer.handleEvent();
+            
 
             //Render Current instances
             Renderer.renderFrame();
@@ -314,18 +303,10 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
 
             // Present the renderer
             Renderer.showFrame();
-
-            //Analyze event:
-            switch (event) {
-            case SDL_QUIT:
-                quit = true;
-                break;
-            }
             
             // Debug:
             //Platform::clearScreen();
-            //std::cout << JSONHandler::serialize(global);
-            //std::cout << Renderer.serializeEnvironment();
+            //std::cout << Renderer.serializeGlobal();
         }
     }
     //End of Program!
@@ -337,7 +318,7 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
 int TestEnv::_Invoke::resolveVars(int argc, char* argv[]){
     rapidjson::Document self,other,global;
 
-    Invoke invoke(global);
+    Invoke invoke;
 
     JSONHandler::Set::Any<double>(global,"pi",3.141);
     JSONHandler::Set::Any<double>(global,"t",1.0);

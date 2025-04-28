@@ -71,7 +71,11 @@ Renderer::Renderer(bool flag_hidden, unsigned int zoom, unsigned int X, unsigned
 	// Set virtual rendering size
 	SDL_RenderSetLogicalSize(renderer, (int)dispResX, (int)dispResY);
 
-	
+	starttime = Time::gettime();
+    currentTime = Time::gettime();
+    lastTime = Time::gettime();
+
+	Invoke.linkGlobal(env.getGlobal());
 }
 
 //Destructor
@@ -105,13 +109,12 @@ std::string Renderer::serializeEnvironment() {
 
 void Renderer::deserializeEnvironment(std::string serialOrLink) {
 	env.deserialize(serialOrLink, dispResX, dispResY, THREADSIZE);
+
+
 }
 
 //-----------------------------------------------------------
 // Pipeline
-void Renderer::appendInvokePtr(Invoke* invoke){
-	rendererInvokeObj = invoke;
-}
 
 void Renderer::append(RenderObject toAppend) {
 	// Set ID
@@ -130,19 +133,53 @@ void Renderer::reinsertAllObjects(){
 }
 
 void Renderer::update() {
-	env.update(tileXpos,tileYpos,dispResX, dispResY, THREADSIZE,rendererInvokeObj);
-	if(rendererInvokeObj != nullptr){
-		rendererInvokeObj->getNewInvokes();
-	}
+	pollEvent();
+	setGlobalValues();
+	Invoke.update();
+	env.update(tileXpos,tileYpos,dispResX, dispResY, THREADSIZE,&Invoke);
+	Invoke.getNewInvokes();
 }
+
 
 void Renderer::update_withThreads() {
-	env.update_withThreads(tileXpos, tileYpos, dispResX, dispResY, THREADSIZE,rendererInvokeObj);
-	if(rendererInvokeObj != nullptr){
-		rendererInvokeObj->getNewInvokes();
-	}
+	pollEvent();
+	setGlobalValues();
+	Invoke.update();
+	env.update_withThreads(tileXpos, tileYpos, dispResX, dispResY, THREADSIZE,&Invoke);
+	Invoke.getNewInvokes();
 }
 
+void Renderer::setGlobalValues(){
+	// Setup global doc with values
+
+	// increase loop time
+	JSONHandler::Set::Any<double>(env.getGlobal(), "t", (currentTime-starttime)/1000.0);
+
+	// compute dt
+	currentTime = Time::gettime();
+	JSONHandler::Set::Any<double>(env.getGlobal(), "dt", (currentTime - lastTime) / 1000.0);
+	lastTime = currentTime;
+
+	// Cursor Position:
+	lastMousePosX = MousePosX;
+	lastMousePosY = MousePosY;
+	lastMouseState = mouseState;
+	mouseState = SDL_GetMouseState(&MousePosX, &MousePosY);
+
+	JSONHandler::Set::Any(env.getGlobal(),"mouse_current.X",MousePosX);
+	JSONHandler::Set::Any(env.getGlobal(),"mouse_current.Y",MousePosY);
+	JSONHandler::Set::Any(env.getGlobal(),"mouse_delta.X",MousePosX-lastMousePosX);
+	JSONHandler::Set::Any(env.getGlobal(),"mouse_delta.Y",MousePosY-lastMousePosY);
+
+	JSONHandler::Set::Any(env.getGlobal(),"mouse_current.left",!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState));
+	JSONHandler::Set::Any(env.getGlobal(),"mouse_current.right",!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouseState));
+	JSONHandler::Set::Any(env.getGlobal(),"mouse_delta.left",
+		!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState) - 
+		!!(SDL_BUTTON(SDL_BUTTON_LEFT) & lastMouseState));
+	JSONHandler::Set::Any(env.getGlobal(),"mouse_delta.right",
+		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouseState) - 
+		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & lastMouseState));
+}
 
 //-----------------------------------------------------------
 // Purge
@@ -292,11 +329,11 @@ void Renderer::renderFrame() {
 						for (auto& obj : batch) {
 							//Texture loading is handled in append
 							std::string innerdir = obj->valueGet<std::string>(namenKonvention.renderObject.imageLocation);
-							//if (TextureContainer.find(innerdir) == TextureContainer.end()) {
-							//	loadTexture(*obj);
-							//	obj->calculateDstRect();
-							//	//obj->calculateSrcRect();
-							//}
+							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
+								loadTexture(*obj);
+								obj->calculateDstRect();
+								//obj->calculateSrcRect();
+							}
 							obj->calculateSrcRect();
 
 							rect = obj->getDstRect();
@@ -465,20 +502,47 @@ void Renderer::showFrame() {
 	SDL_RenderPresent(renderer);
 }
 
-int Renderer::handleEvent() {
-	//------------------------------------------------
-	// Event Return
-
-	SDL_Event event;
+void Renderer::pollEvent() {
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
 		case SDL_QUIT:
-			return SDL_QUIT;
+			quit=true;
 			break;
 			// Handle other events as needed
+		case SDL_KEYDOWN:
+			switch(event.key.keysym.sym){
+				case Renderer::SDL::KEY_W:
+					JSONHandler::Set::Any(env.getGlobal(),"keyboard.w",1);
+					break;
+				case Renderer::SDL::KEY_A:
+					JSONHandler::Set::Any(env.getGlobal(),"keyboard.a",1);
+					break;
+				case Renderer::SDL::KEY_S:
+					JSONHandler::Set::Any(env.getGlobal(),"keyboard.s",1);
+					break;
+				case Renderer::SDL::KEY_D:
+					JSONHandler::Set::Any(env.getGlobal(),"keyboard.d",1);
+					break;
+			}
+			break;
+		case SDL_KEYUP:
+			switch(event.key.keysym.sym){
+				case Renderer::SDL::KEY_W:
+					JSONHandler::Set::Any(env.getGlobal(),"keyboard.w",0);
+					break;
+				case Renderer::SDL::KEY_A:
+					JSONHandler::Set::Any(env.getGlobal(),"keyboard.a",0);
+					break;
+				case Renderer::SDL::KEY_S:
+					JSONHandler::Set::Any(env.getGlobal(),"keyboard.s",0);
+					break;
+				case Renderer::SDL::KEY_D:
+					JSONHandler::Set::Any(env.getGlobal(),"keyboard.d",0);
+					break;
+			}
+			break;
 		}
 	}
-	return 0;
 }
 
 SDL_Event Renderer::getEventHandle() {

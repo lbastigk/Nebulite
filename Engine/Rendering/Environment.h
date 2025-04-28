@@ -5,6 +5,7 @@
 #include <map>
 #include <utility>
 #include <vector>
+#include <thread>
 
 #include "JSONHandler.h"
 #include "RenderObject.h"
@@ -28,13 +29,14 @@ public:
 
 	//-----------------------------------------------------------
 	//Marshalling
-	std::string serializeOld();
-
 	std::string serialize();
 
 
 	void deserialize(std::string serialOrLink, int dispResX,int dispResY,int THREADSIZE);
 	
+	std::string serializeGlobal(){
+		return JSONHandler::serialize(global);
+	}
 	
 	void append(RenderObject toAttach,int dispResX, int dispResY,int THREADSIZE, int layer = 0);
 	void update(int tileXpos,int tileYpos,int dispResX,int dispResY, int THREADSIZE,Invoke* globalInvoke=nullptr);
@@ -58,7 +60,13 @@ public:
 			effects,
 			menue
 	};
+
+	rapidjson::Document& getGlobal() {
+		return global;
+	}
 private:
+	// Global Values
+    rapidjson::Document global;
 	
 	RenderObjectContainer roc[RENDEROBJECTCONTAINER_COUNT];
 };

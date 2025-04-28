@@ -1,7 +1,8 @@
 #include "Environment.h"
 
 Environment::Environment() {
-	
+	JSONHandler::Set::Any<double>(global,"dt",0);
+    JSONHandler::Set::Any<double>(global,"G",0.1 * 100);
 }
 
 Environment::Environment(const Environment& other) {
@@ -17,40 +18,13 @@ Environment::~Environment() {
 
 //-----------------------------------------------------------
 //Marshalling
-std::string Environment::serializeOld() {
-	// Initialize RapidJSON document
-	rapidjson::Document doc;
-	doc.SetObject();
-
-	// Set up allocator
-	rapidjson::Document::AllocatorType& allocator = doc.GetAllocator();
-
-	// Serialize each container and add to the document
-	std::string serializedContainers[RENDEROBJECTCONTAINER_COUNT];
-	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
-		serializedContainers[i] = roc[i].serialize();
-
-		// Parse the serialized string to a JSON object
-		rapidjson::Document containerDoc;
-		containerDoc.Parse(serializedContainers[i].c_str());
-
-		// Add the container JSON object to the main document
-		std::string key = "containerLayer" + std::to_string(i);
-		doc.AddMember(rapidjson::Value(key.c_str(), allocator).Move(), containerDoc, allocator);
-	}
-
-	// Convert the document to a string
-	rapidjson::StringBuffer buffer;
-	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-	doc.Accept(writer);
-
-	return buffer.GetString();
-}
 
 std::string Environment::serialize() {
 	// Initialize RapidJSON document
 	rapidjson::Document doc;
 	doc.SetObject();
+
+	JSONHandler::Set::subDoc(doc,"global",global);
 
 	// Set up allocator
 	rapidjson::Document::AllocatorType& allocator = doc.GetAllocator();
@@ -90,6 +64,8 @@ void Environment::deserialize(std::string serialOrLink, int dispResX,int dispRes
 	rapidjson::Document doc;
 	doc = JSONHandler::deserialize(serialOrLink);
 
+	JSONHandler::Get::subDoc(doc,"global",global);
+
 	// doc has values for containerLayer0 to containerLayer4
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
 		std::string key = "containerLayer" + std::to_string(i);
@@ -124,11 +100,30 @@ void Environment::append(RenderObject toAttach,int dispResX, int dispResY,int TH
 	}
 }
 
+/*
+// Old version, no threads
 void Environment::update(int tileXpos,int tileYpos,int dispResX,int dispResY, int THREADSIZE,Invoke* globalInvoke) {
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
 		roc[i].update(tileXpos,tileYpos,dispResX,dispResY,THREADSIZE,globalInvoke);
 	}
 }
+*/
+
+void Environment::update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE, Invoke* globalInvoke) {
+    std::vector<std::thread> threads;
+
+    for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; ++i) {
+        threads.emplace_back([=]() {
+            roc[i].update(tileXpos, tileYpos, dispResX, dispResY, THREADSIZE, globalInvoke);
+        });
+    }
+
+    for (auto& thread : threads) {
+        thread.join();
+    }
+}
+
+
 
 void Environment::reinsertAllObjects(int dispResX,int dispResY, int THREADSIZE){
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {

@@ -125,7 +125,7 @@ void Editor::CreateRenderobject() {
     int lastOptionChoosen = 0;
     while (lastOptionChoosen != opts.size()) {
         //Event handling
-        event = Renderer.handleEvent();
+        //event = Renderer.handleEvent();
 
         // Append object
         Renderer.append(ro);

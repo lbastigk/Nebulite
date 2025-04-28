@@ -4,6 +4,10 @@
 #include <thread>
 #include "SDL.h"
 
+#include <future>
+#include <vector>
+#include <mutex>
+
 #include <SDL_ttf.h>
 
 #include "Invoke.h"

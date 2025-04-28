@@ -214,7 +214,7 @@ void LevelEditor::Display::update() {
 	renderer.append(Selection);
 
 	//Render
-	renderer.handleEvent();
+	//renderer.handleEvent();
 	if (renderer.timeToRender()) {
 		//Render Current instances
 		renderer.renderFrame();

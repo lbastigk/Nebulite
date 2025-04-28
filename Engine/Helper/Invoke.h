@@ -63,17 +63,27 @@ struct InvokeCommand{
 class Invoke{
 public:
     // Setting up invoke by linking it to a global doc
-    Invoke(rapidjson::Document& globalDocPtr);
+    Invoke();
+    void linkGlobal(rapidjson::Document& globalDocPtr){
+        global = &globalDocPtr;
+    }
     
     // Append invoke command
     void append(std::shared_ptr<InvokeCommand> toAppend);
 
-    // Check Renderobject against invokes, modify
-    void check(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj); 
+
     void checkLoop();
+    void checkGeneral();
+
+    
+
+    void checkAgainstList(RenderObject& obj);
+    bool isTrue(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj);
+    void update();
+    void updatePair(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj);
     
     // Check against list
-    void checkAgainstList(RenderObject& obj);
+    
     
     // Get Invokes for next frame
     void getNewInvokes();
@@ -90,6 +100,8 @@ private:
 
     std::vector<std::shared_ptr<InvokeCommand>> loopCommands;
     std::vector<std::shared_ptr<InvokeCommand>> nextLoopCommands;
+
+    std::vector<std::pair<std::shared_ptr<InvokeCommand>,RenderObject*>> truePairs;
 
     // exprtk stuff:
     typedef exprtk::expression<double> expression_t;

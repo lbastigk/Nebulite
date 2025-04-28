@@ -5,30 +5,23 @@
 #include "TestEnv.h"
 
 int gameEntry(int argc, char* argv[]){
-	std::cout << "Starting normal session..." << std::endl;
-	
-    
-    
-    Renderer Renderer(false,4,160,160);
-
+    std::cout << "Loading level: " << argv[1] << std::endl;
+    Renderer Renderer;
     Renderer.setFPS(60);
-    Renderer.deserializeEnvironment("./Resources/Levels/example.json");
+    Renderer.deserializeEnvironment(argv[1]);
     
-
-    //General Variables
-    bool quit = false;
-    int event = 0;
-    
-
-    while (!quit) {
-        //Event handling
-        SDL_Event sdlEvent = Renderer.getEventHandle();
-
-        if (sdlEvent.type == SDL_QUIT) {
-            quit = true;
-        }
-
+    // Main Render loop
+    while (!Renderer.isQuit()) {
+        // for now ,see max fps
+        //if (true) {
         if (Renderer.timeToRender()) {
+            // Update
+            Renderer.update();  // Updates Renderer:
+                                // - update invoke
+                                // - Update Renderobjects
+                                // - Each RO is checked against invokes
+                                // - draw ROs new position
+
             //Render Current instances
             Renderer.renderFrame();
 
@@ -37,9 +30,6 @@ int gameEntry(int argc, char* argv[]){
 
             // Present the renderer
             Renderer.showFrame();
-
-            //Delete objects
-            Renderer.update();
         }
     }
     //End of Program!
@@ -63,7 +53,7 @@ int main(int argc, char* argv[]) {
 
     // Build main tree
 	FuncTree mainTree("Nebulite");
-	mainTree.attachFunction(gameEntry,"session","start normal session");
+	mainTree.attachFunction(gameEntry,"load","Load");
     mainTree.attachFunction(
         [&TestEnv](int argc, char* argv[]) -> int {
             // Call the passArgs method of the TestEnv object

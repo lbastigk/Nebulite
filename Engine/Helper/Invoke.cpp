@@ -2,34 +2,42 @@
 #include "RenderObject.h"  // include full definition of RenderObject
 
 // Needs to be linked to a doc containing global variables
-Invoke::Invoke(rapidjson::Document& globalDocPtr) {
-    global = &globalDocPtr;
-
-    // Global table elements?
+Invoke::Invoke() {
     expression.register_symbol_table(symbol_table);
 }
 
-// Checks a given invoke cmd against objects in buffer
-// as objects have constant pointers, using RenderObject& is possible
-void Invoke::check(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj) {
+
+bool Invoke::isTrue(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj) {
 
     // Same send
-    bool skipOther = false;
     if(cmd->selfPtr == &otherObj){
-        if (cmd->otherChangeType.empty() && cmd->otherKey.empty() &&  cmd->otherValue.empty()){
-            skipOther = true;
-        }
-        else{ 
-            return;
-        }
+        return false;
     }
 
     // Resolve logical statement
     std::string logic = resolveVars(cmd->logicalArg, *cmd->selfPtr->getDoc(), *otherObj.getDoc(), *global);
     if (evaluateExpression(logic) == 0.0){
-        return;
+        return false;
     }
+    else{
+        return true;
+    }
+}
 
+
+// Checks an object against all linked invokes.
+// True pairs are put into a special vector
+void Invoke::checkAgainstList(RenderObject& obj){
+    for (auto& cmd : commands){
+        if(isTrue(cmd,obj)){
+            truePairs.push_back(std::make_pair(cmd,&obj));
+        }
+    }
+}
+
+// Checks a given invoke cmd against objects in buffer
+// as objects have constant pointers, using RenderObject& is possible
+void Invoke::updatePair(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj) {
     // === SELF update ===
     if (!cmd->selfKey.empty() && !cmd->selfChangeType.empty()) {
         std::string valStr = resolveVars(cmd->selfValue, *cmd->selfPtr->getDoc(), *otherObj.getDoc(), *global);
@@ -48,9 +56,8 @@ void Invoke::check(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj) {
         }
     }
 
-
     // === OTHER update ===
-    if (!skipOther) {
+    if (!cmd->otherChangeType.empty() && !cmd->otherChangeType.empty()) {
         std::string valStr = resolveVars(cmd->otherValue,  *cmd->selfPtr->getDoc(), *otherObj.getDoc(), *global);
         double val = evaluateExpression(valStr);
         double oldVal = JSONHandler::Get::Any<double>(*otherObj.getDoc(), cmd->otherKey, 0.0);
@@ -86,28 +93,49 @@ void Invoke::check(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj) {
     }
 }
 
-void Invoke::checkAgainstList(RenderObject& obj){
-    for (auto& cmd : commands){
-        check(cmd,obj);
-    }
-}
-void Invoke::checkLoop(){
+// Upate of all loop and general invokes
+// loopCommands affect only the object itself
+// generalCommands affect the object and another object + a general rapidjson doc
+// idea: 
+// sorting effect on objects
+// std::map[std::pair<objPtr,key>] = std::string expr
+// this way, updates can be sorted first and the be threaded?
+void Invoke::update(){
+    // Update loop invokes
     loopCommands.clear();
     loopCommands.swap(nextLoopCommands);
     for (auto& cmd : loopCommands){
-        check(cmd,*cmd->selfPtr);
+        // === SELF update ===
+        if (!cmd->selfKey.empty() && !cmd->selfChangeType.empty()) {
+            std::string valStr = resolveVars(cmd->selfValue, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *global);
+            double val = evaluateExpression(valStr);
+            double oldVal = JSONHandler::Get::Any<double>(*cmd->selfPtr->getDoc(), cmd->selfKey, 0.0);
+
+            if (cmd->selfChangeType == "set") {
+                cmd->selfPtr->valueSet<double>(cmd->selfKey, val);
+            } else if (cmd->selfChangeType == "add") {
+                cmd->selfPtr->valueSet<double>(cmd->selfKey, oldVal + val);
+            } else if (cmd->selfChangeType == "multiply") {
+                cmd->selfPtr->valueSet<double>(cmd->selfKey, oldVal * val);
+            } else if (cmd->selfChangeType == "append") {
+                std::string oldStr = JSONHandler::Get::Any<std::string>(*cmd->selfPtr->getDoc(), cmd->selfKey, "");
+                cmd->selfPtr->valueSet<std::string>(cmd->selfKey, oldStr + valStr);
+            }
+        }
     }
-    
+
+    // check general vals
+    for (auto pair : truePairs){
+        updatePair(pair.first, *pair.second);
+    }
+    truePairs.clear();
 }
 
-
+// Called after a full renderer update to get all extracted invokes
 void Invoke::getNewInvokes(){
     commands.clear();
-    // Swap in the new set of commands
-    commands.swap(nextCommands);
+    commands.swap(nextCommands);    // Swap in the new set of commands
 }
-
-
 
 void Invoke::append(std::shared_ptr<InvokeCommand> toAppend){
     if      (!toAppend->type.compare("continous"))   nextCommands.push_back(toAppend);
@@ -116,8 +144,6 @@ void Invoke::append(std::shared_ptr<InvokeCommand> toAppend){
 
 
 double Invoke::evaluateExpression(const std::string& expr) {
-    
-
     double result = 0.0;
     if (parser.compile(expr, expression)) {
         result = expression.value();

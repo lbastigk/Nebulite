@@ -15,7 +15,7 @@ int TestEnv::_Renderer::randomImages(int argc, char* argv[]) {
             createRandomObjects(Renderer, objectCount,300);
 
             //Event handling
-            event = Renderer.handleEvent();
+            //event = Renderer.handleEvent();
 
             //Render Current instances
             Renderer.renderFrame();
@@ -83,7 +83,7 @@ int TestEnv::_Renderer::circleBenchmark(int argc, char* argv[]) {
             }
 
             //Event handling
-            event = Renderer.handleEvent();
+            //event = Renderer.handleEvent();
 
             //Render Current instances
             Renderer.renderFrame();
@@ -129,7 +129,7 @@ int TestEnv::_Renderer::ThreadTest(int argc, char* argv[]) {
     int event = 0;
     while (event != SDL_QUIT) {
         //Event handling
-        event = Renderer.handleEvent();
+        //event = Renderer.handleEvent();
 
         //Render Current instances
         Renderer.renderFrame();
@@ -413,7 +413,7 @@ UINT64 TestEnv::_Renderer::stressTest(int objCount, int ringCount, int threadSiz
         if (Renderer.timeToRender()) {
 
             //Event handling
-            event = Renderer.handleEvent();
+            //event = Renderer.handleEvent();
 
             //Render Current instances
             Renderer.renderFrame();

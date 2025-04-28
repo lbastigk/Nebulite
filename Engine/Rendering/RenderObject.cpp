@@ -196,6 +196,12 @@ void RenderObject::reloadInvokes(){
 }
 
 //-----------------------------------------------------------
+// TODO: Change this to be a two-part:
+//
+// - first check against all other in list WITHOUT updating
+//   (allows for threading)
+// - store pointer pairs as std::vector<std::pair<RenderObject& RenderObject&>>
+// - after object pre-update, call actual update via invoke class that changes all objects
 void RenderObject::update(Invoke* globalInvoke) {
 
 	//------------------------------------
@@ -492,6 +498,7 @@ void RenderObjectContainer::update_withThreads(int tileXpos, int tileYpos, int d
 	update(tileXpos, tileYpos, dispResX, dispResY, THREADSIZE,globalInvoke, true);
 }
 
+//*
 void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE, Invoke* globalInvoke, bool onlyRestructure) {
 	// Calculate tile position based on screen resolution
 	//+- in same container
@@ -520,6 +527,8 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 					std::vector<std::shared_ptr<RenderObject>> newBatch;
 					for (auto& obj : batch) {
 						if(!onlyRestructure){
+							// This function does not modify obj
+							// it just updates invokes list to later see which objects need to be updated!
 							obj->update(globalInvoke);
 						}
 						
@@ -531,28 +540,16 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 							// Get new position in tile
 							//X
 							valget = obj->valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
-							placeholder = (int64_t)(valget / (double)dispResX);
-							if (placeholder < 0) {
-								correspondingTileXpos = (unsigned int)(-placeholder);
-							}
-							else {
-								correspondingTileXpos = (unsigned int)(placeholder);
-							}
+							placeholder = abs((int64_t)(valget / (double)dispResX));
+							correspondingTileXpos = (unsigned int)(placeholder);
 
 							//Y
-							valget = obj->valueGet<double>(namenKonvention.renderObject.positionY, 0.0); // Use positionY here
-							placeholder = (int64_t)(valget / (double)dispResY);
-							if (placeholder < 0) {
-								correspondingTileYpos = (unsigned int)(-placeholder);
-							}
-							else {
-								correspondingTileYpos = (unsigned int)(placeholder);
-							}
+							valget = obj->valueGet<double>(namenKonvention.renderObject.positionY, 0.0);
+							placeholder = abs((int64_t)(valget / (double)dispResY));
+							correspondingTileYpos = (unsigned int)(placeholder);
 
 							//-----------------------------------------
 							// Check if it's in a new tile
-
-							// [TODO] make sure it keeps the same ptr!!!
 							if (correspondingTileXpos != tileXpos + dX || correspondingTileYpos != tileYpos + dY) {
 								toReinsert.push_back(obj);
 							}
@@ -564,7 +561,7 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 							//dont reinsert: gets deleted
 						}
 					}
-					//todo: std move isnt possible either
+					// Give new batch of objects still in same tile
 					batch = std::move(newBatch);
 				}
 			}
@@ -574,6 +571,7 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 		appendPtr(obj, dispResX, dispResY, THREADSIZE);
 	}
 }
+//*/
 
 void RenderObjectContainer::reinsertAllObjects(int dispResX, int dispResY, int THREADSIZE) {
 	std::vector<std::shared_ptr<RenderObject>> toReinsert;
