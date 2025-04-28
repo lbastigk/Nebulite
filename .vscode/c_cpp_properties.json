@@ -30,14 +30,13 @@
             "browse": {
                 "path": [
                     "/usr/include/SDL2",
-                    "${workspaceFolder}/Engine",
-                    "${workspaceFolder}/Engine/GameVars",
-                    "${workspaceFolder}/Engine/Helper",
-                    "${workspaceFolder}/Engine/Rendering",
-                    "${workspaceFolder}/Editor",
-                    "${workspaceFolder}/Editor/QT/",
-                    "${workspaceFolder}/Tests",
-                    "${workspaceFolder}/Platform"
+                    "${workspaceFolder}/src/Engine",
+                    "${workspaceFolder}/src/Engine/Helper",
+                    "${workspaceFolder}/src/Engine/Rendering",
+                    "${workspaceFolder}/src/Editor",
+                    "${workspaceFolder}/src/Editor/QT/",
+                    "${workspaceFolder}/src/Tests",
+                    "${workspaceFolder}/src/Platform"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             }

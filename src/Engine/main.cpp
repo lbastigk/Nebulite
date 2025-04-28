@@ -5,7 +5,7 @@
 #include "TestEnv.h"
 
 int gameEntry(int argc, char* argv[]){
-    std::cout << "Loading level: " << argv[1] << std::endl;
+    std::cerr << "Loading level: " << argv[1] << std::endl;
     Renderer Renderer;
     Renderer.setFPS(1000);
     Renderer.deserializeEnvironment(argv[1]);
@@ -32,6 +32,10 @@ int gameEntry(int argc, char* argv[]){
             Renderer.showFrame();
         }
     }
+
+    // Store last global values
+    FileManagement::WriteFile("lastGlobalValues.json",Renderer.serializeGlobal());
+
     //End of Program!
     Renderer.destroy();
     return 0;
@@ -66,9 +70,9 @@ int main(int argc, char* argv[]) {
     // Process args
 	if (argc == 1){
 		// assume normal session
-		const char* defaultArgs[] = {argv[0], "session"};
-		char* newArgs[2] = {"unknown", "session"};
-		return mainTree.parse(2, newArgs);
+        std::cerr << "Starting normal session" << std::endl;
+		char* newArgs[3] = {"","load", "./Resources/Levels/main.json"};
+		return mainTree.parse(3, newArgs);
 	}
 	else{
 		return mainTree.parse(argc, argv);

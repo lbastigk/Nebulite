@@ -1,0 +1,31 @@
+{
+    "id": 1,
+    "isOverlay": false,
+    "posX": 350.0,
+    "posY": 500.0,
+    "pixSizeX": 100,
+    "pixSizeY": 100,
+    "imgLocation": "./Resources/Sprites/TEST_BMP_SMALL.bmp",
+    "layer": 0,
+    "deleteFlag": false,
+    "isSpritesheet": false,
+    "spritesheetOffsetX": 0,
+    "spritesheetOffsetY": 0,
+    "spritesheetSizeX": 0,
+    "spritesheetSizeY": 0,
+    "reloadInvokes": 1,
+    "text": {
+        "str": "EXAMPLE",
+        "fontsize": 16.0,
+        "dx": 0.0,
+        "dy": 0.0
+    },
+    "physics": {
+        "mass": 50.0,
+        "isGrav": 1.0,
+        "aX": 0.0,
+        "aY": 0.0,
+        "vX":  30.0,
+        "vY": -120.0
+    }
+}

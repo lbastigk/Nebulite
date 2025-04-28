@@ -99,7 +99,6 @@ Renderer::~Renderer() {
 
 //Marshalling
 std::string Renderer::serialize() {
-	//TODO?+
 	return env.serialize();
 }
 
@@ -109,13 +108,10 @@ std::string Renderer::serializeEnvironment() {
 
 void Renderer::deserializeEnvironment(std::string serialOrLink) {
 	env.deserialize(serialOrLink, dispResX, dispResY, THREADSIZE);
-
-
 }
 
 //-----------------------------------------------------------
 // Pipeline
-
 void Renderer::append(RenderObject toAppend) {
 	// Set ID
 	toAppend.valueSet<uint32_t>(namenKonvention.renderObject.id,id_counter);
@@ -140,7 +136,6 @@ void Renderer::update() {
 	Invoke.getNewInvokes();
 }
 
-
 void Renderer::update_withThreads() {
 	pollEvent();
 	setGlobalValues();
@@ -150,22 +145,29 @@ void Renderer::update_withThreads() {
 }
 
 void Renderer::setGlobalValues(){
-	// Setup global doc with values
-
-	// increase loop time
-	JSONHandler::Set::Any<double>(env.getGlobal(), "t", (currentTime-starttime)/1000.0);
-
-	// compute dt
-	currentTime = Time::gettime();
-	JSONHandler::Set::Any<double>(env.getGlobal(), "dt", (currentTime - lastTime) / 1000.0);
+	// Time
 	lastTime = currentTime;
+	currentTime = Time::gettime();
+	Uint64 dt_ms = currentTime - lastTime;
+	Uint64 t_ms = JSONHandler::Get::Any<Uint64>(env.getGlobal(), "t_ms",0) + dt_ms;
+	JSONHandler::Set::Any<double>(env.getGlobal(), "dt", (dt_ms) / 1000.0);
+	JSONHandler::Set::Any<double>(env.getGlobal(), "dt_ms", dt_ms);
+	JSONHandler::Set::Any<double>(env.getGlobal(), "t", t_ms / 1000.0);
+	JSONHandler::Set::Any<Uint64>(env.getGlobal(), "t_ms", t_ms);
 
-	// Cursor Position:
+	// Get Frame count
+	Uint64 ticks = JSONHandler::Get::Any<Uint64>(env.getGlobal(),"frameCount",0);
+	JSONHandler::Set::Any<Uint64>(env.getGlobal(),"frameCount",ticks+1);
+
+	// Ticks
+	// t > lastT + 1/tick_fps ?
+
+
+	// Cursor Position and state
 	lastMousePosX = MousePosX;
 	lastMousePosY = MousePosY;
 	lastMouseState = mouseState;
 	mouseState = SDL_GetMouseState(&MousePosX, &MousePosY);
-
 	JSONHandler::Set::Any(env.getGlobal(),"mouse_current.X",MousePosX);
 	JSONHandler::Set::Any(env.getGlobal(),"mouse_current.Y",MousePosY);
 	JSONHandler::Set::Any(env.getGlobal(),"mouse_delta.X",MousePosX-lastMousePosX);
@@ -207,7 +209,6 @@ void Renderer::destroy() {
 	// End of Program!
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
-	// SDL_Quit(); // Not necessary here
 }
 
 //-----------------------------------------------------------
