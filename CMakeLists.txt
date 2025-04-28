@@ -30,14 +30,12 @@ message(STATUS "Added compiler options: -g -w")
 # Include directories common for both platforms
 message(STATUS "Setting Include directories")
 include_directories(
-    ${CMAKE_SOURCE_DIR}/Engine
-    ${CMAKE_SOURCE_DIR}/Engine/Rendering
-    ${CMAKE_SOURCE_DIR}/Engine/GameLoop
-    ${CMAKE_SOURCE_DIR}/Engine/Helper
-    ${CMAKE_SOURCE_DIR}/Engine/GameVars
-    ${CMAKE_SOURCE_DIR}/Platform
-    ${CMAKE_SOURCE_DIR}/Editor
-    ${CMAKE_SOURCE_DIR}/Tests
+    ${CMAKE_SOURCE_DIR}/src/Engine
+    ${CMAKE_SOURCE_DIR}/src/Engine/Rendering
+    ${CMAKE_SOURCE_DIR}/src/Engine/Helper
+    ${CMAKE_SOURCE_DIR}/src/Platform
+    ${CMAKE_SOURCE_DIR}/src/Editor
+    ${CMAKE_SOURCE_DIR}/src/Tests
     ${SDL2_PATH}/include/SDL2/
     ${RAPIDJSON_PATH}/include/rapidjson
     ${EXPRTK_PATH}/
@@ -49,20 +47,20 @@ include_directories(
 # Common source files
 message(STATUS "Setting source files in project")
 set(COMMON_SOURCES
-    ${CMAKE_SOURCE_DIR}/Platform/Platform.cpp
-    #${CMAKE_SOURCE_DIR}/Editor/Editor.cpp
-    #${CMAKE_SOURCE_DIR}/Editor/LevelEditor.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/Helper/FileManagement.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/Helper/FuncTree.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/Helper/Invoke.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/Helper/JSONHandler.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/Helper/StringHandler.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/Helper/Time.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/Rendering/Environment.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/Rendering/Renderer.cpp
-    ${CMAKE_SOURCE_DIR}/Engine/Rendering/RenderObject.cpp
-    ${CMAKE_SOURCE_DIR}/Tests/DsaDebug.cpp
-    ${CMAKE_SOURCE_DIR}/Tests/TestEnv.cpp
+    ${CMAKE_SOURCE_DIR}/src/Platform/Platform.cpp
+    #${CMAKE_SOURCE_DIR}/src/Editor/Editor.cpp
+    #${CMAKE_SOURCE_DIR}/src/Editor/LevelEditor.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FileManagement.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FuncTree.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/Helper/Invoke.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/Helper/JSONHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/Helper/StringHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/Helper/Time.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/Environment.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/Renderer.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/RenderObject.cpp
+    ${CMAKE_SOURCE_DIR}/src/Tests/DsaDebug.cpp
+    ${CMAKE_SOURCE_DIR}/src/Tests/TestEnv.cpp
 )
 
 #####################
@@ -72,7 +70,7 @@ message(STATUS "Setting targets...")
 
 # Engine target
 add_executable(Nebulite
-    ${CMAKE_SOURCE_DIR}/Engine/main.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/main.cpp
     ${COMMON_SOURCES}
 )
 target_link_libraries(Nebulite PRIVATE 
