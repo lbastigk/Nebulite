@@ -100,6 +100,12 @@ void Invoke::updatePair(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherO
 // sorting effect on objects
 // std::map[std::pair<objPtr,key>] = std::string expr
 // this way, updates can be sorted first and the be threaded?
+
+// or: sort all updates so that the actual change happens later inside the object update:
+// At first: invokes; obj_X - obj_Y influence
+// Then: check if logic is true
+// Then: insert invoke changes into obj_X and obj_Y if true
+// This way, updates only ever change one object and thus, threads are possible
 void Invoke::update(){
     // Update loop invokes
     loopCommands.clear();

@@ -162,48 +162,6 @@ void RenderObject::calculateSrcRect() {
 		};
 	}
 }
-/*
-void RenderObject::reloadInvokes(){
-	cmds.clear();
-
-	rapidjson::Document invokes;
-	JSONHandler::Get::subDoc(*this->getDoc(),"invokes",invokes);
-	if (invokes.IsArray()) {
-		// Loop over each element in the 'invokes' array
-		for (rapidjson::SizeType i = 0; i < invokes.Size(); ++i) {
-			// Each element in the array is a Document (or Value)
-			rapidjson::Value& invokeDoc = invokes[i];  // Access each document
-
-			// Ignore for now
-			//if(invokeDoc.IsString()){
-			//	rapidjson::Document tmp = JSONHandler::deserialize(invokeDoc.GetString());
-			//	
-			//}
-
-			InvokeCommand cmd;
-			cmd.type 				= JSONHandler::Get::Any<std::string>(invokeDoc,"type","");
-			cmd.selfPtr 			= this;
-			cmd.globalChangeType 	= JSONHandler::Get::Any<std::string>(invokeDoc,"globalChangeType","");
-			cmd.globalKey 			= JSONHandler::Get::Any<std::string>(invokeDoc,"globalKey","");
-			cmd.globalValue 		= JSONHandler::Get::Any<std::string>(invokeDoc,"globalValue","");
-			cmd.logicalArg 			= JSONHandler::Get::Any<std::string>(invokeDoc,"logicalArg","");
-			cmd.otherChangeType 	= JSONHandler::Get::Any<std::string>(invokeDoc,"otherChangeType","");
-			cmd.otherKey 			= JSONHandler::Get::Any<std::string>(invokeDoc,"otherKey","");
-			cmd.otherValue 			= JSONHandler::Get::Any<std::string>(invokeDoc,"otherValue","");
-			cmd.selfKey 			= JSONHandler::Get::Any<std::string>(invokeDoc,"selfKey","");
-			cmd.selfValue 			= JSONHandler::Get::Any<std::string>(invokeDoc,"selfValue","");
-			cmd.selfChangeType 		= JSONHandler::Get::Any<std::string>(invokeDoc,"selfChangeType","");
-
-			//InvokeCommand cmd;
-			auto ptr = std::make_shared<InvokeCommand>(std::move(cmd));
-			cmds.push_back(ptr);
-		}
-	}
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, 0);
-}
-	
-
-*/
 
 void RenderObject::reloadInvokes() {
     cmds.clear();
