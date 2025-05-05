@@ -3,7 +3,7 @@
 
 int TestEnv::_JSONHandler::speed(int argc, char* argv[]) {
     // Args standard values
-    std::string count = "1000";
+    std::string count = "10000";
 
     // Parse args
     FuncTree ft("speed");
@@ -65,6 +65,7 @@ int TestEnv::_JSONHandler::speed(int argc, char* argv[]) {
 
     //--------------------------------------------
     //Show elapsed time
+    std::cout << "For:" << count << " many sets and gets" << std::endl;
     printf("\n\nTime taken: %i ms\n", (int)(Time::gettime() - starttime));
 };
 
@@ -98,9 +99,6 @@ int TestEnv::_JSONHandler::KeyNesting(int argc, char* argv[]) {
     std::cout << "Result should be: \n";
     std::cout << "level1.double = 3.14 \n";
     std::cout << "level1.level2.int = 10 or 11 \n";
-
-    //For viewing result
-    Time::wait(20000);
 }
 
 int TestEnv::_JSONHandler::listOfKeys(int argc, char* argv[]) {
@@ -121,25 +119,10 @@ int TestEnv::_JSONHandler::listOfKeys(int argc, char* argv[]) {
 }
 
 int TestEnv::_JSONHandler::full(int argc, char* argv[]){
-    std::cout << "Creating subdoc outside" << std::endl;
-    rapidjson::Document doc;
-
-    // setting value:
-    JSONHandler::Set::Any<int>(doc,"int",123);
-    JSONHandler::Set::Any<double>(doc,"double",3.141);
-    JSONHandler::Set::Any<std::string>(doc,"string","string");
-
-    // Set subdoc
-    if(true){
-        rapidjson::Document subDoc;
-        JSONHandler::Set::Any<int>(subDoc,"int",123);
-        JSONHandler::Set::Any<double>(subDoc,"double",3.141);
-        JSONHandler::Set::Any<std::string>(subDoc,"string","string");
-        JSONHandler::Set::subDoc(doc,"subDoc",subDoc);
-    }
-    
-
-    std::cout << JSONHandler::serialize(doc);
-
-    return 0;
+    std::cout << "Full JSONHandler test..." << std::endl;
+    std::cout << "--------------------------------------" << std::endl;
+    std::cout << "Test 1: Speed" << std::endl;
+    (void) speed(argc,argv);
+    std::cout << "Test 2: Key nesting" << std::endl;
+    (void) KeyNesting(argc,argv);
 }

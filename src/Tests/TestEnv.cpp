@@ -102,6 +102,12 @@ int TestEnv::_JSONHandler::passArgs(int argc, char* argv[]) {
 	// Attach functions
 	ft.attachFunction(
 		[this](int argc, char* argv[]) -> int {
+			return speed(argc, argv);
+		}, 
+		"speed",	"speed benchmark"
+	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
 			return listOfKeys(argc, argv);
 		}, 
 		"list-keys",	"List keys in an object"

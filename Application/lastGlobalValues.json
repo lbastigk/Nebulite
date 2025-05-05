@@ -2,12 +2,12 @@
     "dt": 0.001,
     "G": 10.0,
     "dt_ms": 1.0,
-    "t": 64.086,
-    "t_ms": 64086,
-    "frameCount": 63236,
+    "t": 3.083,
+    "t_ms": 3083,
+    "frameCount": 3041,
     "mouse_current": {
-        "X": 1066,
-        "Y": 0,
+        "X": 1079,
+        "Y": 67,
         "left": false,
         "right": false
     },
@@ -16,8 +16,5 @@
         "Y": 0,
         "left": 0,
         "right": 0
-    },
-    "click": {
-        "count": 20.0
     }
 }

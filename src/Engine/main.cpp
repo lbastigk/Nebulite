@@ -42,41 +42,56 @@ int gameEntry(int argc, char* argv[]){
 }
 
 int main(int argc, char* argv[]) {
+    //--------------------------------------------------
+    // Startup
     std::ofstream errorFile("errors.log");
     if (!errorFile) {
         std::cerr << "Failed to open error file." << std::endl;
         return 1;
     }
 
-    // Redirect cerr to the file
+    // Redirect std::cerr to the file
+    std::streambuf* originalCerrBuf = std::cerr.rdbuf(); // Store the original cerr buffer
     std::cerr.rdbuf(errorFile.rdbuf());
-    //std::cerr.rdbuf(std::cout.rdbuf());  // Redirect cerr to cout
 
-    // Environments:
-    TestEnv TestEnv;
-
+    //--------------------------------------------------
     // Build main tree
-	FuncTree mainTree("Nebulite");
-	mainTree.attachFunction(gameEntry,"load","Load");
+    FuncTree mainTree("Nebulite");
+    mainTree.attachFunction(gameEntry, "load", "Load");       // Attaching main game entry function
+    TestEnv testEnv;
     mainTree.attachFunction(
-        [&TestEnv](int argc, char* argv[]) -> int {
+        [&testEnv](int argc, char* argv[]) -> int {
             // Call the passArgs method of the TestEnv object
-            return TestEnv.passArgs(argc, argv);
+            return testEnv.passArgs(argc, argv);
         }, 
         "test",                         // Command name to call this function
         "Testing Engine Capabilities"   // Description for the help message
     );
 
+    //--------------------------------------------------
     // Process args
-	if (argc == 1){
-		// assume normal session
-        std::cerr << "Starting normal session" << std::endl;
-		char* newArgs[3] = {"","load", "./Resources/Levels/main.json"};
-		return mainTree.parse(3, newArgs);
-	}
-	else{
-		return mainTree.parse(argc, argv);
-	}
-    return 0;
+    int result = 0;
+    if (argc == 1) {
+        // assume normal session
+        char* newArgs[3] = {"", "load", "./Resources/Levels/main.json"};
+        result =  mainTree.parse(3, newArgs);
+    } else {
+        result =  mainTree.parse(argc, argv);
+    }
+
+    //--------------------------------------------------
+    // Exit
+
+    // Explicitly flush std::cerr before closing the file stream
+    std::cerr.flush();  // Ensures everything is written to the file
+
+    // Restore the original buffer to std::cerr (important for cleanup)
+    std::cerr.rdbuf(originalCerrBuf); 
+
+    // Close the file
+    errorFile.close();
+
+    // Exit
+    return result;
 }
 
