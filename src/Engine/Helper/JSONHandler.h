@@ -29,22 +29,6 @@
 #include <map>
 #include <vector>
 
-
-//-------------------------------------------------------
-//&Doc template specializations
-//need to be global for C++
-template <typename T>
-struct is_rapidjson_document_ptr : std::false_type {};
-
-template <>
-struct is_rapidjson_document_ptr<rapidjson::Document*> : std::true_type {};
-
-template <typename T>
-struct is_rapidjson_value_ptr : std::false_type {};
-template <>
-struct is_rapidjson_value_ptr<rapidjson::Value&> : std::true_type {};
-
-
 class JSONHandler {
 public:
     class Get {
@@ -76,34 +60,37 @@ public:
     static void copyDoc(rapidjson::Document& destination, rapidjson::Document *toCopy);
     static void empty(rapidjson::Document &doc);
 private:
-    //----------------------------------------------------------------------
-    //Template structs to check for datatype matches
-
-    //Map
-    template <typename T>
-    struct is_map : std::false_type {};
-
-    template <typename Key, typename Value, typename... Args>
-    struct is_map<std::map<Key, Value, Args...>> : std::true_type {};
-
-    //Vector
-    template <typename T>
-    struct is_vector : std::false_type {};
-
-    template <typename T>
-    struct is_vector<std::vector<T>> : std::true_type {};
-
-    //Pair
-    template <typename T>
-    struct is_pair : std::false_type {};
-
-    template <typename T1, typename T2>
-    struct is_pair<std::pair<T1, T2>> : std::true_type {};
 
     //----------------------------------------------------------------------
     // Helper function to convert data to JSON values (specializations may be required for custom types)
     template <typename T>
     static void ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
+
+    template <typename K, typename V> 
+    static inline void ConvertToJSONValue(const std::map<K, V>& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator) {
+        rapidjson::Value jsonMap(rapidjson::kObjectType);
+
+        for (const auto& entry : data) {
+            rapidjson::Value key(entry.first.c_str(), allocator);
+            rapidjson::Value value;
+            ConvertToJSONValue(entry.second, value, allocator);
+            jsonMap.AddMember(key, value, allocator);
+        }
+        jsonValue = jsonMap;
+    }
+    template <typename T>
+    static inline void ConvertToJSONValue(const std::vector<T>& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator) {
+        rapidjson::Value jsonArray(rapidjson::kArrayType);
+
+        for (const auto& item : data) {
+            rapidjson::Value itemValue;
+            ConvertToJSONValue(item, itemValue, allocator);
+            jsonArray.PushBack(itemValue, allocator);
+        }
+        jsonValue = jsonArray;
+    }
+
+
     template <typename T>
     static void ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& result);
 };
@@ -331,15 +318,65 @@ void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey,
 
 
 //----------------------------------------------------------------------
-// Helper functions to convert data to JSON values (specializations may be required for custom types)
+// Helper functions to convert data to or from JSON values (specializations may be required for custom types)
 
-//TODO:
-// Switch to specific defines using fun<type> instead of if-elses, example:
-// template<>
-// void JSONHandler::ConvertToJSONValue<int>(const int& value, rapidjson::GenericValue<rapidjson::UTF8<char>>& jsonValue, rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator>& allocator) {
-//     jsonValue.SetInt(value);
-// }
 
+// 
+template <> inline void JSONHandler::ConvertToJSONValue<bool>(const bool& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetBool(data);}
+template <> inline void JSONHandler::ConvertToJSONValue<int>(const int& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetInt(data);}
+template <> inline void JSONHandler::ConvertToJSONValue<uint32_t>(const uint32_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetUint(data);}
+template <> inline void JSONHandler::ConvertToJSONValue<uint64_t>(const uint64_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetUint64(data);}
+template <> inline void JSONHandler::ConvertToJSONValue<float>(const float& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetFloat(data);}
+template <> inline void JSONHandler::ConvertToJSONValue<double>(const double& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetDouble(data);}
+
+template <> inline void JSONHandler::ConvertToJSONValue<std::string>(const std::string& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
+    jsonValue.SetString(data.c_str(), static_cast<rapidjson::SizeType>(data.length()), allocator);
+}
+
+template<>
+inline void JSONHandler::ConvertToJSONValue<const char*>(const char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+    if (data) {
+        jsonValue.SetString(data, allocator);
+    } else {
+        jsonValue.SetNull();
+    }
+}
+
+template<>
+inline void JSONHandler::ConvertToJSONValue<char*>(char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+    if (data) {
+        jsonValue.SetString(data, allocator);
+    } else {
+        jsonValue.SetNull();
+    }
+}
+
+template<>
+inline void JSONHandler::ConvertToJSONValue<std::pair<int, std::string>>(const std::pair<int, std::string>& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+    // Example conversion for a pair. You may adapt based on your application’s structure.
+    rapidjson::Value pairObject(rapidjson::kObjectType);
+    rapidjson::Value firstValue;
+    ConvertToJSONValue(data.first, firstValue, allocator);
+    pairObject.AddMember("first", firstValue, allocator);
+    
+    rapidjson::Value secondValue;
+    ConvertToJSONValue(data.second, secondValue, allocator);
+    pairObject.AddMember("second", secondValue, allocator);
+    
+    jsonValue = pairObject;
+}
+
+
+
+template <>
+inline void JSONHandler::ConvertToJSONValue<rapidjson::Value*>(rapidjson::Value* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {jsonValue.CopyFrom(*data, allocator);}
+
+template <>
+inline void JSONHandler::ConvertToJSONValue<rapidjson::Document*>(rapidjson::Document* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {jsonValue.CopyFrom(*data, allocator);}
+
+
+
+/*
 template <typename T>
 void JSONHandler::ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
     //Single Variable Objects
@@ -430,6 +467,71 @@ void JSONHandler::ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue,
     }
 }
 
+*/
+
+
+// To JSON Value
+template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, bool& result){result = jsonValue.GetBool();}
+template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, int& result){result = jsonValue.GetInt();}
+template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint32_t& result){result = jsonValue.GetUint();}
+template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint64_t& result){result = jsonValue.GetUint64();}
+template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, float& result){
+    if (jsonValue.IsNumber()){
+        result = jsonValue.GetFloat();
+    }
+    else{
+        result = (float)std::stod(jsonValue.GetString());
+    }
+}
+template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, double& result){
+    if (jsonValue.IsNumber()){
+        result = jsonValue.GetDouble();
+    }
+    else{
+        result = std::stod(jsonValue.GetString());
+    }}
+template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, std::string& result){
+    // TODO: Does rapidjson support auto-conversion?
+
+    if (jsonValue.IsBool()) {
+        result = jsonValue.GetBool() ? "true" : "false";
+    }
+    else if (jsonValue.IsString()) {
+        result = std::string(jsonValue.GetString());
+    }
+    else if (jsonValue.IsInt()) {
+        result = std::to_string(jsonValue.GetInt());
+    }
+    else if (jsonValue.IsUint()) {
+        result = std::to_string(jsonValue.GetUint());
+    }
+    else if (jsonValue.IsInt64()) {
+        result = std::to_string(jsonValue.GetInt64());
+    }
+    else if (jsonValue.IsUint64()) {
+        result = std::to_string(jsonValue.GetUint64());
+    }
+    else if (jsonValue.IsDouble()) {
+        result = std::to_string(jsonValue.GetDouble());
+    }
+    else if (jsonValue.IsNull()) {
+        result = "null";
+    }
+    else if (jsonValue.IsArray()) {
+        result = "{Array}";
+    }
+    else if (jsonValue.IsObject()) {
+        result = "{Object}";  // Just a placeholder since objects can't easily be converted to a single string
+    }
+    else {
+        result = "unsupported type";
+    }
+}
+template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, rapidjson::Document& result){
+    result.CopyFrom(jsonValue, result.GetAllocator());
+}
+
+/*
 template <typename T>
 void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& result) {
     // Implement the reverse conversion logic for each supported type
@@ -509,3 +611,6 @@ void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& res
         result = "null";
     }
 }
+
+*/
+

@@ -3,7 +3,7 @@
 
 int TestEnv::_JSONHandler::speed(int argc, char* argv[]) {
     // Args standard values
-    std::string count = "10000";
+    std::string count = "100000";
 
     // Parse args
     FuncTree ft("speed");
@@ -12,7 +12,7 @@ int TestEnv::_JSONHandler::speed(int argc, char* argv[]) {
 
     int loopAmount = atoi(count.c_str());
 
-    uint64_t starttime = Time::gettime();
+    
 
     //--------------------------------------------
     //Test Variables
@@ -36,6 +36,7 @@ int TestEnv::_JSONHandler::speed(int argc, char* argv[]) {
     rapidjson::Document doc;
 
     //Looping for speed test
+    uint64_t starttime = Time::gettime();
     for (volatile int i = 0; i < loopAmount; i++) {
         if (doc.IsObject()) {
             doc.RemoveAllMembers();
@@ -58,6 +59,7 @@ int TestEnv::_JSONHandler::speed(int argc, char* argv[]) {
         doc2.CopyFrom(doc, doc.GetAllocator());
         JSONHandler::Set::Any(doc, "JSON", &doc2);
     }
+    uint64_t endtime = Time::gettime();
 
     //--------------------------------------------
     //Printing doc once
@@ -65,8 +67,11 @@ int TestEnv::_JSONHandler::speed(int argc, char* argv[]) {
 
     //--------------------------------------------
     //Show elapsed time
-    std::cout << "For:" << count << " many sets and gets" << std::endl;
-    printf("\n\nTime taken: %i ms\n", (int)(Time::gettime() - starttime));
+    std::cout << std::endl;
+    std::cout << std::endl;
+    std::cout << "For: " << count << " many sets and gets" << std::endl;
+    printf("Time taken: %i ms\n", (int)(endtime - starttime));
+    return 0;
 };
 
 int TestEnv::_JSONHandler::setGet(int argc, char* argv[]) {

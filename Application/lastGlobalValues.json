@@ -1,13 +1,13 @@
 {
-    "dt": 0.001,
+    "dt": 0.003,
     "G": 10.0,
-    "dt_ms": 1.0,
-    "t": 3.083,
-    "t_ms": 3083,
-    "frameCount": 3041,
+    "dt_ms": 3.0,
+    "t": 21.067,
+    "t_ms": 21067,
+    "frameCount": 7002,
     "mouse_current": {
-        "X": 1079,
-        "Y": 67,
+        "X": 703,
+        "Y": 0,
         "left": false,
         "right": false
     },
