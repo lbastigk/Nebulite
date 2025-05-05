@@ -6,7 +6,7 @@ external/SDL2_build
 # Ignore created data
 Application/*.data.old
 Application/*.data
-Application/lastGlobalValues.json
+*.log*
 
 # Ignore game resources and error logs
 *.bmp

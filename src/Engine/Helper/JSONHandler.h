@@ -95,48 +95,6 @@ private:
     static void ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& result);
 };
 
-// Defining template functions here, otherwise the linker spits out errors en masse...
-
-template <typename T>
-T _OLD_Get_Any(rapidjson::Document& doc, const std::string& fullKey, const T& defaultValue) {
-    //Handle key nesting:
-    int pos = fullKey.find('.');
-    if (pos != -1) {
-        //Key nesting present, get subdoc, call get Any again
-        rapidjson::Document tmp;
-
-        //Get subdoc
-        JSONHandler::Get::subDoc(doc, fullKey.substr(0, pos), tmp);
-
-        //Get subvalue from doc
-        return Any(tmp, fullKey.substr(pos + 1), defaultValue);
-    }
-    else {
-        //No key nesting, return value from doc
-        if (doc.IsObject() && doc.HasMember(fullKey.c_str())) {
-            const rapidjson::Value& value = doc[fullKey.c_str()];
-
-            if (!value.IsNull()) {
-                try {
-                    T result;
-                    ConvertFromJSONValue(value, result);
-                    return result;
-                }
-                catch (const std::exception&) {
-                    // Handle potential conversion errors here
-                    // You can throw an exception, log an error, or handle the error in any way you prefer.
-                }
-            }
-            else {
-                // Handle the case where the value is null or missing
-                // You can throw an exception, log an error, or set a default value.
-            }
-        }
-
-        // Return the default value if any error occurs
-        return defaultValue;
-    }  
-}
 
 template <typename T, typename JSONValueType>
 T JSONHandler::Get::Any(JSONValueType& value, const std::string& fullKey, const T& defaultValue) {
@@ -168,46 +126,11 @@ T JSONHandler::Get::Any(JSONValueType& value, const std::string& fullKey, const 
             // Handle conversion failure
         }
     }
-
     return defaultValue;
 }
 
-
 template <typename T>
-T _OLD_Get_AnyFromValue(rapidjson::Value& value, const std::string& fullKey, const T& defaultValue) {
-    int pos = fullKey.find('.');
-    if (pos != -1) {
-        // We need to go deeper
-        std::string currentKey = fullKey.substr(0, pos);
-        std::string remainingKeys = fullKey.substr(pos + 1);
-
-        if (value.IsObject() && value.HasMember(currentKey.c_str())) {
-            rapidjson::Value& next = value[currentKey.c_str()];
-            return AnyFromValue<T>(next, remainingKeys, defaultValue);
-        } else {
-            return defaultValue;
-        }
-    } else {
-        // Final key
-        if (value.IsObject() && value.HasMember(fullKey.c_str())) {
-            const rapidjson::Value& finalValue = value[fullKey.c_str()];
-            if (!finalValue.IsNull()) {
-                try {
-                    T result;
-                    ConvertFromJSONValue(finalValue, result);
-                    return result;
-                }
-                catch (const std::exception&) {
-                    // Log or handle conversion failure
-                }
-            }
-        }
-        return defaultValue;
-    }
-}
-
-template <typename T>
-void _OLD_Set_Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
+void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
     
     // Ensure that doc is initialized as an object
     if (!doc.IsObject()) {
@@ -251,6 +174,8 @@ void _OLD_Set_Any(rapidjson::Document& doc, const std::string& fullKey, const T 
         // 3.)
         //Insert temp back into main doc
         JSONHandler::Set::subDoc(doc, fullKey.substr(0, pos), tmp);
+
+        //JSONHandler::empty(tmp);  // not needed
     }
     else {
         //No key nesting
@@ -271,7 +196,7 @@ void _OLD_Set_Any(rapidjson::Document& doc, const std::string& fullKey, const T 
 }
 
 template <typename T>
-void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
+void _Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
     if (!doc.IsObject()) {
         doc.SetObject();
     }

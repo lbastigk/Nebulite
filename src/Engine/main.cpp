@@ -34,7 +34,7 @@ int gameEntry(int argc, char* argv[]){
     }
 
     // Store last global values
-    FileManagement::WriteFile("lastGlobalValues.json",Renderer.serializeGlobal());
+    FileManagement::WriteFile("lastGlobalValues.log.json",Renderer.serializeGlobal());
 
     //End of Program!
     Renderer.destroy();

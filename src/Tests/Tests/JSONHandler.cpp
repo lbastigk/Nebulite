@@ -36,10 +36,11 @@ int TestEnv::_JSONHandler::speed(int argc, char* argv[]) {
     rapidjson::Document doc;
 
     //Looping for speed test
+    std::cout << "Used memory in MB: " << DsaDebug::getMemoryUsagekB() / 1024.0 << std::endl;
     uint64_t starttime = Time::gettime();
     for (volatile int i = 0; i < loopAmount; i++) {
         if (doc.IsObject()) {
-            doc.RemoveAllMembers();
+            JSONHandler::empty(doc);
         }
 
         //--------------------------------------------
@@ -71,6 +72,7 @@ int TestEnv::_JSONHandler::speed(int argc, char* argv[]) {
     std::cout << std::endl;
     std::cout << "For: " << count << " many sets and gets" << std::endl;
     printf("Time taken: %i ms\n", (int)(endtime - starttime));
+    std::cout << "Used memory in MB: " << DsaDebug::getMemoryUsagekB() / 1024.0 << std::endl;
     return 0;
 };
 

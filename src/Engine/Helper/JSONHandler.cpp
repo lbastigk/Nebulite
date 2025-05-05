@@ -4,6 +4,7 @@
 // Get
 
 
+// Old version
 void _OLD_GET_subDoc(rapidjson::Document& doc, const std::string& key, rapidjson::Document& destination) {
     // Check if the main document is an object
     if (!doc.IsObject()) {
@@ -34,6 +35,7 @@ void _OLD_GET_subDoc(rapidjson::Document& doc, const std::string& key, rapidjson
     destination.Swap(temp);
 }
 
+// New version: no memory leak []
 void JSONHandler::Get::subDoc(rapidjson::Document& doc, const std::string& key, rapidjson::Document& destination) {
     // Check if the main document is an object
     if (!doc.IsObject()) {
@@ -85,6 +87,7 @@ int JSONHandler::Get::keyAmount(rapidjson::Document& doc) {
 //------------------------------------------------
 // Set
 
+// Old version
 void _OLD_SET_subDoc(rapidjson::Document& doc, const std::string& key, rapidjson::Value& subdoc) {    
     // Ensure that the document is an object
     if (!doc.IsObject()) {
@@ -126,6 +129,7 @@ void _OLD_SET_subDoc(rapidjson::Document& doc, const std::string& key, rapidjson
     //JSONHandler::empty(temp); //NOT NEEDED, memory gets freed
 }
 
+// New version: no memory leak [X]
 void JSONHandler::Set::subDoc(rapidjson::Document& doc, const std::string& key, rapidjson::Value& subdoc) {
     if (!doc.IsObject()) {
         doc.SetObject();
