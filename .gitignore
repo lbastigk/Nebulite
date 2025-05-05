@@ -6,7 +6,7 @@ external/SDL2_build
 # Ignore created data
 Application/*.data.old
 Application/*.data
-*.log*
+
 
 # Ignore game resources and error logs
 *.bmp
@@ -16,6 +16,7 @@ Application/*.data
 *.ttf
 *.log.txt
 *.log
+*.log.json
 Application/Resources/Fonts/* 
 Application/errors.log  
 
