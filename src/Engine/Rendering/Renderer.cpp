@@ -101,11 +101,7 @@ std::string Renderer::serialize() {
 	return env.serialize();
 }
 
-std::string Renderer::serializeEnvironment() {
-	return env.serialize();
-}
-
-void Renderer::deserializeEnvironment(std::string serialOrLink) {
+void Renderer::deserialize(std::string serialOrLink) {
 	env.deserialize(serialOrLink, dispResX, dispResY, THREADSIZE);
 }
 
@@ -224,6 +220,11 @@ bool Renderer::timeToRender() {
 	}
 }
 
+void Renderer::clear(){
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
+	SDL_RenderClear(renderer);
+}
+
 // TODO: Multithreading ...
 // Needed changes:
 // - texture container for multi threading (MUTEX?)
@@ -272,11 +273,6 @@ void Renderer::renderFrame() {
 
 	//------------------------------------------------
 	// Rendering
-
-	// Clear the window with a specified color (e.g., black)
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
-	SDL_RenderClear(renderer);
-
 	int error = 0;
 
 	//Render Objects
@@ -361,16 +357,16 @@ void Renderer::showFrame() {
 void Renderer::setGlobalValues(){
 	// Time
 	// logs:
-	// - time in s
-	// - dt from last frame in s
+	// - time in s and ms
+	// - dt from last frame in s and ms
 	lastTime = currentTime;
 	currentTime = Time::gettime();
 	Uint64 dt_ms = currentTime - lastTime;
 	Uint64 t_ms = JSONHandler::Get::Any<Uint64>(env.getGlobal(), "t_ms",0) + dt_ms;
 	JSONHandler::Set::Any<double>(env.getGlobal(), "dt", (dt_ms) / 1000.0);
 	JSONHandler::Set::Any<double>(env.getGlobal(), "t", t_ms / 1000.0);
-	//JSONHandler::Set::Any<double>(env.getGlobal(), "dt_ms", dt_ms);
-	//JSONHandler::Set::Any<Uint64>(env.getGlobal(), "t_ms", t_ms);
+	JSONHandler::Set::Any<double>(env.getGlobal(), "dt_ms", dt_ms);
+	JSONHandler::Set::Any<Uint64>(env.getGlobal(), "t_ms", t_ms);
 
 	// Get Frame count
 	Uint64 ticks = JSONHandler::Get::Any<Uint64>(env.getGlobal(),"frameCount",0);

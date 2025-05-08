@@ -43,9 +43,7 @@ public:
     class Set {
     public:
         template <typename T>
-        static void Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists = false);
-        
-        static void subDoc(rapidjson::Document& doc, const std::string& key, rapidjson::Value& subdoc);
+        static void Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists = false);    
     };
 
     // General JSONHandler functions
@@ -250,7 +248,7 @@ void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey,
 // Helper functions to convert data to or from JSON values (specializations may be required for custom types)
 
 
-// 
+// to JSON value
 template <> inline void JSONHandler::ConvertToJSONValue<bool>(const bool& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetBool(data);}
 template <> inline void JSONHandler::ConvertToJSONValue<int>(const int& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetInt(data);}
 template <> inline void JSONHandler::ConvertToJSONValue<uint32_t>(const uint32_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetUint(data);}
@@ -399,7 +397,7 @@ void JSONHandler::ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue,
 */
 
 
-// To JSON Value
+// from JSON Value
 template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, bool& result){result = jsonValue.GetBool();}
 template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, int& result){result = jsonValue.GetInt();}
 template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint32_t& result){result = jsonValue.GetUint();}

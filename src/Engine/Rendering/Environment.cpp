@@ -24,40 +24,27 @@ std::string Environment::serialize() {
 	rapidjson::Document doc;
 	doc.SetObject();
 
-	JSONHandler::Set::subDoc(doc,"global",global);
-
-	// Set up allocator
-	rapidjson::Document::AllocatorType& allocator = doc.GetAllocator();
+	rapidjson::Value& globalValues = global;
+	JSONHandler::Set::Any(doc,"global",&globalValues);
 
 	// Serialize each container and add to the document
-	std::string serializedContainers[RENDEROBJECTCONTAINER_COUNT];
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
-		serializedContainers[i] = roc[i].serialize();
-
-		// Parse the serialized string to a JSON object
+		std::string key = "containerLayer" + std::to_string(i);
+		std::string serializedContainer = roc[i].serialize();
 		rapidjson::Document containerDoc;
-		containerDoc.Parse(serializedContainers[i].c_str());
+		containerDoc.Parse(serializedContainer.c_str());
 
 		if (containerDoc.HasParseError()) {
 			std::cerr << "JSON parse error: " << containerDoc.GetParseError() << std::endl;
 			continue; // Skip this container if there's an error
 		}
 
-		// Create a Value to hold the containerDoc contents
-		rapidjson::Value containerValue;
-		containerValue.CopyFrom(containerDoc, allocator);
-
 		// Add the container JSON object to the main document
-		std::string key = "containerLayer" + std::to_string(i);
-		doc.AddMember(rapidjson::Value(key.c_str(), allocator).Move(), containerValue, allocator);
+		rapidjson::Value containerValue;
+		containerValue.CopyFrom(containerDoc, containerDoc.GetAllocator());
+		JSONHandler::Set::Any(doc,key,&containerValue);
 	}
-
-	// Convert the document to a string
-	rapidjson::StringBuffer buffer;
-	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-	doc.Accept(writer);
-
-	return buffer.GetString();
+	return JSONHandler::serialize(doc);
 }
 
 void Environment::deserialize(std::string serialOrLink, int dispResX,int dispResY,int THREADSIZE) {

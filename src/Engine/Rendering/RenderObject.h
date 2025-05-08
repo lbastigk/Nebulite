@@ -36,7 +36,6 @@ public:
 	// Setting/Getting specific values
 	template <typename T> void valueSet(std::string key, const T data);
 	template <typename T> T valueGet(std::string key, const T& defaultValue = T());
-	void subDocSet(std::string key,rapidjson::Document& subDoc);
 
 	void appendInvoke(InvokeCommand toAppend);
 

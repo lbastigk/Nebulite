@@ -279,8 +279,7 @@ int TestEnv::_Invoke::gravity(int argc, char* argv[]) {
         Renderer.append(o);
     }
 
-    // [TODO]: add global vars to Environment!
-    FileManagement::WriteFile("gravity.json",Renderer.serializeEnvironment());
+    FileManagement::WriteFile("gravity.json",Renderer.serialize());
 
     // Main Render loop
     while (!Renderer.isQuit()) {

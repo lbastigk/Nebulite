@@ -37,7 +37,6 @@ RenderObject::RenderObject() {
 	calculateSrcRect();
 
 	// Insert Invokes
-	//reloadInvokes();	// Cant be done on creation: invokes is empty!
 	JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, 1);
 
 	// Create text
@@ -87,6 +86,10 @@ std::string RenderObject::serialize() {
 void RenderObject::deserialize(std::string serialOrLink) {
 	doc = JSONHandler::deserialize(serialOrLink);
 	//std::cerr << "Doc was deserialized! From: \n" << serialOrLink << "\n to: \n" << JSONHandler::serialize(doc) << std::endl << std::endl;
+
+	// Prerequisites
+	valueSet(namenKonvention.renderObject.reloadInvokes,1);
+
 	calculateDstRect();
 	calculateSrcRect();
 }
@@ -120,9 +123,6 @@ rapidjson::Document* RenderObject::getDoc() const {
 	return const_cast<rapidjson::Document*>(&doc);
 }
 
-void RenderObject::subDocSet(std::string key,rapidjson::Document& subDoc){
-	JSONHandler::Set::subDoc(doc,key,subDoc);
-}
 
 SDL_Rect& RenderObject::getDstRect() {
 	return dstRect;
@@ -170,28 +170,34 @@ void RenderObject::reloadInvokes() {
         rapidjson::Value& invokes = doc["invokes"]; // directly reference the array
 
         for (rapidjson::SizeType i = 0; i < invokes.Size(); ++i) {
+			// A new doc is used that holds the serialized invoke from another file.
+			// Meaning, invokes[i] might sitll be a link to another object, like:
+			// "./Resources/Invokes/abcd.json"
+			// The doc is loaded and used
+			// Importantly, the main docs invoke is NOT altered!
+			rapidjson::Document serializedInvoke;
+
             // Check if the entry is still a link to another json file
             if (invokes[i].IsString()) {
 				// using a tmp doc is fine here since this is only done once
                 rapidjson::Document tmp = JSONHandler::deserialize(invokes[i].GetString());
+				serializedInvoke.CopyFrom(tmp, tmp.GetAllocator());
 
-				// setting ivokes[i] to tmp
-				invokes[i] = tmp.GetObj();
             }
 
             InvokeCommand cmd;
-            cmd.type               = JSONHandler::Get::Any<std::string>(invokes[i], "type", "");
+            cmd.type               = JSONHandler::Get::Any<std::string>(serializedInvoke, "type", "");
             cmd.selfPtr            = this;
-            cmd.globalChangeType   = JSONHandler::Get::Any<std::string>(invokes[i], "globalChangeType", "");
-            cmd.globalKey          = JSONHandler::Get::Any<std::string>(invokes[i], "globalKey", "");
-            cmd.globalValue        = JSONHandler::Get::Any<std::string>(invokes[i], "globalValue", "");
-            cmd.logicalArg         = JSONHandler::Get::Any<std::string>(invokes[i], "logicalArg", "");
-            cmd.otherChangeType    = JSONHandler::Get::Any<std::string>(invokes[i], "otherChangeType", "");
-            cmd.otherKey           = JSONHandler::Get::Any<std::string>(invokes[i], "otherKey", "");
-            cmd.otherValue         = JSONHandler::Get::Any<std::string>(invokes[i], "otherValue", "");
-            cmd.selfKey            = JSONHandler::Get::Any<std::string>(invokes[i], "selfKey", "");
-            cmd.selfValue          = JSONHandler::Get::Any<std::string>(invokes[i], "selfValue", "");
-            cmd.selfChangeType     = JSONHandler::Get::Any<std::string>(invokes[i], "selfChangeType", "");
+            cmd.globalChangeType   = JSONHandler::Get::Any<std::string>(serializedInvoke, "globalChangeType", "");
+            cmd.globalKey          = JSONHandler::Get::Any<std::string>(serializedInvoke, "globalKey", "");
+            cmd.globalValue        = JSONHandler::Get::Any<std::string>(serializedInvoke, "globalValue", "");
+            cmd.logicalArg         = JSONHandler::Get::Any<std::string>(serializedInvoke, "logicalArg", "");
+            cmd.otherChangeType    = JSONHandler::Get::Any<std::string>(serializedInvoke, "otherChangeType", "");
+            cmd.otherKey           = JSONHandler::Get::Any<std::string>(serializedInvoke, "otherKey", "");
+            cmd.otherValue         = JSONHandler::Get::Any<std::string>(serializedInvoke, "otherValue", "");
+            cmd.selfKey            = JSONHandler::Get::Any<std::string>(serializedInvoke, "selfKey", "");
+            cmd.selfValue          = JSONHandler::Get::Any<std::string>(serializedInvoke, "selfValue", "");
+            cmd.selfChangeType     = JSONHandler::Get::Any<std::string>(serializedInvoke, "selfChangeType", "");
 
             auto ptr = std::make_shared<InvokeCommand>(std::move(cmd));
 			cmds_general.push_back(ptr);
@@ -301,41 +307,25 @@ std::string RenderObjectContainer::serialize() {
 	// Set up array
 	rapidjson::Value array(rapidjson::kArrayType);
 
-	// Serialize all objects, add to array
+	// loop through all objects in container
+	std::vector<std::string> serializedObjects;
 	for (auto& vec1 : ObjectContainer) {
 		for (auto& vec2 : vec1) {
 			for (auto& batch : vec2) {
 				for (auto& obj : batch) {
-					std::string objStr = obj->serialize();
-
-					// Parse the serialized string to a JSON object
-					rapidjson::Document objDoc;
-					objDoc.Parse(objStr.c_str());
-
-					// Add to array as object
-					if (objDoc.IsObject()) {
-						// Create a new Value and copy objDoc into it
-						rapidjson::Value objValue;
-						objValue.CopyFrom(objDoc, allocator);
-
-						// Push the copied value to the array
-						array.PushBack(objValue, allocator);
-					}
+					rapidjson::Value& objVal = *obj->getDoc();
+					array.PushBack(objVal,doc.GetAllocator());	
 				}
 			}
 		}
 	}
 
+
 	// Add array to the document with a key
 	doc.AddMember("objects", array, allocator);
 
-	// Write to PrettyWriter
-	rapidjson::StringBuffer buffer;
-	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-	doc.Accept(writer);
-
 	// Return as string
-	return buffer.GetString(); // String should now be correct
+	return JSONHandler::serialize(doc);
 }
 
 void RenderObjectContainer::deserialize(const std::string& serialOrLink, int dispResX, int dispResY, int THREADSIZE) {
@@ -390,6 +380,9 @@ void RenderObjectContainer::deserialize(const std::string& serialOrLink, int dis
 // Pipeline
 
 void RenderObjectContainer::appendPtr(std::shared_ptr<RenderObject> ptr, int dispResX, int dispResY, int THREADSIZE) {
+	// Prerequisites
+	ptr->valueSet(namenKonvention.renderObject.reloadInvokes,true);
+
     // new tile position
     unsigned int correspondingTileXpos;
     unsigned int correspondingTileYpos;
@@ -440,6 +433,7 @@ void RenderObjectContainer::appendPtr(std::shared_ptr<RenderObject> ptr, int dis
 }
 
 void RenderObjectContainer::append(RenderObject toAppend, int dispResX, int dispResY, int THREADSIZE) {
+	// Make shared pointer
 	auto ptr = std::make_shared<RenderObject>(std::move(toAppend));
 
     // new tile position

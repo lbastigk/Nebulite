@@ -51,41 +51,6 @@ int JSONHandler::Get::keyAmount(rapidjson::Document& doc) {
     return amt;
 }
 
-//------------------------------------------------
-// Set
-
-void JSONHandler::Set::subDoc(rapidjson::Document& doc, const std::string& key, rapidjson::Value& subdoc) {
-    if (!doc.IsObject()) {
-        doc.SetObject();
-    }
-
-    if (!subdoc.IsObject()) {
-        subdoc.SetObject();
-    }
-
-    // Remove the existing key if it exists
-    auto it = doc.FindMember(key.c_str());
-    if (it != doc.MemberEnd()) {
-        doc.RemoveMember(it);
-    }
-
-    // Create a deep copy of subdoc using doc's allocator
-    rapidjson::Value subdocCopy;
-    subdocCopy.CopyFrom(subdoc, doc.GetAllocator());
-
-    // Key must be constructed with doc's allocator as well
-    rapidjson::Value keyName(key.c_str(), doc.GetAllocator());
-
-    // Add the deep-copied subdocument
-    doc.AddMember(keyName, subdocCopy, doc.GetAllocator());
-    
-
-    //subdocCopy.SetNull();
-    //subdocCopy.Clear();
-}
-
-
-
 
 //------------------------------------------------
 // General Functions
@@ -148,6 +113,12 @@ rapidjson::Document JSONHandler::deserialize(std::string serialOrLink) {
 // Only used for loading/saving, not recommended during loop due to performance!
 // Use Get/Set instead
 std::string JSONHandler::serialize(const rapidjson::Document& doc) {
+    // Check if the document is an object or array
+    if (!doc.IsObject() && !doc.IsArray()) {
+        std::cerr << "Invalid document type for serialization!" << std::endl;
+        return "{}";
+    }
+
     rapidjson::StringBuffer buffer;
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
     doc.Accept(writer);

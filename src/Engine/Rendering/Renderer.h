@@ -28,11 +28,10 @@ public:
 
 	//Marshalling
 	std::string serialize();
-	std::string serializeEnvironment();
 	std::string serializeGlobal(){
 		return env.serializeGlobal();
 	}
-	void deserializeEnvironment(std::string serialOrLink);
+	void deserialize(std::string serialOrLink);
 	
 	//-----------------------------------------------------------
 	// Pipeline
@@ -63,6 +62,7 @@ public:
 	//-----------------------------------------------------------
 	// Rendering
 	bool timeToRender();
+	void clear();
 	void renderFrame();
 	void renderFrameNoThreads();
 	void renderFPS(float scalar = 1.0);

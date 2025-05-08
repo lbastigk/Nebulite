@@ -4,38 +4,25 @@
 #include "FuncTree.h"
 #include "TestEnv.h"
 
-int gameEntry(int argc, char* argv[]){
+int load(int argc, char* argv[]){
     Renderer Renderer;
     Renderer.setFPS(1000);
-    Renderer.deserializeEnvironment(argv[0]);
-
-    
-
+    Renderer.deserialize(argv[0]);
     while (!Renderer.isQuit()) {
-        // for now ,see max fps
-        //if (true) {
         if (Renderer.timeToRender()) {
-            // Update
-            Renderer.update();  // Updates Renderer:
-                                // - update invoke
-                                // - Update Renderobjects
-                                // - Each RO is checked against invokes
-                                // - draw ROs new position
-
-            //Render Current instances
-            Renderer.renderFrame();     // No memory leaks here!
-
-            //Render FPS
-            Renderer.renderFPS();       // No memory leaks here!
-
-            // Present the renderer
-            Renderer.showFrame();
-
+            Renderer.update();          // 1.) Update objects
+            Renderer.renderFrame();     // 2.) Render frame
+            Renderer.renderFPS();       // 3.) Render fps count
+            Renderer.showFrame();       // 4.) Show Frame
+            Renderer.clear();           // 5.) Clear screen
         }
     }
 
     // Store last global values
     FileManagement::WriteFile("lastGlobalValues.log.json",Renderer.serializeGlobal());
+
+    // Store full env for inspection
+    FileManagement::WriteFile("lastLevel.log.json",Renderer.serialize());
 
     //End of Program!
     Renderer.destroy();
@@ -63,7 +50,7 @@ int main(int argc, char* argv[]) {
     //--------------------------------------------------
     // Build main tree
     FuncTree mainTree("Nebulite");
-    mainTree.attachFunction(gameEntry, "load", "Load");       // Attaching main game entry function
+    mainTree.attachFunction(load, "load", "Load");       // Attaching main game entry function
     TestEnv testEnv;
     mainTree.attachFunction(
         [&testEnv](int argc, char* argv[]) -> int {
