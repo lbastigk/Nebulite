@@ -1,0 +1,13 @@
+{
+    "type": "loop",
+    "logicalArg": "$(global.mouse.delta.left) == 1",
+    "selfChangeType": "setStr",
+    "selfKey": "imgLocation",
+    "selfValue": "./Resources/Sprites/TEST100P/117.bmp",
+    "otherChangeType": "",
+    "otherKey": "",
+    "otherValue": "",
+    "globalChangeType": "",
+    "globalKey": "",
+    "globalValue": ""
+}

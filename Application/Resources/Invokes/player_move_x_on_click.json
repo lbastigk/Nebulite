@@ -1,9 +1,9 @@
 {
     "type": "loop",
-    "logicalArg": "1",
+    "logicalArg": "$(global.mouse.current.left) == 1",
     "selfChangeType": "add",
-    "selfKey": "posY",
-    "selfValue": "0.1*($(global.keyboard.s) - $(global.keyboard.w))",
+    "selfKey": "posX",
+    "selfValue": "1",
     "otherChangeType": "",
     "otherKey": "",
     "otherValue": "",

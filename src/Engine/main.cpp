@@ -4,6 +4,11 @@
 #include "FuncTree.h"
 #include "TestEnv.h"
 
+// load is the main engines function to interact with provided .json level files
+// The json file is, for now, assumed to be a level. No precheck is provided.
+// The level is loaded into the Renderers environment via deserialize
+// A high fps is used for now for performance benchmarks
+// The levels last state is saved as lastLevel.log.json for later call with './bin/Nebulite load lastLevel.log.json'
 int load(int argc, char* argv[]){
     Renderer Renderer;
     Renderer.setFPS(1000);
@@ -18,15 +23,11 @@ int load(int argc, char* argv[]){
         }
     }
 
-    // Store last global values
-    FileManagement::WriteFile("lastGlobalValues.log.json",Renderer.serializeGlobal());
-
     // Store full env for inspection
     FileManagement::WriteFile("lastLevel.log.json",Renderer.serialize());
 
     //End of Program!
     Renderer.destroy();
-
     return 0;
 }
 
@@ -48,7 +49,7 @@ int main(int argc, char* argv[]) {
     std::cerr.rdbuf(errorFile.rdbuf());
 
     //--------------------------------------------------
-    // Build main tree
+    // Build main FuncTree
     FuncTree mainTree("Nebulite");
     mainTree.attachFunction(load, "load", "Load");       // Attaching main game entry function
     TestEnv testEnv;
@@ -62,7 +63,7 @@ int main(int argc, char* argv[]) {
     );
 
     //--------------------------------------------------
-    // Process args
+    // Process args provided by user
     int result = 0;
     if (argc == 0) {
         // assume normal session
