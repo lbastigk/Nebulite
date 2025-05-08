@@ -120,6 +120,12 @@ int TestEnv::_JSONHandler::passArgs(int argc, char* argv[]) {
 	);
 	ft.attachFunction(
 		[this](int argc, char* argv[]) -> int {
+			return leaks(argc, argv);
+		}, 
+		"leaks",	"Test for leaks"
+	);
+	ft.attachFunction(
+		[this](int argc, char* argv[]) -> int {
 			return full(argc, argv);
 		}, 
 		"full",	"full test"

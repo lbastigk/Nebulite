@@ -3,39 +3,6 @@
 //------------------------------------------------
 // Get
 
-
-// Old version
-void _OLD_GET_subDoc(rapidjson::Document& doc, const std::string& key, rapidjson::Document& destination) {
-    // Check if the main document is an object
-    if (!doc.IsObject()) {
-        // Handle error: The main document should be an object.
-        return;
-    }
-
-    // Find the iterator for the key in the main document
-    auto it = doc.FindMember(key.c_str());
-
-    // Check if the key exists in the main document
-    if (it == doc.MemberEnd()) {
-        // Handle error: The key does not exist in the main document.
-        return;
-    }
-
-    //put into temp
-    rapidjson::Document temp;
-    temp.CopyFrom(doc[key.c_str()],temp.GetAllocator());
-
-    //--------------------------------------------------------------------------
-    // Reallocation 
-
-    //Clear destination
-    JSONHandler::empty(destination);
-
-    //copy to destination from temp
-    destination.Swap(temp);
-}
-
-// New version: no memory leak []
 void JSONHandler::Get::subDoc(rapidjson::Document& doc, const std::string& key, rapidjson::Document& destination) {
     // Check if the main document is an object
     if (!doc.IsObject()) {
@@ -87,49 +54,6 @@ int JSONHandler::Get::keyAmount(rapidjson::Document& doc) {
 //------------------------------------------------
 // Set
 
-// Old version
-void _OLD_SET_subDoc(rapidjson::Document& doc, const std::string& key, rapidjson::Value& subdoc) {    
-    // Ensure that the document is an object
-    if (!doc.IsObject()) {
-        doc.SetObject();
-    }
-
-    if (!subdoc.IsObject()) {
-        subdoc.SetObject();
-    }
-
-    // Find the iterator for the key in the main document
-    auto it = doc.FindMember(key.c_str());
-
-    // If the key already exists, remove it
-    if (it != doc.MemberEnd()) {
-        //Without this, the AddMember part will add multiples of the same key!
-        doc.RemoveMember(it);
-    }
-    
-    //Set value
-    rapidjson::Value keyName(key.c_str(), doc.GetAllocator());
-    doc.AddMember(keyName, subdoc, doc.GetAllocator());
-
-    //Get rid of memory leaks by doing a new copy: doc -> string -> doc
-    rapidjson::Document temp;
-    //temp = JSONHandler::deserialize(JSONHandler::serialize(doc)); //NOT NEEDED; COPYFROM WORKS!!!
-    temp.CopyFrom(doc,temp.GetAllocator());
-
-    // Clear subdoc to release its memory?
-    //JSONHandler::empty(subdoc);
-
-    //Clear main doc
-    //JSONHandler::empty(doc);  //NOT NEEDED; SWAP WORKS FINE
-
-    //copy to main doc from temp
-    doc.Swap(temp);
-
-    //clear temp
-    //JSONHandler::empty(temp); //NOT NEEDED, memory gets freed
-}
-
-// New version: no memory leak [X]
 void JSONHandler::Set::subDoc(rapidjson::Document& doc, const std::string& key, rapidjson::Value& subdoc) {
     if (!doc.IsObject()) {
         doc.SetObject();
@@ -154,7 +78,13 @@ void JSONHandler::Set::subDoc(rapidjson::Document& doc, const std::string& key, 
 
     // Add the deep-copied subdocument
     doc.AddMember(keyName, subdocCopy, doc.GetAllocator());
+    
+
+    //subdocCopy.SetNull();
+    //subdocCopy.Clear();
 }
+
+
 
 
 //------------------------------------------------
@@ -246,6 +176,8 @@ void JSONHandler::empty(rapidjson::Document &doc) {
     doc.SetNull();
     doc.GetAllocator().Clear();
 }
+
+
 
 // Checks if string is a valid json doc
 

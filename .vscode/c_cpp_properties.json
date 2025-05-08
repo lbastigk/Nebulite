@@ -10,6 +10,7 @@
                 "${workspaceFolder}/external/SDL2_build/include/SDL2",           // Local SDL installation
                 "${workspaceFolder}/external/rapidjson/include/rapidjson",       // Local rapidjson
                 "${workspaceFolder}/external/exprtk",                            // Local exprtk
+                "${workspaceFolder}/external/tinyexpr",                          // Local tinyexpr
                 "/usr/include/x86_64-linux-gnu/qt5/",
                 "/usr/include/x86_64-linux-gnu/qt5/QtCore",
                 "/usr/include/x86_64-linux-gnu/qt5/QtGui",

@@ -129,6 +129,8 @@ T JSONHandler::Get::Any(JSONValueType& value, const std::string& fullKey, const 
     return defaultValue;
 }
 
+
+/*
 template <typename T>
 void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
     
@@ -195,8 +197,10 @@ void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey,
     }    
 }
 
+*/
+
 template <typename T>
-void _Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
+void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
     if (!doc.IsObject()) {
         doc.SetObject();
     }

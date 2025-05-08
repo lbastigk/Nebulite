@@ -30,7 +30,8 @@ clone_if_missing https://github.com/libsdl-org/SDL.git          SDL2        SDL2
 clone_if_missing https://github.com/libsdl-org/SDL_ttf.git      SDL_ttf     SDL2
 clone_if_missing https://github.com/libsdl-org/SDL_image.git    SDL_image   SDL2
 clone_if_missing https://github.com/Tencent/rapidjson.git       rapidjson
-clone_if_missing https://github.com/ArashPartow/exprtk.git      exprtk
+#clone_if_missing https://github.com/ArashPartow/exprtk.git      exprtk         #overkill
+clone_if_missing https://github.com/codeplea/tinyexpr.git       tinyexpr
 
 
 ####################

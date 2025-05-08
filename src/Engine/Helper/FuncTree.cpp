@@ -14,48 +14,69 @@ void FuncTree::attachFunction(FunctionPtr func, const std::string& name, const s
 }
 
 int FuncTree::parse(int argc, char* argv[]) {
-    if (argc <= 1) {  // No arguments left to process
+    // No arguments left to process
+    if (argc < 1) {  
         return 0;  // End of execution
     }
 
-    std::string funcName = argv[1];  // The first argument is the function name
-    char** newArgv = argv + 1;       // Skip the first argument (function name)
-    int newArgc = argc - 1;          // Reduce the argument count (function name is processed)
-
     // Process arguments (like --count or -c)
-    for (int i = 1; i < newArgc; ++i) {
-        std::string arg = newArgv[i];
-
-        // Check if the argument matches any long or short form argument
-        auto it = argumentPtrs.find(arg);  // Look for long or short argument format in argumentPtrs
-        if (it != argumentPtrs.end()) {
-            // Argument found, set the value in the corresponding string pointer
-            std::string* valuePtr = it->second.first;  // Pointer to the value for this argument
-            std::string helpDescription = it->second.second;  // Description (optional)
-            
-            // Check if the argument has a value (e.g., --count=100 or --level=2)
-            if (arg.find('=') != std::string::npos) {
-                // Argument has a value (e.g., --count=100), parse it
-                size_t equalPos = arg.find('=');
-                *valuePtr = arg.substr(equalPos + 1);  // Store the value (e.g., "100" for --count=100)
-                // Remove the argument from the list (as it's fully processed)
-                newArgc--; 
-                for (int j = i; j < newArgc; ++j) {
-                    newArgv[j] = newArgv[j + 1];  // Shift arguments left
+    // only process those that still
+    if(argc > 0){
+        bool parseVars = true;
+        while(parseVars && argc > 0){
+            std::string arg = argv[0];
+            if(arg.starts_with('-')){
+                std::string key, val;
+                if(arg.starts_with('--')){
+                    // Long form: --key=value or --key
+                    size_t eqPos = arg.find('=');
+                    if (eqPos != std::string::npos) {
+                        key = arg.substr(2, eqPos - 2);
+                        val = arg.substr(eqPos + 1);
+                    } else {
+                        key = arg.substr(2);
+                        val = "true";
+                    }
                 }
-                i--;  // Adjust index since we removed an argument
-            } else {
-                // If no value, we can handle it differently (e.g., boolean flags)
-                *valuePtr = "true";  // Just set a placeholder for boolean-style flags (if needed)
+                else{
+                    size_t eqPos = arg.find('=');
+                    if (eqPos != std::string::npos) {
+                        key = arg.substr(1, eqPos - 1);
+                        val = arg.substr(eqPos + 1);
+                    } else {
+                        key = arg.substr(1);
+                        val = "true";
+                    }
+                }
+                // Check if arg is in std::map
+                auto it = argumentPtrs.find(key);
+                if(it != argumentPtrs.end()){
+                    *argumentPtrs[key].first = val;
+                }
+
+                // Remove from argument list
+                argv++;       // Skip the first argument (function name)
+                argc--;       // Reduce the argument count (function name is processed)
             }
+            else{
+                // no more vars to parse
+                parseVars = false;
+            }
+            
         }
     }
 
-    // Execute the function corresponding to funcName with the remaining arguments
-    int result = executeFunction(funcName, newArgc, newArgv);
+    if(argc>0){
+        std::string funcName = argv[0];  // The first argument left is the function name
 
-    // Return the result from the function execution
-    return result;
+        // remove function name
+        argv++;
+        argc--;
+
+        // Execute the function corresponding to funcName with the remaining arguments
+        return executeFunction(funcName, argc, argv);
+    }
+    return 0;
 }
 
 

@@ -44,13 +44,13 @@ RenderObject::RenderObject() {
 	// Create a surface with the text
 	JSONHandler::Set::Any(doc,namenKonvention.renderObject.textStr,"");
 	JSONHandler::Set::Any(doc,namenKonvention.renderObject.textFontsize,0);
-
-	
+	JSONHandler::Set::Any(doc,namenKonvention.renderObject.flagCalculate,true);
 }
 
 
 RenderObject::RenderObject(const RenderObject& other) {
 	doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
+	valueSet(namenKonvention.renderObject.flagCalculate,true);
 	calculateDstRect();
 	calculateSrcRect();
 }
@@ -60,6 +60,7 @@ RenderObject& RenderObject::operator=(const RenderObject& other) {  // Assignmen
 		dstRect = other.dstRect;
 		JSONHandler::copyDoc(doc, other.getDoc());
 	}
+	valueSet(namenKonvention.renderObject.flagCalculate,true);
 	return *this;
 }
 
@@ -90,24 +91,21 @@ void RenderObject::deserialize(std::string serialOrLink) {
 	calculateSrcRect();
 }
 
-void RenderObject::calculateTxtRect(SDL_Renderer* renderer,TTF_Font* font){
+void RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font){
 	float scalar = 1;
 	float fontSize = valueGet<float>(namenKonvention.renderObject.textFontsize);
 	std::string text = valueGet<std::string>(namenKonvention.renderObject.textStr);
-	SDL_Color textColor = { 255, 255, 255, 255 }; // White color
-
-	//textRect = { (int)(scalar*10.0), (int)(scalar*10.0), 0, 0 };
 	textRect.x = valueGet<float>(namenKonvention.renderObject.positionX) + valueGet<float>(namenKonvention.renderObject.textDx);
 	textRect.y = valueGet<float>(namenKonvention.renderObject.positionY) + valueGet<float>(namenKonvention.renderObject.textDy);
 	textRect.w = scalar * fontSize * text.length(); // Width based on text length
 	textRect.h = (int)((float)fontSize * 1.5 * scalar);
-	//textRect.x = valueGet<int>(namenKonvention.renderObject.positionX);
-	//textRect.y = valueGet<int>(namenKonvention.renderObject.positionY);
-
-	textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
-
-	// Create a texture from the text surface
-	textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+	if(valueGet<bool>(namenKonvention.renderObject.flagCalculate,true)==true){
+		SDL_Color textColor = { 255, 255, 255, 255 }; // White color
+		textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
+		textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+		valueSet(namenKonvention.renderObject.flagCalculate,false);
+	}
+	
 }
 
 SDL_Texture& RenderObject::getTextTexture(){
@@ -164,7 +162,8 @@ void RenderObject::calculateSrcRect() {
 }
 
 void RenderObject::reloadInvokes() {
-    cmds.clear();
+    cmds_general.clear();
+	cmds_internal.clear();
 
     auto& doc = *this->getDoc(); // convenience reference
     if (doc.HasMember("invokes") && doc["invokes"].IsArray()) {
@@ -195,7 +194,7 @@ void RenderObject::reloadInvokes() {
             cmd.selfChangeType     = JSONHandler::Get::Any<std::string>(invokes[i], "selfChangeType", "");
 
             auto ptr = std::make_shared<InvokeCommand>(std::move(cmd));
-            cmds.push_back(ptr);
+			cmds_general.push_back(ptr);
         }
     }
     
@@ -211,18 +210,41 @@ void RenderObject::reloadInvokes() {
 // - store pointer pairs as std::vector<std::pair<RenderObject& RenderObject&>>
 // - after object pre-update, call actual update via invoke class that changes all objects
 void RenderObject::update(Invoke* globalInvoke) {
+	// [TODO:] Memory leak of around 13/3 KiB per object happens here!
+	// Entire part of ROC-Update does not leak memory under test circumstances
+	// only leak happens here!
 
 	//------------------------------------
 	// Check all invokes
 	if (globalInvoke) {
-		// Checks this object against all conventional invokes for manipulation
-        globalInvoke->checkAgainstList(*this);
-
-		// Next step: append invokes from object itself:
+		// Reload invokes if needed
 		if (valueGet<int>(namenKonvention.renderObject.reloadInvokes,1)){
 			reloadInvokes();
 		}
-		for (const auto& cmd : cmds){
+
+		// solve local invokes (loop)
+		for (const auto& cmd : cmds_internal){
+			// add pointer to invoke command to global
+			if(globalInvoke->isTrue(cmd,*cmd->selfPtr,true)){
+				// === SELF update ===
+				if (!cmd->selfKey.empty() && !cmd->selfChangeType.empty()) {
+					std::string valStr = globalInvoke->resolveVars(cmd->selfValue, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *globalInvoke->getGlobalPointer());
+					globalInvoke->updateValueOfKey(cmd->selfChangeType, cmd->selfKey,valStr, cmd->selfPtr->getDoc());
+				}
+				// === GLOBAL update ===
+				if (!cmd->globalKey.empty() && !cmd->globalChangeType.empty()) {
+					std::string valStr = globalInvoke->resolveVars(cmd->globalValue, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *globalInvoke->getGlobalPointer());
+					globalInvoke->updateValueOfKey(cmd->globalChangeType, cmd->globalKey,valStr, globalInvoke->getGlobalPointer());
+				}
+			}
+		}
+
+		// Checks this object against all conventional invokes for manipulation
+        globalInvoke->checkAgainstList(*this);
+
+		// Next step: append general invokes from object itself back for global check:
+		for (const auto& cmd : cmds_general){
+			// add pointer to invoke command to global
 			globalInvoke->append(cmd);
 		}
     }else{
@@ -471,6 +493,8 @@ void RenderObjectContainer::append(RenderObject toAppend, int dispResX, int disp
 
 
 void RenderObjectContainer::update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE,Invoke* globalInvoke) {
+	std::cerr << "Update with Threads called! This function is currently not supported!" << std::endl;
+	
 	//Thread vector
 	std::vector<std::thread> threads;
 
@@ -538,9 +562,8 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 					std::vector<std::shared_ptr<RenderObject>> newBatch;
 					for (auto& obj : batch) {
 						if(!onlyRestructure){
-							// This function does not modify obj
-							// it just updates invokes list to later see which objects need to be updated!
-							obj->update(globalInvoke);
+							// Updates local invokes, sends global ones up to Invoke Object
+							obj->update(globalInvoke);	// leaks around 2.3 KiB per call
 						}
 						
 						//-----------------------------------------
@@ -573,14 +596,25 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 						}
 					}
 					// Give new batch of objects still in same tile
-					batch = std::move(newBatch);
+					//batch = std::move(newBatch);
+					batch.swap(newBatch);
+
+					newBatch.clear();
+					newBatch.shrink_to_fit();
 				}
 			}
 		}
 	}
+
+	// Add objects back to renderer that are now in a different tile position
 	for(const auto& obj : toReinsert){
+		std::cerr << "A";
 		appendPtr(obj, dispResX, dispResY, THREADSIZE);
 	}
+
+	toReinsert.clear();
+	toReinsert.shrink_to_fit();
+	
 }
 //*/
 

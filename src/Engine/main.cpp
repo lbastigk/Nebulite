@@ -5,12 +5,12 @@
 #include "TestEnv.h"
 
 int gameEntry(int argc, char* argv[]){
-    std::cerr << "Loading level: " << argv[1] << std::endl;
     Renderer Renderer;
     Renderer.setFPS(1000);
-    Renderer.deserializeEnvironment(argv[1]);
+    Renderer.deserializeEnvironment(argv[0]);
+
     
-    // Main Render loop
+
     while (!Renderer.isQuit()) {
         // for now ,see max fps
         //if (true) {
@@ -23,13 +23,14 @@ int gameEntry(int argc, char* argv[]){
                                 // - draw ROs new position
 
             //Render Current instances
-            Renderer.renderFrame();
+            Renderer.renderFrame();     // No memory leaks here!
 
             //Render FPS
-            Renderer.renderFPS();
+            Renderer.renderFPS();       // No memory leaks here!
 
             // Present the renderer
             Renderer.showFrame();
+
         }
     }
 
@@ -38,10 +39,15 @@ int gameEntry(int argc, char* argv[]){
 
     //End of Program!
     Renderer.destroy();
+
     return 0;
 }
 
 int main(int argc, char* argv[]) {
+    // Remove bin name from arg list
+    argc--;
+    argv++;
+
     //--------------------------------------------------
     // Startup
     std::ofstream errorFile("errors.log");
@@ -71,10 +77,10 @@ int main(int argc, char* argv[]) {
     //--------------------------------------------------
     // Process args
     int result = 0;
-    if (argc == 1) {
+    if (argc == 0) {
         // assume normal session
-        char* newArgs[3] = {"", "load", "./Resources/Levels/main.json"};
-        result =  mainTree.parse(3, newArgs);
+        char* newArgs[2] = {"load", "./Resources/Levels/main.json"};
+        result =  mainTree.parse(2, newArgs);
     } else {
         result =  mainTree.parse(argc, argv);
     }

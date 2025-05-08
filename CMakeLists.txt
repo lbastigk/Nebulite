@@ -12,6 +12,7 @@ message(STATUS "Binary output directory set to: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY
 set(SDL2_PATH       "${CMAKE_SOURCE_DIR}/external/SDL2_build")
 set(RAPIDJSON_PATH  "${CMAKE_SOURCE_DIR}/external/rapidjson")
 set(EXPRTK_PATH     "${CMAKE_SOURCE_DIR}/external/exprtk")
+set(TINYEXPR_PATH   "${CMAKE_SOURCE_DIR}/external/tinyexpr")
 
 # Define SDL_DISABLE_IMPLEMENTS to use old names (for compatibility)
 add_definitions(-DSDL_DISABLE_IMPLEMENTS)
@@ -39,6 +40,7 @@ include_directories(
     ${SDL2_PATH}/include/SDL2/
     ${RAPIDJSON_PATH}/include/rapidjson
     ${EXPRTK_PATH}/
+    ${TINYEXPR_PATH}/
 )
 
 #####################
@@ -47,6 +49,7 @@ include_directories(
 # Common source files
 message(STATUS "Setting source files in project")
 set(COMMON_SOURCES
+    ${TINYEXPR_PATH}/tinyexpr.c
     ${CMAKE_SOURCE_DIR}/src/Platform/Platform.cpp
     #${CMAKE_SOURCE_DIR}/src/Editor/Editor.cpp
     #${CMAKE_SOURCE_DIR}/src/Editor/LevelEditor.cpp

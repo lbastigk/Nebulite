@@ -46,7 +46,7 @@ public:
 	SDL_Rect* getSrcRect();
 	void calculateSrcRect();
 	SDL_Texture& getTextTexture();
-	void calculateTxtRect(SDL_Renderer* renderer,TTF_Font* font);
+	void calculateText(SDL_Renderer* renderer,TTF_Font* font);
 	SDL_Rect* getTextRect();
 	//-----------------------------------------------------------
 	void update(Invoke* globalInvoke=nullptr);
@@ -68,7 +68,8 @@ private:
 	SDL_Texture* textTexture;
 	SDL_Rect textRect;
 
-	std::vector<std::shared_ptr<InvokeCommand>> cmds;
+	std::vector<std::shared_ptr<InvokeCommand>> cmds_general;
+	std::vector<std::shared_ptr<InvokeCommand>> cmds_internal;
 };
 
 //-----------------------------------------------------------

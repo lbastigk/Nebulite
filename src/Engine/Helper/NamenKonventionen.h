@@ -177,6 +177,7 @@ const struct namenKonventionenStruct {
         std::string textStr = "text.str";
         std::string textDx = "text.dx";
         std::string textDy = "text.dy";
+        std::string flagCalculate = "text.flagCalculate";
     }renderObject;
     const struct MyTemplate {
         std::string _self = "MyTemplate";

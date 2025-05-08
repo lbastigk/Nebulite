@@ -95,6 +95,7 @@ private:
         int KeyNesting(int argc, char* argv[]);
         int listOfKeys(int argc, char* argv[]);
         int full(int argc, char* argv[]);
+        int leaks(int argc, char* argv[]);
     };
     class _RenderObject {
     public:

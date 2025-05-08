@@ -1,9 +1,9 @@
 #include "Invoke.h"
 #include "RenderObject.h"  // include full definition of RenderObject
 
-// Needs to be linked to a doc containing global variables
+
 Invoke::Invoke() {
-    expression.register_symbol_table(symbol_table);
+
 }
 
 
@@ -34,7 +34,7 @@ void Invoke::checkAgainstList(RenderObject& obj){
     }
 }
 
-void Invoke::updateKey(std::string type, std::string key,std::string valStr, rapidjson::Document *doc){
+void Invoke::updateValueOfKey(std::string type, std::string key,std::string valStr, rapidjson::Document *doc){
     double val = evaluateExpression(valStr);
     double oldVal = JSONHandler::Get::Any<double>(*doc, key, 0.0);
 
@@ -52,93 +52,62 @@ void Invoke::updatePair(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherO
     // === SELF update ===
     if (!cmd->selfKey.empty() && !cmd->selfChangeType.empty()) {
         std::string valStr = resolveVars(cmd->selfValue, *cmd->selfPtr->getDoc(), *otherObj.getDoc(), *global);
-        updateKey(cmd->selfChangeType, cmd->selfKey,valStr, cmd->selfPtr->getDoc());
+        updateValueOfKey(cmd->selfChangeType, cmd->selfKey,valStr, cmd->selfPtr->getDoc());
     }
 
     // === OTHER update ===
     if (!cmd->otherChangeType.empty() && !cmd->otherChangeType.empty()) {
         std::string valStr = resolveVars(cmd->otherValue,  *cmd->selfPtr->getDoc(), *otherObj.getDoc(), *global);
-        updateKey(cmd->otherChangeType, cmd->otherKey,valStr, otherObj.getDoc());
+        updateValueOfKey(cmd->otherChangeType, cmd->otherKey,valStr, otherObj.getDoc());
     }
 
     // === GLOBAL update ===
     if (!cmd->globalKey.empty() && !cmd->globalChangeType.empty()) {
         std::string valStr = resolveVars(cmd->globalValue,  *cmd->selfPtr->getDoc(), *otherObj.getDoc(), *global);
-        double val = evaluateExpression(valStr);
-        double oldVal = JSONHandler::Get::Any<double>(*global, cmd->globalKey, 0.0);
-        updateKey(cmd->globalChangeType, cmd->globalKey,valStr, global);
+        updateValueOfKey(cmd->globalChangeType, cmd->globalKey,valStr, global);
     }
 }
 
-// Upate of all loop and general invokes
-// loopCommands affect only the object itself
-// generalCommands affect the object and another object + a general rapidjson doc
-// idea: 
-// sorting effect on objects
-// std::map[std::pair<objPtr,key>] = std::string expr
-// this way, updates can be sorted first and the be threaded?
-
-// or: sort all updates so that the actual change happens later inside the object update:
-// At first: invokes; obj_X - obj_Y influence
-// Then: check if logic is true
-// Then: insert invoke changes into obj_X and obj_Y if true
-// This way, updates only ever change one object and thus, threads are possible
 void Invoke::update(){
-    // Update loop invokes
-    loopCommands.clear();
-    loopCommands.swap(nextLoopCommands);
-    for (auto& cmd : loopCommands){
-        if(isTrue(cmd,*cmd->selfPtr,true)){
-            // === SELF update ===
-            if (!cmd->selfKey.empty() && !cmd->selfChangeType.empty()) {
-                std::string valStr = resolveVars(cmd->selfValue, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *global);
-                updateKey(cmd->selfChangeType, cmd->selfKey,valStr, cmd->selfPtr->getDoc());
-            }
-            // === GLOBAL update ===
-            if (!cmd->globalKey.empty() && !cmd->globalChangeType.empty()) {
-                std::string valStr = resolveVars(cmd->globalValue, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *global);
-                updateKey(cmd->globalChangeType, cmd->globalKey,valStr, global);
-            }
-        }
-    }
-
     // check general vals
     for (auto pair : truePairs){
         updatePair(pair.first, *pair.second);
     }
     truePairs.clear();
+    truePairs.shrink_to_fit();
 }
 
 // Called after a full renderer update to get all extracted invokes
 void Invoke::getNewInvokes(){
     commands.clear();
+    commands.shrink_to_fit();
     commands.swap(nextCommands);    // Swap in the new set of commands
 }
 
 void Invoke::append(std::shared_ptr<InvokeCommand> toAppend){
-    if      (!toAppend->type.compare("continous"))   nextCommands.push_back(toAppend);
-    else if (!toAppend->type.compare("loop"))        nextLoopCommands.push_back(toAppend);
+    nextCommands.push_back(toAppend);
 }
 
-
 double Invoke::evaluateExpression(const std::string& expr) {
-    double result = 0.0;
-    if (parser.compile(expr, expression)) {
-        result = expression.value();
-    }
-    return result;
+    return te_interp(expr.c_str(),0);
 }
 
 std::string Invoke::resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global) {
+    // Variables
+    std::string resolved, inner;
     std::string result = input;
     size_t pos = 0;
+    size_t start, end;
+    int depth;
+
+    // loop through string, find $(...) and replace with variables
     while ((pos = result.find("$(", pos)) != std::string::npos) {
-        size_t start = pos + 2;
-        int depth = 1;
-        size_t end = start;
+        start = pos + 2;
+        depth = 1;
+        end = start;
         while (end < result.size() && depth > 0) {
-            if (result[end] == '(') depth++;
-            else if (result[end] == ')') depth--;
+            if (result[end] == '(')         depth++;
+            else if (result[end] == ')')    depth--;
             ++end;
         }
 
@@ -147,11 +116,11 @@ std::string Invoke::resolveVars(const std::string& input, rapidjson::Document& s
             break;
         }
 
-        std::string inner = result.substr(start, end - start - 1);
-        std::string resolved;
+        inner = result.substr(start, end - start - 1);
+        
 
         // === RECURSIVE RESOLUTION ===
-        inner = resolveVars(inner, self, other, global);
+        //inner = resolveVars(inner, self, other, global);  // usually not needed...
 
         // === VARIABLE ACCESS ===
         if (inner.rfind("self.", 0) == 0) {
@@ -162,7 +131,7 @@ std::string Invoke::resolveVars(const std::string& input, rapidjson::Document& s
             resolved = JSONHandler::Get::Any<std::string>(global, inner.substr(7), "0");
         } else {
             // === EXPRTK EVALUATION ===
-            resolved = evaluateExpression(inner);
+            //resolved = evaluateExpression(inner);  // usually not needed...
         }
 
         // Replace the $(...) with resolved value

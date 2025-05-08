@@ -41,8 +41,10 @@ class RenderObject;
 
 #include <string>
 #include <vector>
-#include "exprtk.hpp"
+//#include "exprtk.hpp"
+#include "tinyexpr.h"
 #include <JSONHandler.h>
+
 
 
 struct InvokeCommand{
@@ -93,24 +95,22 @@ public:
     double evaluateExpression(const std::string& expr);
     std::string resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global);
 
+
+    void updateValueOfKey(std::string type, std::string key,std::string valStr, rapidjson::Document *doc);
+
+    rapidjson::Document* getGlobalPointer(){return global;};
 private:
     rapidjson::Document* global = nullptr;
     std::vector<std::shared_ptr<InvokeCommand>> commands;
     std::vector<std::shared_ptr<InvokeCommand>> nextCommands; 
-
-    std::vector<std::shared_ptr<InvokeCommand>> loopCommands;
-    std::vector<std::shared_ptr<InvokeCommand>> nextLoopCommands;
-
     std::vector<std::pair<std::shared_ptr<InvokeCommand>,RenderObject*>> truePairs;
 
     // exprtk stuff:
-    typedef exprtk::expression<double> expression_t;
-    typedef exprtk::parser<double> parser_t;
+    //typedef exprtk::expression<double> expression_t;
+    //typedef exprtk::parser<double> parser_t;
+    //expression_t expression;
+    //parser_t parser;
 
-    exprtk::symbol_table<double> symbol_table;
-    expression_t expression;
-    parser_t parser;
-
-    void updateKey(std::string type, std::string key,std::string valStr, rapidjson::Document *doc);
+    
 };
 

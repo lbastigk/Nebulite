@@ -21,8 +21,7 @@ Renderer::Renderer(bool flag_hidden, unsigned int zoom, unsigned int X, unsigned
 	// Get the current directory
 	directory = FileManagement::currentDir();
 
-	// Get screen resolution
-	std::cout << "Resolution setting\n"; 	
+	// Get screen resolution	
 	dispResX = X;
 	dispResY = Y;
 
@@ -144,44 +143,6 @@ void Renderer::update_withThreads() {
 	Invoke.getNewInvokes();
 }
 
-void Renderer::setGlobalValues(){
-	// Time
-	lastTime = currentTime;
-	currentTime = Time::gettime();
-	Uint64 dt_ms = currentTime - lastTime;
-	Uint64 t_ms = JSONHandler::Get::Any<Uint64>(env.getGlobal(), "t_ms",0) + dt_ms;
-	JSONHandler::Set::Any<double>(env.getGlobal(), "dt", (dt_ms) / 1000.0);
-	JSONHandler::Set::Any<double>(env.getGlobal(), "dt_ms", dt_ms);
-	JSONHandler::Set::Any<double>(env.getGlobal(), "t", t_ms / 1000.0);
-	JSONHandler::Set::Any<Uint64>(env.getGlobal(), "t_ms", t_ms);
-
-	// Get Frame count
-	Uint64 ticks = JSONHandler::Get::Any<Uint64>(env.getGlobal(),"frameCount",0);
-	JSONHandler::Set::Any<Uint64>(env.getGlobal(),"frameCount",ticks+1);
-
-	// Ticks
-	// t > lastT + 1/tick_fps ?
-
-
-	// Cursor Position and state
-	lastMousePosX = MousePosX;
-	lastMousePosY = MousePosY;
-	lastMouseState = mouseState;
-	mouseState = SDL_GetMouseState(&MousePosX, &MousePosY);
-	JSONHandler::Set::Any(env.getGlobal(),"mouse_current.X",MousePosX);
-	JSONHandler::Set::Any(env.getGlobal(),"mouse_current.Y",MousePosY);
-	JSONHandler::Set::Any(env.getGlobal(),"mouse_delta.X",MousePosX-lastMousePosX);
-	JSONHandler::Set::Any(env.getGlobal(),"mouse_delta.Y",MousePosY-lastMousePosY);
-
-	JSONHandler::Set::Any(env.getGlobal(),"mouse_current.left",!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState));
-	JSONHandler::Set::Any(env.getGlobal(),"mouse_current.right",!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouseState));
-	JSONHandler::Set::Any(env.getGlobal(),"mouse_delta.left",
-		!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState) - 
-		!!(SDL_BUTTON(SDL_BUTTON_LEFT) & lastMouseState));
-	JSONHandler::Set::Any(env.getGlobal(),"mouse_delta.right",
-		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouseState) - 
-		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & lastMouseState));
-}
 
 //-----------------------------------------------------------
 // Purge
@@ -286,6 +247,7 @@ void Renderer::renderFrame() {
 		fpsCount = 0;
 		lastFPSRender = prevTicks;
 
+		/*
 		if (control_fps) {
 			//D and I summation
 			int error = fps - SCREEN_FPS;
@@ -304,6 +266,8 @@ void Renderer::renderFrame() {
 
 			prevError = error;
 		}
+		*/
+		
 	}
 
 	//------------------------------------------------
@@ -333,7 +297,6 @@ void Renderer::renderFrame() {
 							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
 								loadTexture(*obj);
 								obj->calculateDstRect();
-								//obj->calculateSrcRect();
 							}
 							obj->calculateSrcRect();
 
@@ -344,7 +307,7 @@ void Renderer::renderFrame() {
 							// Render the texture to the window
 							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj->getSrcRect(), &rect);
 							if (obj->valueGet<float>(namenKonvention.renderObject.textFontsize)>0){
-								obj->calculateTxtRect(renderer,font);
+								obj->calculateText(renderer,font);
 								SDL_RenderCopy(renderer,&obj->getTextTexture(),NULL,obj->getTextRect());
 							}
 							if (error != 0){
@@ -357,115 +320,6 @@ void Renderer::renderFrame() {
 		}
 	}
 
-}
-
-void Renderer::renderFrameNoThreads() {
-	//------------------------------------------------
-	// FPS Count
-
-	//Additional microsecond delay
-	Time::waitmicroseconds(epsillon);
-
-	//Ticks and FPS
-	totalframes++;
-	fpsCount++;
-	prevTicks = SDL_GetTicks64();
-
-	//Calculate fps
-	if (prevTicks - lastFPSRender >= 1000) {
-		fps = fpsCount;
-		fpsCount = 0;
-		lastFPSRender = prevTicks;
-
-		if (control_fps) {
-			//FPS-Control
-			/*
-			//int fps is current fps
-			//int SCREEN_FPS is goal
-			//This part is called ever second when fps is recalculated
-
-			//Implement PID for int epsillon
-			//epsillon is a �s delay to get closer to goal FPS
-
-			//Current implementation is a simple counter
-			if (fps > SCREEN_FPS) {
-				epsillon += 1;
-			}
-			else if (fps < SCREEN_FPS) {
-				//Eps cant be under 0
-				if (epsillon > 0) {
-					epsillon -= 1;
-				}
-			}
-			*/
-
-			//D and I summation
-			int error = fps - SCREEN_FPS;
-			integral += error;
-
-			//Terms
-			double pTerm = kp * error;
-			double iTerm = ki * integral;
-			double dTerm = kd * (error - prevError);
-
-			// Calculate the new epsilon value
-			int depsillon = static_cast<int>(pTerm + iTerm + dTerm);
-
-			//Sum up: PID * s controller
-			epsillon += depsillon;
-
-			prevError = error;
-		}
-	}
-
-	
-
-	//------------------------------------------------
-	// Rendering
-
-	// Clear the window with a specified color (e.g., black)
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
-	SDL_RenderClear(renderer);
-
-	int error = 0;
-
-	//Render Objects
-	//For all layers, starting at 0
-	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
-		//Between dx +-1
-		for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
-			// And dy +-1
-			for (int dY = (tileYpos == 0 ? 0 : -1); dY <= 1; dY++) {
-				// If valid
-				if (env.isValidPosition(tileXpos + dX, tileYpos + dY,i)) {
-					// For all batches inside
-					for (auto& batch : (env.getContainerAt(tileXpos + dX, tileYpos + dY, i))) {
-						// For all objects inside each batch
-						for (auto& obj : batch) {
-							//Texture loading is handled in append
-							std::string innerdir = obj->valueGet<std::string>(namenKonvention.renderObject.imageLocation);
-							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
-								loadTexture(*obj);
-								obj->calculateDstRect();
-								obj->calculateSrcRect();
-							}
-							obj->calculateSrcRect();
-
-							rect = obj->getDstRect();
-							rect.x -= Xpos;	//subtract camera posX
-							rect.y -= Ypos;	//subtract camera posY
-
-							// Render the texture to the window
-							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj->getSrcRect(), &rect);
-							if (error != 0){
-								std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
 }
 
 void Renderer::renderFPS(float scalar) {
@@ -503,7 +357,48 @@ void Renderer::showFrame() {
 	SDL_RenderPresent(renderer);
 }
 
+// This function is called on each frame to set the values for the global document
+void Renderer::setGlobalValues(){
+	// Time
+	// logs:
+	// - time in s
+	// - dt from last frame in s
+	lastTime = currentTime;
+	currentTime = Time::gettime();
+	Uint64 dt_ms = currentTime - lastTime;
+	Uint64 t_ms = JSONHandler::Get::Any<Uint64>(env.getGlobal(), "t_ms",0) + dt_ms;
+	JSONHandler::Set::Any<double>(env.getGlobal(), "dt", (dt_ms) / 1000.0);
+	JSONHandler::Set::Any<double>(env.getGlobal(), "t", t_ms / 1000.0);
+	//JSONHandler::Set::Any<double>(env.getGlobal(), "dt_ms", dt_ms);
+	//JSONHandler::Set::Any<Uint64>(env.getGlobal(), "t_ms", t_ms);
+
+	// Get Frame count
+	Uint64 ticks = JSONHandler::Get::Any<Uint64>(env.getGlobal(),"frameCount",0);
+	JSONHandler::Set::Any<Uint64>(env.getGlobal(),"frameCount",ticks+1);
+
+	// Cursor Position and state
+	JSONHandler::Set::Any(env.getGlobal(),"mouse.current.X",MousePosX);
+	JSONHandler::Set::Any(env.getGlobal(),"mouse.current.Y",MousePosY);
+	JSONHandler::Set::Any(env.getGlobal(),"mouse.delta.X",MousePosX-lastMousePosX);
+	JSONHandler::Set::Any(env.getGlobal(),"mouse.delta.Y",MousePosY-lastMousePosY);
+
+	JSONHandler::Set::Any(env.getGlobal(),"mouse.current.left",!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState));
+	JSONHandler::Set::Any(env.getGlobal(),"mouse.current.right",!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouseState));
+	JSONHandler::Set::Any(env.getGlobal(),"mouse.delta.left",
+		!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState) - 
+		!!(SDL_BUTTON(SDL_BUTTON_LEFT) & lastMouseState));
+	JSONHandler::Set::Any(env.getGlobal(),"mouse.delta.right",
+		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouseState) - 
+		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & lastMouseState));
+}
+
+
 void Renderer::pollEvent() {
+	lastMousePosX = MousePosX;
+	lastMousePosY = MousePosY;
+	lastMouseState = mouseState;
+	mouseState = SDL_GetMouseState(&MousePosX, &MousePosY);
+
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
 		case SDL_QUIT:

@@ -1,6 +1,6 @@
 {
     "type": "loop",
-    "logicalArg": "($(global.mouse_delta.left) > 0) and ($(global.mouse_current.X) > $(self.posX)) and ($(global.mouse_current.Y) > $(self.posY)) and ($(global.mouse_current.X) < ($(self.posX)+$(self.pixSizeX))) and ($(global.mouse_current.Y) < ($(self.posY)+$(self.pixSizeY)))",
+    "logicalArg": "($(global.mouse.delta.left) > 0) and ($(global.mouse.current.X) > $(self.posX)) and ($(global.mouse.current.Y) > $(self.posY)) and ($(global.mouse.current.X) < ($(self.posX)+$(self.pixSizeX))) and ($(global.mouse.current.Y) < ($(self.posY)+$(self.pixSizeY)))",
     "selfChangeType": "setStr",
     "selfKey": "text.str",
     "selfValue": "$(global.click.count)",

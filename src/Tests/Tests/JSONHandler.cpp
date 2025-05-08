@@ -81,6 +81,8 @@ int TestEnv::_JSONHandler::setGet(int argc, char* argv[]) {
 
     JSONHandler::Set::Any(doc, namenKonvention.MyTemplate._self, namenKonvention.MyTemplate.bsp1);
     std::cout << JSONHandler::Get::Any<std::string>(doc, namenKonvention.MyTemplate._self, "");
+
+    return 0;
 }
 
 int TestEnv::_JSONHandler::KeyNesting(int argc, char* argv[]) {
@@ -106,6 +108,7 @@ int TestEnv::_JSONHandler::KeyNesting(int argc, char* argv[]) {
     std::cout << "Result should be: \n";
     std::cout << "level1.double = 3.14 \n";
     std::cout << "level1.level2.int = 10 or 11 \n";
+    return 0;
 }
 
 int TestEnv::_JSONHandler::listOfKeys(int argc, char* argv[]) {
@@ -122,8 +125,58 @@ int TestEnv::_JSONHandler::listOfKeys(int argc, char* argv[]) {
         std::cout << key << "\n";
     }
 
-    Time::wait(5000);
+    return 0;
 }
+
+int TestEnv::_JSONHandler::leaks(int argc, char* argv[]) {
+    // Start values
+    std::string count = "100000";
+
+    // Argument parsing
+    FuncTree ft("leaks");
+    ft.attachArgument(&count,"count","c","Loop count for leak test");
+    ft.parse(argc, argv);
+
+    int loopAmount = atoi(count.c_str());
+
+    // Test data
+    int testInt = 123;
+    std::string testString = "leakTest";
+    double testDouble = 3.14159;
+
+    rapidjson::Document doc;
+
+    double mem = DsaDebug::getMemoryUsagekB();
+    std::cout << "Testing " << loopAmount << " times" << std::endl; 
+    std::cout << "Initial memory in MiB: " << DsaDebug::getMemoryUsagekB() / 1024.0 << std::endl;
+
+    for (volatile int i = 0; i < loopAmount; ++i) {
+        // Set tests
+        JSONHandler::Set::Any(doc, "intVal", testInt);
+        JSONHandler::Set::Any(doc, "strVal", testString);
+        JSONHandler::Set::Any(doc, "dblVal", testDouble);
+    }
+    double memSet = DsaDebug::getMemoryUsagekB();
+    std::cout << "[SET] Memory increase in MiB: " << (memSet - mem) / 1024.0 << std::endl;
+    for (volatile int i = 0; i < loopAmount; ++i) {
+        // Get tests (optionally check retrieval works)
+        int outInt = JSONHandler::Get::Any<int>(doc, "intVal", 0);
+        std::string outStr = JSONHandler::Get::Any<std::string>(doc, "strVal", "");
+        double outDbl = JSONHandler::Get::Any<double>(doc, "dblVal", 0.0);
+
+        // Optionally validate result to force compiler to retain code
+        volatile int tmp = outInt;
+        volatile double tmp2 = outDbl;
+        (void)tmp;
+        (void)tmp2;
+    }
+    double memGet = DsaDebug::getMemoryUsagekB();
+    std::cout << "[Get] Memory increase in MiB: " << (memSet - memGet) / 1024.0 << std::endl;
+
+
+    return 0;
+}
+
 
 int TestEnv::_JSONHandler::full(int argc, char* argv[]){
     std::cout << "Full JSONHandler test..." << std::endl;
@@ -132,4 +185,8 @@ int TestEnv::_JSONHandler::full(int argc, char* argv[]){
     (void) speed(argc,argv);
     std::cout << "Test 2: Key nesting" << std::endl;
     (void) KeyNesting(argc,argv);
+    std::cout << "Test 3: Leaks" << std::endl;
+    (void) leaks(argc,argv);
+
+    return 0;
 }
