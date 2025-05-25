@@ -28,5 +28,4 @@ public:
     static std::string wstringToString(const std::wstring& wstr);
 
     static std::string getBinaryString(int toConvert);
-
 };

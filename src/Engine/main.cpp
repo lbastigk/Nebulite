@@ -23,10 +23,11 @@ and all test functions simple configure the main game loop.
 What instructions on main are needed?
 - envload   | load level            | 
 - envdeload | deload level          | return to main level, as in titlescreen?
-- attach    | load renderobject     |
+- spawn     | load renderobject     |
 - exit      | exit game             |
 - save      | save state            |
 - load      | load state            |
+- task      | load set of tasks     |
 
 The idea with states is that, they hold a copy of files inside ./Resources/ if they were modified.
 This enables the usage of savegames: 
@@ -55,61 +56,126 @@ This enables the usage of savegames:
 
 If a file does not exist in that State prefix, use load it from ./Resources directly
 */
-
+#include "mainTreeFunctions.cpp"
 #include "Environment.h"
 #include "FileManagement.h"
 #include "Renderer.h"
 #include "FuncTree.h"
 #include "TestEnv.h"
 
-// load is the main engines function to interact with provided .json level files
-// The json file is, for now, assumed to be a level. No precheck is provided.
-// The level is loaded into the Renderers environment via deserialize
-// A high fps is used for now for performance benchmarks
-// The levels last state is saved as lastLevel.log.json for later call with './bin/Nebulite load lastLevel.log.json'
-int load(int argc, char* argv[]){
-    Renderer Renderer;
-    Renderer.setFPS(1000);
-    Renderer.deserialize(argv[0]);
-    while (!Renderer.isQuit()) {
-        if (Renderer.timeToRender()) {
-            Renderer.update();          // 1.) Update objects
-            Renderer.renderFrame();     // 2.) Render frame
-            Renderer.renderFPS();       // 3.) Render fps count
-            Renderer.showFrame();       // 4.) Show Frame
-            Renderer.clear();           // 5.) Clear screen
+
+
+
+// global variables used by main functions
+
+static char* argvBuffer = nullptr;
+static int argvCapacity = 0;
+//int waitCounter = 0;
+
+void convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv) {
+    // Free previous buffer if any
+    if (argvBuffer) {
+        delete[] argvBuffer;
+        argvBuffer = nullptr;
+        argvCapacity = 0;
+    }
+
+    // Make a modifiable copy of cmd
+    argvCapacity = static_cast<int>(cmd.size()) + 1; // +1 for '\0'
+    argvBuffer = new char[argvCapacity];
+    std::memcpy(argvBuffer, cmd.c_str(), argvCapacity);
+
+    // Count tokens and split in-place by replacing spaces with '\0'
+    argc = 0;
+    bool inToken = false;
+
+    // Maximum argv size = number of tokens <= number of chars
+    static std::vector<char*> argvVec;
+    argvVec.clear();
+    argvVec.reserve(argvCapacity);
+
+    for (int i = 0; i < argvCapacity; ++i) {
+        if (argvBuffer[i] == ' ' || argvBuffer[i] == '\t') {
+            argvBuffer[i] = '\0';
+            inToken = false;
+        } else if (!inToken) {
+            // Start of a new token
+            argvVec.push_back(&argvBuffer[i]);
+            argc++;
+            inToken = true;
         }
     }
 
-    // Store full env for inspection
-    FileManagement::WriteFile("lastLevel.log.json",Renderer.serialize());
+    // Null terminate argv list
+    argvVec.push_back(nullptr);
 
-    //End of Program!
-    Renderer.destroy();
-    return 0;
+    argv = argvVec.data();
 }
 
+
+
+
+/*
+argv must correspond to one total task like: 
+- test json-handler speed
+- load level.json 
+etc... 
+
+for multiple tasks, the keyword task is used: 
+- task file.txt
+*/
 int main(int argc, char* argv[]) {
-    // Remove bin name from arg list
-    argc--;
-    argv++;
 
     //--------------------------------------------------
     // Startup
+
+    // General Presets
+    renderer.setFPS(1000);
+
+    // Error logs
     std::ofstream errorFile("errors.log");
     if (!errorFile) {
         std::cerr << "Failed to open error file." << std::endl;
         return 1;
     }
-
-    // Redirect std::cerr to the file
     std::streambuf* originalCerrBuf = std::cerr.rdbuf(); // Store the original cerr buffer
     std::cerr.rdbuf(errorFile.rdbuf());
+    
+    //--------------------------------------------------
+    // args handling
+
+    // Remove bin name from arg list
+    argc--;
+    argv++;
+
+    // add main arg to argTokens:
+    if(argc > 0){
+        std::ostringstream oss;
+        for (int i = 0; i < argc; ++i) {
+            if (i > 0) oss << ' ';          // Add space between arguments
+            oss << argv[i];
+        }
+        tasks.push_back(oss.str());
+    }
+    else{
+        // If argc is 0, no arg was provided. Insert a load for test level?
+        // TODO...
+    }
 
     //--------------------------------------------------
     // Build main FuncTree
     FuncTree mainTree("Nebulite");
-    mainTree.attachFunction(load, "load", "Load");       // Attaching main game entry function
+    mainTree.attachFunction(envload,        "envload",      "Loads an environment");
+    mainTree.attachFunction(envdeload,      "envdeload",    "Deloads an environment");
+    mainTree.attachFunction(spawn,          "spawn",        "Spawn a renderobject");
+    mainTree.attachFunction(exitProgram,    "exit",         "exits the program");
+    mainTree.attachFunction(save,           "save",         "Saves the state");
+    mainTree.attachFunction(load,           "load",         "Loads a state");
+    mainTree.attachFunction(task,           "task",         "Loads a txt file of tasks");
+    mainTree.attachFunction(echo,           "echo",         "Echos all args provided to cout");
+
+    // Not using testEnv atm
+    /*
     TestEnv testEnv;
     mainTree.attachFunction(
         [&testEnv](int argc, char* argv[]) -> int {
@@ -119,20 +185,47 @@ int main(int argc, char* argv[]) {
         "test",                         // Command name to call this function
         "Testing Engine Capabilities"   // Description for the help message
     );
-
+    */
+    
+    
     //--------------------------------------------------
-    // Process args provided by user
+    // Render loop
     int result = 0;
-    if (argc == 0) {
-        // assume normal session
-        char* newArgs[2] = {"load", "./Resources/Levels/main.json"};
-        result =  mainTree.parse(2, newArgs);
-    } else {
-        result =  mainTree.parse(argc, argv);
+    while (!renderer.isQuit()) {
+        //--------------------
+        // Handle args
+        while (!tasks.empty()) {
+            std::string argStr = tasks.front();
+            tasks.pop_front();  // remove the used task
+
+            int argc = 0;
+            char** argv = nullptr;
+            convertStrToArgcArgv(argStr, argc, argv);
+
+            if (argv != nullptr) {
+                result = mainTree.parse(argc, argv);
+            }
+        }
+        
+        // Render Frame
+        if (renderer.timeToRender()) {
+            renderer.update();          // 1.) Update objects
+            renderer.renderFrame();     // 2.) Render frame
+            renderer.renderFPS();       // 3.) Render fps count
+            renderer.showFrame();       // 4.) Show Frame
+            renderer.clear();           // 5.) Clear screen
+        }
     }
+
 
     //--------------------------------------------------
     // Exit
+
+    // Store full env for inspection
+    FileManagement::WriteFile("lastLevel.log.json",renderer.serialize());
+
+    // Destroy renderer
+    renderer.destroy();
 
     // Explicitly flush std::cerr before closing the file stream
     std::cerr.flush();  // Ensures everything is written to the file

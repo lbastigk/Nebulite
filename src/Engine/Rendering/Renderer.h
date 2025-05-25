@@ -41,9 +41,8 @@ public:
 	void update();
 	void update_withThreads();
 	void setGlobalValues();
-	bool isQuit(){
-		return quit;
-	}
+	bool isQuit(){return quit;}
+	void setQuit(){quit=true;}
 	
 	//-----------------------------------------------------------
 	// Purge
