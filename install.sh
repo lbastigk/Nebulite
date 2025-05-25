@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# install necessary components
+sudo apt-get update
+sudo apt-get install cmake
+sudo apt-get install automake
+sudo apt-get install build-essential
+sudo apt-get install libsdl1.2-dev
+
 START_DIR=$(pwd)
 
 ####################################
