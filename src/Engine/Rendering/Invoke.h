@@ -48,11 +48,11 @@ class RenderObject;
 
 
 struct InvokeCommand{
-    RenderObject *selfPtr;          // store self
-    std::string logicalArg;         //e.g. $self.posX > $other.posY
-    std::string selfChangeType;     //set, append, add, multiply etc.
-    std::string selfKey;            // what key to change in self
-    std::string selfValue;          // value
+    std::shared_ptr<RenderObject> selfPtr;  // store self
+    std::string logicalArg;                 //e.g. $self.posX > $other.posY
+    std::string selfChangeType;             //set, append, add, multiply etc.
+    std::string selfKey;                    // what key to change in self
+    std::string selfValue;                  // value
     std::string otherChangeType;
     std::string otherKey;
     std::string otherValue;
@@ -69,6 +69,8 @@ public:
     void linkGlobal(rapidjson::Document& globalDocPtr){
         global = &globalDocPtr;
     }
+
+    void clear();
     
     // Append invoke command
     void append(std::shared_ptr<InvokeCommand> toAppend);
@@ -79,10 +81,10 @@ public:
 
     
 
-    void checkAgainstList(RenderObject& obj);
-    bool isTrue(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj, bool resolveEqual=false);
+    void checkAgainstList(std::shared_ptr<RenderObject> otherObj);
+    bool isTrue(std::shared_ptr<InvokeCommand> cmd, std::shared_ptr<RenderObject> otherObj, bool resolveEqual=true);
     void update();
-    void updatePair(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj);
+    void updatePair(std::shared_ptr<InvokeCommand> cmd, std::shared_ptr<RenderObject> otherObj);
     
     // Check against list
     
@@ -103,7 +105,7 @@ private:
     rapidjson::Document* global = nullptr;
     std::vector<std::shared_ptr<InvokeCommand>> commands;
     std::vector<std::shared_ptr<InvokeCommand>> nextCommands; 
-    std::vector<std::pair<std::shared_ptr<InvokeCommand>,RenderObject*>> truePairs;
+    std::vector<std::pair<std::shared_ptr<InvokeCommand>,std::shared_ptr<RenderObject>>> truePairs;
 
     // exprtk stuff:
     //typedef exprtk::expression<double> expression_t;

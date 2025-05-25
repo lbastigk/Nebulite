@@ -399,7 +399,19 @@ void JSONHandler::ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue,
 
 // from JSON Value
 template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, bool& result){result = jsonValue.GetBool();}
-template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, int& result){result = jsonValue.GetInt();}
+template <>
+inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, int& result) {
+    if (jsonValue.IsInt()) {
+        result = jsonValue.GetInt();
+    }
+    else if(jsonValue.IsBool()){
+        result = jsonValue.GetBool();
+    }
+    else{
+        result = 0;
+    }
+}
+
 template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint32_t& result){result = jsonValue.GetUint();}
 template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint64_t& result){result = jsonValue.GetUint64();}
 template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, float& result){

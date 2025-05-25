@@ -48,7 +48,7 @@ public:
 	void calculateText(SDL_Renderer* renderer,TTF_Font* font);
 	SDL_Rect* getTextRect();
 	//-----------------------------------------------------------
-	void update(Invoke* globalInvoke=nullptr);
+	void update(Invoke* globalInvoke,std::shared_ptr<RenderObject> this_shared);
 	void exampleMoveSet(std::string val = namenKonvention.renderObject.positionX);
 	
 	//TODO
@@ -56,7 +56,7 @@ public:
 
 	void loadMoveSet(MoveRuleSet mrs);
 
-	void reloadInvokes();
+	void reloadInvokes(std::shared_ptr<RenderObject> this_shared);
 
 private:
 	rapidjson::Document doc;

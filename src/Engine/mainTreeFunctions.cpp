@@ -24,13 +24,12 @@ int envload(int argc, char* argv[]){
 }
 
 int envdeload(int argc, char* argv[]){
-    renderer.clear();
+    renderer.purgeObjects();
+    renderer.purgeTextures();
     return 0;
 }
 
 int spawn(int argc, char* argv[]){
-    std::cout << "Spawn called! Argc is: " << argc << std::endl;
-
     if(argc>0){
         std::cout << "Spawning object: " << argv[0] << std::endl;
         RenderObject ro;
@@ -46,6 +45,7 @@ int spawn(int argc, char* argv[]){
 
 int exitProgram(int argc, char* argv[]){
     renderer.setQuit();
+    std::cout << "Exiting program" << std::endl;
     return 0;
 }
 
@@ -66,7 +66,7 @@ int load(int argc, char* argv[]){
     return 0;
 }
 
-int task(int argc, char* argv[]) {
+int loadTaskList(int argc, char* argv[]) {
     std::cout << "Loading tasks!" << std::endl;
 
     if (argc < 1) {
@@ -82,8 +82,13 @@ int task(int argc, char* argv[]) {
 
     std::string line;
     while (std::getline(infile, line)) {
-        if(line.rfind("#",0) != 0){
-            // line doesnt start with a comment, add to tasks
+        if(line.rfind("#",0) == 0){
+            // line starts with a comment
+        }
+        if(line.length() == 0){
+            // line is empty
+        }
+        else{
             tasks.push_back(line);
         }
     }
@@ -101,5 +106,20 @@ int echo(int argc, char* argv[]) {
     std::cout << std::endl;
     return 0;
 }
+
+int setResolution(int argc, char* argv[]){
+    if(argc != 2){
+        renderer.changeWindowSize(1000,1000);
+    }
+    else{
+        int w = std::stoi(argv[0]);
+        int h = std::stoi(argv[1]);
+        renderer.changeWindowSize(w,h);
+    }
+    return 0;
+}
+
+
+// END OF NAMESPACE
 }
 

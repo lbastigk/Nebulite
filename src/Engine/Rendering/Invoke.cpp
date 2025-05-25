@@ -7,14 +7,14 @@ Invoke::Invoke() {
 }
 
 
-bool Invoke::isTrue(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj, bool resolveEqual) {
+bool Invoke::isTrue(std::shared_ptr<InvokeCommand> cmd, std::shared_ptr<RenderObject> otherObj, bool resolveEqual) {
     // Same send
-    if((!resolveEqual) && (cmd->selfPtr == &otherObj)){
+    if((!resolveEqual) && (cmd->selfPtr.get() == otherObj.get())){
         return false;
     }
 
     // Resolve logical statement
-    std::string logic = resolveVars(cmd->logicalArg, *cmd->selfPtr->getDoc(), *otherObj.getDoc(), *global);
+    std::string logic = resolveVars(cmd->logicalArg, *cmd->selfPtr->getDoc(), *otherObj.get()->getDoc(), *global);
     if (evaluateExpression(logic) == 0.0){
         return false;
     }
@@ -26,10 +26,10 @@ bool Invoke::isTrue(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj, 
 
 // Checks an object against all linked invokes.
 // True pairs are put into a special vector
-void Invoke::checkAgainstList(RenderObject& obj){
+void Invoke::checkAgainstList(std::shared_ptr<RenderObject> obj){
     for (auto& cmd : commands){
         if(isTrue(cmd,obj)){
-            truePairs.push_back(std::make_pair(cmd,&obj));
+            truePairs.push_back(std::make_pair(cmd,obj));
         }
     }
 }
@@ -48,30 +48,41 @@ void Invoke::updateValueOfKey(std::string type, std::string key,std::string valS
 
 // Checks a given invoke cmd against objects in buffer
 // as objects have constant pointers, using RenderObject& is possible
-void Invoke::updatePair(std::shared_ptr<InvokeCommand> cmd, RenderObject& otherObj) {
+void Invoke::updatePair(std::shared_ptr<InvokeCommand> cmd, std::shared_ptr<RenderObject> otherObj) {
     // === SELF update ===
     if (!cmd->selfKey.empty() && !cmd->selfChangeType.empty()) {
-        std::string valStr = resolveVars(cmd->selfValue, *cmd->selfPtr->getDoc(), *otherObj.getDoc(), *global);
+        std::string valStr = resolveVars(cmd->selfValue, *cmd->selfPtr->getDoc(), *otherObj.get()->getDoc(), *global);
         updateValueOfKey(cmd->selfChangeType, cmd->selfKey,valStr, cmd->selfPtr->getDoc());
     }
 
     // === OTHER update ===
     if (!cmd->otherChangeType.empty() && !cmd->otherChangeType.empty()) {
-        std::string valStr = resolveVars(cmd->otherValue,  *cmd->selfPtr->getDoc(), *otherObj.getDoc(), *global);
-        updateValueOfKey(cmd->otherChangeType, cmd->otherKey,valStr, otherObj.getDoc());
+        std::string valStr = resolveVars(cmd->otherValue,  *cmd->selfPtr->getDoc(), *otherObj.get()->getDoc(), *global);
+        updateValueOfKey(cmd->otherChangeType, cmd->otherKey,valStr, otherObj.get()->getDoc());
     }
 
     // === GLOBAL update ===
     if (!cmd->globalKey.empty() && !cmd->globalChangeType.empty()) {
-        std::string valStr = resolveVars(cmd->globalValue,  *cmd->selfPtr->getDoc(), *otherObj.getDoc(), *global);
+        std::string valStr = resolveVars(cmd->globalValue,  *cmd->selfPtr->getDoc(), *otherObj.get()->getDoc(), *global);
         updateValueOfKey(cmd->globalChangeType, cmd->globalKey,valStr, global);
     }
+}
+
+void Invoke::clear(){
+    commands.clear();
+    commands.shrink_to_fit();
+
+    nextCommands.clear();
+    nextCommands.shrink_to_fit();
+
+    truePairs.clear();
+    truePairs.shrink_to_fit();
 }
 
 void Invoke::update(){
     // check general vals
     for (auto pair : truePairs){
-        updatePair(pair.first, *pair.second);
+        updatePair(pair.first, pair.second);
     }
     truePairs.clear();
     truePairs.shrink_to_fit();

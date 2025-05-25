@@ -1,8 +1,0 @@
-spawn ./Resources/Renderobjects/Planets/sun.json
-spawn ./Resources/Renderobjects/Planets/obj1.json
-wait 1000
-spawn ./Resources/Renderobjects/Planets/obj1.json
-wait 1000
-spawn ./Resources/Renderobjects/Planets/obj1.json
-wait 1000
-spawn ./Resources/Renderobjects/Planets/obj1.json

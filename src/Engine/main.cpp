@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
     // Startup
 
     // General Presets
-    renderer.setFPS(1000);
+    renderer.setFPS(60);
 
     // Error logs
     std::ofstream errorFile("errors.log");
@@ -173,15 +173,16 @@ int main(int argc, char* argv[]) {
     //--------------------------------------------------
     // Build main FuncTree
     FuncTree mainTree("Nebulite");
-    mainTree.attachFunction(mainTreeFunctions::envload,         "envload",      "Loads an environment");
-    mainTree.attachFunction(mainTreeFunctions::envdeload,       "envdeload",    "Deloads an environment");
+    mainTree.attachFunction(mainTreeFunctions::envload,         "env-load",     "Loads an environment");
+    mainTree.attachFunction(mainTreeFunctions::envdeload,       "env-deload",   "Deloads an environment");
     mainTree.attachFunction(mainTreeFunctions::spawn,           "spawn",        "Spawn a renderobject");
     mainTree.attachFunction(mainTreeFunctions::exitProgram,     "exit",         "exits the program");
-    mainTree.attachFunction(mainTreeFunctions::save,            "save",         "Saves the state");
-    mainTree.attachFunction(mainTreeFunctions::load,            "load",         "Loads a state");
-    mainTree.attachFunction(mainTreeFunctions::task,            "task",         "Loads a txt file of tasks");
+    mainTree.attachFunction(mainTreeFunctions::save,            "state-save",   "Saves the state");
+    mainTree.attachFunction(mainTreeFunctions::load,            "state-load",   "Loads a state");
+    mainTree.attachFunction(mainTreeFunctions::loadTaskList,    "task",         "Loads a txt file of tasks");
     mainTree.attachFunction(mainTreeFunctions::echo,            "echo",         "Echos all args provided to cout");
     mainTree.attachFunction(mainTreeFunctions::wait,            "wait",         "Halt all commands for a set amount of frames");
+    mainTree.attachFunction(mainTreeFunctions::setResolution,   "setRes",       "Sets resolution size: <w> <h>");
 
     // Not using testEnv atm
     /*

@@ -55,11 +55,11 @@ set(COMMON_SOURCES
     #${CMAKE_SOURCE_DIR}/src/Editor/LevelEditor.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FileManagement.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FuncTree.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/Helper/Invoke.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/JSONHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/StringHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/Time.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/Environment.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/Invoke.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/Renderer.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/RenderObject.cpp
     ${CMAKE_SOURCE_DIR}/src/Tests/DsaDebug.cpp

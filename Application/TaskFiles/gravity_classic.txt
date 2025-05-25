@@ -1,0 +1,3 @@
+spawn ./Resources/Renderobjects/Planets/sun.json
+spawn ./Resources/Renderobjects/Planets/obj1.json
+spawn ./Resources/Renderobjects/Planets/obj2.json

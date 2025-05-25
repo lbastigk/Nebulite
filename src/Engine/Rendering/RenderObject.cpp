@@ -161,7 +161,7 @@ void RenderObject::calculateSrcRect() {
 	}
 }
 
-void RenderObject::reloadInvokes() {
+void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
     cmds_general.clear();
 	cmds_internal.clear();
 
@@ -187,7 +187,7 @@ void RenderObject::reloadInvokes() {
 
             InvokeCommand cmd;
             cmd.type               = JSONHandler::Get::Any<std::string>(serializedInvoke, "type", "");
-            cmd.selfPtr            = this;
+            cmd.selfPtr            = this_shared;
             cmd.globalChangeType   = JSONHandler::Get::Any<std::string>(serializedInvoke, "globalChangeType", "");
             cmd.globalKey          = JSONHandler::Get::Any<std::string>(serializedInvoke, "globalKey", "");
             cmd.globalValue        = JSONHandler::Get::Any<std::string>(serializedInvoke, "globalValue", "");
@@ -215,7 +215,7 @@ void RenderObject::reloadInvokes() {
 //   (allows for threading)
 // - store pointer pairs as std::vector<std::pair<RenderObject& RenderObject&>>
 // - after object pre-update, call actual update via invoke class that changes all objects
-void RenderObject::update(Invoke* globalInvoke) {
+void RenderObject::update(Invoke* globalInvoke, std::shared_ptr<RenderObject> this_shared) {
 	// [TODO:] Memory leak of around 13/3 KiB per object happens here!
 	// Entire part of ROC-Update does not leak memory under test circumstances
 	// only leak happens here!
@@ -225,13 +225,13 @@ void RenderObject::update(Invoke* globalInvoke) {
 	if (globalInvoke) {
 		// Reload invokes if needed
 		if (valueGet<int>(namenKonvention.renderObject.reloadInvokes,1)){
-			reloadInvokes();
+			reloadInvokes(this_shared);
 		}
 
 		// solve local invokes (loop)
 		for (const auto& cmd : cmds_internal){
 			// add pointer to invoke command to global
-			if(globalInvoke->isTrue(cmd,*cmd->selfPtr,true)){
+			if(globalInvoke->isTrue(cmd,this_shared,true)){
 				// === SELF update ===
 				if (!cmd->selfKey.empty() && !cmd->selfChangeType.empty()) {
 					std::string valStr = globalInvoke->resolveVars(cmd->selfValue, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *globalInvoke->getGlobalPointer());
@@ -246,7 +246,7 @@ void RenderObject::update(Invoke* globalInvoke) {
 		}
 
 		// Checks this object against all conventional invokes for manipulation
-        globalInvoke->checkAgainstList(*this);
+        globalInvoke->checkAgainstList(this_shared);
 
 		// Next step: append general invokes from object itself back for global check:
 		for (const auto& cmd : cmds_general){
@@ -500,11 +500,11 @@ void RenderObjectContainer::update_withThreads(int tileXpos, int tileYpos, int d
 			if (isValidPosition(tileXpos + dX, tileYpos + dY)) {
 				for (auto& batch : ObjectContainer[tileYpos + dY][tileXpos + dX]) {
 					// Create thread for batch
-					threads.emplace_back([this, &batch]() {
+					threads.emplace_back([this, &batch, globalInvoke]() {
 						// Perform batch update logic here
 						// For example, update each object in the batch
 						for (auto& obj : batch) {
-							obj->update();
+							obj->update(globalInvoke,obj);
 						}
 						});
 				}
@@ -557,7 +557,7 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 					for (auto& obj : batch) {
 						if(!onlyRestructure){
 							// Updates local invokes, sends global ones up to Invoke Object
-							obj->update(globalInvoke);	// leaks around 2.3 KiB per call
+							obj->update(globalInvoke,obj);	// leaks around 2.3 KiB per call
 						}
 						
 						//-----------------------------------------
@@ -602,13 +602,10 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 
 	// Add objects back to renderer that are now in a different tile position
 	for(const auto& obj : toReinsert){
-		std::cerr << "A";
 		appendPtr(obj, dispResX, dispResY, THREADSIZE);
 	}
-
 	toReinsert.clear();
 	toReinsert.shrink_to_fit();
-	
 }
 //*/
 

@@ -143,6 +143,7 @@ void Renderer::update_withThreads() {
 //-----------------------------------------------------------
 // Purge
 void Renderer::purgeObjects() {
+	Invoke.clear();
 	env.purgeObjects();
 }
 
@@ -172,6 +173,15 @@ void Renderer::destroy() {
 // Manipulation
 
 void Renderer::changeWindowSize(int w, int h) {
+	if(w < 64 || w > 16384){
+		std::cerr << "Selected resolution is not supported" << std::endl;
+		return;
+	}
+	if(w < 64 || w > 16384){
+		std::cerr << "Selected resolution is not supported" << std::endl;
+		return;
+	}
+
     dispResX = w;
     dispResY = h;
     
