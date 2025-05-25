@@ -41,9 +41,9 @@ class RenderObject;
 
 #include <string>
 #include <vector>
-//#include "exprtk.hpp"
+#include <deque>
 #include "tinyexpr.h"
-#include <JSONHandler.h>
+#include "JSONHandler.h"
 
 
 
@@ -125,6 +125,9 @@ public:
     void linkGlobal(rapidjson::Document& globalDocPtr){
         global = &globalDocPtr;
     }
+    void linkQueue(std::deque<std::string>& queue){
+        tasks = &queue;
+    }
 
     void clear();
     
@@ -162,6 +165,9 @@ private:
     std::vector<std::shared_ptr<InvokeEntry>> commands;
     std::vector<std::shared_ptr<InvokeEntry>> nextCommands; 
     std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> truePairs;
+
+    // pointer to queue
+    std::deque<std::string>* tasks = nullptr;
 
     // exprtk stuff:
     //typedef exprtk::expression<double> expression_t;

@@ -72,6 +72,16 @@ void Invoke::updatePair(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<Render
             updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
         } 
     }
+
+    // === Functioncalls ===
+    // TODO
+    for(auto call : cmd.get()->functioncalls){
+        // replace vars
+        call = resolveVars(call,*cmd->selfPtr->getDoc(),*otherObj.get()->getDoc(), *global);
+
+        // attach to task queue
+        tasks->emplace_back(call);
+    }
 }
 
 void Invoke::clear(){

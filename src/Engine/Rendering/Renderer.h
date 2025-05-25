@@ -21,7 +21,7 @@
 
 class Renderer {
 public:
-	Renderer(bool flag_hidden = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
+	Renderer(std::deque<std::string>& tasks, bool flag_hidden = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
 	
 	//Destructor
 	~Renderer();
@@ -204,4 +204,6 @@ private:
 
 	// Function to load texture from file
 	void loadTexture(RenderObject &toAppend);
+
+	
 };

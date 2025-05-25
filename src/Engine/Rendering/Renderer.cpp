@@ -2,7 +2,7 @@
 
 
 
-Renderer::Renderer(bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y){
+Renderer::Renderer(std::deque<std::string>& tasks, bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y){
 
 	RenderZoom=zoom;
 
@@ -75,6 +75,7 @@ Renderer::Renderer(bool flag_hidden, unsigned int zoom, unsigned int X, unsigned
     lastTime = Time::gettime();
 
 	Invoke.linkGlobal(env.getGlobal());
+	Invoke.linkQueue(tasks);
 }
 
 //Destructor
