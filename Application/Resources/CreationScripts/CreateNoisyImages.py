@@ -31,7 +31,7 @@ def generate_textures(num_textures, texture_size):
         noisy_image = Image.fromarray(noisy_image_array)
 
         # Save the image as BMP to the output directory
-        noisy_image.save(f"{i + 1 : 04d}.bmp", format='BMP')
+        noisy_image.save(f"{i+1:03d}.bmp", format='BMP')
 
 def main():
     parser = argparse.ArgumentParser(description="Generate textures with noise and specified size.")

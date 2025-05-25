@@ -1,23 +1,33 @@
 #!/bin/bash
 rootDir=$(pwd)
 
+# Function to download only if file doesn't exist
+download_if_not_exists() {
+  local filename="$1"
+  local url="$2"
+
+  if [ ! -f "$filename" ]; then
+    wget -O "$filename" "$url"
+  else
+    echo "Skipping '$filename' (already exists)"
+  fi
+}
 
 #----------------------------------------
 # Main Directories
-mkdir ./Creatures
-mkdir ./Cursor
-mkdir ./Editor
-mkdir ./Fonts
-mkdir ./Levels
-mkdir ./Moverulesets
-mkdir ./Renderobjects
-mkdir ./Sprites
+mkdir -p ./Creatures
+mkdir -p ./Cursor
+mkdir -p ./Editor
+mkdir -p ./Fonts
+mkdir -p ./Invokes
+mkdir -p ./Levels
+mkdir -p ./Renderobjects
+mkdir -p ./Sprites
 
 #----------------------------------------
 # Fonts
 cd $rootDir/Fonts/
-
-wget https://www.fontsquirrel.com/fonts/download/arimo
+download_if_not_exists "Arimo-Regular.ttf" https://www.fontsquirrel.com/fonts/download/arimo
 unzip -n $rootDir/Fonts/arimo
 rm $rootDir/Fonts/arimo
 
@@ -45,19 +55,19 @@ mkdir $rootDir/Sprites/TEST001P
 mkdir $rootDir/Sprites/TEST100P
 
 # Lilac chaser test image
-wget https://upload.wikimedia.org/wikipedia/commons/6/6e/Lilac-Chaser.gif
+download_if_not_exists "TEST_BMP_SMALL.bmp" https://upload.wikimedia.org/wikipedia/commons/6/6e/Lilac-Chaser.gif
 convert https://upload.wikimedia.org/wikipedia/commons/6/6e/Lilac-Chaser.gif[0] TEST_BMP_SMALL.bmp
 rm $rootDir/Sprites/Lilac-Chaser.gif
 
 
 # Pokemon test images
 cd $rootDir/Sprites/Pokemon
-wget -O "Game Boy Advance - Pokemon FireRed LeafGreen - Overworld NPCs.png"     https://www.spriters-resource.com/resources/sheets/4/3698.png
-wget -O "Game Boy Advance - Pokemon FireRed LeafGreen - Buildings.png"          https://www.spriters-resource.com/resources/sheets/4/3849.png
-wget -O "Game Boy Advance - Pokemon FireRed LeafGreen - Tileset 1.png"          https://www.spriters-resource.com/resources/sheets/4/3862.png
-wget -O "Game Boy Advance - Pokemon FireRed LeafGreen - Tileset 2.png"          https://www.spriters-resource.com/resources/sheets/4/3863.png
-wget -O "Game Boy Advance - Pokemon FireRed LeafGreen - Tileset.png"            https://www.spriters-resource.com/resources/sheets/4/3870.png
-wget -O "Game Boy Advance - Pokemon FireRed LeafGreen - Animated Tiles.png"     https://www.spriters-resource.com/resources/sheets/161/164543.png
+download_if_not_exists "Game Boy Advance - Pokemon FireRed LeafGreen - Overworld NPCs.png"     https://www.spriters-resource.com/resources/sheets/4/3698.png
+download_if_not_exists "Game Boy Advance - Pokemon FireRed LeafGreen - Buildings.png"          https://www.spriters-resource.com/resources/sheets/4/3849.png
+download_if_not_exists "Game Boy Advance - Pokemon FireRed LeafGreen - Tileset 1.png"          https://www.spriters-resource.com/resources/sheets/4/3862.png
+download_if_not_exists "Game Boy Advance - Pokemon FireRed LeafGreen - Tileset 2.png"          https://www.spriters-resource.com/resources/sheets/4/3863.png
+download_if_not_exists "Game Boy Advance - Pokemon FireRed LeafGreen - Tileset.png"            https://www.spriters-resource.com/resources/sheets/4/3870.png
+download_if_not_exists "Game Boy Advance - Pokemon FireRed LeafGreen - Animated Tiles.png"     https://www.spriters-resource.com/resources/sheets/161/164543.png
 
 # Make transparent
 cd $rootDir/Sprites/Pokemon
