@@ -63,7 +63,7 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/Renderer.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/RenderObject.cpp
     ${CMAKE_SOURCE_DIR}/src/Tests/DsaDebug.cpp
-    ${CMAKE_SOURCE_DIR}/src/Tests/TestEnv.cpp
+    #${CMAKE_SOURCE_DIR}/src/Tests/TestEnv.cpp
 )
 
 #####################

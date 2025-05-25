@@ -14,16 +14,9 @@
     "spritesheetSizeX": 0,
     "spritesheetSizeY": 0,
     "invokes": [
-        "./Resources/Invokes/player_move_x.json",
-        "./Resources/Invokes/player_move_y.json",
-        "./Resources/Invokes/loop_int_aX.json",
-        "./Resources/Invokes/loop_int_aY.json",
-        "./Resources/Invokes/loop_int_vX.json",
-        "./Resources/Invokes/loop_int_vY.json",
-        "./Resources/Invokes/loop_reset_aX.json",
-        "./Resources/Invokes/loop_reset_aY.json",
-        "./Resources/Invokes/gravity_x.json",
-        "./Resources/Invokes/gravity_y.json"
+        "./Resources/Invokes/movement_wasd.json",
+        "./Resources/Invokes/gravity.json",
+        "./Resources/Invokes/acceleration_integration.json"
     ],
     "reloadInvokes": 1,
     "text": {
@@ -33,7 +26,7 @@
         "dy": -30.0
     },
     "physics": {
-        "mass": 180000.0,
+        "mass": 500000.0,
         "isGrav": 1.0,
         "aX": 0.0,
         "aY": 0.0,

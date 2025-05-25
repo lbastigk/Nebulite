@@ -79,14 +79,14 @@ int loadTaskList(int argc, char* argv[]) {
         std::cerr << "Error: Could not open file '" << argv[0] << "'" << std::endl;
         return 1;
     }
-
+    
     std::string line;
     while (std::getline(infile, line)) {
-        if(line.rfind("#",0) == 0){
-            // line starts with a comment
-        }
+        line = StringHandler::untilSpecialChar(line,'#');   // Remove comment
+        line = StringHandler::lstrip(line,' ');             // Remove whitespaces at start
         if(line.length() == 0){
             // line is empty
+            continue;
         }
         else{
             tasks.push_back(line);
@@ -118,6 +118,30 @@ int setResolution(int argc, char* argv[]){
     }
     return 0;
 }
+
+int setFPS(int argc, char* argv[]){
+    if(argc != 1){
+        renderer.setFPS(60);
+    }
+    else{
+        int fps = std::stoi(argv[0]);
+        if(fps < 1) fps=1;
+        if(fps > 10000) fps=10000;
+        renderer.setFPS(fps);
+    }
+    return 0;
+}
+
+int serialize(int argc, char* argv[]){
+    std::string serialized = renderer.serialize();
+    if (argc>0){
+        FileManagement::WriteFile(argv[0],serialized);
+    }
+    else{
+        FileManagement::WriteFile("lastLevel.log.json",serialized);
+    }
+}
+
 
 
 // END OF NAMESPACE

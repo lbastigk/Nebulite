@@ -62,6 +62,62 @@ struct InvokeCommand{
     std::string type = "continous";
 };
 
+/*
+
+*/
+struct InvokeTriple {
+    std::string changeType;
+    std::string key;
+    std::string value;
+};
+
+struct InvokeEntry{
+    std::shared_ptr<RenderObject> selfPtr;      // store self
+    std::string logicalArg;                     //e.g. $self.posX > $other.posY
+    std::vector<InvokeTriple> invokes_self;     // vector : key-value pair
+    std::vector<InvokeTriple> invokes_other;
+    std::vector<InvokeTriple> invokes_global;
+    std::vector<std::string> functioncalls;     // function calls, e.g. load, save etc
+    bool isGlobal = true;
+};
+// EXAMPLE:
+/*
+{
+  "logicalArg": "$self.posX > $other.posY",
+  "isGlobal": true,
+  "self_invokes": [
+    {
+      "changeType": "set",
+      "key": "posX",
+      "value": "100"
+    },
+    {
+      "changeType": "add",
+      "key": "velocity",
+      "value": "5"
+    }
+  ],
+  "other_invokes": [
+    {
+      "changeType": "multiply",
+      "key": "health",
+      "value": "0.9"
+    }
+  ],
+  "global_invokes": [
+    {
+      "changeType": "append",
+      "key": "log",
+      "value": "\"Action triggered\""
+    }
+  ],
+  "functioncalls": [
+    "load",
+    "save"
+  ]
+}
+*/
+
 class Invoke{
 public:
     // Setting up invoke by linking it to a global doc
@@ -73,7 +129,7 @@ public:
     void clear();
     
     // Append invoke command
-    void append(std::shared_ptr<InvokeCommand> toAppend);
+    void append(std::shared_ptr<InvokeEntry> toAppend);
 
 
     void checkLoop();
@@ -82,9 +138,9 @@ public:
     
 
     void checkAgainstList(std::shared_ptr<RenderObject> otherObj);
-    bool isTrue(std::shared_ptr<InvokeCommand> cmd, std::shared_ptr<RenderObject> otherObj, bool resolveEqual=true);
+    bool isTrue(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<RenderObject> otherObj, bool resolveEqual=true);
     void update();
-    void updatePair(std::shared_ptr<InvokeCommand> cmd, std::shared_ptr<RenderObject> otherObj);
+    void updatePair(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<RenderObject> otherObj);
     
     // Check against list
     
@@ -103,9 +159,9 @@ public:
     rapidjson::Document* getGlobalPointer(){return global;};
 private:
     rapidjson::Document* global = nullptr;
-    std::vector<std::shared_ptr<InvokeCommand>> commands;
-    std::vector<std::shared_ptr<InvokeCommand>> nextCommands; 
-    std::vector<std::pair<std::shared_ptr<InvokeCommand>,std::shared_ptr<RenderObject>>> truePairs;
+    std::vector<std::shared_ptr<InvokeEntry>> commands;
+    std::vector<std::shared_ptr<InvokeEntry>> nextCommands; 
+    std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> truePairs;
 
     // exprtk stuff:
     //typedef exprtk::expression<double> expression_t;

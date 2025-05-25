@@ -14,7 +14,6 @@
 #include "NamenKonventionen.h"
 #include "JSONHandler.h"
 
-class MoveRuleSet;
 class RenderObject {
 public:
 	//-----------------------------------------------------------
@@ -54,8 +53,6 @@ public:
 	//TODO
 	bool hasMoveSet();
 
-	void loadMoveSet(MoveRuleSet mrs);
-
 	void reloadInvokes(std::shared_ptr<RenderObject> this_shared);
 
 private:
@@ -67,8 +64,8 @@ private:
 	SDL_Texture* textTexture;
 	SDL_Rect textRect;
 
-	std::vector<std::shared_ptr<InvokeCommand>> cmds_general;
-	std::vector<std::shared_ptr<InvokeCommand>> cmds_internal;
+	std::vector<std::shared_ptr<InvokeEntry>> cmds_general;
+	std::vector<std::shared_ptr<InvokeEntry>> cmds_internal;
 };
 
 //-----------------------------------------------------------

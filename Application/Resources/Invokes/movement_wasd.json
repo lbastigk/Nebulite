@@ -1,0 +1,19 @@
+{
+  "logicalArg": "1",
+  "isGlobal": false,
+  "self_invokes": [
+    {
+      "changeType": "add",
+      "key": "posX",
+      "value": "0.1*($(global.keyboard.d) - $(global.keyboard.a))"
+    },
+    {
+      "changeType": "add",
+      "key": "posY",
+      "value": "0.1*($(global.keyboard.s) - $(global.keyboard.w))"
+    }
+  ],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": []
+}

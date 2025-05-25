@@ -7,7 +7,7 @@ Invoke::Invoke() {
 }
 
 
-bool Invoke::isTrue(std::shared_ptr<InvokeCommand> cmd, std::shared_ptr<RenderObject> otherObj, bool resolveEqual) {
+bool Invoke::isTrue(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<RenderObject> otherObj, bool resolveEqual) {
     // Same send
     if((!resolveEqual) && (cmd->selfPtr.get() == otherObj.get())){
         return false;
@@ -48,23 +48,29 @@ void Invoke::updateValueOfKey(std::string type, std::string key,std::string valS
 
 // Checks a given invoke cmd against objects in buffer
 // as objects have constant pointers, using RenderObject& is possible
-void Invoke::updatePair(std::shared_ptr<InvokeCommand> cmd, std::shared_ptr<RenderObject> otherObj) {
+void Invoke::updatePair(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<RenderObject> otherObj) {
     // === SELF update ===
-    if (!cmd->selfKey.empty() && !cmd->selfChangeType.empty()) {
-        std::string valStr = resolveVars(cmd->selfValue, *cmd->selfPtr->getDoc(), *otherObj.get()->getDoc(), *global);
-        updateValueOfKey(cmd->selfChangeType, cmd->selfKey,valStr, cmd->selfPtr->getDoc());
+    for(auto InvokeTriple : cmd.get()->invokes_self){
+        if (!InvokeTriple.key.empty()) {
+            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *otherObj.get()->getDoc(), *global);
+            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
+        } 
     }
 
     // === OTHER update ===
-    if (!cmd->otherChangeType.empty() && !cmd->otherChangeType.empty()) {
-        std::string valStr = resolveVars(cmd->otherValue,  *cmd->selfPtr->getDoc(), *otherObj.get()->getDoc(), *global);
-        updateValueOfKey(cmd->otherChangeType, cmd->otherKey,valStr, otherObj.get()->getDoc());
+    for(auto InvokeTriple : cmd.get()->invokes_other){
+        if (!InvokeTriple.key.empty()) {
+            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *otherObj.get()->getDoc(), *global);
+            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
+        } 
     }
 
     // === GLOBAL update ===
-    if (!cmd->globalKey.empty() && !cmd->globalChangeType.empty()) {
-        std::string valStr = resolveVars(cmd->globalValue,  *cmd->selfPtr->getDoc(), *otherObj.get()->getDoc(), *global);
-        updateValueOfKey(cmd->globalChangeType, cmd->globalKey,valStr, global);
+    for(auto InvokeTriple : cmd.get()->invokes_global){
+        if (!InvokeTriple.key.empty()) {
+            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *otherObj.get()->getDoc(), *global);
+            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
+        } 
     }
 }
 
@@ -95,7 +101,7 @@ void Invoke::getNewInvokes(){
     commands.swap(nextCommands);    // Swap in the new set of commands
 }
 
-void Invoke::append(std::shared_ptr<InvokeCommand> toAppend){
+void Invoke::append(std::shared_ptr<InvokeEntry> toAppend){
     nextCommands.push_back(toAppend);
 }
 

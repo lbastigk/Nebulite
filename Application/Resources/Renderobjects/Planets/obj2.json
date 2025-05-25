@@ -14,14 +14,8 @@
     "spritesheetSizeX": 0,
     "spritesheetSizeY": 0,
     "invokes": [
-        "./Resources/Invokes/loop_int_aX.json",
-        "./Resources/Invokes/loop_int_aY.json",
-        "./Resources/Invokes/loop_int_vX.json",
-        "./Resources/Invokes/loop_int_vY.json",
-        "./Resources/Invokes/loop_reset_aX.json",
-        "./Resources/Invokes/loop_reset_aY.json",
-        "./Resources/Invokes/gravity_x.json",
-        "./Resources/Invokes/gravity_y.json"
+        "./Resources/Invokes/gravity.json",
+        "./Resources/Invokes/acceleration_integration.json"
     ],
     "reloadInvokes": 1,
     "text": {

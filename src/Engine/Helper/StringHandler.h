@@ -28,4 +28,10 @@ public:
     static std::string wstringToString(const std::wstring& wstr);
 
     static std::string getBinaryString(int toConvert);
+
+    static std::string untilSpecialChar(std::string input, char specialChar);
+
+    static std::string afterSpecialChar(std::string input, char specialChar);
+
+    static std::string lstrip(const std::string& input, char specialChar = ' ');
 };

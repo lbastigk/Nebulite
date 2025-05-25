@@ -160,6 +160,8 @@ void RenderObject::calculateSrcRect() {
 		};
 	}
 }
+/*
+// OLD VERSION
 
 void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
     cmds_general.clear();
@@ -207,6 +209,84 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
     JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, 0);
 }
 
+*/
+
+
+// Helper for parsing invoke triples
+std::vector<InvokeTriple> parseInvokeTriples(const rapidjson::Value& arr) {
+    std::vector<InvokeTriple> res;
+    if (arr.IsArray()) {
+        for (auto& kv : arr.GetArray()) {
+            if (kv.IsObject() &&
+                kv.HasMember("changeType") &&
+                kv.HasMember("key") &&
+                kv.HasMember("value")) {
+                InvokeTriple triple;
+                triple.changeType = kv["changeType"].GetString();
+                triple.key = kv["key"].GetString();
+                triple.value = kv["value"].GetString();
+                res.push_back(std::move(triple));
+            }
+        }
+    }
+    return res;
+}
+
+void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
+    cmds_general.clear();
+    cmds_internal.clear();
+
+    auto& doc = *this->getDoc(); // convenience reference
+    if (doc.HasMember("invokes") && doc["invokes"].IsArray()) {
+        rapidjson::Value& invokes = doc["invokes"];
+
+        for (rapidjson::SizeType i = 0; i < invokes.Size(); ++i) {
+            rapidjson::Document serializedInvoke;
+
+            if (invokes[i].IsString()) {
+                rapidjson::Document tmp = JSONHandler::deserialize(invokes[i].GetString());
+                serializedInvoke.CopyFrom(tmp, tmp.GetAllocator());
+            } else if (invokes[i].IsObject()) {
+                serializedInvoke.CopyFrom(invokes[i], serializedInvoke.GetAllocator());
+            } else {
+                continue;
+            }
+
+            InvokeEntry entry;
+            entry.selfPtr = this_shared;
+            entry.logicalArg = JSONHandler::Get::Any<std::string>(serializedInvoke, "logicalArg", "");
+            entry.isGlobal = JSONHandler::Get::Any<bool>(serializedInvoke, "isGlobal", true);
+
+            entry.invokes_self = parseInvokeTriples(serializedInvoke["self_invokes"]);
+            entry.invokes_other = parseInvokeTriples(serializedInvoke["other_invokes"]);
+            entry.invokes_global = parseInvokeTriples(serializedInvoke["global_invokes"]);
+
+            entry.functioncalls.clear();
+            if (serializedInvoke.HasMember("functioncalls") && serializedInvoke["functioncalls"].IsArray()) {
+                for (auto& fn : serializedInvoke["functioncalls"].GetArray()) {
+                    if (fn.IsString()) {
+                        entry.functioncalls.push_back(fn.GetString());
+                    }
+                }
+            }
+
+			// DEBUG: check entry:
+			/*
+			std::cout << entry.logicalArg << " Global: " << entry.isGlobal << std::endl;
+			std::cout << "   " << entry.invokes_self.size() << std::endl;
+			std::cout << "   " << entry.invokes_other.size() << std::endl;
+			std::cout << "   " << entry.invokes_global.size() << std::endl;
+			std::cout << "   " << entry.functioncalls.size() << std::endl;
+			*/
+			
+
+            auto ptr = std::make_shared<InvokeEntry>(std::move(entry));
+            cmds_general.push_back(ptr);
+        }
+    }
+
+    JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, 0);
+}
 
 //-----------------------------------------------------------
 // TODO: Change this to be a two-part:
@@ -230,19 +310,7 @@ void RenderObject::update(Invoke* globalInvoke, std::shared_ptr<RenderObject> th
 
 		// solve local invokes (loop)
 		for (const auto& cmd : cmds_internal){
-			// add pointer to invoke command to global
-			if(globalInvoke->isTrue(cmd,this_shared,true)){
-				// === SELF update ===
-				if (!cmd->selfKey.empty() && !cmd->selfChangeType.empty()) {
-					std::string valStr = globalInvoke->resolveVars(cmd->selfValue, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *globalInvoke->getGlobalPointer());
-					globalInvoke->updateValueOfKey(cmd->selfChangeType, cmd->selfKey,valStr, cmd->selfPtr->getDoc());
-				}
-				// === GLOBAL update ===
-				if (!cmd->globalKey.empty() && !cmd->globalChangeType.empty()) {
-					std::string valStr = globalInvoke->resolveVars(cmd->globalValue, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *globalInvoke->getGlobalPointer());
-					globalInvoke->updateValueOfKey(cmd->globalChangeType, cmd->globalKey,valStr, globalInvoke->getGlobalPointer());
-				}
-			}
+			// TODO
 		}
 
 		// Checks this object against all conventional invokes for manipulation
@@ -263,25 +331,6 @@ void RenderObject::update(Invoke* globalInvoke, std::shared_ptr<RenderObject> th
 	calculateSrcRect();
 }
 
-void RenderObject::appendInvoke(InvokeCommand toAppend) {
-    rapidjson::Value rule(rapidjson::kObjectType);
-    auto& alloc = doc.GetAllocator();
-
-	rule.AddMember("type",        		rapidjson::Value(toAppend.type.c_str(), alloc), alloc);
-    rule.AddMember("logicalArg",        rapidjson::Value(toAppend.logicalArg.c_str(), alloc), alloc);
-    rule.AddMember("selfChangeType",    rapidjson::Value(toAppend.selfChangeType.c_str(), alloc), alloc);
-    rule.AddMember("selfKey",           rapidjson::Value(toAppend.selfKey.c_str(), alloc), alloc);
-    rule.AddMember("selfValue",         rapidjson::Value(toAppend.selfValue.c_str(), alloc), alloc);
-    rule.AddMember("otherChangeType",   rapidjson::Value(toAppend.otherChangeType.c_str(), alloc), alloc);
-    rule.AddMember("otherKey",          rapidjson::Value(toAppend.otherKey.c_str(), alloc), alloc);
-    rule.AddMember("otherValue",        rapidjson::Value(toAppend.otherValue.c_str(), alloc), alloc);
-	rule.AddMember("globalChangeType",  rapidjson::Value(toAppend.globalChangeType.c_str(), alloc), alloc);
-    rule.AddMember("globalKey",         rapidjson::Value(toAppend.globalKey.c_str(), alloc), alloc);
-    rule.AddMember("globalValue",       rapidjson::Value(toAppend.globalValue.c_str(), alloc), alloc);
-
-    // Append to invokes array
-    doc["invokes"].PushBack(rule, alloc);
-}
 
 //--------------------------------------------------------------------------------------
 // RenderObjectContainer

@@ -67,3 +67,25 @@ std::string StringHandler::getBinaryString(int toConvert){
     }
     return out;
 }
+
+// Returns string start up until a certain char appears
+std::string StringHandler::untilSpecialChar(std::string input, char specialChar){
+    size_t pos = input.find(specialChar);
+    if (pos != std::string::npos && pos + 1 < input.size()) {
+        return input.substr(0,pos);
+    }
+    return input;
+}
+
+std::string StringHandler::afterSpecialChar(std::string input, char specialChar){
+    size_t pos = input.find(specialChar);
+    if (pos != std::string::npos && pos + 1 < input.size()) {
+        return input.substr(pos+1);
+    }
+    return input;
+}
+
+std::string StringHandler::lstrip(const std::string& input, char specialChar) {
+    size_t start = input.find_first_not_of(specialChar);
+    return (start == std::string::npos) ? "" : input.substr(start);
+}

@@ -163,12 +163,15 @@ int main(int argc, char* argv[]) {
     }
 
     // Debug: Output tasks:
+    /*
     std::cout << "-------------------" << std::endl;
     std::cout << "Provided tasks are:" << std::endl;
     for(auto task : tasks){
         std::cout << task << std::endl;
     }
     std::cout << std::endl;
+    */
+    
 
     //--------------------------------------------------
     // Build main FuncTree
@@ -183,6 +186,8 @@ int main(int argc, char* argv[]) {
     mainTree.attachFunction(mainTreeFunctions::echo,            "echo",         "Echos all args provided to cout");
     mainTree.attachFunction(mainTreeFunctions::wait,            "wait",         "Halt all commands for a set amount of frames");
     mainTree.attachFunction(mainTreeFunctions::setResolution,   "setRes",       "Sets resolution size: <w> <h>");
+    mainTree.attachFunction(mainTreeFunctions::serialize,       "serialize",    "Serialize current State");
+    mainTree.attachFunction(mainTreeFunctions::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
 
     // Not using testEnv atm
     /*

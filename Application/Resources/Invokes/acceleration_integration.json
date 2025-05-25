@@ -1,0 +1,39 @@
+{
+  "logicalArg": "1",
+  "isGlobal": false,
+  "self_invokes": [
+    {
+      "changeType": "add",
+      "key": "physics.vX",
+      "value": "$(self.physics.aX) * $(global.dt)"
+    },
+    {
+      "changeType": "add",
+      "key": "physics.vY",
+      "value": "$(self.physics.aY) * $(global.dt)"
+    },
+    {
+      "changeType": "add",
+      "key": "posX",
+      "value": "$(self.physics.vX) * $(global.dt)"
+    },
+    {
+      "changeType": "add",
+      "key": "posY",
+      "value": "$(self.physics.vY) * $(global.dt)"
+    },
+    {
+      "changeType": "set",
+      "key": "physics.aX",
+      "value": "0"
+    },
+    {
+      "changeType": "set",
+      "key": "physics.aY",
+      "value": "0"
+    }
+  ],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": []
+}
