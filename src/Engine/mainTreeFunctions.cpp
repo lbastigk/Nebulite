@@ -6,6 +6,10 @@
 Renderer renderer;
 
 std::deque<std::string> tasks;
+uint64_t waitCounter = 0;
+
+namespace mainTreeFunctions{
+
 
 int envload(int argc, char* argv[]){
     if(argc > 0){
@@ -25,17 +29,13 @@ int envdeload(int argc, char* argv[]){
 }
 
 int spawn(int argc, char* argv[]){
+    std::cout << "Spawn called! Argc is: " << argc << std::endl;
+
     if(argc>0){
-        std::string obj = FileManagement::LoadFile(argv[0]);
-        if(obj.size()){
-            RenderObject ro;
-            ro.deserialize(obj.c_str());
-            renderer.append(ro);
-        }
-        else{
-            std::cerr << "File could not be opened!" << std::endl;
-            return 1;
-        }
+        std::cout << "Spawning object: " << argv[0] << std::endl;
+        RenderObject ro;
+        ro.deserialize(argv[0]);
+        renderer.append(ro);
     }
     else{
         std::cerr << "No renderobject name provided!" << std::endl;
@@ -55,7 +55,9 @@ int save(int argc, char* argv[]){
 }
 
 int wait(int argc, char* argv[]){
-    std::cerr << "Function wait not implemented yet!" << std::endl;
+    std::cout << "Setting new value for wait" << std::endl;
+    std::istringstream iss(argv[0]);
+    iss >> waitCounter;
     return 0;
 }
 
@@ -80,7 +82,10 @@ int task(int argc, char* argv[]) {
 
     std::string line;
     while (std::getline(infile, line)) {
-        tasks.push_back(line);
+        if(line.rfind("#",0) != 0){
+            // line doesnt start with a comment, add to tasks
+            tasks.push_back(line);
+        }
     }
 
     return 0;
@@ -96,3 +101,5 @@ int echo(int argc, char* argv[]) {
     std::cout << std::endl;
     return 0;
 }
+}
+

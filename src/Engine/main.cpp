@@ -162,17 +162,26 @@ int main(int argc, char* argv[]) {
         // TODO...
     }
 
+    // Debug: Output tasks:
+    std::cout << "-------------------" << std::endl;
+    std::cout << "Provided tasks are:" << std::endl;
+    for(auto task : tasks){
+        std::cout << task << std::endl;
+    }
+    std::cout << std::endl;
+
     //--------------------------------------------------
     // Build main FuncTree
     FuncTree mainTree("Nebulite");
-    mainTree.attachFunction(envload,        "envload",      "Loads an environment");
-    mainTree.attachFunction(envdeload,      "envdeload",    "Deloads an environment");
-    mainTree.attachFunction(spawn,          "spawn",        "Spawn a renderobject");
-    mainTree.attachFunction(exitProgram,    "exit",         "exits the program");
-    mainTree.attachFunction(save,           "save",         "Saves the state");
-    mainTree.attachFunction(load,           "load",         "Loads a state");
-    mainTree.attachFunction(task,           "task",         "Loads a txt file of tasks");
-    mainTree.attachFunction(echo,           "echo",         "Echos all args provided to cout");
+    mainTree.attachFunction(mainTreeFunctions::envload,         "envload",      "Loads an environment");
+    mainTree.attachFunction(mainTreeFunctions::envdeload,       "envdeload",    "Deloads an environment");
+    mainTree.attachFunction(mainTreeFunctions::spawn,           "spawn",        "Spawn a renderobject");
+    mainTree.attachFunction(mainTreeFunctions::exitProgram,     "exit",         "exits the program");
+    mainTree.attachFunction(mainTreeFunctions::save,            "save",         "Saves the state");
+    mainTree.attachFunction(mainTreeFunctions::load,            "load",         "Loads a state");
+    mainTree.attachFunction(mainTreeFunctions::task,            "task",         "Loads a txt file of tasks");
+    mainTree.attachFunction(mainTreeFunctions::echo,            "echo",         "Echos all args provided to cout");
+    mainTree.attachFunction(mainTreeFunctions::wait,            "wait",         "Halt all commands for a set amount of frames");
 
     // Not using testEnv atm
     /*
@@ -194,7 +203,7 @@ int main(int argc, char* argv[]) {
     while (!renderer.isQuit()) {
         //--------------------
         // Handle args
-        while (!tasks.empty()) {
+        while (!tasks.empty() && waitCounter == 0) {
             std::string argStr = tasks.front();
             tasks.pop_front();  // remove the used task
 
@@ -207,6 +216,7 @@ int main(int argc, char* argv[]) {
             }
         }
         
+        
         // Render Frame
         if (renderer.timeToRender()) {
             renderer.update();          // 1.) Update objects
@@ -214,6 +224,9 @@ int main(int argc, char* argv[]) {
             renderer.renderFPS();       // 3.) Render fps count
             renderer.showFrame();       // 4.) Show Frame
             renderer.clear();           // 5.) Clear screen
+
+            // Implementation of a wait function in the scripting task
+            if(waitCounter>0) waitCounter--;
         }
     }
 
