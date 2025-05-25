@@ -1,3 +1,61 @@
+/*
+NEBULITE main
+
+This file is designed to hold the main binary and basic attached function such as: 
+- load          | used to load a level json file    | basic version implemented
+- attach        | used to attach renderobjects      | not implemented, still in idea-phase
+
+The tests are attached here, but implemented elsewhere due to their size
+Later on, the idea is to have the main exe start the Renderer and all other functions to interact with the rendererer globally: 
+
+- user calls main with arguments
+- arguments are parsed to start certain scenarios or tests
+- these tests/scenaries have arguments themselfes in order to load/delete/etc. 
+
+Currently, load is a function that is called and executed until the user closes the program. 
+with this implementation, functions should send the main instructions on what to or be a function for this instruction. As an example: 
+- load as instruction: gets Renderer, attaches given level to renderer
+- tests like "test benchmark" might add arguments to main in order to load a level or attach certain objects
+
+The point is that, instead of having game loops for every single test case, there is only one game loop left, 
+and all test functions simple configure the main game loop.
+
+What instructions on main are needed?
+- envload   | load level            | 
+- envdeload | deload level          | return to main level, as in titlescreen?
+- attach    | load renderobject     |
+- exit      | exit game             |
+- save      | save state            |
+- load      | load state            |
+
+The idea with states is that, they hold a copy of files inside ./Resources/ if they were modified.
+This enables the usage of savegames: 
+
+./
+├── bin
+│   └── Nebulite
+├── Nebulite.sh
+├── States
+│   ├── Autosave
+│   │   └── Resources
+│   ├── Save_2025-05-09
+│   │   └── Resources
+│   ├── Save_2025-05-10
+│   │   └── Resources
+│   └── Quicksave
+├── Resources
+│   ├── Cursor
+│   ├── Editor
+│   ├── Fonts
+│   ├── Invokes
+│   ├── Levels
+│   ├── Renderobjects
+│   └── Sprites
+└── Tests.sh
+
+If a file does not exist in that State prefix, use load it from ./Resources directly
+*/
+
 #include "Environment.h"
 #include "FileManagement.h"
 #include "Renderer.h"
