@@ -94,12 +94,12 @@ void RenderObject::deserialize(std::string serialOrLink) {
 	calculateSrcRect();
 }
 
-void RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font){
+void RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,uint16_t renderer_X, uint16_t renderer_Y){
 	float scalar = 1;
 	float fontSize = valueGet<float>(namenKonvention.renderObject.textFontsize);
 	std::string text = valueGet<std::string>(namenKonvention.renderObject.textStr);
-	textRect.x = valueGet<float>(namenKonvention.renderObject.positionX) + valueGet<float>(namenKonvention.renderObject.textDx);
-	textRect.y = valueGet<float>(namenKonvention.renderObject.positionY) + valueGet<float>(namenKonvention.renderObject.textDy);
+	textRect.x = valueGet<float>(namenKonvention.renderObject.positionX) + valueGet<float>(namenKonvention.renderObject.textDx) - renderer_X;
+	textRect.y = valueGet<float>(namenKonvention.renderObject.positionY) + valueGet<float>(namenKonvention.renderObject.textDy) - renderer_Y;
 	textRect.w = scalar * fontSize * text.length(); // Width based on text length
 	textRect.h = (int)((float)fontSize * 1.5 * scalar);
 	if(valueGet<bool>(namenKonvention.renderObject.flagCalculate,true)==true){

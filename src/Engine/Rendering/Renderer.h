@@ -57,6 +57,7 @@ public:
 	void changeWindowSize(int w, int h);
 	void updatePosition(int x, int y, bool isMiddle = false);
 	void moveCam(int dX, int dY);
+	void setCam(int X, int Y);
 	
 	//-----------------------------------------------------------
 	// Rendering

@@ -185,9 +185,11 @@ int main(int argc, char* argv[]) {
     mainTree.attachFunction(mainTreeFunctions::loadTaskList,    "task",         "Loads a txt file of tasks");
     mainTree.attachFunction(mainTreeFunctions::echo,            "echo",         "Echos all args provided to cout");
     mainTree.attachFunction(mainTreeFunctions::wait,            "wait",         "Halt all commands for a set amount of frames");
-    mainTree.attachFunction(mainTreeFunctions::setResolution,   "setRes",       "Sets resolution size: <w> <h>");
+    mainTree.attachFunction(mainTreeFunctions::setResolution,   "set-res",       "Sets resolution size: <w> <h>");
     mainTree.attachFunction(mainTreeFunctions::serialize,       "serialize",    "Serialize current State");
     mainTree.attachFunction(mainTreeFunctions::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
+    mainTree.attachFunction(mainTreeFunctions::setCam,          "cam-set",      "Sets Camera position <x> <y>");
+    mainTree.attachFunction(mainTreeFunctions::moveCam,         "cam-move",     "Moves Camera position <dx> <dy>");
 
     // Not using testEnv atm
     /*

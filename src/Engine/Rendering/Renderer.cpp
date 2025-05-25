@@ -215,6 +215,14 @@ void Renderer::moveCam(int dX, int dY) {
 	tileYpos = Ypos / dispResY;
 };
 
+void Renderer::setCam(int X, int Y) {
+	Xpos = X;
+	Ypos = Y;
+	tileXpos = Xpos / dispResX;
+	tileYpos = Ypos / dispResY;
+};
+
+
 //-----------------------------------------------------------
 // Rendering
 
@@ -313,8 +321,10 @@ void Renderer::renderFrame() {
 
 							// Render the texture to the window
 							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj->getSrcRect(), &rect);
+
+							// Render text
 							if (obj->valueGet<float>(namenKonvention.renderObject.textFontsize)>0){
-								obj->calculateText(renderer,font);
+								obj->calculateText(renderer,font,Xpos,Ypos);
 								SDL_RenderCopy(renderer,&obj->getTextTexture(),NULL,obj->getTextRect());
 							}
 							if (error != 0){

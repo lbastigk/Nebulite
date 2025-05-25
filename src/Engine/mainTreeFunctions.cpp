@@ -143,6 +143,23 @@ int serialize(int argc, char* argv[]){
     }
 }
 
+int moveCam(int argc, char* argv[]){
+    if(argc == 2){
+        int dx = std::stoi(argv[0]);
+        int dy = std::stoi(argv[1]);
+        renderer.moveCam(dx,dy);
+    }
+    return 0;
+}
+
+int setCam(int argc, char* argv[]){
+    if(argc == 2){
+        int x = std::stoi(argv[0]);
+        int y = std::stoi(argv[1]);
+        renderer.setCam(x,y);
+    }
+    return 0;
+}
 
 
 // END OF NAMESPACE
