@@ -1,3 +1,4 @@
 #!/bin/bash
-./bin/Nebulite task TaskFiles/gravity_classic.txt
-./bin/Nebulite task TaskFiles/gravity_goofy.txt
+./bin/Nebulite task TaskFiles/crash_test.txt
+#./bin/Nebulite task TaskFiles/gravity_classic.txt
+#./bin/Nebulite task TaskFiles/gravity_goofy.txt

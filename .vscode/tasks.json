@@ -3,30 +3,18 @@
     "tasks": [
         // BUILD FOR LINUX, USING CMAKE
         {
-            "label": "Full Build for Linux",
+            "label": "[STANDARD] Automated Build and Test for Linux",
             "type": "shell",
-            "command": "cmake ./ && make && cd ./Application && ./validate_json.sh && cd ..",
+            "command": "ulimit -n 1024 && cmake ./ && make && cd ./Application && ./validate_json.sh ; ./CrashDebug.sh ; echo 'Error log:' ; cat ./errors.log ; cd ..",
             "group": {
                 "kind": "build",
                 "isDefault": false
             },
             "problemMatcher": [],
-            "detail": "Build the project by running 'make' and 'cmake' in the appropriate directories"
-        },
-        // BUILD FOR LINUX, USING CMAKE + start Test
+            "detail": "Build the project by running 'make' and 'cmake' in the appropriate directories. With JSON validation and current Crash Debug"
+        },  
         {
-            "label": "Full Build for Linux + Testing",
-            "type": "shell",
-            "command": "cmake ./ && make && cd ./Application/ && ./Tests.sh",
-            "group": {
-                "kind": "build",
-                "isDefault": false
-            },
-            "problemMatcher": [],
-            "detail": "Build the project by running 'make' and 'cmake' in the appropriate directories"
-        },   
-        {
-            "label": "Full Build for Linux + Testing + Profiling",
+            "label": "Full Build for Linux + Profiling",
             "type": "shell",
             "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 && sudo sysctl -w kernel.kptr_restrict=0 && cmake ./ && make && cd ./Application && timeout 20s perf record -a -g -- ./Tests.sh ; perf report",
             "group": {

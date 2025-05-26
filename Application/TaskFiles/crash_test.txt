@@ -1,10 +1,10 @@
 echo Starting crash test...
 echo
 echo
-set-fps 5000
+set-fps 60
+print-state
 spawn ./Resources/Renderobjects/standard.json
+print-state
 wait 10
-print-global
-serialize
-wait 10000
+print-state
 exit

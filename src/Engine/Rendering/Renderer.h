@@ -204,7 +204,7 @@ private:
 	//Other
 
 	// Function to load texture from file
-	void loadTexture(RenderObject &toAppend);
+	void loadTexture(std::string link);
 
 	
 };

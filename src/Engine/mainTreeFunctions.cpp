@@ -139,7 +139,7 @@ int serialize(int argc, char* argv[]){
         FileManagement::WriteFile(argv[0],serialized);
     }
     else{
-        FileManagement::WriteFile("lastLevel.log.json",serialized);
+        FileManagement::WriteFile("last_state.log.json",serialized);
     }
     return 0;
 }
@@ -177,6 +177,10 @@ int printGlobal(int argc, char* argv[]){
     return 0;
 }
 
+int printState(int argc, char* argv[]){
+    std::cout << renderer.serialize() << std::endl;
+    return 0;
+}
 
 // END OF NAMESPACE
 }

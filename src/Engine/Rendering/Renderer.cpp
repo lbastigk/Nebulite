@@ -117,7 +117,7 @@ void Renderer::append(RenderObject toAppend) {
 	env.append(toAppend, dispResX, dispResY, THREADSIZE, toAppend.valueGet(namenKonvention.renderObject.layer, 0));
 
 	//Load texture
-	loadTexture(toAppend);
+	loadTexture(toAppend.valueGet<std::string>(namenKonvention.renderObject.imageLocation));
 }
 
 void Renderer::reinsertAllObjects(){
@@ -307,25 +307,31 @@ void Renderer::renderFrame() {
 					for (auto& batch : (env.getContainerAt(tileXpos + dX, tileYpos + dY, i))) {
 						// For all objects inside each batch
 						for (auto& obj : batch) {
-							//Texture loading is handled in append
-							std::string innerdir = obj->valueGet<std::string>(namenKonvention.renderObject.imageLocation);
+							// Check for texture
+							//*
+							std::string innerdir = obj.get()->valueGet<std::string>(namenKonvention.renderObject.imageLocation);
 							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
-								loadTexture(*obj);
-								obj->calculateDstRect();
+								loadTexture(innerdir);
+								obj.get()->calculateDstRect();
 							}
-							obj->calculateSrcRect();
-
+							obj.get()->calculateSrcRect();
+							//*/
+							
+							// Calculate position rect
+							/*
 							rect = obj->getDstRect();
 							rect.x -= Xpos;	//subtract camera posX
 							rect.y -= Ypos;	//subtract camera posY
+							//*/
+							
 
-							// Render the texture to the window
-							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj->getSrcRect(), &rect);
+							// Render the texture
+							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj.get()->getSrcRect(), &rect);
 
-							// Render text
-							if (obj->valueGet<float>(namenKonvention.renderObject.textFontsize)>0){
-								obj->calculateText(renderer,font,Xpos,Ypos);
-								SDL_RenderCopy(renderer,&obj->getTextTexture(),NULL,obj->getTextRect());
+							// Render the text
+							if (obj.get()->valueGet<float>(namenKonvention.renderObject.textFontsize)>0){
+								obj.get()->calculateText(renderer,font,Xpos,Ypos);
+								SDL_RenderCopy(renderer,&obj.get()->getTextTexture(),NULL,obj.get()->getTextRect());
 							}
 							if (error != 0){
 								std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
@@ -500,14 +506,13 @@ bool Renderer::windowExists(){
 	return !!Renderer::window;
 }
 
-void Renderer::loadTexture(RenderObject& toAppend) {
-	std::string innerdir = toAppend.valueGet<std::string>(namenKonvention.renderObject.imageLocation);
+void Renderer::loadTexture(std::string link) {
 
 	// Combine directory and innerdir to form full path
-	std::string path = FileManagement::CombinePaths(directory, innerdir);
+	std::string path = FileManagement::CombinePaths(directory, link);
 
 	// Check if texture is already loaded
-	if (TextureContainer.find(innerdir) == TextureContainer.end()) {
+	if (TextureContainer.find(link) == TextureContainer.end()) {
 		SDL_Surface* surface = IMG_Load(path.c_str()); // Attempt to load as PNG (or other supported formats)
 		if (!surface) {
 			surface = SDL_LoadBMP(path.c_str()); // Fallback to BMP if PNG load fails
@@ -526,7 +531,7 @@ void Renderer::loadTexture(RenderObject& toAppend) {
 		}
 
 		// Store texture in container
-		TextureContainer[innerdir] = texture;
+		TextureContainer[link] = texture;
 	}
 }
 

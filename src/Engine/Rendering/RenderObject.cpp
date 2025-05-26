@@ -160,57 +160,6 @@ void RenderObject::calculateSrcRect() {
 		};
 	}
 }
-/*
-// OLD VERSION
-
-void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
-    cmds_general.clear();
-	cmds_internal.clear();
-
-    auto& doc = *this->getDoc(); // convenience reference
-    if (doc.HasMember("invokes") && doc["invokes"].IsArray()) {
-        rapidjson::Value& invokes = doc["invokes"]; // directly reference the array
-
-        for (rapidjson::SizeType i = 0; i < invokes.Size(); ++i) {
-			// A new doc is used that holds the serialized invoke from another file.
-			// Meaning, invokes[i] might sitll be a link to another object, like:
-			// "./Resources/Invokes/abcd.json"
-			// The doc is loaded and used
-			// Importantly, the main docs invoke is NOT altered!
-			rapidjson::Document serializedInvoke;
-
-            // Check if the entry is still a link to another json file
-            if (invokes[i].IsString()) {
-				// using a tmp doc is fine here since this is only done once
-                rapidjson::Document tmp = JSONHandler::deserialize(invokes[i].GetString());
-				serializedInvoke.CopyFrom(tmp, tmp.GetAllocator());
-
-            }
-
-            InvokeCommand cmd;
-            cmd.type               = JSONHandler::Get::Any<std::string>(serializedInvoke, "type", "");
-            cmd.selfPtr            = this_shared;
-            cmd.globalChangeType   = JSONHandler::Get::Any<std::string>(serializedInvoke, "globalChangeType", "");
-            cmd.globalKey          = JSONHandler::Get::Any<std::string>(serializedInvoke, "globalKey", "");
-            cmd.globalValue        = JSONHandler::Get::Any<std::string>(serializedInvoke, "globalValue", "");
-            cmd.logicalArg         = JSONHandler::Get::Any<std::string>(serializedInvoke, "logicalArg", "");
-            cmd.otherChangeType    = JSONHandler::Get::Any<std::string>(serializedInvoke, "otherChangeType", "");
-            cmd.otherKey           = JSONHandler::Get::Any<std::string>(serializedInvoke, "otherKey", "");
-            cmd.otherValue         = JSONHandler::Get::Any<std::string>(serializedInvoke, "otherValue", "");
-            cmd.selfKey            = JSONHandler::Get::Any<std::string>(serializedInvoke, "selfKey", "");
-            cmd.selfValue          = JSONHandler::Get::Any<std::string>(serializedInvoke, "selfValue", "");
-            cmd.selfChangeType     = JSONHandler::Get::Any<std::string>(serializedInvoke, "selfChangeType", "");
-
-            auto ptr = std::make_shared<InvokeCommand>(std::move(cmd));
-			cmds_general.push_back(ptr);
-        }
-    }
-    
-    JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, false);
-}
-
-*/
-
 
 // Helper for parsing invoke triples
 std::vector<InvokeTriple> parseInvokeTriples(const rapidjson::Value& arr) {
@@ -306,10 +255,6 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 // - store pointer pairs as std::vector<std::pair<RenderObject& RenderObject&>>
 // - after object pre-update, call actual update via invoke class that changes all objects
 void RenderObject::update(Invoke* globalInvoke, std::shared_ptr<RenderObject> this_shared) {
-	// [TODO:] Memory leak of around 13/3 KiB per object happens here!
-	// Entire part of ROC-Update does not leak memory under test circumstances
-	// only leak happens here!
-
 	//------------------------------------
 	// Check all invokes
 	if (globalInvoke) {
@@ -356,6 +301,9 @@ RenderObjectContainer::RenderObjectContainer() {
 //-----------------------------------------------------------
 //Marshalling
 std::string RenderObjectContainer::serialize() {
+	//---------------------------------------
+	// Setup
+
 	// Initialize RapidJSON document
 	rapidjson::Document doc;
 	doc.SetObject();
@@ -366,16 +314,17 @@ std::string RenderObjectContainer::serialize() {
 	// Set up array
 	rapidjson::Value array(rapidjson::kArrayType);
 
-	// Get all objects in container
-	
-	// Step 1: get string
+	//---------------------------------------
+	// Get all objects in container+
+
+	// Get string
 	std::vector<rapidjson::Document*> objects;
 	std::vector<std::string> serializedObjects;
 	for (auto& vec1 : ObjectContainer) {
 		for (auto& vec2 : vec1) {
 			for (auto& batch : vec2) {
 				for (auto& obj : batch) {
-					serializedObjects.push_back(obj->serialize());	
+					serializedObjects.push_back(obj.get()->serialize());	
 				}
 			}
 		}
@@ -385,13 +334,10 @@ std::string RenderObjectContainer::serialize() {
 		array.PushBack(JSONHandler::deserialize(string).GetObject(),allocator);
 	}
 
-
-	
-
-
 	// Add array to the document with a key
 	doc.AddMember("objects", array, allocator);
 
+	//---------------------------------------
 	// Return as string
 	return JSONHandler::serialize(doc);
 }
@@ -513,12 +459,12 @@ void RenderObjectContainer::append(RenderObject toAppend, int dispResX, int disp
     int64_t placeholder;
 
     // Calculate correspondingTileXpos using positionX
-    valget = toAppend.valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
+    valget = ptr.get()->valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
     placeholder = (int64_t)(valget / (double)dispResX);
     correspondingTileXpos = (placeholder < 0) ? (unsigned int)(-placeholder) : (unsigned int)(placeholder);
 
     // Calculate correspondingTileYpos using positionY
-    valget = toAppend.valueGet<double>(namenKonvention.renderObject.positionY, 0.0);
+    valget = ptr.get()->valueGet<double>(namenKonvention.renderObject.positionY, 0.0);
     placeholder = (int64_t)(valget / (double)dispResY);
     correspondingTileYpos = (placeholder < 0) ? (unsigned int)(-placeholder) : (unsigned int)(placeholder);
 

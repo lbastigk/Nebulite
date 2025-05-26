@@ -5,7 +5,7 @@
     "posY": 500.0,
     "pixSizeX": 10,
     "pixSizeY": 10,
-    "imgLocation": "Resources/Sprites/TEST_BMP_SMALL.bmp",
+    "imgLocation": "./Resources/Sprites/TEST_BMP_SMALL.bmp",
     "layer": 0,
     "deleteFlag": false,
     "isSpritesheet": false,

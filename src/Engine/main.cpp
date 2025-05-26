@@ -198,6 +198,7 @@ int main(int argc, char* argv[]) {
     mainTree.attachFunction(mainTreeFunctions::serialize,       "serialize",    "Serialize current State to file");
     mainTree.attachFunction(mainTreeFunctions::echo,            "echo",         "Echos all args provided to cout");
     mainTree.attachFunction(mainTreeFunctions::printGlobal,     "print-global", "Prints global doc to cout");
+    mainTree.attachFunction(mainTreeFunctions::printState,      "print-state",  "Prints state doc to cout");
     
     
 
