@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-taskname=TaskFiles/gravity_classic.txt
+taskname=TaskFiles/crash_test.txt
 #taskname=TaskFiles/obj_oob.txt
 
 valgrind \

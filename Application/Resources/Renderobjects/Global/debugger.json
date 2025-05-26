@@ -16,7 +16,7 @@
     "invokes": [
         "./Resources/Invokes/Debug/print_global.json"
     ],
-    "reloadInvokes": 1,
+    "reloadInvokes": true,
     "text": {
         "str": "",
         "fontsize": 0.0,

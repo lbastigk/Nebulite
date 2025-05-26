@@ -18,7 +18,7 @@
         "./Resources/Invokes/Physics/gravity.json",
         "./Resources/Invokes/Physics/acceleration_integration.json"
     ],
-    "reloadInvokes": 1,
+    "reloadInvokes": true,
     "text": {
         "str": "SUN",
         "fontsize": 16.0,

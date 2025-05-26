@@ -37,7 +37,7 @@ RenderObject::RenderObject() {
 	calculateSrcRect();
 
 	// Insert Invokes
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, 1);
+	JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, true);
 
 	// Create text
 	// Create a surface with the text
@@ -88,7 +88,7 @@ void RenderObject::deserialize(std::string serialOrLink) {
 	//std::cerr << "Doc was deserialized! From: \n" << serialOrLink << "\n to: \n" << JSONHandler::serialize(doc) << std::endl << std::endl;
 
 	// Prerequisites
-	valueSet(namenKonvention.renderObject.reloadInvokes,1);
+	valueSet(namenKonvention.renderObject.reloadInvokes,true);
 
 	calculateDstRect();
 	calculateSrcRect();
@@ -206,7 +206,7 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
         }
     }
     
-    JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, 0);
+    JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, false);
 }
 
 */
@@ -296,7 +296,7 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
         }
     }
 
-    JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, 0);
+    JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, false);
 }
 
 //-----------------------------------------------------------
@@ -315,7 +315,7 @@ void RenderObject::update(Invoke* globalInvoke, std::shared_ptr<RenderObject> th
 	// Check all invokes
 	if (globalInvoke) {
 		// Reload invokes if needed
-		if (valueGet<int>(namenKonvention.renderObject.reloadInvokes,1)){
+		if (valueGet<int>(namenKonvention.renderObject.reloadInvokes,true)){
 			reloadInvokes(this_shared);
 		}
 

@@ -16,7 +16,7 @@
     "invokes": [
         "./Resources/Invokes/Movement/move_cam_wasd.json"
     ],
-    "reloadInvokes": 1,
+    "reloadInvokes": true,
     "text": {
         "str": "",
         "fontsize": 0.0,

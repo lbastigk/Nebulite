@@ -14,7 +14,7 @@
     "spritesheetSizeX": 0,
     "spritesheetSizeY": 0,
     "invokes": [],
-    "reloadInvokes": 1,
+    "reloadInvokes": true,
     "text": {
         "str": "",
         "fontsize": 0.0,

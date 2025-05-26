@@ -17,7 +17,7 @@
         "./Resources/Invokes/Physics/gravity.json",
         "./Resources/Invokes/Physics/acceleration_integration.json"
     ],
-    "reloadInvokes": 1,
+    "reloadInvokes": true,
     "text": {
         "str": "OBJ2",
         "fontsize": 16.0,
