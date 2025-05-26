@@ -236,63 +236,62 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
     cmds_general.clear();
     cmds_internal.clear();
 
-    auto& doc = *this->getDoc(); // convenience reference
-    if (doc.HasMember("invokes") && doc["invokes"].IsArray()) {
+    auto& doc = *this_shared.get()->getDoc(); // convenience reference
+    if (doc.HasMember("invokes") && doc["invokes"].IsArray() && doc["invokes"].Size()) {
         rapidjson::Value& invokes = doc["invokes"];
-
         for (rapidjson::SizeType i = 0; i < invokes.Size(); ++i) {
 			//--------------------------
 			// Get invoke
             rapidjson::Document serializedInvoke;
-
             if (invokes[i].IsString()) {
-                rapidjson::Document tmp = JSONHandler::deserialize(invokes[i].GetString());
-                serializedInvoke.CopyFrom(tmp, tmp.GetAllocator());
+				serializedInvoke = JSONHandler::deserialize(invokes[i].GetString());
             } else if (invokes[i].IsObject()) {
                 serializedInvoke.CopyFrom(invokes[i], serializedInvoke.GetAllocator());
             } else {
                 continue;
             }
 
-			//--------------------------
-			// Build entry
-            InvokeEntry entry;
-            entry.selfPtr = this_shared;
-            entry.logicalArg = JSONHandler::Get::Any<std::string>(serializedInvoke, "logicalArg", "");
-            entry.isGlobal = JSONHandler::Get::Any<bool>(serializedInvoke, "isGlobal", true);
+			if (serializedInvoke.IsObject()){
+				//--------------------------
+				// Build entry
+				InvokeEntry entry;
+				entry.selfPtr = this_shared;
+				entry.logicalArg = 	JSONHandler::Get::Any<std::string>(serializedInvoke, "logicalArg", "");
+				entry.isGlobal = 	JSONHandler::Get::Any<bool>(serializedInvoke, "isGlobal", true);
 
-            entry.invokes_self = parseInvokeTriples(serializedInvoke["self_invokes"]);
-            entry.invokes_other = parseInvokeTriples(serializedInvoke["other_invokes"]);
-            entry.invokes_global = parseInvokeTriples(serializedInvoke["global_invokes"]);
+				entry.invokes_self = parseInvokeTriples(serializedInvoke["self_invokes"]);
+				entry.invokes_other = parseInvokeTriples(serializedInvoke["other_invokes"]);
+				entry.invokes_global = parseInvokeTriples(serializedInvoke["global_invokes"]);
 
-            entry.functioncalls.clear();
-            if (serializedInvoke.HasMember("functioncalls") && serializedInvoke["functioncalls"].IsArray()) {
-                for (auto& fn : serializedInvoke["functioncalls"].GetArray()) {
-                    if (fn.IsString()) {
-                        entry.functioncalls.push_back(fn.GetString());
-                    }
-                }
-            }
+				entry.functioncalls.clear();
+				if (serializedInvoke.HasMember("functioncalls") && serializedInvoke["functioncalls"].IsArray()) {
+					for (auto& fn : serializedInvoke["functioncalls"].GetArray()) {
+						if (fn.IsString()) {
+							entry.functioncalls.push_back(fn.GetString());
+						}
+					}
+				}
+				std::cout << i++ << std::endl;
 
-			// DEBUG: check entry:
-			/*
-			std::cout << "Global: " << entry.isGlobal << " | " << entry.logicalArg << std::endl;
-			std::cout << "   " << entry.invokes_self.size() << std::endl;
-			std::cout << "   " << entry.invokes_other.size() << std::endl;
-			std::cout << "   " << entry.invokes_global.size() << std::endl;
-			std::cout << "   " << entry.functioncalls.size() << std::endl;
-			//*/
-			
-			// Append
-            auto ptr = std::make_shared<InvokeEntry>(std::move(entry));
+				// DEBUG: check entry:
+				/*
+				std::cout << "Global: " << entry.isGlobal << " | " << entry.logicalArg << std::endl;
+				std::cout << "   " << entry.invokes_self.size() << std::endl;
+				std::cout << "   " << entry.invokes_other.size() << std::endl;
+				std::cout << "   " << entry.invokes_global.size() << std::endl;
+				std::cout << "   " << entry.functioncalls.size() << std::endl;
+				//*/
+				
+				// Append
+				auto ptr = std::make_shared<InvokeEntry>(std::move(entry));
 
-			if(entry.isGlobal){
-				cmds_general.push_back(ptr);
+				if(entry.isGlobal){
+					cmds_general.push_back(ptr);
+				}
+				else{
+					cmds_internal.push_back(ptr);
+				}
 			}
-			else{
-				cmds_internal.push_back(ptr);
-			}
-            
         }
     }
 
@@ -321,7 +320,7 @@ void RenderObject::update(Invoke* globalInvoke, std::shared_ptr<RenderObject> th
 
 		// solve local invokes (loop)
 		for (const auto& cmd : cmds_internal){
-			//if(globalInvoke->isTrue(cmd,this_shared))globalInvoke->updateLocal(cmd);
+			if(globalInvoke->isTrue(cmd,this_shared))globalInvoke->updateLocal(cmd);
 		}
 
 		// Checks this object against all conventional invokes for manipulation
@@ -367,18 +366,27 @@ std::string RenderObjectContainer::serialize() {
 	// Set up array
 	rapidjson::Value array(rapidjson::kArrayType);
 
-	// loop through all objects in container
+	// Get all objects in container
+	
+	// Step 1: get string
+	std::vector<rapidjson::Document*> objects;
 	std::vector<std::string> serializedObjects;
 	for (auto& vec1 : ObjectContainer) {
 		for (auto& vec2 : vec1) {
 			for (auto& batch : vec2) {
 				for (auto& obj : batch) {
-					rapidjson::Value& objVal = *obj->getDoc();
-					array.PushBack(objVal,doc.GetAllocator());	
+					serializedObjects.push_back(obj->serialize());	
 				}
 			}
 		}
 	}
+	// Step 2: Re-Serialize and insert
+	for (auto& string : serializedObjects){
+		array.PushBack(JSONHandler::deserialize(string).GetObject(),allocator);
+	}
+
+
+	
 
 
 	// Add array to the document with a key
