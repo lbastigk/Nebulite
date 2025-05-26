@@ -176,6 +176,8 @@ int main(int argc, char* argv[]) {
     //--------------------------------------------------
     // Build main FuncTree
     FuncTree mainTree("Nebulite");
+
+    // General
     mainTree.attachFunction(mainTreeFunctions::envload,         "env-load",     "Loads an environment");
     mainTree.attachFunction(mainTreeFunctions::envdeload,       "env-deload",   "Deloads an environment");
     mainTree.attachFunction(mainTreeFunctions::spawn,           "spawn",        "Spawn a renderobject");
@@ -183,13 +185,21 @@ int main(int argc, char* argv[]) {
     mainTree.attachFunction(mainTreeFunctions::save,            "state-save",   "Saves the state");
     mainTree.attachFunction(mainTreeFunctions::load,            "state-load",   "Loads a state");
     mainTree.attachFunction(mainTreeFunctions::loadTaskList,    "task",         "Loads a txt file of tasks");
-    mainTree.attachFunction(mainTreeFunctions::echo,            "echo",         "Echos all args provided to cout");
     mainTree.attachFunction(mainTreeFunctions::wait,            "wait",         "Halt all commands for a set amount of frames");
-    mainTree.attachFunction(mainTreeFunctions::setResolution,   "set-res",       "Sets resolution size: <w> <h>");
-    mainTree.attachFunction(mainTreeFunctions::serialize,       "serialize",    "Serialize current State");
+    
+
+    // Renderer Settings
     mainTree.attachFunction(mainTreeFunctions::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
+    mainTree.attachFunction(mainTreeFunctions::setResolution,   "set-res",      "Sets resolution size: <w> <h>");
     mainTree.attachFunction(mainTreeFunctions::setCam,          "cam-set",      "Sets Camera position <x> <y>");
     mainTree.attachFunction(mainTreeFunctions::moveCam,         "cam-move",     "Moves Camera position <dx> <dy>");
+
+    // Debug
+    mainTree.attachFunction(mainTreeFunctions::serialize,       "serialize",    "Serialize current State to file");
+    mainTree.attachFunction(mainTreeFunctions::echo,            "echo",         "Echos all args provided to cout");
+    mainTree.attachFunction(mainTreeFunctions::printGlobal,     "print-global", "Prints global doc to cout");
+    
+    
 
     // Not using testEnv atm
     /*

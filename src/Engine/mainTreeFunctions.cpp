@@ -141,6 +141,7 @@ int serialize(int argc, char* argv[]){
     else{
         FileManagement::WriteFile("lastLevel.log.json",serialized);
     }
+    return 0;
 }
 
 int moveCam(int argc, char* argv[]){
@@ -148,8 +149,15 @@ int moveCam(int argc, char* argv[]){
         int dx = std::stoi(argv[0]);
         int dy = std::stoi(argv[1]);
         renderer.moveCam(dx,dy);
+        return 0;
     }
-    return 0;
+    else{
+        std::cerr << "Expected 2 args, provided " << argc << std::endl;
+        for(int i = 0; i < argc ; i++){
+            std::cerr << "   " << argv[i] << std::endl;
+        }
+        return 1;
+    }
 }
 
 int setCam(int argc, char* argv[]){
@@ -157,7 +165,15 @@ int setCam(int argc, char* argv[]){
         int x = std::stoi(argv[0]);
         int y = std::stoi(argv[1]);
         renderer.setCam(x,y);
+        return 0;
     }
+    else{
+        return 1;
+    }
+}
+
+int printGlobal(int argc, char* argv[]){
+    std::cout << renderer.serializeGlobal() << std::endl;
     return 0;
 }
 

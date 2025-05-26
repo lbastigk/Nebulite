@@ -1,0 +1,10 @@
+{
+  "logicalArg": "1",
+  "isGlobal": false,
+  "self_invokes": [],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": [
+    "echo TEST"
+  ]
+}

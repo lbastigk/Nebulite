@@ -14,9 +14,9 @@
     "spritesheetSizeX": 0,
     "spritesheetSizeY": 0,
     "invokes": [
-        "./Resources/Invokes/movement_wasd.json",
-        "./Resources/Invokes/gravity.json",
-        "./Resources/Invokes/acceleration_integration.json"
+        "./Resources/Invokes/Movement/movement_wasd.json",
+        "./Resources/Invokes/Physics/gravity.json",
+        "./Resources/Invokes/Physics/acceleration_integration.json"
     ],
     "reloadInvokes": 1,
     "text": {
@@ -26,7 +26,7 @@
         "dy": -30.0
     },
     "physics": {
-        "mass": 500000.0,
+        "mass": 200000.0,
         "isGrav": 1.0,
         "aX": 0.0,
         "aY": 0.0,

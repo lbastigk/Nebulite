@@ -143,7 +143,8 @@ public:
     void checkAgainstList(std::shared_ptr<RenderObject> otherObj);
     bool isTrue(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<RenderObject> otherObj, bool resolveEqual=true);
     void update();
-    void updatePair(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<RenderObject> otherObj);
+    void updateGlobal(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<RenderObject> otherObj);
+    void updateLocal(std::shared_ptr<InvokeEntry> cmd);
     
     // Check against list
     

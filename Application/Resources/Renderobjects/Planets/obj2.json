@@ -14,8 +14,8 @@
     "spritesheetSizeX": 0,
     "spritesheetSizeY": 0,
     "invokes": [
-        "./Resources/Invokes/gravity.json",
-        "./Resources/Invokes/acceleration_integration.json"
+        "./Resources/Invokes/Physics/gravity.json",
+        "./Resources/Invokes/Physics/acceleration_integration.json"
     ],
     "reloadInvokes": 1,
     "text": {

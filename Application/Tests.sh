@@ -1,3 +1,3 @@
 #!/bin/bash
-#./bin/Nebulite load ./Resources/Levels/example.json
-./bin/Nebulite load ./Resources/Levels/gravity.json
+./bin/Nebulite task TaskFiles/gravity_classic.txt
+./bin/Nebulite task TaskFiles/gravity_goofy.txt

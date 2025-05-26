@@ -1,0 +1,11 @@
+{
+  "logicalArg": "($(global.keyboard.w) or $(global.keyboard.a) or $(global.keyboard.s) or $(global.keyboard.d))",
+  "isGlobal": false,
+  "self_invokes": [],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": [
+    "cam-move $($(global.keyboard.d) - $(global.keyboard.a)) $($(global.keyboard.s) - $(global.keyboard.w))",
+    "echo HERE"
+  ]
+}

@@ -48,7 +48,7 @@ void Invoke::updateValueOfKey(std::string type, std::string key,std::string valS
 
 // Checks a given invoke cmd against objects in buffer
 // as objects have constant pointers, using RenderObject& is possible
-void Invoke::updatePair(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<RenderObject> otherObj) {
+void Invoke::updateGlobal(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<RenderObject> otherObj) {
     // === SELF update ===
     for(auto InvokeTriple : cmd.get()->invokes_self){
         if (!InvokeTriple.key.empty()) {
@@ -74,10 +74,36 @@ void Invoke::updatePair(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<Render
     }
 
     // === Functioncalls ===
-    // TODO
     for(auto call : cmd.get()->functioncalls){
         // replace vars
         call = resolveVars(call,*cmd->selfPtr->getDoc(),*otherObj.get()->getDoc(), *global);
+
+        // attach to task queue
+        tasks->emplace_back(call);
+    }
+}
+
+void Invoke::updateLocal(std::shared_ptr<InvokeEntry> cmd){
+    // === SELF update ===
+    for(auto InvokeTriple : cmd.get()->invokes_self){
+        if (!InvokeTriple.key.empty()) {
+            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *global);
+            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
+        } 
+    }
+
+    // === GLOBAL update ===
+    for(auto InvokeTriple : cmd.get()->invokes_global){
+        if (!InvokeTriple.key.empty()) {
+            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *global);
+            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
+        } 
+    }
+
+    // === Functioncalls ===
+    for(auto call : cmd.get()->functioncalls){
+        // replace vars
+        call = resolveVars(call,*cmd->selfPtr->getDoc(),*cmd->selfPtr->getDoc(), *global);
 
         // attach to task queue
         tasks->emplace_back(call);
@@ -98,7 +124,7 @@ void Invoke::clear(){
 void Invoke::update(){
     // check general vals
     for (auto pair : truePairs){
-        updatePair(pair.first, pair.second);
+        updateGlobal(pair.first, pair.second);
     }
     truePairs.clear();
     truePairs.shrink_to_fit();

@@ -1,5 +1,5 @@
 {
-    "id": 2,
+    "id": 1234,
     "isOverlay": false,
     "posX": 350.0,
     "posY": 500.0,
@@ -14,22 +14,13 @@
     "spritesheetSizeX": 0,
     "spritesheetSizeY": 0,
     "invokes": [
-        "./Resources/Invokes/Physics/gravity.json",
-        "./Resources/Invokes/Physics/acceleration_integration.json"
+        "./Resources/Invokes/Movement/move_cam_wasd.json"
     ],
     "reloadInvokes": 1,
     "text": {
-        "str": "OBJ1",
-        "fontsize": 16.0,
+        "str": "",
+        "fontsize": 0.0,
         "dx": 0.0,
-        "dy": -30.0
-    },
-    "physics": {
-        "mass": 50.0,
-        "isGrav": 1.0,
-        "aX": 0.0,
-        "aY": 0.0,
-        "vX":  30.0,
-        "vY": -120.0
+        "dy": 0.0
     }
 }

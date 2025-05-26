@@ -241,6 +241,8 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
         rapidjson::Value& invokes = doc["invokes"];
 
         for (rapidjson::SizeType i = 0; i < invokes.Size(); ++i) {
+			//--------------------------
+			// Get invoke
             rapidjson::Document serializedInvoke;
 
             if (invokes[i].IsString()) {
@@ -252,6 +254,8 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
                 continue;
             }
 
+			//--------------------------
+			// Build entry
             InvokeEntry entry;
             entry.selfPtr = this_shared;
             entry.logicalArg = JSONHandler::Get::Any<std::string>(serializedInvoke, "logicalArg", "");
@@ -272,16 +276,23 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 
 			// DEBUG: check entry:
 			/*
-			std::cout << entry.logicalArg << " Global: " << entry.isGlobal << std::endl;
+			std::cout << "Global: " << entry.isGlobal << " | " << entry.logicalArg << std::endl;
 			std::cout << "   " << entry.invokes_self.size() << std::endl;
 			std::cout << "   " << entry.invokes_other.size() << std::endl;
 			std::cout << "   " << entry.invokes_global.size() << std::endl;
 			std::cout << "   " << entry.functioncalls.size() << std::endl;
-			*/
+			//*/
 			
-
+			// Append
             auto ptr = std::make_shared<InvokeEntry>(std::move(entry));
-            cmds_general.push_back(ptr);
+
+			if(entry.isGlobal){
+				cmds_general.push_back(ptr);
+			}
+			else{
+				cmds_internal.push_back(ptr);
+			}
+            
         }
     }
 
@@ -310,7 +321,7 @@ void RenderObject::update(Invoke* globalInvoke, std::shared_ptr<RenderObject> th
 
 		// solve local invokes (loop)
 		for (const auto& cmd : cmds_internal){
-			// TODO
+			//if(globalInvoke->isTrue(cmd,this_shared))globalInvoke->updateLocal(cmd);
 		}
 
 		// Checks this object against all conventional invokes for manipulation

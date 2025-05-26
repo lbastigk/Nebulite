@@ -1,10 +1,10 @@
 {
-    "id": 1,
+    "id": 1337,
     "isOverlay": false,
-    "posX": 350.0,
-    "posY": 500.0,
-    "pixSizeX": 10,
-    "pixSizeY": 10,
+    "posX": 0.0,
+    "posY": 0.0,
+    "pixSizeX": 100,
+    "pixSizeY": 100,
     "imgLocation": "Resources/Sprites/TEST_BMP_SMALL.bmp",
     "layer": 0,
     "deleteFlag": false,
@@ -13,7 +13,9 @@
     "spritesheetOffsetY": 0,
     "spritesheetSizeX": 0,
     "spritesheetSizeY": 0,
-    "invokes": [],
+    "invokes": [
+        "./Resources/Invokes/Debug/print_global.json"
+    ],
     "reloadInvokes": 1,
     "text": {
         "str": "",
