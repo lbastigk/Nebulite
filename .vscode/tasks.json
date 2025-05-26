@@ -5,7 +5,7 @@
         {
             "label": "Full Build for Linux",
             "type": "shell",
-            "command": "cmake ./ && make",
+            "command": "cmake ./ && make && cd ./Application && ./validate_json.sh && cd ..",
             "group": {
                 "kind": "build",
                 "isDefault": false
