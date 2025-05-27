@@ -3,7 +3,19 @@
     "tasks": [
         // BUILD FOR LINUX, USING CMAKE
         {
-            "label": "[STANDARD] Automated Build and Test for Linux",
+            "label": "[BUILD]",
+            "type": "shell",
+            "command": "cmake ./ && make",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [],
+            "detail": "Build the project by running 'make' and 'cmake' in the appropriate directories."
+        },
+        // AUTOMATED TEST
+        {
+            "label": "[AUTOMATED TESTING]",
             "type": "shell",
             "command": "ulimit -n 1024 && cmake ./ && make && cd ./Application && ./validate_json.sh ; ./CrashDebug.sh ; echo 'Error log:' ; cat ./errors.log ; cd ..",
             "group": {
