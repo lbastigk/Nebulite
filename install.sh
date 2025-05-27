@@ -32,10 +32,15 @@ cd ./Application/Resources
 cd "$START_DIR"
 
 ####################################
-# external directory
+# Submodules
 git submodule update --init --recursive
-
 set -e
+
+git config --global --add safe.directory ./external/rapidjson
+git config --global --add safe.directory ./external/SDL_image
+git config --global --add safe.directory ./external/SDL_ttf
+git config --global --add safe.directory ./external/SDL2
+git config --global --add safe.directory ./external/tinyexpr
 
 externalsDir=$(pwd)/external
 
@@ -54,45 +59,56 @@ fi
 
 cd "$externalsDir"
 
+# SDL modules are in $externalsDir/$folder
+# build all of them into $externalsDir/SDL2_build/
 build_sdl_library() {
     local folder=$1
     echo "Building $folder..."
 
-    local build_dir="$externalsDir/${folder}/build"
-    mkdir -p "$build_dir"
+    local build_dir="$externalsDir/SDL2_build"
 
-    cd "$folder"
+    # Enter the source folder
+    cd "$folder" || { echo "Failed to cd into $folder"; return 1; }
 
+    # Clean previous builds
     make clean || true
-    rm -rf "$build_dir"
-    [ ! -f configure ] && ./autogen.sh
 
+    # Run autogen.sh if configure does not exist
+    if [ ! -f configure ]; then
+        ./autogen.sh || { echo "autogen.sh failed"; return 1; }
+    fi
+
+    # Configure with prefix to build_dir
     ./configure \
         --prefix="$build_dir" \
         --enable-static \
         --disable-shared \
-        CFLAGS="-fPIC"
+        CFLAGS="-fPIC" || { echo "configure failed"; return 1; }
 
-    make -j$(nproc)
-    make install
+    # Build and install
+    make -j$(nproc) || { echo "make failed"; return 1; }
+    make install || { echo "make install failed"; return 1; }
+
+    # Reset any changes and clean untracked files inside the folder
+    git reset --hard
+    git clean -fdx
+    git submodule foreach --recursive git reset --hard
+    git submodule foreach --recursive git clean -fdx
 
     echo "$folder built and installed to $build_dir"
-    cd ..
+
+    # Return to previous directory
+    cd - >/dev/null || return 1
 }
 
+
 # Build all SDL libraries
+rm -rf "$externalsDir/SDL2_build"
+mkdir "$externalsDir/SDL2_build"
 build_sdl_library SDL2
 build_sdl_library SDL_ttf
 build_sdl_library SDL_image
-
-# Bundle build outputs
-rm -rf "$externalsDir/SDL2_build"
-mkdir "$externalsDir/SDL2_build"
-for lib in SDL2 SDL_ttf SDL_image; do
-    rsync -a "$lib/build/" "$externalsDir/SDL2_build"
-    rm -rf "$lib/build/"
-done
-
+sudo chmod -R 777 "$externalsDir/SDL2_build"
 cd "$START_DIR"
 
 ####################################
