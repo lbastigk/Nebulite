@@ -97,8 +97,8 @@ cd "$START_DIR"
 
 ####################################
 # create binaries
-sudo chmod -R 777 ./
 cmake ./
+sudo chmod -R 777 ./CMakeFiles
 make
 
 ####################################
