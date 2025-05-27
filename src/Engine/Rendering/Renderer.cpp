@@ -58,7 +58,7 @@ Renderer::Renderer(std::deque<std::string>& tasks, bool flag_hidden, unsigned in
 	font = TTF_OpenFont(fontpath.c_str(), 60); // Adjust size as needed
 	if (font == NULL) {
 		// Handle font loading error
-		std::cerr << "\nCould not load Font: " << TTF_GetError() << "\n";
+		std::cerr << TTF_GetError() << " | " << fontpath << "\n";
 	}
 
 	// Create a renderer

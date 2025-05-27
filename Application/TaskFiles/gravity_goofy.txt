@@ -1,4 +1,4 @@
-set-res 3440 1440
+set-res 1280 720
 set-fps 60
 echo
 echo
@@ -7,11 +7,11 @@ echo
 echo
 echo
 spawn ./Resources/Renderobjects/Global/camera_movement_wasd.json   #this one doesnt work!
-spawn ./Resources/Renderobjects/Planets/obj1.json|posX=1620|posY=0950|physics.vX=9|physics.vY=8|physics.mass=5000|text.str=obj1|imgLocation=Resources/Sprites/TEST100P/001.bmp
-spawn ./Resources/Renderobjects/Planets/obj1.json|posX=1820|posY=0870|physics.vX=8|physics.vY=9|physics.mass=5000|text.str=obj2|imgLocation=Resources/Sprites/TEST100P/011.bmp
-spawn ./Resources/Renderobjects/Planets/obj1.json|posX=1920|posY=0550|physics.vX=7|physics.vY=0|physics.mass=5000|text.str=obj3|imgLocation=Resources/Sprites/TEST100P/021.bmp
-spawn ./Resources/Renderobjects/Planets/obj1.json|posX=1120|posY=0750|physics.vX=6|physics.vY=1|physics.mass=5000|text.str=obj4|imgLocation=Resources/Sprites/TEST100P/031.bmp
-spawn ./Resources/Renderobjects/Planets/obj1.json|posX=1720|posY=0790|physics.vX=5|physics.vY=2|physics.mass=5000|text.str=obj5|imgLocation=Resources/Sprites/TEST100P/041.bmp
-spawn ./Resources/Renderobjects/Planets/obj1.json|posX=1920|posY=0720|physics.vX=4|physics.vY=3|physics.mass=5000|text.str=obj6|imgLocation=Resources/Sprites/TEST100P/051.bmp
+spawn ./Resources/Renderobjects/Planets/obj1.json|posX=620|posY=0150|physics.vX=9|physics.vY=8|physics.mass=5000|text.str=obj1|imgLocation=Resources/Sprites/TEST100P/001.bmp
+spawn ./Resources/Renderobjects/Planets/obj1.json|posX=820|posY=0270|physics.vX=8|physics.vY=9|physics.mass=5000|text.str=obj2|imgLocation=Resources/Sprites/TEST100P/011.bmp
+spawn ./Resources/Renderobjects/Planets/obj1.json|posX=920|posY=0350|physics.vX=7|physics.vY=0|physics.mass=5000|text.str=obj3|imgLocation=Resources/Sprites/TEST100P/021.bmp
+spawn ./Resources/Renderobjects/Planets/obj1.json|posX=120|posY=0450|physics.vX=6|physics.vY=1|physics.mass=5000|text.str=obj4|imgLocation=Resources/Sprites/TEST100P/031.bmp
+spawn ./Resources/Renderobjects/Planets/obj1.json|posX=720|posY=0590|physics.vX=5|physics.vY=2|physics.mass=5000|text.str=obj5|imgLocation=Resources/Sprites/TEST100P/041.bmp
+spawn ./Resources/Renderobjects/Planets/obj1.json|posX=920|posY=0620|physics.vX=4|physics.vY=3|physics.mass=5000|text.str=obj6|imgLocation=Resources/Sprites/TEST100P/051.bmp
 wait 600
 exit

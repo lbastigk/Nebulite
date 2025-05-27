@@ -6,8 +6,24 @@ sudo apt-get install cmake
 sudo apt-get install automake
 sudo apt-get install build-essential
 sudo apt-get install libsdl1.2-dev
+sudo apt-get install autoconf libtool m4 perl
 
 START_DIR=$(pwd)
+
+####################################
+# Synonyms for SDL_ttf
+
+# Define a function to use aclocal as aclocal-1.16
+aclocal-1.16() {
+    aclocal "$@"
+}
+export -f aclocal-1.16
+
+# Same for automake
+automake-1.16() {
+    automake "$@"
+}
+export -f automake-1.16
 
 ####################################
 # Resources directory
@@ -81,7 +97,17 @@ cd "$START_DIR"
 
 ####################################
 # create binaries
+sudo chmod -R 777 ./
 cmake ./
 make
+
+####################################
+# make all scripts executable
+cd ./Application
+for script in ./*.sh
+do
+    chmod +x "$script"
+done
+
 
 echo "Installer is done!"
