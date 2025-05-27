@@ -208,9 +208,9 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 				entry.logicalArg = 	JSONHandler::Get::Any<std::string>(serializedInvoke, "logicalArg", "");
 				entry.isGlobal = 	JSONHandler::Get::Any<bool>(serializedInvoke, "isGlobal", true);
 
-				entry.invokes_self = parseInvokeTriples(serializedInvoke["self_invokes"]);
-				entry.invokes_other = parseInvokeTriples(serializedInvoke["other_invokes"]);
-				entry.invokes_global = parseInvokeTriples(serializedInvoke["global_invokes"]);
+				entry.invokes_self = 	parseInvokeTriples(serializedInvoke["self_invokes"]);
+				entry.invokes_other = 	parseInvokeTriples(serializedInvoke["other_invokes"]);
+				entry.invokes_global = 	parseInvokeTriples(serializedInvoke["global_invokes"]);
 
 				entry.functioncalls.clear();
 				if (serializedInvoke.HasMember("functioncalls") && serializedInvoke["functioncalls"].IsArray()) {
@@ -220,7 +220,6 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 						}
 					}
 				}
-				std::cout << i++ << std::endl;
 
 				// DEBUG: check entry:
 				/*
