@@ -103,6 +103,7 @@ make
 
 ####################################
 # make all scripts executable
+sudo chmod -R 777 ./Application
 cd ./Application
 for script in ./*.sh
 do
