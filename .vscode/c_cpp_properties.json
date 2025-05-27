@@ -17,8 +17,6 @@
                 "${workspaceFolder}/src/Engine/",            // ProjectEngine root
                 "${workspaceFolder}/src/Engine/Helper/",
                 "${workspaceFolder}/src/Engine/Rendering/",
-                "${workspaceFolder}/src/Editor/",           // ProjectEditor root
-                "${workspaceFolder}/src/Editor/QT/",
                 "${workspaceFolder}/src/Tests/",            // ProjectTestEnvironment
                 "${workspaceFolder}/src/Platform/"                  // Platform
             ],
@@ -33,8 +31,6 @@
                     "${workspaceFolder}/src/Engine",
                     "${workspaceFolder}/src/Engine/Helper",
                     "${workspaceFolder}/src/Engine/Rendering",
-                    "${workspaceFolder}/src/Editor",
-                    "${workspaceFolder}/src/Editor/QT/",
                     "${workspaceFolder}/src/Tests",
                     "${workspaceFolder}/src/Platform"
                 ],

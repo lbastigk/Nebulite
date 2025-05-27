@@ -20,13 +20,13 @@ wait 60
 echo
 echo Test 2: with Invokes
 echo spawning two inside bounds
-spawn ./Resources/Renderobjects/Planets/obj1.json|posX=100|posY=100|physics.vX=0|physics.vY=200
-spawn ./Resources/Renderobjects/Planets/obj1.json|posX=100|posY=500|physics.vX=0|physics.vY=200
+spawn ./Resources/Renderobjects/Planets/obj1.json|posX=100|posY=100|physics.vX=0|physics.vY=500
+spawn ./Resources/Renderobjects/Planets/obj1.json|posX=100|posY=500|physics.vX=0|physics.vY=500
 echo spawning two outside bounds
 spawn ./Resources/Renderobjects/Planets/obj1.json|posX=2000|posY=100|physics.vX=0|physics.vY=0
 spawn ./Resources/Renderobjects/Planets/obj1.json|posX=2000|posY=500|physics.vX=0|physics.vY=0
-echo Waiting for Objects to move to new position...
-wait 1000
+echo Rendering 10 more seconds, waiting for Objects to move to new position...
+wait 600
 echo
 echo done!
 env-deload

@@ -5,60 +5,48 @@
         {
             "label": "[BUILD]",
             "type": "shell",
-            "command": "cmake ./ && make",
+            "command": "./compile.sh",
             "group": {
                 "kind": "build",
                 "isDefault": false
             },
             "problemMatcher": [],
-            "detail": "Build the project by running 'make' and 'cmake' in the appropriate directories."
+            "detail": "Build the projects release and debug binaries by running compile.sh from project root directory."
         },
         // AUTOMATED TEST
         {
-            "label": "[AUTOMATED TESTING]",
+            "label": "[TEST]",
             "type": "shell",
-            "command": "ulimit -n 1024 && cmake ./ && make && cd ./Application && ./validate_json.sh ; ./CrashDebug.sh ; echo 'Error log:' ; cat ./errors.log ; cd ..",
+            "command": "cd ./Application && ./validate_json.sh ; ./CrashDebug.sh ; echo 'Error log:' ; cat ./errors.log ; cd ..",
             "group": {
                 "kind": "build",
                 "isDefault": false
             },
+            "dependsOn" : "[BUILD]",
             "problemMatcher": [],
-            "detail": "Build the project by running 'make' and 'cmake' in the appropriate directories. With JSON validation and current Crash Debug"
+            "detail": "Build with JSON validation and current Crash Debug"
         },  
         {
-            "label": "Full Build for Linux + Profiling",
+            "label": "[PROFILING] Release binary",
             "type": "shell",
-            "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 && sudo sysctl -w kernel.kptr_restrict=0 && cmake ./ && make && cd ./Application && timeout 20s perf record -a -g -- ./Tests.sh ; perf report",
+            "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 && sudo sysctl -w kernel.kptr_restrict=0 && cd ./Application && perf record -a -g -- ./bin/Nebulite task TaskFiles/gravity_classic.txt   ; perf report ; hotspot perf.data",
             "group": {
                 "kind": "build",
                 "isDefault": false
             },
             "problemMatcher": [],
-            "detail": "Build the project and run Tests.sh under perf to profile performance."
-        },           
-        // BUILD ON WINDOWS, USING CMAKE
-        {
-            "label": "Full Build for Windows",
-            "type": "shell",
-            "command": "cmake -DCMAKE_TOOLCHAIN_FILE=mingw-toolchain.cmake -B ./Application/bin -S . && cmake --build ./Application/bin",
-            "group": {
-                "kind": "build",
-                "isDefault": false
-            },
-            "problemMatcher": [],
-            "detail": "Build the project by running 'cmake' and 'make' in the appropriate directories"
+            "detail": "Run a debug Task on the Debug binary with perf to profile performance. Shows results both in CLI with perf and in a GUI using hotspot"
         },
-        // BUILD EXAMPLE QT5 MAIN
         {
-            "label": "Example QT5 app",
+            "label": "[PROFILING] Debug binary",
             "type": "shell",
-            "command": "cd ./ProjectEditor/ExampleBuild/ && ./build.sh",
+            "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 && sudo sysctl -w kernel.kptr_restrict=0 && cd ./Application && perf record -a -g -- ./bin/Nebulite_Debug task TaskFiles/gravity_classic.txt   ; perf report ; hotspot perf.data",
             "group": {
                 "kind": "build",
                 "isDefault": false
             },
             "problemMatcher": [],
-            "detail": "Builds the _ExampleMain"
-        },
+            "detail": "Run a debug Task on the Debug binary with perf to profile performance. Shows results both in CLI with perf and in a GUI using hotspot."
+        }            
     ]
 }
