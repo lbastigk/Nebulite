@@ -38,7 +38,7 @@ public:
 		return JSONHandler::serialize(global);
 	}
 	
-	void append(RenderObject toAttach,int dispResX, int dispResY,int THREADSIZE, int layer = 0);
+	void append(std::shared_ptr<RenderObject> toAppend,int dispResX, int dispResY,int THREADSIZE, int layer = 0);
 	void update(int tileXpos,int tileYpos,int dispResX,int dispResY, int THREADSIZE,Invoke* globalInvoke=nullptr);
 	void update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE, Invoke* globalInvoke=nullptr);
 	void reinsertAllObjects(int dispResX,int dispResY, int THREADSIZE);

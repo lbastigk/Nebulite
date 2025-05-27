@@ -78,12 +78,12 @@ void Environment::deserialize(std::string serialOrLink, int dispResX,int dispRes
 	}
 }
 
-void Environment::append(RenderObject toAttach,int dispResX, int dispResY,int THREADSIZE, int layer) {
+void Environment::append(std::shared_ptr<RenderObject> toAppend,int dispResX, int dispResY,int THREADSIZE, int layer) {
 	if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
-		roc[layer].append(toAttach, dispResX, dispResY, THREADSIZE);
+		roc[layer].append(toAppend, dispResX, dispResY, THREADSIZE);
 	}
 	else {
-		roc[0].append(toAttach, dispResX, dispResY, THREADSIZE);
+		roc[0].append(toAppend, dispResX, dispResY, THREADSIZE);
 	}
 }
 

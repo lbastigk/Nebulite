@@ -108,16 +108,16 @@ void Renderer::deserialize(std::string serialOrLink) {
 
 //-----------------------------------------------------------
 // Pipeline
-void Renderer::append(RenderObject toAppend) {
+void Renderer::append(std::shared_ptr<RenderObject> toAppend) {
 	// Set ID
-	toAppend.valueSet<uint32_t>(namenKonvention.renderObject.id,id_counter);
+	toAppend.get()->valueSet<uint32_t>(namenKonvention.renderObject.id,id_counter);
 	id_counter++;
 
 	//Append to environment, based on layer
-	env.append(toAppend, dispResX, dispResY, THREADSIZE, toAppend.valueGet(namenKonvention.renderObject.layer, 0));
+	env.append(toAppend, dispResX, dispResY, THREADSIZE, toAppend.get()->valueGet(namenKonvention.renderObject.layer, 0));
 
 	//Load texture
-	loadTexture(toAppend.valueGet<std::string>(namenKonvention.renderObject.imageLocation));
+	loadTexture(toAppend.get()->valueGet<std::string>(namenKonvention.renderObject.imageLocation));
 }
 
 void Renderer::reinsertAllObjects(){
@@ -308,21 +308,19 @@ void Renderer::renderFrame() {
 						// For all objects inside each batch
 						for (auto& obj : batch) {
 							// Check for texture
-							//*
+							
 							std::string innerdir = obj.get()->valueGet<std::string>(namenKonvention.renderObject.imageLocation);
 							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
 								loadTexture(innerdir);
 								obj.get()->calculateDstRect();
 							}
 							obj.get()->calculateSrcRect();
-							//*/
+							
 							
 							// Calculate position rect
-							/*
 							rect = obj->getDstRect();
 							rect.x -= Xpos;	//subtract camera posX
 							rect.y -= Ypos;	//subtract camera posY
-							//*/
 							
 
 							// Render the texture
@@ -507,16 +505,23 @@ bool Renderer::windowExists(){
 }
 
 void Renderer::loadTexture(std::string link) {
+	std::cout << "Loading Texture:" << link << std::endl;
 
 	// Combine directory and innerdir to form full path
 	std::string path = FileManagement::CombinePaths(directory, link);
 
 	// Check if texture is already loaded
 	if (TextureContainer.find(link) == TextureContainer.end()) {
-		SDL_Surface* surface = IMG_Load(path.c_str()); // Attempt to load as PNG (or other supported formats)
+
+		// Attempt to load as PNG (or other supported formats)
+		SDL_Surface* surface = IMG_Load(path.c_str()); 
+
+		// Fallback to BMP if PNG load fails
 		if (!surface) {
-			surface = SDL_LoadBMP(path.c_str()); // Fallback to BMP if PNG load fails
+			surface = SDL_LoadBMP(path.c_str()); 
 		}
+
+		// Unknown format or other issues with surface
 		if (!surface) {
 			std::cerr << "Failed to load image '" << path << "': " << SDL_GetError() << std::endl;
 			return;
@@ -525,6 +530,8 @@ void Renderer::loadTexture(std::string link) {
 		// Create texture from surface
 		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 		SDL_FreeSurface(surface); // Free the surface after creating texture
+
+		// Check for texture issues
 		if (!texture) {
 			std::cerr << "Failed to create texture from surface: " << SDL_GetError() << std::endl;
 			return;

@@ -199,6 +199,9 @@ void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey,
 
 template <typename T>
 void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
+    // Debug: passed data
+    //std::cerr << "Set Called! Key is: " << fullKey << " | Value is: " << data << std::endl;
+
     if (!doc.IsObject()) {
         doc.SetObject();
     }

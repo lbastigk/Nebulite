@@ -316,7 +316,7 @@ std::string RenderObjectContainer::serialize() {
 
 	//---------------------------------------
 	// Get all objects in container+
-
+	//*
 	// Get string
 	std::vector<rapidjson::Document*> objects;
 	std::vector<std::string> serializedObjects;
@@ -329,10 +329,18 @@ std::string RenderObjectContainer::serialize() {
 			}
 		}
 	}
-	// Step 2: Re-Serialize and insert
-	for (auto& string : serializedObjects){
-		array.PushBack(JSONHandler::deserialize(string).GetObject(),allocator);
+	// Re-Serialize and insert
+	for (auto& string : serializedObjects) {
+		rapidjson::Document parsed;
+		parsed.Parse(string.c_str());
+		if (parsed.HasParseError() || !parsed.IsObject()) {
+			std::cerr << "[ERROR] Invalid JSON input!" << std::endl;
+			continue;
+		}
+		rapidjson::Value copiedValue(parsed, allocator);  // Deep copy using correct allocator
+		array.PushBack(copiedValue, allocator);
 	}
+	//*/
 
 	// Add array to the document with a key
 	doc.AddMember("objects", array, allocator);
@@ -372,14 +380,16 @@ void RenderObjectContainer::deserialize(const std::string& serialOrLink, int dis
 				// Deserialize the string into the RenderObject
 				RenderObject ro;
 				ro.deserialize(itemStr);
+				auto ptr = std::make_shared<RenderObject>(std::move(ro));
 
 				// Append the RenderObject to your structure
-				append(ro, dispResX, dispResY, THREADSIZE);
+				append(ptr, dispResX, dispResY, THREADSIZE);
 			}
 			else {
 				RenderObject ro;
 				ro.deserialize(item.GetString());
-				append(ro, dispResX, dispResY, THREADSIZE);
+				auto ptr = std::make_shared<RenderObject>(std::move(ro));
+				append(ptr, dispResX, dispResY, THREADSIZE);
 				//std::cerr << "Array item is not an object at index " << i << std::endl;
 			}
 		}
@@ -393,10 +403,7 @@ void RenderObjectContainer::deserialize(const std::string& serialOrLink, int dis
 //-----------------------------------------------------------
 // Pipeline
 
-void RenderObjectContainer::appendPtr(std::shared_ptr<RenderObject> ptr, int dispResX, int dispResY, int THREADSIZE) {
-	// Prerequisites
-	ptr->valueSet(namenKonvention.renderObject.reloadInvokes,true);
-
+void RenderObjectContainer::append(std::shared_ptr<RenderObject> toAppend, int dispResX, int dispResY, int THREADSIZE) {
     // new tile position
     unsigned int correspondingTileXpos;
     unsigned int correspondingTileYpos;
@@ -406,12 +413,12 @@ void RenderObjectContainer::appendPtr(std::shared_ptr<RenderObject> ptr, int dis
     int64_t placeholder;
 
     // Calculate correspondingTileXpos using positionX
-    valget = ptr->valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
+    valget = toAppend.get()->valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
     placeholder = (int64_t)(valget / (double)dispResX);
     correspondingTileXpos = (placeholder < 0) ? (unsigned int)(-placeholder) : (unsigned int)(placeholder);
 
     // Calculate correspondingTileYpos using positionY
-    valget = ptr->valueGet<double>(namenKonvention.renderObject.positionY, 0.0);
+    valget = toAppend.get()->valueGet<double>(namenKonvention.renderObject.positionY, 0.0);
     placeholder = (int64_t)(valget / (double)dispResY);
     correspondingTileYpos = (placeholder < 0) ? (unsigned int)(-placeholder) : (unsigned int)(placeholder);
 
@@ -432,7 +439,7 @@ void RenderObjectContainer::appendPtr(std::shared_ptr<RenderObject> ptr, int dis
     bool appended = false;
     for (auto& batch : ObjectContainer[correspondingTileYpos][correspondingTileXpos]) {
         if (batch.size() < THREADSIZE) {
-            batch.push_back(ptr);
+            batch.push_back(toAppend);
             appended = true;
             break;
         }
@@ -442,60 +449,7 @@ void RenderObjectContainer::appendPtr(std::shared_ptr<RenderObject> ptr, int dis
     if (!appended) {
         ObjectContainer[correspondingTileYpos][correspondingTileXpos].emplace_back();  // Add new batch
         auto& lastBatch = ObjectContainer[correspondingTileYpos][correspondingTileXpos].back();
-        lastBatch.push_back(ptr);
-    }
-}
-
-void RenderObjectContainer::append(RenderObject toAppend, int dispResX, int dispResY, int THREADSIZE) {
-	// Make shared pointer
-	auto ptr = std::make_shared<RenderObject>(std::move(toAppend));
-
-    // new tile position
-    unsigned int correspondingTileXpos;
-    unsigned int correspondingTileYpos;
-
-    // Calculate tile position based on screen resolution
-    double valget;
-    int64_t placeholder;
-
-    // Calculate correspondingTileXpos using positionX
-    valget = ptr.get()->valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
-    placeholder = (int64_t)(valget / (double)dispResX);
-    correspondingTileXpos = (placeholder < 0) ? (unsigned int)(-placeholder) : (unsigned int)(placeholder);
-
-    // Calculate correspondingTileYpos using positionY
-    valget = ptr.get()->valueGet<double>(namenKonvention.renderObject.positionY, 0.0);
-    placeholder = (int64_t)(valget / (double)dispResY);
-    correspondingTileYpos = (placeholder < 0) ? (unsigned int)(-placeholder) : (unsigned int)(placeholder);
-
-    // Ensure the position is valid, grow the ObjectContainer if necessary
-    if (!isValidPosition(correspondingTileXpos, correspondingTileYpos)) {
-        // Ensure the row exists
-        while (ObjectContainer.size() <= correspondingTileYpos) {
-            ObjectContainer.emplace_back(std::vector<std::vector<std::vector<std::shared_ptr<RenderObject>>>>());
-        }
-
-        // Ensure the column exists
-        while (ObjectContainer[correspondingTileYpos].size() <= correspondingTileXpos) {
-            ObjectContainer[correspondingTileYpos].emplace_back(std::vector<std::vector<std::shared_ptr<RenderObject>>>());
-        }
-    }
-
-    // Try to append to an existing batch, respecting the THREADSIZE limit
-    bool appended = false;
-    for (auto& batch : ObjectContainer[correspondingTileYpos][correspondingTileXpos]) {
-        if (batch.size() < THREADSIZE) {
-            batch.push_back(ptr);
-            appended = true;
-            break;
-        }
-    }
-
-    // If no batch was available or full, create a new batch and append
-    if (!appended) {
-        ObjectContainer[correspondingTileYpos][correspondingTileXpos].emplace_back();  // Add new batch
-        auto& lastBatch = ObjectContainer[correspondingTileYpos][correspondingTileXpos].back();
-        lastBatch.push_back(ptr);
+        lastBatch.push_back(toAppend);
     }
 }
 
@@ -616,7 +570,7 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 
 	// Add objects back to renderer that are now in a different tile position
 	for(const auto& obj : toReinsert){
-		appendPtr(obj, dispResX, dispResY, THREADSIZE);
+		append(obj, dispResX, dispResY, THREADSIZE);
 	}
 	toReinsert.clear();
 	toReinsert.shrink_to_fit();
@@ -642,7 +596,7 @@ void RenderObjectContainer::reinsertAllObjects(int dispResX, int dispResY, int T
 
 	// Reinsert with consistent pointer ownership
 	for (const auto& obj : toReinsert) {
-		appendPtr(obj, dispResX, dispResY, THREADSIZE);
+		append(obj, dispResX, dispResY, THREADSIZE);
 	}
 }
 

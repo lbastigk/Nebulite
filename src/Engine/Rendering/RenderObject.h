@@ -98,8 +98,7 @@ public:
 	// Pipeline
 
 	// Append objects
-	void appendPtr(std::shared_ptr<RenderObject> ptr, int dispResX, int dispResY, int THREADSIZE);
-	void append(RenderObject toAppend, int dispResX, int dispResY, int THREADSIZE);
+	void append(std::shared_ptr<RenderObject> toAppend, int dispResX, int dispResY, int THREADSIZE);
 
 	// Reinsert all objects into container, useful for new tile size declaration
 	// e.g. new rendering size

@@ -35,7 +35,12 @@ int spawn(int argc, char* argv[]){
         std::cout << "Spawning object: " << argv[0] << std::endl;
         RenderObject ro;
         ro.deserialize(argv[0]);
-        renderer.append(ro);
+
+        auto ptr = std::make_shared<RenderObject>(std::move(ro));
+        renderer.append(ptr);
+
+        // DEBUG: Check object after appending:
+        //std::cout << ptr.get()->serialize() << std::endl;
     }
     else{
         std::cerr << "No renderobject name provided!" << std::endl;

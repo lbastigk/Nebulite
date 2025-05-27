@@ -36,7 +36,7 @@ public:
 	//-----------------------------------------------------------
 	// Pipeline
 	void appendInvokePtr(Invoke* invoke);
-	void append(RenderObject toAppend);
+	void append(std::shared_ptr<RenderObject> toAppend);
 	void reinsertAllObjects();
 	void update();
 	void update_withThreads();

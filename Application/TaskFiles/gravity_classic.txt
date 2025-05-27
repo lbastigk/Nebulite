@@ -1,8 +1,7 @@
 set-fps 5000
-spawn ./Resources/Renderobjects/standard.json
-#spawn ./Resources/Renderobjects/Planets/sun.json
-#spawn ./Resources/Renderobjects/Planets/obj1.json
-#spawn ./Resources/Renderobjects/Planets/obj2.json
+spawn ./Resources/Renderobjects/Planets/sun.json
+spawn ./Resources/Renderobjects/Planets/obj1.json
+spawn ./Resources/Renderobjects/Planets/obj2.json
 wait 10
 print-global
 serialize
