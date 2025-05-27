@@ -259,9 +259,6 @@ int main(int argc, char* argv[]) {
     //--------------------------------------------------
     // Exit
 
-    // Store full env for inspection
-    FileManagement::WriteFile("lastLevel.log.json",renderer.serialize());
-
     // Destroy renderer
     renderer.destroy();
 
