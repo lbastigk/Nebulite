@@ -16,11 +16,11 @@ make -j$(nproc)
 mv ./Application/bin/Nebulite ./Application/bin/Nebulite_Debug
 
 echo ""
-echo "Step 2: Building main binary"
+echo "Step 2: Building release binary"
 make clean
 rm -rf CMakeFiles/
 rm -f CMakeCache.txt
-cmake -DCMAKE_BUILD_TYPE=Release ./ --parallel $(nproc)
+cmake -DCMAKE_BUILD_TYPE=Release ./
 make -j$(nproc)
 
 echo ""
