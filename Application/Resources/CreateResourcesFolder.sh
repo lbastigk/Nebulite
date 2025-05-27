@@ -27,10 +27,9 @@ mkdir -p ./Sprites
 #----------------------------------------
 # Fonts
 cd $rootDir/Fonts/
-download_if_not_exists "Arimo-Regular.ttf" https://www.fontsquirrel.com/fonts/download/arimo
-unzip -n $rootDir/Fonts/arimo
-rm $rootDir/Fonts/arimo
-
+git clone https://github.com/googlefonts/Arimo
+mv ./Arimo/fonts/ttf/*.ttf ./
+rm -rf ./Arimo/
 
 #----------------------------------------
 # Others
