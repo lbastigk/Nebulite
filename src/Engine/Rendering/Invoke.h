@@ -1,5 +1,16 @@
 #pragma once
 
+// TODO: Implement a subscription based invoke loading
+// Each object subscribes to invokes and sends invokes itself
+// Each object gets pointer to invokes in the global pool of its subscription
+// When receiving invokes, the receiver is other
+// 
+// However, a more appropriate way might be to stack the effects on self and other
+// Lots of thinking required here, maybe take a few day to rework architecture
+// 
+// Also, an approximation for invoke calls for a typical game is needed. 
+// Perhaps implementing a horizontal slice soon is a good idea
+
 /*
 
 Invoke is used for interactions between objects currently in memory (on screen)
