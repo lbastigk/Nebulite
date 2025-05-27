@@ -5,7 +5,6 @@
   "other_invokes": [],
   "global_invokes": [],
   "functioncalls": [
-    "cam-move $($(global.keyboard.d) - $(global.keyboard.a)) $($(global.keyboard.s) - $(global.keyboard.w))",
-    "echo HERE"
+    "cam-move $($(global.keyboard.d) - $(global.keyboard.a)) $($(global.keyboard.s) - $(global.keyboard.w))"
   ]
 }

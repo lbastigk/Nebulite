@@ -16,6 +16,7 @@ wait 60
 echo
 echo done!
 env-deload
+wait 60
 echo
 echo Test 2: with Invokes
 echo spawning two inside bounds
@@ -32,3 +33,4 @@ env-deload
 echo
 echo
 echo Test Passed
+exit

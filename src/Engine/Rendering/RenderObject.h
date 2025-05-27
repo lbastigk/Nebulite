@@ -49,9 +49,6 @@ public:
 	//-----------------------------------------------------------
 	void update(Invoke* globalInvoke,std::shared_ptr<RenderObject> this_shared);
 	void exampleMoveSet(std::string val = namenKonvention.renderObject.positionX);
-	
-	//TODO
-	bool hasMoveSet();
 
 	void reloadInvokes(std::shared_ptr<RenderObject> this_shared);
 

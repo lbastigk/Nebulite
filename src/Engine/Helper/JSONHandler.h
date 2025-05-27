@@ -128,75 +128,6 @@ T JSONHandler::Get::Any(JSONValueType& value, const std::string& fullKey, const 
 }
 
 
-/*
-template <typename T>
-void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
-    
-    // Ensure that doc is initialized as an object
-    if (!doc.IsObject()) {
-        doc.SetObject();
-    }
-
-    //Handle edge case where first char might be '-'
-    // TODO...
-
-    //Handle key nesting:
-    int pos = fullKey.find('.');
-    if (pos != -1) {
-        //Key nesting present, go key by key:
-        // e.g. key1.rest , meaning rest could be one key or more.
-        // 1.) load subdoc of key1
-        // 2.) call function recursively on subdoc, this time using rest as key
-        // 3.) insert subdoc into main doc
-
-        //-------------------------------------
-        // 1.)
-        // Check if doc does not have member
-        // create member
-        if (!doc.HasMember(fullKey.substr(0, pos).c_str())) {
-            rapidjson::Value key(fullKey.substr(0, pos).c_str(), doc.GetAllocator());
-            rapidjson::Value value(rapidjson::kObjectType);
-            doc.AddMember(key, value, doc.GetAllocator());
-        }
-
-        //Get subdoc, call set Any again
-        rapidjson::Document tmp;
-
-        //Get subdoc
-        JSONHandler::Get::subDoc(doc, fullKey.substr(0, pos), tmp);
-
-        //-------------------------------------
-        // 2.)
-        //manipulate temp subdoc
-        JSONHandler::Set::Any(tmp, fullKey.substr(pos + 1), data, onlyIfExists);
-
-        //-------------------------------------
-        // 3.)
-        //Insert temp back into main doc
-        JSONHandler::Set::subDoc(doc, fullKey.substr(0, pos), tmp);
-
-        //JSONHandler::empty(tmp);  // not needed
-    }
-    else {
-        //No key nesting
-
-        // Convert the data to a JSON value using the helper function
-        rapidjson::Value jsonValue;
-        ConvertToJSONValue(data, jsonValue, doc.GetAllocator());
-
-        // Add the JSON value to the document with the specified name
-        rapidjson::Value jsonVarName(fullKey.c_str(), doc.GetAllocator());
-        if (doc.HasMember(jsonVarName)) {
-            doc[jsonVarName] = jsonValue;
-        }
-        else if (!onlyIfExists) {
-            doc.AddMember(jsonVarName, jsonValue, doc.GetAllocator());
-        }
-    }    
-}
-
-*/
-
 template <typename T>
 void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
     // Debug: passed data
@@ -433,8 +364,6 @@ template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value
         result = std::stod(jsonValue.GetString());
     }}
 template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, std::string& result){
-    // TODO: Does rapidjson support auto-conversion?
-
     if (jsonValue.IsBool()) {
         result = jsonValue.GetBool() ? "true" : "false";
     }

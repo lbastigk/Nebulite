@@ -5,7 +5,7 @@ FuncTree::FuncTree(std::string treeName){
     // Attach the help function to read out the description of all attached functions
     // using lambda
     TreeName = treeName;
-    (void) attachFunction([this](int argc, char* argv[]) { return this->help(argc, argv); },"help","TODO... If you read this, you have called 'help' of 'help'");
+    (void) attachFunction([this](int argc, char* argv[]) { return this->help(argc, argv); },"help","");
 }
 
 // Attach a function to the menu

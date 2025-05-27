@@ -126,6 +126,9 @@ for multiple tasks, the keyword task is used:
 */
 int main(int argc, char* argv[]) {
 
+    // TODO: Only init renderer if it's actually used!
+    // This way, help does not start a whole Renderer...
+
     //--------------------------------------------------
     // Startup
 
@@ -158,8 +161,10 @@ int main(int argc, char* argv[]) {
         tasks.push_back(oss.str());
     }
     else{
-        // If argc is 0, no arg was provided. Insert a load for test level?
-        // TODO...
+        // If argc is 0, no arg was provided.
+        // For now, an empty Renderer is initiated
+        // Later on it might be helpful to insert a task like:
+        // "env-load ./Resources/Levels/main.json" 
     }
 
     // Debug: Output tasks:
@@ -245,6 +250,7 @@ int main(int argc, char* argv[]) {
             renderer.clear();           // 5.) Clear screen
 
             // Implementation of a wait function in the scripting task
+            // TODO: 2 Different tasks perhaps so that wait calls from the script do not affect the usual renderloop?
             if(waitCounter>0) waitCounter--;
         }
     }

@@ -244,10 +244,7 @@ void Renderer::clear(){
 	SDL_RenderClear(renderer);
 }
 
-// TODO: Multithreading ...
-// Needed changes:
-// - texture container for multi threading (MUTEX?)
-//
+
 void Renderer::renderFrame() {
 	
 	//------------------------------------------------
