@@ -113,9 +113,7 @@ cd "$START_DIR"
 
 ####################################
 # create binaries
-cmake ./
-sudo chmod -R 777 ./CMakeFiles
-make
+./compile.sh
 
 ####################################
 # make all scripts executable

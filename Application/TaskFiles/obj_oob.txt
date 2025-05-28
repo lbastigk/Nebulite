@@ -2,7 +2,7 @@ echo This test is used to see if the engine handles objects out of bounds
 echo usually, the culprit is a pointer issue
 echo
 echo
-setRes 1000 1000
+set-res 1000 1000
 echo
 echo Test 1: no Invokes
 echo
