@@ -483,23 +483,7 @@ void Renderer::setThreadSize(unsigned int size) {
 }
 
 //-----------------------------------------------------------
-// Getting
-int Renderer::getEps() {return epsillon;}
-size_t Renderer::getTextureAmount() {return TextureContainer.size();}
-size_t Renderer::getObjectCount() {return env.getObjectCount();}
-int Renderer::getResX() {return dispResX;}
-int Renderer::getResY() {return dispResY;}
-int Renderer::getThreadSize() {return THREADSIZE;}
-int Renderer::getFPS() {return fps;}
-int Renderer::getPosX(){return Xpos;};
-int Renderer::getPosY(){return Ypos;};
-SDL_Renderer* Renderer::getSdlRenderer(){return renderer;};
-
-//-----------------------------------------------------------
 // Other
-bool Renderer::windowExists(){
-	return !!Renderer::window;
-}
 
 void Renderer::loadTexture(std::string link) {
 	std::cout << "Loading Texture:" << link << std::endl;

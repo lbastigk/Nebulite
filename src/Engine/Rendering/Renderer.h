@@ -77,20 +77,22 @@ public:
 	
 	//-----------------------------------------------------------
 	// Getting
-	int getEps();
-	size_t getTextureAmount();
-	size_t getObjectCount();
-	int getResX();
-	int getResY();
-	int getThreadSize();
-	int getFPS();
-	int getPosX();
-	int getPosY();
+	int getEps(){return epsillon;}
+	size_t getTextureAmount(){return TextureContainer.size();}
+	size_t getObjectCount(){return env.getObjectCount();}
+	int getResX(){return dispResX;}
+	int getResY(){return dispResY;}
+	int getThreadSize(){return THREADSIZE;}
+	int getFPS(){return fps;}
+	int getPosX(){return Xpos;};
+	int getPosY(){return Ypos;};
+	bool windowExists(){return !!Renderer::window;}
 
-	unsigned int getTileXpos(){return tileXpos;};
-	unsigned int getTileYpos(){return tileYpos;};
+	unsigned int getTileXpos(){return tileXpos;}
+	unsigned int getTileYpos(){return tileYpos;}
 
-	SDL_Renderer* getSdlRenderer();
+	SDL_Renderer* getSdlRenderer(){return renderer;}
+	Invoke* getInvoke(){return &Invoke;}
 
 	class SDL {
 	public:
@@ -131,7 +133,7 @@ public:
 		const static int KEY_M = 109;
 	};
 
-	bool windowExists();
+	
 
 private:
 	//-------------------------------------------------------------------------------------
