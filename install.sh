@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Checking prerequisites
+if [[ "$PWD" =~ [[:space:]] ]]; then
+  echo "Error: SDL2 and some build tools like libtool may fail in directories with whitespace."
+  echo "Please move your source or build directory to a path without spaces."
+  exit 1
+fi
+
 # install necessary components
 sudo apt-get update
 sudo apt-get install cmake
