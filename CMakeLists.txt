@@ -73,7 +73,7 @@ message(STATUS "Setting targets...")
 
 # Engine target
 add_executable(Nebulite
-    ${CMAKE_SOURCE_DIR}/src/Engine/main.cpp
+    ${CMAKE_SOURCE_DIR}/src/main.cpp
     ${COMMON_SOURCES}
 )
 target_link_libraries(Nebulite PRIVATE 

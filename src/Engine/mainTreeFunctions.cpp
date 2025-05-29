@@ -5,8 +5,6 @@
 
 std::deque<std::string> tasks;
 Renderer renderer(tasks);       // attaching task queue to renderer is required
-
-
 uint64_t waitCounter = 0;
 
 namespace mainTreeFunctions{

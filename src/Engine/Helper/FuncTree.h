@@ -23,6 +23,7 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include <cstring>
 
 class FuncTree{
 public:
@@ -48,9 +49,17 @@ public:
     // Execute the function
     int executeFunction(const std::string& name, int argc, char* argv[]);
 
+    // Converting an std::string into argc/argv
+    void convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv);
+
+
 private:
     int help(int argc, char* argv[]);
     std::map<std::string, std::pair<FunctionPtr,  std::string>> functions;
     std::map<std::string, std::pair<std::string*, std::string>> argumentPtrs;
     std::string TreeName;
+
+    // used by convertStrToArgcArgv
+    char* argvBuffer;
+    int argvCapacity;
 };
