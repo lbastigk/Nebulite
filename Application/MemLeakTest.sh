@@ -1,3 +1,3 @@
 #!/bin/bash
-valgrind --tool=massif --massif-out-file=massif_output.out ./bin/Nebulite env-load ./Resources/Levels/gravity.json
+valgrind --tool=massif --massif-out-file=massif_output.out ./bin/Nebulite task TaskFiles/gravity_classic.txt
 massif-visualizer massif_output.out

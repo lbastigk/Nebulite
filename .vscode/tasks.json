@@ -27,6 +27,18 @@
             "detail": "Build with JSON validation and current Crash Debug"
         },  
         {
+            "label": "[BUILD AND RUN GRAVITY]",
+            "type": "shell",
+            "command": "cd ./Application && ./bin/Nebulite task TaskFiles/gravity_classic.txt",
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "dependsOn" : "[BUILD]",
+            "problemMatcher": [],
+            "detail": "Build with JSON validation and current Crash Debug"
+        },  
+        {
             "label": "[PROFILING] Release binary",
             "type": "shell",
             "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 && sudo sysctl -w kernel.kptr_restrict=0 && cd ./Application && perf record -a -g -- ./bin/Nebulite task TaskFiles/gravity_classic.txt   ; perf report ; hotspot perf.data",

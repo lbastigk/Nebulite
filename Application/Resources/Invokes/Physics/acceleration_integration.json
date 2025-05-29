@@ -5,22 +5,22 @@
     {
       "changeType": "add",
       "key": "physics.vX",
-      "value": "$(self.physics.aX) * $(global.dt)"
+      "value": "$($(self.physics.aX) * $(global.dt))"
     },
     {
       "changeType": "add",
       "key": "physics.vY",
-      "value": "$(self.physics.aY) * $(global.dt)"
+      "value": "$($(self.physics.aY) * $(global.dt))"
     },
     {
       "changeType": "add",
       "key": "posX",
-      "value": "$(self.physics.vX) * $(global.dt)"
+      "value": "$($(self.physics.vX) * $(global.dt))"
     },
     {
       "changeType": "add",
       "key": "posY",
-      "value": "$(self.physics.vY) * $(global.dt)"
+      "value": "$($(self.physics.vY) * $(global.dt))"
     },
     {
       "changeType": "set",

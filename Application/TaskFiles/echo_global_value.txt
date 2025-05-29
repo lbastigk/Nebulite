@@ -1,0 +1,5 @@
+set-fps 60
+wait 10
+echo $(global.dt)
+echo $($(global.dt))
+exit

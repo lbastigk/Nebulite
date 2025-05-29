@@ -35,13 +35,10 @@ void Invoke::checkAgainstList(std::shared_ptr<RenderObject> obj){
 }
 
 void Invoke::updateValueOfKey(std::string type, std::string key,std::string valStr, rapidjson::Document *doc){
-    double val = evaluateExpression(valStr);
-    double oldVal = JSONHandler::Get::Any<double>(*doc, key, 0.0);
-
-    if        (type == "set")       JSONHandler::Set::Any<double>(*doc,key,val);
-    else if   (type == "setInt")    JSONHandler::Set::Any<int>(*doc,key,val);
-    else if   (type == "add")       JSONHandler::Set::Any<double>(*doc,key,oldVal + val);
-    else if   (type == "multiply")  JSONHandler::Set::Any<double>(*doc,key,oldVal * val);
+    if        (type == "set")       JSONHandler::Set::Any<double>(*doc,key,std::stod(valStr));
+    else if   (type == "setInt")    JSONHandler::Set::Any<int>(*doc,key,std::stod(valStr));
+    else if   (type == "add")       JSONHandler::Set::Any<double>(*doc,key,JSONHandler::Get::Any<double>(*doc, key, 0.0) + std::stod(valStr));
+    else if   (type == "multiply")  JSONHandler::Set::Any<double>(*doc,key,JSONHandler::Get::Any<double>(*doc, key, 0.0) * std::stod(valStr));
     else if   (type == "concat")    JSONHandler::Set::Any<std::string>(*doc,key,JSONHandler::Get::Any<std::string>(*doc, key, "") + valStr);
     else if   (type == "setStr")    JSONHandler::Set::Any<std::string>(*doc,key,valStr);
 }
@@ -149,50 +146,73 @@ std::string Invoke::resolveVars(const std::string& input, rapidjson::Document& s
     // Variables
     std::string resolved, inner;
     std::string result = input;
-    size_t pos = 0;
     size_t start, end;
     int depth;
 
     // loop through string, find $(...) and replace with variables
-    while ((pos = result.find("$(", pos)) != std::string::npos) {
-        start = pos + 2;
-        depth = 1;
-        end = start;
-        while (end < result.size() && depth > 0) {
-            if (result[end] == '(')         depth++;
-            else if (result[end] == ')')    depth--;
-            ++end;
-        }
+    while (result.find("$(") != std::string::npos) {
+        for(int i = 0; i < result.size()-1; i++){
+            if(result[i] == '$' && result[i+1] == '('){
+                start = i + 2;
+                depth = 1;
+                end = start;
+                while (end < result.size() && depth > 0) {
+                    if (result[end] == '(')         depth++;
+                    else if (result[end] == ')')    depth--;
+                    ++end;
+                }
+                if (depth != 0) {
+                    // Unmatched parentheses
+                    std::cerr << "No matching closing paranthesis found!";
+                    break;
+                }
+                inner = result.substr(start, end - start - 1);
 
-        if (depth != 0) {
-            // Unmatched parentheses
-            break;
-        }
+                // === VARIABLE ACCESS ===
+                bool evaled_val = false;
 
-        inner = result.substr(start, end - start - 1);
-        
-
-        // === RECURSIVE RESOLUTION ===
-        //inner = resolveVars(inner, self, other, global);  // usually not needed...
-
-        // === VARIABLE ACCESS ===
-        if (inner.rfind("self.", 0) == 0) {
-            resolved = JSONHandler::Get::Any<std::string>(self, inner.substr(5), "0");
-        } else if (inner.rfind("other.", 0) == 0) {
-            resolved = JSONHandler::Get::Any<std::string>(other, inner.substr(6), "0");
-        } else if (inner.rfind("global.", 0) == 0) {
-            resolved = JSONHandler::Get::Any<std::string>(global, inner.substr(7), "0");
-        } else {
-            // === EXPRTK EVALUATION ===
-            //resolved = evaluateExpression(inner);  // usually not needed...
-        }
-
-        // Replace the $(...) with resolved value
-        result.replace(pos, end - pos, resolved);
-
-        // Restart search from current position
-        pos += resolved.size();
+                // check for reference to self
+                if (inner.starts_with("self.")) {
+                    evaled_val = true;
+                    resolved = JSONHandler::Get::Any<std::string>(self, inner.substr(5), "0");
+                } 
+                // check for reference to other
+                else if (inner.starts_with("other.")) {
+                    evaled_val = true;
+                    resolved = JSONHandler::Get::Any<std::string>(other, inner.substr(6), "0");
+                } 
+                // check for reference to global
+                else if (inner.starts_with("global.")) {
+                    evaled_val = true;
+                    resolved = JSONHandler::Get::Any<std::string>(global, inner.substr(7), "0");
+                } 
+                // if none of these are true, it's an expression like $(1+1)
+                // make sure there is no internal reference that still needs to be resolved
+                else if (inner.find("$(") == std::string::npos){
+                    evaled_val = true;
+                    if(StringHandler::isNumber(inner)){
+                        resolved = inner;
+                    }
+                    else{
+                        resolved = std::to_string(evaluateExpression(inner));
+                    }
+                }
+                
+                // Replace only if it was evaluated
+                if(evaled_val){
+                    // Replace the $(...) with resolved value
+                    result.replace(i, end - i, resolved);
+                    i += result.size();
+                }
+            }
+        }   
     }
     return result;
 }
+
+
+std::string Invoke::resolveGlobalVars(const std::string& input) {
+    return resolveVars(input,emptyDoc,emptyDoc,*global);
+}
+
 

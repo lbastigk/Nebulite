@@ -1,5 +1,34 @@
 #include "StringHandler.h"
 
+bool StringHandler::isNumber(std::string str) {
+    // Trim leading/trailing whitespace
+    str.erase(0, str.find_first_not_of(" \t\n\r"));
+    str.erase(str.find_last_not_of(" \t\n\r") + 1);
+
+    if (str.empty()) return false;
+
+    size_t i = 0;
+
+    // Optional sign
+    if (str[i] == '+' || str[i] == '-') i++;
+
+    bool hasDigits = false;
+    bool hasDot = false;
+
+    for (; i < str.length(); ++i) {
+        if (std::isdigit(str[i])) {
+            hasDigits = true;
+        } else if (str[i] == '.') {
+            if (hasDot) return false; // Only one dot allowed
+            hasDot = true;
+        } else {
+            return false; // Invalid character
+        }
+    }
+
+    return hasDigits;
+}
+
 std::string StringHandler::uint64ToStringWithPadding(UINT64 value, int length) {
     std::ostringstream oss;
     oss << std::setw(length) << std::setfill('0') << value;

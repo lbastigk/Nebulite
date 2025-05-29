@@ -6,4 +6,5 @@ spawn ./Resources/Renderobjects/Planets/obj1.json
 spawn ./Resources/Renderobjects/Planets/obj2.json
 wait 30000
 echo Test Passed!
+echo Rendered 30000 Frames in: $(global.t) Seconds.
 exit

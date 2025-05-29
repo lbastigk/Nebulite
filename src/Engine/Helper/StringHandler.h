@@ -13,6 +13,7 @@ typedef uint64_t UINT64;
 
 class StringHandler {
 public:
+    static bool isNumber(std::string str);
 
     static std::string uint64ToStringWithPadding(UINT64 value, int length);
 

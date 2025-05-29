@@ -5,12 +5,12 @@
     {
       "changeType": "add",
       "key": "posX",
-      "value": "0.1*($(global.keyboard.d) - $(global.keyboard.a))"
+      "value": "$(0.1*($(global.keyboard.d) - $(global.keyboard.a)))"
     },
     {
       "changeType": "add",
       "key": "posY",
-      "value": "0.1*($(global.keyboard.s) - $(global.keyboard.w))"
+      "value": "$(0.1*($(global.keyboard.s) - $(global.keyboard.w)))"
     }
   ],
   "other_invokes": [],

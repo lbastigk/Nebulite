@@ -82,6 +82,7 @@ struct InvokeTriple {
     std::string value;
 };
 
+
 struct InvokeEntry{
     std::shared_ptr<RenderObject> selfPtr;      // store self
     std::string logicalArg;                     //e.g. $self.posX > $other.posY
@@ -167,26 +168,19 @@ public:
     // For evaluating sing expression
     double evaluateExpression(const std::string& expr);
     std::string resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global);
-
+    std::string resolveGlobalVars(const std::string& input);
 
     void updateValueOfKey(std::string type, std::string key,std::string valStr, rapidjson::Document *doc);
 
     rapidjson::Document* getGlobalPointer(){return global;};
 private:
+    rapidjson::Document emptyDoc;
     rapidjson::Document* global = nullptr;
     std::vector<std::shared_ptr<InvokeEntry>> commands;
     std::vector<std::shared_ptr<InvokeEntry>> nextCommands; 
     std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> truePairs;
 
     // pointer to queue
-    std::deque<std::string>* tasks = nullptr;
-
-    // exprtk stuff:
-    //typedef exprtk::expression<double> expression_t;
-    //typedef exprtk::parser<double> parser_t;
-    //expression_t expression;
-    //parser_t parser;
-
-    
+    std::deque<std::string>* tasks = nullptr;    
 };
 

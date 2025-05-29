@@ -135,9 +135,20 @@ int main(int argc, char* argv[]) {
         //--------------------
         // Handle args
         while (!tasks.empty() && waitCounter == 0) {
+            // Get task
             std::string argStr = tasks.front();
             tasks.pop_front();  // remove the used task
 
+            // debug:
+            std::cout << argStr << std::endl;
+
+            // Resolve global vars in task
+            argStr = renderer.getInvoke()->resolveGlobalVars(argStr);
+
+            // debug:
+            std::cout << "[PARSING ARG] " <<argStr << std::endl;
+
+            // Convert std::string to argc,argv
             argc_mainTree = 0;
             argv_mainTree = nullptr;
             mainTree.convertStrToArgcArgv(argStr, argc_mainTree, argv_mainTree);
