@@ -128,7 +128,8 @@ int main(int argc, char* argv[]) {
     
     //--------------------------------------------------
     // Render loop
-
+    int    argc_mainTree = 0;
+    char** argv_mainTree = nullptr;
     int result = 0;
     while (!renderer.isQuit()) {
         //--------------------
@@ -137,17 +138,17 @@ int main(int argc, char* argv[]) {
             std::string argStr = tasks.front();
             tasks.pop_front();  // remove the used task
 
-            int argc = 0;
-            char** argv = nullptr;
-            mainTree.convertStrToArgcArgv(argStr, argc, argv);
+            argc_mainTree = 0;
+            argv_mainTree = nullptr;
+            mainTree.convertStrToArgcArgv(argStr, argc_mainTree, argv_mainTree);
 
             if (argv != nullptr) {
-                result = mainTree.parse(argc, argv);
+                result = mainTree.parse(argc_mainTree, argv_mainTree);
             }
         }
         
-        
-        // Render Frame
+        //--------------------
+        // Update and render
         if (renderer.timeToRender()) {
             renderer.update();          // 1.) Update objects
             renderer.renderFrame();     // 2.) Render frame
