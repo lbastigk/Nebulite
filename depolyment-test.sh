@@ -14,6 +14,7 @@ cd ./Nebulite
 # install & build
 chmod +x ./install.sh
 ./install.sh
+./build.sh
 
 # start
 cd ./Application

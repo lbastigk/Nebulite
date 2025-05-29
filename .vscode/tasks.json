@@ -5,13 +5,13 @@
         {
             "label": "[BUILD]",
             "type": "shell",
-            "command": "./compile.sh",
+            "command": "./build.sh",
             "group": {
                 "kind": "build",
                 "isDefault": false
             },
             "problemMatcher": [],
-            "detail": "Build the projects release and debug binaries by running compile.sh from project root directory."
+            "detail": "Build the projects release and debug binaries by running build.sh from project root directory."
         },
         // AUTOMATED TEST
         {
@@ -19,7 +19,7 @@
             "type": "shell",
             "command": "cd ./Application && ./validate_json.sh ; ./CrashDebug.sh ; echo 'Error log:' ; cat ./errors.log ; cd ..",
             "group": {
-                "kind": "build",
+                "kind": "test",
                 "isDefault": false
             },
             "dependsOn" : "[BUILD]",
@@ -31,7 +31,7 @@
             "type": "shell",
             "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 && sudo sysctl -w kernel.kptr_restrict=0 && cd ./Application && perf record -a -g -- ./bin/Nebulite task TaskFiles/gravity_classic.txt   ; perf report ; hotspot perf.data",
             "group": {
-                "kind": "build",
+                "kind": "test",
                 "isDefault": false
             },
             "problemMatcher": [],
@@ -42,7 +42,7 @@
             "type": "shell",
             "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 && sudo sysctl -w kernel.kptr_restrict=0 && cd ./Application && perf record -a -g -- ./bin/Nebulite_Debug task TaskFiles/gravity_classic.txt   ; perf report ; hotspot perf.data",
             "group": {
-                "kind": "build",
+                "kind": "test",
                 "isDefault": false
             },
             "problemMatcher": [],
