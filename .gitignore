@@ -6,20 +6,17 @@ Application/*.data.old
 Application/*.data
 *.o
 
-
-
 # Ignore game resources and error logs
 Application/Resources/Sprites/
+Application/Resources/Fonts/
 *.bmp
 *.png
 *.jpeg
 *.zip
 *.ttf
-*.log.txt
 *.log
+*.log.txt
 *.log.json
-Application/Resources/Fonts/* 
-Application/errors.log  
 
 # Ignore binaries
 Application/bin/
@@ -30,13 +27,12 @@ Application/bin/
 # Ignore vs files
 .vs/
 
-# Ignore all .exe files
+# Ignore all executable files
 *.exe
-
-# ignore build directories
 **/build/
+**/bin/
 
-# ignore cmake files
+# ignore cmake cache files
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
