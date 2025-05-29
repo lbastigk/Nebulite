@@ -116,9 +116,9 @@ int main(int argc, char* argv[]) {
     
     // Renderer Settings
     mainTree.attachFunction(mainTreeFunctions::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
-    mainTree.attachFunction(mainTreeFunctions::setResolution,   "set-res",      "Sets resolution size: <w> <h>");
-    mainTree.attachFunction(mainTreeFunctions::setCam,          "cam-set",      "Sets Camera position <x> <y>");
-    mainTree.attachFunction(mainTreeFunctions::moveCam,         "cam-move",     "Moves Camera position <dx> <dy>");
+    mainTree.attachFunction(mainTreeFunctions::setResolution,   "set-res",      "Sets resolution size: [w] [h]");
+    mainTree.attachFunction(mainTreeFunctions::setCam,          "cam-set",      "Sets Camera position [x] [y] <c>");
+    mainTree.attachFunction(mainTreeFunctions::moveCam,         "cam-move",     "Moves Camera position [dx] [dy]");
 
     // Debug
     mainTree.attachFunction(mainTreeFunctions::serialize,       "serialize",    "Serialize current State to file");
@@ -139,14 +139,8 @@ int main(int argc, char* argv[]) {
             std::string argStr = tasks.front();
             tasks.pop_front();  // remove the used task
 
-            // debug:
-            std::cout << argStr << std::endl;
-
             // Resolve global vars in task
             argStr = renderer.getInvoke()->resolveGlobalVars(argStr);
-
-            // debug:
-            std::cout << "[PARSING ARG] " <<argStr << std::endl;
 
             // Convert std::string to argc,argv
             argc_mainTree = 0;

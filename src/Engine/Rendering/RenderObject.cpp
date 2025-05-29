@@ -94,7 +94,7 @@ void RenderObject::deserialize(std::string serialOrLink) {
 	calculateSrcRect();
 }
 
-void RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,uint16_t renderer_X, uint16_t renderer_Y){
+void RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int renderer_X, int renderer_Y){
 	float scalar = 1;
 	float fontSize = valueGet<float>(namenKonvention.renderObject.textFontsize);
 	std::string text = valueGet<std::string>(namenKonvention.renderObject.textStr);

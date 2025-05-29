@@ -170,6 +170,18 @@ int setCam(int argc, char* argv[]){
         renderer.setCam(x,y);
         return 0;
     }
+    if(argc == 3){
+        if(!strcmp(argv[2], "c")){
+            int x = std::stoi(argv[0]);
+            int y = std::stoi(argv[1]);
+            renderer.setCam(x,y,true);
+            return 0;
+        }
+        else{
+            // unknown arg
+            return 1;
+        }
+    }
     else{
         return 1;
     }

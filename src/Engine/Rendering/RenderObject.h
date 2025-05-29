@@ -44,7 +44,7 @@ public:
 	SDL_Rect* getSrcRect();
 	void calculateSrcRect();
 	SDL_Texture& getTextTexture();
-	void calculateText(SDL_Renderer* renderer,TTF_Font* font, uint16_t renderer_X, uint16_t renderer_Y);
+	void calculateText(SDL_Renderer* renderer,TTF_Font* font, int renderer_X, int renderer_Y);
 	SDL_Rect* getTextRect();
 	//-----------------------------------------------------------
 	void update(Invoke* globalInvoke,std::shared_ptr<RenderObject> this_shared);

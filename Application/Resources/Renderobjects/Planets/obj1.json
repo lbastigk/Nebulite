@@ -14,6 +14,7 @@
     "spritesheetSizeX": 0,
     "spritesheetSizeY": 0,
     "invokes": [
+        "./Resources/Invokes/General/set_render_position_center.json",
         "./Resources/Invokes/Physics/gravity.json",
         "./Resources/Invokes/Physics/acceleration_integration.json"
     ],

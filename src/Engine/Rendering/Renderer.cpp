@@ -247,37 +247,7 @@ void Renderer::changeWindowSize(int w, int h) {
     reinsertAllObjects();
 }
 
-void Renderer::updatePosition(int x, int y, bool isMiddle) {
-	if(isMiddle){
-		JSONHandler::Get::Any<int>(
-			*Invoke.getGlobalPointer(),
-			"Display.Resolution.X",
-			x - (int)(JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Resolution.X",0) / 2)
-		);
-		JSONHandler::Get::Any<int>(
-			*Invoke.getGlobalPointer(),
-			"Display.Resolution.X",
-			y - (int)(JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Resolution.Y",0) / 2)
-		);
-	}
-	else{
-		JSONHandler::Get::Any<int>(
-			*Invoke.getGlobalPointer(),
-			"Display.Resolution.X",
-			x
-		);
-		JSONHandler::Get::Any<int>(
-			*Invoke.getGlobalPointer(),
-			"Display.Resolution.X",
-			y
-		);
-	}
-	
-	tileXpos = JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Position.X",0) / JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Resolution.X",0);
-	tileYpos = JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Position.Y",0) / JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Resolution.Y",0);
-}
-
-void Renderer::moveCam(int dX, int dY) {
+void Renderer::moveCam(int dX, int dY, bool isMiddle) {
 	JSONHandler::Set::Any<int>(
 		*Invoke.getGlobalPointer(),
 		"Display.Position.X",
@@ -292,9 +262,23 @@ void Renderer::moveCam(int dX, int dY) {
 	tileYpos = JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Position.Y",0) / JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Resolution.Y",0);
 };
 
-void Renderer::setCam(int X, int Y) {
-	JSONHandler::Set::Any<int>(*Invoke.getGlobalPointer(),"Display.Position.X",X);
-	JSONHandler::Set::Any<int>(*Invoke.getGlobalPointer(),"Display.Position.X",Y);
+void Renderer::setCam(int X, int Y, bool isMiddle) {
+	if(isMiddle){
+		JSONHandler::Set::Any<int>(
+			*Invoke.getGlobalPointer(),
+			"Display.Position.X",
+			X - JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Resolution.X",0) / 2
+		);
+		JSONHandler::Set::Any<int>(
+			*Invoke.getGlobalPointer(),
+			"Display.Position.Y",
+			Y - JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Resolution.Y",0) / 2
+		);
+	}
+	else{
+		JSONHandler::Set::Any<int>(*Invoke.getGlobalPointer(),"Display.Position.X",X);
+		JSONHandler::Set::Any<int>(*Invoke.getGlobalPointer(),"Display.Position.X",Y);
+	}
 	tileXpos = X / JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Resolution.X",0);
 	tileYpos = Y / JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Resolution.Y",0);
 };
