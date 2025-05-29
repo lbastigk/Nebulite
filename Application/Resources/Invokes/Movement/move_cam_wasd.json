@@ -1,10 +1,10 @@
 {
-  "logicalArg": "$($(global.keyboard.w) or $(global.keyboard.a) or $(global.keyboard.s) or $(global.keyboard.d))",
+  "logicalArg": "$($(global.input.keyboard.w) or $(global.input.keyboard.a) or $(global.input.keyboard.s) or $(global.input.keyboard.d))",
   "isGlobal": false,
   "self_invokes": [],
   "other_invokes": [],
   "global_invokes": [],
   "functioncalls": [
-    "cam-move $($(global.keyboard.d) - $(global.keyboard.a)) $($(global.keyboard.s) - $(global.keyboard.w))"
+    "cam-move $($(global.input.keyboard.d) - $(global.input.keyboard.a)) $($(global.input.keyboard.s) - $(global.input.keyboard.w))"
   ]
 }

@@ -80,12 +80,12 @@ public:
 	int getEps(){return epsillon;}
 	size_t getTextureAmount(){return TextureContainer.size();}
 	size_t getObjectCount(){return env.getObjectCount();}
-	int getResX(){return dispResX;}
-	int getResY(){return dispResY;}
+	int getResX(){return JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Resolution.X",0);}
+	int getResY(){return JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Resolution.Y",0);}
 	int getThreadSize(){return THREADSIZE;}
 	int getFPS(){return fps;}
-	int getPosX(){return Xpos;};
-	int getPosY(){return Ypos;};
+	int getPosX(){return JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Position.X",0);};
+	int getPosY(){return JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Position.Y",0);};
 	bool windowExists(){return !!Renderer::window;}
 
 	unsigned int getTileXpos(){return tileXpos;}
@@ -152,12 +152,8 @@ private:
 	std::string directory;
 
 	// Positions
-	int16_t Xpos;
-	int16_t Ypos;
 	unsigned int tileXpos;
 	unsigned int tileYpos;
-	unsigned int dispResX;
-	unsigned int dispResY;
 
 	// Rendering
 	unsigned int RenderZoom = 1;
