@@ -120,7 +120,7 @@ cd "$START_DIR"
 
 ####################################
 # create binaries
-./compile.sh
+./build.sh
 
 ####################################
 # make all scripts executable
