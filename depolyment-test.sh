@@ -18,5 +18,5 @@ chmod +x ./install.sh
 
 # start
 cd ./Application
-chmod +x ./Nebulite.sh
-./Nebulite.sh
+chmod +x ./Tests.sh
+./Tests.sh

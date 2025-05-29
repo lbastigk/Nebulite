@@ -28,7 +28,7 @@ export -f automake-1.16
 ####################################
 # Resources directory
 cd ./Application/Resources
-./CreateResourcesFolder.sh
+./CreateResourcesDirectory.sh
 cd "$START_DIR"
 
 ####################################
