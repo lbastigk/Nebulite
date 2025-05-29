@@ -51,8 +51,6 @@ message(STATUS "Setting source files in project")
 set(COMMON_SOURCES
     ${TINYEXPR_PATH}/tinyexpr.c
     ${CMAKE_SOURCE_DIR}/src/Platform/Platform.cpp
-    #${CMAKE_SOURCE_DIR}/src/Editor/Editor.cpp
-    #${CMAKE_SOURCE_DIR}/src/Editor/LevelEditor.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FileManagement.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FuncTree.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/JSONHandler.cpp
@@ -63,7 +61,6 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/Renderer.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/RenderObject.cpp
     ${CMAKE_SOURCE_DIR}/src/Tests/DsaDebug.cpp
-    #${CMAKE_SOURCE_DIR}/src/Tests/TestEnv.cpp
 )
 
 #####################
