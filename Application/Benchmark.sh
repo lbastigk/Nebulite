@@ -14,10 +14,10 @@ for ((i=1; i<=runs; i++)); do
     end=$(date +%s.%N)
 
     runtime=$(echo "$end - $start" | bc -l)
-    echo " - Run #$i: $runtime s"
+    printf " - Run #%02i: %s seconds \n" $i $runtime
     total=$(echo "$total + $runtime" | bc -l)
 done
 
 average=$(echo "$total / $runs" | bc -l)
 echo ""
-echo "[RESULT] Average runtime over $runs runs: $average s"
+echo "[RESULT] Average runtime over $runs runs: $average seconds"
