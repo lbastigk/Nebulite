@@ -97,8 +97,10 @@ template <typename T, typename JSONValueType>
 T JSONHandler::Get::Any(JSONValueType& value, const std::string& fullKey, const T& defaultValue) {
     const rapidjson::Value* current = &value;
     std::string_view keyView(fullKey);
+    rapidjson::Value::ConstMemberIterator itr;
 
     while (!keyView.empty()) {
+        // Get key segment
         size_t dotPos = keyView.find('.');
         std::string_view keySegment = (dotPos == std::string_view::npos)
                                         ? keyView
@@ -106,15 +108,17 @@ T JSONHandler::Get::Any(JSONValueType& value, const std::string& fullKey, const 
 
         std::string keyStr(keySegment);  // Extend lifetime of the string
 
-        if (!current->IsObject() || !current->HasMember(keyStr.c_str())) {
+        // Go further into nested key-structure by getting new value pointer
+        itr = current->FindMember(keyStr.c_str());
+        if(itr == current->MemberEnd()){
             return defaultValue;
         }
-        current = &(*current)[keyStr.c_str()];
+        current = &itr->value;
 
+        // Check if end is reached
         if (dotPos == std::string_view::npos) {
             break;
         }
-
         keyView.remove_prefix(dotPos + 1);
     }
 
@@ -128,7 +132,6 @@ T JSONHandler::Get::Any(JSONValueType& value, const std::string& fullKey, const 
             return defaultValue;
         }
     }
-
     return defaultValue;
 }
 
