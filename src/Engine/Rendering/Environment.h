@@ -8,7 +8,7 @@
 #include <thread>
 
 #include "JSONHandler.h"
-#include "RenderObject.h"
+#include "RenderObjectContainer.h"
 #include "Invoke.h"
 
 

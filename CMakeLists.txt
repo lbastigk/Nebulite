@@ -60,6 +60,7 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/Invoke.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/Renderer.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/RenderObject.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/RenderObjectContainer.cpp
     ${CMAKE_SOURCE_DIR}/src/Tests/DsaDebug.cpp
 )
 

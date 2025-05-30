@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
             if (i > 0) oss << ' ';          // Add space between arguments
             oss << argv[i];
         }
-        tasks.push_back(oss.str());
+        tasks_script.taskList.push_back(oss.str());
     }
     else{
         // If argc is 0, no arg was provided.
@@ -134,10 +134,27 @@ int main(int argc, char* argv[]) {
     while (!renderer.isQuit()) {
         //--------------------
         // Handle args
-        while (!tasks.empty() && waitCounter == 0) {
+        while (!tasks_script.taskList.empty() && tasks_script.waitCounter == 0) {
             // Get task
-            std::string argStr = tasks.front();
-            tasks.pop_front();  // remove the used task
+            std::string argStr = tasks_script.taskList.front();
+            tasks_script.taskList.pop_front();  // remove the used task
+
+            // Resolve global vars in task
+            argStr = renderer.getInvoke()->resolveGlobalVars(argStr);
+
+            // Convert std::string to argc,argv
+            argc_mainTree = 0;
+            argv_mainTree = nullptr;
+            mainTree.convertStrToArgcArgv(argStr, argc_mainTree, argv_mainTree);
+
+            if (argv != nullptr) {
+                result = mainTree.parse(argc_mainTree, argv_mainTree);
+            }
+        }
+        while (!tasks_internal.taskList.empty()) {
+            // Get task
+            std::string argStr = tasks_internal.taskList.front();
+            tasks_internal.taskList.pop_front();  // remove the used task
 
             // Resolve global vars in task
             argStr = renderer.getInvoke()->resolveGlobalVars(argStr);
@@ -161,8 +178,8 @@ int main(int argc, char* argv[]) {
             renderer.showFrame();       // 4.) Show Frame
             renderer.clear();           // 5.) Clear screen
 
-            
-            if(waitCounter>0) waitCounter--;
+            // lower waitCounter in script task
+            if(tasks_script.waitCounter>0) tasks_script.waitCounter--; 
         }
     }
 

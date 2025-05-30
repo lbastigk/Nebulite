@@ -3,9 +3,17 @@
 #include <deque>
 #include "Renderer.h"
 
-std::deque<std::string> tasks;
-Renderer renderer(tasks);       // attaching task queue to renderer is required
-uint64_t waitCounter = 0;
+// Separate queues for script and internal
+// Otherwise, a wait from a script can halt the entire game logic
+// All wait calls influence script queue for now
+struct taskQueue{
+    std::deque<std::string> taskList;
+    uint64_t waitCounter = 0;
+};
+
+taskQueue tasks_script;
+taskQueue tasks_internal;
+Renderer renderer(tasks_internal.taskList);       // attaching task queue to renderer is required
 
 namespace mainTreeFunctions{
 
@@ -59,9 +67,11 @@ int save(int argc, char* argv[]){
 }
 
 int wait(int argc, char* argv[]){
-    std::cout << "Setting new value for wait" << std::endl;
     std::istringstream iss(argv[0]);
-    iss >> waitCounter;
+    iss >> tasks_script.waitCounter;
+    if (tasks_script.waitCounter < 0){
+        tasks_script.waitCounter = 0;
+    }
     return 0;
 }
 
@@ -93,7 +103,7 @@ int loadTaskList(int argc, char* argv[]) {
             continue;
         }
         else{
-            tasks.push_back(line);
+            tasks_script.taskList.push_back(line);
         }
     }
 
