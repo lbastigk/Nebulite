@@ -3,32 +3,27 @@
 
 
 Renderer::Renderer(std::deque<std::string>& tasks, Invoke& invoke, bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y){
+	//--------------------------------------------
+	// Linkages
 	invoke_ptr = &invoke;
 	invoke_ptr->linkGlobal(env.getGlobal());
 	invoke_ptr->linkQueue(tasks);
 
+	//--------------------------------------------
+	// Initialize internal variables
 	RenderZoom=zoom;
-
-	//Basic variables
 	tileXpos = 0;
 	tileYpos = 0;
-
-	// Init Event
 	event = SDL_Event();
-
-	// Init Rect
 	rect = SDL_Rect();
-
-	// Get the current directory
 	directory = FileManagement::currentDir();
-
-	// Get screen resolution
-	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",X);	
-	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",Y);
-	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.X",0);
-	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.Y",0);
-
+	starttime = Time::gettime();
+    currentTime = Time::gettime();
+    lastTime = Time::gettime();
 	
+
+	//--------------------------------------------
+	// SDL Renderer
 
 	//Create SDL window
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -79,11 +74,14 @@ Renderer::Renderer(std::deque<std::string>& tasks, Invoke& invoke, bool flag_hid
 		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",Y)
 	);
 
-	starttime = Time::gettime();
-    currentTime = Time::gettime();
-    lastTime = Time::gettime();
+	//--------------------------------------------
+	// Set basic values inside global doc
 
-	// Set basic values inside global
+	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",X);	
+	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",Y);
+	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.X",0);
+	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.Y",0);
+
 	JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.w",0);
 	JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.a",0);
 	JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.s",0);
