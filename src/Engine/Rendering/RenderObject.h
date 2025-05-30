@@ -29,7 +29,6 @@ public:
 	template <typename T> void valueSet(std::string key, const T data);
 	template <typename T> T valueGet(std::string key, const T& defaultValue = T());
 
-	void appendInvoke(InvokeCommand toAppend);
 
 	rapidjson::Document* getDoc() const;
 	SDL_Rect& getDstRect();
@@ -54,8 +53,8 @@ private:
 	SDL_Texture* textTexture;
 	SDL_Rect textRect;
 
-	std::vector<std::shared_ptr<InvokeEntry>> cmds_general;
-	std::vector<std::shared_ptr<InvokeEntry>> cmds_internal;
+	std::vector<std::shared_ptr<Invoke::InvokeEntry>> cmds_general;
+	std::vector<std::shared_ptr<Invoke::InvokeEntry>> cmds_internal;
 };
 
 //-----------------------------------------------------------

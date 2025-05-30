@@ -112,40 +112,8 @@ class RenderObject;
 
 
 
-struct InvokeCommand{
-    std::shared_ptr<RenderObject> selfPtr;  // store self
-    std::string logicalArg;                 //e.g. $self.posX > $other.posY
-    std::string selfChangeType;             //set, append, add, multiply etc.
-    std::string selfKey;                    // what key to change in self
-    std::string selfValue;                  // value
-    std::string otherChangeType;
-    std::string otherKey;
-    std::string otherValue;
-    std::string globalChangeType;
-    std::string globalKey;
-    std::string globalValue;
-    std::string type = "continous";
-};
-
-/*
-
-*/
-struct InvokeTriple {
-    std::string changeType;
-    std::string key;
-    std::string value;
-};
 
 
-struct InvokeEntry{
-    std::shared_ptr<RenderObject> selfPtr;      // store self
-    std::string logicalArg;                     //e.g. $self.posX > $other.posY
-    std::vector<InvokeTriple> invokes_self;     // vector : key-value pair
-    std::vector<InvokeTriple> invokes_other;
-    std::vector<InvokeTriple> invokes_global;
-    std::vector<std::string> functioncalls;     // function calls, e.g. load, save etc
-    bool isGlobal = true;
-};
 // EXAMPLE:
 /*
 {
@@ -186,6 +154,53 @@ struct InvokeEntry{
 
 class Invoke{
 public:
+    // Static structs
+    struct Node {
+      // A Type Mix indicates Children!
+      //
+      // Example, say self.variable = 2
+      // 
+      // Version 1: Mix_eval
+      // $($(self.variable) + 1)
+      // Root has a $(...)
+      // - children_1 : text = self.variable, type = Variable
+      // - children_2 : text = " + 1",        type = Literal
+      // Result: "3"
+      //
+      //
+      // Version 1: Mix_no_eval
+      // $(self.variable) + 1
+      // Root has no $(...)
+      // - children[0] : text = self.variable, type = Variable
+      // - children[1] : text = " + 1",        type = Literal
+      // Result: "2 + 1"
+      enum class Type {
+          Literal,      // Plain text
+          Variable,     // $(self.value) or similar
+          Mix_eval,     // An expression like $($(self.var) + 1), must evaluate entire subtree
+          Mix_no_eval   // A mix of variables and literals, but not wrapped in $(...), just concatenate
+      };
+      Type type;
+      std::string text;
+      std::vector<Node> children; // for nested variables (if Expr)
+    };
+    struct InvokeTriple {
+        std::string changeType;
+        std::string key;
+        std::string value;
+    };
+
+
+    struct InvokeEntry{
+        std::shared_ptr<RenderObject> selfPtr;      // store self
+        std::string logicalArg;                     //e.g. $self.posX > $other.posY
+        std::vector<InvokeTriple> invokes_self;     // vector : key-value pair
+        std::vector<InvokeTriple> invokes_other;
+        std::vector<InvokeTriple> invokes_global;
+        std::vector<std::string> functioncalls;     // function calls, e.g. load, save etc
+        bool isGlobal = true;
+    };
+
     // Setting up invoke by linking it to a global doc
     Invoke();
     void linkGlobal(rapidjson::Document& globalDocPtr){
@@ -220,7 +235,7 @@ public:
     
 
     // For evaluating sing expression
-    double evaluateExpression(const std::string& expr);
+    static double evaluateExpression(const std::string& expr);
     std::string resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global);
     std::string resolveGlobalVars(const std::string& input);
 
@@ -235,6 +250,15 @@ private:
     std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> truePairs;
 
     // pointer to queue
-    std::deque<std::string>* tasks = nullptr;    
+    std::deque<std::string>* tasks = nullptr; 
+
+    // Map for each Tree
+    std::map<std::string,Invoke::Node> exprTree;
+
+    // Create Tree from string
+    Invoke::Node expressionToTree(const std::string& input);
+    void foldConstants(Invoke::Node& node);
+
+    std::string evaluateNode(Invoke::Node node, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global);
 };
 

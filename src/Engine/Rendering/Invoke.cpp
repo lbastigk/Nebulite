@@ -142,6 +142,7 @@ double Invoke::evaluateExpression(const std::string& expr) {
     return te_interp(expr.c_str(),0);
 }
 
+/*
 std::string Invoke::resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global) {
     // Variables
     std::string resolved, inner;
@@ -202,7 +203,7 @@ std::string Invoke::resolveVars(const std::string& input, rapidjson::Document& s
                 if(evaled_val){
                     // Replace the $(...) with resolved value
                     result.replace(i, end - i, resolved);
-                    i += result.size();
+                    i += resolved.size();
                 }
             }
         }   
@@ -210,6 +211,161 @@ std::string Invoke::resolveVars(const std::string& input, rapidjson::Document& s
     return result;
 }
 
+*/
+
+// turn nodes that hold constant to evaluate into text
+// e.g. $(1+1) is turned into 2.000...
+void Invoke::foldConstants(Invoke::Node& node) {
+      // Recurse into children first
+      for (auto& child : node.children) {
+          foldConstants(child);
+      }
+
+      // Check if we can fold this Mix_eval node
+      if (node.type == Node::Type::Mix_eval) {
+          bool allLiteral = true;
+          std::string combinedExpr;
+          for (const auto& child : node.children) {
+              if (child.type != Node::Type::Literal) {
+                  allLiteral = false;
+                  break;
+              }
+              combinedExpr += child.text;
+          }
+
+          if (allLiteral) {
+              // Try evaluating it
+              try {
+                  std::string evaluated = std::to_string(evaluateExpression(combinedExpr));
+                  node.type = Node::Type::Literal;
+                  node.text = evaluated;
+                  node.children.clear(); // No need to keep children
+              } catch (...) {
+                  // If evaluation fails, leave it as-is
+              }
+          }
+      }
+    }
+
+Invoke::Node Invoke::expressionToTree(const std::string& input) {
+    Node root;
+    std::vector<Node> children;
+    size_t pos = 0;
+    bool hasVariables = false;
+
+    auto parseNext = [&](size_t& i) -> Node {
+        size_t start = i + 2; // Skip "$("
+        int depth = 1;
+        size_t j = start;
+        while (j < input.size() && depth > 0) {
+            if (input[j] == '(') depth++;
+            else if (input[j] == ')') depth--;
+            ++j;
+        }
+
+        if (depth != 0) {
+            std::cerr << "Unmatched parentheses in expression: " << input << std::endl;
+            return Node{ Node::Type::Literal, input.substr(i, j - i), {} };
+        }
+
+        std::string inner = input.substr(start, j - start - 1); // inside $(...)
+        Node varNode;
+        if (inner.find("$(") != std::string::npos) {
+            varNode = Node{ Node::Type::Mix_eval, "", { expressionToTree(inner) } };
+        } else {
+            varNode = Node{ Node::Type::Variable, inner, {} };
+        }
+
+        i = j; // move position after closing ')'
+        return varNode;
+    };
+
+    std::string literalBuffer;
+
+    while (pos < input.size()) {
+        if (input[pos] == '$' && pos + 1 < input.size() && input[pos + 1] == '(') {
+            if (!literalBuffer.empty()) {
+                children.push_back(Node{ Node::Type::Literal, literalBuffer, {} });
+                literalBuffer.clear();
+            }
+            Node varNode = parseNext(pos);
+            children.push_back(varNode);
+            hasVariables = true;
+        } else {
+            literalBuffer += input[pos];
+            ++pos;
+        }
+    }
+
+    if (!literalBuffer.empty()) {
+        children.push_back(Node{ Node::Type::Literal, literalBuffer, {} });
+    }
+
+    Node resultNode;
+    if (children.size() == 1 && children[0].type == Node::Type::Variable && input.starts_with("$(") && input.back() == ')') {
+        resultNode = Node{ Node::Type::Variable, children[0].text, {} };
+    } else if (input.starts_with("$(") && input.back() == ')') {
+        resultNode = Node{ Node::Type::Mix_eval, "", children };
+    } else if (hasVariables) {
+        resultNode = Node{ Node::Type::Mix_no_eval, "", children };
+    } else {
+        resultNode = Node{ Node::Type::Literal, input, {} };
+    }
+
+    // Fold constants directly before returning
+    foldConstants(resultNode);
+
+    return resultNode;
+}
+
+
+std::string Invoke::evaluateNode(Invoke::Node node, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global){
+    switch (node.type) {
+        case Node::Type::Literal:
+            return node.text;
+
+        case Node::Type::Variable: {
+            const std::string& expr = node.text;
+            if (expr.starts_with("self.")) {
+                return JSONHandler::Get::Any<std::string>(self, expr.substr(5), "0");
+            } else if (expr.starts_with("other.")) {
+                return JSONHandler::Get::Any<std::string>(other, expr.substr(6), "0");
+            } else if (expr.starts_with("global.")) {
+                return JSONHandler::Get::Any<std::string>(global, expr.substr(7), "0");
+            } else if (StringHandler::isNumber(expr)) {
+                return expr;
+            } else {
+                return std::to_string(evaluateExpression(expr));
+            }
+        }
+
+        case Node::Type::Mix_no_eval: {
+            std::string result;
+            for (const Node& child : node.children) {
+                result += evaluateNode(child, self, other, global);
+            }
+            return result;
+        }
+
+        case Node::Type::Mix_eval: {
+            std::string combined;
+            for (const Node& child : node.children) {
+                combined += evaluateNode(child, self, other, global);
+            }
+            return std::to_string(evaluateExpression(combined));
+        }
+    }
+    return "";
+}
+    
+std::string Invoke::resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global) {
+    if(!exprTree.contains(input)){
+        //std::cout << "Evaluating expression: '" << input << "' to Tree..." << std::endl;
+        exprTree[input] = expressionToTree(input);
+    }
+    Invoke::Node node = exprTree[input];
+    return evaluateNode(node,self,other,global);   
+}
 
 std::string Invoke::resolveGlobalVars(const std::string& input) {
     return resolveVars(input,emptyDoc,emptyDoc,*global);

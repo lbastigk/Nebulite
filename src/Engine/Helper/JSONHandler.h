@@ -43,7 +43,7 @@ public:
     class Set {
     public:
         template <typename T>
-        static void Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists = false);    
+        static void Any(rapidjson::Document& doc, const std::string& fullKey, const T data);    
     };
 
     // General JSONHandler functions
@@ -94,6 +94,8 @@ private:
 };
 
 
+
+/*
 template <typename T, typename JSONValueType>
 T JSONHandler::Get::Any(JSONValueType& value, const std::string& fullKey, const T& defaultValue) {
     const rapidjson::Value* current = &value;
@@ -126,8 +128,40 @@ T JSONHandler::Get::Any(JSONValueType& value, const std::string& fullKey, const 
     }
     return defaultValue;
 }
+*/
+template <typename T, typename JSONValueType>
+T JSONHandler::Get::Any(JSONValueType& value, const std::string& fullKey, const T& defaultValue) {
+    const rapidjson::Value* current = &value;
+    std::string_view keyView(fullKey);
 
+    while (!keyView.empty()) {
+        size_t dotPos = keyView.find('.');
+        std::string_view key = (dotPos == std::string_view::npos) ? keyView : keyView.substr(0, dotPos);
 
+        if (!current->IsObject() || !current->HasMember(std::string(key).c_str())) {
+            return defaultValue;
+        }
+
+        current = &(*current)[std::string(key).c_str()];
+
+        if (dotPos == std::string_view::npos) break;
+        keyView.remove_prefix(dotPos + 1);
+    }
+
+    if (!current->IsNull()) {
+        try {
+            T result;
+            ConvertFromJSONValue(*current, result);
+            return result;
+        } catch (...) {
+            std::cerr << "Error while converting '" << fullKey << "'. Returning default value." << std::endl;
+            return defaultValue;
+        }
+    }
+    return defaultValue;
+}
+
+/*
 template <typename T>
 void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey, const T data, bool onlyIfExists) {
     // Debug: passed data
@@ -176,6 +210,51 @@ void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey,
         }
     }
 }
+*/
+template <typename T>
+void JSONHandler::Set::Any(rapidjson::Document& doc, const std::string& fullKey, const T data) {
+    if (!doc.IsObject()) {
+        doc.SetObject();
+    }
+
+    rapidjson::Value* current = &doc;
+    std::string_view keyView(fullKey);
+
+    while (!keyView.empty()) {
+        size_t dotPos = keyView.find('.');
+        std::string_view key = (dotPos == std::string_view::npos) ? keyView : keyView.substr(0, dotPos);
+
+        if (!current->IsObject()) {
+            current->SetObject();
+        }
+
+        if (dotPos != std::string_view::npos) {
+            // Not the final key: ensure nested object exists
+            if (!current->HasMember(std::string(key).c_str())) {
+                rapidjson::Value keyVal(std::string(key).c_str(), doc.GetAllocator());
+                rapidjson::Value newObj(rapidjson::kObjectType);
+                current->AddMember(keyVal, newObj, doc.GetAllocator());
+            }
+            current = &(*current)[std::string(key).c_str()];
+            keyView.remove_prefix(dotPos + 1);
+        } 
+        else {
+            // Final key: set the value
+            rapidjson::Value keyVal(std::string(key).c_str(), doc.GetAllocator());
+            rapidjson::Value jsonValue;
+            ConvertToJSONValue(data, jsonValue, doc.GetAllocator());
+
+            if (current->HasMember(std::string(key).c_str())) {
+                (*current)[std::string(key).c_str()] = jsonValue;
+            } 
+            else {
+                current->AddMember(keyVal, jsonValue, doc.GetAllocator());
+            }
+            break;
+        }
+    }
+}
+
 
 
 //----------------------------------------------------------------------

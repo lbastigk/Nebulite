@@ -157,15 +157,15 @@ void RenderObject::calculateSrcRect() {
 }
 
 // Helper for parsing invoke triples
-std::vector<InvokeTriple> parseInvokeTriples(const rapidjson::Value& arr) {
-    std::vector<InvokeTriple> res;
+std::vector<Invoke::InvokeTriple> parseInvokeTriples(const rapidjson::Value& arr) {
+    std::vector<Invoke::InvokeTriple> res;
     if (arr.IsArray()) {
         for (auto& kv : arr.GetArray()) {
             if (kv.IsObject() &&
                 kv.HasMember("changeType") &&
                 kv.HasMember("key") &&
                 kv.HasMember("value")) {
-                InvokeTriple triple;
+                Invoke::InvokeTriple triple;
                 triple.changeType = kv["changeType"].GetString();
                 triple.key = kv["key"].GetString();
                 triple.value = kv["value"].GetString();
@@ -198,7 +198,7 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 			if (serializedInvoke.IsObject()){
 				//--------------------------
 				// Build entry
-				InvokeEntry entry;
+				Invoke::InvokeEntry entry;
 				entry.selfPtr = this_shared;
 				entry.logicalArg = 	JSONHandler::Get::Any<std::string>(serializedInvoke, "logicalArg", "");
 				entry.isGlobal = 	JSONHandler::Get::Any<bool>(serializedInvoke, "isGlobal", true);
@@ -227,7 +227,7 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 				//*/
 				
 				// Append
-				auto ptr = std::make_shared<InvokeEntry>(std::move(entry));
+				auto ptr = std::make_shared<Invoke::InvokeEntry>(std::move(entry));
 
 				if(entry.isGlobal){
 					cmds_general.push_back(ptr);
