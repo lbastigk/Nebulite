@@ -182,15 +182,13 @@ public:
       };
       Type type;
       std::string text;
-      std::vector<Node> children; // for nested variables (if Expr)
+      std::vector<std::shared_ptr<Invoke::Node>> children; // for nested variables (if Expr)
     };
     struct InvokeTriple {
         std::string changeType;
         std::string key;
         std::string value;
     };
-
-
     struct InvokeEntry{
         std::shared_ptr<RenderObject> selfPtr;      // store self
         std::string logicalArg;                     //e.g. $self.posX > $other.posY
@@ -210,36 +208,52 @@ public:
         tasks = &queue;
     }
 
+    // Clearing all entries
     void clear();
     
     // Append invoke command
-    void append(std::shared_ptr<InvokeEntry> toAppend);
-
-
-    void checkLoop();
-    void checkGeneral();
+    void append(const std::shared_ptr<InvokeEntry>& toAppend);
 
     
 
-    void checkAgainstList(std::shared_ptr<RenderObject> otherObj);
-    bool isTrue(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<RenderObject> otherObj, bool resolveEqual=true);
+    void checkAgainstList(
+      const std::shared_ptr<RenderObject>& obj
+    );
+    bool isTrue(
+      const std::shared_ptr<InvokeEntry>& cmd, 
+      const std::shared_ptr<RenderObject>& otherObj, 
+      bool resolveEqual=true);
     void update();
-    void updateGlobal(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<RenderObject> otherObj);
-    void updateLocal(std::shared_ptr<InvokeEntry> cmd);
-    
-    // Check against list
-    
+    void updateGlobal(
+      const std::shared_ptr<InvokeEntry>& cmd, 
+      const std::shared_ptr<RenderObject>& otherObj
+    );
+    void updateLocal(
+      const std::shared_ptr<InvokeEntry>& cmd
+    );
     
     // Get Invokes for next frame
+    // Empties current commands, shrinks and swaps with new commands vector.
     void getNewInvokes();
-    
 
-    // For evaluating sing expression
+    // Sets new value
+    void updateValueOfKey(
+      const std::string& type, 
+      const std::string& key, 
+      const std::string& valStr, 
+      rapidjson::Document *doc
+    );
+
+    // For evaluating string expression
     static double evaluateExpression(const std::string& expr);
-    std::string resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global);
+    std::string resolveVars(
+      const std::string& input, 
+      rapidjson::Document& self, 
+      rapidjson::Document& other, 
+      rapidjson::Document& global
+    );
     std::string resolveGlobalVars(const std::string& input);
 
-    void updateValueOfKey(std::string type, std::string key,std::string valStr, rapidjson::Document *doc);
 
     rapidjson::Document* getGlobalPointer(){return global;};
 private:
@@ -253,12 +267,17 @@ private:
     std::deque<std::string>* tasks = nullptr; 
 
     // Map for each Tree
-    std::map<std::string,Invoke::Node> exprTree;
+    //std::map<std::string,Invoke::Node> exprTree;
+    std::map<std::string, std::shared_ptr<Invoke::Node>> exprTree;
 
     // Create Tree from string
-    Invoke::Node expressionToTree(const std::string& input);
-    void foldConstants(Invoke::Node& node);
+    std::shared_ptr<Invoke::Node> expressionToTree(const std::string& input);
+    void foldConstants(const std::shared_ptr<Invoke::Node>& node);
 
-    std::string evaluateNode(Invoke::Node node, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global);
+    std::string evaluateNode(
+      const std::shared_ptr<Invoke::Node>& nodeptr, 
+      rapidjson::Document& self, 
+      rapidjson::Document& other, 
+      rapidjson::Document& global
+    );
 };
-

@@ -1,5 +1,5 @@
 set-res 1440 1440
-set-fps 5000
+set-fps 10000
 echo
 echo
 echo Please investigate bug that causes the usual image of camera_movement_wasd to not load!

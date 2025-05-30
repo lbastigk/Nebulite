@@ -7,14 +7,14 @@ Invoke::Invoke() {
 }
 
 
-bool Invoke::isTrue(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<RenderObject> otherObj, bool resolveEqual) {
+bool Invoke::isTrue(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj, bool resolveEqual) {
     // Same send
-    if((!resolveEqual) && (cmd->selfPtr.get() == otherObj.get())){
+    if((!resolveEqual) && (cmd->selfPtr == otherObj)){
         return false;
     }
 
     // Resolve logical statement
-    std::string logic = resolveVars(cmd->logicalArg, *cmd->selfPtr->getDoc(), *otherObj.get()->getDoc(), *global);
+    std::string logic = resolveVars(cmd->logicalArg, *cmd->selfPtr->getDoc(), *otherObj->getDoc(), *global);
     if (evaluateExpression(logic) == 0.0){
         return false;
     }
@@ -26,7 +26,7 @@ bool Invoke::isTrue(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<RenderObje
 
 // Checks an object against all linked invokes.
 // True pairs are put into a special vector
-void Invoke::checkAgainstList(std::shared_ptr<RenderObject> obj){
+void Invoke::checkAgainstList(const std::shared_ptr<RenderObject>& obj){
     for (auto& cmd : commands){
         if(isTrue(cmd,obj)){
             truePairs.push_back(std::make_pair(cmd,obj));
@@ -34,7 +34,7 @@ void Invoke::checkAgainstList(std::shared_ptr<RenderObject> obj){
     }
 }
 
-void Invoke::updateValueOfKey(std::string type, std::string key,std::string valStr, rapidjson::Document *doc){
+void Invoke::updateValueOfKey(const std::string& type, const std::string& key, const std::string& valStr, rapidjson::Document *doc){
     if        (type == "set")       JSONHandler::Set::Any<double>(*doc,key,std::stod(valStr));
     else if   (type == "setInt")    JSONHandler::Set::Any<int>(*doc,key,std::stod(valStr));
     else if   (type == "add")       JSONHandler::Set::Any<double>(*doc,key,JSONHandler::Get::Any<double>(*doc, key, 0.0) + std::stod(valStr));
@@ -45,44 +45,44 @@ void Invoke::updateValueOfKey(std::string type, std::string key,std::string valS
 
 // Checks a given invoke cmd against objects in buffer
 // as objects have constant pointers, using RenderObject& is possible
-void Invoke::updateGlobal(std::shared_ptr<InvokeEntry> cmd, std::shared_ptr<RenderObject> otherObj) {
+void Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj) {
     // === SELF update ===
-    for(auto InvokeTriple : cmd.get()->invokes_self){
+    for(auto InvokeTriple : cmd->invokes_self){
         if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *otherObj.get()->getDoc(), *global);
+            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *otherObj->getDoc(), *global);
             updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
         } 
     }
 
     // === OTHER update ===
-    for(auto InvokeTriple : cmd.get()->invokes_other){
+    for(auto InvokeTriple : cmd->invokes_other){
         if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *otherObj.get()->getDoc(), *global);
+            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *otherObj->getDoc(), *global);
             updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
         } 
     }
 
     // === GLOBAL update ===
-    for(auto InvokeTriple : cmd.get()->invokes_global){
+    for(auto InvokeTriple : cmd->invokes_global){
         if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *otherObj.get()->getDoc(), *global);
+            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *otherObj->getDoc(), *global);
             updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
         } 
     }
 
     // === Functioncalls ===
-    for(auto call : cmd.get()->functioncalls){
+    for(auto call : cmd->functioncalls){
         // replace vars
-        call = resolveVars(call,*cmd->selfPtr->getDoc(),*otherObj.get()->getDoc(), *global);
+        call = resolveVars(call,*cmd->selfPtr->getDoc(),*otherObj->getDoc(), *global);
 
         // attach to task queue
         tasks->emplace_back(call);
     }
 }
 
-void Invoke::updateLocal(std::shared_ptr<InvokeEntry> cmd){
+void Invoke::updateLocal(const std::shared_ptr<InvokeEntry>& cmd){
     // === SELF update ===
-    for(auto InvokeTriple : cmd.get()->invokes_self){
+    for(auto InvokeTriple : cmd->invokes_self){
         if (!InvokeTriple.key.empty()) {
             std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *global);
             updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
@@ -90,7 +90,7 @@ void Invoke::updateLocal(std::shared_ptr<InvokeEntry> cmd){
     }
 
     // === GLOBAL update ===
-    for(auto InvokeTriple : cmd.get()->invokes_global){
+    for(auto InvokeTriple : cmd->invokes_global){
         if (!InvokeTriple.key.empty()) {
             std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *global);
             updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
@@ -98,7 +98,7 @@ void Invoke::updateLocal(std::shared_ptr<InvokeEntry> cmd){
     }
 
     // === Functioncalls ===
-    for(auto call : cmd.get()->functioncalls){
+    for(auto call : cmd->functioncalls){
         // replace vars
         call = resolveVars(call,*cmd->selfPtr->getDoc(),*cmd->selfPtr->getDoc(), *global);
 
@@ -116,6 +116,14 @@ void Invoke::clear(){
 
     truePairs.clear();
     truePairs.shrink_to_fit();
+
+    // TODO: Since exprTree holds a bunch of shared ptrs, the objects themselfes need to be cleared?
+    // forall ptr in exprTree: free(ptr) ?
+    // Since exprTree can hold more ptrs, this can be tricky...
+    // For now it's not as important, as invokes dont necessary need to be cleared
+    // But later on, constant level change might make this necessary
+    // As for each env-deload an invoke clearing is reasonable
+    exprTree.clear();
 }
 
 void Invoke::update(){
@@ -134,7 +142,7 @@ void Invoke::getNewInvokes(){
     commands.swap(nextCommands);    // Swap in the new set of commands
 }
 
-void Invoke::append(std::shared_ptr<InvokeEntry> toAppend){
+void Invoke::append(const std::shared_ptr<InvokeEntry>& toAppend){
     nextCommands.push_back(toAppend);
 }
 
@@ -215,45 +223,45 @@ std::string Invoke::resolveVars(const std::string& input, rapidjson::Document& s
 
 // turn nodes that hold constant to evaluate into text
 // e.g. $(1+1) is turned into 2.000...
-void Invoke::foldConstants(Invoke::Node& node) {
-      // Recurse into children first
-      for (auto& child : node.children) {
-          foldConstants(child);
-      }
-
-      // Check if we can fold this Mix_eval node
-      if (node.type == Node::Type::Mix_eval) {
-          bool allLiteral = true;
-          std::string combinedExpr;
-          for (const auto& child : node.children) {
-              if (child.type != Node::Type::Literal) {
-                  allLiteral = false;
-                  break;
-              }
-              combinedExpr += child.text;
-          }
-
-          if (allLiteral) {
-              // Try evaluating it
-              try {
-                  std::string evaluated = std::to_string(evaluateExpression(combinedExpr));
-                  node.type = Node::Type::Literal;
-                  node.text = evaluated;
-                  node.children.clear(); // No need to keep children
-              } catch (...) {
-                  // If evaluation fails, leave it as-is
-              }
-          }
-      }
+void Invoke::foldConstants(const std::shared_ptr<Invoke::Node>& node) {
+    // Recurse into children first
+    for (auto& child : node->children) {
+        foldConstants(child);
     }
 
-Invoke::Node Invoke::expressionToTree(const std::string& input) {
+    // Check if we can fold this Mix_eval node
+    if (node->type == Node::Type::Mix_eval) {
+        bool allLiteral = true;
+        std::string combinedExpr;
+        for (const auto& child : node->children) {
+            if (child->type != Node::Type::Literal) {
+                allLiteral = false;
+                break;
+            }
+            combinedExpr += child->text;
+        }
+
+        if (allLiteral) {
+            // Try evaluating it
+            try {
+                std::string evaluated = std::to_string(evaluateExpression(combinedExpr));
+                node->type = Node::Type::Literal;
+                node->text = evaluated;
+                node->children.clear(); // No need to keep children
+            } catch (...) {
+                // If evaluation fails, leave it as-is
+            }
+        }
+    }
+}
+
+std::shared_ptr<Invoke::Node> Invoke::expressionToTree(const std::string& input) {
     Node root;
-    std::vector<Node> children;
+    std::vector<std::shared_ptr<Invoke::Node>> children;
     size_t pos = 0;
     bool hasVariables = false;
 
-    auto parseNext = [&](size_t& i) -> Node {
+    auto parseNext = [&](size_t& i) -> std::shared_ptr<Node> {
         size_t start = i + 2; // Skip "$("
         int depth = 1;
         size_t j = start;
@@ -265,7 +273,8 @@ Invoke::Node Invoke::expressionToTree(const std::string& input) {
 
         if (depth != 0) {
             std::cerr << "Unmatched parentheses in expression: " << input << std::endl;
-            return Node{ Node::Type::Literal, input.substr(i, j - i), {} };
+
+            return std::make_shared<Node>(Node{ Node::Type::Literal, input.substr(i, j - i), {} });
         }
 
         std::string inner = input.substr(start, j - start - 1); // inside $(...)
@@ -275,9 +284,8 @@ Invoke::Node Invoke::expressionToTree(const std::string& input) {
         } else {
             varNode = Node{ Node::Type::Variable, inner, {} };
         }
-
         i = j; // move position after closing ')'
-        return varNode;
+        return std::make_shared<Node>(varNode);
     };
 
     std::string literalBuffer;
@@ -285,11 +293,12 @@ Invoke::Node Invoke::expressionToTree(const std::string& input) {
     while (pos < input.size()) {
         if (input[pos] == '$' && pos + 1 < input.size() && input[pos + 1] == '(') {
             if (!literalBuffer.empty()) {
-                children.push_back(Node{ Node::Type::Literal, literalBuffer, {} });
+                auto child = std::make_shared<Node>(Node{ Node::Type::Literal, literalBuffer, {} });
+                children.push_back(child);
                 literalBuffer.clear();
             }
-            Node varNode = parseNext(pos);
-            children.push_back(varNode);
+            auto child = parseNext(pos);
+            children.push_back(child);
             hasVariables = true;
         } else {
             literalBuffer += input[pos];
@@ -298,12 +307,12 @@ Invoke::Node Invoke::expressionToTree(const std::string& input) {
     }
 
     if (!literalBuffer.empty()) {
-        children.push_back(Node{ Node::Type::Literal, literalBuffer, {} });
+        children.push_back(std::make_shared<Node>(Node{ Node::Type::Literal, literalBuffer, {} }));
     }
 
     Node resultNode;
-    if (children.size() == 1 && children[0].type == Node::Type::Variable && input.starts_with("$(") && input.back() == ')') {
-        resultNode = Node{ Node::Type::Variable, children[0].text, {} };
+    if (children.size() == 1 && children[0]->type == Node::Type::Variable && input.starts_with("$(") && input.back() == ')') {
+        resultNode = Node{ Node::Type::Variable, children[0]->text, {} };
     } else if (input.starts_with("$(") && input.back() == ')') {
         resultNode = Node{ Node::Type::Mix_eval, "", children };
     } else if (hasVariables) {
@@ -313,19 +322,19 @@ Invoke::Node Invoke::expressionToTree(const std::string& input) {
     }
 
     // Fold constants directly before returning
-    foldConstants(resultNode);
-
-    return resultNode;
+    auto ptr = std::make_shared<Node>(std::move(resultNode));
+    foldConstants(ptr);
+    return ptr;
 }
 
 
-std::string Invoke::evaluateNode(Invoke::Node node, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global){
-    switch (node.type) {
+std::string Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global){
+    switch (nodeptr->type) {
         case Node::Type::Literal:
-            return node.text;
+            return nodeptr->text;
 
         case Node::Type::Variable: {
-            const std::string& expr = node.text;
+            const std::string& expr = nodeptr->text;
             if (expr.starts_with("self.")) {
                 return JSONHandler::Get::Any<std::string>(self, expr.substr(5), "0");
             } else if (expr.starts_with("other.")) {
@@ -341,7 +350,7 @@ std::string Invoke::evaluateNode(Invoke::Node node, rapidjson::Document& self, r
 
         case Node::Type::Mix_no_eval: {
             std::string result;
-            for (const Node& child : node.children) {
+            for (auto child : nodeptr->children) {
                 result += evaluateNode(child, self, other, global);
             }
             return result;
@@ -349,7 +358,7 @@ std::string Invoke::evaluateNode(Invoke::Node node, rapidjson::Document& self, r
 
         case Node::Type::Mix_eval: {
             std::string combined;
-            for (const Node& child : node.children) {
+            for (auto child : nodeptr->children) {
                 combined += evaluateNode(child, self, other, global);
             }
             return std::to_string(evaluateExpression(combined));
@@ -363,8 +372,7 @@ std::string Invoke::resolveVars(const std::string& input, rapidjson::Document& s
         //std::cout << "Evaluating expression: '" << input << "' to Tree..." << std::endl;
         exprTree[input] = expressionToTree(input);
     }
-    Invoke::Node node = exprTree[input];
-    return evaluateNode(node,self,other,global);   
+    return evaluateNode(exprTree[input],self,other,global);   
 }
 
 std::string Invoke::resolveGlobalVars(const std::string& input) {
