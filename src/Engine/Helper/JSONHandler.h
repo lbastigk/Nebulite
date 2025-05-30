@@ -426,13 +426,19 @@ inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue,
 }
 
 template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint32_t& result){result = jsonValue.GetUint();}
-template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint64_t& result){
-    if(jsonValue.IsString()){
+template <>
+inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint64_t& result) {
+    if (jsonValue.IsString()) {
         std::istringstream iss(jsonValue.GetString());
         iss >> result;
-    }
-    else{
+    } else if (jsonValue.IsUint64()) {
         result = jsonValue.GetUint64();
+    } else if (jsonValue.IsUint()) {
+        result = static_cast<uint64_t>(jsonValue.GetUint());
+    } else if (jsonValue.IsInt64() && jsonValue.GetInt64() >= 0) {
+        result = static_cast<uint64_t>(jsonValue.GetInt64());
+    } else {
+        throw std::runtime_error("JSON value is not a valid uint64_t");
     }
 }
 template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, float& result){
