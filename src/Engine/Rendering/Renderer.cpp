@@ -89,11 +89,11 @@ Renderer::Renderer(std::deque<std::string>& tasks, Invoke& invoke, bool flag_hid
 	JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.s",0);
 	JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.d",0);
 
-	JSONHandler::Set::Any<double>(env.getGlobal(),"time.fixed_dt_ms",0);
+	JSONHandler::Set::Any<Uint64>(env.getGlobal(),"time.fixed_dt_ms",0);
 	JSONHandler::Set::Any<double>(env.getGlobal(),"time.t",0);
-	JSONHandler::Set::Any<double>(env.getGlobal(),"time.t_ms",0);
+	JSONHandler::Set::Any<Uint64>(env.getGlobal(),"time.t_ms",0);
 	JSONHandler::Set::Any<double>(env.getGlobal(),"time.dt",0);
-	JSONHandler::Set::Any<double>(env.getGlobal(),"time.dt_ms",0);
+	JSONHandler::Set::Any<Uint64>(env.getGlobal(),"time.dt_ms",0);
     JSONHandler::Set::Any<double>(env.getGlobal(),"physics.G",0.1 * 100);
 }
 
@@ -455,9 +455,9 @@ void Renderer::setGlobalValues(){
 		dt_ms = currentTime - lastTime;
 	}
 	Uint64 t_ms = JSONHandler::Get::Any<Uint64>(env.getGlobal(), "time.t_ms",0) + dt_ms;
-	JSONHandler::Set::Any<double>(env.getGlobal(), "time.dt", (dt_ms) / 1000.0);
-	JSONHandler::Set::Any<double>(env.getGlobal(), "time.t", t_ms / 1000.0);
-	JSONHandler::Set::Any<double>(env.getGlobal(), "time.dt_ms", dt_ms);
+	JSONHandler::Set::Any<double>(env.getGlobal(), "time.dt", dt_ms / 1000.0);
+	JSONHandler::Set::Any<double>(env.getGlobal(), "time.t",   t_ms / 1000.0);
+	JSONHandler::Set::Any<Uint64>(env.getGlobal(), "time.dt_ms", dt_ms);
 	JSONHandler::Set::Any<Uint64>(env.getGlobal(), "time.t_ms", t_ms);
 
 	// Get Frame count
