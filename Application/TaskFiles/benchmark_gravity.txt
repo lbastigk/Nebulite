@@ -41,7 +41,7 @@ spawn ./Resources/Renderobjects/Planets/obj2.json|posX=512|posY=1024|physics.vX=
 spawn ./Resources/Renderobjects/Planets/obj2.json|posX=640|posY=128|physics.vX=-1|physics.vY=2|physics.mass=5000|text.str=obj033|imgLocation=Resources/Sprites/TEST100P/033.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.json|posX=640|posY=256|physics.vX=-8|physics.vY=-1|physics.mass=5000|text.str=obj034|imgLocation=Resources/Sprites/TEST100P/034.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.json|posX=640|posY=384|physics.vX=6|physics.vY=-6|physics.mass=5000|text.str=obj035|imgLocation=Resources/Sprites/TEST100P/035.bmp
-spawn ./Resources/Renderobjects/Planets/obj1.json|posX=640|posY=512|physics.vX=3|physics.vY=2|physics.mass=5000|text.str=obj036|imgLocation=Resources/Sprites/TEST100P/036.bmp
+spawn ./Resources/Renderobjects/Planets/obj_center.json|posX=640|posY=512|physics.vX=3|physics.vY=2|physics.mass=5000|text.str=obj036|imgLocation=Resources/Sprites/TEST100P/036.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.json|posX=640|posY=640|physics.vX=-3|physics.vY=7|physics.mass=5000|text.str=obj037|imgLocation=Resources/Sprites/TEST100P/037.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.json|posX=640|posY=768|physics.vX=-8|physics.vY=-1|physics.mass=5000|text.str=obj038|imgLocation=Resources/Sprites/TEST100P/038.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.json|posX=640|posY=896|physics.vX=5|physics.vY=-3|physics.mass=5000|text.str=obj039|imgLocation=Resources/Sprites/TEST100P/039.bmp
@@ -70,3 +70,6 @@ spawn ./Resources/Renderobjects/Planets/obj2.json|posX=1024|posY=640|physics.vX=
 spawn ./Resources/Renderobjects/Planets/obj2.json|posX=1024|posY=768|physics.vX=-3|physics.vY=6|physics.mass=5000|text.str=obj062|imgLocation=Resources/Sprites/TEST100P/062.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.json|posX=1024|posY=896|physics.vX=-4|physics.vY=0|physics.mass=5000|text.str=obj063|imgLocation=Resources/Sprites/TEST100P/063.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.json|posX=1024|posY=1024|physics.vX=-3|physics.vY=-8|physics.mass=5000|text.str=obj064|imgLocation=Resources/Sprites/TEST100P/064.bmp
+wait 600
+print-global
+exit
