@@ -44,6 +44,8 @@ namespace Nebulite {
 
         int echo(int argc, char* argv[]);
 
+        int error(int argc, char* argv[]);
+
         int setResolution(int argc, char* argv[]);
 
         int setFPS(int argc, char* argv[]);

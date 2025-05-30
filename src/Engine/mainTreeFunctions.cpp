@@ -140,6 +140,17 @@ int Nebulite::mainTreeFunctions::echo(int argc, char* argv[]) {
     return 0;
 }
 
+int Nebulite::mainTreeFunctions::error(int argc, char* argv[]) {
+    for (int i = 0; i < argc; ++i) {
+        std::cerr << argv[i];
+        if (i < argc - 1) {
+            std::cerr << " ";
+        }
+    }
+    std::cerr << std::endl;
+    return 1;
+}
+
 int Nebulite::mainTreeFunctions::setResolution(int argc, char* argv[]){
     if(argc != 2){
         Nebulite::getRenderer()->changeWindowSize(1000,1000);
