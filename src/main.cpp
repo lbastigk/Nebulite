@@ -37,22 +37,6 @@
  *          log on
  *          log off
  * 
- * TODO:    New Implementation wait
- *          Good approach would be to have 2 different task-objects
- *          perhaps:
- *          struct task{
- *              std::deque<std::string> tasks;
- *              uint64_t waitCounter;
- *          };
- *          reason is that the wait from a script shouldnt halt the 
- *          general tasks being given by renderobjects
- *          This way, there a 2 tasklists: 
- *          - The script tasks
- *          - The 'gameloop' tasks
- *          Scripting tasklist should use wait
- *          Gameloop tasks should not, as this halts all tasks for a set amount of frames
- *          Though, removing the capability might not be worth it, perhaps there is a usecase somewhere
- * 
  * TODO:    Current implementation of result return only returns the result of the last maintree parse
  *          Perhaps the result should be used to determine when to stop the program as well, 
  *          instead of just checking Renderer::isQuit()
