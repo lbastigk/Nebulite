@@ -19,30 +19,84 @@ should be minimal as the usual resolution planned is about 16x16 objects on scre
 
 Each object is able to send an invoke that is checked against each other invoke for an action. 
 
-Example: 
+Example, this is how a gravity invoke might be realized. 
 
-Using invoke, each solid object can send a request for any moving object:  
+Part 1: Calculating acceleration
+{
+  "logicalArg": "$($(self.id) != $(other.id)) and $(other.physics.isGrav)",
+  "isGlobal": true,
+  "self_invokes": [
+    {
+      "changeType": "add",
+      "key": "physics.aX",
+      "value": "$($(global.G) * $(other.physics.mass) * ( $(other.posX) - $(self.posX)  ) / ( ( ($(other.posX) - $(self.posX))^2 + ($(other.posY) - $(self.posY))^2 + 1)^(3/2) ))"
+    },
+    {
+      "changeType": "add",
+      "key": "physics.aY",
+      "value": "$($(global.G) * $(other.physics.mass) * ( $(other.posY) - $(self.posY)  ) / ( ( ($(other.posX) - $(self.posX))^2 + ($(other.posY) - $(self.posY))^2 + 1)^(3/2) ))"
+    }
+  ],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": []
+}
 
-logicalArg: $( $(other.moves) && $( $($self.X - $other.X) < $($other.closestObjectRight)) && $($($self.X - $other.X) > 0))
-otherChangeType:    set
-otherKey:           closestObjectX
-otherValue:         $($(self.X) - $(other.X))
-
-Then an invoke can be send for each key press on keyRight:  
-
-logicalArg: $other.isPlayer && $other.closesObjectRight > 15 && !$other.Moving
-otherChangeType:    append
-otherKey:           moveRuleSet
-otherValue:         {ruleset for moving right}
+Part 2: Acceleration to position integration
+{
+  "logicalArg": "1",
+  "isGlobal": false,
+  "self_invokes": [
+    {
+      "changeType": "add",
+      "key": "physics.vX",
+      "value": "$($(self.physics.aX) * $(global.dt))"
+    },
+    {
+      "changeType": "add",
+      "key": "physics.vY",
+      "value": "$($(self.physics.aY) * $(global.dt))"
+    },
+    {
+      "changeType": "add",
+      "key": "posX",
+      "value": "$($(self.physics.vX) * $(global.dt))"
+    },
+    {
+      "changeType": "add",
+      "key": "posY",
+      "value": "$($(self.physics.vY) * $(global.dt))"
+    },
+    {
+      "changeType": "set",
+      "key": "physics.aX",
+      "value": "0"
+    },
+    {
+      "changeType": "set",
+      "key": "physics.aY",
+      "value": "0"
+    }
+  ],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": []
+}
 
 The following is provided to each invoke: 
 - self as rapidjson doc
+  - used to manipulate itself
 - other as rapidjson doc
+  - used to manipulate the other object
+  - e.G. self is a solid block with the invoke, other is a moving object
+  - other.canMove.Left/Right... can be used to tell the object it cant move in the solid object
 - global as rapidjson doc
+  - count how many wolfes were killed
+  - keep track of quest stages: e.g. on pickup, send an invoke to modify quest stage
+- a tasklist to write new functioncalls into
+  - e.g.: "echo Invoke Activated!"
+  - e.g.: "env-deload", "env-load ./Resources/Levels/stage_$($(global.currentStage)+1)"
 
-Global enables other powerful settings such as:  
-- count how many wolfes were killed
-- keep track of quest stages: e.g. on pickup, send an invoke to modify quest stage
 
 This also allows to store stuff for other objects to change that are currently not in memory
 */
