@@ -9,10 +9,11 @@ namespace Nebulite{
     taskQueue tasks_script;
     taskQueue tasks_internal;
     std::unique_ptr<Renderer> renderer = nullptr;
+    Invoke invoke;
 
     Renderer* getRenderer() {
         if (!renderer) {
-            renderer = std::make_unique<Renderer>(tasks_internal.taskList);
+            renderer = std::make_unique<Renderer>(tasks_internal.taskList,invoke);
             renderer->setFPS(60);
         }
         return renderer.get();

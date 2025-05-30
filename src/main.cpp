@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
     int    argc_mainTree = 0;
     char** argv_mainTree = nullptr;
     int result = 0;
-    while (!Nebulite::getRenderer()->isQuit()) {
+    do {
         //--------------------
         // Handle args
         while (!Nebulite::tasks_script.taskList.empty() && Nebulite::tasks_script.waitCounter == 0) {
@@ -121,7 +121,7 @@ int main(int argc, char* argv[]) {
             Nebulite::tasks_script.taskList.pop_front();  // remove the used task
 
             // Resolve global vars in task
-            argStr = Nebulite::getRenderer()->getInvoke()->resolveGlobalVars(argStr);
+            argStr = Nebulite::invoke.resolveGlobalVars(argStr);
 
             // Convert std::string to argc,argv
             argc_mainTree = 0;
@@ -138,7 +138,7 @@ int main(int argc, char* argv[]) {
             Nebulite::tasks_internal.taskList.pop_front();  // remove the used task
 
             // Resolve global vars in task
-            argStr = Nebulite::getRenderer()->getInvoke()->resolveGlobalVars(argStr);
+            argStr = Nebulite::invoke.resolveGlobalVars(argStr);
 
             // Convert std::string to argc,argv
             argc_mainTree = 0;
@@ -152,7 +152,7 @@ int main(int argc, char* argv[]) {
         
         //--------------------
         // Update and render
-        if (Nebulite::getRenderer()->timeToRender()) {
+        if (Nebulite::renderer != nullptr && Nebulite::getRenderer()->timeToRender()) {
             Nebulite::getRenderer()->update();          // 1.) Update objects
             Nebulite::getRenderer()->renderFrame();     // 2.) Render frame
             Nebulite::getRenderer()->renderFPS();       // 3.) Render fps count
@@ -162,14 +162,14 @@ int main(int argc, char* argv[]) {
             // lower waitCounter in script task
             if(Nebulite::tasks_script.waitCounter>0) Nebulite::tasks_script.waitCounter--; 
         }
-    }
+    } while (Nebulite::renderer != nullptr && !Nebulite::getRenderer()->isQuit());
 
 
     //--------------------------------------------------
     // Exit
 
     // Destroy renderer
-    Nebulite::getRenderer()->destroy();
+    if(Nebulite::renderer != nullptr) Nebulite::getRenderer()->destroy();
 
     // Close error log
     std::cerr.flush();                  // Explicitly flush std::cerr before closing the file stream. Ensures everything is written to the file

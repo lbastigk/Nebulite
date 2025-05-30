@@ -21,10 +21,7 @@
 
 class Renderer {
 public:
-	Renderer(std::deque<std::string>& tasks, bool flag_hidden = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
-	
-	//Destructor
-	~Renderer();
+	Renderer(std::deque<std::string>& tasks, Invoke& invoke, bool flag_hidden = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
 
 	//Marshalling
 	std::string serialize();
@@ -79,19 +76,19 @@ public:
 	int getEps(){return epsillon;}
 	size_t getTextureAmount(){return TextureContainer.size();}
 	size_t getObjectCount(){return env.getObjectCount();}
-	int getResX(){return JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Resolution.X",0);}
-	int getResY(){return JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Resolution.Y",0);}
+	int getResX(){return JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"Display.Resolution.X",0);}
+	int getResY(){return JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"Display.Resolution.Y",0);}
 	int getThreadSize(){return THREADSIZE;}
 	int getFPS(){return fps;}
-	int getPosX(){return JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Position.X",0);};
-	int getPosY(){return JSONHandler::Get::Any<int>(*Invoke.getGlobalPointer(),"Display.Position.Y",0);};
+	int getPosX(){return JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"Display.Position.X",0);};
+	int getPosY(){return JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"Display.Position.Y",0);};
 	bool windowExists(){return !!Renderer::window;}
 
 	unsigned int getTileXpos(){return tileXpos;}
 	unsigned int getTileYpos(){return tileYpos;}
 
 	SDL_Renderer* getSdlRenderer(){return renderer;}
-	Invoke* getInvoke(){return &Invoke;}
+	Invoke* getInvoke(){return invoke_ptr;}
 
 	class SDL {
 	public:
@@ -141,10 +138,10 @@ private:
 	uint64_t starttime;
     uint64_t currentTime;
     uint64_t lastTime;
+	Invoke* invoke_ptr = nullptr;
 
 	// Subclasses
 	Environment env;
-	Invoke Invoke;
 
 	//Settings
 	unsigned int THREADSIZE = 2;

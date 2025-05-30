@@ -8,6 +8,7 @@
 
 // Nebulite instances
 namespace Nebulite {
+    
 
     struct taskQueue {
         std::deque<std::string> taskList;
@@ -18,6 +19,7 @@ namespace Nebulite {
     extern taskQueue tasks_script;
     extern taskQueue tasks_internal;
     extern std::unique_ptr<Renderer> renderer;
+    extern Invoke invoke;
 
     // Function to lazily initialize the renderer
     Renderer* getRenderer();
