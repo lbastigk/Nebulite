@@ -20,7 +20,7 @@
  * Initializes callable functions from both user CLI and runtime environment.
  * Also sets up the global Renderer used across Tree-based function calls.
  */
-#include "mainTreeFunctions.cpp" 
+#include "mainTreeFunctions.h" 
 
 // Used to build a tree of callable Functions and parsing arguments
 #include "FuncTree.h"
@@ -31,7 +31,7 @@
  * NEBULITE main
  * 
  * TODO:    Only init renderer if it's actually used!
- *          This way, help does not start a whole Renderer...
+ *          This way, help does not start a whole Nebulite::getRenderer()->..
  * 
  * TODO:    Make error log an on/off toggle via an additional mainTree function
  *          log on
@@ -45,9 +45,6 @@
 int main(int argc, char* argv[]) {
     //--------------------------------------------------
     // Startup
-
-    // General Presets
-    renderer.setFPS(60);
 
     // Log errors in separate file
     std::ofstream errorFile("errors.log");
@@ -72,7 +69,7 @@ int main(int argc, char* argv[]) {
             if (i > 0) oss << ' ';          // Add space between arguments
             oss << argv[i];
         }
-        tasks_script.taskList.push_back(oss.str());
+        Nebulite::tasks_script.taskList.push_back(oss.str());
     }
     else{
         // If argc is 0, no arg was provided.
@@ -89,42 +86,42 @@ int main(int argc, char* argv[]) {
     FuncTree mainTree("Nebulite");
 
     // General
-    mainTree.attachFunction(mainTreeFunctions::envload,         "env-load",     "Loads an environment");
-    mainTree.attachFunction(mainTreeFunctions::envdeload,       "env-deload",   "Deloads an environment");
-    mainTree.attachFunction(mainTreeFunctions::spawn,           "spawn",        "Spawn a renderobject");
-    mainTree.attachFunction(mainTreeFunctions::exitProgram,     "exit",         "exits the program");
-    mainTree.attachFunction(mainTreeFunctions::save,            "state-save",   "Saves the state");
-    mainTree.attachFunction(mainTreeFunctions::load,            "state-load",   "Loads a state");
-    mainTree.attachFunction(mainTreeFunctions::loadTaskList,    "task",         "Loads a txt file of tasks");
-    mainTree.attachFunction(mainTreeFunctions::wait,            "wait",         "Halt all commands for a set amount of frames");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::envload,         "env-load",     "Loads an environment");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::envdeload,       "env-deload",   "Deloads an environment");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::spawn,           "spawn",        "Spawn a renderobject");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::exitProgram,     "exit",         "exits the program");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::save,            "state-save",   "Saves the state");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::load,            "state-load",   "Loads a state");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::loadTaskList,    "task",         "Loads a txt file of tasks");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::wait,            "wait",         "Halt all commands for a set amount of frames");
     
     // Renderer Settings
-    mainTree.attachFunction(mainTreeFunctions::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
-    mainTree.attachFunction(mainTreeFunctions::setResolution,   "set-res",      "Sets resolution size: [w] [h]");
-    mainTree.attachFunction(mainTreeFunctions::setCam,          "cam-set",      "Sets Camera position [x] [y] <c>");
-    mainTree.attachFunction(mainTreeFunctions::moveCam,         "cam-move",     "Moves Camera position [dx] [dy]");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::setResolution,   "set-res",      "Sets resolution size: [w] [h]");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::setCam,          "cam-set",      "Sets Camera position [x] [y] <c>");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::moveCam,         "cam-move",     "Moves Camera position [dx] [dy]");
 
     // Debug
-    mainTree.attachFunction(mainTreeFunctions::serialize,       "serialize",    "Serialize current State to file");
-    mainTree.attachFunction(mainTreeFunctions::echo,            "echo",         "Echos all args provided to cout");
-    mainTree.attachFunction(mainTreeFunctions::printGlobal,     "print-global", "Prints global doc to cout");
-    mainTree.attachFunction(mainTreeFunctions::printState,      "print-state",  "Prints state doc to cout");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::serialize,       "serialize",    "Serialize current State to file");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::echo,            "echo",         "Echos all args provided to cout");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::printGlobal,     "print-global", "Prints global doc to cout");
+    mainTree.attachFunction(Nebulite::mainTreeFunctions::printState,      "print-state",  "Prints state doc to cout");
     
     //--------------------------------------------------
     // Render loop
     int    argc_mainTree = 0;
     char** argv_mainTree = nullptr;
     int result = 0;
-    while (!renderer.isQuit()) {
+    while (!Nebulite::getRenderer()->isQuit()) {
         //--------------------
         // Handle args
-        while (!tasks_script.taskList.empty() && tasks_script.waitCounter == 0) {
+        while (!Nebulite::tasks_script.taskList.empty() && Nebulite::tasks_script.waitCounter == 0) {
             // Get task
-            std::string argStr = tasks_script.taskList.front();
-            tasks_script.taskList.pop_front();  // remove the used task
+            std::string argStr = Nebulite::tasks_script.taskList.front();
+            Nebulite::tasks_script.taskList.pop_front();  // remove the used task
 
             // Resolve global vars in task
-            argStr = renderer.getInvoke()->resolveGlobalVars(argStr);
+            argStr = Nebulite::getRenderer()->getInvoke()->resolveGlobalVars(argStr);
 
             // Convert std::string to argc,argv
             argc_mainTree = 0;
@@ -135,13 +132,13 @@ int main(int argc, char* argv[]) {
                 result = mainTree.parse(argc_mainTree, argv_mainTree);
             }
         }
-        while (!tasks_internal.taskList.empty()) {
+        while (!Nebulite::tasks_internal.taskList.empty()) {
             // Get task
-            std::string argStr = tasks_internal.taskList.front();
-            tasks_internal.taskList.pop_front();  // remove the used task
+            std::string argStr = Nebulite::tasks_internal.taskList.front();
+            Nebulite::tasks_internal.taskList.pop_front();  // remove the used task
 
             // Resolve global vars in task
-            argStr = renderer.getInvoke()->resolveGlobalVars(argStr);
+            argStr = Nebulite::getRenderer()->getInvoke()->resolveGlobalVars(argStr);
 
             // Convert std::string to argc,argv
             argc_mainTree = 0;
@@ -155,15 +152,15 @@ int main(int argc, char* argv[]) {
         
         //--------------------
         // Update and render
-        if (renderer.timeToRender()) {
-            renderer.update();          // 1.) Update objects
-            renderer.renderFrame();     // 2.) Render frame
-            renderer.renderFPS();       // 3.) Render fps count
-            renderer.showFrame();       // 4.) Show Frame
-            renderer.clear();           // 5.) Clear screen
+        if (Nebulite::getRenderer()->timeToRender()) {
+            Nebulite::getRenderer()->update();          // 1.) Update objects
+            Nebulite::getRenderer()->renderFrame();     // 2.) Render frame
+            Nebulite::getRenderer()->renderFPS();       // 3.) Render fps count
+            Nebulite::getRenderer()->showFrame();       // 4.) Show Frame
+            Nebulite::getRenderer()->clear();           // 5.) Clear screen
 
             // lower waitCounter in script task
-            if(tasks_script.waitCounter>0) tasks_script.waitCounter--; 
+            if(Nebulite::tasks_script.waitCounter>0) Nebulite::tasks_script.waitCounter--; 
         }
     }
 
@@ -172,7 +169,7 @@ int main(int argc, char* argv[]) {
     // Exit
 
     // Destroy renderer
-    renderer.destroy();
+    Nebulite::getRenderer()->destroy();
 
     // Close error log
     std::cerr.flush();                  // Explicitly flush std::cerr before closing the file stream. Ensures everything is written to the file
