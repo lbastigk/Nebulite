@@ -57,6 +57,8 @@ namespace Nebulite {
         int printGlobal(int argc, char* argv[]);
 
         int printState(int argc, char* argv[]);
+
+        int setGlobal(int argc, char* argv[]);
     }
 
 }

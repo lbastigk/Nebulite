@@ -20,6 +20,21 @@ namespace Nebulite{
     }
 }
 
+int Nebulite::mainTreeFunctions::setGlobal(int argc, char* argv[]){
+    if(argc == 2){
+        std::string key = argv[0];
+        std::string value = argv[1];
+        JSONHandler::Set::Any<std::string>(Nebulite::getRenderer()->getGlobal(),key,value);
+        return 0;
+    }
+    if(argc == 1){
+        std::string key = argv[0];
+        std::string value = "0";
+        JSONHandler::Set::Any<std::string>(Nebulite::getRenderer()->getGlobal(),key,value);
+        return 0;
+    }
+    return 1;
+}
 
 int Nebulite::mainTreeFunctions::envload(int argc, char* argv[]){
     if(argc > 0){
@@ -41,7 +56,7 @@ int Nebulite::mainTreeFunctions::envdeload(int argc, char* argv[]){
 
 int Nebulite::mainTreeFunctions::spawn(int argc, char* argv[]){
     if(argc>0){
-        std::cout << "Spawning object: " << argv[0] << std::endl;
+        //std::cout << "Spawning object: " << argv[0] << std::endl;
         RenderObject ro;
         ro.deserialize(argv[0]);
 

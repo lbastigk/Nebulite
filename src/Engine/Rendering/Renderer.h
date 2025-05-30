@@ -73,6 +73,7 @@ public:
 	
 	//-----------------------------------------------------------
 	// Getting
+	rapidjson::Document& getGlobal(){return env.getGlobal();}
 	int getEps(){return epsillon;}
 	size_t getTextureAmount(){return TextureContainer.size();}
 	size_t getObjectCount(){return env.getObjectCount();}

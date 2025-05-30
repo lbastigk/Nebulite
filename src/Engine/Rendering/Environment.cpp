@@ -1,9 +1,6 @@
 #include "Environment.h"
 
-Environment::Environment() {
-	JSONHandler::Set::Any<double>(global,"dt",0);
-    JSONHandler::Set::Any<double>(global,"G",0.1 * 100);
-}
+Environment::Environment() {}
 
 Environment::Environment(const Environment& other) {
 	//doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());

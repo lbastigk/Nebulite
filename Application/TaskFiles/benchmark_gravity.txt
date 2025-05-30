@@ -1,9 +1,12 @@
+echo Gravity Benchmark loaded...
+echo
+echo Rendering with a fixed dt of 10ms
+echo 
+echo 
+set-global time.fixed_dt_ms 10
 set-res 1440 1440
-set-fps 10000
-echo
-echo
-echo Please investigate bug that causes the usual image of camera_movement_wasd to not load!
-echo
+set-fps 1000
+print-global
 echo
 echo
 spawn ./Resources/Renderobjects/Planets/obj2.json|posX=128|posY=128|physics.vX=4|physics.vY=-3|physics.mass=5000|text.str=obj001|imgLocation=Resources/Sprites/TEST100P/001.bmp
@@ -70,6 +73,16 @@ spawn ./Resources/Renderobjects/Planets/obj2.json|posX=1024|posY=640|physics.vX=
 spawn ./Resources/Renderobjects/Planets/obj2.json|posX=1024|posY=768|physics.vX=-3|physics.vY=6|physics.mass=5000|text.str=obj062|imgLocation=Resources/Sprites/TEST100P/062.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.json|posX=1024|posY=896|physics.vX=-4|physics.vY=0|physics.mass=5000|text.str=obj063|imgLocation=Resources/Sprites/TEST100P/063.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.json|posX=1024|posY=1024|physics.vX=-3|physics.vY=-8|physics.mass=5000|text.str=obj064|imgLocation=Resources/Sprites/TEST100P/064.bmp
+echo
+echo
+echo Rendering 600 Frames...
+echo
 wait 600
+echo
+echo
+echo Global Doc:
+echo
 print-global
+echo
+echo
 exit
