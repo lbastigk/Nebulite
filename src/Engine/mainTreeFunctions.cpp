@@ -43,8 +43,9 @@ int Nebulite::mainTreeFunctions::envload(int argc, char* argv[]){
         return 0;
     }
     else{
-        std::cerr << "No env name provided!" << std::endl;
-        return 1;
+        // no name provided, load empty env
+        Nebulite::getRenderer()->deserialize("{}");
+        return 0;
     }
 }
 

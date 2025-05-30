@@ -1,3 +1,10 @@
+//     _   ____________  __  ____    ________________
+//    / | / / ____/ __ )/ / / / /   /  _/_  __/ ____/
+//   /  |/ / __/ / __  / / / / /    / /  / / / __/   
+//  / /|  / /___/ /_/ / /_/ / /____/ /  / / / /___   
+// /_/ |_/_____/_____/\____/_____/___/ /_/ /_____/   
+//                                                     
+
 /*
  * NEBULITE Engine - main.cpp
  *
@@ -30,8 +37,6 @@
 /*
  * NEBULITE main
  * 
- * TODO:    Only init renderer if it's actually used!
- *          This way, help does not start a whole Nebulite::getRenderer()->..
  * 
  * TODO:    Make error log an on/off toggle via an additional mainTree function
  *          log on
