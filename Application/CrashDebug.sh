@@ -2,9 +2,7 @@
 
 ulimit -n 1024  # Set max open files to 1024
 
-taskname=TaskFiles/crash_test.txt
-#taskname=TaskFiles/obj_oob.txt
-
+taskname=TaskFiles/Tests/crash_test.txt
 valgrind \
   --tool=memcheck \
   --track-origins=yes \

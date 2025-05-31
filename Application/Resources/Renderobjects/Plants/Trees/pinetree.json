@@ -1,0 +1,13 @@
+{
+    "posX": 500,
+    "posY": 500,
+    "pixSizeX": 160,
+    "pixSizeY": 160,
+    "imgLocation": "./Resources/Sprites/MiniWorldSprites/Nature/PineTrees.png",
+    "layer": 1,
+    "isSpritesheet": true,
+    "spritesheetOffsetX": 16,
+    "spritesheetOffsetY": 0,
+    "spritesheetSizeX": 16,
+    "spritesheetSizeY": 16
+}

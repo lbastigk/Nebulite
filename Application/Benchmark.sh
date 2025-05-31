@@ -10,7 +10,7 @@ echo ""
 echo ""
 for ((i=1; i<=runs; i++)); do
     start=$(date +%s.%N)
-    ./bin/Nebulite task TaskFiles/benchmark_gravity.txt >> /dev/null
+    ./bin/Nebulite task TaskFiles/Benchmarks/benchmark_gravity.txt >> /dev/null
     end=$(date +%s.%N)
 
     runtime=$(echo "$end - $start" | bc -l)
