@@ -14,3 +14,14 @@ spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=080|posY=000
 spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=096|posY=000
 spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=112|posY=000
 spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=128|posY=000
+# Idea:
+# for iStart iEnd spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=$($(i)*16)|posY=000
+# additionally:
+# $(rand)
+# rest, use Invoke to resolve with global attached for self,other,global 
+# though this needs a true second rand, 
+# since the planned rand for global should only be re-hashed every frame (TAS-consistency)
+# perhaps:  $(rand)  - only updated each frame
+            $(rrand) - (rolling-rand), updated with each for-loop
+# difficulty might be that inside the int for(int argc, char** argv), the mainTree needs to be accessible?
+# Perhaps rebuild to Nebulite::mainTree
