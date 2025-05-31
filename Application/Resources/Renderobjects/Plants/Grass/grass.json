@@ -1,8 +1,8 @@
 {
     "posX": 500,
     "posY": 500,
-    "pixSizeX": 160,
-    "pixSizeY": 160,
+    "pixSizeX": 16,
+    "pixSizeY": 16,
     "imgLocation": "./Resources/Sprites/MiniWorldSprites/Ground/TexturedGrass.png",
     "layer": 0,
     "isSpritesheet": true,

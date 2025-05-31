@@ -1,0 +1,16 @@
+set-res 1280 720
+set-fps 60
+echo
+echo Nebulite vertical slice test
+echo Building simple level
+echo
+echo
+spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=000|posY=000
+spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=016|posY=000
+spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=032|posY=000
+spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=048|posY=000
+spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=064|posY=000
+spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=080|posY=000
+spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=096|posY=000
+spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=112|posY=000
+spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=128|posY=000
