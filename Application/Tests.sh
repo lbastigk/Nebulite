@@ -28,6 +28,8 @@ check_binary() {
 
 # List of test input files
 tests=(
+    "help"
+    "echo 1234"
     "task TaskFiles/crash_test.txt"
     "task TaskFiles/gravity_classic.txt"
     "task TaskFiles/benchmark_gravity.txt"
