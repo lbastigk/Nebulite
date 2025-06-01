@@ -6,9 +6,6 @@ FuncTree::FuncTree(std::string treeName){
     // using lambda
     TreeName = treeName;
     (void) attachFunction([this](int argc, char* argv[]) { return this->help(argc, argv); },"help","");
-
-    char* argvBuffer = nullptr;
-    int argvCapacity = 0;
 }
 
 // Attach a function to the menu
@@ -152,42 +149,3 @@ int FuncTree::help(int argc, char* argv[]) {
     return 0;
 }
 
-void FuncTree::convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv) {
-    // Free previous buffer if any
-    if (argvBuffer) {
-        delete[] argvBuffer;
-        argvBuffer = nullptr;
-        argvCapacity = 0;
-    }
-
-    // Make a modifiable copy of cmd
-    argvCapacity = static_cast<int>(cmd.size()) + 1; // +1 for '\0'
-    argvBuffer = new char[argvCapacity];
-    std::memcpy(argvBuffer, cmd.c_str(), argvCapacity);
-
-    // Count tokens and split in-place by replacing spaces with '\0'
-    argc = 0;
-    bool inToken = false;
-
-    // Maximum argv size = number of tokens <= number of chars
-    static std::vector<char*> argvVec;
-    argvVec.clear();
-    argvVec.reserve(argvCapacity);
-
-    for (int i = 0; i < argvCapacity; ++i) {
-        if (argvBuffer[i] == ' ' || argvBuffer[i] == '\t') {
-            argvBuffer[i] = '\0';
-            inToken = false;
-        } else if (!inToken) {
-            // Start of a new token
-            argvVec.push_back(&argvBuffer[i]);
-            argc++;
-            inToken = true;
-        }
-    }
-
-    // Null terminate argv list
-    argvVec.push_back(nullptr);
-
-    argv = argvVec.data();
-}

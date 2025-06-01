@@ -32,6 +32,46 @@
 // Used to build a tree of callable Functions and parsing arguments
 #include "FuncTree.h"
 
+// Resolves a given taskqueue by parsing each line into argc/argv and calling the mainTree on the arguments
+// additionally, variables inside are resolved
+int resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t counter, int* argc_mainTree, char*** argv_mainTree){
+    while (!tq.taskList.empty() && counter == 0) {
+        // Get task
+        std::string argStr = Nebulite::tasks_script.taskList.front();
+        Nebulite::tasks_script.taskList.pop_front();  // remove the used task
+
+        // Resolve global vars in task
+        std::string preFor = argStr;
+        std::string postFor = "";
+        if(argStr.size() >= 3){
+            for(int i=0; i < argStr.size()-3; i++){
+                if(argStr.at(i) == 'f' && argStr.at(i+1) == 'o' && argStr.at(i+2) == 'r' && argStr.at(i+3) == ' '){
+                    // "for " is at this position
+                    // check if keyword before is whitespace too
+                    if(i==0 || i > 0 && argStr.at(i-1) == ' '){
+                        preFor = argStr.substr(0, i);
+                        postFor = argStr.substr(i);
+                        break;
+                    }
+                }
+            }
+        }
+        argStr = Nebulite::invoke.resolveGlobalVars(preFor) + postFor;
+
+        // Convert std::string to argc,argv
+        *argc_mainTree = 0;
+        *argv_mainTree = nullptr;
+        Nebulite::convertStrToArgcArgv(argStr, *argc_mainTree, *argv_mainTree);
+
+        if (*argv_mainTree != nullptr && argStr.size()) {
+            return Nebulite::mainTree.parse(*argc_mainTree, *argv_mainTree);
+        }
+        else{
+            return 0;
+        }
+    }
+    return 0;
+}
 
 
 /*
@@ -87,78 +127,23 @@ int main(int argc, char* argv[]) {
 
     //--------------------------------------------------
     // Build main FuncTree
-
-    FuncTree mainTree("Nebulite");
-
-    // General
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::setGlobal,       "set-global",   "Set any global variable: [key] [value]");
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::envload,         "env-load",     "Loads an environment");
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::envdeload,       "env-deload",   "Deloads an environment");
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::spawn,           "spawn",        "Spawn a renderobject");
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::exitProgram,     "exit",         "exits the program");
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::save,            "state-save",   "Saves the state");
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::load,            "state-load",   "Loads a state");
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::loadTaskList,    "task",         "Loads a txt file of tasks");
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::wait,            "wait",         "Halt all commands for a set amount of frames");
-    
-    // Renderer Settings
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::setResolution,   "set-res",      "Sets resolution size: [w] [h]");
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::setCam,          "cam-set",      "Sets Camera position [x] [y] <c>");
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::moveCam,         "cam-move",     "Moves Camera position [dx] [dy]");
-
-    // Debug
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::serialize,       "serialize",    "Serialize current State to file");
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::echo,            "echo",         "Echos all args provided to cout");
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::error,           "error",        "Echos all args provided to cerr");
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::printGlobal,     "print-global", "Prints global doc to cout");
-    mainTree.attachFunction(Nebulite::mainTreeFunctions::printState,      "print-state",  "Prints state doc to cout");
+    Nebulite::init_functions();
     
     //--------------------------------------------------
     // Render loop
     int    argc_mainTree = 0;
     char** argv_mainTree = nullptr;
     int result = 0;
+
+    // At least one loop, to handle taskQueues
     do {
         //--------------------
         // Handle args
-        while (!Nebulite::tasks_script.taskList.empty() && Nebulite::tasks_script.waitCounter == 0) {
-            // Get task
-            std::string argStr = Nebulite::tasks_script.taskList.front();
-            Nebulite::tasks_script.taskList.pop_front();  // remove the used task
+        result = resolveTaskQueue(Nebulite::tasks_script,  Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
+        result = resolveTaskQueue(Nebulite::tasks_internal,0,                                 &argc_mainTree,&argv_mainTree);
 
-            // Resolve global vars in task
-            argStr = Nebulite::invoke.resolveGlobalVars(argStr);
-
-            // Convert std::string to argc,argv
-            argc_mainTree = 0;
-            argv_mainTree = nullptr;
-            mainTree.convertStrToArgcArgv(argStr, argc_mainTree, argv_mainTree);
-
-            if (argv != nullptr) {
-                result = mainTree.parse(argc_mainTree, argv_mainTree);
-            }
-        }
-        while (!Nebulite::tasks_internal.taskList.empty()) {
-            // Get task
-            std::string argStr = Nebulite::tasks_internal.taskList.front();
-            Nebulite::tasks_internal.taskList.pop_front();  // remove the used task
-
-            // Resolve global vars in task
-            argStr = Nebulite::invoke.resolveGlobalVars(argStr);
-
-            // Convert std::string to argc,argv
-            argc_mainTree = 0;
-            argv_mainTree = nullptr;
-            mainTree.convertStrToArgcArgv(argStr, argc_mainTree, argv_mainTree);
-
-            if (argv != nullptr) {
-                result = mainTree.parse(argc_mainTree, argv_mainTree);
-            }
-        }
-        
         //--------------------
-        // Update and render
+        // Update and render, only if initialized
         if (Nebulite::renderer != nullptr && Nebulite::getRenderer()->timeToRender()) {
             Nebulite::getRenderer()->update();          // 1.) Update objects
             Nebulite::getRenderer()->renderFrame();     // 2.) Render frame

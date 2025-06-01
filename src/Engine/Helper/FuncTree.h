@@ -57,9 +57,5 @@ private:
     int help(int argc, char* argv[]);
     std::map<std::string, std::pair<FunctionPtr,  std::string>> functions;
     std::map<std::string, std::pair<std::string*, std::string>> argumentPtrs;
-    std::string TreeName;
-
-    // used by convertStrToArgcArgv
-    char* argvBuffer;
-    int argvCapacity;
+    std::string TreeName; 
 };

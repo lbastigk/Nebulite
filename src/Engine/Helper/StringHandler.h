@@ -19,7 +19,7 @@ public:
 
     static std::string uint64ToStringWithGroupingAndPadding(UINT64 value, int length);
 
-    static std::string replaceAll(std::string target, std::string toReplace, std::string replacer);
+    static std::string replaceAll(std::string target, const std::string& toReplace, const std::string& replacer);
 
     //use %i in before/after for line count
     static std::string parseArray(std::vector<std::string> arr, std::string before = "", std::string after = "\n");
