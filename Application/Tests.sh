@@ -28,10 +28,12 @@ check_binary() {
 
 # List of test input files
 tests=(
-    "task TaskFiles/Tests/crash_test.txt"
-    "task TaskFiles/Benchmarks/gravity_classic.txt"
-    "task TaskFiles/Benchmarks/benchmark_gravity.txt"
-    "task TaskFiles/Tests/obj_oob.txt"
+    "help"
+    "echo 1234"
+    "task TaskFiles/crash_test.txt"
+    "task TaskFiles/gravity_classic.txt"
+    "task TaskFiles/benchmark_gravity.txt"
+    "task TaskFiles/obj_oob.txt"
 )
 
 for test in "${tests[@]}"; do

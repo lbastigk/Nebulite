@@ -34,11 +34,12 @@
 
 // Resolves a given taskqueue by parsing each line into argc/argv and calling the mainTree on the arguments
 // additionally, variables inside are resolved
-int resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t counter, int* argc_mainTree, char*** argv_mainTree){
-    while (!tq.taskList.empty() && counter == 0) {
+int resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree){
+    int result = 0;
+    while (!tq.taskList.empty() && (counter == nullptr || *counter == 0)) {
         // Get task
-        std::string argStr = Nebulite::tasks_script.taskList.front();
-        Nebulite::tasks_script.taskList.pop_front();  // remove the used task
+        std::string argStr = tq.taskList.front();
+        tq.taskList.pop_front();  // remove the used task
 
         // Resolve global vars in task
         std::string preFor = argStr;
@@ -64,13 +65,13 @@ int resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t counter, int* argc_mainTr
         Nebulite::convertStrToArgcArgv(argStr, *argc_mainTree, *argv_mainTree);
 
         if (*argv_mainTree != nullptr && argStr.size()) {
-            return Nebulite::mainTree.parse(*argc_mainTree, *argv_mainTree);
+            result = Nebulite::mainTree.parse(*argc_mainTree, *argv_mainTree);
         }
         else{
-            return 0;
+            result = 0;
         }
     }
-    return 0;
+    return result;
 }
 
 
@@ -139,8 +140,8 @@ int main(int argc, char* argv[]) {
     do {
         //--------------------
         // Handle args
-        result = resolveTaskQueue(Nebulite::tasks_script,  Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
-        result = resolveTaskQueue(Nebulite::tasks_internal,0,                                 &argc_mainTree,&argv_mainTree);
+        result = resolveTaskQueue(Nebulite::tasks_script,  &Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
+        result = resolveTaskQueue(Nebulite::tasks_internal,nullptr,                            &argc_mainTree,&argv_mainTree);
 
         //--------------------
         // Update and render, only if initialized
