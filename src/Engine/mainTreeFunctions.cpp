@@ -20,6 +20,7 @@ namespace Nebulite{
     void init_functions(){
         
         // General
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::eval,            "eval",         "Evaluate all $(...) after this keyword, parse rest as usual");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::setGlobal,       "set-global",   "Set any global variable: [key] [value]");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::envload,         "env-load",     "Loads an environment");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::envdeload,       "env-deload",   "Deloads an environment");
@@ -92,6 +93,7 @@ void Nebulite::convertStrToArgcArgv(const std::string& cmd, int& argc, char**& a
 
 */
 
+
 void Nebulite::convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv) {
     // Free previous buffer if any
     if (argvBuffer) {
@@ -126,6 +128,27 @@ void Nebulite::convertStrToArgcArgv(const std::string& cmd, int& argc, char**& a
     argv[argc] = nullptr;
 }
 
+int Nebulite::mainTreeFunctions::eval(int argc, char* argv[]){
+    // argc/argv to string for evaluation
+    std::string args = "";
+    for (int i = 0; i < argc; ++i) {
+        args += argv[i];
+        if (i < argc - 1) {
+            args += " ";
+        }
+    }
+
+    // eval all $(...)
+    std::string args_evaled = Nebulite::invoke.resolveGlobalVars(args);
+
+    // convert back to argc/argv
+    int argc_new = 0;
+    char** argv_new = nullptr;
+    Nebulite::convertStrToArgcArgv(args_evaled, argc_new, argv_new);
+
+    // reparse
+    return mainTree.parse(argc_new, argv_new);
+}
 
 int Nebulite::mainTreeFunctions::setGlobal(int argc, char* argv[]){
     if(argc == 2){
@@ -264,10 +287,6 @@ int Nebulite::mainTreeFunctions::forLoop(int argc, char* argv[]){
         std::string args_replaced;
         for(int i = iStart; i <= iEnd; i++){
             args_replaced = StringHandler::replaceAll(args, '$' + varName, std::to_string(i));
-
-            args_replaced = Nebulite::invoke.resolveGlobalVars(args_replaced);
-
-            // Resolve of vars should only happen here!
 
             int argc_new = 0;
             char** argv_new = nullptr;

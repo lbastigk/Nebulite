@@ -42,6 +42,8 @@ int resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainT
         tq.taskList.pop_front();  // remove the used task
 
         // Resolve global vars in task
+        // Currently not used. Instead, keyword eval is used!
+        /*
         std::string preFor = argStr;
         std::string postFor = "";
         if(argStr.size() >= 3){
@@ -58,6 +60,8 @@ int resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainT
             }
         }
         argStr = Nebulite::invoke.resolveGlobalVars(preFor) + postFor;
+        */
+        
 
         // Convert std::string to argc,argv
         *argc_mainTree = 0;

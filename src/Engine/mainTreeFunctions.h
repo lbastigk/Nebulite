@@ -35,6 +35,8 @@ namespace Nebulite {
     void convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv);
 
     namespace mainTreeFunctions{
+
+        int eval(int argc, char* argv[]);
         
         int envload(int argc, char* argv[]);
 
