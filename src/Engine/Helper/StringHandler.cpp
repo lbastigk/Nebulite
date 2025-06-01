@@ -48,7 +48,7 @@ std::string StringHandler::uint64ToStringWithGroupingAndPadding(UINT64 value, in
     return result;
 }
 
-std::string StringHandler::replaceAll(std::string target, std::string toReplace, std::string replacer) {
+std::string StringHandler::replaceAll(std::string target, const std::string& toReplace, const std::string& replacer) {
     std::string::size_type pos = 0u;
     while ((pos = target.find(toReplace, pos)) != std::string::npos) {
         target.replace(pos, toReplace.length(), replacer);
@@ -56,6 +56,7 @@ std::string StringHandler::replaceAll(std::string target, std::string toReplace,
     }
     return target;
 }
+
 
 //use %i in before/after for line count
 std::string StringHandler::parseArray(std::vector<std::string> arr, std::string before, std::string after) {

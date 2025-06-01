@@ -10,6 +10,40 @@ namespace Nebulite{
     taskQueue tasks_internal;
     std::unique_ptr<Renderer> renderer = nullptr;
     Invoke invoke;
+    FuncTree mainTree("Nebulite");
+
+    // used by convertStrToArgcArgv
+    char* argvBuffer = nullptr;
+    int argvCapacity = 0;
+
+    // Init nebulite functions
+    void init_functions(){
+        
+        // General
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::setGlobal,       "set-global",   "Set any global variable: [key] [value]");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::envload,         "env-load",     "Loads an environment");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::envdeload,       "env-deload",   "Deloads an environment");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::spawn,           "spawn",        "Spawn a renderobject");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::exitProgram,     "exit",         "exits the program");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::save,            "state-save",   "Saves the state");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::load,            "state-load",   "Loads a state");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::loadTaskList,    "task",         "Loads a txt file of tasks");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::wait,            "wait",         "Halt all commands for a set amount of frames");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::forLoop,         "for",          "Start for-loop. Usage: for var <iStart> <iEnd> command $var");
+        
+        // Renderer Settings
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::setResolution,   "set-res",      "Sets resolution size: [w] [h]");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::setCam,          "cam-set",      "Sets Camera position [x] [y] <c>");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::moveCam,         "cam-move",     "Moves Camera position [dx] [dy]");
+
+        // Debug
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::serialize,       "serialize",    "Serialize current State to file");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::echo,            "echo",         "Echos all args provided to cout");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::error,           "error",        "Echos all args provided to cerr");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::printGlobal,     "print-global", "Prints global doc to cout");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::printState,      "print-state",  "Prints state doc to cout");
+    }
 
     Renderer* getRenderer() {
         if (!renderer) {
@@ -19,6 +53,79 @@ namespace Nebulite{
         return renderer.get();
     }
 }
+/*
+void Nebulite::convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv) {
+    // Free previous buffer if any
+    if (argvBuffer) {
+        delete[] argvBuffer;
+        argvBuffer = nullptr;
+        argvCapacity = 0;
+    }
+
+    // Allocate new buffer
+    argvCapacity = static_cast<int>(cmd.size()) + 1;
+    argvBuffer = new char[argvCapacity];
+    std::memcpy(argvBuffer, cmd.c_str(), argvCapacity);
+
+    // Tokenize
+    std::vector<char*> argvVec;
+    argc = 0;
+    bool inToken = false;
+    for (int i = 0; i < argvCapacity; ++i) {
+        if (argvBuffer[i] == ' ' || argvBuffer[i] == '\t') {
+            argvBuffer[i] = '\0';
+            inToken = false;
+        } else if (!inToken) {
+            argvVec.push_back(&argvBuffer[i]);
+            argc++;
+            inToken = true;
+        }
+    }
+
+    // Allocate argv (deep copy of argvVec)
+    argv = new char*[argc + 1];
+    for (int i = 0; i < argc; ++i) {
+        argv[i] = argvVec[i];
+    }
+    argv[argc] = nullptr; // Null terminator
+}
+
+*/
+
+void Nebulite::convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv) {
+    // Free previous buffer if any
+    if (argvBuffer) {
+        delete[] argvBuffer;
+        argvBuffer = nullptr;
+        argvCapacity = 0;
+    }
+
+    argvCapacity = static_cast<int>(cmd.size()) + 1;
+    argvBuffer = new char[argvCapacity];
+    std::memcpy(argvBuffer, cmd.c_str(), argvCapacity);
+
+    std::vector<char*> argvVec;
+    argc = 0;
+    bool inToken = false;
+    for (int i = 0; i < argvCapacity; ++i) {
+        if (argvBuffer[i] == ' ' || argvBuffer[i] == '\t') {
+            argvBuffer[i] = '\0';
+            inToken = false;
+        } else if (!inToken) {
+            argvVec.push_back(&argvBuffer[i]);
+            argc++;
+            inToken = true;
+        }
+    }
+
+    // Allocate argv and copy pointers
+    argv = new char*[argc + 1];
+    for (int i = 0; i < argc; ++i) {
+        argv[i] = argvVec[i];
+    }
+    argv[argc] = nullptr;
+}
+
 
 int Nebulite::mainTreeFunctions::setGlobal(int argc, char* argv[]){
     if(argc == 2){
@@ -137,6 +244,42 @@ int Nebulite::mainTreeFunctions::echo(int argc, char* argv[]) {
         }
     }
     std::cout << std::endl;
+    return 0;
+}
+
+int Nebulite::mainTreeFunctions::forLoop(int argc, char* argv[]){
+    if(argc > 3){
+        std::string varName = argv[0];
+        int iStart = std::stoi(argv[1]);
+        int iEnd   = std::stoi(argv[2]);
+
+        std::string args = "";
+        for (int i = 3; i < argc; ++i) {
+            args += argv[i];
+            if (i < argc - 1) {
+                args += " ";
+            }
+        }
+
+        std::string args_replaced;
+        for(int i = iStart; i <= iEnd; i++){
+            args_replaced = StringHandler::replaceAll(args, '$' + varName, std::to_string(i));
+
+            args_replaced = Nebulite::invoke.resolveGlobalVars(args_replaced);
+
+            // Resolve of vars should only happen here!
+
+            int argc_new = 0;
+            char** argv_new = nullptr;
+            Nebulite::convertStrToArgcArgv(args_replaced, argc_new, argv_new);
+
+            mainTree.parse(argc_new, argv_new);
+
+            // Free only argv_new (argv_new[i] still points to argvBuffer, no need to delete[])
+            delete[] argv_new;
+        }
+    }
+
     return 0;
 }
 

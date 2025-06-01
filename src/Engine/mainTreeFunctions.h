@@ -1,8 +1,11 @@
 //------------------------------------------------
 // Main Tree attached functions 
+#pragma once
+
 #include <deque>
 #include <memory>
 #include "Renderer.h"
+#include "FuncTree.h"
 
 
 
@@ -20,9 +23,16 @@ namespace Nebulite {
     extern taskQueue tasks_internal;
     extern std::unique_ptr<Renderer> renderer;
     extern Invoke invoke;
+    extern FuncTree mainTree;
+
+    // Function to init nebulite arg-bounded functions
+    void init_functions();
 
     // Function to lazily initialize the renderer
     Renderer* getRenderer();
+
+    // Converting string cmd to argc/argv
+    void convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv);
 
     namespace mainTreeFunctions{
         
@@ -43,6 +53,8 @@ namespace Nebulite {
         int loadTaskList(int argc, char* argv[]);
 
         int echo(int argc, char* argv[]);
+
+        int forLoop(int argc, char* argv[]);
 
         int error(int argc, char* argv[]);
 
