@@ -1,19 +1,21 @@
 {
     "id": 1,
     "isOverlay": false,
-    "posX": 350.0,
-    "posY": 500.0,
+    "posX": 100.0,
+    "posY": 100.0,
     "pixSizeX": 10,
     "pixSizeY": 10,
-    "imgLocation": "./Resources/Sprites/TEST001P/001.bmp",
-    "layer": 0,
+    "imgLocation": "Resources/Sprites/TEST001P/001.bmp",
+    "layer": 3,
     "deleteFlag": false,
     "isSpritesheet": false,
     "spritesheetOffsetX": 0,
     "spritesheetOffsetY": 0,
     "spritesheetSizeX": 0,
     "spritesheetSizeY": 0,
-    "invokes": [],
+    "invokes": [
+        "./Resources/Invokes/Movement/movement_wasd.json"
+    ],
     "reloadInvokes": true,
     "text": {
         "str": "",

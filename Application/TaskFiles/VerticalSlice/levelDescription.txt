@@ -4,18 +4,26 @@ echo
 echo Nebulite vertical slice test
 echo Building simple level
 echo
-echo
+
+###########################
+# Part 1: Invoke tester
+echo Adding invoke tester
+spawn ./Resources/Renderobjects/invoke_tester.json
+
+###########################
+# Part 2: Background
 # background for current view:
 for i 0 40 for j 0 40 eval spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=$($i * 16)|posY=$($j * 16)
 
-# some trees
+###########################
+# Part 3: some trees
 for i 12 32 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=256
 for i 12 32 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=$(256-16)
 for i 12 32 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=$(256-32)
 for i 0 12 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=$(256-48)
 
-# TODO: accessing global crashes?
-# try:
-# ./bin/Nebulite eval echo '$(global.time.t)'
-# but works for:
-# ./bin/Nebulite eval echo '$(1+1)'
+# Wait and exit
+# with serialization for debugging
+wait 1200
+serialize
+exit

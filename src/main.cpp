@@ -139,6 +139,13 @@ int main(int argc, char* argv[]) {
 
             // lower waitCounter in script task
             if(Nebulite::tasks_script.waitCounter>0) Nebulite::tasks_script.waitCounter--; 
+        
+            // DEBUG: serialize doc
+            /*
+            Platform::clearScreen();
+            std::cout << JSONHandler::serialize(*Nebulite::global);
+            //*/
+            
         }
     } while (Nebulite::renderer != nullptr && !Nebulite::getRenderer()->isQuit());
 

@@ -1,16 +1,17 @@
 {
-  "logicalArg": "1",
+  "logocalArg_cache" : "$($(global.input.keyboard.current.w) + $(global.input.keyboard.current.a) + $(global.input.keyboard.current.s) + $(global.input.keyboard.current.d))",
+  "logicalArg": "$($(global.input.keyboard.current.w) + $(global.input.keyboard.current.a) + $(global.input.keyboard.current.s) + $(global.input.keyboard.current.d))",
   "isGlobal": false,
   "self_invokes": [
     {
       "changeType": "add",
       "key": "posX",
-      "value": "$(0.1*($(global.input.keyboard.d) - $(global.input.keyboard.a)))"
+      "value": "$($(global.input.keyboard.current.d) - $(global.input.keyboard.current.a))"
     },
     {
       "changeType": "add",
       "key": "posY",
-      "value": "$(0.1*($(global.input.keyboard.s) - $(global.input.keyboard.w)))"
+      "value": "$($(global.input.keyboard.current.s) - $(global.input.keyboard.current.w))"
     }
   ],
   "other_invokes": [],

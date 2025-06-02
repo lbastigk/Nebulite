@@ -532,15 +532,15 @@ void Renderer::pollEvent() {
             bool currentPressed = keyState[scancode] != 0;
             bool prevPressed = prevKeyState[scancode] != 0;
 
-            // Set current state (true/false)
-            JSONHandler::Set::Any(env.getGlobal(), currentPath, currentPressed);
+            // Set current state (true/false as int)
+            JSONHandler::Set::Any<int>(env.getGlobal(), currentPath, currentPressed);
 
             // Compute delta: 1 = pressed now but not before, -1 = released now but was pressed before, 0 = no change
             int delta = 0;
             if (currentPressed && !prevPressed) delta = 1;
             else if (!currentPressed && prevPressed) delta = -1;
 
-            JSONHandler::Set::Any(env.getGlobal(), deltaPath, delta);
+            JSONHandler::Set::Any<int>(env.getGlobal(), deltaPath, delta);
         }
     }
 
