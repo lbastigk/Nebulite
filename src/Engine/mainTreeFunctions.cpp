@@ -326,15 +326,20 @@ int Nebulite::mainTreeFunctions::error(int argc, char* argv[]) {
 }
 
 int Nebulite::mainTreeFunctions::setResolution(int argc, char* argv[]){
-    if(argc != 3){
-        Nebulite::getRenderer()->changeWindowSize(1000,1000,1);
+    int w,h,scalar;
+    w = 1000;
+    h = 1000;
+    scalar = 1;
+    if(argc > 0){
+        w = std::stoi(argv[0]);
     }
-    else{
-        int w = std::stoi(argv[0]);
-        int h = std::stoi(argv[1]);
-        int scalar = std::stoi(argv[2]);
-        Nebulite::getRenderer()->changeWindowSize(w,h,scalar);
+    if(argc > 1){
+        h = std::stoi(argv[1]);
     }
+    if(argc > 2){
+        scalar = std::stoi(argv[2]);
+    }
+    Nebulite::getRenderer()->changeWindowSize(w,h,scalar);
     return 0;
 }
 
