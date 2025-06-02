@@ -169,6 +169,7 @@ private:
 	int lastMousePosY = 0;
 	Uint32 lastMouseState;
 	Uint32 mouseState;
+	std::vector<Uint8> prevKeyState;
 
 	//-------------------------------------------------------------------------------------
 	//For FPS Count

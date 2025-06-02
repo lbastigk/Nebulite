@@ -479,52 +479,57 @@ void Renderer::setGlobalValues(){
 
 
 void Renderer::pollEvent() {
-	lastMousePosX = MousePosX;
-	lastMousePosY = MousePosY;
-	lastMouseState = mouseState;
-	mouseState = SDL_GetMouseState(&MousePosX, &MousePosY);
+    lastMousePosX = MousePosX;
+    lastMousePosY = MousePosY;
+    lastMouseState = mouseState;
+    mouseState = SDL_GetMouseState(&MousePosX, &MousePosY);
 
-	while (SDL_PollEvent(&event)) {
-		switch (event.type) {
-		case SDL_QUIT:
-			quit=true;
-			break;
-			// Handle other events as needed
-		case SDL_KEYDOWN:
-			switch(event.key.keysym.sym){
-				case Renderer::SDL::KEY_W:
-					JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.w",1);
-					break;
-				case Renderer::SDL::KEY_A:
-					JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.a",1);
-					break;
-				case Renderer::SDL::KEY_S:
-					JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.s",1);
-					break;
-				case Renderer::SDL::KEY_D:
-					JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.d",1);
-					break;
-			}
-			break;
-		case SDL_KEYUP:
-			switch(event.key.keysym.sym){
-				case Renderer::SDL::KEY_W:
-					JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.w",0);
-					break;
-				case Renderer::SDL::KEY_A:
-					JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.a",0);
-					break;
-				case Renderer::SDL::KEY_S:
-					JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.s",0);
-					break;
-				case Renderer::SDL::KEY_D:
-					JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.d",0);
-					break;
-			}
-			break;
-		}
-	}
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_QUIT:
+                quit = true;
+                break;
+        }
+    }
+
+    // Get current keyboard state
+    const Uint8* keyState = SDL_GetKeyboardState(NULL);
+
+    // Initialize prevKeyState if empty (on first run)
+    if (prevKeyState.empty()) {
+        prevKeyState.assign(keyState, keyState + SDL_NUM_SCANCODES);
+    }
+
+    for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode) {
+        const char* nameRaw = SDL_GetScancodeName(static_cast<SDL_Scancode>(scancode));
+        if (nameRaw && nameRaw[0] != '\0') {
+            std::string keyName = nameRaw;
+            for (char& c : keyName) c = std::tolower(c);
+            for (char& c : keyName) if (c == ' ') c = '_';
+
+            // Paths
+            std::string currentPath = "input.keyboard.current." + keyName;
+            std::string deltaPath = "input.keyboard.delta." + keyName;
+
+            bool currentPressed = keyState[scancode] != 0;
+            bool prevPressed = prevKeyState[scancode] != 0;
+
+            // Set current state (true/false)
+            JSONHandler::Set::Any(env.getGlobal(), currentPath, currentPressed);
+
+            // Compute delta: 1 = pressed now but not before, -1 = released now but was pressed before, 0 = no change
+            int delta = 0;
+            if (currentPressed && !prevPressed) delta = 1;
+            else if (!currentPressed && prevPressed) delta = -1;
+
+            JSONHandler::Set::Any(env.getGlobal(), deltaPath, delta);
+        }
+    }
+
+    // Save current keyboard state for next frame
+    prevKeyState.assign(keyState, keyState + SDL_NUM_SCANCODES);
 }
+
 
 SDL_Event Renderer::getEventHandle() {
 	SDL_Event event;
