@@ -82,11 +82,6 @@ Renderer::Renderer(Invoke& invoke, rapidjson::Document& global, bool flag_hidden
 	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.X",0);
 	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.Y",0);
 
-	JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.w",0);
-	JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.a",0);
-	JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.s",0);
-	JSONHandler::Set::Any(env.getGlobal(),"input.keyboard.d",0);
-
 	JSONHandler::Set::Any<Uint64>(env.getGlobal(),"time.fixed_dt_ms",0);
 	JSONHandler::Set::Any<double>(env.getGlobal(),"time.t",0);
 	JSONHandler::Set::Any<Uint64>(env.getGlobal(),"time.t_ms",0);
