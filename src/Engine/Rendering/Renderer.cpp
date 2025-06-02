@@ -19,6 +19,7 @@ Renderer::Renderer(Invoke& invoke, rapidjson::Document& global, bool flag_hidden
 	starttime = Time::gettime();
     currentTime = Time::gettime();
     lastTime = Time::gettime();
+	last_poll = Time::gettime();
 	
 
 	//--------------------------------------------
@@ -138,9 +139,21 @@ void Renderer::reinsertAllObjects(){
 }
 
 void Renderer::update() {
-	pollEvent();
+	// Update keyboard events every n ms
+	// Too much polling time for current benchmarks, 
+	// later on with fixed framerates of < 250 FPS not that big of a deal
+	if(Time::gettime() - last_poll > 10){
+		last_poll = Time::gettime();
+		pollEvent();
+	}
+
+	// Set global values like time
 	setGlobalValues();
+
+	// Update invokes
 	invoke_ptr->update();
+
+	// Update environment
 	env.update(
 		tileXpos,
 		tileYpos,
@@ -149,9 +162,12 @@ void Renderer::update() {
 		THREADSIZE,
 		invoke_ptr
 	);
+
+	// Get new invokes that were given by env
 	invoke_ptr->getNewInvokes();
 }
 
+// Currently not used and probably not needed...
 void Renderer::update_withThreads() {
 	pollEvent();
 	setGlobalValues();
@@ -460,6 +476,26 @@ void Renderer::setGlobalValues(){
 	// Get Frame count
 	Uint64 ticks = JSONHandler::Get::Any<Uint64>(env.getGlobal(),"frameCount",0);
 	JSONHandler::Set::Any<Uint64>(env.getGlobal(),"frameCount",ticks+1);
+}
+
+
+void Renderer::pollEvent() {
+	//----------------------------------
+	// Window state
+	while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_QUIT:
+                quit = true;
+                break;
+        }
+    }
+
+	//----------------------------------
+	// Mouse
+    lastMousePosX = MousePosX;
+    lastMousePosY = MousePosY;
+    lastMouseState = mouseState;
+    mouseState = SDL_GetMouseState(&MousePosX, &MousePosY);
 
 	// Cursor Position and state
 	JSONHandler::Set::Any(env.getGlobal(),"input.mouse.current.X",MousePosX);
@@ -475,22 +511,9 @@ void Renderer::setGlobalValues(){
 	JSONHandler::Set::Any(env.getGlobal(),"input.mouse.delta.right",
 		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouseState) - 
 		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & lastMouseState));
-}
 
-
-void Renderer::pollEvent() {
-    lastMousePosX = MousePosX;
-    lastMousePosY = MousePosY;
-    lastMouseState = mouseState;
-    mouseState = SDL_GetMouseState(&MousePosX, &MousePosY);
-
-    while (SDL_PollEvent(&event)) {
-        switch (event.type) {
-            case SDL_QUIT:
-                quit = true;
-                break;
-        }
-    }
+    //----------------------------------
+	// Keyboard
 
     // Get current keyboard state
     const Uint8* keyState = SDL_GetKeyboardState(NULL);

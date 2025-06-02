@@ -171,6 +171,8 @@ private:
 	Uint32 mouseState;
 	std::vector<Uint8> prevKeyState;
 
+	uint64_t last_poll;
+
 	//-------------------------------------------------------------------------------------
 	//For FPS Count
 
