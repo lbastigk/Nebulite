@@ -21,7 +21,7 @@ std::string Environment::serialize() {
 	rapidjson::Document doc;
 	doc.SetObject();
 
-	rapidjson::Value& globalValues = global;
+	rapidjson::Value& globalValues = *global;
 	JSONHandler::Set::Any(doc,"global",&globalValues);
 
 	// Serialize each container and add to the document
@@ -48,7 +48,7 @@ void Environment::deserialize(std::string serialOrLink, int dispResX,int dispRes
 	rapidjson::Document doc;
 	doc = JSONHandler::deserialize(serialOrLink);
 
-	JSONHandler::Get::subDoc(doc,"global",global);
+	JSONHandler::Get::subDoc(doc,"global",*global);
 
 	// doc has values for containerLayer0 to containerLayer4
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {

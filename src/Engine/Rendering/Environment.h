@@ -35,8 +35,10 @@ public:
 	void deserialize(std::string serialOrLink, int dispResX,int dispResY,int THREADSIZE);
 	
 	std::string serializeGlobal(){
-		return JSONHandler::serialize(global);
+		return JSONHandler::serialize(*global);
 	}
+
+	void linkGlobal(rapidjson::Document& global_ptr){global = &global_ptr;};
 	
 	void append(std::shared_ptr<RenderObject> toAppend,int dispResX, int dispResY,int THREADSIZE, int layer = 0);
 	void update(int tileXpos,int tileYpos,int dispResX,int dispResY, int THREADSIZE,Invoke* globalInvoke=nullptr);
@@ -62,11 +64,11 @@ public:
 	};
 
 	rapidjson::Document& getGlobal() {
-		return global;
+		return *global;
 	}
 private:
 	// Global Values
-    rapidjson::Document global;
+    rapidjson::Document* global;
 	
 	RenderObjectContainer roc[RENDEROBJECTCONTAINER_COUNT];
 };

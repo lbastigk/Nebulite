@@ -2,12 +2,11 @@
 
 
 
-Renderer::Renderer(std::deque<std::string>& tasks, Invoke& invoke, bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y){
+Renderer::Renderer(Invoke& invoke, rapidjson::Document& global, bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y){
 	//--------------------------------------------
 	// Linkages
 	invoke_ptr = &invoke;
-	invoke_ptr->linkGlobal(env.getGlobal());
-	invoke_ptr->linkQueue(tasks);
+	env.linkGlobal(global);
 
 	//--------------------------------------------
 	// Initialize internal variables
@@ -215,7 +214,7 @@ void Renderer::destroy() {
 //-----------------------------------------------------------
 // Manipulation
 
-void Renderer::changeWindowSize(int w, int h) {
+void Renderer::changeWindowSize(int w, int h, int scalar) {
 	if(w < 64 || w > 16384){
 		std::cerr << "Selected resolution is not supported" << std::endl;
 		return;
@@ -231,8 +230,8 @@ void Renderer::changeWindowSize(int w, int h) {
     // Update the window size
     SDL_SetWindowSize(
 		window, 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",0), 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",0)
+		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",0) * scalar, 
+		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",0) * scalar
 	);
 	SDL_RenderSetLogicalSize(
 		renderer,

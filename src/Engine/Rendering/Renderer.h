@@ -21,7 +21,7 @@
 
 class Renderer {
 public:
-	Renderer(std::deque<std::string>& tasks, Invoke& invoke, bool flag_hidden = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
+	Renderer(Invoke& invoke, rapidjson::Document& global, bool flag_hidden = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
 
 	//Marshalling
 	std::string serialize();
@@ -51,7 +51,7 @@ public:
 	
 	//-----------------------------------------------------------
 	// Manipulation
-	void changeWindowSize(int w, int h);
+	void changeWindowSize(int w, int h, int scalar);
 	void moveCam(int dX, int dY, bool isMiddle = false);
 	void setCam(int X, int Y, bool isMiddle = false);
 	

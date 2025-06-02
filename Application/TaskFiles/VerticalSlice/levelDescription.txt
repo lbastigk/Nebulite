@@ -1,27 +1,21 @@
-set-res 1280 720
+set-res 640 360 3
 set-fps 60
 echo
 echo Nebulite vertical slice test
 echo Building simple level
 echo
 echo
-spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=000|posY=000
-spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=016|posY=000
-spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=032|posY=000
-spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=048|posY=000
-spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=064|posY=000
-spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=080|posY=000
-spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=096|posY=000
-spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=112|posY=000
-spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=128|posY=000
-# Idea:
-# for iStart iEnd spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=$($(i)*16)|posY=000
-# additionally:
-# $(rand)
-# rest, use Invoke to resolve with global attached for self,other,global 
-# though this needs a true second rand, 
-# since the planned rand for global should only be re-hashed every frame (TAS-consistency)
-# perhaps:  $(rand)  - only updated each frame
-            $(rrand) - (rolling-rand), updated with each for-loop
-# difficulty might be that inside the int for(int argc, char** argv), the mainTree needs to be accessible?
-# Perhaps rebuild to Nebulite::mainTree
+# background for current view:
+for i 0 40 for j 0 40 eval spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=$($i * 16)|posY=$($j * 16)
+
+# some trees
+for i 12 32 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=256
+for i 12 32 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=$(256-16)
+for i 12 32 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=$(256-32)
+for i 0 12 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=$(256-48)
+
+# TODO: accessing global crashes?
+# try:
+# ./bin/Nebulite eval echo '$(global.time.t)'
+# but works for:
+# ./bin/Nebulite eval echo '$(1+1)'

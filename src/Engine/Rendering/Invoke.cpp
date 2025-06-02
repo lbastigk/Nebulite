@@ -327,7 +327,7 @@ std::shared_ptr<Invoke::Node> Invoke::expressionToTree(const std::string& input)
     return ptr;
 }
 
-
+// Take a pre-processed node and resolve all expressions and vars
 std::string Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global){
     switch (nodeptr->type) {
         case Node::Type::Literal:
@@ -367,14 +367,15 @@ std::string Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr, r
     return "";
 }
     
+// replace all instances of $(...) with their evaluation
 std::string Invoke::resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global) {
     if(!exprTree.contains(input)){
-        //std::cout << "Evaluating expression: '" << input << "' to Tree..." << std::endl;
         exprTree[input] = expressionToTree(input);
     }
     return evaluateNode(exprTree[input],self,other,global);   
 }
 
+// same as resolveVars, but only using global, rest is empty
 std::string Invoke::resolveGlobalVars(const std::string& input) {
     return resolveVars(input,emptyDoc,emptyDoc,*global);
 }

@@ -11,10 +11,22 @@ namespace Nebulite{
     std::unique_ptr<Renderer> renderer = nullptr;
     Invoke invoke;
     FuncTree mainTree("Nebulite");
+    std::unique_ptr<rapidjson::Document> global = nullptr;
 
     // used by convertStrToArgcArgv
     char* argvBuffer = nullptr;
     int argvCapacity = 0;
+
+
+    
+    // init variables
+    void init(){
+        global = std::make_unique<rapidjson::Document>();
+        global->SetObject();
+
+        invoke.linkGlobal(*global);
+	    invoke.linkQueue(tasks_internal.taskList);
+    }
 
     // Init nebulite functions
     void init_functions(){
@@ -48,7 +60,7 @@ namespace Nebulite{
 
     Renderer* getRenderer() {
         if (!renderer) {
-            renderer = std::make_unique<Renderer>(tasks_internal.taskList,invoke);
+            renderer = std::make_unique<Renderer>(invoke,*global);
             renderer->setFPS(60);
         }
         return renderer.get();
@@ -314,13 +326,14 @@ int Nebulite::mainTreeFunctions::error(int argc, char* argv[]) {
 }
 
 int Nebulite::mainTreeFunctions::setResolution(int argc, char* argv[]){
-    if(argc != 2){
-        Nebulite::getRenderer()->changeWindowSize(1000,1000);
+    if(argc != 3){
+        Nebulite::getRenderer()->changeWindowSize(1000,1000,1);
     }
     else{
         int w = std::stoi(argv[0]);
         int h = std::stoi(argv[1]);
-        Nebulite::getRenderer()->changeWindowSize(w,h);
+        int scalar = std::stoi(argv[2]);
+        Nebulite::getRenderer()->changeWindowSize(w,h,scalar);
     }
     return 0;
 }

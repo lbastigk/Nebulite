@@ -33,35 +33,12 @@
 #include "FuncTree.h"
 
 // Resolves a given taskqueue by parsing each line into argc/argv and calling the mainTree on the arguments
-// additionally, variables inside are resolved
 int resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree){
     int result = 0;
     while (!tq.taskList.empty() && (counter == nullptr || *counter == 0)) {
         // Get task
         std::string argStr = tq.taskList.front();
         tq.taskList.pop_front();  // remove the used task
-
-        // Resolve global vars in task
-        // Currently not used. Instead, keyword eval is used!
-        /*
-        std::string preFor = argStr;
-        std::string postFor = "";
-        if(argStr.size() >= 3){
-            for(int i=0; i < argStr.size()-3; i++){
-                if(argStr.at(i) == 'f' && argStr.at(i+1) == 'o' && argStr.at(i+2) == 'r' && argStr.at(i+3) == ' '){
-                    // "for " is at this position
-                    // check if keyword before is whitespace too
-                    if(i==0 || i > 0 && argStr.at(i-1) == ' '){
-                        preFor = argStr.substr(0, i);
-                        postFor = argStr.substr(i);
-                        break;
-                    }
-                }
-            }
-        }
-        argStr = Nebulite::invoke.resolveGlobalVars(preFor) + postFor;
-        */
-        
 
         // Convert std::string to argc,argv
         *argc_mainTree = 0;
@@ -128,7 +105,11 @@ int main(int argc, char* argv[]) {
         // "env-load ./Resources/Levels/main.json" 
         // Which represents the menue screen
     }
-    
+
+
+    //--------------------------------------------------
+    // Init general variables from Nebulite namespace
+    Nebulite::init();
 
     //--------------------------------------------------
     // Build main FuncTree
