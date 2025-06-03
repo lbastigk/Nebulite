@@ -88,45 +88,6 @@ public:
 	SDL_Renderer* getSdlRenderer(){return renderer;}
 	Invoke* getInvoke(){return invoke_ptr;}
 
-	class SDL {
-	public:
-		const static int KEY_ESC = 27;
-		const static int KEY_SPACE = 32;
-		const static int KEY_ENTER = 13;
-
-		const static int KEY_Q = 113;
-		const static int KEY_W = 119;
-		const static int KEY_E = 101;
-		const static int KEY_R = 114;
-		const static int KEY_T = 116;
-		const static int KEY_Z = 122;
-		const static int KEY_U = 117;
-		const static int KEY_I = 105;
-		const static int KEY_O = 111;
-		const static int KEY_P = 112;
-		//const static int KEY_� = 252;
-
-		const static int KEY_A = 97;
-		const static int KEY_S = 115;
-		const static int KEY_D = 100;
-		const static int KEY_F = 102;
-		const static int KEY_G = 103;
-		const static int KEY_H = 104;
-		const static int KEY_J = 106;
-		const static int KEY_K = 107;
-		const static int KEY_L = 108;
-		//const static int KEY_� = 246;
-		//const static int KEY_� = 228;
-
-		const static int KEY_Y = 121;
-		const static int KEY_X = 120;
-		const static int KEY_C = 99;
-		const static int KEY_V = 118;
-		const static int KEY_B = 98;
-		const static int KEY_N = 110;
-		const static int KEY_M = 109;
-	};
-
 	// Updated with each renderer update
 	void update_rand() {JSONHandler::Set::Any<Uint64>(env.getGlobal(), "rand",   dist(rngA));};
 
