@@ -7,20 +7,23 @@ echo
 
 ###########################
 # Part 1: Invoke tester
-echo Adding invoke tester
+echo Adding character with wasd-control
 spawn ./Resources/Renderobjects/invoke_tester.json
 
 ###########################
 # Part 2: Background
-# background for current view:
-for i 0 40 for j 0 40 eval spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=$($i * 16)|posY=$($j * 16)
+echo Adding background
+for i 0 40 for j 0 40 eval spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=$($i * 16)|posY=$($j * 16)|spritesheetOffsetX=$($(global.rrand) % 2 * 16)
 
 ###########################
 # Part 3: some trees
-for i 12 32 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=256
-for i 12 32 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=$(256-16)
-for i 12 32 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=$(256-32)
-for i 0 12 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=$(256-48)
+echo Adding Trees
+#for i 12 32 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=256
+#for i 12 32 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=$(256-16)
+#for i 12 32 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=$(256-32)
+#for i 0 12 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=$(256-48)
+
+for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$(($(global.rrand) % 43) * 16)|posY=$((($(global.rrand) * 17) % 23) * 16)
 
 # Wait and exit
 # with serialization for debugging

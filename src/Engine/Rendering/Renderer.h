@@ -4,16 +4,13 @@
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 
-//#include "OptionsLoader.h"
-
 #include "Environment.h"
-
 #include "FileManagement.h"
 #include "Time.h"
-
 #include "Invoke.h"
-#include <thread>
 
+#include <thread>
+#include <random>
 #include <stdint.h>
 
 
@@ -130,7 +127,11 @@ public:
 		const static int KEY_M = 109;
 	};
 
-	
+	// Updated with each renderer update
+	void update_rand() {JSONHandler::Set::Any<Uint64>(env.getGlobal(), "rand",   dist(rngA));};
+
+	// Updated with each renderer update and append
+	void update_rrand(){JSONHandler::Set::Any<Uint64>(env.getGlobal(), "rrand",  dist(rngB));};
 
 private:
 	//-------------------------------------------------------------------------------------
@@ -172,6 +173,14 @@ private:
 	std::vector<Uint8> prevKeyState;
 
 	uint64_t last_poll;
+
+	//--------------------------------------------
+	// RNG
+	std::mt19937 rngA;
+    std::mt19937 rngB;
+    std::size_t hashString(const std::string& str);
+	std::uniform_int_distribution<int> dist;
+    
 
 	//-------------------------------------------------------------------------------------
 	//For FPS Count

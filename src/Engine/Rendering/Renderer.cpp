@@ -2,7 +2,11 @@
 
 
 
-Renderer::Renderer(Invoke& invoke, rapidjson::Document& global, bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y){
+Renderer::Renderer(Invoke& invoke, rapidjson::Document& global, bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y)
+: 	rngA(hashString("Seed for RNG A")),
+	rngB(hashString("Seed for RNG B")),
+	dist(0, 32767)
+	{
 	//--------------------------------------------
 	// Linkages
 	invoke_ptr = &invoke;
@@ -20,7 +24,6 @@ Renderer::Renderer(Invoke& invoke, rapidjson::Document& global, bool flag_hidden
     currentTime = Time::gettime();
     lastTime = Time::gettime();
 	last_poll = Time::gettime();
-	
 
 	//--------------------------------------------
 	// SDL Renderer
@@ -123,6 +126,9 @@ void Renderer::append(std::shared_ptr<RenderObject> toAppend) {
 
 	//Load texture
 	loadTexture(toAppend.get()->valueGet<std::string>(namenKonvention.renderObject.imageLocation));
+
+	// Update rolling rand
+	update_rrand();
 }
 
 void Renderer::reinsertAllObjects(){
@@ -450,6 +456,7 @@ void Renderer::showFrame() {
 
 // This function is called on each frame to set the values for the global document
 void Renderer::setGlobalValues(){
+	//---------------------------------------------
 	// Time
 	// logs:
 	// - time in s and ms
@@ -471,6 +478,11 @@ void Renderer::setGlobalValues(){
 	// Get Frame count
 	Uint64 ticks = JSONHandler::Get::Any<Uint64>(env.getGlobal(),"frameCount",0);
 	JSONHandler::Set::Any<Uint64>(env.getGlobal(),"frameCount",ticks+1);
+
+	//---------------------------------------------
+	// Random
+	update_rand();
+	update_rrand();
 }
 
 
@@ -613,3 +625,6 @@ void Renderer::loadTexture(std::string link) {
 	}
 }
 
+std::size_t Renderer::hashString(const std::string& str) {
+    return std::hash<std::string>{}(str);
+}
