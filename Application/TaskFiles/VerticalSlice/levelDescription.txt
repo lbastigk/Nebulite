@@ -1,4 +1,5 @@
-set-res 640 480 3
+#set-res 640 480 3
+set-res 320 240 6
 set-fps 60
 echo
 echo Nebulite vertical slice test
@@ -13,14 +14,14 @@ spawn ./Resources/Renderobjects/invoke_tester.json
 ###########################
 # Part 2: Background
 echo Adding background
-for i 0 40 for j 0 40 eval spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=$($i * 16)|posY=$($j * 16)|spritesheetOffsetX=$($(global.rrand) % 2 * 16)
+for i 0 39 for j 0 29 eval spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=$($i * 16)|posY=$($j * 16)|spritesheetOffsetX=$($(global.rrand) % 2 * 16)
 
 ###########################
 # Part 3: some trees
 echo Adding Trees
 
 # random
-for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$(($(global.rrand) % 43) * 16 + 16)|posY=$((($(global.rrand) * 17) % 23) * 16 + 16)
+for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$(($(global.rrand) % 39) * 16 + 16)|posY=$((($(global.rrand) * 17) % 29) * 16 + 16)
 
 # border
 for i 0 39 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=$($i * 16)|posY=$(0)
@@ -30,6 +31,6 @@ for i 1 28 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.json|posX=
 
 # Wait and exit
 # with serialization for debugging
-wait 1200
-serialize
-exit
+# wait 1200
+# serialize
+# exit

@@ -155,6 +155,7 @@ private:
 
 	// Rendering
 	unsigned int RenderZoom = 1;
+	unsigned int RenderScalar = 1;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 	SDL_Rect rect;

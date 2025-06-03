@@ -232,6 +232,7 @@ void Renderer::destroy() {
 // Manipulation
 
 void Renderer::changeWindowSize(int w, int h, int scalar) {
+	RenderScalar = scalar;
 	if(w < 64 || w > 16384){
 		std::cerr << "Selected resolution is not supported" << std::endl;
 		return;
@@ -247,8 +248,8 @@ void Renderer::changeWindowSize(int w, int h, int scalar) {
     // Update the window size
     SDL_SetWindowSize(
 		window, 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",0) * scalar, 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",0) * scalar
+		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",0) * RenderScalar, 
+		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",0) * RenderScalar
 	);
 	SDL_RenderSetLogicalSize(
 		renderer,
@@ -420,7 +421,7 @@ void Renderer::renderFrame() {
 }
 
 void Renderer::renderFPS(float scalar) {
-	scalar = scalar / (float)RenderZoom;
+	scalar = scalar / (float)RenderZoom / (float)RenderScalar;
 
 	// Create a string with the FPS value
 	std::string fpsText = "FPS: " + std::to_string(fps);

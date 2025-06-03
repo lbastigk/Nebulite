@@ -3,8 +3,8 @@
     "isOverlay": false,
     "posX": 100.0,
     "posY": 100.0,
-    "pixSizeX": 10,
-    "pixSizeY": 10,
+    "pixSizeX": 16,
+    "pixSizeY": 16,
     "imgLocation": "Resources/Sprites/TEST001P/001.bmp",
     "layer": 3,
     "deleteFlag": false,
@@ -14,7 +14,8 @@
     "spritesheetSizeX": 0,
     "spritesheetSizeY": 0,
     "invokes": [
-        "./Resources/Invokes/Movement/movement_wasd.json"
+        "./Resources/Invokes/Movement/movement_wasd.json",
+        "./Resources/Invokes/General/set_render_position_center.json"
     ],
     "reloadInvokes": true,
     "text": {

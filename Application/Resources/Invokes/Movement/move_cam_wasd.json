@@ -5,6 +5,6 @@
   "other_invokes": [],
   "global_invokes": [],
   "functioncalls": [
-    "cam-move $($(global.input.keyboard.d) - $(global.input.keyboard.a)) $($(global.input.keyboard.s) - $(global.input.keyboard.w))"
+    "eval cam-move $($(global.input.keyboard.d) - $(global.input.keyboard.a)) $($(global.input.keyboard.s) - $(global.input.keyboard.w))"
   ]
 }

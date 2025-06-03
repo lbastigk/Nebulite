@@ -5,6 +5,6 @@
   "other_invokes": [],
   "global_invokes": [],
   "functioncalls": [
-    "cam-set $(self.posX) $(self.posY) c"
+    "eval cam-set $(self.posX) $(self.posY) c"
   ]
 }
