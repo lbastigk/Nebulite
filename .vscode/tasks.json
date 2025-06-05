@@ -41,7 +41,7 @@
         {
             "label": "[PROFILING] Release binary",
             "type": "shell",
-            "command": "cd ./Application ; sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record --no-inherit -g -- ./bin/Nebulite       task TaskFiles/benchmark_gravity.txt ; hotspot perf.data",
+            "command": "cd ./Application ; sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record --no-inherit -g -- ./bin/Nebulite       task TaskFiles/Benchmarks/benchmark_gravity.txt ; hotspot perf.data",
             "group": {
                 "kind": "test",
                 "isDefault": false
@@ -52,7 +52,7 @@
         {
             "label": "[PROFILING] Debug binary",
             "type": "shell",
-            "command": "cd ./Application ; sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0  ; perf record --no-inherit -g -- ./bin/Nebulite_Debug task TaskFiles/benchmark_gravity.txt ; hotspot perf.data",
+            "command": "cd ./Application ; sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0  ; perf record --no-inherit -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/benchmark_gravity.txt ; hotspot perf.data",
             "group": {
                 "kind": "test",
                 "isDefault": false
