@@ -1,4 +1,3 @@
-#set-res 640 480 3
 set-res 320 240 6
 set-fps 60
 echo
