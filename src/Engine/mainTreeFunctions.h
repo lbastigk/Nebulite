@@ -8,6 +8,8 @@
 #include "FuncTree.h"
 
 
+#include "JSON.h"
+
 
 // Nebulite instances
 namespace Nebulite {
@@ -79,6 +81,8 @@ namespace Nebulite {
         int printState(int argc, char* argv[]);
 
         int setGlobal(int argc, char* argv[]);
+
+        int json_test(int argc, char* argv[]);
     }
 
 }

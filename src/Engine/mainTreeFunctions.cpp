@@ -56,7 +56,11 @@ namespace Nebulite{
         mainTree.attachFunction(Nebulite::mainTreeFunctions::error,           "error",        "Echos all args provided to cerr");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::printGlobal,     "print-global", "Prints global doc to cout");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::printState,      "print-state",  "Prints state doc to cout");
+
+        // Tests
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::json_test,"json-test","Testing new json wrapper");
     }
+
 
     Renderer* getRenderer() {
         if (!renderer) {
@@ -418,3 +422,12 @@ int Nebulite::mainTreeFunctions::printState(int argc, char* argv[]){
 }
 
 
+int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
+    Nebulite::JSON json;
+
+    json.set<double>("global.time.t",1.2345);
+    
+    std::cout << json.serialize("") << std::endl;
+
+    return 0;
+}

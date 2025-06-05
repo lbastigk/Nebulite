@@ -54,6 +54,7 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/Engine/mainTreeFunctions.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FileManagement.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FuncTree.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/Helper/JSON.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/JSONHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/StringHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/Time.cpp

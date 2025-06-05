@@ -48,6 +48,18 @@ Instead of manually inserting an array, their values can simply be set by passin
 
 
 namespace Nebulite{
+
+    template <typename T>
+        struct is_simple_value : std::disjunction<
+            std::is_same<T, int32_t>,
+            std::is_same<T, int64_t>,
+            std::is_same<T, uint32_t>,
+            std::is_same<T, uint64_t>,
+            std::is_same<T, double>,
+            std::is_same<T, std::string>
+        > {};
+        template <typename T>
+        inline constexpr bool is_simple_value_v = is_simple_value<T>::value;
     class JSON{
     public:
         JSON();
@@ -65,7 +77,7 @@ namespace Nebulite{
             value = 1,
             array = 2
         };
-        template <typename T>
+        //template <typename T>
         KeyType memberCheck(std::string key);
 
         // Get size of key
@@ -90,27 +102,23 @@ namespace Nebulite{
         rapidjson::Document doc;
 
         // caching Simple variables
-        using SimpleJSONValue = std::variant<int32_t, int64_t, uint32_t, uint64_t,double, std::string>;
+        using SimpleJSONValue = std::variant<int32_t, int64_t, uint32_t, uint64_t,double, std::string, bool>;
         std::unordered_map<std::string, SimpleJSONValue> cache;
 
-        template <typename T>
-        struct is_simple_value : std::disjunction<
-            std::is_same<T, int32_t>,
-            std::is_same<T, int64_t>,
-            std::is_same<T, uint32_t>,
-            std::is_same<T, uint64_t>,
-            std::is_same<T, double>,
-            std::is_same<T, std::string>
-        > {};
+        
+
 
         // Get any value
-        template <typename T> T get_from_doc(const char* key, const T& value, const T defaultValue, rapidjson::Value& val = doc);
+        template <typename T> T get_from_doc(const char* key, const T& value, const T defaultValue, rapidjson::Value& val);
 
         // Set any value
-        template <typename T> void set_into_doc(const char* key, const T& value, rapidjson::Value& val = doc);
+        template <typename T> void set_into_doc(const char* key, const T& value, rapidjson::Value& val);
 
-        rapidjson::Value* parseKey(const char* key, rapidjson::Value& val = doc);
+        rapidjson::Value* traverseKey(const char* key, rapidjson::Value& val);
     };
+
+    
+
 }
 
 template <typename T>
@@ -123,7 +131,7 @@ T Nebulite::JSON::get(const char* key, const T& value, const T defaultValue) {
             return defaultValue;
         }
     } else {
-        return get_from_doc<T>(key, value, defaultValue);
+        return get_from_doc<T>(key, value, defaultValue, doc);
     }
 }
 
@@ -138,15 +146,15 @@ void Nebulite::JSON::set(const char* key, const T& value) {
         if(cache.find(key) != cache.end()){
             cache.erase(key);
         }
-        set_into_doc<T>(key, value);
+        set_into_doc<T>(key, value, doc);
     }
 }
 
-// TODO: even bigger offloading for parseKey:
+// TODO: even bigger offloading for traverseKey:
 // Current implementation is automatically traversing, it might be helpful to check a current key level for existing or not
 template <typename T>
 T Nebulite::JSON::get_from_doc(const char* key, const T& value, const T defaultValue, rapidjson::Value& val) {
-    rapidjson::Value* keyVal = parseKey(key,val);
+    rapidjson::Value* keyVal = traverseKey(key,val);
 
     if(keyVal == nullptr){
         return defaultValue;
@@ -163,4 +171,18 @@ T Nebulite::JSON::get_from_doc(const char* key, const T& value, const T defaultV
 template <typename T>
 void Nebulite::JSON::set_into_doc(const char* key, const T& value, rapidjson::Value& val) {
     // TODO... fallback logic for inserting into doc, using old JSONHandler code
+    // piecewise implementation of traverseKey needed
+    // Then, something like:
+    // nextstep = traverseKey(...)
+    // if nextstep == nullptr
+    // -- setup value --
+    // traverse further
+    std::cout << "Not implemented yet!" << std::endl;
+    std::cout << "\tThis would set key: " << key << std::endl;
 }
+
+
+
+
+
+
