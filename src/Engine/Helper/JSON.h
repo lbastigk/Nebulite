@@ -115,6 +115,8 @@ namespace Nebulite{
         template <typename T> void set_into_doc(const char* key, const T& value, rapidjson::Value& val);
 
         rapidjson::Value* traverseKey(const char* key, rapidjson::Value& val);
+
+        rapidjson::Value* makeKey(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
     };
 
     
@@ -170,15 +172,13 @@ T Nebulite::JSON::get_from_doc(const char* key, const T& value, const T defaultV
 
 template <typename T>
 void Nebulite::JSON::set_into_doc(const char* key, const T& value, rapidjson::Value& val) {
-    // TODO... fallback logic for inserting into doc, using old JSONHandler code
-    // piecewise implementation of traverseKey needed
-    // Then, something like:
-    // nextstep = traverseKey(...)
-    // if nextstep == nullptr
-    // -- setup value --
-    // traverse further
-    std::cout << "Not implemented yet!" << std::endl;
-    std::cout << "\tThis would set key: " << key << std::endl;
+    // Ensure key path exists
+    rapidjson::Value* keyVal = makeKey(key, val, doc.GetAllocator());
+    if (keyVal != nullptr) {
+        JSONHandler::ConvertToJSONValue<T>(value, *keyVal, doc.GetAllocator());
+    } else {
+        std::cout << "Failed to create or access path: " << key << std::endl;
+    }
 }
 
 

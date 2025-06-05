@@ -57,12 +57,14 @@ public:
     static bool isValid(std::string str);
     static void copyDoc(rapidjson::Document& destination, rapidjson::Document *toCopy);
     static void empty(rapidjson::Document &doc);
-private:
 
     //----------------------------------------------------------------------
     // Helper function to convert data to JSON values (specializations may be required for custom types)
     template <typename T>
     static void ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
+private:
+
+    
 
     template <typename K, typename V> 
     static inline void ConvertToJSONValue(const std::map<K, V>& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator) {
@@ -196,6 +198,7 @@ template <> inline void JSONHandler::ConvertToJSONValue<uint32_t>(const uint32_t
 template <> inline void JSONHandler::ConvertToJSONValue<uint64_t>(const uint64_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetUint64(data);}
 template <> inline void JSONHandler::ConvertToJSONValue<float>(const float& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetFloat(data);}
 template <> inline void JSONHandler::ConvertToJSONValue<double>(const double& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetDouble(data);}
+template <> inline void JSONHandler::ConvertToJSONValue<long>(const long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetInt64(data);}
 
 template <> inline void JSONHandler::ConvertToJSONValue<std::string>(const std::string& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
     jsonValue.SetString(data.c_str(), static_cast<rapidjson::SizeType>(data.length()), allocator);

@@ -423,10 +423,63 @@ int Nebulite::mainTreeFunctions::printState(int argc, char* argv[]){
 
 
 int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
-    Nebulite::JSON json;
+    uint64_t start;
 
+    uint64_t count = 10000000;
+
+    std::cout << "Testing JSON performance in setting values." << std::endl;
+    std::cout << "Set count is: " << count << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
+
+    // Version 1: old wrapper
+    rapidjson::Document doc;
+    JSONHandler::Set::Any<double>(doc,"global.time.t",1.2345);
+
+    // Version 2: new wrapper with cache
+    Nebulite::JSON json;
     json.set<double>("global.time.t",1.2345);
-    
+
+    //------------------------------------------------------------------------
+    std::cout << std::endl;
+    std::cout << "Test 1: Setting a nested double value from old doc" << std::endl;
+    start = Time::gettime();
+    for(volatile uint64_t i = 0; i < count; i++){
+        (void) JSONHandler::Set::Any<double>(doc,"global.time.t",1.2345);
+    }
+    std::cout << "\t Took " << Time::getruntime(start) << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "Test 2: Setting a nested double value from new wrapper with caching" << std::endl;
+    start = Time::gettime();
+    for(volatile uint64_t i = 0; i < count; i++){
+        (void) json.set<double>("global.time.t",1.2345);
+    }
+    std::cout << "\t Took " << Time::getruntime(start) << std::endl;
+
+    //std::cout << "Comparing docs:" << std::endl;
+    //std::cout << JSONHandler::serialize(doc) << std::endl;
+    //std::cout << json.serialize("") << std::endl;
+
+    //------------------------------------------------------------------------
+    std::cout << std::endl;
+    std::cout << "Test 3: Getting a nested double value from old doc" << std::endl;
+    start = Time::gettime();
+    for(volatile uint64_t i = 0; i < count; i++){
+        (void) JSONHandler::Get::Any<double>(doc,"global.time.t",1.2345);
+    }
+    std::cout << "\t Took " << Time::getruntime(start) << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "Test 4: Getting a nested double value from new wrapper with caching" << std::endl;
+    start = Time::gettime();
+    for(volatile uint64_t i = 0; i < count; i++){
+        (void) json.get<double>("global.time.t",1.2345);
+    }
+    std::cout << "\t Took " << Time::getruntime(start) << std::endl;
+
+    std::cout << "Comparing docs:" << std::endl;
+    std::cout << JSONHandler::serialize(doc) << std::endl;
     std::cout << json.serialize("") << std::endl;
 
     return 0;

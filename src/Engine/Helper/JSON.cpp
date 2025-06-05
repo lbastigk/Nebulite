@@ -64,6 +64,7 @@ std::string Nebulite::JSON::serialize(std::string key){
     else{
         // Key nesting, parse through ...
         // TODO
+        std::cout << "In-Doc serialization not implemented yet" << std::endl;
     }
 }
 void Nebulite::JSON::deserialize(std::string serial_or_link){
@@ -156,4 +157,88 @@ rapidjson::Value* Nebulite::JSON::traverseKey(const char* key, rapidjson::Value&
         return Nebulite::JSON::traverseKey(key + next_key_start, *currentVal);
     }
     return currentVal;
+}
+
+rapidjson::Value* Nebulite::JSON::makeKey(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
+    rapidjson::Value* current = &val;
+    std::string_view keyView(key);
+
+    while (!keyView.empty()) {
+        // Find '.' or '[' as next separators
+        size_t dotPos = keyView.find('.');
+        size_t bracketPos = keyView.find('[');
+
+        size_t nextSep;
+        if (dotPos == std::string_view::npos && bracketPos == std::string_view::npos) {
+            nextSep = keyView.size();  // No separator - last key
+        } else if (dotPos == std::string_view::npos) {
+            nextSep = bracketPos;
+        } else if (bracketPos == std::string_view::npos) {
+            nextSep = dotPos;
+        } else {
+            nextSep = std::min(dotPos, bracketPos);
+        }
+
+        // Extract current key part (object key)
+        std::string_view keyPart = keyView.substr(0, nextSep);
+
+        // Handle object key part if non-empty
+        if (!keyPart.empty()) {
+            if (!current->IsObject()) {
+                current->SetObject();
+            }
+
+            if (!current->HasMember(std::string(keyPart).c_str())) {
+                rapidjson::Value keyVal(std::string(keyPart).c_str(), allocator);
+                rapidjson::Value newObj(rapidjson::kObjectType);
+                current->AddMember(keyVal, newObj, allocator);
+            }
+            current = &(*current)[std::string(keyPart).c_str()];
+        }
+
+        // Move keyView forward past current key
+        keyView.remove_prefix(nextSep);
+
+        // Now handle zero or more array indices if they appear next
+        while (!keyView.empty() && keyView[0] == '[') {
+            // Find closing ']'
+            size_t closeBracket = keyView.find(']');
+            if (closeBracket == std::string_view::npos) {
+                // Malformed key - missing ']'
+                return nullptr;
+            }
+
+            // Extract index string between '[' and ']'
+            std::string_view idxStr = keyView.substr(1, closeBracket - 1);
+            int index = 0;
+            try {
+                index = std::stoi(std::string(idxStr));
+            } catch (...) {
+                return nullptr; // invalid number
+            }
+
+            // Make sure current is array
+            if (!current->IsArray()) {
+                current->SetArray();
+            }
+
+            // Expand array if needed
+            while (current->Size() <= static_cast<rapidjson::SizeType>(index)) {
+                rapidjson::Value emptyObj(rapidjson::kObjectType);
+                current->PushBack(emptyObj, allocator);
+            }
+
+            current = &(*current)[index];
+
+            // Remove processed '[index]'
+            keyView.remove_prefix(closeBracket + 1);
+        }
+
+        // If next character is '.', skip it and continue
+        if (!keyView.empty() && keyView[0] == '.') {
+            keyView.remove_prefix(1);
+        }
+    }
+
+    return current;
 }
