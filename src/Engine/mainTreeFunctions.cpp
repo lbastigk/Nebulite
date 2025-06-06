@@ -11,7 +11,7 @@ namespace Nebulite{
     std::unique_ptr<Renderer> renderer = nullptr;
     Invoke invoke;
     FuncTree mainTree("Nebulite");
-    std::unique_ptr<rapidjson::Document> global = nullptr;
+    std::unique_ptr<Nebulite::JSON> global = nullptr;
 
     // used by convertStrToArgcArgv
     char* argvBuffer = nullptr;
@@ -21,9 +21,7 @@ namespace Nebulite{
     
     // init variables
     void init(){
-        global = std::make_unique<rapidjson::Document>();
-        global->SetObject();
-
+        global = std::make_unique<Nebulite::JSON>();
         invoke.linkGlobal(*global);
 	    invoke.linkQueue(tasks_internal.taskList);
     }
@@ -170,13 +168,13 @@ int Nebulite::mainTreeFunctions::setGlobal(int argc, char* argv[]){
     if(argc == 2){
         std::string key = argv[0];
         std::string value = argv[1];
-        JSONHandler::Set::Any<std::string>(Nebulite::getRenderer()->getGlobal(),key,value);
+        Nebulite::getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
         return 0;
     }
     if(argc == 1){
         std::string key = argv[0];
         std::string value = "0";
-        JSONHandler::Set::Any<std::string>(Nebulite::getRenderer()->getGlobal(),key,value);
+        Nebulite::getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
         return 0;
     }
     return 1;
@@ -497,6 +495,16 @@ int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
     std::cout << "global.arr[0] = " << json2.get<double>("global.arr[0]",0.0) << std::endl;
     std::cout << "global.arr[1] = " << json2.get<double>("global.arr[1]",0.0) << std::endl;
     std::cout << "global.arr[2] = " << json2.get<double>("global.arr[2]",0.0) << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "Test 6: Setting and getting values from RenderObject" << std::endl;
+    RenderObject obj;
+    std::cout << "\tValues in Cache: " << obj.getDoc()->size_cache() << std::endl;
+    for (int i = 0; i < 10; i++){
+        obj.valueSet<double>(namenKonvention.renderObject.positionX.c_str(),(double)i * 0.1);
+        std::cout << "\t" << namenKonvention.renderObject.positionX << " = " << obj.valueGet<double>(namenKonvention.renderObject.positionX.c_str()) << std::endl;
+    }
+    std::cout << "\tValues in Cache: " << obj.getDoc()->size_cache() << std::endl;
 
     return 0;
 }

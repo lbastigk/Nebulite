@@ -1,5 +1,12 @@
 #include "StringHandler.h"
 
+bool StringHandler::containsAnyOf(const std::string& str, const std::string& chars) {
+    return std::any_of(str.begin(), str.end(), [&](char c) {
+        return chars.find(c) != std::string::npos;
+    });
+}
+
+
 bool StringHandler::isNumber(std::string str) {
     // Trim leading/trailing whitespace
     str.erase(0, str.find_first_not_of(" \t\n\r"));

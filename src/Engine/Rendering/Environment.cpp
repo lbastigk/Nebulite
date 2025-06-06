@@ -17,6 +17,7 @@ Environment::~Environment() {
 //Marshalling
 
 std::string Environment::serialize() {
+	/*
 	// Initialize RapidJSON document
 	rapidjson::Document doc;
 	doc.SetObject();
@@ -42,9 +43,14 @@ std::string Environment::serialize() {
 		JSONHandler::Set::Any(doc,key,&containerValue);
 	}
 	return JSONHandler::serialize(doc);
+	*/
+
+	std::cerr << "Env deserialization not implemented yet" << std::endl;
+	return "{}";
 }
 
 void Environment::deserialize(std::string serialOrLink, int dispResX,int dispResY,int THREADSIZE) {
+	/*
 	rapidjson::Document doc;
 	doc = JSONHandler::deserialize(serialOrLink);
 
@@ -73,6 +79,8 @@ void Environment::deserialize(std::string serialOrLink, int dispResX,int dispRes
 			std::cerr << "Key " << key << " not found in the document!" << std::endl;
 		}
 	}
+	*/
+	std::cerr << "Env serialization not implemented yet" << std::endl;
 }
 
 void Environment::append(std::shared_ptr<RenderObject> toAppend,int dispResX, int dispResY,int THREADSIZE, int layer) {

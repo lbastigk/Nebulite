@@ -83,7 +83,12 @@
         "source_location": "cpp",
         "future": "cpp",
         "stdfloat": "cpp",
-        "cfenv": "cpp"
+        "cfenv": "cpp",
+        "strstream": "cpp",
+        "forward_list": "cpp",
+        "scoped_allocator": "cpp",
+        "typeindex": "cpp",
+        "valarray": "cpp"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

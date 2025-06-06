@@ -3,6 +3,7 @@
 #include "SDL.h"		// SDL Renderer is used for some methods to calculate text
 #include <SDL_ttf.h>	// Same for ttf
 
+#include "JSON.h"
 #include "Invoke.h"
 #include "NamenKonventionen.h"
 #include "JSONHandler.h"
@@ -16,21 +17,18 @@ public:
 	RenderObject& operator=(const RenderObject& other);
 
 	//-----------------------------------------------------------
-	//Destructor
-	~RenderObject();
-
-	//-----------------------------------------------------------
 	//Marshalling
 	std::string serialize();
 	void deserialize(std::string serialOrLink);
 	
 	//-----------------------------------------------------------
 	// Setting/Getting specific values
-	template <typename T> void valueSet(std::string key, const T data);
-	template <typename T> T valueGet(std::string key, const T& defaultValue = T());
+	template <typename T> void valueSet(const char* key, const T data);
+	template <typename T> T valueGet(const char* key, const T& defaultValue = T());
 
 
-	rapidjson::Document* getDoc() const;
+	Nebulite::JSON* getDoc(){return &json;};
+	rapidjson::Document* _getDoc() const;
 	SDL_Rect& getDstRect();
 	void calculateDstRect();
 	SDL_Rect* getSrcRect();
@@ -45,7 +43,7 @@ public:
 	void reloadInvokes(std::shared_ptr<RenderObject> this_shared);
 
 private:
-	rapidjson::Document doc;
+	Nebulite::JSON json;
 	SDL_Rect dstRect;
 	SDL_Rect srcRect;
 
@@ -59,14 +57,16 @@ private:
 
 //-----------------------------------------------------------
 // Setting/Getting specific values
-template <typename T> void RenderObject::valueSet(std::string key, const T data) {
-	JSONHandler::Set::Any(doc, key, data);
+template <typename T> void RenderObject::valueSet(const char* key, const T data) {
+	//JSONHandler::Set::Any(doc, key, data);
+	json.set(key,data);
 	calculateDstRect();
 	calculateSrcRect();
 }
 
-template <typename T> T RenderObject::valueGet(std::string key, const T& defaultValue){
-	return JSONHandler::Get::Any<T>(doc, key, defaultValue);
+template <typename T> T RenderObject::valueGet(const char* key, const T& defaultValue){
+	return json.get<T>(key,defaultValue);
+	//return JSONHandler::Get::Any<T>(doc, key, defaultValue);
 }
 
 

@@ -84,13 +84,13 @@ Part 2: Acceleration to position integration
 }
 
 The following is provided to each invoke: 
-- self as rapidjson doc
+- self as json doc
   - used to manipulate itself
-- other as rapidjson doc
+- other as json doc
   - used to manipulate the other object
   - e.G. self is a solid block with the invoke, other is a moving object
   - other.canMove.Left/Right... can be used to tell the object it cant move in the solid object
-- global as rapidjson doc
+- global as json doc
   - count how many wolfes were killed
   - keep track of quest stages: e.g. on pickup, send an invoke to modify quest stage
 - a tasklist to write new functioncalls into
@@ -108,7 +108,7 @@ class RenderObject;
 #include <vector>
 #include <deque>
 #include "tinyexpr.h"
-#include "JSONHandler.h"
+#include "JSON.h"
 
 
 
@@ -201,7 +201,7 @@ public:
 
     // Setting up invoke by linking it to a global doc
     Invoke();
-    void linkGlobal(rapidjson::Document& globalDocPtr){
+    void linkGlobal(Nebulite::JSON& globalDocPtr){
         global = &globalDocPtr;
     }
     void linkQueue(std::deque<std::string>& queue){
@@ -241,24 +241,24 @@ public:
       const std::string& type, 
       const std::string& key, 
       const std::string& valStr, 
-      rapidjson::Document *doc
+      Nebulite::JSON *doc
     );
 
     // For evaluating string expression
     static double evaluateExpression(const std::string& expr);
     std::string resolveVars(
       const std::string& input, 
-      rapidjson::Document& self, 
-      rapidjson::Document& other, 
-      rapidjson::Document& global
+      Nebulite::JSON& self, 
+      Nebulite::JSON& other, 
+      Nebulite::JSON& global
     );
     std::string resolveGlobalVars(const std::string& input);
 
 
-    rapidjson::Document* getGlobalPointer(){return global;};
+    Nebulite::JSON* getGlobalPointer(){return global;};
 private:
-    rapidjson::Document emptyDoc;
-    rapidjson::Document* global = nullptr;
+    Nebulite::JSON emptyDoc;
+    Nebulite::JSON* global = nullptr;
     std::vector<std::shared_ptr<InvokeEntry>> commands;
     std::vector<std::shared_ptr<InvokeEntry>> nextCommands; 
     std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> truePairs;
@@ -276,8 +276,8 @@ private:
 
     std::string evaluateNode(
       const std::shared_ptr<Invoke::Node>& nodeptr, 
-      rapidjson::Document& self, 
-      rapidjson::Document& other, 
-      rapidjson::Document& global
+      Nebulite::JSON& self, 
+      Nebulite::JSON& other, 
+      Nebulite::JSON& global
     );
 };

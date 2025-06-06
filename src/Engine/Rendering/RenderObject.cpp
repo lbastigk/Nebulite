@@ -5,46 +5,47 @@
 //Constructor
 
 RenderObject::RenderObject() {
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.id,0);
+	json.set(namenKonvention.renderObject.id.c_str(),0);
 
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.isOverlay, false);
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.positionX, 0);
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.positionY, 0);
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.pixelSizeX, 32);
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.pixelSizeY, 32);
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.imageLocation, "Resources/Sprites/TEST_BMP_SMALL.bmp");
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.layer, 0);
+	json.set(namenKonvention.renderObject.isOverlay.c_str(), false);
+	json.set(namenKonvention.renderObject.positionX.c_str(), 0);
+	json.set(namenKonvention.renderObject.positionY.c_str(), 0);
+	json.set(namenKonvention.renderObject.pixelSizeX.c_str(), 32);
+	json.set(namenKonvention.renderObject.pixelSizeY.c_str(), 32);
+	json.set(namenKonvention.renderObject.imageLocation.c_str(), std::string("Resources/Sprites/TEST_BMP_SMALL.bmp"));
+	json.set(namenKonvention.renderObject.layer.c_str(), 0);
 
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.deleteFlag, false);
+	json.set(namenKonvention.renderObject.deleteFlag.c_str(), false);
 
 	//for spritesheets
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.isSpritesheet, false);
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.spritesheetOffsetX, 0);
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.spritesheetOffsetY, 0);
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.spritesheetSizeX, 0);
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.spritesheetSizeY, 0);
+	json.set(namenKonvention.renderObject.isSpritesheet.c_str(), false);
+	json.set(namenKonvention.renderObject.spritesheetOffsetX.c_str(), 0);
+	json.set(namenKonvention.renderObject.spritesheetOffsetY.c_str(), 0);
+	json.set(namenKonvention.renderObject.spritesheetSizeX.c_str(), 0);
+	json.set(namenKonvention.renderObject.spritesheetSizeY.c_str(), 0);
 
 	// Set doc["invokes"] as an empty array
-	doc.AddMember("invokes", rapidjson::Value(rapidjson::kArrayType), doc.GetAllocator());
+	// doc.AddMember("invokes", rapidjson::Value(rapidjson::kArrayType), doc.GetAllocator());
+	json.set_empty_array("invokes");
 
 	//Build Rect on creation
 	calculateDstRect();
 	calculateSrcRect();
 
 	// Insert Invokes
-	JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, true);
+	json.set(namenKonvention.renderObject.reloadInvokes.c_str(), true);
 
 	// Create text
 	// Create a surface with the text
-	JSONHandler::Set::Any(doc,namenKonvention.renderObject.textStr,"");
-	JSONHandler::Set::Any(doc,namenKonvention.renderObject.textFontsize,0);
-	JSONHandler::Set::Any(doc,namenKonvention.renderObject.flagCalculate,true);
+	json.set(namenKonvention.renderObject.textStr.c_str(),std::string(""));
+	json.set(namenKonvention.renderObject.textFontsize.c_str(),0);
+	json.set(namenKonvention.renderObject.flagCalculate.c_str(),true);
 }
 
 
 RenderObject::RenderObject(const RenderObject& other) {
-	doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
-	valueSet(namenKonvention.renderObject.flagCalculate,true);
+	json.getDoc()->CopyFrom(*(other._getDoc()), json.getDoc()->GetAllocator());
+	valueSet(namenKonvention.renderObject.flagCalculate.c_str(),true);
 	calculateDstRect();
 	calculateSrcRect();
 }
@@ -52,38 +53,27 @@ RenderObject::RenderObject(const RenderObject& other) {
 RenderObject& RenderObject::operator=(const RenderObject& other) {  // Assignment operator overload
 	if (this != &other) {
 		dstRect = other.dstRect;
-		JSONHandler::copyDoc(doc, other.getDoc());
+		JSONHandler::copyDoc(*json.getDoc(), other._getDoc());
 	}
-	valueSet(namenKonvention.renderObject.flagCalculate,true);
+	valueSet(namenKonvention.renderObject.flagCalculate.c_str(),true);
 	return *this;
 }
 
-
-
-
-
-//-----------------------------------------------------------
-//Destructor
-RenderObject::~RenderObject() {
-	if (doc.IsArray()) {
-		doc.Empty();
-	}
-};
 
 
 //-----------------------------------------------------------
 //Marshalling
 
 std::string RenderObject::serialize() {
-	return JSONHandler::serialize(doc);
+	return json.serialize();
 }
 
 void RenderObject::deserialize(std::string serialOrLink) {
-	doc = JSONHandler::deserialize(serialOrLink);
+	json.deserialize(serialOrLink);
 	//std::cerr << "Doc was deserialized! From: \n" << serialOrLink << "\n to: \n" << JSONHandler::serialize(doc) << std::endl << std::endl;
 
 	// Prerequisites
-	valueSet(namenKonvention.renderObject.reloadInvokes,true);
+	valueSet(namenKonvention.renderObject.reloadInvokes.c_str(),true);
 
 	calculateDstRect();
 	calculateSrcRect();
@@ -91,17 +81,17 @@ void RenderObject::deserialize(std::string serialOrLink) {
 
 void RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int renderer_X, int renderer_Y){
 	float scalar = 1;
-	float fontSize = valueGet<float>(namenKonvention.renderObject.textFontsize);
-	std::string text = valueGet<std::string>(namenKonvention.renderObject.textStr);
-	textRect.x = valueGet<float>(namenKonvention.renderObject.positionX) + valueGet<float>(namenKonvention.renderObject.textDx) - renderer_X;
-	textRect.y = valueGet<float>(namenKonvention.renderObject.positionY) + valueGet<float>(namenKonvention.renderObject.textDy) - renderer_Y;
+	float fontSize = valueGet<float>(namenKonvention.renderObject.textFontsize.c_str());
+	std::string text = valueGet<std::string>(namenKonvention.renderObject.textStr.c_str());
+	textRect.x = valueGet<float>(namenKonvention.renderObject.positionX.c_str()) + valueGet<float>(namenKonvention.renderObject.textDx.c_str()) - renderer_X;
+	textRect.y = valueGet<float>(namenKonvention.renderObject.positionY.c_str()) + valueGet<float>(namenKonvention.renderObject.textDy.c_str()) - renderer_Y;
 	textRect.w = scalar * fontSize * text.length(); // Width based on text length
 	textRect.h = (int)((float)fontSize * 1.5 * scalar);
-	if(valueGet<bool>(namenKonvention.renderObject.flagCalculate,true)==true){
+	if(valueGet<bool>(namenKonvention.renderObject.flagCalculate.c_str(),true)==true){
 		SDL_Color textColor = { 255, 255, 255, 255 }; // White color
 		textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
 		textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-		valueSet(namenKonvention.renderObject.flagCalculate,false);
+		valueSet(namenKonvention.renderObject.flagCalculate.c_str(),false);
 	}
 	
 }
@@ -114,8 +104,9 @@ SDL_Rect* RenderObject::getTextRect(){
 	return &textRect;
 }
 
-rapidjson::Document* RenderObject::getDoc() const {
-	return const_cast<rapidjson::Document*>(&doc);
+rapidjson::Document* RenderObject::_getDoc() const {
+	return json.getDoc();
+	//return const_cast<rapidjson::Document*>(&doc);
 }
 
 
@@ -124,14 +115,14 @@ SDL_Rect& RenderObject::getDstRect() {
 }
 void RenderObject::calculateDstRect() {
 	dstRect = {
-		(int)valueGet<double>(namenKonvention.renderObject.positionX),
-		(int)valueGet<double>(namenKonvention.renderObject.positionY),
-		(int)valueGet<double>(namenKonvention.renderObject.pixelSizeX), // Set the desired width
-		(int)valueGet<double>(namenKonvention.renderObject.pixelSizeY), // Set the desired height
+		(int)valueGet<double>(namenKonvention.renderObject.positionX.c_str()),
+		(int)valueGet<double>(namenKonvention.renderObject.positionY.c_str()),
+		(int)valueGet<double>(namenKonvention.renderObject.pixelSizeX.c_str()), // Set the desired width
+		(int)valueGet<double>(namenKonvention.renderObject.pixelSizeY.c_str()), // Set the desired height
 	};
 };
 SDL_Rect* RenderObject::getSrcRect() {
-	if (valueGet<bool>(namenKonvention.renderObject.isSpritesheet)) {
+	if (valueGet<bool>(namenKonvention.renderObject.isSpritesheet.c_str())) {
 		return &srcRect;
 	}
 	else {
@@ -140,11 +131,11 @@ SDL_Rect* RenderObject::getSrcRect() {
 }
 void RenderObject::calculateSrcRect() {
 	// Check if the object is a sprite
-	if (valueGet<bool>(namenKonvention.renderObject.isSpritesheet)) {
-		int offsetX = (int)valueGet<double>(namenKonvention.renderObject.spritesheetOffsetX,0);
-		int offsetY = (int)valueGet<double>(namenKonvention.renderObject.spritesheetOffsetY,0);
-		int spriteWidth = valueGet<int>(namenKonvention.renderObject.spritesheetSizeX,0);
-		int spriteHeight = valueGet<int>(namenKonvention.renderObject.spritesheetSizeY,0);
+	if (valueGet<bool>(namenKonvention.renderObject.isSpritesheet.c_str())) {
+		int offsetX = (int)valueGet<double>(namenKonvention.renderObject.spritesheetOffsetX.c_str(),0);
+		int offsetY = (int)valueGet<double>(namenKonvention.renderObject.spritesheetOffsetY.c_str(),0);
+		int spriteWidth = valueGet<int>(namenKonvention.renderObject.spritesheetSizeX.c_str(),0);
+		int spriteHeight = valueGet<int>(namenKonvention.renderObject.spritesheetSizeY.c_str(),0);
 		
 		// Calculate the source rectangle for the sprite (which portion of the sprite sheet to render)
 		srcRect = {
@@ -180,7 +171,7 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
     cmds_general.clear();
     cmds_internal.clear();
 
-    auto& doc = *this_shared.get()->getDoc(); // convenience reference
+    auto& doc = *this_shared.get()->_getDoc(); // convenience reference
     if (doc.HasMember("invokes") && doc["invokes"].IsArray() && doc["invokes"].Size()) {
         rapidjson::Value& invokes = doc["invokes"];
         for (rapidjson::SizeType i = 0; i < invokes.Size(); ++i) {
@@ -239,7 +230,7 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
         }
     }
 
-    JSONHandler::Set::Any(doc, namenKonvention.renderObject.reloadInvokes, false);
+    json.set(namenKonvention.renderObject.reloadInvokes.c_str(), false);
 }
 
 //-----------------------------------------------------------
@@ -254,7 +245,7 @@ void RenderObject::update(Invoke* globalInvoke, std::shared_ptr<RenderObject> th
 	// Check all invokes
 	if (globalInvoke) {
 		// Reload invokes if needed
-		if (valueGet<int>(namenKonvention.renderObject.reloadInvokes,true)){
+		if (valueGet<int>(namenKonvention.renderObject.reloadInvokes.c_str(),true)){
 			reloadInvokes(this_shared);
 		}
 

@@ -34,13 +34,13 @@ void Invoke::checkAgainstList(const std::shared_ptr<RenderObject>& obj){
     }
 }
 
-void Invoke::updateValueOfKey(const std::string& type, const std::string& key, const std::string& valStr, rapidjson::Document *doc){
-    if        (type == "set")       JSONHandler::Set::Any<double>(*doc,key,std::stod(valStr));
-    else if   (type == "setInt")    JSONHandler::Set::Any<int>(*doc,key,std::stod(valStr));
-    else if   (type == "add")       JSONHandler::Set::Any<double>(*doc,key,JSONHandler::Get::Any<double>(*doc, key, 0.0) + std::stod(valStr));
-    else if   (type == "multiply")  JSONHandler::Set::Any<double>(*doc,key,JSONHandler::Get::Any<double>(*doc, key, 0.0) * std::stod(valStr));
-    else if   (type == "concat")    JSONHandler::Set::Any<std::string>(*doc,key,JSONHandler::Get::Any<std::string>(*doc, key, "") + valStr);
-    else if   (type == "setStr")    JSONHandler::Set::Any<std::string>(*doc,key,valStr);
+void Invoke::updateValueOfKey(const std::string& type, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){
+    if        (type == "set")       doc->set<double>(key.c_str(),std::stod(valStr));
+    else if   (type == "setInt")    doc->set<int>(key.c_str(),std::stoi(valStr));
+    else if   (type == "add")       doc->set<double>(key.c_str(),std::stod(valStr) + doc->get<double>(key.c_str(),0));
+    else if   (type == "multiply")  doc->set<double>(key.c_str(),std::stod(valStr) * doc->get<double>(key.c_str(),0));
+    else if   (type == "concat")    doc->set<std::string>(key.c_str(),doc->get<std::string>(key.c_str(),0) + valStr);
+    else if   (type == "setStr")    doc->set<std::string>(key.c_str(),valStr);;
 }
 
 // Checks a given invoke cmd against objects in buffer
@@ -150,77 +150,6 @@ double Invoke::evaluateExpression(const std::string& expr) {
     return te_interp(expr.c_str(),0);
 }
 
-/*
-std::string Invoke::resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global) {
-    // Variables
-    std::string resolved, inner;
-    std::string result = input;
-    size_t start, end;
-    int depth;
-
-    // loop through string, find $(...) and replace with variables
-    while (result.find("$(") != std::string::npos) {
-        for(int i = 0; i < result.size()-1; i++){
-            if(result[i] == '$' && result[i+1] == '('){
-                start = i + 2;
-                depth = 1;
-                end = start;
-                while (end < result.size() && depth > 0) {
-                    if (result[end] == '(')         depth++;
-                    else if (result[end] == ')')    depth--;
-                    ++end;
-                }
-                if (depth != 0) {
-                    // Unmatched parentheses
-                    std::cerr << "No matching closing paranthesis found!";
-                    break;
-                }
-                inner = result.substr(start, end - start - 1);
-
-                // === VARIABLE ACCESS ===
-                bool evaled_val = false;
-
-                // check for reference to self
-                if (inner.starts_with("self.")) {
-                    evaled_val = true;
-                    resolved = JSONHandler::Get::Any<std::string>(self, inner.substr(5), "0");
-                } 
-                // check for reference to other
-                else if (inner.starts_with("other.")) {
-                    evaled_val = true;
-                    resolved = JSONHandler::Get::Any<std::string>(other, inner.substr(6), "0");
-                } 
-                // check for reference to global
-                else if (inner.starts_with("global.")) {
-                    evaled_val = true;
-                    resolved = JSONHandler::Get::Any<std::string>(global, inner.substr(7), "0");
-                } 
-                // if none of these are true, it's an expression like $(1+1)
-                // make sure there is no internal reference that still needs to be resolved
-                else if (inner.find("$(") == std::string::npos){
-                    evaled_val = true;
-                    if(StringHandler::isNumber(inner)){
-                        resolved = inner;
-                    }
-                    else{
-                        resolved = std::to_string(evaluateExpression(inner));
-                    }
-                }
-                
-                // Replace only if it was evaluated
-                if(evaled_val){
-                    // Replace the $(...) with resolved value
-                    result.replace(i, end - i, resolved);
-                    i += resolved.size();
-                }
-            }
-        }   
-    }
-    return result;
-}
-
-*/
-
 // turn nodes that hold constant to evaluate into text
 // e.g. $(1+1) is turned into 2.000...
 void Invoke::foldConstants(const std::shared_ptr<Invoke::Node>& node) {
@@ -328,7 +257,7 @@ std::shared_ptr<Invoke::Node> Invoke::expressionToTree(const std::string& input)
 }
 
 // Take a pre-processed node and resolve all expressions and vars
-std::string Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global){
+std::string Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr, Nebulite::JSON& self, Nebulite::JSON& other, Nebulite::JSON& global){
     switch (nodeptr->type) {
         case Node::Type::Literal:
             return nodeptr->text;
@@ -336,16 +265,17 @@ std::string Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr, r
         case Node::Type::Variable: {
             const std::string& expr = nodeptr->text;
             if (expr.starts_with("self.")) {
-                return JSONHandler::Get::Any<std::string>(self, expr.substr(5), "0");
+                return self.get<std::string>(expr.substr(5).c_str(),"0");
             } else if (expr.starts_with("other.")) {
-                return JSONHandler::Get::Any<std::string>(other, expr.substr(6), "0");
+                return other.get<std::string>(expr.substr(6).c_str(),"0");
             } else if (expr.starts_with("global.")) {
-                return JSONHandler::Get::Any<std::string>(global, expr.substr(7), "0");
+                return global.get<std::string>(expr.substr(7).c_str(),"0");
             } else if (StringHandler::isNumber(expr)) {
                 return expr;
             } else {
                 return std::to_string(evaluateExpression(expr));
             }
+            
         }
 
         case Node::Type::Mix_no_eval: {
@@ -368,11 +298,11 @@ std::string Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr, r
 }
     
 // replace all instances of $(...) with their evaluation
-std::string Invoke::resolveVars(const std::string& input, rapidjson::Document& self, rapidjson::Document& other, rapidjson::Document& global) {
+std::string Invoke::resolveVars(const std::string& input, Nebulite::JSON& self, Nebulite::JSON& other, Nebulite::JSON& global) {
     if(!exprTree.contains(input)){
         exprTree[input] = expressionToTree(input);
     }
-    return evaluateNode(exprTree[input],self,other,global);   
+    return evaluateNode(exprTree[input],self,other,global);
 }
 
 // same as resolveVars, but only using global, rest is empty

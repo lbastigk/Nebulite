@@ -26,7 +26,7 @@ namespace Nebulite {
     extern std::unique_ptr<Renderer> renderer;
     extern Invoke invoke;
     extern FuncTree mainTree;
-    extern std::unique_ptr<rapidjson::Document> global;
+    extern std::unique_ptr<Nebulite::JSON> global;
     
     // Function to init variables
     void init();

@@ -8,11 +8,14 @@
 #include <vector>
 #include <locale.h>
 #include <codecvt>
+#include <algorithm>
 
 typedef uint64_t UINT64;
 
 class StringHandler {
 public:
+    static bool containsAnyOf(const std::string& str, const std::string& chars);
+
     static bool isNumber(std::string str);
 
     static std::string uint64ToStringWithPadding(UINT64 value, int length);

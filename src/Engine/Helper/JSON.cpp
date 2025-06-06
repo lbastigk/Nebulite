@@ -6,6 +6,14 @@ Nebulite::JSON::JSON(){
     doc.SetObject();
 }
 
+
+std::string Nebulite::JSON::reservedCharacters = "[]{}.,";
+
+void Nebulite::JSON::set_empty_array(const char* key){
+    rapidjson::Value* val = makeKey(key,doc,doc.GetAllocator());
+    val->SetArray();
+}
+
 //template <typename T>
 Nebulite::JSON::KeyType Nebulite::JSON::memberCheck(std::string key) {
     // 1. Check if key is empty or represents the whole document
@@ -196,7 +204,6 @@ rapidjson::Value* Nebulite::JSON::traverseKey(const char* key, rapidjson::Value&
 
     return current;
 }
-
 
 rapidjson::Value* Nebulite::JSON::makeKey(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
     rapidjson::Value* current = &val;

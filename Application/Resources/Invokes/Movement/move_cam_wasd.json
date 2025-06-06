@@ -1,5 +1,5 @@
 {
-  "logicalArg": "$($(global.input.keyboard.w) or $(global.input.keyboard.a) or $(global.input.keyboard.s) or $(global.input.keyboard.d))",
+  "logicalArg": "$($(global.input.keyboard.w) + $(global.input.keyboard.a) + $(global.input.keyboard.s) + $(global.input.keyboard.d))",
   "isGlobal": false,
   "self_invokes": [],
   "other_invokes": [],

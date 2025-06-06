@@ -2,20 +2,6 @@
 // arguments and executing the corresponding functions in the Nebulite project. The main goal
 // of this class is to manage hierarchical commands and arguments for modular and flexible execution.
 
-// Example usage in the terminal:
-// nebulite test --debuglevel=2 JSONHandler keyNesting --level=2
-//
-// Breakdown of the execution flow:
-// - nebulite -> the binary itself, invoked to start the application
-// - test -> triggers the 'test' function, which parses additional arguments (e.g., --debuglevel=2)
-//   and sets global parameters (e.g., global debug level to 2)
-// - Next, the remaining arguments are parsed:
-//   - JSONHandler -> invokes the associated debug function within the 'test' function context
-//   - keyNesting -> calls a test within 'JSONHandler', setting the level of nesting to 2
-//
-// Each argument processed results in modifying the context or invoking specific tests, with the first
-// argument and any associated options being removed before moving to the next set of arguments.
-
 
 #pragma once
 

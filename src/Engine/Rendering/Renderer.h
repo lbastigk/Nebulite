@@ -18,7 +18,7 @@
 
 class Renderer {
 public:
-	Renderer(Invoke& invoke, rapidjson::Document& global, bool flag_hidden = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
+	Renderer(Invoke& invoke, Nebulite::JSON& global, bool flag_hidden = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
 
 	//Marshalling
 	std::string serialize();
@@ -70,16 +70,16 @@ public:
 	
 	//-----------------------------------------------------------
 	// Getting
-	rapidjson::Document& getGlobal(){return env.getGlobal();}
+	Nebulite::JSON& getGlobal(){return env.getGlobal();}
 	int getEps(){return epsillon;}
 	size_t getTextureAmount(){return TextureContainer.size();}
 	size_t getObjectCount(){return env.getObjectCount();}
-	int getResX(){return JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"Display.Resolution.X",0);}
-	int getResY(){return JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"Display.Resolution.Y",0);}
+	int getResX(){return invoke_ptr->getGlobalPointer()->get<int>("Display.Resolution.X",0);}
+	int getResY(){return invoke_ptr->getGlobalPointer()->get<int>("Display.Resolution.Y",0);}
 	int getThreadSize(){return THREADSIZE;}
 	int getFPS(){return fps;}
-	int getPosX(){return JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"Display.Position.X",0);};
-	int getPosY(){return JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"Display.Position.Y",0);};
+	int getPosX(){return invoke_ptr->getGlobalPointer()->get<int>("Display.Position.X",0);};
+	int getPosY(){return invoke_ptr->getGlobalPointer()->get<int>("Display.Position.Y",0);};
 	bool windowExists(){return !!Renderer::window;}
 
 	unsigned int getTileXpos(){return tileXpos;}
@@ -89,10 +89,10 @@ public:
 	Invoke* getInvoke(){return invoke_ptr;}
 
 	// Updated with each renderer update
-	void update_rand() {JSONHandler::Set::Any<Uint64>(env.getGlobal(), "rand",   dist(rngA));};
+	void update_rand() {invoke_ptr->getGlobalPointer()->set<Uint64>("rand",   dist(rngA));};
 
 	// Updated with each renderer update and append
-	void update_rrand(){JSONHandler::Set::Any<Uint64>(env.getGlobal(), "rrand",  dist(rngB));};
+	void update_rrand(){invoke_ptr->getGlobalPointer()->set<Uint64>("rrand",  dist(rngB));};
 
 private:
 	//-------------------------------------------------------------------------------------

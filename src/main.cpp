@@ -138,14 +138,7 @@ int main(int argc, char* argv[]) {
             Nebulite::getRenderer()->clear();           // 5.) Clear screen
 
             // lower waitCounter in script task
-            if(Nebulite::tasks_script.waitCounter>0) Nebulite::tasks_script.waitCounter--; 
-        
-            // DEBUG: serialize doc
-            /*
-            Platform::clearScreen();
-            std::cout << JSONHandler::serialize(*Nebulite::global);
-            //*/
-            
+            if(Nebulite::tasks_script.waitCounter>0) Nebulite::tasks_script.waitCounter--;     
         }
     } while (Nebulite::renderer != nullptr && !Nebulite::getRenderer()->isQuit());
 

@@ -125,12 +125,12 @@ void RenderObjectContainer::append(std::shared_ptr<RenderObject> toAppend, int d
     int64_t placeholder;
 
     // Calculate correspondingTileXpos using positionX
-    valget = toAppend.get()->valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
+    valget = toAppend.get()->valueGet<double>(namenKonvention.renderObject.positionX.c_str(), 0.0);
     placeholder = (int64_t)(valget / (double)dispResX);
     correspondingTileXpos = (placeholder < 0) ? (unsigned int)(-placeholder) : (unsigned int)(placeholder);
 
     // Calculate correspondingTileYpos using positionY
-    valget = toAppend.get()->valueGet<double>(namenKonvention.renderObject.positionY, 0.0);
+    valget = toAppend.get()->valueGet<double>(namenKonvention.renderObject.positionY.c_str(), 0.0);
     placeholder = (int64_t)(valget / (double)dispResY);
     correspondingTileYpos = (placeholder < 0) ? (unsigned int)(-placeholder) : (unsigned int)(placeholder);
 
@@ -242,17 +242,17 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 						
 						//-----------------------------------------
 						// Check delete flag
-						if (!obj->valueGet(namenKonvention.renderObject.deleteFlag,false)){
+						if (!obj->valueGet(namenKonvention.renderObject.deleteFlag.c_str(),false)){
 							
 							//-------------------------------------
 							// Get new position in tile
 							//X
-							valget = obj->valueGet<double>(namenKonvention.renderObject.positionX, 0.0);
+							valget = obj->valueGet<double>(namenKonvention.renderObject.positionX.c_str(), 0.0);
 							placeholder = abs((int64_t)(valget / (double)dispResX));
 							correspondingTileXpos = (unsigned int)(placeholder);
 
 							//Y
-							valget = obj->valueGet<double>(namenKonvention.renderObject.positionY, 0.0);
+							valget = obj->valueGet<double>(namenKonvention.renderObject.positionY.c_str(), 0.0);
 							placeholder = abs((int64_t)(valget / (double)dispResY));
 							correspondingTileYpos = (unsigned int)(placeholder);
 
@@ -365,8 +365,8 @@ void RenderObjectContainer::purgeObjectsAt(int x, int y, int dispResX, int dispR
 			std::vector<std::shared_ptr<RenderObject>> newBatch;
 
 			for (auto& object : batch) {
-				if (!(object->valueGet<int>(namenKonvention.renderObject.positionX) == x &&
-					object->valueGet<int>(namenKonvention.renderObject.positionY) == y)) {
+				if (!(object->valueGet<int>(namenKonvention.renderObject.positionX.c_str()) == x &&
+					object->valueGet<int>(namenKonvention.renderObject.positionY.c_str()) == y)) {
 					// Retain objects that don't match the condition
 					newBatch.push_back(object);
 				}
@@ -437,7 +437,7 @@ SDL_Texture* RenderObjectContainer::getTexture(int screenSizeX, int screenSizeY,
 					// For all objects inside each batch
 					for (auto& obj : batch) {
 						//Texture loading is handled in append
-						std::string innerdir = obj->valueGet<std::string>(namenKonvention.renderObject.imageLocation);
+						std::string innerdir = obj->valueGet<std::string>(namenKonvention.renderObject.imageLocation.c_str());
 						obj->calculateSrcRect();
 
 						rect = obj->getDstRect();

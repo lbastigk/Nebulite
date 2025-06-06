@@ -7,7 +7,6 @@
 #include <vector>
 #include <thread>
 
-#include "JSONHandler.h"
 #include "RenderObjectContainer.h"
 #include "Invoke.h"
 
@@ -35,10 +34,10 @@ public:
 	void deserialize(std::string serialOrLink, int dispResX,int dispResY,int THREADSIZE);
 	
 	std::string serializeGlobal(){
-		return JSONHandler::serialize(*global);
+		return global->serialize();
 	}
 
-	void linkGlobal(rapidjson::Document& global_ptr){global = &global_ptr;};
+	void linkGlobal(Nebulite::JSON& global_ptr){global = &global_ptr;};
 	
 	void append(std::shared_ptr<RenderObject> toAppend,int dispResX, int dispResY,int THREADSIZE, int layer = 0);
 	void update(int tileXpos,int tileYpos,int dispResX,int dispResY, int THREADSIZE,Invoke* globalInvoke=nullptr);
@@ -63,12 +62,12 @@ public:
 			menue
 	};
 
-	rapidjson::Document& getGlobal() {
+	Nebulite::JSON& getGlobal() {
 		return *global;
 	}
 private:
 	// Global Values
-    rapidjson::Document* global;
+    Nebulite::JSON* global;
 	
 	RenderObjectContainer roc[RENDEROBJECTCONTAINER_COUNT];
 };

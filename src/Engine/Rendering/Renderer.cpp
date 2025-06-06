@@ -2,7 +2,7 @@
 
 
 
-Renderer::Renderer(Invoke& invoke, rapidjson::Document& global, bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y)
+Renderer::Renderer(Invoke& invoke, Nebulite::JSON& global, bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y)
 : 	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B")),
 	dist(0, 32767)
@@ -37,8 +37,8 @@ Renderer::Renderer(Invoke& invoke, rapidjson::Document& global, bool flag_hidden
 		"Nebulite",            // Window title
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",X)*zoom,                        // Width
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",Y)*zoom,                        // Height
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",X)*zoom,                        // Width
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",Y)*zoom,                        // Height
 		flag_hidden ? SDL_WINDOW_HIDDEN :SDL_WINDOW_SHOWN
 	);
 	if (!window) {
@@ -73,24 +73,23 @@ Renderer::Renderer(Invoke& invoke, rapidjson::Document& global, bool flag_hidden
 	// Set virtual rendering size
 	SDL_RenderSetLogicalSize(
 		renderer, 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",X), 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",Y)
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",X), 
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",Y)
 	);
 
 	//--------------------------------------------
 	// Set basic values inside global doc
+	invoke_ptr->getGlobalPointer()->set<int>("display.resolution.X",X);	
+	invoke_ptr->getGlobalPointer()->set<int>("display.resolution.Y",Y);
+	invoke_ptr->getGlobalPointer()->set<int>("display.position.X",0);
+	invoke_ptr->getGlobalPointer()->set<int>("display.position.Y",0);
 
-	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",X);	
-	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",Y);
-	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.X",0);
-	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.Y",0);
-
-	JSONHandler::Set::Any<Uint64>(env.getGlobal(),"time.fixed_dt_ms",0);
-	JSONHandler::Set::Any<double>(env.getGlobal(),"time.t",0);
-	JSONHandler::Set::Any<Uint64>(env.getGlobal(),"time.t_ms",0);
-	JSONHandler::Set::Any<double>(env.getGlobal(),"time.dt",0);
-	JSONHandler::Set::Any<Uint64>(env.getGlobal(),"time.dt_ms",0);
-    JSONHandler::Set::Any<double>(env.getGlobal(),"physics.G",0.1 * 100);
+	invoke_ptr->getGlobalPointer()->set<Uint64>("time.fixed_dt_ms",0);
+	invoke_ptr->getGlobalPointer()->set<double>("time.t",0);
+	invoke_ptr->getGlobalPointer()->set<Uint64>("time.t_ms",0);
+	invoke_ptr->getGlobalPointer()->set<double>("time.dt",0);
+	invoke_ptr->getGlobalPointer()->set<Uint64>("time.dt_ms",0);
+    invoke_ptr->getGlobalPointer()->set<double>("physics.G",0.1 * 100);
 }
 
 
@@ -102,8 +101,8 @@ std::string Renderer::serialize() {
 void Renderer::deserialize(std::string serialOrLink) {
 	env.deserialize(
 		serialOrLink, 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",0), 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",0), 
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
 		THREADSIZE
 	);
 }
@@ -112,20 +111,20 @@ void Renderer::deserialize(std::string serialOrLink) {
 // Pipeline
 void Renderer::append(std::shared_ptr<RenderObject> toAppend) {
 	// Set ID
-	toAppend.get()->valueSet<uint32_t>(namenKonvention.renderObject.id,id_counter);
+	toAppend.get()->valueSet<uint32_t>(namenKonvention.renderObject.id.c_str(),id_counter);
 	id_counter++;
 
 	//Append to environment, based on layer
 	env.append(
 		toAppend, 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",0), 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",0), 
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
 		THREADSIZE, 
-		toAppend.get()->valueGet(namenKonvention.renderObject.layer, 0)
+		toAppend.get()->valueGet(namenKonvention.renderObject.layer.c_str(), 0)
 	);
 
 	//Load texture
-	loadTexture(toAppend.get()->valueGet<std::string>(namenKonvention.renderObject.imageLocation));
+	loadTexture(toAppend.get()->valueGet<std::string>(namenKonvention.renderObject.imageLocation.c_str()));
 
 	// Update rolling rand
 	update_rrand();
@@ -133,8 +132,8 @@ void Renderer::append(std::shared_ptr<RenderObject> toAppend) {
 
 void Renderer::reinsertAllObjects(){
 	env.reinsertAllObjects(
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",0),
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",0),
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0),
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0),
 		THREADSIZE
 	);
 }
@@ -158,8 +157,8 @@ void Renderer::update() {
 	env.update(
 		tileXpos,
 		tileYpos,
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",0), 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",0), 
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
 		THREADSIZE,
 		invoke_ptr
 	);
@@ -176,8 +175,8 @@ void Renderer::update_withThreads() {
 	env.update_withThreads(
 		tileXpos, 
 		tileYpos, 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",0), 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",0), 
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
 		THREADSIZE,
 		invoke_ptr
 	);
@@ -196,8 +195,8 @@ void Renderer::purgeObjectsAt(int x, int y){
 	env.purgeObjectsAt(
 		x,
 		y,
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",0),
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",0)
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0),
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0)
 	);
 }
 
@@ -242,19 +241,19 @@ void Renderer::changeWindowSize(int w, int h, int scalar) {
 		return;
 	}
 
-	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",w);
-	JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",h);
+	invoke_ptr->getGlobalPointer()->set<int>("display.resolution.X",w);
+	invoke_ptr->getGlobalPointer()->set<int>("display.resolution.Y",h);
     
     // Update the window size
     SDL_SetWindowSize(
 		window, 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",0) * RenderScalar, 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",0) * RenderScalar
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0) * RenderScalar, 
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0) * RenderScalar
 	);
 	SDL_RenderSetLogicalSize(
 		renderer,
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",0), 
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",0)
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0)
 	);
 
     // Reinsert objects or do any additional resizing logic here
@@ -262,39 +261,39 @@ void Renderer::changeWindowSize(int w, int h, int scalar) {
 }
 
 void Renderer::moveCam(int dX, int dY, bool isMiddle) {
-	JSONHandler::Set::Any<int>(
-		*invoke_ptr->getGlobalPointer(),
+	invoke_ptr->getGlobalPointer()->set<int>(
+		
 		"display.position.X",
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.X",0) + dX
+		invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0) + dX
 	);
-	JSONHandler::Set::Any<int>(
-		*invoke_ptr->getGlobalPointer(),
+	invoke_ptr->getGlobalPointer()->set<int>(
+		
 		"display.position.Y",
-		JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.X",0) + dY
+		invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0) + dY
 	);
-	tileXpos = JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.X",0) / JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",0);
-	tileYpos = JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.Y",0) / JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",0);
+	tileXpos = invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0) / invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0);
+	tileYpos = invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0) / invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0);
 };
 
 void Renderer::setCam(int X, int Y, bool isMiddle) {
 	if(isMiddle){
-		JSONHandler::Set::Any<int>(
-			*invoke_ptr->getGlobalPointer(),
+		invoke_ptr->getGlobalPointer()->set<int>(
+			
 			"display.position.X",
-			X - JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",0) / 2
+			X - invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0) / 2
 		);
-		JSONHandler::Set::Any<int>(
-			*invoke_ptr->getGlobalPointer(),
+		invoke_ptr->getGlobalPointer()->set<int>(
+			
 			"display.position.Y",
-			Y - JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",0) / 2
+			Y - invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0) / 2
 		);
 	}
 	else{
-		JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.X",X);
-		JSONHandler::Set::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.X",Y);
+		invoke_ptr->getGlobalPointer()->set<int>("display.position.X",X);
+		invoke_ptr->getGlobalPointer()->set<int>("display.position.X",Y);
 	}
-	tileXpos = X / JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.X",0);
-	tileYpos = Y / JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.resolution.Y",0);
+	tileXpos = X / invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0);
+	tileYpos = Y / invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0);
 };
 
 
@@ -381,7 +380,7 @@ void Renderer::renderFrame() {
 						for (auto& obj : batch) {
 							// Check for texture
 							
-							std::string innerdir = obj.get()->valueGet<std::string>(namenKonvention.renderObject.imageLocation);
+							std::string innerdir = obj.get()->valueGet<std::string>(namenKonvention.renderObject.imageLocation.c_str());
 							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
 								loadTexture(innerdir);
 								obj.get()->calculateDstRect();
@@ -391,20 +390,20 @@ void Renderer::renderFrame() {
 							
 							// Calculate position rect
 							rect = obj->getDstRect();
-							rect.x -= JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.X",0);	//subtract camera posX
-							rect.y -= JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.Y",0);;	//subtract camera posY
+							rect.x -= invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0);	//subtract camera posX
+							rect.y -= invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0);;	//subtract camera posY
 							
 
 							// Render the texture
 							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj.get()->getSrcRect(), &rect);
 
 							// Render the text
-							if (obj.get()->valueGet<float>(namenKonvention.renderObject.textFontsize)>0){
+							if (obj.get()->valueGet<float>(namenKonvention.renderObject.textFontsize.c_str())>0){
 								obj.get()->calculateText(
 									renderer,
 									font,
-									JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.X",0),
-									JSONHandler::Get::Any<int>(*invoke_ptr->getGlobalPointer(),"display.position.Y",0)
+									invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0),
+									invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0)
 								);
 								SDL_RenderCopy(renderer,&obj.get()->getTextTexture(),NULL,obj.get()->getTextRect());
 							}
@@ -466,19 +465,19 @@ void Renderer::setGlobalValues(){
 	currentTime = Time::gettime();
 
 	// Get dt. Either fixed value or calculate from actual time difference
-	Uint64 dt_ms = JSONHandler::Get::Any<Uint64>(env.getGlobal(),"time.fixed_dt_ms",0);
+	Uint64 dt_ms = invoke_ptr->getGlobalPointer()->get<Uint64>("time.fixed_dt_ms",0);
 	if(dt_ms == 0){
 		dt_ms = currentTime - lastTime;
 	}
-	Uint64 t_ms = JSONHandler::Get::Any<Uint64>(env.getGlobal(), "time.t_ms",0) + dt_ms;
-	JSONHandler::Set::Any<double>(env.getGlobal(), "time.dt", dt_ms / 1000.0);
-	JSONHandler::Set::Any<double>(env.getGlobal(), "time.t",   t_ms / 1000.0);
-	JSONHandler::Set::Any<Uint64>(env.getGlobal(), "time.dt_ms", dt_ms);
-	JSONHandler::Set::Any<Uint64>(env.getGlobal(), "time.t_ms", t_ms);
+	Uint64 t_ms = invoke_ptr->getGlobalPointer()->get<Uint64>( "time.t_ms",0) + dt_ms;
+	invoke_ptr->getGlobalPointer()->set<double>( "time.dt", dt_ms / 1000.0);
+	invoke_ptr->getGlobalPointer()->set<double>( "time.t",   t_ms / 1000.0);
+	invoke_ptr->getGlobalPointer()->set<Uint64>( "time.dt_ms", dt_ms);
+	invoke_ptr->getGlobalPointer()->set<Uint64>( "time.t_ms", t_ms);
 
 	// Get Frame count
-	Uint64 ticks = JSONHandler::Get::Any<Uint64>(env.getGlobal(),"frameCount",0);
-	JSONHandler::Set::Any<Uint64>(env.getGlobal(),"frameCount",ticks+1);
+	Uint64 ticks = invoke_ptr->getGlobalPointer()->get<Uint64>("frameCount",0);
+	invoke_ptr->getGlobalPointer()->set<Uint64>("frameCount",ticks+1);
 
 	//---------------------------------------------
 	// Random
@@ -508,17 +507,17 @@ void Renderer::pollEvent() {
     mouseState = SDL_GetMouseState(&MousePosX, &MousePosY);
 
 	// Cursor Position and state
-	JSONHandler::Set::Any(env.getGlobal(),"input.mouse.current.X",MousePosX);
-	JSONHandler::Set::Any(env.getGlobal(),"input.mouse.current.Y",MousePosY);
-	JSONHandler::Set::Any(env.getGlobal(),"input.mouse.delta.X",MousePosX-lastMousePosX);
-	JSONHandler::Set::Any(env.getGlobal(),"input.mouse.delta.Y",MousePosY-lastMousePosY);
+	invoke_ptr->getGlobalPointer()->set("input.mouse.current.X",MousePosX);
+	invoke_ptr->getGlobalPointer()->set("input.mouse.current.Y",MousePosY);
+	invoke_ptr->getGlobalPointer()->set("input.mouse.delta.X",MousePosX-lastMousePosX);
+	invoke_ptr->getGlobalPointer()->set("input.mouse.delta.Y",MousePosY-lastMousePosY);
 
-	JSONHandler::Set::Any(env.getGlobal(),"input.mouse.current.left",!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState));
-	JSONHandler::Set::Any(env.getGlobal(),"input.mouse.current.right",!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouseState));
-	JSONHandler::Set::Any(env.getGlobal(),"input.mouse.delta.left",
+	invoke_ptr->getGlobalPointer()->set("input.mouse.current.left",!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState));
+	invoke_ptr->getGlobalPointer()->set("input.mouse.current.right",!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouseState));
+	invoke_ptr->getGlobalPointer()->set("input.mouse.delta.left",
 		!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState) - 
 		!!(SDL_BUTTON(SDL_BUTTON_LEFT) & lastMouseState));
-	JSONHandler::Set::Any(env.getGlobal(),"input.mouse.delta.right",
+	invoke_ptr->getGlobalPointer()->set("input.mouse.delta.right",
 		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouseState) - 
 		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & lastMouseState));
 
@@ -540,22 +539,25 @@ void Renderer::pollEvent() {
             for (char& c : keyName) c = std::tolower(c);
             for (char& c : keyName) if (c == ' ') c = '_';
 
-            // Paths
-            std::string currentPath = "input.keyboard.current." + keyName;
-            std::string deltaPath = "input.keyboard.delta." + keyName;
+            // Don't add if there are special chars in keyname
+			if(!StringHandler::containsAnyOf(keyName,Nebulite::JSON::reservedCharacters)){
+				// Paths
+				std::string currentPath = "input.keyboard.current." + keyName;
+            	std::string deltaPath = "input.keyboard.delta." + keyName;
 
-            bool currentPressed = keyState[scancode] != 0;
-            bool prevPressed = prevKeyState[scancode] != 0;
+				bool currentPressed = keyState[scancode] != 0;
+				bool prevPressed = prevKeyState[scancode] != 0;
 
-            // Set current state (true/false as int)
-            JSONHandler::Set::Any<int>(env.getGlobal(), currentPath, currentPressed);
+				// Set current state (true/false as int)
+				invoke_ptr->getGlobalPointer()->set<int>(currentPath.c_str(), currentPressed);
 
-            // Compute delta: 1 = pressed now but not before, -1 = released now but was pressed before, 0 = no change
-            int delta = 0;
-            if (currentPressed && !prevPressed) delta = 1;
-            else if (!currentPressed && prevPressed) delta = -1;
+				// Compute delta: 1 = pressed now but not before, -1 = released now but was pressed before, 0 = no change
+				int delta = 0;
+				if (currentPressed && !prevPressed) delta = 1;
+				else if (!currentPressed && prevPressed) delta = -1;
 
-            JSONHandler::Set::Any<int>(env.getGlobal(), deltaPath, delta);
+				invoke_ptr->getGlobalPointer()->set<int>(deltaPath.c_str(), delta);
+			}
         }
     }
 
