@@ -62,6 +62,9 @@ public:
     // Helper function to convert data to JSON values (specializations may be required for custom types)
     template <typename T>
     static void ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
+
+    template <typename T>
+    static void ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& result, const T& defaultvalue = T());
 private:
 
     
@@ -91,8 +94,7 @@ private:
     }
 
 
-    template <typename T>
-    static void ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& result);
+    
 };
 
 template <typename T, typename JSONValueType>
@@ -127,7 +129,7 @@ T JSONHandler::Get::Any(JSONValueType& value, const std::string& fullKey, const 
     if (!current->IsNull()) {
         try {
             T result;
-            ConvertFromJSONValue(*current, result);
+            ConvertFromJSONValue(*current, result, defaultValue);
             return result;
         } catch (...) {
             std::cerr << "Error while converting '" << fullKey << "'. Returning default value." << std::endl;
@@ -342,9 +344,9 @@ void JSONHandler::ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue,
 
 
 // from JSON Value
-template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, bool& result){result = jsonValue.GetBool();}
+template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, bool& result, const bool& defaultvalue){result = jsonValue.GetBool();}
 template <>
-inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, int& result) {
+inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, int& result, const int& defaultvalue) {
     if (jsonValue.IsInt()) {
         result = jsonValue.GetInt();
     }
@@ -356,9 +358,9 @@ inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue,
     }
 }
 
-template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint32_t& result){result = jsonValue.GetUint();}
+template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint32_t& result, const uint32_t& defaultvalue){result = jsonValue.GetUint();}
 template <>
-inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint64_t& result) {
+inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint64_t& result, const uint64_t& defaultvalue) {
     if (jsonValue.IsString()) {
         std::istringstream iss(jsonValue.GetString());
         iss >> result;
@@ -372,7 +374,7 @@ inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue,
         throw std::runtime_error("JSON value is not a valid uint64_t");
     }
 }
-template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, float& result){
+template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, float& result, const float& defaultvalue){
     if (jsonValue.IsNumber()){
         result = jsonValue.GetFloat();
     }
@@ -380,14 +382,19 @@ template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value
         result = (float)std::stod(jsonValue.GetString());
     }
 }
-template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, double& result){
+template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, double& result, const double& defaultvalue){
     if (jsonValue.IsNumber()){
         result = jsonValue.GetDouble();
     }
-    else{
+    else if(jsonValue.IsString()){
         result = std::stod(jsonValue.GetString());
-    }}
-template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, std::string& result){
+    }
+    else {
+        //std::cout << "Unsupported value type! Value is: " << serializeVal(jsonValue) << std::endl;
+        result = defaultvalue;
+    }
+}
+template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, std::string& result, const std::string& defaultvalue){
     if (jsonValue.IsBool()) {
         result = jsonValue.GetBool() ? "true" : "false";
     }
@@ -422,7 +429,7 @@ template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value
         result = "unsupported type";
     }
 }
-template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, rapidjson::Document& result){
+template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value& jsonValue, rapidjson::Document& result, const rapidjson::Document& defaultvalue){
     result.CopyFrom(jsonValue, result.GetAllocator());
 }
 

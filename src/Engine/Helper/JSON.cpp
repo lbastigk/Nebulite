@@ -95,69 +95,86 @@ void Nebulite::JSON::empty(){
 }
 
 rapidjson::Value* Nebulite::JSON::traverseKey(const char* key, rapidjson::Value& val){
-    // Parse key segment (up to '.' or '[' or '\0')
-    uint16_t key_end = 0;
-    while (key[key_end] != '\0' && key[key_end] != '.' && key[key_end] != '[') {
-        key_end++;
-    }
+    rapidjson::Value* current = &val;
+    std::string_view keyView(key);
 
-    // Extract current key part as a string_view for lookup
-    std::string_view currentKey(key, key_end);
+    while (!keyView.empty()) {
+        // Find '.' or '[' as next separators
+        size_t dotPos = keyView.find('.');
+        size_t bracketPos = keyView.find('[');
 
-    // Parse array index if present
-    uint16_t enumerator = 0;  // Use zero-based indexing internally
-    uint16_t next_key_start = key_end;
-    if (key[next_key_start] == '[') {
-        next_key_start++; // skip '['
-        enumerator = 0;
-        while (key[next_key_start] >= '0' && key[next_key_start] <= '9') {
-            enumerator = enumerator * 10 + (key[next_key_start] - '0');
-            next_key_start++;
-        }
-        if (key[next_key_start] != ']') {
-            // Malformed key: missing ']'
-            return nullptr;
-        }
-        next_key_start++; // skip ']'
-    }
-
-    // After parsing array index, check for '.' separator
-    bool hasMore = (key[next_key_start] == '.');
-
-    if (hasMore) {
-        next_key_start++; // skip '.'
-    }
-
-    // Check if no size
-    // This happens for nested array calls like val[2][3]
-    rapidjson::Value* currentVal = &val; // use val directly if no size
-    if(currentKey.size() != 0){
-        // Look up currentKey in val (which should be an object)
-        if (!val.IsObject()) {
-            return nullptr; // Can't get a key from a non-object
+        size_t nextSep;
+        if (dotPos == std::string_view::npos && bracketPos == std::string_view::npos) {
+            nextSep = keyView.size();  // No separator - last key
+        } else if (dotPos == std::string_view::npos) {
+            nextSep = bracketPos;
+        } else if (bracketPos == std::string_view::npos) {
+            nextSep = dotPos;
+        } else {
+            nextSep = std::min(dotPos, bracketPos);
         }
 
-        if (!val.HasMember(currentKey.data())) {
-            return nullptr; // Key not found
-        }
-        currentVal = &val[currentKey.data()];
-    }
-    
+        // Extract current key part (object key)
+        std::string_view keyPart = keyView.substr(0, nextSep);
 
-    // If there's an array index, check array bounds and update currentVal
-    if (key[key_end] == '[') {
-        if (!currentVal->IsArray() || currentVal->Size() <= enumerator) {
-            return nullptr; // Not an array or out of bounds
+        // Handle object key part if non-empty
+        if (!keyPart.empty()) {
+            if (!current->IsObject()) {
+                return nullptr;
+            }
+
+            if (!current->HasMember(std::string(keyPart).c_str())) {
+                return nullptr;
+            }
+            current = &(*current)[std::string(keyPart).c_str()];
         }
-        currentVal = &currentVal[enumerator];
+
+        // Move keyView forward past current key
+        keyView.remove_prefix(nextSep);
+
+        // Now handle zero or more array indices if they appear next
+        while (!keyView.empty() && keyView[0] == '[') {
+            // Find closing ']'
+            size_t closeBracket = keyView.find(']');
+            if (closeBracket == std::string_view::npos) {
+                // Malformed key - missing ']'
+                return nullptr;
+            }
+
+            // Extract index string between '[' and ']'
+            std::string_view idxStr = keyView.substr(1, closeBracket - 1);
+            int index = 0;
+            try {
+                index = std::stoi(std::string(idxStr));
+            } catch (...) {
+                return nullptr; // invalid number
+            }
+
+            // Make sure current is array
+            if (!current->IsArray()) {
+                return nullptr;
+            }
+
+            // Check if array size is high enough
+            if (current->Size() <= static_cast<rapidjson::SizeType>(index)) {
+                return nullptr;
+            }
+
+            current = &(*current)[index];
+
+            // Remove processed '[index]'
+            keyView.remove_prefix(closeBracket + 1);
+        }
+
+        // If next character is '.', skip it and continue
+        if (!keyView.empty() && keyView[0] == '.') {
+            keyView.remove_prefix(1);
+        }
     }
 
-    // If there are more keys, recurse into currentVal
-    if (hasMore) {
-        return Nebulite::JSON::traverseKey(key + next_key_start, *currentVal);
-    }
-    return currentVal;
+    return current;
 }
+
 
 rapidjson::Value* Nebulite::JSON::makeKey(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
     rapidjson::Value* current = &val;

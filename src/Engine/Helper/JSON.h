@@ -48,7 +48,6 @@ Instead of manually inserting an array, their values can simply be set by passin
 
 
 namespace Nebulite{
-
     template <typename T>
         struct is_simple_value : std::disjunction<
             std::is_same<T, int32_t>,
@@ -89,7 +88,7 @@ namespace Nebulite{
         uint32_t size(std::string key);
 
         // Serializing/Deserializing
-        std::string serialize(std::string key);
+        std::string serialize(std::string key = "");
         void deserialize(std::string serial_or_link);              // if key is empty, deserialize entire doc
 
         // flushing map content into doc
@@ -105,9 +104,6 @@ namespace Nebulite{
         using SimpleJSONValue = std::variant<int32_t, int64_t, uint32_t, uint64_t,double, std::string, bool>;
         std::unordered_map<std::string, SimpleJSONValue> cache;
 
-        
-
-
         // Get any value
         template <typename T> T get_from_doc(const char* key, const T& value, const T defaultValue, rapidjson::Value& val);
 
@@ -118,9 +114,6 @@ namespace Nebulite{
 
         rapidjson::Value* makeKey(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
     };
-
-    
-
 }
 
 template <typename T>
@@ -129,12 +122,11 @@ T Nebulite::JSON::get(const char* key, const T& value, const T defaultValue) {
         auto it = cache.find(key);
         if (it != cache.end()) {
             return std::get<T>(it->second);
-        } else {
-            return defaultValue;
         }
-    } else {
-        return get_from_doc<T>(key, value, defaultValue, doc);
     }
+
+    // fallback for both simple and complex when not in cache
+    return get_from_doc<T>(key, value, defaultValue, doc);
 }
 
 template <typename T>
@@ -152,11 +144,10 @@ void Nebulite::JSON::set(const char* key, const T& value) {
     }
 }
 
-// TODO: even bigger offloading for traverseKey:
-// Current implementation is automatically traversing, it might be helpful to check a current key level for existing or not
 template <typename T>
 T Nebulite::JSON::get_from_doc(const char* key, const T& value, const T defaultValue, rapidjson::Value& val) {
     rapidjson::Value* keyVal = traverseKey(key,val);
+    //rapidjson::Value* keyVal = makeKey(key,val,doc.GetAllocator());
 
     if(keyVal == nullptr){
         return defaultValue;
@@ -164,7 +155,7 @@ T Nebulite::JSON::get_from_doc(const char* key, const T& value, const T defaultV
     else{
         // Base case: convert currentVal to T using JSONHandler or your own conversion
         T tmp;
-        JSONHandler::ConvertFromJSONValue(keyVal, tmp);
+        JSONHandler::ConvertFromJSONValue<T>(*keyVal, tmp, defaultValue);
         return tmp;
     }
 }

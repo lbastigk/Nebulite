@@ -424,7 +424,7 @@ int Nebulite::mainTreeFunctions::printState(int argc, char* argv[]){
 
 int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
     uint64_t start;
-
+    /*
     uint64_t count = 10000000;
 
     std::cout << "Testing JSON performance in setting values." << std::endl;
@@ -457,10 +457,6 @@ int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
     }
     std::cout << "\t Took " << Time::getruntime(start) << std::endl;
 
-    //std::cout << "Comparing docs:" << std::endl;
-    //std::cout << JSONHandler::serialize(doc) << std::endl;
-    //std::cout << json.serialize("") << std::endl;
-
     //------------------------------------------------------------------------
     std::cout << std::endl;
     std::cout << "Test 3: Getting a nested double value from old doc" << std::endl;
@@ -474,13 +470,38 @@ int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
     std::cout << "Test 4: Getting a nested double value from new wrapper with caching" << std::endl;
     start = Time::gettime();
     for(volatile uint64_t i = 0; i < count; i++){
-        (void) json.get<double>("global.time.t",1.2345);
+        (void) json.get<double>("global.time.t",0);
     }
     std::cout << "\t Took " << Time::getruntime(start) << std::endl;
 
+    std::string doc1Str = JSONHandler::serialize(doc);
+    std::string doc2Str = json.serialize();
+    std::cout << std::endl;
     std::cout << "Comparing docs:" << std::endl;
-    std::cout << JSONHandler::serialize(doc) << std::endl;
-    std::cout << json.serialize("") << std::endl;
+    if (doc1Str == doc2Str) {
+        std::cout << "✅ JSON documents match!" << std::endl;
+    } else {
+        std::cout << "❌ JSON documents differ!" << std::endl;
+        std::cout << doc1Str << std::endl;
+        std::cout << doc2Str << std::endl;
+    }
+    //*/
+
+    
+
+    std::cout << std::endl;
+    std::cout << "Test 5: Array setting and getting" << std::endl;
+    Nebulite::JSON json2;
+    json2.set<double>("global.value1",1337);
+    json2.set<double>("global.arr[2]",1.2345);
+    std::cout << json2.serialize() << std::endl; 
+    std::cout << "global.value1 = " << json2.get<double>("global.value1",0.0) << std::endl;
+    std::cout << "global.arr[0] = " << json2.get<double>("global.arr[0]",0.0) << std::endl;
+    std::cout << "global.arr[1] = " << json2.get<double>("global.arr[1]",0.0) << std::endl;
+    std::cout << "global.arr[2] = " << json2.get<double>("global.arr[2]",0.0) << std::endl;
+
+    // TODO: Get after flush doesnt work!!!
+    // makeKey returns nullptr
 
     return 0;
 }
