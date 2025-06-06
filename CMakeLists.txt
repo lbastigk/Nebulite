@@ -28,6 +28,9 @@ message(STATUS "Added compiler options: -g -w")
 #####################
 # [INCLUDES]
 
+# Add Abseil as a subdirectory
+add_subdirectory(external/abseil)
+
 # Include directories common for both platforms
 message(STATUS "Setting Include directories")
 include_directories(
@@ -41,6 +44,7 @@ include_directories(
     ${RAPIDJSON_PATH}/include/rapidjson
     ${EXPRTK_PATH}/
     ${TINYEXPR_PATH}/
+    ${CMAKE_SOURCE_DIR}/external/tsl-robin-map/include
 )
 
 #####################
@@ -80,4 +84,5 @@ target_link_libraries(Nebulite PRIVATE
     ${SDL2_PATH}/lib/libSDL2.a 
     ${SDL2_PATH}/lib/libSDL2_ttf.a
     ${SDL2_PATH}/lib/libSDL2_image.a
+    absl::flat_hash_map
 )

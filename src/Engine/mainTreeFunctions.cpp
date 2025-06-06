@@ -424,7 +424,7 @@ int Nebulite::mainTreeFunctions::printState(int argc, char* argv[]){
 
 int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
     uint64_t start;
-    /*
+    //*
     uint64_t count = 10000000;
 
     std::cout << "Testing JSON performance in setting values." << std::endl;
@@ -487,8 +487,6 @@ int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
     }
     //*/
 
-    
-
     std::cout << std::endl;
     std::cout << "Test 5: Array setting and getting" << std::endl;
     Nebulite::JSON json2;
@@ -499,9 +497,6 @@ int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
     std::cout << "global.arr[0] = " << json2.get<double>("global.arr[0]",0.0) << std::endl;
     std::cout << "global.arr[1] = " << json2.get<double>("global.arr[1]",0.0) << std::endl;
     std::cout << "global.arr[2] = " << json2.get<double>("global.arr[2]",0.0) << std::endl;
-
-    // TODO: Get after flush doesnt work!!!
-    // makeKey returns nullptr
 
     return 0;
 }

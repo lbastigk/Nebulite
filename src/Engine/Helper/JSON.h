@@ -27,6 +27,8 @@ Current efforts are to replace the old JSONHandler class that didnt fully wrap t
 #include <map>
 #include <unordered_map>
 
+#include "absl/container/flat_hash_map.h"
+
 #include "JSONHandler.h"
 
 
@@ -102,7 +104,10 @@ namespace Nebulite{
 
         // caching Simple variables
         using SimpleJSONValue = std::variant<int32_t, int64_t, uint32_t, uint64_t,double, std::string, bool>;
-        std::unordered_map<std::string, SimpleJSONValue> cache;
+        //std::unordered_map<std::string, SimpleJSONValue> cache;
+        //tsl::robin_map<std::string, SimpleJSONValue> cache;
+        absl::flat_hash_map<std::string, SimpleJSONValue> cache;
+
 
         // Get any value
         template <typename T> T get_from_doc(const char* key, const T& value, const T defaultValue, rapidjson::Value& val);

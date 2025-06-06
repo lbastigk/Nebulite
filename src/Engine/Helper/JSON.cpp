@@ -72,7 +72,8 @@ void Nebulite::JSON::deserialize(std::string serial_or_link){
 }
 
 void Nebulite::JSON::flush() {
-    for (auto it = cache.begin(); it != cache.end(); /* no increment here */) {
+    /*
+    for (auto it = cache.begin(); it != cache.end(); ) {
         const std::string& key = it->first;
         const SimpleJSONValue& val = it->second;
 
@@ -84,13 +85,34 @@ void Nebulite::JSON::flush() {
         // Erase the cache entry and move iterator forward safely
         it = cache.erase(it);
     }
+    */
+    for (auto it = cache.begin(); it != cache.end(); ) {
+        const std::string& key = it->first;
+        const SimpleJSONValue& val = it->second;
+
+        // Visit the variant and call set_into_doc with correct type
+        std::visit([this, &key](auto&& arg) {
+            set_into_doc(key.c_str(), arg, doc);
+        }, val);
+
+        // Increment iterator before erasing current element
+        auto to_delete = it++;
+        cache.erase(to_delete);
+    }
+
+    
 }
 
 void Nebulite::JSON::empty(){
     JSONHandler::empty(doc);
-    for (auto it = cache.begin(); it != cache.end(); /* no increment here */) {
+    /*
+    for (auto it = cache.begin(); it != cache.end(); ) {
         // Erase the cache entry and move iterator forward safely
         it = cache.erase(it);
+    }
+    */
+    for (auto it = cache.begin(); it != cache.end(); ) {
+        cache.erase(it++);
     }
 }
 
