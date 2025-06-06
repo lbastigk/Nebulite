@@ -39,9 +39,9 @@
             "detail": "Build with JSON validation and current Crash Debug"
         },  
         {
-            "label": "[PROFILING] Release binary",
+            "label": "[PROFILING] On small gravity test",
             "type": "shell",
-            "command": "cd ./Application ; sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record --no-inherit -g -- ./bin/Nebulite       task TaskFiles/Benchmarks/benchmark_gravity.txt ; hotspot perf.data",
+            "command": "cd ./Application ; sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record --no-inherit -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/gravity_classic.txt ; hotspot perf.data",
             "group": {
                 "kind": "test",
                 "isDefault": false
@@ -50,7 +50,7 @@
             "detail": "Run a debug Task on the Debug binary with perf to profile performance. Shows results both in CLI with perf and in a GUI using hotspot"
         },
         {
-            "label": "[PROFILING] Debug binary",
+            "label": "[PROFILING] On large gravity test",
             "type": "shell",
             "command": "cd ./Application ; sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0  ; perf record --no-inherit -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/benchmark_gravity.txt ; hotspot perf.data",
             "group": {

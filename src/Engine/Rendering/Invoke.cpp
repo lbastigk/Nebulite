@@ -256,7 +256,12 @@ std::shared_ptr<Invoke::Node> Invoke::expressionToTree(const std::string& input)
     return ptr;
 }
 
-// Take a pre-processed node and resolve all expressions and vars
+// Take a pre-processed node and resolve all expressions and vars of this and nodes below
+//
+// Examples:
+// $($(global.constants.pi) + 1)  -> 4.141..
+//   $(global.constants.pi) + 1   -> 3.141... + 1
+// Time is: $(global.time.t)      -> Time is: 11.01
 std::string Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr, Nebulite::JSON& self, Nebulite::JSON& other, Nebulite::JSON& global){
     switch (nodeptr->type) {
         case Node::Type::Literal:

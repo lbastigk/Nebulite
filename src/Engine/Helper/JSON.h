@@ -190,7 +190,7 @@ T Nebulite::JSON::get(const char* key, const T defaultValue) {
                 }
             }
 
-            std::cout << "[ERROR] key is in cache, but no correct conversion found. Initiation fallback" << std::endl;
+            std::cerr << "[ERROR] key is in cache, but no correct conversion found. Initiating fallback" << std::endl;
         } else {
             T tmp = get_from_doc<T>(key, defaultValue, doc);
             if constexpr (std::is_same_v<T, const char*>) {
@@ -241,7 +241,7 @@ T Nebulite::JSON::get_from_doc(const char* key, const T defaultValue, rapidjson:
               << " (type: " << (status == 0 ? demangled.get() : typeid(T).name()) << ")"
               << std::endl;
     */
-   
+
     rapidjson::Value* keyVal = traverseKey(key,val);
     if(keyVal == nullptr){
         return defaultValue;
