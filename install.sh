@@ -48,9 +48,27 @@ git config --global --add safe.directory ./external/SDL_image
 git config --global --add safe.directory ./external/SDL_ttf
 git config --global --add safe.directory ./external/SDL2
 git config --global --add safe.directory ./external/tinyexpr
+git config --global --add safe.directory ./external/abseil
+
 
 externalsDir=$(pwd)/external
 
+#-----------
+# build absl
+cd "$externalsDir/abseil"
+
+# place build into
+mkdir -p "$externalsDir/abseil_build"
+cd "$externalsDir/abseil_build"
+
+# Run CMake to configure the build
+cmake ../abseil
+
+# Build Abseil
+cmake --build . -- -j$(nproc)
+
+#-----------
+# build sdl
 cd "$externalsDir/SDL_ttf/external/"
 FREETYPE_SIZE=$(du -k ./freetype 2>/dev/null | awk '{print $1}')
 HARFBUZZ_SIZE=$(du -k ./harfbuzz 2>/dev/null | awk '{print $1}')

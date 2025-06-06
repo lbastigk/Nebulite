@@ -1,5 +1,6 @@
-# Ignore SDL Build
+# Ignore extern builds
 external/SDL2_build/
+external/abseil_build
 
 # Ignore created data
 Application/*.data.old

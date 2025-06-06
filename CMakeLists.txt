@@ -8,11 +8,12 @@ message(STATUS "Starting configuration for project Nebulite")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Application/bin)
 message(STATUS "Binary output directory set to: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
-# Set paths to local SDL2 and RapidJSON libraries
+# Set paths to local libraries
 set(SDL2_PATH       "${CMAKE_SOURCE_DIR}/external/SDL2_build")
 set(RAPIDJSON_PATH  "${CMAKE_SOURCE_DIR}/external/rapidjson")
 set(EXPRTK_PATH     "${CMAKE_SOURCE_DIR}/external/exprtk")
 set(TINYEXPR_PATH   "${CMAKE_SOURCE_DIR}/external/tinyexpr")
+set(ABSEIL_PATH     "${CMAKE_SOURCE_DIR}/external/abseil")
 
 # Define SDL_DISABLE_IMPLEMENTS to use old names (for compatibility)
 add_definitions(-DSDL_DISABLE_IMPLEMENTS)
@@ -29,7 +30,7 @@ message(STATUS "Added compiler options: -g -w")
 # [INCLUDES]
 
 # Add Abseil as a subdirectory
-add_subdirectory(external/abseil)
+add_subdirectory(${CMAKE_SOURCE_DIR}/external/abseil ${CMAKE_BINARY_DIR}/external/abseil_build)
 
 # Include directories common for both platforms
 message(STATUS "Setting Include directories")
@@ -44,7 +45,7 @@ include_directories(
     ${RAPIDJSON_PATH}/include/rapidjson
     ${EXPRTK_PATH}/
     ${TINYEXPR_PATH}/
-    ${CMAKE_SOURCE_DIR}/external/tsl-robin-map/include
+    ${ABSEIL_PATH}/
 )
 
 #####################
@@ -85,4 +86,6 @@ target_link_libraries(Nebulite PRIVATE
     ${SDL2_PATH}/lib/libSDL2_ttf.a
     ${SDL2_PATH}/lib/libSDL2_image.a
     absl::flat_hash_map
+    absl::base
+    absl::strings
 )
