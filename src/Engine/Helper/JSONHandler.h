@@ -201,31 +201,24 @@ template <> inline void JSONHandler::ConvertToJSONValue<uint64_t>(const uint64_t
 template <> inline void JSONHandler::ConvertToJSONValue<float>(const float& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetFloat(data);}
 template <> inline void JSONHandler::ConvertToJSONValue<double>(const double& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetDouble(data);}
 template <> inline void JSONHandler::ConvertToJSONValue<long>(const long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetInt64(data);}
-
 template <> inline void JSONHandler::ConvertToJSONValue<std::string>(const std::string& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
     jsonValue.SetString(data.c_str(), static_cast<rapidjson::SizeType>(data.length()), allocator);
 }
-
-template<>
-inline void JSONHandler::ConvertToJSONValue<const char*>(const char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+template <> inline void JSONHandler::ConvertToJSONValue<const char*>(const char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
     if (data) {
         jsonValue.SetString(data, allocator);
     } else {
         jsonValue.SetNull();
     }
 }
-
-template<>
-inline void JSONHandler::ConvertToJSONValue<char*>(char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+template <> inline void JSONHandler::ConvertToJSONValue<char*>(char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
     if (data) {
         jsonValue.SetString(data, allocator);
     } else {
         jsonValue.SetNull();
     }
 }
-
-template<>
-inline void JSONHandler::ConvertToJSONValue<std::pair<int, std::string>>(const std::pair<int, std::string>& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+template <> inline void JSONHandler::ConvertToJSONValue<std::pair<int, std::string>>(const std::pair<int, std::string>& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
     // Example conversion for a pair. You may adapt based on your application’s structure.
     rapidjson::Value pairObject(rapidjson::kObjectType);
     rapidjson::Value firstValue;
@@ -238,15 +231,9 @@ inline void JSONHandler::ConvertToJSONValue<std::pair<int, std::string>>(const s
     
     jsonValue = pairObject;
 }
-
-
-
-template <>
-inline void JSONHandler::ConvertToJSONValue<rapidjson::Value*>(rapidjson::Value* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {jsonValue.CopyFrom(*data, allocator);}
-
-template <>
-inline void JSONHandler::ConvertToJSONValue<rapidjson::Document*>(rapidjson::Document* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {jsonValue.CopyFrom(*data, allocator);}
-
+template <> inline void JSONHandler::ConvertToJSONValue<rapidjson::Value*>(rapidjson::Value* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {jsonValue.CopyFrom(*data, allocator);}
+template <> inline void JSONHandler::ConvertToJSONValue<rapidjson::Document*>(rapidjson::Document* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {jsonValue.CopyFrom(*data, allocator);}
+template <> inline void JSONHandler::ConvertToJSONValue<rapidjson::Document>(const rapidjson::Document& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator) {jsonValue.CopyFrom(data, allocator);}
 
 
 /*

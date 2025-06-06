@@ -63,6 +63,7 @@ std::string RenderObjectContainer::serialize() {
 }
 
 void RenderObjectContainer::deserialize(const std::string& serialOrLink, int dispResX, int dispResY, int THREADSIZE) {
+	/*
 	// Deserialize and copy into "doc"
 	rapidjson::Document doc = JSONHandler::deserialize(serialOrLink);
 
@@ -109,6 +110,33 @@ void RenderObjectContainer::deserialize(const std::string& serialOrLink, int dis
 	else {
 		std::cerr << "'objects' not found or not an array in the document" << std::endl;
 	}
+	*/
+
+	Nebulite::JSON layer;
+	layer.deserialize(serialOrLink);
+ 
+	if(layer.memberCheck("objects") == Nebulite::JSON::KeyType::array){
+		for(int i = 0; i < layer.size("objects"); i++){
+			std::string key = "objects[" + std::to_string(i) + "]";
+
+			// Check if serial or not:
+			std::string ro_serial = layer.get<std::string>(key.c_str());
+			if(ro_serial == "{Object}"){
+				Nebulite::JSON tmp;
+				tmp = layer.get_subdoc(key.c_str());
+				ro_serial = tmp.serialize();
+			}
+
+			RenderObject ro;
+			ro.deserialize(ro_serial);
+
+			std::cout << ro.serialize() << std::endl;
+
+			auto ptr = std::make_shared<RenderObject>(std::move(ro));
+			append(ptr, dispResX, dispResY, THREADSIZE);
+		}
+	}
+	
 }
 
 //-----------------------------------------------------------

@@ -1,5 +1,5 @@
 set-res 320 240 6
-set-fps 60
+set-fps 5000
 echo
 echo Nebulite vertical slice test
 echo Building simple level

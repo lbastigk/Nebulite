@@ -9,6 +9,31 @@ Nebulite::JSON::JSON(){
 
 std::string Nebulite::JSON::reservedCharacters = "[]{}.,";
 
+void Nebulite::JSON::set_subdoc(const char* key, Nebulite::JSON& child){
+    // Ensure key path exists
+    rapidjson::Value* keyVal = makeKey(key, doc, doc.GetAllocator());
+    if (keyVal != nullptr) {
+        child.flush();
+        JSONHandler::ConvertToJSONValue<rapidjson::Document>(child.doc, *keyVal, doc.GetAllocator());
+    } else {
+        std::cout << "Failed to create or access path: " << key << std::endl;
+    }
+}
+
+Nebulite::JSON Nebulite::JSON::get_subdoc(const char* key){
+    rapidjson::Value* keyVal = traverseKey(key,doc);
+    if(keyVal != nullptr){
+        // turn keyVal to doc
+        Nebulite::JSON json;
+        json.getDoc()->CopyFrom(*keyVal,json.getDoc()->GetAllocator());
+        return json;
+    }
+    else{
+        // Return empty doc
+        return Nebulite::JSON(); 
+    }
+}
+
 void Nebulite::JSON::set_empty_array(const char* key){
     rapidjson::Value* val = makeKey(key,doc,doc.GetAllocator());
     val->SetArray();
@@ -49,7 +74,6 @@ Nebulite::JSON::KeyType Nebulite::JSON::memberCheck(std::string key) {
     }
 }
 
-template <typename T>
 uint32_t Nebulite::JSON::size(std::string key){
     auto kt = memberCheck(key);
     if(kt != KeyType::array){
@@ -70,12 +94,16 @@ std::string Nebulite::JSON::serialize(std::string key){
         return JSONHandler::serialize(doc);
     } 
     else{
-        // Key nesting, parse through ...
-        // TODO
-        std::cout << "In-Doc serialization not implemented yet" << std::endl;
+        Nebulite::JSON sub = get_subdoc(key.c_str());
+        return sub.serialize();
     }
 }
 void Nebulite::JSON::deserialize(std::string serial_or_link){
+    // remove cache
+    for (auto it = cache.begin(); it != cache.end(); ) {
+        cache.erase(it++);
+    }
+
     doc = JSONHandler::deserialize(serial_or_link);
 }
 

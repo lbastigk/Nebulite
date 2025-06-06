@@ -506,5 +506,15 @@ int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
     }
     std::cout << "\tValues in Cache: " << obj.getDoc()->size_cache() << std::endl;
 
+    std::cout << std::endl;
+    std::cout << "Test 7: Doc nesting" << std::endl;
+    Nebulite::JSON main;
+    Nebulite::JSON sub;
+    sub.set<int>("int",123);
+    main.set_subdoc("sub",sub);
+    std::cout << main.serialize() << std::endl;
+    Nebulite::JSON sub_get = main.get_subdoc("sub");
+    std::cout << sub_get.serialize() << std::endl;
+
     return 0;
 }

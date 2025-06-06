@@ -1,6 +1,5 @@
 #include "RenderObject.h"
 
-
 class RenderObjectContainer {
 public:
 	//-----------------------------------------------------------

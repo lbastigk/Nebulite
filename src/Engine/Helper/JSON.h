@@ -77,9 +77,11 @@ namespace Nebulite{
 
         // Get any value
         template <typename T> T get(const char* key, const T defaultValue = T());
+        Nebulite::JSON get_subdoc(const char* key);
 
         // Set any value
         template <typename T> void set(const char* key, const T& value);
+        void set_subdoc(const char* key, Nebulite::JSON& child);
 
         // Set empty
         void set_empty_array(const char* key);
@@ -91,7 +93,6 @@ namespace Nebulite{
             value = 1,
             array = 2
         };
-        //template <typename T>
         KeyType memberCheck(std::string key);
 
         // Get size of key
@@ -99,7 +100,6 @@ namespace Nebulite{
         // 0  - key doesnt exist
         // 1  - standard key
         // >1 - array
-        template <typename T>
         uint32_t size(std::string key);
 
         uint32_t size_cache(){return cache.size();};

@@ -80,7 +80,31 @@ void Environment::deserialize(std::string serialOrLink, int dispResX,int dispRes
 		}
 	}
 	*/
-	std::cerr << "Env serialization not implemented yet" << std::endl;
+
+	Nebulite::JSON file;
+	file.deserialize(serialOrLink);
+	global->deserialize(file.get_subdoc("global").serialize());
+
+	// Getting all layers
+	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
+		// Key name
+		std::string key = "containerLayer" + std::to_string(i) ;
+
+		// Check if the key exists in the document
+		if (file.memberCheck(key) != Nebulite::JSON::KeyType::null) {
+			// Extract the value corresponding to the key
+			Nebulite::JSON layer = file.get_subdoc(key.c_str());
+
+			// Convert the JSON object to a pretty-printed string
+			std::string str = layer.serialize();
+
+			// Serialize container layer
+			roc[i].deserialize(str,dispResX,dispResY,THREADSIZE);
+		}
+		else {
+			std::cerr << "Layer Key " << key << " not found in the document or uncomparible" << std::endl;
+		}
+	}
 }
 
 void Environment::append(std::shared_ptr<RenderObject> toAppend,int dispResX, int dispResY,int THREADSIZE, int layer) {

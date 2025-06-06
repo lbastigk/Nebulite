@@ -1,7 +1,8 @@
 {
     "global": {
-        "dt": 0.0,
-        "G": 10.0
+        "physics" : {
+            "G": 10.0
+        }
     },
     "containerLayer0": {
         "objects": [
