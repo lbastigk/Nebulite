@@ -27,6 +27,7 @@ namespace Nebulite {
     extern Invoke invoke;
     extern FuncTree mainTree;
     extern std::unique_ptr<Nebulite::JSON> global;
+    extern std::string stateName;
     
     // Function to init variables
     void init();
@@ -52,11 +53,11 @@ namespace Nebulite {
 
         int exitProgram(int argc, char* argv[]);
 
-        int save(int argc, char* argv[]);
+        int stateSave(int argc, char* argv[]);
+
+        int stateLoad(int argc, char* argv[]);
 
         int wait(int argc, char* argv[]);
-
-        int load(int argc, char* argv[]);
 
         int loadTaskList(int argc, char* argv[]);
 

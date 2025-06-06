@@ -17,104 +17,35 @@ std::string RenderObjectContainer::serialize() {
 	// Setup
 
 	// Initialize RapidJSON document
-	rapidjson::Document doc;
-	doc.SetObject();
-
-	// Set up allocator
-	rapidjson::Document::AllocatorType& allocator = doc.GetAllocator();
-
-	// Set up array
-	rapidjson::Value array(rapidjson::kArrayType);
+	Nebulite::JSON doc;
 
 	//---------------------------------------
-	// Get all objects in container+
-	//*
-	// Get string
-	std::vector<rapidjson::Document*> objects;
-	std::vector<std::string> serializedObjects;
+	// Get all objects in container
+	int i = 0;
 	for (auto& vec1 : ObjectContainer) {
 		for (auto& vec2 : vec1) {
 			for (auto& batch : vec2) {
 				for (auto& obj : batch) {
-					serializedObjects.push_back(obj.get()->serialize());	
+					Nebulite::JSON obj_serial;
+					obj_serial.deserialize(obj->serialize());
+						
+					// insert into doc
+					std::string key = "objects[" + std::to_string(i) + "]";
+					doc.set_subdoc(key.c_str(),obj_serial);
+					i++;
 				}
 			}
 		}
 	}
-	// Re-Serialize and insert
-	for (auto& string : serializedObjects) {
-		rapidjson::Document parsed;
-		parsed.Parse(string.c_str());
-		if (parsed.HasParseError() || !parsed.IsObject()) {
-			std::cerr << "[ERROR] Invalid JSON input!" << std::endl;
-			continue;
-		}
-		rapidjson::Value copiedValue(parsed, allocator);  // Deep copy using correct allocator
-		array.PushBack(copiedValue, allocator);
-	}
-	//*/
-
-	// Add array to the document with a key
-	doc.AddMember("objects", array, allocator);
 
 	//---------------------------------------
 	// Return as string
-	return JSONHandler::serialize(doc);
+	return doc.serialize();
 }
 
 void RenderObjectContainer::deserialize(const std::string& serialOrLink, int dispResX, int dispResY, int THREADSIZE) {
-	/*
-	// Deserialize and copy into "doc"
-	rapidjson::Document doc = JSONHandler::deserialize(serialOrLink);
-
-	// Check for parsing errors
-	if (doc.HasParseError()) {
-		std::cerr << "JSON parse error: " << doc.GetParseError() << " (at offset " << doc.GetErrorOffset() << ")" << std::endl;
-		return;
-	}
-
-	// Check if the "objects" member exists and is an array
-	if (doc.HasMember("objects") && doc["objects"].IsArray()) {
-		const rapidjson::Value& arr = doc["objects"];
-
-		// Loop through all objects in arr
-		for (rapidjson::SizeType i = 0; i < arr.Size(); ++i) {
-			const rapidjson::Value& item = arr[i];
-
-			// Deserialize each item to RenderObject
-			if (item.IsObject()) {
-				// Convert the item to a string
-				rapidjson::StringBuffer buffer;
-				rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-				item.Accept(writer);
-
-				std::string itemStr = buffer.GetString();
-
-				// Deserialize the string into the RenderObject
-				RenderObject ro;
-				ro.deserialize(itemStr);
-				auto ptr = std::make_shared<RenderObject>(std::move(ro));
-
-				// Append the RenderObject to your structure
-				append(ptr, dispResX, dispResY, THREADSIZE);
-			}
-			else {
-				RenderObject ro;
-				ro.deserialize(item.GetString());
-				auto ptr = std::make_shared<RenderObject>(std::move(ro));
-				append(ptr, dispResX, dispResY, THREADSIZE);
-				//std::cerr << "Array item is not an object at index " << i << std::endl;
-			}
-		}
-	}
-	else {
-		std::cerr << "'objects' not found or not an array in the document" << std::endl;
-	}
-	*/
-
 	Nebulite::JSON layer;
 	layer.deserialize(serialOrLink);
- 
 	if(layer.memberCheck("objects") == Nebulite::JSON::KeyType::array){
 		for(int i = 0; i < layer.size("objects"); i++){
 			std::string key = "objects[" + std::to_string(i) + "]";
@@ -130,13 +61,10 @@ void RenderObjectContainer::deserialize(const std::string& serialOrLink, int dis
 			RenderObject ro;
 			ro.deserialize(ro_serial);
 
-			std::cout << ro.serialize() << std::endl;
-
 			auto ptr = std::make_shared<RenderObject>(std::move(ro));
 			append(ptr, dispResX, dispResY, THREADSIZE);
 		}
 	}
-	
 }
 
 //-----------------------------------------------------------

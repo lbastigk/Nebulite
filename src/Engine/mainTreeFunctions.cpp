@@ -24,6 +24,7 @@ namespace Nebulite{
         global = std::make_unique<Nebulite::JSON>();
         invoke.linkGlobal(*global);
 	    invoke.linkQueue(tasks_internal.taskList);
+        std::string stateName = "";
     }
 
     // Init nebulite functions
@@ -36,8 +37,8 @@ namespace Nebulite{
         mainTree.attachFunction(Nebulite::mainTreeFunctions::envdeload,       "env-deload",   "Deloads an environment");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::spawn,           "spawn",        "Spawn a renderobject");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::exitProgram,     "exit",         "exits the program");
-        mainTree.attachFunction(Nebulite::mainTreeFunctions::save,            "state-save",   "Saves the state");
-        mainTree.attachFunction(Nebulite::mainTreeFunctions::load,            "state-load",   "Loads a state");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::stateSave,       "state-save",   "Saves the state");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::stateLoad,       "state-load",   "Loads a state");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::loadTaskList,    "task",         "Loads a txt file of tasks");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::wait,            "wait",         "Halt all commands for a set amount of frames");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::forLoop,         "for",          "Start for-loop. Usage: for var <iStart> <iEnd> command $var");
@@ -68,45 +69,6 @@ namespace Nebulite{
         return renderer.get();
     }
 }
-/*
-void Nebulite::convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv) {
-    // Free previous buffer if any
-    if (argvBuffer) {
-        delete[] argvBuffer;
-        argvBuffer = nullptr;
-        argvCapacity = 0;
-    }
-
-    // Allocate new buffer
-    argvCapacity = static_cast<int>(cmd.size()) + 1;
-    argvBuffer = new char[argvCapacity];
-    std::memcpy(argvBuffer, cmd.c_str(), argvCapacity);
-
-    // Tokenize
-    std::vector<char*> argvVec;
-    argc = 0;
-    bool inToken = false;
-    for (int i = 0; i < argvCapacity; ++i) {
-        if (argvBuffer[i] == ' ' || argvBuffer[i] == '\t') {
-            argvBuffer[i] = '\0';
-            inToken = false;
-        } else if (!inToken) {
-            argvVec.push_back(&argvBuffer[i]);
-            argc++;
-            inToken = true;
-        }
-    }
-
-    // Allocate argv (deep copy of argvVec)
-    argv = new char*[argc + 1];
-    for (int i = 0; i < argc; ++i) {
-        argv[i] = argvVec[i];
-    }
-    argv[argc] = nullptr; // Null terminator
-}
-
-*/
-
 
 void Nebulite::convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv) {
     // Free previous buffer if any
@@ -224,7 +186,23 @@ int Nebulite::mainTreeFunctions::exitProgram(int argc, char* argv[]){
     return 0;
 }
 
-int Nebulite::mainTreeFunctions::save(int argc, char* argv[]){
+int Nebulite::mainTreeFunctions::stateLoad(int argc, char* argv[]){ 
+
+    std::cerr << "Function load not implemented yet!" << std::endl;
+    return 0;
+}
+
+
+int Nebulite::mainTreeFunctions::stateSave(int argc, char* argv[]){
+    // <stateName>
+    // Change std::string Nebulite::stateName to name
+    // Check if dir ./States/stateName exists
+
+    // If any env is deloaded, save in stateName
+
+    // Every load of any file must be linked to state! If file exists in state load from there
+    // if not, load from usual path
+
     std::cerr << "Function save not implemented yet!" << std::endl;
     return 0;
 }
@@ -235,11 +213,6 @@ int Nebulite::mainTreeFunctions::wait(int argc, char* argv[]){
     if (tasks_script.waitCounter < 0){
         tasks_script.waitCounter = 0;
     }
-    return 0;
-}
-
-int Nebulite::mainTreeFunctions::load(int argc, char* argv[]){ 
-    std::cerr << "Function load not implemented yet!" << std::endl;
     return 0;
 }
 

@@ -19,34 +19,22 @@ Environment::~Environment() {
 std::string Environment::serialize() {
 	/*
 	// Initialize RapidJSON document
-	rapidjson::Document doc;
-	doc.SetObject();
-
-	rapidjson::Value& globalValues = *global;
-	JSONHandler::Set::Any(doc,"global",&globalValues);
+	
+	*/
+	Nebulite::JSON doc;
 
 	// Serialize each container and add to the document
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
 		std::string key = "containerLayer" + std::to_string(i);
 		std::string serializedContainer = roc[i].serialize();
-		rapidjson::Document containerDoc;
-		containerDoc.Parse(serializedContainer.c_str());
-
-		if (containerDoc.HasParseError()) {
-			std::cerr << "JSON parse error: " << containerDoc.GetParseError() << std::endl;
-			continue; // Skip this container if there's an error
-		}
 
 		// Add the container JSON object to the main document
-		rapidjson::Value containerValue;
-		containerValue.CopyFrom(containerDoc, containerDoc.GetAllocator());
-		JSONHandler::Set::Any(doc,key,&containerValue);
+		Nebulite::JSON layer;
+		layer.deserialize(serializedContainer);
+		
+		doc.set_subdoc(key.c_str(),layer);
 	}
-	return JSONHandler::serialize(doc);
-	*/
-
-	std::cerr << "Env deserialization not implemented yet" << std::endl;
-	return "{}";
+	return doc.serialize();
 }
 
 void Environment::deserialize(std::string serialOrLink, int dispResX,int dispResY,int THREADSIZE) {
