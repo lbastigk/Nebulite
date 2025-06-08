@@ -26,7 +26,7 @@
 #include <fstream>
 #include <string>
 #include <iostream>
-#include <map>
+#include "absl/container/flat_hash_map.h"
 #include <vector>
 
 class JSONHandler {
@@ -67,20 +67,6 @@ public:
     static void ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& result, const T& defaultvalue = T());
 private:
 
-    
-
-    template <typename K, typename V> 
-    static inline void ConvertToJSONValue(const std::map<K, V>& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator) {
-        rapidjson::Value jsonMap(rapidjson::kObjectType);
-
-        for (const auto& entry : data) {
-            rapidjson::Value key(entry.first.c_str(), allocator);
-            rapidjson::Value value;
-            ConvertToJSONValue(entry.second, value, allocator);
-            jsonMap.AddMember(key, value, allocator);
-        }
-        jsonValue = jsonMap;
-    }
     template <typename T>
     static inline void ConvertToJSONValue(const std::vector<T>& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator) {
         rapidjson::Value jsonArray(rapidjson::kArrayType);

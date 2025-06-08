@@ -12,6 +12,7 @@
 #include <thread>
 #include <random>
 #include <stdint.h>
+#include "absl/container/flat_hash_map.h"
 
 
 #define WINDOWNAME "coolgame"
@@ -121,7 +122,7 @@ private:
 	SDL_Renderer* renderer;
 	SDL_Rect rect;
 	TTF_Font* font;
-	std::map<std::string, SDL_Texture*> TextureContainer;
+	absl::flat_hash_map<std::string, SDL_Texture*> TextureContainer;
 
 	// Events etc
 	SDL_Event event;

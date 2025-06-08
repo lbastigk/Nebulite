@@ -20,8 +20,6 @@ A cache is implemented for fast setting/getting of keys. Only if needed are thos
 #include <variant>
 #include <type_traits>
 #include <typeindex>
-#include <map>
-#include <unordered_map>
 #include "absl/container/flat_hash_map.h"
 
 // Internal dependencies
@@ -85,9 +83,10 @@ namespace Nebulite{
 
         // Serializing/Deserializing
         std::string serialize(std::string key = "");
-        void deserialize(std::string serial_or_link);              // if key is empty, deserialize entire doc
+        void deserialize(std::string serial_or_link);              // if key is empty, deserializes entire doc
 
         // flushing map content into doc
+        // TODO:
         // While the current implementation of flushing break for more complex data structures, 
         // due to the handling of cache if keys are set 
         // the current usecase does not intend to use them
@@ -109,6 +108,7 @@ namespace Nebulite{
         // main doc
         rapidjson::Document doc;
 
+        //--------------------------------------------------------------------
         // caching Simple variables
         using SimpleJSONValue = std::variant<
             int32_t, int64_t, 
@@ -123,8 +123,9 @@ namespace Nebulite{
         };
         absl::flat_hash_map<std::string, CacheEntry> cache;
 
-        // Idea for helper functions that are called after validation that key is in cache:
-        // these functions are called inside get/set once it is validated that cache[key] exists
+        //--------------------------------------------------------------------
+        // Helper functions for get/set:
+        // they are called once it is validated that cache[key] exists
 
         // set into cache and clear derived_cache
         template <typename T> void set_type(std::string key, const T& value);
@@ -155,43 +156,10 @@ namespace Nebulite{
     };
 }
 
-/*
 template <typename T>
 T Nebulite::JSON::convert_variant(const SimpleJSONValue& val, const T& defaultValue) {
     return std::visit([&](const auto& stored) -> T {
         using StoredT = std::decay_t<decltype(stored)>;
-
-        if constexpr (std::is_convertible_v<StoredT, T>) {
-            return static_cast<T>(stored);
-        } else if constexpr (std::is_same_v<StoredT, std::string> && std::is_arithmetic_v<T>) {
-            try {
-                if constexpr (std::is_integral_v<T>)
-                    return static_cast<T>(std::stoll(stored));
-                else
-                    return static_cast<T>(std::stod(stored));
-            } catch (...) {
-                return defaultValue;
-            }
-        } else if constexpr (std::is_arithmetic_v<StoredT> && std::is_same_v<T, std::string>) {
-            return std::to_string(stored);
-        } else {
-            return defaultValue;
-        }
-    }, val);
-}
-*/
-
-template <typename T>
-T Nebulite::JSON::convert_variant(const SimpleJSONValue& val, const T& defaultValue) {
-    return std::visit([&](const auto& stored) -> T {
-        using StoredT = std::decay_t<decltype(stored)>;
-
-        // Types: arithmetic, string 
-        // To consider:
-        // - Direct
-        // - arithmetic -> string
-        // - string     -> arithmetic
-        // Not: 
 
         // Directly cast if types are convertible
         if constexpr (std::is_convertible_v<StoredT, T>) {

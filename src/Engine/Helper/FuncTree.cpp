@@ -48,7 +48,7 @@ int FuncTree::parse(int argc, char* argv[]) {
                         val = "true";
                     }
                 }
-                // Check if arg is in std::map
+                // Check if arg is in map
                 auto it = argumentPtrs.find(key);
                 if(it != argumentPtrs.end()){
                     *argumentPtrs[key].first = val;

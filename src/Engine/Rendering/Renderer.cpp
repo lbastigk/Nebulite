@@ -485,7 +485,7 @@ void Renderer::setGlobalValues(){
 	update_rrand();
 }
 
-// TODO: std::map for key names instead of constant polling?
+// TODO: hashmap for key names instead of constant polling?
 // This also ensures cross-platform stability, note that SDL_GetScancodeName is not cross-platform stable!!!
 // Manual map is therefore necessary
 void Renderer::pollEvent() {

@@ -178,11 +178,18 @@ void RenderObjectContainer::update(int tileXpos, int tileYpos, int dispResX, int
 	// Update only tiles that might be visible
 	// since one tile is size of screen, a max of 9 tiles
 	// [P] - Tile with Player
-	// [ ] - loaded Tiles
+	// [#] - loaded Tiles
+	// [ ] - inactive Tiles
 	//
-	// [ ][ ][ ]
-	// [ ][P][ ]
-	// [ ][ ][ ]
+	// [ ][ ][ ][ ][ ][ ][ ][ ][ ]
+	// [ ][ ][ ][ ][ ][ ][ ][ ][ ]
+	// [ ][ ][ ][ ][ ][ ][ ][ ][ ]
+	// [ ][ ][ ][#][#][#][ ][ ][ ]
+	// [ ][ ][ ][#][P][#][ ][ ][ ]
+	// [ ][ ][ ][#][#][#][ ][ ][ ]
+	// [ ][ ][ ][ ][ ][ ][ ][ ][ ]
+	// [ ][ ][ ][ ][ ][ ][ ][ ][ ]
+	// [ ][ ][ ][ ][ ][ ][ ][ ][ ]
 
 	std::vector<std::shared_ptr<RenderObject>> toReinsert;
 	for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {

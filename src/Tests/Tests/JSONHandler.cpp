@@ -22,7 +22,7 @@ int TestEnv::_JSONHandler::speed(int argc, char* argv[]) {
     char testString[20] = "testString";
     std::string testStdString = "testStdString";
 
-    std::map<std::string, std::string> testMap;
+    absl::flat_hash_map<std::string, std::string> testMap;
     testMap["key1"] = "value1";
     testMap["key2"] = "value2";
 

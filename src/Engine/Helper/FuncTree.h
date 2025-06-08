@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <vector>
-#include <map>
+#include "absl/container/flat_hash_map.h"
 #include <functional>
 #include <cstring>
 
@@ -41,7 +41,7 @@ public:
 
 private:
     int help(int argc, char* argv[]);
-    std::map<std::string, std::pair<FunctionPtr,  std::string>> functions;
-    std::map<std::string, std::pair<std::string*, std::string>> argumentPtrs;
+    absl::flat_hash_map<std::string, std::pair<FunctionPtr,  std::string>> functions;
+    absl::flat_hash_map<std::string, std::pair<std::string*, std::string>> argumentPtrs;
     std::string TreeName; 
 };

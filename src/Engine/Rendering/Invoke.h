@@ -267,8 +267,7 @@ private:
     std::deque<std::string>* tasks = nullptr; 
 
     // Map for each Tree
-    //std::map<std::string,Invoke::Node> exprTree;
-    std::map<std::string, std::shared_ptr<Invoke::Node>> exprTree;
+    absl::flat_hash_map<std::string, std::shared_ptr<Invoke::Node>> exprTree;
 
     // Create Tree from string
     std::shared_ptr<Invoke::Node> expressionToTree(const std::string& input);

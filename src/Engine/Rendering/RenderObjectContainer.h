@@ -35,9 +35,6 @@ public:
 	size_t getObjectCountAtTile(int x, int y); //at tile x,y
 
 	// Updating all objects in 3x3 Tile viewport
-	// [ ][ ][ ]
-	// [ ][P][ ] <- Player in Tile
-	// [ ][ ][ ]
 	void update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE,Invoke* globalInvoke=nullptr);
 	void update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE,Invoke* globalInvoke=nullptr,bool onlyRestructure = false);
 
@@ -49,6 +46,7 @@ public:
 	SDL_Texture* getTexture(int screenSizeX, int screenSizeY, SDL_Renderer *renderer, int tileXpos, int tileYpos, int Xpos, int Ypos, auto& TextureContainer);
 
 private:
+	// TODO: Change to hashmap for better usage of negative x/y values!
 	//tileY		tileX		#			Batches		of RenderObject pointer
 	std::vector<std::vector<std::vector<std::vector<std::shared_ptr<RenderObject>>>>> ObjectContainer;
 
