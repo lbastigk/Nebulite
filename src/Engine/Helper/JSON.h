@@ -119,40 +119,9 @@ namespace Nebulite{
         >;
         struct CacheEntry {
             SimpleJSONValue main_value;
-            std::unordered_map<std::type_index, SimpleJSONValue> derived_values;
+            absl::flat_hash_map<std::type_index, SimpleJSONValue> derived_values;
         };
         absl::flat_hash_map<std::string, CacheEntry> cache;
-
-        // TODO:
-        // Work in progress idea: additionally to the cache, 
-        // if a type for cache[key] is requested that does not match the type of cache[key]
-        // store the converted value
-        // Naming idea: type-differing-cache
-        // This reduces conversion overhead, example:
-        // -> stored type is string
-        // -> math functions keep requestion double
-        // 
-        // Importantly, the type of cache is the main type, as this was the actual set-type
-        //
-        // To consider:
-        // - on set, the type-differering-cache for that key has to be deleted
-        // - on get, a type comparison between expected return value and stored type        
-        //
-        // Example of usage:
-        /*
-            Nebulite::JSON json;
-            json.set<std::string>("number","1234");     // storage: {"number" : "1234"}
-                                                        // full explanation of this function later on
-            std::cout << json.get<int>("number");       // get calls get_type, notices that std::string is stored instead
-                                                        // checks derived cache, no conversion stored
-                                                        // converts string to int, stores int in derived cache
-                                                        // returns value from derived_cache
-            std::cout << json.get<int>("number");       // get calls get_type, notices that std::string is stored instead
-                                                        // checks derived cache, conversion stored
-                                                        // returns value from derived cache -> faster, no stoi used
-            json.set<int>("number",12345)               // Delete derived cache for that key, as it doesnt match the master value in cache anymore
-                                                        // no comparison needed, just assume a new set is always different
-        */
 
         // Idea for helper functions that are called after validation that key is in cache:
         // these functions are called inside get/set once it is validated that cache[key] exists
@@ -299,7 +268,10 @@ T Nebulite::JSON::get(const char* key, const T defaultValue) {
         if (it != cache.end()) {
             return get_type<T>(it->second, defaultValue);
         }
-        // if not found in cache, access actual doc through fallback
+        // if not found in cache, access actual doc through fallback and store in cache
+        T tmp = fallback_get<T>(key, defaultValue, doc);
+        set(key,tmp);
+        return tmp;
     }
     // Fallback to doc
     return fallback_get<T>(key, defaultValue, doc);
@@ -324,7 +296,7 @@ void Nebulite::JSON::set(const char* key, const T& value) {
 
 //---------------------------------------------------------------------
 // Fallbacks
-// Todo: new implementation of ConvertFromJSONValue inside Nebuute::JSON class
+// Todo: new implementation of ConvertFromJSONValue inside Nebulite::JSON class
 // Perhaps it's possible to remove some of the base checks/Make the code cleaner in general
 
 template <typename T>

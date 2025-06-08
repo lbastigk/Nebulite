@@ -394,14 +394,14 @@ int Nebulite::mainTreeFunctions::printState(int argc, char* argv[]){
 
 
 int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
-    int test_todo = 0;
+    int test_active = 0;
     if(argc > 0){
-        test_todo = std::stoi(argv[0]);
+        test_active = std::stoi(argv[0]);
     }
 
     // Tests
     int testCount = 1;
-    if(test_todo == 0 | test_todo == testCount){
+    if(test_active == 0 | test_active == testCount){
         //------------------------------------------------------------------------
         std::cout << "Test "<< testCount << ": Setting and getting speed" << std::endl;
         std::cout << std::endl;
@@ -452,7 +452,7 @@ int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
         }
     }
     testCount++;
-    if(test_todo == 0 | test_todo == testCount){
+    if(test_active == 0 | test_active == testCount){
         //------------------------------------------------------------------
         std::cout << std::endl;
         std::cout << "Test "<< testCount << ": Array setting and getting" << std::endl;
@@ -474,7 +474,7 @@ int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
         std::cout << "global.arr[2] = " << json2.get<double>("global.arr[2]",0.0) << std::endl;
     }
     testCount++;
-    if(test_todo == 0 | test_todo == testCount){
+    if(test_active == 0 | test_active == testCount){
         //------------------------------------------------------------------
         std::cout << std::endl;
         std::cout << "Test "<< testCount << ": Setting and getting values from RenderObject" << std::endl;
@@ -487,7 +487,7 @@ int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
         std::cout << "\tValues in Cache: " << obj.getDoc()->cacheSize() << std::endl;
     }
     testCount++;
-    if(test_todo == 0 | test_todo == testCount){
+    if(test_active == 0 | test_active == testCount){
         //------------------------------------------------------------------
         std::cout << std::endl;
         std::cout << "Test "<< testCount << ": Doc nesting" << std::endl;
@@ -514,7 +514,7 @@ int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
 
     }
     testCount++;
-    if(test_todo == 0 | test_todo == testCount){
+    if(test_active == 0 | test_active == testCount){
         //------------------------------------------------------------------
         std::cout << std::endl;
         std::cout << "Test "<< testCount << ": String access" << std::endl;
@@ -554,7 +554,7 @@ int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
         std::cout << "Serialized doc:   " << string_test.serialize() << std::endl;
     }
     testCount++;
-    if(test_todo == 0 | test_todo == testCount){
+    if(test_active == 0 | test_active == testCount){
         //------------------------------------------------------------------
         std::cout << std::endl;
         std::cout << "Test "<< testCount << ": RO-Access of imageLocation" << std::endl;

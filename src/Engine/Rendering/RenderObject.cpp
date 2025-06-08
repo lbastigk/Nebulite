@@ -240,6 +240,7 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 //   (allows for threading)
 // - store pointer pairs as std::vector<std::pair<RenderObject& RenderObject&>>
 // - after object pre-update, call actual update via invoke class that changes all objects
+// - additionally, the effects on self/other can be stored as a map where the key is the pointer this_shared
 void RenderObject::update(Invoke* globalInvoke, std::shared_ptr<RenderObject> this_shared) {
 	//------------------------------------
 	// Check all invokes

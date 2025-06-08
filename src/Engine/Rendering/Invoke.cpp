@@ -34,14 +34,15 @@ void Invoke::checkAgainstList(const std::shared_ptr<RenderObject>& obj){
     }
 }
 
+
 // TODO: get rid of this set/concat etc-structure...
 // instead of "add" "1" write "$($(self.val) + 1))" and then store as string
-// later on, expand tinyexpr for int casts
+// later on, expand tinyexpr for int casts, which is the only thing this structure cant solve on its own
 void Invoke::updateValueOfKey(const std::string& type, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){
-    if        (type == "set")       doc->set<double>(key.c_str(),std::stod(valStr));
+    if        (type == "set")       doc->set<std::string>(key.c_str(),valStr);
     else if   (type == "setInt")    doc->set<int>(key.c_str(),std::stoi(valStr));
-    else if   (type == "add")       doc->set<double>(key.c_str(),std::stod(valStr) + doc->get<double>(key.c_str(),0));
-    else if   (type == "multiply")  doc->set<double>(key.c_str(),std::stod(valStr) * doc->get<double>(key.c_str(),0));
+    else if   (type == "add")       doc->set<std::string>(key.c_str(),std::to_string(std::stod(valStr) + doc->get<double>(key.c_str(),0)));
+    else if   (type == "multiply")  doc->set<std::string>(key.c_str(),std::to_string(std::stod(valStr) * doc->get<double>(key.c_str(),0)));
     else if   (type == "concat")    doc->set<std::string>(key.c_str(),doc->get<std::string>(key.c_str(),0) + valStr);
     else if   (type == "setStr")    doc->set<std::string>(key.c_str(),valStr);;
 }
@@ -271,6 +272,7 @@ std::string Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr, N
             return nodeptr->text;
 
         case Node::Type::Variable: {
+            // TODO: store starts-with type in node for faster evaluation
             const std::string& expr = nodeptr->text;
             if (expr.starts_with("self.")) {
                 return self.get<std::string>(expr.substr(5).c_str(),"0");
@@ -281,10 +283,15 @@ std::string Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr, N
             } else if (StringHandler::isNumber(expr)) {
                 return expr;
             } else {
+                // TODO: it's possible that the evaulation is unnecessary if any parent is Mix_eval
+                // instead, return "(" + expr + ")"
+                // the expression will be evaled on higher node level of Mix_eval
                 return std::to_string(evaluateExpression(expr));
             }
             
         }
+
+        
 
         case Node::Type::Mix_no_eval: {
             std::string result;
@@ -294,6 +301,9 @@ std::string Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr, N
             return result;
         }
 
+        // TODO: as above, only eval if no parent is Mix_eval
+        // best: store as bool: has_eval_parent
+        // if thats the case, return "(" + combined + ")"
         case Node::Type::Mix_eval: {
             std::string combined;
             for (auto child : nodeptr->children) {
