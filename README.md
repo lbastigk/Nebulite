@@ -28,21 +28,13 @@ The main engine provides the core functionality of the game, handling:
 
 Nebulite relies on the following libraries:
 
-- **SDL2** (Simple DirectMedia Layer) for rendering and input handling.
-- **SDL_ttf** for fonts.
-- **SDL_image** for handling more image formats.
-- **RapidJSON** for loading and storing game data in JSON format.
-- **abseil** for fast caching of variables
-- **Tinyexpr** for expressions
-
-
-| Library      | Purpose                                      |
-|--------------|----------------------------------------------|
-| [SDL2](https://www.libsdl.org/)         | Rendering and input handling         |
-| [SDL_ttf](https://github.com/libsdl-org/SDL_ttf)     | Font rendering                       |
-| [SDL_image](https://github.com/libsdl-org/SDL_image) | Extended image format support       |
-| [RapidJSON](https://github.com/Tencent/rapidjson)   | JSON parsing for game data          |
-| [Abseil](https://abseil.io/)           | Fast variable caching                |
-| [Tinyexpr](https://github.com/codeplea/tinyexpr)     | Parsing and evaluating expressions  |
+| Library                                               | Purpose                                      |
+|-------------------------------------------------------|----------------------------------------------|
+| [SDL2](https://www.libsdl.org/)                       | Rendering and input handling         |
+| [SDL_ttf](https://github.com/libsdl-org/SDL_ttf)      | Font rendering                       |
+| [SDL_image](https://github.com/libsdl-org/SDL_image)  | Extended image format support       |
+| [RapidJSON](https://github.com/Tencent/rapidjson)     | JSON parsing for game data          |
+| [Abseil](https://abseil.io/)                          | Fast variable caching               |
+| [Tinyexpr](https://github.com/codeplea/tinyexpr)      | Parsing and evaluating expressions  |
 
 
