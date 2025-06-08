@@ -25,34 +25,36 @@ public:
 	// Setting/Getting specific values
 	template <typename T> void valueSet(const char* key, const T data);
 	template <typename T> T valueGet(const char* key, const T& defaultValue = T());
-
-
 	Nebulite::JSON* getDoc(){return &json;};
 	rapidjson::Document* _getDoc() const;
 	SDL_Rect& getDstRect();
-	void calculateDstRect();
 	SDL_Rect* getSrcRect();
-	void calculateSrcRect();
 	SDL_Texture& getTextTexture();
-	void calculateText(SDL_Renderer* renderer,TTF_Font* font, int renderer_X, int renderer_Y);
 	SDL_Rect* getTextRect();
 	//-----------------------------------------------------------
 	void update(Invoke* globalInvoke,std::shared_ptr<RenderObject> this_shared);
-	void exampleMoveSet(std::string val = namenKonvention.renderObject.positionX);
-
 	void reloadInvokes(std::shared_ptr<RenderObject> this_shared);
 
+	void calculateText(SDL_Renderer* renderer,TTF_Font* font, int renderer_X, int renderer_Y);
+	void calculateDstRect();
+	void calculateSrcRect();
+
 private:
+	// Main doc holding values
 	Nebulite::JSON json;
+
+	// for caching of SDL Positions
 	SDL_Rect dstRect;
 	SDL_Rect srcRect;
-
-	SDL_Surface* textSurface;
-	SDL_Texture* textTexture;
 	SDL_Rect textRect;
 
-	std::vector<std::shared_ptr<Invoke::InvokeEntry>> cmds_general;
-	std::vector<std::shared_ptr<Invoke::InvokeEntry>> cmds_internal;
+	// Surface and Texture of Text
+	SDL_Surface* textSurface;
+	SDL_Texture* textTexture;
+
+	// Invoke Commands
+	std::vector<std::shared_ptr<Invoke::InvokeEntry>> cmds_general;		// Global
+	std::vector<std::shared_ptr<Invoke::InvokeEntry>> cmds_internal;	// Internal
 };
 
 //-----------------------------------------------------------
@@ -66,7 +68,6 @@ template <typename T> void RenderObject::valueSet(const char* key, const T data)
 
 template <typename T> T RenderObject::valueGet(const char* key, const T& defaultValue){
 	return json.get<T>(key,defaultValue);
-	//return JSONHandler::Get::Any<T>(doc, key, defaultValue);
 }
 
 
