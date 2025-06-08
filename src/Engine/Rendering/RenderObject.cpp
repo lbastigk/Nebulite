@@ -12,7 +12,7 @@ RenderObject::RenderObject() {
 	json.set(namenKonvention.renderObject.positionY.c_str(), 0);
 	json.set(namenKonvention.renderObject.pixelSizeX.c_str(), 32);
 	json.set(namenKonvention.renderObject.pixelSizeY.c_str(), 32);
-	json.set(namenKonvention.renderObject.imageLocation.c_str(), std::string("Resources/Sprites/TEST_BMP_SMALL.bmp"));
+	json.set(namenKonvention.renderObject.imageLocation.c_str(), std::string("Resources/Sprites/TEST001P/001.bmp"));
 	json.set(namenKonvention.renderObject.layer.c_str(), 0);
 
 	json.set(namenKonvention.renderObject.deleteFlag.c_str(), false);

@@ -1,0 +1,6 @@
+echo Sets a renderobject inside an env and serializes it
+spawn ./Resources/Renderobjects/standard.json
+print-state
+wait 1
+print-state
+exit

@@ -1,19 +1,8 @@
 #pragma once
 /*
 Nebulite::JSON is meant as a rapidjson wrapper to streamline the trivial json requests like get and set that Nebulite does
-
-The Plan further is to:
-- use maps for faster access to the doc contents if possible
-    -> if a value is stored, instead of parsing into the rapidjson doc, store into a fast map
-    -> this might be helpful for certain types like ints,strings etc for easier access
-- allow for more complex keys allowing for array access: 
-    -> JSON.get<int>('doc.arr[i]',0) <--- 0 being default if no value present
-
-Current efforts are to replace the old JSONHandler class that didnt fully wrap the rapidjson::Document, meaning it had to be passed into it all the time.
+A cache is implemented for fast setting/getting of keys. Only if needed are those values flushed into the document
 */
-
-#include <typeinfo>
-#include <cxxabi.h> // GCC-specific
 
 // Rapidjson dependencies
 #include "document.h"
@@ -25,36 +14,21 @@ Current efforts are to replace the old JSONHandler class that didnt fully wrap t
 #include "ostreamwrapper.h"
 
 // Other dependencies
+#include <typeinfo>
+#include <cxxabi.h>
 #include <string>
 #include <variant>
 #include <type_traits>
+#include <typeindex>
 #include <map>
 #include <unordered_map>
-
 #include "absl/container/flat_hash_map.h"
 
+// Internal dependencies
 #include "JSONHandler.h"
 
-
-/*
-Values to consider for get/set and eventually the cachemap:
-- int32_t
-- int64_t
-- uint32_t
-- uint64_t
-- double
-- std::string
-- Nebulite::JSON
-
-Work in progress, some more values might be needed!
-However, the point of this wrapper is also for rapidjson arrays to not be an issue anymore. 
-Instead of manually inserting an array, their values can simply be set by passing 'key[i]' as key
-*/
-
-
-
 namespace Nebulite{
-    // Template for supported storages
+    // Template for supported cache storages
     template <typename T>
     struct is_simple_value : std::disjunction<
         std::is_same<T, int32_t>,
@@ -69,10 +43,15 @@ namespace Nebulite{
 
     template <typename T>
     inline constexpr bool is_simple_value_v = is_simple_value<T>::value;
+    
+    // JSON class for wrapping rapidjson (JSONHandler for now), 
+    // allowing for Nebulite::JSON objects with fast caching of variables
+    // that are flushed into the rapidjson doc on serialization
     class JSON{
     public:
         JSON();
 
+        // Reserved operative characters that cant be used for keynames
         static std::string reservedCharacters;
 
         // Get any value
@@ -100,15 +79,20 @@ namespace Nebulite{
         // 0  - key doesnt exist
         // 1  - standard key
         // >1 - array
-        uint32_t size(std::string key);
+        uint32_t memberSize(std::string key);
 
-        uint32_t size_cache(){return cache.size();};
+        uint32_t cacheSize(){return cache.size();};
 
         // Serializing/Deserializing
         std::string serialize(std::string key = "");
         void deserialize(std::string serial_or_link);              // if key is empty, deserialize entire doc
 
         // flushing map content into doc
+        // While the current implementation of flushing break for more complex data structures, 
+        // due to the handling of cache if keys are set 
+        // the current usecase does not intend to use them
+        // More testing needed to find issues that need to be resolved in set/flush
+        // Low priority
         void flush();
 
         // Empty document
@@ -119,129 +103,189 @@ namespace Nebulite{
             return const_cast<rapidjson::Document*>(&doc);
         }
     private:
+        //--------------------------------------------------------------------
+        // Value storage
+
         // main doc
         rapidjson::Document doc;
 
         // caching Simple variables
-        using SimpleJSONValue = std::variant<int32_t, int64_t, uint32_t, uint64_t,double, std::string, bool>;
-        absl::flat_hash_map<std::string, SimpleJSONValue> cache;
+        using SimpleJSONValue = std::variant<
+            int32_t, int64_t, 
+            uint32_t, uint64_t,
+            float, double, 
+            std::string, 
+            bool
+        >;
+        struct CacheEntry {
+            SimpleJSONValue main_value;
+            std::unordered_map<std::type_index, SimpleJSONValue> derived_values;
+        };
+        absl::flat_hash_map<std::string, CacheEntry> cache;
 
+        // TODO:
+        // Work in progress idea: additionally to the cache, 
+        // if a type for cache[key] is requested that does not match the type of cache[key]
+        // store the converted value
+        // Naming idea: type-differing-cache
+        // This reduces conversion overhead, example:
+        // -> stored type is string
+        // -> math functions keep requestion double
+        // 
+        // Importantly, the type of cache is the main type, as this was the actual set-type
+        //
+        // To consider:
+        // - on set, the type-differering-cache for that key has to be deleted
+        // - on get, a type comparison between expected return value and stored type        
+        //
+        // Example of usage:
+        /*
+            Nebulite::JSON json;
+            json.set<std::string>("number","1234");     // storage: {"number" : "1234"}
+                                                        // full explanation of this function later on
+            std::cout << json.get<int>("number");       // get calls get_type, notices that std::string is stored instead
+                                                        // checks derived cache, no conversion stored
+                                                        // converts string to int, stores int in derived cache
+                                                        // returns value from derived_cache
+            std::cout << json.get<int>("number");       // get calls get_type, notices that std::string is stored instead
+                                                        // checks derived cache, conversion stored
+                                                        // returns value from derived cache -> faster, no stoi used
+            json.set<int>("number",12345)               // Delete derived cache for that key, as it doesnt match the master value in cache anymore
+                                                        // no comparison needed, just assume a new set is always different
+        */
+
+        // Idea for helper functions that are called after validation that key is in cache:
+        // these functions are called inside get/set once it is validated that cache[key] exists
+
+        // set into cache and clear derived_cache
+        template <typename T> void set_type(std::string key, const T value);
+
+        // get from cache 
+        // if T does not match cache, get drom derived_cache
+        // if derived_cache does not contain value, convert from cache to derived_cache, store:
+        template <typename T> T get_type(CacheEntry& entry, const T defaultValue);
+
+        template <typename T>
+        T convert_variant(const SimpleJSONValue& val, const T& defaultValue = T());
+
+        //--------------------------------------------------------------------
+        // Fallback get and set
 
         // Get any value
-        template <typename T> T get_from_doc(const char* key, const T defaultValue, rapidjson::Value& val);
+        template <typename T> T fallback_get(const char* key, const T defaultValue, rapidjson::Value& val);
 
         // Set any value
-        template <typename T> void set_into_doc(const char* key, const T& value, rapidjson::Value& val);
+        template <typename T> void fallback_set(const char* key, const T& value, rapidjson::Value& val);
+
+        //--------------------------------------------------------------------
+        // Document traversal
 
         rapidjson::Value* traverseKey(const char* key, rapidjson::Value& val);
 
-        rapidjson::Value* makeKey(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+        rapidjson::Value* ensure_path(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
     };
 }
 
 template <typename T>
-T Nebulite::JSON::get(const char* key, const T defaultValue) {
-    // [DEBUG] Fallback to get from doc
-    //return get_from_doc<T>(key, defaultValue, doc);
+T Nebulite::JSON::convert_variant(const SimpleJSONValue& val, const T& defaultValue) {
+    return std::visit([&](const auto& stored) -> T {
+        using StoredT = std::decay_t<decltype(stored)>;
 
+        if constexpr (std::is_convertible_v<StoredT, T>) {
+            return static_cast<T>(stored);
+        } else if constexpr (std::is_same_v<StoredT, std::string> && std::is_arithmetic_v<T>) {
+            try {
+                if constexpr (std::is_integral_v<T>)
+                    return static_cast<T>(std::stoll(stored));
+                else
+                    return static_cast<T>(std::stod(stored));
+            } catch (...) {
+                return defaultValue;
+            }
+        } else if constexpr (std::is_arithmetic_v<StoredT> && std::is_same_v<T, std::string>) {
+            return std::to_string(stored);
+        } else {
+            return defaultValue;
+        }
+    }, val);
+}
+
+
+template <typename T>
+void Nebulite::JSON::set_type(std::string key, const T value) {
+    CacheEntry& entry = cache[key];  // creates or updates entry
+    entry.main_value = value;
+    entry.derived_values.clear();  // reset derived types
+}
+
+
+template <typename T>
+T Nebulite::JSON::get_type(CacheEntry& entry, const T defaultValue) {
+    using VariantType = std::variant<
+        int,
+        long,
+        unsigned int,
+        long unsigned int,
+        double,
+        std::string,
+        bool
+    >;
+
+    // Use double instead of float when accessing variant
+    using AccessType = std::conditional_t<std::is_same_v<T, float>, double, T>;
+
+    if (std::holds_alternative<AccessType>(entry.main_value)) {
+        return static_cast<T>(std::get<AccessType>(entry.main_value));
+    }
+
+    auto it = entry.derived_values.find(std::type_index(typeid(T)));
+    if (it != entry.derived_values.end()) {
+        return std::get<T>(it->second);
+    }
+
+    // If conversion is needed, handle it
+    AccessType converted = convert_variant<AccessType>(entry.main_value, static_cast<AccessType>(defaultValue));
+    entry.derived_values[std::type_index(typeid(T))] = static_cast<T>(converted);
+    return static_cast<T>(converted);
+}
+
+
+
+template <typename T>
+T Nebulite::JSON::get(const char* key, const T defaultValue) {
     if constexpr (is_simple_value_v<T> || std::is_same_v<T, const char*>) {
         auto it = cache.find(key);
         if (it != cache.end()) {
-            const auto& var = it->second;
-
-            if constexpr (std::is_arithmetic_v<T>) {
-                return std::visit([](const auto& val) -> T {
-                    if constexpr (std::is_arithmetic_v<std::decay_t<decltype(val)>>) {
-                        return static_cast<T>(val);
-                    }
-                    return T{};
-                }, var);
-            }
-
-            if constexpr (std::is_same_v<std::decay_t<T>, std::string>) {
-                if (auto p = std::get_if<std::string>(&var)) {
-                    return *p;
-                } else {
-                    // fallback: try to convert from arithmetic to string
-                    return std::visit([](const auto& val) -> std::string {
-                        if constexpr (std::is_arithmetic_v<std::decay_t<decltype(val)>>) {
-                            return std::to_string(val);
-                        }
-                        return {};
-                    }, var);
-                }
-            }
-
-            if constexpr (std::is_same_v<T, const char*>) {
-                if (auto p = std::get_if<std::string>(&var)) {
-                    return p->c_str();  // safe: cache owns the string
-                }
-            }
-
-            if constexpr (std::is_same_v<T, bool>) {
-                if (auto p = std::get_if<bool>(&var)) {
-                    return *p;
-                }
-            }
-
-            if constexpr (std::is_same_v<T, char>) {
-                if (auto p = std::get_if<std::string>(&var)) {
-                    if (!p->empty()) return (*p)[0];
-                }
-            }
-
-            std::cerr << "[ERROR] key is in cache, but no correct conversion found. Initiating fallback" << std::endl;
-        } else {
-            T tmp = get_from_doc<T>(key, defaultValue, doc);
-            if constexpr (std::is_same_v<T, const char*>) {
-                std::string tmpStr = tmp ? tmp : "";
-                cache[key] = tmpStr;
-                return std::get<std::string>(cache[key]).c_str();  // safe: stored
-            } else {
-                cache[key] = tmp;
-                return tmp;
-            }
+            return get_type<T>(it->second, defaultValue);
         }
+        // if not found in cache, access actual doc through fallback
     }
     // Fallback to doc
-    return get_from_doc<T>(key, defaultValue, doc);
+    return fallback_get<T>(key, defaultValue, doc);
 }
 
 
 template <typename T>
 void Nebulite::JSON::set(const char* key, const T& value) {
-    // [DEBUG] Fallback to set into doc
-    //return set_into_doc<T>(key, value, doc);
-
     if constexpr (is_simple_value_v<T>) {
-        cache[key] = value;
+        set_type(key,value);
     } 
-    else if constexpr (std::is_same_v<T, const char*> || 
-                       (std::is_array_v<T> && std::is_same_v<std::remove_extent_t<T>, char>)) {
+    else if constexpr (std::is_same_v<T, const char*> || (std::is_array_v<T> && std::is_same_v<std::remove_extent_t<T>, char>)) {
         // Convert char arrays and const char* to std::string
-        cache[key] = std::string(value);
+        set_type(key,std::string(value));
     } 
     else {
         // Remove from cache to prevent type mismatch
         cache.erase(key);
-        set_into_doc<T>(key, value, doc);
+        fallback_set<T>(key, value, doc);
     }
 }
 
-template <typename T>
-T Nebulite::JSON::get_from_doc(const char* key, const T defaultValue, rapidjson::Value& val) {
-    /*
-    int status;
-    std::unique_ptr<char, void(*)(void*)> demangled(
-        abi::__cxa_demangle(typeid(T).name(), 0, 0, &status),
-        std::free
-    );
-    
-    std::cout << "[FALLBACK] Get from doc called for key: " << key 
-              << " (type: " << (status == 0 ? demangled.get() : typeid(T).name()) << ")"
-              << std::endl;
-    */
+//---------------------------------------------------------------------
+// Fallbacks
 
+template <typename T>
+T Nebulite::JSON::fallback_get(const char* key, const T defaultValue, rapidjson::Value& val) {
     rapidjson::Value* keyVal = traverseKey(key,val);
     if(keyVal == nullptr){
         return defaultValue;
@@ -254,20 +298,14 @@ T Nebulite::JSON::get_from_doc(const char* key, const T defaultValue, rapidjson:
     }
 }
 
-
 template <typename T>
-void Nebulite::JSON::set_into_doc(const char* key, const T& value, rapidjson::Value& val) {
+void Nebulite::JSON::fallback_set(const char* key, const T& value, rapidjson::Value& val) {
     // Ensure key path exists
-    rapidjson::Value* keyVal = makeKey(key, val, doc.GetAllocator());
+    rapidjson::Value* keyVal = ensure_path(key, val, doc.GetAllocator());
     if (keyVal != nullptr) {
         JSONHandler::ConvertToJSONValue<T>(value, *keyVal, doc.GetAllocator());
     } else {
         std::cout << "Failed to create or access path: " << key << std::endl;
     }
 }
-
-
-
-
-
 

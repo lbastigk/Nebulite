@@ -11,7 +11,7 @@ std::string Nebulite::JSON::reservedCharacters = "[]{}.,";
 
 void Nebulite::JSON::set_subdoc(const char* key, Nebulite::JSON& child){
     // Ensure key path exists
-    rapidjson::Value* keyVal = makeKey(key, doc, doc.GetAllocator());
+    rapidjson::Value* keyVal = ensure_path(key, doc, doc.GetAllocator());
     if (keyVal != nullptr) {
         child.flush();
         JSONHandler::ConvertToJSONValue<rapidjson::Document>(child.doc, *keyVal, doc.GetAllocator());
@@ -35,7 +35,7 @@ Nebulite::JSON Nebulite::JSON::get_subdoc(const char* key){
 }
 
 void Nebulite::JSON::set_empty_array(const char* key){
-    rapidjson::Value* val = makeKey(key,doc,doc.GetAllocator());
+    rapidjson::Value* val = ensure_path(key,doc,doc.GetAllocator());
     val->SetArray();
 }
 
@@ -74,7 +74,7 @@ Nebulite::JSON::KeyType Nebulite::JSON::memberCheck(std::string key) {
     }
 }
 
-uint32_t Nebulite::JSON::size(std::string key){
+uint32_t Nebulite::JSON::memberSize(std::string key){
     auto kt = memberCheck(key);
     if(kt != KeyType::array){
         return kt;
@@ -108,45 +108,23 @@ void Nebulite::JSON::deserialize(std::string serial_or_link){
 }
 
 void Nebulite::JSON::flush() {
-    /*
     for (auto it = cache.begin(); it != cache.end(); ) {
         const std::string& key = it->first;
-        const SimpleJSONValue& val = it->second;
+        const SimpleJSONValue& val = it->second.main_value;
 
         // Visit the variant and call set_into_doc with correct type
         std::visit([this, &key](auto&& arg) {
-            set_into_doc(key.c_str(), arg, doc);
-        }, val);
-
-        // Erase the cache entry and move iterator forward safely
-        it = cache.erase(it);
-    }
-    */
-    for (auto it = cache.begin(); it != cache.end(); ) {
-        const std::string& key = it->first;
-        const SimpleJSONValue& val = it->second;
-
-        // Visit the variant and call set_into_doc with correct type
-        std::visit([this, &key](auto&& arg) {
-            set_into_doc(key.c_str(), arg, doc);
+            fallback_set(key.c_str(), arg, doc);
         }, val);
 
         // Increment iterator before erasing current element
         auto to_delete = it++;
         cache.erase(to_delete);
     }
-
-    
 }
 
 void Nebulite::JSON::empty(){
     JSONHandler::empty(doc);
-    /*
-    for (auto it = cache.begin(); it != cache.end(); ) {
-        // Erase the cache entry and move iterator forward safely
-        it = cache.erase(it);
-    }
-    */
     for (auto it = cache.begin(); it != cache.end(); ) {
         cache.erase(it++);
     }
@@ -233,7 +211,7 @@ rapidjson::Value* Nebulite::JSON::traverseKey(const char* key, rapidjson::Value&
     return current;
 }
 
-rapidjson::Value* Nebulite::JSON::makeKey(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
+rapidjson::Value* Nebulite::JSON::ensure_path(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
 

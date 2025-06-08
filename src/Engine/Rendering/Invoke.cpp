@@ -34,6 +34,9 @@ void Invoke::checkAgainstList(const std::shared_ptr<RenderObject>& obj){
     }
 }
 
+// TODO: get rid of this set/concat etc-structure...
+// instead of "add" "1" write "$($(self.val) + 1))" and then store as string
+// later on, expand tinyexpr for int casts
 void Invoke::updateValueOfKey(const std::string& type, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){
     if        (type == "set")       doc->set<double>(key.c_str(),std::stod(valStr));
     else if   (type == "setInt")    doc->set<int>(key.c_str(),std::stoi(valStr));
