@@ -158,12 +158,12 @@ namespace Nebulite{
         // these functions are called inside get/set once it is validated that cache[key] exists
 
         // set into cache and clear derived_cache
-        template <typename T> void set_type(std::string key, const T value);
+        template <typename T> void set_type(std::string key, const T& value);
 
         // get from cache 
         // if T does not match cache, get drom derived_cache
         // if derived_cache does not contain value, convert from cache to derived_cache, store:
-        template <typename T> T get_type(CacheEntry& entry, const T defaultValue);
+        template <typename T> T get_type(CacheEntry& entry, const T& defaultValue);
 
         template <typename T>
         T convert_variant(const SimpleJSONValue& val, const T& defaultValue = T());
@@ -186,6 +186,7 @@ namespace Nebulite{
     };
 }
 
+/*
 template <typename T>
 T Nebulite::JSON::convert_variant(const SimpleJSONValue& val, const T& defaultValue) {
     return std::visit([&](const auto& stored) -> T {
@@ -209,44 +210,84 @@ T Nebulite::JSON::convert_variant(const SimpleJSONValue& val, const T& defaultVa
         }
     }, val);
 }
-
+*/
 
 template <typename T>
-void Nebulite::JSON::set_type(std::string key, const T value) {
-    CacheEntry& entry = cache[key];  // creates or updates entry
-    entry.main_value = value;
-    entry.derived_values.clear();  // reset derived types
+T Nebulite::JSON::convert_variant(const SimpleJSONValue& val, const T& defaultValue) {
+    return std::visit([&](const auto& stored) -> T {
+        using StoredT = std::decay_t<decltype(stored)>;
+
+        // Types: arithmetic, string 
+        // To consider:
+        // - Direct
+        // - arithmetic -> string
+        // - string     -> arithmetic
+        // Not: 
+
+        // Directly cast if types are convertible
+        if constexpr (std::is_convertible_v<StoredT, T>) {
+            return static_cast<T>(stored);
+        }
+
+        // Handle string to bool (optional, but common)
+        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<T, bool>) {
+            return stored == "true" || stored == "1";
+        }
+
+        // Handle string to arithmetic
+        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_arithmetic_v<T>) {
+            try {
+                if constexpr (std::is_integral_v<T>) {
+                    if constexpr (std::is_signed_v<T>)
+                        return static_cast<T>(std::stoll(stored));
+                    else
+                        return static_cast<T>(std::stoull(stored));
+                } else {
+                    return static_cast<T>(std::stod(stored));
+                }
+            } catch (...) {
+                return defaultValue;
+            }
+        }
+
+        // Handle arithmetic to string
+        else if constexpr (std::is_arithmetic_v<StoredT> && std::is_same_v<T, std::string>) {
+            return std::to_string(stored);
+        }
+
+        // Fallback
+        else {
+            return defaultValue;
+        }
+    }, val);
 }
 
 
 template <typename T>
-T Nebulite::JSON::get_type(CacheEntry& entry, const T defaultValue) {
-    using VariantType = std::variant<
-        int,
-        long,
-        unsigned int,
-        long unsigned int,
-        double,
-        std::string,
-        bool
-    >;
+void Nebulite::JSON::set_type(std::string key, const T& value) {
+    CacheEntry& entry = cache[key];     // creates or updates entry
+    entry.main_value = value;
+    entry.derived_values.clear();       // reset derived types
+}
 
-    // Use double instead of float when accessing variant
-    using AccessType = std::conditional_t<std::is_same_v<T, float>, double, T>;
 
-    if (std::holds_alternative<AccessType>(entry.main_value)) {
-        return static_cast<T>(std::get<AccessType>(entry.main_value));
+template <typename T>
+T Nebulite::JSON::get_type(CacheEntry& entry, const T& defaultValue) {
+    // Check if the main value holds the exact type
+    if (std::holds_alternative<T>(entry.main_value)) {
+        return std::get<T>(entry.main_value);
     }
 
+    // Check the derived values cache
     auto it = entry.derived_values.find(std::type_index(typeid(T)));
     if (it != entry.derived_values.end()) {
         return std::get<T>(it->second);
     }
 
-    // If conversion is needed, handle it
-    AccessType converted = convert_variant<AccessType>(entry.main_value, static_cast<AccessType>(defaultValue));
-    entry.derived_values[std::type_index(typeid(T))] = static_cast<T>(converted);
-    return static_cast<T>(converted);
+    // Convert and cache it
+    T converted = convert_variant<T>(entry.main_value, defaultValue);
+    entry.derived_values[std::type_index(typeid(T))] = converted;
+    return converted;
 }
 
 

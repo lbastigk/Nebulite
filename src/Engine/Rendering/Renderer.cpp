@@ -110,8 +110,6 @@ void Renderer::deserialize(std::string serialOrLink) {
 //-----------------------------------------------------------
 // Pipeline
 void Renderer::append(std::shared_ptr<RenderObject> toAppend) {
-	std::cerr << toAppend->serialize() << std::endl;
-
 	// Set ID
 	toAppend.get()->valueSet<uint32_t>(namenKonvention.renderObject.id.c_str(),id_counter);
 	id_counter++;

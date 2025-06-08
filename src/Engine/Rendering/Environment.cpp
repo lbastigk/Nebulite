@@ -38,37 +38,6 @@ std::string Environment::serialize() {
 }
 
 void Environment::deserialize(std::string serialOrLink, int dispResX,int dispResY,int THREADSIZE) {
-	/*
-	rapidjson::Document doc;
-	doc = JSONHandler::deserialize(serialOrLink);
-
-	JSONHandler::Get::subDoc(doc,"global",*global);
-
-	// doc has values for containerLayer0 to containerLayer4
-	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
-		std::string key = "containerLayer" + std::to_string(i);
-
-		// Check if the key exists in the document
-		if (doc.HasMember(key.c_str())) {
-			// Extract the value corresponding to the key
-			const rapidjson::Value& layer = doc[key.c_str()];
-
-			// Convert the JSON object to a pretty-printed string
-			rapidjson::StringBuffer buffer;
-			rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-			layer.Accept(writer);
-
-			
-			std::string str = buffer.GetString();
-
-			roc[i].deserialize(str,dispResX,dispResY,THREADSIZE);
-		}
-		else {
-			std::cerr << "Key " << key << " not found in the document!" << std::endl;
-		}
-	}
-	*/
-
 	Nebulite::JSON file;
 	file.deserialize(serialOrLink);
 	global->deserialize(file.get_subdoc("global").serialize());
@@ -104,15 +73,10 @@ void Environment::append(std::shared_ptr<RenderObject> toAppend,int dispResX, in
 	}
 }
 
-/*
-// Old version, no threads
-void Environment::update(int tileXpos,int tileYpos,int dispResX,int dispResY, int THREADSIZE,Invoke* globalInvoke) {
-	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
-		roc[i].update(tileXpos,tileYpos,dispResX,dispResY,THREADSIZE,globalInvoke);
-	}
-}
-*/
+// Before activating env update: might not work with direct invoke-manipulation of $(other.var)
+//#define UPDATE_THREADED 1
 
+#ifdef UPDATE_THREADED
 void Environment::update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE, Invoke* globalInvoke) {
     std::vector<std::thread> threads;
 
@@ -126,6 +90,15 @@ void Environment::update(int tileXpos, int tileYpos, int dispResX, int dispResY,
         thread.join();
     }
 }
+#else
+// Old version, no threads
+void Environment::update(int tileXpos,int tileYpos,int dispResX,int dispResY, int THREADSIZE,Invoke* globalInvoke) {
+	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
+		roc[i].update(tileXpos,tileYpos,dispResX,dispResY,THREADSIZE,globalInvoke);
+	}
+}
+#endif
+
 
 
 
