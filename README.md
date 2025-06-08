@@ -10,7 +10,7 @@ provided logical conditions between the two are satisfied. Global attributes are
 This non-hierarchical architecture enables complex interactive systems and modular subsystems. Examples:
 - movement being triggered by `$(global.input.keyboard.w)` -> sets velocity or request to move a distane
 - animation being triggered by attributes: `$(self.isMoving)` or `$(self.physics.vX > 0)` -> set posX to `$($(self.posX) + $(self.physics.vX) * $(global.time.dt))`
-- boundary check being triggered by $(other.isSolid) -> forces velocity of self to 0
+- boundary check being triggered by `$(other.isSolid)` -> forces velocity of self to 0
 
 This engine is built using **SDL** for rendering and **RapidJSON** as well as a custom caching system to handle the fast structuring of game data such as `RenderObjects`, `Levels`, and their respective attributes.
 
