@@ -182,7 +182,6 @@ int Nebulite::mainTreeFunctions::spawn(int argc, char* argv[]){
 
 int Nebulite::mainTreeFunctions::exitProgram(int argc, char* argv[]){
     Nebulite::getRenderer()->setQuit();
-    std::cout << "Exiting program" << std::endl;
     return 0;
 }
 
@@ -217,8 +216,6 @@ int Nebulite::mainTreeFunctions::wait(int argc, char* argv[]){
 }
 
 int Nebulite::mainTreeFunctions::loadTaskList(int argc, char* argv[]) {
-    std::cout << "Loading tasks!" << std::endl;
-
     if (argc < 1) {
         std::cout << "Usage: task <filename>" << std::endl;
         return 1;

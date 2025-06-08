@@ -24,6 +24,7 @@ public:
     // - parse all arguments, set global values
     // - call executeFunction on first argv (besides argv[0] obviously) that starts without '-' or '--'
     //   plus, pass all argv afterwards. Making sure argc is adjusted accordingly
+    // TODO: Fix so that it conforms with standard practises where argv[0] is the function name
     int parse(int argc, char* argv[]);
 
     // Attach an argument (like --count or -c) to a specific function or action
@@ -34,10 +35,6 @@ public:
 
     // Execute the function
     int executeFunction(const std::string& name, int argc, char* argv[]);
-
-    // Converting an std::string into argc/argv
-    void convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv);
-
 
 private:
     int help(int argc, char* argv[]);
