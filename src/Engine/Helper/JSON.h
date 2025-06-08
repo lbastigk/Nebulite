@@ -324,15 +324,18 @@ void Nebulite::JSON::set(const char* key, const T& value) {
 
 //---------------------------------------------------------------------
 // Fallbacks
+// Todo: new implementation of ConvertFromJSONValue inside Nebuute::JSON class
+// Perhaps it's possible to remove some of the base checks/Make the code cleaner in general
 
 template <typename T>
 T Nebulite::JSON::fallback_get(const char* key, const T defaultValue, rapidjson::Value& val) {
     rapidjson::Value* keyVal = traverseKey(key,val);
     if(keyVal == nullptr){
+        // Value doesnt exist in doc, return default
         return defaultValue;
     }
     else{
-        // Base case: convert currentVal to T using JSONHandler or your own conversion
+        // Base case: convert currentVal to T using JSONHandler
         T tmp;
         JSONHandler::ConvertFromJSONValue<T>(*keyVal, tmp, defaultValue);
         return tmp;
@@ -346,7 +349,7 @@ void Nebulite::JSON::fallback_set(const char* key, const T& value, rapidjson::Va
     if (keyVal != nullptr) {
         JSONHandler::ConvertToJSONValue<T>(value, *keyVal, doc.GetAllocator());
     } else {
-        std::cout << "Failed to create or access path: " << key << std::endl;
+        std::cerr << "Failed to create or access path: " << key << std::endl;
     }
 }
 
