@@ -1,11 +1,13 @@
 # Nebulite Game Engine
-Created by **lbastigk**.
+[![Author](https://img.shields.io/badge/Author-lbastigk-blue)](https://github.com/lbastigk)
 
 ## Overview
 
-**Nebulite** is a C++ based 2D game engine for arbitrary rulesets. Renderobjects within the system are allowed to interact with each other in a self-other relationship defined by the `Invoke` class, 
-if logical conditions between two objects is true. Global attributes can be read and written via the `global` tag. 
-This non-hierarchial structure allows for complex interactive systems and an easy breakdown into subsystems such as:
+**Nebulite** is a C++-based 2D game engine built for arbitrary rulesets and flexible inter-object logic.
+In Nebulite, `RenderObjects` can interact with each other through a self-other relationship using the `Invoke` class, 
+provided logical conditions between the two are satisfied. Global attributes are accessed and modified via the `global` tag.
+
+This non-hierarchical architecture enables complex interactive systems and modular subsystems. Examples:
 - movement being triggered by $(global.input.keyboard.w) -> sets velocity or request to move a distane
 - animation being triggered by attributes: `$(self.isMoving)` or `$(self.physics.vX > 0)` -> set posX to `$($(self.posX) + $(self.physics.vX) * $(global.time.dt))`
 - boundary check being triggered by $(other.isSolid) -> forces velocity of self to 0
@@ -34,5 +36,13 @@ Nebulite relies on the following libraries:
 - **Tinyexpr** for expressions
 
 
+| Library      | Purpose                                      |
+|--------------|----------------------------------------------|
+| [SDL2](https://www.libsdl.org/)         | Rendering and input handling         |
+| [SDL_ttf](https://github.com/libsdl-org/SDL_ttf)     | Font rendering                       |
+| [SDL_image](https://github.com/libsdl-org/SDL_image) | Extended image format support       |
+| [RapidJSON](https://github.com/Tencent/rapidjson)   | JSON parsing for game data          |
+| [Abseil](https://abseil.io/)           | Fast variable caching                |
+| [Tinyexpr](https://github.com/codeplea/tinyexpr)     | Parsing and evaluating expressions  |
 
 
