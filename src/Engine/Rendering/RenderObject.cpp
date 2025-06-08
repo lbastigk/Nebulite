@@ -5,8 +5,8 @@
 //Constructor
 
 RenderObject::RenderObject() {
+	// General
 	json.set(namenKonvention.renderObject.id.c_str(),0);
-
 	json.set(namenKonvention.renderObject.isOverlay.c_str(), false);
 	json.set(namenKonvention.renderObject.positionX.c_str(), 0);
 	json.set(namenKonvention.renderObject.positionY.c_str(), 0);
@@ -14,7 +14,6 @@ RenderObject::RenderObject() {
 	json.set(namenKonvention.renderObject.pixelSizeY.c_str(), 32);
 	json.set(namenKonvention.renderObject.imageLocation.c_str(), std::string("Resources/Sprites/TEST001P/001.bmp"));
 	json.set(namenKonvention.renderObject.layer.c_str(), 0);
-
 	json.set(namenKonvention.renderObject.deleteFlag.c_str(), false);
 
 	//for spritesheets
@@ -24,22 +23,18 @@ RenderObject::RenderObject() {
 	json.set(namenKonvention.renderObject.spritesheetSizeX.c_str(), 0);
 	json.set(namenKonvention.renderObject.spritesheetSizeY.c_str(), 0);
 
-	// Set doc["invokes"] as an empty array
-	// doc.AddMember("invokes", rapidjson::Value(rapidjson::kArrayType), doc.GetAllocator());
+	// Invokes
 	json.set_empty_array("invokes");
+	json.set(namenKonvention.renderObject.reloadInvokes.c_str(), true);
+
+	// Text
+	json.set(namenKonvention.renderObject.textStr.c_str(),std::string(""));
+	json.set(namenKonvention.renderObject.textFontsize.c_str(),0);
+	json.set(namenKonvention.renderObject.flagCalculate.c_str(),true);
 
 	//Build Rect on creation
 	calculateDstRect();
 	calculateSrcRect();
-
-	// Insert Invokes
-	json.set(namenKonvention.renderObject.reloadInvokes.c_str(), true);
-
-	// Create text
-	// Create a surface with the text
-	json.set(namenKonvention.renderObject.textStr.c_str(),std::string(""));
-	json.set(namenKonvention.renderObject.textFontsize.c_str(),0);
-	json.set(namenKonvention.renderObject.flagCalculate.c_str(),true);
 }
 
 
@@ -70,11 +65,9 @@ std::string RenderObject::serialize() {
 
 void RenderObject::deserialize(std::string serialOrLink) {
 	json.deserialize(serialOrLink);
-	//std::cerr << "Doc was deserialized! From: \n" << serialOrLink << "\n to: \n" << JSONHandler::serialize(doc) << std::endl << std::endl;
 
 	// Prerequisites
 	valueSet(namenKonvention.renderObject.reloadInvokes.c_str(),true);
-
 	calculateDstRect();
 	calculateSrcRect();
 }
@@ -193,11 +186,9 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 				entry.selfPtr = this_shared;
 				entry.logicalArg = 	JSONHandler::Get::Any<std::string>(serializedInvoke, "logicalArg", "");
 				entry.isGlobal = 	JSONHandler::Get::Any<bool>(serializedInvoke, "isGlobal", true);
-
 				entry.invokes_self = 	parseInvokeTriples(serializedInvoke["self_invokes"]);
 				entry.invokes_other = 	parseInvokeTriples(serializedInvoke["other_invokes"]);
 				entry.invokes_global = 	parseInvokeTriples(serializedInvoke["global_invokes"]);
-
 				entry.functioncalls.clear();
 				if (serializedInvoke.HasMember("functioncalls") && serializedInvoke["functioncalls"].IsArray()) {
 					for (auto& fn : serializedInvoke["functioncalls"].GetArray()) {
@@ -206,16 +197,6 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 						}
 					}
 				}
-
-				// DEBUG: check entry:
-				/*
-				std::cout << "[DEBUG] Invoke Entry loaded:" << std::endl;
-				std::cout << "Global:             " << entry.isGlobal << " | " << entry.logicalArg << std::endl;
-				std::cout << "Size self:          " << entry.invokes_self.size() << std::endl;
-				std::cout << "Size other:         " << entry.invokes_other.size() << std::endl;
-				std::cout << "Size global:        " << entry.invokes_global.size() << std::endl;
-				std::cout << "Size functioncalls: " << entry.functioncalls.size() << std::endl;
-				//*/
 				
 				// Append
 				auto ptr = std::make_shared<Invoke::InvokeEntry>(std::move(entry));
