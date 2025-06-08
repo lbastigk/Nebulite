@@ -30,11 +30,11 @@ Nebulite relies on the following libraries:
 
 | Library                                               | Purpose                                      |
 |-------------------------------------------------------|----------------------------------------------|
-| [SDL2](https://www.libsdl.org/)                       | Rendering and input handling         |
-| [SDL_ttf](https://github.com/libsdl-org/SDL_ttf)      | Font rendering                       |
-| [SDL_image](https://github.com/libsdl-org/SDL_image)  | Extended image format support       |
-| [RapidJSON](https://github.com/Tencent/rapidjson)     | JSON parsing for game data          |
-| [Abseil](https://abseil.io/)                          | Fast variable caching               |
-| [Tinyexpr](https://github.com/codeplea/tinyexpr)      | Parsing and evaluating expressions  |
+| [SDL2](https://www.libsdl.org/)                       | Rendering and input handling                 |
+| [SDL_ttf](https://github.com/libsdl-org/SDL_ttf)      | Font rendering                               |
+| [SDL_image](https://github.com/libsdl-org/SDL_image)  | Extended image format support                |
+| [RapidJSON](https://github.com/Tencent/rapidjson)     | JSON parsing for game data                   |
+| [Abseil](https://abseil.io/)                          | Fast variable caching                        |
+| [Tinyexpr](https://github.com/codeplea/tinyexpr)      | Parsing and evaluating expressions           |
 
 
