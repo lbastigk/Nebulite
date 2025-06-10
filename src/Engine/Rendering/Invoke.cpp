@@ -2,8 +2,19 @@
 #include "RenderObject.h"  // include full definition of RenderObject
 
 
-Invoke::Invoke() {
-
+Invoke::Invoke(){
+    // Manually add function variables
+    te_variable gt_var = {"gt", (void*)expr_custom::gt, TE_FUNCTION2};
+    te_variable lt_var = {"lt", (void*)expr_custom::lt, TE_FUNCTION2};
+    te_variable eq_var = {"eq", (void*)expr_custom::eq, TE_FUNCTION2};
+    te_variable and_var = {"and", (void*)expr_custom::logical_and, TE_FUNCTION2};
+    te_variable or_var = {"or", (void*)expr_custom::logical_or, TE_FUNCTION2};
+    
+    vars.push_back(gt_var);
+    vars.push_back(lt_var);
+    vars.push_back(eq_var);
+    vars.push_back(and_var);
+    vars.push_back(or_var);
 }
 
 
@@ -15,7 +26,12 @@ bool Invoke::isTrue(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_p
 
     // Resolve logical statement
     std::string logic = resolveVars(cmd->logicalArg, *cmd->selfPtr->getDoc(), *otherObj->getDoc(), *global);
-    if (evaluateExpression(logic) == 0.0){
+    double result = evaluateExpression(logic);
+    if(isnan(result)){
+        std::cerr << "Evaluated logic to NAN! Logic is: " << logic << std::endl;
+        return false;
+    }
+    if (result == 0.0){
         return false;
     }
     else{
@@ -150,8 +166,24 @@ void Invoke::append(const std::shared_ptr<InvokeEntry>& toAppend){
     nextCommands.push_back(toAppend);
 }
 
+// TODO: usage of te_compile...
 double Invoke::evaluateExpression(const std::string& expr) {
-    return te_interp(expr.c_str(),0);
+    auto it = expr_cache.find(expr);
+        te_expr* compiled = nullptr;
+
+        if (it != expr_cache.end()) {
+            compiled = it->second;
+        } 
+        else {
+            int err;
+            compiled = te_compile(expr.c_str(), vars.data(), vars.size(), &err);
+            if (!compiled) {
+                //std::cerr << "Parse error at position " << err << std::endl;
+                return NAN;
+            }
+            expr_cache[expr] = compiled;
+        }
+        return te_eval(compiled);
 }
 
 // turn nodes that hold constant to evaluate into text
@@ -206,7 +238,6 @@ std::shared_ptr<Invoke::Node> Invoke::expressionToTree(const std::string& input)
 
         if (depth != 0) {
             std::cerr << "Unmatched parentheses in expression: " << input << std::endl;
-
             return std::make_shared<Node>(Node{ Node::Type::Literal, input.substr(i, j - i), {} });
         }
 

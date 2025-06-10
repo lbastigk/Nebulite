@@ -221,8 +221,6 @@ public:
     // Append invoke command
     void append(const std::shared_ptr<InvokeEntry>& toAppend);
 
-    
-
     void checkAgainstList(
       const std::shared_ptr<RenderObject>& obj
     );
@@ -252,7 +250,7 @@ public:
     );
 
     // For evaluating string expression
-    static double evaluateExpression(const std::string& expr);
+    double evaluateExpression(const std::string& expr);
     std::string resolveVars(
       const std::string& input, 
       Nebulite::JSON& self, 
@@ -263,11 +261,31 @@ public:
 
 
     Nebulite::JSON* getGlobalPointer(){return global;};
+
+    
+    
 private:
+    // TinyExpr
+    class expr_custom{
+    public:
+        static double gt(double a, double b) {return a > b;}
+        static double lt(double a, double b) {return a < b;}
+        static double eq(double a, double b){return a == b;}
+        static double logical_and(double a, double b){return a && b;}
+        static double logical_or(double a, double b){return a || b;}
+    };
+    absl::flat_hash_map<std::string, te_expr*> expr_cache;
+    std::vector<te_variable> vars;
+    
+    // Documents
     Nebulite::JSON emptyDoc;
     Nebulite::JSON* global = nullptr;
+
+    // Current and next commands
     std::vector<std::shared_ptr<InvokeEntry>> commands;
     std::vector<std::shared_ptr<InvokeEntry>> nextCommands; 
+
+    // Pairs evaled to true
     std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> truePairs;
 
     // pointer to queue
