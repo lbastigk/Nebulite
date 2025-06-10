@@ -141,22 +141,27 @@ void RenderObject::calculateSrcRect() {
 }
 
 // Helper for parsing invoke triples
-std::vector<Invoke::InvokeTriple> parseInvokeTriples(const rapidjson::Value& arr) {
+std::vector<Invoke::InvokeTriple> parseInvokeTriples(Nebulite::JSON& doc, std::string key) {
+	std::string arr;
     std::vector<Invoke::InvokeTriple> res;
-    if (arr.IsArray()) {
-        for (auto& kv : arr.GetArray()) {
-            if (kv.IsObject() &&
-                kv.HasMember("changeType") &&
-                kv.HasMember("key") &&
-                kv.HasMember("value")) {
-                Invoke::InvokeTriple triple;
-                triple.changeType = kv["changeType"].GetString();
-                triple.key = kv["key"].GetString();
-                triple.value = kv["value"].GetString();
-                res.push_back(std::move(triple));
-            }
-        }
-    }
+    int size = doc.memberSize(key);
+	for(int i = 0; i < size; i++){
+		arr = key + "[" + std::to_string(i) + "]";
+		Invoke::InvokeTriple triple;
+        triple.changeType = doc.get<std::string>((arr+"changeType").c_str(),"");
+        triple.key = 		doc.get<std::string>((arr+"key").c_str(),"");
+        triple.value = 		doc.get<std::string>((arr+"value").c_str(),"");
+
+		// DEBUG ENTRY:
+		/*
+		std::cout << "Triple Entry: " << key << std::endl;
+		std::cout << "changeType: " << triple.changeType << std::endl;
+		std::cout << "value:      " << triple.value << std::endl;
+		//*/
+
+
+        res.push_back(std::move(triple));
+	}
     return res;
 }
 
@@ -164,53 +169,94 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
     cmds_general.clear();
     cmds_internal.clear();
 
-    auto& doc = *this_shared.get()->_getDoc(); // convenience reference
-    if (doc.HasMember("invokes") && doc["invokes"].IsArray() && doc["invokes"].Size()) {
-        rapidjson::Value& invokes = doc["invokes"];
-        for (rapidjson::SizeType i = 0; i < invokes.Size(); ++i) {
-			//--------------------------
-			// Get invoke
-            rapidjson::Document serializedInvoke;
-            if (invokes[i].IsString()) {
-				serializedInvoke = JSONHandler::deserialize(invokes[i].GetString());
-            } else if (invokes[i].IsObject()) {
-                serializedInvoke.CopyFrom(invokes[i], serializedInvoke.GetAllocator());
-            } else {
-                continue;
-            }
+	Nebulite::JSON::KeyType type = json.memberCheck("invokes");
 
-			if (serializedInvoke.IsObject()){
-				//--------------------------
-				// Build entry
-				Invoke::InvokeEntry entry;
-				entry.selfPtr = this_shared;
-				entry.logicalArg = 	JSONHandler::Get::Any<std::string>(serializedInvoke, "logicalArg", "");
-				entry.isGlobal = 	JSONHandler::Get::Any<bool>(serializedInvoke, "isGlobal", true);
-				entry.invokes_self = 	parseInvokeTriples(serializedInvoke["self_invokes"]);
-				entry.invokes_other = 	parseInvokeTriples(serializedInvoke["other_invokes"]);
-				entry.invokes_global = 	parseInvokeTriples(serializedInvoke["global_invokes"]);
-				entry.functioncalls.clear();
-				if (serializedInvoke.HasMember("functioncalls") && serializedInvoke["functioncalls"].IsArray()) {
-					for (auto& fn : serializedInvoke["functioncalls"].GetArray()) {
-						if (fn.IsString()) {
-							entry.functioncalls.push_back(fn.GetString());
-						}
+	if(type == Nebulite::JSON::KeyType::array){
+		int size = json.memberSize("invokes");
+		for(int i = 0; i < size; i++){
+			std::string key = "invokes[" + std::to_string(i) + "]";
+
+			Nebulite::JSON invoke;
+			if(json.memberCheck(key.c_str()) == Nebulite::JSON::KeyType::value){
+				std::string link = "";
+				link = json.get(key.c_str(),link);
+				invoke.deserialize(link);
+			}
+			else if (json.memberCheck(key.c_str()) == Nebulite::JSON::KeyType::document){
+				invoke = json.get_subdoc(key.c_str());
+			}
+			else{
+				std::cerr << "Unsupported invoke. Skipping." << std::endl;
+				continue;
+			}
+
+
+			//--------------------------
+			// Build entry
+			Invoke::InvokeEntry entry;
+			entry.selfPtr = this_shared;
+			entry.isGlobal = 		invoke.get<bool>("isGlobal",true);
+			entry.invokes_self = 	parseInvokeTriples(invoke,"self_invokes");
+			entry.invokes_other = 	parseInvokeTriples(invoke,"other_invokes");
+			entry.invokes_global = 	parseInvokeTriples(invoke,"global_invokes");
+
+			// Allow array splitting for logical arg
+			if(invoke.memberCheck("logicalArg") == Nebulite::JSON::KeyType::array){
+				entry.logicalArg = "$(";
+				int size = invoke.memberSize("logicalArg");
+				std::string key;
+				for (int j = 0; j < size; j++){
+					key = "logicalArg[" + std::to_string(j) + "]";
+					entry.logicalArg += "(";
+					entry.logicalArg += invoke.get<std::string>(key.c_str(),"");
+					entry.logicalArg += ")";
+					if(j != size-1){
+						entry.logicalArg += "*";
 					}
 				}
-				
-				// Append
-				auto ptr = std::make_shared<Invoke::InvokeEntry>(std::move(entry));
-
-				if(entry.isGlobal){
-					cmds_general.push_back(ptr);
-				}
-				else{
-					cmds_internal.push_back(ptr);
-				}
+				entry.logicalArg += ")";
 			}
-        }
-    }
+			else if(invoke.memberCheck("logicalArg") == Nebulite::JSON::KeyType::value){
+				entry.logicalArg = invoke.get<std::string>("logicalArg","1");
+			}
+			else{
+				entry.logicalArg = "1";
+			}
+			
 
+			entry.functioncalls.clear();
+
+			std::string arr;
+			int size = invoke.memberSize("functioncalls");
+			for(int i = 0; i < size; i++){
+				arr = "functioncalls[" + std::to_string(i) + "]";
+				entry.functioncalls.push_back(invoke.get<std::string>(arr.c_str(),""));
+			}
+
+			// DEBUG ENTRY:
+			/*
+			std::cout << "Entry: " << key << std::endl;
+			std::cout << "Logic: " << entry.logicalArg << std::endl;
+			std::cout << "isGlobal: " << entry.isGlobal << std::endl;
+			std::cout << "Size self :  " << entry.invokes_self.size() << std::endl;
+			std::cout << "Size other:  " << entry.invokes_other.size() << std::endl;
+			std::cout << "Size global: " << entry.invokes_global.size() << std::endl;
+			//*/
+
+			
+			
+			// Append
+			auto ptr = std::make_shared<Invoke::InvokeEntry>(std::move(entry));
+
+			if(entry.isGlobal){
+				cmds_general.push_back(ptr);
+			}
+			else{
+				cmds_internal.push_back(ptr);
+			}
+
+		}
+	}
     json.set(namenKonvention.renderObject.reloadInvokes.c_str(), false);
 }
 

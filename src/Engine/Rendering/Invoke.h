@@ -270,9 +270,13 @@ private:
     public:
         static double gt(double a, double b) {return a > b;}
         static double lt(double a, double b) {return a < b;}
+        
         static double eq(double a, double b){return a == b;}
+        static double neq(double a, double b){return a != b;}
+
         static double logical_and(double a, double b){return a && b;}
         static double logical_or(double a, double b){return a || b;}
+        static double logical_not(double a){return !a;}
     };
     absl::flat_hash_map<std::string, te_expr*> expr_cache;
     std::vector<te_variable> vars;
@@ -284,9 +288,7 @@ private:
     // Current and next commands
     std::vector<std::shared_ptr<InvokeEntry>> commands;
     std::vector<std::shared_ptr<InvokeEntry>> nextCommands; 
-
-    // Pairs evaled to true
-    std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> truePairs;
+    std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> pairs;
 
     // pointer to queue
     std::deque<std::string>* tasks = nullptr; 

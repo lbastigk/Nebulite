@@ -4,17 +4,20 @@
 
 Invoke::Invoke(){
     // Manually add function variables
-    te_variable gt_var = {"gt", (void*)expr_custom::gt, TE_FUNCTION2};
-    te_variable lt_var = {"lt", (void*)expr_custom::lt, TE_FUNCTION2};
-    te_variable eq_var = {"eq", (void*)expr_custom::eq, TE_FUNCTION2};
-    te_variable and_var = {"and", (void*)expr_custom::logical_and, TE_FUNCTION2};
-    te_variable or_var = {"or", (void*)expr_custom::logical_or, TE_FUNCTION2};
-    
+    te_variable gt_var = {"gt",     (void*)expr_custom::gt,             TE_FUNCTION2};
     vars.push_back(gt_var);
+    te_variable lt_var = {"lt",     (void*)expr_custom::lt,             TE_FUNCTION2};
     vars.push_back(lt_var);
+    te_variable eq_var = {"eq",     (void*)expr_custom::eq,             TE_FUNCTION2};
     vars.push_back(eq_var);
+    te_variable neq_var = {"neq",   (void*)expr_custom::neq,            TE_FUNCTION2};
+    vars.push_back(neq_var);
+    te_variable and_var = {"and",   (void*)expr_custom::logical_and,    TE_FUNCTION2};
     vars.push_back(and_var);
+    te_variable or_var = {"or",     (void*)expr_custom::logical_or,     TE_FUNCTION2};
     vars.push_back(or_var);
+    te_variable not_var = {"not",   (void*)expr_custom::logical_not,    TE_FUNCTION1};
+    vars.push_back(not_var);
 }
 
 
@@ -44,9 +47,12 @@ bool Invoke::isTrue(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_p
 // True pairs are put into a special vector
 void Invoke::checkAgainstList(const std::shared_ptr<RenderObject>& obj){
     for (auto& cmd : commands){
+        /*
         if(isTrue(cmd,obj)){
             truePairs.push_back(std::make_pair(cmd,obj));
         }
+        */
+        pairs.push_back(std::make_pair(cmd,obj));
     }
 }
 
@@ -134,8 +140,8 @@ void Invoke::clear(){
     nextCommands.clear();
     nextCommands.shrink_to_fit();
 
-    truePairs.clear();
-    truePairs.shrink_to_fit();
+    pairs.clear();
+    pairs.shrink_to_fit();
 
     // TODO: Since exprTree holds a bunch of shared ptrs, the objects themselfes need to be cleared?
     // forall ptr in exprTree: free(ptr) ?
@@ -147,12 +153,22 @@ void Invoke::clear(){
 }
 
 void Invoke::update(){
+    /*
     // check general vals
     for (auto pair : truePairs){
         updateGlobal(pair.first, pair.second);
     }
     truePairs.clear();
     truePairs.shrink_to_fit();
+    */
+    // check general vals
+    for (auto pair : pairs){
+        if(isTrue(pair.first,pair.second)){
+            updateGlobal(pair.first, pair.second);
+        }
+    }
+    pairs.clear();
+    pairs.shrink_to_fit();
 }
 
 // Called after a full renderer update to get all extracted invokes
@@ -168,24 +184,38 @@ void Invoke::append(const std::shared_ptr<InvokeEntry>& toAppend){
 
 // TODO: usage of te_compile...
 double Invoke::evaluateExpression(const std::string& expr) {
+
+    // Variable access via tinyexpr is needed for cache...
+    // TODO: custom self/other/global functions for te?
+    /*
     auto it = expr_cache.find(expr);
-        te_expr* compiled = nullptr;
+    te_expr* compiled = nullptr;
 
-        if (it != expr_cache.end()) {
-            compiled = it->second;
-        } 
-        else {
-            int err;
-            compiled = te_compile(expr.c_str(), vars.data(), vars.size(), &err);
-            if (!compiled) {
-                //std::cerr << "Parse error at position " << err << std::endl;
-                return NAN;
-            }
-            expr_cache[expr] = compiled;
+    if (it != expr_cache.end()) {
+        compiled = it->second;
+    } 
+    else {
+        int err;
+        compiled = te_compile(expr.c_str(), vars.data(), vars.size(), &err);
+        if (!compiled) {
+            //std::cerr << "Parse error at position " << err << std::endl;
+            return NAN;
         }
-        return te_eval(compiled);
+        expr_cache[expr] = compiled;
+    }
+    return te_eval(compiled);
+    */
+    int err;
+    te_expr* compiled = nullptr;
+    compiled = te_compile(expr.c_str(), vars.data(), vars.size(), &err);
+    if (!compiled) {
+        //std::cerr << "Parse error at position " << err << std::endl;
+        return NAN;
+    }
+    double result =  te_eval(compiled);
+    te_free(compiled);
+    return result;
 }
-
 // turn nodes that hold constant to evaluate into text
 // e.g. $(1+1) is turned into 2.000...
 void Invoke::foldConstants(const std::shared_ptr<Invoke::Node>& node) {

@@ -1,7 +1,27 @@
-set-fps 60
+set-fps 500
 set-res 640 360 3
 echo
 echo Bouncing test
 echo
-spawn ./Resources/Renderobjects/Boxes/falling.json|posX=100|posY=100
-for i 1 30 eval spawn ./Resources/Renderobjects/Boxes/static.json|posX=$(10*$i)|posY=300
+
+echo Spawning boundary
+for i 1 60 eval spawn ./Resources/Renderobjects/Boxes/static.json|posX=$(10*$i)|posY=330
+for i 1 60 eval spawn ./Resources/Renderobjects/Boxes/static.json|posX=$(10*$i)|posY=40
+for i 5 9 eval spawn ./Resources/Renderobjects/Boxes/static.json|posX=$(10*$i)|posY=130
+
+for i 1 30 eval spawn ./Resources/Renderobjects/Boxes/static.json|posY=$(10*$i + 30)|posX=10
+for i 5 12 eval spawn ./Resources/Renderobjects/Boxes/static.json|posY=$(10*$i + 30)|posX=160
+for i 1 20 eval spawn ./Resources/Renderobjects/Boxes/static.json|posY=$(10*$i + 30)|posX=300
+for i 1 30 eval spawn ./Resources/Renderobjects/Boxes/static.json|posY=$(10*$i + 30)|posX=600
+
+echo Spawning Barriers
+#spawn ./Resources/Renderobjects/Boxes/barrier.json|posX=10|posY=330|pixSizeX=640
+
+echo Spawning bouncing block
+spawn ./Resources/Renderobjects/Boxes/bounce.json|posX=100|posY=100|physics.vX=55|physics.vY=55
+
+#wait 150
+#exit
+#print-state
+#print-global
+#exit

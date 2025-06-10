@@ -5,7 +5,7 @@
     "posY": 500.0,
     "pixSizeX": 10,
     "pixSizeY": 10,
-    "imgLocation": "./Resources/Sprites/TEST100P/101.bmp",
+    "imgLocation": "./Resources/Editor/Selection_00000.png",
     "layer": 0,
     "deleteFlag": false,
     "isSpritesheet": false,
@@ -22,6 +22,7 @@
         "dy": 0.0
     },
     "physics": {
+        "comment": "High mass for best result of static. TODO: inf possible?",
         "mass": 500000.0,
         "isGrav": 0.0,
         "aX": 0.0,

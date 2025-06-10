@@ -1,0 +1,33 @@
+{
+  "comment0" : "Collision ruleset for reflecting Y velocity",
+  "comment1" : "All in logicalArg array must be true",
+  "logicalArg": [
+    "neq($(global.time.t_ms), $(self.collision.time.lastY))",
+    "neq($(self.id),          $(other.id))",
+    "$(other.physics.mass)",
+    " lt($(self.posX),        $(other.posX) + $(other.pixSizeX))",
+    " lt($(self.posY),        $(other.posY) + $(other.pixSizeY))",
+    " lt($(other.posX),       $(self.posX)  + $(self.pixSizeX))",
+    " lt($(other.posY),       $(self.posY)  + $(self.pixSizeY))",
+    "not(  lt($(self.posX)+$(self.pixSizeX) - 5,$(other.posX)) + lt($(other.posX)+$(other.pixSizeX) - 5,$(self.posX))  )"
+  ],
+  "isGlobal": true,
+  "self_invokes": [
+    {
+      "changeType": "set",
+      "key": "physics.vY",
+      "value": "$($(self.physics.vY) - (2 * $(other.physics.mass) / ($(self.physics.mass) + $(other.physics.mass))) * ($(self.physics.vY) - $(other.physics.vY)))"
+    },
+    {
+      "changeType": "set",
+      "key": "collision.time.lastY",
+      "value": "$($(global.time.t_ms) + 0)"
+    }
+  ],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": [
+    "eval echo Collision, reflecting Y at $(global.time.t_ms) ms"
+  ]
+}
+
