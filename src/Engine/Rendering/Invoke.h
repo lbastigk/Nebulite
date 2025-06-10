@@ -183,6 +183,13 @@ public:
       Type type;
       std::string text;
       std::vector<std::shared_ptr<Invoke::Node>> children; // for nested variables (if Expr)
+
+      // Evaluation optimizations:
+      enum class ContextType { None, Self, Other, Global };
+      ContextType context = ContextType::None;
+      std::string key;
+      bool isNumericLiteral = false;
+      bool insideEvalParent = false;  // This will be set during evaluation traversal
     };
     struct InvokeTriple {
         std::string changeType;
@@ -273,10 +280,5 @@ private:
     std::shared_ptr<Invoke::Node> expressionToTree(const std::string& input);
     void foldConstants(const std::shared_ptr<Invoke::Node>& node);
 
-    std::string evaluateNode(
-      const std::shared_ptr<Invoke::Node>& nodeptr, 
-      Nebulite::JSON& self, 
-      Nebulite::JSON& other, 
-      Nebulite::JSON& global
-    );
+    std::string evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON& self,Nebulite::JSON& other,Nebulite::JSON& global,bool insideEvalParent);
 };

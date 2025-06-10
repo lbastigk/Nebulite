@@ -216,6 +216,20 @@ std::shared_ptr<Invoke::Node> Invoke::expressionToTree(const std::string& input)
             varNode = Node{ Node::Type::Mix_eval, "", { expressionToTree(inner) } };
         } else {
             varNode = Node{ Node::Type::Variable, inner, {} };
+
+            // Set context and optimization info
+            if (inner.starts_with("self.")) {
+                varNode.context = Node::ContextType::Self;
+                varNode.key = inner.substr(5);
+            } else if (inner.starts_with("other.")) {
+                varNode.context = Node::ContextType::Other;
+                varNode.key = inner.substr(6);
+            } else if (inner.starts_with("global.")) {
+                varNode.context = Node::ContextType::Global;
+                varNode.key = inner.substr(7);
+            } else if (StringHandler::isNumber(inner)) {
+                varNode.isNumericLiteral = true;
+            }
         }
         i = j; // move position after closing ')'
         return std::make_shared<Node>(varNode);
@@ -266,61 +280,59 @@ std::shared_ptr<Invoke::Node> Invoke::expressionToTree(const std::string& input)
 // $($(global.constants.pi) + 1)  -> 4.141..
 //   $(global.constants.pi) + 1   -> 3.141... + 1
 // Time is: $(global.time.t)      -> Time is: 11.01
-std::string Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr, Nebulite::JSON& self, Nebulite::JSON& other, Nebulite::JSON& global){
+std::string Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON& self,Nebulite::JSON& other,Nebulite::JSON& global,bool insideEvalParent){
     switch (nodeptr->type) {
         case Node::Type::Literal:
             return nodeptr->text;
 
         case Node::Type::Variable: {
-            // TODO: store starts-with type in node for faster evaluation
-            const std::string& expr = nodeptr->text;
-            if (expr.starts_with("self.")) {
-                return self.get<std::string>(expr.substr(5).c_str(),"0");
-            } else if (expr.starts_with("other.")) {
-                return other.get<std::string>(expr.substr(6).c_str(),"0");
-            } else if (expr.starts_with("global.")) {
-                return global.get<std::string>(expr.substr(7).c_str(),"0");
-            } else if (StringHandler::isNumber(expr)) {
-                return expr;
-            } else {
-                // TODO: it's possible that the evaulation is unnecessary if any parent is Mix_eval
-                // instead, return "(" + expr + ")"
-                // the expression will be evaled on higher node level of Mix_eval
-                return std::to_string(evaluateExpression(expr));
+            switch (nodeptr->context) {
+                case Node::ContextType::Self:
+                    return self.get<std::string>(nodeptr->key.c_str(), "0");
+                case Node::ContextType::Other:
+                    return other.get<std::string>(nodeptr->key.c_str(), "0");
+                case Node::ContextType::Global:
+                    return global.get<std::string>(nodeptr->key.c_str(), "0");
+                case Node::ContextType::None:
+                    // Simple Number:
+                    if (nodeptr->isNumericLiteral) {
+                        return nodeptr->text;
+                    // Inside eval parent: No need to call evaluateExpression right now.
+                    // Instead, return "(<expr>)" so it is evaled higher up
+                    } else if (insideEvalParent) {
+                            return "(" + nodeptr->text + ")";
+                    // Evaluate and return
+                    } else{
+                        return std::to_string(evaluateExpression(nodeptr->text));
+                    }
             }
-            
         }
-
-        
 
         case Node::Type::Mix_no_eval: {
             std::string result;
-            for (auto child : nodeptr->children) {
-                result += evaluateNode(child, self, other, global);
+            for (auto& child : nodeptr->children) {
+                result += evaluateNode(child, self, other, global, false);
             }
             return result;
         }
 
-        // TODO: as above, only eval if no parent is Mix_eval
-        // best: store as bool: has_eval_parent
-        // if thats the case, return "(" + combined + ")"
         case Node::Type::Mix_eval: {
             std::string combined;
-            for (auto child : nodeptr->children) {
-                combined += evaluateNode(child, self, other, global);
+            for (auto& child : nodeptr->children) {
+                combined += evaluateNode(child, self, other, global, true);
             }
             return std::to_string(evaluateExpression(combined));
         }
     }
     return "";
 }
-    
+  
 // replace all instances of $(...) with their evaluation
 std::string Invoke::resolveVars(const std::string& input, Nebulite::JSON& self, Nebulite::JSON& other, Nebulite::JSON& global) {
     if(!exprTree.contains(input)){
         exprTree[input] = expressionToTree(input);
     }
-    return evaluateNode(exprTree[input],self,other,global);
+    return evaluateNode(exprTree[input],self,other,global,false);
 }
 
 // same as resolveVars, but only using global, rest is empty
