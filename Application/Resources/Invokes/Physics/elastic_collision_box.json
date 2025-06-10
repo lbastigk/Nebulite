@@ -1,5 +1,6 @@
 {
-  "logicalArg": "$((abs($(self.posX) - $(other.posX)) * 2 < ($(self.pixSizeX) + $(other.pixSizeX))) && (abs($(self.posY) - $(other.posY)) * 2 < ($(self.pixSizeY) + $(other.pixSizeY))))",
+  "logicalArg": "$( ($(self.id) - $(other.id)) * ($(self.posX)<($(other.posX)+$(other.pixSizeX)))  )",
+  "todo" : "  *( ($(self.posX)+$(self.pixSizeX))>$(other.posX) ) * (  $(self.posY) < ($(other.posY) + $(other.pixSizeY))  ) * (  ($(self.posY) + $(self.pixSizeY)) > $(other.posY)  )",
   "isGlobal": true,
   "self_invokes": [
     {
@@ -15,5 +16,11 @@
   ],
   "other_invokes": [],
   "global_invokes": [],
-  "functioncalls": []
+  "functioncalls": [
+    "echo COLL"
+  ]
 }
+
+
+
+

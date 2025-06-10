@@ -31,7 +31,7 @@ tests=(
     "help"
     "echo 1234"
     "task TaskFiles/Tests/crash_test.txt"
-    "task TaskFiles/Benchmarks/gravity_classic.txt"
+    "task TaskFiles/Simulations/gravity_classic.txt"
     "task TaskFiles/Benchmarks/benchmark_gravity.txt"
     "task TaskFiles/Tests/obj_oob.txt"
 )

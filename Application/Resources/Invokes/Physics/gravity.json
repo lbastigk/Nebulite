@@ -1,5 +1,5 @@
 {
-  "logicalArg": "$($(self.id) - $(other.id)) * $(other.physics.isGrav)",
+  "logicalArg": "$( ($(self.id) - $(other.id)) * $(other.physics.isGrav))",
   "isGlobal": true,
   "self_invokes": [
     {

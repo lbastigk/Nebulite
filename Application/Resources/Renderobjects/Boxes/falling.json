@@ -1,11 +1,11 @@
 {
     "id": 2,
     "isOverlay": false,
-    "posX": 650.0,
+    "posX": 350.0,
     "posY": 500.0,
     "pixSizeX": 10,
     "pixSizeY": 10,
-    "imgLocation": "./Resources/Sprites/TEST100P/057.bmp",
+    "imgLocation": "./Resources/Sprites/TEST100P/001.bmp",
     "layer": 0,
     "deleteFlag": false,
     "isSpritesheet": false,
@@ -14,22 +14,23 @@
     "spritesheetSizeX": 0,
     "spritesheetSizeY": 0,
     "invokes": [
-        "./Resources/Invokes/Physics/gravity.json",
+        "./Resources/Invokes/Physics/elastic_collision_box.json",
+        "./Resources/Invokes/Physics/falling.json",
         "./Resources/Invokes/Physics/acceleration_integration.json"
     ],
     "reloadInvokes": true,
     "text": {
-        "str": "OBJ2",
-        "fontsize": 16.0,
+        "str": "",
+        "fontsize": 0.0,
         "dx": 0.0,
-        "dy": -30.0
+        "dy": 0.0
     },
     "physics": {
-        "mass": 50.0,
-        "isGrav": 1.0,
+        "mass": 10.0,
+        "isGrav": 0.0,
         "aX": 0.0,
         "aY": 0.0,
-        "vX": -30.0,
-        "vY": 120.0
+        "vX": 0.0,
+        "vY": 0.0
     }
 }

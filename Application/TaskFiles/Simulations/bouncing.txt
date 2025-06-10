@@ -1,0 +1,7 @@
+set-fps 60
+set-res 640 360 3
+echo
+echo Bouncing test
+echo
+spawn ./Resources/Renderobjects/Boxes/falling.json|posX=100|posY=100
+for i 1 30 eval spawn ./Resources/Renderobjects/Boxes/static.json|posX=$(10*$i)|posY=300
