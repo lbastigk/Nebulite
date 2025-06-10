@@ -262,12 +262,10 @@ void Renderer::changeWindowSize(int w, int h, int scalar) {
 
 void Renderer::moveCam(int dX, int dY, bool isMiddle) {
 	invoke_ptr->getGlobalPointer()->set<int>(
-		
 		"display.position.X",
 		invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0) + dX
 	);
 	invoke_ptr->getGlobalPointer()->set<int>(
-		
 		"display.position.Y",
 		invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0) + dY
 	);
@@ -278,7 +276,6 @@ void Renderer::moveCam(int dX, int dY, bool isMiddle) {
 void Renderer::setCam(int X, int Y, bool isMiddle) {
 	if(isMiddle){
 		invoke_ptr->getGlobalPointer()->set<int>(
-			
 			"display.position.X",
 			X - invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0) / 2
 		);

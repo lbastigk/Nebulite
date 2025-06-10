@@ -48,6 +48,7 @@ public:
 private:
 	// TODO: Change to hashmap for better usage of negative x/y values!
 	//tileY		tileX		#			Batches		of RenderObject pointer
+	//absl::flat_hash_map<int16_t,absl::flat_hash_map<int16_t,std::vector<std::shared_ptr<RenderObject>>>> ObjectContainer;
 	std::vector<std::vector<std::vector<std::vector<std::shared_ptr<RenderObject>>>>> ObjectContainer;
 
 };
