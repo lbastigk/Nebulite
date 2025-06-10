@@ -1,0 +1,19 @@
+{
+  "logicalArg": "$((abs($(self.posX) - $(other.posX)) * 2 < ($(self.pixSizeX) + $(other.pixSizeX))) && (abs($(self.posY) - $(other.posY)) * 2 < ($(self.pixSizeY) + $(other.pixSizeY))))",
+  "isGlobal": true,
+  "self_invokes": [
+    {
+      "changeType": "set",
+      "key": "physics.vX",
+      "value": "$($(self.physics.vX) - (2 * $(other.physics.mass) / ($(self.physics.mass) + $(other.physics.mass))) * ($(self.physics.vX) - $(other.physics.vX)))"
+    },
+    {
+      "changeType": "set",
+      "key": "physics.vY",
+      "value": "$($(self.physics.vY) - (2 * $(other.physics.mass) / ($(self.physics.mass) + $(other.physics.mass))) * ($(self.physics.vY) - $(other.physics.vY)))"
+    }
+  ],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": []
+}
