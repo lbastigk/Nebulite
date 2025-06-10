@@ -102,8 +102,7 @@ void Renderer::deserialize(std::string serialOrLink) {
 	env.deserialize(
 		serialOrLink, 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
-		THREADSIZE
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0)
 	);
 }
 
@@ -119,7 +118,6 @@ void Renderer::append(std::shared_ptr<RenderObject> toAppend) {
 		toAppend, 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
-		THREADSIZE, 
 		toAppend.get()->valueGet(namenKonvention.renderObject.layer.c_str(), 0)
 	);
 
@@ -133,8 +131,7 @@ void Renderer::append(std::shared_ptr<RenderObject> toAppend) {
 void Renderer::reinsertAllObjects(){
 	env.reinsertAllObjects(
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0),
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0),
-		THREADSIZE
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0)
 	);
 }
 
@@ -159,27 +156,10 @@ void Renderer::update() {
 		tileYpos,
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
-		THREADSIZE,
 		invoke_ptr
 	);
 
 	// Get new invokes that were given by env
-	invoke_ptr->getNewInvokes();
-}
-
-// Currently not used and probably not needed...
-void Renderer::update_withThreads() {
-	pollEvent();
-	setGlobalValues();
-	invoke_ptr->update();
-	env.update_withThreads(
-		tileXpos, 
-		tileYpos, 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
-		THREADSIZE,
-		invoke_ptr
-	);
 	invoke_ptr->getNewInvokes();
 }
 
@@ -364,49 +344,44 @@ void Renderer::renderFrame() {
 
 	//Render Objects
 	//For all layers, starting at 0
-	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
+	for (int layer = 0; layer < RENDEROBJECTCONTAINER_COUNT; layer++) {
 		//Between dx +-1
 		for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
 			// And dy +-1
 			for (int dY = (tileYpos == 0 ? 0 : -1); dY <= 1; dY++) {
 				// If valid
-				if (env.isValidPosition(tileXpos + dX, tileYpos + dY,i)) {
-					// For all batches inside
-					for (auto& batch : (env.getContainerAt(tileXpos + dX, tileYpos + dY, i))) {
-						// For all objects inside each batch
-						for (auto& obj : batch) {
-							// Check for texture
-							
-							std::string innerdir = obj.get()->valueGet<std::string>(namenKonvention.renderObject.imageLocation.c_str());
-							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
-								loadTexture(innerdir);
-								obj.get()->calculateDstRect();
-							}
-							obj.get()->calculateSrcRect();
-							
-							
-							// Calculate position rect
-							rect = obj->getDstRect();
-							rect.x -= invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0);	//subtract camera posX
-							rect.y -= invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0);;	//subtract camera posY
-							
+				if (env.isValidPosition(tileXpos + dX, tileYpos + dY,layer)) {
+					// For all objects inside
+					for (auto& obj : env.getContainerAt(tileXpos + dX,tileYpos + dY,layer)) {
+						// Check for texture
+						std::string innerdir = obj.get()->valueGet<std::string>(namenKonvention.renderObject.imageLocation.c_str());
+						if (TextureContainer.find(innerdir) == TextureContainer.end()) {
+							loadTexture(innerdir);
+							obj.get()->calculateDstRect();
+						}
+						obj.get()->calculateSrcRect();
+						
+						
+						// Calculate position rect
+						rect = obj->getDstRect();
+						rect.x -= invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0);		//subtract camera posX
+						rect.y -= invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0);;	//subtract camera posY
 
-							// Render the texture
-							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj.get()->getSrcRect(), &rect);
+						// Render the texture
+						error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj.get()->getSrcRect(), &rect);
 
-							// Render the text
-							if (obj.get()->valueGet<float>(namenKonvention.renderObject.textFontsize.c_str())>0){
-								obj.get()->calculateText(
-									renderer,
-									font,
-									invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0),
-									invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0)
-								);
-								SDL_RenderCopy(renderer,&obj.get()->getTextTexture(),NULL,obj.get()->getTextRect());
-							}
-							if (error != 0){
-								std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
-							}
+						// Render the text
+						if (obj.get()->valueGet<float>(namenKonvention.renderObject.textFontsize.c_str())>0){
+							obj.get()->calculateText(
+								renderer,
+								font,
+								invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0),
+								invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0)
+							);
+							SDL_RenderCopy(renderer,&obj.get()->getTextTexture(),NULL,obj.get()->getTextRect());
+						}
+						if (error != 0){
+							std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
 						}
 					}
 				}
@@ -582,9 +557,6 @@ void Renderer::setFPS(int fps) {
 	}
 }
 
-void Renderer::setThreadSize(unsigned int size) {
-	THREADSIZE = size;
-}
 
 //-----------------------------------------------------------
 // Other

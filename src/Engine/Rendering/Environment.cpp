@@ -37,7 +37,7 @@ std::string Environment::serialize() {
 	return doc.serialize();
 }
 
-void Environment::deserialize(std::string serialOrLink, int dispResX,int dispResY,int THREADSIZE) {
+void Environment::deserialize(std::string serialOrLink, int dispResX,int dispResY) {
 	Nebulite::JSON file;
 	file.deserialize(serialOrLink);
 	global->deserialize(file.get_subdoc("global").serialize());
@@ -56,7 +56,7 @@ void Environment::deserialize(std::string serialOrLink, int dispResX,int dispRes
 			std::string str = layer.serialize();
 
 			// Serialize container layer
-			roc[i].deserialize(str,dispResX,dispResY,THREADSIZE);
+			roc[i].deserialize(str,dispResX,dispResY);
 		}
 		else {
 			std::cerr << "Layer Key " << key << " not found in the document or uncomparible" << std::endl;
@@ -64,12 +64,12 @@ void Environment::deserialize(std::string serialOrLink, int dispResX,int dispRes
 	}
 }
 
-void Environment::append(std::shared_ptr<RenderObject> toAppend,int dispResX, int dispResY,int THREADSIZE, int layer) {
+void Environment::append(std::shared_ptr<RenderObject> toAppend,int dispResX, int dispResY, int layer) {
 	if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
-		roc[layer].append(toAppend, dispResX, dispResY, THREADSIZE);
+		roc[layer].append(toAppend, dispResX, dispResY);
 	}
 	else {
-		roc[0].append(toAppend, dispResX, dispResY, THREADSIZE);
+		roc[0].append(toAppend, dispResX, dispResY);
 	}
 }
 
@@ -77,7 +77,7 @@ void Environment::append(std::shared_ptr<RenderObject> toAppend,int dispResX, in
 //#define UPDATE_THREADED 1
 
 #ifdef UPDATE_THREADED
-void Environment::update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE, Invoke* globalInvoke) {
+void Environment::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY, int THREADSIZE, Invoke* globalInvoke) {
     std::vector<std::thread> threads;
 
     for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; ++i) {
@@ -91,10 +91,10 @@ void Environment::update(int tileXpos, int tileYpos, int dispResX, int dispResY,
     }
 }
 #else
-// Old version, no threads
-void Environment::update(int tileXpos,int tileYpos,int dispResX,int dispResY, int THREADSIZE,Invoke* globalInvoke) {
+// no threads
+void Environment::update(int16_t tileXpos, int16_t tileYpos,int dispResX,int dispResY,Invoke* globalInvoke) {
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
-		roc[i].update(tileXpos,tileYpos,dispResX,dispResY,THREADSIZE,globalInvoke);
+		roc[i].update(tileXpos,tileYpos,dispResX,dispResY,globalInvoke);
 	}
 }
 #endif
@@ -102,37 +102,30 @@ void Environment::update(int tileXpos,int tileYpos,int dispResX,int dispResY, in
 
 
 
-void Environment::reinsertAllObjects(int dispResX,int dispResY, int THREADSIZE){
+void Environment::reinsertAllObjects(int dispResX,int dispResY){
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
-		roc[i].reinsertAllObjects(dispResX,dispResY,THREADSIZE);
+		roc[i].reinsertAllObjects(dispResX,dispResY);
 	}
 }
 
-void Environment::update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE,Invoke* globalInvoke) {
-	// Update all objects in each layer
 
-	// TODO:
-	// IDEA: A runner for each roc, telling the env/renderer once done and being triggered by env/renderer 
-	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
-		roc[i].update_withThreads(tileXpos, tileYpos, dispResX, dispResY, THREADSIZE);
-	}
-}
-
-std::vector<std::vector<std::shared_ptr<RenderObject>>>& Environment::getContainerAt(int x, int y, int layer) {
+std::vector<std::shared_ptr<RenderObject>>& Environment::getContainerAt(int16_t x, int16_t y, int layer) {
+	auto pos = std::make_pair(x,y);
 	if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
-		return roc[layer].getContainerAt(x,y);
+		return roc[layer].getContainerAt(pos);
 	}
 	else {
-		return roc[0].getContainerAt(x, y);
+		return roc[0].getContainerAt(pos);
 	}
 }
 
 bool Environment::isValidPosition(int x, int y, int layer) {
+	auto pos = std::make_pair(x,y);
 	if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
-		return roc[layer].isValidPosition(x, y);
+		return roc[layer].isValidPosition(pos);
 	}
 	else {
-		return roc[0].isValidPosition(x, y);
+		return roc[0].isValidPosition(pos);
 	}
 }
 
@@ -165,13 +158,4 @@ size_t Environment::getObjectCount(bool excludeTopLayer) {
 	return totalCount;
 }
 
-size_t Environment::getObjectCountAtTile(int x, int y,bool excludeTopLayer) {
-	// Calculate the total item count
-	size_t totalCount = 0;
-
-	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT - (int)excludeTopLayer; i++) {
-		totalCount += roc[i].getObjectCountAtTile(x,y);
-	}
-	return totalCount;
-}
 

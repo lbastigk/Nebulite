@@ -10,21 +10,21 @@ public:
 	//-----------------------------------------------------------
 	//Marshalling
 	std::string serialize();
-	void deserialize(const std::string& serialOrLink, int dispResX, int dispResY, int THREADSIZE);
+	void deserialize(const std::string& serialOrLink, int dispResX, int dispResY);
 
 	//-----------------------------------------------------------
 	//-----------------------------------------------------------
 	// Pipeline
 
 	// Append objects
-	void append(std::shared_ptr<RenderObject> toAppend, int dispResX, int dispResY, int THREADSIZE);
+	void append(std::shared_ptr<RenderObject> toAppend, int dispResX, int dispResY);
 
 	// Reinsert all objects into container, useful for new tile size declaration
 	// e.g. new rendering size
-	void reinsertAllObjects(int dispResX, int dispResY, int THREADSIZE);
+	void reinsertAllObjects(int dispResX, int dispResY);
 
 	// Checks if given tile position contains objects
-	bool isValidPosition(int x, int y) const;
+	bool isValidPosition(std::pair<uint16_t,uint16_t> pos);
 
 	// removes all objects
 	void purgeObjects();
@@ -32,23 +32,18 @@ public:
 
 	// returns amount of objects
 	size_t getObjectCount();
-	size_t getObjectCountAtTile(int x, int y); //at tile x,y
 
 	// Updating all objects in 3x3 Tile viewport
-	void update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE,Invoke* globalInvoke=nullptr);
-	void update(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE,Invoke* globalInvoke=nullptr,bool onlyRestructure = false);
+	void update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY,Invoke* globalInvoke=nullptr,bool onlyRestructure = false);
 
 	
 	// Used to get a container Tile
-	std::vector<std::vector<std::shared_ptr<RenderObject>>>& getContainerAt(int x, int y);
-	
-	// Returns a texture stored inside the container
-	SDL_Texture* getTexture(int screenSizeX, int screenSizeY, SDL_Renderer *renderer, int tileXpos, int tileYpos, int Xpos, int Ypos, auto& TextureContainer);
+	std::vector<std::shared_ptr<RenderObject>>& getContainerAt(std::pair<uint16_t,uint16_t> pos);
 
 private:
 	// TODO: Change to hashmap for better usage of negative x/y values!
 	//tileY		tileX		#			Batches		of RenderObject pointer
-	//absl::flat_hash_map<int16_t,absl::flat_hash_map<int16_t,std::vector<std::shared_ptr<RenderObject>>>> ObjectContainer;
-	std::vector<std::vector<std::vector<std::vector<std::shared_ptr<RenderObject>>>>> ObjectContainer;
+	absl::flat_hash_map<std::pair<int16_t,int16_t>,std::vector<std::shared_ptr<RenderObject>>> ObjectContainer;
+	//std::vector<std::vector<std::vector<std::vector<std::shared_ptr<RenderObject>>>>> ObjectContainer;
 
 };

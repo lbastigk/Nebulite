@@ -34,7 +34,6 @@ public:
 	void append(std::shared_ptr<RenderObject> toAppend);
 	void reinsertAllObjects();
 	void update();
-	void update_withThreads();
 	void setGlobalValues();
 	bool isQuit(){return quit;}
 	void setQuit(){quit=true;}
@@ -77,7 +76,6 @@ public:
 	size_t getObjectCount(){return env.getObjectCount();}
 	int getResX(){return invoke_ptr->getGlobalPointer()->get<int>("Display.Resolution.X",0);}
 	int getResY(){return invoke_ptr->getGlobalPointer()->get<int>("Display.Resolution.Y",0);}
-	int getThreadSize(){return THREADSIZE;}
 	int getFPS(){return fps;}
 	int getPosX(){return invoke_ptr->getGlobalPointer()->get<int>("Display.Position.X",0);};
 	int getPosY(){return invoke_ptr->getGlobalPointer()->get<int>("Display.Position.Y",0);};
@@ -108,12 +106,11 @@ private:
 	Environment env;
 
 	//Settings
-	unsigned int THREADSIZE = 2;
 	std::string directory;
 
 	// Positions
-	unsigned int tileXpos;
-	unsigned int tileYpos;
+	uint16_t tileXpos;
+	uint16_t tileYpos;
 
 	// Rendering
 	unsigned int RenderZoom = 1;

@@ -5,7 +5,6 @@
 #include "absl/container/flat_hash_map.h"
 #include <utility>
 #include <vector>
-#include <thread>
 
 
 #include "RenderObjectContainer.h"
@@ -33,7 +32,7 @@ public:
 	std::string serialize();
 
 
-	void deserialize(std::string serialOrLink, int dispResX,int dispResY,int THREADSIZE);
+	void deserialize(std::string serialOrLink, int dispResX,int dispResY);
 	
 	std::string serializeGlobal(){
 		return global->serialize();
@@ -41,12 +40,11 @@ public:
 
 	void linkGlobal(Nebulite::JSON& global_ptr){global = &global_ptr;};
 	
-	void append(std::shared_ptr<RenderObject> toAppend,int dispResX, int dispResY,int THREADSIZE, int layer = 0);
-	void update(int tileXpos,int tileYpos,int dispResX,int dispResY, int THREADSIZE,Invoke* globalInvoke=nullptr);
-	void update_withThreads(int tileXpos, int tileYpos, int dispResX, int dispResY, int THREADSIZE, Invoke* globalInvoke=nullptr);
-	void reinsertAllObjects(int dispResX,int dispResY, int THREADSIZE);
+	void append(std::shared_ptr<RenderObject> toAppend,int dispResX, int dispResY, int layer = 0);
+	void update(int16_t tileXpos, int16_t tileYpos,int dispResX,int dispResY,Invoke* globalInvoke=nullptr);
+	void reinsertAllObjects(int dispResX,int dispResY);
 
-	std::vector<std::vector<std::shared_ptr<RenderObject>>>& getContainerAt(int x, int y, int layer);
+	std::vector<std::shared_ptr<RenderObject>>& getContainerAt(int16_t x, int16_t y, int layer);
 	bool isValidPosition(int x, int y, int layer);
 
 	void purgeObjects();
@@ -54,7 +52,6 @@ public:
 	void purgeLayer(int layer);
 
 	size_t getObjectCount(bool excludeTopLayer = true);
-	size_t getObjectCountAtTile(int x, int y,bool excludeTopLayer = true);
 
 	enum RenderObjectLayers {
 			background,
