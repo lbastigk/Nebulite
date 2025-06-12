@@ -104,6 +104,7 @@ int main(int argc, char* argv[]) {
         // Later on it might be helpful to insert a task like:
         // "env-load ./Resources/Levels/main.json" 
         // Which represents the menue screen
+        Nebulite::tasks_internal.taskList.push_back(std::string("set-fps 60"));
     }
 
 
