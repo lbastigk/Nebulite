@@ -147,14 +147,23 @@ void Renderer::update() {
 	// Update keyboard events every n ms
 	// Too much polling time for current benchmarks, 
 	// later on with fixed framerates of < 250 FPS not that big of a deal
-	if(Time::gettime() - last_poll > 10){
-		last_poll = Time::gettime();
+	if(Time::gettime() - RendererPollTime.t_ms > 10){
+		RendererPollTime.update();
 		pollEvent();
 
 		// Toggling console mode
 		if(invoke_ptr->getGlobalPointer()->get<int>("input.keyboard.delta.`",0) == 1){
 			consoleMode = !consoleMode;
 			std::cout << "Console Mode:" << consoleMode << std::endl;
+
+			if(consoleMode){
+				SDL_StartTextInput();
+				SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT); // Flush all pending events
+			}
+			else{
+				SDL_StopTextInput();
+			}
+			
 
 			// Make sure the first call to console mode is registered
 			if(consoleTime_last == 0){
@@ -245,6 +254,8 @@ void Renderer::destroy() {
 // Manipulation
 
 void Renderer::changeWindowSize(int w, int h, int scalar) {
+	std::cout << "Setting new Resolution to: " << w << "x" << h << " with scalar " << scalar << std::endl;
+
 	RenderScalar = scalar;
 	if(w < 64 || w > 16384){
 		std::cerr << "Selected resolution is not supported" << std::endl;
@@ -259,19 +270,23 @@ void Renderer::changeWindowSize(int w, int h, int scalar) {
 	invoke_ptr->getGlobalPointer()->set<int>("display.resolution.Y",h);
     
     // Update the window size
+	std::cout << "\tSetting window size" << std::endl;
     SDL_SetWindowSize(
 		window, 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0) * RenderScalar, 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0) * RenderScalar
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",360) * RenderScalar, 
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",360) * RenderScalar
 	);
+	std::cout << "\tSetting logical size" << std::endl;
 	SDL_RenderSetLogicalSize(
 		renderer,
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0)
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",360), 
+		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",360)
 	);
 
-    // Reinsert objects or do any additional resizing logic here
+    // Reinsert objects
+	std::cout << "\tReinserting objects" << std::endl;
     reinsertAllObjects();
+	std::cout << "done!" << std::endl;
 }
 
 void Renderer::moveCam(int dX, int dY, bool isMiddle) {
@@ -312,16 +327,7 @@ void Renderer::setCam(int X, int Y, bool isMiddle) {
 // Rendering
 
 bool Renderer::timeToRender() {
-	if (control_fps) {
-		// FPS control is currently buggy, perhaps overflow?
-		//if (epsillon < 0) {
-		//	return SDL_GetTicks64() >= (prevTicks + SCREEN_TICKS_PER_FRAME + epsillon / 1000);
-		//}
-		return SDL_GetTicks64() >= (prevTicks + SCREEN_TICKS_PER_FRAME);
-	}
-	else {
-		return true;
-	}
+	return SDL_GetTicks64() >= (prevTicks + SCREEN_TICKS_PER_FRAME);
 }
 
 void Renderer::clear(){
@@ -333,9 +339,6 @@ void Renderer::renderFrame() {
 	
 	//------------------------------------------------
 	// FPS Count
-
-	//Additional microsecond delay
-	Time::waitmicroseconds(epsillon);
 
 	//Ticks and FPS
 	totalframes++;
@@ -432,7 +435,7 @@ void Renderer::renderFrame() {
 		consoleRect.w = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0);
 		consoleRect.h = 150;
 
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180); // black with transparency
+		SDL_SetRenderDrawColor(renderer, 0, 32, 128, 180); // blue-ish with transparency
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		SDL_RenderFillRect(renderer, &consoleRect);
 
@@ -576,7 +579,6 @@ void Renderer::pollEvent() {
 								consoleInputBuffer.pop_back();
 							}
 							break;
-
 						case SDLK_RETURN:
 						case SDLK_KP_ENTER:
 							if (!consoleInputBuffer.empty()) {
@@ -584,13 +586,7 @@ void Renderer::pollEvent() {
 								invoke_ptr->getQueue()->emplace_back(consoleInputBuffer);
 								consoleInputBuffer.clear();
 							}
-							break;
-
-						case SDLK_ESCAPE:
-							consoleMode = false;
-							consoleTime_last = 0;
-							SDL_StopTextInput();
-							break;
+							break;				
 					}
 					break;
 			}
@@ -666,7 +662,6 @@ void Renderer::pollEvent() {
     prevKeyState.assign(keyState, keyState + SDL_NUM_SCANCODES);
 }
 
-
 SDL_Event Renderer::getEventHandle() {
 	SDL_Event event;
 	SDL_PollEvent(&event);
@@ -677,12 +672,12 @@ SDL_Event Renderer::getEventHandle() {
 // Setting
 void Renderer::setFPS(int fps) {
 	if (fps > 0) {
-		control_fps = true;
 		SCREEN_FPS = fps;
 		SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 	}
 	else {
-		control_fps = false;
+		SCREEN_FPS = 60;
+		SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 	}
 }
 

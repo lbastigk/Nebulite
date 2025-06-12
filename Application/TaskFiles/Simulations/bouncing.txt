@@ -11,14 +11,15 @@ for i 5 9 eval spawn ./Resources/Renderobjects/Boxes/static.json|posX=$(10*$i)|p
 
 for i 1 30 eval spawn ./Resources/Renderobjects/Boxes/static.json|posY=$(10*$i + 30)|posX=10
 for i 5 12 eval spawn ./Resources/Renderobjects/Boxes/static.json|posY=$(10*$i + 30)|posX=160
-for i 1 20 eval spawn ./Resources/Renderobjects/Boxes/static.json|posY=$(10*$i + 30)|posX=300
+for i 10 20 eval spawn ./Resources/Renderobjects/Boxes/static.json|posY=$(10*$i + 30)|posX=300
 for i 1 30 eval spawn ./Resources/Renderobjects/Boxes/static.json|posY=$(10*$i + 30)|posX=600
 
 echo Spawning Barriers
 #spawn ./Resources/Renderobjects/Boxes/barrier.json|posX=10|posY=330|pixSizeX=640
 
 echo Spawning bouncing block
-spawn ./Resources/Renderobjects/Boxes/bounce.json|posX=100|posY=100|physics.vX=55|physics.vY=55
+spawn ./Resources/Renderobjects/Boxes/bounce.json|posX=100|posY=100|physics.vX=1155|physics.vY=155
+
 
 #wait 150
 #exit

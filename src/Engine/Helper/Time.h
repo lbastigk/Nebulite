@@ -46,3 +46,24 @@ public:
 
     static void waitnanoseconds(uint64_t ns);
 };
+
+class TimeKeeper{
+public:
+    TimeKeeper(){
+        t_ms = Time::gettime();
+        dt_ms = 0;
+        last_t_ms = t_ms;
+    }
+
+    void update(){
+        last_t_ms = t_ms;
+        t_ms = Time::gettime();
+        dt_ms = t_ms - last_t_ms;
+    }
+
+    uint64_t t_ms;
+    uint64_t dt_ms;
+
+private:
+    uint64_t last_t_ms;
+};

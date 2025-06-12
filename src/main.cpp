@@ -138,7 +138,14 @@ int main(int argc, char* argv[]) {
             Nebulite::getRenderer()->clear();           // 5.) Clear screen
 
             // lower waitCounter in script task
-            if(Nebulite::tasks_script.waitCounter>0) Nebulite::tasks_script.waitCounter--;     
+            if(Nebulite::tasks_script.waitCounter>0){
+                if(Nebulite::renderer == nullptr){
+                    Nebulite::tasks_script.waitCounter--; 
+                }
+                else if(!Nebulite::getRenderer()->isConsoleMode()){
+                    Nebulite::tasks_script.waitCounter--; 
+                }
+            }    
         }
     } while (Nebulite::renderer != nullptr && !Nebulite::getRenderer()->isQuit());
 

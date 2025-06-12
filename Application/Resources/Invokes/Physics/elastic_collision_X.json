@@ -1,5 +1,5 @@
 {
-  "comment0" : "Collision ruleset for reflecting Y velocity",
+  "comment0" : "Collision ruleset for reflecting X velocity",
   "comment1" : "All in logicalArg array must be true",
   "logicalArg": [
     "neq($(global.time.t), $(self.collision.time.lastX))",

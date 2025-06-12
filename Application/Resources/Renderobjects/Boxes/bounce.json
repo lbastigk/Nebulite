@@ -14,9 +14,9 @@
     "spritesheetSizeX": 0,
     "spritesheetSizeY": 0,
     "invokes": [
+        "./Resources/Invokes/Physics/falling.json",
         "./Resources/Invokes/Physics/elastic_collision_X.json",
         "./Resources/Invokes/Physics/elastic_collision_Y.json",
-        "./Resources/Invokes/Physics/falling.json",
         "./Resources/Invokes/Physics/acceleration_integration.json"
     ],
     "reloadInvokes": true,

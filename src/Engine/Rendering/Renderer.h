@@ -71,7 +71,6 @@ public:
 	//-----------------------------------------------------------
 	// Getting
 	Nebulite::JSON& getGlobal(){return env.getGlobal();}
-	int getEps(){return epsillon;}
 	size_t getTextureAmount(){return TextureContainer.size();}
 	size_t getObjectCount(){return env.getObjectCount();}
 	int getResX(){return invoke_ptr->getGlobalPointer()->get<int>("Display.Resolution.X",0);}
@@ -80,6 +79,7 @@ public:
 	int getPosX(){return invoke_ptr->getGlobalPointer()->get<int>("Display.Position.X",0);};
 	int getPosY(){return invoke_ptr->getGlobalPointer()->get<int>("Display.Position.Y",0);};
 	bool windowExists(){return !!Renderer::window;}
+	bool isConsoleMode(){return consoleMode;}
 
 	unsigned int getTileXpos(){return tileXpos;}
 	unsigned int getTileYpos(){return tileYpos;}
@@ -96,20 +96,28 @@ public:
 private:
 	//-------------------------------------------------------------------------------------
 	//General Variables
-	uint32_t id_counter = 1;
-    uint64_t currentTime;
-    uint64_t lastTime;
-	Invoke* invoke_ptr = nullptr;
-
-	// Subclasses
-	Environment env;
-
-	//Settings
 	std::string directory;
+	uint32_t id_counter = 1;
 
 	// Positions
 	uint16_t tileXpos;
 	uint16_t tileYpos;
+    
+	// Time
+	TimeKeeper RendererLoopTime;
+	TimeKeeper RendererPollTime;
+	TimeKeeper RendererConsoleTime;
+
+	// TODO: get rid of old time keeping:
+	uint64_t currentTime;
+    uint64_t lastTime;
+	uint64_t last_poll;
+	uint64_t consoleTime = 0;
+	uint64_t consoleTime_last = 0;
+
+	// Subclasses and pointers
+	Environment env;
+	Invoke* invoke_ptr = nullptr;	
 
 	// Rendering
 	unsigned int RenderZoom = 1;
@@ -131,8 +139,7 @@ private:
 	Uint32 lastMouseState;
 	Uint32 mouseState;
 	std::vector<Uint8> prevKeyState;
-
-	uint64_t last_poll;
+	
 
 	//--------------------------------------------
 	// RNG
@@ -147,8 +154,6 @@ private:
 
 	// Define font properties
 	SDL_Color textColor = { 255, 255, 255, 255 }; // White color
-
-	bool control_fps = false;
 	int SCREEN_FPS = 500; // Target framerate (e.g., 60 FPS)
 	int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS; // Milliseconds per frame
 	Uint64 prevTicks = SDL_GetTicks64();
@@ -156,21 +161,11 @@ private:
 	Uint64 totalframes = 0;
 	int fpsCount = 0;
 	int fps = 0;
-
-	//Extra delay in microseconds
-	//Start value based on experience?
-	int64_t epsillon = 0;
-	int kp = 2;
-	int ki = 10;
-	int kd = 1;
-	int64_t integral = 0;
-	int64_t prevError = 0;
+	
 
 	//-------------------------------------------------------------------------------------
 	// Console
 	bool consoleMode = false;
-	uint64_t consoleTime = 0;
-	uint64_t consoleTime_last = 0;
 	std::string consoleInputBuffer;                  // What the user is typing
 	std::deque<std::string> consoleOutput;           // Optional: Past output log
 
@@ -180,5 +175,4 @@ private:
 	// Function to load texture from file
 	void loadTexture(std::string link);
 
-	
 };
