@@ -97,7 +97,6 @@ private:
 	//-------------------------------------------------------------------------------------
 	//General Variables
 	uint32_t id_counter = 1;
-	uint64_t starttime;
     uint64_t currentTime;
     uint64_t lastTime;
 	Invoke* invoke_ptr = nullptr;
@@ -119,6 +118,7 @@ private:
 	SDL_Renderer* renderer;
 	SDL_Rect rect;
 	TTF_Font* font;
+	TTF_Font* consoleFont;
 	absl::flat_hash_map<std::string, SDL_Texture*> TextureContainer;
 
 	// Events etc
@@ -165,10 +165,17 @@ private:
 	int kd = 1;
 	int64_t integral = 0;
 	int64_t prevError = 0;
-	
 
 	//-------------------------------------------------------------------------------------
-	//Other
+	// Console
+	bool consoleMode = false;
+	uint64_t consoleTime = 0;
+	uint64_t consoleTime_last = 0;
+	std::string consoleInputBuffer;                  // What the user is typing
+	std::deque<std::string> consoleOutput;           // Optional: Past output log
+
+	//-------------------------------------------------------------------------------------
+	// Other
 
 	// Function to load texture from file
 	void loadTexture(std::string link);

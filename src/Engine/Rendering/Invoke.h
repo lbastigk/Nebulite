@@ -262,7 +262,7 @@ public:
 
     Nebulite::JSON* getGlobalPointer(){return global;};
 
-    
+    std::deque<std::string>* getQueue(){return tasks;};
     
 private:
     // TinyExpr

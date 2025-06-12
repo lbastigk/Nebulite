@@ -20,7 +20,6 @@ Renderer::Renderer(Invoke& invoke, Nebulite::JSON& global, bool flag_hidden, uns
 	event = SDL_Event();
 	rect = SDL_Rect();
 	directory = FileManagement::currentDir();
-	starttime = Time::gettime();
     currentTime = Time::gettime();
     lastTime = Time::gettime();
 	last_poll = Time::gettime();
@@ -64,6 +63,12 @@ Renderer::Renderer(Invoke& invoke, Nebulite::JSON& global, bool flag_hidden, uns
 		std::cerr << TTF_GetError() << " | " << fontpath << "\n";
 	}
 
+	consoleFont = TTF_OpenFont(fontpath.c_str(), 20); // Adjust size as needed
+	if (consoleFont == NULL) {
+		// Handle font loading error
+		std::cerr << TTF_GetError() << " | " << fontpath << "\n";
+	}
+
 	// Create a renderer
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	if (!renderer) {
@@ -92,7 +97,7 @@ Renderer::Renderer(Invoke& invoke, Nebulite::JSON& global, bool flag_hidden, uns
     invoke_ptr->getGlobalPointer()->set<double>("physics.G",0.1 * 100);
 }
 
-
+//-----------------------------------------------------------
 //Marshalling
 std::string Renderer::serialize() {
 	return env.serialize();
@@ -136,31 +141,60 @@ void Renderer::reinsertAllObjects(){
 }
 
 void Renderer::update() {
+	//--------------------------------------------
+	// Key Polling
+
 	// Update keyboard events every n ms
 	// Too much polling time for current benchmarks, 
 	// later on with fixed framerates of < 250 FPS not that big of a deal
 	if(Time::gettime() - last_poll > 10){
 		last_poll = Time::gettime();
 		pollEvent();
+
+		// Toggling console mode
+		if(invoke_ptr->getGlobalPointer()->get<int>("input.keyboard.delta.`",0) == 1){
+			consoleMode = !consoleMode;
+			std::cout << "Console Mode:" << consoleMode << std::endl;
+
+			// Make sure the first call to console mode is registered
+			if(consoleTime_last == 0){
+				consoleTime_last = Time::gettime();
+			}
+		}
 	}
 
-	// Set global values like time
-	setGlobalValues();
+	//--------------------------------------------
+	// Log time spend in console
+	if(consoleMode){
+		// Integrate dt from last update call
+		consoleTime += Time::gettime() - consoleTime_last;
+		
+	}
+	consoleTime_last = Time::gettime();
 
-	// Update invokes
-	invoke_ptr->update();
+	//--------------------------------------------
+	// Internal container state
 
-	// Update environment
-	env.update(
-		tileXpos,
-		tileYpos,
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
-		invoke_ptr
-	);
+	// Only do container updates if not in console mode
+	if(!consoleMode){
+		// Set global values like time
+		setGlobalValues();
 
-	// Get new invokes that were given by env
-	invoke_ptr->getNewInvokes();
+		// Update invokes
+		invoke_ptr->update();
+
+		// Update environment
+		env.update(
+			tileXpos,
+			tileYpos,
+			invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
+			invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
+			invoke_ptr
+		);
+
+		// Get new invokes that were given by env
+		invoke_ptr->getNewInvokes();
+	}
 }
 
 
@@ -295,7 +329,6 @@ void Renderer::clear(){
 	SDL_RenderClear(renderer);
 }
 
-
 void Renderer::renderFrame() {
 	
 	//------------------------------------------------
@@ -389,6 +422,63 @@ void Renderer::renderFrame() {
 		}
 	}
 
+	//------------------------------------------------
+	// Render Console if Active
+	if(consoleMode){
+		// Semi-transparent background
+		SDL_Rect consoleRect;
+		consoleRect.x = 0;
+		consoleRect.y = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0) - 150;
+		consoleRect.w = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0);
+		consoleRect.h = 150;
+
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180); // black with transparency
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+		SDL_RenderFillRect(renderer, &consoleRect);
+
+		SDL_Color textColor = {255, 255, 255, 255}; // white
+		int lineHeight = TTF_FontHeight(consoleFont);
+
+		// 1. Draw console input line at bottom
+		if (!consoleInputBuffer.empty()) {
+			SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, consoleInputBuffer.c_str(), textColor);
+			SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+			SDL_Rect textRect;
+			textRect.x = 10;
+			textRect.y = consoleRect.y + consoleRect.h - lineHeight - 10;
+			textRect.w = textSurface->w;
+			textRect.h = textSurface->h;
+
+			SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+
+			SDL_FreeSurface(textSurface);
+			SDL_DestroyTexture(textTexture);
+		}
+
+		// 2. Render previous output lines above the input
+		int maxLines = (consoleRect.h - 20 - lineHeight) / lineHeight;
+		int startLine = std::max(0, (int)consoleOutput.size() - maxLines);
+
+		for (int i = 0; i < maxLines && (startLine + i) < consoleOutput.size(); ++i) {
+			const std::string& line = consoleOutput[startLine + i];
+
+			SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, line.c_str(), textColor);
+			SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+			SDL_Rect lineRect;
+			lineRect.x = 10;
+			lineRect.y = consoleRect.y + 10 + i * lineHeight;
+			lineRect.w = textSurface->w;
+			lineRect.h = textSurface->h;
+
+			SDL_RenderCopy(renderer, textTexture, NULL, &lineRect);
+
+			SDL_FreeSurface(textSurface);
+			SDL_DestroyTexture(textTexture);
+		}
+	}
+
 }
 
 void Renderer::renderFPS(float scalar) {
@@ -426,7 +516,7 @@ void Renderer::showFrame() {
 	SDL_RenderPresent(renderer);
 }
 
-// This function is called on each frame to set the values for the global document
+// This function is called on each non in-console frame to set the values for the global document
 void Renderer::setGlobalValues(){
 	//---------------------------------------------
 	// Time
@@ -434,14 +524,18 @@ void Renderer::setGlobalValues(){
 	// - time in s and ms
 	// - dt from last frame in s and ms
 	lastTime = currentTime;
-	currentTime = Time::gettime();
+	currentTime = Time::gettime() - consoleTime;	// subtract time spend in console mode to cause time freeze
 
-	// Get dt. Either fixed value or calculate from actual time difference
+	// Get dt_ms. Either fixed value or calculate from actual time difference
 	Uint64 dt_ms = invoke_ptr->getGlobalPointer()->get<Uint64>("time.fixed_dt_ms",0);
 	if(dt_ms == 0){
 		dt_ms = currentTime - lastTime;
 	}
+
+	// Get t_ms
 	Uint64 t_ms = invoke_ptr->getGlobalPointer()->get<Uint64>( "time.t_ms",0) + dt_ms;
+
+	// From those values, set all other values
 	invoke_ptr->getGlobalPointer()->set<double>( "time.dt", dt_ms / 1000.0);
 	invoke_ptr->getGlobalPointer()->set<double>( "time.t",   t_ms / 1000.0);
 	invoke_ptr->getGlobalPointer()->set<Uint64>( "time.dt_ms", dt_ms);
@@ -462,13 +556,48 @@ void Renderer::setGlobalValues(){
 // Manual map is therefore necessary
 void Renderer::pollEvent() {
 	//----------------------------------
-	// Window state
+	// Window state + console input
 	while (SDL_PollEvent(&event)) {
         switch (event.type) {
             case SDL_QUIT:
                 quit = true;
                 break;
         }
+		if (consoleMode) {
+			switch (event.type) {
+				case SDL_TEXTINPUT:
+					consoleInputBuffer += event.text.text;
+					break;
+
+				case SDL_KEYDOWN:
+					switch (event.key.keysym.sym) {
+						case SDLK_BACKSPACE:
+							if (!consoleInputBuffer.empty()) {
+								consoleInputBuffer.pop_back();
+							}
+							break;
+
+						case SDLK_RETURN:
+						case SDLK_KP_ENTER:
+							if (!consoleInputBuffer.empty()) {
+								consoleOutput.emplace_back("> " + consoleInputBuffer);
+								invoke_ptr->getQueue()->emplace_back(consoleInputBuffer);
+								consoleInputBuffer.clear();
+							}
+							break;
+
+						case SDLK_ESCAPE:
+							consoleMode = false;
+							consoleTime_last = 0;
+							SDL_StopTextInput();
+							break;
+					}
+					break;
+			}
+
+			// Early return so mouse and keyboard polling doesn’t interfere
+			return;
+		}
     }
 
 	//----------------------------------

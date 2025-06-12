@@ -1,0 +1,5 @@
+set-fps 60
+echo Waiting 100 Frames
+wait 100
+print-global
+exit
