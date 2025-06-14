@@ -8,6 +8,10 @@ Invoke::Invoke(){
     vars.push_back(gt_var);
     te_variable lt_var = {"lt",     (void*)expr_custom::lt,             TE_FUNCTION2};
     vars.push_back(lt_var);
+    te_variable geq_var = {"geq",     (void*)expr_custom::geq,          TE_FUNCTION2};
+    vars.push_back(geq_var);
+    te_variable leq_var = {"leq",     (void*)expr_custom::leq,          TE_FUNCTION2};
+    vars.push_back(leq_var);
     te_variable eq_var = {"eq",     (void*)expr_custom::eq,             TE_FUNCTION2};
     vars.push_back(eq_var);
     te_variable neq_var = {"neq",   (void*)expr_custom::neq,            TE_FUNCTION2};
@@ -182,11 +186,45 @@ void Invoke::append(const std::shared_ptr<InvokeEntry>& toAppend){
     nextCommands.push_back(toAppend);
 }
 
-// TODO: usage of te_compile...
+//--------------------------------------------------------
+// TODO: usage of te_compile for faster evaluation...
+// Idea is to use TE_FUNCTION2 by using maps: keyMap[d1], ptrMap[d2]
+//
+// double getKey(double d1, double d2){return *ptrMap[d2].get<double>(keyMap[d1],0.0);}
+//
+// Then, before te_compile each expr with $(self.key) is turned to: getKey(d1,d2)
+// With the pointers being registered in pre-compiling
+// This makes evaluatenode not necessary, instead a simple string precompile is done: 
+// All references to self/other need to be resolved only, then everything still inside $(...) is send to evaluateExpression
+// e.g.:
+//  "The Value is: $($(self.key1) + $(other.key1) + 1)" 
+//  -> 
+//  "The Value is: " + std::to_string(evaluateExpression("getKey(<d1>,<d2>) + getKey(<d3>,<d4>) + 1"))
+//
+// The values for the maps should be fairly finite. The maximum is: 
+//      ptrMap: MaxObjects                      key is double
+//      keyMap: MaxKeysPerObject                key is double
+//      ExpMap: MaxObjects*MaxKeysPerObject     key is string
+// And should definetly be within memory limit. Positively, 
+// in the string map no actual double values are stored so it cant grow superlarge
+// Max for map[double] should be around 20mil values, due to precision. Start at -10.000.000 and go up 1 with each new entry
+//
+// Workflow:
+//
+// InvokeEntry.invokes_self[0] = "The Value is: $($(self.key1) + $(other.key1) + 1)"
+// Recompile directly to:
+// InvokeEntry.invokes_self[0] = "The Value is: " + std::to_string(evaluateExpression("getKey(<d1>,<d2>) + getKey(<d3>,<OTHER>) + 1"))
+// Meaning there are special entries: 
+//      - <OTHER> is replaced by other pointer on call
+//      - <GLOBAL> is replaced by global pointer on call
+//
+// Important: Needs another workaround to allow for $(...) to deliver a string!
+//--------------------------------------------------------
+
+// Evaluating expression with already replaced self/other/global relations
 double Invoke::evaluateExpression(const std::string& expr) {
 
     // Variable access via tinyexpr is needed for cache...
-    // TODO: custom self/other/global functions for te?
     /*
     auto it = expr_cache.find(expr);
     te_expr* compiled = nullptr;
@@ -205,6 +243,7 @@ double Invoke::evaluateExpression(const std::string& expr) {
     }
     return te_eval(compiled);
     */
+
     int err;
     te_expr* compiled = nullptr;
     compiled = te_compile(expr.c_str(), vars.data(), vars.size(), &err);
@@ -216,6 +255,7 @@ double Invoke::evaluateExpression(const std::string& expr) {
     te_free(compiled);
     return result;
 }
+
 // turn nodes that hold constant to evaluate into text
 // e.g. $(1+1) is turned into 2.000...
 void Invoke::foldConstants(const std::shared_ptr<Invoke::Node>& node) {
