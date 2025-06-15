@@ -20,6 +20,11 @@
     },
     {
       "changeType": "set",
+      "key": "physics.aX",
+      "value": "0"
+    },
+    {
+      "changeType": "set",
       "key": "collision.time.lastX",
       "value": "$($(global.time.t) + 0)"
     }

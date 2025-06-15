@@ -20,6 +20,11 @@
     },
     {
       "changeType": "set",
+      "key": "physics.aY",
+      "value": "0"
+    },
+    {
+      "changeType": "set",
       "key": "collision.time.lastY",
       "value": "$($(global.time.t) + 0)"
     }
