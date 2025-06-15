@@ -22,7 +22,7 @@ std::string RenderObjectContainer::serialize() {
 	//---------------------------------------
 	// Get all objects in container
 	int i = 0;
-	for (auto it = ObjectContainer.begin(); it != ObjectContainer.end(); ) {
+	for (auto it = ObjectContainer.begin(); it != ObjectContainer.end(); ++it) {
 		for (auto& obj : it->second) {
 			Nebulite::JSON obj_serial;
 			obj_serial.deserialize(obj->serialize());
@@ -72,11 +72,11 @@ std::pair<int16_t,int16_t> getTilePos(std::shared_ptr<RenderObject> toAppend, in
     double valget;
 
     // Calculate correspondingTileXpos using positionX
-    valget = toAppend.get()->valueGet<double>(namenKonvention.renderObject.positionX.c_str(), 0.0);
+    valget = toAppend.get()->valueGet<double>(keyName.renderObject.positionX.c_str(), 0.0);
     int16_t correspondingTileXpos = (int16_t)(valget / (double)dispResX);
 
     // Calculate correspondingTileYpos using positionY
-    valget = toAppend.get()->valueGet<double>(namenKonvention.renderObject.positionY.c_str(), 0.0);
+    valget = toAppend.get()->valueGet<double>(keyName.renderObject.positionY.c_str(), 0.0);
     int16_t correspondingTileYpos = (int16_t)(valget / (double)dispResY);
 
     // Ensure the position is valid, grow the ObjectContainer if necessary
@@ -121,7 +121,7 @@ void RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos, int dispR
 				
 				//-----------------------------------------
 				// Check delete flag
-				if (!obj->valueGet(namenKonvention.renderObject.deleteFlag.c_str(),false)){
+				if (!obj->valueGet(keyName.renderObject.deleteFlag.c_str(),false)){
 					// Check if it's in a new tile
 					newPos = getTilePos(obj,dispResX,dispResY);
 					if (newPos != pos) {

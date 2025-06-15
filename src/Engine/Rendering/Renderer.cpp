@@ -115,7 +115,7 @@ void Renderer::deserialize(std::string serialOrLink) {
 // Pipeline
 void Renderer::append(std::shared_ptr<RenderObject> toAppend) {
 	// Set ID
-	toAppend.get()->valueSet<uint32_t>(namenKonvention.renderObject.id.c_str(),id_counter);
+	toAppend.get()->valueSet<uint32_t>(keyName.renderObject.id.c_str(),id_counter);
 	id_counter++;
 
 	//Append to environment, based on layer
@@ -123,11 +123,11 @@ void Renderer::append(std::shared_ptr<RenderObject> toAppend) {
 		toAppend, 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
-		toAppend.get()->valueGet(namenKonvention.renderObject.layer.c_str(), 0)
+		toAppend.get()->valueGet(keyName.renderObject.layer.c_str(), 0)
 	);
 
 	//Load texture
-	loadTexture(toAppend.get()->valueGet<std::string>(namenKonvention.renderObject.imageLocation.c_str()));
+	loadTexture(toAppend.get()->valueGet<std::string>(keyName.renderObject.imageLocation.c_str()));
 
 	// Update rolling rand
 	update_rrand();
@@ -154,8 +154,6 @@ void Renderer::update() {
 		// Toggling console mode
 		if(invoke_ptr->getGlobalPointer()->get<int>("input.keyboard.delta.`",0) == 1){
 			consoleMode = !consoleMode;
-			std::cout << "Console Mode:" << consoleMode << std::endl;
-
 			if(consoleMode){
 				SDL_StartTextInput();
 				SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT); // Flush all pending events
@@ -254,15 +252,13 @@ void Renderer::destroy() {
 // Manipulation
 
 void Renderer::changeWindowSize(int w, int h, int scalar) {
-	std::cout << "Setting new Resolution to: " << w << "x" << h << " with scalar " << scalar << std::endl;
-
 	RenderScalar = scalar;
 	if(w < 64 || w > 16384){
-		std::cerr << "Selected resolution is not supported" << std::endl;
+		std::cerr << "Selected resolution is not supported:" << w << "x" << h << "x" << std::endl;
 		return;
 	}
 	if(w < 64 || w > 16384){
-		std::cerr << "Selected resolution is not supported" << std::endl;
+		std::cerr << "Selected resolution is not supported:" << w << "x" << h << "x" << std::endl;
 		return;
 	}
 
@@ -270,23 +266,19 @@ void Renderer::changeWindowSize(int w, int h, int scalar) {
 	invoke_ptr->getGlobalPointer()->set<int>("display.resolution.Y",h);
     
     // Update the window size
-	std::cout << "\tSetting window size" << std::endl;
     SDL_SetWindowSize(
 		window, 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",360) * RenderScalar, 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",360) * RenderScalar
 	);
-	std::cout << "\tSetting logical size" << std::endl;
 	SDL_RenderSetLogicalSize(
 		renderer,
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",360), 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",360)
 	);
 
-    // Reinsert objects
-	std::cout << "\tReinserting objects" << std::endl;
+    // Reinsert objects, due to new tile size
     reinsertAllObjects();
-	std::cout << "done!" << std::endl;
 }
 
 void Renderer::moveCam(int dX, int dY, bool isMiddle) {
@@ -335,6 +327,8 @@ void Renderer::clear(){
 	SDL_RenderClear(renderer);
 }
 
+// TODO: flag to update all rects if cam was moved!
+// This should make sure that objects with invoke center_pos stay in center
 void Renderer::renderFrame() {
 	
 	//------------------------------------------------
@@ -390,7 +384,7 @@ void Renderer::renderFrame() {
 					// For all objects inside
 					for (auto& obj : env.getContainerAt(tileXpos + dX,tileYpos + dY,layer)) {
 						// Check for texture
-						std::string innerdir = obj.get()->valueGet<std::string>(namenKonvention.renderObject.imageLocation.c_str());
+						std::string innerdir = obj.get()->valueGet<std::string>(keyName.renderObject.imageLocation.c_str());
 						if (TextureContainer.find(innerdir) == TextureContainer.end()) {
 							loadTexture(innerdir);
 							obj.get()->calculateDstRect();
@@ -401,13 +395,13 @@ void Renderer::renderFrame() {
 						// Calculate position rect
 						rect = obj->getDstRect();
 						rect.x -= invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0);		//subtract camera posX
-						rect.y -= invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0);;	//subtract camera posY
+						rect.y -= invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0); 	//subtract camera posY
 
 						// Render the texture
 						error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj.get()->getSrcRect(), &rect);
 
 						// Render the text
-						if (obj.get()->valueGet<float>(namenKonvention.renderObject.textFontsize.c_str())>0){
+						if (obj.get()->valueGet<float>(keyName.renderObject.textFontsize.c_str())>0){
 							obj.get()->calculateText(
 								renderer,
 								font,

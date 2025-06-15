@@ -17,10 +17,7 @@ Environment::~Environment() {
 //Marshalling
 
 std::string Environment::serialize() {
-	/*
-	// Initialize RapidJSON document
-	
-	*/
+
 	Nebulite::JSON doc;
 
 	// Serialize each container and add to the document
@@ -31,7 +28,6 @@ std::string Environment::serialize() {
 		// Add the container JSON object to the main document
 		Nebulite::JSON layer;
 		layer.deserialize(serializedContainer);
-		
 		doc.set_subdoc(key.c_str(),layer);
 	}
 	return doc.serialize();

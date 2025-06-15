@@ -1,11 +1,15 @@
 #!/bin/bash
 
 check_binary() {
+    echo ""
+    echo ""
+    echo "................................."
+
     local args="$1"
     echo "Running: ./bin/Nebulite $args"
 
     # Run binary and redirect stderr to a log file
-    ./bin/Nebulite $args >/dev/null 2>errors.log
+    ./bin/Nebulite $args 2>errors.log
     local exit_code=$?
 
     if [ $exit_code -ne 0 ]; then
@@ -21,9 +25,6 @@ check_binary() {
         echo "Test failed for: $args"
         exit 1
     fi
-
-    echo "Test passed for: $args"
-    echo ""
 }
 
 # List of test input files

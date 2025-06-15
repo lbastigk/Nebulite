@@ -41,9 +41,5 @@ public:
 	std::vector<std::shared_ptr<RenderObject>>& getContainerAt(std::pair<uint16_t,uint16_t> pos);
 
 private:
-	// TODO: Change to hashmap for better usage of negative x/y values!
-	//tileY		tileX		#			Batches		of RenderObject pointer
 	absl::flat_hash_map<std::pair<int16_t,int16_t>,std::vector<std::shared_ptr<RenderObject>>> ObjectContainer;
-	//std::vector<std::vector<std::vector<std::vector<std::shared_ptr<RenderObject>>>>> ObjectContainer;
-
 };

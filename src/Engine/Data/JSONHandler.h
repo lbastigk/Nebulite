@@ -364,7 +364,6 @@ template <> inline void JSONHandler::ConvertFromJSONValue(const rapidjson::Value
         result = std::stod(jsonValue.GetString());
     }
     else {
-        //std::cout << "Unsupported value type! Value is: " << serializeVal(jsonValue) << std::endl;
         result = defaultvalue;
     }
 }

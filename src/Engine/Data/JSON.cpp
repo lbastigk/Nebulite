@@ -16,7 +16,7 @@ void Nebulite::JSON::set_subdoc(const char* key, Nebulite::JSON& child){
         child.flush();
         JSONHandler::ConvertToJSONValue<rapidjson::Document>(child.doc, *keyVal, doc.GetAllocator());
     } else {
-        std::cout << "Failed to create or access path: " << key << std::endl;
+        std::cerr << "Failed to create or access path: " << key << std::endl;
     }
 }
 

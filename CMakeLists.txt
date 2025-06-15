@@ -36,6 +36,7 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/external/abseil ${CMAKE_BINARY_DIR}/externa
 message(STATUS "Setting Include directories")
 include_directories(
     ${CMAKE_SOURCE_DIR}/src/Engine
+    ${CMAKE_SOURCE_DIR}/src/Engine/Data
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper
     ${CMAKE_SOURCE_DIR}/src/Platform
@@ -57,10 +58,10 @@ set(COMMON_SOURCES
     ${TINYEXPR_PATH}/tinyexpr.c
     ${CMAKE_SOURCE_DIR}/src/Platform/Platform.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/mainTreeFunctions.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/Data/JSON.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/Data/JSONHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FileManagement.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FuncTree.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/Helper/JSON.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/Helper/JSONHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/StringHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/Time.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/Environment.cpp
@@ -68,7 +69,6 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/Renderer.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/RenderObject.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/RenderObjectContainer.cpp
-    ${CMAKE_SOURCE_DIR}/src/Tests/DsaDebug.cpp
 )
 
 #####################

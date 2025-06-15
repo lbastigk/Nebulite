@@ -148,7 +148,6 @@ int Nebulite::mainTreeFunctions::setGlobal(int argc, char* argv[]){
 
 int Nebulite::mainTreeFunctions::envload(int argc, char* argv[]){
     if(argc > 0){
-        std::cout << "Loading env: " << argv[0] << std::endl;
         Nebulite::getRenderer()->deserialize(argv[0]);
         return 0;
     }
@@ -167,15 +166,10 @@ int Nebulite::mainTreeFunctions::envdeload(int argc, char* argv[]){
 
 int Nebulite::mainTreeFunctions::spawn(int argc, char* argv[]){
     if(argc>0){
-        //std::cout << "Spawning object: " << argv[0] << std::endl;
         RenderObject ro;
         ro.deserialize(argv[0]);
-
         auto ptr = std::make_shared<RenderObject>(std::move(ro));
         Nebulite::getRenderer()->append(ptr);
-
-        // DEBUG: Check object after appending:
-        //std::cout << ptr.get()->serialize() << std::endl;
     }
     else{
         std::cerr << "No renderobject name provided!" << std::endl;
@@ -480,8 +474,8 @@ int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
         RenderObject obj;
         std::cout << "\tValues in Cache: " << obj.getDoc()->cacheSize() << std::endl;
         for (int i = 0; i < 10; i++){
-            obj.valueSet<double>(namenKonvention.renderObject.positionX.c_str(),(double)i * 0.1);
-            std::cout << "\t" << namenKonvention.renderObject.positionX << " = " << obj.valueGet<double>(namenKonvention.renderObject.positionX.c_str()) << std::endl;
+            obj.valueSet<double>(keyName.renderObject.positionX.c_str(),(double)i * 0.1);
+            std::cout << "\t" << keyName.renderObject.positionX << " = " << obj.valueGet<double>(keyName.renderObject.positionX.c_str()) << std::endl;
         }
         std::cout << "\tValues in Cache: " << obj.getDoc()->cacheSize() << std::endl;
     }
@@ -558,7 +552,7 @@ int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
         std::cout << std::endl;
         std::cout << "Test "<< testCount << ": RO-Access of imageLocation" << std::endl;
         RenderObject ro;
-        std::cout << ro.valueGet<std::string>(namenKonvention.renderObject.imageLocation.c_str()) << std::endl;
+        std::cout << ro.valueGet<std::string>(keyName.renderObject.imageLocation.c_str()) << std::endl;
     }
     testCount++;
     return 0;

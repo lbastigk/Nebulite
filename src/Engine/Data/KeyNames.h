@@ -2,7 +2,7 @@
 
 #include <string>
 
-const struct namenKonventionenStruct {
+const struct keyName {
     const struct renderObject{
         std::string _self = "renderObject";
         std::string id = "id";
@@ -37,4 +37,4 @@ const struct namenKonventionenStruct {
         std::string folder001 = "Resources/Sprites/TEST001P/";
         std::string folder100 = "Resources/Sprites/TEST100P/";
     }testImages;
-}namenKonvention;
+}keyName;

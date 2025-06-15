@@ -16,9 +16,9 @@
                 "/usr/include/x86_64-linux-gnu/qt5/QtGui",
                 "/usr/include/x86_64-linux-gnu/qt5/QtWidgets",
                 "${workspaceFolder}/src/Engine/",            // ProjectEngine root
+                "${workspaceFolder}/src/Engine/Data/",
                 "${workspaceFolder}/src/Engine/Helper/",
                 "${workspaceFolder}/src/Engine/Rendering/",
-                "${workspaceFolder}/src/Tests/",            // ProjectTestEnvironment
                 "${workspaceFolder}/src/Platform/"                  // Platform
             ],
             "defines": [],

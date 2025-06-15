@@ -1,0 +1,31 @@
+{
+    "deleteFlag": false,
+    "id": 0,
+    "invokes": [
+        "./Resources/Invokes/Movement/movement_wasd.json",
+        "./Resources/Invokes/General/set_render_position_center.json"
+    ],
+    "layer": 3,
+    "posX": 100,
+    "posY": 100,
+    "reloadInvokes": true,
+    "sprite": {
+        "link": "./Resources/Sprites/MiniWorldSprites/Characters/Soldiers/Melee/SwordsmanTemplate.png",
+        "sizeX": 16,
+        "sizeY": 16,
+        "spritesheet": {
+            "isSpritesheet": true,
+            "offsetX": 0,
+            "offsetY": 0,
+            "sizeX": 16,
+            "sizeY": 16
+        }
+    },
+    "text": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "flagCalculate": true,
+        "fontSize": 0,
+        "str": ""
+    }
+}

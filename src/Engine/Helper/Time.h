@@ -23,7 +23,6 @@
 using namespace std::this_thread; // sleep_for, sleep_until
 using namespace std::chrono; // nanoseconds, system_clock, seconds
 
-using std::cout; using std::endl;
 using std::chrono::duration_cast;
 using std::chrono::milliseconds;
 using std::chrono::seconds;

@@ -6,32 +6,32 @@
 
 RenderObject::RenderObject() {
 	// General
-	json.set(namenKonvention.renderObject.id.c_str(),0);
-	json.set(namenKonvention.renderObject.positionX.c_str(), 0);
-	json.set(namenKonvention.renderObject.positionY.c_str(), 0);
-	json.set(namenKonvention.renderObject.imageLocation.c_str(), std::string("Resources/Sprites/TEST001P/001.bmp"));
-	json.set(namenKonvention.renderObject.layer.c_str(), 0);
-	json.set(namenKonvention.renderObject.deleteFlag.c_str(), false);
+	json.set(keyName.renderObject.id.c_str(),0);
+	json.set(keyName.renderObject.positionX.c_str(), 0);
+	json.set(keyName.renderObject.positionY.c_str(), 0);
+	json.set(keyName.renderObject.imageLocation.c_str(), std::string("Resources/Sprites/TEST001P/001.bmp"));
+	json.set(keyName.renderObject.layer.c_str(), 0);
+	json.set(keyName.renderObject.deleteFlag.c_str(), false);
 
 	//for sprite
-	json.set(namenKonvention.renderObject.isSpritesheet.c_str(), false);
-	json.set(namenKonvention.renderObject.spritesheetOffsetX.c_str(), 0);
-	json.set(namenKonvention.renderObject.spritesheetOffsetY.c_str(), 0);
-	json.set(namenKonvention.renderObject.spritesheetSizeX.c_str(), 0);
-	json.set(namenKonvention.renderObject.spritesheetSizeY.c_str(), 0);
-	json.set(namenKonvention.renderObject.pixelSizeX.c_str(), 32);
-	json.set(namenKonvention.renderObject.pixelSizeY.c_str(), 32);
+	json.set(keyName.renderObject.isSpritesheet.c_str(), false);
+	json.set(keyName.renderObject.spritesheetOffsetX.c_str(), 0);
+	json.set(keyName.renderObject.spritesheetOffsetY.c_str(), 0);
+	json.set(keyName.renderObject.spritesheetSizeX.c_str(), 0);
+	json.set(keyName.renderObject.spritesheetSizeY.c_str(), 0);
+	json.set(keyName.renderObject.pixelSizeX.c_str(), 32);
+	json.set(keyName.renderObject.pixelSizeY.c_str(), 32);
 
 	// Invokes
 	json.set_empty_array("invokes");
-	json.set(namenKonvention.renderObject.reloadInvokes.c_str(), true);
+	json.set(keyName.renderObject.reloadInvokes.c_str(), true);
 
 	// Text
-	json.set(namenKonvention.renderObject.textStr.c_str(),std::string(""));
-	json.set(namenKonvention.renderObject.textFontsize.c_str(),0);
-	json.set(namenKonvention.renderObject.textDx.c_str(),0.0);
-	json.set(namenKonvention.renderObject.textDy.c_str(),0.0);
-	json.set(namenKonvention.renderObject.flagCalculate.c_str(),true);
+	json.set(keyName.renderObject.textStr.c_str(),std::string(""));
+	json.set(keyName.renderObject.textFontsize.c_str(),0);
+	json.set(keyName.renderObject.textDx.c_str(),0.0);
+	json.set(keyName.renderObject.textDy.c_str(),0.0);
+	json.set(keyName.renderObject.flagCalculate.c_str(),true);
 
 	//Build Rect on creation
 	calculateDstRect();
@@ -41,7 +41,7 @@ RenderObject::RenderObject() {
 
 RenderObject::RenderObject(const RenderObject& other) {
 	json.getDoc()->CopyFrom(*(other._getDoc()), json.getDoc()->GetAllocator());
-	valueSet(namenKonvention.renderObject.flagCalculate.c_str(),true);
+	valueSet(keyName.renderObject.flagCalculate.c_str(),true);
 	calculateDstRect();
 	calculateSrcRect();
 }
@@ -51,7 +51,7 @@ RenderObject& RenderObject::operator=(const RenderObject& other) {  // Assignmen
 		dstRect = other.dstRect;
 		JSONHandler::copyDoc(*json.getDoc(), other._getDoc());
 	}
-	valueSet(namenKonvention.renderObject.flagCalculate.c_str(),true);
+	valueSet(keyName.renderObject.flagCalculate.c_str(),true);
 	return *this;
 }
 
@@ -68,24 +68,24 @@ void RenderObject::deserialize(std::string serialOrLink) {
 	json.deserialize(serialOrLink);
 
 	// Prerequisites
-	valueSet(namenKonvention.renderObject.reloadInvokes.c_str(),true);
+	valueSet(keyName.renderObject.reloadInvokes.c_str(),true);
 	calculateDstRect();
 	calculateSrcRect();
 }
 
 void RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int renderer_X, int renderer_Y){
 	float scalar = 1;
-	float fontSize = valueGet<float>(namenKonvention.renderObject.textFontsize.c_str());
-	std::string text = valueGet<std::string>(namenKonvention.renderObject.textStr.c_str());
-	textRect.x = valueGet<float>(namenKonvention.renderObject.positionX.c_str()) + valueGet<float>(namenKonvention.renderObject.textDx.c_str()) - renderer_X;
-	textRect.y = valueGet<float>(namenKonvention.renderObject.positionY.c_str()) + valueGet<float>(namenKonvention.renderObject.textDy.c_str()) - renderer_Y;
+	float fontSize = valueGet<float>(keyName.renderObject.textFontsize.c_str());
+	std::string text = valueGet<std::string>(keyName.renderObject.textStr.c_str());
+	textRect.x = valueGet<float>(keyName.renderObject.positionX.c_str()) + valueGet<float>(keyName.renderObject.textDx.c_str()) - renderer_X;
+	textRect.y = valueGet<float>(keyName.renderObject.positionY.c_str()) + valueGet<float>(keyName.renderObject.textDy.c_str()) - renderer_Y;
 	textRect.w = scalar * fontSize * text.length(); // Width based on text length
 	textRect.h = (int)((float)fontSize * 1.5 * scalar);
-	if(valueGet<bool>(namenKonvention.renderObject.flagCalculate.c_str(),true)==true){
+	if(valueGet<bool>(keyName.renderObject.flagCalculate.c_str(),true)==true){
 		SDL_Color textColor = { 255, 255, 255, 255 }; // White color
 		textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
 		textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-		valueSet(namenKonvention.renderObject.flagCalculate.c_str(),false);
+		valueSet(keyName.renderObject.flagCalculate.c_str(),false);
 	}
 	
 }
@@ -109,14 +109,14 @@ SDL_Rect& RenderObject::getDstRect() {
 }
 void RenderObject::calculateDstRect() {
 	dstRect = {
-		(int)valueGet<double>(namenKonvention.renderObject.positionX.c_str()),
-		(int)valueGet<double>(namenKonvention.renderObject.positionY.c_str()),
-		(int)valueGet<double>(namenKonvention.renderObject.pixelSizeX.c_str()), // Set the desired width
-		(int)valueGet<double>(namenKonvention.renderObject.pixelSizeY.c_str()), // Set the desired height
+		(int)valueGet<double>(keyName.renderObject.positionX.c_str()),
+		(int)valueGet<double>(keyName.renderObject.positionY.c_str()),
+		(int)valueGet<double>(keyName.renderObject.pixelSizeX.c_str()), // Set the desired width
+		(int)valueGet<double>(keyName.renderObject.pixelSizeY.c_str()), // Set the desired height
 	};
 };
 SDL_Rect* RenderObject::getSrcRect() {
-	if (valueGet<bool>(namenKonvention.renderObject.isSpritesheet.c_str())) {
+	if (valueGet<bool>(keyName.renderObject.isSpritesheet.c_str())) {
 		return &srcRect;
 	}
 	else {
@@ -125,11 +125,11 @@ SDL_Rect* RenderObject::getSrcRect() {
 }
 void RenderObject::calculateSrcRect() {
 	// Check if the object is a sprite
-	if (valueGet<bool>(namenKonvention.renderObject.isSpritesheet.c_str())) {
-		int offsetX = (int)valueGet<double>(namenKonvention.renderObject.spritesheetOffsetX.c_str(),0);
-		int offsetY = (int)valueGet<double>(namenKonvention.renderObject.spritesheetOffsetY.c_str(),0);
-		int spriteWidth = valueGet<int>(namenKonvention.renderObject.spritesheetSizeX.c_str(),0);
-		int spriteHeight = valueGet<int>(namenKonvention.renderObject.spritesheetSizeY.c_str(),0);
+	if (valueGet<bool>(keyName.renderObject.isSpritesheet.c_str())) {
+		int offsetX = (int)valueGet<double>(keyName.renderObject.spritesheetOffsetX.c_str(),0);
+		int offsetY = (int)valueGet<double>(keyName.renderObject.spritesheetOffsetY.c_str(),0);
+		int spriteWidth = valueGet<int>(keyName.renderObject.spritesheetSizeX.c_str(),0);
+		int spriteHeight = valueGet<int>(keyName.renderObject.spritesheetSizeY.c_str(),0);
 		
 		// Calculate the source rectangle for the sprite (which portion of the sprite sheet to render)
 		srcRect = {
@@ -152,15 +152,6 @@ std::vector<Invoke::InvokeTriple> parseInvokeTriples(Nebulite::JSON& doc, std::s
         triple.changeType = doc.get<std::string>((arr+"changeType").c_str(),"");
         triple.key = 		doc.get<std::string>((arr+"key").c_str(),"");
         triple.value = 		doc.get<std::string>((arr+"value").c_str(),"");
-
-		// DEBUG ENTRY:
-		/*
-		std::cout << "Triple Entry: " << key << std::endl;
-		std::cout << "changeType: " << triple.changeType << std::endl;
-		std::cout << "value:      " << triple.value << std::endl;
-		//*/
-
-
         res.push_back(std::move(triple));
 	}
     return res;
@@ -234,18 +225,6 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 				entry.functioncalls.push_back(invoke.get<std::string>(arr.c_str(),""));
 			}
 
-			// DEBUG ENTRY:
-			/*
-			std::cout << "Entry: " << key << std::endl;
-			std::cout << "Logic: " << entry.logicalArg << std::endl;
-			std::cout << "isGlobal: " << entry.isGlobal << std::endl;
-			std::cout << "Size self :  " << entry.invokes_self.size() << std::endl;
-			std::cout << "Size other:  " << entry.invokes_other.size() << std::endl;
-			std::cout << "Size global: " << entry.invokes_global.size() << std::endl;
-			//*/
-
-			
-			
 			// Append
 			auto ptr = std::make_shared<Invoke::InvokeEntry>(std::move(entry));
 
@@ -258,7 +237,7 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 
 		}
 	}
-    json.set(namenKonvention.renderObject.reloadInvokes.c_str(), false);
+    json.set(keyName.renderObject.reloadInvokes.c_str(), false);
 }
 
 //-----------------------------------------------------------
@@ -274,7 +253,7 @@ void RenderObject::update(Invoke* globalInvoke, std::shared_ptr<RenderObject> th
 	// Check all invokes
 	if (globalInvoke) {
 		// Reload invokes if needed
-		if (valueGet<int>(namenKonvention.renderObject.reloadInvokes.c_str(),true)){
+		if (valueGet<int>(keyName.renderObject.reloadInvokes.c_str(),true)){
 			reloadInvokes(this_shared);
 		}
 
