@@ -5,11 +5,11 @@
     "neq($(global.time.t), $(self.collision.time.lastX))",
     "neq($(self.id),          $(other.id))",
     "$(other.physics.mass)",
-    " lt($(self.posX),        $(other.posX) + $(other.pixSizeX))",
-    " lt($(self.posY),        $(other.posY) + $(other.pixSizeY))",
-    " lt($(other.posX),       $(self.posX)  + $(self.pixSizeX))",
-    " lt($(other.posY),       $(self.posY)  + $(self.pixSizeY))",
-    "not(  lt($(self.posY)+$(self.pixSizeY) - 2,$(other.posY)) + lt($(other.posY)+$(other.pixSizeY) - 2,$(self.posY))  )"
+    " lt($(self.posX),        $(other.posX) + $(other.sprite.sizeX))",
+    " lt($(self.posY),        $(other.posY) + $(other.sprite.sizeY))",
+    " lt($(other.posX),       $(self.posX)  + $(self.sprite.sizeX))",
+    " lt($(other.posY),       $(self.posY)  + $(self.sprite.sizeY))",
+    "not(  lt($(self.posY)+$(self.sprite.sizeY) - 2,$(other.posY)) + lt($(other.posY)+$(other.sprite.sizeY) - 2,$(self.posY))  )"
   ],
   "isGlobal": true,
   "self_invokes": [

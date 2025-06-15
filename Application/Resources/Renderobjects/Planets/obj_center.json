@@ -1,18 +1,6 @@
 {
-    "id": 2,
-    "isOverlay": false,
-    "posX": 350.0,
-    "posY": 500.0,
-    "pixSizeX": 10,
-    "pixSizeY": 10,
-    "imgLocation": "./Resources/Sprites/TEST100P/001.bmp",
-    "layer": 0,
     "deleteFlag": false,
-    "isSpritesheet": false,
-    "spritesheetOffsetX": 0,
-    "spritesheetOffsetY": 0,
-    "spritesheetSizeX": 0,
-    "spritesheetSizeY": 0,
+    "id": 0,
     "invokes": [
         "./Resources/Invokes/General/set_render_position_center.json",
         "./Resources/Invokes/Physics/gravity.json",
@@ -20,13 +8,7 @@
         "./Resources/Invokes/Physics/integrate_v.json",
         "./Resources/Invokes/Physics/reset_a.json"
     ],
-    "reloadInvokes": true,
-    "text": {
-        "str": "OBJ_CENTER",
-        "fontsize": 16.0,
-        "dx": 0.0,
-        "dy": -30.0
-    },
+    "layer": 0,
     "physics": {
         "mass": 50.0,
         "isGrav": 1.0,
@@ -34,5 +16,27 @@
         "aY": 0.0,
         "vX":  30.0,
         "vY": -120.0
+    },
+    "posX": 350,
+    "posY": 500,
+    "reloadInvokes": true,
+    "sprite": {
+        "link": "Resources/Sprites/TEST001P/001.bmp",
+        "sizeX": 10,
+        "sizeY": 10,
+        "spritesheet": {
+            "isSpritesheet": false,
+            "offsetX": 0,
+            "offsetY": 0,
+            "sizeX": 0,
+            "sizeY": 0
+        }
+    },
+    "text": {
+        "dx": 0.0,
+        "dy": -30.0,
+        "flagCalculate": true,
+        "fontSize": 16,
+        "str": "OBJ_CENTER"
     }
 }

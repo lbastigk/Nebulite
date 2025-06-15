@@ -7,21 +7,20 @@
 RenderObject::RenderObject() {
 	// General
 	json.set(namenKonvention.renderObject.id.c_str(),0);
-	json.set(namenKonvention.renderObject.isOverlay.c_str(), false);
 	json.set(namenKonvention.renderObject.positionX.c_str(), 0);
 	json.set(namenKonvention.renderObject.positionY.c_str(), 0);
-	json.set(namenKonvention.renderObject.pixelSizeX.c_str(), 32);
-	json.set(namenKonvention.renderObject.pixelSizeY.c_str(), 32);
 	json.set(namenKonvention.renderObject.imageLocation.c_str(), std::string("Resources/Sprites/TEST001P/001.bmp"));
 	json.set(namenKonvention.renderObject.layer.c_str(), 0);
 	json.set(namenKonvention.renderObject.deleteFlag.c_str(), false);
 
-	//for spritesheets
+	//for sprite
 	json.set(namenKonvention.renderObject.isSpritesheet.c_str(), false);
 	json.set(namenKonvention.renderObject.spritesheetOffsetX.c_str(), 0);
 	json.set(namenKonvention.renderObject.spritesheetOffsetY.c_str(), 0);
 	json.set(namenKonvention.renderObject.spritesheetSizeX.c_str(), 0);
 	json.set(namenKonvention.renderObject.spritesheetSizeY.c_str(), 0);
+	json.set(namenKonvention.renderObject.pixelSizeX.c_str(), 32);
+	json.set(namenKonvention.renderObject.pixelSizeY.c_str(), 32);
 
 	// Invokes
 	json.set_empty_array("invokes");
@@ -30,6 +29,8 @@ RenderObject::RenderObject() {
 	// Text
 	json.set(namenKonvention.renderObject.textStr.c_str(),std::string(""));
 	json.set(namenKonvention.renderObject.textFontsize.c_str(),0);
+	json.set(namenKonvention.renderObject.textDx.c_str(),0.0);
+	json.set(namenKonvention.renderObject.textDy.c_str(),0.0);
 	json.set(namenKonvention.renderObject.flagCalculate.c_str(),true);
 
 	//Build Rect on creation

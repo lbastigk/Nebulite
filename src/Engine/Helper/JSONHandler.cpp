@@ -54,20 +54,6 @@ int JSONHandler::Get::keyAmount(rapidjson::Document& doc) {
 
 //------------------------------------------------
 // General Functions
-/*
-rapidjson::Document JSONHandler::deserialize(std::string serialOrLink) {
-    rapidjson::Document doc;
-    if(serialOrLink.starts_with("{")){
-        rapidjson::ParseResult res = doc.Parse(serialOrLink.c_str());
-    }
-    else{
-        std::string JSONString = FileManagement::LoadFile(serialOrLink.c_str());
-        //std::cerr << "Loading file for:" << serialOrLink << std::endl;
-        doc.Parse(JSONString.c_str());
-    }
-    return doc;
-}
-*/
 
 rapidjson::Document JSONHandler::deserialize(std::string serialOrLink) {
     rapidjson::Document doc;
@@ -112,6 +98,7 @@ rapidjson::Document JSONHandler::deserialize(std::string serialOrLink) {
 
 // Only used for loading/saving, not recommended during loop due to performance!
 // Use Get/Set instead
+/*
 std::string JSONHandler::serialize(const rapidjson::Document& doc) {
     // Check if the document is an object or array
     if (!doc.IsObject() && !doc.IsArray()) {
@@ -124,6 +111,60 @@ std::string JSONHandler::serialize(const rapidjson::Document& doc) {
     doc.Accept(writer);
     return buffer.GetString();
 }
+*/
+// Alphabetic serialization
+rapidjson::Value JSONHandler::sortRecursive(const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator) {
+    if (value.IsObject()) {
+        // Sort object keys
+        std::vector<std::pair<std::string, const rapidjson::Value*>> members;
+        for (auto itr = value.MemberBegin(); itr != value.MemberEnd(); ++itr) {
+            members.emplace_back(itr->name.GetString(), &itr->value);
+        }
+
+        std::sort(members.begin(), members.end(),
+                  [](const auto& a, const auto& b) {
+                      return a.first < b.first;
+                  });
+
+        rapidjson::Value sortedObj(rapidjson::kObjectType);
+        for (const auto& pair : members) {
+            rapidjson::Value name(pair.first.c_str(), allocator);
+            rapidjson::Value sortedVal = sortRecursive(*pair.second, allocator);
+            sortedObj.AddMember(name, sortedVal, allocator);
+        }
+        return sortedObj;
+
+    } else if (value.IsArray()) {
+        // Preserve array order; sort internal objects if any
+        rapidjson::Value newArr(rapidjson::kArrayType);
+        for (const auto& v : value.GetArray()) {
+            newArr.PushBack(sortRecursive(v, allocator), allocator);
+        }
+        return newArr;
+
+    } else {
+        // Primitive value: return a deep copy
+        return rapidjson::Value(value, allocator);
+    }
+}
+std::string JSONHandler::serialize(const rapidjson::Document& doc) {
+    if (!doc.IsObject() && !doc.IsArray()) {
+        std::cerr << "Serialization only supports JSON objects or arrays!" << std::endl;
+        return "{}";
+    }
+
+    rapidjson::Document sortedDoc;
+    sortedDoc.SetObject(); // Required before Swap or adding values
+
+    rapidjson::Value sortedRoot = sortRecursive(doc, sortedDoc.GetAllocator());
+    sortedDoc.Swap(sortedRoot); // Efficiently replace contents
+
+    rapidjson::StringBuffer buffer;
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+    sortedDoc.Accept(writer);
+    return buffer.GetString();
+}
+
 
 std::string JSONHandler::serializeVal(const rapidjson::Value& val) {
     rapidjson::StringBuffer buffer;

@@ -1,24 +1,28 @@
 {
-    "id": 1,
-    "isOverlay": false,
-    "posX": 350.0,
-    "posY": 500.0,
-    "pixSizeX": 10,
-    "pixSizeY": 10,
-    "imgLocation": "./Resources/Sprites/TEST001P/001.bmp",
-    "layer": 0,
     "deleteFlag": false,
-    "isSpritesheet": false,
-    "spritesheetOffsetX": 0,
-    "spritesheetOffsetY": 0,
-    "spritesheetSizeX": 0,
-    "spritesheetSizeY": 0,
+    "id": 0,
     "invokes": [],
+    "layer": 0,
+    "posX": 0,
+    "posY": 0,
     "reloadInvokes": true,
+    "sprite": {
+        "link": "Resources/Sprites/TEST001P/001.bmp",
+        "sizeX": 32,
+        "sizeY": 32,
+        "spritesheet": {
+            "isSpritesheet": false,
+            "offsetX": 0,
+            "offsetY": 0,
+            "sizeX": 0,
+            "sizeY": 0
+        }
+    },
     "text": {
-        "str": "",
-        "fontsize": 0.0,
         "dx": 0.0,
-        "dy": 0.0
+        "dy": 0.0,
+        "flagCalculate": true,
+        "fontSize": 0,
+        "str": ""
     }
 }

@@ -1,26 +1,8 @@
 {
-    "id": 2,
-    "isOverlay": false,
-    "posX": 350.0,
-    "posY": 500.0,
-    "pixSizeX": 10,
-    "pixSizeY": 10,
-    "imgLocation": "./Resources/Editor/Selection_00000.png",
-    "layer": 0,
     "deleteFlag": false,
-    "isSpritesheet": false,
-    "spritesheetOffsetX": 0,
-    "spritesheetOffsetY": 0,
-    "spritesheetSizeX": 0,
-    "spritesheetSizeY": 0,
+    "id": 0,
     "invokes": [],
-    "reloadInvokes": true,
-    "text": {
-        "str": "",
-        "fontsize": 0.0,
-        "dx": 0.0,
-        "dy": 0.0
-    },
+    "layer": 0,
     "physics": {
         "comment": "High mass for best result of static. TODO: inf possible?",
         "mass": 500000.0,
@@ -29,5 +11,27 @@
         "aY": 0.0,
         "vX": 0.0,
         "vY": 0.0
+    },
+    "posX": 350,
+    "posY": 500,
+    "reloadInvokes": true,
+    "sprite": {
+        "link": "./Resources/Editor/Selection_00000.png",
+        "sizeX": 10,
+        "sizeY": 10,
+        "spritesheet": {
+            "isSpritesheet": false,
+            "offsetX": 0,
+            "offsetY": 0,
+            "sizeX": 0,
+            "sizeY": 0
+        }
+    },
+    "text": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "flagCalculate": true,
+        "fontSize": 0,
+        "str": ""
     }
 }

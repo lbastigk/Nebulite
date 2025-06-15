@@ -49,6 +49,7 @@ public:
     // General JSONHandler functions
     
     // Serialization and deserialization
+    static rapidjson::Value sortRecursive(const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator);
     static rapidjson::Document deserialize(std::string serialOrLink);
     static std::string serialize(const rapidjson::Document& doc);
     static std::string serializeVal(const rapidjson::Value& val);

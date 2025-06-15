@@ -1,18 +1,6 @@
 {
-    "id": 3,
-    "isOverlay": false,
-    "posX": 500.0,
-    "posY": 500.0,
-    "pixSizeX": 50,
-    "pixSizeY": 50,
-    "imgLocation": "./Resources/Sprites/TEST100P/017.bmp",
-    "layer": 0,
     "deleteFlag": false,
-    "isSpritesheet": false,
-    "spritesheetOffsetX": 0,
-    "spritesheetOffsetY": 0,
-    "spritesheetSizeX": 0,
-    "spritesheetSizeY": 0,
+    "id": 0,
     "invokes": [
         "./Resources/Invokes/Movement/movement_wasd.json",
         "./Resources/Invokes/Physics/gravity.json",
@@ -20,13 +8,7 @@
         "./Resources/Invokes/Physics/integrate_v.json",
         "./Resources/Invokes/Physics/reset_a.json"
     ],
-    "reloadInvokes": true,
-    "text": {
-        "str": "SUN",
-        "fontsize": 16.0,
-        "dx": 0.0,
-        "dy": -30.0
-    },
+    "layer": 0,
     "physics": {
         "mass": 200000.0,
         "isGrav": 1.0,
@@ -34,5 +16,27 @@
         "aY": 0.0,
         "vX": 0.0,
         "vY": 0.0
+    },
+    "posX": 500,
+    "posY": 500,
+    "reloadInvokes": true,
+    "sprite": {
+        "link": "Resources/Sprites/TEST001P/014.bmp",
+        "sizeX": 50,
+        "sizeY": 50,
+        "spritesheet": {
+            "isSpritesheet": false,
+            "offsetX": 0,
+            "offsetY": 0,
+            "sizeX": 0,
+            "sizeY": 0
+        }
+    },
+    "text": {
+        "dx": 0.0,
+        "dy": -30.0,
+        "flagCalculate": true,
+        "fontSize": 16,
+        "str": "SUN"
     }
 }

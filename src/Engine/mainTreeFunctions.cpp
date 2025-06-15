@@ -56,6 +56,9 @@ namespace Nebulite{
         mainTree.attachFunction(Nebulite::mainTreeFunctions::printGlobal,     "print-global", "Prints global doc to cout");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::printState,      "print-state",  "Prints state doc to cout");
 
+        // Helper
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::render_object,    "standard-render-object",  "Serializes standard renderobject to ./Resources/Renderobjects/standard.json");
+
         // Tests
         mainTree.attachFunction(Nebulite::mainTreeFunctions::json_test,"json-test","Testing new json wrapper");
     }
@@ -69,6 +72,7 @@ namespace Nebulite{
         return renderer.get();
     }
 }
+
 
 void Nebulite::convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv) {
     // Free previous buffer if any
@@ -190,7 +194,6 @@ int Nebulite::mainTreeFunctions::stateLoad(int argc, char* argv[]){
     std::cerr << "Function load not implemented yet!" << std::endl;
     return 0;
 }
-
 
 int Nebulite::mainTreeFunctions::stateSave(int argc, char* argv[]){
     // <stateName>
@@ -389,7 +392,6 @@ int Nebulite::mainTreeFunctions::printState(int argc, char* argv[]){
     return 0;
 }
 
-
 int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
     int test_active = 0;
     if(argc > 0){
@@ -559,5 +561,11 @@ int Nebulite::mainTreeFunctions::json_test(int argc, char** argv){
         std::cout << ro.valueGet<std::string>(namenKonvention.renderObject.imageLocation.c_str()) << std::endl;
     }
     testCount++;
+    return 0;
+}
+
+int Nebulite::mainTreeFunctions::render_object(int argc, char** argv){
+    RenderObject ro;
+    FileManagement::WriteFile("./Resources/Renderobjects/standard.json",ro.serialize());
     return 0;
 }
