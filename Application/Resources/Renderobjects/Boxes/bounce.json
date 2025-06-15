@@ -17,7 +17,9 @@
         "./Resources/Invokes/Physics/falling.json",
         "./Resources/Invokes/Physics/elastic_collision_X.json",
         "./Resources/Invokes/Physics/elastic_collision_Y.json",
-        "./Resources/Invokes/Physics/acceleration_integration.json"
+        "./Resources/Invokes/Physics/integrate_a.json",
+        "./Resources/Invokes/Physics/integrate_v.json",
+        "./Resources/Invokes/Physics/reset_a.json"
     ],
     "reloadInvokes": true,
     "text": {

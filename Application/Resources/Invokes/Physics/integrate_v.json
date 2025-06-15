@@ -1,0 +1,19 @@
+{
+  "logicalArg": "1",
+  "isGlobal": false,
+  "self_invokes": [
+    {
+      "changeType": "add",
+      "key": "posX",
+      "value": "$($(self.physics.vX) * $(global.time.dt))"
+    },
+    {
+      "changeType": "add",
+      "key": "posY",
+      "value": "$($(self.physics.vY) * $(global.time.dt))"
+    }
+  ],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": []
+}
