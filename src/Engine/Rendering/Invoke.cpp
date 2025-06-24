@@ -96,7 +96,7 @@ void Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::sh
     for(auto InvokeTriple : cmd->invokes_global){
         if (!InvokeTriple.key.empty()) {
             std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *otherObj->getDoc(), *global);
-            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
+            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, global);
         } 
     }
 
@@ -123,7 +123,7 @@ void Invoke::updateLocal(const std::shared_ptr<InvokeEntry>& cmd){
     for(auto InvokeTriple : cmd->invokes_global){
         if (!InvokeTriple.key.empty()) {
             std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *global);
-            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
+            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, global);
         } 
     }
 

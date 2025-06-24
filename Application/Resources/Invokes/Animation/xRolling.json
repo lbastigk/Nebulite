@@ -1,0 +1,26 @@
+{
+  "logicalArg" : "$( $(self.animation.xRolling.active) * gt($(global.time.t),$(self.animation.xRolling.next)) )",
+  "isGlobal": false,
+  "self_invokes": [
+    {
+      "comment" : "This causes an animation from left to right of the spritesheet",
+      "changeType": "set",
+      "key": "sprite.spritesheet.offsetX",
+      "value": "$( ($(self.sprite.spritesheet.offsetX) + 16) % 80)"
+    },
+    {
+      "changeType": "set",
+      "key": "animation.xRolling.next",
+      "value": "$($(global.time.t)+0.15)"
+    },
+    {
+      "comment" : "Assume no more keypress.",
+      "changeType": "set",
+      "key": "animation.xRolling.active",
+      "value": "0"
+    }
+  ],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": []
+}

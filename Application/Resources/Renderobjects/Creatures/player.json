@@ -2,12 +2,15 @@
     "deleteFlag": false,
     "id": 0,
     "invokes": [
+        "./Resources/Invokes/Animation/poll_wasd.json",
+        "./Resources/Invokes/Animation/direction.json",
+        "./Resources/Invokes/Animation/xRolling.json",
         "./Resources/Invokes/Movement/movement_wasd.json",
         "./Resources/Invokes/General/set_render_position_center.json"
     ],
     "layer": 3,
-    "posX": 100,
-    "posY": 100,
+    "posX": 0,
+    "posY": 0,
     "reloadInvokes": true,
     "sprite": {
         "link": "./Resources/Sprites/MiniWorldSprites/Characters/Soldiers/Melee/SwordsmanTemplate.png",

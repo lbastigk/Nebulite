@@ -360,8 +360,9 @@ int Nebulite::mainTreeFunctions::serialize(int argc, char* argv[]){
 
 int Nebulite::mainTreeFunctions::moveCam(int argc, char* argv[]){
     if(argc == 2){
-        int dx = std::stoi(argv[0]);
-        int dy = std::stoi(argv[1]);
+        
+        int dx = floor(std::stod(argv[0]));
+        int dy = floor(std::stod(argv[1]));
         Nebulite::getRenderer()->moveCam(dx,dy);
         return 0;
     }
@@ -376,8 +377,8 @@ int Nebulite::mainTreeFunctions::moveCam(int argc, char* argv[]){
 
 int Nebulite::mainTreeFunctions::setCam(int argc, char* argv[]){
     if(argc == 2){
-        int x = std::stoi(argv[0]);
-        int y = std::stoi(argv[1]);
+        int x = floor(std::stod(argv[0]));
+        int y = floor(std::stod(argv[1]));
         Nebulite::getRenderer()->setCam(x,y);
         return 0;
     }

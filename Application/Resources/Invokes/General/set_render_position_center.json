@@ -3,8 +3,17 @@
   "isGlobal": false,
   "self_invokes": [],
   "other_invokes": [],
-  "global_invokes": [],
-  "functioncalls": [
-    "eval cam-set $(self.posX) $(self.posY) c"
-  ]
+  "global_invokes": [
+    {
+      "changeType": "set",
+      "key": "display.position.X",
+      "value": "$( floor($(self.posX) - $(global.display.resolution.X)/2) )"
+    },
+    {
+      "changeType": "set",
+      "key": "display.position.Y",
+      "value": "$( floor($(self.posY) - $(global.display.resolution.Y)/2) )"
+    }
+  ],
+  "functioncalls": []
 }

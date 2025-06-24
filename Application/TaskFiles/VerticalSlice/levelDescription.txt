@@ -1,5 +1,5 @@
 set-res 320 240 6
-set-fps 5000
+set-fps 6000
 echo
 echo Nebulite vertical slice test
 echo Building simple level
@@ -8,12 +8,12 @@ echo
 ###########################
 # Part 1: Invoke tester
 echo Adding character with wasd-control
-spawn ./Resources/Renderobjects/invoke_tester.json
+spawn ./Resources/Renderobjects/Creatures/player.json|posX=160|posY=160
 
 ###########################
 # Part 2: Background
 echo Adding background
-for i 0 39 for j 0 29 eval spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=$($i * 16)|posY=$($j * 16)|spritesheetOffsetX=$($(global.rrand) % 2 * 16)
+for i 0 39 for j 0 29 eval spawn ./Resources/Renderobjects/Plants/Grass/grass.json|posX=$($i * 16)|posY=$($j * 16)
 
 ###########################
 # Part 3: some trees

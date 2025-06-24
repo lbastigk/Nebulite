@@ -1,0 +1,14 @@
+{
+  "logicalArg": "1",
+  "isGlobal": false,
+  "self_invokes": [
+    {
+      "changeType": "set",
+      "key": "animation.xRolling.active",
+      "value": "$($(global.input.keyboard.current.w) + $(global.input.keyboard.current.a) + $(global.input.keyboard.current.s) + $(global.input.keyboard.current.d))"
+    }
+  ],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": []
+}

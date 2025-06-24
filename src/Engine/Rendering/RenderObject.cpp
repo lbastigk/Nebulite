@@ -101,10 +101,10 @@ SDL_Rect& RenderObject::getDstRect() {
 }
 void RenderObject::calculateDstRect() {
 	dstRect = {
-		(int)valueGet<double>(keyName.renderObject.positionX.c_str()),
-		(int)valueGet<double>(keyName.renderObject.positionY.c_str()),
-		(int)valueGet<double>(keyName.renderObject.pixelSizeX.c_str()), // Set the desired width
-		(int)valueGet<double>(keyName.renderObject.pixelSizeY.c_str()), // Set the desired height
+		(int)floor(valueGet<double>(keyName.renderObject.positionX.c_str())),
+		(int)floor(valueGet<double>(keyName.renderObject.positionY.c_str())),
+		(int)floor(valueGet<double>(keyName.renderObject.pixelSizeX.c_str())), // Set the desired width
+		(int)floor(valueGet<double>(keyName.renderObject.pixelSizeY.c_str())), // Set the desired height
 	};
 };
 SDL_Rect* RenderObject::getSrcRect() {

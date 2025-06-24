@@ -6,12 +6,12 @@
     {
       "changeType": "add",
       "key": "posX",
-      "value": "$($($(global.input.keyboard.current.d) - $(global.input.keyboard.current.a)) * 500 * $(global.time.dt))"
+      "value": "$($($(global.input.keyboard.current.d) - $(global.input.keyboard.current.a)) * 40 * $(global.time.dt))"
     },
     {
       "changeType": "add",
       "key": "posY",
-      "value": "$($($(global.input.keyboard.current.s) - $(global.input.keyboard.current.w)) * 500 * $(global.time.dt))"
+      "value": "$($($(global.input.keyboard.current.s) - $(global.input.keyboard.current.w)) * 40 * $(global.time.dt))"
     }
   ],
   "other_invokes": [],

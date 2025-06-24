@@ -301,7 +301,6 @@ void Renderer::setCam(int X, int Y, bool isMiddle) {
 			X - invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0) / 2
 		);
 		invoke_ptr->getGlobalPointer()->set<int>(
-			
 			"display.position.Y",
 			Y - invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0) / 2
 		);
@@ -330,6 +329,8 @@ void Renderer::clear(){
 // TODO: flag to update all rects if cam was moved!
 // This should make sure that objects with invoke center_pos stay in center
 void Renderer::renderFrame() {
+	int dispPosX = invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0);
+	int dispPosY = invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0);
 	
 	//------------------------------------------------
 	// FPS Count
@@ -394,8 +395,8 @@ void Renderer::renderFrame() {
 						
 						// Calculate position rect
 						rect = obj->getDstRect();
-						rect.x -= invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0);		//subtract camera posX
-						rect.y -= invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0); 	//subtract camera posY
+						rect.x -= dispPosX;		//subtract camera posX
+						rect.y -= dispPosY; 	//subtract camera posY
 
 						// Render the texture
 						error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj.get()->getSrcRect(), &rect);
@@ -405,8 +406,8 @@ void Renderer::renderFrame() {
 							obj.get()->calculateText(
 								renderer,
 								font,
-								invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0),
-								invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0)
+								dispPosX,
+								dispPosY
 							);
 							SDL_RenderCopy(renderer,&obj.get()->getTextTexture(),NULL,obj.get()->getTextRect());
 						}
