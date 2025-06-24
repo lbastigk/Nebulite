@@ -46,14 +46,6 @@ RenderObject::RenderObject(const RenderObject& other) {
 	calculateSrcRect();
 }
 
-RenderObject& RenderObject::operator=(const RenderObject& other) {  // Assignment operator overload
-	if (this != &other) {
-		dstRect = other.dstRect;
-		JSONHandler::copyDoc(*json.getDoc(), other._getDoc());
-	}
-	valueSet(keyName.renderObject.flagCalculate.c_str(),true);
-	return *this;
-}
 
 
 

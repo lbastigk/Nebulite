@@ -23,7 +23,8 @@ A cache is implemented for fast setting/getting of keys. Only if needed are thos
 #include "absl/container/flat_hash_map.h"
 
 // Internal dependencies
-#include "JSONHandler.h"
+//#include "JSONHandler.h"
+#include "FileManagement.h"
 
 namespace Nebulite{
     // Template for supported cache storages
@@ -153,6 +154,25 @@ namespace Nebulite{
         rapidjson::Value* traverseKey(const char* key, rapidjson::Value& val);
 
         rapidjson::Value* ensure_path(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+
+        //--------------------------------------------------------------------
+        // Important Helper functions
+        class Helper{
+        public:
+            template <typename T>
+            static void Set(rapidjson::Document& doc, const std::string& fullKey, const T data); 
+
+            template <typename T>
+            static void ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& result, const T& defaultvalue = T());
+
+            template <typename T>
+            static void ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
+
+            static rapidjson::Value sortRecursive(const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator);
+            static rapidjson::Document deserialize(std::string serialOrLink);
+            static std::string serialize(const rapidjson::Document& doc);
+            static void empty(rapidjson::Document &doc);
+        };
     };
 }
 
@@ -199,7 +219,6 @@ T Nebulite::JSON::convert_variant(const SimpleJSONValue& val, const T& defaultVa
     }, val);
 }
 
-
 template <typename T>
 void Nebulite::JSON::set_type(std::string key, const T& value) {
     CacheEntry& entry = cache[key];     // creates or updates entry
@@ -227,8 +246,6 @@ T Nebulite::JSON::get_type(CacheEntry& entry, const T& defaultValue) {
     return converted;
 }
 
-
-
 template <typename T>
 T Nebulite::JSON::get(const char* key, const T defaultValue) {
     if constexpr (is_simple_value_v<T> || std::is_same_v<T, const char*>) {
@@ -244,7 +261,6 @@ T Nebulite::JSON::get(const char* key, const T defaultValue) {
     // Fallback to doc
     return fallback_get<T>(key, defaultValue, doc);
 }
-
 
 template <typename T>
 void Nebulite::JSON::set(const char* key, const T& value) {
@@ -277,7 +293,7 @@ T Nebulite::JSON::fallback_get(const char* key, const T defaultValue, rapidjson:
     else{
         // Base case: convert currentVal to T using JSONHandler
         T tmp;
-        JSONHandler::ConvertFromJSONValue<T>(*keyVal, tmp, defaultValue);
+        Nebulite::JSON::Helper::ConvertFromJSONValue<T>(*keyVal, tmp, defaultValue);
         return tmp;
     }
 }
@@ -287,9 +303,188 @@ void Nebulite::JSON::fallback_set(const char* key, const T& value, rapidjson::Va
     // Ensure key path exists
     rapidjson::Value* keyVal = ensure_path(key, val, doc.GetAllocator());
     if (keyVal != nullptr) {
-        JSONHandler::ConvertToJSONValue<T>(value, *keyVal, doc.GetAllocator());
+        Nebulite::JSON::Helper::ConvertToJSONValue<T>(value, *keyVal, doc.GetAllocator());
     } else {
         std::cerr << "Failed to create or access path: " << key << std::endl;
     }
 }
 
+
+
+
+
+
+//----------------------------------------------------------------------
+// Helper functions from older JSONHandler Class
+
+template <typename T>
+void Nebulite::JSON::Helper::Set(rapidjson::Document& doc, const std::string& fullKey, const T data) {
+    if (!doc.IsObject()) {
+        doc.SetObject();
+    }
+
+    rapidjson::Value* current = &doc;
+    std::string_view keyView(fullKey);
+
+    while (!keyView.empty()) {
+        size_t dotPos = keyView.find('.');
+        std::string_view key = (dotPos == std::string_view::npos) ? keyView : keyView.substr(0, dotPos);
+
+        if (!current->IsObject()) {
+            current->SetObject();
+        }
+
+        if (dotPos != std::string_view::npos) {
+            // Not the final key: ensure nested object exists
+            if (!current->HasMember(std::string(key).c_str())) {
+                rapidjson::Value keyVal(std::string(key).c_str(), doc.GetAllocator());
+                rapidjson::Value newObj(rapidjson::kObjectType);
+                current->AddMember(keyVal, newObj, doc.GetAllocator());
+            }
+            current = &(*current)[std::string(key).c_str()];
+            keyView.remove_prefix(dotPos + 1);
+        } 
+        else {
+            // Final key: set the value
+            rapidjson::Value keyVal(std::string(key).c_str(), doc.GetAllocator());
+            rapidjson::Value jsonValue;
+            ConvertToJSONValue(data, jsonValue, doc.GetAllocator());
+
+            if (current->HasMember(std::string(key).c_str())) {
+                (*current)[std::string(key).c_str()] = jsonValue;
+            } 
+            else {
+                current->AddMember(keyVal, jsonValue, doc.GetAllocator());
+            }
+            break;
+        }
+    }
+}
+
+// to JSON value
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<bool>(const bool& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetBool(data);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<int>(const int& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetInt(data);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<uint32_t>(const uint32_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetUint(data);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<uint64_t>(const uint64_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetUint64(data);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<float>(const float& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetFloat(data);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<double>(const double& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetDouble(data);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<long>(const long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetInt64(data);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<std::string>(const std::string& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
+    jsonValue.SetString(data.c_str(), static_cast<rapidjson::SizeType>(data.length()), allocator);
+}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<const char*>(const char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+    if (data) {
+        jsonValue.SetString(data, allocator);
+    } else {
+        jsonValue.SetNull();
+    }
+}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<char*>(char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+    if (data) {
+        jsonValue.SetString(data, allocator);
+    } else {
+        jsonValue.SetNull();
+    }
+}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<std::pair<int, std::string>>(const std::pair<int, std::string>& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+    // Example conversion for a pair. You may adapt based on your application’s structure.
+    rapidjson::Value pairObject(rapidjson::kObjectType);
+    rapidjson::Value firstValue;
+    ConvertToJSONValue(data.first, firstValue, allocator);
+    pairObject.AddMember("first", firstValue, allocator);
+    
+    rapidjson::Value secondValue;
+    ConvertToJSONValue(data.second, secondValue, allocator);
+    pairObject.AddMember("second", secondValue, allocator);
+    
+    jsonValue = pairObject;
+}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<rapidjson::Value*>(rapidjson::Value* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {jsonValue.CopyFrom(*data, allocator);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<rapidjson::Document*>(rapidjson::Document* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {jsonValue.CopyFrom(*data, allocator);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<rapidjson::Document>(const rapidjson::Document& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator) {jsonValue.CopyFrom(data, allocator);}
+
+// from JSON Value
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, bool& result, const bool& defaultvalue){result = jsonValue.GetBool();}
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, int& result, const int& defaultvalue) {
+    if (jsonValue.IsInt()) {
+        result = jsonValue.GetInt();
+    }
+    else if(jsonValue.IsBool()){
+        result = jsonValue.GetBool();
+    }
+    else{
+        result = 0;
+    }
+}
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint32_t& result, const uint32_t& defaultvalue){result = jsonValue.GetUint();}
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint64_t& result, const uint64_t& defaultvalue) {
+    if (jsonValue.IsString()) {
+        std::istringstream iss(jsonValue.GetString());
+        iss >> result;
+    } else if (jsonValue.IsUint64()) {
+        result = jsonValue.GetUint64();
+    } else if (jsonValue.IsUint()) {
+        result = static_cast<uint64_t>(jsonValue.GetUint());
+    } else if (jsonValue.IsInt64() && jsonValue.GetInt64() >= 0) {
+        result = static_cast<uint64_t>(jsonValue.GetInt64());
+    } else {
+        throw std::runtime_error("JSON value is not a valid uint64_t");
+    }
+}
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, float& result, const float& defaultvalue){
+    if (jsonValue.IsNumber()){
+        result = jsonValue.GetFloat();
+    }
+    else{
+        result = (float)std::stod(jsonValue.GetString());
+    }
+}
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, double& result, const double& defaultvalue){
+    if (jsonValue.IsNumber()){
+        result = jsonValue.GetDouble();
+    }
+    else if(jsonValue.IsString()){
+        result = std::stod(jsonValue.GetString());
+    }
+    else {
+        result = defaultvalue;
+    }
+}
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, std::string& result, const std::string& defaultvalue){
+    if (jsonValue.IsBool()) {
+        result = jsonValue.GetBool() ? "true" : "false";
+    }
+    else if (jsonValue.IsString()) {
+        result = std::string(jsonValue.GetString());
+    }
+    else if (jsonValue.IsInt()) {
+        result = std::to_string(jsonValue.GetInt());
+    }
+    else if (jsonValue.IsUint()) {
+        result = std::to_string(jsonValue.GetUint());
+    }
+    else if (jsonValue.IsInt64()) {
+        result = std::to_string(jsonValue.GetInt64());
+    }
+    else if (jsonValue.IsUint64()) {
+        result = std::to_string(jsonValue.GetUint64());
+    }
+    else if (jsonValue.IsDouble()) {
+        result = std::to_string(jsonValue.GetDouble());
+    }
+    else if (jsonValue.IsNull()) {
+        result = "null";
+    }
+    else if (jsonValue.IsArray()) {
+        result = "{Array}";
+    }
+    else if (jsonValue.IsObject()) {
+        result = "{Object}";  // Just a placeholder since objects can't easily be converted to a single string
+    }
+    else {
+        result = "unsupported type";
+    }
+}
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, rapidjson::Document& result, const rapidjson::Document& defaultvalue){
+    result.CopyFrom(jsonValue, result.GetAllocator());
+}

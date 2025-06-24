@@ -14,7 +14,7 @@ void Nebulite::JSON::set_subdoc(const char* key, Nebulite::JSON& child){
     rapidjson::Value* keyVal = ensure_path(key, doc, doc.GetAllocator());
     if (keyVal != nullptr) {
         child.flush();
-        JSONHandler::ConvertToJSONValue<rapidjson::Document>(child.doc, *keyVal, doc.GetAllocator());
+        Nebulite::JSON::Helper::ConvertToJSONValue<rapidjson::Document>(child.doc, *keyVal, doc.GetAllocator());
     } else {
         std::cerr << "Failed to create or access path: " << key << std::endl;
     }
@@ -91,7 +91,7 @@ std::string Nebulite::JSON::serialize(std::string key){
     flush();
     if(key.size() == 0){
         // Serialize entire doc
-        return JSONHandler::serialize(doc);
+        return Nebulite::JSON::Helper::serialize(doc);
     } 
     else{
         Nebulite::JSON sub = get_subdoc(key.c_str());
@@ -104,7 +104,7 @@ void Nebulite::JSON::deserialize(std::string serial_or_link){
         cache.erase(it++);
     }
 
-    doc = JSONHandler::deserialize(serial_or_link);
+    doc = Nebulite::JSON::Helper::deserialize(serial_or_link);
 }
 
 void Nebulite::JSON::flush() {
@@ -124,7 +124,7 @@ void Nebulite::JSON::flush() {
 }
 
 void Nebulite::JSON::empty(){
-    JSONHandler::empty(doc);
+    Nebulite::JSON::Helper::empty(doc);
     for (auto it = cache.begin(); it != cache.end(); ) {
         cache.erase(it++);
     }
@@ -293,4 +293,101 @@ rapidjson::Value* Nebulite::JSON::ensure_path(const char* key, rapidjson::Value&
     }
 
     return current;
+}
+
+
+//---------------------------------------------------------------------
+// Helper Functions
+rapidjson::Value Nebulite::JSON::Helper::sortRecursive(const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator) {
+    if (value.IsObject()) {
+        // Sort object keys
+        std::vector<std::pair<std::string, const rapidjson::Value*>> members;
+        for (auto itr = value.MemberBegin(); itr != value.MemberEnd(); ++itr) {
+            members.emplace_back(itr->name.GetString(), &itr->value);
+        }
+
+        std::sort(members.begin(), members.end(),
+                  [](const auto& a, const auto& b) {
+                      return a.first < b.first;
+                  });
+
+        rapidjson::Value sortedObj(rapidjson::kObjectType);
+        for (const auto& pair : members) {
+            rapidjson::Value name(pair.first.c_str(), allocator);
+            rapidjson::Value sortedVal = sortRecursive(*pair.second, allocator);
+            sortedObj.AddMember(name, sortedVal, allocator);
+        }
+        return sortedObj;
+
+    } else if (value.IsArray()) {
+        // Preserve array order; sort internal objects if any
+        rapidjson::Value newArr(rapidjson::kArrayType);
+        for (const auto& v : value.GetArray()) {
+            newArr.PushBack(sortRecursive(v, allocator), allocator);
+        }
+        return newArr;
+
+    } else {
+        // Primitive value: return a deep copy
+        return rapidjson::Value(value, allocator);
+    }
+}
+std::string Nebulite::JSON::Helper::serialize(const rapidjson::Document& doc) {
+    if (!doc.IsObject() && !doc.IsArray()) {
+        std::cerr << "Serialization only supports JSON objects or arrays!" << std::endl;
+        return "{}";
+    }
+
+    rapidjson::Document sortedDoc;
+    sortedDoc.SetObject(); // Required before Swap or adding values
+
+    rapidjson::Value sortedRoot = sortRecursive(doc, sortedDoc.GetAllocator());
+    sortedDoc.Swap(sortedRoot); // Efficiently replace contents
+
+    rapidjson::StringBuffer buffer;
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+    sortedDoc.Accept(writer);
+    return buffer.GetString();
+}
+rapidjson::Document Nebulite::JSON::Helper::deserialize(std::string serialOrLink) {
+    rapidjson::Document doc;
+
+    if (serialOrLink.starts_with("{")) {
+        rapidjson::ParseResult res = doc.Parse(serialOrLink.c_str());
+    } else {
+        // Split the input string by '|'
+        std::vector<std::string> tokens;
+        size_t start = 0;
+        size_t end = 0;
+        while ((end = serialOrLink.find('|', start)) != std::string::npos) {
+            tokens.push_back(serialOrLink.substr(start, end - start));
+            start = end + 1;
+        }
+        tokens.push_back(serialOrLink.substr(start)); // Last part
+
+        if (tokens.empty()) {
+            // Error: No file path given
+            return doc; // or handle error properly
+        }
+
+        // Load the JSON file
+        std::string JSONString = FileManagement::LoadFile(tokens[0].c_str());
+        doc.Parse(JSONString.c_str());
+
+        // Now apply modifications
+        for (size_t i = 1; i < tokens.size(); ++i) {
+            const std::string& assignment = tokens[i];
+            size_t eqPos = assignment.find('=');
+            if (eqPos != std::string::npos) {
+                std::string key = assignment.substr(0, eqPos);
+                std::string value = assignment.substr(eqPos + 1);
+                Nebulite::JSON::Helper::Set<std::string>(doc, key, value);
+            }
+        }
+    }
+    return doc;
+}
+void Nebulite::JSON::Helper::empty(rapidjson::Document &doc) {
+    doc.SetNull();
+    doc.GetAllocator().Clear();
 }

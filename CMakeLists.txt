@@ -59,7 +59,6 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/Platform/Platform.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Nebulite.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Data/JSON.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/Data/JSONHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FileManagement.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FuncTree.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/StringHandler.cpp

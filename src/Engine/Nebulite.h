@@ -83,8 +83,6 @@ namespace Nebulite {
 
         int setGlobal(int argc, char* argv[]);
 
-        int json_test(int argc, char* argv[]);
-
         int render_object(int argc, char** argv);
     }
 

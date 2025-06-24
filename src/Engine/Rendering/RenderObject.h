@@ -6,7 +6,6 @@
 #include "JSON.h"
 #include "Invoke.h"
 #include "KeyNames.h"
-#include "JSONHandler.h"
 
 class RenderObject {
 public:

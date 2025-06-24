@@ -32,7 +32,6 @@
                     "${workspaceFolder}/src/Engine",
                     "${workspaceFolder}/src/Engine/Helper",
                     "${workspaceFolder}/src/Engine/Rendering",
-                    "${workspaceFolder}/src/Tests",
                     "${workspaceFolder}/src/Platform"
                 ],
                 "limitSymbolsToIncludedHeaders": true
