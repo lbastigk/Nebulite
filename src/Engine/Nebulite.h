@@ -88,4 +88,5 @@ namespace Nebulite {
         int render_object(int argc, char** argv);
     }
 
+    int resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree);
 }

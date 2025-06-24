@@ -20,46 +20,46 @@
  *  load <level.json>               Load and render a level
  *  task <task.txt>                 Run a tasktile
  *
+ * Main Loop Architecture
+ * ----------------------
+ * 1. Startup:
+ *    - Parse command-line arguments and populate task queues.
+ *    - Initialize core engine systems (Nebulite::init()).
+ *    - Build the main function tree (Nebulite::init_functions()).
+ *
+ * 2. Main Loop:
+ *    - While the renderer exists and is not quitting:
+ *        a. Resolve and execute all tasks in the script and internal queues.
+ *        b. If the renderer is ready, perform:
+ *            i.   Update game objects by resolving their invokes.
+ *            ii.  Render the current frame.
+ *            iii. Display FPS.
+ *            iv.  Present the frame.
+ *            v.   Clear the screen for the next frame.
+ *        c. Decrement wait counters as needed.
+ *
+ * 3. Shutdown:
+ *    - Destroy the renderer and release resources.
+ *    - Exit with the last command result.
  */
 
+// -----------------------------------
+// Includes
 
-/*
+/* Include the Nebulite Namespace with all its functions
  * Initializes callable functions from both user CLI and runtime environment.
  * Also sets up the global Renderer used across Tree-based function calls.
  */
-#include "mainTreeFunctions.h" 
+#include "Nebulite.h" 
 
 // Used to build a tree of callable Functions and parsing arguments
 #include "FuncTree.h"
 
-// Resolves a given taskqueue by parsing each line into argc/argv and calling the mainTree on the arguments
-int resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree){
-    int result = 0;
-    while (!tq.taskList.empty() && (counter == nullptr || *counter == 0)) {
-        // Get task
-        std::string argStr = tq.taskList.front();
-        tq.taskList.pop_front();  // remove the used task
-
-        // Convert std::string to argc,argv
-        *argc_mainTree = 0;
-        *argv_mainTree = nullptr;
-        Nebulite::convertStrToArgcArgv(argStr, *argc_mainTree, *argv_mainTree);
-
-        if (*argv_mainTree != nullptr && argStr.size()) {
-            result = Nebulite::mainTree.parse(*argc_mainTree, *argv_mainTree);
-        }
-        else{
-            result = 0;
-        }
-    }
-    return result;
-}
 
 
+// -----------------------------------
+// NEBULITE main
 /*
- * NEBULITE main
- * 
- * 
  * TODO:    Make error log an on/off toggle via an additional mainTree function
  *          log on
  *          log off
@@ -67,7 +67,11 @@ int resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainT
  * TODO:    Current implementation of result return only returns the result of the last maintree parse
  *          Perhaps the result should be used to determine when to stop the program as well, 
  *          instead of just checking Renderer::isQuit()
- *          E.g. close program if env-load is called on a non-existing file       
+ *          E.g. close program if env-load is called on a non-existing file
+ *          Idea here is to pass some sort of Nebulite::ErrorParse Struct that contains all errors and from what function in some vector  
+ * 
+ * TODO:    Current implementation of MainTreeFunctions should not remove the first arg when parsing
+ *          Goal: argc[0] should be the bin name or function name for easier debugging!    
  */
 int main(int argc, char* argv[]) {
     //--------------------------------------------------
@@ -126,8 +130,8 @@ int main(int argc, char* argv[]) {
     do {
         //--------------------
         // Handle args
-        result = resolveTaskQueue(Nebulite::tasks_script,  &Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
-        result = resolveTaskQueue(Nebulite::tasks_internal,nullptr,                            &argc_mainTree,&argv_mainTree);
+        result = Nebulite::resolveTaskQueue(Nebulite::tasks_script,  &Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
+        result = Nebulite::resolveTaskQueue(Nebulite::tasks_internal,nullptr,                            &argc_mainTree,&argv_mainTree);
 
         //--------------------
         // Update and render, only if initialized

@@ -1,6 +1,6 @@
 //------------------------------------------------
 // Main Tree attached functions 
-#include "mainTreeFunctions.h"
+#include "Nebulite.h"
 
 // Separate queues for script and internal
 // Otherwise, a wait from a script can halt the entire game logic
@@ -16,8 +16,6 @@ namespace Nebulite{
     // used by convertStrToArgcArgv
     char* argvBuffer = nullptr;
     int argvCapacity = 0;
-
-
     
     // init variables
     void init(){
@@ -71,8 +69,32 @@ namespace Nebulite{
         }
         return renderer.get();
     }
+
+
 }
 
+// Resolves a given taskqueue by parsing each line into argc/argv and calling the mainTree on the arguments
+int Nebulite::resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree){
+    int result = 0;
+    while (!tq.taskList.empty() && (counter == nullptr || *counter == 0)) {
+        // Get task
+        std::string argStr = tq.taskList.front();
+        tq.taskList.pop_front();  // remove the used task
+
+        // Convert std::string to argc,argv
+        *argc_mainTree = 0;
+        *argv_mainTree = nullptr;
+        Nebulite::convertStrToArgcArgv(argStr, *argc_mainTree, *argv_mainTree);
+
+        if (*argv_mainTree != nullptr && argStr.size()) {
+            result = Nebulite::mainTree.parse(*argc_mainTree, *argv_mainTree);
+        }
+        else{
+            result = 0;
+        }
+    }
+    return result;
+}
 
 void Nebulite::convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv) {
     // Free previous buffer if any

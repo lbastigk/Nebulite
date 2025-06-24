@@ -57,7 +57,7 @@ message(STATUS "Setting source files in project")
 set(COMMON_SOURCES
     ${TINYEXPR_PATH}/tinyexpr.c
     ${CMAKE_SOURCE_DIR}/src/Platform/Platform.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/mainTreeFunctions.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/Nebulite.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Data/JSON.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Data/JSONHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FileManagement.cpp
