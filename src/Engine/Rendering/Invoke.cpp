@@ -25,14 +25,25 @@ Invoke::Invoke(){
 }
 
 
-bool Invoke::isTrue(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj, bool resolveEqual) {
-    // Same objects cant make a pair
-    if((!resolveEqual) && (cmd->selfPtr == otherObj)){
-        return false;
-    }
-
+bool Invoke::isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj) {
     // Resolve logical statement
     std::string logic = resolveVars(cmd->logicalArg, *cmd->selfPtr->getDoc(), *otherObj->getDoc(), *global);
+    double result = evaluateExpression(logic);
+    if(isnan(result)){
+        std::cerr << "Evaluated logic to NAN! Logic is: " << logic << std::endl;
+        return false;
+    }
+    if (result == 0.0){
+        return false;
+    }
+    else{
+        return true;
+    }
+}
+
+bool Invoke::isTrueLocal(const std::shared_ptr<InvokeEntry>& cmd) {
+    // Resolve logical statement
+    std::string logic = resolveVars(cmd->logicalArg, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *global);
     double result = evaluateExpression(logic);
     if(isnan(result)){
         std::cerr << "Evaluated logic to NAN! Logic is: " << logic << std::endl;
@@ -51,11 +62,6 @@ bool Invoke::isTrue(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_p
 // True pairs are put into a special vector
 void Invoke::checkAgainstList(const std::shared_ptr<RenderObject>& obj){
     for (auto& cmd : commands){
-        /*
-        if(isTrue(cmd,obj)){
-            truePairs.push_back(std::make_pair(cmd,obj));
-        }
-        */
         pairs.push_back(std::make_pair(cmd,obj));
     }
 }
@@ -158,7 +164,7 @@ void Invoke::clear(){
 
 void Invoke::update(){
     for (auto pair : pairs){
-        if(isTrue(pair.first,pair.second)){
+        if(isTrueGlobal(pair.first,pair.second)){
             updateGlobal(pair.first, pair.second);
         }
     }

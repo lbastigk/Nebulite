@@ -251,7 +251,9 @@ void RenderObject::update(Invoke* globalInvoke, std::shared_ptr<RenderObject> th
 
 		// solve local invokes (loop)
 		for (const auto& cmd : cmds_internal){
-			if(globalInvoke->isTrue(cmd,this_shared))globalInvoke->updateLocal(cmd);
+			if(globalInvoke->isTrueLocal(cmd)){
+				globalInvoke->updateLocal(cmd);
+			}
 		}
 
 		// Checks this object against all conventional invokes for manipulation

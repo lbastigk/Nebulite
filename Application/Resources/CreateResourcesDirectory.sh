@@ -7,7 +7,6 @@ rootDir=$(pwd)
 
 #----------------------------------------
 # Main Directories
-mkdir -p ./Creatures
 mkdir -p ./Cursor
 mkdir -p ./Fonts
 mkdir -p ./Invokes

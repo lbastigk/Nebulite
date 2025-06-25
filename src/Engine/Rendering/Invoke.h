@@ -121,10 +121,8 @@ public:
     void checkAgainstList(
       const std::shared_ptr<RenderObject>& obj
     );
-    bool isTrue(
-      const std::shared_ptr<InvokeEntry>& cmd, 
-      const std::shared_ptr<RenderObject>& otherObj, 
-      bool resolveEqual=true);
+    bool isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj);
+    bool isTrueLocal (const std::shared_ptr<InvokeEntry>& cmd);
     void update();
     void updateGlobal(
       const std::shared_ptr<InvokeEntry>& cmd, 
