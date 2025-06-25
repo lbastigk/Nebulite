@@ -23,7 +23,9 @@ RenderObject::RenderObject() {
 	json.set(keyName.renderObject.pixelSizeY.c_str(), 32);
 
 	// Invokes
-	json.set_empty_array("invokes");
+	json.set_empty_array(keyName.renderObject.invokes.c_str());
+	json.set_empty_array(keyName.renderObject.invokeSubscriptions.c_str());
+	json.set((keyName.renderObject.invokeSubscriptions+"[0]").c_str(),"all");
 	json.set(keyName.renderObject.reloadInvokes.c_str(), true);
 
 	// Text
@@ -179,6 +181,7 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 			// Build entry
 			Invoke::InvokeEntry entry;
 			entry.selfPtr = this_shared;
+			entry.topic =			invoke.get<std::string>("topic","all");
 			entry.isGlobal = 		invoke.get<bool>("isGlobal",true);
 			entry.invokes_self = 	parseInvokeTriples(invoke,"self_invokes");
 			entry.invokes_other = 	parseInvokeTriples(invoke,"other_invokes");
@@ -257,7 +260,12 @@ void RenderObject::update(Invoke* globalInvoke, std::shared_ptr<RenderObject> th
 		}
 
 		// Checks this object against all conventional invokes for manipulation
-        globalInvoke->checkAgainstList(this_shared);
+		for(int i = 0; i < json.memberSize(keyName.renderObject.invokeSubscriptions.c_str());i++){
+			std::string key = keyName.renderObject.invokeSubscriptions + "[" + std::to_string(i) + "]";
+			std::string subscription = json.get<std::string>(key.c_str(),"");
+			globalInvoke->checkAgainstList(this_shared,subscription);
+		}
+        
 
 		// Next step: append general invokes from object itself back for global check:
 		for (const auto& cmd : cmds_general){

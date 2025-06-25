@@ -117,20 +117,12 @@ public:
     
     // Append invoke command
     void append(const std::shared_ptr<InvokeEntry>& toAppend);
-
-    void checkAgainstList(
-      const std::shared_ptr<RenderObject>& obj
-    );
+    void checkAgainstList(const std::shared_ptr<RenderObject>& obj,std::string topic);
     bool isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj);
     bool isTrueLocal (const std::shared_ptr<InvokeEntry>& cmd);
     void update();
-    void updateGlobal(
-      const std::shared_ptr<InvokeEntry>& cmd, 
-      const std::shared_ptr<RenderObject>& otherObj
-    );
-    void updateLocal(
-      const std::shared_ptr<InvokeEntry>& cmd
-    );
+    void updateGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj);
+    void updateLocal(const std::shared_ptr<InvokeEntry>& cmd);
     
     // Get Invokes for next frame
     // Empties current commands, shrinks and swaps with new commands vector.
@@ -184,16 +176,17 @@ private:
 
     //----------------------------------------------------------------
     // Current and next commands
-    std::vector<std::shared_ptr<InvokeEntry>> commands;
-    std::vector<std::shared_ptr<InvokeEntry>> nextCommands; 
-    std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> pairs;
-
+    //std::vector<std::shared_ptr<InvokeEntry>> commands;
+    //std::vector<std::shared_ptr<InvokeEntry>> nextCommands; 
     // TODO:
     // New way
     // cmds["topic"][]
     absl::flat_hash_map<std::string, std::vector<std::shared_ptr<InvokeEntry>>> globalcommands;
     absl::flat_hash_map<std::string, std::vector<std::shared_ptr<InvokeEntry>>> globalcommandsBuffer; 
-    //std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> pairsToUpdate;
+    std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> pairs;
+
+    
+
 
     //----------------------------------------------------------------
 

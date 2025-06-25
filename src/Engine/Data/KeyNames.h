@@ -18,13 +18,14 @@ const struct keyName {
         std::string spritesheetSizeY = "sprite.spritesheet.sizeY";
         std::string spritesheetOffsetX = "sprite.spritesheet.offsetX";
         std::string spritesheetOffsetY = "sprite.spritesheet.offsetY";
-        std::string invokes = "invokes";
-        std::string reloadInvokes = "reloadInvokes";
         std::string textFontsize = "text.fontSize";
         std::string textStr = "text.str";
         std::string textDx = "text.dx";
         std::string textDy = "text.dy";
         std::string flagCalculate = "text.flagCalculate";
+        std::string invokes = "invokes";
+        std::string invokeSubscriptions = "invokeSubscriptions";
+        std::string reloadInvokes = "invokeReload";
     }renderObject;
     const struct MyTemplate {
         std::string _self = "MyTemplate";

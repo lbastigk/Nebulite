@@ -60,8 +60,8 @@ bool Invoke::isTrueLocal(const std::shared_ptr<InvokeEntry>& cmd) {
 
 // Checks an object against all linked invokes.
 // True pairs are put into a special vector
-void Invoke::checkAgainstList(const std::shared_ptr<RenderObject>& obj){
-    for (auto& cmd : commands){
+void Invoke::checkAgainstList(const std::shared_ptr<RenderObject>& obj,std::string topic){
+    for (auto& cmd : globalcommands[topic]){
         pairs.push_back(std::make_pair(cmd,obj));
     }
 }
@@ -144,11 +144,8 @@ void Invoke::updateLocal(const std::shared_ptr<InvokeEntry>& cmd){
 }
 
 void Invoke::clear(){
-    commands.clear();
-    commands.shrink_to_fit();
-
-    nextCommands.clear();
-    nextCommands.shrink_to_fit();
+    globalcommands.clear();
+    globalcommandsBuffer.clear();
 
     pairs.clear();
     pairs.shrink_to_fit();
@@ -174,13 +171,12 @@ void Invoke::update(){
 
 // Called after a full renderer update to get all extracted invokes
 void Invoke::getNewInvokes(){
-    commands.clear();
-    commands.shrink_to_fit();
-    commands.swap(nextCommands);    // Swap in the new set of commands
+    globalcommands.clear();
+    globalcommands.swap(globalcommandsBuffer);    // Swap in the new set of commands
 }
 
 void Invoke::append(const std::shared_ptr<InvokeEntry>& toAppend){
-    nextCommands.push_back(toAppend);
+    globalcommandsBuffer[toAppend->topic].push_back(toAppend);
 }
 
 //--------------------------------------------------------
