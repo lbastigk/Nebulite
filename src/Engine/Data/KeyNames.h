@@ -31,6 +31,22 @@ const struct keyName {
         std::string _self = "MyTemplate";
         std::string bsp1 = "Beispiel1";
     }MyTemplate;
+    const struct invoke{
+        std::string _self = "invoke";
+        std::string logicalArg = "logicalArg";
+        std::string functioncalls = "functioncalls";
+        std::string invokes_self = "self_invokes";
+        std::string invokes_other = "other_invokes";
+        std::string invokes_global = "global_invokes";
+        std::string isGlobal = "isGlobal";
+        std::string topic = "topic";
+    }invoke;
+    const struct invokeTriple{
+        std::string _self = "invokeTriple";
+        std::string changeType = "changeType";
+        std::string key = "key";
+        std::string value = "value";
+    }invokeTriple;
     const struct Environment {
         std::string renderObjectContainer = "RenderObjectContainer";
     }environment;

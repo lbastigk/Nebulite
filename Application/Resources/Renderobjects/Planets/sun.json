@@ -1,8 +1,12 @@
 {
     "deleteFlag": false,
     "id": 0,
+    "invokeReload": true,
+    "invokeSubscriptions": [
+        "all",
+        "gravity"
+    ],
     "invokes": [
-        "./Resources/Invokes/Movement/movement_wasd.json",
         "./Resources/Invokes/Physics/gravity.json",
         "./Resources/Invokes/Physics/integrate_a.json",
         "./Resources/Invokes/Physics/integrate_v.json",
@@ -19,7 +23,6 @@
     },
     "posX": 500,
     "posY": 500,
-    "reloadInvokes": true,
     "sprite": {
         "link": "Resources/Sprites/TEST001P/014.bmp",
         "sizeX": 50,

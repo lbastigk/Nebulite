@@ -1,11 +1,14 @@
 {
     "deleteFlag": false,
     "id": 0,
+    "invokeReload": true,
+    "invokeSubscriptions": [
+        "all"
+    ],
     "invokes": [],
     "layer": 0,
     "posX": 0,
     "posY": 0,
-    "reloadInvokes": true,
     "sprite": {
         "link": "Resources/Sprites/TEST001P/001.bmp",
         "sizeX": 32,

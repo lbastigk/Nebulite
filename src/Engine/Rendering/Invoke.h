@@ -1,15 +1,8 @@
 #pragma once
 
 // TODO: Implement a subscription based invoke loading
-// Each object subscribes to invokes and sends invokes itself
-// Each object gets pointer to invokes in the global pool of its subscription
-// When receiving invokes, the receiver is other
-// 
-// However, a more appropriate way might be to stack the effects on self and other
-// Lots of thinking required here, maybe take a few day to rework architecture
-// 
-// Also, an approximation for invoke calls for a typical game is needed. 
-// Perhaps implementing a horizontal slice soon is a good idea
+// Not working atm, if i remove subscription gravity from obj1, it is still being attracted!
+// Perhaps an error in generating true pairs...
 
 /*
 
@@ -121,7 +114,7 @@ public:
     bool isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj);
     bool isTrueLocal (const std::shared_ptr<InvokeEntry>& cmd);
     void update();
-    void updateGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj);
+    void updateGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& Obj);
     void updateLocal(const std::shared_ptr<InvokeEntry>& cmd);
     
     // Get Invokes for next frame
@@ -150,6 +143,8 @@ public:
     Nebulite::JSON* getGlobalPointer(){return global;};
 
     std::deque<std::string>* getQueue(){return tasks;};
+
+    Nebulite::JSON example();
     
 private:
     // TinyExpr

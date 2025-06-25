@@ -247,19 +247,24 @@ void RenderObject::update(Invoke* globalInvoke, std::shared_ptr<RenderObject> th
 	//------------------------------------
 	// Check all invokes
 	if (globalInvoke) {
-		// Reload invokes if needed
+		//------------------------------
+		// 1.) Reload invokes if needed
 		if (valueGet<int>(keyName.renderObject.reloadInvokes.c_str(),true)){
 			reloadInvokes(this_shared);
 		}
 
-		// solve local invokes (loop)
+		//------------------------------
+		// 2.) Directly solve local invokes (loop)
 		for (const auto& cmd : cmds_internal){
 			if(globalInvoke->isTrueLocal(cmd)){
 				globalInvoke->updateLocal(cmd);
 			}
 		}
 
-		// Checks this object against all conventional invokes for manipulation
+		//------------------------------
+		// 3.) Checks this object against all conventional invokes
+		//	   Manipulation happens at the Invoke::update routine later on
+		//     This just generates true pairs that need to be updated
 		for(int i = 0; i < json.memberSize(keyName.renderObject.invokeSubscriptions.c_str());i++){
 			std::string key = keyName.renderObject.invokeSubscriptions + "[" + std::to_string(i) + "]";
 			std::string subscription = json.get<std::string>(key.c_str(),"");
@@ -267,7 +272,9 @@ void RenderObject::update(Invoke* globalInvoke, std::shared_ptr<RenderObject> th
 		}
         
 
-		// Next step: append general invokes from object itself back for global check:
+		//------------------------------
+		// 4.) Append general invokes from object itself back for global check
+		//     This makes sure that no invokes from inactive objects stay in the list
 		for (const auto& cmd : cmds_general){
 			// add pointer to invoke command to global
 			globalInvoke->append(cmd);

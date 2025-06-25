@@ -33,12 +33,7 @@ bool Invoke::isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::sh
         std::cerr << "Evaluated logic to NAN! Logic is: " << logic << std::endl;
         return false;
     }
-    if (result == 0.0){
-        return false;
-    }
-    else{
-        return true;
-    }
+    return result != 0.0;
 }
 
 bool Invoke::isTrueLocal(const std::shared_ptr<InvokeEntry>& cmd) {
@@ -49,12 +44,7 @@ bool Invoke::isTrueLocal(const std::shared_ptr<InvokeEntry>& cmd) {
         std::cerr << "Evaluated logic to NAN! Logic is: " << logic << std::endl;
         return false;
     }
-    if (result == 0.0){
-        return false;
-    }
-    else{
-        return true;
-    }
+    return result != 0.0;
 }
 
 
@@ -81,19 +71,19 @@ void Invoke::updateValueOfKey(const std::string& type, const std::string& key, c
 
 // Checks a given invoke cmd against objects in buffer
 // as objects have constant pointers, using RenderObject& is possible
-void Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj) {
+void Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& Obj) {
     // === SELF update ===
     for(auto InvokeTriple : cmd->invokes_self){
         if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *otherObj->getDoc(), *global);
-            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
+            std::string valStr = resolveVars(InvokeTriple.value, *Obj->getDoc(), *cmd->selfPtr->getDoc(), *global);
+            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, Obj->getDoc());
         } 
     }
 
     // === OTHER update ===
     for(auto InvokeTriple : cmd->invokes_other){
         if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *otherObj->getDoc(), *global);
+            std::string valStr = resolveVars(InvokeTriple.value, *Obj->getDoc(), *cmd->selfPtr->getDoc(), *global);
             updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
         } 
     }
@@ -101,7 +91,7 @@ void Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::sh
     // === GLOBAL update ===
     for(auto InvokeTriple : cmd->invokes_global){
         if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *otherObj->getDoc(), *global);
+            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *Obj->getDoc(), *global);
             updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, global);
         } 
     }
@@ -109,7 +99,7 @@ void Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::sh
     // === Functioncalls ===
     for(auto call : cmd->functioncalls){
         // replace vars
-        call = resolveVars(call,*cmd->selfPtr->getDoc(),*otherObj->getDoc(), *global);
+        call = resolveVars(call,*cmd->selfPtr->getDoc(),*Obj->getDoc(), *global);
 
         // attach to task queue
         tasks->emplace_back(call);
@@ -434,4 +424,9 @@ std::string Invoke::resolveGlobalVars(const std::string& input) {
     return resolveVars(input,emptyDoc,emptyDoc,*global);
 }
 
+Nebulite::JSON Invoke::example(){
+    Nebulite::JSON json;
 
+    json.set_empty_array("self_invokes");
+    
+}

@@ -1,6 +1,11 @@
 {
     "deleteFlag": false,
     "id": 0,
+    "invokeReload": true,
+    "invokeSubscriptions": [
+        "all",
+        "gravity"
+    ],
     "invokes": [
         "./Resources/Invokes/General/set_render_position_center.json",
         "./Resources/Invokes/Physics/gravity.json",
@@ -19,7 +24,6 @@
     },
     "posX": 350,
     "posY": 500,
-    "reloadInvokes": true,
     "sprite": {
         "link": "Resources/Sprites/TEST001P/001.bmp",
         "sizeX": 10,
