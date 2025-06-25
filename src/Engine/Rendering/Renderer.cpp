@@ -290,8 +290,6 @@ void Renderer::moveCam(int dX, int dY, bool isMiddle) {
 		"display.position.Y",
 		invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0) + dY
 	);
-	tileXpos = invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0) / invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0);
-	tileYpos = invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0) / invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0);
 };
 
 void Renderer::setCam(int X, int Y, bool isMiddle) {
@@ -309,8 +307,6 @@ void Renderer::setCam(int X, int Y, bool isMiddle) {
 		invoke_ptr->getGlobalPointer()->set<int>("display.position.X",X);
 		invoke_ptr->getGlobalPointer()->set<int>("display.position.X",Y);
 	}
-	tileXpos = X / invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0);
-	tileYpos = Y / invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0);
 };
 
 
@@ -326,11 +322,15 @@ void Renderer::clear(){
 	SDL_RenderClear(renderer);
 }
 
-// TODO: flag to update all rects if cam was moved!
-// This should make sure that objects with invoke center_pos stay in center
+
 void Renderer::renderFrame() {
+	// Store for faster access
 	int dispPosX = invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0);
 	int dispPosY = invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0);
+
+	// Depending on position, set tiles to render
+	tileXpos = dispPosX / invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0);
+	tileYpos = dispPosY / invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0);
 	
 	//------------------------------------------------
 	// FPS Count
