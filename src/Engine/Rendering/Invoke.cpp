@@ -26,7 +26,7 @@ Invoke::Invoke(){
 
 
 bool Invoke::isTrue(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj, bool resolveEqual) {
-    // Same send
+    // Same objects cant make a pair
     if((!resolveEqual) && (cmd->selfPtr == otherObj)){
         return false;
     }
@@ -157,15 +157,6 @@ void Invoke::clear(){
 }
 
 void Invoke::update(){
-    /*
-    // check general vals
-    for (auto pair : truePairs){
-        updateGlobal(pair.first, pair.second);
-    }
-    truePairs.clear();
-    truePairs.shrink_to_fit();
-    */
-    // check general vals
     for (auto pair : pairs){
         if(isTrue(pair.first,pair.second)){
             updateGlobal(pair.first, pair.second);

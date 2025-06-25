@@ -93,6 +93,7 @@ public:
         std::string value;
     };
     struct InvokeEntry{
+        std::string topic = "all";
         std::shared_ptr<RenderObject> selfPtr;      // store self
         std::string logicalArg;                     //e.g. $self.posX > $other.posY
         std::vector<InvokeTriple> invokes_self;     // vector : key-value pair
@@ -183,10 +184,20 @@ private:
     Nebulite::JSON emptyDoc;
     Nebulite::JSON* global = nullptr;
 
+    //----------------------------------------------------------------
     // Current and next commands
     std::vector<std::shared_ptr<InvokeEntry>> commands;
     std::vector<std::shared_ptr<InvokeEntry>> nextCommands; 
     std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> pairs;
+
+    // TODO:
+    // New way
+    // cmds["topic"][]
+    absl::flat_hash_map<std::string, std::vector<std::shared_ptr<InvokeEntry>>> globalcommands;
+    absl::flat_hash_map<std::string, std::vector<std::shared_ptr<InvokeEntry>>> globalcommandsBuffer; 
+    //std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> pairsToUpdate;
+
+    //----------------------------------------------------------------
 
     // pointer to queue
     std::deque<std::string>* tasks = nullptr; 
