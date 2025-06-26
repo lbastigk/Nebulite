@@ -113,13 +113,9 @@ int main(int argc, char* argv[]) {
         Nebulite::tasks_internal.taskList.push_back(std::string("set-fps 60"));
     }
 
-
     //--------------------------------------------------
-    // Init general variables from Nebulite namespace
-    Nebulite::init();
-
-    //--------------------------------------------------
-    // Build main FuncTree
+    // Init general variables from Nebulite namespace, Build main FuncTree
+    //
     // Holds functions that are called through the invoke class through functioncalls
     // These are appended to the Nebulite::taskque: Nebulite::tasks_internal 
     // and then parsed like any usual argc/argv from the main would be to call functions in Nebulite::mainTreeFunctions
@@ -139,6 +135,20 @@ int main(int argc, char* argv[]) {
     //   "if you have the attribute xyz, set yourself to my position"
     // This allows for more dynamic interactions without having to communicate each renderobjects position to the user
     // as these would usually need more complicated, hardcoded solutions of getting and searching the internal RenderObjectContainer
+    //
+    // MainTreeFunctions are easily implemented by:
+    //  - defining them in the Nebulite.h/.cpp file
+    //  - adding them to the mainTree 
+    // Example:
+    //
+    // // Definition
+    // int Nebulite::mainTreeFunctions::foo(int argc, char** argv){std::cout << "bar" << std::endl;};
+    // // Add to mainTree:     Function                               Name    Description
+    // mainTree.attachFunction(Nebulite::mainTreeFunctions::foo,      "foo",  "Prints foo to cout");
+    // Then, calling ./bin/Nebulite help will include the entry:
+    // foo - Prints foo to cout
+    // And calling "./bin/Nebulite foo" prints bar to cout
+    Nebulite::init();
     Nebulite::init_functions();
     
     //--------------------------------------------------
@@ -147,17 +157,18 @@ int main(int argc, char* argv[]) {
     // argc/argv for functioncalls
     int    argc_mainTree = 0;
     char** argv_mainTree = nullptr;
-    int result = 0;
 
     // At least one loop, to handle taskQueues
     do {
         //--------------------
         // Handle args, parse queue into mainTree and then call internal functions from Nebulite::mainTreeFunctions
-        result = Nebulite::resolveTaskQueue(Nebulite::tasks_script,  &Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
-        result = Nebulite::resolveTaskQueue(Nebulite::tasks_internal,nullptr,                            &argc_mainTree,&argv_mainTree);
+        // Currently ignoring return values, plan is a more complex result handling in the future
+        (void) Nebulite::resolveTaskQueue(Nebulite::tasks_script,  &Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
+        (void) Nebulite::resolveTaskQueue(Nebulite::tasks_internal,nullptr,                            &argc_mainTree,&argv_mainTree);
 
         //--------------------
         // Update and render, only if initialized
+        // If renderer wasnt initialized, it is still a nullptr
         if (Nebulite::renderer != nullptr && Nebulite::getRenderer()->timeToRender()) {
             Nebulite::getRenderer()->update();          // 1.) Update objects:      Allowing for them to communicate through their invokes
             Nebulite::getRenderer()->renderFrame();     // 2.) Render frame:        Rendering all Container layers from bottom to top
@@ -169,15 +180,22 @@ int main(int argc, char* argv[]) {
             // and halts any following taskQueues for a set amount of frames. This is only necessary for the script tasks, 
             // not for any tasks given from renderobjects as they should never be halted
             // -> After each frame: lower waitCounter in script task
-            if(Nebulite::tasks_script.waitCounter>0){
+            if(Nebulite::tasks_script.waitCounter>0){ 
+                // If renderer doesnt exist, still reduce
                 if(Nebulite::renderer == nullptr){
                     Nebulite::tasks_script.waitCounter--; 
                 }
+                // If that isnt the case: renderer exists: calling getRenderer is possible without accidently creating the renderer
+                // Now, just check if the renderer isnt in console mode (essentially freezing all processes)
                 else if(!Nebulite::getRenderer()->isConsoleMode()){
                     Nebulite::tasks_script.waitCounter--; 
                 }
             }    
         }
+    // Continue only if renderer exists, and if quit wasnt called.
+    // It might be tempting to add the condition that all tasks are done, 
+    // but this could cause issues if the user wishes to quit while a task is still running.
+    // so if the user is running a task with wait, meaning to all tasks are finished in the first loop, a renderer has to be initialized.
     } while (Nebulite::renderer != nullptr && !Nebulite::getRenderer()->isQuit());
 
 
@@ -193,5 +211,5 @@ int main(int argc, char* argv[]) {
     errorFile.close();
 
     // Exit
-    return result;
+    return 0;
 }
