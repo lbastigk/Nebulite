@@ -73,7 +73,6 @@ namespace Nebulite{
 
 }
 
-// Resolves a given taskqueue by parsing each line into argc/argv and calling the mainTree on the arguments
 int Nebulite::resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree){
     int result = 0;
     while (!tq.taskList.empty() && (counter == nullptr || *counter == 0)) {
