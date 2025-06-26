@@ -17,6 +17,7 @@
 
 #define WINDOWNAME "coolgame"
 
+namespace Nebulite{
 class Renderer {
 public:
 	Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_hidden = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
@@ -176,3 +177,4 @@ private:
 	void loadTexture(std::string link);
 
 };
+}

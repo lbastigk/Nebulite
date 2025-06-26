@@ -2,7 +2,7 @@
 
 
 
-Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y)
+Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y)
 : 	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B")),
 	dist(0, 32767)
@@ -99,11 +99,11 @@ Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_h
 
 //-----------------------------------------------------------
 //Marshalling
-std::string Renderer::serialize() {
+std::string Nebulite::Renderer::serialize() {
 	return env.serialize();
 }
 
-void Renderer::deserialize(std::string serialOrLink) {
+void Nebulite::Renderer::deserialize(std::string serialOrLink) {
 	env.deserialize(
 		serialOrLink, 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
@@ -113,7 +113,7 @@ void Renderer::deserialize(std::string serialOrLink) {
 
 //-----------------------------------------------------------
 // Pipeline
-void Renderer::append(std::shared_ptr<RenderObject> toAppend) {
+void Nebulite::Renderer::append(std::shared_ptr<RenderObject> toAppend) {
 	// Set ID
 	toAppend.get()->valueSet<uint32_t>(keyName.renderObject.id.c_str(),id_counter);
 	id_counter++;
@@ -133,14 +133,14 @@ void Renderer::append(std::shared_ptr<RenderObject> toAppend) {
 	update_rrand();
 }
 
-void Renderer::reinsertAllObjects(){
+void Nebulite::Renderer::reinsertAllObjects(){
 	env.reinsertAllObjects(
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0),
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0)
 	);
 }
 
-void Renderer::update() {
+void Nebulite::Renderer::update() {
 	//--------------------------------------------
 	// Key Polling
 
@@ -207,12 +207,12 @@ void Renderer::update() {
 
 //-----------------------------------------------------------
 // Purge
-void Renderer::purgeObjects() {
+void Nebulite::Renderer::purgeObjects() {
 	invoke_ptr->clear();
 	env.purgeObjects();
 }
 
-void Renderer::purgeObjectsAt(int x, int y){
+void Nebulite::Renderer::purgeObjectsAt(int x, int y){
 	env.purgeObjectsAt(
 		x,
 		y,
@@ -221,11 +221,11 @@ void Renderer::purgeObjectsAt(int x, int y){
 	);
 }
 
-void Renderer::purgeLayer(int layer) {
+void Nebulite::Renderer::purgeLayer(int layer) {
 	env.purgeLayer(layer);
 }
 
-void Renderer::purgeTextures() {
+void Nebulite::Renderer::purgeTextures() {
 	// Release resources for TextureContainer
 	for (auto& pair : TextureContainer) {
 		SDL_DestroyTexture(pair.second);
@@ -233,7 +233,7 @@ void Renderer::purgeTextures() {
 	TextureContainer.clear(); // Clear the map to release resources
 }
 
-void Renderer::destroy() {
+void Nebulite::Renderer::destroy() {
     if (window) {
         SDL_DestroyWindow(window);
         window = nullptr;
@@ -251,7 +251,7 @@ void Renderer::destroy() {
 //-----------------------------------------------------------
 // Manipulation
 
-void Renderer::changeWindowSize(int w, int h, int scalar) {
+void Nebulite::Renderer::changeWindowSize(int w, int h, int scalar) {
 	RenderScalar = scalar;
 	if(w < 64 || w > 16384){
 		std::cerr << "Selected resolution is not supported:" << w << "x" << h << "x" << std::endl;
@@ -281,7 +281,7 @@ void Renderer::changeWindowSize(int w, int h, int scalar) {
     reinsertAllObjects();
 }
 
-void Renderer::moveCam(int dX, int dY, bool isMiddle) {
+void Nebulite::Renderer::moveCam(int dX, int dY, bool isMiddle) {
 	invoke_ptr->getGlobalPointer()->set<int>(
 		"display.position.X",
 		invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0) + dX
@@ -292,7 +292,7 @@ void Renderer::moveCam(int dX, int dY, bool isMiddle) {
 	);
 };
 
-void Renderer::setCam(int X, int Y, bool isMiddle) {
+void Nebulite::Renderer::setCam(int X, int Y, bool isMiddle) {
 	if(isMiddle){
 		invoke_ptr->getGlobalPointer()->set<int>(
 			"display.position.X",
@@ -313,17 +313,17 @@ void Renderer::setCam(int X, int Y, bool isMiddle) {
 //-----------------------------------------------------------
 // Rendering
 
-bool Renderer::timeToRender() {
+bool Nebulite::Renderer::timeToRender() {
 	return SDL_GetTicks64() >= (prevTicks + SCREEN_TICKS_PER_FRAME);
 }
 
-void Renderer::clear(){
+void Nebulite::Renderer::clear(){
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
 	SDL_RenderClear(renderer);
 }
 
 
-void Renderer::renderFrame() {
+void Nebulite::Renderer::renderFrame() {
 	// Store for faster access
 	int dispPosX = invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0);
 	int dispPosY = invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0);
@@ -479,7 +479,7 @@ void Renderer::renderFrame() {
 
 }
 
-void Renderer::renderFPS(float scalar) {
+void Nebulite::Renderer::renderFPS(float scalar) {
 	scalar = scalar / (float)RenderZoom / (float)RenderScalar;
 
 	// Create a string with the FPS value
@@ -510,12 +510,12 @@ void Renderer::renderFPS(float scalar) {
 	SDL_DestroyTexture(textTexture);
 }
 
-void Renderer::showFrame() {
+void Nebulite::Renderer::showFrame() {
 	SDL_RenderPresent(renderer);
 }
 
 // This function is called on each non in-console frame to set the values for the global document
-void Renderer::setGlobalValues(){
+void Nebulite::Renderer::setGlobalValues(){
 	//---------------------------------------------
 	// Time
 	// logs:
@@ -552,7 +552,7 @@ void Renderer::setGlobalValues(){
 // TODO: hashmap for key names instead of constant polling?
 // This also ensures cross-platform stability, note that SDL_GetScancodeName is not cross-platform stable!!!
 // Manual map is therefore necessary
-void Renderer::pollEvent() {
+void Nebulite::Renderer::pollEvent() {
 	//----------------------------------
 	// Window state + console input
 	while (SDL_PollEvent(&event)) {
@@ -657,7 +657,7 @@ void Renderer::pollEvent() {
     prevKeyState.assign(keyState, keyState + SDL_NUM_SCANCODES);
 }
 
-SDL_Event Renderer::getEventHandle() {
+SDL_Event Nebulite::Renderer::getEventHandle() {
 	SDL_Event event;
 	SDL_PollEvent(&event);
 	return event;
@@ -665,7 +665,7 @@ SDL_Event Renderer::getEventHandle() {
 
 //-----------------------------------------------------------
 // Setting
-void Renderer::setFPS(int fps) {
+void Nebulite::Renderer::setFPS(int fps) {
 	if (fps > 0) {
 		SCREEN_FPS = fps;
 		SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
@@ -680,7 +680,7 @@ void Renderer::setFPS(int fps) {
 //-----------------------------------------------------------
 // Other
 
-void Renderer::loadTexture(std::string link) {
+void Nebulite::Renderer::loadTexture(std::string link) {
 	// Combine directory and innerdir to form full path
 	std::string path = FileManagement::CombinePaths(directory, link);
 
@@ -716,6 +716,6 @@ void Renderer::loadTexture(std::string link) {
 	}
 }
 
-std::size_t Renderer::hashString(const std::string& str) {
+std::size_t Nebulite::Renderer::hashString(const std::string& str) {
     return std::hash<std::string>{}(str);
 }

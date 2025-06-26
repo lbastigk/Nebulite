@@ -8,7 +8,7 @@
 namespace Nebulite{
     taskQueue tasks_script;
     taskQueue tasks_internal;
-    std::unique_ptr<Renderer> renderer = nullptr;
+    std::unique_ptr<Nebulite::Renderer> renderer = nullptr;
     Invoke invoke;
     FuncTree mainTree("Nebulite");
     std::unique_ptr<Nebulite::JSON> global = nullptr;
@@ -64,7 +64,7 @@ namespace Nebulite{
 
     Renderer* getRenderer() {
         if (!renderer) {
-            renderer = std::make_unique<Renderer>(invoke,*global);
+            renderer = std::make_unique<Nebulite::Renderer>(invoke,*global);
             renderer->setFPS(60);
         }
         return renderer.get();

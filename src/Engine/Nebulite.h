@@ -14,7 +14,6 @@
 // Nebulite instances
 namespace Nebulite {
     
-
     struct taskQueue {
         std::deque<std::string> taskList;
         uint64_t waitCounter = 0;
@@ -36,7 +35,7 @@ namespace Nebulite {
     void init_functions();
 
     // Function to lazily initialize the renderer
-    Renderer* getRenderer();
+    Nebulite::Renderer* getRenderer();
 
     // Converting string cmd to argc/argv
     void convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv);
