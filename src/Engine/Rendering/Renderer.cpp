@@ -2,7 +2,7 @@
 
 
 
-Renderer::Renderer(Invoke& invoke, Nebulite::JSON& global, bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y)
+Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y)
 : 	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B")),
 	dist(0, 32767)

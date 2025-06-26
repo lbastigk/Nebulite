@@ -2,7 +2,7 @@
 #include "RenderObject.h"  // include full definition of RenderObject
 
 
-Invoke::Invoke(){
+Nebulite::Invoke::Invoke(){
     // Manually add function variables
     te_variable gt_var = {"gt",     (void*)expr_custom::gt,             TE_FUNCTION2};
     vars.push_back(gt_var);
@@ -25,7 +25,7 @@ Invoke::Invoke(){
 }
 
 
-bool Invoke::isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj) {
+bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj) {
     // Resolve logical statement
     std::string logic = resolveVars(cmd->logicalArg, *cmd->selfPtr->getDoc(), *otherObj->getDoc(), *global);
     double result = evaluateExpression(logic);
@@ -36,7 +36,7 @@ bool Invoke::isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::sh
     return result != 0.0;
 }
 
-bool Invoke::isTrueLocal(const std::shared_ptr<InvokeEntry>& cmd) {
+bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<InvokeEntry>& cmd) {
     // Resolve logical statement
     std::string logic = resolveVars(cmd->logicalArg, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *global);
     double result = evaluateExpression(logic);
@@ -50,7 +50,7 @@ bool Invoke::isTrueLocal(const std::shared_ptr<InvokeEntry>& cmd) {
 
 // Checks an object against all linked invokes.
 // True pairs are put into a special vector
-void Invoke::checkAgainstList(const std::shared_ptr<RenderObject>& obj,std::string topic){
+void Nebulite::Invoke::checkAgainstList(const std::shared_ptr<RenderObject>& obj,std::string topic){
     for (auto& cmd : globalcommands[topic]){
         pairs.push_back(std::make_pair(cmd,obj));
     }
@@ -60,7 +60,7 @@ void Invoke::checkAgainstList(const std::shared_ptr<RenderObject>& obj,std::stri
 // TODO: get rid of this set/concat etc-structure...
 // instead of "add" "1" write "$($(self.val) + 1))" and then store as string
 // later on, expand tinyexpr for int casts, which is the only thing this structure cant solve on its own
-void Invoke::updateValueOfKey(const std::string& type, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){
+void Nebulite::Invoke::updateValueOfKey(const std::string& type, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){
     if        (type == "set")       doc->set<std::string>(key.c_str(),valStr);
     else if   (type == "setInt")    doc->set<int>(key.c_str(),std::stoi(valStr));
     else if   (type == "add")       doc->set<std::string>(key.c_str(),std::to_string(std::stod(valStr) + doc->get<double>(key.c_str(),0)));
@@ -71,7 +71,7 @@ void Invoke::updateValueOfKey(const std::string& type, const std::string& key, c
 
 // Checks a given invoke cmd against objects in buffer
 // as objects have constant pointers, using RenderObject& is possible
-void Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& Obj) {
+void Nebulite::Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& Obj) {
     // === SELF update ===
     for(auto InvokeTriple : cmd->invokes_self){
         if (!InvokeTriple.key.empty()) {
@@ -106,7 +106,7 @@ void Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::sh
     }
 }
 
-void Invoke::updateLocal(const std::shared_ptr<InvokeEntry>& cmd){
+void Nebulite::Invoke::updateLocal(const std::shared_ptr<InvokeEntry>& cmd){
     // === SELF update ===
     for(auto InvokeTriple : cmd->invokes_self){
         if (!InvokeTriple.key.empty()) {
@@ -133,7 +133,7 @@ void Invoke::updateLocal(const std::shared_ptr<InvokeEntry>& cmd){
     }
 }
 
-void Invoke::clear(){
+void Nebulite::Invoke::clear(){
     globalcommands.clear();
     globalcommandsBuffer.clear();
 
@@ -149,7 +149,7 @@ void Invoke::clear(){
     exprTree.clear();
 }
 
-void Invoke::update(){
+void Nebulite::Invoke::update(){
     for (auto pair : pairs){
         if(isTrueGlobal(pair.first,pair.second)){
             updateGlobal(pair.first, pair.second);
@@ -160,12 +160,12 @@ void Invoke::update(){
 }
 
 // Called after a full renderer update to get all extracted invokes
-void Invoke::getNewInvokes(){
+void Nebulite::Invoke::getNewInvokes(){
     globalcommands.clear();
     globalcommands.swap(globalcommandsBuffer);    // Swap in the new set of commands
 }
 
-void Invoke::append(const std::shared_ptr<InvokeEntry>& toAppend){
+void Nebulite::Invoke::append(const std::shared_ptr<InvokeEntry>& toAppend){
     globalcommandsBuffer[toAppend->topic].push_back(toAppend);
 }
 
@@ -202,10 +202,13 @@ void Invoke::append(const std::shared_ptr<InvokeEntry>& toAppend){
 //      - <GLOBAL> is replaced by global pointer on call
 //
 // Important: Needs another workaround to allow for $(...) to deliver a string!
+//
+// Could mean lots of work, low priority for now
+//
 //--------------------------------------------------------
 
 // Evaluating expression with already replaced self/other/global relations
-double Invoke::evaluateExpression(const std::string& expr) {
+double Nebulite::Invoke::evaluateExpression(const std::string& expr) {
 
     // Variable access via tinyexpr is needed for cache...
     /*
@@ -241,7 +244,7 @@ double Invoke::evaluateExpression(const std::string& expr) {
 
 // turn nodes that hold constant to evaluate into text
 // e.g. $(1+1) is turned into 2.000...
-void Invoke::foldConstants(const std::shared_ptr<Invoke::Node>& node) {
+void Nebulite::Invoke::foldConstants(const std::shared_ptr<Invoke::Node>& node) {
     // Recurse into children first
     for (auto& child : node->children) {
         foldConstants(child);
@@ -273,7 +276,7 @@ void Invoke::foldConstants(const std::shared_ptr<Invoke::Node>& node) {
     }
 }
 
-std::shared_ptr<Invoke::Node> Invoke::expressionToTree(const std::string& input) {
+std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::expressionToTree(const std::string& input) {
     Node root;
     std::vector<std::shared_ptr<Invoke::Node>> children;
     size_t pos = 0;
@@ -364,7 +367,7 @@ std::shared_ptr<Invoke::Node> Invoke::expressionToTree(const std::string& input)
 // $($(global.constants.pi) + 1)  -> 4.141..
 //   $(global.constants.pi) + 1   -> 3.141... + 1
 // Time is: $(global.time.t)      -> Time is: 11.01
-std::string Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON& self,Nebulite::JSON& other,Nebulite::JSON& global,bool insideEvalParent){
+std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON& self,Nebulite::JSON& other,Nebulite::JSON& global,bool insideEvalParent){
     switch (nodeptr->type) {
         case Node::Type::Literal:
             return nodeptr->text;
@@ -412,7 +415,7 @@ std::string Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Ne
 }
   
 // replace all instances of $(...) with their evaluation
-std::string Invoke::resolveVars(const std::string& input, Nebulite::JSON& self, Nebulite::JSON& other, Nebulite::JSON& global) {
+std::string Nebulite::Invoke::resolveVars(const std::string& input, Nebulite::JSON& self, Nebulite::JSON& other, Nebulite::JSON& global) {
     if(!exprTree.contains(input)){
         exprTree[input] = expressionToTree(input);
     }
@@ -420,13 +423,7 @@ std::string Invoke::resolveVars(const std::string& input, Nebulite::JSON& self, 
 }
 
 // same as resolveVars, but only using global, rest is empty
-std::string Invoke::resolveGlobalVars(const std::string& input) {
+std::string Nebulite::Invoke::resolveGlobalVars(const std::string& input) {
     return resolveVars(input,emptyDoc,emptyDoc,*global);
 }
 
-Nebulite::JSON Invoke::example(){
-    Nebulite::JSON json;
-
-    json.set_empty_array("self_invokes");
-    
-}

@@ -31,7 +31,7 @@ public:
 	SDL_Texture& getTextTexture();
 	SDL_Rect* getTextRect();
 	//-----------------------------------------------------------
-	void update(Invoke* globalInvoke,std::shared_ptr<RenderObject> this_shared);
+	void update(Nebulite::Invoke* globalInvoke,std::shared_ptr<RenderObject> this_shared);
 	void reloadInvokes(std::shared_ptr<RenderObject> this_shared);
 
 	void calculateText(SDL_Renderer* renderer,TTF_Font* font, int renderer_X, int renderer_Y);
@@ -52,8 +52,8 @@ private:
 	SDL_Texture* textTexture;
 
 	// Invoke Commands
-	std::vector<std::shared_ptr<Invoke::InvokeEntry>> cmds_general;		// Global
-	std::vector<std::shared_ptr<Invoke::InvokeEntry>> cmds_internal;	// Internal
+	std::vector<std::shared_ptr<Nebulite::Invoke::InvokeEntry>> cmds_general;		// Global
+	std::vector<std::shared_ptr<Nebulite::Invoke::InvokeEntry>> cmds_internal;	// Internal
 };
 
 //-----------------------------------------------------------

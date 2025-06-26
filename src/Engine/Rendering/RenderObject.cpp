@@ -136,13 +136,13 @@ void RenderObject::calculateSrcRect() {
 }
 
 // Helper for parsing invoke triples
-std::vector<Invoke::InvokeTriple> parseInvokeTriples(Nebulite::JSON& doc, std::string key) {
+std::vector<Nebulite::Invoke::InvokeTriple> parseInvokeTriples(Nebulite::JSON& doc, std::string key) {
 	std::string arr;
-    std::vector<Invoke::InvokeTriple> res;
+    std::vector<Nebulite::Invoke::InvokeTriple> res;
     int size = doc.memberSize(key);
 	for(int i = 0; i < size; i++){
 		arr = key + "[" + std::to_string(i) + "]";
-		Invoke::InvokeTriple triple;
+		Nebulite::Invoke::InvokeTriple triple;
         triple.changeType = doc.get<std::string>((arr+"changeType").c_str(),"");
         triple.key = 		doc.get<std::string>((arr+"key").c_str(),"");
         triple.value = 		doc.get<std::string>((arr+"value").c_str(),"");
@@ -179,7 +179,7 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 
 			//--------------------------
 			// Build entry
-			Invoke::InvokeEntry entry;
+			Nebulite::Invoke::InvokeEntry entry;
 			entry.selfPtr = this_shared;
 			entry.topic =			invoke.get<std::string>("topic","all");
 			entry.isGlobal = 		invoke.get<bool>("isGlobal",true);
@@ -221,7 +221,7 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 			}
 
 			// Append
-			auto ptr = std::make_shared<Invoke::InvokeEntry>(std::move(entry));
+			auto ptr = std::make_shared<Nebulite::Invoke::InvokeEntry>(std::move(entry));
 
 			if(entry.isGlobal){
 				cmds_general.push_back(ptr);
@@ -243,7 +243,7 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 // - store pointer pairs as std::vector<std::pair<RenderObject& RenderObject&>>
 // - after object pre-update, call actual update via invoke class that changes all objects
 // - additionally, the effects on self/other can be stored as a map where the key is the pointer this_shared
-void RenderObject::update(Invoke* globalInvoke, std::shared_ptr<RenderObject> this_shared) {
+void RenderObject::update(Nebulite::Invoke* globalInvoke, std::shared_ptr<RenderObject> this_shared) {
 	//------------------------------------
 	// Check all invokes
 	if (globalInvoke) {

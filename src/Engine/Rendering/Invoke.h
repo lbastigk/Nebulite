@@ -1,9 +1,5 @@
 #pragma once
 
-// TODO: Implement a subscription based invoke loading
-// Not working atm, if i remove subscription gravity from obj1, it is still being attracted!
-// Perhaps an error in generating true pairs...
-
 /*
 
 Invoke is used for interactions between objects currently in memory (on screen)
@@ -40,7 +36,7 @@ class RenderObject;
 #include "tinyexpr.h"
 #include "JSON.h"
 
-
+namespace Nebulite{
 class Invoke{
 public:
     // Static structs
@@ -143,8 +139,6 @@ public:
     Nebulite::JSON* getGlobalPointer(){return global;};
 
     std::deque<std::string>* getQueue(){return tasks;};
-
-    Nebulite::JSON example();
     
 private:
     // TinyExpr
@@ -197,3 +191,4 @@ private:
 
     std::string evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON& self,Nebulite::JSON& other,Nebulite::JSON& global,bool insideEvalParent);
 };
+}

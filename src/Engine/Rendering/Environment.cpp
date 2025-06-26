@@ -88,7 +88,7 @@ void Environment::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int d
 }
 #else
 // no threads
-void Environment::update(int16_t tileXpos, int16_t tileYpos,int dispResX,int dispResY,Invoke* globalInvoke) {
+void Environment::update(int16_t tileXpos, int16_t tileYpos,int dispResX,int dispResY,Nebulite::Invoke* globalInvoke) {
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
 		roc[i].update(tileXpos,tileYpos,dispResX,dispResY,globalInvoke);
 	}

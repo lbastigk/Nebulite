@@ -89,7 +89,7 @@ void RenderObjectContainer::append(std::shared_ptr<RenderObject> toAppend, int d
 	ObjectContainer[pos].push_back(toAppend);
 }
 
-void RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY, Invoke* globalInvoke, bool onlyRestructure) {
+void RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY, Nebulite::Invoke* globalInvoke, bool onlyRestructure) {
 	std::pair<uint16_t,uint16_t> pos;
 	std::pair<uint16_t,uint16_t> newPos;
 	std::vector<std::shared_ptr<RenderObject>> toReinsert;

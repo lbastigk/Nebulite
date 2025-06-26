@@ -19,7 +19,7 @@
 
 class Renderer {
 public:
-	Renderer(Invoke& invoke, Nebulite::JSON& global, bool flag_hidden = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
+	Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_hidden = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
 
 	//Marshalling
 	std::string serialize();
@@ -30,7 +30,7 @@ public:
 	
 	//-----------------------------------------------------------
 	// Pipeline
-	void appendInvokePtr(Invoke* invoke);
+	void appendInvokePtr(Nebulite::Invoke* invoke);
 	void append(std::shared_ptr<RenderObject> toAppend);
 	void reinsertAllObjects();
 	void update();
@@ -85,7 +85,7 @@ public:
 	unsigned int getTileYpos(){return tileYpos;}
 
 	SDL_Renderer* getSdlRenderer(){return renderer;}
-	Invoke* getInvoke(){return invoke_ptr;}
+	Nebulite::Invoke* getInvoke(){return invoke_ptr;}
 
 	// Updated with each renderer update
 	void update_rand() {invoke_ptr->getGlobalPointer()->set<Uint64>("rand",   dist(rngA));};
@@ -117,7 +117,7 @@ private:
 
 	// Subclasses and pointers
 	Environment env;
-	Invoke* invoke_ptr = nullptr;	
+	Nebulite::Invoke* invoke_ptr = nullptr;	
 
 	// Rendering
 	unsigned int RenderZoom = 1;
