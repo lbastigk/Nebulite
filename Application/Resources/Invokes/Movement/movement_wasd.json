@@ -1,6 +1,5 @@
 {
-  "logocalArg_cache" : "$($(global.input.keyboard.current.w) + $(global.input.keyboard.current.a) + $(global.input.keyboard.current.s) + $(global.input.keyboard.current.d))",
-  "logicalArg": "$($(global.input.keyboard.current.w) + $(global.input.keyboard.current.a) + $(global.input.keyboard.current.s) + $(global.input.keyboard.current.d))",
+  "logicalArg": "1",
   "isGlobal": false,
   "self_invokes": [
     {

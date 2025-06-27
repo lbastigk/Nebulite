@@ -1,0 +1,24 @@
+{
+  "logicalArg": "$(neq($(self.physics.vX),0) + neq($(self.physics.vY),0))",
+  "isGlobal": false,
+  "self_invokes": [
+    {
+      "changeType": "set",
+      "key": "physics.v",
+      "value": "$( sqrt( $(self.physics.vX)^2 + $(self.physics.vY)^2 ) )"
+    },
+    {
+      "changeType": "set",
+      "key": "physics.vX",
+      "value": "$( $(self.physics.vNorm) * $(self.physics.vX) /  $(self.physics.v) )"
+    },
+    {
+      "changeType": "set",
+      "key": "physics.vY",
+      "value": "$( $(self.physics.vNorm) * $(self.physics.vY) /  $(self.physics.v) )"
+    }
+  ],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": []
+}
