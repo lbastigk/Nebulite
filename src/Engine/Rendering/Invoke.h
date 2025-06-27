@@ -50,6 +50,8 @@ class RenderObject;
 namespace Nebulite{
 class Invoke{
 public:
+    //--------------------------------------------
+    // Class-Specific Structures:
     struct Node {
       // Each expression is pre-processed using a Tree build of Nodes
       // Each node is a part of the expression:
@@ -97,9 +99,11 @@ public:
       bool insideEvalParent = false;
     };
     struct InvokeTriple {
-        std::string changeType;
+        enum class ChangeType {set,add,multiply,concat};
+        ChangeType changeType;
         std::string key;
         std::string value;
+        
     };
     struct InvokeEntry{
         std::string topic = "all";
@@ -112,26 +116,60 @@ public:
         bool isGlobal = true;
     };
 
-    // Setting up invoke by linking it to a global doc
+    //--------------------------------------------
+    // General
+
     Invoke();
+
+    // Setting up invoke by linking it to a global doc
     void linkGlobal(Nebulite::JSON& globalDocPtr){
         global = &globalDocPtr;
     }
+    
+    // Linking invoke to global queue for function calls
     void linkQueue(std::deque<std::string>& queue){
         tasks = &queue;
     }
 
     // Clearing all entries
     void clear();
+
+    //--------------------------------------------
+    // Getting
+
+    // Global doc pointer
+    Nebulite::JSON* getGlobalPointer(){return global;};
+
+    // Global queue
+    std::deque<std::string>* getQueue(){return tasks;};
     
-    // Append invoke command
-    void append(const std::shared_ptr<InvokeEntry>& toAppend);
-    void checkAgainstList(const std::shared_ptr<RenderObject>& obj,std::string topic);
+    //--------------------------------------------
+    // Send/Listen
+
+    // Broadcast invoke
+    void broadcast(const std::shared_ptr<InvokeEntry>& toAppend);
+
+    // Listen to a topic
+    // Checks an object against all available invokes to a topic.
+    // True pairs are put into a vector for later evaluation
+    void listen(const std::shared_ptr<RenderObject>& obj,std::string topic);
+
+    //--------------------------------------------
+    // Value checks
+
+    // Check if cmd is true compared to other object
     bool isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj);
+
+    // Check if local invoke is true
     bool isTrueLocal (const std::shared_ptr<InvokeEntry>& cmd);
-    void update();
-    void updateGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& Obj);
-    void updateLocal(const std::shared_ptr<InvokeEntry>& cmd);
+
+
+    //--------------------------------------------
+    // Updating
+
+    void updatePairs();
+    void updateGlobal(const std::shared_ptr<InvokeEntry>& cmd_self, const std::shared_ptr<RenderObject>& Obj_other);
+    void updateLocal(const std::shared_ptr<InvokeEntry>& cmd_self);
     
     // Get Invokes for next frame
     // Empties current commands, shrinks and swaps with new commands vector.
@@ -139,29 +177,18 @@ public:
 
     // Sets new value
     void updateValueOfKey(
-      const std::string& type, 
+      Nebulite::Invoke::InvokeTriple::ChangeType type, 
       const std::string& key, 
       const std::string& valStr, 
       Nebulite::JSON *doc
     );
 
-    // For evaluating string expression
-    double evaluateExpression(const std::string& expr);
-    std::string resolveVars(
-      const std::string& input, 
-      Nebulite::JSON& self, 
-      Nebulite::JSON& other, 
-      Nebulite::JSON& global
-    );
+    // Resolving global references only in a string
     std::string resolveGlobalVars(const std::string& input);
 
-
-    Nebulite::JSON* getGlobalPointer(){return global;};
-
-    std::deque<std::string>* getQueue(){return tasks;};
-    
 private:
-    // TinyExpr
+    //----------------------------------------------------------------
+    // Custom TinyExpr functions
     class expr_custom{
     public:
         static double gt(double a, double b) {return a > b;}
@@ -180,29 +207,53 @@ private:
     std::vector<te_variable> vars;
     
     // Documents
-    Nebulite::JSON emptyDoc;
-    Nebulite::JSON* global = nullptr;
-
-    //----------------------------------------------------------------
-    // Current and next commands
-    // cmds["topic"][]
-    absl::flat_hash_map<std::string, std::vector<std::shared_ptr<InvokeEntry>>> globalcommands;
-    absl::flat_hash_map<std::string, std::vector<std::shared_ptr<InvokeEntry>>> globalcommandsBuffer; 
-    std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> pairs;
-
-    //----------------------------------------------------------------
+    Nebulite::JSON emptyDoc;          // Linking an empty doc is needed for some functions
+    Nebulite::JSON* global = nullptr; // Linkage to global doc
 
     // pointer to queue
     std::deque<std::string>* tasks = nullptr; 
 
+
+    //----------------------------------------------------------------
+    // Hashmaps and vectors
+
+    // Current and next commands
+    // cmds["topic"][]
+    absl::flat_hash_map<std::string, std::vector<std::shared_ptr<InvokeEntry>>> globalcommands;
+    absl::flat_hash_map<std::string, std::vector<std::shared_ptr<InvokeEntry>>> globalcommandsBuffer; 
+
+    // All true pairs of last listens
+    std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> pairs;
+
     // Map for each Tree
     absl::flat_hash_map<std::string, std::shared_ptr<Invoke::Node>> exprTree;
 
+    
+    //----------------------------------------------------------------
+    // Private functions
+
+    // For evaluating string expression
+    double evaluateExpression(const std::string& expr);
+
+    // Resolving self/other/global references
+    std::string resolveVars(
+      const std::string& input, 
+      Nebulite::JSON& self, 
+      Nebulite::JSON& other, 
+      Nebulite::JSON& global
+    );
+    
+
     // Create Tree from string
     std::shared_ptr<Invoke::Node> expressionToTree(const std::string& input);
+
+    // Function for reducing some expressions like 1+1 directly to 2
     void foldConstants(const std::shared_ptr<Invoke::Node>& node);
 
+    // Helper funtion for evaluateNode for parsing 
     std::shared_ptr<Node> parseNext(const std::string& input, size_t& i);
+
+    // Turning a string into a Tree of Nebulite::Invoke::Node
     std::string evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON& self,Nebulite::JSON& other,Nebulite::JSON& global,bool insideEvalParent);
 };
 }

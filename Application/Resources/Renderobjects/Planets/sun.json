@@ -15,7 +15,6 @@
     "layer": 0,
     "physics": {
         "mass": 200000.0,
-        "isGrav": 1.0,
         "aX": 0.0,
         "aY": 0.0,
         "vX": 0.0,

@@ -1,6 +1,6 @@
 {
   "topic" : "gravity",
-  "logicalArg": "$( ($(self.id) - $(other.id)) * $(other.physics.isGrav))",
+  "logicalArg": "1",
   "isGlobal": true,
   "self_invokes": [
     {

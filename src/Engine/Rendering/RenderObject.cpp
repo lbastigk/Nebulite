@@ -143,9 +143,24 @@ std::vector<Nebulite::Invoke::InvokeTriple> parseInvokeTriples(Nebulite::JSON& d
 	for(int i = 0; i < size; i++){
 		arr = key + "[" + std::to_string(i) + "]";
 		Nebulite::Invoke::InvokeTriple triple;
-        triple.changeType = doc.get<std::string>((arr+"changeType").c_str(),"");
         triple.key = 		doc.get<std::string>((arr+"key").c_str(),"");
         triple.value = 		doc.get<std::string>((arr+"value").c_str(),"");
+
+		std::string changeType = doc.get<std::string>((arr+"changeType").c_str(),"");
+		if(changeType == "add"){
+			triple.changeType = Nebulite::Invoke::InvokeTriple::ChangeType::add;
+		}
+		else if(changeType == "multiply"){
+			triple.changeType = Nebulite::Invoke::InvokeTriple::ChangeType::multiply;
+		}
+		else if(changeType == "concat"){
+			triple.changeType = Nebulite::Invoke::InvokeTriple::ChangeType::concat;
+		}
+		else{
+			// assume set
+			triple.changeType = Nebulite::Invoke::InvokeTriple::ChangeType::set;
+		}
+
         res.push_back(std::move(triple));
 	}
     return res;
@@ -268,7 +283,7 @@ void RenderObject::update(Nebulite::Invoke* globalInvoke, std::shared_ptr<Render
 		for(int i = 0; i < json.memberSize(keyName.renderObject.invokeSubscriptions.c_str());i++){
 			std::string key = keyName.renderObject.invokeSubscriptions + "[" + std::to_string(i) + "]";
 			std::string subscription = json.get<std::string>(key.c_str(),"");
-			globalInvoke->checkAgainstList(this_shared,subscription);
+			globalInvoke->listen(this_shared,subscription);
 		}
         
 
@@ -277,7 +292,7 @@ void RenderObject::update(Nebulite::Invoke* globalInvoke, std::shared_ptr<Render
 		//     This makes sure that no invokes from inactive objects stay in the list
 		for (const auto& cmd : cmds_general){
 			// add pointer to invoke command to global
-			globalInvoke->append(cmd);
+			globalInvoke->broadcast(cmd);
 		}
     }else{
 		std::cerr << "Invoke is nullptr!" << std::endl;

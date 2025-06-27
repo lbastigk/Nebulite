@@ -26,6 +26,12 @@ Nebulite::Invoke::Invoke(){
 
 
 bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj) {
+    // If self and other are the same object, the global check is false
+    if(cmd->selfPtr == otherObj) return false;
+
+    // Chekc if logical arg is as simple as just "1", meaning true
+    if(cmd->logicalArg == "1") return true;
+
     // Resolve logical statement
     std::string logic = resolveVars(cmd->logicalArg, *cmd->selfPtr->getDoc(), *otherObj->getDoc(), *global);
     double result = evaluateExpression(logic);
@@ -37,6 +43,9 @@ bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, con
 }
 
 bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<InvokeEntry>& cmd) {
+    // Chekc if logical arg is as simple as just "1", meaning true
+    if(cmd->logicalArg == "1") return true;
+
     // Resolve logical statement
     std::string logic = resolveVars(cmd->logicalArg, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *global);
     double result = evaluateExpression(logic);
@@ -48,82 +57,95 @@ bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<InvokeEntry>& cmd) {
 }
 
 
-// Checks an object against all linked invokes.
-// True pairs are put into a special vector
-void Nebulite::Invoke::checkAgainstList(const std::shared_ptr<RenderObject>& obj,std::string topic){
+void Nebulite::Invoke::broadcast(const std::shared_ptr<InvokeEntry>& toAppend){
+    globalcommandsBuffer[toAppend->topic].push_back(toAppend);
+}
+
+void Nebulite::Invoke::listen(const std::shared_ptr<RenderObject>& obj,std::string topic){
     for (auto& cmd : globalcommands[topic]){
         pairs.push_back(std::make_pair(cmd,obj));
     }
 }
 
 
-void Nebulite::Invoke::updateValueOfKey(const std::string& type, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){
-    if        (type == "set")       doc->set<std::string>(key.c_str(),valStr);
-    else if   (type == "add")       doc->set<std::string>(key.c_str(),std::to_string(std::stod(valStr) + doc->get<double>(key.c_str(),0)));
-    else if   (type == "multiply")  doc->set<std::string>(key.c_str(),std::to_string(std::stod(valStr) * doc->get<double>(key.c_str(),0)));
-    else if   (type == "concat")    doc->set<std::string>(key.c_str(),doc->get<std::string>(key.c_str(),0) + valStr);
-    // Fallback to set
-    else                            doc->set<std::string>(key.c_str(),valStr);
+void Nebulite::Invoke::updateValueOfKey(Nebulite::Invoke::InvokeTriple::ChangeType type, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){
+    switch (type){
+        case Nebulite::Invoke::InvokeTriple::ChangeType::set:
+            doc->set<std::string>(key.c_str(),valStr);
+            break;
+        case Nebulite::Invoke::InvokeTriple::ChangeType::add:
+            doc->set<std::string>(key.c_str(),std::to_string(std::stod(valStr) + doc->get<double>(key.c_str(),0)));
+            break;
+        case Nebulite::Invoke::InvokeTriple::ChangeType::multiply:
+            doc->set<std::string>(key.c_str(),std::to_string(std::stod(valStr) * doc->get<double>(key.c_str(),0)));
+            break;
+        case Nebulite::Invoke::InvokeTriple::ChangeType::concat:
+            doc->set<std::string>(key.c_str(),doc->get<std::string>(key.c_str(),0) + valStr);
+            break;
+        default:
+            //std::cerr << "Unknown key type!" << std::endl;
+            break;
+    }
 }
 
 // Checks a given invoke cmd against objects in buffer
 // as objects have constant pointers, using RenderObject& is possible
-void Nebulite::Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& Obj) {
+void Nebulite::Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd_self, const std::shared_ptr<RenderObject>& Obj_other) {
     // === SELF update ===
-    for(auto InvokeTriple : cmd->invokes_self){
+    for(auto InvokeTriple : cmd_self->invokes_self){
         if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, *Obj->getDoc(), *cmd->selfPtr->getDoc(), *global);
-            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, Obj->getDoc());
+            std::string valStr = resolveVars(InvokeTriple.value, *cmd_self->selfPtr->getDoc(), *Obj_other->getDoc(), *global);
+            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd_self->selfPtr->getDoc() );
         } 
     }
 
     // === OTHER update ===
-    for(auto InvokeTriple : cmd->invokes_other){
+    for(auto InvokeTriple : cmd_self->invokes_other){
         if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, *Obj->getDoc(), *cmd->selfPtr->getDoc(), *global);
-            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
+            std::string valStr = resolveVars(InvokeTriple.value, *cmd_self->selfPtr->getDoc(), *Obj_other->getDoc(), *global);
+            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, Obj_other->getDoc());
         } 
     }
 
     // === GLOBAL update ===
-    for(auto InvokeTriple : cmd->invokes_global){
+    for(auto InvokeTriple : cmd_self->invokes_global){
         if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *Obj->getDoc(), *global);
+            std::string valStr = resolveVars(InvokeTriple.value, *cmd_self->selfPtr->getDoc(), *Obj_other->getDoc(), *global);
             updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, global);
         } 
     }
 
     // === Functioncalls ===
-    for(auto call : cmd->functioncalls){
+    for(auto call : cmd_self->functioncalls){
         // replace vars
-        call = resolveVars(call,*cmd->selfPtr->getDoc(),*Obj->getDoc(), *global);
+        call = resolveVars(call, *cmd_self->selfPtr->getDoc(), *Obj_other->getDoc(), *global);
 
         // attach to task queue
         tasks->emplace_back(call);
     }
 }
 
-void Nebulite::Invoke::updateLocal(const std::shared_ptr<InvokeEntry>& cmd){
+void Nebulite::Invoke::updateLocal(const std::shared_ptr<InvokeEntry>& cmd_self){
     // === SELF update ===
-    for(auto InvokeTriple : cmd->invokes_self){
+    for(auto InvokeTriple : cmd_self->invokes_self){
         if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *global);
-            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd->selfPtr->getDoc());
+            std::string valStr = resolveVars(InvokeTriple.value, *cmd_self->selfPtr->getDoc(), *cmd_self->selfPtr->getDoc(), *global);
+            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd_self->selfPtr->getDoc());
         } 
     }
 
     // === GLOBAL update ===
-    for(auto InvokeTriple : cmd->invokes_global){
+    for(auto InvokeTriple : cmd_self->invokes_global){
         if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, *cmd->selfPtr->getDoc(), *cmd->selfPtr->getDoc(), *global);
+            std::string valStr = resolveVars(InvokeTriple.value, *cmd_self->selfPtr->getDoc(), *cmd_self->selfPtr->getDoc(), *global);
             updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, global);
         } 
     }
 
     // === Functioncalls ===
-    for(auto call : cmd->functioncalls){
+    for(auto call : cmd_self->functioncalls){
         // replace vars
-        call = resolveVars(call,*cmd->selfPtr->getDoc(),*cmd->selfPtr->getDoc(), *global);
+        call = resolveVars(call,*cmd_self->selfPtr->getDoc(),*cmd_self->selfPtr->getDoc(), *global);
 
         // attach to task queue
         tasks->emplace_back(call);
@@ -146,7 +168,7 @@ void Nebulite::Invoke::clear(){
     exprTree.clear();
 }
 
-void Nebulite::Invoke::update(){
+void Nebulite::Invoke::updatePairs(){
     for (auto pair : pairs){
         if(isTrueGlobal(pair.first,pair.second)){
             updateGlobal(pair.first, pair.second);
@@ -162,9 +184,7 @@ void Nebulite::Invoke::getNewInvokes(){
     globalcommands.swap(globalcommandsBuffer);    // Swap in the new set of commands
 }
 
-void Nebulite::Invoke::append(const std::shared_ptr<InvokeEntry>& toAppend){
-    globalcommandsBuffer[toAppend->topic].push_back(toAppend);
-}
+
 
 //--------------------------------------------------------
 // TODO: usage of te_compile for faster evaluation...

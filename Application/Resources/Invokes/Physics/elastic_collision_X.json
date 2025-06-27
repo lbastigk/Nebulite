@@ -4,7 +4,6 @@
   "comment1" : "All in logicalArg array must be true",
   "logicalArg": [
     "neq($(global.time.t), $(self.collision.time.lastX))",
-    "neq($(self.id),          $(other.id))",
     "$(other.physics.mass)",
     " lt($(self.posX),        $(other.posX) + $(other.sprite.sizeX))",
     " lt($(self.posY),        $(other.posY) + $(other.sprite.sizeY))",
@@ -38,6 +37,6 @@
   "other_invokes": [],
   "global_invokes": [],
   "functioncalls": [
-    "eval echo Collision, reflecting X at $(global.time.t_ms) ms"
+    "eval echo Collision, reflecting X at $(global.time.t_ms) ms \t self mass: $(self.physics.mass) other mass: $(other.physics.mass)"
   ]
 }

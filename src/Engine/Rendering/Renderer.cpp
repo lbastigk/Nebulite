@@ -187,8 +187,8 @@ void Nebulite::Renderer::update() {
 		// Set global values like time
 		setGlobalValues();
 
-		// Update invokes
-		invoke_ptr->update();
+		// Update invoke pairs
+		invoke_ptr->updatePairs();
 
 		// Update environment
 		env.update(

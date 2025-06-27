@@ -38,7 +38,7 @@
   "other_invokes": [],
   "global_invokes": [],
   "functioncalls": [
-    "eval echo Collision, reflecting Y at $(global.time.t_ms) ms"
+    "eval echo Collision, reflecting Y at $(global.time.t_ms) ms \t self mass: $(self.physics.mass) other mass: $(other.physics.mass)"
   ]
 }
 

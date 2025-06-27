@@ -1,10 +1,13 @@
 {
     "deleteFlag": false,
     "id": 0,
+    "invokeReload": true,
+    "invokeSubscriptions": [
+        "all",
+        "collision"
+    ],
     "invokes": [
         "./Resources/Invokes/Physics/falling.json",
-        "./Resources/Invokes/Physics/elastic_collision_X.json",
-        "./Resources/Invokes/Physics/elastic_collision_Y.json",
         "./Resources/Invokes/Physics/integrate_a.json",
         "./Resources/Invokes/Physics/integrate_v.json",
         "./Resources/Invokes/Physics/reset_a.json"
@@ -12,7 +15,6 @@
     "layer": 0,
     "physics": {
         "mass": 10.0,
-        "isGrav": 0.0,
         "aX": 0.0,
         "aY": 0.0,
         "vX": 0.0,
