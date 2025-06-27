@@ -3,7 +3,7 @@
   "comment0" : "Collision ruleset for reflecting Y velocity",
   "comment1" : "All in logicalArg array must be true",
   "logicalArg": [
-    "neq($(global.time.t), $(self.collision.time.lastY))",
+    "neq($(global.time.t), $(other.collision.time.lastY))",
     "neq($(self.id),          $(other.id))",
     "$(other.physics.mass)",
     " lt($(self.posX),        $(other.posX) + $(other.sprite.sizeX))",
@@ -14,28 +14,33 @@
   ],
   "isGlobal": true,
   "self_invokes": [
+  ],
+  "other_invokes": [
     {
+      "comment" : "Reflect other object",
       "changeType": "set",
       "key": "physics.vY",
-      "value": "$(0.99*$($(self.physics.vY) - (2 * $(other.physics.mass) / ($(self.physics.mass) + $(other.physics.mass))) * ($(self.physics.vY) - $(other.physics.vY))))"
+      "value": "$(0.99*$($(other.physics.vY) - (2 * $(self.physics.mass) / ($(other.physics.mass) + $(self.physics.mass))) * ($(other.physics.vY) - $(self.physics.vY))))"
     },
     {
+      "comment" : "Make sure acceleration isnt affecting position",
       "changeType": "set",
       "key": "physics.aX",
       "value": "0"
     },
     {
+      "comment" : "Make sure acceleration isnt affecting position",
       "changeType": "set",
       "key": "physics.aY",
       "value": "0"
     },
     {
+      "comment" : "Store last collision time",
       "changeType": "set",
       "key": "collision.time.lastY",
       "value": "$($(global.time.t) + 0)"
     }
   ],
-  "other_invokes": [],
   "global_invokes": [],
   "functioncalls": [
     "eval echo Collision, reflecting Y at $(global.time.t_ms) ms \t self mass: $(self.physics.mass) other mass: $(other.physics.mass)"

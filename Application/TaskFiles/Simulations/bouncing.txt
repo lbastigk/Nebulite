@@ -1,4 +1,4 @@
-set-fps 500
+set-fps 5000
 set-res 640 360 3
 echo
 echo Bouncing test

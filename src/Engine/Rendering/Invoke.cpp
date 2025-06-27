@@ -91,6 +91,9 @@ void Nebulite::Invoke::updateValueOfKey(Nebulite::Invoke::InvokeTriple::ChangeTy
 // Checks a given invoke cmd against objects in buffer
 // as objects have constant pointers, using RenderObject& is possible
 void Nebulite::Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd_self, const std::shared_ptr<RenderObject>& Obj_other) {
+    // DEBUG, using text:
+    //std::cout << "self: " << cmd_self->selfPtr->valueGet<std::string>(keyName.renderObject.textStr.c_str(),"") << " other: " << Obj_other->valueGet<std::string>(keyName.renderObject.textStr.c_str(),"") << std::endl;
+
     // === SELF update ===
     for(auto InvokeTriple : cmd_self->invokes_self){
         if (!InvokeTriple.key.empty()) {
