@@ -57,16 +57,13 @@ void Nebulite::Invoke::checkAgainstList(const std::shared_ptr<RenderObject>& obj
 }
 
 
-// TODO: get rid of this set/concat etc-structure...
-// instead of "add" "1" write "$($(self.val) + 1))" and then store as string
-// later on, expand tinyexpr for int casts, which is the only thing this structure cant solve on its own
 void Nebulite::Invoke::updateValueOfKey(const std::string& type, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){
     if        (type == "set")       doc->set<std::string>(key.c_str(),valStr);
-    else if   (type == "setInt")    doc->set<int>(key.c_str(),std::stoi(valStr));
     else if   (type == "add")       doc->set<std::string>(key.c_str(),std::to_string(std::stod(valStr) + doc->get<double>(key.c_str(),0)));
     else if   (type == "multiply")  doc->set<std::string>(key.c_str(),std::to_string(std::stod(valStr) * doc->get<double>(key.c_str(),0)));
     else if   (type == "concat")    doc->set<std::string>(key.c_str(),doc->get<std::string>(key.c_str(),0) + valStr);
-    else if   (type == "setStr")    doc->set<std::string>(key.c_str(),valStr);;
+    // Fallback to set
+    else                            doc->set<std::string>(key.c_str(),valStr);
 }
 
 // Checks a given invoke cmd against objects in buffer
@@ -203,7 +200,8 @@ void Nebulite::Invoke::append(const std::shared_ptr<InvokeEntry>& toAppend){
 //
 // Important: Needs another workaround to allow for $(...) to deliver a string!
 //
-// Could mean lots of work, low priority for now
+// Could mean lots of work, low priority for now...
+// This would mean a big, BIG rework for a potentially unnecessary or marginal speedup
 //
 //--------------------------------------------------------
 
@@ -412,7 +410,13 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
             switch (nodeptr->context) {
                 //---------------------------------------------------
                 // First 3 Types: Variables
+
+                // Get value from right doc, depending on ContextType:
+                // self[key]
+                // other[key]
+                // global[key]
                 case Node::ContextType::Self:
+                    // Casting
                     if(nodeptr->cast == Node::CastType::None){
                         return self.get<std::string>(nodeptr->key.c_str(), "0");
                     }
@@ -423,6 +427,7 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
                         return std::to_string(self.get<int>(nodeptr->key.c_str(),0));
                     }
                 case Node::ContextType::Other:
+                    // Casting
                     if(nodeptr->cast == Node::CastType::None){
                         return other.get<std::string>(nodeptr->key.c_str(), "0");
                     }
@@ -433,6 +438,7 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
                         return std::to_string(other.get<int>(nodeptr->key.c_str(),0));
                     }
                 case Node::ContextType::Global:
+                    // Casting
                     if(nodeptr->cast == Node::CastType::None){
                         return global.get<std::string>(nodeptr->key.c_str(), "0");
                     }
@@ -450,6 +456,8 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
                         return nodeptr->text;
                     // Inside eval parent: No need to call evaluateExpression right now, if no cast was defined.
                     // Instead, return "(<expr>)" so it is evaled higher up
+                    // However, if a cast is specified, the evaluation should still happen
+                    // Return pure string in paranthesis only if CastType is None
                     } else if (insideEvalParent && nodeptr->cast == Node::CastType::None) {
                             return "(" + nodeptr->text + ")";
                     // If not, evaluate and return
@@ -464,6 +472,7 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
             }
         }
 
+        // Mix-No-eval: "This string is a mix as it not only contains text, but also a variable access/expression like $(1+1)"
         case Node::Type::Mix_no_eval: {
             std::string result;
             for (auto& child : nodeptr->children) {
@@ -472,6 +481,7 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
             return result;
         }
 
+        // Mix eval: "$(This string is a mix as it not only contains text, but also a variable access/expression like $(1+1))"
         case Node::Type::Mix_eval: {
             std::string combined;
             for (auto& child : nodeptr->children) {
@@ -485,6 +495,11 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
             }
         }
     }
+    std::cerr << "Nebulite::Invoke::evaluateNode encountered a Node that did not resolve! This means there is a case where no return is given. Please inform the maintainers." << std::endl;
+    std::cerr << "  Node type: " << static_cast<int>(nodeptr->type) << std::endl;
+    std::cerr << "  Text: '" << nodeptr->text << "'" << std::endl;
+    std::cerr << "  Children: " << nodeptr->children.size() << std::endl;
+    std::cerr << "  Cast: " << static_cast<int>(nodeptr->cast) << std::endl;
     return "";
 }
   

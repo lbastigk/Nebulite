@@ -1,47 +1,64 @@
 #pragma once
 
+// NEBULITE INVOKE CLASS
 /*
 
-Invoke is used for interactions between objects currently in memory (on screen)
+Invoke is used for interactions between objects currently in memory (on/near screen)
 Since a 3x3 Display Resolution grid is loaded at each time, the headup
 should be minimal as the usual resolution planned is about 16x16 objects on screen
 
 Each object is able to send an invoke that is checked against each other invoke for an action. 
 
 The following is provided to each invoke: 
-- self as json doc
-  - used to manipulate itself
-- other as json doc
-  - used to manipulate the other object
-  - e.G. self is a solid block with the invoke, other is a moving object
-  - other.canMove.Left/Right... can be used to tell the object it cant move in the solid object
-- global as json doc
-  - count how many wolfes were killed
-  - keep track of quest stages: e.g. on pickup, send an invoke to modify quest stage
-- a tasklist to write new functioncalls into
-  - e.g.: "echo Invoke Activated!"
-  - e.g.: "env-deload", "env-load ./Resources/Levels/stage_$($(global.currentStage)+1)"
+- SELF
+  used to manipulate itself
+- OTHER
+  used to manipulate the other object
+  e.G. self is a solid block with the invoke, other is a moving object
+  other.canMove.Left/Right... can be used to tell the object it cant move into the solid object
+- GLOBAL
+  count how many wolfes were killed
+  keep track of quest stages: e.g. on pickup, send an invoke to modify quest stage
+- FUNCTIONCALLS
+  used to call functions in the maintree to manipulate the game
+  e.g.: "echo Invoke Activated!"
+  e.g.: "env-deload", "env-load ./Resources/Levels/stage_$($(global.currentStage)+1)"
+- TOPIC
+  Each Renderobject subscribes to certain topics. Each invoke itself represents one topic.
+  For instance, it is possible to add the gravity invoke to an object OBJ1 but not subscribe to it,
+  Meaning that other objects with subscription are attracted to OBJ1, but OBJ1 stays in place.
+  Or one might only subscribe the player/npcs to the HitBox invokes, reducing the number of hitbox checks.
 
 
 This also allows to store stuff for other objects to change that are currently not in memory
 Like global.levelstate or similiar
+
 */
 
 // Forward declaration of RenderObject
 class RenderObject;
 
+// General Includes
 #include <string>
 #include <vector>
 #include <deque>
+
+// Local
 #include "tinyexpr.h"
 #include "JSON.h"
 
 namespace Nebulite{
 class Invoke{
 public:
-    // Static structs
     struct Node {
-      // A Type Mix indicates Children!
+      // Each expression is pre-processed using a Tree build of Nodes
+      // Each node is a part of the expression:
+      // - Literal:     "this is a literal"
+      // - Variable:    "$(global.time.t)"
+      // - Mix_eval:    "$(1+$(global.time.t))"
+      // - Mix_no_eval: "The time is: $(global.time.t)"
+      //
+      // Type Mix indicates Children!
       //
       // Example, say self.variable = 2
       // 
@@ -69,14 +86,15 @@ public:
       std::string text;
       std::vector<std::shared_ptr<Invoke::Node>> children; // for nested variables (if Expr)
 
-      // Evaluation optimizations:
       enum class ContextType { None, Self, Other, Global };
-      enum class CastType { None, Float, Int };
       ContextType context = ContextType::None;
+
+      enum class CastType { None, Float, Int };
       CastType cast = CastType::None;
+
       std::string key;
       bool isNumericLiteral = false;
-      bool insideEvalParent = false;  // This will be set during evaluation traversal
+      bool insideEvalParent = false;
     };
     struct InvokeTriple {
         std::string changeType;
@@ -86,7 +104,7 @@ public:
     struct InvokeEntry{
         std::string topic = "all";
         std::shared_ptr<RenderObject> selfPtr;      // store self
-        std::string logicalArg;                     //e.g. $self.posX > $other.posY
+        std::string logicalArg;                     // e.g. $($(self.posX) > $(other.posY))
         std::vector<InvokeTriple> invokes_self;     // vector : key-value pair
         std::vector<InvokeTriple> invokes_other;
         std::vector<InvokeTriple> invokes_global;
@@ -167,17 +185,10 @@ private:
 
     //----------------------------------------------------------------
     // Current and next commands
-    //std::vector<std::shared_ptr<InvokeEntry>> commands;
-    //std::vector<std::shared_ptr<InvokeEntry>> nextCommands; 
-    // TODO:
-    // New way
     // cmds["topic"][]
     absl::flat_hash_map<std::string, std::vector<std::shared_ptr<InvokeEntry>>> globalcommands;
     absl::flat_hash_map<std::string, std::vector<std::shared_ptr<InvokeEntry>>> globalcommandsBuffer; 
     std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> pairs;
-
-    
-
 
     //----------------------------------------------------------------
 
