@@ -8,9 +8,9 @@ Nebulite::Invoke::Invoke(){
     vars.push_back(gt_var);
     te_variable lt_var = {"lt",     (void*)expr_custom::lt,             TE_FUNCTION2};
     vars.push_back(lt_var);
-    te_variable geq_var = {"geq",     (void*)expr_custom::geq,          TE_FUNCTION2};
+    te_variable geq_var = {"geq",   (void*)expr_custom::geq,            TE_FUNCTION2};
     vars.push_back(geq_var);
-    te_variable leq_var = {"leq",     (void*)expr_custom::leq,          TE_FUNCTION2};
+    te_variable leq_var = {"leq",   (void*)expr_custom::leq,            TE_FUNCTION2};
     vars.push_back(leq_var);
     te_variable eq_var = {"eq",     (void*)expr_custom::eq,             TE_FUNCTION2};
     vars.push_back(eq_var);
@@ -276,68 +276,101 @@ void Nebulite::Invoke::foldConstants(const std::shared_ptr<Invoke::Node>& node) 
     }
 }
 
+std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::parseNext(const std::string& input, size_t& i) {
+    size_t start = i + 2; // Skip "$("
+    int depth = 1;
+    size_t j = start;
+    while (j < input.size() && depth > 0) {
+        if (input[j] == '(') depth++;
+        else if (input[j] == ')') depth--;
+        ++j;
+    }
+
+    if (depth != 0) {
+        std::cerr << "Unmatched parentheses in expression: " << input << std::endl;
+        return std::make_shared<Node>(Node{ Node::Type::Literal, input.substr(i, j - i), {} });
+    }
+
+    std::string inner = input.substr(start, j - start - 1); // inside $(...)
+    Node varNode;
+
+    // Check if string still contains some inner var to resolve:
+    if (inner.find("$") != std::string::npos) {
+        varNode = Node{ Node::Type::Mix_eval, "", { expressionToTree(inner) } };
+    } else {
+        varNode = Node{ Node::Type::Variable, inner, {} };
+
+        // Set context and optimization info
+        if (inner.starts_with("self.")) {
+            varNode.context = Node::ContextType::Self;
+            varNode.key = inner.substr(5);
+        } else if (inner.starts_with("other.")) {
+            varNode.context = Node::ContextType::Other;
+            varNode.key = inner.substr(6);
+        } else if (inner.starts_with("global.")) {
+            varNode.context = Node::ContextType::Global;
+            varNode.key = inner.substr(7);
+        } else if (StringHandler::isNumber(inner)) {
+            varNode.isNumericLiteral = true;
+        }
+    }
+    i = j; // move position after closing ')'
+    return std::make_shared<Node>(varNode);
+}
+
 std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::expressionToTree(const std::string& input) {
     Node root;
     std::vector<std::shared_ptr<Invoke::Node>> children;
     size_t pos = 0;
     bool hasVariables = false;
-
-    auto parseNext = [&](size_t& i) -> std::shared_ptr<Node> {
-        size_t start = i + 2; // Skip "$("
-        int depth = 1;
-        size_t j = start;
-        while (j < input.size() && depth > 0) {
-            if (input[j] == '(') depth++;
-            else if (input[j] == ')') depth--;
-            ++j;
-        }
-
-        if (depth != 0) {
-            std::cerr << "Unmatched parentheses in expression: " << input << std::endl;
-            return std::make_shared<Node>(Node{ Node::Type::Literal, input.substr(i, j - i), {} });
-        }
-
-        std::string inner = input.substr(start, j - start - 1); // inside $(...)
-        Node varNode;
-        if (inner.find("$(") != std::string::npos) {
-            varNode = Node{ Node::Type::Mix_eval, "", { expressionToTree(inner) } };
-        } else {
-            varNode = Node{ Node::Type::Variable, inner, {} };
-
-            // Set context and optimization info
-            if (inner.starts_with("self.")) {
-                varNode.context = Node::ContextType::Self;
-                varNode.key = inner.substr(5);
-            } else if (inner.starts_with("other.")) {
-                varNode.context = Node::ContextType::Other;
-                varNode.key = inner.substr(6);
-            } else if (inner.starts_with("global.")) {
-                varNode.context = Node::ContextType::Global;
-                varNode.key = inner.substr(7);
-            } else if (StringHandler::isNumber(inner)) {
-                varNode.isNumericLiteral = true;
-            }
-        }
-        i = j; // move position after closing ')'
-        return std::make_shared<Node>(varNode);
-    };
-
     std::string literalBuffer;
 
     while (pos < input.size()) {
-        if (input[pos] == '$' && pos + 1 < input.size() && input[pos + 1] == '(') {
-            if (!literalBuffer.empty()) {
-                auto child = std::make_shared<Node>(Node{ Node::Type::Literal, literalBuffer, {} });
+        if (input[pos] == '$' && pos + 1 < input.size()) {
+            // No cast:
+            if(input[pos + 1] == '('){
+                if (!literalBuffer.empty()) {
+                    auto child = std::make_shared<Node>(Node{ Node::Type::Literal, literalBuffer, {} });
+                    children.push_back(child);
+                    literalBuffer.clear();
+                }
+                auto child = parseNext(input,pos);
+                child->cast = Node::CastType::None;
                 children.push_back(child);
-                literalBuffer.clear();
+                hasVariables = true;
+                continue;
             }
-            auto child = parseNext(pos);
-            children.push_back(child);
-            hasVariables = true;
-        } else {
-            literalBuffer += input[pos];
-            ++pos;
+            // Int cast:
+            if(input[pos + 1] == 'i' && input[pos + 2] == '('){
+                pos++;
+                if (!literalBuffer.empty()) {
+                    auto child = std::make_shared<Node>(Node{ Node::Type::Literal, literalBuffer, {} });
+                    children.push_back(child);
+                    literalBuffer.clear();
+                }
+                auto child = parseNext(input,pos);
+                child->cast = Node::CastType::Int;
+                children.push_back(child);
+                hasVariables = true;
+                continue;
+            }
+            // float/double cast:
+            if(input[pos + 1] == 'i' && input[pos + 2] == '('){
+                pos++;
+                if (!literalBuffer.empty()) {
+                    auto child = std::make_shared<Node>(Node{ Node::Type::Literal, literalBuffer, {} });
+                    children.push_back(child);
+                    literalBuffer.clear();
+                }
+                auto child = parseNext(input,pos);
+                child->cast = Node::CastType::Float;
+                children.push_back(child);
+                hasVariables = true;
+                continue;
+            }
         }
+        literalBuffer += input[pos];
+        ++pos;
     }
 
     if (!literalBuffer.empty()) {
@@ -374,23 +407,56 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
 
         case Node::Type::Variable: {
             switch (nodeptr->context) {
+                //---------------------------------------------------
+                // First 3 Types: Variables
                 case Node::ContextType::Self:
-                    return self.get<std::string>(nodeptr->key.c_str(), "0");
+                    if(nodeptr->cast == Node::CastType::None){
+                        return self.get<std::string>(nodeptr->key.c_str(), "0");
+                    }
+                    if(nodeptr->cast == Node::CastType::Float){
+                        return std::to_string(self.get<double>(nodeptr->key.c_str(),0.0));
+                    }
+                    if(nodeptr->cast == Node::CastType::Int){
+                        return std::to_string(self.get<int>(nodeptr->key.c_str(),0));
+                    }
                 case Node::ContextType::Other:
-                    return other.get<std::string>(nodeptr->key.c_str(), "0");
+                    if(nodeptr->cast == Node::CastType::None){
+                        return other.get<std::string>(nodeptr->key.c_str(), "0");
+                    }
+                    if(nodeptr->cast == Node::CastType::Float){
+                        return std::to_string(other.get<double>(nodeptr->key.c_str(),0.0));
+                    }
+                    if(nodeptr->cast == Node::CastType::Int){
+                        return std::to_string(other.get<int>(nodeptr->key.c_str(),0));
+                    }
                 case Node::ContextType::Global:
-                    return global.get<std::string>(nodeptr->key.c_str(), "0");
+                    if(nodeptr->cast == Node::CastType::None){
+                        return global.get<std::string>(nodeptr->key.c_str(), "0");
+                    }
+                    if(nodeptr->cast == Node::CastType::Float){
+                        return std::to_string(global.get<double>(nodeptr->key.c_str(),0.0));
+                    }
+                    if(nodeptr->cast == Node::CastType::Int){
+                        return std::to_string(global.get<int>(nodeptr->key.c_str(),0));
+                    }
+                //---------------------------------------------------
+                // String is not a variable
                 case Node::ContextType::None:
                     // Simple Number:
                     if (nodeptr->isNumericLiteral) {
                         return nodeptr->text;
-                    // Inside eval parent: No need to call evaluateExpression right now.
+                    // Inside eval parent: No need to call evaluateExpression right now, if no cast was defined.
                     // Instead, return "(<expr>)" so it is evaled higher up
-                    } else if (insideEvalParent) {
+                    } else if (insideEvalParent && nodeptr->cast == Node::CastType::None) {
                             return "(" + nodeptr->text + ")";
-                    // Evaluate and return
+                    // If not, evaluate and return
                     } else{
-                        return std::to_string(evaluateExpression(nodeptr->text));
+                        if(nodeptr->cast == Node::CastType::None || nodeptr->cast == Node::CastType::Float){
+                            return std::to_string(evaluateExpression(nodeptr->text));
+                        }
+                        if(nodeptr->cast == Node::CastType::Int){
+                            return std::to_string((int)evaluateExpression(nodeptr->text));
+                        }
                     }
             }
         }

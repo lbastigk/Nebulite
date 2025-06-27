@@ -71,7 +71,9 @@ public:
 
       // Evaluation optimizations:
       enum class ContextType { None, Self, Other, Global };
+      enum class CastType { None, Float, Int };
       ContextType context = ContextType::None;
+      CastType cast = CastType::None;
       std::string key;
       bool isNumericLiteral = false;
       bool insideEvalParent = false;  // This will be set during evaluation traversal
@@ -189,6 +191,7 @@ private:
     std::shared_ptr<Invoke::Node> expressionToTree(const std::string& input);
     void foldConstants(const std::shared_ptr<Invoke::Node>& node);
 
+    std::shared_ptr<Node> parseNext(const std::string& input, size_t& i);
     std::string evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON& self,Nebulite::JSON& other,Nebulite::JSON& global,bool insideEvalParent);
 };
 }
