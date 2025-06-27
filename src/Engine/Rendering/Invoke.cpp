@@ -355,7 +355,10 @@ std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::expressionToTree(const
                 continue;
             }
             // float/double cast:
-            if(input[pos + 1] == 'i' && input[pos + 2] == '('){
+            // While float casting is what's naturally done when evaluating with tinyexpr, this function might become useful
+            // Perhaps when accessing some value that might or might not be a number, it is more convenient to directly cast to float
+            // To avoid large expression strings. The implicit cast to float when accessing int variables might be helpful as well
+            if(input[pos + 1] == 'f' && input[pos + 2] == '('){
                 pos++;
                 if (!literalBuffer.empty()) {
                     auto child = std::make_shared<Node>(Node{ Node::Type::Literal, literalBuffer, {} });
@@ -474,7 +477,12 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
             for (auto& child : nodeptr->children) {
                 combined += evaluateNode(child, self, other, global, true);
             }
-            return std::to_string(evaluateExpression(combined));
+            if(nodeptr->cast == Node::CastType::None || nodeptr->cast == Node::CastType::Float){
+                return std::to_string(evaluateExpression(combined));
+            }
+            if(nodeptr->cast == Node::CastType::Int){
+                return std::to_string((int)evaluateExpression(combined));
+            }
         }
     }
     return "";
