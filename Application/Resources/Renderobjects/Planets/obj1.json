@@ -9,7 +9,6 @@
     "invokes": [
         "./Resources/Invokes/Physics/gravity.json",
         "./Resources/Invokes/Physics/integrate_a.json",
-        "./Resources/Invokes/Physics/normalize_v_to_physics-vNorm.json",
         "./Resources/Invokes/Physics/integrate_v.json",
         "./Resources/Invokes/Physics/reset_a.json"
     ],
