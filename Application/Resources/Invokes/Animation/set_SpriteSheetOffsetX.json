@@ -6,7 +6,7 @@
       "comment" : "This causes an animation from left to right of the spritesheet",
       "changeType": "set",
       "key": "sprite.spritesheet.offsetX",
-      "value": "$( ($(self.sprite.spritesheet.offsetX) + 16) % 80)"
+      "value": "$( ($(self.sprite.spritesheet.offsetX) + 16) % $(self.animation.xRolling.mod) )"
     },
     {
       "changeType": "set",

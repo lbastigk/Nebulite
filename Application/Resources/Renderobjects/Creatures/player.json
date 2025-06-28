@@ -1,12 +1,24 @@
 {
+    "animation" : {
+        "xRolling" : {
+            "mod" : 80
+        },
+        "attack" : 0,
+        "Direction" : 0
+    },
     "deleteFlag": false,
     "id": 0,
     "invokes": [
-        "./Resources/Invokes/Animation/poll_wasd.json",
+        "./Resources/Invokes/Animation/poll_attack.json",
+        "./Resources/Invokes/Animation/set_AnimationxRolling_active.json",
+        "./Resources/Invokes/Animation/set_AnimationxRolling_mod.json",
+        "./Resources/Invokes/Animation/set_AnimationDirection.json",
+        "./Resources/Invokes/Animation/set_SpriteSheetOffsetX.json",
+        "./Resources/Invokes/Animation/set_SpriteSheetOffsetY.json",
         "./Resources/Invokes/Animation/direction.json",
-        "./Resources/Invokes/Animation/xRolling.json",
         "./Resources/Invokes/Movement/movement_wasd_to_v.json",
         "./Resources/Invokes/Physics/normalize_v_to_physics-vNorm.json",
+        "./Resources/Invokes/Movement/no_movement_on_attack.json",
         "./Resources/Invokes/Physics/integrate_v.json",
         "./Resources/Invokes/General/set_render_position_center.json"
     ],

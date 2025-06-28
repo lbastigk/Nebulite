@@ -1,0 +1,19 @@
+{
+  "logicalArg": "1",
+  "isGlobal": false,
+  "self_invokes": [
+    {
+      "changeType": "set",
+      "key" : "sprite.spritesheet.offsetX",
+      "value" : "$( $(self.sprite.spritesheet.offsetX) * not( not($(self.animation.attack)) * $(global.input.keyboard.current.space) ) )"
+    },
+    {
+      "changeType": "set",
+      "key": "animation.attack",
+      "value": "$( neq( $(global.input.keyboard.current.space) + $(self.animation.attack) * $(self.sprite.spritesheet.offsetX) ,0) )"
+    }
+  ],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": []
+}

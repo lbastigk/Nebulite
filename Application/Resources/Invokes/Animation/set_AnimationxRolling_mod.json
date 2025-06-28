@@ -1,0 +1,14 @@
+{
+  "logicalArg": "1",
+  "isGlobal": false,
+  "self_invokes": [
+    {
+        "changeType" : "set",
+        "key" : "animation.xRolling.mod",
+        "value" : "$( 80 - $(self.animation.attack) * 16 )"
+    }
+  ],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": []
+}

@@ -1,0 +1,17 @@
+{
+  "logicalArg" : "1",
+  "isGlobal": false,
+  "self_invokes": [
+    {
+      "comment" : "Depending on direction and status of Attack",
+      "changeType": "set",
+      "key": "sprite.spritesheet.offsetY",
+      "value": "$( $(self.anmimation.Direction) + $(self.animation.attack) * 16 * 4 )"
+    }
+  ],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": [
+    "echo $(self.animation.attack)"
+  ]
+}

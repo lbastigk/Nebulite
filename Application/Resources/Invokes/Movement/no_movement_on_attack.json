@@ -1,0 +1,19 @@
+{
+  "logicalArg": "$($(self.animation.attack) + 0)",
+  "isGlobal": false,
+  "self_invokes": [
+    {
+      "changeType": "set",
+      "key": "physics.vX",
+      "value": "0"
+    },
+    {
+      "changeType": "set",
+      "key": "physics.vY",
+      "value": "0"
+    }
+  ],
+  "other_invokes": [],
+  "global_invokes": [],
+  "functioncalls": []
+}
