@@ -11,7 +11,5 @@
   ],
   "other_invokes": [],
   "global_invokes": [],
-  "functioncalls": [
-    "echo $(self.animation.attack)"
-  ]
+  "functioncalls": []
 }

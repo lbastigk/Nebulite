@@ -6,7 +6,7 @@ echo Building simple level
 echo
 
 ###########################
-# Part 1: Invoke tester
+# Part 1: Player
 echo Adding character with wasd-control
 spawn ./Resources/Renderobjects/Creatures/player.json|posX=160|posY=160
 
