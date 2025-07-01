@@ -60,10 +60,6 @@
 // -----------------------------------
 // NEBULITE main
 /*
- * TODO:    Make error log an on/off toggle via an additional mainTree function
- *          log on
- *          log off
- *          Needs a boolean logFileOpen in the Nebulite namespace so that closing is correctly triggered on exit
  * 
  * TODO:    Current implementation of result return only returns the result of the last maintree parse
  *          Perhaps the result should be used to determine when to stop the program as well, 
@@ -77,19 +73,7 @@
  */
 int main(int argc, char* argv[]) {
     //--------------------------------------------------
-    // Startup
-
-    // Log errors in separate file
-    std::ofstream errorFile("errors.log");
-    if (!errorFile) {
-        std::cerr << "Failed to open error file." << std::endl;
-        return 1;
-    }
-    std::streambuf* originalCerrBuf = std::cerr.rdbuf(); // Store the original cerr buffer
-    std::cerr.rdbuf(errorFile.rdbuf());
-    
-    //--------------------------------------------------
-    // args handling
+    // Startup, args handling
 
     // Remove bin name from arg list
     argc--;
@@ -205,10 +189,8 @@ int main(int argc, char* argv[]) {
     // Destroy renderer
     if(Nebulite::renderer != nullptr) Nebulite::getRenderer()->destroy();
 
-    // Close error log
-    std::cerr.flush();                  // Explicitly flush std::cerr before closing the file stream. Ensures everything is written to the file
-    std::cerr.rdbuf(originalCerrBuf);   // Restore the original buffer to std::cerr (important for cleanup)
-    errorFile.close();
+    // turn off error log
+    Nebulite::mainTreeFunctions::errorlog(1,(char*[]){"off"});
 
     // Exit
     return 0;

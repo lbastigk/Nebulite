@@ -28,6 +28,10 @@ namespace Nebulite {
     extern FuncTree mainTree;
     extern std::unique_ptr<Nebulite::JSON> global;
     extern std::string stateName;
+
+    extern bool errorLogStatus;
+    extern std::ofstream errorFile;
+    extern std::streambuf* originalCerrBuf;
     
     // init core variables
     void init();
@@ -106,6 +110,9 @@ namespace Nebulite {
 
         // Set a global variable
         int setGlobal(int argc, char* argv[]);
+
+        // Error log activation/deactivation
+        int errorlog(int argc, char* argv[]);
 
         // [DEBUG] Get and store a standard renderobject for reference to ./Resources/Renderobjects/standard.json
         int render_object(int argc, char** argv);

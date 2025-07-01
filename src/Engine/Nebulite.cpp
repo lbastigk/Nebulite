@@ -12,17 +12,23 @@ namespace Nebulite{
     Invoke invoke;
     FuncTree mainTree("Nebulite");
     std::unique_ptr<Nebulite::JSON> global = nullptr;
+    std::string stateName;
 
     // used by convertStrToArgcArgv
     char* argvBuffer = nullptr;
     int argvCapacity = 0;
+
+    // Error log
+    bool errorLogStatus = false;
+    std::ofstream errorFile;
+    std::streambuf* originalCerrBuf = nullptr;
     
     // init variables
     void init(){
         global = std::make_unique<Nebulite::JSON>();
         invoke.linkGlobal(*global);
 	    invoke.linkQueue(tasks_internal.taskList);
-        std::string stateName = "";
+        stateName = "";
     }
 
     // Init nebulite functions
@@ -53,6 +59,7 @@ namespace Nebulite{
         mainTree.attachFunction(Nebulite::mainTreeFunctions::error,           "error",        "Echos all args provided to cerr");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::printGlobal,     "print-global", "Prints global doc to cout");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::printState,      "print-state",  "Prints state doc to cout");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::errorlog,        "log",          "Activate/Deactivate error log");
 
         // Helper
         mainTree.attachFunction(Nebulite::mainTreeFunctions::render_object,    "standard-render-object",  "Serializes standard renderobject to ./Resources/Renderobjects/standard.json");
@@ -411,5 +418,36 @@ int Nebulite::mainTreeFunctions::printState(int argc, char* argv[]){
 int Nebulite::mainTreeFunctions::render_object(int argc, char** argv){
     RenderObject ro;
     FileManagement::WriteFile("./Resources/Renderobjects/standard.json",ro.serialize());
+    return 0;
+}
+
+int Nebulite::mainTreeFunctions::errorlog(int argc, char* argv[]){
+    if(argc == 1){
+        if(!strcmp(argv[0], "on")){
+            if(!Nebulite::errorLogStatus){
+                // Log errors in separate file
+                Nebulite::errorFile.open("errors.log");
+                if (!Nebulite::errorFile) {
+                    std::cerr << "Failed to open error file." << std::endl;
+                    return 1;
+                }
+                Nebulite::originalCerrBuf = std::cerr.rdbuf(); // Store the original cerr buffer
+                std::cerr.rdbuf(Nebulite::errorFile.rdbuf());
+                Nebulite::errorLogStatus = true;
+            }
+        }
+        else if (!strcmp(argv[0], "off")){
+            if(Nebulite::errorLogStatus){
+                // Close error log
+                std::cerr.flush();                              // Explicitly flush std::cerr before closing the file stream. Ensures everything is written to the file
+                std::cerr.rdbuf(Nebulite::originalCerrBuf);     // Restore the original buffer to std::cerr (important for cleanup)
+                Nebulite::errorFile.close();
+                Nebulite::errorLogStatus = false;
+            }
+        } 
+    }
+    else{
+        return 1;
+    }
     return 0;
 }
