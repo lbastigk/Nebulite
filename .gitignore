@@ -6,6 +6,7 @@ external/abseil_build
 Application/*.data.old
 Application/*.data
 *.o
+*.out
 
 # Ignore game resources and error logs
 Application/Resources/Sprites/
