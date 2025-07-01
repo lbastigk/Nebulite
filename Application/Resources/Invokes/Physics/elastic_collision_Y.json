@@ -4,7 +4,6 @@
   "comment1" : "All in logicalArg array must be true",
   "logicalArg": [
     "neq($(global.time.t), $(other.collision.time.lastY))",
-    "neq($(self.id),          $(other.id))",
     "$(other.physics.mass)",
     " lt($(self.posX),        $(other.posX) + $(other.sprite.sizeX))",
     " lt($(self.posY),        $(other.posY) + $(other.sprite.sizeY))",

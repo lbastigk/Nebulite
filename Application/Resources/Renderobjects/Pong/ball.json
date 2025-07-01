@@ -1,0 +1,93 @@
+{
+    "deleteFlag": false,
+    "id": 0,
+    "invokeReload": true,
+    "invokeSubscriptions": [
+        "all",
+        "collision"
+    ],
+    "invokes": [
+        "./Resources/Invokes/Physics/normalize_v_to_physics-vNorm.json",
+        "./Resources/Invokes/Physics/integrate_v.json",
+        "./Resources/Invokes/Physics/reset_a.json",
+        {
+            "topic" : "all",
+            "logicalArg": "$( lt($(self.posX),0) )",
+            "isGlobal": false,
+            "self_invokes": [
+                {
+                "changeType": "set",
+                "key": "deleteFlag",
+                "value": "1"
+                }
+            ],
+            "other_invokes": [],
+            "global_invokes": [
+                {
+                "changeType": "add",
+                "key": "score.right",
+                "value": "1"
+                }
+            ],
+            "functioncalls": [
+                "echo Score for Right!",
+                "eval spawn ./Resources/Renderobjects/Pong/ball.json|posX=$( $(global.rand)/32768 * 100 + 100)|posY=$( $(global.rrand)/32768 * 100 + 100)|physics.vX=$( $(global.rand)/32768 * 100 + 100)|physics.vY=$( $(global.rrand)/32768 * 100 + 100)"
+            ]
+        },
+        {
+            "topic" : "all",
+            "logicalArg": "$( gt($(self.posX),$(global.display.resolution.X)) )",
+            "isGlobal": false,
+            "self_invokes": [
+                {
+                "changeType": "set",
+                "key": "deleteFlag",
+                "value": "1"
+                }
+            ],
+            "other_invokes": [],
+            "global_invokes": [
+                {
+                "changeType": "add",
+                "key": "score.left",
+                "value": "1"
+                }
+            ],
+            "functioncalls": [
+                "echo Score for Left!",
+                "eval spawn ./Resources/Renderobjects/Pong/ball.json|posX=$( $(global.rand)/32768 * 100 + 100)|posY=$( $(global.rrand)/32768 * 100 + 100)|physics.vX=$( $(global.rand)/32768 * 100 + 100)|physics.vY=$( $(global.rrand)/32768 * 100 + 100)"
+            ]
+        }
+    ],
+    "layer": 0,
+    "physics": {
+        "mass": 10.0,
+        "aX": 0.0,
+        "aY": 0.0,
+        "vX": 1.0,
+        "vY": 1.0,
+        "vNorm" : 150
+    },
+    "posX": 350,
+    "posY": 500,
+    "reloadInvokes": true,
+    "sprite": {
+        "link": "./Resources/Sprites/TEST100P/037.bmp",
+        "sizeX": 10,
+        "sizeY": 10,
+        "spritesheet": {
+            "isSpritesheet": false,
+            "offsetX": 0,
+            "offsetY": 0,
+            "sizeX": 0,
+            "sizeY": 0
+        }
+    },
+    "text": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "flagCalculate": true,
+        "fontSize": 0,
+        "str": ""
+    }
+}

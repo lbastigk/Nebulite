@@ -1,0 +1,68 @@
+{
+    "deleteFlag": false,
+    "id": 0,
+    "invokeReload": true,
+    "invokeSubscriptions": [
+        "all"
+    ],
+    "invokes": [
+        "./Resources/Invokes/Physics/elastic_collision_X.json",
+        "./Resources/Invokes/Physics/elastic_collision_Y.json",
+        {
+            "topic" : "1",
+            "logicalArg": "1",
+            "isGlobal": false,
+            "self_invokes": [
+                {
+                    "changeType": "set",
+                    "key": "go_down",
+                    "value": "$( $(global.input.keyboard.current.down) * leq( $(self.posY), $(global.display.resolution.Y) - $(self.sprite.sizeY) - 32 ) )"
+                },
+                {
+                    "changeType": "set",
+                    "key": "go_up",
+                    "value": "$( $(global.input.keyboard.current.up) * geq($(self.posY),32))"
+                },
+                {
+                    "changeType": "set",
+                    "key": "physics.vY",
+                    "value": "$( ( $(self.go_down) - $(self.go_up) ) * $(self.physics.vNorm) )"
+                }
+            ],
+            "other_invokes": [],
+            "global_invokes": [],
+            "functioncalls": []
+        },
+        "./Resources/Invokes/Physics/integrate_v.json"
+    ],
+    "layer": 0,
+    "posX": 0,
+    "posY": 0,
+    "physics": {
+        "mass": 5000000.0,
+        "aX": 0.0,
+        "aY": 0.0,
+        "vX": 0.0,
+        "vY": 0.0,
+        "vNorm" : 100.0
+    },
+    "sprite": {
+        "link": "Resources/Sprites/TEST001P/066.bmp",
+        "sizeX": 32,
+        "sizeY": 128,
+        "spritesheet": {
+            "isSpritesheet": false,
+            "offsetX": 0,
+            "offsetY": 0,
+            "sizeX": 0,
+            "sizeY": 0
+        }
+    },
+    "text": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "flagCalculate": true,
+        "fontSize": 0,
+        "str": ""
+    }
+}
