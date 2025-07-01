@@ -66,21 +66,14 @@
  *          instead of just checking Renderer::isQuit()
  *          E.g. close program if env-load is called on a non-existing file
  *          Idea here is to pass some sort of Nebulite::ErrorParse Struct that contains all errors and from what function in some vector 
- * 
- * TODO:    Current implementation of MainTreeFunctions should not remove the first arg when parsing
- *          Goal: argc[0] should be the bin name or function name for easier debugging and to follow standard practices
- *          Might be some more work, tweaking the FuncTree class    
  */
 int main(int argc, char* argv[]) {
     //--------------------------------------------------
     // Startup, args handling
-
-    // Remove bin name from arg list
-    argc--;
-    argv++;
+    Nebulite::binName = argv[0];
 
     // add main arg to argTokens:
-    if(argc > 0){
+    if(argc > 1){
         std::ostringstream oss;
         for (int i = 0; i < argc; ++i) {
             if (i > 0) oss << ' ';          // Add space between arguments
@@ -94,7 +87,7 @@ int main(int argc, char* argv[]) {
         // Later on it might be helpful to insert a task like:
         // "env-load ./Resources/Levels/main.json" 
         // Which represents the menue screen of the game
-        Nebulite::tasks_internal.taskList.push_back(std::string("set-fps 60"));
+        Nebulite::tasks_script.taskList.push_back(std::string("set-fps 60"));
     }
 
     //--------------------------------------------------

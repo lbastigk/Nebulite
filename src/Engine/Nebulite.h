@@ -20,18 +20,30 @@ namespace Nebulite {
         uint64_t waitCounter = 0;
     };
 
+    //--------------------------------------
     // Declare global instances
-    extern taskQueue tasks_script;
-    extern taskQueue tasks_internal;
-    extern std::unique_ptr<Renderer> renderer;
-    extern Invoke invoke;
+
+    // Objects
     extern FuncTree mainTree;
     extern std::unique_ptr<Nebulite::JSON> global;
-    extern std::string stateName;
+    extern std::unique_ptr<Renderer> renderer;
+    extern Invoke invoke;
 
+    // Tasks
+    extern taskQueue tasks_script;
+    extern taskQueue tasks_internal;
+
+    // Error log stuff
     extern bool errorLogStatus;
     extern std::ofstream errorFile;
     extern std::streambuf* originalCerrBuf;
+
+    // Names
+    extern std::string stateName;
+    extern std::string binName;
+
+    //--------------------------------------
+    // Functions
     
     // init core variables
     void init();
@@ -45,6 +57,11 @@ namespace Nebulite {
     // Converting string cmd to argc/argv
     void convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv);
 
+    // Resolves a given taskqueue by parsing each line into argc/argv and calling the mainTree on the arguments
+    int resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree);
+
+    //--------------------------------------
+    // Namespace mainTreeFunctions
     // functions accessible through global functioncalls
     namespace mainTreeFunctions{
 
@@ -118,6 +135,4 @@ namespace Nebulite {
         int render_object(int argc, char** argv);
     }
 
-    // Resolves a given taskqueue by parsing each line into argc/argv and calling the mainTree on the arguments
-    int resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree);
 }

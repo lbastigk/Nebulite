@@ -15,7 +15,6 @@
         "./Resources/Invokes/Animation/set_AnimationDirection.json",
         "./Resources/Invokes/Animation/set_SpriteSheetOffsetX.json",
         "./Resources/Invokes/Animation/set_SpriteSheetOffsetY.json",
-        "./Resources/Invokes/Animation/direction.json",
         "./Resources/Invokes/Movement/movement_wasd_to_v.json",
         "./Resources/Invokes/Physics/normalize_v_to_physics-vNorm.json",
         "./Resources/Invokes/Movement/no_movement_on_attack.json",

@@ -13,6 +13,7 @@ namespace Nebulite{
     FuncTree mainTree("Nebulite");
     std::unique_ptr<Nebulite::JSON> global = nullptr;
     std::string stateName;
+    std::string binName;
 
     // used by convertStrToArgcArgv
     char* argvBuffer = nullptr;
@@ -90,6 +91,12 @@ int Nebulite::resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* 
         // Convert std::string to argc,argv
         *argc_mainTree = 0;
         *argv_mainTree = nullptr;
+
+        // if argStr does not start with Nebulite::binName, add to it
+        // Since first arg is always the function/binary a function was called from
+        if(!argStr.starts_with(Nebulite::binName+" ")){
+            argStr = Nebulite::binName+" "+argStr;
+        }
         Nebulite::convertStrToArgcArgv(argStr, *argc_mainTree, *argv_mainTree);
 
         if (*argv_mainTree != nullptr && argStr.size()) {
@@ -159,14 +166,14 @@ int Nebulite::mainTreeFunctions::eval(int argc, char* argv[]){
 }
 
 int Nebulite::mainTreeFunctions::setGlobal(int argc, char* argv[]){
-    if(argc == 2){
-        std::string key = argv[0];
-        std::string value = argv[1];
+    if(argc == 3){
+        std::string key = argv[1];
+        std::string value = argv[2];
         Nebulite::getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
         return 0;
     }
-    if(argc == 1){
-        std::string key = argv[0];
+    if(argc == 2){
+        std::string key = argv[1];
         std::string value = "0";
         Nebulite::getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
         return 0;
@@ -175,8 +182,8 @@ int Nebulite::mainTreeFunctions::setGlobal(int argc, char* argv[]){
 }
 
 int Nebulite::mainTreeFunctions::envload(int argc, char* argv[]){
-    if(argc > 0){
-        Nebulite::getRenderer()->deserialize(argv[0]);
+    if(argc > 1){
+        Nebulite::getRenderer()->deserialize(argv[1]);
         return 0;
     }
     else{
@@ -193,9 +200,9 @@ int Nebulite::mainTreeFunctions::envdeload(int argc, char* argv[]){
 }
 
 int Nebulite::mainTreeFunctions::spawn(int argc, char* argv[]){
-    if(argc>0){
+    if(argc>1){
         RenderObject ro;
-        ro.deserialize(argv[0]);
+        ro.deserialize(argv[1]);
         auto ptr = std::make_shared<RenderObject>(std::move(ro));
         Nebulite::getRenderer()->append(ptr);
     }
@@ -212,7 +219,6 @@ int Nebulite::mainTreeFunctions::exitProgram(int argc, char* argv[]){
 }
 
 int Nebulite::mainTreeFunctions::stateLoad(int argc, char* argv[]){ 
-
     std::cerr << "Function load not implemented yet!" << std::endl;
     return 0;
 }
@@ -232,29 +238,32 @@ int Nebulite::mainTreeFunctions::stateSave(int argc, char* argv[]){
 }
 
 int Nebulite::mainTreeFunctions::wait(int argc, char* argv[]){
-    std::istringstream iss(argv[0]);
-    iss >> tasks_script.waitCounter;
-    if (tasks_script.waitCounter < 0){
-        tasks_script.waitCounter = 0;
+    if(argc == 2){
+        std::istringstream iss(argv[1]);
+        iss >> tasks_script.waitCounter;
+        if (tasks_script.waitCounter < 0){
+            tasks_script.waitCounter = 0;
+        }
+        return 0;
     }
-    return 0;
+    return 1;
 }
 
 int Nebulite::mainTreeFunctions::loadTaskList(int argc, char* argv[]) {
-    if (argc < 1) {
+    if (argc != 2) {
         std::cout << "Usage: task <filename>" << std::endl;
         return 1;
     }
 
-    std::ifstream infile(argv[0]);
+    std::ifstream infile(argv[1]);
     if (!infile) {
-        std::cerr << "Error: Could not open file '" << argv[0] << "'" << std::endl;
+        std::cerr << "Error: "<< argv[0] <<" Could not open file '" << argv[1] << "'" << std::endl;
         return 1;
     }
     
     std::string line;
     while (std::getline(infile, line)) {
-        line = StringHandler::untilSpecialChar(line,'#');   // Remove comment
+        line = StringHandler::untilSpecialChar(line,'#');   // Remove comments
         line = StringHandler::lstrip(line,' ');             // Remove whitespaces at start
         if(line.length() == 0){
             // line is empty
@@ -269,7 +278,7 @@ int Nebulite::mainTreeFunctions::loadTaskList(int argc, char* argv[]) {
 }
 
 int Nebulite::mainTreeFunctions::echo(int argc, char* argv[]) {
-    for (int i = 0; i < argc; ++i) {
+    for (int i = 1; i < argc; ++i) {
         std::cout << argv[i];
         if (i < argc - 1) {
             std::cout << " ";
@@ -280,39 +289,39 @@ int Nebulite::mainTreeFunctions::echo(int argc, char* argv[]) {
 }
 
 int Nebulite::mainTreeFunctions::forLoop(int argc, char* argv[]){
-    if(argc > 3){
-        std::string varName = argv[0];
-        int iStart = std::stoi(argv[1]);
-        int iEnd   = std::stoi(argv[2]);
+    // argv[0] is name for-loop
+    std::string funcName = argv[0];
+    
+
+    if(argc > 4){
+        std::string varName = argv[1];
+        int iStart = std::stoi(argv[2]);
+        int iEnd   = std::stoi(argv[3]);
 
         std::string args = "";
-        for (int i = 3; i < argc; ++i) {
+        for (int i = 4; i < argc; ++i) {
             args += argv[i];
             if (i < argc - 1) {
                 args += " ";
             }
         }
-
         std::string args_replaced;
         for(int i = iStart; i <= iEnd; i++){
-            args_replaced = StringHandler::replaceAll(args, '$' + varName, std::to_string(i));
-
+            // for + args
+            args_replaced = funcName + " " + StringHandler::replaceAll(args, '$' + varName, std::to_string(i));
             int argc_new = 0;
             char** argv_new = nullptr;
             Nebulite::convertStrToArgcArgv(args_replaced, argc_new, argv_new);
-
             mainTree.parse(argc_new, argv_new);
-
             // Free only argv_new (argv_new[i] still points to argvBuffer, no need to delete[])
             delete[] argv_new;
         }
     }
-
     return 0;
 }
 
 int Nebulite::mainTreeFunctions::error(int argc, char* argv[]) {
-    for (int i = 0; i < argc; ++i) {
+    for (int i = 1; i < argc; ++i) {
         std::cerr << argv[i];
         if (i < argc - 1) {
             std::cerr << " ";
@@ -327,25 +336,25 @@ int Nebulite::mainTreeFunctions::setResolution(int argc, char* argv[]){
     w = 1000;
     h = 1000;
     scalar = 1;
-    if(argc > 0){
-        w = std::stoi(argv[0]);
-    }
     if(argc > 1){
-        h = std::stoi(argv[1]);
+        w = std::stoi(argv[1]);
     }
     if(argc > 2){
-        scalar = std::stoi(argv[2]);
+        h = std::stoi(argv[2]);
+    }
+    if(argc > 3){
+        scalar = std::stoi(argv[3]);
     }
     Nebulite::getRenderer()->changeWindowSize(w,h,scalar);
     return 0;
 }
 
 int Nebulite::mainTreeFunctions::setFPS(int argc, char* argv[]){
-    if(argc != 1){
+    if(argc != 2){
         Nebulite::getRenderer()->setFPS(60);
     }
     else{
-        int fps = std::stoi(argv[0]);
+        int fps = std::stoi(argv[1]);
         if(fps < 1) fps=1;
         if(fps > 10000) fps=10000;
         Nebulite::getRenderer()->setFPS(fps);
@@ -355,8 +364,10 @@ int Nebulite::mainTreeFunctions::setFPS(int argc, char* argv[]){
 
 int Nebulite::mainTreeFunctions::serialize(int argc, char* argv[]){
     std::string serialized = Nebulite::getRenderer()->serialize();
-    if (argc>0){
-        FileManagement::WriteFile(argv[0],serialized);
+    if (argc>1){
+        for(int i=1; i < argc; i++){
+            FileManagement::WriteFile(argv[i],serialized);
+        }
     }
     else{
         FileManagement::WriteFile("last_state.log.json",serialized);
@@ -365,33 +376,28 @@ int Nebulite::mainTreeFunctions::serialize(int argc, char* argv[]){
 }
 
 int Nebulite::mainTreeFunctions::moveCam(int argc, char* argv[]){
-    if(argc == 2){
-        
-        int dx = floor(std::stod(argv[0]));
-        int dy = floor(std::stod(argv[1]));
+    if(argc == 3){
+        int dx = floor(std::stod(argv[1]));
+        int dy = floor(std::stod(argv[2]));
         Nebulite::getRenderer()->moveCam(dx,dy);
         return 0;
     }
     else{
-        std::cerr << "Expected 2 args, provided " << argc << std::endl;
-        for(int i = 0; i < argc ; i++){
-            std::cerr << "   " << argv[i] << std::endl;
-        }
         return 1;
     }
 }
 
 int Nebulite::mainTreeFunctions::setCam(int argc, char* argv[]){
-    if(argc == 2){
-        int x = floor(std::stod(argv[0]));
-        int y = floor(std::stod(argv[1]));
+    if(argc == 3){
+        int x = floor(std::stod(argv[1]));
+        int y = floor(std::stod(argv[2]));
         Nebulite::getRenderer()->setCam(x,y);
         return 0;
     }
-    if(argc == 3){
-        if(!strcmp(argv[2], "c")){
-            int x = std::stoi(argv[0]);
-            int y = std::stoi(argv[1]);
+    if(argc == 4){
+        if(!strcmp(argv[3], "c")){
+            int x = std::stoi(argv[1]);
+            int y = std::stoi(argv[2]);
             Nebulite::getRenderer()->setCam(x,y,true);
             return 0;
         }
@@ -422,8 +428,8 @@ int Nebulite::mainTreeFunctions::render_object(int argc, char** argv){
 }
 
 int Nebulite::mainTreeFunctions::errorlog(int argc, char* argv[]){
-    if(argc == 1){
-        if(!strcmp(argv[0], "on")){
+    if(argc == 2){
+        if(!strcmp(argv[1], "on")){
             if(!Nebulite::errorLogStatus){
                 // Log errors in separate file
                 Nebulite::errorFile.open("errors.log");
@@ -436,7 +442,7 @@ int Nebulite::mainTreeFunctions::errorlog(int argc, char* argv[]){
                 Nebulite::errorLogStatus = true;
             }
         }
-        else if (!strcmp(argv[0], "off")){
+        else if (!strcmp(argv[1], "off")){
             if(Nebulite::errorLogStatus){
                 // Close error log
                 std::cerr.flush();                              // Explicitly flush std::cerr before closing the file stream. Ensures everything is written to the file

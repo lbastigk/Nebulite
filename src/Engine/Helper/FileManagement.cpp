@@ -43,7 +43,7 @@ std::string FileManagement::LoadFile(std::string link) {
         data.close();
     }
     else{
-        std::cerr << "File could not be opened!" << std::endl;
+        std::cerr << "File '" << link << "' could not be opened!" << std::endl;
     }
     return toreturn.str();
 }

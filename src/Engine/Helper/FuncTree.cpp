@@ -66,10 +66,15 @@ int FuncTree::parse(int argc, char* argv[]) {
         }
     }
 
-    if(argc>0){
-        std::string funcName = argv[0];  // The first argument left is the function name
+    if(argc>1){
+        // e.g. ./bin/Nebulite eval echo '$(1+1)'
+        // turns into:
+        // {"Nebulite", "eval", "echo", "$(1+1)"}
+        // Parsing Part 1, calling eval with {"eval", "echo", "$i(1+1)"}
+        // Parsing Part 2, calling echo with {"echo", "2"}
+        std::string funcName = argv[1];  // The second argument left is the function name
 
-        // remove function name
+        // remove previous function name
         argv++;
         argc--;
 
