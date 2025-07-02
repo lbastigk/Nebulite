@@ -22,6 +22,10 @@ const struct keyName {
         std::string textStr = "text.str";
         std::string textDx = "text.dx";
         std::string textDy = "text.dy";
+        std::string textColorR = "text.color.R";
+        std::string textColorG = "text.color.G";
+        std::string textColorB = "text.color.B";
+        std::string textColorA = "text.color.A";
         std::string flagCalculate = "text.flagCalculate";
         std::string invokes = "invokes";
         std::string invokeSubscriptions = "invokeSubscriptions";

@@ -392,7 +392,6 @@ void Nebulite::Renderer::renderFrame() {
 						}
 						obj.get()->calculateSrcRect();
 						
-						
 						// Calculate position rect
 						rect = obj->getDstRect();
 						rect.x -= dispPosX;		//subtract camera posX
@@ -409,7 +408,10 @@ void Nebulite::Renderer::renderFrame() {
 								dispPosX,
 								dispPosY
 							);
-							SDL_RenderCopy(renderer,&obj.get()->getTextTexture(),NULL,obj.get()->getTextRect());
+							SDL_Texture* texture = obj.get()->getTextTexture();
+							if(texture){
+								SDL_RenderCopy(renderer,texture,NULL,obj.get()->getTextRect());
+							}
 						}
 						if (error != 0){
 							std::cerr << "SDL Error while rendering Frame: " << error << std::endl;

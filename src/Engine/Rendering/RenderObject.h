@@ -28,7 +28,7 @@ public:
 	rapidjson::Document* _getDoc() const;
 	SDL_Rect& getDstRect();
 	SDL_Rect* getSrcRect();
-	SDL_Texture& getTextTexture();
+	SDL_Texture* getTextTexture();
 	SDL_Rect* getTextRect();
 	//-----------------------------------------------------------
 	void update(Nebulite::Invoke* globalInvoke,std::shared_ptr<RenderObject> this_shared);

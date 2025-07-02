@@ -1,13 +1,6 @@
 #!/bin/bash
-
 ulimit -n 1024  # Set max open files to 1024
-
-#taskname="task TaskFiles/Tests/crash_test.txt"
-taskname="task TaskFiles/Benchmarks/benchmark_gravity.txt"
-#taskname='eval echo $(global.time.t)'
-#taskname='json-test'
-
-
+taskname="task TaskFiles/Simulations/gravity_classic.txt"
 valgrind \
   --tool=callgrind \
   --error-limit=no \

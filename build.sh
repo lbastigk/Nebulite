@@ -23,7 +23,23 @@ cmake -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG -march=native" \
       -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE \
       ./
+
+# Configure CMake with enhanced optimization flags
+#cmake -DCMAKE_BUILD_TYPE=Release \
+#      -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG -march=native -flto -funroll-loops -fno-plt -fvisibility=hidden" \
+#      -DCMAKE_EXE_LINKER_FLAGS_RELEASE="-flto -Wl,--strip-all" \
+#      -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE \
+#      -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+#      ./
 make -j$(nproc)
 strip ./Application/bin/Nebulite
 
-echo "Done!"
+echo "Build done!"
+echo ""
+echo "Generating standards from Binary:"
+cd Application
+./bin/Nebulite standard-render-object
+
+echo ""
+echo ""
+echo "Newest Nebulite build + files generated."

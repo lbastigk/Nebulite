@@ -34,10 +34,17 @@ RenderObject::RenderObject() {
 	json.set(keyName.renderObject.textDx.c_str(),0.0);
 	json.set(keyName.renderObject.textDy.c_str(),0.0);
 	json.set(keyName.renderObject.flagCalculate.c_str(),true);
+	json.set(keyName.renderObject.textColorR.c_str(),255);
+	json.set(keyName.renderObject.textColorG.c_str(),255);
+	json.set(keyName.renderObject.textColorB.c_str(),255);
+	json.set(keyName.renderObject.textColorA.c_str(),255);
 
 	//Build Rect on creation
 	calculateDstRect();
 	calculateSrcRect();
+
+	textSurface = nullptr;
+    textTexture = nullptr;
 }
 
 
@@ -68,35 +75,56 @@ void RenderObject::deserialize(std::string serialOrLink) {
 }
 
 void RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int renderer_X, int renderer_Y){
-	float scalar = 1;
-	float fontSize = valueGet<float>(keyName.renderObject.textFontsize.c_str());
-	std::string text = valueGet<std::string>(keyName.renderObject.textStr.c_str());
-	textRect.x = valueGet<float>(keyName.renderObject.positionX.c_str()) + valueGet<float>(keyName.renderObject.textDx.c_str()) - renderer_X;
-	textRect.y = valueGet<float>(keyName.renderObject.positionY.c_str()) + valueGet<float>(keyName.renderObject.textDy.c_str()) - renderer_Y;
-	textRect.w = scalar * fontSize * text.length(); // Width based on text length
-	textRect.h = (int)((float)fontSize * 1.5 * scalar);
-	if(valueGet<bool>(keyName.renderObject.flagCalculate.c_str(),true)==true){
-		// Free previous surface
-		if (textSurface) {
-            SDL_FreeSurface(textSurface);
-            textSurface = nullptr;
-        }
+	
+	// RECT position to renderer
+	textRect.x = 	valueGet<float>(keyName.renderObject.positionX.c_str()) + 
+					valueGet<float>(keyName.renderObject.textDx.c_str()) - renderer_X;
+	textRect.y = 	valueGet<float>(keyName.renderObject.positionY.c_str()) + 
+					valueGet<float>(keyName.renderObject.textDy.c_str()) - renderer_Y;
+	
+	// Recreate texture if recalculate was triggered by user. This is needed for:
+	// - new text
+	// - new color
+	// - new text size
+	if(valueGet<bool>(keyName.renderObject.flagCalculate.c_str(),true)){
 		// Free previous texture
         if (textTexture) {
             SDL_DestroyTexture(textTexture);
             textTexture = nullptr;
         }
+		
+		// Settings influenced by a new text
+		float scalar = 1;
+		float fontSize = valueGet<float>(keyName.renderObject.textFontsize.c_str());
+		std::string text = valueGet<std::string>(keyName.renderObject.textStr.c_str());
+		textRect.w = scalar * fontSize * text.length();
+		textRect.h = static_cast<int>(fontSize * 1.5f * scalar);
 
 		// Create text
-		SDL_Color textColor = { 255, 255, 255, 255 }; // White color
-		textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
-		textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+		SDL_Color textColor = { 
+			json.get(keyName.renderObject.textColorR.c_str(),255),
+			json.get(keyName.renderObject.textColorG.c_str(),255),
+			json.get(keyName.renderObject.textColorB.c_str(),255),
+			json.get(keyName.renderObject.textColorA.c_str(),255)
+		};
+
+		// Create texture
+        if (!text.empty() && font && renderer) {
+            textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
+            if (textSurface) {
+                textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+				SDL_FreeSurface(textSurface); // Free surface after creating texture
+                textSurface = nullptr;
+            }
+        }
+
+		// Set flag back to false
 		valueSet(keyName.renderObject.flagCalculate.c_str(),false);
 	}
 }
 
-SDL_Texture& RenderObject::getTextTexture(){
-	return *textTexture;
+SDL_Texture* RenderObject::getTextTexture(){
+	return textTexture;
 }
 
 SDL_Rect* RenderObject::getTextRect(){

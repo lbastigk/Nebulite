@@ -9,14 +9,6 @@
     "layer": 0,
     "posX": 0,
     "posY": 0,
-    "physics": {
-        "mass": 0.0,
-        "aX": 0.0,
-        "aY": 0.0,
-        "vX": 0.0,
-        "vY": 0.0,
-        "vNorm" : 1.0
-    },
     "sprite": {
         "link": "Resources/Sprites/TEST001P/001.bmp",
         "sizeX": 32,
@@ -30,6 +22,12 @@
         }
     },
     "text": {
+        "color": {
+            "A": 255,
+            "B": 255,
+            "G": 255,
+            "R": 255
+        },
         "dx": 0.0,
         "dy": 0.0,
         "flagCalculate": true,
