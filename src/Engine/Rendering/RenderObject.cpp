@@ -76,12 +76,23 @@ void RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int rende
 	textRect.w = scalar * fontSize * text.length(); // Width based on text length
 	textRect.h = (int)((float)fontSize * 1.5 * scalar);
 	if(valueGet<bool>(keyName.renderObject.flagCalculate.c_str(),true)==true){
+		// Free previous surface
+		if (textSurface) {
+            SDL_FreeSurface(textSurface);
+            textSurface = nullptr;
+        }
+		// Free previous texture
+        if (textTexture) {
+            SDL_DestroyTexture(textTexture);
+            textTexture = nullptr;
+        }
+
+		// Create text
 		SDL_Color textColor = { 255, 255, 255, 255 }; // White color
 		textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
 		textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 		valueSet(keyName.renderObject.flagCalculate.c_str(),false);
 	}
-	
 }
 
 SDL_Texture& RenderObject::getTextTexture(){
