@@ -15,6 +15,7 @@ public:
 	RenderObject(const RenderObject& other);
 	RenderObject& operator=(const RenderObject& other);
 
+
 	//-----------------------------------------------------------
 	//Marshalling
 	std::string serialize();

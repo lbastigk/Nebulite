@@ -1,6 +1,6 @@
 #!/bin/bash
 ulimit -n 1024  # Set max open files to 1024
-taskname="task TaskFiles/Simulations/gravity_classic.txt"
+taskname="task TaskFiles/Benchmarks/gravity.txt"
 valgrind \
   --tool=callgrind \
   --error-limit=no \

@@ -401,6 +401,7 @@ void Nebulite::Renderer::renderFrame() {
 						error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj.get()->getSrcRect(), &rect);
 
 						// Render the text
+						//*
 						if (obj.get()->valueGet<float>(keyName.renderObject.textFontsize.c_str())>0){
 							obj.get()->calculateText(
 								renderer,
@@ -409,13 +410,15 @@ void Nebulite::Renderer::renderFrame() {
 								dispPosY
 							);
 							SDL_Texture* texture = obj.get()->getTextTexture();
-							if(texture){
+							if(texture && obj->getTextRect()){
 								SDL_RenderCopy(renderer,texture,NULL,obj.get()->getTextRect());
 							}
 						}
 						if (error != 0){
 							std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
 						}
+						//*/
+						
 					}
 				}
 			}

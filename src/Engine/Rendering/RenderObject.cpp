@@ -47,10 +47,29 @@ RenderObject::RenderObject() {
     textTexture = nullptr;
 }
 
-
-RenderObject::RenderObject(const RenderObject& other) {
+// Careful copy of RenderObject
+RenderObject::RenderObject(const RenderObject& other) :
+      textSurface(nullptr),
+      textTexture(nullptr),
+      textRect(other.textRect),
+      dstRect(other.dstRect),
+      srcRect(other.srcRect)
+{
+	// Copy doc
 	json.getDoc()->CopyFrom(*(other._getDoc()), json.getDoc()->GetAllocator());
-	valueSet(keyName.renderObject.flagCalculate.c_str(),true);
+
+	
+
+	// If the other object has a valid texture, recreate it for this object
+    float fontSize = valueGet<float>(keyName.renderObject.textFontsize.c_str());
+    std::string text = valueGet<std::string>(keyName.renderObject.textStr.c_str());
+    if (!text.empty() && fontSize > 0) {
+        // You need access to a valid SDL_Renderer* and TTF_Font* here!
+        // If not available, set flag to recalculate later
+        valueSet(keyName.renderObject.flagCalculate.c_str(), true);
+        // The actual texture will be created on the next calculateText() call
+    }
+
 	calculateDstRect();
 	calculateSrcRect();
 }
@@ -88,7 +107,7 @@ void RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int rende
 	// - new text size
 	if(valueGet<bool>(keyName.renderObject.flagCalculate.c_str(),true)){
 		// Free previous texture
-        if (textTexture) {
+        if (textTexture != nullptr) {
             SDL_DestroyTexture(textTexture);
             textTexture = nullptr;
         }
