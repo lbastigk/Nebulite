@@ -19,29 +19,17 @@
  *  spawn <RenderObject.json>       load a single renderobject
  *  load <level.json>               Load and render a level
  *  task <task.txt>                 Run a tasktile
- *
- * Main Loop Architecture
- * ----------------------
- *    - Parse command-line arguments and populate task queues.
- *    - Initialize core engine systems (Nebulite::init()).
- *    - Build the main function tree (Nebulite::init_functions()).
- *    - While the renderer exists and is not quitting:
- *        a. Resolve and execute all tasks in the script and internal queues.
- *        b. If the renderer is ready, perform:
- *            i.   Update game objects by resolving their invokes.
- *            ii.  Render the current frame.
- *            iii. Display FPS.
- *            iv.  Present the frame.
- *            v.   Clear the screen for the next frame.
- *        c. Decrement wait counters as needed.
- *
  */
 
 // General Architecture:
 /*
 
 ----------------------------------------------------
-main-loop:                      down: simple commands like setting fps, cam-position etc
+main-loop:                      Parse command-line arguments and populate task queues
+                                Initialize core engine systems
+                                Build the main function tree
+
+                                down: simple commands like setting fps, cam-position etc
 
 Invoke:                         Resolve interactions between objects, if logical expression is true
                                 Either global   self-other-relationship
@@ -70,7 +58,19 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
                                 [ ][#][#][#][ ]... |
                                 [ ][ ][ ][ ][ ]... |
 
-    RenderObjects:              up:     global invoke commands
+    RenderObjects:              Holds information about each object as well as their Interaction Rulesets - Invokes
+                                On update, compares itself against all previously send Invokes from other Renderobjects 
+                                if it is subscribed to that topic
+                                e.g.: I am a moving object, subscribed to all Commands of type: Collision so that i dont moved into them
+                                        that Command might do stuff like:   - setting my velocity to 0
+                                                                            - setting a variable that tells me the nearest objects
+                                                                            - setting a variable that tells me where a collision happened (left, right ...)
+                                Local invokes are resolved as well, 
+                                concerning only internal commands like:     - acceleration integration
+                                                                            - player input resolving
+                                                                            - animation
+
+                                up:     global invoke commands
 
 */
 
