@@ -1,3 +1,4 @@
+// ----------------------------------------------------------------------
 //     _   ____________  __  ____    ________________
 //    / | / / ____/ __ )/ / / / /   /  _/_  __/ ____/
 //   /  |/ / __/ / __  / / / / /    / /  / / / __/   
@@ -58,6 +59,21 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
                                 [ ][#][#][#][ ]... |
                                 [ ][ ][ ][ ][ ]... |
 
+                                Layer determines order of rendering, layer 1 being renderered first:
+
+                                ||                              ||
+                                vv User looking at render stack vv
+
+                                |-----------------|
+                                | Layer N         |
+                                |-----------------|
+                                | Layer N-1       |
+                                |-----------------|
+                                ...
+                                |-----------------|
+                                | Layer 1         |
+                                |-----------------|
+
     RenderObjects:              Holds information about each object as well as their Interaction Rulesets - Invokes
                                 On update, compares itself against all previously send Invokes from other Renderobjects 
                                 if it is subscribed to that topic
@@ -70,17 +86,18 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
                                                                             - player input resolving
                                                                             - animation
 
-                                up:     global invoke commands
+                                up:     global invoke commands: echo, error, setting fps, moving cam, appending a preset taskfile etc.
 
 */
 
-// -----------------------------------
+
+
+// ----------------------------------------------------------------------
 // Includes
 
-/* Include the Nebulite Namespace with all its functions
- * Initializes callable functions from both user CLI and runtime environment.
- * Also sets up the global Renderer used across Tree-based function calls.
- */
+//Include the Nebulite Namespace with all its functions
+// Initializes callable functions from both user CLI and runtime environment.
+// Also sets up the global Renderer used across Tree-based function calls.
 #include "Nebulite.h" 
 
 // Used to build a tree of callable Functions and parsing arguments
@@ -88,7 +105,7 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
 
 
 
-// -----------------------------------
+// ----------------------------------------------------------------------
 // NEBULITE main
 /*
  * 
@@ -97,6 +114,8 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
  *          instead of just checking Renderer::isQuit()
  *          E.g. close program if env-load is called on a non-existing file
  *          Idea here is to pass some sort of Nebulite::ErrorParse Struct that contains all errors and from what function in some vector 
+ *          This might involve a restructuring of the return value!
+ *          It might be bette to do some simpler return value catches and see if the return value is <0 -> abort or >0 warning, but continue.
  */
 int main(int argc, char* argv[]) {
     //--------------------------------------------------
@@ -123,39 +142,6 @@ int main(int argc, char* argv[]) {
 
     //--------------------------------------------------
     // Init general variables from Nebulite namespace, Build main FuncTree
-    //
-    // Holds functions that are called through the invoke class through functioncalls
-    // These are appended to the Nebulite::taskque: Nebulite::tasks_internal 
-    // and then parsed like any usual argc/argv from the main would be to call functions in Nebulite::mainTreeFunctions
-    // Allowing renderobjects to:
-    // - spawn another renderobject
-    // - echo a status to cout
-    // - echo an error to cerr
-    // - append additional tasks
-    // - exit the programm
-    // on successful interaction through an invoke
-    //
-    // This allows the main loop and the internal renderer to communicate
-    // - Renderobjects send functioncalls
-    // - The user itself could, for instance, spawn an temporary renderobject at with an invoke that says:
-    //   "hey if you are at my position, set your deleteFlag to true so the renderer destroys you on the next update"
-    //   or:
-    //   "if you have the attribute xyz, set yourself to my position"
-    // This allows for more dynamic interactions without having to communicate each renderobjects position to the user
-    // as these would usually need more complicated, hardcoded solutions of getting and searching the internal RenderObjectContainer
-    //
-    // MainTreeFunctions are easily implemented by:
-    //  - defining them in the Nebulite.h/.cpp file
-    //  - adding them to the mainTree 
-    // Example:
-    //
-    // // Definition
-    // int Nebulite::mainTreeFunctions::foo(int argc, char** argv){std::cout << "bar" << std::endl;};
-    // // Add to mainTree:     Function                               Name    Description
-    // mainTree.attachFunction(Nebulite::mainTreeFunctions::foo,      "foo",  "Prints foo to cout");
-    // Then, calling ./bin/Nebulite help will include the entry:
-    // foo - Prints foo to cout
-    // And calling "./bin/Nebulite foo" prints bar to cout
     Nebulite::init();
     Nebulite::init_functions();
     
@@ -203,7 +189,8 @@ int main(int argc, char* argv[]) {
     // Continue only if renderer exists, and if quit wasnt called.
     // It might be tempting to add the condition that all tasks are done, 
     // but this could cause issues if the user wishes to quit while a task is still running.
-    // so if the user is running a task with wait, meaning to all tasks are finished in the first loop, a renderer has to be initialized.
+    //
+    // A current limitation here that, if the user is running a taskfile with a wait-call, a renderer has to be initialized.
     } while (Nebulite::renderer != nullptr && !Nebulite::getRenderer()->isQuit());
 
 
