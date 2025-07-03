@@ -22,12 +22,9 @@
  *
  * Main Loop Architecture
  * ----------------------
- * 1. Startup:
  *    - Parse command-line arguments and populate task queues.
  *    - Initialize core engine systems (Nebulite::init()).
  *    - Build the main function tree (Nebulite::init_functions()).
- *
- * 2. Main Loop:
  *    - While the renderer exists and is not quitting:
  *        a. Resolve and execute all tasks in the script and internal queues.
  *        b. If the renderer is ready, perform:
@@ -38,10 +35,44 @@
  *            v.   Clear the screen for the next frame.
  *        c. Decrement wait counters as needed.
  *
- * 3. Shutdown:
- *    - Destroy the renderer and release resources.
- *    - Exit with the last command result.
  */
+
+// General Architecture:
+/*
+
+----------------------------------------------------
+main-loop:                      down: simple commands like setting fps, cam-position etc
+
+Invoke:                         Resolve interactions between objects, if logical expression is true
+                                Either global   self-other-relationship
+                                or local        just-self-relationship
+
+                                Information is stored in Renderobjects: self and other
+                                as well as in a global document, containing
+
+                                down:
+
+Renderer:                       SDL-Wrapper for all functions concerning rendering,
+                                managing Container
+
+                                up:     information about runtime (stored in global doc)
+                                        information about inputs  (stored in global doc)
+
+    Environment:                Container for all asstes in level
+
+    RenderObjectContainer[N]:   N many layers of RenderObjects
+                                Sorted into tiles the size of Display, with 9 tiles active
+                                so that at any point, everything in sight is loaded
+
+                                [ ][ ][ ][ ][ ]... | # - Loaded Tile
+                                [ ][#][#][#][ ]... | X - Tile where Renderer Cam position is in
+                                [ ][#][X][#][ ]... |
+                                [ ][#][#][#][ ]... |
+                                [ ][ ][ ][ ][ ]... |
+
+    RenderObjects:              up:     global invoke commands
+
+*/
 
 // -----------------------------------
 // Includes
