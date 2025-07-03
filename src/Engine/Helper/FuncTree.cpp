@@ -48,11 +48,6 @@ int FuncTree::parse(int argc, char* argv[]) {
                         val = "true";
                     }
                 }
-                // Check if arg is in map
-                auto it = argumentPtrs.find(key);
-                if(it != argumentPtrs.end()){
-                    *argumentPtrs[key].first = val;
-                }
 
                 // Remove from argument list
                 argv++;       // Skip the first argument (function name)
@@ -82,25 +77,6 @@ int FuncTree::parse(int argc, char* argv[]) {
         return executeFunction(funcName, argc, argv);
     }
     return 0;
-}
-
-
-void FuncTree::attachArgument(std::string* stringPtr, const std::string& argLong, const std::string& argShort, const std::string& helpDescription) {
-    // Ensure that at least one of the argument formats (long or short) is specified
-    if (argLong.empty() && argShort.empty()) {
-        std::cerr << "Error: Must specify at least one argument (long or short)." << std::endl;
-        return;
-    }
-
-    // Attach the argument (long form and/or short form) to the provided string pointer
-    if (!argLong.empty()) {
-        argumentPtrs[argLong] = std::make_pair(stringPtr, helpDescription);
-    }
-    if (!argShort.empty()) {
-        argumentPtrs[argShort] = std::make_pair(stringPtr, helpDescription);
-    }
-
-    // Now each argument has both the string pointer and its description attached
 }
 
 
