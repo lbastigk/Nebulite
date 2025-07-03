@@ -5,10 +5,9 @@
 
 #include <deque>
 #include <memory>
+
 #include "Renderer.h"
 #include "FuncTree.h"
-
-
 #include "JSON.h"
 
 
@@ -64,6 +63,27 @@ namespace Nebulite {
     // Namespace mainTreeFunctions
     // functions accessible through global functioncalls
     namespace mainTreeFunctions{
+
+        // TODO:
+        /*
+        
+        - if
+        - while
+        - renderer class of function, calling in-renderer specific tasks?
+            instead of set-fps or move-cam, just have a function called renderer
+            that parses the rest inside the renderer tree:
+            renderer set-fps 60
+            renderer move-cam 100 100
+            renderer count
+            etc...
+            it might become too convoluted to use though, since basically all functions are tied to the renderer?
+        - force/release
+            forcing a global value to a certain value
+            release does the opposite, allowing other routines to manipulate this value again
+            useful for TAS: force keyboard.current.up 1 ; wait 100 ; release keyboard.current.up
+        - setting
+            for saving/loading/manipulating a settings.json file
+        */
 
         // Evaluate all following expressions before parsing further:
         //

@@ -116,6 +116,14 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
  *          Idea here is to pass some sort of Nebulite::ErrorParse Struct that contains all errors and from what function in some vector 
  *          This might involve a restructuring of the return value!
  *          It might be bette to do some simpler return value catches and see if the return value is <0 -> abort or >0 warning, but continue.
+ * 
+ * TODO:    settings.json
+ *          - Renderer size, fps setting
+ *          - mapping of keyboard/mouse to specific actions like up/down/left/right, inventory, map etc.
+ *          - issue here is, keys of invokes need to be dynamic?
+ *            if key is "global.keyboard.current.$(settings.action.left)", resolve to "global.keyboard.current.a"
+ *            probably the more dynamic approach, as linking the settings doc within the global doc through mapping is messy, convoluted and slower  
+ * 
  */
 int main(int argc, char* argv[]) {
     //--------------------------------------------------
