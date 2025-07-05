@@ -292,6 +292,16 @@ void RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
 				arr = "functioncalls[" + std::to_string(i) + "]";
 				entry.functioncalls.push_back(invoke.get<std::string>(arr.c_str(),""));
 			}
+			
+			bool threadsafe = true;
+			threadsafe = threadsafe && entry.functioncalls.empty();
+			threadsafe = threadsafe && entry.invokes_global.empty();
+			threadsafe = threadsafe && ( ((int)entry.invokes_self.empty() + (int)entry.invokes_other.empty() ) == 1);
+			if(threadsafe && !entry.invokes_self.empty()){
+				entry.threadSafeType = Nebulite::Invoke::InvokeEntry::ThreadSafeType::Self;
+			} else if(threadsafe && !entry.invokes_other.empty()){
+				entry.threadSafeType = Nebulite::Invoke::InvokeEntry::ThreadSafeType::Other;
+			}
 
 			// Append
 			auto ptr = std::make_shared<Nebulite::Invoke::InvokeEntry>(std::move(entry));
@@ -337,7 +347,7 @@ void RenderObject::update(Nebulite::Invoke* globalInvoke, std::shared_ptr<Render
 		//------------------------------
 		// 3.) Checks this object against all conventional invokes
 		//	   Manipulation happens at the Invoke::update routine later on
-		//     This just generates true pairs that need to be updated
+		//     This just generates pairs that need to be updated
 		for(int i = 0; i < json.memberSize(keyName.renderObject.invokeSubscriptions.c_str());i++){
 			std::string key = keyName.renderObject.invokeSubscriptions + "[" + std::to_string(i) + "]";
 			std::string subscription = json.get<std::string>(key.c_str(),"");

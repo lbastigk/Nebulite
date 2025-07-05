@@ -35,6 +35,9 @@ Like global.levelstate or similiar
 
 */
 
+#define THREADED_INVOKE_EVAL 1
+#define THREADED_MIN_BATCHSIZE 100
+
 // Forward declaration of RenderObject
 class RenderObject;
 
@@ -88,7 +91,7 @@ public:
       std::string text;
       std::vector<std::shared_ptr<Invoke::Node>> children; // for nested variables (if Expr)
 
-      enum class ContextType { None, Self, Other, Global };
+      enum class ContextType { None, Self, Other, Global, Resources };
       ContextType context = ContextType::None;
 
       enum class CastType { None, Float, Int };
@@ -114,6 +117,9 @@ public:
         std::vector<InvokeTriple> invokes_global;
         std::vector<std::string> functioncalls;     // function calls, e.g. load, save etc
         bool isGlobal = true;
+
+        enum class ThreadSafeType {None,Self,Other};
+        ThreadSafeType threadSafeType = ThreadSafeType::None; //
     };
 
     //--------------------------------------------
@@ -222,8 +228,9 @@ private:
     absl::flat_hash_map<std::string, std::vector<std::shared_ptr<InvokeEntry>>> globalcommands;
     absl::flat_hash_map<std::string, std::vector<std::shared_ptr<InvokeEntry>>> globalcommandsBuffer; 
 
-    // All true pairs of last listens
-    std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> pairs;
+    // All pairs of last listens
+    absl::flat_hash_map<std::shared_ptr<RenderObject>,std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>>> pairs_threadsafe;
+    std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> pairs_not_threadsafe;
 
     // Map for each Tree
     absl::flat_hash_map<std::string, std::shared_ptr<Invoke::Node>> exprTree;

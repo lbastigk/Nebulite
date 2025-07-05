@@ -14,6 +14,7 @@ A cache is implemented for fast setting/getting of keys. Only if needed are thos
 #include "ostreamwrapper.h"
 
 // Other dependencies
+#include <mutex>
 #include <typeinfo>
 #include <cxxabi.h>
 #include <string>
@@ -50,6 +51,23 @@ namespace Nebulite{
     public:
         JSON();
 
+        // Overload of assign operators
+        JSON(const JSON&) = delete;
+        JSON(JSON&& other) noexcept {
+            std::scoped_lock lock(mtx, other.mtx); // Locks both, deadlock-free
+            doc = std::move(other.doc);
+            cache = std::move(other.cache);
+        }
+        JSON& operator=(const JSON&) = delete;
+        JSON& operator=(JSON&& other) noexcept {
+            if (this != &other) {
+                std::scoped_lock lock(mtx, other.mtx);
+                doc = std::move(other.doc);
+                cache = std::move(other.cache);
+            }
+            return *this;
+        }
+
         // Reserved operative characters that cant be used for keynames
         static std::string reservedCharacters;
 
@@ -63,6 +81,12 @@ namespace Nebulite{
 
         // Set empty
         void set_empty_array(const char* key);
+
+        // Special sets for threadsafe operations
+        void set_add     (const char* key, const char* valStr);
+        void set_multiply(const char* key, const char* valStr);
+        void set_concat  (const char* key, const char* valStr);
+        
 
         // Get type of key
         enum KeyType{
@@ -103,6 +127,7 @@ namespace Nebulite{
             return const_cast<rapidjson::Document*>(&doc);
         }
     private:
+        mutable std::recursive_mutex mtx;
         //--------------------------------------------------------------------
         // Value storage
 
@@ -248,6 +273,8 @@ T Nebulite::JSON::get_type(CacheEntry& entry, const T& defaultValue) {
 
 template <typename T>
 T Nebulite::JSON::get(const char* key, const T defaultValue) {
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+
     if constexpr (is_simple_value_v<T> || std::is_same_v<T, const char*>) {
         auto it = cache.find(key);
         if (it != cache.end()) {
@@ -264,6 +291,8 @@ T Nebulite::JSON::get(const char* key, const T defaultValue) {
 
 template <typename T>
 void Nebulite::JSON::set(const char* key, const T& value) {
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+
     if constexpr (is_simple_value_v<T>) {
         set_type(key,value);
     } 
@@ -488,3 +517,6 @@ template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapid
 template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, rapidjson::Document& result, const rapidjson::Document& defaultvalue){
     result.CopyFrom(jsonValue, result.GetAllocator());
 }
+
+
+

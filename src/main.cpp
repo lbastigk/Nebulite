@@ -122,6 +122,7 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
  *          - mapping of keyboard/mouse to specific actions like up/down/left/right, inventory, map etc.
  *          - issue here is, keys of invokes need to be dynamic?
  *            if key is "global.keyboard.current.$(settings.action.left)", resolve to "global.keyboard.current.a"
+ *            so if key contains '$', resolve. This needs to happen in realtime in case the user changes settings midgame, so this cant be resolved on invoke load!
  *            probably the more dynamic approach, as linking the settings doc within the global doc through mapping is messy, convoluted and slower  
  * 
  */

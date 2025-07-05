@@ -63,24 +63,50 @@ void Nebulite::Invoke::broadcast(const std::shared_ptr<InvokeEntry>& toAppend){
 
 void Nebulite::Invoke::listen(const std::shared_ptr<RenderObject>& obj,std::string topic){
     for (auto& cmd : globalcommands[topic]){
-        pairs.push_back(std::make_pair(cmd,obj));
+        // Determine if threadsafe or not
+
+        // - no functioncalls
+        // - no global invokeEntries
+        // - only either self or other is manipulated
+        //   technically, if both self and other are empty, this works as well
+        //   though this wouldnt exist as this would be an empty invoke
+        if( THREADED_INVOKE_EVAL && cmd->threadSafeType != Nebulite::Invoke::InvokeEntry::ThreadSafeType::None){
+            if(cmd->threadSafeType != Nebulite::Invoke::InvokeEntry::ThreadSafeType::Self){
+                // Use self as pointer
+                pairs_threadsafe[cmd->selfPtr].push_back(std::make_pair(cmd,obj));
+            }else if (cmd->threadSafeType != Nebulite::Invoke::InvokeEntry::ThreadSafeType::Other){
+                // Use Other as pointer
+                pairs_threadsafe[obj].push_back(std::make_pair(cmd,obj));
+            }
+        }else{
+            // Might add no-op invokes
+            // Though this is more of a game-design issue and should still be added:
+            // - an extra check for no-op might introduce bugs later on if features are added
+            // - unnecessary load, as empty invokes are easily avoided in game design
+            pairs_not_threadsafe.push_back(std::make_pair(cmd,obj));
+        }
     }
 }
 
-
+// TODO: Thread safety!!!
+// doc->setAdd , doc->setMultiply etc...
 void Nebulite::Invoke::updateValueOfKey(Nebulite::Invoke::InvokeTriple::ChangeType type, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){
     switch (type){
         case Nebulite::Invoke::InvokeTriple::ChangeType::set:
             doc->set<std::string>(key.c_str(),valStr);
+            
             break;
         case Nebulite::Invoke::InvokeTriple::ChangeType::add:
-            doc->set<std::string>(key.c_str(),std::to_string(std::stod(valStr) + doc->get<double>(key.c_str(),0)));
+            //doc->set<std::string>(key.c_str(),std::to_string(std::stod(valStr) + doc->get<double>(key.c_str(),0)));
+            doc->set_add(key.c_str(),valStr.c_str());
             break;
         case Nebulite::Invoke::InvokeTriple::ChangeType::multiply:
-            doc->set<std::string>(key.c_str(),std::to_string(std::stod(valStr) * doc->get<double>(key.c_str(),0)));
+            //doc->set<std::string>(key.c_str(),std::to_string(std::stod(valStr) * doc->get<double>(key.c_str(),0)));
+            doc->set_multiply(key.c_str(),valStr.c_str());
             break;
         case Nebulite::Invoke::InvokeTriple::ChangeType::concat:
             doc->set<std::string>(key.c_str(),doc->get<std::string>(key.c_str(),0) + valStr);
+            doc->set_concat(key.c_str(),valStr.c_str());
             break;
         default:
             //std::cerr << "Unknown key type!" << std::endl;
@@ -159,8 +185,9 @@ void Nebulite::Invoke::clear(){
     globalcommands.clear();
     globalcommandsBuffer.clear();
 
-    pairs.clear();
-    pairs.shrink_to_fit();
+    pairs_threadsafe.clear();
+    pairs_not_threadsafe.clear();
+    pairs_not_threadsafe.shrink_to_fit();
 
     // TODO: Since exprTree holds a bunch of shared ptrs, the objects themselfes need to be cleared?
     // forall ptr in exprTree: free(ptr) ?
@@ -171,15 +198,80 @@ void Nebulite::Invoke::clear(){
     exprTree.clear();
 }
 
-void Nebulite::Invoke::updatePairs(){
-    for (auto pair : pairs){
-        if(isTrueGlobal(pair.first,pair.second)){
+#define SCALE_BATCHES 0
+void Nebulite::Invoke::updatePairs() {
+    // --- Threaded update for thread-safe pairs with batch combining ---
+    std::vector<std::thread> threads;
+
+    #if SCALE_BATCHES
+    std::vector<std::pair<std::shared_ptr<InvokeEntry>, std::shared_ptr<RenderObject>>> current_batch;
+    int current_batchsize = 0;
+    for (auto& pairs_batch : pairs_threadsafe) {
+        for (auto& pair : pairs_batch.second) {
+            current_batch.push_back(pair);
+            ++current_batchsize;
+            if (current_batchsize >= THREADED_MIN_BATCHSIZE) {
+                // Launch a thread for this batch
+                threads.emplace_back([this, batch = std::move(current_batch)]() mutable {
+                    for (auto& pair : batch) {
+                        //*
+                        if (isTrueGlobal(pair.first, pair.second)) {
+                            updateGlobal(pair.first, pair.second);
+                        }
+                        //*/
+                    }
+                });
+                current_batch.clear();
+                current_batchsize = 0;
+            }
+        }
+    }
+    // Process any remaining pairs in the last batch
+    if (!current_batch.empty()) {
+        threads.emplace_back([this, batch = std::move(current_batch)]() mutable {
+            for (auto& pair : batch) {
+                if (isTrueGlobal(pair.first, pair.second)) {
+                    updateGlobal(pair.first, pair.second);
+                }
+            }
+        });
+    }
+    #else
+    for (auto& pairs_batch : pairs_threadsafe) {
+        // Only launch a thread if there is work to do
+        if (!pairs_batch.second.empty()) {
+            threads.emplace_back([this, &pairs_batch]() {
+                for (auto& pair : pairs_batch.second) {
+                    if (isTrueGlobal(pair.first, pair.second)) {
+                        updateGlobal(pair.first, pair.second);
+                    }
+                }
+            });
+        }
+    }
+    #endif
+
+    
+
+    // Wait for all threads to finish
+    for (auto& t : threads) {
+        if (t.joinable()) t.join();
+    }
+    
+    // --- Sequential update for non-threadsafe pairs ---
+    for (auto pair : pairs_not_threadsafe) {
+        if (isTrueGlobal(pair.first, pair.second)) {
             updateGlobal(pair.first, pair.second);
         }
     }
-    pairs.clear();
-    pairs.shrink_to_fit();
+
+    // Cleanup
+    pairs_threadsafe.clear();
+    pairs_not_threadsafe.clear();
+    pairs_not_threadsafe.shrink_to_fit();
 }
+
+
 
 // Called after a full renderer update to get all extracted invokes
 void Nebulite::Invoke::getNewInvokes(){
@@ -187,48 +279,7 @@ void Nebulite::Invoke::getNewInvokes(){
     globalcommands.swap(globalcommandsBuffer);    // Swap in the new set of commands
 }
 
-
-
-//--------------------------------------------------------
-// TODO: usage of te_compile for faster evaluation...
-// Idea is to use TE_FUNCTION2 by using maps: keyMap[d1], ptrMap[d2]
-//
-// double getKey(double d1, double d2){return *ptrMap[d2].get<double>(keyMap[d1],0.0);}
-//
-// Then, before te_compile each expr with $(self.key) is turned to: getKey(d1,d2)
-// With the pointers being registered in pre-compiling
-// This makes evaluatenode not necessary, instead a simple string precompile is done: 
-// All references to self/other need to be resolved only, then everything still inside $(...) is send to evaluateExpression
-// e.g.:
-//  "The Value is: $($(self.key1) + $(other.key1) + 1)" 
-//  -> 
-//  "The Value is: " + std::to_string(evaluateExpression("getKey(<d1>,<d2>) + getKey(<d3>,<d4>) + 1"))
-//
-// The values for the maps should be fairly finite. The maximum is: 
-//      ptrMap: MaxObjects                      key is double
-//      keyMap: MaxKeysPerObject                key is double
-//      ExpMap: MaxObjects*MaxKeysPerObject     key is string
-// And should definetly be within memory limit. Positively, 
-// in the string map no actual double values are stored so it cant grow superlarge
-// Max for map[double] should be around 20mil values, due to precision. Start at -10.000.000 and go up 1 with each new entry
-//
-// Workflow:
-//
-// InvokeEntry.invokes_self[0] = "The Value is: $($(self.key1) + $(other.key1) + 1)"
-// Recompile directly to:
-// InvokeEntry.invokes_self[0] = "The Value is: " + std::to_string(evaluateExpression("getKey(<d1>,<d2>) + getKey(<d3>,<OTHER>) + 1"))
-// Meaning there are special entries: 
-//      - <OTHER> is replaced by other pointer on call
-//      - <GLOBAL> is replaced by global pointer on call
-//
-// Important: Needs another workaround to allow for $(...) to deliver a string!
-//
-// Could mean lots of work, low priority for now...
-// This would mean a big, BIG rework for a potentially unnecessary or marginal speedup
-//
-//--------------------------------------------------------
-
-// Evaluating expression with already replaced self/other/global relations
+// Evaluating expression with already replaced self/other/global etc. relations
 double Nebulite::Invoke::evaluateExpression(const std::string& expr) {
 
     // Variable access via tinyexpr is needed for cache...
@@ -321,7 +372,13 @@ std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::parseNext(const std::s
     } else {
         varNode = Node{ Node::Type::Variable, inner, {} };
 
+        //-------------------------------------
         // Set context and optimization info
+
+        // self/other/global are read-write docs
+        // - object positions
+        // - current time
+        // - general game state info
         if (inner.starts_with("self.")) {
             varNode.context = Node::ContextType::Self;
             varNode.key = inner.substr(5);
@@ -333,6 +390,26 @@ std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::parseNext(const std::s
             varNode.key = inner.substr(7);
         } else if (StringHandler::isNumber(inner)) {
             varNode.isNumericLiteral = true;
+        // Resources docs are read only
+        // - dialogue data
+        // - 
+        } else if (inner.starts_with("resources")){
+            // TODO:
+            // Is Resources doc
+            // global is technically a resources doc as well, but with write-access
+            // and a copy is thus stored under state prefix
+            //
+            // Resources docs are read-only
+            //
+            // $(resources.dialogue-characterName.onGreeting.v1)
+            // -> Link = ./Resources/dialogue/characterName.json
+            // -> key  = onGreeting.v1
+            varNode.context = Node::ContextType::Resources;
+
+            // TODO: implementation in FileManagement class or Nebulite Namespace
+            // absl_flat_hash_map<std::string,Nebulite::JSON>
+            // if file doesnt exist, open
+            // Perhaps some more goards to close a file after n many updates if not used
         }
     }
     i = j; // move position after closing ')'

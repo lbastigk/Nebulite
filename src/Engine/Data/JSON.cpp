@@ -108,6 +108,7 @@ void Nebulite::JSON::deserialize(std::string serial_or_link){
 }
 
 void Nebulite::JSON::flush() {
+    std::lock_guard<std::recursive_mutex> lock(mtx);
     for (auto it = cache.begin(); it != cache.end(); ) {
         const std::string& key = it->first;
         const SimpleJSONValue& val = it->second.main_value;
@@ -390,4 +391,29 @@ rapidjson::Document Nebulite::JSON::Helper::deserialize(std::string serialOrLink
 void Nebulite::JSON::Helper::empty(rapidjson::Document &doc) {
     doc.SetNull();
     doc.GetAllocator().Clear();
+}
+
+
+// THREADSAFE SETS
+void Nebulite::JSON::set_add(const char* key, const char* valStr) {
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+
+    double current = get<double>(key, 0.0);
+    double addVal = std::stod(valStr);
+    set<double>(key, current + addVal);
+}
+
+void Nebulite::JSON::set_multiply(const char* key, const char* valStr) {
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+
+    double current = get<double>(key, 0.0);
+    double mulVal = std::stod(valStr);
+    set<double>(key, current * mulVal);
+}
+
+void Nebulite::JSON::set_concat(const char* key, const char* valStr) {
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+
+    std::string current = get<std::string>(key, "");
+    set<std::string>(key, current + valStr);
 }
