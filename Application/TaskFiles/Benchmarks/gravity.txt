@@ -5,7 +5,7 @@ echo
 echo 
 set-global time.fixed_dt_ms 10
 set-res 1440 1440
-set-fps 1000
+set-fps 10000
 print-global
 echo
 echo

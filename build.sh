@@ -11,7 +11,8 @@ echo ""
 echo "Step 1: Building debug binary"
 #make clean
 rm -rf CMakeFiles/ CMakeCache.txt
-cmake -DCMAKE_BUILD_TYPE=Debug ./
+cmake -DCMAKE_BUILD_TYPE=Debug -B build/debug -S .
+cmake --build build/debug
 make -j$(nproc)
 mv ./Application/bin/Nebulite ./Application/bin/Nebulite_Debug
 
@@ -35,3 +36,4 @@ cd Application
 echo ""
 echo ""
 echo "Newest Nebulite build + files generated."
+cd ..

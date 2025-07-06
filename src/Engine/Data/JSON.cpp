@@ -3,6 +3,7 @@
 
 
 Nebulite::JSON::JSON(){
+    std::lock_guard<std::recursive_mutex> lock(mtx);
     doc.SetObject();
 }
 
@@ -10,17 +11,21 @@ Nebulite::JSON::JSON(){
 std::string Nebulite::JSON::reservedCharacters = "[]{}.,";
 
 void Nebulite::JSON::set_subdoc(const char* key, Nebulite::JSON& child){
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+    
     // Ensure key path exists
     rapidjson::Value* keyVal = ensure_path(key, doc, doc.GetAllocator());
     if (keyVal != nullptr) {
         child.flush();
-        Nebulite::JSON::Helper::ConvertToJSONValue<rapidjson::Document>(child.doc, *keyVal, doc.GetAllocator());
+        Nebulite::JSON::Helper::ConvertToJSONValue<rapidjson::Document>(mtx, child.doc, *keyVal, doc.GetAllocator());
     } else {
         std::cerr << "Failed to create or access path: " << key << std::endl;
     }
 }
 
 Nebulite::JSON Nebulite::JSON::get_subdoc(const char* key){
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+
     rapidjson::Value* keyVal = traverseKey(key,doc);
     if(keyVal != nullptr){
         // turn keyVal to doc
@@ -35,16 +40,22 @@ Nebulite::JSON Nebulite::JSON::get_subdoc(const char* key){
 }
 
 void Nebulite::JSON::set_empty_array(const char* key){
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+
     rapidjson::Value* val = ensure_path(key,doc,doc.GetAllocator());
     val->SetArray();
 }
 
 //template <typename T>
 Nebulite::JSON::KeyType Nebulite::JSON::memberCheck(std::string key) {
-    // 1. Check if key is empty or represents the whole document
+
+    // 1. Check if key is empty -> represents the whole document
     if (key.empty()) {
         return KeyType::document;
     }
+
+    // For all other cases, lock this object
+    std::lock_guard<std::recursive_mutex> lock(mtx);
 
     // 2. Check cache first
     auto it = cache.find(key);
@@ -75,6 +86,8 @@ Nebulite::JSON::KeyType Nebulite::JSON::memberCheck(std::string key) {
 }
 
 uint32_t Nebulite::JSON::memberSize(std::string key){
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+
     auto kt = memberCheck(key);
     if(kt != KeyType::array){
         return kt;
@@ -88,10 +101,12 @@ uint32_t Nebulite::JSON::memberSize(std::string key){
 
 
 std::string Nebulite::JSON::serialize(std::string key){
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+
     flush();
     if(key.size() == 0){
         // Serialize entire doc
-        return Nebulite::JSON::Helper::serialize(doc);
+        return Nebulite::JSON::Helper::serialize(mtx, doc);
     } 
     else{
         Nebulite::JSON sub = get_subdoc(key.c_str());
@@ -99,16 +114,19 @@ std::string Nebulite::JSON::serialize(std::string key){
     }
 }
 void Nebulite::JSON::deserialize(std::string serial_or_link){
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+
     // remove cache
     for (auto it = cache.begin(); it != cache.end(); ) {
         cache.erase(it++);
     }
 
-    doc = Nebulite::JSON::Helper::deserialize(serial_or_link);
+    doc = Nebulite::JSON::Helper::deserialize(mtx, serial_or_link);
 }
 
 void Nebulite::JSON::flush() {
     std::lock_guard<std::recursive_mutex> lock(mtx);
+
     for (auto it = cache.begin(); it != cache.end(); ) {
         const std::string& key = it->first;
         const SimpleJSONValue& val = it->second.main_value;
@@ -125,13 +143,17 @@ void Nebulite::JSON::flush() {
 }
 
 void Nebulite::JSON::empty(){
-    Nebulite::JSON::Helper::empty(doc);
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+
+    Nebulite::JSON::Helper::empty(mtx, doc);
     for (auto it = cache.begin(); it != cache.end(); ) {
         cache.erase(it++);
     }
 }
 
 rapidjson::Value* Nebulite::JSON::traverseKey(const char* key, rapidjson::Value& val){
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
 
@@ -213,6 +235,8 @@ rapidjson::Value* Nebulite::JSON::traverseKey(const char* key, rapidjson::Value&
 }
 
 rapidjson::Value* Nebulite::JSON::ensure_path(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+    
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
 
@@ -298,8 +322,10 @@ rapidjson::Value* Nebulite::JSON::ensure_path(const char* key, rapidjson::Value&
 
 
 //---------------------------------------------------------------------
-// Helper Functions
-rapidjson::Value Nebulite::JSON::Helper::sortRecursive(const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator) {
+// Static Helper Functions
+rapidjson::Value Nebulite::JSON::Helper::sortRecursive(std::recursive_mutex& mtx, const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator) {
+    std::lock_guard<std::recursive_mutex> lock(mtx); 
+
     if (value.IsObject()) {
         // Sort object keys
         std::vector<std::pair<std::string, const rapidjson::Value*>> members;
@@ -315,7 +341,7 @@ rapidjson::Value Nebulite::JSON::Helper::sortRecursive(const rapidjson::Value& v
         rapidjson::Value sortedObj(rapidjson::kObjectType);
         for (const auto& pair : members) {
             rapidjson::Value name(pair.first.c_str(), allocator);
-            rapidjson::Value sortedVal = sortRecursive(*pair.second, allocator);
+            rapidjson::Value sortedVal = sortRecursive(mtx, *pair.second, allocator);
             sortedObj.AddMember(name, sortedVal, allocator);
         }
         return sortedObj;
@@ -324,7 +350,7 @@ rapidjson::Value Nebulite::JSON::Helper::sortRecursive(const rapidjson::Value& v
         // Preserve array order; sort internal objects if any
         rapidjson::Value newArr(rapidjson::kArrayType);
         for (const auto& v : value.GetArray()) {
-            newArr.PushBack(sortRecursive(v, allocator), allocator);
+            newArr.PushBack(sortRecursive(mtx, v, allocator), allocator);
         }
         return newArr;
 
@@ -333,7 +359,9 @@ rapidjson::Value Nebulite::JSON::Helper::sortRecursive(const rapidjson::Value& v
         return rapidjson::Value(value, allocator);
     }
 }
-std::string Nebulite::JSON::Helper::serialize(const rapidjson::Document& doc) {
+std::string Nebulite::JSON::Helper::serialize(std::recursive_mutex& mtx, const rapidjson::Document& doc) {
+    std::lock_guard<std::recursive_mutex> lock(mtx); 
+
     if (!doc.IsObject() && !doc.IsArray()) {
         std::cerr << "Serialization only supports JSON objects or arrays!" << std::endl;
         return "{}";
@@ -342,7 +370,7 @@ std::string Nebulite::JSON::Helper::serialize(const rapidjson::Document& doc) {
     rapidjson::Document sortedDoc;
     sortedDoc.SetObject(); // Required before Swap or adding values
 
-    rapidjson::Value sortedRoot = sortRecursive(doc, sortedDoc.GetAllocator());
+    rapidjson::Value sortedRoot = sortRecursive(mtx, doc, sortedDoc.GetAllocator());
     sortedDoc.Swap(sortedRoot); // Efficiently replace contents
 
     rapidjson::StringBuffer buffer;
@@ -350,7 +378,9 @@ std::string Nebulite::JSON::Helper::serialize(const rapidjson::Document& doc) {
     sortedDoc.Accept(writer);
     return buffer.GetString();
 }
-rapidjson::Document Nebulite::JSON::Helper::deserialize(std::string serialOrLink) {
+rapidjson::Document Nebulite::JSON::Helper::deserialize(std::recursive_mutex& mtx, std::string serialOrLink) {
+    std::lock_guard<std::recursive_mutex> lock(mtx); 
+    
     rapidjson::Document doc;
 
     if (serialOrLink.starts_with("{")) {
@@ -382,19 +412,21 @@ rapidjson::Document Nebulite::JSON::Helper::deserialize(std::string serialOrLink
             if (eqPos != std::string::npos) {
                 std::string key = assignment.substr(0, eqPos);
                 std::string value = assignment.substr(eqPos + 1);
-                Nebulite::JSON::Helper::Set<std::string>(doc, key, value);
+                Nebulite::JSON::Helper::Set<std::string>(mtx, doc, key, value);
             }
         }
     }
     return doc;
 }
-void Nebulite::JSON::Helper::empty(rapidjson::Document &doc) {
+void Nebulite::JSON::Helper::empty(std::recursive_mutex& mtx, rapidjson::Document &doc) {
+    std::lock_guard<std::recursive_mutex> lock(mtx); 
+
     doc.SetNull();
     doc.GetAllocator().Clear();
 }
 
-
-// THREADSAFE SETS
+//-------------------------------------------
+// Threadsafe sets
 void Nebulite::JSON::set_add(const char* key, const char* valStr) {
     std::lock_guard<std::recursive_mutex> lock(mtx);
 

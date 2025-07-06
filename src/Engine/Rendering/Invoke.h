@@ -35,7 +35,28 @@ Like global.levelstate or similiar
 
 */
 
+// Using threaded invokes or not
 #define THREADED_INVOKE_EVAL 1
+
+// Size of Batches/if to use
+// 0 - no min size
+// Best practice seems to be either 0 or 100 ?
+/*
+
+64 Object Gravity benchmark, rendering 600 Frames:
+./build.sh ; cd ./Application ; /usr/bin/time -v ./bin/Nebulite task TaskFiles/Benchmarks/gravity.txt 2>&1 | grep Elapsed
+
+
+0000 - 2.44s
+0010 - 8.37s
+0020 - 4.68s
+0050 - 2.74s
+0100 - 2.38s
+0200 - 2.49s
+0500 - 3.16s
+1000 - 4.83s
+
+*/
 #define THREADED_MIN_BATCHSIZE 100
 
 // Forward declaration of RenderObject
@@ -45,6 +66,7 @@ class RenderObject;
 #include <string>
 #include <vector>
 #include <deque>
+#include <shared_mutex>
 
 // Local
 #include "tinyexpr.h"
@@ -87,7 +109,7 @@ public:
           Mix_eval,     // An expression like $($(self.var) + 1), must evaluate entire subtree
           Mix_no_eval   // A mix of variables and literals, but not wrapped in $(...), just concatenate
       };
-      Type type;
+      Type type = Type::Literal;
       std::string text;
       std::vector<std::shared_ptr<Invoke::Node>> children; // for nested variables (if Expr)
 
@@ -233,6 +255,7 @@ private:
     std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> pairs_not_threadsafe;
 
     // Map for each Tree
+    std::shared_mutex exprTreeMutex;
     absl::flat_hash_map<std::string, std::shared_ptr<Invoke::Node>> exprTree;
 
     
@@ -243,12 +266,7 @@ private:
     double evaluateExpression(const std::string& expr);
 
     // Resolving self/other/global references
-    std::string resolveVars(
-      const std::string& input, 
-      Nebulite::JSON& self, 
-      Nebulite::JSON& other, 
-      Nebulite::JSON& global
-    );
+    std::string resolveVars(const std::string& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global);
     
 
     // Create Tree from string
@@ -261,6 +279,9 @@ private:
     std::shared_ptr<Node> parseNext(const std::string& input, size_t& i);
 
     // Turning a string into a Tree of Nebulite::Invoke::Node
-    std::string evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON& self,Nebulite::JSON& other,Nebulite::JSON& global,bool insideEvalParent);
+    std::string evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent);
+
+    // Variable access for Node eval
+    std::string nodeVariableAccess(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent);
 };
 }
