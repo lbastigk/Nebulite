@@ -35,29 +35,36 @@ Like global.levelstate or similiar
 
 */
 
+//-----------------------------------------
+// THREADING SETTINGS
+
 // Using threaded invokes or not
-#define THREADED_INVOKE_EVAL 1
+// 0 - No threading
+// 1 - Map-vector-based threading
+// 2 - vector-vector-based threading [BEST]
+#define INVOKE_THREADING_TYPE 2
 
-// Size of Batches/if to use
-// 0 - no min size
-// Best practice seems to be either 0 or 100 ?
+// Size of Batches
+#define THREADED_MIN_BATCHSIZE 200
+
+// Results for Batchsize with INVOKE_THREADING_TYPE 2:
 /*
+Using:
+/usr/bin/time -v ./bin/Nebulite task TaskFiles/Benchmarks/gravity.txt 2>&1 | grep Elapsed
+(600 Frames)
 
-64 Object Gravity benchmark, rendering 600 Frames:
-./build.sh ; cd ./Application ; /usr/bin/time -v ./bin/Nebulite task TaskFiles/Benchmarks/gravity.txt 2>&1 | grep Elapsed
-
-
-0000 - 2.44s
-0010 - 8.37s
-0020 - 4.68s
-0050 - 2.74s
-0100 - 2.38s
-0200 - 2.49s
-0500 - 3.16s
-1000 - 4.83s
+0000 - 75.09s
+0010 - 08.16s
+0020 - 04.71s
+0050 - 03.55s
+0100 - 03.25s
+0200 - 03.13s [BEST]
+0500 - 03.35s
+1000 - 04.92s
 
 */
-#define THREADED_MIN_BATCHSIZE 100
+
+//-----------------------------------------
 
 // Forward declaration of RenderObject
 class RenderObject;
@@ -251,7 +258,13 @@ private:
     absl::flat_hash_map<std::string, std::vector<std::shared_ptr<InvokeEntry>>> globalcommandsBuffer; 
 
     // All pairs of last listens
-    absl::flat_hash_map<std::shared_ptr<RenderObject>,std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>>> pairs_threadsafe;
+    #if INVOKE_THREADING_TYPE == 1
+      absl::flat_hash_map<std::shared_ptr<RenderObject>,std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>>> pairs_threadsafe;
+    #endif
+
+    #if INVOKE_THREADING_TYPE == 2
+      std::vector<std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>>> pairs_threadsafe;
+    #endif
     std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> pairs_not_threadsafe;
 
     // Map for each Tree

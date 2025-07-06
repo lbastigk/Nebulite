@@ -152,7 +152,6 @@ void RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos, int dispR
 	toReinsert.shrink_to_fit();
 }
 
-
 void RenderObjectContainer::reinsertAllObjects(int dispResX, int dispResY) {
 	std::vector<std::shared_ptr<RenderObject>> toReinsert;
 
