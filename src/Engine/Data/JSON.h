@@ -188,29 +188,25 @@ namespace Nebulite{
         // Important Helper functions
         class Helper{
         public:
-            // std::lock_guard<std::recursive_mutex> lock(mtx); 
+            template <typename T>
+            static void Set(rapidjson::Document& doc, const std::string& fullKey, const T data); 
 
             template <typename T>
-            static void Set(std::recursive_mutex& mtx, rapidjson::Document& doc, const std::string& fullKey, const T data); 
+            static void ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& result, const T& defaultvalue = T());
 
             template <typename T>
-            static void ConvertFromJSONValue(std::recursive_mutex& mtx, const rapidjson::Value& jsonValue, T& result, const T& defaultvalue = T());
+            static void ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
 
-            template <typename T>
-            static void ConvertToJSONValue(std::recursive_mutex& mtx, const T& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
-
-            static rapidjson::Value sortRecursive(std::recursive_mutex& mtx, const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator);
-            static rapidjson::Document deserialize(std::recursive_mutex& mtx, std::string serialOrLink);
-            static std::string serialize(std::recursive_mutex& mtx, const rapidjson::Document& doc);
-            static void empty(std::recursive_mutex& mtx, rapidjson::Document &doc);
+            static rapidjson::Value sortRecursive(const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator);
+            static rapidjson::Document deserialize(std::string serialOrLink);
+            static std::string serialize(const rapidjson::Document& doc);
+            static void empty(rapidjson::Document &doc);
         };
     };
 }
 
 template <typename T>
 T Nebulite::JSON::convert_variant(const SimpleJSONValue& val, const T& defaultValue) {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
-
     return std::visit([&](const auto& stored) -> T {
         using StoredT = std::decay_t<decltype(stored)>;
 
@@ -254,8 +250,6 @@ T Nebulite::JSON::convert_variant(const SimpleJSONValue& val, const T& defaultVa
 
 template <typename T>
 void Nebulite::JSON::set_type(std::string key, const T& value) {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
-
     CacheEntry& entry = cache[key];     // creates or updates entry
     entry.main_value = value;
     entry.derived_values.clear();       // reset derived types
@@ -264,8 +258,6 @@ void Nebulite::JSON::set_type(std::string key, const T& value) {
 
 template <typename T>
 T Nebulite::JSON::get_type(CacheEntry& entry, const T& defaultValue) {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
-
     // Check if the main value holds the exact type
     if (std::holds_alternative<T>(entry.main_value)) {
         return std::get<T>(entry.main_value);
@@ -324,8 +316,6 @@ void Nebulite::JSON::set(const char* key, const T& value) {
 
 template <typename T>
 T Nebulite::JSON::fallback_get(const char* key, const T defaultValue, rapidjson::Value& val) {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
-    
     rapidjson::Value* keyVal = traverseKey(key,val);
     if(keyVal == nullptr){
         // Value doesnt exist in doc, return default
@@ -334,19 +324,17 @@ T Nebulite::JSON::fallback_get(const char* key, const T defaultValue, rapidjson:
     else{
         // Base case: convert currentVal to T using JSONHandler
         T tmp;
-        Nebulite::JSON::Helper::ConvertFromJSONValue<T>(mtx, *keyVal, tmp, defaultValue);
+        Nebulite::JSON::Helper::ConvertFromJSONValue<T>(*keyVal, tmp, defaultValue);
         return tmp;
     }
 }
 
 template <typename T>
 void Nebulite::JSON::fallback_set(const char* key, const T& value, rapidjson::Value& val) {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
-
     // Ensure key path exists
     rapidjson::Value* keyVal = ensure_path(key, val, doc.GetAllocator());
     if (keyVal != nullptr) {
-        Nebulite::JSON::Helper::ConvertToJSONValue<T>(mtx, value, *keyVal, doc.GetAllocator());
+        Nebulite::JSON::Helper::ConvertToJSONValue<T>(value, *keyVal, doc.GetAllocator());
     } else {
         std::cerr << "Failed to create or access path: " << key << std::endl;
     }
@@ -361,7 +349,7 @@ void Nebulite::JSON::fallback_set(const char* key, const T& value, rapidjson::Va
 // Helper functions from older JSONHandler Class
 
 template <typename T>
-void Nebulite::JSON::Helper::Set(std::recursive_mutex& mtx, rapidjson::Document& doc, const std::string& fullKey, const T data) {
+void Nebulite::JSON::Helper::Set(rapidjson::Document& doc, const std::string& fullKey, const T data) {
     if (!doc.IsObject()) {
         doc.SetObject();
     }
@@ -391,7 +379,7 @@ void Nebulite::JSON::Helper::Set(std::recursive_mutex& mtx, rapidjson::Document&
             // Final key: set the value
             rapidjson::Value keyVal(std::string(key).c_str(), doc.GetAllocator());
             rapidjson::Value jsonValue;
-            ConvertToJSONValue(mtx, data, jsonValue, doc.GetAllocator());
+            ConvertToJSONValue(data, jsonValue, doc.GetAllocator());
 
             if (current->HasMember(std::string(key).c_str())) {
                 (*current)[std::string(key).c_str()] = jsonValue;
@@ -405,57 +393,51 @@ void Nebulite::JSON::Helper::Set(std::recursive_mutex& mtx, rapidjson::Document&
 }
 
 // to JSON value
-template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<bool>(std::recursive_mutex& mtx, const bool& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)           {std::lock_guard<std::recursive_mutex> lock(mtx); jsonValue.SetBool(data);}
-template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<int>(std::recursive_mutex& mtx, const int& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)             {std::lock_guard<std::recursive_mutex> lock(mtx); jsonValue.SetInt(data);}
-template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<uint32_t>(std::recursive_mutex& mtx, const uint32_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)   {std::lock_guard<std::recursive_mutex> lock(mtx); jsonValue.SetUint(data);}
-template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<uint64_t>(std::recursive_mutex& mtx, const uint64_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)   {std::lock_guard<std::recursive_mutex> lock(mtx); jsonValue.SetUint64(data);}
-template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<float>(std::recursive_mutex& mtx, const float& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)         {std::lock_guard<std::recursive_mutex> lock(mtx); jsonValue.SetFloat(data);}
-template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<double>(std::recursive_mutex& mtx, const double& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)       {std::lock_guard<std::recursive_mutex> lock(mtx); jsonValue.SetDouble(data);}
-template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<long>(std::recursive_mutex& mtx, const long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)           {std::lock_guard<std::recursive_mutex> lock(mtx); jsonValue.SetInt64(data);}
-template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<std::string>(std::recursive_mutex& mtx, const std::string& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
-    std::lock_guard<std::recursive_mutex> lock(mtx); 
-    jsonValue.SetString(data.c_str(), static_cast<rapidjson::SizeType>(data.length()), allocator);
-}
-template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<const char*>(std::recursive_mutex& mtx, const char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
-    std::lock_guard<std::recursive_mutex> lock(mtx); 
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<bool>(const bool& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {jsonValue.SetBool(data);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<int>(const int& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)                {jsonValue.SetInt(data);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<uint32_t>(const uint32_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)      {jsonValue.SetUint(data);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<uint64_t>(const uint64_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)      {jsonValue.SetUint64(data);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<float>(const float& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)            {jsonValue.SetFloat(data);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<double>(const double& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)          {jsonValue.SetDouble(data);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<long>(const long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {jsonValue.SetInt64(data);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<std::string>(const std::string& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetString(data.c_str(), static_cast<rapidjson::SizeType>(data.length()), allocator);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<const char*>(const char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
     if (data) {
         jsonValue.SetString(data, allocator);
     } else {
         jsonValue.SetNull();
     }
 }
-template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<char*>(std::recursive_mutex& mtx, char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
-    std::lock_guard<std::recursive_mutex> lock(mtx); 
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<char*>(char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
     if (data) {
         jsonValue.SetString(data, allocator);
     } else {
         jsonValue.SetNull();
     }
 }
-template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<std::pair<int, std::string>>(std::recursive_mutex& mtx, const std::pair<int, std::string>& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
-    std::lock_guard<std::recursive_mutex> lock(mtx); 
-    
-    // Example conversion for a pair. You may adapt based on your application’s structure.
+
+/*
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<std::pair<int, std::string>>(const std::pair<int, std::string>& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
     rapidjson::Value pairObject(rapidjson::kObjectType);
     rapidjson::Value firstValue;
-    ConvertToJSONValue(mtx, data.first, firstValue, allocator);
+    ConvertToJSONValue(data.first, firstValue, allocator);
     pairObject.AddMember("first", firstValue, allocator);
     
     rapidjson::Value secondValue;
-    ConvertToJSONValue(mtx, data.second, secondValue, allocator);
+    ConvertToJSONValue(data.second, secondValue, allocator);
     pairObject.AddMember("second", secondValue, allocator);
     
     jsonValue = pairObject;
 }
-template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<rapidjson::Value*>(std::recursive_mutex& mtx, rapidjson::Value* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)         {std::lock_guard<std::recursive_mutex> lock(mtx); jsonValue.CopyFrom(*data, allocator);}
-template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<rapidjson::Document*>(std::recursive_mutex& mtx, rapidjson::Document* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)   {std::lock_guard<std::recursive_mutex> lock(mtx); jsonValue.CopyFrom(*data, allocator);}
-template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<rapidjson::Document>(std::recursive_mutex& mtx, const rapidjson::Document& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator)       {std::lock_guard<std::recursive_mutex> lock(mtx); jsonValue.CopyFrom(data, allocator);}
+*/
+
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<rapidjson::Value*>(rapidjson::Value* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)         {jsonValue.CopyFrom(*data, allocator);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<rapidjson::Document*>(rapidjson::Document* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)   {jsonValue.CopyFrom(*data, allocator);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<rapidjson::Document>(const rapidjson::Document& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator)       {jsonValue.CopyFrom(data, allocator);}
 
 // from JSON Value
-template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(std::recursive_mutex& mtx, const rapidjson::Value& jsonValue, bool& result, const bool& defaultvalue){std::lock_guard<std::recursive_mutex> lock(mtx); result = jsonValue.GetBool();}
-template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(std::recursive_mutex& mtx, const rapidjson::Value& jsonValue, int& result, const int& defaultvalue) {
-    std::lock_guard<std::recursive_mutex> lock(mtx); 
-
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, bool& result, const bool& defaultvalue){result = jsonValue.GetBool();}
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, int& result, const int& defaultvalue) {
     if (jsonValue.IsInt()) {
         result = jsonValue.GetInt();
     }
@@ -466,10 +448,8 @@ template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(std::recurs
         result = 0;
     }
 }
-template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(std::recursive_mutex& mtx, const rapidjson::Value& jsonValue, uint32_t& result, const uint32_t& defaultvalue){std::lock_guard<std::recursive_mutex> lock(mtx); result = jsonValue.GetUint();}
-template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(std::recursive_mutex& mtx, const rapidjson::Value& jsonValue, uint64_t& result, const uint64_t& defaultvalue) {
-    std::lock_guard<std::recursive_mutex> lock(mtx); 
-
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint32_t& result, const uint32_t& defaultvalue){result = jsonValue.GetUint();}
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint64_t& result, const uint64_t& defaultvalue){
     if (jsonValue.IsString()) {
         std::istringstream iss(jsonValue.GetString());
         iss >> result;
@@ -483,9 +463,7 @@ template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(std::recurs
         throw std::runtime_error("JSON value is not a valid uint64_t");
     }
 }
-template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(std::recursive_mutex& mtx, const rapidjson::Value& jsonValue, float& result, const float& defaultvalue){
-    std::lock_guard<std::recursive_mutex> lock(mtx); 
-
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, float& result, const float& defaultvalue){
     if (jsonValue.IsNumber()){
         result = jsonValue.GetFloat();
     }
@@ -493,9 +471,7 @@ template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(std::recurs
         result = (float)std::stod(jsonValue.GetString());
     }
 }
-template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(std::recursive_mutex& mtx, const rapidjson::Value& jsonValue, double& result, const double& defaultvalue){
-    std::lock_guard<std::recursive_mutex> lock(mtx); 
-    
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, double& result, const double& defaultvalue){
     if (jsonValue.IsNumber()){
         result = jsonValue.GetDouble();
     }
@@ -506,9 +482,7 @@ template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(std::recurs
         result = defaultvalue;
     }
 }
-template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(std::recursive_mutex& mtx, const rapidjson::Value& jsonValue, std::string& result, const std::string& defaultvalue){
-    std::lock_guard<std::recursive_mutex> lock(mtx); 
-    
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, std::string& result, const std::string& defaultvalue){
     if (jsonValue.IsBool()) {
         result = jsonValue.GetBool() ? "true" : "false";
     }
@@ -543,9 +517,7 @@ template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(std::recurs
         result = "unsupported type";
     }
 }
-template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(std::recursive_mutex& mtx, const rapidjson::Value& jsonValue, rapidjson::Document& result, const rapidjson::Document& defaultvalue){
-    std::lock_guard<std::recursive_mutex> lock(mtx); 
-    
+template <> inline void Nebulite::JSON::Helper::ConvertFromJSONValue(const rapidjson::Value& jsonValue, rapidjson::Document& result, const rapidjson::Document& defaultvalue){
     result.CopyFrom(jsonValue, result.GetAllocator());
 }
 
