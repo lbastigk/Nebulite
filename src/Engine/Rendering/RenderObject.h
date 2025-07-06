@@ -13,7 +13,8 @@ public:
 	//Constructor
 	RenderObject();
 	RenderObject(const RenderObject& other);
-	RenderObject& operator=(const RenderObject& other);
+	RenderObject& operator=(RenderObject& other);
+
 
 
 	//-----------------------------------------------------------
@@ -26,7 +27,7 @@ public:
 	template <typename T> void valueSet(const char* key, const T data);
 	template <typename T> T valueGet(const char* key, const T& defaultValue = T());
 	Nebulite::JSON* getDoc(){return &json;};
-	rapidjson::Document* _getDoc() const;
+	const Nebulite::JSON* getDoc() const { return &json; }
 	SDL_Rect& getDstRect();
 	SDL_Rect* getSrcRect();
 	SDL_Texture* getTextTexture();

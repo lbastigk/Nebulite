@@ -30,7 +30,7 @@ Nebulite::JSON Nebulite::JSON::get_subdoc(const char* key){
     if(keyVal != nullptr){
         // turn keyVal to doc
         Nebulite::JSON json;
-        json.getDoc()->CopyFrom(*keyVal,json.getDoc()->GetAllocator());
+        json.doc.CopyFrom(*keyVal,json.doc.GetAllocator());
         return json;
     }
     else{

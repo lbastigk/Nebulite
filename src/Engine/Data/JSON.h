@@ -55,6 +55,7 @@ namespace Nebulite{
     public:
         JSON();
 
+        //------------------------------
         // Overload of assign operators
         JSON(const JSON&) = delete;
         JSON(JSON&& other) noexcept {
@@ -72,33 +73,48 @@ namespace Nebulite{
             return *this;
         }
 
+        // Copy doc
+        void copyFrom(const JSON* other) {
+            if (other == nullptr) return;  // safeguard
+            std::scoped_lock lock(mtx, other->mtx);
+            doc.CopyFrom(other->doc, doc.GetAllocator());
+            cache = other->cache;
+        }
+
         // Reserved operative characters that cant be used for keynames
         static std::string reservedCharacters;
 
+        //------------------------------
         // Get any value
         template <typename T> T get(const char* key, const T defaultValue = T());
         Nebulite::JSON get_subdoc(const char* key);
 
+        //------------------------------
         // Set any value
         template <typename T> void set(const char* key, const T& value);
         void set_subdoc(const char* key, Nebulite::JSON& child);
 
+        //------------------------------
         // Set empty
         void set_empty_array(const char* key);
 
+        //------------------------------
         // Special sets for threadsafe operations
         void set_add     (const char* key, const char* valStr);
         void set_multiply(const char* key, const char* valStr);
         void set_concat  (const char* key, const char* valStr);
         
-
-        // Get type of key
+        //------------------------------
+        // Key Types, Sizes
+        
         enum KeyType{
             document = -1,
             null = 0,
             value = 1,
             array = 2
         };
+
+        // Get type of key
         KeyType memberCheck(std::string key);
 
         // Get size of key
@@ -110,9 +126,13 @@ namespace Nebulite{
 
         uint32_t cacheSize(){return cache.size();};
 
+        //------------------------------
         // Serializing/Deserializing
         std::string serialize(std::string key = "");
         void deserialize(std::string serial_or_link);              // if key is empty, deserializes entire doc
+
+        //------------------------------
+        // Cache/Doc manipulation
 
         // flushing map content into doc
         // TODO:
@@ -126,10 +146,11 @@ namespace Nebulite{
         // Empty document
         void empty();
 
+        //------------------------------
+        // Retired, but kept for eventual debugging
+
         // For compatiblity with older systems, get doc directly:
-        rapidjson::Document* getDoc() const {
-            return const_cast<rapidjson::Document*>(&doc);
-        }
+        //rapidjson::Document* getDoc() const {return const_cast<rapidjson::Document*>(&doc);}
     private:
         mutable std::recursive_mutex mtx;
         //--------------------------------------------------------------------

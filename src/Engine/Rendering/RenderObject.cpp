@@ -55,24 +55,21 @@ RenderObject::RenderObject(const RenderObject& other) :
       dstRect(other.dstRect),
       srcRect(other.srcRect)
 {
-	// Copy doc
-	json.getDoc()->CopyFrom(*(other._getDoc()), json.getDoc()->GetAllocator());
+    json.empty();
+    json.copyFrom(other.getDoc());
 
-	
-
-	// If the other object has a valid texture, recreate it for this object
+    // If the other object has a valid texture, recreate it for this object
     float fontSize = valueGet<float>(keyName.renderObject.textFontsize.c_str());
     std::string text = valueGet<std::string>(keyName.renderObject.textStr.c_str());
     if (!text.empty() && fontSize > 0) {
-        // You need access to a valid SDL_Renderer* and TTF_Font* here!
-        // If not available, set flag to recalculate later
         valueSet(keyName.renderObject.flagCalculate.c_str(), true);
-        // The actual texture will be created on the next calculateText() call
+        // Texture will be created in the next calculateText() call
     }
 
-	calculateDstRect();
-	calculateSrcRect();
+    calculateDstRect();
+    calculateSrcRect();
 }
+
 
 
 
@@ -148,11 +145,6 @@ SDL_Texture* RenderObject::getTextTexture(){
 
 SDL_Rect* RenderObject::getTextRect(){
 	return &textRect;
-}
-
-rapidjson::Document* RenderObject::_getDoc() const {
-	return json.getDoc();
-	//return const_cast<rapidjson::Document*>(&doc);
 }
 
 
