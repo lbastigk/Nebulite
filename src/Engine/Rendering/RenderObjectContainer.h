@@ -1,5 +1,6 @@
 #include "RenderObject.h"
 
+namespace Nebulite{
 class RenderObjectContainer {
 public:
 	//-----------------------------------------------------------
@@ -17,7 +18,7 @@ public:
 	// Pipeline
 
 	// Append objects
-	void append(std::shared_ptr<RenderObject> toAppend, int dispResX, int dispResY);
+	void append(std::shared_ptr<Nebulite::RenderObject> toAppend, int dispResX, int dispResY);
 
 	// Reinsert all objects into container, useful for new tile size declaration
 	// e.g. new rendering size
@@ -38,8 +39,9 @@ public:
 
 	
 	// Used to get a container Tile
-	std::vector<std::shared_ptr<RenderObject>>& getContainerAt(std::pair<uint16_t,uint16_t> pos);
+	std::vector<std::shared_ptr<Nebulite::RenderObject>>& getContainerAt(std::pair<uint16_t,uint16_t> pos);
 
 private:
 	absl::flat_hash_map<std::pair<int16_t,int16_t>,std::vector<std::shared_ptr<RenderObject>>> ObjectContainer;
 };
+}

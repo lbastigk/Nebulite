@@ -15,6 +15,7 @@
 
 #define RENDEROBJECTCONTAINER_COUNT 5
 
+namespace Nebulite{
 class Environment {
 public:
 	//-----------------------------------------------------------
@@ -68,6 +69,6 @@ private:
 	// Global Values
     Nebulite::JSON* global;
 	
-	RenderObjectContainer roc[RENDEROBJECTCONTAINER_COUNT];
+	Nebulite::RenderObjectContainer roc[RENDEROBJECTCONTAINER_COUNT];
 };
-
+}

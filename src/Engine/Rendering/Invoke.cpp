@@ -24,7 +24,7 @@ Nebulite::Invoke::Invoke(){
     vars.push_back(not_var);
 }
 
-bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj) {
+bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd, const std::shared_ptr<Nebulite::RenderObject>& otherObj) {
     //-----------------------------------------
     // Pre-Checks
     
@@ -72,7 +72,7 @@ bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, con
     return result != 0.0;
 }
 
-bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<InvokeEntry>& cmd) {
+bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd) {
     // Chekc if logical arg is as simple as just "1", meaning true
     if(cmd->logicalArg == "1") return true;
 
@@ -86,13 +86,13 @@ bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<InvokeEntry>& cmd) {
     return result != 0.0;
 }
 
-void Nebulite::Invoke::broadcast(const std::shared_ptr<InvokeEntry>& toAppend){
+void Nebulite::Invoke::broadcast(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& toAppend){
     globalcommandsBuffer[toAppend->topic].push_back(toAppend);
 }
 
 // TODO: is it better to do true/false check here instead of later?
 // TODO: threadsafe checks are outdated, should work with more options now
-void Nebulite::Invoke::listen(const std::shared_ptr<RenderObject>& obj,std::string topic){
+void Nebulite::Invoke::listen(const std::shared_ptr<Nebulite::RenderObject>& obj,std::string topic){
     for (auto& cmd : globalcommands[topic]){
         // Determine if threadsafe or not
 
@@ -163,7 +163,7 @@ void Nebulite::Invoke::updateValueOfKey(Nebulite::Invoke::InvokeTriple::ChangeTy
     }
 }
 
-void Nebulite::Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd_self, const std::shared_ptr<RenderObject>& Obj_other) {
+void Nebulite::Invoke::updateGlobal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self, const std::shared_ptr<Nebulite::RenderObject>& Obj_other) {
 
     // === SELF update ===
     for(auto InvokeTriple : cmd_self->invokes_self){
@@ -199,7 +199,7 @@ void Nebulite::Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd_self
     }
 }
 
-void Nebulite::Invoke::updateLocal(const std::shared_ptr<InvokeEntry>& cmd_self){
+void Nebulite::Invoke::updateLocal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self){
 
     // === SELF update ===
     for(auto InvokeTriple : cmd_self->invokes_self){
@@ -252,7 +252,7 @@ void Nebulite::Invoke::updatePairs() {
     std::vector<std::thread> threads;
 
     
-    std::vector<std::pair<std::shared_ptr<InvokeEntry>, std::shared_ptr<RenderObject>>> current_batch;
+    std::vector<std::pair<std::shared_ptr<Nebulite::Invoke::InvokeEntry>, std::shared_ptr<Nebulite::RenderObject>>> current_batch;
     int current_batchsize = 0;
     for (auto& pairs_batch : pairs_threadsafe) {
         for (auto& pair : pairs_batch.second) {

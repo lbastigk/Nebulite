@@ -1,22 +1,22 @@
 #include "Environment.h"
 
-Environment::Environment() {}
+Nebulite::Environment::Environment() {}
 
-Environment::Environment(const Environment& other) {
+Nebulite::Environment::Environment(const Environment& other) {
 	//doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
 	//for (const auto& entry : other.roc)
 }
 
 //-----------------------------------------------------------
 //Destructor
-Environment::~Environment() {
+Nebulite::Environment::~Environment() {
 	//TODO
 };
 
 //-----------------------------------------------------------
 //Marshalling
 
-std::string Environment::serialize() {
+std::string Nebulite::Environment::serialize() {
 
 	Nebulite::JSON doc;
 
@@ -33,7 +33,7 @@ std::string Environment::serialize() {
 	return doc.serialize();
 }
 
-void Environment::deserialize(std::string serialOrLink, int dispResX,int dispResY) {
+void Nebulite::Environment::deserialize(std::string serialOrLink, int dispResX,int dispResY) {
 	Nebulite::JSON file;
 	file.deserialize(serialOrLink);
 	global->deserialize(file.get_subdoc("global").serialize());
@@ -60,7 +60,7 @@ void Environment::deserialize(std::string serialOrLink, int dispResX,int dispRes
 	}
 }
 
-void Environment::append(std::shared_ptr<RenderObject> toAppend,int dispResX, int dispResY, int layer) {
+void Nebulite::Environment::append(std::shared_ptr<RenderObject> toAppend,int dispResX, int dispResY, int layer) {
 	if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
 		roc[layer].append(toAppend, dispResX, dispResY);
 	}
@@ -73,7 +73,7 @@ void Environment::append(std::shared_ptr<RenderObject> toAppend,int dispResX, in
 //#define UPDATE_THREADED 1
 
 #ifdef UPDATE_THREADED
-void Environment::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY, int THREADSIZE, Invoke* globalInvoke) {
+void Nebulite::Environment::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY, int THREADSIZE, Invoke* globalInvoke) {
     std::vector<std::thread> threads;
 
     for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; ++i) {
@@ -88,7 +88,7 @@ void Environment::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int d
 }
 #else
 // no threads
-void Environment::update(int16_t tileXpos, int16_t tileYpos,int dispResX,int dispResY,Nebulite::Invoke* globalInvoke) {
+void Nebulite::Environment::update(int16_t tileXpos, int16_t tileYpos,int dispResX,int dispResY,Nebulite::Invoke* globalInvoke) {
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
 		roc[i].update(tileXpos,tileYpos,dispResX,dispResY,globalInvoke);
 	}
@@ -98,14 +98,14 @@ void Environment::update(int16_t tileXpos, int16_t tileYpos,int dispResX,int dis
 
 
 
-void Environment::reinsertAllObjects(int dispResX,int dispResY){
+void Nebulite::Environment::reinsertAllObjects(int dispResX,int dispResY){
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
 		roc[i].reinsertAllObjects(dispResX,dispResY);
 	}
 }
 
 
-std::vector<std::shared_ptr<RenderObject>>& Environment::getContainerAt(int16_t x, int16_t y, int layer) {
+std::vector<std::shared_ptr<Nebulite::RenderObject>>& Nebulite::Environment::getContainerAt(int16_t x, int16_t y, int layer) {
 	auto pos = std::make_pair(x,y);
 	if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
 		return roc[layer].getContainerAt(pos);
@@ -115,7 +115,7 @@ std::vector<std::shared_ptr<RenderObject>>& Environment::getContainerAt(int16_t 
 	}
 }
 
-bool Environment::isValidPosition(int x, int y, int layer) {
+bool Nebulite::Environment::isValidPosition(int x, int y, int layer) {
 	auto pos = std::make_pair(x,y);
 	if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
 		return roc[layer].isValidPosition(pos);
@@ -125,26 +125,26 @@ bool Environment::isValidPosition(int x, int y, int layer) {
 	}
 }
 
-void Environment::purgeObjects() {
+void Nebulite::Environment::purgeObjects() {
 	// Release resources for ObjectContainer
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
 		roc[i].purgeObjects();
 	}
 }
 
-void Environment::purgeObjectsAt(int x, int y, int dispResX, int dispResY){
+void Nebulite::Environment::purgeObjectsAt(int x, int y, int dispResX, int dispResY){
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
 		roc[i].purgeObjectsAt(x, y, dispResX, dispResY);
 	}
 }
 
-void Environment::purgeLayer(int layer) {
+void Nebulite::Environment::purgeLayer(int layer) {
 	if (layer >= 0 && layer < RENDEROBJECTCONTAINER_COUNT) {
 		roc[layer].purgeObjects();
 	}
 }
 
-size_t Environment::getObjectCount(bool excludeTopLayer) {
+size_t Nebulite::Environment::getObjectCount(bool excludeTopLayer) {
 	// Calculate the total item count
 	size_t totalCount = 0;
 

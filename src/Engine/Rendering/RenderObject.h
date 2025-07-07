@@ -7,6 +7,7 @@
 #include "Invoke.h"
 #include "KeyNames.h"
 
+namespace Nebulite{
 class RenderObject {
 public:
 	//-----------------------------------------------------------
@@ -57,17 +58,18 @@ private:
 	std::vector<std::shared_ptr<Nebulite::Invoke::InvokeEntry>> cmds_general;		// Global
 	std::vector<std::shared_ptr<Nebulite::Invoke::InvokeEntry>> cmds_internal;	// Internal
 };
+}
 
 //-----------------------------------------------------------
 // Setting/Getting specific values
-template <typename T> void RenderObject::valueSet(const char* key, const T data) {
+template <typename T> void Nebulite::RenderObject::valueSet(const char* key, const T data) {
 	//JSONHandler::Set::Any(doc, key, data);
 	json.set(key,data);
 	calculateDstRect();
 	calculateSrcRect();
 }
 
-template <typename T> T RenderObject::valueGet(const char* key, const T& defaultValue){
+template <typename T> T Nebulite::RenderObject::valueGet(const char* key, const T& defaultValue){
 	return json.get<T>(key,defaultValue);
 }
 

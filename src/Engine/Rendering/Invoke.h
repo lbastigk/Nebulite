@@ -93,10 +93,6 @@ Using:
 */
 
 
-
-// Forward declaration of RenderObject
-class RenderObject;
-
 // General Includes
 #include <string>
 #include <vector>
@@ -108,6 +104,9 @@ class RenderObject;
 #include "JSON.h"
 
 namespace Nebulite{
+
+// Forward declaration of RenderObject
+class RenderObject;
 class Invoke{
 public:
     //--------------------------------------------
@@ -146,7 +145,7 @@ public:
       };
       Type type = Type::Literal;
       std::string text;
-      std::vector<std::shared_ptr<Invoke::Node>> children; // for nested variables (if Expr)
+      std::vector<std::shared_ptr<Nebulite::Invoke::Node>> children; // for nested variables (if Expr)
 
       enum class ContextType { None, Self, Other, Global, Resources };
       ContextType context = ContextType::None;
@@ -207,23 +206,23 @@ public:
 
     // Broadcast an invoke to other renderobjects to listen
     // Comparable to a radio, broadcasting on certain frequency determined by the string topic:
-    void broadcast(const std::shared_ptr<InvokeEntry>& toAppend);
+    void broadcast(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& toAppend);
 
     // Listen to a topic
     // Checks an object against all available invokes to a topic.
     // True pairs are put into a vector for later evaluation
-    void listen(const std::shared_ptr<RenderObject>& obj,std::string topic);
+    void listen(const std::shared_ptr<Nebulite::RenderObject>& obj,std::string topic);
 
     //--------------------------------------------
     // Value checks
 
     // Check if cmd is true compared to other object
-    bool isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj);
+    bool isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj);
 
     // Check if local invoke is true
     // Same as isTrueGlobal, but using self for linkage to other
     // Might be helpful to use an empty doc here to supress any value from other being true
-    bool isTrueLocal (const std::shared_ptr<InvokeEntry>& cmd);
+    bool isTrueLocal (const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd);
 
 
     //--------------------------------------------
@@ -233,11 +232,11 @@ public:
     void updatePairs();
 
     // Runs all entries in an invoke with self and other given
-    void updateGlobal(const std::shared_ptr<InvokeEntry>& cmd_self, const std::shared_ptr<RenderObject>& Obj_other);
+    void updateGlobal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self, const std::shared_ptr<RenderObject>& Obj_other);
     
     // Same as updateGlobal, but without an other-object
     // Self is used as reference to other.
-    void updateLocal(const std::shared_ptr<InvokeEntry>& cmd_self);
+    void updateLocal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self);
     
     // Called after a full renderer update to get all extracted invokes from the buffer
     // Empties current commands, shrinks and swaps with new commands vector.
@@ -288,22 +287,53 @@ private:
 
     // Current and next commands
     // cmds["topic"][]
-    absl::flat_hash_map<std::string, std::vector<std::shared_ptr<InvokeEntry>>> globalcommands;
-    absl::flat_hash_map<std::string, std::vector<std::shared_ptr<InvokeEntry>>> globalcommandsBuffer; 
+    absl::flat_hash_map<
+      std::string, 
+      std::vector<
+        std::shared_ptr<Nebulite::Invoke::InvokeEntry>
+      >
+    > globalcommands;
+
+    absl::flat_hash_map<
+      std::string, 
+      std::vector<
+        std::shared_ptr<Nebulite::Invoke::InvokeEntry>
+      >
+    > globalcommandsBuffer; 
 
     // All pairs of last listens
     #if INVOKE_THREADING_TYPE == 1
-      absl::flat_hash_map<std::shared_ptr<RenderObject>,std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>>> pairs_threadsafe;
+      absl::flat_hash_map<
+        std::shared_ptr<Nebulite::RenderObject>,
+        std::vector<
+          std::pair<
+            std::shared_ptr<Nebulite::Invoke::InvokeEntry>,
+            std::shared_ptr<Nebulite::RenderObject>
+          >
+        >
+      > pairs_threadsafe;
     #endif
 
     #if INVOKE_THREADING_TYPE == 2
-      std::vector<std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>>> pairs_threadsafe;
+      std::vector<
+        std::vector<
+          std::pair<
+            std::shared_ptr<Nebulite::Invoke::InvokeEntry>,
+            std::shared_ptr<Nebulite::RenderObject>
+          >
+        >
+      > pairs_threadsafe;
     #endif
-    std::vector<std::pair<std::shared_ptr<InvokeEntry>,std::shared_ptr<RenderObject>>> pairs_not_threadsafe;
+    std::vector<
+      std::pair<
+        std::shared_ptr<Nebulite::Invoke::InvokeEntry>,
+        std::shared_ptr<Nebulite::RenderObject>
+      >
+    > pairs_not_threadsafe;
 
     // Map for each Tree
     std::shared_mutex exprTreeMutex;
-    absl::flat_hash_map<std::string, std::shared_ptr<Invoke::Node>> exprTree;
+    absl::flat_hash_map<std::string, std::shared_ptr<Nebulite::Invoke::Node>> exprTree;
 
     
     //----------------------------------------------------------------
@@ -316,14 +346,14 @@ private:
     std::string resolveVars(const std::string& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global);
     
     // Main function for turning a string expression into a Node Tree
-    std::shared_ptr<Invoke::Node> expressionToTree(const std::string& input);
+    std::shared_ptr<Nebulite::Invoke::Node> expressionToTree(const std::string& input);
 
     // turn nodes that hold just constant to evaluate into text
     // e.g. $(1+1) is turned into 2.000...
-    void foldConstants(const std::shared_ptr<Invoke::Node>& node);
+    void foldConstants(const std::shared_ptr<Nebulite::Invoke::Node>& node);
 
     // Helper funtion for evaluateNode for parsing 
-    std::shared_ptr<Node> parseNext(const std::string& input, size_t& i);
+    std::shared_ptr<Nebulite::Invoke::Node> parseNext(const std::string& input, size_t& i);
 
     // Take a pre-processed node and resolve all expressions and vars of this and nodes below
     //
@@ -331,9 +361,9 @@ private:
     // $($(global.constants.pi) + 1)  -> 4.141..
     //   $(global.constants.pi) + 1   -> 3.141... + 1
     // Time is: $(global.time.t)      -> Time is: 11.01
-    std::string evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent);
+    std::string evaluateNode(const std::shared_ptr<Nebulite::Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent);
 
     // Helper function for accessing a variable from self/other/global/Resources
-    std::string nodeVariableAccess(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent);
+    std::string nodeVariableAccess(const std::shared_ptr<Nebulite::Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent);
 };
 }

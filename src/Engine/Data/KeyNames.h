@@ -2,6 +2,7 @@
 
 #include <string>
 
+namespace Nebulite{
 const struct keyName {
     const struct renderObject{
         std::string _self = "renderObject";
@@ -59,3 +60,4 @@ const struct keyName {
         std::string folder100 = "Resources/Sprites/TEST100P/";
     }testImages;
 }keyName;
+}

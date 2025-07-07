@@ -113,9 +113,9 @@ void Nebulite::Renderer::deserialize(std::string serialOrLink) {
 
 //-----------------------------------------------------------
 // Pipeline
-void Nebulite::Renderer::append(std::shared_ptr<RenderObject> toAppend) {
+void Nebulite::Renderer::append(std::shared_ptr<Nebulite::RenderObject> toAppend) {
 	// Set ID
-	toAppend.get()->valueSet<uint32_t>(keyName.renderObject.id.c_str(),id_counter);
+	toAppend.get()->valueSet<uint32_t>(Nebulite::keyName.renderObject.id.c_str(),id_counter);
 	id_counter++;
 
 	//Append to environment, based on layer
@@ -123,11 +123,11 @@ void Nebulite::Renderer::append(std::shared_ptr<RenderObject> toAppend) {
 		toAppend, 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
-		toAppend.get()->valueGet(keyName.renderObject.layer.c_str(), 0)
+		toAppend.get()->valueGet(Nebulite::keyName.renderObject.layer.c_str(), 0)
 	);
 
 	//Load texture
-	loadTexture(toAppend.get()->valueGet<std::string>(keyName.renderObject.imageLocation.c_str()));
+	loadTexture(toAppend.get()->valueGet<std::string>(Nebulite::keyName.renderObject.imageLocation.c_str()));
 
 	// Update rolling rand
 	update_rrand();
@@ -385,7 +385,7 @@ void Nebulite::Renderer::renderFrame() {
 					// For all objects inside
 					for (auto& obj : env.getContainerAt(tileXpos + dX,tileYpos + dY,layer)) {
 						// Check for texture
-						std::string innerdir = obj.get()->valueGet<std::string>(keyName.renderObject.imageLocation.c_str());
+						std::string innerdir = obj.get()->valueGet<std::string>(Nebulite::keyName.renderObject.imageLocation.c_str());
 						if (TextureContainer.find(innerdir) == TextureContainer.end()) {
 							loadTexture(innerdir);
 							obj.get()->calculateDstRect();
@@ -402,7 +402,7 @@ void Nebulite::Renderer::renderFrame() {
 
 						// Render the text
 						//*
-						if (obj.get()->valueGet<float>(keyName.renderObject.textFontsize.c_str())>0){
+						if (obj.get()->valueGet<float>(Nebulite::keyName.renderObject.textFontsize.c_str())>0){
 							obj.get()->calculateText(
 								renderer,
 								font,
@@ -636,7 +636,7 @@ void Nebulite::Renderer::pollEvent() {
             for (char& c : keyName) c = std::tolower(c);
             for (char& c : keyName) if (c == ' ') c = '_';
 
-            // Don't add if there are special chars in keyname
+            // Don't add if there are special chars in Nebulite::keyName
 			if(!StringHandler::containsAnyOf(keyName,Nebulite::JSON::reservedCharacters)){
 				// Paths
 				std::string currentPath = "input.keyboard.current." + keyName;
