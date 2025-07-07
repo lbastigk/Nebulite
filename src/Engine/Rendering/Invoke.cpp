@@ -4,53 +4,94 @@
 //--------------------------------------------------
 // TODO: 
 // - vector-vector based threading as standard
-// - lock for functioncalls
-// - then, all invokes are threadable
+// - mutex lock for functioncalls
+//   then, all invokes are threadable
 // - threadable local invokes
-// - Inside Environment/ROC, reinsert batches for threading
+//   Inside Environment/ROC, reinsert batches for threading
 //   but small batchsize, 10 perhaps?
+// - local functioncalls for Renderobject:
+//   each Renderobject with a tree to functions like:
+//   - Position-text
+//   - addChildren
+//   - removeChildren
+//   - reloadInvokes
+//   - addInvoke
+//   - removeAllInvokes
 //--------------------------------------------------
 
 Nebulite::Invoke::Invoke(){
+    //-------------------------------------------------
     // Manually add function variables
-    te_variable gt_var = {"gt",     (void*)expr_custom::gt,             TE_FUNCTION2};
+    te_variable gt_var =  {"gt",    (void*)expr_custom::gt,             TE_FUNCTION2};
     vars.push_back(gt_var);
-    te_variable lt_var = {"lt",     (void*)expr_custom::lt,             TE_FUNCTION2};
+    te_variable lt_var =  {"lt",    (void*)expr_custom::lt,             TE_FUNCTION2};
     vars.push_back(lt_var);
     te_variable geq_var = {"geq",   (void*)expr_custom::geq,            TE_FUNCTION2};
     vars.push_back(geq_var);
     te_variable leq_var = {"leq",   (void*)expr_custom::leq,            TE_FUNCTION2};
     vars.push_back(leq_var);
-    te_variable eq_var = {"eq",     (void*)expr_custom::eq,             TE_FUNCTION2};
+    te_variable eq_var =  {"eq",    (void*)expr_custom::eq,             TE_FUNCTION2};
     vars.push_back(eq_var);
     te_variable neq_var = {"neq",   (void*)expr_custom::neq,            TE_FUNCTION2};
     vars.push_back(neq_var);
     te_variable and_var = {"and",   (void*)expr_custom::logical_and,    TE_FUNCTION2};
     vars.push_back(and_var);
-    te_variable or_var = {"or",     (void*)expr_custom::logical_or,     TE_FUNCTION2};
+    te_variable or_var =  {"or",    (void*)expr_custom::logical_or,     TE_FUNCTION2};
     vars.push_back(or_var);
     te_variable not_var = {"not",   (void*)expr_custom::logical_not,    TE_FUNCTION1};
     vars.push_back(not_var);
 }
 
-
 bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj) {
-    // If self and other are the same object, the global check is false
+    //-----------------------------------------
+    // Pre-Checks
+    
+    // If self and other are the same object, the global check is always false
     if(cmd->selfPtr == otherObj) return false;
 
-    // Chekc if logical arg is as simple as just "1", meaning true
+    // Check if logical arg is as simple as just "1", meaning true
     if(cmd->logicalArg == "1") return true;
 
-    // Resolve logical statement
+    // A logicalArg of "0" would never really be used in prod,
+    // (only for errors or quick removals of invokes in debugging)
+    // which is why this check -> return false is not done.
+
+    //-----------------------------------------
+    // Evaluation
+
+    // Resolve variables in expression
     std::string logic = resolveVars(cmd->logicalArg, cmd->selfPtr->getDoc(), otherObj->getDoc(), global);
+
+    // Get result
     double result = evaluateExpression(logic);
+
+    // Check for result
     if(isnan(result)){
         std::cerr << "Evaluated logic to NAN! Logic is: " << logic << std::endl;
+        // A NaN-Result can happen if any variable resolved isnt a number, but a text
+        // Under usual circumstances, this is easily avoidable
+        // by designing the values to only be assigned a numeric value.
+
+        // In case this happens, it might be helpful to set the logic to always false:
+        // This way, the error log does not happen all the time.
+        cmd->logicalArg = "0";
+
+        // This can become an unwanted behavior if the following is done:
+        // logicalArg = $(not($(global.states.xyz)))
+        // Perhaps that variable is 1 for now, 
+        // but some other routine sets it to a non-numeric string 
+        // e.g.: "wating"
+        // If we now set logicalArg to "0", it will remain 0 unless the invoke is reloaded by the RenderObject flag.
+
+        // Still, this behavior might be useful as it essentially says "This invoke has encountered an error, supressing evaulation"
         return false;
     }
+    // Any double-value unequal to 0 is seen as "true"
     return result != 0.0;
 }
 
+// Same as isTrue, but using self for other
+// Might be helpful to use an empty doc here to supress any value from other being true
 bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<InvokeEntry>& cmd) {
     // Chekc if logical arg is as simple as just "1", meaning true
     if(cmd->logicalArg == "1") return true;
@@ -65,10 +106,15 @@ bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<InvokeEntry>& cmd) {
     return result != 0.0;
 }
 
+// Broadcast an invoke to other renderobjects to listen
+// Comparable to a radio, broadcasting on certain frequency determined by the string topic
 void Nebulite::Invoke::broadcast(const std::shared_ptr<InvokeEntry>& toAppend){
     globalcommandsBuffer[toAppend->topic].push_back(toAppend);
 }
 
+// Listen to a certain topic
+// TODO: is it better to do true/false check here instead of later?
+// TODO: threadsafe checks are outdated, should work with more options now
 void Nebulite::Invoke::listen(const std::shared_ptr<RenderObject>& obj,std::string topic){
     for (auto& cmd : globalcommands[topic]){
         // Determine if threadsafe or not
@@ -78,6 +124,7 @@ void Nebulite::Invoke::listen(const std::shared_ptr<RenderObject>& obj,std::stri
         // - only either self or other is manipulated
         //   technically, if both self and other are empty, this works as well
         //   though this wouldnt exist as this would be an empty invoke
+
         #if INVOKE_THREADING_TYPE == 0
             pairs_not_threadsafe.push_back(std::make_pair(cmd,obj));
         #elif INVOKE_THREADING_TYPE == 1
@@ -111,46 +158,37 @@ void Nebulite::Invoke::listen(const std::shared_ptr<RenderObject>& obj,std::stri
                 pairs_threadsafe.back().emplace_back(cmd, obj);
                 
             }else{
-                // Might add no-op invokes
-                // Though this is more of a game-design issue and should still be added:
-                // - an extra check for no-op might introduce bugs later on if features are added
-                // - unnecessary load, as empty invokes are easily avoided in game design
+                // Might add no-op invokes, see above for INVOKE_THREADING_TYPE == 1
                 pairs_not_threadsafe.push_back(std::make_pair(cmd,obj));
             }
         #endif
     }
 }
 
+// Call representing functions for modification type in order to safely access the document
 void Nebulite::Invoke::updateValueOfKey(Nebulite::Invoke::InvokeTriple::ChangeType type, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){
+    // Using Threadsafe manipulation methods of the JSON class:
     switch (type){
-        // Threadsafe manipulation:
-
         case Nebulite::Invoke::InvokeTriple::ChangeType::set:
             doc->set<std::string>(key.c_str(),valStr);
             break;
         case Nebulite::Invoke::InvokeTriple::ChangeType::add:
-            //doc->set<std::string>(key.c_str(),std::to_string(std::stod(valStr) + doc->get<double>(key.c_str(),0)));
             doc->set_add(key.c_str(),valStr.c_str());
             break;
         case Nebulite::Invoke::InvokeTriple::ChangeType::multiply:
-            //doc->set<std::string>(key.c_str(),std::to_string(std::stod(valStr) * doc->get<double>(key.c_str(),0)));
             doc->set_multiply(key.c_str(),valStr.c_str());
             break;
         case Nebulite::Invoke::InvokeTriple::ChangeType::concat:
-            doc->set<std::string>(key.c_str(),doc->get<std::string>(key.c_str(),0) + valStr);
             doc->set_concat(key.c_str(),valStr.c_str());
             break;
         default:
-            //std::cerr << "Unknown key type!" << std::endl;
+            std::cerr << "Unknown key type! Enum value:" << (int)type << std::endl;
             break;
     }
 }
 
-// Checks a given invoke cmd against objects in buffer
-// as objects have constant pointers, using RenderObject& is possible
+// Runs all entries in an invoke with self and other given
 void Nebulite::Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd_self, const std::shared_ptr<RenderObject>& Obj_other) {
-    // DEBUG, using text:
-    //std::cout << "self: " << cmd_self->selfPtr->valueGet<std::string>(keyName.renderObject.textStr.c_str(),"") << " other: " << Obj_other->valueGet<std::string>(keyName.renderObject.textStr.c_str(),"") << std::endl;
 
     // === SELF update ===
     for(auto InvokeTriple : cmd_self->invokes_self){
@@ -186,7 +224,10 @@ void Nebulite::Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd_self
     }
 }
 
+// Same as updateGlobal, but without an other-object
+// Self is used as reference to other.
 void Nebulite::Invoke::updateLocal(const std::shared_ptr<InvokeEntry>& cmd_self){
+
     // === SELF update ===
     for(auto InvokeTriple : cmd_self->invokes_self){
         if (!InvokeTriple.key.empty()) {
@@ -214,19 +255,16 @@ void Nebulite::Invoke::updateLocal(const std::shared_ptr<InvokeEntry>& cmd_self)
 }
 
 void Nebulite::Invoke::clear(){
+    // Commands
     globalcommands.clear();
     globalcommandsBuffer.clear();
 
+    // Pairs from commands
     pairs_threadsafe.clear();
     pairs_not_threadsafe.clear();
     pairs_not_threadsafe.shrink_to_fit();
 
-    // TODO: Since exprTree holds a bunch of shared ptrs, the objects themselfes need to be cleared?
-    // forall ptr in exprTree: free(ptr) ?
-    // Since exprTree can hold more ptrs, this can be tricky...
-    // For now it's not as important, as invokes dont necessary need to be cleared
-    // But later on, constant level change might make this necessary
-    // As for each env-deload an invoke clearing is reasonable
+    // Expressions
     exprTree.clear();
 }
 
@@ -328,10 +366,6 @@ void Nebulite::Invoke::updatePairs() {
         if (t.joinable()) t.join();
     }
     #endif
-
-    
-
-    
     
     // --- Sequential update for non-threadsafe pairs ---
     for (auto pair : pairs_not_threadsafe) {
@@ -346,8 +380,7 @@ void Nebulite::Invoke::updatePairs() {
     pairs_not_threadsafe.shrink_to_fit();
 }
 
-
-// Called after a full renderer update to get all extracted invokes
+// Called after a full renderer update to get all extracted invokes from the buffer
 void Nebulite::Invoke::getNewInvokes(){
     globalcommands.clear();
     globalcommands.swap(globalcommandsBuffer);    // Swap in the new set of commands
@@ -422,6 +455,7 @@ void Nebulite::Invoke::foldConstants(const std::shared_ptr<Invoke::Node>& node) 
     }
 }
 
+// Parsing helper function
 std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::parseNext(const std::string& input, size_t& i) {
     size_t start = i + 2; // Skip "$("
     int depth = 1;
@@ -492,6 +526,7 @@ std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::parseNext(const std::s
     return std::make_shared<Node>(varNode);
 }
 
+// Main function for turning an expression into a Node Tree
 std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::expressionToTree(const std::string& input) {
     Node root;
     std::vector<std::shared_ptr<Invoke::Node>> children;
@@ -571,6 +606,7 @@ std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::expressionToTree(const
     return ptr;
 }
 
+// Helper function for accessing a variable from self/other/global/Resources
 std::string Nebulite::Invoke::nodeVariableAccess(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent){
     switch (nodeptr->context) {
     //---------------------------------------------------
@@ -706,29 +742,33 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
             std::cerr << "Nebulite::Invoke::evaluateNode encountered an unkown Node type! Please inform the maintainers." << std::endl;
             return "";
     }
-    // For safety, if there are any logic mistakes:
+    // For safety, if there are any logic mistakes with no returns:
     std::cerr << "Nebulite::Invoke::evaluateNode functions switch operations return is incomplete! Please inform the maintainers." << std::endl;
     return "";
 }
   
 // replace all instances of $(...) with their evaluation
 std::string Nebulite::Invoke::resolveVars(const std::string& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global) {
-    std::shared_ptr<Invoke::Node> node;
+    // Tree being used for resolving vars
+    std::shared_ptr<Invoke::Node> tree;
+
+    // Check if tree for this string already exists
     {
-        std::unique_lock lock(exprTreeMutex);  // lock during check and insert
+        std::unique_lock lock(exprTreeMutex);   // lock during check and insert
         auto it = exprTree.find(input);
         if (it == exprTree.end()) {
-            node = expressionToTree(input); // build outside the map
-            exprTree[input] = node;
+            tree = expressionToTree(input);     // build outside the map
+            exprTree[input] = tree;
         } else {
-            node = it->second;
+            tree = it->second;
         }
     }
 
-    return evaluateNode(node, self, other, global, false);
+    // Evaluate
+    return evaluateNode(tree, self, other, global, false);
 }
 
-// same as resolveVars, but only using global, rest is empty
+// same as resolveVars, but only using global variables. Self and other are linked to empty docs
 std::string Nebulite::Invoke::resolveGlobalVars(const std::string& input) {
     return resolveVars(input,&emptyDoc,&emptyDoc,global);
 }
