@@ -1,23 +1,5 @@
 #include "Invoke.h"
-#include "RenderObject.h"
-
-//--------------------------------------------------
-// TODO: 
-// - vector-vector based threading as standard
-// - mutex lock for functioncalls
-//   then, all invokes are threadable
-// - threadable local invokes
-//   Inside Environment/ROC, reinsert batches for threading
-//   but small batchsize, 10 perhaps?
-// - local functioncalls for Renderobject:
-//   each Renderobject with a tree to functions like:
-//   - Position-text
-//   - addChildren
-//   - removeChildren
-//   - reloadInvokes
-//   - addInvoke
-//   - removeAllInvokes
-//--------------------------------------------------
+#include "RenderObject.h"   // Linked here instead of in .h file due to circular dependencies
 
 Nebulite::Invoke::Invoke(){
     //-------------------------------------------------
@@ -90,8 +72,6 @@ bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, con
     return result != 0.0;
 }
 
-// Same as isTrue, but using self for other
-// Might be helpful to use an empty doc here to supress any value from other being true
 bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<InvokeEntry>& cmd) {
     // Chekc if logical arg is as simple as just "1", meaning true
     if(cmd->logicalArg == "1") return true;
@@ -106,13 +86,10 @@ bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<InvokeEntry>& cmd) {
     return result != 0.0;
 }
 
-// Broadcast an invoke to other renderobjects to listen
-// Comparable to a radio, broadcasting on certain frequency determined by the string topic
 void Nebulite::Invoke::broadcast(const std::shared_ptr<InvokeEntry>& toAppend){
     globalcommandsBuffer[toAppend->topic].push_back(toAppend);
 }
 
-// Listen to a certain topic
 // TODO: is it better to do true/false check here instead of later?
 // TODO: threadsafe checks are outdated, should work with more options now
 void Nebulite::Invoke::listen(const std::shared_ptr<RenderObject>& obj,std::string topic){
@@ -165,7 +142,6 @@ void Nebulite::Invoke::listen(const std::shared_ptr<RenderObject>& obj,std::stri
     }
 }
 
-// Call representing functions for modification type in order to safely access the document
 void Nebulite::Invoke::updateValueOfKey(Nebulite::Invoke::InvokeTriple::ChangeType type, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){
     // Using Threadsafe manipulation methods of the JSON class:
     switch (type){
@@ -187,7 +163,6 @@ void Nebulite::Invoke::updateValueOfKey(Nebulite::Invoke::InvokeTriple::ChangeTy
     }
 }
 
-// Runs all entries in an invoke with self and other given
 void Nebulite::Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd_self, const std::shared_ptr<RenderObject>& Obj_other) {
 
     // === SELF update ===
@@ -224,8 +199,6 @@ void Nebulite::Invoke::updateGlobal(const std::shared_ptr<InvokeEntry>& cmd_self
     }
 }
 
-// Same as updateGlobal, but without an other-object
-// Self is used as reference to other.
 void Nebulite::Invoke::updateLocal(const std::shared_ptr<InvokeEntry>& cmd_self){
 
     // === SELF update ===
@@ -268,7 +241,6 @@ void Nebulite::Invoke::clear(){
     exprTree.clear();
 }
 
-// Updating pairs of invokes
 void Nebulite::Invoke::updatePairs() {
 
     //----------------------------------------------------
@@ -380,13 +352,11 @@ void Nebulite::Invoke::updatePairs() {
     pairs_not_threadsafe.shrink_to_fit();
 }
 
-// Called after a full renderer update to get all extracted invokes from the buffer
 void Nebulite::Invoke::getNewInvokes(){
     globalcommands.clear();
     globalcommands.swap(globalcommandsBuffer);    // Swap in the new set of commands
 }
 
-// Evaluating expression with already replaced self/other/global etc. relations
 double Nebulite::Invoke::evaluateExpression(const std::string& expr) {
 
     // Variable access via tinyexpr is needed for cache...
@@ -421,8 +391,6 @@ double Nebulite::Invoke::evaluateExpression(const std::string& expr) {
     return result;
 }
 
-// turn nodes that hold constant to evaluate into text
-// e.g. $(1+1) is turned into 2.000...
 void Nebulite::Invoke::foldConstants(const std::shared_ptr<Invoke::Node>& node) {
     // Recurse into children first
     for (auto& child : node->children) {
@@ -455,7 +423,6 @@ void Nebulite::Invoke::foldConstants(const std::shared_ptr<Invoke::Node>& node) 
     }
 }
 
-// Parsing helper function
 std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::parseNext(const std::string& input, size_t& i) {
     size_t start = i + 2; // Skip "$("
     int depth = 1;
@@ -526,7 +493,6 @@ std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::parseNext(const std::s
     return std::make_shared<Node>(varNode);
 }
 
-// Main function for turning an expression into a Node Tree
 std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::expressionToTree(const std::string& input) {
     Node root;
     std::vector<std::shared_ptr<Invoke::Node>> children;
@@ -606,7 +572,6 @@ std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::expressionToTree(const
     return ptr;
 }
 
-// Helper function for accessing a variable from self/other/global/Resources
 std::string Nebulite::Invoke::nodeVariableAccess(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent){
     switch (nodeptr->context) {
     //---------------------------------------------------
@@ -674,12 +639,6 @@ std::string Nebulite::Invoke::nodeVariableAccess(const std::shared_ptr<Invoke::N
 }
 }
 
-// Take a pre-processed node and resolve all expressions and vars of this and nodes below
-//
-// Examples:
-// $($(global.constants.pi) + 1)  -> 4.141..
-//   $(global.constants.pi) + 1   -> 3.141... + 1
-// Time is: $(global.time.t)      -> Time is: 11.01
 std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent){
     if (nodeptr == nullptr) {
         std::cerr << "Nebulite::Invoke::evaluateNode error: Parent is nullptr!" << std::endl;
@@ -747,7 +706,6 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
     return "";
 }
   
-// replace all instances of $(...) with their evaluation
 std::string Nebulite::Invoke::resolveVars(const std::string& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global) {
     // Tree being used for resolving vars
     std::shared_ptr<Invoke::Node> tree;
@@ -768,7 +726,6 @@ std::string Nebulite::Invoke::resolveVars(const std::string& input, Nebulite::JS
     return evaluateNode(tree, self, other, global, false);
 }
 
-// same as resolveVars, but only using global variables. Self and other are linked to empty docs
 std::string Nebulite::Invoke::resolveGlobalVars(const std::string& input) {
     return resolveVars(input,&emptyDoc,&emptyDoc,global);
 }

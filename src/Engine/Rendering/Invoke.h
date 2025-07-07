@@ -36,6 +36,34 @@ Like global.levelstate or similiar
 */
 
 //-----------------------------------------
+//  88888888888 .d88888b.  8888888b.   .d88888b.  
+//      888    d88P" "Y88b 888  "Y88b d88P" "Y88b 
+//      888    888     888 888    888 888     888 
+//      888    888     888 888    888 888     888 
+//      888    888     888 888    888 888     888 
+//      888    888     888 888    888 888     888 
+//      888    Y88b. .d88P 888  .d88P Y88b. .d88P 
+//      888     "Y88888P"  8888888P"   "Y88888P"  
+//    
+//--------------------------------------------------
+// TODO: 
+// - vector-vector based threading as standard
+// - mutex lock for functioncalls
+//   then, all invokes are threadable
+// - threadable local invokes
+//   Inside Environment/ROC, reinsert batches for threading
+//   but small batchsize, 10 perhaps?
+// - local functioncalls for Renderobject:
+//   each Renderobject with a tree to functions like:
+//   - Position-text
+//   - addChildren
+//   - removeChildren
+//   - reloadInvokes
+//   - addInvoke
+//   - removeAllInvokes
+//--------------------------------------------------
+
+//-----------------------------------------
 // THREADING SETTINGS
 
 // Using threaded invokes or not
@@ -64,7 +92,7 @@ Using:
 
 */
 
-//-----------------------------------------
+
 
 // Forward declaration of RenderObject
 class RenderObject;
@@ -157,14 +185,10 @@ public:
     Invoke();
 
     // Setting up invoke by linking it to a global doc
-    void linkGlobal(Nebulite::JSON& globalDocPtr){
-        global = &globalDocPtr;
-    }
+    void linkGlobal(Nebulite::JSON& globalDocPtr){global = &globalDocPtr;}
     
     // Linking invoke to global queue for function calls
-    void linkQueue(std::deque<std::string>& queue){
-        tasks = &queue;
-    }
+    void linkQueue(std::deque<std::string>& queue){tasks = &queue;}
 
     // Clearing all entries
     void clear();
@@ -181,7 +205,8 @@ public:
     //--------------------------------------------
     // Send/Listen
 
-    // Broadcast invoke
+    // Broadcast an invoke to other renderobjects to listen
+    // Comparable to a radio, broadcasting on certain frequency determined by the string topic:
     void broadcast(const std::shared_ptr<InvokeEntry>& toAppend);
 
     // Listen to a topic
@@ -196,21 +221,30 @@ public:
     bool isTrueGlobal(const std::shared_ptr<InvokeEntry>& cmd, const std::shared_ptr<RenderObject>& otherObj);
 
     // Check if local invoke is true
+    // Same as isTrueGlobal, but using self for linkage to other
+    // Might be helpful to use an empty doc here to supress any value from other being true
     bool isTrueLocal (const std::shared_ptr<InvokeEntry>& cmd);
 
 
     //--------------------------------------------
     // Updating
 
+    // Updating self-other-pairs of invokes
     void updatePairs();
+
+    // Runs all entries in an invoke with self and other given
     void updateGlobal(const std::shared_ptr<InvokeEntry>& cmd_self, const std::shared_ptr<RenderObject>& Obj_other);
+    
+    // Same as updateGlobal, but without an other-object
+    // Self is used as reference to other.
     void updateLocal(const std::shared_ptr<InvokeEntry>& cmd_self);
     
-    // Get Invokes for next frame
+    // Called after a full renderer update to get all extracted invokes from the buffer
     // Empties current commands, shrinks and swaps with new commands vector.
     void getNewInvokes();
 
     // Sets new value
+    // Call representing functions of ChangeType in order to safely modify the document
     void updateValueOfKey(
       Nebulite::Invoke::InvokeTriple::ChangeType type, 
       const std::string& key, 
@@ -218,7 +252,7 @@ public:
       Nebulite::JSON *doc
     );
 
-    // Resolving global references only in a string
+    // same as resolveVars, but only using global variables. Self and other are linked to empty docs
     std::string resolveGlobalVars(const std::string& input);
 
 private:
@@ -275,26 +309,31 @@ private:
     //----------------------------------------------------------------
     // Private functions
 
-    // For evaluating string expression
+    // Evaluating expression with already replaced self/other/global etc. relations
     double evaluateExpression(const std::string& expr);
 
     // Resolving self/other/global references
     std::string resolveVars(const std::string& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global);
     
-
-    // Create Tree from string
+    // Main function for turning a string expression into a Node Tree
     std::shared_ptr<Invoke::Node> expressionToTree(const std::string& input);
 
-    // Function for reducing some expressions like 1+1 directly to 2
+    // turn nodes that hold just constant to evaluate into text
+    // e.g. $(1+1) is turned into 2.000...
     void foldConstants(const std::shared_ptr<Invoke::Node>& node);
 
     // Helper funtion for evaluateNode for parsing 
     std::shared_ptr<Node> parseNext(const std::string& input, size_t& i);
 
-    // Turning a string into a Tree of Nebulite::Invoke::Node
+    // Take a pre-processed node and resolve all expressions and vars of this and nodes below
+    //
+    // Examples:
+    // $($(global.constants.pi) + 1)  -> 4.141..
+    //   $(global.constants.pi) + 1   -> 3.141... + 1
+    // Time is: $(global.time.t)      -> Time is: 11.01
     std::string evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent);
 
-    // Variable access for Node eval
+    // Helper function for accessing a variable from self/other/global/Resources
     std::string nodeVariableAccess(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent);
 };
 }
