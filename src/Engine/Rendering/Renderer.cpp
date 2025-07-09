@@ -188,7 +188,7 @@ void Nebulite::Renderer::update() {
 		setGlobalValues();
 
 		// Update invoke pairs
-		invoke_ptr->updatePairs();
+		invoke_ptr->update();
 
 		// Update environment
 		env.update(

@@ -90,17 +90,34 @@ void Nebulite::Invoke::broadcast(const std::shared_ptr<Nebulite::Invoke::InvokeE
     globalcommandsBuffer[toAppend->topic].push_back(toAppend);
 }
 
-// TODO: is it better/possible to do isTrue check here instead of later? -> Less ptr copying
 void Nebulite::Invoke::listen(const std::shared_ptr<Nebulite::RenderObject>& obj,std::string topic){
     for (auto& cmd : globalcommands[topic]){
-        // Check if there is any existing batch
-        if (pairs_threadsafe.empty() || pairs_threadsafe.back().size() >= THREADED_MIN_BATCHSIZE) {
-            // Create a new batch
-            pairs_threadsafe.emplace_back(); // Add an empty vector as a new batch
-        }
 
-        // Add to the current batch (last vector)
-        pairs_threadsafe.back().emplace_back(cmd, obj);
+        // Conditional check on listen
+        // Probably more consistent, 
+        // especially if updating/broadcasting and listening are further separated in the renderer loop!
+        /*
+        for all obj in container do_threaded:
+            obj->update()       # updates objects internal
+            obj->broadcast()
+        end
+        for all obj in container do_threaded:
+            obj->listen()     # generates true pairs (std::vector)
+        end
+        invoke.update()
+
+        Something like that... Some more checkup on order is necessary... perhaps its possible to simplify
+        */
+        if(isTrueGlobal(cmd,obj)){
+            // Check if there is any existing batch
+            if (pairs_threadsafe.empty() || pairs_threadsafe.back().size() >= THREADED_MIN_BATCHSIZE) {
+                // Create a new batch
+                pairs_threadsafe.emplace_back(); // Add an empty vector as a new batch
+            }
+
+            // Add to the current batch (last vector)
+            pairs_threadsafe.back().emplace_back(cmd, obj);
+        }
     }
 }
 
@@ -125,7 +142,7 @@ void Nebulite::Invoke::updateValueOfKey(Nebulite::Invoke::InvokeTriple::ChangeTy
     }
 }
 
-void Nebulite::Invoke::updateGlobal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self, const std::shared_ptr<Nebulite::RenderObject>& Obj_other) {
+void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self, const std::shared_ptr<Nebulite::RenderObject>& Obj_other) {
 
     // === SELF update ===
     for(auto InvokeTriple : cmd_self->invokes_self){
@@ -203,14 +220,23 @@ void Nebulite::Invoke::clear(){
     exprTree.clear();
 }
 
-void Nebulite::Invoke::updatePairs() {
+void Nebulite::Invoke::update() {
+    // Swap in the new set of commands
+    globalcommands.clear();
+    globalcommands.swap(globalcommandsBuffer);    
+
     std::vector<std::thread> threads;
     for (auto& pairs_batch : pairs_threadsafe) {
         threads.emplace_back([this, pairs_batch]() {
             for (auto& pair : pairs_batch) {
+                // Old version had conditional check on update:
+                /*
                 if (isTrueGlobal(pair.first, pair.second)) {
-                    updateGlobal(pair.first, pair.second);
+                    updatePair(pair.first, pair.second);
                 }
+                */
+                
+                updatePair(pair.first, pair.second);
             }
         });
     }
@@ -225,8 +251,7 @@ void Nebulite::Invoke::updatePairs() {
 }
 
 void Nebulite::Invoke::getNewInvokes(){
-    globalcommands.clear();
-    globalcommands.swap(globalcommandsBuffer);    // Swap in the new set of commands
+    
 }
 
 double Nebulite::Invoke::evaluateExpression(const std::string& expr) {

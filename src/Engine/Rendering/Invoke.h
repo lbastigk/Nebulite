@@ -223,17 +223,14 @@ public:
     // Check if local invoke is true
     // Same as isTrueGlobal, but using self for linkage to other
     // Might be helpful to use an empty doc here to supress any value from other being true
-    bool isTrueLocal (const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd);
+    bool isTrueLocal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd);
 
 
     //--------------------------------------------
     // Updating
 
     // Updating self-other-pairs of invokes
-    void updatePairs();
-
-    // Runs all entries in an invoke with self and other given
-    void updateGlobal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self, const std::shared_ptr<RenderObject>& Obj_other);
+    void update();
     
     // Same as updateGlobal, but without an other-object
     // Self is used as reference to other.
@@ -327,6 +324,9 @@ private:
     
     //----------------------------------------------------------------
     // Private functions
+
+    // Runs all entries in an invoke with self and other given
+    void updatePair(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self, const std::shared_ptr<RenderObject>& Obj_other);
 
     // Evaluating expression with already replaced self/other/global etc. relations
     double evaluateExpression(const std::string& expr);
