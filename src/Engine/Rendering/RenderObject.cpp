@@ -284,16 +284,6 @@ void Nebulite::RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_sh
 				arr = "functioncalls[" + std::to_string(i) + "]";
 				entry.functioncalls.push_back(invoke.get<std::string>(arr.c_str(),""));
 			}
-			
-			bool threadsafe = true;
-			threadsafe = threadsafe && entry.functioncalls.empty();
-			threadsafe = threadsafe && entry.invokes_global.empty();
-			threadsafe = threadsafe && ( ((int)entry.invokes_self.empty() + (int)entry.invokes_other.empty() ) == 1);
-			if(threadsafe && !entry.invokes_self.empty()){
-				entry.threadSafeType = Nebulite::Invoke::InvokeEntry::ThreadSafeType::Self;
-			} else if(threadsafe && !entry.invokes_other.empty()){
-				entry.threadSafeType = Nebulite::Invoke::InvokeEntry::ThreadSafeType::Other;
-			}
 
 			// Append
 			auto ptr = std::make_shared<Nebulite::Invoke::InvokeEntry>(std::move(entry));

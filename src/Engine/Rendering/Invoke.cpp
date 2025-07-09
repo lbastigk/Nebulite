@@ -90,55 +90,17 @@ void Nebulite::Invoke::broadcast(const std::shared_ptr<Nebulite::Invoke::InvokeE
     globalcommandsBuffer[toAppend->topic].push_back(toAppend);
 }
 
-// TODO: is it better to do true/false check here instead of later?
-// TODO: threadsafe checks are outdated, should work with more options now
+// TODO: is it better/possible to do isTrue check here instead of later? -> Less ptr copying
 void Nebulite::Invoke::listen(const std::shared_ptr<Nebulite::RenderObject>& obj,std::string topic){
     for (auto& cmd : globalcommands[topic]){
-        // Determine if threadsafe or not
+        // Check if there is any existing batch
+        if (pairs_threadsafe.empty() || pairs_threadsafe.back().size() >= THREADED_MIN_BATCHSIZE) {
+            // Create a new batch
+            pairs_threadsafe.emplace_back(); // Add an empty vector as a new batch
+        }
 
-        // - no functioncalls
-        // - no global invokeEntries
-        // - only either self or other is manipulated
-        //   technically, if both self and other are empty, this works as well
-        //   though this wouldnt exist as this would be an empty invoke
-
-        #if INVOKE_THREADING_TYPE == 0
-            pairs_not_threadsafe.push_back(std::make_pair(cmd,obj));
-        #elif INVOKE_THREADING_TYPE == 1
-            // Map-Vector Based
-            if(cmd->threadSafeType != Nebulite::Invoke::InvokeEntry::ThreadSafeType::None){
-                if(cmd->threadSafeType != Nebulite::Invoke::InvokeEntry::ThreadSafeType::Self){
-                    // Use self as pointer
-                    pairs_threadsafe[cmd->selfPtr].push_back(std::make_pair(cmd,obj));
-                }else if (cmd->threadSafeType != Nebulite::Invoke::InvokeEntry::ThreadSafeType::Other){
-                    // Use Other as pointer
-                    pairs_threadsafe[obj].push_back(std::make_pair(cmd,obj));
-                }
-            }else{
-                // Might add no-op invokes
-                // Though this is more of a game-design issue and should still be added:
-                // - an extra check for no-op might introduce bugs later on if features are added
-                // - unnecessary load, as empty invokes are easily avoided in game design
-                pairs_not_threadsafe.push_back(std::make_pair(cmd,obj));
-            }
-
-        #else
-            // Vector-Vector Based
-            if(cmd->threadSafeType != Nebulite::Invoke::InvokeEntry::ThreadSafeType::None){
-                // Check if we have any existing batch
-                if (pairs_threadsafe.empty() || pairs_threadsafe.back().size() >= THREADED_MIN_BATCHSIZE) {
-                    // Create a new batch
-                    pairs_threadsafe.emplace_back(); // Add an empty vector as a new batch
-                }
-
-                // Add to the current batch (last vector)
-                pairs_threadsafe.back().emplace_back(cmd, obj);
-                
-            }else{
-                // Might add no-op invokes, see above for INVOKE_THREADING_TYPE == 1
-                pairs_not_threadsafe.push_back(std::make_pair(cmd,obj));
-            }
-        #endif
+        // Add to the current batch (last vector)
+        pairs_threadsafe.back().emplace_back(cmd, obj);
     }
 }
 
@@ -195,6 +157,7 @@ void Nebulite::Invoke::updateGlobal(const std::shared_ptr<Nebulite::Invoke::Invo
         call = resolveVars(call, cmd_self->selfPtr->getDoc(), Obj_other->getDoc(), global);
 
         // attach to task queue
+        std::lock_guard<std::recursive_mutex> lock(tasks_lock);
         tasks->emplace_back(call);
     }
 }
@@ -223,6 +186,7 @@ void Nebulite::Invoke::updateLocal(const std::shared_ptr<Nebulite::Invoke::Invok
         call = resolveVars(call, cmd_self->selfPtr->getDoc(), cmd_self->selfPtr->getDoc(), global);
 
         // attach to task queue
+        std::lock_guard<std::recursive_mutex> lock(tasks_lock);
         tasks->emplace_back(call);
     }
 }
@@ -234,94 +198,12 @@ void Nebulite::Invoke::clear(){
 
     // Pairs from commands
     pairs_threadsafe.clear();
-    pairs_not_threadsafe.clear();
-    pairs_not_threadsafe.shrink_to_fit();
 
     // Expressions
     exprTree.clear();
 }
 
 void Nebulite::Invoke::updatePairs() {
-
-    //----------------------------------------------------
-    // [THREADED] Version 1.1: 
-    // Map-vector-based threading with minimum batch size
-    //----------------------------------------------------
-    #if INVOKE_THREADING_TYPE == 1 && THREADED_MIN_BATCHSIZE > 0
-
-    std::vector<std::thread> threads;
-
-    
-    std::vector<std::pair<std::shared_ptr<Nebulite::Invoke::InvokeEntry>, std::shared_ptr<Nebulite::RenderObject>>> current_batch;
-    int current_batchsize = 0;
-    for (auto& pairs_batch : pairs_threadsafe) {
-        for (auto& pair : pairs_batch.second) {
-            current_batch.push_back(pair);
-            ++current_batchsize;
-            if (current_batchsize >= THREADED_MIN_BATCHSIZE) {
-                // Launch a thread for this batch
-                threads.emplace_back([this, batch = std::move(current_batch)]() mutable {
-                    for (auto& pair : batch) {
-                        //*
-                        if (isTrueGlobal(pair.first, pair.second)) {
-                            updateGlobal(pair.first, pair.second);
-                        }
-                        //*/
-                    }
-                });
-                current_batch.clear();
-                current_batchsize = 0;
-            }
-        }
-    }
-    // Process any remaining pairs in the last batch
-    if (!current_batch.empty()) {
-        threads.emplace_back([this, batch = std::move(current_batch)]() mutable {
-            for (auto& pair : batch) {
-                if (isTrueGlobal(pair.first, pair.second)) {
-                    updateGlobal(pair.first, pair.second);
-                }
-            }
-        });
-    }
-
-    // Wait for all threads to finish
-    for (auto& t : threads) {
-        if (t.joinable()) t.join();
-    }
-    #endif
-
-    //----------------------------------------------------
-    // [THREADED] Version 1.2: 
-    // Map-vector-based threading, no minimum batch size
-    //----------------------------------------------------
-    #if INVOKE_THREADING_TYPE == 1 && THREADED_MIN_BATCHSIZE <= 0
-    std::vector<std::thread> threads;
-    for (auto& pairs_batch : pairs_threadsafe) {
-        if (!pairs_batch.second.empty()) {
-            // Make a local copy of the vector to ensure safe access
-            auto batch_copy = pairs_batch.second;
-            threads.emplace_back([this, batch_copy]() {
-                for (auto& pair : batch_copy) {
-                    if (isTrueGlobal(pair.first, pair.second)) {
-                        updateGlobal(pair.first, pair.second);
-                    }
-                }
-            });
-        }
-    }
-
-    // Wait for all threads to finish
-    for (auto& t : threads) {
-        if (t.joinable()) t.join();
-    }
-    #endif
-
-    //----------------------------------------------------
-    // [THREADED] Version 2:
-    // Automatic batch sizing
-    //----------------------------------------------------
-    #if INVOKE_THREADING_TYPE == 2
     std::vector<std::thread> threads;
     for (auto& pairs_batch : pairs_threadsafe) {
         threads.emplace_back([this, pairs_batch]() {
@@ -337,19 +219,9 @@ void Nebulite::Invoke::updatePairs() {
     for (auto& t : threads) {
         if (t.joinable()) t.join();
     }
-    #endif
-    
-    // --- Sequential update for non-threadsafe pairs ---
-    for (auto pair : pairs_not_threadsafe) {
-        if (isTrueGlobal(pair.first, pair.second)) {
-            updateGlobal(pair.first, pair.second);
-        }
-    }
 
     // Cleanup
     pairs_threadsafe.clear();
-    pairs_not_threadsafe.clear();
-    pairs_not_threadsafe.shrink_to_fit();
 }
 
 void Nebulite::Invoke::getNewInvokes(){

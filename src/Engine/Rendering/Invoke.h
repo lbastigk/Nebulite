@@ -47,9 +47,6 @@ Like global.levelstate or similiar
 //    
 //--------------------------------------------------
 // TODO: 
-// - vector-vector based threading as standard
-// - mutex lock for functioncalls
-//   then, all invokes are threadable
 // - threadable local invokes
 //   Inside Environment/ROC, reinsert batches for threading
 //   but small batchsize, 10 perhaps?
@@ -66,32 +63,8 @@ Like global.levelstate or similiar
 //-----------------------------------------
 // THREADING SETTINGS
 
-// Using threaded invokes or not
-// 0 - No threading
-// 1 - Map-vector-based threading
-// 2 - vector-vector-based threading [BEST]
-#define INVOKE_THREADING_TYPE 2
-
 // Size of Batches
-#define THREADED_MIN_BATCHSIZE 200
-
-// Results for Batchsize with INVOKE_THREADING_TYPE 2:
-/*
-Using:
-/usr/bin/time -v ./bin/Nebulite task TaskFiles/Benchmarks/gravity.txt 2>&1 | grep Elapsed
-(600 Frames)
-
-0000 - 75.09s
-0010 - 08.16s
-0020 - 04.71s
-0050 - 03.55s
-0100 - 03.25s
-0200 - 03.13s [BEST]
-0500 - 03.35s
-1000 - 04.92s
-
-*/
-
+#define THREADED_MIN_BATCHSIZE 200  // Based on benchmark tests. Last check: 2025-07
 
 // General Includes
 #include <string>
@@ -147,16 +120,38 @@ public:
       std::string text;
       std::vector<std::shared_ptr<Nebulite::Invoke::Node>> children; // for nested variables (if Expr)
 
+      // Context on what data resource is taken from
       enum class ContextType { None, Self, Other, Global, Resources };
       ContextType context = ContextType::None;
 
+      // Cast type. E.g.: $f(...) or $i(...)
       enum class CastType { None, Float, Int };
       CastType cast = CastType::None;
 
+      // doc[key] being used
       std::string key;
+
+      // If the node contains just a number: $(100)
       bool isNumericLiteral = false;
+
+      // Making evaluation faster by checking if a parent would evaluate this node:
+      // e.g.: $(1 + $(2 + 3))
+      // makes sure that the inner $(2+3) expression is not resolved:
+      // $(1 + 5.0000)  -> BAD, total calls for expr is 2
+      // $(1 + (2 + 3)) -> BETTER. only one call
       bool insideEvalParent = false;
     };
+
+    // Entry describing:
+    // doc[key] = f(key,docs)
+    // e.g.:
+    // doc["var"] = doc["var"] * ( global[inner.otherVar] + 1)
+    // is:
+    // { 
+    //    changeType : "multiply"
+    //    key : "var"
+    //    value : "$( $(global.inner.otherVar) + 1 )"
+    // }
     struct InvokeTriple {
         enum class ChangeType {set,add,multiply,concat};
         ChangeType changeType;
@@ -164,6 +159,15 @@ public:
         std::string value;
         
     };
+
+    // Full entry consisting of:
+    // - topic
+    // - who self is
+    // - logical argument (if-condition)
+    // - invoke triples to self
+    // - invoke triples to other
+    // - invoke triples to global
+    // - if invoke is global (broadcast topic)
     struct InvokeEntry{
         std::string topic = "all";
         std::shared_ptr<RenderObject> selfPtr;      // store self
@@ -173,9 +177,6 @@ public:
         std::vector<InvokeTriple> invokes_global;
         std::vector<std::string> functioncalls;     // function calls, e.g. load, save etc
         bool isGlobal = true;
-
-        enum class ThreadSafeType {None,Self,Other};
-        ThreadSafeType threadSafeType = ThreadSafeType::None; //
     };
 
     //--------------------------------------------
@@ -256,6 +257,21 @@ public:
 
 private:
     //----------------------------------------------------------------
+    // General Variables
+
+    // Documents
+    Nebulite::JSON emptyDoc;          // Linking an empty doc is needed for some functions
+    Nebulite::JSON* global = nullptr; // Linkage to global doc
+
+    // pointer to queue
+    std::deque<std::string>* tasks = nullptr; 
+
+    // Mutex lock for tasks
+    mutable std::recursive_mutex tasks_lock;
+
+    //----------------------------------------------------------------
+    // TinyExpr
+
     // Custom TinyExpr functions
     class expr_custom{
     public:
@@ -273,13 +289,6 @@ private:
     };
     absl::flat_hash_map<std::string, te_expr*> expr_cache;
     std::vector<te_variable> vars;
-    
-    // Documents
-    Nebulite::JSON emptyDoc;          // Linking an empty doc is needed for some functions
-    Nebulite::JSON* global = nullptr; // Linkage to global doc
-
-    // pointer to queue
-    std::deque<std::string>* tasks = nullptr; 
 
 
     //----------------------------------------------------------------
@@ -301,35 +310,15 @@ private:
       >
     > globalcommandsBuffer; 
 
-    // All pairs of last listens
-    #if INVOKE_THREADING_TYPE == 1
-      absl::flat_hash_map<
-        std::shared_ptr<Nebulite::RenderObject>,
-        std::vector<
-          std::pair<
-            std::shared_ptr<Nebulite::Invoke::InvokeEntry>,
-            std::shared_ptr<Nebulite::RenderObject>
-          >
-        >
-      > pairs_threadsafe;
-    #endif
-
-    #if INVOKE_THREADING_TYPE == 2
-      std::vector<
-        std::vector<
-          std::pair<
-            std::shared_ptr<Nebulite::Invoke::InvokeEntry>,
-            std::shared_ptr<Nebulite::RenderObject>
-          >
-        >
-      > pairs_threadsafe;
-    #endif
+    // All pairs of last listen
     std::vector<
-      std::pair<
-        std::shared_ptr<Nebulite::Invoke::InvokeEntry>,
-        std::shared_ptr<Nebulite::RenderObject>
+      std::vector<
+        std::pair<
+          std::shared_ptr<Nebulite::Invoke::InvokeEntry>,
+          std::shared_ptr<Nebulite::RenderObject>
+        >
       >
-    > pairs_not_threadsafe;
+    > pairs_threadsafe;
 
     // Map for each Tree
     std::shared_mutex exprTreeMutex;
