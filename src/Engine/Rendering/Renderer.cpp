@@ -187,7 +187,7 @@ void Nebulite::Renderer::update() {
 		// Set global values like time
 		setGlobalValues();
 
-		// Update invoke pairs
+		// Update invoke pairs, getting broadcast-listen-pairs from last env update
 		invoke_ptr->update();
 
 		// Update environment
@@ -198,9 +198,6 @@ void Nebulite::Renderer::update() {
 			invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
 			invoke_ptr
 		);
-
-		// Get new invokes that were given by env
-		invoke_ptr->getNewInvokes();
 	}
 }
 

@@ -68,6 +68,7 @@ Like global.levelstate or similiar
 
 // General Includes
 #include <string>
+#include <string_view>
 #include <vector>
 #include <deque>
 #include <shared_mutex>
@@ -75,6 +76,7 @@ Like global.levelstate or similiar
 // Local
 #include "tinyexpr.h"
 #include "JSON.h"
+
 
 namespace Nebulite{
 
@@ -84,6 +86,104 @@ class Invoke{
 public:
     //--------------------------------------------
     // Class-Specific Structures:
+
+    // Wrapper for
+    class EvaluationString {
+    private:
+        std::string data;
+        bool containsEvaluationChar = false;
+
+        void updateFlag() {
+            containsEvaluationChar = data.find('$') != std::string::npos;
+        }
+    public:
+        //----------------------------------------------
+        // Special Member Functions
+
+        // Default constructor
+        EvaluationString() : data(""), containsEvaluationChar(false) {}
+
+        // Constructor from std::string
+        EvaluationString(const std::string& str) : data(str) {
+            updateFlag();
+        }
+
+        // Constructor from const char*
+        EvaluationString(const char* str) : data(str) {
+            updateFlag();
+        }
+
+        // Copy
+        EvaluationString(const EvaluationString& other) : 
+          data(other.data), 
+          containsEvaluationChar(other.containsEvaluationChar) 
+          {}
+
+        // Move constructor
+        EvaluationString(EvaluationString&& other) noexcept : data(std::move(other.data)) {
+            updateFlag();
+        }
+
+        // Copy assignment
+        EvaluationString& operator=(const EvaluationString& other) {
+            if (this != &other) {
+                data = other.data;
+                containsEvaluationChar = other.containsEvaluationChar;
+            }
+            return *this;
+        }
+
+        // Move assignment
+        EvaluationString& operator=(EvaluationString&& other) noexcept {
+            if (this != &other) {
+                data = std::move(other.data);
+                containsEvaluationChar = other.containsEvaluationChar;
+            }
+            return *this;
+        }
+
+        //----------------------------------------------
+        // General
+
+        //Access underlying string
+        const std::string& str() const {
+            return data;
+        }
+        std::string_view view() const {
+            return data;
+        }
+
+
+
+        // Check if it contains '$'
+        bool toEvaluate() const {
+            return containsEvaluationChar;
+        }
+
+        // Allow assignment from std::string
+        EvaluationString& operator=(const std::string& str) {
+            data = str;
+            updateFlag();
+            return *this;
+        }
+
+        // Allow assignment from const char*
+        EvaluationString& operator=(const char* str) {
+            data = str;
+            updateFlag();
+            return *this;
+        }
+
+        // Cast to String should NOT be allowed
+        // This loses information and should only be done manually if actually intended
+        operator std::string() const = delete;
+
+        bool empty(){
+          return data.empty();
+        }
+      };
+
+
     struct Node {
       // Each expression is pre-processed using a Tree build of Nodes
       // Each node is a part of the expression:
@@ -152,12 +252,12 @@ public:
     //    key : "var"
     //    value : "$( $(global.inner.otherVar) + 1 )"
     // }
+    #define USE_EVAL_STR 0
     struct InvokeTriple {
         enum class ChangeType {set,add,multiply,concat};
         ChangeType changeType;
-        std::string key;
-        std::string value;
-        
+        std::string key;        // Might be helpful to allow key being an evaluationString as well.
+        EvaluationString value;
     };
 
     // Full entry consisting of:
@@ -235,10 +335,6 @@ public:
     // Same as updateGlobal, but without an other-object
     // Self is used as reference to other.
     void updateLocal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self);
-    
-    // Called after a full renderer update to get all extracted invokes from the buffer
-    // Empties current commands, shrinks and swaps with new commands vector.
-    void getNewInvokes();
 
     // Sets new value
     // Call representing functions of ChangeType in order to safely modify the document
@@ -250,7 +346,7 @@ public:
     );
 
     // same as resolveVars, but only using global variables. Self and other are linked to empty docs
-    std::string resolveGlobalVars(const std::string& input);
+    std::string resolveGlobalVars(const EvaluationString& input);
 
 private:
     //----------------------------------------------------------------
@@ -284,7 +380,7 @@ private:
         static double logical_or(double a, double b){return a || b;}
         static double logical_not(double a){return !a;}
     };
-    absl::flat_hash_map<std::string, te_expr*> expr_cache;
+    //absl::flat_hash_map<std::string, te_expr*> expr_cache;
     std::vector<te_variable> vars;
 
 
@@ -319,7 +415,7 @@ private:
 
     // Map for each Tree
     std::shared_mutex exprTreeMutex;
-    absl::flat_hash_map<std::string, std::shared_ptr<Nebulite::Invoke::Node>> exprTree;
+    absl::flat_hash_map<std::string_view, std::shared_ptr<Nebulite::Invoke::Node>> exprTree;
 
     
     //----------------------------------------------------------------
@@ -332,7 +428,7 @@ private:
     double evaluateExpression(const std::string& expr);
 
     // Resolving self/other/global references
-    std::string resolveVars(const std::string& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global);
+    std::string resolveVars(const Nebulite::Invoke::EvaluationString& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global);
     
     // Main function for turning a string expression into a Node Tree
     std::shared_ptr<Nebulite::Invoke::Node> expressionToTree(const std::string& input);
