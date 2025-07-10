@@ -187,7 +187,7 @@ void Nebulite::Renderer::update() {
 		// Set global values like time
 		setGlobalValues();
 
-		// Update invoke pairs
+		// Update invoke pairs, getting broadcast-listen-pairs from last env update
 		invoke_ptr->update();
 
 		// Update environment

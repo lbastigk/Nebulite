@@ -232,7 +232,6 @@ void Nebulite::Invoke::update() {
                     updatePair(pair.first, pair.second);
                 }
                 */
-                
                 updatePair(pair.first, pair.second);
             }
         });
@@ -248,32 +247,10 @@ void Nebulite::Invoke::update() {
 }
 
 double Nebulite::Invoke::evaluateExpression(const std::string& expr) {
-
-    // Variable access via tinyexpr is needed for cache...
-    /*
-    auto it = expr_cache.find(expr);
-    te_expr* compiled = nullptr;
-
-    if (it != expr_cache.end()) {
-        compiled = it->second;
-    } 
-    else {
-        int err;
-        compiled = te_compile(expr.c_str(), vars.data(), vars.size(), &err);
-        if (!compiled) {
-            //std::cerr << "Parse error at position " << err << std::endl;
-            return NAN;
-        }
-        expr_cache[expr] = compiled;
-    }
-    return te_eval(compiled);
-    */
-
     int err;
     te_expr* compiled = nullptr;
     compiled = te_compile(expr.c_str(), vars.data(), vars.size(), &err);
-    if (!compiled) {
-        //std::cerr << "Parse error at position " << err << std::endl;
+    if (err) {
         return NAN;
     }
     double result =  te_eval(compiled);
@@ -596,17 +573,27 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
     return "";
 }
   
-std::string Nebulite::Invoke::resolveVars(const std::string& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global) {
+std::string Nebulite::Invoke::resolveVars(const EvaluationString& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global) {
+    
+    #if USE_EVAL_STR
+        // Check if there isnt any $ in the string -> can just be returned
+        if(!input.toEvaluate()){
+            return input.str();
+        }
+    #else
+        std::string value;
+    #endif
+    
     // Tree being used for resolving vars
     std::shared_ptr<Invoke::Node> tree;
 
     // Check if tree for this string already exists
     {
         std::unique_lock lock(exprTreeMutex);   // lock during check and insert
-        auto it = exprTree.find(input);
+        auto it = exprTree.find(input.view());
         if (it == exprTree.end()) {
-            tree = expressionToTree(input);     // build outside the map
-            exprTree[input] = tree;
+            tree = expressionToTree(input.str());     // build outside the map
+            exprTree[input.view()] = tree;
         } else {
             tree = it->second;
         }
@@ -616,7 +603,7 @@ std::string Nebulite::Invoke::resolveVars(const std::string& input, Nebulite::JS
     return evaluateNode(tree, self, other, global, false);
 }
 
-std::string Nebulite::Invoke::resolveGlobalVars(const std::string& input) {
+std::string Nebulite::Invoke::resolveGlobalVars(const Nebulite::Invoke::EvaluationString& input) {
     return resolveVars(input,&emptyDoc,&emptyDoc,global);
 }
 
