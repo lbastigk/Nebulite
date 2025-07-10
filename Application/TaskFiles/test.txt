@@ -1,5 +1,7 @@
+log on
 set-fps 60
 echo Waiting 100 Frames
+error test
 wait 100
 print-global
 exit

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Function for echoing errors
+echoerr() { echo "$@" 1>&2; }
+
 # Checking prerequisites
 if [[ "$PWD" =~ [[:space:]] ]]; then
   echo "Error: SDL2 and some build tools like libtool may fail in directories with whitespace."
@@ -12,7 +15,6 @@ sudo apt-get update
 sudo apt-get install cmake
 sudo apt-get install automake
 sudo apt-get install build-essential
-sudo apt-get install libsdl1.2-dev
 sudo apt-get install autoconf libtool m4 perl
 
 START_DIR=$(pwd)
@@ -20,7 +22,9 @@ START_DIR=$(pwd)
 ####################################
 # Synonyms for SDL_ttf
 
-# Define a function to use aclocal as aclocal-1.16
+# Define a function to use aclocal as aclocal-1.16 due to compatibility
+# SDL_ttf build expects version-specific autotools commands; these aliases provide fallback wrappers.
+
 aclocal-1.16() {
     aclocal "$@"
 }
@@ -34,26 +38,25 @@ export -f automake-1.16
 
 ####################################
 # Resources directory
-cd ./Application/Resources
-./CreateResourcesDirectory.sh
+cd ./Application/Resources      || exit 1
+./CreateResourcesDirectory.sh   || exit 1
 cd "$START_DIR"
+
 
 ####################################
 # Submodules
 git submodule update --init --recursive
 set -e
 
-git config --global --add safe.directory ./external/rapidjson
-git config --global --add safe.directory ./external/SDL_image
-git config --global --add safe.directory ./external/SDL_ttf
-git config --global --add safe.directory ./external/SDL2
-git config --global --add safe.directory ./external/tinyexpr
-git config --global --add safe.directory ./external/abseil
-
-
+# Ensure Git is allowed to access these dirs
+for dir in ./external/*; do
+    if [ -d "$dir/.git" ]; then
+        git config --global --add safe.directory "$(realpath "$dir")"
+    fi
+done
 externalsDir=$(pwd)/external
 
-#-----------
+####################################
 # build absl
 cd "$externalsDir/abseil"
 
@@ -62,12 +65,12 @@ mkdir -p "$externalsDir/abseil_build"
 cd "$externalsDir/abseil_build"
 
 # Run CMake to configure the build
-cmake ../abseil
+cmake ../abseil -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 
 # Build Abseil
 cmake --build . -- -j$(nproc)
 
-#-----------
+####################################
 # build sdl
 cd "$externalsDir/SDL_ttf/external/"
 FREETYPE_SIZE=$(du -k ./freetype 2>/dev/null | awk '{print $1}')
@@ -84,70 +87,106 @@ fi
 
 cd "$externalsDir"
 
-# SDL modules are in $externalsDir/$folder
-# build all of them into $externalsDir/SDL2_build/
+####################################
+# SDL Build function
+
+# Creates builds:
+# ./external/SDL2_build/static/
+# ./external/SDL2_build/shared/
+# ./external/SDL2_build/shared_windows/
 build_sdl_library() {
-    local folder=$1
-    echo "Building $folder..."
+    local dir=$1
+    local base_dir="$externalsDir/SDL2_build"
+    local src_dir="$externalsDir/$dir"
 
-    local build_dir="$externalsDir/SDL2_build"
+    run_build() {
+        local desc=$1
+        local config_opts=$2
+        local env_vars=$3
+        local prefix_dir=$4
 
-    # Enter the source folder
-    cd "$folder" || { echo "Failed to cd into $folder"; return 1; }
+        echo ""
+        echo ""
+        echo "------------------------------------------------------------"
+        echo "🔧 Building $desc for $dir ..."
+        make clean || true
 
-    # Clean previous builds
-    make clean || true
+        # Run autogen.sh only if configure missing
+        if [ ! -f configure ]; then
+            ./autogen.sh || { echoerr "autogen.sh failed for $dir"; return 1; }
+        fi
 
-    # Run autogen.sh if configure does not exist
-    if [ ! -f configure ]; then
-        ./autogen.sh || { echo "autogen.sh failed"; return 1; }
-    fi
+        # Use eval so env_vars can be multiple vars e.g. "CC=... CFLAGS=..."
+        eval $env_vars ./configure --prefix="$prefix_dir" $config_opts || {
+            echo "❌ configure failed for $desc build of $dir"
+            return 1
+        }
 
-    # Configure with prefix to build_dir
-    ./configure \
-        --prefix="$build_dir" \
-        --enable-static \
-        --disable-shared \
-        CFLAGS="-fPIC" || { echo "configure failed"; return 1; }
+        make -j"$(nproc)" || { echoerr "make failed for $desc build of $dir";         return 1; }
+        make install      || { echoerr "make install failed for $desc build of $dir"; return 1; }
+    }
 
-    # Build and install
-    make -j$(nproc) || { echo "make failed"; return 1; }
-    make install || { echo "make install failed"; return 1; }
+    cd "$src_dir" || { echoerr "Failed to cd into $dir"; return 1; }
 
-    # Reset any changes and clean untracked files inside the folder
+    # Native static
+    run_build "static libs (native)" "--enable-static --disable-shared CFLAGS=-fPIC" "" "${base_dir}/static" || { echoerr "Native Static build failed" ; return 1; }
+
+    # Native shared
+    run_build "shared libs (native)" "--disable-static --enable-shared CFLAGS=-fPIC" "" "${base_dir}/shared" || { echoerr "Native shared build failed" ; return 1; }
+
+    # Cross-compile for Windows - pass environment variables if provided via function param
+    # We will pass additional env vars only for SDL_ttf, empty string otherwise.
+    local cross_env_vars="$2"
+    run_build "shared Windows DLLs (cross-compile)" \
+          "--disable-static --enable-shared --host=x86_64-w64-mingw32" \
+          "$cross_env_vars" \
+          "${base_dir}/shared_windows"
+
+    # Clean git state
     git reset --hard
     git clean -fdx
     git submodule foreach --recursive git reset --hard
     git submodule foreach --recursive git clean -fdx
 
-    echo "$folder built and installed to $build_dir"
+    echo "$dir built: static libs in ${base_dir}/static, shared libs in ${base_dir}/shared, Windows DLLs in ${base_dir}/shared_windows"
 
-    # Return to previous directory
     cd - >/dev/null || return 1
 }
 
-
+####################################
 # Build all SDL libraries
-rm -rf "$externalsDir/SDL2_build"
-mkdir "$externalsDir/SDL2_build"
+rm -rf   "$externalsDir/SDL2_build"
+mkdir -p "$externalsDir/SDL2_build"
+
+# Build SDL2 first, install it into shared_windows so cross-compile outputs and headers/libs are available
 build_sdl_library SDL2
-build_sdl_library SDL_ttf
-build_sdl_library SDL_image
-sudo chmod -R 777 "$externalsDir/SDL2_build"
-cd "$START_DIR"
+
+# Now build SDL_ttf and SDL_image, pointing to the installed SDL2 files for cross-compile only
+
+# Set SDL2 Windows install location for cross builds
+sdl2_win_prefix="$externalsDir/SDL2_build/shared_windows"
+
+# Use proper flags for cross compile
+sdl_cross_env="CPPFLAGS='-I${sdl2_win_prefix}/include -I${sdl2_win_prefix}/include/SDL2' \
+               LDFLAGS='-L${sdl2_win_prefix}/lib' \
+               PKG_CONFIG_PATH='${sdl2_win_prefix}/lib/pkgconfig'"
+
+build_sdl_library SDL_ttf   "$sdl_cross_env"
+build_sdl_library SDL_image "$sdl_cross_env"
 
 ####################################
 # create binaries
-./build.sh
+
+cd "$START_DIR"
+./build.sh    || { echoerr "build.sh failed";      exit 1; }
+./winBuild.sh || { echoerr "./winBuild.sh failed"; exit 1; }
+
 
 ####################################
 # make all scripts executable
-sudo chmod -R 777 ./Application
-cd ./Application
-for script in ./*.sh
-do
-    chmod +x "$script"
-done
+find ./Application -type f -iname "*.sh" -exec chmod +x {} \;
 
 
+####################################
+# Feedback
 echo "Installer is done!"

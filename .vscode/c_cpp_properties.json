@@ -7,7 +7,7 @@
                 "/usr/include/x86_64-linux-gnu/c++/13/",
                 "/usr/include/",
                 "${workspaceFolder}/**",       // Covers everything in the project
-                "${workspaceFolder}/external/SDL2_build/include/SDL2",           // Local SDL installation
+                "${workspaceFolder}/external/SDL2_build/static/include/SDL2",           // Local SDL installation
                 "${workspaceFolder}/external/rapidjson/include/rapidjson",       // Local rapidjson
                 "${workspaceFolder}/external/tinyexpr",                          // Local tinyexpr
                 "${workspaceFolder}/external/abseil",

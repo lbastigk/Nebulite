@@ -421,6 +421,7 @@ template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<uint64_t>(con
 template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<float>(const float& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)            {jsonValue.SetFloat(data);}
 template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<double>(const double& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)          {jsonValue.SetDouble(data);}
 template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<long>(const long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {jsonValue.SetInt64(data);}
+template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<long long>(const long long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)    {jsonValue.SetInt64(data);}
 template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<std::string>(const std::string& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetString(data.c_str(), static_cast<rapidjson::SizeType>(data.length()), allocator);}
 template <> inline void Nebulite::JSON::Helper::ConvertToJSONValue<const char*>(const char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
     if (data) {

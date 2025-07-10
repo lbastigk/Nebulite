@@ -210,7 +210,8 @@ int main(int argc, char* argv[]) {
     if(Nebulite::renderer != nullptr) Nebulite::getRenderer()->destroy();
 
     // turn off error log
-    Nebulite::mainTreeFunctions::errorlog(1,(char*[]){"off"});
+    char* arg_off[] = { "off" };
+    Nebulite::mainTreeFunctions::errorlog(1,arg_off);
 
     // Exit
     return 0;
