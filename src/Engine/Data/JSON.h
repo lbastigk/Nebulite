@@ -55,6 +55,8 @@ namespace Nebulite{
     public:
         JSON();
 
+        ~JSON();
+
         //------------------------------
         // Overload of assign operators
         JSON(const JSON&) = delete;
@@ -77,6 +79,8 @@ namespace Nebulite{
         void copyFrom(const JSON* other) {
             if (other == nullptr) return;  // safeguard
             std::scoped_lock lock(mtx, other->mtx);
+
+            doc.SetObject();    // Free doc
             doc.CopyFrom(other->doc, doc.GetAllocator());
             cache = other->cache;
         }

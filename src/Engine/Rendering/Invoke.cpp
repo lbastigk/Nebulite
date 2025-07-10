@@ -54,6 +54,11 @@ bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::Invo
         // Under usual circumstances, this is easily avoidable
         // by designing the values to only be assigned a numeric value.
 
+        //Example:
+        /*
+        Evaluated logic to NAN! Logic is: :erase(neq(0.131000, 0))*(10.000000)*( lt(510.000000,        113.100000 + 10.000000))*( lt(40.000000,        101.382503 + 10.000000))*( lt(113.100000,       510.000000  + 10.000000))*( lt(101.382503,       40.000000  + 10.000000))*(not(  lt(40.000000+10.000000 - 2,101.382503) + lt(101.382503+10.000000 - 2,40.000000)  )))
+        */
+
         // In case this happens, it might be helpful to set the logic to always false:
         // This way, the error log does not happen all the time.
         cmd->logicalArg = "0";
@@ -142,36 +147,37 @@ void Nebulite::Invoke::updateValueOfKey(Nebulite::Invoke::InvokeTriple::ChangeTy
     }
 }
 
+void Nebulite::Invoke::updateVectorOfInvokeTriples(std::vector<Nebulite::Invoke::InvokeTriple> *vectorInvokeTriples, JSON *self, JSON *other, JSON *global, JSON *docToManipulate){
+    for(auto InvokeTriple : *vectorInvokeTriples){
+        if (!InvokeTriple.key.empty()) {
+            std::string valStr;
+            if(InvokeTriple.valueContainsResolveKeyword){
+                valStr = resolveVars(InvokeTriple.value, self, other, global);
+            }
+            else{
+                // No need to replace any references/evaluate
+                valStr = InvokeTriple.value;
+            }
+            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, docToManipulate);
+            
+        } 
+    }
+}
+
 void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self, const std::shared_ptr<Nebulite::RenderObject>& Obj_other) {
 
-    // === SELF update ===
-    for(auto InvokeTriple : cmd_self->invokes_self){
-        if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, cmd_self->selfPtr->getDoc(), Obj_other->getDoc(), global);
-            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd_self->selfPtr->getDoc() );
-        } 
-    }
+    JSON *self  = cmd_self->selfPtr->getDoc();
+    JSON *other = Obj_other->getDoc();
 
-    // === OTHER update ===
-    for(auto InvokeTriple : cmd_self->invokes_other){
-        if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, cmd_self->selfPtr->getDoc(), Obj_other->getDoc(), global);
-            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, Obj_other->getDoc());
-        } 
-    }
-
-    // === GLOBAL update ===
-    for(auto InvokeTriple : cmd_self->invokes_global){
-        if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, cmd_self->selfPtr->getDoc(), Obj_other->getDoc(), global);
-            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, global);
-        } 
-    }
+    // Update self, other and global
+    updateVectorOfInvokeTriples(&cmd_self->invokes_self,  self,other,global,self);
+    updateVectorOfInvokeTriples(&cmd_self->invokes_other, self,other,global,other);
+    updateVectorOfInvokeTriples(&cmd_self->invokes_global,self,other,global,global);
 
     // === Functioncalls ===
     for(auto call : cmd_self->functioncalls){
         // replace vars
-        call = resolveVars(call, cmd_self->selfPtr->getDoc(), Obj_other->getDoc(), global);
+        call = resolveVars(call, self, other, global);
 
         // attach to task queue
         std::lock_guard<std::recursive_mutex> lock(tasks_lock);
@@ -181,26 +187,17 @@ void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::Invoke
 
 void Nebulite::Invoke::updateLocal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self){
 
-    // === SELF update ===
-    for(auto InvokeTriple : cmd_self->invokes_self){
-        if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, cmd_self->selfPtr->getDoc(), cmd_self->selfPtr->getDoc(), global);
-            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, cmd_self->selfPtr->getDoc());
-        } 
-    }
+    JSON *self  = cmd_self->selfPtr->getDoc();
+    JSON *other = &emptyDoc;    // Use an empty doc for other
 
-    // === GLOBAL update ===
-    for(auto InvokeTriple : cmd_self->invokes_global){
-        if (!InvokeTriple.key.empty()) {
-            std::string valStr = resolveVars(InvokeTriple.value, cmd_self->selfPtr->getDoc(), cmd_self->selfPtr->getDoc(), global);
-            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, global);
-        } 
-    }
+    // Update self, other and global
+    updateVectorOfInvokeTriples(&cmd_self->invokes_self,  self,other,global,self);
+    updateVectorOfInvokeTriples(&cmd_self->invokes_global,self,other,global,global);
 
     // === Functioncalls ===
     for(auto call : cmd_self->functioncalls){
         // replace vars
-        call = resolveVars(call, cmd_self->selfPtr->getDoc(), cmd_self->selfPtr->getDoc(), global);
+        call = resolveVars(call, self, other, global);
 
         // attach to task queue
         std::lock_guard<std::recursive_mutex> lock(tasks_lock);
@@ -248,10 +245,6 @@ void Nebulite::Invoke::update() {
 
     // Cleanup
     pairs_threadsafe.clear();
-}
-
-void Nebulite::Invoke::getNewInvokes(){
-    
 }
 
 double Nebulite::Invoke::evaluateExpression(const std::string& expr) {
@@ -339,7 +332,7 @@ std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::parseNext(const std::s
     Node varNode;
 
     // Check if string still contains some inner var to resolve:
-    if (inner.find("$") != std::string::npos) {
+    if (inner.find(InvokeResolveKeyword) != std::string::npos) {
         varNode = Node{ Node::Type::Mix_eval, "", { expressionToTree(inner) } };
     } else {
         varNode = Node{ Node::Type::Variable, inner, {} };
@@ -398,7 +391,7 @@ std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::expressionToTree(const
     std::string literalBuffer;
 
     while (pos < input.size()) {
-        if (input[pos] == '$' && pos + 1 < input.size()) {
+        if (input[pos] == InvokeResolveKeyword && pos + 1 < input.size()) {
             // No cast:
             if(input[pos + 1] == '('){
                 if (!literalBuffer.empty()) {
@@ -453,9 +446,9 @@ std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::expressionToTree(const
     }
 
     Node resultNode;
-    if (children.size() == 1 && children[0]->type == Node::Type::Variable && input.starts_with("$(") && input.back() == ')') {
+    if (children.size() == 1 && children[0]->type == Node::Type::Variable && input.starts_with(InvokeResolveKeywordWithOpenParanthesis) && input.back() == ')') {
         resultNode = Node{ Node::Type::Variable, children[0]->text, {} };
-    } else if (input.starts_with("$(") && input.back() == ')') {
+    } else if (input.starts_with(InvokeResolveKeyword) && input.back() == ')') {
         resultNode = Node{ Node::Type::Mix_eval, "", children };
     } else if (hasVariables) {
         resultNode = Node{ Node::Type::Mix_no_eval, "", children };
@@ -483,10 +476,10 @@ std::string Nebulite::Invoke::nodeVariableAccess(const std::shared_ptr<Invoke::N
         if(nodeptr->cast == Node::CastType::None){
             return self->get<std::string>(nodeptr->key.c_str(), "0");
         }
-        if(nodeptr->cast == Node::CastType::Float){
+        else if(nodeptr->cast == Node::CastType::Float){
             return std::to_string(self->get<double>(nodeptr->key.c_str(),0.0));
         }
-        if(nodeptr->cast == Node::CastType::Int){
+        else if(nodeptr->cast == Node::CastType::Int){
             return std::to_string(self->get<int>(nodeptr->key.c_str(),0));
         }
     case Node::ContextType::Other:
@@ -494,10 +487,10 @@ std::string Nebulite::Invoke::nodeVariableAccess(const std::shared_ptr<Invoke::N
         if(nodeptr->cast == Node::CastType::None){
             return other->get<std::string>(nodeptr->key.c_str(), "0");
         }
-        if(nodeptr->cast == Node::CastType::Float){
+        else if(nodeptr->cast == Node::CastType::Float){
             return std::to_string(other->get<double>(nodeptr->key.c_str(),0.0));
         }
-        if(nodeptr->cast == Node::CastType::Int){
+        else if(nodeptr->cast == Node::CastType::Int){
             return std::to_string(other->get<int>(nodeptr->key.c_str(),0));
         }
     case Node::ContextType::Global:
@@ -505,10 +498,10 @@ std::string Nebulite::Invoke::nodeVariableAccess(const std::shared_ptr<Invoke::N
         if(nodeptr->cast == Node::CastType::None){
             return global->get<std::string>(nodeptr->key.c_str(), "0");
         }
-        if(nodeptr->cast == Node::CastType::Float){
+        else if(nodeptr->cast == Node::CastType::Float){
             return std::to_string(global->get<double>(nodeptr->key.c_str(),0.0));
         }
-        if(nodeptr->cast == Node::CastType::Int){
+        else if(nodeptr->cast == Node::CastType::Int){
             return std::to_string(global->get<int>(nodeptr->key.c_str(),0));
         }
     //---------------------------------------------------

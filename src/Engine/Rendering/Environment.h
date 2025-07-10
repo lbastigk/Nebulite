@@ -41,7 +41,7 @@ public:
 
 	void linkGlobal(Nebulite::JSON& global_ptr){global = &global_ptr;};
 	
-	void append(std::shared_ptr<RenderObject> toAppend,int dispResX, int dispResY, int layer = 0);
+	void append(Nebulite::RenderObject& toAppend,int dispResX, int dispResY, int layer = 0);
 	void update(int16_t tileXpos, int16_t tileYpos,int dispResX,int dispResY,Nebulite::Invoke* globalInvoke=nullptr);
 	void reinsertAllObjects(int dispResX,int dispResY);
 

@@ -195,6 +195,7 @@ std::vector<Nebulite::Invoke::InvokeTriple> parseInvokeTriples(Nebulite::JSON& d
 		Nebulite::Invoke::InvokeTriple triple;
         triple.key = 		doc.get<std::string>((arr+"key").c_str(),"");
         triple.value = 		doc.get<std::string>((arr+"value").c_str(),"");
+		triple.valueContainsResolveKeyword = triple.value.find(InvokeResolveKeyword) != std::string::npos;	// only needs to be resolved if it contains keyword
 
 		std::string changeType = doc.get<std::string>((arr+"changeType").c_str(),"");
 		if(changeType == "add"){
@@ -254,7 +255,7 @@ void Nebulite::RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_sh
 
 			// Allow array splitting for logical arg
 			if(invoke.memberCheck("logicalArg") == Nebulite::JSON::KeyType::array){
-				entry.logicalArg = "$(";
+				entry.logicalArg = InvokeResolveKeywordWithOpenParanthesis;
 				int size = invoke.memberSize("logicalArg");
 				std::string key;
 				for (int j = 0; j < size; j++){

@@ -113,9 +113,9 @@ void Nebulite::Renderer::deserialize(std::string serialOrLink) {
 
 //-----------------------------------------------------------
 // Pipeline
-void Nebulite::Renderer::append(std::shared_ptr<Nebulite::RenderObject> toAppend) {
+void Nebulite::Renderer::append(Nebulite::RenderObject& toAppend) {
 	// Set ID
-	toAppend.get()->valueSet<uint32_t>(Nebulite::keyName.renderObject.id.c_str(),id_counter);
+	toAppend.valueSet<uint32_t>(Nebulite::keyName.renderObject.id.c_str(),id_counter);
 	id_counter++;
 
 	//Append to environment, based on layer
@@ -123,11 +123,11 @@ void Nebulite::Renderer::append(std::shared_ptr<Nebulite::RenderObject> toAppend
 		toAppend, 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
-		toAppend.get()->valueGet(Nebulite::keyName.renderObject.layer.c_str(), 0)
+		toAppend.valueGet(Nebulite::keyName.renderObject.layer.c_str(), 0)
 	);
 
 	//Load texture
-	loadTexture(toAppend.get()->valueGet<std::string>(Nebulite::keyName.renderObject.imageLocation.c_str()));
+	loadTexture(toAppend.valueGet<std::string>(Nebulite::keyName.renderObject.imageLocation.c_str()));
 
 	// Update rolling rand
 	update_rrand();
@@ -198,9 +198,6 @@ void Nebulite::Renderer::update() {
 			invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
 			invoke_ptr
 		);
-
-		// Get new invokes that were given by env
-		invoke_ptr->getNewInvokes();
 	}
 }
 
@@ -321,7 +318,6 @@ void Nebulite::Renderer::clear(){
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
 	SDL_RenderClear(renderer);
 }
-
 
 void Nebulite::Renderer::renderFrame() {
 	// Store for faster access
