@@ -203,8 +203,7 @@ int Nebulite::mainTreeFunctions::spawn(int argc, char* argv[]){
     if(argc>1){
         RenderObject ro;
         ro.deserialize(argv[1]);
-        auto ptr = std::make_shared<RenderObject>(std::move(ro));
-        Nebulite::getRenderer()->append(ptr);
+        Nebulite::getRenderer()->append(ro);
     }
     else{
         std::cerr << "No renderobject name provided!" << std::endl;

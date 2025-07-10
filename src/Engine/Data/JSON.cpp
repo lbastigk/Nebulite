@@ -7,6 +7,11 @@ Nebulite::JSON::JSON(){
     doc.SetObject();
 }
 
+Nebulite::JSON::~JSON(){
+    std::scoped_lock lock(mtx);
+    cache.clear();
+    doc.SetNull();  // or doc.RemoveAllMembers() if you want to clear it explicitly
+}
 
 std::string Nebulite::JSON::reservedCharacters = "[]{}.,";
 

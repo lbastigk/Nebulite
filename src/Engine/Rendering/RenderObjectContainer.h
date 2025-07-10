@@ -18,7 +18,7 @@ public:
 	// Pipeline
 
 	// Append objects
-	void append(std::shared_ptr<Nebulite::RenderObject> toAppend, int dispResX, int dispResY);
+	void append(Nebulite::RenderObject& toAppend, int dispResX, int dispResY);
 
 	// Reinsert all objects into container, useful for new tile size declaration
 	// e.g. new rendering size

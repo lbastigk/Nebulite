@@ -76,6 +76,9 @@ Like global.levelstate or similiar
 #include "tinyexpr.h"
 #include "JSON.h"
 
+// Keywords for resolving: $(1+1) , $(global.time.t) , ...
+#define InvokeResolveKeyword '$'
+#define InvokeResolveKeywordWithOpenParanthesis "$("
 namespace Nebulite{
 
 // Forward declaration of RenderObject
@@ -140,7 +143,10 @@ public:
       // $(1 + 5.0000)  -> BAD, total calls for expr is 2
       // $(1 + (2 + 3)) -> BETTER. only one call
       bool insideEvalParent = false;
+
+      
     };
+    
 
     // Entry describing:
     // doc[key] = f(key,docs)
@@ -157,7 +163,7 @@ public:
         ChangeType changeType;
         std::string key;
         std::string value;
-        
+        bool valueContainsResolveKeyword = true;
     };
 
     // Full entry consisting of:
@@ -235,10 +241,6 @@ public:
     // Same as updateGlobal, but without an other-object
     // Self is used as reference to other.
     void updateLocal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self);
-    
-    // Called after a full renderer update to get all extracted invokes from the buffer
-    // Empties current commands, shrinks and swaps with new commands vector.
-    void getNewInvokes();
 
     // Sets new value
     // Call representing functions of ChangeType in order to safely modify the document
@@ -324,6 +326,8 @@ private:
     
     //----------------------------------------------------------------
     // Private functions
+
+    void updateVectorOfInvokeTriples(std::vector<Nebulite::Invoke::InvokeTriple> *vectorInvokeTriples, JSON *self, JSON *other, JSON *global, JSON *docToManipulate);
 
     // Runs all entries in an invoke with self and other given
     void updatePair(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self, const std::shared_ptr<RenderObject>& Obj_other);

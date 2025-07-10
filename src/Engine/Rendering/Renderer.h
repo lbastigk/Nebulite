@@ -32,7 +32,7 @@ public:
 	//-----------------------------------------------------------
 	// Pipeline
 	void appendInvokePtr(Nebulite::Invoke* invoke);
-	void append(std::shared_ptr<RenderObject> toAppend);
+	void append(Nebulite::RenderObject& toAppend);
 	void reinsertAllObjects();
 	void update();
 	void setGlobalValues();
