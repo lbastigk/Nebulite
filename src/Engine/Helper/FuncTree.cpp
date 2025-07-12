@@ -98,18 +98,33 @@ int FuncTree::help(int argc, char* argv[]) {
     // If no arguments are provided, list all functions
     if (argc <= 1) {
         std::cout << "Available functions:\n";
+
+        // Step 1: Extract entries into a vector (excluding "help")
+        std::vector<std::pair<std::string, std::pair<FunctionPtr, std::string>>> sortedFunctions;
         for (const auto& entry : functions) {
-            // Help is not presented
-            if (entry.first != "help"){
-                std::cout << "  " 
-                      << std::setw(20) << std::left << entry.first  // Fixed width of 20, left-aligned
-                      << " - " 
-                      << entry.second.second 
-                      << std::endl;
+            if (entry.first != "help") {
+                sortedFunctions.push_back(entry);
             }
         }
-        return 0;  // No error
+
+        // Step 2: Sort by function name (entry.first)
+        std::sort(sortedFunctions.begin(), sortedFunctions.end(),
+            [](const auto& a, const auto& b) {
+                return a.first < b.first;
+            });
+
+        // Step 3: Print
+        for (const auto& entry : sortedFunctions) {
+            std::cout << "  "
+                    << std::setw(25) << std::left << entry.first
+                    << " - "
+                    << entry.second.second
+                    << std::endl;
+        }
+
+        return 0;
     }
+
 
     // Otherwise, display help for the provided functions
     for (int i = 1; i < argc; i++) {

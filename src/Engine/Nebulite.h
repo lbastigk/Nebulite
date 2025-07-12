@@ -17,6 +17,7 @@ namespace Nebulite {
     struct taskQueue {
         std::deque<std::string> taskList;
         uint64_t waitCounter = 0;
+        bool clearAfterResolving = true;
     };
 
     //--------------------------------------
@@ -31,6 +32,7 @@ namespace Nebulite {
     // Tasks
     extern taskQueue tasks_script;
     extern taskQueue tasks_internal;
+    extern taskQueue tasks_always;
 
     // Error log stuff
     extern bool errorLogStatus;
@@ -130,9 +132,6 @@ namespace Nebulite {
         // Sets fps of renderer
         int setFPS(int argc, char* argv[]);
 
-        // Serialize renderer
-        int serialize(int argc, char* argv[]);
-
         // Move cam to a delta position
         int moveCam(int argc, char* argv[]);
 
@@ -145,11 +144,23 @@ namespace Nebulite {
         // Print state to cout
         int printState(int argc, char* argv[]);
 
+        // Log global doc to file
+        int logGlobal(int argc, char* argv[]);
+
+        // Log state to file
+        int logState(int argc, char* argv[]);
+
         // Set a global variable
         int setGlobal(int argc, char* argv[]);
 
         // Error log activation/deactivation
         int errorlog(int argc, char* argv[]);
+
+        // Attaches functioncall that is executed on each tick
+        int always(int argc, char* argv[]);
+
+        // Clears all always-functioncalls
+        int alwaysClear(int argc, char* argv[]);
 
         // [DEBUG] Get and store a standard renderobject for reference to ./Resources/Renderobjects/standard.json
         int render_object(int argc, char** argv);

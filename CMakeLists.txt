@@ -96,13 +96,20 @@ if(IS_WINDOWS)
         ${SDL2_BUILD_PATH}/shared_windows/include/SDL2
     )
 
+    # Force console window in Debug, GUI (no console) in Release
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_link_options(Nebulite PRIVATE -mconsole)
+    else()
+        target_link_options(Nebulite PRIVATE -mwindows)
+    endif()
+
+
     target_link_libraries(Nebulite PRIVATE
         -lmingw32
         "${SDL2_BUILD_PATH}/shared_windows/lib/libSDL2main.a"
         "${SDL2_BUILD_PATH}/shared_windows/lib/libSDL2_ttf.dll.a"
         "${SDL2_BUILD_PATH}/shared_windows/lib/libSDL2_image.dll.a"
         "${SDL2_BUILD_PATH}/shared_windows/lib/libSDL2.dll.a"
-        -mwindows
         -lsetupapi
         -limm32
         -lversion

@@ -185,10 +185,12 @@ int main(int argc, char* argv[]) {
     // At least one loop, to handle taskQueues
     do {
         //--------------------
+        // [TODO]: Only resolve if not in consoleMode?
         // Handle args, parse queue into mainTree and then call internal functions from Nebulite::mainTreeFunctions
         // Currently ignoring return values, plan is a more complex result handling in the future
         (void) Nebulite::resolveTaskQueue(Nebulite::tasks_script,  &Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
         (void) Nebulite::resolveTaskQueue(Nebulite::tasks_internal,nullptr,                            &argc_mainTree,&argv_mainTree);
+        (void) Nebulite::resolveTaskQueue(Nebulite::tasks_always,nullptr,                              &argc_mainTree,&argv_mainTree);
 
         //--------------------
         // Update and render, only if initialized

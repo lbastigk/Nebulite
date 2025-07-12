@@ -8,6 +8,7 @@
 namespace Nebulite{
     taskQueue tasks_script;
     taskQueue tasks_internal;
+    taskQueue tasks_always;
     std::unique_ptr<Nebulite::Renderer> renderer = nullptr;
     Invoke invoke;
     FuncTree mainTree("Nebulite");
@@ -30,10 +31,43 @@ namespace Nebulite{
         invoke.linkGlobal(*global);
 	    invoke.linkQueue(tasks_internal.taskList);
         stateName = "";
+
+        tasks_always.clearAfterResolving = false;
     }
 
     // Init nebulite functions
     void init_functions(){
+
+        // TODO: Add depth to mainTree:
+        /*
+
+        // Functions kept in maintree for ease of use:
+        eval
+        spawn
+        for
+        wait
+        always
+
+        // Splitting into a tree:
+        system      echo  
+                    error
+        debug       print
+                    log
+        global      set
+                    print
+                    log
+
+        state       load
+                    set
+                    print
+                    log
+        
+        renderer    set-fps
+                    cam-set
+                    cam-move
+
+        debug       standard-render-object
+        */
         
         // General
         mainTree.attachFunction(Nebulite::mainTreeFunctions::eval,            "eval",         "Evaluate all $(...) after this keyword, parse rest as usual");
@@ -55,15 +89,18 @@ namespace Nebulite{
         mainTree.attachFunction(Nebulite::mainTreeFunctions::moveCam,         "cam-move",     "Moves Camera position [dx] [dy]");
 
         // Debug
-        mainTree.attachFunction(Nebulite::mainTreeFunctions::serialize,       "serialize",    "Serialize current State to file");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::echo,            "echo",         "Echos all args provided to cout");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::error,           "error",        "Echos all args provided to cerr");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::printGlobal,     "print-global", "Prints global doc to cout");
-        mainTree.attachFunction(Nebulite::mainTreeFunctions::printState,      "print-state",  "Prints state doc to cout");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::printState,      "print-state",  "Prints state to cout");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::logGlobal,       "log-global",   "Logs global doc to file");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::logState,        "log-state",    "Logs state to file");
         mainTree.attachFunction(Nebulite::mainTreeFunctions::errorlog,        "log",          "Activate/Deactivate error log");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::always,          "always",       "Attach functioncall that is executed on each tick");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::alwaysClear,     "always-clear", "Clear all always-functioncalls");
 
         // Helper
-        mainTree.attachFunction(Nebulite::mainTreeFunctions::render_object,    "standard-render-object",  "Serializes standard renderobject to ./Resources/Renderobjects/standard.json");
+        mainTree.attachFunction(Nebulite::mainTreeFunctions::render_object,   "standard-render-object",  "Serializes standard renderobject to ./Resources/Renderobjects/standard.json");
 
         // Internal Tests
         // None atm
@@ -83,31 +120,41 @@ namespace Nebulite{
 
 int Nebulite::resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree){
     int result = 0;
+    bool processedPersistentTask = false;
+
     while (!tq.taskList.empty() && (counter == nullptr || *counter == 0)) {
         // Get task
         std::string argStr = tq.taskList.front();
-        tq.taskList.pop_front();  // remove the used task
 
-        // Convert std::string to argc,argv
+        // Pop only if configured to clear
+        if (tq.clearAfterResolving) {
+            tq.taskList.pop_front();
+        } else if (processedPersistentTask) {
+            break;  // Avoid infinite loop
+        }
+
+        processedPersistentTask = true;
+
+        // Convert std::string to argc, argv
         *argc_mainTree = 0;
         *argv_mainTree = nullptr;
 
-        // if argStr does not start with Nebulite::binName, add to it
-        // Since first arg is always the function/binary a function was called from
-        if(!argStr.starts_with(Nebulite::binName+" ")){
-            argStr = Nebulite::binName+" "+argStr;
+        if (!argStr.starts_with(Nebulite::binName + " ")) {
+            argStr = Nebulite::binName + " " + argStr;
         }
+
         Nebulite::convertStrToArgcArgv(argStr, *argc_mainTree, *argv_mainTree);
 
         if (*argv_mainTree != nullptr && argStr.size()) {
             result = Nebulite::mainTree.parse(*argc_mainTree, *argv_mainTree);
-        }
-        else{
+        } else {
             result = 0;
         }
     }
+
     return result;
 }
+
 
 void Nebulite::convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv) {
     // Free previous buffer if any
@@ -358,18 +405,6 @@ int Nebulite::mainTreeFunctions::setFPS(int argc, char* argv[]){
     return 0;
 }
 
-int Nebulite::mainTreeFunctions::serialize(int argc, char* argv[]){
-    std::string serialized = Nebulite::getRenderer()->serialize();
-    if (argc>1){
-        for(int i=1; i < argc; i++){
-            FileManagement::WriteFile(argv[i],serialized);
-        }
-    }
-    else{
-        FileManagement::WriteFile("last_state.log.json",serialized);
-    }
-    return 0;
-}
 
 int Nebulite::mainTreeFunctions::moveCam(int argc, char* argv[]){
     if(argc == 3){
@@ -417,6 +452,32 @@ int Nebulite::mainTreeFunctions::printState(int argc, char* argv[]){
     return 0;
 }
 
+int Nebulite::mainTreeFunctions::logGlobal(int argc, char* argv[]){
+    std::string serialized = Nebulite::getRenderer()->serializeGlobal();
+    if (argc>1){
+        for(int i=1; i < argc; i++){
+            FileManagement::WriteFile(argv[i],serialized);
+        }
+    }
+    else{
+        FileManagement::WriteFile("global.log.json",serialized);
+    }
+    return 0;
+}
+
+int Nebulite::mainTreeFunctions::logState(int argc, char* argv[]){
+    std::string serialized = Nebulite::getRenderer()->serialize();
+    if (argc>1){
+        for(int i=1; i < argc; i++){
+            FileManagement::WriteFile(argv[i],serialized);
+        }
+    }
+    else{
+        FileManagement::WriteFile("state.log.json",serialized);
+    }
+    return 0;
+}
+
 int Nebulite::mainTreeFunctions::render_object(int argc, char** argv){
     RenderObject ro;
     FileManagement::WriteFile("./Resources/Renderobjects/standard.json",ro.serialize());
@@ -451,5 +512,37 @@ int Nebulite::mainTreeFunctions::errorlog(int argc, char* argv[]){
     else{
         return 1;
     }
+    return 0;
+}
+
+// Attaches functioncall that is executed on each tick
+int Nebulite::mainTreeFunctions::always(int argc, char* argv[]){
+    if (argc > 1) {
+        std::ostringstream oss;
+        for (int i = 1; i < argc; ++i) {
+            if (i > 1) oss << ' ';
+            oss << argv[i];
+        }
+
+        // Split oss.str() on ';' and push each trimmed command
+        std::string argStr = oss.str();
+        std::stringstream ss(argStr);
+        std::string command;
+
+        while (std::getline(ss, command, ';')) {
+            // Trim whitespace from each command
+            command.erase(0, command.find_first_not_of(" \t"));
+            command.erase(command.find_last_not_of(" \t") + 1);
+            if (!command.empty()) {
+                Nebulite::tasks_always.taskList.push_back(command);
+            }
+        }
+    }
+    return 0;
+}
+
+// Clears all always-functioncalls
+int Nebulite::mainTreeFunctions::alwaysClear(int argc, char* argv[]){
+    Nebulite::tasks_always.taskList.clear();
     return 0;
 }
