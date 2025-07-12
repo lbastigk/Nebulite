@@ -22,6 +22,8 @@ Nebulite::Invoke::Invoke(){
     vars.push_back(or_var);
     te_variable not_var = {"not",   (void*)expr_custom::logical_not,    TE_FUNCTION1};
     vars.push_back(not_var);
+    te_variable sgn_var = {"sgn",   (void*)expr_custom::sgn,            TE_FUNCTION1};
+    vars.push_back(sgn_var);
 }
 
 bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd, Nebulite::RenderObject* otherObj) {
