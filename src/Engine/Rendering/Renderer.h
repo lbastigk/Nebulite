@@ -55,14 +55,8 @@ public:
 	
 	//-----------------------------------------------------------
 	// Rendering
+	void tick();
 	bool timeToRender();
-	void clear();
-	void renderFrame();
-	void renderFrameNoThreads();
-	void renderFPS(float scalar = 1.0);
-	void showFrame();
-	void pollEvent();
-	SDL_Event getEventHandle();
 	
 	//-----------------------------------------------------------
 	// Setting
@@ -95,6 +89,8 @@ public:
 	void update_rrand(){invoke_ptr->getGlobalPointer()->set<Uint64>("rrand",  dist(rngB));};
 
 private:
+	
+
 	//-------------------------------------------------------------------------------------
 	//General Variables
 	std::string directory;
@@ -153,6 +149,15 @@ private:
     std::size_t hashString(const std::string& str);
 	std::uniform_int_distribution<int> dist;
     
+	//-------------------------------------------------------------------------------------
+	// Update Functions
+	void clear();
+	void renderFrame();
+	void renderFrameNoThreads();
+	void renderFPS(float scalar = 1.0);
+	void showFrame();
+	void pollEvent();
+	SDL_Event getEventHandle();
 
 	//-------------------------------------------------------------------------------------
 	//For FPS Count

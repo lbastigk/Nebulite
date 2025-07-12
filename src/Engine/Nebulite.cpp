@@ -288,10 +288,7 @@ int Nebulite::mainTreeFunctions::echo(int argc, char* argv[]) {
 }
 
 int Nebulite::mainTreeFunctions::forLoop(int argc, char* argv[]){
-    // argv[0] is name for-loop
     std::string funcName = argv[0];
-    
-
     if(argc > 4){
         std::string varName = argv[1];
         int iStart = std::stoi(argv[2]);

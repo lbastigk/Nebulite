@@ -1,7 +1,5 @@
 #include "Renderer.h"
 
-
-
 Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y)
 : 	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B")),
@@ -113,6 +111,14 @@ void Nebulite::Renderer::deserialize(std::string serialOrLink) {
 
 //-----------------------------------------------------------
 // Pipeline
+void Nebulite::Renderer::Renderer::tick(){
+	update();          // 1.) Update objects:      Allowing for them to communicate through their invokes
+	renderFrame();     // 2.) Render frame:        Rendering all Container layers from bottom to top
+	renderFPS();       // 3.) Render fps count
+	showFrame();       // 4.) Show Frame
+	clear();           // 5.) Clear screen
+}
+
 void Nebulite::Renderer::append(Nebulite::RenderObject* toAppend) {
 	// Set ID
 	toAppend->valueSet<uint32_t>(Nebulite::keyName.renderObject.id.c_str(),id_counter);

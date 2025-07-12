@@ -17,20 +17,23 @@
  *   Nebulite <command> <options>
  *
  * Example Commands:
- *  spawn <RenderObject.json>       load a single renderobject
- *  load <level.json>               Load and render a level
+ *  spawn <RenderObject.json>       Load a single renderobject
+ *  env-load <level.json>           Load and render a level
  *  task <task.txt>                 Run a tasktile
  */
 
 // General Architecture:
 /*
+[SEND UP]:      Flow of information, up
+[SEND DOWN]:    Flow of information, down
 
 ----------------------------------------------------
 main-loop:                      Parse command-line arguments and populate task queues
                                 Initialize core engine systems
                                 Build the main function tree
 
-                                down: simple commands like setting fps, cam-position etc
+                                [SEND DOWN]:    To Renderer:    - simple commands like setting fps, cam-position etc
+                                                                - Spawning RenderObjects
 
 Invoke:                         Resolve interactions between objects, if logical expression is true
                                 Either global   self-other-relationship
@@ -39,19 +42,21 @@ Invoke:                         Resolve interactions between objects, if logical
                                 Information is stored in Renderobjects: self and other
                                 as well as in a global document, containing
 
-                                down:
+                                [SEND DOWN]:    To RenderObject - modification via pointers
 
 Renderer:                       SDL-Wrapper for all functions concerning rendering,
                                 managing Container
 
-                                up:     information about runtime (stored in global doc)
-                                        information about inputs  (stored in global doc)
+                                [SEND UP]:      To Invoke:      - information about runtime (stored in global doc)
+                                                                - information about inputs  (stored in global doc)
 
-    Environment:                Container for all asstes in level
+    Environment:                Container for all asstes in level, 
+                                consists of multiple Conainter Layers:
 
     RenderObjectContainer[N]:   N many layers of RenderObjects
                                 Sorted into tiles the size of Display, with 9 tiles active
                                 so that at any point, everything in sight is loaded
+                                Meaning: In order to always cover a sheet the size w*h, a 3x3 grid of those sheets is needed.
 
                                 [ ][ ][ ][ ][ ]... | # - Loaded Tile
                                 [ ][#][#][#][ ]... | X - Tile where Renderer Cam position is in
@@ -86,7 +91,7 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
                                                                             - player input resolving
                                                                             - animation
 
-                                up:     global invoke commands: echo, error, setting fps, moving cam, appending a preset taskfile etc.
+                                [SEND UP]:  To Invoke:      - Invoke commands listed in Object, including pointer to itself  
 
 */
 
@@ -131,21 +136,37 @@ int main(int argc, char* argv[]) {
     // Startup, args handling
     Nebulite::binName = argv[0];
 
-    // add main arg to argTokens:
-    if(argc > 1){
+    // Add main args to taskList, split by ';'
+    if (argc > 1) {
         std::ostringstream oss;
-        for (int i = 0; i < argc; ++i) {
-            if (i > 0) oss << ' ';          // Add space between arguments
+        for (int i = 1; i < argc; ++i) {
+            if (i > 1) oss << ' ';
             oss << argv[i];
         }
-        Nebulite::tasks_script.taskList.push_back(oss.str());
+
+        // Split oss.str() on ';' and push each trimmed command
+        std::string argStr = oss.str();
+        std::stringstream ss(argStr);
+        std::string command;
+
+        while (std::getline(ss, command, ';')) {
+            // Trim whitespace from each command
+            command.erase(0, command.find_first_not_of(" \t"));
+            command.erase(command.find_last_not_of(" \t") + 1);
+            if (!command.empty()) {
+                Nebulite::tasks_script.taskList.push_back(command);
+            }
+        }
     }
     else{
-        // If argc is 0, no arg was provided.
+        // If no addition arguments were provided:
+        //
         // For now, an empty Renderer is initiated
         // Later on it might be helpful to insert a task like:
         // "env-load ./Resources/Levels/main.json" 
         // Which represents the menue screen of the game
+        // or, for a more scripted task:
+        // task TaskFiles/main.txt
         Nebulite::tasks_script.taskList.push_back(std::string("set-fps 60"));
     }
 
@@ -173,16 +194,12 @@ int main(int argc, char* argv[]) {
         // Update and render, only if initialized
         // If renderer wasnt initialized, it is still a nullptr
         if (Nebulite::renderer != nullptr && Nebulite::getRenderer()->timeToRender()) {
-            Nebulite::getRenderer()->update();          // 1.) Update objects:      Allowing for them to communicate through their invokes
-            Nebulite::getRenderer()->renderFrame();     // 2.) Render frame:        Rendering all Container layers from bottom to top
-            Nebulite::getRenderer()->renderFPS();       // 3.) Render fps count
-            Nebulite::getRenderer()->showFrame();       // 4.) Show Frame
-            Nebulite::getRenderer()->clear();           // 5.) Clear screen
+            Nebulite::getRenderer()->tick();
 
             // In order to allow scripting to be more versatile, a wait function was implemented that sets the waitCounter 
             // and halts any following taskQueues for a set amount of frames. This is only necessary for the script tasks, 
             // not for any tasks given from renderobjects as they should never be halted
-            // -> After each frame: lower waitCounter in script task
+            // -> After each frame: lower waitCounter in script task if above 0
             if(Nebulite::tasks_script.waitCounter>0){ 
                 // If renderer doesnt exist, still reduce
                 if(Nebulite::renderer == nullptr){
