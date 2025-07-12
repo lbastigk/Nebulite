@@ -92,6 +92,16 @@ if(IS_WINDOWS)
     message(STATUS "Targeting Windows: linking SDL static libraries")
     set(CMAKE_SYSTEM_NAME Windows)
 
+    add_compile_options(-Wall -Wextra -Wpedantic -Wshadow -Wuninitialized)
+
+    #######################################################
+    # [TODO]: Check if these settings fix release binary
+    add_compile_options(-fstack-protector -D_FORTIFY_SOURCE=2)
+    set(CMAKE_CXX_FLAGS_RELEASE "-O1 -g")
+    #######################################################
+
+
+
     target_include_directories(Nebulite PRIVATE
         ${SDL2_BUILD_PATH}/shared_windows/include/SDL2
     )
@@ -100,7 +110,11 @@ if(IS_WINDOWS)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_link_options(Nebulite PRIVATE -mconsole)
     else()
-        target_link_options(Nebulite PRIVATE -mwindows)
+        # Later on, for actual release:
+        #target_link_options(Nebulite PRIVATE -mwindows)
+
+        # For now, for debugging release version:
+        target_link_options(Nebulite PRIVATE -mconsole)
     endif()
 
 
@@ -140,6 +154,7 @@ if(IS_WINDOWS)
     # $ find /usr -name "libwinpthread-1.dll" 2>/dev/null
     #   > /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll
     #   > /usr/i686-w64-mingw32/lib/libwinpthread-1.dll
+    # for now, a precompiled dll from the internet is used.
 
     # Try to find libwinpthread-1.dll in common locations
     # Assuming MinGW toolchain environment variable or standard install path

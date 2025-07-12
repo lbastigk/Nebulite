@@ -51,7 +51,7 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	}
 
 	//Load font
-	std::string sep = FileManagement::preferred_separator();
+	std::string sep(1,FileManagement::preferred_separator());
 	std::string fontDir = std::string("Resources") + sep + std::string("Fonts") + sep + std::string("Arimo-Regular.ttf");
 	std::string fontpath = FileManagement::CombinePaths(directory, fontDir);
 	

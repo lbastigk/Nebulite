@@ -1,6 +1,6 @@
 echo Spawning sun and 100 planets
 set-global spawnCount 0
-set-global waitTime 300
+set-global waitTime 100
 set-fps 10000
 spawn ./Resources/Renderobjects/Planets/sun.json
 

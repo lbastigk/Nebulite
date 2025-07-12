@@ -23,28 +23,14 @@
 
 class FileManagement{
 public:
-	static bool folderExists(const std::string& folderName);
-    static std::string currentDir();
 
     static std::string CombinePaths(const std::string& baseDir, const std::string& innerDir);
 
-    static std::string LoadFile(std::string link);
+    static std::string LoadFile(const std::string& link);
 
-    static bool openFileWithDefaultProgram(const std::string& path);
+    static void WriteFile(const std::string& filename, const std::string& text);
 
-    static void WriteFile(const char filename[], std::string text);
+    static char preferred_separator();
 
-    static std::string preferred_separator();
-
-    class FileTypeCollector {
-    public:
-        FileTypeCollector(std::string directory, std::string fileType, bool processSubDirectories = true);
-
-        std::vector<std::string> getFileDirectories(bool useFullDir=false);
-
-    private:
-        std::vector<std::string> fileDirectories;
-
-        void process(const std::string& directory, const std::string& fileType, bool processSubDirectories);
-    };
+    static std::string currentDir();
 };
