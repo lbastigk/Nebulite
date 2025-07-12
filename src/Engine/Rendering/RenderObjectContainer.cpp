@@ -54,8 +54,8 @@ void Nebulite::RenderObjectContainer::deserialize(const std::string& serialOrLin
 				ro_serial = tmp.serialize();
 			}
 
-			RenderObject ro;
-			ro.deserialize(ro_serial);
+			RenderObject* ro = new RenderObject;
+			ro->deserialize(ro_serial);
 			append(ro, dispResX, dispResY);
 		}
 	}
@@ -65,37 +65,52 @@ void Nebulite::RenderObjectContainer::deserialize(const std::string& serialOrLin
 //-----------------------------------------------------------
 // Pipeline
 
-std::pair<int16_t,int16_t> getTilePos(std::shared_ptr<Nebulite::RenderObject> toAppend, int dispResX, int dispResY){
-    // Calculate tile position based on screen resolution
-    double valget;
+std::pair<int16_t,int16_t> getTilePos(Nebulite::RenderObject* toAppend, int dispResX, int dispResY){
 
     // Calculate correspondingTileXpos using positionX
-    valget = toAppend.get()->valueGet<double>(Nebulite::keyName.renderObject.positionX.c_str(), 0.0);
-    int16_t correspondingTileXpos = (int16_t)(valget / (double)dispResX);
+    double posX = toAppend->valueGet<double>(Nebulite::keyName.renderObject.positionX.c_str(), 0.0);
+    int16_t correspondingTileXpos = (int16_t)(posX / (double)dispResX);
 
     // Calculate correspondingTileYpos using positionY
-    valget = toAppend.get()->valueGet<double>(Nebulite::keyName.renderObject.positionY.c_str(), 0.0);
-    int16_t correspondingTileYpos = (int16_t)(valget / (double)dispResY);
+    double posY = toAppend->valueGet<double>(Nebulite::keyName.renderObject.positionY.c_str(), 0.0);
+    int16_t correspondingTileYpos = (int16_t)(posY / (double)dispResY);
 
     // Ensure the position is valid, grow the ObjectContainer if necessary
 	return std::make_pair(correspondingTileXpos,correspondingTileYpos);
 }
 
 
-void Nebulite::RenderObjectContainer::append(Nebulite::RenderObject& toAppend, int dispResX, int dispResY) {
-	auto ptr = std::make_shared<Nebulite::RenderObject>(std::move(toAppend));
-
-    std::pair<int16_t,int16_t> pos = getTilePos(ptr,dispResX,dispResY);
-	ObjectContainer[pos].push_back(ptr);
+void Nebulite::RenderObjectContainer::append(Nebulite::RenderObject* toAppend, int dispResX, int dispResY) {
+    std::pair<int16_t,int16_t> pos = getTilePos(toAppend,dispResX,dispResY);
+	ObjectContainer[pos].push_back(toAppend);
 }
 
 void Nebulite::RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY, Nebulite::Invoke* globalInvoke, bool onlyRestructure) {
 	std::pair<uint16_t,uint16_t> pos;
 	std::pair<uint16_t,uint16_t> newPos;
-	std::vector<std::shared_ptr<RenderObject>> toReinsert;
+	std::vector<Nebulite::RenderObject*> toReinsert;
+
+	//---------------------------------------------
+	// 2-Step Deletion
+
+	// Deleteflag--->Trash--->Purgatory-->Destructor
+	// This way, any invokes previously send are safe to never access nullpointers
+
+	// Finalize deletion of objects in purgatory
+	if (!purgatory.empty()) {
+		for(auto& ptr : purgatory){
+			delete ptr;
+		}
+		purgatory.clear();
+		purgatory.shrink_to_fit();
+	}
+
+	// Move trash into purgatory
+	purgatory.swap(trash);
 
 	//--------------------------------------------------------------------------------
 	// Update only tiles that might be visible
+
 	// since one tile is size of screen, a max of 9 tiles
 	// [P] - Tile with Player
 	// [#] - loaded Tiles
@@ -115,12 +130,12 @@ void Nebulite::RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos,
 			pos = std::make_pair(dX, dY);
 			auto& vec = ObjectContainer[pos];
 
-			std::vector<std::shared_ptr<RenderObject>> newVec;
+			std::vector<Nebulite::RenderObject*> newVec;
 			newVec.reserve(vec.size());
 
 			for (auto& obj : vec) {
 				if (!onlyRestructure) {
-					obj->update(globalInvoke, obj);
+					obj->update(globalInvoke);
 				}
 
 				if (!obj->valueGet(Nebulite::keyName.renderObject.deleteFlag.c_str(), false)) {
@@ -131,27 +146,25 @@ void Nebulite::RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos,
 						newVec.push_back(obj);      // stay in same tile
 					}
 				} else {
-					// Object is marked for deletion — do NOT copy it to newVec.
-					// If no one else holds a shared_ptr to it, it will be destroyed here.
-					// Optional: log for debug
-					// std::cout << "Deleted RenderObject: " << obj->getName() << std::endl;
+					// Object is marked for deletion
+					trash.push_back(obj);
 				}
 			}
-
 			vec.swap(newVec); // Replace tile content with filtered list
 		}
 	}
 
-	// Add objects back to renderer that are now in a different tile position
-	for(const auto& obj : toReinsert){
-		append(*obj.get(), dispResX, dispResY);
+	// Reinsert with consistent pointer ownership
+	for (const auto& ptr : toReinsert) {
+		std::pair<int16_t,int16_t> pos = getTilePos(ptr, dispResX, dispResY);
+		ObjectContainer[pos].push_back(std::move(ptr));
 	}
 	toReinsert.clear();
 	toReinsert.shrink_to_fit();
 }
 
 void Nebulite::RenderObjectContainer::reinsertAllObjects(int dispResX, int dispResY) {
-	std::vector<std::shared_ptr<RenderObject>> toReinsert;
+	std::vector<RenderObject*> toReinsert;
 
 	for (auto it = ObjectContainer.begin(); it != ObjectContainer.end(); ) {
 		for (auto& obj : it->second) {
@@ -161,8 +174,9 @@ void Nebulite::RenderObjectContainer::reinsertAllObjects(int dispResX, int dispR
 	ObjectContainer.clear(); // Fully reset
 
 	// Reinsert with consistent pointer ownership
-	for (const auto& obj : toReinsert) {
-		append(*obj.get(), dispResX, dispResY);
+	for (const auto& ptr : toReinsert) {
+		std::pair<int16_t,int16_t> pos = getTilePos(ptr, dispResX, dispResY);
+		ObjectContainer[pos].push_back(ptr);
 	}
 }
 
@@ -172,7 +186,7 @@ bool Nebulite::RenderObjectContainer::isValidPosition(std::pair<uint16_t,uint16_
 	return it != ObjectContainer.end();
 }
 
-std::vector<std::shared_ptr<Nebulite::RenderObject>>& Nebulite::RenderObjectContainer::getContainerAt(std::pair<uint16_t,uint16_t> pos) {
+std::vector<Nebulite::RenderObject*>& Nebulite::RenderObjectContainer::getContainerAt(std::pair<uint16_t,uint16_t> pos) {
 	return ObjectContainer[pos];
 }
 

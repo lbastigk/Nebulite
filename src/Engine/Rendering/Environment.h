@@ -41,11 +41,11 @@ public:
 
 	void linkGlobal(Nebulite::JSON& global_ptr){global = &global_ptr;};
 	
-	void append(Nebulite::RenderObject& toAppend,int dispResX, int dispResY, int layer = 0);
+	void append(Nebulite::RenderObject* toAppend,int dispResX, int dispResY, int layer = 0);
 	void update(int16_t tileXpos, int16_t tileYpos,int dispResX,int dispResY,Nebulite::Invoke* globalInvoke=nullptr);
 	void reinsertAllObjects(int dispResX,int dispResY);
 
-	std::vector<std::shared_ptr<RenderObject>>& getContainerAt(int16_t x, int16_t y, int layer);
+	std::vector<Nebulite::RenderObject*>& getContainerAt(int16_t x, int16_t y, int layer);
 	bool isValidPosition(int x, int y, int layer);
 
 	void purgeObjects();

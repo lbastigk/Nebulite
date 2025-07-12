@@ -201,8 +201,8 @@ int Nebulite::mainTreeFunctions::envdeload(int argc, char* argv[]){
 
 int Nebulite::mainTreeFunctions::spawn(int argc, char* argv[]){
     if(argc>1){
-        RenderObject ro;
-        ro.deserialize(argv[1]);
+        RenderObject* ro = new RenderObject;
+        ro->deserialize(argv[1]);
         Nebulite::getRenderer()->append(ro);
     }
     else{

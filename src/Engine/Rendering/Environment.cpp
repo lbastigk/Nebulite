@@ -60,7 +60,7 @@ void Nebulite::Environment::deserialize(std::string serialOrLink, int dispResX,i
 	}
 }
 
-void Nebulite::Environment::append(Nebulite::RenderObject& toAppend,int dispResX, int dispResY, int layer) {
+void Nebulite::Environment::append(Nebulite::RenderObject* toAppend,int dispResX, int dispResY, int layer) {
 	if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
 		roc[layer].append(toAppend, dispResX, dispResY);
 	}
@@ -105,7 +105,7 @@ void Nebulite::Environment::reinsertAllObjects(int dispResX,int dispResY){
 }
 
 
-std::vector<std::shared_ptr<Nebulite::RenderObject>>& Nebulite::Environment::getContainerAt(int16_t x, int16_t y, int layer) {
+std::vector<Nebulite::RenderObject*>& Nebulite::Environment::getContainerAt(int16_t x, int16_t y, int layer) {
 	auto pos = std::make_pair(x,y);
 	if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
 		return roc[layer].getContainerAt(pos);

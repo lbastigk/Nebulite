@@ -10,7 +10,7 @@ Nebulite::JSON::JSON(){
 Nebulite::JSON::~JSON(){
     std::scoped_lock lock(mtx);
     cache.clear();
-    doc.SetNull();  // or doc.RemoveAllMembers() if you want to clear it explicitly
+    Helper::empty(doc);
 }
 
 std::string Nebulite::JSON::reservedCharacters = "[]{}.,";
@@ -125,8 +125,7 @@ void Nebulite::JSON::deserialize(std::string serial_or_link){
     for (auto it = cache.begin(); it != cache.end(); ) {
         cache.erase(it++);
     }
-
-    doc = Nebulite::JSON::Helper::deserialize(serial_or_link);
+    Nebulite::JSON::Helper::deserialize(doc,serial_or_link);
 }
 
 void Nebulite::JSON::flush() {
@@ -237,6 +236,7 @@ rapidjson::Value* Nebulite::JSON::traverseKey(const char* key, rapidjson::Value&
     return current;
 }
 
+
 rapidjson::Value* Nebulite::JSON::ensure_path(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
@@ -325,8 +325,6 @@ rapidjson::Value* Nebulite::JSON::ensure_path(const char* key, rapidjson::Value&
 //---------------------------------------------------------------------
 // Static Helper Functions
 rapidjson::Value Nebulite::JSON::Helper::sortRecursive(const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator) {
-    //std::lock_guard<std::recursive_mutex> lock(mtx); 
-
     if (value.IsObject()) {
         // Sort object keys
         std::vector<std::pair<std::string, const rapidjson::Value*>> members;
@@ -361,8 +359,6 @@ rapidjson::Value Nebulite::JSON::Helper::sortRecursive(const rapidjson::Value& v
     }
 }
 std::string Nebulite::JSON::Helper::serialize(const rapidjson::Document& doc) {
-    //std::lock_guard<std::recursive_mutex> lock(mtx); 
-
     if (!doc.IsObject() && !doc.IsArray()) {
         std::cerr << "Serialization only supports JSON objects or arrays!" << std::endl;
         return "{}";
@@ -379,10 +375,9 @@ std::string Nebulite::JSON::Helper::serialize(const rapidjson::Document& doc) {
     sortedDoc.Accept(writer);
     return buffer.GetString();
 }
-rapidjson::Document Nebulite::JSON::Helper::deserialize(std::string serialOrLink) {
-    //std::lock_guard<std::recursive_mutex> lock(mtx); 
-    
-    rapidjson::Document doc;
+
+
+void Nebulite::JSON::Helper::deserialize(rapidjson::Document& doc, std::string serialOrLink) {
 
     if (serialOrLink.starts_with("{")) {
         rapidjson::ParseResult res = doc.Parse(serialOrLink.c_str());
@@ -399,7 +394,7 @@ rapidjson::Document Nebulite::JSON::Helper::deserialize(std::string serialOrLink
 
         if (tokens.empty()) {
             // Error: No file path given
-            return doc; // or handle error properly
+            return; // or handle error properly
         }
 
         // Load the JSON file
@@ -417,13 +412,12 @@ rapidjson::Document Nebulite::JSON::Helper::deserialize(std::string serialOrLink
             }
         }
     }
-    return doc;
 }
-void Nebulite::JSON::Helper::empty(rapidjson::Document &doc) {
-    //std::lock_guard<std::recursive_mutex> lock(mtx); 
 
+void Nebulite::JSON::Helper::empty(rapidjson::Document &doc) {
     doc.SetNull();
-    doc.GetAllocator().Clear();
+    //doc.GetAllocator().Clear();
+    //doc.Swap(rapidjson::Value(rapidjson::kObjectType).Move());
 }
 
 //-------------------------------------------

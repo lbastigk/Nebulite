@@ -1,5 +1,6 @@
 #include "RenderObject.h"
 
+#define DEBUG_SMF 1
 
 //-----------------------------------------------------------
 //Constructor
@@ -47,14 +48,29 @@ Nebulite::RenderObject::RenderObject() {
     textTexture = nullptr;
 }
 
+Nebulite::RenderObject::~RenderObject() {
+    if (textSurface) {
+        SDL_FreeSurface(textSurface);
+        textSurface = nullptr;
+    }
+
+    if (textTexture) {
+        SDL_DestroyTexture(textTexture);
+        textTexture = nullptr;
+    }
+}
+
 // Careful copy of RenderObject
-Nebulite::RenderObject::RenderObject(const RenderObject& other) :
+Nebulite::RenderObject::RenderObject(const Nebulite::RenderObject& other) :
       textSurface(nullptr),
       textTexture(nullptr),
       textRect(other.textRect),
       dstRect(other.dstRect),
       srcRect(other.srcRect)
 {
+	#if DEBUG_SMF
+		std::cout << "[DEBUG] Nebulite::RenderObject::RenderObject(const Nebulite::RenderObject& other) called" << std::endl;
+	#endif
     json.empty();
     json.copyFrom(other.getDoc());
 
@@ -69,6 +85,61 @@ Nebulite::RenderObject::RenderObject(const RenderObject& other) :
     calculateDstRect();
     calculateSrcRect();
 }
+
+Nebulite::RenderObject::RenderObject(Nebulite::RenderObject&& other) noexcept
+	: json(std::move(other.json)),
+	  dstRect(other.dstRect),
+	  srcRect(other.srcRect),
+	  textRect(other.textRect),
+	  textSurface(other.textSurface),
+	  textTexture(other.textTexture),
+	  cmds_general(std::move(other.cmds_general)),
+	  cmds_internal(std::move(other.cmds_internal))
+{
+	#if DEBUG_SMF
+		std::cout << "[DEBUG] Nebulite::RenderObject::RenderObject(Nebulite::RenderObject&& other) called" << std::endl;
+	#endif
+	other.textSurface = nullptr;
+	other.textTexture = nullptr;
+}
+
+Nebulite::RenderObject& Nebulite::RenderObject::operator=(Nebulite::RenderObject&& other) noexcept {
+	#if DEBUG_SMF
+		std::cout << "[DEBUG] Nebulite::RenderObject& Nebulite::RenderObject::operator=(Nebulite::RenderObject&& other)" << std::endl;
+	#endif
+	if (this != &other) {
+		// Clean up current resources
+		if (textSurface) {
+			SDL_FreeSurface(textSurface);
+			textSurface = nullptr;
+		}
+		if (textTexture) {
+			SDL_DestroyTexture(textTexture);
+			textTexture = nullptr;
+		}
+
+		// Move JSON data
+		json = std::move(other.json);
+
+		// Move SDL structs
+		dstRect = other.dstRect;
+		srcRect = other.srcRect;
+		textRect = other.textRect;
+
+		// Move pointers
+		textSurface = other.textSurface;
+		textTexture = other.textTexture;
+
+		other.textSurface = nullptr;
+		other.textTexture = nullptr;
+
+		// Move invoke commands
+		cmds_general = std::move(other.cmds_general);
+		cmds_internal = std::move(other.cmds_internal);
+	}
+	return *this;
+}
+
 
 
 
@@ -217,7 +288,7 @@ std::vector<Nebulite::Invoke::InvokeTriple> parseInvokeTriples(Nebulite::JSON& d
     return res;
 }
 
-void Nebulite::RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_shared) {
+void Nebulite::RenderObject::reloadInvokes() {
     cmds_general.clear();
     cmds_internal.clear();
 
@@ -246,7 +317,7 @@ void Nebulite::RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_sh
 			//--------------------------
 			// Build entry
 			Nebulite::Invoke::InvokeEntry entry;
-			entry.selfPtr = this_shared;
+			entry.selfPtr = this;
 			entry.topic =			invoke.get<std::string>("topic","all");
 			entry.isGlobal = 		invoke.get<bool>("isGlobal",true);
 			entry.invokes_self = 	parseInvokeTriples(invoke,"self_invokes");
@@ -309,14 +380,14 @@ void Nebulite::RenderObject::reloadInvokes(std::shared_ptr<RenderObject> this_sh
 // - store pointer pairs as std::vector<std::pair<RenderObject& RenderObject&>>
 // - after object pre-update, call actual update via invoke class that changes all objects
 // - additionally, the effects on self/other can be stored as a map where the key is the pointer this_shared
-void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke, std::shared_ptr<RenderObject> this_shared) {
+void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 	//------------------------------------
 	// Check all invokes
 	if (globalInvoke) {
 		//------------------------------
 		// 1.) Reload invokes if needed
 		if (valueGet<int>(Nebulite::keyName.renderObject.reloadInvokes.c_str(),true)){
-			reloadInvokes(this_shared);
+			reloadInvokes();
 		}
 
 		//------------------------------
@@ -334,7 +405,7 @@ void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke, std::shared_
 		for(int i = 0; i < json.memberSize(Nebulite::keyName.renderObject.invokeSubscriptions.c_str());i++){
 			std::string key = Nebulite::keyName.renderObject.invokeSubscriptions + "[" + std::to_string(i) + "]";
 			std::string subscription = json.get<std::string>(key.c_str(),"");
-			globalInvoke->listen(this_shared,subscription);
+			globalInvoke->listen(this,subscription);
 		}
         
 

@@ -113,9 +113,9 @@ void Nebulite::Renderer::deserialize(std::string serialOrLink) {
 
 //-----------------------------------------------------------
 // Pipeline
-void Nebulite::Renderer::append(Nebulite::RenderObject& toAppend) {
+void Nebulite::Renderer::append(Nebulite::RenderObject* toAppend) {
 	// Set ID
-	toAppend.valueSet<uint32_t>(Nebulite::keyName.renderObject.id.c_str(),id_counter);
+	toAppend->valueSet<uint32_t>(Nebulite::keyName.renderObject.id.c_str(),id_counter);
 	id_counter++;
 
 	//Append to environment, based on layer
@@ -123,11 +123,11 @@ void Nebulite::Renderer::append(Nebulite::RenderObject& toAppend) {
 		toAppend, 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
-		toAppend.valueGet(Nebulite::keyName.renderObject.layer.c_str(), 0)
+		toAppend->valueGet(Nebulite::keyName.renderObject.layer.c_str(), 0)
 	);
 
 	//Load texture
-	loadTexture(toAppend.valueGet<std::string>(Nebulite::keyName.renderObject.imageLocation.c_str()));
+	loadTexture(toAppend->valueGet<std::string>(Nebulite::keyName.renderObject.imageLocation.c_str()));
 
 	// Update rolling rand
 	update_rrand();
@@ -381,33 +381,33 @@ void Nebulite::Renderer::renderFrame() {
 					// For all objects inside
 					for (auto& obj : env.getContainerAt(tileXpos + dX,tileYpos + dY,layer)) {
 						// Check for texture
-						std::string innerdir = obj.get()->valueGet<std::string>(Nebulite::keyName.renderObject.imageLocation.c_str());
+						std::string innerdir = obj->valueGet<std::string>(Nebulite::keyName.renderObject.imageLocation.c_str());
 						if (TextureContainer.find(innerdir) == TextureContainer.end()) {
 							loadTexture(innerdir);
-							obj.get()->calculateDstRect();
+							obj->calculateDstRect();
 						}
-						obj.get()->calculateSrcRect();
+						obj->calculateSrcRect();
 						
 						// Calculate position rect
-						rect = obj->getDstRect();
-						rect.x -= dispPosX;		//subtract camera posX
-						rect.y -= dispPosY; 	//subtract camera posY
+						DstRect = obj->getDstRect();
+						DstRect.x -= dispPosX;		//subtract camera posX
+						DstRect.y -= dispPosY; 	//subtract camera posY
 
 						// Render the texture
-						error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj.get()->getSrcRect(), &rect);
+						error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj->getSrcRect(), &DstRect);
 
 						// Render the text
 						//*
-						if (obj.get()->valueGet<float>(Nebulite::keyName.renderObject.textFontsize.c_str())>0){
-							obj.get()->calculateText(
+						if (obj->valueGet<float>(Nebulite::keyName.renderObject.textFontsize.c_str())>0){
+							obj->calculateText(
 								renderer,
 								font,
 								dispPosX,
 								dispPosY
 							);
-							SDL_Texture* texture = obj.get()->getTextTexture();
+							SDL_Texture* texture = obj->getTextTexture();
 							if(texture && obj->getTextRect()){
-								SDL_RenderCopy(renderer,texture,NULL,obj.get()->getTextRect());
+								SDL_RenderCopy(renderer,texture,NULL,obj->getTextRect());
 							}
 						}
 						if (error != 0){
@@ -425,7 +425,6 @@ void Nebulite::Renderer::renderFrame() {
 	// Render Console if Active
 	if(consoleMode){
 		// Semi-transparent background
-		SDL_Rect consoleRect;
 		consoleRect.x = 0;
 		consoleRect.y = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0) - 150;
 		consoleRect.w = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0);
@@ -443,7 +442,6 @@ void Nebulite::Renderer::renderFrame() {
 			SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, consoleInputBuffer.c_str(), textColor);
 			SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-			SDL_Rect textRect;
 			textRect.x = 10;
 			textRect.y = consoleRect.y + consoleRect.h - lineHeight - 10;
 			textRect.w = textSurface->w;

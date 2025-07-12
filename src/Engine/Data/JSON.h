@@ -77,11 +77,14 @@ namespace Nebulite{
 
         // Copy doc
         void copyFrom(const JSON* other) {
-            if (other == nullptr) return;  // safeguard
             std::scoped_lock lock(mtx, other->mtx);
-
-            doc.SetObject();    // Free doc
+            Helper::empty(doc);
+            
+            if (other == nullptr) return;  // safeguard
+            
+            doc.SetObject();
             doc.CopyFrom(other->doc, doc.GetAllocator());
+            cache.clear();
             cache = other->cache;
         }
 
@@ -223,7 +226,7 @@ namespace Nebulite{
             static void ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
 
             static rapidjson::Value sortRecursive(const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator);
-            static rapidjson::Document deserialize(std::string serialOrLink);
+            static void deserialize(rapidjson::Document& doc, std::string serialOrLink);
             static std::string serialize(const rapidjson::Document& doc);
             static void empty(rapidjson::Document &doc);
         };

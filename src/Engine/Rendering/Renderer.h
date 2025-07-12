@@ -32,7 +32,7 @@ public:
 	//-----------------------------------------------------------
 	// Pipeline
 	void appendInvokePtr(Nebulite::Invoke* invoke);
-	void append(Nebulite::RenderObject& toAppend);
+	void append(Nebulite::RenderObject* toAppend);
 	void reinsertAllObjects();
 	void update();
 	void setGlobalValues();
@@ -125,10 +125,14 @@ private:
 	unsigned int RenderScalar = 1;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
-	SDL_Rect rect;
 	TTF_Font* font;
 	TTF_Font* consoleFont;
 	absl::flat_hash_map<std::string, SDL_Texture*> TextureContainer;
+
+	SDL_Rect rect;
+	SDL_Rect textRect;
+	SDL_Rect consoleRect;
+	SDL_Rect DstRect;
 
 	// Events etc
 	SDL_Event event;

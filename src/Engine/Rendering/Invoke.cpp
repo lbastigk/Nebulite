@@ -24,7 +24,7 @@ Nebulite::Invoke::Invoke(){
     vars.push_back(not_var);
 }
 
-bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd, const std::shared_ptr<Nebulite::RenderObject>& otherObj) {
+bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd, Nebulite::RenderObject* otherObj) {
     //-----------------------------------------
     // Pre-Checks
     
@@ -95,7 +95,7 @@ void Nebulite::Invoke::broadcast(const std::shared_ptr<Nebulite::Invoke::InvokeE
     globalcommandsBuffer[toAppend->topic].push_back(toAppend);
 }
 
-void Nebulite::Invoke::listen(const std::shared_ptr<Nebulite::RenderObject>& obj,std::string topic){
+void Nebulite::Invoke::listen(Nebulite::RenderObject* obj,std::string topic){
     for (auto& cmd : globalcommands[topic]){
 
         // Conditional check on listen
@@ -164,7 +164,7 @@ void Nebulite::Invoke::updateVectorOfInvokeTriples(std::vector<Nebulite::Invoke:
     }
 }
 
-void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self, const std::shared_ptr<Nebulite::RenderObject>& Obj_other) {
+void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self, Nebulite::RenderObject* Obj_other) {
 
     JSON *self  = cmd_self->selfPtr->getDoc();
     JSON *other = Obj_other->getDoc();
@@ -218,6 +218,7 @@ void Nebulite::Invoke::clear(){
 }
 
 void Nebulite::Invoke::update() {
+
     // Swap in the new set of commands
     globalcommands.clear();
     globalcommands.swap(globalcommandsBuffer);    
@@ -226,12 +227,6 @@ void Nebulite::Invoke::update() {
     for (auto& pairs_batch : pairs_threadsafe) {
         threads.emplace_back([this, pairs_batch]() {
             for (auto& pair : pairs_batch) {
-                // Old version had conditional check on update:
-                /*
-                if (isTrueGlobal(pair.first, pair.second)) {
-                    updatePair(pair.first, pair.second);
-                }
-                */
                 updatePair(pair.first, pair.second);
             }
         });
@@ -250,7 +245,8 @@ double Nebulite::Invoke::evaluateExpression(const std::string& expr) {
     int err;
     te_expr* compiled = nullptr;
     compiled = te_compile(expr.c_str(), vars.data(), vars.size(), &err);
-    if (err) {
+    if (!compiled) {
+        std::cerr << "te_compile encountered error " << err << " for: "<< expr <<", returning NAN..." << std::endl;
         return NAN;
     }
     double result =  te_eval(compiled);
@@ -573,16 +569,7 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
     return "";
 }
   
-std::string Nebulite::Invoke::resolveVars(const EvaluationString& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global) {
-    
-    #if USE_EVAL_STR
-        // Check if there isnt any $ in the string -> can just be returned
-        if(!input.toEvaluate()){
-            return input.str();
-        }
-    #else
-        std::string value;
-    #endif
+std::string Nebulite::Invoke::resolveVars(const std::string& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global) {
     
     // Tree being used for resolving vars
     std::shared_ptr<Invoke::Node> tree;
@@ -590,10 +577,10 @@ std::string Nebulite::Invoke::resolveVars(const EvaluationString& input, Nebulit
     // Check if tree for this string already exists
     {
         std::unique_lock lock(exprTreeMutex);   // lock during check and insert
-        auto it = exprTree.find(input.view());
+        auto it = exprTree.find(input);
         if (it == exprTree.end()) {
-            tree = expressionToTree(input.str());     // build outside the map
-            exprTree[input.view()] = tree;
+            tree = expressionToTree(input);     // build outside the map
+            exprTree[input] = tree;
         } else {
             tree = it->second;
         }
@@ -603,7 +590,7 @@ std::string Nebulite::Invoke::resolveVars(const EvaluationString& input, Nebulit
     return evaluateNode(tree, self, other, global, false);
 }
 
-std::string Nebulite::Invoke::resolveGlobalVars(const Nebulite::Invoke::EvaluationString& input) {
+std::string Nebulite::Invoke::resolveGlobalVars(const std::string& input) {
     return resolveVars(input,&emptyDoc,&emptyDoc,global);
 }
 

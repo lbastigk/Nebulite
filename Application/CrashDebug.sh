@@ -5,7 +5,8 @@ ulimit -n 1024
 ulimit -c unlimited
 
 # Define task
-taskname="task TaskFiles/Benchmarks/gravity.txt"
+taskfile="TaskFiles/Benchmarks/gravity.txt"
+#taskfile="TaskFiles/Tests/spawn_memleak.txt"
 
 # Set core dump directory and pattern
 CORE_DIR="/tmp"
@@ -27,7 +28,7 @@ fi
 
 run_once() {
     echo "Running Nebulite_Debug with task: $taskname"
-    ./bin/Nebulite_Debug "$taskname"
+    ./bin/Nebulite_Debug task "$taskfile"
 }
 
 # Main loop

@@ -18,7 +18,7 @@ public:
 	// Pipeline
 
 	// Append objects
-	void append(Nebulite::RenderObject& toAppend, int dispResX, int dispResY);
+	void append(Nebulite::RenderObject* toAppend, int dispResX, int dispResY);
 
 	// Reinsert all objects into container, useful for new tile size declaration
 	// e.g. new rendering size
@@ -39,9 +39,11 @@ public:
 
 	
 	// Used to get a container Tile
-	std::vector<std::shared_ptr<Nebulite::RenderObject>>& getContainerAt(std::pair<uint16_t,uint16_t> pos);
+	std::vector<Nebulite::RenderObject*>& getContainerAt(std::pair<uint16_t,uint16_t> pos);
 
 private:
-	absl::flat_hash_map<std::pair<int16_t,int16_t>,std::vector<std::shared_ptr<RenderObject>>> ObjectContainer;
+	absl::flat_hash_map<std::pair<int16_t,int16_t>,std::vector<RenderObject*>> ObjectContainer;
+	std::vector<Nebulite::RenderObject*> trash;		// Moving objects, marking for deletion
+	std::vector<Nebulite::RenderObject*> purgatory;	// Deleted each frame
 };
 }

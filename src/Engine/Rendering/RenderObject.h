@@ -14,7 +14,11 @@ public:
 	//Constructor
 	RenderObject();
 	RenderObject(const RenderObject& other);
-	RenderObject& operator=(RenderObject& other);
+	RenderObject(RenderObject&& other) noexcept;
+	RenderObject& operator=(RenderObject&& other) noexcept;
+
+
+	~RenderObject();
 
 
 
@@ -34,8 +38,8 @@ public:
 	SDL_Texture* getTextTexture();
 	SDL_Rect* getTextRect();
 	//-----------------------------------------------------------
-	void update(Nebulite::Invoke* globalInvoke,std::shared_ptr<RenderObject> this_shared);
-	void reloadInvokes(std::shared_ptr<RenderObject> this_shared);
+	void update(Nebulite::Invoke* globalInvoke);
+	void reloadInvokes();
 
 	void calculateText(SDL_Renderer* renderer,TTF_Font* font, int renderer_X, int renderer_Y);
 	void calculateDstRect();
