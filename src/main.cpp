@@ -121,6 +121,16 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
  *            if key is "global.keyboard.current.$(settings.action.left)", resolve to "global.keyboard.current.a"
  *            so if key contains '$', resolve. This needs to happen in realtime in case the user changes settings midgame, so this cant be resolved on invoke load!
  *            probably the more dynamic approach, as linking the settings doc within the global doc through mapping is messy, convoluted and slower  
+ *          - this should then allow for functioncall input set/release 0/1
+ *          - keyboard state not in global anymore, all actions from global.input.xyz defined in settings.json:
+ *              "keyMapping" : {
+ *                  "moveUp" : {
+ *                      "primary" : "input.keyboard.d"
+ *                      "secondary" : "input.keyboard.up"
+ *                  }
+ *              }
+ *          - plus, move current/delta to last hierarchy: input.keyboard.d.current
+ *          - could be solved through read-only files with invoke/filemanagement!
  * 
  */
 int main(int argc, char* argv[]) {
