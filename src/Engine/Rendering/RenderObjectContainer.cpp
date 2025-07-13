@@ -9,7 +9,6 @@ Nebulite::RenderObjectContainer::RenderObjectContainer() {
 
 }
 
-
 //-----------------------------------------------------------
 //Marshalling
 std::string Nebulite::RenderObjectContainer::serialize() {
@@ -81,7 +80,6 @@ std::pair<int16_t,int16_t> getTilePos(Nebulite::RenderObject* toAppend, int disp
 	return std::make_pair(correspondingTileXpos,correspondingTileYpos);
 }
 
-
 void Nebulite::RenderObjectContainer::append(Nebulite::RenderObject* toAppend, int dispResX, int dispResY) {
 	uint64_t objectCost = toAppend->estimateCompuationalCost();
     std::pair<int16_t,int16_t> pos = getTilePos(toAppend, dispResX, dispResY);
@@ -100,7 +98,6 @@ void Nebulite::RenderObjectContainer::append(Nebulite::RenderObject* toAppend, i
 	newBatch.push(toAppend);
 	ObjectContainer[pos].push_back(std::move(newBatch));
 }
-
 
 void Nebulite::RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY, Nebulite::Invoke* globalInvoke, bool onlyRestructure) {
 	

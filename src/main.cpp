@@ -114,14 +114,6 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
 // NEBULITE main
 /*
  * 
- * TODO:    Current implementation of result return only returns the result of the last maintree parse
- *          Perhaps the result should be used to determine when to stop the program as well, 
- *          instead of just checking Renderer::isQuit()
- *          E.g. close program if env-load is called on a non-existing file
- *          Idea here is to pass some sort of Nebulite::ErrorParse Struct that contains all errors and from what function in some vector 
- *          This might involve a restructuring of the return value!
- *          It might be bette to do some simpler return value catches and see if the return value is <0 -> abort or >0 warning, but continue.
- * 
  * TODO:    settings.json
  *          - Renderer size, fps setting
  *          - mapping of keyboard/mouse to specific actions like up/down/left/right, inventory, map etc.
