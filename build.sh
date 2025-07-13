@@ -41,13 +41,16 @@ function build_release() {
     echo "Step 2: Building release binary"
     clean_src "build/release/Application/bin/Nebulite"
 
-    cmake -DCMAKE_BUILD_TYPE=Release -B build/release -S .
-    cmake -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG -march=native" \
-          -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE
-    make -j$(nproc)
+    cmake -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG -march=native" \
+          -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE \
+          -B build/release -S .
+
+    cmake --build build/release --target Nebulite -j$(nproc)
     cp build/release/Application/bin/Nebulite Application/bin/Nebulite
     strip "./Application/bin/Nebulite"
 }
+
 
 function build_debug_windows() {
       echo "#############################################################"
