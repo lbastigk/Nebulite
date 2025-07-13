@@ -179,46 +179,60 @@ int main(int argc, char* argv[]) {
     
     //--------------------------------------------------
     // Render loop
+
+    // For resolving tasks
     Nebulite::taskQueueResult result_tasks_script;
     Nebulite::taskQueueResult result_tasks_internal;
     Nebulite::taskQueueResult result_tasks_always;
     Nebulite::ERROR_TYPE lastCriticalResult;
-
+    uint64_t* noWaitCounter = nullptr;
     bool critical_stop = false;
 
     // argc/argv for functioncalls
     int    argc_mainTree = 0;
     char** argv_mainTree = nullptr;
 
+    //--------------------------------------------------
     // At least one loop, to handle taskQueues
     do {
-        //--------------------
-        // [TODO]: Only resolve if not in consoleMode?
+        //------------------------------------------------------------
         // Handle args, parse queue into mainTree and then call internal functions from Nebulite::mainTreeFunctions
-        // Currently ignoring return values, plan is a more complex result handling in the future
-        result_tasks_script = Nebulite::resolveTaskQueue(Nebulite::tasks_script,  &Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
+        // Result determines if a critical stop is initiated
+        // [TODO]: Only resolve if not in consoleMode?
+
+        // Clear from last loop
+        result_tasks_script.errors.clear();
+        result_tasks_internal.errors.clear();
+        result_tasks_always.errors.clear();
+
+        // Parse script tasks
+        if(!critical_stop)  result_tasks_script = Nebulite::resolveTaskQueue(Nebulite::tasks_script,    &Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
         if(result_tasks_script.stoppedAtCriticalResult) {
             critical_stop = true; 
             lastCriticalResult = result_tasks_script.errors.back();
             break;
         } 
-        result_tasks_internal = Nebulite::resolveTaskQueue(Nebulite::tasks_internal,nullptr,                            &argc_mainTree,&argv_mainTree);
+
+        // Parse internal tasks
+        if(!critical_stop)  result_tasks_internal = Nebulite::resolveTaskQueue(Nebulite::tasks_internal,noWaitCounter,                      &argc_mainTree,&argv_mainTree);
         if(result_tasks_internal.stoppedAtCriticalResult) {
             critical_stop = true; 
             lastCriticalResult = result_tasks_internal.errors.back();
             break;
         }
-        result_tasks_always = Nebulite::resolveTaskQueue(Nebulite::tasks_always,nullptr,                              &argc_mainTree,&argv_mainTree);
+
+        // Parse always-tasks
+        if(!critical_stop)  result_tasks_always = Nebulite::resolveTaskQueue(Nebulite::tasks_always,    noWaitCounter,                      &argc_mainTree,&argv_mainTree);
         if(result_tasks_always.stoppedAtCriticalResult) {
             critical_stop = true; 
             lastCriticalResult = result_tasks_always.errors.back();
             break;
         }
 
-        //--------------------
+        //------------------------------------------------------------
         // Update and render, only if initialized
         // If renderer wasnt initialized, it is still a nullptr
-        if (Nebulite::renderer != nullptr && Nebulite::getRenderer()->timeToRender()) {
+        if (!critical_stop && Nebulite::renderer != nullptr && Nebulite::getRenderer()->timeToRender()) {
             Nebulite::getRenderer()->tick();
 
             // In order to allow scripting to be more versatile, a wait function was implemented that sets the waitCounter 

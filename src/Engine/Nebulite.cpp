@@ -6,16 +6,33 @@
 // Otherwise, a wait from a script can halt the entire game logic
 // All wait calls influence script queue for now
 namespace Nebulite{
+    //-------------------------------------------------
+    // Variables/Objects in Nebulite scope
+
+    // Tasks
     taskQueue tasks_script;
     taskQueue tasks_internal;
     taskQueue tasks_always;
+
+    // Objects
     std::unique_ptr<Nebulite::Renderer> renderer = nullptr;
     Invoke invoke;
+    std::unique_ptr<Nebulite::JSON> global = std::make_unique<Nebulite::JSON>();
 
-    // Create funcTree, parse special return values for usage
-    // As functree needs to know what to return if:
-    // - An invalid functioncall was made
-    // - ... potentially more types are needed if program becomes more complex (extended to none might be a good idea)
+    // General variables
+    std::string stateName = ""; // On startup, no state
+    std::string binName = "";   // Initialized in main, from argv[0]
+
+    // used by convertStrToArgcArgv
+    char* argvBuffer = nullptr;
+    int argvCapacity = 0;
+
+    // Error log variables
+    bool errorLogStatus = false;
+    std::ofstream errorFile;
+    std::streambuf* originalCerrBuf = nullptr;
+
+    // Tree
     std::string treeName = "Nebulite";
     Nebulite::ERROR_TYPE returnValueOnInvalidFunctioncall = Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID;
     Nebulite::ERROR_TYPE returnValueOnNoError = Nebulite::ERROR_TYPE::NONE;
@@ -23,29 +40,18 @@ namespace Nebulite{
         returnValueOnNoError,
         returnValueOnInvalidFunctioncall
     );
-
-
-    std::unique_ptr<Nebulite::JSON> global = nullptr;
-    std::string stateName;
-    std::string binName;
-
-    // used by convertStrToArgcArgv
-    char* argvBuffer = nullptr;
-    int argvCapacity = 0;
-
-    // Error log
-    bool errorLogStatus = false;
-    std::ofstream errorFile;
-    std::streambuf* originalCerrBuf = nullptr;
     
-    // init variables
+    //-------------------------------------------------
+    // Initializing variables/Objects
     void init(){
-        global = std::make_unique<Nebulite::JSON>();
+        //-------------------------------------------------
+        // Modify structs                         
+        tasks_always.clearAfterResolving = false;   // always-tasks are not cleared
+
+        //-------------------------------------------------
+        // Linkages 
         invoke.linkGlobal(*global);
 	    invoke.linkQueue(tasks_internal.taskList);
-        stateName = "";
-
-        tasks_always.clearAfterResolving = false;
     }
 
     // Init nebulite functions
@@ -121,7 +127,7 @@ namespace Nebulite{
         // None atm
     }
 
-
+    // Getting renderer pointer. If Renderer isnt initialized, initialize first
     Renderer* getRenderer() {
         if (!renderer) {
             renderer = std::make_unique<Nebulite::Renderer>(invoke,*global);
@@ -129,7 +135,6 @@ namespace Nebulite{
         }
         return renderer.get();
     }
-
 
 }
 
@@ -175,7 +180,6 @@ Nebulite::taskQueueResult Nebulite::resolveTaskQueue(Nebulite::taskQueue& tq, ui
     return result;
 }
 
-
 void Nebulite::convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv) {
     // Free previous buffer if any
     if (argvBuffer) {
@@ -209,6 +213,9 @@ void Nebulite::convertStrToArgcArgv(const std::string& cmd, int& argc, char**& a
     }
     argv[argc] = nullptr;
 }
+
+//---------------------------------------------------------------
+// Main Tree Functions
 
 Nebulite::ERROR_TYPE Nebulite::mainTreeFunctions::eval(int argc, char* argv[]){
     // argc/argv to string for evaluation
@@ -452,7 +459,6 @@ Nebulite::ERROR_TYPE Nebulite::mainTreeFunctions::setFPS(int argc, char* argv[])
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-
 Nebulite::ERROR_TYPE Nebulite::mainTreeFunctions::moveCam(int argc, char* argv[]){
     if (argc < 3) {
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
@@ -572,7 +578,6 @@ Nebulite::ERROR_TYPE Nebulite::mainTreeFunctions::errorlog(int argc, char* argv[
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-// Attaches functioncall that is executed on each tick
 Nebulite::ERROR_TYPE Nebulite::mainTreeFunctions::always(int argc, char* argv[]){
     if (argc > 1) {
         std::ostringstream oss;

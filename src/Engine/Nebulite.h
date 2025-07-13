@@ -10,17 +10,18 @@
 #include "FuncTree.h"
 #include "JSON.h"
 
-
-// Nebulite instances
 namespace Nebulite {
-    
+    //-------------------------------------------------
+    // Types
+
+    // hold tasks that need to be parsed as well as parsing info
     struct taskQueue {
         std::deque<std::string> taskList;
         uint64_t waitCounter = 0;
         bool clearAfterResolving = true;
     };
 
-    // TODO: Make parsing work with error types
+    // Return values from main Tree functions
     enum ERROR_TYPE{
         // Critical Errors first with negative value
         CRITICAL_GENERAL = -1000,
@@ -31,23 +32,24 @@ namespace Nebulite {
         CRITICAL_FUNCTIONCALL_INVALID,
         // Non-critical errors positive
         NONE = 0,
-        CUSTOM_ERROR,
+        CUSTOM_ERROR,   // used for functioncall error
         TOO_MANY_ARGS,
         TOO_FEW_ARGS,
         UNKNOWN_ARG,
         FEATURE_NOT_IMPLEMENTED
     };
 
+    // Each taskque resolving logs errors encountered and if resolving was stopped due to a critical error
     struct taskQueueResult{
         bool stoppedAtCriticalResult = false;
         std::vector<Nebulite::ERROR_TYPE> errors;
     };
 
-    //--------------------------------------
-    // Declare global instances
+    //-------------------------------------------------
+    // Pre-Declaration of global instances in Nebulite scope
 
     // Objects
-    extern FuncTree<ERROR_TYPE> mainTree;
+    extern FuncTree<Nebulite::ERROR_TYPE> mainTree;
     extern std::unique_ptr<Nebulite::JSON> global;
     extern std::unique_ptr<Renderer> renderer;
     extern Invoke invoke;
@@ -194,5 +196,4 @@ namespace Nebulite {
         // [DEBUG] Get and store a standard renderobject for reference to ./Resources/Renderobjects/standard.json
         Nebulite::ERROR_TYPE render_object(int argc, char** argv);
     }
-
 }
