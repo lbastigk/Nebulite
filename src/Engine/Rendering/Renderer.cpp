@@ -384,43 +384,45 @@ void Nebulite::Renderer::renderFrame() {
 			for (int dY = (tileYpos == 0 ? 0 : -1); dY <= 1; dY++) {
 				// If valid
 				if (env.isValidPosition(tileXpos + dX, tileYpos + dY,layer)) {
-					// For all objects inside
-					for (auto& obj : env.getContainerAt(tileXpos + dX,tileYpos + dY,layer)) {
-						// Check for texture
-						std::string innerdir = obj->valueGet<std::string>(Nebulite::keyName.renderObject.imageLocation.c_str());
-						if (TextureContainer.find(innerdir) == TextureContainer.end()) {
-							loadTexture(innerdir);
-							obj->calculateDstRect();
-						}
-						obj->calculateSrcRect();
-						
-						// Calculate position rect
-						DstRect = obj->getDstRect();
-						DstRect.x -= dispPosX;		//subtract camera posX
-						DstRect.y -= dispPosY; 	//subtract camera posY
-
-						// Render the texture
-						error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj->getSrcRect(), &DstRect);
-
-						// Render the text
-						//*
-						if (obj->valueGet<float>(Nebulite::keyName.renderObject.textFontsize.c_str())>0){
-							obj->calculateText(
-								renderer,
-								font,
-								dispPosX,
-								dispPosY
-							);
-							SDL_Texture* texture = obj->getTextTexture();
-							if(texture && obj->getTextRect()){
-								SDL_RenderCopy(renderer,texture,NULL,obj->getTextRect());
+					// For all batches inside
+					for (auto& batch : env.getContainerAt(tileXpos + dX,tileYpos + dY,layer)) {
+						// For all objects in batch
+						for(auto& obj : batch.objects){
+							// Check for texture
+							std::string innerdir = obj->valueGet<std::string>(Nebulite::keyName.renderObject.imageLocation.c_str());
+							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
+								loadTexture(innerdir);
+								obj->calculateDstRect();
 							}
+							obj->calculateSrcRect();
+							
+							// Calculate position rect
+							DstRect = obj->getDstRect();
+							DstRect.x -= dispPosX;		//subtract camera posX
+							DstRect.y -= dispPosY; 	//subtract camera posY
+
+							// Render the texture
+							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj->getSrcRect(), &DstRect);
+
+							// Render the text
+							//*
+							if (obj->valueGet<float>(Nebulite::keyName.renderObject.textFontsize.c_str())>0){
+								obj->calculateText(
+									renderer,
+									font,
+									dispPosX,
+									dispPosY
+								);
+								SDL_Texture* texture = obj->getTextTexture();
+								if(texture && obj->getTextRect()){
+									SDL_RenderCopy(renderer,texture,NULL,obj->getTextRect());
+								}
+							}
+							if (error != 0){
+								std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
+							}
+							//*/
 						}
-						if (error != 0){
-							std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
-						}
-						//*/
-						
 					}
 				}
 			}

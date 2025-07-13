@@ -1,5 +1,6 @@
 #include "RenderObject.h"
 
+
 namespace Nebulite{
 class RenderObjectContainer {
 public:
@@ -7,6 +8,38 @@ public:
 	//Constructor
 
 	RenderObjectContainer();
+
+	//-----------------------------------------------------------
+	// Batch of objects in container
+	struct batch{
+		std::vector<RenderObject*> objects;
+		uint64_t estimatedCost = 0;
+
+		RenderObject* pop() {
+			if (objects.empty()) return nullptr;
+
+			RenderObject* obj = objects.back(); // Get last element
+			estimatedCost -= obj->estimateCompuationalCost(); // Adjust cost
+			objects.pop_back(); // Remove from vector
+
+			return obj;
+		}
+
+		void push(RenderObject* obj){
+			estimatedCost += obj->estimateCompuationalCost();
+			objects.push_back(obj);
+		}
+
+		bool removeObject(RenderObject* obj) {
+			auto it = std::find(objects.begin(), objects.end(), obj);
+			if (it != objects.end()) {
+				estimatedCost -= obj->estimateCompuationalCost();
+				objects.erase(it);
+				return true;
+			}
+			return false;
+		}
+	};
 
 	//-----------------------------------------------------------
 	//Marshalling
@@ -39,10 +72,30 @@ public:
 
 	
 	// Used to get a container Tile
-	std::vector<Nebulite::RenderObject*>& getContainerAt(std::pair<uint16_t,uint16_t> pos);
+	std::vector<batch>& getContainerAt(std::pair<uint16_t,uint16_t> pos);
 
 private:
-	absl::flat_hash_map<std::pair<int16_t,int16_t>,std::vector<RenderObject*>> ObjectContainer;
+	const uint64_t BATCH_COST_GOAL = 5000;
+
+	
+
+	absl::flat_hash_map<std::pair<int16_t,int16_t>,std::vector<batch>> ObjectContainer;
+	std::vector<std::thread> workers;
+	std::mutex reinsertMutex;
+	std::mutex deleteMutex;
+
+	// 3-Step reinsertion
+	// 1.) remove from batch
+	// 2.) reinsert
+	std::vector<Nebulite::RenderObject*> to_move;
+	std::vector<Nebulite::RenderObject*> await_reinsert;
+
+	// 4-Step deletion
+	// 1.) remove from batch
+	// 2.) store in trash
+	// 3.) store in purgatory
+	// 4.) delete
+	std::vector<Nebulite::RenderObject*> to_delete;
 	std::vector<Nebulite::RenderObject*> trash;		// Moving objects, marking for deletion
 	std::vector<Nebulite::RenderObject*> purgatory;	// Deleted each frame
 };

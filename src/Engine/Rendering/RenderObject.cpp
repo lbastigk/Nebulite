@@ -427,4 +427,10 @@ void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 }
 
 
+uint64_t Nebulite::RenderObject::estimateCompuationalCost(){
+	if(valueGet<int>(Nebulite::keyName.renderObject.reloadInvokes.c_str(),true)){
+		reloadInvokes();
+	}
+	return cmds_internal.size();
+}
 

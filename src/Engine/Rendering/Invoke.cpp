@@ -94,28 +94,16 @@ bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<Nebulite::Invoke::Invok
 }
 
 void Nebulite::Invoke::broadcast(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& toAppend){
+    std::lock_guard<std::mutex> lock(globalcommandsBufferMutex);
     globalcommandsBuffer[toAppend->topic].push_back(toAppend);
 }
 
 void Nebulite::Invoke::listen(Nebulite::RenderObject* obj,std::string topic){
+    std::lock_guard<std::mutex> lock(globalcommandsMutex);
     for (auto& cmd : globalcommands[topic]){
-
-        // Conditional check on listen
-        // Probably more consistent, 
-        // especially if updating/broadcasting and listening are further separated in the renderer loop!
-        /*
-        for all obj in container do_threaded:
-            obj->update()       # updates objects internal
-            obj->broadcast()
-        end
-        for all obj in container do_threaded:
-            obj->listen()     # generates true pairs (std::vector)
-        end
-        invoke.update()
-
-        Something like that... Some more checkup on order is necessary... perhaps its possible to simplify
-        */
         if(isTrueGlobal(cmd,obj)){
+            std::lock_guard<std::mutex> lock(pairsMutex);
+
             // Check if there is any existing batch
             if (pairs_threadsafe.empty() || pairs_threadsafe.back().size() >= THREADED_MIN_BATCHSIZE) {
                 // Create a new batch

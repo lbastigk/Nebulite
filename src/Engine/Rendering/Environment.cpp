@@ -105,7 +105,7 @@ void Nebulite::Environment::reinsertAllObjects(int dispResX,int dispResY){
 }
 
 
-std::vector<Nebulite::RenderObject*>& Nebulite::Environment::getContainerAt(int16_t x, int16_t y, int layer) {
+std::vector<Nebulite::RenderObjectContainer::batch>& Nebulite::Environment::getContainerAt(int16_t x, int16_t y, int layer) {
 	auto pos = std::make_pair(x,y);
 	if (layer < RENDEROBJECTCONTAINER_COUNT && layer >= 0) {
 		return roc[layer].getContainerAt(pos);

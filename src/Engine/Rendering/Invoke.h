@@ -267,8 +267,11 @@ private:
     // pointer to queue
     std::deque<std::string>* tasks = nullptr; 
 
-    // Mutex lock for tasks
+    // Mutex lock for tasks and buffers
     mutable std::recursive_mutex tasks_lock;
+    std::mutex globalcommandsBufferMutex;
+    std::mutex globalcommandsMutex;
+    std::mutex pairsMutex;
 
     //----------------------------------------------------------------
     // TinyExpr

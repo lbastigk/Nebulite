@@ -59,19 +59,3 @@ while true; do
     echo "No crash. Retrying..."
     sleep 0.5
 done
-
-
-####################
-# Old version
-
-exit
-
-
-
-
-valgrind \
-  --tool=callgrind \
-  --error-limit=no \
-  --num-callers=50 \
-  ./bin/Nebulite_Debug "$taskname"
-

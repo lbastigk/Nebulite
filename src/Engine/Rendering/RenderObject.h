@@ -45,6 +45,8 @@ public:
 	void calculateDstRect();
 	void calculateSrcRect();
 
+	uint64_t estimateCompuationalCost();
+
 private:
 	// Main doc holding values
 	Nebulite::JSON json;
