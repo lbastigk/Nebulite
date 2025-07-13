@@ -33,9 +33,9 @@ namespace Nebulite{
     std::streambuf* originalCerrBuf = nullptr;
 
     // Tree
-    std::string treeName = "Nebulite";
-    Nebulite::ERROR_TYPE returnValueOnInvalidFunctioncall = Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID;
-    Nebulite::ERROR_TYPE returnValueOnNoError = Nebulite::ERROR_TYPE::NONE;
+    const std::string treeName = "Nebulite";
+    const Nebulite::ERROR_TYPE returnValueOnInvalidFunctioncall = Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID;
+    const Nebulite::ERROR_TYPE returnValueOnNoError = Nebulite::ERROR_TYPE::NONE;
     FuncTree<Nebulite::ERROR_TYPE> mainTree(treeName,
         returnValueOnNoError,
         returnValueOnInvalidFunctioncall

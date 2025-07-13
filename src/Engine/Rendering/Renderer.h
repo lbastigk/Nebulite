@@ -103,14 +103,7 @@ private:
 	// Time
 	TimeKeeper RendererLoopTime;
 	TimeKeeper RendererPollTime;
-	TimeKeeper RendererConsoleTime;
-
-	// TODO: get rid of old time keeping:
-	uint64_t currentTime;
-    uint64_t lastTime;
-	uint64_t last_poll;
-	uint64_t consoleTime = 0;
-	uint64_t consoleTime_last = 0;
+	uint64_t timeSpendInConsole = 0;
 
 	// Subclasses and pointers
 	Environment env;
@@ -125,7 +118,7 @@ private:
 	TTF_Font* consoleFont;
 	absl::flat_hash_map<std::string, SDL_Texture*> TextureContainer;
 
-	SDL_Rect rect;
+	//SDL_Rect rect;
 	SDL_Rect textRect;
 	SDL_Rect consoleRect;
 	SDL_Rect DstRect;

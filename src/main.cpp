@@ -105,11 +105,6 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
 // Also sets up the global Renderer used across Tree-based function calls.
 #include "Nebulite.h" 
 
-// Used to build a tree of callable Functions and parsing arguments
-#include "FuncTree.h"
-
-
-
 // ----------------------------------------------------------------------
 // NEBULITE main
 /*
@@ -173,7 +168,7 @@ int main(int argc, char* argv[]) {
     }
 
     //--------------------------------------------------
-    // Init general variables from Nebulite namespace, Build main FuncTree
+    // Init general variables/linkages in Nebulite namespace, Build main FuncTree
     Nebulite::init();
     Nebulite::init_functions();
     
@@ -206,7 +201,9 @@ int main(int argc, char* argv[]) {
         result_tasks_always.errors.clear();
 
         // Parse script tasks
-        if(!critical_stop)  result_tasks_script = Nebulite::resolveTaskQueue(Nebulite::tasks_script,    &Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
+        if(!critical_stop){
+            result_tasks_script = Nebulite::resolveTaskQueue(Nebulite::tasks_script,&Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
+        }
         if(result_tasks_script.stoppedAtCriticalResult) {
             critical_stop = true; 
             lastCriticalResult = result_tasks_script.errors.back();
@@ -214,7 +211,9 @@ int main(int argc, char* argv[]) {
         } 
 
         // Parse internal tasks
-        if(!critical_stop)  result_tasks_internal = Nebulite::resolveTaskQueue(Nebulite::tasks_internal,noWaitCounter,                      &argc_mainTree,&argv_mainTree);
+        if(!critical_stop){
+            result_tasks_internal = Nebulite::resolveTaskQueue(Nebulite::tasks_internal,noWaitCounter,&argc_mainTree,&argv_mainTree);
+        }
         if(result_tasks_internal.stoppedAtCriticalResult) {
             critical_stop = true; 
             lastCriticalResult = result_tasks_internal.errors.back();
@@ -222,7 +221,9 @@ int main(int argc, char* argv[]) {
         }
 
         // Parse always-tasks
-        if(!critical_stop)  result_tasks_always = Nebulite::resolveTaskQueue(Nebulite::tasks_always,    noWaitCounter,                      &argc_mainTree,&argv_mainTree);
+        if(!critical_stop){
+            result_tasks_always = Nebulite::resolveTaskQueue(Nebulite::tasks_always,noWaitCounter,&argc_mainTree,&argv_mainTree);
+        }
         if(result_tasks_always.stoppedAtCriticalResult) {
             critical_stop = true; 
             lastCriticalResult = result_tasks_always.errors.back();

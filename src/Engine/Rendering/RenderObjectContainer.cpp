@@ -191,18 +191,20 @@ void Nebulite::RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos,
 }
 
 void Nebulite::RenderObjectContainer::reinsertAllObjects(int dispResX, int dispResY) {
+	// Collect all objects
 	std::vector<RenderObject*> toReinsert;
-
-	for (auto it = ObjectContainer.begin(); it != ObjectContainer.end(); ) {
-		for (auto& batch : it->second) {
-			for(auto& obj : batch.objects){
+	for (auto it = ObjectContainer.begin(); it != ObjectContainer.end(); it++) {
+		for (auto batch : it->second) {
+			for(auto obj : batch.objects){
 				toReinsert.push_back(obj);
 			}
 		}
 	}
-	ObjectContainer.clear(); // Fully reset container
 
-	// Reinsert with consistent pointer ownership
+	// Fully reset container
+	ObjectContainer.clear(); 
+
+	// Reinsert
 	for (const auto& ptr : toReinsert) {
 		append(ptr,dispResX,dispResY);
 	}

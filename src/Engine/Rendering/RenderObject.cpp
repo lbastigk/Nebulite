@@ -1,9 +1,7 @@
 #include "RenderObject.h"
 
-#define DEBUG_SMF 1
-
 //-----------------------------------------------------------
-//Constructor
+// Special member Functions
 
 Nebulite::RenderObject::RenderObject() {
 	// General
@@ -60,93 +58,11 @@ Nebulite::RenderObject::~RenderObject() {
     }
 }
 
-// Careful copy of RenderObject
-Nebulite::RenderObject::RenderObject(const Nebulite::RenderObject& other) :
-      textSurface(nullptr),
-      textTexture(nullptr),
-      textRect(other.textRect),
-      dstRect(other.dstRect),
-      srcRect(other.srcRect)
-{
-	#if DEBUG_SMF
-		std::cout << "[DEBUG] Nebulite::RenderObject::RenderObject(const Nebulite::RenderObject& other) called" << std::endl;
-	#endif
-    json.empty();
-    json.copyFrom(other.getDoc());
-
-    // If the other object has a valid texture, recreate it for this object
-    float fontSize = valueGet<float>(Nebulite::keyName.renderObject.textFontsize.c_str());
-    std::string text = valueGet<std::string>(Nebulite::keyName.renderObject.textStr.c_str());
-    if (!text.empty() && fontSize > 0) {
-        valueSet(Nebulite::keyName.renderObject.flagCalculate.c_str(), true);
-        // Texture will be created in the next calculateText() call
-    }
-
-    calculateDstRect();
-    calculateSrcRect();
-}
-
-Nebulite::RenderObject::RenderObject(Nebulite::RenderObject&& other) noexcept
-	: json(std::move(other.json)),
-	  dstRect(other.dstRect),
-	  srcRect(other.srcRect),
-	  textRect(other.textRect),
-	  textSurface(other.textSurface),
-	  textTexture(other.textTexture),
-	  cmds_general(std::move(other.cmds_general)),
-	  cmds_internal(std::move(other.cmds_internal))
-{
-	#if DEBUG_SMF
-		std::cout << "[DEBUG] Nebulite::RenderObject::RenderObject(Nebulite::RenderObject&& other) called" << std::endl;
-	#endif
-	other.textSurface = nullptr;
-	other.textTexture = nullptr;
-}
-
-Nebulite::RenderObject& Nebulite::RenderObject::operator=(Nebulite::RenderObject&& other) noexcept {
-	#if DEBUG_SMF
-		std::cout << "[DEBUG] Nebulite::RenderObject& Nebulite::RenderObject::operator=(Nebulite::RenderObject&& other)" << std::endl;
-	#endif
-	if (this != &other) {
-		// Clean up current resources
-		if (textSurface) {
-			SDL_FreeSurface(textSurface);
-			textSurface = nullptr;
-		}
-		if (textTexture) {
-			SDL_DestroyTexture(textTexture);
-			textTexture = nullptr;
-		}
-
-		// Move JSON data
-		json = std::move(other.json);
-
-		// Move SDL structs
-		dstRect = other.dstRect;
-		srcRect = other.srcRect;
-		textRect = other.textRect;
-
-		// Move pointers
-		textSurface = other.textSurface;
-		textTexture = other.textTexture;
-
-		other.textSurface = nullptr;
-		other.textTexture = nullptr;
-
-		// Move invoke commands
-		cmds_general = std::move(other.cmds_general);
-		cmds_internal = std::move(other.cmds_internal);
-	}
-	return *this;
-}
-
-
-
 
 
 
 //-----------------------------------------------------------
-//Marshalling
+// Marshalling
 
 std::string Nebulite::RenderObject::serialize() {
 	return json.serialize();
@@ -160,6 +76,9 @@ void Nebulite::RenderObject::deserialize(std::string serialOrLink) {
 	calculateDstRect();
 	calculateSrcRect();
 }
+
+//-----------------------------------------------------------
+// General functions
 
 void Nebulite::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int renderer_X, int renderer_Y){
 	
@@ -219,8 +138,8 @@ SDL_Rect* Nebulite::RenderObject::getTextRect(){
 }
 
 
-SDL_Rect& Nebulite::RenderObject::getDstRect() {
-	return dstRect;
+SDL_Rect* Nebulite::RenderObject::getDstRect() {
+	return &dstRect;
 }
 void Nebulite::RenderObject::calculateDstRect() {
 	dstRect = {

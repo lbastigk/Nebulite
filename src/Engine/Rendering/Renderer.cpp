@@ -12,15 +12,21 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 
 	//--------------------------------------------
 	// Initialize internal variables
-	RenderZoom=zoom;
+
+	// Window
+	RenderZoom = zoom;
+
+	// Position
 	tileXpos = 0;
 	tileYpos = 0;
+
+	// State
 	event = SDL_Event();
-	rect = SDL_Rect();
+	//rect = SDL_Rect();
 	directory = FileManagement::currentDir();
-    currentTime = Time::gettime();
-    lastTime = Time::gettime();
-	last_poll = Time::gettime();
+    //currentTime = Time::gettime();
+    //lastTime = Time::gettime();
+	//last_poll = Time::gettime();
 
 	//--------------------------------------------
 	// SDL Renderer
@@ -30,14 +36,12 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 		// SDL initialization failed
 		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
 	}
-	window = SDL_CreateWindow(
-		"Nebulite",            // Window title
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",X)*zoom,                        // Width
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",Y)*zoom,                        // Height
-		flag_hidden ? SDL_WINDOW_HIDDEN :SDL_WINDOW_SHOWN
-	);
+	// Define window via x|y|w|h
+	int x = SDL_WINDOWPOS_CENTERED;
+	int y = SDL_WINDOWPOS_CENTERED;
+	int w = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",X)*zoom;
+	int h = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",Y)*zoom;
+	window = SDL_CreateWindow("Nebulite",x,y,w,h,flag_hidden ? SDL_WINDOW_HIDDEN :SDL_WINDOW_SHOWN);
 	if (!window) {
 		// Window creation failed
 		std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
@@ -147,13 +151,52 @@ void Nebulite::Renderer::reinsertAllObjects(){
 }
 
 void Nebulite::Renderer::update() {
-	//--------------------------------------------
-	// Key Polling
+	//----------------------------------
+	// SDL event polling
+	while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_QUIT:
+                quit = true;
+                break;
+        }
+		if (consoleMode) {
+			switch (event.type) {
+				case SDL_TEXTINPUT:
+					consoleInputBuffer += event.text.text;
+					break;
 
-	// Update keyboard events every n ms
+				case SDL_KEYDOWN:
+					switch (event.key.keysym.sym) {
+						case SDLK_BACKSPACE:
+							if (!consoleInputBuffer.empty()) {
+								consoleInputBuffer.pop_back();
+							}
+							break;
+						case SDLK_RETURN:
+						case SDLK_KP_ENTER:
+							if (!consoleInputBuffer.empty()) {
+								consoleOutput.emplace_back("> " + consoleInputBuffer);
+								invoke_ptr->getQueue()->emplace_back(consoleInputBuffer);
+								consoleInputBuffer.clear();
+							}
+							break;				
+					}
+					break;
+			}
+
+			// Early return so mouse and keyboard polling doesn’t interfere
+			return;
+		}
+    }
+
+	//--------------------------------------------
+	// Event polling
+	RendererLoopTime.update();
+
+	// Update keyboard events every 10 ms
 	// Too much polling time for current benchmarks, 
 	// later on with fixed framerates of < 250 FPS not that big of a deal
-	if(Time::gettime() - RendererPollTime.t_ms > 10){
+	if(RendererLoopTime.t_ms - RendererPollTime.t_ms > 10){
 		RendererPollTime.update();
 		pollEvent();
 
@@ -167,23 +210,20 @@ void Nebulite::Renderer::update() {
 			else{
 				SDL_StopTextInput();
 			}
-			
-
-			// Make sure the first call to console mode is registered
-			if(consoleTime_last == 0){
-				consoleTime_last = Time::gettime();
-			}
 		}
+	}
+	else{
+		// TODO: all delta to 0?
 	}
 
 	//--------------------------------------------
 	// Log time spend in console
+	// Not important but might be nice to know
 	if(consoleMode){
 		// Integrate dt from last update call
-		consoleTime += Time::gettime() - consoleTime_last;
-		
+		timeSpendInConsole += RendererLoopTime.dt_ms;
 	}
-	consoleTime_last = Time::gettime();
+	
 
 	//--------------------------------------------
 	// Internal container state
@@ -197,13 +237,9 @@ void Nebulite::Renderer::update() {
 		invoke_ptr->update();
 
 		// Update environment
-		env.update(
-			tileXpos,
-			tileYpos,
-			invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
-			invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
-			invoke_ptr
-		);
+		int dispResX = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0);
+		int dispResY = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0);
+		env.update(tileXpos,tileYpos,dispResX,dispResY,invoke_ptr);
 	}
 }
 
@@ -279,6 +315,9 @@ void Nebulite::Renderer::changeWindowSize(int w, int h, int scalar) {
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",360), 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",360)
 	);
+
+	// Turn off console mode
+	consoleMode = false;
 
     // Reinsert objects, due to new tile size
     reinsertAllObjects();
@@ -397,8 +436,8 @@ void Nebulite::Renderer::renderFrame() {
 							obj->calculateSrcRect();
 							
 							// Calculate position rect
-							DstRect = obj->getDstRect();
-							DstRect.x -= dispPosX;		//subtract camera posX
+							DstRect = *obj->getDstRect();
+							DstRect.x -= dispPosX;	//subtract camera posX
 							DstRect.y -= dispPosY; 	//subtract camera posY
 
 							// Render the texture
@@ -528,13 +567,11 @@ void Nebulite::Renderer::setGlobalValues(){
 	// logs:
 	// - time in s and ms
 	// - dt from last frame in s and ms
-	lastTime = currentTime;
-	currentTime = Time::gettime() - consoleTime;	// subtract time spend in console mode to cause time freeze
 
 	// Get dt_ms. Either fixed value or calculate from actual time difference
 	Uint64 dt_ms = invoke_ptr->getGlobalPointer()->get<Uint64>("time.fixed_dt_ms",0);
 	if(dt_ms == 0){
-		dt_ms = currentTime - lastTime;
+		dt_ms = RendererLoopTime.dt_ms;
 	}
 
 	// Get t_ms
@@ -560,43 +597,6 @@ void Nebulite::Renderer::setGlobalValues(){
 // This also ensures cross-platform stability, note that SDL_GetScancodeName is not cross-platform stable!!!
 // Manual map is therefore necessary
 void Nebulite::Renderer::pollEvent() {
-	//----------------------------------
-	// Window state + console input
-	while (SDL_PollEvent(&event)) {
-        switch (event.type) {
-            case SDL_QUIT:
-                quit = true;
-                break;
-        }
-		if (consoleMode) {
-			switch (event.type) {
-				case SDL_TEXTINPUT:
-					consoleInputBuffer += event.text.text;
-					break;
-
-				case SDL_KEYDOWN:
-					switch (event.key.keysym.sym) {
-						case SDLK_BACKSPACE:
-							if (!consoleInputBuffer.empty()) {
-								consoleInputBuffer.pop_back();
-							}
-							break;
-						case SDLK_RETURN:
-						case SDLK_KP_ENTER:
-							if (!consoleInputBuffer.empty()) {
-								consoleOutput.emplace_back("> " + consoleInputBuffer);
-								invoke_ptr->getQueue()->emplace_back(consoleInputBuffer);
-								consoleInputBuffer.clear();
-							}
-							break;				
-					}
-					break;
-			}
-
-			// Early return so mouse and keyboard polling doesn’t interfere
-			return;
-		}
-    }
 
 	//----------------------------------
 	// Mouse

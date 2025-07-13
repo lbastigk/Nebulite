@@ -4,11 +4,9 @@
 #pragma once
 
 #include <deque>
-#include <memory>
 
 #include "Renderer.h"
 #include "FuncTree.h"
-#include "JSON.h"
 
 namespace Nebulite {
     //-------------------------------------------------
