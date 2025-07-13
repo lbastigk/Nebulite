@@ -60,7 +60,6 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/Engine/Nebulite.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Data/JSON.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FileManagement.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FuncTree.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/StringHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/Time.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/Environment.cpp

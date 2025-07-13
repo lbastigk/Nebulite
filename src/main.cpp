@@ -177,6 +177,12 @@ int main(int argc, char* argv[]) {
     
     //--------------------------------------------------
     // Render loop
+    Nebulite::taskQueueResult result_tasks_script;
+    Nebulite::taskQueueResult result_tasks_internal;
+    Nebulite::taskQueueResult result_tasks_always;
+    Nebulite::ERROR_TYPE lastCriticalResult;
+
+    bool critical_stop = false;
 
     // argc/argv for functioncalls
     int    argc_mainTree = 0;
@@ -188,9 +194,24 @@ int main(int argc, char* argv[]) {
         // [TODO]: Only resolve if not in consoleMode?
         // Handle args, parse queue into mainTree and then call internal functions from Nebulite::mainTreeFunctions
         // Currently ignoring return values, plan is a more complex result handling in the future
-        (void) Nebulite::resolveTaskQueue(Nebulite::tasks_script,  &Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
-        (void) Nebulite::resolveTaskQueue(Nebulite::tasks_internal,nullptr,                            &argc_mainTree,&argv_mainTree);
-        (void) Nebulite::resolveTaskQueue(Nebulite::tasks_always,nullptr,                              &argc_mainTree,&argv_mainTree);
+        result_tasks_script = Nebulite::resolveTaskQueue(Nebulite::tasks_script,  &Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
+        if(result_tasks_script.stoppedAtCriticalResult) {
+            critical_stop = true; 
+            lastCriticalResult = result_tasks_script.errors.back();
+            break;
+        } 
+        result_tasks_internal = Nebulite::resolveTaskQueue(Nebulite::tasks_internal,nullptr,                            &argc_mainTree,&argv_mainTree);
+        if(result_tasks_internal.stoppedAtCriticalResult) {
+            critical_stop = true; 
+            lastCriticalResult = result_tasks_internal.errors.back();
+            break;
+        }
+        result_tasks_always = Nebulite::resolveTaskQueue(Nebulite::tasks_always,nullptr,                              &argc_mainTree,&argv_mainTree);
+        if(result_tasks_always.stoppedAtCriticalResult) {
+            critical_stop = true; 
+            lastCriticalResult = result_tasks_always.errors.back();
+            break;
+        }
 
         //--------------------
         // Update and render, only if initialized
@@ -219,7 +240,7 @@ int main(int argc, char* argv[]) {
     // but this could cause issues if the user wishes to quit while a task is still running.
     //
     // A current limitation here that, if the user is running a taskfile with a wait-call, a renderer has to be initialized.
-    } while (Nebulite::renderer != nullptr && !Nebulite::getRenderer()->isQuit());
+    } while (!critical_stop && Nebulite::renderer != nullptr && !Nebulite::getRenderer()->isQuit());
 
 
     //--------------------------------------------------
@@ -233,5 +254,9 @@ int main(int argc, char* argv[]) {
     Nebulite::mainTreeFunctions::errorlog(1,arg_off);
 
     // Exit
+    if(critical_stop){
+        std::cerr << "Critical Error: " << lastCriticalResult << std::endl;
+        return 1;
+    }
     return 0;
 }

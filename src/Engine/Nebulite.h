@@ -20,11 +20,34 @@ namespace Nebulite {
         bool clearAfterResolving = true;
     };
 
+    // TODO: Make parsing work with error types
+    enum ERROR_TYPE{
+        // Critical Errors first with negative value
+        CRITICAL_GENERAL = -1000,
+        CRITICAL_CUSTOM_ASSERT,
+        CRITICAL_FUNCTION_NOT_IMPLEMENTED,
+        CRITICAL_INVALID_FILE,
+        CRITICAL_INVALID_ARGC_ARGV_PARSING,
+        CRITICAL_FUNCTIONCALL_INVALID,
+        // Non-critical errors positive
+        NONE = 0,
+        CUSTOM_ERROR,
+        TOO_MANY_ARGS,
+        TOO_FEW_ARGS,
+        UNKNOWN_ARG,
+        FEATURE_NOT_IMPLEMENTED
+    };
+
+    struct taskQueueResult{
+        bool stoppedAtCriticalResult = false;
+        std::vector<Nebulite::ERROR_TYPE> errors;
+    };
+
     //--------------------------------------
     // Declare global instances
 
     // Objects
-    extern FuncTree mainTree;
+    extern FuncTree<ERROR_TYPE> mainTree;
     extern std::unique_ptr<Nebulite::JSON> global;
     extern std::unique_ptr<Renderer> renderer;
     extern Invoke invoke;
@@ -59,7 +82,7 @@ namespace Nebulite {
     void convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv);
 
     // Resolves a given taskqueue by parsing each line into argc/argv and calling the mainTree on the arguments
-    int resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree);
+    Nebulite::taskQueueResult resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree);
 
     //--------------------------------------
     // Namespace mainTreeFunctions
@@ -91,79 +114,85 @@ namespace Nebulite {
         //
         // calling:     echo $(1+1)         outputs:    $(1+1)
         // calling:     eval echo $(1+1)    outputs:    2.000000
-        int eval(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE eval(int argc, char* argv[]);
         
         // Load environment/level
-        int envload(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE envload(int argc, char* argv[]);
 
         // deload entire environment, leaving an empty renderer
-        int envdeload(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE envdeload(int argc, char* argv[]);
 
         // Spawn a renderobject
-        int spawn(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE spawn(int argc, char* argv[]);
 
         // exit entire program
-        int exitProgram(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE exitProgram(int argc, char* argv[]);
 
         // Save entire game state
-        int stateSave(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE stateSave(int argc, char* argv[]);
 
         // Load game state
-        int stateLoad(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE stateLoad(int argc, char* argv[]);
 
         // Wait a given amount of frames
-        int wait(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE wait(int argc, char* argv[]);
 
         // Load a scripting file for tasks to do
-        int loadTaskList(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE loadTaskList(int argc, char* argv[]);
 
         // Echo a given string to cout
-        int echo(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE echo(int argc, char* argv[]);
 
         // for-loop of other functioncalls: for <var> <start> <end> <functioncall>
-        int forLoop(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE forLoop(int argc, char* argv[]);
 
         // Echo a given string to cerr
-        int error(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE error(int argc, char* argv[]);
+
+        // Assert CRITICAL_CUSTOM_ASSERT
+        Nebulite::ERROR_TYPE func_assert(int argc, char* argv[]);
+
+        // Return custom value
+        Nebulite::ERROR_TYPE func_return(int argc, char* argv[]);
 
         // Sets resolution of renderer
-        int setResolution(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE setResolution(int argc, char* argv[]);
 
         // Sets fps of renderer
-        int setFPS(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE setFPS(int argc, char* argv[]);
 
         // Move cam to a delta position
-        int moveCam(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE moveCam(int argc, char* argv[]);
 
         // Set cam to concrete position
-        int setCam(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE setCam(int argc, char* argv[]);
 
         // Print global doc to cout
-        int printGlobal(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE printGlobal(int argc, char* argv[]);
 
         // Print state to cout
-        int printState(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE printState(int argc, char* argv[]);
 
         // Log global doc to file
-        int logGlobal(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE logGlobal(int argc, char* argv[]);
 
         // Log state to file
-        int logState(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE logState(int argc, char* argv[]);
 
         // Set a global variable
-        int setGlobal(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE setGlobal(int argc, char* argv[]);
 
         // Error log activation/deactivation
-        int errorlog(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE errorlog(int argc, char* argv[]);
 
         // Attaches functioncall that is executed on each tick
-        int always(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE always(int argc, char* argv[]);
 
         // Clears all always-functioncalls
-        int alwaysClear(int argc, char* argv[]);
+        Nebulite::ERROR_TYPE alwaysClear(int argc, char* argv[]);
 
         // [DEBUG] Get and store a standard renderobject for reference to ./Resources/Renderobjects/standard.json
-        int render_object(int argc, char** argv);
+        Nebulite::ERROR_TYPE render_object(int argc, char** argv);
     }
 
 }

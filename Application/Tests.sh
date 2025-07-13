@@ -89,4 +89,4 @@ for label in "Linux Debug" "Linux Release" "Windows Debug" "Windows Release"; do
     printf "%-20s : %s\n" "$label" "${test_results[$label]:-NOT RUN}"
 done
 echo ""
-echo "If there are any failed tests, please make sure no taskFiles run longer than the specified timeout of $t."
+echo "If there are any failed tests, please make sure no taskFiles run longer than the specified timeout of $t under normal circumstances."
