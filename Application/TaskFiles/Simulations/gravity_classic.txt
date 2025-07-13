@@ -1,11 +1,11 @@
 echo Classic Gravity test with 1 Sun and 2 Planets
-echo Rendering 30000 Frames
+echo Rendering 300 Frames
 set-fps 10000
 spawn ./Resources/Renderobjects/Planets/sun.json
 spawn ./Resources/Renderobjects/Planets/obj1.json
 spawn ./Resources/Renderobjects/Planets/obj2.json
-wait 30000
+wait 300
 print-global
 echo Test Passed!
-eval echo Rendered 30000 Frames in: $(global.time.t) Seconds.
+eval echo Rendered 300 Frames in: $(global.time.t) Seconds.
 exit

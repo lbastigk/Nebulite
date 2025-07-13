@@ -186,7 +186,67 @@ cd "$START_DIR"
 # make all scripts executable
 find ./Application -type f -iname "*.sh" -exec chmod +x {} \;
 
+#!/bin/bash
+
+# Helper function for error printing
+echoerr() { echo "$@" 1>&2; }
+
+START_DIR=$(pwd)
+declare -A test_results
 
 ####################################
-# Feedback
+# Run tests:
+
+# 1.) Linux
+cd "$START_DIR"
+cd ./Application
+if ./Tests.sh ; then
+  test_results[linux]="PASS"
+else
+  echoerr "Linux Release test failed"
+  test_results[linux]="FAIL"
+fi
+
+# 2.) Windows
+
+echo "Running windows build test"
+echo ""
+
+# TEST DEBUG
+echo "TESTING DEBUG BINARY"
+cd "$START_DIR/Application"
+if timeout 10s wine ./bin/Nebulite_Debug.exe 'set-fps 60 ; spawn ./Resources/Renderobjects/Planets/sun.json ; wait 100 ; exit' ; then
+  test_results[win_debug]="PASS"
+else
+  echoerr "Windows debug test failed"
+  test_results[win_debug]="FAIL"
+fi
+
+# TEST RELEASE
+echo ""
+echo "TESTING RELEASE BINARY"
+if timeout 10s wine ./bin/Nebulite.exe 'set-fps 60 ; spawn ./Resources/Renderobjects/Planets/sun.json ; wait 100 ; exit' ; then
+  test_results[win_release]="PASS"
+else
+  echoerr "Windows release test failed"
+  test_results[win_release]="FAIL"
+fi
+
+cd "$START_DIR"
+
+####################################
+# Summary
+echo ""
+echo "========== Test Summary =========="
+for test in linux win_debug win_release; do
+  status=${test_results[$test]:-NOT RUN}
+  case $test in
+    linux) label="Linux Release test" ;;
+    win_debug) label="Windows Debug test" ;;
+    win_release) label="Windows Release test" ;;
+  esac
+  echo "$label : $status"
+done
+echo "================================="
 echo "Installer is done!"
+
