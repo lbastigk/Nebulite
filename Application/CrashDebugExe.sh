@@ -1,4 +1,2 @@
 #!/bin/bash
-
-WINEDEBUG=+seh,+tid,+loaddll,+warn+all wine ./bin/Nebulite_Debug.exe serialize &> wine_crash.log
-
+WINEDEBUG=+seh,+tid,+loaddll,+warn+all wine run_nebulite.bat &> wine_crash.log

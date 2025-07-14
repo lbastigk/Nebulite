@@ -26,6 +26,7 @@ public:
     // - call executeFunction provided by second argv
     //   pass all argv afterwards. Making sure argc is adjusted accordingly
     T parse(int argc, char* argv[]);
+    T parseStr(const std::string& cmd);
 
     // Attach a function to the menu
     void attachFunction(FunctionPtr func, const std::string& name, const std::string& helpDescription);
@@ -129,6 +130,30 @@ T FuncTree<T>::parse(int argc, char* argv[]) {
     return _standard;
 }
 
+template<typename T>
+T FuncTree<T>::parseStr(const std::string& cmd) {
+    std::istringstream iss(cmd);
+    std::string token;
+    std::vector<std::string> tokens;
+
+    // Tokenize by whitespace
+    while (iss >> token) {
+        tokens.push_back(token);
+    }
+
+    // Convert to argc/argv
+    int argc = static_cast<int>(tokens.size());
+    std::vector<char*> argv;
+    argv.reserve(argc + 1);
+
+    for (auto& str : tokens) {
+        argv.push_back(const_cast<char*>(str.c_str()));
+    }
+    argv.push_back(nullptr); // Null-terminate
+
+    // Call existing parse
+    return parse(argc, argv.data());
+}
 
 
 // Execute the function based on its name, passing the remaining argc and argv
@@ -176,7 +201,6 @@ T FuncTree<T>::help(int argc, char* argv[]) {
 
         return _standard;
     }
-
 
     // Otherwise, display help for the provided functions
     for (int i = 1; i < argc; i++) {

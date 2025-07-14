@@ -68,7 +68,29 @@ std::string Nebulite::RenderObject::serialize() {
 	return json.serialize();
 }
 
+// TODO:
+//
 void Nebulite::RenderObject::deserialize(std::string serialOrLink) {
+	// TODO:
+	// Extend RenderObject deserialization to support function call modifiers 
+	// and a cascading (pseudo-inheritance) resolution model.
+	//
+	// The serialized input may contain a base path followed by a list of 
+	// modifiers or function calls, e.g.:
+	//     ./path/to/resource.json|posX=100|align_text_with_size 200 center|set_empty_array tags
+	//
+	// Modifiers (key=value) are handled by the JSON system. Function calls
+	// (non-assignment tokens) are attempted on RenderObject's FunctionTree.
+	//
+	// If a function call is not found in RenderObject, it should be forwarded 
+	// to the JSON system's FunctionTree for resolution (pseudo-inheritance model).
+	//
+	// This allows RenderObject-level behavior extensions while preserving deep 
+	// JSON configurability without needing explicit prefixes or routing hints.
+	// 
+	// Future extensibility: this cascading system may be generalized to 
+	// include additional component handlers (e.g. physics, editor, etc.).
+
 	json.deserialize(serialOrLink);
 
 	// Prerequisites

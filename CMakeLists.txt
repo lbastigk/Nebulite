@@ -41,6 +41,7 @@ add_subdirectory(${ABSEIL_PATH} ${CMAKE_BINARY_DIR}/external/abseil_build)
 include_directories(
     ${CMAKE_SOURCE_DIR}/src/Engine
     ${CMAKE_SOURCE_DIR}/src/Engine/Data
+    ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees
     ${CMAKE_SOURCE_DIR}/src/Engine/Rendering
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper
     ${CMAKE_SOURCE_DIR}/src/Platform
@@ -59,6 +60,7 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/Platform/Platform.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Nebulite.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Data/JSON.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees/MainFuncTree.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FileManagement.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/StringHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/Time.cpp
@@ -90,17 +92,9 @@ target_link_libraries(Nebulite PRIVATE
 if(IS_WINDOWS)
     message(STATUS "Targeting Windows: linking SDL static libraries")
     set(CMAKE_SYSTEM_NAME Windows)
-
     add_compile_options(-Wall -Wextra -Wpedantic -Wshadow -Wuninitialized)
 
-    #######################################################
-    # [TODO]: Check if these settings fix release binary
-    add_compile_options(-fstack-protector -D_FORTIFY_SOURCE=2)
-    set(CMAKE_CXX_FLAGS_RELEASE "-O1 -g")
-    #######################################################
-
-
-
+    # Include SDL Libraries
     target_include_directories(Nebulite PRIVATE
         ${SDL2_BUILD_PATH}/shared_windows/include/SDL2
     )
@@ -112,11 +106,11 @@ if(IS_WINDOWS)
         # Later on, for actual release:
         #target_link_options(Nebulite PRIVATE -mwindows)
 
-        # For now, for debugging release version:
+        # For now, for console output in release version:
         target_link_options(Nebulite PRIVATE -mconsole)
     endif()
 
-
+    # Link libraries
     target_link_libraries(Nebulite PRIVATE
         -lmingw32
         "${SDL2_BUILD_PATH}/shared_windows/lib/libSDL2main.a"
@@ -153,28 +147,7 @@ if(IS_WINDOWS)
     # $ find /usr -name "libwinpthread-1.dll" 2>/dev/null
     #   > /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll
     #   > /usr/i686-w64-mingw32/lib/libwinpthread-1.dll
-    # for now, a precompiled dll from the internet is used.
-
-    # Try to find libwinpthread-1.dll in common locations
-    # Assuming MinGW toolchain environment variable or standard install path
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        set(MINGW_LIB_PATH "/usr/x86_64-w64-mingw32/bin")
-    else()
-        set(MINGW_LIB_PATH "/usr/i686-w64-mingw32/bin")
-    endif()
-
-    set(WINPTHREAD_DLL "${MINGW_LIB_PATH}/libwinpthread-1.dll")
-
-    if(EXISTS ${WINPTHREAD_DLL})
-        add_custom_command(TARGET Nebulite POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${WINPTHREAD_DLL}"
-            "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libwinpthread-1.dll"
-        )
-        message(STATUS "libwinpthread-1.dll will be copied from: ${WINPTHREAD_DLL}")
-    else()
-        message(WARNING "libwinpthread-1.dll not found in expected path: ${WINPTHREAD_DLL}")
-    endif()
+    # for now, a precompiled dll from the internet is used!
 else()
     message(STATUS "Targeting Linux: linking SDL static libraries")
 

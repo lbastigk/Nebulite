@@ -128,7 +128,8 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
  *          - could be solved through read-only files with invoke/filemanagement!
  * 
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]){
+
     //--------------------------------------------------
     // Startup, args handling
     Nebulite::binName = argv[0];
@@ -168,9 +169,8 @@ int main(int argc, char* argv[]) {
     }
 
     //--------------------------------------------------
-    // Init general variables/linkages in Nebulite namespace, Build main FuncTree
+    // Init general variables/linkages in Nebulite namespace
     Nebulite::init();
-    Nebulite::init_functions();
     
     //--------------------------------------------------
     // Render loop
@@ -200,8 +200,11 @@ int main(int argc, char* argv[]) {
         result_tasks_internal.errors.clear();
         result_tasks_always.errors.clear();
 
+
+
         // Parse script tasks
         if(!critical_stop){
+            // TODO: Windows Release build breaks here!
             result_tasks_script = Nebulite::resolveTaskQueue(Nebulite::tasks_script,&Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
         }
         if(result_tasks_script.stoppedAtCriticalResult) {
@@ -233,24 +236,13 @@ int main(int argc, char* argv[]) {
         //------------------------------------------------------------
         // Update and render, only if initialized
         // If renderer wasnt initialized, it is still a nullptr
-        if (!critical_stop && Nebulite::renderer != nullptr && Nebulite::getRenderer()->timeToRender()) {
+        if (!critical_stop && Nebulite::RendererExists() && Nebulite::getRenderer()->timeToRender()) {
             Nebulite::getRenderer()->tick();
 
-            // In order to allow scripting to be more versatile, a wait function was implemented that sets the waitCounter 
-            // and halts any following taskQueues for a set amount of frames. This is only necessary for the script tasks, 
-            // not for any tasks given from renderobjects as they should never be halted
-            // -> After each frame: lower waitCounter in script task if above 0
-            if(Nebulite::tasks_script.waitCounter>0){ 
-                // If renderer doesnt exist, still reduce
-                if(Nebulite::renderer == nullptr){
-                    Nebulite::tasks_script.waitCounter--; 
-                }
-                // If that isnt the case: renderer exists: calling getRenderer is possible without accidently creating the renderer
-                // Now, just check if the renderer isnt in console mode (essentially freezing all processes)
-                else if(!Nebulite::getRenderer()->isConsoleMode()){
-                    Nebulite::tasks_script.waitCounter--; 
-                }
-            }    
+            // Reduce wait counter if not in console mode
+            if(!Nebulite::getRenderer()->isConsoleMode()){
+                Nebulite::tasks_script.waitCounter--; 
+            }  
         }
     // Continue only if renderer exists, and if quit wasnt called.
     // It might be tempting to add the condition that all tasks are done, 
@@ -268,7 +260,7 @@ int main(int argc, char* argv[]) {
 
     // turn off error log
     char* arg_off[] = { "off" };
-    Nebulite::mainTreeFunctions::errorlog(1,arg_off);
+    Nebulite::mainFuncTree.parse(1,arg_off);
 
     // Exit
     if(critical_stop){
