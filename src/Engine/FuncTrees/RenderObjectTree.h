@@ -1,0 +1,90 @@
+/*
+===========================================================
+RenderObjectTree – Function Tree for Local RenderObject Logic
+===========================================================
+
+This class extends FuncTreeWrapper<ERROR_TYPE> to provide
+a focused, self-contained parsing interface (functioncalls)
+for `RenderObject`.
+
+Unlike global invoke entries (which allow inter-object logic),
+functioncalls in RenderObjectTree operate *exclusively* on
+the RenderObject they are attached to (the "self" object).
+
+-----------------------------------------------------------
+Why is this layer needed?
+
+Invokes are general-purpose and powerful, but they are best
+used for dataflow and inter-object logic. However, some tasks:
+
+  - require more complex conditional logic,
+  - are hard to express as value changes alone,
+  - need tight control over internal render object state.
+
+RenderObjectTree enables these operations cleanly via keywords
+bound to C++ functions, keeping the parsing logic in a separate,
+well-scoped layer.
+
+This system allows you to:
+  ✓ Simplify invoke rules
+  ✓ Remove clutter like `flag_delete` toggles
+  ✓ Add utility logic for layout and state changes
+  ✓ Log/debug self object behavior locally
+
+-----------------------------------------------------------
+Design Constraints:
+
+- All functioncalls operate on `self` (the attached RenderObject)
+- No global access (delegated to the threaded Invoke system)
+- Values are accessed/updated via `valueGet()` / `valueSet()`
+- Logic is meant to be simple, traceable, and local
+*/
+
+
+#pragma once
+
+#include "ErrorTypes.h"
+#include "FuncTreeWrapper.h"
+#include "RenderObject.h"
+
+namespace Nebulite{
+
+class RenderObjectTree : public FuncTreeWrapper<Nebulite::ERROR_TYPE>{
+public:
+    RenderObjectTree(RenderObject* self);   // Created inside each renderobject, with linkage to the object
+private:
+    // Pointer to the owning RenderObject
+    RenderObject* self;
+
+    //------------------------
+    // FUNCTIONCALL EXAMPLES
+
+    //===== Layout & Geometry =====//
+    Nebulite::ERROR_TYPE align_text(int argc, char* argv[]);
+
+    //===== State Management =====//
+    Nebulite::ERROR_TYPE mark_deleted(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE toggle_flag(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE reset_state(int argc, char* argv[]);
+
+    //===== Computation & Internal Updates =====//
+    Nebulite::ERROR_TYPE calculate_text(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE recalculate_all(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE reload_invokes(int argc, char* argv[]);
+
+    //===== Data management =====//
+    Nebulite::ERROR_TYPE store(int argc, char* argv[]);         // e.g. call function and store result: store tmp.assertResult assert_nonzero keyToCheck
+    Nebulite::ERROR_TYPE move(int argc, char* argv[]);          // move part of doc from a to b
+    Nebulite::ERROR_TYPE copy(int argc, char* argv[]);          // copy part of doc from a to b
+    Nebulite::ERROR_TYPE keydelete(int argc, char* argv[]);     // delete a key from doc
+
+    //===== Debugging / Logging =====//
+    Nebulite::ERROR_TYPE print_state(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE log_value(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE assert_nonzero(int argc, char* argv[]);
+
+    //===== Complex ideas =====//
+    Nebulite::ERROR_TYPE sql_call(int argc, char* argv[]);      // idea is to get data from a read-only sql database managed by FileManagement
+    Nebulite::ERROR_TYPE json_call(int argc, char* argv[]);     // idea is to get data from a read-only json database managed by FileManagement
+};
+}

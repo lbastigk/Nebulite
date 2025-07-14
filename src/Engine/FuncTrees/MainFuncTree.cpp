@@ -35,8 +35,9 @@ debug       standard-render-object
 */
 
 // Helper function
+/*
 template<typename TClass, typename TEnum>
-void attachMemberFunction(FuncTree<TEnum>& tree,
+void bind(FuncTree<TEnum>& tree,
                           TClass* instance,
                           TEnum (TClass::*method)(int, char**),
                           const std::string& name,
@@ -49,60 +50,53 @@ void attachMemberFunction(FuncTree<TEnum>& tree,
         description
     );
 }
+*/
+
 
 Nebulite::MainFuncTree::MainFuncTree(Nebulite::Invoke* invoke)
-: funcTree("Nebulite", Nebulite::ERROR_TYPE::NONE, Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID)
-{
+    : FuncTreeWrapper("MainFuncTree", Nebulite::ERROR_TYPE::NONE, Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID) {
     
     invoke_ptr = invoke;
     
     // General
-    attachMemberFunction(funcTree, this, &MainFuncTree::eval,            "eval",         "Evaluate all $(...) after this keyword, parse rest as usual");
-    attachMemberFunction(funcTree, this, &MainFuncTree::setGlobal,       "set-global",   "Set any global variable: [key] [value]");
-    attachMemberFunction(funcTree, this, &MainFuncTree::envload,         "env-load",     "Loads an environment");
-    attachMemberFunction(funcTree, this, &MainFuncTree::envdeload,       "env-deload",   "Deloads an environment");
-    attachMemberFunction(funcTree, this, &MainFuncTree::spawn,           "spawn",        "Spawn a renderobject");
-    attachMemberFunction(funcTree, this, &MainFuncTree::exitProgram,     "exit",         "exits the program");
-    attachMemberFunction(funcTree, this, &MainFuncTree::stateSave,       "state-save",   "Saves the state");
-    attachMemberFunction(funcTree, this, &MainFuncTree::stateLoad,       "state-load",   "Loads a state");
-    attachMemberFunction(funcTree, this, &MainFuncTree::loadTaskList,    "task",         "Loads a txt file of tasks");
-    attachMemberFunction(funcTree, this, &MainFuncTree::wait,            "wait",         "Halt all commands for a set amount of frames");
-    attachMemberFunction(funcTree, this, &MainFuncTree::forLoop,         "for",          "Start for-loop. Usage: for var <iStart> <iEnd> command $var");
-    attachMemberFunction(funcTree, this, &MainFuncTree::func_assert,     "assert",       "Force a certain return value");
-    attachMemberFunction(funcTree, this, &MainFuncTree::func_return,     "return",       "Returns an assert value, stopping program");
+    bind(funcTree, this, &MainFuncTree::eval,            "eval",         "Evaluate all $(...) after this keyword, parse rest as usual");
+    bind(funcTree, this, &MainFuncTree::setGlobal,       "set-global",   "Set any global variable: [key] [value]");
+    bind(funcTree, this, &MainFuncTree::envload,         "env-load",     "Loads an environment");
+    bind(funcTree, this, &MainFuncTree::envdeload,       "env-deload",   "Deloads an environment");
+    bind(funcTree, this, &MainFuncTree::spawn,           "spawn",        "Spawn a renderobject");
+    bind(funcTree, this, &MainFuncTree::exitProgram,     "exit",         "exits the program");
+    bind(funcTree, this, &MainFuncTree::stateSave,       "state-save",   "Saves the state");
+    bind(funcTree, this, &MainFuncTree::stateLoad,       "state-load",   "Loads a state");
+    bind(funcTree, this, &MainFuncTree::loadTaskList,    "task",         "Loads a txt file of tasks");
+    bind(funcTree, this, &MainFuncTree::wait,            "wait",         "Halt all commands for a set amount of frames");
+    bind(funcTree, this, &MainFuncTree::forLoop,         "for",          "Start for-loop. Usage: for var <iStart> <iEnd> command $var");
+    bind(funcTree, this, &MainFuncTree::func_assert,     "assert",       "Force a certain return value");
+    bind(funcTree, this, &MainFuncTree::func_return,     "return",       "Returns an assert value, stopping program");
     
     // Renderer Settings
-    attachMemberFunction(funcTree, this, &MainFuncTree::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
-    attachMemberFunction(funcTree, this, &MainFuncTree::setResolution,   "set-res",      "Sets resolution size: [w] [h]");
-    attachMemberFunction(funcTree, this, &MainFuncTree::setCam,          "cam-set",      "Sets Camera position [x] [y] <c>");
-    attachMemberFunction(funcTree, this, &MainFuncTree::moveCam,         "cam-move",     "Moves Camera position [dx] [dy]");
+    bind(funcTree, this, &MainFuncTree::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
+    bind(funcTree, this, &MainFuncTree::setResolution,   "set-res",      "Sets resolution size: [w] [h]");
+    bind(funcTree, this, &MainFuncTree::setCam,          "cam-set",      "Sets Camera position [x] [y] <c>");
+    bind(funcTree, this, &MainFuncTree::moveCam,         "cam-move",     "Moves Camera position [dx] [dy]");
 
     // Debug
-    attachMemberFunction(funcTree, this, &MainFuncTree::echo,            "echo",         "Echos all args provided to cout");
-    attachMemberFunction(funcTree, this, &MainFuncTree::error,           "error",        "Echos all args provided to cerr");
-    attachMemberFunction(funcTree, this, &MainFuncTree::printGlobal,     "print-global", "Prints global doc to cout");
-    attachMemberFunction(funcTree, this, &MainFuncTree::printState,      "print-state",  "Prints state to cout");
-    attachMemberFunction(funcTree, this, &MainFuncTree::logGlobal,       "log-global",   "Logs global doc to file");
-    attachMemberFunction(funcTree, this, &MainFuncTree::logState,        "log-state",    "Logs state to file");
-    attachMemberFunction(funcTree, this, &MainFuncTree::errorlog,        "log",          "Activate/Deactivate error log");
-    attachMemberFunction(funcTree, this, &MainFuncTree::always,          "always",       "Attach functioncall that is executed on each tick");
-    attachMemberFunction(funcTree, this, &MainFuncTree::alwaysClear,     "always-clear", "Clear all always-functioncalls");
+    bind(funcTree, this, &MainFuncTree::echo,            "echo",         "Echos all args provided to cout");
+    bind(funcTree, this, &MainFuncTree::error,           "error",        "Echos all args provided to cerr");
+    bind(funcTree, this, &MainFuncTree::printGlobal,     "print-global", "Prints global doc to cout");
+    bind(funcTree, this, &MainFuncTree::printState,      "print-state",  "Prints state to cout");
+    bind(funcTree, this, &MainFuncTree::logGlobal,       "log-global",   "Logs global doc to file");
+    bind(funcTree, this, &MainFuncTree::logState,        "log-state",    "Logs state to file");
+    bind(funcTree, this, &MainFuncTree::errorlog,        "log",          "Activate/Deactivate error log");
+    bind(funcTree, this, &MainFuncTree::always,          "always",       "Attach functioncall that is executed on each tick");
+    bind(funcTree, this, &MainFuncTree::alwaysClear,     "always-clear", "Clear all always-functioncalls");
 
     // Helper
-    attachMemberFunction(funcTree, this, &MainFuncTree::render_object,   "standard-render-object",  "Serializes standard renderobject to ./Resources/Renderobjects/standard.json");
+    bind(funcTree, this, &MainFuncTree::render_object,   "standard-render-object",  "Serializes standard renderobject to ./Resources/Renderobjects/standard.json");
 
     // Internal Tests
     // None atm
 }
 
-
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::parse(int argc, char* argv[]) {
-    return funcTree.parse(argc, argv);
-}
-
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::parseStr(const std::string& cmd) {
-    return funcTree.parseStr(cmd);
-}
 
 //---------------------------------------------------------------
 // Main Tree Functions

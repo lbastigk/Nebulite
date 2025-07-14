@@ -1,20 +1,15 @@
 #pragma once
 
 #include "ErrorTypes.h"
-#include "FuncTree.h"
+#include "FuncTreeWrapper.h"
 #include "Invoke.h"
 
 namespace Nebulite{
 
-class MainFuncTree{
+class MainFuncTree : public FuncTreeWrapper<ERROR_TYPE>{
 public:
     MainFuncTree(Nebulite::Invoke* invoke);
-
-    ERROR_TYPE parse(int argc, char* argv[]);
-
-    ERROR_TYPE parseStr(const std::string& cmd);
 private:
-
     // TODO:
     /*
     
@@ -121,49 +116,7 @@ private:
     Nebulite::ERROR_TYPE render_object(int argc, char** argv);
 
 private:
-    FuncTree<Nebulite::ERROR_TYPE> funcTree;
-
     Nebulite::Invoke* invoke_ptr;
-
-    // OLD
-    /*
-    char* argvBuffer = nullptr;
-    int argvCapacity = 0;
-    void convertStrToArgcArgv(const std::string& cmd, int& argc, char**& argv) {
-        // Free previous buffer if any
-        if (argvBuffer) {
-            delete[] argvBuffer;
-            argvBuffer = nullptr;
-            argvCapacity = 0;
-        }
-
-        argvCapacity = static_cast<int>(cmd.size()) + 1;
-        argvBuffer = new char[argvCapacity];
-        std::memcpy(argvBuffer, cmd.c_str(), argvCapacity);
-
-        std::vector<char*> argvVec;
-        argc = 0;
-        bool inToken = false;
-        for (int i = 0; i < argvCapacity; ++i) {
-            if (argvBuffer[i] == ' ' || argvBuffer[i] == '\t') {
-                argvBuffer[i] = '\0';
-                inToken = false;
-            } else if (!inToken) {
-                argvVec.push_back(&argvBuffer[i]);
-                argc++;
-                inToken = true;
-            }
-        }
-
-        // Allocate argv and copy pointers
-        argv = new char*[argc + 1];
-        for (int i = 0; i < argc; ++i) {
-            argv[i] = argvVec[i];
-        }
-        argv[argc] = nullptr;
-    }
-    */
-    
 };
 
 }
