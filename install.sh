@@ -13,15 +13,9 @@ fi
 # install necessary components
 sudo apt-get update
 sudo apt-get upgrade
-sudo apt-get -y install cmake automake build-essential autoconf libtool m4 perl
+sudo apt-get install cmake automake build-essential autoconf libtool m4 perl mingw-w64 gcc-mingw-w64 g++-mingw-w64 python3 python3-pip python3-numpy
 
-# Mingw for Windows build
-sudo apt-get -y install mingw-w64
-
-# Python
-sudo apt-get -y install python3 python3-pip
-sudo pip3 install numpy
-
+# Set Start directory
 START_DIR=$(pwd)
 
 ####################################
