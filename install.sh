@@ -95,51 +95,56 @@ cd "$externalsDir"
 # ./external/SDL2_build/shared_windows/
 build_sdl_library() {
     local dir=$1
+    local cross_env_vars="$2"
+    local extra_config_opts="$3"
     local base_dir="$externalsDir/SDL2_build"
     local src_dir="$externalsDir/$dir"
 
     run_build() {
-        local desc=$1
-        local config_opts=$2
-        local env_vars=$3
-        local prefix_dir=$4
+        local desc="$1"
+        local config_opts="$2"
+        local env_vars="$3"
+        local prefix_dir="$4"
 
-        echo ""
         echo ""
         echo "------------------------------------------------------------"
         echo "🔧 Building $desc for $dir ..."
         make clean || true
 
-        # Run autogen.sh only if configure missing
+        # Run autogen.sh only if configure is missing
         if [ ! -f configure ]; then
             ./autogen.sh || { echoerr "autogen.sh failed for $dir"; return 1; }
         fi
 
-        # Use eval so env_vars can be multiple vars e.g. "CC=... CFLAGS=..."
+        # Run configure with environment variables
         eval $env_vars ./configure --prefix="$prefix_dir" $config_opts || {
             echo "❌ configure failed for $desc build of $dir"
             return 1
         }
 
-        make -j"$(nproc)" || { echoerr "make failed for $desc build of $dir";         return 1; }
+        make -j"$(nproc)" || { echoerr "make failed for $desc build of $dir"; return 1; }
         make install      || { echoerr "make install failed for $desc build of $dir"; return 1; }
     }
 
     cd "$src_dir" || { echoerr "Failed to cd into $dir"; return 1; }
 
-    # Native static
-    run_build "static libs (native)" "--enable-static --disable-shared CFLAGS=-fPIC" "" "${base_dir}/static" || { echoerr "Native Static build failed" ; return 1; }
+    # Native static build
+    run_build "static libs (native)" \
+              "--enable-static --disable-shared CFLAGS=-fPIC" \
+              "" \
+              "${base_dir}/static" || { echoerr "Native static build failed"; return 1; }
 
-    # Native shared
-    run_build "shared libs (native)" "--disable-static --enable-shared CFLAGS=-fPIC" "" "${base_dir}/shared" || { echoerr "Native shared build failed" ; return 1; }
+    # Native shared build
+    run_build "shared libs (native)" \
+              "--disable-static --enable-shared CFLAGS=-fPIC" \
+              "" \
+              "${base_dir}/shared" || { echoerr "Native shared build failed"; return 1; }
 
-    # Cross-compile for Windows - pass environment variables if provided via function param
-    # We will pass additional env vars only for SDL_ttf, empty string otherwise.
-    local cross_env_vars="$2"
+    # Windows cross-compiled shared DLLs
     run_build "shared Windows DLLs (cross-compile)" \
-          "--disable-static --enable-shared --host=x86_64-w64-mingw32" \
-          "$cross_env_vars" \
-          "${base_dir}/shared_windows"
+              "--disable-static --enable-shared --host=x86_64-w64-mingw32 $extra_config_opts" \
+              "$cross_env_vars" \
+              "${base_dir}/shared_windows" || { echoerr "Windows DLL build failed"; return 1; }
 
     # Clean git state
     git reset --hard
@@ -147,7 +152,7 @@ build_sdl_library() {
     git submodule foreach --recursive git reset --hard
     git submodule foreach --recursive git clean -fdx
 
-    echo "$dir built: static libs in ${base_dir}/static, shared libs in ${base_dir}/shared, Windows DLLs in ${base_dir}/shared_windows"
+    echo "$dir built: static -> ${base_dir}/static, shared -> ${base_dir}/shared, Windows DLLs -> ${base_dir}/shared_windows"
 
     cd - >/dev/null || return 1
 }
@@ -157,21 +162,22 @@ build_sdl_library() {
 rm -rf   "$externalsDir/SDL2_build"
 mkdir -p "$externalsDir/SDL2_build"
 
-# Build SDL2 first, install it into shared_windows so cross-compile outputs and headers/libs are available
+# Build SDL2 first — no env or extra flags needed
 build_sdl_library SDL2
 
-# Now build SDL_ttf and SDL_image, pointing to the installed SDL2 files for cross-compile only
-
-# Set SDL2 Windows install location for cross builds
+# SDL2 Windows install prefix
 sdl2_win_prefix="$externalsDir/SDL2_build/shared_windows"
 
-# Use proper flags for cross compile
-sdl_cross_env="CPPFLAGS='-I${sdl2_win_prefix}/include -I${sdl2_win_prefix}/include/SDL2' \
-               LDFLAGS='-L${sdl2_win_prefix}/lib' \
-               PKG_CONFIG_PATH='${sdl2_win_prefix}/lib/pkgconfig'"
+# Cross-compile environment
+sdl_cross_env="SDL2_CONFIG= \
+CPPFLAGS='-I${sdl2_win_prefix}/include -I${sdl2_win_prefix}/include/SDL2' \
+LDFLAGS='-L${sdl2_win_prefix}/lib' \
+PKG_CONFIG_PATH='${sdl2_win_prefix}/lib/pkgconfig'"
 
+# SDL_ttf and SDL_image builds with SDL prefix
 build_sdl_library SDL_ttf   "$sdl_cross_env" "--with-sdl-prefix=${sdl2_win_prefix}"
-build_sdl_library SDL_image "$sdl_cross_env" "--with-sdl-prefix=${sdl2_win_prefix}"
+build_sdl_library SDL_image "$sdl_cross_env" "--with-sdl-prefix=${sdl2_win_prefix}
+
 
 ####################################
 # create binaries
