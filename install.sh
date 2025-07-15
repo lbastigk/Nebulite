@@ -1,8 +1,14 @@
 #!/bin/bash
 
+####################################
+# starttime of script
+start=`date +%s`
+
+####################################
 # Function for echoing errors
 echoerr() { echo "$@" 1>&2; }
 
+####################################
 # Checking prerequisites
 if [[ "$PWD" =~ [[:space:]] ]]; then
   echo "Error: SDL2 and some build tools like libtool may fail in directories with whitespace."
@@ -10,13 +16,19 @@ if [[ "$PWD" =~ [[:space:]] ]]; then
   exit 1
 fi
 
+####################################
 # install necessary components
 sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install cmake automake build-essential autoconf libtool m4 perl mingw-w64 gcc-mingw-w64 g++-mingw-w64 python3 python3-pip python3-numpy
 
+####################################
 # Set Start directory
 START_DIR=$(pwd)
+
+####################################
+# Basic directories
+mkdir -p ./Application/bin
 
 ####################################
 # Synonyms for SDL_ttf
@@ -257,6 +269,16 @@ cd "$START_DIR"
 ####################################
 # make all scripts executable
 find ./Application -type f -iname "*.sh" -exec chmod +x {} \;
+
+####################################
+# Show runtime
+end=`date +%s`
+runtime=$((end-start))
+
+echo ""
+echo "-----------------------------------------------------"
+echo "Compiling took $runtime Seconds. Running tests now..."
+echo ""
 
 ####################################
 # Run tests:
