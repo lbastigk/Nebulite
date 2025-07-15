@@ -170,8 +170,8 @@ sdl_cross_env="CPPFLAGS='-I${sdl2_win_prefix}/include -I${sdl2_win_prefix}/inclu
                LDFLAGS='-L${sdl2_win_prefix}/lib' \
                PKG_CONFIG_PATH='${sdl2_win_prefix}/lib/pkgconfig'"
 
-build_sdl_library SDL_ttf   "$sdl_cross_env"
-build_sdl_library SDL_image "$sdl_cross_env"
+build_sdl_library SDL_ttf   "$sdl_cross_env" "--with-sdl-prefix=${sdl2_win_prefix}"
+build_sdl_library SDL_image "$sdl_cross_env" "--with-sdl-prefix=${sdl2_win_prefix}"
 
 ####################################
 # create binaries
