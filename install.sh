@@ -12,10 +12,15 @@ fi
 
 # install necessary components
 sudo apt-get update
-sudo apt-get install cmake
-sudo apt-get install automake
-sudo apt-get install build-essential
-sudo apt-get install autoconf libtool m4 perl
+sudo apt-get upgrade
+sudo apt-get -y install cmake automake build-essential autoconf libtool m4 perl
+
+# Mingw for Windows build
+sudo apt-get -y install mingw-w64
+
+# Python
+sudo apt-get -y install python3 python3-pip
+sudo pip3 install numpy
 
 START_DIR=$(pwd)
 
