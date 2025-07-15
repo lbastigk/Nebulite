@@ -97,6 +97,9 @@ rm -rf "$externalsDir/SDL2_build"
 mkdir -p "$externalsDir/SDL2_build"
 
 #=== SDL2 NATIVE BUILDS ===
+# Reset submodules for build
+git submodule foreach --recursive git reset --hard
+git submodule foreach --recursive git clean -fdx
 echo ""
 echo "---------------------------------------------------"
 echo "[INFO] Building SDL2 static-native"
@@ -157,6 +160,9 @@ make -j"$(nproc)" || { echoerr "[ERROR] SDL_image shared-native failed"; exit 1;
 make install      || { echoerr "[ERROR] SDL_image shared-native failed (install)"; exit 1; }
 
 #=== WINDOWS (CROSS) BUILDS ===
+# Reset submodules for build
+git submodule foreach --recursive git reset --hard
+git submodule foreach --recursive git clean -fdx
 echo ""
 echo "---------------------------------------------------"
 echo "[INFO] Building SDL2 cross-compile"
@@ -166,6 +172,25 @@ make clean || true
 make -j"$(nproc)" || { echoerr "[ERROR] SDL2 cross-compile failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL2 cross-compile failed (install)"; exit 1; }
 
+##################################################
+# TODO: [ERROR] SDL_ttf cross-compile failed:
+# ...
+#/usr/bin/x86_64-w64-mingw32-ld: /home/leo/C_Projects/Nebulite/external/SDL_ttf/SDL_ttf.c:4283:(.text+0xc922): undefined reference to `SDL_SetError'
+#/usr/bin/x86_64-w64-mingw32-ld: .libs/libSDL2_ttf_la-SDL_ttf.o: in function `TTF_CloseFont':
+#/home/leo/C_Projects/Nebulite/external/SDL_ttf/SDL_ttf.c:2765:(.text+0x158e): undefined reference to `SDL_free'
+#/usr/bin/x86_64-w64-mingw32-ld: .libs/libSDL2_ttf_la-SDL_ttf.o: in function `TTF_SetFontStyle':
+#/home/leo/C_Projects/Nebulite/external/SDL_ttf/SDL_ttf.c:4085:(.text+0xc36e): undefined reference to `SDL_SetError'
+#/usr/bin/x86_64-w64-mingw32-ld: .libs/libSDL2_ttf_la-SDL_ttf.o: in function `TTF_SetFontOutline':
+#/home/leo/C_Projects/Nebulite/external/SDL_ttf/SDL_ttf.c:4132:(.text+0xc3fd): undefined reference to `SDL_SetError'
+#/usr/bin/x86_64-w64-mingw32-ld: .libs/libSDL2_ttf_la-SDL_ttf.o: in function `TTF_SetFontHinting':
+#/home/leo/C_Projects/Nebulite/external/SDL_ttf/SDL_ttf.c:4148:(.text+0xc4bd): undefined reference to `SDL_SetError'
+#/usr/bin/x86_64-w64-mingw32-ld: .libs/libSDL2_ttf_la-SDL_ttf.o: in function `TTF_SetFontWrappedAlign':
+#/home/leo/C_Projects/Nebulite/external/SDL_ttf/SDL_ttf.c:4208:(.text+0xc5d8): undefined reference to `SDL_SetError'
+#collect2: error: ld returned 1 exit status
+#make: *** [Makefile:1387: libSDL2_ttf.la] Error 1
+#[ERROR] SDL_ttf cross-compile failed
+##################################################
+
 echo ""
 echo "---------------------------------------------------"
 echo "[INFO] Building SDL_ttf cross-compile"
@@ -173,16 +198,17 @@ sdl2_win_prefix="$externalsDir/SDL2_build/shared_windows"
 cd "$externalsDir/SDL_ttf"
 make clean || true
 [ -f configure ] || ./autogen.sh
-SDL2_CONFIG= \
+SDL2_CONFIG=/bin/false \
 CPPFLAGS="-I${sdl2_win_prefix}/include -I${sdl2_win_prefix}/include/SDL2" \
-LDFLAGS="-L${sdl2_win_prefix}/lib" \
+LDFLAGS="-L${sdl2_win_prefix}/lib -lSDL2" \
 PKG_CONFIG_PATH="${sdl2_win_prefix}/lib/pkgconfig" \
-./configure --prefix="$externalsDir/SDL2_build/shared_windows" --disable-static --enable-shared --host=x86_64-w64-mingw32 --with-sdl-prefix="${sdl2_win_prefix}"
-make -j"$(nproc)" libSDL2_ttf.la || { echoerr "[ERROR] SDL_ttf cross-compile failed"; exit 1; }
-mkdir -p "$externalsDir/SDL2_build/shared_windows/bin" "$externalsDir/SDL2_build/shared_windows/lib"
-cp .libs/SDL2_ttf.dll "$externalsDir/SDL2_build/shared_windows/bin/"
-cp .libs/libSDL2_ttf.dll.a "$externalsDir/SDL2_build/shared_windows/lib/"
-cp SDL_ttf.h "$externalsDir/SDL2_build/shared_windows/include/SDL2/"
+./configure --prefix="$externalsDir/SDL2_build/shared_windows" \
+  --disable-static --enable-shared \
+  --host=x86_64-w64-mingw32 \
+  --with-sdl-prefix="${sdl2_win_prefix}"
+sed -i -E 's/(,)?-Wl,--enable-new-dtags(,)?//g; s/(,)?--enable-new-dtags(,)?//g' libtool Makefile
+make -j"$(nproc)" || { echoerr "SDL_ttf encountered an error, assuming non-critical and continuing..."; }
+
 
 echo ""
 echo "---------------------------------------------------"
@@ -190,21 +216,35 @@ echo "[INFO] Building SDL_image cross-compile"
 cd "$externalsDir/SDL_image"
 make clean || true
 [ -f configure ] || ./autogen.sh
-SDL2_CONFIG= \
+SDL2_CONFIG=/bin/false \
 CPPFLAGS="-I${sdl2_win_prefix}/include -I${sdl2_win_prefix}/include/SDL2" \
-LDFLAGS="-L${sdl2_win_prefix}/lib" \
+LDFLAGS="-L${sdl2_win_prefix}/lib -lSDL2" \
 PKG_CONFIG_PATH="${sdl2_win_prefix}/lib/pkgconfig" \
-./configure --prefix="$externalsDir/SDL2_build/shared_windows" --disable-static --enable-shared --host=x86_64-w64-mingw32 --with-sdl-prefix="${sdl2_win_prefix}"
-make -j"$(nproc)" libSDL2_image.la || { echoerr "[ERROR] SDL_image cross-compile failed"; exit 1; }
+./configure --prefix="$externalsDir/SDL2_build/shared_windows" \
+  --disable-static --enable-shared \
+  --host=x86_64-w64-mingw32 \
+  --with-sdl-prefix="${sdl2_win_prefix}"
+sed -i -E 's/(,)?-Wl,--enable-new-dtags(,)?//g; s/(,)?--enable-new-dtags(,)?//g' libtool Makefile
+make -j"$(nproc)" || { echoerr "SDL_image encountered an error, assuming non-critical and continuing..."; }
+
+
+
+# Copy files into build directory
+# SDL_ttf will try to generate examples and fail, which is why the error check happens here:
 mkdir -p "$externalsDir/SDL2_build/shared_windows/bin" "$externalsDir/SDL2_build/shared_windows/lib"
-cp .libs/SDL2_image.dll "$externalsDir/SDL2_build/shared_windows/bin/"
-cp .libs/libSDL2_image.dll.a "$externalsDir/SDL2_build/shared_windows/lib/"
-cp include/SDL_image.h "$externalsDir/SDL2_build/shared_windows/include/SDL2/"
+cd "$externalsDir/SDL_ttf"
+cp .libs/SDL2_ttf.dll         "$externalsDir/SDL2_build/shared_windows/bin/"            || { echoerr "[ERROR] SDL_ttf cross-compile failed: no dll file found"; exit 1; }
+cp .libs/libSDL2_ttf.dll.a    "$externalsDir/SDL2_build/shared_windows/lib/"            || { echoerr "[ERROR] SDL_ttf cross-compile failed: no dll.a file found"; exit 1; }
+cp SDL_ttf.h                  "$externalsDir/SDL2_build/shared_windows/include/SDL2/"   || { echoerr "[ERROR] SDL_ttf cross-compile failed: no header file found"; exit 1; }
+cd "$externalsDir/SDL_image"
+cp .libs/SDL2_image.dll       "$externalsDir/SDL2_build/shared_windows/bin/"            || { echoerr "[ERROR] SDL_image cross-compile failed: no dll file found"; exit 1; }
+cp .libs/libSDL2_image.dll.a  "$externalsDir/SDL2_build/shared_windows/lib/"            || { echoerr "[ERROR] SDL_image cross-compile failed: no dll.a file found"; exit 1; }
+cp include/SDL_image.h        "$externalsDir/SDL2_build/shared_windows/include/SDL2/"   || { echoerr "[ERROR] SDL_image cross-compile failed: no header file found"; exit 1; }
 
 cd "$START_DIR"
 
 ####################################
-# Reset submodules
+# Reset submodules after build
 git submodule foreach --recursive git reset --hard
 git submodule foreach --recursive git clean -fdx
 
