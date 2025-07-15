@@ -76,12 +76,12 @@ FREETYPE_SIZE=$(du -k ./freetype 2>/dev/null | awk '{print $1}')
 HARFBUZZ_SIZE=$(du -k ./harfbuzz 2>/dev/null | awk '{print $1}')
 
 if [ "$FREETYPE_SIZE" -lt 10 ] || [ "$HARFBUZZ_SIZE" -lt 10 ]; then
-    echo "➡️ freetype or harfbuzz missing or too small — downloading..."
+    echo "[INFO] freetype or harfbuzz missing or too small — downloading..."
     rm -rf ./freetype/
     rm -rf ./harfbuzz/
     ./download.sh
 else
-    echo "✅ freetype and harfbuzz already exist and are large enough, skipping download."
+    echo "[SUCCESS] freetype and harfbuzz already exist and are large enough, skipping download."
 fi
 
 cd "$externalsDir"
@@ -93,165 +93,135 @@ cd "$externalsDir"
 # ./external/SDL2_build/static/
 # ./external/SDL2_build/shared/
 # ./external/SDL2_build/shared_windows/
-build_sdl_library() {
-    local dir=$1
-    local cross_env_vars="$2"
-    local extra_config_opts="$3"
-    local base_dir="$externalsDir/SDL2_build"
-    local src_dir="$externalsDir/$dir"
-
-    run_build() {
-        local desc="$1"
-        local config_opts="$2"
-        local env_vars="$3"
-        local prefix_dir="$4"
-
-        echo ""
-        echo "------------------------------------------------------------"
-        echo "🔧 Building $desc for $dir ..."
-        make clean || true
-
-        # Run autogen.sh only if configure is missing
-        if [ ! -f configure ]; then
-            ./autogen.sh || { echoerr "autogen.sh failed for $dir"; return 1; }
-        fi
-
-        # Run configure with environment variables
-        eval $env_vars ./configure --prefix="$prefix_dir" $config_opts || {
-            echo "❌ configure failed for $desc build of $dir"
-            return 1
-        }
-
-        make -j"$(nproc)" || { echoerr "make failed for $desc build of $dir"; return 1; }
-        make install      || { echoerr "make install failed for $desc build of $dir"; return 1; }
-    }
-
-    cd "$src_dir" || { echoerr "Failed to cd into $dir"; return 1; }
-
-    # Native static build
-    run_build "static libs (native)" \
-              "--enable-static --disable-shared CFLAGS=-fPIC" \
-              "" \
-              "${base_dir}/static" || { echoerr "Native static build failed"; return 1; }
-
-    # Native shared build
-    run_build "shared libs (native)" \
-              "--disable-static --enable-shared CFLAGS=-fPIC" \
-              "" \
-              "${base_dir}/shared" || { echoerr "Native shared build failed"; return 1; }
-
-    # Windows cross-compiled shared DLLs
-    run_build "shared Windows DLLs (cross-compile)" \
-              "--disable-static --enable-shared --host=x86_64-w64-mingw32 $extra_config_opts" \
-              "$cross_env_vars" \
-              "${base_dir}/shared_windows" || { echoerr "Windows DLL build failed"; return 1; }
-
-    # Clean git state
-    git reset --hard
-    git clean -fdx
-    git submodule foreach --recursive git reset --hard
-    git submodule foreach --recursive git clean -fdx
-
-    echo "$dir built: static -> ${base_dir}/static, shared -> ${base_dir}/shared, Windows DLLs -> ${base_dir}/shared_windows"
-
-    cd - >/dev/null || return 1
-}
-
-####################################
-# Build all SDL libraries
-rm -rf   "$externalsDir/SDL2_build"
+rm -rf "$externalsDir/SDL2_build"
 mkdir -p "$externalsDir/SDL2_build"
 
-# Build SDL2 first — no env or extra flags needed
-build_sdl_library SDL2
+#=== SDL2 NATIVE BUILDS ===
+echo ""
+echo "---------------------------------------------------"
+echo "[INFO] Building SDL2 static-native"
+cd "$externalsDir/SDL2"
+make clean || true
+[ -f configure ] || ./autogen.sh
+./configure --prefix="$externalsDir/SDL2_build/static" --enable-static --disable-shared CFLAGS=-fPIC
+make -j"$(nproc)" || { echoerr "[ERROR] SDL2 static-native failed"; exit 1; }
+make install      || { echoerr "[ERROR] SDL2 static-native failed (install)"; exit 1; }
 
-# SDL2 Windows install prefix
+echo ""
+echo "---------------------------------------------------"
+echo "[INFO] Building SDL2 shared-native"
+cd "$externalsDir/SDL2"
+make clean || true
+./configure --prefix="$externalsDir/SDL2_build/shared" --disable-static --enable-shared CFLAGS=-fPIC
+make -j"$(nproc)" || { echoerr "[ERROR] SDL2 shared-native failed"; exit 1; }
+make install      || { echoerr "[ERROR] SDL2 shared-native failed (install)"; exit 1; }
+
+#=== SDL_ttf NATIVE BUILDS ===
+echo ""
+echo "---------------------------------------------------"
+echo "[INFO] Building SDL_ttf static-native"
+cd "$externalsDir/SDL_ttf"
+make clean || true
+[ -f configure ] || ./autogen.sh
+./configure --prefix="$externalsDir/SDL2_build/static" --enable-static --disable-shared CFLAGS=-fPIC --with-sdl-prefix="$externalsDir/SDL2_build/shared"
+make -j"$(nproc)" || { echoerr "[ERROR] SDL_ttf static-native failed"; exit 1; }
+make install      || { echoerr "[ERROR] SDL_ttf static-native failed (install)"; exit 1; }
+
+echo ""
+echo "---------------------------------------------------"
+echo "[INFO] Building SDL_ttf shared-native"
+cd "$externalsDir/SDL_ttf"
+make clean || true
+./configure --prefix="$externalsDir/SDL2_build/shared" --disable-static --enable-shared CFLAGS=-fPIC --with-sdl-prefix="$externalsDir/SDL2_build/shared"
+make -j"$(nproc)" || { echoerr "[ERROR] SDL_ttf shared-native failed"; exit 1; }
+make install      || { echoerr "[ERROR] SDL_ttf shared-native failed (install)"; exit 1; }
+
+#=== SDL_image NATIVE BUILDS ===
+echo ""
+echo "---------------------------------------------------"
+echo "[INFO] Building SDL_image static-native"
+cd "$externalsDir/SDL_image"
+make clean || true
+[ -f configure ] || ./autogen.sh
+./configure --prefix="$externalsDir/SDL2_build/static" --enable-static --disable-shared CFLAGS=-fPIC --with-sdl-prefix="$externalsDir/SDL2_build/shared"
+make -j"$(nproc)" || { echoerr "[ERROR] SDL_image static-native failed"; exit 1; }
+make install      || { echoerr "[ERROR] SDL_image static-native failed (install)"; exit 1; }
+
+echo ""
+echo "---------------------------------------------------"
+echo "[INFO] Building SDL_image shared-native"
+cd "$externalsDir/SDL_image"
+make clean || true
+./configure --prefix="$externalsDir/SDL2_build/shared" --disable-static --enable-shared CFLAGS=-fPIC --with-sdl-prefix="$externalsDir/SDL2_build/shared"
+make -j"$(nproc)" || { echoerr "[ERROR] SDL_image shared-native failed"; exit 1; }
+make install      || { echoerr "[ERROR] SDL_image shared-native failed (install)"; exit 1; }
+
+#=== WINDOWS (CROSS) BUILDS ===
+echo ""
+echo "---------------------------------------------------"
+echo "[INFO] Building SDL2 cross-compile"
+cd "$externalsDir/SDL2"
+make clean || true
+./configure --prefix="$externalsDir/SDL2_build/shared_windows" --disable-static --enable-shared --host=x86_64-w64-mingw32
+make -j"$(nproc)" || { echoerr "[ERROR] SDL2 cross-compile failed"; exit 1; }
+make install      || { echoerr "[ERROR] SDL2 cross-compile failed (install)"; exit 1; }
+
+echo ""
+echo "---------------------------------------------------"
+echo "[INFO] Building SDL_ttf cross-compile"
 sdl2_win_prefix="$externalsDir/SDL2_build/shared_windows"
+cd "$externalsDir/SDL_ttf"
+make clean || true
+[ -f configure ] || ./autogen.sh
+SDL2_CONFIG= \
+CPPFLAGS="-I${sdl2_win_prefix}/include -I${sdl2_win_prefix}/include/SDL2" \
+LDFLAGS="-L${sdl2_win_prefix}/lib" \
+PKG_CONFIG_PATH="${sdl2_win_prefix}/lib/pkgconfig" \
+./configure --prefix="$externalsDir/SDL2_build/shared_windows" --disable-static --enable-shared --host=x86_64-w64-mingw32 --with-sdl-prefix="${sdl2_win_prefix}"
+make -j"$(nproc)" libSDL2_ttf.la || { echoerr "[ERROR] SDL_ttf cross-compile failed"; exit 1; }
+mkdir -p "$externalsDir/SDL2_build/shared_windows/bin" "$externalsDir/SDL2_build/shared_windows/lib"
+cp .libs/SDL2_ttf.dll "$externalsDir/SDL2_build/shared_windows/bin/"
+cp .libs/libSDL2_ttf.dll.a "$externalsDir/SDL2_build/shared_windows/lib/"
+cp SDL_ttf.h "$externalsDir/SDL2_build/shared_windows/include/SDL2/"
 
-# Cross-compile environment
-sdl_cross_env="SDL2_CONFIG= \
-CPPFLAGS='-I${sdl2_win_prefix}/include -I${sdl2_win_prefix}/include/SDL2' \
-LDFLAGS='-L${sdl2_win_prefix}/lib' \
-PKG_CONFIG_PATH='${sdl2_win_prefix}/lib/pkgconfig'"
+echo ""
+echo "---------------------------------------------------"
+echo "[INFO] Building SDL_image cross-compile"
+cd "$externalsDir/SDL_image"
+make clean || true
+[ -f configure ] || ./autogen.sh
+SDL2_CONFIG= \
+CPPFLAGS="-I${sdl2_win_prefix}/include -I${sdl2_win_prefix}/include/SDL2" \
+LDFLAGS="-L${sdl2_win_prefix}/lib" \
+PKG_CONFIG_PATH="${sdl2_win_prefix}/lib/pkgconfig" \
+./configure --prefix="$externalsDir/SDL2_build/shared_windows" --disable-static --enable-shared --host=x86_64-w64-mingw32 --with-sdl-prefix="${sdl2_win_prefix}"
+make -j"$(nproc)" libSDL2_image.la || { echoerr "[ERROR] SDL_image cross-compile failed"; exit 1; }
+mkdir -p "$externalsDir/SDL2_build/shared_windows/bin" "$externalsDir/SDL2_build/shared_windows/lib"
+cp .libs/SDL2_image.dll "$externalsDir/SDL2_build/shared_windows/bin/"
+cp .libs/libSDL2_image.dll.a "$externalsDir/SDL2_build/shared_windows/lib/"
+cp include/SDL_image.h "$externalsDir/SDL2_build/shared_windows/include/SDL2/"
 
-# SDL_ttf and SDL_image builds with SDL prefix
-build_sdl_library SDL_ttf   "$sdl_cross_env" "--with-sdl-prefix=${sdl2_win_prefix}"
-build_sdl_library SDL_image "$sdl_cross_env" "--with-sdl-prefix=${sdl2_win_prefix}
+cd "$START_DIR"
 
+####################################
+# Reset submodules
+git submodule foreach --recursive git reset --hard
+git submodule foreach --recursive git clean -fdx
 
 ####################################
 # create binaries
 
 cd "$START_DIR"
 ./build.sh    || { echoerr "build.sh failed";      exit 1; }
-./winBuild.sh || { echoerr "./winBuild.sh failed"; exit 1; }
-
 
 ####################################
 # make all scripts executable
 find ./Application -type f -iname "*.sh" -exec chmod +x {} \;
 
-#!/bin/bash
-
-# Helper function for error printing
-echoerr() { echo "$@" 1>&2; }
-
-START_DIR=$(pwd)
-declare -A test_results
-
 ####################################
 # Run tests:
 
-# 1.) Linux
 cd "$START_DIR"
 cd ./Application
-if ./Tests.sh ; then
-  test_results[linux]="PASS"
-else
-  echoerr "Linux Release test failed"
-  test_results[linux]="FAIL"
-fi
-
-# 2.) Windows
-
-echo "Running windows build test"
-echo ""
-
-# TEST DEBUG
-echo "TESTING DEBUG BINARY"
-cd "$START_DIR/Application"
-if timeout 10s wine ./bin/Nebulite_Debug.exe 'set-fps 60 ; spawn ./Resources/Renderobjects/Planets/sun.json ; wait 100 ; exit' ; then
-  test_results[win_debug]="PASS"
-else
-  echoerr "Windows debug test failed"
-  test_results[win_debug]="FAIL"
-fi
-
-# TEST RELEASE
-echo ""
-echo "TESTING RELEASE BINARY"
-if timeout 10s wine ./bin/Nebulite.exe 'set-fps 60 ; spawn ./Resources/Renderobjects/Planets/sun.json ; wait 100 ; exit' ; then
-  test_results[win_release]="PASS"
-else
-  echoerr "Windows release test failed"
-  test_results[win_release]="FAIL"
-fi
-
-cd "$START_DIR"
-
-####################################
-# Summary
-echo ""
-echo "========== Test Summary =========="
-for test in linux win_debug win_release; do
-  status=${test_results[$test]:-NOT RUN}
-  case $test in
-    linux) label="Linux Release test" ;;
-    win_debug) label="Windows Debug test" ;;
-    win_release) label="Windows Release test" ;;
-  esac
-  echo "$label : $status"
-done
-echo "================================="
-echo "Installer is done!"
+./Tests.sh
 
