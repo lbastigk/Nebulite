@@ -31,21 +31,21 @@ START_DIR=$(pwd)
 mkdir -p ./Application/bin
 
 ####################################
-# Synonyms for SDL_ttf
+# Synonyms for SDL_ttf [DISABLED]
 
 # Define a function to use aclocal as aclocal-1.16 due to compatibility
 # SDL_ttf build expects version-specific autotools commands; these aliases provide fallback wrappers.
 
-aclocal-1.16() {
-    aclocal "$@"
-}
-export -f aclocal-1.16
+#aclocal-1.16() {
+#    aclocal "$@"
+#}
+#export -f aclocal-1.16
 
 # Same for automake
-automake-1.16() {
-    automake "$@"
-}
-export -f automake-1.16
+#automake-1.16() {
+#    automake "$@"
+#}
+#export -f automake-1.16
 
 ####################################
 # Resources directory
