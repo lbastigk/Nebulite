@@ -20,7 +20,7 @@ fi
 # install necessary components
 sudo apt-get update
 sudo apt-get upgrade
-sudo apt-get install cmake automake build-essential autoconf libtool m4 perl mingw-w64 gcc-mingw-w64 g++-mingw-w64 python3 python3-pip python3-numpy libesd0-dev libusb-1.0-0-dev pkg-config gettext
+sudo apt-get install cmake automake build-essential autoconf libtool m4 perl mingw-w64 gcc-mingw-w64 g++-mingw-w64 python3 python3-pip python3-numpy
 
 ####################################
 # Set Start directory
@@ -232,7 +232,7 @@ make -j"$(nproc)" || { echoerr "SDL_ttf encountered an error, assuming non-criti
 mkdir -p "$externalsDir/SDL2_build/shared_windows/bin" "$externalsDir/SDL2_build/shared_windows/lib"
 dllfile=$(ls .libs/libSDL2_ttf-*.dll 2>/dev/null | head -n1)
 if [ -n "$dllfile" ]; then
-    cp "$dllfile" "$externalsDir/SDL2_build/shared_windows/bin/SDL2_ttf.dll"
+    cp "$dllfile" "$externalsDir/SDL2_build/shared_windows/bin/"
 else
     echoerr "[ERROR] SDL_ttf cross-compile failed: no dll file found"
     exit 1
@@ -274,13 +274,13 @@ make -j"$(nproc)" || { echoerr "SDL_image encountered an error, assuming non-cri
 mkdir -p "$externalsDir/SDL2_build/shared_windows/bin" "$externalsDir/SDL2_build/shared_windows/lib"
 dllfile=$(ls .libs/libSDL2_image-*.dll 2>/dev/null | head -n1)
 if [ -n "$dllfile" ]; then
-    cp "$dllfile" "$externalsDir/SDL2_build/shared_windows/bin/SDL2_image.dll"
+    cp "$dllfile" "$externalsDir/SDL2_build/shared_windows/bin/"
 else
     echoerr "[ERROR] SDL_image cross-compile failed: no dll file found"
     exit 1
 fi
-cp .libs/*.dll.a   "$externalsDir/SDL2_build/shared_windows/lib/"              || { echoerr "[ERROR] SDL_image cross-compile failed: no dll.a file found"; exit 1; }
-cp include/SDL_image.h     "$externalsDir/SDL2_build/shared_windows/include/SDL2/"   || { echoerr "[ERROR] SDL_image cross-compile failed: no header file found"; exit 1; }
+cp .libs/*.dll.a        "$externalsDir/SDL2_build/shared_windows/lib/"              || { echoerr "[ERROR] SDL_image cross-compile failed: no dll.a file found"; exit 1; }
+cp include/SDL_image.h  "$externalsDir/SDL2_build/shared_windows/include/SDL2/"     || { echoerr "[ERROR] SDL_image cross-compile failed: no header file found"; exit 1; }
 
 
 ####################################
@@ -297,7 +297,8 @@ cd "$START_DIR"
 ####################################
 # Copy necessary dlls
 cd "$START_DIR"
-cp "$externalsDir/SDL2_build/shared_windows/bin/"*.dll ./Application/bin
+
+
 if [ -f /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll ]; then
     cp /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll ./Application/bin/
 else
