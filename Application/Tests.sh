@@ -6,6 +6,10 @@ echo " / /|  / /___/ /_/ / /_/ / /____/ /  / / / /___     / / / /___ ___/ // /  
 echo "/_/ |_/_____/_____/\____/_____/___/ /_/ /_____/____/_/ /_____//____//_/  /____/  ";
 echo "                                             /_____/                             ";
 echo ""
+if [ "$EUID" -eq 0 ]; then
+  echo "This script should NOT be run as root or with sudo. Please run as a regular user."
+  exit 1
+fi
 
 echoerr() { echo "$@" 1>&2; }
 

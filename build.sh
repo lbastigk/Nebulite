@@ -6,6 +6,10 @@ echo " / /|  / /___/ /_/ / /_/ / /____/ /  / / / /___     / /_/ / /_/ // // /___
 echo "/_/ |_/_____/_____/\____/_____/___/ /_/ /_____/____/_____/\____/___/_____/_____/  ";
 echo "                                             /_____/                              ";
 echo ""
+if [ "$EUID" -eq 0 ]; then
+  echo "This script should NOT be run as root or with sudo. Please run as a regular user."
+  exit 1
+fi
 
 function clean_src() {
     echo "Cleaning only Nebulite object files and binaries"
