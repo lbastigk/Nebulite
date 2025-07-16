@@ -31,21 +31,23 @@ START_DIR=$(pwd)
 mkdir -p ./Application/bin
 
 ####################################
-# Synonyms for SDL_ttf [DISABLED]
+# Synonyms for SDL_ttf
 
-# Define a function to use aclocal as aclocal-1.16 due to compatibility
-# SDL_ttf build expects version-specific autotools commands; these aliases provide fallback wrappers.
-
-#aclocal-1.16() {
-#    aclocal "$@"
-#}
-#export -f aclocal-1.16
-#
-##Same for automake
-#automake-1.16() {
-#    automake "$@"
-#}
-#export -f automake-1.16
+# Ensure aclocal-1.16 and automake-1.16 are available as symlinks if only unversioned ones exist
+if ! command -v aclocal-1.16 >/dev/null 2>&1; then
+    aclocal_path=$(command -v aclocal)
+    if [ -n "$aclocal_path" ]; then
+        ln -sf "$aclocal_path" "$HOME/.local/bin/aclocal-1.16"
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+fi
+if ! command -v automake-1.16 >/dev/null 2>&1; then
+    automake_path=$(command -v automake)
+    if [ -n "$automake_path" ]; then
+        ln -sf "$automake_path" "$HOME/.local/bin/automake-1.16"
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+fi
 
 ####################################
 # Resources directory
@@ -141,6 +143,7 @@ cd "$externalsDir/SDL_ttf"
 [ -f Makefile ] && make clean || true
 [ -f configure ] || ./autogen.sh
 autoreconf -f -i
+touch configure.ac
 ./configure --prefix="$externalsDir/SDL2_build/static" --enable-static --disable-shared CFLAGS=-fPIC --with-sdl-prefix="$externalsDir/SDL2_build/shared"
 make -j"$(nproc)" || { echoerr "[ERROR] SDL_ttf static-native failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL_ttf static-native failed (install)"; exit 1; }
@@ -152,6 +155,7 @@ cd "$externalsDir/SDL_ttf"
 [ -f Makefile ] && make clean || true
 [ -f configure ] || ./autogen.sh
 autoreconf -f -i
+touch configure.ac
 ./configure --prefix="$externalsDir/SDL2_build/shared" --disable-static --enable-shared CFLAGS=-fPIC --with-sdl-prefix="$externalsDir/SDL2_build/shared"
 make -j"$(nproc)" || { echoerr "[ERROR] SDL_ttf shared-native failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL_ttf shared-native failed (install)"; exit 1; }
