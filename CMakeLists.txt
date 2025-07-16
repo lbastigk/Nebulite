@@ -1,57 +1,62 @@
 ############################################################
+# Nebulite Build Configuration
+#
+# This CMake configuration uses a hybrid approach for dependencies:
+# - SDL2, SDL2_ttf, and SDL2_image are prebuilt (DLLs for Windows, static for Linux)
+#   and linked directly to avoid DLL/runtime issues and simplify cross-compilation.
+# - Abseil is included as a subdirectory and built as part of the project,
+#   as it works out of the box for both windows and linux.
+#
+# Key Directories:
+# - All CMake build artifacts are placed in a dedicated build directory (e.g., build/).
+# - Final binaries (executables, DLLs) are output to Application/bin.
+#
+# Platform Notes:
+# - On Linux, static SDL libraries are linked for portability.
+# - On Windows (cross-compiled from Linux), prebuilt SDL DLL import libraries are linked.
+#
+# To add or update dependencies, see the external/ directory and install.sh script.
+#
+# For more details, see README.md.
+############################################################
+
+############################################################
 # General
 cmake_minimum_required(VERSION 3.16)
 project(Nebulite)
 
-add_definitions(-DSDL_DISABLE_IMPLEMENTS)
+# Define global compile definitions (prefer modern CMake)
+add_compile_definitions(SDL_DISABLE_IMPLEMENTS)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_compile_options(-g -w)
+# Only add debug info in Debug builds
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(-g)
+endif()
+
+# Setting output inside ./build/<build-type>/Application/bin, 
+# moving to proper location+renaming later on in the build.sh script
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Application/bin)
 
 # Echo the start of the configuration
 message(STATUS "Starting configuration for project Nebulite")
 
-# Detect platform
-if(WIN32)
-    set(IS_WINDOWS TRUE)
-else()
-    set(IS_WINDOWS FALSE)
-endif()
-
-# Set binary output directory
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Application/bin)
-message(STATUS "Binary output directory set to: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+############################################################
+# Shortcut paths to external dependencies
+set(SDL2_BUILD_PATH     "${CMAKE_SOURCE_DIR}/external/SDL2_build")
+set(RAPIDJSON_PATH      "${CMAKE_SOURCE_DIR}/external/rapidjson")
+set(EXPRTK_PATH         "${CMAKE_SOURCE_DIR}/external/exprtk")
+set(TINYEXPR_PATH       "${CMAKE_SOURCE_DIR}/external/tinyexpr")
+set(ABSEIL_PATH         "${CMAKE_SOURCE_DIR}/external/abseil")
+set(ABSEIL_BUILD_PATH   "${CMAKE_SOURCE_DIR}/external/abseil_build")
 
 ############################################################
-# Paths to external libs
-set(SDL2_BUILD_PATH "${CMAKE_SOURCE_DIR}/external/SDL2_build")
-set(RAPIDJSON_PATH  "${CMAKE_SOURCE_DIR}/external/rapidjson")
-set(EXPRTK_PATH     "${CMAKE_SOURCE_DIR}/external/exprtk")
-set(TINYEXPR_PATH   "${CMAKE_SOURCE_DIR}/external/tinyexpr")
-set(ABSEIL_PATH     "${CMAKE_SOURCE_DIR}/external/abseil")
+# Subdirectories
+add_subdirectory(${ABSEIL_PATH} ${ABSEIL_BUILD_PATH})
 
-# Add abseil subdirectory
-add_subdirectory(${ABSEIL_PATH} ${CMAKE_BINARY_DIR}/external/abseil_build)
-
-############################################################
-# General include directories
-include_directories(
-    ${CMAKE_SOURCE_DIR}/src/Engine
-    ${CMAKE_SOURCE_DIR}/src/Engine/Data
-    ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees
-    ${CMAKE_SOURCE_DIR}/src/Engine/Rendering
-    ${CMAKE_SOURCE_DIR}/src/Engine/Helper
-    ${CMAKE_SOURCE_DIR}/src/Platform
-    ${CMAKE_SOURCE_DIR}/src/Editor
-    ${CMAKE_SOURCE_DIR}/src/Tests
-    ${RAPIDJSON_PATH}/include/rapidjson
-    ${EXPRTK_PATH}
-    ${TINYEXPR_PATH}
-    ${ABSEIL_PATH}
-)
 
 ############################################################
 # Source files
@@ -78,21 +83,47 @@ add_executable(Nebulite
     ${COMMON_SOURCES}
 )
 
+############################################################
+# General include directories
+target_include_directories(Nebulite
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/Engine
+        ${CMAKE_SOURCE_DIR}/src/Engine/Data
+        ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees
+        ${CMAKE_SOURCE_DIR}/src/Engine/Helper
+        ${CMAKE_SOURCE_DIR}/src/Engine/Rendering
+        ${CMAKE_SOURCE_DIR}/src/Platform
+    SYSTEM
+        ${RAPIDJSON_PATH}/include/rapidjson
+        ${EXPRTK_PATH}
+        ${TINYEXPR_PATH}
+        ${ABSEIL_PATH}
+)
+
+
 
 ############################################################
 # Link libraries
-target_link_libraries(Nebulite PRIVATE
-    absl::flat_hash_map
-    absl::base
-    absl::strings
+target_link_libraries(Nebulite 
+    PRIVATE
+        absl::flat_hash_map
+        absl::base
+        absl::strings
 )
 
 ############################################################
+# Compile options: Warnings
+set_source_files_properties(
+  ./src/ 
+  "-w"
+)
+
+
+############################################################
 # Platform-Specific
-if(IS_WINDOWS)
+if(WIN32)
     message(STATUS "Targeting Windows: linking SDL static libraries")
     set(CMAKE_SYSTEM_NAME Windows)
-    add_compile_options(-Wall -Wextra -Wpedantic -Wshadow -Wuninitialized)
 
     # Include SDL Libraries
     target_include_directories(Nebulite PRIVATE
