@@ -76,9 +76,9 @@ T FuncTree<T>::parse(int argc, char* argv[]) {
         bool parseVars = true;
         while(parseVars && argc > 0){
             std::string arg = argv[0];
-            if(arg.starts_with('-')){
+            if(arg.starts_with("-")){
                 std::string key, val;
-                if(arg.starts_with('--')){
+                if(arg.starts_with("--")){
                     // Long form: --key=value or --key
                     size_t eqPos = arg.find('=');
                     if (eqPos != std::string::npos) {

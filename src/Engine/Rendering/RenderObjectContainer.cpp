@@ -248,4 +248,5 @@ size_t Nebulite::RenderObjectContainer::getObjectCount() {
 	for (auto it = ObjectContainer.begin(); it != ObjectContainer.end(); ) {
 		totalCount += it->second.size();
 	}
+	return totalCount;
 }

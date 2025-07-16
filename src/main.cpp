@@ -259,8 +259,8 @@ int main(int argc, char* argv[]){
     if(Nebulite::renderer != nullptr) Nebulite::getRenderer()->destroy();
 
     // turn off error log
-    char* arg_off[] = { "off" };
-    Nebulite::mainFuncTree.parse(1,arg_off);
+    const char* arg_off[] = { "off" };
+    Nebulite::mainFuncTree.parse(1,const_cast<char**>(arg_off));
 
     // Exit
     if(critical_stop){

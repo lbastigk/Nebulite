@@ -369,9 +369,7 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::setCam(int argc, char* argv[]){
     else if(argc > 4){
         return Nebulite::ERROR_TYPE::TOO_MANY_ARGS;
     }
-    else{
-        Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
-    }
+    return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainFuncTree::printGlobal(int argc, char* argv[]){

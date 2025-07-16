@@ -130,10 +130,10 @@ void Nebulite::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font
 
 		// Create text
 		SDL_Color textColor = { 
-			json.get(Nebulite::keyName.renderObject.textColorR.c_str(),255),
-			json.get(Nebulite::keyName.renderObject.textColorG.c_str(),255),
-			json.get(Nebulite::keyName.renderObject.textColorB.c_str(),255),
-			json.get(Nebulite::keyName.renderObject.textColorA.c_str(),255)
+			(Uint8)json.get<int>(Nebulite::keyName.renderObject.textColorR.c_str(),255),
+			(Uint8)json.get<int>(Nebulite::keyName.renderObject.textColorG.c_str(),255),
+			(Uint8)json.get<int>(Nebulite::keyName.renderObject.textColorB.c_str(),255),
+			(Uint8)json.get<int>(Nebulite::keyName.renderObject.textColorA.c_str(),255)
 		};
 
 		// Create texture
@@ -147,7 +147,7 @@ void Nebulite::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font
         }
 
 		// Set flag back to false
-		valueSet(Nebulite::keyName.renderObject.flagCalculate.c_str(),false);
+		valueSet<bool>(Nebulite::keyName.renderObject.flagCalculate.c_str(),false);
 	}
 }
 

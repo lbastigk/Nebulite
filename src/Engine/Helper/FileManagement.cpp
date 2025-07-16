@@ -13,7 +13,7 @@ std::string FileManagement::CombinePaths(const std::string& baseDir, const std::
 std::string FileManagement::LoadFile(const std::string& link) {
     namespace fs = std::filesystem;
 
-    fs::path filepath = fs::u8path(link);  // handles forward/backslashes and encodings
+    fs::path filepath(link);  // Modern: handles encodings/platforms
     std::ifstream data(filepath, std::ios::in);
 
     if (!data.is_open()) {
@@ -22,25 +22,19 @@ std::string FileManagement::LoadFile(const std::string& link) {
     }
 
     std::stringstream toreturn;
-    std::string line;
-    while (std::getline(data, line)) {
-        toreturn << line << '\n';
-    }
-
+    toreturn << data.rdbuf(); // More efficient: read whole file at once
     return toreturn.str();
 }
 
 void FileManagement::WriteFile(const std::string& filename, const std::string& text) {
     namespace fs = std::filesystem;
+    fs::path filepath(filename);  // Modern: handles encoding and platform separators
 
-    fs::path filepath = fs::u8path(filename);  // Handles encoding and platform separators
-
-    std::ofstream file(filepath, std::ios::out);  // Automatically opens file
+    std::ofstream file(filepath, std::ios::out);
     if (!file.is_open()) {
-        std::cerr << "Failed to open file for writing: " << filepath << std::endl;
+        std::cerr << "File '" << filepath << "' could not be opened for writing!" << std::endl;
         return;
     }
-
     file << text;
 }
 

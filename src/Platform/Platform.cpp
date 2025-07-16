@@ -4,8 +4,8 @@
 //Function definitions
 #ifdef _WIN32 // Windows
 
-    void Platform::clearScreen(){
-        system("cls");
+    int Platform::clearScreen(){
+        return system("cls");
     }
 
     bool Platform::openFile(std::string fullPath) {
@@ -147,8 +147,8 @@
 
 #elif defined(__linux__) // Linux
 
-    void Platform::clearScreen(){
-        system("clear");
+    int Platform::clearScreen(){
+        return system("clear");
     }
 
     bool Platform::openFile(std::string fullPath) {
@@ -237,7 +237,7 @@
 
         // Read the remaining bytes of the multi-byte character, if any
         if (numBytes > 1) {
-            read(0, &buf[1], numBytes - 1);
+            (void)read(0, &buf[1], numBytes - 1);
         }
 
         // Restore original terminal settings
@@ -277,7 +277,7 @@
         else numBytes = 1;
 
         // Write the character bytes to stdout
-        write(1, buf, numBytes);
+        (void)write(1, buf, numBytes);
     }
 
     std::string Platform::vectorToString(const std::vector<int>& characterVector) {

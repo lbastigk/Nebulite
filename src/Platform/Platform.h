@@ -43,9 +43,8 @@
 
 class Platform{
 public:
-    //static void init();
 
-    static void clearScreen();
+    static int clearScreen();
 
     static bool openFile(std::string fullPath);
 
