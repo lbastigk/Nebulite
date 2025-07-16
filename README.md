@@ -23,6 +23,49 @@ The main engine provides the core functionality of the game, handling:
 
 ---
 
+## Quick Start
+
+Clone the repository and run the install script to set up dependencies, initialize submodules, and build the engine.  
+**Note:** `install.sh` may prompt for your password to install system packages.
+
+```bash
+git clone https://github.com/lbastigk/Nebulite
+cd Nebulite
+./install.sh
+```
+
+To rebuild the binaries later, simply run:
+```bash
+./build.sh
+```
+
+To run the engine:
+```bash
+cd ./Application
+./bin/Nebulite
+```
+
+If you encounter missing dependencies or build errors, try running `./install.sh` again.
+
+## Directory Structure
+
+```
+.
+├── Application/           # Main application binaries and resources
+├── build/                 # Temporary build output for cmake
+├── build.sh               # Build script
+├── CMakeLists.txt         # CMake project configuration
+├── external/              # Third-party libraries (SDL, etc.)
+├── install.sh             # Full installation, compilation and testing
+├── mingw-toolchain.cmake  # Toolchain file for Windows cross-compiling
+├── README.md              # Project documentation
+└── src/                   # Engine source code
+```
+
+## Platform Support
+
+- **Linux**: Native build and run supported.
+- **Windows**: Cross-compiled from Linux using MinGW-w64.
 
 ## Dependencies
 
