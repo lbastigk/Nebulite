@@ -121,6 +121,7 @@ echo "[INFO] Building SDL2 static-native"
 cd "$externalsDir/SDL2"
 [ -f Makefile ] && make clean || true
 [ -f configure ] || ./autogen.sh
+#autoreconf -f -i
 ./configure --prefix="$externalsDir/SDL2_build/static" --enable-static --disable-shared CFLAGS=-fPIC
 make -j"$(nproc)" || { echoerr "[ERROR] SDL2 static-native failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL2 static-native failed (install)"; exit 1; }
@@ -131,6 +132,7 @@ echo "[INFO] Building SDL2 shared-native"
 cd "$externalsDir/SDL2"
 [ -f Makefile ] && make clean || true
 [ -f configure ] || ./autogen.sh
+#autoreconf -f -i
 ./configure --prefix="$externalsDir/SDL2_build/shared" --disable-static --enable-shared CFLAGS=-fPIC
 make -j"$(nproc)" || { echoerr "[ERROR] SDL2 shared-native failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL2 shared-native failed (install)"; exit 1; }
@@ -143,7 +145,6 @@ cd "$externalsDir/SDL_ttf"
 [ -f Makefile ] && make clean || true
 [ -f configure ] || ./autogen.sh
 autoreconf -f -i
-touch configure.ac
 ./configure --prefix="$externalsDir/SDL2_build/static" --enable-static --disable-shared CFLAGS=-fPIC --with-sdl-prefix="$externalsDir/SDL2_build/shared"
 make -j"$(nproc)" || { echoerr "[ERROR] SDL_ttf static-native failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL_ttf static-native failed (install)"; exit 1; }
@@ -155,7 +156,6 @@ cd "$externalsDir/SDL_ttf"
 [ -f Makefile ] && make clean || true
 [ -f configure ] || ./autogen.sh
 autoreconf -f -i
-touch configure.ac
 ./configure --prefix="$externalsDir/SDL2_build/shared" --disable-static --enable-shared CFLAGS=-fPIC --with-sdl-prefix="$externalsDir/SDL2_build/shared"
 make -j"$(nproc)" || { echoerr "[ERROR] SDL_ttf shared-native failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL_ttf shared-native failed (install)"; exit 1; }
@@ -167,6 +167,7 @@ echo "[INFO] Building SDL_image static-native"
 cd "$externalsDir/SDL_image"
 [ -f Makefile ] && make clean || true
 [ -f configure ] || ./autogen.sh
+autoreconf -f -i
 ./configure --prefix="$externalsDir/SDL2_build/static" --enable-static --disable-shared CFLAGS=-fPIC --with-sdl-prefix="$externalsDir/SDL2_build/shared"
 make -j"$(nproc)" || { echoerr "[ERROR] SDL_image static-native failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL_image static-native failed (install)"; exit 1; }
@@ -177,6 +178,7 @@ echo "[INFO] Building SDL_image shared-native"
 cd "$externalsDir/SDL_image"
 [ -f Makefile ] && make clean || true
 [ -f configure ] || ./autogen.sh
+autoreconf -f -i
 ./configure --prefix="$externalsDir/SDL2_build/shared" --disable-static --enable-shared CFLAGS=-fPIC --with-sdl-prefix="$externalsDir/SDL2_build/shared"
 make -j"$(nproc)" || { echoerr "[ERROR] SDL_image shared-native failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL_image shared-native failed (install)"; exit 1; }
@@ -192,6 +194,7 @@ echo "[INFO] Building SDL2 cross-compile"
 cd "$externalsDir/SDL2"
 [ -f Makefile ] && make clean || true
 [ -f configure ] || ./autogen.sh
+#autoreconf -f -i
 ./configure --prefix="$externalsDir/SDL2_build/shared_windows" --disable-static --enable-shared --host=x86_64-w64-mingw32
 make -j"$(nproc)" || { echoerr "[ERROR] SDL2 cross-compile failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL2 cross-compile failed (install)"; exit 1; }
@@ -219,9 +222,9 @@ make -j"$(nproc)" || { echoerr "SDL_ttf encountered an error, assuming non-criti
 # SDL_ttf will try to generate examples and fail, which is why the error check happens here:
 mkdir -p "$externalsDir/SDL2_build/shared_windows/bin" "$externalsDir/SDL2_build/shared_windows/lib"
 cd "$externalsDir/SDL_ttf"
-cp .libs/libSDL2_ttf*.dll     "$externalsDir/SDL2_build/shared_windows/bin/"              || { echoerr "[ERROR] SDL_ttf cross-compile failed: no dll file found"; exit 1; }
-cp .libs/libSDL2_ttf*.dll.a   "$externalsDir/SDL2_build/shared_windows/lib/"              || { echoerr "[ERROR] SDL_ttf cross-compile failed: no dll.a file found"; exit 1; }
-cp SDL_ttf.h                  "$externalsDir/SDL2_build/shared_windows/include/SDL2/"     || { echoerr "[ERROR] SDL_ttf cross-compile failed: no header file found"; exit 1; }
+cp .libs/*.dll     "$externalsDir/SDL2_build/shared_windows/bin/"              || { echoerr "[ERROR] SDL_ttf cross-compile failed: no dll file found"; exit 1; }
+cp .libs/*.dll.a   "$externalsDir/SDL2_build/shared_windows/lib/"              || { echoerr "[ERROR] SDL_ttf cross-compile failed: no dll.a file found"; exit 1; }
+cp SDL_ttf.h       "$externalsDir/SDL2_build/shared_windows/include/SDL2/"     || { echoerr "[ERROR] SDL_ttf cross-compile failed: no header file found"; exit 1; }
 
 echo ""
 echo "---------------------------------------------------"
@@ -229,6 +232,7 @@ echo "[INFO] Building SDL_image cross-compile"
 cd "$externalsDir/SDL_image"
 [ -f Makefile ] && make clean || true
 [ -f configure ] || ./autogen.sh
+autoreconf -f -i
 SDL2_CONFIG=/bin/false \
 CPPFLAGS="-I${sdl2_win_prefix}/include -I${sdl2_win_prefix}/include/SDL2" \
 LDFLAGS="-L${sdl2_win_prefix}/lib -lSDL2" \
@@ -243,9 +247,9 @@ make -j"$(nproc)" || { echoerr "SDL_image encountered an error, assuming non-cri
 # Copy files into build directory
 # SDL_image might try to generate examples and fail(?), which is why the error check happens here:
 cd "$externalsDir/SDL_image"
-cp .libs/SDL2_image.dll       "$externalsDir/SDL2_build/shared_windows/bin/"            || { echoerr "[ERROR] SDL_image cross-compile failed: no dll file found"; exit 1; }
-cp .libs/libSDL2_image.dll.a  "$externalsDir/SDL2_build/shared_windows/lib/"            || { echoerr "[ERROR] SDL_image cross-compile failed: no dll.a file found"; exit 1; }
-cp include/SDL_image.h        "$externalsDir/SDL2_build/shared_windows/include/SDL2/"   || { echoerr "[ERROR] SDL_image cross-compile failed: no header file found"; exit 1; }
+cp .libs/*.dll          "$externalsDir/SDL2_build/shared_windows/bin/"            || { echoerr "[ERROR] SDL_image cross-compile failed: no dll file found"; exit 1; }
+cp .libs/*.dll.a        "$externalsDir/SDL2_build/shared_windows/lib/"            || { echoerr "[ERROR] SDL_image cross-compile failed: no dll.a file found"; exit 1; }
+cp include/SDL_image.h  "$externalsDir/SDL2_build/shared_windows/include/SDL2/"   || { echoerr "[ERROR] SDL_image cross-compile failed: no header file found"; exit 1; }
 
 
 ####################################
