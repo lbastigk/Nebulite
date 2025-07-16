@@ -202,27 +202,41 @@ make install      || { echoerr "[ERROR] SDL2 cross-compile failed (install)"; ex
 echo ""
 echo "---------------------------------------------------"
 echo "[INFO] Building SDL_ttf cross-compile"
+unset CFLAGS CPPFLAGS LDFLAGS PKG_CONFIG_PATH PKG_CONFIG_LIBDIR
 sdl2_win_prefix="$externalsDir/SDL2_build/shared_windows"
+export PKG_CONFIG_LIBDIR="${sdl2_win_prefix}/lib/pkgconfig"
+export PKG_CONFIG_PATH="${sdl2_win_prefix}/lib/pkgconfig"
+export SDL2_CONFIG=/bin/false
+
 cd "$externalsDir/SDL_ttf"
 [ -f Makefile ] && make clean || true
 [ -f configure ] || ./autogen.sh
 autoreconf -f -i
-SDL2_CONFIG=/bin/false \
+
 CPPFLAGS="-I${sdl2_win_prefix}/include -I${sdl2_win_prefix}/include/SDL2" \
 LDFLAGS="-L${sdl2_win_prefix}/lib -lSDL2" \
-PKG_CONFIG_PATH="${sdl2_win_prefix}/lib/pkgconfig" \
 ./configure --prefix="$externalsDir/SDL2_build/shared_windows" \
-  --disable-static --enable-shared \
-  --host=x86_64-w64-mingw32 \
-  --with-sdl-prefix="${sdl2_win_prefix}"
+    --disable-static --enable-shared \
+    --host=x86_64-w64-mingw32 \
+    --with-sdl-prefix="${sdl2_win_prefix}"
+
 sed -i -E 's/(,)?-Wl,--enable-new-dtags(,)?//g; s/(,)?--enable-new-dtags(,)?//g' libtool Makefile
+# Remove example programs to avoid WinMain error
+sed -i '/^bin_PROGRAMS/s/showfont\.exe//g' Makefile
+sed -i '/^bin_PROGRAMS/s/glfont\.exe//g' Makefile
+sed -i '/^noinst_PROGRAMS/s/showfont\.exe//g' Makefile
+sed -i '/^noinst_PROGRAMS/s/glfont\.exe//g' Makefile
+
 make -j"$(nproc)" || { echoerr "SDL_ttf encountered an error, assuming non-critical and continuing..."; }
 
-# Copy files into build directory
-# SDL_ttf will try to generate examples and fail, which is why the error check happens here:
 mkdir -p "$externalsDir/SDL2_build/shared_windows/bin" "$externalsDir/SDL2_build/shared_windows/lib"
-cd "$externalsDir/SDL_ttf"
-cp .libs/*.dll     "$externalsDir/SDL2_build/shared_windows/bin/"              || { echoerr "[ERROR] SDL_ttf cross-compile failed: no dll file found"; exit 1; }
+dllfile=$(ls .libs/libSDL2_ttf-*.dll 2>/dev/null | head -n1)
+if [ -n "$dllfile" ]; then
+    cp "$dllfile" "$externalsDir/SDL2_build/shared_windows/bin/SDL2_ttf.dll"
+else
+    echoerr "[ERROR] SDL_ttf cross-compile failed: no dll file found"
+    exit 1
+fi
 cp .libs/*.dll.a   "$externalsDir/SDL2_build/shared_windows/lib/"              || { echoerr "[ERROR] SDL_ttf cross-compile failed: no dll.a file found"; exit 1; }
 cp SDL_ttf.h       "$externalsDir/SDL2_build/shared_windows/include/SDL2/"     || { echoerr "[ERROR] SDL_ttf cross-compile failed: no header file found"; exit 1; }
 
@@ -230,26 +244,43 @@ echo ""
 echo "---------------------------------------------------"
 echo "[INFO] Building SDL_image cross-compile"
 cd "$externalsDir/SDL_image"
+unset CFLAGS CPPFLAGS LDFLAGS PKG_CONFIG_PATH PKG_CONFIG_LIBDIR
+sdl2_win_prefix="$externalsDir/SDL2_build/shared_windows"
+export PKG_CONFIG_LIBDIR="${sdl2_win_prefix}/lib/pkgconfig"
+export PKG_CONFIG_PATH="${sdl2_win_prefix}/lib/pkgconfig"
+export SDL2_CONFIG=/bin/false
+
+cd "$externalsDir/SDL_image"
 [ -f Makefile ] && make clean || true
 [ -f configure ] || ./autogen.sh
 autoreconf -f -i
-SDL2_CONFIG=/bin/false \
+
 CPPFLAGS="-I${sdl2_win_prefix}/include -I${sdl2_win_prefix}/include/SDL2" \
 LDFLAGS="-L${sdl2_win_prefix}/lib -lSDL2" \
-PKG_CONFIG_PATH="${sdl2_win_prefix}/lib/pkgconfig" \
 ./configure --prefix="$externalsDir/SDL2_build/shared_windows" \
-  --disable-static --enable-shared \
-  --host=x86_64-w64-mingw32 \
-  --with-sdl-prefix="${sdl2_win_prefix}"
+    --disable-static --enable-shared \
+    --host=x86_64-w64-mingw32 \
+    --with-sdl-prefix="${sdl2_win_prefix}"
+
 sed -i -E 's/(,)?-Wl,--enable-new-dtags(,)?//g; s/(,)?--enable-new-dtags(,)?//g' libtool Makefile
+# Remove example programs to avoid WinMain error
+sed -i '/^bin_PROGRAMS/s/showfont\.exe//g' Makefile
+sed -i '/^bin_PROGRAMS/s/glfont\.exe//g' Makefile
+sed -i '/^noinst_PROGRAMS/s/showfont\.exe//g' Makefile
+sed -i '/^noinst_PROGRAMS/s/glfont\.exe//g' Makefile
+
 make -j"$(nproc)" || { echoerr "SDL_image encountered an error, assuming non-critical and continuing..."; }
 
-# Copy files into build directory
-# SDL_image might try to generate examples and fail(?), which is why the error check happens here:
-cd "$externalsDir/SDL_image"
-cp .libs/*.dll          "$externalsDir/SDL2_build/shared_windows/bin/"            || { echoerr "[ERROR] SDL_image cross-compile failed: no dll file found"; exit 1; }
-cp .libs/*.dll.a        "$externalsDir/SDL2_build/shared_windows/lib/"            || { echoerr "[ERROR] SDL_image cross-compile failed: no dll.a file found"; exit 1; }
-cp include/SDL_image.h  "$externalsDir/SDL2_build/shared_windows/include/SDL2/"   || { echoerr "[ERROR] SDL_image cross-compile failed: no header file found"; exit 1; }
+mkdir -p "$externalsDir/SDL2_build/shared_windows/bin" "$externalsDir/SDL2_build/shared_windows/lib"
+dllfile=$(ls .libs/libSDL2_image-*.dll 2>/dev/null | head -n1)
+if [ -n "$dllfile" ]; then
+    cp "$dllfile" "$externalsDir/SDL2_build/shared_windows/bin/SDL2_image.dll"
+else
+    echoerr "[ERROR] SDL_image cross-compile failed: no dll file found"
+    exit 1
+fi
+cp .libs/*.dll.a   "$externalsDir/SDL2_build/shared_windows/lib/"              || { echoerr "[ERROR] SDL_image cross-compile failed: no dll.a file found"; exit 1; }
+cp include/SDL_image.h     "$externalsDir/SDL2_build/shared_windows/include/SDL2/"   || { echoerr "[ERROR] SDL_image cross-compile failed: no header file found"; exit 1; }
 
 
 ####################################
