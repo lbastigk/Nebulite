@@ -427,69 +427,72 @@ std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::expressionToTree(const
 
 std::string Nebulite::Invoke::nodeVariableAccess(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent){
     switch (nodeptr->context) {
-    //---------------------------------------------------
-    // First 3 Types: Variables
+        //---------------------------------------------------
+        // First 3 Types: Variables
 
-    // Get value from right doc, depending on ContextType:
-    // self[key]
-    // other[key]
-    // global[key]
-    case Node::ContextType::Self:
-        // Casting
-        if(nodeptr->cast == Node::CastType::None){
-            return self->get<std::string>(nodeptr->key.c_str(), "0");
-        }
-        else if(nodeptr->cast == Node::CastType::Float){
-            return std::to_string(self->get<double>(nodeptr->key.c_str(),0.0));
-        }
-        else if(nodeptr->cast == Node::CastType::Int){
-            return std::to_string(self->get<int>(nodeptr->key.c_str(),0));
-        }
-    case Node::ContextType::Other:
-        // Casting
-        if(nodeptr->cast == Node::CastType::None){
-            return other->get<std::string>(nodeptr->key.c_str(), "0");
-        }
-        else if(nodeptr->cast == Node::CastType::Float){
-            return std::to_string(other->get<double>(nodeptr->key.c_str(),0.0));
-        }
-        else if(nodeptr->cast == Node::CastType::Int){
-            return std::to_string(other->get<int>(nodeptr->key.c_str(),0));
-        }
-    case Node::ContextType::Global:
-        // Casting
-        if(nodeptr->cast == Node::CastType::None){
-            return global->get<std::string>(nodeptr->key.c_str(), "0");
-        }
-        else if(nodeptr->cast == Node::CastType::Float){
-            return std::to_string(global->get<double>(nodeptr->key.c_str(),0.0));
-        }
-        else if(nodeptr->cast == Node::CastType::Int){
-            return std::to_string(global->get<int>(nodeptr->key.c_str(),0));
-        }
-    //---------------------------------------------------
-    // String is not a variable
-    case Node::ContextType::None:
-        // Simple Number:
-        if (nodeptr->isNumericLiteral) {
-            return nodeptr->text;
-        // Inside eval parent: No need to call evaluateExpression right now, if no cast was defined.
-        // Instead, return "(<expr>)" so it is evaled higher up
-        // However, if a cast is specified, the evaluation should still happen
-        // Return pure string in paranthesis only if CastType is None
-        } else if (insideEvalParent && nodeptr->cast == Node::CastType::None) {
-                return "(" + nodeptr->text + ")";
-        // If not, evaluate and return
-        } else{
-            if(nodeptr->cast == Node::CastType::None || nodeptr->cast == Node::CastType::Float){
-                return std::to_string(evaluateExpression(nodeptr->text));
+        // Get value from right doc, depending on ContextType:
+        // self[key]
+        // other[key]
+        // global[key]
+        case Node::ContextType::Self:
+            // Casting
+            if(nodeptr->cast == Node::CastType::None){
+                return self->get<std::string>(nodeptr->key.c_str(), "0");
             }
-            if(nodeptr->cast == Node::CastType::Int){
-                return std::to_string((int)evaluateExpression(nodeptr->text));
+            else if(nodeptr->cast == Node::CastType::Float){
+                return std::to_string(self->get<double>(nodeptr->key.c_str(),0.0));
             }
-        }
-        return std::to_string(evaluateExpression(nodeptr->text));
-}
+            else if(nodeptr->cast == Node::CastType::Int){
+                return std::to_string(self->get<int>(nodeptr->key.c_str(),0));
+            }
+        case Node::ContextType::Other:
+            // Casting
+            if(nodeptr->cast == Node::CastType::None){
+                return other->get<std::string>(nodeptr->key.c_str(), "0");
+            }
+            else if(nodeptr->cast == Node::CastType::Float){
+                return std::to_string(other->get<double>(nodeptr->key.c_str(),0.0));
+            }
+            else if(nodeptr->cast == Node::CastType::Int){
+                return std::to_string(other->get<int>(nodeptr->key.c_str(),0));
+            }
+        case Node::ContextType::Global:
+            // Casting
+            if(nodeptr->cast == Node::CastType::None){
+                return global->get<std::string>(nodeptr->key.c_str(), "0");
+            }
+            else if(nodeptr->cast == Node::CastType::Float){
+                return std::to_string(global->get<double>(nodeptr->key.c_str(),0.0));
+            }
+            else if(nodeptr->cast == Node::CastType::Int){
+                return std::to_string(global->get<int>(nodeptr->key.c_str(),0));
+            }
+        //---------------------------------------------------
+        // String is not a variable
+        case Node::ContextType::None:
+            // Simple Number:
+            if (nodeptr->isNumericLiteral) {
+                return nodeptr->text;
+            // Inside eval parent: No need to call evaluateExpression right now, if no cast was defined.
+            // Instead, return "(<expr>)" so it is evaled higher up
+            // However, if a cast is specified, the evaluation should still happen
+            // Return pure string in paranthesis only if CastType is None
+            } else if (insideEvalParent && nodeptr->cast == Node::CastType::None) {
+                    return "(" + nodeptr->text + ")";
+            // If not, evaluate and return
+            } else{
+                if(nodeptr->cast == Node::CastType::None || nodeptr->cast == Node::CastType::Float){
+                    return std::to_string(evaluateExpression(nodeptr->text));
+                }
+                if(nodeptr->cast == Node::CastType::Int){
+                    return std::to_string((int)evaluateExpression(nodeptr->text));
+                }
+            }
+            return std::to_string(evaluateExpression(nodeptr->text));
+    }
+    // A non-match to the ContextTypes shouldnt happen, meaning this function is incomplete:
+    std::cerr << "Nebulite::Invoke::nodeVariableAccess functions switch operations return is incomplete! Please inform the maintainers." << std::endl;
+    return "";
 }
 
 std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent){
