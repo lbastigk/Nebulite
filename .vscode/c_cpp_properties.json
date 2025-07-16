@@ -6,17 +6,17 @@
                 "/usr/include/c++/13/",
                 "/usr/include/x86_64-linux-gnu/c++/13/",
                 "/usr/include/",
-                "${workspaceFolder}/**",       // Covers everything in the project
-                "${workspaceFolder}/external/SDL2_build/static/include/SDL2",           // Local SDL installation
-                "${workspaceFolder}/external/rapidjson/include/rapidjson",       // Local rapidjson
-                "${workspaceFolder}/external/tinyexpr",                          // Local tinyexpr
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/external/SDL2_build/static/include/SDL2",
+                "${workspaceFolder}/external/rapidjson/include/rapidjson",
+                "${workspaceFolder}/external/tinyexpr",
                 "${workspaceFolder}/external/abseil",
-                "${workspaceFolder}/src/Engine/",            // ProjectEngine root
+                "${workspaceFolder}/src/Engine/",
                 "${workspaceFolder}/src/Engine/Data/",
                 "${workspaceFolder}/src/Engine/FuncTrees/",
                 "${workspaceFolder}/src/Engine/Helper/",
                 "${workspaceFolder}/src/Engine/Rendering/",
-                "${workspaceFolder}/src/Platform/"                  // Platform
+                "${workspaceFolder}/src/Platform/"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",
@@ -25,7 +25,6 @@
             "intelliSenseMode": "linux-gcc-x64",
             "browse": {
                 "path": [
-                    "/usr/include/SDL2",
                     "${workspaceFolder}/src/Engine",
                     "${workspaceFolder}/src/Engine/Helper",
                     "${workspaceFolder}/src/Engine/Rendering",
