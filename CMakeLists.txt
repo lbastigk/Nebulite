@@ -126,28 +126,6 @@ if(IS_WINDOWS)
         -lwinmm
         -lws2_32
     )
-
-    ###################################
-    # Copy SDL dlls
-    add_custom_command(TARGET Nebulite POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${SDL2_BUILD_PATH}/shared_windows/bin/SDL2.dll"
-            "${SDL2_BUILD_PATH}/shared_windows/bin/SDL2_ttf.dll"
-            "${SDL2_BUILD_PATH}/shared_windows/bin/SDL2_image.dll"
-            "${CMAKE_SOURCE_DIR}/Application/bin"
-        COMMENT "Copying SDL DLLs to output directory"
-    )
-
-    ###################################
-    # Copy necessary windows dlls
-
-    # [TODO] No libwinpthread-1.dll exists under /usr/*mingw*/bin
-    # the only files existing are:
-    #
-    # $ find /usr -name "libwinpthread-1.dll" 2>/dev/null
-    #   > /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll
-    #   > /usr/i686-w64-mingw32/lib/libwinpthread-1.dll
-    # for now, a precompiled dll from the internet is used!
 else()
     message(STATUS "Targeting Linux: linking SDL static libraries")
 

@@ -79,14 +79,9 @@ function build_release_windows() {
 }
 
 function generate_standards() {
-    echo "Build done!"
-    echo ""
-    echo "Generating standards from Binary:"
     cd Application
     ./bin/Nebulite standard-render-object
     cd ..
-    echo ""
-    echo "Newest Nebulite build + files generated."
 }
 
 #############################################################
@@ -102,7 +97,13 @@ function generate_standards() {
       build_release
       build_debug_windows
       build_release_windows
+
+      echo "Build done!"
+      echo ""
+      echo "Generating standards from Binary:"
       generate_standards
+      echo ""
+      echo "Newest Nebulite build + files generated."
 } || {
       echo ""
       echo "[ERROR] Build failed!"
