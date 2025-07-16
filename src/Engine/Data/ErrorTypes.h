@@ -1,4 +1,29 @@
+/*
+ * ErrorTypes.h
+ * ------------
+ * Defines the Nebulite::ERROR_TYPE enumeration, which standardizes error codes
+ * returned by core engine functions and task queue processing.
+ *
+ * Usage:
+ *   - Functions such as Nebulite::resolveTaskQueue and other main tree functions
+ *     return or report an ERROR_TYPE value to indicate the result of execution.
+ *   - Critical errors (negative values) signal unrecoverable states and are used
+ *     in main.cpp to determine if the engine should halt execution (see
+ *     lastCriticalResult and critical_stop logic).
+ *   - Non-critical errors (positive values) represent recoverable or minor issues,
+ *     such as argument mismatches or unimplemented features.
+ *   - The NONE value (0) indicates successful execution with no errors.
+ *
+ * Example:
+ *   Nebulite::ERROR_TYPE result = Nebulite::resolveTaskQueue(...);
+ *   if (result < 0) {
+ *       // Handle critical error
+ *   }
+ *
+ * See main.cpp for detailed usage in the main engine loop and error handling.
+ */
 #pragma once
+
 
 // Return values from main Tree functions
 namespace Nebulite{
@@ -12,7 +37,7 @@ enum ERROR_TYPE{
     CRITICAL_FUNCTIONCALL_INVALID,
     // Non-critical errors positive
     NONE = 0,
-    CUSTOM_ERROR,   // used for functioncall error
+    CUSTOM_ERROR,   // used for functioncall "error"
     TOO_MANY_ARGS,
     TOO_FEW_ARGS,
     UNKNOWN_ARG,

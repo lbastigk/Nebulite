@@ -1,3 +1,39 @@
+/*
+ * RenderObject.h
+ * --------------
+ * Defines the Nebulite::RenderObject class, which represents a renderable entity
+ * in the Nebulite engine. This class encapsulates all data and logic needed to
+ * display, update, and interact with a single object on the screen.
+ *
+ * Key Features:
+ *   - Stores all render-related data in an internal JSON document for flexible property management.
+ *   - Provides methods for serialization and deserialization to and from strings or files.
+ *   - Supports dynamic property access and modification via valueSet/valueGet templates.
+ *   - Manages SDL_Rect structures for sprite and text positioning, and caches these for performance.
+ *   - Handles text rendering using SDL_ttf, including texture creation and caching.
+ *   - Supports invoke command lists for both general (global) and internal (local) interactions.
+ *   - Offers update and reload mechanisms to synchronize state with global invokes and JSON data.
+ *   - Calculates computational cost estimates for update operations.
+ *
+ * Interaction with Invoke:
+ *   - While RenderObject provides its own local invokes to update and manage its state,
+ *     the global Nebulite::Invoke class can also manipulate RenderObjects.
+ *   - RenderObjects can broadcast invokes globally; if another object "accepts" the invoke,
+ *     the Invoke system builds a true pair between broadcaster and listener.
+ *   - The Invoke system then updates these pairs according to the invoke logic, enabling
+ *     complex inter-object communication and behavior orchestration.
+ *
+ * Usage:
+ *   - Instantiate a RenderObject to represent a sprite, text, or other visual entity.
+ *   - Use valueSet/valueGet to modify or query properties.
+ *   - Call update() and reloadInvokes() to synchronize with global state or after property changes.
+ *   - Use calculateText() to update text textures when text or font properties change.
+ *   - Access SDL_Rect and SDL_Texture pointers for integration with SDL rendering routines.
+ *
+ * All resource management (textures, surfaces) is handled internally. Copy and move operations
+ * are disabled to prevent accidental resource duplication.
+ */
+
 #pragma once
 
 #include "SDL.h"		// SDL Renderer is used for some methods to calculate text
@@ -6,6 +42,7 @@
 #include "JSON.h"
 #include "Invoke.h"
 #include "KeyNames.h"
+//#include "RenderObjectTree.h"	// TODO: for more complex functioncalls on renderobjects
 
 namespace Nebulite{
 class RenderObject {
@@ -59,6 +96,7 @@ public:
 	SDL_Texture* getTextTexture();
 	
 	//-----------------------------------------------------------
+	// Update-Oriented functions
 
 	// Updating renderobject based on global/local invokes
 	void update(Nebulite::Invoke* globalInvoke);

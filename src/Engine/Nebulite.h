@@ -1,3 +1,36 @@
+/*
+ * Nebulite.h
+ * ----------
+ * Declares the core types, global objects, and functions for the Nebulite Engine.
+ *
+ * Overview:
+ *   - Provides the main engine interface, including task queue management, renderer access,
+ *     and error logging facilities.
+ *   - Defines the `taskQueue` and `taskQueueResult` structures for managing and tracking
+ *     the execution of queued engine tasks.
+ *   - Declares global engine objects (such as the main function tree, renderer, and global state)
+ *     and task queues used throughout the engine.
+ *   - Exposes functions for engine initialization, renderer management, and task queue resolution.
+ *
+ * Key Components:
+ *   - taskQueue: Holds a list of tasks to be executed, along with parsing and state info.
+ *   - taskQueueResult: Stores the result of processing a task queue, including error codes and
+ *     whether execution was stopped due to a critical error.
+ *   - mainFuncTree: The main function tree for parsing and executing engine commands.
+ *   - renderer: Pointer to the main rendering engine, lazily initialized.
+ *   - error logging: Facilities for redirecting and storing error output.
+ *   - stateName, binName: Strings for tracking the current engine state and binary name.
+ *
+ * Main Functions:
+ *   - init(): Initializes core engine variables and state.
+ *   - getRenderer(): Returns a pointer to the renderer, initializing it if necessary.
+ *   - RendererExists(): Checks if the renderer has been initialized.
+ *   - resolveTaskQueue(): Parses and executes all tasks in a given queue, returning a result
+ *     structure with error information.
+ *
+ * See main.cpp and other engine modules for usage examples and integration details.
+ */
+
 //------------------------------------------------
 // Core functionality of the Nebulite Engine
 
@@ -19,8 +52,6 @@ namespace Nebulite {
         uint64_t waitCounter = 0;
         bool clearAfterResolving = true;
     };
-
-    
 
     // Each taskque resolving logs errors encountered and if resolving was stopped due to a critical error
     struct taskQueueResult{
@@ -66,11 +97,4 @@ namespace Nebulite {
     // Resolves a given taskqueue by parsing each line into argc/argv and calling the mainTree on the arguments
     Nebulite::taskQueueResult resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree);
 
-    //--------------------------------------
-    // Namespace mainTreeFunctions
-    // functions accessible through global functioncalls
-    namespace mainTreeFunctions{
-
-
-    }
 }
