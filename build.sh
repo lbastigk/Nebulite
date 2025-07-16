@@ -76,6 +76,9 @@ function build_release_windows() {
             -B build/windows-release -S .
       cmake --build build/windows-release --target Nebulite -j$(nproc)
       cp build/windows-release/Application/bin/Nebulite.exe Application/bin/Nebulite.exe
+
+      # Copy dlls from install.sh-created SDL2_build into the application bin
+      cp external/SDL2_build/shared_windows/bin/*.dll Application/bin/
 }
 
 function generate_standards() {
