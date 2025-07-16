@@ -1,4 +1,11 @@
 #!/bin/bash
+echo "    _   ____________  __  ____    ________________     _____   ________________    __    __ ";
+echo "   / | / / ____/ __ )/ / / / /   /  _/_  __/ ____/    /  _/ | / / ___/_  __/   |  / /   / / ";
+echo "  /  |/ / __/ / __  / / / / /    / /  / / / __/       / //  |/ /\__ \ / / / /| | / /   / /  ";
+echo " / /|  / /___/ /_/ / /_/ / /____/ /  / / / /___     _/ // /|  /___/ // / / ___ |/ /___/ /___";
+echo "/_/ |_/_____/_____/\____/_____/___/ /_/ /_____/____/___/_/ |_//____//_/ /_/  |_/_____/_____/";
+echo "                                             /_____/                                        ";
+echo ""
 
 ####################################
 # starttime of script
@@ -313,19 +320,19 @@ cd "$START_DIR"
 find ./Application -type f -iname "*.sh" -exec chmod +x {} \;
 
 ####################################
+# Run tests:
+
+cd "$START_DIR"
+cd ./Application
+./Tests.sh
+
+####################################
 # Show runtime
 end=`date +%s`
 runtime=$((end-start))
 
 echo ""
 echo "-----------------------------------------------------"
-echo "Compiling took $runtime Seconds. Running tests now..."
+echo "Installing + Running tests took $runtime Seconds."
 echo ""
-
-####################################
-# Run tests:
-
-cd "$START_DIR"
-cd ./Application
-./Tests.sh
 
