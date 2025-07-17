@@ -56,16 +56,9 @@ private:
     // Pointer to the owning RenderObject
     RenderObject* self;
 
-    //------------------------
-    // FUNCTIONCALL EXAMPLES
-
     //===== Layout & Geometry =====//
-    Nebulite::ERROR_TYPE align_text(int argc, char* argv[]);
-
-    //===== State Management =====//
-    Nebulite::ERROR_TYPE mark_deleted(int argc, char* argv[]);
-    Nebulite::ERROR_TYPE toggle_flag(int argc, char* argv[]);
-    Nebulite::ERROR_TYPE reset_state(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE align_text(int argc, char* argv[]);  // Aliign text to object dimensions
+    Nebulite::ERROR_TYPE make_box(int argc, char* argv[]);    // Create text box
 
     //===== Computation & Internal Updates =====//
     Nebulite::ERROR_TYPE calculate_text(int argc, char* argv[]);
@@ -79,12 +72,14 @@ private:
     Nebulite::ERROR_TYPE keydelete(int argc, char* argv[]);     // delete a key from doc
 
     //===== Debugging / Logging =====//
-    Nebulite::ERROR_TYPE print_state(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE log(int argc, char* argv[]);
     Nebulite::ERROR_TYPE log_value(int argc, char* argv[]);
     Nebulite::ERROR_TYPE assert_nonzero(int argc, char* argv[]);
-
+    Nebulite::ERROR_TYPE assert_not_in_doc(int argc, char* argv[]);
+    
     //===== Complex ideas =====//
-    Nebulite::ERROR_TYPE sql_call(int argc, char* argv[]);      // idea is to get data from a read-only sql database managed by FileManagement
-    Nebulite::ERROR_TYPE json_call(int argc, char* argv[]);     // idea is to get data from a read-only json database managed by FileManagement
+    Nebulite::ERROR_TYPE sql_call(int argc, char* argv[]);      // idea is to get data from a read-only sql database managed by FileManagement/Invoke
+    Nebulite::ERROR_TYPE json_call(int argc, char* argv[]);     // idea is to get data from a read-only json database managed by FileManagement/Invoke
+    
 };
 }

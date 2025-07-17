@@ -18,8 +18,7 @@
 
 #include "Platform.h"
 #include "StringHandler.h"
-
-
+#include "JSON.h"
 
 class FileManagement{
 public:
@@ -34,3 +33,4 @@ public:
 
     static std::string currentDir();
 };
+
