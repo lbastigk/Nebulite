@@ -3,99 +3,79 @@
 #include "Nebulite.h"
 // TODO: Add depth to mainTree:
 /*
-
-
-
-// Functions kept in maintree for ease of use:
-eval
-spawn
-for
-wait
-always
-
-// Splitting into a tree:
-system      echo  
-            error
-debug       print
-            log
-global      set
-            print
-            log
-
-state       load
-            set
-            print
-            log
-
-renderer    set-fps
-            cam-set
-            cam-move
-
-debug       standard-render-object
+Example:
+MainFuncTree
+    - system
+        - echo
+        - error
+        - assert
+        - return
+    - debug
+        - print
+        - log
+        - standard-render-object
+        - always
+        - always-clear
+    - global
+        - set
+        - print
+        - log
+    - state
+        - load
+        - set
+        - print
+        - log
+    - renderer
+        - set-fps
+        - cam-set
+        - cam-move
 */
 
-// Helper function
-/*
-template<typename TClass, typename TEnum>
-void bind(FuncTree<TEnum>& tree,
-                          TClass* instance,
-                          TEnum (TClass::*method)(int, char**),
-                          const std::string& name,
-                          const std::string& description) {
-    tree.attachFunction(
-        [instance, method](int argc, char** argv) {
-            return (instance->*method)(argc, argv);
-        },
-        name,
-        description
-    );
-}
-*/
 
 
 Nebulite::MainFuncTree::MainFuncTree(Nebulite::Invoke* invoke)
-    : FuncTreeWrapper("MainFuncTree", Nebulite::ERROR_TYPE::NONE, Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID) {
+    : FuncTreeWrapper("Nebulite", Nebulite::ERROR_TYPE::NONE, Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID) {
     
     invoke_ptr = invoke;
     
     // General
-    bind(funcTree, this, &MainFuncTree::eval,            "eval",         "Evaluate all $(...) after this keyword, parse rest as usual");
-    bind(funcTree, this, &MainFuncTree::setGlobal,       "set-global",   "Set any global variable: [key] [value]");
-    bind(funcTree, this, &MainFuncTree::envload,         "env-load",     "Loads an environment");
-    bind(funcTree, this, &MainFuncTree::envdeload,       "env-deload",   "Deloads an environment");
-    bind(funcTree, this, &MainFuncTree::spawn,           "spawn",        "Spawn a renderobject");
-    bind(funcTree, this, &MainFuncTree::exitProgram,     "exit",         "exits the program");
-    bind(funcTree, this, &MainFuncTree::stateSave,       "state-save",   "Saves the state");
-    bind(funcTree, this, &MainFuncTree::stateLoad,       "state-load",   "Loads a state");
-    bind(funcTree, this, &MainFuncTree::loadTaskList,    "task",         "Loads a txt file of tasks");
-    bind(funcTree, this, &MainFuncTree::wait,            "wait",         "Halt all commands for a set amount of frames");
-    bind(funcTree, this, &MainFuncTree::forLoop,         "for",          "Start for-loop. Usage: for var <iStart> <iEnd> command $var");
-    bind(funcTree, this, &MainFuncTree::func_assert,     "assert",       "Force a certain return value");
-    bind(funcTree, this, &MainFuncTree::func_return,     "return",       "Returns an assert value, stopping program");
+    bindFunction(funcTree, this, &MainFuncTree::eval,            "eval",         "Evaluate all $(...) after this keyword, parse rest as usual");
+    bindFunction(funcTree, this, &MainFuncTree::setGlobal,       "set-global",   "Set any global variable: [key] [value]");
+    bindFunction(funcTree, this, &MainFuncTree::envload,         "env-load",     "Loads an environment");
+    bindFunction(funcTree, this, &MainFuncTree::envdeload,       "env-deload",   "Deloads an environment");
+    bindFunction(funcTree, this, &MainFuncTree::spawn,           "spawn",        "Spawn a renderobject");
+    bindFunction(funcTree, this, &MainFuncTree::exitProgram,     "exit",         "exits the program");
+    bindFunction(funcTree, this, &MainFuncTree::stateSave,       "state-save",   "Saves the state");
+    bindFunction(funcTree, this, &MainFuncTree::stateLoad,       "state-load",   "Loads a state");
+    bindFunction(funcTree, this, &MainFuncTree::loadTaskList,    "task",         "Loads a txt file of tasks");
+    bindFunction(funcTree, this, &MainFuncTree::wait,            "wait",         "Halt all commands for a set amount of frames");
+    bindFunction(funcTree, this, &MainFuncTree::forLoop,         "for",          "Start for-loop. Usage: for var <iStart> <iEnd> command $var");
+    bindFunction(funcTree, this, &MainFuncTree::func_assert,     "assert",       "Force a certain return value");
+    bindFunction(funcTree, this, &MainFuncTree::func_return,     "return",       "Returns an assert value, stopping program");
     
     // Renderer Settings
-    bind(funcTree, this, &MainFuncTree::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
-    bind(funcTree, this, &MainFuncTree::setResolution,   "set-res",      "Sets resolution size: [w] [h]");
-    bind(funcTree, this, &MainFuncTree::setCam,          "cam-set",      "Sets Camera position [x] [y] <c>");
-    bind(funcTree, this, &MainFuncTree::moveCam,         "cam-move",     "Moves Camera position [dx] [dy]");
+    bindFunction(funcTree, this, &MainFuncTree::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
+    bindFunction(funcTree, this, &MainFuncTree::setResolution,   "set-res",      "Sets resolution size: [w] [h]");
+    bindFunction(funcTree, this, &MainFuncTree::setCam,          "cam-set",      "Sets Camera position [x] [y] <c>");
+    bindFunction(funcTree, this, &MainFuncTree::moveCam,         "cam-move",     "Moves Camera position [dx] [dy]");
 
     // Debug
-    bind(funcTree, this, &MainFuncTree::echo,            "echo",         "Echos all args provided to cout");
-    bind(funcTree, this, &MainFuncTree::error,           "error",        "Echos all args provided to cerr");
-    bind(funcTree, this, &MainFuncTree::printGlobal,     "print-global", "Prints global doc to cout");
-    bind(funcTree, this, &MainFuncTree::printState,      "print-state",  "Prints state to cout");
-    bind(funcTree, this, &MainFuncTree::logGlobal,       "log-global",   "Logs global doc to file");
-    bind(funcTree, this, &MainFuncTree::logState,        "log-state",    "Logs state to file");
-    bind(funcTree, this, &MainFuncTree::errorlog,        "log",          "Activate/Deactivate error log");
-    bind(funcTree, this, &MainFuncTree::always,          "always",       "Attach functioncall that is executed on each tick");
-    bind(funcTree, this, &MainFuncTree::alwaysClear,     "always-clear", "Clear all always-functioncalls");
+    bindFunction(funcTree, this, &MainFuncTree::echo,            "echo",         "Echos all args provided to cout");
+    bindFunction(funcTree, this, &MainFuncTree::error,           "error",        "Echos all args provided to cerr");
+    bindFunction(funcTree, this, &MainFuncTree::printGlobal,     "print-global", "Prints global doc to cout");
+    bindFunction(funcTree, this, &MainFuncTree::printState,      "print-state",  "Prints state to cout");
+    bindFunction(funcTree, this, &MainFuncTree::logGlobal,       "log-global",   "Logs global doc to file");
+    bindFunction(funcTree, this, &MainFuncTree::logState,        "log-state",    "Logs state to file");
+    bindFunction(funcTree, this, &MainFuncTree::errorlog,        "log",          "Activate/Deactivate error log");
+    bindFunction(funcTree, this, &MainFuncTree::always,          "always",       "Attach functioncall that is executed on each tick");
+    bindFunction(funcTree, this, &MainFuncTree::alwaysClear,     "always-clear", "Clear all always-functioncalls");
 
     // Helper
-    bind(funcTree, this, &MainFuncTree::render_object,   "standard-render-object",  "Serializes standard renderobject to ./Resources/Renderobjects/standard.json");
+    bindFunction(funcTree, this, &MainFuncTree::render_object,   "standard-render-object",  "Serializes standard renderobject to ./Resources/Renderobjects/standard.json");
 
     // Internal Tests
-    bind(funcTree, this, &MainFuncTree::printVar,        "print-var",   "Prints the value of the test variable");
-    attachVariable(&testVar, "testVar", "Test variable for printing");
+    bindFunction(funcTree, this, &MainFuncTree::printVar,        "print-var",   "Prints the value of the test variable");
+    bindVariable(&testVar, "testVar", "Test variable for printing");
 }
 
 

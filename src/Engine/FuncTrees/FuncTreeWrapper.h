@@ -51,7 +51,7 @@ public:
 
     // Binding helper
     template<typename ClassType, typename ReturnType>
-    void bind(FuncTree<ReturnType>& tree,
+    void bindFunction(FuncTree<ReturnType>& tree,
             ClassType* obj,
             ReturnType (ClassType::*method)(int, char**),
             const std::string& name,
@@ -66,7 +66,7 @@ public:
     }
 
     // Attach a variable as string pointer to the FuncTree
-    void attachVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription) {
+    void bindVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription) {
         funcTree.attachVariable(varPtr, name, helpDescription);
     }
 
