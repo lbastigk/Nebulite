@@ -44,9 +44,6 @@ namespace Nebulite{
 	    invoke.linkQueue(tasks_internal.taskList);
     }
 
-    // Init nebulite functions
-    
-
     // Getting renderer pointer. If Renderer isnt initialized, initialize first
     Renderer* getRenderer() {
         if (!renderer) {
@@ -56,6 +53,7 @@ namespace Nebulite{
         return renderer.get();
     }
 
+    // Check if renderer exists
     bool RendererExists(){
         return renderer != nullptr;
     }
@@ -74,12 +72,18 @@ Nebulite::taskQueueResult Nebulite::resolveTaskQueue(Nebulite::taskQueue& tq, ui
             std::string argStr = tq.taskList.front();
             tq.taskList.pop_front();
 
+            // Add binary name if missing
+            // While args from command line have binary name in them, 
+            // commands from Renderobject, taskfile or console do not.
+            // Is needed for correct parsing; argv[0] is alwys binary name.
             if (!argStr.starts_with(Nebulite::binName + " ")) {
                 argStr = Nebulite::binName + " " + argStr;
             }
 
+            // Parse
             currentResult = Nebulite::mainFuncTree.parseStr(argStr);
 
+            // Check result
             if (currentResult < Nebulite::ERROR_TYPE::NONE) {
                 result.stoppedAtCriticalResult = true;
             }
@@ -91,13 +95,19 @@ Nebulite::taskQueueResult Nebulite::resolveTaskQueue(Nebulite::taskQueue& tq, ui
             if (result.stoppedAtCriticalResult) break;
             if (counter && *counter != 0) break;
 
+            // Add binary name if missing
+            // While args from command line have binary name in them, 
+            // commands from Renderobject, taskfile or console do not.
+            // Is needed for correct parsing; argv[0] is alwys binary name.
             std::string argStr = argStrOrig;
             if (!argStr.starts_with(Nebulite::binName + " ")) {
                 argStr = Nebulite::binName + " " + argStr;
             }
 
+            // Parse
             currentResult = Nebulite::mainFuncTree.parseStr(argStr);
 
+            // Check result
             if (currentResult < Nebulite::ERROR_TYPE::NONE) {
                 result.stoppedAtCriticalResult = true;
             }
