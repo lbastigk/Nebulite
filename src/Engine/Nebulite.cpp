@@ -65,33 +65,44 @@ Nebulite::taskQueueResult Nebulite::resolveTaskQueue(Nebulite::taskQueue& tq, ui
     Nebulite::ERROR_TYPE currentResult = Nebulite::ERROR_TYPE::NONE;
     Nebulite::taskQueueResult result;
 
-    bool processedPersistentTask = false;
-    while (!tq.taskList.empty() && (counter == nullptr || *counter == 0) && !result.stoppedAtCriticalResult) {
-        // Get task
-        std::string argStr = tq.taskList.front();
+    // If clearAfterResolving, process and pop each element
+    if (tq.clearAfterResolving) {
+        while (!tq.taskList.empty() && !result.stoppedAtCriticalResult) {
+            // Counter logic
+            if (counter && *counter != 0) break;
 
-        // Pop only if configured to clear
-        if (tq.clearAfterResolving) {
+            std::string argStr = tq.taskList.front();
             tq.taskList.pop_front();
-        } else if (processedPersistentTask) {
-            break;  // Avoid infinite loop
+
+            if (!argStr.starts_with(Nebulite::binName + " ")) {
+                argStr = Nebulite::binName + " " + argStr;
+            }
+
+            currentResult = Nebulite::mainFuncTree.parseStr(argStr);
+
+            if (currentResult < Nebulite::ERROR_TYPE::NONE) {
+                result.stoppedAtCriticalResult = true;
+            }
+            result.errors.push_back(currentResult);
         }
-        processedPersistentTask = true;
+    } else {
+        // If not clearing, process every element without popping
+        for (const auto& argStrOrig : tq.taskList) {
+            if (result.stoppedAtCriticalResult) break;
+            if (counter && *counter != 0) break;
 
-        // Convert std::string to argc, argv
-        *argc_mainTree = 0;
-        *argv_mainTree = nullptr;
+            std::string argStr = argStrOrig;
+            if (!argStr.starts_with(Nebulite::binName + " ")) {
+                argStr = Nebulite::binName + " " + argStr;
+            }
 
-        if (!argStr.starts_with(Nebulite::binName + " ")) {
-            argStr = Nebulite::binName + " " + argStr;
+            currentResult = Nebulite::mainFuncTree.parseStr(argStr);
+
+            if (currentResult < Nebulite::ERROR_TYPE::NONE) {
+                result.stoppedAtCriticalResult = true;
+            }
+            result.errors.push_back(currentResult);
         }
-
-        currentResult = Nebulite::mainFuncTree.parseStr(argStr);
-
-        if(currentResult < Nebulite::ERROR_TYPE::NONE){
-            result.stoppedAtCriticalResult = true;
-        }
-        result.errors.push_back(currentResult);
     }
 
     return result;
