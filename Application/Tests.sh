@@ -27,6 +27,32 @@ check_binary() {
     echo "Using binary: $binary"
     echo "=============================="
 
+    #####################################################
+    # Check if basic binary functionality works
+
+    # - $binary help should print text
+    if ! $binary help | grep "Help for Nebulite"; then
+        echoerr "Help command failed for $label"
+        test_results[$label]="FAIL: unable to run help command"
+        return 1
+    fi
+
+    # - $binary echo 1234 should print 1234
+    if ! $binary echo 1234 | grep -q "1234"; then
+        echoerr "Echo command failed for $label"
+        test_results[$label]="FAIL: unable to run echo command"
+        return 1
+    fi
+
+    # - $binary error <anything> should print error message and return non-zero exit code
+    if ! output=$($binary error "test error"); then
+        echoerr "Error command failed for $label"
+        test_results[$label]="FAIL: unable to run error command"
+        return 1
+    fi
+
+    #####################################################
+    # Run provided tests
     # List of test input files
     local tests=(
         "help"
@@ -35,7 +61,6 @@ check_binary() {
         "task TaskFiles/Simulations/gravity_classic.txt"
         "task TaskFiles/Tests/obj_oob.txt"
     )
-
     for args in "${tests[@]}"; do
         echo ""
         echo "Running test args: $args"
@@ -79,7 +104,7 @@ check_binary() {
 
 #############################################
 # Run tests
-t="30s"
+t="10s"
 
 # Run Linux tests with timeout
 check_binary "timeout $t ./bin/Nebulite_Debug" "Linux Debug"   || echoerr "Linux Release tests failed"
