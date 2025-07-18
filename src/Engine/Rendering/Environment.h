@@ -24,9 +24,10 @@ public:
 	Environment();
 	Environment(const Environment& other);
 
-	//-----------------------------------------------------------
-	//Destructor
-	~Environment();
+	// Suppress copy/move operators
+	Environment(Environment&& other) = delete;
+	Environment& operator=(Environment&& other) = delete;
+	Environment& operator=(const Environment& other) = delete;
 
 	//-----------------------------------------------------------
 	//Marshalling

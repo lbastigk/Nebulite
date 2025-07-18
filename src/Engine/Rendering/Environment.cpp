@@ -2,16 +2,7 @@
 
 Nebulite::Environment::Environment() {}
 
-Nebulite::Environment::Environment(const Environment& other) {
-	//doc.CopyFrom(*(other.getDoc()), doc.GetAllocator());
-	//for (const auto& entry : other.roc)
-}
 
-//-----------------------------------------------------------
-//Destructor
-Nebulite::Environment::~Environment() {
-	//TODO
-};
 
 //-----------------------------------------------------------
 //Marshalling
