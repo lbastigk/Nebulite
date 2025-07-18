@@ -16,7 +16,6 @@
 //#include <Windows.h>
 #include <unistd.h> // For getcwd
 
-#include "Platform.h"
 #include "StringHandler.h"
 #include "JSON.h"
 

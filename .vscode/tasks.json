@@ -15,29 +15,18 @@
         },
         // AUTOMATED TEST
         {
-            "label": "[TEST]",
+            "label": "[BUILD + TEST]",
             "type": "shell",
-            "command": "cd ./Application && ./validate_json.sh ; ./CrashDebug.sh ; echo 'Error log:' ; cat ./errors.log ; cd ..",
+            "command": "cd ./Application && ./validate_json.sh && ./Tests.sh && cd ..",
             "group": {
-                "kind": "test",
+                "kind": "build",
                 "isDefault": false
             },
             "dependsOn" : "[BUILD]",
             "problemMatcher": [],
-            "detail": "Build with JSON validation and current Crash Debug"
-        },  
-        {
-            "label": "[BUILD AND RUN GRAVITY]",
-            "type": "shell",
-            "command": "cd ./Application && ./bin/Nebulite task TaskFiles/gravity_classic.txt",
-            "group": {
-                "kind": "test",
-                "isDefault": false
-            },
-            "dependsOn" : "[BUILD]",
-            "problemMatcher": [],
-            "detail": "Build with JSON validation and current Crash Debug"
-        },  
+            "detail": "Build with JSON validation and run Tests"
+        }, 
+        // Profiling
         {
             "label": "[PROFILING] On small gravity test",
             "type": "shell",

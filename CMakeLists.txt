@@ -62,7 +62,6 @@ add_subdirectory(${ABSEIL_PATH} ${ABSEIL_BUILD_PATH})
 # Source files
 set(COMMON_SOURCES
     ${TINYEXPR_PATH}/tinyexpr.c
-    ${CMAKE_SOURCE_DIR}/src/Platform/Platform.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Nebulite.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Data/JSON.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees/MainFuncTree.cpp
@@ -92,7 +91,6 @@ target_include_directories(Nebulite
         ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees
         ${CMAKE_SOURCE_DIR}/src/Engine/Helper
         ${CMAKE_SOURCE_DIR}/src/Engine/Rendering
-        ${CMAKE_SOURCE_DIR}/src/Platform
     SYSTEM
         ${RAPIDJSON_PATH}/include/rapidjson
         ${EXPRTK_PATH}

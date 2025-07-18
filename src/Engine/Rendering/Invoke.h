@@ -1,4 +1,6 @@
 #pragma once
+#include <thread>
+
 
 // NEBULITE INVOKE CLASS
 /*
@@ -35,30 +37,6 @@ Like global.levelstate or similiar
 
 */
 
-//-----------------------------------------
-//  88888888888 .d88888b.  8888888b.   .d88888b.  
-//      888    d88P" "Y88b 888  "Y88b d88P" "Y88b 
-//      888    888     888 888    888 888     888 
-//      888    888     888 888    888 888     888 
-//      888    888     888 888    888 888     888 
-//      888    888     888 888    888 888     888 
-//      888    Y88b. .d88P 888  .d88P Y88b. .d88P 
-//      888     "Y88888P"  8888888P"   "Y88888P"  
-//    
-//--------------------------------------------------
-// TODO: 
-// - threadable local invokes
-//   Inside Environment/ROC, reinsert batches for threading
-//   but small batchsize, 10 perhaps?
-// - local functioncalls for Renderobject:
-//   each Renderobject with a tree to functions like:
-//   - Position-text
-//   - addChildren
-//   - removeChildren
-//   - reloadInvokes
-//   - addInvoke
-//   - removeAllInvokes
-//--------------------------------------------------
 
 //-----------------------------------------
 // THREADING SETTINGS

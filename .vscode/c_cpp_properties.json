@@ -15,8 +15,7 @@
                 "${workspaceFolder}/src/Engine/Data/",
                 "${workspaceFolder}/src/Engine/FuncTrees/",
                 "${workspaceFolder}/src/Engine/Helper/",
-                "${workspaceFolder}/src/Engine/Rendering/",
-                "${workspaceFolder}/src/Platform/"
+                "${workspaceFolder}/src/Engine/Rendering/"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",
@@ -27,8 +26,7 @@
                 "path": [
                     "${workspaceFolder}/src/Engine",
                     "${workspaceFolder}/src/Engine/Helper",
-                    "${workspaceFolder}/src/Engine/Rendering",
-                    "${workspaceFolder}/src/Platform"
+                    "${workspaceFolder}/src/Engine/Rendering"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             }

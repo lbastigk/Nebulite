@@ -76,6 +76,14 @@ private:
     Nebulite::ERROR_TYPE log_value(int argc, char* argv[]);
     Nebulite::ERROR_TYPE assert_nonzero(int argc, char* argv[]);
     Nebulite::ERROR_TYPE assert_not_in_doc(int argc, char* argv[]);
+
+    //===== Children & Invokes =====//
+    Nebulite::ERROR_TYPE addChildren(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE removeChildren(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE removeAllChildren(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE addInvoke(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE removeInvoke(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE removeAllInvokes(int argc, char* argv[]);
     
     //===== Complex ideas =====//
     Nebulite::ERROR_TYPE sql_call(int argc, char* argv[]);      // idea is to get data from a read-only sql database managed by FileManagement/Invoke
