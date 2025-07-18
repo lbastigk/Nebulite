@@ -65,6 +65,11 @@ public:
         );
     }
 
+    // Attach a variable as string pointer to the FuncTree
+    void attachVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription) {
+        funcTree.attachVariable(varPtr, name, helpDescription);
+    }
+
 protected:
     FuncTree<T> funcTree;
 };

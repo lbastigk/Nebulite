@@ -94,7 +94,8 @@ Nebulite::MainFuncTree::MainFuncTree(Nebulite::Invoke* invoke)
     bind(funcTree, this, &MainFuncTree::render_object,   "standard-render-object",  "Serializes standard renderobject to ./Resources/Renderobjects/standard.json");
 
     // Internal Tests
-    // None atm
+    bind(funcTree, this, &MainFuncTree::printVar,        "print-var",   "Prints the value of the test variable");
+    attachVariable(&testVar, "testVar", "Test variable for printing");
 }
 
 
@@ -492,4 +493,10 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::func_return(int argc, char* argv[])
         return Nebulite::ERROR_TYPE::TOO_MANY_ARGS;
     }
     return (Nebulite::ERROR_TYPE)std::stoi(argv[1]);
+}
+
+
+Nebulite::ERROR_TYPE Nebulite::MainFuncTree::printVar(int argc, char** argv){
+    std::cout << testVar << std::endl;
+    return Nebulite::ERROR_TYPE::NONE;
 }

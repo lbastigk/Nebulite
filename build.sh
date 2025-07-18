@@ -26,9 +26,6 @@ function clean_src() {
 }
 
 function build_debug() {
-    echo "#############################################################"
-    echo ""
-    echo "Step 1: Building debug binary"
     clean_src "build/debug/Application/bin/Nebulite"
 
     cmake -DCMAKE_BUILD_TYPE=Debug -B build/debug -S .
@@ -38,11 +35,7 @@ function build_debug() {
 }
 
 function build_release() {
-    echo "#############################################################"
-    echo ""
-    echo "Step 2: Building release binary"
     clean_src "build/release/Application/bin/Nebulite"
-
     cmake -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG -march=native" \
           -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE \
@@ -55,11 +48,7 @@ function build_release() {
 
 
 function build_debug_windows() {
-      echo "#############################################################"
-      echo ""
-      echo "Step 1: Building debug binary"
       clean_src "build/windows-debug/Application/bin/Nebulite.exe"
-
       cmake -DCMAKE_TOOLCHAIN_FILE=mingw-toolchain.cmake \
             -DCMAKE_BUILD_TYPE=Debug \
             -B build/windows-debug -S .
@@ -68,11 +57,7 @@ function build_debug_windows() {
 }
 
 function build_release_windows() {
-      echo "#############################################################"
-      echo ""
-      echo "Step 2: Building release binary"
       clean_src "build/windows-release/Application/bin/Nebulite.exe"
-
       cmake -DCMAKE_TOOLCHAIN_FILE=mingw-toolchain.cmake \
             -DCMAKE_BUILD_TYPE=Release \
             -B build/windows-release -S .
@@ -98,9 +83,24 @@ function generate_standards() {
       rm -rf "./Application/bin/Nebulite.exe"
       rm -rf "./Application/bin/Nebulite_Debug.exe"
 
+      echo "#############################################################"
+      echo ""
+      echo "Step 1: Building Linux debug binary"
       build_debug
+
+      echo "#############################################################"
+      echo ""
+      echo "Step 2: Building Linux release binary"
       build_release
+
+      echo "#############################################################"
+      echo ""
+      echo "Step 3: Building Windows debug binary"
       build_debug_windows
+
+      echo "#############################################################"
+      echo ""
+      echo "Step 4: Building Windows release binary"
       build_release_windows
 
       echo "Build done!"

@@ -115,7 +115,13 @@ private:
     // [DEBUG] Get and store a standard renderobject for reference to ./Resources/Renderobjects/standard.json
     Nebulite::ERROR_TYPE render_object(int argc, char** argv);
 
+    //---------------------------------------
+    // TESTS
+    Nebulite::ERROR_TYPE printVar(int argc, char** argv);
+
 private:
+    std::string testVar = "STANDARD";
+    
     Nebulite::Invoke* invoke_ptr;
 };
 

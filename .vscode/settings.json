@@ -90,6 +90,6 @@
         "typeindex": "cpp",
         "valarray": "cpp"
     },
-    "editor.inlineSuggest.enabled": false,
+    "editor.inlineSuggest.enabled": true,
     "cmake.ignoreCMakeListsMissing": true
 }
