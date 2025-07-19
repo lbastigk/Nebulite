@@ -199,30 +199,30 @@ void Nebulite::RenderObject::calculateSrcRect() {
 }
 
 // Helper for parsing invoke triples
-std::vector<Nebulite::Invoke::InvokeTriple> parseInvokeTriples(Nebulite::JSON& doc, std::string key) {
+std::vector<Nebulite::Invoke::OLD::InvokeTriple> parseInvokeTriples(Nebulite::JSON& doc, std::string key) {
 	std::string arr;
-    std::vector<Nebulite::Invoke::InvokeTriple> res;
+    std::vector<Nebulite::Invoke::OLD::InvokeTriple> res;
     int size = doc.memberSize(key);
 	for(int i = 0; i < size; i++){
 		arr = key + "[" + std::to_string(i) + "]";
-		Nebulite::Invoke::InvokeTriple triple;
+		Nebulite::Invoke::OLD::InvokeTriple triple;
         triple.key = 		doc.get<std::string>((arr+"key").c_str(),"");
         triple.value = 		doc.get<std::string>((arr+"value").c_str(),"");
 		triple.valueContainsResolveKeyword = triple.value.find(InvokeResolveKeyword) != std::string::npos;	// only needs to be resolved if it contains keyword
 
 		std::string changeType = doc.get<std::string>((arr+"changeType").c_str(),"");
 		if(changeType == "add"){
-			triple.changeType = Nebulite::Invoke::InvokeTriple::ChangeType::add;
+			triple.changeType = Nebulite::Invoke::OLD::InvokeTriple::ChangeType::add;
 		}
 		else if(changeType == "multiply"){
-			triple.changeType = Nebulite::Invoke::InvokeTriple::ChangeType::multiply;
+			triple.changeType = Nebulite::Invoke::OLD::InvokeTriple::ChangeType::multiply;
 		}
 		else if(changeType == "concat"){
-			triple.changeType = Nebulite::Invoke::InvokeTriple::ChangeType::concat;
+			triple.changeType = Nebulite::Invoke::OLD::InvokeTriple::ChangeType::concat;
 		}
 		else{
 			// assume set
-			triple.changeType = Nebulite::Invoke::InvokeTriple::ChangeType::set;
+			triple.changeType = Nebulite::Invoke::OLD::InvokeTriple::ChangeType::set;
 		}
 
         res.push_back(std::move(triple));
@@ -258,7 +258,7 @@ void Nebulite::RenderObject::reloadInvokes() {
 
 			//--------------------------
 			// Build entry
-			Nebulite::Invoke::InvokeEntry entry;
+			Nebulite::Invoke::OLD::InvokeEntry entry;
 			entry.selfPtr = this;
 			entry.topic =			invoke.get<std::string>("topic","all");
 			entry.isGlobal = 		invoke.get<bool>("isGlobal",true);
@@ -300,7 +300,7 @@ void Nebulite::RenderObject::reloadInvokes() {
 			}
 
 			// Append
-			auto ptr = std::make_shared<Nebulite::Invoke::InvokeEntry>(std::move(entry));
+			auto ptr = std::make_shared<Nebulite::Invoke::OLD::InvokeEntry>(std::move(entry));
 
 			if(entry.isGlobal){
 				cmds_general.push_back(ptr);

@@ -66,6 +66,7 @@ public:
     //--------------------------------------------
     // Class-Specific Structures:
 
+  
     struct Node {
       // Each expression is pre-processed using a Tree build of Nodes
       // Each node is a part of the expression:
@@ -126,81 +127,39 @@ public:
       
     };
     
+    // OLD INVOKE STRUCTURE
+    class OLD{
+    public:
+        struct InvokeTriple {
+          enum class ChangeType {set,add,multiply,concat};
+          ChangeType changeType;
+          std::string key;
+          std::string value;
+          bool valueContainsResolveKeyword = true;
+        };
 
-    // Entry describing:
-    // doc[key] = f(key,docs)
-    // e.g.:
-    // doc["var"] = doc["var"] * ( global[inner.otherVar] + 1)
-    // is:
-    // { 
-    //    changeType : "multiply"
-    //    key : "var"
-    //    value : "$( $(global.inner.otherVar) + 1 )"
-    // }
-
-    // Current Invoke Structure:
-    /*
-    {
-      "topic" : "all",
-      "logicalArg": "1",
-      "isGlobal": true,
-      "self_invokes": [
-        {
-          "changeType": "add",
-          "key": "posX",
-          "value": "0"
-        }
-      ],
-      "other_invokes": [
-        {
-          "changeType": "set",
-          "key": "posX",
-          "value": "0"
-        }
-      ],
-      "global_invokes": [
-        {
-          "changeType": "set",
-          "key": "posX",
-          "value": "0"
-        }
-      ],
-      "functioncalls": [
-        "echo example",
-        "echo please remove this"
-      ]
-    }
-    */
-    
-
-    struct InvokeTriple {
-        enum class ChangeType {set,add,multiply,concat};
-        ChangeType changeType;
-        std::string key;
-        std::string value;
-        bool valueContainsResolveKeyword = true;
+      // Full entry consisting of:
+      // - topic
+      // - who self is
+      // - logical argument (if-condition)
+      // - invoke triples to self
+      // - invoke triples to other
+      // - invoke triples to global
+      // - if invoke is global (broadcast topic)
+      struct InvokeEntry{
+          std::string topic = "all";
+          Nebulite::RenderObject* selfPtr;      // store self
+          std::string logicalArg;                     // e.g. $($(self.posX) > $(other.posY))
+          std::vector<InvokeTriple> invokes_self;     // vector : key-value pair
+          std::vector<InvokeTriple> invokes_other;
+          std::vector<InvokeTriple> invokes_global;
+          std::vector<std::string> functioncalls;     // function calls, e.g. load, save etc
+          bool isGlobal = true;
+      };
     };
+    // New InvokeEntry structure
 
-    // Full entry consisting of:
-    // - topic
-    // - who self is
-    // - logical argument (if-condition)
-    // - invoke triples to self
-    // - invoke triples to other
-    // - invoke triples to global
-    // - if invoke is global (broadcast topic)
-    struct InvokeEntry{
-        std::string topic = "all";
-        Nebulite::RenderObject* selfPtr;      // store self
-        std::string logicalArg;                     // e.g. $($(self.posX) > $(other.posY))
-        std::vector<InvokeTriple> invokes_self;     // vector : key-value pair
-        std::vector<InvokeTriple> invokes_other;
-        std::vector<InvokeTriple> invokes_global;
-        std::vector<std::string> functioncalls;     // function calls, e.g. load, save etc
-        bool isGlobal = true;
-    };
-
-        // TODO: Planned Structure for invokes
+    // TODO: Planned Structure for invokes
     /*
     {
       "topic" : "...",      // e.g. "gravity", "hitbox", "collision". Empty topic for local invokes: no 'other', only 'self' and 'global'}
@@ -225,23 +184,24 @@ public:
       "functioncalls_other": []   // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
      }
     */
-    struct InvokeRuleset{
+    // New needed structures:
+    struct _InvokeRuleset{
       enum class ChangeType {set,add,multiply,concat};
-      ChangeType changeType; // set, add, multiply, concat
+      ChangeType changeType;                    // set, add, multiply, concat
       enum class Type {Self, Other, Global};
-      Type type;             // Self, Other, Global
-      std::string key;       // e.g. "posX"
-      std::string value;     // e.g. "0", "$(self.posX)"
-      bool valueContainsResolveKeyword = true; // if value contains a resolve keyword, e.g. "$(self.posX)" or "$(global.time.t)"
+      Type type;                                // Self, Other, Global, determines which doc is used
+      std::string key;                          // e.g. "posX"
+      std::string value;                        // e.g. "0", "$($(self.posX) + 1)"
+      bool valueContainsResolveKeyword = true;  // if value contains a resolve keyword, e.g. "$(self.posX)" or "$(global.time.t)"
     };
     struct _InvokeEntry{
-      std::string topic = "all"; // e.g. "gravity", "hitbox", "collision"
-      std::string logicalArg; // e.g. "$(self.posX) > $(other.posY)"
-      std::vector<Nebulite::Invoke::InvokeRuleset> rulesets; // vector of rulesets
-      std::vector<std::string> functioncalls_global;  // vector of function calls, e.g. "echo example"
-      std::vector<std::string> functioncalls_self;    // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
-      std::vector<std::string> functioncalls_other;   // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
-      bool isGlobal = true; // if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
+      std::string topic = "all";                              // e.g. "gravity", "hitbox", "collision"
+      std::string logicalArg;                                 // e.g. "$(self.posX) > $(other.posY)"
+      std::vector<Nebulite::Invoke::_InvokeRuleset> rulesets;  // vector of rulesets
+      std::vector<std::string> functioncalls_global;          // vector of function calls, e.g. "echo example"
+      std::vector<std::string> functioncalls_self;            // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
+      std::vector<std::string> functioncalls_other;           // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
+      bool isGlobal = true;                                   // if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
     };
 
     //--------------------------------------------
@@ -272,7 +232,7 @@ public:
 
     // Broadcast an invoke to other renderobjects to listen
     // Comparable to a radio, broadcasting on certain frequency determined by the string topic:
-    void broadcast(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>&);
+    void broadcast(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>&);
 
     // Listen to a topic
     // Checks an object against all available invokes to a topic.
@@ -283,12 +243,12 @@ public:
     // Value checks
 
     // Check if cmd is true compared to other object
-    bool isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd, Nebulite::RenderObject* otherObj);
+    bool isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd, Nebulite::RenderObject* otherObj);
 
     // Check if local invoke is true
     // Same as isTrueGlobal, but using self for linkage to other
     // Might be helpful to use an empty doc here to supress any value from other being true
-    bool isTrueLocal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd);
+    bool isTrueLocal(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd);
 
 
     //--------------------------------------------
@@ -299,12 +259,12 @@ public:
     
     // Same as updateGlobal, but without an other-object
     // Self is used as reference to other.
-    void updateLocal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self);
+    void updateLocal(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd_self);
 
     // Sets new value
     // Call representing functions of ChangeType in order to safely modify the document
     void updateValueOfKey(
-      Nebulite::Invoke::InvokeTriple::ChangeType type, 
+      Nebulite::Invoke::OLD::InvokeTriple::ChangeType type, 
       const std::string& key, 
       const std::string& valStr, 
       Nebulite::JSON *doc
@@ -362,14 +322,14 @@ private:
     absl::flat_hash_map<
       std::string, 
       std::vector<
-        std::shared_ptr<Nebulite::Invoke::InvokeEntry>
+        std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>
       >
     > globalcommands;
 
     absl::flat_hash_map<
       std::string, 
       std::vector<
-        std::shared_ptr<Nebulite::Invoke::InvokeEntry>
+        std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>
       >
     > globalcommandsBuffer; 
 
@@ -377,7 +337,7 @@ private:
     std::vector<
       std::vector<
         std::pair<
-          std::shared_ptr<Nebulite::Invoke::InvokeEntry>,
+          std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>,
           Nebulite::RenderObject*
         >
       >
@@ -391,10 +351,10 @@ private:
     //----------------------------------------------------------------
     // Private functions
 
-    void updateVectorOfInvokeTriples(std::vector<Nebulite::Invoke::InvokeTriple> *vectorInvokeTriples, JSON *self, JSON *other, JSON *global, JSON *docToManipulate);
+    void updateVectorOfInvokeTriples(std::vector<Nebulite::Invoke::OLD::InvokeTriple> *vectorInvokeTriples, JSON *self, JSON *other, JSON *global, JSON *docToManipulate);
 
     // Runs all entries in an invoke with self and other given
-    void updatePair(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self, Nebulite::RenderObject* Obj_other);
+    void updatePair(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd_self, Nebulite::RenderObject* Obj_other);
 
     // Evaluating expression with already replaced self/other/global etc. relations
     double evaluateExpression(const std::string& expr);

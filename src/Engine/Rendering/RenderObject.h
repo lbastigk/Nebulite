@@ -130,8 +130,8 @@ private:
 	SDL_Texture* textTexture;
 
 	// Invoke Commands
-	std::vector<std::shared_ptr<Nebulite::Invoke::InvokeEntry>> cmds_general;	// Global commands, intended for self-other-global interaction
-	std::vector<std::shared_ptr<Nebulite::Invoke::InvokeEntry>> cmds_internal;	// Internal commands, intended for self-global interaction
+	std::vector<std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>> cmds_general;	// Global commands, intended for self-other-global interaction
+	std::vector<std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>> cmds_internal;	// Internal commands, intended for self-global interaction
 
 	// RenderObjectTree for local function calls
 	Nebulite::RenderObjectTree renderObjectTree;

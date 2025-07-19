@@ -26,7 +26,7 @@ Nebulite::Invoke::Invoke(){
     vars.push_back(sgn_var);
 }
 
-bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd, Nebulite::RenderObject* otherObj) {
+bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd, Nebulite::RenderObject* otherObj) {
     //-----------------------------------------
     // Pre-Checks
     
@@ -79,7 +79,7 @@ bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::Invo
     return result != 0.0;
 }
 
-bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd) {
+bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd) {
     // Chekc if logical arg is as simple as just "1", meaning true
     if(cmd->logicalArg == "1") return true;
 
@@ -93,7 +93,7 @@ bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<Nebulite::Invoke::Invok
     return result != 0.0;
 }
 
-void Nebulite::Invoke::broadcast(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& toAppend){
+void Nebulite::Invoke::broadcast(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& toAppend){
     std::lock_guard<std::mutex> lock(globalcommandsBufferMutex);
     globalcommandsBuffer[toAppend->topic].push_back(toAppend);
 }
@@ -116,19 +116,19 @@ void Nebulite::Invoke::listen(Nebulite::RenderObject* obj,std::string topic){
     }
 }
 
-void Nebulite::Invoke::updateValueOfKey(Nebulite::Invoke::InvokeTriple::ChangeType type, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){
+void Nebulite::Invoke::updateValueOfKey(Nebulite::Invoke::OLD::InvokeTriple::ChangeType type, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){
     // Using Threadsafe manipulation methods of the JSON class:
     switch (type){
-        case Nebulite::Invoke::InvokeTriple::ChangeType::set:
+        case Nebulite::Invoke::OLD::InvokeTriple::ChangeType::set:
             doc->set<std::string>(key.c_str(),valStr);
             break;
-        case Nebulite::Invoke::InvokeTriple::ChangeType::add:
+        case Nebulite::Invoke::OLD::InvokeTriple::ChangeType::add:
             doc->set_add(key.c_str(),valStr.c_str());
             break;
-        case Nebulite::Invoke::InvokeTriple::ChangeType::multiply:
+        case Nebulite::Invoke::OLD::InvokeTriple::ChangeType::multiply:
             doc->set_multiply(key.c_str(),valStr.c_str());
             break;
-        case Nebulite::Invoke::InvokeTriple::ChangeType::concat:
+        case Nebulite::Invoke::OLD::InvokeTriple::ChangeType::concat:
             doc->set_concat(key.c_str(),valStr.c_str());
             break;
         default:
@@ -137,7 +137,7 @@ void Nebulite::Invoke::updateValueOfKey(Nebulite::Invoke::InvokeTriple::ChangeTy
     }
 }
 
-void Nebulite::Invoke::updateVectorOfInvokeTriples(std::vector<Nebulite::Invoke::InvokeTriple> *vectorInvokeTriples, JSON *self, JSON *other, JSON *global, JSON *docToManipulate){
+void Nebulite::Invoke::updateVectorOfInvokeTriples(std::vector<Nebulite::Invoke::OLD::InvokeTriple> *vectorInvokeTriples, JSON *self, JSON *other, JSON *global, JSON *docToManipulate){
     for(auto InvokeTriple : *vectorInvokeTriples){
         if (!InvokeTriple.key.empty()) {
             std::string valStr;
@@ -154,7 +154,7 @@ void Nebulite::Invoke::updateVectorOfInvokeTriples(std::vector<Nebulite::Invoke:
     }
 }
 
-void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self, Nebulite::RenderObject* Obj_other) {
+void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd_self, Nebulite::RenderObject* Obj_other) {
 
     JSON *self  = cmd_self->selfPtr->getDoc();
     JSON *other = Obj_other->getDoc();
@@ -175,7 +175,7 @@ void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::Invoke
     }
 }
 
-void Nebulite::Invoke::updateLocal(const std::shared_ptr<Nebulite::Invoke::InvokeEntry>& cmd_self){
+void Nebulite::Invoke::updateLocal(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd_self){
 
     JSON *self  = cmd_self->selfPtr->getDoc();
     JSON *other = &emptyDoc;    // Use an empty doc for other
