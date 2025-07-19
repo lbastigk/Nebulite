@@ -42,7 +42,7 @@
 #include "JSON.h"
 #include "Invoke.h"
 #include "KeyNames.h"
-//#include "RenderObjectTree.h"	// TODO: for more complex functioncalls on renderobjects
+#include "RenderObjectTree.h"
 
 namespace Nebulite{
 class RenderObject {
@@ -132,6 +132,9 @@ private:
 	// Invoke Commands
 	std::vector<std::shared_ptr<Nebulite::Invoke::InvokeEntry>> cmds_general;	// Global commands, intended for self-other-global interaction
 	std::vector<std::shared_ptr<Nebulite::Invoke::InvokeEntry>> cmds_internal;	// Internal commands, intended for self-global interaction
+
+	// RenderObjectTree for local function calls
+	Nebulite::RenderObjectTree renderObjectTree;
 };
 }
 

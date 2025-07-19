@@ -65,6 +65,7 @@ set(COMMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/Engine/Nebulite.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Data/JSON.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees/MainFuncTree.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees/RenderObjectTree.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FileManagement.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/StringHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/Time.cpp

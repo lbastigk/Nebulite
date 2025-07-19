@@ -45,7 +45,11 @@ Design Constraints:
 
 #include "ErrorTypes.h"
 #include "FuncTreeWrapper.h"
-#include "RenderObject.h"
+#include "FileManagement.h"
+
+namespace Nebulite {
+  class RenderObject;  // Forward declaration
+}
 
 namespace Nebulite{
 

@@ -137,7 +137,42 @@ public:
     //    key : "var"
     //    value : "$( $(global.inner.otherVar) + 1 )"
     // }
-    #define USE_EVAL_STR 0
+
+    // Current Invoke Structure:
+    /*
+    {
+      "topic" : "all",
+      "logicalArg": "1",
+      "isGlobal": true,
+      "self_invokes": [
+        {
+          "changeType": "add",
+          "key": "posX",
+          "value": "0"
+        }
+      ],
+      "other_invokes": [
+        {
+          "changeType": "set",
+          "key": "posX",
+          "value": "0"
+        }
+      ],
+      "global_invokes": [
+        {
+          "changeType": "set",
+          "key": "posX",
+          "value": "0"
+        }
+      ],
+      "functioncalls": [
+        "echo example",
+        "echo please remove this"
+      ]
+    }
+    */
+    
+
     struct InvokeTriple {
         enum class ChangeType {set,add,multiply,concat};
         ChangeType changeType;
@@ -163,6 +198,50 @@ public:
         std::vector<InvokeTriple> invokes_global;
         std::vector<std::string> functioncalls;     // function calls, e.g. load, save etc
         bool isGlobal = true;
+    };
+
+        // TODO: Planned Structure for invokes
+    /*
+    {
+      "topic" : "...",      // e.g. "gravity", "hitbox", "collision". Empty topic for local invokes: no 'other', only 'self' and 'global'}
+      "logicalArg": "...",  // e.g. "$(self.posX) > $(other.posY)
+      "Rulesets" : [
+        {
+          // all rulesets in one vector
+          // with the following structure:
+          // type.key1.key2.... <assignment-operator> value
+          // operators are: 
+          // - set: =
+          // - add: +=
+          // - multiply: *=
+          // - concat: |=
+          "self.key1 = 0",
+          "other.key2 *= 2",
+          "global.key3 = 1"
+        }
+      ],
+      "functioncalls_global": [], // vector of function calls, e.g. "echo example"
+      "functioncalls_self": [],   // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
+      "functioncalls_other": []   // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
+     }
+    */
+    struct InvokeRuleset{
+      enum class ChangeType {set,add,multiply,concat};
+      ChangeType changeType; // set, add, multiply, concat
+      enum class Type {Self, Other, Global};
+      Type type;             // Self, Other, Global
+      std::string key;       // e.g. "posX"
+      std::string value;     // e.g. "0", "$(self.posX)"
+      bool valueContainsResolveKeyword = true; // if value contains a resolve keyword, e.g. "$(self.posX)" or "$(global.time.t)"
+    };
+    struct _InvokeEntry{
+      std::string topic = "all"; // e.g. "gravity", "hitbox", "collision"
+      std::string logicalArg; // e.g. "$(self.posX) > $(other.posY)"
+      std::vector<Nebulite::Invoke::InvokeRuleset> rulesets; // vector of rulesets
+      std::vector<std::string> functioncalls_global;  // vector of function calls, e.g. "echo example"
+      std::vector<std::string> functioncalls_self;    // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
+      std::vector<std::string> functioncalls_other;   // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
+      bool isGlobal = true; // if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
     };
 
     //--------------------------------------------

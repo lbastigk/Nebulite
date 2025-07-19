@@ -1,9 +1,10 @@
 #include "RenderObject.h"
+#include "RenderObjectTree.h"
 
 //-----------------------------------------------------------
 // Special member Functions
 
-Nebulite::RenderObject::RenderObject() {
+Nebulite::RenderObject::RenderObject() : renderObjectTree(this) {
 	// General
 	json.set(Nebulite::keyName.renderObject.id.c_str(),0);
 	json.set(Nebulite::keyName.renderObject.positionX.c_str(), 0);
@@ -368,7 +369,27 @@ void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 }
 
 
+
 uint64_t Nebulite::RenderObject::estimateCompuationalCost(){
+	// TODO: Estimate computational cost based on the number of references
+	// Meaning, counting the number of '$' in the invoke triples
+	// Example implementation:
+	/*
+	// Count the number of '$' in the invoke triples
+	uint64_t cost = 0;
+	for (const auto& cmd : cmds_internal) {
+		for (const auto& triple : cmd->invokes_self) {
+			cost += std::count(triple.value.begin(), triple.value.end(), '$');
+		}
+		for (const auto& triple : cmd->invokes_other) {
+			cost += std::count(triple.value.begin(), triple.value.end(), '$');
+		}
+		for (const auto& triple : cmd->invokes_global) {
+			cost += std::count(triple.value.begin(), triple.value.end(), '$');
+		}
+	}
+	return cost;
+	*/
 	if(valueGet<int>(Nebulite::keyName.renderObject.reloadInvokes.c_str(),true)){
 		reloadInvokes();
 	}
