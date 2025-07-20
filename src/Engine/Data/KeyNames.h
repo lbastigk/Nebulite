@@ -31,6 +31,7 @@ const struct keyName {
         std::string invokes = "invokes";
         std::string invokeSubscriptions = "invokeSubscriptions";
         std::string reloadInvokes = "invokeReload";
+        std::string invokeVector = "invokes";
     }renderObject;
     const struct MyTemplate {
         std::string _self = "MyTemplate";
@@ -39,12 +40,14 @@ const struct keyName {
     const struct invoke{
         std::string _self = "invoke";
         std::string logicalArg = "logicalArg";
-        std::string functioncalls = "functioncalls";
-        std::string invokes_self = "self_invokes";
-        std::string invokes_other = "other_invokes";
-        std::string invokes_global = "global_invokes";
-        std::string isGlobal = "isGlobal";
+        std::string functioncalls_global = "functioncalls_global";
+        std::string functioncalls_self = "functioncalls_self";
+        std::string functioncalls_other = "functioncalls_other";
         std::string topic = "topic";
+        std::string exprVector = "exprs";
+        std::string typeSelf = "self";
+        std::string typeOther = "other";
+        std::string typeGlobal = "global";
     }invoke;
     const struct invokeTriple{
         std::string _self = "invokeTriple";

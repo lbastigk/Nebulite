@@ -1,10 +1,10 @@
 {
   "topic" : "",
   "logicalArg": "1",
-  "exprs" : [],
-  "functioncalls_global": [
-    "eval echo ( $(self.posX) , $(self.posY) )"
+  "exprs" : [
+    "self.posX += 1"
   ],
+  "functioncalls_global": [],
   "functioncalls_self": [],
   "functioncalls_other": []
 }

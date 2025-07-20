@@ -11,7 +11,18 @@
                 "isDefault": false
             },
             "problemMatcher": [],
-            "detail": "Build the projects release and debug binaries by running build.sh from project root directory."
+            "detail": "Build the projects release and debug binaries."
+        },
+        {
+            "label": "[MINIMAL BUILD]",
+            "type": "shell",
+            "command": "./build.sh -minimal",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [],
+            "detail": "Builds the projects Linux Release binary."
         },
         // AUTOMATED TEST
         {

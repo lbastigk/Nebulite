@@ -7,15 +7,28 @@ echo "/_/ |_/_____/_____/\____/_____/___/ /_/ /_____/____/_____/\____/___/_____/
 echo "                                             /_____/                              ";
 echo ""
 
+################################################
+# Check for sudo
 if [ "$EUID" -eq 0 ]; then
   echo "This script should NOT be run as root or with sudo. Please run as a regular user."
   exit 1
 fi
 build_type="None"
 
+################################################
+# Enable strict error handling
 set -Ee
 trap 'echo ""; echo "[ERROR] Build failed on ${build_type}!"; echo "Consider running a full clean with make clean"; exit 1' ERR
 
+################################################
+# Parse arguments
+minimal_build=false
+if [[ "$1" == "-minimal" ]]; then
+    minimal_build=true
+fi
+
+################################################
+# Functions
 function clean_src() {
     echo "Cleaning only Nebulite object files and binaries"
 
@@ -87,27 +100,29 @@ rm -rf "./Application/bin/Nebulite_Debug.exe"
 
 echo "#############################################################"
 echo ""
-echo "Step 1: Building Linux debug binary"
-build_type="Linux Debug"
-build_debug
-
-echo "#############################################################"
-echo ""
-echo "Step 2: Building Linux release binary"
+echo "Step 1: Building Linux release binary"
 build_type="Linux Release"
 build_release
 
-echo "#############################################################"
-echo ""
-echo "Step 3: Building Windows debug binary"
-build_type="Windows Debug"
-build_debug_windows
+if [[ "$minimal_build" == false ]]; then
+    echo "#############################################################"
+    echo ""
+    echo "Step 2: Building Linux debug binary"
+    build_type="Linux Debug"
+    build_debug
 
-echo "#############################################################"
-echo ""
-echo "Step 4: Building Windows release binary"
-build_type="Windows Release"
-build_release_windows
+    echo "#############################################################"
+    echo ""
+    echo "Step 3: Building Windows release binary"
+    build_type="Windows Release"
+    build_release_windows
+
+    echo "#############################################################"
+    echo ""
+    echo "Step 4: Building Windows debug binary"
+    build_type="Windows Debug"
+    build_debug_windows
+fi
 
 echo "Build done!"
 echo ""

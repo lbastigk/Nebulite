@@ -66,7 +66,8 @@ public:
     //--------------------------------------------
     // Class-Specific Structures:
 
-  
+
+    // ==== EXPRESSION PARSING ====
     struct Node {
       // Each expression is pre-processed using a Tree build of Nodes
       // Each node is a part of the expression:
@@ -124,40 +125,11 @@ public:
       // $(1 + (2 + 3)) -> BETTER. only one call
       bool insideEvalParent = false;      
     };
-    
-    // OLD INVOKE STRUCTURE
-    class OLD{
-    public:
-        struct InvokeTriple {
-          enum class ChangeType {set,add,multiply,concat};
-          ChangeType changeType;
-          std::string key;
-          std::string value;
-          bool valueContainsResolveKeyword = true;
-        };
 
-      // Full entry consisting of:
-      // - topic
-      // - who self is
-      // - logical argument (if-condition)
-      // - invoke triples to self
-      // - invoke triples to other
-      // - invoke triples to global
-      // - if invoke is global (broadcast topic)
-      struct InvokeEntry{
-          std::string topic = "all";
-          Nebulite::RenderObject* selfPtr;      // store self
-          std::string logicalArg;                     // e.g. $($(self.posX) > $(other.posY))
-          std::vector<InvokeTriple> invokes_self;     // vector : key-value pair
-          std::vector<InvokeTriple> invokes_other;
-          std::vector<InvokeTriple> invokes_global;
-          std::vector<std::string> functioncalls;     // function calls, e.g. load, save etc
-          bool isGlobal = true;
-      };
-    };
-    // New InvokeEntry structure
+    // ==== INVOKE ENTRY PARSING ====
+    // Prases the JSON doc part "invokes" of a renderobject into Structures
 
-    // TODO: Planned Structure for invokes
+    // Example JSON:
     /*
     {
       "topic" : "...",      // e.g. "gravity", "hitbox", "collision". Empty topic for local invokes: no 'other', only 'self' and 'global'}
@@ -180,19 +152,12 @@ public:
       "functioncalls_other": []   // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
      }
     */
-    // New needed structures:
-    //
-    // self.animation.xRolling += $(global.keyboard.current.w) + $(global.keyboard.current.s)
-    // turns into:
-    // - operation: add
-    // - onType: Self
-    // - key: animation.xRolling
-    // - value: "$(global.keyboard.current.w) + $(global.keyboard.current.s)"
-    // - valueContainsReference: true
+    
+    // Parsed into:
     struct AssignmentExpression{
-      enum class Operation {set,add,multiply,concat};
+      enum class Operation {null, set,add,multiply,concat};
       Operation operation;                      // set, add, multiply, concat
-      enum class Type {Self, Other, Global};
+      enum class Type {null, Self, Other, Global};
       Type onType;                              // Self, Other, Global, determines which doc is used
       std::string key;                          // e.g. "posX"
       std::string value;                        // e.g. "0", "$($(self.posX) + 1)"
@@ -208,6 +173,8 @@ public:
       bool isGlobal = true;                                       // if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
       Nebulite::RenderObject* selfPtr;                            // store self
     };
+
+    // ==== INVOKE PARSING HELPER FUNCTION ====  
 
     // Function to convert a JSON doc of Renderobject into a vector of Invoke::Entry
     static void parseFromJSON(

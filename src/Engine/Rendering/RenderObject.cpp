@@ -214,6 +214,7 @@ void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 		// 1.) Reload invokes if needed
 		if (valueGet<int>(Nebulite::keyName.renderObject.reloadInvokes.c_str(),true)){
 			Invoke::parseFromJSON(json, entries_global, entries_local, this);
+			valueSet<bool>(Nebulite::keyName.renderObject.reloadInvokes.c_str(),false);
 		}
 
 		//------------------------------

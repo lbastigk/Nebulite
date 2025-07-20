@@ -1,12 +1,12 @@
 {
+  "topic" : "",
   "logicalArg": "1",
-  "isGlobal": false,
-  "self_invokes": [],
-  "other_invokes": [],
-  "global_invokes": [],
-  "functioncalls": [
+  "exprs" : [],
+  "functioncalls_global": [
     "echo",
     "echo Global state is:",
     "print-global"
-  ]
+  ],
+  "functioncalls_self": [],
+  "functioncalls_other": []
 }

@@ -6,7 +6,7 @@
         "all"
     ],
     "invokes": [
-        "./Resources/Invokes/Debug/always_echo.json"
+        "./Resources/Invokes/Debug/mix_test.json"
     ],
     "layer": 0,
     "posX": 0,
