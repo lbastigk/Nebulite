@@ -1,6 +1,6 @@
 {
-  "topic" : "...",
-  "logicalArg": "...",
+  "topic" : "",
+  "logicalArg": "1",
   "exprs" : [
       "self.key1 = 0",
       "other.key2 *= 2",

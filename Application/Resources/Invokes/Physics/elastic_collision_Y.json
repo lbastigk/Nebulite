@@ -1,7 +1,7 @@
 {
-  "topic" : "collision",
-  "comment0" : "Collision ruleset for reflecting Y velocity",
-  "comment1" : "All in logicalArg array must be true",
+  "topic": "collision",
+  "comment000": "Collision ruleset for reflecting Y velocity",
+  "comment001": "All in logicalArg array must be true",
   "logicalArg": [
     "neq($(global.time.t), $(other.collision.time.lastY))",
     "$(other.physics.mass)",
@@ -11,38 +11,16 @@
     " lt($(other.posY),       $(self.posY)  + $(self.sprite.sizeY))",
     "not(  lt($(self.posX)+$(self.sprite.sizeX) - 2,$(other.posX)) + lt($(other.posX)+$(other.sprite.sizeX) - 2,$(self.posX))  )"
   ],
-  "isGlobal": true,
-  "self_invokes": [
+  "comment002": "Expressions for other objects",
+  "exprs": [
+    "other.physics.vY = $(0.99*$($(other.physics.vY) - (2 * $(self.physics.mass) / ($(other.physics.mass) + $(self.physics.mass))) * ($(other.physics.vY) - $(self.physics.vY))))",
+    "other.physics.aX = 0",
+    "other.physics.aY = 0",
+    "other.collision.time.lastY = $($(global.time.t) + 0)"
   ],
-  "other_invokes": [
-    {
-      "comment" : "Reflect other object",
-      "changeType": "set",
-      "key": "physics.vY",
-      "value": "$(0.99*$($(other.physics.vY) - (2 * $(self.physics.mass) / ($(other.physics.mass) + $(self.physics.mass))) * ($(other.physics.vY) - $(self.physics.vY))))"
-    },
-    {
-      "comment" : "Make sure acceleration isnt affecting position",
-      "changeType": "set",
-      "key": "physics.aX",
-      "value": "0"
-    },
-    {
-      "comment" : "Make sure acceleration isnt affecting position",
-      "changeType": "set",
-      "key": "physics.aY",
-      "value": "0"
-    },
-    {
-      "comment" : "Store last collision time",
-      "changeType": "set",
-      "key": "collision.time.lastY",
-      "value": "$($(global.time.t) + 0)"
-    }
-  ],
-  "global_invokes": [],
-  "functioncalls": [
+  "functioncalls_global": [
     "eval echo Collision, reflecting Y at $(global.time.t_ms) ms \t self mass: $(self.physics.mass) other mass: $(other.physics.mass)"
-  ]
+  ],
+  "functioncalls_self": [],
+  "functioncalls_other": []
 }
-

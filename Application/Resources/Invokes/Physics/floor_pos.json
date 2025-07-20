@@ -1,19 +1,11 @@
 {
+  "topic" : "",
   "logicalArg": "1",
-  "isGlobal": false,
-  "self_invokes": [
-    {
-      "changeType": "set",
-      "key": "posX",
-      "value": "$( floor($(self.posX)))"
-    },
-    {
-      "changeType": "set",
-      "key": "posY",
-      "value": "$( floor($(self.posY)))"
-    }
+  "exprs" : [
+      "self.posX = $( floor($(self.posX)))",
+      "self.posY = $( floor($(self.posY)))"
   ],
-  "other_invokes": [],
-  "global_invokes": [],
-  "functioncalls": []
+  "functioncalls_global": [],
+  "functioncalls_self": [],
+  "functioncalls_other": []
 }

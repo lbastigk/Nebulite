@@ -27,6 +27,7 @@ Nebulite::Invoke::Invoke(){
     vars.push_back(sgn_var);
 }
 
+// TODO: Allow logicalArg to be a vector of strings!
 void Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc, std::vector<std::shared_ptr<Nebulite::Invoke::Entry>>& entries_global, std::vector<std::shared_ptr<Nebulite::Invoke::Entry>>& entries_local, Nebulite::RenderObject* self) {
     std::cerr << "Parsing Invokes from JSON..." << std::endl;
     

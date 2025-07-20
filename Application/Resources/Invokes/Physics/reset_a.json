@@ -1,19 +1,11 @@
 {
+  "topic": "",
   "logicalArg": "1",
-  "isGlobal": false,
-  "self_invokes": [
-    {
-      "changeType": "set",
-      "key": "physics.aX",
-      "value": "0"
-    },
-    {
-      "changeType": "set",
-      "key": "physics.aY",
-      "value": "0"
-    }
+  "exprs": [
+    "self.physics.aX = 0",
+    "self.physics.aY = 0"
   ],
-  "other_invokes": [],
-  "global_invokes": [],
-  "functioncalls": []
+  "functioncalls_global": [],
+  "functioncalls_self": [],
+  "functioncalls_other": []
 }

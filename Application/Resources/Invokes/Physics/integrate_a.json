@@ -1,19 +1,11 @@
 {
+  "topic": "",
   "logicalArg": "1",
-  "isGlobal": false,
-  "self_invokes": [
-    {
-      "changeType": "add",
-      "key": "physics.vX",
-      "value": "$($(self.physics.aX) * $(global.time.dt))"
-    },
-    {
-      "changeType": "add",
-      "key": "physics.vY",
-      "value": "$($(self.physics.aY) * $(global.time.dt))"
-    }
+  "exprs": [
+    "self.physics.vX += $($(self.physics.aX) * $(global.time.dt))",
+    "self.physics.vY += $($(self.physics.aY) * $(global.time.dt))"
   ],
-  "other_invokes": [],
-  "global_invokes": [],
-  "functioncalls": []
+  "functioncalls_global": [],
+  "functioncalls_self": [],
+  "functioncalls_other": []
 }
