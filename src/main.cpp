@@ -79,7 +79,7 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
                                 | Layer 1         |
                                 |-----------------|
 
-    RenderObjects:              Holds information about each object as well as their Interaction Rulesets - Invokes
+    RenderObjects:              Holds information about each object as well as their Interaction Rulesets via the Invoke class
                                 On update, compares itself against all previously send Invokes from other Renderobjects 
                                 if it is subscribed to that topic
                                 e.g.: I am a moving object, subscribed to all Commands of type: Collision so that i dont moved into them

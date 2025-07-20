@@ -164,9 +164,9 @@ public:
     {
       "topic" : "...",      // e.g. "gravity", "hitbox", "collision". Empty topic for local invokes: no 'other', only 'self' and 'global'}
       "logicalArg": "...",  // e.g. "$(self.posX) > $(other.posY)
-      "Rulesets" : [
+      "exprs" : [
         {
-          // all rulesets in one vector
+          // all exprs in one vector
           // with the following structure:
           // type.key1.key2.... <assignment-operator> value
           // operators are: 
@@ -185,28 +185,38 @@ public:
      }
     */
     // New needed structures:
-    struct _InvokeRuleset{
-      enum class ChangeType {set,add,multiply,concat};
-      ChangeType changeType;                    // set, add, multiply, concat
+    //
+    // self.animation.xRolling += $(global.keyboard.current.w) + $(global.keyboard.current.s)
+    // turns into:
+    // - operation: add
+    // - onType: Self
+    // - key: animation.xRolling
+    // - value: "$(global.keyboard.current.w) + $(global.keyboard.current.s)"
+    // - valueContainsReference: true
+    struct AssignmentExpression{
+      enum class Operation {set,add,multiply,concat};
+      Operation operation;                      // set, add, multiply, concat
       enum class Type {Self, Other, Global};
-      Type type;                                // Self, Other, Global, determines which doc is used
+      Type onType;                              // Self, Other, Global, determines which doc is used
       std::string key;                          // e.g. "posX"
       std::string value;                        // e.g. "0", "$($(self.posX) + 1)"
-      bool valueContainsResolveKeyword = true;  // if value contains a resolve keyword, e.g. "$(self.posX)" or "$(global.time.t)"
+      bool valueContainsReference = true;       // if value contains a reference keyword, e.g. "$(self.posX)" or "$(global.time.t)"
     };
-    struct _InvokeEntry{
-      std::string topic = "all";                              // e.g. "gravity", "hitbox", "collision"
-      std::string logicalArg;                                 // e.g. "$(self.posX) > $(other.posY)"
-      std::vector<Nebulite::Invoke::_InvokeRuleset> rulesets;  // vector of rulesets
-      std::vector<std::string> functioncalls_global;          // vector of function calls, e.g. "echo example"
-      std::vector<std::string> functioncalls_self;            // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
-      std::vector<std::string> functioncalls_other;           // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
-      bool isGlobal = true;                                   // if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
+    struct Entry{
+      std::string topic = "all";                                  // e.g. "gravity", "hitbox", "collision"
+      std::string logicalArg;                                     // e.g. "$(self.posX) > $(other.posY)"
+      std::vector<Nebulite::Invoke::AssignmentExpression> exprs;  // vector of exprs
+      std::vector<std::string> functioncalls_global;              // vector of function calls, e.g. "echo example"
+      std::vector<std::string> functioncalls_self;                // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
+      std::vector<std::string> functioncalls_other;               // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
+      bool isGlobal = true;                                       // if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
     };
+
+    // Function to convert a JSON doc of Renderobject into a vector of Invoke::Entry
+    static std::vector<Nebulite::Invoke::Entry> parseFromJSON(Nebulite::JSON& doc);
 
     //--------------------------------------------
     // General
-
     Invoke();
 
     // Setting up invoke by linking it to a global doc

@@ -26,6 +26,92 @@ Nebulite::Invoke::Invoke(){
     vars.push_back(sgn_var);
 }
 
+std::vector<Nebulite::Invoke::Entry> Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc) {
+    std::vector<Nebulite::Invoke::Entry> entries;
+    if (doc.memberCheck("Invokes") != Nebulite::JSON::KeyType::array) {
+    return entries; // Return empty vector if "entries" is not an array
+    }
+
+    // Get size of entries
+    uint32_t size = doc.memberSize("Invokes");
+    if (size == 0) {
+    return entries; // Return empty vector if no entries
+    }
+
+    for (int i = 0; i < size; ++i) {
+    std::string key = "Invokes[" + std::to_string(i) + "]";
+    Nebulite::JSON entry = doc.get_subdoc(key.c_str());
+
+    Nebulite::Invoke::Entry invokeEntry;
+    invokeEntry.topic = entry.get<std::string>("topic", "all");
+    invokeEntry.logicalArg = entry.get<std::string>("logicalArg", "");
+    invokeEntry.isGlobal = entry.get<bool>("isGlobal", true);
+    
+    // Get expressions
+    if (entry.memberCheck("exprs") == Nebulite::JSON::KeyType::array) {
+        uint32_t exprSize = entry.memberSize("exprs");
+        for (uint32_t j = 0; j < exprSize; ++j) {
+        std::string exprKey = "exprs[" + std::to_string(j) + "]";
+        
+        // Get expression
+        std::string expr = entry.get<std::string>(exprKey.c_str(), "");
+
+        // Turn string into assignmentExpr with {onType, key, operation, value, valueContainsReference}
+        Nebulite::Invoke::AssignmentExpression assignmentExpr;
+
+        // needs to start with "self.", "other." or "global."
+        if (expr.starts_with("self.")) {
+            assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::Self;
+            assignmentExpr.key = expr.substr(5);
+        } else if (expr.starts_with("other.")) {
+            assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::Other;
+            assignmentExpr.key = expr.substr(6);
+        } else if (expr.starts_with("global.")) {
+            assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::Global;
+            assignmentExpr.key = expr.substr(7);
+        } else {
+            // Invalid expression
+            continue;
+        }
+
+        // Get operation by finding first occurrence of '=' or '+=' or '*=' or '|='
+        if (expr.find("=") != std::string::npos) {
+            if (expr.find("+=") != std::string::npos) {
+            assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::add;
+            } else if (expr.find("*=") != std::string::npos) {
+            assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::multiply;
+            } else if (expr.find("|=") != std::string::npos) {
+            assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::concat;
+            } else {
+            assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::set;
+            }
+        } else {
+            // no operation found
+            continue;
+        }
+
+        // Get value, which is everything after the first '=':
+        size_t pos = expr.find_first_of("=");
+        if (pos != std::string::npos) {
+            assignmentExpr.value = expr.substr(pos + 1);
+            assignmentExpr.valueContainsReference = false; // Default to false
+        }
+        else {
+            // no value found
+            continue;
+        }
+
+        // Add assignmentExpr to invokeEntry
+        invokeEntry.exprs.push_back(assignmentExpr);
+        }
+    }
+
+    entries.push_back(invokeEntry);
+    }
+    return entries;
+}
+
+
 bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd, Nebulite::RenderObject* otherObj) {
     //-----------------------------------------
     // Pre-Checks
