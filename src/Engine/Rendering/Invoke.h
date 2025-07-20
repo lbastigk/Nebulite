@@ -122,9 +122,7 @@ public:
       // makes sure that the inner $(2+3) expression is not resolved:
       // $(1 + 5.0000)  -> BAD, total calls for expr is 2
       // $(1 + (2 + 3)) -> BETTER. only one call
-      bool insideEvalParent = false;
-
-      
+      bool insideEvalParent = false;      
     };
     
     // OLD INVOKE STRUCTURE
@@ -165,7 +163,6 @@ public:
       "topic" : "...",      // e.g. "gravity", "hitbox", "collision". Empty topic for local invokes: no 'other', only 'self' and 'global'}
       "logicalArg": "...",  // e.g. "$(self.posX) > $(other.posY)
       "exprs" : [
-        {
           // all exprs in one vector
           // with the following structure:
           // type.key1.key2.... <assignment-operator> value
@@ -177,7 +174,6 @@ public:
           "self.key1 = 0",
           "other.key2 *= 2",
           "global.key3 = 1"
-        }
       ],
       "functioncalls_global": [], // vector of function calls, e.g. "echo example"
       "functioncalls_self": [],   // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
@@ -210,10 +206,16 @@ public:
       std::vector<std::string> functioncalls_self;                // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
       std::vector<std::string> functioncalls_other;               // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
       bool isGlobal = true;                                       // if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
+      Nebulite::RenderObject* selfPtr;                            // store self
     };
 
     // Function to convert a JSON doc of Renderobject into a vector of Invoke::Entry
-    static std::vector<Nebulite::Invoke::Entry> parseFromJSON(Nebulite::JSON& doc);
+    static void parseFromJSON(
+      Nebulite::JSON& doc, 
+      std::vector<std::shared_ptr<Nebulite::Invoke::Entry>>& entries_global, 
+      std::vector<std::shared_ptr<Nebulite::Invoke::Entry>>& entries_local, 
+      Nebulite::RenderObject* self
+    );
 
     //--------------------------------------------
     // General
@@ -242,7 +244,7 @@ public:
 
     // Broadcast an invoke to other renderobjects to listen
     // Comparable to a radio, broadcasting on certain frequency determined by the string topic:
-    void broadcast(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>&);
+    void broadcast(const std::shared_ptr<Nebulite::Invoke::Entry>&);
 
     // Listen to a topic
     // Checks an object against all available invokes to a topic.
@@ -253,12 +255,12 @@ public:
     // Value checks
 
     // Check if cmd is true compared to other object
-    bool isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd, Nebulite::RenderObject* otherObj);
+    bool isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::Entry>& entry, Nebulite::RenderObject* otherObj);
 
     // Check if local invoke is true
     // Same as isTrueGlobal, but using self for linkage to other
     // Might be helpful to use an empty doc here to supress any value from other being true
-    bool isTrueLocal(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd);
+    bool isTrueLocal(const std::shared_ptr<Nebulite::Invoke::Entry>& entry);
 
 
     //--------------------------------------------
@@ -269,12 +271,12 @@ public:
     
     // Same as updateGlobal, but without an other-object
     // Self is used as reference to other.
-    void updateLocal(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd_self);
+    void updateLocal(const std::shared_ptr<Nebulite::Invoke::Entry>& entries_self);
 
     // Sets new value
     // Call representing functions of ChangeType in order to safely modify the document
     void updateValueOfKey(
-      Nebulite::Invoke::OLD::InvokeTriple::ChangeType type, 
+      Nebulite::Invoke::AssignmentExpression::Operation operation, 
       const std::string& key, 
       const std::string& valStr, 
       Nebulite::JSON *doc
@@ -296,8 +298,8 @@ private:
 
     // Mutex lock for tasks and buffers
     mutable std::recursive_mutex tasks_lock;
-    std::mutex globalcommandsBufferMutex;
-    std::mutex globalcommandsMutex;
+    std::mutex entries_global_next_Mutex;
+    std::mutex entries_global_Mutex;
     std::mutex pairsMutex;
 
     //----------------------------------------------------------------
@@ -328,26 +330,25 @@ private:
     // Hashmaps and vectors
 
     // Current and next commands
-    // cmds["topic"][]
     absl::flat_hash_map<
       std::string, 
       std::vector<
-        std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>
+        std::shared_ptr<Nebulite::Invoke::Entry>
       >
-    > globalcommands;
+    > entries_global;
 
     absl::flat_hash_map<
       std::string, 
       std::vector<
-        std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>
+        std::shared_ptr<Nebulite::Invoke::Entry>
       >
-    > globalcommandsBuffer; 
+    > entries_global_next; 
 
     // All pairs of last listen
     std::vector<
       std::vector<
         std::pair<
-          std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>,
+          std::shared_ptr<Nebulite::Invoke::Entry>,
           Nebulite::RenderObject*
         >
       >
@@ -361,10 +362,8 @@ private:
     //----------------------------------------------------------------
     // Private functions
 
-    void updateVectorOfInvokeTriples(std::vector<Nebulite::Invoke::OLD::InvokeTriple> *vectorInvokeTriples, JSON *self, JSON *other, JSON *global, JSON *docToManipulate);
-
     // Runs all entries in an invoke with self and other given
-    void updatePair(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd_self, Nebulite::RenderObject* Obj_other);
+    void updatePair(const std::shared_ptr<Nebulite::Invoke::Entry>& entries_self, Nebulite::RenderObject* Obj_other);
 
     // Evaluating expression with already replaced self/other/global etc. relations
     double evaluateExpression(const std::string& expr);

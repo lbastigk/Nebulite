@@ -198,122 +198,6 @@ void Nebulite::RenderObject::calculateSrcRect() {
 	}
 }
 
-// Helper for parsing invoke triples
-std::vector<Nebulite::Invoke::OLD::InvokeTriple> parseInvokeTriples(Nebulite::JSON& doc, std::string key) {
-	std::string arr;
-    std::vector<Nebulite::Invoke::OLD::InvokeTriple> res;
-    int size = doc.memberSize(key);
-	for(int i = 0; i < size; i++){
-		arr = key + "[" + std::to_string(i) + "]";
-		Nebulite::Invoke::OLD::InvokeTriple triple;
-        triple.key = 		doc.get<std::string>((arr+"key").c_str(),"");
-        triple.value = 		doc.get<std::string>((arr+"value").c_str(),"");
-		triple.valueContainsResolveKeyword = triple.value.find(InvokeResolveKeyword) != std::string::npos;	// only needs to be resolved if it contains keyword
-
-		std::string changeType = doc.get<std::string>((arr+"changeType").c_str(),"");
-		if(changeType == "add"){
-			triple.changeType = Nebulite::Invoke::OLD::InvokeTriple::ChangeType::add;
-		}
-		else if(changeType == "multiply"){
-			triple.changeType = Nebulite::Invoke::OLD::InvokeTriple::ChangeType::multiply;
-		}
-		else if(changeType == "concat"){
-			triple.changeType = Nebulite::Invoke::OLD::InvokeTriple::ChangeType::concat;
-		}
-		else{
-			// assume set
-			triple.changeType = Nebulite::Invoke::OLD::InvokeTriple::ChangeType::set;
-		}
-
-        res.push_back(std::move(triple));
-	}
-    return res;
-}
-
-void Nebulite::RenderObject::reloadInvokes() {
-    cmds_general.clear();
-    cmds_internal.clear();
-
-	Nebulite::JSON::KeyType type = json.memberCheck("invokes");
-
-	if(type == Nebulite::JSON::KeyType::array){
-		int size = json.memberSize("invokes");
-		for(int i = 0; i < size; i++){
-			std::string key = "invokes[" + std::to_string(i) + "]";
-
-			Nebulite::JSON invoke;
-			if(json.memberCheck(key.c_str()) == Nebulite::JSON::KeyType::value){
-				std::string link = "";
-				link = json.get(key.c_str(),link);
-				invoke.deserialize(link);
-			}
-			else if (json.memberCheck(key.c_str()) == Nebulite::JSON::KeyType::document){
-				invoke = json.get_subdoc(key.c_str());
-			}
-			else{
-				std::cerr << "Unsupported invoke. Skipping." << std::endl;
-				continue;
-			}
-
-
-			//--------------------------
-			// Build entry
-			Nebulite::Invoke::OLD::InvokeEntry entry;
-			entry.selfPtr = this;
-			entry.topic =			invoke.get<std::string>("topic","all");
-			entry.isGlobal = 		invoke.get<bool>("isGlobal",true);
-			entry.invokes_self = 	parseInvokeTriples(invoke,"self_invokes");
-			entry.invokes_other = 	parseInvokeTriples(invoke,"other_invokes");
-			entry.invokes_global = 	parseInvokeTriples(invoke,"global_invokes");
-
-			// Allow array splitting for logical arg
-			if(invoke.memberCheck("logicalArg") == Nebulite::JSON::KeyType::array){
-				entry.logicalArg = InvokeResolveKeywordWithOpenParanthesis;
-				int size = invoke.memberSize("logicalArg");
-				std::string key;
-				for (int j = 0; j < size; j++){
-					key = "logicalArg[" + std::to_string(j) + "]";
-					entry.logicalArg += "(";
-					entry.logicalArg += invoke.get<std::string>(key.c_str(),"");
-					entry.logicalArg += ")";
-					if(j != size-1){
-						entry.logicalArg += "*";
-					}
-				}
-				entry.logicalArg += ")";
-			}
-			else if(invoke.memberCheck("logicalArg") == Nebulite::JSON::KeyType::value){
-				entry.logicalArg = invoke.get<std::string>("logicalArg","1");
-			}
-			else{
-				entry.logicalArg = "1";
-			}
-			
-
-			entry.functioncalls.clear();
-
-			std::string arr;
-			int size = invoke.memberSize("functioncalls");
-			for(int i = 0; i < size; i++){
-				arr = "functioncalls[" + std::to_string(i) + "]";
-				entry.functioncalls.push_back(invoke.get<std::string>(arr.c_str(),""));
-			}
-
-			// Append
-			auto ptr = std::make_shared<Nebulite::Invoke::OLD::InvokeEntry>(std::move(entry));
-
-			if(entry.isGlobal){
-				cmds_general.push_back(ptr);
-			}
-			else{
-				cmds_internal.push_back(ptr);
-			}
-
-		}
-	}
-    json.set(Nebulite::keyName.renderObject.reloadInvokes.c_str(), false);
-}
-
 //-----------------------------------------------------------
 // TODO: Change this to be a two-part:
 //
@@ -329,14 +213,14 @@ void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 		//------------------------------
 		// 1.) Reload invokes if needed
 		if (valueGet<int>(Nebulite::keyName.renderObject.reloadInvokes.c_str(),true)){
-			reloadInvokes();
+			Invoke::parseFromJSON(json, entries_global, entries_local, this);
 		}
 
 		//------------------------------
 		// 2.) Directly solve local invokes (loop)
-		for (const auto& cmd : cmds_internal){
-			if(globalInvoke->isTrueLocal(cmd)){
-				globalInvoke->updateLocal(cmd);
+		for (const auto& entry : entries_local){
+			if(globalInvoke->isTrueLocal(entry)){
+				globalInvoke->updateLocal(entry);
 			}
 		}
 
@@ -354,9 +238,9 @@ void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 		//------------------------------
 		// 4.) Append general invokes from object itself back for global check
 		//     This makes sure that no invokes from inactive objects stay in the list
-		for (const auto& cmd : cmds_general){
+		for (const auto& entry : entries_global){
 			// add pointer to invoke command to global
-			globalInvoke->broadcast(cmd);
+			globalInvoke->broadcast(entry);
 		}
     }else{
 		std::cerr << "Invoke is nullptr!" << std::endl;
@@ -377,22 +261,15 @@ uint64_t Nebulite::RenderObject::estimateCompuationalCost(){
 	/*
 	// Count the number of '$' in the invoke triples
 	uint64_t cost = 0;
-	for (const auto& cmd : cmds_internal) {
-		for (const auto& triple : cmd->invokes_self) {
-			cost += std::count(triple.value.begin(), triple.value.end(), '$');
-		}
-		for (const auto& triple : cmd->invokes_other) {
-			cost += std::count(triple.value.begin(), triple.value.end(), '$');
-		}
-		for (const auto& triple : cmd->invokes_global) {
-			cost += std::count(triple.value.begin(), triple.value.end(), '$');
-		}
+	for (const auto& entry : entries_global) {
+		...
 	}
 	return cost;
 	*/
-	if(valueGet<int>(Nebulite::keyName.renderObject.reloadInvokes.c_str(),true)){
-		reloadInvokes();
-	}
-	return cmds_internal.size();
+	return entries_global.size();
 }
 
+
+Nebulite::ERROR_TYPE Nebulite::RenderObject::parseStr(const std::string& str){
+	return renderObjectTree.parseStr(str);
+}

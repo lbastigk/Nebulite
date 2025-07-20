@@ -12,6 +12,7 @@
 
 typedef uint64_t UINT64;
 
+namespace Nebulite{
 class StringHandler {
 public:
     static bool containsAnyOf(const std::string& str, const std::string& chars);
@@ -38,4 +39,7 @@ public:
     static std::string afterSpecialChar(std::string input, char specialChar);
 
     static std::string lstrip(const std::string& input, char specialChar = ' ');
+
+    static std::string rstrip(const std::string& input, char specialChar = ' ');
 };
+}

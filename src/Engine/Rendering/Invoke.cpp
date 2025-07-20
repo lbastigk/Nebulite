@@ -1,5 +1,6 @@
 #include "Invoke.h"
 #include "RenderObject.h"   // Linked here instead of in .h file due to circular dependencies
+#include "StringHandler.h"
 
 Nebulite::Invoke::Invoke(){
     //-------------------------------------------------
@@ -26,93 +27,111 @@ Nebulite::Invoke::Invoke(){
     vars.push_back(sgn_var);
 }
 
-std::vector<Nebulite::Invoke::Entry> Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc) {
-    std::vector<Nebulite::Invoke::Entry> entries;
+void Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc, std::vector<std::shared_ptr<Nebulite::Invoke::Entry>>& entries_global, std::vector<std::shared_ptr<Nebulite::Invoke::Entry>>& entries_local, Nebulite::RenderObject* self) {
+    entries_global.clear();
+    entries_local.clear();
+
     if (doc.memberCheck("Invokes") != Nebulite::JSON::KeyType::array) {
-    return entries; // Return empty vector if "entries" is not an array
+        return;
     }
 
     // Get size of entries
     uint32_t size = doc.memberSize("Invokes");
     if (size == 0) {
-    return entries; // Return empty vector if no entries
+        return;
     }
 
     for (int i = 0; i < size; ++i) {
-    std::string key = "Invokes[" + std::to_string(i) + "]";
-    Nebulite::JSON entry = doc.get_subdoc(key.c_str());
+        std::string key = "Invokes[" + std::to_string(i) + "]";
+        Nebulite::JSON entry = doc.get_subdoc(key.c_str());
 
-    Nebulite::Invoke::Entry invokeEntry;
-    invokeEntry.topic = entry.get<std::string>("topic", "all");
-    invokeEntry.logicalArg = entry.get<std::string>("logicalArg", "");
-    invokeEntry.isGlobal = entry.get<bool>("isGlobal", true);
-    
-    // Get expressions
-    if (entry.memberCheck("exprs") == Nebulite::JSON::KeyType::array) {
-        uint32_t exprSize = entry.memberSize("exprs");
-        for (uint32_t j = 0; j < exprSize; ++j) {
-        std::string exprKey = "exprs[" + std::to_string(j) + "]";
+        Nebulite::Invoke::Entry invokeEntry;
+        invokeEntry.topic = entry.get<std::string>("topic", "all");
+        invokeEntry.logicalArg = entry.get<std::string>("logicalArg", "");
+        invokeEntry.isGlobal = entry.get<bool>("isGlobal", true);
         
-        // Get expression
-        std::string expr = entry.get<std::string>(exprKey.c_str(), "");
+        // Get expressions
+        if (entry.memberCheck("exprs") == Nebulite::JSON::KeyType::array) {
+            uint32_t exprSize = entry.memberSize("exprs");
+            for (uint32_t j = 0; j < exprSize; ++j) {
+                std::string exprKey = "exprs[" + std::to_string(j) + "]";
+                
+                // Get expression
+                std::string expr = entry.get<std::string>(exprKey.c_str(), "");
 
-        // Turn string into assignmentExpr with {onType, key, operation, value, valueContainsReference}
-        Nebulite::Invoke::AssignmentExpression assignmentExpr;
+                // Turn string into assignmentExpr with {onType, key, operation, value, valueContainsReference}
+                Nebulite::Invoke::AssignmentExpression assignmentExpr;
 
-        // needs to start with "self.", "other." or "global."
-        if (expr.starts_with("self.")) {
-            assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::Self;
-            assignmentExpr.key = expr.substr(5);
-        } else if (expr.starts_with("other.")) {
-            assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::Other;
-            assignmentExpr.key = expr.substr(6);
-        } else if (expr.starts_with("global.")) {
-            assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::Global;
-            assignmentExpr.key = expr.substr(7);
-        } else {
-            // Invalid expression
-            continue;
-        }
+                // needs to start with "self.", "other." or "global."
+                if (expr.starts_with("self.")) {
+                    assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::Self;
+                    assignmentExpr.key = expr.substr(5);
+                } else if (expr.starts_with("other.")) {
+                    assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::Other;
+                    assignmentExpr.key = expr.substr(6);
+                } else if (expr.starts_with("global.")) {
+                    assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::Global;
+                    assignmentExpr.key = expr.substr(7);
+                } else {
+                    // Invalid expression
+                    continue;
+                }
 
-        // Get operation by finding first occurrence of '=' or '+=' or '*=' or '|='
-        if (expr.find("=") != std::string::npos) {
-            if (expr.find("+=") != std::string::npos) {
-            assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::add;
-            } else if (expr.find("*=") != std::string::npos) {
-            assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::multiply;
-            } else if (expr.find("|=") != std::string::npos) {
-            assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::concat;
-            } else {
-            assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::set;
+                // Get operation by finding first occurrence of '=' or '+=' or '*=' or '|='
+                if (expr.find("=") != std::string::npos) {
+                    if (expr.find("+=") != std::string::npos) {
+                    assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::add;
+                    } else if (expr.find("*=") != std::string::npos) {
+                    assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::multiply;
+                    } else if (expr.find("|=") != std::string::npos) {
+                    assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::concat;
+                    } else {
+                    assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::set;
+                    }
+                } else {
+                    // no operation found
+                    continue;
+                }
+
+                // Get value, which is everything after the first '=':
+                size_t pos = expr.find_first_of("=");
+                if (pos != std::string::npos) {
+                    assignmentExpr.value = expr.substr(pos + 1);
+                    assignmentExpr.valueContainsReference = false; // Default to false
+                }
+                else {
+                    // no value found
+                    continue;
+                }
+
+                // Remove whitespaces at start and end of key and value
+                assignmentExpr.key = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(assignmentExpr.key));
+                assignmentExpr.value = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(assignmentExpr.value));
+
+                // Add assignmentExpr to invokeEntry
+                invokeEntry.exprs.push_back(assignmentExpr);
             }
+        }
+
+        // Remove whitespaces at start and end from topic and logicalArg:
+        invokeEntry.topic = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(invokeEntry.topic));
+        invokeEntry.logicalArg = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(invokeEntry.logicalArg));
+
+        // Make shared_ptr from invokeEntry
+        auto invokeEntryPtr = std::make_shared<Nebulite::Invoke::Entry>(invokeEntry);
+        invokeEntryPtr->selfPtr = self; // Set self pointer
+
+        if(invokeEntryPtr->topic.empty()){
+            // If topic is empty, it is a local invoke
+            invokeEntryPtr->isGlobal = false; // Set isGlobal to false for local invokes
+            entries_local.push_back(invokeEntryPtr);
         } else {
-            // no operation found
-            continue;
-        }
-
-        // Get value, which is everything after the first '=':
-        size_t pos = expr.find_first_of("=");
-        if (pos != std::string::npos) {
-            assignmentExpr.value = expr.substr(pos + 1);
-            assignmentExpr.valueContainsReference = false; // Default to false
-        }
-        else {
-            // no value found
-            continue;
-        }
-
-        // Add assignmentExpr to invokeEntry
-        invokeEntry.exprs.push_back(assignmentExpr);
+            entries_global.push_back(invokeEntryPtr);
         }
     }
-
-    entries.push_back(invokeEntry);
-    }
-    return entries;
 }
 
-
-bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd, Nebulite::RenderObject* otherObj) {
+bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::Entry>& cmd, Nebulite::RenderObject* otherObj) {
     //-----------------------------------------
     // Pre-Checks
     
@@ -165,7 +184,7 @@ bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::OLD:
     return result != 0.0;
 }
 
-bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd) {
+bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<Nebulite::Invoke::Entry>& cmd) {
     // Chekc if logical arg is as simple as just "1", meaning true
     if(cmd->logicalArg == "1") return true;
 
@@ -179,15 +198,15 @@ bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<Nebulite::Invoke::OLD::
     return result != 0.0;
 }
 
-void Nebulite::Invoke::broadcast(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& toAppend){
-    std::lock_guard<std::mutex> lock(globalcommandsBufferMutex);
-    globalcommandsBuffer[toAppend->topic].push_back(toAppend);
+void Nebulite::Invoke::broadcast(const std::shared_ptr<Nebulite::Invoke::Entry>& toAppend){
+    std::lock_guard<std::mutex> lock(entries_global_next_Mutex);
+    entries_global_next[toAppend->topic].push_back(toAppend);
 }
 
 void Nebulite::Invoke::listen(Nebulite::RenderObject* obj,std::string topic){
-    std::lock_guard<std::mutex> lock(globalcommandsMutex);
-    for (auto& cmd : globalcommands[topic]){
-        if(isTrueGlobal(cmd,obj)){
+    std::lock_guard<std::mutex> lock(entries_global_Mutex);
+    for (auto& entry : entries_global[topic]){
+        if(isTrueGlobal(entry,obj)){
             std::lock_guard<std::mutex> lock(pairsMutex);
 
             // Check if there is any existing batch
@@ -197,61 +216,70 @@ void Nebulite::Invoke::listen(Nebulite::RenderObject* obj,std::string topic){
             }
 
             // Add to the current batch (last vector)
-            pairs_threadsafe.back().emplace_back(cmd, obj);
+            pairs_threadsafe.back().emplace_back(entry, obj);
         }
     }
 }
 
-void Nebulite::Invoke::updateValueOfKey(Nebulite::Invoke::OLD::InvokeTriple::ChangeType type, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){
+void Nebulite::Invoke::updateValueOfKey(Nebulite::Invoke::AssignmentExpression::Operation operation, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){
     // Using Threadsafe manipulation methods of the JSON class:
-    switch (type){
-        case Nebulite::Invoke::OLD::InvokeTriple::ChangeType::set:
+    switch (operation){
+        case Nebulite::Invoke::AssignmentExpression::Operation::set:
             doc->set<std::string>(key.c_str(),valStr);
             break;
-        case Nebulite::Invoke::OLD::InvokeTriple::ChangeType::add:
+        case Nebulite::Invoke::AssignmentExpression::Operation::add:
             doc->set_add(key.c_str(),valStr.c_str());
             break;
-        case Nebulite::Invoke::OLD::InvokeTriple::ChangeType::multiply:
+        case Nebulite::Invoke::AssignmentExpression::Operation::multiply:
             doc->set_multiply(key.c_str(),valStr.c_str());
             break;
-        case Nebulite::Invoke::OLD::InvokeTriple::ChangeType::concat:
+        case Nebulite::Invoke::AssignmentExpression::Operation::concat:
             doc->set_concat(key.c_str(),valStr.c_str());
             break;
         default:
-            std::cerr << "Unknown key type! Enum value:" << (int)type << std::endl;
+            std::cerr << "Unknown key type! Enum value:" << (int)operation << std::endl;
             break;
     }
 }
 
-void Nebulite::Invoke::updateVectorOfInvokeTriples(std::vector<Nebulite::Invoke::OLD::InvokeTriple> *vectorInvokeTriples, JSON *self, JSON *other, JSON *global, JSON *docToManipulate){
-    for(auto InvokeTriple : *vectorInvokeTriples){
-        if (!InvokeTriple.key.empty()) {
-            std::string valStr;
-            if(InvokeTriple.valueContainsResolveKeyword){
-                valStr = resolveVars(InvokeTriple.value, self, other, global);
-            }
-            else{
-                // No need to replace any references/evaluate
-                valStr = InvokeTriple.value;
-            }
-            updateValueOfKey(InvokeTriple.changeType, InvokeTriple.key,valStr, docToManipulate);
-            
-        } 
-    }
-}
+void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::Entry>& entries_self, Nebulite::RenderObject* Obj_other) {
 
-void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd_self, Nebulite::RenderObject* Obj_other) {
+    Nebulite::RenderObject* Obj_self = entries_self->selfPtr;
 
-    JSON *self  = cmd_self->selfPtr->getDoc();
+    JSON *self  = Obj_self->getDoc();
     JSON *other = Obj_other->getDoc();
 
     // Update self, other and global
-    updateVectorOfInvokeTriples(&cmd_self->invokes_self,  self,other,global,self);
-    updateVectorOfInvokeTriples(&cmd_self->invokes_other, self,other,global,other);
-    updateVectorOfInvokeTriples(&cmd_self->invokes_global,self,other,global,global);
+    for(const auto& expr : entries_self->exprs){
+        // Check what to update
+        JSON *toUpdate = nullptr;
+        switch (expr.onType) {
+        case Nebulite::Invoke::AssignmentExpression::Type::Self:
+            toUpdate = self;
+            break;
+        case Nebulite::Invoke::AssignmentExpression::Type::Other:
+            toUpdate = other;
+            break;
+        case Nebulite::Invoke::AssignmentExpression::Type::Global:
+            toUpdate = global;
+            break;
+        default:
+            std::cerr << "Unknown assignment type: " << (int)expr.onType << std::endl;
+            return; // Exit if unknown type
+        }
 
-    // === Functioncalls ===
-    for(auto call : cmd_self->functioncalls){
+        // Update
+        if(expr.valueContainsReference){
+            std::string resolved = resolveVars(expr.value, self, other, global);
+            updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
+        }
+        else{
+            updateValueOfKey(expr.operation, expr.key, expr.value, toUpdate);
+        } 
+    }
+
+    // === Functioncalls GLOBAL ===
+    for(auto call : entries_self->functioncalls_global){
         // replace vars
         call = resolveVars(call, self, other, global);
 
@@ -259,32 +287,88 @@ void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::OLD::I
         std::lock_guard<std::recursive_mutex> lock(tasks_lock);
         tasks->emplace_back(call);
     }
+
+    // === Functioncalls LOCAL: SELF ===
+    for(auto call : entries_self->functioncalls_self){
+        // replace vars
+        call = resolveVars(call, self, other, global);
+        Obj_self->parseStr(call);
+    }
+
+    // === Functioncalls LOCAL: OTHER ===
+    for(auto call : entries_self->functioncalls_other){
+        // replace vars
+        call = resolveVars(call, self, other, global);
+        Obj_other->parseStr(call);
+    }
 }
 
-void Nebulite::Invoke::updateLocal(const std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>& cmd_self){
+void Nebulite::Invoke::updateLocal(const std::shared_ptr<Nebulite::Invoke::Entry>& entries_self){
 
-    JSON *self  = cmd_self->selfPtr->getDoc();
-    JSON *other = &emptyDoc;    // Use an empty doc for other
+    Nebulite::RenderObject* Obj_self = entries_self->selfPtr;
+    Nebulite::RenderObject* Obj_other = entries_self->selfPtr;
+
+    JSON *self  = Obj_self->getDoc();
+    JSON *other = Obj_other->getDoc();
 
     // Update self, other and global
-    updateVectorOfInvokeTriples(&cmd_self->invokes_self,  self,other,global,self);
-    updateVectorOfInvokeTriples(&cmd_self->invokes_global,self,other,global,global);
+    for(const auto& expr : entries_self->exprs){
+        // Check what to update
+        JSON *toUpdate = nullptr;
+        switch (expr.onType) {
+        case Nebulite::Invoke::AssignmentExpression::Type::Self:
+            toUpdate = self;
+            break;
+        case Nebulite::Invoke::AssignmentExpression::Type::Other:
+            toUpdate = other;
+            break;
+        case Nebulite::Invoke::AssignmentExpression::Type::Global:
+            toUpdate = global;
+            break;
+        default:
+            std::cerr << "Unknown assignment type: " << (int)expr.onType << std::endl;
+            return; // Exit if unknown type
+        }
 
-    // === Functioncalls ===
-    for(auto call : cmd_self->functioncalls){
+        // Update
+        if(expr.valueContainsReference){
+            std::string resolved = resolveVars(expr.value, self, other, global);
+            updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
+        }
+        else{
+            updateValueOfKey(expr.operation, expr.key, expr.value, toUpdate);
+        } 
+    }
+
+    // === Functioncalls GLOBAL ===
+    for(auto call : entries_self->functioncalls_global){
         // replace vars
         call = resolveVars(call, self, other, global);
 
         // attach to task queue
         std::lock_guard<std::recursive_mutex> lock(tasks_lock);
         tasks->emplace_back(call);
+    }
+
+    // === Functioncalls LOCAL: SELF ===
+    for(auto call : entries_self->functioncalls_self){
+        // replace vars
+        call = resolveVars(call, self, other, global);
+        Obj_self->parseStr(call);
+    }
+
+    // === Functioncalls LOCAL: OTHER ===
+    for(auto call : entries_self->functioncalls_other){
+        // replace vars
+        call = resolveVars(call, self, other, global);
+        Obj_other->parseStr(call);
     }
 }
 
 void Nebulite::Invoke::clear(){
     // Commands
-    globalcommands.clear();
-    globalcommandsBuffer.clear();
+    entries_global.clear();
+    entries_global_next.clear();
 
     // Pairs from commands
     pairs_threadsafe.clear();
@@ -296,8 +380,8 @@ void Nebulite::Invoke::clear(){
 void Nebulite::Invoke::update() {
 
     // Swap in the new set of commands
-    globalcommands.clear();
-    globalcommands.swap(globalcommandsBuffer);    
+    entries_global.clear();
+    entries_global.swap(entries_global_next);    
 
     std::vector<std::thread> threads;
     for (auto& pairs_batch : pairs_threadsafe) {

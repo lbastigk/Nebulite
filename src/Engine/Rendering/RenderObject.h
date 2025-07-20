@@ -101,9 +101,6 @@ public:
 	// Updating renderobject based on global/local invokes
 	void update(Nebulite::Invoke* globalInvoke);
 
-	// Reloads all invokes from json doc into cmds_general and cmds_internal
-	void reloadInvokes();
-
 	// Calculates Text Texture from info in doc as well as renderer position
 	void calculateText(SDL_Renderer* renderer,TTF_Font* font, int renderer_X, int renderer_Y);
 
@@ -115,6 +112,8 @@ public:
 
 	// Estimate computationcal cost of update (based on size of cmds_internal)
 	uint64_t estimateCompuationalCost();
+
+	Nebulite::ERROR_TYPE parseStr(const std::string& str);
 
 private:
 	// Main doc holding values
@@ -130,8 +129,8 @@ private:
 	SDL_Texture* textTexture;
 
 	// Invoke Commands
-	std::vector<std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>> cmds_general;	// Global commands, intended for self-other-global interaction
-	std::vector<std::shared_ptr<Nebulite::Invoke::OLD::InvokeEntry>> cmds_internal;	// Internal commands, intended for self-global interaction
+	std::vector<std::shared_ptr<Nebulite::Invoke::Entry>> entries_global;	// Global commands, intended for self-other-global interaction
+	std::vector<std::shared_ptr<Nebulite::Invoke::Entry>> entries_local;	// Internal commands, intended for self-global interaction
 
 	// RenderObjectTree for local function calls
 	Nebulite::RenderObjectTree renderObjectTree;

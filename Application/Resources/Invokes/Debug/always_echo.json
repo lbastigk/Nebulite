@@ -1,10 +1,10 @@
 {
+  "topic" : "",
   "logicalArg": "1",
-  "isGlobal": false,
-  "self_invokes": [],
-  "other_invokes": [],
-  "global_invokes": [],
-  "functioncalls": [
+  "exprs" : [],
+  "functioncalls_global": [
     "echo TEST"
-  ]
+  ],
+  "functioncalls_self": [],
+  "functioncalls_other": []
 }
