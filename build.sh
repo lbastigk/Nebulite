@@ -6,10 +6,15 @@ echo " / /|  / /___/ /_/ / /_/ / /____/ /  / / / /___     / /_/ / /_/ // // /___
 echo "/_/ |_/_____/_____/\____/_____/___/ /_/ /_____/____/_____/\____/___/_____/_____/  ";
 echo "                                             /_____/                              ";
 echo ""
+
 if [ "$EUID" -eq 0 ]; then
   echo "This script should NOT be run as root or with sudo. Please run as a regular user."
   exit 1
 fi
+build_type="None"
+
+set -Ee
+trap 'echo ""; echo "[ERROR] Build failed on ${build_type}!"; echo "Consider running a full clean with make clean"; exit 1' ERR
 
 function clean_src() {
     echo "Cleaning only Nebulite object files and binaries"
@@ -29,8 +34,7 @@ function build_debug() {
     clean_src "build/debug/Application/bin/Nebulite"
 
     cmake -DCMAKE_BUILD_TYPE=Debug -B build/debug -S .
-    cmake --build build/debug
-    make -j$(nproc)
+    cmake --build build/debug -j$(nproc)
     cp build/debug/Application/bin/Nebulite Application/bin/Nebulite_Debug
 }
 
@@ -41,7 +45,7 @@ function build_release() {
           -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE \
           -B build/release -S .
 
-    cmake --build build/release --target Nebulite -j$(nproc)
+    cmake --build build/release -j$(nproc)
     cp build/release/Application/bin/Nebulite Application/bin/Nebulite
     strip "./Application/bin/Nebulite"
 }
@@ -52,7 +56,7 @@ function build_debug_windows() {
       cmake -DCMAKE_TOOLCHAIN_FILE=mingw-toolchain.cmake \
             -DCMAKE_BUILD_TYPE=Debug \
             -B build/windows-debug -S .
-      cmake --build build/windows-debug --target Nebulite -j$(nproc)
+      cmake --build build/windows-debug -j$(nproc)
       cp build/windows-debug/Application/bin/Nebulite.exe Application/bin/Nebulite_Debug.exe
 }
 
@@ -61,7 +65,7 @@ function build_release_windows() {
       cmake -DCMAKE_TOOLCHAIN_FILE=mingw-toolchain.cmake \
             -DCMAKE_BUILD_TYPE=Release \
             -B build/windows-release -S .
-      cmake --build build/windows-release --target Nebulite -j$(nproc)
+      cmake --build build/windows-release -j$(nproc)
       cp build/windows-release/Application/bin/Nebulite.exe Application/bin/Nebulite.exe
 
       # Copy dlls from install.sh-created SDL2_build into the application bin
@@ -76,42 +80,38 @@ function generate_standards() {
 
 #############################################################
 # [BUILD]
-# Try-catch wrapper
-{
-      rm -rf "./Application/bin/Nebulite"
-      rm -rf "./Application/bin/Nebulite_Debug"
-      rm -rf "./Application/bin/Nebulite.exe"
-      rm -rf "./Application/bin/Nebulite_Debug.exe"
+rm -rf "./Application/bin/Nebulite"
+rm -rf "./Application/bin/Nebulite_Debug"
+rm -rf "./Application/bin/Nebulite.exe"
+rm -rf "./Application/bin/Nebulite_Debug.exe"
 
-      echo "#############################################################"
-      echo ""
-      echo "Step 1: Building Linux debug binary"
-      build_debug
+echo "#############################################################"
+echo ""
+echo "Step 1: Building Linux debug binary"
+build_type="Linux Debug"
+build_debug
 
-      echo "#############################################################"
-      echo ""
-      echo "Step 2: Building Linux release binary"
-      build_release
+echo "#############################################################"
+echo ""
+echo "Step 2: Building Linux release binary"
+build_type="Linux Release"
+build_release
 
-      echo "#############################################################"
-      echo ""
-      echo "Step 3: Building Windows debug binary"
-      build_debug_windows
+echo "#############################################################"
+echo ""
+echo "Step 3: Building Windows debug binary"
+build_type="Windows Debug"
+build_debug_windows
 
-      echo "#############################################################"
-      echo ""
-      echo "Step 4: Building Windows release binary"
-      build_release_windows
+echo "#############################################################"
+echo ""
+echo "Step 4: Building Windows release binary"
+build_type="Windows Release"
+build_release_windows
 
-      echo "Build done!"
-      echo ""
-      echo "Generating standards from Binary:"
-      generate_standards
-      echo ""
-      echo "Newest Nebulite build + files generated."
-} || {
-      echo ""
-      echo "[ERROR] Build failed!"
-      echo "Consider running a full clean with make clean"
-      exit 1
-}
+echo "Build done!"
+echo ""
+echo "Generating standards from Binary:"
+generate_standards
+echo ""
+echo "Newest Nebulite build + files generated."
