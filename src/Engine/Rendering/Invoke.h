@@ -43,6 +43,7 @@ Like global.levelstate or similiar
 
 // Size of Batches
 #define THREADED_MIN_BATCHSIZE 200  // Based on benchmark tests. Last check: 2025-07
+//#define THREADED_MIN_BATCHSIZE 8000  // Making sure only one thread is used for tests
 
 // General Includes
 #include <string>
