@@ -1,19 +1,11 @@
 {
+  "topic": "",
   "logicalArg": "1",
-  "isGlobal": false,
-  "self_invokes": [
-    {
-      "changeType": "add",
-      "key": "posX",
-      "value": "$($($(global.input.keyboard.current.d) - $(global.input.keyboard.current.a)) * 40 * $(global.time.dt))"
-    },
-    {
-      "changeType": "add",
-      "key": "posY",
-      "value": "$($($(global.input.keyboard.current.s) - $(global.input.keyboard.current.w)) * 40 * $(global.time.dt))"
-    }
+  "exprs": [
+    "self.posX = $( ($(global.input.keyboard.current.d) - $(global.input.keyboard.current.a)) * 40 * $(global.time.dt) )",
+    "self.posY = $( ($(global.input.keyboard.current.s) - $(global.input.keyboard.current.w)) * 40 * $(global.time.dt) )"
   ],
-  "other_invokes": [],
-  "global_invokes": [],
-  "functioncalls": []
+  "functioncalls_global": [],
+  "functioncalls_self": [],
+  "functioncalls_other": []
 }
