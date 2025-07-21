@@ -1,26 +1,14 @@
 {
-  "logicalArg" : "$( $(self.animation.xRolling.active) * gt($(global.time.t),$(self.animation.xRolling.next)) )",
-  "isGlobal": false,
-  "self_invokes": [
-    {
-      "comment" : "This causes an animation from left to right of the spritesheet",
-      "changeType": "set",
-      "key": "sprite.spritesheet.offsetX",
-      "value": "$( ($(self.sprite.spritesheet.offsetX) + 16) % $(self.animation.xRolling.mod) )"
-    },
-    {
-      "changeType": "set",
-      "key": "animation.xRolling.next",
-      "value": "$($(global.time.t)+0.15)"
-    },
-    {
-      "comment" : "Assume no more keypress.",
-      "changeType": "set",
-      "key": "animation.xRolling.active",
-      "value": "0"
-    }
+  "topic": "",
+  "logicalArg": "$( $(self.animation.xRolling.active) * gt($(global.time.t),$(self.animation.xRolling.next)) )",
+  "comment000": "This causes an animation from left to right of the spritesheet",
+  "comment001": "Assume no more keypress.",
+  "exprs": [
+    "self.sprite.spritesheet.offsetX = $( ($(self.sprite.spritesheet.offsetX) + 16) % $(self.animation.xRolling.mod) )",
+    "self.animation.xRolling.next = $($(global.time.t)+0.15)",
+    "self.animation.xRolling.active = 0"
   ],
-  "other_invokes": [],
-  "global_invokes": [],
-  "functioncalls": []
+  "functioncalls_global": [],
+  "functioncalls_self": [],
+  "functioncalls_other": []
 }
