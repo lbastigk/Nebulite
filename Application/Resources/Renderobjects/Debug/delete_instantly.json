@@ -1,0 +1,48 @@
+{
+    "deleteFlag": false,
+    "id": 0,
+    "invokeReload": true,
+    "invokeSubscriptions": [
+        "all"
+    ],
+    "invokes": [
+        {
+            "topic" : "",
+            "logicalArg": "1",
+            "exprs" : [],
+            "functioncalls_global": [],
+            "functioncalls_self": [
+                "delete"
+            ],
+            "functioncalls_other": []
+        }
+    ],
+    "layer": 0,
+    "posX": 0,
+    "posY": 0,
+    "sprite": {
+        "link": "Resources/Sprites/TEST001P/001.bmp",
+        "sizeX": 32,
+        "sizeY": 32,
+        "spritesheet": {
+            "isSpritesheet": false,
+            "offsetX": 0,
+            "offsetY": 0,
+            "sizeX": 0,
+            "sizeY": 0
+        }
+    },
+    "text": {
+        "color": {
+            "A": 255,
+            "B": 255,
+            "G": 255,
+            "R": 255
+        },
+        "dx": 0.0,
+        "dy": 0.0,
+        "flagCalculate": true,
+        "fontSize": 0,
+        "str": ""
+    }
+}
