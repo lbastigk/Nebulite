@@ -41,7 +41,7 @@ void Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc, std::vector<std::share
     // Get size of entries
     uint32_t size = doc.memberSize(keyName.renderObject.invokeVector);
     if (size == 0) {
-        std::cerr << "Invokes array is empty!" << std::endl;
+        // Object has no invokes
         return;
     }
 
@@ -67,7 +67,24 @@ void Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc, std::vector<std::share
         // Basic settings from entry
         Nebulite::Invoke::Entry invokeEntry;
         invokeEntry.topic = entry.get<std::string>("topic", "all");
-        invokeEntry.logicalArg = entry.get<std::string>("logicalArg", "0");
+
+        // Get logical argument
+        if(entry.memberCheck("logicalArg") == Nebulite::JSON::KeyType::array){
+            uint32_t logicalArgSize = entry.memberSize("logicalArg");
+            for(uint32_t j = 0; j < logicalArgSize; ++j) {
+                std::string logicalArgKey = "logicalArg[" + std::to_string(j) + "]";
+                std::string logicalArg = entry.get<std::string>(logicalArgKey.c_str(), "");
+                invokeEntry.logicalArg += "(" + logicalArg + ")";
+                if (j < logicalArgSize - 1) {
+                    invokeEntry.logicalArg += "*"; // Arguments in vector need to be all true: &-logic -> Multiplication
+                }
+            }
+        }
+        else{
+            // Assume simple value, string:
+            invokeEntry.logicalArg = entry.get<std::string>("logicalArg", "0");
+        }
+        
         
         // Get expressions
         if (entry.memberCheck(keyName.invoke.exprVector) == Nebulite::JSON::KeyType::array) {
@@ -138,8 +155,6 @@ void Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc, std::vector<std::share
                 std::string funcKey = keyName.invoke.functioncalls_global + "[" + std::to_string(j) + "]";
                 std::string funcCall = entry.get<std::string>(funcKey.c_str(), "");
                 invokeEntry.functioncalls_global.push_back(funcCall);
-
-                std::cerr << "Global function call: " << funcCall << std::endl;
             }
         }
         if (entry.memberCheck(keyName.invoke.functioncalls_self) == Nebulite::JSON::KeyType::array) {
@@ -147,6 +162,13 @@ void Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc, std::vector<std::share
             for (uint32_t j = 0; j < funcSize; ++j) {
                 std::string funcKey = keyName.invoke.functioncalls_self + "[" + std::to_string(j) + "]";
                 std::string funcCall = entry.get<std::string>(funcKey.c_str(), "");
+
+                // The first arg has to be some reference of where the function is called
+                // Global functions explicitly place the Binary name on the front in the global space
+                // Here, we just reference "self" as the first argument
+                if (!funcCall.starts_with("self ")) {
+                    funcCall = "self " + funcCall;
+                }
                 invokeEntry.functioncalls_self.push_back(funcCall);
             }
         }
@@ -155,6 +177,13 @@ void Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc, std::vector<std::share
             for (uint32_t j = 0; j < funcSize; ++j) {
                 std::string funcKey = keyName.invoke.functioncalls_other + "[" + std::to_string(j) + "]";
                 std::string funcCall = entry.get<std::string>(funcKey.c_str(), "");
+
+                // The first arg has to be some reference of where the function is called
+                // Global functions explicitly place the Binary name on the front in the global space
+                // Here, we just reference "other" as the first argument
+                if (!funcCall.starts_with("other ")) {
+                    funcCall = "other " + funcCall;
+                }
                 invokeEntry.functioncalls_other.push_back(funcCall);
             }
         }
@@ -338,14 +367,14 @@ void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::Entry>
     for(auto call : entries_self->functioncalls_self){
         // replace vars
         call = resolveVars(call, self, other, global);
-        Obj_self->parseStr(call);
+        (void)Obj_self->parseStr(call);
     }
 
     // === Functioncalls LOCAL: OTHER ===
     for(auto call : entries_self->functioncalls_other){
         // replace vars
         call = resolveVars(call, self, other, global);
-        Obj_other->parseStr(call);
+        (void)Obj_other->parseStr(call);
     }
 }
 

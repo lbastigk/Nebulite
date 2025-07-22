@@ -9,29 +9,16 @@
         "./Resources/Invokes/Physics/elastic_collision_X.json",
         "./Resources/Invokes/Physics/elastic_collision_Y.json",
         {
-            "topic" : "1",
+            "topic": "1",
             "logicalArg": "1",
-            "isGlobal": false,
-            "self_invokes": [
-                {
-                    "changeType": "set",
-                    "key": "go_down",
-                    "value": "$( $(global.input.keyboard.current.down) * leq( $(self.posY), $(global.display.resolution.Y) - $(self.sprite.sizeY) - 32 ) )"
-                },
-                {
-                    "changeType": "set",
-                    "key": "go_up",
-                    "value": "$( $(global.input.keyboard.current.up) * geq($(self.posY),32))"
-                },
-                {
-                    "changeType": "set",
-                    "key": "physics.vY",
-                    "value": "$( ( $(self.go_down) - $(self.go_up) ) * $(self.physics.vNorm) )"
-                }
+            "exprs": [
+                "self.go_down = $( $(global.input.keyboard.current.down) * leq( $(self.posY), $(global.display.resolution.Y) - $(self.sprite.sizeY) - 32 ) )",
+                "self.go_up = $( $(global.input.keyboard.current.up) * geq($(self.posY),32))",
+                "self.physics.vY = $( ( $(self.go_down) - $(self.go_up) ) * $(self.physics.vNorm) )"
             ],
-            "other_invokes": [],
-            "global_invokes": [],
-            "functioncalls": []
+            "functioncalls_global": [],
+            "functioncalls_self": [],
+            "functioncalls_other": []
         },
         "./Resources/Invokes/Physics/integrate_v.json"
     ],

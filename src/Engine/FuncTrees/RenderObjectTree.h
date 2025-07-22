@@ -61,21 +61,41 @@ private:
     RenderObject* self;
 
     //===== Layout & Geometry =====//
-    Nebulite::ERROR_TYPE align_text(int argc, char* argv[]);  // Aliign text to object dimensions
-    Nebulite::ERROR_TYPE make_box(int argc, char* argv[]);    // Create text box
+
+    // Aliign text to object dimensions
+    Nebulite::ERROR_TYPE align_text(int argc, char* argv[]);  
+
+    // Create text box
+    Nebulite::ERROR_TYPE make_box(int argc, char* argv[]);    
 
     //===== Computation & Internal Updates =====//
+
+    // TODO: DeleteObject doesnt work on Pong test!
+    Nebulite::ERROR_TYPE deleteObject(int argc, char* argv[]);
+
     Nebulite::ERROR_TYPE calculate_text(int argc, char* argv[]);
     Nebulite::ERROR_TYPE recalculate_all(int argc, char* argv[]);
     Nebulite::ERROR_TYPE reload_invokes(int argc, char* argv[]);
 
     //===== Data management =====//
-    Nebulite::ERROR_TYPE store(int argc, char* argv[]);         // e.g. call function and store result: store tmp.assertResult assert_nonzero keyToCheck
-    Nebulite::ERROR_TYPE move(int argc, char* argv[]);          // move part of doc from a to b
-    Nebulite::ERROR_TYPE copy(int argc, char* argv[]);          // copy part of doc from a to b
-    Nebulite::ERROR_TYPE keydelete(int argc, char* argv[]);     // delete a key from doc
+
+    // e.g. call function and store result: store tmp.assertResult assert_nonzero keyToCheck
+    Nebulite::ERROR_TYPE store(int argc, char* argv[]); 
+    
+    // move part of json doc from a to b
+    Nebulite::ERROR_TYPE move(int argc, char* argv[]);  
+    
+    // copy part of json doc from a to b
+    Nebulite::ERROR_TYPE copy(int argc, char* argv[]);   
+
+    // delete a key from json doc
+    Nebulite::ERROR_TYPE keydelete(int argc, char* argv[]);     
 
     //===== Debugging / Logging =====//
+
+    // Echoing to cout locally. Not recommended for production due to threaded nature of the update loop
+    // Only useful for debugging RenderObject logic
+    Nebulite::ERROR_TYPE echo(int argc, char* argv[]);
     Nebulite::ERROR_TYPE log(int argc, char* argv[]);
     Nebulite::ERROR_TYPE log_value(int argc, char* argv[]);
     Nebulite::ERROR_TYPE assert_nonzero(int argc, char* argv[]);

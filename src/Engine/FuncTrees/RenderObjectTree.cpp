@@ -10,6 +10,7 @@ Nebulite::RenderObjectTree::RenderObjectTree(RenderObject* self)
     bindFunction(funcTree, this, &Nebulite::RenderObjectTree::make_box, "make_box", "Create text box");
 
     //===== Computation & Internal Updates =====//
+    bindFunction(funcTree, this, &Nebulite::RenderObjectTree::deleteObject, "delete", "Marks object for deletion");
     bindFunction(funcTree, this, &Nebulite::RenderObjectTree::calculate_text, "calculate_text", "Calculate text based on object dimensions");
     bindFunction(funcTree, this, &Nebulite::RenderObjectTree::recalculate_all, "recalculate_all", "Recalculate all text and geometry");
     bindFunction(funcTree, this, &Nebulite::RenderObjectTree::reload_invokes, "reload_invokes", "Reload all invokes");
@@ -21,6 +22,7 @@ Nebulite::RenderObjectTree::RenderObjectTree(RenderObject* self)
     bindFunction(funcTree, this, &Nebulite::RenderObjectTree::keydelete, "keydelete", "Delete a key from document");
 
     //===== Debugging / Logging =====//
+    bindFunction(funcTree, this, &Nebulite::RenderObjectTree::echo, "echo", "Echo a message to the console");
     bindFunction(funcTree, this, &Nebulite::RenderObjectTree::log, "log", "Log the current state of the RenderObject");
     bindFunction(funcTree, this, &Nebulite::RenderObjectTree::log_value, "log_value", "Log the value of a specific property");
     bindFunction(funcTree, this, &Nebulite::RenderObjectTree::assert_nonzero, "assert_nonzero", "Assert that a specific property is non-zero"); 
@@ -49,6 +51,11 @@ Nebulite::ERROR_TYPE Nebulite::RenderObjectTree::make_box(int argc, char* argv[]
 }
 
 //===== Computation & Internal Updates =====//
+Nebulite::ERROR_TYPE Nebulite::RenderObjectTree::deleteObject(int argc, char* argv[]){
+    // Mark the object for deletion
+    self->deleteFlag = true;
+    return Nebulite::ERROR_TYPE::NONE;
+}
 Nebulite::ERROR_TYPE Nebulite::RenderObjectTree::calculate_text(int argc, char* argv[]){
     return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
 }
@@ -74,6 +81,13 @@ Nebulite::ERROR_TYPE Nebulite::RenderObjectTree::keydelete(int argc, char* argv[
 }
 
 //===== Debugging / Logging =====//
+Nebulite::ERROR_TYPE Nebulite::RenderObjectTree::echo(int argc, char* argv[]){
+    for (int i = 1; i < argc; i++) {
+        std::cout << argv[i] << " ";
+    }
+    std::cout << std::endl;
+    return Nebulite::ERROR_TYPE::NONE;
+}
 Nebulite::ERROR_TYPE Nebulite::RenderObjectTree::log(int argc, char* argv[]){
     std::string serialized = self->serialize();
     if (argc>1){

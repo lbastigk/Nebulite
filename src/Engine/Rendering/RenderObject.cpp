@@ -5,13 +5,16 @@
 // Special member Functions
 
 Nebulite::RenderObject::RenderObject() : renderObjectTree(this) {
+
+	//------------------------------------------------------------
+	// Document Values
+
 	// General
 	json.set(Nebulite::keyName.renderObject.id.c_str(),0);
 	json.set(Nebulite::keyName.renderObject.positionX.c_str(), 0);
 	json.set(Nebulite::keyName.renderObject.positionY.c_str(), 0);
 	json.set(Nebulite::keyName.renderObject.imageLocation.c_str(), std::string("Resources/Sprites/TEST001P/001.bmp"));
 	json.set(Nebulite::keyName.renderObject.layer.c_str(), 0);
-	json.set(Nebulite::keyName.renderObject.deleteFlag.c_str(), false);
 
 	//for sprite
 	json.set(Nebulite::keyName.renderObject.isSpritesheet.c_str(), false);
@@ -39,12 +42,18 @@ Nebulite::RenderObject::RenderObject() : renderObjectTree(this) {
 	json.set(Nebulite::keyName.renderObject.textColorB.c_str(),255);
 	json.set(Nebulite::keyName.renderObject.textColorA.c_str(),255);
 
+	//------------------------------------------------------------
+	// Internal Values
+
 	//Build Rect on creation
 	calculateDstRect();
 	calculateSrcRect();
 
 	textSurface = nullptr;
     textTexture = nullptr;
+
+	// Deleteflag false, is set by internal functioncalls
+	deleteFlag = false;
 }
 
 Nebulite::RenderObject::~RenderObject() {

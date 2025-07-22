@@ -154,7 +154,7 @@ public:
      }
     */
     
-    // Parsed into:
+    // Parsed into expressions...:
     struct AssignmentExpression{
       enum class Operation {null, set,add,multiply,concat};
       Operation operation;                      // set, add, multiply, concat
@@ -164,6 +164,7 @@ public:
       std::string value;                        // e.g. "0", "$($(self.posX) + 1)"
       bool valueContainsReference = true;       // if value contains a reference keyword, e.g. "$(self.posX)" or "$(global.time.t)"
     };
+    // ... Inside Entries:
     struct Entry{
       std::string topic = "all";                                  // e.g. "gravity", "hitbox", "collision"
       std::string logicalArg;                                     // e.g. "$(self.posX) > $(other.posY)"

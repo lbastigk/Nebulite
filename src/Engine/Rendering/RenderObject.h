@@ -115,6 +115,8 @@ public:
 
 	Nebulite::ERROR_TYPE parseStr(const std::string& str);
 
+	// Deleteflag for this object
+	bool deleteFlag = false;
 private:
 	// Main doc holding values
 	Nebulite::JSON json;

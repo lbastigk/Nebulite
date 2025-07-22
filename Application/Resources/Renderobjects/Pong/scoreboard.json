@@ -7,24 +7,15 @@
     ],
     "invokes": [
         {
-            "topic" : "all",
+            "topic": "all",
             "logicalArg": "1",
-            "isGlobal": false,
-            "self_invokes": [
-                {
-                "changeType": "set",
-                "key": "text.str",
-                "value": "Score left: $i(global.score.left)  |  Score Right: $i(global.score.right)"
-                },
-                {
-                "changeType": "set",
-                "key": "text.flagCalculate",
-                "value": "1"
-                }
+            "exprs": [
+                "self.text.str = Score left: $i(global.score.left)  |  Score Right: $i(global.score.right)",
+                "self.text.flagCalculate = 1"
             ],
-            "other_invokes": [],
-            "global_invokes": [],
-            "functioncalls": []
+            "functioncalls_global": [],
+            "functioncalls_self": [],
+            "functioncalls_other": []
         }
     ],
     "layer": 3,

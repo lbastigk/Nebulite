@@ -10,7 +10,7 @@ const struct keyName {
         std::string positionX = "posX";
         std::string positionY = "posY";
         std::string layer = "layer";
-        std::string deleteFlag = "deleteFlag";
+
         std::string pixelSizeX = "sprite.sizeX";
         std::string pixelSizeY = "sprite.sizeY";
         std::string imageLocation = "sprite.link";

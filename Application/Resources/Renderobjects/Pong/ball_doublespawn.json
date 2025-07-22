@@ -11,54 +11,34 @@
         "./Resources/Invokes/Physics/integrate_v.json",
         "./Resources/Invokes/Physics/reset_a.json",
         {
-            "topic" : "all",
+            "topic": "all",
             "logicalArg": "$( lt($(self.posX),0) )",
-            "isGlobal": false,
-            "self_invokes": [
-                {
-                "changeType": "set",
-                "key": "deleteFlag",
-                "value": "1"
-                }
+            "exprs": [
+                "global.score.right += 1"
             ],
-            "other_invokes": [],
-            "global_invokes": [
-                {
-                "changeType": "add",
-                "key": "score.right",
-                "value": "1"
-                }
-            ],
-            "functioncalls": [
+            "functioncalls_global": [
+                "delete",
                 "echo Score for Right!",
                 "eval spawn ./Resources/Renderobjects/Pong/ball_doublespawn.json|posX=$( $(global.display.resolution.X) * 0.5 + ($(global.rand)/32768 - 0.5) * 100)|posY=$( $(global.display.resolution.Y) * 0.5 + ($(global.rrand)/32768 - 0.5) * 100)|physics.vX=$( ($(global.rand)/32768 + 1) * 100 * (-1)^$(global.rand))|physics.vY=$( ($(global.rrand)/32768 - 0.5) * 100 )",
                 "eval spawn ./Resources/Renderobjects/Pong/ball.json|posX=$( $(global.display.resolution.X) * 0.5 + ($(global.rrand)/32768 - 0.5) * 100)|posY=$( $(global.display.resolution.Y) * 0.5 + ($(global.rand)/32768 - 0.5) * 100)|physics.vX=$( ($(global.rrand)/32768 + 1) * 100 * (-1)^$(global.rrand))|physics.vY=$( ($(global.rand)/32768 - 0.5) * 100 )"
-            ]
+            ],
+            "functioncalls_self": [],
+            "functioncalls_other": []
         },
         {
-            "topic" : "all",
+            "topic": "all",
             "logicalArg": "$( gt($(self.posX),$(global.display.resolution.X)) )",
-            "isGlobal": false,
-            "self_invokes": [
-                {
-                "changeType": "set",
-                "key": "deleteFlag",
-                "value": "1"
-                }
+            "exprs": [
+                "global.score.left += 1"
             ],
-            "other_invokes": [],
-            "global_invokes": [
-                {
-                "changeType": "add",
-                "key": "score.left",
-                "value": "1"
-                }
-            ],
-            "functioncalls": [
+            "functioncalls_global": [
+                "delete",
                 "echo Score for Left!",
                 "eval spawn ./Resources/Renderobjects/Pong/ball_doublespawn.json|posX=$( $(global.display.resolution.X) * 0.5 + ($(global.rand)/32768 - 0.5) * 100)|posY=$( $(global.display.resolution.Y) * 0.5 + ($(global.rrand)/32768 - 0.5) * 100)|physics.vX=$( ($(global.rand)/32768 + 1) * 100 * (-1)^$(global.rand))|physics.vY=$( ($(global.rrand)/32768 - 0.5) * 100 )",
                 "eval spawn ./Resources/Renderobjects/Pong/ball.json|posX=$( $(global.display.resolution.X) * 0.5 + ($(global.rrand)/32768 - 0.5) * 100)|posY=$( $(global.display.resolution.Y) * 0.5 + ($(global.rand)/32768 - 0.5) * 100)|physics.vX=$( ($(global.rrand)/32768 + 1) * 100 * (-1)^$(global.rrand))|physics.vY=$( ($(global.rand)/32768 - 0.5) * 100 )"
-            ]
+            ],
+            "functioncalls_self": [],
+            "functioncalls_other": []
         }
     ],
     "layer": 0,
