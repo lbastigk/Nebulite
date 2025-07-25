@@ -89,6 +89,7 @@ public:
 	void update_rrand(){invoke_ptr->getGlobalPointer()->set<Uint64>("rrand",  dist(rngB));};
 
 private:
+	bool reset_delta = false; // Reset delta values on next update
 	
 
 	//-------------------------------------------------------------------------------------

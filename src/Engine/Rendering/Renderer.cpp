@@ -151,8 +151,10 @@ void Nebulite::Renderer::reinsertAllObjects(){
 }
 
 void Nebulite::Renderer::update() {
+	RendererLoopTime.update();
+
 	//----------------------------------
-	// SDL event polling
+	// Basic SDL event polling
 	while (SDL_PollEvent(&event)) {
         switch (event.type) {
             case SDL_QUIT:
@@ -189,13 +191,46 @@ void Nebulite::Renderer::update() {
 		}
     }
 
-	//--------------------------------------------
-	// Event polling
-	RendererLoopTime.update();
+	//----------------------------------
+	// 2-Step Update of Input state
 
-	// Update keyboard events every 10 ms
+	
+	// 1.) Setting all delta values to 0, so they're only on delta for one frame
+	if(reset_delta){
+		// 1.) Mouse
+		invoke_ptr->getGlobalPointer()->set("input.mouse.delta.X",MousePosX-lastMousePosX);
+		invoke_ptr->getGlobalPointer()->set("input.mouse.delta.Y",MousePosY-lastMousePosY);
+		invoke_ptr->getGlobalPointer()->set("input.mouse.delta.left",
+			!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState) - 
+			!!(SDL_BUTTON(SDL_BUTTON_LEFT) & lastMouseState));
+		invoke_ptr->getGlobalPointer()->set("input.mouse.delta.right",
+			!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouseState) - 
+			!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & lastMouseState));
+
+		// 2.) Keyboard
+		for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode) {
+			const char* nameRaw = SDL_GetScancodeName(static_cast<SDL_Scancode>(scancode));
+			if (nameRaw && nameRaw[0] != '\0') {
+				std::string keyName = nameRaw;
+				for (char& c : keyName) c = std::tolower(c);
+				for (char& c : keyName) if (c == ' ') c = '_';
+
+				// Don't add if there are special chars in Nebulite::keyName
+				if(!StringHandler::containsAnyOf(keyName,Nebulite::JSON::reservedCharacters)){
+					// Paths
+					std::string deltaPath = "input.keyboard.delta." + keyName;
+
+					invoke_ptr->getGlobalPointer()->set<int>(deltaPath.c_str(), 0);
+				}
+			}
+		}
+		reset_delta = false;
+	}
+
+	// 2.) Polling mouse and keyboard state
+	// Update every 10 ms
 	// Too much polling time for current benchmarks, 
-	// later on with fixed framerates of < 250 FPS not that big of a deal
+	// later on with fixed framerates of < 250 FPS perhaps not that big of a deal
 	if(RendererLoopTime.t_ms - RendererPollTime.t_ms > 10){
 		RendererPollTime.update();
 		pollEvent();
@@ -211,10 +246,11 @@ void Nebulite::Renderer::update() {
 				SDL_StopTextInput();
 			}
 		}
+
+		// Reset delta values on next update
+		reset_delta = true;
 	}
-	else{
-		// TODO: all delta to 0?
-	}
+
 
 	//--------------------------------------------
 	// Log time spend in console
