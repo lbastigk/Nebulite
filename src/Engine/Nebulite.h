@@ -64,9 +64,9 @@ namespace Nebulite {
 
     // Objects
     extern Nebulite::MainFuncTree mainFuncTree;
-    extern std::unique_ptr<Nebulite::JSON> global;
-    extern std::unique_ptr<Renderer> renderer;
     extern Invoke invoke;
+    extern Nebulite::JSON* global;
+    extern Nebulite::Renderer* renderer; 
 
     // Tasks
     extern taskQueue tasks_script;

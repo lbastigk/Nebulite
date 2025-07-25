@@ -15,10 +15,10 @@ namespace Nebulite{
     taskQueue tasks_always;
 
     // Objects
-    std::unique_ptr<Nebulite::Renderer> renderer = nullptr;
-    Invoke invoke;
-    std::unique_ptr<Nebulite::JSON> global = std::make_unique<Nebulite::JSON>();
     Nebulite::MainFuncTree mainFuncTree(&invoke);
+    Invoke invoke;
+    Nebulite::JSON* global = new Nebulite::JSON();
+    Nebulite::Renderer* renderer = nullptr;
 
     // General variables
     std::string stateName = ""; // On startup, no state
@@ -46,11 +46,11 @@ namespace Nebulite{
 
     // Getting renderer pointer. If Renderer isnt initialized, initialize first
     Renderer* getRenderer() {
-        if (!renderer) {
-            renderer = std::make_unique<Nebulite::Renderer>(invoke,*global);
+        if (renderer == nullptr) {
+            renderer = new Nebulite::Renderer(invoke, *global);
             renderer->setFPS(60);
         }
-        return renderer.get();
+        return renderer;
     }
 
     // Check if renderer exists

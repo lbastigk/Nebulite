@@ -193,7 +193,11 @@ int main(int argc, char* argv[]){
         //------------------------------------------------------------
         // Handle args, parse queue into mainTree and then call internal functions from Nebulite::mainTreeFunctions
         // Result determines if a critical stop is initiated
-        // [TODO]: Only resolve if not in consoleMode?
+        //
+        // For now, all tasks are parsed even if the program is in console mode
+        // This is useful as tasks like "spawn" or "echo" are directly executed
+        // But might break for more complex tasks, so this should be taken into account later on
+        // e.G. inside the functree, checking state of Renderer might be useful
 
         // Clear from last loop
         result_tasks_script.errors.clear();

@@ -78,8 +78,7 @@ std::string Nebulite::RenderObject::serialize() {
 	return json.serialize();
 }
 
-// TODO:
-//
+
 void Nebulite::RenderObject::deserialize(std::string serialOrLink) {
 	// TODO:
 	// Extend RenderObject deserialization to support function call modifiers 
