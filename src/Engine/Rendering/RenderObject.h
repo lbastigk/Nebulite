@@ -111,8 +111,9 @@ public:
 	void calculateSrcRect();
 
 	// Estimate computationcal cost of update (based on size of cmds_internal)
-	uint64_t estimateCompuationalCost();
+	uint64_t estimateComputationalCost();
 
+	// For internal string parsing in RenderObjectTree
 	Nebulite::ERROR_TYPE parseStr(const std::string& str);
 
 	// Deleteflag for this object

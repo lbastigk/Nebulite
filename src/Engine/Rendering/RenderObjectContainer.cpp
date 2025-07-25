@@ -81,7 +81,9 @@ std::pair<int16_t,int16_t> getTilePos(Nebulite::RenderObject* toAppend, int disp
 }
 
 void Nebulite::RenderObjectContainer::append(Nebulite::RenderObject* toAppend, int dispResX, int dispResY) {
-	uint64_t objectCost = toAppend->estimateCompuationalCost();
+	uint64_t objectCost = toAppend->estimateComputationalCost();
+	std::cout << "Appending object with estimated cost: " << objectCost << std::endl;
+
     std::pair<int16_t,int16_t> pos = getTilePos(toAppend, dispResX, dispResY);
 
 	// Try to insert into an existing batch

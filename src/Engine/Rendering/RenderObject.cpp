@@ -207,14 +207,6 @@ void Nebulite::RenderObject::calculateSrcRect() {
 	}
 }
 
-//-----------------------------------------------------------
-// TODO: Change this to be a two-part:
-//
-// - first check against all other in list WITHOUT updating
-//   (allows for threading)
-// - store pointer pairs as std::vector<std::pair<RenderObject& RenderObject&>>
-// - after object pre-update, call actual update via invoke class that changes all objects
-// - additionally, the effects on self/other can be stored as a map where the key is the pointer this_shared
 void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 	//------------------------------------
 	// Check all invokes
@@ -264,19 +256,42 @@ void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 
 
 
-uint64_t Nebulite::RenderObject::estimateCompuationalCost(){
-	// TODO: Estimate computational cost based on the number of references
-	// Meaning, counting the number of '$' in the invoke triples
-	// Example implementation:
-	/*
-	// Count the number of '$' in the invoke triples
-	uint64_t cost = 0;
-	for (const auto& entry : entries_global) {
-		...
+uint64_t Nebulite::RenderObject::estimateComputationalCost(){
+
+	//------------------------------------------
+	// Reload invokes if needed
+	if (valueGet<int>(Nebulite::keyName.renderObject.reloadInvokes.c_str(),true)){
+		Invoke::parseFromJSON(json, entries_global, entries_local, this);
+		valueSet<bool>(Nebulite::keyName.renderObject.reloadInvokes.c_str(),false);
 	}
+	
+
+	//------------------------------------------
+	// Count number of $ in logical Arguments
+	uint64_t cost = 0;
+
+	// Global entries
+	for (const auto& entry : entries_global) {
+		cost += std::count(entry->logicalArg.begin(), entry->logicalArg.end(), '$');
+
+		// Count number of $ in exprs
+		for (const auto& expr : entry->exprs) {
+			cost += std::count(expr.value.begin(), expr.value.end(), '$');
+		}
+	}
+
+	// Local entries
+	for (const auto& entry : entries_local) {
+		cost += std::count(entry->logicalArg.begin(), entry->logicalArg.end(), '$');
+
+		// Count number of $ in exprs
+		for (const auto& expr : entry->exprs) {
+			cost += std::count(expr.value.begin(), expr.value.end(), '$');
+		}
+	}
+
+
 	return cost;
-	*/
-	return entries_global.size();
 }
 
 

@@ -101,6 +101,9 @@ private:
     Nebulite::ERROR_TYPE assert_nonzero(int argc, char* argv[]);
     Nebulite::ERROR_TYPE assert_not_in_doc(int argc, char* argv[]);
 
+    // Print all local invokes to stdout for debugging
+    Nebulite::ERROR_TYPE print_local_invokes(int argc, char* argv[]);
+
     //===== Children & Invokes =====//
     Nebulite::ERROR_TYPE addChildren(int argc, char* argv[]);
     Nebulite::ERROR_TYPE removeChildren(int argc, char* argv[]);

@@ -52,6 +52,8 @@ Nebulite::ERROR_TYPE Nebulite::RenderObjectTree::make_box(int argc, char* argv[]
 
 //===== Computation & Internal Updates =====//
 Nebulite::ERROR_TYPE Nebulite::RenderObjectTree::deleteObject(int argc, char* argv[]){
+    //std::cerr << "RenderObjectTree::deleteObject called, marking object with id " << self->valueGet<int>(keyName.renderObject.id.c_str(),0) << " for deletion." << std::endl;
+
     // Mark the object for deletion
     self->deleteFlag = true;
     return Nebulite::ERROR_TYPE::NONE;

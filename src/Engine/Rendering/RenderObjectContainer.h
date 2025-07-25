@@ -19,21 +19,21 @@ public:
 			if (objects.empty()) return nullptr;
 
 			RenderObject* obj = objects.back(); // Get last element
-			estimatedCost -= obj->estimateCompuationalCost(); // Adjust cost
+			estimatedCost -= obj->estimateComputationalCost(); // Adjust cost
 			objects.pop_back(); // Remove from vector
 
 			return obj;
 		}
 
 		void push(RenderObject* obj){
-			estimatedCost += obj->estimateCompuationalCost();
+			estimatedCost += obj->estimateComputationalCost();
 			objects.push_back(obj);
 		}
 
 		bool removeObject(RenderObject* obj) {
 			auto it = std::find(objects.begin(), objects.end(), obj);
 			if (it != objects.end()) {
-				estimatedCost -= obj->estimateCompuationalCost();
+				estimatedCost -= obj->estimateComputationalCost();
 				objects.erase(it);
 				return true;
 			}
