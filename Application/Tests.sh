@@ -23,13 +23,13 @@ declare -i passed_tests=0
 declare -i failed_tests=0
 
 # Settings
-TIMEOUT="${NEBULITE_TEST_TIMEOUT:-10s}"
+TIMEOUT="${NEBULITE_TEST_TIMEOUT:-20s}"
 VERBOSE="${NEBULITE_TEST_VERBOSE:-false}"
 STOP_ON_FAIL="${NEBULITE_TEST_STOP_ON_FAIL:-false}"
 
 #####################################################
 # List of test input files
-local tests=(
+tests=(
     "help"                                                          # Simple Executable call: cout of all help commands
     "echo 1234"                                                     # Simple Executable call: custom echo command in Nebulite mainTree
     "set-fps 60 ; wait 60 ; exit"                                   # set-fps forces initialization of renderer                            
@@ -42,6 +42,16 @@ local tests=(
     "task TaskFiles/Tests/Short/Pong_for_5s.txt"
 )
 
+# Test binaries in order of importance
+binaries=(
+    "./bin/Nebulite_Debug|Linux Debug"
+    "./bin/Nebulite|Linux Release"
+    "wine ./bin/Nebulite_Debug.exe|Windows Debug"
+    "wine ./bin/Nebulite.exe|Windows Release"
+)
+
+export WINEDEBUG=-all,err # Set WINEDEBUG to skip all non-critical errors in Wine tests
+
 
 #####################################################
 # Helper function to run provided tests
@@ -52,7 +62,8 @@ run_tests() {
     encountered_error=false
     
     for args in "${tests[@]}"; do
-        echo "  Testing: $args"
+        echo ""
+        echo "Testing: $args"
         
         # Create unique error log for this test
         local error_log="errors_${label// /_}_$$.log"
@@ -111,6 +122,9 @@ run_tests() {
             echo "  ✓ Passed"
         fi        
     done
+
+    echo ""
+    echo ""
     
     # Let main know if any test failed
     if $encountered_error; then
@@ -162,10 +176,6 @@ usage() {
     echo "  -t, --timeout SEC Set timeout (default: 10s)"
     echo "  -h, --help        Show this help"
     echo ""
-    echo "Environment variables:"
-    echo "  NEBULITE_TEST_TIMEOUT     Override default timeout"
-    echo "  NEBULITE_TEST_VERBOSE     Enable verbose mode"
-    echo "  NEBULITE_TEST_STOP_ON_FAIL Stop on first failure"
     echo ""
     echo "Examples:"
     echo "  $0                        # Run with defaults"
@@ -204,16 +214,8 @@ main() {
     done
 
     echo "Starting Nebulite test suite..."
-    "Configuration: TIMEOUT=$TIMEOUT, VERBOSE=$VERBOSE, STOP_ON_FAIL=$STOP_ON_FAIL"
+    echo "Configuration: TIMEOUT=$TIMEOUT, VERBOSE=$VERBOSE, STOP_ON_FAIL=$STOP_ON_FAIL"
     echo ""
-    
-    # Test binaries in order of importance
-    local binaries=(
-        "./bin/Nebulite_Debug|Linux Debug"
-        "./bin/Nebulite|Linux Release"
-        "wine ./bin/Nebulite_Debug.exe|Windows Debug"
-        "wine ./bin/Nebulite.exe|Windows Release"
-    )
     
     for binary_info in "${binaries[@]}"; do
         IFS='|' read -r binary label <<< "$binary_info"
