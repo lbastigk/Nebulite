@@ -1,7 +1,7 @@
 echo Starting a game of pong
-set-fps 600
+set-fps 1000
 set-res 640 480 2
-#set-global time.fixed_dt_ms 100     # Useful for spawn memleaktest
+set-global time.fixed_dt_ms 1     # Useful for spawn memleaktest
 
 eval spawn ./Resources/Renderobjects/Pong/player_left.json|posX=0|posY=32
 eval spawn ./Resources/Renderobjects/Pong/player_right.json|posX=$(640-32)|posY=32
@@ -9,6 +9,8 @@ eval spawn ./Resources/Renderobjects/Pong/player_right.json|posX=$(640-32)|posY=
 eval spawn ./Resources/Renderobjects/Pong/collision_barrier.json|posX=0|posY=0|sprite.sizeX=640|sprite.sizeY=32
 eval spawn ./Resources/Renderobjects/Pong/collision_barrier.json|posX=0|posY=$(480-32)|sprite.sizeX=640|sprite.sizeY=32
 
-eval spawn ./Resources/Renderobjects/Pong/ball.json|posX=64|posY=64
+eval spawn ./Resources/Renderobjects/Pong/ball_no_respawn.json|posX=64|posY=64
 
 spawn ./Resources/Renderobjects/Pong/scoreboard.json|posY=455|posX=16
+
+#always echo -----------------------------
