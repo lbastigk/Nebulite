@@ -67,7 +67,7 @@ run_tests() {
                     echoerr "    Error output:"
                     sed 's/^/    /' "$error_log" >&2
                 fi
-                test_results[$label]="FAIL: '$args' (exit $exit_code)"
+                test_results[$label]="FAIL: Last Fail: '$args' (exit $exit_code)"
                 rm -f "$error_log"
                 encountered_error=true
             fi
@@ -80,7 +80,7 @@ run_tests() {
                     echoerr "    Error output:"
                     sed 's/^/    /' "$error_log" >&2
                 fi
-                test_results[$label]="FAIL: '$args' (exit $exit_code)"
+                test_results[$label]="FAIL: Last Fail: '$args' (exit $exit_code)"
                 rm -f "$error_log"
                 encountered_error=true
             fi
@@ -131,21 +131,21 @@ check_binary() {
     # - $binary help should print text
     if ! $binary help 2>/dev/null | grep -q "Help for Nebulite"; then
         echoerr "Help command failed for $label"
-        test_results[$label]="FAIL: unable to run help command"
+        test_results[$label]="FAIL: Last Fail: unable to run help command"
         return 1
     fi
 
     # - $binary echo 1234 should print 1234
     if ! $binary echo 1234 2>/dev/null | grep -q "1234"; then
         echoerr "Echo command failed for $label"
-        test_results[$label]="FAIL: unable to run echo command"
+        test_results[$label]="FAIL: Last Fail: unable to run echo command"
         return 1
     fi
 
     # - $binary error <anything> should print error message and return non-zero exit code
     if ! output=$($binary error "      "); then     # Cant supress error output, so we print whitespace
         echoerr "Error command failed for $label"
-        test_results[$label]="FAIL: unable to run error command"
+        test_results[$label]="FAIL: Last Fail: unable to run error command"
         return 1
     fi
 
