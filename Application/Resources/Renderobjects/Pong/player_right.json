@@ -9,7 +9,7 @@
         "./Resources/Invokes/Physics/elastic_collision_X.json",
         "./Resources/Invokes/Physics/elastic_collision_Y.json",
         {
-            "topic": "1",
+            "topic": "",
             "logicalArg": "1",
             "exprs": [
                 "self.go_down = $( $(global.input.keyboard.current.down) * leq( $(self.posY), $(global.display.resolution.Y) - $(self.sprite.sizeY) - 32 ) )",

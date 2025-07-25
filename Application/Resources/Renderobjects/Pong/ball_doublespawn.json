@@ -11,7 +11,7 @@
         "./Resources/Invokes/Physics/integrate_v.json",
         "./Resources/Invokes/Physics/reset_a.json",
         {
-            "topic": "all",
+            "topic": "",
             "logicalArg": "$( lt($(self.posX),0) )",
             "exprs": [
                 "global.score.right += 1"
@@ -26,7 +26,7 @@
             "functioncalls_other": []
         },
         {
-            "topic": "all",
+            "topic": "",
             "logicalArg": "$( gt($(self.posX),$(global.display.resolution.X)) )",
             "exprs": [
                 "global.score.left += 1"

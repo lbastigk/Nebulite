@@ -9,7 +9,7 @@ eval spawn ./Resources/Renderobjects/Pong/player_right.json|posX=$(640-32)|posY=
 eval spawn ./Resources/Renderobjects/Pong/collision_barrier.json|posX=0|posY=0|sprite.sizeX=640|sprite.sizeY=32
 eval spawn ./Resources/Renderobjects/Pong/collision_barrier.json|posX=0|posY=$(480-32)|sprite.sizeX=640|sprite.sizeY=32
 
-eval spawn ./Resources/Renderobjects/Pong/ball_no_respawn.json|posX=64|posY=64
+eval spawn ./Resources/Renderobjects/Pong/ball.json|posX=64|posY=64
 
 spawn ./Resources/Renderobjects/Pong/scoreboard.json|posY=455|posX=16
 
