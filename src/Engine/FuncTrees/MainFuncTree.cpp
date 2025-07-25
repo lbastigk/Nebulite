@@ -207,6 +207,10 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::wait(int argc, char* argv[]){
     }
 }
 
+// TODO: Tasks should be added at the current queue position, not at the end!
+// Adding line backwards to front of the queue should fix this,
+// but we need to make sure that the queue is processed in a way that allows for manipulation
+// of the queue while processing it, especially at the front.
 Nebulite::ERROR_TYPE Nebulite::MainFuncTree::loadTaskList(int argc, char* argv[]) {
     if (argc < 2) {
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
