@@ -12,3 +12,6 @@ eval spawn ./Resources/Renderobjects/Pong/collision_barrier.json|posX=0|posY=$(4
 eval spawn ./Resources/Renderobjects/Pong/ball.json|posX=64|posY=64
 
 spawn ./Resources/Renderobjects/Pong/scoreboard.json|posY=455|posX=16
+
+wait 5000
+exit
