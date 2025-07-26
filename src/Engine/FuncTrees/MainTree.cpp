@@ -1,10 +1,10 @@
-#include "FuncTrees/MainFuncTree.h"
-
+#include "MainTree.h"
 #include "Nebulite.h"
+
 // TODO: Add depth to mainTree:
 /*
 Example:
-MainFuncTree
+MainTree
     - system
         - echo
         - error
@@ -33,48 +33,48 @@ MainFuncTree
 
 
 
-Nebulite::MainFuncTree::MainFuncTree(Nebulite::Invoke* invoke)
+Nebulite::MainTree::MainTree(Nebulite::Invoke* invoke)
     : FuncTreeWrapper("Nebulite", Nebulite::ERROR_TYPE::NONE, Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID) {
     
     invoke_ptr = invoke;
     
     // General
-    bindFunction(funcTree, this, &MainFuncTree::eval,            "eval",         "Evaluate all $(...) after this keyword, parse rest as usual");
-    bindFunction(funcTree, this, &MainFuncTree::setGlobal,       "set-global",   "Set any global variable: [key] [value]");
-    bindFunction(funcTree, this, &MainFuncTree::envload,         "env-load",     "Loads an environment");
-    bindFunction(funcTree, this, &MainFuncTree::envdeload,       "env-deload",   "Deloads an environment");
-    bindFunction(funcTree, this, &MainFuncTree::spawn,           "spawn",        "Spawn a renderobject");
-    bindFunction(funcTree, this, &MainFuncTree::exitProgram,     "exit",         "exits the program");
-    bindFunction(funcTree, this, &MainFuncTree::stateSave,       "state-save",   "Saves the state");
-    bindFunction(funcTree, this, &MainFuncTree::stateLoad,       "state-load",   "Loads a state");
-    bindFunction(funcTree, this, &MainFuncTree::loadTaskList,    "task",         "Loads a txt file of tasks");
-    bindFunction(funcTree, this, &MainFuncTree::wait,            "wait",         "Halt all commands for a set amount of frames");
-    bindFunction(funcTree, this, &MainFuncTree::forLoop,         "for",          "Start for-loop. Usage: for var <iStart> <iEnd> command $var");
-    bindFunction(funcTree, this, &MainFuncTree::func_assert,     "assert",       "Force a certain return value");
-    bindFunction(funcTree, this, &MainFuncTree::func_return,     "return",       "Returns an assert value, stopping program");
+    bindFunction(funcTree, this, &MainTree::eval,            "eval",         "Evaluate all $(...) after this keyword, parse rest as usual");
+    bindFunction(funcTree, this, &MainTree::setGlobal,       "set-global",   "Set any global variable: [key] [value]");
+    bindFunction(funcTree, this, &MainTree::envload,         "env-load",     "Loads an environment");
+    bindFunction(funcTree, this, &MainTree::envdeload,       "env-deload",   "Deloads an environment");
+    bindFunction(funcTree, this, &MainTree::spawn,           "spawn",        "Spawn a renderobject");
+    bindFunction(funcTree, this, &MainTree::exitProgram,     "exit",         "exits the program");
+    bindFunction(funcTree, this, &MainTree::stateSave,       "state-save",   "Saves the state");
+    bindFunction(funcTree, this, &MainTree::stateLoad,       "state-load",   "Loads a state");
+    bindFunction(funcTree, this, &MainTree::loadTaskList,    "task",         "Loads a txt file of tasks");
+    bindFunction(funcTree, this, &MainTree::wait,            "wait",         "Halt all commands for a set amount of frames");
+    bindFunction(funcTree, this, &MainTree::forLoop,         "for",          "Start for-loop. Usage: for var <iStart> <iEnd> command $var");
+    bindFunction(funcTree, this, &MainTree::func_assert,     "assert",       "Force a certain return value");
+    bindFunction(funcTree, this, &MainTree::func_return,     "return",       "Returns an assert value, stopping program");
     
     // Renderer Settings
-    bindFunction(funcTree, this, &MainFuncTree::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
-    bindFunction(funcTree, this, &MainFuncTree::setResolution,   "set-res",      "Sets resolution size: [w] [h]");
-    bindFunction(funcTree, this, &MainFuncTree::setCam,          "cam-set",      "Sets Camera position [x] [y] <c>");
-    bindFunction(funcTree, this, &MainFuncTree::moveCam,         "cam-move",     "Moves Camera position [dx] [dy]");
+    bindFunction(funcTree, this, &MainTree::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
+    bindFunction(funcTree, this, &MainTree::setResolution,   "set-res",      "Sets resolution size: [w] [h]");
+    bindFunction(funcTree, this, &MainTree::setCam,          "cam-set",      "Sets Camera position [x] [y] <c>");
+    bindFunction(funcTree, this, &MainTree::moveCam,         "cam-move",     "Moves Camera position [dx] [dy]");
 
     // Debug
-    bindFunction(funcTree, this, &MainFuncTree::echo,            "echo",         "Echos all args provided to cout");
-    bindFunction(funcTree, this, &MainFuncTree::error,           "error",        "Echos all args provided to cerr");
-    bindFunction(funcTree, this, &MainFuncTree::printGlobal,     "print-global", "Prints global doc to cout");
-    bindFunction(funcTree, this, &MainFuncTree::printState,      "print-state",  "Prints state to cout");
-    bindFunction(funcTree, this, &MainFuncTree::logGlobal,       "log-global",   "Logs global doc to file");
-    bindFunction(funcTree, this, &MainFuncTree::logState,        "log-state",    "Logs state to file");
-    bindFunction(funcTree, this, &MainFuncTree::errorlog,        "log",          "Activate/Deactivate error log");
-    bindFunction(funcTree, this, &MainFuncTree::always,          "always",       "Attach functioncall that is executed on each tick");
-    bindFunction(funcTree, this, &MainFuncTree::alwaysClear,     "always-clear", "Clear all always-functioncalls");
+    bindFunction(funcTree, this, &MainTree::echo,            "echo",         "Echos all args provided to cout");
+    bindFunction(funcTree, this, &MainTree::error,           "error",        "Echos all args provided to cerr");
+    bindFunction(funcTree, this, &MainTree::printGlobal,     "print-global", "Prints global doc to cout");
+    bindFunction(funcTree, this, &MainTree::printState,      "print-state",  "Prints state to cout");
+    bindFunction(funcTree, this, &MainTree::logGlobal,       "log-global",   "Logs global doc to file");
+    bindFunction(funcTree, this, &MainTree::logState,        "log-state",    "Logs state to file");
+    bindFunction(funcTree, this, &MainTree::errorlog,        "log",          "Activate/Deactivate error log");
+    bindFunction(funcTree, this, &MainTree::always,          "always",       "Attach functioncall that is executed on each tick");
+    bindFunction(funcTree, this, &MainTree::alwaysClear,     "always-clear", "Clear all always-functioncalls");
 
     // Helper
-    bindFunction(funcTree, this, &MainFuncTree::render_object,   "standard-render-object",  "Serializes standard renderobject to ./Resources/Renderobjects/standard.json");
+    bindFunction(funcTree, this, &MainTree::render_object,   "standard-render-object",  "Serializes standard renderobject to ./Resources/Renderobjects/standard.json");
 
     // Internal Tests
-    bindFunction(funcTree, this, &MainFuncTree::printVar,        "print-var",   "Prints the value of the test variable");
+    bindFunction(funcTree, this, &MainTree::printVar,        "print-var",   "Prints the value of the test variable");
     bindVariable(&testVar, "testVar", "Test variable for printing");
 }
 
@@ -82,7 +82,7 @@ Nebulite::MainFuncTree::MainFuncTree(Nebulite::Invoke* invoke)
 //---------------------------------------------------------------
 // Main Tree Functions
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::eval(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::eval(int argc, char* argv[]){
     // argc/argv to string for evaluation
     std::string args = "";
     for (int i = 0; i < argc; ++i) {
@@ -99,7 +99,7 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::eval(int argc, char* argv[]){
     return funcTree.parseStr(args_evaled);
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::setGlobal(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::setGlobal(int argc, char* argv[]){
     if(argc == 3){
         std::string key = argv[1];
         std::string value = argv[2];
@@ -120,7 +120,7 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::setGlobal(int argc, char* argv[]){
     }
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::envload(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::envload(int argc, char* argv[]){
     if(argc > 1){
         Nebulite::getRenderer()->deserialize(argv[1]);
         return Nebulite::ERROR_TYPE::NONE;
@@ -132,13 +132,13 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::envload(int argc, char* argv[]){
     }
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::envdeload(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::envdeload(int argc, char* argv[]){
     Nebulite::getRenderer()->purgeObjects();
     Nebulite::getRenderer()->purgeTextures();
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::spawn(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::spawn(int argc, char* argv[]){
     if(argc>1){
         std::string linkOrObject = argv[1];
 
@@ -166,17 +166,17 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::spawn(int argc, char* argv[]){
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::exitProgram(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::exitProgram(int argc, char* argv[]){
     Nebulite::getRenderer()->setQuit();
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::stateLoad(int argc, char* argv[]){ 
+Nebulite::ERROR_TYPE Nebulite::MainTree::stateLoad(int argc, char* argv[]){ 
     std::cerr << "Function load not implemented yet!" << std::endl;
     return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::stateSave(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::stateSave(int argc, char* argv[]){
     // <stateName>
     // Change std::string Nebulite::stateName to name
     // Check if dir ./States/stateName exists
@@ -190,7 +190,7 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::stateSave(int argc, char* argv[]){
     return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::wait(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::wait(int argc, char* argv[]){
     if(argc == 2){
         std::istringstream iss(argv[1]);
         iss >> tasks_script.waitCounter;
@@ -211,7 +211,7 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::wait(int argc, char* argv[]){
 // Adding line backwards to front of the queue should fix this,
 // but we need to make sure that the queue is processed in a way that allows for manipulation
 // of the queue while processing it, especially at the front.
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::loadTaskList(int argc, char* argv[]) {
+Nebulite::ERROR_TYPE Nebulite::MainTree::loadTaskList(int argc, char* argv[]) {
     if (argc < 2) {
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -241,7 +241,7 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::loadTaskList(int argc, char* argv[]
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::echo(int argc, char* argv[]) {
+Nebulite::ERROR_TYPE Nebulite::MainTree::echo(int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         std::cout << argv[i];
         if (i < argc - 1) {
@@ -252,7 +252,7 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::echo(int argc, char* argv[]) {
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::forLoop(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::forLoop(int argc, char* argv[]){
     std::string funcName = argv[0];
     if(argc > 4){
         std::string varName = argv[1];
@@ -276,7 +276,7 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::forLoop(int argc, char* argv[]){
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::error(int argc, char* argv[]) {
+Nebulite::ERROR_TYPE Nebulite::MainTree::error(int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         std::cerr << argv[i];
         if (i < argc - 1) {
@@ -287,7 +287,7 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::error(int argc, char* argv[]) {
     return Nebulite::ERROR_TYPE::CUSTOM_ERROR;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::setResolution(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::setResolution(int argc, char* argv[]){
     int w,h,scalar;
     w = 1000;
     h = 1000;
@@ -305,7 +305,7 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::setResolution(int argc, char* argv[
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::setFPS(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::setFPS(int argc, char* argv[]){
     if(argc != 2){
         Nebulite::getRenderer()->setFPS(60);
     }
@@ -318,7 +318,7 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::setFPS(int argc, char* argv[]){
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::moveCam(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::moveCam(int argc, char* argv[]){
     if (argc < 3) {
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -332,7 +332,7 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::moveCam(int argc, char* argv[]){
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::setCam(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::setCam(int argc, char* argv[]){
     if(argc == 3){
         int x = floor(std::stod(argv[1]));
         int y = floor(std::stod(argv[2]));
@@ -357,17 +357,17 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::setCam(int argc, char* argv[]){
     return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::printGlobal(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::printGlobal(int argc, char* argv[]){
     std::cout << Nebulite::getRenderer()->serializeGlobal() << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::printState(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::printState(int argc, char* argv[]){
     std::cout << Nebulite::getRenderer()->serialize() << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::logGlobal(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::logGlobal(int argc, char* argv[]){
     std::string serialized = Nebulite::getRenderer()->serializeGlobal();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -380,7 +380,7 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::logGlobal(int argc, char* argv[]){
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::logState(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::logState(int argc, char* argv[]){
     std::string serialized = Nebulite::getRenderer()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -393,13 +393,13 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::logState(int argc, char* argv[]){
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::render_object(int argc, char** argv){
+Nebulite::ERROR_TYPE Nebulite::MainTree::render_object(int argc, char** argv){
     RenderObject ro;
     FileManagement::WriteFile("./Resources/Renderobjects/standard.json",ro.serialize());
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::errorlog(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::errorlog(int argc, char* argv[]){
     if(argc == 2){
         if(!strcmp(argv[1], "on")){
             if(!Nebulite::errorLogStatus){
@@ -435,7 +435,7 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::errorlog(int argc, char* argv[]){
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::always(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::always(int argc, char* argv[]){
     if (argc > 1) {
         std::ostringstream oss;
         for (int i = 1; i < argc; ++i) {
@@ -460,16 +460,16 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::always(int argc, char* argv[]){
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::alwaysClear(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::alwaysClear(int argc, char* argv[]){
     Nebulite::tasks_always.taskList.clear();
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::func_assert(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::func_assert(int argc, char* argv[]){
     return Nebulite::ERROR_TYPE::CRITICAL_CUSTOM_ASSERT;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::func_return(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTree::func_return(int argc, char* argv[]){
     if (argc < 2) {
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -480,7 +480,7 @@ Nebulite::ERROR_TYPE Nebulite::MainFuncTree::func_return(int argc, char* argv[])
 }
 
 
-Nebulite::ERROR_TYPE Nebulite::MainFuncTree::printVar(int argc, char** argv){
+Nebulite::ERROR_TYPE Nebulite::MainTree::printVar(int argc, char** argv){
     std::cout << testVar << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
 }

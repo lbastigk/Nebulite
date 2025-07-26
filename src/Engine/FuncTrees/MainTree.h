@@ -6,9 +6,9 @@
 
 namespace Nebulite{
 
-class MainFuncTree : public FuncTreeWrapper<ERROR_TYPE>{
+class MainTree : public FuncTreeWrapper<ERROR_TYPE>{
 public:
-    MainFuncTree(Nebulite::Invoke* invoke);
+    MainTree(Nebulite::Invoke* invoke);
 private:
     // TODO:
     /*

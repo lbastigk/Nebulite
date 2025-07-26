@@ -64,7 +64,7 @@ set(COMMON_SOURCES
     ${TINYEXPR_PATH}/tinyexpr.c
     ${CMAKE_SOURCE_DIR}/src/Engine/Nebulite.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Data/JSON.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees/MainFuncTree.cpp
+    ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees/MainTree.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees/RenderObjectTree.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FileManagement.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine/Helper/StringHandler.cpp

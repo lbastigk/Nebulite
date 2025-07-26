@@ -1,6 +1,7 @@
 //------------------------------------------------
 // Main Tree attached functions 
 #include "Nebulite.h"
+#include "MainTree.h"
 
 // Separate queues for script and internal
 // Otherwise, a wait from a script can halt the entire game logic
@@ -15,8 +16,8 @@ namespace Nebulite{
     taskQueue tasks_always;
 
     // Objects
-    Nebulite::MainFuncTree mainFuncTree(&invoke);
     Invoke invoke;
+    Nebulite::MainTree MainTree(&invoke);
     Nebulite::JSON* global = new Nebulite::JSON();
     Nebulite::Renderer* renderer = nullptr;
 
@@ -81,7 +82,7 @@ Nebulite::taskQueueResult Nebulite::resolveTaskQueue(Nebulite::taskQueue& tq, ui
             }
 
             // Parse
-            currentResult = Nebulite::mainFuncTree.parseStr(argStr);
+            currentResult = Nebulite::MainTree.parseStr(argStr);
 
             // Check result
             if (currentResult < Nebulite::ERROR_TYPE::NONE) {
@@ -105,7 +106,7 @@ Nebulite::taskQueueResult Nebulite::resolveTaskQueue(Nebulite::taskQueue& tq, ui
             }
 
             // Parse
-            currentResult = Nebulite::mainFuncTree.parseStr(argStr);
+            currentResult = Nebulite::MainTree.parseStr(argStr);
 
             // Check result
             if (currentResult < Nebulite::ERROR_TYPE::NONE) {
@@ -119,3 +120,6 @@ Nebulite::taskQueueResult Nebulite::resolveTaskQueue(Nebulite::taskQueue& tq, ui
 }
 
 
+Nebulite::ERROR_TYPE Nebulite::resolveTask(std::string task) {
+    return Nebulite::MainTree.parseStr(task);
+}

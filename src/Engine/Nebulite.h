@@ -16,7 +16,7 @@
  *   - taskQueue: Holds a list of tasks to be executed, along with parsing and state info.
  *   - taskQueueResult: Stores the result of processing a task queue, including error codes and
  *     whether execution was stopped due to a critical error.
- *   - mainFuncTree: The main function tree for parsing and executing engine commands.
+ *   - MainTree: The main function tree for parsing and executing engine commands.
  *   - renderer: Pointer to the main rendering engine, lazily initialized.
  *   - error logging: Facilities for redirecting and storing error output.
  *   - stateName, binName: Strings for tracking the current engine state and binary name.
@@ -39,10 +39,11 @@
 #include <deque>
 
 #include "Renderer.h"
-#include "MainFuncTree.h"
+#include "MainTree.h"
 #include "ErrorTypes.h"
 
 namespace Nebulite {
+
     //-------------------------------------------------
     // Types
 
@@ -63,7 +64,7 @@ namespace Nebulite {
     // Pre-Declaration of global instances in Nebulite scope
 
     // Objects
-    extern Nebulite::MainFuncTree mainFuncTree;
+    //Nebulite::MainTree MainTree;
     extern Invoke invoke;
     extern Nebulite::JSON* global;
     extern Nebulite::Renderer* renderer; 
@@ -96,5 +97,8 @@ namespace Nebulite {
 
     // Resolves a given taskqueue by parsing each line into argc/argv and calling the mainTree on the arguments
     Nebulite::taskQueueResult resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree);
+
+    // Instead of calling MainTree.parse, this function resolves the task queue and returns the result
+    Nebulite::ERROR_TYPE resolveTask(std::string task);
 
 }
