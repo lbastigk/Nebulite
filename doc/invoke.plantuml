@@ -1,0 +1,99 @@
+@startuml InvokeAbstract
+!theme plain
+skinparam defaultTextAlignment center
+skinparam wrapWidth 150
+
+title NEBULITE Engine - Invoke System Simplified
+
+skinparam cloud {
+  BackgroundColor lightblue
+  BorderColor blue
+  FontSize 24
+}
+
+actor "RenderObject 2" as RO2
+actor "RenderObject 1" as RO1
+cloud "Global Space" as GS
+
+' Global Space evaluates invokes
+note top of GS : evaluate invokes by building true pairs, manipulate objects
+
+
+' JSON Documents
+database "JSON Doc 2" as JSON2
+database "JSON Doc 1" as JSON1
+database "Global JSON Doc" as GJSON
+
+' Connect JSON docs to their owners
+RO2 -down-> JSON2 : Read/Write \n Structured data
+RO1 -down-> JSON1 : Read/Write \n Structured data
+GS -down-> GJSON  : Read/Write \n Structured data
+
+' Function Trees
+component "Global FuncTree \n //MainTree//" as MT
+component "Local FuncTree 1 \n //RenderObjectTree//" as LT1
+component "Local FuncTree 2 \n //RenderObjectTree//" as LT2
+
+' User Output
+actor "Terminal/Console" as TERM
+
+' Connect MainTree to User Output
+MT -up-> TERM : stdout, stderr\nmessages
+
+
+' Connect Local Trees to RenderObjects
+RO1 -down-> LT1 : Local function calls
+RO2 -down-> LT2 : Local function calls
+
+' Broadcasting
+RO1 -up-> GS : broadcast \n invokes
+RO2 -up-> GS : broadcast \n invokes
+
+' Listening
+GS -down-> RO1 : listen to \n subscribed \n topics
+GS -down-> RO2 : listen to \n subscribed \n topics
+
+' Local invokes (no topic)
+note right of RO1 : Internal processing of local rulesets
+note right of RO2 : Internal processing of local rulesets
+
+' Tree influences docs
+LT1 -down-> JSON1 : influence \n structured data
+LT2 -down-> JSON2 : influence \n structured data
+MT  -down-> GJSON : influence \n global structured data
+
+' Tree influences more complex components
+LT1 -down-> RO1 : influence \n RenderObject 1
+LT2 -down-> RO2 : influence \n RenderObject 2
+MT  -right-> GS : influence \n Global Space
+
+' Global manipulation
+GS -down-> RO1 : manipulate if\nlogicalArg true
+GS -down-> RO2 : manipulate if\nlogicalArg true
+
+note as N1
+  **Broadcast**: 
+  Objects publish their invokes to global space. Object that's broadcasting is //self//.
+
+  **Listen**: 
+  Objects receive invokes for subscribed topics. The Object that's listening is //other//.
+
+  **Local Rulesets**: 
+  Self-processing with empty topic. No //other// involved, just //self// and //global//.
+
+  **Global Manipulation**: 
+  Global space manipulates objects when conditions met.
+
+  **JSON Docs**: 
+  Store object state and variables.
+
+  **FuncTrees**: 
+  Organize and manage function calls with more complex logic.
+
+  **Global Space**: 
+  Global Document, Renderer Settings, and more.
+end note
+
+N1 -[hidden]-> RO1
+
+@enduml
