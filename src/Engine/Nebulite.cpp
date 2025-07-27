@@ -3,6 +3,7 @@
 #include "Nebulite.h"
 #include "MainTree.h"
 
+// TODO:
 // Separate queues for script and internal
 // Otherwise, a wait from a script can halt the entire game logic
 // All wait calls influence script queue for now
@@ -17,7 +18,7 @@ namespace Nebulite{
 
     // Objects
     Invoke invoke;
-    Nebulite::MainTree MainTree(&invoke);
+    Nebulite::MainTree MainTree(&invoke);           // TODO: This seems to error in vscode, but works with cmake... "message": "variable \"Nebulite::MainTree\" is not a type name",
     Nebulite::JSON* global = new Nebulite::JSON();
     Nebulite::Renderer* renderer = nullptr;
 

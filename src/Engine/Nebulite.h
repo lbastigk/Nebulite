@@ -39,9 +39,10 @@
 #include <deque>
 
 #include "Renderer.h"
-#include "MainTree.h"
 #include "ErrorTypes.h"
 
+// TODO: Rework into class Nebulite::Global or similar
+//       to encapsulate all global state and functionality.
 namespace Nebulite {
 
     //-------------------------------------------------
