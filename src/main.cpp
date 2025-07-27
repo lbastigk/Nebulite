@@ -100,10 +100,10 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
 // ----------------------------------------------------------------------
 // Includes
 
-//Include the Nebulite Namespace with all its functions
+// Include the Global Space class
 // Initializes callable functions from both user CLI and runtime environment.
 // Also sets up the global Renderer used across Tree-based function calls.
-#include "Nebulite.h" 
+#include "GlobalSpace.h" 
 
 // ----------------------------------------------------------------------
 // NEBULITE main
@@ -129,11 +129,12 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
  * 
  */
 int main(int argc, char* argv[]){
+    //--------------------------------------------------
+    // Initialize the global space
+    std::string binaryName = argv[0];
+    Nebulite::GlobalSpace globalSpace(binaryName);
 
     //--------------------------------------------------
-    // Startup, args handling
-    Nebulite::binName = argv[0];
-
     // Add main args to taskList, split by ';'
     if (argc > 1) {
         std::ostringstream oss;
@@ -152,7 +153,7 @@ int main(int argc, char* argv[]){
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                Nebulite::tasks_script.taskList.push_back(command);
+                globalSpace.tasks_script.taskList.push_back(command);
             }
         }
     }
@@ -165,12 +166,8 @@ int main(int argc, char* argv[]){
         // Which represents the menue screen of the game
         // or, for a more scripted task:
         // task TaskFiles/main.txt
-        Nebulite::tasks_script.taskList.push_back(std::string("set-fps 60"));
+        globalSpace.tasks_script.taskList.push_back(std::string("set-fps 60"));
     }
-
-    //--------------------------------------------------
-    // Init general variables/linkages in Nebulite namespace
-    Nebulite::init();
     
     //--------------------------------------------------
     // Render loop
@@ -209,7 +206,7 @@ int main(int argc, char* argv[]){
         // Parse script tasks
         if(!critical_stop){
             // TODO: Windows Release build breaks here!
-            result_tasks_script = Nebulite::resolveTaskQueue(Nebulite::tasks_script,&Nebulite::tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
+            result_tasks_script = globalSpace.resolveTaskQueue(globalSpace.tasks_script,&globalSpace.tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
         }
         if(result_tasks_script.stoppedAtCriticalResult) {
             critical_stop = true; 
@@ -219,7 +216,7 @@ int main(int argc, char* argv[]){
 
         // Parse internal tasks
         if(!critical_stop){
-            result_tasks_internal = Nebulite::resolveTaskQueue(Nebulite::tasks_internal,noWaitCounter,&argc_mainTree,&argv_mainTree);
+            result_tasks_internal = globalSpace.resolveTaskQueue(globalSpace.tasks_internal,noWaitCounter,&argc_mainTree,&argv_mainTree);
         }
         if(result_tasks_internal.stoppedAtCriticalResult) {
             critical_stop = true; 
@@ -229,7 +226,7 @@ int main(int argc, char* argv[]){
 
         // Parse always-tasks
         if(!critical_stop){
-            result_tasks_always = Nebulite::resolveTaskQueue(Nebulite::tasks_always,noWaitCounter,&argc_mainTree,&argv_mainTree);
+            result_tasks_always = globalSpace.resolveTaskQueue(globalSpace.tasks_always,noWaitCounter,&argc_mainTree,&argv_mainTree);
         }
         if(result_tasks_always.stoppedAtCriticalResult) {
             critical_stop = true; 
@@ -240,12 +237,12 @@ int main(int argc, char* argv[]){
         //------------------------------------------------------------
         // Update and render, only if initialized
         // If renderer wasnt initialized, it is still a nullptr
-        if (!critical_stop && Nebulite::RendererExists() && Nebulite::getRenderer()->timeToRender()) {
-            Nebulite::getRenderer()->tick();
+        if (!critical_stop && globalSpace.RendererExists() && globalSpace.getRenderer()->timeToRender()) {
+            globalSpace.getRenderer()->tick();
 
             // Reduce wait counter if not in console mode
-            if(!Nebulite::getRenderer()->isConsoleMode()){
-                Nebulite::tasks_script.waitCounter--; 
+            if(!globalSpace.getRenderer()->isConsoleMode()){
+                globalSpace.tasks_script.waitCounter--; 
             }  
         }
     // Continue only if renderer exists, and if quit wasnt called.
@@ -253,17 +250,17 @@ int main(int argc, char* argv[]){
     // but this could cause issues if the user wishes to quit while a task is still running.
     //
     // A current limitation here that, if the user is running a taskfile with a wait-call, a renderer has to be initialized.
-    } while (!critical_stop && Nebulite::renderer != nullptr && !Nebulite::getRenderer()->isQuit());
+    } while (!critical_stop && globalSpace.RendererExists() && !globalSpace.getRenderer()->isQuit());
 
 
     //--------------------------------------------------
     // Exit
 
     // turn off error log
-    Nebulite::resolveTask("log off");
+    globalSpace.resolveTask("log off");
 
     // Destroy renderer
-    if(Nebulite::renderer != nullptr) Nebulite::getRenderer()->destroy();
+    if(globalSpace.RendererExists()) globalSpace.getRenderer()->destroy();
 
     // Exit
     if(critical_stop){

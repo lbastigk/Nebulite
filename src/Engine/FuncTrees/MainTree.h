@@ -6,9 +6,12 @@
 
 namespace Nebulite{
 
+// Forwards declaration instead of including GlobalSpace.h
+class GlobalSpace;  
+
 class MainTree : public FuncTreeWrapper<ERROR_TYPE>{
 public:
-    MainTree(Nebulite::Invoke* invoke);
+    MainTree(Nebulite::Invoke* invoke, Nebulite::GlobalSpace* globalSpace);
 private:
     // TODO:
     /*
@@ -123,6 +126,7 @@ private:
     std::string testVar = "STANDARD";
     
     Nebulite::Invoke* invoke_ptr;
+    Nebulite::GlobalSpace* self;
 };
 
 }

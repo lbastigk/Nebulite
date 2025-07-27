@@ -1,5 +1,5 @@
 #include "MainTree.h"
-#include "Nebulite.h"
+#include "GlobalSpace.h"
 
 // TODO: Add depth to mainTree:
 /*
@@ -33,11 +33,12 @@ MainTree
 
 
 
-Nebulite::MainTree::MainTree(Nebulite::Invoke* invoke)
+Nebulite::MainTree::MainTree(Nebulite::Invoke* invoke, Nebulite::GlobalSpace* globalSpace)
     : FuncTreeWrapper("Nebulite", Nebulite::ERROR_TYPE::NONE, Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID) {
     
     invoke_ptr = invoke;
-    
+    self = globalSpace;
+
     // General
     bindFunction(funcTree, this, &MainTree::eval,            "eval",         "Evaluate all $(...) after this keyword, parse rest as usual");
     bindFunction(funcTree, this, &MainTree::setGlobal,       "set-global",   "Set any global variable: [key] [value]");
@@ -103,13 +104,13 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::setGlobal(int argc, char* argv[]){
     if(argc == 3){
         std::string key = argv[1];
         std::string value = argv[2];
-        Nebulite::getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
+        self->getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
         return Nebulite::ERROR_TYPE::NONE;
     }
     if(argc == 2){
         std::string key = argv[1];
         std::string value = "0";
-        Nebulite::getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
+        self->getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
         return Nebulite::ERROR_TYPE::NONE;
     }
     if(argc < 2){
@@ -122,19 +123,19 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::setGlobal(int argc, char* argv[]){
 
 Nebulite::ERROR_TYPE Nebulite::MainTree::envload(int argc, char* argv[]){
     if(argc > 1){
-        Nebulite::getRenderer()->deserialize(argv[1]);
+        self->getRenderer()->deserialize(argv[1]);
         return Nebulite::ERROR_TYPE::NONE;
     }
     else{
         // no name provided, load empty env
-        Nebulite::getRenderer()->deserialize("{}");
+        self->getRenderer()->deserialize("{}");
         return Nebulite::ERROR_TYPE::NONE;
     }
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTree::envdeload(int argc, char* argv[]){
-    Nebulite::getRenderer()->purgeObjects();
-    Nebulite::getRenderer()->purgeTextures();
+    self->getRenderer()->purgeObjects();
+    self->getRenderer()->purgeTextures();
     return Nebulite::ERROR_TYPE::NONE;
 }
 
@@ -157,7 +158,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::spawn(int argc, char* argv[]){
         // Create object
         RenderObject* ro = new RenderObject;
         ro->deserialize(linkOrObject);
-        Nebulite::getRenderer()->append(ro);
+        self->getRenderer()->append(ro);
     }
     else{
         std::cerr << "No renderobject name provided!" << std::endl;
@@ -167,7 +168,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::spawn(int argc, char* argv[]){
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTree::exitProgram(int argc, char* argv[]){
-    Nebulite::getRenderer()->setQuit();
+    self->getRenderer()->setQuit();
     return Nebulite::ERROR_TYPE::NONE;
 }
 
@@ -193,9 +194,9 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::stateSave(int argc, char* argv[]){
 Nebulite::ERROR_TYPE Nebulite::MainTree::wait(int argc, char* argv[]){
     if(argc == 2){
         std::istringstream iss(argv[1]);
-        iss >> tasks_script.waitCounter;
-        if (tasks_script.waitCounter < 0){
-            tasks_script.waitCounter = 0;
+        iss >> self->tasks_script.waitCounter;
+        if (self->tasks_script.waitCounter < 0){
+            self->tasks_script.waitCounter = 0;
         }
         return Nebulite::ERROR_TYPE::NONE;
     }
@@ -234,7 +235,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::loadTaskList(int argc, char* argv[]) {
             continue;
         }
         else{
-            tasks_script.taskList.push_back(line);
+            self->tasks_script.taskList.push_back(line);
         }
     }
 
@@ -301,19 +302,19 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::setResolution(int argc, char* argv[]){
     if(argc > 3){
         scalar = std::stoi(argv[3]);
     }
-    Nebulite::getRenderer()->changeWindowSize(w,h,scalar);
+    self->getRenderer()->changeWindowSize(w,h,scalar);
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTree::setFPS(int argc, char* argv[]){
     if(argc != 2){
-        Nebulite::getRenderer()->setFPS(60);
+        self->getRenderer()->setFPS(60);
     }
     else{
         int fps = std::stoi(argv[1]);
         if(fps < 1) fps=1;
         if(fps > 10000) fps=10000;
-        Nebulite::getRenderer()->setFPS(fps);
+        self->getRenderer()->setFPS(fps);
     }
     return Nebulite::ERROR_TYPE::NONE;
 }
@@ -328,7 +329,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::moveCam(int argc, char* argv[]){
 
     int dx = floor(std::stod(argv[1]));
     int dy = floor(std::stod(argv[2]));
-    Nebulite::getRenderer()->moveCam(dx,dy);
+    self->getRenderer()->moveCam(dx,dy);
     return Nebulite::ERROR_TYPE::NONE;
 }
 
@@ -336,14 +337,14 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::setCam(int argc, char* argv[]){
     if(argc == 3){
         int x = floor(std::stod(argv[1]));
         int y = floor(std::stod(argv[2]));
-        Nebulite::getRenderer()->setCam(x,y);
+        self->getRenderer()->setCam(x,y);
         return Nebulite::ERROR_TYPE::NONE;
     }
     if(argc == 4){
         if(!strcmp(argv[3], "c")){
             int x = std::stoi(argv[1]);
             int y = std::stoi(argv[2]);
-            Nebulite::getRenderer()->setCam(x,y,true);
+            self->getRenderer()->setCam(x,y,true);
             return Nebulite::ERROR_TYPE::NONE;
         }
         else{
@@ -358,17 +359,17 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::setCam(int argc, char* argv[]){
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTree::printGlobal(int argc, char* argv[]){
-    std::cout << Nebulite::getRenderer()->serializeGlobal() << std::endl;
+    std::cout << self->getRenderer()->serializeGlobal() << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTree::printState(int argc, char* argv[]){
-    std::cout << Nebulite::getRenderer()->serialize() << std::endl;
+    std::cout << self->getRenderer()->serialize() << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTree::logGlobal(int argc, char* argv[]){
-    std::string serialized = Nebulite::getRenderer()->serializeGlobal();
+    std::string serialized = self->getRenderer()->serializeGlobal();
     if (argc>1){
         for(int i=1; i < argc; i++){
             FileManagement::WriteFile(argv[i],serialized);
@@ -381,7 +382,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::logGlobal(int argc, char* argv[]){
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTree::logState(int argc, char* argv[]){
-    std::string serialized = Nebulite::getRenderer()->serialize();
+    std::string serialized = self->getRenderer()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
             FileManagement::WriteFile(argv[i],serialized);
@@ -402,25 +403,25 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::render_object(int argc, char** argv){
 Nebulite::ERROR_TYPE Nebulite::MainTree::errorlog(int argc, char* argv[]){
     if(argc == 2){
         if(!strcmp(argv[1], "on")){
-            if(!Nebulite::errorLogStatus){
+            if(!self->errorLogStatus){
                 // Log errors in separate file
-                Nebulite::errorFile.open("errors.log");
-                if (!Nebulite::errorFile) {
+                self->errorFile.open("errors.log");
+                if (!self->errorFile) {
                     std::cerr << "Failed to open error file." << std::endl;
                     return Nebulite::ERROR_TYPE::CRITICAL_INVALID_FILE;
                 }
-                Nebulite::originalCerrBuf = std::cerr.rdbuf(); // Store the original cerr buffer
-                std::cerr.rdbuf(Nebulite::errorFile.rdbuf());
-                Nebulite::errorLogStatus = true;
+                self->originalCerrBuf = std::cerr.rdbuf(); // Store the original cerr buffer
+                std::cerr.rdbuf(self->errorFile.rdbuf());
+                self->errorLogStatus = true;
             }
         }
         else if (!strcmp(argv[1], "off")){
-            if(Nebulite::errorLogStatus){
+            if(self->errorLogStatus){
                 // Close error log
                 std::cerr.flush();                              // Explicitly flush std::cerr before closing the file stream. Ensures everything is written to the file
-                std::cerr.rdbuf(Nebulite::originalCerrBuf);     // Restore the original buffer to std::cerr (important for cleanup)
-                Nebulite::errorFile.close();
-                Nebulite::errorLogStatus = false;
+                std::cerr.rdbuf(self->originalCerrBuf);     // Restore the original buffer to std::cerr (important for cleanup)
+                self->errorFile.close();
+                self->errorLogStatus = false;
             }
         } 
     }
@@ -453,7 +454,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::always(int argc, char* argv[]){
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                Nebulite::tasks_always.taskList.push_back(command);
+                self->tasks_always.taskList.push_back(command);
             }
         }
     }
@@ -461,7 +462,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::always(int argc, char* argv[]){
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTree::alwaysClear(int argc, char* argv[]){
-    Nebulite::tasks_always.taskList.clear();
+    self->tasks_always.taskList.clear();
     return Nebulite::ERROR_TYPE::NONE;
 }
 
