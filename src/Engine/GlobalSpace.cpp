@@ -100,5 +100,8 @@ Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::task
 
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpace::resolveTask(std::string task) {
+    if (!task.starts_with(binName + " ")) {
+        task = binName + " " + task; // Add binary name if missing
+    }
     return MainTree.parseStr(task);
 }

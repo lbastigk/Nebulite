@@ -93,6 +93,8 @@ Renderer:                       SDL-Wrapper for all functions concerning renderi
 
                                 [SEND UP]:  To Invoke:      - Invoke commands listed in Object, including pointer to itself  
 
+
+For more information, see doc/
 */
 
 
@@ -177,10 +179,11 @@ int main(int argc, char* argv[]){
     Nebulite::taskQueueResult result_tasks_internal;
     Nebulite::taskQueueResult result_tasks_always;
     Nebulite::ERROR_TYPE lastCriticalResult;
-    uint64_t* noWaitCounter = nullptr;
+    uint64_t* noWaitCounter = nullptr;  // Only the script task queue has a waitCounter, so we pass nullptr for others
     bool critical_stop = false;
 
-    // argc/argv for functioncalls
+    // A new set of argc/argv is needed to parse tasks
+    // TaskQueue -> pop out string -> parse into argc/argv -> call MainTree.parse with argc/argv
     int    argc_mainTree = 0;
     char** argv_mainTree = nullptr;
 
@@ -196,14 +199,12 @@ int main(int argc, char* argv[]){
         // But might break for more complex tasks, so this should be taken into account later on
         // e.G. inside the functree, checking state of Renderer might be useful
 
-        // Clear from last loop
+        // 1.) Clear errors from last loop
         result_tasks_script.errors.clear();
         result_tasks_internal.errors.clear();
         result_tasks_always.errors.clear();
 
-
-
-        // Parse script tasks
+        // 2.) Parse script tasks
         if(!critical_stop){
             // TODO: Windows Release build breaks here!
             result_tasks_script = globalSpace.resolveTaskQueue(globalSpace.tasks_script,&globalSpace.tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
@@ -214,7 +215,7 @@ int main(int argc, char* argv[]){
             break;
         } 
 
-        // Parse internal tasks
+        // 3.) Parse internal tasks
         if(!critical_stop){
             result_tasks_internal = globalSpace.resolveTaskQueue(globalSpace.tasks_internal,noWaitCounter,&argc_mainTree,&argv_mainTree);
         }
@@ -224,7 +225,7 @@ int main(int argc, char* argv[]){
             break;
         }
 
-        // Parse always-tasks
+        // 4.) Parse always-tasks
         if(!critical_stop){
             result_tasks_always = globalSpace.resolveTaskQueue(globalSpace.tasks_always,noWaitCounter,&argc_mainTree,&argv_mainTree);
         }
@@ -245,27 +246,30 @@ int main(int argc, char* argv[]){
                 globalSpace.tasks_script.waitCounter--; 
             }  
         }
+    // Note 1:
     // Continue only if renderer exists, and if quit wasnt called.
     // It might be tempting to add the condition that all tasks are done, 
     // but this could cause issues if the user wishes to quit while a task is still running.
     //
-    // A current limitation here that, if the user is running a taskfile with a wait-call, a renderer has to be initialized.
+    // Note 2:
+    // A current limitation is that, if the user is running a taskfile with a wait-call, a renderer has to be initialized.
     } while (!critical_stop && globalSpace.RendererExists() && !globalSpace.getRenderer()->isQuit());
 
 
     //--------------------------------------------------
     // Exit
 
-    // turn off error log
-    globalSpace.resolveTask("log off");
-
     // Destroy renderer
     if(globalSpace.RendererExists()) globalSpace.getRenderer()->destroy();
 
-    // Exit
+    // Inform user about any errors and return error code
     if(critical_stop){
         std::cerr << "Critical Error: " << lastCriticalResult << std::endl;
-        return 1;
     }
-    return 0;
+
+    // turn off error log
+    globalSpace.resolveTask("log off");
+
+    // Return 1 on critical stop, 0 otherwise
+    return (int)critical_stop;
 }
