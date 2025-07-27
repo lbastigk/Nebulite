@@ -143,25 +143,34 @@ check_binary() {
     # Check if basic binary functionality works
 
     # - $binary help should print text
+    ((total_tests++))
     if ! $binary help 2>/dev/null | grep -q "Help for Nebulite"; then
+        ((failed_tests++))
         echoerr "Help command failed for $label"
         test_results[$label]="FAIL: Last Fail: unable to run help command"
         return 1
     fi
+    ((passed_tests++))
 
     # - $binary echo 1234 should print 1234
+    ((total_tests++))
     if ! $binary echo 1234 2>/dev/null | grep -q "1234"; then
+        ((failed_tests++))
         echoerr "Echo command failed for $label"
         test_results[$label]="FAIL: Last Fail: unable to run echo command"
         return 1
     fi
+    ((passed_tests++))
 
     # - $binary error <anything> should print error message and return non-zero exit code
+    ((total_tests++))
     if ! output=$($binary error "      "); then     # Cant supress error output, so we print whitespace
+        ((failed_tests++))
         echoerr "Error command failed for $label"
         test_results[$label]="FAIL: Last Fail: unable to run error command"
         return 1
     fi
+    ((passed_tests++))
 
     return 0
 }
