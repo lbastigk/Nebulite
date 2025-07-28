@@ -134,6 +134,8 @@ int main(int argc, char* argv[]){
     //--------------------------------------------------
     // Initialize the global space
     std::string binaryName = argv[0];
+
+    std::cout << "DEBUG: Creatimg a GlobalSpace Object..." << std::endl;
     Nebulite::GlobalSpace globalSpace(binaryName);
 
     //--------------------------------------------------

@@ -6,28 +6,45 @@
 
 
 // Initializing variables/Objects
-Nebulite::GlobalSpace::GlobalSpace(const std::string binName) : MainTree(&invoke, this){
+Nebulite::GlobalSpace::GlobalSpace(const std::string binName){
+    std::cout << "DEBUG: Starting GlobalSpace constructor" << std::endl;
+
+    //-------------------------------------------------
+    // Logging
+    originalCerrBuf = nullptr;
+
+    //-------------------------------------------------
+    // Objects
+    global = new Nebulite::JSON();
+    renderer = nullptr; // Renderer will be initialized later
+
     //-------------------------------------------------
     // Modify structs                         
-    tasks_always.clearAfterResolving = false;   // always-tasks are not cleared
+    tasks_always.clearAfterResolving = false;
 
     //-------------------------------------------------
     // Linkages 
-    invoke.linkGlobal(*global);
-    invoke.linkQueue(tasks_internal.taskList);
+    invoke = std::make_unique<Invoke>();
+    invoke->linkGlobal(*global);
+    invoke->linkQueue(tasks_internal.taskList);
+
+    //-------------------------------------------------
+    // MainTree
+    mainTree = std::make_unique<Nebulite::MainTree>(invoke.get(), this);
 
     //-------------------------------------------------
     // General Variables
+    errorLogStatus = false;
+    _binName = binName;
+    stateName = "";
     
-    // Set binary name
-    this->binName = binName;
-    stateName = ""; // On startup, no state
+    std::cout << "DEBUG: GlobalSpace constructor completed" << std::endl;
 }
 
 // Getting renderer pointer. If Renderer isnt initialized, initialize first
 Nebulite::Renderer* Nebulite::GlobalSpace::getRenderer() {
     if (renderer == nullptr) {
-        renderer = new Nebulite::Renderer(invoke, *global);
+        renderer = new Nebulite::Renderer(*invoke, *global);
         renderer->setFPS(60);
     }
     return renderer;
@@ -56,12 +73,12 @@ Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::task
             // While args from command line have binary name in them, 
             // commands from Renderobject, taskfile or console do not.
             // Is needed for correct parsing; argv[0] is alwys binary name.
-            if (!argStr.starts_with(binName + " ")) {
-                argStr = binName + " " + argStr;
+            if (!argStr.starts_with(_binName + " ")) {
+                argStr = _binName + " " + argStr;
             }
 
             // Parse
-            currentResult = MainTree.parseStr(argStr);
+            currentResult = mainTree->parseStr(argStr);
 
             // Check result
             if (currentResult < Nebulite::ERROR_TYPE::NONE) {
@@ -80,12 +97,12 @@ Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::task
             // commands from Renderobject, taskfile or console do not.
             // Is needed for correct parsing; argv[0] is alwys binary name.
             std::string argStr = argStrOrig;
-            if (!argStr.starts_with(binName + " ")) {
-                argStr = binName + " " + argStr;
+            if (!argStr.starts_with(_binName + " ")) {
+                argStr = _binName + " " + argStr;
             }
 
             // Parse
-            currentResult = MainTree.parseStr(argStr);
+            currentResult = mainTree->parseStr(argStr);
 
             // Check result
             if (currentResult < Nebulite::ERROR_TYPE::NONE) {
@@ -100,8 +117,8 @@ Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::task
 
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpace::resolveTask(std::string task) {
-    if (!task.starts_with(binName + " ")) {
-        task = binName + " " + task; // Add binary name if missing
+    if (!task.starts_with(_binName + " ")) {
+        task = _binName + " " + task; // Add binary name if missing
     }
-    return MainTree.parseStr(task);
+    return mainTree->parseStr(task);
 }

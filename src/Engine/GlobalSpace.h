@@ -108,18 +108,18 @@ namespace Nebulite {
 
         // General variables
         std::string stateName;
-        std::string binName;
+        std::string _binName;
 
         // Objects
-        Invoke invoke;
-        Nebulite::MainTree MainTree;
-        Nebulite::JSON* global = new Nebulite::JSON();
-        Nebulite::Renderer* renderer = nullptr;
+        std::unique_ptr<Invoke> invoke;
+        std::unique_ptr<Nebulite::MainTree> mainTree;
+        Nebulite::JSON* global;
+        Nebulite::Renderer* renderer;
 
         // Error log variables
-        bool errorLogStatus = false;
+        bool errorLogStatus;
         std::ofstream errorFile;
-        std::streambuf* originalCerrBuf = nullptr;
+        std::streambuf* originalCerrBuf;
 
     };
 }
