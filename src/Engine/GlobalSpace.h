@@ -64,7 +64,7 @@ namespace Nebulite {
         // Special Member Functions
 
         // Constructor
-        GlobalSpace(const std::string binName);
+        GlobalSpace(const std::string binName, std::streambuf*& originalCerrBufRef);
 
         // Destructor
         ~GlobalSpace() = default;
@@ -118,8 +118,7 @@ namespace Nebulite {
 
         // Error log variables
         bool errorLogStatus;
-        std::ofstream errorFile;
-        std::streambuf* originalCerrBuf;
-
+        std::unique_ptr<std::ofstream> errorFile;
+        std::streambuf*& originalCerrBuf;
     };
 }

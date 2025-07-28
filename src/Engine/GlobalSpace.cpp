@@ -6,11 +6,14 @@
 
 
 // Initializing variables/Objects
-Nebulite::GlobalSpace::GlobalSpace(const std::string binName){
-    std::cout << "DEBUG: Starting GlobalSpace constructor" << std::endl;
+Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& originalCerrBufRef)
+    : originalCerrBuf(originalCerrBufRef)
+{
 
     //-------------------------------------------------
-    // Logging
+    // Initialize error logging members
+    errorFile = nullptr;              // Don't create ofstream yet
+    errorLogStatus = false;
     originalCerrBuf = nullptr;
 
     //-------------------------------------------------
@@ -37,8 +40,6 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName){
     errorLogStatus = false;
     _binName = binName;
     stateName = "";
-    
-    std::cout << "DEBUG: GlobalSpace constructor completed" << std::endl;
 }
 
 // Getting renderer pointer. If Renderer isnt initialized, initialize first

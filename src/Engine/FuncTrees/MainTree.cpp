@@ -35,7 +35,7 @@ MainTree
 
 Nebulite::MainTree::MainTree(Nebulite::Invoke* invoke, Nebulite::GlobalSpace* globalSpace)
     : FuncTreeWrapper("Nebulite", Nebulite::ERROR_TYPE::NONE, Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID) {
-    
+
     invoke_ptr = invoke;
     self = globalSpace;
 
@@ -404,23 +404,43 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::errorlog(int argc, char* argv[]){
     if(argc == 2){
         if(!strcmp(argv[1], "on")){
             if(!self->errorLogStatus){
-                // Log errors in separate file
-                self->errorFile.open("errors.log");
-                if (!self->errorFile) {
-                    std::cerr << "Failed to open error file." << std::endl;
+                try {
+                    // Create ofstream only when needed (lazy initialization)
+                    if (!self->errorFile) {
+                        self->errorFile = std::make_unique<std::ofstream>();
+                    }
+                    
+                    // Log errors in separate file
+                    self->errorFile->open("errors.log");
+                    if (!(*self->errorFile)) {
+                        std::cerr << "Failed to open error file." << std::endl;
+                        return Nebulite::ERROR_TYPE::CRITICAL_INVALID_FILE;
+                    }
+                    
+                    self->originalCerrBuf = std::cerr.rdbuf(); // Store the original cerr buffer
+                    std::cerr.rdbuf(self->errorFile->rdbuf()); // Redirect to file
+                    self->errorLogStatus = true;
+                    
+                } catch (const std::exception& e) {
+                    std::cerr << "Failed to create error log: " << e.what() << std::endl;
+                    return Nebulite::ERROR_TYPE::CRITICAL_INVALID_FILE;
+                } catch (...) {
+                    std::cerr << "Failed to create error log: unknown error" << std::endl;
                     return Nebulite::ERROR_TYPE::CRITICAL_INVALID_FILE;
                 }
-                self->originalCerrBuf = std::cerr.rdbuf(); // Store the original cerr buffer
-                std::cerr.rdbuf(self->errorFile.rdbuf());
-                self->errorLogStatus = true;
             }
         }
         else if (!strcmp(argv[1], "off")){
             if(self->errorLogStatus){
                 // Close error log
-                std::cerr.flush();                              // Explicitly flush std::cerr before closing the file stream. Ensures everything is written to the file
-                std::cerr.rdbuf(self->originalCerrBuf);     // Restore the original buffer to std::cerr (important for cleanup)
-                self->errorFile.close();
+                std::cerr.flush();                           // Flush before restoring
+                std::cerr.rdbuf(self->originalCerrBuf);     // Restore the original buffer
+                
+                if (self->errorFile) {
+                    self->errorFile->close();
+                    // Keep the unique_ptr for potential reuse
+                }
+                
                 self->errorLogStatus = false;
             }
         } 
