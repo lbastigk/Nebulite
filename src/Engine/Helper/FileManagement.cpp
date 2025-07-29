@@ -10,20 +10,33 @@ std::string FileManagement::CombinePaths(const std::string& baseDir, const std::
     return fullPath.string();
 }
 
-std::string FileManagement::LoadFile(const std::string& link) {
-    namespace fs = std::filesystem;
-
-    fs::path filepath(link);  // Modern: handles encodings/platforms
-    std::ifstream data(filepath, std::ios::in);
-
-    if (!data.is_open()) {
-        std::cerr << "File '" << filepath << "' could not be opened!" << std::endl;
+std::string FileManagement::LoadFile(const std::string& link) {  
+    // Use C-style file I/O to avoid locale issues
+    FILE* file = fopen(link.c_str(), "rb");
+    if (!file) {
+        std::cerr << "File '" << link << "' could not be opened!" << std::endl;
         return "";
     }
-
-    std::stringstream toreturn;
-    toreturn << data.rdbuf(); // More efficient: read whole file at once
-    return toreturn.str();
+    
+    // Get file size
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    
+    if (fileSize <= 0) {
+        std::cerr << "File '" << link << "' is empty or invalid!" << std::endl;
+        fclose(file);
+        return "";
+    }
+    
+    // Read entire file into string
+    std::string content(fileSize, '\0');
+    size_t bytesRead = fread(&content[0], 1, fileSize, file);
+    fclose(file);
+    
+    // Adjust string size to actual bytes read
+    content.resize(bytesRead);
+    return content;
 }
 
 void FileManagement::WriteFile(const std::string& filename, const std::string& text) {

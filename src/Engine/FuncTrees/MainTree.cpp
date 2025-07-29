@@ -158,6 +158,9 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::spawn(int argc, char* argv[]){
         // Create object
         RenderObject* ro = new RenderObject;
         ro->deserialize(linkOrObject);
+
+        // Append to renderer
+        // Renderer manages the RenderObjects lifetime
         self->getRenderer()->append(ro);
     }
     else{
@@ -213,6 +216,8 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::wait(int argc, char* argv[]){
 // but we need to make sure that the queue is processed in a way that allows for manipulation
 // of the queue while processing it, especially at the front.
 Nebulite::ERROR_TYPE Nebulite::MainTree::loadTaskList(int argc, char* argv[]) {
+    std::cout << "Loading task list from file: " << (argc > 1 ? argv[1] : "none") << std::endl;
+
     if (argc < 2) {
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -220,14 +225,16 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::loadTaskList(int argc, char* argv[]) {
         return Nebulite::ERROR_TYPE::TOO_MANY_ARGS;
     }
 
-    std::ifstream infile(argv[1]);
-    if (!infile) {
+    std::string file = FileManagement::LoadFile(argv[1]);
+    if (file.empty()) {
         std::cerr << "Error: "<< argv[0] <<" Could not open file '" << argv[1] << "'" << std::endl;
         return Nebulite::ERROR_TYPE::CRITICAL_INVALID_FILE;
     }
-    
+
+    // Split std::string file into lines and remove comments
+    std::istringstream stream(file);
     std::string line;
-    while (std::getline(infile, line)) {
+    while (std::getline(stream, line)) {
         line = StringHandler::untilSpecialChar(line,'#');   // Remove comments
         line = StringHandler::lstrip(line,' ');             // Remove whitespaces at start
         if(line.length() == 0){
