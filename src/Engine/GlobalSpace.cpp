@@ -1,11 +1,6 @@
-//------------------------------------------------
-// Main Tree attached functions 
 #include "GlobalSpace.h"
 #include "MainTree.h"
 
-
-
-// Initializing variables/Objects
 Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& originalCerrBufRef)
     : originalCerrBuf(originalCerrBufRef)
 {
@@ -42,7 +37,6 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& o
     stateName = "";
 }
 
-// Getting renderer pointer. If Renderer isnt initialized, initialize first
 Nebulite::Renderer* Nebulite::GlobalSpace::getRenderer() {
     if (renderer == nullptr) {
         renderer = new Nebulite::Renderer(*invoke, *global);
@@ -51,11 +45,9 @@ Nebulite::Renderer* Nebulite::GlobalSpace::getRenderer() {
     return renderer;
 }
 
-// Check if renderer exists
 bool Nebulite::GlobalSpace::RendererExists(){
     return renderer != nullptr;
 }
-
 
 Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree){
     Nebulite::ERROR_TYPE currentResult = Nebulite::ERROR_TYPE::NONE;
@@ -115,7 +107,6 @@ Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::task
 
     return result;
 }
-
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpace::resolveTask(std::string task) {
     if (!task.starts_with(_binName + " ")) {

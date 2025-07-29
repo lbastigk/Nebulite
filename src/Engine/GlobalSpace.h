@@ -96,29 +96,50 @@ namespace Nebulite {
         // Public Variables
 
         // Task queues
+
+        // Task queue for script files loaded with "task"
         Nebulite::taskQueue tasks_script;
+
+        // Internal task queue from renerObjects, console, etc.
         Nebulite::taskQueue tasks_internal;
+
+        // Always-tasks added with the prefix "always "
         Nebulite::taskQueue tasks_always;
 
     private:
         //----------------------------------------------
         // Private Variables
 
-        friend class Nebulite::MainTree; // Allow MainTree to access private members
+        // Allow MainTree to access private members
+        friend class Nebulite::MainTree; 
 
-        // General variables
+        // Name of the state where files are saved (equal to savegame name)
         std::string stateName;
+
+        // Name of the binary, used for parsing arguments
         std::string _binName;
 
-        // Objects
+        // Invoke Object for parsing expressions etc.
         std::unique_ptr<Invoke> invoke;
+
+        // Maintree for parsing and executing commands
         std::unique_ptr<Nebulite::MainTree> mainTree;
+
+        // Global Space document 
         Nebulite::JSON* global;
+
+        // Pointer to the renderer, initialized on first use via getRenderer()
         Nebulite::Renderer* renderer;
 
-        // Error log variables
+        // Current status of error logging
+        // false : logging to cerr
+        // true  : logging to file
         bool errorLogStatus;
+
+        // File for error logging, if errorLogStatus is true
         std::unique_ptr<std::ofstream> errorFile;
+
+        // Original cerr buffer, used for restoring after redirecting
         std::streambuf*& originalCerrBuf;
     };
 }
