@@ -20,7 +20,7 @@
 namespace Nebulite{
 class Renderer {
 public:
-	Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_hidden = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
+	Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_headless = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
 
 	//Marshalling
 	std::string serialize();
@@ -38,6 +38,7 @@ public:
 	void setGlobalValues();
 	bool isQuit(){return quit;}
 	void setQuit(){quit=true;}
+	bool snapshot(std::string link = "./Resources/Snapshots/snapshot.png");
 	
 	//-----------------------------------------------------------
 	// Purge

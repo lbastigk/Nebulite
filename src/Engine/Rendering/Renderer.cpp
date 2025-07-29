@@ -1,6 +1,6 @@
 #include "Renderer.h"
 
-Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_hidden, unsigned int zoom, unsigned int X, unsigned int Y)
+Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_headless, unsigned int zoom, unsigned int X, unsigned int Y)
 : 	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B")),
 	dist(0, 32767)
@@ -41,7 +41,7 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	int y = SDL_WINDOWPOS_CENTERED;
 	int w = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",X)*zoom;
 	int h = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",Y)*zoom;
-	window = SDL_CreateWindow("Nebulite",x,y,w,h,flag_hidden ? SDL_WINDOW_HIDDEN :SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("Nebulite",x,y,w,h,flag_headless ? SDL_WINDOW_HIDDEN :SDL_WINDOW_SHOWN);
 	if (!window) {
 		// Window creation failed
 		std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
@@ -115,12 +115,12 @@ void Nebulite::Renderer::deserialize(std::string serialOrLink) {
 
 //-----------------------------------------------------------
 // Pipeline
-void Nebulite::Renderer::Renderer::tick(){
-	update();          // 1.) Update objects:      Allowing for them to communicate through their invokes
-	renderFrame();     // 2.) Render frame:        Rendering all Container layers from bottom to top
-	renderFPS();       // 3.) Render fps count
-	showFrame();       // 4.) Show Frame
-	clear();           // 5.) Clear screen
+void Nebulite::Renderer::tick(){
+    clear();           // 1.) Clear screen FIRST, so that functions like snapshot have acces to the latest frame
+    update();          // 2.) Update objects
+    renderFrame();     // 3.) Render frame
+    renderFPS();       // 4.) Render fps count
+    showFrame();       // 5.) Show Frame
 }
 
 void Nebulite::Renderer::append(Nebulite::RenderObject* toAppend) {
@@ -279,6 +279,70 @@ void Nebulite::Renderer::update() {
 	}
 }
 
+bool Nebulite::Renderer::snapshot(std::string link) {
+    if (!renderer) {
+        std::cerr << "Cannot take snapshot: renderer not initialized" << std::endl;
+        return false;
+    }
+    
+    // Get current window/render target size
+    int width, height;
+    if (window) {
+        // Normal windowed mode
+        SDL_GetWindowSize(window, &width, &height);
+    } else {
+        // Headless mode - get renderer output size
+        SDL_GetRendererOutputSize(renderer, &width, &height);
+    }
+    
+    //std::cout << "Taking snapshot (" << width << "x" << height << ") to: " << link << std::endl;
+    
+    // Create surface to capture pixels
+    SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32,
+                                                0x00ff0000,  // Red mask
+                                                0x0000ff00,  // Green mask  
+                                                0x000000ff,  // Blue mask
+                                                0xff000000); // Alpha mask
+    
+    if (!surface) {
+        std::cerr << "Failed to create surface for snapshot: " << SDL_GetError() << std::endl;
+        return false;
+    }
+    
+    // Read pixels from renderer
+    if (SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, 
+                            surface->pixels, surface->pitch) != 0) {
+        std::cerr << "Failed to read pixels for snapshot: " << SDL_GetError() << std::endl;
+        SDL_FreeSurface(surface);
+        return false;
+    }
+    
+    // Create directory if it doesn't exist
+    std::string directory = link.substr(0, link.find_last_of("/\\"));
+    if (!directory.empty()) {
+        // Create directory using C++17 filesystem
+        try {
+            std::filesystem::create_directories(directory);
+        } catch (const std::exception& e) {
+            //std::cerr << "Warning: Could not create directory " << directory << ": " << e.what() << std::endl;
+            // Continue anyway - maybe directory already exists
+        }
+    }
+    
+    // Save surface as PNG
+    int result = IMG_SavePNG(surface, link.c_str());
+    
+    // Cleanup
+    SDL_FreeSurface(surface);
+    
+    if (result != 0) {
+        std::cerr << "Failed to save snapshot: " << IMG_GetError() << std::endl;
+        return false;
+    }
+    
+    //std::cout << "Snapshot saved successfully to: " << link << std::endl;
+    return true;
+}
 
 //-----------------------------------------------------------
 // Purge

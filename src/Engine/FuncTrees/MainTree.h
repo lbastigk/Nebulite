@@ -12,6 +12,10 @@ class GlobalSpace;
 class MainTree : public FuncTreeWrapper<ERROR_TYPE>{
 public:
     MainTree(Nebulite::Invoke* invoke, Nebulite::GlobalSpace* globalSpace);
+
+    //---------------------------------------
+    // Internal Variables
+    std::string headless = "false";
 private:
     // TODO:
     /*
@@ -115,16 +119,18 @@ private:
     // Clears all always-functioncalls
     Nebulite::ERROR_TYPE alwaysClear(int argc, char* argv[]);
 
+    // Create a snapshot of the current renderer state
+    Nebulite::ERROR_TYPE snapshot(int argc, char* argv[]);
+
     // [DEBUG] Get and store a standard renderobject for reference to ./Resources/Renderobjects/standard.json
     Nebulite::ERROR_TYPE render_object(int argc, char** argv);
 
-    //---------------------------------------
-    // TESTS
+    
+    // Print all internal values
     Nebulite::ERROR_TYPE printVar(int argc, char** argv);
 
-private:
-    std::string testVar = "STANDARD";
-    
+    //----------------------------------
+    // Private Variables
     Nebulite::Invoke* invoke_ptr;
     Nebulite::GlobalSpace* self;
 };

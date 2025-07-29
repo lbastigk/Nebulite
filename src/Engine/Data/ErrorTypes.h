@@ -37,10 +37,11 @@ enum ERROR_TYPE{
     CRITICAL_FUNCTIONCALL_INVALID,
     // Non-critical errors positive
     NONE = 0,
-    CUSTOM_ERROR,   // used for functioncall "error"
-    TOO_MANY_ARGS,
-    TOO_FEW_ARGS,
-    UNKNOWN_ARG,
-    FEATURE_NOT_IMPLEMENTED
+    CUSTOM_ERROR,               // used for functioncall "error"
+    TOO_MANY_ARGS,              // argc > expected
+    TOO_FEW_ARGS,               // argc < expected
+    UNKNOWN_ARG,                
+    FEATURE_NOT_IMPLEMENTED,
+    SNAPSHOT_FAILED,            // Used in Renderer::snapshot
 };
 }

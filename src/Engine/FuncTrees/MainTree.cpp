@@ -39,6 +39,13 @@ Nebulite::MainTree::MainTree(Nebulite::Invoke* invoke, Nebulite::GlobalSpace* gl
     invoke_ptr = invoke;
     self = globalSpace;
 
+    //------------------------------------
+    // Bind Variables
+    bindVariable(&headless, "headless", "Setting for headless mode, no window will be created");
+
+    //------------------------------------
+    // Bind Functions
+
     // General
     bindFunction(funcTree, this, &MainTree::eval,            "eval",         "Evaluate all $(...) after this keyword, parse rest as usual");
     bindFunction(funcTree, this, &MainTree::setGlobal,       "set-global",   "Set any global variable: [key] [value]");
@@ -54,11 +61,12 @@ Nebulite::MainTree::MainTree(Nebulite::Invoke* invoke, Nebulite::GlobalSpace* gl
     bindFunction(funcTree, this, &MainTree::func_assert,     "assert",       "Force a certain return value");
     bindFunction(funcTree, this, &MainTree::func_return,     "return",       "Returns an assert value, stopping program");
     
-    // Renderer Settings
+    // Renderer Settings / Funtions
     bindFunction(funcTree, this, &MainTree::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
-    bindFunction(funcTree, this, &MainTree::setResolution,   "set-res",      "Sets resolution size: [w] [h]");
-    bindFunction(funcTree, this, &MainTree::setCam,          "cam-set",      "Sets Camera position [x] [y] <c>");
-    bindFunction(funcTree, this, &MainTree::moveCam,         "cam-move",     "Moves Camera position [dx] [dy]");
+    bindFunction(funcTree, this, &MainTree::setResolution,   "set-res",      "Sets resolution size:  [w] [h]");
+    bindFunction(funcTree, this, &MainTree::setCam,          "cam-set",      "Sets Camera position:  [x] [y] <c>");
+    bindFunction(funcTree, this, &MainTree::moveCam,         "cam-move",     "Moves Camera position: [dx] [dy]");
+    bindFunction(funcTree, this, &MainTree::snapshot,        "snapshot",     "Take screenshot:       <link>");
 
     // Debug
     bindFunction(funcTree, this, &MainTree::echo,            "echo",         "Echos all args provided to cout");
@@ -73,10 +81,8 @@ Nebulite::MainTree::MainTree(Nebulite::Invoke* invoke, Nebulite::GlobalSpace* gl
 
     // Helper
     bindFunction(funcTree, this, &MainTree::render_object,   "standard-render-object",  "Serializes standard renderobject to ./Resources/Renderobjects/standard.json");
-
-    // Internal Tests
-    bindFunction(funcTree, this, &MainTree::printVar,        "print-var",   "Prints the value of the test variable");
-    bindVariable(&testVar, "testVar", "Test variable for printing");
+    bindFunction(funcTree, this, &MainTree::printVar,        "print-var",               "Prints the value of the all internal values");
+    
 }
 
 
@@ -509,6 +515,30 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::func_return(int argc, char* argv[]){
 
 
 Nebulite::ERROR_TYPE Nebulite::MainTree::printVar(int argc, char** argv){
-    std::cout << testVar << std::endl;
+    std::cout << "headless: " << headless << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
+}
+
+
+Nebulite::ERROR_TYPE Nebulite::MainTree::snapshot(int argc, char* argv[]){
+    if(argc == 1){
+        // No link provided, use default
+        bool success = self->getRenderer()->snapshot();
+        if (!success) {
+            return Nebulite::ERROR_TYPE::SNAPSHOT_FAILED;
+        }
+        return Nebulite::ERROR_TYPE::NONE;
+    }
+    else if(argc == 2){
+        // Link provided
+        std::string link = argv[1];
+        bool success = self->getRenderer()->snapshot(link);
+        if (!success) {
+            return Nebulite::ERROR_TYPE::SNAPSHOT_FAILED;
+        }
+        return Nebulite::ERROR_TYPE::NONE;
+    }
+    else{
+        return Nebulite::ERROR_TYPE::TOO_MANY_ARGS;
+    }
 }
