@@ -21,46 +21,58 @@ The main engine provides the core functionality of the game, handling:
 - Level loading and object management using **RapidJSON** for structured data.
 - Environments, Renderobjects etc. can be loaded with tasks. See `./Application/TaskFiles/` for examples.
 
----
+## Usage Examples
 
-## Quick Start
-
-Clone the repository and run the install script to set up dependencies, initialize submodules, and build the engine.  
-**Note:** `install.sh` may prompt for your password to install system packages.
-
+### Basic Engine Operations
 ```bash
-git clone https://github.com/lbastigk/Nebulite
-cd Nebulite
-./install.sh
+# Run with immediate commands
+./bin/Nebulite 'set-fps 60 ; spawn Resources/Renderobjects/standard.json ; wait 60 ; snapshot'
+
+
+# Batch operations from script
+./bin/Nebulite task TaskFiles/Benchmarks/gravity.txt
 ```
 
-To rebuild the binaries later, simply run:
-```bash
-./build.sh
-```
+### Interactive Mode
+Start engine and enter console mode with `^`. Enter `help` to see available commands
 
-To run the engine:
+### Headless Mode (for automation/testing)
 ```bash
-cd ./Application
-./bin/Nebulite
-```
+# Generate previews without GUI
+./bin/Nebulite --headless "spawn ... ; snapshot preview.png ; exit"
 
-If you encounter missing dependencies or build errors, try running `./install.sh` again.
+# Automated testing
+./bin/Nebulite --headless task ...
+```
 
 ## Directory Structure
 
 ```
-.
-├── .recall/               # Database for recall binary. See: https://github.com/lbastigk/recall
-├── Application/           # Main application binaries and resources
-├── build/                 # Temporary build output for cmake
-├── build.sh               # Build script
-├── CMakeLists.txt         # CMake project configuration
-├── external/              # Third-party libraries (SDL, etc.)
-├── install.sh             # Full installation, compilation and testing
-├── mingw-toolchain.cmake  # Toolchain file for Windows cross-compiling
-├── README.md              # Project documentation
-└── src/                   # Engine source code
+Nebulite/
+├── .recall/                  # Database for pseudo project documentation (recall tool). See: https://github.com/lbastigk/recall
+├── Application/              # Runtime environment
+│   ├── bin/                  # Compiled binaries
+│   ├── Resources/            # Game assets and data
+│   │   ├── CreationScripts   # Python scripts for mock-asset-creation
+│   │   ├── ...
+│   │   ├── Levels/           # Environments
+│   │   ├── Renderobjects/    # JSON object definitions
+│   │   ├── Snapshots/        # Screenshot output
+│   │   └── Sprites/          # Image assets
+│   └── TaskFiles/            # Example scripts
+├── build/                    # Temporary build output for cmake
+├── doc/                      # UML-Diagrams
+├── external/                 # Third-party dependencies
+├── src/                      # Engine source code
+│   ├── main.cpp              # Entry point
+│   └── Engine/               # Core engine modules
+│       ├── Data/             # JSON, KeyNames, ErrorTypes
+│       ├── FuncTrees/        # Command processing
+│       ├── Helper/           # Utility functions
+│       └── Rendering/        # Rendering and objects
+├── build.sh                  # Build automation
+├── install.sh                # Setup and installation
+└── CMakeLists.txt            # CMake configuration
 ```
 
 ## Platform Support
@@ -70,9 +82,9 @@ If you encounter missing dependencies or build errors, try running `./install.sh
 
 ## Dependencies
 
-Nebulite relies on the following libraries:
+Nebulite relies on the following projects:
 
-| Library                                               | Purpose                                      |
+| Project                                               | Purpose                                      |
 |-------------------------------------------------------|----------------------------------------------|
 | [SDL2](https://www.libsdl.org/)                       | Rendering and input handling                 |
 | [SDL_ttf](https://github.com/libsdl-org/SDL_ttf)      | Font rendering                               |
@@ -81,4 +93,28 @@ Nebulite relies on the following libraries:
 | [Abseil](https://abseil.io/)                          | Fast variable caching                        |
 | [Tinyexpr](https://github.com/codeplea/tinyexpr)      | Parsing and evaluating expressions           |
 
+Optional dependencies:
+| Project                                               | Purpose                                      |
+|-------------------------------------------------------|----------------------------------------------|
+| [recall](https://github.com/lbastigk/recall/)         | CLI-Tool for quick documentation             |
+| [PlantUML](https://plantuml.com/)                     | For compiling UML-Diagrams in ./doc/         |
 
+## Quick start / Contributing
+
+### Development Setup
+1. Fork the repository
+2. Install dependencies: `./install.sh`
+3. Create feature branch: `git checkout -b feature/my-feature`
+4. Make changes and test: `./build.sh && cd Application && ./Tests.sh`
+5. Submit pull request
+
+### Testing
+```bash
+# Run test suite
+cd Application
+./Tests.sh
+```
+
+### Adding Features
+- New Global commands: Extend `MainTree` class
+- New Global commands: Extend `RenderObjectTree` class
