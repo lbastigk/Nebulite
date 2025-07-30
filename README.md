@@ -4,12 +4,12 @@
 ## Overview
 
 **Nebulite** is a C++-based 2D game engine built for arbitrary rulesets and flexible inter-object logic.
-In Nebulite, `RenderObjects` can interact with each other through a self-other relationship using the `Invoke` class, 
-provided logical conditions between the two are satisfied. Global attributes are accessed and modified via the `global` tag.
+In Nebulite, `RenderObjects` can interact with each other through a self-other-global relationship using the `Invoke` class, 
+provided logical conditions between the two are satisfied.
 
 This non-hierarchical architecture enables complex interactive systems and modular subsystems. Examples:
 - movement being triggered by `$(global.input.keyboard.w)` -> sets velocity or request to move a distane
-- animation being triggered by attributes: `$(self.isMoving)` or `$(self.physics.vX > 0)` -> set posX to `$($(self.posX) + $(self.physics.vX) * $(global.time.dt))`
+- animation being triggered by attributes: `$(self.isMoving)` -> increment spritesheet offset
 - boundary check being triggered by `$(other.isSolid)` -> forces velocity of self to 0
 
 This engine is built using **SDL** for rendering and **RapidJSON** as well as a custom caching system to handle the fast structuring of game data such as `RenderObjects`, `Levels`, and their respective attributes.
@@ -27,7 +27,6 @@ The main engine provides the core functionality of the game, handling:
 ```bash
 # Run with immediate commands
 ./bin/Nebulite 'set-fps 60 ; spawn Resources/Renderobjects/standard.json ; wait 60 ; snapshot'
-
 
 # Batch operations from script
 ./bin/Nebulite task TaskFiles/Benchmarks/gravity.txt
