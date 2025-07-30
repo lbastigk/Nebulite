@@ -14,14 +14,13 @@
  *   - Supports invoke command lists for both general (global) and internal (local) interactions.
  *   - Offers update and reload mechanisms to synchronize state with global invokes and JSON data.
  *   - Calculates computational cost estimates for update operations.
+ *   - allows for flexible extensions through the RenderObjectTree for local function calls.
  *
  * Interaction with Invoke:
- *   - While RenderObject provides its own local invokes to update and manage its state,
- *     the global Nebulite::Invoke class can also manipulate RenderObjects.
- *   - RenderObjects can broadcast invokes globally; if another object "accepts" the invoke,
- *     the Invoke system builds a true pair between broadcaster and listener.
- *   - The Invoke system then updates these pairs according to the invoke logic, enabling
- *     complex inter-object communication and behavior orchestration.
+ *   - Invokes are loaded in from JSON files and categorized into global and local commands.
+ *   - Global commands are based on a self-other-global interaction model, while local commands are focused on self-global interactions.
+ *     They are broadcasted to the Invoke class on defined topics to find matching objects that are listening to those topics.
+ *   - Local commands are defined by an empty topic and are based on a self-global interaction model.
  *
  * Usage:
  *   - Instantiate a RenderObject to represent a sprite, text, or other visual entity.
@@ -29,6 +28,7 @@
  *   - Call update() and reloadInvokes() to synchronize with global state or after property changes.
  *   - Use calculateText() to update text textures when text or font properties change.
  *   - Access SDL_Rect and SDL_Texture pointers for integration with SDL rendering routines.
+ *   - See RenderObjectTree for managing local function calls and interactions.
  *
  * All resource management (textures, surfaces) is handled internally. Copy and move operations
  * are disabled to prevent accidental resource duplication.

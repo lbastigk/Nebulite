@@ -1,0 +1,26 @@
+info:
+  example: |
+    Go into the Application directory and run:
+    
+    ./bin/Nebulite help
+    for more information on available commands.
+
+    ./bin/Nebulite
+    for a simple window (empty commands calls 'set-fps 60')
+
+    ./bin/Nebulite spawn ./Resources/Renderobjects/...
+    to spawn a RenderObject from a JSON file.
+
+    ./bin/Nebulite task TaskFiles/...
+    to run a task from a TaskFile.
+  infoLong: |
+    Nebulite is a C++-based 2D game engine built for arbitrary rulesets and flexible inter-object logic.
+    In Nebulite, RenderObjects can interact with each other through a self-other relationship using the Invoke class, 
+    provided logical conditions between the two are satisfied. Global attributes are accessed and modified via the global tag.
+
+    This non-hierarchical architecture enables complex interactive systems and modular subsystems. Examples:
+    - movement being triggered by $(global.input.keyboard.w) -> sets velocity or request to move a distance
+    - animation being triggered by attributes: $(self.isMoving) or $(self.physics.vX > 0) -> set posX to $($(self.posX) + $(self.physics.vX) * $(global.time.dt))
+    - boundary check being triggered by $(other.isSolid) -> forces velocity of self to 0
+  infoShort: |
+    C++ 2D game engine featuring modular, data-driven entity logic via JSON-based invoke rules and a non-hierarchical architecture for flexible, customizable gameplay and simulations

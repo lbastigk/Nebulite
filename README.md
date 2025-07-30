@@ -51,6 +51,7 @@ If you encounter missing dependencies or build errors, try running `./install.sh
 
 ```
 .
+├── .recall/               # Database for recall binary. See: https://github.com/lbastigk/recall
 ├── Application/           # Main application binaries and resources
 ├── build/                 # Temporary build output for cmake
 ├── build.sh               # Build script

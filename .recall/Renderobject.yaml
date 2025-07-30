@@ -1,0 +1,41 @@
+info:
+  example: |
+    See ./Application/Renderobjects/standard.json for an example RenderObject.
+    Or call ./bin/Nebulite standard-renderobject from the Application directory to create said file.
+
+    Code usage:
+    - Instantiate a RenderObject to represent a sprite, text, or other visual entity.
+    - Use valueSet/valueGet to modify or query properties.
+    - Call update() and reloadInvokes() to synchronize with global state or after property changes.
+    - Use calculateText() to update text textures when text or font properties change.
+    - Access SDL_Rect and SDL_Texture pointers for integration with SDL rendering routines.
+    - See RenderObjectTree for managing local function calls and interactions.
+  infoLong: |
+    Key Features:
+      - Stores all render-related data in an internal JSON document for flexible property management.
+      - Provides methods for serialization and deserialization to and from strings or files.
+      - Supports dynamic property access and modification via valueSet/valueGet templates.
+      - Manages SDL_Rect structures for sprite and text positioning, and caches these for performance.
+      - Handles text rendering using SDL_ttf, including texture creation and caching.
+      - Supports invoke command lists for both general (global) and internal (local) interactions.
+      - Offers update and reload mechanisms to synchronize state with global invokes and JSON data.
+      - Calculates computational cost estimates for update operations.
+      - allows for flexible extensions through the RenderObjectTree for local function calls.
+    
+    Interaction with Invoke:
+      - Invokes are loaded in from JSON files and categorized into global and local commands.
+      - Global commands are based on a self-other-global interaction model, while local commands are focused on self-global interactions.
+        They are broadcasted to the Invoke class on defined topics to find matching objects that are listening to those topics.
+      - Local commands are defined by an empty topic and are based on a self-global interaction model.
+    
+    All resource management (textures, surfaces) is handled internally. Copy and move operations
+    are disabled to prevent accidental resource duplication.
+  infoShort: |
+    Renderobject is the core entity class in Nebulite, representing a game object with
+    properties and behaviors defined through JSON-based invoke rules. It supports a non-hierarchical
+    architecture for flexible, customizable gameplay and simulations.
+update:
+  example: '...'
+  infoLong: '...'
+  infoShort: Update-routine for a Renderobject. This info is called with "recall Renderobject
+    update"
