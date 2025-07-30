@@ -131,6 +131,12 @@ private:
     // Print all internal values
     Nebulite::ERROR_TYPE printVar(int argc, char** argv);
 
+    // Force a global value to a certain value
+    Nebulite::ERROR_TYPE forceGlobal(int argc, char* argv[]);
+
+    // Release all forced global values
+    Nebulite::ERROR_TYPE clearForceGlobal(int argc, char* argv[]);
+
     //----------------------------------
     // Private Variables
     Nebulite::Invoke* invoke_ptr;

@@ -68,6 +68,8 @@ Nebulite::MainTree::MainTree(Nebulite::Invoke* invoke, Nebulite::GlobalSpace* gl
     bindFunction(funcTree, this, &MainTree::setCam,          "cam-set",      "Sets Camera position:  [x] [y] <c>");
     bindFunction(funcTree, this, &MainTree::moveCam,         "cam-move",     "Moves Camera position: [dx] [dy]");
     bindFunction(funcTree, this, &MainTree::snapshot,        "snapshot",     "Take screenshot:       <link>");
+    bindFunction(funcTree, this, &MainTree::forceGlobal,     "force-global", "Force a global variable to a certain value");
+    bindFunction(funcTree, this, &MainTree::clearForceGlobal,"force-global-clear", "Release all forced global values");
 
     // Debug
     bindFunction(funcTree, this, &MainTree::echo,            "echo",         "Echos all args provided to cout");
@@ -349,16 +351,16 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::moveCam(int argc, char* argv[]){
         return Nebulite::ERROR_TYPE::TOO_MANY_ARGS;
     }
 
-    int dx = floor(std::stod(argv[1]));
-    int dy = floor(std::stod(argv[2]));
+    int dx = std::stoi(argv[1]);
+    int dy = std::stoi(argv[2]);
     self->getRenderer()->moveCam(dx,dy);
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTree::setCam(int argc, char* argv[]){
     if(argc == 3){
-        int x = floor(std::stod(argv[1]));
-        int y = floor(std::stod(argv[2]));
+        int x = std::stoi(argv[1]);
+        int y = std::stoi(argv[2]);
         self->getRenderer()->setCam(x,y);
         return Nebulite::ERROR_TYPE::NONE;
     }
@@ -555,5 +557,24 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::snapshot(int argc, char* argv[]){
 Nebulite::ERROR_TYPE Nebulite::MainTree::beep(int argc, char* argv[]){
     // Beep function for debugging, from SDL
     self->getRenderer()->beep();
+    return Nebulite::ERROR_TYPE::NONE;
+}
+
+Nebulite::ERROR_TYPE Nebulite::MainTree::forceGlobal(int argc, char* argv[]) {
+    if (argc < 3) {
+        return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
+    }
+    if (argc > 3) {
+        return Nebulite::ERROR_TYPE::TOO_MANY_ARGS;
+    }
+
+    std::string key = argv[1];
+    std::string value = argv[2];
+    self->getRenderer()->setForcedGlobalValue(key, value);
+    return Nebulite::ERROR_TYPE::NONE;
+}
+
+Nebulite::ERROR_TYPE Nebulite::MainTree::clearForceGlobal(int argc, char* argv[]) {
+    self->getRenderer()->clearForcedGlobalValues();
     return Nebulite::ERROR_TYPE::NONE;
 }
