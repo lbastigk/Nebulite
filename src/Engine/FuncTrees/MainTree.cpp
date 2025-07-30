@@ -237,6 +237,8 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::loadTaskList(int argc, char* argv[]) {
         return Nebulite::ERROR_TYPE::CRITICAL_INVALID_FILE;
     }
 
+    std::vector<std::string> lines;
+
     // Split std::string file into lines and remove comments
     std::istringstream stream(file);
     std::string line;
@@ -248,8 +250,14 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::loadTaskList(int argc, char* argv[]) {
             continue;
         }
         else{
-            self->tasks_script.taskList.push_back(line);
+            // Insert line backwards, so we can process them in the order they were written later on:
+            lines.insert(lines.begin(), line);
         }
+    }
+
+    // Now insert all lines into the task queue
+    for (const auto& line : lines){
+        self->tasks_script.taskList.push_front(line);
     }
 
     return Nebulite::ERROR_TYPE::NONE;
