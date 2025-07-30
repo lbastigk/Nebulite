@@ -535,18 +535,14 @@ void Nebulite::Renderer::moveCam(int dX, int dY, bool isMiddle) {
 
 void Nebulite::Renderer::setCam(int X, int Y, bool isMiddle) {
 	if(isMiddle){
-		invoke_ptr->getGlobalPointer()->set<int>(
-			"display.position.X",
-			X - invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0) / 2
-		);
-		invoke_ptr->getGlobalPointer()->set<int>(
-			"display.position.Y",
-			Y - invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0) / 2
-		);
+		int newPosX = X - invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0) / 2;
+		int newPosY = Y - invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0) / 2;
+		invoke_ptr->getGlobalPointer()->set<int>("display.position.X",newPosX);
+		invoke_ptr->getGlobalPointer()->set<int>("display.position.Y",newPosY);
 	}
 	else{
 		invoke_ptr->getGlobalPointer()->set<int>("display.position.X",X);
-		invoke_ptr->getGlobalPointer()->set<int>("display.position.X",Y);
+		invoke_ptr->getGlobalPointer()->set<int>("display.position.Y",Y);
 	}
 };
 
@@ -861,6 +857,13 @@ void Nebulite::Renderer::pollEvent() {
 
     // Save current keyboard state for next frame
     prevKeyState.assign(keyState, keyState + SDL_NUM_SCANCODES);
+
+	//----------------------------------
+	// Set forced values, from internal vector
+	for(const auto& pair : forced_global_values) {
+		invoke_ptr->getGlobalPointer()->set(pair.first.c_str(), pair.second);
+	}
+
 }
 
 SDL_Event Nebulite::Renderer::getEventHandle() {

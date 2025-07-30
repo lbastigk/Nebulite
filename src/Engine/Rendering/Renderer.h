@@ -57,6 +57,13 @@ public:
 	void changeWindowSize(int w, int h, int scalar);
 	void moveCam(int dX, int dY, bool isMiddle = false);
 	void setCam(int X, int Y, bool isMiddle = false);
+
+	void setForcedGlobalValue(const std::string& key, const std::string& value) {
+		forced_global_values.emplace_back(key, value);
+	}
+	void clearForcedGlobalValues() {
+		forced_global_values.clear();
+	}
 	
 	//-----------------------------------------------------------
 	// Rendering
@@ -115,6 +122,8 @@ private:
 
 	//-------------------------------------------------------------------------------------
 	//General Variables
+	std::vector<std::pair<std::string, std::string>> forced_global_values; // Key-Value pairs to set in global JSON
+
 	std::string directory;
 	uint32_t id_counter = 1;
 
