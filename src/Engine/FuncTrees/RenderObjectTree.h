@@ -69,10 +69,7 @@ private:
     Nebulite::ERROR_TYPE make_box(int argc, char* argv[]);    
 
     //===== Computation & Internal Updates =====//
-
-    // TODO: DeleteObject doesnt work on Pong test!
     Nebulite::ERROR_TYPE deleteObject(int argc, char* argv[]);
-
     Nebulite::ERROR_TYPE calculate_text(int argc, char* argv[]);
     Nebulite::ERROR_TYPE recalculate_all(int argc, char* argv[]);
     Nebulite::ERROR_TYPE reload_invokes(int argc, char* argv[]);

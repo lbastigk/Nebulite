@@ -208,7 +208,6 @@ int main(int argc, char* argv[]){
 
         // 2.) Parse script tasks
         if(!critical_stop){
-            // TODO: Windows Release build breaks here!
             result_tasks_script = globalSpace.resolveTaskQueue(globalSpace.tasks_script,&globalSpace.tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
         }
         if(result_tasks_script.stoppedAtCriticalResult) {

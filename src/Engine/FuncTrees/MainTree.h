@@ -30,11 +30,9 @@ private:
         renderer count
         etc...
         it might become too convoluted to use though, since basically all functions are tied to the renderer?
-    - force/release
-        forcing a global value to a certain value
-        release does the opposite, allowing other routines to manipulate this value again
+    - release
         useful for TAS: force keyboard.current.up 1 ; wait 100 ; release keyboard.current.up
-    - setting
+    - settings
         for saving/loading/manipulating a settings.json file
     */
 

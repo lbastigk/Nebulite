@@ -26,11 +26,6 @@ A cache is implemented for fast setting/getting of keys. Only if needed are thos
 // Internal dependencies
 #include "FileManagement.h"
 
-
-// TODO: Remove unnecessary locks?
-// Sort public/private methods
-// lock only for public methods
-
 namespace Nebulite{
     // Template for supported cache storages
     template <typename T>
