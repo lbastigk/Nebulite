@@ -95,7 +95,7 @@ Nebulite relies on the following projects:
 Optional dependencies:
 | Project                                               | Purpose                                      |
 |-------------------------------------------------------|----------------------------------------------|
-| [recall](https://github.com/lbastigk/recall/)         | CLI-Tool for quick documentation             |
+| [recall](https://github.com/lbastigk/recall/)         | Custom CLI-Tool for quick documentation      |
 | [PlantUML](https://plantuml.com/)                     | For compiling UML-Diagrams in ./doc/         |
 
 ## Quick start / Contributing
@@ -115,5 +115,7 @@ cd Application
 ```
 
 ### Adding Features
+
+Nebulite offers clean extensions of its functionality through its FuncTrees:
 - New Global commands: Extend `MainTree` class
-- New Global commands: Extend `RenderObjectTree` class
+- New local commands: Extend `RenderObjectTree` class
