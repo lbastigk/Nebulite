@@ -26,7 +26,7 @@ The main engine provides the core functionality of the game, handling:
 ### Basic Engine Operations
 ```bash
 # Run with immediate commands
-./bin/Nebulite 'set-fps 60 ; spawn Resources/Renderobjects/standard.json ; wait 60 ; snapshot'
+./bin/Nebulite 'set-fps 60 ; spawn Resources/Renderobjects/standard.json ; wait 1 ; snapshot'
 
 # Batch operations from script
 ./bin/Nebulite task TaskFiles/Benchmarks/gravity.txt
@@ -38,7 +38,7 @@ Start engine and enter console mode with `^`. Enter `help` to see available comm
 ### Headless Mode (for automation/testing)
 ```bash
 # Generate previews without GUI
-./bin/Nebulite --headless "spawn ... ; snapshot preview.png ; exit"
+./bin/Nebulite --headless "spawn ... ; wait 1 ; snapshot preview.png ; exit"
 
 # Automated testing
 ./bin/Nebulite --headless task ...
