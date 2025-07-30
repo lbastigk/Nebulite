@@ -11,6 +11,26 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	env.linkGlobal(global);
 
 	//--------------------------------------------
+	// Depending on platform, set Global key "platform":
+	#ifdef _WIN32
+		invoke_ptr->getGlobalPointer()->set<std::string>("platform","windows");
+	#elif __linux__
+		invoke_ptr->getGlobalPointer()->set<std::string>("platform","linux");
+	#elif __APPLE__
+		invoke_ptr->getGlobalPointer()->set<std::string>("platform","macos");
+	#elif __FreeBSD__
+		invoke_ptr->getGlobalPointer()->set<std::string>("platform","freebsd");
+	#elif __unix__
+		invoke_ptr->getGlobalPointer()->set<std::string>("platform","unix");
+	#elif __ANDROID__
+		invoke_ptr->getGlobalPointer()->set<std::string>("platform","android");
+	#elif __TEMPLEOS__
+		invoke_ptr->getGlobalPointer()->set<std::string>("platform","templeos");
+	#else
+		invoke_ptr->getGlobalPointer()->set<std::string>("platform","unknown");
+	#endif
+
+	//--------------------------------------------
 	// Initialize internal variables
 
 	// Window
@@ -83,6 +103,67 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",X), 
 		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",Y)
 	);
+
+	//--------------------------------------------
+	// Initialize Audio
+	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+	}else{
+		SDL_AudioSpec desired, obtained;
+		desired.freq = 44100;
+		desired.format = AUDIO_S16SYS;
+		desired.channels = 1;
+		desired.samples = 1024;
+		desired.callback = nullptr;
+		
+		audioDevice = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
+		if (audioDevice == 0) {
+			std::cerr << "Failed to open audio device: " << SDL_GetError() << std::endl;
+		}
+		else{
+			audioInitialized = true;
+		}
+	}
+
+	//--------------------------------------------
+	// Waveform buffers
+	
+	// Sine wave buffer
+	sineBuffer = new std::vector<Sint16>(samples);
+	for (int i = 0; i < samples; i++) {
+		double time = (double)i / sampleRate;
+		(*sineBuffer)[i] = (Sint16)(32767 * 0.3 * sin(2.0 * M_PI * frequency * time));
+	}
+
+	// Square wave buffer
+	squareBuffer = new std::vector<Sint16>(samples);
+	for (int i = 0; i < samples; i++) {
+		double time = (double)i / sampleRate;
+    
+		// Square wave: alternates between +1 and -1
+		double phase = 2.0 * M_PI * frequency * time;
+		double squareValue = (sin(phase) >= 0) ? 1.0 : -1.0;
+		
+		(*squareBuffer)[i] = (Sint16)(32767 * 0.3 * squareValue);
+	}
+
+	// Triangle wave buffer
+	triangleBuffer = new std::vector<Sint16>(samples);
+	for (int i = 0; i < samples; i++) {
+		double time = (double)i / sampleRate;
+    
+		// Triangle wave: linear ramp up and down
+		double phase = fmod(frequency * time, 1.0);  // 0 to 1
+		double triangleValue;
+		
+		if (phase < 0.5) {
+			triangleValue = 4.0 * phase - 1.0;      // -1 to +1 (rising)
+		} else {
+			triangleValue = 3.0 - 4.0 * phase;      // +1 to -1 (falling)
+		}
+		
+		(*triangleBuffer)[i] = (Sint16)(32767 * 0.3 * triangleValue);
+	}
 
 	//--------------------------------------------
 	// Set basic values inside global doc
@@ -319,6 +400,13 @@ bool Nebulite::Renderer::snapshot(std::string link) {
     
     // Create directory if it doesn't exist
     std::string directory = link.substr(0, link.find_last_of("/\\"));
+
+	// Edge case: check if link contains no directory:
+	if(link.find_last_of("/\\") == std::string::npos) {
+		directory = "./Resources/Snapshots";
+		link = directory + "/" + link;
+	}
+
     if (!directory.empty()) {
         // Create directory using C++17 filesystem
         try {
@@ -342,6 +430,17 @@ bool Nebulite::Renderer::snapshot(std::string link) {
     
     //std::cout << "Snapshot saved successfully to: " << link << std::endl;
     return true;
+}
+
+
+//-----------------------------------------------------------
+// Special Functions
+void Nebulite::Renderer::beep() {
+	// Beep sound effect
+	if(audioInitialized) {
+		SDL_QueueAudio(audioDevice, squareBuffer->data(), samples * sizeof(Sint16));
+		SDL_PauseAudioDevice(audioDevice, 0);  // Start playing
+	}
 }
 
 //-----------------------------------------------------------

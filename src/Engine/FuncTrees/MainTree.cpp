@@ -60,6 +60,7 @@ Nebulite::MainTree::MainTree(Nebulite::Invoke* invoke, Nebulite::GlobalSpace* gl
     bindFunction(funcTree, this, &MainTree::forLoop,         "for",          "Start for-loop. Usage: for var <iStart> <iEnd> command $var");
     bindFunction(funcTree, this, &MainTree::func_assert,     "assert",       "Force a certain return value");
     bindFunction(funcTree, this, &MainTree::func_return,     "return",       "Returns an assert value, stopping program");
+    bindFunction(funcTree, this, &MainTree::beep,            "beep",         "Simple Beep tone");
     
     // Renderer Settings / Funtions
     bindFunction(funcTree, this, &MainTree::setFPS,          "set-fps",      "Sets FPS to an integer between 1 and 10000. 60 if no arg is provided");
@@ -549,4 +550,10 @@ Nebulite::ERROR_TYPE Nebulite::MainTree::snapshot(int argc, char* argv[]){
     else{
         return Nebulite::ERROR_TYPE::TOO_MANY_ARGS;
     }
+}
+
+Nebulite::ERROR_TYPE Nebulite::MainTree::beep(int argc, char* argv[]){
+    // Beep function for debugging, from SDL
+    self->getRenderer()->beep();
+    return Nebulite::ERROR_TYPE::NONE;
 }

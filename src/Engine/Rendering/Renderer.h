@@ -39,6 +39,10 @@ public:
 	bool isQuit(){return quit;}
 	void setQuit(){quit=true;}
 	bool snapshot(std::string link = "./Resources/Snapshots/snapshot.png");
+
+	//-----------------------------------------------------------
+	// Special Functions
+	void beep();
 	
 	//-----------------------------------------------------------
 	// Purge
@@ -90,8 +94,24 @@ public:
 	void update_rrand(){invoke_ptr->getGlobalPointer()->set<Uint64>("rrand",  dist(rngB));};
 
 private:
-	bool reset_delta = false; // Reset delta values on next update
-	
+	//-------------------------------------------------------------------------------------
+	// Boolean Status Variables
+	bool reset_delta = false; 		// Reset delta values on next update
+	bool audioInitialized = false;
+	bool quit = false;
+	bool consoleMode = false;
+
+	//-------------------------------------------------------------------------------------
+	// Audio
+	SDL_AudioDeviceID audioDevice = 0;
+	SDL_AudioSpec desired, obtained;
+	const int frequency = 440;  // 440 Hz beep
+	const int duration = 200;   // 200ms
+	const int sampleRate = 44100;
+	const int samples = (sampleRate * duration) / 1000;
+	std::vector<Sint16>* sineBuffer = nullptr;
+	std::vector<Sint16>* squareBuffer = nullptr;
+	std::vector<Sint16>* triangleBuffer = nullptr;
 
 	//-------------------------------------------------------------------------------------
 	//General Variables
@@ -127,7 +147,6 @@ private:
 
 	// Events etc
 	SDL_Event event;
-	bool quit = false;
 	int MousePosX = 0;
 	int MousePosY = 0;
 	int lastMousePosX = 0;
@@ -170,7 +189,6 @@ private:
 
 	//-------------------------------------------------------------------------------------
 	// Console
-	bool consoleMode = false;
 	std::string consoleInputBuffer;                  // What the user is typing
 	std::deque<std::string> consoleOutput;           // Optional: Past output log
 

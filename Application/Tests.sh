@@ -29,18 +29,27 @@ STOP_ON_FAIL="${NEBULITE_TEST_STOP_ON_FAIL:-false}"
 
 #####################################################
 # List of test input files
+
+# TODO: All tests headless, checking for success through print-global and grep?
+# tests --output--> matches expected output
+# e.g. echo 1234 --output--> 1234
+#
+# Also, see if the current structure allows for passing arguments that are NOT part of Nebulite:
+# so that the '| grep' isn't interpreted as part of the Nebulite command!
 tests=(
-    "help"                                                          # Simple Executable call: cout of all help commands
-    "echo 1234"                                                     # Simple Executable call: custom echo command in Nebulite mainTree
-    "set-fps 60 ; wait 60 ; exit"                                   # set-fps forces initialization of renderer                            
+    "help"                                                              # Simple Executable call: cout of all help commands
+    "echo 1234"                                                         # Simple Executable call: custom echo command in Nebulite mainTree
+    "set-fps 60 ; wait 30 ; exit"                                       # set-fps forces initialization of renderer
+    "task TaskFiles/Tests/Short/snapshot.txt"                           # Test snapshot functionality
     "task TaskFiles/Tests/Short/echo_global_value.txt"
     "task TaskFiles/Tests/Short/print_time.txt"
     "task TaskFiles/Tests/Short/init_print_global.txt"
     "task TaskFiles/Tests/Short/Object_spawn_and_state_printing.txt"
-    "task TaskFiles/Tests/Short/Object_out_of_bounds.txt"
-    "task TaskFiles/Tests/Short/gravity_classic_some_frames.txt"
-    "task TaskFiles/Tests/Short/Pong_for_5s.txt"
+    "task TaskFiles/Tests/Short/Object_out_of_bounds.txt"              # Check if Renderer correctly handles objects going out of bounds
+    "task TaskFiles/Tests/Short/gravity_classic_some_frames.txt"       # Classic Solar system with 2 Planets and 1 Sun
+    "task TaskFiles/Tests/Short/Pong_for_5s.txt"                       # Running pong, allowing for complex invoke tests
 )
+#expected_outputs=()
 
 # Test binaries in order of importance
 binaries=(
