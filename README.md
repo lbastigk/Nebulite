@@ -8,7 +8,7 @@ In Nebulite, `RenderObjects` can interact with each other through a self-other-g
 provided logical conditions between the two are satisfied.
 
 This non-hierarchical architecture enables complex interactive systems and modular subsystems. Examples:
-- movement being triggered by `$(global.input.keyboard.w)` -> sets velocity or request to move a distane
+- movement being triggered by `$(global.input.keyboard.w)` -> sets velocity or request to move a distance
 - animation being triggered by attributes: `$(self.isMoving)` -> increment spritesheet offset
 - boundary check being triggered by `$(other.isSolid)` -> forces velocity of self to 0
 
@@ -81,7 +81,7 @@ Nebulite/
 
 ## Dependencies
 
-Nebulite relies on the following projects:
+Nebulite relies on the following third-party dependencies:
 
 | Project                                               | Purpose                                      |
 |-------------------------------------------------------|----------------------------------------------|
@@ -92,7 +92,8 @@ Nebulite relies on the following projects:
 | [Abseil](https://abseil.io/)                          | Fast variable caching                        |
 | [Tinyexpr](https://github.com/codeplea/tinyexpr)      | Parsing and evaluating expressions           |
 
-Optional dependencies:
+as well as optional dependencies:
+
 | Project                                               | Purpose                                      |
 |-------------------------------------------------------|----------------------------------------------|
 | [recall](https://github.com/lbastigk/recall/)         | Custom CLI-Tool for quick documentation      |
