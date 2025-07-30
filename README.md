@@ -38,7 +38,7 @@ Start engine and enter console mode with `^`. Enter `help` to see available comm
 ### Headless Mode (for automation/testing)
 ```bash
 # Generate previews without GUI
-./bin/Nebulite --headless "spawn ... ; wait 1 ; snapshot preview.png ; exit"
+./bin/Nebulite --headless 'spawn ... ; wait 1 ; snapshot preview.png ; exit'
 
 # Automated testing
 ./bin/Nebulite --headless task ...
