@@ -1,0 +1,62 @@
+#########################
+# INTRO
+set-fps 60
+spawn ./Resources/Renderobjects/standard.json|text.str=NEBULITE_DEV_DIARY_2025-07|text.fontSize=24|text.dx=50|text.dy=100
+wait 180
+spawn ./Resources/Renderobjects/standard.json|text.str=whitespace_args_are_a_work_in_progress...|text.fontSize=24|text.dx=50|text.dy=200
+wait 180
+spawn ./Resources/Renderobjects/standard.json|text.str=let_me_show_you_around...|text.fontSize=24|text.dx=50|text.dy=300
+wait 180
+for X 0 10 for Y 0 10 eval spawn ./Resources/Renderobjects/Planets/sun.json|posX=$($X*100)|posY=$($Y*100)|physics.vX=0|physics.vY=0
+for X 0 10 for Y 0 10 eval spawn ./Resources/Renderobjects/Planets/obj1.json|posX=$($X*100 + 50)|posY=$($Y*100 + 50)|physics.vX=0|physics.vY=0
+wait 45
+env-deload
+
+#########################
+# 2nd gravity sim
+spawn ./Resources/Renderobjects/standard.json|text.str=Gravity_benchmark_improvement!|text.fontSize=24|text.dx=50|text.dy=100
+wait 180
+spawn ./Resources/Renderobjects/standard.json|text.str=about_5x_faster|text.fontSize=24|text.dx=50|text.dy=200
+wait 180
+spawn ./Resources/Renderobjects/standard.json|text.str=look!_another_gravity_benchmark!|text.fontSize=24|text.dx=50|text.dy=300
+wait 180
+env-deload
+set-fps 10000
+task TaskFiles/Benchmarks/gravity_unlimited.txt
+wait 1000 # approx 5s 
+env-deload
+set-res 1080 1080
+
+#########################
+# Scripting info
+cam-set 0 0
+set-fps 60
+spawn ./Resources/Renderobjects/standard.json|text.str=improved_scripting|text.fontSize=24|text.dx=50|text.dy=100
+wait 180
+spawn ./Resources/Renderobjects/standard.json|text.str=this_demo_runs_on_a_single_taskfile|text.fontSize=24|text.dx=50|text.dy=200
+wait 180
+env-deload
+
+#########################
+# pong
+spawn ./Resources/Renderobjects/standard.json|text.str=first_game_demos_now_possible|text.fontSize=24|text.dx=50|text.dy=100
+wait 180
+spawn ./Resources/Renderobjects/standard.json|text.str=enjoy_a_bad_pong_version!|text.fontSize=24|text.dx=50|text.dy=200
+wait 180
+env-deload
+task TaskFiles/Games/AutoPong.txt
+wait 10000
+env-deload
+
+
+#########################
+# Auto player movement
+set-global time.fixed_dt_ms 0
+set-res 1080 1080
+set-fps 60
+cam-set 0 0
+force-global input.keyboard.current.d 1
+spawn ./Resources/Renderobjects/Creatures/player.json|posX=270|posY=540|sprite.sizeX=100|sprite.sizeY=100
+spawn ./Resources/Renderobjects/standard.json|text.str=tons_of_little_improvements_under_the_hood|text.fontSize=24|text.dx=50|text.dy=100
+spawn ./Resources/Renderobjects/standard.json|text.str=see_yall_next_month!|text.fontSize=24|text.dx=50|text.dy=200
+wait 360

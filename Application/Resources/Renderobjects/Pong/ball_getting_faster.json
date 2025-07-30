@@ -30,7 +30,7 @@
                 "global.score.right += 1"
             ],
             "functioncalls_global": [
-                "eval spawn ./Resources/Renderobjects/Pong/ball.json|posX=$( $(global.display.resolution.X) * 0.5 + ($(global.rand)/32768 - 0.5) * 100)|posY=$( $(global.display.resolution.Y) * 0.5 + ($(global.rrand)/32768 - 0.5) * 100)|physics.vX=$( ($(global.rand)/32768 + 1) * 100 * (-1)^$(global.rand))|physics.vY=$( ($(global.rrand)/32768 - 0.5) * 100 )"
+                "eval spawn ./Resources/Renderobjects/Pong/ball_getting_faster.json|posX=$( $(global.display.resolution.X) * 0.5 + ($(global.rand)/32768 - 0.5) * 100)|posY=$( $(global.display.resolution.Y) * 0.5 + ($(global.rrand)/32768 - 0.5) * 100)|physics.vX=$( ($(global.rand)/32768 + 1) * 100 * (-1)^$(global.rand))|physics.vY=$( ($(global.rrand)/32768 - 0.5) * 100 )"
             ],
             "functioncalls_self": [
                 "delete"
@@ -44,11 +44,21 @@
                 "global.score.left += 1"
             ],
             "functioncalls_global": [
-                "eval spawn ./Resources/Renderobjects/Pong/ball.json|posX=$( $(global.display.resolution.X) * 0.5 + ($(global.rand)/32768 - 0.5) * 100)|posY=$( $(global.display.resolution.Y) * 0.5 + ($(global.rrand)/32768 - 0.5) * 100)|physics.vX=$( ($(global.rand)/32768 + 1) * 100 * (-1)^$(global.rand))|physics.vY=$( ($(global.rrand)/32768 - 0.5) * 100 )"
+                "eval spawn ./Resources/Renderobjects/Pong/ball_getting_faster.json|posX=$( $(global.display.resolution.X) * 0.5 + ($(global.rand)/32768 - 0.5) * 100)|posY=$( $(global.display.resolution.Y) * 0.5 + ($(global.rrand)/32768 - 0.5) * 100)|physics.vX=$( ($(global.rand)/32768 + 1) * 100 * (-1)^$(global.rand))|physics.vY=$( ($(global.rrand)/32768 - 0.5) * 100 )"
             ],
             "functioncalls_self": [
                 "delete"
             ],
+            "functioncalls_other": []
+        },
+        {
+            "topic": "",
+            "logicalArg": "1",
+            "exprs": [
+                "self.physics.vNorm += 0.05"
+            ],
+            "functioncalls_global": [],
+            "functioncalls_self": [],
             "functioncalls_other": []
         }
     ],
