@@ -34,7 +34,7 @@ function clean_src() {
 
     rm -rf "$1"
 
-    OBJ_DIR="build/debug/CMakeFiles/Nebulite.dir/src/"
+    OBJ_DIR="build/$2/CMakeFiles/Nebulite.dir/src/"
     if [ -d "$OBJ_DIR" ]; then
         find "$OBJ_DIR" -name '*.o' -delete
         find "$OBJ_DIR" -name '*.o.d' -delete
@@ -44,40 +44,40 @@ function clean_src() {
 }
 
 function build_debug() {
-    clean_src "build/debug/Application/bin/Nebulite"
-
+    clean_src "build/debug/Nebulite" "debug"
     cmake -DCMAKE_BUILD_TYPE=Debug -B build/debug -S .
     cmake --build build/debug -j$(nproc)
-    cp build/debug/Application/bin/Nebulite Application/bin/Nebulite_Debug
+    cp build/debug/Nebulite Application/bin/Nebulite_Debug
 }
 
 function build_release() {
-    clean_src "build/release/Application/bin/Nebulite"
+    clean_src "build/release/Nebulite" "release"
     cmake -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG -march=native" \
           -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE \
           -B build/release -S .
-
     cmake --build build/release -j$(nproc)
-    cp build/release/Application/bin/Nebulite Application/bin/Nebulite
+    cp build/release/Nebulite Application/bin/Nebulite
     strip "./Application/bin/Nebulite"
 }
 
 
 function build_debug_windows() {
-      clean_src "build/windows-debug/Application/bin/Nebulite.exe"
+      clean_src "build/windows-debug/Nebulite.exe" "windows-debug"
       cmake -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_TOOLCHAIN_FILE=mingw-toolchain.cmake \
             -B build/windows-debug -S .
       cmake --build build/windows-debug -j$(nproc)
-      cp build/windows-debug/Application/bin/Nebulite.exe Application/bin/Nebulite_Debug.exe
+      cp build/windows-debug/Nebulite.exe Application/bin/Nebulite_Debug.exe
 }
 
 function build_release_windows() {
-      clean_src "build/windows-release/Application/bin/Nebulite.exe"
+      clean_src "build/windows-release/Nebulite.exe" "windows-release"
       cmake -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE=mingw-toolchain.cmake \
             -B build/windows-release -S .
       cmake --build build/windows-release -j$(nproc)
-      cp build/windows-release/Application/bin/Nebulite.exe Application/bin/Nebulite.exe
+      cp build/windows-release/Nebulite.exe Application/bin/Nebulite.exe
 
       # Copy dlls from install.sh-created SDL2_build into the application bin
       cp external/SDL2_build/shared_windows/bin/*.dll Application/bin/

@@ -9,7 +9,7 @@
 #
 # Key Directories:
 # - All CMake build artifacts are placed in a dedicated build directory (e.g., build/).
-# - Final binaries (executables, DLLs) are output to Application/bin.
+# - Final binaries (executables, DLLs) are output to the build directory.
 #
 # Platform Notes:
 # - On Linux, static SDL libraries are linked for portability.
@@ -37,9 +37,9 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-g)
 endif()
 
-# Setting output inside ./build/<build-type>/Application/bin, 
+# Setting output inside ./build/<build-type>, 
 # moving to proper location+renaming later on in the build.sh script
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Application/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # Echo the start of the configuration
 message(STATUS "Starting configuration for project Nebulite")
@@ -121,8 +121,7 @@ set_source_files_properties(
 ############################################################
 # Platform-Specific
 if(WIN32)
-    message(STATUS "Targeting Windows: linking SDL static libraries")
-    set(CMAKE_SYSTEM_NAME Windows)
+    message(STATUS "Targeting Windows")
 
     # Include SDL Libraries
     target_include_directories(Nebulite PRIVATE
@@ -157,7 +156,7 @@ if(WIN32)
         -lws2_32
     )
 else()
-    message(STATUS "Targeting Linux: linking SDL static libraries")
+    message(STATUS "Targeting Linux")
 
     target_include_directories(Nebulite PRIVATE
         ${SDL2_BUILD_PATH}/shared/include/SDL2
