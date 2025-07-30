@@ -8,7 +8,7 @@
 #   as it works out of the box for both windows and linux.
 #
 # Key Directories:
-# - All CMake build artifacts are placed in a dedicated build directory (e.g., build/).
+# - All CMake build artifacts are placed in a dedicated build directory (e.g., build/windows-release).
 # - Final binaries (executables, DLLs) are output to the build directory.
 #
 # Platform Notes:
