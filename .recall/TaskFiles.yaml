@@ -1,0 +1,10 @@
+info:
+  example: |-
+    set-fps 60
+    spawn ./Resources/Renderobjects/Planets/sun.json
+    spawn ./Resources/Renderobjects/Planets/obj1.json|physics.vY=-150
+    wait 600
+    exit
+  infoLong: ""
+  infoShort: "Taskfiles contain a list of Nebulite global commands to be executed.
+    \nSee \"./bin/Nebulite help\" for available commands."
