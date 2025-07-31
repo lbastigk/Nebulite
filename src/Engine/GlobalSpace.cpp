@@ -39,7 +39,7 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& o
 
 Nebulite::Renderer* Nebulite::GlobalSpace::getRenderer() {
     if (renderer == nullptr) {
-        renderer = new Nebulite::Renderer(*invoke, *global, mainTree->headless == "true");
+        renderer = new Nebulite::Renderer(*invoke, *global, headless == "true");
         renderer->setFPS(60);
     }
     return renderer;

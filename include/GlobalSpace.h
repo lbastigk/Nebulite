@@ -106,12 +106,22 @@ namespace Nebulite {
         // Always-tasks added with the prefix "always "
         Nebulite::taskQueue tasks_always;
 
-    private:
-        //----------------------------------------------
-        // Private Variables
+        //---------------------------------------
+        // Allow MainTree and its subclasses to access private members
+        friend class Nebulite::MainTree;
+        friend class Nebulite::MainTreeCategory::General;
+        friend class Nebulite::MainTreeCategory::Renderer;
+        friend class Nebulite::MainTreeCategory::Debug;
 
-        // Allow MainTree to access private members
-        friend class Nebulite::MainTree; 
+    private:
+        
+
+        //---------------------------------------
+        // Internal Variables, linked to MainTree
+        std::string headless = "false";
+
+        //----------------------------------------------
+        // Other Private Variables
 
         // Name of the state where files are saved (equal to savegame name)
         std::string stateName;

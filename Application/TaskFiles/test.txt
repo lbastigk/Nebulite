@@ -1,3 +1,0 @@
-log off
-set-fps 60
-spawn ./Resources/Renderobjects/Debug/debug_tester.json

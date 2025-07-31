@@ -11,11 +11,7 @@
                 "${workspaceFolder}/external/rapidjson/include/rapidjson",
                 "${workspaceFolder}/external/tinyexpr",
                 "${workspaceFolder}/external/abseil",
-                "${workspaceFolder}/src/Engine/",
-                "${workspaceFolder}/src/Engine/Data/",
-                "${workspaceFolder}/src/Engine/FuncTrees/",
-                "${workspaceFolder}/src/Engine/Helper/",
-                "${workspaceFolder}/src/Engine/Rendering/"
+                "${workspaceFolder}/include/"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

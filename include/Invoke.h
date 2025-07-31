@@ -1,5 +1,4 @@
 #pragma once
-#include <thread>
 
 
 // NEBULITE INVOKE CLASS
@@ -50,6 +49,7 @@ Like global.levelstate or similiar
 #include <vector>
 #include <deque>
 #include <shared_mutex>
+#include <thread>
 
 // Local
 #include "tinyexpr.h"

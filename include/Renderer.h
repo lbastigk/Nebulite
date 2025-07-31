@@ -72,6 +72,9 @@ public:
 	
 	//-----------------------------------------------------------
 	// Setting
+	void toggleFps(bool show = true){
+		showFPS = show;
+	}
 	void setFPS(int fps);
 	void setThreadSize(unsigned int size);
 	
@@ -107,6 +110,7 @@ private:
 	bool audioInitialized = false;
 	bool quit = false;
 	bool consoleMode = false;
+	bool showFPS = true;			// Set default to false later on
 
 	//-------------------------------------------------------------------------------------
 	// Audio

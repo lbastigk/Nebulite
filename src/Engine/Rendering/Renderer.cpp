@@ -197,11 +197,11 @@ void Nebulite::Renderer::deserialize(std::string serialOrLink) {
 //-----------------------------------------------------------
 // Pipeline
 void Nebulite::Renderer::tick(){
-    clear();           // 1.) Clear screen FIRST, so that functions like snapshot have acces to the latest frame
-    update();          // 2.) Update objects
-    renderFrame();     // 3.) Render frame
-    renderFPS();       // 4.) Render fps count
-    showFrame();       // 5.) Show Frame
+    clear();           				// 1.) Clear screen FIRST, so that functions like snapshot have acces to the latest frame
+    update();          				// 2.) Update objects
+    renderFrame();     				// 3.) Render frame
+	if(showFPS)renderFPS();       	// 4.) Render fps count
+    showFrame();       				// 5.) Show Frame
 }
 
 void Nebulite::Renderer::append(Nebulite::RenderObject* toAppend) {
@@ -360,6 +360,11 @@ void Nebulite::Renderer::update() {
 	}
 }
 
+// TODO: Snapshot not working on windows via wine
+// Image has right dimensions, but is black
+//
+// Nebulite Linux Release and Debug work fine
+// Nebulite Windows Release and Debug are broken
 bool Nebulite::Renderer::snapshot(std::string link) {
     if (!renderer) {
         std::cerr << "Cannot take snapshot: renderer not initialized" << std::endl;

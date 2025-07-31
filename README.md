@@ -62,6 +62,7 @@ Nebulite/
 ├── build/                    # Temporary build output for cmake
 ├── doc/                      # UML-Diagrams
 ├── external/                 # Third-party dependencies
+├── include/                  # Header files
 ├── src/                      # Engine source code
 │   ├── main.cpp              # Entry point
 │   └── Engine/               # Core engine modules
