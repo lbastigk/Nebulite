@@ -39,12 +39,13 @@ private:
 
     //---------------------------------------
     // Subclasses of Commands, keeps MainTree clean
-    // 1.) Create a new category by inheriting from Nebulite::MainTreeCategory::Wrapper
-    // 2.) Ensure the category is a friend of Nebulite::GlobalSpace
+    // 1.) Create a new category by inheriting from Nebulite::MainTreeCategory::Wrapper ( .h and .cpp file)
+    // 2.) Ensure the category is a friend of Nebulite::GlobalSpace (see GlobalSpace.h)
     // 3.) Implement the setupBindings() method to bind functions
     // 4.) Add the new category object here
     // 5.) Pass the invoke and globalSpace pointers to the category constructor
-    // 6.) The category will automatically bind its functions on construction
+    // 6.) Call initialize() inside the MainTree Constructor to bind its functions
+    // 7.) Add the cpp file to the CMakeLists.txt
     //---------------------------------------
     Nebulite::MainTreeCategory::Debug      debug;
     Nebulite::MainTreeCategory::General    general;
