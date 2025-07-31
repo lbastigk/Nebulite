@@ -1,19 +1,21 @@
 #pragma once
 
 #include "ErrorTypes.h"
-#include "FuncTreeWrapper.h"
+#include "MT__Wrapper.h"
 
-namespace Nebulite{
+namespace Nebulite {
 
 // Forward declaration of classes
 class Invoke;
 class GlobalSpace;
 
 namespace MainTreeCategory {
-class Debug {
+class Debug : public Wrapper<Debug> {
 public:
-    Debug(Invoke* invoke, Nebulite::GlobalSpace* globalSpace, FuncTree<ERROR_TYPE>* funcTreePtr) 
-        : global(globalSpace), invoke(invoke), funcTree(funcTreePtr) {}
+    using Wrapper<Debug>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
+
+    //----------------------------------------
+    // Available Functions
 
     // Error log activation/deactivation
     Nebulite::ERROR_TYPE errorlog(int argc, char* argv[]);
@@ -40,11 +42,23 @@ public:
     Nebulite::ERROR_TYPE render_object(int argc, char** argv);
 
     // Print all internal values
-    Nebulite::ERROR_TYPE printVar(int argc, char** argv);  
-private:
-    Nebulite::GlobalSpace* global;
-    Nebulite::Invoke* invoke;
-    FuncTree<ERROR_TYPE>* funcTree;
+    Nebulite::ERROR_TYPE printVar(int argc, char** argv);
+
+    //----------------------------------------
+    // Binding Functions
+
+    void setupBindings(){
+        bindFunction(&Debug::errorlog,          "log",                      "Activate/Deactivate error logging");
+        bindFunction(&Debug::printGlobal,       "print-global",             "Print global document");
+        bindFunction(&Debug::printState,        "print-state",              "Print current state");
+        bindFunction(&Debug::logGlobal,         "log-global",               "Log global document");
+        bindFunction(&Debug::logState,          "log-state",                "Log current state");
+        bindFunction(&Debug::always,            "always",                   "Attach function to always run");
+        bindFunction(&Debug::alwaysClear,       "always-clear",             "Clear all always functions");
+        bindFunction(&Debug::render_object,     "standard-render-object",   "Get standard render object");
+        bindFunction(&Debug::printVar,          "print-var",                "Print variable");
+    }
 };
+
 }
 }

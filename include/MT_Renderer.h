@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ErrorTypes.h"
-#include "FuncTreeWrapper.h"
+#include "MT__Wrapper.h"
 
 namespace Nebulite {
 
@@ -10,10 +10,12 @@ class Invoke;
 class GlobalSpace;
 
 namespace MainTreeCategory {
-class Renderer {
+class Renderer : public Wrapper<Renderer> {
 public:
-    Renderer(Invoke* invoke, Nebulite::GlobalSpace* globalSpace, FuncTree<ERROR_TYPE>* funcTreePtr) 
-        : global(globalSpace), invoke(invoke), funcTree(funcTreePtr) {}
+    using Wrapper<Renderer>::Wrapper;   // Templated constructor from Wrapper, call this->setupBindings()
+
+    //----------------------------------------
+    // Available Functions
 
     // Spawn a renderobject
     Nebulite::ERROR_TYPE spawn(int argc, char* argv[]);
@@ -41,10 +43,20 @@ public:
 
     // Beep noise, from SDL
     Nebulite::ERROR_TYPE beep(int argc, char* argv[]);
-private:
-    Nebulite::GlobalSpace* global;
-    Nebulite::Invoke* invoke;
-    FuncTree<ERROR_TYPE>* funcTree;
+
+    //----------------------------------------
+    // Binding Functions
+    void setupBindings() {
+        bindFunction(&Renderer::spawn,              "spawn",        "Spawn a renderobject");
+        bindFunction(&Renderer::envload,            "env-load",     "Load environment/level");
+        bindFunction(&Renderer::envdeload,          "env-deload",   "Deload entire environment");
+        bindFunction(&Renderer::setResolution,      "set-res",      "Set resolution of renderer");
+        bindFunction(&Renderer::setFPS,             "set-fps",      "Set FPS of renderer");
+        bindFunction(&Renderer::moveCam,            "cam-move",     "Move camera to a delta position");
+        bindFunction(&Renderer::setCam,             "cam-set",      "Set camera to concrete position");
+        bindFunction(&Renderer::snapshot,           "snapshot",     "Create a snapshot of the current renderer state");
+        bindFunction(&Renderer::beep,               "beep",         "Beep noise from SDL");
+    }
 };
 }
 }

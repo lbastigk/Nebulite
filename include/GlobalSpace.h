@@ -106,14 +106,14 @@ namespace Nebulite {
         // Always-tasks added with the prefix "always "
         Nebulite::taskQueue tasks_always;
 
+        
+
+    private:
         //---------------------------------------
-        // Allow MainTree and its subclasses to access private members
-        friend class Nebulite::MainTree;
+        // Allow MainTree Categories to access private members
         friend class Nebulite::MainTreeCategory::General;
         friend class Nebulite::MainTreeCategory::Renderer;
         friend class Nebulite::MainTreeCategory::Debug;
-
-    private:
         
 
         //---------------------------------------

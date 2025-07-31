@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ErrorTypes.h"
-#include "FuncTreeWrapper.h"
+#include "MT__Wrapper.h"
 
 namespace Nebulite {
 
@@ -10,10 +10,12 @@ class Invoke;
 class GlobalSpace;
 
 namespace MainTreeCategory {
-class General {
+class General : public Wrapper<General> {
 public:
-    General(Invoke* invoke, Nebulite::GlobalSpace* globalSpace, FuncTree<ERROR_TYPE>* funcTreePtr) 
-        : global(globalSpace), invoke(invoke), funcTree(funcTreePtr) {}
+    using Wrapper<General>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
+
+    //----------------------------------------
+    // Available Functions
 
     // Evaluate all following expressions before parsing further:
     //
@@ -59,10 +61,25 @@ public:
 
     // Load game state
     Nebulite::ERROR_TYPE stateLoad(int argc, char* argv[]);
-private:
-    Nebulite::GlobalSpace* global;
-    Nebulite::Invoke* invoke;
-    FuncTree<ERROR_TYPE>* funcTree;
+
+    //----------------------------------------
+    // Binding Functions
+    void setupBindings() {
+        bindFunction(&General::eval,                "eval",                 "Evaluate an expression and execute the result");
+        bindFunction(&General::exitProgram,         "exit",                 "Exit the program");
+        bindFunction(&General::wait,                "wait",                 "Wait a given amount of frames");
+        bindFunction(&General::loadTaskList,        "task",                 "Load a task list from a file");
+        bindFunction(&General::forLoop,             "for",                  "Execute a for-loop with a function call");
+        bindFunction(&General::func_return,         "return",               "Return a custom value");
+        bindFunction(&General::echo,                "echo",                 "Echo a string to cout");
+        bindFunction(&General::error,               "error",                "Echo a string to cerr/errorfile");
+        bindFunction(&General::func_assert,         "assert",               "Assert a condition and throw an error if false");
+        bindFunction(&General::setGlobal,           "set-global",           "Set a global variable");
+        bindFunction(&General::forceGlobal,         "force-global",         "Force a global variable to a value");
+        bindFunction(&General::clearForceGlobal,    "force-global-clear",   "Clear all forced global variables");
+        bindFunction(&General::stateSave,           "state-save",           "Save the current game state");
+        bindFunction(&General::stateLoad,           "state-load",           "Load a saved game state");
+    }
 };
 }
 }
