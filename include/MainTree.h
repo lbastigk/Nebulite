@@ -15,22 +15,6 @@ namespace Nebulite{
 // Forward declaration of classes
 class Invoke;
 class GlobalSpace;
-
-// TODO: Template class for MainTreeCategory, with function linkage on construction
-// e.g.:
-/*
-namespace Nebulite::MainTreeCategory{
-class Addon : public CategoryWrapper<Nebulite::ERROR_TYPE>{
-public:
-    Addon(Invoke* invoke, Nebulite::GlobalSpace* globalSpace, FuncTree<ERROR_TYPE>* funcTreePtr) 
-        : CategoryWrapper<Nebulite::ERROR_TYPE>("Addon", invoke, globalSpace, funcTreePtr) {
-        // Bind functions here
-        bindFunction(*funcTree, this, &Addon::addonFunction, "addon_function", "This is an example function in the Addon category");
-        //...
-    }
-}
-*/
-// This keeps the MainTree clean and allows for easy addition of new categories with minimal modification to MainTree
 class MainTree : public FuncTreeWrapper<Nebulite::ERROR_TYPE>{
 public:
     MainTree(Nebulite::Invoke* invoke, Nebulite::GlobalSpace* globalSpace);
