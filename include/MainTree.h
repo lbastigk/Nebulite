@@ -26,10 +26,10 @@ private:
     // and allow for easy implementation and removal of collaborative features.
     // Maintainers can separately implement their own features and merge them into the MainTree. 
     //
-    // 1.) Create a new category by inheriting from Nebulite::MainTreeExpansion::Wrapper ( .h file in ./include and .cpp file in ./src)
-    // 2.) Ensure the category is a friend of Nebulite::GlobalSpace (see GlobalSpace.h)
+    // 1.) Create a new Class by inheriting from Nebulite::MainTreeExpansion::Wrapper ( .h file in ./include and .cpp file in ./src)
+    // 2.) Ensure the Class is a friend of Nebulite::GlobalSpace (see GlobalSpace.h)
     // 3.) Implement the setupBindings() method to bind functions
-    // 4.) Add the new category object here
+    // 4.) Insert the new object here as a unique pointer
     // 5.) Initialize via make_unique in the MainTree constructor
     //---------------------------------------
     std::unique_ptr<Nebulite::MainTreeExpansion::Debug> debug;
