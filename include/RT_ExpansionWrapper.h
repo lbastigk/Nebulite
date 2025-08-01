@@ -26,14 +26,9 @@ template<typename DerivedClass>
 class Wrapper{
 public:
     // Binds all functions for this category on construction
-    Wrapper(RenderObject* renderObject, GlobalSpace* globalSpace, FuncTree<ERROR_TYPE>* funcTreePtr)
-        : render(renderObject), global(globalSpace), funcTree(funcTreePtr) 
+    Wrapper(RenderObject* self, FuncTree<ERROR_TYPE>* funcTreePtr)
+        : self(self), funcTree(funcTreePtr) 
     {
-        funcTree->attachVariable(varPtr, name, helpDescription);
-    }
-
-    // Initialize after construction
-    void initialize() {
         static_cast<DerivedClass*>(this)->setupBindings();
     }
 
@@ -59,7 +54,6 @@ protected:
     //--------------------------
     // Linkages
     RenderObject* self;
-    GlobalSpace* global;
     FuncTree<ERROR_TYPE>* funcTree;
 };
 

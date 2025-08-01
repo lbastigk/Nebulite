@@ -47,6 +47,13 @@ Design Constraints:
 #include "FuncTreeWrapper.h"
 #include "FileManagement.h"
 
+// Expansion includes
+#include "RTE_Data.h"
+#include "RTE_Layout.h"
+#include "RTE_Logging.h"
+#include "RTE_Parenting.h"
+#include "RTE_StateUpdate.h"
+
 namespace Nebulite {
   class RenderObject;  // Forward declaration
 }
@@ -57,61 +64,23 @@ class RenderObjectTree : public FuncTreeWrapper<Nebulite::ERROR_TYPE>{
 public:
     RenderObjectTree(RenderObject* self);   // Created inside each renderobject, with linkage to the object
 private:
-    // Pointer to the owning RenderObject
-    RenderObject* self;
 
-    //===== Layout & Geometry =====//
+    //---------------------------------------
+    // Commands to the RenderObjectTree are added via Expansion files to keep the RenderObjectTree clean
+    // and allow for easy implementation and removal of collaborative features.
+    // Maintainers can separately implement their own features and merge them into the RenderObjectTree.
+    //
+    // 1.) Create a new Class by inheriting from Nebulite::RenderObjectTreeExpansion::Wrapper ( .h file in ./include and .cpp file in ./src)
+    // 2.) Ensure the Class is a friend of Nebulite::GlobalSpace (see GlobalSpace.h)
+    // 3.) Implement the setupBindings() method to bind functions
+    // 4.) Insert the new object here as a unique pointer
+    // 5.) Initialize via make_unique in the MainTree constructor
+    //---------------------------------------
+    std::unique_ptr<Nebulite::RenderObjectTreeExpansion::Data> data;
+    std::unique_ptr<Nebulite::RenderObjectTreeExpansion::Layout> layout;
+    std::unique_ptr<Nebulite::RenderObjectTreeExpansion::Logging> logging;
+    std::unique_ptr<Nebulite::RenderObjectTreeExpansion::Parenting> parenting;
+    std::unique_ptr<Nebulite::RenderObjectTreeExpansion::StateUpdate> stateUpdate;
 
-    // Aliign text to object dimensions
-    Nebulite::ERROR_TYPE align_text(int argc, char* argv[]);  
-
-    // Create text box
-    Nebulite::ERROR_TYPE make_box(int argc, char* argv[]);    
-
-    //===== Computation & Internal Updates =====//
-    Nebulite::ERROR_TYPE deleteObject(int argc, char* argv[]);
-    Nebulite::ERROR_TYPE calculate_text(int argc, char* argv[]);
-    Nebulite::ERROR_TYPE recalculate_all(int argc, char* argv[]);
-    Nebulite::ERROR_TYPE reload_invokes(int argc, char* argv[]);
-
-    //===== Data management =====//
-
-    // e.g. call function and store result: store tmp.assertResult assert_nonzero keyToCheck
-    Nebulite::ERROR_TYPE store(int argc, char* argv[]); 
-    
-    // move part of json doc from a to b
-    Nebulite::ERROR_TYPE move(int argc, char* argv[]);  
-    
-    // copy part of json doc from a to b
-    Nebulite::ERROR_TYPE copy(int argc, char* argv[]);   
-
-    // delete a key from json doc
-    Nebulite::ERROR_TYPE keydelete(int argc, char* argv[]);     
-
-    //===== Debugging / Logging =====//
-
-    // Echoing to cout locally. Not recommended for production due to threaded nature of the update loop
-    // Only useful for debugging RenderObject logic
-    Nebulite::ERROR_TYPE echo(int argc, char* argv[]);
-    Nebulite::ERROR_TYPE log(int argc, char* argv[]);
-    Nebulite::ERROR_TYPE log_value(int argc, char* argv[]);
-    Nebulite::ERROR_TYPE assert_nonzero(int argc, char* argv[]);
-    Nebulite::ERROR_TYPE assert_not_in_doc(int argc, char* argv[]);
-
-    // Print all local invokes to stdout for debugging
-    Nebulite::ERROR_TYPE print_local_invokes(int argc, char* argv[]);
-
-    //===== Children & Invokes =====//
-    Nebulite::ERROR_TYPE addChildren(int argc, char* argv[]);
-    Nebulite::ERROR_TYPE removeChildren(int argc, char* argv[]);
-    Nebulite::ERROR_TYPE removeAllChildren(int argc, char* argv[]);
-    Nebulite::ERROR_TYPE addInvoke(int argc, char* argv[]);
-    Nebulite::ERROR_TYPE removeInvoke(int argc, char* argv[]);
-    Nebulite::ERROR_TYPE removeAllInvokes(int argc, char* argv[]);
-    
-    //===== Complex ideas =====//
-    Nebulite::ERROR_TYPE sql_call(int argc, char* argv[]);      // idea is to get data from a read-only sql database managed by FileManagement/Invoke
-    Nebulite::ERROR_TYPE json_call(int argc, char* argv[]);     // idea is to get data from a read-only json database managed by FileManagement/Invoke
-    
 };
 }
