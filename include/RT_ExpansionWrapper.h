@@ -20,14 +20,17 @@ namespace Nebulite{
 
 class RenderObject; // Forward declaration
 
-namespace RenderObjectTreeCategory{
+namespace RenderObjectTreeExpansion{
 
 template<typename DerivedClass>
 class Wrapper{
 public:
     // Binds all functions for this category on construction
     Wrapper(RenderObject* renderObject, GlobalSpace* globalSpace, FuncTree<ERROR_TYPE>* funcTreePtr)
-        : render(renderObject), global(globalSpace), funcTree(funcTreePtr) {}
+        : render(renderObject), global(globalSpace), funcTree(funcTreePtr) 
+    {
+        funcTree->attachVariable(varPtr, name, helpDescription);
+    }
 
     // Initialize after construction
     void initialize() {
@@ -48,17 +51,11 @@ public:
         );
     }
 
-    // Attach a variable as string pointer to the FuncTree
-    void bindVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription) {
-        funcTree->attachVariable(varPtr, name, helpDescription);
-    }
-
     // Prevent copying
     Wrapper(const Wrapper&) = delete;
     Wrapper& operator=(const Wrapper&) = delete;
 
 protected:
-
     //--------------------------
     // Linkages
     RenderObject* self;

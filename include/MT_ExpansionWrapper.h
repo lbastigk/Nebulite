@@ -21,17 +21,16 @@ namespace Nebulite{
 
 class GlobalSpace; // Forward declaration
 
-namespace MainTreeCategory{
+namespace MainTreeExpansion{
 
 template<typename DerivedClass>
 class Wrapper{
 public:
     // Binds all functions for this category on construction
     Wrapper(Invoke* invoke, GlobalSpace* globalSpace, FuncTree<ERROR_TYPE>* funcTreePtr)
-        : invoke(invoke), global(globalSpace), funcTree(funcTreePtr) {}
-
-    // Initialize after construction
-    void initialize() {
+        : invoke(invoke), global(globalSpace), funcTree(funcTreePtr) 
+    {
+        // Initialize the defined Variable and Function Bindings
         static_cast<DerivedClass*>(this)->setupBindings();
     }
 
@@ -59,13 +58,11 @@ public:
     Wrapper& operator=(const Wrapper&) = delete;
 
 protected:
-
     //--------------------------
     // Linkages
     Invoke* invoke;
     GlobalSpace* global;
     FuncTree<ERROR_TYPE>* funcTree;
 };
-
 }
 }

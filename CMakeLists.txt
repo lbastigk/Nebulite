@@ -60,29 +60,14 @@ add_subdirectory(${ABSEIL_PATH} ${ABSEIL_BUILD_PATH})
 
 ############################################################
 # Source files
-set(COMMON_SOURCES
-    ########################################################
-    # MainTree
-    ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees/MainTree/MainTree.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees/MainTree/MT_Debug.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees/MainTree/MT_General.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees/MainTree/MT_Renderer.cpp
-    ########################################################
-    # RenderObjectTree
-    ${CMAKE_SOURCE_DIR}/src/Engine/FuncTrees/RenderObjectTree.cpp
-    ############################################################
-    # Other
+# Source files - Automatically include all .cpp files in src/
+file(GLOB_RECURSE COMMON_SOURCES 
+    "${CMAKE_SOURCE_DIR}/src/*.cpp"
+)
+
+# Adddition external files
+list(APPEND COMMON_SOURCES 
     ${TINYEXPR_PATH}/tinyexpr.c
-    ${CMAKE_SOURCE_DIR}/src/Engine/GlobalSpace.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/Data/JSON.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/Helper/FileManagement.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/Helper/StringHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/Helper/Time.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/Environment.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/Invoke.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/Renderer.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/RenderObject.cpp
-    ${CMAKE_SOURCE_DIR}/src/Engine/Rendering/RenderObjectContainer.cpp
 )
 
 ############################################################

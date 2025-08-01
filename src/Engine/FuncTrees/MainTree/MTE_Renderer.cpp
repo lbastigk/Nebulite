@@ -1,8 +1,8 @@
-#include "MT_Renderer.h"
+#include "MTE_Renderer.h"
 #include "GlobalSpace.h"       // Global Space for Nebulite
 #include "Invoke.h"            // Invoke for parsing expressions
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::envload(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::envload(int argc, char* argv[]){
     if(argc > 1){
         global->getRenderer()->deserialize(argv[1]);
         return Nebulite::ERROR_TYPE::NONE;
@@ -14,13 +14,13 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::envload(int argc, cha
     }
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::envdeload(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::envdeload(int argc, char* argv[]){
     global->getRenderer()->purgeObjects();
     global->getRenderer()->purgeTextures();
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::spawn(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::spawn(int argc, char* argv[]){
     if(argc>1){
         std::string linkOrObject = argv[1];
 
@@ -51,7 +51,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::spawn(int argc, char*
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::setResolution(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::setResolution(int argc, char* argv[]){
     int w,h,scalar;
     w = 1000;
     h = 1000;
@@ -69,7 +69,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::setResolution(int arg
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::setFPS(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::setFPS(int argc, char* argv[]){
     if(argc != 2){
         global->getRenderer()->setFPS(60);
     }
@@ -82,7 +82,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::setFPS(int argc, char
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::moveCam(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::moveCam(int argc, char* argv[]){
     if (argc < 3) {
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -96,7 +96,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::moveCam(int argc, cha
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::setCam(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::setCam(int argc, char* argv[]){
     if(argc == 3){
         int x = std::stoi(argv[1]);
         int y = std::stoi(argv[2]);
@@ -121,7 +121,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::setCam(int argc, char
     return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::snapshot(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::snapshot(int argc, char* argv[]){
     if(argc == 1){
         // No link provided, use default
         bool success = global->getRenderer()->snapshot();
@@ -144,7 +144,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::snapshot(int argc, ch
     }
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeCategory::Renderer::beep(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::beep(int argc, char* argv[]){
     // Beep function for debugging, from SDL
     global->getRenderer()->beep();
     return Nebulite::ERROR_TYPE::NONE;

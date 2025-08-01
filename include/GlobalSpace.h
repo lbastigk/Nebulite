@@ -111,9 +111,9 @@ namespace Nebulite {
     private:
         //---------------------------------------
         // Allow MainTree Categories to access private members
-        friend class Nebulite::MainTreeCategory::General;
-        friend class Nebulite::MainTreeCategory::Renderer;
-        friend class Nebulite::MainTreeCategory::Debug;
+        friend class Nebulite::MainTreeExpansion::General;
+        friend class Nebulite::MainTreeExpansion::Renderer;
+        friend class Nebulite::MainTreeExpansion::Debug;
         
 
         //---------------------------------------

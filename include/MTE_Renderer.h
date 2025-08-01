@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ErrorTypes.h"
-#include "MT__Wrapper.h"
+#include "MT_ExpansionWrapper.h"
 
 namespace Nebulite {
 
@@ -9,7 +9,7 @@ namespace Nebulite {
 class Invoke;
 class GlobalSpace;
 
-namespace MainTreeCategory {
+namespace MainTreeExpansion {
 class Renderer : public Wrapper<Renderer> {
 public:
     using Wrapper<Renderer>::Wrapper;   // Templated constructor from Wrapper, call this->setupBindings()
