@@ -5,10 +5,10 @@
 #include "FuncTreeWrapper.h"    // All FuncTrees inherit from this for ease of use
 
 
-// Include Subcategories of MainTree
-#include "MTE_General.h"
-#include "MTE_Renderer.h"
-#include "MTE_Debug.h"
+// Include Expansions of MainTree
+#include "MTE_General.h"    // General functions like eval, exit, wait, etc.
+#include "MTE_Renderer.h"   // Renderer functions for graphics and display
+#include "MTE_Debug.h"      // Debugging and logging functions
 
 namespace Nebulite{
 
@@ -22,7 +22,10 @@ public:
 private:
 
     //---------------------------------------
-    // Commands to the MainTree are added via Expansion files
+    // Commands to the MainTree are added via Expansion files to keep the MainTree clean 
+    // and allow for easy implementation and removal of collaborative features.
+    // Maintainers can separately implement their own features and merge them into the MainTree. 
+    //
     // 1.) Create a new category by inheriting from Nebulite::MainTreeExpansion::Wrapper ( .h file in ./include and .cpp file in ./src)
     // 2.) Ensure the category is a friend of Nebulite::GlobalSpace (see GlobalSpace.h)
     // 3.) Implement the setupBindings() method to bind functions
