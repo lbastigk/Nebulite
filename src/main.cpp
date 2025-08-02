@@ -164,12 +164,29 @@ int main(int argc, char* argv[]){
     else{
         // If no addition arguments were provided:
         //
-        // For now, an empty Renderer is initiated
+        // For now, an empty Renderer is initiated via set-fps 60
         // Later on it might be helpful to insert a task like:
         // "env-load ./Resources/Levels/main.json" 
         // Which represents the menue screen of the game
         // or, for a more scripted task:
         // task TaskFiles/main.txt
+        // Making sure that any state currently loaded is cleared
+        // Having main be a state itself is also an idea, but this might become challenging as the user could accidentally overwrite the main state
+        //
+        // Best solution is therefore an env-load, with the environment architecture yet to be defined
+        // best solution is probably:
+        // - a field with the container 
+        // - a vector which contains tasks to be executed on environment load
+        // - potentially an extra task vector for tasks that are executed BEFORE the env is loaded
+        // - potentially an extra task vector for tasks that are executed BEFORE the env is de-loaded
+        // Keys like: after-load, after-deload, before-load, before-deload
+        //
+        // For easier usage, hardcoding the env-load task is not a good idea, 
+        // instead call some function like "entrypoint" or "main" which is defined in the MainTree
+        // This is important, as it's now clear what the entrypoint is, without knowing exactly what main file is loaded
+        // If a user ever defines addition arguments via, e.g. Steam when launching the game, this might become a problem
+        // as any additional argument would make the entrypoint not be called.
+        // So later on, we might consider always calling entrypoint as first task
         globalSpace.tasks_script.taskList.push_back(std::string("set-fps 60"));
     }
     
