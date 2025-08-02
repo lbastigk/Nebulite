@@ -6,10 +6,12 @@
 //-------------------------------------
 // Linking ALL Functions to MainTree
 Nebulite::MainTree::MainTree(Nebulite::Invoke* invokeLinkage, Nebulite::GlobalSpace* globalSpaceLinkage)
-    : FuncTreeWrapper("Nebulite", Nebulite::ERROR_TYPE::NONE, Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID) // Passing necessary error types to FuncTreeWrapper
+    : FuncTreeWrapper("Nebulite", Nebulite::ERROR_TYPE::NONE, Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID),  // Passing necessary error types to FuncTreeWrapper
+    invokeLinkage(invokeLinkage),           // local linkage for usage within the factory method
+    globalSpaceLinkage(globalSpaceLinkage)
 {
-  // Initialize the categories
-  general   = std::make_unique<Nebulite::MainTreeExpansion::General>(invokeLinkage, globalSpaceLinkage, &this->funcTree);
-  renderer  = std::make_unique<Nebulite::MainTreeExpansion::Renderer>(invokeLinkage, globalSpaceLinkage, &this->funcTree);
-  debug     = std::make_unique<Nebulite::MainTreeExpansion::Debug>(invokeLinkage, globalSpaceLinkage, &this->funcTree);
+  // Initialize all expansions
+  general  = createExpansionOfType<MainTreeExpansion::General>();
+  renderer = createExpansionOfType<MainTreeExpansion::Renderer>();
+  debug    = createExpansionOfType<MainTreeExpansion::Debug>();
 }
