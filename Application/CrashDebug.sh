@@ -6,6 +6,7 @@ ulimit -c unlimited
 
 # Define task
 taskfile="TaskFiles/Benchmarks/gravity.txt"
+taskfile="TaskFiles/Tests/Short/init_print_global.txt"
 #taskfile="TaskFiles/Tests/spawn_memleak.txt"
 
 # Set core dump directory and pattern
