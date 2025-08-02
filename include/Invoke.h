@@ -1,39 +1,156 @@
 #pragma once
 
-
 // NEBULITE INVOKE CLASS
 /*
+===========================================================
+Invoke – Dynamic Object Logic Engine
+===========================================================
 
-Invoke is used for interactions between objects currently in memory (on/near screen)
-Since a 3x3 Display Resolution grid is loaded at each time, the headup
-should be minimal as the usual resolution planned is about 16x16 objects on screen
+PURPOSE:
+The Invoke class is the maintainer of object logic in Nebulite, enabling
+dynamic game behavior through JSON-defined rules separated from the codebase.
 
-Each object is able to send an invoke that is checked against each other invoke for an action. 
+CORE PHILOSOPHY:
+- EXPRESSIONS: Hot-swappable logic for simple, mathematical operations
+- FUNCTION CALLS: Compiled logic for complex operations
 
-The following is provided to each invoke: 
-- SELF
-  used to manipulate itself
-- OTHER
-  used to manipulate the other object
-  e.G. self is a solid block with the invoke, other is a moving object
-  other.canMove.Left/Right... can be used to tell the object it cant move into the solid object
-- GLOBAL
-  count how many wolfes were killed
-  keep track of quest stages: e.g. on pickup, send an invoke to modify quest stage
-- FUNCTIONCALLS
-  used to call functions in the maintree to manipulate the game
-  e.g.: "echo Invoke Activated!"
-  e.g.: "env-deload", "env-load ./Resources/Levels/stage_$($(global.currentStage)+1)"
-- TOPIC
-  Each Renderobject subscribes to certain topics. Each invoke itself represents one topic.
-  For instance, it is possible to add the gravity invoke to an object OBJ1 but not subscribe to it,
-  Meaning that other objects with subscription are attracted to OBJ1, but OBJ1 stays in place.
-  Or one might only subscribe the player/npcs to the HitBox invokes, reducing the number of hitbox checks.
+DATA-DRIVEN DESIGN:
+All object behavior is defined through JSON files loaded by RenderObjects,
+allowing designers and modders to create complex game logic without
+touching C++ code.
 
+===========================================================
+CONTEXT SYSTEM: Self-Other-Global
+===========================================================
 
-This also allows to store stuff for other objects to change that are currently not in memory
-Like global.levelstate or similiar
+SELF-OTHER-GLOBAL MODEL:
+Objects interact through a three-tier context system:
 
+• SELF:   The object broadcasting the invoke
+• OTHER:  The object listening for invokes 
+• GLOBAL: Shared game state (time, input, settings)
+
+SELF-GLOBAL CONTEXT (Local Operations):
+- Object modifies itself based on global state
+- Examples: Health regeneration, input response, timers
+- JSON: "topic": "" (empty topic = local only)
+
+SELF-OTHER-GLOBAL CONTEXT (Interactive Operations):  
+- Objects interact with each other conditionally
+- Examples: Collision, line-of-sight, proximity triggers
+- JSON: "topic": "collision" (named topic = broadcast)
+
+===========================================================
+EXPRESSION SYSTEM: Hot-Swappable Logic
+===========================================================
+
+SINGLE-KEY MODIFICATIONS:
+Expressions enable simple, direct variable changes without recompilation:
+
+• Mathematical: "self.health += $(other.damage)"
+• Conditional: "$(self.x) > 100 && self.health > 0"  
+• Type casting: "$f($(self.score))" or "$i($(global.time))"
+• Concatenation: "self.status |= ' - damaged'"
+
+WIDE APPLICATION RANGE:
+- Movement systems
+- Health/damage calculations  
+- Animation triggers
+- State changes
+- Resource management
+
+RUNTIME FLEXIBILITY:
+Change game behavior by editing JSON files - no binary recompilation needed.
+Perfect for:
+- Game balancing
+- Rapid prototyping  
+- Modding support
+- Designer empowerment
+- Debugging
+
+===========================================================
+FUNCTION CALL SYSTEM: Complex Logic
+===========================================================
+
+COMPILED OPERATIONS:
+Function calls handle complex logic that expressions cannot.
+Example functioncalls that maintainers might wish to implement:
+• GLOBAL SCOPE: "functioncalls_global": ["spawn <link>", "save-game"]
+• SELF SCOPE:   "functioncalls_self": ["play-animation", "flag-delete"]  
+• OTHER SCOPE:  "functioncalls_other": ["reload-texture"]
+
+WHEN TO USE FUNCTION CALLS:
+- Multi-step algorithms
+- File I/O operations
+- Complex state machines
+- Performance-critical operations
+- External system integration
+- Usage of objects not defined in JSON
+- Moving/Copying JSON Sub-objects
+
+BINARY RECOMPILATION REQUIRED:
+Adding new function calls requires C++ implementation and recompilation,
+but provides maximum performance and flexibility.
+
+===========================================================
+ARCHITECTURE BENEFITS
+===========================================================
+
+DESIGNER-FRIENDLY:
+- JSON-based configuration
+- No programming knowledge required
+- Hot-reload capabilities
+- Visual feedback through expressions
+
+PERFORMANCE OPTIMIZED:
+- Pre-parsed expression trees
+- Constant folding optimization  
+- Threaded batch processing
+- Smart caching system
+
+MODULAR DESIGN:
+- Clean separation: expressions vs functions
+- Topic-based broadcasting system
+- Context-aware variable resolution
+- Extensible function library
+
+===========================================================
+EXAMPLE WORKFLOW
+===========================================================
+
+1. DESIGN PHASE (JSON):
+   Define object behavior through Diagrams, Flowcharts, and Pseudocode.
+   Transform these into expressions and function calls.
+
+2. RUNTIME PHASE (Engine):
+   - Objects broadcast invokes to topics
+   - Listeners evaluate logical conditions of topics they are subscribed to
+   - Matching pairs execute expressions/functioncalls
+
+3. ITERATION PHASE (Hot-reload):
+   Modify JSON files, reload the engine, and see immediate results
+
+This system bridges the gap between designer creativity and 
+programmer control, enabling rapid iteration while maintaining 
+high performance for complex operations.
+
+===========================================================
+DESIGN ENCOURAGEMENTS
+===========================================================
+- When designing a specific system, consider if it can be expressed as a series of expressions
+- Define a system name that can be used as a topic for invokes
+- When assigning values, prefer a nested structure, perhaps with that system name as the first key
+- Avoid the "all" topic as much as possible, as it can lead to performance issues
+- For unknown other-candidates, consider using an ambassador JSON object:
+  - spawn ambassador
+  - ambassador listens to all invokes or a specific topic if possible
+  - finds relevant objects within the system and modifies them
+  - example: objects at a certain position need to be found and modified. 
+    Spawn a pre-defined ambassador at that position with an invoke that modifies objects:
+    "logicalArg" : [ "eq($(self.posX),$(other.posX))", "eq($(self.posY),$(other.posY))" ]
+    "exprs" : [ "other.health -= 10" ]
+  - that ambassador might be visible: bullet, particle, selection square
+    or invisible: pathfinding object 
 */
 
 
