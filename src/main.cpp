@@ -186,7 +186,8 @@ int main(int argc, char* argv[]){
         // This is important, as it's now clear what the entrypoint is, without knowing exactly what main file is loaded
         // If a user ever defines addition arguments via, e.g. Steam when launching the game, this might become a problem
         // as any additional argument would make the entrypoint not be called.
-        // So later on, we might consider always calling entrypoint as first task
+        // So later on, we might consider always calling entrypoint as first task AFTER the command line arguments are parsed
+        // This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
         globalSpace.tasks_script.taskList.push_back(std::string("set-fps 60"));
     }
     
