@@ -1,6 +1,10 @@
 // This header defines the FuncTree class, which is responsible for parsing command-line
 // arguments and executing the corresponding functions in the Nebulite project. The main goal
 // of this class is to manage hierarchical commands and arguments for modular and flexible execution.
+
+// TODO: Going away from classic C-style argc/argv to a more modern approach:
+// - std::vector<std::string> callTrace // shows the call trace of the function, e.g.: "Nebulite", "eval", "echo"
+// - std::vector<std::string> args      // shows the arguments of the function, e.g.: "echo", "Hello World!"
 #pragma once
 
 #include <iomanip>  // For std::setw
