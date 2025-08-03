@@ -1,6 +1,6 @@
 /**
  * @file FuncTreeWrapper.h
- * @brief Extension wrapper for FuncTree to simplify binding class member functions.
+ * @brief Wrapper for FuncTree to simplify binding class member functions.
  *
  * @details
  * The FuncTree class provides a flexible framework for attaching and executing
@@ -26,7 +26,8 @@
  * - Supports clean, readable code: `bind(funcTree, this, &Class::method, "name", "desc")`.
  * - Encapsulates common binding patterns, reducing bugs and improving consistency.
  * - Makes it easier to extend or customize the function binding mechanism in one place.
- * 
+ *
+ * TODO: Perhaps all functionality is implementable inside FuncTree itself, now that its usage has changed.
  */
 
 

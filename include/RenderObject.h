@@ -14,7 +14,7 @@
  *   - Supports invoke command lists for both general (global) and internal (local) interactions.
  *   - Offers update and reload mechanisms to synchronize state with global invokes and JSON data.
  *   - Calculates computational cost estimates for update operations.
- *   - allows for flexible extensions through the RenderObjectTree for local function calls.
+ *   - allows for flexible additions through the RenderObjectTree for local function calls.
  *
  * Interaction with Invoke:
  *   - Invokes are loaded in from JSON files and categorized into global and local commands.
