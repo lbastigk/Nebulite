@@ -41,5 +41,7 @@ public:
     static std::string lstrip(const std::string& input, char specialChar = ' ');
 
     static std::string rstrip(const std::string& input, char specialChar = ' ');
+
+    static std::vector<std::string> split(const std::string& input, char delimiter);
 };
 }

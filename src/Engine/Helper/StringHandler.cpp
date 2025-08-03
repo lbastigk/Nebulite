@@ -131,3 +131,15 @@ std::string Nebulite::StringHandler::rstrip(const std::string& input, char speci
     size_t end = input.find_last_not_of(specialChar);
     return (end == std::string::npos) ? "" : input.substr(0, end + 1);
 }
+
+std::vector<std::string> Nebulite::StringHandler::split(const std::string& input, char delimiter) {
+    std::vector<std::string> tokens;
+    size_t start = 0;
+    size_t end = 0;
+    while ((end = input.find(delimiter, start)) != std::string::npos) {
+        tokens.push_back(input.substr(start, end - start));
+        start = end + 1;
+    }
+    tokens.push_back(input.substr(start)); // Last part
+    return tokens;
+}
