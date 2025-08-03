@@ -1,5 +1,5 @@
 {
-    "deleteFlag": false,
+
     "id": 0,
     "invokes": [
         "./Resources/Invokes/Movement/move_cam_wasd.json"
@@ -7,7 +7,7 @@
     "layer": 0,
     "posX": 350,
     "posY": 500,
-    "reloadInvokes": true,
+
     "sprite": {
         "link": "Resources/Sprites/TEST001P/001.bmp",
         "sizeX": 100,
@@ -23,7 +23,7 @@
     "text": {
         "dx": 0.0,
         "dy": 0.0,
-        "flagCalculate": true,
+
         "fontSize": 0,
         "str": ""
     }

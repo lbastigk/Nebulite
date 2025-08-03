@@ -1,7 +1,7 @@
 {
-    "deleteFlag": false,
+
     "id": 0,
-    "invokeReload": true,
+
     "invokeSubscriptions": [
         "all"
     ],
@@ -41,7 +41,7 @@
         },
         "dx": 0.0,
         "dy": 0.0,
-        "flagCalculate": true,
+
         "fontSize": 0,
         "str": ""
     }

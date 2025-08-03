@@ -1,7 +1,5 @@
 {
-    "deleteFlag": false,
     "id": 0,
-    "invokeReload": true,
     "invokeSubscriptions": [
         "all"
     ],
@@ -10,11 +8,12 @@
             "topic": "",
             "logicalArg": "1",
             "exprs": [
-                "self.text.str = Score left: $i(global.score.left)  |  Score Right: $i(global.score.right)",
-                "self.text.flagCalculate = 1"
+                "self.text.str = Score left: $i(global.score.left)  |  Score Right: $i(global.score.right)"
             ],
             "functioncalls_global": [],
-            "functioncalls_self": [],
+            "functioncalls_self": [
+                "update-text"
+            ],
             "functioncalls_other": []
         }
     ],
@@ -44,7 +43,6 @@
     "text": {
         "dx": 0.0,
         "dy": 0.0,
-        "flagCalculate": true,
         "fontSize": 16,
         "str": ""
     }

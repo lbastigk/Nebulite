@@ -6,7 +6,6 @@
         "attack" : 0,
         "Direction" : 0
     },
-    "deleteFlag": false,
     "id": 0,
     "invokes": [
         "./Resources/Invokes/Animation/poll_attack.json",
@@ -32,7 +31,6 @@
     },
     "posX": 0,
     "posY": 0,
-    "reloadInvokes": true,
     "sprite": {
         "link": "./Resources/Sprites/MiniWorldSprites/Characters/Soldiers/Melee/SwordsmanTemplate.png",
         "sizeX": 16,
@@ -48,7 +46,6 @@
     "text": {
         "dx": 0.0,
         "dy": 0.0,
-        "flagCalculate": true,
         "fontSize": 0,
         "str": ""
     }

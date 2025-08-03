@@ -1,7 +1,7 @@
 {
-    "deleteFlag": false,
+
     "id": 0,
-    "invokeReload": true,
+
     "invokeSubscriptions": [
         "all",
         "gravity"
@@ -45,7 +45,7 @@
         },
         "dx": 0.0,
         "dy": -30.0,
-        "flagCalculate": true,
+
         "fontSize": 16,
         "str": "SUN"
     }

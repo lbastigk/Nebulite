@@ -1,5 +1,4 @@
 {
-    "deleteFlag": false,
     "id": 0,
     "invokeSubscriptions": [
         "all",
@@ -20,7 +19,6 @@
     },
     "posX": 350,
     "posY": 500,
-    "reloadInvokes": true,
     "sprite": {
         "link": "./Resources/Editor/Selection_00000.png",
         "sizeX": 10,
@@ -36,7 +34,6 @@
     "text": {
         "dx": 0.0,
         "dy": 0.0,
-        "flagCalculate": true,
         "fontSize": 0,
         "str": ""
     }

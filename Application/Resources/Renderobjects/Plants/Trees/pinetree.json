@@ -1,11 +1,9 @@
 {
-    "deleteFlag": false,
     "id": 0,
     "invokes": [],
     "layer": 1,
     "posX": 0,
     "posY": 0,
-    "reloadInvokes": true,
     "sprite": {
         "link": "./Resources/Sprites/MiniWorldSprites/Nature/PineTrees.png",
         "sizeX": 16,
@@ -21,7 +19,6 @@
     "text": {
         "dx": 0.0,
         "dy": 0.0,
-        "flagCalculate": true,
         "fontSize": 0,
         "str": ""
     }

@@ -1,5 +1,5 @@
 {
-    "deleteFlag": false,
+
     "id": 0,
     "invokes": [
         "./Resources/Invokes/Debug/print_global.json"
@@ -7,7 +7,7 @@
     "layer": 0,
     "posX": 0,
     "posY": 0,
-    "reloadInvokes": true,
+
     "sprite": {
         "link": "Resources/Sprites/TEST001P/001.bmp",
         "sizeX": 32,
@@ -23,7 +23,7 @@
     "text": {
         "dx": 0.0,
         "dy": 0.0,
-        "flagCalculate": true,
+
         "fontSize": 0,
         "str": ""
     }

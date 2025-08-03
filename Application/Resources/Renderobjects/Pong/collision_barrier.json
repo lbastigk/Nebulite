@@ -1,5 +1,4 @@
 {
-    "deleteFlag": false,
     "id": 0,
     "invokes": [
         "./Resources/Invokes/Physics/elastic_collision_X.json",
@@ -17,7 +16,6 @@
     },
     "posX": 350,
     "posY": 500,
-    "reloadInvokes": true,
     "sprite": {
         "link": "./Resources/Sprites/TEST001P/010.bmp",
         "sizeX": 10,
@@ -33,7 +31,6 @@
     "text": {
         "dx": 0.0,
         "dy": 0.0,
-        "flagCalculate": true,
         "fontSize": 0,
         "str": ""
     }

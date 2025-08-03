@@ -1,5 +1,4 @@
 {
-    "deleteFlag": false,
     "id": 0,
     "invokes": [
         "./Resources/Invokes/Movement/movement_wasd.json",
@@ -8,7 +7,6 @@
     "layer": 3,
     "posX": 100,
     "posY": 100,
-    "reloadInvokes": true,
     "sprite": {
         "link": "Resources/Sprites/TEST001P/001.bmp",
         "sizeX": 16,
@@ -24,7 +22,6 @@
     "text": {
         "dx": 0.0,
         "dy": 0.0,
-        "flagCalculate": true,
         "fontSize": 0,
         "str": ""
     }

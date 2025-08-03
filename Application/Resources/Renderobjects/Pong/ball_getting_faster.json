@@ -1,14 +1,10 @@
 {
-    "deleteFlag": false,
     "id": 0,
-    "invokeReload": true,
     "invokeSubscriptions": [
         "all",
         "collision"
     ],
     "invokes": [
-        "./Resources/Invokes/Physics/falling_slow.json",
-        "./Resources/Invokes/Physics/integrate_a.json",
         "./Resources/Invokes/Physics/normalize_v_to_physics-vNorm.json",
         "./Resources/Invokes/Physics/integrate_v.json",
         "./Resources/Invokes/Physics/reset_a.json",
@@ -73,7 +69,6 @@
     },
     "posX": 350,
     "posY": 500,
-    "reloadInvokes": true,
     "sprite": {
         "link": "./Resources/Sprites/TEST100P/037.bmp",
         "sizeX": 10,
@@ -89,7 +84,6 @@
     "text": {
         "dx": 0.0,
         "dy": 0.0,
-        "flagCalculate": true,
         "fontSize": 0,
         "str": ""
     }
