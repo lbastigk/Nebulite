@@ -33,20 +33,20 @@ void Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc, std::vector<std::share
     entries_global.clear();
     entries_local.clear();
 
-    if (doc.memberCheck(keyName.renderObject.invokeVector) != Nebulite::JSON::KeyType::array) {
+    if (doc.memberCheck(keyName.renderObject.invokes) != Nebulite::JSON::KeyType::array) {
         std::cerr << "Invokes field is not an array!" << std::endl;
         return;
     }
 
     // Get size of entries
-    uint32_t size = doc.memberSize(keyName.renderObject.invokeVector);
+    uint32_t size = doc.memberSize(keyName.renderObject.invokes);
     if (size == 0) {
         // Object has no invokes
         return;
     }
 
     for (int i = 0; i < size; ++i) {
-        std::string key = keyName.renderObject.invokeVector + "[" + std::to_string(i) + "]";
+        std::string key = keyName.renderObject.invokes + "[" + std::to_string(i) + "]";
 
         // Get entry
         Nebulite::JSON entry;

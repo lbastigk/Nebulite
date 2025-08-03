@@ -33,11 +33,8 @@ const struct keyName {
         std::string textColorG = "text.color.G";
         std::string textColorB = "text.color.B";
         std::string textColorA = "text.color.A";
-        //std::string flagCalculate = "text.flagCalculate";
         std::string invokes = "invokes";
         std::string invokeSubscriptions = "invokeSubscriptions";
-        std::string reloadInvokes = "invokeReload";
-        std::string invokeVector = "invokes";
     }renderObject;
     const struct invoke{
         std::string _self = "invoke";
