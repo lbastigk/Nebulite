@@ -33,8 +33,12 @@ Examples:
 Invoke json-files are used to describe how objects interact with each other.
 Example of an Invoke for a gravity ruleset:
 ```jsonc
+// Add this or a link as string ("./Resources/Invokes/.../gravity.json") to any RenderObject.json that should conform to the gravity ruleset:
+// -> append str/object    to its key "invokes"
+// Make sure the object listens to topic gravity as well
+// -> append str "gravity" to its key "invokeSubscriptions"
 {
-  "topic": "gravity",   // Make sure the other object listens to topic gravity
+  "topic": "gravity",   // 
   "logicalArg": "1",    // We already ensured that only objects subscribed to gravity interact
   "exprs": [
     // Pulling in the other object:
@@ -137,41 +141,89 @@ as well as optional dependencies:
 | [recall](https://github.com/lbastigk/recall/)         | Custom CLI-Tool for quick documentation      |
 | [PlantUML](https://plantuml.com/)                     | For compiling UML-Diagrams in ./doc/         |
 
+Please note that CLI-Based documenation with recall is a work-in-progress.
+
 ## Contributing
 
 We welcome contributions! Nebulite's modular architecture makes it easy to add features in separate files.
 
 ### Development Setup
 
-Using VSCode is recommended
+Using VSCode is recommended for an optimal workflow.
 
 ### Testing
 
-Use `Tests.sh` for preconfigured tests.
+Go into the Application directory first: `cd Application/`
 
-```bash
-# Run test suite
-cd Application
-./Tests.sh
-```
+- Use `Tests.sh` for preconfigured tests.
+- Use `CrashDebug.sh` for debugging crashes
+- Use `MemLeakTest.sh` for Memory Leak testing
 
 You can add custom taskfiles to the test suite as well by extending its variable `tests`, or run them on your own with:
 ```bash
 ./bin/Nebulite task TaskFiles/.../your_test.txt
 ```
 
+VSCode users benefit from preconfigured tasks: `CTRL + SHIFT + T` (test options) or `CTRL + SHIFT + B` (build options)
+
+### Preview Editing
+
+Preview Editing is a work-in-progress. The current plan is to use the headless rendering mode of Nebulite in combination with 
+either a taskfile or a python-script to allow rendering snapshots while editing json files.
+
 ### Adding Features
 
-Nebulite offers clean extensions of its functionality through its FuncTrees. 
-Maintainers can create their own Tree-Extension classes and add them to the specifc FuncTree.
+Nebulite offers clean expansions of its functionality through its FuncTrees. 
+Maintainers can create their own Tree-expansion classes and add them to the specifc FuncTree.
 
 | New commands operating on... | Action                        | Info                                                                    |
 |------------------------------|-------------------------------|-------------------------------------------------------------------------|
-| global level                 | Extend the `MainTree`         | See `include/MainTree.h` and its extensions `include/MTE_*.h`           |
-| specific RenderObjects       | Extend the `RenderObjectTree` | See `include/RenderObjectTree.h` and its extensions `include/RTE_*.h`   |
-| specific JSON-Documents      | Extend the `JSONTree`         | See `include/JSONTree.h` and its extensions `include/JTE_*.h`           |
+| global level                 | Extend the `MainTree`         | See `include/MainTree.h` and its expansions `include/MTE_*.h`           |
+| specific RenderObjects       | Extend the `RenderObjectTree` | See `include/RenderObjectTree.h` and its expansions `include/RTE_*.h`   |
+| specific JSON-Documents      | Extend the `JSONTree`         | See `include/JSONTree.h` and its expansions `include/JTE_*.h`           |
 
 Example procedure for a new MainTree feature:
-- Create a new Extension file: `MTE_MyFeature.{h,cpp}`
-- Inside, create a new class inheriting from the Wrapper class (see `include/MT_ExpansionWrapper.h`)
-- Add them to the MainTree class. (See `include/MainTree.h` for more information)
+1. **Create expansion file:** `MTE_MyFeature.{h,cpp}`
+2. **Inherit from wrapper:** Create class inheriting from `MainTreeExpansion::Wrapper<MyFeature>`
+3. **Implement command methods:** Functions with `ERROR_TYPE (int argc, char* argv[])` signature
+4. **Override setupBindings():** Register your commands with the function tree
+5. **Add to MainTree:** Include in `include/MainTree.h` and initialize in constructor
+
+**Complete code example:**
+
+Inside MyFeature.h:
+
+```cpp
+class MyFeature : public MainTreeExpansion::Wrapper<MyFeature> {
+public:
+    ERROR_TYPE spawnCircle(int argc, char* argv[]);
+private:
+    void setupBindings() override;
+};
+```
+Inside MyFeature.cpp:
+```cpp
+#include "MyFeature.h"
+ERROR_TYPE spawnCircle(int argc, char* argv[]){
+    /*...*/
+}
+```
+Then add to include/MainTree.h:
+```cpp
+#include "MyFeature.h"
+class MainTree public FuncTreeWrapper<Nebulite::ERROR_TYPE>{
+    /*...*/
+private:
+    /*...*/
+    std::unique_ptr<MainTreeExpansion::MyFeature> myFeature;
+}
+```
+And initialize in MainTree.cpp:
+```cpp
+Nebulite::MainTree::MainTree(/*...*/) : /*...*/
+{
+    // Initialize all expansions
+    /*...*/
+    myFeature = createExpansionOfType<MainTreeExpansion::MyFeature>();
+}
+```
