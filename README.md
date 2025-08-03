@@ -196,9 +196,12 @@ Inside MyFeature.h:
 ```cpp
 class MyFeature : public MainTreeExpansion::Wrapper<MyFeature> {
 public:
+    using Wrapper<General>::Wrapper; // Templated constructor from Wrapper, calls setupBindings
     ERROR_TYPE spawnCircle(int argc, char* argv[]);
 private:
-    void setupBindings() override;
+    void setupBindings(){
+        bindFunction(&MyFeature::spawnCircle, "spawn-circle", "Spawn a circle");
+    }
 };
 ```
 Inside MyFeature.cpp:
