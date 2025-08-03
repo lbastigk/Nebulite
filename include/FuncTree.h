@@ -174,7 +174,7 @@ T FuncTree<T>::executeFunction(const std::string& name, int argc, char* argv[]) 
     if (it != functions.end()) {
         return it->second.first(argc, argv);  // Call the function
     } else {
-        std::cout << "Function '" << name << "' not found.\n";
+        std::cerr << "Function '" << name << "' not found.\n";
         return _functionNotFoundError;  // Return error if function not found
     }
 }
@@ -235,7 +235,7 @@ T FuncTree<T>::help(int argc, char* argv[]) {
     // Otherwise, display help for the provided functions
     for (int i = 1; i < argc; i++) {
         if (argv[i] == nullptr) {
-            std::cout << "Error: Null argument found.\n";
+            std::cerr << "Error: Null argument found.\n";
             continue;  // Skip null arguments
         }
 
@@ -244,7 +244,7 @@ T FuncTree<T>::help(int argc, char* argv[]) {
             std::cout << std::string(argv[i]) << std::endl;
             std::cout << it->second.second << std::endl;  // Print function description
         } else {
-            std::cout << "Function '" << argv[i] << "' not found.\n";
+            std::cerr << "Function '" << argv[i] << "' not found.\n";
         }
     }
 
