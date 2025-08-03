@@ -80,27 +80,60 @@ std::string Nebulite::RenderObject::serialize() {
 
 
 void Nebulite::RenderObject::deserialize(std::string serialOrLink) {
-	// TODO:
-	// Extend RenderObject deserialization to support function call modifiers 
-	// and a cascading (pseudo-inheritance) resolution model.
-	//
-	// The serialized input may contain a base path followed by a list of 
-	// modifiers or function calls, e.g.:
-	//     ./path/to/resource.json|posX=100|align_text_with_size 200 center|set_empty_array tags
-	//
-	// Modifiers (key=value) are handled by the JSON system. Function calls
-	// (non-assignment tokens) are attempted on RenderObject's FunctionTree.
-	//
-	// If a function call is not found in RenderObject, it should be forwarded 
-	// to the JSON system's FunctionTree for resolution (pseudo-inheritance model).
-	//
-	// This allows RenderObject-level behavior extensions while preserving deep 
-	// JSON configurability without needing explicit prefixes or routing hints.
-	// 
-	// Future extensibility: this cascading system may be generalized to 
-	// include additional component handlers (e.g. physics, editor, etc.).
+	// Check if argv1 provided is an object
+	if(serialOrLink.starts_with('{')){
+		json.deserialize(serialOrLink);
+	}
+	else{
+		//----------------------------------------------------------
+		// Split the input into tokens
+		std::vector<std::string> tokens = StringHandler::split(serialOrLink, '|');
 
-	json.deserialize(serialOrLink);
+		//----------------------------------------------------------
+        // Validity check
+		if (tokens.empty()) {
+			return; // or handle error properly
+		}
+
+		//----------------------------------------------------------
+		// Load the JSON file
+		// First token is the path or serialized JSON
+		json.deserialize(tokens[0]);
+
+		//----------------------------------------------------------
+        // Now apply modifications
+		tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
+		for (const auto& token : tokens) {
+			if (token.empty()) continue; // Skip empty tokens
+
+			// Legacy: Handle key=value pairs
+			if (token.find('=') != std::string::npos) {
+				// Handle modifier (key=value)
+				auto pos = token.find('=');
+				std::string key = token.substr(0, pos);
+				std::string value = token.substr(pos + 1);
+				json.set<std::string>(key.c_str(), value);
+			}
+			// Handle function call
+			else {
+				// Forward to FunctionTree for resolution
+				parseStr("Nebulite::RenderObject::deserialize " + token);
+
+				// TODO: if the function call is not recognized, 
+				// pass to the next lowever Tree.
+				// Example implementation:
+				/*
+				if(!funcTree.exists(token)){
+					json.parseStr(token);
+				*/
+				// Even better would be to link the json functree to the RenderObjectTree:
+				// renderObjectTree.linkChildTree(&json.funcTree);
+				// This way, any parseStr with an unrecognized function call
+				// will be forwarded to the json functree.
+			}
+		}
+	}
+	
 
 	// Prerequisites
 	valueSet(Nebulite::keyName.renderObject.reloadInvokes.c_str(),true);
