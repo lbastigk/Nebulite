@@ -29,7 +29,6 @@ Nebulite::RenderObject::RenderObject() : renderObjectTree(this) {
 	json.set_empty_array(Nebulite::keyName.renderObject.invokes.c_str());
 	json.set_empty_array(Nebulite::keyName.renderObject.invokeSubscriptions.c_str());
 	json.set((Nebulite::keyName.renderObject.invokeSubscriptions+"[0]").c_str(),"all");
-	json.set(Nebulite::keyName.renderObject.reloadInvokes.c_str(), true);
 
 	// Text
 	json.set(Nebulite::keyName.renderObject.textStr.c_str(),std::string(""));
@@ -55,6 +54,7 @@ Nebulite::RenderObject::RenderObject() : renderObjectTree(this) {
 	// Flags
 	flag.deleteFromScene = false;
 	flag.calculateText = true;		// In order to calculate text texture on first update
+	flag.reloadInvokes = true;		// In order to reload invokes on first update
 }
 
 Nebulite::RenderObject::~RenderObject() {
@@ -131,7 +131,8 @@ void Nebulite::RenderObject::deserialize(std::string serialOrLink) {
 	
 
 	// Prerequisites
-	valueSet(Nebulite::keyName.renderObject.reloadInvokes.c_str(),true);
+	flag.reloadInvokes = true;
+	flag.calculateText = true;
 	calculateDstRect();
 	calculateSrcRect();
 }
@@ -240,9 +241,9 @@ void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 	if (globalInvoke) {
 		//------------------------------
 		// 1.) Reload invokes if needed
-		if (valueGet<int>(Nebulite::keyName.renderObject.reloadInvokes.c_str(),true)){
+		if (flag.reloadInvokes) {
 			Invoke::parseFromJSON(json, entries_global, entries_local, this);
-			valueSet<bool>(Nebulite::keyName.renderObject.reloadInvokes.c_str(),false);
+			flag.reloadInvokes = false;
 		}
 
 		//------------------------------
@@ -287,9 +288,9 @@ uint64_t Nebulite::RenderObject::estimateComputationalCost(){
 
 	//------------------------------------------
 	// Reload invokes if needed
-	if (valueGet<int>(Nebulite::keyName.renderObject.reloadInvokes.c_str(),true)){
+	if (flag.reloadInvokes){
 		Invoke::parseFromJSON(json, entries_global, entries_local, this);
-		valueSet<bool>(Nebulite::keyName.renderObject.reloadInvokes.c_str(),false);
+		flag.reloadInvokes = false;
 	}
 	
 

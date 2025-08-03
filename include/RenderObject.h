@@ -124,6 +124,7 @@ public:
 	struct flag{
 		bool deleteFromScene = false;	// If true, delete this object from scene on next update
 		bool calculateText = false;		// If true, calculate text texture on next update
+		bool reloadInvokes = false;		// If true, reload invokes on next update
 	} flag;
 private:
 	// Main doc holding values
