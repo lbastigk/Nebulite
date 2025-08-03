@@ -522,71 +522,79 @@ void Nebulite::Invoke::foldConstants(const std::shared_ptr<Invoke::Node>& node) 
     }
 }
 
-std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::parseNext(const std::string& input, size_t& i) {
-    size_t start = i + 2; // Skip "$("
+
+// Set context and optimization info of a variable node
+//
+// TODO:
+// Is Resources doc
+// global is technically a resources doc as well, but with write-access
+// and a copy is thus stored under state prefix
+//
+// Resources docs are read-only
+//
+// $(resources.dialogue-characterName.onGreeting.v1)
+// -> Link = ./Resources/dialogue/characterName.json
+// -> key  = onGreeting.v1
+// TODO: implementation in FileManagement class or Nebulite Namespace
+// absl_flat_hash_map<std::string,Nebulite::JSON>
+// if file doesnt exist, open
+// Perhaps some more guards to close a file after n many updates if not used
+Nebulite::Invoke::Node Nebulite::Invoke::parseInnerVariable(const std::string& inner){
+    Nebulite::Invoke::Node varNode = Node{ Node::Type::Variable, inner, {} };
+
+    // self/other/global are read-write docs
+    // - object positions
+    // - current time
+    // - general game state info
+    if (inner.starts_with("self.")) {
+        varNode.context = Node::ContextType::Self;
+        varNode.key = inner.substr(5);
+    } else if (inner.starts_with("other.")) {
+        varNode.context = Node::ContextType::Other;
+        varNode.key = inner.substr(6);
+    } else if (inner.starts_with("global.")) {
+        varNode.context = Node::ContextType::Global;
+        varNode.key = inner.substr(7);
+    } else if (StringHandler::isNumber(inner)) {
+        varNode.isNumericLiteral = true;
+    // Resources docs are read only
+    // - dialogue data
+    // - ...
+    } else if (inner.starts_with("resources")){
+        // For now, this ContextType is just set but not used
+        varNode.context = Node::ContextType::Resources;
+    }
+    return varNode;
+}
+
+std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::parseChild(const std::string& input, size_t& i) {
     int depth = 1;
-    size_t j = start;
+    size_t j = i;
+
+    // Find the closing parenthesis for the current variable
     while (j < input.size() && depth > 0) {
         if (input[j] == '(') depth++;
         else if (input[j] == ')') depth--;
         ++j;
     }
 
+    // If we reached the end of the string without finding a closing parenthesis, report an error
     if (depth != 0) {
         std::cerr << "Unmatched parentheses in expression: " << input << std::endl;
         return std::make_shared<Node>(Node{ Node::Type::Literal, input.substr(i, j - i), {} });
     }
 
-    std::string inner = input.substr(start, j - start - 1); // inside $(...)
+    // Extract the inner content of the variable
+    std::string inner = input.substr(i, j - i - 1); // inside $(...)
     Node varNode;
 
     // Check if string still contains some inner var to resolve:
     if (inner.find(InvokeResolveKeyword) != std::string::npos) {
         varNode = Node{ Node::Type::Mix_eval, "", { expressionToTree(inner) } };
-    } else {
-        varNode = Node{ Node::Type::Variable, inner, {} };
-
-        //-------------------------------------
-        // Set context and optimization info
-
-        // self/other/global are read-write docs
-        // - object positions
-        // - current time
-        // - general game state info
-        if (inner.starts_with("self.")) {
-            varNode.context = Node::ContextType::Self;
-            varNode.key = inner.substr(5);
-        } else if (inner.starts_with("other.")) {
-            varNode.context = Node::ContextType::Other;
-            varNode.key = inner.substr(6);
-        } else if (inner.starts_with("global.")) {
-            varNode.context = Node::ContextType::Global;
-            varNode.key = inner.substr(7);
-        } else if (StringHandler::isNumber(inner)) {
-            varNode.isNumericLiteral = true;
-        // Resources docs are read only
-        // - dialogue data
-        // - 
-        } else if (inner.starts_with("resources")){
-            // TODO:
-            // Is Resources doc
-            // global is technically a resources doc as well, but with write-access
-            // and a copy is thus stored under state prefix
-            //
-            // Resources docs are read-only
-            //
-            // $(resources.dialogue-characterName.onGreeting.v1)
-            // -> Link = ./Resources/dialogue/characterName.json
-            // -> key  = onGreeting.v1
-            varNode.context = Node::ContextType::Resources;
-
-            // TODO: implementation in FileManagement class or Nebulite Namespace
-            // absl_flat_hash_map<std::string,Nebulite::JSON>
-            // if file doesnt exist, open
-            // Perhaps some more goards to close a file after n many updates if not used
-
-            // For now, this ContextType is just set but not used
-        }
+    } 
+    // Parse the inner variable
+    else {
+        varNode = parseInnerVariable(inner);
     }
     i = j; // move position after closing ')'
     return std::make_shared<Node>(varNode);
@@ -600,50 +608,44 @@ std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::expressionToTree(const
     std::string literalBuffer;
 
     while (pos < input.size()) {
+        // See if we have a variable to resolve
+        bool childFound = false;
+        Node::CastType castType = Node::CastType::None;
         if (input[pos] == InvokeResolveKeyword && pos + 1 < input.size()) {
-            // No cast:
+            // No cast: $(...)
             if(input[pos + 1] == '('){
-                if (!literalBuffer.empty()) {
-                    auto child = std::make_shared<Node>(Node{ Node::Type::Literal, literalBuffer, {} });
-                    children.push_back(child);
-                    literalBuffer.clear();
-                }
-                auto child = parseNext(input,pos);
-                child->cast = Node::CastType::None;
-                children.push_back(child);
-                hasVariables = true;
-                continue;
+                pos += 2; // Skip "$("
+                castType = Node::CastType::None;
+                childFound = true;
             }
-            // Int cast:
+            // Int cast: $i(...)
             if(input[pos + 1] == 'i' && input[pos + 2] == '('){
-                pos++;
-                if (!literalBuffer.empty()) {
-                    auto child = std::make_shared<Node>(Node{ Node::Type::Literal, literalBuffer, {} });
-                    children.push_back(child);
-                    literalBuffer.clear();
-                }
-                auto child = parseNext(input,pos);
-                child->cast = Node::CastType::Int;
-                children.push_back(child);
-                hasVariables = true;
-                continue;
+                pos += 3; // Skip "$i("
+                castType = Node::CastType::Int;
+                childFound = true;
             }
-            // float/double cast:
+            // float/double cast: $f(...)
             // While float casting is what's naturally done when evaluating with tinyexpr, this function might become useful
             // Perhaps when accessing some value that might or might not be a number, it is more convenient to directly cast to float
             // To avoid large expression strings. The implicit cast to float when accessing int variables might be helpful as well
             if(input[pos + 1] == 'f' && input[pos + 2] == '('){
-                pos++;
+                pos += 3; // Skip "$f("
+                castType = Node::CastType::Float;
+                childFound = true;
+            }
+
+            // If we found a child, parse it
+            if(childFound){
                 if (!literalBuffer.empty()) {
                     auto child = std::make_shared<Node>(Node{ Node::Type::Literal, literalBuffer, {} });
                     children.push_back(child);
                     literalBuffer.clear();
                 }
-                auto child = parseNext(input,pos);
-                child->cast = Node::CastType::Float;
+                auto child = parseChild(input,pos);
+                child->cast = castType;
                 children.push_back(child);
                 hasVariables = true;
-                continue;
+                childFound = false;
             }
         }
         literalBuffer += input[pos];
@@ -705,6 +707,9 @@ std::string Nebulite::Invoke::nodeVariableAccess(const std::shared_ptr<Invoke::N
         case Node::ContextType::None:
             // Simple Number:
             if (nodeptr->isNumericLiteral) {
+                if (nodeptr->cast == Node::CastType::Int) {
+                    return std::to_string(std::stoi(nodeptr->text));
+                }
                 return nodeptr->text;
             // Inside eval parent: No need to call evaluateExpression right now, if no cast was defined.
             // Instead, return "(<expr>)" so it is evaled higher up
@@ -728,6 +733,18 @@ std::string Nebulite::Invoke::nodeVariableAccess(const std::shared_ptr<Invoke::N
     return "";
 }
 
+std::string Nebulite::Invoke::combineChildren(const std::shared_ptr<Invoke::Node>& nodeptr, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global, bool insideEvalParent) {
+    std::string result;
+    for (const auto& child : nodeptr->children) {
+        if (!child) {
+            std::cerr << "Nebulite::Invoke::combineChildren error: Child node is nullptr!" << std::endl;
+            continue;
+        }
+        result += evaluateNode(child, self, other, global, insideEvalParent);
+    }
+    return result;
+}
+
 std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent){
     if (nodeptr == nullptr) {
         std::cerr << "Nebulite::Invoke::evaluateNode error: Parent is nullptr!" << std::endl;
@@ -743,46 +760,26 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
     
     // Depending on the type of node, evaluate accordingly
     switch (nodeptr->type) {
+        // Pure text, no variables or expressions
         case Node::Type::Literal:
             return nodeptr->text;
-            break;
+        // Variable access: self.variable, other.variable, global.variable
         case Node::Type::Variable:
             return nodeVariableAccess(nodeptr,self,other,global,insideEvalParent);
-            break;
-
-        // Mix-No-eval: "This string is a mix as it not only contains text, but also a variable access/expression like $(1+1)"
+        // Mix no eval: "This string is a mix as it not only contains text, but also a variable access/expression like $(1+1)"
         case Node::Type::Mix_no_eval: {
-            std::string result;
-            for (auto& child : nodeptr->children) {
-                if (!child) {
-                    std::cerr << "Nebulite::Invoke::evaluateNode error: Child node is nullptr!" << std::endl;
-                    continue;
-                }
-                result += evaluateNode(child, self, other, global, false);
-            }
-            return result;
-            }
-            break;
-
+            return combineChildren(nodeptr, self, other, global, false);
+        }
         // Mix eval: "$(This string is a mix as it not only contains text, but also a variable access/expression like $(1+1))"
         case Node::Type::Mix_eval: {
-            std::string combined;
-            for (auto& child : nodeptr->children) {
-                if (!child) {
-                    std::cerr << "Nebulite::Invoke::evaluateNode error: Child node is nullptr!" << std::endl;
-                    continue;
-                }
-                combined += evaluateNode(child, self, other, global, true);
-            }
-            if(nodeptr->cast == Node::CastType::None || nodeptr->cast == Node::CastType::Float){
-                return std::to_string(evaluateExpression(combined));
-            }
+            std::string combined = combineChildren(nodeptr, self, other, global, true);
+            // Int casting
             if(nodeptr->cast == Node::CastType::Int){
                 return std::to_string((int)evaluateExpression(combined));
             }
+            // Float/None casting: directly evaluate and return
             return std::to_string(evaluateExpression(combined));
-            }
-            break;
+        }
     }
     // For safety, if there are any logic mistakes with no returns:
     std::cerr << "Nebulite::Invoke::evaluateNode functions switch operations return is incomplete! Please inform the maintainers." << std::endl;

@@ -467,8 +467,14 @@ private:
     // Helper function for casting
     std::string castValue(const std::string& value, Node* nodeptr, Nebulite::JSON *doc);
 
+    // Helper function to parse inner variable
+    Nebulite::Invoke::Node parseInnerVariable(const std::string& inner);
+
     // Helper funtion for evaluateNode for parsing 
-    std::shared_ptr<Nebulite::Invoke::Node> parseNext(const std::string& input, size_t& i);
+    std::shared_ptr<Nebulite::Invoke::Node> parseChild(const std::string& input, size_t& i);
+
+    // Takes a pre-processed node and combines all children into a single string
+    std::string combineChildren(const std::shared_ptr<Nebulite::Invoke::Node>& nodeptr, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global, bool insideEvalParent);
 
     // Take a pre-processed node and resolve all expressions and vars of this and nodes below
     //
