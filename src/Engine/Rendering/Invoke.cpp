@@ -2,7 +2,7 @@
 #include "RenderObject.h"   // Linked here instead of in .h file due to circular dependencies
 #include "StringHandler.h"
 
-Nebulite::Invoke::Invoke(){
+Nebulite::Invoke::Invoke() : nodeHelper(this) {
     //-------------------------------------------------
     // Manually add function variables
     te_variable gt_var =  {"gt",    (void*)expr_custom::gt,             TE_FUNCTION2};
@@ -27,7 +27,7 @@ Nebulite::Invoke::Invoke(){
     vars.push_back(sgn_var);
 }
 
-void Nebulite::Invoke::getFunctionCalls(Nebulite::JSON& entryDoc, Nebulite::Invoke::Entry& invokeEntry){
+void Nebulite::Invoke::JSONParseHelper::getFunctionCalls(Nebulite::JSON& entryDoc, Nebulite::Invoke::Entry& invokeEntry){
     // Get function calls: GLOBAL, SELF, OTHER
     if (entryDoc.memberCheck(keyName.invoke.functioncalls_global) == Nebulite::JSON::KeyType::array) {
         uint32_t funcSize = entryDoc.memberSize(keyName.invoke.functioncalls_global);
@@ -69,7 +69,7 @@ void Nebulite::Invoke::getFunctionCalls(Nebulite::JSON& entryDoc, Nebulite::Invo
     }
 }
 
-bool Nebulite::Invoke::getExpression(Nebulite::Invoke::AssignmentExpression& assignmentExpr, Nebulite::JSON& entry, int index){
+bool Nebulite::Invoke::JSONParseHelper::getExpression(Nebulite::Invoke::AssignmentExpression& assignmentExpr, Nebulite::JSON& entry, int index){
     std::string exprKey = keyName.invoke.exprVector + "[" + std::to_string(index) + "]";
 
     // Get expression
@@ -118,7 +118,7 @@ bool Nebulite::Invoke::getExpression(Nebulite::Invoke::AssignmentExpression& ass
     return true;
 }
 
-std::string Nebulite::Invoke::getLogicalArg(Nebulite::JSON& entry) {
+std::string Nebulite::Invoke::JSONParseHelper::getLogicalArg(Nebulite::JSON& entry) {
     std::string logicalArg = "";
     if(entry.memberCheck("logicalArg") == Nebulite::JSON::KeyType::array){
         uint32_t logicalArgSize = entry.memberSize("logicalArg");
@@ -137,7 +137,7 @@ std::string Nebulite::Invoke::getLogicalArg(Nebulite::JSON& entry) {
     return logicalArg;
 }
 
-bool Nebulite::Invoke::getInvokeEntry(Nebulite::JSON& doc, Nebulite::JSON& entry, int index) {
+bool Nebulite::Invoke::JSONParseHelper::getInvokeEntry(Nebulite::JSON& doc, Nebulite::JSON& entry, int index) {
     std::string key = keyName.renderObject.invokes + "[" + std::to_string(index) + "]";
     if(doc.memberCheck(key.c_str()) == Nebulite::JSON::KeyType::document) {
         entry = doc.get_subdoc(key.c_str());
@@ -175,7 +175,7 @@ void Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc, std::vector<std::share
     for (int i = 0; i < size; ++i) {
         // Parse entry into separate JSON object
         Nebulite::JSON entry;
-        if (!getInvokeEntry(doc, entry, i)) {
+        if (!JSONParseHelper::getInvokeEntry(doc, entry, i)) {
             std::cerr << "Failed to get invoke entry at index " << i << std::endl;
             continue; // Skip this entry
         }
@@ -183,7 +183,7 @@ void Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc, std::vector<std::share
         // Parse into a structure
         Nebulite::Invoke::Entry invokeEntry;
         invokeEntry.topic = entry.get<std::string>("topic", "all");
-        invokeEntry.logicalArg = getLogicalArg(entry);
+        invokeEntry.logicalArg = JSONParseHelper::getLogicalArg(entry);
 
         // Remove whitespaces at start and end from topic and logicalArg:
         invokeEntry.topic = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(invokeEntry.topic));
@@ -194,7 +194,7 @@ void Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc, std::vector<std::share
             uint32_t exprSize = entry.memberSize(keyName.invoke.exprVector);
             for (uint32_t j = 0; j < exprSize; ++j) {
                 Nebulite::Invoke::AssignmentExpression assignmentExpr;
-                if (getExpression(assignmentExpr, entry, j)){
+                if (JSONParseHelper::getExpression(assignmentExpr, entry, j)){
                     // Successfully parsed expression
 
                     // Remove whitespaces at start and end of key and value
@@ -212,7 +212,7 @@ void Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc, std::vector<std::share
         }
 
         // Parse all function calls
-        Nebulite::Invoke::getFunctionCalls(entry, invokeEntry);
+        Nebulite::Invoke::JSONParseHelper::getFunctionCalls(entry, invokeEntry);
 
         // Make shared_ptr from invokeEntry, push to vector
         auto invokeEntryPtr = std::make_shared<Nebulite::Invoke::Entry>(invokeEntry);
@@ -511,7 +511,12 @@ double Nebulite::Invoke::evaluateExpression(const std::string& expr) {
     return result;
 }
 
-void Nebulite::Invoke::foldConstants(const std::shared_ptr<Invoke::Node>& node) {
+
+// ==========================
+// Node Helper Functions
+// ==========================
+
+void Nebulite::Invoke::NodeHelper::foldConstants(const std::shared_ptr<Invoke::Node>& node) {
     // Recurse into children first
     for (auto& child : node->children) {
         foldConstants(child);
@@ -532,7 +537,7 @@ void Nebulite::Invoke::foldConstants(const std::shared_ptr<Invoke::Node>& node) 
         if (allLiteral) {
             // Try evaluating it
             try {
-                std::string evaluated = std::to_string(evaluateExpression(combinedExpr));
+                std::string evaluated = std::to_string(invoke->evaluateExpression(combinedExpr));
                 node->type = Node::Type::Literal;
                 node->text = evaluated;
                 node->children.clear(); // No need to keep children
@@ -560,7 +565,7 @@ void Nebulite::Invoke::foldConstants(const std::shared_ptr<Invoke::Node>& node) 
 // absl_flat_hash_map<std::string,Nebulite::JSON>
 // if file doesnt exist, open
 // Perhaps some more guards to close a file after n many updates if not used
-Nebulite::Invoke::Node Nebulite::Invoke::parseInnerVariable(const std::string& inner){
+Nebulite::Invoke::Node Nebulite::Invoke::NodeHelper::parseInnerVariable(const std::string& inner){
     Nebulite::Invoke::Node varNode = Node{ Node::Type::Variable, inner, {} };
 
     // self/other/global are read-write docs
@@ -588,7 +593,7 @@ Nebulite::Invoke::Node Nebulite::Invoke::parseInnerVariable(const std::string& i
     return varNode;
 }
 
-std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::parseChild(const std::string& input, size_t& i) {
+std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::NodeHelper::parseChild(const std::string& input, size_t& i) {
     int depth = 1;
     size_t j = i;
 
@@ -621,7 +626,7 @@ std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::parseChild(const std::
     return std::make_shared<Node>(varNode);
 }
 
-std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::expressionToTree(const std::string& input) {
+std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::NodeHelper::expressionToTree(const std::string& input) {
     Node root;
     std::vector<std::shared_ptr<Invoke::Node>> children;
     size_t pos = 0;
@@ -694,7 +699,7 @@ std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::expressionToTree(const
     return ptr;
 }
 
-std::string Nebulite::Invoke::castValue(const std::string& value, Node* nodeptr, Nebulite::JSON *doc) {
+std::string Nebulite::Invoke::NodeHelper::castValue(const std::string& value, Node* nodeptr, Nebulite::JSON *doc) {
     switch (nodeptr->cast) {
         case Node::CastType::None:
             return doc->get<std::string>(nodeptr->key.c_str(), "0");
@@ -708,7 +713,7 @@ std::string Nebulite::Invoke::castValue(const std::string& value, Node* nodeptr,
     }
 }
 
-std::string Nebulite::Invoke::nodeVariableAccess(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent){
+std::string Nebulite::Invoke::NodeHelper::nodeVariableAccess(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent){
     switch (nodeptr->context) {
         //---------------------------------------------------
         // First 3 Types: Variables
@@ -741,20 +746,20 @@ std::string Nebulite::Invoke::nodeVariableAccess(const std::shared_ptr<Invoke::N
             // If not, evaluate and return
             } else{
                 if(nodeptr->cast == Node::CastType::None || nodeptr->cast == Node::CastType::Float){
-                    return std::to_string(evaluateExpression(nodeptr->text));
+                    return std::to_string(invoke->evaluateExpression(nodeptr->text));
                 }
                 if(nodeptr->cast == Node::CastType::Int){
-                    return std::to_string((int)evaluateExpression(nodeptr->text));
+                    return std::to_string((int)invoke->evaluateExpression(nodeptr->text));
                 }
             }
-            return std::to_string(evaluateExpression(nodeptr->text));
+            return std::to_string(invoke->evaluateExpression(nodeptr->text));
     }
     // A non-match to the ContextTypes shouldnt happen, meaning this function is incomplete:
     std::cerr << "Nebulite::Invoke::nodeVariableAccess functions switch operations return is incomplete! Please inform the maintainers." << std::endl;
     return "";
 }
 
-std::string Nebulite::Invoke::combineChildren(const std::shared_ptr<Invoke::Node>& nodeptr, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global, bool insideEvalParent) {
+std::string Nebulite::Invoke::NodeHelper::combineChildren(const std::shared_ptr<Invoke::Node>& nodeptr, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global, bool insideEvalParent) {
     std::string result;
     for (const auto& child : nodeptr->children) {
         if (!child) {
@@ -766,7 +771,7 @@ std::string Nebulite::Invoke::combineChildren(const std::shared_ptr<Invoke::Node
     return result;
 }
 
-std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent){
+std::string Nebulite::Invoke::NodeHelper::evaluateNode(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent){
     if (nodeptr == nullptr) {
         std::cerr << "Nebulite::Invoke::evaluateNode error: Parent is nullptr!" << std::endl;
         return "";
@@ -796,10 +801,10 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
             std::string combined = combineChildren(nodeptr, self, other, global, true);
             // Int casting
             if(nodeptr->cast == Node::CastType::Int){
-                return std::to_string((int)evaluateExpression(combined));
+                return std::to_string((int)invoke->evaluateExpression(combined));
             }
             // Float/None casting: directly evaluate and return
-            return std::to_string(evaluateExpression(combined));
+            return std::to_string(invoke->evaluateExpression(combined));
         }
     }
     // For safety, if there are any logic mistakes with no returns:
@@ -807,6 +812,10 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
     return "";
 }
   
+// ==========================
+// Resolve Vars
+// ==========================
+
 std::string Nebulite::Invoke::resolveVars(const std::string& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global) {
     // Tree being used for resolving vars
     std::shared_ptr<Invoke::Node> tree;
@@ -816,7 +825,7 @@ std::string Nebulite::Invoke::resolveVars(const std::string& input, Nebulite::JS
         std::unique_lock lock(exprTreeMutex);   // lock during check and insert
         auto it = exprTree.find(input);
         if (it == exprTree.end()) {
-            tree = expressionToTree(input);     // build outside the map
+            tree = nodeHelper.expressionToTree(input);     // build outside the map
             exprTree[input] = tree;
         } else {
             tree = it->second;
@@ -824,7 +833,7 @@ std::string Nebulite::Invoke::resolveVars(const std::string& input, Nebulite::JS
     }
 
     // Evaluate
-    return evaluateNode(tree, self, other, global, false);
+    return nodeHelper.evaluateNode(tree, self, other, global, false);
 }
 
 std::string Nebulite::Invoke::resolveGlobalVars(const std::string& input) {
