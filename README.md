@@ -118,6 +118,11 @@ cd Application
 
 ### Adding Features
 
-Nebulite offers clean extensions of its functionality through its FuncTrees:
-- New Global commands: Extend `MainTree` class
-- New local commands: Extend `RenderObjectTree` class
+Nebulite offers clean extensions of its functionality through its FuncTrees. 
+Maintainers can create their own Tree-Extension classes and add them to the specifc FuncTree.
+
+| New commands operating on... | Action                                                                            |
+|------------------------------|-----------------------------------------------------------------------------------|
+| global level                 | Extend the `MainTree` (see MainTree.h and its extensions MTE_*.h).                |
+| specific RenderObjects       | Extend the `RenderObjectTree` (see RenderObjectTree.h and its extensions RTE_*.h) |
+| specific JSON-Documents      | Extend the `JSONTree` (see JSONTree.h and its extensions JTE_*.h)                 |
