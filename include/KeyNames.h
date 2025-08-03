@@ -1,5 +1,12 @@
 #pragma once
 
+/*
+The following Struct keyName is used to store all hardcoded key names used within
+Nebulite to manipulate JSON objects like RenderObjects, Invokes, etc.
+This allows to change the key names in one place only, if needed.
+
+*/
+
 #include <string>
 
 namespace Nebulite{
@@ -10,7 +17,6 @@ const struct keyName {
         std::string positionX = "posX";
         std::string positionY = "posY";
         std::string layer = "layer";
-
         std::string pixelSizeX = "sprite.sizeX";
         std::string pixelSizeY = "sprite.sizeY";
         std::string imageLocation = "sprite.link";
@@ -27,16 +33,12 @@ const struct keyName {
         std::string textColorG = "text.color.G";
         std::string textColorB = "text.color.B";
         std::string textColorA = "text.color.A";
-        std::string flagCalculate = "text.flagCalculate";
+        //std::string flagCalculate = "text.flagCalculate";
         std::string invokes = "invokes";
         std::string invokeSubscriptions = "invokeSubscriptions";
         std::string reloadInvokes = "invokeReload";
         std::string invokeVector = "invokes";
     }renderObject;
-    const struct MyTemplate {
-        std::string _self = "MyTemplate";
-        std::string bsp1 = "Beispiel1";
-    }MyTemplate;
     const struct invoke{
         std::string _self = "invoke";
         std::string logicalArg = "logicalArg";
@@ -58,9 +60,5 @@ const struct keyName {
     const struct Environment {
         std::string renderObjectContainer = "RenderObjectContainer";
     }environment;
-    const struct testImages {
-        std::string folder001 = "Resources/Sprites/TEST001P/";
-        std::string folder100 = "Resources/Sprites/TEST100P/";
-    }testImages;
 }keyName;
 }
