@@ -27,12 +27,138 @@ Nebulite::Invoke::Invoke(){
     vars.push_back(sgn_var);
 }
 
-// TODO: Allow logicalArg to be a vector of strings!
+void Nebulite::Invoke::getFunctionCalls(Nebulite::JSON& entryDoc, Nebulite::Invoke::Entry& invokeEntry){
+    // Get function calls: GLOBAL, SELF, OTHER
+    if (entryDoc.memberCheck(keyName.invoke.functioncalls_global) == Nebulite::JSON::KeyType::array) {
+        uint32_t funcSize = entryDoc.memberSize(keyName.invoke.functioncalls_global);
+        for (uint32_t j = 0; j < funcSize; ++j) {
+            std::string funcKey = keyName.invoke.functioncalls_global + "[" + std::to_string(j) + "]";
+            std::string funcCall = entryDoc.get<std::string>(funcKey.c_str(), "");
+            invokeEntry.functioncalls_global.push_back(funcCall);
+        }
+    }
+    if (entryDoc.memberCheck(keyName.invoke.functioncalls_self) == Nebulite::JSON::KeyType::array) {
+        uint32_t funcSize = entryDoc.memberSize(keyName.invoke.functioncalls_self);
+        for (uint32_t j = 0; j < funcSize; ++j) {
+            std::string funcKey = keyName.invoke.functioncalls_self + "[" + std::to_string(j) + "]";
+            std::string funcCall = entryDoc.get<std::string>(funcKey.c_str(), "");
+
+            // The first arg has to be some reference of where the function is called
+            // Global functions explicitly place the Binary name on the front in the global space
+            // Here, we just reference "self" as the first argument
+            if (!funcCall.starts_with("self ")) {
+                funcCall = "self " + funcCall;
+            }
+            invokeEntry.functioncalls_self.push_back(funcCall);
+        }
+    }
+    if (entryDoc.memberCheck(keyName.invoke.functioncalls_other) == Nebulite::JSON::KeyType::array) {
+        uint32_t funcSize = entryDoc.memberSize(keyName.invoke.functioncalls_other);
+        for (uint32_t j = 0; j < funcSize; ++j) {
+            std::string funcKey = keyName.invoke.functioncalls_other + "[" + std::to_string(j) + "]";
+            std::string funcCall = entryDoc.get<std::string>(funcKey.c_str(), "");
+
+            // The first arg has to be some reference of where the function is called
+            // Global functions explicitly place the Binary name on the front in the global space
+            // Here, we just reference "other" as the first argument
+            if (!funcCall.starts_with("other ")) {
+                funcCall = "other " + funcCall;
+            }
+            invokeEntry.functioncalls_other.push_back(funcCall);
+        }
+    }
+}
+
+bool Nebulite::Invoke::getExpression(Nebulite::Invoke::AssignmentExpression& assignmentExpr, Nebulite::JSON& entry, int index){
+    std::string exprKey = keyName.invoke.exprVector + "[" + std::to_string(index) + "]";
+
+    // Get expression
+    std::string expr = entry.get<std::string>(exprKey.c_str(), "");
+
+    // needs to start with "self.", "other." or "global."
+    std::string prefix;
+    if (expr.starts_with(keyName.invoke.typeSelf + ".")) {
+        assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::Self;
+        prefix = keyName.invoke.typeSelf + ".";
+    } else if (expr.starts_with(keyName.invoke.typeOther + ".")) {
+        assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::Other;
+        prefix = keyName.invoke.typeOther + ".";
+    } else if (expr.starts_with(keyName.invoke.typeGlobal + ".")) {
+        assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::Global;
+        prefix = keyName.invoke.typeGlobal + ".";
+    } else {
+        // Invalid expression
+        assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::null;
+        return false;
+    }
+
+    // Find the operator position in the full expression, set operation, key and value
+    size_t pos = std::string::npos;
+    if ((pos = expr.find("+=")) != std::string::npos) {
+        assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::add;
+        assignmentExpr.value = expr.substr(pos + 2);
+        assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
+    } else if ((pos = expr.find("*=")) != std::string::npos) {
+        assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::multiply;
+        assignmentExpr.value = expr.substr(pos + 2);
+        assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
+    } else if ((pos = expr.find("|=")) != std::string::npos) {
+        assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::concat;
+        assignmentExpr.value = expr.substr(pos + 2);
+        assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
+    } else if ((pos = expr.find("=")) != std::string::npos) {
+        assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::set;
+        assignmentExpr.value = expr.substr(pos + 1);
+        assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
+    } else {
+        std::cerr << "No operation found in expression: " << expr << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+std::string Nebulite::Invoke::getLogicalArg(Nebulite::JSON& entry) {
+    std::string logicalArg = "";
+    if(entry.memberCheck("logicalArg") == Nebulite::JSON::KeyType::array){
+        uint32_t logicalArgSize = entry.memberSize("logicalArg");
+        for(uint32_t j = 0; j < logicalArgSize; ++j) {
+            std::string logicalArgKey = "logicalArg[" + std::to_string(j) + "]";
+            logicalArg += "(" + entry.get<std::string>(logicalArgKey.c_str(), "0") + ")";
+            if (j < logicalArgSize - 1) {
+                logicalArg += "*"; // Arguments in vector need to be all true: &-logic -> Multiplication
+            }
+        }
+    }
+    else{
+        // Assume simple value, string:
+        logicalArg = entry.get<std::string>("logicalArg", "0");
+    }
+    return logicalArg;
+}
+
+bool Nebulite::Invoke::getInvokeEntry(Nebulite::JSON& doc, Nebulite::JSON& entry, int index) {
+    std::string key = keyName.renderObject.invokes + "[" + std::to_string(index) + "]";
+    if(doc.memberCheck(key.c_str()) == Nebulite::JSON::KeyType::document) {
+        entry = doc.get_subdoc(key.c_str());
+    }
+    else{
+        // Is link to document
+        std::string link = doc.get<std::string>(key.c_str(), "");
+        std::string file = FileManagement::LoadFile(link);
+        if (file.empty()) {
+            return false;
+        }
+        entry.deserialize(file);
+    }
+    return true;
+}
+
 void Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc, std::vector<std::shared_ptr<Nebulite::Invoke::Entry>>& entries_global, std::vector<std::shared_ptr<Nebulite::Invoke::Entry>>& entries_local, Nebulite::RenderObject* self) {
-    
     entries_global.clear();
     entries_local.clear();
 
+    // Check if doc is valid
     if (doc.memberCheck(keyName.renderObject.invokes) != Nebulite::JSON::KeyType::array) {
         std::cerr << "Invokes field is not an array!" << std::endl;
         return;
@@ -45,157 +171,52 @@ void Nebulite::Invoke::parseFromJSON(Nebulite::JSON& doc, std::vector<std::share
         return;
     }
 
+    // Iterate through all entries
     for (int i = 0; i < size; ++i) {
-        std::string key = keyName.renderObject.invokes + "[" + std::to_string(i) + "]";
-
-        // Get entry
+        // Parse entry into separate JSON object
         Nebulite::JSON entry;
-        if(doc.memberCheck(key.c_str()) == Nebulite::JSON::KeyType::document) {
-            entry = doc.get_subdoc(key.c_str());
-        }
-        else{
-            // Is link to document
-            std::string link = doc.get<std::string>(key.c_str(), "");
-            std::string file = FileManagement::LoadFile(link);
-            if (file.empty()) {
-                std::cerr << "Failed to load invoke file: " << key << " : " << link << std::endl;
-                continue;
-            }
-            entry.deserialize(file);
+        if (!getInvokeEntry(doc, entry, i)) {
+            std::cerr << "Failed to get invoke entry at index " << i << std::endl;
+            continue; // Skip this entry
         }
 
-        // Basic settings from entry
+        // Parse into a structure
         Nebulite::Invoke::Entry invokeEntry;
         invokeEntry.topic = entry.get<std::string>("topic", "all");
+        invokeEntry.logicalArg = getLogicalArg(entry);
 
-        // Get logical argument
-        if(entry.memberCheck("logicalArg") == Nebulite::JSON::KeyType::array){
-            uint32_t logicalArgSize = entry.memberSize("logicalArg");
-            for(uint32_t j = 0; j < logicalArgSize; ++j) {
-                std::string logicalArgKey = "logicalArg[" + std::to_string(j) + "]";
-                std::string logicalArg = entry.get<std::string>(logicalArgKey.c_str(), "");
-                invokeEntry.logicalArg += "(" + logicalArg + ")";
-                if (j < logicalArgSize - 1) {
-                    invokeEntry.logicalArg += "*"; // Arguments in vector need to be all true: &-logic -> Multiplication
-                }
-            }
-        }
-        else{
-            // Assume simple value, string:
-            invokeEntry.logicalArg = entry.get<std::string>("logicalArg", "0");
-        }
-        
+        // Remove whitespaces at start and end from topic and logicalArg:
+        invokeEntry.topic = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(invokeEntry.topic));
+        invokeEntry.logicalArg = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(invokeEntry.logicalArg));
         
         // Get expressions
         if (entry.memberCheck(keyName.invoke.exprVector) == Nebulite::JSON::KeyType::array) {
             uint32_t exprSize = entry.memberSize(keyName.invoke.exprVector);
             for (uint32_t j = 0; j < exprSize; ++j) {
-                std::string exprKey = keyName.invoke.exprVector + "[" + std::to_string(j) + "]";
-
-                // Get expression
-                std::string expr = entry.get<std::string>(exprKey.c_str(), "");
-
-                // Turn string into assignmentExpr with {onType, key, operation, value, valueContainsReference}
                 Nebulite::Invoke::AssignmentExpression assignmentExpr;
+                if (getExpression(assignmentExpr, entry, j)){
+                    // Successfully parsed expression
 
-                // needs to start with "self.", "other." or "global."
-                std::string prefix;
-                if (expr.starts_with(keyName.invoke.typeSelf + ".")) {
-                    assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::Self;
-                    prefix = keyName.invoke.typeSelf + ".";
-                } else if (expr.starts_with(keyName.invoke.typeOther + ".")) {
-                    assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::Other;
-                    prefix = keyName.invoke.typeOther + ".";
-                } else if (expr.starts_with(keyName.invoke.typeGlobal + ".")) {
-                    assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::Global;
-                    prefix = keyName.invoke.typeGlobal + ".";
-                } else {
-                    // Invalid expression
-                    assignmentExpr.onType = Nebulite::Invoke::AssignmentExpression::Type::null;
-                    continue;
+                    // Remove whitespaces at start and end of key and value
+                    assignmentExpr.key = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(assignmentExpr.key));
+                    assignmentExpr.value = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(assignmentExpr.value));
+                    
+                    // Add assignmentExpr to invokeEntry
+                    invokeEntry.exprs.push_back(assignmentExpr);
                 }
-
-                // Find the operator position in the full expression, set operation, key and value
-                size_t pos = std::string::npos;
-                if ((pos = expr.find("+=")) != std::string::npos) {
-                    assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::add;
-                    assignmentExpr.value = expr.substr(pos + 2);
-                    assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
-                } else if ((pos = expr.find("*=")) != std::string::npos) {
-                    assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::multiply;
-                    assignmentExpr.value = expr.substr(pos + 2);
-                    assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
-                } else if ((pos = expr.find("|=")) != std::string::npos) {
-                    assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::concat;
-                    assignmentExpr.value = expr.substr(pos + 2);
-                    assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
-                } else if ((pos = expr.find("=")) != std::string::npos) {
-                    assignmentExpr.operation = Nebulite::Invoke::AssignmentExpression::Operation::set;
-                    assignmentExpr.value = expr.substr(pos + 1);
-                    assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
-                } else {
-                    std::cerr << "No operation found in expression: " << expr << std::endl;
-                    continue;
-                }
-
-                // Remove whitespaces at start and end of key and value
-                assignmentExpr.key = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(assignmentExpr.key));
-                assignmentExpr.value = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(assignmentExpr.value));
-                
-
-                // Add assignmentExpr to invokeEntry
-                invokeEntry.exprs.push_back(assignmentExpr);
             }
         }
-
-        // Get function calls: GLOBAL, SELF, OTHER
-        if (entry.memberCheck(keyName.invoke.functioncalls_global) == Nebulite::JSON::KeyType::array) {
-            uint32_t funcSize = entry.memberSize(keyName.invoke.functioncalls_global);
-            for (uint32_t j = 0; j < funcSize; ++j) {
-                std::string funcKey = keyName.invoke.functioncalls_global + "[" + std::to_string(j) + "]";
-                std::string funcCall = entry.get<std::string>(funcKey.c_str(), "");
-                invokeEntry.functioncalls_global.push_back(funcCall);
-            }
-        }
-        if (entry.memberCheck(keyName.invoke.functioncalls_self) == Nebulite::JSON::KeyType::array) {
-            uint32_t funcSize = entry.memberSize(keyName.invoke.functioncalls_self);
-            for (uint32_t j = 0; j < funcSize; ++j) {
-                std::string funcKey = keyName.invoke.functioncalls_self + "[" + std::to_string(j) + "]";
-                std::string funcCall = entry.get<std::string>(funcKey.c_str(), "");
-
-                // The first arg has to be some reference of where the function is called
-                // Global functions explicitly place the Binary name on the front in the global space
-                // Here, we just reference "self" as the first argument
-                if (!funcCall.starts_with("self ")) {
-                    funcCall = "self " + funcCall;
-                }
-                invokeEntry.functioncalls_self.push_back(funcCall);
-            }
-        }
-        if (entry.memberCheck(keyName.invoke.functioncalls_other) == Nebulite::JSON::KeyType::array) {
-            uint32_t funcSize = entry.memberSize(keyName.invoke.functioncalls_other);
-            for (uint32_t j = 0; j < funcSize; ++j) {
-                std::string funcKey = keyName.invoke.functioncalls_other + "[" + std::to_string(j) + "]";
-                std::string funcCall = entry.get<std::string>(funcKey.c_str(), "");
-
-                // The first arg has to be some reference of where the function is called
-                // Global functions explicitly place the Binary name on the front in the global space
-                // Here, we just reference "other" as the first argument
-                if (!funcCall.starts_with("other ")) {
-                    funcCall = "other " + funcCall;
-                }
-                invokeEntry.functioncalls_other.push_back(funcCall);
-            }
+        else {
+            std::cerr << "No expressions found in entry at index " << i << std::endl;
+            continue; // Skip this entry if no expressions are found
         }
 
-        // Remove whitespaces at start and end from topic and logicalArg:
-        invokeEntry.topic = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(invokeEntry.topic));
-        invokeEntry.logicalArg = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(invokeEntry.logicalArg));
+        // Parse all function calls
+        Nebulite::Invoke::getFunctionCalls(entry, invokeEntry);
 
-        // Make shared_ptr from invokeEntry
+        // Make shared_ptr from invokeEntry, push to vector
         auto invokeEntryPtr = std::make_shared<Nebulite::Invoke::Entry>(invokeEntry);
         invokeEntryPtr->selfPtr = self; // Set self pointer
-
         if(invokeEntryPtr->topic.empty()){
             // If topic is empty, it is a local invoke
             invokeEntryPtr->isGlobal = false; // Set isGlobal to false for local invokes

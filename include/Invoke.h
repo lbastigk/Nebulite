@@ -293,7 +293,14 @@ public:
       Nebulite::RenderObject* selfPtr;                            // store self
     };
 
-    // ==== INVOKE PARSING HELPER FUNCTION ====  
+    // ==== INVOKE PARSING HELPER FUNCTIONS ====  
+    static void getFunctionCalls(
+      Nebulite::JSON& entryDoc,
+      Nebulite::Invoke::Entry& invokeEntry
+    );
+    static bool getExpression(Nebulite::Invoke::AssignmentExpression& assignmentExpr, Nebulite::JSON& entry, int index);
+    static std::string getLogicalArg(Nebulite::JSON& entry);
+    static bool getInvokeEntry(Nebulite::JSON& doc, Nebulite::JSON& entry, int index);
 
     // Function to convert a JSON doc of Renderobject into a vector of Invoke::Entry
     static void parseFromJSON(
