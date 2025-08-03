@@ -1,7 +1,6 @@
 #include "JSON.h"
 
 
-
 Nebulite::JSON::JSON(){
     std::lock_guard<std::recursive_mutex> lock(mtx);
     doc.SetObject();
@@ -386,15 +385,8 @@ void Nebulite::JSON::Helper::deserialize(rapidjson::Document& doc, std::string s
     // If not, treat it as a file path
     else {
         //----------------------------------------------------------
-        // Split the input
-        std::vector<std::string> tokens;
-        size_t start = 0;
-        size_t end = 0;
-        while ((end = serialOrLink.find('|', start)) != std::string::npos) {
-            tokens.push_back(serialOrLink.substr(start, end - start));
-            start = end + 1;
-        }
-        tokens.push_back(serialOrLink.substr(start)); // Last part
+		// Split the input into tokens
+        std::vector<std::string> tokens = StringHandler::split(serialOrLink, '|');
 
         //----------------------------------------------------------
         // Validity check
@@ -405,18 +397,26 @@ void Nebulite::JSON::Helper::deserialize(rapidjson::Document& doc, std::string s
 
         //----------------------------------------------------------
         // Load the JSON file
+        // First token is the path or serialized JSON
         std::string JSONString = FileManagement::LoadFile(tokens[0].c_str());
         doc.Parse(JSONString.c_str());
 
         //----------------------------------------------------------
         // Now apply modifications
-        for (size_t i = 1; i < tokens.size(); ++i) {
-            const std::string& assignment = tokens[i];
-            size_t eqPos = assignment.find('=');
-            if (eqPos != std::string::npos) {
-                std::string key = assignment.substr(0, eqPos);
-                std::string value = assignment.substr(eqPos + 1);
+        tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
+        for(const auto& token : tokens) {
+            if (token.empty()) continue; // Skip empty tokens
+
+            // Legacy: Handle key=value pairs
+            if (token.find('=') != std::string::npos) {
+                // Handle modifier (key=value)
+                auto pos = token.find('=');
+                std::string key = token.substr(0, pos);
+                std::string value = token.substr(pos + 1);
                 Nebulite::JSON::Helper::Set<std::string>(doc, key, value);
+            }
+            else{
+                // Currently, no FuncTree in JSON exists, so we just ignore this
             }
         }
     }
