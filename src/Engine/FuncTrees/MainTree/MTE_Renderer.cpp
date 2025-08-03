@@ -22,12 +22,11 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::envdeload(int argc, 
 
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::spawn(int argc, char* argv[]){
     if(argc>1){
+        // Using all args, allowing for whitespaces in the link and in the following functioncalls:
+        // e.g.: spawn Planets/sun.json|set text.str This is a sun
         std::string linkOrObject = argv[1];
-
-        // Check if argv1 provided is an object
-        if(linkOrObject.starts_with('{')){
-            std::cerr << "Object-passing to spawn is currently not supported" << std::endl;
-            return Nebulite::ERROR_TYPE::FEATURE_NOT_IMPLEMENTED;
+        for (int i = 2; i < argc; i++) {
+            linkOrObject += " " + std::string(argv[i]);
         }
 
         // [TODO] Add standard-directories to find files in:
