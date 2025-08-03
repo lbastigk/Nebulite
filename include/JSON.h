@@ -56,20 +56,25 @@ namespace Nebulite{
         //------------------------------
         // Overload of assign operators
         JSON(const JSON&) = delete;
-        JSON(JSON&& other) noexcept {
+        JSON(JSON&& other) noexcept
+            : jsonTree(this) // Initialize jsonTree with this pointer
+        {
             std::scoped_lock lock(mtx, other.mtx); // Locks both, deadlock-free
             doc = std::move(other.doc);
             cache = std::move(other.cache);
         }
         JSON& operator=(const JSON&) = delete;
-        JSON& operator=(JSON&& other) noexcept {
+        JSON& operator=(JSON&& other) noexcept 
+        {
             if (this != &other) {
+                jsonTree = JSONTree(this); // Reinitialize jsonTree with this pointer
                 std::scoped_lock lock(mtx, other.mtx);
                 doc = std::move(other.doc);
                 cache = std::move(other.cache);
             }
             return *this;
         }
+        
 
         // Copy doc
         void copyFrom(const JSON* other) {
@@ -150,10 +155,9 @@ namespace Nebulite{
         void empty();
 
         //------------------------------
-        // Retired, but kept for eventual debugging
+        // FuncTree parsing
+        Nebulite::ERROR_TYPE parseStr(const std::string& str){return jsonTree.parseStr(str);};
 
-        // For compatiblity with older systems, get doc directly:
-        //rapidjson::Document* getDoc() const {return const_cast<rapidjson::Document*>(&doc);}
     private:
         mutable std::recursive_mutex mtx;
 

@@ -1,7 +1,9 @@
 #include "JSON.h"
 
 
-Nebulite::JSON::JSON(){
+Nebulite::JSON::JSON()
+    : jsonTree(this)
+{
     std::lock_guard<std::recursive_mutex> lock(mtx);
     doc.SetObject();
 }
@@ -124,7 +126,46 @@ void Nebulite::JSON::deserialize(std::string serial_or_link){
     for (auto it = cache.begin(); it != cache.end(); ) {
         cache.erase(it++);
     }
-    Nebulite::JSON::Helper::deserialize(doc,serial_or_link);
+
+    //----------------------------------------------------------
+    // Split the input into tokens
+    std::vector<std::string> tokens = StringHandler::split(serial_or_link, '|');
+
+    //----------------------------------------------------------
+    // Validity check
+    if (tokens.empty()) {
+        // Error: No file path given
+        return; // or handle error properly
+    }
+
+    //----------------------------------------------------------
+    // Load the JSON file
+    Nebulite::JSON::Helper::deserialize(doc,tokens[0]);
+
+    //----------------------------------------------------------
+    // Now apply modifications
+    tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
+    for(const auto& token : tokens) {
+        if (token.empty()) continue; // Skip empty tokens
+
+        // Legacy: Handle key=value pairs
+        if (token.find('=') != std::string::npos) {
+            // Handle modifier (key=value)
+            auto pos = token.find('=');
+            std::string key = token.substr(0, pos);
+            std::string value = token.substr(pos + 1);
+
+            // Old implementation via direct set
+            //Nebulite::JSON::Helper::Set<std::string>(doc, key, value);    
+
+            // New implementation through functioncall
+            parseStr("Nebulite::JSON::Helper::deserialize set " + key + " " + value);
+        }
+        else{
+            // Forward to FunctionTree for resolution
+            parseStr("Nebulite::JSON::Helper::deserialize " + token);
+        }
+    }
 }
 
 void Nebulite::JSON::flush() {
@@ -385,40 +426,10 @@ void Nebulite::JSON::Helper::deserialize(rapidjson::Document& doc, std::string s
     // If not, treat it as a file path
     else {
         //----------------------------------------------------------
-		// Split the input into tokens
-        std::vector<std::string> tokens = StringHandler::split(serialOrLink, '|');
-
-        //----------------------------------------------------------
-        // Validity check
-        if (tokens.empty()) {
-            // Error: No file path given
-            return; // or handle error properly
-        }
-
-        //----------------------------------------------------------
         // Load the JSON file
         // First token is the path or serialized JSON
-        std::string JSONString = FileManagement::LoadFile(tokens[0].c_str());
+        std::string JSONString = FileManagement::LoadFile(serialOrLink.c_str());
         doc.Parse(JSONString.c_str());
-
-        //----------------------------------------------------------
-        // Now apply modifications
-        tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
-        for(const auto& token : tokens) {
-            if (token.empty()) continue; // Skip empty tokens
-
-            // Legacy: Handle key=value pairs
-            if (token.find('=') != std::string::npos) {
-                // Handle modifier (key=value)
-                auto pos = token.find('=');
-                std::string key = token.substr(0, pos);
-                std::string value = token.substr(pos + 1);
-                Nebulite::JSON::Helper::Set<std::string>(doc, key, value);
-            }
-            else{
-                // Currently, no FuncTree in JSON exists, so we just ignore this
-            }
-        }
     }
 }
 
