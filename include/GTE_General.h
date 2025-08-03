@@ -1,18 +1,15 @@
 #pragma once
 
 #include "ErrorTypes.h"
-#include "MT_ExpansionWrapper.h"
+#include "FuncTreeExpansionWrapper.h"
 
 namespace Nebulite {
+class GlobalSpace; // Forward declaration of container class GlobalSpace
 
-// Forward declaration of classes
-class Invoke;
-class GlobalSpace;
-
-namespace MainTreeExpansion {
-class General : public Wrapper<General> {
+namespace GlobalSpaceTreeExpansion {
+class General : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, General> {
 public:
-    using Wrapper<General>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using Wrapper<Nebulite::GlobalSpace, General>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     //----------------------------------------
     // Available Functions
@@ -64,7 +61,7 @@ public:
 
     //----------------------------------------
     // Binding Functions
-    void setupBindings() {
+    void setupBindings()  {
         bindFunction(&General::eval,                "eval",                 "Evaluate an expression and execute the result");
         bindFunction(&General::exitProgram,         "exit",                 "Exit the program");
         bindFunction(&General::wait,                "wait",                 "Wait a given amount of frames");

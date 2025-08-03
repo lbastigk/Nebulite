@@ -1,5 +1,5 @@
 #include "GlobalSpace.h"
-#include "MainTree.h"
+#include "GlobalSpaceTree.h"
 
 Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& originalCerrBufRef)
     : originalCerrBuf(originalCerrBufRef)
@@ -27,8 +27,8 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& o
     invoke->linkQueue(tasks_internal.taskList);
 
     //-------------------------------------------------
-    // MainTree
-    mainTree = std::make_unique<Nebulite::MainTree>(this);
+    // GlobalSpaceTree
+    GlobalSpaceTree = std::make_unique<Nebulite::GlobalSpaceTree>(this);
 
     //-------------------------------------------------
     // General Variables
@@ -49,7 +49,7 @@ bool Nebulite::GlobalSpace::RendererExists(){
     return renderer != nullptr;
 }
 
-Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree){
+Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_GlobalSpaceTree, char*** argv_GlobalSpaceTree){
     Nebulite::ERROR_TYPE currentResult = Nebulite::ERROR_TYPE::NONE;
     Nebulite::taskQueueResult result;
 
@@ -71,7 +71,7 @@ Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::task
             }
 
             // Parse
-            currentResult = mainTree->parseStr(argStr);
+            currentResult = GlobalSpaceTree->parseStr(argStr);
 
             // Check result
             if (currentResult < Nebulite::ERROR_TYPE::NONE) {
@@ -95,7 +95,7 @@ Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::task
             }
 
             // Parse
-            currentResult = mainTree->parseStr(argStr);
+            currentResult = GlobalSpaceTree->parseStr(argStr);
 
             // Check result
             if (currentResult < Nebulite::ERROR_TYPE::NONE) {
@@ -112,5 +112,5 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpace::resolveTask(std::string task) {
     if (!task.starts_with(_binName + " ")) {
         task = _binName + " " + task; // Add binary name if missing
     }
-    return mainTree->parseStr(task);
+    return GlobalSpaceTree->parseStr(task);
 }

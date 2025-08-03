@@ -16,7 +16,7 @@
  *   - taskQueue: Holds a list of tasks to be executed, along with parsing and state info.
  *   - taskQueueResult: Stores the result of processing a task queue, including error codes and
  *     whether execution was stopped due to a critical error.
- *   - MainTree: The main function tree for parsing and executing engine commands.
+ *   - GlobalSpaceTree: The main function tree for parsing and executing engine commands.
  *   - renderer: Pointer to the main rendering engine, lazily initialized.
  *   - error logging: Facilities for redirecting and storing error output.
  *   - stateName, binName: Strings for tracking the current engine state and binary name.
@@ -33,7 +33,7 @@
 
 #include "Renderer.h"
 #include "ErrorTypes.h"
-#include "MainTree.h"
+#include "GlobalSpaceTree.h"
 
 namespace Nebulite {
 
@@ -52,9 +52,6 @@ namespace Nebulite {
         bool stoppedAtCriticalResult = false;
         std::vector<Nebulite::ERROR_TYPE> errors;
     };
-
-
-
 
     //-------------------------------------------------
     // Global Space object
@@ -86,10 +83,10 @@ namespace Nebulite {
         // Check if renderer exists
         bool RendererExists();
 
-        // Resolves a given taskqueue by parsing each line into argc/argv and calling the mainTree on the arguments
-        Nebulite::taskQueueResult resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_mainTree, char*** argv_mainTree);
+        // Resolves a given taskqueue by parsing each line into argc/argv and calling the GlobalSpaceTree on the arguments
+        Nebulite::taskQueueResult resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_GlobalSpaceTree, char*** argv_GlobalSpaceTree);
 
-        // Instead of calling MainTree.parse, this function resolves the task queue and returns the result
+        // Instead of calling GlobalSpaceTree.parse, this function resolves the task queue and returns the result
         Nebulite::ERROR_TYPE resolveTask(std::string task);
 
         //----------------------------------------------
@@ -111,16 +108,16 @@ namespace Nebulite {
     /*
     private:
         //---------------------------------------
-        // Allow MainTree Categories to access private members
-        friend class Nebulite::MainTreeExpansion::General;
-        friend class Nebulite::MainTreeExpansion::Renderer;
-        friend class Nebulite::MainTreeExpansion::Debug;
+        // Allow GlobalSpaceTree Categories to access private members
+        friend class Nebulite::GlobalSpaceTreeExpansion::General;
+        friend class Nebulite::GlobalSpaceTreeExpansion::Renderer;
+        friend class Nebulite::GlobalSpaceTreeExpansion::Debug;
     */
 
         
 
         //---------------------------------------
-        // Internal Variables, linked to MainTree
+        // Internal Variables, linked to GlobalSpaceTree
         std::string headless = "false";
 
         //----------------------------------------------
@@ -135,8 +132,8 @@ namespace Nebulite {
         // Invoke Object for parsing expressions etc.
         std::unique_ptr<Invoke> invoke;
 
-        // Maintree for parsing and executing commands
-        std::unique_ptr<Nebulite::MainTree> mainTree;
+        // GlobalSpaceTree for parsing and executing commands
+        std::unique_ptr<Nebulite::GlobalSpaceTree> GlobalSpaceTree;
 
         // Global Space document 
         Nebulite::JSON* global;

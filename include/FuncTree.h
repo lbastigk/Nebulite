@@ -17,48 +17,74 @@
 // Custom includes
 #include "StringHandler.h"
 
-template<typename T>
+template<typename RETURN_TYPE>
 class FuncTree{
 public:
     // Two different types are given to the constructor:
     // - What to return if okay (e.g. Calling help should always return ok)
     // - What to return if no function was found
-    FuncTree(std::string treeName, T standard, T functionNotFoundError);
+    FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError);
 
     // functions get std::string as args and return a given type
-    using FunctionPtr = std::function<T(int argc, char* argv[])>;
+    using FunctionPtr = std::function<RETURN_TYPE(int argc, char* argv[])>;
 
     // Parse is the entry to execution after all functions and arguments are attached
     // takes argc and argv, function name and executes
     // - The first argument is the function name itself
     // - call executeFunction provided by second argv
     //   pass all argv afterwards. Making sure argc is adjusted accordingly
-    T parse(int argc, char* argv[]);
+    RETURN_TYPE parse(int argc, char* argv[]);
 
     // Same as parse, but using an std::string
-    T parseStr(const std::string& cmd);
+    RETURN_TYPE parseStr(const std::string& cmd);
 
-    // Attach a function to the menu
-    void attachFunction(FunctionPtr func, const std::string& name, const std::string& helpDescription);
+    // Binding helper
+    // TODO: Instead of calling attachFunction, directly modify map
+    // Binding helper
+    // e.g.: bindFunction(&ComplexData::sqlCall, "sqlCall", "Handles SQL calls");
+    template<typename ClassType>
+    void bindFunction(ClassType* obj,
+            RETURN_TYPE (ClassType::*method)(int, char**),
+            const std::string& name,
+            const std::string& help) {
+        // Create std::function that binds the member function to the object
+        functions[name] = std::make_pair(
+            [obj, method](int argc, char** argv) {
+                return (obj->*method)(argc, argv);
+            },
+            help
+        );
+    }
+    // Required overload to attach the help-function
+    template<typename FuncType>
+    void bindFunction(FuncType&& func,
+            const std::string& name,
+            const std::string& help) {
+        functions[name] = std::make_pair(
+            std::function<RETURN_TYPE(int, char**)>(std::forward<FuncType>(func)),
+            help
+        );
+    }
 
     // Attach a variable to the menu (by name)
-    void attachVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription);
+    void bindVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription);
 
+    // Check if a function with the given name or from a full command exists
     bool hasFunction(const std::string& nameOrCommand);
 
 private:
     // Execute a given function
-    T executeFunction(const std::string& name, int argc, char* argv[]);
+    RETURN_TYPE executeFunction(const std::string& name, int argc, char* argv[]);
 
     // Help-command, called with argv[1] = "help"
-    T help(int argc, char* argv[]);
+    RETURN_TYPE help(int argc, char* argv[]);
 
     // Status "Function not found"
-    T _functionNotFoundError;
+    RETURN_TYPE _functionNotFoundError;
 
     // Status "ok"
-    T _standard;
-    
+    RETURN_TYPE _standard;
+
     // Map for Functions: name -> (functionPtr, info)
     absl::flat_hash_map<std::string, std::pair<FunctionPtr,  std::string>> functions;
 
@@ -70,30 +96,26 @@ private:
 
 
 
-template<typename T>
-FuncTree<T>::FuncTree(std::string treeName, T standard, T functionNotFoundError){
+template<typename RETURN_TYPE>
+FuncTree<RETURN_TYPE>::FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError){
     // Attach the help function to read out the description of all attached functions
     // using lambda
     TreeName = treeName;
-    (void) attachFunction([this](int argc, char* argv[]) { return this->help(argc, argv); },"help","");
+    bindFunction([this](int argc, char* argv[]) { 
+        return this->help(argc, argv); 
+    }, "help", "Show available commands and their descriptions");
 
     _standard = standard;
     _functionNotFoundError = functionNotFoundError;
 }
 
-// Attach a given function to the menu
-template<typename T>
-void FuncTree<T>::attachFunction(FunctionPtr func, const std::string& name, const std::string& helpDescription) {
-    functions[name] = std::make_pair(func, helpDescription);
-}
-
-template<typename T>
-void FuncTree<T>::attachVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription) {
+template<typename RETURN_TYPE>
+void FuncTree<RETURN_TYPE>::bindVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription) {
     variables[name] = std::make_pair(varPtr, helpDescription);
 }
 
-template<typename T>
-T FuncTree<T>::parse(int argc, char* argv[]) {
+template<typename RETURN_TYPE>
+RETURN_TYPE FuncTree<RETURN_TYPE>::parse(int argc, char* argv[]) {
     // First argument is binary name or last function name
     // remove it from the argument list
     argv++;
@@ -148,8 +170,8 @@ T FuncTree<T>::parse(int argc, char* argv[]) {
     return _standard;
 }
 
-template<typename T>
-T FuncTree<T>::parseStr(const std::string& cmd) {
+template<typename RETURN_TYPE>
+RETURN_TYPE FuncTree<RETURN_TYPE>::parseStr(const std::string& cmd) {
     std::vector<std::string> tokens = Nebulite::StringHandler::split(cmd, ' ');
 
     // Convert to argc/argv
@@ -168,8 +190,8 @@ T FuncTree<T>::parseStr(const std::string& cmd) {
 
 
 // Execute the function based on its name, passing the remaining argc and argv
-template<typename T>
-T FuncTree<T>::executeFunction(const std::string& name, int argc, char* argv[]) {
+template<typename RETURN_TYPE>
+RETURN_TYPE FuncTree<RETURN_TYPE>::executeFunction(const std::string& name, int argc, char* argv[]) {
     auto it = functions.find(name);
     if (it != functions.end()) {
         return it->second.first(argc, argv);  // Call the function
@@ -179,8 +201,8 @@ T FuncTree<T>::executeFunction(const std::string& name, int argc, char* argv[]) 
     }
 }
 
-template<typename T>
-T FuncTree<T>::help(int argc, char* argv[]) {
+template<typename RETURN_TYPE>
+RETURN_TYPE FuncTree<RETURN_TYPE>::help(int argc, char* argv[]) {
     std::cout << "\n\tHelp for " << TreeName << "\n\n";
 
     // If no arguments are provided, list all functions and variables
@@ -251,8 +273,8 @@ T FuncTree<T>::help(int argc, char* argv[]) {
     return _standard;
 }
 
-template<typename T>
-bool FuncTree<T>::hasFunction(const std::string& nameOrCommand) {
+template<typename RETURN_TYPE>
+bool FuncTree<RETURN_TYPE>::hasFunction(const std::string& nameOrCommand) {
     // Make sure only the command name is used
     std::vector<std::string> tokens = Nebulite::StringHandler::split(nameOrCommand, ' ');
     if (tokens.empty()) {

@@ -38,7 +38,7 @@ STOP_ON_FAIL="${NEBULITE_TEST_STOP_ON_FAIL:-false}"
 # so that the '| grep' isn't interpreted as part of the Nebulite command!
 tests=(
     "help"                                                              # Simple Executable call: cout of all help commands
-    "echo 1234"                                                         # Simple Executable call: custom echo command in Nebulite mainTree
+    "echo 1234"                                                         # Simple Executable call: custom echo command in Nebulite GlobalSpaceTree
     "set-fps 60 ; wait 30 ; exit"                                       # set-fps forces initialization of renderer
     "task TaskFiles/Tests/Short/snapshot.txt"                           # Test snapshot functionality
     "task TaskFiles/Tests/Short/echo_global_value.txt"

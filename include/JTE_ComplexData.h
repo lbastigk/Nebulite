@@ -1,14 +1,15 @@
 #pragma once
 
 #include "ErrorTypes.h"
-#include "JT_ExpansionWrapper.h"
+#include "FuncTreeExpansionWrapper.h"
 
 namespace Nebulite{
+class JSON; // Forward declaration of container class JSON
 namespace JSONTreeExpansion{
 
-class ComplexData : public Wrapper<ComplexData> {
+class ComplexData : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::JSON, ComplexData> {
 public:
-    using Wrapper<ComplexData>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using Wrapper<Nebulite::JSON, ComplexData>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     //----------------------------------------
     // Available Functions

@@ -1,18 +1,15 @@
 #pragma once
 
 #include "ErrorTypes.h"
-#include "RT_ExpansionWrapper.h"
+#include "FuncTreeExpansionWrapper.h"
 
 namespace Nebulite {
-
-// Forward declaration of classes
-class Invoke;
-class GlobalSpace;
+class RenderObject; // Forward declaration of Container class RenderObject
 
 namespace RenderObjectTreeExpansion {
-class Layout : public Wrapper<Layout> {
+class Layout : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::RenderObject, Layout> {
 public:
-    using Wrapper<Layout>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using Wrapper<Nebulite::RenderObject, Layout>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     //----------------------------------------
     // Available Functions
@@ -22,7 +19,7 @@ public:
     //----------------------------------------
     // Binding Functions
 
-    void setupBindings(){
+    void setupBindings()  {
         bindFunction(&Layout::alignText, "align-text", "Aligns text to object dimensions");
         bindFunction(&Layout::makeBox, "make-box", "Creates a box based on text dimensions");
     }

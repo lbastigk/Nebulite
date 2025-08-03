@@ -182,7 +182,7 @@ int main(int argc, char* argv[]){
         // Keys like: after-load, after-deload, before-load, before-deload
         //
         // For easier usage, hardcoding the env-load task is not a good idea, 
-        // instead call some function like "entrypoint" or "main" which is defined in the MainTree
+        // instead call some function like "entrypoint" or "main" which is defined in the GlobalSpaceTree
         // This is important, as it's now clear what the entrypoint is, without knowing exactly what main file is loaded
         // If a user ever defines addition arguments via, e.g. Steam when launching the game, this might become a problem
         // as any additional argument would make the entrypoint not be called.
@@ -203,15 +203,15 @@ int main(int argc, char* argv[]){
     bool critical_stop = false;
 
     // A new set of argc/argv is needed to parse tasks
-    // TaskQueue -> pop out string -> parse into argc/argv -> call MainTree.parse with argc/argv
-    int    argc_mainTree = 0;
-    char** argv_mainTree = nullptr;
+    // TaskQueue -> pop out string -> parse into argc/argv -> call GlobalSpaceTree.parse with argc/argv
+    int    argc_GlobalSpaceTree = 0;
+    char** argv_GlobalSpaceTree = nullptr;
 
     //--------------------------------------------------
     // At least one loop, to handle taskQueues
     do {
         //------------------------------------------------------------
-        // Handle args, parse queue into mainTree and then call internal functions from Nebulite::mainTreeFunctions
+        // Handle args, parse queue into GlobalSpaceTree and then call internal functions from Nebulite::GlobalSpaceTreeFunctions
         // Result determines if a critical stop is initiated
         //
         // For now, all tasks are parsed even if the program is in console mode
@@ -226,7 +226,7 @@ int main(int argc, char* argv[]){
 
         // 2.) Parse script tasks
         if(!critical_stop){
-            result_tasks_script = globalSpace.resolveTaskQueue(globalSpace.tasks_script,&globalSpace.tasks_script.waitCounter,&argc_mainTree,&argv_mainTree);
+            result_tasks_script = globalSpace.resolveTaskQueue(globalSpace.tasks_script,&globalSpace.tasks_script.waitCounter,&argc_GlobalSpaceTree,&argv_GlobalSpaceTree);
         }
         if(result_tasks_script.stoppedAtCriticalResult) {
             critical_stop = true; 
@@ -236,7 +236,7 @@ int main(int argc, char* argv[]){
 
         // 3.) Parse internal tasks
         if(!critical_stop){
-            result_tasks_internal = globalSpace.resolveTaskQueue(globalSpace.tasks_internal,noWaitCounter,&argc_mainTree,&argv_mainTree);
+            result_tasks_internal = globalSpace.resolveTaskQueue(globalSpace.tasks_internal,noWaitCounter,&argc_GlobalSpaceTree,&argv_GlobalSpaceTree);
         }
         if(result_tasks_internal.stoppedAtCriticalResult) {
             critical_stop = true; 
@@ -246,7 +246,7 @@ int main(int argc, char* argv[]){
 
         // 4.) Parse always-tasks
         if(!critical_stop){
-            result_tasks_always = globalSpace.resolveTaskQueue(globalSpace.tasks_always,noWaitCounter,&argc_mainTree,&argv_mainTree);
+            result_tasks_always = globalSpace.resolveTaskQueue(globalSpace.tasks_always,noWaitCounter,&argc_GlobalSpaceTree,&argv_GlobalSpaceTree);
         }
         if(result_tasks_always.stoppedAtCriticalResult) {
             critical_stop = true; 

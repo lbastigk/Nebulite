@@ -1,8 +1,8 @@
-#include "MTE_General.h"
+#include "GTE_General.h"
 #include "GlobalSpace.h"       // Global Space for Nebulite
 #include "Invoke.h"            // Invoke for parsing expressions
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::setGlobal(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::setGlobal(int argc, char* argv[]){
     if(argc == 3){
         std::string key = argv[1];
         std::string value = argv[2];
@@ -23,7 +23,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::setGlobal(int argc, c
     }
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::eval(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::eval(int argc, char* argv[]){
     // argc/argv to string for evaluation
     std::string args = "";
     for (int i = 0; i < argc; ++i) {
@@ -40,17 +40,17 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::eval(int argc, char* 
     return funcTree->parseStr(args_evaled);
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::exitProgram(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::exitProgram(int argc, char* argv[]){
     self->getRenderer()->setQuit();
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::stateLoad(int argc, char* argv[]){ 
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::stateLoad(int argc, char* argv[]){ 
     std::cerr << "Function load not implemented yet!" << std::endl;
     return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::stateSave(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::stateSave(int argc, char* argv[]){
     // <stateName>
     // Change std::string Nebulite::stateName to name
     // Check if dir ./States/stateName exists
@@ -64,7 +64,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::stateSave(int argc, c
     return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::wait(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::wait(int argc, char* argv[]){
     if(argc == 2){
         std::istringstream iss(argv[1]);
         iss >> self->tasks_script.waitCounter;
@@ -81,7 +81,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::wait(int argc, char* 
     }
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::loadTaskList(int argc, char* argv[]) {
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::loadTaskList(int argc, char* argv[]) {
     std::cout << "Loading task list from file: " << (argc > 1 ? argv[1] : "none") << std::endl;
 
     if (argc < 2) {
@@ -123,7 +123,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::loadTaskList(int argc
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::echo(int argc, char* argv[]) {
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::echo(int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         std::cout << argv[i];
         if (i < argc - 1) {
@@ -134,7 +134,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::echo(int argc, char* 
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::forLoop(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::forLoop(int argc, char* argv[]){
     std::string funcName = argv[0];
     if(argc > 4){
         std::string varName = argv[1];
@@ -158,7 +158,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::forLoop(int argc, cha
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::error(int argc, char* argv[]) {
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::error(int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         std::cerr << argv[i];
         if (i < argc - 1) {
@@ -169,11 +169,11 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::error(int argc, char*
     return Nebulite::ERROR_TYPE::CUSTOM_ERROR;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::func_assert(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::func_assert(int argc, char* argv[]){
     return Nebulite::ERROR_TYPE::CRITICAL_CUSTOM_ASSERT;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::func_return(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::func_return(int argc, char* argv[]){
     if (argc < 2) {
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -183,7 +183,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::func_return(int argc,
     return (Nebulite::ERROR_TYPE)std::stoi(argv[1]);
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::forceGlobal(int argc, char* argv[]) {
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::forceGlobal(int argc, char* argv[]) {
     if (argc < 3) {
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -197,7 +197,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::forceGlobal(int argc,
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::clearForceGlobal(int argc, char* argv[]) {
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::clearForceGlobal(int argc, char* argv[]) {
     self->getRenderer()->clearForcedGlobalValues();
     return Nebulite::ERROR_TYPE::NONE;
 }

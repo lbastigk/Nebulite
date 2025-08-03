@@ -1,8 +1,8 @@
-#include "MTE_Renderer.h"
+#include "GTE_Renderer.h"
 #include "GlobalSpace.h"       // Global Space for Nebulite
 #include "Invoke.h"            // Invoke for parsing expressions
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::envload(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::envload(int argc, char* argv[]){
     if(argc > 1){
         self->getRenderer()->deserialize(argv[1]);
         return Nebulite::ERROR_TYPE::NONE;
@@ -14,13 +14,13 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::envload(int argc, ch
     }
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::envdeload(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::envdeload(int argc, char* argv[]){
     self->getRenderer()->purgeObjects();
     self->getRenderer()->purgeTextures();
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::spawn(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::spawn(int argc, char* argv[]){
     if(argc>1){
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.json|set text.str This is a sun
@@ -50,7 +50,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::spawn(int argc, char
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::setResolution(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::setResolution(int argc, char* argv[]){
     int w,h,scalar;
     w = 1000;
     h = 1000;
@@ -68,7 +68,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::setResolution(int ar
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::setFPS(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::setFPS(int argc, char* argv[]){
     if(argc != 2){
         self->getRenderer()->setFPS(60);
     }
@@ -81,7 +81,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::setFPS(int argc, cha
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::moveCam(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::moveCam(int argc, char* argv[]){
     if (argc < 3) {
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -95,7 +95,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::moveCam(int argc, ch
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::setCam(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::setCam(int argc, char* argv[]){
     if(argc == 3){
         int x = std::stoi(argv[1]);
         int y = std::stoi(argv[2]);
@@ -120,7 +120,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::setCam(int argc, cha
     return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::snapshot(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::snapshot(int argc, char* argv[]){
     if(argc == 1){
         // No link provided, use default
         bool success = self->getRenderer()->snapshot();
@@ -143,7 +143,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::snapshot(int argc, c
     }
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::beep(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::beep(int argc, char* argv[]){
     // Beep function for debugging, from SDL
     self->getRenderer()->beep();
     return Nebulite::ERROR_TYPE::NONE;

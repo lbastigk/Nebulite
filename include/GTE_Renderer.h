@@ -1,18 +1,15 @@
 #pragma once
 
 #include "ErrorTypes.h"
-#include "MT_ExpansionWrapper.h"
+#include "FuncTreeExpansionWrapper.h"
 
 namespace Nebulite {
+class GlobalSpace; // Forward declaration of container class GlobalSpace
 
-// Forward declaration of classes
-class Invoke;
-class GlobalSpace;
-
-namespace MainTreeExpansion {
-class Renderer : public Wrapper<Renderer> {
+namespace GlobalSpaceTreeExpansion {
+class Renderer : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, Renderer> {
 public:
-    using Wrapper<Renderer>::Wrapper;   // Templated constructor from Wrapper, call this->setupBindings()
+    using Wrapper<Nebulite::GlobalSpace, Renderer>::Wrapper;   // Templated constructor from Wrapper, call this->setupBindings()
 
     //----------------------------------------
     // Available Functions

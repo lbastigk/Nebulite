@@ -1,6 +1,6 @@
 /*
 ===========================================================
-MainTree - Function Tree for JSON Modification
+GlobalSpaceTree - Function Tree for JSON Modification
 ===========================================================
 
 This class extends FuncTreeWrapper<ERROR_TYPE> to provide
@@ -13,7 +13,7 @@ for Nebulite's JSON data container.
 //----------------------------------------------------------
 // Basic includes
 #include "ErrorTypes.h"         // Basic Return Type: enum ERROR_TYPE
-#include "FuncTreeWrapper.h"    // All FuncTrees inherit from this for ease of use
+#include "FuncTree.h"    // All FuncTrees inherit from this for ease of use
 
 //----------------------------------------------------------
 // Include Expansions of JSONTree
@@ -24,7 +24,7 @@ namespace Nebulite{
     
 // Forward declaration of JSON class
 class JSON;
-class JSONTree : public FuncTreeWrapper<Nebulite::ERROR_TYPE> {
+class JSONTree : public FuncTree<Nebulite::ERROR_TYPE> {
 public:
     JSONTree(JSON* self);
 private:
@@ -35,7 +35,7 @@ private:
     // Improves readability and maintainability
     template<typename ExpansionType>
     std::unique_ptr<ExpansionType> createExpansionOfType() {
-        auto expansion = std::make_unique<ExpansionType>(self, &funcTree);
+        auto expansion = std::make_unique<ExpansionType>(self, this);
         // Initializing is currently done on construction of the expansion
         // However, if any additional setup is needed later on that can't be done on construction,
         // this simplifies the process

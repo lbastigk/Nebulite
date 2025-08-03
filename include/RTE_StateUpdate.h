@@ -1,18 +1,15 @@
 #pragma once
 
 #include "ErrorTypes.h"
-#include "RT_ExpansionWrapper.h"
+#include "FuncTreeExpansionWrapper.h"
 
 namespace Nebulite {
-
-// Forward declaration of classes
-class Invoke;
-class GlobalSpace;
+class RenderObject; // Forward declaration of Container class RenderObject
 
 namespace RenderObjectTreeExpansion {
-class StateUpdate : public Wrapper<StateUpdate> {
+class StateUpdate : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::RenderObject, StateUpdate> {
 public:
-    using Wrapper<StateUpdate>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using Wrapper<Nebulite::RenderObject, StateUpdate>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     //----------------------------------------
     // Available Functions
@@ -26,7 +23,7 @@ public:
     //----------------------------------------
     // Binding Functions
 
-    void setupBindings(){
+    void setupBindings()  {
         bindFunction(&StateUpdate::deleteObject, "delete", "Marks object for deletion");
         bindFunction(&StateUpdate::updateText, "update-text", "Calculate text texture");
         bindFunction(&StateUpdate::reloadInvokes, "reload-invokes", "Reload all invokes");

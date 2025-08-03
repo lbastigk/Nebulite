@@ -1,18 +1,14 @@
 #pragma once
 
 #include "ErrorTypes.h"
-#include "MT_ExpansionWrapper.h"
+#include "FuncTreeExpansionWrapper.h"
 
 namespace Nebulite {
-
-// Forward declaration of classes
-class Invoke;
-class GlobalSpace;
-
-namespace MainTreeExpansion {
-class Debug : public Wrapper<Debug> {
+class GlobalSpace; // Forward declaration of container class GlobalSpace 
+namespace GlobalSpaceTreeExpansion {
+class Debug : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, Debug> {
 public:
-    using Wrapper<Debug>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using Wrapper<Nebulite::GlobalSpace, Debug>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     //----------------------------------------
     // Available Functions
@@ -43,11 +39,10 @@ public:
 
     // Print all internal values
     Nebulite::ERROR_TYPE printVar(int argc, char** argv);
-
+    
     //----------------------------------------
     // Binding Functions
-
-    void setupBindings(){
+    void setupBindings()  {
         bindFunction(&Debug::errorlog,          "log",                      "Activate/Deactivate error logging");
         bindFunction(&Debug::printGlobal,       "print-global",             "Print global document");
         bindFunction(&Debug::printState,        "print-state",              "Print current state");
@@ -59,6 +54,5 @@ public:
         bindFunction(&Debug::printVar,          "print-var",                "Print variable");
     }
 };
-
 }
 }

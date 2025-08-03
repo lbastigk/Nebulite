@@ -1,18 +1,17 @@
-#include "MTE_Debug.h"
+#include "GTE_Debug.h"
 #include "GlobalSpace.h"       // Global Space for Nebulite
-#include "Invoke.h"            // Invoke for parsing expressions
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::printGlobal(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::printGlobal(int argc, char* argv[]){
     std::cout << self->getRenderer()->serializeGlobal() << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::printState(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::printState(int argc, char* argv[]){
     std::cout << self->getRenderer()->serialize() << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::logGlobal(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::logGlobal(int argc, char* argv[]){
     std::string serialized = self->getRenderer()->serializeGlobal();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -25,7 +24,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::logGlobal(int argc, cha
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::logState(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::logState(int argc, char* argv[]){
     std::string serialized = self->getRenderer()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -38,13 +37,13 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::logState(int argc, char
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::render_object(int argc, char** argv){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::render_object(int argc, char** argv){
     RenderObject ro;
     FileManagement::WriteFile("./Resources/Renderobjects/standard.json",ro.serialize());
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::errorlog(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::errorlog(int argc, char* argv[]){
     if(argc == 2){
         if(!strcmp(argv[1], "on")){
             if(!self->errorLogStatus){
@@ -100,7 +99,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::errorlog(int argc, char
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::always(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::always(int argc, char* argv[]){
     if (argc > 1) {
         std::ostringstream oss;
         for (int i = 1; i < argc; ++i) {
@@ -125,7 +124,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::always(int argc, char* 
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::alwaysClear(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::alwaysClear(int argc, char* argv[]){
     self->tasks_always.taskList.clear();
     return Nebulite::ERROR_TYPE::NONE;
 }
@@ -133,7 +132,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::alwaysClear(int argc, c
 
 
 
-Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::printVar(int argc, char** argv){
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::printVar(int argc, char** argv){
     std::cout << "headless: " << self->headless << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
 }

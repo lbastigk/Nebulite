@@ -1,18 +1,15 @@
 #pragma once
 
 #include "ErrorTypes.h"
-#include "RT_ExpansionWrapper.h"
+#include "FuncTreeExpansionWrapper.h"
 
 namespace Nebulite {
-
-// Forward declaration of classes
-class Invoke;
-class GlobalSpace;
+class RenderObject; // Forward declaration of Container class RenderObject
 
 namespace RenderObjectTreeExpansion {
-class Logging : public Wrapper<Logging> {
+class Logging : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::RenderObject, Logging> {
 public:
-    using Wrapper<Logging>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using Wrapper<Nebulite::RenderObject, Logging>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     //----------------------------------------
     // Available Functions
@@ -23,7 +20,7 @@ public:
     //----------------------------------------
     // Binding Functions
 
-    void setupBindings(){
+    void setupBindings()  {
         bindFunction(&Logging::echo, "echo", "Prints the arguments to the console");
         bindFunction(&Logging::log, "log", "Logs the RenderObject to a file");
         bindFunction(&Logging::logValue, "log-value", "Logs a specific value");

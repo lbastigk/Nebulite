@@ -12,9 +12,9 @@ functioncalls in RenderObjectTree operate *exclusively* on
 the RenderObject they are attached to (the "self" object).
 
 -----------------------------------------------------------
-Why is this layer needed in addition to MainTree?
+Why is this layer needed in addition to GlobalSpaceTree?
 
-While the MainTree handles global operations, the RenderObjectTree
+While the GlobalSpaceTree handles global operations, the RenderObjectTree
 is designed for tasks that require local context, such as:
     - flagging an object for deletion
     - changing layout properties
@@ -54,7 +54,7 @@ How to use the RenderObjectTree:
     - Create a new Invoke Ruleset through a compatible JSON file
     - add the functioncall to the "functioncalls_self" or "functioncalls_other" array
     - The RenderObjectTree will parse the functioncall and execute it if the invoke is evaluated as true
-    - For more complex global logic, use the MainTree for global operations
+    - For more complex global logic, use the GlobalSpaceTree for global operations
     - For more advanced features, consider using Expansion files to extend RenderObjectTree functionality
 */
 
@@ -64,7 +64,7 @@ How to use the RenderObjectTree:
 //----------------------------------------------------------
 // Basic includes
 #include "ErrorTypes.h"         // Basic Return Type: enum ERROR_TYPE
-#include "FuncTreeWrapper.h"    // All FuncTrees inherit from this for ease of use
+#include "FuncTree.h"    // All FuncTrees inherit from this for ease of use
 #include "FileManagement.h"     // For logging and file operations
 
 //----------------------------------------------------------
@@ -82,7 +82,7 @@ class RenderObject;
 
 //----------------------------------------------------------
 // RenderObjectTree class, Expand through Expansion files
-class RenderObjectTree : public FuncTreeWrapper<Nebulite::ERROR_TYPE>{  // Inherit a funcTree and helper functions
+class RenderObjectTree : public FuncTree<Nebulite::ERROR_TYPE>{  // Inherit a funcTree and helper functions
 public:
     // Created inside each renderobject, with linkage to the object
     RenderObjectTree(RenderObject* self);   
@@ -94,7 +94,7 @@ private:
     // Improves readability and maintainability
     template<typename ExpansionType>
     std::unique_ptr<ExpansionType> createExpansionOfType() {
-        auto expansion = std::make_unique<ExpansionType>(self, &funcTree);
+        auto expansion = std::make_unique<ExpansionType>(self, this);
         // Initializing is currently done on construction of the expansion
         // However, if any additional setup is needed later on that can't be done on construction,
         // this simplifies the process

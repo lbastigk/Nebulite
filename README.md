@@ -174,46 +174,58 @@ either a taskfile or a python-script to allow rendering snapshots while editing 
 ### Adding Features
 
 Nebulite offers clean expansions of its functionality through its FuncTrees. 
-Maintainers can create their own Tree-expansion classes and add them to the specifc FuncTree.
+Maintainers can create their own Tree-expansion classes and add them to a specifc FuncTree.
 
 | New commands operating on... | Action                        | Info                                                                    |
 |------------------------------|-------------------------------|-------------------------------------------------------------------------|
-| global level                 | Extend the `MainTree`         | See `include/MainTree.h` and its expansions `include/MTE_*.h`           |
+| global level                 | Extend the `GlobalSpaceTree`  | See `include/GlobalSpaceTree.h` and its expansions `include/GTE_*.h`    |
 | specific RenderObjects       | Extend the `RenderObjectTree` | See `include/RenderObjectTree.h` and its expansions `include/RTE_*.h`   |
 | specific JSON-Documents      | Extend the `JSONTree`         | See `include/JSONTree.h` and its expansions `include/JTE_*.h`           |
 
-Each Class has access to a different tree through `funcTree->...` and a different workspace through `self->...`: 
-- `MainTree` can access the global space
+Each Class has access to a different tree through `funcTree->...` and a different container through `self->...`: 
+- `GlobalSpaceTree` can access the global space
 - `RenderObjectTree` can access the attached RenderObject
 - `JSONTree` can access the attached JSON
 
-Example procedure for a new MainTree feature:
-1. **Create expansion file:** `MTE_MyFeature.{h,cpp}`
-2. **Inherit from wrapper:** Create class inheriting from `MainTreeExpansion::Wrapper<MyFeature>`
+Example procedure for a new GlobalSpaceTree feature:
+1. **Create expansion file:** `GTE_MyFeature.{h,cpp}`
+2. **Inherit from wrapper:** Create class inheriting from `Nebulite::FuncTreeExpansion::Wrapper<ContainerClass, MyFeatureClass>`
 3. **Implement command methods:** Functions with `ERROR_TYPE (int argc, char* argv[])` signature
-4. **Override setupBindings():** Register your commands with the function tree
-5. **Add to MainTree:** Include in `include/MainTree.h` and initialize in constructor
+4. ** setupBindings():** Register your commands with the function tree
+5. **Add to GlobalSpaceTree:** Include in `include/GlobalSpaceTree.h` and initialize in constructor
 
 **Complete code example:**
 
 Inside MyFeature.h:
 
 ```cpp
-class MyFeature : public MainTreeExpansion::Wrapper<MyFeature> {
+namespace Nebulite{
+class GlobalSpace; // Forward declaration of container class GlobalSpace 
+namespace GlobalSpaceTreeExpansion {
+class MyFeature : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, Debug> {
 public:
-    using Wrapper<General>::Wrapper; // Templated constructor from Wrapper, calls setupBindings
+    using Wrapper<Nebulite::GlobalSpace, MyFeature>::Wrapper; // Templated constructor from Wrapper, calls setupBindings
+
+    //----------------------------------------
+    // Available Functions
     ERROR_TYPE spawnCircle(int argc, char* argv[]);
-private:
-    void setupBindings(){
+
+    //----------------------------------------
+    // Binding Functions
+    void setupBindings()  {
         bindFunction(&MyFeature::spawnCircle, "spawn-circle", "Spawn a circle");
         /*Bind more functions of MyFeature here*/
     }
 };
+}
+}
 ```
 Inside MyFeature.cpp:
 ```cpp
 #include "MyFeature.h"
-ERROR_TYPE spawnCircle(int argc, char* argv[]){
+#include "GlobalSpace.h"       // Global Space for Nebulite
+
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::MyFeature::spawnCircle(int argc, char* argv[]){
     /*
     Implementation here.
     You can access the global space and its members through: self->...
@@ -221,26 +233,26 @@ ERROR_TYPE spawnCircle(int argc, char* argv[]){
     */
 }
 ```
-Then add to include/MainTree.h:
+Then add to include/GlobalSpaceTree.h:
 ```cpp
 #include "MyFeature.h"
-class MainTree public FuncTreeWrapper<Nebulite::ERROR_TYPE>{
+class GlobalSpaceTree : public FuncTree<Nebulite::ERROR_TYPE>{
     /*...*/
 private:
     /*...*/
-    std::unique_ptr<MainTreeExpansion::MyFeature> myFeature;
+    std::unique_ptr<GlobalSpaceTreeExpansion::MyFeature> myFeature;
 }
 ```
-And initialize in MainTree.cpp:
+And initialize in GlobalSpaceTree.cpp:
 ```cpp
-Nebulite::MainTree::MainTree(/*...*/) : /*...*/
+Nebulite::GlobalSpaceTree::GlobalSpaceTree(/*...*/) : /*...*/
 {
     // Initialize all expansions
     /*...*/
-    myFeature = createExpansionOfType<MainTreeExpansion::MyFeature>();
+    myFeature = createExpansionOfType<GlobalSpaceTreeExpansion::MyFeature>();
 }
 ```
 
 If necessary, the entire feature can then be:
-- **disabled** by commenting out `createExpansionOfType`
-- **removed** by undoing the changes inside `MainTree.{h,cpp}`
+- **disabled** by commenting out `createExpansionOfType` in the Constructor
+- **removed** by undoing the changes inside `GlobalSpaceTree.{h,cpp}`
