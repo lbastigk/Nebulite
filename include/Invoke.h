@@ -464,6 +464,9 @@ private:
     // e.g. $(1+1) is turned into 2.000...
     void foldConstants(const std::shared_ptr<Nebulite::Invoke::Node>& node);
 
+    // Helper function for casting
+    std::string castValue(const std::string& value, Node* nodeptr, Nebulite::JSON *doc);
+
     // Helper funtion for evaluateNode for parsing 
     std::shared_ptr<Nebulite::Invoke::Node> parseNext(const std::string& input, size_t& i);
 

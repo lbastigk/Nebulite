@@ -671,6 +671,20 @@ std::shared_ptr<Nebulite::Invoke::Node> Nebulite::Invoke::expressionToTree(const
     return ptr;
 }
 
+std::string Nebulite::Invoke::castValue(const std::string& value, Node* nodeptr, Nebulite::JSON *doc) {
+    switch (nodeptr->cast) {
+        case Node::CastType::None:
+            return doc->get<std::string>(nodeptr->key.c_str(), "0");
+        case Node::CastType::Float:
+            return std::to_string(doc->get<double>(nodeptr->key.c_str(),0.0));
+        case Node::CastType::Int:
+            return std::to_string(doc->get<int>(nodeptr->key.c_str(),0));
+        default:
+            std::cerr << "Unknown cast type: " << static_cast<int>(nodeptr->cast) << std::endl;
+            return "0"; // Fallback value
+    }
+}
+
 std::string Nebulite::Invoke::nodeVariableAccess(const std::shared_ptr<Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent){
     switch (nodeptr->context) {
         //---------------------------------------------------
@@ -681,38 +695,11 @@ std::string Nebulite::Invoke::nodeVariableAccess(const std::shared_ptr<Invoke::N
         // other[key]
         // global[key]
         case Node::ContextType::Self:
-            // Casting
-            if(nodeptr->cast == Node::CastType::None){
-                return self->get<std::string>(nodeptr->key.c_str(), "0");
-            }
-            else if(nodeptr->cast == Node::CastType::Float){
-                return std::to_string(self->get<double>(nodeptr->key.c_str(),0.0));
-            }
-            else if(nodeptr->cast == Node::CastType::Int){
-                return std::to_string(self->get<int>(nodeptr->key.c_str(),0));
-            }
+            return castValue(nodeptr->text, nodeptr.get(), self);
         case Node::ContextType::Other:
-            // Casting
-            if(nodeptr->cast == Node::CastType::None){
-                return other->get<std::string>(nodeptr->key.c_str(), "0");
-            }
-            else if(nodeptr->cast == Node::CastType::Float){
-                return std::to_string(other->get<double>(nodeptr->key.c_str(),0.0));
-            }
-            else if(nodeptr->cast == Node::CastType::Int){
-                return std::to_string(other->get<int>(nodeptr->key.c_str(),0));
-            }
+            return castValue(nodeptr->text, nodeptr.get(), other);
         case Node::ContextType::Global:
-            // Casting
-            if(nodeptr->cast == Node::CastType::None){
-                return global->get<std::string>(nodeptr->key.c_str(), "0");
-            }
-            else if(nodeptr->cast == Node::CastType::Float){
-                return std::to_string(global->get<double>(nodeptr->key.c_str(),0.0));
-            }
-            else if(nodeptr->cast == Node::CastType::Int){
-                return std::to_string(global->get<int>(nodeptr->key.c_str(),0));
-            }
+            return castValue(nodeptr->text, nodeptr.get(), global);
         //---------------------------------------------------
         // String is not a variable
         case Node::ContextType::None:
@@ -747,19 +734,18 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
         return "";
     }
 
-    // Optional: check if JSON references are invalid (e.g., not pointing to initialized docs)
+    // Check if JSON references are invalid (e.g., not pointing to initialized docs)
     if (self == nullptr || other == nullptr || global == nullptr) {
         // Log error and fallback
         std::cerr << "Nebulite::Invoke::evaluateNode error: One passed doc is nullptr!" << std::endl;
         return "";
     }
     
+    // Depending on the type of node, evaluate accordingly
     switch (nodeptr->type) {
-
         case Node::Type::Literal:
             return nodeptr->text;
             break;
-
         case Node::Type::Variable:
             return nodeVariableAccess(nodeptr,self,other,global,insideEvalParent);
             break;
@@ -797,11 +783,6 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
             return std::to_string(evaluateExpression(combined));
             }
             break;
-
-        default:
-            // Any other value means memory corruption or similiar?
-            std::cerr << "Nebulite::Invoke::evaluateNode encountered an unkown Node type! Please inform the maintainers." << std::endl;
-            return "";
     }
     // For safety, if there are any logic mistakes with no returns:
     std::cerr << "Nebulite::Invoke::evaluateNode functions switch operations return is incomplete! Please inform the maintainers." << std::endl;
@@ -809,7 +790,6 @@ std::string Nebulite::Invoke::evaluateNode(const std::shared_ptr<Invoke::Node>& 
 }
   
 std::string Nebulite::Invoke::resolveVars(const std::string& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global) {
-    
     // Tree being used for resolving vars
     std::shared_ptr<Invoke::Node> tree;
 
