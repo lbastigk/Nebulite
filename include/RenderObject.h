@@ -119,8 +119,12 @@ public:
 	// e.g. parseStr("<someName> set text.str Hello World") -> works
 	Nebulite::ERROR_TYPE parseStr(const std::string& str);
 
-	// Deleteflag for this object
-	bool deleteFlag = false;
+	//-----------------------------------------------------------
+	// Management Flags for Renderer-Interaction
+	struct flag{
+		bool deleteFromScene = false;	// If true, delete this object from scene on next update
+		bool calculateText = false;		// If true, calculate text texture on next update
+	} flag;
 private:
 	// Main doc holding values
 	Nebulite::JSON json;
