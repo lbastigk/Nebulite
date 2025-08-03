@@ -1,8 +1,6 @@
 // This header defines the FuncTree class, which is responsible for parsing command-line
 // arguments and executing the corresponding functions in the Nebulite project. The main goal
 // of this class is to manage hierarchical commands and arguments for modular and flexible execution.
-
-
 #pragma once
 
 #include <iomanip>  // For std::setw
@@ -11,6 +9,9 @@
 #include "absl/container/flat_hash_map.h"
 #include <functional>
 #include <cstring>
+
+// Custom includes
+#include "StringHandler.h"
 
 template<typename T>
 class FuncTree{
@@ -38,6 +39,8 @@ public:
 
     // Attach a variable to the menu (by name)
     void attachVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription);
+
+    bool hasFunction(const std::string& nameOrCommand);
 
 private:
     // Execute a given function
@@ -143,14 +146,7 @@ T FuncTree<T>::parse(int argc, char* argv[]) {
 
 template<typename T>
 T FuncTree<T>::parseStr(const std::string& cmd) {
-    std::istringstream iss(cmd);
-    std::string token;
-    std::vector<std::string> tokens;
-
-    // Tokenize by whitespace
-    while (iss >> token) {
-        tokens.push_back(token);
-    }
+    std::vector<std::string> tokens = Nebulite::StringHandler::split(cmd, ' ');
 
     // Convert to argc/argv
     int argc = static_cast<int>(tokens.size());
@@ -251,3 +247,20 @@ T FuncTree<T>::help(int argc, char* argv[]) {
     return _standard;
 }
 
+template<typename T>
+bool FuncTree<T>::hasFunction(const std::string& nameOrCommand) {
+    // Make sure only the command name is used
+    std::vector<std::string> tokens = Nebulite::StringHandler::split(nameOrCommand, ' ');
+    if (tokens.empty()) {
+        return false;  // No command provided
+    }
+    if(tokens.size() == 1){
+        // Is a single function name. 
+        // e.g.: "set"
+        return functions.find(tokens[0]) != functions.end();
+    }
+    // Is a full command
+    // e.g.: <whereCommandComesFrom> set key value
+    return functions.find(tokens[1]) != functions.end();
+
+}
