@@ -125,6 +125,7 @@ fi
 echo "Build done!"
 echo ""
 echo "Generating standards from Binary:"
+build_type="Generate Standards"
 generate_standards
 echo ""
 echo "Newest Nebulite build + files generated."
