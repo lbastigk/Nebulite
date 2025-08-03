@@ -21,7 +21,6 @@
 
 class FileManagement{
 public:
-
     static std::string CombinePaths(const std::string& baseDir, const std::string& innerDir);
 
     static std::string LoadFile(const std::string& link);

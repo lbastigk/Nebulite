@@ -66,8 +66,9 @@ public:
 	Nebulite::JSON& getGlobal() {
 		return *global;
 	}
+
 private:
-	// Global Values
+	// Link to Global Values
     Nebulite::JSON* global;
 	
 	Nebulite::RenderObjectContainer roc[RENDEROBJECTCONTAINER_COUNT];
