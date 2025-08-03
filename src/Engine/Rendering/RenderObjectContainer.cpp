@@ -153,7 +153,7 @@ void Nebulite::RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos,
 							obj->update(globalInvoke);
 						}
 
-						if (!obj->deleteFlag) {
+						if (!obj->flag.deleteFromScene) {
 							std::pair<uint16_t,uint16_t> newPos = getTilePos(obj, dispResX, dispResY);
 							if (newPos != pos) {
 								to_move_local.push_back(obj);

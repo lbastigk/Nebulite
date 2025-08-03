@@ -6,7 +6,6 @@ Nebulite::RenderObjectTree::RenderObjectTree(RenderObject* self)
         self(self) // local linkage for usage within the factory method
 {
     // Initialize all expansions
-    data        = createExpansionOfType<RenderObjectTreeExpansion::Data>();
     layout      = createExpansionOfType<RenderObjectTreeExpansion::Layout>();
     logging     = createExpansionOfType<RenderObjectTreeExpansion::Logging>();
     parenting   = createExpansionOfType<RenderObjectTreeExpansion::Parenting>();

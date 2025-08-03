@@ -69,7 +69,6 @@ How to use the RenderObjectTree:
 
 //----------------------------------------------------------
 // Include Expansions of RenderObjectTree
-#include "RTE_Data.h"
 #include "RTE_Layout.h"
 #include "RTE_Logging.h"
 #include "RTE_Parenting.h"
@@ -113,7 +112,6 @@ private:
     // 3.) Insert the new object here as a unique pointer
     // 4.) Initialize via make_unique in the RenderObjectTree constructor
     //---------------------------------------
-    std::unique_ptr<RenderObjectTreeExpansion::Data> data;
     std::unique_ptr<RenderObjectTreeExpansion::Layout> layout;
     std::unique_ptr<RenderObjectTreeExpansion::Logging> logging;
     std::unique_ptr<RenderObjectTreeExpansion::Parenting> parenting;

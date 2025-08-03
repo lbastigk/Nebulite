@@ -36,7 +36,6 @@ Nebulite::RenderObject::RenderObject() : renderObjectTree(this) {
 	json.set(Nebulite::keyName.renderObject.textFontsize.c_str(),0);
 	json.set(Nebulite::keyName.renderObject.textDx.c_str(),0.0);
 	json.set(Nebulite::keyName.renderObject.textDy.c_str(),0.0);
-	json.set(Nebulite::keyName.renderObject.flagCalculate.c_str(),true);
 	json.set(Nebulite::keyName.renderObject.textColorR.c_str(),255);
 	json.set(Nebulite::keyName.renderObject.textColorG.c_str(),255);
 	json.set(Nebulite::keyName.renderObject.textColorB.c_str(),255);
@@ -52,8 +51,10 @@ Nebulite::RenderObject::RenderObject() : renderObjectTree(this) {
 	textSurface = nullptr;
     textTexture = nullptr;
 
-	// Deleteflag false, is set by internal functioncalls
-	deleteFlag = false;
+	//------------------------------------------------------------
+	// Flags
+	flag.deleteFromScene = false;
+	flag.calculateText = true;		// In order to calculate text texture on first update
 }
 
 Nebulite::RenderObject::~RenderObject() {
@@ -80,6 +81,7 @@ std::string Nebulite::RenderObject::serialize() {
 
 
 void Nebulite::RenderObject::deserialize(std::string serialOrLink) {
+
 	// Check if argv1 provided is an object
 	if(serialOrLink.starts_with('{')){
 		json.deserialize(serialOrLink);
@@ -112,24 +114,17 @@ void Nebulite::RenderObject::deserialize(std::string serialOrLink) {
 				auto pos = token.find('=');
 				std::string key = token.substr(0, pos);
 				std::string value = token.substr(pos + 1);
-				json.set<std::string>(key.c_str(), value);
+
+				// Old implementation via direct set
+				//json.set<std::string>(key.c_str(), value);
+
+				// New implementation through functioncall
+				parseStr("Nebulite::RenderObject::deserialize set " + key + " " + value);
 			}
 			// Handle function call
 			else {
 				// Forward to FunctionTree for resolution
 				parseStr("Nebulite::RenderObject::deserialize " + token);
-
-				// TODO: if the function call is not recognized, 
-				// pass to the next lowever Tree.
-				// Example implementation:
-				/*
-				if(!funcTree.exists(token)){
-					json.parseStr(token);
-				*/
-				// Even better would be to link the json functree to the RenderObjectTree:
-				// renderObjectTree.linkChildTree(&json.funcTree);
-				// This way, any parseStr with an unrecognized function call
-				// will be forwarded to the json functree.
 			}
 		}
 	}
@@ -156,7 +151,7 @@ void Nebulite::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font
 	// - new text
 	// - new color
 	// - new text size
-	if(valueGet<bool>(Nebulite::keyName.renderObject.flagCalculate.c_str(),true)){
+	if(flag.calculateText){
 		// Free previous texture
         if (textTexture != nullptr) {
             SDL_DestroyTexture(textTexture);
@@ -189,7 +184,7 @@ void Nebulite::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font
         }
 
 		// Set flag back to false
-		valueSet<bool>(Nebulite::keyName.renderObject.flagCalculate.c_str(),false);
+		flag.calculateText = false;
 	}
 }
 
@@ -328,5 +323,11 @@ uint64_t Nebulite::RenderObject::estimateComputationalCost(){
 
 
 Nebulite::ERROR_TYPE Nebulite::RenderObject::parseStr(const std::string& str){
-	return renderObjectTree.parseStr(str);
+	// Priority 1: RenderObjectTree
+	if(renderObjectTree.hasFunction(str)) {
+		return renderObjectTree.parseStr(str);
+	}
+
+	// Priority 2: JSONTree
+	return json.parseStr(str);
 }
