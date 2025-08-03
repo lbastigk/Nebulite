@@ -3,17 +3,17 @@
 #include "Invoke.h"            // Invoke for parsing expressions
 
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::printGlobal(int argc, char* argv[]){
-    std::cout << global->getRenderer()->serializeGlobal() << std::endl;
+    std::cout << self->getRenderer()->serializeGlobal() << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::printState(int argc, char* argv[]){
-    std::cout << global->getRenderer()->serialize() << std::endl;
+    std::cout << self->getRenderer()->serialize() << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::logGlobal(int argc, char* argv[]){
-    std::string serialized = global->getRenderer()->serializeGlobal();
+    std::string serialized = self->getRenderer()->serializeGlobal();
     if (argc>1){
         for(int i=1; i < argc; i++){
             FileManagement::WriteFile(argv[i],serialized);
@@ -26,7 +26,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::logGlobal(int argc, cha
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::logState(int argc, char* argv[]){
-    std::string serialized = global->getRenderer()->serialize();
+    std::string serialized = self->getRenderer()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
             FileManagement::WriteFile(argv[i],serialized);
@@ -47,23 +47,23 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::render_object(int argc,
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::errorlog(int argc, char* argv[]){
     if(argc == 2){
         if(!strcmp(argv[1], "on")){
-            if(!global->errorLogStatus){
+            if(!self->errorLogStatus){
                 try {
                     // Create ofstream only when needed (lazy initialization)
-                    if (!global->errorFile) {
-                        global->errorFile = std::make_unique<std::ofstream>();
+                    if (!self->errorFile) {
+                        self->errorFile = std::make_unique<std::ofstream>();
                     }
                     
                     // Log errors in separate file
-                    global->errorFile->open("errors.log");
-                    if (!(*global->errorFile)) {
+                    self->errorFile->open("errors.log");
+                    if (!(*self->errorFile)) {
                         std::cerr << "Failed to open error file." << std::endl;
                         return Nebulite::ERROR_TYPE::CRITICAL_INVALID_FILE;
                     }
                     
-                    global->originalCerrBuf = std::cerr.rdbuf(); // Store the original cerr buffer
-                    std::cerr.rdbuf(global->errorFile->rdbuf()); // Redirect to file
-                    global->errorLogStatus = true;
+                    self->originalCerrBuf = std::cerr.rdbuf(); // Store the original cerr buffer
+                    std::cerr.rdbuf(self->errorFile->rdbuf()); // Redirect to file
+                    self->errorLogStatus = true;
                     
                 } catch (const std::exception& e) {
                     std::cerr << "Failed to create error log: " << e.what() << std::endl;
@@ -75,17 +75,17 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::errorlog(int argc, char
             }
         }
         else if (!strcmp(argv[1], "off")){
-            if(global->errorLogStatus){
+            if(self->errorLogStatus){
                 // Close error log
                 std::cerr.flush();                           // Flush before restoring
-                std::cerr.rdbuf(global->originalCerrBuf);     // Restore the original buffer
+                std::cerr.rdbuf(self->originalCerrBuf);     // Restore the original buffer
                 
-                if (global->errorFile) {
-                    global->errorFile->close();
+                if (self->errorFile) {
+                    self->errorFile->close();
                     // Keep the unique_ptr for potential reuse
                 }
                 
-                global->errorLogStatus = false;
+                self->errorLogStatus = false;
             }
         } 
     }
@@ -118,7 +118,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::always(int argc, char* 
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                global->tasks_always.taskList.push_back(command);
+                self->tasks_always.taskList.push_back(command);
             }
         }
     }
@@ -126,7 +126,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::always(int argc, char* 
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::alwaysClear(int argc, char* argv[]){
-    global->tasks_always.taskList.clear();
+    self->tasks_always.taskList.clear();
     return Nebulite::ERROR_TYPE::NONE;
 }
 
@@ -134,6 +134,6 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::alwaysClear(int argc, c
 
 
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Debug::printVar(int argc, char** argv){
-    std::cout << "headless: " << global->headless << std::endl;
+    std::cout << "headless: " << self->headless << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
 }

@@ -6,13 +6,13 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::setGlobal(int argc, c
     if(argc == 3){
         std::string key = argv[1];
         std::string value = argv[2];
-        global->getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
+        self->getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
         return Nebulite::ERROR_TYPE::NONE;
     }
     if(argc == 2){
         std::string key = argv[1];
         std::string value = "0";
-        global->getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
+        self->getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
         return Nebulite::ERROR_TYPE::NONE;
     }
     if(argc < 2){
@@ -34,14 +34,14 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::eval(int argc, char* 
     }
 
     // eval all $(...)
-    std::string args_evaled = invoke->resolveGlobalVars(args);
+    std::string args_evaled = self->invoke->resolveGlobalVars(args);
 
     // reparse
     return funcTree->parseStr(args_evaled);
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::exitProgram(int argc, char* argv[]){
-    global->getRenderer()->setQuit();
+    self->getRenderer()->setQuit();
     return Nebulite::ERROR_TYPE::NONE;
 }
 
@@ -67,9 +67,9 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::stateSave(int argc, c
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::wait(int argc, char* argv[]){
     if(argc == 2){
         std::istringstream iss(argv[1]);
-        iss >> global->tasks_script.waitCounter;
-        if (global->tasks_script.waitCounter < 0){
-            global->tasks_script.waitCounter = 0;
+        iss >> self->tasks_script.waitCounter;
+        if (self->tasks_script.waitCounter < 0){
+            self->tasks_script.waitCounter = 0;
         }
         return Nebulite::ERROR_TYPE::NONE;
     }
@@ -117,7 +117,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::loadTaskList(int argc
 
     // Now insert all lines into the task queue
     for (const auto& line : lines){
-        global->tasks_script.taskList.push_front(line);
+        self->tasks_script.taskList.push_front(line);
     }
 
     return Nebulite::ERROR_TYPE::NONE;
@@ -193,11 +193,11 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::forceGlobal(int argc,
 
     std::string key = argv[1];
     std::string value = argv[2];
-    global->getRenderer()->setForcedGlobalValue(key, value);
+    self->getRenderer()->setForcedGlobalValue(key, value);
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::General::clearForceGlobal(int argc, char* argv[]) {
-    global->getRenderer()->clearForcedGlobalValues();
+    self->getRenderer()->clearForcedGlobalValues();
     return Nebulite::ERROR_TYPE::NONE;
 }

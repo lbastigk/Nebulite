@@ -28,7 +28,7 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& o
 
     //-------------------------------------------------
     // MainTree
-    mainTree = std::make_unique<Nebulite::MainTree>(invoke.get(), this);
+    mainTree = std::make_unique<Nebulite::MainTree>(this);
 
     //-------------------------------------------------
     // General Variables

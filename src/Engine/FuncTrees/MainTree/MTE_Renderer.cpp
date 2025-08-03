@@ -4,19 +4,19 @@
 
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::envload(int argc, char* argv[]){
     if(argc > 1){
-        global->getRenderer()->deserialize(argv[1]);
+        self->getRenderer()->deserialize(argv[1]);
         return Nebulite::ERROR_TYPE::NONE;
     }
     else{
         // no name provided, load empty env
-        global->getRenderer()->deserialize("{}");
+        self->getRenderer()->deserialize("{}");
         return Nebulite::ERROR_TYPE::NONE;
     }
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::envdeload(int argc, char* argv[]){
-    global->getRenderer()->purgeObjects();
-    global->getRenderer()->purgeTextures();
+    self->getRenderer()->purgeObjects();
+    self->getRenderer()->purgeTextures();
     return Nebulite::ERROR_TYPE::NONE;
 }
 
@@ -41,7 +41,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::spawn(int argc, char
 
         // Append to renderer
         // Renderer manages the RenderObjects lifetime
-        global->getRenderer()->append(ro);
+        self->getRenderer()->append(ro);
     }
     else{
         std::cerr << "No renderobject name provided!" << std::endl;
@@ -64,19 +64,19 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::setResolution(int ar
     if(argc > 3){
         scalar = std::stoi(argv[3]);
     }
-    global->getRenderer()->changeWindowSize(w,h,scalar);
+    self->getRenderer()->changeWindowSize(w,h,scalar);
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::setFPS(int argc, char* argv[]){
     if(argc != 2){
-        global->getRenderer()->setFPS(60);
+        self->getRenderer()->setFPS(60);
     }
     else{
         int fps = std::stoi(argv[1]);
         if(fps < 1) fps=1;
         if(fps > 10000) fps=10000;
-        global->getRenderer()->setFPS(fps);
+        self->getRenderer()->setFPS(fps);
     }
     return Nebulite::ERROR_TYPE::NONE;
 }
@@ -91,7 +91,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::moveCam(int argc, ch
 
     int dx = std::stoi(argv[1]);
     int dy = std::stoi(argv[2]);
-    global->getRenderer()->moveCam(dx,dy);
+    self->getRenderer()->moveCam(dx,dy);
     return Nebulite::ERROR_TYPE::NONE;
 }
 
@@ -99,14 +99,14 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::setCam(int argc, cha
     if(argc == 3){
         int x = std::stoi(argv[1]);
         int y = std::stoi(argv[2]);
-        global->getRenderer()->setCam(x,y);
+        self->getRenderer()->setCam(x,y);
         return Nebulite::ERROR_TYPE::NONE;
     }
     if(argc == 4){
         if(!strcmp(argv[3], "c")){
             int x = std::stoi(argv[1]);
             int y = std::stoi(argv[2]);
-            global->getRenderer()->setCam(x,y,true);
+            self->getRenderer()->setCam(x,y,true);
             return Nebulite::ERROR_TYPE::NONE;
         }
         else{
@@ -123,7 +123,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::setCam(int argc, cha
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::snapshot(int argc, char* argv[]){
     if(argc == 1){
         // No link provided, use default
-        bool success = global->getRenderer()->snapshot();
+        bool success = self->getRenderer()->snapshot();
         if (!success) {
             return Nebulite::ERROR_TYPE::SNAPSHOT_FAILED;
         }
@@ -132,7 +132,7 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::snapshot(int argc, c
     else if(argc == 2){
         // Link provided
         std::string link = argv[1];
-        bool success = global->getRenderer()->snapshot(link);
+        bool success = self->getRenderer()->snapshot(link);
         if (!success) {
             return Nebulite::ERROR_TYPE::SNAPSHOT_FAILED;
         }
@@ -145,6 +145,6 @@ Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::snapshot(int argc, c
 
 Nebulite::ERROR_TYPE Nebulite::MainTreeExpansion::Renderer::beep(int argc, char* argv[]){
     // Beep function for debugging, from SDL
-    global->getRenderer()->beep();
+    self->getRenderer()->beep();
     return Nebulite::ERROR_TYPE::NONE;
 }

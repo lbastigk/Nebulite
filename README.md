@@ -182,6 +182,11 @@ Maintainers can create their own Tree-expansion classes and add them to the spec
 | specific RenderObjects       | Extend the `RenderObjectTree` | See `include/RenderObjectTree.h` and its expansions `include/RTE_*.h`   |
 | specific JSON-Documents      | Extend the `JSONTree`         | See `include/JSONTree.h` and its expansions `include/JTE_*.h`           |
 
+Each Class has access to a different tree through `funcTree->...` and a different workspace through `self->...`: 
+- `MainTree` can access the global space
+- `RenderObjectTree` can access the attached RenderObject
+- `JSONTree` can access the attached JSON
+
 Example procedure for a new MainTree feature:
 1. **Create expansion file:** `MTE_MyFeature.{h,cpp}`
 2. **Inherit from wrapper:** Create class inheriting from `MainTreeExpansion::Wrapper<MyFeature>`
@@ -201,6 +206,7 @@ public:
 private:
     void setupBindings(){
         bindFunction(&MyFeature::spawnCircle, "spawn-circle", "Spawn a circle");
+        /*Bind more functions of MyFeature here*/
     }
 };
 ```
@@ -208,7 +214,11 @@ Inside MyFeature.cpp:
 ```cpp
 #include "MyFeature.h"
 ERROR_TYPE spawnCircle(int argc, char* argv[]){
-    /*...*/
+    /*
+    Implementation here.
+    You can access the global space and its members through: self->...
+    As well as the funcTree through: funcTree->...
+    */
 }
 ```
 Then add to include/MainTree.h:
@@ -230,3 +240,7 @@ Nebulite::MainTree::MainTree(/*...*/) : /*...*/
     myFeature = createExpansionOfType<MainTreeExpansion::MyFeature>();
 }
 ```
+
+If necessary, the entire feature can then be:
+- **disabled** by commenting out `createExpansionOfType`
+- **removed** by undoing the changes inside `MainTree.{h,cpp}`

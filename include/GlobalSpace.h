@@ -106,14 +106,17 @@ namespace Nebulite {
         // Always-tasks added with the prefix "always "
         Nebulite::taskQueue tasks_always;
 
-        
-
+    
+    // Removal of private keyword for easier access for Expansion classes
+    /*
     private:
         //---------------------------------------
         // Allow MainTree Categories to access private members
         friend class Nebulite::MainTreeExpansion::General;
         friend class Nebulite::MainTreeExpansion::Renderer;
         friend class Nebulite::MainTreeExpansion::Debug;
+    */
+
         
 
         //---------------------------------------

@@ -63,17 +63,16 @@ class GlobalSpace;
 // MainTree class, Expand through Expansion files
 class MainTree : public FuncTreeWrapper<Nebulite::ERROR_TYPE>{  // Inherit a funcTree and helper functions
 public:
-    MainTree(Nebulite::Invoke* invoke, Nebulite::GlobalSpace* globalSpace);
+    MainTree(Nebulite::GlobalSpace* globalSpace);
 private:
     // References are needed within the base class to simplify the factory method
-    Nebulite::Invoke* invokeLinkage;            // Linkage to the Invoke system
-    Nebulite::GlobalSpace* globalSpaceLinkage;  // Linkage to the GlobalSpace
+    Nebulite::GlobalSpace* self;  // Linkage to the GlobalSpace
 
     // Factory method for creating expansion instances with proper linkage
     // Improves readability and maintainability
     template<typename ExpansionType>
     std::unique_ptr<ExpansionType> createExpansionOfType() {
-        auto expansion = std::make_unique<ExpansionType>(invokeLinkage, globalSpaceLinkage, &funcTree);
+        auto expansion = std::make_unique<ExpansionType>(self, &funcTree);
         // Initializing is currently done on construction of the expansion
         // However, if any additional setup is needed later on that can't be done on construction,
         // this simplifies the process
@@ -86,10 +85,9 @@ private:
     // Maintainers can separately implement their own features and merge them into the MainTree. 
     //
     // 1.) Create a new Class by inheriting from Nebulite::MainTreeExpansion::Wrapper ( .h file in ./include and .cpp file in ./src)
-    // 2.) Ensure the Class is a friend of Nebulite::GlobalSpace (see GlobalSpace.h)
-    // 3.) Implement the setupBindings() method to bind functions
-    // 4.) Insert the new object here as a unique pointer
-    // 5.) Initialize via make_unique in the MainTree constructor
+    // 2.) Implement the setupBindings() method to bind functions
+    // 3.) Insert the new object here as a unique pointer
+    // 4.) Initialize via make_unique in the MainTree constructor
     //---------------------------------------
     std::unique_ptr<MainTreeExpansion::Debug> debug;
     std::unique_ptr<MainTreeExpansion::General> general;

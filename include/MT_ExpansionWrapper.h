@@ -27,8 +27,8 @@ template<typename DerivedClass>
 class Wrapper{
 public:
     // Binds all functions for this category on construction
-    Wrapper(Invoke* invoke, GlobalSpace* globalSpace, FuncTree<ERROR_TYPE>* funcTreePtr)
-        : invoke(invoke), global(globalSpace), funcTree(funcTreePtr) 
+    Wrapper(GlobalSpace* globalSpace, FuncTree<ERROR_TYPE>* funcTreePtr)
+        : self(globalSpace), funcTree(funcTreePtr) 
     {
         // Initialize the defined Variable and Function Bindings
         static_cast<DerivedClass*>(this)->setupBindings();
@@ -60,8 +60,7 @@ public:
 protected:
     //--------------------------
     // Linkages
-    Invoke* invoke;
-    GlobalSpace* global;
+    GlobalSpace* self;
     FuncTree<ERROR_TYPE>* funcTree;
 };
 }
