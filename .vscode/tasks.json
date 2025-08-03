@@ -28,14 +28,14 @@
         {
             "label": "[BUILD + TEST]",
             "type": "shell",
-            "command": "cd ./Application && ./validate_json.sh && ./Tests.sh && cd ..",
+            "command": "cd ./Application && ./validate_json.sh && ./Tests.sh --stop && cd ..",
             "group": {
                 "kind": "build",
                 "isDefault": false
             },
             "dependsOn" : "[BUILD]",
             "problemMatcher": [],
-            "detail": "Build with JSON validation and run Tests"
+            "detail": "Build with JSON validation and run Tests. Stops on first failure."
         }, 
         // Profiling
         {
