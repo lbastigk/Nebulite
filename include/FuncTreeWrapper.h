@@ -70,6 +70,11 @@ public:
         funcTree.attachVariable(varPtr, name, helpDescription);
     }
 
+    // Check if a function is attached
+    bool hasFunction(const std::string& nameOrCommand) {
+        return funcTree.hasFunction(nameOrCommand);
+    }
+
 protected:
     FuncTree<T> funcTree;
 };
