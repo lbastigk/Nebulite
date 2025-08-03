@@ -276,7 +276,8 @@ print_summary() {
     echo ""
     echo ""
     printf "%-20s | %-50s\n" "Binary" "Result"
-    echo "$(printf '%.0s-' {1..75})"
+    printf '%.0s-' {1..75}
+    printf "\n"
     
     for label in "Linux Debug" "Linux Release" "Windows Debug" "Windows Release"; do
         local result="${test_results[$label]:-NOT RUN}"
