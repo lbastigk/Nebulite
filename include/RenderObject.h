@@ -114,6 +114,9 @@ public:
 	uint64_t estimateComputationalCost();
 
 	// For internal string parsing in RenderObjectTree
+	// IMPORTANT: Make sure the first arg is a name and not the function itself!
+	// e.g. parseStr("set text.str Hello World") -> does not work
+	// e.g. parseStr("<someName> set text.str Hello World") -> works
 	Nebulite::ERROR_TYPE parseStr(const std::string& str);
 
 	// Deleteflag for this object
