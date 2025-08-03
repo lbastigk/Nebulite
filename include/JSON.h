@@ -25,6 +25,7 @@ A cache is implemented for fast setting/getting of keys. Only if needed are thos
 
 // Internal dependencies
 #include "FileManagement.h"
+#include "JSONTree.h"
 
 namespace Nebulite{
     // Template for supported cache storages
@@ -155,6 +156,7 @@ namespace Nebulite{
         //rapidjson::Document* getDoc() const {return const_cast<rapidjson::Document*>(&doc);}
     private:
         mutable std::recursive_mutex mtx;
+
         //--------------------------------------------------------------------
         // Value storage
 
@@ -225,6 +227,10 @@ namespace Nebulite{
             static std::string serialize(const rapidjson::Document& doc);
             static void empty(rapidjson::Document &doc);
         };
+
+        //--------------------------------------------------------------------
+        // Future FuncTree:
+        Nebulite::JSONTree jsonTree; // JSONTree for handling JSON specific function calls
     };
 }
 
