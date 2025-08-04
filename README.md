@@ -38,7 +38,7 @@ Example of an Invoke for a gravity ruleset:
 // Make sure the object listens to topic gravity as well
 // -> append str "gravity" to its key "invokeSubscriptions"
 {
-  "topic": "gravity",   // 
+  "topic": "gravity",   // Broadcasting this ruleset to any other object subscribed to "gravity"
   "logicalArg": "1",    // We already ensured that only objects subscribed to gravity interact
   "exprs": [
     // Pulling in the other object:
