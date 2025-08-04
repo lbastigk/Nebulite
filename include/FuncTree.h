@@ -1,18 +1,49 @@
-// This header defines the FuncTree class, which is responsible for parsing command-line
-// arguments and executing the corresponding functions in the Nebulite project. The main goal
-// of this class is to manage hierarchical commands and arguments for modular and flexible execution.
+/*
+This header defines the FuncTree class, which is responsible for parsing command-line
+arguments and executing the corresponding functions in the Nebulite project. The main goal
+of this class is to manage hierarchical commands and arguments for modular and flexible execution.
+
+Example usage:
+
+--------------------------------
+#include "FuncTree.h"
+int main(int argc, char* argv[]) {
+    FuncTree<std::string> funcTree("Nebulite", "ok", "Function not found");
+    funcTree.bindFunction([](int argc, char* argv[]) {
+        // Function implementation
+        return "Function executed";
+    }, "myFunction", "This function does something");
+
+    std::string result = funcTree.parse(argc,argv);
+    std::cout << result << "\n";
+}
+---------------------------------
+This will parse the command-line arguments and execute the "myFunction" if it is called:
+./main myFunction        -> cout: "Function executed"
+./main                   -> cout: "ok" (SUCCESS: no function called)
+./main help              -> cout: shows available commands and their descriptions
+./main someOtherFunction -> cout: "Function not found", 
+                            cerr: "Function 'someOtherFunction' not found." 
+*/
+
 
 // TODO: Going away from classic C-style argc/argv to a more modern approach:
 // - std::vector<std::string> callTrace // shows the call trace of the function, e.g.: "Nebulite", "eval", "echo"
 // - std::vector<std::string> args      // shows the arguments of the function, e.g.: "echo", "Hello World!"
+// - std::vector<std::string> variables // shows the variables set by the user, e.g.: {"--verbose": "true"}
+
+// TODO: Tree-Inheritance + removal of pseudo-inheritance in Parse commands in RenderObject and GlobalSpace
+
 #pragma once
 
-#include <iomanip>  // For std::setw
+// Basic includes
+#include <iomanip>
 #include <iostream>
 #include <vector>
 #include "absl/container/flat_hash_map.h"
 #include <functional>
 #include <cstring>
+#include <algorithm>
 
 // Custom includes
 #include "StringHandler.h"
@@ -39,41 +70,53 @@ public:
     RETURN_TYPE parseStr(const std::string& cmd);
 
     // Binding helper
-    // TODO: Instead of calling attachFunction, directly modify map
-    // Binding helper
     // e.g.: bindFunction(&ComplexData::sqlCall, "sqlCall", "Handles SQL calls");
     template<typename ClassType>
     void bindFunction(ClassType* obj,
             RETURN_TYPE (ClassType::*method)(int, char**),
             const std::string& name,
             const std::string& help) {
-        // Create std::function that binds the member function to the object
-        functions[name] = std::make_pair(
+        // Create FunctionInfo directly
+        functions[name] = FunctionInfo{
             [obj, method](int argc, char** argv) {
                 return (obj->*method)(argc, argv);
             },
             help
-        );
+        };
     }
     // Required overload to attach the help-function
     template<typename FuncType>
     void bindFunction(FuncType&& func,
             const std::string& name,
             const std::string& help) {
-        functions[name] = std::make_pair(
+        // Create FunctionInfo directly
+        functions[name] = FunctionInfo{
             std::function<RETURN_TYPE(int, char**)>(std::forward<FuncType>(func)),
             help
-        );
+        };
     }
 
-    // Attach a variable to the menu (by name)
+    // Bind a variable to the menu (by name)
+    // once bound, it can be set via command line arguments: --varName=value (Must be before the function name!)
     void bindVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription);
 
     // Check if a function with the given name or from a full command exists
     bool hasFunction(const std::string& nameOrCommand);
 
 private:
-    // Execute a given function
+    // Function - Description pair
+    struct FunctionInfo {
+        FunctionPtr function;
+        std::string description;
+    };
+
+    // Variable - Description pair
+    struct VariableInfo {
+        std::string* pointer;
+        std::string description;
+    };
+
+    // Execute the function based on its name, passing the remaining argc and argv
     RETURN_TYPE executeFunction(const std::string& name, int argc, char* argv[]);
 
     // Help-command, called with argv[1] = "help"
@@ -86,14 +129,14 @@ private:
     RETURN_TYPE _standard;
 
     // Map for Functions: name -> (functionPtr, info)
-    absl::flat_hash_map<std::string, std::pair<FunctionPtr,  std::string>> functions;
+    absl::flat_hash_map<std::string, FunctionInfo> functions;
 
     // Map for variables: name -> (pointer, info)
-    absl::flat_hash_map<std::string, std::pair<std::string*, std::string>> variables;
+    absl::flat_hash_map<std::string, VariableInfo> variables;
 
+    // Name of the tree, used for help and output
     std::string TreeName; 
 };
-
 
 
 template<typename RETURN_TYPE>
@@ -111,7 +154,7 @@ FuncTree<RETURN_TYPE>::FuncTree(std::string treeName, RETURN_TYPE standard, RETU
 
 template<typename RETURN_TYPE>
 void FuncTree<RETURN_TYPE>::bindVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription) {
-    variables[name] = std::make_pair(varPtr, helpDescription);
+    variables[name] = VariableInfo{varPtr, helpDescription};
 }
 
 template<typename RETURN_TYPE>
@@ -130,7 +173,7 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::parse(int argc, char* argv[]) {
     bool parseVars = true;
     while(parseVars && argc > 0){
         std::string arg = argv[0];
-        if(arg.starts_with("--")){
+        if(arg.length() >= 2 && arg.substr(0, 2) == "--" /*same as arg.starts_with("--"), but C++17 compatible*/){
             // -key=value or --key
             std::string key, val;
             size_t eqPos = arg.find('=');
@@ -143,9 +186,13 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::parse(int argc, char* argv[]) {
             }
 
             // Set variable if attached
-            auto varIt = variables.find(key);
-            if (varIt != variables.end() && varIt->second.first) {
-                *(varIt->second.first) = val;
+            if (auto varIt = variables.find(key); varIt != variables.end()) {
+                const auto& varInfo = varIt->second;  // Now it's VariableInfo, not a pair
+                if (varInfo.pointer) {
+                    *varInfo.pointer = val;
+                }
+            } else {
+                std::cerr << "Warning: Unknown variable '--" << key << "'\n";
             }
 
             // Remove from argument list
@@ -188,13 +235,12 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::parseStr(const std::string& cmd) {
     return parse(argc, argv.data());
 }
 
-
-// Execute the function based on its name, passing the remaining argc and argv
 template<typename RETURN_TYPE>
 RETURN_TYPE FuncTree<RETURN_TYPE>::executeFunction(const std::string& name, int argc, char* argv[]) {
-    auto it = functions.find(name);
-    if (it != functions.end()) {
-        return it->second.first(argc, argv);  // Call the function
+    auto functionPosition = functions.find(name);
+    if (functionPosition != functions.end()) {
+        auto& [functionPtr, description] = functionPosition->second;
+        return functionPtr(argc, argv);  // Call the function
     } else {
         std::cerr << "Function '" << name << "' not found.\n";
         return _functionNotFoundError;  // Return error if function not found
@@ -209,46 +255,49 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::help(int argc, char* argv[]) {
     if (argc <= 1) {
         std::cout << "Available functions:\n";
 
-        // Step 1: Extract entries into a vector (excluding "help")
-        std::vector<std::pair<std::string, std::pair<FunctionPtr, std::string>>> sortedFunctions;
+        // Sort functions by name, excluding "help"
+        std::vector<std::pair<std::string, FunctionInfo>> sortedFunctions;
         for (const auto& entry : functions) {
             if (entry.first != "help") {
                 sortedFunctions.push_back(entry);
             }
         }
 
-        // Step 2: Sort by function name (entry.first)
+        // Sort by function name
         std::sort(sortedFunctions.begin(), sortedFunctions.end(),
             [](const auto& a, const auto& b) {
                 return a.first < b.first;
             });
 
-        // Step 3: Print functions
-        for (const auto& entry : sortedFunctions) {
+        // Print functions
+        for (const auto& [name, funcInfo] : sortedFunctions) {
             std::cout << "  "
-                    << std::setw(25) << std::left << entry.first
+                    << std::setw(25) << std::left << name
                     << " - "
-                    << entry.second.second
+                    << funcInfo.description
                     << std::endl;
         }
 
         // List all attached variables
         if (!variables.empty()) {
             std::cout << "\nAvailable variables:\n";
-            // Sort variables by name
-            std::vector<std::pair<std::string, std::pair<std::string*, std::string>>> sortedVariables(
+            std::vector<std::pair<std::string, VariableInfo>> sortedVariables(
                 variables.begin(), variables.end());
+            
             std::sort(sortedVariables.begin(), sortedVariables.end(),
                 [](const auto& a, const auto& b) {
                     return a.first < b.first;
                 });
-            for (const auto& entry : sortedVariables) {
+            
+            for (const auto& [name, varInfo] : sortedVariables) {
                 std::cout << "  "
-                        << std::setw(25) << std::left << entry.first
-                        << " - "
-                        << entry.second.second
-                        << std::endl;
+                          << std::setw(25) << std::left << name
+                          << " - "
+                          << varInfo.description
+                          << std::endl;
             }
+        } else {
+            std::cout << "No variables attached.\n";
         }
 
         return _standard;
@@ -258,13 +307,13 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::help(int argc, char* argv[]) {
     for (int i = 1; i < argc; i++) {
         if (argv[i] == nullptr) {
             std::cerr << "Error: Null argument found.\n";
-            continue;  // Skip null arguments
+            continue;
         }
 
-        auto it = functions.find(std::string(argv[i]));
-        if (it != functions.end()) {
+        auto functionPosition = functions.find(std::string(argv[i]));
+        if (functionPosition != functions.end()) {
             std::cout << std::string(argv[i]) << std::endl;
-            std::cout << it->second.second << std::endl;  // Print function description
+            std::cout << functionPosition->second.description << std::endl;
         } else {
             std::cerr << "Function '" << argv[i] << "' not found.\n";
         }
