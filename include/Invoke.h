@@ -171,81 +171,19 @@ DESIGN ENCOURAGEMENTS
 // Local
 #include "tinyexpr.h"
 #include "JSON.h"
+#include "InvokeNode.h"
 
-// Keywords for resolving: $(1+1) , $(global.time.t) , ...
-#define InvokeResolveKeyword '$'
-#define InvokeResolveKeywordWithOpenParanthesis "$("
+
 namespace Nebulite{
 
-// Forward declaration of RenderObject
+// Forward declarations
 class RenderObject;
+class InvokeNode;
 
-// TODO: Nebulite::InvokeNode;  Separate Node Functions and Objects from Invoke into a separate file for better readability
-// TODO: Nebulite::InvokeEntry; Separate JSON to Invoke Entry into a separate file for better readability
 class Invoke{
 public:
     //--------------------------------------------
     // Class-Specific Structures:
-
-
-    // ==== EXPRESSION PARSING ====
-    struct Node {
-      // Each expression is pre-processed using a Tree build of Nodes
-      // Each node is a part of the expression:
-      // - Literal:     "this is a literal"
-      // - Variable:    "$(global.time.t)"
-      // - Mix_eval:    "$(1+$(global.time.t))"
-      // - Mix_no_eval: "The time is: $(global.time.t)"
-      //
-      // Type Mix indicates Children!
-      //
-      // Example, say self.variable = 2
-      // 
-      // Version 1: Mix_eval
-      // $($(self.variable) + 1)
-      // Root has a $(...)
-      // - children_1 : text = self.variable, type = Variable
-      // - children_2 : text = " + 1",        type = Literal
-      // Result: "3"
-      //
-      //
-      // Version 1: Mix_no_eval
-      // $(self.variable) + 1
-      // Root has no $(...)
-      // - children[0] : text = self.variable, type = Variable
-      // - children[1] : text = " + 1",        type = Literal
-      // Result: "2 + 1"
-      enum class Type {
-          Literal,      // Plain text
-          Variable,     // $(self.value) or similar
-          Mix_eval,     // An expression like $($(self.var) + 1), must evaluate entire subtree
-          Mix_no_eval   // A mix of variables and literals, but not wrapped in $(...), just concatenate
-      };
-      Type type = Type::Literal;
-      std::string text;
-      std::vector<std::shared_ptr<Nebulite::Invoke::Node>> children; // for nested variables (if Expr)
-
-      // Context on what data resource is taken from
-      enum class ContextType { None, Self, Other, Global, Resources };
-      ContextType context = ContextType::None;
-
-      // Cast type. E.g.: $f(...) or $i(...)
-      enum class CastType { None, Float, Int };
-      CastType cast = CastType::None;
-
-      // doc[key] being used
-      std::string key;
-
-      // If the node contains just a number: $(100)
-      bool isNumericLiteral = false;
-
-      // Making evaluation faster by checking if a parent would evaluate this node:
-      // e.g.: $(1 + $(2 + 3))
-      // makes sure that the inner $(2+3) expression is not resolved:
-      // $(1 + 5.0000)  -> BAD, total calls for expr is 2
-      // $(1 + (2 + 3)) -> BETTER. only one call
-      bool insideEvalParent = false;      
-    };
 
     // ==== INVOKE ENTRY PARSING ====
     // Prases the JSON doc part "invokes" of a renderobject into Structures
@@ -296,21 +234,9 @@ public:
       Nebulite::RenderObject* selfPtr;                            // store self
     };
 
-    // ==== INVOKE PARSING HELPER FUNCTIONS ====  
-    class JSONParseHelper{
-      public:
-      static void getFunctionCalls(Nebulite::JSON& entryDoc,Nebulite::Invoke::Entry& invokeEntry);
-      static bool getExpression(Nebulite::Invoke::AssignmentExpression& assignmentExpr, Nebulite::JSON& entry, int index);
-      static std::string getLogicalArg(Nebulite::JSON& entry);
-      static bool getInvokeEntry(Nebulite::JSON& doc, Nebulite::JSON& entry, int index);
-    };
+    
     // Function to convert a JSON doc of Renderobject into a vector of Invoke::Entry
-    static void parseFromJSON(
-      Nebulite::JSON& doc, 
-      std::vector<std::shared_ptr<Nebulite::Invoke::Entry>>& entries_global, 
-      std::vector<std::shared_ptr<Nebulite::Invoke::Entry>>& entries_local, 
-      Nebulite::RenderObject* self
-    );
+
 
     //--------------------------------------------
     // General
@@ -451,7 +377,7 @@ private:
 
     // Map for each Tree
     std::shared_mutex exprTreeMutex;
-    absl::flat_hash_map<std::string, std::shared_ptr<Nebulite::Invoke::Node>> exprTree;
+    absl::flat_hash_map<std::string, std::shared_ptr<Nebulite::InvokeNode>> exprTree;
 
     
     //----------------------------------------------------------------
@@ -466,45 +392,7 @@ private:
     // Resolving self/other/global references
     std::string resolveVars(const std::string& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global);
 
-    
-
-    friend class NodeHelper; // Allow NodeHelper to access private members
-
-    class NodeHelper{
-    public:
-      NodeHelper(Nebulite::Invoke* invoke) : invoke(invoke) {}
-
-      // turn nodes that hold just constant to evaluate into text
-      // e.g. $(1+1) is turned into 2.000...
-      void foldConstants(const std::shared_ptr<Nebulite::Invoke::Node>& node);
-
-      // Main function for turning a string expression into a Node Tree
-      std::shared_ptr<Nebulite::Invoke::Node> expressionToTree(const std::string& input);
-
-      // Helper function for casting
-      std::string castValue(const std::string& value, Node* nodeptr, Nebulite::JSON *doc);
-
-      // Helper function to parse inner variable
-      Nebulite::Invoke::Node parseInnerVariable(const std::string& inner);
-
-      // Helper funtion for evaluateNode for parsing 
-      std::shared_ptr<Nebulite::Invoke::Node> parseChild(const std::string& input, size_t& i);
-
-      // Takes a pre-processed node and combines all children into a single string
-      std::string combineChildren(const std::shared_ptr<Nebulite::Invoke::Node>& nodeptr, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global, bool insideEvalParent);
-
-      // Take a pre-processed node and resolve all expressions and vars of this and nodes below
-      //
-      // Examples:
-      // $($(global.constants.pi) + 1)  -> 4.141..
-      //   $(global.constants.pi) + 1   -> 3.141... + 1
-      // Time is: $(global.time.t)      -> Time is: 11.01
-      std::string evaluateNode(const std::shared_ptr<Nebulite::Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent);
-
-      // Helper function for accessing a variable from self/other/global/Resources
-      std::string nodeVariableAccess(const std::shared_ptr<Nebulite::Invoke::Node>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent);
-    private:
-      Nebulite::Invoke* invoke; // Pointer to the Invoke instance for accessing global variables and methods
-    }nodeHelper;
+    friend class InvokeNodeHelper; // Allow InvokeNodeHelper to access private members
+    InvokeNodeHelper nodeHelper;
 };
 }

@@ -1,5 +1,6 @@
 #include "RenderObject.h"
 #include "RenderObjectTree.h"
+#include "InvokeJSONParser.h"
 
 //-----------------------------------------------------------
 // Special member Functions
@@ -242,7 +243,7 @@ void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 		//------------------------------
 		// 1.) Reload invokes if needed
 		if (flag.reloadInvokes) {
-			Invoke::parseFromJSON(json, entries_global, entries_local, this);
+			InvokeJSONParser::parse(json, entries_global, entries_local, this);
 			flag.reloadInvokes = false;
 		}
 
@@ -289,7 +290,7 @@ uint64_t Nebulite::RenderObject::estimateComputationalCost(){
 	//------------------------------------------
 	// Reload invokes if needed
 	if (flag.reloadInvokes){
-		Invoke::parseFromJSON(json, entries_global, entries_local, this);
+		InvokeJSONParser::parse(json, entries_global, entries_local, this);
 		flag.reloadInvokes = false;
 	}
 	
