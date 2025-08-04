@@ -191,8 +191,9 @@ Example procedure for a new GlobalSpaceTree feature:
 1. **Create expansion file:** `GTE_MyFeature.{h,cpp}`
 2. **Inherit from wrapper:** Create class inheriting from `Nebulite::FuncTreeExpansion::Wrapper<ContainerClass, MyFeatureClass>`
 3. **Implement command methods:** Functions with `ERROR_TYPE (int argc, char* argv[])` signature
-4. ** setupBindings():** Register your commands with the function tree
+4. **setupBindings():** Register your commands with the function tree
 5. **Add to GlobalSpaceTree:** Include in `include/GlobalSpaceTree.h` and initialize in constructor
+6. **Command line Variables** are more difficult to implement, as they require the full container definition. Bind them in `GlobalSpaceTree.cpp`
 
 **Complete code example:**
 
@@ -250,6 +251,10 @@ Nebulite::GlobalSpaceTree::GlobalSpaceTree(/*...*/) : /*...*/
     // Initialize all expansions
     /*...*/
     myFeature = createExpansionOfType<GlobalSpaceTreeExpansion::MyFeature>();
+
+    // Initialize Variable Bindings here, due to circular dependency issues
+    /*...*/
+    bindVariable(&self->myVariable, "myVariable", "This is a variable inside globalSpace");
 }
 ```
 

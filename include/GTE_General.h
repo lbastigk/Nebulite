@@ -76,6 +76,8 @@ public:
         bindFunction(&General::clearForceGlobal,    "force-global-clear",   "Clear all forced global variables");
         bindFunction(&General::stateSave,           "state-save",           "Save the current game state");
         bindFunction(&General::stateLoad,           "state-load",           "Load a saved game state");
+
+        bindVariable(&self->headless, "headless", "Set headless mode (no renderer)");
     }
 };
 }

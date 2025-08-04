@@ -119,6 +119,7 @@ namespace Nebulite {
         //---------------------------------------
         // Internal Variables, linked to GlobalSpaceTree
         std::string headless = "false";
+        /*Add more variables as needed*/
 
         //----------------------------------------------
         // Other Private Variables

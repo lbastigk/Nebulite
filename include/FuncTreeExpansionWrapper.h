@@ -52,6 +52,14 @@ public:
         );
     }
 
+    void bindVariable(
+        std::string* variablePtr,
+        const std::string& name,
+        const std::string& help) {
+        // Bind a variable to the FuncTree
+        funcTree->bindVariable(variablePtr, name, help);
+    }
+
     // Prevent copying
     Wrapper(const Wrapper&) = delete;
     Wrapper& operator=(const Wrapper&) = delete;
