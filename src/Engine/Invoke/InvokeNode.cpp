@@ -62,7 +62,7 @@ Nebulite::InvokeNode Nebulite::InvokeNodeHelper::parseInnerVariable(const std::s
     // Setup a default variable node
     Nebulite::InvokeNode varNode;
     varNode.type = InvokeNode::Type::Variable;
-    varNode.text = ""; // Must be explicitly set later
+    varNode.text = inner; // We assume the inner variable is fully used
     varNode.context = InvokeNode::ContextType::None; // Default context
     varNode.cast = InvokeNode::CastType::None; // Default cast type
     varNode.isNumericLiteral = false; // Default is not a numeric literal
