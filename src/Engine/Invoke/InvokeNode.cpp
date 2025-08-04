@@ -59,29 +59,45 @@ void Nebulite::InvokeNodeHelper::foldConstants(const std::shared_ptr<InvokeNode>
 // if file doesnt exist, open
 // Perhaps some more guards to close a file after n many updates if not used
 Nebulite::InvokeNode Nebulite::InvokeNodeHelper::parseInnerVariable(const std::string& inner){
-    Nebulite::InvokeNode varNode{ InvokeNode::Type::Variable, inner, {} };
+    // Setup a default variable node
+    Nebulite::InvokeNode varNode;
+    varNode.type = InvokeNode::Type::Variable;
+    varNode.text = ""; // Must be explicitly set later
+    varNode.context = InvokeNode::ContextType::None; // Default context
+    varNode.cast = InvokeNode::CastType::None; // Default cast type
+    varNode.isNumericLiteral = false; // Default is not a numeric literal
 
     // self/other/global are read-write docs
     // - object positions
     // - current time
     // - general game state info
     if (inner.starts_with("self.")) {
+        varNode.text = inner.substr(5); // Remove "self."
         varNode.context = InvokeNode::ContextType::Self;
-        varNode.key = inner.substr(5);
     } else if (inner.starts_with("other.")) {
+        varNode.text = inner.substr(6); // Remove "other."
         varNode.context = InvokeNode::ContextType::Other;
-        varNode.key = inner.substr(6);
     } else if (inner.starts_with("global.")) {
+        varNode.text = inner.substr(7); // Remove "global."
         varNode.context = InvokeNode::ContextType::Global;
-        varNode.key = inner.substr(7);
     } else if (StringHandler::isNumber(inner)) {
+        varNode.text = inner;
         varNode.isNumericLiteral = true;
     // Resources docs are read only
     // - dialogue data
     // - ...
     } else if (inner.starts_with("resources")){
+        // TODO: Implement Resources doc handling
         // For now, this ContextType is just set but not used
         varNode.context = InvokeNode::ContextType::Resources;
+
+        // Perhaps even starting with a link to the file?
+        // Example: $(./Resources/dialogue/characterName.json:onGreeting.v1)
+        // 1.) Access fileManagement to get Nebulite::JSON pointer to "./Resources/dialogue/characterName.json"
+        // 2.) json->get("onGreeting.v1") to get the value
+        // 3.) Fallback, if file does not exist/fileManagement cant load it. Perhaps returning an empty Document
+        // 4.) json->get(key,fallBackValue) to get the value, if needed.
+        // Best default value might be link:key so that the user can see what is missing
     }
     return varNode;
 }
@@ -202,11 +218,11 @@ std::shared_ptr<Nebulite::InvokeNode> Nebulite::InvokeNodeHelper::expressionToTr
 std::string Nebulite::InvokeNodeHelper::castValue(const std::string& value, InvokeNode* nodeptr, Nebulite::JSON *doc) {
     switch (nodeptr->cast) {
         case InvokeNode::CastType::None:
-            return doc->get<std::string>(nodeptr->key.c_str(), "0");
+            return doc->get<std::string>(nodeptr->text.c_str(), "0");
         case InvokeNode::CastType::Float:
-            return std::to_string(doc->get<double>(nodeptr->key.c_str(),0.0));
+            return std::to_string(doc->get<double>(nodeptr->text.c_str(),0.0));
         case InvokeNode::CastType::Int:
-            return std::to_string(doc->get<int>(nodeptr->key.c_str(),0));
+            return std::to_string(doc->get<int>(nodeptr->text.c_str(),0));
         default:
             std::cerr << "Unknown cast type: " << static_cast<int>(nodeptr->cast) << std::endl;
             return "0"; // Fallback value

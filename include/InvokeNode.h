@@ -64,13 +64,18 @@ public:
     InvokeNode() = default;
     InvokeNode(Type type, const std::string& text = "", const std::vector<std::shared_ptr<InvokeNode>>& children = {})
         : type(type), text(text), children(children) {}
+    InvokeNode(Type type, const std::string& text, const std::vector<std::shared_ptr<InvokeNode>>& children, ContextType context, CastType cast = CastType::None)
+        : type(type), text(text), children(children), context(context), cast(cast) {}
     
     friend class InvokeNodeHelper; // Allow InvokeNodeHelper to access private members
 private:
     // Data type
     Type type = Type::Literal;
 
-    // Text content of the node, e.g. "Hello World" or self.variable, see TODO at string key
+    // Text content of the node, e.g.:
+    // "Hello World" for literals
+    // self.variable for variables
+    // <empty>       for mix_eval and mix_no_eval
     std::string text;
 
     // for nested nodes, e.g. $($(self.variable) + 1)
@@ -83,9 +88,10 @@ private:
     CastType cast = CastType::None; 
 
     // doc[key] being used TODO: combineable with text?
-    std::string key;    
+    //std::string key;    
 
     // If the node contains just a number: $(100)
+    // This reduces overhead, as no evaluation is needed
     bool isNumericLiteral = false;  
 
     // Making evaluation faster by checking if a parent would evaluate this node:
@@ -104,15 +110,27 @@ public:
 
     // turn nodes that hold just constant to evaluate into text
     // e.g. $(1+1) is turned into 2.000...
+    //
+    // TODO: More testing needed if this function is helpful/works correctly
+    // While evaluation works, it is not clear if this function actually does fold constants...
+    // Testing example:
+    // - Add debug statements on reduction
+    // - call: ./bin/Nebulite eval echo '$(1+1)'
+    //   Should fold Node from Mix_eval to Literal, then print 2
     void foldConstants(const std::shared_ptr<Nebulite::InvokeNode>& node);
 
     // Main function for turning a string expression into a Node Tree
     std::shared_ptr<Nebulite::InvokeNode> expressionToTree(const std::string& input);
 
-    // Helper function for casting
+    // Helper function for casting a node to a string value with a given cast type
+    // e.g. for node with text "3.14" and cast type Float,
+    // this will return "3.140000" as a string
+    // If the cast type is int, it will return "3"
     std::string castValue(const std::string& value, Nebulite::InvokeNode* nodeptr, Nebulite::JSON *doc);
 
-    // Helper function to parse inner variable
+    // Helper function to parse inner variable and setting the context
+    // - Self/Other/Global/Resources access
+    // - Numeric literal
     Nebulite::InvokeNode parseInnerVariable(const std::string& inner);
 
     // Helper funtion for evaluateNode for parsing 
