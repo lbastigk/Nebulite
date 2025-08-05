@@ -12,7 +12,7 @@ The main engine provides the core functionality of the game, handling:
 - Rendering with **SDL**.
 - Game logic and entity management.
 - Level loading and object management using **RapidJSON** for structured data.
-- Environments, Renderobjects etc. can be loaded with tasks. See `./Application/TaskFiles/` for examples.
+- Environments, Renderobjects, etc. may be loaded with tasks. See `./Application/TaskFiles/` for examples.
 
 This non-hierarchical architecture enables complex interactive systems and modular subsystems. 
 
@@ -24,11 +24,11 @@ Objects interact through a three-tier context system:
 - **GLOBAL**: Shared game state (time, input, settings)
 
 Examples:
-- movement being triggered by `$(global.input.keyboard.w)` -> sets velocity or request to move a distance
-- animation being triggered by attributes: `$(self.isMoving)` -> increment spritesheet offset
-- boundary check being triggered by `$(other.isSolid)` -> forces velocity of self to 0
+- movement being triggered by `$(global.input.keyboard.w)`: sets velocity or request to move a distance
+- animation being triggered by attributes: `$(self.isMoving)`: increment spritesheet offset
+- boundary check being triggered by `$(other.isSolid)`: forces velocity of self to 0
 
-Nebulite also offers a flexible resource-retrival system through `$(<linkToFile>:<key>)`, allowing for read-only data storage. Currently, only the retrieval of simple data types is supported. Full object/array-retrievel yields `{Object}`/`{Array}`.
+Nebulite also offers a flexible resource-retrieval system through `$(<linkToFile>:<key>)`, allowing for easy implementation of structured read-only data as JSON. Currently, only the retrieval of simple data types is supported. Full object/array-access yields `{Object}`/`{Array}`.
 
 ### Invoke-Files
 
@@ -76,7 +76,7 @@ Example of an Invoke for a gravity ruleset:
 ```
 
 ### Interactive Mode
-Start engine and enter console mode with `^`. Enter `help` to see available commands
+Start engine and enter console mode with `^`. Enter `help` to see available commands in the command line.
 
 ### Headless Mode (for automation/testing)
 ```bash
@@ -158,8 +158,8 @@ Using VSCode is recommended for an optimal workflow.
 Go into the Application directory first: `cd Application/`
 
 - Use `Tests.sh` for preconfigured tests.
-- Use `CrashDebug.sh` for debugging crashes
-- Use `MemLeakTest.sh` for Memory Leak testing
+- Use `CrashDebug.sh` for debugging crashes with predefined taskfiles
+- Use `MemLeakTest.sh` for memory leak testing using `valgrind` and `massif-visualizer`
 
 You can add custom taskfiles to the test suite as well by extending its variable `tests`, or run them on your own with:
 ```bash
