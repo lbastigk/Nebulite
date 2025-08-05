@@ -36,6 +36,7 @@ STOP_ON_FAIL="${NEBULITE_TEST_STOP_ON_FAIL:-false}"
 #
 # Also, see if the current structure allows for passing arguments that are NOT part of Nebulite:
 # so that the '| grep' isn't interpreted as part of the Nebulite command!
+# Best approach: full python script with a test json file that contains all tests and expected outputs.
 tests=(
     "help"                                                              # Simple Executable call: cout of all help commands
     "echo 1234"                                                         # Simple Executable call: custom echo command in Nebulite GlobalSpaceTree
