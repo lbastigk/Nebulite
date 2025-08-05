@@ -53,7 +53,23 @@ Example of an Invoke for a gravity ruleset:
   "functioncalls_global": [],   // If necessary, we could add debug statements like "echo here!"
   "functioncalls_self": [],     // Useful for new object-alignments or copying the current state of the object: "copy physics backup.physics", "copy posX backup.posX" ...
   "functioncalls_other": []
+},
+// Acceleration to velocity:
+{
+  "topic": "",          // Internal invoke, no broadcasting
+  "logicalArg": "1",
+  "exprs": [
+    "self.physics.vX += $($(self.physics.aX) * $(global.time.dt))",
+    "self.physics.vY += $($(self.physics.aY) * $(global.time.dt))"
+  ],
+  "functioncalls_global": [],
+  "functioncalls_self": [],
+  "functioncalls_other": []
 }
+// Velocity to Position:
+// ...
+// Reset acceleration to 0 for next frame:
+// ...
 ```
 *This creates realistic planetary motion with just JSON configuration!*
 
