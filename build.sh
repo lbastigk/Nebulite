@@ -16,6 +16,17 @@ fi
 build_type="None"
 
 ################################################
+# Check if ./install.sh has been run
+# Should exist on installation:
+# ./Application/bin 
+# ./external/SDL2_build
+# ./external/abseil_build
+if [ ! -d "./Application/bin" ] || [ ! -d "./external/SDL2_build" ] || [ ! -d "./external/abseil_build" ]; then
+    echo "Please run ./install.sh first to set up the environment."
+    exit 1
+fi
+
+################################################
 # Enable strict error handling
 set -Ee
 trap 'echo ""; echo "[ERROR] Build failed on ${build_type}!"; echo "Consider running a full clean with make clean"; exit 1' ERR
