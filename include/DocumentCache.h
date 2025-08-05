@@ -2,19 +2,41 @@
 
 #include "JSON.h"
 #include "Time.h"
+#include "FileManagement.h"
 
-
+namespace Nebulite {
 class DocumentCache{
-    template  <typename T> 
-    T getKey(std::string doc,std::string key);
+public:
+    DocumentCache() = default;
 
-    void updateDocumentStorageCounters();
+    template  <typename T> 
+    T getData(std::string doc_key, const T& defaultValue = T());
 private:
-    // TODO: 
-    const uint64_t MAX_LAST_USED = 600000;   // 600s
-    struct DocumentStorage{
-        Nebulite::JSON doc;             // Doc with read-only info
-        uint32_t timeLastUsed = 0;      // Counter when doc was last used
-    };
     absl::flat_hash_map<std::string,Nebulite::JSON> ReadOnlyDocs;
 };
+}
+
+// Expected input: ./Resources/Data/myData.json:key1.key2
+template  <typename T> 
+T Nebulite::DocumentCache::getData(std::string doc_key, const T& defaultValue) {
+    // Split the input into document name and key
+    size_t pos = doc_key.find(':');
+    if (pos == std::string::npos) {
+        return defaultValue; // Return default value if format is incorrect
+    }
+    std::string doc = doc_key.substr(0, pos);
+    std::string key = doc_key.substr(pos + 1);
+
+    // Check if the document exists in the cache
+    if (ReadOnlyDocs.find(doc) == ReadOnlyDocs.end()) {
+        // Load the document if it doesn't exist
+        std::string serial = FileManagement::LoadFile(doc);
+        if (serial.empty()) {
+            return defaultValue; // Return default value if document loading fails
+        }
+        ReadOnlyDocs[doc].deserialize(serial);
+    }
+
+    // Return key:
+    return ReadOnlyDocs[doc].get<T>(key.c_str(), defaultValue); // Use the JSON get method to retrieve the value
+}

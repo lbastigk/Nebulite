@@ -51,7 +51,7 @@ void Nebulite::InvokeNodeHelper::foldConstants(const std::shared_ptr<InvokeNode>
 //
 // Resources docs are read-only
 //
-// $(resources.dialogue-characterName.onGreeting.v1)
+// $(<link:key>)
 // -> Link = ./Resources/dialogue/characterName.json
 // -> key  = onGreeting.v1
 // TODO: implementation in FileManagement class or Nebulite Namespace
@@ -86,18 +86,10 @@ Nebulite::InvokeNode Nebulite::InvokeNodeHelper::parseInnerVariable(const std::s
     // Resources docs are read only
     // - dialogue data
     // - ...
-    } else if (inner.starts_with("resources")){
+    } else if (inner.starts_with(".")){
         // TODO: Implement Resources doc handling
         // For now, this ContextType is just set but not used
         varNode.context = InvokeNode::ContextType::Resources;
-
-        // Perhaps even starting with a link to the file?
-        // Example: $(./Resources/dialogue/characterName.json:onGreeting.v1)
-        // 1.) Access fileManagement to get Nebulite::JSON pointer to "./Resources/dialogue/characterName.json"
-        // 2.) json->get("onGreeting.v1") to get the value
-        // 3.) Fallback, if file does not exist/fileManagement cant load it. Perhaps returning an empty Document
-        // 4.) json->get(key,fallBackValue) to get the value, if needed.
-        // Best default value might be link:key so that the user can see what is missing
     }
     return varNode;
 }
@@ -238,12 +230,18 @@ std::string Nebulite::InvokeNodeHelper::nodeVariableAccess(const std::shared_ptr
         // self[key]
         // other[key]
         // global[key]
+        // docCache[link][key]
         case InvokeNode::ContextType::Self:
             return castValue(nodeptr->text, nodeptr.get(), self);
         case InvokeNode::ContextType::Other:
             return castValue(nodeptr->text, nodeptr.get(), other);
         case InvokeNode::ContextType::Global:
             return castValue(nodeptr->text, nodeptr.get(), global);
+        case InvokeNode::ContextType::Resources:
+            // Resources are read-only, so we can use the docCache to access them
+            // Fallback to key if not found
+            // This way, if a key is missing, the user can see what is missing
+            return invoke->docCache.getData<std::string>(nodeptr->text, std::string("[MISSING] " + nodeptr->text));
         //---------------------------------------------------
         // String is not a variable
         case InvokeNode::ContextType::None:

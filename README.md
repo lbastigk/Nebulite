@@ -28,6 +28,8 @@ Examples:
 - animation being triggered by attributes: `$(self.isMoving)` -> increment spritesheet offset
 - boundary check being triggered by `$(other.isSolid)` -> forces velocity of self to 0
 
+Nebulite also offers a flexible resource-retrival system through `$(<linkToFile>:<key>)`, allowing for read-only data storage. Currently, only the retrieval of simple data types is supported. Full object/array-retrievel yields `{Object}`/`{Array}`.
+
 ### Invoke-Files
 
 Invoke json-files are used to describe how objects interact with each other.

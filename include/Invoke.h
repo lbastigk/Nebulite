@@ -172,6 +172,7 @@ DESIGN ENCOURAGEMENTS
 #include "tinyexpr.h"
 #include "JSON.h"
 #include "InvokeNode.h"
+#include "DocumentCache.h"
 
 
 namespace Nebulite{
@@ -311,6 +312,7 @@ private:
     // General Variables
 
     // Documents
+    Nebulite::DocumentCache docCache;
     Nebulite::JSON emptyDoc;          // Linking an empty doc is needed for some functions
     Nebulite::JSON* global = nullptr; // Linkage to global doc
 
