@@ -87,7 +87,7 @@ namespace Nebulite {
         Nebulite::taskQueueResult resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_GlobalSpaceTree, char*** argv_GlobalSpaceTree);
 
         // Instead of calling GlobalSpaceTree.parse, this function resolves the task queue and returns the result
-        Nebulite::ERROR_TYPE resolveTask(std::string task);
+        Nebulite::ERROR_TYPE parseStr(std::string str);
 
         //----------------------------------------------
         // Public Variables

@@ -112,15 +112,16 @@ Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::task
 // make sure that calling help shows both GlobalSpaceTree and JSONTree functions
 // Same for RenderObjectTree -> JSONTree
 // Best solution: inherit/bind inside the FuncTree class!
-Nebulite::ERROR_TYPE Nebulite::GlobalSpace::resolveTask(std::string task) {
-    if (!task.starts_with(_binName + " ")) {
-        task = _binName + " " + task; // Add binary name if missing
+Nebulite::ERROR_TYPE Nebulite::GlobalSpace::parseStr(std::string str) {
+    // Strings first arg must be the binary name or similar
+    if (!str.starts_with(_binName + " ")) {
+        str = _binName + " " + str; // Add binary name if missing
     }
 
-    if(GlobalSpaceTree->hasFunction(task)) {
+    if(GlobalSpaceTree->hasFunction(str)) {
         // If the task is a valid command, parse it
-        return GlobalSpaceTree->parseStr(task);
+        return GlobalSpaceTree->parseStr(str);
     }
     // Try to parse in JSON
-    return global->parseStr(task);
+    return global->parseStr(str);
 }

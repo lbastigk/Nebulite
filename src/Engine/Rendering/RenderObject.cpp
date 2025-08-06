@@ -198,10 +198,10 @@ SDL_Rect* Nebulite::RenderObject::getTextRect(){
 	return &textRect;
 }
 
-
 SDL_Rect* Nebulite::RenderObject::getDstRect() {
 	return &dstRect;
 }
+
 void Nebulite::RenderObject::calculateDstRect() {
 	dstRect = {
 		(int)floor(valueGet<double>(Nebulite::keyName.renderObject.positionX.c_str())),
@@ -210,6 +210,7 @@ void Nebulite::RenderObject::calculateDstRect() {
 		(int)floor(valueGet<double>(Nebulite::keyName.renderObject.pixelSizeY.c_str())), // Set the desired height
 	};
 };
+
 SDL_Rect* Nebulite::RenderObject::getSrcRect() {
 	if (valueGet<bool>(Nebulite::keyName.renderObject.isSpritesheet.c_str())) {
 		return &srcRect;
@@ -218,6 +219,7 @@ SDL_Rect* Nebulite::RenderObject::getSrcRect() {
 		return nullptr;
 	}
 }
+
 void Nebulite::RenderObject::calculateSrcRect() {
 	// Check if the object is a sprite
 	if (valueGet<bool>(Nebulite::keyName.renderObject.isSpritesheet.c_str())) {
@@ -283,8 +285,6 @@ void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 	calculateSrcRect();
 }
 
-
-
 uint64_t Nebulite::RenderObject::estimateComputationalCost(){
 
 	//------------------------------------------
@@ -323,8 +323,9 @@ uint64_t Nebulite::RenderObject::estimateComputationalCost(){
 	return cost;
 }
 
-
 Nebulite::ERROR_TYPE Nebulite::RenderObject::parseStr(const std::string& str){
+	// First arg being the bin name or similar is assumed
+
 	// Priority 1: RenderObjectTree
 	if(renderObjectTree.hasFunction(str)) {
 		return renderObjectTree.parseStr(str);

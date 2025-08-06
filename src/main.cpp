@@ -287,7 +287,7 @@ int main(int argc, char* argv[]){
     }
 
     // turn off error log
-    globalSpace.resolveTask("log off");
+    globalSpace.parseStr("log off");
 
     // Return 1 on critical stop, 0 otherwise
     return (int)critical_stop;
