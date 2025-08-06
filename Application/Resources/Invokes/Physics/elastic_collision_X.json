@@ -18,9 +18,7 @@
     "other.physics.aY = 0",
     "other.collision.time.lastX = $($(global.time.t) + 0)"
   ],
-  "functioncalls_global": [
-    "eval echo Collision, reflecting X at $(global.time.t_ms) ms \t self mass: $(self.physics.mass) other mass: $(other.physics.mass)"
-  ],
+  "functioncalls_global": [],
   "functioncalls_self": [],
   "functioncalls_other": []
 }
