@@ -103,6 +103,9 @@ public:
     // Check if a function with the given name or from a full command exists
     bool hasFunction(const std::string& nameOrCommand);
 
+    // Linking a subtree to this tree
+    void linkSubtree(FuncTree<RETURN_TYPE>* subtree);
+
 private:
     // Function - Description pair
     struct FunctionInfo {
@@ -136,6 +139,9 @@ private:
 
     // Name of the tree, used for help and output
     std::string TreeName; 
+
+    // Subtree linked to this tree
+    FuncTree<RETURN_TYPE>* subtree;
 };
 
 
@@ -219,6 +225,12 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::parse(int argc, char* argv[]) {
 
 template<typename RETURN_TYPE>
 RETURN_TYPE FuncTree<RETURN_TYPE>::parseStr(const std::string& cmd) {
+    // Prerequisite if a subtree is linked
+    if(subtree && !hasFunction(cmd)){
+        // Assume the subtree can handle the command
+        return subtree->parseStr(cmd);
+    }
+
     std::vector<std::string> tokens = Nebulite::StringHandler::split(cmd, ' ');
 
     // Convert to argc/argv
@@ -247,6 +259,12 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::executeFunction(const std::string& name, int 
     }
 }
 
+// TODO: While listing all functions this way works, 
+// its much better to first combine all from parent and subtree
+// e.g.: 
+// std::vector<std::string> getAllFunctionDescriptions()
+// std::vector<std::string> getAllVariableDescriptions()
+// Combine them and sort them by name
 template<typename RETURN_TYPE>
 RETURN_TYPE FuncTree<RETURN_TYPE>::help(int argc, char* argv[]) {
     std::cout << "\n\tHelp for " << TreeName << "\n\n";
@@ -300,6 +318,11 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::help(int argc, char* argv[]) {
             std::cout << "No variables attached.\n";
         }
 
+        // If a subtree is linked, show its help
+        if (subtree) {
+            subtree->help(argc, argv);
+        }
+
         return _standard;
     }
 
@@ -338,4 +361,9 @@ bool FuncTree<RETURN_TYPE>::hasFunction(const std::string& nameOrCommand) {
     // e.g.: <whereCommandComesFrom> set key value
     return functions.find(tokens[1]) != functions.end();
 
+}
+
+template<typename RETURN_TYPE>
+void FuncTree<RETURN_TYPE>::linkSubtree(FuncTree<RETURN_TYPE>* subtree) {
+    this->subtree = subtree;
 }

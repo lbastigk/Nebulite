@@ -56,6 +56,10 @@ Nebulite::RenderObject::RenderObject() : renderObjectTree(this) {
 	flag.deleteFromScene = false;
 	flag.calculateText = true;		// In order to calculate text texture on first update
 	flag.reloadInvokes = true;		// In order to reload invokes on first update
+
+	//------------------------------------------------------------
+	// Link SubTree
+	renderObjectTree.linkSubtree(json.getJSONTree());
 }
 
 Nebulite::RenderObject::~RenderObject() {
@@ -324,13 +328,8 @@ uint64_t Nebulite::RenderObject::estimateComputationalCost(){
 }
 
 Nebulite::ERROR_TYPE Nebulite::RenderObject::parseStr(const std::string& str){
-	// First arg being the bin name or similar is assumed
+	// Assume first arg being the bin name or similar
 
-	// Priority 1: RenderObjectTree
-	if(renderObjectTree.hasFunction(str)) {
-		return renderObjectTree.parseStr(str);
-	}
-
-	// Priority 2: JSONTree
-	return json.parseStr(str);
+	// Since JSON is linked inside the RenderObjectTree, we can parse directly
+	return renderObjectTree.parseStr(str);
 }

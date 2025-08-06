@@ -159,6 +159,8 @@ namespace Nebulite{
         // FuncTree parsing
         Nebulite::ERROR_TYPE parseStr(const std::string& str){return jsonTree.parseStr(str);};
 
+        FuncTree<Nebulite::ERROR_TYPE>* getJSONTree();
+
     private:
         mutable std::recursive_mutex mtx;
 

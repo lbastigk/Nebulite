@@ -484,3 +484,7 @@ void Nebulite::JSON::set_concat(const char* key, const char* valStr) {
     std::string current = get<std::string>(key, "");
     set<std::string>(key, current + valStr);
 }
+
+FuncTree<Nebulite::ERROR_TYPE>* Nebulite::JSON::getJSONTree() {
+    return &jsonTree;
+}

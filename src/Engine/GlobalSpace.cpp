@@ -29,6 +29,7 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& o
     //-------------------------------------------------
     // GlobalSpaceTree
     GlobalSpaceTree = std::make_unique<Nebulite::GlobalSpaceTree>(this);
+    GlobalSpaceTree->linkSubtree(global->getJSONTree());
 
     //-------------------------------------------------
     // General Variables
@@ -118,10 +119,6 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpace::parseStr(std::string str) {
         str = _binName + " " + str; // Add binary name if missing
     }
 
-    if(GlobalSpaceTree->hasFunction(str)) {
-        // If the task is a valid command, parse it
-        return GlobalSpaceTree->parseStr(str);
-    }
-    // Try to parse in JSON
-    return global->parseStr(str);
+    // Since JSON is linked inside the GlobalSpaceTree, we can parse directly
+    return GlobalSpaceTree->parseStr(str);
 }
