@@ -52,6 +52,27 @@ void Nebulite::JSON::set_empty_array(const char* key){
     val->SetArray();
 }
 
+void Nebulite::JSON::remove_key(const char* key) {
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+
+    // Ensure key exists
+    rapidjson::Value* keyVal = traverseKey(key, doc);
+    if (keyVal != nullptr) {
+        // Remove the key from the document
+        rapidjson::Value keyName(key, doc.GetAllocator());
+        doc.RemoveMember(keyName);
+
+        // Also remove from cache if it exists
+        auto it = cache.find(key);
+        if (it != cache.end()) {
+            cache.erase(it);
+        }
+
+        // For security, flush the cache
+        flush();
+    }
+}
+
 //template <typename T>
 Nebulite::JSON::KeyType Nebulite::JSON::memberCheck(std::string key) {
 

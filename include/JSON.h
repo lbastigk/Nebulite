@@ -105,6 +105,7 @@ namespace Nebulite{
         //------------------------------
         // Set empty
         void set_empty_array(const char* key);
+        void remove_key(const char* key);
 
         //------------------------------
         // Special sets for threadsafe operations

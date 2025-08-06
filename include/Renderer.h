@@ -14,9 +14,6 @@
 #include <stdint.h>
 #include "absl/container/flat_hash_map.h"
 
-
-#define WINDOWNAME "coolgame"
-
 namespace Nebulite{
 class Renderer {
 public:
