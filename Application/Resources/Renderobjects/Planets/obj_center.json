@@ -1,7 +1,6 @@
 {
 
     "id": 0,
-
     "invokeSubscriptions": [
         "all",
         "gravity"
