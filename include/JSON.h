@@ -233,6 +233,7 @@ namespace Nebulite{
             static void deserialize(rapidjson::Document& doc, std::string serialOrLink);
             static std::string serialize(const rapidjson::Document& doc);
             static void empty(rapidjson::Document &doc);
+            static std::string stripComments(const std::string& jsonc);
         };
 
         //--------------------------------------------------------------------

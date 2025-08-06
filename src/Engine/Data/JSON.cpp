@@ -440,17 +440,26 @@ std::string Nebulite::JSON::Helper::serialize(const rapidjson::Document& doc) {
 
 void Nebulite::JSON::Helper::deserialize(rapidjson::Document& doc, std::string serialOrLink) {
 
+    std::string jsonString;
+    
     // Check if the input is already a serialized JSON string
-    if (serialOrLink.starts_with("{")) {
-        rapidjson::ParseResult res = doc.Parse(serialOrLink.c_str());
+    if (serialOrLink.starts_with("{") || serialOrLink.starts_with("//") || serialOrLink.starts_with("/*") || serialOrLink.starts_with("\n")) {
+        jsonString = serialOrLink;
     } 
     // If not, treat it as a file path
     else {
         //----------------------------------------------------------
         // Load the JSON file
         // First token is the path or serialized JSON
-        std::string JSONString = FileManagement::LoadFile(serialOrLink.c_str());
-        doc.Parse(JSONString.c_str());
+        jsonString = FileManagement::LoadFile(serialOrLink.c_str());
+    }
+    
+    // Strip JSONC comments before parsing
+    std::string cleanJson = stripComments(jsonString);
+    
+    rapidjson::ParseResult res = doc.Parse(cleanJson.c_str());
+    if (!res) {
+        std::cerr << "JSON Parse Error at offset " << res.Offset() << std::endl;
     }
 }
 
@@ -487,4 +496,64 @@ void Nebulite::JSON::set_concat(const char* key, const char* valStr) {
 
 FuncTree<Nebulite::ERROR_TYPE>* Nebulite::JSON::getJSONTree() {
     return &jsonTree;
+}
+
+// Simple JSONC comment stripper for RapidJSON compatibility
+std::string Nebulite::JSON::Helper::stripComments(const std::string& jsonc) {
+    std::string result;
+    result.reserve(jsonc.size());
+    
+    bool inString = false;
+    bool inSingleComment = false;
+    bool inMultiComment = false;
+    bool escaped = false;
+    
+    for (size_t i = 0; i < jsonc.size(); ++i) {
+        char c = jsonc[i];
+        char next = (i + 1 < jsonc.size()) ? jsonc[i + 1] : '\0';
+        
+        if (inSingleComment) {
+            if (c == '\n') {
+                inSingleComment = false;
+                result += c; // Preserve newline for line counting
+            }
+            continue;
+        }
+        
+        if (inMultiComment) {
+            if (c == '*' && next == '/') {
+                inMultiComment = false;
+                ++i; // Skip the '/'
+            }
+            continue;
+        }
+        
+        if (inString) {
+            result += c;
+            if (escaped) {
+                escaped = false;
+            } else if (c == '\\') {
+                escaped = true;
+            } else if (c == '"') {
+                inString = false;
+            }
+            continue;
+        }
+        
+        // Not in string or comment
+        if (c == '"') {
+            inString = true;
+            result += c;
+        } else if (c == '/' && next == '/') {
+            inSingleComment = true;
+            ++i; // Skip the second '/'
+        } else if (c == '/' && next == '*') {
+            inMultiComment = true;
+            ++i; // Skip the '*'
+        } else {
+            result += c;
+        }
+    }
+    
+    return result;
 }
