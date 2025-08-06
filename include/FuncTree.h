@@ -32,8 +32,6 @@ This will parse the command-line arguments and execute the "myFunction" if it is
 // - std::vector<std::string> args      // shows the arguments of the function, e.g.: "echo", "Hello World!"
 // - std::vector<std::string> variables // shows the variables set by the user, e.g.: {"--verbose": "true"}
 
-// TODO: Tree-Inheritance + removal of pseudo-inheritance in Parse commands in RenderObject and GlobalSpace
-
 #pragma once
 
 // Basic includes
