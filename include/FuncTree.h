@@ -26,6 +26,16 @@ This will parse the command-line arguments and execute the "myFunction" if it is
                             cerr: "Function 'someOtherFunction' not found." 
 */
 
+// TODO: Automatic subtree generation
+// If a function is linked with multiple args: bindFunction(&fun,"myCategory myFunction","Description");
+// Create a subtree for "myCategory" and add the function to it
+// As well as binding an entry function for the subtree
+// This way, the user can call "myCategory myFunction" and it will execute the function
+// If the user calls "myCategory", it will show the help for the subtree
+// This simplifies the command structure a lot and allows for more modular command trees
+// Also, allow for users to add help information to the subtree itself, e.g.:
+// bindSubtree("myCategory", "This is a category of functions");
+// Perhaps even throwing an error if the user tries to bind a function to a subtree that does not exist
 
 // TODO: Going away from classic C-style argc/argv to a more modern approach:
 // - std::vector<std::string> callTrace // shows the call trace of the function, e.g.: "Nebulite", "eval", "echo"
