@@ -36,9 +36,6 @@ public:
 
     // [DEBUG] Get and store a standard renderobject for reference to ./Resources/Renderobjects/standard.json
     Nebulite::ERROR_TYPE render_object(int argc, char** argv);
-
-    // Print all internal values
-    Nebulite::ERROR_TYPE printVar(int argc, char** argv);
     
     //----------------------------------------
     // Binding Functions
@@ -50,8 +47,7 @@ public:
         bindFunction(&Debug::logState,          "log-state",                "Log current state");
         bindFunction(&Debug::always,            "always",                   "Attach function to always run");
         bindFunction(&Debug::alwaysClear,       "always-clear",             "Clear all always functions");
-        bindFunction(&Debug::render_object,     "standard-render-object",   "Get standard render object");
-        bindFunction(&Debug::printVar,          "print-var",                "Print variable");
+        bindFunction(&Debug::render_object,     "standard-render-object",   "Generates a standard render object at ./Resources/Renderobjects/standard.json");
     }
 };
 }

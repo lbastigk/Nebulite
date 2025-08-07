@@ -128,11 +128,3 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::alwaysClear(int 
     self->tasks_always.taskList.clear();
     return Nebulite::ERROR_TYPE::NONE;
 }
-
-
-
-
-Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::printVar(int argc, char** argv){
-    std::cout << "headless: " << self->headless << std::endl;
-    return Nebulite::ERROR_TYPE::NONE;
-}
