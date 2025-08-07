@@ -67,6 +67,17 @@ public:
 		return *global;
 	}
 
+	Nebulite::RenderObject* getObjectFromId(uint32_t id) {
+		// Go through all layers
+		for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; ++i) {
+			auto obj = roc[i].getObjectFromId(id);
+			if (obj != nullptr) {
+				return obj;
+			}
+		}
+		return nullptr;
+	}
+
 private:
 	// Link to Global Values
     Nebulite::JSON* global;

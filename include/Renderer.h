@@ -77,6 +77,8 @@ public:
 	
 	//-----------------------------------------------------------
 	// Getting
+
+	// TODO: Get rid of hardcoded values: Display.Resolution.X/Y
 	Nebulite::JSON& getGlobal(){return env.getGlobal();}
 	size_t getTextureAmount(){return TextureContainer.size();}
 	size_t getObjectCount(){return env.getObjectCount();}
@@ -99,6 +101,10 @@ public:
 
 	// Updated with each renderer update and append
 	void update_rrand(){invoke_ptr->getGlobalPointer()->set<Uint64>("rrand",  dist(rngB));};
+
+	Nebulite::RenderObject* getObjectFromId(uint32_t id) {
+		return env.getObjectFromId(id);
+	}
 
 private:
 	//-------------------------------------------------------------------------------------

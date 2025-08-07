@@ -148,3 +148,31 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::beep(int argc
     self->getRenderer()->beep();
     return Nebulite::ERROR_TYPE::NONE;
 }
+
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::getObjectFromId(int argc, char* argv[]) {
+    if (argc != 2) {
+        return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
+    }
+
+    uint32_t id = std::stoi(argv[1]);
+    Nebulite::RenderObject* obj = self->getRenderer()->getObjectFromId(id);
+    
+    if (obj) {
+        self->selectedRenderObject = obj;
+        return Nebulite::ERROR_TYPE::NONE;
+    } else {
+        self->selectedRenderObject = nullptr;
+        // Not seen as an error, just no object found
+        return Nebulite::ERROR_TYPE::NONE;
+    }
+}
+
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::printSelectedObject(int argc, char* argv[]) {
+    if (self->selectedRenderObject) {
+        std::cout << "Selected Renderobject: \n" << self->selectedRenderObject->serialize() << std::endl;
+        return Nebulite::ERROR_TYPE::NONE;
+    } else {
+        std::cout << "No renderobject selected." << std::endl;
+        return Nebulite::ERROR_TYPE::NONE;
+    }
+}

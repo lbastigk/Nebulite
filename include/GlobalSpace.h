@@ -152,5 +152,8 @@ namespace Nebulite {
 
         // Original cerr buffer, used for restoring after redirecting
         std::streambuf*& originalCerrBuf;
+
+        // Selected RenderObject
+        Nebulite::RenderObject* selectedRenderObject = nullptr;
     };
 }

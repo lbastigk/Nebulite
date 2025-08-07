@@ -74,6 +74,21 @@ public:
 	// Used to get a container Tile
 	std::vector<batch>& getContainerAt(std::pair<uint16_t,uint16_t> pos);
 
+	// Get object based on ID
+	RenderObject* getObjectFromId(uint32_t id) {
+		// Go through all batches
+		for (auto& [pos, batchVec] : ObjectContainer) {
+			for (auto& obj : batchVec) {
+				for (auto& renderObj : obj.objects) {
+					if (renderObj->valueGet<uint32_t>(keyName.renderObject.id.c_str(), 0) == id) {
+						return renderObj;
+					}
+				}
+			}
+		}
+		return nullptr; // Not found
+	}
+
 private:
 	const uint64_t BATCH_COST_GOAL = 5000;
 
