@@ -3,18 +3,9 @@
 
 ## Overview
 
-**Nebulite** is a C++-based 2D game engine built for arbitrary rulesets and flexible inter-object logic.
-In Nebulite, `RenderObjects` can interact with each other through a self-other-global relationship using the `Invoke` class, 
-provided logical conditions between the two are satisfied.
-
-The main engine provides the core functionality of the game, handling:
-
-- Rendering with **SDL**.
-- Game logic and entity management.
-- Level loading and object management using **RapidJSON** for structured data.
-- Environments, Renderobjects, etc. may be loaded with tasks. See `./Application/TaskFiles/` for examples.
-
-This non-hierarchical architecture enables complex interactive systems and modular subsystems. 
+**Nebulite** is a C++-based 2D game engine featuring a custom Domain-Specific Language (DSL) for game logic configuration. 
+Built for arbitrary rulesets and flexible inter-object logic, Nebulite enables complex game mechanics to be defined declaratively in 
+JSON while maintaining performance through an underlying C++ engine.
 
 ## Architecture
 
