@@ -90,7 +90,7 @@ namespace Nebulite{
         }
 
         // Reserved operative characters that cant be used for keynames
-        static std::string reservedCharacters;
+        const static std::string reservedCharacters;
 
         //------------------------------
         // Get any value
@@ -99,6 +99,15 @@ namespace Nebulite{
 
         //------------------------------
         // Set any value
+
+        // TODO:
+        // The current implementation of set/set_subdoc is not enough to ensure compatibility with json
+        //
+        // The reason is: setting value var1 in the cache does not delete var1.var2 in the cache!
+        // For each setting, a substring match is needed to fix that,
+        // which would potentially break the cache usage as its slow
+        // Perhaps implementing as separate helper function for now, and removing if its too slow?
+        // In set(key,...) calls: -> removeFieldsFromCache(key)
         template <typename T> void set(const char* key, const T& value);
         void set_subdoc(const char* key, Nebulite::JSON& child);
 
@@ -108,7 +117,7 @@ namespace Nebulite{
         void remove_key(const char* key);
 
         //------------------------------
-        // Special sets for threadsafe operations
+        // Special sets for threadsafe maths operations
         void set_add     (const char* key, const char* valStr);
         void set_multiply(const char* key, const char* valStr);
         void set_concat  (const char* key, const char* valStr);
@@ -144,12 +153,6 @@ namespace Nebulite{
         // Cache/Doc manipulation
 
         // flushing map content into doc
-        // TODO:
-        // While the current implementation of flushing break for more complex data structures, 
-        // due to the handling of cache if keys are set 
-        // the current usecase does not intend to use them
-        // More testing needed to find issues that need to be resolved in set/flush
-        // Low priority
         void flush();
 
         // Empty document
