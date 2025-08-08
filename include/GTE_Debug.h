@@ -10,6 +10,13 @@ class Debug : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace,
 public:
     using Wrapper<Nebulite::GlobalSpace, Debug>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
+    //--------------------------------------------------------
+    // TEST: Binding a dummy function with a name that already exists in the subtree
+    Nebulite::ERROR_TYPE set(int argc, char* argv[]) {
+        // Binding a function with the name "set" is not allowed as it already exists in the JSONTree
+        return Nebulite::ERROR_TYPE::NONE;
+    }
+
     //----------------------------------------
     // Available Functions
 
@@ -36,6 +43,8 @@ public:
 
     // [DEBUG] Get and store a standard renderobject for reference to ./Resources/Renderobjects/standard.json
     Nebulite::ERROR_TYPE render_object(int argc, char** argv);
+
+
     
     //----------------------------------------
     // Binding Functions
@@ -48,6 +57,15 @@ public:
         bindFunction(&Debug::always,            "always",                   "Attach function to always run");
         bindFunction(&Debug::alwaysClear,       "always-clear",             "Clear all always functions");
         bindFunction(&Debug::render_object,     "standard-render-object",   "Generates a standard render object at ./Resources/Renderobjects/standard.json");
+
+        //-----------------------
+        // Example Bindings that will fail
+
+        // TEST: Binding an already existing sub-function
+        //bindFunction(&Debug::set, "set", "Dummy function to test binding with existing name in subtree");  // <- THIS WILL FAIL
+
+        // TEST: Binding an already existing function
+        //bindFunction(&Debug::set, "log", "Dummy function to test binding with existing name in own tree"); // <- THIS WILL FAIL
     }
 };
 }

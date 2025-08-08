@@ -3,8 +3,8 @@
 
 //-------------------------------------
 // Linking ALL Functions to GlobalSpaceTree
-Nebulite::GlobalSpaceTree::GlobalSpaceTree(Nebulite::GlobalSpace* self)
-    : FuncTree<Nebulite::ERROR_TYPE>("Nebulite", Nebulite::ERROR_TYPE::NONE, Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID), self(self) 
+Nebulite::GlobalSpaceTree::GlobalSpaceTree(Nebulite::GlobalSpace* self, Nebulite::JSONTree* jsonTree)
+    : FuncTree<Nebulite::ERROR_TYPE>("Nebulite", Nebulite::ERROR_TYPE::NONE, Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID, jsonTree), self(self) 
 {
   // Initialize Expansions
   general  = createExpansionOfType<GlobalSpaceTreeExpansion::General>();

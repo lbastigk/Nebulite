@@ -45,6 +45,7 @@ How to use the GlobalSpaceTree:
 // Basic includes
 #include "ErrorTypes.h"         // Basic Return Type: enum ERROR_TYPE
 #include "FuncTree.h"    // All FuncTrees inherit from this for ease of use
+#include "JSONTree.h"           // For JSONTree parameter
 
 //----------------------------------------------------------
 // Include Expansions of GlobalSpaceTree
@@ -63,7 +64,7 @@ class GlobalSpace;
 // GlobalSpaceTree class, Expand through Expansion files
 class GlobalSpaceTree : public FuncTree<Nebulite::ERROR_TYPE>{  // Inherit a funcTree and helper functions
 public:
-    GlobalSpaceTree(Nebulite::GlobalSpace* self);
+    GlobalSpaceTree(Nebulite::GlobalSpace* self, Nebulite::JSONTree* jsonTree);
 private:
     // References are needed within the base class to simplify the factory method
     Nebulite::GlobalSpace* self;  // Linkage to the GlobalSpace

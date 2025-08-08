@@ -543,7 +543,7 @@ void Nebulite::JSON::set_concat(const char* key, const char* valStr) {
     set<std::string>(key, current + valStr);
 }
 
-FuncTree<Nebulite::ERROR_TYPE>* Nebulite::JSON::getJSONTree() {
+Nebulite::JSONTree* Nebulite::JSON::getJSONTree() {
     return &jsonTree;
 }
 

@@ -27,8 +27,7 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& o
 
     //-------------------------------------------------
     // GlobalSpaceTree
-    GlobalSpaceTree = std::make_unique<Nebulite::GlobalSpaceTree>(this);
-    GlobalSpaceTree->linkSubtree(global->getJSONTree());
+    GlobalSpaceTree = std::make_unique<Nebulite::GlobalSpaceTree>(this, global->getJSONTree());
 
     //-------------------------------------------------
     // General Variables

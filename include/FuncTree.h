@@ -62,7 +62,7 @@ public:
     // Two different types are given to the constructor:
     // - What to return if okay (e.g. Calling help should always return ok)
     // - What to return if no function was found
-    FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError);
+    FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError, FuncTree<RETURN_TYPE>* subtree = nullptr);
 
     // functions get std::string as args and return a given type
     using FunctionPtr = std::function<RETURN_TYPE(int argc, char* argv[])>;
@@ -84,6 +84,41 @@ public:
             RETURN_TYPE (ClassType::*method)(int, char**),
             const std::string& name,
             const std::string& help) {
+
+        
+        // Making sure the function name is not registered in the subtree
+        // Note: subtree is checked only after constructor completes, so this should be safe
+        // The only overwrite that is allowed is the help function
+        if (subtree && name != "help" && subtree->hasFunction(name)) {
+            // Throw a proper error
+            // exit the entire program
+            std::cerr << "---------------------------------------------------------------\n";
+            std::cerr << "Nebulite FuncTree initialization failed!\n";
+            std::cerr << "Error: Function '" << name << "' already exists in a linked subtree.\n";
+            std::cerr << "Function overwrite is heavily discouraged and thus not allowed.\n";
+            std::cerr << "Please choose a different name or remove the existing function.\n";
+            std::cerr << "This Tree: " << TreeName << "\n";
+            std::cerr << "Subtree:   " << subtree->TreeName << "\n";
+            std::cerr << "Function:  " << name << "\n";
+            std::exit(EXIT_FAILURE);  // Exit with failure status
+
+            // Just for completion, this will never be reached
+            return;
+        }
+
+        // Same for the own tree
+        if (hasFunction(name)) {
+            // Throw a proper error
+            // exit the entire program
+            std::cerr << "---------------------------------------------------------------\n";
+            std::cerr << "Nebulite FuncTree initialization failed!\n";
+            std::cerr << "Error: Function '" << name << "' already exists in this tree.\n";
+            std::cerr << "Function overwrite is heavily discouraged and thus not allowed.\n";
+            std::cerr << "Please choose a different name or remove the existing function.\n";
+            std::cerr << "Tree: " << TreeName << "\n";
+            std::exit(EXIT_FAILURE);  // Exit with failure status
+        }
+
         // Create FunctionInfo directly
         functions[name] = FunctionInfo{
             [obj, method](int argc, char** argv) {
@@ -110,9 +145,6 @@ public:
 
     // Check if a function with the given name or from a full command exists
     bool hasFunction(const std::string& nameOrCommand);
-
-    // Linking a subtree to this tree
-    void linkSubtree(FuncTree<RETURN_TYPE>* subtree);
 
 private:
     // Function - Description pair
@@ -157,7 +189,9 @@ private:
 
 
 template<typename RETURN_TYPE>
-FuncTree<RETURN_TYPE>::FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError){
+FuncTree<RETURN_TYPE>::FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError, FuncTree<RETURN_TYPE>* subtree)
+    : subtree(nullptr)  // Initialize to nullptr first to avoid issues during construction
+{
     // Attach the help function to read out the description of all attached functions
     // using lambda
     TreeName = treeName;
@@ -167,6 +201,11 @@ FuncTree<RETURN_TYPE>::FuncTree(std::string treeName, RETURN_TYPE standard, RETU
 
     _standard = standard;
     _functionNotFoundError = functionNotFoundError;
+    
+    // Link the subTree AFTER basic initialization is complete
+    if(subtree){
+        this->subtree = subtree;
+    }
 }
 
 template<typename RETURN_TYPE>
@@ -446,9 +485,4 @@ std::vector<std::string> FuncTree<RETURN_TYPE>::parseQuotedArguments(const std::
     }
     
     return result;
-}
-
-template<typename RETURN_TYPE>
-void FuncTree<RETURN_TYPE>::linkSubtree(FuncTree<RETURN_TYPE>* subtree) {
-    this->subtree = subtree;
 }

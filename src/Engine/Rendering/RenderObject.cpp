@@ -1,11 +1,12 @@
 #include "RenderObject.h"
 #include "RenderObjectTree.h"
 #include "InvokeJSONParser.h"
+#include "JSONTree.h"
 
 //-----------------------------------------------------------
 // Special member Functions
 
-Nebulite::RenderObject::RenderObject() : renderObjectTree(this) {
+Nebulite::RenderObject::RenderObject() : renderObjectTree(this, json.getJSONTree()) {
 
 	//------------------------------------------------------------
 	// Document Values
@@ -56,10 +57,6 @@ Nebulite::RenderObject::RenderObject() : renderObjectTree(this) {
 	flag.deleteFromScene = false;
 	flag.calculateText = true;		// In order to calculate text texture on first update
 	flag.reloadInvokes = true;		// In order to reload invokes on first update
-
-	//------------------------------------------------------------
-	// Link SubTree
-	renderObjectTree.linkSubtree(json.getJSONTree());
 }
 
 Nebulite::RenderObject::~RenderObject() {
