@@ -205,6 +205,12 @@ Each Class has access to a different tree through `funcTree->...` and a differen
 - `RenderObjectTree` can access the attached RenderObject
 - `JSONTree` can access the attached JSON
 
+It is recommended to implement unfinished functions inside the cpp file via a return of `Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED`
+
+Note that:
+- the `GlobalSpaceTree` automatically inherits all functions from `JSONTree`, which act on the global document.
+- the `RenderObjectTree` automatically inherits all functions from `JSONTree`, which act on the objects document.
+
 Example procedure for a new GlobalSpaceTree feature:
 1. **Create expansion file:** `GTE_MyFeature.{h,cpp}`
 2. **Inherit from wrapper:** Create class inheriting from `Nebulite::FuncTreeExpansion::Wrapper<ContainerClass, MyFeatureClass>`
