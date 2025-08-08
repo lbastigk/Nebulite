@@ -133,6 +133,9 @@ private:
     // Help-command, called with argv[1] = "help"
     RETURN_TYPE help(int argc, char* argv[]);
 
+    // Quote-aware argument parsing helper
+    std::vector<std::string> parseQuotedArguments(const std::string& cmd);
+
     // Status "Function not found"
     RETURN_TYPE _functionNotFoundError;
 
@@ -239,7 +242,8 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::parseStr(const std::string& cmd) {
         return subtree->parseStr(cmd);
     }
 
-    std::vector<std::string> tokens = Nebulite::StringHandler::split(cmd, ' ');
+    // Quote-aware tokenization
+    std::vector<std::string> tokens = parseQuotedArguments(cmd);
 
     // Convert to argc/argv
     int argc = static_cast<int>(tokens.size());
@@ -369,6 +373,79 @@ bool FuncTree<RETURN_TYPE>::hasFunction(const std::string& nameOrCommand) {
     // e.g.: <whereCommandComesFrom> set key value
     return functions.find(tokens[1]) != functions.end();
 
+}
+
+template<typename RETURN_TYPE>
+std::vector<std::string> FuncTree<RETURN_TYPE>::parseQuotedArguments(const std::string& cmd) {
+    std::vector<std::string> tokens = Nebulite::StringHandler::split(cmd, ' ');
+    std::vector<std::string> result;
+    
+    bool inQuoteV1 = false;  // Double quotes
+    bool inQuoteV2 = false;  // Single quotes
+    
+    for (const auto& token : tokens) {
+        // Skip empty tokens (from multiple spaces or trailing spaces)
+        if (token.empty()) {
+            continue;
+        }
+        
+        if (!inQuoteV1 && !inQuoteV2) {
+            // Not in quotes - check if this token starts a quote
+            if (token[0] == '"') {
+                inQuoteV1 = true;
+                // Remove opening quote and add to result
+                std::string cleanToken = token.substr(1);
+                if (!cleanToken.empty() && cleanToken.back() == '"') {
+                    // Quote opens and closes in same token
+                    inQuoteV1 = false;
+                    cleanToken.pop_back(); // Remove closing quote
+                }
+                result.push_back(cleanToken);
+            } else if (token[0] == '\'') {
+                inQuoteV2 = true;
+                // Remove opening quote and add to result
+                std::string cleanToken = token.substr(1);
+                if (!cleanToken.empty() && cleanToken.back() == '\'') {
+                    // Quote opens and closes in same token
+                    inQuoteV2 = false;
+                    cleanToken.pop_back(); // Remove closing quote
+                }
+                result.push_back(cleanToken);
+            } else {
+                // Regular token
+                result.push_back(token);
+            }
+        } else {
+            // Currently in quotes - append to last token
+            if (inQuoteV1 && token.back() == '"') {
+                // End of double quote
+                inQuoteV1 = false;
+                std::string cleanToken = token.substr(0, token.length() - 1);
+                if (!result.empty()) {
+                    result.back() += " " + cleanToken;
+                }
+            } else if (inQuoteV2 && token.back() == '\'') {
+                // End of single quote
+                inQuoteV2 = false;
+                std::string cleanToken = token.substr(0, token.length() - 1);
+                if (!result.empty()) {
+                    result.back() += " " + cleanToken;
+                }
+            } else {
+                // Still in quotes, append to last token
+                if (!result.empty()) {
+                    result.back() += " " + token;
+                }
+            }
+        }
+    }
+    
+    // Warning for unclosed quotes
+    if (inQuoteV1 || inQuoteV2) {
+        std::cerr << "Warning: Unclosed quote in command: " << cmd << std::endl;
+    }
+    
+    return result;
 }
 
 template<typename RETURN_TYPE>
