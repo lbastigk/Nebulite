@@ -111,6 +111,42 @@ Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::SimpleData::keyDelete(int argc
 
 //---------------------------------------
 // Array manipulation functions
+Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::SimpleData::ensureArray(int argc, char* argv[]) {
+    if (argc < 2) {
+        std::cerr << "Error: Too few arguments for ensureArray command." << std::endl;
+        return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
+    }
+    if (argc > 2) {
+        std::cerr << "Error: Too many arguments for ensureArray command." << std::endl;
+        return Nebulite::ERROR_TYPE::TOO_MANY_ARGS;
+    }
+
+    std::string key = argv[1];
+
+    Nebulite::JSON::KeyType keyType = self->memberCheck(key);
+
+    if (keyType == Nebulite::JSON::KeyType::array) {
+        // Already an array, nothing to do
+        return Nebulite::ERROR_TYPE::NONE;
+    }
+
+    if(keyType == Nebulite::JSON::KeyType::value) {
+        // pop out value
+        std::string existingValue = self->get<std::string>(key.c_str());
+        self->remove_key(key.c_str());
+
+        // Set as new value
+        std::string arrayKey = key + "[0]";
+        self->set(arrayKey.c_str(), existingValue);
+
+        // All done
+        return Nebulite::ERROR_TYPE::NONE;
+    }
+
+    std::cerr << "Error: Key '" << key << "' is unsupported type " << static_cast<int>(keyType) << ", cannot convert to array." << std::endl;
+    return Nebulite::ERROR_TYPE::FEATURE_NOT_IMPLEMENTED;
+    
+}
 
 Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::SimpleData::push_back(int argc, char* argv[]){
     if (argc > 3) {
@@ -129,9 +165,11 @@ Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::SimpleData::push_back(int argc
     }
 
     if (self->memberCheck(key) != Nebulite::JSON::KeyType::array) {
-        std::cerr << "Error: Key '" << key << "' is not an array." << std::endl;
-        // TODO: Get out value, make key an array, insert value as key[1]
-        return Nebulite::ERROR_TYPE::FEATURE_NOT_IMPLEMENTED;
+        Nebulite::ERROR_TYPE result = funcTree->parseStr(std::string("Nebulite::JSONTreeExpansion::SimpleData::push_back ensure-array " + key));
+        if (result != Nebulite::ERROR_TYPE::NONE) {
+            std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
+            return result;
+        }
     }
 
     size_t size = self->memberSize(key);
@@ -152,9 +190,11 @@ Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::SimpleData::pop_back(int argc,
     std::string key = argv[1];
 
     if (self->memberCheck(key) != Nebulite::JSON::KeyType::array) {
-        std::cerr << "Error: Key '" << key << "' is not an array." << std::endl;
-        // TODO: Get out value, make key an array, insert value as key[0]
-        return Nebulite::ERROR_TYPE::FEATURE_NOT_IMPLEMENTED;
+        Nebulite::ERROR_TYPE result = funcTree->parseStr(std::string("Nebulite::JSONTreeExpansion::SimpleData::pop_back ensure-array " + key));
+        if (result != Nebulite::ERROR_TYPE::NONE) {
+            std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
+            return result;
+        }
     }
 
     size_t size = self->memberSize(key);
@@ -185,12 +225,14 @@ Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::SimpleData::push_front(int arg
     }
 
     
-    
     if (self->memberCheck(key) != Nebulite::JSON::KeyType::array) {
-        std::cerr << "Error: Key '" << key << "' is not an array." << std::endl;
-        // TODO: Get out value, make key an array, insert value as key[0]
-        return Nebulite::ERROR_TYPE::FEATURE_NOT_IMPLEMENTED;
+        Nebulite::ERROR_TYPE result = funcTree->parseStr(std::string("Nebulite::JSONTreeExpansion::SimpleData::push_front ensure-array " + key));
+        if (result != Nebulite::ERROR_TYPE::NONE) {
+            std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
+            return result;
+        }
     }
+
     size_t size = self->memberSize(key);
 
     //-----------------------------------------
@@ -231,9 +273,11 @@ Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::SimpleData::pop_front(int argc
     std::string key = argv[1];
 
     if (self->memberCheck(key) != Nebulite::JSON::KeyType::array) {
-        std::cerr << "Error: Key '" << key << "' is not an array." << std::endl;
-        // TODO: Get out value, make key an array, insert value as key[0]
-        return Nebulite::ERROR_TYPE::FEATURE_NOT_IMPLEMENTED;
+        Nebulite::ERROR_TYPE result = funcTree->parseStr(std::string("Nebulite::JSONTreeExpansion::SimpleData::pop_front ensure-array " + key));
+        if (result != Nebulite::ERROR_TYPE::NONE) {
+            std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
+            return result;
+        }
     }
 
     size_t size = self->memberSize(key);
