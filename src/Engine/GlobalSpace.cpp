@@ -13,8 +13,7 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& o
 
     //-------------------------------------------------
     // Objects
-    global = new Nebulite::JSON();
-    renderer = nullptr; // Renderer will be initialized later
+    global = std::make_unique<Nebulite::JSON>();
 
     //-------------------------------------------------
     // Modify structs                         
@@ -40,10 +39,10 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& o
 
 Nebulite::Renderer* Nebulite::GlobalSpace::getRenderer() {
     if (renderer == nullptr) {
-        renderer = new Nebulite::Renderer(*invoke, *global, headless == "true");
+        renderer = std::make_unique<Nebulite::Renderer>(*invoke, *global, headless == "true");
         renderer->setFPS(60);
     }
-    return renderer;
+    return renderer.get();
 }
 
 bool Nebulite::GlobalSpace::RendererExists(){

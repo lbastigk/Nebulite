@@ -130,6 +130,14 @@ namespace Nebulite {
         // Name of the binary, used for parsing arguments
         std::string _binName;
 
+        // Current status of error logging
+        // false : logging to cerr
+        // true  : logging to file
+        bool errorLogStatus;
+
+        //---------------------------------------
+        // Objects
+
         // Invoke Object for parsing expressions etc.
         std::unique_ptr<Invoke> invoke;
 
@@ -137,15 +145,10 @@ namespace Nebulite {
         std::unique_ptr<Nebulite::GlobalSpaceTree> GlobalSpaceTree;
 
         // Global Space document 
-        Nebulite::JSON* global;
+        std::unique_ptr<Nebulite::JSON> global;
 
         // Pointer to the renderer, initialized on first use via getRenderer()
-        Nebulite::Renderer* renderer;
-
-        // Current status of error logging
-        // false : logging to cerr
-        // true  : logging to file
-        bool errorLogStatus;
+        std::unique_ptr<Nebulite::Renderer> renderer;
 
         // File for error logging, if errorLogStatus is true
         std::unique_ptr<std::ofstream> errorFile;
