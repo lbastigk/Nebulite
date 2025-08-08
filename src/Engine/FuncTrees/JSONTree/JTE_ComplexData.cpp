@@ -7,7 +7,7 @@ Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::ComplexData::set_from_query(in
 Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::ComplexData::set_from_json(int argc, char* argv[]){
     // Since we have no access to the global space, we cant use the JSON doc cache
     // Instead, we manually load the document to retrieve the key
-    if(argc < 2){
+    if(argc < 3){
         std::cerr << "Error: Too few arguments for set-from-json command." << std::endl;
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -70,5 +70,5 @@ Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::ComplexData::set_from_json(int
     }
 
 
-    return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+    return Nebulite::ERROR_TYPE::NONE;
 }
