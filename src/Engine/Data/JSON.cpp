@@ -14,7 +14,7 @@ Nebulite::JSON::~JSON(){
     Helper::empty(doc);
 }
 
-std::string Nebulite::JSON::reservedCharacters = "[]{}.,";
+const std::string Nebulite::JSON::reservedCharacters = "[]{}.,";
 
 void Nebulite::JSON::set_subdoc(const char* key, Nebulite::JSON& child){
     std::lock_guard<std::recursive_mutex> lock(mtx);
@@ -54,26 +54,70 @@ void Nebulite::JSON::set_empty_array(const char* key){
 
 void Nebulite::JSON::remove_key(const char* key) {
     std::lock_guard<std::recursive_mutex> lock(mtx);
+    flush(); // Ensure cache is flushed before removing key
 
-    // Ensure key exists
-    rapidjson::Value* keyVal = traverseKey(key, doc);
-    if (keyVal != nullptr) {
-        // Remove the key from the document
-        rapidjson::Value keyName(key, doc.GetAllocator());
-        doc.RemoveMember(keyName);
-
-        // Also remove from cache if it exists
-        auto it = cache.find(key);
-        if (it != cache.end()) {
-            cache.erase(it);
+    std::string keyStr(key);
+    
+    // Handle simple case: direct member of root document
+    if (keyStr.find('.') == std::string::npos && keyStr.find('[') == std::string::npos) {
+        if (doc.HasMember(key)) {
+            doc.RemoveMember(key);
         }
-
-        // For security, flush the cache
-        flush();
+        return;
+    }
+    
+    // For complex paths, find the parent and final key/index
+    size_t lastDot = keyStr.find_last_of('.');
+    size_t lastBracket = keyStr.find_last_of('[');
+    
+    rapidjson::Value* parent = nullptr;
+    std::string finalKey;
+    int arrayIndex = -1;
+    
+    if (lastBracket != std::string::npos && (lastDot == std::string::npos || lastBracket > lastDot)) {
+        // Last access is array index: var.subvar[2] or var[2]
+        size_t openBracket = keyStr.find_last_of('[');
+        size_t closeBracket = keyStr.find_last_of(']');
+        
+        if (openBracket != std::string::npos && closeBracket != std::string::npos && closeBracket > openBracket) {
+            std::string parentPath = keyStr.substr(0, openBracket);
+            std::string indexStr = keyStr.substr(openBracket + 1, closeBracket - openBracket - 1);
+            
+            try {
+                arrayIndex = std::stoi(indexStr);
+                if (parentPath.empty()) {
+                    parent = &doc;
+                } else {
+                    parent = traverseKey(parentPath.c_str(), doc);
+                }
+            } catch (...) {
+                return; // Invalid index
+            }
+        }
+    } else if (lastDot != std::string::npos) {
+        // Last access is object member: var.subvar.finalkey
+        std::string parentPath = keyStr.substr(0, lastDot);
+        finalKey = keyStr.substr(lastDot + 1);
+        parent = traverseKey(parentPath.c_str(), doc);
+    }
+    
+    // Remove the final key/index from parent
+    if (parent != nullptr) {
+        if (arrayIndex >= 0) {
+            // Remove array element
+            if (parent->IsArray() && arrayIndex < static_cast<int>(parent->Size())) {
+                parent->Erase(parent->Begin() + arrayIndex);
+            }
+        } else if (!finalKey.empty()) {
+            // Remove object member
+            if (parent->IsObject() && parent->HasMember(finalKey.c_str())) {
+                parent->RemoveMember(finalKey.c_str());
+            }
+        }
     }
 }
 
-//template <typename T>
+
 Nebulite::JSON::KeyType Nebulite::JSON::memberCheck(std::string key) {
 
     // 1. Check if key is empty -> represents the whole document
@@ -87,28 +131,30 @@ Nebulite::JSON::KeyType Nebulite::JSON::memberCheck(std::string key) {
     // 2. Check cache first
     auto it = cache.find(key);
     if (it != cache.end()) {
-        // Cached simple values are always simple values, so:
+        // Key is cached, return its type
         return KeyType::value;
     }
 
-    // 3. If not cached, check rapidjson doc
+    // Not directly in cache, flush before accessing the document
+    // TODO: add function for mildFlush that does not clear cache!
+    flush();
+
+    // 4. If not cached, check rapidjson doc
+    auto val = traverseKey(key.c_str(),doc);
+    if(val == nullptr){
+        return KeyType::null;
+    }
     else{
-        auto val = traverseKey(key.c_str(),doc);
-        if(val == nullptr){
-            return KeyType::null;
+        if(val->IsArray()){
+            return KeyType::array;
         }
-        else{
-            if(val->IsArray()){
-                return KeyType::array;
-            }
-            if(val->IsObject()){
-                return KeyType::document;
-            }
-            if( val->IsNumber() || val->IsString() || val->IsBool()){
-                return KeyType::value;
-            }
-            return KeyType::null;
+        if(val->IsObject()){
+            return KeyType::document;
         }
+        if( val->IsNumber() || val->IsString() || val->IsBool()){
+            return KeyType::value;
+        }
+        return KeyType::null;
     }
 }
 
@@ -121,6 +167,7 @@ uint32_t Nebulite::JSON::memberSize(std::string key){
     }
     else{
         // Is array, get size
+        flush(); // Ensure cache is flushed before accessing doc
         auto val = traverseKey(key.c_str(),doc);
         return val->Size();
     }
@@ -205,6 +252,8 @@ void Nebulite::JSON::flush() {
         auto to_delete = it++;
         cache.erase(to_delete);
     }
+
+    cache.clear();
 }
 
 void Nebulite::JSON::empty(){
