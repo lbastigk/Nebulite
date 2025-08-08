@@ -4,7 +4,7 @@
 #include "FuncTreeExpansionWrapper.h"
 
 namespace Nebulite {
-class RenderObject; // Forward declaration of Container class RenderObject
+class RenderObject; // Forward declaration of Domain class RenderObject
 
 namespace RenderObjectTreeExpansion {
 class Layout : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::RenderObject, Layout> {

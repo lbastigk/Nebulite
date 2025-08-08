@@ -4,7 +4,7 @@
 #include "FuncTreeExpansionWrapper.h"
 
 namespace Nebulite {
-class GlobalSpace; // Forward declaration of container class GlobalSpace
+class GlobalSpace; // Forward declaration of domain class GlobalSpace
 
 namespace GlobalSpaceTreeExpansion {
 class General : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, General> {

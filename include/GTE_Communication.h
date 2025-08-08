@@ -55,7 +55,7 @@ Do NOT attempt to use these functions until implementation is complete.
 #include "FuncTreeExpansionWrapper.h"
 
 namespace Nebulite {
-class GlobalSpace; // Forward declaration of container class GlobalSpace
+class GlobalSpace; // Forward declaration of domain class GlobalSpace
 
 namespace GlobalSpaceTreeExpansion {
 class Communication : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, Communication> {

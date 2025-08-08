@@ -4,7 +4,7 @@
 #include "FuncTreeExpansionWrapper.h"
 
 namespace Nebulite{
-class JSON; // Forward declaration of container class JSON
+class JSON; // Forward declaration of domain class JSON
 namespace JSONTreeExpansion{
 
 

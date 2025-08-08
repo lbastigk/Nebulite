@@ -16,6 +16,19 @@ The main engine provides the core functionality of the game, handling:
 
 This non-hierarchical architecture enables complex interactive systems and modular subsystems. 
 
+## Architecture
+
+Nebulite implements a **Domain-Specific Language (DSL)** for game logic configuration, built on a modular **FuncTree and Invoke system** that provides runtime command execution and reflection capabilities.
+
+### Key Architectural Components
+
+- **FuncTree Framework**: Template-based command system with hierarchical inheritance
+- **Expression Engine**: Runtime evaluation of mathematical and logical expressions (`$()` syntax)  
+- **Plugin Architecture**: Modular expansions for different functionality domains
+- **Data-Driven Design**: JSON-configured game behavior
+
+The system allows complex game mechanics to be defined declaratively in JSON while maintaining type safety and performance through the underlying C++ engine.
+
 ### Core Philosophy: Self-Other-Global Interactions
 
 Objects interact through a three-tier context system:
@@ -30,9 +43,28 @@ Examples:
 
 Nebulite also offers a flexible resource-retrieval system through `$(<linkToFile>:<key>)`, allowing for easy implementation of structured read-only data as JSON. Currently, only the retrieval of simple data types is supported. Full object/array-access yields `{Object}`/`{Array}`.
 
+Functioncalls are bound to specific objects or the global space, allowing for, but not limited to, the following commands:
+- **Global:** Loading new levels, moving camera, ...
+- **Object-Specific:** aligning text, deletion, ...
+- **Document-Specific:** moving/copying/deleting data, read-only data retrieval, ...
+
+### Language Features
+
+The Nebulite DSL provides:
+- **Runtime Reflection**: Dynamic function binding and introspection
+- **Expression Evaluation**: Mathematical expressions with context variables
+- **Command Composition**: Chainable operations with semicolon syntax  
+- **Type Safety**: Compile-time verification through C++ templates
+- **Function Collision Prevention**: Automatic detection of naming conflicts
+
 ### Invoke-Files
 
-Invoke json-files are used to describe how objects interact with each other.
+Invoke json-files are used to describe how objects interact with each other. They contain:
+- The topic of the ruleset (broadcaster `self` sends topic, listener `other` must be subscribed to it)
+- A logical argument (must be true for it to be executed)
+- A list of expressions
+- Lists of functioncalls to be executed on different domains
+
 Example of an Invoke for a gravity ruleset:
 ```jsonc
 // Add this or a link as string ("./Resources/Invokes/.../gravity.json") to any RenderObject.json that should conform to the gravity ruleset:
@@ -200,7 +232,7 @@ Maintainers can create their own Tree-expansion classes and add them to a specif
 | specific RenderObjects       | Extend the `RenderObjectTree` | See `include/RenderObjectTree.h` and its expansions `include/RTE_*.h`   |
 | specific JSON-Documents      | Extend the `JSONTree`         | See `include/JSONTree.h` and its expansions `include/JTE_*.h`           |
 
-Each Class has access to a different tree through `funcTree->...` and a different container through `self->...`: 
+Each Class has access to a different tree through `funcTree->...` and a different domain through `self->...`: 
 - `GlobalSpaceTree` can access the global space
 - `RenderObjectTree` can access the attached RenderObject
 - `JSONTree` can access the attached JSON
@@ -220,11 +252,11 @@ It is **not allowed** to overwrite already existing functions:
 **Example procedure for a new GlobalSpaceTree feature:**
 
 1. **Create expansion file:** `GTE_MyFeature.{h,cpp}`
-2. **Inherit from wrapper:** Create class inheriting from `Nebulite::FuncTreeExpansion::Wrapper<ContainerClass, MyFeatureClass>`
+2. **Inherit from wrapper:** Create class inheriting from `Nebulite::FuncTreeExpansion::Wrapper<DomainClass, MyFeatureClass>`
 3. **Implement command methods:** Functions with `ERROR_TYPE (int argc, char* argv[])` signature
 4. **setupBindings():** Register your commands with the function tree
 5. **Add to GlobalSpaceTree:** Include in `include/GlobalSpaceTree.h` and initialize in constructor
-6. **Command line Variables** are more difficult to implement, as they require the full container definition. Bind them in `GlobalSpaceTree.cpp`
+6. **Command line Variables** are more difficult to implement, as they require the full domain definition. Bind them in `GlobalSpaceTree.cpp`
 
 ---------------------------------------------------
 
@@ -234,7 +266,7 @@ Inside MyFeature.h:
 
 ```cpp
 namespace Nebulite{
-class GlobalSpace; // Forward declaration of container class GlobalSpace 
+class GlobalSpace; // Forward declaration of Domain class GlobalSpace 
 namespace GlobalSpaceTreeExpansion {
 class MyFeature : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, Debug> {
 public:

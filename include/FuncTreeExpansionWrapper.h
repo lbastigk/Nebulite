@@ -22,12 +22,12 @@ class GlobalSpace; // Forward declaration
 
 namespace FuncTreeExpansion{
 
-template<typename ContainerType, typename DerivedClass>
+template<typename DomainType, typename DerivedClass>
 class Wrapper{
 public:
     // Binds all functions for this category on construction
-    Wrapper(ContainerType* container, FuncTree<ERROR_TYPE>* funcTreePtr)
-        : self(container), funcTree(funcTreePtr) 
+    Wrapper(DomainType* domain, FuncTree<ERROR_TYPE>* funcTreePtr)
+        : self(domain), funcTree(funcTreePtr) 
     {
         // Initialize the defined Variable and Function Bindings
         static_cast<DerivedClass*>(this)->setupBindings();
@@ -67,7 +67,7 @@ public:
 protected:
     //--------------------------
     // Linkages
-    ContainerType* self;                // Workspace of the expansion
+    DomainType* self;                // Workspace of the expansion
     FuncTree<ERROR_TYPE>* funcTree;     // Where to bind the expanded functions
 };
 }

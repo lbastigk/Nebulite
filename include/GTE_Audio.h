@@ -36,7 +36,7 @@ TODO: Once merged into the GlobalSpace, please move GTE_Renderer:beep to GTE_Aud
 #include "FuncTreeExpansionWrapper.h"
 
 namespace Nebulite {
-class GlobalSpace; // Forward declaration of container class GlobalSpace
+class GlobalSpace; // Forward declaration of domain class GlobalSpace
 
 namespace GlobalSpaceTreeExpansion {
 class Audio : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, Audio> {
