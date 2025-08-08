@@ -53,5 +53,6 @@ enum ERROR_TYPE{
     UNKNOWN_ARG,                
     FEATURE_NOT_IMPLEMENTED,
     SNAPSHOT_FAILED,            // Used in Renderer::snapshot
+    FILE_NOT_FOUND,
 };
 }

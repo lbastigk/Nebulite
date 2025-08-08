@@ -1,6 +1,9 @@
 #include "JTE_SimpleData.h"
 #include "JSON.h"
 
+//---------------------------------------
+// General set/get/remove functions
+
 Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::SimpleData::set(int argc, char* argv[]) {
     if(argc < 3) {
         std::cerr << "Error: Too few arguments for set command." << std::endl;
@@ -56,6 +59,7 @@ Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::SimpleData::move(int argc, cha
     }
     return Nebulite::ERROR_TYPE::NONE;
 }
+
 Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::SimpleData::copy(int argc, char* argv[]){
     if (argc != 3) {
         std::cerr << "Error: Too few arguments for move command." << std::endl;
@@ -94,6 +98,7 @@ Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::SimpleData::copy(int argc, cha
     }
     return Nebulite::ERROR_TYPE::NONE;
 }
+
 Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::SimpleData::keyDelete(int argc, char* argv[]){
     if (argc != 2) {
         std::cerr << "Error: Too few arguments for move command." << std::endl;

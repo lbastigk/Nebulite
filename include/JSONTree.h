@@ -12,13 +12,16 @@ for Nebulite's JSON data container.
 
 //----------------------------------------------------------
 // Basic includes
-#include "ErrorTypes.h"         // Basic Return Type: enum ERROR_TYPE
+#include "ErrorTypes.h"  // Basic Return Type: enum ERROR_TYPE
 #include "FuncTree.h"    // All FuncTrees inherit from this for ease of use
 
 //----------------------------------------------------------
 // Include Expansions of JSONTree
 #include "JTE_SimpleData.h"
 #include "JTE_ComplexData.h"
+
+// TODO: Allow JSONTree to access the global space tree
+// This way, we have access to the document cache and can use it to retrieve keys
 
 namespace Nebulite{
     
