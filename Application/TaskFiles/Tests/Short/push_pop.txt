@@ -1,0 +1,7 @@
+set var[0] 1
+push-back var 2
+push-front var 0
+push-front var
+push-back var
+print-global
+exit

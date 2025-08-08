@@ -18,6 +18,13 @@ public:
     Nebulite::ERROR_TYPE move(int argc, char* argv[]);
     Nebulite::ERROR_TYPE copy(int argc, char* argv[]);
     Nebulite::ERROR_TYPE keyDelete(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE push_back(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE pop_back(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE push_front(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE pop_front(int argc, char* argv[]);
+
+    // TODO: Helper function 
+
 
     //----------------------------------------
     // Binding Functions
@@ -33,6 +40,12 @@ public:
 
         // Internal key deletion
         bindFunction(&SimpleData::keyDelete, "keyDelete", "Handles keyDelete calls");
+
+        // Array manipulation
+        bindFunction(&SimpleData::push_back,  "push-back",  "Pushes a value to the back of an array:  <key> <value>");
+        bindFunction(&SimpleData::pop_back,   "pop-back",   "Pops a value from the back of an array:  <key>");
+        bindFunction(&SimpleData::push_front, "push-front", "Pushes a value to the front of an array: <key> <value>");
+        bindFunction(&SimpleData::pop_front,  "pop-front",  "Pops a value from the front of an array: <key>");
     }
 };
 }
