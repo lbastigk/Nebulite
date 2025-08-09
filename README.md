@@ -17,6 +17,7 @@ Nebulite implements a **Domain-Specific Language (DSL)** for game logic configur
 - **Expression Engine**: Runtime evaluation of mathematical and logical expressions (`$()` syntax)  
 - **Plugin Architecture**: Modular expansions for different functionality domains
 - **Data-Driven Design**: JSON-configured game behavior
+- **Annotated Configuration**: Full JSONC comment support for documenting complex expressions and game mechanics
 
 The system allows complex game mechanics to be defined declaratively in JSON while maintaining type safety and performance through the underlying C++ engine.
 
@@ -107,7 +108,7 @@ Make sure the object listens to topic gravity as well
 
 ### Mathematical expressions
 
-Nebulite offers all mathematical operations from [Tinyexpr](https://github.com/codeplea/tinyexpr) as well as the following custom operators:
+Nebulite offers all mathematical operations from [Tinyexpr](https://github.com/codeplea/tinyexpr) as well as integer casting with '$i(...)' and the following custom operators:
 ```cpp
 gt(a,b)   : a > b
 lt(a,b)   : a < b
@@ -121,11 +122,18 @@ not(a)    : !a
 sgn(a)    : a/abs(a)
 ```
 
-As well as integer casting with '$i(...)'
-
 You can quickly verify the correctness of an expression with the command line:
 ```bash
 ./bin/Nebulite 'set myVariable 2 ; eval echo $i(1 + $(global.myVariable))' # returns 3
+```
+
+### Modifiers on serialization
+
+Nebulite allows for domain-specific functioncalls on serialization
+```bash
+# 1st Modifier: moves object from standard X position to X=500
+# 2nd Modifier: Copies all values into a backup field
+./bin/Nebulite 'spawn ./Resources/Renderobjects/standard.json|set posX 500|copy . backup'
 ```
 
 ## Quick start
