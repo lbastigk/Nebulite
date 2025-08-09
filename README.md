@@ -9,11 +9,11 @@ JSON / JSONC while maintaining performance through an underlying C++ engine.
 
 ## Architecture
 
-Nebulite implements a **Domain-Specific Language (DSL)** for game logic configuration, built on a modular **FuncTree and Invoke system** that provides runtime command execution and reflection capabilities.
+Nebulite implements a **Domain-Specific Language (DSL)** for game logic configuration, built on a modular **Invoke system** that provides runtime command execution and expression logic.
 
 ### Key Architectural Components
 
-- **FuncTree Framework**: Template-based command system with hierarchical inheritance
+- **Functioncall Framework**: Template-based command system with hierarchical inheritance
 - **Expression Engine**: Runtime evaluation of mathematical and logical expressions (`$()` syntax)  
 - **Plugin Architecture**: Modular expansions for different functionality domains
 - **Data-Driven Design**: JSON-configured game behavior
@@ -23,7 +23,7 @@ The system allows complex game mechanics to be defined declaratively in JSON whi
 
 ### Core Philosophy: Self-Other-Global Interactions
 
-Objects interact through a three-tier context system:
+Inside the expression engine, objects interact through a three-tier context system:
 - **SELF**: The object broadcasting the logic
 - **OTHER**: Target objects being evaluated  
 - **GLOBAL**: Shared game state (time, input, settings)
@@ -45,7 +45,7 @@ If you wish to retrieve complex data, use JSON-Specific functioncalls to copy fr
 set-from-json names_in_level1 ./Resources/.../names.jsonc:characters.level1
 ```
 
-Functioncalls are bound to specific objects or the global space, allowing for, but not limited to, the following commands:
+Functioncalls are bound to different domains: specific objects or the global space. This allows for, but is not limited to, the following commands:
 - **Global:** Loading new levels, moving camera, ...
 - **Object-Specific:** aligning text, deletion, ...
 - **Document-Specific:** moving/copying/deleting data, read-only data retrieval, ...
@@ -61,7 +61,7 @@ The Nebulite DSL provides:
 
 ## The Invoke-Class
 
-The Invoke class is the core game state modification class, which parses JSON-Defined game logic.
+The Invoke class is the core game state modification class, which parses JSON-defined game logic.
 
 ### Invoke-Files
 
@@ -70,6 +70,8 @@ Invoke-Objects/Files contain:
 - A logical argument (must be true for it to be executed)
 - A list of expressions
 - Lists of functioncalls to be executed on different domains
+
+If the topic string is empty, the invoke entry is local only (self-global interaction)
 
 Example of an Invoke for a gravity ruleset:
 ```jsonc
@@ -96,7 +98,7 @@ Make sure the object listens to topic gravity as well
 },
 // Acceleration to velocity:
 {
-  // Internal invoke, no broadcasting (self-global-relationship). 
+  // Internal invoke, no broadcasting (self-global interaction). 
   // whenever possible, an empty broadcast should be chosen.
   "topic": "",          
   "logicalArg": "1",
