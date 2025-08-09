@@ -3,10 +3,36 @@
 Nebulite::InvokeExpression::InvokeExpression() {
     // Initialize with default expression "0"
     parse("0", *documentCache);
+
+    
+    //-------------------------------------------------
+    // Register functions
+    te_variable gt_var =  {"gt",    (void*)expr_custom::gt,             TE_FUNCTION2};
+    variables.push_back(gt_var);
+    te_variable lt_var =  {"lt",    (void*)expr_custom::lt,             TE_FUNCTION2};
+    variables.push_back(lt_var);
+    te_variable geq_var = {"geq",   (void*)expr_custom::geq,            TE_FUNCTION2};
+    variables.push_back(geq_var);
+    te_variable leq_var = {"leq",   (void*)expr_custom::leq,            TE_FUNCTION2};
+    variables.push_back(leq_var);
+    te_variable eq_var =  {"eq",    (void*)expr_custom::eq,             TE_FUNCTION2};
+    variables.push_back(eq_var);
+    te_variable neq_var = {"neq",   (void*)expr_custom::neq,            TE_FUNCTION2};
+    variables.push_back(neq_var);
+    te_variable and_var = {"and",   (void*)expr_custom::logical_and,    TE_FUNCTION2};
+    variables.push_back(and_var);
+    te_variable or_var =  {"or",    (void*)expr_custom::logical_or,     TE_FUNCTION2};
+    variables.push_back(or_var);
+    te_variable not_var = {"not",   (void*)expr_custom::logical_not,    TE_FUNCTION1};
+    variables.push_back(not_var);
+    te_variable sgn_var = {"sgn",   (void*)expr_custom::sgn,            TE_FUNCTION1};
+    variables.push_back(sgn_var);
 }
 
 void Nebulite::InvokeExpression::compileIfExpression(Entry& entry) {
     if (entry.type == Entry::Type::eval) {
+        entry.str = modifyTextToTeConform(entry.str);
+
         // Compile the expression using TinyExpr
         int error;
         entry.expression = te_compile(entry.str.c_str(), variables.data(), variables.size(), &error);
@@ -15,7 +41,6 @@ void Nebulite::InvokeExpression::compileIfExpression(Entry& entry) {
         }
     }
 }
-
 
 void Nebulite::InvokeExpression::registerIfVariable(Entry& entry){
     // Using the Virtual Double to register pointers...
@@ -36,59 +61,87 @@ void Nebulite::InvokeExpression::registerIfVariable(Entry& entry){
             entry.str = entry.str.substr(1, entry.str.size() - 2);
         }
 
-        // Initialize with reference to document and cache register
-        std::shared_ptr<Nebulite::VirtualDouble> vd = std::make_shared<Nebulite::VirtualDouble>(json_dual_pointer, entry.str, documentCache);
-        virtualDoubles.push_back(vd);
+        // Check if variable exists in variables vector:
+        bool found = false;
+        for(auto var : variables) {
+            if(var.name == entry.str) {
+                found = true;
+                break;
+            }
+        }
+        if(!found) {
+            // Feedback:
+            std::replace(entry.str.begin(), entry.str.end(), '.', '_');
 
-        // Push back into variable entries
-        variables.push_back({ entry.str.c_str(), &vd });
+            // Store the variable name string so it persists beyond this scope
+            variableNames.push_back(entry.str);
+            const char* persistentName = variableNames.back().c_str();
+
+            // Initialize with reference to document and cache register
+            std::shared_ptr<Nebulite::VirtualDouble> vd = std::make_shared<Nebulite::VirtualDouble>(json_dual_pointer, entry.str, documentCache);
+            virtualDoubles.push_back(vd);
+
+            // Push back into variable entries - use the persistent string
+            variables.push_back({ persistentName, &vd });
+        }
+    }
+    if(entry.type == Entry::Type::eval) {
+        // Idea here is to create a dummy vector of entries, that we ignore
+        // We only care about the registration
+        std::vector<Entry> dummyEntries;
+
+        // Remove all paranteses at front and back
+        std::string substring = entry.str;
+        bool stillInParanthesis = true;
+        while (stillInParanthesis) {
+            if (substring.front() == '(' && substring.back() == ')') {
+                substring = substring.substr(1, substring.size() - 2);
+            } else {
+                stillInParanthesis = false;
+            }
+        }
+        parseIntoEntries(substring, dummyEntries);
     }
 }
 
-void Nebulite::InvokeExpression::modifyTextToTeConform(Entry& entry) {
-    // Modify text: 
-    // '$(global.myKey)' -> (global_myKey)
-    // 'This is the entry $(global.myKey)' -> 'This is the entry (global_myKey)'
-    if (entry.type == Entry::Type::variable || entry.type == Entry::Type::eval) {
-        std::string& str = entry.str;
+std::string Nebulite::InvokeExpression::modifyTextToTeConform(std::string str) {
+    // Find and replace all occurrences of $(...) patterns
+    size_t pos = 0;
+    while ((pos = str.find("$(", pos)) != std::string::npos) {
+        // Find the matching closing parenthesis
+        size_t start = pos + 2; // Position after "$("
+        size_t depth = 1;
+        size_t end = start;
         
-        // Find and replace all occurrences of $(...) patterns
-        size_t pos = 0;
-        while ((pos = str.find("$(", pos)) != std::string::npos) {
-            // Find the matching closing parenthesis
-            size_t start = pos + 2; // Position after "$("
-            size_t depth = 1;
-            size_t end = start;
+        while (end < str.length() && depth > 0) {
+            if (str[end] == '(') {
+                depth++;
+            } else if (str[end] == ')') {
+                depth--;
+            }
+            end++;
+        }
+        
+        if (depth == 0) {
+            // Extract the content between parentheses
+            std::string content = str.substr(start, end - start - 1);
             
-            while (end < str.length() && depth > 0) {
-                if (str[end] == '(') {
-                    depth++;
-                } else if (str[end] == ')') {
-                    depth--;
+            // Replace dots with underscores in the content
+            for (char& c : content) {
+                if (c == '.') {
+                    c = '_';
                 }
-                end++;
             }
             
-            if (depth == 0) {
-                // Extract the content between parentheses
-                std::string content = str.substr(start, end - start - 1);
-                
-                // Replace dots with underscores in the content
-                for (char& c : content) {
-                    if (c == '.') {
-                        c = '_';
-                    }
-                }
-                
-                // Replace the entire $(...) with (content)
-                str.replace(pos, end - pos, "(" + content + ")");
-                pos += content.length() + 2; // Move past the replacement
-            } else {
-                // Unmatched parentheses, move past this $
-                pos += 2;
-            }
+            // Replace the entire $(...) with (content)
+            str.replace(pos, end - pos, "(" + content + ")");
+            pos += content.length() + 2; // Move past the replacement
+        } else {
+            // Unmatched parentheses, move past this $
+            pos += 2;
         }
     }
+    return str;
 }
 
 void Nebulite::InvokeExpression::setEntryContext(Entry& entry) {
@@ -125,7 +178,6 @@ void Nebulite::InvokeExpression::setEntryContext(Entry& entry) {
 
 void Nebulite::InvokeExpression::make_entry(Entry& currentEntry, std::vector<Entry>& entries) {
     setEntryContext(currentEntry);          // Sets context: Variable:self-other-global-resource / eval
-    modifyTextToTeConform(currentEntry);    // Modify text: $(global.myKey) -> global_myKey
     registerIfVariable(currentEntry);       // Register variable for TinyExpr evaluation
 
     // Push back
@@ -135,12 +187,7 @@ void Nebulite::InvokeExpression::make_entry(Entry& currentEntry, std::vector<Ent
     currentEntry = Entry();
 };
 
-void Nebulite::InvokeExpression::parse(const std::string& expr, Nebulite::DocumentCache& documentCache){
-    fullExpression = expr;
-    this->documentCache = &documentCache;
-
-
-
+void Nebulite::InvokeExpression::parseIntoEntries(const std::string& expr, std::vector<Entry>& entries){
     Entry currentEntry;
     int depth = 0;
     char lastChar = '\0';
@@ -186,6 +233,13 @@ void Nebulite::InvokeExpression::parse(const std::string& expr, Nebulite::Docume
     if(currentEntry.str.size() > 0) {
         make_entry(currentEntry, entries);
     }
+}
+
+void Nebulite::InvokeExpression::parse(const std::string& expr, Nebulite::DocumentCache& documentCache){
+    fullExpression = expr;
+    this->documentCache = &documentCache;
+
+    parseIntoEntries(expr, entries);
 
     // Now compile all entries:
     for (auto& entry : entries) {

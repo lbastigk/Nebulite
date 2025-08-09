@@ -33,6 +33,12 @@ run_once() {
     ./bin/Nebulite_Debug task "$taskfile"
 }
 
+# Check if binary exists
+if [ ! -f ./bin/Nebulite_Debug ]; then
+    echo "Nebulite_Debug binary not found!"
+    exit 1
+fi
+
 # Main loop
 attempt=0
 while true; do

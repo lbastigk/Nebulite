@@ -183,8 +183,6 @@ class InvokeNode;
 
 class Invoke{
 public:
-    // Mutex for thread-safe TinyExpr operations
-    std::mutex tinyexpr_mutex;
 
     //--------------------------------------------
     // Class-Specific Structures:
@@ -356,48 +354,6 @@ private:
     std::mutex entries_global_next_Mutex;
     std::mutex entries_global_Mutex;
     std::mutex pairsMutex;
-
-    //----------------------------------------------------------------
-    // TinyExpr
-
-    // Custom TinyExpr functions
-    class expr_custom{
-    public:
-        static double gt(double a, double b) {return a > b;}
-        static double lt(double a, double b) {return a < b;}
-        static double geq(double a, double b) {return a >= b;}
-        static double leq(double a, double b) {return a <= b;}
-        
-        static double eq(double a, double b){return a == b;}
-        static double neq(double a, double b){return a != b;}
-
-        static double logical_and(double a, double b){return a && b;}
-        static double logical_or(double a, double b){return a || b;}
-        static double logical_not(double a){return !a;}
-
-        static double sgn(double a){return std::copysign(1.0, a);}
-    };
-    //absl::flat_hash_map<std::string, te_expr*> expr_cache;
-   
-
-    // TODO: Precompile expressions with:
-    // List of variable pointers
-    // The idea is to store this inside each expr through "virtual pointers"
-    // that retrieve the json file on dereference
-    // so we link $(global.var) -> to global doc
-    // Now we can create a vector of precompiled exprs for each total expr:
-    // "This expression contains $(1+1) precompile-able expressions! $(global.var2)"
-    // This might improve performance but would require a large overhaul
-    // Perhaps not recommended, as we now need to distinguish between double retrieval and string retrieval!
-    //
-    // NOTE: Should be easier to implement considering mix_eval types:
-    // The following fields are needed:
-    // - std::string fullString / reuse the text/str field?
-    // - vector of variables using the virtual pointers
-    // - precompiled expression
-    // then, call te_evaluate on the expression with the variables
-    std::vector<te_variable> vars;
-
 
     //----------------------------------------------------------------
     // Hashmaps and vectors

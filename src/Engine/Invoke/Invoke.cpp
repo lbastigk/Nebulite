@@ -3,30 +3,7 @@
 #include "StringHandler.h"
 #include <limits>
 
-Nebulite::Invoke::Invoke(){
-    //-------------------------------------------------
-    // Manually add function variables
-    te_variable gt_var =  {"gt",    (void*)expr_custom::gt,             TE_FUNCTION2};
-    vars.push_back(gt_var);
-    te_variable lt_var =  {"lt",    (void*)expr_custom::lt,             TE_FUNCTION2};
-    vars.push_back(lt_var);
-    te_variable geq_var = {"geq",   (void*)expr_custom::geq,            TE_FUNCTION2};
-    vars.push_back(geq_var);
-    te_variable leq_var = {"leq",   (void*)expr_custom::leq,            TE_FUNCTION2};
-    vars.push_back(leq_var);
-    te_variable eq_var =  {"eq",    (void*)expr_custom::eq,             TE_FUNCTION2};
-    vars.push_back(eq_var);
-    te_variable neq_var = {"neq",   (void*)expr_custom::neq,            TE_FUNCTION2};
-    vars.push_back(neq_var);
-    te_variable and_var = {"and",   (void*)expr_custom::logical_and,    TE_FUNCTION2};
-    vars.push_back(and_var);
-    te_variable or_var =  {"or",    (void*)expr_custom::logical_or,     TE_FUNCTION2};
-    vars.push_back(or_var);
-    te_variable not_var = {"not",   (void*)expr_custom::logical_not,    TE_FUNCTION1};
-    vars.push_back(not_var);
-    te_variable sgn_var = {"sgn",   (void*)expr_custom::sgn,            TE_FUNCTION1};
-    vars.push_back(sgn_var);
-}
+Nebulite::Invoke::Invoke(){}
 
 
 bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::Entry>& cmd, Nebulite::RenderObject* otherObj) {

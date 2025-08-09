@@ -4,6 +4,7 @@
 #include "string"
 #include "DocumentCache.h"
 #include "tinyexpr.h"
+#include <memory>
 
 /*
 Instead of storing strings, we store a full expression that's able to evaluate relevant parts:
@@ -65,6 +66,7 @@ private:
 
     std::vector<te_variable> variables;                     // Variables for TinyExpr evaluation
     std::vector<std::shared_ptr<Nebulite::VirtualDouble>> virtualDoubles;    // Virtual doubles for TinyExpr evaluation
+    std::vector<std::string> variableNames;                                 // Persistent storage for variable names
 
     Nebulite::JSON* self = nullptr;
     Nebulite::JSON* other = nullptr;
@@ -72,12 +74,33 @@ private:
     Nebulite::DocumentCache* documentCache = nullptr;
 
     // Helper functions
+    std::string modifyTextToTeConform(std::string str);
+    void parseIntoEntries(const std::string& expr, std::vector<Entry>& entries);
     void setEntryContext(Entry& entry);
     void compileIfExpression(Entry& entry);
     void registerIfVariable(Entry& entry);
-    void modifyTextToTeConform(Entry& entry);
+    
 
     void make_entry(Entry& currentEntry, std::vector<Entry>& entries);
+
+    // Custom TinyExpr functions
+    class expr_custom{
+    public:
+        static double gt(double a, double b) {return a > b;}
+        static double lt(double a, double b) {return a < b;}
+        static double geq(double a, double b) {return a >= b;}
+        static double leq(double a, double b) {return a <= b;}
+        
+        static double eq(double a, double b){return a == b;}
+        static double neq(double a, double b){return a != b;}
+
+        static double logical_and(double a, double b){return a && b;}
+        static double logical_or(double a, double b){return a || b;}
+        static double logical_not(double a){return !a;}
+
+        static double sgn(double a){return std::copysign(1.0, a);}
+    };
+    //absl::flat_hash_map<std::string, te_expr*> expr_cache;
 };
 }
 
