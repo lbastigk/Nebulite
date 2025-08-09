@@ -33,7 +33,17 @@ Examples:
 - animation being triggered by attributes: `$(self.isMoving)`: increment spritesheet offset
 - boundary check being triggered by `$(other.isSolid)`: forces velocity of self to 0
 
-Nebulite also offers a flexible resource-retrieval system through `$(<linkToFile>:<key>)`, allowing for easy implementation of structured read-only data as JSON. Currently, only the retrieval of simple data types is supported. Full object/array-access yields `{Object}`/`{Array}`.
+Nebulites expression system also offers a flexible, cached, resource-retrieval system through `$(<linkToFile>:<key>)`, allowing for easy implementation of structured read-only data as JSON:
+
+```
+eval echo Hello, my name is $(./Resources/.../names.jsonc:characters.level1.npc_guard).
+```
+Only the retrieval of simple data types is supported. Full object/array-access yields `{Object}`/`{Array}`.
+If you wish to retrieve complex data, use JSON-Specific functioncalls to copy from read-only data:
+
+```
+set-from-json names_in_level1 ./Resources/.../names.jsonc:characters.level1
+```
 
 Functioncalls are bound to specific objects or the global space, allowing for, but not limited to, the following commands:
 - **Global:** Loading new levels, moving camera, ...
