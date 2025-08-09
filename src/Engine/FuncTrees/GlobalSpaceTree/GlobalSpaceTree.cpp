@@ -13,4 +13,5 @@ Nebulite::GlobalSpaceTree::GlobalSpaceTree(Nebulite::GlobalSpace* self, Nebulite
 
   // Initialize Variable Bindings here, due to circular dependency issues
   bindVariable(&self->headless, "headless", "Set headless mode (no renderer)");
+  bindVariable(&self->recover, "recover", "Enable recoverable error mode");
 }

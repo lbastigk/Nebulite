@@ -59,8 +59,8 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	// Define window via x|y|w|h
 	int x = SDL_WINDOWPOS_CENTERED;
 	int y = SDL_WINDOWPOS_CENTERED;
-	int w = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",X)*zoom;
-	int h = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",Y)*zoom;
+	int w = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),X)*zoom;
+	int h = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),Y)*zoom;
 	window = SDL_CreateWindow("Nebulite",x,y,w,h,flag_headless ? SDL_WINDOW_HIDDEN :SDL_WINDOW_SHOWN);
 	if (!window) {
 		// Window creation failed
@@ -100,8 +100,8 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	// Set virtual rendering size
 	SDL_RenderSetLogicalSize(
 		renderer, 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",X), 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",Y)
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),X), 
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),Y)
 	);
 
 	//--------------------------------------------
@@ -167,17 +167,16 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 
 	//--------------------------------------------
 	// Set basic values inside global doc
-	invoke_ptr->getGlobalPointer()->set<int>("display.resolution.X",X);	
-	invoke_ptr->getGlobalPointer()->set<int>("display.resolution.Y",Y);
-	invoke_ptr->getGlobalPointer()->set<int>("display.position.X",0);
-	invoke_ptr->getGlobalPointer()->set<int>("display.position.Y",0);
+	invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.dispResX.c_str(),X);	
+	invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.dispResY.c_str(),Y);
+	invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.positionX.c_str(),0);
+	invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.positionY.c_str(),0);
 
-	invoke_ptr->getGlobalPointer()->set<Uint64>("time.fixed_dt_ms",0);
-	invoke_ptr->getGlobalPointer()->set<double>("time.t",0);
-	invoke_ptr->getGlobalPointer()->set<Uint64>("time.t_ms",0);
-	invoke_ptr->getGlobalPointer()->set<double>("time.dt",0);
-	invoke_ptr->getGlobalPointer()->set<Uint64>("time.dt_ms",0);
-    invoke_ptr->getGlobalPointer()->set<double>("physics.G",0.1 * 100);
+	invoke_ptr->getGlobalPointer()->set<Uint64>(keyName.renderer.time_fixed_dt_ms.c_str(),0);
+	invoke_ptr->getGlobalPointer()->set<double>(keyName.renderer.time_t.c_str(),0);
+	invoke_ptr->getGlobalPointer()->set<Uint64>(keyName.renderer.time_t_ms.c_str(),0);
+	invoke_ptr->getGlobalPointer()->set<double>(keyName.renderer.time_dt.c_str(),0);
+	invoke_ptr->getGlobalPointer()->set<Uint64>(keyName.renderer.time_dt_ms.c_str(),0);
 }
 
 //-----------------------------------------------------------
@@ -189,8 +188,8 @@ std::string Nebulite::Renderer::serialize() {
 void Nebulite::Renderer::deserialize(std::string serialOrLink) {
 	env.deserialize(
 		serialOrLink, 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0)
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),0), 
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0)
 	);
 }
 
@@ -212,8 +211,8 @@ void Nebulite::Renderer::append(Nebulite::RenderObject* toAppend) {
 	//Append to environment, based on layer
 	env.append(
 		toAppend, 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0), 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0), 
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),0), 
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0), 
 		toAppend->valueGet(Nebulite::keyName.renderObject.layer.c_str(), 0)
 	);
 
@@ -226,8 +225,8 @@ void Nebulite::Renderer::append(Nebulite::RenderObject* toAppend) {
 
 void Nebulite::Renderer::reinsertAllObjects(){
 	env.reinsertAllObjects(
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0),
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0)
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),0),
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0)
 	);
 }
 
@@ -354,8 +353,8 @@ void Nebulite::Renderer::update() {
 		invoke_ptr->update();
 
 		// Update environment
-		int dispResX = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0);
-		int dispResY = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0);
+		int dispResX = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),0);
+		int dispResY = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0);
 		env.update(tileXpos,tileYpos,dispResX,dispResY,invoke_ptr);
 	}
 }
@@ -459,8 +458,8 @@ void Nebulite::Renderer::purgeObjectsAt(int x, int y){
 	env.purgeObjectsAt(
 		x,
 		y,
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0),
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0)
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),0),
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0)
 	);
 }
 
@@ -505,19 +504,19 @@ void Nebulite::Renderer::changeWindowSize(int w, int h, int scalar) {
 		return;
 	}
 
-	invoke_ptr->getGlobalPointer()->set<int>("display.resolution.X",w);
-	invoke_ptr->getGlobalPointer()->set<int>("display.resolution.Y",h);
+	invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.dispResX.c_str(),w);
+	invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.dispResY.c_str(),h);
     
     // Update the window size
     SDL_SetWindowSize(
 		window, 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",360) * RenderScalar, 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",360) * RenderScalar
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),360) * RenderScalar, 
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),360) * RenderScalar
 	);
 	SDL_RenderSetLogicalSize(
 		renderer,
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",360), 
-		invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",360)
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),360), 
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),360)
 	);
 
 	// Turn off console mode
@@ -529,25 +528,25 @@ void Nebulite::Renderer::changeWindowSize(int w, int h, int scalar) {
 
 void Nebulite::Renderer::moveCam(int dX, int dY, bool isMiddle) {
 	invoke_ptr->getGlobalPointer()->set<int>(
-		"display.position.X",
-		invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0) + dX
+		keyName.renderer.positionX.c_str(),
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.positionX.c_str(),0) + dX
 	);
 	invoke_ptr->getGlobalPointer()->set<int>(
-		"display.position.Y",
-		invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0) + dY
+		keyName.renderer.positionY.c_str(),
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.positionX.c_str(),0) + dY
 	);
 };
 
 void Nebulite::Renderer::setCam(int X, int Y, bool isMiddle) {
 	if(isMiddle){
-		int newPosX = X - invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0) / 2;
-		int newPosY = Y - invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0) / 2;
-		invoke_ptr->getGlobalPointer()->set<int>("display.position.X",newPosX);
-		invoke_ptr->getGlobalPointer()->set<int>("display.position.Y",newPosY);
+		int newPosX = X - invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),0) / 2;
+		int newPosY = Y - invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0) / 2;
+		invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.positionX.c_str(),newPosX);
+		invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.positionY.c_str(),newPosY);
 	}
 	else{
-		invoke_ptr->getGlobalPointer()->set<int>("display.position.X",X);
-		invoke_ptr->getGlobalPointer()->set<int>("display.position.Y",Y);
+		invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.positionX.c_str(),X);
+		invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.positionY.c_str(),Y);
 	}
 };
 
@@ -566,12 +565,12 @@ void Nebulite::Renderer::clear(){
 
 void Nebulite::Renderer::renderFrame() {
 	// Store for faster access
-	int dispPosX = invoke_ptr->getGlobalPointer()->get<int>("display.position.X",0);
-	int dispPosY = invoke_ptr->getGlobalPointer()->get<int>("display.position.Y",0);
+	int dispPosX = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.positionX.c_str(),0);
+	int dispPosY = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.positionY.c_str(),0);
 
 	// Depending on position, set tiles to render
-	tileXpos = dispPosX / invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0);
-	tileYpos = dispPosY / invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0);
+	tileXpos = dispPosX / invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),0);
+	tileYpos = dispPosY / invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0);
 	
 	//------------------------------------------------
 	// FPS Count
@@ -673,8 +672,8 @@ void Nebulite::Renderer::renderFrame() {
 	if(consoleMode){
 		// Semi-transparent background
 		consoleRect.x = 0;
-		consoleRect.y = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.Y",0) - 150;
-		consoleRect.w = invoke_ptr->getGlobalPointer()->get<int>("display.resolution.X",0);
+		consoleRect.y = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0) - 150;
+		consoleRect.w = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),0);
 		consoleRect.h = 150;
 
 		SDL_SetRenderDrawColor(renderer, 0, 32, 128, 180); // blue-ish with transparency
