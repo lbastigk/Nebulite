@@ -337,6 +337,8 @@ public:
     // same as evaluateExpressionFull, but only using global variables. Self and other are linked to empty docs
     std::string evaluateExpression(const std::string& input);
 
+    Nebulite::DocumentCache* getDocumentCache() { return &docCache; }
+
 private:
     //----------------------------------------------------------------
     // General Variables

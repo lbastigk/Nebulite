@@ -111,7 +111,7 @@ public:
 	void calculateSrcRect();
 
 	// Estimate computationcal cost of update (based on size of cmds_internal)
-	uint64_t estimateComputationalCost();
+	uint64_t estimateComputationalCost(Nebulite::Invoke* globalInvoke);
 
 	// For internal string parsing in RenderObjectTree
 	// IMPORTANT: Make sure the first arg is a name and not the function itself!

@@ -5,9 +5,7 @@
 //-----------------------------------------------------------
 //Constructor
 
-Nebulite::RenderObjectContainer::RenderObjectContainer() {
-
-}
+Nebulite::RenderObjectContainer::RenderObjectContainer(Nebulite::Invoke* globalInvoke) : globalInvoke(globalInvoke) {}
 
 //-----------------------------------------------------------
 //Marshalling
@@ -81,7 +79,7 @@ std::pair<int16_t,int16_t> getTilePos(Nebulite::RenderObject* toAppend, int disp
 }
 
 void Nebulite::RenderObjectContainer::append(Nebulite::RenderObject* toAppend, int dispResX, int dispResY) {
-	uint64_t objectCost = toAppend->estimateComputationalCost();
+	uint64_t objectCost = toAppend->estimateComputationalCost(globalInvoke);
 	//std::cout << "Appending object with estimated cost: " << objectCost << std::endl;
 
     std::pair<int16_t,int16_t> pos = getTilePos(toAppend, dispResX, dispResY);
@@ -90,14 +88,14 @@ void Nebulite::RenderObjectContainer::append(Nebulite::RenderObject* toAppend, i
 	//std::cerr << "Current batch size in tile: " << ObjectContainer[pos].size() << std::endl;
 	for (auto& batch : ObjectContainer[pos]) {
 		if (batch.estimatedCost <= BATCH_COST_GOAL) {
-			batch.push(toAppend);
+			batch.push(toAppend, globalInvoke);
 			return;
 		}
 	}
 
 	// No existing batch could accept the object, so create a new one
 	batch newBatch;
-	newBatch.push(toAppend);
+	newBatch.push(toAppend, globalInvoke);
 	ObjectContainer[pos].push_back(std::move(newBatch));
 }
 
@@ -165,12 +163,12 @@ void Nebulite::RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos,
 
 					// Lock to safely remove and collect
 					for (auto ptr : to_move_local) {
-						batch.removeObject(ptr);
+						batch.removeObject(ptr, globalInvoke);
 						std::lock_guard<std::mutex> lock(reinsertMutex);
 						await_reinsert.push_back(ptr);
 					}
 					for (auto ptr : to_delete_local) {
-						batch.removeObject(ptr);
+						batch.removeObject(ptr, globalInvoke);
 						std::lock_guard<std::mutex> lock(deleteMutex);
 						trash.push_back(ptr);
 					}

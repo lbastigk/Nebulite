@@ -306,7 +306,7 @@ std::string Nebulite::Invoke::evaluateExpressionFull(Nebulite::InvokeExpression&
 std::string Nebulite::Invoke::evaluateExpression(const std::string& input) {
     // Parse string into InvokeExpression
     Nebulite::InvokeExpression expr;
-    expr.parse(input, &docCache);
+    expr.parse(input, docCache);
     return evaluateExpressionFull(expr, &emptyDoc, &emptyDoc, global);
 }
 

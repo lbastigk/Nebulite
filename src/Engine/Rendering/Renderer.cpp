@@ -3,7 +3,8 @@
 Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_headless, unsigned int zoom, unsigned int X, unsigned int Y)
 : 	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B")),
-	dist(0, 32767)
+	dist(0, 32767),
+	env(&invoke)
 	{
 	//--------------------------------------------
 	// Linkages

@@ -21,8 +21,7 @@ public:
 	//-----------------------------------------------------------
 	//Constructor
 
-	Environment();
-	Environment(const Environment& other);
+	Environment(Nebulite::Invoke* globalInvoke);
 
 	// Suppress copy/move operators
 	Environment(Environment&& other) = delete;
@@ -81,7 +80,7 @@ public:
 private:
 	// Link to Global Values
     Nebulite::JSON* global;
-	
-	Nebulite::RenderObjectContainer roc[RENDEROBJECTCONTAINER_COUNT];
+
+	std::array<Nebulite::RenderObjectContainer, RENDEROBJECTCONTAINER_COUNT> roc;
 };
 }

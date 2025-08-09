@@ -13,10 +13,11 @@ public:
         Nebulite::JSON& doc, 
         std::vector<std::shared_ptr<Nebulite::Invoke::Entry>>& entries_global, 
         std::vector<std::shared_ptr<Nebulite::Invoke::Entry>>& entries_local, 
-        Nebulite::RenderObject* self
+        Nebulite::RenderObject* self,
+        Nebulite::DocumentCache* docCache
     );
 private:
-    static void getFunctionCalls(Nebulite::JSON& entryDoc,Nebulite::Invoke::Entry& invokeEntry);
+    static void getFunctionCalls(Nebulite::JSON& entryDoc,Nebulite::Invoke::Entry& invokeEntry, Nebulite::DocumentCache* docCache);
     static bool getExpression(Nebulite::Invoke::AssignmentExpression& assignmentExpr, Nebulite::JSON& entry, int index);
     static std::string getLogicalArg(Nebulite::JSON& entry);
     static bool getInvokeEntry(Nebulite::JSON& doc, Nebulite::JSON& entry, int index);

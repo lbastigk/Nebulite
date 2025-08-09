@@ -7,7 +7,7 @@ public:
 	//-----------------------------------------------------------
 	//Constructor
 
-	RenderObjectContainer();
+	RenderObjectContainer(Nebulite::Invoke* globalInvoke);
 
 	//-----------------------------------------------------------
 	// Batch of objects in container
@@ -15,25 +15,25 @@ public:
 		std::vector<RenderObject*> objects;
 		uint64_t estimatedCost = 0;
 
-		RenderObject* pop() {
+		RenderObject* pop(Nebulite::Invoke* globalInvoke) {
 			if (objects.empty()) return nullptr;
 
 			RenderObject* obj = objects.back(); // Get last element
-			estimatedCost -= obj->estimateComputationalCost(); // Adjust cost
+			estimatedCost -= obj->estimateComputationalCost(globalInvoke); // Adjust cost
 			objects.pop_back(); // Remove from vector
 
 			return obj;
 		}
 
-		void push(RenderObject* obj){
-			estimatedCost += obj->estimateComputationalCost();
+		void push(RenderObject* obj, Nebulite::Invoke* globalInvoke){
+			estimatedCost += obj->estimateComputationalCost(globalInvoke);
 			objects.push_back(obj);
 		}
 
-		bool removeObject(RenderObject* obj) {
+		bool removeObject(RenderObject* obj, Nebulite::Invoke* globalInvoke) {
 			auto it = std::find(objects.begin(), objects.end(), obj);
 			if (it != objects.end()) {
-				estimatedCost -= obj->estimateComputationalCost();
+				estimatedCost -= obj->estimateComputationalCost(globalInvoke);
 				objects.erase(it);
 				return true;
 			}
@@ -113,5 +113,7 @@ private:
 	std::vector<Nebulite::RenderObject*> to_delete;
 	std::vector<Nebulite::RenderObject*> trash;		// Moving objects, marking for deletion
 	std::vector<Nebulite::RenderObject*> purgatory;	// Deleted each frame
+
+	Nebulite::Invoke* globalInvoke;
 };
 }

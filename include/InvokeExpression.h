@@ -21,7 +21,7 @@ class InvokeExpression {
 public:
     InvokeExpression();
 
-    void parse(const std::string& expr, Nebulite::DocumentCache* documentCache);
+    void parse(const std::string& expr, Nebulite::DocumentCache& documentCache);
     std::string eval(Nebulite::JSON* current_self, Nebulite::JSON* current_other, Nebulite::JSON* current_global);
 
     std::string getFullExpression(){return fullExpression;};
@@ -29,7 +29,7 @@ public:
     void clear() {
         fullExpression.clear();
         entries.clear();
-        parse("0", documentCache);
+        parse("0", *documentCache);
     }
 
 private:
@@ -71,10 +71,13 @@ private:
     Nebulite::JSON* global = nullptr;
     Nebulite::DocumentCache* documentCache = nullptr;
 
+    // Helper functions
     void setEntryContext(Entry& entry);
     void compileIfExpression(Entry& entry);
     void registerIfVariable(Entry& entry);
     void modifyTextToTeConform(Entry& entry);
+
+    void make_entry(Entry& currentEntry, std::vector<Entry>& entries);
 };
 }
 
