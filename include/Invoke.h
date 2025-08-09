@@ -183,6 +183,9 @@ class InvokeNode;
 
 class Invoke{
 public:
+    // Mutex for thread-safe TinyExpr operations
+    std::mutex tinyexpr_mutex;
+
     //--------------------------------------------
     // Class-Specific Structures:
 
@@ -377,26 +380,6 @@ private:
     // TODO: Precompile expressions with:
     // List of variable pointers
     // The idea is to store this inside each expr through "virtual pointers"
-    // sort of like this:
-    /*
-    class VirtualDouble {
-        MyJSON& json;
-        std::string key;
-        double cache;
-    public:
-        VirtualDouble(MyJSON& j, std::string k)
-            : json(j), key(std::move(k)) {
-            cache = json[key];
-        }
-
-        double* ptr() {
-            syncFromJSON();
-            return &cache;
-        }
-
-        void syncFromJSON() { cache = json[key]; }
-    };
-    */
     // that retrieve the json file on dereference
     // so we link $(global.var) -> to global doc
     // Now we can create a vector of precompiled exprs for each total expr:

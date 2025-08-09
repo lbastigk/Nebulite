@@ -9,6 +9,7 @@ set-fps 1000
 print-global
 echo
 echo
+set physics.G 10
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=128|posY=128|physics.vX=4|physics.vY=-3|physics.mass=5000|text.str=obj001|imgLocation=Resources/Sprites/TEST100P/001.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=128|posY=256|physics.vX=-2|physics.vY=2|physics.mass=5000|text.str=obj002|imgLocation=Resources/Sprites/TEST100P/002.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=128|posY=384|physics.vX=7|physics.vY=7|physics.mass=5000|text.str=obj003|imgLocation=Resources/Sprites/TEST100P/003.bmp

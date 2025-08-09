@@ -1,5 +1,7 @@
 #include "InvokeNode.h"
+#include "InvokeExpressionParser.h"
 #include "Invoke.h"
+#include "VirtualDouble.h"
 
 // Keywords for resolving: $(1+1) , $(global.time.t) , ...
 #define InvokeResolveKeyword '$'
@@ -43,21 +45,6 @@ void Nebulite::InvokeNodeHelper::foldConstants(const std::shared_ptr<InvokeNode>
 
 
 // Set context and optimization info of a variable InvokeNode
-//
-// TODO:
-// Is Resources doc
-// global is technically a resources doc as well, but with write-access
-// and a copy is thus stored under state prefix
-//
-// Resources docs are read-only
-//
-// $(<link:key>)
-// -> Link = ./Resources/dialogue/characterName.jsonc
-// -> key  = onGreeting.v1
-// TODO: implementation in FileManagement class or Nebulite Namespace
-// absl_flat_hash_map<std::string,Nebulite::JSON>
-// if file doesnt exist, open
-// Perhaps some more guards to close a file after n many updates if not used
 Nebulite::InvokeNode Nebulite::InvokeNodeHelper::parseInnerVariable(const std::string& inner){
     // Setup a default variable node
     Nebulite::InvokeNode varNode;
@@ -108,28 +95,38 @@ std::shared_ptr<Nebulite::InvokeNode> Nebulite::InvokeNodeHelper::parseChild(con
     // If we reached the end of the string without finding a closing parenthesis, report an error
     if (depth != 0) {
         std::cerr << "Unmatched parentheses in expression: " << input << std::endl;
-        Nebulite::InvokeNode varNode;
-        varNode.type = InvokeNode::Type::Literal;
-        varNode.text = input.substr(i, j - i);
-        return std::make_shared<InvokeNode>(varNode);
+        auto varNode = std::make_shared<InvokeNode>();
+        varNode->type = InvokeNode::Type::Literal;
+        varNode->text = input.substr(i, j - i);
+        return varNode;
     }
 
     // Extract the inner content of the variable
     std::string inner = input.substr(i, j - i - 1); // inside $(...)
-    InvokeNode varNode;
+    
+    // Create InvokeNode using shared_ptr to avoid copying
+    auto varNode = std::make_shared<InvokeNode>();
 
     // Check if string still contains some inner var to resolve:
     if (inner.find(InvokeResolveKeyword) != std::string::npos) {
-        varNode.type = InvokeNode::Type::Mix_eval;
-        varNode.text = "";
-        varNode.children.push_back(expressionToTree(inner));
+        varNode->type = InvokeNode::Type::Mix_eval;
+        varNode->text = inner; // Keep the full expression for later evaluation
+        varNode->children.push_back(expressionToTree(inner));
+
+        // Setup TinyExpr variables for faster evaluation (only touches additional variables)
+        expressionParser.setupTinyExprVariables(*varNode, inner);
     } 
     // Parse the inner variable
     else {
-        varNode = parseInnerVariable(inner);
+        auto tempNode = parseInnerVariable(inner);
+        varNode->type = tempNode.type;
+        varNode->text = tempNode.text;
+        varNode->context = tempNode.context;
+        varNode->cast = tempNode.cast;
+        varNode->isNumericLiteral = tempNode.isNumericLiteral;
     }
     i = j; // move position after closing ')'
-    return std::make_shared<InvokeNode>(varNode);
+    return varNode;
 }
 
 std::shared_ptr<Nebulite::InvokeNode> Nebulite::InvokeNodeHelper::expressionToTree(const std::string& input) {
@@ -169,8 +166,7 @@ std::shared_ptr<Nebulite::InvokeNode> Nebulite::InvokeNodeHelper::expressionToTr
             // If we found a child, parse it
             if(childFound){
                 if (!literalBuffer.empty()) {
-                    InvokeNode varNode{  InvokeNode::Type::Literal, literalBuffer, {} };
-                    auto child = std::make_shared<InvokeNode>(varNode);
+                    auto child = std::make_shared<InvokeNode>(InvokeNode::Type::Literal, literalBuffer, std::vector<std::shared_ptr<InvokeNode>>{});
                     children.push_back(child);
                     literalBuffer.clear();
                 }
@@ -186,23 +182,30 @@ std::shared_ptr<Nebulite::InvokeNode> Nebulite::InvokeNodeHelper::expressionToTr
     }
 
     if (!literalBuffer.empty()) {
-        InvokeNode literalNode { InvokeNode::Type::Literal, literalBuffer, {} };
-        children.push_back(std::make_shared<InvokeNode>(literalNode));
+        children.push_back(std::make_shared<InvokeNode>(InvokeNode::Type::Literal, literalBuffer, std::vector<std::shared_ptr<InvokeNode>>{}));
     }
 
-    InvokeNode resultNode;
+    // Create result node directly as shared_ptr to avoid copying
+    auto ptr = std::make_shared<InvokeNode>();
     if (children.size() == 1 && children[0]->type == InvokeNode::Type::Variable && input.starts_with(InvokeResolveKeywordWithOpenParanthesis) && input.back() == ')') {
-        resultNode = InvokeNode{ InvokeNode::Type::Variable, children[0]->text, {} };
+        ptr->type = InvokeNode::Type::Variable;
+        ptr->text = children[0]->text;
+        ptr->children = {};
     } else if (input.starts_with(InvokeResolveKeyword) && input.back() == ')') {
-        resultNode = InvokeNode{ InvokeNode::Type::Mix_eval, "", children };
+        ptr->type = InvokeNode::Type::Mix_eval;
+        ptr->text = "";
+        ptr->children = std::move(children);
     } else if (hasVariables) {
-        resultNode = InvokeNode{ InvokeNode::Type::Mix_no_eval, "", children };
+        ptr->type = InvokeNode::Type::Mix_no_eval;
+        ptr->text = "";
+        ptr->children = std::move(children);
     } else {
-        resultNode = InvokeNode{ InvokeNode::Type::Literal, input, {} };
+        ptr->type = InvokeNode::Type::Literal;
+        ptr->text = input;
+        ptr->children = {};
     }
 
     // Fold constants directly before returning
-    auto ptr = std::make_shared<InvokeNode>(std::move(resultNode));
     foldConstants(ptr);
     return ptr;
 }
@@ -312,6 +315,25 @@ std::string Nebulite::InvokeNodeHelper::evaluateNode(const std::shared_ptr<Invok
         }
         // Mix eval: "$(This string is a mix as it not only contains text, but also a variable access/expression like $(1+1))"
         case InvokeNode::Type::Mix_eval: {
+            // Check if we have TinyExpr variables set up
+            if (!nodeptr->te_vars.empty()) {
+                // Update variable pointers and compile for current evaluation context
+                expressionParser.updateTinyExprPointers(*nodeptr, self, other, global);
+                
+                // Try using TinyExpr if compilation was successful
+                if (nodeptr->te_evaluate) {
+                    // Evaluate using TinyExpr
+                    double result = te_eval(nodeptr->te_evaluate);
+                    
+                    // Apply casting
+                    if (nodeptr->cast == InvokeNode::CastType::Int) {
+                        return std::to_string(static_cast<int>(result));
+                    }
+                    return std::to_string(result);
+                }
+            }
+            
+            // Fallback to original method if TinyExpr not available or failed
             std::string combined = combineChildren(nodeptr, self, other, global, true);
             // Int casting
             if(nodeptr->cast == InvokeNode::CastType::Int){
@@ -324,5 +346,13 @@ std::string Nebulite::InvokeNodeHelper::evaluateNode(const std::shared_ptr<Invok
     // For safety, if there are any logic mistakes with no returns:
     std::cerr << "Nebulite::Invoke::evaluateNode functions switch operations return is incomplete! Please inform the maintainers." << std::endl;
     return "";
+}
+
+// ==========================
+// InvokeNodeHelper Implementation
+// ==========================
+
+Nebulite::InvokeNodeHelper::InvokeNodeHelper(Nebulite::Invoke* invoke) 
+    : invoke(invoke), expressionParser(invoke) {
 }
   

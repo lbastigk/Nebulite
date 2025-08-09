@@ -1,4 +1,6 @@
 #pragma once
+#include "tinyexpr.h"
+#include "VirtualDouble.h"
 
 /*
 ==== InvokeNode expression parsing structure ====
@@ -42,10 +44,11 @@ Result: "2 + 1"
 #include <vector>
 #include <deque>
 #include "JSON.h"
+#include "InvokeExpressionParser.h"
 
 namespace Nebulite{
 
-// Forward declaration
+// Forward declarations
 class Invoke;
 
 // Compiled expression, a collection of Nodes forming a tree structure
@@ -66,8 +69,28 @@ public:
         : type(type), text(text), children(children) {}
     InvokeNode(Type type, const std::string& text, const std::vector<std::shared_ptr<InvokeNode>>& children, ContextType context, CastType cast = CastType::None)
         : type(type), text(text), children(children), context(context), cast(cast) {}
-    
+
+    // Make InvokeNode move-only since it contains unique_ptr
+    InvokeNode(const InvokeNode&) = delete;
+    InvokeNode& operator=(const InvokeNode&) = delete;
+    InvokeNode(InvokeNode&&) = default;
+    InvokeNode& operator=(InvokeNode&&) = default;
+
+    // Destructor to clean up TinyExpr compiled expressions
+    ~InvokeNode() {
+        if (te_evaluate) {
+            te_free(te_evaluate);
+            te_evaluate = nullptr;
+        }
+    }
+
     friend class InvokeNodeHelper; // Allow InvokeNodeHelper to access private members
+    friend class InvokeExpressionParser; // Allow InvokeExpressionParser to access TinyExpr variables
+
+
+
+    
+    
 private:
     // Data type
     Type type = Type::Literal;
@@ -100,13 +123,35 @@ private:
     // $(1 + 5.0000)  -> BAD, total calls for expr is 2
     // $(1 + (2 + 3)) -> BETTER. only one call
     bool insideEvalParent = false;      
-};   
+
+
+
+    //----------------------------------------------------------
+    // Additional setup for faster evaluation of type Mix_eval
+
+    // References to self/other/global are updated on each evaluation
+    Nebulite::JSON* self = nullptr;
+    Nebulite::JSON* other = nullptr;
+    Nebulite::JSON* global = nullptr;
+
+    // TinyExpr expression for evaluation
+    te_expr* te_evaluate = nullptr; 
+
+    // Variables for TinyExpr evaluation
+    std::vector<te_variable> te_vars; 
+
+    // Links to document-specific variables using a custom wrapper that acts as double pointer
+    std::vector<std::unique_ptr<VirtualDouble>> virtualDoubles; 
+
+    // All variable names
+    std::vector<std::string> variableNames;
+};
 
 // Used to maniupulate InvokeNode objects, must be linked to Invoke instance
 // to access global variables and methods
 class InvokeNodeHelper{
 public:
-    InvokeNodeHelper(Nebulite::Invoke* invoke) : invoke(invoke) {}
+    InvokeNodeHelper(Nebulite::Invoke* invoke);
 
     // turn nodes that hold just constant to evaluate into text
     // e.g. $(1+1) is turned into 2.000...
@@ -149,7 +194,12 @@ public:
 
     // Helper function for accessing a variable from self/other/global/Resources
     std::string nodeVariableAccess(const std::shared_ptr<Nebulite::InvokeNode>& nodeptr,Nebulite::JSON *self,Nebulite::JSON *other,Nebulite::JSON *global,bool insideEvalParent);
+
+    // Access to the expression parser for TinyExpr functionality
+    InvokeExpressionParser& getExpressionParser() { return expressionParser; }
+
 private:
     Nebulite::Invoke* invoke; // Pointer to the Invoke instance for accessing global variables and methods
+    InvokeExpressionParser expressionParser; // Parser for TinyExpr functionality
 };
 }

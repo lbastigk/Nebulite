@@ -7,6 +7,7 @@ spawn ./Resources/Renderobjects/Planets/obj1.jsonc
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc
 wait 300
 print-global
+print-state
 echo Test Passed!
 eval echo Rendered 300 Frames in: $(global.time.t) Seconds.
 exit
