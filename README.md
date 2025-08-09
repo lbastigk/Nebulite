@@ -5,7 +5,7 @@
 
 **Nebulite** is a C++-based 2D game engine featuring a custom Domain-Specific Language (DSL) for game logic configuration. 
 Built for arbitrary rulesets and flexible inter-object logic, Nebulite enables complex game mechanics to be defined declaratively in 
-JSON while maintaining performance through an underlying C++ engine.
+JSON / JSONC while maintaining performance through an underlying C++ engine.
 
 ## Architecture
 
@@ -48,9 +48,13 @@ The Nebulite DSL provides:
 - **Type Safety**: Compile-time verification through C++ templates
 - **Function Collision Prevention**: Automatic detection of naming conflicts
 
+## The Invoke-Class
+
+The Invoke class is the core game state modification class, which parses JSON-Defined game logic.
+
 ### Invoke-Files
 
-Invoke json-files are used to describe how objects interact with each other. They contain:
+Invoke-Objects/Files contain:
 - The topic of the ruleset (broadcaster `self` sends topic, listener `other` must be subscribed to it)
 - A logical argument (must be true for it to be executed)
 - A list of expressions
@@ -58,10 +62,12 @@ Invoke json-files are used to describe how objects interact with each other. The
 
 Example of an Invoke for a gravity ruleset:
 ```jsonc
-// Add this or a link as string ("./Resources/Invokes/.../gravity.json") to any RenderObject.json that should conform to the gravity ruleset:
-// -> append str/object    to its key "invokes"
-// Make sure the object listens to topic gravity as well
-// -> append str "gravity" to its key "invokeSubscriptions"
+/*
+Add these individual invokes as object or a link as string ("./Resources/Invokes/.../gravity.json") to any RenderObject.json that should conform to the gravity ruleset:
+-> append str/object    to its key "invokes"
+Make sure the object listens to topic gravity as well
+-> append str "gravity" to its key "invokeSubscriptions"
+*/
 {
   "topic": "gravity",   // Broadcasting this ruleset to any other object subscribed to "gravity"
   "logicalArg": "1",    // We already ensured that only objects subscribed to gravity interact
@@ -79,7 +85,9 @@ Example of an Invoke for a gravity ruleset:
 },
 // Acceleration to velocity:
 {
-  "topic": "",          // Internal invoke, no broadcasting
+  // Internal invoke, no broadcasting (self-global-relationship). 
+  // whenever possible, an empty broadcast should be chosen.
+  "topic": "",          
   "logicalArg": "1",
   "exprs": [
     "self.physics.vX += $($(self.physics.aX) * $(global.time.dt))",
@@ -88,13 +96,37 @@ Example of an Invoke for a gravity ruleset:
   "functioncalls_global": [],
   "functioncalls_self": [],
   "functioncalls_other": []
-}
+},
 // Velocity to Position:
 // ...
 // Reset acceleration to 0 for next frame:
 // ...
 ```
 *This creates realistic planetary motion with just JSON configuration!*
+
+
+### Mathematical expressions
+
+Nebulite offers all mathematical operations from [Tinyexpr](https://github.com/codeplea/tinyexpr) as well as the following custom operators:
+```cpp
+gt(a,b)   : a > b
+lt(a,b)   : a < b
+geq(a,b)  : a >= b
+leq(a,b)  : a <= b
+eq(a,b)   : a == b
+neq(a,b)  : a != b
+and(a,b)  : a && b
+or(a,b)   : a || b
+not(a)    : !a
+sgn(a)    : a/abs(a)
+```
+
+As well as integer casting with '$i(...)'
+
+You can quickly verify the correctness of an expression with the command line:
+```bash
+./bin/Nebulite 'set myVariable 2 ; eval echo $i(1 + $(global.myVariable))' # returns 3
+```
 
 ## Quick start
 
