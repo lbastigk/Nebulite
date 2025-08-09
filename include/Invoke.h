@@ -372,6 +372,37 @@ private:
         static double sgn(double a){return 1.0 - 2.0*std::signbit(a);}
     };
     //absl::flat_hash_map<std::string, te_expr*> expr_cache;
+   
+
+    // TODO: Precompile expressions with:
+    // List of variable pointers
+    // The idea is to store this inside each expr through "virtual pointers"
+    // sort of like this:
+    /*
+    class VirtualDouble {
+        MyJSON& json;
+        std::string key;
+        double cache;
+    public:
+        VirtualDouble(MyJSON& j, std::string k)
+            : json(j), key(std::move(k)) {
+            cache = json[key];
+        }
+
+        double* ptr() {
+            syncFromJSON();
+            return &cache;
+        }
+
+        void syncFromJSON() { cache = json[key]; }
+    };
+    */
+    // that retrieve the json file on dereference
+    // so we link $(global.var) -> to global doc
+    // Now we can create a vector of precompiled exprs for each total expr:
+    // "This expression contains $(1+1) precompile-able expressions! $(global.var2)"
+    // This might improve performance but would require a large overhaul
+    // Perhaps not recommended, as we now need to distinguish between double retrieval and string retrieval!
     std::vector<te_variable> vars;
 
 
