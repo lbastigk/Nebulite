@@ -62,10 +62,14 @@ Each Class has access to a different tree through `funcTree->...` and a differen
 ### Implementation Guidelines
 
 - It is recommended to implement unfinished functions inside the cpp file via a return of `Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED`
-- The `GlobalSpaceTree` automatically inherits all functions from `JSONTree`, which act on the global document
-- The `RenderObjectTree` automatically inherits all functions from `JSONTree`, which act on the objects document
+- Use filenames `GTE_*.{h,cpp}` , `RTE_*.{h,cpp}` and `JTE_*.{h,cpp}` for expansions
+- Use the recommended class naming schemes and namespaces, e.g.: `Nebulite::GlobalSpaceTreeExpansion::MyFeature`
+
 
 ### Function Collision Prevention
+
+- The `GlobalSpaceTree` automatically inherits all functions from `JSONTree`, which act on the global document
+- The `RenderObjectTree` automatically inherits all functions from `JSONTree`, which act on the objects document
 
 It is **not allowed** to overwrite already existing functions:
 - If the function `set` was already declared, it is not possible to declare a new `set` function in that same tree
@@ -90,7 +94,7 @@ It is **not allowed** to overwrite already existing functions:
 namespace Nebulite{
 class GlobalSpace; // Forward declaration of Domain class GlobalSpace 
 namespace GlobalSpaceTreeExpansion {
-class MyFeature : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, Debug> {
+class MyFeature : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, MyFeature> {
 public:
     using Wrapper<Nebulite::GlobalSpace, MyFeature>::Wrapper; // Templated constructor from Wrapper, calls setupBindings
 
