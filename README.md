@@ -137,12 +137,13 @@ Nebulite allows for domain-specific functioncalls on serialization
 ./bin/Nebulite 'spawn ./Resources/Renderobjects/standard.json|set posX 500|copy . backup'
 ```
 
-## Quick start
+## Quick Start
 
-1. Fork the repository
-2. Install dependencies: `./install.sh`
-3. Create feature branch: `git checkout -b feature/my-feature`
-4. Make changes and test: `./build.sh && cd Application && ./Tests.sh`
+1. Install dependencies: `./install.sh`
+2. Build the project: `./build.sh`
+3. Run examples: `cd Application && ./bin/Nebulite task TaskFiles/Demos/basic.txt`
+
+For development setup and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Usage Examples
 
@@ -216,145 +217,17 @@ Nebulite relies on the following third-party dependencies:
 | [Abseil](https://abseil.io/)                          | Fast variable caching                        |
 | [Tinyexpr](https://github.com/codeplea/tinyexpr)      | Parsing and evaluating expressions           |
 
-as well as optional dependencies:
+Optional dependencies:
 
 | Project                                               | Purpose                                      |
 |-------------------------------------------------------|----------------------------------------------|
 | [recall](https://github.com/lbastigk/recall/)         | Custom CLI-Tool for quick documentation      |
 | [PlantUML](https://plantuml.com/)                     | For compiling UML-Diagrams in ./doc/         |
 
-Please note that CLI-Based documenation with recall is a work-in-progress.
-
 ## Contributing
 
-We welcome contributions! Nebulite's modular architecture makes it easy to add features in separate files.
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed development setup, testing procedures, and guidelines for adding new features to Nebulite's modular architecture.
 
-### Development Setup
+## License
 
-Using VSCode is recommended for an optimal workflow.
-
-### Testing
-
-Go into the Application directory first: `cd Application/`
-
-- Use `Tests.sh` for preconfigured tests.
-- Use `CrashDebug.sh` for debugging crashes with predefined taskfiles
-- Use `MemLeakTest.sh` for memory leak testing using `valgrind` and `massif-visualizer`
-
-You can add custom taskfiles to the test suite as well by extending its variable `tests`, or run them on your own with:
-```bash
-./bin/Nebulite task TaskFiles/.../your_test.txt
-```
-
-VSCode users benefit from preconfigured tasks: `CTRL + SHIFT + T` (test options) or `CTRL + SHIFT + B` (build options)
-
-### Preview Editing
-
-Preview Editing is a work-in-progress. The current plan is to use the headless rendering mode of Nebulite in combination with 
-either a taskfile or a python-script to allow rendering snapshots while editing json files.
-
-### Adding Features
-
-Nebulite offers clean expansions of its functionality through its FuncTrees. 
-Maintainers can create their own Tree-expansion classes and add them to a specifc FuncTree.
-
-| New commands operating on... | Action                        | Info                                                                    |
-|------------------------------|-------------------------------|-------------------------------------------------------------------------|
-| global level                 | Extend the `GlobalSpaceTree`  | See `include/GlobalSpaceTree.h` and its expansions `include/GTE_*.h`    |
-| specific RenderObjects       | Extend the `RenderObjectTree` | See `include/RenderObjectTree.h` and its expansions `include/RTE_*.h`   |
-| specific JSON-Documents      | Extend the `JSONTree`         | See `include/JSONTree.h` and its expansions `include/JTE_*.h`           |
-
-Each Class has access to a different tree through `funcTree->...` and a different domain through `self->...`: 
-- `GlobalSpaceTree` can access the global space
-- `RenderObjectTree` can access the attached RenderObject
-- `JSONTree` can access the attached JSON
-
-It is recommended to implement unfinished functions inside the cpp file via a return of `Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED`
-
-Note that:
-- the `GlobalSpaceTree` automatically inherits all functions from `JSONTree`, which act on the global document.
-- the `RenderObjectTree` automatically inherits all functions from `JSONTree`, which act on the objects document.
-
-It is **not allowed** to overwrite already existing functions:
-- If the function `set` was already declared, it is not possible to declare a new `set` function in that same tree
-- If the function `set` was already declared for the subtree, it is not possible to declare a new `set` function in the Tree that inherits the function
-
----------------------------------------------------
-
-**Example procedure for a new GlobalSpaceTree feature:**
-
-1. **Create expansion file:** `GTE_MyFeature.{h,cpp}`
-2. **Inherit from wrapper:** Create class inheriting from `Nebulite::FuncTreeExpansion::Wrapper<DomainClass, MyFeatureClass>`
-3. **Implement command methods:** Functions with `ERROR_TYPE (int argc, char* argv[])` signature
-4. **setupBindings():** Register your commands with the function tree
-5. **Add to GlobalSpaceTree:** Include in `include/GlobalSpaceTree.h` and initialize in constructor
-6. **Command line Variables** are more difficult to implement, as they require the full domain definition. Bind them in `GlobalSpaceTree.cpp`
-
----------------------------------------------------
-
-**Complete code example:**
-
-Inside MyFeature.h:
-
-```cpp
-namespace Nebulite{
-class GlobalSpace; // Forward declaration of Domain class GlobalSpace 
-namespace GlobalSpaceTreeExpansion {
-class MyFeature : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, Debug> {
-public:
-    using Wrapper<Nebulite::GlobalSpace, MyFeature>::Wrapper; // Templated constructor from Wrapper, calls setupBindings
-
-    //----------------------------------------
-    // Available Functions
-    ERROR_TYPE spawnCircle(int argc, char* argv[]);
-
-    //----------------------------------------
-    // Binding Functions
-    void setupBindings()  {
-        bindFunction(&MyFeature::spawnCircle, "spawn-circle", "Spawn a circle");
-        /*Bind more functions of MyFeature here*/
-    }
-};
-}
-}
-```
-Inside MyFeature.cpp:
-```cpp
-#include "MyFeature.h"
-#include "GlobalSpace.h"       // Global Space for Nebulite
-
-Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::MyFeature::spawnCircle(int argc, char* argv[]){
-    /*
-    Implementation here.
-    You can access the global space and its members through: self->...
-    As well as the funcTree through: funcTree->...
-    */
-}
-```
-Then add to include/GlobalSpaceTree.h:
-```cpp
-#include "MyFeature.h"
-class GlobalSpaceTree : public FuncTree<Nebulite::ERROR_TYPE>{
-    /*...*/
-private:
-    /*...*/
-    std::unique_ptr<GlobalSpaceTreeExpansion::MyFeature> myFeature;
-}
-```
-And initialize in GlobalSpaceTree.cpp:
-```cpp
-Nebulite::GlobalSpaceTree::GlobalSpaceTree(/*...*/) : /*...*/
-{
-    // Initialize all expansions
-    /*...*/
-    myFeature = createExpansionOfType<GlobalSpaceTreeExpansion::MyFeature>();
-
-    // Initialize Variable Bindings here, due to circular dependency issues
-    /*...*/
-    bindVariable(&self->myVariable, "myVariable", "This is a variable inside globalSpace");
-}
-```
-
-If necessary, the entire feature can then be:
-- **disabled** by commenting out `createExpansionOfType` in the Constructor
-- **removed** by undoing the changes inside `GlobalSpaceTree.{h,cpp}`
+See [LICENSE.md](LICENSE.md) for licensing information.
