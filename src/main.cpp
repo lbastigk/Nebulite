@@ -152,7 +152,7 @@ int main(int argc, char* argv[]){
         if(!critical_stop){
             result_tasks_script = globalSpace.resolveTaskQueue(globalSpace.tasks_script,&globalSpace.tasks_script.waitCounter,&argc_GlobalSpaceTree,&argv_GlobalSpaceTree);
         }
-        if(result_tasks_script.stoppedAtCriticalResult) {
+        if(result_tasks_script.stoppedAtCriticalResult && globalSpace.recover == "false") {
             critical_stop = true; 
             lastCriticalResult = result_tasks_script.errors.back();
             break;
@@ -162,7 +162,7 @@ int main(int argc, char* argv[]){
         if(!critical_stop){
             result_tasks_internal = globalSpace.resolveTaskQueue(globalSpace.tasks_internal,noWaitCounter,&argc_GlobalSpaceTree,&argv_GlobalSpaceTree);
         }
-        if(result_tasks_internal.stoppedAtCriticalResult) {
+        if(result_tasks_internal.stoppedAtCriticalResult && globalSpace.recover == "false") {
             critical_stop = true; 
             lastCriticalResult = result_tasks_internal.errors.back();
             break;
@@ -172,7 +172,7 @@ int main(int argc, char* argv[]){
         if(!critical_stop){
             result_tasks_always = globalSpace.resolveTaskQueue(globalSpace.tasks_always,noWaitCounter,&argc_GlobalSpaceTree,&argv_GlobalSpaceTree);
         }
-        if(result_tasks_always.stoppedAtCriticalResult) {
+        if(result_tasks_always.stoppedAtCriticalResult && globalSpace.recover == "false") {
             critical_stop = true; 
             lastCriticalResult = result_tasks_always.errors.back();
             break;

@@ -1,2 +1,3 @@
 set-fps 60
+set physics.G 10
 spawn ./Resources/Renderobjects/Planets/obj_center.jsonc|physics.vX=100

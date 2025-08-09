@@ -9,6 +9,7 @@ set-fps 10000
 print-global
 echo
 echo
+set physics.G 10
 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=0|posY=0|sprite.sizeX=640|sprite.sizeY=32
 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=0|posY=$(640-32)|sprite.sizeX=640|sprite.sizeY=32
 

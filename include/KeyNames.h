@@ -11,6 +11,26 @@ This allows to change the key names in one place only, if needed.
 
 namespace Nebulite{
 const struct keyName {
+    const struct renderer{
+        std::string _self = "renderer";
+        std::string dispResX = "display.resolution.X";
+        std::string dispResY = "display.resolution.Y";
+        std::string positionX = "display.position.X";
+        std::string positionY = "display.position.Y";
+
+        std::string time_fixed_dt_ms = "time.fixed_dt_ms";
+        std::string time_t = "time.t";
+        std::string time_t_ms = "time.t_ms";
+        std::string time_dt = "time.dt";
+        std::string time_dt_ms = "time.dt_ms";
+    }renderer;
+    // TODO: replace rand/rrand with multiple randoms
+    const struct Random{
+        std::string A = "random.A";
+        std::string B = "random.B";
+        std::string C = "random.C";
+        std::string D = "random.D";
+    }random;
     const struct renderObject{
         std::string _self = "renderObject";
         std::string id = "id";
@@ -48,12 +68,6 @@ const struct keyName {
         std::string typeOther = "other";
         std::string typeGlobal = "global";
     }invoke;
-    const struct invokeTriple{
-        std::string _self = "invokeTriple";
-        std::string changeType = "changeType";
-        std::string key = "key";
-        std::string value = "value";
-    }invokeTriple;
     const struct Environment {
         std::string renderObjectContainer = "RenderObjectContainer";
     }environment;

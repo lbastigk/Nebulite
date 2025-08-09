@@ -1,6 +1,7 @@
 #########################
 # INTRO
 set-fps 60
+set physics.G 10
 spawn ./Resources/Renderobjects/standard.jsonc|text.str=NEBULITE_DEV_DIARY_2025-07|text.fontSize=24|text.dx=50|text.dy=100
 wait 180
 spawn ./Resources/Renderobjects/standard.jsonc|text.str=whitespace_args_are_a_work_in_progress...|text.fontSize=24|text.dx=50|text.dy=200

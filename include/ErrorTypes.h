@@ -24,17 +24,6 @@
  */
 #pragma once
 
-// TODO: Further categorizing into:
-// - "Normal" errors/warnings (positive values)
-// - "Critical" errors (negative values)
-// - Recoverable errors (perhaps > 1000)
-// Recoverable errors are then used for headless rendering while editing files
-// So we start a nebulite instance with a script to preview a level/file/similiar
-// and add "--recover" to the command line arguments
-// This will then not crash the engine, but perhaps just inform the user:
-// Hey, there is an error in the file you are editing, but we can continue
-// Perhaps even in a way where all critical errors are deemed as recoverable
-
 // Return values from main Tree functions
 namespace Nebulite{
 enum ERROR_TYPE{

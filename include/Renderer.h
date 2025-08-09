@@ -78,15 +78,14 @@ public:
 	//-----------------------------------------------------------
 	// Getting
 
-	// TODO: Get rid of hardcoded values: Display.Resolution.X/Y
 	Nebulite::JSON& getGlobal(){return env.getGlobal();}
 	size_t getTextureAmount(){return TextureContainer.size();}
 	size_t getObjectCount(){return env.getObjectCount();}
-	int getResX(){return invoke_ptr->getGlobalPointer()->get<int>("Display.Resolution.X",0);}
-	int getResY(){return invoke_ptr->getGlobalPointer()->get<int>("Display.Resolution.Y",0);}
+	int getResX(){return invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),0);}
+	int getResY(){return invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0);}
 	int getFPS(){return fps;}
-	int getPosX(){return invoke_ptr->getGlobalPointer()->get<int>("Display.Position.X",0);};
-	int getPosY(){return invoke_ptr->getGlobalPointer()->get<int>("Display.Position.Y",0);};
+	int getPosX(){return invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.positionX.c_str(),0);}
+	int getPosY(){return invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.positionY.c_str(),0);}
 	bool windowExists(){return !!Renderer::window;}
 	bool isConsoleMode(){return consoleMode;}
 

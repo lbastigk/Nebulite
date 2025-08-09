@@ -403,6 +403,13 @@ private:
     // "This expression contains $(1+1) precompile-able expressions! $(global.var2)"
     // This might improve performance but would require a large overhaul
     // Perhaps not recommended, as we now need to distinguish between double retrieval and string retrieval!
+    //
+    // NOTE: Should be easier to implement considering mix_eval types:
+    // The following fields are needed:
+    // - std::string fullString / reuse the text/str field?
+    // - vector of variables using the virtual pointers
+    // - precompiled expression
+    // then, call te_evaluate on the expression with the variables
     std::vector<te_variable> vars;
 
 

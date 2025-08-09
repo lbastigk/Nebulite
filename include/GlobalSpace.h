@@ -118,7 +118,8 @@ namespace Nebulite {
 
         //---------------------------------------
         // Internal Variables, linked to GlobalSpaceTree
-        std::string headless = "false";
+        std::string headless = "false"; // Headless mode (no window)
+        std::string recover = "false";  // Enable recoverable error mode
         /*Add more variables as needed*/
 
         //----------------------------------------------
