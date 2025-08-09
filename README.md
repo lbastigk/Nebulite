@@ -109,18 +109,19 @@ Make sure the object listens to topic gravity as well
 ### Mathematical expressions
 
 Nebulite offers all mathematical operations from [Tinyexpr](https://github.com/codeplea/tinyexpr) as well as integer casting with '$i(...)' and the following custom operators:
-```cpp
-gt(a,b)   : a > b
-lt(a,b)   : a < b
-geq(a,b)  : a >= b
-leq(a,b)  : a <= b
-eq(a,b)   : a == b
-neq(a,b)  : a != b
-and(a,b)  : a && b
-or(a,b)   : a || b
-not(a)    : !a
-sgn(a)    : a/abs(a)
-```
+
+| Operator   | C++ Code                  |
+|------------|---------------------------|
+| `gt(a,b)`  | a > b                     |
+| `lt(a,b)`  | a < b                     |
+| `geq(a,b)` | a >= b                    |
+| `leq(a,b)` | a <= b                    |
+| `eq(a,b)`  | a == b                    |
+| `neq(a,b)` | a != b                    |
+| `and(a,b)` | a && b                    |
+| `or(a,b)`  | a || b                    |
+| `not(a)`   | !a                        |
+| `sgn(a)`   | std::copysign(1.0, a)     |
 
 You can quickly verify the correctness of an expression with the command line:
 ```bash

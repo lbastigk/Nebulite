@@ -369,7 +369,7 @@ private:
         static double logical_or(double a, double b){return a || b;}
         static double logical_not(double a){return !a;}
 
-        static double sgn(double a){return 1.0 - 2.0*std::signbit(a);}
+        static double sgn(double a){return std::copysign(1.0, a);}
     };
     //absl::flat_hash_map<std::string, te_expr*> expr_cache;
    
