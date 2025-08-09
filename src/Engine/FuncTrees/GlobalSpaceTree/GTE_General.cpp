@@ -34,7 +34,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::eval(int argc,
     }
 
     // eval all $(...)
-    std::string args_evaled = self->invoke->resolveGlobalVars(args);
+    std::string args_evaled = self->invoke->evaluateExpression(args);
 
     // reparse
     return funcTree->parseStr(args_evaled);

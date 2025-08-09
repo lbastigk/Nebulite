@@ -7,7 +7,11 @@ void Nebulite::InvokeJSONParser::getFunctionCalls(Nebulite::JSON& entryDoc, Nebu
         for (uint32_t j = 0; j < funcSize; ++j) {
             std::string funcKey = keyName.invoke.functioncalls_global + "[" + std::to_string(j) + "]";
             std::string funcCall = entryDoc.get<std::string>(funcKey.c_str(), "");
-            invokeEntry.functioncalls_global.push_back(funcCall);
+
+            // Create a new InvokeExpression, parse the function call
+            Nebulite::InvokeExpression invokeExpr;
+            invokeExpr.parse(funcCall);
+            invokeEntry.functioncalls_global.push_back(invokeExpr);
         }
     }
     if (entryDoc.memberCheck(keyName.invoke.functioncalls_self) == Nebulite::JSON::KeyType::array) {
@@ -22,7 +26,11 @@ void Nebulite::InvokeJSONParser::getFunctionCalls(Nebulite::JSON& entryDoc, Nebu
             if (!funcCall.starts_with("self ")) {
                 funcCall = "self " + funcCall;
             }
-            invokeEntry.functioncalls_self.push_back(funcCall);
+
+            // Create a new InvokeExpression, parse the function call
+            Nebulite::InvokeExpression invokeExpr;
+            invokeExpr.parse(funcCall);
+            invokeEntry.functioncalls_self.push_back(invokeExpr);
         }
     }
     if (entryDoc.memberCheck(keyName.invoke.functioncalls_other) == Nebulite::JSON::KeyType::array) {
@@ -37,7 +45,10 @@ void Nebulite::InvokeJSONParser::getFunctionCalls(Nebulite::JSON& entryDoc, Nebu
             if (!funcCall.starts_with("other ")) {
                 funcCall = "other " + funcCall;
             }
-            invokeEntry.functioncalls_other.push_back(funcCall);
+            // Create a new InvokeExpression, parse the function call
+            Nebulite::InvokeExpression invokeExpr;
+            invokeExpr.parse(funcCall);
+            invokeEntry.functioncalls_other.push_back(invokeExpr);
         }
     }
 }
@@ -156,12 +167,12 @@ void Nebulite::InvokeJSONParser::parse(Nebulite::JSON& doc, std::vector<std::sha
         // Parse into a structure
         Nebulite::Invoke::Entry invokeEntry;
         invokeEntry.topic = entry.get<std::string>("topic", "all");
-        invokeEntry.logicalArg = InvokeJSONParser::getLogicalArg(entry);
+        invokeEntry.logicalArg.parse(InvokeJSONParser::getLogicalArg(entry));
 
         // Remove whitespaces at start and end from topic and logicalArg:
         invokeEntry.topic = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(invokeEntry.topic));
-        invokeEntry.logicalArg = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(invokeEntry.logicalArg));
-        
+        invokeEntry.logicalArg.parse(Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(invokeEntry.logicalArg.getFullExpression())));
+
         // Get expressions
         if (entry.memberCheck(keyName.invoke.exprVector) == Nebulite::JSON::KeyType::array) {
             uint32_t exprSize = entry.memberSize(keyName.invoke.exprVector);

@@ -302,7 +302,7 @@ uint64_t Nebulite::RenderObject::estimateComputationalCost(){
 
 	// Global entries
 	for (const auto& entry : entries_global) {
-		cost += std::count(entry->logicalArg.begin(), entry->logicalArg.end(), '$');
+		cost += std::count(entry->logicalArg.getFullExpression().begin(), entry->logicalArg.getFullExpression().end(), '$');
 
 		// Count number of $ in exprs
 		for (const auto& expr : entry->exprs) {
@@ -312,7 +312,7 @@ uint64_t Nebulite::RenderObject::estimateComputationalCost(){
 
 	// Local entries
 	for (const auto& entry : entries_local) {
-		cost += std::count(entry->logicalArg.begin(), entry->logicalArg.end(), '$');
+		cost += std::count(entry->logicalArg.getFullExpression().begin(), entry->logicalArg.getFullExpression().end(), '$');
 
 		// Count number of $ in exprs
 		for (const auto& expr : entry->exprs) {

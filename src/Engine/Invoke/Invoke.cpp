@@ -1,9 +1,9 @@
 #include "Invoke.h"
 #include "RenderObject.h"
 #include "StringHandler.h"
-#include "InvokeNode.h"
+#include <limits>
 
-Nebulite::Invoke::Invoke() : nodeHelper(this) {
+Nebulite::Invoke::Invoke(){
     //-------------------------------------------------
     // Manually add function variables
     te_variable gt_var =  {"gt",    (void*)expr_custom::gt,             TE_FUNCTION2};
@@ -37,7 +37,7 @@ bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::Entr
     if(cmd->selfPtr == otherObj) return false;
 
     // Check if logical arg is as simple as just "1", meaning true
-    if(cmd->logicalArg == "1") return true;
+    if(cmd->logicalArg.getFullExpression() == "1") return true;
 
     // A logicalArg of "0" would never really be used in prod,
     // (only for errors or quick removals of invokes in debugging)
@@ -46,15 +46,12 @@ bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::Entr
     //-----------------------------------------
     // Evaluation
 
-    // Resolve variables in expression
-    std::string logic = resolveVars(cmd->logicalArg, cmd->selfPtr->getDoc(), otherObj->getDoc(), global);
-
     // Get result
-    double result = evaluateExpression(logic);
+    double result = std::stod(evaluateExpressionFull(cmd->logicalArg, cmd->selfPtr->getDoc(), otherObj->getDoc(), global));
 
     // Check for result
     if(isnan(result)){
-        std::cerr << "Evaluated logic to NAN! Logic is: " << logic << std::endl;
+        std::cerr << "Evaluated logic to NAN! Logic is: " << cmd->logicalArg.getFullExpression() << std::endl;
         // A NaN-Result can happen if any variable resolved isnt a number, but a text
         // Under usual circumstances, this is easily avoidable
         // by designing the values to only be assigned a numeric value.
@@ -66,7 +63,7 @@ bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::Entr
 
         // In case this happens, it might be helpful to set the logic to always false:
         // This way, the error log does not happen all the time.
-        cmd->logicalArg = "0";
+        cmd->logicalArg.clear();
 
         // This can become an unwanted behavior if the following is done:
         // logicalArg = $(not($(global.states.xyz)))
@@ -84,13 +81,12 @@ bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::Entr
 
 bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<Nebulite::Invoke::Entry>& cmd) {
     // Check if logical arg is as simple as just "1", meaning true
-    if(cmd->logicalArg == "1") return true;
+    if(cmd->logicalArg.getFullExpression() == "1") return true;
 
     // Resolve logical statement
-    std::string logic = resolveVars(cmd->logicalArg, cmd->selfPtr->getDoc(), cmd->selfPtr->getDoc(), global);
-    double result = evaluateExpression(logic);
+    double result = std::stod(evaluateExpressionFull(cmd->logicalArg, cmd->selfPtr->getDoc(), cmd->selfPtr->getDoc(), global));
     if(isnan(result)){
-        std::cerr << "Evaluated logic to NAN! Logic is: " << logic << std::endl;
+        std::cerr << "Evaluated logic to NAN! Logic is: " << cmd->logicalArg.getFullExpression() << std::endl;
         return false;
     }
     return result != 0.0;
@@ -148,7 +144,7 @@ void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::Entry>
     JSON *other = Obj_other->getDoc();
 
     // Update self, other and global
-    for(const auto& expr : entries_self->exprs){
+    for(auto& expr : entries_self->exprs){
         // Check what to update
         JSON *toUpdate = nullptr;
         switch (expr.onType) {
@@ -168,7 +164,7 @@ void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::Entry>
 
         // Update
         if(expr.valueContainsReference){
-            std::string resolved = resolveVars(expr.value, self, other, global);
+            std::string resolved = evaluateExpressionFull(expr.expression, self, other, global);
             updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
         }
         else{
@@ -177,9 +173,9 @@ void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::Entry>
     }
 
     // === Functioncalls GLOBAL ===
-    for(auto call : entries_self->functioncalls_global){
+    for(auto entry : entries_self->functioncalls_global){
         // replace vars
-        call = resolveVars(call, self, other, global);
+        std::string call = entry.eval(self, other, global);
 
         // attach to task queue
         std::lock_guard<std::recursive_mutex> lock(tasks_lock);
@@ -187,16 +183,16 @@ void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::Entry>
     }
 
     // === Functioncalls LOCAL: SELF ===
-    for(auto call : entries_self->functioncalls_self){
+    for(auto entry : entries_self->functioncalls_self){
         // replace vars
-        call = resolveVars(call, self, other, global);
+        std::string call = entry.eval(self, other, global);
         (void)Obj_self->parseStr(call);
     }
 
     // === Functioncalls LOCAL: OTHER ===
-    for(auto call : entries_self->functioncalls_other){
+    for(auto entry : entries_self->functioncalls_other){
         // replace vars
-        call = resolveVars(call, self, other, global);
+        std::string call = entry.eval(self, other, global);
         (void)Obj_other->parseStr(call);
     }
 }
@@ -210,7 +206,7 @@ void Nebulite::Invoke::updateLocal(const std::shared_ptr<Nebulite::Invoke::Entry
     JSON *other = Obj_other->getDoc();
 
     // Update self, other and global
-    for(const auto& expr : entries_self->exprs){
+    for(auto& expr : entries_self->exprs){
         // Check what to update
         JSON *toUpdate = nullptr;
         switch (expr.onType) {
@@ -230,7 +226,7 @@ void Nebulite::Invoke::updateLocal(const std::shared_ptr<Nebulite::Invoke::Entry
 
         // Update
         if(expr.valueContainsReference){
-            std::string resolved = resolveVars(expr.value, self, other, global);
+            std::string resolved = evaluateExpressionFull(expr.expression, self, other, global);
             updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
         }
         else{
@@ -239,9 +235,9 @@ void Nebulite::Invoke::updateLocal(const std::shared_ptr<Nebulite::Invoke::Entry
     }
 
     // === Functioncalls GLOBAL ===
-    for(auto call : entries_self->functioncalls_global){
+    for(auto entry : entries_self->functioncalls_global){
         // replace vars
-        call = resolveVars(call, self, other, global);
+        std::string call = entry.eval(self, other, global);
 
         // attach to task queue
         std::lock_guard<std::recursive_mutex> lock(tasks_lock);
@@ -249,16 +245,16 @@ void Nebulite::Invoke::updateLocal(const std::shared_ptr<Nebulite::Invoke::Entry
     }
 
     // === Functioncalls LOCAL: SELF ===
-    for(auto call : entries_self->functioncalls_self){
+    for(auto entry : entries_self->functioncalls_self){
         // replace vars
-        call = resolveVars(call, self, other, global);
+        std::string call = entry.eval(self, other, global);
         Obj_self->parseStr(call);
     }
 
     // === Functioncalls LOCAL: OTHER ===
-    for(auto call : entries_self->functioncalls_other){
+    for(auto entry : entries_self->functioncalls_other){
         // replace vars
-        call = resolveVars(call, self, other, global);
+        std::string call = entry.eval(self, other, global);
         Obj_other->parseStr(call);
     }
 }
@@ -270,9 +266,6 @@ void Nebulite::Invoke::clear(){
 
     // Pairs from commands
     pairs_threadsafe.clear();
-
-    // Expressions
-    exprTree.clear();
 }
 
 void Nebulite::Invoke::update() {
@@ -300,49 +293,20 @@ void Nebulite::Invoke::update() {
     pairs_threadsafe.clear();
 }
 
-double Nebulite::Invoke::evaluateExpression(const std::string& expr) {
-    int err;
-    te_expr* compiled = nullptr;
-    compiled = te_compile(expr.c_str(), vars.data(), vars.size(), &err);
-    if (!compiled) {
-        std::cerr   << "te_compile error! \n" 
-                    << "  ErrorType:  " << err << "\n"
-                    << "  Expr:       " << expr << "\n"
-                    << "  returning NAN..." << std::endl;
-        return NAN;
-    }
-    double result =  te_eval(compiled);
-    te_free(compiled);
-    return result;
-}
-
 
 
 // ==========================
 // Resolve Vars
 // ==========================
 
-std::string Nebulite::Invoke::resolveVars(const std::string& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global) {
-    // Tree being used for resolving vars
-    std::shared_ptr<InvokeNode> tree;
-
-    // Check if tree for this string already exists
-    {
-        std::unique_lock lock(exprTreeMutex);   // lock during check and insert
-        auto it = exprTree.find(input);
-        if (it == exprTree.end()) {
-            tree = nodeHelper.expressionToTree(input);     // build outside the map
-            exprTree[input] = tree;
-        } else {
-            tree = it->second;
-        }
-    }
-
-    // Evaluate
-    return nodeHelper.evaluateNode(tree, self, other, global, false);
+std::string Nebulite::Invoke::evaluateExpressionFull(Nebulite::InvokeExpression& expr, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global) {
+    return expr.eval(self, other, global);
 }
 
-std::string Nebulite::Invoke::resolveGlobalVars(const std::string& input) {
-    return resolveVars(input,&emptyDoc,&emptyDoc,global);
+std::string Nebulite::Invoke::evaluateExpression(const std::string& input) {
+    // Parse string into InvokeExpression
+    Nebulite::InvokeExpression expr;
+    expr.parse(input, &docCache);
+    return evaluateExpressionFull(expr, &emptyDoc, &emptyDoc, global);
 }
 

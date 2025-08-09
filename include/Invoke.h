@@ -171,7 +171,7 @@ DESIGN ENCOURAGEMENTS
 // Local
 #include "tinyexpr.h"
 #include "JSON.h"
-#include "InvokeNode.h"
+#include "InvokeExpression.h"
 #include "DocumentCache.h"
 
 
@@ -249,19 +249,20 @@ public:
       Type onType;                              // Self, Other, Global, determines which doc is used
       std::string key;                          // e.g. "posX"
       std::string value;                        // e.g. "0", "$($(self.posX) + 1)"
+      Nebulite::InvokeExpression expression;    // The parsed expression
       bool valueContainsReference = true;       // if value contains a reference keyword, e.g. "$(self.posX)" or "$(global.time.t)"
     };
     //---------------------------------------------
     // ... Inside Entries:
     struct Entry{
-      std::string topic = "all";                                  // e.g. "gravity", "hitbox", "collision"
-      std::string logicalArg;                                     // e.g. "$(self.posX) > $(other.posY)"
-      std::vector<Nebulite::Invoke::AssignmentExpression> exprs;  // vector of exprs
-      std::vector<std::string> functioncalls_global;              // vector of function calls, e.g. "echo example"
-      std::vector<std::string> functioncalls_self;                // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
-      std::vector<std::string> functioncalls_other;               // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
-      bool isGlobal = true;                                       // if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
-      Nebulite::RenderObject* selfPtr;                            // store self
+      std::string topic = "all";                                      // e.g. "gravity", "hitbox", "collision"
+      Nebulite::InvokeExpression logicalArg;                          // e.g. "$(self.posX) > $(other.posY)"
+      std::vector<Nebulite::Invoke::AssignmentExpression> exprs;      // vector of exprs
+      std::vector<Nebulite::InvokeExpression> functioncalls_global;   // vector of function calls, e.g. "echo example"
+      std::vector<Nebulite::InvokeExpression> functioncalls_self;     // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
+      std::vector<Nebulite::InvokeExpression> functioncalls_other;    // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
+      bool isGlobal = true;                                           // if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
+      Nebulite::RenderObject* selfPtr;                                // store self
     };
 
     
@@ -333,8 +334,8 @@ public:
       Nebulite::JSON *doc
     );
 
-    // same as resolveVars, but only using global variables. Self and other are linked to empty docs
-    std::string resolveGlobalVars(const std::string& input);
+    // same as evaluateExpressionFull, but only using global variables. Self and other are linked to empty docs
+    std::string evaluateExpression(const std::string& input);
 
 private:
     //----------------------------------------------------------------
@@ -435,13 +436,7 @@ private:
     // Runs all entries in an invoke with self and other given
     void updatePair(const std::shared_ptr<Nebulite::Invoke::Entry>& entries_self, Nebulite::RenderObject* Obj_other);
 
-    // Evaluating expression with already replaced self/other/global etc. relations
-    double evaluateExpression(const std::string& expr);
-
     // Resolving self/other/global references
-    std::string resolveVars(const std::string& input, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global);
-
-    friend class InvokeNodeHelper; // Allow InvokeNodeHelper to access private members
-    InvokeNodeHelper nodeHelper;
+    std::string evaluateExpressionFull(Nebulite::InvokeExpression& expr, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global);
 };
 }
