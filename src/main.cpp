@@ -17,8 +17,8 @@
  *   Nebulite <command> <options>
  *
  * Example Commands:
- *  spawn <RenderObject.json>       Load a single renderobject
- *  env-load <level.json>           Load and render a level
+ *  spawn <RenderObject.jsonc>       Load a single renderobject
+ *  env-load <level.jsonc>           Load and render a level
  *  task <task.txt>                 Run a tasktile
  */
 
@@ -35,7 +35,7 @@
 // NEBULITE main
 /*
  * 
- * TODO:    settings.json
+ * TODO:    settings.jsonc
  *          - Renderer size, fps setting
  *          - mapping of keyboard/mouse to specific actions like up/down/left/right, inventory, map etc.
  *          - issue here is, keys of invokes need to be dynamic?
@@ -43,7 +43,7 @@
  *            so if key contains '$', resolve. This needs to happen in realtime in case the user changes settings midgame, so this cant be resolved on invoke load!
  *            probably the more dynamic approach, as linking the settings doc within the global doc through mapping is messy, convoluted and slower  
  *          - this should then allow for functioncall input set/release 0/1
- *          - keyboard state not in global anymore, all actions from global.input.xyz defined in settings.json:
+ *          - keyboard state not in global anymore, all actions from global.input.xyz defined in settings.jsonc:
  *              "keyMapping" : {
  *                  "moveUp" : {
  *                      "primary" : "input.keyboard.d"
@@ -90,7 +90,7 @@ int main(int argc, char* argv[]){
         //
         // For now, an empty Renderer is initiated via set-fps 60
         // Later on it might be helpful to insert a task like:
-        // "env-load ./Resources/Levels/main.json" 
+        // "env-load ./Resources/Levels/main.jsonc" 
         // Which represents the menue screen of the game
         // or, for a more scripted task:
         // task TaskFiles/main.txt

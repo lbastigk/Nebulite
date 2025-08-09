@@ -4,7 +4,7 @@
 Nebulite::ERROR_TYPE Nebulite::RenderObjectTreeExpansion::Parenting::addChildren(int argc, char* argv[]){
     // Idea: <link> <name>
     // Store in a map
-    // E.g. add-children Pants/Jeans.json myPants
+    // E.g. add-children Pants/Jeans.jsonc myPants
     return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
 }
 Nebulite::ERROR_TYPE Nebulite::RenderObjectTreeExpansion::Parenting::removeChildren(int argc, char* argv[]){

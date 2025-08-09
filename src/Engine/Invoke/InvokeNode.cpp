@@ -52,7 +52,7 @@ void Nebulite::InvokeNodeHelper::foldConstants(const std::shared_ptr<InvokeNode>
 // Resources docs are read-only
 //
 // $(<link:key>)
-// -> Link = ./Resources/dialogue/characterName.json
+// -> Link = ./Resources/dialogue/characterName.jsonc
 // -> key  = onGreeting.v1
 // TODO: implementation in FileManagement class or Nebulite Namespace
 // absl_flat_hash_map<std::string,Nebulite::JSON>

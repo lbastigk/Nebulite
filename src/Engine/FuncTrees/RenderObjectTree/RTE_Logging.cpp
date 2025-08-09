@@ -17,7 +17,7 @@ Nebulite::ERROR_TYPE Nebulite::RenderObjectTreeExpansion::Logging::log(int argc,
     }
     else{
         std::string id = std::to_string(self->valueGet(keyName.renderObject.id.c_str(),0));
-        FileManagement::WriteFile("RenderObject_id"+id+".log.json",serialized);
+        FileManagement::WriteFile("RenderObject_id"+id+".log.jsonc",serialized);
     }
     return Nebulite::ERROR_TYPE::NONE;
 }

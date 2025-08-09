@@ -1,0 +1,40 @@
+{
+    "id": 0,
+    "invokeSubscriptions": [
+        "all",
+        "collision"
+    ],
+    "invokes" : [
+        "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
+        "./Resources/Invokes/Physics/elastic_collision_Y.jsonc"
+    ],
+    "layer": 0,
+    "physics": {
+        // High mass for best result of static. inf possible?
+        "mass": 500000.0,
+        "aX": 0.0,
+        "aY": 0.0,
+        "vX": 0.0,
+        "vY": 0.0
+    },
+    "posX": 350,
+    "posY": 500,
+    "sprite": {
+        "link": "./Resources/Editor/Selection_00000.png",
+        "sizeX": 10,
+        "sizeY": 10,
+        "spritesheet": {
+            "isSpritesheet": false,
+            "offsetX": 0,
+            "offsetY": 0,
+            "sizeX": 0,
+            "sizeY": 0
+        }
+    },
+    "text": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "fontSize": 0,
+        "str": ""
+    }
+}

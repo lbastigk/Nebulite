@@ -1,6 +1,6 @@
 set-fps 60
-set-from-json zzz ./Resources/Renderobjects/standard.json:text.color.A
-echo Printing value retrieved from: ./Resources/Renderobjects/standard.json:text.color.A
+set-from-json zzz ./Resources/Renderobjects/standard.jsonc:text.color.A
+echo Printing value retrieved from: ./Resources/Renderobjects/standard.jsonc:text.color.A
 echo Expected value: 255
 eval echo $(global.zzz)
 exit

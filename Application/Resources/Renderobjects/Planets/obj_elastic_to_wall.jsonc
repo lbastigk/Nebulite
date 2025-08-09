@@ -10,10 +10,10 @@
     ],
     "invokes": [
         // Standard gravity settings
-        "./Resources/Invokes/Physics/gravity.json",
-        "./Resources/Invokes/Physics/integrate_a.json",
-        "./Resources/Invokes/Physics/integrate_v.json",
-        "./Resources/Invokes/Physics/reset_a.json"
+        "./Resources/Invokes/Physics/gravity.jsonc",
+        "./Resources/Invokes/Physics/integrate_a.jsonc",
+        "./Resources/Invokes/Physics/integrate_v.jsonc",
+        "./Resources/Invokes/Physics/reset_a.jsonc"
     ],
     "layer": 0,
     "physics": {

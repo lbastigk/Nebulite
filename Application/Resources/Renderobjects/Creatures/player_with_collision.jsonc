@@ -1,0 +1,54 @@
+{
+    "animation" : {
+        "xRolling" : {
+            "mod" : 80
+        },
+        "attack" : 0,
+        "Direction" : 0
+    },
+    "id": 0,
+    "invokes": [
+        "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
+        "./Resources/Invokes/Physics/elastic_collision_Y.jsonc",
+        "./Resources/Invokes/Animation/poll_attack.jsonc",
+        "./Resources/Invokes/Animation/set_AnimationxRolling_active.jsonc",
+        "./Resources/Invokes/Animation/set_AnimationxRolling_mod.jsonc",
+        "./Resources/Invokes/Animation/set_AnimationDirection.jsonc",
+        "./Resources/Invokes/Animation/set_SpriteSheetOffsetX.jsonc",
+        "./Resources/Invokes/Animation/set_SpriteSheetOffsetY.jsonc",
+        "./Resources/Invokes/Movement/movement_wasd_to_v.jsonc",
+        "./Resources/Invokes/Physics/normalize_v_to_physics-vNorm.jsonc",
+        "./Resources/Invokes/Movement/no_movement_on_attack.jsonc",
+        "./Resources/Invokes/Physics/integrate_v.jsonc",
+        "./Resources/Invokes/General/set_render_position_center.jsonc"
+    ],
+    "layer": 3,
+    "physics": {
+        "mass": 50.0,
+        "aX": 0.0,
+        "aY": 0.0,
+        "vX": 0.0,
+        "vY": 0.0,
+        "vNorm" : 50
+    },
+    "posX": 0,
+    "posY": 0,
+    "sprite": {
+        "link": "./Resources/Sprites/MiniWorldSprites/Characters/Soldiers/Melee/SwordsmanTemplate.png",
+        "sizeX": 16,
+        "sizeY": 16,
+        "spritesheet": {
+            "isSpritesheet": true,
+            "offsetX": 0,
+            "offsetY": 0,
+            "sizeX": 16,
+            "sizeY": 16
+        }
+    },
+    "text": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "fontSize": 0,
+        "str": ""
+    }
+}

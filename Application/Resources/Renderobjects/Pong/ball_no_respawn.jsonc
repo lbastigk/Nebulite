@@ -1,0 +1,76 @@
+{
+    "id": 0,
+    "invokeSubscriptions": [
+        "all",
+        "collision"
+    ],
+    "invokes": [
+        "./Resources/Invokes/Physics/normalize_v_to_physics-vNorm.jsonc",
+        "./Resources/Invokes/Physics/integrate_v.jsonc",
+        "./Resources/Invokes/Physics/reset_a.jsonc",
+        {
+            // Making sure the ball has a certain amount of X-Velocity
+            "topic": "",
+            "logicalArg": "$( lt( abs($(self.physics.vX)) ,0.1) )",
+            "exprs": [
+                "self.physics.vX *= $(sgn($(self.physics.vX)) + 0.1)"
+            ],
+            "functioncalls_global": [],
+            "functioncalls_self": [],
+            "functioncalls_other": []
+        },
+        {
+            "topic": "",
+            "logicalArg": "$( lt($(self.posX),0) )",
+            "exprs": [
+                "global.score.right += 1"
+            ],
+            "functioncalls_global": [],
+            "functioncalls_self": [
+                "delete"
+            ],
+            "functioncalls_other": []
+        },
+        {
+            "topic": "",
+            "logicalArg": "$( gt($(self.posX),$(global.display.resolution.X)) )",
+            "exprs": [
+                "global.score.left += 1"
+            ],
+            "functioncalls_global": [],
+            "functioncalls_self": [
+                "delete"
+            ],
+            "functioncalls_other": []
+        }
+    ],
+    "layer": 0,
+    "physics": {
+        "mass": 10.0,
+        "aX": 0.0,
+        "aY": 0.0,
+        "vX": 1.0,
+        "vY": 1.0,
+        "vNorm" : 300
+    },
+    "posX": 350,
+    "posY": 500,
+    "sprite": {
+        "link": "./Resources/Sprites/TEST100P/037.bmp",
+        "sizeX": 10,
+        "sizeY": 10,
+        "spritesheet": {
+            "isSpritesheet": false,
+            "offsetX": 0,
+            "offsetY": 0,
+            "sizeX": 0,
+            "sizeY": 0
+        }
+    },
+    "text": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "fontSize": 0,
+        "str": ""
+    }
+}

@@ -41,7 +41,7 @@ public:
     // Clears all always-functioncalls
     Nebulite::ERROR_TYPE alwaysClear(int argc, char* argv[]);
 
-    // [DEBUG] Get and store a standard renderobject for reference to ./Resources/Renderobjects/standard.json
+    // [DEBUG] Get and store a standard renderobject for reference to ./Resources/Renderobjects/standard.jsonc
     Nebulite::ERROR_TYPE render_object(int argc, char** argv);
 
 
@@ -56,7 +56,7 @@ public:
         bindFunction(&Debug::logState,          "log-state",                "Log current state");
         bindFunction(&Debug::always,            "always",                   "Attach function to always run");
         bindFunction(&Debug::alwaysClear,       "always-clear",             "Clear all always functions");
-        bindFunction(&Debug::render_object,     "standard-render-object",   "Generates a standard render object at ./Resources/Renderobjects/standard.json");
+        bindFunction(&Debug::render_object,     "standard-render-object",   "Generates a standard render object at ./Resources/Renderobjects/standard.jsonc");
 
         //-----------------------
         // Example Bindings that will fail

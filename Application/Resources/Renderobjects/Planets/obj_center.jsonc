@@ -1,18 +1,12 @@
 {
 
     "id": 0,
-
     "invokeSubscriptions": [
         "all",
-        "gravity",
-        // Object bounces off walls
-        "collision"
+        "gravity"
     ],
     "invokes": [
-        // Object also causes other objects to bounce off of itself
-        "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
-        "./Resources/Invokes/Physics/elastic_collision_Y.jsonc",
-        // Standard gravity settings
+        "./Resources/Invokes/General/set_render_position_center.jsonc",
         "./Resources/Invokes/Physics/gravity.jsonc",
         "./Resources/Invokes/Physics/integrate_a.jsonc",
         "./Resources/Invokes/Physics/integrate_v.jsonc",
@@ -23,13 +17,13 @@
         "mass": 50.0,
         "aX": 0.0,
         "aY": 0.0,
-        "vX": -30.0,
-        "vY": 120.0
+        "vX":  30.0,
+        "vY": -120.0
     },
-    "posX": 650,
+    "posX": 350,
     "posY": 500,
     "sprite": {
-        "link": "Resources/Sprites/TEST001P/017.bmp",
+        "link": "Resources/Sprites/TEST001P/001.bmp",
         "sizeX": 10,
         "sizeY": 10,
         "spritesheet": {
@@ -43,13 +37,14 @@
     "text": {
         "color": {
             "A": 255,
-            "B": 128,
+            "B": 255,
             "G": 128,
-            "R": 255
+            "R": 128
         },
         "dx": 0.0,
-        "dy": 0.0,
-        "fontSize": 0,
-        "str": ""
+        "dy": -30.0,
+
+        "fontSize": 16,
+        "str": "OBJ_CENTER"
     }
 }

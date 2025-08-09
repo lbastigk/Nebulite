@@ -19,7 +19,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::logGlobal(int ar
         }
     }
     else{
-        FileManagement::WriteFile("global.log.json",serialized);
+        FileManagement::WriteFile("global.log.jsonc",serialized);
     }
     return Nebulite::ERROR_TYPE::NONE;
 }
@@ -32,14 +32,14 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::logState(int arg
         }
     }
     else{
-        FileManagement::WriteFile("state.log.json",serialized);
+        FileManagement::WriteFile("state.log.jsonc",serialized);
     }
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::render_object(int argc, char** argv){
     RenderObject ro;
-    FileManagement::WriteFile("./Resources/Renderobjects/standard.json",ro.serialize());
+    FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc",ro.serialize());
     return Nebulite::ERROR_TYPE::NONE;
 }
 

@@ -4,15 +4,9 @@
 
     "invokeSubscriptions": [
         "all",
-        "gravity",
-        // Object bounces off walls
-        "collision"
+        "gravity"
     ],
     "invokes": [
-        // Object also causes other objects to bounce off of itself
-        "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
-        "./Resources/Invokes/Physics/elastic_collision_Y.jsonc",
-        // Standard gravity settings
         "./Resources/Invokes/Physics/gravity.jsonc",
         "./Resources/Invokes/Physics/integrate_a.jsonc",
         "./Resources/Invokes/Physics/integrate_v.jsonc",
@@ -48,8 +42,9 @@
             "R": 255
         },
         "dx": 0.0,
-        "dy": 0.0,
-        "fontSize": 0,
-        "str": ""
+        "dy": -30.0,
+
+        "fontSize": 16,
+        "str": "OBJ2"
     }
 }

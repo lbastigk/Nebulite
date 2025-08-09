@@ -208,8 +208,8 @@ public:
           "global.key3 = 1"
       ],
       "functioncalls_global": [], // vector of function calls, e.g. "echo example"
-      "functioncalls_self": [],   // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
-      "functioncalls_other": []   // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
+      "functioncalls_self": [],   // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
+      "functioncalls_other": []   // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
      }
     */
     // TODO: Idea for Invoke ruleset overwrites:
@@ -225,7 +225,7 @@ public:
     // This allows us to flexibly overwrite values in the invoke without changing the original JSON file.
     // Also, the behavior is well-defined, as it defaults to the global value if no overwrite is defined.
     // Note: retrieval of overwrites in a type object might be difficult. Instead, perhaps:
-    // myInvoke.json|push-back overwrites 'key1 -> value1'
+    // myInvoke.jsonc|push-back overwrites 'key1 -> value1'
     // Example JSON:
     /*
     "overwrites": {
@@ -255,8 +255,8 @@ public:
       std::string logicalArg;                                     // e.g. "$(self.posX) > $(other.posY)"
       std::vector<Nebulite::Invoke::AssignmentExpression> exprs;  // vector of exprs
       std::vector<std::string> functioncalls_global;              // vector of function calls, e.g. "echo example"
-      std::vector<std::string> functioncalls_self;                // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
-      std::vector<std::string> functioncalls_other;               // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.json"
+      std::vector<std::string> functioncalls_self;                // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
+      std::vector<std::string> functioncalls_other;               // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
       bool isGlobal = true;                                       // if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
       Nebulite::RenderObject* selfPtr;                            // store self
     };

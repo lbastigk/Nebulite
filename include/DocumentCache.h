@@ -16,7 +16,7 @@ private:
 };
 }
 
-// Expected input: ./Resources/Data/myData.json:key1.key2
+// Expected input: ./Resources/Data/myData.jsonc:key1.key2
 template  <typename T> 
 T Nebulite::DocumentCache::getData(std::string doc_key, const T& defaultValue) {
     // Split the input into document name and key

@@ -10,7 +10,7 @@ echo State before appending an object
 print-state
 
 echo Appending object
-spawn ./Resources/Renderobjects/standard.json
+spawn ./Resources/Renderobjects/standard.jsonc
 
 echo State right after appending object, before a render loop could happen:
 print-state

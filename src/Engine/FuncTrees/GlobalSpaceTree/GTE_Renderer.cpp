@@ -23,14 +23,14 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::envdeload(int
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::spawn(int argc, char* argv[]){
     if(argc>1){
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
-        // e.g.: spawn Planets/sun.json|set text.str This is a sun
+        // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun
         std::string linkOrObject = argv[1];
         for (int i = 2; i < argc; i++) {
             linkOrObject += " " + std::string(argv[i]);
         }
 
         // [TODO] Add standard-directories to find files in:
-        // spawn Planets/sun.json -> spawn ./Resources/Renderobjects/Planets/sun.json
+        // spawn Planets/sun.jsonc -> spawn ./Resources/Renderobjects/Planets/sun.jsonc
         // Note that the link cant be turned into a serial here, 
         // due to additional passings like |posX=100
         // that are resolved in Renderobject::deserialize / JSON::deserialize
