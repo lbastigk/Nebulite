@@ -78,7 +78,7 @@ public:
 	template <typename T> T valueGet(const char* key, const T& defaultValue = T());
 
 	// Returns pointer to internal json doc
-	Nebulite::JSON* getDoc(){return &json;};
+	Nebulite::JSON* getDoc() { return &json; }
 
 	// Returns pointer to internal json doc as const
 	const Nebulite::JSON* getDoc() const { return &json; }
@@ -140,8 +140,8 @@ private:
 	SDL_Texture* textTexture;
 
 	// Invoke Commands
-	std::vector<std::shared_ptr<Nebulite::Invoke::Entry>> entries_global;	// Global commands, intended for self-other-global interaction
-	std::vector<std::shared_ptr<Nebulite::Invoke::Entry>> entries_local;	// Internal commands, intended for self-global interaction
+	std::vector<std::shared_ptr<Nebulite::InvokeEntry>> entries_global;	// Global commands, intended for self-other-global interaction
+	std::vector<std::shared_ptr<Nebulite::InvokeEntry>> entries_local;		// Internal commands, intended for self-global interaction
 
 	// RenderObjectTree for local function calls
 	Nebulite::RenderObjectTree renderObjectTree;

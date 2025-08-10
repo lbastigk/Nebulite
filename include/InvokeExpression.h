@@ -25,16 +25,10 @@ public:
 
     void parse(const std::string& expr, Nebulite::DocumentCache& documentCache);
     std::string eval(Nebulite::JSON* current_self, Nebulite::JSON* current_other, Nebulite::JSON* current_global);
-
     std::string getFullExpression(){return fullExpression;};
 
-    void clear() {
-        fullExpression.clear();
-        entries.clear();
-        parse("0", *documentCache);
-    }
-
 private:
+
     struct Entry {
         enum Type {
             variable,   // inside $<cast>(...), Starts with self, other, global or a dot for link
@@ -58,18 +52,55 @@ private:
         // If of type te_expr, this will be initialized:
         te_expr* expression = nullptr;
     };
+    struct vd_entry {
+        std::shared_ptr<Nebulite::VirtualDouble> virtualDouble;
+        Entry::From from;
+        std::string key;
+        std::string te_name;
+    };
+
+    std::vector<std::shared_ptr<vd_entry>> virtualDoubles;
+
+    void clear() {
+        documentCache = nullptr;
+
+        // Clear existing data
+        entries.clear();
+        variables.clear();
+        virtualDoubles.clear();
+        fullExpression.clear();
+        entries.clear();
+
+        // Register built-in functions
+        te_variable gt_var =  {"gt",    (void*)expr_custom::gt,             TE_FUNCTION2};
+        variables.push_back(gt_var);
+        te_variable lt_var =  {"lt",    (void*)expr_custom::lt,             TE_FUNCTION2};
+        variables.push_back(lt_var);
+        te_variable geq_var = {"geq",   (void*)expr_custom::geq,            TE_FUNCTION2};
+        variables.push_back(geq_var);
+        te_variable leq_var = {"leq",   (void*)expr_custom::leq,            TE_FUNCTION2};
+        variables.push_back(leq_var);
+        te_variable eq_var =  {"eq",    (void*)expr_custom::eq,             TE_FUNCTION2};
+        variables.push_back(eq_var);
+        te_variable neq_var = {"neq",   (void*)expr_custom::neq,            TE_FUNCTION2};
+        variables.push_back(neq_var);
+        te_variable and_var = {"and",   (void*)expr_custom::logical_and,    TE_FUNCTION2};
+        variables.push_back(and_var);
+        te_variable or_var =  {"or",    (void*)expr_custom::logical_or,     TE_FUNCTION2};
+        variables.push_back(or_var);
+        te_variable not_var = {"not",   (void*)expr_custom::logical_not,    TE_FUNCTION1};
+        variables.push_back(not_var);
+        te_variable sgn_var = {"sgn",   (void*)expr_custom::sgn,            TE_FUNCTION1};
+        variables.push_back(sgn_var);
+    }
 
     std::vector<Entry> entries;
     Nebulite::DocumentCache* globalCache;
     std::string fullExpression;
 
-    std::vector<te_variable> variables;                     // Variables for TinyExpr evaluation
-    std::vector<std::shared_ptr<Nebulite::VirtualDouble>> virtualDoubles;    // Virtual doubles for TinyExpr evaluation
-    std::deque<std::string> variableNames;                                  // Persistent storage for variable names
+    std::vector<te_variable> variables;   // Variables for TinyExpr evaluation
 
-    Nebulite::JSON* self = nullptr;
-    Nebulite::JSON* other = nullptr;
-    Nebulite::JSON* global = nullptr;
+    // Cache is passed to all virtual doubles as well
     Nebulite::DocumentCache* documentCache = nullptr;
 
     // Helper functions
@@ -78,8 +109,6 @@ private:
     void setEntryContext(Entry& entry);
     void compileIfExpression(Entry& entry);
     void registerIfVariable(Entry& entry);
-    
-
     void make_entry(Entry& currentEntry, std::vector<Entry>& entries);
 
     // Custom TinyExpr functions

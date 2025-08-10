@@ -29,7 +29,7 @@ namespace Nebulite{
 class JSON;
 class JSONTree : public FuncTree<Nebulite::ERROR_TYPE> {
 public:
-    JSONTree(JSON* self);
+    JSONTree(JSON* self);    // Using a raw Pointer itself is fine here, as the Tree is initialized inside JSON
 private:
     // Self-reference to the JSON is needed within the base class to simplify the factory method
     JSON* self;  // Store reference to self

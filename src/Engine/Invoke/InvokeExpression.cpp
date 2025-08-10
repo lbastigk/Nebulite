@@ -1,38 +1,9 @@
 #include "InvokeExpression.h"
 
-Nebulite::InvokeExpression::InvokeExpression() {
-    // Initialize with default expression "0"
-    parse("0", *documentCache);
 
-    
-    //-------------------------------------------------
-    // Register functions
-    te_variable gt_var =  {"gt",    (void*)expr_custom::gt,             TE_FUNCTION2};
-    variables.push_back(gt_var);
-    te_variable lt_var =  {"lt",    (void*)expr_custom::lt,             TE_FUNCTION2};
-    variables.push_back(lt_var);
-    te_variable geq_var = {"geq",   (void*)expr_custom::geq,            TE_FUNCTION2};
-    variables.push_back(geq_var);
-    te_variable leq_var = {"leq",   (void*)expr_custom::leq,            TE_FUNCTION2};
-    variables.push_back(leq_var);
-    te_variable eq_var =  {"eq",    (void*)expr_custom::eq,             TE_FUNCTION2};
-    variables.push_back(eq_var);
-    te_variable neq_var = {"neq",   (void*)expr_custom::neq,            TE_FUNCTION2};
-    variables.push_back(neq_var);
-    te_variable and_var = {"and",   (void*)expr_custom::logical_and,    TE_FUNCTION2};
-    variables.push_back(and_var);
-    te_variable or_var =  {"or",    (void*)expr_custom::logical_or,     TE_FUNCTION2};
-    variables.push_back(or_var);
-    te_variable not_var = {"not",   (void*)expr_custom::logical_not,    TE_FUNCTION1};
-    variables.push_back(not_var);
-    te_variable sgn_var = {"sgn",   (void*)expr_custom::sgn,            TE_FUNCTION1};
-    variables.push_back(sgn_var);
-}
 
 void Nebulite::InvokeExpression::compileIfExpression(Entry& entry) {
     if (entry.type == Entry::Type::eval) {
-        entry.str = modifyTextToTeConform(entry.str);
-
         // Compile the expression using TinyExpr
         int error;
         entry.expression = te_compile(entry.str.c_str(), variables.data(), variables.size(), &error);
@@ -54,17 +25,6 @@ void Nebulite::InvokeExpression::registerIfVariable(Entry& entry){
             entry.str = entry.str.substr(1, entry.str.size() - 2);
         }
 
-        Nebulite::JSON** json_dual_pointer = nullptr;
-        if(entry.from == Entry::From::self) {
-            json_dual_pointer = &self;
-        } else if (entry.from == Entry::From::other) {
-            json_dual_pointer = &other;
-        } else if (entry.from == Entry::From::global) {
-            json_dual_pointer = &global;
-        } else if (entry.from == Entry::From::resource) {
-            json_dual_pointer = nullptr;
-        }
-
         // Check if variable exists in variables vector:
         bool found = false;
         for(auto var : variables) {
@@ -77,16 +37,19 @@ void Nebulite::InvokeExpression::registerIfVariable(Entry& entry){
             // Replace dots in name for entry
             std::replace(entry.str.begin(), entry.str.end(), '.', '_');
 
-            // Store the variable name string so it persists beyond this scope
-            variableNames.push_back(entry.str);
-            const char* persistentName = variableNames.back().c_str();
-
             // Initialize with reference to document and cache register
-            std::shared_ptr<Nebulite::VirtualDouble> vd = std::make_shared<Nebulite::VirtualDouble>(json_dual_pointer, entry.key, documentCache);
-            virtualDoubles.push_back(vd);
+            //std::cout << "Registering variable: " << entry.str  << ":" << entry.key << " : " << entry.from << std::endl;
+            std::shared_ptr<Nebulite::VirtualDouble> vd = std::make_shared<Nebulite::VirtualDouble>(entry.key, documentCache);
+            std::shared_ptr<vd_entry> vde = std::make_shared<vd_entry>(vd, entry.from, entry.key, entry.str);
+            virtualDoubles.push_back(vde);
 
-            // Push back into variable entries - use the persistent string and VirtualDouble pointer
-            variables.push_back({ persistentName, vd->ptr(), TE_VARIABLE, nullptr });
+            // Push back into variable entries
+            variables.push_back({
+                vde->te_name.c_str(),
+                vde->virtualDouble->ptr(),
+                TE_VARIABLE,
+                nullptr
+            });
         }
     }
     if(entry.type == Entry::Type::eval) {
@@ -108,6 +71,8 @@ void Nebulite::InvokeExpression::registerIfVariable(Entry& entry){
     }
 }
 
+// TODO: Improvements possible
+// - support for $f() and $i() possibly needed...
 std::string Nebulite::InvokeExpression::modifyTextToTeConform(std::string str) {
     // Find and replace all occurrences of $(...) patterns
     size_t pos = 0;
@@ -137,14 +102,29 @@ std::string Nebulite::InvokeExpression::modifyTextToTeConform(std::string str) {
                 }
             }
             
-            // Replace the entire $(...) with (content)
-            str.replace(pos, end - pos, "(" + content + ")");
+            // Replace the entire $(...) with content
+            str.replace(pos, end - pos, content );
             pos += content.length() + 2; // Move past the replacement
         } else {
             // Unmatched parentheses, move past this $
             pos += 2;
         }
     }
+
+    // Once more, remove all $
+    str.erase(std::remove(str.begin(), str.end(), '$'), str.end());
+
+    // Check parenthesis count
+    int open = 0, close = 0;
+    for (char c : str) {
+        if (c == '(') open++;
+        else if (c == ')') close++;
+    }
+    if (open != close) {
+        std::cerr << "Unmatched parentheses in expression: " << str << std::endl;
+        return "NaN";
+    }
+
     return str;
 }
 
@@ -248,51 +228,84 @@ void Nebulite::InvokeExpression::parseIntoEntries(const std::string& expr, std::
     }
 }
 
+//------------------------------
+// Public:
+
+Nebulite::InvokeExpression::InvokeExpression() {
+    clear();
+}
+
 void Nebulite::InvokeExpression::parse(const std::string& expr, Nebulite::DocumentCache& documentCache){
+    clear();
+
     fullExpression = expr;
     this->documentCache = &documentCache;
 
-    // Clear existing data
-    entries.clear();
-    variables.clear();
-    virtualDoubles.clear();
-    variableNames.clear();
-
-    // Re-register built-in functions
-    te_variable gt_var =  {"gt",    (void*)expr_custom::gt,             TE_FUNCTION2};
-    variables.push_back(gt_var);
-    te_variable lt_var =  {"lt",    (void*)expr_custom::lt,             TE_FUNCTION2};
-    variables.push_back(lt_var);
-    te_variable geq_var = {"geq",   (void*)expr_custom::geq,            TE_FUNCTION2};
-    variables.push_back(geq_var);
-    te_variable leq_var = {"leq",   (void*)expr_custom::leq,            TE_FUNCTION2};
-    variables.push_back(leq_var);
-    te_variable eq_var =  {"eq",    (void*)expr_custom::eq,             TE_FUNCTION2};
-    variables.push_back(eq_var);
-    te_variable neq_var = {"neq",   (void*)expr_custom::neq,            TE_FUNCTION2};
-    variables.push_back(neq_var);
-    te_variable and_var = {"and",   (void*)expr_custom::logical_and,    TE_FUNCTION2};
-    variables.push_back(and_var);
-    te_variable or_var =  {"or",    (void*)expr_custom::logical_or,     TE_FUNCTION2};
-    variables.push_back(or_var);
-    te_variable not_var = {"not",   (void*)expr_custom::logical_not,    TE_FUNCTION1};
-    variables.push_back(not_var);
-    te_variable sgn_var = {"sgn",   (void*)expr_custom::sgn,            TE_FUNCTION1};
-    variables.push_back(sgn_var);
-
     parseIntoEntries(expr, entries);
+
+    // Ensure proper naming in all eval entries
+    for (auto& entry : entries) {
+        if (entry.type == Entry::Type::eval && entry.str.find('$') != std::string::npos) {
+            // All $(name.name1) -> (name_name1)
+            // NOTE: ONLY INSIDE $() !
+            // E.g:
+            // '$( 0.99 * $($(other.physics.vX) - (2 * $(self.physics.mass) )'
+            entry.str = modifyTextToTeConform(entry.str);
+            std::cout << "Entry is: " << entry.str << std::endl;
+        }
+    }
 
     // Now compile all entries:
     for (auto& entry : entries) {
         compileIfExpression(entry);
     }
+
+    // DEBUG
+    /*
+    std::cout << "Parsed expression: " << fullExpression << std::endl;
+    std::cout << "Entries:" << std::endl;
+    for (const auto& entry : entries) {
+        switch(entry.type) {
+            case Entry::Type::variable:
+                std::cout << std::setw(19) << "Variable: " << entry.str << " (from: " << (entry.from == Entry::From::self ? "self" : entry.from == Entry::From::other ? "other" : entry.from == Entry::From::global ? "global" : "resource") << ")" << std::endl;
+                break;
+            case Entry::Type::eval:
+                std::cout << std::setw(19) << "Eval: " << entry.str << std::endl;
+                break;
+            case Entry::Type::text:
+                std::cout << std::setw(19) << "Text: " << entry.str << std::endl;
+                break;
+            default:
+                std::cout << "Unknown type" << std::endl;
+        }
+    }
+    std::cout << "Variables:" << std::endl;
+    for (const auto& var : variables) {
+        if(var.type == TE_VARIABLE)std::cout << std::setw(19) << "Variable: " << var.name << std::endl;
+    }
+
+    //*/
 }
 
 std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_self, Nebulite::JSON* current_other, Nebulite::JSON* current_global) {
-    // Setting new referenes
-    self = current_self;
-    other = current_other;
-    global = current_global;
+    // Since this method may be called by multiple threads, 
+    // we need a way where each thread has its own VirtualDouble:cache
+    for (auto& entry : virtualDoubles) {
+        switch(entry->from){
+            case Entry::From::self:
+                entry->virtualDouble->updateCache(current_self);
+                break;
+            case Entry::From::other:
+                entry->virtualDouble->updateCache(current_other);
+                break;
+            case Entry::From::global:
+                entry->virtualDouble->updateCache(current_global);
+                break;
+            case Entry::From::resource:
+                entry->virtualDouble->updateCache(nullptr);
+                break;
+        }
+    }
 
     std::string result = "";
     std::string token;
@@ -300,39 +313,36 @@ std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_self, Nebul
         token = "";
         switch (entry.type){
             case Entry::variable:
+                // Variables default to 0
 
                 if (entry.from == Entry::self) {
-                    if(self == nullptr){
+                    if(current_self == nullptr){
                         std::cerr << "Error: Null self reference in expression: " << entry.key << std::endl;
-                        return "";
+                        return "0";
                     }
-                    token = self->get<std::string>(entry.key.c_str(), "");
+                    token = current_self->get<std::string>(entry.key.c_str(), "0");
                 } else if (entry.from == Entry::other) {
-                    if(other == nullptr) {
+                    if(current_other == nullptr) {
                         std::cerr << "Error: Null other reference in expression: " << entry.key << std::endl;
-                        return "";
+                        return "0";
                     }
-                    token = other->get<std::string>(entry.key.c_str(), "");
+                    token = current_other->get<std::string>(entry.key.c_str(), "0");
                 } else if (entry.from == Entry::global) {
-                    if (global == nullptr) {
+                    if (current_global == nullptr) {
                         std::cerr << "Error: Null global reference in expression: " << entry.key << std::endl;
-                        return "";
+                        return "0";
                     }
-                    token = global->get<std::string>(entry.key.c_str(), "");
+                    token = current_global->get<std::string>(entry.key.c_str(), "0");
                 } else if (entry.from == Entry::resource) {
                     if (globalCache == nullptr) {
                         std::cerr << "Error: Null globalCache reference in expression: " << entry.key << std::endl;
-                        return "";
+                        return "0";
                     }
-                    token = globalCache->getData<std::string>(entry.key.c_str(), "");
+                    token = globalCache->getData<std::string>(entry.key.c_str(), "0");
                 }
                 break;
 
             case Entry::eval:
-                // Update all VirtualDouble cache values before evaluation
-                for (auto& vd : virtualDoubles) {
-                    vd->ptr(); // This will update the cache
-                }
                 token = std::to_string(te_eval(entry.expression));
                 break;
 
@@ -360,7 +370,6 @@ std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_self, Nebul
                 break;
         }
     }
-
-    //std::cout << "Evaluated expression: " << fullExpression << " -> Result: " << result << std::endl;
+    
     return result;
 }

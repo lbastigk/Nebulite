@@ -13,7 +13,7 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& o
 
     //-------------------------------------------------
     // Objects
-    global = std::make_unique<Nebulite::JSON>();
+    // ...
 
     //-------------------------------------------------
     // Modify structs                         
@@ -22,12 +22,12 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& o
     //-------------------------------------------------
     // Linkages 
     invoke = std::make_unique<Invoke>();
-    invoke->linkGlobal(*global);
+    invoke->linkGlobal(&global);
     invoke->linkQueue(tasks_internal.taskList);
 
     //-------------------------------------------------
-    // GlobalSpaceTree
-    GlobalSpaceTree = std::make_unique<Nebulite::GlobalSpaceTree>(this, global->getJSONTree());
+    // Link GlobalSpaceTree
+    GlobalSpaceTree = std::make_unique<Nebulite::GlobalSpaceTree>(this, global.getJSONTree());
 
     //-------------------------------------------------
     // General Variables
@@ -38,7 +38,7 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& o
 
 Nebulite::Renderer* Nebulite::GlobalSpace::getRenderer() {
     if (renderer == nullptr) {
-        renderer = std::make_unique<Nebulite::Renderer>(*invoke, *global, headless == "true");
+        renderer = std::make_unique<Nebulite::Renderer>(*invoke, global, headless == "true");
         renderer->setFPS(60);
     }
     return renderer.get();

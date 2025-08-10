@@ -171,7 +171,7 @@ DESIGN ENCOURAGEMENTS
 // Local
 #include "tinyexpr.h"
 #include "JSON.h"
-#include "InvokeExpression.h"
+#include "InvokeEntry.h"
 #include "DocumentCache.h"
 
 
@@ -183,88 +183,8 @@ class InvokeNode;
 
 class Invoke{
 public:
-
-    //--------------------------------------------
-    // Class-Specific Structures:
-
-    // ==== INVOKE ENTRY PARSING ====
-    // Prases the JSON doc part "invokes" of a renderobject into Structures
-
-    // Example JSON:
-    /*
-    {
-      "topic" : "...",      // e.g. "gravity", "hitbox", "collision". Empty topic for local invokes: no 'other', only 'self' and 'global'}
-      "logicalArg": "...",  // e.g. "$(self.posX) > $(other.posY)
-      "exprs" : [
-          // all exprs in one vector
-          // with the following structure:
-          // type.key1.key2.... <assignment-operator> value
-          // operators are: 
-          // - set: =
-          // - add: +=
-          // - multiply: *=
-          // - concat: |=
-          "self.key1 = 0",
-          "other.key2 *= 2",
-          "global.key3 = 1"
-      ],
-      "functioncalls_global": [], // vector of function calls, e.g. "echo example"
-      "functioncalls_self": [],   // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
-      "functioncalls_other": []   // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
-     }
-    */
-    // TODO: Idea for Invoke ruleset overwrites:
-    // In addition, add the field "overwrites" to the JSON doc:
-    // "overwrites": {
-    //     "key1": "value1",
-    //     "key2": "value2"
-    // }
-    // Then, on parsing, the overwrites are applied:
-    // $(overwrites.key1) would be replaced by "value1"
-    // If, however, an overwrite is not found:
-    // $(overwrites.key3) would be replaced by $(global.key3)
-    // This allows us to flexibly overwrite values in the invoke without changing the original JSON file.
-    // Also, the behavior is well-defined, as it defaults to the global value if no overwrite is defined.
-    // Note: retrieval of overwrites in a type object might be difficult. Instead, perhaps:
-    // myInvoke.jsonc|push-back overwrites 'key1 -> value1'
-    // Example JSON:
-    /*
-    "overwrites": {
-        "key1 -> value1",
-        "key2 -> value2"
-    }
-    */
-    // This makes subkey-overwrites easier to parse, e.g.: "overwrites" [ "physics.G -> 9.81" ] 
-    // turns an "$(overwrites.physics.G)" into "9.81" and 
-    // defaults to "$(global.physics.G)" if not overwritten.
     
-    //---------------------------------------------
-    // Invoke epxressions are parsed into specific structs:
-    struct AssignmentExpression{
-      enum class Operation {null, set,add,multiply,concat};
-      Operation operation;                      // set, add, multiply, concat
-      enum class Type {null, Self, Other, Global};
-      Type onType;                              // Self, Other, Global, determines which doc is used
-      std::string key;                          // e.g. "posX"
-      std::string value;                        // e.g. "0", "$($(self.posX) + 1)"
-      Nebulite::InvokeExpression expression;    // The parsed expression
-      bool valueContainsReference = true;       // if value contains a reference keyword, e.g. "$(self.posX)" or "$(global.time.t)"
-    };
-    //---------------------------------------------
-    // ... Inside Entries:
-    struct Entry{
-      std::string topic = "all";                                      // e.g. "gravity", "hitbox", "collision"
-      Nebulite::InvokeExpression logicalArg;                          // e.g. "$(self.posX) > $(other.posY)"
-      std::vector<Nebulite::Invoke::AssignmentExpression> exprs;      // vector of exprs
-      std::vector<Nebulite::InvokeExpression> functioncalls_global;   // vector of function calls, e.g. "echo example"
-      std::vector<Nebulite::InvokeExpression> functioncalls_self;     // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
-      std::vector<Nebulite::InvokeExpression> functioncalls_other;    // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
-      bool isGlobal = true;                                           // if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
-      Nebulite::RenderObject* selfPtr;                                // store self
-    };
-
-    
-    // Function to convert a JSON doc of Renderobject into a vector of Invoke::Entry
+    // Function to convert a JSON doc of Renderobject into a vector of InvokeEntry
 
 
     //--------------------------------------------
@@ -272,8 +192,8 @@ public:
     Invoke();
 
     // Setting up invoke by linking it to a global doc
-    void linkGlobal(Nebulite::JSON& globalDocPtr){global = &globalDocPtr;}
-    
+    void linkGlobal(Nebulite::JSON* globalDocPtr){global = globalDocPtr;}
+
     // Linking invoke to global queue for function calls
     void linkQueue(std::deque<std::string>& queue){tasks = &queue;}
 
@@ -294,7 +214,7 @@ public:
 
     // Broadcast an invoke to other renderobjects to listen
     // Comparable to a radio, broadcasting on certain frequency determined by the string topic:
-    void broadcast(const std::shared_ptr<Nebulite::Invoke::Entry>&);
+    void broadcast(std::shared_ptr<Nebulite::InvokeEntry> entry);
 
     // Listen to a topic
     // Checks an object against all available invokes to a topic.
@@ -305,12 +225,12 @@ public:
     // Value checks
 
     // Check if cmd is true compared to other object
-    bool isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::Entry>& entry, Nebulite::RenderObject* otherObj);
+    bool isTrueGlobal(std::shared_ptr<Nebulite::InvokeEntry> entry, Nebulite::RenderObject* otherObj);
 
     // Check if local invoke is true
     // Same as isTrueGlobal, but using self for linkage to other
     // Might be helpful to use an empty doc here to supress any value from other being true
-    bool isTrueLocal(const std::shared_ptr<Nebulite::Invoke::Entry>& entry);
+    bool isTrueLocal(std::shared_ptr<Nebulite::InvokeEntry> entry);
 
 
     //--------------------------------------------
@@ -321,15 +241,15 @@ public:
     
     // Same as updateGlobal, but without an other-object
     // Self is used as reference to other.
-    void updateLocal(const std::shared_ptr<Nebulite::Invoke::Entry>& entries_self);
+    void updateLocal(std::shared_ptr<Nebulite::InvokeEntry> entries_self);
 
     // Sets new value
     // Call representing functions of ChangeType in order to safely modify the document
     void updateValueOfKey(
-      Nebulite::Invoke::AssignmentExpression::Operation operation, 
+      Nebulite::InvokeAssignmentExpression::Operation operation, 
       const std::string& key, 
       const std::string& valStr, 
-      Nebulite::JSON *doc
+      Nebulite::JSON* doc
     );
 
     // same as evaluateExpressionFull, but only using global variables. Self and other are linked to empty docs
@@ -343,8 +263,8 @@ private:
 
     // Documents
     Nebulite::DocumentCache docCache;
-    Nebulite::JSON emptyDoc;          // Linking an empty doc is needed for some functions
-    Nebulite::JSON* global = nullptr; // Linkage to global doc
+    Nebulite::JSON* emptyDoc = new Nebulite::JSON();  // Linking an empty doc is needed for some functions
+    Nebulite::JSON* global = nullptr;                 // Linkage to global doc
 
     // pointer to queue
     std::deque<std::string>* tasks = nullptr; 
@@ -362,14 +282,14 @@ private:
     absl::flat_hash_map<
       std::string, 
       std::vector<
-        std::shared_ptr<Nebulite::Invoke::Entry>
+        std::shared_ptr<Nebulite::InvokeEntry>
       >
     > entries_global;
 
     absl::flat_hash_map<
       std::string, 
       std::vector<
-        std::shared_ptr<Nebulite::Invoke::Entry>
+        std::shared_ptr<Nebulite::InvokeEntry>
       >
     > entries_global_next; 
 
@@ -377,7 +297,7 @@ private:
     std::vector<
       std::vector<
         std::pair<
-          std::shared_ptr<Nebulite::Invoke::Entry>,
+          std::shared_ptr<Nebulite::InvokeEntry>,
           Nebulite::RenderObject*
         >
       >
@@ -392,9 +312,9 @@ private:
     // Private functions
 
     // Runs all entries in an invoke with self and other given
-    void updatePair(const std::shared_ptr<Nebulite::Invoke::Entry>& entries_self, Nebulite::RenderObject* Obj_other);
+    void updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries_self, Nebulite::RenderObject* Obj_other);
 
     // Resolving self/other/global references
-    std::string evaluateExpressionFull(Nebulite::InvokeExpression& expr, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global);
+    std::string evaluateExpressionFull(Nebulite::InvokeExpression& expr, Nebulite::JSON* self, Nebulite::JSON* other, Nebulite::JSON* global);
 };
 }

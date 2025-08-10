@@ -69,6 +69,10 @@ Nebulite::RenderObject::~RenderObject() {
         SDL_DestroyTexture(textTexture);
         textTexture = nullptr;
     }
+
+    // Clean up invoke entries - shared pointers will automatically handle cleanup
+    entries_global.clear();
+    entries_local.clear();
 }
 
 
@@ -142,54 +146,6 @@ void Nebulite::RenderObject::deserialize(std::string serialOrLink) {
 //-----------------------------------------------------------
 // General functions
 
-void Nebulite::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int renderer_X, int renderer_Y){
-	
-	// RECT position to renderer
-	textRect.x = 	valueGet<float>(Nebulite::keyName.renderObject.positionX.c_str()) + 
-					valueGet<float>(Nebulite::keyName.renderObject.textDx.c_str()) - renderer_X;
-	textRect.y = 	valueGet<float>(Nebulite::keyName.renderObject.positionY.c_str()) + 
-					valueGet<float>(Nebulite::keyName.renderObject.textDy.c_str()) - renderer_Y;
-	
-	// Recreate texture if recalculate was triggered by user. This is needed for:
-	// - new text
-	// - new color
-	// - new text size
-	if(flag.calculateText){
-		// Free previous texture
-        if (textTexture != nullptr) {
-            SDL_DestroyTexture(textTexture);
-            textTexture = nullptr;
-        }
-		
-		// Settings influenced by a new text
-		float scalar = 1;
-		float fontSize = valueGet<float>(Nebulite::keyName.renderObject.textFontsize.c_str());
-		std::string text = valueGet<std::string>(Nebulite::keyName.renderObject.textStr.c_str());
-		textRect.w = scalar * fontSize * text.length();
-		textRect.h = static_cast<int>(fontSize * 1.5f * scalar);
-
-		// Create text
-		SDL_Color textColor = { 
-			(Uint8)json.get<int>(Nebulite::keyName.renderObject.textColorR.c_str(),255),
-			(Uint8)json.get<int>(Nebulite::keyName.renderObject.textColorG.c_str(),255),
-			(Uint8)json.get<int>(Nebulite::keyName.renderObject.textColorB.c_str(),255),
-			(Uint8)json.get<int>(Nebulite::keyName.renderObject.textColorA.c_str(),255)
-		};
-
-		// Create texture
-        if (!text.empty() && font && renderer) {
-            textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
-            if (textSurface) {
-                textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-				SDL_FreeSurface(textSurface); // Free surface after creating texture
-                textSurface = nullptr;
-            }
-        }
-
-		// Set flag back to false
-		flag.calculateText = false;
-	}
-}
 
 SDL_Texture* Nebulite::RenderObject::getTextTexture(){
 	return textTexture;
@@ -239,6 +195,9 @@ void Nebulite::RenderObject::calculateSrcRect() {
 	}
 }
 
+//-----------------------------------------------------------
+// Outside communication with invoke for updating and estimation
+
 void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 	//------------------------------------
 	// Check all invokes
@@ -252,7 +211,7 @@ void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 
 		//------------------------------
 		// 2.) Directly solve local invokes (loop)
-		for (const auto& entry : entries_local){
+		for (auto entry : entries_local){
 			if(globalInvoke->isTrueLocal(entry)){
 				globalInvoke->updateLocal(entry);
 			}
@@ -272,7 +231,7 @@ void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 		//------------------------------
 		// 4.) Append general invokes from object itself back for global check
 		//     This makes sure that no invokes from inactive objects stay in the list
-		for (const auto& entry : entries_global){
+		for (auto entry : entries_global){
 			// add pointer to invoke command to global
 			globalInvoke->broadcast(entry);
 		}
@@ -300,7 +259,7 @@ uint64_t Nebulite::RenderObject::estimateComputationalCost(Nebulite::Invoke* glo
 	uint64_t cost = 0;
 
 	// Global entries
-	for (auto& entry : entries_global) {
+	for (auto entry : entries_global) {
 		std::string expr = entry->logicalArg.getFullExpression();
 		cost += std::count(expr.begin(), expr.end(), '$');
 
@@ -311,7 +270,7 @@ uint64_t Nebulite::RenderObject::estimateComputationalCost(Nebulite::Invoke* glo
 	}
 
 	// Local entries
-	for (auto& entry : entries_local) {
+	for (auto entry : entries_local) {
 		std::string expr = entry->logicalArg.getFullExpression();
 		cost += std::count(expr.begin(), expr.end(), '$');
 
@@ -323,6 +282,62 @@ uint64_t Nebulite::RenderObject::estimateComputationalCost(Nebulite::Invoke* glo
 
 	return cost;
 }
+
+//-----------------------------------------------------------
+// Outside communication with Renderer for text calculation
+
+void Nebulite::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int renderer_X, int renderer_Y){
+	
+	// RECT position to renderer
+	textRect.x = 	valueGet<float>(Nebulite::keyName.renderObject.positionX.c_str()) + 
+					valueGet<float>(Nebulite::keyName.renderObject.textDx.c_str()) - renderer_X;
+	textRect.y = 	valueGet<float>(Nebulite::keyName.renderObject.positionY.c_str()) + 
+					valueGet<float>(Nebulite::keyName.renderObject.textDy.c_str()) - renderer_Y;
+	
+	// Recreate texture if recalculate was triggered by user. This is needed for:
+	// - new text
+	// - new color
+	// - new text size
+	if(flag.calculateText){
+		// Free previous texture
+        if (textTexture != nullptr) {
+            SDL_DestroyTexture(textTexture);
+            textTexture = nullptr;
+        }
+		
+		// Settings influenced by a new text
+		float scalar = 1;
+		float fontSize = valueGet<float>(Nebulite::keyName.renderObject.textFontsize.c_str());
+		std::string text = valueGet<std::string>(Nebulite::keyName.renderObject.textStr.c_str());
+		textRect.w = scalar * fontSize * text.length();
+		textRect.h = static_cast<int>(fontSize * 1.5f * scalar);
+
+		// Create text
+		SDL_Color textColor = { 
+			(Uint8)json.get<int>(Nebulite::keyName.renderObject.textColorR.c_str(),255),
+			(Uint8)json.get<int>(Nebulite::keyName.renderObject.textColorG.c_str(),255),
+			(Uint8)json.get<int>(Nebulite::keyName.renderObject.textColorB.c_str(),255),
+			(Uint8)json.get<int>(Nebulite::keyName.renderObject.textColorA.c_str(),255)
+		};
+
+		// Create texture
+        if (!text.empty() && font && renderer) {
+            textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
+            if (textSurface) {
+                textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+				SDL_FreeSurface(textSurface); // Free surface after creating texture
+                textSurface = nullptr;
+            }
+        }
+
+		// Set flag back to false
+		flag.calculateText = false;
+	}
+}
+
+
+//-----------------------------------------------------------
+// FuncTree parsing
 
 Nebulite::ERROR_TYPE Nebulite::RenderObject::parseStr(const std::string& str){
 	// Assume first arg being the bin name or similar

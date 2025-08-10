@@ -6,7 +6,7 @@
 Nebulite::Invoke::Invoke(){}
 
 
-bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::Entry>& cmd, Nebulite::RenderObject* otherObj) {
+bool Nebulite::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::InvokeEntry> cmd, Nebulite::RenderObject* otherObj) {
     //-----------------------------------------
     // Pre-Checks
     
@@ -40,7 +40,7 @@ bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::Entr
 
         // In case this happens, it might be helpful to set the logic to always false:
         // This way, the error log does not happen all the time.
-        cmd->logicalArg.clear();
+        cmd->logicalArg.parse("0", docCache);
 
         // This can become an unwanted behavior if the following is done:
         // logicalArg = $(not($(global.states.xyz)))
@@ -56,7 +56,7 @@ bool Nebulite::Invoke::isTrueGlobal(const std::shared_ptr<Nebulite::Invoke::Entr
     return result != 0.0;
 }
 
-bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<Nebulite::Invoke::Entry>& cmd) {
+bool Nebulite::Invoke::isTrueLocal(std::shared_ptr<Nebulite::InvokeEntry> cmd) {
     // Check if logical arg is as simple as just "1", meaning true
     if(cmd->logicalArg.getFullExpression() == "1") return true;
 
@@ -69,8 +69,16 @@ bool Nebulite::Invoke::isTrueLocal(const std::shared_ptr<Nebulite::Invoke::Entry
     return result != 0.0;
 }
 
-void Nebulite::Invoke::broadcast(const std::shared_ptr<Nebulite::Invoke::Entry>& toAppend){
+void Nebulite::Invoke::broadcast(std::shared_ptr<Nebulite::InvokeEntry> toAppend){
     std::lock_guard<std::mutex> lock(entries_global_next_Mutex);
+    
+    // Skip entries with empty topics - they should be local only
+    if (toAppend->topic.empty()) {
+        std::cerr << "Warning: Attempted to broadcast entry with empty topic - skipping" << std::endl;
+        return;
+    }
+    
+    // Store the shared pointer directly - no ownership issues
     entries_global_next[toAppend->topic].push_back(toAppend);
 }
 
@@ -92,48 +100,57 @@ void Nebulite::Invoke::listen(Nebulite::RenderObject* obj,std::string topic){
     }
 }
 
-void Nebulite::Invoke::updateValueOfKey(Nebulite::Invoke::AssignmentExpression::Operation operation, const std::string& key, const std::string& valStr, Nebulite::JSON *doc){    
+void Nebulite::Invoke::updateValueOfKey(Nebulite::InvokeAssignmentExpression::Operation operation, const std::string& key, const std::string& valStr, Nebulite::JSON* doc){    
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation){
-        case Nebulite::Invoke::AssignmentExpression::Operation::set:
+        case Nebulite::InvokeAssignmentExpression::Operation::set:
             doc->set<std::string>(key.c_str(),valStr);
             break;
-        case Nebulite::Invoke::AssignmentExpression::Operation::add:
+        case Nebulite::InvokeAssignmentExpression::Operation::add:
             doc->set_add(key.c_str(),valStr.c_str());
             break;
-        case Nebulite::Invoke::AssignmentExpression::Operation::multiply:
+        case Nebulite::InvokeAssignmentExpression::Operation::multiply:
             doc->set_multiply(key.c_str(),valStr.c_str());
             break;
-        case Nebulite::Invoke::AssignmentExpression::Operation::concat:
+        case Nebulite::InvokeAssignmentExpression::Operation::concat:
             doc->set_concat(key.c_str(),valStr.c_str());
             break;
+        case Nebulite::InvokeAssignmentExpression::Operation::null:
+            std::cerr << "Assignment expression has null operation - skipping" << std::endl;
+            break;
         default:
-            std::cerr << "Unknown key type! Enum value:" << (int)operation << std::endl;
+            std::cerr << "Unknown operation type! Enum value:" << (int)operation << std::endl;
             break;
     }
 }
 
-void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::Entry>& entries_self, Nebulite::RenderObject* Obj_other) {
+void Nebulite::Invoke::updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries_self, Nebulite::RenderObject* Obj_other) {
+    // Each thread needs its own variable list:
 
+
+    // Set References
     Nebulite::RenderObject* Obj_self = entries_self->selfPtr;
-
-    JSON *self  = Obj_self->getDoc();
-    JSON *other = Obj_other->getDoc();
+    
+    Nebulite::JSON* doc_self = Obj_self->getDoc();
+    Nebulite::JSON* doc_other = Obj_other->getDoc();
 
     // Update self, other and global
     for(auto& expr : entries_self->exprs){
         // Check what to update
-        JSON *toUpdate = nullptr;
+        Nebulite::JSON* toUpdate = nullptr;
         switch (expr.onType) {
-        case Nebulite::Invoke::AssignmentExpression::Type::Self:
-            toUpdate = self;
+        case Nebulite::InvokeAssignmentExpression::Type::Self:
+            toUpdate = doc_self;
             break;
-        case Nebulite::Invoke::AssignmentExpression::Type::Other:
-            toUpdate = other;
+        case Nebulite::InvokeAssignmentExpression::Type::Other:
+            toUpdate = doc_other;
             break;
-        case Nebulite::Invoke::AssignmentExpression::Type::Global:
+        case Nebulite::InvokeAssignmentExpression::Type::Global:
             toUpdate = global;
             break;
+        case Nebulite::InvokeAssignmentExpression::Type::null:
+            std::cerr << "Assignment expression has null type - skipping" << std::endl;
+            continue; // Skip this expression
         default:
             std::cerr << "Unknown assignment type: " << (int)expr.onType << std::endl;
             return; // Exit if unknown type
@@ -141,7 +158,7 @@ void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::Entry>
 
         // Update
         if(expr.valueContainsReference){
-            std::string resolved = evaluateExpressionFull(expr.expression, self, other, global);
+            std::string resolved = evaluateExpressionFull(expr.expression, doc_self, doc_other, global);
             updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
         }
         else{
@@ -152,7 +169,7 @@ void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::Entry>
     // === Functioncalls GLOBAL ===
     for(auto entry : entries_self->functioncalls_global){
         // replace vars
-        std::string call = entry.eval(self, other, global);
+        std::string call = entry.eval(doc_self, doc_other, global);
 
         // attach to task queue
         std::lock_guard<std::recursive_mutex> lock(tasks_lock);
@@ -162,38 +179,41 @@ void Nebulite::Invoke::updatePair(const std::shared_ptr<Nebulite::Invoke::Entry>
     // === Functioncalls LOCAL: SELF ===
     for(auto entry : entries_self->functioncalls_self){
         // replace vars
-        std::string call = entry.eval(self, other, global);
+        std::string call = entry.eval(doc_self, doc_other, global);
         (void)Obj_self->parseStr(call);
     }
 
     // === Functioncalls LOCAL: OTHER ===
     for(auto entry : entries_self->functioncalls_other){
         // replace vars
-        std::string call = entry.eval(self, other, global);
+        std::string call = entry.eval(doc_self, doc_other, global);
         (void)Obj_other->parseStr(call);
     }
 }
 
-void Nebulite::Invoke::updateLocal(const std::shared_ptr<Nebulite::Invoke::Entry>& entries_self){
+void Nebulite::Invoke::updateLocal(std::shared_ptr<Nebulite::InvokeEntry> entries_self){
+    updatePair(entries_self, entries_self->selfPtr);
 
+    // Old version unnecessary?
+    /*
     Nebulite::RenderObject* Obj_self = entries_self->selfPtr;
     Nebulite::RenderObject* Obj_other = entries_self->selfPtr;
 
-    JSON *self  = Obj_self->getDoc();
-    JSON *other = Obj_other->getDoc();
+    Nebulite::JSON* self  = Obj_self->getDoc();
+    Nebulite::JSON* other = Obj_other->getDoc();
 
     // Update self, other and global
     for(auto& expr : entries_self->exprs){
         // Check what to update
-        JSON *toUpdate = nullptr;
+        Nebulite::JSON* toUpdate = nullptr;
         switch (expr.onType) {
-        case Nebulite::Invoke::AssignmentExpression::Type::Self:
+        case Nebulite::InvokeAssignmentExpression::Type::Self:
             toUpdate = self;
             break;
-        case Nebulite::Invoke::AssignmentExpression::Type::Other:
+        case Nebulite::InvokeAssignmentExpression::Type::Other:
             toUpdate = other;
             break;
-        case Nebulite::Invoke::AssignmentExpression::Type::Global:
+        case Nebulite::InvokeAssignmentExpression::Type::Global:
             toUpdate = global;
             break;
         default:
@@ -234,20 +254,21 @@ void Nebulite::Invoke::updateLocal(const std::shared_ptr<Nebulite::Invoke::Entry
         std::string call = entry.eval(self, other, global);
         Obj_other->parseStr(call);
     }
+    */ 
 }
 
 void Nebulite::Invoke::clear(){
-    // Commands
+    // Commands - shared pointers will automatically clean up
     entries_global.clear();
     entries_global_next.clear();
-
+    
     // Pairs from commands
     pairs_threadsafe.clear();
 }
 
 void Nebulite::Invoke::update() {
 
-    // Swap in the new set of commands
+    // Swap in the new set of commands - shared pointers will clean up automatically
     entries_global.clear();
     entries_global.swap(entries_global_next);
     
@@ -276,7 +297,12 @@ void Nebulite::Invoke::update() {
 // Resolve Vars
 // ==========================
 
-std::string Nebulite::Invoke::evaluateExpressionFull(Nebulite::InvokeExpression& expr, Nebulite::JSON *self, Nebulite::JSON *other, Nebulite::JSON *global) {
+std::string Nebulite::Invoke::evaluateExpressionFull(
+    Nebulite::InvokeExpression& expr, 
+    Nebulite::JSON* self, 
+    Nebulite::JSON* other, 
+    Nebulite::JSON* global) 
+{
     return expr.eval(self, other, global);
 }
 
@@ -284,6 +310,6 @@ std::string Nebulite::Invoke::evaluateExpression(const std::string& input) {
     // Parse string into InvokeExpression
     Nebulite::InvokeExpression expr;
     expr.parse(input, docCache);
-    return evaluateExpressionFull(expr, &emptyDoc, &emptyDoc, global);
+    return evaluateExpressionFull(expr, emptyDoc, emptyDoc, global);
 }
 

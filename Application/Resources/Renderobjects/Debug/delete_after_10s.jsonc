@@ -7,7 +7,6 @@
         {
             "topic" : "",
             "logicalArg": "gt( $(global.time.t), 10)",
-            //"logicalArg" : "0 + 1",
             "exprs" : [],
             "functioncalls_global": [],
             "functioncalls_self": [

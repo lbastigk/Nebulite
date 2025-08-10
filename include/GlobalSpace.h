@@ -146,7 +146,7 @@ namespace Nebulite {
         std::unique_ptr<Nebulite::GlobalSpaceTree> GlobalSpaceTree;
 
         // Global Space document 
-        std::unique_ptr<Nebulite::JSON> global;
+        Nebulite::JSON global;
 
         // Pointer to the renderer, initialized on first use via getRenderer()
         std::unique_ptr<Nebulite::Renderer> renderer;

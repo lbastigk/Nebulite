@@ -1,3 +1,10 @@
+/*
+VirtualDouble is a wrapper class designed to ensure consistent access to a double value for tinyexpr
+Each value is linked to a document and updated before evaluation.
+This ensures that TinyExpr can compile an expression, while also allowing us to manually update its values
+from JSON documents.
+*/
+
 #pragma once
 #include "JSON.h"
 #include "DocumentCache.h"
@@ -5,57 +12,38 @@
 namespace Nebulite{
 class VirtualDouble {
     Nebulite::DocumentCache* documentCache = nullptr;
-    Nebulite::JSON** json_dual_pointer = nullptr;
     std::string key;
-    mutable double cache = 0;  // mutable so we can modify it in const methods
+    double cache = 0.0;
 
 public:
-    VirtualDouble(Nebulite::JSON** j, const std::string& k, Nebulite::DocumentCache* documentCache) 
-        : json_dual_pointer(j), key(k), documentCache(documentCache) {
+    VirtualDouble(const std::string& k, Nebulite::DocumentCache* documentCache) 
+        : key(k), documentCache(documentCache) {
             // Removing self/other/global prefixes
             if (key.find("self.") == 0) key = key.substr(5);
             else if (key.find("other.") == 0) key = key.substr(6);
             else if (key.find("global.") == 0) key = key.substr(7);
         }
 
+    std::string getKey() {
+        return key;
+    }
 
-    // OLD:
-    /*
-    // Override dereference operator
-    double operator*() const {
-        std::cout << "Dereferencing VirtualDouble for key: " << key << std::endl;
-
-        if (json_dual_pointer != nullptr && *json_dual_pointer != nullptr) {
-            cache = (*json_dual_pointer)->get<double>(key.c_str(), 0);
+    void updateCache(Nebulite::JSON* json) {
+        if (json != nullptr) {
+            cache = json->get<double>(key.c_str(), 0);
         }
         else if (documentCache != nullptr) {
             cache = documentCache->getData<double>(key.c_str(), 0);
         }
+    }
+
+    double* ptr(){
+        return &cache;
+    }
+
+    double get() {
         return cache;
     }
 
-    // Override arrow operator (if needed)
-    double* operator->() const {
-        std::cout << "Dereferencing VirtualDouble for key: " << key << std::endl;
-
-        if (json_dual_pointer != nullptr && *json_dual_pointer != nullptr) {
-            cache = (*json_dual_pointer)->get<double>(key.c_str(), 0);
-        }
-        else if (documentCache != nullptr) {
-            cache = documentCache->getData<double>(key.c_str(), 0);
-        }
-        return &cache;
-    }
-    */
-
-    double* ptr() const {
-        if (json_dual_pointer != nullptr && *json_dual_pointer != nullptr) {
-            cache = (*json_dual_pointer)->get<double>(key.c_str(), 0);
-        }
-        else if (documentCache != nullptr)  {
-            cache = documentCache->getData<double>(key.c_str(), 0);
-        }
-        return &cache;
-    }
 };
 }
