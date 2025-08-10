@@ -29,9 +29,8 @@
 11. [Dependencies](#dependencies)
 12. [Testing](#testing)
 13. [Performance Notes](#performance-notes)
-14. [Serialization Modifiers](#modifiers-on-serialization)
-15. [Contributing](#contributing)
-16. [License](#license)
+14. [Contributing](#contributing)
+15. [License](#license)
 
 ## Overview
 
