@@ -9,7 +9,7 @@
             "logicalArg": "1",
             "exprs" : [],
             "functioncalls_global": [
-                "echo $(self.posX)"
+                "echo {self.posX}"
             ],
             "functioncalls_self": [],
             "functioncalls_other": []

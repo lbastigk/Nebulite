@@ -1,6 +1,6 @@
 {
   "topic": "",
-  "logicalArg": "$($(self.animation.attack) + 0)",
+  "logicalArg": "$({self.animation.attack} + 0)",
   "exprs": [
     "self.physics.vX = 0",
     "self.physics.vY = 0"

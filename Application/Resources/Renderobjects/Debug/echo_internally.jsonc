@@ -10,7 +10,7 @@
             "exprs" : [],
             "functioncalls_global": [],
             "functioncalls_self": [
-                "echo TEST: $(self.text.color.A)"
+                "echo TEST: {self.text.color.A}"
             ],
             "functioncalls_other": []
         }

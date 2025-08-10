@@ -11,9 +11,9 @@
             "topic": "",
             "logicalArg": "1",
             "exprs": [
-                "self.go_down = $( $(global.input.keyboard.current.s) * leq( $(self.posY), $(global.display.resolution.Y) - $(self.sprite.sizeY) - 32 ) )",
-                "self.go_up = $( $(global.input.keyboard.current.w) * geq($(self.posY),32))",
-                "self.physics.vY = $( ( $(self.go_down) - $(self.go_up) ) * $(self.physics.vNorm) )"
+                "self.go_down = $( {global.input.keyboard.current.s} * leq( {self.posY}, {global.display.resolution.Y} - {self.sprite.sizeY} - 32 ) )",
+                "self.go_up = $( {global.input.keyboard.current.w} * geq({self.posY},32))",
+                "self.physics.vY = $( ( {self.go_down} - {self.go_up} ) * {self.physics.vNorm} )"
             ],
             "functioncalls_global": [],
             "functioncalls_self": [],

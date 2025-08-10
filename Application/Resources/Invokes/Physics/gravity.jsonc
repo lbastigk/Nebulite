@@ -2,8 +2,8 @@
   "topic": "gravity",
   "logicalArg": "1",
   "exprs": [
-    "other.physics.aX += $($(global.physics.G) * $(self.physics.mass) * ( $(self.posX) - $(other.posX)  ) / ( ( ($(self.posX) - $(other.posX))^2 + ($(self.posY) - $(other.posY))^2 + 1)^(3/2) ))",
-    "other.physics.aY += $($(global.physics.G) * $(self.physics.mass) * ( $(self.posY) - $(other.posY)  ) / ( ( ($(self.posX) - $(other.posX))^2 + ($(self.posY) - $(other.posY))^2 + 1)^(3/2) ))"
+    "other.physics.aX += $({global.physics.G} * {self.physics.mass} * ( {self.posX} - {other.posX}  ) / ( ( ({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2 + 1)^(3/2) ))",
+    "other.physics.aY += $({global.physics.G} * {self.physics.mass} * ( {self.posY} - {other.posY}  ) / ( ( ({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2 + 1)^(3/2) ))"
   ],
   "functioncalls_global": [],
   "functioncalls_self": [],

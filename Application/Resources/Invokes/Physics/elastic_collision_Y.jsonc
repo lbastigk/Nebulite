@@ -2,19 +2,19 @@
   "topic": "collision",
   // Collision ruleset for reflecting Y velocity
   "logicalArg": [
-    "neq($(global.time.t), $(other.collision.time.lastY))",
-    "$(other.physics.mass)",
-    " lt($(self.posX),        $(other.posX) + $(other.sprite.sizeX))",
-    " lt($(self.posY),        $(other.posY) + $(other.sprite.sizeY))",
-    " lt($(other.posX),       $(self.posX)  + $(self.sprite.sizeX))",
-    " lt($(other.posY),       $(self.posY)  + $(self.sprite.sizeY))",
-    "not(  lt($(self.posX)+$(self.sprite.sizeX) - 2,$(other.posX)) + lt($(other.posX)+$(other.sprite.sizeX) - 2,$(self.posX))  )"
+    "neq({global.time.t}, {other.collision.time.lastY})",
+    "{other.physics.mass}",
+    " lt({self.posX},        {other.posX} + {other.sprite.sizeX})",
+    " lt({self.posY},        {other.posY} + {other.sprite.sizeY})",
+    " lt({other.posX},       {self.posX}  + {self.sprite.sizeX})",
+    " lt({other.posY},       {self.posY}  + {self.sprite.sizeY})",
+    "not(  lt({self.posX}+{self.sprite.sizeX} - 2,{other.posX}) + lt({other.posX}+{other.sprite.sizeX} - 2,{self.posX})  )"
   ],
   "exprs": [
-    "other.physics.vY = $(0.99*($(other.physics.vY) - (2 * $(self.physics.mass) / ($(other.physics.mass) + $(self.physics.mass))) * ($(other.physics.vY) - $(self.physics.vY))))",
+    "other.physics.vY = $(0.99*({other.physics.vY} - (2 * {self.physics.mass} / ({other.physics.mass} + {self.physics.mass})) * ({other.physics.vY} - {self.physics.vY})))",
     "other.physics.aX = 0",
     "other.physics.aY = 0",
-    "other.collision.time.lastY = $($(global.time.t) + 0)"
+    "other.collision.time.lastY = $({global.time.t} + 0)"
   ],
   "functioncalls_global": [],
   "functioncalls_self": [],

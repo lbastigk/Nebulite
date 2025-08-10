@@ -1,6 +1,6 @@
 {
   "topic": "",
-  "logicalArg": "$( $(global.input.keyboard.current.w) + $(global.input.keyboard.current.a) + $(global.input.keyboard.current.s) + $(global.input.keyboard.current.d) )",
+  "logicalArg": "$( {global.input.keyboard.current.w} + {global.input.keyboard.current.a} + {global.input.keyboard.current.s} + {global.input.keyboard.current.d} )",
   /*
   This sets the spritesheet position depending on wasd
   0*16 : Down
@@ -10,7 +10,7 @@
   None pressed: Down
   */
   "exprs": [
-    "self.anmimation.Direction = $( $(global.input.keyboard.current.w) * 16 + $(global.input.keyboard.current.d) * 32 * not($(global.input.keyboard.current.w)) + $(global.input.keyboard.current.a) * 48 * not($(global.input.keyboard.current.w)) *not($(global.input.keyboard.current.d)) )"
+    "self.anmimation.Direction = $( {global.input.keyboard.current.w} * 16 + {global.input.keyboard.current.d} * 32 * not({global.input.keyboard.current.w}) + {global.input.keyboard.current.a} * 48 * not({global.input.keyboard.current.w}) *not({global.input.keyboard.current.d}) )"
   ],
   "functioncalls_global": [],
   "functioncalls_self": [],

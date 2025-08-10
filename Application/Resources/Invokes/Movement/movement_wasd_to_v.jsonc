@@ -2,8 +2,8 @@
   "topic": "",
   "logicalArg": "1",
   "exprs": [
-    "self.physics.vX = $( $(global.input.keyboard.current.d) - $(global.input.keyboard.current.a) )",
-    "self.physics.vY = $( $(global.input.keyboard.current.s) - $(global.input.keyboard.current.w) )"
+    "self.physics.vX = $( {global.input.keyboard.current.d} - {global.input.keyboard.current.a} )",
+    "self.physics.vY = $( {global.input.keyboard.current.s} - {global.input.keyboard.current.w} )"
   ],
   "functioncalls_global": [],
   "functioncalls_self": [],

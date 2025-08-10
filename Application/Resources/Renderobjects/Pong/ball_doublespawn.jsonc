@@ -10,30 +10,30 @@
         "./Resources/Invokes/Physics/reset_a.jsonc",
         {
             "topic": "",
-            "logicalArg": "$( lt($(self.posX),0) )",
+            "logicalArg": "$( lt({self.posX},0) )",
             "exprs": [
                 "global.score.right += 1"
             ],
             "functioncalls_global": [
                 "delete",
                 "echo Score for Right!",
-                "eval spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc|posX=$( $(global.display.resolution.X) * 0.5 + ($(global.rand)/32768 - 0.5) * 100)|posY=$( $(global.display.resolution.Y) * 0.5 + ($(global.rrand)/32768 - 0.5) * 100)|physics.vX=$( ($(global.rand)/32768 + 1) * 100 * (-1)^$(global.rand))|physics.vY=$( ($(global.rrand)/32768 - 0.5) * 100 )",
-                "eval spawn ./Resources/Renderobjects/Pong/ball.jsonc|posX=$( $(global.display.resolution.X) * 0.5 + ($(global.rrand)/32768 - 0.5) * 100)|posY=$( $(global.display.resolution.Y) * 0.5 + ($(global.rand)/32768 - 0.5) * 100)|physics.vX=$( ($(global.rrand)/32768 + 1) * 100 * (-1)^$(global.rrand))|physics.vY=$( ($(global.rand)/32768 - 0.5) * 100 )"
+                "eval spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc|posX=$( {global.display.resolution.X} * 0.5 + ({global.rand}/32768 - 0.5) * 100)|posY=$( {global.display.resolution.Y} * 0.5 + ({global.rrand}/32768 - 0.5) * 100)|physics.vX=$( ({global.rand}/32768 + 1) * 100 * (-1)^{global.rand})|physics.vY=$( ({global.rrand}/32768 - 0.5) * 100 )",
+                "eval spawn ./Resources/Renderobjects/Pong/ball.jsonc|posX=$( {global.display.resolution.X} * 0.5 + ({global.rrand}/32768 - 0.5) * 100)|posY=$( {global.display.resolution.Y} * 0.5 + ({global.rand}/32768 - 0.5) * 100)|physics.vX=$( ({global.rrand}/32768 + 1) * 100 * (-1)^{global.rrand})|physics.vY=$( ({global.rand}/32768 - 0.5) * 100 )"
             ],
             "functioncalls_self": [],
             "functioncalls_other": []
         },
         {
             "topic": "",
-            "logicalArg": "$( gt($(self.posX),$(global.display.resolution.X)) )",
+            "logicalArg": "$( gt({self.posX},{global.display.resolution.X}) )",
             "exprs": [
                 "global.score.left += 1"
             ],
             "functioncalls_global": [
                 "delete",
                 "echo Score for Left!",
-                "eval spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc|posX=$( $(global.display.resolution.X) * 0.5 + ($(global.rand)/32768 - 0.5) * 100)|posY=$( $(global.display.resolution.Y) * 0.5 + ($(global.rrand)/32768 - 0.5) * 100)|physics.vX=$( ($(global.rand)/32768 + 1) * 100 * (-1)^$(global.rand))|physics.vY=$( ($(global.rrand)/32768 - 0.5) * 100 )",
-                "eval spawn ./Resources/Renderobjects/Pong/ball.jsonc|posX=$( $(global.display.resolution.X) * 0.5 + ($(global.rrand)/32768 - 0.5) * 100)|posY=$( $(global.display.resolution.Y) * 0.5 + ($(global.rand)/32768 - 0.5) * 100)|physics.vX=$( ($(global.rrand)/32768 + 1) * 100 * (-1)^$(global.rrand))|physics.vY=$( ($(global.rand)/32768 - 0.5) * 100 )"
+                "eval spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc|posX=$( {global.display.resolution.X} * 0.5 + ({global.rand}/32768 - 0.5) * 100)|posY=$( {global.display.resolution.Y} * 0.5 + ({global.rrand}/32768 - 0.5) * 100)|physics.vX=$( ({global.rand}/32768 + 1) * 100 * (-1)^{global.rand})|physics.vY=$( ({global.rrand}/32768 - 0.5) * 100 )",
+                "eval spawn ./Resources/Renderobjects/Pong/ball.jsonc|posX=$( {global.display.resolution.X} * 0.5 + ({global.rrand}/32768 - 0.5) * 100)|posY=$( {global.display.resolution.Y} * 0.5 + ({global.rand}/32768 - 0.5) * 100)|physics.vX=$( ({global.rrand}/32768 + 1) * 100 * (-1)^{global.rrand})|physics.vY=$( ({global.rand}/32768 - 0.5) * 100 )"
             ],
             "functioncalls_self": [],
             "functioncalls_other": []

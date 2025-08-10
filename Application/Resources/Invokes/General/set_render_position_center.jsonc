@@ -2,8 +2,8 @@
   "topic": "",
   "logicalArg": "1",
   "exprs": [
-    "global.display.position.X = $( floor($(self.posX) - $(global.display.resolution.X)/2) )",
-    "global.display.position.Y = $( floor($(self.posY) - $(global.display.resolution.Y)/2) )"
+    "global.display.position.X = $( floor({self.posX} - {global.display.resolution.X}/2) )",
+    "global.display.position.Y = $( floor({self.posY} - {global.display.resolution.Y}/2) )"
   ],
   "functioncalls_global": [],
   "functioncalls_self": [],

@@ -2,8 +2,8 @@
   "topic" : "",
   "logicalArg": "1",
   "exprs" : [
-      "self.posX = $( floor($(self.posX)))",
-      "self.posY = $( floor($(self.posY)))"
+      "self.posX = $( floor({self.posX}))",
+      "self.posY = $( floor({self.posY}))"
   ],
   "functioncalls_global": [],
   "functioncalls_self": [],

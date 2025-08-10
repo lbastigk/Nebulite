@@ -8,7 +8,7 @@
             "topic" : "",
             "logicalArg": "1",
             "exprs" : [
-                "self.posX = $($(self.posX) + 1)"
+                "self.posX = $({self.posX} + 1)"
             ],
             "functioncalls_global": [],
             "functioncalls_self": [],

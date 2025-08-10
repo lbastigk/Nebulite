@@ -11,9 +11,9 @@
         {
             // Making sure the ball has a certain amount of X-Velocity
             "topic": "",
-            "logicalArg": "$( lt( abs($(self.physics.vX)) ,0.1) )",
+            "logicalArg": "$( lt( abs({self.physics.vX}) ,0.1) )",
             "exprs": [
-                "self.physics.vX *= $(sgn($(self.physics.vX)) + 0.1)"
+                "self.physics.vX *= $(sgn({self.physics.vX}) + 0.1)"
             ],
             "functioncalls_global": [],
             "functioncalls_self": [],
@@ -21,12 +21,12 @@
         },
         {
             "topic": "",
-            "logicalArg": "$( lt($(self.posX),0) )",
+            "logicalArg": "$( lt({self.posX},0) )",
             "exprs": [
                 "global.score.right += 1"
             ],
             "functioncalls_global": [
-                "eval spawn ./Resources/Renderobjects/Pong/ball_getting_faster.jsonc|posX=$( $(global.display.resolution.X) * 0.5 + ($(global.rand)/32768 - 0.5) * 100)|posY=$( $(global.display.resolution.Y) * 0.5 + ($(global.rrand)/32768 - 0.5) * 100)|physics.vX=$( ($(global.rand)/32768 + 1) * 100 * (-1)^$(global.rand))|physics.vY=$( ($(global.rrand)/32768 - 0.5) * 100 )"
+                "eval spawn ./Resources/Renderobjects/Pong/ball_getting_faster.jsonc|posX=$( {global.display.resolution.X} * 0.5 + ({global.rand}/32768 - 0.5) * 100)|posY=$( {global.display.resolution.Y} * 0.5 + ({global.rrand}/32768 - 0.5) * 100)|physics.vX=$( ({global.rand}/32768 + 1) * 100 * (-1)^{global.rand})|physics.vY=$( ({global.rrand}/32768 - 0.5) * 100 )"
             ],
             "functioncalls_self": [
                 "delete"
@@ -35,12 +35,12 @@
         },
         {
             "topic": "",
-            "logicalArg": "$( gt($(self.posX),$(global.display.resolution.X)) )",
+            "logicalArg": "$( gt({self.posX},{global.display.resolution.X}) )",
             "exprs": [
                 "global.score.left += 1"
             ],
             "functioncalls_global": [
-                "eval spawn ./Resources/Renderobjects/Pong/ball_getting_faster.jsonc|posX=$( $(global.display.resolution.X) * 0.5 + ($(global.rand)/32768 - 0.5) * 100)|posY=$( $(global.display.resolution.Y) * 0.5 + ($(global.rrand)/32768 - 0.5) * 100)|physics.vX=$( ($(global.rand)/32768 + 1) * 100 * (-1)^$(global.rand))|physics.vY=$( ($(global.rrand)/32768 - 0.5) * 100 )"
+                "eval spawn ./Resources/Renderobjects/Pong/ball_getting_faster.jsonc|posX=$( {global.display.resolution.X} * 0.5 + ({global.rand}/32768 - 0.5) * 100)|posY=$( {global.display.resolution.Y} * 0.5 + ({global.rrand}/32768 - 0.5) * 100)|physics.vX=$( ({global.rand}/32768 + 1) * 100 * (-1)^{global.rand})|physics.vY=$( ({global.rrand}/32768 - 0.5) * 100 )"
             ],
             "functioncalls_self": [
                 "delete"

@@ -2,7 +2,7 @@
   "topic": "",
   "logicalArg": "1",
   "exprs": [
-    "self.animation.xRolling.mod = $( 80 - $(self.animation.attack) * 16 )"
+    "self.animation.xRolling.mod = $( 80 - {self.animation.attack} * 16 )"
   ],
   "functioncalls_global": [],
   "functioncalls_self": [],
