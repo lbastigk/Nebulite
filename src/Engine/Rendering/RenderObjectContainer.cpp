@@ -61,7 +61,6 @@ void Nebulite::RenderObjectContainer::deserialize(const std::string& serialOrLin
 }
 
 //-----------------------------------------------------------
-//-----------------------------------------------------------
 // Pipeline
 
 std::pair<int16_t,int16_t> getTilePos(Nebulite::RenderObject* toAppend, int dispResX, int dispResY){

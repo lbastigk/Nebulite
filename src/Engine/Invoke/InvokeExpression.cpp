@@ -74,7 +74,7 @@ void Nebulite::InvokeExpression::registerIfVariable(Entry& entry){
 // TODO: Improvements possible
 // - support for $f() and $i() possibly needed...
 std::string Nebulite::InvokeExpression::modifyTextToTeConform(std::string str) {
-    // Find and replace all occurrences of $(...) patterns
+    // Find and replace all occurrences of {...} patterns
     size_t pos = 0;
     while ((pos = str.find("$(", pos)) != std::string::npos) {
         // Find the matching closing parenthesis
@@ -111,7 +111,7 @@ std::string Nebulite::InvokeExpression::modifyTextToTeConform(std::string str) {
         }
     }
 
-    // Once more, remove all $
+    // Remove all $
     str.erase(std::remove(str.begin(), str.end(), '$'), str.end());
 
     // Check parenthesis count
@@ -251,7 +251,6 @@ void Nebulite::InvokeExpression::parse(const std::string& expr, Nebulite::Docume
             // E.g:
             // '$( 0.99 * $($(other.physics.vX) - (2 * $(self.physics.mass) )'
             entry.str = modifyTextToTeConform(entry.str);
-            std::cout << "Entry is: " << entry.str << std::endl;
         }
     }
 

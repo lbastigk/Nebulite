@@ -90,9 +90,6 @@ public:
 	}
 
 private:
-	const uint64_t BATCH_COST_GOAL = 5000;
-
-	
 
 	absl::flat_hash_map<std::pair<int16_t,int16_t>,std::vector<batch>> ObjectContainer;
 	std::vector<std::thread> workers;

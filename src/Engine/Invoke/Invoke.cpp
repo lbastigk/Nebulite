@@ -63,7 +63,8 @@ bool Nebulite::Invoke::isTrueLocal(std::shared_ptr<Nebulite::InvokeEntry> cmd) {
     // Resolve logical statement
     double result = std::stod(evaluateExpressionFull(cmd->logicalArg, cmd->selfPtr->getDoc(), cmd->selfPtr->getDoc(), global));
     if(isnan(result)){
-        std::cerr << "Evaluated logic to NAN! Logic is: " << cmd->logicalArg.getFullExpression() << std::endl;
+        std::cerr << "Evaluated logic to NAN! Logic is: " << cmd->logicalArg.getFullExpression() << ". Resetting to 0" << std::endl;
+        cmd->logicalArg.parse("0", docCache);
         return false;
     }
     return result != 0.0;
