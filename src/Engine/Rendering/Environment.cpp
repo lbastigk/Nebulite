@@ -72,34 +72,11 @@ void Nebulite::Environment::append(Nebulite::RenderObject* toAppend,int dispResX
 	}
 }
 
-// Before activating env update: might not work with direct invoke-manipulation of $(other.var)
-//#define UPDATE_THREADED 1
-
-#ifdef UPDATE_THREADED
-void Nebulite::Environment::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY, int THREADSIZE, Invoke* globalInvoke) {
-    std::vector<std::thread> threads;
-
-    for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; ++i) {
-        threads.emplace_back([=]() {
-            roc[i].update(tileXpos, tileYpos, dispResX, dispResY, THREADSIZE, globalInvoke);
-        });
-    }
-
-    for (auto& thread : threads) {
-        thread.join();
-    }
-}
-#else
-// no threads
 void Nebulite::Environment::update(int16_t tileXpos, int16_t tileYpos,int dispResX,int dispResY,Nebulite::Invoke* globalInvoke) {
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {
 		roc[i].update(tileXpos,tileYpos,dispResX,dispResY,globalInvoke);
 	}
 }
-#endif
-
-
-
 
 void Nebulite::Environment::reinsertAllObjects(int dispResX,int dispResY){
 	for (int i = 0; i < RENDEROBJECTCONTAINER_COUNT; i++) {

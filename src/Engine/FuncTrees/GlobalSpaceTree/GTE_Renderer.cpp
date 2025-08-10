@@ -21,6 +21,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::envdeload(int
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::spawn(int argc, char* argv[]){
+
     if(argc>1){
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun

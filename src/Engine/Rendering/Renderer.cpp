@@ -196,12 +196,31 @@ void Nebulite::Renderer::deserialize(std::string serialOrLink) {
 
 //-----------------------------------------------------------
 // Pipeline
+//# define debug_on_each_step 1
 void Nebulite::Renderer::tick(){
+	#ifdef debug_on_each_step
+    	std::cout << "clear:" << std::endl;
+	#endif
     clear();           				// 1.) Clear screen FIRST, so that functions like snapshot have acces to the latest frame
+	#ifdef debug_on_each_step
+    	std::cout << "update:" << std::endl;
+	#endif
     update();          				// 2.) Update objects
+	#ifdef debug_on_each_step
+    	std::cout << "renderFrame:" << std::endl;
+	#endif
     renderFrame();     				// 3.) Render frame
+	#ifdef debug_on_each_step
+    	std::cout << "renderFPS:" << std::endl;
+	#endif
 	if(showFPS)renderFPS();       	// 4.) Render fps count
+	#ifdef debug_on_each_step
+    	std::cout << "showFrame:" << std::endl;
+	#endif
     showFrame();       				// 5.) Show Frame
+	#ifdef debug_on_each_step
+		std::cout << "done!:" << std::endl;
+	#endif
 }
 
 void Nebulite::Renderer::append(Nebulite::RenderObject* toAppend) {

@@ -5,6 +5,7 @@
 #include "DocumentCache.h"
 #include "tinyexpr.h"
 #include <memory>
+#include <deque>
 
 /*
 Instead of storing strings, we store a full expression that's able to evaluate relevant parts:
@@ -66,7 +67,7 @@ private:
 
     std::vector<te_variable> variables;                     // Variables for TinyExpr evaluation
     std::vector<std::shared_ptr<Nebulite::VirtualDouble>> virtualDoubles;    // Virtual doubles for TinyExpr evaluation
-    std::vector<std::string> variableNames;                                 // Persistent storage for variable names
+    std::deque<std::string> variableNames;                                  // Persistent storage for variable names
 
     Nebulite::JSON* self = nullptr;
     Nebulite::JSON* other = nullptr;
@@ -100,7 +101,6 @@ private:
 
         static double sgn(double a){return std::copysign(1.0, a);}
     };
-    //absl::flat_hash_map<std::string, te_expr*> expr_cache;
 };
 }
 

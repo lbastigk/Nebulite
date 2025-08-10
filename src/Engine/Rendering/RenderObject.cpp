@@ -294,32 +294,32 @@ uint64_t Nebulite::RenderObject::estimateComputationalCost(Nebulite::Invoke* glo
 		InvokeJSONParser::parse(json, entries_global, entries_local, this, globalInvoke->getDocumentCache());
 		flag.reloadInvokes = false;
 	}
-	
 
 	//------------------------------------------
 	// Count number of $ in logical Arguments
 	uint64_t cost = 0;
 
 	// Global entries
-	for (const auto& entry : entries_global) {
-		cost += std::count(entry->logicalArg.getFullExpression().begin(), entry->logicalArg.getFullExpression().end(), '$');
+	for (auto& entry : entries_global) {
+		std::string expr = entry->logicalArg.getFullExpression();
+		cost += std::count(expr.begin(), expr.end(), '$');
 
 		// Count number of $ in exprs
-		for (const auto& expr : entry->exprs) {
+		for (auto& expr : entry->exprs) {
 			cost += std::count(expr.value.begin(), expr.value.end(), '$');
 		}
 	}
 
 	// Local entries
-	for (const auto& entry : entries_local) {
-		cost += std::count(entry->logicalArg.getFullExpression().begin(), entry->logicalArg.getFullExpression().end(), '$');
+	for (auto& entry : entries_local) {
+		std::string expr = entry->logicalArg.getFullExpression();
+		cost += std::count(expr.begin(), expr.end(), '$');
 
 		// Count number of $ in exprs
-		for (const auto& expr : entry->exprs) {
+		for (auto& expr : entry->exprs) {
 			cost += std::count(expr.value.begin(), expr.value.end(), '$');
 		}
 	}
-
 
 	return cost;
 }

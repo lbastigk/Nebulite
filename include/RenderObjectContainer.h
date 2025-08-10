@@ -68,7 +68,7 @@ public:
 	size_t getObjectCount();
 
 	// Updating all objects in 3x3 Tile viewport
-	void update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY,Nebulite::Invoke* globalInvoke=nullptr,bool onlyRestructure = false);
+	void update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY,Nebulite::Invoke* globalInvoke,bool onlyRestructure = false);
 
 	
 	// Used to get a container Tile

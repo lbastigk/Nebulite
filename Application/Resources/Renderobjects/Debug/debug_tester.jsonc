@@ -4,7 +4,16 @@
         "all"
     ],
     "invokes": [
-        "./Resources/Invokes/Debug/mix_test.jsonc"
+        {
+            "topic" : "",
+            "logicalArg": "1",
+            "exprs" : [
+                "self.posX += 1"
+            ],
+            "functioncalls_global": [],
+            "functioncalls_self": [],
+            "functioncalls_other": []
+        }
     ],
     "layer": 0,
     "posX": 0,

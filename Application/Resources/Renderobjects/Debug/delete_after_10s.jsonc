@@ -6,7 +6,8 @@
     "invokes": [
         {
             "topic" : "",
-            "logicalArg": "gt($(global.time.t),10)",
+            //"logicalArg": "gt($(global.time.t),10)",
+            "logicalArg" : "0",
             "exprs" : [],
             "functioncalls_global": [],
             "functioncalls_self": [
@@ -19,7 +20,7 @@
             "logicalArg": "1",
             "exprs" : [],
             "functioncalls_global": [
-                "echo The time is $(global.time.t)s and I am still alive!"
+                "eval echo The time is $(global.time.t) s and I am still alive! $(1+1)"
             ],
             "functioncalls_self": [],
             "functioncalls_other": []

@@ -166,7 +166,7 @@ void Nebulite::InvokeJSONParser::parse(Nebulite::JSON& doc, std::vector<std::sha
 
         // Parse into a structure
         Nebulite::Invoke::Entry invokeEntry;
-        invokeEntry.topic = entry.get<std::string>("topic", "all");
+        invokeEntry.topic = entry.get<std::string>(keyName.invoke.topic.c_str(), "all");
         invokeEntry.logicalArg.parse(InvokeJSONParser::getLogicalArg(entry), *docCache);
 
         // Remove whitespaces at start and end from topic and logicalArg:
@@ -195,6 +195,12 @@ void Nebulite::InvokeJSONParser::parse(Nebulite::JSON& doc, std::vector<std::sha
         else {
             std::cerr << "No expressions found in entry at index " << i << std::endl;
             continue; // Skip this entry if no expressions are found
+        }
+
+        // Parse all expressions
+        uint32_t exprSize = entry.memberSize(keyName.invoke.exprVector);
+        for (auto& expr : invokeEntry.exprs) {
+            expr.expression.parse(expr.value, *docCache);
         }
 
         // Parse all function calls
