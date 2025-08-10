@@ -11,9 +11,9 @@ Application/*.data
 # Ignore game resources and error logs
 Application/Resources/Sprites/
 Application/Resources/Fonts/
-Application/Resources/Cursor
-Application/Resources/Editor
-Application/Resources/Screenshots
+Application/Resources/Cursor/
+Application/Resources/Editor/
+Application/Resources/Snapshots/**
 *.bmp
 *.jpeg
 *.zip
