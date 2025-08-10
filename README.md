@@ -30,9 +30,8 @@
 12. [Testing](#testing)
 13. [Performance Notes](#performance-notes)
 14. [Serialization Modifiers](#modifiers-on-serialization)
-15. [Roadmap](#roadmap)
-16. [Contributing](#contributing)
-17. [License](#license)
+15. [Contributing](#contributing)
+16. [License](#license)
 
 ## Overview
 
