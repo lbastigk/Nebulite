@@ -1,11 +1,123 @@
+<div align="center">
+
 # Nebulite Game Engine
+
 [![Author](https://img.shields.io/badge/Author-lbastigk-blue)](https://github.com/lbastigk)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE.md)
+[![C++ Standard](https://img.shields.io/badge/C%2B%2B-20-blue)]()
+[![Status](https://img.shields.io/badge/State-Active%20Dev-orange)]()
+<!-- Add a CI badge once available: [![Build](https://github.com/<org>/<repo>/actions/workflows/build.yml/badge.svg)]() -->
+
+<strong>A data‑driven 2D engine + declarative DSL for rapid experimentation with object interactions and emergent mechanics.</strong>
+
+<!-- (Optional) Animated GIF / screenshot placeholder -->
+<!-- ![Demo](doc/demo.gif) -->
+
+</div>
+
+## Table of Contents
+1. [Overview](#overview)
+2. [Quick Start](#quick-start)
+3. [Prerequisites](#prerequisites)
+4. [DSL Cheat Sheet](#dsl-cheat-sheet)
+5. [Runtime Modes](#runtime-modes)
+6. [Architecture](#architecture)
+7. [The Invoke Class](#the-invoke-class)
+8. [Usage Examples](#usage-examples)
+9. [Directory Structure](#directory-structure)
+10. [Platform Support](#platform-support)
+11. [Dependencies](#dependencies)
+12. [Testing](#testing)
+13. [Performance Notes](#performance-notes)
+14. [Serialization Modifiers](#modifiers-on-serialization)
+15. [Roadmap](#roadmap)
+16. [Contributing](#contributing)
+17. [License](#license)
 
 ## Overview
 
-**Nebulite** is a C++-based 2D game engine featuring a custom Domain-Specific Language (DSL) for game logic configuration. 
-Built for arbitrary rulesets and flexible inter-object logic, Nebulite enables complex game mechanics to be defined declaratively in 
-JSON / JSONC while maintaining performance through an underlying C++ engine.
+**Nebulite** is a C++20 2D game engine with a custom Domain-Specific Language (DSL) expressed in JSON / JSONC. It focuses on:
+- Declarative composition of rulesets (gravity, AI, triggers) via small JSON fragments
+- Flexible SELF / OTHER / GLOBAL interaction model
+- Fast runtime expression evaluation with caching
+- Seamless headless + interactive execution modes
+
+The goal: quickly prototype and iterate on emergent object logic without rebuilding C++ code.
+
+## Quick Start
+
+1. Clone & enter repo
+2. Install bundled dependencies (SDL variants, Abseil, etc.):
+  ```bash
+  ./install.sh
+  ```
+3. Build (debug + release):
+  ```bash
+  ./build.sh
+  ```
+4. Run a demo script:
+  ```bash
+  cd Application
+  ./bin/Nebulite task TaskFiles/Demos/basic.txt
+  ```
+5. Open console (press `^`) and type `help` for interactive commands.
+
+Minimal one‑liner spawn:
+```bash
+./Application/bin/Nebulite 'set-fps 60 ; spawn Resources/Renderobjects/standard.json ; wait 1 ; snapshot'
+```
+
+## Prerequisites
+
+| Tool / Aspect | Requirement / Notes |
+|---------------|----------------------|
+| CMake         | >= 3.16 (see `CMakeLists.txt`) |
+| C++ Compiler  | C++20 capable (Clang 14+, GCC 11+, MinGW-w64 for cross build) |
+| Python        | 3.8+ (only for asset/mock creation scripts) |
+| Build Tools   | make / ninja (default: make) |
+| OS            | Linux (native), Windows (produced via cross-compilation) |
+
+All core third‑party libs are vendored and installed via `install.sh` (no system SDL required). Static linking on Linux improves portability.
+
+## DSL Cheat Sheet
+
+| Feature | Syntax | Example |
+|---------|--------|---------|
+| Expression evaluation | `$()` | `$(1 + {self.physics.mass})` |
+| Expression evaluation with Integer cast | `$i(expr)` | `$i({global.time.frame} / 2)` |
+| Context values | `{self.*}`, `{other.*}`, `{global.*}` | `{other.physics.mass}` |
+| External JSON value | `{<file>:<key.path>}` | `{./Resources/.../names.jsonc:characters.level1.npc_guard}` |
+| Chained commands | `;` separator | `spawn ... ; wait 1 ; snapshot` |
+| Logical helpers | `gt, lt, geq, leq, eq, neq, and, or, not` | `$(gt({self.hp}, 0))` |
+| Sign function | `sgn(a)` | `$(sgn({self.physics.vX}))` |
+
+Core concept: Expressions read current cached values; functioncalls mutate state and can trigger other logic passes.
+
+### Minimal Invoke Snippet
+```jsonc
+{
+  "topic": "gravity_Y",
+  "logicalArg": "1",
+  "exprs": [
+   "other.physics.aY += $({global.physics.G} * {self.physics.mass} / (({self.posY}-{other.posY})^2 + 1))"
+  ],
+  "functioncalls_global": [],
+  "functioncalls_self": [],
+  "functioncalls_other": []
+}
+```
+Attach via adding path/string inside an object's `invokes` list and ensuring `"gravity_Y"` appears in `invokeSubscriptions` for any other object that should adhere to the rule.
+
+## Runtime Modes
+
+| Mode | Trigger | Use Case |
+|------|---------|----------|
+| Interactive | Run binary and press `^` | Live console experimentation |
+| Task File | `task TaskFiles/.../script.txt` | Batch scripted scenarios, benchmarks |
+| Headless | `--headless ...` | CI, automated tests, snapshot generation |
+| Immediate CLI | Quoted command string | Quick one‑offs, scripting in shell |
+
+Headless still evaluates DSL and produces snapshots / logs without opening a window.
 
 ## Architecture
 
@@ -21,7 +133,7 @@ Nebulite implements a **Domain-Specific Language (DSL)** for game logic configur
 
 The system allows complex game mechanics to be defined declaratively in JSON while maintaining type safety and performance through the underlying C++ engine.
 
-### Core Philosophy: Self-Other-Global Interactions
+### Core Philosophy: Self–Other–Global Interactions
 
 Inside the expression engine, objects interact through a three-tier context system:
 - **SELF**: The object broadcasting the logic
@@ -33,7 +145,7 @@ Examples:
 - animation being triggered by attributes: `{self.isMoving}`: increment spritesheet offset
 - boundary check being triggered by `{other.isSolid}`: forces velocity of self to 0
 
-Nebulites expression system also offers a flexible, cached, resource-retrieval system through `{<linkToFile>:<key>}`, allowing for easy implementation of structured read-only data as JSON:
+Nebulite's expression system also offers a flexible, cached, resource-retrieval system through `{<linkToFile>:<key>}`, allowing for easy implementation of structured read-only data as JSON:
 
 ```
 eval echo Hello, my name is {./Resources/.../names.jsonc:characters.level1.npc_guard}.
@@ -59,11 +171,11 @@ The Nebulite DSL provides:
 - **Type Safety**: Compile-time verification through C++ templates
 - **Function Collision Prevention**: Automatic detection of naming conflicts
 
-## The Invoke-Class
+## The Invoke Class
 
 The Invoke class is the core game state modification class, which parses JSON-defined game logic.
 
-### Invoke-Files
+### Invoke Files
 
 Invoke-Objects/Files contain:
 - The topic of the ruleset (broadcaster `self` sends topic, listener `other` must be subscribed to it)
@@ -73,7 +185,7 @@ Invoke-Objects/Files contain:
 
 If the topic string is empty, the invoke entry is local only (self-global interaction)
 
-Example of an Invoke for a gravity ruleset:
+Example (expanded) gravity ruleset:
 ```jsonc
 /*
 Add these individual invokes as object or a link as string ("./Resources/Invokes/.../gravity.json") to any RenderObject.json that should conform to the gravity ruleset:
@@ -118,7 +230,7 @@ Make sure the object listens to topic gravity as well
 *This creates realistic planetary motion with just JSON configuration!*
 
 
-### Mathematical expressions
+### Mathematical Expressions
 
 Nebulite offers all mathematical operations from [Tinyexpr](https://github.com/codeplea/tinyexpr) as well as integer casting with '$i(...)' and the following custom operators:
 
@@ -136,22 +248,25 @@ Nebulite offers all mathematical operations from [Tinyexpr](https://github.com/c
 | `sgn(a)`   | std::copysign(1.0, a)     |
 
 
-### Modifiers on serialization
+## Serialization Modifiers
 
-Nebulite allows for domain-specific functioncalls on serialization
-```bash
-# 1st Modifier: moves object from standard X position to X=500
-# 2nd Modifier: Copies all values into a backup field
-./bin/Nebulite 'spawn ./Resources/Renderobjects/standard.json|set posX 500|copy . backup'
+Apply transient mutations inline while spawning / serializing objects. General pattern:
+
+```
+spawn <path/to/object.json>|<modifier1> <args>|<modifier2> <args>|...
 ```
 
-## Quick Start
+Example:
+```bash
+./bin/Nebulite 'spawn ./Resources/Renderobjects/standard.json|set posX 500|copy . backup'
+```
+Explanation:
+- `set posX 500` shifts initial position
+- `copy . backup` clones all fields into `backup.*` namespace
 
-1. Install dependencies: `./install.sh`
-2. Build the project: `./build.sh`
-3. Run examples: `cd Application && ./bin/Nebulite task TaskFiles/Demos/basic.txt`
+Use for prototyping variations without editing source JSON.
 
-For development setup and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
+<!-- Quick Start moved earlier -->
 
 ## Usage Examples
 
@@ -232,10 +347,42 @@ Optional dependencies:
 | [recall](https://github.com/lbastigk/recall/)         | Custom CLI-Tool for quick documentation      |
 | [PlantUML](https://plantuml.com/)                     | For compiling UML-Diagrams in ./doc/         |
 
+## Testing
+
+Two primary pathways:
+
+1. Shell script (stops on first failure):
+```bash
+cd Application
+./Tests.sh --stop
+```
+2. Combined build + test task (VS Code task):
+```
+[BUILD + TEST]
+```
+
+JSON validation runs via `validate_json.sh` prior to tests. Headless mode is recommended for CI to generate snapshots or logs deterministically.
+
+## Performance Notes
+
+- Expression evaluation uses Tinyexpr + lightweight wrappers; small expressions encourage high update rates.
+- Abseil flat_hash_map provides fast symbol and variable cache lookups.
+- Static linkage of SDL components on Linux reduces runtime overhead and deployment friction.
+- Separation of acceleration → velocity → position across distinct invokes allows fine‑grained optimization / selective activation.
+- Future optimization targets: expression AST precompilation, invoke batching, multithreaded evaluation (roadmap).
+
 ## Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed development setup, testing procedures, and guidelines for adding new features to Nebulite's modular architecture.
+Contributions welcome. Quick path:
+1. Fork & create feature branch (`feature/<short-desc>`)
+2. Run install + build + tests
+3. Add/update invokes or DSL features with tests / demo TaskFile
+4. Open PR referencing related roadmap item or issue
+
+See full details in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-See [LICENSE.md](LICENSE.md) for licensing information.
+Distributed under the MIT License. See [LICENSE.md](LICENSE.md).
+
+---
