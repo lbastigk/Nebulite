@@ -11,14 +11,17 @@ Application/*.data
 # Ignore game resources and error logs
 Application/Resources/Sprites/
 Application/Resources/Fonts/
+Application/Resources/Cursor
+Application/Resources/Editor
+Application/Resources/Screenshots
 *.bmp
-*.png
 *.jpeg
 *.zip
 *.ttf
 *.log
 *.log.txt
 *.log.json
+
 
 # Ignore binaries
 Application/bin/
@@ -40,5 +43,5 @@ CMakeCache.txt
 cmake_install.cmake
 Makefile
 
-
-
+# Do not ignore any files in ./doc/
+!/doc/ !/doc/**

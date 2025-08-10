@@ -10,8 +10,7 @@
 
 <strong>A data‑driven 2D engine + declarative DSL for rapid experimentation with object interactions and emergent mechanics.</strong>
 
-<!-- (Optional) Animated GIF / screenshot placeholder -->
-<!-- ![Demo](doc/demo.gif) -->
+<img src="doc/gravity_test.png" alt="Demo" width="420">
 
 </div>
 
