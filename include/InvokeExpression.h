@@ -52,10 +52,8 @@ private:
             none, to_int, to_float
         } cast = CastType::none; // Default to none
 
-        // Depending on Entry Type, holds different value
-        // $(global.myKey) -> myKey
-        // $(./Resources/.../myFile.jsonc:myKey) -> ./Resources/.../myFile.jsonc:myKey
         std::string str;
+        std::string key;
 
         // If of type te_expr, this will be initialized:
         te_expr* expression = nullptr;

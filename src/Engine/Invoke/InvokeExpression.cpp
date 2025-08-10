@@ -74,9 +74,6 @@ void Nebulite::InvokeExpression::registerIfVariable(Entry& entry){
             }
         }
         if(!found) {
-            // Entry for pointer with dots
-            std::string key = entry.str;
-
             // Replace dots in name for entry
             std::replace(entry.str.begin(), entry.str.end(), '.', '_');
 
@@ -85,7 +82,7 @@ void Nebulite::InvokeExpression::registerIfVariable(Entry& entry){
             const char* persistentName = variableNames.back().c_str();
 
             // Initialize with reference to document and cache register
-            std::shared_ptr<Nebulite::VirtualDouble> vd = std::make_shared<Nebulite::VirtualDouble>(json_dual_pointer, key, documentCache);
+            std::shared_ptr<Nebulite::VirtualDouble> vd = std::make_shared<Nebulite::VirtualDouble>(json_dual_pointer, entry.key, documentCache);
             virtualDoubles.push_back(vd);
 
             // Push back into variable entries - use the persistent string and VirtualDouble pointer
@@ -168,13 +165,17 @@ void Nebulite::InvokeExpression::setEntryContext(Entry& entry) {
         // set type, remove self/other/global from beginning:
         if (entry.str.find("(self.") == 0) {
             entry.from = Entry::From::self;
+            entry.key = entry.str.substr(6, entry.str.size() - 7); // Remove "(self." and ")"
         } else if (entry.str.find("(other.") == 0) {
             entry.from = Entry::From::other;
+            entry.key = entry.str.substr(7, entry.str.size() - 8); // Remove "(other." and ")"
         } else if (entry.str.find("(global.") == 0) {
             entry.from = Entry::From::global;
+            entry.key = entry.str.substr(8, entry.str.size() - 9); // Remove "(global." and ")"
         }
-        else if (entry.str.find(".") == 0) {
+        else if (entry.str.find("(.") == 0) {
             entry.from = Entry::From::resource;
+            entry.key = entry.str.substr(1, entry.str.size() - 2); // Remove "(" and ")"
         }
         else {
             // Is an expression like $(1+1)
@@ -294,41 +295,36 @@ std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_self, Nebul
     global = current_global;
 
     std::string result = "";
-
-    std::string key;
     std::string token;
-    for (const auto& entry : entries) {
+    for (auto& entry : entries) {
         token = "";
         switch (entry.type){
             case Entry::variable:
 
                 if (entry.from == Entry::self) {
                     if(self == nullptr){
-                        std::cerr << "Error: Null self reference in expression: " << entry.str << std::endl;
+                        std::cerr << "Error: Null self reference in expression: " << entry.key << std::endl;
                         return "";
                     }
-                    // Removing "self." at front
-                    token = self->get<std::string>(entry.str.substr(5).c_str(), "");
+                    token = self->get<std::string>(entry.key.c_str(), "");
                 } else if (entry.from == Entry::other) {
                     if(other == nullptr) {
-                        std::cerr << "Error: Null other reference in expression: " << entry.str << std::endl;
+                        std::cerr << "Error: Null other reference in expression: " << entry.key << std::endl;
                         return "";
                     }
-                    // Removing "other." at front
-                    token = other->get<std::string>(entry.str.substr(6).c_str(), "");
+                    token = other->get<std::string>(entry.key.c_str(), "");
                 } else if (entry.from == Entry::global) {
                     if (global == nullptr) {
-                        std::cerr << "Error: Null global reference in expression: " << entry.str << std::endl;
+                        std::cerr << "Error: Null global reference in expression: " << entry.key << std::endl;
                         return "";
                     }
-                    // Removing "global." at front
-                    token = global->get<std::string>(entry.str.substr(7).c_str(), "");
+                    token = global->get<std::string>(entry.key.c_str(), "");
                 } else if (entry.from == Entry::resource) {
                     if (globalCache == nullptr) {
-                        std::cerr << "Error: Null globalCache reference in expression: " << entry.str << std::endl;
+                        std::cerr << "Error: Null globalCache reference in expression: " << entry.key << std::endl;
                         return "";
                     }
-                    token = globalCache->getData<std::string>(entry.str.c_str(), "");
+                    token = globalCache->getData<std::string>(entry.key.c_str(), "");
                 }
                 break;
 

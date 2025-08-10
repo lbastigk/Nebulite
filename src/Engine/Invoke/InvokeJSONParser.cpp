@@ -118,6 +118,12 @@ std::string Nebulite::InvokeJSONParser::getLogicalArg(Nebulite::JSON& entry) {
         // Assume simple value, string:
         logicalArg = entry.get<std::string>("logicalArg", "0");
     }
+
+    // Add $()
+    if(logicalArg.find("$(") == std::string::npos) {
+        logicalArg = "$(" + logicalArg + ")";
+    }
+
     return logicalArg;
 }
 
