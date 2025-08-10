@@ -14,7 +14,7 @@ Nebulite implements a **Domain-Specific Language (DSL)** for game logic configur
 ### Key Architectural Components
 
 - **Functioncall Framework**: Template-based command system with hierarchical inheritance
-- **Expression Engine**: Runtime evaluation of mathematical and logical expressions (`$()` syntax)  
+- **Expression Engine**: Runtime evaluation of mathematical and logical expressions (`$()` for evaluation and `{}` for variables)  
 - **Plugin Architecture**: Modular expansions for different functionality domains
 - **Data-Driven Design**: JSON-configured game behavior
 - **Annotated Configuration**: Full JSONC comment support for documenting complex expressions and game mechanics
@@ -29,14 +29,14 @@ Inside the expression engine, objects interact through a three-tier context syst
 - **GLOBAL**: Shared game state (time, input, settings)
 
 Examples:
-- movement being triggered by `$(global.input.keyboard.w)`: sets velocity or request to move a distance
-- animation being triggered by attributes: `$(self.isMoving)`: increment spritesheet offset
-- boundary check being triggered by `$(other.isSolid)`: forces velocity of self to 0
+- movement being triggered by `{global.input.keyboard.w}`: sets velocity or request to move a distance
+- animation being triggered by attributes: `{self.isMoving}`: increment spritesheet offset
+- boundary check being triggered by `{other.isSolid}`: forces velocity of self to 0
 
-Nebulites expression system also offers a flexible, cached, resource-retrieval system through `$(<linkToFile>:<key>)`, allowing for easy implementation of structured read-only data as JSON:
+Nebulites expression system also offers a flexible, cached, resource-retrieval system through `{<linkToFile>:<key>}`, allowing for easy implementation of structured read-only data as JSON:
 
 ```
-eval echo Hello, my name is $(./Resources/.../names.jsonc:characters.level1.npc_guard).
+eval echo Hello, my name is {./Resources/.../names.jsonc:characters.level1.npc_guard}.
 ```
 Only the retrieval of simple data types is supported. Full object/array-access yields `{Object}`/`{Array}`.
 If you wish to retrieve complex data, use JSON-Specific functioncalls to copy from read-only data:
@@ -89,8 +89,8 @@ Make sure the object listens to topic gravity as well
     // F  = G * m1 * m2 / r^2
     // a2 = G * m1 / r^2
     // Component form: 
-    "other.physics.aX += $($(global.physics.G) * $(self.physics.mass) * ( $(self.posX) - $(other.posX)  ) / ( ( ($(self.posX) - $(other.posX))^2 + ($(self.posY) - $(other.posY))^2 + 1)^(3/2) ))",
-    "other.physics.aY += $($(global.physics.G) * $(self.physics.mass) * ( $(self.posY) - $(other.posY)  ) / ( ( ($(self.posX) - $(other.posX))^2 + ($(self.posY) - $(other.posY))^2 + 1)^(3/2) ))"
+    "other.physics.aX += $({global.physics.G} * {self.physics.mass} * ( {self.posX} - {other.posX}  ) / ( ( ({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2 + 1)^(3/2) ))",
+    "other.physics.aY += $({global.physics.G} * {self.physics.mass} * ( {self.posY} - {other.posY}  ) / ( ( ({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2 + 1)^(3/2) ))"
   ],
   "functioncalls_global": [],   // If necessary, we could add debug statements like "echo here!"
   "functioncalls_self": [],     // Useful for new object-alignments or copying the current state of the object: "copy physics backup.physics", "copy posX backup.posX" ...
@@ -103,8 +103,8 @@ Make sure the object listens to topic gravity as well
   "topic": "",          
   "logicalArg": "1",
   "exprs": [
-    "self.physics.vX += $($(self.physics.aX) * $(global.time.dt))",
-    "self.physics.vY += $($(self.physics.aY) * $(global.time.dt))"
+    "self.physics.vX += $({self.physics.aX} * {global.time.dt})",
+    "self.physics.vY += $({self.physics.aY} * {global.time.dt})"
   ],
   "functioncalls_global": [],
   "functioncalls_self": [],
@@ -135,10 +135,6 @@ Nebulite offers all mathematical operations from [Tinyexpr](https://github.com/c
 | `not(a)`   | !a                        |
 | `sgn(a)`   | std::copysign(1.0, a)     |
 
-You can quickly verify the correctness of an expression with the command line:
-```bash
-./bin/Nebulite 'set myVariable 2 ; eval echo $i(1 + $(global.myVariable))' # returns 3
-```
 
 ### Modifiers on serialization
 

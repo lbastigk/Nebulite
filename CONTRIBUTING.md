@@ -40,7 +40,7 @@ You can add custom taskfiles to the test suite by extending the `tests` variable
 
 You can quickly verify the correctness of an expression with the command line:
 ```bash
-./bin/Nebulite 'set myVariable 2 ; eval echo $i(1 + $(global.myVariable))' # returns 3
+./bin/Nebulite 'set myVariable 2 ; eval echo $i(1 + {global.myVariable})' # returns 3
 ```
 
 ## Adding Features
