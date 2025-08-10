@@ -310,6 +310,6 @@ private:
     void updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries_self, Nebulite::RenderObject* Obj_other);
 
     // Resolving self/other/global references
-    std::string evaluateExpressionFull(Nebulite::InvokeExpression& expr, Nebulite::JSON* self, Nebulite::JSON* other, Nebulite::JSON* global);
+    std::string evaluateExpressionFull(Nebulite::InvokeExpressionPool& expr, Nebulite::JSON* self, Nebulite::JSON* other, Nebulite::JSON* global);
 };
 }

@@ -17,214 +17,149 @@ void Nebulite::InvokeExpression::compileIfExpression(Entry& entry) {
     }
 }
 
-void Nebulite::InvokeExpression::registerIfVariable(Entry& entry){
-    // Using the Virtual Double to register pointers...
-    if(entry.type == Entry::Type::variable) {
-        // Remove paranthesis at front and end
-        if (entry.str.front() == '(' && entry.str.back() == ')') {
-            entry.str = entry.str.substr(1, entry.str.size() - 2);
-        }
-
-        // Check if variable exists in variables vector:
-        bool found = false;
-        for(auto var : variables) {
-            if(var.name == entry.str) {
-                found = true;
-                break;
-            }
-        }
-        if(!found) {
-            // Replace dots in name for entry
-            std::replace(entry.str.begin(), entry.str.end(), '.', '_');
-
-            // Initialize with reference to document and cache register
-            //std::cout << "Registering variable: " << entry.str  << ":" << entry.key << " : " << entry.from << std::endl;
-            std::shared_ptr<Nebulite::VirtualDouble> vd = std::make_shared<Nebulite::VirtualDouble>(entry.key, documentCache);
-            std::shared_ptr<vd_entry> vde = std::make_shared<vd_entry>(vd, entry.from, entry.key, entry.str);
-            virtualDoubles.push_back(vde);
-
-            // Push back into variable entries
-            variables.push_back({
-                vde->te_name.c_str(),
-                vde->virtualDouble->ptr(),
-                TE_VARIABLE,
-                nullptr
-            });
+void Nebulite::InvokeExpression::registerVariable(std::string te_name, std::string key, Entry::From context){
+    // Check if variable exists in variables vector:
+    bool found = false;
+    for(auto var : variables) {
+        if(var.name == te_name) {
+            found = true;
+            break;
         }
     }
-    if(entry.type == Entry::Type::eval) {
-        // Idea here is to create a dummy vector of entries, that we ignore
-        // We only care about the registration
-        std::vector<Entry> dummyEntries;
+    if(!found) {
+        // Initialize with reference to document and cache register
+        std::shared_ptr<Nebulite::VirtualDouble> vd = std::make_shared<Nebulite::VirtualDouble>(key, documentCache);
+        std::shared_ptr<vd_entry> vde = std::make_shared<vd_entry>(vd, context, key, te_name);
+        virtualDoubles.push_back(vde);
 
-        // Remove all paranteses at front and back
-        std::string substring = entry.str;
-        bool stillInParanthesis = true;
-        while (stillInParanthesis) {
-            if (substring.front() == '(' && substring.back() == ')') {
-                substring = substring.substr(1, substring.size() - 2);
-            } else {
-                stillInParanthesis = false;
-            }
-        }
-        parseIntoEntries(substring, dummyEntries);
+        // Push back into variable entries
+        variables.push_back({
+            vde->te_name.c_str(),
+            vde->virtualDouble->ptr(),
+            TE_VARIABLE,
+            nullptr
+        });
     }
 }
-
-// TODO: Improvements possible
-// - support for $f() and $i() possibly needed...
-std::string Nebulite::InvokeExpression::modifyTextToTeConform(std::string str) {
-    // Find and replace all occurrences of {...} patterns
-    size_t pos = 0;
-    while ((pos = str.find("$(", pos)) != std::string::npos) {
-        // Find the matching closing parenthesis
-        size_t start = pos + 2; // Position after "$("
-        size_t depth = 1;
-        size_t end = start;
-        
-        while (end < str.length() && depth > 0) {
-            if (str[end] == '(') {
-                depth++;
-            } else if (str[end] == ')') {
-                depth--;
-            }
-            end++;
-        }
-        
-        if (depth == 0) {
-            // Extract the content between parentheses
-            std::string content = str.substr(start, end - start - 1);
-            
-            // Replace dots with underscores in the content
-            for (char& c : content) {
-                if (c == '.') {
-                    c = '_';
-                }
-            }
-            
-            // Replace the entire $(...) with content
-            str.replace(pos, end - pos, content );
-            pos += content.length() + 2; // Move past the replacement
-        } else {
-            // Unmatched parentheses, move past this $
-            pos += 2;
-        }
-    }
-
-    // Remove all $
-    str.erase(std::remove(str.begin(), str.end(), '$'), str.end());
-
-    // Check parenthesis count
-    int open = 0, close = 0;
-    for (char c : str) {
-        if (c == '(') open++;
-        else if (c == ')') close++;
-    }
-    if (open != close) {
-        std::cerr << "Unmatched parentheses in expression: " << str << std::endl;
-        return "NaN";
-    }
-
-    return str;
-}
-
-void Nebulite::InvokeExpression::setEntryContext(Entry& entry) {
-    // Check if string starts with '$', remove
-    if (entry.str.find("$") == 0) {
-        entry.str.erase(0, 1); // Remove "$"
-    }
-
-    // If entry contains $ inside, it is now an eval entry
-    if(entry.type == Entry::Type::variable && entry.str.find("$") != std::string::npos){
-        entry.type = Entry::Type::eval;
-        return;
-    }
-
-    // Check what kind of variable it is
-    if (entry.type == Entry::Type::variable) {
-        // set type, remove self/other/global from beginning:
-        if (entry.str.find("(self.") == 0) {
-            entry.from = Entry::From::self;
-            entry.key = entry.str.substr(6, entry.str.size() - 7); // Remove "(self." and ")"
-        } else if (entry.str.find("(other.") == 0) {
-            entry.from = Entry::From::other;
-            entry.key = entry.str.substr(7, entry.str.size() - 8); // Remove "(other." and ")"
-        } else if (entry.str.find("(global.") == 0) {
-            entry.from = Entry::From::global;
-            entry.key = entry.str.substr(8, entry.str.size() - 9); // Remove "(global." and ")"
-        }
-        else if (entry.str.find("(.") == 0) {
-            entry.from = Entry::From::resource;
-            entry.key = entry.str.substr(1, entry.str.size() - 2); // Remove "(" and ")"
-        }
-        else {
-            // Is an expression like $(1+1)
-            entry.type = Entry::Type::eval;
-        }
-    }
-}
-
-void Nebulite::InvokeExpression::make_entry(Entry& currentEntry, std::vector<Entry>& entries) {
-    setEntryContext(currentEntry);          // Sets context: Variable:self-other-global-resource / eval
-    registerIfVariable(currentEntry);       // Register variable for TinyExpr evaluation
-
-    // Push back
-    entries.push_back(currentEntry);
-
-    // Reset current entry
-    currentEntry = Entry();
-};
 
 void Nebulite::InvokeExpression::parseIntoEntries(const std::string& expr, std::vector<Entry>& entries){
-    //std::cout << "Parsing expr: " << expr << std::endl;
 
-    Entry currentEntry;
-    int depth = 0;
-    bool inEval = false;
-    char lastChar = '\0';
-    for(int i = 0; i < expr.size(); i++) {
-        char currentChar = expr[i];
-        // Determine the type of entry based on the character
-        if (currentChar == '$' && depth == 0) {
-            inEval = true;
-            if(currentEntry.str.size() > 0) {
-                make_entry(currentEntry, entries);
+    std::vector<std::string> tokensPhase1, tokens;
+
+    // Split, keep delimiter(at start)
+    // "abc$def$ghi" -> ["abc", "$def", "$ghi"]
+    tokensPhase1 = StringHandler::split(expr, '$', true);
+
+    // Now we need to split on same depth
+    for(auto token : tokensPhase1) {
+        // If the first token starts with '$', it means the string started with '$'
+        // If not, the first token is text before the first '$'
+        if(token.starts_with('$')) {
+            // Remove everything until a '('
+            std::string start = token.substr(0, token.find('('));
+            std::string tokenWithoutstart = token.substr(start.length()); // Remove the leading '$'
+
+            // Split on same depth
+            std::vector<std::string> subTokens = StringHandler::splitOnSameDepth(tokenWithoutstart, '(');
+
+            // Add back to first
+            if(subTokens.size() > 0) {
+                subTokens[0] = start + subTokens[0];
             }
-            currentEntry.type = Entry::Type::variable;
-            currentEntry.str += currentChar;
-        }
-        else if(lastChar == '$' && currentChar == 'i' && depth == 0) {
-            currentEntry.cast = Entry::CastType::to_int;
-        }
-        else if(lastChar == '$' && currentChar == 'f' && depth == 0) {
-            currentEntry.cast = Entry::CastType::to_float;
-        }
-        else if(currentChar == '(') {
-            if(inEval)depth++;
-            currentEntry.str += currentChar;
-        }
-        else if(currentChar == ')') {
-            if(inEval)depth--;
-            currentEntry.str += currentChar;
-            if(depth == 0){
-                inEval = false;
-                make_entry(currentEntry, entries);
+
+            for (const auto& subToken : subTokens) {
+                tokens.push_back(subToken);
             }
+        } else {
+            // Just add the text token
+            tokens.push_back(token);
         }
-        else{
-            currentEntry.str += currentChar;
-        }
-        lastChar = currentChar;
     }
 
-    if(depth != 0) {
-        // If depth is not zero, there is an unmatched parenthesis
-        std::cerr << "Error: Unmatched parentheses in expression: " << expr << std::endl;
-        return; // or throw an exception
-    }
+    // Parse all tokens
+    for (auto& token : tokens) {
+        if (!token.empty()) {
+            Entry currentEntry;
+            if(token.starts_with('$')){
+                // Check cast type:
+                if(token.starts_with("$i(")){
+                    currentEntry.cast = Entry::CastType::to_int;
+                    token = token.substr(2);
+                }
+                else if(token.starts_with("$f(")){
+                    currentEntry.cast = Entry::CastType::to_float;
+                    token = token.substr(2);
+                }
+                else{
+                    currentEntry.cast = Entry::CastType::none;
+                    token = token.substr(1);
+                }
 
-    if(currentEntry.str.size() > 0) {
-        make_entry(currentEntry, entries);
+                // Current token is evaluation
+                currentEntry.type = Entry::Type::eval;
+
+                // Register internal variables
+                // And build equivalent expression
+                std::string newString = "";
+                std::vector<std::string> subTokens = StringHandler::splitOnSameDepth(token, '{');
+
+                for (const auto& subToken : subTokens) {
+                    if(subToken.starts_with('{')){
+                        // 1.) remove {}
+                        std::string key, te_name;
+                        key = StringHandler::replaceAll(subToken, "{", "");
+                        key = StringHandler::replaceAll(key     , "}", "");
+                        te_name = StringHandler::replaceAll(key, ".", "_");
+                        // 2.) determine context
+                        Entry::From context = getContext(key);
+                        key     = stripContext(key);
+                        // 3.) register variable
+                        registerVariable(te_name, key, context);
+                        // Append
+                        newString += te_name;
+                    }
+                    else{
+                        newString += subToken;
+                    }
+                }
+                // Determine context
+                currentEntry.type = Entry::Type::eval;
+                currentEntry.str = newString; // Shouldnt contain any $
+                currentEntry.from = Entry::From::None;
+                currentEntry.key = ""; // No key for eval expressions
+
+                // Add to entries
+                entries.push_back(currentEntry);
+            }
+            else{
+                // Current token is Text
+                // Perhaps mixed with variables...
+                std::vector<std::string> subTokens = StringHandler::splitOnSameDepth(token, '{');
+                for (const auto& subToken : subTokens) {
+                    // Variable outside of eval, no need to register
+                    if(subToken.starts_with('{')){
+                        // 1.) remove {}
+                        std::string inner, te_name;
+                        inner = StringHandler::replaceAll(subToken, "{", "");
+                        inner = StringHandler::replaceAll(inner     , "}", "");
+                        // 2.) determine context
+                        currentEntry.type = Entry::Type::variable;
+                        currentEntry.str = inner;
+                        currentEntry.from = getContext(inner);
+                        currentEntry.key = stripContext(inner);
+                    }
+                    else{
+                        // Determine context
+                        currentEntry.type = Entry::Type::text;
+                        currentEntry.str = subToken;
+                        currentEntry.from = Entry::From::None;
+                        currentEntry.key = ""; // No key for text expressions
+                    }
+                    // Add to entries
+                    entries.push_back(currentEntry);
+                }
+            }
+        }
     }
 }
 
@@ -243,52 +178,19 @@ void Nebulite::InvokeExpression::parse(const std::string& expr, Nebulite::Docume
 
     parseIntoEntries(expr, entries);
 
-    // Ensure proper naming in all eval entries
-    for (auto& entry : entries) {
-        if (entry.type == Entry::Type::eval && entry.str.find('$') != std::string::npos) {
-            // All $(name.name1) -> (name_name1)
-            // NOTE: ONLY INSIDE $() !
-            // E.g:
-            // '$( 0.99 * $($(other.physics.vX) - (2 * $(self.physics.mass) )'
-            entry.str = modifyTextToTeConform(entry.str);
-        }
-    }
-
     // Now compile all entries:
     for (auto& entry : entries) {
         compileIfExpression(entry);
     }
-
-    // DEBUG
-    /*
-    std::cout << "Parsed expression: " << fullExpression << std::endl;
-    std::cout << "Entries:" << std::endl;
-    for (const auto& entry : entries) {
-        switch(entry.type) {
-            case Entry::Type::variable:
-                std::cout << std::setw(19) << "Variable: " << entry.str << " (from: " << (entry.from == Entry::From::self ? "self" : entry.from == Entry::From::other ? "other" : entry.from == Entry::From::global ? "global" : "resource") << ")" << std::endl;
-                break;
-            case Entry::Type::eval:
-                std::cout << std::setw(19) << "Eval: " << entry.str << std::endl;
-                break;
-            case Entry::Type::text:
-                std::cout << std::setw(19) << "Text: " << entry.str << std::endl;
-                break;
-            default:
-                std::cout << "Unknown type" << std::endl;
-        }
-    }
-    std::cout << "Variables:" << std::endl;
-    for (const auto& var : variables) {
-        if(var.type == TE_VARIABLE)std::cout << std::setw(19) << "Variable: " << var.name << std::endl;
-    }
-
-    //*/
 }
 
 std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_self, Nebulite::JSON* current_other, Nebulite::JSON* current_global) {
     // Since this method may be called by multiple threads, 
     // we need a way where each thread has its own VirtualDouble:cache
+    // The issue is that each expression can only hold one double pointer, making this impossible to implement in-class?
+    // Each new thread would overwrite the cache!
+
+
     for (auto& entry : virtualDoubles) {
         switch(entry->from){
             case Entry::From::self:

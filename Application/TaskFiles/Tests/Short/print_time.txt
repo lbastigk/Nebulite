@@ -4,5 +4,5 @@ set-fps 60
 set-res 320 320 3
 wait 30
 print-global
-eval echo Framecount is: $(global.frameCount)
+eval echo Framecount is: {global.frameCount}
 exit

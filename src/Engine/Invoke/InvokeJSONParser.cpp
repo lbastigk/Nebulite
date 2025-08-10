@@ -9,9 +9,9 @@ void Nebulite::InvokeJSONParser::getFunctionCalls(Nebulite::JSON& entryDoc, Nebu
             std::string funcCall = entryDoc.get<std::string>(funcKey.c_str(), "");
 
             // Create a new InvokeExpression, parse the function call
-            Nebulite::InvokeExpression invokeExpr;
+            Nebulite::InvokeExpressionPool invokeExpr;
             invokeExpr.parse(funcCall, *docCache);
-            invokeEntry.functioncalls_global.push_back(invokeExpr);
+            invokeEntry.functioncalls_global.emplace_back(std::move(invokeExpr));
         }
     }
     if (entryDoc.memberCheck(keyName.invoke.functioncalls_self) == Nebulite::JSON::KeyType::array) {
@@ -28,9 +28,9 @@ void Nebulite::InvokeJSONParser::getFunctionCalls(Nebulite::JSON& entryDoc, Nebu
             }
 
             // Create a new InvokeExpression, parse the function call
-            Nebulite::InvokeExpression invokeExpr;
+            Nebulite::InvokeExpressionPool invokeExpr;
             invokeExpr.parse(funcCall, *docCache);
-            invokeEntry.functioncalls_self.push_back(invokeExpr);
+            invokeEntry.functioncalls_self.emplace_back(std::move(invokeExpr));
         }
     }
     if (entryDoc.memberCheck(keyName.invoke.functioncalls_other) == Nebulite::JSON::KeyType::array) {
@@ -46,9 +46,9 @@ void Nebulite::InvokeJSONParser::getFunctionCalls(Nebulite::JSON& entryDoc, Nebu
                 funcCall = "other " + funcCall;
             }
             // Create a new InvokeExpression, parse the function call
-            Nebulite::InvokeExpression invokeExpr;
+            Nebulite::InvokeExpressionPool invokeExpr;
             invokeExpr.parse(funcCall, *docCache);
-            invokeEntry.functioncalls_other.push_back(invokeExpr);
+            invokeEntry.functioncalls_other.emplace_back(std::move(invokeExpr));
         }
     }
 }
@@ -200,7 +200,7 @@ void Nebulite::InvokeJSONParser::parse(Nebulite::JSON& doc, std::vector<std::sha
                     assignmentExpr.value = Nebulite::StringHandler::rstrip(Nebulite::StringHandler::lstrip(assignmentExpr.value));
 
                     // Add assignmentExpr to invokeEntry
-                    invokeEntry->exprs.push_back(assignmentExpr);
+                    invokeEntry->exprs.emplace_back(std::move(assignmentExpr));
                 }
             }
         }

@@ -1,5 +1,5 @@
 set-fps 60
 wait 10
-eval echo $(global.dt)
-eval echo $($(global.dt))
+eval echo {global.dt}
+eval echo $({global.dt})
 exit

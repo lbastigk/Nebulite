@@ -132,14 +132,111 @@ std::string Nebulite::StringHandler::rstrip(const std::string& input, char speci
     return (end == std::string::npos) ? "" : input.substr(0, end + 1);
 }
 
-std::vector<std::string> Nebulite::StringHandler::split(const std::string& input, char delimiter) {
+std::vector<std::string> Nebulite::StringHandler::split(const std::string& input, char delimiter, bool keepDelimiter) {
     std::vector<std::string> tokens;
-    size_t start = 0;
-    size_t end = 0;
-    while ((end = input.find(delimiter, start)) != std::string::npos) {
-        tokens.push_back(input.substr(start, end - start));
-        start = end + 1;
+    
+    if (!keepDelimiter) {
+        // Original behavior - split and exclude delimiter
+        size_t start = 0;
+        size_t end = 0;
+        while ((end = input.find(delimiter, start)) != std::string::npos) {
+            tokens.push_back(input.substr(start, end - start));
+            start = end + 1;
+        }
+        if (start < input.length()) {
+            tokens.push_back(input.substr(start));
+        }
+    } else {
+        // New behavior - split and keep delimiter at start of tokens
+        size_t pos = 0;
+        size_t start = 0;
+        
+        while ((pos = input.find(delimiter, start)) != std::string::npos) {
+            // Add everything before the delimiter as a token (if not empty)
+            if (pos > start) {
+                tokens.push_back(input.substr(start, pos - start));
+            }
+            
+            // Find the next delimiter to determine where this token ends
+            size_t nextPos = input.find(delimiter, pos + 1);
+            if (nextPos == std::string::npos) {
+                // No more delimiters, take rest of string
+                tokens.push_back(input.substr(pos));
+                break;
+            } else {
+                // Take from current delimiter to next delimiter
+                tokens.push_back(input.substr(pos, nextPos - pos));
+                start = nextPos;
+            }
+        }
+        
+        // If we never found a delimiter, add the whole string
+        if (tokens.empty() && !input.empty()) {
+            tokens.push_back(input);
+        }
     }
-    tokens.push_back(input.substr(start)); // Last part
+    
     return tokens;
+}
+
+// Splits a string on the same depth of parentheses
+// - for '()', '[]', '{}' according to delimiter
+// Example:
+// "This is a text {with} {some}{!} nested {{paranthesis}}"
+// -> ["This is a text ", "{with}", " ", "{some}", "{!}", " nested ", "{{paranthesis}}"]
+std::vector<std::string> Nebulite::StringHandler::splitOnSameDepth(const std::string& input, char delimiter) {
+    std::vector<std::string> result;
+
+    // Map opening delimiters to their closing ones
+    static const std::unordered_map<char, char> pairs = {
+        {'(', ')'}, {'[', ']'}, {'{', '}'}
+    };
+
+    // Find the matching closing delimiter
+    char closing = 0;
+    for (auto &p : pairs) {
+        if (p.first == delimiter) {
+            closing = p.second;
+            break;
+        }
+    }
+
+    if (closing == 0) {
+        // Invalid delimiter
+        result.push_back(input);
+        return result;
+    }
+
+    int depth = 0;
+    std::string current;
+
+    for (size_t i = 0; i < input.size(); ++i) {
+        char c = input[i];
+        current.push_back(c);
+
+        if (c == delimiter) {
+            depth++;
+        } else if (c == closing) {
+            depth--;
+            if (depth == 0) {
+                // We just closed a top-level pair
+                result.push_back(current);
+                current.clear();
+            }
+        } else if (depth == 0) {
+            // Outside delimiter groups
+            // If the current string is complete text before a new delimiter
+            if (!current.empty() && (i + 1 < input.size() && input[i+1] == delimiter)) {
+                result.push_back(current);
+                current.clear();
+            }
+        }
+    }
+
+    // If there's any leftover text
+    if (!current.empty()) {
+        result.push_back(current);
+    }
+
+    return result;
 }

@@ -9,5 +9,5 @@ wait 1 # TODO: back to 300
 #print-global
 #print-state
 echo Test Passed!
-eval echo Rendered 300 Frames in: $(global.time.t) Seconds.
+eval echo Rendered 300 Frames in: {global.time.t} Seconds.
 exit

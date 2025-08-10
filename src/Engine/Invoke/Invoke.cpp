@@ -168,7 +168,7 @@ void Nebulite::Invoke::updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries
     }
 
     // === Functioncalls GLOBAL ===
-    for(auto entry : entries_self->functioncalls_global){
+    for(auto& entry : entries_self->functioncalls_global){
         // replace vars
         std::string call = entry.eval(doc_self, doc_other, global);
 
@@ -178,14 +178,14 @@ void Nebulite::Invoke::updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries
     }
 
     // === Functioncalls LOCAL: SELF ===
-    for(auto entry : entries_self->functioncalls_self){
+    for(auto& entry : entries_self->functioncalls_self){
         // replace vars
         std::string call = entry.eval(doc_self, doc_other, global);
         (void)Obj_self->parseStr(call);
     }
 
     // === Functioncalls LOCAL: OTHER ===
-    for(auto entry : entries_self->functioncalls_other){
+    for(auto& entry : entries_self->functioncalls_other){
         // replace vars
         std::string call = entry.eval(doc_self, doc_other, global);
         (void)Obj_other->parseStr(call);
@@ -299,7 +299,7 @@ void Nebulite::Invoke::update() {
 // ==========================
 
 std::string Nebulite::Invoke::evaluateExpressionFull(
-    Nebulite::InvokeExpression& expr, 
+    Nebulite::InvokeExpressionPool& expr, 
     Nebulite::JSON* self, 
     Nebulite::JSON* other, 
     Nebulite::JSON* global) 
@@ -309,7 +309,7 @@ std::string Nebulite::Invoke::evaluateExpressionFull(
 
 std::string Nebulite::Invoke::evaluateExpression(const std::string& input) {
     // Parse string into InvokeExpression
-    Nebulite::InvokeExpression expr;
+    Nebulite::InvokeExpressionPool expr;
     expr.parse(input, docCache);
     return evaluateExpressionFull(expr, emptyDoc, emptyDoc, global);
 }

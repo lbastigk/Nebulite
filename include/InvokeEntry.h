@@ -1,5 +1,5 @@
 #pragma once
-#include "InvokeExpression.h"
+#include "InvokeExpressionPool.h"
 
 //--------------------------------------------
 // Class-Specific Structures:
@@ -53,7 +53,7 @@
 */
 // This makes subkey-overwrites easier to parse, e.g.: "overwrites" [ "physics.G -> 9.81" ] 
 // turns an "$(overwrites.physics.G)" into "9.81" and 
-// defaults to "$(global.physics.G)" if not overwritten.
+// defaults to "{global.physics.G}" if not overwritten.
 
 //---------------------------------------------
 // Invoke epxressions are parsed into specific structs:
@@ -70,8 +70,36 @@ public:
     Type onType = Type::null;                              // Self, Other, Global, determines which doc is used
     std::string key;                          // e.g. "posX"
     std::string value;                        // e.g. "0", "$($(self.posX) + 1)"
-    Nebulite::InvokeExpression expression;    // The parsed expression
-    bool valueContainsReference = true;       // if value contains a reference keyword, e.g. "$(self.posX)" or "$(global.time.t)"
+    Nebulite::InvokeExpressionPool expression;    // The parsed expression
+    bool valueContainsReference = true;       // if value contains a reference keyword, e.g. "$(self.posX)" or "{global.time.t}"
+
+    // Disable copy constructor and assignment
+    InvokeAssignmentExpression(const InvokeAssignmentExpression&) = delete;
+    InvokeAssignmentExpression& operator=(const InvokeAssignmentExpression&) = delete;
+
+    // Enable move constructor and assignment
+    InvokeAssignmentExpression() = default;
+    InvokeAssignmentExpression(InvokeAssignmentExpression&& other) noexcept
+        : operation(other.operation)
+        , onType(other.onType)
+        , key(std::move(other.key))
+        , value(std::move(other.value))
+        , expression(std::move(other.expression))
+        , valueContainsReference(other.valueContainsReference)
+    {
+    }
+
+    InvokeAssignmentExpression& operator=(InvokeAssignmentExpression&& other) noexcept {
+        if (this != &other) {
+            operation = other.operation;
+            onType = other.onType;
+            key = std::move(other.key);
+            value = std::move(other.value);
+            expression = std::move(other.expression);
+            valueContainsReference = other.valueContainsReference;
+        }
+        return *this;
+    }
 };
 
 //---------------------------------------------
@@ -79,10 +107,10 @@ public:
 class InvokeEntry{
 public:
     std::string topic = "all";                                      // e.g. "gravity", "hitbox", "collision"
-    Nebulite::InvokeExpression logicalArg;                          // e.g. "$(self.posX) > $(other.posY)"
-    std::vector<Nebulite::InvokeExpression> functioncalls_global;   // vector of function calls, e.g. "echo example"
-    std::vector<Nebulite::InvokeExpression> functioncalls_self;     // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
-    std::vector<Nebulite::InvokeExpression> functioncalls_other;    // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
+    Nebulite::InvokeExpressionPool logicalArg;                          // e.g. "$(self.posX) > $(other.posY)"
+    std::vector<Nebulite::InvokeExpressionPool> functioncalls_global;   // vector of function calls, e.g. "echo example"
+    std::vector<Nebulite::InvokeExpressionPool> functioncalls_self;     // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
+    std::vector<Nebulite::InvokeExpressionPool> functioncalls_other;    // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
     bool isGlobal = true;                                           // if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
     Nebulite::RenderObject* selfPtr = nullptr;                      // store self
 

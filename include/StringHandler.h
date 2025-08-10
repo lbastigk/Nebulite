@@ -9,6 +9,7 @@
 #include <locale.h>
 #include <codecvt>
 #include <algorithm>
+#include <unordered_map>
 
 typedef uint64_t UINT64;
 
@@ -42,6 +43,10 @@ public:
 
     static std::string rstrip(const std::string& input, char specialChar = ' ');
 
-    static std::vector<std::string> split(const std::string& input, char delimiter);
+    static std::vector<std::string> split(const std::string& input, char delimiter, bool keepDelimiter = false);
+
+    // Splits a string on the same depth of parentheses
+    // - for '()', '[]', '{}' according to delimiter
+    static std::vector<std::string> splitOnSameDepth(const std::string& input, char delimiter);
 };
 }

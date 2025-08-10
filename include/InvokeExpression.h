@@ -38,8 +38,8 @@ private:
 
         // For variable
         enum From {
-            self, other, global, resource
-        } from = From::resource; // Default to resource
+            self, other, global, resource, None
+        } from = From::None; // Default to None
 
         // Cast Type
         enum CastType {
@@ -104,12 +104,32 @@ private:
     Nebulite::DocumentCache* documentCache = nullptr;
 
     // Helper functions
-    std::string modifyTextToTeConform(std::string str);
+    std::string stripContext(const std::string& key) {
+        if (key.starts_with("self.")) {
+            return key.substr(5);
+        } else if (key.starts_with("other.")) {
+            return key.substr(6);
+        } else if (key.starts_with("global.")) {
+            return key.substr(7);
+        } else {
+            return key;
+        }
+    }
+    Entry::From getContext(const std::string& key) {
+        if (key.starts_with("self.")) {
+            return Entry::From::self;
+        } else if (key.starts_with("other.")) {
+            return Entry::From::other;
+        } else if (key.starts_with("global.")) {
+            return Entry::From::global;
+        } else {
+            return Entry::From::resource;
+        }
+    }
+
     void parseIntoEntries(const std::string& expr, std::vector<Entry>& entries);
-    void setEntryContext(Entry& entry);
     void compileIfExpression(Entry& entry);
-    void registerIfVariable(Entry& entry);
-    void make_entry(Entry& currentEntry, std::vector<Entry>& entries);
+    void registerVariable(std::string str, std::string key, Entry::From context);
 
     // Custom TinyExpr functions
     class expr_custom{
