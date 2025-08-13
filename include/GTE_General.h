@@ -64,20 +64,20 @@ public:
     //----------------------------------------
     // Binding Functions
     void setupBindings() {
-        bindFunction(&General::eval,                "eval",                 "Evaluate an expression and execute the result");
+        bindFunction(&General::eval,                "eval",                 "Evaluate an expression and execute the result. Example: eval echo $(1+1)");
         bindFunction(&General::exitProgram,         "exit",                 "Exit the program");
-        bindFunction(&General::wait,                "wait",                 "Wait a given amount of frames");
-        bindFunction(&General::loadTaskList,        "task",                 "Load a task list from a file");
-        bindFunction(&General::forLoop,             "for",                  "Execute a for-loop with a function call");
+        bindFunction(&General::wait,                "wait",                 "Wait a given amount of frames: wait <frames>");
+        bindFunction(&General::loadTaskList,        "task",                 "Load a task list from a file: task <filename>");
+        bindFunction(&General::forLoop,             "for",                  "Execute a for-loop with a function call: for <var> <start> <end> <functioncall>");
         bindFunction(&General::func_return,         "return",               "Return a custom value");
-        bindFunction(&General::echo,                "echo",                 "Echo a string to cout");
-        bindFunction(&General::error,               "error",                "Echo a string to cerr/errorfile");
-        bindFunction(&General::func_assert,         "assert",               "Assert a condition and throw an error if false");
-        bindFunction(&General::setGlobal,           "set-global",           "Set a global variable");
-        bindFunction(&General::forceGlobal,         "force-global",         "Force a global variable to a value");
+        bindFunction(&General::echo,                "echo",                 "Echo a string to cout: echo <string>");
+        bindFunction(&General::error,               "error",                "Echo a string to cerr/errorfile: error <string>");
+        bindFunction(&General::func_assert,         "assert",               "Assert a condition and throw an error if false: assert <condition>");
+        bindFunction(&General::setGlobal,           "set-global",           "Set a global variable: set-global <key> <value>");
+        bindFunction(&General::forceGlobal,         "force-global",         "Force a global variable to a value: force-global <key> <value>");
         bindFunction(&General::clearForceGlobal,    "force-global-clear",   "Clear all forced global variables");
-        bindFunction(&General::stateSave,           "state-save",           "Save the current game state");
-        bindFunction(&General::stateLoad,           "state-load",           "Load a saved game state");
+        bindFunction(&General::stateSave,           "state-save",           "Save the current game state: state-save <name>");
+        bindFunction(&General::stateLoad,           "state-load",           "Load a saved game state: state-load <name>");
     }
 };
 }

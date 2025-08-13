@@ -51,12 +51,12 @@ public:
     //----------------------------------------
     // Binding Functions
     void setupBindings() {
-        bindFunction(&Debug::errorlog,          "log",                      "Activate/Deactivate error logging");
+        bindFunction(&Debug::errorlog,          "log",                      "Activate/Deactivate error logging: log <on/off>");
         bindFunction(&Debug::printGlobal,       "print-global",             "Print global document");
         bindFunction(&Debug::printState,        "print-state",              "Print current state");
-        bindFunction(&Debug::logGlobal,         "log-global",               "Log global document");
-        bindFunction(&Debug::logState,          "log-state",                "Log current state");
-        bindFunction(&Debug::always,            "always",                   "Attach function to always run");
+        bindFunction(&Debug::logGlobal,         "log-global",               "Log global document: log-global [filename]");
+        bindFunction(&Debug::logState,          "log-state",                "Log current state: log-state [filename]");
+        bindFunction(&Debug::always,            "always",                   "Attach function to always run: always <command>");
         bindFunction(&Debug::alwaysClear,       "always-clear",             "Clear all always functions");
         bindFunction(&Debug::render_object,     "standard-render-object",   "Generates a standard render object at ./Resources/Renderobjects/standard.jsonc");
 

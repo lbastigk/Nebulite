@@ -42,6 +42,8 @@ This will parse the command-line arguments and execute the "myFunction" if it is
 // - std::vector<std::string> args      // shows the arguments of the function, e.g.: "echo", "Hello World!"
 // - std::vector<std::string> variables // shows the variables set by the user, e.g.: {"--verbose": "true"}
 
+// TODO: Allow for longer descriptions via an extra argument: descLong
+
 #pragma once
 
 // Basic includes
@@ -196,7 +198,13 @@ private:
         // Get from subtree
         if(subtree) {
             auto subtreeFunctions = subtree->getAllFunctions();
-            allFunctions.insert(allFunctions.end(), subtreeFunctions.begin(), subtreeFunctions.end());
+
+            // Case by case, making sure we do not have duplicates
+            for (const auto& [name, description] : subtreeFunctions) {
+                if (functions.find(name) == functions.end()) {
+                    allFunctions.emplace_back(name, description);
+                }
+            }
         }
 
         return allFunctions;
@@ -212,7 +220,13 @@ private:
         // Get from subtree
         if(subtree) {
             auto subtreeVariables = subtree->getAllVariables();
-            allVariables.insert(allVariables.end(), subtreeVariables.begin(), subtreeVariables.end());
+
+            // Case by case, making sure we do not have duplicates
+            for (const auto& [name, description] : subtreeVariables) {
+                if (variables.find(name) == variables.end()) {
+                    allVariables.emplace_back(name, description);
+                }
+            }
         }
 
         return allVariables;

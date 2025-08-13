@@ -1,0 +1,20 @@
+{
+    "display": {
+        "position": {
+            "X": 0,
+            "Y": 0
+        },
+        "resolution": {
+            "X": 1080,
+            "Y": 1080
+        }
+    },
+    "platform": "linux",
+    "time": {
+        "dt": 0.0,
+        "dt_ms": 0,
+        "fixed_dt_ms": 0,
+        "t": 0.0,
+        "t_ms": 0
+    }
+}
