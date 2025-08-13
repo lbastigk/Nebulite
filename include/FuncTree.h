@@ -185,6 +185,40 @@ private:
 
     // Subtree linked to this tree
     FuncTree<RETURN_TYPE>* subtree;
+
+    // Get all functions and their descriptions
+    std::vector<std::pair<std::string, std::string>> getAllFunctions() {
+        std::vector<std::pair<std::string, std::string>> allFunctions;
+        for (const auto& [name, info] : functions) {
+            allFunctions.emplace_back(name, info.description);
+        }
+
+        // Get from subtree
+        if(subtree) {
+            auto subtreeFunctions = subtree->getAllFunctions();
+            allFunctions.insert(allFunctions.end(), subtreeFunctions.begin(), subtreeFunctions.end());
+        }
+
+        return allFunctions;
+    }
+
+    // Get all variables and their descriptions
+    std::vector<std::pair<std::string, std::string>> getAllVariables() {
+        std::vector<std::pair<std::string, std::string>> allVariables;
+        for (const auto& [name, info] : variables) {
+            allVariables.emplace_back(name, info.description);
+        }
+
+        // Get from subtree
+        if(subtree) {
+            auto subtreeVariables = subtree->getAllVariables();
+            allVariables.insert(allVariables.end(), subtreeVariables.begin(), subtreeVariables.end());
+        }
+
+        return allVariables;
+    }
+
+
 };
 
 
@@ -310,17 +344,51 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::executeFunction(const std::string& name, int 
     }
 }
 
-// TODO: While listing all functions this way works, 
-// its much better to first combine all from parent and subtree
-// e.g.: 
-// std::vector<std::string> getAllFunctionDescriptions()
-// std::vector<std::string> getAllVariableDescriptions()
-// Combine them and sort them by name
 template<typename RETURN_TYPE>
 RETURN_TYPE FuncTree<RETURN_TYPE>::help(int argc, char* argv[]) {
-    std::cout << "\n\tHelp for " << TreeName << "\n\n";
+    
 
-    // If no arguments are provided, list all functions and variables
+    // All info: [name, description]
+    std::vector<std::pair<std::string, std::string>> allFunctions = getAllFunctions();
+    std::vector<std::pair<std::string, std::string>> allVariables = getAllVariables();
+
+    // Case-insensitive comparison function
+    auto caseInsensitiveLess = [](const auto& a, const auto& b) {
+        const std::string& sa = a.first;
+        const std::string& sb = b.first;
+        size_t n = std::min(sa.size(), sb.size());
+        for (size_t i = 0; i < n; ++i) {
+            char ca = std::tolower(static_cast<unsigned char>(sa[i]));
+            char cb = std::tolower(static_cast<unsigned char>(sb[i]));
+            if (ca < cb) return true;
+            if (ca > cb) return false;
+        }
+        return sa.size() < sb.size();
+    };
+
+    // Sort by name
+    std::sort(allFunctions.begin(), allFunctions.end(), caseInsensitiveLess);
+    std::sort(allVariables.begin(), allVariables.end(), caseInsensitiveLess);
+
+    // Display:
+    std::cout << "\n\tHelp for " << TreeName << "\n\n";
+    std::cout << "Available functions:\n";
+    for (const auto& [name, description] : allFunctions) {
+        std::cout << "  " << std::setw(25) << std::left << name
+                  << " - " << description << std::endl;
+    }
+
+    // Display variables
+    std::cout << "Available variables:\n";
+    for (const auto& [name, description] : allVariables) {
+        std::string fullName = "--" + name;  // Prefix with --
+        std::cout << "  " << std::setw(25) << std::left << fullName
+                  << " - " << description << std::endl;
+    }
+
+    // OLD
+    /*
+        // If no arguments are provided, list all functions and variables
     if (argc <= 1) {
         std::cout << "Available functions:\n";
 
@@ -392,6 +460,10 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::help(int argc, char* argv[]) {
             std::cerr << "Function '" << argv[i] << "' not found.\n";
         }
     }
+
+    */
+    
+
 
     return _standard;
 }
