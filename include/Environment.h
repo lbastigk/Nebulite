@@ -31,13 +31,11 @@ public:
 	//-----------------------------------------------------------
 	//Marshalling
 	std::string serialize();
-
-
 	void deserialize(std::string serialOrLink, int dispResX,int dispResY);
-	
 	std::string serializeGlobal(){
 		return global->serialize();
 	}
+
 
 	void linkGlobal(Nebulite::JSON& global_ptr){global = &global_ptr;};
 	
@@ -54,14 +52,6 @@ public:
 
 	size_t getObjectCount(bool excludeTopLayer = true);
 
-	enum RenderObjectLayers {
-			background,
-			general,
-			foreground,
-			effects,
-			menue
-	};
-
 	Nebulite::JSON& getGlobal() {
 		return *global;
 	}
@@ -76,6 +66,8 @@ public:
 		}
 		return nullptr;
 	}
+
+	
 
 private:
 	// Link to Global Values

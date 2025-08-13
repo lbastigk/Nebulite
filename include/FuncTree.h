@@ -366,7 +366,7 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::help(int argc, char* argv[]) {
                           << std::endl;
             }
         } else {
-            std::cout << "No variables attached.\n";
+            std::cout << "\nNo variables attached.\n";
         }
 
         // If a subtree is linked, show its help

@@ -8,9 +8,11 @@ Nebulite::GlobalSpaceTree::GlobalSpaceTree(Nebulite::GlobalSpace* self, Nebulite
 {
 
   // Initialize Expansions
-  general  = createExpansionOfType<GlobalSpaceTreeExpansion::General>();
+  general = createExpansionOfType<GlobalSpaceTreeExpansion::General>();
   renderer = createExpansionOfType<GlobalSpaceTreeExpansion::Renderer>();
-  debug    = createExpansionOfType<GlobalSpaceTreeExpansion::Debug>();
+  debug = createExpansionOfType<GlobalSpaceTreeExpansion::Debug>();
+  gui = createExpansionOfType<GlobalSpaceTreeExpansion::GUI>();
+  RenderObjectDraft = createExpansionOfType<GlobalSpaceTreeExpansion::RenderObjectDraft>();
 
   // Initialize Variable Bindings here, due to circular dependency issues
   bindVariable(&self->headless, "headless", "Set headless mode (no renderer)");
@@ -27,4 +29,6 @@ void Nebulite::GlobalSpaceTree::update() {
     general->update();
     renderer->update();
     debug->update();
+    gui->update();
+    RenderObjectDraft->update();
 }

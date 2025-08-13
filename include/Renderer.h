@@ -17,14 +17,31 @@
 namespace Nebulite{
 class Renderer {
 public:
+	enum Layers {
+		background,
+		general,
+		foreground,
+		effects,
+		menue
+	};
+
 	Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_headless = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
 
 	//Marshalling
-	std::string serialize();
+	std::string serialize(){
+		// TODO: Serialize render-specific variables?
+		return env.serialize();
+	}
 	std::string serializeGlobal(){
 		return env.serializeGlobal();
 	}
-	void deserialize(std::string serialOrLink);
+	void deserialize(std::string serialOrLink){
+		env.deserialize(
+			serialOrLink, 
+			invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),0), 
+			invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0)
+		);
+	}
 	
 	//-----------------------------------------------------------
 	// Pipeline
@@ -36,6 +53,25 @@ public:
 	bool isQuit(){return quit;}
 	void setQuit(){quit=true;}
 	bool snapshot(std::string link = "./Resources/Snapshots/snapshot.png");
+
+	bool attachTextureAboveLayer(Renderer::Layers aboveThisLayer, std::string name, SDL_Texture* texture) {
+		if(texture == nullptr) {
+			return false; // Cannot attach a null texture
+		}
+
+		BetweenLayerTextures[aboveThisLayer][name] = texture;
+		return true;
+	}
+	bool removeTextureBetweenLayer(std::string name) {
+		bool found = false;
+		for(auto& layer : BetweenLayerTextures) {
+			if(layer.second.contains(name)) {
+				layer.second.erase(name);
+				found = true;
+			}
+		}
+		return found;
+	}
 
 	//-----------------------------------------------------------
 	// Special Functions
@@ -105,6 +141,8 @@ public:
 		return env.getObjectFromId(id);
 	}
 
+	
+
 private:
 	//-------------------------------------------------------------------------------------
 	// Boolean Status Variables
@@ -171,7 +209,7 @@ private:
 	std::vector<Uint8> prevKeyState;
 	
 
-	//--------------------------------------------
+	//-------------------------------------------------------------------------------------
 	// RNG
 	std::mt19937 rngA;
     std::mt19937 rngB;
@@ -208,10 +246,12 @@ private:
 	std::deque<std::string> consoleOutput;           // Optional: Past output log
 
 	//-------------------------------------------------------------------------------------
-	// Other
+	// Texture-Related
 
 	// Function to load texture from file
 	void loadTexture(std::string link);
+
+	absl::flat_hash_map<Renderer::Layers, absl::flat_hash_map<std::string, SDL_Texture*>> BetweenLayerTextures; // Textures that are attached between layers
 
 };
 }

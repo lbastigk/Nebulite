@@ -43,11 +43,7 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 
 	// State
 	event = SDL_Event();
-	//rect = SDL_Rect();
 	directory = FileManagement::currentDir();
-    //currentTime = Time::gettime();
-    //lastTime = Time::gettime();
-	//last_poll = Time::gettime();
 
 	//--------------------------------------------
 	// SDL Renderer
@@ -180,19 +176,6 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	invoke_ptr->getGlobalPointer()->set<Uint64>(keyName.renderer.time_dt_ms.c_str(),0);
 }
 
-//-----------------------------------------------------------
-//Marshalling
-std::string Nebulite::Renderer::serialize() {
-	return env.serialize();
-}
-
-void Nebulite::Renderer::deserialize(std::string serialOrLink) {
-	env.deserialize(
-		serialOrLink, 
-		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),0), 
-		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0)
-	);
-}
 
 //-----------------------------------------------------------
 // Pipeline
@@ -684,6 +667,11 @@ void Nebulite::Renderer::renderFrame() {
 					}
 				}
 			}
+		}
+
+		// Render all textures that were attached from outside processes
+		for (const auto& [name, texture] : BetweenLayerTextures[static_cast<Renderer::Layers>(layer)]) {
+			SDL_RenderCopy(renderer, texture, NULL, NULL);
 		}
 	}
 

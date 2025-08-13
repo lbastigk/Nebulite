@@ -52,6 +52,8 @@ How to use the GlobalSpaceTree:
 #include "GTE_General.h"    // General functions like eval, exit, wait, etc.
 #include "GTE_Renderer.h"   // Renderer functions for graphics and display
 #include "GTE_Debug.h"      // Debugging and logging functions
+#include "GTE_GUI.h"        // GUI functions for DearImgui integration
+#include "GTE_RenderObjectDraft.h" // Mock RenderObject for RenderObject functions in global space
 
 namespace Nebulite{
 
@@ -95,6 +97,8 @@ private:
     std::unique_ptr<GlobalSpaceTreeExpansion::Debug> debug;
     std::unique_ptr<GlobalSpaceTreeExpansion::General> general;
     std::unique_ptr<GlobalSpaceTreeExpansion::Renderer> renderer;
+    std::unique_ptr<GlobalSpaceTreeExpansion::GUI> gui;  // GUI Expansion for DearImgui integration
+    std::unique_ptr<GlobalSpaceTreeExpansion::RenderObjectDraft> RenderObjectDraft; // Mock RenderObject for testing purposes
 };
 }
 
