@@ -21,7 +21,7 @@ for i 0 39 for j 0 29 eval spawn ./Resources/Renderobjects/Plants/Grass/grass.js
 echo Adding Trees
 
 # random
-for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$(($(global.rrand) % 39)*16+16)|posY=$((($(global.rrand)*17)%29)*16+16)
+for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$(({global.rrand} % 39)*16+16)|posY=$((({global.rrand}*17)%29)*16+16)
 
 # border
 for i 0 39 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$($i*16)|posY=$(0)
