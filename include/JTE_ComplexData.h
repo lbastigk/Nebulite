@@ -11,6 +11,8 @@ class ComplexData : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::JSON, 
 public:
     using Wrapper<Nebulite::JSON, ComplexData>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
+    void update();
+
     //----------------------------------------
     // Available Functions
     Nebulite::ERROR_TYPE set_from_query(int argc, char* argv[]);

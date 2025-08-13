@@ -16,6 +16,30 @@ invokeand the GlobalSpace, allowing them to individually bind functions on const
 #include "FuncTree.h"
 
 
+// Helper to detect member function existence
+template <typename T>
+class has_setupBindings {
+    typedef char yes[1];
+    typedef char no[2];
+    template <typename U, void (U::*)()> struct SFINAE {};
+    template <typename U> static yes& test(SFINAE<U, &U::update>*);
+    template <typename U> static no& test(...);
+public:
+    static constexpr bool value = sizeof(test<T>(0)) == sizeof(yes);
+};
+template <typename T>
+class has_update {
+    typedef char yes[1];
+    typedef char no[2];
+    template <typename U, void (U::*)()> struct SFINAE {};
+    template <typename U> static yes& test(SFINAE<U, &U::update>*);
+    template <typename U> static no& test(...);
+public:
+    static constexpr bool value = sizeof(test<T>(0)) == sizeof(yes);
+};
+
+
+
 namespace Nebulite{
 
 class GlobalSpace; // Forward declaration
@@ -31,11 +55,13 @@ public:
     {
         // Initialize the defined Variable and Function Bindings
         static_cast<DerivedClass*>(this)->setupBindings();
-    }
 
-    // A virtual function would be better so that we know that the derived class has to implement it
+        // We call the derived class' update function to ensure it exists
+        static_cast<DerivedClass*>(this)->update();
+    }
+    // A virtual function for setupBindings and update would be better so that we know that the derived class has to implement it
     // However, this would call a pure virtual function during construction, which is not allowed.
-    //virtual void setupBindings() = 0; // Pure virtual function to be implemented by derived classes
+    
 
     // Templated bindFunction overload - automatically handles any class type
     template<typename ClassType>

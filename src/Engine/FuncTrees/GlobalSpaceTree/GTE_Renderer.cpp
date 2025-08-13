@@ -2,6 +2,17 @@
 #include "GlobalSpace.h"       // Global Space for Nebulite
 #include "Invoke.h"            // Invoke for parsing expressions
 
+//-------------------------------
+// Update
+void Nebulite::GlobalSpaceTreeExpansion::Renderer::update() {
+    // Add FuncTree-specific updates here!
+    // General rule:
+    // This is used to update all variables/states that are INTERNAL ONLY
+}
+
+//-------------------------------
+// FuncTree-Bound Functions
+
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::envload(int argc, char* argv[]){
     if(argc > 1){
         self->getRenderer()->deserialize(argv[1]);

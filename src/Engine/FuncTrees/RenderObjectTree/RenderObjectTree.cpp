@@ -10,3 +10,13 @@ Nebulite::RenderObjectTree::RenderObjectTree(RenderObject* self, Nebulite::JSONT
     parenting   = createExpansionOfType<RenderObjectTreeExpansion::Parenting>();
     stateUpdate = createExpansionOfType<RenderObjectTreeExpansion::StateUpdate>();
 }
+
+//--------------------------------- 
+// Necessary updates
+void Nebulite::RenderObjectTree::update() {
+    // Update all expansions
+    layout->update();
+    logging->update();
+    parenting->update();
+    stateUpdate->update();
+}

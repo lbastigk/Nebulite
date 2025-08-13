@@ -1,6 +1,17 @@
 #include "GTE_Debug.h"
 #include "GlobalSpace.h"       // Global Space for Nebulite
 
+//-------------------------------
+// Update
+void Nebulite::GlobalSpaceTreeExpansion::Debug::update() {
+    // Add FuncTree-specific updates here!
+    // General rule:
+    // This is used to update all variables/states that are INTERNAL ONLY
+}
+
+//-------------------------------
+// FuncTree-Bound Functions
+
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::printGlobal(int argc, char* argv[]){
     std::cout << self->getRenderer()->serializeGlobal() << std::endl;
     return Nebulite::ERROR_TYPE::NONE;

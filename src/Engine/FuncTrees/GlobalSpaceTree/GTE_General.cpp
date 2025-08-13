@@ -2,6 +2,17 @@
 #include "GlobalSpace.h"       // Global Space for Nebulite
 #include "Invoke.h"            // Invoke for parsing expressions
 
+//-------------------------------
+// Update
+void Nebulite::GlobalSpaceTreeExpansion::General::update() {
+    // Add FuncTree-specific updates here!
+    // General rule:
+    // This is used to update all variables/states that are INTERNAL ONLY
+}
+
+//-------------------------------
+// FuncTree-Bound Functions
+
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::setGlobal(int argc, char* argv[]){
     if(argc == 3){
         std::string key = argv[1];

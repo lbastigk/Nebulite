@@ -11,6 +11,8 @@ class Renderer : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpa
 public:
     using Wrapper<Nebulite::GlobalSpace, Renderer>::Wrapper;   // Templated constructor from Wrapper, call this->setupBindings()
 
+    void update();
+
     //----------------------------------------
     // Available Functions
 

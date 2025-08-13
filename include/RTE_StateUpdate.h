@@ -11,6 +11,8 @@ class StateUpdate : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::Render
 public:
     using Wrapper<Nebulite::RenderObject, StateUpdate>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
+    void update();
+
     //----------------------------------------
     // Available Functions
     Nebulite::ERROR_TYPE deleteObject(int argc, char* argv[]);
@@ -23,7 +25,7 @@ public:
     //----------------------------------------
     // Binding Functions
 
-    void setupBindings()  {
+    void setupBindings() {
         bindFunction(&StateUpdate::deleteObject, "delete", "Marks object for deletion");
         bindFunction(&StateUpdate::updateText, "update-text", "Calculate text texture");
         bindFunction(&StateUpdate::reloadInvokes, "reload-invokes", "Reload all invokes");

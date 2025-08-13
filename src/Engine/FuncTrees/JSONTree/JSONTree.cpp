@@ -7,3 +7,11 @@ Nebulite::JSONTree::JSONTree(Nebulite::JSON* self)
     simpleData = createExpansionOfType<Nebulite::JSONTreeExpansion::SimpleData>();
     complexData = createExpansionOfType<Nebulite::JSONTreeExpansion::ComplexData>();
 }
+
+//--------------------------------- 
+// Necessary updates
+void Nebulite::JSONTree::update() {
+    // Update all expansions
+    simpleData->update();
+    complexData->update();
+}

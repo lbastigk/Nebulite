@@ -10,6 +10,8 @@ class Debug : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace,
 public:
     using Wrapper<Nebulite::GlobalSpace, Debug>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
+    void update();
+
     //--------------------------------------------------------
     // TEST: Binding a dummy function with a name that already exists in the subtree
     Nebulite::ERROR_TYPE set(int argc, char* argv[]) {
@@ -48,7 +50,7 @@ public:
     
     //----------------------------------------
     // Binding Functions
-    void setupBindings()  {
+    void setupBindings() {
         bindFunction(&Debug::errorlog,          "log",                      "Activate/Deactivate error logging");
         bindFunction(&Debug::printGlobal,       "print-global",             "Print global document");
         bindFunction(&Debug::printState,        "print-state",              "Print current state");

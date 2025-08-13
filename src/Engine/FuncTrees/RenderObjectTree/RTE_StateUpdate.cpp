@@ -1,6 +1,17 @@
 #include "RTE_StateUpdate.h"
 #include "RenderObject.h"
 
+//-------------------------------
+// Update
+void Nebulite::RenderObjectTreeExpansion::StateUpdate::update() {
+    // Add FuncTree-specific updates here!
+    // General rule:
+    // This is used to update all variables/states that are INTERNAL ONLY
+}
+
+//-------------------------------
+// FuncTree-Bound Functions
+
 Nebulite::ERROR_TYPE Nebulite::RenderObjectTreeExpansion::StateUpdate::deleteObject(int argc, char* argv[]){
     self->flag.deleteFromScene = true;
     return Nebulite::ERROR_TYPE::NONE;

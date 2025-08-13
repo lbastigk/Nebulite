@@ -1,6 +1,17 @@
 #include "JTE_ComplexData.h"
 #include "JSON.h"
 
+//-------------------------------
+// Update
+void Nebulite::JSONTreeExpansion::ComplexData::update() {
+    // Add FuncTree-specific updates here!
+    // General rule:
+    // This is used to update all variables/states that are INTERNAL ONLY
+}
+
+//-------------------------------
+// FuncTree-Bound Functions
+
 Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::ComplexData::set_from_query(int argc, char* argv[]){
     return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
 }

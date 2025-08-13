@@ -83,8 +83,9 @@ It is **not allowed** to overwrite already existing functions:
 2. **Inherit from wrapper:** Create class inheriting from `Nebulite::FuncTreeExpansion::Wrapper<DomainClass, MyFeatureClass>`
 3. **Implement command methods:** Functions with `ERROR_TYPE (int argc, char* argv[])` signature
 4. **setupBindings():** Register your commands with the function tree
-5. **Add to GlobalSpaceTree:** Include in `include/GlobalSpaceTree.h` and initialize in constructor
-6. **Command line Variables** are more difficult to implement, as they require the full domain definition. Bind them in `GlobalSpaceTree.cpp`
+5. **update** Add all necessary update-procedures within the tree
+6. **Add to GlobalSpaceTree:** Include in `include/GlobalSpaceTree.h`, add to the update and initialize in constructor
+7. **Command line Variables** are more difficult to implement, as they require the full domain definition. Bind them in `GlobalSpaceTree.cpp`
 
 ### Complete Code Example
 
@@ -97,6 +98,8 @@ namespace GlobalSpaceTreeExpansion {
 class MyFeature : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, MyFeature> {
 public:
     using Wrapper<Nebulite::GlobalSpace, MyFeature>::Wrapper; // Templated constructor from Wrapper, calls setupBindings
+
+    void update();  // For implementing internal update-procedures on each new frame
 
     //----------------------------------------
     // Available Functions
@@ -118,6 +121,11 @@ public:
 #include "MyFeature.h"
 #include "GlobalSpace.h"       // Global Space for Nebulite
 
+void Nebulite::GlobalSpaceTreeExpansion::MyFeature::update(){
+    // If our expansion uses any internal values that need to be updated on each frame
+    // We can update them here
+}
+
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::MyFeature::spawnCircle(int argc, char* argv[]){
     /*
     Implementation here.
@@ -138,7 +146,7 @@ private:
 }
 ```
 
-**And initialize in GlobalSpaceTree.cpp:**
+**And initialize and update in GlobalSpaceTree.cpp:**
 ```cpp
 Nebulite::GlobalSpaceTree::GlobalSpaceTree(/*...*/) : /*...*/
 {
@@ -150,13 +158,19 @@ Nebulite::GlobalSpaceTree::GlobalSpaceTree(/*...*/) : /*...*/
     /*...*/
     bindVariable(&self->myVariable, "myVariable", "This is a variable inside globalSpace");
 }
+
+void Nebulite::GlobalSpaceTree::update(){
+    /*...*/
+    myFeature->update();
+}
+
 ```
 
 ### Feature Management
 
 If necessary, the entire feature can then be:
-- **disabled** by commenting out `createExpansionOfType` in the Constructor
-- **removed** by undoing the changes inside `GlobalSpaceTree.{h,cpp}`
+- **disabled** by commenting out `createExpansionOfType` in the GlobalSpaceTree Constructor and removing the update call in `GlobalSpaceTree::update()`
+- **removed** by undoing all changes inside `GlobalSpaceTree.{h,cpp}`
 
 ## Preview Editing (Work in Progress)
 

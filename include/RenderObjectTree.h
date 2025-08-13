@@ -85,7 +85,9 @@ class RenderObject;
 class RenderObjectTree : public FuncTree<Nebulite::ERROR_TYPE>{  // Inherit a funcTree and helper functions
 public:
     // Created inside each renderobject, with linkage to the object
-    RenderObjectTree(RenderObject* self, Nebulite::JSONTree* jsonTree);   
+    RenderObjectTree(RenderObject* self, Nebulite::JSONTree* jsonTree);  
+    
+    void update();
 private:
     // Self-reference to the RenderObject is needed within the base class to simplify the factory method
     RenderObject* self;  // Store reference to self

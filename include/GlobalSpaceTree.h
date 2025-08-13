@@ -65,6 +65,8 @@ class GlobalSpace;
 class GlobalSpaceTree : public FuncTree<Nebulite::ERROR_TYPE>{  // Inherit a funcTree and helper functions
 public:
     GlobalSpaceTree(Nebulite::GlobalSpace* self, Nebulite::JSONTree* jsonTree);
+
+    void update();
 private:
     // References are needed within the base class to simplify the factory method
     Nebulite::GlobalSpace* self;  // Linkage to the GlobalSpace

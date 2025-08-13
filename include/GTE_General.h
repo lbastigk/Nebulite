@@ -11,6 +11,8 @@ class General : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpac
 public:
     using Wrapper<Nebulite::GlobalSpace, General>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
+    void update();
+
     //----------------------------------------
     // Available Functions
 
@@ -61,7 +63,7 @@ public:
 
     //----------------------------------------
     // Binding Functions
-    void setupBindings()  {
+    void setupBindings() {
         bindFunction(&General::eval,                "eval",                 "Evaluate an expression and execute the result");
         bindFunction(&General::exitProgram,         "exit",                 "Exit the program");
         bindFunction(&General::wait,                "wait",                 "Wait a given amount of frames");

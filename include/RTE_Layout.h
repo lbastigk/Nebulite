@@ -11,6 +11,8 @@ class Layout : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::RenderObjec
 public:
     using Wrapper<Nebulite::RenderObject, Layout>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
+    void update();
+
     //----------------------------------------
     // Available Functions
     Nebulite::ERROR_TYPE alignText(int argc, char* argv[]);
@@ -19,7 +21,7 @@ public:
     //----------------------------------------
     // Binding Functions
 
-    void setupBindings()  {
+    void setupBindings() {
         bindFunction(&Layout::alignText, "align-text", "Aligns text to object dimensions");
         bindFunction(&Layout::makeBox, "make-box", "Creates a box based on text dimensions");
     }

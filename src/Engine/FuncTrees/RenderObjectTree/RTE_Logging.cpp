@@ -1,6 +1,17 @@
 #include "RTE_Logging.h"
 #include "RenderObject.h"
 
+//-------------------------------
+// Update
+void Nebulite::RenderObjectTreeExpansion::Logging::update() {
+    // Add FuncTree-specific updates here!
+    // General rule:
+    // This is used to update all variables/states that are INTERNAL ONLY
+}
+
+//-------------------------------
+// FuncTree-Bound Functions
+
 Nebulite::ERROR_TYPE Nebulite::RenderObjectTreeExpansion::Logging::echo(int argc, char* argv[]){
     for (int i = 1; i < argc; i++) {
         std::cout << argv[i] << " ";

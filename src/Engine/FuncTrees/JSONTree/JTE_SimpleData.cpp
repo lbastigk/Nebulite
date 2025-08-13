@@ -1,6 +1,17 @@
 #include "JTE_SimpleData.h"
 #include "JSON.h"
 
+//-------------------------------
+// Update
+void Nebulite::JSONTreeExpansion::SimpleData::update() {
+    // Add FuncTree-specific updates here!
+    // General rule:
+    // This is used to update all variables/states that are INTERNAL ONLY
+}
+
+//-------------------------------
+// FuncTree-Bound Functions
+
 //---------------------------------------
 // General set/get/remove functions
 

@@ -11,6 +11,8 @@ class Parenting : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::RenderOb
 public:
     using Wrapper<Nebulite::RenderObject, Parenting>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
+    void update();
+
     //----------------------------------------
     // Available Functions
     Nebulite::ERROR_TYPE addChildren(int argc, char* argv[]);
@@ -21,7 +23,7 @@ public:
     //----------------------------------------
     // Binding Functions
 
-    void setupBindings()  {
+    void setupBindings() {
         bindFunction(&Parenting::addChildren, "add-children", "Adds children of the RenderObject by name");
         bindFunction(&Parenting::removeChildren, "remove-children", "Removes children from the RenderObject");
         bindFunction(&Parenting::removeAllChildren, "remove-all-children", "Removes all children from the RenderObject");

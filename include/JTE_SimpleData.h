@@ -12,6 +12,8 @@ class SimpleData : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::JSON, S
 public:
     using Wrapper<Nebulite::JSON, SimpleData>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
+    void update();
+
     //----------------------------------------
     // Available Functions
     Nebulite::ERROR_TYPE set(int argc, char* argv[]);
@@ -29,7 +31,7 @@ public:
 
     //----------------------------------------
     // Binding Functions
-    void setupBindings()  {
+    void setupBindings() {
         // Bind functions specific to complex data handling
         bindFunction(&SimpleData::set, "set", "Set a key to a value in the JSON document");
 

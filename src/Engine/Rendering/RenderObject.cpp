@@ -200,6 +200,11 @@ void Nebulite::RenderObject::calculateSrcRect() {
 
 void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 	//------------------------------------
+	// Update Trees
+	renderObjectTree.update();
+	json.getJSONTree()->update();
+
+	//------------------------------------
 	// Check all invokes
 	if (globalInvoke) {
 		//------------------------------
