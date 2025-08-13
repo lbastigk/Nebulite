@@ -71,7 +71,6 @@ public:
     std::string key;                          // e.g. "posX"
     std::string value;                        // e.g. "0", "$($(self.posX) + 1)"
     Nebulite::InvokeExpressionPool expression;    // The parsed expression
-    bool valueContainsReference = true;       // if value contains a reference keyword, e.g. "$(self.posX)" or "{global.time.t}"
 
     // Disable copy constructor and assignment
     InvokeAssignmentExpression(const InvokeAssignmentExpression&) = delete;
@@ -85,7 +84,6 @@ public:
         , key(std::move(other.key))
         , value(std::move(other.value))
         , expression(std::move(other.expression))
-        , valueContainsReference(other.valueContainsReference)
     {
     }
 
@@ -96,7 +94,6 @@ public:
             key = std::move(other.key);
             value = std::move(other.value);
             expression = std::move(other.expression);
-            valueContainsReference = other.valueContainsReference;
         }
         return *this;
     }

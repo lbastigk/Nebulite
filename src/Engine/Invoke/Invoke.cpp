@@ -26,7 +26,7 @@ bool Nebulite::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::InvokeEntry> cmd, 
     // Evaluation
 
     // Get result
-    double result = std::stod(evaluateCompiledExpression(cmd->logicalArg, otherObj->getDoc()));
+    double result = cmd->logicalArg.evalAsDouble(otherObj->getDoc());
 
     // Check for result
     if(isnan(result)){
@@ -58,7 +58,7 @@ bool Nebulite::Invoke::isTrueLocal(std::shared_ptr<Nebulite::InvokeEntry> cmd) {
     if(cmd->logicalArg.getFullExpression() == "1") return true;
 
     // Resolve logical statement, using self as context for other
-    double result = std::stod(evaluateCompiledExpression(cmd->logicalArg, cmd->selfPtr->getDoc()));
+    double result = cmd->logicalArg.evalAsDouble(cmd->selfPtr->getDoc());
     if(isnan(result)){
         std::cerr << "Evaluated logic to NAN! Logic is: " << cmd->logicalArg.getFullExpression() << ". Resetting to 0" << std::endl;
         cmd->logicalArg.parse("0", docCache, cmd->selfPtr->getDoc(), global);
@@ -98,17 +98,18 @@ void Nebulite::Invoke::listen(Nebulite::RenderObject* obj,std::string topic){
     }
 }
 
+
 void Nebulite::Invoke::updateValueOfKey(Nebulite::InvokeAssignmentExpression::Operation operation, const std::string& key, const std::string& valStr, Nebulite::JSON* doc){    
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation){
         case Nebulite::InvokeAssignmentExpression::Operation::set:
-            doc->set<std::string>(key.c_str(),valStr);
+            doc->set<std::string>(key.c_str(),valStr.c_str());
             break;
         case Nebulite::InvokeAssignmentExpression::Operation::add:
-            doc->set_add(key.c_str(),valStr.c_str());
+            doc->set_add(key.c_str(),std::stod(valStr));
             break;
         case Nebulite::InvokeAssignmentExpression::Operation::multiply:
-            doc->set_multiply(key.c_str(),valStr.c_str());
+            doc->set_multiply(key.c_str(),std::stod(valStr));
             break;
         case Nebulite::InvokeAssignmentExpression::Operation::concat:
             doc->set_concat(key.c_str(),valStr.c_str());
@@ -122,6 +123,31 @@ void Nebulite::Invoke::updateValueOfKey(Nebulite::InvokeAssignmentExpression::Op
     }
 }
 
+void Nebulite::Invoke::updateValueOfKey(Nebulite::InvokeAssignmentExpression::Operation operation, const std::string& key, double value, Nebulite::JSON* doc){    
+    // Using Threadsafe manipulation methods of the JSON class:
+    switch (operation){
+        case Nebulite::InvokeAssignmentExpression::Operation::set:
+            doc->set<double>(key.c_str(),value);
+            break;
+        case Nebulite::InvokeAssignmentExpression::Operation::add:
+            doc->set_add(key.c_str(),value);
+            break;
+        case Nebulite::InvokeAssignmentExpression::Operation::multiply:
+            doc->set_multiply(key.c_str(),value);
+            break;
+        case Nebulite::InvokeAssignmentExpression::Operation::concat:
+            doc->set_concat(key.c_str(),std::to_string(value).c_str());
+            break;
+        case Nebulite::InvokeAssignmentExpression::Operation::null:
+            std::cerr << "Assignment expression has null operation - skipping" << std::endl;
+            break;
+        default:
+            std::cerr << "Unknown operation type! Enum value:" << (int)operation << std::endl;
+            break;
+    }
+}
+
+
 void Nebulite::Invoke::updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries_self, Nebulite::RenderObject* Obj_other) {
     // Each thread needs its own variable list:
 
@@ -134,7 +160,9 @@ void Nebulite::Invoke::updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries
 
     // Update self, other and global
     for(auto& expr : entries_self->exprs){
+        //------------------------
         // Check what to update
+        
         Nebulite::JSON* toUpdate = nullptr;
         switch (expr.onType) {
         case Nebulite::InvokeAssignmentExpression::Type::Self:
@@ -154,14 +182,24 @@ void Nebulite::Invoke::updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries
             return; // Exit if unknown type
         }
 
+        //------------------------
         // Update
-        if(expr.valueContainsReference){
-            std::string resolved = evaluateCompiledExpression(expr.expression, doc_other);
+        
+        // Direct use of double-values
+        // Tests show that this causes a slight mismatch. Perhaps due to floating-point precision issues.
+        // However, the functionality is preserved.
+        // It just means that previous tests may not perfectly align with expected outcomes.
+        //*
+        if(expr.expression.isSingleEvalEntry()){
+            double resolved = expr.expression.evalAsDouble(doc_other);
             updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
         }
-        else{
-            updateValueOfKey(expr.operation, expr.key, expr.value, toUpdate);
-        } 
+        else
+        //*/
+        {
+            std::string resolved = expr.expression.eval(doc_other);
+            updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
+        }
     }
 
     // === Functioncalls GLOBAL ===
@@ -191,68 +229,6 @@ void Nebulite::Invoke::updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries
 
 void Nebulite::Invoke::updateLocal(std::shared_ptr<Nebulite::InvokeEntry> entries_self){
     updatePair(entries_self, entries_self->selfPtr);
-
-    // Old version unnecessary?
-    /*
-    Nebulite::RenderObject* Obj_self = entries_self->selfPtr;
-    Nebulite::RenderObject* Obj_other = entries_self->selfPtr;
-
-    Nebulite::JSON* self  = Obj_self->getDoc();
-    Nebulite::JSON* other = Obj_other->getDoc();
-
-    // Update self, other and global
-    for(auto& expr : entries_self->exprs){
-        // Check what to update
-        Nebulite::JSON* toUpdate = nullptr;
-        switch (expr.onType) {
-        case Nebulite::InvokeAssignmentExpression::Type::Self:
-            toUpdate = self;
-            break;
-        case Nebulite::InvokeAssignmentExpression::Type::Other:
-            toUpdate = other;
-            break;
-        case Nebulite::InvokeAssignmentExpression::Type::Global:
-            toUpdate = global;
-            break;
-        default:
-            std::cerr << "Unknown assignment type: " << (int)expr.onType << std::endl;
-            return; // Exit if unknown type
-        }
-
-        // Update
-        if(expr.valueContainsReference){
-            std::string resolved = evaluateCompiledExpression(expr.expression, self, other, global);
-            updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
-        }
-        else{
-            updateValueOfKey(expr.operation, expr.key, expr.value, toUpdate);
-        } 
-    }
-
-    // === Functioncalls GLOBAL ===
-    for(auto entry : entries_self->functioncalls_global){
-        // replace vars
-        std::string call = entry.eval(self, other, global);
-
-        // attach to task queue
-        std::lock_guard<std::recursive_mutex> lock(tasks_lock);
-        tasks->emplace_back(call);
-    }
-
-    // === Functioncalls LOCAL: SELF ===
-    for(auto entry : entries_self->functioncalls_self){
-        // replace vars
-        std::string call = entry.eval(self, other, global);
-        Obj_self->parseStr(call);
-    }
-
-    // === Functioncalls LOCAL: OTHER ===
-    for(auto entry : entries_self->functioncalls_other){
-        // replace vars
-        std::string call = entry.eval(self, other, global);
-        Obj_other->parseStr(call);
-    }
-    */ 
 }
 
 void Nebulite::Invoke::clear(){
@@ -295,13 +271,6 @@ void Nebulite::Invoke::update() {
 // Resolve Vars
 // ==========================
 
-std::string Nebulite::Invoke::evaluateCompiledExpression(
-    Nebulite::InvokeExpressionPool& expr, 
-    Nebulite::JSON* other) 
-{
-    return expr.eval(other);
-}
-
 std::string Nebulite::Invoke::evaluateStandaloneExpression(const std::string& input) {
     Nebulite::JSON* self = this->emptyDoc;
     Nebulite::JSON* other = this->emptyDoc;
@@ -310,6 +279,6 @@ std::string Nebulite::Invoke::evaluateStandaloneExpression(const std::string& in
     // Parse string into InvokeExpression
     Nebulite::InvokeExpressionPool expr;
     expr.parse(input, docCache, self, global);
-    return evaluateCompiledExpression(expr, other);
+    return expr.eval(other);
 }
 

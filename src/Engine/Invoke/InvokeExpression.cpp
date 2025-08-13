@@ -291,3 +291,21 @@ std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_other) {
     
     return result;
 }
+
+bool Nebulite::InvokeExpression::isSingleEvalEntry() {
+    return entries.size() == 1 && entries[0].type == Entry::eval;
+}
+
+double Nebulite::InvokeExpression::evalAsDouble(Nebulite::JSON* current_other) {
+    update_vds(&virtualDoubles_other, current_other);
+
+    #if use_external_cache
+    #else
+        update_vds(&virtualDoubles_self, self);
+        update_vds(&virtualDoubles_other, current_other);
+        update_vds(&virtualDoubles_global, global);
+        update_vds(&virtualDoubles_resource, nullptr);
+    #endif
+
+    return te_eval(entries[0].expression);
+}

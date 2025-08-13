@@ -105,6 +105,8 @@ bool Nebulite::InvokeJSONParser::getExpression(Nebulite::InvokeAssignmentExpress
         return false;
     }
 
+    
+
     return true;
 }
 

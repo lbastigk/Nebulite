@@ -118,10 +118,10 @@ namespace Nebulite{
 
         //------------------------------
         // Special sets for threadsafe maths operations
-        void set_add     (const char* key, const char* valStr);
-        void set_multiply(const char* key, const char* valStr);
+        void set_add     (const char* key, double val);
+        void set_multiply(const char* key, double val);
         void set_concat  (const char* key, const char* valStr);
-        
+
         //------------------------------
         // Key Types, Sizes
         
@@ -142,7 +142,7 @@ namespace Nebulite{
         // >1 - array
         uint32_t memberSize(std::string key);
 
-        uint32_t cacheSize(){return cache.size();};
+        uint32_t cacheSize(){std::lock_guard<std::recursive_mutex> lock(mtx); return cache.size();};
 
         //------------------------------
         // Serializing/Deserializing
@@ -152,6 +152,7 @@ namespace Nebulite{
         //------------------------------
         // Fast cache system for expressions
         double* getDoublePointerOf(const std::string& key) {
+            std::lock_guard<std::recursive_mutex> lock(mtx);
             if(quick_expr_double_cache.find(key) != quick_expr_double_cache.end()) {
                 return quick_expr_double_cache[key];
             }
@@ -174,9 +175,9 @@ namespace Nebulite{
 
         //------------------------------
         // FuncTree parsing
-        Nebulite::ERROR_TYPE parseStr(const std::string& str){return jsonTree.parseStr(str);};
+        Nebulite::ERROR_TYPE parseStr(const std::string& str){std::lock_guard<std::recursive_mutex> lock(mtx); return jsonTree.parseStr(str);}
 
-        Nebulite::JSONTree* getJSONTree();
+        Nebulite::JSONTree* getJSONTree(){return &jsonTree;}
 
     private:
         mutable std::recursive_mutex mtx;

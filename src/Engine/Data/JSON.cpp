@@ -119,7 +119,6 @@ void Nebulite::JSON::remove_key(const char* key) {
 
 
 Nebulite::JSON::KeyType Nebulite::JSON::memberCheck(std::string key) {
-
     // 1. Check if key is empty -> represents the whole document
     if (key.empty()) {
         return KeyType::document;
@@ -520,20 +519,18 @@ void Nebulite::JSON::Helper::empty(rapidjson::Document &doc) {
 
 //-------------------------------------------
 // Threadsafe sets
-void Nebulite::JSON::set_add(const char* key, const char* valStr) {
+void Nebulite::JSON::set_add(const char* key, double val) {
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
     double current = get<double>(key, 0.0);
-    double addVal = std::stod(valStr);
-    set<double>(key, current + addVal);
+    set<double>(key, current + val);
 }
 
-void Nebulite::JSON::set_multiply(const char* key, const char* valStr) {
+void Nebulite::JSON::set_multiply(const char* key, double val) {
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
     double current = get<double>(key, 0.0);
-    double mulVal = std::stod(valStr);
-    set<double>(key, current * mulVal);
+    set<double>(key, current * val);
 }
 
 void Nebulite::JSON::set_concat(const char* key, const char* valStr) {
@@ -543,9 +540,6 @@ void Nebulite::JSON::set_concat(const char* key, const char* valStr) {
     set<std::string>(key, current + valStr);
 }
 
-Nebulite::JSONTree* Nebulite::JSON::getJSONTree() {
-    return &jsonTree;
-}
 
 // Simple JSONC comment stripper for RapidJSON compatibility
 std::string Nebulite::JSON::Helper::stripComments(const std::string& jsonc) {

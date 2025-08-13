@@ -28,6 +28,10 @@ public:
     InvokeExpression();
 
     void parse(const std::string& expr, Nebulite::DocumentCache& documentCache, Nebulite::JSON* self, Nebulite::JSON* global);
+
+    bool isSingleEvalEntry();
+    double evalAsDouble(Nebulite::JSON* current_other);
+    
     std::string eval(Nebulite::JSON* current_other);
     std::string getFullExpression(){return fullExpression;};
 

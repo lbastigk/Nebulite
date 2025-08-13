@@ -99,6 +99,23 @@ public:
         return fullExpression;
     }
 
+    bool isSingleEvalEntry() {
+        std::lock_guard<std::mutex> guard(locks[0]);
+        return pool[0].isSingleEvalEntry();
+    }
+
+    double evalAsDouble(Nebulite::JSON* current_other)
+    {
+        thread_local std::mt19937 rng(std::random_device{}());
+        std::uniform_int_distribution<size_t> dist(0, INVOKE_EXPR_POOL_SIZE - 1);
+
+        // Pick a random pool entry and lock it
+        size_t idx = dist(rng);
+
+        std::lock_guard<std::mutex> guard(locks[idx]);
+        return pool[idx].evalAsDouble(current_other);
+    }
+
 private:
     std::array<InvokeExpression, INVOKE_EXPR_POOL_SIZE> pool;
     std::array<std::mutex, INVOKE_EXPR_POOL_SIZE> locks;

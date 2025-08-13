@@ -244,7 +244,14 @@ public:
       Nebulite::JSON* doc
     );
 
-    // same as evaluateCompiledExpression, but only using global variables. Self and other are linked to empty docs
+    void updateValueOfKey(
+      Nebulite::InvokeAssignmentExpression::Operation operation, 
+      const std::string& key, 
+      double value, 
+      Nebulite::JSON* doc
+    );
+    //void updateValueOfKey(Nebulite::InvokeAssignmentExpression* expr, Nebulite::JSON* toUpdate,Nebulite::JSON* other);
+
     std::string evaluateStandaloneExpression(const std::string& input);
 
     Nebulite::DocumentCache* getDocumentCache() { return &docCache; }
@@ -305,8 +312,5 @@ private:
 
     // Runs all entries in an invoke with self and other given
     void updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries_self, Nebulite::RenderObject* Obj_other);
-
-    // Resolving self/other/global references
-    std::string evaluateCompiledExpression(Nebulite::InvokeExpressionPool& expr, Nebulite::JSON* other);
 };
 }
