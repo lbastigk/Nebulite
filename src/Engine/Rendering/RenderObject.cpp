@@ -210,7 +210,7 @@ void Nebulite::RenderObject::update(Nebulite::Invoke* globalInvoke) {
 		//------------------------------
 		// 1.) Reload invokes if needed
 		if (flag.reloadInvokes) {
-			InvokeJSONParser::parse(json, entries_global, entries_local, this, globalInvoke->getDocumentCache());
+			InvokeJSONParser::parse(entries_global, entries_local, this, globalInvoke->getDocumentCache(), globalInvoke->getGlobalPointer());
 			flag.reloadInvokes = false;
 		}
 
@@ -255,7 +255,7 @@ uint64_t Nebulite::RenderObject::estimateComputationalCost(Nebulite::Invoke* glo
 	//------------------------------------------
 	// Reload invokes if needed
 	if (flag.reloadInvokes){
-		InvokeJSONParser::parse(json, entries_global, entries_local, this, globalInvoke->getDocumentCache());
+		InvokeJSONParser::parse(entries_global, entries_local, this, globalInvoke->getDocumentCache(), globalInvoke->getGlobalPointer());
 		flag.reloadInvokes = false;
 	}
 

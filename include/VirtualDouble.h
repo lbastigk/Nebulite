@@ -14,7 +14,7 @@ class VirtualDouble {
     Nebulite::DocumentCache* documentCache = nullptr;
     std::string key;
     double cache = 0.0;
-
+    double* external_cache = nullptr;
 public:
     VirtualDouble(const std::string& k, Nebulite::DocumentCache* documentCache) 
         : key(k), documentCache(documentCache) {
@@ -38,11 +38,21 @@ public:
     }
 
     double* ptr(){
+        if(external_cache != nullptr) {
+            return external_cache;
+        }
         return &cache;
     }
 
-    double get() {
-        return cache;
+    double get() {return cache;}
+
+    void register_external_double_cache(Nebulite::JSON* json) {
+        if (json != nullptr) {
+            external_cache = json->getDoublePointerOf(key.c_str());
+        }
+        else if (documentCache != nullptr) {
+            external_cache = documentCache->getDoublePointerOf(key);
+        }
     }
 
 };

@@ -7,6 +7,10 @@
 #include <memory>
 #include <deque>
 
+
+// Set to use external cache, meaning double-values from inside expressions use the JSON storage directly
+#define use_external_cache 1
+
 /*
 Instead of storing strings, we store a full expression that's able to evaluate relevant parts:
 
@@ -23,11 +27,15 @@ class InvokeExpression {
 public:
     InvokeExpression();
 
-    void parse(const std::string& expr, Nebulite::DocumentCache& documentCache);
-    std::string eval(Nebulite::JSON* current_self, Nebulite::JSON* current_other, Nebulite::JSON* current_global);
+    void parse(const std::string& expr, Nebulite::DocumentCache& documentCache, Nebulite::JSON* self, Nebulite::JSON* global);
+    std::string eval(Nebulite::JSON* current_other);
     std::string getFullExpression(){return fullExpression;};
 
 private:
+    // Links to self, global, doccache stay the same
+    Nebulite::JSON* self = nullptr;
+    Nebulite::JSON* global = nullptr;
+    Nebulite::DocumentCache* globalCache = nullptr;
 
     struct Entry {
         enum Type {
@@ -59,17 +67,33 @@ private:
         std::string te_name;
     };
 
-    std::vector<std::shared_ptr<vd_entry>> virtualDoubles;
+    std::vector<std::shared_ptr<vd_entry>> virtualDoubles_self;
+    std::vector<std::shared_ptr<vd_entry>> virtualDoubles_other;
+    std::vector<std::shared_ptr<vd_entry>> virtualDoubles_global;
+    std::vector<std::shared_ptr<vd_entry>> virtualDoubles_resource;
+
+    void update_vds(std::vector<std::shared_ptr<vd_entry>>* vec, Nebulite::JSON* link){
+        for(auto& vde : *vec) {
+            vde->virtualDouble->updateCache(link);
+        }
+    }
 
     void clear() {
         documentCache = nullptr;
+        self = nullptr;
+        global = nullptr;
 
         // Clear existing data
         entries.clear();
         variables.clear();
-        virtualDoubles.clear();
         fullExpression.clear();
         entries.clear();
+
+        // Clear vds
+        virtualDoubles_self.clear();
+        virtualDoubles_other.clear();
+        virtualDoubles_global.clear();
+        virtualDoubles_resource.clear();
 
         // Register built-in functions
         te_variable gt_var =  {"gt",    (void*)expr_custom::gt,             TE_FUNCTION2};
@@ -95,7 +119,6 @@ private:
     }
 
     std::vector<Entry> entries;
-    Nebulite::DocumentCache* globalCache;
     std::string fullExpression;
 
     std::vector<te_variable> variables;   // Variables for TinyExpr evaluation

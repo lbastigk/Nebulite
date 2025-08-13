@@ -150,6 +150,20 @@ namespace Nebulite{
         void deserialize(std::string serial_or_link);              // if key is empty, deserializes entire doc
 
         //------------------------------
+        // Fast cache system for expressions
+        double* getDoublePointerOf(const std::string& key) {
+            if(quick_expr_double_cache.find(key) != quick_expr_double_cache.end()) {
+                return quick_expr_double_cache[key];
+            }
+            else{
+                double* newPtr = new double();
+                quick_expr_double_cache[key] = newPtr;
+                *newPtr = get<double>(key.c_str(), 0.0);
+                return newPtr;
+            }
+        }
+
+        //------------------------------
         // Cache/Doc manipulation
 
         // flushing map content into doc
@@ -187,6 +201,7 @@ namespace Nebulite{
             absl::flat_hash_map<std::type_index, SimpleJSONValue> derived_values;
         };
         absl::flat_hash_map<std::string, CacheEntry> cache;
+        absl::flat_hash_map<std::string, double*> quick_expr_double_cache;
 
         //--------------------------------------------------------------------
         // Helper functions for get/set:
@@ -293,6 +308,34 @@ void Nebulite::JSON::set_type(std::string key, const T& value) {
     CacheEntry& entry = cache[key];     // creates or updates entry
     entry.main_value = value;
     entry.derived_values.clear();       // reset derived types
+
+    // Set value of its pointer cache
+    double* ptr = getDoublePointerOf(key);
+    if (ptr) {
+        if constexpr (std::is_same_v<T, double>) {
+            *ptr = value;
+        } else if constexpr (std::is_same_v<T, float> || std::is_integral_v<T>) {
+            *ptr = static_cast<double>(value);
+        } else if constexpr (std::is_same_v<T, bool>) {
+            *ptr = value ? 1.0 : 0.0;
+        } else if constexpr (std::is_same_v<T, std::string>) {
+            try {
+                *ptr = std::stod(value);
+            } catch (...) {
+                *ptr = std::numeric_limits<double>::quiet_NaN();
+            }
+        } else if constexpr (std::is_same_v<T, const char*>) {
+            try {
+                *ptr = std::stod(value);
+            } catch (...) {
+                *ptr = std::numeric_limits<double>::quiet_NaN();
+            }
+        } else {
+            // For unsupported types, set to NaN
+            std::cerr << "Unsupported type for double pointer cache: " << typeid(T).name() << ". Setting to NaN" << std::endl;
+            *ptr = std::numeric_limits<double>::quiet_NaN();
+        }
+    }
 }
 
 

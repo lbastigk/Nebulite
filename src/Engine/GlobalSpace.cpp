@@ -21,8 +21,7 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& o
 
     //-------------------------------------------------
     // Linkages 
-    invoke = std::make_unique<Invoke>();
-    invoke->linkGlobal(&global);
+    invoke = std::make_unique<Invoke>(&global);
     invoke->linkQueue(tasks_internal.taskList);
 
     //-------------------------------------------------

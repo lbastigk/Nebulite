@@ -541,6 +541,8 @@ void Nebulite::Renderer::moveCam(int dX, int dY, bool isMiddle) {
 };
 
 void Nebulite::Renderer::setCam(int X, int Y, bool isMiddle) {
+	std::cout << "Setting camera position to: " << X << ", " << Y << ", Middle: " << isMiddle << std::endl;
+
 	if(isMiddle){
 		int newPosX = X - invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),0) / 2;
 		int newPosY = Y - invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0) / 2;

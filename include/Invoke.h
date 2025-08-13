@@ -184,10 +184,7 @@ public:
 
     //--------------------------------------------
     // General
-    Invoke();
-
-    // Setting up invoke by linking it to a global doc
-    void linkGlobal(Nebulite::JSON* globalDocPtr){global = globalDocPtr;}
+    Invoke(Nebulite::JSON* globalDocPtr);
 
     // Linking invoke to global queue for function calls
     void linkQueue(std::deque<std::string>& queue){tasks = &queue;}
@@ -247,8 +244,8 @@ public:
       Nebulite::JSON* doc
     );
 
-    // same as evaluateExpressionFull, but only using global variables. Self and other are linked to empty docs
-    std::string evaluateExpression(const std::string& input);
+    // same as evaluateCompiledExpression, but only using global variables. Self and other are linked to empty docs
+    std::string evaluateStandaloneExpression(const std::string& input);
 
     Nebulite::DocumentCache* getDocumentCache() { return &docCache; }
 
@@ -310,6 +307,6 @@ private:
     void updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries_self, Nebulite::RenderObject* Obj_other);
 
     // Resolving self/other/global references
-    std::string evaluateExpressionFull(Nebulite::InvokeExpressionPool& expr, Nebulite::JSON* self, Nebulite::JSON* other, Nebulite::JSON* global);
+    std::string evaluateCompiledExpression(Nebulite::InvokeExpressionPool& expr, Nebulite::JSON* other);
 };
 }

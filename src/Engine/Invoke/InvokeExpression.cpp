@@ -30,7 +30,31 @@ void Nebulite::InvokeExpression::registerVariable(std::string te_name, std::stri
         // Initialize with reference to document and cache register
         std::shared_ptr<Nebulite::VirtualDouble> vd = std::make_shared<Nebulite::VirtualDouble>(key, documentCache);
         std::shared_ptr<vd_entry> vde = std::make_shared<vd_entry>(vd, context, key, te_name);
-        virtualDoubles.push_back(vde);
+
+        // Register cache directly to json file, if possible
+        switch(vde->from) {
+            case Entry::From::self:
+                #if use_external_cache
+                    vde->virtualDouble->register_external_double_cache(self);
+                #endif
+                virtualDoubles_self.push_back(vde);
+                break;
+            case Entry::From::other:
+                virtualDoubles_other.push_back(vde);
+                break;
+            case Entry::From::global:
+                #if use_external_cache
+                    vde->virtualDouble->register_external_double_cache(global);
+                #endif
+                virtualDoubles_global.push_back(vde);
+                break;
+            case Entry::From::resource:
+                #if use_external_cache
+                    vde->virtualDouble->register_external_double_cache(nullptr);
+                #endif
+                virtualDoubles_resource.push_back(vde);
+                break;
+        }
 
         // Push back into variable entries
         variables.push_back({
@@ -170,12 +194,16 @@ Nebulite::InvokeExpression::InvokeExpression() {
     clear();
 }
 
-void Nebulite::InvokeExpression::parse(const std::string& expr, Nebulite::DocumentCache& documentCache){
+void Nebulite::InvokeExpression::parse(const std::string& expr, Nebulite::DocumentCache& documentCache, Nebulite::JSON* self, Nebulite::JSON* global){
     clear();
 
-    fullExpression = expr;
+    // Set references
+    this->self = self;
+    this->global = global;
     this->documentCache = &documentCache;
+    fullExpression = expr;
 
+    // Parse
     parseIntoEntries(expr, entries);
 
     // Now compile all entries:
@@ -184,29 +212,18 @@ void Nebulite::InvokeExpression::parse(const std::string& expr, Nebulite::Docume
     }
 }
 
-std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_self, Nebulite::JSON* current_other, Nebulite::JSON* current_global) {
-    // Since this method may be called by multiple threads, 
-    // we need a way where each thread has its own VirtualDouble:cache
-    // The issue is that each expression can only hold one double pointer, making this impossible to implement in-class?
-    // Each new thread would overwrite the cache!
+std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_other) {
+    update_vds(&virtualDoubles_other, current_other);
 
+    #if use_external_cache
+    #else
+        update_vds(&virtualDoubles_self, self);
+        update_vds(&virtualDoubles_other, current_other);
+        update_vds(&virtualDoubles_global, global);
+        update_vds(&virtualDoubles_resource, nullptr);
+    #endif
 
-    for (auto& entry : virtualDoubles) {
-        switch(entry->from){
-            case Entry::From::self:
-                entry->virtualDouble->updateCache(current_self);
-                break;
-            case Entry::From::other:
-                entry->virtualDouble->updateCache(current_other);
-                break;
-            case Entry::From::global:
-                entry->virtualDouble->updateCache(current_global);
-                break;
-            case Entry::From::resource:
-                entry->virtualDouble->updateCache(nullptr);
-                break;
-        }
-    }
+    
 
     std::string result = "";
     std::string token;
@@ -217,11 +234,11 @@ std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_self, Nebul
                 // Variables default to 0
 
                 if (entry.from == Entry::self) {
-                    if(current_self == nullptr){
+                    if(self == nullptr){
                         std::cerr << "Error: Null self reference in expression: " << entry.key << std::endl;
                         return "0";
                     }
-                    token = current_self->get<std::string>(entry.key.c_str(), "0");
+                    token = self->get<std::string>(entry.key.c_str(), "0");
                 } else if (entry.from == Entry::other) {
                     if(current_other == nullptr) {
                         std::cerr << "Error: Null other reference in expression: " << entry.key << std::endl;
@@ -229,11 +246,11 @@ std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_self, Nebul
                     }
                     token = current_other->get<std::string>(entry.key.c_str(), "0");
                 } else if (entry.from == Entry::global) {
-                    if (current_global == nullptr) {
+                    if (global == nullptr) {
                         std::cerr << "Error: Null global reference in expression: " << entry.key << std::endl;
                         return "0";
                     }
-                    token = current_global->get<std::string>(entry.key.c_str(), "0");
+                    token = global->get<std::string>(entry.key.c_str(), "0");
                 } else if (entry.from == Entry::resource) {
                     if (globalCache == nullptr) {
                         std::cerr << "Error: Null globalCache reference in expression: " << entry.key << std::endl;
