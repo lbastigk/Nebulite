@@ -649,7 +649,7 @@ void Nebulite::Renderer::renderFrame() {
 
 							// Render the text
 							//*
-							if (obj->valueGet<float>(Nebulite::keyName.renderObject.textFontsize.c_str())>0){
+							if (obj->valueGet<double>(Nebulite::keyName.renderObject.textFontsize.c_str())>0){
 								obj->calculateText(
 									renderer,
 									font,
@@ -734,18 +734,18 @@ void Nebulite::Renderer::renderFrame() {
 
 }
 
-void Nebulite::Renderer::renderFPS(float scalar) {
-	scalar = scalar / (float)RenderZoom / (float)RenderScalar;
+void Nebulite::Renderer::renderFPS(double scalar) {
+	scalar = scalar / (double)RenderZoom / (double)RenderScalar;
 
 	// Create a string with the FPS value
 	std::string fpsText = "FPS: " + std::to_string(fps);
 
-	float fontSize = 16;
+	double fontSize = 16;
 
 	// Define the destination rectangle for rendering the text
 	SDL_Rect textRect = { (int)(scalar*10.0), (int)(scalar*10.0), 0, 0 }; // Adjust position as needed
 	textRect.w = scalar * fontSize * fpsText.length(); // Width based on text length
-	textRect.h = (int)((float)fontSize * 1.5 * scalar);
+	textRect.h = (int)((double)fontSize * 1.5 * scalar);
 
 	// Clear the area where the FPS text will be rendered
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Set background color (black)

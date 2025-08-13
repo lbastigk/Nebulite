@@ -260,19 +260,26 @@ uint64_t Nebulite::RenderObject::estimateComputationalCost(Nebulite::Invoke* glo
 	}
 
 	//------------------------------------------
-	// Count number of $ in logical Arguments
+	// Count number of $ and { in logical Arguments
 	uint64_t cost = 0;
 
+	// Global entries aren't relevant for this type of cost estimation, as they are evaluated elsewhere
+
 	// Global entries
+	/*
 	for (auto entry : entries_global) {
 		std::string expr = entry->logicalArg.getFullExpression();
 		cost += std::count(expr.begin(), expr.end(), '$');
+		cost += std::count(expr.begin(), expr.end(), '{');
 
 		// Count number of $ in exprs
 		for (auto& expr : entry->exprs) {
 			cost += std::count(expr.value.begin(), expr.value.end(), '$');
+			cost += std::count(expr.value.begin(), expr.value.end(), '{');
 		}
 	}
+	*/
+
 
 	// Local entries
 	for (auto entry : entries_local) {
@@ -282,6 +289,7 @@ uint64_t Nebulite::RenderObject::estimateComputationalCost(Nebulite::Invoke* glo
 		// Count number of $ in exprs
 		for (auto& expr : entry->exprs) {
 			cost += std::count(expr.value.begin(), expr.value.end(), '$');
+			cost += std::count(expr.value.begin(), expr.value.end(), '{');
 		}
 	}
 
@@ -294,10 +302,10 @@ uint64_t Nebulite::RenderObject::estimateComputationalCost(Nebulite::Invoke* glo
 void Nebulite::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int renderer_X, int renderer_Y){
 	
 	// RECT position to renderer
-	textRect.x = 	valueGet<float>(Nebulite::keyName.renderObject.positionX.c_str()) + 
-					valueGet<float>(Nebulite::keyName.renderObject.textDx.c_str()) - renderer_X;
-	textRect.y = 	valueGet<float>(Nebulite::keyName.renderObject.positionY.c_str()) + 
-					valueGet<float>(Nebulite::keyName.renderObject.textDy.c_str()) - renderer_Y;
+	textRect.x = 	valueGet<double>(Nebulite::keyName.renderObject.positionX.c_str()) + 
+					valueGet<double>(Nebulite::keyName.renderObject.textDx.c_str()) - renderer_X;
+	textRect.y = 	valueGet<double>(Nebulite::keyName.renderObject.positionY.c_str()) + 
+					valueGet<double>(Nebulite::keyName.renderObject.textDy.c_str()) - renderer_Y;
 	
 	// Recreate texture if recalculate was triggered by user. This is needed for:
 	// - new text
@@ -311,8 +319,8 @@ void Nebulite::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font
         }
 		
 		// Settings influenced by a new text
-		float scalar = 1;
-		float fontSize = valueGet<float>(Nebulite::keyName.renderObject.textFontsize.c_str());
+		double scalar = 1.0;
+		double fontSize = valueGet<double>(Nebulite::keyName.renderObject.textFontsize.c_str());
 		std::string text = valueGet<std::string>(Nebulite::keyName.renderObject.textStr.c_str());
 		textRect.w = scalar * fontSize * text.length();
 		textRect.h = static_cast<int>(fontSize * 1.5f * scalar);

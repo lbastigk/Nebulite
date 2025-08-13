@@ -1,21 +1,24 @@
 echo Gravity Benchmark loaded...
-echo
-echo Rendering with a fixed dt of 10ms
-echo 
-echo 
-set-global time.fixed_dt_ms 10
+set-global time.fixed_dt_ms 1
+set physics.G 10
 set-res 640 640 3
 set-fps 10000
-print-global
+
 echo
 echo
-set physics.G 10
+eval echo Rendering with a fixed dt of {global.time.fixed_dt_ms}ms
+echo 
+echo 
+
+# Spawn barriers
 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=0|posY=0|sprite.sizeX=640|sprite.sizeY=32
 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=0|posY=$(640-32)|sprite.sizeX=640|sprite.sizeY=32
-
 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=0|posY=32|sprite.sizeX=32|sprite.sizeY=$(640-64)
 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=$(640-32)|posY=32|sprite.sizeX=32|sprite.sizeY=$(640-64)
 
+# Spawn Objects
 for i 10 20 for j 10 20 eval spawn ./Resources/Renderobjects/Planets/obj_elastic_to_wall.jsonc|posX=$(20*$i)|posY=$(20*$j)|physics.vX=0|physics.vY=0|physics.mass=50
-wait 1000
+wait 5000
+
+# spawn heavy object
 spawn ./Resources/Renderobjects/Planets/sun.jsonc|posX=500|posY=500

@@ -221,7 +221,7 @@ private:
 	void clear();
 	void renderFrame();
 	void renderFrameNoThreads();
-	void renderFPS(float scalar = 1.0);
+	void renderFPS(double scalar = 1.0);
 	void showFrame();
 	void pollEvent();
 	SDL_Event getEventHandle();

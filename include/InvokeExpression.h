@@ -55,7 +55,7 @@ private:
 
         // Cast Type
         enum CastType {
-            none, to_int, to_float
+            none, to_int, to_double
         } cast = CastType::none; // Default to none
 
         std::string str;

@@ -98,7 +98,6 @@ void Nebulite::Invoke::listen(Nebulite::RenderObject* obj,std::string topic){
     }
 }
 
-
 void Nebulite::Invoke::updateValueOfKey(Nebulite::InvokeAssignmentExpression::Operation operation, const std::string& key, const std::string& valStr, Nebulite::JSON* doc){    
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation){
@@ -146,7 +145,6 @@ void Nebulite::Invoke::updateValueOfKey(Nebulite::InvokeAssignmentExpression::Op
             break;
     }
 }
-
 
 void Nebulite::Invoke::updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries_self, Nebulite::RenderObject* Obj_other) {
     // Each thread needs its own variable list:

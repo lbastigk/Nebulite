@@ -111,7 +111,7 @@ void Nebulite::InvokeExpression::parseIntoEntries(const std::string& expr, std::
                     token = token.substr(2);
                 }
                 else if(token.starts_with("$f(")){
-                    currentEntry.cast = Entry::CastType::to_float;
+                    currentEntry.cast = Entry::CastType::to_double;
                     token = token.substr(2);
                 }
                 else{
@@ -280,8 +280,8 @@ std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_other) {
                 result += std::to_string(static_cast<int>(std::stof(token)));
                 break;
 
-            case Entry::CastType::to_float:
-                result += std::to_string(static_cast<float>(std::stof(token)));
+            case Entry::CastType::to_double:
+                result += std::to_string(static_cast<double>(std::stof(token)));
                 break;
 
             default:
