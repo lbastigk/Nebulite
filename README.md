@@ -27,9 +27,8 @@
 10. [Platform Support](#platform-support)
 11. [Dependencies](#dependencies)
 12. [Testing](#testing)
-13. [Performance Notes](#performance-notes)
-14. [Contributing](#contributing)
-15. [License](#license)
+13. [Contributing](#contributing)
+14. [License](#license)
 
 ## Overview
 
@@ -359,14 +358,6 @@ cd Application
 ```
 
 JSON validation runs via `validate_json.sh` prior to tests. Headless mode is recommended for CI to generate snapshots or logs deterministically.
-
-## Performance Notes
-
-- Expression evaluation uses Tinyexpr + lightweight wrappers; small expressions encourage high update rates.
-- Abseil flat_hash_map provides fast symbol and variable cache lookups.
-- Static linkage of SDL components on Linux reduces runtime overhead and deployment friction.
-- Separation of acceleration → velocity → position across distinct invokes allows fine‑grained optimization / selective activation.
-- Future optimization targets: expression AST precompilation, invoke batching, multithreaded evaluation (roadmap).
 
 ## Contributing
 
