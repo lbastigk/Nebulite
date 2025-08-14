@@ -33,6 +33,10 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& o
     errorLogStatus = false;
     _binName = binName;
     stateName = "";
+
+    //-------------------------------------------------
+    // Do first update
+    GlobalSpaceTree->update();
 }
 
 Nebulite::Renderer* Nebulite::GlobalSpace::getRenderer() {

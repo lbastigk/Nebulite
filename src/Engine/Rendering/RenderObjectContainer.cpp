@@ -53,7 +53,7 @@ void Nebulite::RenderObjectContainer::deserialize(const std::string& serialOrLin
 				ro_serial = tmp.serialize();
 			}
 
-			RenderObject* ro = new RenderObject;
+			RenderObject* ro = new RenderObject(globalInvoke->getGlobalPointer());
 			ro->deserialize(ro_serial);
 			append(ro, dispResX, dispResY);
 		}

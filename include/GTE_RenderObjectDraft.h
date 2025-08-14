@@ -26,28 +26,29 @@ public:
     // Available Functions
 
     // Prints all Renderobject help information
-    Nebulite::ERROR_TYPE mockHelp(int argc, char* argv[]);
+    Nebulite::ERROR_TYPE draftHelp(int argc, char* argv[]);
 
-    // Parse Renderobject-specific functions on the mock
-    Nebulite::ERROR_TYPE onMock(int argc, char* argv[]);
+    // Parse Renderobject-specific functions on the draft
+    Nebulite::ERROR_TYPE onDraft(int argc, char* argv[]);
 
-    // Spawn the created mock object
-    Nebulite::ERROR_TYPE spawnMock(int argc, char* argv[]);
+    // Spawn the created draft object
+    Nebulite::ERROR_TYPE spawnDraft(int argc, char* argv[]);
 
-    // Reset the mock (does not reset any spawned ones!)
-    Nebulite::ERROR_TYPE resetMock(int argc, char* argv[]);
+    // Reset the draft (does not reset any spawned ones!)
+    Nebulite::ERROR_TYPE resetDraft(int argc, char* argv[]);
 
     //----------------------------------------
     // Binding Functions
     void setupBindings() {
-        bindFunction(&RenderObjectDraft::mockHelp,   "draft-help",    "Available functions for the RenderObjectDraft");
-        bindFunction(&RenderObjectDraft::onMock,     "on-draft",      "Parse Renderobject-specific functions on the draft");
-        bindFunction(&RenderObjectDraft::spawnMock,  "spawn-draft",   "Spawn the created draft object");
-        bindFunction(&RenderObjectDraft::resetMock,  "reset-draft",   "Reset the draft object (does not reset any spawned ones!)");
+        // Bind functions
+        bindFunction(&RenderObjectDraft::draftHelp,   "draft-help",    "Available functions for the RenderObjectDraft");
+        bindFunction(&RenderObjectDraft::onDraft,     "on-draft",      "Parse Renderobject-specific functions on the draft");
+        bindFunction(&RenderObjectDraft::spawnDraft,  "spawn-draft",   "Spawn the created draft object");
+        bindFunction(&RenderObjectDraft::resetDraft,  "reset-draft",   "Reset the draft object (does not reset any spawned ones!)");
     }
 
 private:
-    RenderObject mock;
+    std::unique_ptr<Nebulite::RenderObject> draft;
 };
 }
 }

@@ -50,7 +50,7 @@ public:
 	//-----------------------------------------------------------
 	// Special member Functions
 
-	RenderObject();
+	RenderObject(Nebulite::JSON* global);
 	~RenderObject();
 
 	// Suppress copy/move operators
@@ -145,6 +145,9 @@ private:
 
 	// RenderObjectTree for local function calls
 	Nebulite::RenderObjectTree renderObjectTree;
+
+	// Each RenderObject with linkage to the global document for copy/move instructions in the renderObjectTree
+	Nebulite::JSON* global;
 };
 }
 

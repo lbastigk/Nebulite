@@ -6,7 +6,7 @@
 //-----------------------------------------------------------
 // Special member Functions
 
-Nebulite::RenderObject::RenderObject() : renderObjectTree(this, json.getJSONTree()) {
+Nebulite::RenderObject::RenderObject(Nebulite::JSON* global) : global(global), renderObjectTree(this, json.getJSONTree()) {
 
 	//------------------------------------------------------------
 	// Document Values

@@ -72,7 +72,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::spawn(int arg
 
         As of now, the implementation is fully functional so its a low priority task.
         */
-        RenderObject* ro = new RenderObject;
+        RenderObject* ro = new RenderObject(&self->global);
         ro->deserialize(linkOrObject);
 
         // Append to renderer
