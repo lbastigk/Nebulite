@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Run python scripts to update config
+python3 ./scripts/extract_keywords.py
+
 # Uninstall old versions of the extension
 code --uninstall-extension lbastigk.nebulite-script
 
