@@ -1,15 +1,30 @@
 {
-  "$schema": "https://raw.githubusercontent.com/microsoft/vscode-textmate/master/grammar.schema.json",
   "name": "Nebulite Script",
   "scopeName": "source.nebs",
   "patterns": [
     {
-      "name": "comment.line.number-sign.nebs",
+      "name": "comment.nebs",
       "match": "#.*$"
+    },
+    {
+      "name": "string.quoted.nebs",
+      "match": "(?<=\\b(?:echo|error)\\b).*"
     },
     {
       "name": "keyword.control.nebs",
       "match": "\\b(standard-render-object|remove-all-children|set-command-handler|force-global-clear|remove-all-invokes|get-volume-levels|set-master-volume|set-output-device|analyze-spectrum|set-input-device|set-music-volume|create-waveform|redirect-output|remove-children|set-listener-3d|set-position-3d|start-recording|capture-output|execute-remote|generate-noise|reload-invokes|set-from-query|set-sfx-volume|stop-recording|generate-tone|parse-command|remove-invoke|set-from-json|add-children|always-clear|ensure-array|force-global|is-connected|list-devices|print-global|print-object|GUI-Example|detect-beat|print-state|reset-draft|spawn-draft|update-text|add-invoke|align-text|disconnect|draft-help|env-deload|get-object|log-global|play-music|play-sound|push-front|send-image|set-global|state-load|state-save|stop-music|stop-sound|keyDelete|log-state|log-value|pop-front|push-back|reconnect|set-pitch|cam-move|env-load|fade-out|make-box|on-draft|pop-back|show-fps|snapshot|stop-all|cam-set|connect|fade-in|set-fps|set-pan|set-res|always|assert|delete|return|status|error|spawn|beep|copy|echo|eval|exit|move|ping|task|wait|for|log|set|if)\\b"
+    },
+    {
+      "name": "variable.parameter.nebs",
+      "match": "\\{[^}]*\\}"
+    },
+    {
+      "name": "markup.underline.link",
+      "match": "\\./[^\\s|]+"
+    },
+    {
+      "name": "constant.numeric.nebs",
+      "match": "\\b\\d+(\\.\\d+)?\\b"
     }
   ]
 }

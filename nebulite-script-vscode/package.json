@@ -26,11 +26,10 @@
         "path": "./syntaxes/nebs.tmLanguage.json"
       }
     ],
-    "themes": [
+    "links": [
       {
-        "label": "Nebulite Theme",
-        "uiTheme": "vs-dark",
-        "path": "./themes/Nebulite-color-theme.json"
+        "scope": "markup.underline.link",
+        "pattern": "\\./[^\\s|]+"
       }
     ]
   },
