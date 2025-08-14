@@ -51,10 +51,10 @@ The goal: quickly prototype and iterate on emergent object logic without rebuild
   ```bash
   ./build.sh
   ```
-4. Run a demo script:
+4. Run any script:
   ```bash
   cd Application
-  ./bin/Nebulite task TaskFiles/Demos/basic.txt
+  ./bin/Nebulite task TaskFiles/Benchmarks/gravity.txt 
   ```
 5. Open console (press `^`) and type `help` for interactive commands.
 
