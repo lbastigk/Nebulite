@@ -2,7 +2,8 @@ echo Gravity Benchmark loaded...
 set-global time.fixed_dt_ms 1
 set physics.G 10
 set-res 640 640 3
-set-fps 10000
+set-fps 10000           # unlimited, render as fast as possible
+show-fps off            # do not show fps
 
 ###############################################
 # [SETTINGS]
@@ -49,8 +50,15 @@ always if $(not({global.frameCount}%10)) eval snapshot ./Resources/Snapshots/ToG
 always if $(not({global.frameCount}%10)) eval echo stored snapshot: ./Resources/Snapshots/ToGif/{global.framename}.png
 
 ###############################################
-# Spawn extra object later on
+# Spawn extra object later on and wait some more
 wait 5000
 spawn ./Resources/Renderobjects/Planets/sun.jsonc|posX=500|posY=500 # Heavy object
 wait 5000
+
+###############################################
+# Inform on runtime
+eval echo Simulation done! Total runtime: {global.runtime.t} Seconds.
+
+###############################################
+# Exit
 exit

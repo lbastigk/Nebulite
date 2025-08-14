@@ -31,6 +31,9 @@ public:
     // Sets fps of renderer
     Nebulite::ERROR_TYPE setFPS(int argc, char* argv[]);
 
+    // Toggle fps on/off
+    Nebulite::ERROR_TYPE showFPS(int argc, char* argv[]);
+
     // Move cam to a delta position
     Nebulite::ERROR_TYPE moveCam(int argc, char* argv[]);
 
@@ -62,8 +65,9 @@ public:
         bindFunction(&Renderer::spawn,               "spawn",        "Spawn a renderobject");
         bindFunction(&Renderer::envload,             "env-load",     "Load environment/level");
         bindFunction(&Renderer::envdeload,           "env-deload",   "Deload entire environment");
-        bindFunction(&Renderer::setResolution,       "set-res",      "Set resolution of renderer");
-        bindFunction(&Renderer::setFPS,              "set-fps",      "Set FPS of renderer");
+        bindFunction(&Renderer::setResolution,       "set-res",      "Set resolution of renderer: <x> <y> [scalar]");
+        bindFunction(&Renderer::setFPS,              "set-fps",      "Set FPS of renderer: <value>");
+        bindFunction(&Renderer::showFPS,             "show-fps",     "Show FPS of renderer: <on/off>");
         bindFunction(&Renderer::moveCam,             "cam-move",     "Move camera to a delta position");
         bindFunction(&Renderer::setCam,              "cam-set",      "Set camera to concrete position");
         bindFunction(&Renderer::snapshot,            "snapshot",     "Create a snapshot of the current renderer state");

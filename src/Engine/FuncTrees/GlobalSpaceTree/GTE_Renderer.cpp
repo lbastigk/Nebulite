@@ -117,6 +117,26 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::setFPS(int ar
     return Nebulite::ERROR_TYPE::NONE;
 }
 
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::showFPS(int argc, char* argv[]){
+    if(argc < 2){
+        self->getRenderer()->toggleFps(true);
+    }
+    else{
+        if(!strcmp(argv[1], "on")){
+            self->getRenderer()->toggleFps(true);
+        }
+        else if(!strcmp(argv[1], "off")){
+            self->getRenderer()->toggleFps(false);
+        }
+        else{
+            // unknown arg
+            return Nebulite::ERROR_TYPE::UNKNOWN_ARG;
+        }
+    }
+    return Nebulite::ERROR_TYPE::NONE;
+}
+
+
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::moveCam(int argc, char* argv[]){
     if (argc < 3) {
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
