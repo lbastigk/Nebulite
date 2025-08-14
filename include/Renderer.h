@@ -7,6 +7,7 @@
 #include "Environment.h"
 #include "FileManagement.h"
 #include "Time.h"
+#include "TimeKeeper.h"
 #include "Invoke.h"
 
 #include <thread>
@@ -178,7 +179,6 @@ private:
 	// Time
 	TimeKeeper RendererLoopTime;
 	TimeKeeper RendererPollTime;
-	uint64_t timeSpendInConsole = 0;
 
 	// Subclasses and pointers
 	Environment env;

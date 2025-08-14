@@ -174,6 +174,11 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	invoke_ptr->getGlobalPointer()->set<Uint64>(keyName.renderer.time_t_ms.c_str(),0);
 	invoke_ptr->getGlobalPointer()->set<double>(keyName.renderer.time_dt.c_str(),0);
 	invoke_ptr->getGlobalPointer()->set<Uint64>(keyName.renderer.time_dt_ms.c_str(),0);
+
+	//---------
+	// Start timer
+	RendererLoopTime.start();
+	RendererPollTime.start();
 }
 
 
@@ -234,7 +239,9 @@ void Nebulite::Renderer::reinsertAllObjects(){
 }
 
 void Nebulite::Renderer::update() {
-	RendererLoopTime.update();
+	// Update loop timer
+	uint64_t fixed_dt_ms = invoke_ptr->getGlobalPointer()->get<Uint64>(keyName.renderer.time_fixed_dt_ms.c_str(),0);
+	RendererLoopTime.update(fixed_dt_ms);
 
 	//----------------------------------
 	// Basic SDL event polling
@@ -314,7 +321,9 @@ void Nebulite::Renderer::update() {
 	// Update every 10 ms
 	// Too much polling time for current benchmarks, 
 	// later on with fixed framerates of < 250 FPS perhaps not that big of a deal
-	if(RendererLoopTime.t_ms - RendererPollTime.t_ms > 10){
+	uint64_t projected_dt = RendererPollTime.projected_dt();
+	
+	if(projected_dt > 10){
 		RendererPollTime.update();
 		pollEvent();
 
@@ -339,8 +348,12 @@ void Nebulite::Renderer::update() {
 	// Log time spend in console
 	// Not important but might be nice to know
 	if(consoleMode){
-		// Integrate dt from last update call
-		timeSpendInConsole += RendererLoopTime.dt_ms;
+		// Deactivate the loop timer
+		RendererLoopTime.stop();
+	}
+	else{
+		// Reactivate the loop timer
+		RendererLoopTime.start();
 	}
 	
 
@@ -771,20 +784,11 @@ void Nebulite::Renderer::showFrame() {
 
 // This function is called on each non in-console frame to set the values for the global document
 void Nebulite::Renderer::setGlobalValues(){
-	//---------------------------------------------
-	// Time
-	// logs:
-	// - time in s and ms
-	// - dt from last frame in s and ms
-
 	// Get dt_ms. Either fixed value or calculate from actual time difference
-	Uint64 dt_ms = invoke_ptr->getGlobalPointer()->get<Uint64>("time.fixed_dt_ms",0);
-	if(dt_ms == 0){
-		dt_ms = RendererLoopTime.dt_ms;
-	}
+	uint64_t dt_ms = RendererLoopTime.get_dt_ms();
 
 	// Get t_ms
-	Uint64 t_ms = invoke_ptr->getGlobalPointer()->get<Uint64>( "time.t_ms",0) + dt_ms;
+	uint64_t t_ms = RendererLoopTime.get_t_ms();
 
 	// From those values, set all other values
 	invoke_ptr->getGlobalPointer()->set<double>( "time.dt", dt_ms / 1000.0);
