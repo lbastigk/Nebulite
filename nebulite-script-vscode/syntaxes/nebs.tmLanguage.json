@@ -3,16 +3,23 @@
   "scopeName": "source.nebs",
   "patterns": [
     {
-      "name": "variable.parameter.nebs",
-      "match": "\\{[^}]*\\}"
-    },
-    {
       "name": "comment.nebs",
       "match": "#.*$"
     },
     {
       "name": "string.quoted.nebs",
-      "match": "(?<=\\b(?:echo|error)\\b).*"
+      "begin": "(?<=\\b(?:echo|error)\\b)\\s",
+      "end": "$",
+      "patterns": [
+        {
+          "name": "variable.parameter.nebs",
+          "match": "\\{[^}]*\\}"
+        }
+      ]
+    },
+    {
+      "name": "variable.parameter.nebs",
+      "match": "\\{[^}]*\\}"
     },
     {
       "name": "keyword.control.nebs",
