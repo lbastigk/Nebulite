@@ -34,6 +34,9 @@ public:
     // for-loop of other functioncalls: for <var> <start> <end> <functioncall>
     Nebulite::ERROR_TYPE forLoop(int argc, char* argv[]);
 
+    // if-condition
+    Nebulite::ERROR_TYPE ifCondition(int argc, char* argv[]);
+
     // Return custom value of ERROR_TYPE
     Nebulite::ERROR_TYPE func_return(int argc, char* argv[]);
 
@@ -69,6 +72,7 @@ public:
         bindFunction(&General::wait,                "wait",                 "Wait a given amount of frames: wait <frames>");
         bindFunction(&General::loadTaskList,        "task",                 "Load a task list from a file: task <filename>");
         bindFunction(&General::forLoop,             "for",                  "Execute a for-loop with a function call: for <var> <start> <end> <functioncall>");
+        bindFunction(&General::ifCondition,         "if",                   "Execute a block of code if a condition is true: if <condition> <functioncall>");
         bindFunction(&General::func_return,         "return",               "Return a custom value");
         bindFunction(&General::echo,                "echo",                 "Echo a string to cout: echo <string>");
         bindFunction(&General::error,               "error",                "Echo a string to cerr/errorfile: error <string>");

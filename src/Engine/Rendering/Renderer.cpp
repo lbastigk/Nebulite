@@ -179,6 +179,7 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	// Start timer
 	RendererLoopTime.start();
 	RendererPollTime.start();
+	RendererFullTime.start();
 }
 
 
@@ -784,21 +785,32 @@ void Nebulite::Renderer::showFrame() {
 
 // This function is called on each non in-console frame to set the values for the global document
 void Nebulite::Renderer::setGlobalValues(){
-	// Get dt_ms. Either fixed value or calculate from actual time difference
-	uint64_t dt_ms = RendererLoopTime.get_dt_ms();
-
-	// Get t_ms
+	//---------------------------------------------
+	// Simulation time
+	uint64_t dt_ms = RendererLoopTime.get_dt_ms(); // Either fixed value or calculate from actual simtime difference
 	uint64_t t_ms = RendererLoopTime.get_t_ms();
-
-	// From those values, set all other values
 	invoke_ptr->getGlobalPointer()->set<double>( "time.dt", dt_ms / 1000.0);
 	invoke_ptr->getGlobalPointer()->set<double>( "time.t",   t_ms / 1000.0);
 	invoke_ptr->getGlobalPointer()->set<Uint64>( "time.dt_ms", dt_ms);
 	invoke_ptr->getGlobalPointer()->set<Uint64>( "time.t_ms", t_ms);
 
+	//---------------------------------------------
+	// Frame count
+
 	// Get Frame count
 	Uint64 ticks = invoke_ptr->getGlobalPointer()->get<Uint64>("frameCount",0);
 	invoke_ptr->getGlobalPointer()->set<Uint64>("frameCount",ticks+1);
+
+	//---------------------------------------------
+	// Full time (runtime)
+	RendererFullTime.update();
+	dt_ms = RendererFullTime.get_dt_ms();
+	t_ms  = RendererFullTime.get_t_ms();
+	invoke_ptr->getGlobalPointer()->set<double>( "runtime.dt", dt_ms / 1000.0);
+	invoke_ptr->getGlobalPointer()->set<double>( "runtime.t",   t_ms / 1000.0);
+	invoke_ptr->getGlobalPointer()->set<Uint64>( "runtime.dt_ms", dt_ms);
+	invoke_ptr->getGlobalPointer()->set<Uint64>( "runtime.t_ms", t_ms);
+
 
 	//---------------------------------------------
 	// Random

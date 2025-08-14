@@ -149,8 +149,9 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::forLoop(int ar
     std::string funcName = argv[0];
     if(argc > 4){
         std::string varName = argv[1];
-        int iStart = std::stoi(argv[2]);
-        int iEnd   = std::stoi(argv[3]);
+
+        int iStart = std::stoi(self->invoke->evaluateStandaloneExpression(argv[2]));
+        int iEnd   = std::stoi(self->invoke->evaluateStandaloneExpression(argv[3]));
 
         std::string args = "";
         for (int i = 4; i < argc; ++i) {
@@ -167,6 +168,29 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::forLoop(int ar
         }
     }
     return Nebulite::ERROR_TYPE::NONE;
+}
+
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::ifCondition(int argc, char* argv[]) {
+    if (argc < 3) {
+        return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
+    }
+
+    int condition = std::stoi(self->invoke->evaluateStandaloneExpression(argv[1]));
+    if (condition == 0) {
+        // If the condition is false, skip the following commands
+        return Nebulite::ERROR_TYPE::NONE;
+    }
+
+    // Build the command string from rest
+    std::string commands = "";
+    for (int i = 2; i < argc; i++) {
+        commands += argv[i];
+        if (i < argc - 1) {
+            commands += " ";
+        }
+    }
+    commands = "Nebulite::GlobalSpaceTreeExpansion::General::ifCondition " + commands;
+    return funcTree->parseStr(commands);
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::error(int argc, char* argv[]) {

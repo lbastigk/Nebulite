@@ -177,8 +177,10 @@ private:
 	uint16_t tileYpos;
     
 	// Time
-	TimeKeeper RendererLoopTime;
-	TimeKeeper RendererPollTime;
+	TimeKeeper RendererLoopTime;	// Used for Simulation timing
+	TimeKeeper RendererPollTime;	// Used for Polling timing
+	TimeKeeper RendererFullTime;	// While Polling timer technically never stops, we use an extra timer just for full application time
+
 
 	// Subclasses and pointers
 	Environment env;
