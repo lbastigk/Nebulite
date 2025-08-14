@@ -4,21 +4,53 @@ set physics.G 10
 set-res 640 640 3
 set-fps 10000
 
+###############################################
+# [SETTINGS]
+set-global loop.n 40
+
+###############################################
+# [INFO]
 echo
 echo
+echo
+eval echo Benchmark with $i( {global.loop.n} * {global.loop.n} ) Objects...
 eval echo Rendering with a fixed dt of {global.time.fixed_dt_ms}ms
-echo 
+echo
 echo 
 
+###############################################
 # Spawn barriers
 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=0|posY=0|sprite.sizeX=640|sprite.sizeY=32
 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=0|posY=$(640-32)|sprite.sizeX=640|sprite.sizeY=32
 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=0|posY=32|sprite.sizeX=32|sprite.sizeY=$(640-64)
 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=$(640-32)|posY=32|sprite.sizeX=32|sprite.sizeY=$(640-64)
 
-# Spawn Objects
-for i 10 20 for j 10 20 eval spawn ./Resources/Renderobjects/Planets/obj_elastic_to_wall.jsonc|posX=$(20*$i)|posY=$(20*$j)|physics.vX=0|physics.vY=0|physics.mass=50
-wait 5000
+###############################################
+# Calculations
+eval set-global loop.delta $( 200 / ({global.loop.n}) )
+eval set-global loop.start $i( 220 / {global.loop.delta})
+eval set-global loop.end   $i( {global.loop.start} + {global.loop.n} - 1 )
+eval set-global spriteSize $({global.loop.delta})
 
-# spawn heavy object
-spawn ./Resources/Renderobjects/Planets/sun.jsonc|posX=500|posY=500
+###############################################
+# Spawn Objects
+for i {global.loop.start} {global.loop.end} for j {global.loop.start} {global.loop.end} eval spawn ./Resources/Renderobjects/Planets/obj_elastic_to_wall.jsonc|posX=$({global.loop.delta}*$i)|posY=$({global.loop.delta}*$j)|physics.vX=0|physics.vY=0|physics.mass=$( 50000 / ({global.loop.n} * {global.loop.n}))|sprite.sizeX={global.spriteSize}|sprite.sizeY={global.spriteSize}
+
+###############################################
+# Constant Info
+
+###############################################
+# Store Snapshots, info
+wait 1
+set-global framename 0
+always if $(not({global.frameCount}%10)) eval echo Frame {global.frameCount} rendered! Frame average: $( {global.runtime.t} / {global.frameCount} ) seconds. Full runtime: {global.runtime.t} seconds.
+always if $(not({global.frameCount}%10)) eval set-global framename $i(1 + {global.framename})
+always if $(not({global.frameCount}%10)) eval snapshot ./Resources/Snapshots/ToGif/{global.framename}.png
+always if $(not({global.frameCount}%10)) eval echo stored snapshot: ./Resources/Snapshots/ToGif/{global.framename}.png
+
+###############################################
+# Spawn extra object later on
+wait 5000
+spawn ./Resources/Renderobjects/Planets/sun.jsonc|posX=500|posY=500 # Heavy object
+wait 5000
+exit
