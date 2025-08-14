@@ -296,7 +296,7 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::parse(int argc, char* argv[]) {
                     *varInfo.pointer = val;
                 }
             } else {
-                std::cerr << "Warning: Unknown variable '--" << key << "'\n";
+                std::cerr << "Warning: Unknown variable '--" << key << "' in Tree: '" << TreeName << "'\n";
             }
 
             // Remove from argument list
@@ -399,86 +399,6 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::help(int argc, char* argv[]) {
         std::cout << "  " << std::setw(25) << std::left << fullName
                   << " - " << description << std::endl;
     }
-
-    // OLD
-    /*
-        // If no arguments are provided, list all functions and variables
-    if (argc <= 1) {
-        std::cout << "Available functions:\n";
-
-        // Sort functions by name, excluding "help"
-        std::vector<std::pair<std::string, FunctionInfo>> sortedFunctions;
-        for (const auto& entry : functions) {
-            if (entry.first != "help") {
-                sortedFunctions.push_back(entry);
-            }
-        }
-
-        // Sort by function name
-        std::sort(sortedFunctions.begin(), sortedFunctions.end(),
-            [](const auto& a, const auto& b) {
-                return a.first < b.first;
-            });
-
-        // Print functions
-        for (const auto& [name, funcInfo] : sortedFunctions) {
-            std::cout << "  "
-                    << std::setw(25) << std::left << name
-                    << " - "
-                    << funcInfo.description
-                    << std::endl;
-        }
-
-        // List all attached variables
-        if (!variables.empty()) {
-            std::cout << "\nAvailable variables:\n";
-            std::vector<std::pair<std::string, VariableInfo>> sortedVariables(
-                variables.begin(), variables.end());
-            
-            std::sort(sortedVariables.begin(), sortedVariables.end(),
-                [](const auto& a, const auto& b) {
-                    return a.first < b.first;
-                });
-            
-            for (const auto& [name, varInfo] : sortedVariables) {
-                std::cout << "  "
-                          << std::setw(25) << std::left << name
-                          << " - "
-                          << varInfo.description
-                          << std::endl;
-            }
-        } else {
-            std::cout << "\nNo variables attached.\n";
-        }
-
-        // If a subtree is linked, show its help
-        if (subtree) {
-            subtree->help(argc, argv);
-        }
-
-        return _standard;
-    }
-
-    // Otherwise, display help for the provided functions
-    for (int i = 1; i < argc; i++) {
-        if (argv[i] == nullptr) {
-            std::cerr << "Error: Null argument found.\n";
-            continue;
-        }
-
-        auto functionPosition = functions.find(std::string(argv[i]));
-        if (functionPosition != functions.end()) {
-            std::cout << std::string(argv[i]) << std::endl;
-            std::cout << functionPosition->second.description << std::endl;
-        } else {
-            std::cerr << "Function '" << argv[i] << "' not found.\n";
-        }
-    }
-
-    */
-    
-
-
     return _standard;
 }
 
@@ -486,6 +406,19 @@ template<typename RETURN_TYPE>
 bool FuncTree<RETURN_TYPE>::hasFunction(const std::string& nameOrCommand) {
     // Make sure only the command name is used
     std::vector<std::string> tokens = Nebulite::StringHandler::split(nameOrCommand, ' ');
+
+    // Remove all tokens starting with "--"
+    tokens.erase(std::remove_if(tokens.begin(), tokens.end(),
+        [](const std::string& token) {
+            return token.starts_with("--");
+        }), tokens.end());
+
+    // Remove all empty tokens
+    tokens.erase(std::remove_if(tokens.begin(), tokens.end(),
+        [](const std::string& token) {
+            return token.empty();
+        }), tokens.end());
+
     if (tokens.empty()) {
         return false;  // No command provided
     }
