@@ -1,19 +1,15 @@
 #!/bin/bash
-# Build and install Nebulite Script VS Code extension
-set -e
 
-EXT_NAME="nebulite-script-language-0.0.1.vsix"
+# Uninstall old versions of the extension
+code --uninstall-extension lbastigk.nebulite-script
 
-# Build the VSIX package
-npx vsce package
-
-# Find the generated VSIX file (handle version bumps)
-VSIX_FILE=$(ls *.vsix | head -n 1)
+# Build the VS Code extension
+vsce package
 
 # Install the extension
-code --install-extension "$VSIX_FILE"
+code --install-extension *.vsix
 
-echo "Nebulite Script extension installed: $VSIX_FILE"
+# Clean up
+rm *.vsix
 
-code --uninstall-extension lbastigk.nebulite-script-language || true
-code --install-extension "$VSIX_FILE"
+echo "Extension built and installed successfully."

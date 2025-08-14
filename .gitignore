@@ -1,3 +1,6 @@
+# Ignore nodemodules
+node_modules/
+
 # Ignore extern builds
 external/SDL2_build/
 external/abseil_build

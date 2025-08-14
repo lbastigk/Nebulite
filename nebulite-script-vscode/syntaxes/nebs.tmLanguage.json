@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vscode-textmate/master/grammar.schema.json",
+  "name": "Nebulite Script",
+  "scopeName": "source.nebs",
+  "patterns": [
+    {
+      "name": "comment.line.number-sign.nebs",
+      "match": "#.*$"
+    },
+    {
+      "name": "keyword.control.nebs",
+      "match": "\\b(GUI-Example|add-children|add-invoke|align-text|always|always-clear|analyze-spectrum|assert|beep|cam-move|cam-set|capture-output|connect|copy|create-waveform|delete|detect-beat|disconnect|draft-help|echo|ensure-array|env-deload|env-load|error|eval|execute-remote|exit|fade-in|fade-out|for|force-global|force-global-clear|generate-noise|generate-tone|get-object|get-volume-levels|if|is-connected|keyDelete|list-devices|log|log-global|log-state|log-value|make-box|move|on-draft|parse-command|ping|play-music|play-sound|pop-back|pop-front|print-global|print-object|print-state|push-back|push-front|reconnect|redirect-output|reload-invokes|remove-all-children|remove-all-invokes|remove-children|remove-invoke|reset-draft|return|send-image|set|set-command-handler|set-fps|set-from-json|set-from-query|set-global|set-input-device|set-listener-3d|set-master-volume|set-music-volume|set-output-device|set-pan|set-pitch|set-position-3d|set-res|set-sfx-volume|show-fps|snapshot|spawn|spawn-draft|standard-render-object|start-recording|state-load|state-save|status|stop-all|stop-music|stop-recording|stop-sound|task|update-text|wait)\\b"
+    }
+  ]
+}

@@ -29,6 +29,7 @@ eval echo Benchmark with $i( {global.loop.n} * {global.loop.n} ) Objects...
 eval echo Rendering with a fixed dt of {global.time.fixed_dt_ms}ms
 echo
 
+
 ###############################################
 # Spawn barriers
 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=0|posY=0|sprite.sizeX=640|sprite.sizeY=32

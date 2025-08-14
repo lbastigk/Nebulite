@@ -1,21 +1,19 @@
 {
-  "name": "nebulite-script-language",
-  "displayName": "Nebulite Script Language",
-  "description": "Syntax highlighting and basic language support for Nebulite Script (.nebs)",
+  "name": "nebulite-script",
+  "displayName": "Nebulite Script",
+  "description": "Language support for Nebulite script files (.nebs)",
   "version": "0.0.1",
   "publisher": "lbastigk",
   "engines": {
-    "vscode": ">=1.50.0"
+    "vscode": "^1.80.0"
   },
-  "categories": ["Programming Languages"],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/lbastigk/Nebulite"
-  },
+  "categories": [
+    "Programming Languages"
+  ],
   "contributes": {
     "languages": [
       {
-        "id": "nebulite-script",
+        "id": "nebs",
         "aliases": ["Nebulite Script", "nebs"],
         "extensions": [".nebs"],
         "configuration": "./language-configuration.json"
@@ -23,10 +21,21 @@
     ],
     "grammars": [
       {
-        "language": "nebulite-script",
+        "language": "nebs",
         "scopeName": "source.nebs",
-        "path": "./syntaxes/nebulite-script.tmLanguage.json"
+        "path": "./syntaxes/nebs.tmLanguage.json"
+      }
+    ],
+    "themes": [
+      {
+        "label": "Nebulite Theme",
+        "uiTheme": "vs-dark",
+        "path": "./themes/Nebulite-color-theme.json"
       }
     ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lbastigk/Nebulite.git"
   }
 }

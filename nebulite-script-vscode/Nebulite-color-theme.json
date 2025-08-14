@@ -1,0 +1,14 @@
+{
+  "$schema": "vscode://schemas/color-theme",
+  "name": "Nebulite Theme",
+  "type": "dark",
+  "colors": {},
+  "tokenColors": [
+    {
+      "scope": "keyword.control.nebs",
+      "settings": {
+        "foreground": "#0000FF"
+      }
+    }
+  ]
+}
