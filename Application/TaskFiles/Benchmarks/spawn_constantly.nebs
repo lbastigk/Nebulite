@@ -1,0 +1,267 @@
+echo Spawning sun and 100 planets
+set-global spawnCount 0
+set-global waitTime 100
+set-fps 10000
+set physics.G 10
+spawn ./Resources/Renderobjects/Planets/sun.jsonc
+
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+eval set-global spawnCount $({global.spawnCount} + 1)
+#eval echo Satellite Count: $(2*{global.spawnCount})
+spawn ./Resources/Renderobjects/Planets/obj1.jsonc
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc
+eval wait {global.waitTime}
+
+echo All objects spawned. Rendering 1000 more frames...
+
+wait 1000
+eval echo Benchmark took {global.time.t} Seconds
+exit
+

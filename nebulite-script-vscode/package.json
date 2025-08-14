@@ -1,0 +1,32 @@
+{
+  "name": "nebulite-script-language",
+  "displayName": "Nebulite Script Language",
+  "description": "Syntax highlighting and basic language support for Nebulite Script (.nebs)",
+  "version": "0.0.1",
+  "publisher": "lbastigk",
+  "engines": {
+    "vscode": ">=1.50.0"
+  },
+  "categories": ["Programming Languages"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lbastigk/Nebulite"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "nebulite-script",
+        "aliases": ["Nebulite Script", "nebs"],
+        "extensions": [".nebs"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "nebulite-script",
+        "scopeName": "source.nebs",
+        "path": "./syntaxes/nebulite-script.tmLanguage.json"
+      }
+    ]
+  }
+}

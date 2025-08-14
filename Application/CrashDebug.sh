@@ -5,10 +5,10 @@ ulimit -n 1024
 ulimit -c unlimited
 
 # Define task
-taskfile="TaskFiles/Simulations/dual_solar.txt"
-taskfile="TaskFiles/Benchmarks/spawn_constantly.txt"
-#taskfile="TaskFiles/Tests/Short/init_print_global.txt"
-#taskfile="TaskFiles/Tests/spawn_memleak.txt"
+taskfile="TaskFiles/Simulations/dual_solar.nebs"
+taskfile="TaskFiles/Benchmarks/spawn_constantly.nebs"
+#taskfile="TaskFiles/Tests/Short/init_print_global.nebs"
+#taskfile="TaskFiles/Tests/spawn_memleak.nebs"
 
 # Set core dump directory and pattern
 CORE_DIR="/tmp"

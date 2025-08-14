@@ -1,0 +1,5 @@
+set-res 1280 720
+set-fps 60
+wait 1
+print-global
+exit

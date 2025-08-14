@@ -1,0 +1,24 @@
+echo ---------------------------
+echo Starting test...
+echo
+echo
+
+echo Setting fps
+set-fps 60
+
+echo State before appending an object
+print-state
+
+echo Appending object
+spawn ./Resources/Renderobjects/standard.jsonc
+
+echo State right after appending object, before a render loop could happen:
+print-state
+
+echo Waiting 10 frames
+wait 10
+
+echo State after 10 Frames
+print-state
+exit
+

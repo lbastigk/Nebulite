@@ -41,16 +41,16 @@ tests=(
     "help"                                                              # Simple Executable call: cout of all help commands
     "echo 1234"                                                         # Simple Executable call: custom echo command in Nebulite GlobalSpaceTree
     "set-fps 60 ; wait 30 ; exit"                                       # set-fps forces initialization of renderer
-    "task TaskFiles/Tests/Short/snapshot.txt"                           # Test snapshot functionality
-    "task TaskFiles/Tests/Short/echo_global_value.txt"
-    "task TaskFiles/Tests/Short/print_time.txt"
-    "task TaskFiles/Tests/Short/init_print_global.txt"
-    "task TaskFiles/Tests/Short/push_pop.txt"                          # array push/pop functionality of JSONTree
-    "task TaskFiles/Tests/Short/json_retrieval.txt"                    # JSON retrieval functionality of JSONTree
-    "task TaskFiles/Tests/Short/Object_spawn_and_state_printing.txt"
-    "task TaskFiles/Tests/Short/Object_out_of_bounds.txt"              # Check if Renderer correctly handles objects going out of bounds
-    "task TaskFiles/Tests/Short/gravity_classic_some_frames.txt"       # Classic Solar system with 2 Planets and 1 Sun
-    "task TaskFiles/Tests/Short/Pong_for_5s.txt"                       # Running pong, allowing for complex invoke tests
+    "task TaskFiles/Tests/Short/snapshot.nebs"                          # Test snapshot functionality
+    "task TaskFiles/Tests/Short/echo_global_value.nebs"
+    "task TaskFiles/Tests/Short/print_time.nebs"
+    "task TaskFiles/Tests/Short/init_print_global.nebs"
+    "task TaskFiles/Tests/Short/push_pop.nebs"                          # array push/pop functionality of JSONTree
+    "task TaskFiles/Tests/Short/json_retrieval.nebs"                    # JSON retrieval functionality of JSONTree
+    "task TaskFiles/Tests/Short/Object_spawn_and_state_printing.nebs"
+    "task TaskFiles/Tests/Short/Object_out_of_bounds.nebs"              # Check if Renderer correctly handles objects going out of bounds
+    "task TaskFiles/Tests/Short/gravity_classic_some_frames.nebs"       # Classic Solar system with 2 Planets and 1 Sun
+    "task TaskFiles/Tests/Short/Pong_for_5s.nebs"                       # Running pong, allowing for complex invoke tests
 )
 #expected_outputs=()
 

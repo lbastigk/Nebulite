@@ -1,4 +1,4 @@
 @echo on
 cd /d "%~dp0"
-.\bin\Nebulite.exe task TaskFiles/Benchmarks/gravity.txt
+.\bin\Nebulite.exe task TaskFiles/Benchmarks/gravity.nebs
 pause

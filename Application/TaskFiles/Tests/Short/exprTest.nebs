@@ -1,0 +1,10 @@
+set-fps 60
+wait 10
+
+echo Simple global retrieval
+set physics.G 10
+eval echo $( {global.physics.G} + 1 )
+#print-global
+eval echo {global.physics.G}
+
+exit

@@ -13,7 +13,7 @@
 
 
 /*
-RESULTS using ./bin/Nebulite task TaskFiles/Benchmarks/spawn_constantly.txt 
+RESULTS using ./bin/Nebulite task TaskFiles/Benchmarks/spawn_constantly.nebs 
 
 Date            Result      THREADED_MIN_BATCHSIZE  BATCH_COST_GOAL INVOKE_EXPR_POOL_SIZE
 ------------------------------------------------------------------------------------------

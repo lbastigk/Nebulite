@@ -1,0 +1,5 @@
+set-fps 60
+spawn ./Resources/Renderobjects/Planets/sun.jsonc
+wait 30
+eval snapshot myImage_Platform_{global.platform}.png
+exit

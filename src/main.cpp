@@ -19,7 +19,7 @@
  * Example Commands:
  *  spawn <RenderObject.jsonc>       Load a single renderobject
  *  env-load <level.jsonc>           Load and render a level
- *  task <task.txt>                 Run a tasktile
+ *  task <task.nebs>                 Run a tasktile
  */
 
 
@@ -93,7 +93,7 @@ int main(int argc, char* argv[]){
         // "env-load ./Resources/Levels/main.jsonc" 
         // Which represents the menue screen of the game
         // or, for a more scripted task:
-        // task TaskFiles/main.txt
+        // task TaskFiles/main.nebs
         // Making sure that any state currently loaded is cleared
         // Having main be a state itself is also an idea, but this might become challenging as the user could accidentally overwrite the main state
         //

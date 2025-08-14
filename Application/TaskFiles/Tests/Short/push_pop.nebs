@@ -1,0 +1,15 @@
+# Using names starting with "zz" so they're at the end of the global doc 
+# This way, they're at the end of the cli output when using print-global 
+
+# Testing general push/pop of arrays
+set zzy[0] 1
+push-back zzy 2
+push-front zzy 0
+push-front zzy
+push-back zzy
+
+# Testing push/pop if a value is NOT an array
+set zzz 1
+push-back zzz 2
+print-global
+exit
