@@ -13,6 +13,11 @@
 
 <p align="center">
   <img src="doc/demo.gif" alt="Conventional gravity test" width="45%">
+  <img src="doc/walking.gif" alt="Walking animations" width="45%">
+</p>
+
+<p align="center">
+  <img src="doc/pong.gif" alt="Pong" width="45%">
   <img src="doc/xxl_test.gif" alt="Gravity + Elastic collision" width="45%">
 </p>
 
