@@ -59,6 +59,14 @@ Each Class has access to a different tree through `funcTree->...` and a differen
 - `RenderObjectTree` can access the attached RenderObject
 - `JSONTree` can access the attached JSON
 
+Each Tree extension can make use of an update routine, allowing us to declutter classes:
+- input-reading
+- state-update
+- lifetime management
+and more may be associated with specific tree-extensions instead of the base class.
+We then just insert each extensions update inside the base tree and call `Tree->update()`
+from the base class.
+
 ### Implementation Guidelines
 
 - It is recommended to implement unfinished functions inside the cpp file via a return of `Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED`
