@@ -1,3 +1,12 @@
+/**
+ * @file VirtualDouble.h
+ * @brief Provides a wrapper for consistent access to double values in JSON documents.
+ * 
+ * This file defines the `VirtualDouble` class, which ensures compatibility with `tinyexpr`
+ * by linking variables to physical double addresses. It supports both remanent and non-remanent
+ * contexts for efficient expression evaluation.
+ */
+
 #pragma once
 #include "JSON.h"
 #include "DocumentCache.h"
@@ -5,18 +14,16 @@
 namespace Nebulite{
 
 /**
- * @brief A class that represents a double value associated with a JSON document.
+ * @brief A wrapper class for accessing and modifying double values in JSON documents.
  * 
- * In order to ensure compilation of tinyexpr, each variable TE_VARIABLE must be linked to a physical double address.
- * This class ensures this functionality, by providing a consistent interface to access and modify the double value.
+ * The `VirtualDouble` class provides a consistent interface for linking variables to
+ * physical double addresses, ensuring compatibility with `tinyexpr`. It supports:
  * 
- * virtualDoubles are either remanent or non-remanent, depending on the type of document:
+ * - Remanent contexts: For `self`, `global`, and `documentcache`, where the context remains constant.
  * 
- * - self, global, and documentcache are remanent to the expression
+ * - Non-remanent contexts: For `other`, where the context changes dynamically during evaluations.
  * 
- * - other is non-remanent, as its context changes (for one evaluation, other might be object1, next time it's object2)
- * 
- * The distinction between remanent and non-remanent virtualDoubles is crucial for quick evaluations.
+ * This distinction is crucial for efficient and accurate expression evaluations.
  */
 class VirtualDouble {
     // Linked Read-Only cache

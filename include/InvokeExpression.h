@@ -33,6 +33,12 @@ public:
     double evalAsDouble(Nebulite::JSON* current_other);
     
     std::string eval(Nebulite::JSON* current_other);
+
+    /**
+     * @brief Gets the full expression string that was parsed.
+     * 
+     * @return The full expression string.
+     */
     std::string getFullExpression(){return fullExpression;};
 
 private:
@@ -165,6 +171,11 @@ private:
     void registerVariable(std::string str, std::string key, Entry::From context);
     void readFormatter(Entry* entry, const std::string& formatter);
 
+    void parseTokenTypeEval(std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
+    void parseTokenTypeText(std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
+
+    void printCompileError(const Entry& entry, int& error);
+
     // Custom TinyExpr functions
     class expr_custom{
     public:
@@ -182,6 +193,9 @@ private:
 
         static double sgn(double a){return std::copysign(1.0, a);}
     };
+
+    // Storing info about the expression's returnability
+    bool _isReturnableAsDouble;
 };
 }
 
