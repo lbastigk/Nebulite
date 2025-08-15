@@ -8,11 +8,29 @@ void Nebulite::InvokeExpression::compileIfExpression(Entry& entry) {
         int error;
         entry.expression = te_compile(entry.str.c_str(), variables.data(), variables.size(), &error);
         if (error) {
+            std::cerr << "-----------------------------------------------------------------" << std::endl;
             std::cerr << "Error compiling expression: '" << entry.str << "' Error code: " << error << std::endl;
+            std::cerr << "You might see this message multiple times due to expression parallelization." << std::endl;
+            std::cerr << std::endl;
+            std::cerr << "If you only see the start of your expression, make sure to encompass your expression in quotes" << std::endl;
+            std::cerr << "Some functions assume that the expression is inside, e.g. argv[1]." << std::endl;
+            std::cerr << "Example: " << std::endl;
+            std::cerr << "if $(1+1)     echo here! # works" << std::endl;
+            std::cerr << "if $(1 + 1)   echo here! # doesnt work!" << std::endl;
+            std::cerr << "if '$(1 + 1)' echo here! # works" << std::endl;
+            std::cerr << std::endl;
             std::cerr << "Registered functions and variables:\n";
             for (const auto& var : variables) {
                 std::cerr << "\t'" << var.name << "'\n";
             }
+            std::cerr << std::endl;
+            std::cerr << "Resetting expression to 'nan'" << std::endl;
+            std::cerr << std::endl;
+            std::cerr << std::endl;
+
+            // tinyexpr does not directly support nan as string, instead we use 0/0 
+            // Absolute value, otherwise the result is -nan
+            entry.expression = te_compile("abs(0/0)", variables.data(), variables.size(), &error);
         }
     }
 }
@@ -105,18 +123,36 @@ void Nebulite::InvokeExpression::parseIntoEntries(const std::string& expr, std::
         if (!token.empty()) {
             Entry currentEntry;
             if(token.starts_with('$')){
-                // Check cast type:
-                if(token.starts_with("$i(")){
+
+                // $[leading zero][alignment][.][precision]<type:f,i>
+                // - bool leading zero   : on/off
+                // - int alignment       : <0 means no formatting
+                // - int precision       : <0 means no formatting
+                // - CastType::none is then used to determine if we can simple use the double return from tinyexpr
+
+                // 1.) find next '(' and split into formatter and token
+                // Examples:
+                // input        formatter       expression
+                // $(1+1)       ""              "(1+1)"
+                // $f(1.23)     "f"             "(1.23)"
+                // $i(42)       "i"             "(42)"
+                // $4.2f(2/3)   "4.2f"          "(2/3)"
+
+                int16_t pos = token.find('(');
+                std::string formatter  = token.substr(1, pos - 1); // Remove leading $
+                std::string expression = token.substr(pos);
+
+                // Check cast type in formatter:
+                if(formatter.ends_with("i")){
+                    readFormatter(&currentEntry, formatter);
                     currentEntry.cast = Entry::CastType::to_int;
-                    token = token.substr(2);
                 }
-                else if(token.starts_with("$f(")){
+                else if(formatter.ends_with("f")){
+                    readFormatter(&currentEntry, formatter);
                     currentEntry.cast = Entry::CastType::to_double;
-                    token = token.substr(2);
                 }
                 else{
                     currentEntry.cast = Entry::CastType::none;
-                    token = token.substr(1);
                 }
 
                 // Current token is evaluation
@@ -125,7 +161,7 @@ void Nebulite::InvokeExpression::parseIntoEntries(const std::string& expr, std::
                 // Register internal variables
                 // And build equivalent expression
                 std::string newString = "";
-                std::vector<std::string> subTokens = StringHandler::splitOnSameDepth(token, '{');
+                std::vector<std::string> subTokens = StringHandler::splitOnSameDepth(expression, '{');
 
                 for (const auto& subToken : subTokens) {
                     if(subToken.starts_with('{')){
@@ -261,7 +297,41 @@ std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_other) {
                 break;
 
             case Entry::eval:
-                token = std::to_string(te_eval(entry.expression));
+
+                //-------------------------
+                // Handle casting
+                if(entry.cast == Entry::CastType::to_int){
+                    token = std::to_string(static_cast<int>(te_eval(entry.expression)));
+                } else {
+                    token = std::to_string(te_eval(entry.expression));
+                }
+
+                // Precision handling
+                if (entry.precision != -1) {
+                    size_t dotPos = token.find('.');
+                    if (dotPos != std::string::npos) {
+                        size_t currentPrecision = token.size() - dotPos - 1;
+                        if (currentPrecision < static_cast<size_t>(entry.precision)) {
+                            // Add zeros to match the required precision
+                            token.append(entry.precision - currentPrecision, '0');
+                        } else {
+                            // Truncate to the required precision
+                            token = token.substr(0, dotPos + entry.precision + 1);
+                        }
+                    } else {
+                        // No decimal point, add one and pad with zeros
+                        token += '.';
+                        token.append(entry.precision, '0');
+                    }
+                }
+
+                // Adding padding
+                if(entry.alignment > 0 && token.size() < entry.alignment) {
+                    for(int i = 0; i < entry.alignment - token.size(); i++){
+                        token = (entry.leadingZero ? '0' : ' ') + token;
+                    }
+                }
+
                 break;
 
             case Entry::text:
@@ -271,29 +341,14 @@ std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_other) {
             default:
                 break;
         }
-        switch (entry.cast){
-            case Entry::CastType::none:
-                result += token;
-                break;
-
-            case Entry::CastType::to_int:
-                result += std::to_string(static_cast<int>(std::stof(token)));
-                break;
-
-            case Entry::CastType::to_double:
-                result += std::to_string(static_cast<double>(std::stof(token)));
-                break;
-
-            default:
-                break;
-        }
+        result += token;
     }
     
     return result;
 }
 
-bool Nebulite::InvokeExpression::isSingleEvalEntry() {
-    return entries.size() == 1 && entries[0].type == Entry::eval;
+bool Nebulite::InvokeExpression::isReturnableAsDouble() {
+    return entries.size() == 1 && entries[0].type == Entry::eval && entries[0].cast == Entry::CastType::none;
 }
 
 double Nebulite::InvokeExpression::evalAsDouble(Nebulite::JSON* current_other) {
@@ -308,4 +363,29 @@ double Nebulite::InvokeExpression::evalAsDouble(Nebulite::JSON* current_other) {
     #endif
 
     return te_eval(entries[0].expression);
+}
+
+void Nebulite::InvokeExpression::readFormatter(Entry* entry, const std::string& formatter) {
+    // Check formatter. Integer cast should not include precision. Is ignored later on in casting but acceptable as input
+    // Examples:
+    // $i     : leadingZero = false , alignment = -1 , precision = -1
+    // $04i   : leadingZero = true  , alignment =  4 , precision = -1
+    // $03.5i : leadingZero = true  , alignment =  3 , precision =  5
+
+    if(!formatter.size()){
+        return;
+    }
+
+    // Read leading zero
+    if(formatter.starts_with("0")) {
+        entry->leadingZero = true;
+    }
+    if(formatter.size() > 1){
+        int16_t dotpos = formatter.find('.');
+    
+        entry->alignment = std::stoi(formatter.substr(0, dotpos));
+        if(dotpos != std::string::npos){
+            entry->precision = std::stoi(formatter.substr(dotpos + 1));
+        }
+    }
 }

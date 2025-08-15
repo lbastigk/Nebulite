@@ -29,7 +29,7 @@ public:
 
     void parse(const std::string& expr, Nebulite::DocumentCache& documentCache, Nebulite::JSON* self, Nebulite::JSON* global);
 
-    bool isSingleEvalEntry();
+    bool isReturnableAsDouble();
     double evalAsDouble(Nebulite::JSON* current_other);
     
     std::string eval(Nebulite::JSON* current_other);
@@ -58,6 +58,12 @@ private:
             none, to_int, to_double
         } cast = CastType::none; // Default to none
 
+        // Formatting
+        bool leadingZero = false;
+        int alignment = -1;
+        int precision = -1;
+
+        // Holds internal values derived from full expression
         std::string str;
         std::string key;
 
@@ -157,6 +163,7 @@ private:
     void parseIntoEntries(const std::string& expr, std::vector<Entry>& entries);
     void compileIfExpression(Entry& entry);
     void registerVariable(std::string str, std::string key, Entry::From context);
+    void readFormatter(Entry* entry, const std::string& formatter);
 
     // Custom TinyExpr functions
     class expr_custom{

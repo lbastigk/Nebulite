@@ -175,8 +175,12 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::ifCondition(in
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
     }
 
-    int condition = std::stoi(self->invoke->evaluateStandaloneExpression(argv[1]));
-    if (condition == 0) {
+    std::string result = self->invoke->evaluateStandaloneExpression(argv[1]);
+    double condition_potentially_nan = std::stod(result);
+
+    bool condition = !isnan(condition_potentially_nan) && (condition_potentially_nan != 0);
+
+    if (!condition) {
         // If the condition is false, skip the following commands
         return Nebulite::ERROR_TYPE::NONE;
     }

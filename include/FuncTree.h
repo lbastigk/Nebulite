@@ -348,12 +348,17 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::parseStr(const std::string& cmd) {
 
 template<typename RETURN_TYPE>
 RETURN_TYPE FuncTree<RETURN_TYPE>::executeFunction(const std::string& name, int argc, char* argv[]) {
-    auto functionPosition = functions.find(name);
+    // Strip whitespaces of name
+    std::string function = name;
+    function = Nebulite::StringHandler::lstrip(name, ' ');
+    function = Nebulite::StringHandler::rstrip(name, ' ');
+
+    auto functionPosition = functions.find(function);
     if (functionPosition != functions.end()) {
         auto& [functionPtr, description] = functionPosition->second;
         return functionPtr(argc, argv);  // Call the function
     } else {
-        std::cerr << "Function '" << name << "' not found.\n";
+        std::cerr << "Function '" << function << "' not found.\n";
         return _functionNotFoundError;  // Return error if function not found
     }
 }
@@ -437,13 +442,26 @@ template<typename RETURN_TYPE>
 std::vector<std::string> FuncTree<RETURN_TYPE>::parseQuotedArguments(const std::string& cmd) {
     std::vector<std::string> tokens = Nebulite::StringHandler::split(cmd, ' ');
     std::vector<std::string> result;
-    
+
     bool inQuoteV1 = false;  // Double quotes
     bool inQuoteV2 = false;  // Single quotes
     
     for (const auto& token : tokens) {
-        // Skip empty tokens (from multiple spaces or trailing spaces)
+        // Keep empty tokens as extra whitespace
+        // This is important, as the user explicitly specified an extra whitespace!
+        // e.g. for text: "eval echo Value: {global.myVal}  |  Expected: {global.expected}"
+        // So we shouldnt strip those!
+        // The important part now is to strip those on command parsing!
         if (token.empty()) {
+            if(!inQuoteV1 && !inQuoteV2) {
+                // If not in quotes, just add an empty token
+                result.push_back("");
+                result.back() += " ";  // Keep the whitespace
+            }
+            else{
+                result.back() += " ";
+            }
+            
             continue;
         }
         

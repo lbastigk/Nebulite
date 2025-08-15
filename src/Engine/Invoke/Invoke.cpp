@@ -188,7 +188,7 @@ void Nebulite::Invoke::updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries
         // However, the functionality is preserved.
         // It just means that previous tests may not perfectly align with expected outcomes.
         //*
-        if(expr.expression.isSingleEvalEntry()){
+        if(expr.expression.isReturnableAsDouble()){
             double resolved = expr.expression.evalAsDouble(doc_other);
             updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
         }

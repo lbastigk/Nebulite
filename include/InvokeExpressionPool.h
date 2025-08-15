@@ -99,9 +99,9 @@ public:
         return fullExpression;
     }
 
-    bool isSingleEvalEntry() {
+    bool isReturnableAsDouble() {
         std::lock_guard<std::mutex> guard(locks[0]);
-        return pool[0].isSingleEvalEntry();
+        return pool[0].isReturnableAsDouble();
     }
 
     double evalAsDouble(Nebulite::JSON* current_other)
