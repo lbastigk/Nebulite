@@ -319,7 +319,8 @@ Nebulite/
 ├── src/                      # Engine source code
 │   ├── main.cpp              # Entry point
 │   └── Engine/               # Core engine modules
-│       ├── Data/             # JSON, KeyNames, ErrorTypes
+│       ├── GlobalSpace.cpp   # Container for all shareable global values
+│       ├── Data/             # Data-related classes
 │       ├── FuncTrees/        # Command processing
 │       ├── Helper/           # Utility functions
 │       └── Rendering/        # Rendering and objects
