@@ -13,27 +13,6 @@ void Nebulite::GlobalSpaceTreeExpansion::General::update() {
 //-------------------------------
 // FuncTree-Bound Functions
 
-Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::setGlobal(int argc, char* argv[]){
-    if(argc == 3){
-        std::string key = argv[1];
-        std::string value = argv[2];
-        self->global.set<std::string>(key.c_str(),value);
-        return Nebulite::ERROR_TYPE::NONE;
-    }
-    if(argc == 2){
-        std::string key = argv[1];
-        std::string value = "0";
-        self->global.set<std::string>(key.c_str(),value);
-        return Nebulite::ERROR_TYPE::NONE;
-    }
-    if(argc < 2){
-        return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
-    }
-    else{
-        return Nebulite::ERROR_TYPE::TOO_MANY_ARGS;
-    }
-}
-
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::eval(int argc, char* argv[]){
     // argc/argv to string for evaluation
     std::string args = "";

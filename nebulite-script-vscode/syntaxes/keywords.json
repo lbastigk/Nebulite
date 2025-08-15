@@ -72,7 +72,7 @@
   "set-fps",
   "set-from-json",
   "set-from-query",
-  "set-global",
+  "set",
   "set-input-device",
   "set-listener-3d",
   "set-master-volume",

@@ -165,6 +165,9 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	// Set basic values inside global doc
 	invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.dispResX.c_str(),X);	
 	invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.dispResY.c_str(),Y);
+
+	// Unnecessary, as this might overwrite previously set values!
+	/*
 	invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.positionX.c_str(),0);
 	invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.positionY.c_str(),0);
 
@@ -173,6 +176,8 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	invoke_ptr->getGlobalPointer()->set<Uint64>(keyName.renderer.time_t_ms.c_str(),0);
 	invoke_ptr->getGlobalPointer()->set<double>(keyName.renderer.time_dt.c_str(),0);
 	invoke_ptr->getGlobalPointer()->set<Uint64>(keyName.renderer.time_dt_ms.c_str(),0);
+	*/
+
 
 	//---------
 	// Start timer
@@ -240,8 +245,13 @@ void Nebulite::Renderer::reinsertAllObjects(){
 
 void Nebulite::Renderer::update() {
 	// Update loop timer
+
+	
 	uint64_t fixed_dt_ms = invoke_ptr->getGlobalPointer()->get<Uint64>(keyName.renderer.time_fixed_dt_ms.c_str(),0);
 	RendererLoopTime.update(fixed_dt_ms);
+
+	std::cerr << "Getting fixed delta time from key: " << keyName.renderer.time_fixed_dt_ms.c_str() << std::endl;
+	std::cerr << "Fixed delta time: " << fixed_dt_ms << " ms" << std::endl;
 
 	//----------------------------------
 	// Basic SDL event polling

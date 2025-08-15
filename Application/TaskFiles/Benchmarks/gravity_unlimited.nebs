@@ -3,7 +3,7 @@ echo
 echo Rendering with a fixed dt of 10ms
 echo 
 echo 
-set-global time.fixed_dt_ms 10
+set time.fixed_dt_ms 10
 set-res 1440 1440
 set-fps 1000
 print-global

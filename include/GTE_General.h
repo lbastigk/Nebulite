@@ -49,9 +49,6 @@ public:
     // Assert CRITICAL_CUSTOM_ASSERT
     Nebulite::ERROR_TYPE func_assert(int argc, char* argv[]);
 
-    // Set a global variable
-    Nebulite::ERROR_TYPE setGlobal(int argc, char* argv[]);
-
     // Force a global value to a certain value
     Nebulite::ERROR_TYPE forceGlobal(int argc, char* argv[]);
 
@@ -77,7 +74,6 @@ public:
         bindFunction(&General::echo,                "echo",                 "Echo a string to cout: echo <string>");
         bindFunction(&General::error,               "error",                "Echo a string to cerr/errorfile: error <string>");
         bindFunction(&General::func_assert,         "assert",               "Assert a condition and throw an error if false: assert <condition>");
-        bindFunction(&General::setGlobal,           "set-global",           "Set a global variable: set-global <key> <value>");
         bindFunction(&General::forceGlobal,         "force-global",         "Force a global variable to a value: force-global <key> <value>");
         bindFunction(&General::clearForceGlobal,    "force-global-clear",   "Clear all forced global variables");
         bindFunction(&General::stateSave,           "state-save",           "Save the current game state: state-save <name>");
