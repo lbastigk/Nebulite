@@ -103,7 +103,9 @@ namespace Nebulite {
         // Always-tasks added with the prefix "always "
         Nebulite::taskQueue tasks_always;
 
-    
+        // Error Table for error descriptions
+        ErrorTable errorTable;
+
     // Removal of private keyword for easier access for Expansion classes
     /*
     private:

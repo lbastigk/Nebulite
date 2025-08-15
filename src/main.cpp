@@ -208,7 +208,7 @@ int main(int argc, char* argv[]){
 
     // Inform user about any errors and return error code
     if(critical_stop){
-        std::cerr << "Critical Error: " << lastCriticalResult << std::endl;
+        std::cerr << "Critical Error: " << globalSpace.errorTable.getErrorDescription(lastCriticalResult) << std::endl;
     }
 
     // turn off error log
