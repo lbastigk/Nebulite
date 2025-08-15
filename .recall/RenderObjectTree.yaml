@@ -1,5 +1,0 @@
-info:
-  example: ""
-  infoLong: Used in RenderObjects update routine to parse commands like "delete" coming
-    from Local/Global invokes
-  infoShort: Parser for local functioncalls

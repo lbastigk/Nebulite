@@ -21,6 +21,8 @@
   <img src="doc/xxl_test.gif" alt="Gravity + Elastic collision" width="45%">
 </p>
 
+</div>
+
 ## Table of Contents
 1. [Overview](#overview)
 2. [Quick Start](#quick-start)
@@ -35,7 +37,8 @@
 11. [Dependencies](#dependencies)
 12. [Testing](#testing)
 13. [Contributing](#contributing)
-14. [License](#license)
+14. [Language Extension](#language-extension)
+15. [License](#license)
 
 ## Overview
 
@@ -296,9 +299,8 @@ Start engine and enter console mode with `^`. Enter `help` to see available comm
 
 ## Directory Structure
 
-```
+```bash
 Nebulite/
-├── .recall/                  # Database for pseudo project documentation (recall tool). See: https://github.com/lbastigk/recall
 ├── Application/              # Runtime environment
 │   ├── bin/                  # Compiled binaries
 │   ├── Resources/            # Game assets and data
@@ -313,6 +315,7 @@ Nebulite/
 ├── doc/                      # UML-Diagrams
 ├── external/                 # Third-party dependencies
 ├── include/                  # Header files
+├── nebulite-script-vscode/   # Language extension for vscode
 ├── src/                      # Engine source code
 │   ├── main.cpp              # Entry point
 │   └── Engine/               # Core engine modules
@@ -347,7 +350,6 @@ Optional dependencies:
 
 | Project                                               | Purpose                                      |
 |-------------------------------------------------------|----------------------------------------------|
-| [recall](https://github.com/lbastigk/recall/)         | Custom CLI-Tool for quick documentation      |
 | [PlantUML](https://plantuml.com/)                     | For compiling UML-Diagrams in ./doc/         |
 
 ## Testing
@@ -365,6 +367,17 @@ cd Application
 ```
 
 JSON validation runs via `validate_json.sh` prior to tests. Headless mode is recommended for CI to generate snapshots or logs deterministically.
+
+## Language Extension
+
+Nebulite includes a language extension for `.nebs` scripting files under `./nebulite-script-vscode/`. 
+The extension offers proper syntax highlight for:
+- available functions
+- variables
+- comments
+- print-strings (everything after echo/error : meaning its printed to the command line)
+
+Run `build-and-install.sh` inside its directory for installation.
 
 ## Contributing
 

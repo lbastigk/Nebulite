@@ -1,7 +1,0 @@
-info:
-  example: |-
-    std::string command = "set-global constants.pi 3.141";
-    MainTree mainTree(&invoke,&globalSpace);
-    mainTree.parse(command);
-  infoLong: ""
-  infoShort: Parser For global functioncalls
