@@ -1,0 +1,11 @@
+# Custom language definition for .nebs files and .jsonc files
+# usage: cloc --force-lang-def=./nebulite-script-vscode/cloc_lang_define.txt ./Application/
+Nebulite Script
+    filter remove_matches ^\s*#.*
+    extension nebs
+    3rd_gen_scale 0.5
+JSONC
+    filter remove_matches ^\s*//.*
+    filter remove_matches ^\s*/\*.*?\*/\s*$
+    extension jsonc
+    3rd_gen_scale 0.5
