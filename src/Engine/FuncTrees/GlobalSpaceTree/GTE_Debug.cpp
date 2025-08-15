@@ -13,7 +13,7 @@ void Nebulite::GlobalSpaceTreeExpansion::Debug::update() {
 // FuncTree-Bound Functions
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::printGlobal(int argc, char* argv[]){
-    std::cout << self->getRenderer()->serializeGlobal() << std::endl;
+    std::cout << self->global.serialize() << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
 }
 
@@ -23,7 +23,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::printState(int a
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::logGlobal(int argc, char* argv[]){
-    std::string serialized = self->getRenderer()->serializeGlobal();
+    std::string serialized = self->global.serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
             FileManagement::WriteFile(argv[i],serialized);

@@ -17,13 +17,13 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::setGlobal(int 
     if(argc == 3){
         std::string key = argv[1];
         std::string value = argv[2];
-        self->getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
+        self->global.set<std::string>(key.c_str(),value);
         return Nebulite::ERROR_TYPE::NONE;
     }
     if(argc == 2){
         std::string key = argv[1];
         std::string value = "0";
-        self->getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
+        self->global.set<std::string>(key.c_str(),value);
         return Nebulite::ERROR_TYPE::NONE;
     }
     if(argc < 2){

@@ -9,7 +9,6 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	//--------------------------------------------
 	// Linkages
 	invoke_ptr = &invoke;
-	env.linkGlobal(global);
 
 	//--------------------------------------------
 	// Depending on platform, set Global key "platform":
@@ -471,18 +470,6 @@ void Nebulite::Renderer::purgeObjects() {
 	env.purgeObjects();
 }
 
-void Nebulite::Renderer::purgeObjectsAt(int x, int y){
-	env.purgeObjectsAt(
-		x,
-		y,
-		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),0),
-		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0)
-	);
-}
-
-void Nebulite::Renderer::purgeLayer(int layer) {
-	env.purgeLayer(layer);
-}
 
 void Nebulite::Renderer::purgeTextures() {
 	// Release resources for TextureContainer

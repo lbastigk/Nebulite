@@ -33,9 +33,7 @@ public:
 		// TODO: Serialize render-specific variables?
 		return env.serialize();
 	}
-	std::string serializeGlobal(){
-		return env.serializeGlobal();
-	}
+
 	void deserialize(std::string serialOrLink){
 		env.deserialize(
 			serialOrLink, 
@@ -82,7 +80,6 @@ public:
 	// Purge
 	void purgeObjects();
 	void purgeObjectsAt(int x, int y);
-	void purgeLayer(int layer);
 	void purgeTextures();
 	void destroy();
 	
@@ -115,7 +112,6 @@ public:
 	//-----------------------------------------------------------
 	// Getting
 
-	Nebulite::JSON& getGlobal(){return env.getGlobal();}
 	size_t getTextureAmount(){return TextureContainer.size();}
 	size_t getObjectCount(){return env.getObjectCount();}
 	int getResX(){return invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),0);}
