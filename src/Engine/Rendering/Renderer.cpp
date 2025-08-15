@@ -249,10 +249,7 @@ void Nebulite::Renderer::update() {
 	
 	uint64_t fixed_dt_ms = invoke_ptr->getGlobalPointer()->get<Uint64>(keyName.renderer.time_fixed_dt_ms.c_str(),0);
 	RendererLoopTime.update(fixed_dt_ms);
-
-	std::cerr << "Getting fixed delta time from key: " << keyName.renderer.time_fixed_dt_ms.c_str() << std::endl;
-	std::cerr << "Fixed delta time: " << fixed_dt_ms << " ms" << std::endl;
-
+	
 	//----------------------------------
 	// Basic SDL event polling
 	while (SDL_PollEvent(&event)) {
