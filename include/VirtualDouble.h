@@ -1,21 +1,46 @@
-/*
-VirtualDouble is a wrapper class designed to ensure consistent access to a double value for tinyexpr
-Each value is linked to a document and updated before evaluation.
-This ensures that TinyExpr can compile an expression, while also allowing us to manually update its values
-from JSON documents.
-*/
-
 #pragma once
 #include "JSON.h"
 #include "DocumentCache.h"
 
 namespace Nebulite{
+
+/**
+ * @brief A class that represents a double value associated with a JSON document.
+ * 
+ * In order to ensure compilation of tinyexpr, each variable TE_VARIABLE must be linked to a physical double address.
+ * This class ensures this functionality, by providing a consistent interface to access and modify the double value.
+ * 
+ * virtualDoubles are either remanent or non-remanent, depending on the type of document:
+ * 
+ * - self, global, and documentcache are remanent to the expression
+ * 
+ * - other is non-remanent, as its context changes (for one evaluation, other might be object1, next time it's object2)
+ * 
+ * The distinction between remanent and non-remanent virtualDoubles is crucial for quick evaluations.
+ */
 class VirtualDouble {
+    // Linked Read-Only cache
     Nebulite::DocumentCache* documentCache = nullptr;
+
+    // Key associated with this VirtualDouble
     std::string key;
-    double cache = 0.0;
+
+    // Internal cache for the double value
+    double internal_cache = 0.0;
+
+    // External cache
     double* external_cache = nullptr;
 public:
+
+    /**
+     * @brief Construct a new VirtualDouble object.
+     * 
+     * This constructor initializes the VirtualDouble with a key and a DocumentCache.
+     * It also removes any prefixes from the key to ensure consistent access.
+     * 
+     * @param k The key associated with this VirtualDouble.
+     * @param documentCache The DocumentCache to use for retrieving values.
+     */
     VirtualDouble(const std::string& k, Nebulite::DocumentCache* documentCache) 
         : key(k), documentCache(documentCache) {
             // Removing self/other/global prefixes
@@ -24,28 +49,60 @@ public:
             else if (key.find("global.") == 0) key = key.substr(7);
         }
 
+    /**
+     * @brief Get the key associated with this VirtualDouble.
+     * 
+     * @return The key as a string.
+     */
     std::string getKey() {
         return key;
     }
 
+    /**
+     * @brief Update the cache value from the JSON document or DocumentCache.
+     * 
+     * This function retrieves the double value associated with the key from the provided JSON document
+     * or the DocumentCache, and updates the internal cache accordingly.
+     * This is used for non-remanent documents, meaning the associated document changes
+     * 
+     * If the key is not found within the associated document, the double value will default to 0.
+     * 
+     * @param json The JSON document pointer to retrieve the value from. If the pointer is null, we retrieve the value from the document cache.
+     */
     void updateCache(Nebulite::JSON* json) {
+        double fallback_value = 0.0;
         if (json != nullptr) {
-            cache = json->get<double>(key.c_str(), 0);
+            internal_cache = json->get<double>(key.c_str(), fallback_value);
         }
         else if (documentCache != nullptr) {
-            cache = documentCache->getData<double>(key.c_str(), 0);
+            internal_cache = documentCache->getData<double>(key.c_str(), fallback_value);
         }
     }
 
+    /**
+     * @brief Get a pointer to the linked double
+     * 
+     * Depending on type of linkage, this is either:
+     * 
+     * - internally for documents changing context
+     * 
+     * - externally for remanent documents
+     * 
+     * @return A pointer to the double value.
+     */
     double* ptr(){
         if(external_cache != nullptr) {
             return external_cache;
         }
-        return &cache;
+        return &internal_cache;
     }
 
-    double get() {return cache;}
-
+    /**
+     * @brief Register the external cache for this VirtualDouble.
+     * 
+     * This function links the VirtualDouble to an external double pointer of a JSON document,
+     * allowing it to access and modify the value directly.
+     */
     void register_external_double_cache(Nebulite::JSON* json) {
         if (json != nullptr) {
             external_cache = json->getDoublePointerOf(key.c_str());
