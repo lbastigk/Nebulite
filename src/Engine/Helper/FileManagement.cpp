@@ -45,7 +45,7 @@ void FileManagement::WriteFile(const std::string& filename, const std::string& t
 
     std::ofstream file(filepath, std::ios::out);
     if (!file.is_open()) {
-        std::cerr << "File '" << filepath << "' could not be opened for writing!" << std::endl;
+        std::cerr << "File '" << filepath << "' could not be opened/created for writing!" << std::endl;
         return;
     }
     file << text;

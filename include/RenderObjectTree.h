@@ -66,6 +66,7 @@ How to use the RenderObjectTree:
 #include "ErrorTypes.h"         // Basic Return Type: enum ERROR_TYPE
 #include "FuncTree.h"    // All FuncTrees inherit from this for ease of use
 #include "FileManagement.h"     // For logging and file operations
+#include "JSON.h"
 
 //----------------------------------------------------------
 // Include Expansions of RenderObjectTree
