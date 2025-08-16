@@ -1,12 +1,12 @@
-/*
- * ErrorTypes.h
- * ------------
- * Defines the Nebulite::ERROR_TYPE enumeration, which standardizes error codes
- * returned by core engine functions and task queue processing.
+/**
+ * @file ErrorTypes.h
+ * @brief Defines the Nebulite::ERROR_TYPE enumeration for standardized error codes.
  *
+ * Functions bound via the FuncTree system utilize a Nebulite::ERROR_TYPE foo(int argc, char** argv) signature.
+ * 
  * Usage:
- *   - Functions such as Nebulite::resolveTaskQueue and other main tree functions
- *     return or report an ERROR_TYPE value to indicate the result of execution.
+ *   - Functions such as Nebulite::resolveTaskQueue executes main tree functions
+ *     which return an ERROR_TYPE value to indicate the result of execution.
  *   - Critical errors (negative values) signal unrecoverable states and are used
  *     in main.cpp to determine if the engine should halt execution (see
  *     lastCriticalResult and critical_stop logic).
@@ -22,13 +22,18 @@
  *
  * See main.cpp for detailed usage in the main engine loop and error handling.
  */
+
 #pragma once
-#include <absl/container/flat_hash_map.h>
+#include <absl/container/flat_hash_map.h>   // For error type to string mapping
 
 // Return values from main Tree functions
 namespace Nebulite{
 
-// NOTE: Remember to add error type descriptions to the ErrorTable class!
+/**
+ * @brief Enumeration for standardized error codes in the Nebulite engine.
+ * 
+ * @note Remember to add error type descriptions to the ErrorTable class!
+ */
 enum ERROR_TYPE{
     // Critical Errors first with negative value
     CRITICAL_GENERAL = -1000,
@@ -49,8 +54,18 @@ enum ERROR_TYPE{
 };
 }
 
+
+/**
+ * @brief Class for mapping Nebulite error types to their string descriptions.
+ */
 class ErrorTable {
 public:
+
+    /**
+     * @brief Constructor for ErrorTable.
+     * 
+     * On construction, all error types are mapped to their string descriptions.
+     */
     ErrorTable(){
         errorTypeToString[Nebulite::ERROR_TYPE::CRITICAL_GENERAL] = 
             "General, critical error. It is recommended to NOT use this error type in production.";
@@ -82,6 +97,12 @@ public:
             "Requested file not found";
     }
 
+    /**
+     * @brief Get the error description for a given error type.
+     * 
+     * @param errorType The error type to retrieve the description for.
+     * @return The string description of the error type. Returns "Undocumented Error!" if no description is found.
+     */
     std::string getErrorDescription(Nebulite::ERROR_TYPE errorType) {
         auto it = errorTypeToString.find(errorType);
         if (it != errorTypeToString.end()) {
@@ -91,5 +112,6 @@ public:
     }
 
 private:
+    // hashtable for error type to string mapping
     absl::flat_hash_map<Nebulite::ERROR_TYPE, std::string> errorTypeToString;
 };
