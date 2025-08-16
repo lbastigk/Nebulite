@@ -93,7 +93,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::loadTaskList(i
     std::istringstream stream(file);
     std::string line;
     while (std::getline(stream, line)) {
-        line = StringHandler::untilSpecialChar(line,'#');   // Remove comments
+        line = StringHandler::untilSpecialChar(line,'#');   // Remove comments. TODO: Doesnt remove lines that are purely "#"
         line = StringHandler::lstrip(line,' ');             // Remove whitespaces at start
         if(line.length() == 0){
             // line is empty

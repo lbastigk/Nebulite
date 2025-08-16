@@ -2,7 +2,7 @@
 # Gravity + Elastic collision Benchmark
 # Spawns n*n objects with a total mass of 50000
 # + a sun object after 5000 frames
-#
+# 
 # Due to the inherent n^2 complexity of gravity, this benchmark is very ressource intensive
 # it is recommended to start this benchmark headless!
 ###############################################
@@ -19,8 +19,8 @@ set loop.n 40
 set time.fixed_dt_ms 1
 set physics.G 10
 set-res 640 640 3
-set-fps 10000           # unlimited, render as fast as possible
-show-fps off            # do not show fps
+set-fps 10000
+show-fps off
 
 ###############################################
 # [INFO]
