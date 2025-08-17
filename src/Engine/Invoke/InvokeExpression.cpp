@@ -359,7 +359,7 @@ std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_other) {
                         size_t currentPrecision = token.size() - dotPos - 1;
                         if (currentPrecision < static_cast<size_t>(entry.precision)) {
                             // Add zeros to match the required precision
-                            token.append(entry.precision - currentPrecision, '0');
+                            token.append(entry.precision - currentPrecision + 1, '0');
                         } else {
                             // Truncate to the required precision
                             token = token.substr(0, dotPos + entry.precision + 1);
@@ -373,7 +373,8 @@ std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_other) {
 
                 // Adding padding
                 if(entry.alignment > 0 && token.size() < entry.alignment) {
-                    for(int i = 0; i < entry.alignment - token.size(); i++){
+                    int32_t size = token.size();
+                    for(int i = 0; i < entry.alignment - size; i++){
                         token = (entry.leadingZero ? '0' : ' ') + token;
                     }
                 }
