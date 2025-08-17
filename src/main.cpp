@@ -126,22 +126,17 @@ int main(int argc, char* argv[]){
     bool critical_stop = false;
     uint64_t* noWaitCounter = nullptr;
 
-    // A new set of argc/argv is needed to parse tasks
-    // TaskQueue -> pop out string -> parse into argc/argv -> call GlobalSpaceTree.parse with argc/argv
-    int    argc_GlobalSpaceTree = 0;
-    char** argv_GlobalSpaceTree = nullptr;
-
     //--------------------------------------------------
     // At least one loop, to handle taskQueues
     do {
         //------------------------------------------------------------
-        // Handle args, parse queue into GlobalSpaceTree and then call internal functions from Nebulite::GlobalSpaceTreeFunctions
+        // Parse queue in GlobalSpaceTree
         // Result determines if a critical stop is initiated
         //
         // For now, all tasks are parsed even if the program is in console mode
         // This is useful as tasks like "spawn" or "echo" are directly executed
         // But might break for more complex tasks, so this should be taken into account later on
-        // e.G. inside the functree, checking state of Renderer might be useful
+        // e.G. inside the FuncTree, checking state of Renderer might be useful
 
         // 1.) Clear errors from last loop
         result_tasks_script.errors.clear();
@@ -150,7 +145,7 @@ int main(int argc, char* argv[]){
 
         // 2.) Parse script tasks
         if(!critical_stop){
-            result_tasks_script = globalSpace.resolveTaskQueue(globalSpace.tasks_script, &globalSpace.scriptWaitCounter, &argc_GlobalSpaceTree, &argv_GlobalSpaceTree);
+            result_tasks_script = globalSpace.resolveTaskQueue(globalSpace.tasks_script, &globalSpace.scriptWaitCounter);
         }
         if(result_tasks_script.stoppedAtCriticalResult && globalSpace.recover == "false") {
             critical_stop = true; 
@@ -160,7 +155,7 @@ int main(int argc, char* argv[]){
 
         // 3.) Parse internal tasks
         if(!critical_stop){
-            result_tasks_internal = globalSpace.resolveTaskQueue(globalSpace.tasks_internal, noWaitCounter, &argc_GlobalSpaceTree, &argv_GlobalSpaceTree);
+            result_tasks_internal = globalSpace.resolveTaskQueue(globalSpace.tasks_internal, noWaitCounter);
         }
         if(result_tasks_internal.stoppedAtCriticalResult && globalSpace.recover == "false") {
             critical_stop = true; 
@@ -170,7 +165,7 @@ int main(int argc, char* argv[]){
 
         // 4.) Parse always-tasks
         if(!critical_stop){
-            result_tasks_always = globalSpace.resolveTaskQueue(globalSpace.tasks_always, noWaitCounter, &argc_GlobalSpaceTree, &argv_GlobalSpaceTree);
+            result_tasks_always = globalSpace.resolveTaskQueue(globalSpace.tasks_always, noWaitCounter);
         }
         if(result_tasks_always.stoppedAtCriticalResult && globalSpace.recover == "false") {
             critical_stop = true; 

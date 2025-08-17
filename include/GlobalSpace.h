@@ -116,19 +116,22 @@ namespace Nebulite {
          */
         bool RendererExists();
 
-        // Resolves a given taskqueue by parsing each line into argc/argv and calling the GlobalSpaceTree on the arguments
         /**
          * @brief Resolves a task queue by parsing each task and executing it.
          * 
          * @param tq The task queue to resolve.
          * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
-         * @param argc_GlobalSpaceTree A pointer to an integer for storing argument count.
-         * @param argv_GlobalSpaceTree A pointer to a char pointer array for storing argument values.
          * @return The result of the task queue resolution.
          */
-        Nebulite::taskQueueResult resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* waitCounter, int* argc_GlobalSpaceTree, char*** argv_GlobalSpaceTree);
+        Nebulite::taskQueueResult resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* waitCounter);
 
-        // Instead of calling GlobalSpaceTree.parse, this function resolves the task queue and returns the result
+        /**
+         * @brief Parses a given command string in the GlobalSpaceTree
+         * 
+         * The function ensures that the first argument is the binary name
+         * 
+         * @return The error type resulting from the parsing operation.
+         */
         Nebulite::ERROR_TYPE parseStr(std::string str);
 
         //----------------------------------------------
@@ -151,26 +154,29 @@ namespace Nebulite {
         // Error Table for error descriptions
         ErrorTable errorTable;
 
-    // Removal of private keyword for easier access for Expansion classes
+        //-------------------------------------------------
+        // Removal of private keyword for easier access for Expansion classes
+        // This allows for easier extension and modification of the GlobalSpace
+        // without having to specify its access here
     /*
     private:
-        //---------------------------------------
+        //-------------------------------------------------
         // Allow GlobalSpaceTree Categories to access private members
         friend class Nebulite::GlobalSpaceTreeExpansion::General;
         friend class Nebulite::GlobalSpaceTreeExpansion::Renderer;
         friend class Nebulite::GlobalSpaceTreeExpansion::Debug;
-    */
+    //*/
 
         
 
-        //---------------------------------------
+        //-------------------------------------------------
         // Internal Variables, linked to GlobalSpaceTree
         std::string headless = "false"; // Headless mode (no window)
         std::string recover = "false";  // Enable recoverable error mode
         /*Add more variables as needed*/
 
-        //----------------------------------------------
-        // Other Private Variables
+        //-------------------------------------------------
+        // Other Variables
 
         // Name of the state where files are saved (equal to savegame name)
         std::string stateName;
@@ -203,8 +209,5 @@ namespace Nebulite {
 
         // Original cerr buffer, used for restoring after redirecting
         std::streambuf*& originalCerrBuf;
-
-        // Selected RenderObject
-        Nebulite::RenderObject* selectedRenderObject = nullptr;
     };
 }

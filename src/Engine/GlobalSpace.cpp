@@ -51,7 +51,7 @@ bool Nebulite::GlobalSpace::RendererExists(){
     return renderer != nullptr;
 }
 
-Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* waitCounter, int* argc_GlobalSpaceTree, char*** argv_GlobalSpaceTree){
+Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* waitCounter){
     Nebulite::ERROR_TYPE currentResult = Nebulite::ERROR_TYPE::NONE;
     Nebulite::taskQueueResult result;
 
@@ -109,10 +109,6 @@ Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::task
     return result;
 }
 
-// TODO: Since there is a pseudo-inheritance GlobalSpaceTree -> JSONTree, 
-// make sure that calling help shows both GlobalSpaceTree and JSONTree functions
-// Same for RenderObjectTree -> JSONTree
-// Best solution: inherit/bind inside the FuncTree class!
 Nebulite::ERROR_TYPE Nebulite::GlobalSpace::parseStr(std::string str) {
     // Strings first arg must be the binary name or similar
     if (!str.starts_with(_binName + " ")) {

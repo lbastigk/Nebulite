@@ -1,6 +1,7 @@
 #include "GTE_Renderer.h"
 #include "GlobalSpace.h"       // Global Space for Nebulite
 #include "Invoke.h"            // Invoke for parsing expressions
+#include "RenderObject.h"      // RenderObject for Renderer
 
 //-------------------------------
 // Update
@@ -214,18 +215,18 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::getObjectFrom
     Nebulite::RenderObject* obj = self->getRenderer()->getObjectFromId(id);
     
     if (obj) {
-        self->selectedRenderObject = obj;
+        selectedRenderObject = obj;
         return Nebulite::ERROR_TYPE::NONE;
     } else {
-        self->selectedRenderObject = nullptr;
+        selectedRenderObject = nullptr;
         // Not seen as an error, just no object found
         return Nebulite::ERROR_TYPE::NONE;
     }
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::printSelectedObject(int argc, char* argv[]) {
-    if (self->selectedRenderObject) {
-        std::cout << "Selected Renderobject: \n" << self->selectedRenderObject->serialize() << std::endl;
+    if (selectedRenderObject) {
+        std::cout << "Selected Renderobject: \n" << selectedRenderObject->serialize() << std::endl;
         return Nebulite::ERROR_TYPE::NONE;
     } else {
         std::cout << "No renderobject selected." << std::endl;

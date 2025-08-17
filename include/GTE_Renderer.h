@@ -4,7 +4,8 @@
 #include "FuncTreeExpansionWrapper.h"
 
 namespace Nebulite {
-class GlobalSpace; // Forward declaration of domain class GlobalSpace
+class RenderObject; // Forward declaration for RenderObject selection
+class GlobalSpace;  // Forward declaration of domain class GlobalSpace
 
 namespace GlobalSpaceTreeExpansion {
 class Renderer : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, Renderer> {
@@ -75,6 +76,10 @@ public:
         bindFunction(&Renderer::getObjectFromId,     "get-object",   "Get a renderobject by its ID: <id>");
         bindFunction(&Renderer::printSelectedObject, "print-object", "Print the currently selected renderobject");
     }
+
+private:
+    // Currently selected RenderObject
+    Nebulite::RenderObject* selectedRenderObject = nullptr;
 };
 }
 }
