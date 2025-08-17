@@ -138,8 +138,6 @@ public:
      */
     RETURN_TYPE parseStr(const std::string& cmd);
 
-    // Binding helper
-    // e.g.: bindFunction(&ComplexData::sqlCall, "sqlCall", "Handles SQL calls");
     /**
      * @brief Binds a function to the command tree.
      * 
@@ -151,8 +149,6 @@ public:
     template<typename ClassType>
     void bindFunction(ClassType* obj, RETURN_TYPE (ClassType::*method)(int, char**), const std::string& name, const std::string& help);
 
-    // Bind a variable to the menu (by name)
-    // once bound, it can be set via command line arguments: --varName=value (Must be before the function name!)
     /**
      * @brief Binds a variable to the command tree.
      * 
