@@ -1,28 +1,10 @@
-/*
- * GlobalSpace.h
- * ----------
- * Declares the core types, global objects, and functions for the Nebulite Engine.
- *
- * Overview:
- *   - Provides the main engine interface, including task queue management, renderer access,
- *     and error logging facilities.
- *   - Defines the `taskQueue` and `taskQueueResult` structures for managing and tracking
- *     the execution of queued engine tasks.
- *   - Declares global engine objects (such as the main function tree, renderer, and global state)
- *     and task queues used throughout the engine.
- *   - Exposes functions for engine initialization, renderer management, and task queue resolution.
- *
- * Key Components:
- *   - taskQueue: Holds a list of tasks to be executed, along with parsing and state info.
- *   - taskQueueResult: Stores the result of processing a task queue, including error codes and
- *     whether execution was stopped due to a critical error.
- *   - GlobalSpaceTree: The main function tree for parsing and executing engine commands.
- *   - renderer: Pointer to the main rendering engine, lazily initialized.
- *   - error logging: Facilities for redirecting and storing error output.
- *   - stateName, binName: Strings for tracking the current engine state and binary name.
- *
- * See main.cpp and other engine modules for usage examples and integration details.
+
+/**
+ * @file GlobalSpace.h
+ * 
+ * GlobalSpace class declaration for the Nebulite Engine for core functionality.
  */
+
 
 //------------------------------------------------
 // Core functionality of the Nebulite Engine
@@ -41,13 +23,21 @@ namespace Nebulite {
     // Types
 
     // hold tasks that need to be parsed as well as parsing info
+    /**
+     * @brief Represents a queue of tasks to be processed.
+     */
     struct taskQueue {
         std::deque<std::string> taskList;
         uint64_t waitCounter = 0;
         bool clearAfterResolving = true;
     };
 
-    // Each taskque resolving logs errors encountered and if resolving was stopped due to a critical error
+    /**
+     * @brief Represents the result of resolving a task queue.
+     *
+     * This structure holds the outcome of processing a task queue, including any errors
+     * encountered during resolution and whether the process was halted due to a critical error.
+     */
     struct taskQueueResult{
         bool stoppedAtCriticalResult = false;
         std::vector<Nebulite::ERROR_TYPE> errors;
@@ -55,6 +45,40 @@ namespace Nebulite {
 
     //-------------------------------------------------
     // Global Space object
+
+    /**
+     * @brief Declares the core types, global objects, and functions for the Nebulite Engine
+     *
+     * Overview:
+     * 
+     *   - Provides the main engine interface, including task queue management, renderer access,
+     *     and error logging facilities.
+     * 
+     *   - Defines the `taskQueue` and `taskQueueResult` structures for managing and tracking
+     *     the execution of queued engine tasks.
+     * 
+     *   - Declares global engine objects (such as the main function tree, renderer, and global state)
+     *     and task queues used throughout the engine.
+     * 
+     *   - Exposes functions for engine initialization, renderer management, and task queue resolution.
+     *
+     * Key Components:
+     * 
+     *   - taskQueue: Holds a list of tasks to be executed, along with parsing and state info.
+     * 
+     *   - taskQueueResult: Stores the result of processing a task queue, including error codes and
+     *     whether execution was stopped due to a critical error.
+     * 
+     *   - GlobalSpaceTree: The main function tree for parsing and executing engine commands.
+     * 
+     *   - renderer: Pointer to the main rendering engine, lazily initialized.
+     * 
+     *   - error logging: Facilities for redirecting and storing error output.
+     * 
+     *   - stateName, binName: Strings for tracking the current engine state and binary name.
+     *
+     * See main.cpp and other engine modules for usage examples and integration details.
+     */
     class GlobalSpace {
     public:
         //-------------------------------------------------
@@ -77,14 +101,33 @@ namespace Nebulite {
         //-------------------------------------------------
         // Functions
 
-        // Function to get and lazily initialize the renderer, if its still nullptr
+        /**
+         * @brief Allows for access to the Renderer instance
+         *
+         * This function retrieves the renderer instance, creating it if it doesn't already exist.
+         *
+         * @return A pointer to the Renderer instance.
+         */
         Nebulite::Renderer* getRenderer();
 
-        // Check if renderer exists
+        /**
+         * @brief Checks if the renderer instance exists.
+         * 
+         * @return True if the renderer exists, false otherwise.
+         */
         bool RendererExists();
 
         // Resolves a given taskqueue by parsing each line into argc/argv and calling the GlobalSpaceTree on the arguments
-        Nebulite::taskQueueResult resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* counter, int* argc_GlobalSpaceTree, char*** argv_GlobalSpaceTree);
+        /**
+         * @brief Resolves a task queue by parsing each task and executing it.
+         * 
+         * @param tq The task queue to resolve.
+         * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
+         * @param argc_GlobalSpaceTree A pointer to an integer for storing argument count.
+         * @param argv_GlobalSpaceTree A pointer to a char pointer array for storing argument values.
+         * @return The result of the task queue resolution.
+         */
+        Nebulite::taskQueueResult resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t waitCounter, int* argc_GlobalSpaceTree, char*** argv_GlobalSpaceTree);
 
         // Instead of calling GlobalSpaceTree.parse, this function resolves the task queue and returns the result
         Nebulite::ERROR_TYPE parseStr(std::string str);
