@@ -217,18 +217,40 @@ private:
     // Functions
 
     // Execute the function based on its name, passing the remaining argc and argv
+    /**
+     * @brief Executes the function with the given name.
+     * 
+     * This function looks up the function by name and calls it with the provided arguments.
+     * 
+     * @param name The name of the function to execute.
+     * @param argc The argument count.
+     * @param argv The argument vector.
+     * @return The return value of the function.
+     */
     RETURN_TYPE executeFunction(const std::string& name, int argc, char* argv[]);
 
-    // Help-command, called with argv[1] = "help"
+    /**
+     * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
+     */
     RETURN_TYPE help(int argc, char* argv[]);
 
-    // Quote-aware argument parsing helper
+    /**
+     * @brief Parses a command string into individual arguments, taking quotes into account.
+     */
     std::vector<std::string> parseQuotedArguments(const std::string& cmd);
 
-    // Get all functions and their descriptions
+    /**
+     * @brief Retrieves a list of all functions and their descriptions.
+     * 
+     * @return A vector of pairs containing function names and their descriptions.
+     */
     std::vector<std::pair<std::string, std::string>> getAllFunctions();
 
-    // Get all variables and their descriptions
+    /**
+     * @brief Retrieves a list of all variables and their descriptions.
+     * 
+     * @return A vector of pairs containing variable names and their descriptions.
+     */
     std::vector<std::pair<std::string, std::string>> getAllVariables();
 };
 
