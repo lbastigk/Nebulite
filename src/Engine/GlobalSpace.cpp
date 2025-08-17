@@ -51,15 +51,14 @@ bool Nebulite::GlobalSpace::RendererExists(){
     return renderer != nullptr;
 }
 
-Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t waitCounter, int* argc_GlobalSpaceTree, char*** argv_GlobalSpaceTree){
+Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* waitCounter, int* argc_GlobalSpaceTree, char*** argv_GlobalSpaceTree){
     Nebulite::ERROR_TYPE currentResult = Nebulite::ERROR_TYPE::NONE;
     Nebulite::taskQueueResult result;
 
     // If clearAfterResolving, process and pop each element
     if (tq.clearAfterResolving) {
         while (!tq.taskList.empty() && !result.stoppedAtCriticalResult) {
-            // Counter logic
-            if (waitCounter != 0) break;
+            if (waitCounter != nullptr && *waitCounter > 0) break;
 
             std::string argStr = tq.taskList.front();
             tq.taskList.pop_front();
@@ -85,7 +84,7 @@ Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::task
         // If not clearing, process every element without popping
         for (const auto& argStrOrig : tq.taskList) {
             if (result.stoppedAtCriticalResult) break;
-            if (waitCounter != 0) break;
+            if (waitCounter != nullptr && *waitCounter > 0) break;
 
             // Add binary name if missing
             // While args from command line have binary name in them, 

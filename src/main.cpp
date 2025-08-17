@@ -124,6 +124,7 @@ int main(int argc, char* argv[]){
     Nebulite::taskQueueResult result_tasks_always;
     Nebulite::ERROR_TYPE lastCriticalResult;
     bool critical_stop = false;
+    uint64_t* noWaitCounter = nullptr;
 
     // A new set of argc/argv is needed to parse tasks
     // TaskQueue -> pop out string -> parse into argc/argv -> call GlobalSpaceTree.parse with argc/argv
@@ -149,7 +150,7 @@ int main(int argc, char* argv[]){
 
         // 2.) Parse script tasks
         if(!critical_stop){
-            result_tasks_script = globalSpace.resolveTaskQueue(globalSpace.tasks_script,globalSpace.tasks_script.waitCounter,&argc_GlobalSpaceTree,&argv_GlobalSpaceTree);
+            result_tasks_script = globalSpace.resolveTaskQueue(globalSpace.tasks_script, &globalSpace.scriptWaitCounter, &argc_GlobalSpaceTree, &argv_GlobalSpaceTree);
         }
         if(result_tasks_script.stoppedAtCriticalResult && globalSpace.recover == "false") {
             critical_stop = true; 
@@ -159,7 +160,7 @@ int main(int argc, char* argv[]){
 
         // 3.) Parse internal tasks
         if(!critical_stop){
-            result_tasks_internal = globalSpace.resolveTaskQueue(globalSpace.tasks_internal,0,&argc_GlobalSpaceTree,&argv_GlobalSpaceTree);
+            result_tasks_internal = globalSpace.resolveTaskQueue(globalSpace.tasks_internal, noWaitCounter, &argc_GlobalSpaceTree, &argv_GlobalSpaceTree);
         }
         if(result_tasks_internal.stoppedAtCriticalResult && globalSpace.recover == "false") {
             critical_stop = true; 
@@ -169,7 +170,7 @@ int main(int argc, char* argv[]){
 
         // 4.) Parse always-tasks
         if(!critical_stop){
-            result_tasks_always = globalSpace.resolveTaskQueue(globalSpace.tasks_always,0,&argc_GlobalSpaceTree,&argv_GlobalSpaceTree);
+            result_tasks_always = globalSpace.resolveTaskQueue(globalSpace.tasks_always, noWaitCounter, &argc_GlobalSpaceTree, &argv_GlobalSpaceTree);
         }
         if(result_tasks_always.stoppedAtCriticalResult && globalSpace.recover == "false") {
             critical_stop = true; 
@@ -186,7 +187,8 @@ int main(int argc, char* argv[]){
 
             // Reduce script wait counter if not in console mode
             if(!globalSpace.getRenderer()->isConsoleMode()){
-                globalSpace.tasks_script.waitCounter--; 
+                if(globalSpace.scriptWaitCounter > 0) globalSpace.scriptWaitCounter--; 
+                if(globalSpace.scriptWaitCounter < 0) globalSpace.scriptWaitCounter = 0;
             }  
         }
     // Note 1:

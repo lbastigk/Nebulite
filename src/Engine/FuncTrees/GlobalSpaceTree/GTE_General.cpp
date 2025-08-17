@@ -57,9 +57,9 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::stateSave(int 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::wait(int argc, char* argv[]){
     if(argc == 2){
         std::istringstream iss(argv[1]);
-        iss >> self->tasks_script.waitCounter;
-        if (self->tasks_script.waitCounter < 0){
-            self->tasks_script.waitCounter = 0;
+        iss >> self->scriptWaitCounter;
+        if (self->scriptWaitCounter < 0){
+            self->scriptWaitCounter = 0;
         }
         return Nebulite::ERROR_TYPE::NONE;
     }

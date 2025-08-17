@@ -28,7 +28,6 @@ namespace Nebulite {
      */
     struct taskQueue {
         std::deque<std::string> taskList;
-        uint64_t waitCounter = 0;
         bool clearAfterResolving = true;
     };
 
@@ -127,7 +126,7 @@ namespace Nebulite {
          * @param argv_GlobalSpaceTree A pointer to a char pointer array for storing argument values.
          * @return The result of the task queue resolution.
          */
-        Nebulite::taskQueueResult resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t waitCounter, int* argc_GlobalSpaceTree, char*** argv_GlobalSpaceTree);
+        Nebulite::taskQueueResult resolveTaskQueue(Nebulite::taskQueue& tq, uint64_t* waitCounter, int* argc_GlobalSpaceTree, char*** argv_GlobalSpaceTree);
 
         // Instead of calling GlobalSpaceTree.parse, this function resolves the task queue and returns the result
         Nebulite::ERROR_TYPE parseStr(std::string str);
@@ -145,6 +144,9 @@ namespace Nebulite {
 
         // Always-tasks added with the prefix "always "
         Nebulite::taskQueue tasks_always;
+
+        // Wait counter for script tasks
+        uint64_t scriptWaitCounter = 0;
 
         // Error Table for error descriptions
         ErrorTable errorTable;
