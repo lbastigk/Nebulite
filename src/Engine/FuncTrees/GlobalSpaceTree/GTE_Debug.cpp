@@ -55,25 +55,34 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::render_object(in
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::errorlog(int argc, char* argv[]){
+    // Initialize the error logging buffer
+    if(!originalCerrBuf) {
+        // Handle the case where originalCerrBuf is not set
+        originalCerrBuf = std::cerr.rdbuf();
+    }
+
     if(argc == 2){
         if(!strcmp(argv[1], "on")){
-            if(!self->errorLogStatus){
+            if(!errorLogStatus){
                 try {
+                    // TODO: log on causes crash with wine
+                    // wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
+
                     // Create ofstream only when needed (lazy initialization)
-                    if (!self->errorFile) {
-                        self->errorFile = std::make_unique<std::ofstream>();
+                    if (!errorFile) {
+                        errorFile = std::make_unique<std::ofstream>();
                     }
                     
                     // Log errors in separate file
-                    self->errorFile->open("errors.log");
-                    if (!(*self->errorFile)) {
+                    errorFile->open("errors.log");
+                    if (!(*errorFile)) {
                         std::cerr << "Failed to open error file." << std::endl;
                         return Nebulite::ERROR_TYPE::CRITICAL_INVALID_FILE;
                     }
                     
-                    self->originalCerrBuf = std::cerr.rdbuf(); // Store the original cerr buffer
-                    std::cerr.rdbuf(self->errorFile->rdbuf()); // Redirect to file
-                    self->errorLogStatus = true;
+                    originalCerrBuf = std::cerr.rdbuf(); // Store the original cerr buffer
+                    std::cerr.rdbuf(errorFile->rdbuf()); // Redirect to file
+                    errorLogStatus = true;
                     
                 } catch (const std::exception& e) {
                     std::cerr << "Failed to create error log: " << e.what() << std::endl;
@@ -85,17 +94,17 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::errorlog(int arg
             }
         }
         else if (!strcmp(argv[1], "off")){
-            if(self->errorLogStatus){
+            if(errorLogStatus){
                 // Close error log
-                std::cerr.flush();                           // Flush before restoring
-                std::cerr.rdbuf(self->originalCerrBuf);     // Restore the original buffer
+                std::cerr.flush();                    // Flush before restoring
+                std::cerr.rdbuf(originalCerrBuf);     // Restore the original buffer
                 
-                if (self->errorFile) {
-                    self->errorFile->close();
+                if (errorFile) {
+                    errorFile->close();
                     // Keep the unique_ptr for potential reuse
                 }
                 
-                self->errorLogStatus = false;
+                errorLogStatus = false;
             }
         } 
     }

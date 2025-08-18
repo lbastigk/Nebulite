@@ -59,8 +59,7 @@ int main(int argc, char* argv[]){
     //--------------------------------------------------
     // Initialize the global space
     std::string binaryName = argv[0];
-    std::streambuf* originalCerrBuf = std::cerr.rdbuf();
-    Nebulite::GlobalSpace globalSpace(binaryName, originalCerrBuf);
+    Nebulite::GlobalSpace globalSpace(binaryName);
 
     //--------------------------------------------------
     // Add main args to taskList, split by ';'
@@ -147,7 +146,7 @@ int main(int argc, char* argv[]){
         if(!critical_stop){
             result_tasks_script = globalSpace.resolveTaskQueue(globalSpace.tasks_script, &globalSpace.scriptWaitCounter);
         }
-        if(result_tasks_script.stoppedAtCriticalResult && globalSpace.recover == "false") {
+        if(result_tasks_script.stoppedAtCriticalResult && globalSpace.cmdVars.recover == "false") {
             critical_stop = true; 
             lastCriticalResult = result_tasks_script.errors.back();
             break;
@@ -157,7 +156,7 @@ int main(int argc, char* argv[]){
         if(!critical_stop){
             result_tasks_internal = globalSpace.resolveTaskQueue(globalSpace.tasks_internal, noWaitCounter);
         }
-        if(result_tasks_internal.stoppedAtCriticalResult && globalSpace.recover == "false") {
+        if(result_tasks_internal.stoppedAtCriticalResult && globalSpace.cmdVars.recover == "false") {
             critical_stop = true; 
             lastCriticalResult = result_tasks_internal.errors.back();
             break;
@@ -167,7 +166,7 @@ int main(int argc, char* argv[]){
         if(!critical_stop){
             result_tasks_always = globalSpace.resolveTaskQueue(globalSpace.tasks_always, noWaitCounter);
         }
-        if(result_tasks_always.stoppedAtCriticalResult && globalSpace.recover == "false") {
+        if(result_tasks_always.stoppedAtCriticalResult && globalSpace.cmdVars.recover == "false") {
             critical_stop = true; 
             lastCriticalResult = result_tasks_always.errors.back();
             break;

@@ -84,7 +84,7 @@ namespace Nebulite {
         // Special Member Functions
 
         // Constructor
-        GlobalSpace(const std::string binName, std::streambuf*& originalCerrBufRef);
+        GlobalSpace(const std::string binName);
 
         // Destructor
         ~GlobalSpace() = default;
@@ -171,23 +171,22 @@ namespace Nebulite {
 
         //-------------------------------------------------
         // Internal Variables, linked to GlobalSpaceTree
-        std::string headless = "false"; // Headless mode (no window)
-        std::string recover = "false";  // Enable recoverable error mode
-        /*Add more variables as needed*/
+        struct commandLineVariables{
+            std::string headless = "false"; // Headless mode (no window)
+            std::string recover = "false";  // Enable recoverable error mode
+            /*Add more variables as needed*/
+        };
+        commandLineVariables cmdVars;
 
         //-------------------------------------------------
         // Other Variables
 
-        // Name of the state where files are saved (equal to savegame name)
-        std::string stateName;
+        struct names{
+            std::string state;      // Name of the state where files are saved (equal to savegame name)
+            std::string binary;     // Name of the binary, used for parsing arguments
+        }names;
 
-        // Name of the binary, used for parsing arguments
-        std::string _binName;
-
-        // Current status of error logging
-        // false : logging to cerr
-        // true  : logging to file
-        bool errorLogStatus;
+        
 
         //---------------------------------------
         // Objects
@@ -201,13 +200,11 @@ namespace Nebulite {
         // Global Space document 
         Nebulite::JSON global;
 
+    private:
+
         // Pointer to the renderer, initialized on first use via getRenderer()
         std::unique_ptr<Nebulite::Renderer> renderer;
 
-        // File for error logging, if errorLogStatus is true
-        std::unique_ptr<std::ofstream> errorFile;
 
-        // Original cerr buffer, used for restoring after redirecting
-        std::streambuf*& originalCerrBuf;
     };
 }

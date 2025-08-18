@@ -1,16 +1,8 @@
 #include "GlobalSpace.h"
 #include "GlobalSpaceTree.h"
 
-Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& originalCerrBufRef)
-    : originalCerrBuf(originalCerrBufRef)
+Nebulite::GlobalSpace::GlobalSpace(const std::string binName)
 {
-
-    //-------------------------------------------------
-    // Initialize error logging members
-    errorFile = nullptr;              // Don't create ofstream yet
-    errorLogStatus = false;
-    originalCerrBuf = nullptr;
-
     //-------------------------------------------------
     // Objects
     // ...
@@ -30,9 +22,8 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& o
 
     //-------------------------------------------------
     // General Variables
-    errorLogStatus = false;
-    _binName = binName;
-    stateName = "";
+    names.binary = binName;
+    names.state  = "";
 
     //-------------------------------------------------
     // Do first update
@@ -41,7 +32,7 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName, std::streambuf*& o
 
 Nebulite::Renderer* Nebulite::GlobalSpace::getRenderer() {
     if (renderer == nullptr) {
-        renderer = std::make_unique<Nebulite::Renderer>(*invoke, global, headless == "true");
+        renderer = std::make_unique<Nebulite::Renderer>(*invoke, global, cmdVars.headless == "true");
         renderer->setFPS(60);
     }
     return renderer.get();
@@ -67,8 +58,8 @@ Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::task
             // While args from command line have binary name in them, 
             // commands from Renderobject, taskfile or console do not.
             // Is needed for correct parsing; argv[0] is alwys binary name.
-            if (!argStr.starts_with(_binName + " ")) {
-                argStr = _binName + " " + argStr;
+            if (!argStr.starts_with(names.binary + " ")) {
+                argStr = names.binary + " " + argStr;
             }
 
             // Parse
@@ -91,8 +82,8 @@ Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::task
             // commands from Renderobject, taskfile or console do not.
             // Is needed for correct parsing; argv[0] is alwys binary name.
             std::string argStr = argStrOrig;
-            if (!argStr.starts_with(_binName + " ")) {
-                argStr = _binName + " " + argStr;
+            if (!argStr.starts_with(names.binary + " ")) {
+                argStr = names.binary + " " + argStr;
             }
 
             // Parse
@@ -111,8 +102,8 @@ Nebulite::taskQueueResult Nebulite::GlobalSpace::resolveTaskQueue(Nebulite::task
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpace::parseStr(std::string str) {
     // Strings first arg must be the binary name or similar
-    if (!str.starts_with(_binName + " ")) {
-        str = _binName + " " + str; // Add binary name if missing
+    if (!str.starts_with(names.binary + " ")) {
+        str = names.binary + " " + str; // Add binary name if missing
     }
 
     // Since JSON is linked inside the GlobalSpaceTree, we can parse directly

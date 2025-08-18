@@ -69,6 +69,15 @@ public:
         // TEST: Binding an already existing function
         //bindFunction(&Debug::set, "log", "Dummy function to test binding with existing name in own tree"); // <- THIS WILL FAIL
     }
+
+private:
+    std::streambuf* originalCerrBuf = nullptr;
+    std::unique_ptr<std::ofstream> errorFile;
+    
+    // Current status of error logging
+    // false : logging to cerr
+    // true  : logging to file
+    bool errorLogStatus = false;
 };
 }
 }

@@ -15,8 +15,8 @@ Nebulite::GlobalSpaceTree::GlobalSpaceTree(Nebulite::GlobalSpace* self, Nebulite
   RenderObjectDraft = createExpansionOfType<GlobalSpaceTreeExpansion::RenderObjectDraft>();
 
   // Initialize Variable Bindings here, due to circular dependency issues
-  bindVariable(&self->headless, "headless", "Set headless mode (no renderer)");
-  bindVariable(&self->recover, "recover", "Enable recoverable error mode");
+  bindVariable(&self->cmdVars.headless, "headless", "Set headless mode (no renderer)");
+  bindVariable(&self->cmdVars.recover,  "recover",  "Enable recoverable error mode");
 }
 
 //--------------------------------- 
