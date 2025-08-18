@@ -9,3 +9,91 @@ JSONC
     filter remove_matches ^\s*/\*.*?\*/\s*$
     extension jsonc
     3rd_gen_scale 0.5
+C++
+    filter rm_comments_in_strings " /* */
+    filter rm_comments_in_strings " // 
+    filter call_regexp_common C++
+    extension C
+    extension CPP
+    extension c++
+    extension c++m
+    extension cc
+    extension ccm
+    extension cpp
+    extension cppm
+    extension cxx
+    extension cxxm
+    extension h++
+    extension inl
+    extension ipp
+    extension ixx
+    extension pcc
+    extension tcc
+    extension tpp
+    3rd_gen_scale 1.51
+    end_of_line_continuation \\$
+C/C++ Header
+    filter rm_comments_in_strings " /* */
+    filter rm_comments_in_strings " // 
+    filter call_regexp_common C++
+    extension H
+    extension h
+    extension hh
+    extension hpp
+    extension hxx
+    3rd_gen_scale 1.00
+    end_of_line_continuation \\$
+Bourne Again Shell
+    filter remove_matches ^\s*#
+    filter remove_inline #.*$
+    extension bash
+    script_exe bash
+    3rd_gen_scale 3.81
+    end_of_line_continuation \\$
+Bourne Shell
+    filter remove_matches ^\s*#
+    filter remove_inline #.*$
+    extension sh
+    script_exe sh
+    3rd_gen_scale 3.81
+    end_of_line_continuation \\$
+Python
+    filter remove_matches /\*
+    filter remove_matches \*/
+    filter remove_matches ^\s*#
+    filter docstring_to_C
+    filter call_regexp_common C
+    filter remove_inline #.*$
+    extension buck
+    extension build.bazel
+    extension gclient
+    extension gyp
+    extension gypi
+    extension lmi
+    extension py
+    extension py3
+    extension pyde
+    extension pyi
+    extension pyp
+    extension pyt
+    extension pyw
+    extension sconscript
+    extension sconstruct
+    extension snakefile
+    extension tac
+    extension workspace
+    extension wscript
+    extension wsgi
+    extension xpy
+    script_exe python
+    script_exe python2.6
+    script_exe python2.7
+    script_exe python3
+    script_exe python3.3
+    script_exe python3.4
+    script_exe python3.5
+    script_exe python3.6
+    script_exe python3.7
+    script_exe python3.8
+    3rd_gen_scale 4.20
+    end_of_line_continuation \\$
