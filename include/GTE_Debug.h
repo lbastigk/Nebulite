@@ -38,9 +38,11 @@ public:
     Nebulite::ERROR_TYPE logState(int argc, char* argv[]);
 
     // Attaches functioncall that is executed on each tick
+    // TODO: move to GTE_General
     Nebulite::ERROR_TYPE always(int argc, char* argv[]);
 
     // Clears all always-functioncalls
+    // TODO: move to GTE_General
     Nebulite::ERROR_TYPE alwaysClear(int argc, char* argv[]);
 
     // [DEBUG] Get and store a standard renderobject for reference to ./Resources/Renderobjects/standard.jsonc

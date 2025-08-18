@@ -1,43 +1,8 @@
-/*
-===========================================================
-GlobalSpaceTree - Function Tree for Global Nebulite Logic
-===========================================================
-
-This class extends FuncTreeWrapper<ERROR_TYPE> to provide
-a focused, self-contained parsing interface (functioncalls)
-for Nebulite's global logic.
-
-Unlike RenderObjectTree, which operates on individual
-RenderObjects, GlobalSpaceTree handles global operations without affecting
-the RenderObject state directly. It is designed for tasks that
-require global context, such as:
-    - Renderer control
-    - General utility functions
-    - Debugging and logging
-    - Global state management
-    - Spawn of RenderObjects
-
-GlobalSpaceTree enables these operations cleanly via keywords
-bound to C++ functions, keeping the parsing logic in a separate,
-well-scoped layer.
-
------------------------------------------------------------
-Design Constraints:
-    - All functioncalls operate on global Nebulite state
-    - No access to individual RenderObject state
-    - Restricted to global data and operations
-    - For Additional functionality, the usage of Expansion files is encouraged
-      (see `include/GTE_*.h` for examples)
-
------------------------------------------------------------
-How to use the GlobalSpaceTree:
-    - Functioncalls are parsed/added to the TaskQueue via the Invoke system
-    - Create a new Invoke Ruleset through a compatible JSON file
-    - add the functioncall to the "functioncalls_global" array
-    - The GlobalSpaceTree will parse the functioncall and execute it if the invoke is evaluated as true
-    - For more complex in-object logic, use the RenderObjectTree for local RenderObject operations
-    - For more advanced features, consider using Expansion files to extend GlobalSpaceTree functionality
-*/
+/**
+ * @file GlobalSpaceTree.h
+ * 
+ * This file contains the GlobalSpaceTree class, which is the parsing interface for global Nebulite logic.
+ */
 
 #pragma once
 
@@ -64,6 +29,54 @@ class GlobalSpace;
 
 //----------------------------------------------------------
 // GlobalSpaceTree class, Expand through Expansion files
+
+/**
+ * @brief This class extends FuncTreeWrapper<ERROR_TYPE> to provide a focused, 
+ * self-contained parsing interface (functioncalls) for Nebulite's global logic.
+ * 
+ * Unlike RenderObjectTree, which operates on individual
+ * RenderObjects, GlobalSpaceTree handles global operations without affecting
+ * the RenderObject state directly. It is designed for tasks that
+ * require global context, such as:
+ * 
+ *     - Renderer control
+ * 
+ *     - General utility functions
+ * 
+ *     - Debugging and logging
+ * 
+ *     - Global state management
+ * 
+ *     - Spawn of RenderObjects
+ * 
+ * GlobalSpaceTree enables these operations cleanly via keywords
+ * bound to C++ functions, keeping the parsing logic in a separate,
+ * well-scoped layer.
+ * 
+ * -----------------------------------------------------------
+ * Design Constraints:
+ *     - All functioncalls operate on global Nebulite state
+ *     - No access to individual RenderObject state
+ *     - Restricted to global data and operations
+ *     - For Additional functionality, the usage of Expansion files is encouraged
+ *       (see `include/GTE_*.h` for examples)
+ * 
+ * -----------------------------------------------------------
+ * How to use the GlobalSpaceTree:
+ * 
+ *     - Functioncalls are parsed/added to the TaskQueue via the Invoke system
+ * 
+ *     - Create a new Invoke Ruleset through a compatible JSON file
+ * 
+ *     - add the functioncall to the `functioncalls_global` array
+ * 
+ *     - The GlobalSpaceTree will parse the functioncall and execute it if the invoke is evaluated as true
+ * 
+ *     - For more complex in-object logic, use the RenderObjectTree for local RenderObject operations
+ * 
+ *     - For more advanced features, consider using Expansion files to extend GlobalSpaceTree functionality
+ * 
+ */
 class GlobalSpaceTree : public FuncTree<Nebulite::ERROR_TYPE>{  // Inherit a funcTree and helper functions
 public:
     GlobalSpaceTree(Nebulite::GlobalSpace* self, Nebulite::JSONTree* jsonTree);
@@ -73,8 +86,9 @@ private:
     // References are needed within the base class to simplify the factory method
     Nebulite::GlobalSpace* self;  // Linkage to the GlobalSpace
 
-    // Factory method for creating expansion instances with proper linkage
-    // Improves readability and maintainability
+    /**
+     * @brief Factory method for creating expansion instances with proper linkage
+     */
     template<typename ExpansionType>
     std::unique_ptr<ExpansionType> createExpansionOfType() {
         auto expansion = std::make_unique<ExpansionType>(self, this);
@@ -94,11 +108,11 @@ private:
     // 3.) Insert the new object here as a unique pointer
     // 4.) Initialize via make_unique in the GlobalSpaceTree constructor
     //---------------------------------------
-    std::unique_ptr<GlobalSpaceTreeExpansion::Debug> debug;
-    std::unique_ptr<GlobalSpaceTreeExpansion::General> general;
-    std::unique_ptr<GlobalSpaceTreeExpansion::Renderer> renderer;
-    std::unique_ptr<GlobalSpaceTreeExpansion::GUI> gui;  // GUI Expansion for DearImgui integration
-    std::unique_ptr<GlobalSpaceTreeExpansion::RenderObjectDraft> RenderObjectDraft; // Mock RenderObject for testing purposes
+    std::unique_ptr<GlobalSpaceTreeExpansion::Debug> debug;                             // Debugging functions such as logging, creating standard files etc.
+    std::unique_ptr<GlobalSpaceTreeExpansion::General> general;                         // General functions such as echo, exit, task loading etc.
+    std::unique_ptr<GlobalSpaceTreeExpansion::Renderer> renderer;                       // Renderer Expansion for global rendering control
+    std::unique_ptr<GlobalSpaceTreeExpansion::GUI> gui;                                 // GUI Expansion for DearImgui integration
+    std::unique_ptr<GlobalSpaceTreeExpansion::RenderObjectDraft> RenderObjectDraft;     // Mock RenderObject for testing purposes
 };
 }
 

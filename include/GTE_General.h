@@ -44,6 +44,7 @@ public:
     Nebulite::ERROR_TYPE echo(int argc, char* argv[]);
 
     // Echo a given string to cerr/errorfile
+    // TODO: move to GTE_Debug
     Nebulite::ERROR_TYPE error(int argc, char* argv[]);
 
     // Assert CRITICAL_CUSTOM_ASSERT

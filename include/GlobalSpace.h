@@ -202,7 +202,14 @@ namespace Nebulite {
 
     private:
 
-        // Pointer to the renderer, initialized on first use via getRenderer()
+        /**
+         * @brief Pointer to the renderer instance.
+         * 
+         * This pointer is used to access the renderer for drawing operations.
+         * It is initialized on first use via getRenderer(), all access is through this function.
+         * Due to the way the renderer is initialized, the object is marked as private.
+         * Under no circumstances should processes try to access the renderer directly!
+         */
         std::unique_ptr<Nebulite::Renderer> renderer;
 
 
