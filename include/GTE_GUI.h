@@ -1,3 +1,9 @@
+/**
+ * @file GUI.h
+ * 
+ * Planned extension for GUI-Element-Insertion into the Nebulite Renderer
+ */
+
 #pragma once
 
 #include "ErrorTypes.h"
@@ -14,6 +20,12 @@ public:
 
     //----------------------------------------
     // Available Functions
+
+    /**
+     * @brief Example function for GUI elements.
+     * 
+     * Idea is to create a simple GUI-Element with Dear ImGui.
+     */
     Nebulite::ERROR_TYPE example(int argc, char* argv[]);
     
     //----------------------------------------

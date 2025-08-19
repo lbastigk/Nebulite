@@ -4,9 +4,6 @@
  *
  * This file contains a GlobalTree extension to handle input bindings.
  * Note that this file is a work in progress!
- *
- * @author Leo Bastigkeit
- * @date August 15, 2025
  */
 
 #include "FuncTreeExpansionWrapper.h"
@@ -51,20 +48,17 @@ public:
     //----------------------------------------
     // Binding Functions
     void setupBindings() {
-        bindFunction(&InputMapping::readMappingsFromFile,"read-input-mappings-from-file", "Reads Input Mapping from inputs.jsonc file");
-        bindFunction(&InputMapping::updateInputMappings,"update-input-mappings", "Updates current input mapping: <key> <slot> <input>");
-        bindFunction(&InputMapping::writeMappingsToFile,"write-input-mappings-to-file", "Writes Input Mapping to inputs.jsonc file");
+        bindFunction(&InputMapping::readMappingsFromFile,   "read-input-mappings-from-file",    "Reads Input Mapping from inputs.jsonc file");
+        bindFunction(&InputMapping::updateInputMappings,    "update-input-mappings",            "Updates current input mapping: <key> <slot> <input>");
+        bindFunction(&InputMapping::writeMappingsToFile,    "write-input-mappings-to-file",     "Writes Input Mapping to inputs.jsonc file");
     }
 
 private:
-    // Inputs bindings should be parsed into a struct
-    // accessible in global document via:
-    // global.input.bound.<current/delta>.<action>
-    //
-    // action: burst, if either is true:
-    // association key_1 = {"space" , delta}
-    // association key_2 = {"left", current}
-    // association key_3 = {"right", current}
+    /**
+     * @brief Represents a key association for input mapping.
+     * 
+     * The struct represents the Association between a key and its input type.
+     */
     struct association{
         std::string key; // e.g. "space"
         enum class type {
@@ -74,40 +68,54 @@ private:
             onRelease
         } type;
     };
+
+    /**
+     * @brief Represents a mapping entry for input actions.
+     * 
+     * Any input action can be associated with up to three keys.
+     */
     struct mapEntry{
         association slot_1{"", association::type::empty}; // First key associated with the action
         association slot_2{"", association::type::empty}; // Second key associated with the action
         association slot_3{"", association::type::empty}; // Third key associated with the action
     };
 
-    // Map of input actions to their key associations
+    /**
+     * @brief Maps input actions to their associated keys.
+     */
     absl::flat_hash_map<std::string, mapEntry> mappings;
 
-    /*
-    then, we can loop through all mappings:
-
-    for (const auto& [action, entry] : mappings) {
-        // Process each mapping
-        int current = 0;
-
-        for(const auto& association : {entry.slot_1, entry.slot_2, entry.slot_3}) {
-            switch (association.type) {
-                case association::type::current:
-                    current += global.get<int>("<locationForCurrent>." + association.key);
-                    break;
-                case association::type::onPress:
-                    current += abs(global.get<int>("<locationForDelta>." + association.key)) == 1;
-                    break;
-                case association::type::onRelease:
-                    current += global.get<int>("<locationForDelta>." + association.key) == -1;
-                    break;
-                case association::type::empty:
-                    break;
-            }
-        }
-
-        // Now we write the state into our mapping location
-        global.set<int>("<locationForAction>." + action, current);
-    }
-    */
+    /**
+     * @todo Implement input mapping association:
+     * 
+     * Example:
+     * 
+     * ```cpp
+     * 
+     *  for (const auto& [action, entry] : mappings) {
+     *      // Process each mapping
+     *      int current = 0;
+     *
+     *      for(const auto& association : {entry.slot_1, entry.slot_2, entry.slot_3}) {
+     *          switch (association.type) {
+     *              case association::type::current:
+     *                  current +=     global.get<int>("<locationForCurrent>." + association.key);
+     *                  break;
+     *              case association::type::onPress:
+     *                  current += abs(global.get<int>("<locationForDelta>." + association.key)) == 1;
+     *                  break;
+     *              case association::type::onRelease:
+     *                  current +=     global.get<int>("<locationForDelta>." + association.key) == -1;
+     *                  break;
+     *              case association::type::empty:
+     *                  break;
+     *          }
+     *      }
+     *
+     *      // Now we write the state into our mapping location
+     *      global.set<int>("<locationForAction>." + action, current);
+     * }
+     *
+     * ```
+     */
 };
