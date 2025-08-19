@@ -161,7 +161,7 @@ public:
      * @brief Saves the current game state under state prefix
      * 
      * @param argc The argument count
-     * @param argv The argument vector: 
+     * @param argv The argument vector: no inputs available
      * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
      * 
      * @todo not implemented, move to separate extension GTE_StateManagement

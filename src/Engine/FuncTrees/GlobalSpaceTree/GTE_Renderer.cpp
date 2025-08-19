@@ -137,7 +137,6 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::showFPS(int a
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::moveCam(int argc, char* argv[]){
     if (argc < 3) {
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;

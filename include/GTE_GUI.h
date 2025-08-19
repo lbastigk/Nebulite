@@ -11,6 +11,10 @@
 
 namespace Nebulite {
 class GlobalSpace; // Forward declaration of domain class GlobalSpace 
+
+/**
+ * @brief GUI-Element-Insertion for the Nebulite Renderer.
+ */
 namespace GlobalSpaceTreeExpansion {
 class GUI : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, GUI> {
 public:
