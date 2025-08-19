@@ -54,6 +54,7 @@ class GlobalSpace;
  * well-scoped layer.
  * 
  * -----------------------------------------------------------
+ * 
  * Design Constraints:
  *     - All functioncalls operate on global Nebulite state
  *     - No access to individual RenderObject state
@@ -62,6 +63,7 @@ class GlobalSpace;
  *       (see `include/GTE_*.h` for examples)
  * 
  * -----------------------------------------------------------
+ * 
  * How to use the GlobalSpaceTree:
  * 
  *     - Functioncalls are parsed/added to the TaskQueue via the Invoke system
@@ -77,7 +79,7 @@ class GlobalSpace;
  *     - For more advanced features, consider using Expansion files to extend GlobalSpaceTree functionality
  * 
  */
-class GlobalSpaceTree : public FuncTree<Nebulite::ERROR_TYPE>{  // Inherit a funcTree and helper functions
+class GlobalSpaceTree : public FuncTree<Nebulite::ERROR_TYPE>{
 public:
     GlobalSpaceTree(Nebulite::GlobalSpace* self, Nebulite::JSONTree* jsonTree);
 
