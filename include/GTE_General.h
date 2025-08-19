@@ -1,3 +1,9 @@
+/**
+ * @file GTE_General.h
+ * 
+ * This file contains an expansion of the GlobalSpaceTree for general-purpose functions.
+ */
+
 #pragma once
 
 #include "ErrorTypes.h"
@@ -6,6 +12,11 @@
 namespace Nebulite {
 class GlobalSpace; // Forward declaration of domain class GlobalSpace
 
+/**
+ * @brief General-purpose functions for the GlobalSpaceTree.
+ * 
+ * This class binds general-purpose functions to the GlobalSpaceTree.
+ */
 namespace GlobalSpaceTreeExpansion {
 class General : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, General> {
 public:
@@ -16,50 +27,157 @@ public:
     //----------------------------------------
     // Available Functions
 
-    // Evaluate all following expressions before parsing further:
-    //
-    // calling:     echo $(1+1)         outputs:    $(1+1)
-    // calling:     eval echo $(1+1)    outputs:    2.000000
+    /**
+     * @brief Evaluates an expression string and executes it
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: the string to evaluate
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * 
+     * Examples:
+     * 
+     * eval echo $(1+1)    outputs:    2.000000
+     * eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
+     */
     Nebulite::ERROR_TYPE eval(int argc, char* argv[]);
 
-    // exit entire program
+    /**
+     * @brief Exits the entire program
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: no inputs available
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * 
+     * @todo In order to properly exit, it we must make sure to clean up the taskQueue:
+     *  ./bin/Nebulite "echo 1; exit ; echo 2"
+     * Will still echo 2
+     */
     Nebulite::ERROR_TYPE exitProgram(int argc, char* argv[]);
 
-    // Wait a given amount of frames
+    /**
+     * @brief Sets the waitCounter to the given value to halt all script tasks for a given amount of frames
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: frame count to wait
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE wait(int argc, char* argv[]);
 
-    // Load a scripting file for tasks to do
+    /**
+     * @brief Loads a task list from a file
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: the filename to load
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE loadTaskList(int argc, char* argv[]);
 
-    // for-loop of other functioncalls: for <var> <start> <end> <functioncall>
+    /**
+     * @brief Executes a for-loop with a function call
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <var> <start> <end> <functioncall>
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE forLoop(int argc, char* argv[]);
 
-    // if-condition
+    /**
+     * @brief Executes a block of code if a condition is true
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <condition> <functioncall>
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE ifCondition(int argc, char* argv[]);
 
-    // Return custom value of ERROR_TYPE
+    /**
+     * @brief Returns a custom value of ERROR_TYPE
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <value>
+     * @return The specified value of ERROR_TYPE. 
+     * Returns Nebulite::ERROR_TYPE::TOO_FEW_ARGS if no value is provided
+     * or Nebulite::ERROR_TYPE::TOO_MANY_ARGS if too many values are provided
+     */
     Nebulite::ERROR_TYPE func_return(int argc, char* argv[]);
 
     // Echo a given string to cout
+    /**
+     * @brief Echoes all arguments as string to the standard output
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <string>
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE echo(int argc, char* argv[]);
 
-    // Echo a given string to cerr/errorfile
-    // TODO: move to GTE_Debug
+    /**
+     * @brief Echoes all arguments as string to the standard error
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <string>
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * 
+     * @todo Move to GTE_Debug
+     */
     Nebulite::ERROR_TYPE error(int argc, char* argv[]);
 
     // Assert CRITICAL_CUSTOM_ASSERT
+    /**
+     * @brief Asserts a condition and throws a custom error if false
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <condition>
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE func_assert(int argc, char* argv[]);
 
     // Force a global value to a certain value
+    /**
+     * @brief Forces a global variable to a specific value
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key> <value>
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * 
+     * @todo move to GTE_InputMapping
+     */
     Nebulite::ERROR_TYPE forceGlobal(int argc, char* argv[]);
 
     // Release all forced global values
+    /**
+     * @brief Clears all forced global variables
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key> <value>
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * 
+     * @todo move to GTE_InputMapping
+     */
     Nebulite::ERROR_TYPE clearForceGlobal(int argc, char* argv[]);
 
     // Save entire game state
+    /**
+     * @brief Saves the current game state under state prefix
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: 
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * 
+     * @todo not implemented, move to separate extension GTE_StateManagement
+     */
     Nebulite::ERROR_TYPE stateSave(int argc, char* argv[]);
 
     // Load game state
+    /**
+     * @brief Loads a saved game state
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <name>
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * 
+     * @todo not implemented, move to separate extension GTE_StateManagement
+     */
     Nebulite::ERROR_TYPE stateLoad(int argc, char* argv[]);
 
     //----------------------------------------

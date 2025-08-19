@@ -35,25 +35,6 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::exitProgram(in
     return Nebulite::ERROR_TYPE::NONE;
 }
 
-Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::stateLoad(int argc, char* argv[]){ 
-    std::cerr << "Function load not implemented yet!" << std::endl;
-    return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
-}
-
-Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::stateSave(int argc, char* argv[]){
-    // <stateName>
-    // Change std::string Nebulite::stateName to name
-    // Check if dir ./States/stateName exists
-
-    // If any env is deloaded, save in stateName
-
-    // Every load of any file must be linked to state! If file exists in state load from there
-    // if not, load from usual path
-
-    std::cerr << "Function save not implemented yet!" << std::endl;
-    return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
-}
-
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::wait(int argc, char* argv[]){
     if(argc == 2){
         std::istringstream iss(argv[1]);
@@ -176,19 +157,21 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::ifCondition(in
     return funcTree->parseStr(commands);
 }
 
-Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::error(int argc, char* argv[]) {
-    for (int i = 1; i < argc; ++i) {
-        std::cerr << argv[i];
-        if (i < argc - 1) {
-            std::cerr << " ";
-        }
-    }
-    std::cerr << std::endl;
-    return Nebulite::ERROR_TYPE::CUSTOM_ERROR;
-}
-
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::func_assert(int argc, char* argv[]){
-    return Nebulite::ERROR_TYPE::CRITICAL_CUSTOM_ASSERT;
+    if (argc < 2) {
+        return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
+    }
+
+    if (argc > 2) {
+        return Nebulite::ERROR_TYPE::TOO_MANY_ARGS;
+    }
+
+    std::string condition = argv[1];
+
+    if(!std::stod(self->invoke->evaluateStandaloneExpression(condition))){
+        return Nebulite::ERROR_TYPE::CRITICAL_CUSTOM_ASSERT;
+    }
+    return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::func_return(int argc, char* argv[]){
@@ -200,6 +183,45 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::func_return(in
     }
     return (Nebulite::ERROR_TYPE)std::stoi(argv[1]);
 }
+
+//------------------
+// To move
+
+// 1.) To GTE_Debug
+
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::error(int argc, char* argv[]) {
+    for (int i = 1; i < argc; ++i) {
+        std::cerr << argv[i];
+        if (i < argc - 1) {
+            std::cerr << " ";
+        }
+    }
+    std::cerr << std::endl;
+    return Nebulite::ERROR_TYPE::CUSTOM_ERROR;
+}
+
+// 2.) To GTE_StateManagement
+
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::stateLoad(int argc, char* argv[]){ 
+    std::cerr << "Function load not implemented yet!" << std::endl;
+    return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+}
+
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::stateSave(int argc, char* argv[]){
+    // <stateName>
+    // Change std::string Nebulite::stateName to name
+    // Check if dir ./States/stateName exists
+
+    // If any env is deloaded, save in stateName
+
+    // Every load of any file must be linked to state! If file exists in state load from there
+    // if not, load from usual path
+
+    std::cerr << "Function save not implemented yet!" << std::endl;
+    return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+}
+
+// 3.) To GTE_InputMapping
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::forceGlobal(int argc, char* argv[]) {
     if (argc < 3) {
