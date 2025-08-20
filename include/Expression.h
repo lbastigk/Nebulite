@@ -23,9 +23,9 @@ namespace Nebulite {
 
 
 
-class InvokeExpression {
+class Expression {
 public:
-    InvokeExpression();
+    Expression();
 
     void parse(const std::string& expr, Nebulite::DocumentCache& documentCache, Nebulite::JSON* self, Nebulite::JSON* global);
 

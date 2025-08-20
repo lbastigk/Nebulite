@@ -1,160 +1,11 @@
+/**
+ * @file Invoke.h
+ * 
+ * This file contains the declaration of the Invoke class, which is responsible for managing
+ * dynamic object logic in the Nebulite engine.
+ */
+
 #pragma once
-
-// NEBULITE INVOKE CLASS
-/*
-===========================================================
-Invoke – Dynamic Object Logic Engine
-===========================================================
-
-PURPOSE:
-The Invoke class is the maintainer of object logic in Nebulite, enabling
-dynamic game behavior through JSON-defined rules separated from the codebase.
-
-CORE PHILOSOPHY:
-- EXPRESSIONS: Hot-swappable logic for simple, mathematical operations
-- FUNCTION CALLS: Compiled logic for complex operations
-
-DATA-DRIVEN DESIGN:
-All object behavior is defined through JSON files loaded by RenderObjects,
-allowing designers and modders to create complex game logic without
-touching C++ code.
-
-===========================================================
-CONTEXT SYSTEM: Self-Other-Global
-===========================================================
-
-SELF-OTHER-GLOBAL MODEL:
-Objects interact through a three-tier context system:
-
-• SELF:   The object broadcasting the invoke
-• OTHER:  The object listening for invokes 
-• GLOBAL: Shared game state (time, input, settings)
-
-SELF-GLOBAL CONTEXT (Local Operations):
-- Object modifies itself based on global state
-- Examples: Health regeneration, input response, timers
-- JSON: "topic": "" (empty topic = local only)
-
-SELF-OTHER-GLOBAL CONTEXT (Interactive Operations):  
-- Objects interact with each other conditionally
-- Examples: Collision, line-of-sight, proximity triggers
-- JSON: "topic": "collision" (named topic = broadcast)
-
-===========================================================
-EXPRESSION SYSTEM: Hot-Swappable Logic
-===========================================================
-
-SINGLE-KEY MODIFICATIONS:
-Expressions enable simple, direct variable changes without recompilation:
-
-• Mathematical: "self.health += $(other.damage)"
-• Conditional: "$(self.x) > 100 && self.health > 0"  
-• Type casting: "$f($(self.score))" or "$i($(global.time))"
-• Concatenation: "self.status |= ' - damaged'"
-
-WIDE APPLICATION RANGE:
-- Movement systems
-- Health/damage calculations  
-- Animation triggers
-- State changes
-- Resource management
-
-RUNTIME FLEXIBILITY:
-Change game behavior by editing JSON files - no binary recompilation needed.
-Perfect for:
-- Game balancing
-- Rapid prototyping  
-- Modding support
-- Designer empowerment
-- Debugging
-
-===========================================================
-FUNCTION CALL SYSTEM: Complex Logic
-===========================================================
-
-COMPILED OPERATIONS:
-Function calls handle complex logic that expressions cannot.
-Example functioncalls that maintainers might wish to implement:
-• GLOBAL SCOPE: "functioncalls_global": ["spawn <link>", "save-game"]
-• SELF SCOPE:   "functioncalls_self": ["play-animation", "flag-delete"]  
-• OTHER SCOPE:  "functioncalls_other": ["reload-texture"]
-
-WHEN TO USE FUNCTION CALLS:
-- Multi-step algorithms
-- File I/O operations
-- Complex state machines
-- Performance-critical operations
-- External system integration
-- Usage of objects not defined in JSON
-- Moving/Copying JSON Sub-objects
-
-BINARY RECOMPILATION REQUIRED:
-Adding new function calls requires C++ implementation and recompilation,
-but provides maximum performance and flexibility.
-
-===========================================================
-ARCHITECTURE BENEFITS
-===========================================================
-
-DESIGNER-FRIENDLY:
-- JSON-based configuration
-- No programming knowledge required
-- Hot-reload capabilities
-- Visual feedback through expressions
-
-PERFORMANCE OPTIMIZED:
-- Pre-parsed expression trees
-- Constant folding optimization  
-- Threaded batch processing
-- Smart caching system
-
-MODULAR DESIGN:
-- Clean separation: expressions vs functions
-- Topic-based broadcasting system
-- Context-aware variable resolution
-- Extensible function library
-
-===========================================================
-EXAMPLE WORKFLOW
-===========================================================
-
-1. DESIGN PHASE (JSON):
-   Define object behavior through Diagrams, Flowcharts, and Pseudocode.
-   Transform these into expressions and function calls.
-
-2. RUNTIME PHASE (Engine):
-   - Objects broadcast invokes to topics
-   - Listeners evaluate logical conditions of topics they are subscribed to
-   - Matching pairs execute expressions/functioncalls
-
-3. ITERATION PHASE (Hot-reload):
-   Modify JSON files, reload the engine, and see immediate results
-
-This system bridges the gap between designer creativity and 
-programmer control, enabling rapid iteration while maintaining 
-high performance for complex operations.
-
-===========================================================
-DESIGN ENCOURAGEMENTS
-===========================================================
-- When designing a specific system, consider if it can be expressed as a series of expressions
-- Define a system name that can be used as a topic for invokes
-- When assigning values, prefer a nested structure, perhaps with that system name as the first key
-- Avoid the "all" topic as much as possible, as it can lead to performance issues
-- For unknown other-candidates, consider using an ambassador JSON object:
-  - spawn ambassador
-  - ambassador listens to all invokes or a specific topic if possible
-  - finds relevant objects within the system and modifies them
-  - example: objects at a certain position need to be found and modified. 
-    Spawn a pre-defined ambassador at that position with an invoke that modifies objects:
-    "logicalArg" : [ "eq($(self.posX),$(other.posX))", "eq($(self.posY),$(other.posY))" ]
-    "exprs" : [ "other.health -= 10" ]
-  - that ambassador might be visible: bullet, particle, selection square
-    or invisible: pathfinding object 
-*/
-
-
-#include "ThreadSettings.h"
 
 // General Includes
 #include <string>
@@ -164,8 +15,10 @@ DESIGN ENCOURAGEMENTS
 #include <thread>
 
 // Local
+#include "ThreadSettings.h"
 #include "tinyexpr.h"
 #include "JSON.h"
+#include "Assignment.h"
 #include "InvokeEntry.h"
 #include "DocumentCache.h"
 
@@ -174,8 +27,31 @@ namespace Nebulite{
 
 // Forward declarations
 class RenderObject;
-class InvokeNode;
 
+/**
+ * @brief The Invoke class manages dynamic object logic in Nebulite.
+ * 
+ * This class is responsible for handling the invocation of functions and the
+ * communication between different render objects within the Nebulite engine.
+ * 
+ * Interactions work on a self-other-global / self-global basis.
+ * 
+ * Invoke Entries consist of:
+ * 
+ * - a broadcasting topic for the domain 'other' to listen to
+ * 
+ * - a logical condition necessary to be true
+ * 
+ * - a list of expressions to evaluate and their corresponding domains 'self', 'other' and 'global'
+ * 
+ * - a list of function calls to execute on the domains 'self', 'other' and 'global'
+ * 
+ * Expressions allow for simple value modifications, whereas function calls can encapsulate more complex behavior.
+ * Invoke entries are designed to be lightweight and easily modifiable, allowing for rapid iteration and experimentation.
+ * They are encoded in a JSON format for easy manipulation and storage.
+ * 
+ * @todo Improve language clarity: Use consistent terminology for "domains/document/target" throughout the documentation.
+ */
 class Invoke{
 public:
     
@@ -184,33 +60,62 @@ public:
 
     //--------------------------------------------
     // General
+
+    /**
+     * @brief Constructs an Invoke object.
+     * 
+     * @param globalDocPtr Pointer to the global JSON document.
+     */
     Invoke(Nebulite::JSON* globalDocPtr);
 
-    // Linking invoke to global queue for function calls
+    /**
+     * @brief Links the invoke object to a global queue for function calls.
+     * 
+     * @param queue Reference to the global queue.
+     */
     void linkQueue(std::deque<std::string>& queue){tasks = &queue;}
 
-    // Clearing all entries
+    /**
+     * @brief Clears all broadcasted invoke entries and pairs.
+     */
     void clear();
 
     //--------------------------------------------
     // Getting
 
-    // Global doc pointer
+    /**
+     * @brief Gets the global JSON document pointer.
+     */
     Nebulite::JSON* getGlobalPointer(){return global;};
 
-    // Global queue
+    /**
+     * @brief Gets the global queue for function calls.
+     */
     std::deque<std::string>* getQueue(){return tasks;};
     
     //--------------------------------------------
     // Send/Listen
 
-    // Broadcast an invoke to other renderobjects to listen
-    // Comparable to a radio, broadcasting on certain frequency determined by the string topic:
+    /**
+     * @brief Broadcasts an invoke entry to other render objects.
+     * 
+     * This function sends the specified invoke entry to all render objects
+     * that are listening for the entry's topic.
+     * 
+     * @param entry The invoke entry to broadcast.
+     */
     void broadcast(std::shared_ptr<Nebulite::InvokeEntry> entry);
 
-    // Listen to a topic
-    // Checks an object against all available invokes to a topic.
-    // True pairs are put into a vector for later evaluation
+    /**
+     * @brief Listens for invoke entries on a specific topic.
+     * 
+     * This function checks the specified render object against all available
+     * invoke entries for the given topic. If an entry's logical condition is
+     * satisfied, it is added to the list of pairs for later evaluation.
+     * 
+     * @param obj The render object to check.
+     * @param topic The topic to listen for.
+     */
     void listen(Nebulite::RenderObject* obj,std::string topic);
 
     //--------------------------------------------
@@ -228,32 +133,86 @@ public:
     //--------------------------------------------
     // Updating
 
-    // Updating self-other-pairs of invokes
+    /**
+     * @brief Updates all pairs built from RenderObject broadcasting and listening.
+     * 
+     * This function iterates through all pairs of invoke entries and their associated
+     * render objects, updating their states based on the Invoke Entries.
+     * 
+     * Example:
+     * 
+     * RenderObject1 broadcasts entry on topic1 to manipulate other, if other has mass > 0
+     * RenderObject2 listens on topic1, checks the logical condition and if true, adds the pair to the list for later evaluation.
+     * on update, this list is processed to apply the changes.
+     * Changes happen in domain `self`, `other` and `global`.
+     */
     void update();
     
-    // Same as updateGlobal, but without an other-object
-    // Self is used as reference to other.
+    /**
+     * @brief Updates a RenderObject based on its local entries.
+     * 
+     * This function processes the local invoke entries for the given render object,
+     * applying any changes or updates as necessary. No broadcast/listening necessary, as no other objects are involved.
+     * Changes happen in domain `self` and `global`.
+     */
     void updateLocal(std::shared_ptr<Nebulite::InvokeEntry> entries_self);
 
-    // Sets new value
-    // Call representing functions of ChangeType in order to safely modify the document
+    /**
+     * @brief Updates the value of a specific key in the document.
+     * 
+     * This function applies the specified operation to the given key and value,
+     * updating the document accordingly.
+     * 
+     * @param operation The operation to perform (set, multiply, concat, etc.).
+     * @param key The key to update.
+     * @param valStr The new value as a string.
+     * @param doc The JSON document to update.
+     */
     void updateValueOfKey(
-      Nebulite::InvokeAssignmentExpression::Operation operation, 
+      Nebulite::Assignment::Operation operation, 
       const std::string& key, 
       const std::string& valStr, 
       Nebulite::JSON* doc
     );
 
+    /**
+     * @brief Updates the value of a specific key in the document.
+     * 
+     * This function applies the specified operation to the given key and value,
+     * updating the document accordingly.
+     * 
+     * @param operation The operation to perform (set, multiply, concat, etc.).
+     * @param key The key to update.
+     * @param valStr The new value as a double.
+     * @param doc The JSON document to update.
+     */
     void updateValueOfKey(
-      Nebulite::InvokeAssignmentExpression::Operation operation, 
+      Nebulite::Assignment::Operation operation, 
       const std::string& key, 
       double value, 
       Nebulite::JSON* doc
     );
-    //void updateValueOfKey(Nebulite::InvokeAssignmentExpression* expr, Nebulite::JSON* toUpdate,Nebulite::JSON* other);
 
+    /**
+     * @brief Evaluates a standalone expression.
+     * 
+     * This function takes a standalone expression as input and evaluates it,
+     * returning the result as a string. As this happens inside the invoke class, 
+     * it has access to the global document as well as the DocumentCache.
+     * 
+     * @param input The expression to evaluate.
+     * @return The result of the evaluation.
+     */
     std::string evaluateStandaloneExpression(const std::string& input);
 
+    /**
+     * @brief Gets a pointer to the DocumentCache.
+     * 
+     * This function provides access to the DocumentCache used by the invoke class,
+     * allowing for efficient document management and retrieval.
+     * 
+     * @return A pointer to the DocumentCache.
+     */
     Nebulite::DocumentCache* getDocumentCache() { return &docCache; }
 
 private:
@@ -302,15 +261,13 @@ private:
       >
     > pairs_threadsafe;
 
-    // Map for each Tree
-    std::shared_mutex exprTreeMutex;
-    absl::flat_hash_map<std::string, std::shared_ptr<Nebulite::InvokeNode>> exprTree;
-
     
     //----------------------------------------------------------------
     // Private functions
 
-    // Runs all entries in an invoke with self and other given
+    /**
+     * @brief Updates a build pair of invoke entry with given domain `other`
+     */
     void updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries_self, Nebulite::RenderObject* Obj_other);
 };
 }

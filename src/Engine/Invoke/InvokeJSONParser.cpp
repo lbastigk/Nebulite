@@ -14,8 +14,8 @@ void Nebulite::InvokeJSONParser::getFunctionCalls(
             std::string funcKey = keyName.invoke.functioncalls_global + "[" + std::to_string(j) + "]";
             std::string funcCall = entryDoc.get<std::string>(funcKey.c_str(), "");
 
-            // Create a new InvokeExpression, parse the function call
-            Nebulite::InvokeExpressionPool invokeExpr;
+            // Create a new Expression, parse the function call
+            Nebulite::ExpressionPool invokeExpr;
             invokeExpr.parse(funcCall, *docCache, self->getDoc(), global);
             invokeEntry.functioncalls_global.emplace_back(std::move(invokeExpr));
         }
@@ -33,8 +33,8 @@ void Nebulite::InvokeJSONParser::getFunctionCalls(
                 funcCall = "self " + funcCall;
             }
 
-            // Create a new InvokeExpression, parse the function call
-            Nebulite::InvokeExpressionPool invokeExpr;
+            // Create a new Expression, parse the function call
+            Nebulite::ExpressionPool invokeExpr;
             invokeExpr.parse(funcCall, *docCache, self->getDoc(), global);
             invokeEntry.functioncalls_self.emplace_back(std::move(invokeExpr));
         }
@@ -51,15 +51,15 @@ void Nebulite::InvokeJSONParser::getFunctionCalls(
             if (!funcCall.starts_with("other ")) {
                 funcCall = "other " + funcCall;
             }
-            // Create a new InvokeExpression, parse the function call
-            Nebulite::InvokeExpressionPool invokeExpr;
+            // Create a new Expression, parse the function call
+            Nebulite::ExpressionPool invokeExpr;
             invokeExpr.parse(funcCall, *docCache, self->getDoc(), global);
             invokeEntry.functioncalls_other.emplace_back(std::move(invokeExpr));
         }
     }
 }
 
-bool Nebulite::InvokeJSONParser::getExpression(Nebulite::InvokeAssignmentExpression& assignmentExpr, Nebulite::JSON& entry, int index){
+bool Nebulite::InvokeJSONParser::getExpression(Nebulite::Assignment& assignmentExpr, Nebulite::JSON& entry, int index){
     std::string exprKey = keyName.invoke.exprVector + "[" + std::to_string(index) + "]";
 
     // Get expression
@@ -68,36 +68,36 @@ bool Nebulite::InvokeJSONParser::getExpression(Nebulite::InvokeAssignmentExpress
     // needs to start with "self.", "other." or "global."
     std::string prefix;
     if (expr.starts_with(keyName.invoke.typeSelf + ".")) {
-        assignmentExpr.onType = Nebulite::InvokeAssignmentExpression::Type::Self;
+        assignmentExpr.onType = Nebulite::Assignment::Type::Self;
         prefix = keyName.invoke.typeSelf + ".";
     } else if (expr.starts_with(keyName.invoke.typeOther + ".")) {
-        assignmentExpr.onType = Nebulite::InvokeAssignmentExpression::Type::Other;
+        assignmentExpr.onType = Nebulite::Assignment::Type::Other;
         prefix = keyName.invoke.typeOther + ".";
     } else if (expr.starts_with(keyName.invoke.typeGlobal + ".")) {
-        assignmentExpr.onType = Nebulite::InvokeAssignmentExpression::Type::Global;
+        assignmentExpr.onType = Nebulite::Assignment::Type::Global;
         prefix = keyName.invoke.typeGlobal + ".";
     } else {
         // Invalid expression
-        assignmentExpr.onType = Nebulite::InvokeAssignmentExpression::Type::null;
+        assignmentExpr.onType = Nebulite::Assignment::Type::null;
         return false;
     }
 
     // Find the operator position in the full expression, set operation, key and value
     size_t pos = std::string::npos;
     if ((pos = expr.find("+=")) != std::string::npos) {
-        assignmentExpr.operation = Nebulite::InvokeAssignmentExpression::Operation::add;
+        assignmentExpr.operation = Nebulite::Assignment::Operation::add;
         assignmentExpr.value = expr.substr(pos + 2);
         assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
     } else if ((pos = expr.find("*=")) != std::string::npos) {
-        assignmentExpr.operation = Nebulite::InvokeAssignmentExpression::Operation::multiply;
+        assignmentExpr.operation = Nebulite::Assignment::Operation::multiply;
         assignmentExpr.value = expr.substr(pos + 2);
         assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
     } else if ((pos = expr.find("|=")) != std::string::npos) {
-        assignmentExpr.operation = Nebulite::InvokeAssignmentExpression::Operation::concat;
+        assignmentExpr.operation = Nebulite::Assignment::Operation::concat;
         assignmentExpr.value = expr.substr(pos + 2);
         assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
     } else if ((pos = expr.find("=")) != std::string::npos) {
-        assignmentExpr.operation = Nebulite::InvokeAssignmentExpression::Operation::set;
+        assignmentExpr.operation = Nebulite::Assignment::Operation::set;
         assignmentExpr.value = expr.substr(pos + 1);
         assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
     } else {
@@ -201,7 +201,7 @@ void Nebulite::InvokeJSONParser::parse(std::vector<std::shared_ptr<Nebulite::Inv
         if (entry.memberCheck(keyName.invoke.exprVector) == Nebulite::JSON::KeyType::array) {
             uint32_t exprSize = entry.memberSize(keyName.invoke.exprVector);
             for (uint32_t j = 0; j < exprSize; ++j) {
-                Nebulite::InvokeAssignmentExpression assignmentExpr;
+                Nebulite::Assignment assignmentExpr;
                 if (InvokeJSONParser::getExpression(assignmentExpr, entry, j)){
                     // Successfully parsed expression
 

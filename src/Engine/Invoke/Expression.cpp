@@ -1,9 +1,9 @@
-#include "InvokeExpression.h"
+#include "Expression.h"
 
 //------------------------------
 // Private:
 
-void Nebulite::InvokeExpression::compileIfExpression(Entry& entry) {
+void Nebulite::Expression::compileIfExpression(Entry& entry) {
     if (entry.type == Entry::Type::eval) {
         // Compile the expression using TinyExpr
         int error;
@@ -19,7 +19,7 @@ void Nebulite::InvokeExpression::compileIfExpression(Entry& entry) {
     }
 }
 
-void Nebulite::InvokeExpression::registerVariable(std::string te_name, std::string key, Entry::From context){
+void Nebulite::Expression::registerVariable(std::string te_name, std::string key, Entry::From context){
     // Check if variable exists in variables vector:
     bool found = false;
     for(auto var : variables) {
@@ -68,7 +68,7 @@ void Nebulite::InvokeExpression::registerVariable(std::string te_name, std::stri
     }
 }
 
-void Nebulite::InvokeExpression::parseIntoEntries(const std::string& expr, std::vector<Entry>& entries){
+void Nebulite::Expression::parseIntoEntries(const std::string& expr, std::vector<Entry>& entries){
 
     // First, we must split the expression into tokens
     std::vector<std::string> tokensPhase1, tokens;
@@ -129,7 +129,7 @@ void Nebulite::InvokeExpression::parseIntoEntries(const std::string& expr, std::
     }
 }
 
-void Nebulite::InvokeExpression::readFormatter(Entry* entry, const std::string& formatter) {
+void Nebulite::Expression::readFormatter(Entry* entry, const std::string& formatter) {
     // Check formatter. Integer cast should not include precision. Is ignored later on in casting but acceptable as input
     // Examples:
     // $i     : leadingZero = false , alignment = -1 , precision = -1
@@ -154,7 +154,7 @@ void Nebulite::InvokeExpression::readFormatter(Entry* entry, const std::string& 
     }
 }
 
-void Nebulite::InvokeExpression::parseTokenTypeEval(std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
+void Nebulite::Expression::parseTokenTypeEval(std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
     // $[leading zero][alignment][.][precision]<type:f,i>
     // - bool leading zero   : on/off
     // - int alignment       : <0 means no formatting
@@ -223,7 +223,7 @@ void Nebulite::InvokeExpression::parseTokenTypeEval(std::string& token, Entry& c
     entries.push_back(currentEntry);
 }
 
-void Nebulite::InvokeExpression::parseTokenTypeText(std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
+void Nebulite::Expression::parseTokenTypeText(std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
     // Current token is Text
     // Perhaps mixed with variables...
     std::vector<std::string> subTokens = StringHandler::splitOnSameDepth(token, '{');
@@ -252,7 +252,7 @@ void Nebulite::InvokeExpression::parseTokenTypeText(std::string& token, Entry& c
     }
 }
 
-void Nebulite::InvokeExpression::printCompileError(const Entry& entry, int& error) {
+void Nebulite::Expression::printCompileError(const Entry& entry, int& error) {
     std::cerr << "-----------------------------------------------------------------" << std::endl;
     std::cerr << "Error compiling expression: '" << entry.str << "' Error code: " << error << std::endl;
     std::cerr << "You might see this message multiple times due to expression parallelization." << std::endl;
@@ -277,11 +277,11 @@ void Nebulite::InvokeExpression::printCompileError(const Entry& entry, int& erro
 //------------------------------
 // Public:
 
-Nebulite::InvokeExpression::InvokeExpression() {
+Nebulite::Expression::Expression() {
     clear();
 }
 
-void Nebulite::InvokeExpression::parse(const std::string& expr, Nebulite::DocumentCache& documentCache, Nebulite::JSON* self, Nebulite::JSON* global){
+void Nebulite::Expression::parse(const std::string& expr, Nebulite::DocumentCache& documentCache, Nebulite::JSON* self, Nebulite::JSON* global){
     clear();
 
     // Set references
@@ -302,7 +302,7 @@ void Nebulite::InvokeExpression::parse(const std::string& expr, Nebulite::Docume
     _isReturnableAsDouble = entries.size() == 1 && entries[0].type == Entry::eval && entries[0].cast == Entry::CastType::none;
 }
 
-std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_other) {
+std::string Nebulite::Expression::eval(Nebulite::JSON* current_other) {
     // Update references to 'other'
     update_vds(&virtualDoubles_other, current_other);
 
@@ -394,11 +394,11 @@ std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_other) {
     return result;
 }
 
-bool Nebulite::InvokeExpression::isReturnableAsDouble() {
+bool Nebulite::Expression::isReturnableAsDouble() {
     return _isReturnableAsDouble;
 }
 
-double Nebulite::InvokeExpression::evalAsDouble(Nebulite::JSON* current_other) {
+double Nebulite::Expression::evalAsDouble(Nebulite::JSON* current_other) {
     update_vds(&virtualDoubles_other, current_other);
     return te_eval(entries[0].expression);
 }

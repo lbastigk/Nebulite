@@ -1,9 +1,9 @@
 /**
- * @file InvokeExpressionPool.h
- * @brief Thread-safe pool of InvokeExpression instances for concurrent evaluation.
+ * @file ExpressionPool.h
+ * @brief Thread-safe pool of Expression instances for concurrent evaluation.
  *
- * This file defines the `InvokeExpressionPool` class, which manages a fixed-size array
- * of pre-parsed `InvokeExpression` objects. Each instance in the pool is protected by its
+ * This file defines the `ExpressionPool` class, which manages a fixed-size array
+ * of pre-parsed `Expression` objects. Each instance in the pool is protected by its
  * own mutex, allowing multiple threads to evaluate expressions in parallel without
  * interfering with one another.
  */
@@ -13,13 +13,13 @@
 #include <mutex>
 #include <random>
 #include <string>
-#include "InvokeExpression.h"
+#include "Expression.h"
 #include "ThreadSettings.h"
 
 namespace Nebulite {
 
 /**
- * @brief A thread-safe pool of InvokeExpression instances for concurrent evaluation.
+ * @brief A thread-safe pool of Expression instances for concurrent evaluation.
  * 
  * Usage:
  *  - Call `parse()` once to compile the expression into all pool entries.
@@ -30,7 +30,7 @@ namespace Nebulite {
  *  - Fixed pool size defined by INVOKE_EXPR_POOL_SIZE macro defined in ThreadSettings.h
  *  - Per-instance locking to avoid a single global mutex bottleneck.
  *  - Randomized acquisition order to evenly distribute workload.
- *  - Drop-in compatible with InvokeExpression public interface (`parse`, `eval`, `getFullExpression`).
+ *  - Drop-in compatible with Expression public interface (`parse`, `eval`, `getFullExpression`).
  *
  * Thread Safety:
  *  - Internally synchronized with per-instance std::mutex locks.
@@ -39,16 +39,16 @@ namespace Nebulite {
  * @note The pool stores the same expression in each entry; per-call variable updates
  *       should be done via the eval() call, not shared state.
  */
-class InvokeExpressionPool {
+class ExpressionPool {
 public:
-    InvokeExpressionPool() {}
+    ExpressionPool() {}
 
     // Disable copy constructor and assignment
-    InvokeExpressionPool(const InvokeExpressionPool&) = delete;
-    InvokeExpressionPool& operator=(const InvokeExpressionPool&) = delete;
+    ExpressionPool(const ExpressionPool&) = delete;
+    ExpressionPool& operator=(const ExpressionPool&) = delete;
 
     // Enable move constructor and assignment
-    InvokeExpressionPool(InvokeExpressionPool&& other) noexcept
+    ExpressionPool(ExpressionPool&& other) noexcept
         : pool(std::move(other.pool))
         , fullExpression(std::move(other.fullExpression))
     {
@@ -56,7 +56,7 @@ public:
         // This is safe since mutexes should only be moved when not in use
     }
 
-    InvokeExpressionPool& operator=(InvokeExpressionPool&& other) noexcept {
+    ExpressionPool& operator=(ExpressionPool&& other) noexcept {
         if (this != &other) {
             pool = std::move(other.pool);
             fullExpression = std::move(other.fullExpression);
@@ -71,7 +71,7 @@ public:
     /**
      * @brief Parses the given expression and populates the pool with pre-parsed instances.
      *
-     * Matches Nebulite::InvokeExpression::parse, but allows for concurrent evaluation across multiple threads.
+     * Matches Nebulite::Expression::parse, but allows for concurrent evaluation across multiple threads.
      *
      * @param expr The expression to parse.
      * @param documentCache The document cache to use during parsing and evaluation.
@@ -91,7 +91,7 @@ public:
     /**
      * @brief Evaluates the expression in the context of the given JSON object acting as "other".
      *
-     * Matches Nebulite::InvokeExpression::eval, but allows for concurrent evaluation across multiple threads.
+     * Matches Nebulite::Expression::eval, but allows for concurrent evaluation across multiple threads.
      *
      * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a string.
@@ -110,7 +110,7 @@ public:
     /**
      * @brief Evaluates the expression as a double in the context of the given JSON object acting as "other".
      *
-     * Matches Nebulite::InvokeExpression::evalAsDouble, but allows for concurrent evaluation across multiple threads.
+     * Matches Nebulite::Expression::evalAsDouble, but allows for concurrent evaluation across multiple threads.
      *
      * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a double.
@@ -129,7 +129,7 @@ public:
     /**
      * @brief Gets the full expression string.
      *
-     * Matches Nebulite::InvokeExpression::getFullExpression
+     * Matches Nebulite::Expression::getFullExpression
      *
      * @return The full expression as a string.
      */
@@ -140,7 +140,7 @@ public:
     /**
      * @brief Checks if the expression is returnable as a double.
      *
-     * Matches Nebulite::InvokeExpression::isReturnableAsDouble
+     * Matches Nebulite::Expression::isReturnableAsDouble
      *
      * @return True if the expression is returnable as a double, false otherwise.
      */
@@ -150,7 +150,7 @@ public:
 
 private:
     // Pool of expression parse entities
-    std::array<InvokeExpression, INVOKE_EXPR_POOL_SIZE> pool;
+    std::array<Expression, INVOKE_EXPR_POOL_SIZE> pool;
 
     // Locks for thread safety
     std::array<std::mutex, INVOKE_EXPR_POOL_SIZE> locks;

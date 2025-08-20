@@ -1,59 +1,10 @@
 #pragma once
-#include "InvokeExpressionPool.h"
+#include "ExpressionPool.h"
 
 //--------------------------------------------
 // Class-Specific Structures:
 
-// ==== INVOKE ENTRY PARSING ====
-// Prases the JSON doc part "invokes" of a renderobject into Structures
 
-// Example JSON:
-/*
-{
-    "topic" : "...",      // e.g. "gravity", "hitbox", "collision". Empty topic for local invokes: no 'other', only 'self' and 'global'}
-    "logicalArg": "...",  // e.g. "$(self.posX) > $(other.posY)
-    "exprs" : [
-        // all exprs in one vector
-        // with the following structure:
-        // type.key1.key2.... <assignment-operator> value
-        // operators are: 
-        // - set: =
-        // - add: +=
-        // - multiply: *=
-        // - concat: |=
-        "self.key1 = 0",
-        "other.key2 *= 2",
-        "global.key3 = 1"
-    ],
-    "functioncalls_global": [], // vector of function calls, e.g. "echo example"
-    "functioncalls_self": [],   // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
-    "functioncalls_other": []   // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
-    }
-*/
-// TODO: Idea for Invoke ruleset overwrites:
-// In addition, add the field "overwrites" to the JSON doc:
-// "overwrites": {
-//     "key1": "value1",
-//     "key2": "value2"
-// }
-// Then, on parsing, the overwrites are applied:
-// $(overwrites.key1) would be replaced by "value1"
-// If, however, an overwrite is not found:
-// $(overwrites.key3) would be replaced by $(global.key3)
-// This allows us to flexibly overwrite values in the invoke without changing the original JSON file.
-// Also, the behavior is well-defined, as it defaults to the global value if no overwrite is defined.
-// Note: retrieval of overwrites in a type object might be difficult. Instead, perhaps:
-// myInvoke.jsonc|push-back overwrites 'key1 -> value1'
-// Example JSON:
-/*
-"overwrites": {
-    "key1 -> value1",
-    "key2 -> value2"
-}
-*/
-// This makes subkey-overwrites easier to parse, e.g.: "overwrites" [ "physics.G -> 9.81" ] 
-// turns an "$(overwrites.physics.G)" into "9.81" and 
-// defaults to "{global.physics.G}" if not overwritten.
 
 //---------------------------------------------
 // Invoke epxressions are parsed into specific structs:
@@ -62,59 +13,92 @@ namespace Nebulite {
 // Forward declarations
 class RenderObject;
 
-class InvokeAssignmentExpression{
-public:
-    enum class Operation {null, set,add,multiply,concat};
-    Operation operation = Operation::null;                      // set, add, multiply, concat
-    enum class Type {null, Self, Other, Global};
-    Type onType = Type::null;                              // Self, Other, Global, determines which doc is used
-    std::string key;                          // e.g. "posX"
-    std::string value;                        // e.g. "0", "$($(self.posX) + 1)"
-    Nebulite::InvokeExpressionPool expression;    // The parsed expression
 
-    // Disable copy constructor and assignment
-    InvokeAssignmentExpression(const InvokeAssignmentExpression&) = delete;
-    InvokeAssignmentExpression& operator=(const InvokeAssignmentExpression&) = delete;
-
-    // Enable move constructor and assignment
-    InvokeAssignmentExpression() = default;
-    InvokeAssignmentExpression(InvokeAssignmentExpression&& other) noexcept
-        : operation(other.operation)
-        , onType(other.onType)
-        , key(std::move(other.key))
-        , value(std::move(other.value))
-        , expression(std::move(other.expression))
-    {
-    }
-
-    InvokeAssignmentExpression& operator=(InvokeAssignmentExpression&& other) noexcept {
-        if (this != &other) {
-            operation = other.operation;
-            onType = other.onType;
-            key = std::move(other.key);
-            value = std::move(other.value);
-            expression = std::move(other.expression);
-        }
-        return *this;
-    }
-};
 
 //---------------------------------------------
 // Each Renderobject holds its own InvokeEntries:
-class InvokeEntry{
-public:
-    std::string topic = "all";                                      // e.g. "gravity", "hitbox", "collision"
-    Nebulite::InvokeExpressionPool logicalArg;                          // e.g. "$(self.posX) > $(other.posY)"
-    std::vector<Nebulite::InvokeExpressionPool> functioncalls_global;   // vector of function calls, e.g. "echo example"
-    std::vector<Nebulite::InvokeExpressionPool> functioncalls_self;     // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
-    std::vector<Nebulite::InvokeExpressionPool> functioncalls_other;    // vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
-    bool isGlobal = true;                                           // if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
-    Nebulite::RenderObject* selfPtr = nullptr;                      // store self
+
+/**
+ * @brief Represents a single invoke entry for a RenderObject.
+ * 
+ * Example JSON that's being parsed into this struct:
+ * ```jsonc
+ * {
+ *     "topic" : "...",      // e.g. "gravity", "hitbox", "collision". Empty topic for local invokes: no 'other', only 'self' and 'global'}
+ *     "logicalArg": "...",  // e.g. "$(self.posX) > $(other.posY)
+ *     "exprs" : [
+ *         // all exprs in one vector
+ *         // with the following structure:
+ *         // type.key1.key2.... <assignment-operator> value
+ *         "self.key1 = 0",     // Each entry represents a single assignment
+ *         "other.key2 *= 2",
+ *         "global.key3 = 1"
+ *     ],
+ *     "functioncalls_global": [], // vector of function calls, e.g. "echo example"
+ *     "functioncalls_self": [],   // vector of function calls, e.g. "add-invoke ./Resources/Invokes/gravity.jsonc"
+ *     "functioncalls_other": []   // vector of function calls, e.g. "add-invoke ./Resources/Invokes/gravity.jsonc"
+ * }
+ * ```
+ */
+struct InvokeEntry{
+    /**
+     * @brief The topic of the invoke entry, used for routing and filtering in the broadcast-listen-model of the Invoke class.
+     * 
+     * e.g. `gravity`, `hitbox`, `collision`. `all` is the default value. Any RenderObject should be subscribed to this topic.
+     * However, we are allowed to remove the topic listen `all` from any object, though it is not recommended.
+     * As an example, say we wish to implement a console feature to quickly remove any object. 
+     * We can do so by sending an `embassador` object that finds all other object at location (x,y) and deletes them.
+     * This object would broadcast its invoke to `all`. Removing any objects subscribtion to `all` makes this impossible.
+     * 
+     * Due to the large checks needed for `all`, it should only be used when absolutely necessary.
+     */
+    std::string topic = "all";
+
+    /**
+     * @brief The Logical Argument that determines when the invoke entry is triggered.
+     * 
+     * Logical Arguments are evaluated inside the Invoke class with access to `self`, `other`, and `global` variables.
+     * e.g. "{self.posX} > {other.posY}"
+     */
+    Nebulite::ExpressionPool logicalArg;
+
+    /**
+     * @brief The function calls that to be executed on global domain.
+     * 
+     * vector of function calls, e.g. "echo example"
+     */
+    std::vector<Nebulite::ExpressionPool> functioncalls_global;
+
+    /**
+     * @brief The function calls that to be executed on self domain.
+     * 
+     * vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
+     */
+    std::vector<Nebulite::ExpressionPool> functioncalls_self;
+
+    /**
+     * @brief The function calls that to be executed on other domain.
+     * 
+     * vector of function calls, e.g. "add-invoke ./Resources/Invokes/gravity.jsonc"
+     */
+    std::vector<Nebulite::ExpressionPool> functioncalls_other;
+
+    /**
+     * @brief Indicates whether the invoke entry is global or local.
+     */
+    bool isGlobal = true;                                         // if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
+    Nebulite::RenderObject* selfPtr = nullptr;                    // store self
 
     // Expressions
-    std::vector<Nebulite::InvokeAssignmentExpression> exprs;
+    /**
+     * @brief The expressions that are evaluated and applied to the corresponding domains.
+     * 
+     * e.g.: `self.key1 = 0`, `other.key2 *= $( sin({self.key2}) * 2 )`, `global.key3 = 1`
+     */
+    std::vector<Nebulite::Assignment> exprs;
 
     // Make Entry non-copyable and non-movable
+    // All entries should be local to their RenderObject
     InvokeEntry() = default;
     InvokeEntry(const InvokeEntry&) = delete;
     InvokeEntry& operator=(const InvokeEntry&) = delete;
@@ -122,3 +106,8 @@ public:
     InvokeEntry& operator=(InvokeEntry&&) = delete;
 };
 }
+
+// Example JSON:
+/*
+
+*/

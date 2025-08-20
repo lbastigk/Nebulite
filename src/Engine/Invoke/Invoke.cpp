@@ -98,22 +98,22 @@ void Nebulite::Invoke::listen(Nebulite::RenderObject* obj,std::string topic){
     }
 }
 
-void Nebulite::Invoke::updateValueOfKey(Nebulite::InvokeAssignmentExpression::Operation operation, const std::string& key, const std::string& valStr, Nebulite::JSON* doc){    
+void Nebulite::Invoke::updateValueOfKey(Nebulite::Assignment::Operation operation, const std::string& key, const std::string& valStr, Nebulite::JSON* doc){    
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation){
-        case Nebulite::InvokeAssignmentExpression::Operation::set:
+        case Nebulite::Assignment::Operation::set:
             doc->set<std::string>(key.c_str(),valStr.c_str());
             break;
-        case Nebulite::InvokeAssignmentExpression::Operation::add:
+        case Nebulite::Assignment::Operation::add:
             doc->set_add(key.c_str(),std::stod(valStr));
             break;
-        case Nebulite::InvokeAssignmentExpression::Operation::multiply:
+        case Nebulite::Assignment::Operation::multiply:
             doc->set_multiply(key.c_str(),std::stod(valStr));
             break;
-        case Nebulite::InvokeAssignmentExpression::Operation::concat:
+        case Nebulite::Assignment::Operation::concat:
             doc->set_concat(key.c_str(),valStr.c_str());
             break;
-        case Nebulite::InvokeAssignmentExpression::Operation::null:
+        case Nebulite::Assignment::Operation::null:
             std::cerr << "Assignment expression has null operation - skipping" << std::endl;
             break;
         default:
@@ -122,22 +122,22 @@ void Nebulite::Invoke::updateValueOfKey(Nebulite::InvokeAssignmentExpression::Op
     }
 }
 
-void Nebulite::Invoke::updateValueOfKey(Nebulite::InvokeAssignmentExpression::Operation operation, const std::string& key, double value, Nebulite::JSON* doc){    
+void Nebulite::Invoke::updateValueOfKey(Nebulite::Assignment::Operation operation, const std::string& key, double value, Nebulite::JSON* doc){    
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation){
-        case Nebulite::InvokeAssignmentExpression::Operation::set:
+        case Nebulite::Assignment::Operation::set:
             doc->set<double>(key.c_str(),value);
             break;
-        case Nebulite::InvokeAssignmentExpression::Operation::add:
+        case Nebulite::Assignment::Operation::add:
             doc->set_add(key.c_str(),value);
             break;
-        case Nebulite::InvokeAssignmentExpression::Operation::multiply:
+        case Nebulite::Assignment::Operation::multiply:
             doc->set_multiply(key.c_str(),value);
             break;
-        case Nebulite::InvokeAssignmentExpression::Operation::concat:
+        case Nebulite::Assignment::Operation::concat:
             doc->set_concat(key.c_str(),std::to_string(value).c_str());
             break;
-        case Nebulite::InvokeAssignmentExpression::Operation::null:
+        case Nebulite::Assignment::Operation::null:
             std::cerr << "Assignment expression has null operation - skipping" << std::endl;
             break;
         default:
@@ -163,16 +163,16 @@ void Nebulite::Invoke::updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries
         
         Nebulite::JSON* toUpdate = nullptr;
         switch (expr.onType) {
-        case Nebulite::InvokeAssignmentExpression::Type::Self:
+        case Nebulite::Assignment::Type::Self:
             toUpdate = doc_self;
             break;
-        case Nebulite::InvokeAssignmentExpression::Type::Other:
+        case Nebulite::Assignment::Type::Other:
             toUpdate = doc_other;
             break;
-        case Nebulite::InvokeAssignmentExpression::Type::Global:
+        case Nebulite::Assignment::Type::Global:
             toUpdate = global;
             break;
-        case Nebulite::InvokeAssignmentExpression::Type::null:
+        case Nebulite::Assignment::Type::null:
             std::cerr << "Assignment expression has null type - skipping" << std::endl;
             continue; // Skip this expression
         default:
@@ -238,6 +238,7 @@ void Nebulite::Invoke::clear(){
     pairs_threadsafe.clear();
 }
 
+
 void Nebulite::Invoke::update() {
 
     // Swap in the new set of commands - shared pointers will clean up automatically
@@ -274,8 +275,8 @@ std::string Nebulite::Invoke::evaluateStandaloneExpression(const std::string& in
     Nebulite::JSON* other = this->emptyDoc;
     Nebulite::JSON* global = this->global;
 
-    // Parse string into InvokeExpression
-    Nebulite::InvokeExpressionPool expr;
+    // Parse string into Expression
+    Nebulite::ExpressionPool expr;
     expr.parse(input, docCache, self, global);
     return expr.eval(other);
 }
