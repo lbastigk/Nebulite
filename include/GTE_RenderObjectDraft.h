@@ -1,11 +1,14 @@
 /*
 RenderObjectDraft extends the Global Space Tree to provide an in-memory RenderObject to manipulate and spawn.
 
-It also exposes the Renderobject-Internal functions to the gui via a globally accessible help-function:
-
-./bin/Nebulite help         # As the RenderObjectTree is not a subTree of GlobalSpaceTree, this will NOT show RenderObject specific help.
-./bin/Nebulite draft-help   # However, this will!
+!
 */
+
+/**
+ * @file GTE_RenderObjectDraft.h
+ * 
+ * @brief Provides RenderObject creation utilities
+ */
 
 #pragma once
 
@@ -16,6 +19,30 @@ It also exposes the Renderobject-Internal functions to the gui via a globally ac
 namespace Nebulite {
 class GlobalSpace; // Forward declaration of domain class GlobalSpace 
 namespace GlobalSpaceTreeExpansion {
+
+/**
+ * @brief Utilities for creating and manipulating RenderObjects
+ * 
+ * Allows for the creation and manipulation of RenderObjects in a draft state.
+ * Allowing us to easily create draft object to continously spawn:
+ * ```bash
+ * # Creating draft object
+ * on-draft <modifier1>
+ * on-draft <modifier2>
+ * # Spawning object
+ * spawn-draft
+ * wait 10
+ * spawn-draft
+ * ```
+ * Instead of applying modifierts to each new spawn, we use the in-memory draft.
+ * 
+ * It also exposes the Renderobject-Internal functions to the gui via a globally accessible help-function:
+ * 
+ * ```bash
+ * ./bin/Nebulite help         # As the RenderObjectTree is not a subTree of GlobalSpaceTree, this will NOT show RenderObject specific help.
+ * ./bin/Nebulite draft-help   # However, this will
+ * ```
+ */
 class RenderObjectDraft : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, RenderObjectDraft> {
 public:
     using Wrapper<Nebulite::GlobalSpace, RenderObjectDraft>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()

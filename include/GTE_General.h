@@ -78,6 +78,10 @@ public:
      * @param argc The argument count
      * @param argv The argument vector: <var> <start> <end> <functioncall>
      * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * 
+     * @todo Modify for-variables to be conform to standard variables:
+     *       Currently: for i 0 10 echo $i
+     *       New:       for i 0 10 echo {i}
      */
     Nebulite::ERROR_TYPE forLoop(int argc, char* argv[]);
 
