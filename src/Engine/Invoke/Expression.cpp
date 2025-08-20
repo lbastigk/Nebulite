@@ -281,11 +281,11 @@ void Nebulite::Expression::printCompileError(const Entry& entry, int& error) {
 // Public:
 
 Nebulite::Expression::Expression() {
-    clear();
+    reset();
 }
 
 void Nebulite::Expression::parse(const std::string& expr, Nebulite::DocumentCache& documentCache, Nebulite::JSON* self, Nebulite::JSON* global){
-    clear();
+    reset();
 
     // Set references
     this->self = self;

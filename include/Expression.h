@@ -143,7 +143,7 @@ private:
         }
     }
 
-    void clear() {
+    void reset() {
         documentCache = nullptr;
         self = nullptr;
         global = nullptr;
