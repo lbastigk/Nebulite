@@ -1,3 +1,9 @@
+/**
+ * @file Expression.h
+ * 
+ * This file contains the definition of the Expression class, which is responsible for parsing and evaluating expressions within the Nebulite engine.
+ */
+
 #pragma once
 
 #include "VirtualDouble.h"
@@ -11,27 +17,59 @@
 // Set to use external cache, meaning double-values from inside expressions use the JSON storage directly
 #define use_external_cache 1
 
-/*
-Instead of storing strings, we store a full expression that's able to evaluate relevant parts:
-
-'1 + 1 = $i(1+1)' -> '1 + 1 = 2'
-*/
-
-
 
 namespace Nebulite {
 
 
-
+/**
+ * @brief The Expression class is responsible for parsing and evaluating expressions.
+ * 
+ * It supports variable registration, expression compilation, and evaluation.
+ * 
+ * Expressions can be parsed from a string format and evaluated against JSON documents.
+ * Expressions are a mix of evaluations, variables and text:
+ * 
+ * e.g.: 
+ * "This script took {global.time.t} Seconds"
+ * "The rounded value is: $03.2f( {global.value} )"
+ */
 class Expression {
 public:
     Expression();
 
+    /**
+     * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
+     */
     void parse(const std::string& expr, Nebulite::DocumentCache& documentCache, Nebulite::JSON* self, Nebulite::JSON* global);
 
+    /**
+     * @brief Checks if the expression can be returned as a double.
+     * 
+     * e.g.:
+     * "1 + 1"   is not returnable as double, as its just text
+     * "$(1+1)"  is returnable as double, as it evaluates to 2
+     * "$i(1+1)" is not returnable as double, due to the casting
+     * 
+     * An expression needs to consist of a single eval entry with no cast to be returnable as double.
+     * 
+     * @return True if the expression can be returned as a double, false otherwise.
+     */
     bool isReturnableAsDouble();
+
+    /**
+     * @brief Evaluates the expression as a double.
+     * 
+     * @param current_other The JSON object `other` to evaluate against.
+     * @return The evaluated double value.
+     */
     double evalAsDouble(Nebulite::JSON* current_other);
     
+    /**
+     * @brief Evaluates the expression as a string.
+     * 
+     * @param current_other The JSON object `other` to evaluate against.
+     * @return The evaluated string value.
+     */
     std::string eval(Nebulite::JSON* current_other);
 
     /**
@@ -76,6 +114,17 @@ private:
         // If of type te_expr, this will be initialized:
         te_expr* expression = nullptr;
     };
+
+    /**
+     * @brief Holds all virtual double entries.
+     * 
+     * A virtual double entry represents a double value needed within a tinyexpr evaluation.
+     * We use these entries to bridge the gap between the JSON document structure and the expression evaluation.
+     * On evaluation, we update all double pointers from the JSON document to the tinyexpr context.
+     * 
+     * Depending on the document type, we either register the values inside the vd_entry or in the json document
+     * Both remanent and non-remanent types use the vd_entry for variable management.
+     */
     struct vd_entry {
         std::shared_ptr<Nebulite::VirtualDouble> virtualDouble;
         Entry::From from;
@@ -134,7 +183,14 @@ private:
         variables.push_back(sgn_var);
     }
 
+    /**
+     * @brief Holds all parsed entries from the expression.
+     */
     std::vector<Entry> entries;
+
+    /**
+     * @brief Holds the full expression as a string.
+     */
     std::string fullExpression;
 
     std::vector<te_variable> variables;   // Variables for TinyExpr evaluation
@@ -197,5 +253,5 @@ private:
     // Storing info about the expression's returnability
     bool _isReturnableAsDouble;
 };
-}
+} // namespace Nebulite
 

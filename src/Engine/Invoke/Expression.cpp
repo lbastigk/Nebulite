@@ -36,24 +36,27 @@ void Nebulite::Expression::registerVariable(std::string te_name, std::string key
         // Register cache directly to json file, if possible
         switch(vde->from) {
             case Entry::From::self:
+                // Type self is remanent, we can register the double directly from document
                 #if use_external_cache
                     vde->virtualDouble->register_external_double_cache(self);
                 #endif
                 virtualDoubles_self.push_back(vde);
                 break;
             case Entry::From::other:
+                // Type other is non-remanent, we need to use the cache from virtualdouble
                 virtualDoubles_other.push_back(vde);
                 break;
             case Entry::From::global:
+                // Type global is remanent, we can register the double directly from document
                 #if use_external_cache
                     vde->virtualDouble->register_external_double_cache(global);
                 #endif
                 virtualDoubles_global.push_back(vde);
                 break;
             case Entry::From::resource:
-                #if use_external_cache
-                    vde->virtualDouble->register_external_double_cache(nullptr);
-                #endif
+                // Type resource is non-remanent, we need to use the cache from virtualdouble
+                // The reason is that resource-documents may get deloaded,
+                // making the direct double reference invalid.
                 virtualDoubles_resource.push_back(vde);
                 break;
         }
@@ -299,12 +302,15 @@ void Nebulite::Expression::parse(const std::string& expr, Nebulite::DocumentCach
     }
 
     // Check if parsed expression is returnable as double
-    _isReturnableAsDouble = entries.size() == 1 && entries[0].type == Entry::eval && entries[0].cast == Entry::CastType::none;
+    _isReturnableAsDouble = (entries.size() == 1) &&
+                            (entries[0].type == Entry::eval) &&
+                            (entries[0].cast == Entry::CastType::none);
 }
 
 std::string Nebulite::Expression::eval(Nebulite::JSON* current_other) {
     // Update references to 'other'
     update_vds(&virtualDoubles_other, current_other);
+    update_vds(&virtualDoubles_resource, nullptr);
 
     // Concatenate results of each entry
     std::string result = "";
@@ -400,5 +406,6 @@ bool Nebulite::Expression::isReturnableAsDouble() {
 
 double Nebulite::Expression::evalAsDouble(Nebulite::JSON* current_other) {
     update_vds(&virtualDoubles_other, current_other);
+    update_vds(&virtualDoubles_resource, nullptr);
     return te_eval(entries[0].expression);
 }
