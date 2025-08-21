@@ -1,3 +1,9 @@
+/**
+ * @file ThreadSettings.h
+ * 
+ * Threading settings for Nebulite's rendering and expression evaluation.
+ */
+
 #pragma once
 
 
