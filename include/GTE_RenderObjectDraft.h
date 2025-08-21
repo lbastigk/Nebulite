@@ -21,6 +21,7 @@ class GlobalSpace; // Forward declaration of domain class GlobalSpace
 namespace GlobalSpaceTreeExpansion {
 
 /**
+ * @class Nebulite::GlobalSpaceTreeExpansion::RenderObjectDraft
  * @brief Utilities for creating and manipulating RenderObjects
  * 
  * Allows for the creation and manipulation of RenderObjects in a draft state.

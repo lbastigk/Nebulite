@@ -31,6 +31,7 @@ class RenderObject;
 // RenderObjectTree class, Expand through Expansion files
 
 /**
+ * @class Nebulite::RenderObjectTree
  * @brief This class extends FuncTreeWrapper<ERROR_TYPE> to provide a focused, 
  * self-contained parsing interface (functioncalls) for Nebulite's RenderObject logic.
  * 

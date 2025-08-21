@@ -29,6 +29,7 @@ namespace Nebulite{
 class RenderObject;
 
 /**
+ * @class Nebulite::Invoke
  * @brief The Invoke class manages dynamic object logic in Nebulite.
  * 
  * This class is responsible for handling the invocation of functions and the

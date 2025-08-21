@@ -11,6 +11,7 @@ invokeand the GlobalSpace, allowing them to individually bind functions on const
 */
 
 /**
+ * @class Nebulite::FuncTreeExpansionWrapper
  * @file FuncTreeExpansionWrapper.h
  * 
  * This file defines the FuncTreeExpansionWrapper class, which extends the functionality of the FuncTree

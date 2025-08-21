@@ -9,7 +9,7 @@
 #include "FuncTreeExpansionWrapper.h"
 
 /**
- * @class GTE_InputMapping
+ * @class Nebulite::GlobalSpaceTreeExpansion::InputMapping
  * @brief Handles input bindings for the Nebulite engine.
  *
  * The GTE_InputMapping class provides functionality to manage input bindings

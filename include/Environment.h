@@ -18,6 +18,7 @@
 namespace Nebulite{
 
 /**
+ * @class Nebulite::Environment
  * @brief Represents the container of all render objects loaded in memory.
  *
  * This class is responsible for containing all RenderObject instances.

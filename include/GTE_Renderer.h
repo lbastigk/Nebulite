@@ -17,6 +17,7 @@ class GlobalSpace;  // Forward declaration of domain class GlobalSpace
 namespace GlobalSpaceTreeExpansion {
 
 /**
+ * @class Nebulite::GlobalSpaceTreeExpansion::Renderer
  * @brief Basic Renderer-Related Functions
  */
 class Renderer : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, Renderer> {

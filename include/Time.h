@@ -12,6 +12,7 @@
 
 
 /**
+ * @class Time
  * @brief Provides utilities for time-related functions.
  * 
  * This class provides methods to get the current time, format it as a string,

@@ -59,6 +59,7 @@
 #include "StringHandler.h"  // Using StringHandler for easy argument splitting
 
 /**
+ * @class Nebulite::FuncTree
  * @brief Function tree class for managing and executing functions through linguistic commands.
  *
  * The FuncTree class allows for the binding of functions and variables to a command tree structure,

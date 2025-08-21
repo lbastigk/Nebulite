@@ -15,6 +15,7 @@
 #include <string>
 
 /**
+ * @class Nebulite::FileManagement
  * @brief Provides utilities for file management operations via a static class.
  */
 class FileManagement{

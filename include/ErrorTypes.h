@@ -30,6 +30,7 @@
 namespace Nebulite{
 
 /**
+ * @enum Nebulite::ERROR_TYPE
  * @brief Enumeration for standardized error codes in the Nebulite engine.
  * 
  * @note Remember to add error type descriptions to the ErrorTable class!

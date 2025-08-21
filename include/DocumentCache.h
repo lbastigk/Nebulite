@@ -29,6 +29,7 @@ This would prevent us from unloading documents too aggressively and potentially 
 namespace Nebulite {
 
 /**
+ * @class Nebulite::DocumentCache
  * @brief Caches documents as read-only for quick access of resources.
  * 
  * This class provides methods to retrieve data from cached documents efficiently.

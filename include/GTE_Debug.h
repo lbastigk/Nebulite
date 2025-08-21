@@ -14,6 +14,7 @@ class GlobalSpace; // Forward declaration of domain class GlobalSpace
 namespace GlobalSpaceTreeExpansion {
 
 /**
+ * @class Nebulite::GlobalSpaceTreeExpansion::Debug
  * @brief Debugging utilities for the GlobalSpaceTree.
  * 
  * This class binds various debugging functions to the GlobalSpaceTree

@@ -12,10 +12,13 @@
 namespace Nebulite {
 class GlobalSpace; // Forward declaration of domain class GlobalSpace 
 
+
+namespace GlobalSpaceTreeExpansion {
+
 /**
+ * @class Nebulite::GlobalSpaceTreeExpansion::GUI
  * @brief GUI-Element-Insertion for the Nebulite Renderer.
  */
-namespace GlobalSpaceTreeExpansion {
 class GUI : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, GUI> {
 public:
     using Wrapper<Nebulite::GlobalSpace, GUI>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()

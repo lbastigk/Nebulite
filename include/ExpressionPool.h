@@ -19,6 +19,7 @@
 namespace Nebulite {
 
 /**
+ * @class Nebulite::ExpressionPool
  * @brief A thread-safe pool of Expression instances for concurrent evaluation.
  * 
  * Usage:

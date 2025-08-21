@@ -11,6 +11,7 @@
 namespace Nebulite {
 
 /**
+ * @class Nebulite::Assignment
  * @brief Struct representing a variable assignment in the Nebulite scripting language.
  * 
  * Contains:

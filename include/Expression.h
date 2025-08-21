@@ -36,6 +36,7 @@ namespace Nebulite {
 
 
 /**
+ * @class Nebulite::Expression
  * @brief The Expression class is responsible for parsing and evaluating expressions.
  * 
  * It supports variable registration, expression compilation, and evaluation.

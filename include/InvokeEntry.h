@@ -19,6 +19,7 @@ class RenderObject;
 // Each Renderobject holds its own InvokeEntries:
 
 /**
+ * @class Nebulite::InvokeEntry
  * @brief Represents a single invoke entry for a RenderObject.
  * 
  * Example JSON that's being parsed into this struct:

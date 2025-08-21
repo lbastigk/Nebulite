@@ -12,12 +12,15 @@
 namespace Nebulite {
 class GlobalSpace; // Forward declaration of domain class GlobalSpace
 
+
+namespace GlobalSpaceTreeExpansion {
+
 /**
+ * @class Nebulite::GlobalSpaceTreeExpansion::General
  * @brief General-purpose functions for the GlobalSpaceTree.
  * 
  * This class binds general-purpose functions to the GlobalSpaceTree.
  */
-namespace GlobalSpaceTreeExpansion {
 class General : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, General> {
 public:
     using Wrapper<Nebulite::GlobalSpace, General>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
