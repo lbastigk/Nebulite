@@ -51,7 +51,7 @@ public:
 	void setGlobalValues();
 	bool isQuit(){return quit;}
 	void setQuit(){quit=true;}
-	bool snapshot(std::string link = "./Resources/Snapshots/snapshot.png");
+	bool snapshot(std::string link);
 
 	bool attachTextureAboveLayer(Renderer::Layers aboveThisLayer, std::string name, SDL_Texture* texture) {
 		if(texture == nullptr) {

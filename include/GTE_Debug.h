@@ -56,7 +56,7 @@ public:
      * @brief Prints the global document to the console.
      * 
      * @param argc The argument count
-     * @param argv The argument vector: no inputs available
+     * @param argv The argument vector: no arguments available
      * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE printGlobal(int argc, char* argv[]);
@@ -65,7 +65,7 @@ public:
      * @brief Prints the current state of the renderer to the console.
      * 
      * @param argc The argument count
-     * @param argv The argument vector: no inputs available
+     * @param argv The argument vector: no arguments available
      * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE printState(int argc, char* argv[]);
@@ -105,7 +105,7 @@ public:
      * @brief Clears the entire always-taskqueue.
      * 
      * @param argc The argument count
-     * @param argv The argument vector: no inputs available
+     * @param argv The argument vector: no arguments available
      * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
      * 
      * @todo Move to GTE_General
@@ -116,15 +116,21 @@ public:
      * @brief Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
      * 
      * @param argc The argument count
-     * @param argv The argument vector: no inputs available
+     * @param argv The argument vector: no arguments available
      * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE render_object(int argc, char** argv);
 
 
     
-    //----------------------------------------
-    // Binding Functions
+    //-------------------------------------------
+    // Setup
+
+    /**
+     * @brief Sets up the functions bindings in the domains function tree
+     * 
+     * Is called automatically by the inherited Wrappers constructor.
+     */
     void setupBindings() {
         bindFunction(&Debug::errorlog,          "log",                      "Activate/Deactivate error logging: log <on/off>");
         bindFunction(&Debug::printGlobal,       "print-global",             "Print global document");

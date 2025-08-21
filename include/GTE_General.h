@@ -48,7 +48,7 @@ public:
      * @brief Exits the entire program
      * 
      * @param argc The argument count
-     * @param argv The argument vector: no inputs available
+     * @param argv The argument vector: no arguments available
      * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
      * 
      * @todo In order to properly exit, it we must make sure to clean up the taskQueue:
@@ -168,10 +168,10 @@ public:
      * @brief Saves the current game state under state prefix
      * 
      * @param argc The argument count
-     * @param argv The argument vector: no inputs available
+     * @param argv The argument vector: no arguments available
      * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
      * 
-     * @todo not implemented, move to separate extension GTE_StateManagement
+     * @todo not implemented, move to separate expansion GTE_StateManagement
      */
     Nebulite::ERROR_TYPE stateSave(int argc, char* argv[]);
 
@@ -183,12 +183,18 @@ public:
      * @param argv The argument vector: <name>
      * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
      * 
-     * @todo not implemented, move to separate extension GTE_StateManagement
+     * @todo not implemented, move to separate expansion GTE_StateManagement
      */
     Nebulite::ERROR_TYPE stateLoad(int argc, char* argv[]);
 
-    //----------------------------------------
-    // Binding Functions
+    //-------------------------------------------
+    // Setup
+
+    /**
+     * @brief Sets up the functions bindings in the domains function tree
+     * 
+     * Is called automatically by the inherited Wrappers constructor.
+     */
     void setupBindings() {
         bindFunction(&General::eval,                "eval",                 "Evaluate an expression and execute the result. Example: eval echo $(1+1)");
         bindFunction(&General::exitProgram,         "exit",                 "Exit the program");

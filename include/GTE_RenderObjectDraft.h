@@ -65,8 +65,14 @@ public:
     // Reset the draft (does not reset any spawned ones!)
     Nebulite::ERROR_TYPE resetDraft(int argc, char* argv[]);
 
-    //----------------------------------------
-    // Binding Functions
+    //-------------------------------------------
+    // Setup
+
+    /**
+     * @brief Sets up the functions bindings in the domains function tree
+     * 
+     * Is called automatically by the inherited Wrappers constructor.
+     */
     void setupBindings() {
         // Bind functions
         bindFunction(&RenderObjectDraft::draftHelp,   "draft-help",    "Available functions for the RenderObjectDraft");

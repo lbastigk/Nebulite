@@ -2,7 +2,7 @@
  * @file GTE_InputMapping.h
  * @brief Provides input binding utilities for the Nebulite engine.
  *
- * This file contains a GlobalTree extension to handle input bindings.
+ * This file contains a GlobalTree expansion to handle input bindings.
  * Note that this file is a work in progress!
  */
 
@@ -45,8 +45,14 @@ public:
 
     Nebulite::ERROR_TYPE writeMappingsToFile(int argc, char* argv[]);
 
-    //----------------------------------------
-    // Binding Functions
+    //-------------------------------------------
+    // Setup
+
+    /**
+     * @brief Sets up the functions bindings in the domains function tree
+     * 
+     * Is called automatically by the inherited Wrappers constructor.
+     */
     void setupBindings() {
         bindFunction(&InputMapping::readMappingsFromFile,   "read-input-mappings-from-file",    "Reads Input Mapping from inputs.jsonc file");
         bindFunction(&InputMapping::updateInputMappings,    "update-input-mappings",            "Updates current input mapping: <key> <slot> <input>");

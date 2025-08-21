@@ -98,8 +98,14 @@ public:
     // Output redirection
     Nebulite::ERROR_TYPE redirectOutput(int argc, char* argv[]);   // Redirect cout to connection: redirect-output <enable/disable>
 
-    //----------------------------------------
-    // Binding Functions
+    //-------------------------------------------
+    // Setup
+
+    /**
+     * @brief Sets up the functions bindings in the domains function tree
+     * 
+     * Is called automatically by the inherited Wrappers constructor.
+     */
     void setupBindings() {
         // Connection management
         bindFunction(&Communication::connect,            "connect",              "Establish connection");

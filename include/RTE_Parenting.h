@@ -20,9 +20,14 @@ public:
     Nebulite::ERROR_TYPE removeAllChildren(int argc, char* argv[]);
 
 
-    //----------------------------------------
-    // Binding Functions
+    //-------------------------------------------
+    // Setup
 
+    /**
+     * @brief Sets up the functions bindings in the domains function tree
+     * 
+     * * Is called automatically by the inherited Wrappers constructor.
+     */
     void setupBindings() {
         bindFunction(&Parenting::addChildren, "add-children", "Adds children of the RenderObject by name");
         bindFunction(&Parenting::removeChildren, "remove-children", "Removes children from the RenderObject");

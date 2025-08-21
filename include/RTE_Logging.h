@@ -19,9 +19,14 @@ public:
     Nebulite::ERROR_TYPE log(int argc, char* argv[]);
     Nebulite::ERROR_TYPE logValue(int argc, char* argv[]);
 
-    //----------------------------------------
-    // Binding Functions
+    //-------------------------------------------
+    // Setup
 
+    /**
+     * @brief Sets up the functions bindings in the domains function tree
+     * 
+     * * Is called automatically by the inherited Wrappers constructor.
+     */
     void setupBindings() {
         bindFunction(&Logging::echo, "echo", "Prints the arguments to the console");
         bindFunction(&Logging::log, "log", "Logs the RenderObject to a file");

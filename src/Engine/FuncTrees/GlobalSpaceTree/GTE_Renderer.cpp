@@ -33,7 +33,6 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::envdeload(int
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::spawn(int argc, char* argv[]){
-
     if(argc>1){
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun
@@ -179,7 +178,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::setCam(int ar
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::snapshot(int argc, char* argv[]){
     if(argc == 1){
         // No link provided, use default
-        bool success = self->getRenderer()->snapshot();
+        bool success = self->getRenderer()->snapshot("./Resources/Snapshots/snapshot.png");
         if (!success) {
             return Nebulite::ERROR_TYPE::SNAPSHOT_FAILED;
         }

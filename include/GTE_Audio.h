@@ -86,8 +86,14 @@ public:
     Nebulite::ERROR_TYPE setOutputDevice(int argc, char* argv[]);  // Set output device: set-output-device <device_id>
     Nebulite::ERROR_TYPE setInputDevice(int argc, char* argv[]);   // Set input device: set-input-device <device_id>
 
-    //----------------------------------------
-    // Binding Functions
+    //-------------------------------------------
+    // Setup
+
+    /**
+     * @brief Sets up the functions bindings in the domains function tree
+     * 
+     * Is called automatically by the inherited Wrappers constructor.
+     */
     void setupBindings() {
         // Basic playback
         bindFunction(&Audio::playSound,         "play-sound",           "Play sound effect");

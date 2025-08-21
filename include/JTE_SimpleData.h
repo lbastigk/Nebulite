@@ -29,8 +29,14 @@ public:
     Nebulite::ERROR_TYPE ensureArray(int argc, char* argv[]);
 
 
-    //----------------------------------------
-    // Binding Functions
+    //-------------------------------------------
+    // Setup
+
+    /**
+     * @brief Sets up the functions bindings in the domains function tree
+     * 
+     * Is called automatically by the inherited Wrappers constructor.
+     */
     void setupBindings() {
         // Bind functions specific to complex data handling
         bindFunction(&SimpleData::set, "set", "Set a key to a value in the JSON document: <key> <value>");

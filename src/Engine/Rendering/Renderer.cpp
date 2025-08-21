@@ -25,6 +25,7 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	#elif __ANDROID__
 		invoke_ptr->getGlobalPointer()->set<std::string>("platform","android");
 	#elif __TEMPLEOS__
+		printf("Glory be to TempleOS!\n");
 		invoke_ptr->getGlobalPointer()->set<std::string>("platform","templeos");
 	#else
 		invoke_ptr->getGlobalPointer()->set<std::string>("platform","unknown");
