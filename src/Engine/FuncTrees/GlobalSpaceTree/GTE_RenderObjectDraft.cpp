@@ -14,9 +14,21 @@ void Nebulite::GlobalSpaceTreeExpansion::RenderObjectDraft::update() {
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::RenderObjectDraft::draftHelp(int argc, char* argv[]) {
+    if(argc != 1) {
+        return Nebulite::ERROR_TYPE::TOO_MANY_ARGS; // No arguments expected
+    }
+
     // Implementation of draftHelp
-    draft->parseStr("Nebulite::GlobalSpaceTreeExpansion::RenderObjectDraft::draftHelp help");
-    return Nebulite::ERROR_TYPE::NONE;
+    std::string command = "Nebulite::GlobalSpaceTreeExpansion::RenderObjectDraft::draftHelp help";
+
+    // Add additional arguments
+    for(int i = 2; i < argc; ++i) {
+        command += " ";
+        command += argv[i];
+    }
+
+    // Parse the command
+    return draft->parseStr(command);
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::RenderObjectDraft::onDraft(int argc, char* argv[]) {
@@ -34,6 +46,10 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::RenderObjectDraft::onDr
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::RenderObjectDraft::spawnDraft(int argc, char* argv[]) {
+    if(argc != 1) {
+        return Nebulite::ERROR_TYPE::TOO_MANY_ARGS; // No arguments expected
+    }
+
     // Turning Renderobject into string serial and parsing:
     // argv[0] : <from>
     // argv[1] : spawn
@@ -51,6 +67,10 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::RenderObjectDraft::spaw
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::RenderObjectDraft::resetDraft(int argc, char* argv[]) {
+    if(argc != 1) {
+        return Nebulite::ERROR_TYPE::TOO_MANY_ARGS; // No arguments expected
+    }
+
     Nebulite::RenderObject newDraft(&self->global);
     draft->deserialize(newDraft.serialize());
     return Nebulite::ERROR_TYPE::NONE;

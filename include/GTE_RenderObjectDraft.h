@@ -53,16 +53,43 @@ public:
     //----------------------------------------
     // Available Functions
 
-    // Prints all Renderobject help information
+    /**
+     * @brief Prints all available help information for the RenderObjectTree
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: All additional arguments for the help command
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE draftHelp(int argc, char* argv[]);
 
-    // Parse Renderobject-specific functions on the draft
+    /**
+     * @brief Parse Renderobject-specific functions on the draft
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: the arguments for the RenderObject to parse.
+     * See all RenderObjectTree functions for available options.
+     * Or use `./bin/Nebulite draft-help` to see all available options.
+     * 
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE onDraft(int argc, char* argv[]);
 
-    // Spawn the created draft object
+    /**
+     * @brief Spawn the created draft object
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: no arguments available
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE spawnDraft(int argc, char* argv[]);
 
-    // Reset the draft (does not reset any spawned ones!)
+    /**
+     * @brief Reset the draft (does not reset any spawned ones!)
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: no arguments available
+     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE resetDraft(int argc, char* argv[]);
 
     //-------------------------------------------
