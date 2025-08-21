@@ -14,7 +14,21 @@
 #include <deque>
 
 
-// Set to use external cache, meaning double-values from inside expressions use the JSON storage directly
+/**
+ * @brief Enables the use of an external cache for double-values.
+ * 
+ * This means that double-values from inside expressions will use the JSON storage directly, if possible.
+ * In order to use double-value-pointers from a JSON document, the document must be remanent:
+ *
+ * - The document is permanently accessible within the expression lifetime
+ * - The document is permanently alive within the expression lifetime
+ * - The document reference is constant within the expression lifetime
+ *
+ * This is only applicable for `self` and `global`.
+ *
+ * The `other` context changes frequently and is not suitable for external caching.
+ * The `resource` context may be deloaded at any time, rendering double references invalid.
+ */
 #define use_external_cache 1
 
 
@@ -39,6 +53,11 @@ public:
 
     /**
      * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
+     * 
+     * @param expr The expression string to parse.
+     * @param documentCache The document cache to use for variable resolution.
+     * @param self The JSON object representing the "self" context.
+     * @param global The JSON object representing the "global" context.
      */
     void parse(const std::string& expr, Nebulite::DocumentCache& documentCache, Nebulite::JSON* self, Nebulite::JSON* global);
 
@@ -80,9 +99,19 @@ public:
     std::string getFullExpression(){return fullExpression;};
 
 private:
-    // Links to self, global, doccache stay the same
+    /**
+     * @brief link to the remanentself context
+     */
     Nebulite::JSON* self = nullptr;
+
+    /**
+     * @brief link to the remanent global context
+     */
     Nebulite::JSON* global = nullptr;
+
+    /**
+     * @brief link to the non-remanent document cache
+     */
     Nebulite::DocumentCache* globalCache = nullptr;
 
     struct Entry {
@@ -116,7 +145,7 @@ private:
     };
 
     /**
-     * @brief Holds all virtual double entries.
+     * @brief Holds a virtual double entry with all necessary information.
      * 
      * A virtual double entry represents a double value needed within a tinyexpr evaluation.
      * We use these entries to bridge the gap between the JSON document structure and the expression evaluation.
@@ -124,6 +153,11 @@ private:
      * 
      * Depending on the document type, we either register the values inside the vd_entry or in the json document
      * Both remanent and non-remanent types use the vd_entry for variable management.
+     * 
+     * @todo is it possible to reduce the vd_entry vectors to simple VirtualDouble vectors?
+     * - The "from" should be irrelevant since we already separate the vectors based on that notion
+     * - The key is stored in the VirtualDouble itself
+     * - Where is te_name used? Just for debugging?
      */
     struct vd_entry {
         std::shared_ptr<Nebulite::VirtualDouble> virtualDouble;
@@ -132,107 +166,29 @@ private:
         std::string te_name;
     };
 
+    /**
+     * @brief Holds all virtual double entries for the self context.
+     */
     std::vector<std::shared_ptr<vd_entry>> virtualDoubles_self;
+
+    /**
+     * @brief Holds all virtual double entries for the other context.
+     */
     std::vector<std::shared_ptr<vd_entry>> virtualDoubles_other;
+
+    /**
+     * @brief Holds all virtual double entries for the global context.
+     */
     std::vector<std::shared_ptr<vd_entry>> virtualDoubles_global;
+
+    /**
+     * @brief Holds all virtual double entries for the resource context.
+     */
     std::vector<std::shared_ptr<vd_entry>> virtualDoubles_resource;
 
-    void update_vds(std::vector<std::shared_ptr<vd_entry>>* vec, Nebulite::JSON* link){
-        for(auto& vde : *vec) {
-            vde->virtualDouble->updateCache(link);
-        }
-    }
-
-    void reset() {
-        documentCache = nullptr;
-        self = nullptr;
-        global = nullptr;
-
-        // Clear existing data
-        entries.clear();
-        variables.clear();
-        fullExpression.clear();
-        entries.clear();
-
-        // Clear vds
-        virtualDoubles_self.clear();
-        virtualDoubles_other.clear();
-        virtualDoubles_global.clear();
-        virtualDoubles_resource.clear();
-
-        // Register built-in functions
-        te_variable gt_var =  {"gt",    (void*)expr_custom::gt,             TE_FUNCTION2};
-        variables.push_back(gt_var);
-        te_variable lt_var =  {"lt",    (void*)expr_custom::lt,             TE_FUNCTION2};
-        variables.push_back(lt_var);
-        te_variable geq_var = {"geq",   (void*)expr_custom::geq,            TE_FUNCTION2};
-        variables.push_back(geq_var);
-        te_variable leq_var = {"leq",   (void*)expr_custom::leq,            TE_FUNCTION2};
-        variables.push_back(leq_var);
-        te_variable eq_var =  {"eq",    (void*)expr_custom::eq,             TE_FUNCTION2};
-        variables.push_back(eq_var);
-        te_variable neq_var = {"neq",   (void*)expr_custom::neq,            TE_FUNCTION2};
-        variables.push_back(neq_var);
-        te_variable and_var = {"and",   (void*)expr_custom::logical_and,    TE_FUNCTION2};
-        variables.push_back(and_var);
-        te_variable or_var =  {"or",    (void*)expr_custom::logical_or,     TE_FUNCTION2};
-        variables.push_back(or_var);
-        te_variable not_var = {"not",   (void*)expr_custom::logical_not,    TE_FUNCTION1};
-        variables.push_back(not_var);
-        te_variable sgn_var = {"sgn",   (void*)expr_custom::sgn,            TE_FUNCTION1};
-        variables.push_back(sgn_var);
-    }
-
     /**
-     * @brief Holds all parsed entries from the expression.
+     * @brief A collection of functions for TinyExpr
      */
-    std::vector<Entry> entries;
-
-    /**
-     * @brief Holds the full expression as a string.
-     */
-    std::string fullExpression;
-
-    std::vector<te_variable> variables;   // Variables for TinyExpr evaluation
-
-    // Cache is passed to all virtual doubles as well
-    Nebulite::DocumentCache* documentCache = nullptr;
-
-    // Helper functions
-    std::string stripContext(const std::string& key) {
-        if (key.starts_with("self.")) {
-            return key.substr(5);
-        } else if (key.starts_with("other.")) {
-            return key.substr(6);
-        } else if (key.starts_with("global.")) {
-            return key.substr(7);
-        } else {
-            return key;
-        }
-    }
-    Entry::From getContext(const std::string& key) {
-        if (key.starts_with("self.")) {
-            return Entry::From::self;
-        } else if (key.starts_with("other.")) {
-            return Entry::From::other;
-        } else if (key.starts_with("global.")) {
-            return Entry::From::global;
-        } else {
-            return Entry::From::resource;
-        }
-    }
-
-    void parseIntoEntries(const std::string& expr, std::vector<Entry>& entries);
-    void compileIfExpression(Entry& entry);
-    void registerVariable(std::string str, std::string key, Entry::From context);
-    void readFormatter(Entry* entry, const std::string& formatter);
-
-    void parseTokenTypeEval(std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
-    void parseTokenTypeText(std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
-
-    void printCompileError(const Entry& entry, int& error);
-
-    // Custom TinyExpr functions
     class expr_custom{
     public:
         static double gt(double a, double b) {return a > b;}
@@ -250,8 +206,153 @@ private:
         static double sgn(double a){return std::copysign(1.0, a);}
     };
 
-    // Storing info about the expression's returnability
+    /**
+     * @brief Storing info about the expression's returnability
+     */
     bool _isReturnableAsDouble;
+
+    /**
+     * @brief updates all internal caches of a vd_entry
+     * 
+     * @param vec The vector of virtual double entries to update
+     * @param link The JSON document to update the caches with
+     */
+    void update_vds(std::vector<std::shared_ptr<vd_entry>>* vec, Nebulite::JSON* link);
+
+    /**
+     * @brief Resets the expression to its initial state.
+     * 
+     * - Clears all entries
+     * - Clears all variables and re-registers standard functions
+     * - Clears all virtual double entries
+     */
+    void reset();
+
+    /**
+     * @brief Holds all parsed entries from the expression.
+     */
+    std::vector<Entry> entries;
+
+    /**
+     * @brief Holds the full expression as a string.
+     */
+    std::string fullExpression;
+
+    /**
+     * @brief Collection of all registered variables and functions
+     */
+    std::vector<te_variable> variables;   // Variables for TinyExpr evaluation
+
+    /**
+     * @brief Reference to the resource context
+     */
+    Nebulite::DocumentCache* documentCache = nullptr;
+
+    //--------------------------------------------
+    // Helper functions
+
+    /**
+     * @brief Compiles an entry, if its of type Expression
+     * 
+     * @param entry The entry to potentially compile
+     */
+    void compileIfExpression(Entry& entry);
+
+    /**
+     * @brief Registers a variable with the given name and key in the context of the entry.
+     * 
+     * Makes sure to only register variables that are not already registered.
+     * 
+     * @param te_name The name of the variable as used in TinyExpr.
+     * @param key The key in the JSON document that the variable refers to.
+     * @param context The context from which the variable is being registered.
+     */
+    void registerVariable(std::string te_name, std::string key, Entry::From context);
+
+    /**
+     * @brief used to strip any context prefix from a key
+     * 
+     * Removes the beginning, if applicable:
+     *
+     * - `self.`
+     *
+     * - `other.`
+     *
+     * - `global.`
+     *
+     * Does not remove the beginning context for resource variables, 
+     * as the beginning is needed for the link.
+     * 
+     * @param key The key to strip the context from.
+     * 
+     * @return The key without its context prefix.
+     */
+    static std::string stripContext(const std::string& key);
+
+    /**
+     * @brief Gets the context from a key before it's stripped
+     *
+     * If the key doesnt start with `self.`, `other.`, or `global.`, it is considered a resource variable.
+     * 
+     * @param key The key to get the context from.
+     * 
+     * @return The context of the key.
+     */
+    static Entry::From getContext(const std::string& key);
+
+    /**
+     * @brief Parses the given expression into a series of entries.
+     * 
+     * @param expr The expression string to parse.
+     * @param entries The vector to populate with the parsed entries.
+     */
+    void parseIntoEntries(const std::string& expr, std::vector<Entry>& entries);
+
+    /**
+     * @brief Reads the formatter string from a string and parses it intro the entry.
+     * 
+     * @param entry The entry to populate with the parsed formatter.
+     * @param formatter The formatter string to parse.
+     */
+    static void readFormatter(Entry* entry, const std::string& formatter);
+
+    /**
+     * @brief Used to parse a string token of type "eval" into an entry.
+     * 
+     * - Parses the token on the assumption that it is of type "eval".
+     * 
+     * - Populates the current entry with the parsed information.
+     * 
+     * - Pushes the current entry onto the entries vector.
+     * 
+     * @param token The token to parse.
+     * @param currentEntry The current entry to populate.
+     * @param entries The vector to push the current entry onto.
+     */
+    void parseTokenTypeEval(std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
+
+    /**
+     * @brief Used to parse a string token of type "text" into an entry.
+     * 
+     * - Parses the token on the assumption that it is of type "text".
+     * 
+     * - Populates the current entry with the parsed information.
+     * 
+     * - Pushes the current entry onto the entries vector.
+     * 
+     * @param token The token to parse.
+     * @param currentEntry The current entry to populate.
+     * @param entries The vector to push the current entry onto.
+     */
+    void parseTokenTypeText(std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
+
+    /**
+     * @brief Prints a compilation error message to cerr
+     * 
+     * Includes tips for fixing the error.
+     */
+    void printCompileError(const Entry& entry, int& error);
+
 };
 } // namespace Nebulite
 

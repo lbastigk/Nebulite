@@ -3,6 +3,76 @@
 //------------------------------
 // Private:
 
+void Nebulite::Expression::update_vds(std::vector<std::shared_ptr<vd_entry>>* vec, Nebulite::JSON* link){
+    for(auto& vde : *vec) {
+        vde->virtualDouble->updateCache(link);
+    }
+}
+
+void Nebulite::Expression::reset() {
+    documentCache = nullptr;
+    self = nullptr;
+    global = nullptr;
+
+    // Clear existing data
+    entries.clear();
+    variables.clear();
+    fullExpression.clear();
+    entries.clear();
+
+    // Clear vds
+    virtualDoubles_self.clear();
+    virtualDoubles_other.clear();
+    virtualDoubles_global.clear();
+    virtualDoubles_resource.clear();
+
+    // Register built-in functions
+    te_variable gt_var =  {"gt",    (void*)expr_custom::gt,             TE_FUNCTION2};
+    variables.push_back(gt_var);
+    te_variable lt_var =  {"lt",    (void*)expr_custom::lt,             TE_FUNCTION2};
+    variables.push_back(lt_var);
+    te_variable geq_var = {"geq",   (void*)expr_custom::geq,            TE_FUNCTION2};
+    variables.push_back(geq_var);
+    te_variable leq_var = {"leq",   (void*)expr_custom::leq,            TE_FUNCTION2};
+    variables.push_back(leq_var);
+    te_variable eq_var =  {"eq",    (void*)expr_custom::eq,             TE_FUNCTION2};
+    variables.push_back(eq_var);
+    te_variable neq_var = {"neq",   (void*)expr_custom::neq,            TE_FUNCTION2};
+    variables.push_back(neq_var);
+    te_variable and_var = {"and",   (void*)expr_custom::logical_and,    TE_FUNCTION2};
+    variables.push_back(and_var);
+    te_variable or_var =  {"or",    (void*)expr_custom::logical_or,     TE_FUNCTION2};
+    variables.push_back(or_var);
+    te_variable not_var = {"not",   (void*)expr_custom::logical_not,    TE_FUNCTION1};
+    variables.push_back(not_var);
+    te_variable sgn_var = {"sgn",   (void*)expr_custom::sgn,            TE_FUNCTION1};
+    variables.push_back(sgn_var);
+}
+
+std::string Nebulite::Expression::stripContext(const std::string& key) {
+    if (key.starts_with("self.")) {
+        return key.substr(5);
+    } else if (key.starts_with("other.")) {
+        return key.substr(6);
+    } else if (key.starts_with("global.")) {
+        return key.substr(7);
+    } else {
+        return key;
+    }
+}
+
+Nebulite::Expression::Entry::From Nebulite::Expression::getContext(const std::string& key) {
+    if (key.starts_with("self.")) {
+        return Entry::From::self;
+    } else if (key.starts_with("other.")) {
+        return Entry::From::other;
+    } else if (key.starts_with("global.")) {
+        return Entry::From::global;
+    } else {
+        return Entry::From::resource;
+    }
+}
+
 void Nebulite::Expression::compileIfExpression(Entry& entry) {
     if (entry.type == Entry::Type::eval) {
         // Compile the expression using TinyExpr
