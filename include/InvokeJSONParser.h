@@ -1,3 +1,10 @@
+/**
+ * @file InvokeJSONParser.h
+ * 
+ * This file contains the static InvokeJSONParser class, which is responsible for parsing
+ * JSON documents into InvokeEntry objects.
+ */
+
 #pragma once
 #include "JSON.h"
 #include "RenderObject.h"
@@ -5,8 +12,6 @@
 namespace Nebulite{
 
 class Invoke;
-
-// ==== INVOKE PARSING HELPER FUNCTIONS ====  
 
 /**
  * @class Nebulite::InvokeJSONParser

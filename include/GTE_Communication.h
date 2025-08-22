@@ -48,9 +48,6 @@ Do NOT attempt to use these functions until implementation is complete.
 ================================================================================
 */
 
-// TODO: Adding an update() function to each expansion?
-// Not necessary for most, but needed in the Communication expansion to listen for incoming messages!
-
 #include "ErrorTypes.h"
 #include "FuncTreeExpansionWrapper.h"
 
@@ -61,6 +58,8 @@ namespace GlobalSpaceTreeExpansion {
 class Communication : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, Communication> {
 public:
     using Wrapper<Nebulite::GlobalSpace, Communication>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
+
+    void update();
 
     //----------------------------------------
     // Connection Management

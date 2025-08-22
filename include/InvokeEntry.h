@@ -1,3 +1,9 @@
+/**
+ * @file InvokeEntry.h
+ * 
+ * This file contains the InvokeEntry struct, representing a single invoke entry of a RenderObject for manipulation.
+ */
+
 #pragma once
 #include "ExpressionPool.h"
 
@@ -19,8 +25,8 @@ class RenderObject;
 // Each Renderobject holds its own InvokeEntries:
 
 /**
- * @class Nebulite::InvokeEntry
- * @brief Represents a single invoke entry for a RenderObject.
+ * @struct Nebulite::InvokeEntry
+ * @brief Represents a single invoke entry of a RenderObject for manipulation.
  * 
  * Example JSON that's being parsed into this struct:
  * ```jsonc
@@ -86,9 +92,15 @@ struct InvokeEntry{
 
     /**
      * @brief Indicates whether the invoke entry is global or local.
+     * 
+     * if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
      */
-    bool isGlobal = true;                                         // if true, the invoke is global and can be broadcasted to other objects: Same as a nonempty topic
-    Nebulite::RenderObject* selfPtr = nullptr;                    // store self
+    bool isGlobal = true;
+
+    /**
+     * @brief Pointer to the RenderObject that owns this invoke entry; the `self` domain.
+     */
+    Nebulite::RenderObject* selfPtr = nullptr;
 
     // Expressions
     /**
@@ -106,9 +118,4 @@ struct InvokeEntry{
     InvokeEntry(InvokeEntry&&) = delete;
     InvokeEntry& operator=(InvokeEntry&&) = delete;
 };
-}
-
-// Example JSON:
-/*
-
-*/
+} // namespace Nebulite

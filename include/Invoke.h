@@ -122,12 +122,21 @@ public:
     //--------------------------------------------
     // Value checks
 
-    // Check if cmd is true compared to other object
+    /**
+     * @brief Checks if the invoke entry is true in the context of the other render object.
+     * 
+     * @param entry The invoke entry to check.
+     * @param otherObj The other render object to compare against.
+     * @return True if the invoke entry is true in the context of the other render object, false otherwise.
+     */
     bool isTrueGlobal(std::shared_ptr<Nebulite::InvokeEntry> entry, Nebulite::RenderObject* otherObj);
 
-    // Check if local invoke is true
-    // Same as isTrueGlobal, but using self for linkage to other
-    // Might be helpful to use an empty doc here to supress any value from other being true
+    /**
+     * @brief Checks if the invoke entry is true, without any context from other render objects.
+     * 
+     * @param entry The invoke entry to check.
+     * @return True if the invoke entry is true without any context from other render objects, false otherwise.
+     */
     bool isTrueLocal(std::shared_ptr<Nebulite::InvokeEntry> entry);
 
 
@@ -268,7 +277,10 @@ private:
 
     /**
      * @brief Updates a build pair of invoke entry with given domain `other`
+     * 
+     * @param entries_self The invoke entries for the self domain.
+     * @param Obj_other The render object in the other domain to update.
      */
     void updatePair(std::shared_ptr<Nebulite::InvokeEntry> entries_self, Nebulite::RenderObject* Obj_other);
 };
-}
+} // namespace Nebulite
