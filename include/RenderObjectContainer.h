@@ -113,4 +113,4 @@ private:
 
 	Nebulite::Invoke* globalInvoke;
 };
-}
+}   // namespace Nebulite

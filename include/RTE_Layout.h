@@ -31,5 +31,5 @@ public:
         bindFunction(&Layout::makeBox, "make-box", "Creates a box based on text dimensions");
     }
 };
-}
-}
+}   // namespace RenderObjectTreeExpansion
+}   // namespace Nebulite

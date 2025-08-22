@@ -26,11 +26,8 @@
 #pragma once
 #include <absl/container/flat_hash_map.h>   // For error type to string mapping
 
-/**
- * @namespace Nebulite
- * 
- * @brief This namespace contains all classes, functions, types and variables related to the Nebulite framework.
- */
+#include "Nebulite.h"
+
 namespace Nebulite{
 
 /**
@@ -57,7 +54,7 @@ enum ERROR_TYPE{
     SNAPSHOT_FAILED,            // Used in Renderer::snapshot
     FILE_NOT_FOUND,
 };
-}
+
 
 
 /**
@@ -120,3 +117,4 @@ private:
     // hashtable for error type to string mapping
     absl::flat_hash_map<Nebulite::ERROR_TYPE, std::string> errorTypeToString;
 };
+} // namespace Nebulite

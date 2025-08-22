@@ -139,5 +139,5 @@ protected:
     DomainType* self;                // Workspace of the expansion
     FuncTree<ERROR_TYPE>* funcTree;     // Where to bind the expanded functions
 };
-}
-}
+}   // namespace FuncTreeExpansion
+}   // namespace Nebulite

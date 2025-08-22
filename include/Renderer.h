@@ -252,4 +252,4 @@ private:
 	absl::flat_hash_map<Renderer::Layers, absl::flat_hash_map<std::string, SDL_Texture*>> BetweenLayerTextures; // Textures that are attached between layers
 
 };
-}
+}   // namespace Nebulite

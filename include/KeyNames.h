@@ -72,4 +72,4 @@ const struct keyName {
         std::string renderObjectContainer = "RenderObjectContainer";
     }environment;
 }keyName;
-}
+}   // namespace Nebulite

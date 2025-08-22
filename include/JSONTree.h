@@ -97,4 +97,4 @@ private:
     std::unique_ptr<JSONTreeExpansion::ComplexData> complexData;
 
 };
-}
+}   // namespace Nebulite

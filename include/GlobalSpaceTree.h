@@ -117,6 +117,6 @@ private:
     std::unique_ptr<GlobalSpaceTreeExpansion::GUI> gui;                                 // GUI Expansion for DearImgui integration
     std::unique_ptr<GlobalSpaceTreeExpansion::RenderObjectDraft> RenderObjectDraft;     // Mock RenderObject for testing purposes
 };
-}
+}   // namespace Nebulite
 
 

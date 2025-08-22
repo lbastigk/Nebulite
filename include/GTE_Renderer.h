@@ -215,5 +215,5 @@ private:
      */
     Nebulite::RenderObject* selectedRenderObject = nullptr;
 };
-}
-}
+}   // namespace GlobalSpaceTreeExpansion
+}   // namespace Nebulite

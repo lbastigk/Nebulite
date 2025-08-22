@@ -128,5 +128,5 @@ public:
         bindFunction(&Communication::redirectOutput,     "redirect-output",      "Redirect cout to connection <on/off>");
     }
 };
-}
-}
+}   // namespace GlobalSpaceTreeExpansion
+}   // namespace Nebulite

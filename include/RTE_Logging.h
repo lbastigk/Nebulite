@@ -33,5 +33,5 @@ public:
         bindFunction(&Logging::logValue, "log-value", "Logs a specific value");
     }
 };
-}
-}
+}   // namespace RenderObjectTreeExpansion
+}   // namespace Nebulite

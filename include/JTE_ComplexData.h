@@ -32,5 +32,5 @@ public:
         bindFunction(&ComplexData::set_from_json,  "set-from-json",  "Sets a key from a JSON document:    <key> <link:key>");
     }
 };
-}
-}
+}   // namespace JSONTreeExpansion
+}   // namespace Nebulite

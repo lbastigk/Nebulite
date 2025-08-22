@@ -3,13 +3,13 @@
 
 
 // Helper function to build the RenderObjectContainer array
-namespace {
+namespace Nebulite {
     template<std::size_t... Is>
     std::array<Nebulite::RenderObjectContainer, sizeof...(Is)> 
     make_roc_array(Nebulite::Invoke* globalInvoke, std::index_sequence<Is...>) {
         return {{(static_cast<void>(Is), Nebulite::RenderObjectContainer(globalInvoke))...}};
     }
-}
+}   // namespace Nebulite
 
 Nebulite::Environment::Environment(Nebulite::Invoke* globalInvoke)
 	: roc(make_roc_array(globalInvoke, std::make_index_sequence<RENDEROBJECTCONTAINER_COUNT>{}))

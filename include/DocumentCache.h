@@ -101,7 +101,7 @@ private:
     // Default value for double pointers, if the document or key is not found
     double zero = 0.0;
 };
-}
+} // namespace Nebulite
 
 // Expected input: ./Resources/Data/myData.jsonc:key1.key2
 template  <typename T> 

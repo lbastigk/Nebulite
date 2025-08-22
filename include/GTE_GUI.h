@@ -51,5 +51,5 @@ public:
         bindFunction(&GUI::example, "GUI-Example", "An example function to demonstrate GUI-Elements");
     }
 };
-}
-}
+}   // namespace GlobalSpaceTreeExpansion
+}   // namespace Nebulite

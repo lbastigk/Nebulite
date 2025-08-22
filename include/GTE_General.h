@@ -212,5 +212,5 @@ public:
         bindFunction(&General::stateLoad,           "state-load",           "Load a saved game state: state-load <name>");
     }
 };
-}
-}
+}   // namespace GlobalSpaceTreeExpansion
+}   // namespace Nebulite

@@ -112,4 +112,4 @@ private:
     std::unique_ptr<RenderObjectTreeExpansion::StateUpdate> stateUpdate;
 
 };
-}
+}   // namespace Nebulite

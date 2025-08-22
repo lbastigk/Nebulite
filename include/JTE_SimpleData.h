@@ -56,5 +56,5 @@ public:
         bindFunction(&SimpleData::ensureArray, "ensure-array", "Ensures that a key is an array, converting a value to an array if necessary: <key>");   // Note: name 'ensure-array' is hardcoded in some functions! Do not change!
     }
 };
-}
-}
+}   // namespace JSONTreeExpansion
+}   // namespace Nebulite

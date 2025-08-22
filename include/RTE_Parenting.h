@@ -34,5 +34,5 @@ public:
         bindFunction(&Parenting::removeAllChildren, "remove-all-children", "Removes all children from the RenderObject");
     }
 };
-}
-}
+}   // namespace RenderObjectTreeExpansion
+}   // namespace Nebulite

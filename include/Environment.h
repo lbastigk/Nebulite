@@ -168,4 +168,4 @@ private:
 	// Inner containers
 	std::array<Nebulite::RenderObjectContainer, RENDEROBJECTCONTAINER_COUNT> roc;
 };
-}
+} // namespace Nebulite

@@ -40,8 +40,7 @@ std::string FileManagement::LoadFile(const std::string& link) {
 }
 
 void FileManagement::WriteFile(const std::string& filename, const std::string& text) {
-    namespace fs = std::filesystem;
-    fs::path filepath(filename);  // Modern: handles encoding and platform separators
+    std::filesystem::path filepath(filename);  // Modern: handles encoding and platform separators
 
     std::ofstream file(filepath, std::ios::out);
     if (!file.is_open()) {

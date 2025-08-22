@@ -136,5 +136,5 @@ public:
         bindFunction(&Audio::setInputDevice,    "set-input-device",     "Set input device");
     }
 };
-}
-}
+}   // namespace GlobalSpaceTreeExpansion
+}   // namespace Nebulite

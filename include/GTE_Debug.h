@@ -160,5 +160,5 @@ private:
     // true  : logging to file
     bool errorLogStatus = false;
 };
-}
-}
+}   // namespace GlobalSpaceTreeExpansion
+}   // namespace Nebulite

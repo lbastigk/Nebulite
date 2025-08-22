@@ -113,4 +113,4 @@ public:
      */
     static std::vector<std::string> splitOnSameDepth(const std::string& input, char delimiter);
 };
-}
+}   // namespace Nebulite
