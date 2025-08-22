@@ -1,16 +1,23 @@
 #pragma once
 
-/*
-The following Struct keyName is used to store all hardcoded key names used within
-Nebulite to manipulate JSON objects like RenderObjects, Invokes, etc.
-This allows to change the key names in one place only, if needed.
-
-*/
+/**
+ * @file KeyNames.h
+ * @brief Contains all hardcoded key names used within Nebulite.
+ */
 
 #include <string>
 
 namespace Nebulite{
+
+/**
+ * @struct keyName
+ * @brief Contains all hardcoded key names used within Nebulite.
+ */
 const struct keyName {
+    /**
+     * @struct renderer
+     * @brief Contains all hardcoded key names used within the Nebulite::Renderer class.
+     */
     const struct renderer{
         std::string _self = "renderer";
         std::string dispResX = "display.resolution.X";
@@ -24,13 +31,27 @@ const struct keyName {
         std::string time_dt = "time.dt";
         std::string time_dt_ms = "time.dt_ms";
     }renderer;
-    // TODO: replace rand/rrand with multiple randoms
+
+    /**
+     * @struct Random
+     * @brief Contains all hardcoded key names used for random number generation.
+     * 
+     * @todo replace rand/rrand
+     * @todo Proper implementation and usage within GTE_RNG
+     */
     const struct Random{
         std::string A = "random.A";
         std::string B = "random.B";
         std::string C = "random.C";
         std::string D = "random.D";
+        std::string rand = "rand";
+        std::string rrand = "rrand";
     }random;
+
+    /**
+     * @struct renderObject
+     * @brief Contains all hardcoded key names used within the Nebulite::RenderObject class.
+     */
     const struct renderObject{
         std::string _self = "renderObject";
         std::string id = "id";
@@ -56,6 +77,11 @@ const struct keyName {
         std::string invokes = "invokes";
         std::string invokeSubscriptions = "invokeSubscriptions";
     }renderObject;
+
+    /**
+     * @struct invoke
+     * @brief Contains all hardcoded key names used within the Nebulite::Invoke class.
+     */
     const struct invoke{
         std::string _self = "invoke";
         std::string logicalArg = "logicalArg";
@@ -68,6 +94,11 @@ const struct keyName {
         std::string typeOther = "other";
         std::string typeGlobal = "global";
     }invoke;
+
+    /**
+     * @struct Environment
+     * @brief Contains all hardcoded key names used within the Nebulite::Environment class.
+     */
     const struct Environment {
         std::string renderObjectContainer = "RenderObjectContainer";
     }environment;
