@@ -78,6 +78,12 @@ namespace Nebulite{
      * Meaning the last key set will take precedence.
      * Instead, values should only be set if they are guaranteed to be simple values rather than complex objects.
      * For moving and copying complex objects, use the appropriate methods of its FuncTree.
+     * 
+     * Due to performance concerns, a rework of the caching system is a low priority.
+     * 
+     * @todo One way of fixing would be to compare any new cached values with existing ones and deleting inner caches:
+     * - new cache `var1` is substring of existing cache `var1.var2` -> delete `var1.var2`
+     * - Since we only need to compare new cached values with existing ones, we can optimize the process.
      */
     class JSON{
     public:
@@ -598,49 +604,118 @@ namespace Nebulite{
             static void empty(rapidjson::Document &doc);
         };
     };
-}
+} // namespace Nebulite
 
 template <typename T>
 T Nebulite::JSON::convert_variant(const SimpleJSONValue& val, const T& defaultValue) {
-    return std::visit([&](const auto& stored) -> T {
+    /*
+    Use std::visit to handle the variant type.
+    Conceptually, it works like a type-based switch statement:
+
+    switch(type):
+            case Type::INT:    return ...;
+            case Type::FLOAT:  return ...;
+            case Type::STRING: return ...;
+
+    However, instead of a switch, std::visit applies the provided callable
+    to the value stored in the std::variant, resolving the type at runtime.
+    */
+    return std::visit([&](const auto& stored) -> T 
+    {
+        // Removing all qualifiers (const, volatile, references, etc.)
         using StoredT = std::decay_t<decltype(stored)>;
 
+        // [DIRECT]
         // Directly cast if types are convertible
         if constexpr (std::is_convertible_v<StoredT, T>) {
             return static_cast<T>(stored);
         }
 
-        // Handle string to bool (optional, but common)
-        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<T, bool>) {
+        // [STRING] -> [BOOL]
+        // Handle string to bool
+        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<T, bool>) {
             return stored == "true" || stored == "1";
         }
 
-        // Handle string to arithmetic
-        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_arithmetic_v<T>) {
+        // [STRING] -> [INT]
+        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<T, int>) {
             try {
-                if constexpr (std::is_integral_v<T>) {
-                    if constexpr (std::is_signed_v<T>)
-                        return static_cast<T>(std::stoll(stored));
-                    else
-                        return static_cast<T>(std::stoull(stored));
-                } else {
-                    return static_cast<T>(std::stod(stored));
-                }
+                return static_cast<T>(std::stoi(stored));
             } catch (...) {
                 return defaultValue;
             }
         }
 
-        // Handle arithmetic to string
-        else if constexpr (std::is_arithmetic_v<StoredT> && std::is_same_v<T, std::string>) {
+        // [STRING] -> [DOUBLE]
+        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<T, double>) {
+            try {
+                return static_cast<T>(std::stod(stored));
+            } catch (...) {
+                return defaultValue;
+            }
+        }
+
+        // [STRING] -> [UNSIGNED LONG]
+        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<T, unsigned long>) {
+            try {
+                return static_cast<T>(std::stoul(stored));
+            } catch (...) {
+                return defaultValue;
+            }
+        }
+
+        // [STRING] -> [UNSIGNED LONG LONG]
+        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<T, unsigned long long>) {
+            try {
+                return static_cast<T>(std::stoull(stored));
+            } catch (...) {
+                return defaultValue;
+            }
+        }
+
+        // [ARITHMETIC] -> [STRING]
+        if constexpr (std::is_arithmetic_v<StoredT> && std::is_same_v<T, std::string>) {
             return std::to_string(stored);
         }
 
-        // Fallback
-        else {
-            return defaultValue;
+        // [STRING] -> [INTEGRAL]
+        // for completion, we may wish to include all other integral types
+        // Not in use anymore, rather specifying types directly!
+        /*
+        Handle string to integral type.
+
+        From cppreference.com: https://en.cppreference.com/w/cpp/types/is_integral.html
+        if T is the type bool, char, char8_t(since C++20), char16_t, char32_t, wchar_t, short, int, 
+        long, long long, or any implementation-defined extended integer types, including any signed, 
+        unsigned, and cv-qualified variants. Otherwise, value is equal to false.
+
+        
+        if constexpr (std::is_same_v<StoredT, std::string> && std::is_integral_v<T>) {
+            // Using a long long conversion
+            try {
+                if constexpr (std::is_signed_v<T>) {
+                    return static_cast<T>(std::stoll(stored));
+                } else {
+                    return static_cast<T>(std::stoull(stored));
+                }
+            } catch (...) {
+                return defaultValue;
+            }
         }
-    }, val);
+        */
+
+        //-----------------------
+        // [FALLBACK]
+        std::cerr << "[ERROR] Nebulite::JSON::convert_variant - Unsupported conversion from " 
+                  << abi::__cxa_demangle(typeid(stored).name(), nullptr, nullptr, nullptr) 
+                  << " to " << abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, nullptr) << ".\n"
+                  << "Please add the required conversion.\n"
+                  << "Fallback conversion from String to any Integral type was disabled due to potential lossy data conversion.\n"
+                  << "Rather, it is recommended to add one explicit conversion path per datatype.\n"
+                  << "Returning default value." << std::endl;
+        return defaultValue;
+    }, 
+    val);
 }
 
 template <typename T>
@@ -652,28 +727,10 @@ void Nebulite::JSON::set_type(std::string key, const T& value) {
     // Set value of its pointer cache
     double* ptr = getDoublePointerOf(key);
     if (ptr) {
-        if constexpr (std::is_same_v<T, double>) {
-            *ptr = value;
-        } 
-        else if constexpr (std::is_integral_v<T>) {
-            *ptr = static_cast<double>(value);
-        } else if constexpr (std::is_same_v<T, bool>) {
-            *ptr = value ? 1.0 : 0.0;
-        } else if constexpr (std::is_same_v<T, std::string>) {
-            try {
-                *ptr = std::stod(value);
-            } catch (...) {
-                *ptr = std::numeric_limits<double>::quiet_NaN();
-            }
-        } else if constexpr (std::is_same_v<T, const char*>) {
-            try {
-                *ptr = std::stod(value);
-            } catch (...) {
-                *ptr = std::numeric_limits<double>::quiet_NaN();
-            }
-        } else {
-            // For unsupported types, set to NaN
-            std::cerr << "Unsupported type for double pointer cache: " << typeid(T).name() << ". Setting to NaN" << std::endl;
+        try {
+            *ptr = convert_variant<double>(value, std::numeric_limits<double>::quiet_NaN());
+        } catch (...) {
+            std::cerr << "Failed to convert value to double for key: " << key << ". Setting to NaN" << std::endl;
             *ptr = std::numeric_limits<double>::quiet_NaN();
         }
     }
@@ -735,7 +792,7 @@ void Nebulite::JSON::set(const char* key, const T& value) {
 }
 
 //---------------------------------------------------------------------
-// Fallbacks
+// Direct access get/set
 
 template <typename T>
 T Nebulite::JSON::DirectAccess::get(const char* key, const T defaultValue, rapidjson::Value& val) {
@@ -764,72 +821,40 @@ void Nebulite::JSON::DirectAccess::set(const char* key, const T& value, rapidjso
 }
 
 //----------------------------------------------------------------------
-// Helper functions from older JSONHandler Class
+// All conversion variants from/to rapidjson values
 
-// OLD set
-/*
-template <typename T>
-void Nebulite::JSON::DirectAccess::Set(rapidjson::Document& doc, const std::string& fullKey, const T data) {
-    if (!doc.IsObject()) {
-        doc.SetObject();
-    }
+//--------------------
+// 1.) to JSON value
+//--------------------
 
-    rapidjson::Value* current = &doc;
-    std::string_view keyView(fullKey);
-
-    while (!keyView.empty()) {
-        size_t dotPos = keyView.find('.');
-        std::string_view key = (dotPos == std::string_view::npos) ? keyView : keyView.substr(0, dotPos);
-
-        if (!current->IsObject()) {
-            current->SetObject();
-        }
-
-        if (dotPos != std::string_view::npos) {
-            // Not the final key: ensure nested object exists
-            if (!current->HasMember(std::string(key).c_str())) {
-                rapidjson::Value keyVal(std::string(key).c_str(), doc.GetAllocator());
-                rapidjson::Value newObj(rapidjson::kObjectType);
-                current->AddMember(keyVal, newObj, doc.GetAllocator());
-            }
-            current = &(*current)[std::string(key).c_str()];
-            keyView.remove_prefix(dotPos + 1);
-        } 
-        else {
-            // Final key: set the value
-            rapidjson::Value keyVal(std::string(key).c_str(), doc.GetAllocator());
-            rapidjson::Value jsonValue;
-            ConvertToJSONValue(data, jsonValue, doc.GetAllocator());
-
-            if (current->HasMember(std::string(key).c_str())) {
-                (*current)[std::string(key).c_str()] = jsonValue;
-            } 
-            else {
-                current->AddMember(keyVal, jsonValue, doc.GetAllocator());
-            }
-            break;
-        }
-    }
-}
-*/
-
-
-// to JSON value
 template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<bool>(const bool& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {jsonValue.SetBool(data);}
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<int>(const int& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)                {jsonValue.SetInt(data);}
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<uint32_t>(const uint32_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)      {jsonValue.SetUint(data);}
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<uint64_t>(const uint64_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)      {jsonValue.SetUint64(data);}
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<double>(const double& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)          {jsonValue.SetDouble(data);}
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<long>(const long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {jsonValue.SetInt64(data);}
 template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<long long>(const long long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)    {jsonValue.SetInt64(data);}
-template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<std::string>(const std::string& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){jsonValue.SetString(data.c_str(), static_cast<rapidjson::SizeType>(data.length()), allocator);}
-template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<const char*>(const char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+
+template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<std::string>(const std::string& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
+    jsonValue.SetString(
+        data.c_str(), 
+        static_cast<rapidjson::SizeType>(data.length()), allocator
+    );
+}
+
+template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<const char*>(const char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
     if (data) {
         jsonValue.SetString(data, allocator);
     } else {
         jsonValue.SetNull();
     }
 }
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<char*>(char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
     if (data) {
         jsonValue.SetString(data, allocator);
@@ -837,12 +862,19 @@ template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<char*>(
         jsonValue.SetNull();
     }
 }
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Value*>(rapidjson::Value* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)         {jsonValue.CopyFrom(*data, allocator);}
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Document*>(rapidjson::Document* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)   {jsonValue.CopyFrom(*data, allocator);}
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Document>(const rapidjson::Document& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator)       {jsonValue.CopyFrom(data, allocator);}
 
-// from JSON Value
+//--------------------
+// 2.) from JSON Value
+//--------------------
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, bool& result, const bool& defaultvalue){result = jsonValue.GetBool();}
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, int& result, const int& defaultvalue) {
     if (jsonValue.IsInt()) {
         result = jsonValue.GetInt();
@@ -854,7 +886,9 @@ template <> inline void Nebulite::JSON::DirectAccess::ConvertFromJSONValue(const
         result = 0;
     }
 }
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint32_t& result, const uint32_t& defaultvalue){result = jsonValue.GetUint();}
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint64_t& result, const uint64_t& defaultvalue){
     if (jsonValue.IsString()) {
         std::istringstream iss(jsonValue.GetString());
@@ -869,6 +903,7 @@ template <> inline void Nebulite::JSON::DirectAccess::ConvertFromJSONValue(const
         throw std::runtime_error("JSON value is not a valid uint64_t");
     }
 }
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, double& result, const double& defaultvalue){
     if (jsonValue.IsNumber()){
         result = jsonValue.GetDouble();
@@ -880,6 +915,7 @@ template <> inline void Nebulite::JSON::DirectAccess::ConvertFromJSONValue(const
         result = defaultvalue;
     }
 }
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, std::string& result, const std::string& defaultvalue){
     if (jsonValue.IsBool()) {
         result = jsonValue.GetBool() ? "true" : "false";
@@ -915,9 +951,7 @@ template <> inline void Nebulite::JSON::DirectAccess::ConvertFromJSONValue(const
         result = "unsupported type";
     }
 }
+
 template <> inline void Nebulite::JSON::DirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, rapidjson::Document& result, const rapidjson::Document& defaultvalue){
     result.CopyFrom(jsonValue, result.GetAllocator());
 }
-
-
-
