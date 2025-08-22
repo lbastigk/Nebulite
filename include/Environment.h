@@ -28,6 +28,17 @@ namespace Nebulite{
  */
 class Environment {
 public:
+	/**
+	 * @brief Enum representing the different rendering layers.
+	 */
+	enum Layers {
+		background,
+		general,
+		foreground,
+		effects,
+		menue
+	};
+
 	//-----------------------------------------------------------
 	//Constructor
 

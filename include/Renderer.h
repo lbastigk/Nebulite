@@ -1,32 +1,54 @@
+/**
+ * @file Renderer.h
+ *
+ * This file contains the declaration of the Renderer class, which is responsible for rendering
+ * the game objects and managing the rendering pipeline.
+ */
+
 #pragma once
 
+// Global Libraries
+#include <thread>
+#include <random>
+#include <stdint.h>
+
+// External Libraries
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
+#include "absl/container/flat_hash_map.h"
 
+// Nebulite
 #include "Environment.h"
 #include "FileManagement.h"
 #include "Time.h"
 #include "TimeKeeper.h"
 #include "Invoke.h"
 
-#include <thread>
-#include <random>
-#include <stdint.h>
-#include "absl/container/flat_hash_map.h"
+
+
 
 namespace Nebulite{
+
+/**
+ * @class Nebulite::Renderer
+ * 
+ * @brief Responsible for rendering game objects and managing the rendering pipeline.
+ */
 class Renderer {
 public:
-	enum Layers {
-		background,
-		general,
-		foreground,
-		effects,
-		menue
-	};
 
-	Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_headless = false, unsigned int zoom = 1, unsigned int X = 1080, unsigned int Y = 1080);
+	
+	/**
+	 * @brief Initializes a Renderer with given dimensions and settings.
+	 * 
+	 * @param invoke Reference to the Nebulite::Invoke instance.
+	 * @param global Reference to the global Nebulite::JSON instance.
+	 * @param flag_headless Boolean flag for headless mode.
+	 * @param X Width of the rendering area.
+	 * @param Y Height of the rendering area.
+	 */
+	Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_headless = false, unsigned int X = 1080, unsigned int Y = 1080);
 
 	//Marshalling
 	std::string serialize(){
@@ -42,6 +64,8 @@ public:
 		);
 	}
 	
+	void loadFonts(int scalar);
+
 	//-----------------------------------------------------------
 	// Pipeline
 	void appendInvokePtr(Nebulite::Invoke* invoke);
@@ -53,7 +77,7 @@ public:
 	void setQuit(){quit=true;}
 	bool snapshot(std::string link);
 
-	bool attachTextureAboveLayer(Renderer::Layers aboveThisLayer, std::string name, SDL_Texture* texture) {
+	bool attachTextureAboveLayer(Environment::Layers aboveThisLayer, std::string name, SDL_Texture* texture) {
 		if(texture == nullptr) {
 			return false; // Cannot attach a null texture
 		}
@@ -183,8 +207,7 @@ private:
 	Nebulite::Invoke* invoke_ptr = nullptr;	
 
 	// Rendering
-	unsigned int RenderZoom = 1;
-	unsigned int RenderScalar = 1;
+	unsigned int WindowScale = 1;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 	TTF_Font* font;
@@ -249,7 +272,7 @@ private:
 	// Function to load texture from file
 	void loadTexture(std::string link);
 
-	absl::flat_hash_map<Renderer::Layers, absl::flat_hash_map<std::string, SDL_Texture*>> BetweenLayerTextures; // Textures that are attached between layers
+	absl::flat_hash_map<Environment::Layers, absl::flat_hash_map<std::string, SDL_Texture*>> BetweenLayerTextures; // Textures that are attached between layers
 
 };
 }   // namespace Nebulite

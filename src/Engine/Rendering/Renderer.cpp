@@ -1,6 +1,6 @@
 #include "Renderer.h"
 
-Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_headless, unsigned int zoom, unsigned int X, unsigned int Y)
+Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_headless, unsigned int X, unsigned int Y)
 : 	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B")),
 	dist(0, 32767),
@@ -35,7 +35,7 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	// Initialize internal variables
 
 	// Window
-	RenderZoom = zoom;
+	WindowScale = 1;
 
 	// Position
 	tileXpos = 0;
@@ -46,7 +46,7 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	directory = FileManagement::currentDir();
 
 	//--------------------------------------------
-	// SDL Renderer
+	// Window
 
 	//Create SDL window
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -56,8 +56,8 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	// Define window via x|y|w|h
 	int x = SDL_WINDOWPOS_CENTERED;
 	int y = SDL_WINDOWPOS_CENTERED;
-	int w = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),X)*zoom;
-	int h = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),Y)*zoom;
+	int w = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),X);
+	int h = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),Y);
 	window = SDL_CreateWindow("Nebulite",x,y,w,h,flag_headless ? SDL_WINDOW_HIDDEN :SDL_WINDOW_SHOWN);
 	if (!window) {
 		// Window creation failed
@@ -65,33 +65,13 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 		SDL_Quit();
 	}
 
-	// Initialize SDL_ttf
-	if (TTF_Init() < 0) {
-		// Handle SDL_ttf initialization error
-		SDL_Quit(); // Clean up SDL
-	}
-
-	//Load font
-	std::string sep(1,FileManagement::preferred_separator());
-	std::string fontDir = std::string("Resources") + sep + std::string("Fonts") + sep + std::string("Arimo-Regular.ttf");
-	std::string fontpath = FileManagement::CombinePaths(directory, fontDir);
-	
-	font = TTF_OpenFont(fontpath.c_str(), 60); // Adjust size as needed
-	if (font == NULL) {
-		// Handle font loading error
-		std::cerr << TTF_GetError() << " | " << fontpath << "\n";
-	}
-
-	consoleFont = TTF_OpenFont(fontpath.c_str(), 20); // Adjust size as needed
-	if (consoleFont == NULL) {
-		// Handle font loading error
-		std::cerr << TTF_GetError() << " | " << fontpath << "\n";
-	}
+	//--------------------------------------------
+	// Renderer
 
 	// Create a renderer
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	if (!renderer) {
-		std::cerr << "Renderer creation failed: << SDL_GetError()" << std::endl;
+		std::cerr << "Renderer creation failed: " << SDL_GetError() << std::endl;
 	}
 
 	// Set virtual rendering size
@@ -102,7 +82,20 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	);
 
 	//--------------------------------------------
-	// Initialize Audio
+	// Fonts
+
+	// Initialize SDL_ttf
+	if (TTF_Init() < 0) {
+		// Handle SDL_ttf initialization error
+		SDL_Quit(); // Clean up SDL
+	}
+
+	loadFonts(1);
+
+	//--------------------------------------------
+	// Audio
+
+	// Init
 	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
 		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
 	}else{
@@ -122,17 +115,14 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 		}
 	}
 
-	//--------------------------------------------
-	// Waveform buffers
-	
-	// Sine wave buffer
+	// Waveform buffers: Sine wave buffer
 	sineBuffer = new std::vector<Sint16>(samples);
 	for (int i = 0; i < samples; i++) {
 		double time = (double)i / sampleRate;
 		(*sineBuffer)[i] = (Sint16)(32767 * 0.3 * sin(2.0 * M_PI * frequency * time));
 	}
 
-	// Square wave buffer
+	// Waveform buffers: Square wave buffer
 	squareBuffer = new std::vector<Sint16>(samples);
 	for (int i = 0; i < samples; i++) {
 		double time = (double)i / sampleRate;
@@ -144,7 +134,7 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 		(*squareBuffer)[i] = (Sint16)(32767 * 0.3 * squareValue);
 	}
 
-	// Triangle wave buffer
+	// Waveform buffers: Triangle wave buffer
 	triangleBuffer = new std::vector<Sint16>(samples);
 	for (int i = 0; i < samples; i++) {
 		double time = (double)i / sampleRate;
@@ -167,26 +157,42 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 	invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.dispResX.c_str(),X);	
 	invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.dispResY.c_str(),Y);
 
-	// Unnecessary, as this might overwrite previously set values!
-	/*
-	invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.positionX.c_str(),0);
-	invoke_ptr->getGlobalPointer()->set<int>(keyName.renderer.positionY.c_str(),0);
-
-	invoke_ptr->getGlobalPointer()->set<Uint64>(keyName.renderer.time_fixed_dt_ms.c_str(),0);
-	invoke_ptr->getGlobalPointer()->set<double>(keyName.renderer.time_t.c_str(),0);
-	invoke_ptr->getGlobalPointer()->set<Uint64>(keyName.renderer.time_t_ms.c_str(),0);
-	invoke_ptr->getGlobalPointer()->set<double>(keyName.renderer.time_dt.c_str(),0);
-	invoke_ptr->getGlobalPointer()->set<Uint64>(keyName.renderer.time_dt_ms.c_str(),0);
-	*/
-
-
-	//---------
+	//--------------------------------------------
 	// Start timer
 	RendererLoopTime.start();
 	RendererPollTime.start();
 	RendererFullTime.start();
 }
 
+
+void Nebulite::Renderer::loadFonts(int scalar) {
+	//--------------------------------------------
+	// Sizes
+	uint32_t FontSizeGeneral = 60; 			// Does not need to scale
+	uint32_t FontSizeConsole = 60;			// Does not need to scale
+
+	//--------------------------------------------
+	// Font location
+	std::string sep(1,FileManagement::preferred_separator());
+	std::string fontDir = std::string("Resources") + sep + std::string("Fonts") + sep + std::string("Arimo-Regular.ttf");
+	std::string fontpath = FileManagement::CombinePaths(directory, fontDir);
+	
+	//--------------------------------------------
+	// Load general font
+	font = TTF_OpenFont(fontpath.c_str(), FontSizeGeneral); // Adjust size as needed
+	if (font == NULL) {
+		// Handle font loading error
+		std::cerr << TTF_GetError() << " | " << fontpath << "\n";
+	}
+
+	//--------------------------------------------
+	// Load console font
+	consoleFont = TTF_OpenFont(fontpath.c_str(), FontSizeConsole); // Adjust size as needed
+	if (consoleFont == NULL) {
+		// Handle font loading error
+		std::cerr << TTF_GetError() << " | " << fontpath << "\n";
+	}
+}
 
 //-----------------------------------------------------------
 // Pipeline
@@ -506,7 +512,7 @@ void Nebulite::Renderer::destroy() {
 // Manipulation
 
 void Nebulite::Renderer::changeWindowSize(int w, int h, int scalar) {
-	RenderScalar = scalar;
+	WindowScale = scalar;
 	if(w < 64 || w > 16384){
 		std::cerr << "Selected resolution is not supported:" << w << "x" << h << "x" << std::endl;
 		return;
@@ -522,14 +528,17 @@ void Nebulite::Renderer::changeWindowSize(int w, int h, int scalar) {
     // Update the window size
     SDL_SetWindowSize(
 		window, 
-		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),360) * RenderScalar, 
-		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),360) * RenderScalar
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),360) * WindowScale, 
+		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),360) * WindowScale
 	);
 	SDL_RenderSetLogicalSize(
 		renderer,
 		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),360), 
 		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),360)
 	);
+
+	// Reload fonts
+	loadFonts(WindowScale);
 
 	// Turn off console mode
 	consoleMode = false;
@@ -681,7 +690,7 @@ void Nebulite::Renderer::renderFrame() {
 		}
 
 		// Render all textures that were attached from outside processes
-		for (const auto& [name, texture] : BetweenLayerTextures[static_cast<Renderer::Layers>(layer)]) {
+		for (const auto& [name, texture] : BetweenLayerTextures[static_cast<Environment::Layers>(layer)]) {
 			SDL_RenderCopy(renderer, texture, NULL, NULL);
 		}
 	}
@@ -700,42 +709,44 @@ void Nebulite::Renderer::renderFrame() {
 		SDL_RenderFillRect(renderer, &consoleRect);
 
 		SDL_Color textColor = {255, 255, 255, 255}; // white
-		int lineHeight = TTF_FontHeight(consoleFont);
+		int lineHeight = (double)TTF_FontHeight(consoleFont) / (double)WindowScale;
 
 		// 1. Draw console input line at bottom
 		if (!consoleInputBuffer.empty()) {
+			// Create text texture
 			SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, consoleInputBuffer.c_str(), textColor);
 			SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
+			// Rect size
 			textRect.x = 10;
 			textRect.y = consoleRect.y + consoleRect.h - lineHeight - 10;
-			textRect.w = textSurface->w;
-			textRect.h = textSurface->h;
+			textRect.w = (double)textSurface->w / (double)WindowScale;
+			textRect.h = (double)textSurface->h / (double)WindowScale;
 
+			// Render the text
 			SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
-
 			SDL_FreeSurface(textSurface);
 			SDL_DestroyTexture(textTexture);
 		}
 
 		// 2. Render previous output lines above the input
-		int maxLines = (consoleRect.h - 20 - lineHeight) / lineHeight;
+		int maxLines = floor(consoleRect.h - 20 - lineHeight) / lineHeight;
 		int startLine = std::max(0, (int)consoleOutput.size() - maxLines);
-
 		for (int i = 0; i < maxLines && (startLine + i) < consoleOutput.size(); ++i) {
+			// Create text texture
 			const std::string& line = consoleOutput[startLine + i];
-
 			SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, line.c_str(), textColor);
 			SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
+			// Rect size
 			SDL_Rect lineRect;
 			lineRect.x = 10;
 			lineRect.y = consoleRect.y + 10 + i * lineHeight;
-			lineRect.w = textSurface->w;
-			lineRect.h = textSurface->h;
+			lineRect.w = (double)textSurface->w / (double)WindowScale;
+			lineRect.h = (double)textSurface->h / (double)WindowScale;
 
+			// Render the text
 			SDL_RenderCopy(renderer, textTexture, NULL, &lineRect);
-
 			SDL_FreeSurface(textSurface);
 			SDL_DestroyTexture(textTexture);
 		}
@@ -744,7 +755,7 @@ void Nebulite::Renderer::renderFrame() {
 }
 
 void Nebulite::Renderer::renderFPS(double scalar) {
-	scalar = scalar / (double)RenderZoom / (double)RenderScalar;
+	scalar = scalar / (double)WindowScale;
 
 	// Create a string with the FPS value
 	std::string fpsText = "FPS: " + std::to_string(fps);
