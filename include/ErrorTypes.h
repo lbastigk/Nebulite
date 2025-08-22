@@ -26,7 +26,11 @@
 #pragma once
 #include <absl/container/flat_hash_map.h>   // For error type to string mapping
 
-// Return values from main Tree functions
+/**
+ * @namespace Nebulite
+ * 
+ * @brief This namespace contains all classes, functions, types and variables related to the Nebulite framework.
+ */
 namespace Nebulite{
 
 /**
