@@ -24,7 +24,6 @@ const struct keyName {
         std::string dispResY = "display.resolution.Y";
         std::string positionX = "display.position.X";
         std::string positionY = "display.position.Y";
-
         std::string time_fixed_dt_ms = "time.fixed_dt_ms";
         std::string time_t = "time.t";
         std::string time_t_ms = "time.t_ms";
