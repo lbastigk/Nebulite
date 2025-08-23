@@ -1,80 +1,161 @@
+/**
+ * @file RenderObjectContainer.h
+ * @brief Contains the RenderObjectContainer class.
+ */
+
 #include "RenderObject.h"
 #include <thread>
 
 namespace Nebulite{
+
+/**
+ * @class RenderObjectContainer
+ * @brief Manages a collection of RenderObject instances in a tile-based container.
+ */
 class RenderObjectContainer {
 public:
-	//-----------------------------------------------------------
-	//Constructor
-
-	RenderObjectContainer(Nebulite::Invoke* globalInvoke);
-
-	//-----------------------------------------------------------
-	// Batch of objects in container
+	/**
+	 * @struct batch
+	 * @brief Represents a batch of RenderObject instances in a given tile.
+	 * 
+	 * `batch -> vector<RenderObject*>`
+	 * 
+	 * Used for threading and parallel processing of render objects.
+	 * Basically a custom std::vector wrapper for easier cost management.
+	 */
 	struct batch{
+		// Collection of render objects
 		std::vector<RenderObject*> objects;
+
+		// Full estimated cost of the batch
 		uint64_t estimatedCost = 0;
 
-		RenderObject* pop(Nebulite::Invoke* globalInvoke) {
-			if (objects.empty()) return nullptr;
+		/**
+		 * @brief Pops the last RenderObject from the batch.
+		 * @return Pointer to the popped RenderObject, or nullptr if batch is already empty.
+		 */
+		RenderObject* pop(Nebulite::Invoke* globalInvoke);
 
-			RenderObject* obj = objects.back(); // Get last element
-			estimatedCost -= obj->estimateComputationalCost(globalInvoke); // Adjust cost
-			objects.pop_back(); // Remove from vector
+		/**
+		 * @brief Pushes a RenderObject into the batch.
+		 * @param obj Pointer to the RenderObject to push.
+		 * @param globalInvoke Pointer to the global Invoke instance.
+		 */
+		void push(RenderObject* obj, Nebulite::Invoke* globalInvoke);
 
-			return obj;
-		}
-
-		void push(RenderObject* obj, Nebulite::Invoke* globalInvoke){
-			estimatedCost += obj->estimateComputationalCost(globalInvoke);
-			objects.push_back(obj);
-		}
-
-		bool removeObject(RenderObject* obj, Nebulite::Invoke* globalInvoke) {
-			auto it = std::find(objects.begin(), objects.end(), obj);
-			if (it != objects.end()) {
-				estimatedCost -= obj->estimateComputationalCost(globalInvoke);
-				objects.erase(it);
-				return true;
-			}
-			return false;
-		}
+		/**
+		 * @brief Removes a RenderObject from the batch.
+		 * @param obj Pointer to the RenderObject to remove.
+		 * @param globalInvoke Pointer to the global Invoke instance.
+		 * @return True if the object was removed, false otherwise.
+		 */
+		bool removeObject(RenderObject* obj, Nebulite::Invoke* globalInvoke);
 	};
 
 	//-----------------------------------------------------------
-	//Marshalling
-	std::string serialize();
-	void deserialize(const std::string& serialOrLink, int dispResX, int dispResY);
+	//Constructor
+
+	/**
+	 * @brief Constructs a new RenderObjectContainer.
+	 * @param globalInvoke Pointer to the global Invoke instance.
+	 */
+	RenderObjectContainer(Nebulite::Invoke* globalInvoke);
 
 	//-----------------------------------------------------------
+	//Marshalling
+
+	/**
+	 * @brief Serializes the RenderObjectContainer to a JSON string.
+	 * @return JSON string representation of the container.
+	 */
+	std::string serialize();
+
+	/**
+	 * @brief Deserializes the RenderObjectContainer from a JSON string.
+	 * @param serialOrLink JSON string representation of the container, or link to a json/jsonc file.
+	 * @param dispResX Display resolution width for tile initialization.
+	 * @param dispResY Display resolution height for tile initialization.
+	 */
+	void deserialize(const std::string& serialOrLink, int dispResX, int dispResY);
+
 	//-----------------------------------------------------------
 	// Pipeline
 
 	// Append objects
+	/**
+	 * @brief Appends a RenderObject to the container.
+	 * 
+	 * Places it in the appropriate tile and batches it through cost-estimation.
+	 * 
+	 * @param toAppend Pointer to the RenderObject to append.
+	 * @param dispResX Display resolution width for tile placement.
+	 * @param dispResY Display resolution height for tile placement.
+	 */
 	void append(Nebulite::RenderObject* toAppend, int dispResX, int dispResY);
 
-	// Reinsert all objects into container, useful for new tile size declaration
-	// e.g. new rendering size
+	/**
+	 * @brief Reinserts all objects into the container.
+	 * 
+	 * Placing them in the appropriate tile and batch.
+	 * Needed for re-evaluating their positions after a resize of the display.
+	 * 
+	 * @param dispResX Display resolution width for tile placement.
+	 * @param dispResY Display resolution height for tile placement.
+	 */
 	void reinsertAllObjects(int dispResX, int dispResY);
 
-	// Checks if given tile position contains objects
+	/**
+	 * @brief Checks if the given tile position is valid; contains objects.
+	 * @param pos The tile position to check: (x, y).
+	 * @return True if the position contains objects, false otherwise.
+	 */
 	bool isValidPosition(std::pair<uint16_t,uint16_t> pos);
 
 	// removes all objects
+	/**
+	 * @brief Purges all objects from the container.
+	 * 
+	 * @todo for proper deletion, we should insert them into the trash/purgatory system.
+	 */
 	void purgeObjects();
-	void purgeObjectsAt(int x, int y, int dispResX, int dispResY);	//at tile x,y
 
-	// returns amount of objects
+	/**
+	 * @brief Gets the total count of RenderObject instances in the container.
+	 * @return The total number of RenderObject instances.
+	 */
 	size_t getObjectCount();
 
 	// Updating all objects in 3x3 Tile viewport
-	void update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY,Nebulite::Invoke* globalInvoke,bool onlyRestructure = false);
+	/**
+	 * @brief Updates all objects within a 3x3 tile viewport.
+	 * 
+	 * This function is responsible for updating the state of all RenderObject instances
+	 * that are currently within the specified tile viewport. It takes into account the
+	 * display resolution for potential re-insertions.
+	 * 
+	 * @param tileXpos The middle tile to in x-axis.
+	 * @param tileYpos The middle tile to in y-axis.
+	 * @param dispResX The display resolution width. Needed for potential re-insertion.
+	 * @param dispResY The display resolution height. Needed for potential re-insertion.
+	 * @param globalInvoke Pointer to the global Invoke instance for object updates.
+	 */
+	void update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY,Nebulite::Invoke* globalInvoke);
 
-	
-	// Used to get a container Tile
+	/**
+	 * @brief Gets the vector of batches at the specified tile position.
+	 * @param pos The tile position to query: (x, y).
+	 * @return A reference to the vector of batches at the specified position.
+	 */
 	std::vector<batch>& getContainerAt(std::pair<uint16_t,uint16_t> pos);
 
-	// Get object based on ID
+	/**
+	 * @brief Retrieves a RenderObject from the container by its unique ID.
+	 * 
+	 * Does not remove the object from the container.
+	 * 
+	 * @param id The unique ID of the RenderObject to retrieve.
+	 * @return Pointer to the RenderObject if found, nullptr otherwise.
+	 */
 	RenderObject* getObjectFromId(uint32_t id) {
 		// Go through all batches
 		for (auto& [pos, batchVec] : ObjectContainer) {
@@ -90,27 +171,63 @@ public:
 	}
 
 private:
-
+	/**
+	 * @brief Holds all objects in the container.
+	 * 
+	 * `ObjectContainer[tileX,tileY] -> vector<batch>`
+	 */
 	absl::flat_hash_map<std::pair<int16_t,int16_t>,std::vector<batch>> ObjectContainer;
-	std::vector<std::thread> workers;
-	std::mutex reinsertMutex;
-	std::mutex deleteMutex;
 
-	// 3-Step reinsertion
-	// 1.) remove from batch
-	// 2.) reinsert
-	std::vector<Nebulite::RenderObject*> to_move;
-	std::vector<Nebulite::RenderObject*> await_reinsert;
+	/**
+	 * @brief Holds all batch worker threads.
+	 */
+	std::vector<std::thread> batchWorkers;
 
-	// 4-Step deletion
-	// 1.) remove from batch
-	// 2.) store in trash
-	// 3.) store in purgatory
-	// 4.) delete
-	std::vector<Nebulite::RenderObject*> to_delete;
-	std::vector<Nebulite::RenderObject*> trash;		// Moving objects, marking for deletion
-	std::vector<Nebulite::RenderObject*> purgatory;	// Deleted each frame
+	/**
+	 * @brief Holds all objects that are awaiting re-insertion into the container.
+	 * 
+	 * The reinsertion process is a 3-step pipeline that ensures objects are properly
+	 * re-evaluated and placed back into the correct tile and batch:
+	 * 
+	 * - Remove from current batch
+	 * 
+	 * - Collect in objects_awaiting_reinsertion
+	 * 
+	 * - Reinsert into the correct tile and batch
+	 */
+	struct ReinsertionProcess {
+		std::vector<Nebulite::RenderObject*> objects_awaiting_reinsertion;
+		std::mutex reinsertMutex;
+	} reinsertionProcess;
 
+	/**
+	 * @struct DeletionProcess
+	 * @brief Manages the deletion process of RenderObjects.
+	 * 
+	 * This struct is responsible for handling the various stages of object deletion,
+	 * including marking objects for deletion, moving them to trash, and finally
+	 * purging them from memory.
+	 * 
+	 * The process is a 4-step pipeline that ensures safe and efficient deletion:
+	 * 
+	 * - Mark for deletion
+	 * 
+	 * - Move to trash
+	 * 
+	 * - Move to purgatory
+	 * 
+	 * - Delete
+	 * 
+	 * @todo: Just trash should be enough to resolve all existing references
+	 */
+	struct DeletionProcess{
+		//std::vector<Nebulite::RenderObject*> to_delete;
+		std::vector<Nebulite::RenderObject*> trash;		// Moving objects, marking for deletion
+		std::vector<Nebulite::RenderObject*> purgatory;	// Deleted each frame
+		std::mutex deleteMutex;							// Threadsafe insertion into trash
+	}deletionProcess;
+
+	// Link to the global Invoke instance for object updates
 	Nebulite::Invoke* globalInvoke;
 };
 }   // namespace Nebulite

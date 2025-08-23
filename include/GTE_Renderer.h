@@ -129,9 +129,9 @@ public:
      * @brief Set cam to concrete position
      * 
      * @param argc The argument count
-     * @param argv The argument vector: <x> <y> <c>
+     * @param argv The argument vector: <x> <y> [c]
      * 
-     * Where <c> determines if the given position is the camera's center
+     * Where [c] determines if the given position is the camera's center
      * 
      * @return Potential errors that occured on command execution
      */
