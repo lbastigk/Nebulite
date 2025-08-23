@@ -9,12 +9,12 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName)
 
     //-------------------------------------------------
     // Modify structs                         
-    tasks_always.clearAfterResolving = false;
+    tasks.always.clearAfterResolving = false;
 
     //-------------------------------------------------
     // Linkages 
     invoke = std::make_unique<Invoke>(&global);
-    invoke->linkQueue(tasks_internal.taskList);
+    invoke->linkQueue(tasks.internal.taskList);
 
     //-------------------------------------------------
     // Link GlobalSpaceTree

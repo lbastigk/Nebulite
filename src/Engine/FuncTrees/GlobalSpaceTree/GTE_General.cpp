@@ -88,7 +88,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::loadTaskList(i
 
     // Now insert all lines into the task queue
     for (const auto& line : lines){
-        domain->tasks_script.taskList.push_front(line);
+        domain->tasks.script.taskList.push_front(line);
     }
 
     return Nebulite::ERROR_TYPE::NONE;

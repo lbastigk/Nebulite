@@ -137,7 +137,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::always(int argc,
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                domain->tasks_always.taskList.push_back(command);
+                domain->tasks.always.taskList.push_back(command);
             }
         }
     }
@@ -145,6 +145,6 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::always(int argc,
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::alwaysClear(int argc, char* argv[]){
-    domain->tasks_always.taskList.clear();
+    domain->tasks.always.taskList.clear();
     return Nebulite::ERROR_TYPE::NONE;
 }

@@ -138,16 +138,15 @@ public:
     //----------------------------------------------
     // Public Variables
 
-    // Task queues
-
-    // Task queue for script files loaded with "task"
-    Nebulite::taskQueue tasks_script;
-
-    // Internal task queue from renerObjects, console, etc.
-    Nebulite::taskQueue tasks_internal;
-
-    // Always-tasks added with the prefix "always "
-    Nebulite::taskQueue tasks_always;
+    /**
+     * @struct Tasks
+     * @brief Contains task queues for different types of tasks.
+     */
+    struct Tasks{
+        Nebulite::taskQueue script;     // Task queue for script files loaded with "task"
+        Nebulite::taskQueue internal;   // Internal task queue from renerObjects, console, etc.
+        Nebulite::taskQueue always;     // Always-tasks added with the prefix "always "
+    } tasks;
 
     // Wait counter for script tasks
     uint64_t scriptWaitCounter = 0;
@@ -182,14 +181,15 @@ private:
     //-------------------------------------------------
     // Other Variables
 
+    /**
+     * @brief Contains names used in the global space that are not bound to the global document.
+     */
     struct names{
         std::string state;      // Name of the state where files are saved (equal to savegame name)
         std::string binary;     // Name of the binary, used for parsing arguments
     }names;
 
-    
-
-    //---------------------------------------
+    //-------------------------------------------------
     // Objects
 
     // Invoke Object for parsing expressions etc.
@@ -212,7 +212,5 @@ private:
      * Under no circumstances should processes try to access the renderer directly!
      */
     std::unique_ptr<Nebulite::Renderer> renderer;
-
-
 };
 }   // namespace Nebulite

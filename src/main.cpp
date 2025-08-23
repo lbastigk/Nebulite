@@ -79,7 +79,7 @@ int main(int argc, char* argv[]){
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                globalSpace.tasks_script.taskList.push_back(command);
+                globalSpace.tasks.script.taskList.push_back(command);
             }
         }
     }
@@ -118,16 +118,20 @@ int main(int argc, char* argv[]){
          *       This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
          *    
          */
-        globalSpace.tasks_script.taskList.push_back(std::string("set-fps 60"));
+        globalSpace.tasks.script.taskList.push_back(std::string("set-fps 60"));
     }
     
     //--------------------------------------------------
     // Render loop
 
     // For resolving tasks
-    Nebulite::taskQueueResult result_tasks_script;
-    Nebulite::taskQueueResult result_tasks_internal;
-    Nebulite::taskQueueResult result_tasks_always;
+    struct Result {
+        Nebulite::taskQueueResult script;       // Result of script-tasks
+        Nebulite::taskQueueResult internal;     // Result of internal-tasks
+        Nebulite::taskQueueResult always;       // Result of always-tasks
+    };
+    Result TaskQueueResults;
+
     Nebulite::ERROR_TYPE lastCriticalResult;
     bool critical_stop = false;
     uint64_t* noWaitCounter = nullptr;
@@ -147,37 +151,37 @@ int main(int argc, char* argv[]){
          */
 
         // 1.) Clear errors from last loop
-        result_tasks_script.errors.clear();
-        result_tasks_internal.errors.clear();
-        result_tasks_always.errors.clear();
+        TaskQueueResults.script.errors.clear();
+        TaskQueueResults.internal.errors.clear();
+        TaskQueueResults.always.errors.clear();
 
         // 2.) Parse script tasks
         if(!critical_stop){
-            result_tasks_script = globalSpace.resolveTaskQueue(globalSpace.tasks_script, &globalSpace.scriptWaitCounter);
+            TaskQueueResults.script = globalSpace.resolveTaskQueue(globalSpace.tasks.script, &globalSpace.scriptWaitCounter);
         }
-        if(result_tasks_script.stoppedAtCriticalResult && globalSpace.cmdVars.recover == "false") {
+        if(TaskQueueResults.script.stoppedAtCriticalResult && globalSpace.cmdVars.recover == "false") {
             critical_stop = true; 
-            lastCriticalResult = result_tasks_script.errors.back();
+            lastCriticalResult = TaskQueueResults.script.errors.back();
             break;
         } 
 
         // 3.) Parse internal tasks
         if(!critical_stop){
-            result_tasks_internal = globalSpace.resolveTaskQueue(globalSpace.tasks_internal, noWaitCounter);
+            TaskQueueResults.internal = globalSpace.resolveTaskQueue(globalSpace.tasks.internal, noWaitCounter);
         }
-        if(result_tasks_internal.stoppedAtCriticalResult && globalSpace.cmdVars.recover == "false") {
+        if(TaskQueueResults.internal.stoppedAtCriticalResult && globalSpace.cmdVars.recover == "false") {
             critical_stop = true; 
-            lastCriticalResult = result_tasks_internal.errors.back();
+            lastCriticalResult = TaskQueueResults.internal.errors.back();
             break;
         }
 
         // 4.) Parse always-tasks
         if(!critical_stop){
-            result_tasks_always = globalSpace.resolveTaskQueue(globalSpace.tasks_always, noWaitCounter);
+            TaskQueueResults.always = globalSpace.resolveTaskQueue(globalSpace.tasks.always, noWaitCounter);
         }
-        if(result_tasks_always.stoppedAtCriticalResult && globalSpace.cmdVars.recover == "false") {
+        if(TaskQueueResults.always.stoppedAtCriticalResult && globalSpace.cmdVars.recover == "false") {
             critical_stop = true; 
-            lastCriticalResult = result_tasks_always.errors.back();
+            lastCriticalResult = TaskQueueResults.always.errors.back();
             break;
         }
 
