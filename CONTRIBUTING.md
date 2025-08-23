@@ -97,7 +97,7 @@ It is **not allowed** to overwrite already existing functions:
 
 ### Complete Code Example
 
-**Inside MyFeature.h:**
+**Inside GTE_MyFeature.h:**
 
 ```cpp
 namespace Nebulite{
@@ -164,7 +164,7 @@ Nebulite::GlobalSpaceTree::GlobalSpaceTree(/*...*/) : /*...*/
 
     // Initialize Variable Bindings here, due to circular dependency issues
     /*...*/
-    bindVariable(&self->myVariable, "myVariable", "This is a variable inside globalSpace");
+    bindVariable(&domain->myVariable, "myVariable", "This is a variable inside globalSpace");
 }
 
 void Nebulite::GlobalSpaceTree::update(){

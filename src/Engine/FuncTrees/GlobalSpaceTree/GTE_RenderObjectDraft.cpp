@@ -9,7 +9,7 @@ void Nebulite::GlobalSpaceTreeExpansion::RenderObjectDraft::update() {
     // Init draft if not available
     // Putting this inside setupBindings is UB on windows build, which is why we do it here
     if(!draft) {
-        draft = std::make_unique<Nebulite::RenderObject>(&self->global);
+        draft = std::make_unique<Nebulite::RenderObject>(&domain->global);
     }
 }
 
@@ -71,7 +71,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::RenderObjectDraft::rese
         return Nebulite::ERROR_TYPE::TOO_MANY_ARGS; // No arguments expected
     }
 
-    Nebulite::RenderObject newDraft(&self->global);
+    Nebulite::RenderObject newDraft(&domain->global);
     draft->deserialize(newDraft.serialize());
     return Nebulite::ERROR_TYPE::NONE;
 }

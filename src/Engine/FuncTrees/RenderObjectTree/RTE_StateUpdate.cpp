@@ -13,11 +13,11 @@ void Nebulite::RenderObjectTreeExpansion::StateUpdate::update() {
 // FuncTree-Bound Functions
 
 Nebulite::ERROR_TYPE Nebulite::RenderObjectTreeExpansion::StateUpdate::deleteObject(int argc, char* argv[]){
-    self->flag.deleteFromScene = true;
+    domain->flag.deleteFromScene = true;
     return Nebulite::ERROR_TYPE::NONE;
 }
 Nebulite::ERROR_TYPE Nebulite::RenderObjectTreeExpansion::StateUpdate::updateText(int argc, char* argv[]){
-    self->flag.calculateText = true;
+    domain->flag.calculateText = true;
     return Nebulite::ERROR_TYPE::NONE;
 }
 

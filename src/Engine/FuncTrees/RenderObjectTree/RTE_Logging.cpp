@@ -20,14 +20,14 @@ Nebulite::ERROR_TYPE Nebulite::RenderObjectTreeExpansion::Logging::echo(int argc
     return Nebulite::ERROR_TYPE::NONE;
 }
 Nebulite::ERROR_TYPE Nebulite::RenderObjectTreeExpansion::Logging::log(int argc, char* argv[]){
-    std::string serialized = self->serialize();
+    std::string serialized = domain->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
             FileManagement::WriteFile(argv[i],serialized);
         }
     }
     else{
-        std::string id = std::to_string(self->valueGet(keyName.renderObject.id.c_str(),0));
+        std::string id = std::to_string(domain->valueGet(keyName.renderObject.id.c_str(),0));
         FileManagement::WriteFile("RenderObject_id"+id+".log.jsonc",serialized);
     }
     return Nebulite::ERROR_TYPE::NONE;

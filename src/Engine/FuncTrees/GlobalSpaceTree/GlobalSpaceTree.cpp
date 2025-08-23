@@ -3,8 +3,8 @@
 
 //-------------------------------------
 // Linking ALL Functions to GlobalSpaceTree
-Nebulite::GlobalSpaceTree::GlobalSpaceTree(Nebulite::GlobalSpace* self, Nebulite::JSONTree* jsonTree)
-    : FuncTree<Nebulite::ERROR_TYPE>("Nebulite", Nebulite::ERROR_TYPE::NONE, Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID, jsonTree), self(self) 
+Nebulite::GlobalSpaceTree::GlobalSpaceTree(Nebulite::GlobalSpace* domain, Nebulite::JSONTree* jsonTree)
+    : FuncTree<Nebulite::ERROR_TYPE>("Nebulite", Nebulite::ERROR_TYPE::NONE, Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID, jsonTree), domain(domain) 
 {
 
   // Initialize Expansions
@@ -15,15 +15,15 @@ Nebulite::GlobalSpaceTree::GlobalSpaceTree(Nebulite::GlobalSpace* self, Nebulite
   RenderObjectDraft = createExpansionOfType<GlobalSpaceTreeExpansion::RenderObjectDraft>();
 
   // Initialize Variable Bindings here, due to circular dependency issues
-  bindVariable(&self->cmdVars.headless, "headless", "Set headless mode (no renderer)");
-  bindVariable(&self->cmdVars.recover,  "recover",  "Enable recoverable error mode");
+  bindVariable(&domain->cmdVars.headless, "headless", "Set headless mode (no renderer)");
+  bindVariable(&domain->cmdVars.recover,  "recover",  "Enable recoverable error mode");
 }
 
 //--------------------------------- 
 // Necessary updates
 void Nebulite::GlobalSpaceTree::update() {
     // Update the JSON tree
-    self->global.getJSONTree()->update();
+    domain->global.getJSONTree()->update();
 
     // Update all expansions
     general->update();

@@ -76,19 +76,22 @@ class RenderObject;
 class RenderObjectTree : public FuncTree<Nebulite::ERROR_TYPE>{
 public:
     // Created inside each renderobject, with linkage to the object
-    RenderObjectTree(RenderObject* self, Nebulite::JSONTree* jsonTree);  
+    RenderObjectTree(RenderObject* domain, Nebulite::JSONTree* jsonTree);  
     
     void update();
 private:
-    // Self-reference to the RenderObject is needed within the base class to simplify the factory method
-    RenderObject* self;  // Store reference to self
+    /**
+     * @brief Reference to the domain the FuncTree operates on
+     */
+    Nebulite::RenderObject* domain;
+
 
     /**
      * @brief Factory method for creating expansion instances with proper linkage
      */
     template<typename ExpansionType>
     std::unique_ptr<ExpansionType> createExpansionOfType() {
-        auto expansion = std::make_unique<ExpansionType>(self, this);
+        auto expansion = std::make_unique<ExpansionType>(domain, this);
         // Initializing is currently done on construction of the expansion
         // However, if any additional setup is needed later on that can't be done on construction,
         // this simplifies the process

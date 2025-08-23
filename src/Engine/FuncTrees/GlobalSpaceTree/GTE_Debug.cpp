@@ -13,17 +13,17 @@ void Nebulite::GlobalSpaceTreeExpansion::Debug::update() {
 // FuncTree-Bound Functions
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::printGlobal(int argc, char* argv[]){
-    std::cout << self->global.serialize() << std::endl;
+    std::cout << domain->global.serialize() << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::printState(int argc, char* argv[]){
-    std::cout << self->getRenderer()->serialize() << std::endl;
+    std::cout << domain->getRenderer()->serialize() << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::logGlobal(int argc, char* argv[]){
-    std::string serialized = self->global.serialize();
+    std::string serialized = domain->global.serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
             FileManagement::WriteFile(argv[i],serialized);
@@ -36,7 +36,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::logGlobal(int ar
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::logState(int argc, char* argv[]){
-    std::string serialized = self->getRenderer()->serialize();
+    std::string serialized = domain->getRenderer()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
             FileManagement::WriteFile(argv[i],serialized);
@@ -49,7 +49,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::logState(int arg
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::render_object(int argc, char** argv){
-    RenderObject ro(&self->global);
+    RenderObject ro(&domain->global);
     FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc",ro.serialize());
     return Nebulite::ERROR_TYPE::NONE;
 }
@@ -137,7 +137,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::always(int argc,
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                self->tasks_always.taskList.push_back(command);
+                domain->tasks_always.taskList.push_back(command);
             }
         }
     }
@@ -145,6 +145,6 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::always(int argc,
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Debug::alwaysClear(int argc, char* argv[]){
-    self->tasks_always.taskList.clear();
+    domain->tasks_always.taskList.clear();
     return Nebulite::ERROR_TYPE::NONE;
 }

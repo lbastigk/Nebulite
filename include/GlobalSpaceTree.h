@@ -82,19 +82,21 @@ class GlobalSpace;
  */
 class GlobalSpaceTree : public FuncTree<Nebulite::ERROR_TYPE>{
 public:
-    GlobalSpaceTree(Nebulite::GlobalSpace* self, Nebulite::JSONTree* jsonTree);
+    GlobalSpaceTree(Nebulite::GlobalSpace* domain, Nebulite::JSONTree* jsonTree);
 
     void update();
 private:
-    // References are needed within the base class to simplify the factory method
-    Nebulite::GlobalSpace* self;  // Linkage to the GlobalSpace
+    /**
+     * @brief Reference to the domain the FuncTree operates on
+     */
+    Nebulite::GlobalSpace* domain;
 
     /**
      * @brief Factory method for creating expansion instances with proper linkage
      */
     template<typename ExpansionType>
     std::unique_ptr<ExpansionType> createExpansionOfType() {
-        auto expansion = std::make_unique<ExpansionType>(self, this);
+        auto expansion = std::make_unique<ExpansionType>(domain, this);
         // Initializing is currently done on construction of the expansion
         // However, if any additional setup is needed later on that can't be done on construction,
         // this simplifies the process

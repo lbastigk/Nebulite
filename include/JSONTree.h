@@ -68,15 +68,17 @@ public:
 
     void update();
 private:
-    // Self-reference to the JSON is needed within the base class to simplify the factory method
-    JSON* self;  // Store reference to self
+    /**
+     * @brief Reference to the domain the FuncTree operates on
+     */
+    Nebulite::JSON* domain;
 
     /**
      * @brief Factory method for creating expansion instances with proper linkage
      */
     template<typename ExpansionType>
     std::unique_ptr<ExpansionType> createExpansionOfType() {
-        auto expansion = std::make_unique<ExpansionType>(self, this);
+        auto expansion = std::make_unique<ExpansionType>(domain, this);
         // Initializing is currently done on construction of the expansion
         // However, if any additional setup is needed later on that can't be done on construction,
         // this simplifies the process

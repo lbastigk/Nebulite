@@ -24,23 +24,23 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::eval(int argc,
     }
 
     // eval all $(...)
-    std::string args_evaled = self->invoke->evaluateStandaloneExpression(args);
+    std::string args_evaled = domain->invoke->evaluateStandaloneExpression(args);
 
     // reparse
     return funcTree->parseStr(args_evaled);
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::exitProgram(int argc, char* argv[]){
-    self->getRenderer()->setQuit();
+    domain->getRenderer()->setQuit();
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::wait(int argc, char* argv[]){
     if(argc == 2){
         std::istringstream iss(argv[1]);
-        iss >> self->scriptWaitCounter;
-        if (self->scriptWaitCounter < 0){
-            self->scriptWaitCounter = 0;
+        iss >> domain->scriptWaitCounter;
+        if (domain->scriptWaitCounter < 0){
+            domain->scriptWaitCounter = 0;
         }
         return Nebulite::ERROR_TYPE::NONE;
     }
@@ -88,7 +88,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::loadTaskList(i
 
     // Now insert all lines into the task queue
     for (const auto& line : lines){
-        self->tasks_script.taskList.push_front(line);
+        domain->tasks_script.taskList.push_front(line);
     }
 
     return Nebulite::ERROR_TYPE::NONE;
@@ -110,8 +110,8 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::forLoop(int ar
     if(argc > 4){
         std::string varName = argv[1];
 
-        int iStart = std::stoi(self->invoke->evaluateStandaloneExpression(argv[2]));
-        int iEnd   = std::stoi(self->invoke->evaluateStandaloneExpression(argv[3]));
+        int iStart = std::stoi(domain->invoke->evaluateStandaloneExpression(argv[2]));
+        int iEnd   = std::stoi(domain->invoke->evaluateStandaloneExpression(argv[3]));
 
         std::string args = "";
         for (int i = 4; i < argc; ++i) {
@@ -135,7 +135,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::ifCondition(in
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
     }
 
-    std::string result = self->invoke->evaluateStandaloneExpression(argv[1]);
+    std::string result = domain->invoke->evaluateStandaloneExpression(argv[1]);
     double condition_potentially_nan = std::stod(result);
 
     bool condition = !isnan(condition_potentially_nan) && (condition_potentially_nan != 0);
@@ -168,7 +168,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::func_assert(in
 
     std::string condition = argv[1];
 
-    if(!std::stod(self->invoke->evaluateStandaloneExpression(condition))){
+    if(!std::stod(domain->invoke->evaluateStandaloneExpression(condition))){
         return Nebulite::ERROR_TYPE::CRITICAL_CUSTOM_ASSERT;
     }
     return Nebulite::ERROR_TYPE::NONE;
@@ -233,11 +233,11 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::forceGlobal(in
 
     std::string key = argv[1];
     std::string value = argv[2];
-    self->getRenderer()->setForcedGlobalValue(key, value);
+    domain->getRenderer()->setForcedGlobalValue(key, value);
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::clearForceGlobal(int argc, char* argv[]) {
-    self->getRenderer()->clearForcedGlobalValues();
+    domain->getRenderer()->clearForcedGlobalValues();
     return Nebulite::ERROR_TYPE::NONE;
 }

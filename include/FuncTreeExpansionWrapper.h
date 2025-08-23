@@ -80,7 +80,7 @@ public:
      * Instead, we do a pseudo-virtual call by using static_cast to call the derived class's methods upon construction.
      */
     Wrapper(DomainType* domain, FuncTree<ERROR_TYPE>* funcTreePtr)
-        : self(domain), funcTree(funcTreePtr) 
+        : domain(domain), funcTree(funcTreePtr) 
     {
         // Initialize the defined Variable and Function Bindings
         static_cast<DerivedClass*>(this)->setupBindings();
@@ -136,7 +136,7 @@ public:
 protected:
     //--------------------------
     // Linkages
-    DomainType* self;                // Workspace of the expansion
+    DomainType* domain;                 // Workspace of the expansion
     FuncTree<ERROR_TYPE>* funcTree;     // Where to bind the expanded functions
 };
 }   // namespace FuncTreeExpansion
