@@ -62,7 +62,7 @@ public:
 	RenderObjectContainer(Nebulite::Invoke* globalInvoke);
 
 	//-----------------------------------------------------------
-	//Marshalling
+	// Serialization / Deserialization
 
 	/**
 	 * @brief Serializes the RenderObjectContainer to a JSON string.
@@ -81,7 +81,6 @@ public:
 	//-----------------------------------------------------------
 	// Pipeline
 
-	// Append objects
 	/**
 	 * @brief Appends a RenderObject to the container.
 	 * 
@@ -125,7 +124,6 @@ public:
 	 */
 	size_t getObjectCount();
 
-	// Updating all objects in 3x3 Tile viewport
 	/**
 	 * @brief Updates all objects within a 3x3 tile viewport.
 	 * 
