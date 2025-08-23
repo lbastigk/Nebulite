@@ -35,7 +35,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: the string to evaluate
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      * 
      * Examples:
      * 
@@ -49,7 +49,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      * 
      * @todo In order to properly exit, it we must make sure to clean up the taskQueue:
      *  ./bin/Nebulite "echo 1; exit ; echo 2"
@@ -62,7 +62,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: frame count to wait
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE wait(int argc, char* argv[]);
 
@@ -71,7 +71,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: the filename to load
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE loadTaskList(int argc, char* argv[]);
 
@@ -80,7 +80,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <var> <start> <end> <functioncall>
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      * 
      * @todo Modify for-variables to be conform to standard variables:
      *       Currently: for i 0 10 echo $i
@@ -93,7 +93,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <condition> <functioncall>
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE ifCondition(int argc, char* argv[]);
 
@@ -114,7 +114,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <string>
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE echo(int argc, char* argv[]);
 
@@ -123,7 +123,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <string>
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      * 
      * @todo Move to GTE_Debug
      */
@@ -135,7 +135,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <condition>
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE func_assert(int argc, char* argv[]);
 
@@ -145,7 +145,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <key> <value>
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      * 
      * @todo move to GTE_InputMapping
      */
@@ -157,7 +157,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <key> <value>
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      * 
      * @todo move to GTE_InputMapping
      */
@@ -169,7 +169,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      * 
      * @todo not implemented, move to separate expansion GTE_StateManagement
      */
@@ -181,7 +181,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <name>
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      * 
      * @todo not implemented, move to separate expansion GTE_StateManagement
      */

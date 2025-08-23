@@ -35,7 +35,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE example(int argc, char* argv[]);
     

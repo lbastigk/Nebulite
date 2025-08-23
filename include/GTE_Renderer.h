@@ -54,7 +54,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: RenderObject as link to json/jsonc file
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE spawn(int argc, char* argv[]);
 
@@ -63,7 +63,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: Environment as link to json/jsonc file
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE envload(int argc, char* argv[]);
 
@@ -72,7 +72,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE envdeload(int argc, char* argv[]);
 
@@ -88,7 +88,7 @@ public:
      * 
      * Defaults to 1000 for width if argument count < 1
      * 
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE setResolution(int argc, char* argv[]);
 
@@ -100,7 +100,7 @@ public:
      * 
      * Defaults to 60 fps if no argument is provided
      * 
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE setFPS(int argc, char* argv[]);
 
@@ -112,7 +112,7 @@ public:
      * 
      * Defaults to on if no argument is provided
      * 
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE showFPS(int argc, char* argv[]);
 
@@ -121,7 +121,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <dx> <dy>
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE moveCam(int argc, char* argv[]);
 
@@ -133,7 +133,7 @@ public:
      * 
      * Where <c> determines if the given position is the camera's center
      * 
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE setCam(int argc, char* argv[]);
 
@@ -145,7 +145,7 @@ public:
      * 
      * Defaults to "./Resources/Snapshots/snapshot.png" if no argument is provided
      * 
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE snapshot(int argc, char* argv[]);
 
@@ -154,7 +154,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE beep(int argc, char* argv[]);
     
@@ -167,7 +167,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <id>
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      * 
      * @todo If an object is deleted, the reference in GlobalSpace::selectedRenderObject is not cleared!
      * Fix idea: Renderer::update() gets currently attached object as argument: RenderObject**
@@ -182,7 +182,7 @@ public:
      * @brief Prints the currently selected renderobject to the console
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE printSelectedObject(int argc, char* argv[]);
 

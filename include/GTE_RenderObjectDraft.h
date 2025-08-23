@@ -58,7 +58,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: All additional arguments for the help command
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE draftHelp(int argc, char* argv[]);
 
@@ -70,7 +70,7 @@ public:
      * See all RenderObjectTree functions for available options.
      * Or use `./bin/Nebulite draft-help` to see all available options.
      * 
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE onDraft(int argc, char* argv[]);
 
@@ -79,7 +79,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE spawnDraft(int argc, char* argv[]);
 
@@ -88,7 +88,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE resetDraft(int argc, char* argv[]);
 

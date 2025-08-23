@@ -48,7 +48,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: inputs are "on" or "off"
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE errorlog(int argc, char* argv[]);
 
@@ -57,7 +57,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE printGlobal(int argc, char* argv[]);
 
@@ -66,7 +66,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE printState(int argc, char* argv[]);
 
@@ -76,7 +76,7 @@ public:
      * @param argc The argument count
      * @param argv The argument vector: inputs are <filenames>. Logs to all provided files.
      * Default is "global.log.jsonc" if no name was provided
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE logGlobal(int argc, char* argv[]);
 
@@ -86,7 +86,7 @@ public:
      * @param argc The argument count
      * @param argv The argument vector: inputs are <filenames>. Logs to all provided files.
      * Default is "state.log.jsonc" if no name was provided
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE logState(int argc, char* argv[]);
 
@@ -95,7 +95,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: inputs are <command>. The command to attach.
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      * 
      * @todo Move to GTE_General
      */
@@ -106,7 +106,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      * 
      * @todo Move to GTE_General
      */
@@ -117,7 +117,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Nebulite::ERROR_TYPE Potential errors that occured on command execution
+     * @return Potential errors that occured on command execution
      */
     Nebulite::ERROR_TYPE render_object(int argc, char** argv);
 
