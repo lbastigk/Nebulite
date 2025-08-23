@@ -25,9 +25,6 @@
 #include "TimeKeeper.h"
 #include "Invoke.h"
 
-
-
-
 namespace Nebulite{
 
 /**
@@ -37,8 +34,6 @@ namespace Nebulite{
  */
 class Renderer {
 public:
-
-	
 	/**
 	 * @brief Initializes a Renderer with given dimensions and settings.
 	 * 
@@ -50,7 +45,9 @@ public:
 	 */
 	Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, bool flag_headless = false, unsigned int X = 1080, unsigned int Y = 1080);
 
-	//Marshalling
+	//-----------------------------------------------------------
+	// Serialization / Deserialization
+
 	/**
 	 * @brief Serializes the current state of the Renderer.
 	 * 
@@ -134,20 +131,6 @@ public:
 	void setQuit(){quit=true;}
 
 	/**
-	 * @brief Takes a snapshot of the current Renderer state.
-	 * 
-	 * @param link The link to save the snapshot to.
-	 * 
-	 * @return True if the snapshot was successful, false otherwise.
-	 * 
-	 * @todo Snapshot not working on windows via wine.
-	 * Image has right dimensions, but is black.
-	 * Nebulite Linux Release and Debug work fine.
-	 * Nebulite Windows Release and Debug are broken.
-	 */
-	bool snapshot(std::string link);
-
-	/**
 	 * @brief Attaches a texture above a specific layer.
 	 * 
 	 * @param aboveThisLayer The layer above which to attach the texture.
@@ -188,6 +171,20 @@ public:
 	 * @brief Beeps the system speaker.
 	 */
 	void beep();
+
+	/**
+	 * @brief Takes a snapshot of the current Renderer state.
+	 * 
+	 * @param link The link to save the snapshot to.
+	 * 
+	 * @return True if the snapshot was successful, false otherwise.
+	 * 
+	 * @todo Snapshot not working on windows via wine.
+	 * Image has right dimensions, but is black.
+	 * Nebulite Linux Release and Debug work fine.
+	 * Nebulite Windows Release and Debug are broken.
+	 */
+	bool snapshot(std::string link);
 	
 	//-----------------------------------------------------------
 	// Purge
@@ -272,6 +269,8 @@ public:
 
 	/**
 	 * @brief Checks if it's time to render the next frame based on the target FPS.
+	 * 
+	 * @todo use custom TimeKeeper class instead for FPS target tracking
 	 */
 	bool timeToRender();
 	
@@ -414,25 +413,6 @@ public:
 
 private:
 
-	/**
-	 * @brief Updates the Renderer state.
-	 * 
-	 * - updates timer
-	 * 
-	 * - polls SDL events
-	 * 
-	 * - polls mouse and keyboard state
-	 * 
-	 * - checks for console mode and updates its state
-	 * 
-	 * - sets global values
-	 * 
-	 * - updates the invoke instance
-	 * 
-	 * - updates the environment
-	 */
-	void updateState();
-
 	//-------------------------------------------------------------------------------------
 	// Boolean Status Variables
 	bool reset_delta = false; 		// Reset delta values on next update
@@ -456,21 +436,19 @@ private:
 	//-------------------------------------------------------------------------------------
 	//General Variables
 	std::vector<std::pair<std::string, std::string>> forced_global_values; // Key-Value pairs to set in global JSON
-
-	std::string directory;
-	uint32_t id_counter = 1;
+	std::string baseDirectory;
+	uint32_t renderobject_id_counter = 1;
 
 	// Positions
 	uint16_t tileXpos;
 	uint16_t tileYpos;
-    
-	// Time
+
+	// Timekeeper
 	TimeKeeper RendererLoopTime;	// Used for Simulation timing
 	TimeKeeper RendererPollTime;	// Used for Polling timing
 	TimeKeeper RendererFullTime;	// While Polling timer technically never stops, we use an extra timer just for full application time
 
-
-	// Subclasses and pointers
+	// Custom Subclasses
 	Environment env;
 	Nebulite::Invoke* invoke_ptr = nullptr;	
 
@@ -478,14 +456,13 @@ private:
 	unsigned int WindowScale = 1;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
-	absl::flat_hash_map<std::string, SDL_Texture*> TextureContainer;
 
 	//SDL_Rect rect;
 	SDL_Rect textRect;
 	SDL_Rect consoleRect;
 	SDL_Rect DstRect;
 
-	// Events etc
+	// Events, states
 	SDL_Event event;
 	int MousePosX = 0;
 	int MousePosY = 0;
@@ -494,40 +471,97 @@ private:
 	Uint32 lastMouseState;
 	Uint32 mouseState;
 	std::vector<Uint8> prevKeyState;
-	
+	SDL_Event getEventHandle();
 
+	/**
+	 * @brief Polls Keyboard and mouse states, sets forced global values.
+	 * 
+	 * @todo Move to separate GTE-File 
+	 * hashmap for key names instead of constant polling?
+	 * This also ensures cross-platform stability, note that SDL_GetScancodeName is not cross-platform stable!!!
+	 * Manual map is therefore necessary
+	 */
+	void pollEvent();
+	
 	//-------------------------------------------------------------------------------------
 	// RNG
 	std::mt19937 rngA;
     std::mt19937 rngB;
-    std::size_t hashString(const std::string& str);
+
+	/**
+	 * @brief Hashes a string to produce a size_t value.
+	 * 
+	 * Used for RNG seeding.
+	 */
+    std::size_t hashString(const std::string& str){return std::hash<std::string>{}(str);};
+
+	/**
+	 * @brief Used to limit RNG output to fit uint16_t.
+	 */
 	std::uniform_int_distribution<int> dist;
     
 	//-------------------------------------------------------------------------------------
-	// Update Functions
+	// Renderer::tick Functions
+
+	/**
+	 * @brief Clears the Renderer screen
+	 * 
+	 * This function clears renderer to an all black screen.
+	 */
 	void clear();
+
+	/**
+	 * @brief Updates the Renderer state.
+	 * 
+	 * - updates timer
+	 * 
+	 * - polls SDL events
+	 * 
+	 * - polls mouse and keyboard state
+	 * 
+	 * - checks for console mode and updates its state
+	 * 
+	 * - sets global values
+	 * 
+	 * - updates the invoke instance
+	 * 
+	 * - updates the environment
+	 */
+	void updateState();
+
+	/**
+	 * @brief Renders the current frame.
+	 * 
+	 * Takes all RenderObjects potentially visible in the current frame and renders them.
+	 * See the Environment and RenderObjectContainer class for more details on how objects 
+	 * are managed in the tile-based-container
+	 */
 	void renderFrame();
-	void renderFrameNoThreads();
+
+	/**
+	 * @brief Renders the current FPS on screen
+	 * 
+	 * @param scalar Scaling factor for the FPS text size.
+	 */
 	void renderFPS(double scalar = 1.0);
+
+	/**
+	 * @brief Presents the rendered frame to the screen.
+	 */
 	void showFrame();
-	void pollEvent();
-	SDL_Event getEventHandle();
 
 	//-------------------------------------------------------------------------------------
 	//For FPS Count
 
-	// Define font properties
-	SDL_Color textColor = { 255, 255, 255, 255 }; // White color
-	int TARGET_FPS = 500; // Target framerate (e.g., 60 FPS)
-	int TARGET_TICKS_PER_FRAME = 1000 / TARGET_FPS; // Milliseconds per frame
-	Uint64 prevTicks = SDL_GetTicks64();
-	Uint64 lastFPSRender = SDL_GetTicks64();
-	Uint64 totalframes = 0;
+	uint64_t prevTicks = SDL_GetTicks64();
+	uint64_t lastFPSRender = SDL_GetTicks64();
+	uint64_t totalframes = 0;
 
-	uint16_t REAL_FPS_COUNTER = 0;	// Counts fps in a 1-second-interval
-	uint16_t REAL_FPS = 0;			// Actual fps this past second
+	uint16_t TARGET_FPS = 500; 								// Target framerate (e.g., 60 FPS)
+	uint16_t TARGET_TICKS_PER_FRAME = 1000 / TARGET_FPS; 	// Milliseconds per frame
+	uint16_t REAL_FPS_COUNTER = 0;							// Counts fps in a 1-second-interval
+	uint16_t REAL_FPS = 0;									// Actual fps this past second
 	
-
 	//-------------------------------------------------------------------------------------
 	// Console
 	std::string consoleInputBuffer;                  // What the user is typing
@@ -537,14 +571,41 @@ private:
 	// Texture-Related
 
 	// Function to load texture from file
+	/**
+	 * @brief Loads a texture into the TextureContainer
+	 * 
+	 * Creates the necessary surface and texture object from a given file path.
+	 * 
+	 * @param link The file path to load the texture from.
+	 */
 	void loadTexture(std::string link);
 
-	absl::flat_hash_map<Environment::Layers, absl::flat_hash_map<std::string, SDL_Texture*>> BetweenLayerTextures; // Textures that are attached between layers
+	/**
+	 * @brief Texture container for the Renderer
+	 * 
+	 * This container holds all loaded textures for the renderer, allowing for easy access and management.
+	 * 
+	 * `TextureContainer[link] -> SDL_Texture*`
+	 */
+	absl::flat_hash_map<std::string, SDL_Texture*> TextureContainer;
 
+	/**
+	 * @brief Contains textures the renderer needs to render between layers
+	 * 
+	 * `BetweenLayerTextures[layer][link] -> SDL_Texture*`
+	 */
+	absl::flat_hash_map<Environment::Layers, absl::flat_hash_map<std::string, SDL_Texture*>> BetweenLayerTextures;
 
 	//-------------------------------------------------------------------------------------
 	// Font-Related
+
+	// Define font properties
+	SDL_Color textColor = { 255, 255, 255, 255 }; // White color
+
+	// General font
 	TTF_Font* font;
+
+	// Font for console text
 	TTF_Font* consoleFont;
 
 	/**

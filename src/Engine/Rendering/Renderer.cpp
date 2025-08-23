@@ -43,7 +43,7 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 
 	// State
 	event = SDL_Event();
-	directory = FileManagement::currentDir();
+	baseDirectory = FileManagement::currentDir();
 
 	//--------------------------------------------
 	// Window
@@ -175,7 +175,7 @@ void Nebulite::Renderer::loadFonts() {
 	// Font location
 	std::string sep(1,FileManagement::preferred_separator());
 	std::string fontDir = std::string("Resources") + sep + std::string("Fonts") + sep + std::string("Arimo-Regular.ttf");
-	std::string fontpath = FileManagement::CombinePaths(directory, fontDir);
+	std::string fontpath = FileManagement::CombinePaths(baseDirectory, fontDir);
 	
 	//--------------------------------------------
 	// Load general font
@@ -227,8 +227,8 @@ void Nebulite::Renderer::tick(){
 
 void Nebulite::Renderer::append(Nebulite::RenderObject* toAppend) {
 	// Set ID
-	toAppend->valueSet<uint32_t>(Nebulite::keyName.renderObject.id.c_str(),id_counter);
-	id_counter++;
+	toAppend->valueSet<uint32_t>(Nebulite::keyName.renderObject.id.c_str(),renderobject_id_counter);
+	renderobject_id_counter++;
 
 	//Append to environment, based on layer
 	env.append(
@@ -691,10 +691,11 @@ void Nebulite::Renderer::renderFrame() {
 	// Render Console if Active
 	if(consoleMode){
 		// Semi-transparent background
+		uint32_t height = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0) / 2;
 		consoleRect.x = 0;
-		consoleRect.y = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0) - 150;
+		consoleRect.y = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),0) - height;
 		consoleRect.w = invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResX.c_str(),0);
-		consoleRect.h = 150;
+		consoleRect.h = height;
 
 		SDL_SetRenderDrawColor(renderer, 0, 32, 128, 180); // blue-ish with transparency
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -781,7 +782,6 @@ void Nebulite::Renderer::showFrame() {
 	SDL_RenderPresent(renderer);
 }
 
-// This function is called on each non in-console frame to set the values for the global document
 void Nebulite::Renderer::setGlobalValues(){
 	//---------------------------------------------
 	// Simulation time
@@ -816,11 +816,7 @@ void Nebulite::Renderer::setGlobalValues(){
 	update_rrand();
 }
 
-// TODO: hashmap for key names instead of constant polling?
-// This also ensures cross-platform stability, note that SDL_GetScancodeName is not cross-platform stable!!!
-// Manual map is therefore necessary
 void Nebulite::Renderer::pollEvent() {
-
 	//----------------------------------
 	// Mouse
     lastMousePosX = MousePosX;
@@ -919,7 +915,7 @@ void Nebulite::Renderer::setTargetFPS(int fps) {
 
 void Nebulite::Renderer::loadTexture(std::string link) {
 	// Combine directory and innerdir to form full path
-	std::string path = FileManagement::CombinePaths(directory, link);
+	std::string path = FileManagement::CombinePaths(baseDirectory, link);
 
 	// Check if texture is already loaded
 	if (TextureContainer.find(link) == TextureContainer.end()) {
@@ -951,8 +947,4 @@ void Nebulite::Renderer::loadTexture(std::string link) {
 		// Store texture in container
 		TextureContainer[link] = texture;
 	}
-}
-
-std::size_t Nebulite::Renderer::hashString(const std::string& str) {
-    return std::hash<std::string>{}(str);
 }
