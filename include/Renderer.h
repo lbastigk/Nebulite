@@ -78,6 +78,28 @@ public:
 	// Pipeline
 
 	/**
+	 * @brief Updates the renderer for the next frame.
+	 * 
+	 * - clears the screen
+	 * 
+	 * - calls the general update function
+	 * 
+	 * - renders frame
+	 * 
+	 * - renders fps, if enabled
+	 * 
+	 * - presents the frame
+	 */
+	void tick();
+
+	/**
+	 * @brief Checks if it's time to render the next frame based on the target FPS.
+	 * 
+	 * @todo use custom TimeKeeper class instead for FPS target tracking
+	 */
+	bool timeToRender();
+
+	/**
 	 * @brief Appends a RenderObject to the Renderer.
 	 * 
 	 * This function adds a RenderObject to the rendering pipeline.
@@ -252,27 +274,6 @@ public:
 	void clearForcedGlobalValues() {
 		forced_global_values.clear();
 	}
-	
-	//-----------------------------------------------------------
-	// Rendering
-
-	/**
-	 * @brief Updates the renderer for the next frame.
-	 * 
-	 * - clears the screen
-	 * - calls the general update function
-	 * - renders frame
-	 * - renders fps, if enabled
-	 * - presents the frame
-	 */
-	void tick();
-
-	/**
-	 * @brief Checks if it's time to render the next frame based on the target FPS.
-	 * 
-	 * @todo use custom TimeKeeper class instead for FPS target tracking
-	 */
-	bool timeToRender();
 	
 	//-----------------------------------------------------------
 	// Setting
@@ -462,7 +463,9 @@ private:
 	SDL_Rect consoleRect;
 	SDL_Rect DstRect;
 
-	// Events, states
+	//-----------------------------------------------------------
+	// Event Handling
+
 	SDL_Event event;
 	int MousePosX = 0;
 	int MousePosY = 0;
@@ -471,6 +474,14 @@ private:
 	Uint32 lastMouseState;
 	Uint32 mouseState;
 	std::vector<Uint8> prevKeyState;
+
+	/**
+	 * @brief Gets the current SDL event.
+	 * 
+	 * @return The current SDL event.
+	 * 
+	 * @todo this function is garbage, just using SDL_PollEvent on a global variable would be cleaner.
+	 */
 	SDL_Event getEventHandle();
 
 	/**
