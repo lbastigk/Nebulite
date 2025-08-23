@@ -106,13 +106,13 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::setResolution
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::setFPS(int argc, char* argv[]){
     if(argc != 2){
-        self->getRenderer()->setFPS(60);
+        self->getRenderer()->setTargetFPS(60);
     }
     else{
         int fps = std::stoi(argv[1]);
         if(fps < 1) fps=1;
         if(fps > 10000) fps=10000;
-        self->getRenderer()->setFPS(fps);
+        self->getRenderer()->setTargetFPS(fps);
     }
     return Nebulite::ERROR_TYPE::NONE;
 }

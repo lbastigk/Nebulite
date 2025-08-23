@@ -90,7 +90,7 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 		SDL_Quit(); // Clean up SDL
 	}
 
-	loadFonts(1);
+	loadFonts();
 
 	//--------------------------------------------
 	// Audio
@@ -165,7 +165,7 @@ Nebulite::Renderer::Renderer(Nebulite::Invoke& invoke, Nebulite::JSON& global, b
 }
 
 
-void Nebulite::Renderer::loadFonts(int scalar) {
+void Nebulite::Renderer::loadFonts() {
 	//--------------------------------------------
 	// Sizes
 	uint32_t FontSizeGeneral = 60; 			// Does not need to scale
@@ -196,30 +196,32 @@ void Nebulite::Renderer::loadFonts(int scalar) {
 
 //-----------------------------------------------------------
 // Pipeline
+
+// For quick and dirty debugging, in case the rendering pipeline breaks somewhere
 //# define debug_on_each_step 1
 void Nebulite::Renderer::tick(){
 	#ifdef debug_on_each_step
-    	std::cout << "clear:" << std::endl;
+    	std::cout << "clear..." << std::endl;
 	#endif
     clear();           				// 1.) Clear screen FIRST, so that functions like snapshot have acces to the latest frame
 	#ifdef debug_on_each_step
-    	std::cout << "update:" << std::endl;
+    	std::cout << "update..." << std::endl;
 	#endif
-    update();          				// 2.) Update objects
+    updateState();          		// 2.) Update objects, states, etc.
 	#ifdef debug_on_each_step
-    	std::cout << "renderFrame:" << std::endl;
+    	std::cout << "renderFrame..." << std::endl;
 	#endif
     renderFrame();     				// 3.) Render frame
 	#ifdef debug_on_each_step
-    	std::cout << "renderFPS:" << std::endl;
+    	std::cout << "renderFPS..." << std::endl;
 	#endif
 	if(showFPS)renderFPS();       	// 4.) Render fps count
 	#ifdef debug_on_each_step
-    	std::cout << "showFrame:" << std::endl;
+    	std::cout << "showFrame..." << std::endl;
 	#endif
     showFrame();       				// 5.) Show Frame
 	#ifdef debug_on_each_step
-		std::cout << "done!:" << std::endl;
+		std::cout << "done!" << std::endl;
 	#endif
 }
 
@@ -250,10 +252,8 @@ void Nebulite::Renderer::reinsertAllObjects(){
 	);
 }
 
-void Nebulite::Renderer::update() {
+void Nebulite::Renderer::updateState() {
 	// Update loop timer
-
-	
 	uint64_t fixed_dt_ms = invoke_ptr->getGlobalPointer()->get<Uint64>(keyName.renderer.time_fixed_dt_ms.c_str(),0);
 	RendererLoopTime.update(fixed_dt_ms);
 	
@@ -389,11 +389,6 @@ void Nebulite::Renderer::update() {
 	}
 }
 
-// TODO: Snapshot not working on windows via wine
-// Image has right dimensions, but is black
-//
-// Nebulite Linux Release and Debug work fine
-// Nebulite Windows Release and Debug are broken
 bool Nebulite::Renderer::snapshot(std::string link) {
     if (!renderer) {
         std::cerr << "Cannot take snapshot: renderer not initialized" << std::endl;
@@ -537,9 +532,6 @@ void Nebulite::Renderer::changeWindowSize(int w, int h, int scalar) {
 		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.dispResY.c_str(),360)
 	);
 
-	// Reload fonts
-	loadFonts(WindowScale);
-
 	// Turn off console mode
 	consoleMode = false;
 
@@ -547,7 +539,7 @@ void Nebulite::Renderer::changeWindowSize(int w, int h, int scalar) {
     reinsertAllObjects();
 }
 
-void Nebulite::Renderer::moveCam(int dX, int dY, bool isMiddle) {
+void Nebulite::Renderer::moveCam(int dX, int dY) {
 	invoke_ptr->getGlobalPointer()->set<int>(
 		keyName.renderer.positionX.c_str(),
 		invoke_ptr->getGlobalPointer()->get<int>(keyName.renderer.positionX.c_str(),0) + dX
@@ -578,7 +570,7 @@ void Nebulite::Renderer::setCam(int X, int Y, bool isMiddle) {
 // Rendering
 
 bool Nebulite::Renderer::timeToRender() {
-	return SDL_GetTicks64() >= (prevTicks + SCREEN_TICKS_PER_FRAME);
+	return SDL_GetTicks64() >= (prevTicks + TARGET_TICKS_PER_FRAME);
 }
 
 void Nebulite::Renderer::clear(){
@@ -600,19 +592,19 @@ void Nebulite::Renderer::renderFrame() {
 
 	//Ticks and FPS
 	totalframes++;
-	fpsCount++;
+	REAL_FPS_COUNTER++;
 	prevTicks = SDL_GetTicks64();
 
 	//Calculate fps
 	if (prevTicks - lastFPSRender >= 1000) {
-		fps = fpsCount;
-		fpsCount = 0;
+		REAL_FPS = REAL_FPS_COUNTER;
+		REAL_FPS_COUNTER = 0;
 		lastFPSRender = prevTicks;
 
 		/*
 		if (control_fps) {
 			//D and I summation
-			int error = fps - SCREEN_FPS;
+			int error = fps - TARGET_FPS;
 			integral += error;
 
 			//Terms
@@ -758,7 +750,7 @@ void Nebulite::Renderer::renderFPS(double scalar) {
 	scalar = scalar / (double)WindowScale;
 
 	// Create a string with the FPS value
-	std::string fpsText = "FPS: " + std::to_string(fps);
+	std::string fpsText = "FPS: " + std::to_string(REAL_FPS);
 
 	double fontSize = 16;
 
@@ -910,14 +902,14 @@ SDL_Event Nebulite::Renderer::getEventHandle() {
 
 //-----------------------------------------------------------
 // Setting
-void Nebulite::Renderer::setFPS(int fps) {
+void Nebulite::Renderer::setTargetFPS(int fps) {
 	if (fps > 0) {
-		SCREEN_FPS = fps;
-		SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
+		TARGET_FPS = fps;
+		TARGET_TICKS_PER_FRAME = 1000 / TARGET_FPS;
 	}
 	else {
-		SCREEN_FPS = 60;
-		SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
+		TARGET_FPS = 60;
+		TARGET_TICKS_PER_FRAME = 1000 / TARGET_FPS;
 	}
 }
 

@@ -33,7 +33,7 @@ Nebulite::GlobalSpace::GlobalSpace(const std::string binName)
 Nebulite::Renderer* Nebulite::GlobalSpace::getRenderer() {
     if (renderer == nullptr) {
         renderer = std::make_unique<Nebulite::Renderer>(*invoke, global, cmdVars.headless == "true");
-        renderer->setFPS(60);
+        renderer->setTargetFPS(60);
     }
     return renderer.get();
 }
