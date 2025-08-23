@@ -160,7 +160,7 @@ public:
 	 * 
 	 * This function removes all render objects from all layers.
 	 * 
-	 * TODO: The approach of direct deletion is not compatible with the current architecture.
+	 * @todo: The approach of direct deletion is not compatible with the current architecture.
 	 * Move all objects into trash before deletion.
 	 */
 	void purgeObjects();

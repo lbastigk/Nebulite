@@ -26,7 +26,11 @@ void Nebulite::Expression::reset() {
     virtualDoubles_global.clear();
     virtualDoubles_resource.clear();
 
+    //----------------------------------------------------------------------
     // Register built-in functions
+
+    // Logical comparison functions
+
     te_variable gt_var =  {"gt",    (void*)expr_custom::gt,             TE_FUNCTION2};
     variables.push_back(gt_var);
     te_variable lt_var =  {"lt",    (void*)expr_custom::lt,             TE_FUNCTION2};
@@ -39,12 +43,18 @@ void Nebulite::Expression::reset() {
     variables.push_back(eq_var);
     te_variable neq_var = {"neq",   (void*)expr_custom::neq,            TE_FUNCTION2};
     variables.push_back(neq_var);
+
+    // Logical gate functions
+
     te_variable and_var = {"and",   (void*)expr_custom::logical_and,    TE_FUNCTION2};
     variables.push_back(and_var);
     te_variable or_var =  {"or",    (void*)expr_custom::logical_or,     TE_FUNCTION2};
     variables.push_back(or_var);
     te_variable not_var = {"not",   (void*)expr_custom::logical_not,    TE_FUNCTION1};
     variables.push_back(not_var);
+
+    // More mathematical functions
+
     te_variable sgn_var = {"sgn",   (void*)expr_custom::sgn,            TE_FUNCTION1};
     variables.push_back(sgn_var);
 }

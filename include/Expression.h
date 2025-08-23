@@ -13,7 +13,6 @@
 #include <memory>
 #include <deque>
 
-
 /**
  * @brief Enables the use of an external cache for double-values.
  * 
@@ -21,7 +20,9 @@
  * In order to use double-value-pointers from a JSON document, the document must be remanent:
  *
  * - The document is permanently accessible within the expression lifetime
+ * 
  * - The document is permanently alive within the expression lifetime
+ * 
  * - The document reference is constant within the expression lifetime
  *
  * This is only applicable for `self` and `global`.
@@ -115,33 +116,82 @@ private:
      */
     Nebulite::DocumentCache* globalCache = nullptr;
 
+    /**
+     * @struct Nebulite::Expression::Entry
+     * @brief Represents a single entry in an expression.
+     * 
+     * This struct holds information about a specific part of the expression,
+     * including its type, source, and any associated metadata.
+     */
     struct Entry {
+        /**
+         * @enum Nebulite::Expression::Entry::Type
+         * @brief Represents the type of an expression entry.
+         */
         enum Type {
-            variable,   // inside $<cast>(...), Starts with self, other, global or a dot for link
-            eval,       // inside $<cast>(...), all other cases
-            text        // outside of a $<cast>(...)
+            variable,   // outside $<cast>(...), Starts with self, other, global or a dot for link, represents a variable reference, outside of an evaluatable context
+            eval,       // inside $<cast>(...), represents an evaluatable expression
+            text        // outside of a $<cast>(...), not a variable reference, Represents a plain text string
         } type = Type::text;
 
-        // For variable
+        /**
+         * @enum Nebulite::Expression::Entry::From
+         * @brief Represents the source of a variable reference.
+         */
         enum From {
-            self, other, global, resource, None
+            self,       // Using the "self" document for expression evaluation
+            other,      // Using the "other" document for expression evaluation
+            global,     // Using the "global" document for expression evaluation
+            resource,   // Using a document from the document cache for expression evaluation
+            None        // No context given for evaluation 
         } from = From::None; // Default to None
 
-        // Cast Type
+        /**
+         * @enum Nebulite::Expression::Entry::CastType
+         * @brief Represents the type of cast to apply to an expression entry.
+         */
         enum CastType {
-            none, to_int, to_double
+            none,       // No cast -> using pure string
+            to_int,     // Cast to integer
+            to_double   // Cast to double
         } cast = CastType::none; // Default to none
 
-        // Formatting
+        /**
+         * @brief If true, indicates leading zero formatting (e.g., 03.2f).
+         */
         bool leadingZero = false;
+
+        /**
+         * @brief If positive, indicates the alignment size of the value.
+         */
         int alignment = -1;
+
+        /**
+         * @brief If positive, indicates the precision size of the value.
+         */
         int precision = -1;
 
-        // Holds internal values derived from full expression
+        /**
+         * @brief Holds the string representation of the entry.
+         * 
+         * Depending on context Either:
+         * 
+         * - The Expression to evaluate, with formatting specifiers removed
+         * 
+         * - The pure text
+         * 
+         * - The variable key, with no context stripped
+         */
         std::string str;
+
+        /**
+         * @brief Holds the context-stripped key of the entry, if it's of type variable.
+         */
         std::string key;
 
-        // If of type te_expr, this will be initialized:
+        /**
+         * @brief Pointer to the tinyexpr representation of the expression.
+         */
         te_expr* expression = nullptr;
     };
 
@@ -156,8 +206,11 @@ private:
      * Both remanent and non-remanent types use the vd_entry for variable management.
      * 
      * @todo is it possible to reduce the vd_entry vectors to simple VirtualDouble vectors?
+     * 
      * - The "from" should be irrelevant since we already separate the vectors based on that notion
+     * 
      * - The key is stored in the VirtualDouble itself
+     * 
      * - Where is te_name used? Just for debugging?
      */
     struct vd_entry {
@@ -188,22 +241,36 @@ private:
     std::vector<std::shared_ptr<vd_entry>> virtualDoubles_resource;
 
     /**
-     * @brief A collection of functions for TinyExpr
+     * @brief A collection of custom functions for TinyExpr
+     * 
+     * Make sure to register all functions with TinyExpr in Nebulite::Expression::reset
+     * 
+     * @todo: Add more functionality:
+     * 
+     * - map/constrain
+     * 
+     * - xor
+     * 
+     * - nand
+     * 
+     * - nor
      */
     class expr_custom{
     public:
+        // Logical comparison functions
         static double gt(double a, double b) {return a > b;}
         static double lt(double a, double b) {return a < b;}
         static double geq(double a, double b) {return a >= b;}
         static double leq(double a, double b) {return a <= b;}
-        
         static double eq(double a, double b){return a == b;}
         static double neq(double a, double b){return a != b;}
 
+        // Logical gate functions
         static double logical_and(double a, double b){return a && b;}
         static double logical_or(double a, double b){return a || b;}
         static double logical_not(double a){return !a;}
 
+        // More mathematical functions
         static double sgn(double a){return std::copysign(1.0, a);}
     };
 
@@ -356,4 +423,3 @@ private:
 
 };
 } // namespace Nebulite
-
