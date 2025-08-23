@@ -138,6 +138,7 @@ int main(int argc, char* argv[]){
 
     //--------------------------------------------------
     // At least one loop, to handle taskQueues
+    bool continueLoop = true;
     do {
         //------------------------------------------------------------
         /**
@@ -198,14 +199,22 @@ int main(int argc, char* argv[]){
                 if(globalSpace.scriptWaitCounter < 0) globalSpace.scriptWaitCounter = 0;
             }  
         }
+
+        //------------------------------------------------------------
+        // Check if we need to continue the loop
+        continueLoop = !critical_stop && globalSpace.RendererExists() && !globalSpace.getRenderer()->isQuit();
+
+        // Overwrite: If there is a wait operation and no renderer exists, 
+        // we need to continue the loop and decrease scriptWaitCounter
+        if(globalSpace.scriptWaitCounter > 0 && !globalSpace.RendererExists()){
+            continueLoop = true;
+            globalSpace.scriptWaitCounter--;
+        }
     /**
-     * @note Continue only if renderer exists, and if quit wasnt called.
-     *       It might be tempting to add the condition that all tasks are done,
+     * @note It might be tempting to add the condition that all tasks are done,
      *       but this could cause issues if the user wishes to quit while a task is still running.
-     * 
-     * @note A current limitation is that, if the user is running a taskfile with a wait-call, a renderer has to be initialized.
      */
-    } while (!critical_stop && globalSpace.RendererExists() && !globalSpace.getRenderer()->isQuit());
+    } while (continueLoop);
 
 
     //--------------------------------------------------
