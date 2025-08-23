@@ -108,7 +108,6 @@ public:
      */
     Nebulite::ERROR_TYPE func_return(int argc, char* argv[]);
 
-    // Echo a given string to cout
     /**
      * @brief Echoes all arguments as string to the standard output
      * 
@@ -151,7 +150,6 @@ public:
      */
     Nebulite::ERROR_TYPE forceGlobal(int argc, char* argv[]);
 
-    // Release all forced global values
     /**
      * @brief Clears all forced global variables
      * 
@@ -163,7 +161,6 @@ public:
      */
     Nebulite::ERROR_TYPE clearForceGlobal(int argc, char* argv[]);
 
-    // Save entire game state
     /**
      * @brief Saves the current game state under state prefix
      * 
@@ -175,7 +172,6 @@ public:
      */
     Nebulite::ERROR_TYPE stateSave(int argc, char* argv[]);
 
-    // Load game state
     /**
      * @brief Loads a saved game state
      * 

@@ -19,6 +19,7 @@ Nebulite::ERROR_TYPE Nebulite::RenderObjectTreeExpansion::Logging::echo(int argc
     std::cout << std::endl;
     return Nebulite::ERROR_TYPE::NONE;
 }
+
 Nebulite::ERROR_TYPE Nebulite::RenderObjectTreeExpansion::Logging::log(int argc, char* argv[]){
     std::string serialized = domain->serialize();
     if (argc>1){

@@ -1,31 +1,34 @@
 /**
  * @file TimeKeeper.h
- * @brief Provides time management utilities for the Nebulite engine.
- * 
- * This file contains classes and functions to manage and track time,
- * including timers, delays, and frame rate calculations.
- * 
- * @author Leo Bastigkeit
- * @date August 15, 2025
+ * @brief Contains the Nebulite::TimeKeeper class for managing time-related operations.
  */
 
 #include "Time.h"
 
+namespace Nebulite {
+
 /**
- * @class TimeKeeper
+ * @class Nebulite::TimeKeeper
  * @brief Manages time-related operations in the Nebulite engine.
  * 
  * The TimeKeeper class provides functionality to track elapsed time,
  * manage frame rates, and handle delays.
+ * 
+ * The start time is set to construction time. Timer is initialized to not running.
  */
 class TimeKeeper{
 public:
 
+    /**
+     * @brief Constructs a new TimeKeeper object and initializes the timer.
+     * 
+     * The start time is set to construction time. Timer is initialized to not running.
+     */
     TimeKeeper(){
         t_ms = Time::gettime() - t_start;
         dt_ms = 0;
-        loop_t_ms = t_ms;
-        loop_last_t_ms = t_ms;
+        onUpdate.t_ms = t_ms;
+        onUpdate.last_t_ms = t_ms;
     }
 
     /**
@@ -34,26 +37,29 @@ public:
      * This function calculates the delta time since the last update and updates the timer.
      * 
      * @param fixed_dt_ms If greater than 0, this value will be used as the delta time instead of the calculated value.
+     * 
+     * @todo The implemented logic is has too many sets, then resets and all that nonsense. Create a proper branching path
      */
     void update(uint64_t fixed_dt_ms = 0){
-        // Calculate dt from last update call
-        // Regardless of whether the timer is running or not
-        loop_last_t_ms = loop_t_ms;
-        loop_t_ms = Time::gettime() - t_start;
-        loop_dt = loop_t_ms - loop_last_t_ms;
+        // 1.) Gather timing information: last t, current t, dt
+        onUpdate.last_t_ms = onUpdate.t_ms;
+        onUpdate.t_ms = Time::gettime() - t_start;
+        onUpdate.dt = onUpdate.t_ms - onUpdate.last_t_ms;
 
+        // 2.) If a fixed dt was specified, we use that value
         if(fixed_dt_ms > 0){
-            // If fixed dt is set, use that
-            loop_dt = fixed_dt_ms;
+            onUpdate.dt = fixed_dt_ms;
         }
 
-        // If running, add dt to values
+        // 3.) Set dt
         if(running){
-            dt_ms = loop_dt;
+            dt_ms = onUpdate.dt;
         }
         else{
             dt_ms = 0;
         }
+
+        // 4.) Integrate dt
         t_ms += dt_ms;
     }
 
@@ -88,10 +94,10 @@ public:
      */
     uint64_t projected_dt(){
         if(running){
-            uint64_t sim_last_t_ms = loop_t_ms;
-            uint64_t sim_t_ms = Time::gettime() - t_start;
-            uint64_t sim_dt = sim_t_ms - sim_last_t_ms;
-            return sim_dt;
+            onSimulation.last_t_ms = onUpdate.t_ms;
+            onSimulation.t_ms = Time::gettime() - t_start;
+            onSimulation.dt = onSimulation.t_ms - onSimulation.last_t_ms;
+            return onSimulation.dt;
         }
         else{
             return 0;
@@ -123,20 +129,51 @@ public:
         return dt_ms;
     }
 
-
 private:
     // Basic values for current time
+
+    /**
+     * @brief The current time in milliseconds of the last update.
+     */
     uint64_t t_ms;
+
+    /**
+     * @brief The delta time in milliseconds between the last two updates.
+     */
     uint64_t dt_ms;
 
-    // Status
-    bool running = false; // On construction, timer is off
-
-    // Needed values for dt calculation on update
-    uint64_t loop_last_t_ms;
-    uint64_t loop_t_ms;
-    uint64_t loop_dt;
-
-    // Start value for reference
+    /**
+     * @brief The start time in milliseconds when the timer was created.
+     * 
+     * For Reference: This value is used to calculate the total elapsed time since the timer was created.
+     */
     const uint64_t t_start = Time::gettime();
+
+    /**
+     * @brief Indicates whether the timer is currently running.
+     * 
+     * On construction, the timer is off.
+     */
+    bool running = false;
+
+    /**
+     * @struct OnUpdate
+     * @brief Stores the timing information for the update phase.
+     */
+    struct OnUpdate{
+        uint64_t last_t_ms;
+        uint64_t t_ms;
+        uint64_t dt;
+    } onUpdate;
+
+    /**
+     * @struct OnSimulation
+     * @brief Stores the timing information for the update simulation phase.
+     */
+    struct OnSimulation{
+        uint64_t last_t_ms;
+        uint64_t t_ms;
+        uint64_t dt;
+    } onSimulation;
 };
+}   // namespace Nebulite

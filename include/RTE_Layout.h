@@ -24,7 +24,7 @@ public:
     /**
      * @brief Sets up the functions bindings in the domains function tree
      * 
-     * * Is called automatically by the inherited Wrappers constructor.
+     * Is called automatically by the inherited Wrappers constructor.
      */
     void setupBindings() {
         bindFunction(&Layout::alignText, "align-text", "Aligns text to object dimensions");

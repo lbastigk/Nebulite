@@ -17,7 +17,7 @@ TODO: Unloading of documents
 The basic idea is to add a timekeeper for all loaded documents, tracking their last usage.
 This, however, results in a O(n) complexity, slowing down the retrieval of documents as the only place to update the last used time is during retrieval.
 
-The idea instead is to use a random approach, checking one document at random during each retrieval.
+The better approach is to do a random check, one document at a time each retrieval.
 If the document is found to be unused for a certain period, it can be unloaded from memory.
 
 This is possible, as the exact time of unloading is unimportant.

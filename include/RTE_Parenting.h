@@ -1,3 +1,10 @@
+/**
+ * @file RTE_Parenting.h
+ * @brief Header file for the Parenting expansion of the RenderObject tree.
+ * 
+ * @note WORK IN PROGRESS, this expansion is in the ideas stage.
+ */
+
 #pragma once
 
 #include "ErrorTypes.h"
@@ -26,7 +33,7 @@ public:
     /**
      * @brief Sets up the functions bindings in the domains function tree
      * 
-     * * Is called automatically by the inherited Wrappers constructor.
+     * Is called automatically by the inherited Wrappers constructor.
      */
     void setupBindings() {
         bindFunction(&Parenting::addChildren, "add-children", "Adds children of the RenderObject by name");
