@@ -6,7 +6,6 @@ bool Nebulite::StringHandler::containsAnyOf(const std::string& str, const std::s
     });
 }
 
-
 bool Nebulite::StringHandler::isNumber(std::string str) {
     // Trim leading/trailing whitespace
     str.erase(0, str.find_first_not_of(" \t\n\r"));
@@ -36,25 +35,6 @@ bool Nebulite::StringHandler::isNumber(std::string str) {
     return hasDigits;
 }
 
-std::string Nebulite::StringHandler::uint64ToStringWithPadding(UINT64 value, int length) {
-    std::ostringstream oss;
-    oss << std::setw(length) << std::setfill('0') << value;
-    return oss.str();
-}
-
-std::string Nebulite::StringHandler::uint64ToStringWithGroupingAndPadding(UINT64 value, int length) {
-    std::ostringstream oss;
-    oss << std::setw(length) << std::setfill('0') << value;
-
-    // Insert a space between every 3rd character from the end
-    std::string result = oss.str();
-    for (int i = result.length() - 3; i > 0; i -= 3) {
-        result.insert(i, " ");
-    }
-
-    return result;
-}
-
 std::string Nebulite::StringHandler::replaceAll(std::string target, const std::string& toReplace, const std::string& replacer) {
     std::string::size_type pos = 0u;
     while ((pos = target.find(toReplace, pos)) != std::string::npos) {
@@ -64,48 +44,6 @@ std::string Nebulite::StringHandler::replaceAll(std::string target, const std::s
     return target;
 }
 
-
-//use %i in before/after for line count
-std::string Nebulite::StringHandler::parseArray(std::vector<std::string> arr, std::string before, std::string after) {
-    std::stringstream ss;
-    int i = 1;
-    for (const auto& line : arr) {
-        //replace
-        std::string bef = replaceAll(before,"%i",std::to_string(i));
-        std::string aft = replaceAll(after, "%i", std::to_string(i));
-
-        //add text
-        ss << bef << line << aft;
-
-        i++;
-    }
-    //delete extra newline
-    ss.seekp(-1, std::ios_base::end);
-    return ss.str();
-}
-
-std::wstring Nebulite::StringHandler::stringToWstring(const std::string& str) {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-    return converter.from_bytes(str);
-}
-
-std::string Nebulite::StringHandler::wstringToString(const std::wstring& wstr) {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    return converter.to_bytes(wstr);
-}
-
-std::string Nebulite::StringHandler::getBinaryString(int toConvert){
-    std::string out = "0b";
-    for (int i = 0; i < sizeof(int)*8; i++){
-        if(i%8 == 0 && i != 0){
-            out += " ";
-        }
-        out += std::to_string((toConvert >> i) && 1);
-    }
-    return out;
-}
-
-// Returns string start up until a certain char appears
 std::string Nebulite::StringHandler::untilSpecialChar(std::string input, char specialChar){
     size_t pos = input.find(specialChar);
     if (pos != std::string::npos && pos + 1 < input.size()) {
@@ -179,11 +117,6 @@ std::vector<std::string> Nebulite::StringHandler::split(const std::string& input
     return tokens;
 }
 
-// Splits a string on the same depth of parentheses
-// - for '()', '[]', '{}' according to delimiter
-// Example:
-// "This is a text {with} {some}{!} nested {{paranthesis}}"
-// -> ["This is a text ", "{with}", " ", "{some}", "{!}", " nested ", "{{paranthesis}}"]
 std::vector<std::string> Nebulite::StringHandler::splitOnSameDepth(const std::string& input, char delimiter) {
     std::vector<std::string> result;
 

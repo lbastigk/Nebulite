@@ -367,7 +367,7 @@ cd Application
 [BUILD + TEST]
 ```
 
-JSON validation runs via `validate_json.sh` prior to tests. Headless mode is recommended for CI to generate snapshots or logs deterministically.
+JSON validation runs via `validate_json.sh` prior to tests.
 
 ## Language Extension
 

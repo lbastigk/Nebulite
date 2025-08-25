@@ -140,3 +140,9 @@ build_type="Generate Standards"
 generate_standards
 echo ""
 echo "Newest Nebulite build + files generated."
+
+# Inform about lines of code:
+echo ""
+echo ""
+echo "Lines of code for Project + Tests:"
+cloc --force-lang-def=./nebulite-script-vscode/cloc_lang_define.txt Application/ src/ include/ scripts/

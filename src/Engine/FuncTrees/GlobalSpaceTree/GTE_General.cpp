@@ -13,27 +13,6 @@ void Nebulite::GlobalSpaceTreeExpansion::General::update() {
 //-------------------------------
 // FuncTree-Bound Functions
 
-Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::setGlobal(int argc, char* argv[]){
-    if(argc == 3){
-        std::string key = argv[1];
-        std::string value = argv[2];
-        self->getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
-        return Nebulite::ERROR_TYPE::NONE;
-    }
-    if(argc == 2){
-        std::string key = argv[1];
-        std::string value = "0";
-        self->getRenderer()->getGlobal().set<std::string>(key.c_str(),value);
-        return Nebulite::ERROR_TYPE::NONE;
-    }
-    if(argc < 2){
-        return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
-    }
-    else{
-        return Nebulite::ERROR_TYPE::TOO_MANY_ARGS;
-    }
-}
-
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::eval(int argc, char* argv[]){
     // argc/argv to string for evaluation
     std::string args = "";
@@ -45,42 +24,23 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::eval(int argc,
     }
 
     // eval all $(...)
-    std::string args_evaled = self->invoke->evaluateStandaloneExpression(args);
+    std::string args_evaled = domain->invoke->evaluateStandaloneExpression(args);
 
     // reparse
     return funcTree->parseStr(args_evaled);
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::exitProgram(int argc, char* argv[]){
-    self->getRenderer()->setQuit();
+    domain->getRenderer()->setQuit();
     return Nebulite::ERROR_TYPE::NONE;
-}
-
-Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::stateLoad(int argc, char* argv[]){ 
-    std::cerr << "Function load not implemented yet!" << std::endl;
-    return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
-}
-
-Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::stateSave(int argc, char* argv[]){
-    // <stateName>
-    // Change std::string Nebulite::stateName to name
-    // Check if dir ./States/stateName exists
-
-    // If any env is deloaded, save in stateName
-
-    // Every load of any file must be linked to state! If file exists in state load from there
-    // if not, load from usual path
-
-    std::cerr << "Function save not implemented yet!" << std::endl;
-    return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::wait(int argc, char* argv[]){
     if(argc == 2){
         std::istringstream iss(argv[1]);
-        iss >> self->tasks_script.waitCounter;
-        if (self->tasks_script.waitCounter < 0){
-            self->tasks_script.waitCounter = 0;
+        iss >> domain->scriptWaitCounter;
+        if (domain->scriptWaitCounter < 0){
+            domain->scriptWaitCounter = 0;
         }
         return Nebulite::ERROR_TYPE::NONE;
     }
@@ -114,7 +74,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::loadTaskList(i
     std::istringstream stream(file);
     std::string line;
     while (std::getline(stream, line)) {
-        line = StringHandler::untilSpecialChar(line,'#');   // Remove comments
+        line = StringHandler::untilSpecialChar(line,'#');   // Remove comments. TODO: Doesnt remove lines that are purely "#"
         line = StringHandler::lstrip(line,' ');             // Remove whitespaces at start
         if(line.length() == 0){
             // line is empty
@@ -128,7 +88,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::loadTaskList(i
 
     // Now insert all lines into the task queue
     for (const auto& line : lines){
-        self->tasks_script.taskList.push_front(line);
+        domain->tasks.script.taskList.push_front(line);
     }
 
     return Nebulite::ERROR_TYPE::NONE;
@@ -150,8 +110,8 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::forLoop(int ar
     if(argc > 4){
         std::string varName = argv[1];
 
-        int iStart = std::stoi(self->invoke->evaluateStandaloneExpression(argv[2]));
-        int iEnd   = std::stoi(self->invoke->evaluateStandaloneExpression(argv[3]));
+        int iStart = std::stoi(domain->invoke->evaluateStandaloneExpression(argv[2]));
+        int iEnd   = std::stoi(domain->invoke->evaluateStandaloneExpression(argv[3]));
 
         std::string args = "";
         for (int i = 4; i < argc; ++i) {
@@ -175,7 +135,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::ifCondition(in
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
     }
 
-    std::string result = self->invoke->evaluateStandaloneExpression(argv[1]);
+    std::string result = domain->invoke->evaluateStandaloneExpression(argv[1]);
     double condition_potentially_nan = std::stod(result);
 
     bool condition = !isnan(condition_potentially_nan) && (condition_potentially_nan != 0);
@@ -197,19 +157,21 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::ifCondition(in
     return funcTree->parseStr(commands);
 }
 
-Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::error(int argc, char* argv[]) {
-    for (int i = 1; i < argc; ++i) {
-        std::cerr << argv[i];
-        if (i < argc - 1) {
-            std::cerr << " ";
-        }
-    }
-    std::cerr << std::endl;
-    return Nebulite::ERROR_TYPE::CUSTOM_ERROR;
-}
-
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::func_assert(int argc, char* argv[]){
-    return Nebulite::ERROR_TYPE::CRITICAL_CUSTOM_ASSERT;
+    if (argc < 2) {
+        return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
+    }
+
+    if (argc > 2) {
+        return Nebulite::ERROR_TYPE::TOO_MANY_ARGS;
+    }
+
+    std::string condition = argv[1];
+
+    if(!std::stod(domain->invoke->evaluateStandaloneExpression(condition))){
+        return Nebulite::ERROR_TYPE::CRITICAL_CUSTOM_ASSERT;
+    }
+    return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::func_return(int argc, char* argv[]){
@@ -222,6 +184,45 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::func_return(in
     return (Nebulite::ERROR_TYPE)std::stoi(argv[1]);
 }
 
+//------------------
+// To move
+
+// 1.) To GTE_Debug
+
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::error(int argc, char* argv[]) {
+    for (int i = 1; i < argc; ++i) {
+        std::cerr << argv[i];
+        if (i < argc - 1) {
+            std::cerr << " ";
+        }
+    }
+    std::cerr << std::endl;
+    return Nebulite::ERROR_TYPE::CUSTOM_ERROR;
+}
+
+// 2.) To GTE_StateManagement
+
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::stateLoad(int argc, char* argv[]){ 
+    std::cerr << "Function load not implemented yet!" << std::endl;
+    return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+}
+
+Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::stateSave(int argc, char* argv[]){
+    // <stateName>
+    // Change std::string Nebulite::stateName to name
+    // Check if dir ./States/stateName exists
+
+    // If any env is deloaded, save in stateName
+
+    // Every load of any file must be linked to state! If file exists in state load from there
+    // if not, load from usual path
+
+    std::cerr << "Function save not implemented yet!" << std::endl;
+    return Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+}
+
+// 3.) To GTE_InputMapping
+
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::forceGlobal(int argc, char* argv[]) {
     if (argc < 3) {
         return Nebulite::ERROR_TYPE::TOO_FEW_ARGS;
@@ -232,11 +233,11 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::forceGlobal(in
 
     std::string key = argv[1];
     std::string value = argv[2];
-    self->getRenderer()->setForcedGlobalValue(key, value);
+    domain->getRenderer()->setForcedGlobalValue(key, value);
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::General::clearForceGlobal(int argc, char* argv[]) {
-    self->getRenderer()->clearForcedGlobalValues();
+    domain->getRenderer()->clearForcedGlobalValues();
     return Nebulite::ERROR_TYPE::NONE;
 }

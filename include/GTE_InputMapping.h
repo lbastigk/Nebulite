@@ -2,17 +2,14 @@
  * @file GTE_InputMapping.h
  * @brief Provides input binding utilities for the Nebulite engine.
  *
- * This file contains a GlobalTree extension to handle input bindings.
+ * This file contains a GlobalTree expansion to handle input bindings.
  * Note that this file is a work in progress!
- *
- * @author Leo Bastigkeit
- * @date August 15, 2025
  */
 
 #include "FuncTreeExpansionWrapper.h"
 
 /**
- * @class GTE_InputMapping
+ * @class Nebulite::GlobalSpaceTreeExpansion::InputMapping
  * @brief Handles input bindings for the Nebulite engine.
  *
  * The GTE_InputMapping class provides functionality to manage input bindings
@@ -41,30 +38,67 @@ public:
     //----------------------------------------
     // Available Functions
 
+    /**
+     * @brief Reads input mappings from a json file
+     * 
+     * Uses inputs.jsonc if no filename is provided
+     * 
+     * Mapping is of the form: `mappings<action:keyAssociations>`
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: [filename]
+     * @return Potential errors that occured on command execution
+     * 
+     * @todo Not implemented yet
+     */
     Nebulite::ERROR_TYPE readMappingsFromFile(int argc, char* argv[]);
 
     // Useful if we wish to update mappings ingame
-    Nebulite::ERROR_TYPE updateInputMappings(int argc, char* argv[]);
+    /**
+     * @brief Update mappings
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <action> <slot> <key> <type>
+     * @return Potential errors that occured on command execution
+     * 
+     * @todo Not implemented yet
+     */
+    Nebulite::ERROR_TYPE updateInputMapping(int argc, char* argv[]);
 
+    /**
+     * @brief Writes the current input mappings to a file
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: [filename]
+     * 
+     * Uses inputs.jsonc if no filename is provided
+     * 
+     * @return Potential errors that occured on command execution
+     * 
+     * @todo Not implemented yet
+     */
     Nebulite::ERROR_TYPE writeMappingsToFile(int argc, char* argv[]);
 
-    //----------------------------------------
-    // Binding Functions
+    //-------------------------------------------
+    // Setup
+
+    /**
+     * @brief Sets up the functions bindings in the domains function tree
+     * 
+     * Is called automatically by the inherited Wrappers constructor.
+     */
     void setupBindings() {
-        bindFunction(&InputMapping::readMappingsFromFile,"read-input-mappings-from-file", "Reads Input Mapping from inputs.jsonc file");
-        bindFunction(&InputMapping::updateInputMappings,"update-input-mappings", "Updates current input mapping: <key> <slot> <input>");
-        bindFunction(&InputMapping::writeMappingsToFile,"write-input-mappings-to-file", "Writes Input Mapping to inputs.jsonc file");
+        bindFunction(&InputMapping::readMappingsFromFile,   "read-input-mappings-from-file",    "Reads Input Mapping from inputs.jsonc file: [filename]");
+        bindFunction(&InputMapping::updateInputMapping,     "update-input-mapping",             "Updates one input mapping: <action> <slot> <key> <type>");
+        bindFunction(&InputMapping::writeMappingsToFile,    "write-input-mappings-to-file",     "Writes Input Mapping to inputs.jsonc file: [filename]");
     }
 
 private:
-    // Inputs bindings should be parsed into a struct
-    // accessible in global document via:
-    // global.input.bound.<current/delta>.<action>
-    //
-    // action: burst, if either is true:
-    // association key_1 = {"space" , delta}
-    // association key_2 = {"left", current}
-    // association key_3 = {"right", current}
+    /**
+     * @brief Represents a key association for input mapping.
+     * 
+     * The struct represents the Association between a key and its input type.
+     */
     struct association{
         std::string key; // e.g. "space"
         enum class type {
@@ -74,40 +108,54 @@ private:
             onRelease
         } type;
     };
+
+    /**
+     * @brief Represents a mapping entry for input actions.
+     * 
+     * Any input action can be associated with up to three keys.
+     */
     struct mapEntry{
         association slot_1{"", association::type::empty}; // First key associated with the action
         association slot_2{"", association::type::empty}; // Second key associated with the action
         association slot_3{"", association::type::empty}; // Third key associated with the action
     };
 
-    // Map of input actions to their key associations
+    /**
+     * @brief Maps input actions to their associated keys.
+     */
     absl::flat_hash_map<std::string, mapEntry> mappings;
 
-    /*
-    then, we can loop through all mappings:
-
-    for (const auto& [action, entry] : mappings) {
-        // Process each mapping
-        int current = 0;
-
-        for(const auto& association : {entry.slot_1, entry.slot_2, entry.slot_3}) {
-            switch (association.type) {
-                case association::type::current:
-                    current += global.get<int>("<locationForCurrent>." + association.key);
-                    break;
-                case association::type::onPress:
-                    current += abs(global.get<int>("<locationForDelta>." + association.key)) == 1;
-                    break;
-                case association::type::onRelease:
-                    current += global.get<int>("<locationForDelta>." + association.key) == -1;
-                    break;
-                case association::type::empty:
-                    break;
-            }
-        }
-
-        // Now we write the state into our mapping location
-        global.set<int>("<locationForAction>." + action, current);
-    }
-    */
+    /**
+     * @todo Implement input mapping association:
+     * 
+     * Example:
+     * 
+     * ```cpp
+     * 
+     *  for (const auto& [action, entry] : mappings) {
+     *      // Process each mapping
+     *      int current = 0;
+     *
+     *      for(const auto& association : {entry.slot_1, entry.slot_2, entry.slot_3}) {
+     *          switch (association.type) {
+     *              case association::type::current:
+     *                  current +=     global.get<int>("<locationForCurrent>." + association.key);
+     *                  break;
+     *              case association::type::onPress:
+     *                  current += abs(global.get<int>("<locationForDelta>." + association.key)) == 1;
+     *                  break;
+     *              case association::type::onRelease:
+     *                  current +=     global.get<int>("<locationForDelta>." + association.key) == -1;
+     *                  break;
+     *              case association::type::empty:
+     *                  break;
+     *          }
+     *      }
+     *
+     *      // Now we write the state into our mapping location
+     *      global.set<int>("<locationForAction>." + action, current);
+     * }
+     *
+     * ```
+     */
 };

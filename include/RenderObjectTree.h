@@ -1,62 +1,8 @@
-/*
-===========================================================
-RenderObjectTree – Function Tree for Local RenderObject Logic
-===========================================================
-
-This class extends FuncTreeWrapper<ERROR_TYPE> to provide
-a focused, self-contained parsing interface (functioncalls)
-for `RenderObject`.
-
-Unlike global invoke entries (which allow inter-object logic),
-functioncalls in RenderObjectTree operate *exclusively* on
-the RenderObject they are attached to (the "self" object).
-
------------------------------------------------------------
-Why is this layer needed in addition to GlobalSpaceTree?
-
-While the GlobalSpaceTree handles global operations, the RenderObjectTree
-is designed for tasks that require local context, such as:
-    - flagging an object for deletion
-    - changing layout properties
-    - internal debugging through logging
-    - complex data management within the RenderObject
-
------------------------------------------------------------
-Why is this layer needed in addition to Invokes?
-
-Invokes are general-purpose and powerful, but they are best
-used for dataflow and inter-object logic. However, some tasks:
-    - require more complex conditional logic,
-    - are hard to express as value changes alone,
-    - need tight control over internal render object state.
-
-RenderObjectTree enables these operations cleanly via keywords
-bound to C++ functions, keeping the parsing logic in a separate,
-well-scoped layer.
-
-This system allows you to:
-    - Simplify invoke rules
-    - Remove clutter like `flag_delete` within the RenderObject JSON doc
-    - Add utility logic for layout and state changes
-    - Log/debug self object behavior locally, allowing for easier debugging without recompiling binaries
-
------------------------------------------------------------
-Design Constraints:
-    - All functioncalls operate on `self` (the attached RenderObject)
-    - No access to global values (use the usual Invoke expression system for self-other-global logic)
-    - Restricted to linked data: `self` and its direct children
-    - For Additional functionality, the usage of Expansion files is encouraged
-      (see `include/RTE_*.h` for examples)
-
------------------------------------------------------------
-How to use the RenderObjectTree:
-    - Functioncalls are parsed/added to the TaskQueue via the Invoke system
-    - Create a new Invoke Ruleset through a compatible JSON file
-    - add the functioncall to the "functioncalls_self" or "functioncalls_other" array
-    - The RenderObjectTree will parse the functioncall and execute it if the invoke is evaluated as true
-    - For more complex global logic, use the GlobalSpaceTree for global operations
-    - For more advanced features, consider using Expansion files to extend RenderObjectTree functionality
-*/
+/**
+ * @file RenderObjectTree.h
+ * 
+ * RenderObjectTree – Function Tree for Local RenderObject Logic
+ */
 
 
 #pragma once
@@ -66,6 +12,7 @@ How to use the RenderObjectTree:
 #include "ErrorTypes.h"         // Basic Return Type: enum ERROR_TYPE
 #include "FuncTree.h"    // All FuncTrees inherit from this for ease of use
 #include "FileManagement.h"     // For logging and file operations
+#include "JSON.h"
 
 //----------------------------------------------------------
 // Include Expansions of RenderObjectTree
@@ -82,21 +29,69 @@ class RenderObject;
 
 //----------------------------------------------------------
 // RenderObjectTree class, Expand through Expansion files
-class RenderObjectTree : public FuncTree<Nebulite::ERROR_TYPE>{  // Inherit a funcTree and helper functions
+
+/**
+ * @class Nebulite::RenderObjectTree
+ * @brief This class extends FuncTreeWrapper<ERROR_TYPE> to provide a focused, 
+ * self-contained parsing interface (functioncalls) for Nebulite's RenderObject logic.
+ * 
+ * This allows for Invoke Entries to parse RenderObject-Specific functions, such as:
+ * 
+ * - align geometry
+ * 
+ * - logging
+ * 
+ * - deletion
+ * 
+ * - Invoke reload
+ * 
+ * - Updating text
+ * 
+ * -----------------------------------------------------------
+ * 
+ * Design Constraints:
+ * 
+ *     - All functioncalls operate on RenderObjects
+ * 
+ *     - Access to the global Nebulite JSON
+ * 
+ *     - For Additional functionality, the usage of Expansion files is encouraged
+ *       (see `include/RTE_*.h` for examples)
+ * 
+ * -----------------------------------------------------------
+ * 
+ * How to use the RenderObjectTree:
+ * 
+ *     - Functioncalls are parsed via the Invoke system
+ * 
+ *     - Create a new Invoke Ruleset through a compatible JSON file
+ * 
+ *     - add the functioncall to the `functioncalls_self` or `functioncalls_other` array
+ * 
+ *     - The RenderObjectTree will parse the functioncall and execute it if the invoke is evaluated as true
+ * 
+ *     - For more advanced features, consider using Expansion files to extend RenderObjectTree functionality
+ * 
+ */
+class RenderObjectTree : public FuncTree<Nebulite::ERROR_TYPE>{
 public:
     // Created inside each renderobject, with linkage to the object
-    RenderObjectTree(RenderObject* self, Nebulite::JSONTree* jsonTree);  
+    RenderObjectTree(RenderObject* domain, Nebulite::JSONTree* jsonTree);  
     
     void update();
 private:
-    // Self-reference to the RenderObject is needed within the base class to simplify the factory method
-    RenderObject* self;  // Store reference to self
+    /**
+     * @brief Reference to the domain the FuncTree operates on
+     */
+    Nebulite::RenderObject* domain;
 
-    // Factory method for creating expansion instances with proper linkage
-    // Improves readability and maintainability
+
+    /**
+     * @brief Factory method for creating expansion instances with proper linkage
+     */
     template<typename ExpansionType>
     std::unique_ptr<ExpansionType> createExpansionOfType() {
-        auto expansion = std::make_unique<ExpansionType>(self, this);
+        auto expansion = std::make_unique<ExpansionType>(domain, this);
         // Initializing is currently done on construction of the expansion
         // However, if any additional setup is needed later on that can't be done on construction,
         // this simplifies the process
@@ -120,4 +115,4 @@ private:
     std::unique_ptr<RenderObjectTreeExpansion::StateUpdate> stateUpdate;
 
 };
-}
+}   // namespace Nebulite

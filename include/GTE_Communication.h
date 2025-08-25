@@ -48,9 +48,6 @@ Do NOT attempt to use these functions until implementation is complete.
 ================================================================================
 */
 
-// TODO: Adding an update() function to each expansion?
-// Not necessary for most, but needed in the Communication expansion to listen for incoming messages!
-
 #include "ErrorTypes.h"
 #include "FuncTreeExpansionWrapper.h"
 
@@ -61,6 +58,8 @@ namespace GlobalSpaceTreeExpansion {
 class Communication : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, Communication> {
 public:
     using Wrapper<Nebulite::GlobalSpace, Communication>::Wrapper; // Templated constructor from Wrapper, call this->setupBindings()
+
+    void update();
 
     //----------------------------------------
     // Connection Management
@@ -98,8 +97,14 @@ public:
     // Output redirection
     Nebulite::ERROR_TYPE redirectOutput(int argc, char* argv[]);   // Redirect cout to connection: redirect-output <enable/disable>
 
-    //----------------------------------------
-    // Binding Functions
+    //-------------------------------------------
+    // Setup
+
+    /**
+     * @brief Sets up the functions bindings in the domains function tree
+     * 
+     * Is called automatically by the inherited Wrappers constructor.
+     */
     void setupBindings() {
         // Connection management
         bindFunction(&Communication::connect,            "connect",              "Establish connection");
@@ -123,5 +128,5 @@ public:
         bindFunction(&Communication::redirectOutput,     "redirect-output",      "Redirect cout to connection <on/off>");
     }
 };
-}
-}
+}   // namespace GlobalSpaceTreeExpansion
+}   // namespace Nebulite

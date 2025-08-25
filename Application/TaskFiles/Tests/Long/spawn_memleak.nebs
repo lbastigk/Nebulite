@@ -5,7 +5,7 @@ set-fps 600
 set-res 640 480 2
 
 echo Fixed dt
-set-global time.fixed_dt_ms 30
+set time.fixed_dt_ms 30
 
 # Scoreboard
 echo Spawning scoreboard

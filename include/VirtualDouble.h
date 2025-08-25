@@ -118,6 +118,5 @@ public:
             external_cache = documentCache->getDoublePointerOf(key);
         }
     }
-
 };
-}
+}   // namespace Nebulite

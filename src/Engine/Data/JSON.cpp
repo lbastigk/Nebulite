@@ -11,19 +11,24 @@ Nebulite::JSON::JSON()
 Nebulite::JSON::~JSON(){
     std::scoped_lock lock(mtx);
     cache.clear();
-    Helper::empty(doc);
+    Nebulite::JSON::DirectAccess::empty(doc);
 }
 
 const std::string Nebulite::JSON::reservedCharacters = "[]{}.,";
 
 void Nebulite::JSON::set_subdoc(const char* key, Nebulite::JSON& child){
     std::lock_guard<std::recursive_mutex> lock(mtx);
-    
+
+    // Flush own contents
+    flush();
+
     // Ensure key path exists
-    rapidjson::Value* keyVal = ensure_path(key, doc, doc.GetAllocator());
+    rapidjson::Value* keyVal = Nebulite::JSON::DirectAccess::ensure_path(key, doc, doc.GetAllocator());
+
+    // Insert child document
     if (keyVal != nullptr) {
         child.flush();
-        Nebulite::JSON::Helper::ConvertToJSONValue<rapidjson::Document>(child.doc, *keyVal, doc.GetAllocator());
+        Nebulite::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Document>(child.doc, *keyVal, doc.GetAllocator());
     } else {
         std::cerr << "Failed to create or access path: " << key << std::endl;
     }
@@ -31,8 +36,9 @@ void Nebulite::JSON::set_subdoc(const char* key, Nebulite::JSON& child){
 
 Nebulite::JSON Nebulite::JSON::get_subdoc(const char* key){
     std::lock_guard<std::recursive_mutex> lock(mtx);
+    flush();
 
-    rapidjson::Value* keyVal = traverseKey(key,doc);
+    rapidjson::Value* keyVal = Nebulite::JSON::DirectAccess::traverse_path(key,doc);
     if(keyVal != nullptr){
         // turn keyVal to doc
         Nebulite::JSON json;
@@ -46,9 +52,10 @@ Nebulite::JSON Nebulite::JSON::get_subdoc(const char* key){
 }
 
 void Nebulite::JSON::set_empty_array(const char* key){
+    flush();
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
-    rapidjson::Value* val = ensure_path(key,doc,doc.GetAllocator());
+    rapidjson::Value* val = Nebulite::JSON::DirectAccess::ensure_path(key,doc,doc.GetAllocator());
     val->SetArray();
 }
 
@@ -88,7 +95,7 @@ void Nebulite::JSON::remove_key(const char* key) {
                 if (parentPath.empty()) {
                     parent = &doc;
                 } else {
-                    parent = traverseKey(parentPath.c_str(), doc);
+                    parent = Nebulite::JSON::DirectAccess::traverse_path(parentPath.c_str(), doc);
                 }
             } catch (...) {
                 return; // Invalid index
@@ -98,7 +105,7 @@ void Nebulite::JSON::remove_key(const char* key) {
         // Last access is object member: var.subvar.finalkey
         std::string parentPath = keyStr.substr(0, lastDot);
         finalKey = keyStr.substr(lastDot + 1);
-        parent = traverseKey(parentPath.c_str(), doc);
+        parent = Nebulite::JSON::DirectAccess::traverse_path(parentPath.c_str(), doc);
     }
     
     // Remove the final key/index from parent
@@ -139,7 +146,7 @@ Nebulite::JSON::KeyType Nebulite::JSON::memberCheck(std::string key) {
     flush();
 
     // 4. If not cached, check rapidjson doc
-    auto val = traverseKey(key.c_str(),doc);
+    auto val = Nebulite::JSON::DirectAccess::traverse_path(key.c_str(),doc);
     if(val == nullptr){
         return KeyType::null;
     }
@@ -167,7 +174,7 @@ uint32_t Nebulite::JSON::memberSize(std::string key){
     else{
         // Is array, get size
         flush(); // Ensure cache is flushed before accessing doc
-        auto val = traverseKey(key.c_str(),doc);
+        auto val = Nebulite::JSON::DirectAccess::traverse_path(key.c_str(),doc);
         return val->Size();
     }
 }
@@ -179,7 +186,7 @@ std::string Nebulite::JSON::serialize(std::string key){
     flush();
     if(key.size() == 0){
         // Serialize entire doc
-        return Nebulite::JSON::Helper::serialize(doc);
+        return Nebulite::JSON::DirectAccess::serialize(doc);
     } 
     else{
         Nebulite::JSON sub = get_subdoc(key.c_str());
@@ -207,7 +214,7 @@ void Nebulite::JSON::deserialize(std::string serial_or_link){
 
     //----------------------------------------------------------
     // Load the JSON file
-    Nebulite::JSON::Helper::deserialize(doc,tokens[0]);
+    Nebulite::JSON::DirectAccess::deserialize(doc,tokens[0]);
 
     //----------------------------------------------------------
     // Now apply modifications
@@ -220,17 +227,14 @@ void Nebulite::JSON::deserialize(std::string serial_or_link){
             // Handle modifier (key=value)
             auto pos = token.find('=');
             std::string key = token.substr(0, pos);
-            std::string value = token.substr(pos + 1);
-
-            // Old implementation via direct set
-            //Nebulite::JSON::Helper::Set<std::string>(doc, key, value);    
+            std::string value = token.substr(pos + 1);  
 
             // New implementation through functioncall
-            parseStr("Nebulite::JSON::Helper::deserialize set " + key + " " + value);
+            parseStr("Nebulite::JSON::DirectAccess::deserialize set " + key + " " + value);
         }
         else{
             // Forward to FunctionTree for resolution
-            parseStr("Nebulite::JSON::Helper::deserialize " + token);
+            parseStr("Nebulite::JSON::DirectAccess::deserialize " + token);
         }
     }
 }
@@ -244,7 +248,7 @@ void Nebulite::JSON::flush() {
 
         // Visit the variant and call set_into_doc with correct type
         std::visit([this, &key](auto&& arg) {
-            fallback_set(key.c_str(), arg, doc);
+            Nebulite::JSON::DirectAccess::set(key.c_str(), arg, doc, doc.GetAllocator());
         }, val);
 
         // Increment iterator before erasing current element
@@ -258,13 +262,13 @@ void Nebulite::JSON::flush() {
 void Nebulite::JSON::empty(){
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
-    Nebulite::JSON::Helper::empty(doc);
+    Nebulite::JSON::DirectAccess::empty(doc);
     for (auto it = cache.begin(); it != cache.end(); ) {
         cache.erase(it++);
     }
 }
 
-rapidjson::Value* Nebulite::JSON::traverseKey(const char* key, rapidjson::Value& val){
+rapidjson::Value* Nebulite::JSON::DirectAccess::traverse_path(const char* key, rapidjson::Value& val){
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
 
@@ -346,7 +350,7 @@ rapidjson::Value* Nebulite::JSON::traverseKey(const char* key, rapidjson::Value&
 }
 
 
-rapidjson::Value* Nebulite::JSON::ensure_path(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
+rapidjson::Value* Nebulite::JSON::DirectAccess::ensure_path(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
 
@@ -433,7 +437,7 @@ rapidjson::Value* Nebulite::JSON::ensure_path(const char* key, rapidjson::Value&
 
 //---------------------------------------------------------------------
 // Static Helper Functions
-rapidjson::Value Nebulite::JSON::Helper::sortRecursive(const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator) {
+rapidjson::Value Nebulite::JSON::DirectAccess::sortRecursive(const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator) {
     if (value.IsObject()) {
         // Sort object keys
         std::vector<std::pair<std::string, const rapidjson::Value*>> members;
@@ -467,7 +471,7 @@ rapidjson::Value Nebulite::JSON::Helper::sortRecursive(const rapidjson::Value& v
         return rapidjson::Value(value, allocator);
     }
 }
-std::string Nebulite::JSON::Helper::serialize(const rapidjson::Document& doc) {
+std::string Nebulite::JSON::DirectAccess::serialize(const rapidjson::Document& doc) {
     if (!doc.IsObject() && !doc.IsArray()) {
         std::cerr << "Serialization only supports JSON objects or arrays!" << std::endl;
         return "{}";
@@ -486,7 +490,7 @@ std::string Nebulite::JSON::Helper::serialize(const rapidjson::Document& doc) {
 }
 
 
-void Nebulite::JSON::Helper::deserialize(rapidjson::Document& doc, std::string serialOrLink) {
+void Nebulite::JSON::DirectAccess::deserialize(rapidjson::Document& doc, std::string serialOrLink) {
 
     std::string jsonString;
     
@@ -511,7 +515,7 @@ void Nebulite::JSON::Helper::deserialize(rapidjson::Document& doc, std::string s
     }
 }
 
-void Nebulite::JSON::Helper::empty(rapidjson::Document &doc) {
+void Nebulite::JSON::DirectAccess::empty(rapidjson::Document &doc) {
     doc.SetNull();
     //doc.GetAllocator().Clear();
     //doc.Swap(rapidjson::Value(rapidjson::kObjectType).Move());
@@ -542,7 +546,7 @@ void Nebulite::JSON::set_concat(const char* key, const char* valStr) {
 
 
 // Simple JSONC comment stripper for RapidJSON compatibility
-std::string Nebulite::JSON::Helper::stripComments(const std::string& jsonc) {
+std::string Nebulite::JSON::DirectAccess::stripComments(const std::string& jsonc) {
     std::string result;
     result.reserve(jsonc.size());
     

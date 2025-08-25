@@ -8,7 +8,7 @@
             "topic": "",
             "logicalArg": "1",
             "exprs": [
-                "self.text.str = Score left: $i({global.score.left})  |  Score Right: $i({global.score.right})"
+                "self.text.str = '     $06i({global.score.left})        |        $06i({global.score.right})     '"
             ],
             "functioncalls_global": [],
             "functioncalls_self": [
@@ -41,8 +41,8 @@
         }
     },
     "text": {
-        "dx": 0.0,
-        "dy": 0.0,
+        "dx": -25.0,
+        "dy": -3.0,
         "fontSize": 16,
         "str": ""
     }

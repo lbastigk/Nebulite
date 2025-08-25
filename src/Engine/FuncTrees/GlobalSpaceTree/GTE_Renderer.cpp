@@ -1,6 +1,7 @@
 #include "GTE_Renderer.h"
 #include "GlobalSpace.h"       // Global Space for Nebulite
 #include "Invoke.h"            // Invoke for parsing expressions
+#include "RenderObject.h"      // RenderObject for Renderer
 
 //-------------------------------
 // Update
@@ -15,24 +16,23 @@ void Nebulite::GlobalSpaceTreeExpansion::Renderer::update() {
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::envload(int argc, char* argv[]){
     if(argc > 1){
-        self->getRenderer()->deserialize(argv[1]);
+        domain->getRenderer()->deserialize(argv[1]);
         return Nebulite::ERROR_TYPE::NONE;
     }
     else{
         // no name provided, load empty env
-        self->getRenderer()->deserialize("{}");
+        domain->getRenderer()->deserialize("{}");
         return Nebulite::ERROR_TYPE::NONE;
     }
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::envdeload(int argc, char* argv[]){
-    self->getRenderer()->purgeObjects();
-    self->getRenderer()->purgeTextures();
+    domain->getRenderer()->purgeObjects();
+    domain->getRenderer()->purgeTextures();
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::spawn(int argc, char* argv[]){
-
     if(argc>1){
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun
@@ -72,12 +72,12 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::spawn(int arg
 
         As of now, the implementation is fully functional so its a low priority task.
         */
-        RenderObject* ro = new RenderObject(&self->global);
+        RenderObject* ro = new RenderObject(&domain->global);
         ro->deserialize(linkOrObject);
 
         // Append to renderer
         // Renderer manages the RenderObjects lifetime
-        self->getRenderer()->append(ro);
+        domain->getRenderer()->append(ro);
     }
     else{
         std::cerr << "No renderobject name provided!" << std::endl;
@@ -100,33 +100,33 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::setResolution
     if(argc > 3){
         scalar = std::stoi(argv[3]);
     }
-    self->getRenderer()->changeWindowSize(w,h,scalar);
+    domain->getRenderer()->changeWindowSize(w,h,scalar);
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::setFPS(int argc, char* argv[]){
     if(argc != 2){
-        self->getRenderer()->setFPS(60);
+        domain->getRenderer()->setTargetFPS(60);
     }
     else{
         int fps = std::stoi(argv[1]);
         if(fps < 1) fps=1;
         if(fps > 10000) fps=10000;
-        self->getRenderer()->setFPS(fps);
+        domain->getRenderer()->setTargetFPS(fps);
     }
     return Nebulite::ERROR_TYPE::NONE;
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::showFPS(int argc, char* argv[]){
     if(argc < 2){
-        self->getRenderer()->toggleFps(true);
+        domain->getRenderer()->toggleFps(true);
     }
     else{
         if(!strcmp(argv[1], "on")){
-            self->getRenderer()->toggleFps(true);
+            domain->getRenderer()->toggleFps(true);
         }
         else if(!strcmp(argv[1], "off")){
-            self->getRenderer()->toggleFps(false);
+            domain->getRenderer()->toggleFps(false);
         }
         else{
             // unknown arg
@@ -135,7 +135,6 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::showFPS(int a
     }
     return Nebulite::ERROR_TYPE::NONE;
 }
-
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::moveCam(int argc, char* argv[]){
     if (argc < 3) {
@@ -147,7 +146,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::moveCam(int a
 
     int dx = std::stoi(argv[1]);
     int dy = std::stoi(argv[2]);
-    self->getRenderer()->moveCam(dx,dy);
+    domain->getRenderer()->moveCam(dx,dy);
     return Nebulite::ERROR_TYPE::NONE;
 }
 
@@ -155,14 +154,14 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::setCam(int ar
     if(argc == 3){
         int x = std::stoi(argv[1]);
         int y = std::stoi(argv[2]);
-        self->getRenderer()->setCam(x,y);
+        domain->getRenderer()->setCam(x,y);
         return Nebulite::ERROR_TYPE::NONE;
     }
     if(argc == 4){
         if(!strcmp(argv[3], "c")){
             int x = std::stoi(argv[1]);
             int y = std::stoi(argv[2]);
-            self->getRenderer()->setCam(x,y,true);
+            domain->getRenderer()->setCam(x,y,true);
             return Nebulite::ERROR_TYPE::NONE;
         }
         else{
@@ -179,7 +178,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::setCam(int ar
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::snapshot(int argc, char* argv[]){
     if(argc == 1){
         // No link provided, use default
-        bool success = self->getRenderer()->snapshot();
+        bool success = domain->getRenderer()->snapshot("./Resources/Snapshots/snapshot.png");
         if (!success) {
             return Nebulite::ERROR_TYPE::SNAPSHOT_FAILED;
         }
@@ -188,7 +187,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::snapshot(int 
     else if(argc == 2){
         // Link provided
         std::string link = argv[1];
-        bool success = self->getRenderer()->snapshot(link);
+        bool success = domain->getRenderer()->snapshot(link);
         if (!success) {
             return Nebulite::ERROR_TYPE::SNAPSHOT_FAILED;
         }
@@ -201,7 +200,7 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::snapshot(int 
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::beep(int argc, char* argv[]){
     // Beep function for debugging, from SDL
-    self->getRenderer()->beep();
+    domain->getRenderer()->beep();
     return Nebulite::ERROR_TYPE::NONE;
 }
 
@@ -211,21 +210,21 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::getObjectFrom
     }
 
     uint32_t id = std::stoi(argv[1]);
-    Nebulite::RenderObject* obj = self->getRenderer()->getObjectFromId(id);
+    Nebulite::RenderObject* obj = domain->getRenderer()->getObjectFromId(id);
     
     if (obj) {
-        self->selectedRenderObject = obj;
+        selectedRenderObject = obj;
         return Nebulite::ERROR_TYPE::NONE;
     } else {
-        self->selectedRenderObject = nullptr;
+        selectedRenderObject = nullptr;
         // Not seen as an error, just no object found
         return Nebulite::ERROR_TYPE::NONE;
     }
 }
 
 Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::Renderer::printSelectedObject(int argc, char* argv[]) {
-    if (self->selectedRenderObject) {
-        std::cout << "Selected Renderobject: \n" << self->selectedRenderObject->serialize() << std::endl;
+    if (selectedRenderObject) {
+        std::cout << "Selected Renderobject: \n" << selectedRenderObject->serialize() << std::endl;
         return Nebulite::ERROR_TYPE::NONE;
     } else {
         std::cout << "No renderobject selected." << std::endl;

@@ -1,5 +1,5 @@
 echo Classic Gravity test with 1 Sun and 2 Planets
-set-global framesToRender 3000
+set framesToRender 3000
 eval echo Rendering {global.framesToRender} Frames
 
 set-fps 10000

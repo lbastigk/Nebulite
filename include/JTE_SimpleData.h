@@ -16,31 +16,107 @@ public:
 
     //----------------------------------------
     // Available Functions
+
+    /**
+     * @brief Set a key to a value in the JSON document
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key> <value>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE set(int argc, char* argv[]);
+
+    /**
+     * @brief Move data from one key to another
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <source_key> <destination_key>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE move(int argc, char* argv[]);
+
+    /**
+     * @brief Copy data from one key to another
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <source_key> <destination_key>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE copy(int argc, char* argv[]);
+
+    /**
+     * @brief Delete a key from the JSON document
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE keyDelete(int argc, char* argv[]);
+
+    /**
+     * @brief Pushes a value to the back of an array
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key> <value>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE push_back(int argc, char* argv[]);
+
+    /**
+     * @brief Pops a value from the back of an array
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE pop_back(int argc, char* argv[]);
+
+    /**
+     * @brief Pushes a value to the front of an array
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key> <value>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE push_front(int argc, char* argv[]);
+
+    /**
+     * @brief Pops a value from the front of an array
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE pop_front(int argc, char* argv[]);
 
-    // Helper function to turn value into type array
+    /**
+     * @brief Ensures that a key is an array, converting a value to an array if necessary
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE ensureArray(int argc, char* argv[]);
 
 
-    //----------------------------------------
-    // Binding Functions
+    //-------------------------------------------
+    // Setup
+
+    /**
+     * @brief Sets up the functions bindings in the domains function tree
+     * 
+     * Is called automatically by the inherited Wrappers constructor.
+     */
     void setupBindings() {
         // Bind functions specific to complex data handling
-        bindFunction(&SimpleData::set, "set", "Set a key to a value in the JSON document");
+        bindFunction(&SimpleData::set, "set", "Set a key to a value in the JSON document: <key> <value>");
 
         // Internal move/copy
-        bindFunction(&SimpleData::move, "move", "Handles move calls");
-        bindFunction(&SimpleData::copy, "copy", "Handles copy calls");
+        bindFunction(&SimpleData::move, "move", "Move data from one key to another: <source_key> <destination_key>");
+        bindFunction(&SimpleData::copy, "copy", "Copy data from one key to another: <source_key> <destination_key>");
 
         // Internal key deletion
-        bindFunction(&SimpleData::keyDelete, "keyDelete", "Handles keyDelete calls");
+        bindFunction(&SimpleData::keyDelete, "keyDelete", "Delete a key from the JSON document: <key>");
 
         // Array manipulation
         bindFunction(&SimpleData::push_back,   "push-back",    "Pushes a value to the back of an array:  <key> <value>");
@@ -50,5 +126,5 @@ public:
         bindFunction(&SimpleData::ensureArray, "ensure-array", "Ensures that a key is an array, converting a value to an array if necessary: <key>");   // Note: name 'ensure-array' is hardcoded in some functions! Do not change!
     }
 };
-}
-}
+}   // namespace JSONTreeExpansion
+}   // namespace Nebulite

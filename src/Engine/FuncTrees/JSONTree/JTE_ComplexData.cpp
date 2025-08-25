@@ -59,7 +59,7 @@ Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::ComplexData::set_from_json(int
         Nebulite::JSON subdoc = jsonDoc.get_subdoc(docKey.c_str());
 
         // Set the sub-document in the current JSON tree
-        self->set_subdoc(myKey.c_str(), subdoc);
+        domain->set_subdoc(myKey.c_str(), subdoc);
     }
     // === VALUE ===
     else if(type == JSON::KeyType::value){
@@ -67,7 +67,7 @@ Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::ComplexData::set_from_json(int
         std::string value = jsonDoc.get<std::string>(docKey.c_str());
 
         // Set the value in the current JSON tree
-        self->set(myKey.c_str(), value);
+        domain->set(myKey.c_str(), value);
     }
     // === ARRAY ===
     else if(type == JSON::KeyType::array){
@@ -76,7 +76,7 @@ Nebulite::ERROR_TYPE Nebulite::JSONTreeExpansion::ComplexData::set_from_json(int
             std::string itemKey = docKey + "[" + std::to_string(i) + "]";
             std::string itemValue = jsonDoc.get<std::string>(itemKey.c_str());
             std::string newItemKey = myKey + "[" + std::to_string(i) + "]";
-            self->set(newItemKey.c_str(), itemValue);
+            domain->set(newItemKey.c_str(), itemValue);
         }
     }
 

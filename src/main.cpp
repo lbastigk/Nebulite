@@ -6,20 +6,24 @@
 // /_/ |_/_____/_____/\____/_____/___/ /_/ /_____/   
 //                                                     
 
-/*
- * NEBULITE Engine - main.cpp
- *
- * Entry point for the NEBULITE game engine. This file initializes the core systems,
- * parses command-line arguments, and coordinates execution scenarios such as
+/**
+ * @file main.cpp
+ * 
+ * @brief Main entry point for the NEBULITE engine.
+ * 
+ * This file initializes the core systems, parses command-line arguments, 
+ * and coordinates execution scenarios such as
  * loading levels or running performance benchmarks.
  *
  * Usage:
  *   Nebulite <command> <options>
  *
  * Example Commands:
- *  spawn <RenderObject.jsonc>       Load a single renderobject
- *  env-load <level.jsonc>           Load and render a level
- *  task <task.nebs>                 Run a tasktile
+ * ```bash
+ * ./bin/Nebulite spawn <RenderObject.jsonc>      # Load a single renderobject
+ * ./bin/Nebulite env-load <level.jsonc>          # Load and render a level
+ * ./bin/Nebulite task <task.nebs>                # Run a tasktile
+ * ```
  */
 
 
@@ -33,34 +37,28 @@
 
 // ----------------------------------------------------------------------
 // NEBULITE main
-/*
+/**
+ * @brief Main function for the NEBULITE engine.
  * 
- * TODO:    settings.jsonc
- *          - Renderer size, fps setting
- *          - mapping of keyboard/mouse to specific actions like up/down/left/right, inventory, map etc.
- *          - issue here is, keys of invokes need to be dynamic?
- *            if key is "global.keyboard.current.$(settings.action.left)", resolve to "global.keyboard.current.a"
- *            so if key contains '$', resolve. This needs to happen in realtime in case the user changes settings midgame, so this cant be resolved on invoke load!
- *            probably the more dynamic approach, as linking the settings doc within the global doc through mapping is messy, convoluted and slower  
- *          - this should then allow for functioncall input set/release 0/1
- *          - keyboard state not in global anymore, all actions from global.input.xyz defined in settings.jsonc:
- *              "keyMapping" : {
- *                  "moveUp" : {
- *                      "primary" : "input.keyboard.d"
- *                      "secondary" : "input.keyboard.up"
- *                  }
- *              }
- *          - plus, move current/delta to last hierarchy: input.keyboard.d.current
- *          - could be solved through read-only files with invoke/filemanagement!
+ * This function initializes the engine, sets up the global space, and processes command-line arguments.
  * 
+ * No secondary binary is required for tests or special scenarios: 
+ * 
+ * - Expand the GlobalSpaceTree for specials scenarios and call with: `./bin/Nebulite my-scenario`
+ * 
+ * - Create taskfiles for scripted tests and call with `./bin/Nebulite task <taskfile.nebs>`
+ * 
+ * Use functions for debugging of specific features and taskFiles for complex, scripted scenarios and tests.
+ *
+ * @todo:   settings.jsonc: Renderer size, fps setting (Input Mapping is already a work in progress. See GTE_InputMapping.h)
+ *
  */
 int main(int argc, char* argv[]){
 
     //--------------------------------------------------
     // Initialize the global space
     std::string binaryName = argv[0];
-    std::streambuf* originalCerrBuf = std::cerr.rdbuf();
-    Nebulite::GlobalSpace globalSpace(binaryName, originalCerrBuf);
+    Nebulite::GlobalSpace globalSpace(binaryName);
 
     //--------------------------------------------------
     // Add main args to taskList, split by ';'
@@ -81,100 +79,112 @@ int main(int argc, char* argv[]){
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                globalSpace.tasks_script.taskList.push_back(command);
+                globalSpace.tasks.script.taskList.push_back(command);
             }
         }
     }
     else{
-        // If no addition arguments were provided:
-        //
-        // For now, an empty Renderer is initiated via set-fps 60
-        // Later on it might be helpful to insert a task like:
-        // "env-load ./Resources/Levels/main.jsonc" 
-        // Which represents the menue screen of the game
-        // or, for a more scripted task:
-        // task TaskFiles/main.nebs
-        // Making sure that any state currently loaded is cleared
-        // Having main be a state itself is also an idea, but this might become challenging as the user could accidentally overwrite the main state
-        //
-        // Best solution is therefore an env-load, with the environment architecture yet to be defined
-        // best solution is probably:
-        // - a field with the container 
-        // - a vector which contains tasks to be executed on environment load
-        // - potentially an extra task vector for tasks that are executed BEFORE the env is loaded
-        // - potentially an extra task vector for tasks that are executed BEFORE the env is de-loaded
-        // Keys like: after-load, after-deload, before-load, before-deload
-        //
-        // For easier usage, hardcoding the env-load task is not a good idea, 
-        // instead call some function like "entrypoint" or "main" which is defined in the GlobalSpaceTree
-        // This is important, as it's now clear what the entrypoint is, without knowing exactly what main file is loaded
-        // If a user ever defines addition arguments via, e.g. Steam when launching the game, this might become a problem
-        // as any additional argument would make the entrypoint not be called.
-        // So later on, we might consider always calling entrypoint as first task AFTER the command line arguments are parsed
-        // This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
-        globalSpace.tasks_script.taskList.push_back(std::string("set-fps 60"));
+        /**
+         * If no addition arguments were provided:
+         *
+         * @note For now, an empty Renderer is initiated via set-fps 60
+         * 
+         * @todo Later on it might be helpful to insert a task like:
+         *       `env-load ./Resources/Levels/main.jsonc`
+         *       Which represents the menue screen of the game.
+         *       Or, for a more scripted task:
+         *       `task TaskFiles/main.nebs`.
+         *       Making sure that any state currently loaded is cleared.
+         *       Having main be a state itself is also an idea, 
+         *       but this might become challenging as the user could accidentally overwrite the main state.
+         *       Best solution is therefore an env-load, with the environment architecture yet to be defined
+         *       best solution is probably:
+         * 
+         *       - a field with the container 
+         * 
+         *       - a vector which contains tasks to be executed on environment load
+         * 
+         *       - potentially an extra task vector for tasks that are executed BEFORE the env is loaded
+         * 
+         *       - potentially an extra task vector for tasks that are executed BEFORE the env is de-loaded
+         * 
+         *       Keys like: after-load, after-deload, before-load, before-deload
+         *       For easier usage, hardcoding the env-load task is not a good idea, 
+         *       instead call some function like "entrypoint" or "main" which is defined in the GlobalSpaceTree
+         *       This is important, as it's now clear what the entrypoint is, without knowing exactly what main file is loaded
+         *       If a user ever defines addition arguments via, e.g. Steam when launching the game, this might become a problem
+         *       as any additional argument would make the entrypoint not be called.
+         *       So later on, we might consider always calling entrypoint as first task AFTER the command line arguments are parsed
+         *       This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
+         *    
+         */
+        globalSpace.tasks.script.taskList.push_back(std::string("set-fps 60"));
     }
     
     //--------------------------------------------------
     // Render loop
 
     // For resolving tasks
-    Nebulite::taskQueueResult result_tasks_script;
-    Nebulite::taskQueueResult result_tasks_internal;
-    Nebulite::taskQueueResult result_tasks_always;
-    Nebulite::ERROR_TYPE lastCriticalResult;
-    uint64_t* noWaitCounter = nullptr;  // Only the script task queue has a waitCounter, so we pass nullptr for others
-    bool critical_stop = false;
+    struct Result {
+        Nebulite::taskQueueResult script;       // Result of script-tasks
+        Nebulite::taskQueueResult internal;     // Result of internal-tasks
+        Nebulite::taskQueueResult always;       // Result of always-tasks
+    };
+    Result TaskQueueResults;
 
-    // A new set of argc/argv is needed to parse tasks
-    // TaskQueue -> pop out string -> parse into argc/argv -> call GlobalSpaceTree.parse with argc/argv
-    int    argc_GlobalSpaceTree = 0;
-    char** argv_GlobalSpaceTree = nullptr;
+    Nebulite::ERROR_TYPE lastCriticalResult;
+    bool critical_stop = false;
+    uint64_t* noWaitCounter = nullptr;
 
     //--------------------------------------------------
     // At least one loop, to handle taskQueues
+
+    // Determines if we continue the loop
+    bool continueLoop = true;
     do {
         //------------------------------------------------------------
-        // Handle args, parse queue into GlobalSpaceTree and then call internal functions from Nebulite::GlobalSpaceTreeFunctions
-        // Result determines if a critical stop is initiated
-        //
-        // For now, all tasks are parsed even if the program is in console mode
-        // This is useful as tasks like "spawn" or "echo" are directly executed
-        // But might break for more complex tasks, so this should be taken into account later on
-        // e.G. inside the functree, checking state of Renderer might be useful
+        /**
+         * Parse queue in GlobalSpaceTree.
+         * Result determines if a critical stop is initiated.
+         * 
+         * @note For now, all tasks are parsed even if the program is in console mode.
+         *       This is useful as tasks like "spawn" or "echo" are directly executed.
+         *       But might break for more complex tasks, so this should be taken into account later on,
+         *       e.G. inside the FuncTree, checking state of Renderer might be useful
+         */
 
         // 1.) Clear errors from last loop
-        result_tasks_script.errors.clear();
-        result_tasks_internal.errors.clear();
-        result_tasks_always.errors.clear();
+        TaskQueueResults.script.errors.clear();
+        TaskQueueResults.internal.errors.clear();
+        TaskQueueResults.always.errors.clear();
 
         // 2.) Parse script tasks
         if(!critical_stop){
-            result_tasks_script = globalSpace.resolveTaskQueue(globalSpace.tasks_script,&globalSpace.tasks_script.waitCounter,&argc_GlobalSpaceTree,&argv_GlobalSpaceTree);
+            TaskQueueResults.script = globalSpace.resolveTaskQueue(globalSpace.tasks.script, &globalSpace.scriptWaitCounter);
         }
-        if(result_tasks_script.stoppedAtCriticalResult && globalSpace.recover == "false") {
+        if(TaskQueueResults.script.stoppedAtCriticalResult && globalSpace.cmdVars.recover == "false") {
             critical_stop = true; 
-            lastCriticalResult = result_tasks_script.errors.back();
+            lastCriticalResult = TaskQueueResults.script.errors.back();
             break;
         } 
 
         // 3.) Parse internal tasks
         if(!critical_stop){
-            result_tasks_internal = globalSpace.resolveTaskQueue(globalSpace.tasks_internal,noWaitCounter,&argc_GlobalSpaceTree,&argv_GlobalSpaceTree);
+            TaskQueueResults.internal = globalSpace.resolveTaskQueue(globalSpace.tasks.internal, noWaitCounter);
         }
-        if(result_tasks_internal.stoppedAtCriticalResult && globalSpace.recover == "false") {
+        if(TaskQueueResults.internal.stoppedAtCriticalResult && globalSpace.cmdVars.recover == "false") {
             critical_stop = true; 
-            lastCriticalResult = result_tasks_internal.errors.back();
+            lastCriticalResult = TaskQueueResults.internal.errors.back();
             break;
         }
 
         // 4.) Parse always-tasks
         if(!critical_stop){
-            result_tasks_always = globalSpace.resolveTaskQueue(globalSpace.tasks_always,noWaitCounter,&argc_GlobalSpaceTree,&argv_GlobalSpaceTree);
+            TaskQueueResults.always = globalSpace.resolveTaskQueue(globalSpace.tasks.always, noWaitCounter);
         }
-        if(result_tasks_always.stoppedAtCriticalResult && globalSpace.recover == "false") {
+        if(TaskQueueResults.always.stoppedAtCriticalResult && globalSpace.cmdVars.recover == "false") {
             critical_stop = true; 
-            lastCriticalResult = result_tasks_always.errors.back();
+            lastCriticalResult = TaskQueueResults.always.errors.back();
             break;
         }
 
@@ -185,19 +195,28 @@ int main(int argc, char* argv[]){
             globalSpace.GlobalSpaceTree->update();
             globalSpace.getRenderer()->tick();
 
-            // Reduce wait counter if not in console mode
+            // Reduce script wait counter if not in console mode
             if(!globalSpace.getRenderer()->isConsoleMode()){
-                globalSpace.tasks_script.waitCounter--; 
+                if(globalSpace.scriptWaitCounter > 0) globalSpace.scriptWaitCounter--; 
+                if(globalSpace.scriptWaitCounter < 0) globalSpace.scriptWaitCounter = 0;
             }  
         }
-    // Note 1:
-    // Continue only if renderer exists, and if quit wasnt called.
-    // It might be tempting to add the condition that all tasks are done, 
-    // but this could cause issues if the user wishes to quit while a task is still running.
-    //
-    // Note 2:
-    // A current limitation is that, if the user is running a taskfile with a wait-call, a renderer has to be initialized.
-    } while (!critical_stop && globalSpace.RendererExists() && !globalSpace.getRenderer()->isQuit());
+
+        //------------------------------------------------------------
+        // Check if we need to continue the loop
+        continueLoop = !critical_stop && globalSpace.RendererExists() && !globalSpace.getRenderer()->isQuit();
+
+        // Overwrite: If there is a wait operation and no renderer exists, 
+        // we need to continue the loop and decrease scriptWaitCounter
+        if(globalSpace.scriptWaitCounter > 0 && !globalSpace.RendererExists()){
+            continueLoop = true;
+            globalSpace.scriptWaitCounter--;
+        }
+    /**
+     * @note It might be tempting to add the condition that all tasks are done,
+     *       but this could cause issues if the user wishes to quit while a task is still running.
+     */
+    } while (continueLoop);
 
 
     //--------------------------------------------------
@@ -208,10 +227,10 @@ int main(int argc, char* argv[]){
 
     // Inform user about any errors and return error code
     if(critical_stop){
-        std::cerr << "Critical Error: " << lastCriticalResult << std::endl;
+        std::cerr << "Critical Error: " << globalSpace.errorTable.getErrorDescription(lastCriticalResult) << std::endl;
     }
 
-    // turn off error log
+    // GlobalSpaceTree handles if error files need to be closed
     globalSpace.parseStr("log off");
 
     // Return 1 on critical stop, 0 otherwise

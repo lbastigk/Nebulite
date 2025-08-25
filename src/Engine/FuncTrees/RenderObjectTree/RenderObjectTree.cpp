@@ -1,8 +1,8 @@
 #include "RenderObjectTree.h"
 #include "RenderObject.h"
 
-Nebulite::RenderObjectTree::RenderObjectTree(RenderObject* self, Nebulite::JSONTree* jsonTree)
-    : FuncTree<Nebulite::ERROR_TYPE>("RenderObjectTree", Nebulite::ERROR_TYPE::NONE, Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID, jsonTree), self(self) 
+Nebulite::RenderObjectTree::RenderObjectTree(RenderObject* domain, Nebulite::JSONTree* jsonTree)
+    : FuncTree<Nebulite::ERROR_TYPE>("RenderObjectTree", Nebulite::ERROR_TYPE::NONE, Nebulite::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID, jsonTree), domain(domain) 
 {
     // Initialize Expansions
     layout      = createExpansionOfType<RenderObjectTreeExpansion::Layout>();

@@ -1,9 +1,89 @@
-#include "InvokeExpression.h"
+#include "Expression.h"
 
 //------------------------------
 // Private:
 
-void Nebulite::InvokeExpression::compileIfExpression(Entry& entry) {
+void Nebulite::Expression::update_vds(std::vector<std::shared_ptr<vd_entry>>* vec, Nebulite::JSON* link){
+    for(auto& vde : *vec) {
+        vde->virtualDouble->updateCache(link);
+    }
+}
+
+void Nebulite::Expression::reset() {
+    documentCache = nullptr;
+    self = nullptr;
+    global = nullptr;
+
+    // Clear existing data
+    entries.clear();
+    variables.clear();
+    fullExpression.clear();
+    entries.clear();
+
+    // Clear vds
+    virtualDoubles_self.clear();
+    virtualDoubles_other.clear();
+    virtualDoubles_global.clear();
+    virtualDoubles_resource.clear();
+
+    //----------------------------------------------------------------------
+    // Register built-in functions
+
+    // Logical comparison functions
+
+    te_variable gt_var =  {"gt",    (void*)expr_custom::gt,             TE_FUNCTION2};
+    variables.push_back(gt_var);
+    te_variable lt_var =  {"lt",    (void*)expr_custom::lt,             TE_FUNCTION2};
+    variables.push_back(lt_var);
+    te_variable geq_var = {"geq",   (void*)expr_custom::geq,            TE_FUNCTION2};
+    variables.push_back(geq_var);
+    te_variable leq_var = {"leq",   (void*)expr_custom::leq,            TE_FUNCTION2};
+    variables.push_back(leq_var);
+    te_variable eq_var =  {"eq",    (void*)expr_custom::eq,             TE_FUNCTION2};
+    variables.push_back(eq_var);
+    te_variable neq_var = {"neq",   (void*)expr_custom::neq,            TE_FUNCTION2};
+    variables.push_back(neq_var);
+
+    // Logical gate functions
+
+    te_variable and_var = {"and",   (void*)expr_custom::logical_and,    TE_FUNCTION2};
+    variables.push_back(and_var);
+    te_variable or_var =  {"or",    (void*)expr_custom::logical_or,     TE_FUNCTION2};
+    variables.push_back(or_var);
+    te_variable not_var = {"not",   (void*)expr_custom::logical_not,    TE_FUNCTION1};
+    variables.push_back(not_var);
+
+    // More mathematical functions
+
+    te_variable sgn_var = {"sgn",   (void*)expr_custom::sgn,            TE_FUNCTION1};
+    variables.push_back(sgn_var);
+}
+
+std::string Nebulite::Expression::stripContext(const std::string& key) {
+    if (key.starts_with("self.")) {
+        return key.substr(5);
+    } else if (key.starts_with("other.")) {
+        return key.substr(6);
+    } else if (key.starts_with("global.")) {
+        return key.substr(7);
+    } else {
+        return key;
+    }
+}
+
+Nebulite::Expression::Entry::From Nebulite::Expression::getContext(const std::string& key) {
+    if (key.starts_with("self.")) {
+        return Entry::From::self;
+    } else if (key.starts_with("other.")) {
+        return Entry::From::other;
+    } else if (key.starts_with("global.")) {
+        return Entry::From::global;
+    } else {
+        return Entry::From::resource;
+    }
+}
+
+void Nebulite::Expression::compileIfExpression(Entry& entry) {
     if (entry.type == Entry::Type::eval) {
         // Compile the expression using TinyExpr
         int error;
@@ -19,7 +99,7 @@ void Nebulite::InvokeExpression::compileIfExpression(Entry& entry) {
     }
 }
 
-void Nebulite::InvokeExpression::registerVariable(std::string te_name, std::string key, Entry::From context){
+void Nebulite::Expression::registerVariable(std::string te_name, std::string key, Entry::From context){
     // Check if variable exists in variables vector:
     bool found = false;
     for(auto var : variables) {
@@ -36,24 +116,27 @@ void Nebulite::InvokeExpression::registerVariable(std::string te_name, std::stri
         // Register cache directly to json file, if possible
         switch(vde->from) {
             case Entry::From::self:
+                // Type self is remanent, we can register the double directly from document
                 #if use_external_cache
                     vde->virtualDouble->register_external_double_cache(self);
                 #endif
                 virtualDoubles_self.push_back(vde);
                 break;
             case Entry::From::other:
+                // Type other is non-remanent, we need to use the cache from virtualdouble
                 virtualDoubles_other.push_back(vde);
                 break;
             case Entry::From::global:
+                // Type global is remanent, we can register the double directly from document
                 #if use_external_cache
                     vde->virtualDouble->register_external_double_cache(global);
                 #endif
                 virtualDoubles_global.push_back(vde);
                 break;
             case Entry::From::resource:
-                #if use_external_cache
-                    vde->virtualDouble->register_external_double_cache(nullptr);
-                #endif
+                // Type resource is non-remanent, we need to use the cache from virtualdouble
+                // The reason is that resource-documents may get deloaded,
+                // making the direct double reference invalid.
                 virtualDoubles_resource.push_back(vde);
                 break;
         }
@@ -68,7 +151,7 @@ void Nebulite::InvokeExpression::registerVariable(std::string te_name, std::stri
     }
 }
 
-void Nebulite::InvokeExpression::parseIntoEntries(const std::string& expr, std::vector<Entry>& entries){
+void Nebulite::Expression::parseIntoEntries(const std::string& expr, std::vector<Entry>& entries){
 
     // First, we must split the expression into tokens
     std::vector<std::string> tokensPhase1, tokens;
@@ -129,7 +212,7 @@ void Nebulite::InvokeExpression::parseIntoEntries(const std::string& expr, std::
     }
 }
 
-void Nebulite::InvokeExpression::readFormatter(Entry* entry, const std::string& formatter) {
+void Nebulite::Expression::readFormatter(Entry* entry, const std::string& formatter) {
     // Check formatter. Integer cast should not include precision. Is ignored later on in casting but acceptable as input
     // Examples:
     // $i     : leadingZero = false , alignment = -1 , precision = -1
@@ -154,7 +237,7 @@ void Nebulite::InvokeExpression::readFormatter(Entry* entry, const std::string& 
     }
 }
 
-void Nebulite::InvokeExpression::parseTokenTypeEval(std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
+void Nebulite::Expression::parseTokenTypeEval(std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
     // $[leading zero][alignment][.][precision]<type:f,i>
     // - bool leading zero   : on/off
     // - int alignment       : <0 means no formatting
@@ -223,7 +306,7 @@ void Nebulite::InvokeExpression::parseTokenTypeEval(std::string& token, Entry& c
     entries.push_back(currentEntry);
 }
 
-void Nebulite::InvokeExpression::parseTokenTypeText(std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
+void Nebulite::Expression::parseTokenTypeText(std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
     // Current token is Text
     // Perhaps mixed with variables...
     std::vector<std::string> subTokens = StringHandler::splitOnSameDepth(token, '{');
@@ -252,7 +335,7 @@ void Nebulite::InvokeExpression::parseTokenTypeText(std::string& token, Entry& c
     }
 }
 
-void Nebulite::InvokeExpression::printCompileError(const Entry& entry, int& error) {
+void Nebulite::Expression::printCompileError(const Entry& entry, int& error) {
     std::cerr << "-----------------------------------------------------------------" << std::endl;
     std::cerr << "Error compiling expression: '" << entry.str << "' Error code: " << error << std::endl;
     std::cerr << "You might see this message multiple times due to expression parallelization." << std::endl;
@@ -277,12 +360,12 @@ void Nebulite::InvokeExpression::printCompileError(const Entry& entry, int& erro
 //------------------------------
 // Public:
 
-Nebulite::InvokeExpression::InvokeExpression() {
-    clear();
+Nebulite::Expression::Expression() {
+    reset();
 }
 
-void Nebulite::InvokeExpression::parse(const std::string& expr, Nebulite::DocumentCache& documentCache, Nebulite::JSON* self, Nebulite::JSON* global){
-    clear();
+void Nebulite::Expression::parse(const std::string& expr, Nebulite::DocumentCache& documentCache, Nebulite::JSON* self, Nebulite::JSON* global){
+    reset();
 
     // Set references
     this->self = self;
@@ -299,12 +382,15 @@ void Nebulite::InvokeExpression::parse(const std::string& expr, Nebulite::Docume
     }
 
     // Check if parsed expression is returnable as double
-    _isReturnableAsDouble = entries.size() == 1 && entries[0].type == Entry::eval && entries[0].cast == Entry::CastType::none;
+    _isReturnableAsDouble = (entries.size() == 1) &&
+                            (entries[0].type == Entry::eval) &&
+                            (entries[0].cast == Entry::CastType::none);
 }
 
-std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_other) {
+std::string Nebulite::Expression::eval(Nebulite::JSON* current_other) {
     // Update references to 'other'
     update_vds(&virtualDoubles_other, current_other);
+    update_vds(&virtualDoubles_resource, nullptr);
 
     // Concatenate results of each entry
     std::string result = "";
@@ -359,7 +445,7 @@ std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_other) {
                         size_t currentPrecision = token.size() - dotPos - 1;
                         if (currentPrecision < static_cast<size_t>(entry.precision)) {
                             // Add zeros to match the required precision
-                            token.append(entry.precision - currentPrecision, '0');
+                            token.append(entry.precision - currentPrecision + 1, '0');
                         } else {
                             // Truncate to the required precision
                             token = token.substr(0, dotPos + entry.precision + 1);
@@ -373,7 +459,8 @@ std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_other) {
 
                 // Adding padding
                 if(entry.alignment > 0 && token.size() < entry.alignment) {
-                    for(int i = 0; i < entry.alignment - token.size(); i++){
+                    int32_t size = token.size();
+                    for(int i = 0; i < entry.alignment - size; i++){
                         token = (entry.leadingZero ? '0' : ' ') + token;
                     }
                 }
@@ -393,11 +480,12 @@ std::string Nebulite::InvokeExpression::eval(Nebulite::JSON* current_other) {
     return result;
 }
 
-bool Nebulite::InvokeExpression::isReturnableAsDouble() {
+bool Nebulite::Expression::isReturnableAsDouble() {
     return _isReturnableAsDouble;
 }
 
-double Nebulite::InvokeExpression::evalAsDouble(Nebulite::JSON* current_other) {
+double Nebulite::Expression::evalAsDouble(Nebulite::JSON* current_other) {
     update_vds(&virtualDoubles_other, current_other);
+    update_vds(&virtualDoubles_resource, nullptr);
     return te_eval(entries[0].expression);
 }

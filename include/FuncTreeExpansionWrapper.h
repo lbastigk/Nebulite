@@ -10,6 +10,14 @@ invokeand the GlobalSpace, allowing them to individually bind functions on const
 
 */
 
+/**
+ * @class Nebulite::FuncTreeExpansionWrapper
+ * @file FuncTreeExpansionWrapper.h
+ * 
+ * This file defines the FuncTreeExpansionWrapper class, which extends the functionality of the FuncTree
+ * class to support category-based function bindings.
+ */
+
 #pragma once
 
 #include "ErrorTypes.h"
@@ -46,12 +54,33 @@ class GlobalSpace; // Forward declaration
 
 namespace FuncTreeExpansion{
 
+
+/**
+ * @brief Wrapper class for binding functions to a specific category in the FuncTree.
+ * 
+ * This allows for cleaner separation of object files for different categories
+ * and reduces boilerplate code when attaching functions to the FuncTree.
+ * 
+ * Within the Core FuncTree, Categories are initialized with references to the funcTree,
+ * invokeand the GlobalSpace, allowing them to individually bind functions on construction.
+ */
 template<typename DomainType, typename DerivedClass>
 class Wrapper{
 public:
-    // Binds all functions for this category on construction
+    /**
+     * @brief Constructor for the Wrapper class.
+     * 
+     * This constructor initializes the Wrapper with the given domain and FuncTree pointers,
+     * and sets up the function bindings for the category.
+     * 
+     * The update method of the derived class is called upon construction.
+     * 
+     * @note A virtual function for setupBindings and update would be better so that we know that the derived class has to implement it
+     * However, this would call a pure virtual function during construction as the derived class is not fully formed, which is not allowed.
+     * Instead, we do a pseudo-virtual call by using static_cast to call the derived class's methods upon construction.
+     */
     Wrapper(DomainType* domain, FuncTree<ERROR_TYPE>* funcTreePtr)
-        : self(domain), funcTree(funcTreePtr) 
+        : domain(domain), funcTree(funcTreePtr) 
     {
         // Initialize the defined Variable and Function Bindings
         static_cast<DerivedClass*>(this)->setupBindings();
@@ -59,16 +88,24 @@ public:
         // We call the derived class' update function to ensure it exists
         static_cast<DerivedClass*>(this)->update();
     }
-    // A virtual function for setupBindings and update would be better so that we know that the derived class has to implement it
-    // However, this would call a pure virtual function during construction, which is not allowed.
     
-
-    // Templated bindFunction overload - automatically handles any class type
+    /**
+     * @brief Binds a member function to the FuncTree.
+     * 
+     * This function template allows for binding member functions of any class type
+     * to the FuncTree, automatically handling the necessary type conversions.
+     * 
+     * Make sure the function has the signature:
+     * ```cpp
+     * ERROR_TYPE functionName(int argc, char** argv);
+     * ```
+     *
+     * @tparam ClassType The type of the class containing the member function.
+     * @param method A pointer to the member function to bind.
+     * @param name The name to associate with the bound function.
+     */
     template<typename ClassType>
-    void bindFunction(
-        ERROR_TYPE (ClassType::*method)(int, char**),
-        const std::string& name,
-        const std::string& help) {
+    void bindFunction(ERROR_TYPE (ClassType::*method)(int, char**),const std::string& name,const std::string& help) {
         // Automatically pass 'this' (the derived class instance) to bindFunction
         funcTree->bindFunction(
             static_cast<ClassType*>(this),  // Auto-cast to correct type
@@ -78,10 +115,16 @@ public:
         );
     }
 
-    void bindVariable(
-        std::string* variablePtr,
-        const std::string& name,
-        const std::string& help) {
+    /**
+     * @brief Binds a variable to the command tree.
+     * 
+     * Make sure the variable is of type std::string*.
+     * 
+     * Once bound, it can be set via command line arguments: --varName=value (Must be before the function name!)
+     * 
+     * A simple argument of '--varName' will set the value to "true"
+     */
+    void bindVariable(std::string* variablePtr,const std::string& name,const std::string& help) {
         // Bind a variable to the FuncTree
         funcTree->bindVariable(variablePtr, name, help);
     }
@@ -93,8 +136,8 @@ public:
 protected:
     //--------------------------
     // Linkages
-    DomainType* self;                // Workspace of the expansion
+    DomainType* domain;                 // Workspace of the expansion
     FuncTree<ERROR_TYPE>* funcTree;     // Where to bind the expanded functions
 };
-}
-}
+}   // namespace FuncTreeExpansion
+}   // namespace Nebulite
