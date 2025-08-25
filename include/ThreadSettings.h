@@ -7,13 +7,29 @@
 #pragma once
 
 
-// INVOKE THREADING SETTINGS
+/**
+ * @def THREADED_MIN_BATCHSIZE
+ * 
+ * Minimum batch size needed to create a new rendering thread of invoke-pairs to process.
+ */
 #define THREADED_MIN_BATCHSIZE 500
 
-// RENDERER UPDATE THREADING SETTINGS
+
+/**
+ * @def BATCH_COST_GOAL
+ * 
+ * Target cost of each Render::update thread batch.
+ *
+ * @todo Cost function should be updated. Since Renderer::update only computes internal invokes, these should only be accounted for.
+ */
 #define BATCH_COST_GOAL 500
 
-// EXPRESSION POOL SETTINGS
+
+/**
+ * @def INVOKE_EXPR_POOL_SIZE
+ *
+ * Size of the expression pool for each expression.
+ */
 #define INVOKE_EXPR_POOL_SIZE 10
 
 

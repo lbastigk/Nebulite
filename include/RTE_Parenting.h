@@ -22,8 +22,38 @@ public:
 
     //----------------------------------------
     // Available Functions
+
+    /**
+     * @brief Adds a child to the RenderObject
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: ...
+     * @return Potential errors that occured on command execution
+     * 
+     * @todo Not implemented yet
+     */
     Nebulite::ERROR_TYPE addChildren(int argc, char* argv[]);
+
+    /**
+     * @brief Removes a child from the RenderObject
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: ...
+     * @return Potential errors that occured on command execution
+     * 
+     * @todo Not implemented yet
+     */
     Nebulite::ERROR_TYPE removeChildren(int argc, char* argv[]);
+
+    /**
+     * @brief Removes all children from the RenderObject
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: ...
+     * @return Potential errors that occured on command execution
+     * 
+     * @todo Not implemented yet
+     */
     Nebulite::ERROR_TYPE removeAllChildren(int argc, char* argv[]);
 
 

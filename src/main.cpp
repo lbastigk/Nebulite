@@ -138,6 +138,8 @@ int main(int argc, char* argv[]){
 
     //--------------------------------------------------
     // At least one loop, to handle taskQueues
+
+    // Determines if we continue the loop
     bool continueLoop = true;
     do {
         //------------------------------------------------------------

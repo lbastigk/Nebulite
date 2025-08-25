@@ -58,7 +58,7 @@ public:
      * @brief Logs a value to a given file
      * 
      * @param argc The argument count
-     * @param argv The argument vector: ...
+     * @param argv The argument vector: <key> <file>
      * @return Potential errors that occured on command execution
      * 
      * @todo Not implemented yet
@@ -76,7 +76,7 @@ public:
     void setupBindings() {
         bindFunction(&Logging::echo,        "echo",         "Prints the arguments to the console");
         bindFunction(&Logging::log,         "log",          "Logs the RenderObject to a file");
-        bindFunction(&Logging::logValue,    "log-value",    "Logs a specific value");
+        bindFunction(&Logging::logValue,    "log-value",    "Logs a specific value: <key> <file>");
     }
 };
 }   // namespace RenderObjectTreeExpansion

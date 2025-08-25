@@ -1,3 +1,9 @@
+/**
+ * @file RTE_Layout.h
+ * 
+ * Layout management for the RenderObject tree expansion.
+ */
+
 #pragma once
 
 #include "ErrorTypes.h"
@@ -15,7 +21,27 @@ public:
 
     //----------------------------------------
     // Available Functions
+
+    /**
+     * @brief Aligns text to object dimensions
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: ...
+     * @return Potential errors that occured on command execution
+     * 
+     * @todo Not implemented yet
+     */
     Nebulite::ERROR_TYPE alignText(int argc, char* argv[]);
+
+    /**
+     * @brief Creates a box based on text dimensions
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: ...
+     * @return Potential errors that occured on command execution
+     * 
+     * @todo Not implemented yet
+     */
     Nebulite::ERROR_TYPE makeBox(int argc, char* argv[]);
 
     //-------------------------------------------

@@ -15,7 +15,27 @@ public:
 
     //----------------------------------------
     // Available Functions
+
+    /**
+     * @brief Sets a key from a SQL query result.
+     * 
+     * @param argc The argument count.
+     * @param argv The argument vector: <key> <query>
+     * @return Potential errors that occurred on command execution.
+     * 
+     * @todo Not implemented yet
+     */
     Nebulite::ERROR_TYPE set_from_query(int argc, char* argv[]);
+
+    /**
+     * @brief Sets a key from a JSON document.
+     * 
+     * @param argc The argument count.
+     * @param argv The argument vector: <key> <link:key>
+     * @return Potential errors that occurred on command execution.
+     * 
+     * @todo Not implemented yet
+     */
     Nebulite::ERROR_TYPE set_from_json(int argc, char* argv[]);
 
     //-------------------------------------------

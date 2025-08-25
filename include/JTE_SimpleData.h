@@ -16,16 +16,86 @@ public:
 
     //----------------------------------------
     // Available Functions
+
+    /**
+     * @brief Set a key to a value in the JSON document
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key> <value>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE set(int argc, char* argv[]);
+
+    /**
+     * @brief Move data from one key to another
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <source_key> <destination_key>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE move(int argc, char* argv[]);
+
+    /**
+     * @brief Copy data from one key to another
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <source_key> <destination_key>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE copy(int argc, char* argv[]);
+
+    /**
+     * @brief Delete a key from the JSON document
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE keyDelete(int argc, char* argv[]);
+
+    /**
+     * @brief Pushes a value to the back of an array
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key> <value>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE push_back(int argc, char* argv[]);
+
+    /**
+     * @brief Pops a value from the back of an array
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE pop_back(int argc, char* argv[]);
+
+    /**
+     * @brief Pushes a value to the front of an array
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key> <value>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE push_front(int argc, char* argv[]);
+
+    /**
+     * @brief Pops a value from the front of an array
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE pop_front(int argc, char* argv[]);
 
-    // Helper function to turn value into type array
+    /**
+     * @brief Ensures that a key is an array, converting a value to an array if necessary
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key>
+     * @return Potential errors that occured on command execution
+     */
     Nebulite::ERROR_TYPE ensureArray(int argc, char* argv[]);
 
 

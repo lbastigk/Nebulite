@@ -38,11 +38,45 @@ public:
     //----------------------------------------
     // Available Functions
 
+    /**
+     * @brief Reads input mappings from a json file
+     * 
+     * Uses inputs.jsonc if no filename is provided
+     * 
+     * Mapping is of the form: `mappings<action:keyAssociations>`
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: [filename]
+     * @return Potential errors that occured on command execution
+     * 
+     * @todo Not implemented yet
+     */
     Nebulite::ERROR_TYPE readMappingsFromFile(int argc, char* argv[]);
 
     // Useful if we wish to update mappings ingame
-    Nebulite::ERROR_TYPE updateInputMappings(int argc, char* argv[]);
+    /**
+     * @brief Update mappings
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <action> <slot> <key> <type>
+     * @return Potential errors that occured on command execution
+     * 
+     * @todo Not implemented yet
+     */
+    Nebulite::ERROR_TYPE updateInputMapping(int argc, char* argv[]);
 
+    /**
+     * @brief Writes the current input mappings to a file
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: [filename]
+     * 
+     * Uses inputs.jsonc if no filename is provided
+     * 
+     * @return Potential errors that occured on command execution
+     * 
+     * @todo Not implemented yet
+     */
     Nebulite::ERROR_TYPE writeMappingsToFile(int argc, char* argv[]);
 
     //-------------------------------------------
@@ -54,9 +88,9 @@ public:
      * Is called automatically by the inherited Wrappers constructor.
      */
     void setupBindings() {
-        bindFunction(&InputMapping::readMappingsFromFile,   "read-input-mappings-from-file",    "Reads Input Mapping from inputs.jsonc file");
-        bindFunction(&InputMapping::updateInputMappings,    "update-input-mappings",            "Updates current input mapping: <key> <slot> <input>");
-        bindFunction(&InputMapping::writeMappingsToFile,    "write-input-mappings-to-file",     "Writes Input Mapping to inputs.jsonc file");
+        bindFunction(&InputMapping::readMappingsFromFile,   "read-input-mappings-from-file",    "Reads Input Mapping from inputs.jsonc file: [filename]");
+        bindFunction(&InputMapping::updateInputMapping,     "update-input-mapping",             "Updates one input mapping: <action> <slot> <key> <type>");
+        bindFunction(&InputMapping::writeMappingsToFile,    "write-input-mappings-to-file",     "Writes Input Mapping to inputs.jsonc file: [filename]");
     }
 
 private:
