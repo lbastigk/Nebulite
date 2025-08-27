@@ -29,32 +29,32 @@ namespace Nebulite{
     namespace Core{}
 
     /**
-     * @namespace Nebulite::Expansion
-     * @brief Contains all classes, functions, types and variables related to the Nebulite expansion system.
+     * @namespace Nebulite::DomainModule
+     * @brief Contains all classes, functions, types and variables related to the Nebulite DomainModule system.
      */
-    namespace Expansion{
+    namespace DomainModule{
         /**
-         * @namespace Nebulite::Expansion::GlobalSpace
-         * @brief Contains all classes, functions, types and variables related to the GlobalSpaceTree expansions.
-         * See files `GlobalSpaceTree.h` and `GTE_*.h` for usage.
+         * @namespace Nebulite::DomainModule::GlobalSpace
+         * @brief Contains all classes, functions, types and variables related to the GlobalSpaceTree DomainModules.
+         * See files `GlobalSpaceTree.h` and `GDM_*.h` for usage.
          */
         namespace GlobalSpace{}
 
         /**
-         * @namespace Nebulite::Expansion::RenderObject
-         * @brief Contains all classes, functions, types and variables related to the RenderObjectTree expansions.
-         * See files `RenderObjectTree.h` and `RTE_*.h` for usage.
+         * @namespace Nebulite::DomainModule::RenderObject
+         * @brief Contains all classes, functions, types and variables related to the RenderObjectTree DomainModules.
+         * See files `RenderObjectTree.h` and `RDM_*.h` for usage.
          */
         namespace RenderObject{}
 
         /**
-         * @namespace Nebulite::Expansion::JSONTree
-         * @brief Contains all classes, functions, types and variables related to the JSONTree expansions.
-         * See files `JSONTree.h` and `JTE_*.h` for usage.
+         * @namespace Nebulite::DomainModule::JSONTree
+         * @brief Contains all classes, functions, types and variables related to the JSONTree DomainModules.
+         * See files `JSONTree.h` and `JDM_*.h` for usage.
          */
         namespace JSON{}
 
-    } // namespace Expansion
+    } // namespace DomainModule
 
     /**
      * @namespace Nebulite::Interaction

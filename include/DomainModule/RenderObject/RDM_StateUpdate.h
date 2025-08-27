@@ -1,13 +1,13 @@
 /**
- * @file RTE_StateUpdate.h
+ * @file RDM_StateUpdate.h
  * 
- * Contains the RenderObjectTreeExpansion for updating the state of render objects.
+ * Contains the RenderObjectTreeDomainModule for updating the state of render objects.
  */
 
 #pragma once
 
 #include "Constants/ErrorTypes.h"
-#include "Interaction/Execution/ExpansionWrapper.h"
+#include "Interaction/Execution/DomainModuleWrapper.h"
 
 //----------------------------------------------------------
 // Forward declarations
@@ -19,15 +19,15 @@ namespace Nebulite{
 
 //----------------------------------------------------------
 namespace Nebulite{
-namespace Expansion{
+namespace DomainModule{
 namespace RenderObject{
 /**
- * @class Nebulite::Expansion::RenderObject::StateUpdate
- * @brief State update expansion of the RenderObject tree.
+ * @class Nebulite::DomainModule::RenderObject::StateUpdate
+ * @brief State update DomainModule of the RenderObject tree.
  */
-class StateUpdate : public Nebulite::Interaction::Execution::ExpansionWrapper<Nebulite::Core::RenderObject, StateUpdate> {
+class StateUpdate : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::RenderObject, StateUpdate> {
 public:
-    using ExpansionWrapper<Nebulite::Core::RenderObject, StateUpdate>::ExpansionWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModuleWrapper<Nebulite::Core::RenderObject, StateUpdate>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -76,6 +76,6 @@ public:
         bindFunction(&StateUpdate::removeAllInvokes,    "remove-all-invokes",   "Remove all invokes");
     }
 };
-}   // namespace Expansion
+}   // namespace DomainModule
 }   // namespace RenderObject
 }   // namespace Nebulite

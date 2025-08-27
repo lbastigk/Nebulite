@@ -1,14 +1,14 @@
 /**
- * @file RTE_Parenting.h
- * @brief Header file for the Parenting expansion of the RenderObject tree.
+ * @file RDM_Parenting.h
+ * @brief Header file for the Parenting DomainModule of the RenderObject tree.
  * 
- * @note WORK IN PROGRESS, this expansion is in the ideas stage.
+ * @note WORK IN PROGRESS, this DomainModule is in the ideas stage.
  */
 
 #pragma once
 
 #include "Constants/ErrorTypes.h"
-#include "Interaction/Execution/ExpansionWrapper.h"
+#include "Interaction/Execution/DomainModuleWrapper.h"
 
 //----------------------------------------------------------
 // Forward declarations
@@ -20,15 +20,15 @@ namespace Nebulite{
 
 //----------------------------------------------------------
 namespace Nebulite{
-namespace Expansion{
+namespace DomainModule{
 namespace RenderObject{
 /**
- * @class Nebulite::Expansion::RenderObject::Parenting
- * @brief Parenting expansion of the RenderObject tree.
+ * @class Nebulite::DomainModule::RenderObject::Parenting
+ * @brief Parenting DomainModule of the RenderObject tree.
  */
-class Parenting : public Nebulite::Interaction::Execution::ExpansionWrapper<Nebulite::Core::RenderObject, Parenting> {
+class Parenting : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::RenderObject, Parenting> {
 public:
-    using ExpansionWrapper<Nebulite::Core::RenderObject, Parenting>::ExpansionWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModuleWrapper<Nebulite::Core::RenderObject, Parenting>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -83,6 +83,6 @@ public:
         bindFunction(&Parenting::removeAllChildren, "remove-all-children", "Removes all children from the RenderObject");
     }
 };
-}   // namespace Expansion
+}   // namespace DomainModule
 }   // namespace RenderObject
 }   // namespace Nebulite

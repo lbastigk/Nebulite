@@ -1,13 +1,13 @@
 /**
  * @file GUI.h
  * 
- * Planned expansion for GUI-Element-Insertion into the Nebulite Renderer
+ * Planned DomainModule for GUI-Element-Insertion into the Nebulite Renderer
  */
 
 #pragma once
 
 #include "Constants/ErrorTypes.h"
-#include "Interaction/Execution/ExpansionWrapper.h"
+#include "Interaction/Execution/DomainModuleWrapper.h"
 
 //----------------------------------------------------------
 // Forward declarations
@@ -19,15 +19,15 @@ namespace Nebulite{
 
 //----------------------------------------------------------
 namespace Nebulite {
-namespace Expansion {
+namespace DomainModule {
 namespace GlobalSpace {
 /**
- * @class Nebulite::Expansion::GlobalSpace::GUI
- * @brief Expansion for creating GUI elements and queueing them in the renderer pipeline.
+ * @class Nebulite::DomainModule::GlobalSpace::GUI
+ * @brief DomainModule for creating GUI elements and queueing them in the renderer pipeline.
  */
-class GUI : public Nebulite::Interaction::Execution::ExpansionWrapper<Nebulite::Core::GlobalSpace, GUI> {
+class GUI : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, GUI> {
 public:
-    using ExpansionWrapper<Nebulite::Core::GlobalSpace, GUI>::ExpansionWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, GUI>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -58,5 +58,5 @@ public:
     }
 };
 }   // namespace GlobalSpace
-}   // namespace Expansion
+}   // namespace DomainModule
 }   // namespace Nebulite

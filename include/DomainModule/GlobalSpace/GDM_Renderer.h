@@ -1,14 +1,14 @@
 /**
- * @file GTE_Renderer.h
+ * @file GDM_Renderer.h
  * @brief Provides rendering utilities for the Nebulite engine.
  *
- * This file contains a GlobalTree expansion for basic rendering-related functioncalls.
+ * This file contains a GlobalTree DomainModule for basic rendering-related functioncalls.
  */
 
 #pragma once
 
 #include "Constants/ErrorTypes.h"
-#include "Interaction/Execution/ExpansionWrapper.h"
+#include "Interaction/Execution/DomainModuleWrapper.h"
 
 //----------------------------------------------------------
 // Forward declarations
@@ -21,23 +21,23 @@ namespace Nebulite{
 
 //----------------------------------------------------------
 namespace Nebulite {
-namespace Expansion {
+namespace DomainModule {
 namespace GlobalSpace {
 /**
- * @class Nebulite::Expansion::GlobalSpace::Renderer
+ * @class Nebulite::DomainModule::GlobalSpace::Renderer
  * @brief Basic Renderer-Related Functions
  */
-class Renderer : public Nebulite::Interaction::Execution::ExpansionWrapper<Nebulite::Core::GlobalSpace, Renderer> {
+class Renderer : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, Renderer> {
 public:
-    using ExpansionWrapper<Nebulite::Core::GlobalSpace, Renderer>::ExpansionWrapper;   // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, Renderer>::DomainModuleWrapper;   // Templated constructor from Wrapper, call this->setupBindings()
 
     /**
-     * @brief The Renderer Expansion does not make use of any Render-Updates yet. This function is empty.
+     * @brief The Renderer DomainModule does not make use of any Render-Updates yet. This function is empty.
      * 
      * If we ever wish to implement special rendering features, we can do so here.
      * However, the Nebulite::Core::Renderer class takes care of the core rendering functionality.
      * 
-     * Why not implement here? Because all FuncTree expansions are called, then we call the Renderer update function.
+     * Why not implement here? Because all FuncTree DomainModules are called, then we call the Renderer update function.
      * Implementing all renderer updates here breaks this separation, as we would then have to specify the update order in
      * GlobalSpaceTree.
      * 
@@ -45,7 +45,7 @@ public:
      * 
      * ```cpp
      * while(true){
-     *      globalSpace.GlobalSpaceTree->update();  // Update FuncTree with all its expansions
+     *      globalSpace.GlobalSpaceTree->update();  // Update FuncTree with all its DomainModules
      *      globalSpace.getRenderer()->tick();      // Update Renderer
      * }
      * ```
@@ -223,5 +223,5 @@ private:
     Nebulite::Core::RenderObject* selectedRenderObject = nullptr;
 };
 }   // namespace GlobalSpace
-}   // namespace Expansion
+}   // namespace DomainModule
 }   // namespace Nebulite

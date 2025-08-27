@@ -1,13 +1,13 @@
 /**
- * @file RTE_Layout.h
+ * @file RDM_Layout.h
  * 
- * Layout management for the RenderObject tree expansion.
+ * Layout management for the RenderObject tree DomainModule.
  */
 
 #pragma once
 
 #include "Constants/ErrorTypes.h"
-#include "Interaction/Execution/ExpansionWrapper.h"
+#include "Interaction/Execution/DomainModuleWrapper.h"
 
 //----------------------------------------------------------
 // Forward declarations
@@ -19,15 +19,15 @@ namespace Nebulite{
 
 //----------------------------------------------------------
 namespace Nebulite{
-namespace Expansion{
+namespace DomainModule{
 namespace RenderObject{
 /**
- * @class Nebulite::Expansion::RenderObject::Layout
- * @brief Layout management for the RenderObject tree expansion.
+ * @class Nebulite::DomainModule::RenderObject::Layout
+ * @brief Layout management for the RenderObject tree DomainModule.
  */
-class Layout : public Nebulite::Interaction::Execution::ExpansionWrapper<Nebulite::Core::RenderObject, Layout> {
+class Layout : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::RenderObject, Layout> {
 public:
-    using ExpansionWrapper<Nebulite::Core::RenderObject, Layout>::ExpansionWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModuleWrapper<Nebulite::Core::RenderObject, Layout>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -69,6 +69,6 @@ public:
         bindFunction(&Layout::makeBox, "make-box", "Creates a box based on text dimensions");
     }
 };
-}   // namespace Expansion
+}   // namespace DomainModule
 }   // namespace RenderObject
 }   // namespace Nebulite

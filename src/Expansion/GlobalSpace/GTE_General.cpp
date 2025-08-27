@@ -1,10 +1,10 @@
-#include "Expansion/GlobalSpace/GTE_General.h"
+#include "DomainModule/GlobalSpace/GDM_General.h"
 #include "Core/GlobalSpace.h"       // Global Space for Nebulite
 #include "Interaction/Invoke.h"            // Invoke for parsing expressions
 
 //-------------------------------
 // Update
-void Nebulite::Expansion::GlobalSpace::General::update() {
+void Nebulite::DomainModule::GlobalSpace::General::update() {
     // Add FuncTree-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -13,7 +13,7 @@ void Nebulite::Expansion::GlobalSpace::General::update() {
 //-------------------------------
 // FuncTree-Bound Functions
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::eval(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::eval(int argc, char* argv[]){
     // argc/argv to string for evaluation
     std::string args = "";
     for (int i = 0; i < argc; ++i) {
@@ -30,12 +30,12 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::eval(
     return funcTree->parseStr(args_evaled);
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::exitProgram(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::exitProgram(int argc, char* argv[]){
     domain->getRenderer()->setQuit();
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::wait(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::wait(int argc, char* argv[]){
     if(argc == 2){
         std::istringstream iss(argv[1]);
         iss >> domain->scriptWaitCounter;
@@ -52,7 +52,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::wait(
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::loadTaskList(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::loadTaskList(int argc, char* argv[]) {
     std::cout << "Loading task list from file: " << (argc > 1 ? argv[1] : "none") << std::endl;
 
     if (argc < 2) {
@@ -94,7 +94,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::loadT
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::echo(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::echo(int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         std::cout << argv[i];
         if (i < argc - 1) {
@@ -105,7 +105,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::echo(
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::forLoop(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::forLoop(int argc, char* argv[]){
     std::string funcName = argv[0];
     if(argc > 4){
         std::string varName = argv[1];
@@ -130,7 +130,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::forLo
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::ifCondition(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::ifCondition(int argc, char* argv[]) {
     if (argc < 3) {
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -153,11 +153,11 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::ifCon
             commands += " ";
         }
     }
-    commands = "Nebulite::Expansion::GlobalSpace::General::ifCondition " + commands;
+    commands = "Nebulite::DomainModule::GlobalSpace::General::ifCondition " + commands;
     return funcTree->parseStr(commands);
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::func_assert(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::func_assert(int argc, char* argv[]){
     if (argc < 2) {
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -174,7 +174,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::func_
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::func_return(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::func_return(int argc, char* argv[]){
     if (argc < 2) {
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -187,9 +187,9 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::func_
 //------------------
 // To move
 
-// 1.) To GTE_Debug
+// 1.) To GDM_Debug
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::error(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::error(int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         std::cerr << argv[i];
         if (i < argc - 1) {
@@ -200,14 +200,14 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::error
     return Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR;
 }
 
-// 2.) To GTE_StateManagement
+// 2.) To GDM_StateManagement
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::stateLoad(int argc, char* argv[]){ 
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::stateLoad(int argc, char* argv[]){ 
     std::cerr << "Function load not implemented yet!" << std::endl;
     return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::stateSave(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::stateSave(int argc, char* argv[]){
     // <stateName>
     // Change std::string Nebulite::stateName to name
     // Check if dir ./States/stateName exists
@@ -221,9 +221,9 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::state
     return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
 }
 
-// 3.) To GTE_InputMapping
+// 3.) To GDM_InputMapping
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::forceGlobal(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::forceGlobal(int argc, char* argv[]) {
     if (argc < 3) {
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -237,7 +237,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::force
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::General::clearForceGlobal(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::clearForceGlobal(int argc, char* argv[]) {
     domain->getRenderer()->clearForcedGlobalValues();
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }

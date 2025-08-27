@@ -11,9 +11,9 @@ invokeand the GlobalSpace, allowing them to individually bind functions on const
 */
 
 /**
- * @file ExpansionWrapper.h
+ * @file DomainModuleWrapper.h
  * 
- * This file defines the ExpansionWrapper class, which extends the functionality of the FuncTree
+ * This file defines the DomainModuleWrapper class, which extends the functionality of the FuncTree
  * class to support category-based function bindings.
  */
 
@@ -51,7 +51,7 @@ namespace Interaction{
 namespace Execution{
 //----------------------------------------------------------
 /**
- * @class Nebulite::Interaction::Execution::ExpansionWrapper
+ * @class Nebulite::Interaction::Execution::DomainModuleWrapper
  * @brief Wrapper class for binding functions to a specific category in the FuncTree.
  * 
  * This allows for cleaner separation of object files for different categories
@@ -61,7 +61,7 @@ namespace Execution{
  * invokeand the GlobalSpace, allowing them to individually bind functions on construction.
  */
 template<typename DomainType, typename DerivedClass>
-class ExpansionWrapper{
+class DomainModuleWrapper{
 public:
     /**
      * @brief Constructor for the Wrapper class.
@@ -75,7 +75,7 @@ public:
      * However, this would call a pure virtual function during construction as the derived class is not fully formed, which is not allowed.
      * Instead, we do a pseudo-virtual call by using static_cast to call the derived class's methods upon construction.
      */
-    ExpansionWrapper(DomainType* domain, FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr)
+    DomainModuleWrapper(DomainType* domain, FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr)
         : domain(domain), funcTree(funcTreePtr) 
     {
         // Initialize the defined Variable and Function Bindings
@@ -126,13 +126,13 @@ public:
     }
 
     // Prevent copying
-    ExpansionWrapper(const ExpansionWrapper&) = delete;
-    ExpansionWrapper& operator=(const ExpansionWrapper&) = delete;
+    DomainModuleWrapper(const DomainModuleWrapper&) = delete;
+    DomainModuleWrapper& operator=(const DomainModuleWrapper&) = delete;
 
 protected:
     //--------------------------
     // Linkages
-    DomainType* domain;                 // Workspace of the expansion
+    DomainType* domain;                 // Workspace of the DomainModule
     FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTree;     // Where to bind the expanded functions
 };
 }   // namespace Interaction

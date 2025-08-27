@@ -25,8 +25,7 @@
 
 #pragma once
 #include <absl/container/flat_hash_map.h>   // For error type to string mapping
-
-#include "Nebulite.h"
+#include "Nebulite.h"                       // Namespace Documentation
 
 namespace Nebulite{
 namespace Constants {

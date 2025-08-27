@@ -1,9 +1,9 @@
-#include "Expansion/JSON/JTE_SimpleData.h"
+#include "DomainModule/JSON/JDM_SimpleData.h"
 #include "Utility/JSON.h"
 
 //-------------------------------
 // Update
-void Nebulite::Expansion::JSON::SimpleData::update() {
+void Nebulite::DomainModule::JSON::SimpleData::update() {
     // Add FuncTree-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -15,7 +15,7 @@ void Nebulite::Expansion::JSON::SimpleData::update() {
 //---------------------------------------
 // General set/get/remove functions
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::set(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::set(int argc, char* argv[]) {
     if(argc < 3) {
         std::cerr << "Error: Too few arguments for set command." << std::endl;
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
@@ -30,7 +30,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::set(int a
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::move(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::move(int argc, char* argv[]){
     if (argc != 3) {
         std::cerr << "Error: Too few arguments for move command." << std::endl;
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
@@ -71,7 +71,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::move(int 
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::copy(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::copy(int argc, char* argv[]){
     if (argc != 3) {
         std::cerr << "Error: Too few arguments for move command." << std::endl;
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
@@ -110,7 +110,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::copy(int 
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::keyDelete(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::keyDelete(int argc, char* argv[]){
     if (argc != 2) {
         std::cerr << "Error: Too few arguments for move command." << std::endl;
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
@@ -122,7 +122,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::keyDelete
 
 //---------------------------------------
 // Array manipulation functions
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::ensureArray(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::ensureArray(int argc, char* argv[]) {
     if (argc < 2) {
         std::cerr << "Error: Too few arguments for ensureArray command." << std::endl;
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
@@ -159,7 +159,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::ensureArr
     
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::push_back(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::push_back(int argc, char* argv[]){
     if (argc > 3) {
         std::cerr << "Error: Too many arguments for push_front command." << std::endl;
         return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
@@ -176,7 +176,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::push_back
     }
 
     if (domain->memberCheck(key) != Nebulite::Utility::JSON::KeyType::array) {
-        Nebulite::Constants::ERROR_TYPE result = funcTree->parseStr(std::string("Nebulite::Expansion::JSON::SimpleData::push_back ensure-array " + key));
+        Nebulite::Constants::ERROR_TYPE result = funcTree->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::push_back ensure-array " + key));
         if (result != Nebulite::Constants::ERROR_TYPE::NONE) {
             std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
             return result;
@@ -189,7 +189,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::push_back
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::pop_back(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::pop_back(int argc, char* argv[]){
     if (argc < 2) {
         std::cerr << "Error: Too few arguments for push_back command." << std::endl;
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
@@ -201,7 +201,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::pop_back(
     std::string key = argv[1];
 
     if (domain->memberCheck(key) != Nebulite::Utility::JSON::KeyType::array) {
-        Nebulite::Constants::ERROR_TYPE result = funcTree->parseStr(std::string("Nebulite::Expansion::JSON::SimpleData::pop_back ensure-array " + key));
+        Nebulite::Constants::ERROR_TYPE result = funcTree->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::pop_back ensure-array " + key));
         if (result != Nebulite::Constants::ERROR_TYPE::NONE) {
             std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
             return result;
@@ -219,7 +219,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::pop_back(
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::push_front(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::push_front(int argc, char* argv[]){
     if (argc > 3) {
         std::cerr << "Error: Too many arguments for push_front command." << std::endl;
         return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
@@ -237,7 +237,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::push_fron
 
     
     if (domain->memberCheck(key) != Nebulite::Utility::JSON::KeyType::array) {
-        Nebulite::Constants::ERROR_TYPE result = funcTree->parseStr(std::string("Nebulite::Expansion::JSON::SimpleData::push_front ensure-array " + key));
+        Nebulite::Constants::ERROR_TYPE result = funcTree->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::push_front ensure-array " + key));
         if (result != Nebulite::Constants::ERROR_TYPE::NONE) {
             std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
             return result;
@@ -272,7 +272,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::push_fron
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::pop_front(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::pop_front(int argc, char* argv[]){
     if (argc < 2) {
         std::cerr << "Error: Too few arguments for pop_front command." << std::endl;
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
@@ -284,7 +284,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::SimpleData::pop_front
     std::string key = argv[1];
 
     if (domain->memberCheck(key) != Nebulite::Utility::JSON::KeyType::array) {
-        Nebulite::Constants::ERROR_TYPE result = funcTree->parseStr(std::string("Nebulite::Expansion::JSON::SimpleData::pop_front ensure-array " + key));
+        Nebulite::Constants::ERROR_TYPE result = funcTree->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::pop_front ensure-array " + key));
         if (result != Nebulite::Constants::ERROR_TYPE::NONE) {
             std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
             return result;

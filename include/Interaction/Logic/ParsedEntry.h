@@ -5,6 +5,7 @@
  */
 
 #pragma once
+#include "Interaction/Logic/Assignment.h"
 #include "Interaction/Logic/ExpressionPool.h"
 
 //--------------------------------------------

@@ -37,7 +37,7 @@ const struct keyName {
      * @brief Contains all hardcoded key names used for random number generation.
      * 
      * @todo replace rand/rrand
-     * @todo Proper implementation and usage within GTE_RNG
+     * @todo Proper implementation and usage within GDM_RNG
      */
     const struct Random{
         std::string A = "random.A";

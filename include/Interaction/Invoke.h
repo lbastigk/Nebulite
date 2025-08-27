@@ -21,7 +21,7 @@
 
 #include "Utility/JSON.h"
 #include "Interaction/Logic/Assignment.h"
-#include "Interaction/Logic/InvokeEntry.h"
+#include "Interaction/Logic/ParsedEntry.h"
 #include "Utility/DocumentCache.h"
 
 //-------------------------------------------

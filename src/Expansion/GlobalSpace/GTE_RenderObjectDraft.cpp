@@ -1,9 +1,9 @@
-#include "Expansion/GlobalSpace/GTE_RenderObjectDraft.h"
+#include "DomainModule/GlobalSpace/GDM_RenderObjectDraft.h"
 #include "Core/GlobalSpace.h"
 
 
 
-void Nebulite::Expansion::GlobalSpace::RenderObjectDraft::update() {
+void Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::update() {
     // For on-tick-updates
 
     // Init draft if not available
@@ -13,13 +13,13 @@ void Nebulite::Expansion::GlobalSpace::RenderObjectDraft::update() {
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::RenderObjectDraft::draftHelp(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::draftHelp(int argc, char* argv[]) {
     if(argc != 1) {
         return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS; // No arguments expected
     }
 
     // Implementation of draftHelp
-    std::string command = "Nebulite::Expansion::GlobalSpace::RenderObjectDraft::draftHelp help";
+    std::string command = "Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::draftHelp help";
 
     // Add additional arguments
     for(int i = 2; i < argc; ++i) {
@@ -31,7 +31,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::RenderObjectDr
     return draft->parseStr(command);
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::RenderObjectDraft::onDraft(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::onDraft(int argc, char* argv[]) {
     if(argc < 2){
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -42,10 +42,10 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::RenderObjectDr
         command += argv[i];
         if (i < argc - 1) command += " ";
     }
-    return draft->parseStr("Nebulite::Expansion::GlobalSpace::RenderObjectDraft::onDraft " + command);
+    return draft->parseStr("Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::onDraft " + command);
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::RenderObjectDraft::spawnDraft(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::spawnDraft(int argc, char* argv[]) {
     if(argc != 1) {
         return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS; // No arguments expected
     }
@@ -56,7 +56,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::RenderObjectDr
     // argv[2] : <serial>
     std::string serial = draft->serialize();
     char** argv_new = new char*[3];
-    argv_new[0] = const_cast<char*>("Nebulite::Expansion::GlobalSpace::RenderObjectDraft::spawnDraft");
+    argv_new[0] = const_cast<char*>("Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::spawnDraft");
     argv_new[1] = const_cast<char*>("spawn");
     argv_new[2] = const_cast<char*>(serial.c_str());
 
@@ -66,7 +66,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::RenderObjectDr
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::RenderObjectDraft::resetDraft(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::resetDraft(int argc, char* argv[]) {
     if(argc != 1) {
         return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS; // No arguments expected
     }

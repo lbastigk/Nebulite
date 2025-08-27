@@ -1,5 +1,5 @@
 /**
- * @file GTE_RNG.h
+ * @file GDM_RNG.h
  * 
  * @todo: Implement random number generation functions for GlobalSpaceTree
  * - include old global.rand and global.rrand for compatibility
@@ -26,7 +26,7 @@
  */
 
 #include "Constants/ErrorTypes.h"
-#include "Interaction/Execution/ExpansionWrapper.h"
+#include "Interaction/Execution/DomainModuleWrapper.h"
 
 //----------------------------------------------------------
 // Forward declarations
@@ -38,15 +38,15 @@ namespace Nebulite{
 
 //----------------------------------------------------------
 namespace Nebulite {
-namespace Expansion {
+namespace DomainModule {
 namespace GlobalSpace {
 /**
- * @class Nebulite::Expansion::GlobalSpace::RNG
- * @brief Expansion for random number generation within the GlobalSpace.
+ * @class Nebulite::DomainModule::GlobalSpace::RNG
+ * @brief DomainModule for random number generation within the GlobalSpace.
  */
-class RNG : public Nebulite::Interaction::Execution::ExpansionWrapper<Nebulite::Core::GlobalSpace, RNG> {
+class RNG : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, RNG> {
 
 };
 } // namespace GlobalSpace
-} // namespace Expansion
+} // namespace DomainModule
 } // namespace Nebulite

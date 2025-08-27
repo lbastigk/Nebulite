@@ -1,12 +1,12 @@
 /**
- * @file RTE_Logging.h
- * @brief Header file for the Logging expansion of the RenderObject tree.
+ * @file RDM_Logging.h
+ * @brief Header file for the Logging DomainModule of the RenderObject tree.
  */
 
 #pragma once
 
 #include "Constants/ErrorTypes.h"
-#include "Interaction/Execution/ExpansionWrapper.h"
+#include "Interaction/Execution/DomainModuleWrapper.h"
 
 //----------------------------------------------------------
 // Forward declarations
@@ -18,17 +18,17 @@ namespace Nebulite{
 
 //----------------------------------------------------------
 namespace Nebulite{
-namespace Expansion{
+namespace DomainModule{
 namespace RenderObject{
 /**
- * @class Nebulite::Expansion::RenderObject::Logging
- * @brief Logging expansion of the RenderObject tree.
+ * @class Nebulite::DomainModule::RenderObject::Logging
+ * @brief Logging DomainModule of the RenderObject tree.
  * 
  * Contains RenderObject-specific logging functionality.
  */
-class Logging : public Nebulite::Interaction::Execution::ExpansionWrapper<Nebulite::Core::RenderObject, Logging> {
+class Logging : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::RenderObject, Logging> {
 public:
-    using ExpansionWrapper<Nebulite::Core::RenderObject, Logging>::ExpansionWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModuleWrapper<Nebulite::Core::RenderObject, Logging>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -85,6 +85,6 @@ public:
         bindFunction(&Logging::logValue,    "log-value",    "Logs a specific value: <key> <file>");
     }
 };
-}   // namespace Expansion
+}   // namespace DomainModule
 }   // namespace RenderObject
 }   // namespace Nebulite

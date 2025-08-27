@@ -155,16 +155,16 @@ public:
     Nebulite::Constants::ErrorTable errorTable;
 
     //-------------------------------------------------
-    // Removal of private keyword for easier access for Expansion classes
-    // This allows for easier extension and modification of the GlobalSpace
+    // Removal of private keyword for easier access for DomainModule classes
+    // This allows for easier DomainModule and modification of the GlobalSpace
     // without having to specify its access here
 /*
 private:
     //-------------------------------------------------
     // Allow GlobalSpaceTree Categories to access private members
-    friend class Nebulite::Expansion::GlobalSpace::General;
-    friend class Nebulite::Expansion::GlobalSpace::Renderer;
-    friend class Nebulite::Expansion::GlobalSpace::Debug;
+    friend class Nebulite::DomainModule::GlobalSpace::General;
+    friend class Nebulite::DomainModule::GlobalSpace::Renderer;
+    friend class Nebulite::DomainModule::GlobalSpace::Debug;
 //*/
 
     

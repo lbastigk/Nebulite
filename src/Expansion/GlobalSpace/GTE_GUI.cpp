@@ -1,9 +1,9 @@
-#include "Expansion/GlobalSpace/GTE_GUI.h"
+#include "DomainModule/GlobalSpace/GDM_GUI.h"
 #include "Core/GlobalSpace.h"       // Global Space for Nebulite
 
 //-------------------------------
 // Update
-void Nebulite::Expansion::GlobalSpace::GUI::update() {
+void Nebulite::DomainModule::GlobalSpace::GUI::update() {
     // Add FuncTree-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -13,7 +13,7 @@ void Nebulite::Expansion::GlobalSpace::GUI::update() {
 }
 
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::GUI::example(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::GUI::example(int argc, char* argv[]) {
     // Goal is to create an SDL texture with DearImgui and attach it to the renderer queue
     // We might wish to create container variables local to the GUI class to hold DearImgui elements
     // so that we might call update on them, or modify them in any way

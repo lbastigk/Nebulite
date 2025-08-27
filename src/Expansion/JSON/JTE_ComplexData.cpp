@@ -1,9 +1,9 @@
-#include "Expansion/JSON/JTE_ComplexData.h"
+#include "DomainModule/JSON/JDM_ComplexData.h"
 #include "Utility/JSON.h"
 
 //-------------------------------
 // Update
-void Nebulite::Expansion::JSON::ComplexData::update() {
+void Nebulite::DomainModule::JSON::ComplexData::update() {
     // Add FuncTree-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -12,10 +12,10 @@ void Nebulite::Expansion::JSON::ComplexData::update() {
 //-------------------------------
 // FuncTree-Bound Functions
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::ComplexData::set_from_query(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::ComplexData::set_from_query(int argc, char* argv[]){
     return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
 }
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::JSON::ComplexData::set_from_json(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::ComplexData::set_from_json(int argc, char* argv[]){
     // Since we have no access to the global space, we cant use the JSON doc cache
     // Instead, we manually load the document to retrieve the key
     if(argc < 3){

@@ -2,15 +2,15 @@
 
 /*
 ================================================================================
-                           AUDIO EXPANSION - IDEAS PHASE
+                           AUDIO DomainModule - IDEAS PHASE
 ================================================================================
 
-⚠️  WARNING: This expansion is currently in the IDEAS PHASE and NOT IMPLEMENTED
+⚠️  WARNING: This DomainModule is currently in the IDEAS PHASE and NOT IMPLEMENTED
 
 This header file contains the proposed interface for the Nebulite Audio 
-expansion system. None of the functions declared here have been implemented yet.
+DomainModule system. None of the functions declared here have been implemented yet.
 
-The Audio expansion is designed to provide comprehensive audio management 
+The Audio DomainModule is designed to provide comprehensive audio management 
 capabilities for the Nebulite engine, including:
 - Basic audio playback and mixing
 - Advanced 3D audio positioning
@@ -27,13 +27,13 @@ Implementation Status: PLANNING PHASE ONLY
 
 Do NOT attempt to use these functions until implementation is complete.
 
-TODO: Once merged into the GlobalSpace, please move GTE_Renderer:beep to GTE_Audio:beep
+TODO: Once merged into the GlobalSpace, please move GDM_Renderer:beep to GDM_Audio:beep
 
 ================================================================================
 */
 
 #include "Constants/ErrorTypes.h"
-#include "Interaction/Execution/ExpansionWrapper.h"
+#include "Interaction/Execution/DomainModuleWrapper.h"
 
 
 //----------------------------------------------------------
@@ -46,15 +46,15 @@ namespace Nebulite{
 
 //----------------------------------------------------------
 namespace Nebulite {
-namespace Expansion {
+namespace DomainModule {
 namespace GlobalSpace {
 /**
- * @class Nebulite::Expansion::GlobalSpace::Audio
- * @brief Expansion for audio operations on domain class Nebulite::Core::GlobalSpace
+ * @class Nebulite::DomainModule::GlobalSpace::Audio
+ * @brief DomainModule for audio operations on domain class Nebulite::Core::GlobalSpace
  */
-class Audio : public Nebulite::Interaction::Execution::ExpansionWrapper<Nebulite::Core::GlobalSpace, Audio> {
+class Audio : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, Audio> {
 public:
-    using ExpansionWrapper<Nebulite::Core::GlobalSpace, Audio>::ExpansionWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, Audio>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     //----------------------------------------
     // Available Functions
@@ -150,5 +150,5 @@ public:
     }
 };
 }   // namespace GlobalSpace
-}   // namespace Expansion
+}   // namespace DomainModule
 }   // namespace Nebulite

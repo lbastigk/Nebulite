@@ -1,12 +1,12 @@
 /**
- * @file GTE_InputMapping.h
+ * @file GDM_InputMapping.h
  * @brief Provides input binding utilities for the Nebulite engine.
  *
- * This file contains a GlobalTree expansion to handle input bindings.
+ * This file contains a GlobalTree DomainModule to handle input bindings.
  * Note that this file is a work in progress!
  */
 
-#include "Interaction/Execution/ExpansionWrapper.h"
+#include "Interaction/Execution/DomainModuleWrapper.h"
 
 //----------------------------------------------------------
 // Forward declarations
@@ -18,15 +18,15 @@ namespace Nebulite{
 
 //----------------------------------------------------------
 namespace Nebulite {
-namespace Expansion {
+namespace DomainModule {
 namespace GlobalSpace {
 /**
- * @class Nebulite::Expansion::GlobalSpace::InputMapping
- * @brief Expansion for mapping inputs to actions within the GlobalSpace.
+ * @class Nebulite::DomainModule::GlobalSpace::InputMapping
+ * @brief DomainModule for mapping inputs to actions within the GlobalSpace.
  */
-class InputMapping : public Nebulite::Interaction::Execution::ExpansionWrapper<Nebulite::Core::GlobalSpace,InputMapping> {
+class InputMapping : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace,InputMapping> {
 public:
-    using ExpansionWrapper<Nebulite::Core::GlobalSpace, InputMapping>::ExpansionWrapper;   // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, InputMapping>::DomainModuleWrapper;   // Templated constructor from Wrapper, call this->setupBindings()
 
     /**
      * @brief Updates the input bindings.
@@ -169,5 +169,5 @@ private:
      */
 };
 }   // namespace GlobalSpace
-}   // namespace Expansion
+}   // namespace DomainModule
 }   // namespace Nebulite

@@ -12,9 +12,9 @@
 #include "Interaction/Execution/FuncTree.h"    // All FuncTrees inherit from this for ease of use
 
 //----------------------------------------------------------
-// Include Expansions of JSONTree
-#include "Expansion/JSON/JTE_SimpleData.h"
-#include "Expansion/JSON/JTE_ComplexData.h"
+// Include DomainModules of JSONTree
+#include "DomainModule/JSON/JDM_SimpleData.h"
+#include "DomainModule/JSON/JDM_ComplexData.h"
 
 //----------------------------------------------------------
 // Forward declaration of classes
@@ -51,8 +51,8 @@ namespace Execution{
  * 
  *     - No Access to global entities, but is planned 
  * 
- *     - For Additional functionality, the usage of Expansion files is encouraged
- *       (see `include/JTE_*.h` for examples)
+ *     - For Additional functionality, the usage of DomainModule files is encouraged
+ *       (see `include/JDM_*.h` for examples)
  * 
  * -----------------------------------------------------------
  * 
@@ -66,7 +66,7 @@ namespace Execution{
  * 
  *     - The JSONTree will parse the functioncall just like the RenderObjectTree would and execute it if the invoke is evaluated as true
  * 
- *     - For more advanced features, consider using Expansion files to extend JSONTree functionality
+ *     - For more advanced features, consider using DomainModule files to extend JSONTree functionality
  * 
  *  @todo Allow JSONTree to access the global space
  *  This way, we have access to the document cache and can use it to retrieve keys
@@ -83,29 +83,29 @@ private:
     Nebulite::Utility::JSON* domain;
 
     /**
-     * @brief Factory method for creating expansion instances with proper linkage
+     * @brief Factory method for creating DomainModule instances with proper linkage
      */
-    template<typename ExpansionType>
-    std::unique_ptr<ExpansionType> createExpansionOfType() {
-        auto expansion = std::make_unique<ExpansionType>(domain, this);
-        // Initializing is currently done on construction of the expansion
+    template<typename DomainModuleType>
+    std::unique_ptr<DomainModuleType> createDomainModuleOfType() {
+        auto DomainModule = std::make_unique<DomainModuleType>(domain, this);
+        // Initializing is currently done on construction of the DomainModule
         // However, if any additional setup is needed later on that can't be done on construction,
         // this simplifies the process
-        return expansion;
+        return DomainModule;
     }
 
     //---------------------------------------
-    // Commands to the JSONTree are added via Expansion files to keep the JSONTree clean
+    // Commands to the JSONTree are added via DomainModule files to keep the JSONTree clean
     // and allow for easy implementation and removal of collaborative features.
     // Maintainers can separately implement their own features and merge them into the JSONTree.
     //
-    // 1.) Create a new Class by inheriting from Nebulite::Expansion::JSON::ExpansionWrapper ( .h file in ./include and .cpp file in ./src)
+    // 1.) Create a new Class by inheriting from Nebulite::DomainModule::JSON::DomainModuleWrapper ( .h file in ./include and .cpp file in ./src)
     // 2.) Implement the setupBindings() method to bind functions
     // 3.) Insert the new object here as a unique pointer
     // 4.) Initialize via make_unique in the JSONTree constructor
     //---------------------------------------
-    std::unique_ptr<Nebulite::Expansion::JSON::SimpleData> simpleData;
-    std::unique_ptr<Nebulite::Expansion::JSON::ComplexData> complexData;
+    std::unique_ptr<Nebulite::DomainModule::JSON::SimpleData> simpleData;
+    std::unique_ptr<Nebulite::DomainModule::JSON::ComplexData> complexData;
 
 };
 }   // namespace Execution

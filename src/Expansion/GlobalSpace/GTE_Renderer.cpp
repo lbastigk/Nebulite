@@ -1,11 +1,11 @@
-#include "Expansion/GlobalSpace/GTE_Renderer.h"
+#include "DomainModule/GlobalSpace/GDM_Renderer.h"
 #include "Core/GlobalSpace.h"       // Global Space for Nebulite
 #include "Interaction/Invoke.h"            // Invoke for parsing expressions
 #include "Core/RenderObject.h"      // RenderObject for Renderer
 
 //-------------------------------
 // Update
-void Nebulite::Expansion::GlobalSpace::Renderer::update() {
+void Nebulite::DomainModule::GlobalSpace::Renderer::update() {
     // Add FuncTree-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -14,7 +14,7 @@ void Nebulite::Expansion::GlobalSpace::Renderer::update() {
 //-------------------------------
 // FuncTree-Bound Functions
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::envload(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::envload(int argc, char* argv[]){
     if(argc > 1){
         domain->getRenderer()->deserialize(argv[1]);
         return Nebulite::Constants::ERROR_TYPE::NONE;
@@ -26,13 +26,13 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::envl
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::envdeload(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::envdeload(int argc, char* argv[]){
     domain->getRenderer()->purgeObjects();
     domain->getRenderer()->purgeTextures();
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::spawn(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::spawn(int argc, char* argv[]){
     if(argc>1){
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun
@@ -86,7 +86,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::spaw
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::setResolution(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::setResolution(int argc, char* argv[]){
     int w,h,scalar;
     w = 1000;
     h = 1000;
@@ -104,7 +104,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::setR
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::setFPS(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::setFPS(int argc, char* argv[]){
     if(argc != 2){
         domain->getRenderer()->setTargetFPS(60);
     }
@@ -117,7 +117,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::setF
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::showFPS(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::showFPS(int argc, char* argv[]){
     if(argc < 2){
         domain->getRenderer()->toggleFps(true);
     }
@@ -136,7 +136,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::show
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::moveCam(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::moveCam(int argc, char* argv[]){
     if (argc < 3) {
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -150,7 +150,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::move
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::setCam(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::setCam(int argc, char* argv[]){
     if(argc == 3){
         int x = std::stoi(argv[1]);
         int y = std::stoi(argv[2]);
@@ -175,7 +175,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::setC
     return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::snapshot(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::snapshot(int argc, char* argv[]){
     if(argc == 1){
         // No link provided, use default
         bool success = domain->getRenderer()->snapshot("./Resources/Snapshots/snapshot.png");
@@ -198,13 +198,13 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::snap
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::beep(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::beep(int argc, char* argv[]){
     // Beep function for debugging, from SDL
     domain->getRenderer()->beep();
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::getObjectFromId(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::getObjectFromId(int argc, char* argv[]) {
     if (argc != 2) {
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
     }
@@ -222,7 +222,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::getO
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Renderer::printSelectedObject(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::printSelectedObject(int argc, char* argv[]) {
     if (selectedRenderObject) {
         std::cout << "Selected Renderobject: \n" << selectedRenderObject->serialize() << std::endl;
         return Nebulite::Constants::ERROR_TYPE::NONE;

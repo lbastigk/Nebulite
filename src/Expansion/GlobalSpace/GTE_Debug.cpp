@@ -1,9 +1,9 @@
-#include "Expansion/GlobalSpace/GTE_Debug.h"
+#include "DomainModule/GlobalSpace/GDM_Debug.h"
 #include "Core/GlobalSpace.h"       // Global Space for Nebulite
 
 //-------------------------------
 // Update
-void Nebulite::Expansion::GlobalSpace::Debug::update() {
+void Nebulite::DomainModule::GlobalSpace::Debug::update() {
     // Add FuncTree-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -12,17 +12,17 @@ void Nebulite::Expansion::GlobalSpace::Debug::update() {
 //-------------------------------
 // FuncTree-Bound Functions
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Debug::printGlobal(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::printGlobal(int argc, char* argv[]){
     std::cout << domain->global.serialize() << std::endl;
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Debug::printState(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::printState(int argc, char* argv[]){
     std::cout << domain->getRenderer()->serialize() << std::endl;
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Debug::logGlobal(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::logGlobal(int argc, char* argv[]){
     std::string serialized = domain->global.serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -35,7 +35,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Debug::logGlob
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Debug::logState(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::logState(int argc, char* argv[]){
     std::string serialized = domain->getRenderer()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -48,13 +48,13 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Debug::logStat
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Debug::render_object(int argc, char** argv){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::render_object(int argc, char** argv){
     Nebulite::Core::RenderObject ro(&domain->global);
     Nebulite::Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc",ro.serialize());
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Debug::errorlog(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::errorlog(int argc, char* argv[]){
     // Initialize the error logging buffer
     if(!originalCerrBuf) {
         // Handle the case where originalCerrBuf is not set
@@ -119,7 +119,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Debug::errorlo
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Debug::always(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::always(int argc, char* argv[]){
     if (argc > 1) {
         std::ostringstream oss;
         for (int i = 1; i < argc; ++i) {
@@ -144,7 +144,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Debug::always(
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::GlobalSpace::Debug::alwaysClear(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::alwaysClear(int argc, char* argv[]){
     domain->tasks.always.taskList.clear();
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }

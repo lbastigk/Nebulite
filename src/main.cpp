@@ -50,7 +50,7 @@
  * 
  * Use functions for debugging of specific features and taskFiles for complex, scripted scenarios and tests.
  *
- * @todo:   settings.jsonc: Renderer size, fps setting (Input Mapping is already a work in progress. See GTE_InputMapping.h)
+ * @todo:   settings.jsonc: Renderer size, fps setting (Input Mapping is already a work in progress. See GDM_InputMapping.h)
  *
  */
 int main(int argc, char* argv[]){

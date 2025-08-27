@@ -1,13 +1,13 @@
 /**
- * @file GTE_General.h
+ * @file GDM_General.h
  * 
- * This file contains an expansion of the GlobalSpaceTree for general-purpose functions.
+ * This file contains an DomainModule of the GlobalSpaceTree for general-purpose functions.
  */
 
 #pragma once
 
 #include "Constants/ErrorTypes.h"
-#include "Interaction/Execution/ExpansionWrapper.h"
+#include "Interaction/Execution/DomainModuleWrapper.h"
 
 //----------------------------------------------------------
 // Forward declarations
@@ -19,15 +19,15 @@ namespace Nebulite{
 
 //----------------------------------------------------------
 namespace Nebulite {
-namespace Expansion {
+namespace DomainModule {
 namespace GlobalSpace {
 /**
- * @class Nebulite::Expansion::GlobalSpace::General
- * @brief Expansion for general-purpose functions within the GlobalSpace.
+ * @class Nebulite::DomainModule::GlobalSpace::General
+ * @brief DomainModule for general-purpose functions within the GlobalSpace.
  */
-class General : public Nebulite::Interaction::Execution::ExpansionWrapper<Nebulite::Core::GlobalSpace, General> {
+class General : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, General> {
 public:
-    using ExpansionWrapper<Nebulite::Core::GlobalSpace, General>::ExpansionWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, General>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -128,7 +128,7 @@ public:
      * @param argv The argument vector: <string>
      * @return Potential errors that occured on command execution
      * 
-     * @todo Move to GTE_Debug
+     * @todo Move to GDM_Debug
      */
     Nebulite::Constants::ERROR_TYPE error(int argc, char* argv[]);
 
@@ -150,7 +150,7 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      * 
-     * @todo move to GTE_InputMapping
+     * @todo move to GDM_InputMapping
      */
     Nebulite::Constants::ERROR_TYPE forceGlobal(int argc, char* argv[]);
 
@@ -161,7 +161,7 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      * 
-     * @todo move to GTE_InputMapping
+     * @todo move to GDM_InputMapping
      */
     Nebulite::Constants::ERROR_TYPE clearForceGlobal(int argc, char* argv[]);
 
@@ -172,7 +172,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      * 
-     * @todo not implemented, move to separate expansion GTE_StateManagement
+     * @todo not implemented, move to separate DomainModule GDM_StateManagement
      */
     Nebulite::Constants::ERROR_TYPE stateSave(int argc, char* argv[]);
 
@@ -183,7 +183,7 @@ public:
      * @param argv The argument vector: <name>
      * @return Potential errors that occured on command execution
      * 
-     * @todo not implemented, move to separate expansion GTE_StateManagement
+     * @todo not implemented, move to separate DomainModule GDM_StateManagement
      */
     Nebulite::Constants::ERROR_TYPE stateLoad(int argc, char* argv[]);
 
@@ -213,5 +213,5 @@ public:
     }
 };
 }   // namespace GlobalSpace
-}   // namespace Expansion
+}   // namespace DomainModule
 }   // namespace Nebulite

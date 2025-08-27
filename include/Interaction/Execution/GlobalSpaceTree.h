@@ -13,12 +13,12 @@
 #include "Interaction/Execution/JSONTree.h"           // For JSONTree parameter
 
 //----------------------------------------------------------
-// Include Expansions of GlobalSpaceTree
-#include "Expansion/GlobalSpace/GTE_General.h"    // General functions like eval, exit, wait, etc.
-#include "Expansion/GlobalSpace/GTE_Renderer.h"   // Renderer functions for graphics and display
-#include "Expansion/GlobalSpace/GTE_Debug.h"      // Debugging and logging functions
-#include "Expansion/GlobalSpace/GTE_GUI.h"        // GUI functions for DearImgui integration
-#include "Expansion/GlobalSpace/GTE_RenderObjectDraft.h" // Mock RenderObject for RenderObject functions in global space
+// Include DomainModules of GlobalSpaceTree
+#include "DomainModule/GlobalSpace/GDM_General.h"    // General functions like eval, exit, wait, etc.
+#include "DomainModule/GlobalSpace/GDM_Renderer.h"   // Renderer functions for graphics and display
+#include "DomainModule/GlobalSpace/GDM_Debug.h"      // Debugging and logging functions
+#include "DomainModule/GlobalSpace/GDM_GUI.h"        // GUI functions for DearImgui integration
+#include "DomainModule/GlobalSpace/GDM_RenderObjectDraft.h" // Mock RenderObject for RenderObject functions in global space
 
 //----------------------------------------------------------
 // Forward declaration of classes
@@ -65,8 +65,8 @@ namespace Execution{
  *     - All functioncalls operate on global Nebulite state
  *     - No access to individual RenderObject state
  *     - Restricted to global data and operations
- *     - For Additional functionality, the usage of Expansion files is encouraged
- *       (see `include/GTE_*.h` for examples)
+ *     - For Additional functionality, the usage of DomainModule files is encouraged
+ *       (see `include/GDM_*.h` for examples)
  * 
  * -----------------------------------------------------------
  * 
@@ -82,7 +82,7 @@ namespace Execution{
  * 
  *     - For more complex in-object logic, use the RenderObjectTree for local RenderObject operations
  * 
- *     - For more advanced features, consider using Expansion files to extend GlobalSpaceTree functionality
+ *     - For more advanced features, consider using DomainModule files to extend GlobalSpaceTree functionality
  * 
  */
 class GlobalSpaceTree : public Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>{
@@ -97,32 +97,32 @@ private:
     Nebulite::Core::GlobalSpace* domain;
 
     /**
-     * @brief Factory method for creating expansion instances with proper linkage
+     * @brief Factory method for creating DomainModule instances with proper linkage
      */
-    template<typename ExpansionType>
-    std::unique_ptr<ExpansionType> createExpansionOfType() {
-        auto expansion = std::make_unique<ExpansionType>(domain, this);
-        // Initializing is currently done on construction of the expansion
+    template<typename DomainModuleType>
+    std::unique_ptr<DomainModuleType> createDomainModuleOfType() {
+        auto DomainModule = std::make_unique<DomainModuleType>(domain, this);
+        // Initializing is currently done on construction of the DomainModule
         // However, if any additional setup is needed later on that can't be done on construction,
         // this simplifies the process
-        return expansion;
+        return DomainModule;
     }
 
     //---------------------------------------
-    // Commands to the GlobalSpaceTree are added via Expansion files to keep the GlobalSpaceTree clean 
+    // Commands to the GlobalSpaceTree are added via DomainModule files to keep the GlobalSpaceTree clean 
     // and allow for easy implementation and removal of collaborative features.
     // Maintainers can separately implement their own features and merge them into the GlobalSpaceTree. 
     //
-    // 1.) Create a new Class by inheriting from Nebulite::Expansion::GlobalSpace::ExpansionWrapper ( .h file in ./include and .cpp file in ./src)
+    // 1.) Create a new Class by inheriting from Nebulite::DomainModule::GlobalSpace::DomainModuleWrapper ( .h file in ./include and .cpp file in ./src)
     // 2.) Implement the setupBindings() method to bind functions
     // 3.) Insert the new object here as a unique pointer
     // 4.) Initialize via make_unique in the GlobalSpaceTree constructor
     //---------------------------------------
-    std::unique_ptr<Nebulite::Expansion::GlobalSpace::Debug> debug;                             // Debugging functions such as logging, creating standard files etc.
-    std::unique_ptr<Nebulite::Expansion::GlobalSpace::General> general;                         // General functions such as echo, exit, task loading etc.
-    std::unique_ptr<Nebulite::Expansion::GlobalSpace::Renderer> renderer;                       // Renderer Expansion for global rendering control
-    std::unique_ptr<Nebulite::Expansion::GlobalSpace::GUI> gui;                                 // GUI Expansion for DearImgui integration
-    std::unique_ptr<Nebulite::Expansion::GlobalSpace::RenderObjectDraft> RenderObjectDraft;     // Mock RenderObject for testing purposes
+    std::unique_ptr<Nebulite::DomainModule::GlobalSpace::Debug> debug;                             // Debugging functions such as logging, creating standard files etc.
+    std::unique_ptr<Nebulite::DomainModule::GlobalSpace::General> general;                         // General functions such as echo, exit, task loading etc.
+    std::unique_ptr<Nebulite::DomainModule::GlobalSpace::Renderer> renderer;                       // Renderer DomainModule for global rendering control
+    std::unique_ptr<Nebulite::DomainModule::GlobalSpace::GUI> gui;                                 // GUI DomainModule for DearImgui integration
+    std::unique_ptr<Nebulite::DomainModule::GlobalSpace::RenderObjectDraft> RenderObjectDraft;     // Mock RenderObject for testing purposes
 };
 }   // namespace Interaction
 }   // namespace Execution

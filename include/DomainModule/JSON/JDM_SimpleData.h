@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Constants/ErrorTypes.h"
-#include "Interaction/Execution/ExpansionWrapper.h"
+#include "Interaction/Execution/DomainModuleWrapper.h"
 
 //----------------------------------------------------------
 // Forward declarations
@@ -13,15 +13,15 @@ namespace Nebulite{
 
 //----------------------------------------------------------
 namespace Nebulite{
-namespace Expansion{
+namespace DomainModule{
 namespace JSON{
 /**
- * @class Nebulite::Expansion::JSON::SimpleData
- * @brief Expansion for simple data operations on domain class Nebulite::Utility::JSON
+ * @class Nebulite::DomainModule::JSON::SimpleData
+ * @brief DomainModule for simple data operations on domain class Nebulite::Utility::JSON
  */
-class SimpleData : public Nebulite::Interaction::Execution::ExpansionWrapper<Nebulite::Utility::JSON, SimpleData> {
+class SimpleData : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Utility::JSON, SimpleData> {
 public:
-    using ExpansionWrapper<Nebulite::Utility::JSON, SimpleData>::ExpansionWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModuleWrapper<Nebulite::Utility::JSON, SimpleData>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -137,6 +137,6 @@ public:
         bindFunction(&SimpleData::ensureArray, "ensure-array", "Ensures that a key is an array, converting a value to an array if necessary: <key>");   // Note: name 'ensure-array' is hardcoded in some functions! Do not change!
     }
 };
-}   // namespace Expansion
+}   // namespace DomainModule
 }   // namespace JSON
 }   // namespace Nebulite

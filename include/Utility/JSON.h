@@ -327,7 +327,7 @@ public:
      * 
      * - `file.json|set-from-json key1.key2[5] otherFile.json:key` - Sets key1.key2[5] from the value of key in otherFile.json
      * 
-     * See `JTE_*.h` files for available functioncalls.
+     * See `JDM_*.h` files for available functioncalls.
      */
     void deserialize(std::string serial_or_link);              // if key is empty, deserializes entire doc
 

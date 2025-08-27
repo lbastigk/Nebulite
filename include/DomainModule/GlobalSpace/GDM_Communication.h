@@ -2,15 +2,15 @@
 
 /*
 ================================================================================
-                      COMMUNICATION EXPANSION - IDEAS PHASE
+                      COMMUNICATION DomainModule - IDEAS PHASE
 ================================================================================
 
-⚠️  WARNING: This expansion is currently in the IDEAS PHASE and NOT IMPLEMENTED
+⚠️  WARNING: This DomainModule is currently in the IDEAS PHASE and NOT IMPLEMENTED
 
 This header file contains the proposed interface for the Nebulite Communication 
-expansion system. None of the functions declared here have been implemented yet.
+DomainModule system. None of the functions declared here have been implemented yet.
 
-The Communication expansion is designed to provide minimal inter-process 
+The Communication DomainModule is designed to provide minimal inter-process 
 communication capabilities for the Nebulite engine:
 - Basic connection management
 - Status monitoring
@@ -49,7 +49,7 @@ Do NOT attempt to use these functions until implementation is complete.
 */
 
 #include "Constants/ErrorTypes.h"
-#include "Interaction/Execution/ExpansionWrapper.h"
+#include "Interaction/Execution/DomainModuleWrapper.h"
 
 //----------------------------------------------------------
 // Forward declarations
@@ -61,15 +61,15 @@ namespace Nebulite{
 
 //----------------------------------------------------------
 namespace Nebulite {
-namespace Expansion {
+namespace DomainModule {
 namespace GlobalSpace {
 /**
- * @class Nebulite::Expansion::GlobalSpace::Communication
- * @brief Expansion for communication between the Nebulite engine and external processes.
+ * @class Nebulite::DomainModule::GlobalSpace::Communication
+ * @brief DomainModule for communication between the Nebulite engine and external processes.
  */
-class Communication : public Nebulite::Interaction::Execution::ExpansionWrapper<Nebulite::Core::GlobalSpace, Communication> {
+class Communication : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, Communication> {
 public:
-    using ExpansionWrapper<Nebulite::Core::GlobalSpace, Communication>::ExpansionWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, Communication>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -141,5 +141,5 @@ public:
     }
 };
 }   // namespace GlobalSpace
-}   // namespace Expansion
+}   // namespace DomainModule
 }   // namespace Nebulite

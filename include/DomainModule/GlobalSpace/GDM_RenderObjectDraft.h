@@ -5,7 +5,7 @@ RenderObjectDraft extends the Global Space Tree to provide an in-memory RenderOb
 */
 
 /**
- * @file GTE_RenderObjectDraft.h
+ * @file GDM_RenderObjectDraft.h
  * 
  * @brief Provides RenderObject creation utilities
  */
@@ -13,7 +13,7 @@ RenderObjectDraft extends the Global Space Tree to provide an in-memory RenderOb
 #pragma once
 
 #include "Constants/ErrorTypes.h"
-#include "Interaction/Execution/ExpansionWrapper.h"
+#include "Interaction/Execution/DomainModuleWrapper.h"
 #include "Core/RenderObject.h"
 
 //----------------------------------------------------------
@@ -26,10 +26,10 @@ namespace Nebulite{
 
 //----------------------------------------------------------
 namespace Nebulite {
-namespace Expansion {
+namespace DomainModule {
 namespace GlobalSpace {
 /**
- * @class Nebulite::Expansion::GlobalSpace::RenderObjectDraft
+ * @class Nebulite::DomainModule::GlobalSpace::RenderObjectDraft
  * @brief Utilities for creating and manipulating RenderObjects
  * 
  * Allows for the creation and manipulation of RenderObjects in a draft state.
@@ -52,9 +52,9 @@ namespace GlobalSpace {
  * ./bin/Nebulite draft-help   # However, this will
  * ```
  */
-class RenderObjectDraft : public Nebulite::Interaction::Execution::ExpansionWrapper<Nebulite::Core::GlobalSpace, RenderObjectDraft> {
+class RenderObjectDraft : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, RenderObjectDraft> {
 public:
-    using ExpansionWrapper<Nebulite::Core::GlobalSpace, RenderObjectDraft>::ExpansionWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, RenderObjectDraft>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -120,5 +120,5 @@ private:
     std::unique_ptr<Nebulite::Core::RenderObject> draft;
 };
 }   // namespace GlobalSpace
-}   // namespace Expansion
+}   // namespace DomainModule
 }   // namespace Nebulite

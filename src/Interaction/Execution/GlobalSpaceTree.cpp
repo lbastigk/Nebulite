@@ -7,12 +7,12 @@ Nebulite::Interaction::Execution::GlobalSpaceTree::GlobalSpaceTree(Nebulite::Cor
     : FuncTree<Nebulite::Constants::ERROR_TYPE>("Nebulite", Nebulite::Constants::ERROR_TYPE::NONE, Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID, jsonTree), domain(domain) 
 {
 
-  // Initialize Expansions
-  general = createExpansionOfType<Nebulite::Expansion::GlobalSpace::General>();
-  renderer = createExpansionOfType<Nebulite::Expansion::GlobalSpace::Renderer>();
-  debug = createExpansionOfType<Nebulite::Expansion::GlobalSpace::Debug>();
-  gui = createExpansionOfType<Nebulite::Expansion::GlobalSpace::GUI>();
-  RenderObjectDraft = createExpansionOfType<Nebulite::Expansion::GlobalSpace::RenderObjectDraft>();
+  // Initialize DomainModules
+  general = createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::General>();
+  renderer = createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::Renderer>();
+  debug = createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::Debug>();
+  gui = createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::GUI>();
+  RenderObjectDraft = createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::RenderObjectDraft>();
 
   // Initialize Variable Bindings here, due to circular dependency issues
   bindVariable(&domain->cmdVars.headless, "headless", "Set headless mode (no renderer)");
@@ -25,7 +25,7 @@ void Nebulite::Interaction::Execution::GlobalSpaceTree::update() {
     // Update the JSON tree
     domain->global.getJSONTree()->update();
 
-    // Update all expansions
+    // Update all DomainModules
     general->update();
     renderer->update();
     debug->update();

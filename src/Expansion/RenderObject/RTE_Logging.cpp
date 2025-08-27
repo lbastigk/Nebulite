@@ -1,9 +1,9 @@
-#include "Expansion/RenderObject/RTE_Logging.h"
+#include "DomainModule/RenderObject/RDM_Logging.h"
 #include "Core/RenderObject.h"
 
 //-------------------------------
 // Update
-void Nebulite::Expansion::RenderObject::Logging::update() {
+void Nebulite::DomainModule::RenderObject::Logging::update() {
     // Add FuncTree-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -12,7 +12,7 @@ void Nebulite::Expansion::RenderObject::Logging::update() {
 //-------------------------------
 // FuncTree-Bound Functions
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::RenderObject::Logging::echo(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Logging::echo(int argc, char* argv[]){
     for (int i = 1; i < argc; i++) {
         std::cout << argv[i] << " ";
     }
@@ -20,7 +20,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::RenderObject::Logging::echo
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::RenderObject::Logging::log(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Logging::log(int argc, char* argv[]){
     std::string serialized = domain->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -34,6 +34,6 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::RenderObject::Logging::log(
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::RenderObject::Logging::logValue(int argc, char* argv[]){
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Logging::logValue(int argc, char* argv[]){
     return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
 }

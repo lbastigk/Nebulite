@@ -1,13 +1,13 @@
 /**
- * @file GTE_Debug.h
+ * @file GDM_Debug.h
  * 
- * This file contains an expansion of the GlobalSpaceTree for debugging capabilities.
+ * This file contains an DomainModule of the GlobalSpaceTree for debugging capabilities.
  */
 
 #pragma once
 
 #include "Constants/ErrorTypes.h"
-#include "Interaction/Execution/ExpansionWrapper.h"
+#include "Interaction/Execution/DomainModuleWrapper.h"
 
 //----------------------------------------------------------
 // Forward declarations
@@ -19,15 +19,15 @@ namespace Nebulite{
 
 //----------------------------------------------------------
 namespace Nebulite {
-namespace Expansion {
+namespace DomainModule {
 namespace GlobalSpace {
 /**
- * @class Nebulite::Expansion::GlobalSpace::Debug
- * @brief Expansion for debugging capabilities within the GlobalSpace.
+ * @class Nebulite::DomainModule::GlobalSpace::Debug
+ * @brief DomainModule for debugging capabilities within the GlobalSpace.
  */
-class Debug : public Nebulite::Interaction::Execution::ExpansionWrapper<Nebulite::Core::GlobalSpace, Debug> {
+class Debug : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, Debug> {
 public:
-    using ExpansionWrapper<Nebulite::Core::GlobalSpace, Debug>::ExpansionWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, Debug>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -102,7 +102,7 @@ public:
      * @param argv The argument vector: inputs are <command>. The command to attach.
      * @return Potential errors that occured on command execution
      * 
-     * @todo Move to GTE_General
+     * @todo Move to GDM_General
      */
     Nebulite::Constants::ERROR_TYPE always(int argc, char* argv[]);
 
@@ -113,7 +113,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      * 
-     * @todo Move to GTE_General
+     * @todo Move to GDM_General
      */
     Nebulite::Constants::ERROR_TYPE alwaysClear(int argc, char* argv[]);
 
@@ -166,5 +166,5 @@ private:
     bool errorLogStatus = false;
 };
 }   // namespace GlobalSpace
-}   // namespace Expansion
+}   // namespace DomainModule
 }   // namespace Nebulite

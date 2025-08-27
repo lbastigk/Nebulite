@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Constants/ErrorTypes.h"
-#include "Interaction/Execution/ExpansionWrapper.h"
+#include "Interaction/Execution/DomainModuleWrapper.h"
 
 //----------------------------------------------------------
 // Forward declarations
@@ -13,16 +13,16 @@ namespace Nebulite{
 
 //----------------------------------------------------------
 namespace Nebulite{
-namespace Expansion{
+namespace DomainModule{
 namespace JSON{
 /**
- * @class Nebulite::Expansion::JSON::ComplexData
+ * @class Nebulite::DomainModule::JSON::ComplexData
  * 
- * Extension for complex data operations on domain class Nebulite::Utility::JSON
+ * DomainModule for complex data operations on domain class Nebulite::Utility::JSON
  */
-class ComplexData : public Nebulite::Interaction::Execution::ExpansionWrapper<Nebulite::Utility::JSON, ComplexData> {
+class ComplexData : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Utility::JSON, ComplexData> {
 public:
-    using ExpansionWrapper<Nebulite::Utility::JSON, ComplexData>::ExpansionWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModuleWrapper<Nebulite::Utility::JSON, ComplexData>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -65,6 +65,6 @@ public:
         bindFunction(&ComplexData::set_from_json,  "set-from-json",  "Sets a key from a JSON document:    <key> <link:key>");
     }
 };
-}   // namespace Expansion
+}   // namespace DomainModule
 }   // namespace JSON
 }   // namespace Nebulite
