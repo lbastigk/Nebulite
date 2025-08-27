@@ -1,0 +1,36 @@
+#include "Expansion/RenderObject/RTE_StateUpdate.h"
+#include "Core/RenderObject.h"
+
+//-------------------------------
+// Update
+void Nebulite::Expansion::RenderObject::StateUpdate::update() {
+    // Add FuncTree-specific updates here!
+    // General rule:
+    // This is used to update all variables/states that are INTERNAL ONLY
+}
+
+//-------------------------------
+// FuncTree-Bound Functions
+
+Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::RenderObject::StateUpdate::deleteObject(int argc, char* argv[]){
+    domain->flag.deleteFromScene = true;
+    return Nebulite::Constants::ERROR_TYPE::NONE;
+}
+Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::RenderObject::StateUpdate::updateText(int argc, char* argv[]){
+    domain->flag.calculateText = true;
+    return Nebulite::Constants::ERROR_TYPE::NONE;
+}
+
+Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::RenderObject::StateUpdate::reloadInvokes(int argc, char* argv[]){
+    return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+}
+
+Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::RenderObject::StateUpdate::addInvoke(int argc, char* argv[]){
+    return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+}
+Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::RenderObject::StateUpdate::removeInvoke(int argc, char* argv[]){
+    return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+}
+Nebulite::Constants::ERROR_TYPE Nebulite::Expansion::RenderObject::StateUpdate::removeAllInvokes(int argc, char* argv[]){
+    return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+}

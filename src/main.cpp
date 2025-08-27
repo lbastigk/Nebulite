@@ -33,7 +33,7 @@
 // Include the Global Space class
 // Initializes callable functions from both user CLI and runtime environment.
 // Also sets up the global Renderer used across Tree-based function calls.
-#include "GlobalSpace.h" 
+#include "Core/GlobalSpace.h" 
 
 // ----------------------------------------------------------------------
 // NEBULITE main
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]){
     //--------------------------------------------------
     // Initialize the global space
     std::string binaryName = argv[0];
-    Nebulite::GlobalSpace globalSpace(binaryName);
+    Nebulite::Core::GlobalSpace globalSpace(binaryName);
 
     //--------------------------------------------------
     // Add main args to taskList, split by ';'
@@ -126,13 +126,13 @@ int main(int argc, char* argv[]){
 
     // For resolving tasks
     struct Result {
-        Nebulite::taskQueueResult script;       // Result of script-tasks
-        Nebulite::taskQueueResult internal;     // Result of internal-tasks
-        Nebulite::taskQueueResult always;       // Result of always-tasks
+        Nebulite::Core::taskQueueResult script;       // Result of script-tasks
+        Nebulite::Core::taskQueueResult internal;     // Result of internal-tasks
+        Nebulite::Core::taskQueueResult always;       // Result of always-tasks
     };
     Result TaskQueueResults;
 
-    Nebulite::ERROR_TYPE lastCriticalResult;
+    Nebulite::Constants::ERROR_TYPE lastCriticalResult;
     bool critical_stop = false;
     uint64_t* noWaitCounter = nullptr;
 
