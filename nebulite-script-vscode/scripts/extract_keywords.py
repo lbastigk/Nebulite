@@ -29,6 +29,12 @@ def extract_keywords():
     return sorted(keywords)
 
 def save_keywords_to_file(keywords):
+    # Check if JSON array is empty
+    # Throw exception
+    if not keywords:
+        raise ValueError('No keywords found. Aborting...')
+
+    # Write
     with open(OUTPUT_FILE, "w") as f:
         json.dump(keywords, f, indent=2)
 

@@ -57,6 +57,7 @@
   "print-state",
   "push-back",
   "push-front",
+  "read-input-mappings-from-file",
   "reconnect",
   "redirect-output",
   "reload-invokes",
@@ -72,7 +73,6 @@
   "set-fps",
   "set-from-json",
   "set-from-query",
-  "set",
   "set-input-device",
   "set-listener-3d",
   "set-master-volume",
@@ -97,6 +97,8 @@
   "stop-recording",
   "stop-sound",
   "task",
+  "update-input-mapping",
   "update-text",
-  "wait"
+  "wait",
+  "write-input-mappings-to-file"
 ]
