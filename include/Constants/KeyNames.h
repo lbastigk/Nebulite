@@ -37,7 +37,9 @@ const struct keyName {
      * @brief Contains all hardcoded key names used for random number generation.
      * 
      * @todo replace rand/rrand
-     * @todo Proper implementation and usage within GDM_RNG
+     * @todo Proper implementation and usage within GDM_RNG, probably helpful to keep rand and rrand.
+     * rrand is helpful, as it is incremented with each spawn, allowing for constant random value usage in a for-loop.
+     * But maybe we can find a better way that rehashes on each functioncall. See GDM_RNG for ideas.
      */
     const struct Random{
         std::string A = "random.A";

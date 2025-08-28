@@ -594,7 +594,7 @@ private:
 	/**
 	 * @brief Texture container for the Renderer
 	 * 
-	 * This container holds all loaded textures for the renderer, allowing for easy access and management.
+	 * This container holds all loaded textures from RenderObject sprites for the renderer, allowing for easy access and management.
 	 * 
 	 * `TextureContainer[link] -> SDL_Texture*`
 	 */

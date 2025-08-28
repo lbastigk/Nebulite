@@ -2,8 +2,8 @@
  * @file ErrorTypes.h
  * @brief Defines the Nebulite::Constants::ERROR_TYPE enumeration for standardized error codes.
  *
- * Functions bound via the FuncTree system utilize a Nebulite::Constants::ERROR_TYPE foo(int argc, char** argv) signature.
- * 
+ * Functions bound via the FuncTree system utilize a `Nebulite::Constants::ERROR_TYPE foo(int argc, char** argv)` signature.
+ *
  * Usage:
  *   - Functions such as Nebulite::resolveTaskQueue executes main tree functions
  *     which return an ERROR_TYPE value to indicate the result of execution.
@@ -51,7 +51,7 @@ enum ERROR_TYPE{
     TOO_FEW_ARGS,               // argc < expected
     UNKNOWN_ARG,                
     FEATURE_NOT_IMPLEMENTED,
-    SNAPSHOT_FAILED,            // Used in Renderer::snapshot
+    SNAPSHOT_FAILED,            // Used in Nebulite::DomainModule::GlobalSpace::Renderer::snapshot
     FILE_NOT_FOUND,
 };
 
@@ -68,8 +68,11 @@ public:
      * @brief Constructor for ErrorTable.
      * 
      * On construction, all error types are mapped to their string descriptions.
+     * Add new values here as needed.
      */
     ErrorTable(){
+        //------------------------------------
+        // Critical Errors
         errorTypeToString[Nebulite::Constants::ERROR_TYPE::CRITICAL_GENERAL] = 
             "General, critical error. It is recommended to NOT use this error type in production.";
         errorTypeToString[Nebulite::Constants::ERROR_TYPE::CRITICAL_CUSTOM_ASSERT] = 
@@ -82,6 +85,8 @@ public:
             "argc/argv parsing error.";
         errorTypeToString[Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID] = 
             "Requested function call is invalid.";
+        //------------------------------------
+        // Non-critical errors
         errorTypeToString[Nebulite::Constants::ERROR_TYPE::NONE] = 
             "No Error";
         errorTypeToString[Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR] = 

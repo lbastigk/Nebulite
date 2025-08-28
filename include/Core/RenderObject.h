@@ -181,6 +181,8 @@ public:
 	 * - broadcasts its own global invokes
 	 * 
 	 * - calculates source and destination rects
+	 * 
+	 * @param globalInvoke Pointer to the global invoke object
 	 */
 	void update(Nebulite::Interaction::Invoke* globalInvoke);
 
@@ -210,15 +212,28 @@ public:
 	 * @brief Estimates the computational cost of updating the RenderObject.
 	 * 
 	 * Based on the amount of evaluations and variables in the invoke entries.
+	 * 
+	 * @param globalInvoke Pointer to the global invoke object
+	 * @return The estimated computational cost.
 	 */
 	uint64_t estimateComputationalCost(Nebulite::Interaction::Invoke* globalInvoke);
 
-	// For internal string parsing in RenderObjectTree
-	// IMPORTANT: Make sure the first arg is a name and not the function itself!
-	// e.g. parseStr("set text.str Hello World") -> does not work
-	// e.g. parseStr("<someName> set text.str Hello World") -> works
 	/**
 	 * @brief Parses a string into a Nebulite command.
+	 * 
+	 * Make sure the first arg is a name and not the function itself!
+	 * 
+	 * - `parseStr("set text.str Hello World")` -> does not work!
+	 * 
+	 * - `parseStr("<someName> set text.str Hello World")` -> works
+	 * 
+	 * The first argument is reserved for debugging and should be used as a way to tell the parser from where it was called:
+	 * ```cpp
+	 * void myFunction() {
+	 *   parseStr("myFunction set text.str Hello World");
+	 * }
+	 * ```
+	 * If set fails, we can use the first argument `argv[0]` to identify the source of the command.
 	 * 
 	 * @param str The string to parse.
 	 * @return Potential errors that occured on command execution

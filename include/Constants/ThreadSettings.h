@@ -43,4 +43,5 @@ Date            Result      THREADED_MIN_BATCHSIZE  BATCH_COST_GOAL INVOKE_EXPR_
 2025-08-14:     20.9s       100                     500             10                      # improved caching
 2025-08-14:     14.5s       500                     500             20
 2025-08-14:     14.4s       500                     500             10
+2025-08-28:     14.2s       500                     500             10                      # smaller tweaks perhaps, or just general os fluctuations
 */

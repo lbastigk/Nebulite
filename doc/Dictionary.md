@@ -63,7 +63,15 @@ Expressions may include variables. Certain conditions must be met for an express
 
 ## P
 
-**ParsedEntry** - A single instance of a parse `Invoke` `JSON` file. See `Invoke`.
+**ParsedEntry** - A single instance of a parsed `Invoke` `JSON` file. See `Invoke`.
+The signature is: 
+
+- `"topic":<string>`
+- `"logicalArg":<string>/<vector:string>`
+- `"exprs":<vector:string>`
+- `"functioncalls_global":<vector:string>`
+- `"functioncalls_self":<vector:string>`
+- `"functioncalls_other":<vector:string>`
 
 ## Q
 

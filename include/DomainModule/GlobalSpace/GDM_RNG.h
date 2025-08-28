@@ -5,6 +5,7 @@
  * - include old global.rand and global.rrand for compatibility
  * - New structure: global.rng.A/B/C/D/...
  * 
+ * [Discussion on proper RNG -> using functioncalls as hash]
  * Biggest todo: Proper deterministic rng:
  * - we cant update after each frame unless we use a consistent dt
  * - one idea is to poll input events and use them to seed the RNG
@@ -23,6 +24,9 @@
  *   we can make this two-fold: 
  *   - general update call after each frame depending on functioncalls
  *   - manual update from functioncalls
+ *   So we use the last functioncall to re-seed multiple RNGs.
+ *   In order to better incorporate this if no functioncall is present, we may also seed with current inputs
+ *   -> Deep integration into globalspace needed.
  */
 
 #include "Constants/ErrorTypes.h"

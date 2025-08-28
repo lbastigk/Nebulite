@@ -156,18 +156,17 @@ public:
 
     //-------------------------------------------------
     // Removal of private keyword for easier access for DomainModule classes
-    // This allows for easier DomainModule and modification of the GlobalSpace
+    // This allows for easier inspection and modification of the GlobalSpace
     // without having to specify its access here
 /*
 private:
     //-------------------------------------------------
+    // [What we're not doing anymore:]
     // Allow GlobalSpaceTree Categories to access private members
     friend class Nebulite::DomainModule::GlobalSpace::General;
     friend class Nebulite::DomainModule::GlobalSpace::Renderer;
     friend class Nebulite::DomainModule::GlobalSpace::Debug;
 //*/
-
-    
 
     //-------------------------------------------------
     // Internal Variables, linked to GlobalSpaceTree
@@ -201,6 +200,7 @@ private:
     // Global Space document 
     Nebulite::Utility::JSON global;
 
+    //-------------------------------------------------
 private:
 
     /**
@@ -208,6 +208,7 @@ private:
      * 
      * This pointer is used to access the renderer for drawing operations.
      * It is initialized on first use via getRenderer(), all access is through this function.
+     * 
      * Due to the way the renderer is initialized, the object is marked as private.
      * Under no circumstances should processes try to access the renderer directly!
      */

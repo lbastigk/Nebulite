@@ -29,7 +29,17 @@ namespace Core{
 class Environment {
 public:
 	/**
+	 * @enum Nebulite::Core::Environment::Layers
 	 * @brief Enum representing the different rendering layers.
+	 * 
+	 * Each layer is technically responsible for a specific type of rendering.
+	 * However, there is no real distinction in how the layers are processed.
+	 * The only difference is the order in which they are rendered.
+	 * Each layer can be thought of as a separate "pass" over the render objects.
+	 * Starting with the lowest layer (background) and ending with the highest layer (menue).
+	 * 
+	 * @todo Once GDM_GUI and renderer texture queuing is properly implemented, 
+	 * the layer size may be reduced and layer names reworked.
 	 */
 	enum Layers {
 		background,
@@ -83,6 +93,9 @@ public:
 	 * The deserialized JSON string is expected to have the same structure as the serialized format.
 	 * See `serialize()` for more details.
 	 * 
+	 * @param serialOrLink The JSON string to deserialize or a link to the JSON file.
+	 * @param dispResX Display resolution width. Necessary to position the object correctly in its tile-based container.
+	 * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
 	 */
 	void deserialize(std::string serialOrLink, int dispResX,int dispResY);
 	
@@ -108,11 +121,11 @@ public:
 	 * 
 	 * @param tileXpos current camera tile position in the X direction.
 	 * @param tileYpos current camera tile position in the Y direction.
-	 * @param dispResX display resolution width (necessary for potential RenderObject reinsertions).
-	 * @param dispResY display resolution height (necessary for potential RenderObject reinsertions).
+	 * @param dispResX display resolution width. Necessary for potential RenderObject reinsertions).
+	 * @param dispResY display resolution height. Necessary for potential RenderObject reinsertions).
 	 * @param globalInvoke pointer to the global Invoke instance.
 	 */
-	void update(int16_t tileXpos, int16_t tileYpos,int dispResX,int dispResY,Nebulite::Interaction::Invoke* globalInvoke);
+	void update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY, Nebulite::Interaction::Invoke* globalInvoke);
 
 	/**
 	 * @brief Rebuilds the Container structure.
@@ -141,7 +154,9 @@ public:
 	 * @param x The X coordinate of the tile.
 	 * @param y The Y coordinate of the tile.
 	 * @param layer The layer index.
-	 * @return A reference to the RenderObjectContainer at the specified position and layer.
+	 * @return A reference to the RenderObjectContainer at the specified position and layer: A vector of batched RenderObjects.
+	 * 
+	 * @todo Pass the layer as an enum instead of an integer. Should be compatible since we can always static_cast between the two?
 	 */
 	std::vector<Nebulite::Core::RenderObjectContainer::batch>& getContainerAt(int16_t x, int16_t y, int layer);
 
@@ -152,6 +167,8 @@ public:
 	 * @param y The Y coordinate of the tile.
 	 * @param layer The layer index.
 	 * @return True if the position and layer are valid, false otherwise.
+	 * 
+	 * @todo Pass the layer as an enum instead of an integer. Should be compatible since we can always static_cast between the two?
 	 */
 	bool isValidPosition(int x, int y, int layer);
 
@@ -169,6 +186,13 @@ public:
 	 * @brief Retrieves the total number of render objects in the environment.
 	 * 
 	 * @return The total number of render objects in the environment.
+	 * 
+	 * @todo Properly define the size instead of using size_t. 
+	 * size_t is at least 16 bit (https://en.cppreference.com/w/c/types/size_t.html)
+	 * which is definitely not enough if we consider the lower limit (65535 objects tiled is about 256 * 256, call it 128^2 if we account for multiple objects on top)
+	 * However, in practice size_t should be at least 32 bit.
+	 * But it's still best to always know the size, instead of relying on the build architecture.
+	 * uint32_t should be enough. If we have more than 4 billion objects, we have bigger problems.
 	 */
 	size_t getObjectCount();
 
@@ -176,7 +200,7 @@ private:
 	// Link to Global Values
     Nebulite::Utility::JSON* global;
 
-	// Inner containers
+	// Inner RenderObject container layers
 	std::array<Nebulite::Core::RenderObjectContainer, RENDEROBJECTCONTAINER_COUNT> roc;
 };
 } // namespace Core
