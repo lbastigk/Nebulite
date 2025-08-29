@@ -1,6 +1,7 @@
 /**
  * @file ErrorTypes.h
- * @brief Defines the Nebulite::Constants::ERROR_TYPE enumeration for standardized error codes.
+ * @brief Defines the Nebulite::Constants::ERROR_TYPE enumeration for standardized error codes
+ * and the Nebulite::Constants::ErrorTable class for mapping error codes to their string descriptions.
  *
  * Functions bound via the FuncTree system utilize a `Nebulite::Constants::ERROR_TYPE foo(int argc, char** argv)` signature.
  *
@@ -24,9 +25,17 @@
  */
 
 #pragma once
+
+//-----------------------------
+// Includes
+
+// External
 #include <absl/container/flat_hash_map.h>   // For error type to string mapping
+
+// Nebulite
 #include "Nebulite.h"                       // Namespace Documentation
 
+//-----------------------------
 namespace Nebulite{
 namespace Constants {
 

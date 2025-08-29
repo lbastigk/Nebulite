@@ -1,4 +1,5 @@
 #include "Interaction/Invoke.h"
+
 #include "Core/RenderObject.h"
 #include "Utility/StringHandler.h"
 #include <limits>
@@ -6,7 +7,6 @@
 Nebulite::Interaction::Invoke::Invoke(Nebulite::Utility::JSON* globalDocPtr){
     global = globalDocPtr;
 }
-
 
 bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry> cmd, Nebulite::Core::RenderObject* otherObj) {
     //-----------------------------------------
@@ -238,7 +238,6 @@ void Nebulite::Interaction::Invoke::clear(){
     pairs_threadsafe.clear();
 }
 
-
 void Nebulite::Interaction::Invoke::update() {
 
     // Swap in the new set of commands - shared pointers will clean up automatically
@@ -263,12 +262,6 @@ void Nebulite::Interaction::Invoke::update() {
     // Cleanup
     pairs_threadsafe.clear();
 }
-
-
-
-// ==========================
-// Resolve Vars
-// ==========================
 
 std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const std::string& input) {
     Nebulite::Utility::JSON* self = this->emptyDoc;

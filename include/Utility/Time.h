@@ -5,11 +5,15 @@
 
 #pragma once
 
+//-----------------------------------------------------------
+// Includes
 
+// General
 #include <thread>
 #include <iostream>
 #include <sstream>
 
+//-----------------------------------------------------------
 namespace Nebulite {
 namespace Utility {
 /**
@@ -21,7 +25,6 @@ namespace Utility {
  */
 class Time {
 public:
-
     /**
      * @brief Enum for ISO 8601 date formats.
      * 

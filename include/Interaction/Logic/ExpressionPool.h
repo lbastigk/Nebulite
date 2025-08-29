@@ -2,44 +2,60 @@
  * @file ExpressionPool.h
  * @brief Thread-safe pool of Expression instances for concurrent evaluation.
  *
- * This file defines the `ExpressionPool` class, which manages a fixed-size array
- * of pre-parsed `Expression` objects. Each instance in the pool is protected by its
- * own mutex, allowing multiple threads to evaluate expressions in parallel without
- * interfering with one another.
+ * This file defines the `ExpressionPool` class.
  */
 
 #pragma once
+
+//--------------------------------------------
+// Includes
+
+// General
 #include <array>
 #include <mutex>
 #include <random>
 #include <string>
-#include "Interaction/Logic/Expression.h"
-#include "Constants/ThreadSettings.h"
 
+// Nebulite
+#include "Interaction/Logic/Expression.h"
+#include "Constants/ThreadSettings.h"       // Poolsize is defined here
+
+//--------------------------------------------
 namespace Nebulite {
 namespace Interaction {
 namespace Logic {
 /**
  * @class Nebulite::Interaction::Logic::ExpressionPool
  * @brief A thread-safe pool of Expression instances for concurrent evaluation.
+ * Manages a fixed-size array of pre-parsed `Expression` objects. 
+ * Each instance in the pool is protected by its own mutex, 
+ * allowing multiple threads to evaluate expressions in parallel without interfering with one another.
  * 
  * Usage:
+ * 
  *  - Call `parse()` once to compile the expression into all pool entries.
- *  - Call eval() from multiple threads; each call acquires an available instance.
- *  - If no instance is immediately available, eval() will block on a randomly chosen one.
+ *
+ *  - Call `eval()` from multiple threads; each call acquires an available instance.
+ *
+ *  - If no instance is immediately available, `eval()` will block on a randomly chosen one.
  *
  * Key Features:
- *  - Fixed pool size defined by INVOKE_EXPR_POOL_SIZE macro defined in ThreadSettings.h
+ * 
+ *  - Fixed pool size defined by `INVOKE_EXPR_POOL_SIZE` macro defined in `ThreadSettings.h`
+ * 
  *  - Per-instance locking to avoid a single global mutex bottleneck.
+ * 
  *  - Randomized acquisition order to evenly distribute workload.
+ * 
  *  - Drop-in compatible with Expression public interface (`parse`, `eval`, `getFullExpression`).
  *
  * Thread Safety:
- *  - Internally synchronized with per-instance std::mutex locks.
- *  - Multiple threads may safely call eval() concurrently.
+ * 
+ *  - Internally synchronized with per-instance `std::mutex` locks.
  *
- * @note The pool stores the same expression in each entry; per-call variable updates
- *       should be done via the eval() call, not shared state.
+ *  - Multiple threads may safely call `eval()` concurrently.
+ *
+ *  - The pool stores the same expression in each entry of the pool
  */
 class ExpressionPool {
 public:
@@ -93,7 +109,7 @@ public:
     /**
      * @brief Evaluates the expression in the context of the given JSON object acting as "other".
      *
-     * Matches Nebulite::Interaction::Logic::Expression::eval, but allows for concurrent evaluation across multiple threads.
+     * Matches `Nebulite::Interaction::Logic::Expression::eval`, but allows for concurrent evaluation across multiple threads.
      *
      * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a string.
@@ -112,7 +128,7 @@ public:
     /**
      * @brief Evaluates the expression as a double in the context of the given JSON object acting as "other".
      *
-     * Matches Nebulite::Interaction::Logic::Expression::evalAsDouble, but allows for concurrent evaluation across multiple threads.
+     * Matches `Nebulite::Interaction::Logic::Expression::evalAsDouble`, but allows for concurrent evaluation across multiple threads.
      *
      * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a double.
@@ -131,7 +147,7 @@ public:
     /**
      * @brief Gets the full expression string.
      *
-     * Matches Nebulite::Interaction::Logic::Expression::getFullExpression
+     * Matches `Nebulite::Interaction::Logic::Expression::getFullExpression`.
      *
      * @return The full expression as a string.
      */
@@ -142,7 +158,7 @@ public:
     /**
      * @brief Checks if the expression is returnable as a double.
      *
-     * Matches Nebulite::Interaction::Logic::Expression::isReturnableAsDouble
+     * Matches `Nebulite::Interaction::Logic::Expression::isReturnableAsDouble`.
      *
      * @return True if the expression is returnable as a double, false otherwise.
      */
@@ -151,11 +167,15 @@ public:
     }
 
 private:
-    // Pool of expression parse entities
+    // Pool of expressions
     std::array<Expression, INVOKE_EXPR_POOL_SIZE> pool;
 
     // Locks for thread safety
     std::array<std::mutex, INVOKE_EXPR_POOL_SIZE> locks;
+
+    //----------------------------------
+    // The following variables are shared across all pool entries
+    // But placed here for easy access, without disturbing the pool.
 
     // Full expression string that was parsed
     std::string fullExpression;

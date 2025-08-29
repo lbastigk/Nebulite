@@ -156,11 +156,11 @@ void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t til
 						}
 					}
 
-					// All objects to move are collected in objects_awaiting_reinsertion
+					// All objects to move are collected in queue
 					for (auto ptr : to_move_local) {
 						batch.removeObject(ptr, globalInvoke);
 						std::lock_guard<std::mutex> lock(reinsertionProcess.reinsertMutex);
-						reinsertionProcess.objects_awaiting_reinsertion.push_back(ptr);
+						reinsertionProcess.queue.push_back(ptr);
 					}
 
 					// All objects to delete are collected in trash
@@ -180,10 +180,10 @@ void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t til
 	}
 
 	// Objects to move
-	for (auto obj_ptr : reinsertionProcess.objects_awaiting_reinsertion) {
+	for (auto obj_ptr : reinsertionProcess.queue) {
 		append(obj_ptr, dispResX, dispResY);
 	}
-	reinsertionProcess.objects_awaiting_reinsertion.clear();
+	reinsertionProcess.queue.clear();
 }
 
 void Nebulite::Core::RenderObjectContainer::reinsertAllObjects(int dispResX, int dispResY) {

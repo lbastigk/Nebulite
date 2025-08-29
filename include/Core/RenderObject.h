@@ -2,26 +2,32 @@
  * @file RenderObject.h
  * @brief Declaration of the RenderObject class.
  * 
- * Defines the Nebulite::Core::RenderObject class, which represents a renderable entity
- * in the Nebulite engine. This class encapsulates all data and logic needed to
- * display, update, and interact with a single object on the screen.
+ * Defines the Nebulite::Core::RenderObject class.
  */
 
 #pragma once
 
+//-------------------------------------------------
+// Include
+
+// External
 #include "SDL.h"		// SDL Renderer is used for some methods to calculate text
 #include "SDL_ttf.h"	// Same for ttf
 
+// Nebulite
 #include "Constants/KeyNames.h"
 #include "Interaction/Invoke.h"
 #include "Interaction/Execution/RenderObjectTree.h"
 #include "Utility/JSON.h"
 
+//-------------------------------------------------
 namespace Nebulite {
 namespace Core {
 /**
  * @class Nebulite::Core::RenderObject
- * @brief Represents a renderable object in the Nebulite engine.
+ * @brief Represents a renderable object in the Nebulite engine. 
+ * This class encapsulates all data and logic needed to
+ * display, update, and interact with a single object on the screen.
  *
  * Key Features:
  * 
@@ -58,7 +64,9 @@ namespace Core {
  *
  *   - Append the RenderObject to the Renderer via `./bin/Nebulite spawn myObject.json`
  *
- * All resource management (textures, surfaces) is handled internally. 
+ * Text resource management (textures, surfaces) is handled internally.
+ * Spritesheet texture is handled by the Renderer.
+ * 
  * Copy and move operations are disabled to prevent accidental resource duplication.
  */
 class RenderObject {
@@ -90,7 +98,7 @@ public:
 
 
 	//-----------------------------------------------------------
-	//Marshalling
+	// Serializing/Deserializing
 
 	/**
 	 * @brief Serializes the RenderObject to a JSON string.
@@ -279,7 +287,7 @@ private:
 } // namespace Nebulite
 
 //-----------------------------------------------------------
-// Setting/Getting specific values
+// Templated setter/getter functions
 
 template <typename T> void Nebulite::Core::RenderObject::valueSet(const char* key, const T data) {
 	//JSONHandler::Set::Any(doc, key, data);

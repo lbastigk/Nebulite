@@ -6,14 +6,12 @@
 
 #pragma once
 
-
 /**
  * @def THREADED_MIN_BATCHSIZE
  * 
  * Minimum batch size needed to create a new rendering thread of invoke-pairs to process.
  */
 #define THREADED_MIN_BATCHSIZE 500
-
 
 /**
  * @def BATCH_COST_GOAL
@@ -24,15 +22,12 @@
  */
 #define BATCH_COST_GOAL 500
 
-
 /**
  * @def INVOKE_EXPR_POOL_SIZE
  *
  * Size of the expression pool for each expression.
  */
 #define INVOKE_EXPR_POOL_SIZE 10
-
-
 
 /*
 RESULTS using ./bin/Nebulite task TaskFiles/Benchmarks/spawn_constantly.nebs 

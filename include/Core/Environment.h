@@ -1,20 +1,38 @@
+/**
+ * @file Environment.h
+ * @brief Contains the definition of the Nebulite::Core::Environment class.
+ */
+
 #pragma once
 
+//-----------------------------
+// Includes
+
+// General
 #include <iostream>
 #include <string>
-#include "absl/container/flat_hash_map.h"
 #include <utility>
 #include <vector>
 
+// External
+#include "absl/container/flat_hash_map.h"
 
+// Nebulite
+#include "Nebulite.h"
 #include "Core/RenderObjectContainer.h"
 #include "Interaction/Invoke.h"
 #include "Utility/JSON.h"
 
-
-
+//-----------------------------
+/**
+ * @def RENDEROBJECTCONTAINER_COUNT
+ * @brief The number of RenderObjectContainer layers in the Environment.
+ * 
+ * @todo Probably better to use as static uint inside Nebulite::Core::Environment
+ */
 #define RENDEROBJECTCONTAINER_COUNT 5
 
+//-----------------------------
 namespace Nebulite{
 namespace Core{
 /**
@@ -24,7 +42,8 @@ namespace Core{
  * This class is responsible for containing all RenderObject instances.
  * Lifecycle management is handled inside the RenderObjectContainer.
  * The environment is split into multiple layers, each containing a grid of render objects.
- * The grid size depends on the display resolution: <display_resolution_x> x <display_resolution_y>
+ * The grid size depends on the display resolution: 
+ * `<display_resolution_x> * <display_resolution_y>`
  */
 class Environment {
 public:
@@ -188,9 +207,13 @@ public:
 	 * @return The total number of render objects in the environment.
 	 * 
 	 * @todo Properly define the size instead of using size_t. 
+	 * 
 	 * size_t is at least 16 bit (https://en.cppreference.com/w/c/types/size_t.html)
-	 * which is definitely not enough if we consider the lower limit (65535 objects tiled is about 256 * 256, call it 128^2 if we account for multiple objects on top)
+	 * which is definitely not enough if we consider the lower limit 
+	 * (65535 objects tiled is about 256 * 256, call it 128^2 if we account for multiple objects on top)
+	 * 
 	 * However, in practice size_t should be at least 32 bit.
+	 * 
 	 * But it's still best to always know the size, instead of relying on the build architecture.
 	 * uint32_t should be enough. If we have more than 4 billion objects, we have bigger problems.
 	 */

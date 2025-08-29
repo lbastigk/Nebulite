@@ -1,18 +1,21 @@
 /**
  * @file Renderer.h
  *
- * This file contains the declaration of the Renderer class, which is responsible for rendering
+ * This file contains the declaration of the Nebulite::Core::Renderer class, which is responsible for rendering
  * the game objects and managing the rendering pipeline.
  */
 
 #pragma once
 
-// Global Libraries
+//-------------------------------------------------
+// Includes
+
+// General
 #include <thread>
 #include <random>
 #include <stdint.h>
 
-// External Libraries
+// External
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
@@ -25,6 +28,7 @@
 #include "Utility/TimeKeeper.h"
 #include "Interaction/Invoke.h"
 
+//-------------------------------------------------
 namespace Nebulite{
 namespace Core {
 /**

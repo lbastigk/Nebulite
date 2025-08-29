@@ -5,6 +5,10 @@
 
 #pragma once
 
+//-----------------------------------------------------------
+// Includes
+
+// General
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -16,6 +20,7 @@
 #include <algorithm>
 #include <unordered_map>
 
+//-----------------------------------------------------------
 namespace Nebulite {
 namespace Utility {
 /**

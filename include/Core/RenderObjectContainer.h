@@ -1,24 +1,28 @@
 /**
  * @file RenderObjectContainer.h
- * @brief Contains the RenderObjectContainer class.
+ * @brief Contains the Nebulite::Core::RenderObjectContainer class.
  */
 
+//-----------------------------------------------------------
+// Includes
 
+// General
 #include <thread>
 
+// Nebulite
 #include "Core/RenderObject.h"
 
-
+//-----------------------------------------------------------
 namespace Nebulite {
 namespace Core {
 /**
- * @class RenderObjectContainer
+ * @class Nebulite::Core::RenderObjectContainer
  * @brief Manages a collection of RenderObject instances in a tile-based container.
  */
 class RenderObjectContainer {
 public:
 	/**
-	 * @struct batch
+	 * @struct Nebulite::Core::RenderObjectContainer::batch
 	 * @brief Represents a batch of RenderObject instances in a given tile.
 	 * 
 	 * `batch -> vector<RenderObject*>`
@@ -27,7 +31,7 @@ public:
 	 * Basically a custom std::vector wrapper for easier cost management.
 	 */
 	struct batch{
-		// Collection of render objects
+		// Collection of RenderObjects
 		std::vector<RenderObject*> objects;
 
 		// Full estimated cost of the batch
@@ -153,6 +157,8 @@ public:
 	 * @brief Retrieves a RenderObject from the container by its unique ID.
 	 * 
 	 * Does not remove the object from the container.
+	 * Do **not** delete the returned object, 
+	 * it's still owned and managed by the container!
 	 * 
 	 * @param id The unique ID of the RenderObject to retrieve.
 	 * @return Pointer to the RenderObject if found, nullptr otherwise.
@@ -185,6 +191,7 @@ private:
 	std::vector<std::thread> batchWorkers;
 
 	/**
+	 * @struct Nebulite::Core::RenderObjectContainer::ReinsertionProcess
 	 * @brief Holds all objects that are awaiting re-insertion into the container.
 	 * 
 	 * The reinsertion process is a 3-step pipeline that ensures objects are properly
@@ -192,12 +199,12 @@ private:
 	 * 
 	 * - Remove from current batch
 	 * 
-	 * - Collect in objects_awaiting_reinsertion
+	 * - Collect in queue
 	 * 
 	 * - Reinsert into the correct tile and batch
 	 */
 	struct ReinsertionProcess {
-		std::vector<Nebulite::Core::RenderObject*> objects_awaiting_reinsertion;
+		std::vector<Nebulite::Core::RenderObject*> queue;
 		std::mutex reinsertMutex;
 	} reinsertionProcess;
 
@@ -225,8 +232,8 @@ private:
 		//std::vector<Nebulite::Core::RenderObject*> to_delete;
 		std::vector<Nebulite::Core::RenderObject*> trash;		// Moving objects, marking for deletion
 		std::vector<Nebulite::Core::RenderObject*> purgatory;	// Deleted each frame
-		std::mutex deleteMutex;							// Threadsafe insertion into trash
-	}deletionProcess;
+		std::mutex deleteMutex;									// Threadsafe insertion into trash
+	} deletionProcess;
 
 	// Link to the global Invoke instance for object updates
 	Nebulite::Interaction::Invoke* globalInvoke;

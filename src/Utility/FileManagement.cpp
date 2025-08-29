@@ -50,7 +50,7 @@ void Nebulite::Utility::FileManagement::WriteFile(const std::string& filename, c
     file << text;
 }
 
-char Nebulite::Utility::FileManagement::preferred_separator() {
+char Nebulite::Utility::FileManagement::preferredSeparator() {
     return std::filesystem::path::preferred_separator;
 }
 

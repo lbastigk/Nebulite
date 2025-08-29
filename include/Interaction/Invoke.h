@@ -7,18 +7,21 @@
 
 #pragma once
 
-// General Includes
+//----------------------------------------------------------
+// Includes 
+
+// General
 #include <string>
 #include <vector>
 #include <deque>
 #include <shared_mutex>
 #include <thread>
 
+// External
 #include "tinyexpr.h"
 
-// Local
+// Nebulite
 #include "Constants/ThreadSettings.h"
-
 #include "Utility/JSON.h"
 #include "Interaction/Logic/Assignment.h"
 #include "Interaction/Logic/ParsedEntry.h"
@@ -62,10 +65,6 @@ namespace Interaction{
  */
 class Invoke{
 public:
-    
-    // Function to convert a JSON doc of Renderobject into a vector of InvokeEntry
-
-
     //--------------------------------------------
     // General
 
@@ -213,9 +212,14 @@ public:
     /**
      * @brief Evaluates a standalone expression.
      * 
-     * This function takes a standalone expression as input and evaluates it,
-     * returning the result as a string. As this happens inside the invoke class, 
+     * Returns the result as a string. As this happens inside the invoke class, 
      * it has access to the global document as well as the DocumentCache.
+     * 
+     * An empty document is used for the `self` and `other` context:
+     * 
+     * - All variable access outside of an expression defaults to an empty string
+     * 
+     * - All variable access inside of an expression defaults to 0.0
      * 
      * @param input The expression to evaluate.
      * @return The result of the evaluation.
@@ -269,18 +273,17 @@ private:
     > entries_global_next; 
 
     // All pairs of last listen
-    std::vector<
-      std::vector<
-        std::pair<
-          std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry>,
-          Nebulite::Core::RenderObject*
+    std::vector<    // Vector...
+      std::vector<  // of threaded batches...
+        std::pair<  // of broadcast-listen-pairs
+          std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry>, // The ParsedEntry that was broadcasted
+          Nebulite::Core::RenderObject*                               // The object that listened to the Broadcast
         >
       >
     > pairs_threadsafe;
-
     
     //----------------------------------------------------------------
-    // Private functions
+    // Private methods
 
     /**
      * @brief Updates a build pair of invoke entry with given domain `other`

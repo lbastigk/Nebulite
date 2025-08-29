@@ -171,7 +171,7 @@ void Nebulite::Core::Renderer::loadFonts() {
 
 	//--------------------------------------------
 	// Font location
-	std::string sep(1,Nebulite::Utility::FileManagement::preferred_separator());
+	std::string sep(1,Nebulite::Utility::FileManagement::preferredSeparator());
 	std::string fontDir = std::string("Resources") + sep + std::string("Fonts") + sep + std::string("Arimo-Regular.ttf");
 	std::string fontpath = Nebulite::Utility::FileManagement::CombinePaths(baseDirectory, fontDir);
 	

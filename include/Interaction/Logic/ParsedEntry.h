@@ -44,6 +44,8 @@ namespace Logic {
  *     "functioncalls_other": []   // vector of function calls, e.g. "add-invoke ./Resources/Invokes/gravity.jsonc"
  * }
  * ```
+ * 
+ * The struct also contains a pointer to the RenderObject that owns this entry (the broadcaster).
  */
 struct ParsedEntry{
     /**

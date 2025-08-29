@@ -5,16 +5,10 @@
 
 #pragma once
 
-// Rapidjson dependencies
-#include "document.h"
-#include "writer.h"
-#include "stringbuffer.h"
-#include "prettywriter.h"
-#include "encodings.h"
-#include "istreamwrapper.h"
-#include "ostreamwrapper.h"
+//-----------------------------------------------------------
+// Includes
 
-// Other dependencies
+// General
 #include <mutex>
 #include <typeinfo>
 #include <cxxabi.h>
@@ -22,12 +16,22 @@
 #include <variant>
 #include <type_traits>
 #include <typeindex>
+
+// External
+#include "document.h"
+#include "writer.h"
+#include "stringbuffer.h"
+#include "prettywriter.h"
+#include "encodings.h"
+#include "istreamwrapper.h"
+#include "ostreamwrapper.h"
 #include "absl/container/flat_hash_map.h"
 
-// Internal dependencies
+// Nebulite
 #include "Utility/FileManagement.h"
 #include "Interaction/Execution/JSONTree.h"
 
+//-----------------------------------------------------------
 namespace Nebulite{
 namespace Utility {
 /**
@@ -36,6 +40,8 @@ namespace Utility {
  * This template is used to determine if a type is a simple value that can be cached.
  * 
  * @note Make sure to update this template and Nebulite::Utility::JSON::CacheEntry if the list of supported types changes.
+ * 
+ * @todo Moving to private of JSON?
  */
 template <typename T>
 struct is_simple_value : std::disjunction<
@@ -50,6 +56,8 @@ struct is_simple_value : std::disjunction<
 
 /**
  * @brief Helper variable template for checking if a type is a simple value.
+ * 
+ * @todo Moving to private of JSON?
  */
 template <typename T>
 inline constexpr bool is_simple_value_v = is_simple_value<T>::value;
@@ -118,6 +126,9 @@ public:
      * 
      * This function performs a deep copy of the document and cache from the
      * other JSON object, ensuring that all data is transferred correctly.
+     * 
+     * @note If this fails, it might be helpful to fall back to 
+     * serializing and deserializing the JSON.
      */
     void copyFrom(const JSON* other) {
         std::scoped_lock lock(mtx, other->mtx);
@@ -140,7 +151,8 @@ public:
     const static std::string reservedCharacters;
 
     //------------------------------
-    // Get any value
+    // Getter
+
     /**
      * @brief Gets a value from the JSON document.
      * 
@@ -169,7 +181,7 @@ public:
 
 
     //------------------------------
-    // Set any value
+    // Setter
 
     /**
      * @brief Sets a value in the JSON document.
@@ -196,7 +208,7 @@ public:
      * This function sets a sub-document in the JSON document.
      * If the key already exists, the sub-document is updated.
      * 
-     * Note that both the child and parent documents are flushed before setting.
+     * Note that both the child and parent documents' caches are flushed before setting.
      * 
      * @param key The key of the sub-document to set.
      * @param child The sub-document to set.
@@ -442,12 +454,11 @@ private:
 
     /**
      * @brief Sets a value in the cache, clears the derived cache and sets the double pointer cache.
+     * 
+     * @todo For consistency with get_type, maybe changing std::string key to a CacheEntry reference?
      */
     template <typename T> void set_type(std::string key, const T& value);
 
-    // get from cache 
-    // 
-    // 
     /**
      * @brief Retrieves a value from the cache or derived cache, converting if necessary.
      * 

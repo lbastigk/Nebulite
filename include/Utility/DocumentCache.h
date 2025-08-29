@@ -8,9 +8,14 @@
 
 #pragma once
 
+//-----------------------------------------------------------
+// Includes
+
+// Nebulite
 #include "Utility/JSON.h"
 #include "Utility/FileManagement.h"
 
+//-----------------------------------------------------------
 namespace Nebulite {
 namespace Utility {
 /**
@@ -36,6 +41,9 @@ namespace Utility {
  */
 class DocumentCache{
 public:
+    /**
+     * @brief Default constructor for DocumentCache.
+     */
     DocumentCache() = default;
 
     /**
@@ -45,7 +53,10 @@ public:
      * 
      * @tparam T The type of the data to retrieve.
      * 
-     * @param doc_key The key identifying the document and the specific data to retrieve: <linkToDocument>:<key>
+     * @param doc_key The key identifying the document and the specific data to retrieve: 
+     * `<linkToDocument>:<key>`
+     * Example:
+     * `./Resources/Data/myData.jsonc:key1.key2`
      * 
      * @param defaultValue The value to return if the document or key is not found.
      * 
@@ -66,30 +77,7 @@ public:
      * Guaranteed to be valid even if the key does not exist within the document,
      * or if the document itself is not found!
      */
-    double* getDoublePointerOf(const std::string& doc_key) {
-        // Split the input into document name and key
-        size_t pos = doc_key.find(':');
-        if (pos == std::string::npos) {
-            return &zero; // Return a pointer to zero if format is incorrect
-        }
-        std::string doc = doc_key.substr(0, pos);
-        std::string key = doc_key.substr(pos + 1);
-
-        if(ReadOnlyDocs.find(doc) == ReadOnlyDocs.end()) {
-            // Load the document if it doesn't exist
-            std::string serial = Nebulite::Utility::FileManagement::LoadFile(doc);
-            if (serial.empty()) {
-                return &zero;
-            }
-            ReadOnlyDocs[doc].deserialize(serial);
-        }
-
-        // Register the external cache
-        if (ReadOnlyDocs.find(doc) != ReadOnlyDocs.end()) {
-            return ReadOnlyDocs[doc].getDoublePointerOf(key);
-        }
-        return &zero; // Return a pointer to zero if the document or key is not found
-    }
+    double* getDoublePointerOf(const std::string& doc_key);
 private:
     // Cache for read-only documents
     absl::flat_hash_map<std::string,Nebulite::Utility::JSON> ReadOnlyDocs;
@@ -100,7 +88,9 @@ private:
 } // namespace Utility
 } // namespace Nebulite
 
-// Expected input: ./Resources/Data/myData.jsonc:key1.key2
+//-------------------------------------
+// Definitions of template functions
+
 template  <typename T> 
 T Nebulite::Utility::DocumentCache::getData(std::string doc_key, const T& defaultValue) {
     // Split the input into document name and key

@@ -6,6 +6,10 @@
 
 #pragma once
 
+//-----------------------------------------------------------
+// Includes
+
+// General
 #include <filesystem>
 #include <string>
 #include <cstring>
@@ -14,6 +18,7 @@
 #include <fstream>
 #include <string>
 
+//-----------------------------------------------------------
 namespace Nebulite{
 namespace Utility {
 /**
@@ -22,13 +27,16 @@ namespace Utility {
  */
 class FileManagement{
 public:
-
     /**
      * @brief Combines two paths into one.
      * 
      * This function takes a base directory and an inner directory and combines them
      * into a single path using the appropriate directory separator for the platform.
      * 
+     * @param baseDir The base directory.
+     * @param innerDir The inner directory to append to the base directory.
+     * 
+     * @return The combined path as a string.
      */
     static std::string CombinePaths(const std::string& baseDir, const std::string& innerDir);
 
@@ -38,9 +46,10 @@ public:
      * This function takes a file path and reads its contents into a string.
      * Outputs error messages to std::cerr if the file cannot be opened or read.
      * 
+     * @param link The path to the file to read.
+     * 
      * @return The contents of the file as a string. If the file cannot be read,
      *         an empty string is returned.
-     * 
      */
     static std::string LoadFile(const std::string& link);
 
@@ -62,7 +71,7 @@ public:
      * 
      * @return The preferred directory separator character.
      */
-    static char preferred_separator();
+    static char preferredSeparator();
 
     /**
      * @brief Returns the current working directory.

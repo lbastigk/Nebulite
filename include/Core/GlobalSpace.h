@@ -2,33 +2,37 @@
 /**
  * @file GlobalSpace.h
  * 
- * GlobalSpace class declaration for the Nebulite Engine for core functionality.
+ * @brief Contains the Nebulite::Core::GlobalSpace class declaration 
+ * for the Nebulite Engine for core functionality
+ * and structures in Nebulite::Core namespace.
  */
-
-
-//------------------------------------------------
-// Core functionality of the Nebulite Engine
 
 #pragma once
 
+//-------------------------------------------------
+// Includes
+
+// General
 #include <deque>
 
+// Nebulite
 #include "Core/Renderer.h"
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/GlobalSpaceTree.h"
 
+//-------------------------------------------------
 namespace Nebulite {
 namespace Core {
 //-------------------------------------------------
-// Types
+// General Types used
 
-// hold tasks that need to be parsed as well as parsing info
 /**
- * @brief Represents a queue of tasks to be processed.
+ * @struct Nebulite::Core::taskQueue
+ * @brief Represents a queue of tasks to be processed by the engine.
  */
 struct taskQueue {
-    std::deque<std::string> taskList;
-    bool clearAfterResolving = true;
+    std::deque<std::string> taskList;   // List of tasks
+    bool clearAfterResolving = true;    // Whether to clear the task list after resolving
 };
 
 /**

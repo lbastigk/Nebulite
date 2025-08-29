@@ -8,9 +8,15 @@
  */
 
 #pragma once
+
+//--------------------------------------------
+// Includes
+
+// Nebulite
 #include "Utility/JSON.h"
 #include "Utility/DocumentCache.h"
 
+//--------------------------------------------
 namespace Nebulite{
 namespace Interaction{
 namespace Logic {
@@ -39,7 +45,6 @@ class VirtualDouble {
     // External cache
     double* external_cache = nullptr;
 public:
-
     /**
      * @brief Construct a new VirtualDouble object.
      * 
@@ -51,11 +56,11 @@ public:
      */
     VirtualDouble(const std::string& k, Nebulite::Utility::DocumentCache* documentCache) 
         : key(k), documentCache(documentCache) {
-            // Removing self/other/global prefixes
-            if (key.find("self.") == 0) key = key.substr(5);
-            else if (key.find("other.") == 0) key = key.substr(6);
-            else if (key.find("global.") == 0) key = key.substr(7);
-        }
+            // Removing self/other/global prefixes in the key
+            if (key.find("self.") == 0)         key = key.substr(5);
+            else if (key.find("other.") == 0)   key = key.substr(6);
+            else if (key.find("global.") == 0)  key = key.substr(7);
+    }
 
     /**
      * @brief Get the key associated with this VirtualDouble.

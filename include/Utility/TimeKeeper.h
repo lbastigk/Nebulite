@@ -3,8 +3,15 @@
  * @brief Contains the Nebulite::Utility::TimeKeeper class for managing time-related operations.
  */
 
+#pragma once
+
+//-----------------------------------------------------------
+// Includes
+
+// Nebulite
 #include "Utility/Time.h"
 
+//-----------------------------------------------------------
 namespace Nebulite {
 namespace Utility {
 /**
@@ -12,7 +19,7 @@ namespace Utility {
  * @brief Manages time-related operations in the Nebulite engine.
  * 
  * The TimeKeeper class provides functionality to track elapsed time,
- * manage frame rates, and handle delays.
+ * to manage frame rates, handle delays, etc.
  * 
  * The start time is set to construction time. Timer is initialized to not running.
  */
@@ -34,14 +41,18 @@ public:
     /**
      * @brief Updates the timer.
      * 
-     * This function calculates the delta time since the last update and updates the timer.
+     * This function calculates the delta time since the last update and updates the timers full runtime.
      * 
      * @param fixed_dt_ms If greater than 0, this value will be used as the delta time instead of the calculated value.
      * 
      * @todo The implemented logic is has too many sets, then resets and all that nonsense. Create a proper branching path
      */
     void update(uint64_t fixed_dt_ms = 0){
-        // 1.) Gather timing information: last t, current t, dt
+        //----------------------------------
+        // Gathering timing information, even if the timer is not running
+        // The whole timer works on dt integration, so we always need to know the current dt
+
+        // last t, current t, dt
         onUpdate.last_t_ms = onUpdate.t_ms;
         onUpdate.t_ms = Time::gettime() - t_start;
         onUpdate.dt = onUpdate.t_ms - onUpdate.last_t_ms;
@@ -51,7 +62,9 @@ public:
             onUpdate.dt = fixed_dt_ms;
         }
 
-        // 3.) Set dt
+        //----------------------------------
+        // Set actual dt and t values
+
         if(running){
             dt_ms = onUpdate.dt;
         }
@@ -67,6 +80,9 @@ public:
      * @brief Starts the timer.
      * 
      * This function initializes the timer and begins tracking elapsed time.
+     * 
+     * Make sure to call update() before start() to get an accurate dt,
+     * if you don't start the timer immediately after construction.
      */
     void start(){
         running = true;
@@ -77,17 +93,18 @@ public:
      * 
      * This function stops the timer and pauses tracking elapsed time.
      * Any accumulated time will be preserved.
-     * Note that in stop, get_dt_ms() will return the last update's delta time.
+     * Note that in stop, `get_dt_ms()` will return the last update's delta time.
+     * 
+     * Make sure to call `update()` before `stop()` to get an accurate dt.
      */
     void stop(){
         running = false;
     }
 
     /**
-     * @brief Calculates the projected dt if update() was to be called.
+     * @brief Calculates the projected dt if `update()` were to be called.
      * 
-     * This function estimates the delta time that would be reported if update() were called.
-     * It does this by simulating the passage of time through a direct system_clock call for elapsed time.
+     * It does this by simulating the passage of time through a direct `system_clock` call for elapsed time.
      * If the timer is not running, the projected delta time will be zero.
      * 
      * @return The projected delta time in milliseconds.
@@ -108,7 +125,8 @@ public:
      * @brief Gets the current time in milliseconds since the timer started.
      * 
      * This function returns the time elapsed since the timer started.
-     * Note that the returned value is not necessarily equal to system time, as the update function allows for a custom dt.
+     * Note that the returned value is not necessarily equal to elapsed system time, 
+     * as the update function allows for a custom dt.
      * 
      * @return The time elapsed since the timer started in milliseconds.
      */
