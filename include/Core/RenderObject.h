@@ -8,7 +8,7 @@
 #pragma once
 
 //-------------------------------------------------
-// Include
+// Includes
 
 // External
 #include "SDL.h"		// SDL Renderer is used for some methods to calculate text

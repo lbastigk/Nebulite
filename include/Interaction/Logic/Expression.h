@@ -6,13 +6,22 @@
 
 #pragma once
 
-#include "Interaction/Logic/VirtualDouble.h"
+//--------------------------------------------
+// Includes
+
+// General
 #include "string"
-#include "Utility/DocumentCache.h"
-#include "tinyexpr.h"
 #include <memory>
 #include <deque>
 
+// External
+#include "tinyexpr.h"
+
+// Nebulite
+#include "Interaction/Logic/VirtualDouble.h"
+#include "Utility/DocumentCache.h"
+
+//--------------------------------------------
 /**
  * @brief Enables the use of an external cache for double-values.
  * 
@@ -32,7 +41,7 @@
  */
 #define use_external_cache 1
 
-
+//--------------------------------------------
 namespace Nebulite {
 namespace Interaction {
 namespace Logic {

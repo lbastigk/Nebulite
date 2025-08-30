@@ -4,10 +4,15 @@
  * This file contains the Assignment struct, used to represent variable assignments in the Nebulite scripting language.
  */
 
-#include "Interaction/Logic/ExpressionPool.h"
-
 #pragma once
 
+//--------------------------------------------
+// Includes
+
+// Nebulite
+#include "Interaction/Logic/ExpressionPool.h"
+
+//--------------------------------------------
 namespace Nebulite {
 namespace Interaction {
 namespace Logic {

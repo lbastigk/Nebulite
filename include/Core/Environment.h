@@ -5,7 +5,7 @@
 
 #pragma once
 
-//-----------------------------
+//-------------------------------------------------
 // Includes
 
 // General
@@ -23,7 +23,7 @@
 #include "Interaction/Invoke.h"
 #include "Utility/JSON.h"
 
-//-----------------------------
+//-------------------------------------------------
 /**
  * @def RENDEROBJECTCONTAINER_COUNT
  * @brief The number of RenderObjectContainer layers in the Environment.
@@ -32,7 +32,7 @@
  */
 #define RENDEROBJECTCONTAINER_COUNT 5
 
-//-----------------------------
+//-------------------------------------------------
 namespace Nebulite{
 namespace Core{
 /**

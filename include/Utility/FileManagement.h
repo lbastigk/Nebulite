@@ -1,7 +1,7 @@
 /**
  * @file Nebulite::Utility::FileManagement.h
  * 
- * @brief Provides utilities for file management operations.
+ * @brief This file contains the FileManagement class for managing file operations.
  */
 
 #pragma once

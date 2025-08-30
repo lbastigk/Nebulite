@@ -1,9 +1,7 @@
 /**
  * @file DocumentCache.h
  * 
- * @brief Caches documents as read-only for quick access of resources.
- * 
- * This file contains the DocumentCache class for managing cached, read-only documents.
+ * @brief This file contains the DocumentCache class for managing cached, read-only documents.
  */
 
 #pragma once
