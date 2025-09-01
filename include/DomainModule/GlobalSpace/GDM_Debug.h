@@ -58,6 +58,9 @@ public:
      * @param argc The argument count
      * @param argv The argument vector: inputs are "on" or "off"
      * @return Potential errors that occured on command execution
+     * 
+     * @todo: log on causes crash with wine
+     * wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
      */
     Nebulite::Constants::ERROR_TYPE errorlog(int argc, char* argv[]);
 

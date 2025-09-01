@@ -1,7 +1,8 @@
 /**
  * @file Assignment.h
  * 
- * This file contains the Assignment struct, used to represent variable assignments in the Nebulite scripting language.
+ * This file contains the Assignment struct, used to represent 
+ * variable assignments in the Nebulite scripting language.
  */
 
 #pragma once
@@ -24,7 +25,7 @@ namespace Logic {
  * 
  * - Type of operation used
  * 
- * - Target document type (Self, Other, Global)
+ * - Target document type (`self`, `other`, `global`)
  * 
  * - Key of the variable being assigned
  * 
@@ -38,7 +39,7 @@ struct Assignment{
     /**
      * @brief Type of operation used
      */
-    enum class Operation {null, set,add,multiply,concat};
+    enum class Operation {null, set, add, multiply,concat};
 
     /**
      * @brief Type of operation used.
@@ -83,6 +84,8 @@ struct Assignment{
      * 
      * @todo Is it possible to instead use expression directly? 
      * Since expression stores the full string as well
+     * 
+     * @todo does this store "key=0" or just "0"? See InvokeJSONParser!
      */
     std::string value;
 

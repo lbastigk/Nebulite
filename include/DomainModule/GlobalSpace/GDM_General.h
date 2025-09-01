@@ -76,6 +76,8 @@ public:
      * @param argc The argument count
      * @param argv The argument vector: the filename to load
      * @return Potential errors that occured on command execution
+     * 
+     * @todo: Doesnt remove lines that are purely "#"
      */
     Nebulite::Constants::ERROR_TYPE loadTaskList(int argc, char* argv[]);
 

@@ -26,9 +26,11 @@ namespace Logic {
  * The `VirtualDouble` class provides a consistent interface for linking variables to
  * physical double addresses, ensuring compatibility with `tinyexpr`. It supports:
  * 
- * - Remanent contexts: For `self`, `global`, and `documentcache`, where the context remains constant.
+ * - Remanent contexts: For `self`, `global`, where the context remains constant.
  * 
- * - Non-remanent contexts: For `other`, where the context changes dynamically during evaluations.
+ * - Non-remanent contexts: For `other` and `documentcache`, 
+ * where the context changes dynamically during evaluations
+ * or the lifetime is limited.
  * 
  * This distinction is crucial for efficient and accurate expression evaluations.
  */

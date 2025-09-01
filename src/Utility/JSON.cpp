@@ -142,7 +142,6 @@ Nebulite::Utility::JSON::KeyType Nebulite::Utility::JSON::memberCheck(std::strin
     }
 
     // Not directly in cache, flush before accessing the document
-    // TODO: add function for mildFlush that does not clear cache!
     flush();
 
     // 4. If not cached, check rapidjson doc

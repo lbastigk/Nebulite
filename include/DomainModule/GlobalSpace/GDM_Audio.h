@@ -27,7 +27,7 @@ Implementation Status: PLANNING PHASE ONLY
 
 Do NOT attempt to use these functions until implementation is complete.
 
-TODO: Once merged into the GlobalSpace, please move GDM_Renderer:beep to GDM_Audio:beep
+@todo: Once merged into the GlobalSpace, please move GDM_Renderer:beep to GDM_Audio:beep
 
 ================================================================================
 */

@@ -1,8 +1,7 @@
 /**
  * @file InvokeJSONParser.h
  * 
- * This file contains the static InvokeJSONParser class, which is responsible for parsing
- * JSON documents into InvokeEntry objects.
+ * This file contains the static InvokeJSONParser class.
  */
 
 #pragma once
@@ -20,7 +19,9 @@ namespace Interaction{
 /**
  * @class Nebulite::Interaction::InvokeJSONParser
  * 
- * @brief A utility class for parsing JSON documents into InvokeEntry objects.
+ * @brief Responsible for parsing compatible JSON documents into `Nebulite::Interaction::Logic::ParsedEntry` structs.
+ * 
+ * @todo ParsedEntry and InvokeJSONParser need proper names...
  * 
  * @todo Idea for Invoke ruleset overwrites:
  * In addition, add the field "overwrites" to the JSON doc.
