@@ -3,7 +3,7 @@
 #include "Interaction/Invoke.h"            // Invoke for parsing expressions
 #include "Core/RenderObject.h"      // RenderObject for Renderer
 
-//-------------------------------
+//------------------------------------------
 // Update
 void Nebulite::DomainModule::GlobalSpace::Renderer::update() {
     // Add FuncTree-specific updates here!
@@ -11,7 +11,7 @@ void Nebulite::DomainModule::GlobalSpace::Renderer::update() {
     // This is used to update all variables/states that are INTERNAL ONLY
 }
 
-//-------------------------------
+//------------------------------------------
 // FuncTree-Bound Functions
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::envload(int argc, char* argv[]){

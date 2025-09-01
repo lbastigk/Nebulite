@@ -201,22 +201,22 @@ void Nebulite::Utility::JSON::deserialize(std::string serial_or_link){
         cache.erase(it++);
     }
 
-    //----------------------------------------------------------
+    //------------------------------------------
     // Split the input into tokens
     std::vector<std::string> tokens = Nebulite::Utility::StringHandler::split(serial_or_link, '|');
 
-    //----------------------------------------------------------
+    //------------------------------------------
     // Validity check
     if (tokens.empty()) {
         // Error: No file path given
         return; // or handle error properly
     }
 
-    //----------------------------------------------------------
+    //------------------------------------------
     // Load the JSON file
     Nebulite::Utility::JSON::DirectAccess::deserialize(doc,tokens[0]);
 
-    //----------------------------------------------------------
+    //------------------------------------------
     // Now apply modifications
     tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
     for(const auto& token : tokens) {
@@ -435,7 +435,7 @@ rapidjson::Value* Nebulite::Utility::JSON::DirectAccess::ensure_path(const char*
 }
 
 
-//---------------------------------------------------------------------
+//------------------------------------------
 // Static Helper Functions
 rapidjson::Value Nebulite::Utility::JSON::DirectAccess::sortRecursive(const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator) {
     if (value.IsObject()) {
@@ -500,7 +500,7 @@ void Nebulite::Utility::JSON::DirectAccess::deserialize(rapidjson::Document& doc
     } 
     // If not, treat it as a file path
     else {
-        //----------------------------------------------------------
+        //------------------------------------------
         // Load the JSON file
         // First token is the path or serialized JSON
         jsonString = Nebulite::Utility::FileManagement::LoadFile(serialOrLink.c_str());
@@ -521,7 +521,7 @@ void Nebulite::Utility::JSON::DirectAccess::empty(rapidjson::Document &doc) {
     //doc.Swap(rapidjson::Value(rapidjson::kObjectType).Move());
 }
 
-//-------------------------------------------
+//------------------------------------------
 // Threadsafe sets
 void Nebulite::Utility::JSON::set_add(const char* key, double val) {
     std::lock_guard<std::recursive_mutex> lock(mtx);

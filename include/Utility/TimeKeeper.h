@@ -5,13 +5,13 @@
 
 #pragma once
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Includes
 
 // Nebulite
 #include "Utility/Time.h"
 
-//-----------------------------------------------------------
+//------------------------------------------
 namespace Nebulite {
 namespace Utility {
 /**
@@ -48,7 +48,7 @@ public:
      * @todo The implemented logic is has too many sets, then resets and all that nonsense. Create a proper branching path
      */
     void update(uint64_t fixed_dt_ms = 0){
-        //----------------------------------
+        //------------------------------------------
         // Gathering timing information, even if the timer is not running
         // The whole timer works on dt integration, so we always need to know the current dt
 
@@ -62,7 +62,7 @@ public:
             onUpdate.dt = fixed_dt_ms;
         }
 
-        //----------------------------------
+        //------------------------------------------
         // Set actual dt and t values
 
         if(running){

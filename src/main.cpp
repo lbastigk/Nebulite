@@ -55,12 +55,12 @@
  */
 int main(int argc, char* argv[]){
 
-    //--------------------------------------------------
+    //------------------------------------------
     // Initialize the global space
     std::string binaryName = argv[0];
     Nebulite::Core::GlobalSpace globalSpace(binaryName);
 
-    //--------------------------------------------------
+    //------------------------------------------
     // Add main args to taskList, split by ';'
     if (argc > 1) {
         std::ostringstream oss;
@@ -121,7 +121,7 @@ int main(int argc, char* argv[]){
         globalSpace.tasks.script.taskList.push_back(std::string("set-fps 60"));
     }
     
-    //--------------------------------------------------
+    //------------------------------------------
     // Render loop
 
     // For resolving tasks
@@ -136,13 +136,13 @@ int main(int argc, char* argv[]){
     bool critical_stop = false;
     uint64_t* noWaitCounter = nullptr;
 
-    //--------------------------------------------------
+    //------------------------------------------
     // At least one loop, to handle taskQueues
 
     // Determines if we continue the loop
     bool continueLoop = true;
     do {
-        //------------------------------------------------------------
+        //------------------------------------------
         /**
          * Parse queue in GlobalSpaceTree.
          * Result determines if a critical stop is initiated.
@@ -188,7 +188,7 @@ int main(int argc, char* argv[]){
             break;
         }
 
-        //------------------------------------------------------------
+        //------------------------------------------
         // Update and render, only if initialized
         // If renderer wasnt initialized, it is still a nullptr
         if (!critical_stop && globalSpace.RendererExists() && globalSpace.getRenderer()->timeToRender()) {
@@ -202,7 +202,7 @@ int main(int argc, char* argv[]){
             }  
         }
 
-        //------------------------------------------------------------
+        //------------------------------------------
         // Check if we need to continue the loop
         continueLoop = !critical_stop && globalSpace.RendererExists() && !globalSpace.getRenderer()->isQuit();
 
@@ -219,7 +219,7 @@ int main(int argc, char* argv[]){
     } while (continueLoop);
 
 
-    //--------------------------------------------------
+    //------------------------------------------
     // Exit
 
     // Destroy renderer

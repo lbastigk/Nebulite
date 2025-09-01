@@ -6,14 +6,14 @@
 
 #pragma once
 
-//--------------------------------------------
+//------------------------------------------
 // Includes
 
 // Nebulite
 #include "Interaction/Logic/Assignment.h"
 #include "Interaction/Logic/ExpressionPool.h"
 
-//--------------------------------------------
+//------------------------------------------
 // Forward declarations
 namespace Nebulite{
     namespace Core{
@@ -21,7 +21,7 @@ namespace Nebulite{
     }
 }
 
-//---------------------------------------------
+//------------------------------------------
 namespace Nebulite {
 namespace Interaction {
 namespace Logic {
@@ -54,6 +54,7 @@ namespace Logic {
  */
 struct ParsedEntry{
     /**
+     * @struct Nebulite::Interaction::Logic::ParsedEntry
      * @brief The topic of the invoke entry, used for routing and filtering in the broadcast-listen-model of the Invoke class.
      * 
      * e.g. `gravity`, `hitbox`, `collision`. `all` is the default value. Any RenderObject should be subscribed to this topic.

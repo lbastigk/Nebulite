@@ -6,11 +6,11 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Interaction::Invoke& invoke, Nebuli
 	dist(0, 32767),
 	env(&invoke)
 	{
-	//--------------------------------------------
+	//------------------------------------------
 	// Linkages
 	invoke_ptr = &invoke;
 
-	//--------------------------------------------
+	//------------------------------------------
 	// Depending on platform, set Global key "platform":
 	#ifdef _WIN32
 		invoke_ptr->getGlobalPointer()->set<std::string>("platform","windows");
@@ -31,7 +31,7 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Interaction::Invoke& invoke, Nebuli
 		invoke_ptr->getGlobalPointer()->set<std::string>("platform","unknown");
 	#endif
 
-	//--------------------------------------------
+	//------------------------------------------
 	// Initialize internal variables
 
 	// Window
@@ -45,7 +45,7 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Interaction::Invoke& invoke, Nebuli
 	event = SDL_Event();
 	baseDirectory = Nebulite::Utility::FileManagement::currentDir();
 
-	//--------------------------------------------
+	//------------------------------------------
 	// Window
 
 	//Create SDL window
@@ -65,7 +65,7 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Interaction::Invoke& invoke, Nebuli
 		SDL_Quit();
 	}
 
-	//--------------------------------------------
+	//------------------------------------------
 	// Renderer
 
 	// Create a renderer
@@ -81,7 +81,7 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Interaction::Invoke& invoke, Nebuli
 		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),Y)
 	);
 
-	//--------------------------------------------
+	//------------------------------------------
 	// Fonts
 
 	// Initialize SDL_ttf
@@ -92,7 +92,7 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Interaction::Invoke& invoke, Nebuli
 
 	loadFonts();
 
-	//--------------------------------------------
+	//------------------------------------------
 	// Audio
 
 	// Init
@@ -151,12 +151,12 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Interaction::Invoke& invoke, Nebuli
 		(*triangleBuffer)[i] = (Sint16)(32767 * 0.3 * triangleValue);
 	}
 
-	//--------------------------------------------
+	//------------------------------------------
 	// Set basic values inside global doc
 	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),X);	
 	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),Y);
 
-	//--------------------------------------------
+	//------------------------------------------
 	// Start timer
 	RendererLoopTime.start();
 	RendererPollTime.start();
@@ -164,18 +164,18 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Interaction::Invoke& invoke, Nebuli
 }
 
 void Nebulite::Core::Renderer::loadFonts() {
-	//--------------------------------------------
+	//------------------------------------------
 	// Sizes
 	uint32_t FontSizeGeneral = 60; 			// Does not need to scale
 	uint32_t FontSizeConsole = 60;			// Does not need to scale
 
-	//--------------------------------------------
+	//------------------------------------------
 	// Font location
 	std::string sep(1,Nebulite::Utility::FileManagement::preferredSeparator());
 	std::string fontDir = std::string("Resources") + sep + std::string("Fonts") + sep + std::string("Arimo-Regular.ttf");
 	std::string fontpath = Nebulite::Utility::FileManagement::CombinePaths(baseDirectory, fontDir);
 	
-	//--------------------------------------------
+	//------------------------------------------
 	// Load general font
 	font = TTF_OpenFont(fontpath.c_str(), FontSizeGeneral); // Adjust size as needed
 	if (font == NULL) {
@@ -183,7 +183,7 @@ void Nebulite::Core::Renderer::loadFonts() {
 		std::cerr << TTF_GetError() << " | " << fontpath << "\n";
 	}
 
-	//--------------------------------------------
+	//------------------------------------------
 	// Load console font
 	consoleFont = TTF_OpenFont(fontpath.c_str(), FontSizeConsole); // Adjust size as needed
 	if (consoleFont == NULL) {
@@ -192,7 +192,7 @@ void Nebulite::Core::Renderer::loadFonts() {
 	}
 }
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Pipeline
 
 // For quick and dirty debugging, in case the rendering pipeline breaks somewhere
@@ -256,7 +256,7 @@ void Nebulite::Core::Renderer::reinsertAllObjects(){
 }
 
 void Nebulite::Core::Renderer::setGlobalValues(){
-	//---------------------------------------------
+	//------------------------------------------
 	// Simulation time
 	uint64_t dt_ms = RendererLoopTime.get_dt_ms(); // Either fixed value or calculate from actual simtime difference
 	uint64_t t_ms = RendererLoopTime.get_t_ms();
@@ -265,14 +265,14 @@ void Nebulite::Core::Renderer::setGlobalValues(){
 	invoke_ptr->getGlobalPointer()->set<Uint64>( "time.dt_ms", dt_ms);
 	invoke_ptr->getGlobalPointer()->set<Uint64>( "time.t_ms", t_ms);
 
-	//---------------------------------------------
+	//------------------------------------------
 	// Frame count
 
 	// Get Frame count
 	Uint64 ticks = invoke_ptr->getGlobalPointer()->get<Uint64>("frameCount",0);
 	invoke_ptr->getGlobalPointer()->set<Uint64>("frameCount",ticks+1);
 
-	//---------------------------------------------
+	//------------------------------------------
 	// Full time (runtime)
 	RendererFullTime.update();
 	dt_ms = RendererFullTime.get_dt_ms();
@@ -283,13 +283,13 @@ void Nebulite::Core::Renderer::setGlobalValues(){
 	invoke_ptr->getGlobalPointer()->set<Uint64>( "runtime.t_ms", t_ms);
 
 
-	//---------------------------------------------
+	//------------------------------------------
 	// Random
 	update_rand();
 	update_rrand();
 }
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Special Functions
 
 void Nebulite::Core::Renderer::beep() {
@@ -372,7 +372,7 @@ bool Nebulite::Core::Renderer::snapshot(std::string link) {
     return true;
 }
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Purge
 
 void Nebulite::Core::Renderer::purgeObjects() {
@@ -403,7 +403,7 @@ void Nebulite::Core::Renderer::destroy() {
     }
 }
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Manipulation
 
 void Nebulite::Core::Renderer::changeWindowSize(int w, int h, int scalar) {
@@ -466,11 +466,11 @@ void Nebulite::Core::Renderer::setCam(int X, int Y, bool isMiddle) {
 };
 
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Event Handling
 
 void Nebulite::Core::Renderer::pollEvent() {
-	//----------------------------------
+	//------------------------------------------
 	// Mouse
     lastMousePosX = MousePosX;
     lastMousePosY = MousePosY;
@@ -492,7 +492,7 @@ void Nebulite::Core::Renderer::pollEvent() {
 		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouseState) - 
 		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & lastMouseState));
 
-    //----------------------------------
+    //------------------------------------------
 	// Keyboard
 
     // Get current keyboard state
@@ -535,7 +535,7 @@ void Nebulite::Core::Renderer::pollEvent() {
     // Save current keyboard state for next frame
     prevKeyState.assign(keyState, keyState + SDL_NUM_SCANCODES);
 
-	//----------------------------------
+	//------------------------------------------
 	// Set forced values, from internal vector
 	for(const auto& pair : forced_global_values) {
 		invoke_ptr->getGlobalPointer()->set(pair.first.c_str(), pair.second);
@@ -549,7 +549,7 @@ SDL_Event Nebulite::Core::Renderer::getEventHandle() {
 	return event;
 }
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Setting
 
 void Nebulite::Core::Renderer::setTargetFPS(int fps) {
@@ -563,7 +563,7 @@ void Nebulite::Core::Renderer::setTargetFPS(int fps) {
 	}
 }
 
-//-------------------------------------------------------------------------------------
+//------------------------------------------
 // Renderer::tick Functions
 
 void Nebulite::Core::Renderer::clear(){
@@ -576,7 +576,7 @@ void Nebulite::Core::Renderer::updateState() {
 	uint64_t fixed_dt_ms = invoke_ptr->getGlobalPointer()->get<Uint64>(Nebulite::Constants::keyName.renderer.time_fixed_dt_ms.c_str(),0);
 	RendererLoopTime.update(fixed_dt_ms);
 	
-	//----------------------------------
+	//------------------------------------------
 	// Basic SDL event polling
 	while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -614,7 +614,7 @@ void Nebulite::Core::Renderer::updateState() {
 		}
     }
 
-	//----------------------------------
+	//------------------------------------------
 	// 2-Step Update of Input state
 
 	
@@ -677,7 +677,7 @@ void Nebulite::Core::Renderer::updateState() {
 	}
 
 
-	//--------------------------------------------
+	//------------------------------------------
 	// Log time spend in console
 	// Not important but might be nice to know
 	if(consoleMode){
@@ -690,7 +690,7 @@ void Nebulite::Core::Renderer::updateState() {
 	}
 	
 
-	//--------------------------------------------
+	//------------------------------------------
 	// Internal container state
 
 	// Only do container updates if not in console mode
@@ -717,7 +717,7 @@ void Nebulite::Core::Renderer::renderFrame() {
 	tileXpos = dispPosX / invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
 	tileYpos = dispPosY / invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
 	
-	//------------------------------------------------
+	//------------------------------------------
 	// FPS Count
 
 	//Ticks and FPS
@@ -754,7 +754,7 @@ void Nebulite::Core::Renderer::renderFrame() {
 		
 	}
 
-	//------------------------------------------------
+	//------------------------------------------
 	// Rendering
 	int error = 0;
 
@@ -817,7 +817,7 @@ void Nebulite::Core::Renderer::renderFrame() {
 		}
 	}
 
-	//------------------------------------------------
+	//------------------------------------------
 	// Render Console if Active
 	if(consoleMode){
 		// Semi-transparent background
@@ -912,7 +912,7 @@ void Nebulite::Core::Renderer::showFrame() {
 	SDL_RenderPresent(renderer);
 }
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Texture-Related
 
 void Nebulite::Core::Renderer::loadTexture(std::string link) {

@@ -22,7 +22,7 @@ invokeand the GlobalSpace, allowing them to individually bind functions on const
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/FuncTree.h"
 
-//----------------------------------------------------------
+//------------------------------------------
 // Helper to detect member function existence
 template <typename T>
 class has_setupBindings {
@@ -49,7 +49,7 @@ public:
 namespace Nebulite{
 namespace Interaction{
 namespace Execution{
-//----------------------------------------------------------
+//------------------------------------------
 /**
  * @class Nebulite::Interaction::Execution::DomainModuleWrapper
  * @brief Wrapper class for binding functions to a specific category in the FuncTree.
@@ -130,7 +130,7 @@ public:
     DomainModuleWrapper& operator=(const DomainModuleWrapper&) = delete;
 
 protected:
-    //--------------------------
+    //------------------------------------------
     // Linkages
     DomainType* domain;                 // Workspace of the DomainModule
     FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTree;     // Where to bind the expanded functions

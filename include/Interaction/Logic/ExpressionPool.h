@@ -7,7 +7,7 @@
 
 #pragma once
 
-//--------------------------------------------
+//------------------------------------------
 // Includes
 
 // General
@@ -20,7 +20,7 @@
 #include "Interaction/Logic/Expression.h"
 #include "Constants/ThreadSettings.h"       // Poolsize is defined here
 
-//--------------------------------------------
+//------------------------------------------
 namespace Nebulite {
 namespace Interaction {
 namespace Logic {
@@ -83,7 +83,7 @@ public:
         return *this;
     }
 
-    //---------------------------------------------
+    //------------------------------------------
     // Public Functions
 
     /**
@@ -173,7 +173,7 @@ private:
     // Locks for thread safety
     std::array<std::mutex, INVOKE_EXPR_POOL_SIZE> locks;
 
-    //----------------------------------
+    //------------------------------------------
     // The following variables are shared across all pool entries
     // But placed here for easy access, without disturbing the pool.
 

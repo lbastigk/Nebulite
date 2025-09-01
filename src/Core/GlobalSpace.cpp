@@ -3,29 +3,29 @@
 
 Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
 {
-    //-------------------------------------------------
+    //------------------------------------------
     // Objects
     // ...
 
-    //-------------------------------------------------
+    //------------------------------------------
     // Modify structs                         
     tasks.always.clearAfterResolving = false;
 
-    //-------------------------------------------------
+    //------------------------------------------
     // Linkages 
     invoke = std::make_unique<Nebulite::Interaction::Invoke>(&global);
     invoke->linkQueue(tasks.internal.taskList);
 
-    //-------------------------------------------------
+    //------------------------------------------
     // Link GlobalSpaceTree
     GlobalSpaceTree = std::make_unique<Nebulite::Interaction::Execution::GlobalSpaceTree>(this, global.getJSONTree());
 
-    //-------------------------------------------------
+    //------------------------------------------
     // General Variables
     names.binary = binName;
     names.state  = "";
 
-    //-------------------------------------------------
+    //------------------------------------------
     // Do first update
     GlobalSpaceTree->update();
 }

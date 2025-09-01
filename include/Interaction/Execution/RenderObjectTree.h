@@ -7,21 +7,21 @@
 
 #pragma once
 
-//----------------------------------------------------------
+//------------------------------------------
 // Basic includes
 #include "Constants/ErrorTypes.h"               // Basic Return Type: enum ERROR_TYPE
 #include "Interaction/Execution/FuncTree.h"     // All FuncTrees inherit from this for ease of use
 #include "Utility/FileManagement.h"             // For logging and file operations
 #include "Utility/JSON.h"
 
-//----------------------------------------------------------
+//------------------------------------------
 // Include DomainModules of RenderObjectTree
 #include "DomainModule/RenderObject/RDM_Layout.h"
 #include "DomainModule/RenderObject/RDM_Logging.h"
 #include "DomainModule/RenderObject/RDM_Parenting.h"
 #include "DomainModule/RenderObject/RDM_StateUpdate.h"
 
-//----------------------------------------------------------
+//------------------------------------------
 // Forward declaration of classes
 namespace Nebulite{
     namespace Core{
@@ -32,7 +32,7 @@ namespace Nebulite{
 namespace Nebulite{
 namespace Interaction{
 namespace Execution{
-//----------------------------------------------------------
+//------------------------------------------
 /**
  * @class Nebulite::Core::RenderObjectTree
  * @brief This class extends FuncTreeWrapper<Nebulite::Constants::ERROR_TYPE> to provide a focused, 
@@ -102,7 +102,7 @@ private:
     }
 
 
-    //---------------------------------------
+    //------------------------------------------
     // Commands to the RenderObjectTree are added via DomainModule files to keep the RenderObjectTree clean
     // and allow for easy implementation and removal of collaborative features.
     // Maintainers can separately implement their own features and merge them into the RenderObjectTree.
@@ -111,7 +111,7 @@ private:
     // 2.) Implement the setupBindings() method to bind functions
     // 3.) Insert the new object here as a unique pointer
     // 4.) Initialize via make_unique in the RenderObjectTree constructor
-    //---------------------------------------
+    //------------------------------------------
     std::unique_ptr<Nebulite::DomainModule::RenderObject::Layout> layout;
     std::unique_ptr<Nebulite::DomainModule::RenderObject::Logging> logging;
     std::unique_ptr<Nebulite::DomainModule::RenderObject::Parenting> parenting;

@@ -26,7 +26,7 @@
 
 #pragma once
 
-//-----------------------------
+//------------------------------------------
 // Includes
 
 // External
@@ -35,7 +35,7 @@
 // Nebulite
 #include "Nebulite.h"                       // Namespace Documentation
 
-//-----------------------------
+//------------------------------------------
 namespace Nebulite{
 namespace Constants {
 
@@ -80,7 +80,7 @@ public:
      * Add new values here as needed.
      */
     ErrorTable(){
-        //------------------------------------
+        //------------------------------------------
         // Critical Errors
         errorTypeToString[Nebulite::Constants::ERROR_TYPE::CRITICAL_GENERAL] = 
             "General, critical error. It is recommended to NOT use this error type in production.";
@@ -94,7 +94,7 @@ public:
             "argc/argv parsing error.";
         errorTypeToString[Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID] = 
             "Requested function call is invalid.";
-        //------------------------------------
+        //------------------------------------------
         // Non-critical errors
         errorTypeToString[Nebulite::Constants::ERROR_TYPE::NONE] = 
             "No Error";

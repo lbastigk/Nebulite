@@ -9,7 +9,7 @@
 
 #pragma once
 
-//-------------------------------------------------
+//------------------------------------------
 // Includes
 
 // General
@@ -20,10 +20,10 @@
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/GlobalSpaceTree.h"
 
-//-------------------------------------------------
+//------------------------------------------
 namespace Nebulite {
 namespace Core {
-//-------------------------------------------------
+//------------------------------------------
 // General Types used
 
 /**
@@ -46,7 +46,7 @@ struct taskQueueResult{
     std::vector<Nebulite::Constants::ERROR_TYPE> errors;
 };
 
-//-------------------------------------------------
+//------------------------------------------
 // Global Space object
 
 /**
@@ -85,7 +85,7 @@ struct taskQueueResult{
  */
 class GlobalSpace {
 public:
-    //-------------------------------------------------
+    //------------------------------------------
     // Special Member Functions
 
     // Constructor
@@ -102,7 +102,7 @@ public:
     GlobalSpace(GlobalSpace&&) = delete;
     GlobalSpace& operator=(GlobalSpace&&) = delete;
 
-    //-------------------------------------------------
+    //------------------------------------------
     // Functions
 
     /**
@@ -139,7 +139,7 @@ public:
      */
     Nebulite::Constants::ERROR_TYPE parseStr(std::string str);
 
-    //----------------------------------------------
+    //------------------------------------------
     // Public Variables
 
     /**
@@ -158,13 +158,13 @@ public:
     // Error Table for error descriptions
     Nebulite::Constants::ErrorTable errorTable;
 
-    //-------------------------------------------------
+    //------------------------------------------
     // Removal of private keyword for easier access for DomainModule classes
     // This allows for easier inspection and modification of the GlobalSpace
     // without having to specify its access here
 /*
 private:
-    //-------------------------------------------------
+    //------------------------------------------
     // [What we're not doing anymore:]
     // Allow GlobalSpaceTree Categories to access private members
     friend class Nebulite::DomainModule::GlobalSpace::General;
@@ -172,7 +172,7 @@ private:
     friend class Nebulite::DomainModule::GlobalSpace::Debug;
 //*/
 
-    //-------------------------------------------------
+    //------------------------------------------
     // Internal Variables, linked to GlobalSpaceTree
     struct commandLineVariables{
         std::string headless = "false"; // Headless mode (no window)
@@ -181,7 +181,7 @@ private:
     };
     commandLineVariables cmdVars;
 
-    //-------------------------------------------------
+    //------------------------------------------
     // Other Variables
 
     /**
@@ -192,7 +192,7 @@ private:
         std::string binary;     // Name of the binary, used for parsing arguments
     }names;
 
-    //-------------------------------------------------
+    //------------------------------------------
     // Objects
 
     // Invoke Object for parsing expressions etc.
@@ -204,7 +204,7 @@ private:
     // Global Space document 
     Nebulite::Utility::JSON global;
 
-    //-------------------------------------------------
+    //------------------------------------------
 private:
 
     /**

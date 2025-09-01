@@ -3,7 +3,7 @@
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/DomainModuleWrapper.h"
 
-//----------------------------------------------------------
+//------------------------------------------
 // Forward declarations
 namespace Nebulite{
     namespace Utility{
@@ -11,7 +11,7 @@ namespace Nebulite{
     }
 }
 
-//----------------------------------------------------------
+//------------------------------------------
 namespace Nebulite{
 namespace DomainModule{
 namespace JSON{
@@ -26,7 +26,7 @@ public:
 
     void update();
 
-    //----------------------------------------
+    //------------------------------------------
     // Available Functions
 
     /**
@@ -51,7 +51,7 @@ public:
      */
     Nebulite::Constants::ERROR_TYPE set_from_json(int argc, char* argv[]);
 
-    //-------------------------------------------
+    //------------------------------------------
     // Setup
 
     /**

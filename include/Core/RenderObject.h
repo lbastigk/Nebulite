@@ -7,7 +7,7 @@
 
 #pragma once
 
-//-------------------------------------------------
+//------------------------------------------
 // Includes
 
 // External
@@ -20,7 +20,7 @@
 #include "Interaction/Execution/RenderObjectTree.h"
 #include "Utility/JSON.h"
 
-//-------------------------------------------------
+//------------------------------------------
 namespace Nebulite {
 namespace Core {
 /**
@@ -71,7 +71,7 @@ namespace Core {
  */
 class RenderObject {
 public:
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Special member Functions
 
 	/**
@@ -97,7 +97,7 @@ public:
 	RenderObject& operator=(RenderObject&& other) = delete;
 
 
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Serializing/Deserializing
 
 	/**
@@ -114,7 +114,7 @@ public:
 	 */
 	void deserialize(std::string serialOrLink);
 	
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Setting/Getting specific values
 
 	/**
@@ -171,7 +171,7 @@ public:
 	 */
 	SDL_Texture* getTextTexture();
 	
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Update-Oriented functions
 
 	// Updating renderobject based on global/local invokes
@@ -248,7 +248,7 @@ public:
 	 */
 	Nebulite::Constants::ERROR_TYPE parseStr(const std::string& str);
 
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Management Flags for Renderer-Interaction
 
 	/**
@@ -286,7 +286,7 @@ private:
 } // namespace Core
 } // namespace Nebulite
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Templated setter/getter functions
 
 template <typename T> void Nebulite::Core::RenderObject::valueSet(const char* key, const T data) {

@@ -3,7 +3,7 @@
  * @brief Contains the Nebulite::Core::RenderObjectContainer class.
  */
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Includes
 
 // General
@@ -12,7 +12,7 @@
 // Nebulite
 #include "Core/RenderObject.h"
 
-//-----------------------------------------------------------
+//------------------------------------------
 namespace Nebulite {
 namespace Core {
 /**
@@ -59,7 +59,7 @@ public:
 		bool removeObject(RenderObject* obj, Nebulite::Interaction::Invoke* globalInvoke);
 	};
 
-	//-----------------------------------------------------------
+	//------------------------------------------
 	//Constructor
 
 	/**
@@ -68,7 +68,7 @@ public:
 	 */
 	RenderObjectContainer(Nebulite::Interaction::Invoke* globalInvoke);
 
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Serialization / Deserialization
 
 	/**
@@ -85,7 +85,7 @@ public:
 	 */
 	void deserialize(const std::string& serialOrLink, int dispResX, int dispResY);
 
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Pipeline
 
 	/**

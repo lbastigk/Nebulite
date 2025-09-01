@@ -1,6 +1,6 @@
 #include "Interaction/Logic/Expression.h"
 
-//------------------------------
+//------------------------------------------
 // Private:
 
 void Nebulite::Interaction::Logic::Expression::update_vds(std::vector<std::shared_ptr<vd_entry>>* vec, Nebulite::Utility::JSON* link){
@@ -26,7 +26,7 @@ void Nebulite::Interaction::Logic::Expression::reset() {
     virtualDoubles_global.clear();
     virtualDoubles_resource.clear();
 
-    //----------------------------------------------------------------------
+    //------------------------------------------
     // Register built-in functions
 
     // Logical comparison functions
@@ -357,7 +357,7 @@ void Nebulite::Interaction::Logic::Expression::printCompileError(const Entry& en
     std::cerr << std::endl;
 }
 
-//------------------------------
+//------------------------------------------
 // Public:
 
 Nebulite::Interaction::Logic::Expression::Expression() {
@@ -430,7 +430,7 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
 
             case Entry::eval:
 
-                //-------------------------
+                //------------------------------------------
                 // Handle casting
                 if(entry.cast == Entry::CastType::to_int){
                     token = std::to_string(static_cast<int>(te_eval(entry.expression)));

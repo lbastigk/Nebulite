@@ -2,7 +2,7 @@
 #include "Core/GlobalSpace.h"       // Global Space for Nebulite
 #include "Interaction/Invoke.h"            // Invoke for parsing expressions
 
-//-------------------------------
+//------------------------------------------
 // Update
 void Nebulite::DomainModule::GlobalSpace::General::update() {
     // Add FuncTree-specific updates here!
@@ -10,7 +10,7 @@ void Nebulite::DomainModule::GlobalSpace::General::update() {
     // This is used to update all variables/states that are INTERNAL ONLY
 }
 
-//-------------------------------
+//------------------------------------------
 // FuncTree-Bound Functions
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::eval(int argc, char* argv[]){
@@ -184,7 +184,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::fu
     return (Nebulite::Constants::ERROR_TYPE)std::stoi(argv[1]);
 }
 
-//------------------
+//------------------------------------------
 // To move
 
 // 1.) To GDM_Debug

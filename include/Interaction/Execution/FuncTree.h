@@ -61,7 +61,7 @@
 namespace Nebulite{
 namespace Interaction{
 namespace Execution{
-//----------------------------------------------------------
+//------------------------------------------
 /**
  * @class Nebulite::FuncTree
  * @brief Function tree class for managing and executing functions through linguistic commands.
@@ -177,7 +177,7 @@ public:
     bool hasFunction(const std::string& nameOrCommand);
 
 private:
-    //---------------------------------------
+    //------------------------------------------
     // Variables
 
     using FunctionPtr = std::function<RETURN_TYPE(int argc, char* argv[])>;
@@ -212,7 +212,7 @@ private:
     // Subtree linked to this tree
     FuncTree<RETURN_TYPE>* subtree;
 
-    //---------------------------------------
+    //------------------------------------------
     // Functions
 
     // Execute the function based on its name, passing the remaining argc and argv
@@ -256,7 +256,7 @@ private:
 }   // namespace Interaction
 }   // namespace Nebulite
 
-//---------------------------------
+//------------------------------------------
 // Binding helper
 
 // bindfunction todo...
@@ -310,7 +310,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindVariable(std::
     variables[name] = VariableInfo{varPtr, helpDescription};
 }
 
-//---------------------------------
+//------------------------------------------
 // Getter
 
 template<typename RETURN_TYPE>
@@ -357,7 +357,7 @@ std::vector<std::pair<std::string, std::string>> Nebulite::Interaction::Executio
 }
 
 
-//---------------------------------
+//------------------------------------------
 // Constructor implementation
 
 template<typename RETURN_TYPE>
@@ -381,7 +381,7 @@ Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(std::string tr
     }
 }
 
-//---------------------------------
+//------------------------------------------
 // Parsing and execution
 
 template<typename RETURN_TYPE>
@@ -603,7 +603,7 @@ std::vector<std::string> Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>
     return result;
 }
 
-//---------------------------------
+//------------------------------------------
 // Help function
 
 template<typename RETURN_TYPE>

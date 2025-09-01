@@ -9,7 +9,7 @@ Nebulite::Interaction::Invoke::Invoke(Nebulite::Utility::JSON* globalDocPtr){
 }
 
 bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry> cmd, Nebulite::Core::RenderObject* otherObj) {
-    //-----------------------------------------
+    //------------------------------------------
     // Pre-Checks
     
     // If self and other are the same object, the global check is always false
@@ -22,7 +22,7 @@ bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Inter
     // (only for errors or quick removals of invokes in debugging)
     // which is why this check -> return false is not done.
 
-    //-----------------------------------------
+    //------------------------------------------
     // Evaluation
 
     // Get result
@@ -158,7 +158,7 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
 
     // Update self, other and global
     for(auto& expr : entries_self->exprs){
-        //------------------------
+        //------------------------------------------
         // Check what to update
         
         Nebulite::Utility::JSON* toUpdate = nullptr;
@@ -180,7 +180,7 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
             return; // Exit if unknown type
         }
 
-        //------------------------
+        //------------------------------------------
         // Update
         
         // Direct use of double-values

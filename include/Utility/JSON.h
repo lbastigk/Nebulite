@@ -5,7 +5,7 @@
 
 #pragma once
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Includes
 
 // General
@@ -31,7 +31,7 @@
 #include "Utility/FileManagement.h"
 #include "Interaction/Execution/JSONTree.h"
 
-//-----------------------------------------------------------
+//------------------------------------------
 namespace Nebulite{
 namespace Utility {
 /**
@@ -99,7 +99,7 @@ public:
 
     ~JSON();
 
-    //------------------------------
+    //------------------------------------------
     // Overload of assign operators
     JSON(const JSON&) = delete;
     JSON(JSON&& other) noexcept
@@ -150,7 +150,7 @@ public:
      */
     const static std::string reservedCharacters;
 
-    //------------------------------
+    //------------------------------------------
     // Getter
 
     /**
@@ -180,7 +180,7 @@ public:
     Nebulite::Utility::JSON get_subdoc(const char* key);
 
 
-    //------------------------------
+    //------------------------------------------
     // Setter
 
     /**
@@ -215,7 +215,7 @@ public:
      */
     void set_subdoc(const char* key, Nebulite::Utility::JSON& child);
 
-    //------------------------------
+    //------------------------------------------
     // Set empty
 
     /**
@@ -242,7 +242,7 @@ public:
      */
     void remove_key(const char* key);
 
-    //------------------------------
+    //------------------------------------------
     // Special sets for threadsafe maths operations
 
     /**
@@ -260,7 +260,7 @@ public:
      */
     void set_concat  (const char* key, const char* valStr);
 
-    //------------------------------
+    //------------------------------------------
     // Key Types, Sizes
     
     /**
@@ -311,7 +311,7 @@ public:
         return cache.size();
     };
 
-    //------------------------------
+    //------------------------------------------
     // Serializing/Deserializing
 
     /**
@@ -343,7 +343,7 @@ public:
      */
     void deserialize(std::string serial_or_link);              // if key is empty, deserializes entire doc
 
-    //------------------------------
+    //------------------------------------------
     // Fast cache system for expressions
 
     /**
@@ -370,7 +370,7 @@ public:
         }
     }
 
-    //------------------------------
+    //------------------------------------------
     // Cache/Doc manipulation
 
     /**
@@ -383,7 +383,7 @@ public:
      */
     void empty();
 
-    //------------------------------
+    //------------------------------------------
     // FuncTree related
 
     /**
@@ -405,13 +405,13 @@ private:
     // JSONTree for handling function calls
     Nebulite::Interaction::Execution::JSONTree jsonTree;
 
-    //--------------------------------------------------------------------
+    //------------------------------------------
     // Value storage
 
     // main doc
     rapidjson::Document doc;
 
-    //--------------------------------------------------------------------
+    //------------------------------------------
     // caching Simple variables
 
     /**
@@ -448,7 +448,7 @@ private:
      */
     absl::flat_hash_map<std::string, double*> quick_expr_double_cache;
 
-    //--------------------------------------------------------------------
+    //------------------------------------------
     // Helper functions for get/set:
     // they are called once it is validated that cache[key] exists
 
@@ -483,13 +483,13 @@ private:
     template <typename T>
     T convert_variant(const SimpleJSONValue& val, const T& defaultValue = T());
 
-    //--------------------------------------------------------------------
+    //------------------------------------------
     /**
      * @brief Helper functions for working with rapidjson.
      */
     class DirectAccess{
     public:
-        //--------------------------------------------------------------------
+        //------------------------------------------
         // Getter, Setter
 
         /**
@@ -514,7 +514,7 @@ private:
          */
         template <typename T> static void set(const char* key, const T& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
-        //--------------------------------------------------------------------
+        //------------------------------------------
         // Conversion
 
         /**
@@ -539,7 +539,7 @@ private:
         template <typename T>
         static void ConvertToJSONValue(const T& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
 
-        //--------------------------------------------------------------------
+        //------------------------------------------
         // Document traversal
 
         /**
@@ -561,7 +561,7 @@ private:
          */
         static rapidjson::Value* ensure_path(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
-        //--------------------------------------------------------------------
+        //------------------------------------------
         // Serialization/Deserialization
 
         /**
@@ -581,7 +581,7 @@ private:
         static void deserialize(rapidjson::Document& doc, std::string serialOrLink);
         
 
-        //--------------------------------------------------------------------
+        //------------------------------------------
         // Helper functions
 
         /**
@@ -710,7 +710,7 @@ T Nebulite::Utility::JSON::convert_variant(const SimpleJSONValue& val, const T& 
         }
         */
 
-        //-----------------------
+        //------------------------------------------
         // [FALLBACK]
         std::cerr << "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
                   << abi::__cxa_demangle(typeid(stored).name(), nullptr, nullptr, nullptr) 
@@ -797,7 +797,7 @@ void Nebulite::Utility::JSON::set(const char* key, const T& value) {
     }
 }
 
-//---------------------------------------------------------------------
+//------------------------------------------
 // Direct access get/set
 
 template <typename T>
@@ -826,12 +826,12 @@ void Nebulite::Utility::JSON::DirectAccess::set(const char* key, const T& value,
     }
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------
 // All conversion variants from/to rapidjson values
 
-//--------------------
+//------------------------------------------
 // 1.) to JSON value
-//--------------------
+//------------------------------------------
 
 template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<bool>(const bool& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {jsonValue.SetBool(data);}
 
@@ -875,9 +875,9 @@ template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValu
 
 template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Document>(const rapidjson::Document& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator)       {jsonValue.CopyFrom(data, allocator);}
 
-//--------------------
+//------------------------------------------
 // 2.) from JSON Value
-//--------------------
+//------------------------------------------
 
 template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, bool& result, const bool& defaultvalue){result = jsonValue.GetBool();}
 

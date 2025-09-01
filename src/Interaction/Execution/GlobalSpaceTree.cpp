@@ -1,7 +1,7 @@
 #include "Interaction/Execution/GlobalSpaceTree.h"
 #include "Core/GlobalSpace.h"       // Global Space for Nebulite
 
-//-------------------------------------
+//------------------------------------------
 // Linking ALL Functions to GlobalSpaceTree
 Nebulite::Interaction::Execution::GlobalSpaceTree::GlobalSpaceTree(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::JSONTree* jsonTree)
     : FuncTree<Nebulite::Constants::ERROR_TYPE>("Nebulite", Nebulite::Constants::ERROR_TYPE::NONE, Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID, jsonTree), domain(domain) 
@@ -19,7 +19,7 @@ Nebulite::Interaction::Execution::GlobalSpaceTree::GlobalSpaceTree(Nebulite::Cor
   bindVariable(&domain->cmdVars.recover,  "recover",  "Enable recoverable error mode");
 }
 
-//--------------------------------- 
+//------------------------------------------ 
 // Necessary updates
 void Nebulite::Interaction::Execution::GlobalSpaceTree::update() {
     // Update the JSON tree

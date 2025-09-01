@@ -1,7 +1,7 @@
 #include "DomainModule/GlobalSpace/GDM_Debug.h"
 #include "Core/GlobalSpace.h"       // Global Space for Nebulite
 
-//-------------------------------
+//------------------------------------------
 // Update
 void Nebulite::DomainModule::GlobalSpace::Debug::update() {
     // Add FuncTree-specific updates here!
@@ -9,7 +9,7 @@ void Nebulite::DomainModule::GlobalSpace::Debug::update() {
     // This is used to update all variables/states that are INTERNAL ONLY
 }
 
-//-------------------------------
+//------------------------------------------
 // FuncTree-Bound Functions
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::printGlobal(int argc, char* argv[]){

@@ -8,7 +8,7 @@ Nebulite::Interaction::Execution::JSONTree::JSONTree(Nebulite::Utility::JSON* do
     complexData = createDomainModuleOfType<Nebulite::DomainModule::JSON::ComplexData>();
 }
 
-//--------------------------------- 
+//------------------------------------------ 
 // Necessary updates
 void Nebulite::Interaction::Execution::JSONTree::update() {
     // Update all DomainModules

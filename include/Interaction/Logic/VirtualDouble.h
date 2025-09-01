@@ -2,21 +2,21 @@
  * @file VirtualDouble.h
  * @brief Provides a wrapper for consistent access to double values in JSON documents.
  * 
- * This file defines the `VirtualDouble` class, which ensures compatibility with `tinyexpr`
+ * This file contains the `VirtualDouble` class, which ensures compatibility with `tinyexpr`
  * by linking variables to physical double addresses. It supports both remanent and non-remanent
  * contexts for efficient expression evaluation.
  */
 
 #pragma once
 
-//--------------------------------------------
+//------------------------------------------
 // Includes
 
 // Nebulite
 #include "Utility/JSON.h"
 #include "Utility/DocumentCache.h"
 
-//--------------------------------------------
+//------------------------------------------
 namespace Nebulite{
 namespace Interaction{
 namespace Logic {

@@ -16,7 +16,7 @@ RenderObjectDraft extends the Global Space Tree to provide an in-memory RenderOb
 #include "Interaction/Execution/DomainModuleWrapper.h"
 #include "Core/RenderObject.h"
 
-//----------------------------------------------------------
+//------------------------------------------
 // Forward declarations
 namespace Nebulite{
     namespace Core{
@@ -24,7 +24,7 @@ namespace Nebulite{
     }
 }
 
-//----------------------------------------------------------
+//------------------------------------------
 namespace Nebulite {
 namespace DomainModule {
 namespace GlobalSpace {
@@ -58,7 +58,7 @@ public:
 
     void update();
 
-    //----------------------------------------
+    //------------------------------------------
     // Available Functions
 
     /**
@@ -100,7 +100,7 @@ public:
      */
     Nebulite::Constants::ERROR_TYPE resetDraft(int argc, char* argv[]);
 
-    //-------------------------------------------
+    //------------------------------------------
     // Setup
 
     /**

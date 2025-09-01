@@ -6,7 +6,7 @@
 
 #pragma once
 
-//--------------------------------------------
+//------------------------------------------
 // Includes
 
 // General
@@ -21,7 +21,7 @@
 #include "Interaction/Logic/VirtualDouble.h"
 #include "Utility/DocumentCache.h"
 
-//--------------------------------------------
+//------------------------------------------
 /**
  * @brief Enables the use of an external cache for double-values.
  * 
@@ -41,7 +41,7 @@
  */
 #define use_external_cache 1
 
-//--------------------------------------------
+//------------------------------------------
 namespace Nebulite {
 namespace Interaction {
 namespace Logic {
@@ -325,7 +325,7 @@ private:
      */
     Nebulite::Utility::DocumentCache* documentCache = nullptr;
 
-    //--------------------------------------------
+    //------------------------------------------
     // Helper functions
 
     /**

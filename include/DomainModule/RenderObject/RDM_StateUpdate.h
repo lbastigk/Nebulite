@@ -9,7 +9,7 @@
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/DomainModuleWrapper.h"
 
-//----------------------------------------------------------
+//------------------------------------------
 // Forward declarations
 namespace Nebulite{
     namespace Core{
@@ -17,7 +17,7 @@ namespace Nebulite{
     }
 }
 
-//----------------------------------------------------------
+//------------------------------------------
 namespace Nebulite{
 namespace DomainModule{
 namespace RenderObject{
@@ -31,7 +31,7 @@ public:
 
     void update();
 
-    //----------------------------------------
+    //------------------------------------------
     // Available Functions
 
     /**
@@ -59,7 +59,7 @@ public:
     Nebulite::Constants::ERROR_TYPE removeInvoke(int argc, char* argv[]);
     Nebulite::Constants::ERROR_TYPE removeAllInvokes(int argc, char* argv[]);
 
-    //-------------------------------------------
+    //------------------------------------------
     // Setup
 
     /**

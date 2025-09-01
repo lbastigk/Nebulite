@@ -7,7 +7,7 @@
 
 #pragma once
 
-//----------------------------------------------------------
+//------------------------------------------
 // Includes 
 
 // General
@@ -27,7 +27,7 @@
 #include "Interaction/Logic/ParsedEntry.h"
 #include "Utility/DocumentCache.h"
 
-//-------------------------------------------
+//------------------------------------------
 // Forward declarations
 namespace Nebulite {
   namespace Core{
@@ -35,7 +35,7 @@ namespace Nebulite {
   }
 }
 
-//-------------------------------------------
+//------------------------------------------
 namespace Nebulite{
 namespace Interaction{
 /**
@@ -65,7 +65,7 @@ namespace Interaction{
  */
 class Invoke{
 public:
-    //--------------------------------------------
+    //------------------------------------------
     // General
 
     /**
@@ -87,7 +87,7 @@ public:
      */
     void clear();
 
-    //--------------------------------------------
+    //------------------------------------------
     // Getting
 
     /**
@@ -100,7 +100,7 @@ public:
      */
     std::deque<std::string>* getQueue(){return tasks;};
     
-    //--------------------------------------------
+    //------------------------------------------
     // Send/Listen
 
     /**
@@ -125,7 +125,7 @@ public:
      */
     void listen(Nebulite::Core::RenderObject* obj,std::string topic);
 
-    //--------------------------------------------
+    //------------------------------------------
     // Value checks
 
     /**
@@ -146,7 +146,7 @@ public:
     bool isTrueLocal(std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry> entry);
 
 
-    //--------------------------------------------
+    //------------------------------------------
     // Updating
 
     /**
@@ -237,7 +237,7 @@ public:
     Nebulite::Utility::DocumentCache* getDocumentCache() { return &docCache; }
 
 private:
-    //----------------------------------------------------------------
+    //------------------------------------------
     // General Variables
 
     // Documents
@@ -254,7 +254,7 @@ private:
     std::mutex entries_global_Mutex;
     std::mutex pairsMutex;
 
-    //----------------------------------------------------------------
+    //------------------------------------------
     // Hashmaps and vectors
 
     // Current and next commands
@@ -282,7 +282,7 @@ private:
       >
     > pairs_threadsafe;
     
-    //----------------------------------------------------------------
+    //------------------------------------------
     // Private methods
 
     /**

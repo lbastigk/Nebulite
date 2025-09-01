@@ -1,7 +1,7 @@
 #include "DomainModule/JSON/JDM_ComplexData.h"
 #include "Utility/JSON.h"
 
-//-------------------------------
+//------------------------------------------
 // Update
 void Nebulite::DomainModule::JSON::ComplexData::update() {
     // Add FuncTree-specific updates here!
@@ -9,7 +9,7 @@ void Nebulite::DomainModule::JSON::ComplexData::update() {
     // This is used to update all variables/states that are INTERNAL ONLY
 }
 
-//-------------------------------
+//------------------------------------------
 // FuncTree-Bound Functions
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::ComplexData::set_from_query(int argc, char* argv[]){

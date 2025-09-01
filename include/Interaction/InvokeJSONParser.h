@@ -7,14 +7,14 @@
 
 #pragma once
 
-//----------------------------------------------------------
+//------------------------------------------
 // Includes
 
 // Nebulite
 #include "Utility/JSON.h"
 #include "Core/RenderObject.h"
 
-//----------------------------------------------------------
+//------------------------------------------
 namespace Nebulite{
 namespace Interaction{
 /**

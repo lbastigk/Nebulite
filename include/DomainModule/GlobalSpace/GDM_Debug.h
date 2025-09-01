@@ -9,7 +9,7 @@
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/DomainModuleWrapper.h"
 
-//----------------------------------------------------------
+//------------------------------------------
 // Forward declarations
 namespace Nebulite{
     namespace Core{
@@ -17,7 +17,7 @@ namespace Nebulite{
     }
 }
 
-//----------------------------------------------------------
+//------------------------------------------
 namespace Nebulite {
 namespace DomainModule {
 namespace GlobalSpace {
@@ -31,7 +31,7 @@ public:
 
     void update();
 
-    //--------------------------------------------------------
+    //------------------------------------------
     // TEST: Binding a dummy function with a name that already exists in the subtree
     // This function exists just for testing purposes and is not meant to be used in production code.
     // Instead, it serves as a placeholder to demonstrate the binding mechanisms collision detection
@@ -42,7 +42,7 @@ public:
         return Nebulite::Constants::ERROR_TYPE::NONE;
     }
 
-    //----------------------------------------
+    //------------------------------------------
     // Available Functions
 
     /**
@@ -128,7 +128,7 @@ public:
 
 
     
-    //-------------------------------------------
+    //------------------------------------------
     // Setup
 
     /**
@@ -146,7 +146,7 @@ public:
         bindFunction(&Debug::alwaysClear,       "always-clear",             "Clear all always functions");
         bindFunction(&Debug::render_object,     "standard-render-object",   "Generates a standard render object at ./Resources/Renderobjects/standard.jsonc");
 
-        //-----------------------
+        //------------------------------------------
         // Example Bindings that will fail
 
         // TEST: Binding an already existing sub-function

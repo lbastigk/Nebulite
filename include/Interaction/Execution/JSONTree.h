@@ -6,17 +6,17 @@
 
 #pragma once
 
-//----------------------------------------------------------
+//------------------------------------------
 // Basic includes
 #include "Constants/ErrorTypes.h"  // Basic Return Type: enum ERROR_TYPE
 #include "Interaction/Execution/FuncTree.h"    // All FuncTrees inherit from this for ease of use
 
-//----------------------------------------------------------
+//------------------------------------------
 // Include DomainModules of JSONTree
 #include "DomainModule/JSON/JDM_SimpleData.h"
 #include "DomainModule/JSON/JDM_ComplexData.h"
 
-//----------------------------------------------------------
+//------------------------------------------
 // Forward declaration of classes
 namespace Nebulite{
     namespace Interaction{
@@ -94,7 +94,7 @@ private:
         return DomainModule;
     }
 
-    //---------------------------------------
+    //------------------------------------------
     // Commands to the JSONTree are added via DomainModule files to keep the JSONTree clean
     // and allow for easy implementation and removal of collaborative features.
     // Maintainers can separately implement their own features and merge them into the JSONTree.
@@ -103,7 +103,7 @@ private:
     // 2.) Implement the setupBindings() method to bind functions
     // 3.) Insert the new object here as a unique pointer
     // 4.) Initialize via make_unique in the JSONTree constructor
-    //---------------------------------------
+    //------------------------------------------
     std::unique_ptr<Nebulite::DomainModule::JSON::SimpleData> simpleData;
     std::unique_ptr<Nebulite::DomainModule::JSON::ComplexData> complexData;
 

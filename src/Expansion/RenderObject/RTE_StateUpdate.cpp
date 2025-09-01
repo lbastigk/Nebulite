@@ -1,7 +1,7 @@
 #include "DomainModule/RenderObject/RDM_StateUpdate.h"
 #include "Core/RenderObject.h"
 
-//-------------------------------
+//------------------------------------------
 // Update
 void Nebulite::DomainModule::RenderObject::StateUpdate::update() {
     // Add FuncTree-specific updates here!
@@ -9,7 +9,7 @@ void Nebulite::DomainModule::RenderObject::StateUpdate::update() {
     // This is used to update all variables/states that are INTERNAL ONLY
 }
 
-//-------------------------------
+//------------------------------------------
 // FuncTree-Bound Functions
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::StateUpdate::deleteObject(int argc, char* argv[]){

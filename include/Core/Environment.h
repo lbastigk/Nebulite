@@ -5,7 +5,7 @@
 
 #pragma once
 
-//-------------------------------------------------
+//------------------------------------------
 // Includes
 
 // General
@@ -23,7 +23,7 @@
 #include "Interaction/Invoke.h"
 #include "Utility/JSON.h"
 
-//-------------------------------------------------
+//------------------------------------------
 /**
  * @def RENDEROBJECTCONTAINER_COUNT
  * @brief The number of RenderObjectContainer layers in the Environment.
@@ -32,7 +32,7 @@
  */
 #define RENDEROBJECTCONTAINER_COUNT 5
 
-//-------------------------------------------------
+//------------------------------------------
 namespace Nebulite{
 namespace Core{
 /**
@@ -68,7 +68,7 @@ public:
 		menue
 	};
 
-	//-----------------------------------------------------------
+	//------------------------------------------
 	//Constructor
 
 	/**
@@ -93,7 +93,7 @@ public:
 	Environment& operator=(Environment&& other) = delete;
 	Environment& operator=(const Environment& other) = delete;
 
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Marshalling
 
 	/**
@@ -118,7 +118,7 @@ public:
 	 */
 	void deserialize(std::string serialOrLink, int dispResX,int dispResY);
 	
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Object Management
 
 	/**
@@ -164,7 +164,7 @@ public:
 	 */
 	Nebulite::Core::RenderObject* getObjectFromId(uint32_t id);
 
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Container Management
 
 	/**

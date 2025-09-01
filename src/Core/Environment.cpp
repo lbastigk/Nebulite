@@ -20,7 +20,7 @@ Nebulite::Core::Environment::Environment(Nebulite::Interaction::Invoke* globalIn
 
 
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Marshalling
 
 std::string Nebulite::Core::Environment::serialize() {
@@ -67,7 +67,7 @@ void Nebulite::Core::Environment::deserialize(std::string serialOrLink, int disp
 	}
 }
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Object Management
 
 void Nebulite::Core::Environment::append(Nebulite::Core::RenderObject* toAppend,int dispResX, int dispResY, int layer) {
@@ -102,7 +102,7 @@ Nebulite::Core::RenderObject* Nebulite::Core::Environment::getObjectFromId(uint3
 	return nullptr;
 }
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Container Management
 
 std::vector<Nebulite::Core::RenderObjectContainer::batch>& Nebulite::Core::Environment::getContainerAt(int16_t x, int16_t y, int layer) {

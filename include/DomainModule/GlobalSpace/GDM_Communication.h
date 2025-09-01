@@ -51,7 +51,7 @@ Do NOT attempt to use these functions until implementation is complete.
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/DomainModuleWrapper.h"
 
-//----------------------------------------------------------
+//------------------------------------------
 // Forward declarations
 namespace Nebulite{
     namespace Core{
@@ -59,7 +59,7 @@ namespace Nebulite{
     }
 }
 
-//----------------------------------------------------------
+//------------------------------------------
 namespace Nebulite {
 namespace DomainModule {
 namespace GlobalSpace {
@@ -73,7 +73,7 @@ public:
 
     void update();
 
-    //----------------------------------------
+    //------------------------------------------
     // Connection Management
 
     // Basic connection functions
@@ -81,7 +81,7 @@ public:
     Nebulite::Constants::ERROR_TYPE disconnect(int argc, char* argv[]);       // Close connection: disconnect
     Nebulite::Constants::ERROR_TYPE reconnect(int argc, char* argv[]);        // Reconnect using last settings: reconnect
 
-    //----------------------------------------
+    //------------------------------------------
     // Status Monitoring
 
     // Connection status and health
@@ -89,7 +89,7 @@ public:
     Nebulite::Constants::ERROR_TYPE ping(int argc, char* argv[]);             // Test connection: ping
     Nebulite::Constants::ERROR_TYPE isConnected(int argc, char* argv[]);      // Check if connected: is-connected
 
-    //----------------------------------------
+    //------------------------------------------
     // Command Parsing and Execution
 
     // Command handling
@@ -97,19 +97,19 @@ public:
     Nebulite::Constants::ERROR_TYPE executeRemote(int argc, char* argv[]);    // Execute command from remote: execute-remote <command>
     Nebulite::Constants::ERROR_TYPE setCommandHandler(int argc, char* argv[]); // Set command callback: set-command-handler <callback_command>
 
-    //----------------------------------------
+    //------------------------------------------
     // Image Transfer
 
     // Image sending functionality
     Nebulite::Constants::ERROR_TYPE sendImage(int argc, char* argv[]);        // Send image of current renderer to connected client.
 
-    //----------------------------------------
+    //------------------------------------------
     // Console Output Redirection
 
     // Output redirection
     Nebulite::Constants::ERROR_TYPE redirectOutput(int argc, char* argv[]);   // Redirect cout to connection: redirect-output <enable/disable>
 
-    //-------------------------------------------
+    //------------------------------------------
     // Setup
 
     /**

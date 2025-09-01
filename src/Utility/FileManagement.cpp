@@ -1,6 +1,6 @@
 #include "Utility/FileManagement.h"
 
-//--------------------------------------------------------
+//------------------------------------------
 // Nebulite::Utility::FileManagement Functions
 
 std::string Nebulite::Utility::FileManagement::CombinePaths(const std::string& baseDir, const std::string& innerDir) {

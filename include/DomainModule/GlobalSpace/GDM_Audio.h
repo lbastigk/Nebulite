@@ -36,7 +36,7 @@ TODO: Once merged into the GlobalSpace, please move GDM_Renderer:beep to GDM_Aud
 #include "Interaction/Execution/DomainModuleWrapper.h"
 
 
-//----------------------------------------------------------
+//------------------------------------------
 // Forward declarations
 namespace Nebulite{
     namespace Core{
@@ -44,7 +44,7 @@ namespace Nebulite{
     }
 }
 
-//----------------------------------------------------------
+//------------------------------------------
 namespace Nebulite {
 namespace DomainModule {
 namespace GlobalSpace {
@@ -56,7 +56,7 @@ class Audio : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebul
 public:
     using DomainModuleWrapper<Nebulite::Core::GlobalSpace, Audio>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
-    //----------------------------------------
+    //------------------------------------------
     // Available Functions
 
     // Basic audio playback
@@ -99,7 +99,7 @@ public:
     Nebulite::Constants::ERROR_TYPE setOutputDevice(int argc, char* argv[]);  // Set output device: set-output-device <device_id>
     Nebulite::Constants::ERROR_TYPE setInputDevice(int argc, char* argv[]);   // Set input device: set-input-device <device_id>
 
-    //-------------------------------------------
+    //------------------------------------------
     // Setup
 
     /**

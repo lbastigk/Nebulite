@@ -3,12 +3,12 @@
 #include "Interaction/InvokeJSONParser.h"
 #include "Interaction/Execution/JSONTree.h"
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Special member Functions
 
 Nebulite::Core::RenderObject::RenderObject(Nebulite::Utility::JSON* global) : global(global), renderObjectTree(this, json.getJSONTree()) {
 
-	//------------------------------------------------------------
+	//------------------------------------------
 	// Document Values
 
 	// General
@@ -42,7 +42,7 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Utility::JSON* global) : gl
 	json.set(Nebulite::Constants::keyName.renderObject.textColorB.c_str(),255);
 	json.set(Nebulite::Constants::keyName.renderObject.textColorA.c_str(),255);
 
-	//------------------------------------------------------------
+	//------------------------------------------
 	// Internal Values
 
 	//Build Rect on creation
@@ -52,7 +52,7 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Utility::JSON* global) : gl
 	textSurface = nullptr;
     textTexture = nullptr;
 
-	//------------------------------------------------------------
+	//------------------------------------------
 	// Flags
 	flag.deleteFromScene = false;
 	flag.calculateText = true;		// In order to calculate text texture on first update
@@ -78,7 +78,7 @@ Nebulite::Core::RenderObject::~RenderObject() {
 
 
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Marshalling
 
 std::string Nebulite::Core::RenderObject::serialize() {
@@ -93,22 +93,22 @@ void Nebulite::Core::RenderObject::deserialize(std::string serialOrLink) {
 		json.deserialize(serialOrLink);
 	}
 	else{
-		//----------------------------------------------------------
+		//------------------------------------------
 		// Split the input into tokens
 		std::vector<std::string> tokens = Nebulite::Utility::StringHandler::split(serialOrLink, '|');
 
-		//----------------------------------------------------------
+		//------------------------------------------
         // Validity check
 		if (tokens.empty()) {
 			return; // or handle error properly
 		}
 
-		//----------------------------------------------------------
+		//------------------------------------------
 		// Load the JSON file
 		// First token is the path or serialized JSON
 		json.deserialize(tokens[0]);
 
-		//----------------------------------------------------------
+		//------------------------------------------
         // Now apply modifications
 		tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
 		for (const auto& token : tokens) {
@@ -143,7 +143,7 @@ void Nebulite::Core::RenderObject::deserialize(std::string serialOrLink) {
 	calculateSrcRect();
 }
 
-//-----------------------------------------------------------
+//------------------------------------------
 // General functions
 
 
@@ -195,26 +195,26 @@ void Nebulite::Core::RenderObject::calculateSrcRect() {
 	}
 }
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Outside communication with invoke for updating and estimation
 
 void Nebulite::Core::RenderObject::update(Nebulite::Interaction::Invoke* globalInvoke) {
-	//------------------------------------
+	//------------------------------------------
 	// Update Trees
 	renderObjectTree.update();
 	json.getJSONTree()->update();
 
-	//------------------------------------
+	//------------------------------------------
 	// Check all invokes
 	if (globalInvoke) {
-		//------------------------------
+		//------------------------------------------
 		// 1.) Reload invokes if needed
 		if (flag.reloadInvokes) {
 			Nebulite::Interaction::InvokeJSONParser::parse(entries_global, entries_local, this, globalInvoke->getDocumentCache(), globalInvoke->getGlobalPointer());
 			flag.reloadInvokes = false;
 		}
 
-		//------------------------------
+		//------------------------------------------
 		// 2.) Directly solve local invokes (loop)
 		for (auto entry : entries_local){
 			if(globalInvoke->isTrueLocal(entry)){
@@ -222,7 +222,7 @@ void Nebulite::Core::RenderObject::update(Nebulite::Interaction::Invoke* globalI
 			}
 		}
 
-		//------------------------------
+		//------------------------------------------
 		// 3.) Checks this object against all conventional invokes
 		//	   Manipulation happens at the Invoke::update routine later on
 		//     This just generates pairs that need to be updated
@@ -233,7 +233,7 @@ void Nebulite::Core::RenderObject::update(Nebulite::Interaction::Invoke* globalI
 		}
         
 
-		//------------------------------
+		//------------------------------------------
 		// 4.) Append general invokes from object itself back for global check
 		//     This makes sure that no invokes from inactive objects stay in the list
 		for (auto entry : entries_global){
@@ -244,7 +244,7 @@ void Nebulite::Core::RenderObject::update(Nebulite::Interaction::Invoke* globalI
 		std::cerr << "Invoke is nullptr!" << std::endl;
 	}
 
-	//------------------------------------
+	//------------------------------------------
 	//recalc rect
 	calculateDstRect();
 	calculateSrcRect();
@@ -296,7 +296,7 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(Nebulite::Inter
 	return cost;
 }
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Outside communication with Renderer for text calculation
 
 void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int renderer_X, int renderer_Y){
@@ -349,7 +349,7 @@ void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font
 }
 
 
-//-----------------------------------------------------------
+//------------------------------------------
 // FuncTree parsing
 
 Nebulite::Constants::ERROR_TYPE Nebulite::Core::RenderObject::parseStr(const std::string& str){

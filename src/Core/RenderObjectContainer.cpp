@@ -1,23 +1,23 @@
 #include "Core/RenderObjectContainer.h"
 
-//--------------------------------------------------------------------------------------
+//------------------------------------------
 // RenderObjectContainer
 
-//-----------------------------------------------------------
+//------------------------------------------
 //Constructor
 
 Nebulite::Core::RenderObjectContainer::RenderObjectContainer(Nebulite::Interaction::Invoke* globalInvoke) : globalInvoke(globalInvoke) {}
 
-//-----------------------------------------------------------
+//------------------------------------------
 //Marshalling
 std::string Nebulite::Core::RenderObjectContainer::serialize() {
-	//---------------------------------------
+	//------------------------------------------
 	// Setup
 
 	// Initialize RapidJSON document
 	Nebulite::Utility::JSON doc;
 
-	//---------------------------------------
+	//------------------------------------------
 	// Get all objects in container
 	int i = 0;
 	for (auto it = ObjectContainer.begin(); it != ObjectContainer.end(); ++it) {
@@ -34,7 +34,7 @@ std::string Nebulite::Core::RenderObjectContainer::serialize() {
 		}
 	}
 
-	//---------------------------------------
+	//------------------------------------------
 	// Return as string
 	return doc.serialize();
 }
@@ -61,7 +61,7 @@ void Nebulite::Core::RenderObjectContainer::deserialize(const std::string& seria
 	}
 }
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Pipeline
 
 std::pair<int16_t,int16_t> getTilePos(Nebulite::Core::RenderObject* toAppend, int dispResX, int dispResY){
@@ -97,7 +97,7 @@ void Nebulite::Core::RenderObjectContainer::append(Nebulite::Core::RenderObject*
 }
 
 void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY, Nebulite::Interaction::Invoke* globalInvoke) {
-	//---------------------------------------------
+	//------------------------------------------
 	// 2-Step Deletion
 
 	// Deleteflag--->Trash--->Purgatory-->Destructor
@@ -114,7 +114,7 @@ void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t til
 	// Move trash into purgatory
 	deletionProcess.purgatory.swap(deletionProcess.trash);
 
-	//--------------------------------------------------------------------------------
+	//------------------------------------------
 	// Update only tiles that might be visible
 
 	// since one tile is size of screen, a max of 9 tiles
@@ -234,7 +234,7 @@ size_t Nebulite::Core::RenderObjectContainer::getObjectCount() {
 	return totalCount;
 }
 
-//--------------------------------------------------------------------------------------
+//------------------------------------------
 // Batch
 
 Nebulite::Core::RenderObject* Nebulite::Core::RenderObjectContainer::batch::pop(Nebulite::Interaction::Invoke* globalInvoke) {

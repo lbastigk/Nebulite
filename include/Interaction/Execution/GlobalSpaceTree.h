@@ -6,13 +6,13 @@
 
 #pragma once
 
-//----------------------------------------------------------
+//------------------------------------------
 // Basic includes
 #include "Constants/ErrorTypes.h"         // Basic Return Type: enum ERROR_TYPE
 #include "Interaction/Execution/FuncTree.h"    // All FuncTrees inherit from this for ease of use
 #include "Interaction/Execution/JSONTree.h"           // For JSONTree parameter
 
-//----------------------------------------------------------
+//------------------------------------------
 // Include DomainModules of GlobalSpaceTree
 #include "DomainModule/GlobalSpace/GDM_General.h"    // General functions like eval, exit, wait, etc.
 #include "DomainModule/GlobalSpace/GDM_Renderer.h"   // Renderer functions for graphics and display
@@ -20,7 +20,7 @@
 #include "DomainModule/GlobalSpace/GDM_GUI.h"        // GUI functions for DearImgui integration
 #include "DomainModule/GlobalSpace/GDM_RenderObjectDraft.h" // Mock RenderObject for RenderObject functions in global space
 
-//----------------------------------------------------------
+//------------------------------------------
 // Forward declaration of classes
 namespace Nebulite{
     namespace Interaction{
@@ -34,7 +34,7 @@ namespace Nebulite{
 namespace Nebulite{
 namespace Interaction{
 namespace Execution{
-//----------------------------------------------------------
+//------------------------------------------
 /**
  * @class Nebulite::Interaction::Execution::GlobalSpaceTree
  * @brief This class extends FuncTreeWrapper<Nebulite::Constants::ERROR_TYPE> to provide a focused, 
@@ -108,7 +108,7 @@ private:
         return DomainModule;
     }
 
-    //---------------------------------------
+    //------------------------------------------
     // Commands to the GlobalSpaceTree are added via DomainModule files to keep the GlobalSpaceTree clean 
     // and allow for easy implementation and removal of collaborative features.
     // Maintainers can separately implement their own features and merge them into the GlobalSpaceTree. 
@@ -117,7 +117,7 @@ private:
     // 2.) Implement the setupBindings() method to bind functions
     // 3.) Insert the new object here as a unique pointer
     // 4.) Initialize via make_unique in the GlobalSpaceTree constructor
-    //---------------------------------------
+    //------------------------------------------
     std::unique_ptr<Nebulite::DomainModule::GlobalSpace::Debug> debug;                             // Debugging functions such as logging, creating standard files etc.
     std::unique_ptr<Nebulite::DomainModule::GlobalSpace::General> general;                         // General functions such as echo, exit, task loading etc.
     std::unique_ptr<Nebulite::DomainModule::GlobalSpace::Renderer> renderer;                       // Renderer DomainModule for global rendering control

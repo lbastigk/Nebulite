@@ -1,7 +1,7 @@
 #include "DomainModule/GlobalSpace/GDM_GUI.h"
 #include "Core/GlobalSpace.h"       // Global Space for Nebulite
 
-//-------------------------------
+//------------------------------------------
 // Update
 void Nebulite::DomainModule::GlobalSpace::GUI::update() {
     // Add FuncTree-specific updates here!

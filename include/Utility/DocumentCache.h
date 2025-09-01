@@ -6,14 +6,14 @@
 
 #pragma once
 
-//-----------------------------------------------------------
+//------------------------------------------
 // Includes
 
 // Nebulite
 #include "Utility/JSON.h"
 #include "Utility/FileManagement.h"
 
-//-----------------------------------------------------------
+//------------------------------------------
 namespace Nebulite {
 namespace Utility {
 /**
@@ -86,7 +86,7 @@ private:
 } // namespace Utility
 } // namespace Nebulite
 
-//-------------------------------------
+//------------------------------------------
 // Definitions of template functions
 
 template  <typename T> 

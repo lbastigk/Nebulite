@@ -1,7 +1,7 @@
 #include "DomainModule/JSON/JDM_SimpleData.h"
 #include "Utility/JSON.h"
 
-//-------------------------------
+//------------------------------------------
 // Update
 void Nebulite::DomainModule::JSON::SimpleData::update() {
     // Add FuncTree-specific updates here!
@@ -9,10 +9,10 @@ void Nebulite::DomainModule::JSON::SimpleData::update() {
     // This is used to update all variables/states that are INTERNAL ONLY
 }
 
-//-------------------------------
+//------------------------------------------
 // FuncTree-Bound Functions
 
-//---------------------------------------
+//------------------------------------------
 // General set/get/remove functions
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::set(int argc, char* argv[]) {
@@ -120,7 +120,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::keyDel
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-//---------------------------------------
+//------------------------------------------
 // Array manipulation functions
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::ensureArray(int argc, char* argv[]) {
     if (argc < 2) {
@@ -246,7 +246,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::push_f
 
     size_t size = domain->memberSize(key);
 
-    //-----------------------------------------
+    //------------------------------------------
     // Security check:
     // if any array item is a document, throw error
     // This feature is yet to be implemented!
@@ -259,7 +259,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::push_f
         }
     }
 
-    //----------------------------------------
+    //------------------------------------------
     // Move all existing items one step forward
     for (size_t i = size; i > 0; --i) {
         std::string itemKey = key + "[" + std::to_string(i - 1) + "]";
@@ -293,7 +293,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::pop_fr
 
     size_t size = domain->memberSize(key);
 
-    //-----------------------------------------
+    //------------------------------------------
     // Security check:
     // if any array item is a document, throw error
     // This feature is yet to be implemented!
@@ -306,7 +306,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::SimpleData::pop_fr
         }
     }
 
-    //----------------------------------------
+    //------------------------------------------
     // Move all existing items one step back
     for (size_t i = 1; i < size; i++) {
         std::string itemKey = key + "[" + std::to_string(i) + "]";

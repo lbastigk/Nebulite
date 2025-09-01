@@ -6,13 +6,13 @@
 
 #pragma once
 
-//--------------------------------------------
+//------------------------------------------
 // Includes
 
 // Nebulite
 #include "Interaction/Logic/ExpressionPool.h"
 
-//--------------------------------------------
+//------------------------------------------
 namespace Nebulite {
 namespace Interaction {
 namespace Logic {
@@ -91,7 +91,7 @@ struct Assignment{
      */
     Nebulite::Interaction::Logic::ExpressionPool expression;
 
-    //---------------------------------------
+    //------------------------------------------
     // Disabling copy, allowing move
 
     // Disable copy constructor and assignment

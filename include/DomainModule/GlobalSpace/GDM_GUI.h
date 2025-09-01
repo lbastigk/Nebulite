@@ -9,7 +9,7 @@
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/DomainModuleWrapper.h"
 
-//----------------------------------------------------------
+//------------------------------------------
 // Forward declarations
 namespace Nebulite{
     namespace Core{
@@ -17,7 +17,7 @@ namespace Nebulite{
     }
 }
 
-//----------------------------------------------------------
+//------------------------------------------
 namespace Nebulite {
 namespace DomainModule {
 namespace GlobalSpace {
@@ -31,7 +31,7 @@ public:
 
     void update();
 
-    //----------------------------------------
+    //------------------------------------------
     // Available Functions
 
     /**
@@ -45,7 +45,7 @@ public:
      */
     Nebulite::Constants::ERROR_TYPE example(int argc, char* argv[]);
     
-    //-------------------------------------------
+    //------------------------------------------
     // Setup
 
     /**

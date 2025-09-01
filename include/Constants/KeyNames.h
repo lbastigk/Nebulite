@@ -5,13 +5,13 @@
  * @brief Contains all hardcoded key names used within Nebulite.
  */
 
-//-----------------------------
+//------------------------------------------
 // Includes
 
 // General
 #include <string>
 
-//-----------------------------
+//------------------------------------------
 namespace Nebulite{
 namespace Constants {
 /**

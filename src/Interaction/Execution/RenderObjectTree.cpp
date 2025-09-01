@@ -11,7 +11,7 @@ Nebulite::Interaction::Execution::RenderObjectTree::RenderObjectTree(Nebulite::C
     stateUpdate = createDomainModuleOfType<Nebulite::DomainModule::RenderObject::StateUpdate>();
 }
 
-//--------------------------------- 
+//------------------------------------------ 
 // Necessary updates
 void Nebulite::Interaction::Execution::RenderObjectTree::update() {
     // Update all DomainModules

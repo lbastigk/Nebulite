@@ -7,7 +7,7 @@
 
 #pragma once
 
-//-------------------------------------------------
+//------------------------------------------
 // Includes
 
 // General
@@ -28,7 +28,7 @@
 #include "Utility/TimeKeeper.h"
 #include "Interaction/Invoke.h"
 
-//-------------------------------------------------
+//------------------------------------------
 namespace Nebulite{
 namespace Core {
 /**
@@ -49,7 +49,7 @@ public:
 	 */
 	Renderer(Nebulite::Interaction::Invoke& invoke, Nebulite::Utility::JSON& global, bool flag_headless = false, unsigned int X = 1080, unsigned int Y = 1080);
 
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Serialization / Deserialization
 
 	/**
@@ -78,7 +78,7 @@ public:
 		);
 	}
 
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Pipeline
 
 	/**
@@ -190,7 +190,7 @@ public:
 		return found;
 	}
 
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Special Functions
 
 	/**
@@ -212,7 +212,7 @@ public:
 	 */
 	bool snapshot(std::string link);
 	
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Purge
 
 	/**
@@ -230,7 +230,7 @@ public:
 	 */
 	void destroy();
 	
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Manipulation
 
 	/**
@@ -279,7 +279,7 @@ public:
 		forced_global_values.clear();
 	}
 	
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Setting
 
 	/**
@@ -295,7 +295,7 @@ public:
 	void setTargetFPS(int fps);
 
 	
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Getting
 
 	/**
@@ -418,7 +418,7 @@ public:
 
 private:
 
-	//-------------------------------------------------------------------------------------
+	//------------------------------------------
 	// Boolean Status Variables
 	bool reset_delta = false; 		// Reset delta values on next update
 	bool audioInitialized = false;
@@ -426,7 +426,7 @@ private:
 	bool consoleMode = false;
 	bool showFPS = true;			// Set default to false later on
 
-	//-------------------------------------------------------------------------------------
+	//------------------------------------------
 	// Audio
 	SDL_AudioDeviceID audioDevice = 0;
 	SDL_AudioSpec desired, obtained;
@@ -438,7 +438,7 @@ private:
 	std::vector<Sint16>* squareBuffer = nullptr;
 	std::vector<Sint16>* triangleBuffer = nullptr;
 
-	//-------------------------------------------------------------------------------------
+	//------------------------------------------
 	//General Variables
 	std::vector<std::pair<std::string, std::string>> forced_global_values; // Key-Value pairs to set in global JSON
 	std::string baseDirectory;
@@ -467,7 +467,7 @@ private:
 	SDL_Rect consoleRect;
 	SDL_Rect DstRect;
 
-	//-----------------------------------------------------------
+	//------------------------------------------
 	// Event Handling
 
 	SDL_Event event;
@@ -498,7 +498,7 @@ private:
 	 */
 	void pollEvent();
 	
-	//-------------------------------------------------------------------------------------
+	//------------------------------------------
 	// RNG
 	std::mt19937 rngA;
     std::mt19937 rngB;
@@ -515,7 +515,7 @@ private:
 	 */
 	std::uniform_int_distribution<int> dist;
     
-	//-------------------------------------------------------------------------------------
+	//------------------------------------------
 	// Renderer::tick Functions
 
 	/**
@@ -565,7 +565,7 @@ private:
 	 */
 	void showFrame();
 
-	//-------------------------------------------------------------------------------------
+	//------------------------------------------
 	//For FPS Count
 
 	uint64_t prevTicks = SDL_GetTicks64();
@@ -577,12 +577,12 @@ private:
 	uint16_t REAL_FPS_COUNTER = 0;							// Counts fps in a 1-second-interval
 	uint16_t REAL_FPS = 0;									// Actual fps this past second
 	
-	//-------------------------------------------------------------------------------------
+	//------------------------------------------
 	// Console
 	std::string consoleInputBuffer;                  // What the user is typing
 	std::deque<std::string> consoleOutput;           // Optional: Past output log
 
-	//-------------------------------------------------------------------------------------
+	//------------------------------------------
 	// Texture-Related
 
 	// Function to load texture from file
@@ -611,7 +611,7 @@ private:
 	 */
 	absl::flat_hash_map<Environment::Layers, absl::flat_hash_map<std::string, SDL_Texture*>> BetweenLayerTextures;
 
-	//-------------------------------------------------------------------------------------
+	//------------------------------------------
 	// Font-Related
 
 	// Define font properties
