@@ -41,37 +41,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::s
             linkOrObject += " " + std::string(argv[i]);
         }
 
-        // [TODO] Add standard-directories to find files in:
-        // spawn Planets/sun.jsonc -> spawn ./Resources/Renderobjects/Planets/sun.jsonc
-        // Note that the link cant be turned into a serial here, 
-        // due to additional passings like |posX=100
-        // that are resolved in Renderobject::deserialize / JSON::deserialize
-
         // Create object
-        /*
-        NOTE: Memory management ist handled by the Renderer
-        Implementing unique_ptr or shared_ptr is a work in progress
-        as its made difficult by the ability of globalspace to select a RenderObject
-        and store its pointer.
-
-        The Renderer is, besided the selection, a closed system that handles the pointer
-        and lifetime of RenderObjects.
-
-        Thus, the usage of unique_ptr or shared_ptr is not needed here.
-
-        We might wish to implement this in the future, but for now
-        we will use a raw pointer and let the Renderer handle the memory management.
-
-        Implementing a shared or unique pointer would require a significant rework of:
-        - Renderer append function
-        - Environment append function
-        - RenderObjectContainer append function
-        - Its batch management
-        - RenderObject selection mechanism
-        - RenderObject deletion mechanism in Renderer::update()
-
-        As of now, the implementation is fully functional so its a low priority task.
-        */
         Nebulite::Core::RenderObject* ro = new Nebulite::Core::RenderObject(&domain->global);
         ro->deserialize(linkOrObject);
 

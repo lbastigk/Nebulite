@@ -74,7 +74,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::lo
     std::istringstream stream(file);
     std::string line;
     while (std::getline(stream, line)) {
-        line = Nebulite::Utility::StringHandler::untilSpecialChar(line,'#');   // Remove comments. TODO: Doesnt remove lines that are purely "#"
+        line = Nebulite::Utility::StringHandler::untilSpecialChar(line,'#');   // Remove comments.
         line = Nebulite::Utility::StringHandler::lstrip(line,' ');             // Remove whitespaces at start
         if(line.length() == 0){
             // line is empty

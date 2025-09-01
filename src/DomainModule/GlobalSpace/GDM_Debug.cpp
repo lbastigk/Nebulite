@@ -65,9 +65,6 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::erro
         if(!strcmp(argv[1], "on")){
             if(!errorLogStatus){
                 try {
-                    // TODO: log on causes crash with wine
-                    // wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
-
                     // Create ofstream only when needed (lazy initialization)
                     if (!errorFile) {
                         errorFile = std::make_unique<std::ofstream>();
