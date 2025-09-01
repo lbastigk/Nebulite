@@ -87,6 +87,10 @@ namespace Execution{
  */
 class GlobalSpaceTree : public Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>{
 public:
+    /**
+     * @todo: Possible to have constructor in header?
+     * Would simplify implementation
+     */
     GlobalSpaceTree(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::JSONTree* jsonTree);
 
     void update();

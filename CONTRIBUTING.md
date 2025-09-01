@@ -45,14 +45,14 @@ You can quickly verify the correctness of an expression with the command line:
 
 ## Adding Features
 
-Nebulite offers clean expansions of its functionality through its FuncTrees. 
-Maintainers can create their own Tree-expansion classes and add them to a specific FuncTree.
+Nebulite offers clean expansions of its functionality through its DomainModules. 
+Maintainers can create their own module classes and add them to a specific domain.
 
 | New commands operating on... | Action                        | Info                                                                    |
 |------------------------------|-------------------------------|-------------------------------------------------------------------------|
-| global level                 | Extend the `GlobalSpaceTree`  | See `include/GlobalSpaceTree.h` and its expansions `include/GTE_*.h`    |
-| specific RenderObjects       | Extend the `RenderObjectTree` | See `include/RenderObjectTree.h` and its expansions `include/RTE_*.h`   |
-| specific JSON-Documents      | Extend the `JSONTree`         | See `include/JSONTree.h` and its expansions `include/JTE_*.h`           |
+| global level                 | Extend the `GlobalSpaceTree`  | See `include/Interaction/Execution/GlobalSpaceTree.h` and its modules `include/DomainModule/GlobalSpace/GTE_*.h`    |
+| specific RenderObjects       | Extend the `RenderObjectTree` | See `include/Interaction/Execution/RenderObjectTree.h` and its modules `include/DomainModule/RenderObject/RTE_*.h`   |
+| specific JSON-Documents      | Extend the `JSONTree`         | See `include/Interaction/Execution/JSONTree.h` and its modules `include/DomainModule/JSON/JTE_*.h`           |
 
 Each Class has access to a different tree through `funcTree->...` and a different domain through `self->...`: 
 - `GlobalSpaceTree` can access the global space
@@ -70,8 +70,8 @@ from the base class.
 ### Implementation Guidelines
 
 - It is recommended to implement unfinished functions inside the cpp file via a return of `Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED`
-- Use filenames `GTE_*.{h,cpp}` , `RTE_*.{h,cpp}` and `JTE_*.{h,cpp}` for expansions
-- Use the recommended class naming schemes and namespaces, e.g.: `Nebulite::GlobalSpaceTreeExpansion::MyFeature`
+- Use filenames `GDM_<ModuleName>.{h,cpp}` , `RDM_<ModuleName>.{h,cpp}` and `JDM_<ModuleName>.{h,cpp}` for module files
+- Use the recommended class naming schemes and namespaces, e.g.: `Nebulite::DomainModule::GlobalSpace::MyFeature`
 
 
 ### Function Collision Prevention
@@ -87,25 +87,34 @@ It is **not allowed** to overwrite already existing functions:
 
 ### Step-by-Step Process
 
-1. **Create expansion file:** `GTE_MyFeature.{h,cpp}`
-2. **Inherit from wrapper:** Create class inheriting from `Nebulite::FuncTreeExpansion::Wrapper<DomainClass, MyFeatureClass>`
+1. **Create expansion file:** `GDM_MyFeature.{h,cpp}`
+2. **Inherit from wrapper:** Create class inheriting from `Nebulite::Interaction::Execution::DomainModuleWrapper<DomainClass, MyFeatureClass>` and using its Constructor
 3. **Implement command methods:** Functions with `ERROR_TYPE (int argc, char* argv[])` signature
-4. **setupBindings():** Register your commands with the function tree
+4. **setupBindings():** Bind your commands to the FuncTree
 5. **update** Add all necessary update-procedures within the tree
-6. **Add to GlobalSpaceTree:** Include in `include/GlobalSpaceTree.h`, add to the update and initialize in constructor
-7. **Command line Variables** are more difficult to implement, as they require the full domain definition. Bind them in `GlobalSpaceTree.cpp`
+6. **Add to GlobalSpaceTree:** Include in `include/Interaction/Execution/GlobalSpaceTree.h`, add to the update and initialize in constructor
+7. **Command line Variables** are more difficult to implement, as they require the full domain definition. Bind them in `src/Interaction/Execution/GlobalSpaceTree.cpp`
 
 ### Complete Code Example
 
-**Inside GTE_MyFeature.h:**
+**Inside GDM_MyFeature.h:**
 
 ```cpp
+//------------------------------------------
+// Forward declarations
 namespace Nebulite{
-class GlobalSpace; // Forward declaration of Domain class GlobalSpace 
-namespace GlobalSpaceTreeExpansion {
-class MyFeature : public Nebulite::FuncTreeExpansion::Wrapper<Nebulite::GlobalSpace, MyFeature> {
+    namespace Core{
+        class GlobalSpace; // Forward declaration of domain class GlobalSpace
+    }
+}
+
+//------------------------------------------
+namespace Nebulite {
+namespace DomainModule {
+namespace GlobalSpace {
+class MyFeature : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, MyFeature> {
 public:
-    using Wrapper<Nebulite::GlobalSpace, MyFeature>::Wrapper; // Templated constructor from Wrapper, calls setupBindings
+    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, MyFeature>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();  // For implementing internal update-procedures on each new frame
 
@@ -124,17 +133,17 @@ public:
 }
 ```
 
-**Inside MyFeature.cpp:**
+**Inside GDM_MyFeature.cpp:**
 ```cpp
-#include "MyFeature.h"
-#include "GlobalSpace.h"       // Global Space for Nebulite
+#include "DomainModule/GlobalSpace/GDM_MyFeature.h"
+#include "Core/GlobalSpace.h"
 
-void Nebulite::GlobalSpaceTreeExpansion::MyFeature::update(){
+void Nebulite::DomainModule::GlobalSpace::MyFeature::update(){
     // If our expansion uses any internal values that need to be updated on each frame
     // We can update them here
 }
 
-Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::MyFeature::spawnCircle(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::MyFeature::spawnCircle(int argc, char* argv[]){
     /*
     Implementation here.
     You can access the global space and its members through: self->...
@@ -145,29 +154,36 @@ Nebulite::ERROR_TYPE Nebulite::GlobalSpaceTreeExpansion::MyFeature::spawnCircle(
 
 **Then add to include/GlobalSpaceTree.h:**
 ```cpp
-#include "MyFeature.h"
+#include "DomainModule/GlobalSpace/GDM_MyFeature.h"
+namespace Nebulite{
+namespace Interaction{
+namespace Execution{
+/**/
 class GlobalSpaceTree : public FuncTree<Nebulite::ERROR_TYPE>{
     /*...*/
 private:
     /*...*/
-    std::unique_ptr<GlobalSpaceTreeExpansion::MyFeature> myFeature;
-}
+    std::unique_ptr<Nebulite::DomainModule::GlobalSpace::MyFeature> myFeature;
+};
+}   // namespace Interaction
+}   // namespace Execution
+}   // namespace Nebulite
 ```
 
 **And initialize and update in GlobalSpaceTree.cpp:**
 ```cpp
-Nebulite::GlobalSpaceTree::GlobalSpaceTree(/*...*/) : /*...*/
+Nebulite::Interaction::Execution::GlobalSpaceTree::GlobalSpaceTree(/*...*/) : /*...*/
 {
     // Initialize all expansions
     /*...*/
-    myFeature = createExpansionOfType<GlobalSpaceTreeExpansion::MyFeature>();
+    myFeature = createExpansionOfType<Nebulite::DomainModule::GlobalSpace::MyFeature>();
 
     // Initialize Variable Bindings here, due to circular dependency issues
     /*...*/
     bindVariable(&domain->myVariable, "myVariable", "This is a variable inside globalSpace");
 }
 
-void Nebulite::GlobalSpaceTree::update(){
+void Nebulite::Interaction::Execution::GlobalSpaceTree::update(){
     /*...*/
     myFeature->update();
 }
@@ -196,6 +212,7 @@ Preview Editing is currently under development. The current plan is to use the h
 - Follow the existing code style and conventions
 - Use meaningful variable and function names
 - Comment complex logic and algorithms
+- Create helper classes if necessary
 - Keep functions focused and modular
 
 ## Getting Help
