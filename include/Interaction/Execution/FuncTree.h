@@ -259,7 +259,6 @@ private:
 //------------------------------------------
 // Binding helper
 
-// bindfunction todo...
 template<typename RETURN_TYPE>
 template<typename ClassType>
 void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(ClassType* obj, RETURN_TYPE (ClassType::*method)(int, char**), const std::string& name, const std::string& help) {
@@ -270,8 +269,8 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(Class
         // Throw a proper error
         // exit the entire program
         std::cerr << "---------------------------------------------------------------\n";
-        std::cerr << "Nebulite FuncTree initialization failed!\n";
-        std::cerr << "Error: Function '" << name << "' already exists in a linked subtree.\n";
+        std::cerr << "A Nebulite FuncTree initialization failed!\n";
+        std::cerr << "Error: A bound Function already exists in the subtree.\n";
         std::cerr << "Function overwrite is heavily discouraged and thus not allowed.\n";
         std::cerr << "Please choose a different name or remove the existing function.\n";
         std::cerr << "This Tree: " << TreeName << "\n";
@@ -289,10 +288,11 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(Class
         // exit the entire program
         std::cerr << "---------------------------------------------------------------\n";
         std::cerr << "Nebulite FuncTree initialization failed!\n";
-        std::cerr << "Error: Function '" << name << "' already exists in this tree.\n";
+        std::cerr << "Error: A bound Function already exists in this tree.\n";
         std::cerr << "Function overwrite is heavily discouraged and thus not allowed.\n";
         std::cerr << "Please choose a different name or remove the existing function.\n";
-        std::cerr << "Tree: " << TreeName << "\n";
+        std::cerr << "This Tree: " << TreeName << "\n";
+        std::cerr << "Function:  " << name << "\n";
         std::exit(EXIT_FAILURE);  // Exit with failure status
     }
 

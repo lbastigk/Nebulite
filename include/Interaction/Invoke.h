@@ -22,10 +22,10 @@
 
 // Nebulite
 #include "Constants/ThreadSettings.h"
+#include "Utility/DocumentCache.h"
 #include "Utility/JSON.h"
 #include "Interaction/Logic/Assignment.h"
 #include "Interaction/Logic/ParsedEntry.h"
-#include "Utility/DocumentCache.h"
 
 //------------------------------------------
 // Forward declarations

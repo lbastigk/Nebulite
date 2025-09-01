@@ -32,11 +32,15 @@ public:
     void update();
 
     //------------------------------------------
-    // TEST: Binding a dummy function with a name that already exists in the subtree
-    // This function exists just for testing purposes and is not meant to be used in production code.
-    // Instead, it serves as a placeholder to demonstrate the binding mechanisms collision detection
-    // Uncomment the bind in setupBindings() to test the collision detection.
-    // The binary compilation will work, but execution will fail.
+    /**
+     * @brief Dummy function for testing function definition collision detection of FuncTree.
+     * 
+     * This function is intentionally left blank to test collision detection.
+     * It is not meant to be bound in production code.
+     * Instead, it serves as a placeholder to demonstrate the binding mechanisms collision detection
+     * Uncomment the bind in setupBindings() to test the collision detection.
+     * The binary compilation will work, but execution will fail.
+     */
     Nebulite::Constants::ERROR_TYPE set(int argc, char* argv[]) {
         // Binding a function with the name "set" is not allowed as it already exists in the subtree JSONTree
         return Nebulite::Constants::ERROR_TYPE::NONE;
