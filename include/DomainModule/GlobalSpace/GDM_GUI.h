@@ -56,6 +56,9 @@ public:
     void setupBindings() {
         bindFunction(&GUI::example, "GUI-Example", "An example function to demonstrate GUI-Elements");
     }
+
+private:
+    SDL_Renderer* gui_renderer; // GUI should have its own renderer?
 };
 }   // namespace GlobalSpace
 }   // namespace DomainModule
