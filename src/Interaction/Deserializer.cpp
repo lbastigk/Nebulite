@@ -1,8 +1,8 @@
-#include "Interaction/InvokeJSONParser.h"
+#include "Interaction/Deserializer.h"
 
-void Nebulite::Interaction::InvokeJSONParser::getFunctionCalls(
+void Nebulite::Interaction::Deserializer::getFunctionCalls(
     Nebulite::Utility::JSON& entryDoc,
-    Nebulite::Interaction::Logic::ParsedEntry& invokeEntry, 
+    Nebulite::Interaction::ParsedEntry& invokeEntry, 
     Nebulite::Core::RenderObject* self,
     Nebulite::Utility::DocumentCache* docCache,
     Nebulite::Utility::JSON* global
@@ -59,7 +59,7 @@ void Nebulite::Interaction::InvokeJSONParser::getFunctionCalls(
     }
 }
 
-bool Nebulite::Interaction::InvokeJSONParser::getExpression(Nebulite::Interaction::Logic::Assignment& assignmentExpr, Nebulite::Utility::JSON& entry, int index){
+bool Nebulite::Interaction::Deserializer::getExpression(Nebulite::Interaction::Logic::Assignment& assignmentExpr, Nebulite::Utility::JSON& entry, int index){
     std::string exprKey = Nebulite::Constants::keyName.invoke.exprVector + "[" + std::to_string(index) + "]";
 
     // Get expression
@@ -110,7 +110,7 @@ bool Nebulite::Interaction::InvokeJSONParser::getExpression(Nebulite::Interactio
     return true;
 }
 
-std::string Nebulite::Interaction::InvokeJSONParser::getLogicalArg(Nebulite::Utility::JSON& entry) {
+std::string Nebulite::Interaction::Deserializer::getLogicalArg(Nebulite::Utility::JSON& entry) {
     std::string logicalArg = "";
     if(entry.memberCheck("logicalArg") == Nebulite::Utility::JSON::KeyType::array){
         uint32_t logicalArgSize = entry.memberSize("logicalArg");
@@ -135,7 +135,7 @@ std::string Nebulite::Interaction::InvokeJSONParser::getLogicalArg(Nebulite::Uti
     return logicalArg;
 }
 
-bool Nebulite::Interaction::InvokeJSONParser::getInvokeEntry(Nebulite::Utility::JSON& doc, Nebulite::Utility::JSON& entry, int index) {
+bool Nebulite::Interaction::Deserializer::getInvokeEntry(Nebulite::Utility::JSON& doc, Nebulite::Utility::JSON& entry, int index) {
     std::string key = Nebulite::Constants::keyName.renderObject.invokes + "[" + std::to_string(index) + "]";
     if(doc.memberCheck(key.c_str()) == Nebulite::Utility::JSON::KeyType::document) {
         entry = doc.get_subdoc(key.c_str());
@@ -152,7 +152,7 @@ bool Nebulite::Interaction::InvokeJSONParser::getInvokeEntry(Nebulite::Utility::
     return true;
 }
 
-void Nebulite::Interaction::InvokeJSONParser::parse(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry>>& entries_global, std::vector<std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry>>& entries_local, Nebulite::Core::RenderObject* self, Nebulite::Utility::DocumentCache* docCache, Nebulite::Utility::JSON* global) {
+void Nebulite::Interaction::Deserializer::parse(std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>>& entries_global, std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>>& entries_local, Nebulite::Core::RenderObject* self, Nebulite::Utility::DocumentCache* docCache, Nebulite::Utility::JSON* global) {
     // Clean up existing entries - shared pointers will automatically handle cleanup
     entries_global.clear();
     entries_local.clear();
@@ -176,15 +176,15 @@ void Nebulite::Interaction::InvokeJSONParser::parse(std::vector<std::shared_ptr<
     for (int i = 0; i < size; ++i) {
         // Parse entry into separate JSON object
         Nebulite::Utility::JSON entry;
-        if (!InvokeJSONParser::getInvokeEntry(*doc, entry, i)) {
+        if (!Deserializer::getInvokeEntry(*doc, entry, i)) {
             std::cerr << "Failed to get invoke entry at index " << i << std::endl;
             continue; // Skip this entry
         }
 
         // Parse into a structure
-        auto invokeEntry = std::make_shared<Nebulite::Interaction::Logic::ParsedEntry>();
+        auto invokeEntry = std::make_shared<Nebulite::Interaction::ParsedEntry>();
         invokeEntry->topic = entry.get<std::string>(Nebulite::Constants::keyName.invoke.topic.c_str(), "all");
-        invokeEntry->logicalArg.parse(InvokeJSONParser::getLogicalArg(entry), *docCache, self->getDoc(), global);
+        invokeEntry->logicalArg.parse(Deserializer::getLogicalArg(entry), *docCache, self->getDoc(), global);
 
         // Remove whitespaces at start and end from topic and logicalArg:
         invokeEntry->topic = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(invokeEntry->topic));
@@ -202,7 +202,7 @@ void Nebulite::Interaction::InvokeJSONParser::parse(std::vector<std::shared_ptr<
             uint32_t exprSize = entry.memberSize(Nebulite::Constants::keyName.invoke.exprVector);
             for (uint32_t j = 0; j < exprSize; ++j) {
                 Nebulite::Interaction::Logic::Assignment assignmentExpr;
-                if (InvokeJSONParser::getExpression(assignmentExpr, entry, j)){
+                if (Deserializer::getExpression(assignmentExpr, entry, j)){
                     // Successfully parsed expression
 
                     // Remove whitespaces at start and end of key and value
@@ -226,7 +226,7 @@ void Nebulite::Interaction::InvokeJSONParser::parse(std::vector<std::shared_ptr<
         }
 
         // Parse all function calls
-        Nebulite::Interaction::InvokeJSONParser::getFunctionCalls(entry, *invokeEntry, self, docCache, global);
+        Nebulite::Interaction::Deserializer::getFunctionCalls(entry, *invokeEntry, self, docCache, global);
 
         // Push into vector
         invokeEntry->selfPtr = self; // Set self pointer

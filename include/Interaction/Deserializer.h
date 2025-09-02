@@ -1,7 +1,7 @@
 /**
- * @file InvokeJSONParser.h
+ * @file Deserializer.h
  * 
- * This file contains the static InvokeJSONParser class.
+ * This file contains the static Deserializer class.
  */
 
 #pragma once
@@ -17,11 +17,13 @@
 namespace Nebulite{
 namespace Interaction{
 /**
- * @class Nebulite::Interaction::InvokeJSONParser
+ * @class Nebulite::Interaction::Deserializer
  * 
- * @brief Responsible for parsing compatible JSON documents into `Nebulite::Interaction::Logic::ParsedEntry` structs.
+ * @brief Responsible for parsing compatible JSON documents into `Nebulite::Interaction::ParsedEntry` structs.
+ * A `Nebulite::Core::RenderObject` instance is required for context during parsing.
+ * It's field `invokes` holds the relevant invoke information.
  * 
- * @todo ParsedEntry and InvokeJSONParser need proper names...
+ * @todo ParsedEntry and Deserializer need proper names...
  * 
  * @todo Idea for Invoke ruleset overwrites:
  * In addition, add the field "overwrites" to the JSON doc.
@@ -45,7 +47,7 @@ namespace Interaction{
  * turns an `$(overwrites.physics.G)` into `9.81` and 
  * defaults to `{global.physics.G}` if not overwritten.
  */
-class InvokeJSONParser{
+class Deserializer{
 public:
 
     /**
@@ -58,8 +60,8 @@ public:
      * @param global The global JSON document to use for parsing expressions.
      */
     static void parse(
-        std::vector<std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry>>& entries_global, 
-        std::vector<std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry>>& entries_local, 
+        std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>>& entries_global, 
+        std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>>& entries_local, 
         Nebulite::Core::RenderObject* self,
         Nebulite::Utility::DocumentCache* docCache,
         Nebulite::Utility::JSON* global
@@ -76,7 +78,7 @@ private:
      */
     static void getFunctionCalls(
         Nebulite::Utility::JSON& entryDoc,
-        Nebulite::Interaction::Logic::ParsedEntry& invokeEntry, 
+        Nebulite::Interaction::ParsedEntry& invokeEntry, 
         Nebulite::Core::RenderObject* self,
         Nebulite::Utility::DocumentCache* docCache,
         Nebulite::Utility::JSON* global

@@ -25,7 +25,7 @@
 #include "Utility/DocumentCache.h"
 #include "Utility/JSON.h"
 #include "Interaction/Logic/Assignment.h"
-#include "Interaction/Logic/ParsedEntry.h"
+#include "Interaction/ParsedEntry.h"
 
 //------------------------------------------
 // Forward declarations
@@ -111,7 +111,7 @@ public:
      * 
      * @param entry The invoke entry to broadcast.
      */
-    void broadcast(std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry> entry);
+    void broadcast(std::shared_ptr<Nebulite::Interaction::ParsedEntry> entry);
 
     /**
      * @brief Listens for invoke entries on a specific topic.
@@ -135,7 +135,7 @@ public:
      * @param otherObj The other render object to compare against.
      * @return True if the invoke entry is true in the context of the other render object, false otherwise.
      */
-    bool isTrueGlobal(std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry> entry, Nebulite::Core::RenderObject* otherObj);
+    bool isTrueGlobal(std::shared_ptr<Nebulite::Interaction::ParsedEntry> entry, Nebulite::Core::RenderObject* otherObj);
 
     /**
      * @brief Checks if the invoke entry is true, without any context from other render objects.
@@ -143,7 +143,7 @@ public:
      * @param entry The invoke entry to check.
      * @return True if the invoke entry is true without any context from other render objects, false otherwise.
      */
-    bool isTrueLocal(std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry> entry);
+    bool isTrueLocal(std::shared_ptr<Nebulite::Interaction::ParsedEntry> entry);
 
 
     //------------------------------------------
@@ -171,7 +171,7 @@ public:
      * applying any changes or updates as necessary. No broadcast/listening necessary, as no other objects are involved.
      * Changes happen in domain `self` and `global`.
      */
-    void updateLocal(std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry> entries_self);
+    void updateLocal(std::shared_ptr<Nebulite::Interaction::ParsedEntry> entries_self);
 
     /**
      * @brief Updates the value of a specific key in the document.
@@ -261,14 +261,14 @@ private:
     absl::flat_hash_map<
       std::string, 
       std::vector<
-        std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry>
+        std::shared_ptr<Nebulite::Interaction::ParsedEntry>
       >
     > entries_global;
 
     absl::flat_hash_map<
       std::string, 
       std::vector<
-        std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry>
+        std::shared_ptr<Nebulite::Interaction::ParsedEntry>
       >
     > entries_global_next; 
 
@@ -276,7 +276,7 @@ private:
     std::vector<    // Vector...
       std::vector<  // of threaded batches...
         std::pair<  // of broadcast-listen-pairs
-          std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry>, // The ParsedEntry that was broadcasted
+          std::shared_ptr<Nebulite::Interaction::ParsedEntry>, // The ParsedEntry that was broadcasted
           Nebulite::Core::RenderObject*                               // The object that listened to the Broadcast
         >
       >
@@ -291,7 +291,7 @@ private:
      * @param entries_self The invoke entries for the self domain.
      * @param Obj_other The render object in the other domain to update.
      */
-    void updatePair(std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry> entries_self, Nebulite::Core::RenderObject* Obj_other);
+    void updatePair(std::shared_ptr<Nebulite::Interaction::ParsedEntry> entries_self, Nebulite::Core::RenderObject* Obj_other);
 };
 } // namespace Interaction
 } // namespace Nebulite

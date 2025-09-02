@@ -59,8 +59,16 @@ namespace Nebulite{
     /**
      * @namespace Nebulite::Interaction
      * @brief Contains all classes, functions, types and variables related to the Nebulite interaction system.
+     * 
+     * Separated into 2 sub-namespaces: Execution and Logic.
+     * 
+     * - `Interaction`: main parts of the Interaction system: the Invoke class, their entries and its parser.
+     * 
+     * - `Interaction::Execution`: All Domain-related parser and the classes their wrapper
+     * 
+     * - `Interaction::Logic`: All logic-related classes and functions
      */
-    namespace Interaction{  // Invoke itself and its parser
+    namespace Interaction{
 
         /**
          * @namespace Nebulite::Interaction::Execution
@@ -70,9 +78,9 @@ namespace Nebulite{
 
         /**
          * @namespace Nebulite::Interaction::Logic
-         * @brief Contains all classes, functions, types and variables related to the logic processing of Invokes.
+         * @brief Contains all classes, functions, types and variables related to mathematical logic in Nebulites Invoke system.
          */
-        namespace Logic{} // All Logic related classes and functions
+        namespace Logic{}
 
     } // namespace Interaction
 
@@ -80,7 +88,7 @@ namespace Nebulite{
      * @namespace Nebulite::Utility
      * @brief Contains all utility classes, functions, types and variables related to the Nebulite framework.
      */
-    namespace Utility{}     // JSON, StringHandler, Time, VirtualDouble, Expression
+    namespace Utility{}
 
 
 }   // namespace Nebulite

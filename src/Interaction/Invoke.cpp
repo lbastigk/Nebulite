@@ -8,7 +8,7 @@ Nebulite::Interaction::Invoke::Invoke(Nebulite::Utility::JSON* globalDocPtr){
     global = globalDocPtr;
 }
 
-bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry> cmd, Nebulite::Core::RenderObject* otherObj) {
+bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Interaction::ParsedEntry> cmd, Nebulite::Core::RenderObject* otherObj) {
     //------------------------------------------
     // Pre-Checks
     
@@ -53,7 +53,7 @@ bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Inter
     return result != 0.0;
 }
 
-bool Nebulite::Interaction::Invoke::isTrueLocal(std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry> cmd) {
+bool Nebulite::Interaction::Invoke::isTrueLocal(std::shared_ptr<Nebulite::Interaction::ParsedEntry> cmd) {
     // Check if logical arg is as simple as just "1", meaning true
     if(cmd->logicalArg.getFullExpression() == "1") return true;
 
@@ -67,7 +67,7 @@ bool Nebulite::Interaction::Invoke::isTrueLocal(std::shared_ptr<Nebulite::Intera
     return result != 0.0;
 }
 
-void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry> toAppend){
+void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interaction::ParsedEntry> toAppend){
     std::lock_guard<std::mutex> lock(entries_global_next_Mutex);
     
     // Skip entries with empty topics - they should be local only
@@ -146,7 +146,7 @@ void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logi
     }
 }
 
-void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry> entries_self, Nebulite::Core::RenderObject* Obj_other) {
+void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interaction::ParsedEntry> entries_self, Nebulite::Core::RenderObject* Obj_other) {
     // Each thread needs its own variable list:
 
 
@@ -225,7 +225,7 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
     }
 }
 
-void Nebulite::Interaction::Invoke::updateLocal(std::shared_ptr<Nebulite::Interaction::Logic::ParsedEntry> entries_self){
+void Nebulite::Interaction::Invoke::updateLocal(std::shared_ptr<Nebulite::Interaction::ParsedEntry> entries_self){
     updatePair(entries_self, entries_self->selfPtr);
 }
 

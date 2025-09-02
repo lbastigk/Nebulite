@@ -24,9 +24,8 @@ namespace Nebulite{
 //------------------------------------------
 namespace Nebulite {
 namespace Interaction {
-namespace Logic {
 /**
- * @struct Nebulite::Interaction::Logic::ParsedEntry
+ * @struct Nebulite::Interaction::ParsedEntry
  * @brief Represents a single invoke entry of a RenderObject for manipulation.
  * 
  * Invokes are parsed into specific structs. Each Renderobject holds its own InvokeEntries.
@@ -54,7 +53,7 @@ namespace Logic {
  */
 struct ParsedEntry{
     /**
-     * @struct Nebulite::Interaction::Logic::ParsedEntry
+     * @struct Nebulite::Interaction::ParsedEntry
      * @brief The topic of the invoke entry, used for routing and filtering in the broadcast-listen-model of the Invoke class.
      * 
      * e.g. `gravity`, `hitbox`, `collision`. `all` is the default value. Any RenderObject should be subscribed to this topic.
@@ -124,6 +123,5 @@ struct ParsedEntry{
     ParsedEntry(ParsedEntry&&) = delete;
     ParsedEntry& operator=(ParsedEntry&&) = delete;
 };
-} // namespace Logic
 } // namespace Interaction
 } // namespace Nebulite

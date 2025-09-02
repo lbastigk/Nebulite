@@ -1,6 +1,6 @@
 #include "Core/RenderObject.h"
 #include "Interaction/Execution/RenderObjectTree.h"
-#include "Interaction/InvokeJSONParser.h"
+#include "Interaction/Deserializer.h"
 #include "Interaction/Execution/JSONTree.h"
 
 //------------------------------------------
@@ -210,7 +210,7 @@ void Nebulite::Core::RenderObject::update(Nebulite::Interaction::Invoke* globalI
 		//------------------------------------------
 		// 1.) Reload invokes if needed
 		if (flag.reloadInvokes) {
-			Nebulite::Interaction::InvokeJSONParser::parse(entries_global, entries_local, this, globalInvoke->getDocumentCache(), globalInvoke->getGlobalPointer());
+			Nebulite::Interaction::Deserializer::parse(entries_global, entries_local, this, globalInvoke->getDocumentCache(), globalInvoke->getGlobalPointer());
 			flag.reloadInvokes = false;
 		}
 
@@ -255,7 +255,7 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(Nebulite::Inter
 	//------------------------------------------
 	// Reload invokes if needed
 	if (flag.reloadInvokes){
-		Nebulite::Interaction::InvokeJSONParser::parse(entries_global, entries_local, this, globalInvoke->getDocumentCache(), globalInvoke->getGlobalPointer());
+		Nebulite::Interaction::Deserializer::parse(entries_global, entries_local, this, globalInvoke->getDocumentCache(), globalInvoke->getGlobalPointer());
 		flag.reloadInvokes = false;
 	}
 

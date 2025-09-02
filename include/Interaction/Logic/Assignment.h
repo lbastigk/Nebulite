@@ -85,7 +85,7 @@ struct Assignment{
      * @todo Is it possible to instead use expression directly? 
      * Since expression stores the full string as well
      * 
-     * @todo does this store "key=0" or just "0"? See InvokeJSONParser!
+     * @todo does this store "key=0" or just "0"? See Deserializer!
      */
     std::string value;
 
