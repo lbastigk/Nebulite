@@ -151,6 +151,9 @@ int main(int argc, char* argv[]){
          *       This is useful as tasks like "spawn" or "echo" are directly executed.
          *       But might break for more complex tasks, so this should be taken into account later on,
          *       e.G. inside the FuncTree, checking state of Renderer might be useful
+         * 
+         * @note Instead of doing this in main, a separate function in globalspace is way more helpful.
+         *       Then, we could store all last parsed tasks as string and use for stuff like rng.
          */
 
         // 1.) Clear errors from last loop
