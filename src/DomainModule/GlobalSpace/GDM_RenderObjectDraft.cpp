@@ -1,5 +1,5 @@
-#include "DomainModule/GlobalSpace/GDM_RenderObjectDraft.h"
-#include "Core/GlobalSpace.h"
+#include "DomainModule/GlobalSpace/GDM_RenderObjectDraft.hpp"
+#include "Core/GlobalSpace.hpp"
 
 
 

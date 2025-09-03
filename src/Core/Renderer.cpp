@@ -1,4 +1,4 @@
-#include "Core/Renderer.h"
+#include "Core/Renderer.hpp"
 
 Nebulite::Core::Renderer::Renderer(Nebulite::Interaction::Invoke& invoke, Nebulite::Utility::JSON& global, bool flag_headless, unsigned int X, unsigned int Y)
 : 	rngA(hashString("Seed for RNG A")),

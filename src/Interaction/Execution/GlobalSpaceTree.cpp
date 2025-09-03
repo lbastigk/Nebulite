@@ -1,5 +1,5 @@
-#include "Interaction/Execution/GlobalSpaceTree.h"
-#include "Core/GlobalSpace.h"       // Global Space for Nebulite
+#include "Interaction/Execution/GlobalSpaceTree.hpp"
+#include "Core/GlobalSpace.hpp"       // Global Space for Nebulite
 
 //------------------------------------------
 // Linking ALL Functions to GlobalSpaceTree

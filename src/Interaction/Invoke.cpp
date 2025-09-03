@@ -1,7 +1,7 @@
-#include "Interaction/Invoke.h"
+#include "Interaction/Invoke.hpp"
 
-#include "Core/RenderObject.h"
-#include "Utility/StringHandler.h"
+#include "Core/RenderObject.hpp"
+#include "Utility/StringHandler.hpp"
 #include <limits>
 
 Nebulite::Interaction::Invoke::Invoke(Nebulite::Utility::JSON* globalDocPtr){

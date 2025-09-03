@@ -33,7 +33,7 @@
 // Include the Global Space class
 // Initializes callable functions from both user CLI and runtime environment.
 // Also sets up the global Renderer used across Tree-based function calls.
-#include "Core/GlobalSpace.h" 
+#include "Core/GlobalSpace.hpp" 
 
 // ----------------------------------------------------------------------
 // NEBULITE main

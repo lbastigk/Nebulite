@@ -1,7 +1,7 @@
-#include "Core/RenderObject.h"
-#include "Interaction/Execution/RenderObjectTree.h"
-#include "Interaction/Deserializer.h"
-#include "Interaction/Execution/JSONTree.h"
+#include "Core/RenderObject.hpp"
+#include "Interaction/Execution/RenderObjectTree.hpp"
+#include "Interaction/Deserializer.hpp"
+#include "Interaction/Execution/JSONTree.hpp"
 
 //------------------------------------------
 // Special member Functions

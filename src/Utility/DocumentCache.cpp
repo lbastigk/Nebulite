@@ -1,4 +1,4 @@
-#include "Utility/DocumentCache.h"
+#include "Utility/DocumentCache.hpp"
 
 double* Nebulite::Utility::DocumentCache::getDoublePointerOf(const std::string& doc_key) {
     // Split the input into document name and key

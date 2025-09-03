@@ -1,4 +1,4 @@
-#include "Utility/Time.h"
+#include "Utility/Time.hpp"
 
 std::string Nebulite::Utility::Time::time_iso8601(Time::ISO8601_FORMAT format, int local) {
     int length = static_cast<int>(format);

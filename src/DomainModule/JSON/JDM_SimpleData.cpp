@@ -1,5 +1,5 @@
-#include "DomainModule/JSON/JDM_SimpleData.h"
-#include "Utility/JSON.h"
+#include "DomainModule/JSON/JDM_SimpleData.hpp"
+#include "Utility/JSON.hpp"
 
 //------------------------------------------
 // Update

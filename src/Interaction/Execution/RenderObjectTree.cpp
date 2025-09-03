@@ -1,5 +1,5 @@
-#include "Interaction/Execution/RenderObjectTree.h"
-#include "Core/RenderObject.h"
+#include "Interaction/Execution/RenderObjectTree.hpp"
+#include "Core/RenderObject.hpp"
 
 Nebulite::Interaction::Execution::RenderObjectTree::RenderObjectTree(Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::JSONTree* jsonTree)
     : FuncTree<Nebulite::Constants::ERROR_TYPE>("RenderObjectTree", Nebulite::Constants::ERROR_TYPE::NONE, Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID, jsonTree), domain(domain) 

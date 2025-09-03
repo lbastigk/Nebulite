@@ -1,6 +1,6 @@
-#include "DomainModule/GlobalSpace/GDM_General.h"
-#include "Core/GlobalSpace.h"       // Global Space for Nebulite
-#include "Interaction/Invoke.h"            // Invoke for parsing expressions
+#include "DomainModule/GlobalSpace/GDM_General.hpp"
+#include "Core/GlobalSpace.hpp"       // Global Space for Nebulite
+#include "Interaction/Invoke.hpp"            // Invoke for parsing expressions
 
 //------------------------------------------
 // Update

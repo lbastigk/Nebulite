@@ -1,5 +1,5 @@
-#include "DomainModule/RenderObject/RDM_StateUpdate.h"
-#include "Core/RenderObject.h"
+#include "DomainModule/RenderObject/RDM_StateUpdate.hpp"
+#include "Core/RenderObject.hpp"
 
 //------------------------------------------
 // Update

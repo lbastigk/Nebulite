@@ -1,5 +1,5 @@
-#include "DomainModule/RenderObject/RDM_Logging.h"
-#include "Core/RenderObject.h"
+#include "DomainModule/RenderObject/RDM_Logging.hpp"
+#include "Core/RenderObject.hpp"
 
 //------------------------------------------
 // Update

@@ -1,5 +1,5 @@
-#include "DomainModule/RenderObject/RDM_Layout.h"
-#include "Core/RenderObject.h"
+#include "DomainModule/RenderObject/RDM_Layout.hpp"
+#include "Core/RenderObject.hpp"
 
 //------------------------------------------
 // Update

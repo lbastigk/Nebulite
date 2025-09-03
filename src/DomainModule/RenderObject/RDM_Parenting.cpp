@@ -1,5 +1,5 @@
-#include "DomainModule/RenderObject/RDM_Parenting.h"
-#include "Core/RenderObject.h"
+#include "DomainModule/RenderObject/RDM_Parenting.hpp"
+#include "Core/RenderObject.hpp"
 
 //------------------------------------------
 // Update

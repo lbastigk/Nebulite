@@ -1,5 +1,5 @@
-#include "Core/GlobalSpace.h"
-#include "Interaction/Execution/GlobalSpaceTree.h"
+#include "Core/GlobalSpace.hpp"
+#include "Interaction/Execution/GlobalSpaceTree.hpp"
 
 Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
 {

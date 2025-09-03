@@ -1,7 +1,7 @@
-#include "DomainModule/GlobalSpace/GDM_Renderer.h"
-#include "Core/GlobalSpace.h"       // Global Space for Nebulite
-#include "Interaction/Invoke.h"            // Invoke for parsing expressions
-#include "Core/RenderObject.h"      // RenderObject for Renderer
+#include "DomainModule/GlobalSpace/GDM_Renderer.hpp"
+#include "Core/GlobalSpace.hpp"       // Global Space for Nebulite
+#include "Interaction/Invoke.hpp"            // Invoke for parsing expressions
+#include "Core/RenderObject.hpp"      // RenderObject for Renderer
 
 //------------------------------------------
 // Update

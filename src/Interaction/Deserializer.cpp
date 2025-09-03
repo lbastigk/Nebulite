@@ -1,4 +1,4 @@
-#include "Interaction/Deserializer.h"
+#include "Interaction/Deserializer.hpp"
 
 void Nebulite::Interaction::Deserializer::getFunctionCalls(
     Nebulite::Utility::JSON& entryDoc,

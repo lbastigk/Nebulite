@@ -1,4 +1,4 @@
-#include "Core/RenderObjectContainer.h"
+#include "Core/RenderObjectContainer.hpp"
 
 //------------------------------------------
 // RenderObjectContainer

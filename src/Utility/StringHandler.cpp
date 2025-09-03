@@ -1,4 +1,4 @@
-#include "Utility/StringHandler.h"
+#include "Utility/StringHandler.hpp"
 
 bool Nebulite::Utility::StringHandler::containsAnyOf(const std::string& str, const std::string& chars) {
     return std::any_of(str.begin(), str.end(), [&](char c) {
