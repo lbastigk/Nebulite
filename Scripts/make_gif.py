@@ -3,7 +3,7 @@ import glob
 
 new_size = (500, 500)
 
-frames = sorted(glob.glob('./Application/Resources/Snapshots/ToGif/*.png'))
+frames = sorted(glob.glob('./Resources/Snapshots/ToGif/*.png'))
 
 images = []
 for frame in frames:

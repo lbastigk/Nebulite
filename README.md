@@ -63,41 +63,40 @@ The goal: quickly prototype and iterate on emergent object logic without rebuild
   ```
 4. Run any script:
   ```bash
-  cd Application
   ./bin/Nebulite task TaskFiles/Benchmarks/gravity.txt 
   ```
 5. Open console (press `^`) and type `help` for interactive commands.
 
 Minimal one‑liner spawn:
 ```bash
-./Application/bin/Nebulite 'set-fps 60 ; spawn Resources/Renderobjects/standard.json ; wait 1 ; snapshot'
+./bin/Nebulite 'set-fps 60 ; spawn Resources/Renderobjects/standard.json ; wait 1 ; snapshot'
 ```
 
 ## Prerequisites
 
-| Tool / Aspect | Requirement / Notes |
-|---------------|----------------------|
-| CMake         | >= 3.16 (see `CMakeLists.txt`) |
+| Tool / Aspect | Requirement / Notes                                           |
+|---------------|---------------------------------------------------------------|
+| CMake         | >= 3.16 (see `CMakeLists.txt`)                                |
 | C++ Compiler  | C++20 capable (Clang 14+, GCC 11+, MinGW-w64 for cross build) |
-| Python        | 3.8+ (only for asset/mock creation scripts) |
-| Build Tools   | make / ninja (default: make) |
-| OS            | Linux (native), Windows (produced via cross-compilation) |
+| Python        | 3.8+ (only for asset/mock creation scripts)                   |
+| Build Tools   | make / ninja (default: make)                                  |
+| OS            | Linux (native), Windows (produced via cross-compilation)      |
 
 All core third‑party libs are vendored and installed via `install.sh` (no system SDL required). Static linking on Linux improves portability.
 
 ## DSL Cheat Sheet
 
-| Feature | Syntax | Example |
-|---------|--------|---------|
-| Expression evaluation | `$()` | `$(1 + {self.physics.mass})` |
-| Expression evaluation with Integer cast | `$i(expr)` | `$i({global.time.frame} / 2)` |
-| Context values | `{self.*}`, `{other.*}`, `{global.*}` | `{other.physics.mass}` |
-| External JSON value | `{<file>:<key.path>}` | `{./Resources/.../names.jsonc:characters.level1.npc_guard}` |
-| Chained commands | `;` separator | `spawn ... ; wait 1 ; snapshot` |
-| Logical helpers | `gt, lt, geq, leq, eq, neq, and, or, not` | `$(gt({self.hp}, 0))` |
-| Sign function | `sgn(a)` | `$(sgn({self.physics.vX}))` |
+| Feature                                     | Syntax                                    | Example                                                     |
+|---------------------------------------------|-------------------------------------------|-------------------------------------------------------------|
+| Expression evaluation                       | `$()`                                     | `$(1 + {self.physics.mass})`                                |
+| Expression evaluation with Integer cast     | `$i(expr)`                                | `$i({global.time.frame} / 2)`                               |
+| Context values                              | `{self.*}`, `{other.*}`, `{global.*}`     | `{other.physics.mass}`                                      |
+| External JSON value                         | `{<file>:<key.path>}`                     | `{./Resources/.../names.jsonc:characters.level1.npc_guard}` |
+| Chained commands                            | `;` separator                             | `spawn ... ; wait 1 ; snapshot`                             |
+| Logical helpers                             | `gt, lt, geq, leq, eq, neq, and, or, not` | `$(gt({self.hp}, 0))`                                       |
+| Sign function                               | `sgn(a)`                                  | `$(sgn({self.physics.vX}))`                                 |
 
-Core concept: Expressions read current cached values; functioncalls mutate state and can trigger other logic passes.
+Core concept: Expressions can access document values of domains, functioncalls mutate state and can trigger other logic passes of domains.
 
 ### Minimal Invoke Snippet
 ```jsonc
@@ -301,32 +300,23 @@ Start engine and enter console mode with `^`. Enter `help` to see available comm
 
 ```bash
 Nebulite/
-├── Application/              # Runtime environment
-│   ├── bin/                  # Compiled binaries
-│   ├── Resources/            # Game assets and data
-│   │   ├── CreationScripts   # Python scripts for mock-asset-creation
-│   │   ├── ...
-│   │   ├── Levels/           # Environments
-│   │   ├── Renderobjects/    # JSON object definitions
-│   │   ├── Snapshots/        # Screenshot output
-│   │   └── Sprites/          # Image assets
-│   └── TaskFiles/            # Example scripts
-├── build/                    # Temporary build output for cmake
-├── doc/                      # UML-Diagrams
-├── external/                 # Third-party dependencies
-├── include/                  # Header files
-├── nebulite-script-vscode/   # Language extension for vscode
-├── src/                      # Engine source code
-│   ├── main.cpp              # Entry point
-│   └── Engine/               # Core engine modules
-│       ├── GlobalSpace.cpp   # Container for all shareable global values
-│       ├── Data/             # Data-related classes
-│       ├── FuncTrees/        # Command processing
-│       ├── Helper/           # Utility functions
-│       └── Rendering/        # Rendering and objects
-├── build.sh                  # Build automation
-├── install.sh                # Setup and installation
-└── CMakeLists.txt            # CMake configuration
+├── bin                       # Compiled binaries
+├── doc                       # Documentation: UML-Diagrams, example gifs, screenshots
+├── external                  # Third-party dependencies
+├── include                   # Header files:
+│   ├── Constants             # - constants like key names, thread settings etc.
+│   ├── Core                  # - core components
+│   ├── DomainModule          # - modules specific to certain domains
+│   ├── Interaction           # - parsing, expressions, manipulation
+│   ├── Nebulite.h            # - namespace documentation
+│   └── Utility               # - string-modification, JSON, caching etc.
+├── install.sh                # Installation of Repository
+├── nebulite-logic-vscode     # VSCode extension for .nebl
+├── nebulite-script-vscode    # VSCode extension for .nebs
+├── Resources                 # Game assets and data
+├── Scripts                   # Various scripts for asset creation, file validation, tests etc.
+├── src                       # Engine source code
+└── TaskFiles                 # Example scripts
 ```
 
 ## Platform Support
@@ -359,15 +349,14 @@ Two primary pathways:
 
 1. Shell script (stops on first failure):
 ```bash
-cd Application
-./Tests.sh --stop
+./Scripts/Tests.sh --stop
 ```
 2. Combined build + test task (VS Code task):
 ```
 [BUILD + TEST]
 ```
 
-JSON validation runs via `validate_json.sh` prior to tests.
+JSON validation runs via `./Scripts/validate_json.sh` prior to tests.
 
 ## Language Extension
 

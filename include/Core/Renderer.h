@@ -451,7 +451,7 @@ private:
 	// Timekeeper
 	Nebulite::Utility::TimeKeeper RendererLoopTime;	// Used for Simulation timing
 	Nebulite::Utility::TimeKeeper RendererPollTime;	// Used for Polling timing
-	Nebulite::Utility::TimeKeeper RendererFullTime;	// While Polling timer technically never stops, we use an extra timer just for full application time
+	Nebulite::Utility::TimeKeeper RendererFullTime;	// While Polling timer technically never stops, we use an extra timer just for full application runtime
 
 	// Custom Subclasses
 	Environment env;
