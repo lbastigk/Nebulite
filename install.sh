@@ -74,9 +74,8 @@ cd ./Resources      || exit 1
 ../Scripts/CreateResourcesDirectory.sh   || exit 1
 cd "$START_DIR"
 
-
 ####################################
-# Submodules
+# Submodules: Init
 git submodule update --init --recursive
 set -e
 
@@ -89,7 +88,7 @@ done
 externalsDir=$(pwd)/external
 
 ####################################
-# build absl
+# Submodules: build absl
 cd "$externalsDir/abseil"
 
 # place build into
@@ -103,7 +102,7 @@ cmake ../abseil -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 cmake --build . -- -j$(nproc)
 
 ####################################
-# build sdl
+# Submodules: SDL: Externals
 cd "$externalsDir/SDL_ttf/external/"
 FREETYPE_SIZE=$(du -k ./freetype 2>/dev/null | awk '{print $1}')
 HARFBUZZ_SIZE=$(du -k ./harfbuzz 2>/dev/null | awk '{print $1}')
@@ -120,26 +119,20 @@ fi
 cd "$externalsDir"
 
 ####################################
-# SDL Build
-
-# TODO: Linux Build does not work: 
-# leo@leo-x670aoruseliteax:~/Projects/Nebulite$ ./bin/Nebulite
-# SDL_Init Error: dsp: No such audio device
-# 
-# Binary itself works, though
-
+# Submodules: SDL
 # Creates builds:
 # ./external/SDL2_build/static/
 # ./external/SDL2_build/shared/
 # ./external/SDL2_build/shared_windows/
+
+# Reset
 rm -rf "$externalsDir/SDL2_build"
 mkdir -p "$externalsDir/SDL2_build"
-
-#=== RESET ===
 git submodule foreach --recursive git reset --hard
 git submodule foreach --recursive git clean -fdx
 
-#=== SDL2 NATIVE BUILDS ===
+####################################
+# Submodules: SDL: SDL2 static-native
 echo ""
 echo "---------------------------------------------------"
 echo "[INFO] Building SDL2 static-native"
@@ -151,6 +144,8 @@ cd "$externalsDir/SDL2"
 make -j"$(nproc)" || { echoerr "[ERROR] SDL2 static-native failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL2 static-native failed (install)"; exit 1; }
 
+####################################
+# Submodules: SDL: SDL2 shared-native
 echo ""
 echo "---------------------------------------------------"
 echo "[INFO] Building SDL2 shared-native"
@@ -162,7 +157,8 @@ cd "$externalsDir/SDL2"
 make -j"$(nproc)" || { echoerr "[ERROR] SDL2 shared-native failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL2 shared-native failed (install)"; exit 1; }
 
-#=== SDL_ttf NATIVE BUILDS ===
+####################################
+# Submodules: SDL: SDL_ttf static-native
 echo ""
 echo "---------------------------------------------------"
 echo "[INFO] Building SDL_ttf static-native"
@@ -174,6 +170,8 @@ autoreconf -f -i
 make -j"$(nproc)" || { echoerr "[ERROR] SDL_ttf static-native failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL_ttf static-native failed (install)"; exit 1; }
 
+####################################
+# Submodules: SDL: SDL_ttf shared-native
 echo ""
 echo "---------------------------------------------------"
 echo "[INFO] Building SDL_ttf shared-native"
@@ -185,7 +183,8 @@ autoreconf -f -i
 make -j"$(nproc)" || { echoerr "[ERROR] SDL_ttf shared-native failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL_ttf shared-native failed (install)"; exit 1; }
 
-#=== SDL_image NATIVE BUILDS ===
+####################################
+# Submodules: SDL: SDL_image static-native
 echo ""
 echo "---------------------------------------------------"
 echo "[INFO] Building SDL_image static-native"
@@ -197,6 +196,8 @@ autoreconf -f -i
 make -j"$(nproc)" || { echoerr "[ERROR] SDL_image static-native failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL_image static-native failed (install)"; exit 1; }
 
+####################################
+# Submodules: SDL: SDL_image shared-native
 echo ""
 echo "---------------------------------------------------"
 echo "[INFO] Building SDL_image shared-native"
@@ -208,11 +209,13 @@ autoreconf -f -i
 make -j"$(nproc)" || { echoerr "[ERROR] SDL_image shared-native failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL_image shared-native failed (install)"; exit 1; }
 
-#=== RESET ===
+####################################
+# Submodules: SDL: Reset for windows
 git submodule foreach --recursive git reset --hard
 git submodule foreach --recursive git clean -fdx
 
-#=== WINDOWS (CROSS) BUILDS ===
+####################################
+# Submodules: SDL: SDL2 cross-compile
 echo ""
 echo "---------------------------------------------------"
 echo "[INFO] Building SDL2 cross-compile"
@@ -224,6 +227,8 @@ cd "$externalsDir/SDL2"
 make -j"$(nproc)" || { echoerr "[ERROR] SDL2 cross-compile failed"; exit 1; }
 make install      || { echoerr "[ERROR] SDL2 cross-compile failed (install)"; exit 1; }
 
+####################################
+# Submodules: SDL: SDL_ttf cross-compile
 echo ""
 echo "---------------------------------------------------"
 echo "[INFO] Building SDL_ttf cross-compile"
@@ -265,6 +270,8 @@ fi
 cp .libs/*.dll.a   "$externalsDir/SDL2_build/shared_windows/lib/"              || { echoerr "[ERROR] SDL_ttf cross-compile failed: no dll.a file found"; exit 1; }
 cp SDL_ttf.h       "$externalsDir/SDL2_build/shared_windows/include/SDL2/"     || { echoerr "[ERROR] SDL_ttf cross-compile failed: no header file found"; exit 1; }
 
+####################################
+# Submodules: SDL: SDL_image cross-compile
 echo ""
 echo "---------------------------------------------------"
 echo "[INFO] Building SDL_image cross-compile"
@@ -307,9 +314,8 @@ fi
 cp .libs/*.dll.a        "$externalsDir/SDL2_build/shared_windows/lib/"              || { echoerr "[ERROR] SDL_image cross-compile failed: no dll.a file found"; exit 1; }
 cp include/SDL_image.h  "$externalsDir/SDL2_build/shared_windows/include/SDL2/"     || { echoerr "[ERROR] SDL_image cross-compile failed: no header file found"; exit 1; }
 
-
 ####################################
-# Another Reset of submodules after build
+# Submodules: SDL: Another Reset of submodules after build
 cd "$START_DIR"
 git submodule foreach --recursive git reset --hard
 git submodule foreach --recursive git clean -fdx
@@ -322,8 +328,6 @@ cd "$START_DIR"
 ####################################
 # Copy necessary dlls
 cd "$START_DIR"
-
-
 if [ -f /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll ]; then
     cp /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll ./bin/
 else
@@ -331,16 +335,15 @@ else
     exit 1;
 fi
 
-
 ####################################
 # make all scripts executable
 cd "$START_DIR"
 find ./Scripts/ -type f -iname "*.sh" -exec chmod +x {} \;
 
 ####################################
-# Run tests:
-
+# Run tests
 cd "$START_DIR"
+./Scripts/validate_json.sh
 ./Scripts/Tests.sh
 
 ####################################
