@@ -90,5 +90,4 @@ namespace Nebulite{
      */
     namespace Utility{}
 
-
 }   // namespace Nebulite

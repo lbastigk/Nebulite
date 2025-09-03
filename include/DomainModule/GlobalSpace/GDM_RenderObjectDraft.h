@@ -12,6 +12,10 @@ RenderObjectDraft extends the Global Space Tree to provide an in-memory RenderOb
 
 #pragma once
 
+//------------------------------------------
+// Includes
+
+// General
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/DomainModuleWrapper.h"
 #include "Core/RenderObject.h"

@@ -516,7 +516,7 @@ private:
 	std::uniform_int_distribution<int> dist;
     
 	//------------------------------------------
-	// Renderer::tick Functions
+	// Renderer::tick related Functions
 
 	/**
 	 * @brief Clears the Renderer screen

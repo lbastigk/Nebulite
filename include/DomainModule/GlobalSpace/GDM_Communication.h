@@ -48,6 +48,12 @@ Do NOT attempt to use these functions until implementation is complete.
 ================================================================================
 */
 
+#pragma once
+
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/DomainModuleWrapper.h"
 

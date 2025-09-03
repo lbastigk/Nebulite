@@ -29,6 +29,8 @@ namespace Core {
 /**
  * @struct Nebulite::Core::taskQueue
  * @brief Represents a queue of tasks to be processed by the engine.
+ * 
+ * @todo internal variables as bool instead of string should be enough
  */
 struct taskQueue {
     std::deque<std::string> taskList;   // List of tasks
@@ -159,6 +161,7 @@ public:
     Nebulite::Constants::ErrorTable errorTable;
 
     //------------------------------------------
+    // [IMPORTANT]
     // Removal of private keyword for easier access for DomainModule classes
     // This allows for easier inspection and modification of the GlobalSpace
     // without having to specify its access here
@@ -205,6 +208,7 @@ private:
     Nebulite::Utility::JSON global;
 
     //------------------------------------------
+    // Variables that need to be private at all times
 private:
 
     /**

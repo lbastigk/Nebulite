@@ -6,6 +6,13 @@
 
 #pragma once
 
+//------------------------------------------
+// Includes
+
+// General
+#include <SDL.h>
+
+// Nebulite
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/DomainModuleWrapper.h"
 

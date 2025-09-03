@@ -1,5 +1,14 @@
+/**
+ * @file JDM_SimpleData.h
+ * @brief DomainModule for simple data operations on domain class Nebulite::Utility::JSON
+ */
+
 #pragma once
 
+//------------------------------------------
+// Includes
+
+// General
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/DomainModuleWrapper.h"
 

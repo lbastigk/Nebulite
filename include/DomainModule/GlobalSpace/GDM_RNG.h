@@ -29,6 +29,12 @@
  *   -> Deep integration into globalspace needed.
  */
 
+#pragma once
+
+//------------------------------------------
+// Includes
+
+// General
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/DomainModuleWrapper.h"
 

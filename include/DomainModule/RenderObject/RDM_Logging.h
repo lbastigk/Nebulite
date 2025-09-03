@@ -5,6 +5,10 @@
 
 #pragma once
 
+//------------------------------------------
+// Includes
+
+// General
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/DomainModuleWrapper.h"
 

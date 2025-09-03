@@ -1,11 +1,15 @@
 /**
  * @file GDM_Debug.h
  * 
- * This file contains an DomainModule of the GlobalSpaceTree for debugging capabilities.
+ * This file contains the DomainModule of the GlobalSpaceTree for debugging capabilities.
  */
 
 #pragma once
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/DomainModuleWrapper.h"
 

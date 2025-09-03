@@ -1,11 +1,15 @@
 /**
  * @file GDM_General.h
  * 
- * This file contains an DomainModule of the GlobalSpaceTree for general-purpose functions.
+ * This file contains the DomainModule of the GlobalSpaceTree for general-purpose functions.
  */
 
 #pragma once
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Constants/ErrorTypes.h"
 #include "Interaction/Execution/DomainModuleWrapper.h"
 

@@ -6,6 +6,12 @@
  * Note that this file is a work in progress!
  */
 
+#pragma once
+
+//------------------------------------------
+// Includes
+
+// General
 #include "Interaction/Execution/DomainModuleWrapper.h"
 
 //------------------------------------------
