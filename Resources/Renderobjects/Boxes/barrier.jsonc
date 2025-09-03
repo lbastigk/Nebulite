@@ -20,7 +20,7 @@
     "posX": 350,
     "posY": 500,
     "sprite": {
-        "link": "./Resources/Editor/Selection_00000.png",
+        "link": "./Resources/Editor/Selection.png",
         "sizeX": 10,
         "sizeY": 10,
         "spritesheet": {

@@ -13,6 +13,7 @@ ResourcesDir=$(pwd)
 #----------------------------------------
 # Main Directories
 mkdir -p ./Cursor
+mkdir -p ./Editor
 mkdir -p ./Fonts
 mkdir -p ./Invokes
 mkdir -p ./Levels
@@ -43,6 +44,14 @@ else
   echo "Skipping Cursor Drakensang.png (already exists)"
 fi
 
+# Selection
+cd $ResourcesDir/Editor/
+if [ ! -f "Selection.png" ]
+then
+  python3 $ResourcesDir/../Scripts/CreateSelection.py
+else
+  echo "Skipping Editor Selection.png (already exists)"
+fi
 
 #----------------------------------------
 # Sprites
