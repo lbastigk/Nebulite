@@ -88,20 +88,6 @@ done
 externalsDir=$(pwd)/external
 
 ####################################
-# Submodules: build absl
-cd "$externalsDir/abseil"
-
-# place build into
-mkdir -p "$externalsDir/abseil_build"
-cd "$externalsDir/abseil_build"
-
-# Run CMake to configure the build
-cmake ../abseil -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-
-# Build Abseil
-cmake --build . -- -j$(nproc)
-
-####################################
 # Submodules: SDL: Externals
 cd "$externalsDir/SDL_ttf/external/"
 FREETYPE_SIZE=$(du -k ./freetype 2>/dev/null | awk '{print $1}')

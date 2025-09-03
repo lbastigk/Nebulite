@@ -39,6 +39,7 @@ endif()
 
 # Setting output inside ./build/<build-type>, 
 # moving to proper location+renaming later on in the build.sh script
+# CMAKE_BINARY_DIR is set by build.sh
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # Echo the start of the configuration
@@ -51,15 +52,14 @@ set(RAPIDJSON_PATH      "${CMAKE_SOURCE_DIR}/external/rapidjson")
 set(EXPRTK_PATH         "${CMAKE_SOURCE_DIR}/external/exprtk")
 set(TINYEXPR_PATH       "${CMAKE_SOURCE_DIR}/external/tinyexpr")
 set(ABSEIL_PATH         "${CMAKE_SOURCE_DIR}/external/abseil")
-set(ABSEIL_BUILD_PATH   "${CMAKE_SOURCE_DIR}/external/abseil_build")
+#set(ABSEIL_BUILD_PATH   "${CMAKE_SOURCE_DIR}/external/abseil_build")
 
 ############################################################
 # Subdirectories
-add_subdirectory(${ABSEIL_PATH} ${ABSEIL_BUILD_PATH})
-
+# TODO: Perhaps including SDL directly is easier...
+add_subdirectory(${ABSEIL_PATH})
 
 ############################################################
-# Source files
 # Source files - Automatically include all .cpp files in src/
 file(GLOB_RECURSE COMMON_SOURCES 
     "${CMAKE_SOURCE_DIR}/src/*.cpp"
@@ -89,15 +89,11 @@ target_include_directories(Nebulite
         ${ABSEIL_PATH}
 )
 
-
-
 ############################################################
-# Link libraries
+# Link externallibraries
 target_link_libraries(Nebulite 
     PRIVATE
         absl::flat_hash_map
-        absl::base
-        absl::strings
 )
 
 ############################################################
@@ -107,9 +103,12 @@ set_source_files_properties(
   "-w"
 )
 
-
 ############################################################
 # Platform-Specific
+
+##################
+# WINDOWS        #
+##################
 if(WIN32)
     message(STATUS "Targeting Windows")
 
@@ -145,7 +144,10 @@ if(WIN32)
         -lwinmm
         -lws2_32
     )
-else()
+##################
+# LINUX          #
+##################
+elseif(UNIX)
     message(STATUS "Targeting Linux")
 
     target_include_directories(Nebulite PRIVATE
@@ -158,5 +160,13 @@ else()
         "${SDL2_BUILD_PATH}/static/lib/libSDL2_image.a"
         "${SDL2_BUILD_PATH}/static/lib/libSDL2.a"
     )
+##################
+# UNKNOWN        #
+##################
+else()
+    message(STATUS "Targeting unknown platform... exiting.")
+
+    # exit
+    exit(1)
 endif()
 

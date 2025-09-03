@@ -4,13 +4,13 @@
         {
             "label": "[BUILD]",
             "type": "shell",
-            "command": "./build.sh",
+            "command": "rm -rf ./.build/ && ./build.sh",
             "group": {
                 "kind": "build",
                 "isDefault": false
             },
             "problemMatcher": [],
-            "detail": "Build the projects release and debug binaries."
+            "detail": "Build the projects release and debug binaries. Cleans previous builds."
         },
         {
             "label": "[MINIMAL BUILD]",

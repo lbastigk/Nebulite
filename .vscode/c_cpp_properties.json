@@ -19,13 +19,7 @@
             "cppStandard": "c++20",
             "intelliSenseMode": "linux-gcc-x64",
             "browse": {
-                "path": [
-                    "${workspaceFolder}/src/Engine",
-                    "${workspaceFolder}/src/Engine/FuncTrees",
-                    "${workspaceFolder}/src/Engine/Data",
-                    "${workspaceFolder}/src/Engine/Helper",
-                    "${workspaceFolder}/src/Engine/Rendering"
-                ],
+                "path": [],
                 "limitSymbolsToIncludedHeaders": true
             }
         }
