@@ -8,10 +8,11 @@ Nebulite::Interaction::Execution::GlobalSpaceTree::GlobalSpaceTree(Nebulite::Cor
 {
 
   // Initialize DomainModules
-  general = createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::General>();
-  renderer = createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::Renderer>();
-  debug = createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::Debug>();
-  gui = createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::GUI>();
+  general =   createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::General>();
+  renderer =  createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::Renderer>();
+  debug =     createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::Debug>();
+  gui =       createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::GUI>();
+  input =     createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::Input>();
   RenderObjectDraft = createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::RenderObjectDraft>();
 
   // Initialize Variable Bindings here, due to circular dependency issues
@@ -30,5 +31,6 @@ void Nebulite::Interaction::Execution::GlobalSpaceTree::update() {
     renderer->update();
     debug->update();
     gui->update();
+    input->update();
     RenderObjectDraft->update();
 }

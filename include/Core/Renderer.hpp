@@ -259,25 +259,6 @@ public:
 	 * If false, they relate to the top left corner.
 	 */
 	void setCam(int X, int Y, bool isMiddle = false);
-
-	/**
-	 * @brief Sets a forced global value.
-	 * 
-	 * All forced global values overwrite any other actions on that value.
-	 * 
-	 * @param key The key of the global value to set.
-	 * @param value The value to set.
-	 */
-	void setForcedGlobalValue(const std::string& key, const std::string& value) {
-		forced_global_values.emplace_back(key, value);
-	}
-
-	/**
-	 * @brief Clears all forced global values.
-	 */
-	void clearForcedGlobalValues() {
-		forced_global_values.clear();
-	}
 	
 	//------------------------------------------
 	// Setting
@@ -359,6 +340,11 @@ public:
 	bool isConsoleMode(){return consoleMode;}
 
 	/**
+	 * @brief Toggles the console mode.
+	 */
+	void toggleConsoleMode(){consoleMode = !consoleMode;}
+
+	/**
 	 * @brief Gets the current tile position of the camera in the X direction.
 	 * 
 	 * The position to check for tile position is considered to be the top left corner of the screen.
@@ -420,7 +406,6 @@ private:
 
 	//------------------------------------------
 	// Boolean Status Variables
-	bool reset_delta = false; 		// Reset delta values on next update
 	bool audioInitialized = false;
 	bool quit = false;
 	bool consoleMode = false;
@@ -440,7 +425,6 @@ private:
 
 	//------------------------------------------
 	//General Variables
-	std::vector<std::pair<std::string, std::string>> forced_global_values; // Key-Value pairs to set in global JSON
 	std::string baseDirectory;
 	uint32_t renderobject_id_counter = 1;
 
@@ -449,9 +433,8 @@ private:
 	uint16_t tileYpos;
 
 	// Timekeeper
-	Nebulite::Utility::TimeKeeper RendererLoopTime;	// Used for Simulation timing
-	Nebulite::Utility::TimeKeeper RendererPollTime;	// Used for Polling timing
-	Nebulite::Utility::TimeKeeper RendererFullTime;	// While Polling timer technically never stops, we use an extra timer just for full application runtime
+	Nebulite::Utility::TimeKeeper RendererLoopTime;	// Simulation timing
+	Nebulite::Utility::TimeKeeper RendererFullTime;	// Full application runtime
 
 	// Custom Subclasses
 	Environment env;
@@ -469,15 +452,7 @@ private:
 
 	//------------------------------------------
 	// Event Handling
-
 	SDL_Event event;
-	int MousePosX = 0;
-	int MousePosY = 0;
-	int lastMousePosX = 0;
-	int lastMousePosY = 0;
-	Uint32 lastMouseState;
-	Uint32 mouseState;
-	std::vector<Uint8> prevKeyState;
 
 	/**
 	 * @brief Gets the current SDL event.
@@ -487,16 +462,6 @@ private:
 	 * @todo this function is garbage, just using SDL_PollEvent on a global variable would be cleaner.
 	 */
 	SDL_Event getEventHandle();
-
-	/**
-	 * @brief Polls Keyboard and mouse states, sets forced global values.
-	 * 
-	 * @todo Move to separate GTE-File 
-	 * hashmap for key names instead of constant polling?
-	 * This also ensures cross-platform stability, note that SDL_GetScancodeName is not cross-platform stable!!!
-	 * Manual map is therefore necessary
-	 */
-	void pollEvent();
 	
 	//------------------------------------------
 	// RNG

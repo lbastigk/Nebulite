@@ -6,6 +6,8 @@
  * including keyboard and mouse input processing.
  */
 
+#pragma once
+
 //------------------------------------------
 // Includes
 
@@ -15,6 +17,7 @@
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -41,11 +44,64 @@ public:
     //------------------------------------------
     // Available Functions
 
-    // None, purely update-focused DomainModule
+    // TODO: Forced global values here
+    /**
+     * @brief Forces a global variable to a specific value
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key> <value>
+     * @return Potential errors that occured on command execution
+     * 
+     * @todo move to GDM_GlobalForce, as this is not just for input
+     * Alternatively, this might make sense as a JSON Module!
+     */
+    Nebulite::Constants::ERROR_TYPE forceGlobal(int argc, char* argv[]);
+
+    /**
+     * @brief Clears all forced global variables
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <key> <value>
+     * @return Potential errors that occured on command execution
+     * 
+     * @todo move to GDM_GlobalForce, as this is not just for input
+     * Alternatively, this might make sense as a JSON Module!
+     */
+    Nebulite::Constants::ERROR_TYPE clearForceGlobal(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
-    void setupBindings() {}
+    void setupBindings() {
+        // Starting Polling timer
+        RendererPollTime.start();
+
+        // Binding
+        bindFunction(&Input::forceGlobal,         "force-global",         "Force a global variable to a value: force-global <key> <value>");
+        bindFunction(&Input::clearForceGlobal,    "force-global-clear",   "Clear all forced global variables");
+    }
+
+private:
+    void pollEvent();
+
+    //---------------------------------
+    // Private vars
+
+    Nebulite::Utility::TimeKeeper RendererPollTime;	// Used for Polling timing
+    bool reset_delta = false; 		                // Reset delta values on next update
+
+    struct Mouse {
+        int posX = 0;
+        int posY = 0;
+        int lastPosX = 0;
+        int lastPosY = 0;
+        Uint32 lastState;
+        Uint32 state;
+    } mouse;
+
+	//std::vector<Uint8> prevKeyState;
+    absl::flat_hash_map<int, uint8_t> prevKeyState; // scancode -> keystate
+
+    absl::flat_hash_map<std::string, std::string> forced_global_values; // Key-Value pairs to set in global JSON
 };
 }   // namespace GlobalSpace
 }   // namespace DomainModule

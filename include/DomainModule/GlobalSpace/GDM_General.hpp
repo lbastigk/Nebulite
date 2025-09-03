@@ -148,29 +148,6 @@ public:
      */
     Nebulite::Constants::ERROR_TYPE func_assert(int argc, char* argv[]);
 
-    // Force a global value to a certain value
-    /**
-     * @brief Forces a global variable to a specific value
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <key> <value>
-     * @return Potential errors that occured on command execution
-     * 
-     * @todo move to GDM_InputMapping
-     */
-    Nebulite::Constants::ERROR_TYPE forceGlobal(int argc, char* argv[]);
-
-    /**
-     * @brief Clears all forced global variables
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <key> <value>
-     * @return Potential errors that occured on command execution
-     * 
-     * @todo move to GDM_InputMapping
-     */
-    Nebulite::Constants::ERROR_TYPE clearForceGlobal(int argc, char* argv[]);
-
     /**
      * @brief Saves the current game state under state prefix
      * 
@@ -212,8 +189,6 @@ public:
         bindFunction(&General::echo,                "echo",                 "Echo a string to cout: echo <string>");
         bindFunction(&General::error,               "error",                "Echo a string to cerr/errorfile: error <string>");
         bindFunction(&General::func_assert,         "assert",               "Assert a condition and throw an error if false: assert <condition>");
-        bindFunction(&General::forceGlobal,         "force-global",         "Force a global variable to a value: force-global <key> <value>");
-        bindFunction(&General::clearForceGlobal,    "force-global-clear",   "Clear all forced global variables");
         bindFunction(&General::stateSave,           "state-save",           "Save the current game state: state-save <name>");
         bindFunction(&General::stateLoad,           "state-load",           "Load a saved game state: state-load <name>");
     }

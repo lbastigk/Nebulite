@@ -220,24 +220,3 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::st
     std::cerr << "Function save not implemented yet!" << std::endl;
     return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
 }
-
-// 3.) To GDM_InputMapping
-
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::forceGlobal(int argc, char* argv[]) {
-    if (argc < 3) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
-    }
-    if (argc > 3) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
-    }
-
-    std::string key = argv[1];
-    std::string value = argv[2];
-    domain->getRenderer()->setForcedGlobalValue(key, value);
-    return Nebulite::Constants::ERROR_TYPE::NONE;
-}
-
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::clearForceGlobal(int argc, char* argv[]) {
-    domain->getRenderer()->clearForcedGlobalValues();
-    return Nebulite::Constants::ERROR_TYPE::NONE;
-}

@@ -159,7 +159,6 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Interaction::Invoke& invoke, Nebuli
 	//------------------------------------------
 	// Start timer
 	RendererLoopTime.start();
-	RendererPollTime.start();
 	RendererFullTime.start();
 }
 
@@ -281,7 +280,6 @@ void Nebulite::Core::Renderer::setGlobalValues(){
 	invoke_ptr->getGlobalPointer()->set<double>( "runtime.t",   t_ms / 1000.0);
 	invoke_ptr->getGlobalPointer()->set<Uint64>( "runtime.dt_ms", dt_ms);
 	invoke_ptr->getGlobalPointer()->set<Uint64>( "runtime.t_ms", t_ms);
-
 
 	//------------------------------------------
 	// Random
@@ -465,83 +463,10 @@ void Nebulite::Core::Renderer::setCam(int X, int Y, bool isMiddle) {
 	}
 };
 
-
 //------------------------------------------
 // Event Handling
 
-void Nebulite::Core::Renderer::pollEvent() {
-	//------------------------------------------
-	// Mouse
-    lastMousePosX = MousePosX;
-    lastMousePosY = MousePosY;
-    lastMouseState = mouseState;
-    mouseState = SDL_GetMouseState(&MousePosX, &MousePosY);
 
-	// Cursor Position and state
-	invoke_ptr->getGlobalPointer()->set("input.mouse.current.X",MousePosX);
-	invoke_ptr->getGlobalPointer()->set("input.mouse.current.Y",MousePosY);
-	invoke_ptr->getGlobalPointer()->set("input.mouse.delta.X",MousePosX-lastMousePosX);
-	invoke_ptr->getGlobalPointer()->set("input.mouse.delta.Y",MousePosY-lastMousePosY);
-
-	invoke_ptr->getGlobalPointer()->set("input.mouse.current.left",!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState));
-	invoke_ptr->getGlobalPointer()->set("input.mouse.current.right",!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouseState));
-	invoke_ptr->getGlobalPointer()->set("input.mouse.delta.left",
-		!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState) - 
-		!!(SDL_BUTTON(SDL_BUTTON_LEFT) & lastMouseState));
-	invoke_ptr->getGlobalPointer()->set("input.mouse.delta.right",
-		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouseState) - 
-		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & lastMouseState));
-
-    //------------------------------------------
-	// Keyboard
-
-    // Get current keyboard state
-    const Uint8* keyState = SDL_GetKeyboardState(NULL);
-
-    // Initialize prevKeyState if empty (on first run)
-    if (prevKeyState.empty()) {
-        prevKeyState.assign(keyState, keyState + SDL_NUM_SCANCODES);
-    }
-
-    for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode) {
-        const char* nameRaw = SDL_GetScancodeName(static_cast<SDL_Scancode>(scancode));
-        if (nameRaw && nameRaw[0] != '\0') {
-            std::string keyName = nameRaw;
-            for (char& c : keyName) c = std::tolower(c);
-            for (char& c : keyName) if (c == ' ') c = '_';
-
-            // Don't add if there are special chars in Nebulite::Constants::keyName
-			if(!Nebulite::Utility::StringHandler::containsAnyOf(keyName,Nebulite::Utility::JSON::reservedCharacters)){
-				// Paths
-				std::string currentPath = "input.keyboard.current." + keyName;
-            	std::string deltaPath = "input.keyboard.delta." + keyName;
-
-				bool currentPressed = keyState[scancode] != 0;
-				bool prevPressed = prevKeyState[scancode] != 0;
-
-				// Set current state (true/false as int)
-				invoke_ptr->getGlobalPointer()->set<int>(currentPath.c_str(), currentPressed);
-
-				// Compute delta: 1 = pressed now but not before, -1 = released now but was pressed before, 0 = no change
-				int delta = 0;
-				if (currentPressed && !prevPressed) delta = 1;
-				else if (!currentPressed && prevPressed) delta = -1;
-
-				invoke_ptr->getGlobalPointer()->set<int>(deltaPath.c_str(), delta);
-			}
-        }
-    }
-
-    // Save current keyboard state for next frame
-    prevKeyState.assign(keyState, keyState + SDL_NUM_SCANCODES);
-
-	//------------------------------------------
-	// Set forced values, from internal vector
-	for(const auto& pair : forced_global_values) {
-		invoke_ptr->getGlobalPointer()->set(pair.first.c_str(), pair.second);
-	}
-
-}
 
 SDL_Event Nebulite::Core::Renderer::getEventHandle() {
 	SDL_Event event;
@@ -584,6 +509,7 @@ void Nebulite::Core::Renderer::updateState() {
                 quit = true;
                 break;
         }
+		// [CONSOLE MODE]
 		if (consoleMode) {
 			switch (event.type) {
 				case SDL_TEXTINPUT:
@@ -613,69 +539,6 @@ void Nebulite::Core::Renderer::updateState() {
 			return;
 		}
     }
-
-	//------------------------------------------
-	// 2-Step Update of Input state
-
-	
-	// 1.) Setting all delta values to 0, so they're only on delta for one frame
-	if(reset_delta){
-		// 1.) Mouse
-		invoke_ptr->getGlobalPointer()->set("input.mouse.delta.X",MousePosX-lastMousePosX);
-		invoke_ptr->getGlobalPointer()->set("input.mouse.delta.Y",MousePosY-lastMousePosY);
-		invoke_ptr->getGlobalPointer()->set("input.mouse.delta.left",
-			!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouseState) - 
-			!!(SDL_BUTTON(SDL_BUTTON_LEFT) & lastMouseState));
-		invoke_ptr->getGlobalPointer()->set("input.mouse.delta.right",
-			!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouseState) - 
-			!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & lastMouseState));
-
-		// 2.) Keyboard
-		for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode) {
-			const char* nameRaw = SDL_GetScancodeName(static_cast<SDL_Scancode>(scancode));
-			if (nameRaw && nameRaw[0] != '\0') {
-				std::string keyName = nameRaw;
-				for (char& c : keyName) c = std::tolower(c);
-				for (char& c : keyName) if (c == ' ') c = '_';
-
-				// Don't add if there are special chars in Nebulite::Constants::keyName
-				if(!Nebulite::Utility::StringHandler::containsAnyOf(keyName,Nebulite::Utility::JSON::reservedCharacters)){
-					// Paths
-					std::string deltaPath = "input.keyboard.delta." + keyName;
-
-					invoke_ptr->getGlobalPointer()->set<int>(deltaPath.c_str(), 0);
-				}
-			}
-		}
-		reset_delta = false;
-	}
-
-	// 2.) Polling mouse and keyboard state
-	// Update every 10 ms
-	// Too much polling time for current benchmarks, 
-	// later on with fixed framerates of < 250 FPS perhaps not that big of a deal
-	uint64_t projected_dt = RendererPollTime.projected_dt();
-	
-	if(projected_dt > 10){
-		RendererPollTime.update();
-		pollEvent();
-
-		// Toggling console mode
-		if(invoke_ptr->getGlobalPointer()->get<int>("input.keyboard.delta.`",0) == 1){
-			consoleMode = !consoleMode;
-			if(consoleMode){
-				SDL_StartTextInput();
-				SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT); // Flush all pending events
-			}
-			else{
-				SDL_StopTextInput();
-			}
-		}
-
-		// Reset delta values on next update
-		reset_delta = true;
-	}
-
 
 	//------------------------------------------
 	// Log time spend in console
@@ -730,28 +593,6 @@ void Nebulite::Core::Renderer::renderFrame() {
 		REAL_FPS = REAL_FPS_COUNTER;
 		REAL_FPS_COUNTER = 0;
 		lastFPSRender = prevTicks;
-
-		/*
-		if (control_fps) {
-			//D and I summation
-			int error = fps - TARGET_FPS;
-			integral += error;
-
-			//Terms
-			double pTerm = kp * error;
-			double iTerm = ki * integral;
-			double dTerm = kd * (error - prevError);
-
-			// Calculate the new epsilon value
-			int depsillon = static_cast<int>(pTerm + iTerm + dTerm);
-
-			//Sum up: PID * s controller
-			epsillon += depsillon;
-
-			prevError = error;
-		}
-		*/
-		
 	}
 
 	//------------------------------------------

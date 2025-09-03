@@ -19,6 +19,7 @@
 #include "DomainModule/GlobalSpace/GDM_Renderer.hpp"            // Renderer functions for graphics and display
 #include "DomainModule/GlobalSpace/GDM_Debug.hpp"               // Debugging and logging functions
 #include "DomainModule/GlobalSpace/GDM_GUI.hpp"                 // GUI functions for DearImgui integration
+#include "DomainModule/GlobalSpace/GDM_Input.hpp"               // Input handling
 #include "DomainModule/GlobalSpace/GDM_RenderObjectDraft.hpp"   // Mock RenderObject for RenderObject functions in global space
 
 //------------------------------------------
@@ -126,6 +127,7 @@ private:
     std::unique_ptr<Nebulite::DomainModule::GlobalSpace::Debug> debug;                             // Debugging functions such as logging, creating standard files etc.
     std::unique_ptr<Nebulite::DomainModule::GlobalSpace::General> general;                         // General functions such as echo, exit, task loading etc.
     std::unique_ptr<Nebulite::DomainModule::GlobalSpace::Renderer> renderer;                       // Renderer DomainModule for global rendering control
+    std::unique_ptr<Nebulite::DomainModule::GlobalSpace::Input> input;                             // Input DomainModule for handling user input
     std::unique_ptr<Nebulite::DomainModule::GlobalSpace::GUI> gui;                                 // GUI DomainModule for DearImgui integration
     std::unique_ptr<Nebulite::DomainModule::GlobalSpace::RenderObjectDraft> RenderObjectDraft;     // Mock RenderObject for testing purposes
 };
