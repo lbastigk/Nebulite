@@ -57,6 +57,8 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Utility::JSON* global) : gl
 	flag.deleteFromScene = false;
 	flag.calculateText = true;		// In order to calculate text texture on first update
 	flag.reloadInvokes = true;		// In order to reload invokes on first update
+
+	subscription_size = json.memberSize(Nebulite::Constants::keyName.renderObject.invokeSubscriptions.c_str());
 }
 
 Nebulite::Core::RenderObject::~RenderObject() {
@@ -141,6 +143,8 @@ void Nebulite::Core::RenderObject::deserialize(std::string serialOrLink) {
 	flag.calculateText = true;
 	calculateDstRect();
 	calculateSrcRect();
+
+	subscription_size = json.memberSize(Nebulite::Constants::keyName.renderObject.invokeSubscriptions.c_str());
 }
 
 //------------------------------------------
@@ -226,7 +230,7 @@ void Nebulite::Core::RenderObject::update(Nebulite::Interaction::Invoke* globalI
 		// 3.) Checks this object against all conventional invokes
 		//	   Manipulation happens at the Invoke::update routine later on
 		//     This just generates pairs that need to be updated
-		for(int i = 0; i < json.memberSize(Nebulite::Constants::keyName.renderObject.invokeSubscriptions.c_str());i++){
+		for(int i = 0; i < subscription_size;i++){
 			std::string key = Nebulite::Constants::keyName.renderObject.invokeSubscriptions + "[" + std::to_string(i) + "]";
 			std::string subscription = json.get<std::string>(key.c_str(),"");
 			globalInvoke->listen(this,subscription);

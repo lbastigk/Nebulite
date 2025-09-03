@@ -123,6 +123,7 @@ int main(int argc, char* argv[]){
     
     //------------------------------------------
     // Render loop
+    bool queueParsed = false;
     bool criticalStop = false;
     Nebulite::Constants::ERROR_TYPE lastCriticalResult = Nebulite::Constants::ERROR_TYPE::NONE;
 
@@ -136,13 +137,19 @@ int main(int argc, char* argv[]){
          * Parse queue in GlobalSpaceTree.
          * Result determines if a critical stop is initiated.
          * 
+         * We do this once before rendering
+         * 
          * @note For now, all tasks are parsed even if the program is in console mode.
          *       This is useful as tasks like "spawn" or "echo" are directly executed.
          *       But might break for more complex tasks, so this should be taken into account later on,
          *       e.G. inside the FuncTree, checking state of Renderer might be useful
          */
-        lastCriticalResult = globalSpace.parseQueue();
-        criticalStop = (lastCriticalResult != Nebulite::Constants::ERROR_TYPE::NONE);
+        if(!queueParsed){
+            lastCriticalResult = globalSpace.parseQueue();
+            criticalStop = (lastCriticalResult != Nebulite::Constants::ERROR_TYPE::NONE);
+            queueParsed = true;
+        }
+        
 
         //------------------------------------------
         // Update and render, only if initialized
@@ -156,6 +163,9 @@ int main(int argc, char* argv[]){
                 if(globalSpace.scriptWaitCounter > 0) globalSpace.scriptWaitCounter--; 
                 if(globalSpace.scriptWaitCounter < 0) globalSpace.scriptWaitCounter = 0;
             }  
+
+            // Frame was rendered, meaning we potentially have new tasks to process
+            queueParsed = false;
         }
 
         //------------------------------------------
@@ -167,6 +177,9 @@ int main(int argc, char* argv[]){
         if(globalSpace.scriptWaitCounter > 0 && !globalSpace.RendererExists()){
             continueLoop = true;
             globalSpace.scriptWaitCounter--;
+
+            // Parse new tasks on next loop
+            queueParsed = false;
         }
     /**
      * @note It might be tempting to add the condition that all tasks are done,

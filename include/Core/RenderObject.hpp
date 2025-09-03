@@ -282,6 +282,9 @@ private:
 
 	// Each RenderObject with linkage to the global document for copy/move instructions in the renderObjectTree
 	Nebulite::Utility::JSON* global;
+
+	// Size of subscriptions
+	size_t subscription_size = 0;
 };
 } // namespace Core
 } // namespace Nebulite

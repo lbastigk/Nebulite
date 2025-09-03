@@ -28,6 +28,7 @@
 #include "absl/container/flat_hash_map.h"
 
 // Nebulite
+#include "Constants/KeyNames.hpp"
 #include "Utility/FileManagement.hpp"
 #include "Interaction/Execution/JSONTree.hpp"
 
@@ -377,6 +378,10 @@ public:
 
     /**
      * @brief Flushes the cache content into the main document.
+     * 
+     * Does **NOT** clear the cache! This just ruins speed with no benefit.
+     * If any value set is ever not supported for cache, it is autoremoved
+     * via `Nebulite::Utility::JSON::set()`.
      */
     void flush();
 
@@ -768,14 +773,18 @@ T Nebulite::Utility::JSON::get(const char* key, const T defaultValue) {
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
     if constexpr (is_simple_value_v<T> || std::is_same_v<T, const char*>) {
+        // Find cached value
         auto it = cache.find(key);
         if (it != cache.end()) {
             return get_type<T>(it->second, defaultValue);
         }
-        // if not found in cache, access actual doc through fallback and store in cache
+
+        // if not found in cache, access actual doc through DirectAccess
         T tmp = Nebulite::Utility::JSON::DirectAccess::get<T>(key, defaultValue, doc);
+        
+        // Store in cache, return
         set(key,tmp);
-        return tmp;
+        return get<T>(key, defaultValue);
     }
     // Fallback to doc
     return Nebulite::Utility::JSON::DirectAccess::get<T>(key, defaultValue, doc);
@@ -785,13 +794,16 @@ template <typename T>
 void Nebulite::Utility::JSON::set(const char* key, const T& value) {
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
+    // 1.) Check if the key is a simple value
     if constexpr (is_simple_value_v<T>) {
         set_type(key,value);
     } 
+    // 2.) Make sure to allow for char arrays
     else if constexpr (std::is_same_v<T, const char*> || (std::is_array_v<T> && std::is_same_v<std::remove_extent_t<T>, char>)) {
         // Convert char arrays and const char* to std::string
         set_type(key,std::string(value));
     } 
+    // 3.) Handle unsupported types
     else {
         // Remove from cache to prevent type mismatch
         cache.erase(key);

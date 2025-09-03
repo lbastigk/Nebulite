@@ -1,0 +1,3 @@
+# Debugging inputs from player
+set-fps 100
+always print-global

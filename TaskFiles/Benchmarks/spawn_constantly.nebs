@@ -263,4 +263,5 @@ echo All objects spawned. Rendering 1000 more frames...
 
 wait 1000
 eval echo Benchmark took {global.time.t} Seconds
+eval echo Full frame count: {global.frameCount}
 exit
