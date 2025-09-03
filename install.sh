@@ -39,7 +39,7 @@ START_DIR=$(pwd)
 
 ####################################
 # Basic directories
-mkdir -p ./Application/bin
+mkdir -p ./bin
 
 ####################################
 # Synonyms for SDL_ttf
@@ -62,8 +62,8 @@ fi
 
 ####################################
 # Resources directory
-cd ./Application/Resources      || exit 1
-./CreateResourcesDirectory.sh   || exit 1
+cd ./Resources      || exit 1
+../Scripts/CreateResourcesDirectory.sh   || exit 1
 cd "$START_DIR"
 
 
@@ -311,7 +311,7 @@ cd "$START_DIR"
 
 
 if [ -f /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll ]; then
-    cp /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll ./Application/bin/
+    cp /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll ./bin/
 else
     echoerr "libwinpthread-1.dll not found in /usr/x86_64-w64-mingw32/lib/"
     exit 1;
@@ -321,14 +321,13 @@ fi
 ####################################
 # make all scripts executable
 cd "$START_DIR"
-find ./Application -type f -iname "*.sh" -exec chmod +x {} \;
+find ./Scripts/ -type f -iname "*.sh" -exec chmod +x {} \;
 
 ####################################
 # Run tests:
 
 cd "$START_DIR"
-cd ./Application
-./Tests.sh
+./Scripts/Tests.sh
 
 ####################################
 # Show runtime

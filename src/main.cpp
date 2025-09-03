@@ -123,20 +123,9 @@ int main(int argc, char* argv[]){
     
     //------------------------------------------
     // Render loop
+    bool criticalStop = false;
+    Nebulite::Constants::ERROR_TYPE lastCriticalResult = Nebulite::Constants::ERROR_TYPE::NONE;
 
-    // For resolving tasks
-    struct Result {
-        Nebulite::Core::taskQueueResult script;       // Result of script-tasks
-        Nebulite::Core::taskQueueResult internal;     // Result of internal-tasks
-        Nebulite::Core::taskQueueResult always;       // Result of always-tasks
-    };
-    Result TaskQueueResults;
-
-    Nebulite::Constants::ERROR_TYPE lastCriticalResult;
-    bool critical_stop = false;
-    uint64_t* noWaitCounter = nullptr;
-
-    //------------------------------------------
     // At least one loop, to handle taskQueues
 
     // Determines if we continue the loop
@@ -151,50 +140,14 @@ int main(int argc, char* argv[]){
          *       This is useful as tasks like "spawn" or "echo" are directly executed.
          *       But might break for more complex tasks, so this should be taken into account later on,
          *       e.G. inside the FuncTree, checking state of Renderer might be useful
-         * 
-         * @note Instead of doing this in main, a separate function in globalspace is way more helpful.
-         *       Then, we could store all last parsed tasks as string and use for stuff like rng.
          */
-
-        // 1.) Clear errors from last loop
-        TaskQueueResults.script.errors.clear();
-        TaskQueueResults.internal.errors.clear();
-        TaskQueueResults.always.errors.clear();
-
-        // 2.) Parse script tasks
-        if(!critical_stop){
-            TaskQueueResults.script = globalSpace.resolveTaskQueue(globalSpace.tasks.script, &globalSpace.scriptWaitCounter);
-        }
-        if(TaskQueueResults.script.stoppedAtCriticalResult && globalSpace.cmdVars.recover == "false") {
-            critical_stop = true; 
-            lastCriticalResult = TaskQueueResults.script.errors.back();
-            break;
-        } 
-
-        // 3.) Parse internal tasks
-        if(!critical_stop){
-            TaskQueueResults.internal = globalSpace.resolveTaskQueue(globalSpace.tasks.internal, noWaitCounter);
-        }
-        if(TaskQueueResults.internal.stoppedAtCriticalResult && globalSpace.cmdVars.recover == "false") {
-            critical_stop = true; 
-            lastCriticalResult = TaskQueueResults.internal.errors.back();
-            break;
-        }
-
-        // 4.) Parse always-tasks
-        if(!critical_stop){
-            TaskQueueResults.always = globalSpace.resolveTaskQueue(globalSpace.tasks.always, noWaitCounter);
-        }
-        if(TaskQueueResults.always.stoppedAtCriticalResult && globalSpace.cmdVars.recover == "false") {
-            critical_stop = true; 
-            lastCriticalResult = TaskQueueResults.always.errors.back();
-            break;
-        }
+        lastCriticalResult = globalSpace.parseQueue();
+        criticalStop = (lastCriticalResult != Nebulite::Constants::ERROR_TYPE::NONE);
 
         //------------------------------------------
         // Update and render, only if initialized
         // If renderer wasnt initialized, it is still a nullptr
-        if (!critical_stop && globalSpace.RendererExists() && globalSpace.getRenderer()->timeToRender()) {
+        if (!criticalStop && globalSpace.RendererExists() && globalSpace.getRenderer()->timeToRender()) {
             globalSpace.GlobalSpaceTree->update();
             globalSpace.getRenderer()->tick();
 
@@ -207,7 +160,7 @@ int main(int argc, char* argv[]){
 
         //------------------------------------------
         // Check if we need to continue the loop
-        continueLoop = !critical_stop && globalSpace.RendererExists() && !globalSpace.getRenderer()->isQuit();
+        continueLoop = !criticalStop && globalSpace.RendererExists() && !globalSpace.getRenderer()->isQuit();
 
         // Overwrite: If there is a wait operation and no renderer exists, 
         // we need to continue the loop and decrease scriptWaitCounter
@@ -221,7 +174,6 @@ int main(int argc, char* argv[]){
      */
     } while (continueLoop);
 
-
     //------------------------------------------
     // Exit
 
@@ -229,7 +181,7 @@ int main(int argc, char* argv[]){
     if(globalSpace.RendererExists()) globalSpace.getRenderer()->destroy();
 
     // Inform user about any errors and return error code
-    if(critical_stop){
+    if(criticalStop){
         std::cerr << "Critical Error: " << globalSpace.errorTable.getErrorDescription(lastCriticalResult) << std::endl;
     }
 
@@ -237,5 +189,5 @@ int main(int argc, char* argv[]){
     globalSpace.parseStr("log off");
 
     // Return 1 on critical stop, 0 otherwise
-    return (int)critical_stop;
+    return (int)criticalStop;
 }

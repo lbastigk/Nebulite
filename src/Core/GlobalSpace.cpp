@@ -109,3 +109,36 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Core::GlobalSpace::parseStr(std::strin
     // Since JSON is linked inside the GlobalSpaceTree, we can parse directly
     return GlobalSpaceTree->parseStr(str);
 }
+
+Nebulite::Constants::ERROR_TYPE Nebulite::Core::GlobalSpace::parseQueue() {
+    uint64_t* noWaitCounter = nullptr;
+    Nebulite::Constants::ERROR_TYPE lastCriticalResult = Nebulite::Constants::ERROR_TYPE::NONE;
+
+    // 1.) Clear errors from last loop
+    queueResult.script.errors.clear();
+    queueResult.internal.errors.clear();
+    queueResult.always.errors.clear();
+
+    // 2.) Parse script tasks
+    queueResult.script = resolveTaskQueue(tasks.script, &scriptWaitCounter);
+    if(queueResult.script.stoppedAtCriticalResult && cmdVars.recover == "false") {
+        lastCriticalResult = queueResult.script.errors.back();
+        return lastCriticalResult;
+    } 
+
+    // 3.) Parse internal tasks
+    queueResult.internal = resolveTaskQueue(tasks.internal, noWaitCounter);
+    if(queueResult.internal.stoppedAtCriticalResult && cmdVars.recover == "false") {
+        lastCriticalResult = queueResult.internal.errors.back();
+        return lastCriticalResult;
+    }
+
+    // 4.) Parse always-tasks
+    queueResult.always = resolveTaskQueue(tasks.always, noWaitCounter);
+    if(queueResult.always.stoppedAtCriticalResult && cmdVars.recover == "false") {
+        lastCriticalResult = queueResult.always.errors.back();
+        return lastCriticalResult;
+    }
+
+    return Nebulite::Constants::ERROR_TYPE::NONE;
+}

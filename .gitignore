@@ -3,17 +3,17 @@ external/SDL2_build/
 external/abseil_build
 
 # Ignore created data
-Application/*.data.old
-Application/*.data
+*.data.old
+*.data
 *.o
 *.out
 
 # Ignore game resources and error logs
-Application/Resources/Sprites/
-Application/Resources/Fonts/
-Application/Resources/Cursor/
-Application/Resources/Editor/
-Application/Resources/Snapshots/**
+Resources/Sprites/
+Resources/Fonts/
+Resources/Cursor/
+Resources/Editor/
+Resources/Snapshots/**
 *.bmp
 *.jpeg
 *.zip
@@ -22,9 +22,8 @@ Application/Resources/Snapshots/**
 *.log.txt
 *.log.json
 
-
 # Ignore binaries
-Application/bin/
+bin/
 
 # Ignore dlls
 *.dll
@@ -36,6 +35,7 @@ Application/bin/
 *.exe
 **/build/
 **/bin/
+.build/
 
 # ignore cmake cache files
 CMakeFiles/

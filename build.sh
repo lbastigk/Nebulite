@@ -18,10 +18,10 @@ build_type="None"
 ################################################
 # Check if ./install.sh has been run
 # Should exist on installation:
-# ./Application/bin 
+# ./bin 
 # ./external/SDL2_build
 # ./external/abseil_build
-if [ ! -d "./Application/bin" ] || [ ! -d "./external/SDL2_build" ] || [ ! -d "./external/abseil_build" ]; then
+if [ ! -d "./bin" ] || [ ! -d "./external/SDL2_build" ] || [ ! -d "./external/abseil_build" ]; then
     echo "Please run ./install.sh first to set up the environment."
     exit 1
 fi
@@ -45,7 +45,7 @@ function clean_src() {
 
     rm -rf "$1"
 
-    OBJ_DIR="build/$2/CMakeFiles/Nebulite.dir/src/"
+    OBJ_DIR="./.build/$2/CMakeFiles/Nebulite.dir/src/"
     if [ -d "$OBJ_DIR" ]; then
         find "$OBJ_DIR" -name '*.o' -delete
         find "$OBJ_DIR" -name '*.o.d' -delete
@@ -55,71 +55,68 @@ function clean_src() {
 }
 
 function build_debug() {
-    clean_src "build/debug/Nebulite" "debug"
-    cmake -DCMAKE_BUILD_TYPE=Debug -B build/debug -S .
-    cmake --build build/debug -j$(nproc)
-    cp build/debug/Nebulite Application/bin/Nebulite_Debug
+    clean_src "./.build/debug/Nebulite" "debug"
+    cmake -DCMAKE_BUILD_TYPE=Debug -B ./.build/debug -S .
+    cmake --build ./.build/debug -j$(nproc)
+    cp ./.build/debug/Nebulite ./bin/Nebulite_Debug
 }
 
 function build_release() {
-    clean_src "build/release/Nebulite" "release"
+    clean_src "./.build/release/Nebulite" "release"
     cmake -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG -march=native" \
           -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE \
-          -B build/release -S .
-    cmake --build build/release -j$(nproc)
-    cp build/release/Nebulite Application/bin/Nebulite
-    strip "./Application/bin/Nebulite"
+          -B ./.build/release -S .
+    cmake --build ./.build/release -j$(nproc)
+    cp ./.build/release/Nebulite ./bin/Nebulite
+    strip "./bin/Nebulite"
 }
 
 
 function build_debug_windows() {
-      clean_src "build/windows-debug/Nebulite.exe" "windows-debug"
+      clean_src "./.build/windows-debug/Nebulite.exe" "windows-debug"
       cmake -DCMAKE_BUILD_TYPE=Debug \
             -DCMAKE_TOOLCHAIN_FILE=mingw-toolchain.cmake \
-            -B build/windows-debug -S .
-      cmake --build build/windows-debug -j$(nproc)
-      cp build/windows-debug/Nebulite.exe Application/bin/Nebulite_Debug.exe
+            -B ./.build/windows-debug -S .
+      cmake --build ./.build/windows-debug -j$(nproc)
+      cp ./.build/windows-debug/Nebulite.exe ./bin/Nebulite_Debug.exe
 }
 
 function build_release_windows() {
-      clean_src "build/windows-release/Nebulite.exe" "windows-release"
+      clean_src "./.build/windows-release/Nebulite.exe" "windows-release"
       cmake -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_TOOLCHAIN_FILE=mingw-toolchain.cmake \
-            -B build/windows-release -S .
-      cmake --build build/windows-release -j$(nproc)
-      cp build/windows-release/Nebulite.exe Application/bin/Nebulite.exe
+            -B ./.build/windows-release -S .
+      cmake --build ./.build/windows-release -j$(nproc)
+      cp ./.build/windows-release/Nebulite.exe ./bin/Nebulite.exe
 
       # Copy dlls from install.sh-created SDL2_build into the application bin
-      cp external/SDL2_build/shared_windows/bin/*.dll Application/bin/
+      cp external/SDL2_build/shared_windows/bin/*.dll ./bin/
 }
 
 function generate_standards() {
-    cd Application
     ./bin/Nebulite standard-render-object
-    cd ..
 }
 
 #############################################################
 # [BUILD]
-rm -rf "./Application/bin/Nebulite"
-rm -rf "./Application/bin/Nebulite_Debug"
-rm -rf "./Application/bin/Nebulite.exe"
-rm -rf "./Application/bin/Nebulite_Debug.exe"
+rm -rf "./bin/Nebulite"
+rm -rf "./bin/Nebulite_Debug"
+rm -rf "./bin/Nebulite.exe"
+rm -rf "./bin/Nebulite_Debug.exe"
 
 echo "#############################################################"
 echo ""
 echo "Step 1: Building Linux release binary"
 build_type="Linux Release"
 build_release
+echo "#############################################################"
+echo ""
+echo "Step 2: Building Linux debug binary"
+build_type="Linux Debug"
+build_debug
 
 if [[ "$minimal_build" == false ]]; then
-    echo "#############################################################"
-    echo ""
-    echo "Step 2: Building Linux debug binary"
-    build_type="Linux Debug"
-    build_debug
-
     echo "#############################################################"
     echo ""
     echo "Step 3: Building Windows release binary"
@@ -134,15 +131,17 @@ if [[ "$minimal_build" == false ]]; then
 fi
 
 echo "Build done!"
-echo ""
-echo "Generating standards from Binary:"
-build_type="Generate Standards"
-generate_standards
-echo ""
-echo "Newest Nebulite build + files generated."
+
+if [[ "$minimal_build" == false ]]; then
+    echo ""
+    echo "Generating standards from Binary:"
+    build_type="Generate Standards"
+    generate_standards
+    echo ""
+fi
 
 # Inform about lines of code:
 echo ""
 echo ""
 echo "Lines of code for Project + Tests:"
-cloc --force-lang-def=./nebulite-script-vscode/cloc_lang_define.txt Application/ src/ include/ scripts/
+cloc --force-lang-def=./nebulite-script-vscode/cloc_lang_define.txt Resources/ TaskFiles/ src/ include/ Scripts/

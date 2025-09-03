@@ -141,6 +141,14 @@ public:
      */
     Nebulite::Constants::ERROR_TYPE parseStr(std::string str);
 
+    /**
+     * @brief Parses the task queue for execution.
+     * 
+     * @return Errorcode `Nebulite::Constants::ERROR_TYPE::None` if there was no critical stop,
+     * the last critical error code otherwise.
+     */
+    Nebulite::Constants::ERROR_TYPE parseQueue();
+
     //------------------------------------------
     // Public Variables
 
@@ -221,6 +229,13 @@ private:
      * Under no circumstances should processes try to access the renderer directly!
      */
     std::unique_ptr<Nebulite::Core::Renderer> renderer;
+
+    // For resolving tasks
+    struct QueueResult {
+        Nebulite::Core::taskQueueResult script;       // Result of script-tasks
+        Nebulite::Core::taskQueueResult internal;     // Result of internal-tasks
+        Nebulite::Core::taskQueueResult always;       // Result of always-tasks
+    }queueResult;
 };
 }   // namespace Core
 }   // namespace Nebulite
