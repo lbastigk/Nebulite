@@ -12,6 +12,12 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 ####################################
+# Removing old installations of local files
+rm -rf ./.build
+rm -rf ./bin
+rm -rf ./external
+
+####################################
 # starttime of script
 start=`date +%s`
 
@@ -31,7 +37,7 @@ fi
 # install necessary components
 sudo apt-get update
 sudo apt-get upgrade
-sudo apt-get install cmake automake build-essential autoconf libtool m4 perl mingw-w64 gcc-mingw-w64 g++-mingw-w64 python3 python3-pip python3-numpy
+sudo apt-get install cmake automake build-essential autoconf libtool m4 perl mingw-w64 gcc-mingw-w64 g++-mingw-w64 python3 python3-pip python3-numpy libasound2-dev libpulse-dev
 
 ####################################
 # Set Start directory
@@ -39,7 +45,9 @@ START_DIR=$(pwd)
 
 ####################################
 # Basic directories
+mkdir -p ./.build
 mkdir -p ./bin
+mkdir -p ./external
 
 ####################################
 # Synonyms for SDL_ttf
@@ -112,7 +120,13 @@ fi
 cd "$externalsDir"
 
 ####################################
-# SDL Build function
+# SDL Build
+
+# TODO: Linux Build does not work: 
+# leo@leo-x670aoruseliteax:~/Projects/Nebulite$ ./bin/Nebulite
+# SDL_Init Error: dsp: No such audio device
+# 
+# Binary itself works, though
 
 # Creates builds:
 # ./external/SDL2_build/static/
