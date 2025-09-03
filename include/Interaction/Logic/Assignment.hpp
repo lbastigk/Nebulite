@@ -1,5 +1,5 @@
 /**
- * @file Assignment.h
+ * @file Assignment.hpp
  * 
  * This file contains the Assignment struct, used to represent 
  * variable assignments in the Nebulite scripting language.

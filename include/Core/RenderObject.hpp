@@ -1,5 +1,5 @@
 /**
- * @file RenderObject.h
+ * @file RenderObject.hpp
  * @brief Declaration of the RenderObject class.
  * 
  * Defines the Nebulite::Core::RenderObject class.

@@ -1,5 +1,5 @@
 /**
- * @file VirtualDouble.h
+ * @file VirtualDouble.hpp
  * @brief Provides a wrapper for consistent access to double values in JSON documents.
  * 
  * This file contains the `VirtualDouble` class, which ensures compatibility with `tinyexpr`

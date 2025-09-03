@@ -5,7 +5,7 @@ RenderObjectDraft extends the Global Space Tree to provide an in-memory RenderOb
 */
 
 /**
- * @file GDM_RenderObjectDraft.h
+ * @file GDM_RenderObjectDraft.hpp
  * 
  * @brief Provides RenderObject creation utilities
  */

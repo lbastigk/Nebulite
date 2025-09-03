@@ -1,7 +1,7 @@
 #pragma once
 
 /**
- * @file KeyNames.h
+ * @file KeyNames.hpp
  * @brief Contains all hardcoded key names used within Nebulite.
  */
 

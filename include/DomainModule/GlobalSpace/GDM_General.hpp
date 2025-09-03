@@ -1,5 +1,5 @@
 /**
- * @file GDM_General.h
+ * @file GDM_General.hpp
  * 
  * This file contains the DomainModule of the GlobalSpaceTree for general-purpose functions.
  */

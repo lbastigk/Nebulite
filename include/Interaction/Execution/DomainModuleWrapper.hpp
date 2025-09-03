@@ -11,7 +11,7 @@ invokeand the GlobalSpace, allowing them to individually bind functions on const
 */
 
 /**
- * @file DomainModuleWrapper.h
+ * @file DomainModuleWrapper.hpp
  * 
  * This file defines the DomainModuleWrapper class, which extends the functionality of the FuncTree
  * class to support category-based function bindings.

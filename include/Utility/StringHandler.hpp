@@ -1,5 +1,5 @@
 /**
- * @file StringHandler.h
+ * @file StringHandler.hpp
  * @brief Utility functions for string manipulation and parsing.
  */
 

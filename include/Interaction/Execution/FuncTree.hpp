@@ -1,5 +1,5 @@
 /**
- * @file FuncTree.h
+ * @file FuncTree.hpp
  * 
  * This file defines the FuncTree class, which is responsible for managing and executing functions
  * through a command tree structure. 

@@ -1,5 +1,5 @@
 /**
- * @file Nebulite.h
+ * @file Nebulite.hpp
  * 
  * @brief Central file for Nebulite namespace documentation.
  * 

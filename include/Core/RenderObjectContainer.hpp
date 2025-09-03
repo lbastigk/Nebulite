@@ -1,5 +1,5 @@
 /**
- * @file RenderObjectContainer.h
+ * @file RenderObjectContainer.hpp
  * @brief Contains the Nebulite::Core::RenderObjectContainer class.
  */
 

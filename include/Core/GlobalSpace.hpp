@@ -1,6 +1,6 @@
 
 /**
- * @file GlobalSpace.h
+ * @file GlobalSpace.hpp
  * 
  * @brief Contains the Nebulite::Core::GlobalSpace class declaration 
  * for the Nebulite Engine for core functionality

@@ -1,5 +1,5 @@
 /**
- * @file ErrorTypes.h
+ * @file ErrorTypes.hpp
  * @brief Defines the Nebulite::Constants::ERROR_TYPE enumeration for standardized error codes
  * and the Nebulite::Constants::ErrorTable class for mapping error codes to their string descriptions.
  *

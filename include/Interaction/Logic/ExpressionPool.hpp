@@ -1,5 +1,5 @@
 /**
- * @file ExpressionPool.h
+ * @file ExpressionPool.hpp
  * @brief Thread-safe pool of Expression instances for concurrent evaluation.
  *
  * This file defines the `ExpressionPool` class.

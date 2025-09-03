@@ -1,5 +1,5 @@
 /**
- * @file DocumentCache.h
+ * @file DocumentCache.hpp
  * 
  * @brief This file contains the DocumentCache class for managing cached, read-only documents.
  */

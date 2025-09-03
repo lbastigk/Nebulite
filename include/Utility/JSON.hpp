@@ -1,5 +1,5 @@
 /**
- * @file JSON.h
+ * @file JSON.hpp
  * @brief A wrapper around rapidjson to simplify JSON manipulation in Nebulite.
  */
 

@@ -1,5 +1,5 @@
 /**
- * @file Renderer.h
+ * @file Renderer.hpp
  *
  * This file contains the declaration of the Nebulite::Core::Renderer class, which is responsible for rendering
  * the game objects and managing the rendering pipeline.

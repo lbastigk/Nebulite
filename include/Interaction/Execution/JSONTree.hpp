@@ -1,5 +1,5 @@
 /**
- * @file JSONTree.h
+ * @file JSONTree.hpp
  * 
  * JSONTree – Function Tree for Local JSON Logic
  */

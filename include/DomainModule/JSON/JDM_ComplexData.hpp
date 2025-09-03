@@ -1,5 +1,5 @@
 /**
- * @file JDM_ComplexData.h
+ * @file JDM_ComplexData.hpp
  * @brief DomainModule for complex data operations on domain class Nebulite::Utility::JSON
  */
 

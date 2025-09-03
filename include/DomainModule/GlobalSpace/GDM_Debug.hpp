@@ -1,5 +1,5 @@
 /**
- * @file GDM_Debug.h
+ * @file GDM_Debug.hpp
  * 
  * This file contains the DomainModule of the GlobalSpaceTree for debugging capabilities.
  */

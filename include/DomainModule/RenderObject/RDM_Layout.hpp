@@ -1,5 +1,5 @@
 /**
- * @file RDM_Layout.h
+ * @file RDM_Layout.hpp
  * 
  * Layout management for the RenderObject tree DomainModule.
  */

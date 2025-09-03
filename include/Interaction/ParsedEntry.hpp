@@ -1,5 +1,5 @@
 /**
- * @file InvokeEntry.h
+ * @file InvokeEntry.hpp
  * 
  * This file contains the InvokeEntry struct, representing a single invoke entry of a RenderObject for manipulation.
  */

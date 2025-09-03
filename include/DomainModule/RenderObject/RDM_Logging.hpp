@@ -1,5 +1,5 @@
 /**
- * @file RDM_Logging.h
+ * @file RDM_Logging.hpp
  * @brief Header file for the Logging DomainModule of the RenderObject tree.
  */
 

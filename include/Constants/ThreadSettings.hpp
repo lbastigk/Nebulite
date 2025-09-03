@@ -1,5 +1,5 @@
 /**
- * @file ThreadSettings.h
+ * @file ThreadSettings.hpp
  * 
  * Threading settings for Nebulite's rendering and expression evaluation.
  */

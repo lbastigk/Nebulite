@@ -1,5 +1,5 @@
 /**
- * @file RDM_Parenting.h
+ * @file RDM_Parenting.hpp
  * @brief Header file for the Parenting DomainModule of the RenderObject tree.
  * 
  * @note WORK IN PROGRESS, this DomainModule is in the ideas stage.

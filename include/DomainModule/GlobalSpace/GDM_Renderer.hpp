@@ -1,5 +1,5 @@
 /**
- * @file GDM_Renderer.h
+ * @file GDM_Renderer.hpp
  * @brief Provides rendering utilities for the Nebulite engine.
  *
  * This file contains a GlobalTree DomainModule for basic rendering-related functioncalls.

@@ -1,5 +1,5 @@
 /**
- * @file GDM_RNG.h
+ * @file GDM_RNG.hpp
  * 
  * @todo: Implement random number generation functions for GlobalSpaceTree
  * - include old global.rand and global.rrand for compatibility

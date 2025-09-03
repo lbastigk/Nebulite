@@ -1,5 +1,5 @@
 /**
- * @file GUI.h
+ * @file GUI.hpp
  * 
  * Planned DomainModule for GUI-Element-Insertion into the Nebulite Renderer
  */

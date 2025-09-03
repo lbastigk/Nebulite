@@ -1,5 +1,5 @@
 /**
- * @file GDM_InputMapping.h
+ * @file GDM_InputMapping.hpp
  * @brief Provides input binding utilities for the Nebulite engine.
  *
  * This file contains a GlobalTree DomainModule to handle input bindings.

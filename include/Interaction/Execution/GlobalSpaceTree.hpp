@@ -1,5 +1,5 @@
 /**
- * @file GlobalSpaceTree.h
+ * @file GlobalSpaceTree.hpp
  * 
  * This file contains the GlobalSpaceTree class, which is the parsing interface for global Nebulite logic.
  */

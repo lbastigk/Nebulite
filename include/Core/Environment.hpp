@@ -1,5 +1,5 @@
 /**
- * @file Environment.h
+ * @file Environment.hpp
  * @brief Contains the definition of the Nebulite::Core::Environment class.
  */
 

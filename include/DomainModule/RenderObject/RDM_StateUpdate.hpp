@@ -1,5 +1,5 @@
 /**
- * @file RDM_StateUpdate.h
+ * @file RDM_StateUpdate.hpp
  * 
  * Contains the RenderObjectTreeDomainModule for updating the state of render objects.
  */
