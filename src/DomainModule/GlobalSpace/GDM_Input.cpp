@@ -109,7 +109,7 @@ void Nebulite::DomainModule::GlobalSpace::Input::pollEvent() {
 
                 // If key is currently pressed
 				bool currentPressed = keyState[scancode] != 0;
-				bool prevPressed = prevKeyState[scancode] != 0; // TODO: Fix crash... Entire logic needs to be updated...
+				bool prevPressed    = prevKey[scancode];
 
 				// Set current state (true/false as int)
 				domain->global.set<int>(currentPath.c_str(), currentPressed);
@@ -119,10 +119,11 @@ void Nebulite::DomainModule::GlobalSpace::Input::pollEvent() {
 				if (currentPressed && !prevPressed) delta = 1;
 				else if (!currentPressed && prevPressed) delta = -1;
 
+				// Set delta
 				domain->global.set<int>(deltaPath.c_str(), delta);
 
                 // Store previous key state
-                prevKeyState[scancode] = currentPressed ? 1 : 0;
+                prevKey[scancode] = currentPressed;
 			}
         }
     }

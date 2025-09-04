@@ -99,7 +99,7 @@ private:
     } mouse;
 
 	//std::vector<Uint8> prevKeyState;
-    absl::flat_hash_map<int, uint8_t> prevKeyState; // scancode -> keystate
+    bool prevKey[SDL_NUM_SCANCODES] = {false}; // Previous key states
 
     absl::flat_hash_map<std::string, std::string> forced_global_values; // Key-Value pairs to set in global JSON
 };
