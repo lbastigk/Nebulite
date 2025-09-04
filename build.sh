@@ -21,7 +21,7 @@ build_type="None"
 # ./bin 
 # ./external/SDL2_build
 # ./external/abseil_build
-if [ ! -d "./bin" ] || [ ! -d "./external/SDL2_build" ] || [ ! -d "./external/abseil_build" ]; then
+if [ ! -d "./bin" ] || [ ! -d "./external/SDL2_build" ]; then
     echo "Please run ./install.sh first to set up the environment."
     exit 1
 fi
