@@ -1,4 +1,6 @@
 #!/bin/bash
+sudo apt install npm
+sudo npm install -g vsce
 
 # Enable debugging
 set -x
@@ -26,7 +28,7 @@ code --list-extensions | grep nebulite || echo "Nebulite extension not found in 
 python3 ./scripts/extract_keywords.py
 
 # Uninstall old versions of the extension
-code --uninstall-extension lbastigk.nebulite-script
+#code --uninstall-extension lbastigk.nebulite-script
 
 # Build the VS Code extension
 vsce package

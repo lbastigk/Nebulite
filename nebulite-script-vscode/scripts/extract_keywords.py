@@ -17,7 +17,8 @@ def extract_keywords():
     # Walk through the include directory
     for root, _, files in os.walk(INCLUDE_DIR):
         for file in files:
-            if file.endswith(".h"):
+            print(f"Checking file: {file}")
+            if file.endswith(".hpp"):
                 file_path = os.path.join(root, file)
                 print(f"Processing {file_path}")
                 with open(file_path, "r") as f:

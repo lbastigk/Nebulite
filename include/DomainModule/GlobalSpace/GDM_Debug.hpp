@@ -69,6 +69,15 @@ public:
     Nebulite::Constants::ERROR_TYPE errorlog(int argc, char* argv[]);
 
     /**
+     * @brief Clears the console screen.
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: no arguments available
+     * @return Potential errors that occured on command execution
+     */
+    Nebulite::Constants::ERROR_TYPE clearConsole(int argc, char* argv[]);
+
+    /**
      * @brief Prints the global document to the console.
      * 
      * @param argc The argument count
@@ -149,6 +158,7 @@ public:
      */
     void setupBindings() {
         bindFunction(&Debug::errorlog,          "log",                      "Activate/Deactivate error logging: log <on/off>");
+        bindFunction(&Debug::clearConsole,      "clear",                    "Clear console");
         bindFunction(&Debug::printGlobal,       "print-global",             "Print global document");
         bindFunction(&Debug::printState,        "print-state",              "Print current state");
         bindFunction(&Debug::logGlobal,         "log-global",               "Log global document: log-global [filename]");

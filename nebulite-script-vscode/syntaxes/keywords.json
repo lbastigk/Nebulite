@@ -11,6 +11,7 @@
   "cam-move",
   "cam-set",
   "capture-output",
+  "clear",
   "connect",
   "copy",
   "create-waveform",

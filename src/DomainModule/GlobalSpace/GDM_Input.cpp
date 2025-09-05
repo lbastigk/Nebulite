@@ -95,35 +95,40 @@ void Nebulite::DomainModule::GlobalSpace::Input::pollEvent() {
     // Get current keyboard state
     const Uint8* keyState = SDL_GetKeyboardState(NULL);
     for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode) {
+		// We verify the key name
         const char* nameRaw = SDL_GetScancodeName(static_cast<SDL_Scancode>(scancode));
         if (nameRaw && nameRaw[0] != '\0') {
+			// Normalizing key name: lowercase and spaces to underscores
             std::string keyName = nameRaw;
             for (char& c : keyName) c = std::tolower(c);
             for (char& c : keyName) if (c == ' ') c = '_';
 
-            // Don't add if there are special chars in Nebulite::Constants::keyName
+            // Ignore all keys with reserved characters for Nebulite::Utility::JSON
+			// This prevents issues with JSON paths
 			if(!Nebulite::Utility::StringHandler::containsAnyOf(keyName,Nebulite::Utility::JSON::reservedCharacters)){
-				// Paths
+				// Paths for pressed state and delta values from previous polling
 				std::string currentPath = "input.keyboard.current." + keyName;
             	std::string deltaPath = "input.keyboard.delta." + keyName;
 
+				// Retrieve state, store previous state
                 // If key is currently pressed
 				bool currentPressed = keyState[scancode] != 0;
 				bool prevPressed    = prevKey[scancode];
+				prevKey[scancode]   = currentPressed;
+
+				// Compute delta: 
+				// ->  1 = pressed now but not before 
+				// -> -1 = released now but was pressed before, 
+				// ->  0 = no change
+				int delta = 0;
+				if      ( currentPressed && !prevPressed) delta =  1;
+				else if (!currentPressed &&  prevPressed) delta = -1;
 
 				// Set current state (true/false as int)
 				domain->global.set<int>(currentPath.c_str(), currentPressed);
 
-				// Compute delta: 1 = pressed now but not before, -1 = released now but was pressed before, 0 = no change
-				int delta = 0;
-				if (currentPressed && !prevPressed) delta = 1;
-				else if (!currentPressed && prevPressed) delta = -1;
-
 				// Set delta
 				domain->global.set<int>(deltaPath.c_str(), delta);
-
-                // Store previous key state
-                prevKey[scancode] = currentPressed;
 			}
         }
     }

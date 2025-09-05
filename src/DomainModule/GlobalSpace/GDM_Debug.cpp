@@ -116,6 +116,20 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::erro
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::clearConsole(int argc, char* argv[]){
+    if (argc > 1) {
+        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
+    }
+    
+    #if _WIN32
+        std::system("cls");
+    #else
+        std::system("clear");
+    #endif
+
+    return Nebulite::Constants::ERROR_TYPE::NONE;
+}
+
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::always(int argc, char* argv[]){
     if (argc > 1) {
         std::ostringstream oss;

@@ -1,6 +1,6 @@
 echo Gravity Benchmark loaded...
 echo
-echo Rendering with a fixed dt of 10ms
+echo Rendering with a fixed dt of 1ms
 echo 
 echo 
 set time.fixed_dt_ms 1
@@ -10,7 +10,7 @@ print-global
 echo
 echo
 set physics.G 10
-spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=10|posY=10|physics.vX=4|physics.vY=-3|physics.mass=500|text.str=obj001|imgLocation=./Resources/Sprites/TEST100P/001.bmp|sprite.spritesheet.sizeX=1|sprite.spritesheet.sizeY=1|keyDelete text.str
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=10|posY=10|physics.vX=4|physics.vY=-3|physics.mass=500|text.str=obj001|imgLocation=./Resources/Sprites/TEST100P/001.bmp|sprite.spritesheet.sizeX=1|sprite.spritesheet.sizeY=1|keyDelete text.str 
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=10|posY=20|physics.vX=-2|physics.vY=2|physics.mass=500|text.str=obj002|imgLocation=./Resources/Sprites/TEST100P/002.bmp|sprite.spritesheet.sizeX=1|sprite.spritesheet.sizeY=1|keyDelete text.str
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=10|posY=30|physics.vX=7|physics.vY=7|physics.mass=500|text.str=obj003|imgLocation=./Resources/Sprites/TEST100P/003.bmp|sprite.spritesheet.sizeX=1|sprite.spritesheet.sizeY=1|keyDelete text.str
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=10|posY=40|physics.vX=4|physics.vY=1|physics.mass=500|text.str=obj004|imgLocation=./Resources/Sprites/TEST100P/004.bmp|sprite.spritesheet.sizeX=1|sprite.spritesheet.sizeY=1|keyDelete text.str
