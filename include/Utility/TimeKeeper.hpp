@@ -32,7 +32,8 @@ public:
      * The start time is set to construction time. Timer is initialized to not running.
      */
     TimeKeeper(){
-        t_ms = Time::gettime() - t_start;
+        t_start = Time::gettime();
+        t_ms = 0;
         dt_ms = 0;
         onUpdate.t_ms = t_ms;
         onUpdate.last_t_ms = t_ms;
@@ -77,7 +78,7 @@ public:
     }
 
     /**
-     * @brief Starts the timer.
+     * @brief Starts the timer, updating the running state.
      * 
      * This function initializes the timer and begins tracking elapsed time.
      * 
@@ -165,7 +166,7 @@ private:
      * 
      * For Reference: This value is used to calculate the total elapsed time since the timer was created.
      */
-    const uint64_t t_start = Time::gettime();
+    uint64_t t_start;
 
     /**
      * @brief Indicates whether the timer is currently running.

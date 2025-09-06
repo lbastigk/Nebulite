@@ -44,51 +44,43 @@ public:
     //------------------------------------------
     // Available Functions
 
-    // TODO: Forced global values here
-    /**
-     * @brief Forces a global variable to a specific value
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <key> <value>
-     * @return Potential errors that occured on command execution
-     * 
-     * @todo move to GDM_GlobalForce, as this is not just for input
-     * Alternatively, this might make sense as a JSON Module!
-     */
-    Nebulite::Constants::ERROR_TYPE forceGlobal(int argc, char* argv[]);
-
-    /**
-     * @brief Clears all forced global variables
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <key> <value>
-     * @return Potential errors that occured on command execution
-     * 
-     * @todo move to GDM_GlobalForce, as this is not just for input
-     * Alternatively, this might make sense as a JSON Module!
-     */
-    Nebulite::Constants::ERROR_TYPE clearForceGlobal(int argc, char* argv[]);
-
     //------------------------------------------
     // Setup
     void setupBindings() {
         // Starting Polling timer
         RendererPollTime.start();
+        RendererPollTime.update(); // Initial update to set t and dt
 
-        // Binding
-        bindFunction(&Input::forceGlobal,         "force-global",         "Force a global variable to a value: force-global <key> <value>");
-        bindFunction(&Input::clearForceGlobal,    "force-global-clear",   "Clear all forced global variables");
+        // Mapping key names
+        map_key_names();
     }
 
 private:
-    void pollEvent();
+    /**
+     * @brief Maps SDL scancodes to human-readable key names.
+     * 
+     * This function populates the keyNames map with SDL scancode values
+     * as keys and their corresponding human-readable names as values.
+     */
+    void map_key_names();
+
+    /**
+     * @brief Writes the current and delta input states to the global JSON structure.
+     */
+    void write_current_and_delta_inputs();
+
+    /**
+     * @brief Resets all delta input values to zero.
+     */
+    void reset_delta_values();
 
     //---------------------------------
     // Private vars
 
-    Nebulite::Utility::TimeKeeper RendererPollTime;	// Used for Polling timing
-    bool reset_delta = false; 		                // Reset delta values on next update
+    Nebulite::Utility::TimeKeeper RendererPollTime;	// Used for determining when to poll inputs
+    bool reset_delta_on_next_update = false; 		// Making sure delta values are only active for one frame
 
+    // Mouse state
     struct Mouse {
         int posX = 0;
         int posY = 0;
@@ -98,10 +90,13 @@ private:
         Uint32 state;
     } mouse;
 
-	//std::vector<Uint8> prevKeyState;
-    bool prevKey[SDL_NUM_SCANCODES] = {false}; // Previous key states
-
-    absl::flat_hash_map<std::string, std::string> forced_global_values; // Key-Value pairs to set in global JSON
+    // Map of SDL Scancode to key name
+    std::string keyNames[SDL_NUM_SCANCODES] = {""};
+    
+    // Keyboard state
+    // We do not need to store current key states,
+    // as SDL does that for us.
+    bool prevKey[SDL_NUM_SCANCODES] = {false};      // Previous key states
 };
 }   // namespace GlobalSpace
 }   // namespace DomainModule

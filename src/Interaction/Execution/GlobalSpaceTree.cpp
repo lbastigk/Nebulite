@@ -6,7 +6,6 @@
 Nebulite::Interaction::Execution::GlobalSpaceTree::GlobalSpaceTree(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::JSONTree* jsonTree)
     : FuncTree<Nebulite::Constants::ERROR_TYPE>("Nebulite", Nebulite::Constants::ERROR_TYPE::NONE, Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID, jsonTree), domain(domain) 
 {
-
   // Initialize DomainModules
   general =   createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::General>();
   renderer =  createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::Renderer>();
