@@ -12,7 +12,7 @@
 // Includes
 
 // General
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -30,10 +30,8 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::InputMapping
  * @brief DomainModule for mapping inputs to actions within the GlobalSpace.
  */
-class InputMapping : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace,InputMapping> {
+class InputMapping : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
-    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, InputMapping>::DomainModuleWrapper;   // Templated constructor from Wrapper, call this->setupBindings()
-
     /**
      * @brief Updates the input bindings.
      *
@@ -98,11 +96,11 @@ public:
     // Setup
 
     /**
-     * @brief Sets up the functions bindings in the domains function tree
-     * 
-     * Is called automatically by the inherited Wrappers constructor.
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
      */
-    void setupBindings() {
+    InputMapping(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
         bindFunction(&InputMapping::readMappingsFromFile,   "read-input-mappings-from-file",    "Reads Input Mapping from inputs.jsonc file: [filename]");
         bindFunction(&InputMapping::updateInputMapping,     "update-input-mapping",             "Updates one input mapping: <action> <slot> <key> <type>");
         bindFunction(&InputMapping::writeMappingsToFile,    "write-input-mappings-to-file",     "Writes Input Mapping to inputs.jsonc file: [filename]");

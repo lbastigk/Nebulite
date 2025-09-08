@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -29,10 +29,11 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Debug
  * @brief DomainModule for debugging capabilities within the GlobalSpace.
  */
-class Debug : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, Debug> {
+class Debug : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
-    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, Debug>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
-
+    /**
+     * @brief Overridden update function.
+     */
     void update();
 
     //------------------------------------------
@@ -146,17 +147,17 @@ public:
      */
     Nebulite::Constants::ERROR_TYPE render_object(int argc, char** argv);
 
-
-    
     //------------------------------------------
     // Setup
 
     /**
-     * @brief Sets up the functions bindings in the domains function tree
-     * 
-     * Is called automatically by the inherited Wrappers constructor.
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
      */
-    void setupBindings() {
+    Debug(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
+        //------------------------------------------
+        // Binding functions to the FuncTree
         bindFunction(&Debug::errorlog,          "log",                      "Activate/Deactivate error logging: log <on/off>");
         bindFunction(&Debug::clearConsole,      "clear",                    "Clear console");
         bindFunction(&Debug::printGlobal,       "print-global",             "Print global document");

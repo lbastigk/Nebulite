@@ -12,7 +12,7 @@
 
 // General
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -30,9 +30,9 @@ namespace RenderObject{
  * @class Nebulite::DomainModule::RenderObject::Parenting
  * @brief Parenting DomainModule of the RenderObject tree.
  */
-class Parenting : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::RenderObject, Parenting> {
+class ParentingNebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject, Parenting> {
 public:
-    using DomainModuleWrapper<Nebulite::Core::RenderObject, Parenting>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModule<Nebulite::Core::RenderObject, Parenting>::DomainModule; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -77,11 +77,11 @@ public:
     // Setup
 
     /**
-     * @brief Sets up the functions bindings in the domains function tree
-     * 
-     * Is called automatically by the inherited Wrappers constructor.
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
      */
-    void setupBindings() {
+    Debug(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
         bindFunction(&Parenting::addChildren, "add-children", "Adds children of the RenderObject by name");
         bindFunction(&Parenting::removeChildren, "remove-children", "Removes children from the RenderObject");
         bindFunction(&Parenting::removeAllChildren, "remove-all-children", "Removes all children from the RenderObject");

@@ -16,7 +16,7 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 #include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
@@ -35,10 +35,8 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::GUI
  * @brief DomainModule for creating GUI elements and queueing them in the renderer pipeline.
  */
-class Input : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, Input> {
+class InputNebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
-    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, Input>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
-
     void update();
 
     //------------------------------------------
@@ -46,10 +44,18 @@ public:
 
     //------------------------------------------
     // Setup
-    void setupBindings() {
+
+    /**
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
+     */
+    Input(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
         // Starting Polling timer
-        RendererPollTime.start();
-        RendererPollTime.update(); // Initial update to set t and dt
+        RendererPollTime = std::make_shared<Nebulite::Utility::TimeKeeper>();
+        RendererPollTime->update(); // Initial update to set t and dt
+        RendererPollTime->start();
+        RendererPollTime->update(); // Initial update to set t and dt
 
         // Mapping key names
         map_key_names();
@@ -77,7 +83,10 @@ private:
     //---------------------------------
     // Private vars
 
-    Nebulite::Utility::TimeKeeper RendererPollTime;	// Used for determining when to poll inputs
+    // Used for determining when to poll inputs
+    std::shared_ptr<Nebulite::Utility::TimeKeeper> RendererPollTime; // Timer for input handling
+    //Nebulite::Utility::TimeKeeper RendererPollTime;	// Used for determining when to poll inputs
+    
     bool reset_delta_on_next_update = false; 		// Making sure delta values are only active for one frame
 
     // Mouse state

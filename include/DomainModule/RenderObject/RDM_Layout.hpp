@@ -11,7 +11,7 @@
 
 // General
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -29,9 +29,9 @@ namespace RenderObject{
  * @class Nebulite::DomainModule::RenderObject::Layout
  * @brief Layout management for the RenderObject tree DomainModule.
  */
-class Layout : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::RenderObject, Layout> {
+class LayoutNebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject, Layout> {
 public:
-    using DomainModuleWrapper<Nebulite::Core::RenderObject, Layout>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModule<Nebulite::Core::RenderObject, Layout>::DomainModule; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -64,11 +64,11 @@ public:
     // Setup
 
     /**
-     * @brief Sets up the functions bindings in the domains function tree
-     * 
-     * Is called automatically by the inherited Wrappers constructor.
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
      */
-    void setupBindings() {
+    Debug(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
         bindFunction(&Layout::alignText, "align-text", "Aligns text to object dimensions");
         bindFunction(&Layout::makeBox, "make-box", "Creates a box based on text dimensions");
     }

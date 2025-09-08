@@ -10,7 +10,7 @@
 
 // General
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -30,9 +30,9 @@ namespace RenderObject{
  * 
  * Contains RenderObject-specific logging functionality.
  */
-class Logging : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::RenderObject, Logging> {
+class LoggingNebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject, Logging> {
 public:
-    using DomainModuleWrapper<Nebulite::Core::RenderObject, Logging>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModule<Nebulite::Core::RenderObject, Logging>::DomainModule; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -79,11 +79,11 @@ public:
     // Setup
 
     /**
-     * @brief Sets up the functions bindings in the domains function tree
-     * 
-     * Is called automatically by the inherited Wrappers constructor.
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
      */
-    void setupBindings() {
+    Debug(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
         bindFunction(&Logging::echo,        "echo",         "Prints the arguments to the console");
         bindFunction(&Logging::log,         "log",          "Logs the RenderObject to a file");
         bindFunction(&Logging::logValue,    "log-value",    "Logs a specific value: <key> <file>");

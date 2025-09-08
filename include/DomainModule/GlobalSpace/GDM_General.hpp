@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -29,10 +29,8 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::General
  * @brief DomainModule for general-purpose functions within the GlobalSpace.
  */
-class General : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, General> {
+class General : Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
-    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, General>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
-
     void update();
 
     //------------------------------------------
@@ -174,11 +172,11 @@ public:
     // Setup
 
     /**
-     * @brief Sets up the functions bindings in the domains function tree
-     * 
-     * Is called automatically by the inherited Wrappers constructor.
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
      */
-    void setupBindings() {
+    General(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
         bindFunction(&General::eval,                "eval",                 "Evaluate an expression and execute the result. Example: eval echo $(1+1)");
         bindFunction(&General::exitProgram,         "exit",                 "Exit the program");
         bindFunction(&General::wait,                "wait",                 "Wait a given amount of frames: wait <frames>");

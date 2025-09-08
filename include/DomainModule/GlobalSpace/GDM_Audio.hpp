@@ -39,7 +39,7 @@ Do NOT attempt to use these functions until implementation is complete.
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -57,10 +57,8 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Audio
  * @brief DomainModule for audio operations on domain class Nebulite::Core::GlobalSpace
  */
-class Audio : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, Audio> {
+class Audio : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
-    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, Audio>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
-
     //------------------------------------------
     // Available Functions
 
@@ -108,11 +106,11 @@ public:
     // Setup
 
     /**
-     * @brief Sets up the functions bindings in the domains function tree
-     * 
-     * Is called automatically by the inherited Wrappers constructor.
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
      */
-    void setupBindings() {
+    Audio(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
         // Basic playback
         bindFunction(&Audio::playSound,         "play-sound",           "Play sound effect");
         bindFunction(&Audio::playMusic,         "play-music",           "Play background music");

@@ -11,9 +11,9 @@ invokeand the GlobalSpace, allowing them to individually bind functions on const
 */
 
 /**
- * @file DomainModuleWrapper.hpp
+ * @file DomainModule.hpp
  * 
- * This file defines the DomainModuleWrapper class, which extends the functionality of the FuncTree
+ * This file defines the DomainModule class, which extends the functionality of the FuncTree
  * class to support category-based function bindings.
  */
 
@@ -51,7 +51,7 @@ namespace Interaction{
 namespace Execution{
 //------------------------------------------
 /**
- * @class Nebulite::Interaction::Execution::DomainModuleWrapper
+ * @class Nebulite::Interaction::Execution::DomainModule
  * @brief Wrapper class for binding functions to a specific category in the FuncTree.
  * 
  * This allows for cleaner separation of object files for different categories
@@ -62,33 +62,25 @@ namespace Execution{
  * 
  * @todo no more derivedclass, instead we simply override the constructor. 
  * This way, we should be able to create vectors
- * of DomainModuleWrapper instances for each category.
+ * of DomainModule instances for each category.
  */
-template<typename DomainType, typename DerivedClass>
-class DomainModuleWrapper{
+template<typename DomainType>
+class DomainModule{
 public:
     /**
-     * @brief Constructor for the Wrapper class.
+     * @brief Constructor for the DomainModule base class.
      * 
-     * This constructor initializes the Wrapper with the given domain and FuncTree pointers,
-     * and sets up the function bindings for the category.
-     * 
-     * The update method of the derived class is called upon construction.
-     * 
-     * @note A virtual function for setupBindings and update would be better so that we know that the derived class has to implement it
-     * However, this would call a pure virtual function during construction as the derived class is not fully formed, which is not allowed.
-     * Instead, we do a pseudo-virtual call by using static_cast to call the derived class's methods upon construction.
+     * The constructor initializes the DomainModule with a reference to the domain and
+     * the FuncTree.
      */
-    DomainModuleWrapper(DomainType* domain, FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr)
-        : domain(domain), funcTree(funcTreePtr) 
-    {
-        // Initialize the defined Variable and Function Bindings
-        static_cast<DerivedClass*>(this)->setupBindings();
+    DomainModule(DomainType* domain, FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr)
+        : domain(domain), funcTree(funcTreePtr) {}
 
-        // We call the derived class' update function to ensure it exists
-        static_cast<DerivedClass*>(this)->update();
-    }
-    
+    /**
+     * @brief Virtual update function to be overridden by derived classes.
+     */
+    virtual void update() = 0;
+
     /**
      * @brief Binds a member function to the FuncTree.
      * 
@@ -130,14 +122,14 @@ public:
     }
 
     // Prevent copying
-    DomainModuleWrapper(const DomainModuleWrapper&) = delete;
-    DomainModuleWrapper& operator=(const DomainModuleWrapper&) = delete;
+    DomainModule(const DomainModule&) = delete;
+    DomainModule& operator=(const DomainModule&) = delete;
 
 protected:
     //------------------------------------------
     // Linkages
-    DomainType* domain;                 // Workspace of the DomainModule
-    FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTree;     // Where to bind the expanded functions
+    DomainType* domain;                                     // Workspace of the DomainModule
+    FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTree;    // Where to bind the expanded functions
 };
 }   // namespace Interaction
 }   // namespace Execution

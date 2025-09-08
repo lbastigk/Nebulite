@@ -36,7 +36,7 @@
 
 // General
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -54,7 +54,7 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::RNG
  * @brief DomainModule for random number generation within the GlobalSpace.
  */
-class RNG : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, RNG> {
+class RNG : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 
 };
 } // namespace GlobalSpace

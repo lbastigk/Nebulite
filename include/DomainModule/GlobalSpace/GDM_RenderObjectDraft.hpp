@@ -17,7 +17,7 @@ RenderObjectDraft extends the Global Space Tree to provide an in-memory RenderOb
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 #include "Core/RenderObject.hpp"
 
 //------------------------------------------
@@ -56,10 +56,8 @@ namespace GlobalSpace {
  * ./bin/Nebulite draft-help   # However, this will
  * ```
  */
-class RenderObjectDraft : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, RenderObjectDraft> {
+class RenderObjectDraft : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
-    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, RenderObjectDraft>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
-
     void update();
 
     //------------------------------------------
@@ -108,11 +106,11 @@ public:
     // Setup
 
     /**
-     * @brief Sets up the functions bindings in the domains function tree
-     * 
-     * Is called automatically by the inherited Wrappers constructor.
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
      */
-    void setupBindings() {
+    RenderObjectDraft(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
         // Bind functions
         bindFunction(&RenderObjectDraft::draftHelp,   "draft-help",    "Available functions for the RenderObjectDraft");
         bindFunction(&RenderObjectDraft::onDraft,     "on-draft",      "Parse Renderobject-specific functions on the draft");

@@ -11,7 +11,7 @@
 
 // General
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -29,9 +29,9 @@ namespace RenderObject{
  * @class Nebulite::DomainModule::RenderObject::StateUpdate
  * @brief State update DomainModule of the RenderObject tree.
  */
-class StateUpdate : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::RenderObject, StateUpdate> {
+class StateUpdateNebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject, StateUpdate> {
 public:
-    using DomainModuleWrapper<Nebulite::Core::RenderObject, StateUpdate>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModule<Nebulite::Core::RenderObject, StateUpdate>::DomainModule; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -67,11 +67,11 @@ public:
     // Setup
 
     /**
-     * @brief Sets up the functions bindings in the domains function tree
-     * 
-     * Is called automatically by the inherited Wrappers constructor.
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
      */
-    void setupBindings() {
+    Debug(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
         bindFunction(&StateUpdate::deleteObject,        "delete",               "Marks object for deletion");
         bindFunction(&StateUpdate::updateText,          "update-text",          "Calculate text texture");
         bindFunction(&StateUpdate::reloadInvokes,       "reload-invokes",       "Reload all invokes");

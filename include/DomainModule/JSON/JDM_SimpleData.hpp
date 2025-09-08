@@ -10,7 +10,7 @@
 
 // General
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -28,9 +28,9 @@ namespace JSON{
  * @class Nebulite::DomainModule::JSON::SimpleData
  * @brief DomainModule for simple data operations on domain class Nebulite::Utility::JSON
  */
-class SimpleData : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Utility::JSON, SimpleData> {
+class SimpleDataNebulite::Interaction::Execution::DomainModule<Nebulite::Utility::JSON, SimpleData> {
 public:
-    using DomainModuleWrapper<Nebulite::Utility::JSON, SimpleData>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModule<Nebulite::Utility::JSON, SimpleData>::DomainModule; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -123,11 +123,11 @@ public:
     // Setup
 
     /**
-     * @brief Sets up the functions bindings in the domains function tree
-     * 
-     * Is called automatically by the inherited Wrappers constructor.
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
      */
-    void setupBindings() {
+    Debug(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
         // Bind functions specific to complex data handling
         bindFunction(&SimpleData::set, "set", "Set a key to a value in the JSON document: <key> <value>");
 

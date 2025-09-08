@@ -107,7 +107,7 @@ private:
     // and allow for easy implementation and removal of collaborative features.
     // Maintainers can separately implement their own features and merge them into the RenderObjectTree.
     //
-    // 1.) Create a new Class by inheriting from Nebulite::DomainModule::RenderObject::DomainModuleWrapper ( .h file in ./include and .cpp file in ./src)
+    // 1.) Create a new Class by inheriting from Nebulite::DomainModule::RenderObject::DomainModule ( .h file in ./include and .cpp file in ./src)
     // 2.) Implement the setupBindings() method to bind functions
     // 3.) Insert the new object here as a unique pointer
     // 4.) Initialize via make_unique in the RenderObjectTree constructor

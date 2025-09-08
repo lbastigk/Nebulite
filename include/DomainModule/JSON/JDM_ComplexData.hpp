@@ -10,7 +10,7 @@
 
 // General
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -29,9 +29,9 @@ namespace JSON{
  * 
  * DomainModule for complex data operations on domain class Nebulite::Utility::JSON
  */
-class ComplexData : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Utility::JSON, ComplexData> {
+class ComplexDataNebulite::Interaction::Execution::DomainModule<Nebulite::Utility::JSON, ComplexData> {
 public:
-    using DomainModuleWrapper<Nebulite::Utility::JSON, ComplexData>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModule<Nebulite::Utility::JSON, ComplexData>::DomainModule; // Templated constructor from Wrapper, call this->setupBindings()
 
     void update();
 
@@ -64,11 +64,11 @@ public:
     // Setup
 
     /**
-     * @brief Sets up the functions bindings in the domains function tree
-     * 
-     * Is called automatically by the inherited Wrappers constructor.
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
      */
-    void setupBindings() {
+    Debug(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
         // Bind functions specific to complex data handling
         bindFunction(&ComplexData::set_from_query, "set-from-query", "Sets a key from a SQL query result: <key> <query>");
         bindFunction(&ComplexData::set_from_json,  "set-from-json",  "Sets a key from a JSON document:    <key> <link:key>");

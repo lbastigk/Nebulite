@@ -14,7 +14,7 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -32,10 +32,8 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::GUI
  * @brief DomainModule for creating GUI elements and queueing them in the renderer pipeline.
  */
-class GUI : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, GUI> {
+class GUI : Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
-    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, GUI>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
-
     void update();
 
     //------------------------------------------
@@ -56,11 +54,11 @@ public:
     // Setup
 
     /**
-     * @brief Sets up the functions bindings in the domains function tree
-     * 
-     * Is called automatically by the inherited Wrappers constructor.
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
      */
-    void setupBindings() {
+    GUI(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
         bindFunction(&GUI::example, "GUI-Example", "An example function to demonstrate GUI-Elements");
     }
 

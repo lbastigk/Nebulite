@@ -55,7 +55,7 @@ Do NOT attempt to use these functions until implementation is complete.
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -73,10 +73,8 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Communication
  * @brief DomainModule for communication between the Nebulite engine and external processes.
  */
-class Communication : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, Communication> {
+class Communication : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
-    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, Communication>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
-
     void update();
 
     //------------------------------------------
@@ -119,11 +117,11 @@ public:
     // Setup
 
     /**
-     * @brief Sets up the functions bindings in the domains function tree
-     * 
-     * Is called automatically by the inherited Wrappers constructor.
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
      */
-    void setupBindings() {
+    Communication(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
         // Connection management
         bindFunction(&Communication::connect,            "connect",              "Establish connection");
         bindFunction(&Communication::disconnect,         "disconnect",           "Close connection");

@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -25,9 +25,9 @@ namespace Nebulite{
 namespace Nebulite {
 namespace DomainModule {
 namespace JSON {
-class ForceValue : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Utility::JSON, ForceValue> {
+class ForceValueNebulite::Interaction::Execution::DomainModule<Nebulite::Utility::JSON, ForceValue> {
 public:
-    using DomainModuleWrapper<Nebulite::Utility::JSON, ForceValue>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
+    using DomainModule<Nebulite::Utility::JSON, ForceValue>::DomainModule; // Templated constructor from Wrapper, call this->setupBindings()
 
     //------------------------------------------
     // Available Functions

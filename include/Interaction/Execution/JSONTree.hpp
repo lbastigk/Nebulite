@@ -99,7 +99,7 @@ private:
     // and allow for easy implementation and removal of collaborative features.
     // Maintainers can separately implement their own features and merge them into the JSONTree.
     //
-    // 1.) Create a new Class by inheriting from Nebulite::DomainModule::JSON::DomainModuleWrapper ( .h file in ./include and .cpp file in ./src)
+    // 1.) Create a new Class by inheriting from Nebulite::DomainModule::JSON::DomainModule ( .h file in ./include and .cpp file in ./src)
     // 2.) Implement the setupBindings() method to bind functions
     // 3.) Insert the new object here as a unique pointer
     // 4.) Initialize via make_unique in the JSONTree constructor

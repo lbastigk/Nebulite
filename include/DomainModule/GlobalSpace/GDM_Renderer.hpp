@@ -12,7 +12,7 @@
 
 // General
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModuleWrapper.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -31,10 +31,8 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Renderer
  * @brief Basic Renderer-Related Functions
  */
-class Renderer : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, Renderer> {
+class Renderer : Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
-    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, Renderer>::DomainModuleWrapper;   // Templated constructor from Wrapper, call this->setupBindings()
-
     /**
      * @brief The Renderer DomainModule does not make use of any Render-Updates yet. This function is empty.
      * 
@@ -236,11 +234,11 @@ public:
     // Setup
 
     /**
-     * @brief Sets up the functions bindings in the domains function tree
-     * 
-     * Is called automatically by the inherited Wrappers constructor.
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
      */
-    void setupBindings() {
+    Renderer(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
         bindFunction(&Renderer::spawn,               "spawn",        "Spawn a renderobject");
         bindFunction(&Renderer::envload,             "env-load",     "Load environment/level");
         bindFunction(&Renderer::envdeload,           "env-deload",   "Deload entire environment");
