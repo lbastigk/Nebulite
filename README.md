@@ -27,7 +27,7 @@
 1. [Overview](#overview)
 2. [Quick Start](#quick-start)
 3. [Prerequisites](#prerequisites)
-4. [Expression Cheat Sheet](#dsl-cheat-sheet)
+4. [Expression Cheat Sheet](#expression-cheat-sheet)
 5. [Runtime Modes](#runtime-modes)
 6. [Architecture](#architecture)
 7. [The Invoke Class](#the-invoke-class)
