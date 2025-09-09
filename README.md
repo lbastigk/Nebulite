@@ -27,18 +27,20 @@
 1. [Overview](#overview)
 2. [Quick Start](#quick-start)
 3. [Prerequisites](#prerequisites)
-4. [Expression Cheat Sheet](#expression-cheat-sheet)
-5. [Runtime Modes](#runtime-modes)
-6. [Architecture](#architecture)
-7. [The Invoke Class](#the-invoke-class)
-8. [Usage Examples](#usage-examples)
-9. [Directory Structure](#directory-structure)
-10. [Platform Support](#platform-support)
-11. [Dependencies](#dependencies)
-12. [Testing](#testing)
-13. [Contributing](#contributing)
-14. [Language Extension](#language-extension)
-15. [License](#license)
+4. [Language](#language)
+5. [Expression Cheat Sheet](#expression-cheat-sheet)
+6. [DSL Cheat Sheet](#dsl-cheat-sheet)
+7. [Runtime Modes](#runtime-modes)
+8. [Architecture](#architecture)
+9. [The Invoke Class](#the-invoke-class)
+10. [Usage Examples](#usage-examples)
+11. [Directory Structure](#directory-structure)
+12. [Platform Support](#platform-support)
+13. [Dependencies](#dependencies)
+14. [Testing](#testing)
+15. [Contributing](#contributing)
+16. [Language Extension](#language-extension)
+17. [License](#license)
 
 ## Overview
 
@@ -84,7 +86,11 @@ Minimal one‑liner spawn:
 
 All core third‑party libs are vendored and installed via `install.sh` (no system SDL required). Static linking on Linux improves portability.
 
-## Expression Cheat Sheet
+## Language
+
+Core concept: Expressions can access document values of domains, functioncalls mutate state and can trigger other logic passes of domains.
+
+### Expression Cheat Sheet
 
 | Feature                                     | Syntax                                    | Example                                    |
 |---------------------------------------------|-------------------------------------------|-------------------------------------------|
@@ -93,11 +99,16 @@ All core third‑party libs are vendored and installed via `install.sh` (no syst
 | Expression evaluation with formatting       | `$<format><size>.<accuracy>(expr)`        | `$03i(1)`, `$13.1f(pi)`, `013.1f(e)`                         |
 | Context values                              | `{self.*}`, `{other.*}`, `{global.*}`     | `{other.physics.mass}`                                     |
 | External JSON value                         | `{<file>:<key.path>}`                     | `{./Resources/.../names.jsonc:characters.level1.npc_guard}`  |
-| Chained commands                            | `;` separator                             | `spawn ... ; wait 1 ; snapshot`                              |
 | Logical helpers                             | `gt, lt, geq, leq, eq, neq, and, or, not` | `$(gt({self.hp}, 0))`                                       |
 | Sign function                               | `sgn(a)`                                  | `$(sgn({self.physics.vX}))`                             |
 
-Core concept: Expressions can access document values of domains, functioncalls mutate state and can trigger other logic passes of domains.
+### DSL cheat sheet
+
+| Feature                                     | Syntax                                    | Example                                    |
+|---------------------------------------------|-------------------------------------------|-------------------------------------------|
+| Available commands                          | `help`                                    | `./bin/Nebulite help`                                      |
+| In-line evaluation                          | `eval`                                    | `eval echo $(1+1)`                                          |
+| Chained commands                            | `;` separator                             | `spawn ... ; wait 1 ; snapshot`                              |
 
 ### Minimal Invoke Snippet
 ```jsonc
