@@ -95,6 +95,9 @@ public:
      */
     GlobalSpaceTree(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::JSONTree* jsonTree);
 
+    /**
+     * @brief Updates internal JSONTree as well as all DomainModules
+     */
     void update();
 private:
     /**
@@ -106,30 +109,15 @@ private:
      * @brief Factory method for creating DomainModule instances with proper linkage
      */
     template<typename DomainModuleType>
-    std::unique_ptr<DomainModuleType> createDomainModuleOfType() {
+    void createDomainModuleOfType() {
         auto DomainModule = std::make_unique<DomainModuleType>(domain, this);
-        // Initializing is currently done on construction of the DomainModule
-        // However, if any additional setup is needed later on that can't be done on construction,
-        // this simplifies the process
-        return DomainModule;
+        modules.push_back(std::move(DomainModule));
     }
 
-    //------------------------------------------
-    // Commands to the GlobalSpaceTree are added via DomainModule files to keep the GlobalSpaceTree clean 
-    // and allow for easy implementation and removal of collaborative features.
-    // Maintainers can separately implement their own features and merge them into the GlobalSpaceTree. 
-    //
-    // 1.) Create a new Class by inheriting from Nebulite::DomainModule::GlobalSpace::DomainModule ( .h file in ./include and .cpp file in ./src)
-    // 2.) Implement the setupBindings() method to bind functions
-    // 3.) Insert the new object here as a unique pointer
-    // 4.) Initialize via make_unique in the GlobalSpaceTree constructor
-    //------------------------------------------
-    std::unique_ptr<Nebulite::DomainModule::GlobalSpace::Debug> debug;                             // Debugging functions such as logging, creating standard files etc.
-    std::unique_ptr<Nebulite::DomainModule::GlobalSpace::General> general;                         // General functions such as echo, exit, task loading etc.
-    std::unique_ptr<Nebulite::DomainModule::GlobalSpace::Renderer> renderer;                       // Renderer DomainModule for global rendering control
-    std::unique_ptr<Nebulite::DomainModule::GlobalSpace::Input> input;                             // Input DomainModule for handling user input
-    std::unique_ptr<Nebulite::DomainModule::GlobalSpace::GUI> gui;                                 // GUI DomainModule for DearImgui integration
-    std::unique_ptr<Nebulite::DomainModule::GlobalSpace::RenderObjectDraft> RenderObjectDraft;     // Mock RenderObject for testing purposes
+    /**
+     * @brief Stores all available modules
+     */
+    std::vector<std::unique_ptr<Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace>>> modules;
 };
 }   // namespace Interaction
 }   // namespace Execution

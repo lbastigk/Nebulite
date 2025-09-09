@@ -29,10 +29,11 @@ namespace JSON{
  * 
  * DomainModule for complex data operations on domain class Nebulite::Utility::JSON
  */
-class ComplexDataNebulite::Interaction::Execution::DomainModule<Nebulite::Utility::JSON, ComplexData> {
+class ComplexData : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Utility::JSON> {
 public:
-    using DomainModule<Nebulite::Utility::JSON, ComplexData>::DomainModule; // Templated constructor from Wrapper, call this->setupBindings()
-
+    /**
+     * @brief Overridden update function.
+     */
     void update();
 
     //------------------------------------------
@@ -67,7 +68,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Debug(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    ComplexData(Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
     : DomainModule(domain, funcTreePtr) {
         // Bind functions specific to complex data handling
         bindFunction(&ComplexData::set_from_query, "set-from-query", "Sets a key from a SQL query result: <key> <query>");

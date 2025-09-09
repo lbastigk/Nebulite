@@ -30,10 +30,11 @@ namespace RenderObject{
  * 
  * Contains RenderObject-specific logging functionality.
  */
-class LoggingNebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject, Logging> {
+class Logging : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject> {
 public:
-    using DomainModule<Nebulite::Core::RenderObject, Logging>::DomainModule; // Templated constructor from Wrapper, call this->setupBindings()
-
+    /**
+     * @brief Overridden update function.
+     */
     void update();
 
     //------------------------------------------
@@ -82,7 +83,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Debug(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    Logging(Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
     : DomainModule(domain, funcTreePtr) {
         bindFunction(&Logging::echo,        "echo",         "Prints the arguments to the console");
         bindFunction(&Logging::log,         "log",          "Logs the RenderObject to a file");

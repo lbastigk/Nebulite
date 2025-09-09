@@ -29,10 +29,11 @@ namespace RenderObject{
  * @class Nebulite::DomainModule::RenderObject::Layout
  * @brief Layout management for the RenderObject tree DomainModule.
  */
-class LayoutNebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject, Layout> {
+class Layout : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject> {
 public:
-    using DomainModule<Nebulite::Core::RenderObject, Layout>::DomainModule; // Templated constructor from Wrapper, call this->setupBindings()
-
+    /**
+     * @brief Overridden update function.
+     */
     void update();
 
     //------------------------------------------
@@ -67,7 +68,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Debug(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    Layout(Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
     : DomainModule(domain, funcTreePtr) {
         bindFunction(&Layout::alignText, "align-text", "Aligns text to object dimensions");
         bindFunction(&Layout::makeBox, "make-box", "Creates a box based on text dimensions");

@@ -16,10 +16,7 @@ void Nebulite::DomainModule::GlobalSpace::Input::update() {
 	// Too much polling time for current benchmarks, if we update each frame 
 	// later on with fixed framerates of < 250 FPS perhaps not that big of a deal
 	uint64_t projected_dt = RendererPollTime->projected_dt();
-	std::cout << "Projected dt: " << projected_dt << "ms" << std::endl;
 	if(projected_dt > 10){
-		std::cout << "Updating inputs, dt: " << projected_dt << "ms" << std::endl;
-
 		// Updating inputs
 		RendererPollTime->update();
 		SDL_PumpEvents();

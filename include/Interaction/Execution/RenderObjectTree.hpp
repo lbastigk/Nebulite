@@ -93,29 +93,15 @@ private:
      * @brief Factory method for creating DomainModule instances with proper linkage
      */
     template<typename DomainModuleType>
-    std::unique_ptr<DomainModuleType> createDomainModuleOfType() {
+    void createDomainModuleOfType() {
         auto DomainModule = std::make_unique<DomainModuleType>(domain, this);
-        // Initializing is currently done on construction of the DomainModule
-        // However, if any additional setup is needed later on that can't be done on construction,
-        // this simplifies the process
-        return DomainModule;
+        modules.push_back(std::move(DomainModule));
     }
 
-
-    //------------------------------------------
-    // Commands to the RenderObjectTree are added via DomainModule files to keep the RenderObjectTree clean
-    // and allow for easy implementation and removal of collaborative features.
-    // Maintainers can separately implement their own features and merge them into the RenderObjectTree.
-    //
-    // 1.) Create a new Class by inheriting from Nebulite::DomainModule::RenderObject::DomainModule ( .h file in ./include and .cpp file in ./src)
-    // 2.) Implement the setupBindings() method to bind functions
-    // 3.) Insert the new object here as a unique pointer
-    // 4.) Initialize via make_unique in the RenderObjectTree constructor
-    //------------------------------------------
-    std::unique_ptr<Nebulite::DomainModule::RenderObject::Layout> layout;
-    std::unique_ptr<Nebulite::DomainModule::RenderObject::Logging> logging;
-    std::unique_ptr<Nebulite::DomainModule::RenderObject::Parenting> parenting;
-    std::unique_ptr<Nebulite::DomainModule::RenderObject::StateUpdate> stateUpdate;
+    /**
+     * @brief Stores all available modules
+     */
+    std::vector<std::unique_ptr<Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject>>> modules;
 
 };
 }   // namespace Execution

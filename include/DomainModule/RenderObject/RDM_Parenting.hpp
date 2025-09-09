@@ -30,10 +30,11 @@ namespace RenderObject{
  * @class Nebulite::DomainModule::RenderObject::Parenting
  * @brief Parenting DomainModule of the RenderObject tree.
  */
-class ParentingNebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject, Parenting> {
+class Parenting : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject> {
 public:
-    using DomainModule<Nebulite::Core::RenderObject, Parenting>::DomainModule; // Templated constructor from Wrapper, call this->setupBindings()
-
+    /**
+     * @brief Overridden update function.
+     */
     void update();
 
     //------------------------------------------
@@ -72,7 +73,6 @@ public:
      */
     Nebulite::Constants::ERROR_TYPE removeAllChildren(int argc, char* argv[]);
 
-
     //------------------------------------------
     // Setup
 
@@ -80,7 +80,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Debug(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    Parenting(Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
     : DomainModule(domain, funcTreePtr) {
         bindFunction(&Parenting::addChildren, "add-children", "Adds children of the RenderObject by name");
         bindFunction(&Parenting::removeChildren, "remove-children", "Removes children from the RenderObject");

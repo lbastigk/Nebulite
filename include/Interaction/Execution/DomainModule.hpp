@@ -59,10 +59,6 @@ namespace Execution{
  * 
  * Within the Core FuncTree, Categories are initialized with references to the funcTree,
  * invokeand the GlobalSpace, allowing them to individually bind functions on construction.
- * 
- * @todo no more derivedclass, instead we simply override the constructor. 
- * This way, we should be able to create vectors
- * of DomainModule instances for each category.
  */
 template<typename DomainType>
 class DomainModule{

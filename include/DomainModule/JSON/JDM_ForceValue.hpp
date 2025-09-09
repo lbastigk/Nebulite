@@ -25,9 +25,12 @@ namespace Nebulite{
 namespace Nebulite {
 namespace DomainModule {
 namespace JSON {
-class ForceValueNebulite::Interaction::Execution::DomainModule<Nebulite::Utility::JSON, ForceValue> {
+class ForceValue : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Utility::JSON> {
 public:
-    using DomainModule<Nebulite::Utility::JSON, ForceValue>::DomainModule; // Templated constructor from Wrapper, call this->setupBindings()
+    /**
+     * @brief Overridden update function.
+     */
+    void update();
 
     //------------------------------------------
     // Available Functions
@@ -52,7 +55,13 @@ public:
 
     //------------------------------------------
     // Setup
-    void setupBindings() {
+
+    /**
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
+     */
+    ForceValue(Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
         // Binding
         bindFunction(&ForceValue::force,      "force",         "Force a variable to a value: force-global <key> <value>");
         bindFunction(&ForceValue::forceClear, "force-clear",   "Clear all forced variables");

@@ -32,7 +32,7 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::GUI
  * @brief DomainModule for creating GUI elements and queueing them in the renderer pipeline.
  */
-class GUI : Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
+class GUI : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
     void update();
 

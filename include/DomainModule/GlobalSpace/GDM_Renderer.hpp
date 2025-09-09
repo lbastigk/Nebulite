@@ -31,7 +31,7 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Renderer
  * @brief Basic Renderer-Related Functions
  */
-class Renderer : Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
+class Renderer : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
     /**
      * @brief The Renderer DomainModule does not make use of any Render-Updates yet. This function is empty.

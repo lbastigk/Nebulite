@@ -58,6 +58,9 @@ namespace GlobalSpace {
  */
 class RenderObjectDraft : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
+    /**
+     * @brief Overridden update function.
+     */
     void update();
 
     //------------------------------------------

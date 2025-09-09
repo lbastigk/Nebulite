@@ -86,26 +86,15 @@ private:
      * @brief Factory method for creating DomainModule instances with proper linkage
      */
     template<typename DomainModuleType>
-    std::unique_ptr<DomainModuleType> createDomainModuleOfType() {
+    void createDomainModuleOfType() {
         auto DomainModule = std::make_unique<DomainModuleType>(domain, this);
-        // Initializing is currently done on construction of the DomainModule
-        // However, if any additional setup is needed later on that can't be done on construction,
-        // this simplifies the process
-        return DomainModule;
+        modules.push_back(std::move(DomainModule)); // Storing for easier management
     }
 
-    //------------------------------------------
-    // Commands to the JSONTree are added via DomainModule files to keep the JSONTree clean
-    // and allow for easy implementation and removal of collaborative features.
-    // Maintainers can separately implement their own features and merge them into the JSONTree.
-    //
-    // 1.) Create a new Class by inheriting from Nebulite::DomainModule::JSON::DomainModule ( .h file in ./include and .cpp file in ./src)
-    // 2.) Implement the setupBindings() method to bind functions
-    // 3.) Insert the new object here as a unique pointer
-    // 4.) Initialize via make_unique in the JSONTree constructor
-    //------------------------------------------
-    std::unique_ptr<Nebulite::DomainModule::JSON::SimpleData> simpleData;
-    std::unique_ptr<Nebulite::DomainModule::JSON::ComplexData> complexData;
+    /**
+     * @brief Stores all available modules
+     */
+    std::vector<std::unique_ptr<Nebulite::Interaction::Execution::DomainModule<Nebulite::Utility::JSON>>> modules;
 
 };
 }   // namespace Execution

@@ -29,7 +29,7 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::General
  * @brief DomainModule for general-purpose functions within the GlobalSpace.
  */
-class General : Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
+class General : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
     void update();
 

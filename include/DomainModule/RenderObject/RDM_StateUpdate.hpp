@@ -29,10 +29,11 @@ namespace RenderObject{
  * @class Nebulite::DomainModule::RenderObject::StateUpdate
  * @brief State update DomainModule of the RenderObject tree.
  */
-class StateUpdateNebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject, StateUpdate> {
+class StateUpdate : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject> {
 public:
-    using DomainModule<Nebulite::Core::RenderObject, StateUpdate>::DomainModule; // Templated constructor from Wrapper, call this->setupBindings()
-
+    /**
+     * @brief Overridden update function.
+     */
     void update();
 
     //------------------------------------------
@@ -70,7 +71,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Debug(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    StateUpdate(Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
     : DomainModule(domain, funcTreePtr) {
         bindFunction(&StateUpdate::deleteObject,        "delete",               "Marks object for deletion");
         bindFunction(&StateUpdate::updateText,          "update-text",          "Calculate text texture");
