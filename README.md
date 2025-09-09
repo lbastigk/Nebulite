@@ -27,7 +27,7 @@
 1. [Overview](#overview)
 2. [Quick Start](#quick-start)
 3. [Prerequisites](#prerequisites)
-4. [DSL Cheat Sheet](#dsl-cheat-sheet)
+4. [Expression Cheat Sheet](#dsl-cheat-sheet)
 5. [Runtime Modes](#runtime-modes)
 6. [Architecture](#architecture)
 7. [The Invoke Class](#the-invoke-class)
@@ -84,17 +84,18 @@ Minimal one‑liner spawn:
 
 All core third‑party libs are vendored and installed via `install.sh` (no system SDL required). Static linking on Linux improves portability.
 
-## DSL Cheat Sheet
+## Expression Cheat Sheet
 
-| Feature                                     | Syntax                                    | Example                                                     |
-|---------------------------------------------|-------------------------------------------|-------------------------------------------------------------|
-| Expression evaluation                       | `$()`                                     | `$(1 + {self.physics.mass})`                                |
+| Feature                                     | Syntax                                    | Example                                    |
+|---------------------------------------------|-------------------------------------------|-------------------------------------------|
+| Expression evaluation                       | `$()`                                     | `$(1 + {self.physics.mass})`                            |
 | Expression evaluation with Integer cast     | `$i(expr)`                                | `$i({global.time.frame} / 2)`                               |
-| Context values                              | `{self.*}`, `{other.*}`, `{global.*}`     | `{other.physics.mass}`                                      |
-| External JSON value                         | `{<file>:<key.path>}`                     | `{./Resources/.../names.jsonc:characters.level1.npc_guard}` |
-| Chained commands                            | `;` separator                             | `spawn ... ; wait 1 ; snapshot`                             |
+| Expression evaluation with formatting       | `$<format><size>.<accuracy>(expr)`        | `$03i(1)`, `$13.1f(pi)`, `013.1f(e)`                         |
+| Context values                              | `{self.*}`, `{other.*}`, `{global.*}`     | `{other.physics.mass}`                                     |
+| External JSON value                         | `{<file>:<key.path>}`                     | `{./Resources/.../names.jsonc:characters.level1.npc_guard}`  |
+| Chained commands                            | `;` separator                             | `spawn ... ; wait 1 ; snapshot`                              |
 | Logical helpers                             | `gt, lt, geq, leq, eq, neq, and, or, not` | `$(gt({self.hp}, 0))`                                       |
-| Sign function                               | `sgn(a)`                                  | `$(sgn({self.physics.vX}))`                                 |
+| Sign function                               | `sgn(a)`                                  | `$(sgn({self.physics.vX}))`                             |
 
 Core concept: Expressions can access document values of domains, functioncalls mutate state and can trigger other logic passes of domains.
 
