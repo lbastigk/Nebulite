@@ -174,7 +174,6 @@ public:
 	//------------------------------------------
 	// Update-Oriented functions
 
-	// Updating renderobject based on global/local invokes
 	/**
 	 * @brief Updates the RenderObject based on the given global invoke.
 	 * 
