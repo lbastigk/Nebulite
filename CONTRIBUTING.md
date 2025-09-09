@@ -54,7 +54,7 @@ Maintainers can create their own module classes and add them to a specific domai
 | specific RenderObjects       | Extend the `RenderObjectTree` | See `include/Interaction/Execution/RenderObjectTree.h` and its modules `include/DomainModule/RenderObject/RTE_*.h`   |
 | specific JSON-Documents      | Extend the `JSONTree`         | See `include/Interaction/Execution/JSONTree.h` and its modules `include/DomainModule/JSON/JTE_*.h`           |
 
-Each Class has access to a different tree through `funcTree->...` and a different domain through `self->...`: 
+Each Class has access to a different tree through `funcTree->...` and a different domain through `domain->...`: 
 - `GlobalSpaceTree` can access the global space
 - `RenderObjectTree` can access the attached RenderObject
 - `JSONTree` can access the attached JSON
@@ -70,8 +70,8 @@ from the base class.
 ### Implementation Guidelines
 
 - It is recommended to implement unfinished functions inside the cpp file via a return of `Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED`
-- Use filenames `GDM_<ModuleName>.{h,cpp}` , `RDM_<ModuleName>.{h,cpp}` and `JDM_<ModuleName>.{h,cpp}` for module files
-- Use the recommended class naming schemes and namespaces, e.g.: `Nebulite::DomainModule::GlobalSpace::MyFeature`
+- Use filenames `GDM_<ModuleName>.{hpp,cpp}` , `RDM_<ModuleName>.{hpp,cpp}` and `JDM_<ModuleName>.{hpp,cpp}` for module files
+- Use the recommended class naming schemes and namespaces for modules: `Nebulite::DomainModule::GlobalSpace::MyModule`
 
 
 ### Function Collision Prevention
@@ -87,17 +87,17 @@ It is **not allowed** to overwrite already existing functions:
 
 ### Step-by-Step Process
 
-1. **Create expansion file:** `GDM_MyFeature.{h,cpp}`
-2. **Inherit from wrapper:** Create class inheriting from `Nebulite::Interaction::Execution::DomainModuleWrapper<DomainClass, MyFeatureClass>` and using its Constructor
+1. **Create expansion file:** `GDM_MyModule.{hpp,cpp}`
+2. **Inherit from DomainModule base class:** Create class inheriting from `Nebulite::Interaction::Execution::DomainModule<DomainClass>`
 3. **Implement command methods:** Functions with `ERROR_TYPE (int argc, char* argv[])` signature
-4. **setupBindings():** Bind your commands to the FuncTree
+4. **Constructor:** Initialize the base class, setup variables and bind functions/variables to the domain
 5. **update** Add all necessary update-procedures within the tree
-6. **Add to GlobalSpaceTree:** Include in `include/Interaction/Execution/GlobalSpaceTree.h`, add to the update and initialize in constructor
-7. **Command line Variables** are more difficult to implement, as they require the full domain definition. Bind them in `src/Interaction/Execution/GlobalSpaceTree.cpp`
+6. **Add to GlobalSpaceTree:** Include in `include/Interaction/Execution/GlobalSpaceTree.h`, add to the module vector in the constructor inside `src/Interaction/Execution/GlobalSpaceTree.cpp`
+7. **Command line Variables** are added inside the constructor as well
 
 ### Complete Code Example
 
-**Inside GDM_MyFeature.h:**
+**Inside GDM_MyModule.hpp:**
 
 ```cpp
 //------------------------------------------
@@ -112,38 +112,49 @@ namespace Nebulite{
 namespace Nebulite {
 namespace DomainModule {
 namespace GlobalSpace {
-class MyFeature : public Nebulite::Interaction::Execution::DomainModuleWrapper<Nebulite::Core::GlobalSpace, MyFeature> {
+class MyModule : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
-    using DomainModuleWrapper<Nebulite::Core::GlobalSpace, MyFeature>::DomainModuleWrapper; // Templated constructor from Wrapper, call this->setupBindings()
-
-    void update();  // For implementing internal update-procedures on each new frame
+    /**
+     * @brief Overridden update function.
+     * 
+     * For implementing internal update-procedures 
+     * on each new frame
+     */
+    void update();
 
     //----------------------------------------
     // Available Functions
+
     ERROR_TYPE spawnCircle(int argc, char* argv[]);
 
-    //----------------------------------------
-    // Binding Functions
-    void setupBindings()  {
-        bindFunction(&MyFeature::spawnCircle, "spawn-circle", "Spawn a circle");
-        /*Bind more functions of MyFeature here*/
+    //------------------------------------------
+    // Setup
+
+    /**
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
+     */
+    MyModule(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(domain, funcTreePtr) {
+        bindFunction(&MyModule::spawnCircle, "spawn-circle", "Spawn a circle");
+        /*Bind more functions of MyModule here*/
     }
 };
 }
 }
 ```
 
-**Inside GDM_MyFeature.cpp:**
+**Inside GDM_MyModule.cpp:**
 ```cpp
-#include "DomainModule/GlobalSpace/GDM_MyFeature.h"
-#include "Core/GlobalSpace.h"
+#include "DomainModule/GlobalSpace/GDM_MyModule.hpp"
+#include "Core/GlobalSpace.hpp"
 
-void Nebulite::DomainModule::GlobalSpace::MyFeature::update(){
+void Nebulite::DomainModule::GlobalSpace::MyModule::update(){
     // If our expansion uses any internal values that need to be updated on each frame
     // We can update them here
 }
 
-Nebulite::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::MyFeature::spawnCircle(int argc, char* argv[]){
+Nebulite::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::MyModule::spawnCircle(int argc, char* argv[]){
     /*
     Implementation here.
     You can access the global space and its members through: self->...
@@ -152,49 +163,48 @@ Nebulite::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::MyFeature::spawnCircle
 }
 ```
 
-**Then add to include/GlobalSpaceTree.h:**
+**Then add the header file to include/GlobalSpaceTree.hpp:**
 ```cpp
-#include "DomainModule/GlobalSpace/GDM_MyFeature.h"
-namespace Nebulite{
-namespace Interaction{
-namespace Execution{
+/*..*/
+
+//------------------------------------------
+// Includes
+
 /**/
-class GlobalSpaceTree : public FuncTree<Nebulite::ERROR_TYPE>{
-    /*...*/
-private:
-    /*...*/
-    std::unique_ptr<Nebulite::DomainModule::GlobalSpace::MyFeature> myFeature;
-};
-}   // namespace Interaction
-}   // namespace Execution
-}   // namespace Nebulite
+
+// Nebulite DomainModules of GlobalSpaceTree
+/**/
+#include "DomainModule/GlobalSpace/GDM_MyModule.hpp"
+
+/**/
 ```
 
-**And initialize and update in GlobalSpaceTree.cpp:**
+**And initialize in GlobalSpaceTree.cpp:**
 ```cpp
-Nebulite::Interaction::Execution::GlobalSpaceTree::GlobalSpaceTree(/*...*/) : /*...*/
+#include "Interaction/Execution/GlobalSpaceTree.hpp"
+#include "Core/GlobalSpace.hpp"       // Global Space for Nebulite
+
+//------------------------------------------
+// Linking ALL Functions to GlobalSpaceTree
+Nebulite::Interaction::Execution::GlobalSpaceTree::GlobalSpaceTree(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::JSONTree* jsonTree)
+    : FuncTree<Nebulite::Constants::ERROR_TYPE>("Nebulite", Nebulite::Constants::ERROR_TYPE::NONE, Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID, jsonTree), domain(domain) 
 {
-    // Initialize all expansions
-    /*...*/
-    myFeature = createExpansionOfType<Nebulite::DomainModule::GlobalSpace::MyFeature>();
+  // Initialize DomainModules
+  /*...*/
+  createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::MyFeature>();
 
-    // Initialize Variable Bindings here, due to circular dependency issues
-    /*...*/
-    bindVariable(&domain->myVariable, "myVariable", "This is a variable inside globalSpace");
+
+  // Initialize Variable Bindings here, due to circular dependency issues
+  bindVariable(&domain->cmdVars.headless, "headless", "Set headless mode (no renderer)");
+  bindVariable(&domain->cmdVars.recover,  "recover",  "Enable recoverable error mode");
 }
-
-void Nebulite::Interaction::Execution::GlobalSpaceTree::update(){
-    /*...*/
-    myFeature->update();
-}
-
 ```
 
 ### Feature Management
 
 If necessary, the entire feature can then be:
-- **disabled** by commenting out `createExpansionOfType` in the GlobalSpaceTree Constructor and removing the update call in `GlobalSpaceTree::update()`
-- **removed** by undoing all changes inside `GlobalSpaceTree.{h,cpp}`
+- **disabled** by commenting out `createExpansionOfType` in the Domains FuncTree Constructor`
+- **removed** by undoing all changes inside Domains FuncTree
 
 ## Preview Editing (Work in Progress)
 

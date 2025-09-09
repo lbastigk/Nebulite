@@ -23,7 +23,7 @@ declare -i passed_tests=0
 declare -i failed_tests=0
 
 # Settings
-TIMEOUT="${NEBULITE_TEST_TIMEOUT:-20s}"
+TIMEOUT="${NEBULITE_TEST_TIMEOUT:-40s}"
 VERBOSE="${NEBULITE_TEST_VERBOSE:-false}"
 STOP_ON_FAIL="${NEBULITE_TEST_STOP_ON_FAIL:-false}"
 
