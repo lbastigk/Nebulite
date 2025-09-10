@@ -2,7 +2,7 @@
 // TODO: insert into GDM_Console
 // Using the Renderer capability to queue textures
 /*
-if(domain->RendererExists() && domain->global.get<int>("input.keyboard.delta.`",0) == 1){
+if(domain->RendererExists() && domain->getDoc()->get<int>("input.keyboard.delta.`",0) == 1){
     domain->getRenderer()->toggleConsoleMode();
     if(domain->getRenderer()->isConsoleMode()){
         SDL_StartTextInput();

@@ -30,7 +30,7 @@
 // Nebulite
 #include "Constants/KeyNames.hpp"
 #include "Utility/FileManagement.hpp"
-#include "Interaction/Execution/JSONTree.hpp"
+#include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
 namespace Nebulite{
@@ -94,7 +94,7 @@ inline constexpr bool is_simple_value_v = is_simple_value<T>::value;
  * - new cache `var1` is substring of existing cache `var1.var2` -> delete `var1.var2`
  * - Since we only need to compare new cached values with existing ones, we can optimize the process.
  */
-class JSON{
+class JSON : public Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>{
 public:
     JSON();
 
@@ -102,9 +102,12 @@ public:
 
     //------------------------------------------
     // Overload of assign operators
+    /**
+     * @todo reinitialization of domain is probably missing at some spots
+     */
     JSON(const JSON&) = delete;
     JSON(JSON&& other) noexcept
-        : jsonTree(this) // Initialize jsonTree with this pointer
+    : Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON",funcTree,this)
     {
         std::scoped_lock lock(mtx, other.mtx); // Locks both, deadlock-free
         doc = std::move(other.doc);
@@ -114,7 +117,6 @@ public:
     JSON& operator=(JSON&& other) noexcept 
     {
         if (this != &other) {
-            jsonTree = Nebulite::Interaction::Execution::JSONTree(this); // Reinitialize jsonTree with this pointer
             std::scoped_lock lock(mtx, other.mtx);
             doc = std::move(other.doc);
             cache = std::move(other.cache);
@@ -396,21 +398,13 @@ public:
     /**
      * @brief Parses a function call string into the JSONTree.
      */
-    Nebulite::Constants::ERROR_TYPE parseStr(const std::string& str){std::lock_guard<std::recursive_mutex> lock(mtx); return jsonTree.parseStr(str);}
-
-    /**
-     * @brief Returns a pointer to the JSONTree.
-     */
-    Nebulite::Interaction::Execution::JSONTree* getJSONTree(){return &jsonTree;}
+    Nebulite::Constants::ERROR_TYPE parseStr(const std::string& str){std::lock_guard<std::recursive_mutex> lock(mtx); return parseStr(str);}
 
 private:
     /**
      * @brief Mutex for thread-safe access.
      */
     mutable std::recursive_mutex mtx;
-
-    // JSONTree for handling function calls
-    Nebulite::Interaction::Execution::JSONTree jsonTree;
 
     //------------------------------------------
     // Value storage

@@ -28,7 +28,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Logging::l
         }
     }
     else{
-        std::string id = std::to_string(domain->valueGet(Nebulite::Constants::keyName.renderObject.id.c_str(),0));
+        std::string id = std::to_string(domain->get(Nebulite::Constants::keyName.renderObject.id.c_str(),0));
         Nebulite::Utility::FileManagement::WriteFile("RenderObject_id"+id+".log.jsonc",serialized);
     }
     return Nebulite::Constants::ERROR_TYPE::NONE;

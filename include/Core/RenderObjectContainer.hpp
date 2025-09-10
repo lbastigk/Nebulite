@@ -168,7 +168,7 @@ public:
 		for (auto& [pos, batchVec] : ObjectContainer) {
 			for (auto& obj : batchVec) {
 				for (auto& renderObj : obj.objects) {
-					if (renderObj->valueGet<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0) == id) {
+					if (renderObj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0) == id) {
 						return renderObj;
 					}
 				}

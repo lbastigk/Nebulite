@@ -23,7 +23,7 @@ Nebulite::Interaction::Execution::GlobalSpaceTree::GlobalSpaceTree(Nebulite::Cor
 // Necessary updates
 void Nebulite::Interaction::Execution::GlobalSpaceTree::update() {
     // Update the JSON tree
-    domain->global.getJSONTree()->update();
+    domain->getDoc()->getJSONTree()->update();
 
     // Update all DomainModules
     for(auto& module : modules){

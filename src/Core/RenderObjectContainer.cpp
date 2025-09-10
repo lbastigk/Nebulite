@@ -67,11 +67,11 @@ void Nebulite::Core::RenderObjectContainer::deserialize(const std::string& seria
 std::pair<int16_t,int16_t> getTilePos(Nebulite::Core::RenderObject* toAppend, int dispResX, int dispResY){
 
     // Calculate correspondingTileXpos using positionX
-    double posX = toAppend->valueGet<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0.0);
+    double posX = toAppend->get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0.0);
     int16_t correspondingTileXpos = (int16_t)(posX / (double)dispResX);
 
     // Calculate correspondingTileYpos using positionY
-    double posY = toAppend->valueGet<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0.0);
+    double posY = toAppend->get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0.0);
     int16_t correspondingTileYpos = (int16_t)(posY / (double)dispResY);
 
     // Ensure the position is valid, grow the ObjectContainer if necessary

@@ -58,16 +58,16 @@ void Nebulite::DomainModule::GlobalSpace::Input::write_current_and_delta_inputs(
     mouse.state = SDL_GetMouseState(&mouse.posX, &mouse.posY);
 
 	// Cursor Position and state
-	domain->global.set("input.mouse.current.X",mouse.posX);
-	domain->global.set("input.mouse.current.Y",mouse.posY);
-	domain->global.set("input.mouse.delta.X",mouse.posX-mouse.lastPosX);
-	domain->global.set("input.mouse.delta.Y",mouse.posY-mouse.lastPosY);
-	domain->global.set("input.mouse.current.left",!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouse.state));
-	domain->global.set("input.mouse.current.right",!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouse.state));
-	domain->global.set("input.mouse.delta.left",
+	domain->getDoc()->set("input.mouse.current.X",mouse.posX);
+	domain->getDoc()->set("input.mouse.current.Y",mouse.posY);
+	domain->getDoc()->set("input.mouse.delta.X",mouse.posX-mouse.lastPosX);
+	domain->getDoc()->set("input.mouse.delta.Y",mouse.posY-mouse.lastPosY);
+	domain->getDoc()->set("input.mouse.current.left",!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouse.state));
+	domain->getDoc()->set("input.mouse.current.right",!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouse.state));
+	domain->getDoc()->set("input.mouse.delta.left",
 		!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouse.state) - 
 		!!(SDL_BUTTON(SDL_BUTTON_LEFT) & mouse.lastState));
-	domain->global.set("input.mouse.delta.right",
+	domain->getDoc()->set("input.mouse.delta.right",
 		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouse.state) - 
 		!!(SDL_BUTTON(SDL_BUTTON_RIGHT) & mouse.lastState));
 
@@ -95,26 +95,26 @@ void Nebulite::DomainModule::GlobalSpace::Input::write_current_and_delta_inputs(
 			else if (!currentPressed &&  prevPressed) delta = -1;
 
 			// Set current state (true/false as int)
-			domain->global.set<int>(currentPath.c_str(), currentPressed);
+			domain->getDoc()->set<int>(currentPath.c_str(), currentPressed);
 
 			// Set delta
-			domain->global.set<int>(deltaPath.c_str(), delta);
+			domain->getDoc()->set<int>(deltaPath.c_str(), delta);
         }
     }
 }
 
 void Nebulite::DomainModule::GlobalSpace::Input::reset_delta_values() {
 	// 1.) Mouse
-	domain->global.set("input.mouse.delta.X",0);
-	domain->global.set("input.mouse.delta.Y",0);
-	domain->global.set("input.mouse.delta.left",0);
-	domain->global.set("input.mouse.delta.right",0);
+	domain->getDoc()->set("input.mouse.delta.X",0);
+	domain->getDoc()->set("input.mouse.delta.Y",0);
+	domain->getDoc()->set("input.mouse.delta.left",0);
+	domain->getDoc()->set("input.mouse.delta.right",0);
 
 	// 2.) Keyboard
 	for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode) {
 		if(keyNames[scancode] != ""){
 			std::string deltaPath = "input.keyboard.delta." + keyNames[scancode];
-			domain->global.set<int>(deltaPath.c_str(), 0);
+			domain->getDoc()->set<int>(deltaPath.c_str(), 0);
 		}
 	}
 }

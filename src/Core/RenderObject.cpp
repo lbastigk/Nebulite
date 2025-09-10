@@ -1,12 +1,11 @@
 #include "Core/RenderObject.hpp"
-#include "Interaction/Execution/RenderObjectTree.hpp"
 #include "Interaction/Deserializer.hpp"
-#include "Interaction/Execution/JSONTree.hpp"
 
 //------------------------------------------
 // Special member Functions
 
-Nebulite::Core::RenderObject::RenderObject(Nebulite::Utility::JSON* global) : global(global), renderObjectTree(this, json.getJSONTree()) {
+Nebulite::Core::RenderObject::RenderObject(Nebulite::Utility::JSON* global) 
+: global(global), Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>("RenderObject",json.funcTree,&json) {
 
 	//------------------------------------------
 	// Document Values
@@ -165,15 +164,15 @@ SDL_Rect* Nebulite::Core::RenderObject::getDstRect() {
 
 void Nebulite::Core::RenderObject::calculateDstRect() {
 	dstRect = {
-		(int)floor(valueGet<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str())),
-		(int)floor(valueGet<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str())),
-		(int)floor(valueGet<double>(Nebulite::Constants::keyName.renderObject.pixelSizeX.c_str())), // Set the desired width
-		(int)floor(valueGet<double>(Nebulite::Constants::keyName.renderObject.pixelSizeY.c_str())), // Set the desired height
+		(int)floor(get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str())),
+		(int)floor(get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str())),
+		(int)floor(get<double>(Nebulite::Constants::keyName.renderObject.pixelSizeX.c_str())), // Set the desired width
+		(int)floor(get<double>(Nebulite::Constants::keyName.renderObject.pixelSizeY.c_str())), // Set the desired height
 	};
 };
 
 SDL_Rect* Nebulite::Core::RenderObject::getSrcRect() {
-	if (valueGet<bool>(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str())) {
+	if (get<bool>(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str())) {
 		return &srcRect;
 	}
 	else {
@@ -183,11 +182,11 @@ SDL_Rect* Nebulite::Core::RenderObject::getSrcRect() {
 
 void Nebulite::Core::RenderObject::calculateSrcRect() {
 	// Check if the object is a sprite
-	if (valueGet<bool>(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str())) {
-		int offsetX = (int)valueGet<double>(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX.c_str(),0);
-		int offsetY = (int)valueGet<double>(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY.c_str(),0);
-		int spriteWidth = valueGet<int>(Nebulite::Constants::keyName.renderObject.spritesheetSizeX.c_str(),0);
-		int spriteHeight = valueGet<int>(Nebulite::Constants::keyName.renderObject.spritesheetSizeY.c_str(),0);
+	if (get<bool>(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str())) {
+		int offsetX = (int)get<double>(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX.c_str(),0);
+		int offsetY = (int)get<double>(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY.c_str(),0);
+		int spriteWidth = get<int>(Nebulite::Constants::keyName.renderObject.spritesheetSizeX.c_str(),0);
+		int spriteHeight = get<int>(Nebulite::Constants::keyName.renderObject.spritesheetSizeY.c_str(),0);
 		
 		// Calculate the source rectangle for the sprite (which portion of the sprite sheet to render)
 		srcRect = {
@@ -204,9 +203,11 @@ void Nebulite::Core::RenderObject::calculateSrcRect() {
 
 void Nebulite::Core::RenderObject::update(Nebulite::Interaction::Invoke* globalInvoke) {
 	//------------------------------------------
-	// Update Trees
-	renderObjectTree.update();
-	json.getJSONTree()->update();
+	// Update Domain
+	for(auto& module : modules){
+		module->update();
+	}
+	getDoc()->update();
 
 	//------------------------------------------
 	// Check all invokes
@@ -306,10 +307,10 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(Nebulite::Inter
 void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int renderer_X, int renderer_Y){
 	
 	// RECT position to renderer
-	textRect.x = 	valueGet<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str()) + 
-					valueGet<double>(Nebulite::Constants::keyName.renderObject.textDx.c_str()) - renderer_X;
-	textRect.y = 	valueGet<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str()) + 
-					valueGet<double>(Nebulite::Constants::keyName.renderObject.textDy.c_str()) - renderer_Y;
+	textRect.x = 	get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str()) + 
+					get<double>(Nebulite::Constants::keyName.renderObject.textDx.c_str()) - renderer_X;
+	textRect.y = 	get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str()) + 
+					get<double>(Nebulite::Constants::keyName.renderObject.textDy.c_str()) - renderer_Y;
 	
 	// Recreate texture if recalculate was triggered by user. This is needed for:
 	// - new text
@@ -324,8 +325,8 @@ void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font
 		
 		// Settings influenced by a new text
 		double scalar = 1.0;
-		double fontSize = valueGet<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str());
-		std::string text = valueGet<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str());
+		double fontSize = get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str());
+		std::string text = get<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str());
 		textRect.w = scalar * fontSize * text.length();
 		textRect.h = static_cast<int>(fontSize * 1.5f * scalar);
 
@@ -350,15 +351,4 @@ void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font
 		// Set flag back to false
 		flag.calculateText = false;
 	}
-}
-
-
-//------------------------------------------
-// FuncTree parsing
-
-Nebulite::Constants::ERROR_TYPE Nebulite::Core::RenderObject::parseStr(const std::string& str){
-	// Assume first arg being the bin name or similar
-
-	// Since JSON is linked inside the RenderObjectTree, we can parse directly
-	return renderObjectTree.parseStr(str);
 }

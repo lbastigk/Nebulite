@@ -155,7 +155,7 @@ int main(int argc, char* argv[]){
         // Update and render, only if initialized
         // If renderer wasnt initialized, it is still a nullptr
         if (!criticalStop && globalSpace.RendererExists() && globalSpace.getRenderer()->timeToRender()) {
-            globalSpace.GlobalSpaceTree->update();
+            globalSpace.update();
             globalSpace.getRenderer()->tick();
 
             // Reduce script wait counter if not in console mode

@@ -18,7 +18,7 @@
 // Nebulite
 #include "Core/Renderer.hpp"
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/GlobalSpaceTree.hpp"
+#include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
 namespace Nebulite {
@@ -85,7 +85,7 @@ struct taskQueueResult{
  *
  * See main.cpp and other engine modules for usage examples and integration details.
  */
-class GlobalSpace {
+class GlobalSpace : public Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace> {
 public:
     //------------------------------------------
     // Special Member Functions
@@ -139,7 +139,7 @@ public:
      * 
      * @return The error type resulting from the parsing operation.
      */
-    Nebulite::Constants::ERROR_TYPE parseStr(std::string str);
+    //Nebulite::Constants::ERROR_TYPE parseStr(std::string str);
 
     /**
      * @brief Parses the task queue for execution.
@@ -148,6 +148,11 @@ public:
      * the last critical error code otherwise.
      */
     Nebulite::Constants::ERROR_TYPE parseQueue();
+
+    /**
+     * @brief Updates the global space.
+     */
+    void update();
 
     //------------------------------------------
     // Public Variables
@@ -168,20 +173,12 @@ public:
     // Error Table for error descriptions
     Nebulite::Constants::ErrorTable errorTable;
 
-    //------------------------------------------
-    // [IMPORTANT]
-    // Removal of private keyword for easier access for DomainModule classes
-    // This allows for easier inspection and modification of the GlobalSpace
-    // without having to specify its access here
-/*
+    // Invoke Object for parsing expressions etc.
+    std::unique_ptr<Nebulite::Interaction::Invoke> invoke;
+
 private:
-    //------------------------------------------
-    // [What we're not doing anymore:]
-    // Allow GlobalSpaceTree Categories to access private members
-    friend class Nebulite::DomainModule::GlobalSpace::General;
-    friend class Nebulite::DomainModule::GlobalSpace::Renderer;
-    friend class Nebulite::DomainModule::GlobalSpace::Debug;
-//*/
+    // Global JSON Document
+    Nebulite::Utility::JSON global;
 
     //------------------------------------------
     // Internal Variables, linked to GlobalSpaceTree
@@ -205,19 +202,6 @@ private:
 
     //------------------------------------------
     // Objects
-
-    // Invoke Object for parsing expressions etc.
-    std::unique_ptr<Nebulite::Interaction::Invoke> invoke;
-
-    // GlobalSpaceTree for parsing and executing commands
-    std::unique_ptr<Nebulite::Interaction::Execution::GlobalSpaceTree> GlobalSpaceTree;
-
-    // Global Space document 
-    Nebulite::Utility::JSON global;
-
-    //------------------------------------------
-    // Variables that need to be private at all times
-private:
 
     /**
      * @brief Pointer to the renderer instance.

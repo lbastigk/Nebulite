@@ -17,7 +17,7 @@
 // Nebulite
 #include "Constants/KeyNames.hpp"
 #include "Interaction/Invoke.hpp"
-#include "Interaction/Execution/RenderObjectTree.hpp"
+#include "Interaction/Execution/Domain.hpp"
 #include "Utility/JSON.hpp"
 
 //------------------------------------------
@@ -35,7 +35,7 @@ namespace Core {
  * 
  *   - Provides methods for serialization and deserialization to and from strings or files.
  * 
- *   - Supports dynamic property access and modification via valueSet/valueGet templates.
+ *   - Supports dynamic property access and modification via set/get templates.
  * 
  *   - Manages SDL_Rect structures for sprite and text positioning, and caches these for performance.
  * 
@@ -69,7 +69,7 @@ namespace Core {
  * 
  * Copy and move operations are disabled to prevent accidental resource duplication.
  */
-class RenderObject {
+class RenderObject : public Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>{
 public:
 	//------------------------------------------
 	// Special member Functions
@@ -96,6 +96,28 @@ public:
 	RenderObject(RenderObject&& other) = delete;
 	RenderObject& operator=(RenderObject&& other) = delete;
 
+	//------------------------------------------
+	// Set/Get
+
+    /**
+	 * @brief Sets a value in the Domain's JSON document.
+	 * 
+	 * @tparam T The type of the value to set.
+	 * @param key The key of the value to set.
+	 * @param data The value to set.
+	 */
+    template <typename T> void set(const char* key, const T data);
+
+    /**
+     * @brief Gets a value from the Domain's JSON document.
+     * 
+     * @tparam T The type of the value to get.
+     * @param key The key of the value to get.
+     * @param defaultValue The default value to return if the key is not found.
+     * @return The value from the JSON document, or the default value if not found.
+     */
+    template <typename T> T get(const char* key, const T& defaultValue = T());
+
 
 	//------------------------------------------
 	// Serializing/Deserializing
@@ -113,35 +135,6 @@ public:
 	 * @param serialOrLink The JSON string to deserialize.
 	 */
 	void deserialize(std::string serialOrLink);
-	
-	//------------------------------------------
-	// Setting/Getting specific values
-
-	/**
-	 * @brief Sets a value in the RenderObject's JSON document.
-	 * 
-	 * @tparam T The type of the value to set.
-	 * @param key The key of the value to set.
-	 * @param data The value to set.
-	 */
-	template <typename T> void valueSet(const char* key, const T data);
-
-	/**
-	 * @brief Gets a value from the RenderObject's JSON document.
-	 * 
-	 * @tparam T The type of the value to get.
-	 * @param key The key of the value to get.
-	 * @param defaultValue The default value to return if the key is not found.
-	 * @return The value from the JSON document, or the default value if not found.
-	 */
-	template <typename T> T valueGet(const char* key, const T& defaultValue = T());
-
-	/**
-	 * @brief Gets a pointer to the internal JSON document.
-	 * 
-	 * @return A pointer to the internal JSON document.
-	 */
-	Nebulite::Utility::JSON* getDoc() { return &json; }
 
 	/**
 	 * @brief Gets a pointer to the SDL_Rect describing the destination of the sprite.
@@ -191,7 +184,7 @@ public:
 	 * 
 	 * @param globalInvoke Pointer to the global invoke object
 	 */
-	void update(Nebulite::Interaction::Invoke* globalInvoke);
+	void update(Nebulite::Interaction::Invoke* globalInvoke) override;
 
 	/**
 	 * @brief Calculates the text texture for the RenderObject.
@@ -225,28 +218,6 @@ public:
 	 */
 	uint64_t estimateComputationalCost(Nebulite::Interaction::Invoke* globalInvoke);
 
-	/**
-	 * @brief Parses a string into a Nebulite command.
-	 * 
-	 * Make sure the first arg is a name and not the function itself!
-	 * 
-	 * - `parseStr("set text.str Hello World")` -> does not work!
-	 * 
-	 * - `parseStr("<someName> set text.str Hello World")` -> works
-	 * 
-	 * The first argument is reserved for debugging and should be used as a way to tell the parser from where it was called:
-	 * ```cpp
-	 * void myFunction() {
-	 *   parseStr("myFunction set text.str Hello World");
-	 * }
-	 * ```
-	 * If set fails, we can use the first argument `argv[0]` to identify the source of the command.
-	 * 
-	 * @param str The string to parse.
-	 * @return Potential errors that occured on command execution
-	 */
-	Nebulite::Constants::ERROR_TYPE parseStr(const std::string& str);
-
 	//------------------------------------------
 	// Management Flags for Renderer-Interaction
 
@@ -276,9 +247,6 @@ private:
 	std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>> entries_global;		// Global commands, intended for self-other-global interaction
 	std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>> entries_local;		// Internal commands, intended for self-global interaction
 
-	// RenderObjectTree for local function calls
-	Nebulite::Interaction::Execution::RenderObjectTree renderObjectTree;
-
 	// Each RenderObject with linkage to the global document for copy/move instructions in the renderObjectTree
 	Nebulite::Utility::JSON* global;
 
@@ -288,18 +256,20 @@ private:
 } // namespace Core
 } // namespace Nebulite
 
+
 //------------------------------------------
 // Templated setter/getter functions
 
-template <typename T> void Nebulite::Core::RenderObject::valueSet(const char* key, const T data) {
+template <typename T> void Nebulite::Core::RenderObject::set(const char* key, const T data) {
 	//JSONHandler::Set::Any(doc, key, data);
 	json.set(key,data);
+	/**
+	 * @todo Is this still needed?
+	 */
 	calculateDstRect();
 	calculateSrcRect();
 }
 
-template <typename T> T Nebulite::Core::RenderObject::valueGet(const char* key, const T& defaultValue){
+template <typename T> T Nebulite::Core::RenderObject::get(const char* key, const T& defaultValue){
 	return json.get<T>(key,defaultValue);
 }
-
-

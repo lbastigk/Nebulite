@@ -1,24 +1,16 @@
 #include "Core/GlobalSpace.hpp"
-#include "Interaction/Execution/GlobalSpaceTree.hpp"
 
 Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
+: Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite",global.funcTree,&global)
 {
-    //------------------------------------------
-    // Objects
-    // ...
-
     //------------------------------------------
     // Modify structs                         
     tasks.always.clearAfterResolving = false;
 
     //------------------------------------------
     // Linkages 
-    invoke = std::make_unique<Nebulite::Interaction::Invoke>(&global);
+    invoke = std::make_unique<Nebulite::Interaction::Invoke>(getDoc());
     invoke->linkQueue(tasks.internal.taskList);
-
-    //------------------------------------------
-    // Link GlobalSpaceTree
-    GlobalSpaceTree = std::make_unique<Nebulite::Interaction::Execution::GlobalSpaceTree>(this, global.getJSONTree());
 
     //------------------------------------------
     // General Variables
@@ -27,12 +19,12 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
 
     //------------------------------------------
     // Do first update
-    GlobalSpaceTree->update();
+    update();
 }
 
 Nebulite::Core::Renderer* Nebulite::Core::GlobalSpace::getRenderer() {
     if (renderer == nullptr) {
-        renderer = std::make_unique<Nebulite::Core::Renderer>(*invoke, global, cmdVars.headless == "true");
+        renderer = std::make_unique<Nebulite::Core::Renderer>(*invoke, *getDoc(), cmdVars.headless == "true");
         renderer->setTargetFPS(60);
     }
     return renderer.get();
@@ -63,7 +55,7 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
             }
 
             // Parse
-            currentResult = GlobalSpaceTree->parseStr(argStr);
+            currentResult = parseStr(argStr);
 
             // Check result
             if (currentResult < Nebulite::Constants::ERROR_TYPE::NONE) {
@@ -87,7 +79,7 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
             }
 
             // Parse
-            currentResult = GlobalSpaceTree->parseStr(argStr);
+            currentResult = parseStr(argStr);
 
             // Check result
             if (currentResult < Nebulite::Constants::ERROR_TYPE::NONE) {
@@ -98,16 +90,6 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
     }
 
     return result;
-}
-
-Nebulite::Constants::ERROR_TYPE Nebulite::Core::GlobalSpace::parseStr(std::string str) {
-    // Strings first arg must be the binary name or similar
-    if (!str.starts_with(names.binary + " ")) {
-        str = names.binary + " " + str; // Add binary name if missing
-    }
-
-    // Since JSON is linked inside the GlobalSpaceTree, we can parse directly
-    return GlobalSpaceTree->parseStr(str);
 }
 
 Nebulite::Constants::ERROR_TYPE Nebulite::Core::GlobalSpace::parseQueue() {
@@ -141,4 +123,13 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Core::GlobalSpace::parseQueue() {
     }
 
     return Nebulite::Constants::ERROR_TYPE::NONE;
+}
+
+void Nebulite::Core::GlobalSpace::update() {
+    //------------------------------------------
+    // Update Domain
+    for(auto& module : modules){
+        module->update();
+    }
+    getDoc()->update();
 }

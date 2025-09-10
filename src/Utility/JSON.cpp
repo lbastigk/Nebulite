@@ -8,7 +8,7 @@
 #define FLUSH_DEBUG 0
 
 Nebulite::Utility::JSON::JSON()
-    : jsonTree(this)
+: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON",funcTree,this)
 {
     std::lock_guard<std::recursive_mutex> lock(mtx);
     doc.SetObject();

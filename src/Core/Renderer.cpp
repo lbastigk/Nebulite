@@ -229,7 +229,7 @@ bool Nebulite::Core::Renderer::timeToRender() {
 
 void Nebulite::Core::Renderer::append(Nebulite::Core::RenderObject* toAppend) {
 	// Set ID
-	toAppend->valueSet<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),renderobject_id_counter);
+	toAppend->set<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),renderobject_id_counter);
 	renderobject_id_counter++;
 
 	//Append to environment, based on layer
@@ -237,11 +237,11 @@ void Nebulite::Core::Renderer::append(Nebulite::Core::RenderObject* toAppend) {
 		toAppend, 
 		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
 		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0), 
-		toAppend->valueGet(Nebulite::Constants::keyName.renderObject.layer.c_str(), 0)
+		toAppend->get(Nebulite::Constants::keyName.renderObject.layer.c_str(), 0)
 	);
 
 	//Load texture
-	loadTexture(toAppend->valueGet<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str()));
+	loadTexture(toAppend->get<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str()));
 
 	// Update rolling rand
 	update_rrand();
@@ -613,7 +613,7 @@ void Nebulite::Core::Renderer::renderFrame() {
 						// For all objects in batch
 						for(auto& obj : batch.objects){
 							// Check for texture
-							std::string innerdir = obj->valueGet<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str());
+							std::string innerdir = obj->get<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str());
 							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
 								loadTexture(innerdir);
 								obj->calculateDstRect();
@@ -630,7 +630,7 @@ void Nebulite::Core::Renderer::renderFrame() {
 
 							// Render the text
 							//*
-							if (obj->valueGet<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str())>0){
+							if (obj->get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str())>0){
 								obj->calculateText(
 									renderer,
 									font,

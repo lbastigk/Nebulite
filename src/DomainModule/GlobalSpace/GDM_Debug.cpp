@@ -13,7 +13,7 @@ void Nebulite::DomainModule::GlobalSpace::Debug::update() {
 // FuncTree-Bound Functions
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::printGlobal(int argc, char* argv[]){
-    std::cout << domain->global.serialize() << std::endl;
+    std::cout << domain->getDoc()->serialize() << std::endl;
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
@@ -23,7 +23,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::prin
 }
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::logGlobal(int argc, char* argv[]){
-    std::string serialized = domain->global.serialize();
+    std::string serialized = domain->getDoc()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
             Nebulite::Utility::FileManagement::WriteFile(argv[i],serialized);
@@ -49,7 +49,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::logS
 }
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::render_object(int argc, char** argv){
-    Nebulite::Core::RenderObject ro(&domain->global);
+    Nebulite::Core::RenderObject ro(domain->getDoc());
     Nebulite::Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc",ro.serialize());
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
@@ -122,9 +122,9 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::clea
     }
     
     #if _WIN32
-        std::system("cls");
+        (void)std::system("cls");
     #else
-        std::system("clear");
+        (void)std::system("clear");
     #endif
 
     return Nebulite::Constants::ERROR_TYPE::NONE;

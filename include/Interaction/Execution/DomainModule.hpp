@@ -19,6 +19,10 @@ invokeand the GlobalSpace, allowing them to individually bind functions on const
 
 #pragma once
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 
