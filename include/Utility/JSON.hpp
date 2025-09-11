@@ -106,13 +106,7 @@ public:
      * @todo reinitialization of domain is probably missing at some spots
      */
     JSON(const JSON&) = delete;
-    JSON(JSON&& other) noexcept
-    : Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON",funcTree,this)
-    {
-        std::scoped_lock lock(mtx, other.mtx); // Locks both, deadlock-free
-        doc = std::move(other.doc);
-        cache = std::move(other.cache);
-    }
+    JSON(JSON&& other) noexcept;
     JSON& operator=(const JSON&) = delete;
     JSON& operator=(JSON&& other) noexcept 
     {

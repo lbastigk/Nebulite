@@ -1,11 +1,12 @@
 #include "Core/RenderObject.hpp"
+#include "DomainModule/RDM.hpp"
 #include "Interaction/Deserializer.hpp"
 
 //------------------------------------------
 // Special member Functions
 
 Nebulite::Core::RenderObject::RenderObject(Nebulite::Utility::JSON* global) 
-: global(global), Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>("RenderObject",json.funcTree,&json) {
+: global(global), Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>("RenderObject",&json) {
 
 	//------------------------------------------
 	// Document Values
@@ -58,6 +59,18 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Utility::JSON* global)
 	flag.reloadInvokes = true;		// In order to reload invokes on first update
 
 	subscription_size = json.memberSize(Nebulite::Constants::keyName.renderObject.invokeSubscriptions.c_str());
+
+	//------------------------------------------
+    // Link subtree json
+    linkSubTree(json.funcTree);
+
+	//------------------------------------------
+	// Initialize Domain Modules
+	Nebulite::DomainModule::RDM_init(this);
+
+	//------------------------------------------
+	// Update cannot be called in constructor, 
+	// as it relies on an invoke reference
 }
 
 Nebulite::Core::RenderObject::~RenderObject() {
@@ -76,16 +89,12 @@ Nebulite::Core::RenderObject::~RenderObject() {
     entries_local.clear();
 }
 
-
-
-
 //------------------------------------------
 // Marshalling
 
 std::string Nebulite::Core::RenderObject::serialize() {
 	return json.serialize();
 }
-
 
 void Nebulite::Core::RenderObject::deserialize(std::string serialOrLink) {
 
@@ -148,7 +157,6 @@ void Nebulite::Core::RenderObject::deserialize(std::string serialOrLink) {
 
 //------------------------------------------
 // General functions
-
 
 SDL_Texture* Nebulite::Core::RenderObject::getTextTexture(){
 	return textTexture;

@@ -26,7 +26,6 @@
  * ```
  */
 
-
 // ----------------------------------------------------------------------
 // Includes
 
@@ -54,7 +53,6 @@
  *
  */
 int main(int argc, char* argv[]){
-
     //------------------------------------------
     // Initialize the global space
     std::string binaryName = argv[0];
@@ -123,15 +121,13 @@ int main(int argc, char* argv[]){
     
     //------------------------------------------
     // Render loop
-    bool queueParsed = false;
-    bool criticalStop = false;
+    bool queueParsed = false;   // Indicates if the task queue has been parsed on this frame render
+    bool criticalStop = false;  // Indicates if a critical stop has occurred
+    bool continueLoop = true;   // Determines if we continue the loop
     Nebulite::Constants::ERROR_TYPE lastCriticalResult = Nebulite::Constants::ERROR_TYPE::NONE;
-
-    // At least one loop, to handle taskQueues
-
-    // Determines if we continue the loop
-    bool continueLoop = true;
     do {
+        // At least one loop, to handle taskQueues
+
         //------------------------------------------
         /**
          * Parse queue in GlobalSpaceTree.
@@ -149,7 +145,6 @@ int main(int argc, char* argv[]){
             criticalStop = (lastCriticalResult != Nebulite::Constants::ERROR_TYPE::NONE);
             queueParsed = true;
         }
-        
 
         //------------------------------------------
         // Update and render, only if initialized

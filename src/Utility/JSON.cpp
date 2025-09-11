@@ -1,4 +1,5 @@
 #include "Utility/JSON.hpp"
+#include "DomainModule/JDM.hpp"
 
 /**
  * @def FLUSH_DEBUG
@@ -8,10 +9,19 @@
 #define FLUSH_DEBUG 0
 
 Nebulite::Utility::JSON::JSON()
-: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON",funcTree,this)
+: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON",this)
 {
     std::lock_guard<std::recursive_mutex> lock(mtx);
     doc.SetObject();
+    Nebulite::DomainModule::JDM_init(this);
+}
+
+Nebulite::Utility::JSON::JSON(JSON&& other) noexcept
+: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON",this)
+{
+    std::scoped_lock lock(mtx, other.mtx); // Locks both, deadlock-free
+    doc = std::move(other.doc);
+    cache = std::move(other.cache);
 }
 
 Nebulite::Utility::JSON::~JSON(){

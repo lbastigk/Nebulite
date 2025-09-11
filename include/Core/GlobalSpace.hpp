@@ -176,18 +176,18 @@ public:
     // Invoke Object for parsing expressions etc.
     std::unique_ptr<Nebulite::Interaction::Invoke> invoke;
 
-private:
-    // Global JSON Document
-    Nebulite::Utility::JSON global;
-
     //------------------------------------------
-    // Internal Variables, linked to GlobalSpaceTree
+    // DomainModule variables
     struct commandLineVariables{
         std::string headless = "false"; // Headless mode (no window)
         std::string recover = "false";  // Enable recoverable error mode
         /*Add more variables as needed*/
     };
     commandLineVariables cmdVars;
+
+private:
+    // Global JSON Document
+    Nebulite::Utility::JSON global;
 
     //------------------------------------------
     // Other Variables

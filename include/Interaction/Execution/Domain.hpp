@@ -53,14 +53,13 @@ namespace Execution{
 template<typename DomainType>
 class Domain{
 public:
-    Domain(std::string domainName, FuncTree<Nebulite::Constants::ERROR_TYPE>* subtree ,Nebulite::Utility::JSON* doc) 
+    Domain(std::string domainName, Nebulite::Utility::JSON* doc) 
     : doc(doc)
     {
         funcTree = new Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>( 
                 domainName, 
                 Nebulite::Constants::ERROR_TYPE::NONE, 
-                Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID, 
-                subtree
+                Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID
             );
     };
 
@@ -71,8 +70,22 @@ public:
      */
     template<typename DomainModuleType>
     void createDomainModuleOfType() {
-        auto DomainModule = std::make_unique<DomainModuleType>(domain, this);
+        auto DomainModule = std::make_unique<DomainModuleType>(domain, funcTree);
         modules.push_back(std::move(DomainModule));
+    }
+
+    /**
+     * @brief Binds a variable to the FuncTree.
+     */
+    void bindVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription){
+        funcTree->bindVariable(varPtr, name, helpDescription);
+    }
+
+    /**
+     * @brief Binds all functions from a subtree to the main FuncTree for parsing.
+     */
+    void linkSubTree(Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* subtree){
+        funcTree->linkSubTree(subtree);
     }
 
     //------------------------------------------

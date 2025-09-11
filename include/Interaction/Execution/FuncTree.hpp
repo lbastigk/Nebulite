@@ -102,7 +102,14 @@ public:
      * @param functionNotFoundError Value to return if the parsed function was not found
      * @param subtree Pointer to a subtree (optional)
      */
-    FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError, FuncTree<RETURN_TYPE>* subtree = nullptr);
+    FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError);
+
+    /**
+     * @brief Links a subtree to this FuncTree.
+     */
+    void linkSubTree(FuncTree<RETURN_TYPE>* subtree) {
+        linkedSubTree = subtree;
+    }
 
     /**
      * @brief Parses the command line arguments and executes the corresponding function.
@@ -215,7 +222,7 @@ private:
     std::string TreeName; 
 
     // Subtree linked to this tree
-    FuncTree<RETURN_TYPE>* subtree;
+    FuncTree<RETURN_TYPE>* linkedSubTree = nullptr; // Initialize to nullptr first to avoid issues during construction
 
     //------------------------------------------
     // Functions
@@ -270,7 +277,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(Class
     // Making sure the function name is not registered in the subtree
     // Note: subtree is checked only after constructor completes, so this should be safe
     // The only overwrite that is allowed is the help function
-    if (subtree && name != "help" && subtree->hasFunction(name)) {
+    if (linkedSubTree && name != "help" && linkedSubTree->hasFunction(name)) {
         // Throw a proper error
         // exit the entire program
         std::cerr << "---------------------------------------------------------------\n";
@@ -279,7 +286,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(Class
         std::cerr << "Function overwrite is heavily discouraged and thus not allowed.\n";
         std::cerr << "Please choose a different name or remove the existing function.\n";
         std::cerr << "This Tree: " << TreeName << "\n";
-        std::cerr << "Subtree:   " << subtree->TreeName << "\n";
+        std::cerr << "Subtree:   " << linkedSubTree->TreeName << "\n";
         std::cerr << "Function:  " << name << "\n";
         std::exit(EXIT_FAILURE);  // Exit with failure status
 
@@ -326,8 +333,8 @@ std::vector<std::pair<std::string, std::string>> Nebulite::Interaction::Executio
     }
 
     // Get from subtree
-    if(subtree) {
-        auto subtreeFunctions = subtree->getAllFunctions();
+    if(linkedSubTree) {
+        auto subtreeFunctions = linkedSubTree->getAllFunctions();
 
         // Case by case, making sure we do not have duplicates
         for (const auto& [name, description] : subtreeFunctions) {
@@ -347,8 +354,8 @@ std::vector<std::pair<std::string, std::string>> Nebulite::Interaction::Executio
     }
 
     // Get from subtree
-    if(subtree) {
-        auto subtreeVariables = subtree->getAllVariables();
+    if(linkedSubTree) {
+        auto subtreeVariables = linkedSubTree->getAllVariables();
 
         // Case by case, making sure we do not have duplicates
         for (const auto& [name, description] : subtreeVariables) {
@@ -361,14 +368,11 @@ std::vector<std::pair<std::string, std::string>> Nebulite::Interaction::Executio
     return allVariables;
 }
 
-
 //------------------------------------------
 // Constructor implementation
 
 template<typename RETURN_TYPE>
-Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError, FuncTree<RETURN_TYPE>* subtree)
-    : subtree(nullptr)  // Initialize to nullptr first to avoid issues during construction
-{
+Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError){
     // Store name
     TreeName = treeName;
 
@@ -379,11 +383,6 @@ Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(std::string tr
 
     _standard = standard;
     _functionNotFoundError = functionNotFoundError;
-    
-    // Link the subTree AFTER basic initialization is complete
-    if(subtree){
-        this->subtree = subtree;
-    }
 }
 
 //------------------------------------------
@@ -451,10 +450,25 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parse(int a
 
 template<typename RETURN_TYPE>
 RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(const std::string& cmd) {
+    //*
+    std::cout << "[DEBUG_FUNC_TREE] Parsing command: " << cmd << std::endl;
+    std::cout << "[DEBUG_FUNC_TREE] FuncTree address: " << this << std::endl;
+    std::cout << "[DEBUG_FUNC_TREE] Subtree address:  " << linkedSubTree << std::endl;
+    std::cout << "[DEBUG_FUNC_TREE] Available commands: " << std::endl;
+    auto list = getAllFunctions();
+    // Sort alphabetically
+    std::sort(list.begin(), list.end(), [](const auto& a, const auto& b) {
+        return a.first < b.first;
+    });
+    for (const auto& [name, desc] : list) {
+        std::cout << " - " << name << std::endl;
+    }
+    //*/ 
+    
     // Prerequisite if a subtree is linked
-    if(subtree && !hasFunction(cmd)){
+    if(linkedSubTree != nullptr && !hasFunction(cmd)) {
         // Assume the subtree can handle the command
-        return subtree->parseStr(cmd);
+        return linkedSubTree->parseStr(cmd);
     }
 
     // Quote-aware tokenization

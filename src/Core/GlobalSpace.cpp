@@ -1,7 +1,8 @@
 #include "Core/GlobalSpace.hpp"
+#include "DomainModule/GDM.hpp"
 
 Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
-: Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite",global.funcTree,&global)
+: Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite",&global)
 {
     //------------------------------------------
     // Modify structs                         
@@ -16,6 +17,14 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
     // General Variables
     names.binary = binName;
     names.state  = "";
+
+    //------------------------------------------
+    // Initialize DomainModules
+    Nebulite::DomainModule::GDM_init(this);
+
+    //------------------------------------------
+    // Link subtree global
+    linkSubTree(global.funcTree);
 
     //------------------------------------------
     // Do first update
