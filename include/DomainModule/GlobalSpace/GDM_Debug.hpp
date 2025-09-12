@@ -64,7 +64,7 @@ public:
      * @param argv The argument vector: inputs are "on" or "off"
      * @return Potential errors that occured on command execution
      * 
-     * @todo: log on causes crash with wine
+     * @todo: errorlog on causes crash with wine
      * wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
      */
     Nebulite::Constants::ERROR_TYPE errorlog(int argc, char* argv[]);
@@ -158,15 +158,22 @@ public:
     : DomainModule(moduleName, domain, funcTreePtr) {
         //------------------------------------------
         // Binding functions to the FuncTree
-        bindFunction(&Debug::errorlog,          "log",                      "Activate/Deactivate error logging: log <on/off>");
+        bindFunction(&Debug::errorlog,          "errorlog",                 "Activate/Deactivate error logging: log <on/off>");
         bindFunction(&Debug::clearConsole,      "clear",                    "Clear console");
+
+        bindSubtree("print", "Functions to print various data to console");
         bindFunction(&Debug::printGlobal,       "print-global",             "Print global document");
         bindFunction(&Debug::printState,        "print-state",              "Print current state");
-        bindFunction(&Debug::logGlobal,         "log-global",               "Log global document: log-global [filename]");
-        bindFunction(&Debug::logState,          "log-state",                "Log current state: log-state [filename]");
+
+        bindSubtree("log", "Functions to log various data to files");
+        bindFunction(&Debug::logGlobal,         "log global",               "Log global document: log-global [filename]");
+        bindFunction(&Debug::logState,          "log state",                "Log current state: log-state [filename]");
+        
+        bindSubtree("standardfile", "Functions to generate standard files");
+        bindFunction(&Debug::render_object,     "standardfile render-object",   "Generates a standard render object at ./Resources/Renderobjects/standard.jsonc");
+
         bindFunction(&Debug::always,            "always",                   "Attach function to always run: always <command>");
-        bindFunction(&Debug::alwaysClear,       "always-clear",             "Clear all always functions");
-        bindFunction(&Debug::render_object,     "standard-render-object",   "Generates a standard render object at ./Resources/Renderobjects/standard.jsonc");
+        bindFunction(&Debug::alwaysClear,       "always-clear",             "Clear all always-tasks");
 
         //------------------------------------------
         // Example Bindings that will fail

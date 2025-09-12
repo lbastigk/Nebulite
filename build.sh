@@ -95,7 +95,7 @@ function build_release_windows() {
 }
 
 function generate_standards() {
-    ./bin/Nebulite standard-render-object
+    ./bin/Nebulite standardfile render-object
 }
 
 #############################################################

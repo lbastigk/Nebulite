@@ -15,7 +15,7 @@ spawn ./Resources/Renderobjects/standard.jsonc|posX=2000|posY=400
 wait 60
 echo
 echo done!
-env-deload
+env deload
 wait 60
 echo
 echo Test 2: with Invokes
@@ -29,7 +29,7 @@ echo Rendering 3 more seconds, waiting for Objects to move to new position...
 wait 180
 echo
 echo done!
-env-deload
+env deload
 echo
 echo
 echo Test Passed

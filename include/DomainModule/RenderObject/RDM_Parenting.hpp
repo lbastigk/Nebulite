@@ -82,9 +82,10 @@ public:
      */
     Parenting(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
-        bindFunction(&Parenting::addChildren, "add-children", "Adds children of the RenderObject by name");
-        bindFunction(&Parenting::removeChildren, "remove-children", "Removes children from the RenderObject");
-        bindFunction(&Parenting::removeAllChildren, "remove-all-children", "Removes all children from the RenderObject");
+        bindSubtree("parenting", "Functions to manage RenderObject parenting");
+        bindFunction(&Parenting::addChildren,       "parenting add-children",           "Adds children of the RenderObject by name");
+        bindFunction(&Parenting::removeChildren,    "parenting remove-children",        "Removes children from the RenderObject");
+        bindFunction(&Parenting::removeAllChildren, "parenting remove-all-children",    "Removes all children from the RenderObject");
     }
 };
 }   // namespace DomainModule

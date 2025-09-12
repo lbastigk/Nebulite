@@ -63,8 +63,9 @@ public:
     ForceValue(std::string moduleName, Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         // Binding
-        bindFunction(&ForceValue::force,      "force",         "Force a variable to a value: force-global <key> <value>");
-        bindFunction(&ForceValue::forceClear, "force-clear",   "Clear all forced variables");
+        bindSubtree("force", "Functions to force JSON variable values");
+        bindFunction(&ForceValue::force,      "force set",      "Force a variable to a value: force-global <key> <value>");
+        bindFunction(&ForceValue::forceClear, "force clear",    "Clear all forced variables");
     }
 
 private:

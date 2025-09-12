@@ -240,17 +240,23 @@ public:
     Renderer(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         bindFunction(&Renderer::spawn,               "spawn",        "Spawn a renderobject");
-        bindFunction(&Renderer::envload,             "env-load",     "Load environment/level");
-        bindFunction(&Renderer::envdeload,           "env-deload",   "Deload entire environment");
         bindFunction(&Renderer::setResolution,       "set-res",      "Set resolution of renderer: <x> <y> [scalar]");
         bindFunction(&Renderer::setFPS,              "set-fps",      "Set FPS of renderer: <value>");
         bindFunction(&Renderer::showFPS,             "show-fps",     "Show FPS of renderer: <on/off>");
-        bindFunction(&Renderer::moveCam,             "cam-move",     "Move camera to a delta position");
-        bindFunction(&Renderer::setCam,              "cam-set",      "Set camera to concrete position");
         bindFunction(&Renderer::snapshot,            "snapshot",     "Create a snapshot of the current renderer state");
         bindFunction(&Renderer::beep,                "beep",         "Beep noise from SDL");
-        bindFunction(&Renderer::getObjectFromId,     "get-object",   "Get a renderobject by its ID: <id>");
-        bindFunction(&Renderer::printSelectedObject, "print-object", "Print the currently selected renderobject");
+
+        bindSubtree("cam", "Renderer Camera Functions");
+        bindFunction(&Renderer::moveCam,             "cam move",     "Move camera to a delta position");
+        bindFunction(&Renderer::setCam,              "cam set",      "Set camera to concrete position");
+
+        bindSubtree("selected-object", "Functions to select and interact with a selected RenderObject");
+        bindFunction(&Renderer::getObjectFromId,     "selected-object get",   "Get a renderobject by its ID: <id>");
+        bindFunction(&Renderer::printSelectedObject, "selected-object print", "Print the currently selected renderobject");
+
+        bindSubtree("env", "Environment management functions");
+        bindFunction(&Renderer::envload,             "env load",     "Load environment/level");
+        bindFunction(&Renderer::envdeload,           "env deload",   "Deload entire environment");
     }
 
 private:

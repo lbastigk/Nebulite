@@ -6,7 +6,7 @@ import json
 INCLUDE_DIR = "../include"
 
 # Regex to match bindFunction lines
-BIND_FUNCTION_REGEX = r"^\s*bindFunction\([^,]+,\s*\"([a-zA-Z0-9\-]+)\""
+BIND_FUNCTION_REGEX = r'^\s*bindFunction\([^,]+,\s*"([^"]+)"'
 
 # Output file for the keywords
 OUTPUT_FILE = "./syntaxes/keywords.json"
@@ -25,7 +25,12 @@ def extract_keywords():
                     for line in f:
                         match = re.match(BIND_FUNCTION_REGEX, line)
                         if match:
-                            keywords.add(match.group(1))
+                            # Add all found keywords
+                            for keyword in match.group(1).split():
+                                # if not already in keywords, add it
+                                if keyword not in keywords:
+                                    keywords.add(keyword)
+                                    print(f"Found keyword: {keyword}")
 
     return sorted(keywords)
 

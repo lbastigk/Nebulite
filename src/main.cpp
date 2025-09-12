@@ -194,7 +194,7 @@ int main(int argc, char* argv[]){
     }
 
     // GlobalSpaceTree handles if error files need to be closed
-    globalSpace.parseStr(binaryName + " log off");
+    globalSpace.parseStr(binaryName + " errorlog off");
 
     // Return 1 on critical stop, 0 otherwise
     return (int)criticalStop;

@@ -30,7 +30,7 @@ set-res 1080 1080
 
 #########################
 # Scripting info
-cam-set 0 0
+cam set 0 0
 set-fps 60
 spawn ./Resources/Renderobjects/standard.jsonc|text.str=improved_scripting|text.fontSize=24|text.dx=50|text.dy=100
 wait 180
@@ -55,7 +55,7 @@ env-deload
 set time.fixed_dt_ms 0
 set-res 1080 1080
 set-fps 60
-cam-set 0 0
+cam set 0 0
 force-global input.keyboard.current.d 1
 spawn ./Resources/Renderobjects/Creatures/player.jsonc|posX=270|posY=540|sprite.sizeX=100|sprite.sizeY=100
 spawn ./Resources/Renderobjects/standard.jsonc|text.str=tons_of_little_improvements_under_the_hood|text.fontSize=24|text.dx=50|text.dy=100

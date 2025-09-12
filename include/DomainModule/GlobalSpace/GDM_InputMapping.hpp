@@ -101,9 +101,10 @@ public:
      */
     InputMapping(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
-        bindFunction(&InputMapping::readMappingsFromFile,   "read-input-mappings-from-file",    "Reads Input Mapping from inputs.jsonc file: [filename]");
-        bindFunction(&InputMapping::updateInputMapping,     "update-input-mapping",             "Updates one input mapping: <action> <slot> <key> <type>");
-        bindFunction(&InputMapping::writeMappingsToFile,    "write-input-mappings-to-file",     "Writes Input Mapping to inputs.jsonc file: [filename]");
+        bindSubtree("input-mapping", "Functions to manage input mappings");
+        bindFunction(&InputMapping::readMappingsFromFile,   "input-mapping read-from-file",    "Reads Input Mapping from inputs.jsonc file: [filename]");
+        bindFunction(&InputMapping::updateInputMapping,     "input-mapping map",               "Maps one input mapping: <action> <slot> <key> <type>");
+        bindFunction(&InputMapping::writeMappingsToFile,    "input-mapping write-to-file",     "Writes Input Mapping to inputs.jsonc file: [filename]");
     }
 
 private:

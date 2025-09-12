@@ -187,8 +187,10 @@ public:
         bindFunction(&General::echo,                "echo",                 "Echo a string to cout: echo <string>");
         bindFunction(&General::error,               "error",                "Echo a string to cerr/errorfile: error <string>");
         bindFunction(&General::func_assert,         "assert",               "Assert a condition and throw an error if false: assert <condition>");
-        bindFunction(&General::stateSave,           "state-save",           "Save the current game state: state-save <name>");
-        bindFunction(&General::stateLoad,           "state-load",           "Load a saved game state: state-load <name>");
+
+        bindSubtree("state", "State management functions");
+        bindFunction(&General::stateSave,           "state save",           "Save the current game state: state-save <name>");
+        bindFunction(&General::stateLoad,           "state load",           "Load a saved game state: state-load <name>");
     }
 };
 }   // namespace GlobalSpace

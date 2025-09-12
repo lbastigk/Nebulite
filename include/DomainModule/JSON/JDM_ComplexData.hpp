@@ -71,8 +71,14 @@ public:
     ComplexData(std::string moduleName, Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         // Bind functions specific to complex data handling
-        bindFunction(&ComplexData::set_from_query, "set-from-query", "Sets a key from a SQL query result: <key> <query>");
-        bindFunction(&ComplexData::set_from_json,  "set-from-json",  "Sets a key from a JSON document:    <key> <link:key>");
+
+        // SQL Querys
+        bindSubtree("query","Functions to manipulate JSON data via SQL query results");
+        bindFunction(&ComplexData::set_from_query, "query set", "Sets a key from a SQL query result: <key> <query>");
+
+        // Set from read only jsons
+        bindSubtree("json","Functions to manipulate JSON data via JSON documents");
+        bindFunction(&ComplexData::set_from_json,  "json set",  "Sets a key from a JSON document:    <key> <link:key>");
     }
 };
 }   // namespace DomainModule

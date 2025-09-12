@@ -59,7 +59,8 @@ public:
      */
     GUI(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
-        bindFunction(&GUI::example, "GUI-Example", "An example function to demonstrate GUI-Elements");
+        bindSubtree("gui", "Functions to create GUI elements");
+        bindFunction(&GUI::example, "gui example", "An example function to demonstrate GUI-Elements");
     }
 
 private:
