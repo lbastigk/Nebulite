@@ -90,7 +90,6 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::lo
     for (const auto& line : lines){
         domain->tasks.script.taskList.push_front(line);
     }
-
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 

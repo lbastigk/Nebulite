@@ -84,10 +84,8 @@ private:
     // Private vars
 
     // Used for determining when to poll inputs
-    std::shared_ptr<Nebulite::Utility::TimeKeeper> RendererPollTime; // Timer for input handling
-    //Nebulite::Utility::TimeKeeper RendererPollTime;	// Used for determining when to poll inputs
-    
-    bool reset_delta_on_next_update = false; 		// Making sure delta values are only active for one frame
+    std::shared_ptr<Nebulite::Utility::TimeKeeper> RendererPollTime;    // Timer for input handling
+    bool reset_delta_on_next_update = false; 		                    // Making sure delta values are only active for one frame
 
     // Mouse state
     struct Mouse {

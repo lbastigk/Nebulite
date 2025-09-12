@@ -24,6 +24,26 @@
             ],
             "preLaunchTask": "[MINIMAL BUILD]",
             "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "Debug Nebulite, no rebuild",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/Nebulite_Debug",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb"
         }
     ]
 }

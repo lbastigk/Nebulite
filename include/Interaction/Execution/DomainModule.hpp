@@ -127,6 +127,8 @@ public:
 
 protected:
     //------------------------------------------
+    
+    //------------------------------------------
     // Linkages
     DomainType* domain;                                     // Workspace of the DomainModule
     FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTree;    // Where to bind the expanded functions

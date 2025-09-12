@@ -2,31 +2,35 @@
 #include "Core/GlobalSpace.hpp"
 
 void Nebulite::DomainModule::GlobalSpace::Input::update() {
-    //------------------------------------------
-	// 2-Step Update of Input state
+	//------------------------------------------
+	// Only update if Renderer exists
+	if(domain->RendererExists()){
+		//------------------------------------------
+		// 2-Step Update of Input state
 
-	// 1.) Setting all delta values to 0, so they're only on delta for one frame
-	if(reset_delta_on_next_update){
-		reset_delta_values();
-		reset_delta_on_next_update = false;
-	}
+		// 1.) Setting all delta values to 0, so they're only on delta for one frame
+		if(reset_delta_on_next_update){
+			reset_delta_values();
+			reset_delta_on_next_update = false;
+		}
 
-	// 2.) Polling mouse and keyboard state
-	// Update every 10 ms
-	// Too much polling time for current benchmarks, if we update each frame 
-	// later on with fixed framerates of < 250 FPS perhaps not that big of a deal
-	uint64_t projected_dt = RendererPollTime->projected_dt();
-	if(projected_dt > 10){
-		// Updating inputs
-		RendererPollTime->update();
-		SDL_PumpEvents();
-		write_current_and_delta_inputs();
+		// 2.) Polling mouse and keyboard state
+		// Update every 10 ms
+		// Too much polling time for current benchmarks, if we update each frame 
+		// later on with fixed framerates of < 250 FPS perhaps not that big of a deal
+		uint64_t projected_dt = RendererPollTime->projected_dt();
+		if(projected_dt > 10){
+			// Updating inputs
+			RendererPollTime->update();
+			SDL_PumpEvents();
+			write_current_and_delta_inputs();
 
-		// Reset delta values on next update
-		// Since we only write input current and delta every 10ms,
-		// we dont want to reset delta values every frame
-		// This would take too much computational time for no reason
-		reset_delta_on_next_update = true;
+			// Reset delta values on next update
+			// Since we only write input current and delta every 10ms,
+			// we dont want to reset delta values every frame
+			// This would take too much computational time for no reason
+			reset_delta_on_next_update = true;
+		}
 	}
 }
 

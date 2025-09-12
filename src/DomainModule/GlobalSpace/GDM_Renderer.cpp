@@ -75,15 +75,14 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::s
 }
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::setFPS(int argc, char* argv[]){
-    if(argc != 2){
-        domain->getRenderer()->setTargetFPS(60);
-    }
-    else{
-        int fps = std::stoi(argv[1]);
+    int fps = 60;
+    if(argc == 2){
+        fps = std::stoi(argv[1]);
         if(fps < 1) fps=1;
         if(fps > 10000) fps=10000;
-        domain->getRenderer()->setTargetFPS(fps);
+        
     }
+    domain->getRenderer()->setTargetFPS(fps);
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 

@@ -450,7 +450,8 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parse(int a
 
 template<typename RETURN_TYPE>
 RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(const std::string& cmd) {
-    //*
+    // Debugging parse process
+    /*
     std::cout << "[DEBUG_FUNC_TREE] Parsing command: " << cmd << std::endl;
     std::cout << "[DEBUG_FUNC_TREE] FuncTree address: " << this << std::endl;
     std::cout << "[DEBUG_FUNC_TREE] Subtree address:  " << linkedSubTree << std::endl;
@@ -478,13 +479,12 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(co
     int argc = static_cast<int>(tokens.size());
     std::vector<char*> argv;
     argv.reserve(argc + 1);
-
     for (auto& str : tokens) {
         argv.push_back(const_cast<char*>(str.c_str()));
     }
     argv.push_back(nullptr); // Null-terminate
 
-    // Call existing parse
+    // Parse arguments in this FuncTree
     return parse(argc, argv.data());
 }
 

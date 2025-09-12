@@ -53,9 +53,9 @@ namespace Execution{
 template<typename DomainType>
 class Domain{
 public:
-    Domain(std::string domainName, Nebulite::Utility::JSON* doc) 
-    : doc(doc)
+    Domain(std::string domainName, Nebulite::Utility::JSON* doc)
     {
+        this->doc = doc;
         funcTree = new Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>( 
                 domainName, 
                 Nebulite::Constants::ERROR_TYPE::NONE, 

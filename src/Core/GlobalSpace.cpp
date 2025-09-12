@@ -9,8 +9,9 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
     tasks.always.clearAfterResolving = false;
 
     //------------------------------------------
-    // Linkages 
-    invoke = std::make_unique<Nebulite::Interaction::Invoke>(getDoc());
+    // Objects and linkages 
+    renderer = nullptr; // Uninitialized
+    invoke = std::make_unique<Nebulite::Interaction::Invoke>(&global);
     invoke->linkQueue(tasks.internal.taskList);
 
     //------------------------------------------
@@ -19,12 +20,12 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
     names.state  = "";
 
     //------------------------------------------
-    // Initialize DomainModules
-    Nebulite::DomainModule::GDM_init(this);
-
-    //------------------------------------------
     // Link subtree global
     linkSubTree(global.funcTree);
+
+    //------------------------------------------
+    // Initialize DomainModules
+    Nebulite::DomainModule::GDM_init(this);
 
     //------------------------------------------
     // Do first update
@@ -32,15 +33,16 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
 }
 
 Nebulite::Core::Renderer* Nebulite::Core::GlobalSpace::getRenderer() {
-    if (renderer == nullptr) {
+    if (!rendererInitialized) {
         renderer = std::make_unique<Nebulite::Core::Renderer>(*invoke, *getDoc(), cmdVars.headless == "true");
-        renderer->setTargetFPS(60);
+        renderer->setTargetFPS(60); // Standard value for a fresh renderer
+        rendererInitialized = true;
     }
     return renderer.get();
 }
 
 bool Nebulite::Core::GlobalSpace::RendererExists(){
-    return renderer != nullptr;
+    return rendererInitialized;
 }
 
 Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueue& tq, uint64_t* waitCounter){

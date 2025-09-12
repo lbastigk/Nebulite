@@ -212,6 +212,7 @@ private:
      * Due to the way the renderer is initialized, the object is marked as private.
      * Under no circumstances should processes try to access the renderer directly!
      */
+    bool rendererInitialized = false;
     std::unique_ptr<Nebulite::Core::Renderer> renderer;
 
     // For resolving tasks
