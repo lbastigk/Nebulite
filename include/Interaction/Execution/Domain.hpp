@@ -84,10 +84,10 @@ public:
     }
 
     /**
-     * @brief Binds all functions from a subtree to the main FuncTree for parsing.
+     * @brief Binds all functions from a inherited FuncTree to the main FuncTree for parsing.
      */
-    void linkSubTree(Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* subtree){
-        funcTree->linkSubTree(subtree);
+    void inherit(Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* inherited FuncTree){
+        funcTree->inherit(inherited FuncTree);
     }
 
     //------------------------------------------
@@ -162,7 +162,7 @@ public:
      * @brief Parsing interface for domain-specific commands.
      * 
      * We use a pointer here so we can 
-     * easily create the object with a subtree inside the constructor.
+     * easily create the object with a inherited FuncTree inside the constructor.
      * 
      * The Tree is then shared with the DomainModules for modification.
      */

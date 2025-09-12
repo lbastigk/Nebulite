@@ -47,7 +47,7 @@ public:
      * The binary compilation will work, but execution will fail.
      */
     Nebulite::Constants::ERROR_TYPE set(int argc, char* argv[]) {
-        // Binding a function with the name "set" is not allowed as it already exists in the subtree JSONTree
+        // Binding a function with the name "set" is not allowed as it already exists in the inherited FuncTree JSONTree
         return Nebulite::Constants::ERROR_TYPE::NONE;
     }
 
@@ -172,7 +172,7 @@ public:
         // Example Bindings that will fail
 
         // TEST: Binding an already existing sub-function
-        //bindFunction(&Debug::set, "set", "Dummy function to test binding with existing name in subtree");  // <- THIS WILL FAIL
+        //bindFunction(&Debug::set, "set", "Dummy function to test binding with existing name in inherited FuncTree");  // <- THIS WILL FAIL
 
         // TEST: Binding an already existing function
         //bindFunction(&Debug::set, "log", "Dummy function to test binding with existing name in own tree"); // <- THIS WILL FAIL

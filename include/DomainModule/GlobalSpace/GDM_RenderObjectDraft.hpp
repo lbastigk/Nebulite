@@ -52,7 +52,7 @@ namespace GlobalSpace {
  * It also exposes the Renderobject-Internal functions to the gui via a globally accessible help-function:
  * 
  * ```bash
- * ./bin/Nebulite help         # As the RenderObjectTree is not a subTree of GlobalSpaceTree, this will NOT show RenderObject specific help.
+ * ./bin/Nebulite help         # As the RenderObjectTree is not a inherited FuncTree of GlobalSpaceTree, this will NOT show RenderObject specific help.
  * ./bin/Nebulite draft-help   # However, this will
  * ```
  */

@@ -40,7 +40,7 @@
  * bindSubtree("myCategory", "This is a category of functions");
  * Perhaps even throwing an error if the user tries to bind a function to a subtree that does not exist
  * 
- * @todo Going away from classic C-style argc/argv to a more modern approach
+ * @todo Going away from classic C-style argc/argv to a more modern approach might be
  * - std::vector<std::string> callTrace // shows the call trace of the function, e.g.: "Nebulite", "eval", "echo"
  * - std::vector<std::string> args      // shows the arguments of the function, e.g.: "echo", "Hello World!"
  * - std::vector<std::string> variables // shows the variables set by the user, e.g.: {"--verbose": "true"}
@@ -100,15 +100,16 @@ public:
      * @param treeName Name of the tree
      * @param standard Value to return if everything is okay
      * @param functionNotFoundError Value to return if the parsed function was not found
-     * @param subtree Pointer to a subtree (optional)
      */
     FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError);
 
     /**
-     * @brief Links a subtree to this FuncTree.
+     * @brief Inherits functions from another Tree.
+     * 
+     * @param toInherit FuncTree pointer to inherit functions from.
      */
-    void linkSubTree(FuncTree<RETURN_TYPE>* subtree) {
-        linkedSubTree = subtree;
+    void inherit(FuncTree<RETURN_TYPE>* toInherit) {
+        inheritedTree = toInherit;
     }
 
     /**
@@ -221,8 +222,14 @@ private:
     // Name of the tree, used for help and output
     std::string TreeName; 
 
-    // Subtree linked to this tree
-    FuncTree<RETURN_TYPE>* linkedSubTree = nullptr; // Initialize to nullptr first to avoid issues during construction
+    // inherited FuncTree linked to this tree
+    FuncTree<RETURN_TYPE>* inheritedTree = nullptr; // Initialize to nullptr first to avoid issues during construction
+
+    // subtrees
+    /**
+     * @todo Subtree implementation
+     */
+    std::vector<FuncTree<RETURN_TYPE>*> subtrees;
 
     //------------------------------------------
     // Functions
@@ -274,19 +281,19 @@ private:
 template<typename RETURN_TYPE>
 template<typename ClassType>
 void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(ClassType* obj, RETURN_TYPE (ClassType::*method)(int, char**), const std::string& name, const std::string& help) {
-    // Making sure the function name is not registered in the subtree
-    // Note: subtree is checked only after constructor completes, so this should be safe
+    // Making sure the function name is not registered in the inherited FuncTree
+    // Note: inherited FuncTree is checked only after constructor completes, so this should be safe
     // The only overwrite that is allowed is the help function
-    if (linkedSubTree && name != "help" && linkedSubTree->hasFunction(name)) {
+    if (inheritedTree && name != "help" && inheritedTree->hasFunction(name)) {
         // Throw a proper error
         // exit the entire program
         std::cerr << "---------------------------------------------------------------\n";
         std::cerr << "A Nebulite FuncTree initialization failed!\n";
-        std::cerr << "Error: A bound Function already exists in the subtree.\n";
+        std::cerr << "Error: A bound Function already exists in the inherited FuncTree.\n";
         std::cerr << "Function overwrite is heavily discouraged and thus not allowed.\n";
         std::cerr << "Please choose a different name or remove the existing function.\n";
         std::cerr << "This Tree: " << TreeName << "\n";
-        std::cerr << "Subtree:   " << linkedSubTree->TreeName << "\n";
+        std::cerr << "inherited FuncTree:   " << inheritedTree->TreeName << "\n";
         std::cerr << "Function:  " << name << "\n";
         std::exit(EXIT_FAILURE);  // Exit with failure status
 
@@ -332,12 +339,12 @@ std::vector<std::pair<std::string, std::string>> Nebulite::Interaction::Executio
         allFunctions.emplace_back(name, info.description);
     }
 
-    // Get from subtree
-    if(linkedSubTree) {
-        auto subtreeFunctions = linkedSubTree->getAllFunctions();
+    // Get from inherited FuncTree
+    if(inheritedTree) {
+        auto inherited FuncTreeFunctions = inheritedTree->getAllFunctions();
 
         // Case by case, making sure we do not have duplicates
-        for (const auto& [name, description] : subtreeFunctions) {
+        for (const auto& [name, description] : inherited FuncTreeFunctions) {
             if (functions.find(name) == functions.end()) {
                 allFunctions.emplace_back(name, description);
             }
@@ -353,12 +360,12 @@ std::vector<std::pair<std::string, std::string>> Nebulite::Interaction::Executio
         allVariables.emplace_back(name, info.description);
     }
 
-    // Get from subtree
-    if(linkedSubTree) {
-        auto subtreeVariables = linkedSubTree->getAllVariables();
+    // Get from inherited FuncTree
+    if(inheritedTree) {
+        auto inherited FuncTreeVariables = inheritedTree->getAllVariables();
 
         // Case by case, making sure we do not have duplicates
-        for (const auto& [name, description] : subtreeVariables) {
+        for (const auto& [name, description] : inherited FuncTreeVariables) {
             if (variables.find(name) == variables.end()) {
                 allVariables.emplace_back(name, description);
             }
@@ -454,7 +461,7 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(co
     /*
     std::cout << "[DEBUG_FUNC_TREE] Parsing command: " << cmd << std::endl;
     std::cout << "[DEBUG_FUNC_TREE] FuncTree address: " << this << std::endl;
-    std::cout << "[DEBUG_FUNC_TREE] Subtree address:  " << linkedSubTree << std::endl;
+    std::cout << "[DEBUG_FUNC_TREE] inherited FuncTree address:  " << inheritedTree << std::endl;
     std::cout << "[DEBUG_FUNC_TREE] Available commands: " << std::endl;
     auto list = getAllFunctions();
     // Sort alphabetically
@@ -466,10 +473,10 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(co
     }
     //*/ 
     
-    // Prerequisite if a subtree is linked
-    if(linkedSubTree != nullptr && !hasFunction(cmd)) {
-        // Assume the subtree can handle the command
-        return linkedSubTree->parseStr(cmd);
+    // Prerequisite if a inherited FuncTree is linked
+    if(inheritedTree != nullptr && !hasFunction(cmd)) {
+        // Assume the inherited FuncTree can handle the command
+        return inheritedTree->parseStr(cmd);
     }
 
     // Quote-aware tokenization
