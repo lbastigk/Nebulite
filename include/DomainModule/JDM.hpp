@@ -23,8 +23,9 @@ namespace DomainModule{
 void JDM_init(Nebulite::Utility::JSON* target){
     #if JDM_ENABLED
         // Initialize DomainModules
-        target->createDomainModuleOfType<Nebulite::DomainModule::JSON::SimpleData>();
-        target->createDomainModuleOfType<Nebulite::DomainModule::JSON::ComplexData>();
+        using namespace Nebulite::DomainModule::JSON;
+        target->initModule<SimpleData>("JSON Simple Data Functions");
+        target->initModule<ComplexData>("JSON Complex Data Functions");
     #endif
 }
 }

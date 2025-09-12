@@ -83,8 +83,8 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Logging(Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(domain, funcTreePtr) {
+    Logging(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(moduleName, domain, funcTreePtr) {
         bindFunction(&Logging::echo,        "echo",         "Prints the arguments to the console");
         bindFunction(&Logging::log,         "log",          "Logs the RenderObject to a file");
         bindFunction(&Logging::logValue,    "log-value",    "Logs a specific value: <key> <file>");

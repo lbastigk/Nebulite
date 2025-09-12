@@ -60,8 +60,8 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    ForceValue(Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(domain, funcTreePtr) {
+    ForceValue(std::string moduleName, Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(moduleName, domain, funcTreePtr) {
         // Binding
         bindFunction(&ForceValue::force,      "force",         "Force a variable to a value: force-global <key> <value>");
         bindFunction(&ForceValue::forceClear, "force-clear",   "Clear all forced variables");

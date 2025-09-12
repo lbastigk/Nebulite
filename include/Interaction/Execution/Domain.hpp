@@ -53,8 +53,10 @@ namespace Execution{
 template<typename DomainType>
 class Domain{
 public:
-    Domain(std::string domainName, Nebulite::Utility::JSON* doc)
+    Domain(std::string domainName, DomainType* domain, Nebulite::Utility::JSON* doc)
     {
+        this->domainName = domainName;
+        this->domain = domain;
         this->doc = doc;
         funcTree = new Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>( 
                 domainName, 
@@ -69,8 +71,8 @@ public:
      * @tparam DomainModuleType The type of module to initialize
      */
     template<typename DomainModuleType>
-    void createDomainModuleOfType() {
-        auto DomainModule = std::make_unique<DomainModuleType>(domain, funcTree);
+    void initModule(std::string moduleName) {
+        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, funcTree);
         modules.push_back(std::move(DomainModule));
     }
 
@@ -172,6 +174,7 @@ public:
     std::vector<std::unique_ptr<Nebulite::Interaction::Execution::DomainModule<DomainType>>> modules;
 
 private:
+    std::string domainName;
 
     /**
      * @brief Each domain uses a JSON document to store its data.

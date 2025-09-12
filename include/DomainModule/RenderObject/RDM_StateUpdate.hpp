@@ -71,8 +71,8 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    StateUpdate(Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(domain, funcTreePtr) {
+    StateUpdate(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(moduleName, domain, funcTreePtr) {
         bindFunction(&StateUpdate::deleteObject,        "delete",               "Marks object for deletion");
         bindFunction(&StateUpdate::updateText,          "update-text",          "Calculate text texture");
         bindFunction(&StateUpdate::reloadInvokes,       "reload-invokes",       "Reload all invokes");

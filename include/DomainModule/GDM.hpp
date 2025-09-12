@@ -27,12 +27,13 @@ namespace DomainModule{
 void GDM_init(Nebulite::Core::GlobalSpace* target){
     #if GDM_ENABLED
         // Initialize DomainModules
-        target->createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::General>();
-        target->createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::Renderer>();
-        target->createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::Debug>();
-        target->createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::GUI>();
-        target->createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::Input>();
-        target->createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::RenderObjectDraft>();
+        using namespace Nebulite::DomainModule::GlobalSpace;
+        target->initModule<General>("Global General Functions");
+        target->initModule<Renderer>("Global Renderer Functions");
+        target->initModule<Debug>("Global Debug Functions");
+        target->initModule<GUI>("Global GUI Functions");
+        target->initModule<Input>("Global Input Functions");
+        target->initModule<RenderObjectDraft>("Global RenderObjectDraft Functions");
         
         // Initialize Variable Bindings
         target->bindVariable(&target->cmdVars.headless, "headless", "Set headless mode (no renderer)");

@@ -127,8 +127,8 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    SimpleData(Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(domain, funcTreePtr) {
+    SimpleData(std::string moduleName, Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(moduleName, domain, funcTreePtr) {
         // Bind functions specific to complex data handling
         bindFunction(&SimpleData::set, "set", "Set a key to a value in the JSON document: <key> <value>");
 

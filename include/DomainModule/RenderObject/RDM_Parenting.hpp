@@ -80,8 +80,8 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Parenting(Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(domain, funcTreePtr) {
+    Parenting(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(moduleName, domain, funcTreePtr) {
         bindFunction(&Parenting::addChildren, "add-children", "Adds children of the RenderObject by name");
         bindFunction(&Parenting::removeChildren, "remove-children", "Removes children from the RenderObject");
         bindFunction(&Parenting::removeAllChildren, "remove-all-children", "Removes all children from the RenderObject");

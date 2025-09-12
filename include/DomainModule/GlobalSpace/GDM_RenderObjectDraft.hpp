@@ -112,8 +112,8 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    RenderObjectDraft(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(domain, funcTreePtr) {
+    RenderObjectDraft(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(moduleName, domain, funcTreePtr) {
         // Bind functions
         bindFunction(&RenderObjectDraft::draftHelp,   "draft-help",    "Available functions for the RenderObjectDraft");
         bindFunction(&RenderObjectDraft::onDraft,     "on-draft",      "Parse Renderobject-specific functions on the draft");

@@ -237,8 +237,8 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Renderer(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(domain, funcTreePtr) {
+    Renderer(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(moduleName, domain, funcTreePtr) {
         bindFunction(&Renderer::spawn,               "spawn",        "Spawn a renderobject");
         bindFunction(&Renderer::envload,             "env-load",     "Load environment/level");
         bindFunction(&Renderer::envdeload,           "env-deload",   "Deload entire environment");

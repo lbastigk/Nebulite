@@ -6,7 +6,7 @@
 // Special member Functions
 
 Nebulite::Core::RenderObject::RenderObject(Nebulite::Utility::JSON* global) 
-: global(global), Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>("RenderObject",&json) {
+: global(global), Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>("RenderObject", this, &json) {
 
 	//------------------------------------------
 	// Document Values

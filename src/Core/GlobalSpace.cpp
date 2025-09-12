@@ -2,7 +2,7 @@
 #include "DomainModule/GDM.hpp"
 
 Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
-: Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite",&global)
+: Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite", this, &global)
 {
     //------------------------------------------
     // Modify structs                         

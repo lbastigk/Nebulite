@@ -9,7 +9,7 @@
 #define FLUSH_DEBUG 0
 
 Nebulite::Utility::JSON::JSON()
-: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON",this)
+: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this)
 {
     std::lock_guard<std::recursive_mutex> lock(mtx);
     doc.SetObject();
@@ -17,7 +17,7 @@ Nebulite::Utility::JSON::JSON()
 }
 
 Nebulite::Utility::JSON::JSON(JSON&& other) noexcept
-: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON",this)
+: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this)
 {
     std::scoped_lock lock(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);

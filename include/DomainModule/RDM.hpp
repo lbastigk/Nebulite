@@ -26,10 +26,11 @@ namespace DomainModule{
 void RDM_init(Nebulite::Core::RenderObject* target){
     #if RDM_ENABLED
         // Initialize DomainModules
-        target->createDomainModuleOfType<Nebulite::DomainModule::RenderObject::Layout>();
-        target->createDomainModuleOfType<Nebulite::DomainModule::RenderObject::Logging>();
-        target->createDomainModuleOfType<Nebulite::DomainModule::RenderObject::Parenting>();
-        target->createDomainModuleOfType<Nebulite::DomainModule::RenderObject::StateUpdate>();
+        using namespace Nebulite::DomainModule::RenderObject;
+        target->initModule<Layout>("RenderObject Layout Functions");
+        target->initModule<Logging>("RenderObject Logging Functions");
+        target->initModule<Parenting>("RenderObject Parenting Functions");
+        target->initModule<StateUpdate>("RenderObject State Update Functions");
     #endif
 }
 }

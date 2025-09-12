@@ -186,11 +186,21 @@ public:
     commandLineVariables cmdVars;
 
 private:
+    //------------------------------------------
+    // General Variables
+
     // Global JSON Document
     Nebulite::Utility::JSON global;
 
     //------------------------------------------
-    // Other Variables
+    // Structs
+
+    // For resolving tasks
+    struct QueueResult {
+        Nebulite::Core::taskQueueResult script;       // Result of script-tasks
+        Nebulite::Core::taskQueueResult internal;     // Result of internal-tasks
+        Nebulite::Core::taskQueueResult always;       // Result of always-tasks
+    }queueResult;
 
     /**
      * @brief Contains names used in the global space that are not bound to the global document.
@@ -214,13 +224,6 @@ private:
      */
     bool rendererInitialized = false;
     std::unique_ptr<Nebulite::Core::Renderer> renderer;
-
-    // For resolving tasks
-    struct QueueResult {
-        Nebulite::Core::taskQueueResult script;       // Result of script-tasks
-        Nebulite::Core::taskQueueResult internal;     // Result of internal-tasks
-        Nebulite::Core::taskQueueResult always;       // Result of always-tasks
-    }queueResult;
 };
 }   // namespace Core
 }   // namespace Nebulite

@@ -73,8 +73,8 @@ public:
      * The constructor initializes the DomainModule with a reference to the domain and
      * the FuncTree.
      */
-    DomainModule(DomainType* domain, FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr)
-        : domain(domain), funcTree(funcTreePtr) {}
+    DomainModule(std::string moduleName, DomainType* domain, FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr)
+        : moduleName(moduleName), domain(domain), funcTree(funcTreePtr) {}
 
     /**
      * @brief Virtual update function to be overridden by derived classes.
@@ -127,6 +127,8 @@ public:
 
 protected:
     //------------------------------------------
+    // Name of Module
+    std::string moduleName;
     
     //------------------------------------------
     // Linkages
