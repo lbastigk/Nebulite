@@ -37,10 +37,16 @@ namespace GlobalSpace {
  */
 class Input : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
+    /**
+     * @brief Updates the input states of mouse and keyboard 
+     * stored in the global document by polling SDL events.
+     */
     void update();
 
     //------------------------------------------
     // Available Functions
+
+    // None, input just updates the global doc based on SDL events
 
     //------------------------------------------
     // Setup
@@ -62,6 +68,9 @@ public:
     }
 
 private:
+    //---------------------------------
+    // Functions
+
     /**
      * @brief Maps SDL scancodes to human-readable key names.
      * 
@@ -81,13 +90,25 @@ private:
     void reset_delta_values();
 
     //---------------------------------
-    // Private vars
+    // Variables
 
-    // Used for determining when to poll inputs
-    std::shared_ptr<Nebulite::Utility::TimeKeeper> RendererPollTime;    // Timer for input handling
-    bool reset_delta_on_next_update = false; 		                    // Making sure delta values are only active for one frame
+    /**
+     * @brief Timer for input handling.
+     * 
+     * If last update is over a threshold, we poll for input again.
+     */
+    std::shared_ptr<Nebulite::Utility::TimeKeeper> RendererPollTime;
 
-    // Mouse state
+    /**
+     * @brief Flag to reset delta values on the next update.
+     */
+    bool reset_delta_on_next_update = false;
+
+    /**
+     * @struct Mouse
+     * 
+     * @brief Stores current and last Position/State of the mouse.
+     */
     struct Mouse {
         int posX = 0;
         int posY = 0;
@@ -97,12 +118,17 @@ private:
         Uint32 state;
     } mouse;
 
-    // Map of SDL Scancode to key name
+    /**
+     * @brief Array to store key names corresponding to SDL scancodes.
+     */
     std::string keyNames[SDL_NUM_SCANCODES] = {""};
-    
-    // Keyboard state
-    // We do not need to store current key states,
-    // as SDL does that for us.
+
+    /**
+     * @brief Array to store previous key states.
+     * 
+     * We do not need to store current key states,
+     * as SDL does that for us.
+     */
     bool prevKey[SDL_NUM_SCANCODES] = {false};      // Previous key states
 };
 }   // namespace GlobalSpace
