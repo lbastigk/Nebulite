@@ -67,15 +67,6 @@ public:
     // Available Functions
 
     /**
-     * @brief Prints all available help information for the RenderObjectTree
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: All additional arguments for the help command
-     * @return Potential errors that occured on command execution
-     */
-    Nebulite::Constants::ERROR_TYPE draftHelp(int argc, char* argv[]);
-
-    /**
      * @brief Parse Renderobject-specific functions on the draft
      * 
      * @param argc The argument count
@@ -116,7 +107,6 @@ public:
     : DomainModule(moduleName, domain, funcTreePtr) {
         // Bind functions
         bindSubtree("draft", "Functions to manipulate and spawn RenderObjects in draft state");
-        //bindFunction(&RenderObjectDraft::draftHelp,   "draft help",    "Available functions for the RenderObjectDraft");
         bindFunction(&RenderObjectDraft::onDraft,     "draft modify",  "Parse Renderobject-specific functions on the draft");
         bindFunction(&RenderObjectDraft::spawnDraft,  "draft spawn",   "Spawn the created draft object");
         bindFunction(&RenderObjectDraft::resetDraft,  "draft reset",   "Reset the draft object (does not reset any spawned ones!)");

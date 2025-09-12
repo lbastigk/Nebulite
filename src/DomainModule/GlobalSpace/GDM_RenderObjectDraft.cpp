@@ -13,24 +13,6 @@ void Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::update() {
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::draftHelp(int argc, char* argv[]) {
-    if(argc != 1) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS; // No arguments expected
-    }
-
-    // Implementation of draftHelp
-    std::string command = "Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::draftHelp help";
-
-    // Add additional arguments
-    for(int i = 2; i < argc; ++i) {
-        command += " ";
-        command += argv[i];
-    }
-
-    // Parse the command
-    return draft->parseStr(command);
-}
-
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::onDraft(int argc, char* argv[]) {
     if(argc < 2){
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
