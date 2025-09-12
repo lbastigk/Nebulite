@@ -86,8 +86,8 @@ public:
     /**
      * @brief Binds all functions from a inherited FuncTree to the main FuncTree for parsing.
      */
-    void inherit(Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* inherited FuncTree){
-        funcTree->inherit(inherited FuncTree);
+    void inherit(Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* inheritedFuncTree){
+        funcTree->inherit(inheritedFuncTree);
     }
 
     //------------------------------------------

@@ -29,17 +29,6 @@
  *                          //   cerr: "Function 'someOtherFunction' not found."
  * ```
  * 
- * @todo Automatic subtree generation
- * If a function is linked with multiple args: bindFunction(&fun,"myCategory myFunction","Description");
- * Create a subtree for "myCategory" and add the function to it
- * As well as binding an entry function for the subtree
- * This way, the user can call "myCategory myFunction" and it will execute the function
- * If the user calls "myCategory", it will show the help for the subtree
- * This simplifies the command structure a lot and allows for more modular command trees
- * Also, allow for users to add help information to the subtree itself, e.g.:
- * bindSubtree("myCategory", "This is a category of functions");
- * Perhaps even throwing an error if the user tries to bind a function to a subtree that does not exist
- * 
  * @todo Going away from classic C-style argc/argv to a more modern approach might be
  * - std::vector<std::string> callTrace // shows the call trace of the function, e.g.: "Nebulite", "eval", "echo"
  * - std::vector<std::string> args      // shows the arguments of the function, e.g.: "echo", "Hello World!"
@@ -155,6 +144,25 @@ public:
     RETURN_TYPE parseStr(const std::string& cmd);
 
     /**
+     * @brief Creates a subtree.
+     * 
+     * A subtree acts a "function bundler" to the main tree.
+     * 
+     * @param name Name of the subtree
+     * @return true if the subtree was created successfully, 
+     * false if a subtree with the same name already exists.
+     */
+    bool bindSubtree(const std::string& name, const std::string& description){
+        if(subtrees.find(name) != subtrees.end()){
+            // Subtree already exists
+            std::cerr << "Warning: A subtree with the name '" << name << "' already exists in the FuncTree '" << TreeName << "'." << std::endl;
+            return false;
+        }
+        subtrees[name] = {std::make_unique<FuncTree<RETURN_TYPE>>(name, _standard, _functionNotFoundError), description};
+        return true;
+    }
+
+    /**
      * @brief Binds a function to the command tree.
      * 
      * Make sure the function has the signature:
@@ -225,11 +233,19 @@ private:
     // inherited FuncTree linked to this tree
     FuncTree<RETURN_TYPE>* inheritedTree = nullptr; // Initialize to nullptr first to avoid issues during construction
 
-    // subtrees
     /**
-     * @todo Subtree implementation
+     * @struct subtree
+     * @brief Represents a subtree within the FuncTree with its description.
      */
-    std::vector<FuncTree<RETURN_TYPE>*> subtrees;
+    struct subtree {
+        std::unique_ptr<FuncTree<RETURN_TYPE>> tree;
+        std::string description;
+    };
+
+    /**
+     * @brief Map of subtrees within the FuncTree.
+     */
+    absl::flat_hash_map<std::string, subtree> subtrees;
 
     //------------------------------------------
     // Functions
@@ -281,6 +297,53 @@ private:
 template<typename RETURN_TYPE>
 template<typename ClassType>
 void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(ClassType* obj, RETURN_TYPE (ClassType::*method)(int, char**), const std::string& name, const std::string& help) {
+    // If the name has a whitespace, the function has to be bound to a subtree
+    if(name.find(' ') != name.npos){
+        // Split the name by whitespace
+        auto parts = Nebulite::Utility::StringHandler::split(name, ' ');
+        if(parts.size() < 2){
+            std::cerr << "Error: Invalid function name '" << name << "'." << std::endl;
+            return;
+        }
+        std::string subtreeName = parts[0];
+
+        // We re-join the rest of the parts to form the argument for the subtree
+        // If there are more than 2 parts, the subtree will create a new subtree
+        std::string functionName = parts[1];
+        for(int i = 2; i < parts.size(); i++){
+            functionName += parts[i];
+        }
+
+        // Check if the subtree exists
+        if(subtrees.find(subtreeName) == subtrees.end()){
+            // If the subtree does not exist, throw an exception
+            // This only fails on an improper function binding,
+            // meaning we tried to bind a function to a subtree that does not exist
+            // exit the entire program
+            std::cerr << "---------------------------------------------------------------" << std::endl;
+            std::cerr << "A Nebulite FuncTree binding failed!" << std::endl;;
+            std::cerr << "Error: Subtree '" << subtreeName << "' does not exist when trying to bind function '" << name << "'." << std::endl;;
+            std::cerr << "Please create the subtree first using bindSubtree()." << std::endl;;
+            std::cerr << "This Tree: " << TreeName << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        // Bind the function to the subtree
+        subtrees[subtreeName].tree->bindFunction(obj, method, functionName, help);
+
+        return; // Function bound to subtree, return
+    }
+
+    // Make sure the function to bind is not a subtree
+    for (const auto& [subtreeName, subtree] : subtrees) {
+        if (subtreeName == name) {
+            std::cerr << "---------------------------------------------------------------" << std::endl;
+            std::cerr << "A Nebulite FuncTree binding failed!" << std::endl;
+            std::cerr << "Error: Cannot bind function '" << name << "' because a subtree with the same name already exists." << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+
     // Making sure the function name is not registered in the inherited FuncTree
     // Note: inherited FuncTree is checked only after constructor completes, so this should be safe
     // The only overwrite that is allowed is the help function
@@ -341,15 +404,21 @@ std::vector<std::pair<std::string, std::string>> Nebulite::Interaction::Executio
 
     // Get from inherited FuncTree
     if(inheritedTree) {
-        auto inherited FuncTreeFunctions = inheritedTree->getAllFunctions();
+        auto inheritedFuncTreeFunctions = inheritedTree->getAllFunctions();
 
         // Case by case, making sure we do not have duplicates
-        for (const auto& [name, description] : inherited FuncTreeFunctions) {
+        for (const auto& [name, description] : inheritedFuncTreeFunctions) {
             if (functions.find(name) == functions.end()) {
                 allFunctions.emplace_back(name, description);
             }
         }
     }
+
+    // Get just the names of the subtrees
+    for (const auto& [subtreeName, subtree] : subtrees) {
+        allFunctions.emplace_back(subtreeName, subtree.description);
+    }
+
     return allFunctions;
 }
 
@@ -362,10 +431,10 @@ std::vector<std::pair<std::string, std::string>> Nebulite::Interaction::Executio
 
     // Get from inherited FuncTree
     if(inheritedTree) {
-        auto inherited FuncTreeVariables = inheritedTree->getAllVariables();
+        auto inheritedFuncTreeFunctions = inheritedTree->getAllVariables();
 
         // Case by case, making sure we do not have duplicates
-        for (const auto& [name, description] : inherited FuncTreeVariables) {
+        for (const auto& [name, description] : inheritedFuncTreeFunctions) {
             if (variables.find(name) == variables.end()) {
                 allVariables.emplace_back(name, description);
             }
@@ -457,23 +526,7 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parse(int a
 
 template<typename RETURN_TYPE>
 RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(const std::string& cmd) {
-    // Debugging parse process
-    /*
-    std::cout << "[DEBUG_FUNC_TREE] Parsing command: " << cmd << std::endl;
-    std::cout << "[DEBUG_FUNC_TREE] FuncTree address: " << this << std::endl;
-    std::cout << "[DEBUG_FUNC_TREE] inherited FuncTree address:  " << inheritedTree << std::endl;
-    std::cout << "[DEBUG_FUNC_TREE] Available commands: " << std::endl;
-    auto list = getAllFunctions();
-    // Sort alphabetically
-    std::sort(list.begin(), list.end(), [](const auto& a, const auto& b) {
-        return a.first < b.first;
-    });
-    for (const auto& [name, desc] : list) {
-        std::cout << " - " << name << std::endl;
-    }
-    //*/ 
-    
-    // Prerequisite if a inherited FuncTree is linked
+    // Prerequisite if an inherited FuncTree is linked
     if(inheritedTree != nullptr && !hasFunction(cmd)) {
         // Assume the inherited FuncTree can handle the command
         return inheritedTree->parseStr(cmd);
@@ -501,14 +554,25 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::executeFunc
     std::string function = name;
     function = Nebulite::Utility::StringHandler::lstrip(name, ' ');
     function = Nebulite::Utility::StringHandler::rstrip(name, ' ');
-
     auto functionPosition = functions.find(function);
     if (functionPosition != functions.end()) {
         auto& [functionPtr, description] = functionPosition->second;
         return functionPtr(argc, argv);  // Call the function
     } else {
-        std::cerr << "Function '" << function << "' not found.\n";
-        return _functionNotFoundError;  // Return error if function not found
+        // Find function name in subtrees
+        if(subtrees.find(function) != subtrees.end()){
+            return subtrees[function].tree->parse(argc, argv);
+        }
+        else{
+            std::cerr << "Function '" << function << "' not found in FuncTree " << TreeName << " or its SubTrees!\n";
+            std::cerr << "Arguments are:" << std::endl;
+            for(int i = 0; i < argc; i++){
+                std::cerr << "argv[" << i << "] = '" << argv[i] << "'\n";
+            }
+            std::cerr << "Available functions: " << functions.size() << std::endl;
+            std::cerr << "Available SubTrees:  " << subtrees.size()  << std::endl;
+            return _functionNotFoundError;  // Return error if function not found
+        }
     }
 }
 
@@ -532,15 +596,25 @@ bool Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::hasFunction(const 
     if (tokens.empty()) {
         return false;  // No command provided
     }
+
+    // Depending on token count, function name is at different positions
+    std::string function;
     if(tokens.size() == 1){
+        // Case 1:
         // Is a single function name. 
         // e.g.: "set"
-        return functions.find(tokens[0]) != functions.end();
+        function = tokens[0];
     }
-    // Is a full command
-    // e.g.: <whereCommandComesFrom> set key value
-    return functions.find(tokens[1]) != functions.end();
-
+    else{
+        // Case 2:
+        // Is a full command
+        // e.g.: <whereCommandComesFrom> set key value
+        function = tokens[1];
+    }
+    
+    // See if the function is linked
+    return  (functions.find(function) != functions.end()) || 
+            (subtrees.find(function)  != subtrees.end());
 }
 
 template<typename RETURN_TYPE>

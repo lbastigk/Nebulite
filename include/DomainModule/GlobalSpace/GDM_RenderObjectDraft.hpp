@@ -115,10 +115,11 @@ public:
     RenderObjectDraft(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         // Bind functions
-        bindFunction(&RenderObjectDraft::draftHelp,   "draft-help",    "Available functions for the RenderObjectDraft");
-        bindFunction(&RenderObjectDraft::onDraft,     "on-draft",      "Parse Renderobject-specific functions on the draft");
-        bindFunction(&RenderObjectDraft::spawnDraft,  "spawn-draft",   "Spawn the created draft object");
-        bindFunction(&RenderObjectDraft::resetDraft,  "reset-draft",   "Reset the draft object (does not reset any spawned ones!)");
+        bindSubtree("draft", "Functions to manipulate and spawn RenderObjects in draft state");
+        //bindFunction(&RenderObjectDraft::draftHelp,   "draft help",    "Available functions for the RenderObjectDraft");
+        bindFunction(&RenderObjectDraft::onDraft,     "draft modify",  "Parse Renderobject-specific functions on the draft");
+        bindFunction(&RenderObjectDraft::spawnDraft,  "draft spawn",   "Spawn the created draft object");
+        bindFunction(&RenderObjectDraft::resetDraft,  "draft reset",   "Reset the draft object (does not reset any spawned ones!)");
     }
 
 private:

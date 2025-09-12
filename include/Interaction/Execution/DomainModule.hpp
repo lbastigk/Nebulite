@@ -107,6 +107,10 @@ public:
         );
     }
 
+    bool bindSubtree(const std::string& name, const std::string& description) {
+        return funcTree->bindSubtree(name, description);
+    }
+
     /**
      * @brief Binds a variable to the command tree.
      * 
