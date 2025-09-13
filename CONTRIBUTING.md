@@ -1,6 +1,6 @@
 # Contributing to Nebulite
 
-We welcome contributions! Nebulite's modular architecture makes it easy to add features in separate files.
+We welcome contributions! Nebulite's modular architecture makes it easy to add features in separate files and barely touching existing ones.
 
 ## Development Setup
 
@@ -20,18 +20,17 @@ Using VSCode is recommended for an optimal workflow. The project includes precon
 
 Build and test your changes:
 ```bash
-./build.sh && cd Application && ./Tests.sh
+./build.sh && ./Scripts/Tests.sh
 ```
 
 ## Testing
 
-Go into the Application directory first: `cd Application/`
+- Use `./Scripts/Tests.sh` for preconfigured tests
+- Use `./Scripts/CrashDebug.sh` for debugging crashes with predefined taskfiles
+- Use `./Scripts/MemLeakTest.sh` for memory leak testing using `valgrind` and `massif-visualizer`
+- Use the VSCode debugger and its existing tasks
 
-- Use `Tests.sh` for preconfigured tests
-- Use `CrashDebug.sh` for debugging crashes with predefined taskfiles
-- Use `MemLeakTest.sh` for memory leak testing using `valgrind` and `massif-visualizer`
-
-You can add custom taskfiles to the test suite by extending the `tests` variable, or run them independently:
+You can add custom taskfiles to the test suite by extending the `tests` variable inside `./Scripts/Tests.sh`, or run them independently:
 ```bash
 ./bin/Nebulite task TaskFiles/.../your_test.txt
 ```
@@ -48,18 +47,18 @@ You can quickly verify the correctness of an expression with the command line:
 Nebulite offers clean expansions of its functionality through its DomainModules. 
 Maintainers can create their own module classes and add them to a specific domain.
 
-| New commands operating on... | Action                        | Info                                                                    |
+| Domain: Commands operating on... | Action                                                  | Info                                                                    |
 |------------------------------|-------------------------------|-------------------------------------------------------------------------|
-| global level                 | Extend the `GlobalSpaceTree`  | See `include/Interaction/Execution/GlobalSpaceTree.h` and its modules `include/DomainModule/GlobalSpace/GTE_*.h`    |
-| specific RenderObjects       | Extend the `RenderObjectTree` | See `include/Interaction/Execution/RenderObjectTree.h` and its modules `include/DomainModule/RenderObject/RTE_*.h`   |
-| specific JSON-Documents      | Extend the `JSONTree`         | See `include/Interaction/Execution/JSONTree.h` and its modules `include/DomainModule/JSON/JTE_*.h`           |
+| Global level                     | Extend `GDM.hpp` by creating GlobalSpace DomainModules  | See `include/Interaction/Execution/GlobalSpace.h` and its modules `include/DomainModule/GlobalSpace/GTE_*.h` |
+| Specific RenderObjects           | Extend `RDM.hpp` by creating RenderObject DomainModules | See `include/Core/RenderObject.h` and its modules `include/DomainModule/RenderObject/RTE_*.h` |
+| Specific JSON-Documents          | Extend `JDM.hpp` by creating JSON DomainModules         | See `include/Utility/JSON.h` and its modules `include/DomainModule/JSON/JTE_*.h` |
 
-Each Class has access to a different tree through `funcTree->...` and a different domain through `domain->...`: 
-- `GlobalSpaceTree` can access the global space
-- `RenderObjectTree` can access the attached RenderObject
-- `JSONTree` can access the attached JSON
+Each DomainModule has access to a different set of functions through `funcTree->...` and a different domain through `domain->...`: 
+- `GlobalSpace` modules can access the global space
+- `RenderObject` modules can access the attached RenderObject
+- `JSON` modules can access the attached JSON
 
-Each Tree extension can make use of an update routine, allowing us to declutter classes:
+Each DomainModule can make use of an update routine, allowing us to declutter classes:
 - input-reading
 - state-update
 - lifetime management
@@ -76,24 +75,21 @@ from the base class.
 
 ### Function Collision Prevention
 
-- The `GlobalSpaceTree` automatically inherits all functions from `JSONTree`, which act on the global document
-- The `RenderObjectTree` automatically inherits all functions from `JSONTree`, which act on the objects document
+- `GlobalSpace` automatically inherits all functions from `JSON`, which act on the global document
+- `RenderObject` automatically inherits all functions from `JSON`, which act on the objects document
 
 It is **not allowed** to overwrite already existing functions:
 - If the function `set` was already declared, it is not possible to declare a new `set` function in that same tree
 - If the function `set` was already declared for the subtree, it is not possible to declare a new `set` function in the Tree that inherits the function
 
-## Example: Adding a New GlobalSpaceTree Feature
+## Example: Adding a New GlobalSpace Feature
 
 ### Step-by-Step Process
 
 1. **Create expansion file:** `GDM_MyModule.{hpp,cpp}`
 2. **Inherit from DomainModule base class:** Create class inheriting from `Nebulite::Interaction::Execution::DomainModule<DomainClass>`
 3. **Implement command methods:** Functions with `ERROR_TYPE (int argc, char* argv[])` signature
-4. **Constructor:** Initialize the base class, setup variables and bind functions/variables to the domain
-5. **update** Add all necessary update-procedures within the tree
-6. **Add to GlobalSpaceTree:** Include in `include/Interaction/Execution/GlobalSpaceTree.h`, add to the module vector in the constructor inside `src/Interaction/Execution/GlobalSpaceTree.cpp`
-7. **Command line Variables** are added inside the constructor as well
+4. **DomainModule init** inside `include/DomainModule/{GDM,JDM,RDM}.hpp`, initialize the DomainModule
 
 ### Complete Code Example
 
@@ -134,15 +130,25 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    MyModule(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(domain, funcTreePtr) {
+    MyModule(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    : DomainModule(moduleName, domain, funcTreePtr) {
+        //------------------------------------------
+        // Binding functions to the FuncTree
         bindFunction(&MyModule::spawnCircle, "spawn-circle", "Spawn a circle");
         /*Bind more functions of MyModule here*/
+        /*You can also implement sublevels to the command using the subtree feature:*/
+        bindSubtree("spawn","Spawn functions");
+        bindSubtree("spawn geometry", "Geometric forms");
+        bindFunction(&MyModule::spawnCircle, "spawn geometry circle", "Spawn a circle");
     }
+private:
+    /*Add necessary variables here*/
 };
 }
 }
 ```
+
+As well as the method implementations in `src/DomainModule/GlobalSpace/MyFeature.hpp`
 
 **Inside GDM_MyModule.cpp:**
 ```cpp
@@ -150,53 +156,51 @@ public:
 #include "Core/GlobalSpace.hpp"
 
 void Nebulite::DomainModule::GlobalSpace::MyModule::update(){
-    // If our expansion uses any internal values that need to be updated on each frame
+    // If our expansion uses any internal values 
+    // that need to be updated on each frame
     // We can update them here
 }
 
 Nebulite::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::MyModule::spawnCircle(int argc, char* argv[]){
     /*
     Implementation here.
-    You can access the global space and its members through: self->...
-    As well as the funcTree through: funcTree->...
+    You can access domain and its members through: 
+    `domain->...`
+    As well as the funcTree through: 
+    `funcTree->...`
     */
 }
 ```
 
-**Then add the header file to include/GlobalSpaceTree.hpp:**
+**Then add the header file to include/DomainModule/GDM.hpp and initialize:**
+
 ```cpp
 /*..*/
 
 //------------------------------------------
-// Includes
-
-/**/
-
-// Nebulite DomainModules of GlobalSpaceTree
-/**/
-#include "DomainModule/GlobalSpace/GDM_MyModule.hpp"
-
-/**/
-```
-
-**And initialize in GlobalSpaceTree.cpp:**
-```cpp
-#include "Interaction/Execution/GlobalSpaceTree.hpp"
-#include "Core/GlobalSpace.hpp"       // Global Space for Nebulite
+// Module includes 
+#if GDM_ENABLED
+    /*...*/
+    #include "DomainModule/GlobalSpace/GDM_MyFeature.hpp"
+    /*...*/
+#endif
 
 //------------------------------------------
-// Linking ALL Functions to GlobalSpaceTree
-Nebulite::Interaction::Execution::GlobalSpaceTree::GlobalSpaceTree(Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::JSONTree* jsonTree)
-    : FuncTree<Nebulite::Constants::ERROR_TYPE>("Nebulite", Nebulite::Constants::ERROR_TYPE::NONE, Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID, jsonTree), domain(domain) 
-{
-  // Initialize DomainModules
-  /*...*/
-  createDomainModuleOfType<Nebulite::DomainModule::GlobalSpace::MyFeature>();
-
-
-  // Initialize Variable Bindings here, due to circular dependency issues
-  bindVariable(&domain->cmdVars.headless, "headless", "Set headless mode (no renderer)");
-  bindVariable(&domain->cmdVars.recover,  "recover",  "Enable recoverable error mode");
+namespace Nebulite{
+namespace DomainModule{
+/**
+ * @brief Inserts all DomainModules into the GlobalSpace domain.
+ */
+void GDM_init(Nebulite::Core::GlobalSpace* target){
+    #if GDM_ENABLED
+        // Initialize DomainModules
+        using namespace Nebulite::DomainModule::GlobalSpace;
+        /*...*/
+        target->initModule<MyFeature>("<Feature Description>");
+        /*...*/
+    #endif
+}
+}
 }
 ```
 
