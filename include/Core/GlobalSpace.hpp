@@ -75,8 +75,6 @@ struct taskQueueResult{
  *   - taskQueueResult: Stores the result of processing a task queue, including error codes and
  *     whether execution was stopped due to a critical error.
  * 
- *   - GlobalSpaceTree: The main function tree for parsing and executing engine commands.
- * 
  *   - renderer: Pointer to the main rendering engine, lazily initialized.
  * 
  *   - error logging: Facilities for redirecting and storing error output.
@@ -131,15 +129,6 @@ public:
      * @return The result of the task queue resolution.
      */
     Nebulite::Core::taskQueueResult resolveTaskQueue(Nebulite::Core::taskQueue& tq, uint64_t* waitCounter);
-
-    /**
-     * @brief Parses a given command string in the GlobalSpaceTree
-     * 
-     * The function ensures that the first argument is the binary name
-     * 
-     * @return The error type resulting from the parsing operation.
-     */
-    //Nebulite::Constants::ERROR_TYPE parseStr(std::string str);
 
     /**
      * @brief Parses the task queue for execution.

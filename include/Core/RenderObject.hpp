@@ -47,7 +47,7 @@ namespace Core {
  * 
  *   - Calculates computational cost estimates for update operations.
  * 
- *   - allows for flexible additions through the `RenderObjectTree` for local function calls.
+ *   - allows for flexible additions through DomainModules for local function calls.
  *
  * Interaction with Invoke:
  * 
@@ -247,7 +247,7 @@ private:
 	std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>> entries_global;		// Global commands, intended for self-other-global interaction
 	std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>> entries_local;		// Internal commands, intended for self-global interaction
 
-	// Each RenderObject with linkage to the global document for copy/move instructions in the renderObjectTree
+	// Each RenderObject with linkage to the global document
 	Nebulite::Utility::JSON* global;
 
 	// Size of subscriptions

@@ -37,24 +37,7 @@ namespace GlobalSpace {
  * @brief Utilities for creating and manipulating RenderObjects
  * 
  * Allows for the creation and manipulation of RenderObjects in a draft state.
- * Allowing us to easily create draft object to continously spawn:
- * ```bash
- * # Creating draft object
- * on-draft <modifier1>
- * on-draft <modifier2>
- * # Spawning object
- * spawn-draft
- * wait 10
- * spawn-draft
- * ```
- * Instead of applying modifierts to each new spawn, we use the in-memory draft.
- * 
- * It also exposes the Renderobject-Internal functions to the gui via a globally accessible help-function:
- * 
- * ```bash
- * ./bin/Nebulite help         # As the RenderObjectTree is not a inherited FuncTree of GlobalSpaceTree, this will NOT show RenderObject specific help.
- * ./bin/Nebulite draft-help   # However, this will
- * ```
+ * Allowing us to easily create draft object to continously spawn.
  */
 class RenderObjectDraft : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
 public:
@@ -71,8 +54,6 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: the arguments for the RenderObject to parse.
-     * See all RenderObjectTree functions for available options.
-     * Or use `./bin/Nebulite draft-help` to see all available options.
      * 
      * @return Potential errors that occured on command execution
      */

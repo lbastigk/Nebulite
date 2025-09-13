@@ -35,22 +35,22 @@ namespace Nebulite{
     namespace DomainModule{
         /**
          * @namespace Nebulite::DomainModule::GlobalSpace
-         * @brief Contains all classes, functions, types and variables related to the GlobalSpaceTree DomainModules.
-         * See files `GlobalSpaceTree.hpp` and `GDM_*.hpp` for usage.
+         * @brief Contains all classes, functions, types and variables related to the GlobalSpace DomainModules.
+         * See files `GlobalSpace.hpp`, `GDM.hpp` and `GDM_*.hpp` for usage.
          */
         namespace GlobalSpace{}
 
         /**
          * @namespace Nebulite::DomainModule::RenderObject
-         * @brief Contains all classes, functions, types and variables related to the RenderObjectTree DomainModules.
-         * See files `RenderObjectTree.hpp` and `RDM_*.hpp` for usage.
+         * @brief Contains all classes, functions, types and variables related to the RenderObject DomainModules.
+         * See files `RenderObject.hpp`, `RDM.hpp` and `RDM_*.hpp` for usage.
          */
         namespace RenderObject{}
 
         /**
-         * @namespace Nebulite::DomainModule::JSONTree
-         * @brief Contains all classes, functions, types and variables related to the JSONTree DomainModules.
-         * See files `JSONTree.hpp` and `JDM_*.hpp` for usage.
+         * @namespace Nebulite::DomainModule::JSON
+         * @brief Contains all classes, functions, types and variables related to the JSON DomainModules.
+         * See files `JSON.hpp`, `JDM.hpp` and `JDM_*.hpp` for usage.
          */
         namespace JSON{}
 

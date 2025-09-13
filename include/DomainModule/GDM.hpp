@@ -22,7 +22,7 @@
 namespace Nebulite{
 namespace DomainModule{
 /**
- * @brief Inserts all DomainModules into the JSON domain.
+ * @brief Inserts all DomainModules into the GlobalSpace domain.
  */
 void GDM_init(Nebulite::Core::GlobalSpace* target){
     #if GDM_ENABLED

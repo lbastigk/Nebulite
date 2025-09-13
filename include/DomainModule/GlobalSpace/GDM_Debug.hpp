@@ -1,7 +1,7 @@
 /**
  * @file GDM_Debug.hpp
  * 
- * This file contains the DomainModule of the GlobalSpaceTree for debugging capabilities.
+ * This file contains the DomainModule of the GlobalSpace for debugging capabilities.
  */
 
 #pragma once
@@ -47,7 +47,8 @@ public:
      * The binary compilation will work, but execution will fail.
      */
     Nebulite::Constants::ERROR_TYPE set(int argc, char* argv[]) {
-        // Binding a function with the name "set" is not allowed as it already exists in the inherited FuncTree JSONTree
+        // Binding a function with the name "set" is not allowed 
+        // as it already exists in the inherited FuncTree from JSON
         return Nebulite::Constants::ERROR_TYPE::NONE;
     }
 

@@ -1,15 +1,3 @@
-/*
-This wrapper class extends the functionality of a general FuncTreeWrapper for the GlobalSpaceTree
-by providing a specific implementation for category-related function bindings.
-
-This allows for cleaner separation of object files for different categories
-and reduces boilerplate code when attaching functions to the FuncTree.
-
-Within the Core FuncTree, Categories are initialized with references to the funcTree,
-invokeand the GlobalSpace, allowing them to individually bind functions on construction.
-
-*/
-
 /**
  * @file DomainModule.hpp
  * 

@@ -1,7 +1,7 @@
 /**
  * @file RDM_StateUpdate.hpp
  * 
- * Contains the RenderObjectTreeDomainModule for updating the state of render objects.
+ * Contains the RenderObject DomainModule for updating the state of render objects.
  */
 
 #pragma once

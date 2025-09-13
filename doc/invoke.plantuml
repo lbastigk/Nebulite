@@ -31,8 +31,8 @@ GS -down-> GJSON  : Read/Write \n Structured data
 
 ' Function Trees
 component "Global FuncTree \n //MainTree//" as MT
-component "Local FuncTree 1 \n //RenderObjectTree//" as LT1
-component "Local FuncTree 2 \n //RenderObjectTree//" as LT2
+component "Local FuncTree 1 \n //Parser//" as LT1
+component "Local FuncTree 2 \n //Parser//" as LT2
 
 ' User Output
 actor "Terminal/Console" as TERM
