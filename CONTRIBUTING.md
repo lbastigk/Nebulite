@@ -62,13 +62,13 @@ Each DomainModule can make use of an update routine, allowing us to declutter cl
 - input-reading
 - state-update
 - lifetime management
-and more may be associated with specific tree-extensions instead of the base class.
-We then just insert each extensions update inside the base tree and call `Tree->update()`
-from the base class.
+
+and more may be associated with specific Modules instead of the class itself.
+We then just insert each module into the class and its update function is automatically called.
 
 ### Implementation Guidelines
 
-- It is recommended to implement unfinished functions inside the cpp file via a return of `Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED`
+- It is recommended to implement unfinished functions inside the cpp file with a return of `Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED`
 - Use filenames `GDM_<ModuleName>.{hpp,cpp}` , `RDM_<ModuleName>.{hpp,cpp}` and `JDM_<ModuleName>.{hpp,cpp}` for module files
 - Use the recommended class naming schemes and namespaces for modules: `Nebulite::DomainModule::GlobalSpace::MyModule`
 
@@ -81,6 +81,14 @@ from the base class.
 It is **not allowed** to overwrite already existing functions:
 - If the function `set` was already declared, it is not possible to declare a new `set` function in that same tree
 - If the function `set` was already declared for the subtree, it is not possible to declare a new `set` function in the Tree that inherits the function
+
+Furthermore, it is not allowed to overwrite existing `subtrees` with functions and vice versa. 
+
+If a function is bound inside a non-existing `subtree`, the program will exit:
+```cpp
+bindSubtree("MyModule","<Description>");
+bindFunction(/**/,"MyModule foo","<Description>"); //<-- This will fail without bindSubTree()
+```
 
 ## Example: Adding a New GlobalSpace Feature
 
@@ -148,8 +156,6 @@ private:
 }
 ```
 
-As well as the method implementations in `src/DomainModule/GlobalSpace/MyFeature.hpp`
-
 **Inside GDM_MyModule.cpp:**
 ```cpp
 #include "DomainModule/GlobalSpace/GDM_MyModule.hpp"
@@ -181,7 +187,7 @@ Nebulite::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::MyModule::spawnCircle(
 // Module includes 
 #if GDM_ENABLED
     /*...*/
-    #include "DomainModule/GlobalSpace/GDM_MyFeature.hpp"
+    #include "DomainModule/GlobalSpace/GDM_MyModule.hpp"
     /*...*/
 #endif
 
@@ -196,7 +202,7 @@ void GDM_init(Nebulite::Core::GlobalSpace* target){
         // Initialize DomainModules
         using namespace Nebulite::DomainModule::GlobalSpace;
         /*...*/
-        target->initModule<MyFeature>("<Feature Description>");
+        target->initModule<MyModule>("<Feature Description>");
         /*...*/
     #endif
 }
@@ -207,8 +213,8 @@ void GDM_init(Nebulite::Core::GlobalSpace* target){
 ### Feature Management
 
 If necessary, the entire feature can then be:
-- **disabled** by commenting out `createExpansionOfType` in the Domains FuncTree Constructor`
-- **removed** by undoing all changes inside Domains FuncTree
+- **disabled** by commenting out `initModule` inside `{GDM,JDM,RDM}.hpp`
+- **removed** by undoing all changes inside `{GDM,JDM,RDM}.hpp`
 
 ## Preview Editing (Work in Progress)
 
