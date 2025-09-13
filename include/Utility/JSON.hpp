@@ -390,9 +390,9 @@ public:
     // FuncTree related
 
     /**
-     * @brief Parses a function call string into the JSONTree.
+     * @brief Parses a function call string.
      */
-    Nebulite::Constants::ERROR_TYPE parseStr(const std::string& str){std::lock_guard<std::recursive_mutex> lock(mtx); return parseStr(str);}
+    Nebulite::Constants::ERROR_TYPE parseStr(const std::string& str) {std::lock_guard<std::recursive_mutex> lock(mtx); return funcTree->parseStr(str);}
 
 private:
     /**

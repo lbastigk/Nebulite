@@ -39,16 +39,16 @@ public:
      * If we ever wish to implement special rendering features, we can do so here.
      * However, the Nebulite::Core::Renderer class takes care of the core rendering functionality.
      * 
-     * Why not implement here? Because all FuncTree DomainModules are called, then we call the Renderer update function.
-     * Implementing all renderer updates here breaks this separation, as we would then have to specify the update order in
-     * GlobalSpaceTree.
+     * Why not implement here? Because all DomainModules are called, then we call the Renderer update function.
+     * Implementing all renderer updates here breaks this separation, as we would then have to specify the update order
+     * of the GlobalSpace DomainModules.
      * 
      * Current implementation is, simplified:
      * 
      * ```cpp
      * while(true){
-     *      globalSpace.GlobalSpaceTree->update();  // Update FuncTree with all its DomainModules
-     *      globalSpace.getRenderer()->tick();      // Update Renderer
+     *      globalSpace.update();               // Update with all its DomainModules
+     *      globalSpace.getRenderer()->tick();  // Update Renderer
      * }
      * ```
      */

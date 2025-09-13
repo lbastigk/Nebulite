@@ -1,7 +1,7 @@
 /**
  * @file GDM_General.hpp
  * 
- * This file contains the DomainModule of the GlobalSpaceTree for general-purpose functions.
+ * This file contains the DomainModule of the GlobalSpace for general-purpose functions.
  */
 
 #pragma once

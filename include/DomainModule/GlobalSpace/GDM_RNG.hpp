@@ -1,7 +1,7 @@
 /**
  * @file GDM_RNG.hpp
  * 
- * @todo: Implement random number generation functions for GlobalSpaceTree
+ * @todo: Implement random number generation functions
  * - include old global.rand and global.rrand for compatibility
  * - New structure: global.rng.A/B/C/D/...
  * 

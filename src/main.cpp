@@ -43,7 +43,7 @@
  * 
  * No secondary binary is required for tests or special scenarios: 
  * 
- * - Expand the GlobalSpaceTree for specials scenarios and call with: `./bin/Nebulite my-scenario`
+ * - Expand the GlobalSpace for specials scenarios and call with: `./bin/Nebulite my-scenario`
  * 
  * - Create taskfiles for scripted tests and call with `./bin/Nebulite task <taskfile.nebs>`
  * 
@@ -108,7 +108,7 @@ int main(int argc, char* argv[]){
          * 
          *       Keys like: after-load, after-deload, before-load, before-deload
          *       For easier usage, hardcoding the env-load task is not a good idea, 
-         *       instead call some function like "entrypoint" or "main" which is defined in the GlobalSpaceTree
+         *       instead call some function like "entrypoint" or "main" which is defined in a GlobalSpace DomainModule
          *       This is important, as it's now clear what the entrypoint is, without knowing exactly what main file is loaded
          *       If a user ever defines addition arguments via, e.g. Steam when launching the game, this might become a problem
          *       as any additional argument would make the entrypoint not be called.
@@ -130,7 +130,7 @@ int main(int argc, char* argv[]){
 
         //------------------------------------------
         /**
-         * Parse queue in GlobalSpaceTree.
+         * Parse queue in GlobalSpace.
          * Result determines if a critical stop is initiated.
          * 
          * We do this once before rendering
@@ -193,7 +193,7 @@ int main(int argc, char* argv[]){
         std::cerr << "Critical Error: " << globalSpace.errorTable.getErrorDescription(lastCriticalResult) << std::endl;
     }
 
-    // GlobalSpaceTree handles if error files need to be closed
+    // Parser handles if error files need to be closed
     globalSpace.parseStr(binaryName + " errorlog off");
 
     // Return 1 on critical stop, 0 otherwise
