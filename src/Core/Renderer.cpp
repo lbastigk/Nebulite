@@ -601,15 +601,16 @@ void Nebulite::Core::Renderer::renderFrame() {
 
 	//Render Objects
 	//For all layers, starting at 0
-	for (int layer = 0; layer < RENDEROBJECTCONTAINER_COUNT; layer++) {
+	for (int layer = 0; layer < Nebulite::Core::Environment::LayerCount; layer++) {
 		//Between dx +-1
 		for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
 			// And dy +-1
 			for (int dY = (tileYpos == 0 ? 0 : -1); dY <= 1; dY++) {
+				Environment::Layer currentLayer = static_cast<Environment::Layer>(layer);
 				// If valid
-				if (env.isValidPosition(tileXpos + dX, tileYpos + dY,layer)) {
+				if (env.isValidPosition(tileXpos + dX, tileYpos + dY,currentLayer)) {
 					// For all batches inside
-					for (auto& batch : env.getContainerAt(tileXpos + dX,tileYpos + dY,layer)) {
+					for (auto& batch : env.getContainerAt(tileXpos + dX,tileYpos + dY,currentLayer)) {
 						// For all objects in batch
 						for(auto& obj : batch.objects){
 							// Check for texture
@@ -653,7 +654,7 @@ void Nebulite::Core::Renderer::renderFrame() {
 		}
 
 		// Render all textures that were attached from outside processes
-		for (const auto& [name, texture] : BetweenLayerTextures[static_cast<Environment::Layers>(layer)]) {
+		for (const auto& [name, texture] : BetweenLayerTextures[static_cast<Environment::Layer>(layer)]) {
 			SDL_RenderCopy(renderer, texture, NULL, NULL);
 		}
 	}

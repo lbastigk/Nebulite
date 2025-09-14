@@ -164,7 +164,7 @@ public:
 	 * @param texture The SDL_Texture to attach.
 	 * @return True if the texture was successfully attached, false otherwise.
 	 */
-	bool attachTextureAboveLayer(Environment::Layers aboveThisLayer, std::string name, SDL_Texture* texture) {
+	bool attachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string name, SDL_Texture* texture) {
 		if(texture == nullptr) {
 			return false; // Cannot attach a null texture
 		}
@@ -574,7 +574,7 @@ private:
 	 * 
 	 * `BetweenLayerTextures[layer][link] -> SDL_Texture*`
 	 */
-	absl::flat_hash_map<Environment::Layers, absl::flat_hash_map<std::string, SDL_Texture*>> BetweenLayerTextures;
+	absl::flat_hash_map<Environment::Layer, absl::flat_hash_map<std::string, SDL_Texture*>> BetweenLayerTextures;
 
 	//------------------------------------------
 	// Font-Related

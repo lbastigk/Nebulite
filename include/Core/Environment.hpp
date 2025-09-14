@@ -24,15 +24,6 @@
 #include "Utility/JSON.hpp"
 
 //------------------------------------------
-/**
- * @def RENDEROBJECTCONTAINER_COUNT
- * @brief The number of RenderObjectContainer layers in the Environment.
- * 
- * @todo Probably better to use as static uint inside Nebulite::Core::Environment
- */
-#define RENDEROBJECTCONTAINER_COUNT 5
-
-//------------------------------------------
 namespace Nebulite{
 namespace Core{
 /**
@@ -48,7 +39,7 @@ namespace Core{
 class Environment {
 public:
 	/**
-	 * @enum Nebulite::Core::Environment::Layers
+	 * @enum Nebulite::Core::Environment::Layer
 	 * @brief Enum representing the different rendering layers.
 	 * 
 	 * Each layer is technically responsible for a specific type of rendering.
@@ -60,13 +51,18 @@ public:
 	 * @todo Once GDM_GUI and renderer texture queuing is properly implemented, 
 	 * the layer size may be reduced and layer names reworked.
 	 */
-	enum Layers {
+	enum Layer {
 		background,
 		general,
 		foreground,
 		effects,
 		menue
 	};
+
+	/**
+	 * @brief The number of RenderObjectContainer layers in the Environment.
+	 */
+	const static uint LayerCount = 5;
 
 	//------------------------------------------
 	//Constructor
@@ -174,10 +170,8 @@ public:
 	 * @param y The Y coordinate of the tile.
 	 * @param layer The layer index.
 	 * @return A reference to the RenderObjectContainer at the specified position and layer: A vector of batched RenderObjects.
-	 * 
-	 * @todo Pass the layer as an enum instead of an integer. Should be compatible since we can always static_cast between the two?
 	 */
-	std::vector<Nebulite::Core::RenderObjectContainer::batch>& getContainerAt(int16_t x, int16_t y, int layer);
+	std::vector<Nebulite::Core::RenderObjectContainer::batch>& getContainerAt(int16_t x, int16_t y, Environment::Layer layer);
 
 	/**
 	 * @brief Checks if the specified position and layer are valid, meaning they are within the bounds of the environment.
@@ -186,10 +180,8 @@ public:
 	 * @param y The Y coordinate of the tile.
 	 * @param layer The layer index.
 	 * @return True if the position and layer are valid, false otherwise.
-	 * 
-	 * @todo Pass the layer as an enum instead of an integer. Should be compatible since we can always static_cast between the two?
 	 */
-	bool isValidPosition(int x, int y, int layer);
+	bool isValidPosition(int x, int y, Environment::Layer layer);
 
 	/**
 	 * @brief Purges all objects from the environment.
@@ -224,7 +216,7 @@ private:
     Nebulite::Utility::JSON* global;
 
 	// Inner RenderObject container layers
-	std::array<Nebulite::Core::RenderObjectContainer, RENDEROBJECTCONTAINER_COUNT> roc;
+	std::array<Nebulite::Core::RenderObjectContainer, Nebulite::Core::Environment::LayerCount> roc;
 };
 } // namespace Core
 } // namespace Nebulite
