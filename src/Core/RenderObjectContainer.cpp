@@ -217,17 +217,19 @@ std::vector<Nebulite::Core::RenderObjectContainer::batch>& Nebulite::Core::Rende
 }
 
 void Nebulite::Core::RenderObjectContainer::purgeObjects() {
-	// Release resources for ObjectContainer
 	for (auto it = ObjectContainer.begin(); it != ObjectContainer.end(); ) {
-        ObjectContainer.erase(it++);
-    }
+		for (auto& batch : it->second) {
+			// Move all objects to trash
+			std::move(batch.objects.begin(), batch.objects.end(), std::back_inserter(deletionProcess.trash));
+			batch.objects.clear(); // Remove all objects from the batch
+		}
+		++it;
+	}
 }
 
 size_t Nebulite::Core::RenderObjectContainer::getObjectCount() {
 	// Calculate the total item count
 	size_t totalCount = 0;
-
-	int i = 0;
 	for (auto it = ObjectContainer.begin(); it != ObjectContainer.end(); ) {
 		totalCount += it->second.size();
 	}

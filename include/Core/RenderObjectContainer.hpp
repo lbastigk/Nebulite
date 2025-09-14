@@ -119,9 +119,11 @@ public:
 
 	// removes all objects
 	/**
-	 * @brief Purges all objects from the container.
+	 * @brief Moves all objects into the deletion process.
 	 * 
-	 * @todo for proper deletion, we should insert them into the trash/purgatory system.
+	 * It takes 2 updates to fully delete them.
+	 * First they are moved to trash, then on update to purgatory, 
+	 * then on next update deleted.
 	 */
 	void purgeObjects();
 

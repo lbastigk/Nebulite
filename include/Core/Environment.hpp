@@ -184,12 +184,7 @@ public:
 	bool isValidPosition(int x, int y, Environment::Layer layer);
 
 	/**
-	 * @brief Purges all objects from the environment.
-	 * 
-	 * This function removes all render objects from all layers.
-	 * 
-	 * @todo: The approach of direct deletion is not compatible with the current architecture.
-	 * Move all objects into trash before deletion.
+	 * @brief Purges all objects from the environment by placing them in the deletion process.
 	 */
 	void purgeObjects();
 
