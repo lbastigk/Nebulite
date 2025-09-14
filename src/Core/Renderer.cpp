@@ -601,7 +601,7 @@ void Nebulite::Core::Renderer::renderFrame() {
 
 	//Render Objects
 	//For all layers, starting at 0
-	for (int layer = 0; layer < Nebulite::Core::Environment::LayerCount; layer++) {
+	for (int layer = 0; layer < Environment::LayerCount; layer++) {
 		//Between dx +-1
 		for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
 			// And dy +-1

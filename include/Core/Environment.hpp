@@ -62,7 +62,7 @@ public:
 	/**
 	 * @brief The number of RenderObjectContainer layers in the Environment.
 	 */
-	const static uint LayerCount = 5;
+	const static unsigned int LayerCount = 5;
 
 	//------------------------------------------
 	//Constructor
@@ -192,19 +192,8 @@ public:
 	 * @brief Retrieves the total number of render objects in the environment.
 	 * 
 	 * @return The total number of render objects in the environment.
-	 * 
-	 * @todo Properly define the size instead of using size_t. 
-	 * 
-	 * size_t is at least 16 bit (https://en.cppreference.com/w/c/types/size_t.html)
-	 * which is definitely not enough if we consider the lower limit 
-	 * (65535 objects tiled is about 256 * 256, call it 128^2 if we account for multiple objects on top)
-	 * 
-	 * However, in practice size_t should be at least 32 bit.
-	 * 
-	 * But it's still best to always know the size, instead of relying on the build architecture.
-	 * uint32_t should be enough. If we have more than 4 billion objects, we have bigger problems.
 	 */
-	size_t getObjectCount();
+	uint32_t getObjectCount();
 
 private:
 	// Link to Global Values

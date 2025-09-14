@@ -132,9 +132,9 @@ void Nebulite::Core::Environment::purgeObjects() {
 	}
 }
 
-size_t Nebulite::Core::Environment::getObjectCount() {
+uint32_t Nebulite::Core::Environment::getObjectCount() {
 	// Calculate the total item count
-	size_t totalCount = 0;
+	uint32_t totalCount = 0;
 
 	for (int i = 0; i < Nebulite::Core::Environment::LayerCount; i++) {
 		totalCount += roc[i].getObjectCount();
