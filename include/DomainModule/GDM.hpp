@@ -1,6 +1,6 @@
 /**
  * @file GDM.hpp
- * @brief Header file for GlobalSpace Domain Modules initialization.
+ * @brief Header file for GlobalSpace DomainModules initialization.
  */
 
 //------------------------------------------

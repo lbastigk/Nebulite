@@ -1,6 +1,6 @@
 /**
  * @file RDM.hpp
- * @brief Header file for RenderObject Domain Modules initialization.
+ * @brief Header file for RenderObject DomainModules initialization.
  */
 
 //------------------------------------------

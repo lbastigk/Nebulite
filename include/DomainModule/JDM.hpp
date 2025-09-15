@@ -1,6 +1,6 @@
 /**
  * @file JDM.hpp
- * @brief Header file for JSON Domain Modules initialization.
+ * @brief Header file for JSON DomainModules initialization.
  */
 
 //------------------------------------------

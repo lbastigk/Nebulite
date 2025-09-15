@@ -80,6 +80,10 @@ public:
 	 * RenderObjects are initialized with reference to the Global JSON document.
 	 * This allows the object to compile any Nebulite::Interaction::Logic::Expression contained within,
 	 * as they require remanent references for `self` and `global`.
+	 * 
+	 * @todo Add reference to Invoke to streamline the update process:
+	 * Each domain with a no-argument update() function!
+	 * Currently RenderObject::update requires reference to Invoke.
 	 */
 	RenderObject(Nebulite::Utility::JSON* global);
 
