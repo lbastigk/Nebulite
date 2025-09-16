@@ -159,3 +159,33 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::alwa
     domain->tasks.always.taskList.clear();
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
+
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::crash(int argc, char** argv) {
+    // If an argument is provided, use it to select crash type
+    if (argc > 1 && argv[1]) {
+        std::string crashType = argv[1];
+        if (crashType == "segfault") {
+            // Cause a segmentation fault
+            int* p = nullptr;
+            *p = 42;
+        } else if (crashType == "abort") {
+            // Abort the program
+            std::abort();
+        } else if (crashType == "terminate") {
+            // Terminate with std::terminate
+            std::terminate();
+        } else if (crashType == "throw") {
+            // Throw an uncaught exception
+            throw std::runtime_error("Intentional crash: uncaught exception");
+        } else {
+            std::cerr << "Unknown crash type requested: " << crashType << std::endl;
+            std::cerr << "Defaulting to segmentation fault" << std::endl;
+        }
+    } else {
+        // Default: segmentation fault
+        int* p = nullptr;
+        *p = 42;
+    }
+    // Should never reach here
+    return Nebulite::Constants::ERROR_TYPE::NONE;
+}
