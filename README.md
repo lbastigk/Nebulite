@@ -359,9 +359,9 @@ Optional dependencies:
 
 Two primary pathways:
 
-1. Shell script (stops on first failure):
+1. Python script (stops on first failure):
 ```bash
-./Scripts/Tests.sh --stop
+./Scripts/Tests.py --stop
 ```
 2. Combined build + test task (VS Code task):
 ```

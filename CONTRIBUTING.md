@@ -20,17 +20,17 @@ Using VSCode is recommended for an optimal workflow. The project includes precon
 
 Build and test your changes:
 ```bash
-./build.sh && ./Scripts/Tests.sh
+./build.sh && ./Scripts/Tests.py
 ```
 
 ## Testing
 
-- Use `./Scripts/Tests.sh` for preconfigured tests
+- Use `python ./Scripts/Tests.py` for preconfigured tests
 - Use `./Scripts/CrashDebug.sh` for debugging crashes with predefined taskfiles
 - Use `./Scripts/MemLeakTest.sh` for memory leak testing using `valgrind` and `massif-visualizer`
 - Use the VSCode debugger and its existing tasks
 
-You can add custom taskfiles to the test suite by extending the `tests` variable inside `./Scripts/Tests.sh`, or run them independently:
+You can add custom taskfiles to the test suite by extending the `tests.json` file in the projects root directory.
 ```bash
 ./bin/Nebulite task TaskFiles/.../your_test.txt
 ```
@@ -222,7 +222,7 @@ Preview Editing is currently under development. The current plan is to use the h
 
 ## Submitting Changes
 
-1. Ensure all tests pass: `./build.sh && cd Application && ./Tests.sh`
+1. Ensure all tests pass: `./build.sh && python Scripts/Tests.py`
 2. Create a pull request with a clear description of your changes
 3. Include test cases for new functionality
 4. Update documentation as needed

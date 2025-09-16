@@ -1,17 +1,23 @@
 # This script is meant as a replacement for Tests.sh
 # Instead of modifying this script with new tests, 
-# the plan is to implement a tests.json file:
+# modify the tests.json file with structure:
 # tests.json:
-# - timeout:int
+# - binaries:array:string
+# - ignore_lines:
+#   - cout:array:string
+#   - cerr:array:string
 # - tests:array:
 #   - command
 #   - expected:
 #     - cout:array:string/none
 #     - cerr:array:string/none
-# - binaries:array:string
+# - timeout:int
 
 # For the expected output, an array of strings is used
 # to mimic the line-by-line nature of the output.
+
+# TODO: Implement ignore_lines
+# TODO: allow for jsonc by removing everything after and including '//' each line
 
 #==============================================================================
 # Python Testing Suite for Nebulite
@@ -91,7 +97,9 @@ def run_testsuite(config: Dict[str, Any], stop_on_fail: bool = False, verbose: b
                 elif output['cout'] != expected['cout']:
                     passed = False
                     if verbose:
-                        print(f"  ✗ cout mismatch\n    Expected: {expected['cout']}\n    Got: {output['cout']}")
+                        print(f"  ✗ cout mismatch\n")
+                        print(f"    Expected : {expected['cout']}")
+                        print(f"    Got      : {output['cout']}")
             if 'cerr' in expected:
                 if expected["cerr"] == None:
                     passed = True
