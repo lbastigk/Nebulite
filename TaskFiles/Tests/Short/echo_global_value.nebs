@@ -1,5 +1,11 @@
-set-fps 60
+# Fixed dt so the output is always the same
+set time.fixed_dt_ms 1
+
+# value doesnt matter, but this initializes renderer, which is needed
+set-fps 100 
 wait 10
-eval echo {global.dt}
-eval echo $({global.dt})
+
+# Should be 0.001000 and 1.001000
+eval echo {global.time.dt}
+eval echo $({global.time.dt} + 1)
 exit
