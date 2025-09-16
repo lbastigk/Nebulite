@@ -17,6 +17,16 @@
       "expected": { "cout": [], "cerr": ["1234"] }
     },
     {
+      "command": "'echo testing multiline echo ; echo this is the second line'",
+      "expected": { 
+        "cout": [
+          "testing multiline echo", 
+          "this is the second line"
+        ], 
+        "cerr": [] 
+      }
+    },
+    {
       "command": "'set-fps 60 ; wait 30 ; exit'",
       "expected": { "cout": null, "cerr": [] }
     },
