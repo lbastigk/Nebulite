@@ -1,12 +1,21 @@
 #include "Core/RenderObject.hpp"
+
+#include "Core/GlobalSpace.hpp"
 #include "DomainModule/RDM.hpp"
 #include "Interaction/Deserializer.hpp"
 
 //------------------------------------------
 // Special member Functions
 
-Nebulite::Core::RenderObject::RenderObject(Nebulite::Utility::JSON* global) 
-: global(global), Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>("RenderObject", this, &json) {
+Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSpace) 
+: Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>("RenderObject", this, &json), 
+  baseTexture(&json, globalSpace) {
+
+	//------------------------------------------
+	// Linkages
+	this->globalSpace = globalSpace;
+	global = globalSpace->getDoc();
+	invoke = globalSpace->invoke.get();
 
 	//------------------------------------------
 	// Document Values
@@ -209,7 +218,7 @@ void Nebulite::Core::RenderObject::calculateSrcRect() {
 //------------------------------------------
 // Outside communication with invoke for updating and estimation
 
-void Nebulite::Core::RenderObject::update(Nebulite::Interaction::Invoke* globalInvoke) {
+void Nebulite::Core::RenderObject::update() {
 	//------------------------------------------
 	// Update Domain
 	for(auto& module : modules){
@@ -217,21 +226,31 @@ void Nebulite::Core::RenderObject::update(Nebulite::Interaction::Invoke* globalI
 	}
 	getDoc()->update();
 
+	// Check if Renderer exists and is linked
+	//
+
+	baseTexture.update();
+
 	//------------------------------------------
 	// Check all invokes
-	if (globalInvoke) {
+	if (invoke != nullptr) {
 		//------------------------------------------
 		// 1.) Reload invokes if needed
 		if (flag.reloadInvokes) {
-			Nebulite::Interaction::Deserializer::parse(entries_global, entries_local, this, globalInvoke->getDocumentCache(), globalInvoke->getGlobalPointer());
+			Nebulite::Interaction::Deserializer::parse(
+				entries_global, entries_local, 
+				this, 
+				invoke->getDocumentCache(), 
+				invoke->getGlobalPointer()
+			);
 			flag.reloadInvokes = false;
 		}
 
 		//------------------------------------------
 		// 2.) Directly solve local invokes (loop)
 		for (auto entry : entries_local){
-			if(globalInvoke->isTrueLocal(entry)){
-				globalInvoke->updateLocal(entry);
+			if(invoke->isTrueLocal(entry)){
+				invoke->updateLocal(entry);
 			}
 		}
 
@@ -242,7 +261,7 @@ void Nebulite::Core::RenderObject::update(Nebulite::Interaction::Invoke* globalI
 		for(int i = 0; i < subscription_size;i++){
 			std::string key = Nebulite::Constants::keyName.renderObject.invokeSubscriptions + "[" + std::to_string(i) + "]";
 			std::string subscription = json.get<std::string>(key.c_str(),"");
-			globalInvoke->listen(this,subscription);
+			invoke->listen(this,subscription);
 		}
         
 
@@ -251,7 +270,7 @@ void Nebulite::Core::RenderObject::update(Nebulite::Interaction::Invoke* globalI
 		//     This makes sure that no invokes from inactive objects stay in the list
 		for (auto entry : entries_global){
 			// add pointer to invoke command to global
-			globalInvoke->broadcast(entry);
+			invoke->broadcast(entry);
 		}
     }else{
 		std::cerr << "Invoke is nullptr!" << std::endl;
@@ -263,12 +282,17 @@ void Nebulite::Core::RenderObject::update(Nebulite::Interaction::Invoke* globalI
 	calculateSrcRect();
 }
 
-uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(Nebulite::Interaction::Invoke* globalInvoke) {
+uint64_t Nebulite::Core::RenderObject::estimateComputationalCost() {
 
 	//------------------------------------------
 	// Reload invokes if needed
 	if (flag.reloadInvokes){
-		Nebulite::Interaction::Deserializer::parse(entries_global, entries_local, this, globalInvoke->getDocumentCache(), globalInvoke->getGlobalPointer());
+		Nebulite::Interaction::Deserializer::parse(
+			entries_global, entries_local, 
+			this, 
+			invoke->getDocumentCache(), 
+			invoke->getGlobalPointer()
+		);
 		flag.reloadInvokes = false;
 	}
 
@@ -277,22 +301,6 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(Nebulite::Inter
 	uint64_t cost = 0;
 
 	// Global entries aren't relevant for this type of cost estimation, as they are evaluated elsewhere
-
-	// Global entries
-	/*
-	for (auto entry : entries_global) {
-		std::string expr = entry->logicalArg.getFullExpression();
-		cost += std::count(expr.begin(), expr.end(), '$');
-		cost += std::count(expr.begin(), expr.end(), '{');
-
-		// Count number of $ in exprs
-		for (auto& expr : entry->exprs) {
-			cost += std::count(expr.value.begin(), expr.value.end(), '$');
-			cost += std::count(expr.value.begin(), expr.value.end(), '{');
-		}
-	}
-	*/
-
 
 	// Local entries
 	for (auto entry : entries_local) {

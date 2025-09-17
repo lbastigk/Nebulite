@@ -47,7 +47,7 @@ public:
 	 * @param X Width of the rendering area.
 	 * @param Y Height of the rendering area.
 	 */
-	Renderer(Nebulite::Interaction::Invoke& invoke, Nebulite::Utility::JSON& global, bool flag_headless = false, unsigned int X = 1080, unsigned int Y = 1080);
+	Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool flag_headless = false, unsigned int X = 1080, unsigned int Y = 1080);
 
 	//------------------------------------------
 	// Serialization / Deserialization

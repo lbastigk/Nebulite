@@ -101,14 +101,6 @@ public:
         // so this function needs to be overwritten in the derived class.
     }
 
-    /**
-     * @brief Updates the domain with reference to the invoke object.
-     */
-    virtual void update(Nebulite::Interaction::Invoke* globalInvoke){
-        // We cannot directly access the potential subdomain JSON here,
-        // so this function needs to be overwritten in the derived class.
-    }
-
     //------------------------------------------
     // Getting private members
 
@@ -148,7 +140,7 @@ public:
 	 * @param str The string to parse.
 	 * @return Potential errors that occured on command execution
 	 */
-	Nebulite::Constants::ERROR_TYPE parseStr(const std::string& str){
+	virtual Nebulite::Constants::ERROR_TYPE parseStr(const std::string& str){
         return funcTree->parseStr(str);
     }
 

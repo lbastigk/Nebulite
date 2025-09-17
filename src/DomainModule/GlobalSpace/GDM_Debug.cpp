@@ -49,7 +49,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::logS
 }
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::render_object(int argc, char** argv){
-    Nebulite::Core::RenderObject ro(domain->getDoc());
+    Nebulite::Core::RenderObject ro(domain);
     Nebulite::Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc",ro.serialize());
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }

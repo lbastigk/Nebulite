@@ -1,14 +1,16 @@
 #include "Core/Renderer.hpp"
 
-Nebulite::Core::Renderer::Renderer(Nebulite::Interaction::Invoke& invoke, Nebulite::Utility::JSON& global, bool flag_headless, unsigned int X, unsigned int Y)
+#include "Core/GlobalSpace.hpp"
+
+Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool flag_headless, unsigned int X, unsigned int Y)
 : 	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B")),
 	dist(0, 32767),
-	env(&invoke)
+	env(globalSpace)
 	{
 	//------------------------------------------
 	// Linkages
-	invoke_ptr = &invoke;
+	invoke_ptr = globalSpace->invoke.get();
 
 	//------------------------------------------
 	// Depending on platform, set Global key "platform":

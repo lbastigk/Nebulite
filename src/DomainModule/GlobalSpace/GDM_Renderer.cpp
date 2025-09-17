@@ -42,7 +42,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::s
         }
 
         // Create object
-        Nebulite::Core::RenderObject* ro = new Nebulite::Core::RenderObject(domain->getDoc());
+        Nebulite::Core::RenderObject* ro = new Nebulite::Core::RenderObject(domain);
         ro->deserialize(linkOrObject);
 
         // Append to renderer

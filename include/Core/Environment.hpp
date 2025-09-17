@@ -20,8 +20,15 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Core/RenderObjectContainer.hpp"
-#include "Interaction/Invoke.hpp"
 #include "Utility/JSON.hpp"
+
+//------------------------------------------
+// Forward declarations
+namespace Nebulite{
+	namespace Core{
+		class GlobalSpace; // Forward declaration of core class GlobalSpace
+	}
+}
 
 //------------------------------------------
 namespace Nebulite{
@@ -82,7 +89,7 @@ public:
 	 * 
 	 * - RenderObject creation
 	 */
-	Environment(Nebulite::Interaction::Invoke* globalInvoke);
+	Environment(Nebulite::Core::GlobalSpace* globalSpace);
 
 	// Suppress copy/move operators
 	Environment(Environment&& other) = delete;

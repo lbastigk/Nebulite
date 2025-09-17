@@ -1,21 +1,23 @@
 #include "Core/Environment.hpp"
 #include <utility>
 
+#include "Core/GlobalSpace.hpp"
+
 
 // Helper function to build the RenderObjectContainer array
 namespace Nebulite {
     template<std::size_t... Is>
     std::array<Nebulite::Core::RenderObjectContainer, sizeof...(Is)> 
-    make_roc_array(Nebulite::Interaction::Invoke* globalInvoke, std::index_sequence<Is...>) {
-        return {{(static_cast<void>(Is), Nebulite::Core::RenderObjectContainer(globalInvoke))...}};
+    make_roc_array(Nebulite::Core::GlobalSpace* globalSpace, std::index_sequence<Is...>) {
+        return {{(static_cast<void>(Is), Nebulite::Core::RenderObjectContainer(globalSpace))...}};
     }
 }   // namespace Nebulite
 
-Nebulite::Core::Environment::Environment(Nebulite::Interaction::Invoke* globalInvoke)
-	: roc(make_roc_array(globalInvoke, std::make_index_sequence<Nebulite::Core::Environment::LayerCount>{}))
+Nebulite::Core::Environment::Environment(Nebulite::Core::GlobalSpace* globalSpace)
+	: roc(make_roc_array(globalSpace, std::make_index_sequence<Nebulite::Core::Environment::LayerCount>{}))
 {
 	// Storing pointer copy for easy access of global document
-	global = globalInvoke->getGlobalPointer();
+	global = globalSpace->getDoc();
 }
 
 

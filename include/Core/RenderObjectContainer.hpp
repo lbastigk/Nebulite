@@ -3,6 +3,8 @@
  * @brief Contains the Nebulite::Core::RenderObjectContainer class.
  */
 
+#pragma once
+
 //------------------------------------------
 // Includes
 
@@ -64,9 +66,9 @@ public:
 
 	/**
 	 * @brief Constructs a new RenderObjectContainer.
-	 * @param globalInvoke Pointer to the global Invoke instance.
+	 * @param globalSpace Pointer to the global Space instance.
 	 */
-	RenderObjectContainer(Nebulite::Interaction::Invoke* globalInvoke);
+	RenderObjectContainer(Nebulite::Core::GlobalSpace* globalSpace);
 
 	//------------------------------------------
 	// Serialization / Deserialization
@@ -239,6 +241,9 @@ private:
 
 	// Link to the global Invoke instance for object updates
 	Nebulite::Interaction::Invoke* globalInvoke;
+
+	// Link to the global space for new objects
+	Nebulite::Core::GlobalSpace* globalSpace;
 };
 } 	// namespace Core
 }   // namespace Nebulite

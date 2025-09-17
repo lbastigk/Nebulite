@@ -34,11 +34,15 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
 
 Nebulite::Core::Renderer* Nebulite::Core::GlobalSpace::getRenderer() {
     if (!rendererInitialized) {
-        renderer = std::make_unique<Nebulite::Core::Renderer>(*invoke, *getDoc(), cmdVars.headless == "true");
+        renderer = std::make_unique<Nebulite::Core::Renderer>(this, cmdVars.headless == "true");
         renderer->setTargetFPS(60); // Standard value for a fresh renderer
         rendererInitialized = true;
     }
     return renderer.get();
+}
+
+SDL_Renderer* Nebulite::Core::GlobalSpace::getSDLRenderer() {
+    return getRenderer()->getSdlRenderer();
 }
 
 bool Nebulite::Core::GlobalSpace::RendererExists(){
