@@ -93,6 +93,14 @@ public:
     FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError);
 
     /**
+     * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
+     * @param func Function to call before parsing
+     */
+    void setPreParse(std::function<Nebulite::Constants::ERROR_TYPE()> func){
+        preParse = func;
+    }
+
+    /**
      * @brief Inherits functions from another Tree.
      * 
      * @param toInherit FuncTree pointer to inherit functions from.
@@ -198,6 +206,9 @@ public:
     bool hasFunction(const std::string& nameOrCommand);
 
 private:
+    // Function to call before parsing (e.g., for setting up variables or locking resources)
+    std::function<Nebulite::Constants::ERROR_TYPE()> preParse = nullptr;
+
     //------------------------------------------
     // Variables
 
@@ -448,7 +459,8 @@ std::vector<std::pair<std::string, std::string>> Nebulite::Interaction::Executio
 // Constructor implementation
 
 template<typename RETURN_TYPE>
-Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError){
+Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError)
+{
     // Store name
     TreeName = treeName;
 
@@ -527,10 +539,21 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parse(int a
 template<typename RETURN_TYPE>
 RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(const std::string& cmd) {
     // Prerequisite if an inherited FuncTree is linked
-    for(auto& inheritedTree : inheritedTrees) {
-        if(inheritedTree != nullptr && !hasFunction(cmd)) {
-            // Function is in inherited tree, parse there
-            return inheritedTree->parseStr(cmd);
+    if(inheritedTrees.size() && !hasFunction(cmd)) {
+        // Check if the function is in an inherited tree
+        for(auto& inheritedTree : inheritedTrees) {
+            if(inheritedTree != nullptr && inheritedTree->hasFunction(cmd)) {
+                // Function is in inherited tree, parse there
+                return inheritedTree->parseStr(cmd);
+            }
+        }
+    }
+
+    // Call preParse function if set
+    if(preParse != nullptr){
+        Nebulite::Constants::ERROR_TYPE err = preParse();
+        if(err != Nebulite::Constants::ERROR_TYPE::NONE){
+            return err; // Return error if preParse failed
         }
     }
 

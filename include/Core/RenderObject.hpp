@@ -276,9 +276,13 @@ public:
      * 
      * @return Pointer to the current SDL_Texture.
      */
-    SDL_Texture* getTexture() {
-        return baseTexture.getTexture();
+    SDL_Texture* getSDLTexture() {
+        return baseTexture.getSDLTexture();
     }
+
+	Nebulite::Core::Texture* getTexture() {
+		return &baseTexture;
+	}
 
 	/**
 	 * @brief Gets a pointer to the linked globalspace.

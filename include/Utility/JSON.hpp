@@ -176,6 +176,11 @@ public:
      */
     Nebulite::Utility::JSON get_subdoc(const char* key);
 
+    /**
+     * @brief Provides access to the internal mutex for thread-safe operations.
+     * Allowing modules to lock the JSON document.
+     */
+    std::lock_guard<std::recursive_mutex> lock(){return std::lock_guard<std::recursive_mutex>(mtx);};
 
     //------------------------------------------
     // Setter
@@ -385,14 +390,6 @@ public:
      * @brief Empties the main document and cache.
      */
     void empty();
-
-    //------------------------------------------
-    // FuncTree related
-
-    /**
-     * @brief Parses a function call string.
-     */
-    Nebulite::Constants::ERROR_TYPE parseStr(const std::string& str) {std::lock_guard<std::recursive_mutex> lock(mtx); return funcTree->parseStr(str);}
 
 private:
     /**

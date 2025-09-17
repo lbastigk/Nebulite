@@ -50,7 +50,11 @@
  * Use functions for debugging of specific features and taskFiles for complex, scripted scenarios and tests.
  *
  * @todo:   settings.jsonc: Renderer size, fps setting (Input Mapping is already a work in progress. See GDM_InputMapping.h)
- *
+ * 
+ * @todo:   Proper return of Nebulite::Constants::ERROR_TYPE values: All errors to cerr, stop on critical errors, return error code on exit.
+ *          Implementation in invoke needed!
+ *          Lots of ERROR_TYPE::CUSTOM_ERROR returns need to be replaced with proper error codes.
+ *          Make sure to incorporate recoverable error mode as well.
  */
 int main(int argc, char* argv[]){
     //------------------------------------------

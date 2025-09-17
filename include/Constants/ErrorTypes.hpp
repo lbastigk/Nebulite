@@ -53,6 +53,7 @@ enum ERROR_TYPE{
     CRITICAL_INVALID_FILE,
     CRITICAL_INVALID_ARGC_ARGV_PARSING,
     CRITICAL_FUNCTIONCALL_INVALID,
+    CRITICAL_SDL_RENDERER_INIT_FAILED,
     // Non-critical errors positive
     NONE = 0,
     CUSTOM_ERROR,               // used for functioncall "error"
@@ -94,6 +95,8 @@ public:
             "argc/argv parsing error.";
         errorTypeToString[Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID] = 
             "Requested function call is invalid.";
+        errorTypeToString[Nebulite::Constants::ERROR_TYPE::CRITICAL_SDL_RENDERER_INIT_FAILED] = 
+            "Critical Error: SDL Renderer could not be initialized.";
         //------------------------------------------
         // Non-critical errors
         errorTypeToString[Nebulite::Constants::ERROR_TYPE::NONE] = 

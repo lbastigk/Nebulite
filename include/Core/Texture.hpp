@@ -58,12 +58,21 @@ public:
     void update() override;
 
     /**
-     * @brief Parses a command string related to texture operations.
-     * 
-     * @param str The command string to parse.
-     * @return An error code indicating the result of the parsing operation.
+     * @brief Necessary operations before parsing commands.
      */
-    Nebulite::Constants::ERROR_TYPE parseStr(const std::string& str) override;
+    Nebulite::Constants::ERROR_TYPE preParse() override;
+
+    //------------------------------------------
+    // GlobalSpace related
+
+    /**
+     * @brief Gets a pointer to the linked globalspace.
+     * 
+     * @return Pointer to the linked globalspace.
+     */
+    Nebulite::Core::GlobalSpace* getGlobalSpace() {
+        return globalSpace;
+    }
 
     //------------------------------------------
     // SDL_Texture related
@@ -76,6 +85,15 @@ public:
     void linkExternalTexture(SDL_Texture* externalTexture) {
         texture = externalTexture;
         textureModified = false; // Reset modification flag
+    }
+
+    void setInternalTexture(SDL_Texture* newTexture) {
+        // Destroy any old internal texture if it was modified
+        if (texture != nullptr && textureModified) {
+            SDL_DestroyTexture(texture);
+        }
+        texture = newTexture;
+        textureModified = true; // Mark as modified since it's a new internal texture
     }
 
     /**
@@ -101,9 +119,11 @@ public:
      * 
      * @return Pointer to the current SDL_Texture.
      */
-    SDL_Texture* getTexture() {
+    SDL_Texture* getSDLTexture() {
         return texture;
     }
+
+    void loadTextureFromFile(const std::string& filePath);
 private:
     /**
      * @brief Pointer to the linked globalspace.

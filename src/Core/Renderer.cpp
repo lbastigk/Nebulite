@@ -600,6 +600,7 @@ void Nebulite::Core::Renderer::renderFrame() {
 
 	//------------------------------------------
 	// Rendering
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
 	int error = 0;
 
 	//Render Objects
@@ -647,7 +648,7 @@ void Nebulite::Core::Renderer::renderFrame() {
 					DstRect.y -= dispPosY; 	//subtract camera posY
 
 					// Render the texture
-					SDL_Texture* texture = obj->getTexture();
+					SDL_Texture* texture = obj->getSDLTexture();
 					error = SDL_RenderCopy(renderer, texture, obj->getSrcRect(), &DstRect);
 
 					// Render the text

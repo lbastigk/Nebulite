@@ -72,6 +72,7 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 	//------------------------------------------
     // Link inherited FuncTree json
     inherit(json.funcTree);
+	inherit(baseTexture.funcTree);
 
 	//------------------------------------------
 	// Initialize Domain Modules
@@ -154,13 +155,13 @@ void Nebulite::Core::RenderObject::deserialize(std::string serialOrLink) {
 		}
 	}
 	
-
 	// Prerequisites
 	flag.reloadInvokes = true;
 	flag.calculateText = true;
 	calculateDstRect();
 	calculateSrcRect();
 
+	// Update subscription size
 	subscription_size = json.memberSize(Nebulite::Constants::keyName.renderObject.invokeSubscriptions.c_str());
 }
 

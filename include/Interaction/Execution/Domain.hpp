@@ -156,8 +156,15 @@ public:
 	 * @param str The string to parse.
 	 * @return Potential errors that occured on command execution
 	 */
-	virtual Nebulite::Constants::ERROR_TYPE parseStr(const std::string& str){
+	Nebulite::Constants::ERROR_TYPE parseStr(const std::string& str){
         return funcTree->parseStr(str);
+    }
+
+    /**
+     * @brief Necessary operations before parsing commands.
+     */
+    virtual Nebulite::Constants::ERROR_TYPE preParse(){
+        return Nebulite::Constants::ERROR_TYPE::NONE;
     }
 
 //protected:
