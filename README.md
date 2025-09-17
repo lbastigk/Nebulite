@@ -368,7 +368,7 @@ Two primary pathways:
 [BUILD + TEST]
 ```
 
-JSON validation runs via `./Scripts/validate_json.sh` prior to tests.
+JSON validation runs via `./Scripts/validate_json.py` prior to tests.
 
 ## Language Extension
 
