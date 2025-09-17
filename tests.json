@@ -8,7 +8,7 @@
   "ignore_lines": {
     "cout" : [],
     "cerr" : [
-      "0114:err:d3d:wined3d_swapchain_resize_buffers"
+      "*wined3d_swapchain_resize_buffers*"
     ]
   },
   "tests": [

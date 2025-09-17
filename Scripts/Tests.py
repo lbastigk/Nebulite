@@ -16,7 +16,7 @@
 # For the expected output, an array of strings is used
 # to mimic the line-by-line nature of the output.
 
-# TODO: Implement ignore_lines
+# TODO: Implement ignore_lines (with glob patterns)
 # TODO: allow for jsonc by removing everything after and including '//' each line
 
 #==============================================================================
@@ -27,7 +27,8 @@ import json
 import subprocess
 import sys
 import os
-from typing import List, Dict, Any
+import fnmatch
+from typing import List, Dict, Any, Union
 
 #==============================================================================
 # Utility Functions
@@ -40,11 +41,19 @@ def load_tests_config(path: str) -> Dict[str, Any]:
     print(f"Loaded file {path} with {len(content.splitlines())} lines")
     return json.loads(content)
 
+def apply_ignore_filters(output: List[str], ignore_patterns: List[str]) -> List[str]:
+    """Filter out lines from output that match any of the ignore patterns."""
+    filtered_output = []
+    for line in output:
+        if not any(fnmatch.fnmatch(line, pattern) for pattern in ignore_patterns):
+            filtered_output.append(line)
+    return filtered_output
+
 #==============================================================================
 # Test Runner
 #==============================================================================
 
-def run_command(cmd: str, timeout: int) -> Dict[str, List[str]]:
+def run_command(cmd: str, timeout: int) -> Dict[str, Union[List[str], int]]:
     """Run a command and capture stdout and stderr as lists of lines."""
     try:
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=timeout)
@@ -68,6 +77,7 @@ def run_testsuite(config: Dict[str, Any], stop_on_fail: bool = False, verbose: b
     timeout  = config.get('timeout', 40)
     binaries = config.get('binaries', [])
     tests    = config.get('tests', [])
+    ignore_lines = config.get('ignore_lines', {})
 
     total_tests  = 0
     passed_tests = 0
@@ -89,6 +99,13 @@ def run_testsuite(config: Dict[str, Any], stop_on_fail: bool = False, verbose: b
             total_tests += 1
             print(f"Test: {cmd}")
             output = run_command(cmd, timeout)
+
+            # Apply ignore filters to output only if they are lists
+            if isinstance(output['cout'], list):
+                output['cout'] = apply_ignore_filters(output['cout'], ignore_lines.get('cout', []))
+            if isinstance(output['cerr'], list):
+                output['cerr'] = apply_ignore_filters(output['cerr'], ignore_lines.get('cerr', []))
+
             passed = True
             # Compare expected output
             if 'cout' in expected:
