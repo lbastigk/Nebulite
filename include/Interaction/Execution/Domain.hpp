@@ -7,6 +7,22 @@
 #pragma once
 
 //------------------------------------------
+
+/**
+ * @brief Macro to define a new Nebulite Domain class.
+ */
+#define NEBULITE_DOMAIN(DomainName) \
+    class DomainName : public Nebulite::Interaction::Execution::Domain<DomainName>
+
+/**
+ * @brief Macro to define a new Nebulite DomainModule class.
+ * 
+ * @todo Insert macro into all DomainModules
+ */
+#define NEBULITE_DOMAIN_MODULE(DomainName,DomainModuleName) \
+    class DomainModuleName : public Nebulite::Interaction::Execution::DomainModule<DomainName>
+
+//------------------------------------------
 // Includes
 
 // Nebulite

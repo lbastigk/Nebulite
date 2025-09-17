@@ -75,13 +75,10 @@ namespace Core {
  *   - Instantiate a RenderObject to represent a sprite, text, or other visual entity. Create a JSON document to hold its properties.
  *
  *   - Append the RenderObject to the Renderer via `./bin/Nebulite spawn myObject.json`
- *
- * Text resource management (textures, surfaces) is handled internally.
- * Spritesheet texture is handled by the Renderer.
  * 
  * Copy and move operations are disabled to prevent accidental resource duplication.
  */
-class RenderObject : public Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>{
+NEBULITE_DOMAIN(RenderObject) {
 public:
 	//------------------------------------------
 	// Special member Functions

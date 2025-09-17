@@ -83,7 +83,7 @@ struct taskQueueResult{
  *
  * See main.cpp and other engine modules for usage examples and integration details.
  */
-class GlobalSpace : public Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace> {
+NEBULITE_DOMAIN(GlobalSpace) {
 public:
     //------------------------------------------
     // Special Member Functions

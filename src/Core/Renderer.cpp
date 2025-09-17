@@ -468,8 +468,6 @@ void Nebulite::Core::Renderer::setCam(int X, int Y, bool isMiddle) {
 //------------------------------------------
 // Event Handling
 
-
-
 SDL_Event Nebulite::Core::Renderer::getEventHandle() {
 	SDL_Event event;
 	SDL_PollEvent(&event);
@@ -574,7 +572,10 @@ void Nebulite::Core::Renderer::updateState() {
 }
 
 void Nebulite::Core::Renderer::renderFrame() {
+	//------------------------------------------
 	// Store for faster access
+
+	// Get camera position
 	int dispPosX = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);
 	int dispPosY = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);
 
@@ -604,53 +605,69 @@ void Nebulite::Core::Renderer::renderFrame() {
 	//Render Objects
 	//For all layers, starting at 0
 	for (int layer = 0; layer < Environment::LayerCount; layer++) {
-		//Between dx +-1
+		// Cast layer to enum
+		Environment::Layer currentLayer = static_cast<Environment::Layer>(layer);
+
+		// Get all tile positions to render
+		std::vector<std::pair<int, int>> tilesToRender;
 		for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
-			// And dy +-1
 			for (int dY = (tileYpos == 0 ? 0 : -1); dY <= 1; dY++) {
-				Environment::Layer currentLayer = static_cast<Environment::Layer>(layer);
-				// If valid
 				if (env.isValidPosition(tileXpos + dX, tileYpos + dY,currentLayer)) {
-					// For all batches inside
-					for (auto& batch : env.getContainerAt(tileXpos + dX,tileYpos + dY,currentLayer)) {
-						// For all objects in batch
-						for(auto& obj : batch.objects){
-							// Check for texture
-							std::string innerdir = obj->get<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str());
-							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
-								loadTexture(innerdir);
-								obj->calculateDstRect();
-							}
-							obj->calculateSrcRect();
-							
-							// Calculate position rect
-							DstRect = *obj->getDstRect();
-							DstRect.x -= dispPosX;	//subtract camera posX
-							DstRect.y -= dispPosY; 	//subtract camera posY
+					tilesToRender.emplace_back(tileXpos + dX, tileYpos + dY);
+				}
+			}
+		}
 
-							// Render the texture
-							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj->getSrcRect(), &DstRect);
+		// For all tiles to render
+		for (const auto& [tileX, tileY] : tilesToRender) {
+			// For all batches inside
+			for (auto& batch : env.getContainerAt(tileX, tileY,currentLayer)) {
+				// For all objects in batch
+				for(auto& obj : batch.objects){
+					// Check for texture
+					std::string innerdir = obj->get<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str());
 
-							// Render the text
-							//*
-							if (obj->get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str())>0){
-								obj->calculateText(
-									renderer,
-									font,
-									dispPosX,
-									dispPosY
-								);
-								SDL_Texture* texture = obj->getTextTexture();
-								if(texture && obj->getTextRect()){
-									SDL_RenderCopy(renderer,texture,NULL,obj->getTextRect());
-								}
-							}
-							if (error != 0){
-								std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
-							}
-							//*/
+					// Load texture if not yet loaded
+					if (TextureContainer.find(innerdir) == TextureContainer.end()) {
+						loadTexture(innerdir);
+						obj->calculateDstRect();
+					}
+
+					// Link texture if not yet linked
+					if(obj->isTextureValid() == false){
+						obj->linkExternalTexture(TextureContainer[innerdir]);
+					}
+
+					// Calculate source rect
+					obj->calculateSrcRect();
+					
+					// Calculate position rect
+					DstRect = *obj->getDstRect();
+					DstRect.x -= dispPosX;	//subtract camera posX
+					DstRect.y -= dispPosY; 	//subtract camera posY
+
+					// Render the texture
+					SDL_Texture* texture = obj->getTexture();
+					error = SDL_RenderCopy(renderer, texture, obj->getSrcRect(), &DstRect);
+
+					// Render the text
+					//*
+					if (obj->get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str())>0){
+						obj->calculateText(
+							renderer,
+							font,
+							dispPosX,
+							dispPosY
+						);
+						SDL_Texture* texture = obj->getTextTexture();
+						if(texture && obj->getTextRect()){
+							SDL_RenderCopy(renderer,texture,NULL,obj->getTextRect());
 						}
 					}
+					if (error != 0){
+						std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
+					}
+					//*/
 				}
 			}
 		}

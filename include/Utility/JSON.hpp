@@ -94,7 +94,7 @@ inline constexpr bool is_simple_value_v = is_simple_value<T>::value;
  * - new cache `var1` is substring of existing cache `var1.var2` -> delete `var1.var2`
  * - Since we only need to compare new cached values with existing ones, we can optimize the process.
  */
-class JSON : public Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>{
+NEBULITE_DOMAIN(JSON) {
 public:
     JSON();
 

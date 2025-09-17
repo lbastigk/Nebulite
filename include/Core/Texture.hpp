@@ -29,7 +29,7 @@ namespace Nebulite{
 //------------------------------------------
 namespace Nebulite {
 namespace Core {
-class Texture : public Nebulite::Interaction::Execution::Domain<Texture>{
+NEBULITE_DOMAIN(Texture) {
 public:
     /**
      * @brief Constructs a new Texture domain.
@@ -40,6 +40,17 @@ public:
      * @param texture Optional pointer to an existing SDL_Texture.
      */
     Texture(Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* globalSpace);
+
+    /**
+     * @brief Destroys the Texture and frees resources.
+     */
+    ~Texture() {
+        // Only destroy the texture if it was modified
+        // And thus a local copy exists
+        if(texture != nullptr && textureModified) {
+            SDL_DestroyTexture(texture);
+        }
+    };
 
     /**
      * @brief Updates the texture.

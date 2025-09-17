@@ -120,13 +120,16 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::clea
     if (argc > 1) {
         return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
     }
-    
+    int error = 0;
     #if _WIN32
-        (void)std::system("cls");
+        error = std::system("cls");
     #else
-        (void)std::system("clear");
+        error = std::system("clear");
     #endif
 
+    if (error != 0) {
+        return Nebulite::Constants::ERROR_TYPE::CRITICAL_GENERAL;
+    }
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
