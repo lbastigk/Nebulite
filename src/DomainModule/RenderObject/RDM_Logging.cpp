@@ -37,3 +37,20 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Logging::l
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Logging::logValue(int argc, char* argv[]){
     return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
 }
+
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Logging::print(int argc, char* argv[]){
+    std::string serialized = domain->serialize();
+    std::cout << serialized << std::endl;
+    return Nebulite::Constants::ERROR_TYPE::NONE;
+}
+
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Logging::printValue(int argc, char* argv[]){
+    if(argc<2){
+        std::cerr << "print-value requires a <key> argument" << std::endl;
+        return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
+    }
+    std::string key = argv[1];
+    auto value = domain->get<std::string>(key.c_str(), "");
+    std::cout << value << std::endl;
+    return Nebulite::Constants::ERROR_TYPE::NONE;
+}

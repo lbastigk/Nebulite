@@ -57,7 +57,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE onDraft(int argc, char* argv[]);
+    Nebulite::Constants::ERROR_TYPE parse(int argc, char* argv[]);
 
     /**
      * @brief Spawn the created draft object
@@ -88,7 +88,7 @@ public:
     : DomainModule(moduleName, domain, funcTreePtr) {
         // Bind functions
         bindSubtree("draft", "Functions to manipulate and spawn RenderObjects in draft state");
-        bindFunction(&RenderObjectDraft::onDraft,     "draft modify",  "Parse Renderobject-specific functions on the draft");
+        bindFunction(&RenderObjectDraft::parse,       "draft parse",   "Parse Renderobject-specific functions on the draft");
         bindFunction(&RenderObjectDraft::spawnDraft,  "draft spawn",   "Spawn the created draft object");
         bindFunction(&RenderObjectDraft::resetDraft,  "draft reset",   "Reset the draft object (does not reset any spawned ones!)");
     }

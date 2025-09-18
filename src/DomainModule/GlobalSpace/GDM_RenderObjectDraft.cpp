@@ -13,12 +13,10 @@ void Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::update() {
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::onDraft(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::parse(int argc, char* argv[]) {
     if(argc < 2){
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
     }
-
-    // Implementation of onDraft
     std::string command;
     for (int i = 1; i < argc; ++i) {    // Ignoring first 2 argc: <from> <thisFunctionsName>
         command += argv[i];
