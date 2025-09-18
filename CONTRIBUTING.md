@@ -78,14 +78,16 @@ Maintainers can create their own module classes and add them to a specific domai
 
 | Domain: Commands operating on... | Action                                                  | Info                                                                                                         |
 |----------------------------------|---------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| Global level                     | Extend `GDM.hpp` by creating GlobalSpace DomainModules  | See `include/Interaction/Execution/GlobalSpace.h` and its modules `include/DomainModule/GlobalSpace/GTE_*.h` |
-| Specific RenderObjects           | Extend `RDM.hpp` by creating RenderObject DomainModules | See `include/Core/RenderObject.h` and its modules `include/DomainModule/RenderObject/RTE_*.h`                |
-| Specific JSON-Documents          | Extend `JDM.hpp` by creating JSON DomainModules         | See `include/Utility/JSON.h` and its modules `include/DomainModule/JSON/JTE_*.h`                             |
+| Global level                     | Extend `GDM.hpp` by creating GlobalSpace DomainModules  | See `include/Interaction/Execution/GlobalSpace.h` and its modules `include/DomainModule/GlobalSpace/GDM_*.h` |
+| Specific RenderObjects           | Extend `RDM.hpp` by creating RenderObject DomainModules | See `include/Core/RenderObject.h` and its modules `include/DomainModule/RenderObject/RDM_*.h`                |
+| Specific JSON-Documents          | Extend `JDM.hpp` by creating JSON DomainModules         | See `include/Utility/JSON.h` and its modules `include/DomainModule/JSON/JDM_*.h`                             |
+| Specific Textures                | Extend `TDM.hpp` by creating Texture DomainModules      | See `include/Core/Texture.h` and its modules `include/DomainModule/Texture/TDM_*.h`                          |
 
 Each DomainModule has access to a different set of functions through `funcTree->...` and a different domain through `domain->...`: 
 - `GlobalSpace`  modules can access the global space
 - `RenderObject` modules can access the attached RenderObject
 - `JSON`         modules can access the attached JSON
+- `Texture`      modules can access the attached Texture
 
 Each DomainModule can make use of an update routine, allowing us to declutter classes by binding routines to specific modules:
 - input-reading
