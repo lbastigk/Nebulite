@@ -778,37 +778,43 @@ void Nebulite::Core::Renderer::showFrame() {
 // Texture-Related
 
 void Nebulite::Core::Renderer::loadTexture(std::string link) {
-	// Combine directory and innerdir to form full path
-	std::string path = Nebulite::Utility::FileManagement::CombinePaths(baseDirectory, link);
-
-	// Check if texture is already loaded
-	if (TextureContainer.find(link) == TextureContainer.end()) {
-
-		// Attempt to load as PNG (or other supported formats)
-		SDL_Surface* surface = IMG_Load(path.c_str()); 
-
-		// Fallback to BMP if PNG load fails
-		if (!surface) {
-			surface = SDL_LoadBMP(path.c_str()); 
-		}
-
-		// Unknown format or other issues with surface
-		if (!surface) {
-			std::cerr << "Failed to load image '" << path << "': " << SDL_GetError() << std::endl;
-			return;
-		}
-
-		// Create texture from surface
-		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-		SDL_FreeSurface(surface); // Free the surface after creating texture
-
-		// Check for texture issues
-		if (!texture) {
-			std::cerr << "Failed to create texture from surface: " << SDL_GetError() << std::endl;
-			return;
-		}
-
-		// Store texture in container
+	SDL_Texture* texture = loadTextureToMemory(link);
+	if (texture) {
 		TextureContainer[link] = texture;
 	}
 }
+
+/**
+ * @todo Texture not created with SDL_TEXTUREACCESS_TARGET, so cannot be used with SDL_SetRenderTarget
+ */
+SDL_Texture* Nebulite::Core::Renderer::loadTextureToMemory(std::string link) {
+	int access = SDL_TEXTUREACCESS_STATIC; // Most common
+	//int access = SDL_TEXTUREACCESS_STREAMING; // For dynamic textures that change often
+
+    std::string path = Nebulite::Utility::FileManagement::CombinePaths(baseDirectory, link);
+    SDL_Surface* surface = IMG_Load(path.c_str());
+    if (!surface) surface = SDL_LoadBMP(path.c_str());
+    if (!surface) {
+        std::cerr << "Failed to load image '" << path << "': " << SDL_GetError() << std::endl;
+        return nullptr;
+    }
+
+    SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, access, surface->w, surface->h);
+    if (!texture) {
+        std::cerr << "Failed to create texture: " << SDL_GetError() << std::endl;
+        SDL_FreeSurface(surface);
+        return nullptr;
+    }
+
+    // Copy surface to texture
+    SDL_SetRenderTarget(renderer, texture);
+    SDL_Texture* temp = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_RenderCopy(renderer, temp, nullptr, nullptr);
+    SDL_SetRenderTarget(renderer, nullptr);
+    SDL_DestroyTexture(temp);
+    SDL_FreeSurface(surface);
+
+    return texture;
+}
+
+

@@ -19,8 +19,14 @@ void Nebulite::Core::Texture::update() {
 }
 
 bool Nebulite::Core::Texture::copyTexture() {
+    // If no texture is linked, try to load from the document
     if (texture == nullptr) {
-        return false; // No texture to copy
+        std::string imageLocation = Nebulite::Constants::keyName.renderObject.imageLocation;
+        texture = globalSpace->getRenderer()->loadTextureToMemory(getDoc()->get<std::string>(imageLocation.c_str(),""));
+
+        if(texture == nullptr) {
+            return false; // No texture to copy
+        }
     }
 
     // Get texture info
@@ -58,8 +64,7 @@ bool Nebulite::Core::Texture::copyTexture() {
     // Replace the old texture with the new one
     // We do not destroy the old texture, as it might be managed externally
     texture = newTexture;
-
-    std::cout << "Texture copied successfully for modification." << std::endl;
+    textureModified = true;
     return true; // Successfully copied
 }
 
@@ -71,7 +76,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Core::Texture::preParse() {
 
     if(!textureModified){
         // Failed to copy texture, cannot proceed with modifications
-        return Nebulite::Constants::ERROR_TYPE::CRITICAL_GENERAL;
+        return Nebulite::Constants::ERROR_TYPE::CRITICAL_TEXTURE_COPY_FAILED;
     }
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }

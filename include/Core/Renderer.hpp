@@ -402,6 +402,21 @@ public:
 		return env.getObjectFromId(id);
 	}
 
+	//------------------------------------------
+	// Texture-Related
+
+	/**
+	 * @brief Loads a texture from a file into memory without adding it to the TextureContainer.
+	 * 
+	 * This function creates the necessary surface and texture object from a given file path,
+	 * but does not store it in the TextureContainer. It is useful for temporary textures or
+	 * textures that are managed externally.
+	 * 
+	 * @param link The file path to load the texture from.
+	 * @return A pointer to the loaded SDL_Texture, or nullptr if loading failed.
+	 */
+	SDL_Texture* loadTextureToMemory(std::string link);
+
 private:
 
 	//------------------------------------------
@@ -550,7 +565,6 @@ private:
 	//------------------------------------------
 	// Texture-Related
 
-	// Function to load texture from file
 	/**
 	 * @brief Loads a texture into the TextureContainer
 	 * 

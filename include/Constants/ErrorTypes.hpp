@@ -46,23 +46,50 @@ namespace Constants {
  * @note Remember to add error type descriptions to the ErrorTable class!
  */
 enum ERROR_TYPE{
+    //------------------------------------------
     // Critical Errors first with negative value
     CRITICAL_GENERAL = -1000,
+    //------------------------------------------
+
+    // [Custom]
     CRITICAL_CUSTOM_ASSERT,
+
+    // [Function]
     CRITICAL_FUNCTION_NOT_IMPLEMENTED,
-    CRITICAL_INVALID_FILE,
-    CRITICAL_INVALID_ARGC_ARGV_PARSING,
     CRITICAL_FUNCTIONCALL_INVALID,
+    CRITICAL_INVALID_ARGC_ARGV_PARSING,
+
+    // [File]
+    CRITICAL_INVALID_FILE,
+
+    // [SDL]
     CRITICAL_SDL_RENDERER_INIT_FAILED,
+    
+    // [Texture]
+    CRITICAL_TEXTURE_NOT_FOUND,
+    CRITICAL_TEXTURE_COPY_FAILED,
+    CRITICAL_TEXTURE_COLOR_UNSUPPORTED,
+    CRITICAL_TEXTURE_LOCK_FAILED,
+
+    //------------------------------------------
     // Non-critical errors positive
     NONE = 0,
+    //------------------------------------------
+
+    // [Custom]
     CUSTOM_ERROR,               // used for functioncall "error"
+
+    // [File]
+    FILE_NOT_FOUND,
+
+    // [Function]
     TOO_MANY_ARGS,              // argc > expected
     TOO_FEW_ARGS,               // argc < expected
     UNKNOWN_ARG,                
     FEATURE_NOT_IMPLEMENTED,
+
+    // [SDL]
     SNAPSHOT_FAILED,            // Used in Nebulite::DomainModule::GlobalSpace::Renderer::snapshot
-    FILE_NOT_FOUND,
 };
 
 
@@ -79,6 +106,12 @@ public:
      * 
      * On construction, all error types are mapped to their string descriptions.
      * Add new values here as needed.
+     * 
+     * @todo Refactor enum and descriptions to perhaps be directly linked, avoiding duplication.
+     *       Perhaps return of type std::pair<int, std::string*>
+     *       With -1 for critical errors, 0 for none, +1 for non-critical errors.
+     *       This would allow us to use existing errors from the database
+     *       as well as custom errors with description.
      */
     ErrorTable(){
         //------------------------------------------
@@ -128,7 +161,7 @@ public:
         if (it != errorTypeToString.end()) {
             return it->second;
         }
-        return "Undocumented Error!";
+        return "Undocumented Error! ID: " + std::to_string(static_cast<int>(errorType));
     }
 
 private:

@@ -15,13 +15,13 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::Texture::Fill::fill(int 
     // Get the SDL_Renderer
     SDL_Renderer* renderer = domain->getGlobalSpace()->getSDLRenderer();
     if (renderer == nullptr) {
-        return Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR;
+        return Nebulite::Constants::ERROR_TYPE::CRITICAL_SDL_RENDERER_INIT_FAILED;
     }
 
     // Get the texture to fill
     SDL_Texture* texture = domain->getSDLTexture();
     if (texture == nullptr) {
-        return Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR;
+        return Nebulite::Constants::ERROR_TYPE::CRITICAL_TEXTURE_NOT_FOUND;
     }
 
     // Parse color arguments
@@ -35,14 +35,14 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::Texture::Fill::fill(int 
         } else if (color == "blue") {
             b = 255;
         } else {
-            return Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR;
+            return Nebulite::Constants::ERROR_TYPE::CRITICAL_TEXTURE_COLOR_UNSUPPORTED;
         }
     } else if (argc == 4) {
         r = static_cast<Uint8>(std::stoi(argv[1]));
         g = static_cast<Uint8>(std::stoi(argv[2]));
         b = static_cast<Uint8>(std::stoi(argv[3]));
     } else {
-        return Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR;
+        return Nebulite::Constants::ERROR_TYPE::CRITICAL_INVALID_ARGC_ARGV_PARSING;
     }
 
     // Lock the texture for pixel manipulation
@@ -50,7 +50,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::Texture::Fill::fill(int 
     int pitch;
     if (SDL_LockTexture(texture, nullptr, &pixels, &pitch) != 0) {
         std::cerr << "Failed to lock texture: " << SDL_GetError() << std::endl;
-        return Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR;
+        return Nebulite::Constants::ERROR_TYPE::CRITICAL_TEXTURE_LOCK_FAILED;
     }
 
     // Fill the texture with the specified color
@@ -68,7 +68,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::Texture::Fill::fill(int 
     SDL_UnlockTexture(texture);
 
     std::cout << "Texture filled with color: "
-              <<" R=" << static_cast<int>(r)
+              << " R=" << static_cast<int>(r)
               << " G=" << static_cast<int>(g)
               << " B=" << static_cast<int>(b) 
               << std::endl;
