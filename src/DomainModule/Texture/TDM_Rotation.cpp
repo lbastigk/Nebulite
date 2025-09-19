@@ -18,46 +18,31 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::Texture::Rotation::rotat
     // Get the SDL_Renderer
     SDL_Renderer* renderer = domain->getGlobalSpace()->getSDLRenderer();
     if (renderer == nullptr) {
-        domain->getGlobalSpace()->parseStr(
-            "Nebulite::DomainModule::Texture::Rotation::rotate error No renderer available"
-        );
-        return Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR;
+        return Nebulite::Constants::ERROR_TYPE::CRITICAL_SDL_RENDERER_INIT_FAILED;
     }
 
     // Get the texture to rotate
     SDL_Texture* texture = domain->getSDLTexture();
     if (texture == nullptr) {
-        domain->getGlobalSpace()->parseStr(
-            "Nebulite::DomainModule::Texture::Rotation::rotate error No texture to rotate"
-        );
-        return Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR;
+        return Nebulite::Constants::ERROR_TYPE::CRITICAL_TEXTURE_NOT_FOUND;
     }
 
     // Get the texture's width and height
     int width, height;
     if (SDL_QueryTexture(texture, nullptr, nullptr, &width, &height) != 0) {
-        domain->getGlobalSpace()->parseStr(
-            "Nebulite::DomainModule::Texture::Rotation::rotate error Failed to query texture"
-        );
-        return Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR;
+        return Nebulite::Constants::ERROR_TYPE::CRITICAL_TEXTURE_QUERY_FAILED;
     }
 
     // Create a new texture to hold the rotated result
     SDL_Texture* rotatedTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
     if (rotatedTexture == nullptr) {
-        domain->getGlobalSpace()->parseStr(
-            "Nebulite::DomainModule::Texture::Rotation::rotate error Failed to create new texture"
-        );
-        return Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR;
+        return Nebulite::Constants::ERROR_TYPE::CRITICAL_TEXTURE_MODIFICATION_FAILED;
     }
 
     // Set the new texture as the render target
     if (SDL_SetRenderTarget(renderer, rotatedTexture) != 0) {
         SDL_DestroyTexture(rotatedTexture);
-        domain->getGlobalSpace()->parseStr(
-            "Nebulite::DomainModule::Texture::Rotation::rotate error Failed to set render target, error: " + std::string(SDL_GetError())
-        );
-        return Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR;
+        return Nebulite::Constants::ERROR_TYPE::CRITICAL_SDL_RENDERER_TARGET_FAILED;
     }
 
     // Clear the render target
