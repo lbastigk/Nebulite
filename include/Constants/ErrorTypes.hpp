@@ -64,12 +64,15 @@ enum ERROR_TYPE{
 
     // [SDL]
     CRITICAL_SDL_RENDERER_INIT_FAILED,
+    CRITICAL_SDL_RENDERER_TARGET_FAILED,
     
     // [Texture]
     CRITICAL_TEXTURE_NOT_FOUND,
     CRITICAL_TEXTURE_COPY_FAILED,
     CRITICAL_TEXTURE_COLOR_UNSUPPORTED,
     CRITICAL_TEXTURE_LOCK_FAILED,
+    CRITICAL_TEXTURE_QUERY_FAILED,
+    CRITICAL_TEXTURE_MODIFICATION_FAILED,
 
     //------------------------------------------
     // Non-critical errors positive
@@ -91,7 +94,6 @@ enum ERROR_TYPE{
     // [SDL]
     SNAPSHOT_FAILED,            // Used in Nebulite::DomainModule::GlobalSpace::Renderer::snapshot
 };
-
 
 
 /**
@@ -170,3 +172,89 @@ private:
 };
 } // namespace Constants
 } // namespace Nebulite
+
+
+//------------------------------------------
+// New proposed structure for error handling
+
+// Basic struct for an error
+struct ERROR{
+private:
+    std::string* description;
+    enum Type{
+        // Perhaps some more distinction is necessary here
+        // if not, condense to bool isCritical
+        CRITICAL,
+        NON_CRITICAL
+    } type;
+    friend class Table;
+public:
+    std::string getDescription() const {
+        return *description;
+    }
+    bool isCritical() const {
+        return type == CRITICAL;
+    }
+};
+
+// Error table class for holding all errors
+// If all domains have access to globalspace, we can make this a member of globalspace
+// and access it via domain->getGlobalSpace()->addError(description);
+// as well as the Table instance itself
+// and the predefined errors via domain->getGlobalSpace()->PREMADE_ERRORS::...
+class Table{
+private:
+    std::vector<ERROR> errors;
+    uint16_t count = 0;
+public:
+    ERROR addError(const std::string& description) {
+        if (count == UINT16_MAX) {
+            // Handle error: maximum number of errors reached
+            // Exit entirely as this should never happen
+            std::exit(EXIT_FAILURE);
+        }
+        errors.emplace_back(new std::string(description));
+        count++;
+        return errors.back();
+    }
+} ERRTABLE;
+
+struct PREMADE_ERRORS{
+    struct SDL{
+        ERROR CRITICAL_SDL_RENDERER_INIT_FAILED = ERRTABLE.addError("Critical Error: SDL Renderer could not be initialized.");
+        ERROR CRITICAL_SDL_RENDERER_TARGET_FAILED = ERRTABLE.addError("Critical Error: SDL Renderer target could not be set.");
+    } SDL;
+
+    struct TEXTURE{
+        ERROR CRITICAL_TEXTURE_NOT_FOUND = ERRTABLE.addError("Critical Error: Texture not found.");
+        ERROR CRITICAL_TEXTURE_COPY_FAILED = ERRTABLE.addError("Critical Error: Texture copy failed.");
+        ERROR CRITICAL_TEXTURE_COLOR_UNSUPPORTED = ERRTABLE.addError("Critical Error: Texture color format unsupported.");
+        ERROR CRITICAL_TEXTURE_LOCK_FAILED = ERRTABLE.addError("Critical Error: Texture lock failed.");
+        ERROR CRITICAL_TEXTURE_QUERY_FAILED = ERRTABLE.addError("Critical Error: Texture query failed.");
+        ERROR CRITICAL_TEXTURE_MODIFICATION_FAILED = ERRTABLE.addError("Critical Error: Texture modification failed.");
+    } TEXTURE;
+
+    struct AUDIO{
+        ERROR CRITICAL_AUDIO_DEVICE_INIT_FAILED = ERRTABLE.addError("Critical Error: Audio device could not be initialized.");
+    } AUDIO;
+
+    struct FUNCTIONALL{
+        ERROR CRITICAL_FUNCTION_NOT_IMPLEMENTED = ERRTABLE.addError("Requested function not implemented.");
+        ERROR CRITICAL_FUNCTIONCALL_INVALID = ERRTABLE.addError("Requested function call is invalid.");
+        ERROR CRITICAL_INVALID_ARGC_ARGV_PARSING = ERRTABLE.addError("argc/argv parsing error.");
+        ERROR TOO_MANY_ARGS = ERRTABLE.addError("Too Many Arguments in function call");
+        ERROR TOO_FEW_ARGS = ERRTABLE.addError("Too Few Arguments in function call");
+        ERROR UNKNOWN_ARG = ERRTABLE.addError("Unknown Argument Error");
+        ERROR FEATURE_NOT_IMPLEMENTED = ERRTABLE.addError("Requested feature of functioncall is not implemented");
+    } FUNCTIONALL;
+
+    struct FILE{
+        ERROR FILE_NOT_FOUND = ERRTABLE.addError("Requested file not found");
+        ERROR CRITICAL_INVALID_FILE = ERRTABLE.addError("Requested file is invalid.");
+    } FILE;
+
+    ERROR CRITICAL_GENERAL = ERRTABLE.addError("General, critical error. It is recommended to NOT use this error type in production.");
+    ERROR CRITICAL_CUSTOM_ASSERT = ERRTABLE.addError("A custom assertion failed.");
+    
+    
+} PREMADE_ERRORS;
