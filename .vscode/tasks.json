@@ -26,12 +26,27 @@
         {
             "label": "[BUILD + TEST]",
             "type": "shell",
-            "command": "python ./Scripts/validate_json.py && python Scripts/Tests.py --stop && cd ..",
+            "command": "echo 'Finished'",
             "group": {
                 "kind": "build",
                 "isDefault": false
             },
-            "dependsOn": "[BUILD]",
+            "dependsOn": [
+                "[BUILD]", 
+                "[TEST]"
+            ],
+            "dependsOrder": "sequence",
+            "problemMatcher": [],
+            "detail": "Build with JSON validation and run Tests. Stops on first failure."
+        },
+        {
+            "label": "[TEST]",
+            "type": "shell",
+            "command": "python ./Scripts/validate_json.py && python Scripts/Tests.py --stop --verbose && cd ..",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
             "problemMatcher": [],
             "detail": "Build with JSON validation and run Tests. Stops on first failure."
         },
