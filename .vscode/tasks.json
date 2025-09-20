@@ -25,8 +25,6 @@
         },
         {
             "label": "[BUILD + TEST]",
-            "type": "shell",
-            "command": "echo 'Finished'",
             "group": {
                 "kind": "build",
                 "isDefault": false
@@ -44,7 +42,7 @@
             "type": "shell",
             "command": "python ./Scripts/validate_json.py && python Scripts/Tests.py --stop --verbose && cd ..",
             "group": {
-                "kind": "build",
+                "kind": "test",
                 "isDefault": false
             },
             "problemMatcher": [],
