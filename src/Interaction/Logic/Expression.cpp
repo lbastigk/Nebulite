@@ -13,6 +13,9 @@ Nebulite::Interaction::Logic::Expression::~Expression() {
     // reset all data
     reset();
 
+    // Remove variables
+    variables.clear();
+
     // Clear all expressions
     for(auto& entry : entries) {
         if(entry.expression != nullptr) {
@@ -49,33 +52,31 @@ void Nebulite::Interaction::Logic::Expression::reset() {
     // Register built-in functions
 
     // Logical comparison functions
-
-    te_variable gt_var =  {"gt",    (void*)expr_custom::gt,             TE_FUNCTION2};
-    variables.push_back(gt_var);
-    te_variable lt_var =  {"lt",    (void*)expr_custom::lt,             TE_FUNCTION2};
-    variables.push_back(lt_var);
-    te_variable geq_var = {"geq",   (void*)expr_custom::geq,            TE_FUNCTION2};
-    variables.push_back(geq_var);
-    te_variable leq_var = {"leq",   (void*)expr_custom::leq,            TE_FUNCTION2};
-    variables.push_back(leq_var);
-    te_variable eq_var =  {"eq",    (void*)expr_custom::eq,             TE_FUNCTION2};
-    variables.push_back(eq_var);
-    te_variable neq_var = {"neq",   (void*)expr_custom::neq,            TE_FUNCTION2};
-    variables.push_back(neq_var);
+    variables.push_back({"gt",          (void*)expr_custom::gt,             TE_FUNCTION2});
+    variables.push_back({"lt",          (void*)expr_custom::lt,             TE_FUNCTION2});
+    variables.push_back({"geq",         (void*)expr_custom::geq,            TE_FUNCTION2});
+    variables.push_back({"leq",         (void*)expr_custom::leq,            TE_FUNCTION2});
+    variables.push_back({"eq",          (void*)expr_custom::eq,             TE_FUNCTION2});
+    variables.push_back({"neq",         (void*)expr_custom::neq,            TE_FUNCTION2});
 
     // Logical gate functions
+    variables.push_back({"not",         (void*)expr_custom::logical_not,    TE_FUNCTION1});
+    variables.push_back({"and",         (void*)expr_custom::logical_and,    TE_FUNCTION2});
+    variables.push_back({"or",          (void*)expr_custom::logical_or,     TE_FUNCTION2});
+    variables.push_back({"xor",         (void*)expr_custom::logical_xor,    TE_FUNCTION2});
+    variables.push_back({"nand",        (void*)expr_custom::logical_nand,   TE_FUNCTION2});
+    variables.push_back({"nor",         (void*)expr_custom::logical_nor,    TE_FUNCTION2});
+    variables.push_back({"xnor",        (void*)expr_custom::logical_xnor,   TE_FUNCTION2});
 
-    te_variable and_var = {"and",   (void*)expr_custom::logical_and,    TE_FUNCTION2};
-    variables.push_back(and_var);
-    te_variable or_var =  {"or",    (void*)expr_custom::logical_or,     TE_FUNCTION2};
-    variables.push_back(or_var);
-    te_variable not_var = {"not",   (void*)expr_custom::logical_not,    TE_FUNCTION1};
-    variables.push_back(not_var);
+    // Other logical functions
+    variables.push_back({"to_bipolar",  (void*)expr_custom::to_bipolar,     TE_FUNCTION1});
+
+    // Mapping functions
+    variables.push_back({"map",         (void*)expr_custom::map,            TE_FUNCTION5});
+    variables.push_back({"constrain",   (void*)expr_custom::constrain,      TE_FUNCTION3});
 
     // More mathematical functions
-
-    te_variable sgn_var = {"sgn",   (void*)expr_custom::sgn,            TE_FUNCTION1};
-    variables.push_back(sgn_var);
+    variables.push_back({"sgn",         (void*)expr_custom::sgn,            TE_FUNCTION1});
 }
 
 std::string Nebulite::Interaction::Logic::Expression::stripContext(const std::string& key) {

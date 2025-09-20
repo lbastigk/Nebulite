@@ -230,16 +230,6 @@ private:
      * @brief A collection of custom functions for TinyExpr
      * 
      * Make sure to register all functions with TinyExpr in Nebulite::Interaction::Logic::Expression::reset
-     * 
-     * @todo: Add more functionality:
-     * 
-     * - map/constrain
-     * 
-     * - xor
-     * 
-     * - nand
-     * 
-     * - nor
      */
     class expr_custom{
     public:
@@ -252,9 +242,29 @@ private:
         static double neq(double a, double b){return a != b;}
 
         // Logical gate functions
+        static double logical_not(double a){return !a;}
+
         static double logical_and(double a, double b){return a && b;}
         static double logical_or(double a, double b){return a || b;}
-        static double logical_not(double a){return !a;}
+        static double logical_xor(double a, double b){return (a || b) && !(a && b);}
+
+        static double logical_nand(double a, double b){return !(a && b);}
+        static double logical_nor(double a, double b){return !(a || b);}
+        static double logical_xnor(double a, double b){return !( (a || b) && !(a && b) );}
+
+        // Other logical functions
+        static double to_bipolar(double a){return a != 0 ? 1 : -1;}
+
+        // Mapping functions
+        static double map(double value, double in_min, double in_max, double out_min, double out_max) {
+            if(in_max - in_min == 0) return out_min; // Prevent division by zero
+            return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+        }
+        static double constrain(double value, double min, double max) {
+            if(value < min) return min;
+            if(value > max) return max;
+            return value;
+        }
 
         // More mathematical functions
         static double sgn(double a){return std::copysign(1.0, a);}
