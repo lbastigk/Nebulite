@@ -258,8 +258,8 @@ public:
      * 
      * @return true if the texture has been modified, false otherwise.
      */
-    bool isTextureModified() {
-        return baseTexture.isTextureModified();
+    bool isTextureStoredLocally() {
+        return baseTexture.isTextureStoredLocally();
     }
 
     /**

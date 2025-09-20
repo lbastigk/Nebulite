@@ -4,11 +4,15 @@
 #include "Core/GlobalSpace.hpp"
 
 Nebulite::Core::Texture::Texture(Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* globalSpace) 
-: Nebulite::Interaction::Execution::Domain<Texture>("Texture",this,doc)
+: Nebulite::Interaction::Execution::Domain<Texture>("Texture",this,doc), globalSpace(globalSpace)
 {
-    texture  = nullptr; // Start with no texture
-    this->globalSpace = globalSpace;
+    // Start with no texture
+    texture  = nullptr;
+
+    // Set preParse function
     funcTree->setPreParse(std::bind(&Nebulite::Core::Texture::preParse,this));
+
+    // Initialize all DomainModules
     Nebulite::DomainModule::TDM_init(this);
 }
 
@@ -64,17 +68,32 @@ bool Nebulite::Core::Texture::copyTexture() {
     // Replace the old texture with the new one
     // We do not destroy the old texture, as it might be managed externally
     texture = newTexture;
-    textureModified = true;
+    textureStoredLocally = true;
     return true; // Successfully copied
 }
 
+void Nebulite::Core::Texture::loadTextureFromFile(const std::string& filePath) {
+    // Load the texture using the global renderer
+    SDL_Texture* newTexture = globalSpace->getRenderer()->loadTextureToMemory(filePath);
+    if (newTexture) {
+        // If a texture already exists and is stored locally, destroy it
+        if (textureStoredLocally && texture) {
+            SDL_DestroyTexture(texture);
+        }
+        texture = newTexture;
+        textureStoredLocally = false; // New texture is not yet modified
+    } else {
+        std::cerr << "Failed to load texture from file: " << filePath << std::endl;
+    }
+}
+
 Nebulite::Constants::ERROR_TYPE Nebulite::Core::Texture::preParse() {
-    if(!textureModified){
+    if(!textureStoredLocally){
         // Make a local copy if we modify the texture
-        textureModified = copyTexture(); 
+        textureStoredLocally = copyTexture(); 
     }
 
-    if(!textureModified){
+    if(!textureStoredLocally){
         // Failed to copy texture, cannot proceed with modifications
         return Nebulite::Constants::ERROR_TYPE::CRITICAL_TEXTURE_COPY_FAILED;
     }

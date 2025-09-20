@@ -11,6 +11,7 @@
 //------------------------------------------
 // Module includes 
 #if TDM_ENABLED
+    #include "DomainModule/Texture/TDM_General.hpp"
     #include "DomainModule/Texture/TDM_Rotation.hpp"
     #include "DomainModule/Texture/TDM_Fill.hpp"
 #endif
@@ -25,6 +26,7 @@ void TDM_init(Nebulite::Core::Texture* target){
     #if TDM_ENABLED
         // Initialize DomainModules
         using namespace Nebulite::DomainModule::Texture;
+        target->initModule<General>("Texture General Functions");
         target->initModule<Rotation>("Texture Rotation Functions");
         target->initModule<Fill>("Texture Fill Functions");
     #endif

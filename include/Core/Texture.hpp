@@ -16,6 +16,7 @@
 #include <SDL_ttf.h>
 
 // Nebulite
+#include "Constants/KeyNames.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
@@ -47,7 +48,7 @@ public:
     ~Texture() {
         // Only destroy the texture if it was modified
         // And thus a local copy exists
-        if(texture != nullptr && textureModified) {
+        if(texture != nullptr && textureStoredLocally) {
             SDL_DestroyTexture(texture);
         }
     };
@@ -84,16 +85,16 @@ public:
      */
     void linkExternalTexture(SDL_Texture* externalTexture) {
         texture = externalTexture;
-        textureModified = false; // Reset modification flag
+        textureStoredLocally = false; // Reset modification flag
     }
 
     void setInternalTexture(SDL_Texture* newTexture) {
         // Destroy any old internal texture if it was modified
-        if (texture != nullptr && textureModified) {
+        if (texture != nullptr && textureStoredLocally) {
             SDL_DestroyTexture(texture);
         }
         texture = newTexture;
-        textureModified = true; // Mark as modified since it's a new internal texture
+        textureStoredLocally = true; // Mark as modified since it's a new internal texture
     }
 
     /**
@@ -101,8 +102,8 @@ public:
      * 
      * @return true if the texture has been modified, false otherwise.
      */
-    bool isTextureModified() {
-        return textureModified;
+    bool isTextureStoredLocally() {
+        return textureStoredLocally;
     }
 
     /**
@@ -137,7 +138,8 @@ private:
      */
     SDL_Texture* texture;
 
-    bool textureModified = false; // Flag to indicate if the texture has been modified
+    // Flag to indicate if the texture is locally stored
+    bool textureStoredLocally = false;
 
     /**
      * @brief Makes a copy of the texture currently managed by this class.

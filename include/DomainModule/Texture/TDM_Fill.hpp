@@ -2,6 +2,9 @@
  * @file TDM_Fill.hpp
  * 
  * This file contains the DomainModule of the Texture for fill functions.
+ * 
+ * @todo Functionality is not given, errors regarding streaming access / target setting persist.
+ * Prioritize later, once some more important features are overhauled.
  */
 
 #pragma once

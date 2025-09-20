@@ -176,49 +176,61 @@ private:
 
 //------------------------------------------
 // New proposed structure for error handling
+/**
+ * @todo Implementation in globalspace
+ * If all domains have access to globalspace, we can make this a member of globalspace
+ * and access it via domain->getGlobalSpace()->addError(description);
+ * as well as the Table instance itself and the predefined errors via domain->getGlobalSpace()->PREMADE_ERRORS::...
+ */
 
 // Basic struct for an error
-struct ERROR{
-private:
-    std::string* description;
+class ERROR{
+public:
     enum Type{
         // Perhaps some more distinction is necessary here
         // if not, condense to bool isCritical
         CRITICAL,
         NON_CRITICAL
-    } type;
-    friend class Table;
-public:
+    };
+
+    /**
+     * @brief Constructor for ERROR struct.
+     */
+    ERROR(std::string* desc, ERROR::Type t) : description(desc), type(t) {}
+
+    /**
+     * @brief Get the error description.
+     */
     std::string getDescription() const {
         return *description;
     }
     bool isCritical() const {
-        return type == CRITICAL;
+        return type == ERROR::CRITICAL;
     }
+private:
+    std::string* description;
+    Type type;
+    friend class Table;
 };
 
-// Error table class for holding all errors
-// If all domains have access to globalspace, we can make this a member of globalspace
-// and access it via domain->getGlobalSpace()->addError(description);
-// as well as the Table instance itself
-// and the predefined errors via domain->getGlobalSpace()->PREMADE_ERRORS::...
+
 class Table{
 private:
     std::vector<ERROR> errors;
     uint16_t count = 0;
 public:
-    ERROR addError(const std::string& description) {
+    ERROR addError(const char* description, ERROR::Type type = ERROR::NON_CRITICAL){
         if (count == UINT16_MAX) {
             // Handle error: maximum number of errors reached
             // Exit entirely as this should never happen
             std::exit(EXIT_FAILURE);
         }
-        errors.emplace_back(new std::string(description));
+        errors.emplace_back(new std::string(description), type);
         count++;
         return errors.back();
     }
-} ERRTABLE;
-
+};
+/*
 struct PREMADE_ERRORS{
     struct SDL{
         ERROR CRITICAL_SDL_RENDERER_INIT_FAILED = ERRTABLE.addError("Critical Error: SDL Renderer could not be initialized.");
@@ -255,6 +267,5 @@ struct PREMADE_ERRORS{
 
     ERROR CRITICAL_GENERAL = ERRTABLE.addError("General, critical error. It is recommended to NOT use this error type in production.");
     ERROR CRITICAL_CUSTOM_ASSERT = ERRTABLE.addError("A custom assertion failed.");
-    
-    
-} PREMADE_ERRORS;
+};
+*/
