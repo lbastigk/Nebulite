@@ -12,6 +12,7 @@
 // Nebulite
 #include "Utility/JSON.hpp"
 #include "Utility/FileManagement.hpp"
+#include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
 namespace Nebulite {
@@ -77,8 +78,26 @@ public:
      */
     double* getDoublePointerOf(const std::string& doc_key);
 private:
+    /**
+     * @brief Time in milliseconds after which unused documents are unloaded.
+     * 
+     * Documents that have not been accessed within this time frame will be removed from the cache to free up memory.
+     */
+    uint64_t unloadAfter_ms = 5 * 60 * 1000; // Unload documents after 5 minutes of inactivity
+
+    /**
+     * @brief Updates the cache by checking a random document for its last usage time.
+     */
+    void update();
+
     // Cache for read-only documents
-    absl::flat_hash_map<std::string,Nebulite::Utility::JSON> ReadOnlyDocs;
+    struct ReadOnlyDoc {
+        Nebulite::Utility::JSON document;
+        Nebulite::Utility::TimeKeeper lastUsed;
+    };
+    absl::flat_hash_map<std::string, ReadOnlyDoc> ReadOnlyDocs;
+
+    ReadOnlyDoc* getDocument(const std::string& doc);
 
     // Default value for double pointers, if the document or key is not found
     double zero = 0.0;
@@ -99,16 +118,19 @@ T Nebulite::Utility::DocumentCache::getData(std::string doc_key, const T& defaul
     std::string doc = doc_key.substr(0, pos);
     std::string key = doc_key.substr(pos + 1);
 
+    Nebulite::Utility::DocumentCache::ReadOnlyDoc* docPtr = getDocument(doc);
+
     // Check if the document exists in the cache
-    if (ReadOnlyDocs.find(doc) == ReadOnlyDocs.end()) {
-        // Load the document if it doesn't exist
-        std::string serial = Nebulite::Utility::FileManagement::LoadFile(doc);
-        if (serial.empty()) {
-            return defaultValue; // Return default value if document loading fails
-        }
-        ReadOnlyDocs[doc].deserialize(serial);
+    if (docPtr == nullptr) {
+        return defaultValue; // Return default value if document loading fails
     }
 
+    // Retrieve the value from the document
+    T data = docPtr->document.get<T>(key.c_str(), defaultValue);
+
+    // Update the cache (unload old documents)
+    update();
+
     // Return key:
-    return ReadOnlyDocs[doc].get<T>(key.c_str(), defaultValue); // Use the JSON get method to retrieve the value
+    return data; // Use the JSON get method to retrieve the value
 }
