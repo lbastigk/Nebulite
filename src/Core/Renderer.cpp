@@ -683,20 +683,6 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 		std::cerr << "Error: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " texture not found" << std::endl;
 		return -1;
 	}
-	if(obj->getDstRect()->w <= 0 || obj->getDstRect()->h <= 0){
-		std::cerr << "Warning: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " has invalid size: " << obj->getDstRect()->w << "x" << obj->getDstRect()->h << std::endl;
-		std::cerr << " (Image: " << innerdir << ")";
-		std::cerr << " (Pos: " << obj->getDstRect()->x << "," << obj->getDstRect()->y << ")" << std::endl;
-		return -1;
-	}
-	if(obj->getSrcRect()){
-		// Only used if object is using a spritesheet
-		if(obj->getSrcRect()->w <= 0 || obj->getSrcRect()->h <= 0){
-			std::cerr << "Warning: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " has invalid source size: " << obj->getSrcRect()->w << "x" << obj->getSrcRect()->h << std::endl;
-			return -1;
-		}
-	}
-	
 
 	//------------------------------------------
 	// Rendering
