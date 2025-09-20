@@ -463,7 +463,6 @@ private:
 	//SDL_Rect rect;
 	SDL_Rect textRect;
 	SDL_Rect consoleRect;
-	SDL_Rect DstRect;
 
 	//------------------------------------------
 	// Event Handling

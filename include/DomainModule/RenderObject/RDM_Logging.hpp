@@ -76,24 +76,6 @@ public:
      */
     Nebulite::Constants::ERROR_TYPE logValue(int argc, char* argv[]);
 
-    /**
-     * @brief Prints the document to cout
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <key> <file>
-     * @return Potential errors that occured on command execution
-     */
-    Nebulite::Constants::ERROR_TYPE print(int argc, char* argv[]);
-
-    /**
-     * @brief Prints a value to cout
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <key> <file>
-     * @return Potential errors that occured on command execution
-     */
-    Nebulite::Constants::ERROR_TYPE printValue(int argc, char* argv[]);
-
     //------------------------------------------
     // Setup
 
@@ -106,9 +88,6 @@ public:
         bindFunction(&Logging::echo,        "echo",         "Prints the arguments to the console");
         bindFunction(&Logging::log,         "log",          "Logs the RenderObject to a file");
         bindFunction(&Logging::logValue,    "log-value",    "Logs a specific value: <key> <file>");
-
-        bindFunction(&Logging::print,       "print",        "Prints the document to the console");
-        bindFunction(&Logging::printValue,  "print-value",  "Prints a specific value: <key>");
     }
 };
 }   // namespace DomainModule

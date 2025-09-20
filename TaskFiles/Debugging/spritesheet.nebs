@@ -1,0 +1,48 @@
+echo Debugging spritesheet rendering
+set-res 320 240 6
+set-fps 60
+
+###########################
+# Part 1: Player
+echo Adding character with wasd-control
+spawn ./Resources/Renderobjects/Creatures/player.jsonc|posX=32|posY=32
+wait 10
+
+###########################
+# Part 2: Background
+echo Adding background
+for i 0 30 for j 0 30 eval spawn ./Resources/Renderobjects/Plants/Grass/grass.jsonc|posX=$($i*16)|posY=$($j*16)
+
+###########################
+# Part 3: Output
+
+# Reset screen
+always clear
+
+# DEBUG Player
+always echo ------------------------------------------------
+always echo Player:
+always selected-object get 1    # 1st object (the player)
+always selected-object parse debug print-src-rect
+always selected-object parse debug print-dst-rect
+always selected-object parse echo
+always selected-object parse echo Position:
+always selected-object parse debug print-value posX
+always selected-object parse debug print-value posY
+always selected-object parse echo
+always selected-object parse echo Texture:
+always selected-object parse debug texture-status
+
+# DEBUG Background
+always echo ------------------------------------------------
+always echo Background tile:
+always selected-object get 2    # 2nd object (one background tile)
+always selected-object parse debug print-src-rect
+always selected-object parse debug print-dst-rect
+always selected-object parse echo
+always selected-object parse echo Position:
+always selected-object parse debug print-value posX
+always selected-object parse debug print-value posY
+always selected-object parse echo
+always selected-object parse echo Texture:
+always selected-object parse debug texture-status

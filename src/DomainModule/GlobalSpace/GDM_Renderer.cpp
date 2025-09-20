@@ -191,12 +191,14 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::g
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::printSelectedObject(int argc, char* argv[]) {
-    if (selectedRenderObject) {
-        std::cout << "Selected Renderobject: \n" << selectedRenderObject->serialize() << std::endl;
-        return Nebulite::Constants::ERROR_TYPE::NONE;
-    } else {
-        std::cout << "No renderobject selected." << std::endl;
-        return Nebulite::Constants::ERROR_TYPE::NONE;
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::selectedObjectParse(int argc, char* argv[]) {
+    if(argc < 2){
+        return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
     }
+    std::string command;
+    for (int i = 1; i < argc; ++i) {    // Ignoring first 2 argc: <from> <thisFunctionsName>
+        command += argv[i];
+        if (i < argc - 1) command += " ";
+    }
+    return selectedRenderObject->parseStr(std::string(__FUNCTION__) + " " + command);
 }

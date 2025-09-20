@@ -647,37 +647,60 @@ void Nebulite::Core::Renderer::renderFrame() {
 }
 
 int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject* obj, int dispPosX, int dispPosY){
+	//------------------------------------------
+	// Texture Loading
+	
 	// Check for texture
 	std::string innerdir = obj->get<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str());
 
 	// Load texture if not yet loaded
 	if (TextureContainer.find(innerdir) == TextureContainer.end()) {
 		loadTexture(innerdir);
-		obj->calculateDstRect();
 	}
 
 	// Link texture if not yet linked
 	if(obj->isTextureValid() == false){
 		obj->linkExternalTexture(TextureContainer[innerdir]);
 	}
+	SDL_Texture* texture = obj->getSDLTexture();
+
+	//------------------------------------------
+	// Source and Destination Rectangles
 
 	// Calculate source rect
 	obj->calculateSrcRect();
 	
 	// Calculate position rect
-	DstRect = *obj->getDstRect();
-	DstRect.x -= dispPosX;	//subtract camera posX
-	DstRect.y -= dispPosY; 	//subtract camera posY
+	obj->calculateDstRect();
+	obj->getDstRect()->x -= dispPosX;	// Subtract X camera position
+	obj->getDstRect()->y -= dispPosY;	// Subtract Y camera position
+
+	
+
+	//------------------------------------------
+	// Error Checking
+	if(!texture){
+		std::cerr << "Error: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " texture not found" << std::endl;
+		return -1;
+	}
+	if(obj->getDstRect()->w <= 0 || obj->getDstRect()->h <= 0){
+		std::cerr << "Warning: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " has invalid size: " << obj->getDstRect()->w << "x" << obj->getDstRect()->h << std::endl;
+		return -1;
+	}
+	if(obj->getSrcRect()->w <= 0 || obj->getSrcRect()->h <= 0){
+		std::cerr << "Warning: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " has invalid source size: " << obj->getSrcRect()->w << "x" << obj->getSrcRect()->h << std::endl;
+		return -1;
+	}
+
+	//------------------------------------------
+	// Rendering
 
 	// Render the texture
-	SDL_Texture* texture = obj->getSDLTexture();
-	if(!texture){
-		return -1; // Texture not found
-	}
-	int error = SDL_RenderCopy(renderer, texture, obj->getSrcRect(), &DstRect);
+	int error_sprite = SDL_RenderCopy(renderer, texture, obj->getSrcRect(), obj->getDstRect());
 
 	// Render the text
 	//*
+	int error_text = 0;
 	if (obj->get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str())>0){
 		obj->calculateText(
 			renderer,
@@ -687,11 +710,16 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 		);
 		SDL_Texture* texture = obj->getTextTexture();
 		if(texture && obj->getTextRect()){
-			SDL_RenderCopy(renderer,texture,NULL,obj->getTextRect());
+			error_text = SDL_RenderCopy(renderer,texture,NULL,obj->getTextRect());
 		}
 	}
 	
-	return error;
+	//------------------------------------------
+	// Return
+	if(error_sprite != 0){
+		return error_sprite;
+	}
+	return error_text;
 }
 
 void Nebulite::Core::Renderer::renderConsole() {
@@ -799,33 +827,34 @@ void Nebulite::Core::Renderer::loadTexture(std::string link) {
  * @todo Texture not created with SDL_TEXTUREACCESS_TARGET, so cannot be used with SDL_SetRenderTarget
  */
 SDL_Texture* Nebulite::Core::Renderer::loadTextureToMemory(std::string link) {
-	int access = SDL_TEXTUREACCESS_STATIC; // Most common
-	//int access = SDL_TEXTUREACCESS_STREAMING; // For dynamic textures that change often
-
     std::string path = Nebulite::Utility::FileManagement::CombinePaths(baseDirectory, link);
-    SDL_Surface* surface = IMG_Load(path.c_str());
-    if (!surface) surface = SDL_LoadBMP(path.c_str());
-    if (!surface) {
-        std::cerr << "Failed to load image '" << path << "': " << SDL_GetError() << std::endl;
-        return nullptr;
-    }
+    
+	// Attempt to load as PNG (or other supported formats)
+	SDL_Surface* surface = IMG_Load(path.c_str()); 
 
-    SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, access, surface->w, surface->h);
-    if (!texture) {
-        std::cerr << "Failed to create texture: " << SDL_GetError() << std::endl;
-        SDL_FreeSurface(surface);
-        return nullptr;
-    }
+	// Fallback to BMP if PNG load fails
+	if (!surface) {
+		surface = SDL_LoadBMP(path.c_str()); 
+	}
 
-    // Copy surface to texture
-    SDL_SetRenderTarget(renderer, texture);
-    SDL_Texture* temp = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_RenderCopy(renderer, temp, nullptr, nullptr);
-    SDL_SetRenderTarget(renderer, nullptr);
-    SDL_DestroyTexture(temp);
-    SDL_FreeSurface(surface);
+	// Unknown format or other issues with surface
+	if (!surface) {
+		std::cerr << "Failed to load image '" << path << "': " << SDL_GetError() << std::endl;
+		return nullptr;
+	}
 
-    return texture;
+	// Create texture from surface
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_FreeSurface(surface); // Free the surface after creating texture
+
+	// Check for texture issues
+	if (!texture) {
+		std::cerr << "Failed to create texture from surface: " << SDL_GetError() << std::endl;
+		return nullptr;
+	}
+
+	// Store texture in container
+	return texture;
 }
 
 

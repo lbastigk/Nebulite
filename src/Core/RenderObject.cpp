@@ -53,11 +53,6 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 
 	//------------------------------------------
 	// Internal Values
-
-	//Build Rect on creation
-	calculateDstRect();
-	calculateSrcRect();
-
 	textSurface = nullptr;
     textTexture = nullptr;
 
@@ -79,8 +74,8 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 	Nebulite::DomainModule::RDM_init(this);
 
 	//------------------------------------------
-	// Update cannot be called in constructor, 
-	// as it relies on an invoke reference
+	// Update once to initialize
+	update();
 }
 
 Nebulite::Core::RenderObject::~RenderObject() {
@@ -158,8 +153,6 @@ void Nebulite::Core::RenderObject::deserialize(std::string serialOrLink) {
 	// Prerequisites
 	flag.reloadInvokes = true;
 	flag.calculateText = true;
-	calculateDstRect();
-	calculateSrcRect();
 
 	// Update subscription size
 	subscription_size = json.memberSize(Nebulite::Constants::keyName.renderObject.invokeSubscriptions.c_str());
@@ -276,11 +269,6 @@ void Nebulite::Core::RenderObject::update() {
     }else{
 		std::cerr << "Invoke is nullptr!" << std::endl;
 	}
-
-	//------------------------------------------
-	//recalc rect
-	calculateDstRect();
-	calculateSrcRect();
 }
 
 uint64_t Nebulite::Core::RenderObject::estimateComputationalCost() {
