@@ -90,14 +90,29 @@ private:
      */
     void update();
 
-    // Cache for read-only documents
+    /**
+     * @struct ReadOnlyDoc
+     * @brief Represents a read-only document with its associated metadata.
+     */
     struct ReadOnlyDoc {
         Nebulite::Utility::JSON document;
         Nebulite::Utility::TimeKeeper lastUsed;
     };
-    absl::flat_hash_map<std::string, ReadOnlyDoc> ReadOnlyDocs;
 
+    /**
+     * @brief Proper retrieval of a document, loading it if not already cached.
+     * And updating its metadata.
+     */
     ReadOnlyDoc* getDocument(const std::string& doc);
+
+    /**
+     * @brief Map of document paths to their corresponding ReadOnlyDoc instances.
+     * 
+     * @todo Turn into struct, use private variables, proper getters and setters.
+     * This way, the document is never retrieved without updating its metadata.
+     * ReadOnlyDoc as private struct member of ReadOnlyDocs.
+     */
+    absl::flat_hash_map<std::string, ReadOnlyDoc> ReadOnlyDocs;
 
     // Default value for double pointers, if the document or key is not found
     double zero = 0.0;
