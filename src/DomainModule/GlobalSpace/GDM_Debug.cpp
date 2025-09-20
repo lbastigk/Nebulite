@@ -49,7 +49,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::logS
 }
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::render_object(int argc, char** argv){
-    Nebulite::Core::RenderObject ro(domain->getDoc());
+    Nebulite::Core::RenderObject ro(domain);
     Nebulite::Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc",ro.serialize());
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
@@ -120,13 +120,16 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::clea
     if (argc > 1) {
         return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
     }
-    
+    int error = 0;
     #if _WIN32
-        (void)std::system("cls");
+        error = std::system("cls");
     #else
-        (void)std::system("clear");
+        error = std::system("clear");
     #endif
 
+    if (error != 0) {
+        return Nebulite::Constants::ERROR_TYPE::CRITICAL_GENERAL;
+    }
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
@@ -157,5 +160,35 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::alwa
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::alwaysClear(int argc, char* argv[]){
     domain->tasks.always.taskList.clear();
+    return Nebulite::Constants::ERROR_TYPE::NONE;
+}
+
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::crash(int argc, char** argv) {
+    // If an argument is provided, use it to select crash type
+    if (argc > 1 && argv[1]) {
+        std::string crashType = argv[1];
+        if (crashType == "segfault") {
+            // Cause a segmentation fault
+            int* p = nullptr;
+            *p = 42;
+        } else if (crashType == "abort") {
+            // Abort the program
+            std::abort();
+        } else if (crashType == "terminate") {
+            // Terminate with std::terminate
+            std::terminate();
+        } else if (crashType == "throw") {
+            // Throw an uncaught exception
+            throw std::runtime_error("Intentional crash: uncaught exception");
+        } else {
+            std::cerr << "Unknown crash type requested: " << crashType << std::endl;
+            std::cerr << "Defaulting to segmentation fault" << std::endl;
+        }
+    } else {
+        // Default: segmentation fault
+        int* p = nullptr;
+        *p = 42;
+    }
+    // Should never reach here
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }

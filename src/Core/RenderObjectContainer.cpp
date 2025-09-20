@@ -1,12 +1,17 @@
 #include "Core/RenderObjectContainer.hpp"
 
+#include "Core/GlobalSpace.hpp"
+
 //------------------------------------------
 // RenderObjectContainer
 
 //------------------------------------------
 //Constructor
 
-Nebulite::Core::RenderObjectContainer::RenderObjectContainer(Nebulite::Interaction::Invoke* globalInvoke) : globalInvoke(globalInvoke) {}
+Nebulite::Core::RenderObjectContainer::RenderObjectContainer(Nebulite::Core::GlobalSpace* globalSpace) {
+	this->globalSpace = globalSpace;
+	this->globalInvoke = globalSpace->invoke.get();
+}
 
 //------------------------------------------
 //Marshalling
@@ -54,7 +59,7 @@ void Nebulite::Core::RenderObjectContainer::deserialize(const std::string& seria
 				ro_serial = tmp.serialize();
 			}
 
-			RenderObject* ro = new RenderObject(globalInvoke->getGlobalPointer());
+			RenderObject* ro = new RenderObject(globalSpace);
 			ro->deserialize(ro_serial);
 			append(ro, dispResX, dispResY);
 		}
@@ -79,7 +84,7 @@ std::pair<int16_t,int16_t> getTilePos(Nebulite::Core::RenderObject* toAppend, in
 }
 
 void Nebulite::Core::RenderObjectContainer::append(Nebulite::Core::RenderObject* toAppend, int dispResX, int dispResY) {
-	uint64_t objectCost = toAppend->estimateComputationalCost(globalInvoke);
+	uint64_t objectCost = toAppend->estimateComputationalCost();
     std::pair<int16_t,int16_t> pos = getTilePos(toAppend, dispResX, dispResY);
 
 	// Try to insert into an existing batch
@@ -144,7 +149,7 @@ void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t til
 
 					// We update each object and check if it needs to be moved or deleted
 					for (auto obj : batch.objects) {
-						obj->update(globalInvoke);
+						obj->update();
 
 						if (!obj->flag.deleteFromScene) {
 							std::pair<uint16_t,uint16_t> newPos = getTilePos(obj, dispResX, dispResY);
@@ -243,21 +248,21 @@ Nebulite::Core::RenderObject* Nebulite::Core::RenderObjectContainer::batch::pop(
 	if (objects.empty()) return nullptr;
 
 	RenderObject* obj = objects.back(); // Get last element
-	estimatedCost -= obj->estimateComputationalCost(globalInvoke); // Adjust cost
+	estimatedCost -= obj->estimateComputationalCost(); // Adjust cost
 	objects.pop_back(); // Remove from vector
 
 	return obj;
 }
 
 void Nebulite::Core::RenderObjectContainer::batch::push(RenderObject* obj, Nebulite::Interaction::Invoke* globalInvoke){
-	estimatedCost += obj->estimateComputationalCost(globalInvoke);
+	estimatedCost += obj->estimateComputationalCost();
 	objects.push_back(obj);
 }
 
 bool Nebulite::Core::RenderObjectContainer::batch::removeObject(RenderObject* obj, Nebulite::Interaction::Invoke* globalInvoke) {
 	auto it = std::find(objects.begin(), objects.end(), obj);
 	if (it != objects.end()) {
-		estimatedCost -= obj->estimateComputationalCost(globalInvoke);
+		estimatedCost -= obj->estimateComputationalCost();
 		objects.erase(it);
 		return true;
 	}

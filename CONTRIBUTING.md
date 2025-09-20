@@ -2,39 +2,67 @@
 
 We welcome contributions! Nebulite's modular architecture makes it easy to add features in separate files and barely touching existing ones.
 
+<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
+
+- [Development Setup](#development-setup)
+   * [Prerequisites](#prerequisites)
+   * [Recommended Environment](#recommended-environment)
+   * [Building](#building)
+- [Testing](#testing)
+   * [Quick Expression Testing](#quick-expression-testing)
+- [Adding Features](#adding-features)
+   * [Function Collision Prevention](#function-collision-prevention)
+   * [Example: Adding a New GlobalSpace Feature](#example-adding-a-new-globalspace-feature)
+      + [Step-by-Step Process](#step-by-step-process)
+      + [Complete Code Example](#complete-code-example)
+   * [Feature Management](#feature-management)
+   * [Implementation Guidelines](#implementation-guidelines)
+- [Preview Editing (Work in Progress)](#preview-editing-work-in-progress)
+- [Submitting Changes](#submitting-changes)
+- [Code Style](#code-style)
+- [Getting Help](#getting-help)
+
+<!-- TOC end -->
+
+<!-- TOC --><a name="development-setup"></a>
 ## Development Setup
 
+<!-- TOC --><a name="prerequisites"></a>
 ### Prerequisites
 
 1. Fork the repository
 2. Install dependencies: `./install.sh`
 3. Create feature branch: `git checkout -b feature/my-feature`
 
+<!-- TOC --><a name="recommended-environment"></a>
 ### Recommended Environment
 
 Using VSCode is recommended for an optimal workflow. The project includes preconfigured tasks:
 - `CTRL + SHIFT + T` for test options
 - `CTRL + SHIFT + B` for build options
 
+<!-- TOC --><a name="building"></a>
 ### Building
 
 Build and test your changes:
 ```bash
-./build.sh && ./Scripts/Tests.sh
+./build.sh && ./Scripts/Tests.py
 ```
 
+<!-- TOC --><a name="testing"></a>
 ## Testing
 
-- Use `./Scripts/Tests.sh` for preconfigured tests
+- Use `python ./Scripts/Tests.py` for preconfigured tests
 - Use `./Scripts/CrashDebug.sh` for debugging crashes with predefined taskfiles
 - Use `./Scripts/MemLeakTest.sh` for memory leak testing using `valgrind` and `massif-visualizer`
 - Use the VSCode debugger and its existing tasks
 
-You can add custom taskfiles to the test suite by extending the `tests` variable inside `./Scripts/Tests.sh`, or run them independently:
+You can add custom taskfiles to the test suite by extending the `tests.json` file in the projects root directory.
 ```bash
 ./bin/Nebulite task TaskFiles/.../your_test.txt
 ```
 
+<!-- TOC --><a name="quick-expression-testing"></a>
 ### Quick Expression Testing
 
 You can quickly verify the correctness of an expression with the command line:
@@ -42,37 +70,33 @@ You can quickly verify the correctness of an expression with the command line:
 ./bin/Nebulite 'set myVariable 2 ; eval echo $i(1 + {global.myVariable})' # returns 3
 ```
 
+<!-- TOC --><a name="adding-features"></a>
 ## Adding Features
 
 Nebulite offers clean expansions of its functionality through its DomainModules. 
 Maintainers can create their own module classes and add them to a specific domain.
 
-| Domain: Commands operating on... | Action                                                  | Info                                                                    |
-|------------------------------|-------------------------------|-------------------------------------------------------------------------|
-| Global level                     | Extend `GDM.hpp` by creating GlobalSpace DomainModules  | See `include/Interaction/Execution/GlobalSpace.h` and its modules `include/DomainModule/GlobalSpace/GTE_*.h` |
-| Specific RenderObjects           | Extend `RDM.hpp` by creating RenderObject DomainModules | See `include/Core/RenderObject.h` and its modules `include/DomainModule/RenderObject/RTE_*.h` |
-| Specific JSON-Documents          | Extend `JDM.hpp` by creating JSON DomainModules         | See `include/Utility/JSON.h` and its modules `include/DomainModule/JSON/JTE_*.h` |
+| Domain: Commands operating on... | Action                                                  | Info                                                                                                         |
+|----------------------------------|---------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| Global level                     | Extend `GDM.hpp` by creating GlobalSpace DomainModules  | See `include/Interaction/Execution/GlobalSpace.h` and its modules `include/DomainModule/GlobalSpace/GDM_*.h` |
+| Specific RenderObjects           | Extend `RDM.hpp` by creating RenderObject DomainModules | See `include/Core/RenderObject.h` and its modules `include/DomainModule/RenderObject/RDM_*.h`                |
+| Specific JSON-Documents          | Extend `JDM.hpp` by creating JSON DomainModules         | See `include/Utility/JSON.h` and its modules `include/DomainModule/JSON/JDM_*.h`                             |
+| Specific Textures                | Extend `TDM.hpp` by creating Texture DomainModules      | See `include/Core/Texture.h` and its modules `include/DomainModule/Texture/TDM_*.h`                          |
 
 Each DomainModule has access to a different set of functions through `funcTree->...` and a different domain through `domain->...`: 
-- `GlobalSpace` modules can access the global space
+- `GlobalSpace`  modules can access the global space
 - `RenderObject` modules can access the attached RenderObject
-- `JSON` modules can access the attached JSON
+- `JSON`         modules can access the attached JSON
+- `Texture`      modules can access the attached Texture
 
-Each DomainModule can make use of an update routine, allowing us to declutter classes:
+Each DomainModule can make use of an update routine, allowing us to declutter classes by binding routines to specific modules:
 - input-reading
 - state-update
 - lifetime management
 
-and more may be associated with specific Modules instead of the class itself.
-We then just insert each module into the class and its update function is automatically called.
+and more. We then just insert each module into the class and its update function is automatically called.
 
-### Implementation Guidelines
-
-- It is recommended to implement unfinished functions inside the cpp file with a return of `Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED`
-- Use filenames `GDM_<ModuleName>.{hpp,cpp}` , `RDM_<ModuleName>.{hpp,cpp}` and `JDM_<ModuleName>.{hpp,cpp}` for module files
-- Use the recommended class naming schemes and namespaces for modules: `Nebulite::DomainModule::GlobalSpace::MyModule`
-
-
+<!-- TOC --><a name="function-collision-prevention"></a>
 ### Function Collision Prevention
 
 - `GlobalSpace` automatically inherits all functions from `JSON`, which act on the global document
@@ -90,16 +114,19 @@ bindSubtree("MyModule","<Description>");
 bindFunction(/**/,"MyModule foo","<Description>"); //<-- This will fail without bindSubTree()
 ```
 
-## Example: Adding a New GlobalSpace Feature
+<!-- TOC --><a name="example-adding-a-new-globalspace-feature"></a>
+### Example: Adding a New GlobalSpace Feature
 
-### Step-by-Step Process
+<!-- TOC --><a name="step-by-step-process"></a>
+#### Step-by-Step Process
 
 1. **Create expansion file:** `GDM_MyModule.{hpp,cpp}`
 2. **Inherit from DomainModule base class:** Create class inheriting from `Nebulite::Interaction::Execution::DomainModule<DomainClass>`
 3. **Implement command methods:** Functions with `ERROR_TYPE (int argc, char* argv[])` signature
 4. **DomainModule init** inside `include/DomainModule/{GDM,JDM,RDM}.hpp`, initialize the DomainModule
 
-### Complete Code Example
+<!-- TOC --><a name="complete-code-example"></a>
+#### Complete Code Example
 
 **Inside GDM_MyModule.hpp:**
 
@@ -210,23 +237,34 @@ void GDM_init(Nebulite::Core::GlobalSpace* target){
 }
 ```
 
+<!-- TOC --><a name="feature-management"></a>
 ### Feature Management
 
 If necessary, the entire feature can then be:
 - **disabled** by commenting out `initModule` inside `{GDM,JDM,RDM}.hpp`
 - **removed** by undoing all changes inside `{GDM,JDM,RDM}.hpp`
 
+<!-- TOC --><a name="implementation-guidelines"></a>
+### Implementation Guidelines
+
+- It is recommended to implement unfinished functions inside the cpp file with a return of `Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED`
+- Use filenames `GDM_<ModuleName>.{hpp,cpp}` , `RDM_<ModuleName>.{hpp,cpp}` and `JDM_<ModuleName>.{hpp,cpp}` for module files
+- Use the recommended class naming schemes and namespaces for modules: `Nebulite::DomainModule::GlobalSpace::MyModule`
+
+<!-- TOC --><a name="preview-editing-work-in-progress"></a>
 ## Preview Editing (Work in Progress)
 
 Preview Editing is currently under development. The current plan is to use the headless rendering mode of Nebulite in combination with either a taskfile or a python-script to allow rendering snapshots while editing JSON files.
 
+<!-- TOC --><a name="submitting-changes"></a>
 ## Submitting Changes
 
-1. Ensure all tests pass: `./build.sh && cd Application && ./Tests.sh`
+1. Ensure all tests pass: `./build.sh && python Scripts/Tests.py`
 2. Create a pull request with a clear description of your changes
 3. Include test cases for new functionality
 4. Update documentation as needed
 
+<!-- TOC --><a name="code-style"></a>
 ## Code Style
 
 - Follow the existing code style and conventions
@@ -235,6 +273,7 @@ Preview Editing is currently under development. The current plan is to use the h
 - Create helper classes if necessary
 - Keep functions focused and modular
 
+<!-- TOC --><a name="getting-help"></a>
 ## Getting Help
 
 - Check existing issues and discussions

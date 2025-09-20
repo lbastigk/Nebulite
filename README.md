@@ -23,25 +23,39 @@
 
 </div>
 
-## Table of Contents
-1. [Overview](#overview)
-2. [Quick Start](#quick-start)
-3. [Prerequisites](#prerequisites)
-4. [Language](#language)
-5. [Expression Cheat Sheet](#expression-cheat-sheet)
-6. [DSL Cheat Sheet](#dsl-cheat-sheet)
-7. [Runtime Modes](#runtime-modes)
-8. [Architecture](#architecture)
-9. [The Invoke Class](#the-invoke-class)
-10. [Usage Examples](#usage-examples)
-11. [Directory Structure](#directory-structure)
-12. [Platform Support](#platform-support)
-13. [Dependencies](#dependencies)
-14. [Testing](#testing)
-15. [Contributing](#contributing)
-16. [Language Extension](#language-extension)
-17. [License](#license)
+<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
 
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Prerequisites](#prerequisites)
+- [Language](#language)
+   * [Expression Cheat Sheet](#expression-cheat-sheet)
+   * [DSL cheat sheet](#dsl-cheat-sheet)
+   * [Minimal Invoke Snippet](#minimal-invoke-snippet)
+- [Runtime Modes](#runtime-modes)
+- [Architecture](#architecture)
+   * [Key Architectural Components](#key-architectural-components)
+   * [Core Philosophy: Self–Other–Global Interactions](#core-philosophy-selfotherglobal-interactions)
+   * [Language Features](#language-features)
+- [The Invoke Class](#the-invoke-class)
+   * [Invoke Files](#invoke-files)
+   * [Mathematical Expressions](#mathematical-expressions)
+- [Serialization Modifiers](#serialization-modifiers)
+- [Usage Examples](#usage-examples)
+   * [Basic Engine Operations](#basic-engine-operations)
+   * [Interactive Mode](#interactive-mode)
+   * [Headless Mode (for automation/testing)](#headless-mode-for-automationtesting)
+- [Directory Structure](#directory-structure)
+- [Platform Support](#platform-support)
+- [Dependencies](#dependencies)
+- [Testing](#testing)
+- [Language Extension](#language-extension)
+- [Contributing](#contributing)
+- [License](#license)
+
+<!-- TOC end -->
+
+<!-- TOC --><a name="overview"></a>
 ## Overview
 
 **Nebulite** is a C++20 2D game engine with a custom Domain-Specific Language (DSL) expressed in JSON / JSONC. It focuses on:
@@ -52,6 +66,7 @@
 
 The goal: quickly prototype and iterate on emergent object logic without rebuilding C++ code.
 
+<!-- TOC --><a name="quick-start"></a>
 ## Quick Start
 
 1. Clone & enter repo
@@ -74,6 +89,7 @@ Minimal one‑liner spawn:
 ./bin/Nebulite 'set-fps 60 ; spawn Resources/Renderobjects/standard.json ; wait 1 ; snapshot'
 ```
 
+<!-- TOC --><a name="prerequisites"></a>
 ## Prerequisites
 
 | Tool / Aspect | Requirement / Notes                                           |
@@ -86,10 +102,12 @@ Minimal one‑liner spawn:
 
 All core third‑party libs are vendored and installed via `install.sh` (no system SDL required). Static linking on Linux improves portability.
 
+<!-- TOC --><a name="language"></a>
 ## Language
 
 Core concept: Expressions can access document values of domains, functioncalls mutate state and can trigger other logic passes of domains.
 
+<!-- TOC --><a name="expression-cheat-sheet"></a>
 ### Expression Cheat Sheet
 
 | Feature                                     | Syntax                                    | Example                                    |
@@ -102,6 +120,7 @@ Core concept: Expressions can access document values of domains, functioncalls m
 | Logical helpers                             | `gt, lt, geq, leq, eq, neq, and, or, not` | `$(gt({self.hp}, 0))`                                       |
 | Sign function                               | `sgn(a)`                                  | `$(sgn({self.physics.vX}))`                             |
 
+<!-- TOC --><a name="dsl-cheat-sheet"></a>
 ### DSL cheat sheet
 
 | Feature                                     | Syntax                                    | Example                                    |
@@ -110,6 +129,7 @@ Core concept: Expressions can access document values of domains, functioncalls m
 | In-line evaluation                          | `eval`                                    | `eval echo $(1+1)`                                          |
 | Chained commands                            | `;` separator                             | `spawn ... ; wait 1 ; snapshot`                              |
 
+<!-- TOC --><a name="minimal-invoke-snippet"></a>
 ### Minimal Invoke Snippet
 ```jsonc
 {
@@ -125,6 +145,7 @@ Core concept: Expressions can access document values of domains, functioncalls m
 ```
 Attach via adding path/string inside an object's `invokes` list and ensuring `"gravity_Y"` appears in `invokeSubscriptions` for any other object that should adhere to the rule.
 
+<!-- TOC --><a name="runtime-modes"></a>
 ## Runtime Modes
 
 | Mode | Trigger | Use Case |
@@ -136,10 +157,12 @@ Attach via adding path/string inside an object's `invokes` list and ensuring `"g
 
 Headless still evaluates DSL and produces snapshots / logs without opening a window.
 
+<!-- TOC --><a name="architecture"></a>
 ## Architecture
 
 Nebulite implements a **Domain-Specific Language (DSL)** for game logic configuration, built on a modular **Invoke system** that provides runtime command execution and expression logic.
 
+<!-- TOC --><a name="key-architectural-components"></a>
 ### Key Architectural Components
 
 - **Functioncall Framework**: Template-based command system with hierarchical inheritance
@@ -150,6 +173,7 @@ Nebulite implements a **Domain-Specific Language (DSL)** for game logic configur
 
 The system allows complex game mechanics to be defined declaratively in JSON while maintaining type safety and performance through the underlying C++ engine.
 
+<!-- TOC --><a name="core-philosophy-selfotherglobal-interactions"></a>
 ### Core Philosophy: Self–Other–Global Interactions
 
 Inside the expression engine, objects interact through a three-tier context system:
@@ -179,6 +203,7 @@ Functioncalls are bound to different domains: specific objects or the global spa
 - **Object-Specific:** aligning text, deletion, ...
 - **Document-Specific:** moving/copying/deleting data, read-only data retrieval, ...
 
+<!-- TOC --><a name="language-features"></a>
 ### Language Features
 
 The Nebulite DSL provides:
@@ -188,10 +213,12 @@ The Nebulite DSL provides:
 - **Type Safety**: Compile-time verification through C++ templates
 - **Function Collision Prevention**: Automatic detection of naming conflicts
 
+<!-- TOC --><a name="the-invoke-class"></a>
 ## The Invoke Class
 
 The Invoke class is the core game state modification class, which parses JSON-defined game logic.
 
+<!-- TOC --><a name="invoke-files"></a>
 ### Invoke Files
 
 Invoke-Objects/Files contain:
@@ -247,6 +274,7 @@ Make sure the object listens to topic gravity as well
 *This creates realistic planetary motion with just JSON configuration!*
 
 
+<!-- TOC --><a name="mathematical-expressions"></a>
 ### Mathematical Expressions
 
 Nebulite offers all mathematical operations from [Tinyexpr](https://github.com/codeplea/tinyexpr) as well as integer casting with '$i(...)' and the following custom operators:
@@ -265,6 +293,7 @@ Nebulite offers all mathematical operations from [Tinyexpr](https://github.com/c
 | `sgn(a)`   | std::copysign(1.0, a)     |
 
 
+<!-- TOC --><a name="serialization-modifiers"></a>
 ## Serialization Modifiers
 
 Apply transient mutations inline while spawning / serializing objects. General pattern:
@@ -285,8 +314,10 @@ Use for prototyping variations without editing source JSON.
 
 <!-- Quick Start moved earlier -->
 
+<!-- TOC --><a name="usage-examples"></a>
 ## Usage Examples
 
+<!-- TOC --><a name="basic-engine-operations"></a>
 ### Basic Engine Operations
 ```bash
 # Run with immediate commands
@@ -296,9 +327,11 @@ Use for prototyping variations without editing source JSON.
 ./bin/Nebulite task TaskFiles/Benchmarks/gravity.txt
 ```
 
+<!-- TOC --><a name="interactive-mode"></a>
 ### Interactive Mode
 Start engine and enter console mode with `^`. Enter `help` to see available commands in the command line.
 
+<!-- TOC --><a name="headless-mode-for-automationtesting"></a>
 ### Headless Mode (for automation/testing)
 ```bash
 # Generate previews without GUI
@@ -308,6 +341,7 @@ Start engine and enter console mode with `^`. Enter `help` to see available comm
 ./bin/Nebulite --headless task ...
 ```
 
+<!-- TOC --><a name="directory-structure"></a>
 ## Directory Structure
 
 ```bash
@@ -331,11 +365,13 @@ Nebulite/
 └── TaskFiles                 # Example scripts
 ```
 
+<!-- TOC --><a name="platform-support"></a>
 ## Platform Support
 
 - **Linux**: Native build and run supported.
 - **Windows**: Cross-compiled from Linux using MinGW-w64.
 
+<!-- TOC --><a name="dependencies"></a>
 ## Dependencies
 
 Nebulite relies on the following third-party dependencies:
@@ -355,21 +391,23 @@ Optional dependencies:
 |-------------------------------------------------------|----------------------------------------------|
 | [PlantUML](https://plantuml.com/)                     | For compiling UML-Diagrams in ./doc/         |
 
+<!-- TOC --><a name="testing"></a>
 ## Testing
 
 Two primary pathways:
 
-1. Shell script (stops on first failure):
+1. Python script (stops on first failure):
 ```bash
-./Scripts/Tests.sh --stop
+./Scripts/Tests.py --stop
 ```
 2. Combined build + test task (VS Code task):
 ```
 [BUILD + TEST]
 ```
 
-JSON validation runs via `./Scripts/validate_json.sh` prior to tests.
+JSON validation runs via `./Scripts/validate_json.py` prior to tests.
 
+<!-- TOC --><a name="language-extension"></a>
 ## Language Extension
 
 Nebulite includes a language extension for `.nebs` scripting files under `./nebulite-script-vscode/`. 
@@ -381,6 +419,7 @@ The extension offers proper syntax highlight for:
 
 Run `build-and-install.sh` inside its directory for installation.
 
+<!-- TOC --><a name="contributing"></a>
 ## Contributing
 
 Contributions welcome. Quick path:
@@ -391,6 +430,7 @@ Contributions welcome. Quick path:
 
 See full details in [CONTRIBUTING.md](CONTRIBUTING.md).
 
+<!-- TOC --><a name="license"></a>
 ## License
 
 Distributed under the MIT License. See [LICENSE.md](LICENSE.md).

@@ -93,12 +93,20 @@ public:
     FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError);
 
     /**
+     * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
+     * @param func Function to call before parsing
+     */
+    void setPreParse(std::function<Nebulite::Constants::ERROR_TYPE()> func){
+        preParse = func;
+    }
+
+    /**
      * @brief Inherits functions from another Tree.
      * 
      * @param toInherit FuncTree pointer to inherit functions from.
      */
     void inherit(FuncTree<RETURN_TYPE>* toInherit) {
-        inheritedTree = toInherit;
+        inheritedTrees.push_back(toInherit);
     }
 
     /**
@@ -198,6 +206,9 @@ public:
     bool hasFunction(const std::string& nameOrCommand);
 
 private:
+    // Function to call before parsing (e.g., for setting up variables or locking resources)
+    std::function<Nebulite::Constants::ERROR_TYPE()> preParse = nullptr;
+
     //------------------------------------------
     // Variables
 
@@ -230,8 +241,8 @@ private:
     // Name of the tree, used for help and output
     std::string TreeName; 
 
-    // inherited FuncTree linked to this tree
-    FuncTree<RETURN_TYPE>* inheritedTree = nullptr; // Initialize to nullptr first to avoid issues during construction
+    // inherited FuncTrees linked to this tree
+    std::vector<FuncTree<RETURN_TYPE>*> inheritedTrees;
 
     /**
      * @struct subtree
@@ -347,21 +358,23 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(Class
     // Making sure the function name is not registered in the inherited FuncTree
     // Note: inherited FuncTree is checked only after constructor completes, so this should be safe
     // The only overwrite that is allowed is the help function
-    if (inheritedTree && name != "help" && inheritedTree->hasFunction(name)) {
-        // Throw a proper error
-        // exit the entire program
-        std::cerr << "---------------------------------------------------------------\n";
-        std::cerr << "A Nebulite FuncTree initialization failed!\n";
-        std::cerr << "Error: A bound Function already exists in the inherited FuncTree.\n";
-        std::cerr << "Function overwrite is heavily discouraged and thus not allowed.\n";
-        std::cerr << "Please choose a different name or remove the existing function.\n";
-        std::cerr << "This Tree: " << TreeName << "\n";
-        std::cerr << "inherited FuncTree:   " << inheritedTree->TreeName << "\n";
-        std::cerr << "Function:  " << name << "\n";
-        std::exit(EXIT_FAILURE);  // Exit with failure status
+    for (const auto& inheritedTree : inheritedTrees) {
+        if (inheritedTree && name != "help" && inheritedTree->hasFunction(name)) {
+            // Throw a proper error
+            // exit the entire program
+            std::cerr << "---------------------------------------------------------------\n";
+            std::cerr << "A Nebulite FuncTree initialization failed!\n";
+            std::cerr << "Error: A bound Function already exists in the inherited FuncTree.\n";
+            std::cerr << "Function overwrite is heavily discouraged and thus not allowed.\n";
+            std::cerr << "Please choose a different name or remove the existing function.\n";
+            std::cerr << "This Tree: " << TreeName << "\n";
+            std::cerr << "inherited FuncTree:   " << inheritedTree->TreeName << "\n";
+            std::cerr << "Function:  " << name << "\n";
+            std::exit(EXIT_FAILURE);  // Exit with failure status
 
-        // Just for completion, this will never be reached
-        return;
+            // Just for completion, this will never be reached
+            return;
+        }
     }
 
     // Same for the own tree
@@ -402,11 +415,9 @@ std::vector<std::pair<std::string, std::string>> Nebulite::Interaction::Executio
         allFunctions.emplace_back(name, info.description);
     }
 
-    // Get from inherited FuncTree
-    if(inheritedTree) {
+    // Get functions from inherited FuncTrees
+    for(auto& inheritedTree : inheritedTrees) {
         auto inheritedFuncTreeFunctions = inheritedTree->getAllFunctions();
-
-        // Case by case, making sure we do not have duplicates
         for (const auto& [name, description] : inheritedFuncTreeFunctions) {
             if (functions.find(name) == functions.end()) {
                 allFunctions.emplace_back(name, description);
@@ -430,7 +441,7 @@ std::vector<std::pair<std::string, std::string>> Nebulite::Interaction::Executio
     }
 
     // Get from inherited FuncTree
-    if(inheritedTree) {
+    for (auto& inheritedTree : inheritedTrees) {
         auto inheritedFuncTreeFunctions = inheritedTree->getAllVariables();
 
         // Case by case, making sure we do not have duplicates
@@ -448,7 +459,8 @@ std::vector<std::pair<std::string, std::string>> Nebulite::Interaction::Executio
 // Constructor implementation
 
 template<typename RETURN_TYPE>
-Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError){
+Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError)
+{
     // Store name
     TreeName = treeName;
 
@@ -527,9 +539,22 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parse(int a
 template<typename RETURN_TYPE>
 RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(const std::string& cmd) {
     // Prerequisite if an inherited FuncTree is linked
-    if(inheritedTree != nullptr && !hasFunction(cmd)) {
-        // Assume the inherited FuncTree can handle the command
-        return inheritedTree->parseStr(cmd);
+    if(inheritedTrees.size() && !hasFunction(cmd)) {
+        // Check if the function is in an inherited tree
+        for(auto& inheritedTree : inheritedTrees) {
+            if(inheritedTree != nullptr && inheritedTree->hasFunction(cmd)) {
+                // Function is in inherited tree, parse there
+                return inheritedTree->parseStr(cmd);
+            }
+        }
+    }
+
+    // Call preParse function if set
+    if(preParse != nullptr){
+        Nebulite::Constants::ERROR_TYPE err = preParse();
+        if(err != Nebulite::Constants::ERROR_TYPE::NONE){
+            return err; // Return error if preParse failed
+        }
     }
 
     // Quote-aware tokenization

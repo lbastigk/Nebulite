@@ -83,7 +83,7 @@ struct taskQueueResult{
  *
  * See main.cpp and other engine modules for usage examples and integration details.
  */
-class GlobalSpace : public Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace> {
+NEBULITE_DOMAIN(GlobalSpace) {
 public:
     //------------------------------------------
     // Special Member Functions
@@ -113,6 +113,15 @@ public:
      * @return A pointer to the Renderer instance.
      */
     Nebulite::Core::Renderer* getRenderer();
+
+    /**
+     * @brief Allows for access to the SDL_Renderer instance
+     *
+     * This function retrieves the SDL_Renderer instance, creating it if it doesn't already exist.
+     *
+     * @return A pointer to the SDL_Renderer instance.
+     */
+    SDL_Renderer* getSDLRenderer();
 
     /**
      * @brief Checks if the renderer instance exists.

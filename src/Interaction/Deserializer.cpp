@@ -1,5 +1,7 @@
 #include "Interaction/Deserializer.hpp"
 
+#include "Interaction/ParsedEntry.hpp"
+
 void Nebulite::Interaction::Deserializer::getFunctionCalls(
     Nebulite::Utility::JSON& entryDoc,
     Nebulite::Interaction::ParsedEntry& invokeEntry, 

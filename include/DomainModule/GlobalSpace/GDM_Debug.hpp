@@ -148,6 +148,16 @@ public:
      */
     Nebulite::Constants::ERROR_TYPE render_object(int argc, char** argv);
 
+    /**
+     * @brief Crashes the program, useful for checking 
+     * if the testing suite can catch crashes.
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: The type of crash
+     * @return Potential errors that occured on command execution
+     */
+    Nebulite::Constants::ERROR_TYPE crash(int argc, char** argv);
+
     //------------------------------------------
     // Setup
 
@@ -175,6 +185,8 @@ public:
 
         bindFunction(&Debug::always,            "always",                   "Attach function to always run: always <command>");
         bindFunction(&Debug::alwaysClear,       "always-clear",             "Clear all always-tasks");
+
+        bindFunction(&Debug::crash,             "crash",                    "Crashes the program: crash [segfault/abort/terminate/throw]");
 
         //------------------------------------------
         // Example Bindings that will fail

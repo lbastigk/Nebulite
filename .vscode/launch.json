@@ -9,7 +9,10 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/Nebulite_Debug",
-            "args": [],
+            "args": [
+                "task",
+                "TaskFiles/Debugging/vscode_debug.nebs"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
@@ -30,7 +33,10 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/Nebulite_Debug",
-            "args": [],
+            "args": [
+                "task",
+                "TaskFiles/Debugging/vscode_debug.nebs"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

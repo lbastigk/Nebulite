@@ -1,14 +1,16 @@
 #include "Core/Renderer.hpp"
 
-Nebulite::Core::Renderer::Renderer(Nebulite::Interaction::Invoke& invoke, Nebulite::Utility::JSON& global, bool flag_headless, unsigned int X, unsigned int Y)
+#include "Core/GlobalSpace.hpp"
+
+Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool flag_headless, unsigned int X, unsigned int Y)
 : 	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B")),
 	dist(0, 32767),
-	env(&invoke)
+	env(globalSpace)
 	{
 	//------------------------------------------
 	// Linkages
-	invoke_ptr = &invoke;
+	invoke_ptr = globalSpace->invoke.get();
 
 	//------------------------------------------
 	// Depending on platform, set Global key "platform":
@@ -196,7 +198,6 @@ void Nebulite::Core::Renderer::loadFonts() {
 
 // For quick and dirty debugging, in case the rendering pipeline breaks somewhere
 //# define debug_on_each_step 1
-
 void Nebulite::Core::Renderer::tick(){
 	#ifdef debug_on_each_step
     	std::cout << "clear..." << std::endl;
@@ -466,8 +467,6 @@ void Nebulite::Core::Renderer::setCam(int X, int Y, bool isMiddle) {
 //------------------------------------------
 // Event Handling
 
-
-
 SDL_Event Nebulite::Core::Renderer::getEventHandle() {
 	SDL_Event event;
 	SDL_PollEvent(&event);
@@ -572,7 +571,10 @@ void Nebulite::Core::Renderer::updateState() {
 }
 
 void Nebulite::Core::Renderer::renderFrame() {
+	//------------------------------------------
 	// Store for faster access
+
+	// Get camera position
 	int dispPosX = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);
 	int dispPosY = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);
 
@@ -597,57 +599,34 @@ void Nebulite::Core::Renderer::renderFrame() {
 
 	//------------------------------------------
 	// Rendering
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
 	int error = 0;
 
 	//Render Objects
 	//For all layers, starting at 0
 	for (int layer = 0; layer < Environment::LayerCount; layer++) {
-		//Between dx +-1
+		// Cast layer to enum
+		Environment::Layer currentLayer = static_cast<Environment::Layer>(layer);
+
+		// Get all tile positions to render
+		std::vector<std::pair<int, int>> tilesToRender;
 		for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
-			// And dy +-1
 			for (int dY = (tileYpos == 0 ? 0 : -1); dY <= 1; dY++) {
-				Environment::Layer currentLayer = static_cast<Environment::Layer>(layer);
-				// If valid
 				if (env.isValidPosition(tileXpos + dX, tileYpos + dY,currentLayer)) {
-					// For all batches inside
-					for (auto& batch : env.getContainerAt(tileXpos + dX,tileYpos + dY,currentLayer)) {
-						// For all objects in batch
-						for(auto& obj : batch.objects){
-							// Check for texture
-							std::string innerdir = obj->get<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str());
-							if (TextureContainer.find(innerdir) == TextureContainer.end()) {
-								loadTexture(innerdir);
-								obj->calculateDstRect();
-							}
-							obj->calculateSrcRect();
-							
-							// Calculate position rect
-							DstRect = *obj->getDstRect();
-							DstRect.x -= dispPosX;	//subtract camera posX
-							DstRect.y -= dispPosY; 	//subtract camera posY
+					tilesToRender.emplace_back(tileXpos + dX, tileYpos + dY);
+				}
+			}
+		}
 
-							// Render the texture
-							error = SDL_RenderCopy(renderer, TextureContainer[innerdir], obj->getSrcRect(), &DstRect);
-
-							// Render the text
-							//*
-							if (obj->get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str())>0){
-								obj->calculateText(
-									renderer,
-									font,
-									dispPosX,
-									dispPosY
-								);
-								SDL_Texture* texture = obj->getTextTexture();
-								if(texture && obj->getTextRect()){
-									SDL_RenderCopy(renderer,texture,NULL,obj->getTextRect());
-								}
-							}
-							if (error != 0){
-								std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
-							}
-							//*/
-						}
+		// For all tiles to render
+		for (const auto& [tileX, tileY] : tilesToRender) {
+			// For all batches inside
+			for (auto& batch : env.getContainerAt(tileX, tileY,currentLayer)) {
+				// For all objects in batch
+				for(auto& obj : batch.objects){
+					error = renderObjectToScreen(obj, dispPosX, dispPosY);
+					if(error != 0){
+						std::cerr << "Error rendering object ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << ": " << error << std::endl;
 					}
 				}
 			}
@@ -662,61 +641,133 @@ void Nebulite::Core::Renderer::renderFrame() {
 	//------------------------------------------
 	// Render Console if Active
 	if(consoleMode){
-		// Semi-transparent background
-		uint32_t height = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0) / 2;
-		consoleRect.x = 0;
-		consoleRect.y = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0) - height;
-		consoleRect.w = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
-		consoleRect.h = height;
-
-		SDL_SetRenderDrawColor(renderer, 0, 32, 128, 180); // blue-ish with transparency
-		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-		SDL_RenderFillRect(renderer, &consoleRect);
-
-		SDL_Color textColor = {255, 255, 255, 255}; // white
-		int lineHeight = (double)TTF_FontHeight(consoleFont) / (double)WindowScale;
-
-		// 1. Draw console input line at bottom
-		if (!consoleInputBuffer.empty()) {
-			// Create text texture
-			SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, consoleInputBuffer.c_str(), textColor);
-			SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-			// Rect size
-			textRect.x = 10;
-			textRect.y = consoleRect.y + consoleRect.h - lineHeight - 10;
-			textRect.w = (double)textSurface->w / (double)WindowScale;
-			textRect.h = (double)textSurface->h / (double)WindowScale;
-
-			// Render the text
-			SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
-			SDL_FreeSurface(textSurface);
-			SDL_DestroyTexture(textTexture);
-		}
-
-		// 2. Render previous output lines above the input
-		int maxLines = floor(consoleRect.h - 20 - lineHeight) / lineHeight;
-		int startLine = std::max(0, (int)consoleOutput.size() - maxLines);
-		for (int i = 0; i < maxLines && (startLine + i) < consoleOutput.size(); ++i) {
-			// Create text texture
-			const std::string& line = consoleOutput[startLine + i];
-			SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, line.c_str(), textColor);
-			SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-			// Rect size
-			SDL_Rect lineRect;
-			lineRect.x = 10;
-			lineRect.y = consoleRect.y + 10 + i * lineHeight;
-			lineRect.w = (double)textSurface->w / (double)WindowScale;
-			lineRect.h = (double)textSurface->h / (double)WindowScale;
-
-			// Render the text
-			SDL_RenderCopy(renderer, textTexture, NULL, &lineRect);
-			SDL_FreeSurface(textSurface);
-			SDL_DestroyTexture(textTexture);
-		}
+		renderConsole();
 	}
 
+}
+
+int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject* obj, int dispPosX, int dispPosY){
+	//------------------------------------------
+	// Texture Loading
+	
+	// Check for texture
+	std::string innerdir = obj->get<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str());
+
+	// Load texture if not yet loaded
+	if (TextureContainer.find(innerdir) == TextureContainer.end()) {
+		loadTexture(innerdir);
+	}
+
+	// Link texture if not yet linked
+	if(obj->isTextureValid() == false){
+		obj->linkExternalTexture(TextureContainer[innerdir]);
+	}
+	SDL_Texture* texture = obj->getSDLTexture();
+
+	//------------------------------------------
+	// Source and Destination Rectangles
+
+	// Calculate source rect
+	obj->calculateSrcRect();
+	
+	// Calculate position rect
+	obj->calculateDstRect();
+	obj->getDstRect()->x -= dispPosX;	// Subtract X camera position
+	obj->getDstRect()->y -= dispPosY;	// Subtract Y camera position
+
+	
+
+	//------------------------------------------
+	// Error Checking
+	if(!texture){
+		std::cerr << "Error: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " texture not found" << std::endl;
+		return -1;
+	}
+
+	//------------------------------------------
+	// Rendering
+
+	// Render the texture
+	int error_sprite = SDL_RenderCopy(renderer, texture, obj->getSrcRect(), obj->getDstRect());
+
+	// Render the text
+	//*
+	int error_text = 0;
+	if (obj->get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str())>0){
+		obj->calculateText(
+			renderer,
+			font,
+			dispPosX,
+			dispPosY
+		);
+		SDL_Texture* texture = obj->getTextTexture();
+		if(texture && obj->getTextRect()){
+			error_text = SDL_RenderCopy(renderer,texture,NULL,obj->getTextRect());
+		}
+	}
+	
+	//------------------------------------------
+	// Return
+	if(error_sprite != 0){
+		return error_sprite;
+	}
+	return error_text;
+}
+
+void Nebulite::Core::Renderer::renderConsole() {
+	// Semi-transparent background
+	uint32_t height = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0) / 2;
+	consoleRect.x = 0;
+	consoleRect.y = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0) - height;
+	consoleRect.w = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
+	consoleRect.h = height;
+
+	SDL_SetRenderDrawColor(renderer, 0, 32, 128, 180); // blue-ish with transparency
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+	SDL_RenderFillRect(renderer, &consoleRect);
+
+	SDL_Color textColor = {255, 255, 255, 255}; // white
+	int lineHeight = (double)TTF_FontHeight(consoleFont) / (double)WindowScale;
+
+	// 1. Draw console input line at bottom
+	if (!consoleInputBuffer.empty()) {
+		// Create text texture
+		SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, consoleInputBuffer.c_str(), textColor);
+		SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+		// Rect size
+		textRect.x = 10;
+		textRect.y = consoleRect.y + consoleRect.h - lineHeight - 10;
+		textRect.w = (double)textSurface->w / (double)WindowScale;
+		textRect.h = (double)textSurface->h / (double)WindowScale;
+
+		// Render the text
+		SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+		SDL_FreeSurface(textSurface);
+		SDL_DestroyTexture(textTexture);
+	}
+
+	// 2. Render previous output lines above the input
+	int maxLines = floor(consoleRect.h - 20 - lineHeight) / lineHeight;
+	int startLine = std::max(0, (int)consoleOutput.size() - maxLines);
+	for (int i = 0; i < maxLines && (startLine + i) < consoleOutput.size(); ++i) {
+		// Create text texture
+		const std::string& line = consoleOutput[startLine + i];
+		SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, line.c_str(), textColor);
+		SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+		// Rect size
+		SDL_Rect lineRect;
+		lineRect.x = 10;
+		lineRect.y = consoleRect.y + 10 + i * lineHeight;
+		lineRect.w = (double)textSurface->w / (double)WindowScale;
+		lineRect.h = (double)textSurface->h / (double)WindowScale;
+
+		// Render the text
+		SDL_RenderCopy(renderer, textTexture, NULL, &lineRect);
+		SDL_FreeSurface(textSurface);
+		SDL_DestroyTexture(textTexture);
+	}
 }
 
 void Nebulite::Core::Renderer::renderFPS(double scalar) {
@@ -758,37 +809,59 @@ void Nebulite::Core::Renderer::showFrame() {
 // Texture-Related
 
 void Nebulite::Core::Renderer::loadTexture(std::string link) {
-	// Combine directory and innerdir to form full path
-	std::string path = Nebulite::Utility::FileManagement::CombinePaths(baseDirectory, link);
-
-	// Check if texture is already loaded
-	if (TextureContainer.find(link) == TextureContainer.end()) {
-
-		// Attempt to load as PNG (or other supported formats)
-		SDL_Surface* surface = IMG_Load(path.c_str()); 
-
-		// Fallback to BMP if PNG load fails
-		if (!surface) {
-			surface = SDL_LoadBMP(path.c_str()); 
-		}
-
-		// Unknown format or other issues with surface
-		if (!surface) {
-			std::cerr << "Failed to load image '" << path << "': " << SDL_GetError() << std::endl;
-			return;
-		}
-
-		// Create texture from surface
-		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-		SDL_FreeSurface(surface); // Free the surface after creating texture
-
-		// Check for texture issues
-		if (!texture) {
-			std::cerr << "Failed to create texture from surface: " << SDL_GetError() << std::endl;
-			return;
-		}
-
-		// Store texture in container
+	SDL_Texture* texture = loadTextureToMemory(link);
+	if (texture) {
 		TextureContainer[link] = texture;
 	}
 }
+
+/**
+ * @todo Texture not created with SDL_TEXTUREACCESS_TARGET, so cannot be used with SDL_SetRenderTarget
+ */
+SDL_Texture* Nebulite::Core::Renderer::loadTextureToMemory(std::string link) {
+    std::string path = Nebulite::Utility::FileManagement::CombinePaths(baseDirectory, link);
+    
+	// Get file extension, based on last dot
+	std::string extension;
+	size_t dotPos = path.find_last_of('.');
+	if (dotPos != std::string::npos) {
+		extension = path.substr(dotPos + 1);
+	}
+	else {
+		std::cerr << "Failed to load image '" << path << "': No file extension found." << std::endl;
+		return nullptr;
+	}
+
+	// turn to lowercase
+	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+
+	// Check for known image formats
+	SDL_Surface* surface = nullptr;
+	if(extension == "bmp"){
+		surface = SDL_LoadBMP(path.c_str());
+	}
+	else if(extension == "png" || extension == "jpg" || extension == "jpeg" || extension == "tif" || extension == "tiff" || extension == "webp" || extension == "gif"){
+		surface = IMG_Load(path.c_str());
+	}
+
+	// Unknown format or other issues with surface
+	if (surface == nullptr) {
+		std::cerr << "Failed to load image '" << path << "': " << SDL_GetError() << std::endl;
+		return nullptr;
+	}
+
+	// Create texture from surface
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_FreeSurface(surface); // Free the surface after creating texture
+
+	// Check for texture issues
+	if (!texture) {
+		std::cerr << "Failed to create texture from surface: " << SDL_GetError() << std::endl;
+		return nullptr;
+	}
+
+	// Store texture in container
+	return texture;
+}
+
+

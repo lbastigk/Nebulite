@@ -223,12 +223,12 @@ public:
     Nebulite::Constants::ERROR_TYPE getObjectFromId(int argc, char* argv[]);
 
     /**
-     * @brief Prints the currently selected renderobject to the console
+     * @brief Parses a command on the selected RenderObject
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE printSelectedObject(int argc, char* argv[]);
+    Nebulite::Constants::ERROR_TYPE selectedObjectParse(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -252,7 +252,7 @@ public:
 
         bindSubtree("selected-object", "Functions to select and interact with a selected RenderObject");
         bindFunction(&Renderer::getObjectFromId,     "selected-object get",   "Get a renderobject by its ID: <id>");
-        bindFunction(&Renderer::printSelectedObject, "selected-object print", "Print the currently selected renderobject");
+        bindFunction(&Renderer::selectedObjectParse, "selected-object parse", "Parse a command on the selected object");
 
         bindSubtree("env", "Environment management functions");
         bindFunction(&Renderer::envload,             "env load",     "Load environment/level");

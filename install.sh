@@ -329,8 +329,8 @@ find ./Scripts/ -type f -iname "*.sh" -exec chmod +x {} \;
 ####################################
 # Run tests
 cd "$START_DIR"
-./Scripts/validate_json.sh
-./Scripts/Tests.sh
+python ./Scripts/validate_json.py
+python ./Scripts/Tests.py
 
 ####################################
 # Show runtime

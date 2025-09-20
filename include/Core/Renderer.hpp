@@ -47,7 +47,7 @@ public:
 	 * @param X Width of the rendering area.
 	 * @param Y Height of the rendering area.
 	 */
-	Renderer(Nebulite::Interaction::Invoke& invoke, Nebulite::Utility::JSON& global, bool flag_headless = false, unsigned int X = 1080, unsigned int Y = 1080);
+	Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool flag_headless = false, unsigned int X = 1080, unsigned int Y = 1080);
 
 	//------------------------------------------
 	// Serialization / Deserialization
@@ -402,6 +402,21 @@ public:
 		return env.getObjectFromId(id);
 	}
 
+	//------------------------------------------
+	// Texture-Related
+
+	/**
+	 * @brief Loads a texture from a file into memory without adding it to the TextureContainer.
+	 * 
+	 * This function creates the necessary surface and texture object from a given file path,
+	 * but does not store it in the TextureContainer. It is useful for temporary textures or
+	 * textures that are managed externally.
+	 * 
+	 * @param link The file path to load the texture from.
+	 * @return A pointer to the loaded SDL_Texture, or nullptr if loading failed.
+	 */
+	SDL_Texture* loadTextureToMemory(std::string link);
+
 private:
 
 	//------------------------------------------
@@ -448,7 +463,6 @@ private:
 	//SDL_Rect rect;
 	SDL_Rect textRect;
 	SDL_Rect consoleRect;
-	SDL_Rect DstRect;
 
 	//------------------------------------------
 	// Event Handling
@@ -530,6 +544,19 @@ private:
 	 */
 	void showFrame();
 
+	/**
+	 * @brief Renders a single object to the screen.
+	 * 
+	 * @param obj Pointer to the RenderObject to render.
+	 * @return SDL_Error code from SDL_RenderCopy, 0 if successful.
+	 */
+	int renderObjectToScreen(Nebulite::Core::RenderObject* obj, int dispPosX, int dispPosY);
+
+	/**
+	 * @brief Renders the console to the screen.
+	 */
+	void renderConsole();
+
 	//------------------------------------------
 	//For FPS Count
 
@@ -550,7 +577,6 @@ private:
 	//------------------------------------------
 	// Texture-Related
 
-	// Function to load texture from file
 	/**
 	 * @brief Loads a texture into the TextureContainer
 	 * 

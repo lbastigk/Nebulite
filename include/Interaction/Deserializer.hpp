@@ -10,8 +10,10 @@
 // Includes
 
 // Nebulite
-#include "Utility/JSON.hpp"
 #include "Core/RenderObject.hpp"
+#include "Interaction/Logic/Assignment.hpp"
+#include "Utility/JSON.hpp"
+#include "Utility/DocumentCache.hpp"
 
 //------------------------------------------
 namespace Nebulite{

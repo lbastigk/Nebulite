@@ -13,9 +13,11 @@ void Nebulite::DomainModule::JSON::ComplexData::update() {
 // FuncTree-Bound Functions
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::ComplexData::set_from_query(int argc, char* argv[]){
+    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
 }
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::ComplexData::set_from_json(int argc, char* argv[]){
+    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     // Since we have no access to the global space, we cant use the JSON doc cache
     // Instead, we manually load the document to retrieve the key
     if(argc < 3){

@@ -9,16 +9,14 @@ void Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::update() {
     // Init draft if not available
     // Putting this inside setupBindings is UB on windows build, which is why we do it here
     if(!draft) {
-        draft = std::make_unique<Nebulite::Core::RenderObject>(domain->getDoc());
+        draft = std::make_unique<Nebulite::Core::RenderObject>(domain);
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::onDraft(int argc, char* argv[]) {
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::parse(int argc, char* argv[]) {
     if(argc < 2){
         return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
     }
-
-    // Implementation of onDraft
     std::string command;
     for (int i = 1; i < argc; ++i) {    // Ignoring first 2 argc: <from> <thisFunctionsName>
         command += argv[i];
@@ -53,7 +51,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjec
         return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS; // No arguments expected
     }
 
-    Nebulite::Core::RenderObject newDraft(domain->getDoc());
+    Nebulite::Core::RenderObject newDraft(domain);
     draft->deserialize(newDraft.serialize());
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }

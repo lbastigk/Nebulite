@@ -16,9 +16,21 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "Interaction/Invoke.hpp"
+#include "Core/Texture.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Utility/JSON.hpp"
+
+//------------------------------------------
+// Forward declarations
+namespace Nebulite{
+	namespace Core{
+		class GlobalSpace; // Forward declaration of core class GlobalSpace
+	}
+	namespace Interaction{
+		class Invoke; 		// Forward declaration of interaction class Invoke
+		class ParsedEntry; 	// Forward declaration of interaction class ParsedEntry
+	}
+}
 
 //------------------------------------------
 namespace Nebulite {
@@ -63,13 +75,10 @@ namespace Core {
  *   - Instantiate a RenderObject to represent a sprite, text, or other visual entity. Create a JSON document to hold its properties.
  *
  *   - Append the RenderObject to the Renderer via `./bin/Nebulite spawn myObject.json`
- *
- * Text resource management (textures, surfaces) is handled internally.
- * Spritesheet texture is handled by the Renderer.
  * 
  * Copy and move operations are disabled to prevent accidental resource duplication.
  */
-class RenderObject : public Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>{
+NEBULITE_DOMAIN(RenderObject) {
 public:
 	//------------------------------------------
 	// Special member Functions
@@ -77,11 +86,11 @@ public:
 	/**
 	 * @brief Constructs a new RenderObject.
 	 * 
-	 * RenderObjects are initialized with reference to the Global JSON document.
-	 * This allows the object to compile any Nebulite::Interaction::Logic::Expression contained within,
-	 * as they require remanent references for `self` and `global`.
+	 * RenderObjects are initialized with reference to the Globalspace.
+	 * 
+	 * @param global A pointer to the Globalspace instance.
 	 */
-	RenderObject(Nebulite::Utility::JSON* global);
+	RenderObject(Nebulite::Core::GlobalSpace* globalSpace);
 
 	/**
 	 * @brief Destroys the RenderObject.
@@ -184,7 +193,7 @@ public:
 	 * 
 	 * @param globalInvoke Pointer to the global invoke object
 	 */
-	void update(Nebulite::Interaction::Invoke* globalInvoke) override;
+	void update() override;
 
 	/**
 	 * @brief Calculates the text texture for the RenderObject.
@@ -216,7 +225,7 @@ public:
 	 * @param globalInvoke Pointer to the global invoke object
 	 * @return The estimated computational cost.
 	 */
-	uint64_t estimateComputationalCost(Nebulite::Interaction::Invoke* globalInvoke);
+	uint64_t estimateComputationalCost();
 
 	//------------------------------------------
 	// Management Flags for Renderer-Interaction
@@ -230,9 +239,72 @@ public:
 		bool calculateText = false;		// If true, calculate text texture on next update
 		bool reloadInvokes = false;		// If true, reload invokes on next update
 	} flag;
+
+	//------------------------------------------
+	// Texture related
+
+	/**
+     * @brief Links an external SDL_Texture to this domain.
+     * 
+     * @param externalTexture Pointer to the external SDL_Texture.
+     */
+    void linkExternalTexture(SDL_Texture* externalTexture) {
+        baseTexture.linkExternalTexture(externalTexture);
+
+    }
+
+    /**
+     * @brief Checks if the texture has been modified.
+     * 
+     * @return true if the texture has been modified, false otherwise.
+     */
+    bool isTextureStoredLocally() {
+        return baseTexture.isTextureStoredLocally();
+    }
+
+    /**
+     * @brief Checks if the texture is valid (not null).
+     * 
+     * @return true if the texture is valid, false otherwise.
+     */
+    bool isTextureValid() {
+        return baseTexture.isTextureValid();
+    }
+
+    /**
+     * @brief Gets the current SDL_Texture.
+     * 
+     * @return Pointer to the current SDL_Texture.
+     */
+    SDL_Texture* getSDLTexture() {
+        return baseTexture.getSDLTexture();
+    }
+
+	Nebulite::Core::Texture* getTexture() {
+		return &baseTexture;
+	}
+
+	/**
+	 * @brief Gets a pointer to the linked globalspace.
+	 */
+	Nebulite::Core::GlobalSpace* getGlobalSpace() {
+		return globalSpace;
+	}
+
 private:
 	// Main doc holding values
 	Nebulite::Utility::JSON json;
+
+	// Size of subscriptions
+	size_t subscription_size = 0;
+
+	//------------------------------------------
+	// Texture related
+
+	// Base Texture
+	Nebulite::Core::Texture baseTexture;
+	
+	// === TO REWORK ===
 
 	// for caching of SDL Positions
 	SDL_Rect dstRect;	// destination of sprite
@@ -243,15 +315,25 @@ private:
 	SDL_Surface* textSurface;	// Surface for the text
 	SDL_Texture* textTexture;	// Texture for the text
 
+	// ==================
+
+
+	//------------------------------------------
 	// Invoke Commands
-	std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>> entries_global;		// Global commands, intended for self-other-global interaction
+	std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>> entries_global;	// Global commands, intended for self-other-global interaction
 	std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>> entries_local;		// Internal commands, intended for self-global interaction
+
+	//------------------------------------------
+	// Linkages
+
+	// Linkage to the entire global space
+	Nebulite::Core::GlobalSpace* globalSpace;
 
 	// Each RenderObject with linkage to the global document
 	Nebulite::Utility::JSON* global;
 
-	// Size of subscriptions
-	size_t subscription_size = 0;
+	// Linkage to the global invoke for update calls
+	Nebulite::Interaction::Invoke* invoke;
 };
 } // namespace Core
 } // namespace Nebulite

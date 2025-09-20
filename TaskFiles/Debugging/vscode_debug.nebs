@@ -1,0 +1,8 @@
+# Debugging task called from VSCode
+# This task is called from .vscode/launch.json
+# Tests may vary at any time
+echo Starting vscode_debug.nebs
+
+spawn ./Resources/Renderobjects/Planets/sun.jsonc
+wait 30
+exit
