@@ -271,8 +271,7 @@ void Nebulite::Core::RenderObject::update() {
 	}
 }
 
-uint64_t Nebulite::Core::RenderObject::estimateComputationalCost() {
-
+uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyInternal) {
 	//------------------------------------------
 	// Reload invokes if needed
 	if (flag.reloadInvokes){
@@ -289,8 +288,6 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost() {
 	// Count number of $ and { in logical Arguments
 	uint64_t cost = 0;
 
-	// Global entries aren't relevant for this type of cost estimation, as they are evaluated elsewhere
-
 	// Local entries
 	for (auto entry : entries_local) {
 		std::string expr = entry->logicalArg.getFullExpression();
@@ -300,6 +297,20 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost() {
 		for (auto& expr : entry->exprs) {
 			cost += std::count(expr.value.begin(), expr.value.end(), '$');
 			cost += std::count(expr.value.begin(), expr.value.end(), '{');
+		}
+	}
+
+	// Global entries
+	if (!onlyInternal) {
+		for (auto entry : entries_global) {
+			std::string expr = entry->logicalArg.getFullExpression();
+			cost += std::count(expr.begin(), expr.end(), '$');
+
+			// Count number of $ in exprs
+			for (auto& expr : entry->exprs) {
+				cost += std::count(expr.value.begin(), expr.value.end(), '$');
+				cost += std::count(expr.value.begin(), expr.value.end(), '{');
+			}
 		}
 	}
 

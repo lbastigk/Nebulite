@@ -17,8 +17,6 @@
  * @def BATCH_COST_GOAL
  * 
  * Target cost of each Render::update thread batch.
- *
- * @todo Cost function should be updated. Since Renderer::update only computes internal invokes, these should only be accounted for.
  */
 #define BATCH_COST_GOAL 500
 
