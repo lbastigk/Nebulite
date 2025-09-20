@@ -685,12 +685,18 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 	}
 	if(obj->getDstRect()->w <= 0 || obj->getDstRect()->h <= 0){
 		std::cerr << "Warning: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " has invalid size: " << obj->getDstRect()->w << "x" << obj->getDstRect()->h << std::endl;
+		std::cerr << " (Image: " << innerdir << ")";
+		std::cerr << " (Pos: " << obj->getDstRect()->x << "," << obj->getDstRect()->y << ")" << std::endl;
 		return -1;
 	}
-	if(obj->getSrcRect()->w <= 0 || obj->getSrcRect()->h <= 0){
-		std::cerr << "Warning: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " has invalid source size: " << obj->getSrcRect()->w << "x" << obj->getSrcRect()->h << std::endl;
-		return -1;
+	if(obj->getSrcRect()){
+		// Only used if object is using a spritesheet
+		if(obj->getSrcRect()->w <= 0 || obj->getSrcRect()->h <= 0){
+			std::cerr << "Warning: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " has invalid source size: " << obj->getSrcRect()->w << "x" << obj->getSrcRect()->h << std::endl;
+			return -1;
+		}
 	}
+	
 
 	//------------------------------------------
 	// Rendering
@@ -829,16 +835,31 @@ void Nebulite::Core::Renderer::loadTexture(std::string link) {
 SDL_Texture* Nebulite::Core::Renderer::loadTextureToMemory(std::string link) {
     std::string path = Nebulite::Utility::FileManagement::CombinePaths(baseDirectory, link);
     
-	// Attempt to load as PNG (or other supported formats)
-	SDL_Surface* surface = IMG_Load(path.c_str()); 
+	// Get file extension, based on last dot
+	std::string extension;
+	size_t dotPos = path.find_last_of('.');
+	if (dotPos != std::string::npos) {
+		extension = path.substr(dotPos + 1);
+	}
+	else {
+		std::cerr << "Failed to load image '" << path << "': No file extension found." << std::endl;
+		return nullptr;
+	}
 
-	// Fallback to BMP if PNG load fails
-	if (!surface) {
-		surface = SDL_LoadBMP(path.c_str()); 
+	// turn to lowercase
+	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+
+	// Check for known image formats
+	SDL_Surface* surface = nullptr;
+	if(extension == "bmp"){
+		surface = SDL_LoadBMP(path.c_str());
+	}
+	else if(extension == "png" || extension == "jpg" || extension == "jpeg" || extension == "tif" || extension == "tiff" || extension == "webp" || extension == "gif"){
+		surface = IMG_Load(path.c_str());
 	}
 
 	// Unknown format or other issues with surface
-	if (!surface) {
+	if (surface == nullptr) {
 		std::cerr << "Failed to load image '" << path << "': " << SDL_GetError() << std::endl;
 		return nullptr;
 	}
