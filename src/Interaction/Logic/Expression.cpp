@@ -3,9 +3,22 @@
 //------------------------------------------
 // Private:
 
-void Nebulite::Interaction::Logic::Expression::update_vds(std::vector<std::shared_ptr<vd_entry>>* vec, Nebulite::Utility::JSON* link){
+void Nebulite::Interaction::Logic::Expression::update_vds(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>* vec, Nebulite::Utility::JSON* link){
     for(auto& vde : *vec) {
-        vde->virtualDouble->updateCache(link);
+        vde->updateCache(link);
+    }
+}
+
+Nebulite::Interaction::Logic::Expression::~Expression() {
+    // reset all data
+    reset();
+
+    // Clear all expressions
+    for(auto& entry : entries) {
+        if(entry.expression != nullptr) {
+            te_free(entry.expression);
+            entry.expression = nullptr;
+        }
     }
 }
 
@@ -19,6 +32,12 @@ void Nebulite::Interaction::Logic::Expression::reset() {
     variables.clear();
     fullExpression.clear();
     entries.clear();
+
+    // Clear all variable names
+    for(auto name_ptr : te_names) {
+        delete name_ptr;
+    }
+    te_names.clear();
 
     // Clear vds
     virtualDoubles_self.clear();
@@ -111,40 +130,43 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
     if(!found) {
         // Initialize with reference to document and cache register
         std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble> vd = std::make_shared<Nebulite::Interaction::Logic::VirtualDouble>(key, documentCache);
-        std::shared_ptr<vd_entry> vde = std::make_shared<vd_entry>(vd, context, key, te_name);
 
         // Register cache directly to json file, if possible
-        switch(vde->from) {
+        switch(context) {
             case Entry::From::self:
                 // Type self is remanent, we can register the double directly from document
                 #if use_external_cache
-                    vde->virtualDouble->register_external_double_cache(self);
+                    vd->register_external_double_cache(self);
                 #endif
-                virtualDoubles_self.push_back(vde);
+                virtualDoubles_self.push_back(vd);
                 break;
             case Entry::From::other:
                 // Type other is non-remanent, we need to use the cache from virtualdouble
-                virtualDoubles_other.push_back(vde);
+                virtualDoubles_other.push_back(vd);
                 break;
             case Entry::From::global:
                 // Type global is remanent, we can register the double directly from document
                 #if use_external_cache
-                    vde->virtualDouble->register_external_double_cache(global);
+                    vd->register_external_double_cache(global);
                 #endif
-                virtualDoubles_global.push_back(vde);
+                virtualDoubles_global.push_back(vd);
                 break;
             case Entry::From::resource:
                 // Type resource is non-remanent, we need to use the cache from virtualdouble
                 // The reason is that resource-documents may get deloaded,
                 // making the direct double reference invalid.
-                virtualDoubles_resource.push_back(vde);
+                virtualDoubles_resource.push_back(vd);
                 break;
         }
 
+        // Store variable name for tinyexpr
+        std::string* te_name_ptr = new std::string(te_name);
+        te_names.push_back(te_name_ptr);
+
         // Push back into variable entries
         variables.push_back({
-            vde->te_name.c_str(),
-            vde->virtualDouble->ptr(),
+            te_names.back()->c_str(),
+            vd->ptr(),
             TE_VARIABLE,
             nullptr
         });

@@ -62,6 +62,8 @@ class Expression {
 public:
     Expression();
 
+    ~Expression();
+
     /**
      * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
      * 
@@ -205,49 +207,24 @@ private:
     };
 
     /**
-     * @brief Holds a virtual double entry with all necessary information.
-     * 
-     * A virtual double entry represents a double value needed within a tinyexpr evaluation.
-     * We use these entries to bridge the gap between the JSON document structure and the expression evaluation.
-     * On evaluation, we update all double pointers from the JSON document to the tinyexpr context.
-     * 
-     * Depending on the document type, we either register the values inside the vd_entry or in the json document
-     * Both remanent and non-remanent types use the vd_entry for variable management.
-     * 
-     * @todo is it possible to reduce the vd_entry vectors to simple VirtualDouble vectors?
-     * 
-     * - The "from" should be irrelevant since we already separate the vectors based on that notion
-     * 
-     * - The key is stored in the VirtualDouble itself
-     * 
-     * - Where is te_name used? Just for debugging?
-     */
-    struct vd_entry {
-        std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble> virtualDouble;
-        Entry::From from;
-        std::string key;
-        std::string te_name;
-    };
-
-    /**
      * @brief Holds all virtual double entries for the self context.
      */
-    std::vector<std::shared_ptr<vd_entry>> virtualDoubles_self;
+    std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>> virtualDoubles_self;
 
     /**
      * @brief Holds all virtual double entries for the other context.
      */
-    std::vector<std::shared_ptr<vd_entry>> virtualDoubles_other;
+    std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>> virtualDoubles_other;
 
     /**
      * @brief Holds all virtual double entries for the global context.
      */
-    std::vector<std::shared_ptr<vd_entry>> virtualDoubles_global;
+    std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>> virtualDoubles_global;
 
     /**
      * @brief Holds all virtual double entries for the resource context.
      */
-    std::vector<std::shared_ptr<vd_entry>> virtualDoubles_resource;
+    std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>> virtualDoubles_resource;
 
     /**
      * @brief A collection of custom functions for TinyExpr
@@ -289,12 +266,12 @@ private:
     bool _isReturnableAsDouble;
 
     /**
-     * @brief updates all internal caches of a vd_entry
+     * @brief updates all internal caches of a virtual double
      * 
      * @param vec The vector of virtual double entries to update
      * @param link The JSON document to update the caches with
      */
-    void update_vds(std::vector<std::shared_ptr<vd_entry>>* vec, Nebulite::Utility::JSON* link);
+    void update_vds(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>* vec, Nebulite::Utility::JSON* link);
 
     /**
      * @brief Resets the expression to its initial state.
@@ -314,6 +291,11 @@ private:
      * @brief Holds the full expression as a string.
      */
     std::string fullExpression;
+
+    /**
+     * @brief Collection of all variable names
+     */
+    std::vector<std::string*> te_names;      // Names of variables for TinyExpr evaluation
 
     /**
      * @brief Collection of all registered variables and functions
