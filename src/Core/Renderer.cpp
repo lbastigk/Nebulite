@@ -198,7 +198,6 @@ void Nebulite::Core::Renderer::loadFonts() {
 
 // For quick and dirty debugging, in case the rendering pipeline breaks somewhere
 //# define debug_on_each_step 1
-
 void Nebulite::Core::Renderer::tick(){
 	#ifdef debug_on_each_step
     	std::cout << "clear..." << std::endl;
@@ -625,50 +624,10 @@ void Nebulite::Core::Renderer::renderFrame() {
 			for (auto& batch : env.getContainerAt(tileX, tileY,currentLayer)) {
 				// For all objects in batch
 				for(auto& obj : batch.objects){
-					// Check for texture
-					std::string innerdir = obj->get<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str());
-
-					// Load texture if not yet loaded
-					if (TextureContainer.find(innerdir) == TextureContainer.end()) {
-						loadTexture(innerdir);
-						obj->calculateDstRect();
+					error = renderObjectToScreen(obj, dispPosX, dispPosY);
+					if(error != 0){
+						std::cerr << "Error rendering object ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << ": " << error << std::endl;
 					}
-
-					// Link texture if not yet linked
-					if(obj->isTextureValid() == false){
-						obj->linkExternalTexture(TextureContainer[innerdir]);
-					}
-
-					// Calculate source rect
-					obj->calculateSrcRect();
-					
-					// Calculate position rect
-					DstRect = *obj->getDstRect();
-					DstRect.x -= dispPosX;	//subtract camera posX
-					DstRect.y -= dispPosY; 	//subtract camera posY
-
-					// Render the texture
-					SDL_Texture* texture = obj->getSDLTexture();
-					error = SDL_RenderCopy(renderer, texture, obj->getSrcRect(), &DstRect);
-
-					// Render the text
-					//*
-					if (obj->get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str())>0){
-						obj->calculateText(
-							renderer,
-							font,
-							dispPosX,
-							dispPosY
-						);
-						SDL_Texture* texture = obj->getTextTexture();
-						if(texture && obj->getTextRect()){
-							SDL_RenderCopy(renderer,texture,NULL,obj->getTextRect());
-						}
-					}
-					if (error != 0){
-						std::cerr << "SDL Error while rendering Frame: " << error << std::endl;
-					}
-					//*/
 				}
 			}
 		}
@@ -682,61 +641,113 @@ void Nebulite::Core::Renderer::renderFrame() {
 	//------------------------------------------
 	// Render Console if Active
 	if(consoleMode){
-		// Semi-transparent background
-		uint32_t height = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0) / 2;
-		consoleRect.x = 0;
-		consoleRect.y = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0) - height;
-		consoleRect.w = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
-		consoleRect.h = height;
-
-		SDL_SetRenderDrawColor(renderer, 0, 32, 128, 180); // blue-ish with transparency
-		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-		SDL_RenderFillRect(renderer, &consoleRect);
-
-		SDL_Color textColor = {255, 255, 255, 255}; // white
-		int lineHeight = (double)TTF_FontHeight(consoleFont) / (double)WindowScale;
-
-		// 1. Draw console input line at bottom
-		if (!consoleInputBuffer.empty()) {
-			// Create text texture
-			SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, consoleInputBuffer.c_str(), textColor);
-			SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-			// Rect size
-			textRect.x = 10;
-			textRect.y = consoleRect.y + consoleRect.h - lineHeight - 10;
-			textRect.w = (double)textSurface->w / (double)WindowScale;
-			textRect.h = (double)textSurface->h / (double)WindowScale;
-
-			// Render the text
-			SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
-			SDL_FreeSurface(textSurface);
-			SDL_DestroyTexture(textTexture);
-		}
-
-		// 2. Render previous output lines above the input
-		int maxLines = floor(consoleRect.h - 20 - lineHeight) / lineHeight;
-		int startLine = std::max(0, (int)consoleOutput.size() - maxLines);
-		for (int i = 0; i < maxLines && (startLine + i) < consoleOutput.size(); ++i) {
-			// Create text texture
-			const std::string& line = consoleOutput[startLine + i];
-			SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, line.c_str(), textColor);
-			SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-			// Rect size
-			SDL_Rect lineRect;
-			lineRect.x = 10;
-			lineRect.y = consoleRect.y + 10 + i * lineHeight;
-			lineRect.w = (double)textSurface->w / (double)WindowScale;
-			lineRect.h = (double)textSurface->h / (double)WindowScale;
-
-			// Render the text
-			SDL_RenderCopy(renderer, textTexture, NULL, &lineRect);
-			SDL_FreeSurface(textSurface);
-			SDL_DestroyTexture(textTexture);
-		}
+		renderConsole();
 	}
 
+}
+
+int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject* obj, int dispPosX, int dispPosY){
+	// Check for texture
+	std::string innerdir = obj->get<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str());
+
+	// Load texture if not yet loaded
+	if (TextureContainer.find(innerdir) == TextureContainer.end()) {
+		loadTexture(innerdir);
+		obj->calculateDstRect();
+	}
+
+	// Link texture if not yet linked
+	if(obj->isTextureValid() == false){
+		obj->linkExternalTexture(TextureContainer[innerdir]);
+	}
+
+	// Calculate source rect
+	obj->calculateSrcRect();
+	
+	// Calculate position rect
+	DstRect = *obj->getDstRect();
+	DstRect.x -= dispPosX;	//subtract camera posX
+	DstRect.y -= dispPosY; 	//subtract camera posY
+
+	// Render the texture
+	SDL_Texture* texture = obj->getSDLTexture();
+	if(!texture){
+		return -1; // Texture not found
+	}
+	int error = SDL_RenderCopy(renderer, texture, obj->getSrcRect(), &DstRect);
+
+	// Render the text
+	//*
+	if (obj->get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str())>0){
+		obj->calculateText(
+			renderer,
+			font,
+			dispPosX,
+			dispPosY
+		);
+		SDL_Texture* texture = obj->getTextTexture();
+		if(texture && obj->getTextRect()){
+			SDL_RenderCopy(renderer,texture,NULL,obj->getTextRect());
+		}
+	}
+	
+	return error;
+}
+
+void Nebulite::Core::Renderer::renderConsole() {
+	// Semi-transparent background
+	uint32_t height = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0) / 2;
+	consoleRect.x = 0;
+	consoleRect.y = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0) - height;
+	consoleRect.w = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
+	consoleRect.h = height;
+
+	SDL_SetRenderDrawColor(renderer, 0, 32, 128, 180); // blue-ish with transparency
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+	SDL_RenderFillRect(renderer, &consoleRect);
+
+	SDL_Color textColor = {255, 255, 255, 255}; // white
+	int lineHeight = (double)TTF_FontHeight(consoleFont) / (double)WindowScale;
+
+	// 1. Draw console input line at bottom
+	if (!consoleInputBuffer.empty()) {
+		// Create text texture
+		SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, consoleInputBuffer.c_str(), textColor);
+		SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+		// Rect size
+		textRect.x = 10;
+		textRect.y = consoleRect.y + consoleRect.h - lineHeight - 10;
+		textRect.w = (double)textSurface->w / (double)WindowScale;
+		textRect.h = (double)textSurface->h / (double)WindowScale;
+
+		// Render the text
+		SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+		SDL_FreeSurface(textSurface);
+		SDL_DestroyTexture(textTexture);
+	}
+
+	// 2. Render previous output lines above the input
+	int maxLines = floor(consoleRect.h - 20 - lineHeight) / lineHeight;
+	int startLine = std::max(0, (int)consoleOutput.size() - maxLines);
+	for (int i = 0; i < maxLines && (startLine + i) < consoleOutput.size(); ++i) {
+		// Create text texture
+		const std::string& line = consoleOutput[startLine + i];
+		SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, line.c_str(), textColor);
+		SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+		// Rect size
+		SDL_Rect lineRect;
+		lineRect.x = 10;
+		lineRect.y = consoleRect.y + 10 + i * lineHeight;
+		lineRect.w = (double)textSurface->w / (double)WindowScale;
+		lineRect.h = (double)textSurface->h / (double)WindowScale;
+
+		// Render the text
+		SDL_RenderCopy(renderer, textTexture, NULL, &lineRect);
+		SDL_FreeSurface(textSurface);
+		SDL_DestroyTexture(textTexture);
+	}
 }
 
 void Nebulite::Core::Renderer::renderFPS(double scalar) {

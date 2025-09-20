@@ -545,6 +545,19 @@ private:
 	 */
 	void showFrame();
 
+	/**
+	 * @brief Renders a single object to the screen.
+	 * 
+	 * @param obj Pointer to the RenderObject to render.
+	 * @return SDL_Error code from SDL_RenderCopy, 0 if successful.
+	 */
+	int renderObjectToScreen(Nebulite::Core::RenderObject* obj, int dispPosX, int dispPosY);
+
+	/**
+	 * @brief Renders the console to the screen.
+	 */
+	void renderConsole();
+
 	//------------------------------------------
 	//For FPS Count
 
