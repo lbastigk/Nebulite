@@ -164,30 +164,40 @@ public:
 	 * @param texture The SDL_Texture to attach.
 	 * @return True if the texture was successfully attached, false otherwise.
 	 */
-	bool attachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string name, SDL_Texture* texture) {
+	bool attachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string name, SDL_Texture* texture, SDL_Rect* rect = nullptr) {
 		if(texture == nullptr) {
 			return false; // Cannot attach a null texture
 		}
 
-		BetweenLayerTextures[aboveThisLayer][name] = texture;
+		if(BetweenLayerTextures[aboveThisLayer].contains(name)) {
+			return false; // Texture with this name already exists in the specified layer
+		}
+
+		BetweenLayerTextures[aboveThisLayer][name] = std::make_pair(texture, rect);
 		return true;
 	}
 
 	/**
-	 * @brief Removes a texture from between layers.
+	 * @brief Detaches a texture above a specific layer.
 	 * 
+	 * @param aboveThisLayer The layer above which to detach the texture.
 	 * @param name The name of the texture to remove.
 	 * @return True if the texture was successfully removed, false otherwise.
 	 */
-	bool removeTextureBetweenLayer(std::string name) {
+	bool detachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string name) {
 		bool found = false;
-		for(auto& layer : BetweenLayerTextures) {
-			if(layer.second.contains(name)) {
-				layer.second.erase(name);
-				found = true;
-			}
+		if(BetweenLayerTextures[aboveThisLayer].contains(name)) {
+			BetweenLayerTextures[aboveThisLayer].erase(name);
+			return true;
 		}
-		return found;
+		return false;
+	}
+
+	/** 
+	 * @brief Detaches all textures from all layers.  
+	 */
+	void detachAllTextures() {
+		BetweenLayerTextures.clear();
 	}
 
 	//------------------------------------------
@@ -229,9 +239,31 @@ public:
 	 * @brief Destroys the Renderer and all associated resources.
 	 */
 	void destroy();
-	
+
 	//------------------------------------------
-	// Manipulation
+	// Setting
+
+	/**
+	 * @brief Toggles the display of the FPS counter.
+	 */
+	void toggleFps(bool show = true){
+		showFPS = show;
+	}
+
+	/**
+	 * @brief Sets the target FPS for the renderer.
+	 */
+	void setTargetFPS(int fps);
+
+	/**
+	 * @brief Sets the camera position.
+	 * 
+	 * @param X The new X position of the camera.
+	 * @param Y The new Y position of the camera.
+	 * @param isMiddle If true, the (x,y) coordinates relate to the middle of the screen.
+	 * If false, they relate to the top left corner.
+	 */
+	void setCam(int X, int Y, bool isMiddle = false);
 
 	/**
 	 * @brief Changes the window size.
@@ -249,31 +281,6 @@ public:
 	 * @param dY The amount to move the camera in the Y direction.
 	 */
 	void moveCam(int dX, int dY);
-
-	/**
-	 * @brief Sets the camera position.
-	 * 
-	 * @param X The new X position of the camera.
-	 * @param Y The new Y position of the camera.
-	 * @param isMiddle If true, the (x,y) coordinates relate to the middle of the screen.
-	 * If false, they relate to the top left corner.
-	 */
-	void setCam(int X, int Y, bool isMiddle = false);
-	
-	//------------------------------------------
-	// Setting
-
-	/**
-	 * @brief Toggles the display of the FPS counter.
-	 */
-	void toggleFps(bool show = true){
-		showFPS = show;
-	}
-
-	/**
-	 * @brief Sets the target FPS for the renderer.
-	 */
-	void setTargetFPS(int fps);
 
 	
 	//------------------------------------------
@@ -402,6 +409,32 @@ public:
 		return env.getObjectFromId(id);
 	}
 
+	/**
+	 * @brief Gets the standard font used by the Renderer.
+	 * 
+	 * Loads the font if it hasn't been loaded yet.
+	 * 
+	 * @return A pointer to the TTF_Font instance.
+	 */
+	TTF_Font* getStandardFont() {
+		// Should always be loaded at this point
+		return font;
+	}
+
+	/**
+	 * @brief Gets the current SDL event.
+	 * 
+	 * @return Vector of all SDL events from the current frame.
+	 */
+	std::vector<SDL_Event>* getEventHandles(){
+		return &events;
+	}
+
+	/**
+	 * @brief Gets the current window scale factor.
+	 */
+	unsigned int getWindowScale(){return WindowScale;};
+
 	//------------------------------------------
 	// Texture-Related
 
@@ -460,22 +493,11 @@ private:
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 
-	//SDL_Rect rect;
-	SDL_Rect textRect;
-	SDL_Rect consoleRect;
-
 	//------------------------------------------
 	// Event Handling
 	SDL_Event event;
 
-	/**
-	 * @brief Gets the current SDL event.
-	 * 
-	 * @return The current SDL event.
-	 * 
-	 * @todo this function is garbage, just using SDL_PollEvent on a global variable would be cleaner.
-	 */
-	SDL_Event getEventHandle();
+	std::vector<SDL_Event> events;
 	
 	//------------------------------------------
 	// RNG
@@ -512,8 +534,6 @@ private:
 	 * - polls SDL events
 	 * 
 	 * - polls mouse and keyboard state
-	 * 
-	 * - checks for console mode and updates its state
 	 * 
 	 * - sets global values
 	 * 
@@ -552,11 +572,6 @@ private:
 	 */
 	int renderObjectToScreen(Nebulite::Core::RenderObject* obj, int dispPosX, int dispPosY);
 
-	/**
-	 * @brief Renders the console to the screen.
-	 */
-	void renderConsole();
-
 	//------------------------------------------
 	//For FPS Count
 
@@ -568,11 +583,6 @@ private:
 	uint16_t TARGET_TICKS_PER_FRAME = 1000 / TARGET_FPS; 	// Milliseconds per frame
 	uint16_t REAL_FPS_COUNTER = 0;							// Counts fps in a 1-second-interval
 	uint16_t REAL_FPS = 0;									// Actual fps this past second
-	
-	//------------------------------------------
-	// Console
-	std::string consoleInputBuffer;                  // What the user is typing
-	std::deque<std::string> consoleOutput;           // Optional: Past output log
 
 	//------------------------------------------
 	// Texture-Related
@@ -600,7 +610,13 @@ private:
 	 * 
 	 * `BetweenLayerTextures[layer][link] -> SDL_Texture*`
 	 */
-	absl::flat_hash_map<Environment::Layer, absl::flat_hash_map<std::string, SDL_Texture*>> BetweenLayerTextures;
+	absl::flat_hash_map<
+		Environment::Layer, 
+		absl::flat_hash_map<
+			std::string, 
+			std::pair<SDL_Texture*, SDL_Rect*>  // Pair of texture and its rectangle
+		>
+	> BetweenLayerTextures;
 
 	//------------------------------------------
 	// Font-Related
@@ -610,9 +626,6 @@ private:
 
 	// General font
 	TTF_Font* font;
-
-	// Font for console text
-	TTF_Font* consoleFont;
 
 	/**
 	 * @brief Loads fonts for the Renderer.

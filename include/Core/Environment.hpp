@@ -63,7 +63,7 @@ public:
 		general,
 		foreground,
 		effects,
-		menue
+		UI
 	};
 
 	/**

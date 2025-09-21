@@ -1,15 +1,209 @@
-// Toggling console mode
-// TODO: insert into GDM_Console
-// Using the Renderer capability to queue textures
-/*
-if(domain->RendererExists() && domain->getDoc()->get<int>("input.keyboard.delta.`",0) == 1){
-    domain->getRenderer()->toggleConsoleMode();
-    if(domain->getRenderer()->isConsoleMode()){
-        SDL_StartTextInput();
-        SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT); // Flush all pending events
+#include "DomainModule/GlobalSpace/GDM_Console.hpp"
+#include "Core/GlobalSpace.hpp"
+
+namespace Nebulite::DomainModule::GlobalSpace {
+
+Console::Console(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+: DomainModule(moduleName, domain, funcTreePtr) {
+    // we cannot do much here, since renderer might not be initialized yet
+    // so we do the actual initialization in update() when needed
+}
+
+void Console::update(){
+    //------------------------------------------
+    // Prerequisites
+
+    // Requites renderer
+    if(!domain->RendererExists()){
+        return; // No renderer, no console
+    }
+
+    // Initialize font if not done yet
+    if(!initialized){
+        // Get all references from renderer and global space
+        consoleFont = domain->getRenderer()->getStandardFont();
+        renderer = domain->getSDLRenderer();
+        invoke = domain->invoke.get();
+        globalDoc = invoke->getGlobalPointer();
+        initialized = true;
+    }
+
+    //------------------------------------------
+    // Toggle
+    consoleMode = domain->getRenderer()->isConsoleMode();
+    events = domain->getRenderer()->getEventHandles();
+
+    // Toggling console mode
+    bool consoleToggle = domain->getDoc()->get<int>(toggleKey.c_str(),0) == 1;
+    if(consoleToggle){
+        domain->getRenderer()->toggleConsoleMode();
+        if(domain->getRenderer()->isConsoleMode()){
+            SDL_StartTextInput();
+            SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT); // Flush all pending events
+        }
+        else{
+            SDL_StopTextInput();
+        }
+    }
+
+    //------------------------------------------
+    // Input handling
+    if (consoleMode) {
+        for (const auto& event : *events) {
+            switch (event.type) {
+                case SDL_TEXTINPUT:
+                    consoleInputBuffer += event.text.text;
+                    break;
+
+                case SDL_KEYDOWN:
+                    switch (event.key.keysym.sym) {
+                        case SDLK_BACKSPACE:
+                            if (!consoleInputBuffer.empty()) {
+                                consoleInputBuffer.pop_back();
+                            }
+                            break;
+                        case SDLK_RETURN:
+                        case SDLK_KP_ENTER:
+                            if (!consoleInputBuffer.empty()) {
+                                consoleOutput.emplace_back("> " + consoleInputBuffer);
+                                domain->invoke->getQueue()->emplace_back(consoleInputBuffer);
+                                consoleInputBuffer.clear();
+                            }
+                            break;				
+                    }
+                    break;
+            }
+        }
+    }
+
+    //------------------------------------------
+    // Rendering
+    if (consoleMode) {
+        // Render texture and attach
+        renderConsole();
+
+        // Check if texture is valid
+        if(!consoleTexture.texture_ptr){
+            std::cerr << "Could not attach Console: Console texture is null!" << std::endl;
+            return;
+        }
+
+        // Attach texture above UI layer
+        (void)domain->getRenderer()->attachTextureAboveLayer(
+            Nebulite::Core::Environment::Layer::UI,
+            "console_overlay", 
+            consoleTexture.texture_ptr,
+            &consoleTexture.rect
+        );
     }
     else{
-        SDL_StopTextInput();
+        // Clear texture and detach
+        (void)domain->getRenderer()->detachTextureAboveLayer(
+            Nebulite::Core::Environment::Layer::UI,
+            "console_overlay"
+        );
+        if(consoleTexture.texture_ptr){
+            SDL_DestroyTexture(consoleTexture.texture_ptr);
+            consoleTexture.texture_ptr = nullptr;
+        }
     }
 }
-*/
+
+void Console::renderConsole() {
+    //------------------------------------------
+    // Prerequisites
+
+    // Get Window scale
+    int WindowScale = domain->getRenderer()->getWindowScale();
+
+    // Derive consoleRect size from display size
+    int x = 0;
+    int y = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) / 2;
+    int w = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),360);
+    int h = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) - y;
+
+    //------------------------------------------
+    // Texture Setup
+
+    // Status
+    bool textureStatus = false;
+    textureStatus = textureStatus || !consoleTexture.texture_ptr;   // No texture yet
+    textureStatus = textureStatus || consoleTexture.rect.w != w;    // Width changed
+    textureStatus = textureStatus || consoleTexture.rect.h != h;    // Height changed
+
+    // Update rectangle if needed
+    if(textureStatus){
+        if (consoleTexture.texture_ptr){
+            SDL_DestroyTexture(consoleTexture.texture_ptr);
+        }
+        consoleTexture = {
+            {x, y, w, h}, // rect
+            SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h)
+        };
+    }
+
+    // Check if texture creation was successful
+    if (!consoleTexture.texture_ptr) {
+        std::cerr << "SDL_CreateTexture failed: " << SDL_GetError() << std::endl;
+        return;
+    }
+
+    //------------------------------------------
+    // Target: Texture
+    SDL_SetRenderTarget(renderer, consoleTexture.texture_ptr);
+
+    //------------------------------------------
+    // Part 1: Background
+
+    // Draw everything as before, but coordinates relative to (0,0)
+    SDL_Rect localRect = {0, 0, consoleTexture.rect.w, consoleTexture.rect.h};
+    SDL_SetRenderDrawColor(renderer, 0, 32, 128, 180);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_RenderFillRect(renderer, &localRect);
+
+    SDL_Color textColor = {255, 255, 255, 255};
+    int lineHeight = (double)TTF_FontHeight(consoleFont) / (double)WindowScale;
+
+    //------------------------------------------
+    // Part 2: Input Line
+    if (!consoleInputBuffer.empty()) {
+        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, consoleInputBuffer.c_str(), textColor);
+        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+        SDL_Rect textRect;
+        textRect.x = 10;
+        textRect.y = consoleTexture.rect.h - lineHeight - 10;
+        textRect.w = (double)textSurface->w / (double)WindowScale;
+        textRect.h = (double)textSurface->h / (double)WindowScale;
+
+        SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+        SDL_FreeSurface(textSurface);
+        SDL_DestroyTexture(textTexture);
+    }
+
+    //------------------------------------------
+    // Part 3: Output Lines
+    int maxLines = floor(consoleTexture.rect.h - 20 - lineHeight) / lineHeight;
+    int startLine = std::max(0, (int)consoleOutput.size() - maxLines);
+    for (int i = 0; i < maxLines && (startLine + i) < consoleOutput.size(); ++i) {
+        const std::string& line = consoleOutput[startLine + i];
+        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, line.c_str(), textColor);
+        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+        SDL_Rect lineRect;
+        lineRect.x = 10;
+        lineRect.y = 10 + i * lineHeight;
+        lineRect.w = (double)textSurface->w / (double)WindowScale;
+        lineRect.h = (double)textSurface->h / (double)WindowScale;
+
+        SDL_RenderCopy(renderer, textTexture, NULL, &lineRect);
+        SDL_FreeSurface(textSurface);
+        SDL_DestroyTexture(textTexture);
+    }
+
+    //------------------------------------------
+    // Target: Back to window
+    SDL_SetRenderTarget(renderer, nullptr);
+}
+
+}   // namespace Nebulite::DomainModule::GlobalSpace::Console
