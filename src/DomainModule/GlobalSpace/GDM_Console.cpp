@@ -7,6 +7,7 @@ Console::Console(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Ne
 : DomainModule(moduleName, domain, funcTreePtr) {
     // we cannot do much here, since renderer might not be initialized yet
     // so we do the actual initialization in update() when needed
+    consoleInputBuffer = &commandIndexZeroBuffer;
 }
 
 void Console::update(){
@@ -25,6 +26,16 @@ void Console::update(){
         renderer = domain->getSDLRenderer();
         invoke = domain->invoke.get();
         globalDoc = invoke->getGlobalPointer();
+
+        // Initialize history with a welcome message
+        // In reality, this is just done because the program segfaults 
+        // if we try to access a history with less than 2 elements
+        commandIndexZeroBuffer = "echo Welcome to Nebulite!";
+        TextInput::submit(this);
+        commandIndexZeroBuffer = "echo Type 'help' for a list of commands.";
+        TextInput::submit(this);
+
+        // Console now fully functional
         initialized = true;
     }
 
@@ -52,24 +63,41 @@ void Console::update(){
         for (const auto& event : *events) {
             switch (event.type) {
                 case SDL_TEXTINPUT:
-                    consoleInputBuffer += event.text.text;
+                    *consoleInputBuffer += event.text.text;
                     break;
 
                 case SDL_KEYDOWN:
                     switch (event.key.keysym.sym) {
+                        //------------------------------------------
+                        // Text input manipulation
+
+                        // Remove last character on backspace
                         case SDLK_BACKSPACE:
-                            if (!consoleInputBuffer.empty()) {
-                                consoleInputBuffer.pop_back();
-                            }
+                            TextInput::backspace(this);
                             break;
+
+                        // Submit command on Enter
                         case SDLK_RETURN:
                         case SDLK_KP_ENTER:
-                            if (!consoleInputBuffer.empty()) {
-                                consoleOutput.emplace_back("> " + consoleInputBuffer);
-                                domain->invoke->getQueue()->emplace_back(consoleInputBuffer);
-                                consoleInputBuffer.clear();
-                            }
-                            break;				
+                            TextInput::submit(this);
+                            break;	
+
+                        // Cursor movement
+                        case SDLK_LEFT:
+                            // TODO: Move cursor left
+                            break;
+                        case SDLK_RIGHT:
+                            // TODO: Move cursor right
+                            break;
+
+                        //------------------------------------------
+                        // UP/DOWN to cycle through past commands
+                        case SDLK_UP:
+                            TextInput::history_up(this);
+                            break;
+                        case SDLK_DOWN:
+                            TextInput::history_down(this);
+                            break;
                     }
                     break;
             }
@@ -166,8 +194,8 @@ void Console::renderConsole() {
 
     //------------------------------------------
     // Part 2: Input Line
-    if (!consoleInputBuffer.empty()) {
-        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, consoleInputBuffer.c_str(), textColor);
+    if (!consoleInputBuffer->empty()) {
+        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, consoleInputBuffer->c_str(), textColor);
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
         SDL_Rect textRect;
@@ -204,6 +232,58 @@ void Console::renderConsole() {
     //------------------------------------------
     // Target: Back to window
     SDL_SetRenderTarget(renderer, nullptr);
+}
+
+//--------------------------------------------------
+// TextInput methods
+
+void Console::TextInput::submit(Console *console){
+    if (!console->consoleInputBuffer->empty()) {
+        // History and output
+        console->commandHistory.emplace_back(*console->consoleInputBuffer);
+        console->consoleOutput.emplace_back("> " + *console->consoleInputBuffer);
+
+        // Add to queue and clear buffer
+        console->invoke->getQueue()->emplace_back(*console->consoleInputBuffer);
+        if(console->selectedCommandIndex != 0){
+            // If we were browsing history, reset to latest input
+            console->selectedCommandIndex = 0;
+            console->consoleInputBuffer = &console->commandIndexZeroBuffer;
+        }
+        
+        // Like in typical consoles, we clear the output
+        console->commandIndexZeroBuffer.clear();
+    }
+}
+
+void Console::TextInput::backspace(Console *console){
+    if (!console->consoleInputBuffer->empty()) {
+        console->consoleInputBuffer->pop_back();
+    }
+}
+
+void Console::TextInput::history_up(Console *console){
+    console->selectedCommandIndex++;
+    
+    // Get command from history
+    if(console->selectedCommandIndex > console->commandHistory.size()){
+        console->selectedCommandIndex = console->commandHistory.size();
+    }
+    if(console->selectedCommandIndex > 0){
+        console->consoleInputBuffer = &console->commandHistory[console->commandHistory.size() - console->selectedCommandIndex];
+    }
+}
+
+void Console::TextInput::history_down(Console *console){
+    if(console->selectedCommandIndex > 0) console->selectedCommandIndex--;
+    
+    // Get command from buffer or history
+    if(console->selectedCommandIndex == 0){
+        console->consoleInputBuffer = &console->commandIndexZeroBuffer;
+    }
+    else{
+        console->consoleInputBuffer = &console->commandHistory[console->commandHistory.size() - console->selectedCommandIndex];
+    }
 }
 
 }   // namespace Nebulite::DomainModule::GlobalSpace::Console

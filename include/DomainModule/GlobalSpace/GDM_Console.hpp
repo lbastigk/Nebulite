@@ -87,10 +87,16 @@ private:
     // IO Buffers
 
     // What the user is typing
-    std::string consoleInputBuffer;   
+    std::string* consoleInputBuffer;    // What is shown and modified
+    std::string commandIndexZeroBuffer; // What is being written as unfinished input
     
     // Optional: Past output log
-	std::deque<std::string> consoleOutput;           
+	std::deque<std::string> consoleOutput;      // Static, is not modified
+    std::vector<std::string> commandHistory;    // Dynamic, is modified
+    
+    // Currently selected command from history
+    // 0 means no selection, latest input
+    int selectedCommandIndex = 0;
 
     //------------------------------------------
     // Methods
@@ -114,6 +120,40 @@ private:
     SDL_Renderer* renderer = nullptr;
     Nebulite::Interaction::Invoke* invoke = nullptr;
     Nebulite::Utility::JSON* globalDoc = nullptr;
+
+    //------------------------------------------
+    // Text input handling
+    /**
+     * @class Nebulite::DomainModule::GlobalSpace::Console::TextInput
+     * @brief Helper class to handle text input in the console.
+     */
+    class TextInput{
+    public:
+        /**
+         * @brief Submits the current input buffer as a command.
+         * @param console The console instance.
+         */
+        static void submit(Console *console);
+
+        /**
+         * @brief Handles backspace input.
+         * @param console The console instance.
+         */
+        static void backspace(Console *console);
+
+        /**
+         * @brief Navigates up the command history.
+         * @param console The console instance.
+         */
+        static void history_up(Console *console);
+
+        /**
+         * @brief Navigates down the command history.
+         * @param console The console instance.
+         */
+        static void history_down(Console *console);
+    };
+    friend class TextInput;
 };
 }   // namespace GlobalSpace
 }   // namespace DomainModule
