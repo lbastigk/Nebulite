@@ -343,13 +343,7 @@ private:
 // Templated setter/getter functions
 
 template <typename T> void Nebulite::Core::RenderObject::set(const char* key, const T data) {
-	//JSONHandler::Set::Any(doc, key, data);
 	json.set(key,data);
-	/**
-	 * @todo Is this still needed?
-	 */
-	calculateDstRect();
-	calculateSrcRect();
 }
 
 template <typename T> T Nebulite::Core::RenderObject::get(const char* key, const T& defaultValue){
