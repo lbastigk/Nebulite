@@ -62,7 +62,7 @@
         {
             "label": "[PROFILING] On large gravity test",
             "type": "shell",
-            "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0  ; perf record --no-inherit -g -- ./bin/Nebulite task TaskFiles/Benchmarks/spawn_constantly.nebs ; hotspot perf.data",
+            "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0  ; perf record --no-inherit -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/spawn_constantly.nebs ; hotspot perf.data",
             "group": {
                 "kind": "test",
                 "isDefault": false
