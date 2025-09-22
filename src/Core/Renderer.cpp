@@ -545,15 +545,12 @@ void Nebulite::Core::Renderer::renderFrame() {
 
 	//Render Objects
 	//For all layers, starting at 0
-	for (int layer = 0; layer < Environment::LayerCount; layer++) {
-		// Cast layer to enum
-		Environment::Layer currentLayer = static_cast<Environment::Layer>(layer);
-
+	for (auto layer : *(env.getAllLayers())) {
 		// Get all tile positions to render
 		std::vector<std::pair<int, int>> tilesToRender;
 		for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
 			for (int dY = (tileYpos == 0 ? 0 : -1); dY <= 1; dY++) {
-				if (env.isValidPosition(tileXpos + dX, tileYpos + dY,currentLayer)) {
+				if (env.isValidPosition(tileXpos + dX, tileYpos + dY, layer)) {
 					tilesToRender.emplace_back(tileXpos + dX, tileYpos + dY);
 				}
 			}
@@ -562,7 +559,7 @@ void Nebulite::Core::Renderer::renderFrame() {
 		// For all tiles to render
 		for (const auto& [tileX, tileY] : tilesToRender) {
 			// For all batches inside
-			for (auto& batch : env.getContainerAt(tileX, tileY,currentLayer)) {
+			for (auto& batch : env.getContainerAt(tileX, tileY, layer)) {
 				// For all objects in batch
 				for(auto& obj : batch.objects){
 					error = renderObjectToScreen(obj, dispPosX, dispPosY);
@@ -574,7 +571,7 @@ void Nebulite::Core::Renderer::renderFrame() {
 		}
 
 		// Render all textures that were attached from outside processes
-		for (const auto& [name, texturePair] : BetweenLayerTextures[static_cast<Environment::Layer>(layer)]) {
+		for (const auto& [name, texturePair] : BetweenLayerTextures[layer]) {
 			const auto& texture = texturePair.first;
 			const auto& rect = texturePair.second;
 

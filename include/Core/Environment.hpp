@@ -55,6 +55,8 @@ public:
 	 * Each layer can be thought of as a separate "pass" over the render objects.
 	 * Starting with the lowest layer (background) and ending with the highest layer (menue).
 	 * 
+	 * *IMPORTANT:* New layers must be added to private variable `allLayers` in the correct order.
+	 * 
 	 * @todo Once GDM_GUI and renderer texture queuing is properly implemented, 
 	 * the layer size may be reduced and layer names reworked.
 	 */
@@ -65,6 +67,9 @@ public:
 		effects,
 		UI
 	};
+	std::vector<Layer>* getAllLayers(){
+		return &allLayers;
+	}
 
 	/**
 	 * @brief The number of RenderObjectContainer layers in the Environment.
@@ -203,6 +208,9 @@ public:
 	uint32_t getObjectCount();
 
 private:
+	// All layers in rendering order
+	std::vector<Layer> allLayers = {background, general, foreground, effects, UI};
+
 	// Link to Global Values
     Nebulite::Utility::JSON* global;
 
