@@ -87,11 +87,6 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::lo
             continue;
         }
         else{
-            // Make sure the line is not just a comment character
-            if(line == "#"){
-                continue;
-            }
-
             // Insert line backwards, so we can process them in the order they were written later on:
             lines.insert(lines.begin(), line);
         }
