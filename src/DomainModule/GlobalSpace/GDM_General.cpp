@@ -183,23 +183,41 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::fu
     return (Nebulite::Constants::ERROR_TYPE)std::stoi(argv[1]);
 }
 
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::always(int argc, char* argv[]){
+    if (argc > 1) {
+        std::ostringstream oss;
+        for (int i = 1; i < argc; ++i) {
+            if (i > 1) oss << ' ';
+            oss << argv[i];
+        }
+
+        // Split oss.str() on ';' and push each trimmed command
+        std::string argStr = oss.str();
+        std::stringstream ss(argStr);
+        std::string command;
+
+        while (std::getline(ss, command, ';')) {
+            // Trim whitespace from each command
+            command.erase(0, command.find_first_not_of(" \t"));
+            command.erase(command.find_last_not_of(" \t") + 1);
+            if (!command.empty()) {
+                domain->tasks.always.taskList.push_back(command);
+            }
+        }
+    }
+    return Nebulite::Constants::ERROR_TYPE::NONE;
+}
+
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::alwaysClear(int argc, char* argv[]){
+    domain->tasks.always.taskList.clear();
+    return Nebulite::Constants::ERROR_TYPE::NONE;
+}
+
 //------------------------------------------
 // To move
 
-// 1.) To GDM_Debug
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::error(int argc, char* argv[]) {
-    for (int i = 1; i < argc; ++i) {
-        std::cerr << argv[i];
-        if (i < argc - 1) {
-            std::cerr << " ";
-        }
-    }
-    std::cerr << std::endl;
-    return Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR;
-}
-
-// 2.) To GDM_StateManagement
+// To GDM_StateManagement
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::stateLoad(int argc, char* argv[]){ 
     std::cerr << "Function load not implemented yet!" << std::endl;

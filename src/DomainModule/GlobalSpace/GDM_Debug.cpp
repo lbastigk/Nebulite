@@ -133,36 +133,6 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::clea
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::always(int argc, char* argv[]){
-    if (argc > 1) {
-        std::ostringstream oss;
-        for (int i = 1; i < argc; ++i) {
-            if (i > 1) oss << ' ';
-            oss << argv[i];
-        }
-
-        // Split oss.str() on ';' and push each trimmed command
-        std::string argStr = oss.str();
-        std::stringstream ss(argStr);
-        std::string command;
-
-        while (std::getline(ss, command, ';')) {
-            // Trim whitespace from each command
-            command.erase(0, command.find_first_not_of(" \t"));
-            command.erase(command.find_last_not_of(" \t") + 1);
-            if (!command.empty()) {
-                domain->tasks.always.taskList.push_back(command);
-            }
-        }
-    }
-    return Nebulite::Constants::ERROR_TYPE::NONE;
-}
-
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::alwaysClear(int argc, char* argv[]){
-    domain->tasks.always.taskList.clear();
-    return Nebulite::Constants::ERROR_TYPE::NONE;
-}
-
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::crash(int argc, char** argv) {
     // If an argument is provided, use it to select crash type
     if (argc > 1 && argv[1]) {
@@ -191,4 +161,15 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::cras
     }
     // Should never reach here
     return Nebulite::Constants::ERROR_TYPE::NONE;
+}
+
+Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::error(int argc, char* argv[]) {
+    for (int i = 1; i < argc; ++i) {
+        std::cerr << argv[i];
+        if (i < argc - 1) {
+            std::cerr << " ";
+        }
+    }
+    std::cerr << std::endl;
+    return Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR;
 }

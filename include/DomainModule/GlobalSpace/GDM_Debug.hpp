@@ -118,28 +118,6 @@ public:
     Nebulite::Constants::ERROR_TYPE logState(int argc, char* argv[]);
 
     /**
-     * @brief Attach a command to the always-taskqueue that is executed on each tick.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: inputs are <command>. The command to attach.
-     * @return Potential errors that occured on command execution
-     * 
-     * @todo Move to GDM_General
-     */
-    Nebulite::Constants::ERROR_TYPE always(int argc, char* argv[]);
-
-    /**
-     * @brief Clears the entire always-taskqueue.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
-     * 
-     * @todo Move to GDM_General
-     */
-    Nebulite::Constants::ERROR_TYPE alwaysClear(int argc, char* argv[]);
-
-    /**
      * @brief Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
      * 
      * @param argc The argument count
@@ -158,6 +136,15 @@ public:
      */
     Nebulite::Constants::ERROR_TYPE crash(int argc, char** argv);
 
+    /**
+     * @brief Echoes all arguments as string to the standard error
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <string>
+     * @return Potential errors that occured on command execution
+     */
+    Nebulite::Constants::ERROR_TYPE error(int argc, char* argv[]);
+
     //------------------------------------------
     // Setup
 
@@ -171,6 +158,8 @@ public:
         // Binding functions to the FuncTree
         bindFunction(&Debug::errorlog,          "errorlog",                 "Activate/Deactivate error logging: log <on/off>");
         bindFunction(&Debug::clearConsole,      "clear",                    "Clear console");
+        bindFunction(&Debug::error,             "error",                    "Echo a string to cerr/errorfile: error <string>");
+        bindFunction(&Debug::crash,             "crash",                    "Crashes the program: crash [segfault/abort/terminate/throw]");
 
         bindSubtree("print", "Functions to print various data to console");
         bindFunction(&Debug::printGlobal,       "print-global",             "Print global document");
@@ -182,11 +171,6 @@ public:
         
         bindSubtree("standardfile", "Functions to generate standard files");
         bindFunction(&Debug::render_object,     "standardfile render-object",   "Generates a standard render object at ./Resources/Renderobjects/standard.jsonc");
-
-        bindFunction(&Debug::always,            "always",                   "Attach function to always run: always <command>");
-        bindFunction(&Debug::alwaysClear,       "always-clear",             "Clear all always-tasks");
-
-        bindFunction(&Debug::crash,             "crash",                    "Crashes the program: crash [segfault/abort/terminate/throw]");
 
         //------------------------------------------
         // Example Bindings that will fail

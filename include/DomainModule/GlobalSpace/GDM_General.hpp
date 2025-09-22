@@ -125,16 +125,6 @@ public:
      */
     Nebulite::Constants::ERROR_TYPE echo(int argc, char* argv[]);
 
-    /**
-     * @brief Echoes all arguments as string to the standard error
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <string>
-     * @return Potential errors that occured on command execution
-     * 
-     * @todo Move to GDM_Debug
-     */
-    Nebulite::Constants::ERROR_TYPE error(int argc, char* argv[]);
 
     // Assert CRITICAL_CUSTOM_ASSERT
     /**
@@ -168,6 +158,24 @@ public:
      */
     Nebulite::Constants::ERROR_TYPE stateLoad(int argc, char* argv[]);
 
+    /**
+     * @brief Attach a command to the always-taskqueue that is executed on each tick.
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: inputs are <command>. The command to attach.
+     * @return Potential errors that occured on command execution
+     */
+    Nebulite::Constants::ERROR_TYPE always(int argc, char* argv[]);
+
+    /**
+     * @brief Clears the entire always-taskqueue.
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: no arguments available
+     * @return Potential errors that occured on command execution
+     */
+    Nebulite::Constants::ERROR_TYPE alwaysClear(int argc, char* argv[]);
+
     //------------------------------------------
     // Setup
 
@@ -185,8 +193,9 @@ public:
         bindFunction(&General::ifCondition,         "if",                   "Execute a block of code if a condition is true: if <condition> <functioncall>");
         bindFunction(&General::func_return,         "return",               "Return a custom value");
         bindFunction(&General::echo,                "echo",                 "Echo a string to cout: echo <string>");
-        bindFunction(&General::error,               "error",                "Echo a string to cerr/errorfile: error <string>");
         bindFunction(&General::func_assert,         "assert",               "Assert a condition and throw an error if false: assert <condition>");
+        bindFunction(&General::always,              "always",               "Attach function to always run: always <command>");
+        bindFunction(&General::alwaysClear,         "always-clear",         "Clear all always-tasks");
 
         bindSubtree("state", "State management functions");
         bindFunction(&General::stateSave,           "state save",           "Save the current game state: state-save <name>");
