@@ -68,6 +68,11 @@ private:
     // Whether the console has been initialized
     bool initialized = false;
 
+    /**
+     * @brief Initializes the console, setting up the font and other necessary components.
+     */
+    void init();
+
     //------------------------------------------
     // Texture and Font related
 
@@ -103,6 +108,10 @@ private:
 
     /**
 	 * @brief Renders the console to the screen.
+     * 
+     * @todo Improve rendering by always rendering a fixed number of lines,
+     * or less if size starts to become an issue.
+     * Setting size and spacing automatically based on console height.
 	 */
 	void renderConsole();
 
@@ -132,8 +141,10 @@ private:
         /**
          * @brief Submits the current input buffer as a command.
          * @param console The console instance.
+         * @param execute (Optional) Whether to execute the command or just add it to history and output. 
+         * Default is true.
          */
-        static void submit(Console *console);
+        static void submit(Console *console, bool execute = true);
 
         /**
          * @brief Handles backspace input.

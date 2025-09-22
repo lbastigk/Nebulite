@@ -21,22 +21,7 @@ void Console::update(){
 
     // Initialize font if not done yet
     if(!initialized){
-        // Get all references from renderer and global space
-        consoleFont = domain->getRenderer()->getStandardFont();
-        renderer = domain->getSDLRenderer();
-        invoke = domain->invoke.get();
-        globalDoc = invoke->getGlobalPointer();
-
-        // Initialize history with a welcome message
-        // In reality, this is just done because the program segfaults 
-        // if we try to access a history with less than 2 elements
-        commandIndexZeroBuffer = "echo Welcome to Nebulite!";
-        TextInput::submit(this);
-        commandIndexZeroBuffer = "echo Type 'help' for a list of commands.";
-        TextInput::submit(this);
-
-        // Console now fully functional
-        initialized = true;
+        init();
     }
 
     //------------------------------------------
@@ -141,9 +126,6 @@ void Console::renderConsole() {
     //------------------------------------------
     // Prerequisites
 
-    // Get Window scale
-    int WindowScale = domain->getRenderer()->getWindowScale();
-
     // Derive consoleRect size from display size
     int x = 0;
     int y = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) / 2;
@@ -190,7 +172,7 @@ void Console::renderConsole() {
     SDL_RenderFillRect(renderer, &localRect);
 
     SDL_Color textColor = {255, 255, 255, 255};
-    int lineHeight = (double)TTF_FontHeight(consoleFont) / (double)WindowScale;
+    int lineHeight = (double)TTF_FontHeight(consoleFont);
 
     //------------------------------------------
     // Part 2: Input Line
@@ -201,8 +183,8 @@ void Console::renderConsole() {
         SDL_Rect textRect;
         textRect.x = 10;
         textRect.y = consoleTexture.rect.h - lineHeight - 10;
-        textRect.w = (double)textSurface->w / (double)WindowScale;
-        textRect.h = (double)textSurface->h / (double)WindowScale;
+        textRect.w = (double)textSurface->w;
+        textRect.h = (double)textSurface->h;
 
         SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
         SDL_FreeSurface(textSurface);
@@ -221,8 +203,8 @@ void Console::renderConsole() {
         SDL_Rect lineRect;
         lineRect.x = 10;
         lineRect.y = 10 + i * lineHeight;
-        lineRect.w = (double)textSurface->w / (double)WindowScale;
-        lineRect.h = (double)textSurface->h / (double)WindowScale;
+        lineRect.w = (double)textSurface->w;
+        lineRect.h = (double)textSurface->h;
 
         SDL_RenderCopy(renderer, textTexture, NULL, &lineRect);
         SDL_FreeSurface(textSurface);
@@ -234,23 +216,50 @@ void Console::renderConsole() {
     SDL_SetRenderTarget(renderer, nullptr);
 }
 
+void Console::init(){
+    //--------------------------------------------------
+    // References
+
+    consoleFont = domain->getRenderer()->getStandardFont();
+    renderer = domain->getSDLRenderer();
+    invoke = domain->invoke.get();
+    globalDoc = invoke->getGlobalPointer();
+
+    //--------------------------------------------------
+    // Console buffer
+
+    // Initialize history with a welcome message
+    // In reality, this is just done because the program segfaults 
+    // if we try to access a history with less than 2 elements
+    commandIndexZeroBuffer = "echo Welcome to Nebulite!";
+    TextInput::submit(this,false);  // Add to history but do not execute
+    commandIndexZeroBuffer = "echo Type 'help' for a list of commands.";
+    TextInput::submit(this,false);  // Add to history but do not execute
+
+    //--------------------------------------------------
+    // Console now fully functional
+    initialized = true;
+}
+
 //--------------------------------------------------
 // TextInput methods
 
-void Console::TextInput::submit(Console *console){
+void Console::TextInput::submit(Console *console, bool execute){
     if (!console->consoleInputBuffer->empty()) {
         // History and output
         console->commandHistory.emplace_back(*console->consoleInputBuffer);
         console->consoleOutput.emplace_back("> " + *console->consoleInputBuffer);
 
-        // Add to queue and clear buffer
-        console->invoke->getQueue()->emplace_back(*console->consoleInputBuffer);
-        if(console->selectedCommandIndex != 0){
-            // If we were browsing history, reset to latest input
-            console->selectedCommandIndex = 0;
-            console->consoleInputBuffer = &console->commandIndexZeroBuffer;
+        // Add to queue
+        if(execute){
+            console->invoke->getQueue()->emplace_back(*console->consoleInputBuffer);
+            if(console->selectedCommandIndex != 0){
+                // If we were browsing history, reset to latest input
+                console->selectedCommandIndex = 0;
+                console->consoleInputBuffer = &console->commandIndexZeroBuffer;
+            }
         }
-        
+
         // Like in typical consoles, we clear the output
         console->commandIndexZeroBuffer.clear();
     }
