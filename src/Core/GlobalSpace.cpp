@@ -21,7 +21,7 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
 
     //------------------------------------------
     // Link inherited FuncTree in global
-    inherit(global.funcTree);
+    inherit<Nebulite::Utility::JSON>(&global);
 
     //------------------------------------------
     // Initialize DomainModules
@@ -143,8 +143,6 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Core::GlobalSpace::parseQueue() {
 void Nebulite::Core::GlobalSpace::update() {
     //------------------------------------------
     // Update Domain
-    for(auto& module : modules){
-        module->update();
-    }
+    updateModules();
     getDoc()->update();
 }

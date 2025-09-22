@@ -10,16 +10,14 @@ Nebulite::Core::Texture::Texture(Nebulite::Utility::JSON* doc, Nebulite::Core::G
     texture  = nullptr;
 
     // Set preParse function
-    funcTree->setPreParse(std::bind(&Nebulite::Core::Texture::preParse,this));
+    setPreParse(std::bind(&Nebulite::Core::Texture::preParse,this));
 
     // Initialize all DomainModules
     Nebulite::DomainModule::TDM_init(this);
 }
 
 void Nebulite::Core::Texture::update() {
-    for(auto& module : modules){
-        module->update();
-    }
+    updateModules();
 }
 
 bool Nebulite::Core::Texture::copyTexture() {

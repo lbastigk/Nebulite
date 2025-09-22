@@ -66,8 +66,8 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 
 	//------------------------------------------
     // Link inherited FuncTree json
-    inherit(json.funcTree);
-	inherit(baseTexture.funcTree);
+    inherit<Nebulite::Utility::JSON>(&json);
+	inherit<Nebulite::Core::Texture>(&baseTexture);
 
 	//------------------------------------------
 	// Initialize Domain Modules
@@ -214,15 +214,9 @@ void Nebulite::Core::RenderObject::calculateSrcRect() {
 
 void Nebulite::Core::RenderObject::update() {
 	//------------------------------------------
-	// Update Domain
-	for(auto& module : modules){
-		module->update();
-	}
+	// Update modules and all inner domains
+	updateModules();
 	getDoc()->update();
-
-	// Check if Renderer exists and is linked
-	//
-
 	baseTexture.update();
 
 	//------------------------------------------
