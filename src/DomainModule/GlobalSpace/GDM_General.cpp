@@ -31,6 +31,12 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::ev
 }
 
 Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::exitProgram(int argc, char* argv[]){
+    // Clear all task queues to prevent further execution
+    domain->tasks.script.taskList.clear();
+    domain->tasks.internal.taskList.clear();
+    domain->tasks.always.taskList.clear();
+
+    // Set the renderer to quit
     domain->getRenderer()->setQuit();
     return Nebulite::Constants::ERROR_TYPE::NONE;
 }

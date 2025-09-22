@@ -56,10 +56,6 @@ public:
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
-     * 
-     * @todo In order to properly exit, it we must make sure to clean up the taskQueue:
-     *  ./bin/Nebulite "echo 1; exit ; echo 2"
-     * Will still echo 2
      */
     Nebulite::Constants::ERROR_TYPE exitProgram(int argc, char* argv[]);
 
