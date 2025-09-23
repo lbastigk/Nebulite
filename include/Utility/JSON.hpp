@@ -35,33 +35,6 @@
 //------------------------------------------
 namespace Nebulite{
 namespace Utility {
-/**
- * @brief Template for supported cache storages.
- * 
- * This template is used to determine if a type is a simple value that can be cached.
- * 
- * @note Make sure to update this template and Nebulite::Utility::JSON::CacheEntry if the list of supported types changes.
- * 
- * @todo Moving to private of JSON?
- */
-template <typename T>
-struct is_simple_value : std::disjunction<
-    std::is_same<T, int32_t>,
-    std::is_same<T, int64_t>,
-    std::is_same<T, uint32_t>,
-    std::is_same<T, uint64_t>,
-    std::is_same<T, double>,
-    std::is_same<T, std::string>,
-    std::is_same<T, bool>
-> {};
-
-/**
- * @brief Helper variable template for checking if a type is a simple value.
- * 
- * @todo Moving to private of JSON?
- */
-template <typename T>
-inline constexpr bool is_simple_value_v = is_simple_value<T>::value;
 
 /**
  * @class Nebulite::Utility::JSON
@@ -392,10 +365,32 @@ public:
     void empty();
 
 private:
+    //------------------------------------------
+    // Templated helpers
+
     /**
-     * @brief Mutex for thread-safe access.
+     * @brief Template for supported cache storages.
+     * 
+     * This template is used to determine if a type is a simple value that can be cached.
+     * 
+     * @note Make sure to update this template and Nebulite::Utility::JSON::CacheEntry if the list of supported types changes.
      */
-    mutable std::recursive_mutex mtx;
+    template <typename T>
+    struct is_simple_value : std::disjunction<
+        std::is_same<T, int32_t>,
+        std::is_same<T, int64_t>,
+        std::is_same<T, uint32_t>,
+        std::is_same<T, uint64_t>,
+        std::is_same<T, double>,
+        std::is_same<T, std::string>,
+        std::is_same<T, bool>
+    > {};
+
+    /**
+     * @brief Helper variable template for checking if a type is a simple value.
+     */
+    template <typename T>
+    static inline constexpr bool is_simple_value_v = is_simple_value<T>::value;
 
     //------------------------------------------
     // Value storage
@@ -404,7 +399,15 @@ private:
     rapidjson::Document doc;
 
     //------------------------------------------
-    // caching Simple variables
+    // Locking system
+
+    /**
+     * @brief Mutex for thread-safe access.
+     */
+    mutable std::recursive_mutex mtx;
+
+    //------------------------------------------
+    // Caching
 
     /**
      * @brief Variant type for representing simple JSON values.
