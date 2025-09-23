@@ -12,17 +12,17 @@ void Nebulite::DomainModule::GlobalSpace::Debug::update() {
 //------------------------------------------
 // FuncTree-Bound Functions
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::printGlobal(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::printGlobal(int argc, char* argv[]){
     std::cout << domain->getDoc()->serialize() << std::endl;
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::printState(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::printState(int argc, char* argv[]){
     std::cout << domain->getRenderer()->serialize() << std::endl;
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::logGlobal(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::logGlobal(int argc, char* argv[]){
     std::string serialized = domain->getDoc()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -32,10 +32,10 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::logG
     else{
         Nebulite::Utility::FileManagement::WriteFile("global.log.jsonc",serialized);
     }
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::logState(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::logState(int argc, char* argv[]){
     std::string serialized = domain->getRenderer()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -45,16 +45,16 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::logS
     else{
         Nebulite::Utility::FileManagement::WriteFile("state.log.jsonc",serialized);
     }
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::render_object(int argc, char** argv){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::render_object(int argc, char** argv){
     Nebulite::Core::RenderObject ro(domain);
     Nebulite::Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc",ro.serialize());
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::errorlog(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::errorlog(int argc, char* argv[]){
     // Initialize the error logging buffer
     if(!originalCerrBuf) {
         // Handle the case where originalCerrBuf is not set
@@ -74,7 +74,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::erro
                     errorFile->open("errors.log");
                     if (!(*errorFile)) {
                         std::cerr << "Failed to open error file." << std::endl;
-                        return Nebulite::Constants::ERROR_TYPE::CRITICAL_INVALID_FILE;
+                        return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
                     }
                     
                     originalCerrBuf = std::cerr.rdbuf(); // Store the original cerr buffer
@@ -83,10 +83,10 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::erro
                     
                 } catch (const std::exception& e) {
                     std::cerr << "Failed to create error log: " << e.what() << std::endl;
-                    return Nebulite::Constants::ERROR_TYPE::CRITICAL_INVALID_FILE;
+                    return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
                 } catch (...) {
                     std::cerr << "Failed to create error log: unknown error" << std::endl;
-                    return Nebulite::Constants::ERROR_TYPE::CRITICAL_INVALID_FILE;
+                    return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
                 }
             }
         }
@@ -107,18 +107,18 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::erro
     }
     else{
         if(argc > 2){
-            return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
+            return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS();
         }
         else{
-            return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
+            return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
         }
     }
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::clearConsole(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::clearConsole(int argc, char* argv[]){
     if (argc > 1) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS();
     }
     int error = 0;
     #if _WIN32
@@ -128,12 +128,12 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::clea
     #endif
 
     if (error != 0) {
-        return Nebulite::Constants::ERROR_TYPE::CRITICAL_GENERAL;
+        return Nebulite::Constants::ErrorTable::CRITICAL_GENERAL();
     }
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::crash(int argc, char** argv) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::crash(int argc, char** argv) {
     // If an argument is provided, use it to select crash type
     if (argc > 1 && argv[1]) {
         std::string crashType = argv[1];
@@ -160,10 +160,10 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::cras
         *p = 42;
     }
     // Should never reach here
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::error(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::error(int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         std::cerr << argv[i];
         if (i < argc - 1) {
@@ -171,5 +171,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Debug::erro
         }
     }
     std::cerr << std::endl;
-    return Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR;
+
+    // No further error to return
+    return Nebulite::Constants::ErrorTable::NONE();
 }

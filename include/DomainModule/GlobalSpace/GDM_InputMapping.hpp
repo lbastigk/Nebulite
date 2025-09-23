@@ -64,7 +64,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE readMappingsFromFile(int argc, char* argv[]);
+    Nebulite::Constants::Error readMappingsFromFile(int argc, char* argv[]);
 
     // Useful if we wish to update mappings ingame
     /**
@@ -76,7 +76,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE updateInputMapping(int argc, char* argv[]);
+    Nebulite::Constants::Error updateInputMapping(int argc, char* argv[]);
 
     /**
      * @brief Writes the current input mappings to a file
@@ -90,7 +90,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE writeMappingsToFile(int argc, char* argv[]);
+    Nebulite::Constants::Error writeMappingsToFile(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -99,7 +99,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    InputMapping(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    InputMapping(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         bindSubtree("input-mapping", "Functions to manage input mappings");
         bindFunction(&InputMapping::readMappingsFromFile,   "input-mapping read-from-file",    "Reads Input Mapping from inputs.jsonc file: [filename]");

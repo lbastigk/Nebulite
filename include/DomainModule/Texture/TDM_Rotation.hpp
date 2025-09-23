@@ -46,7 +46,7 @@ public:
      * @param argv The argument vector: rotation angle in degrees
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE rotate(int argc, char* argv[]);
+    Nebulite::Constants::Error rotate(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -55,7 +55,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Rotation(std::string moduleName, Nebulite::Core::Texture* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    Rotation(std::string moduleName, Nebulite::Core::Texture* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         bindFunction(&Rotation::rotate, "rotate",   "Rotate the texture by a given angle: rotate <angle>");
     }

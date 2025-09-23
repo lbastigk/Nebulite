@@ -48,7 +48,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE alignText(int argc, char* argv[]);
+    Nebulite::Constants::Error alignText(int argc, char* argv[]);
 
     /**
      * @brief Creates a box based on text dimensions
@@ -59,7 +59,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE makeBox(int argc, char* argv[]);
+    Nebulite::Constants::Error makeBox(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -68,7 +68,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Layout(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    Layout(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         bindFunction(&Layout::alignText, "align-text", "Aligns text to object dimensions");
         bindFunction(&Layout::makeBox, "make-box", "Creates a box based on text dimensions");

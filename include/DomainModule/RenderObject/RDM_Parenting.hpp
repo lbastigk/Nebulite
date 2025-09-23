@@ -49,7 +49,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE addChildren(int argc, char* argv[]);
+    Nebulite::Constants::Error addChildren(int argc, char* argv[]);
 
     /**
      * @brief Removes a child from the RenderObject
@@ -60,7 +60,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE removeChildren(int argc, char* argv[]);
+    Nebulite::Constants::Error removeChildren(int argc, char* argv[]);
 
     /**
      * @brief Removes all children from the RenderObject
@@ -71,7 +71,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE removeAllChildren(int argc, char* argv[]);
+    Nebulite::Constants::Error removeAllChildren(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -80,7 +80,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Parenting(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    Parenting(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         bindSubtree("parenting", "Functions to manage RenderObject parenting");
         bindFunction(&Parenting::addChildren,       "parenting add-children",           "Adds children of the RenderObject by name");

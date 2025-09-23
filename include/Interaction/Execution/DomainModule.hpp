@@ -61,7 +61,7 @@ public:
      * The constructor initializes the DomainModule with a reference to the domain and
      * the FuncTree.
      */
-    DomainModule(std::string moduleName, DomainType* domain, FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr)
+    DomainModule(std::string moduleName, DomainType* domain, FuncTree<Nebulite::Constants::Error>* funcTreePtr)
         : moduleName(moduleName), domain(domain), funcTree(funcTreePtr) {}
 
     /**
@@ -77,7 +77,7 @@ public:
      * 
      * Make sure the function has the signature:
      * ```cpp
-     * ERROR_TYPE functionName(int argc, char** argv);
+     * Error functionName(int argc, char** argv);
      * ```
      *
      * @tparam ClassType The type of the class containing the member function.
@@ -85,7 +85,7 @@ public:
      * @param name The name to associate with the bound function.
      */
     template<typename ClassType>
-    void bindFunction(Nebulite::Constants::ERROR_TYPE (ClassType::*method)(int, char**),const std::string& name,const std::string& help) {
+    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char**),const std::string& name,const std::string& help) {
         // Automatically pass 'this' (the derived class instance) to bindFunction
         funcTree->bindFunction(
             static_cast<ClassType*>(this),  // Auto-cast to correct type
@@ -125,7 +125,7 @@ protected:
     //------------------------------------------
     // Linkages
     DomainType* domain;                                     // Workspace of the DomainModule
-    FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTree;    // Where to bind the expanded functions
+    FuncTree<Nebulite::Constants::Error>* funcTree;    // Where to bind the expanded functions
 };
 }   // namespace Interaction
 }   // namespace Execution

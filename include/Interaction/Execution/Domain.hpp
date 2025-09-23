@@ -73,10 +73,10 @@ public:
     Domain(std::string domainName, DomainType* domain, Nebulite::Utility::JSON* doc)
     : domainName(domainName), domain(domain), doc(doc)
     {
-        funcTree = new Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>( 
+        funcTree = new Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>( 
                 domainName, 
-                Nebulite::Constants::ERROR_TYPE::NONE, 
-                Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID
+                Nebulite::Constants::ErrorTable::NONE(), 
+                Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_FUNCTIONCALL_INVALID()
             );
     };
 
@@ -114,6 +114,8 @@ public:
 
     /**
      * @brief Updates the domain.
+     * 
+     * @todo should also return type Nebulite::Constants::Error
      */
     virtual void update(){
         // We cannot directly access the potential subdomain JSON here,
@@ -138,7 +140,7 @@ public:
     // Command parsing
 
     /**
-	 * @brief Parses a string into a Nebulite command.
+	 * @brief Parses a string into a Nebulite command and prints potential errors to stderr.
 	 * 
 	 * Make sure the first arg is a name and not the function itself!
 	 * 
@@ -157,21 +159,23 @@ public:
 	 * @param str The string to parse.
 	 * @return Potential errors that occured on command execution
 	 */
-	Nebulite::Constants::ERROR_TYPE parseStr(const std::string& str){
-        return funcTree->parseStr(str);
+	Nebulite::Constants::Error parseStr(const std::string& str){
+        Nebulite::Constants::Error err = funcTree->parseStr(str);
+        err.print();
+        return err;
     }
 
     /**
      * @brief Necessary operations before parsing commands.
      */
-    virtual Nebulite::Constants::ERROR_TYPE preParse(){
-        return Nebulite::Constants::ERROR_TYPE::NONE;
+    virtual Nebulite::Constants::Error preParse(){
+        return Nebulite::Constants::ErrorTable::NONE();
     }
 
     /**
      * @brief Sets a function to call before parsing commands.
      */
-    void setPreParse(std::function<Nebulite::Constants::ERROR_TYPE()> func){
+    void setPreParse(std::function<Nebulite::Constants::Error()> func){
         funcTree->setPreParse(func);
     }
 
@@ -203,7 +207,7 @@ private:
      * 
      * The Tree is then shared with the DomainModules for modification.
      */
-    Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTree;
+    Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTree;
 
     /**
      * @brief Stores all available modules

@@ -43,7 +43,7 @@ public:
      * @param argv The argument vector: no arguments required, texture is reloaded from document
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE reloadTexture(int argc, char* argv[]);
+    Nebulite::Constants::Error reloadTexture(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -52,7 +52,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    General(std::string moduleName, Nebulite::Core::Texture* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    General(std::string moduleName, Nebulite::Core::Texture* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         bindFunction(&General::reloadTexture, "reload-texture",   "Reload the texture from the document.");
     }

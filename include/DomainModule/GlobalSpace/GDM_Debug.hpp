@@ -46,10 +46,10 @@ public:
      * Uncomment the bind in setupBindings() to test the collision detection.
      * The binary compilation will work, but execution will fail.
      */
-    Nebulite::Constants::ERROR_TYPE set(int argc, char* argv[]) {
+    Nebulite::Constants::Error set(int argc, char* argv[]) {
         // Binding a function with the name "set" is not allowed 
         // as it already exists in the inherited FuncTree from JSON
-        return Nebulite::Constants::ERROR_TYPE::NONE;
+        return Nebulite::Constants::ErrorTable::NONE();
     }
 
     //------------------------------------------
@@ -68,7 +68,7 @@ public:
      * @todo: errorlog on causes crash with wine
      * wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
      */
-    Nebulite::Constants::ERROR_TYPE errorlog(int argc, char* argv[]);
+    Nebulite::Constants::Error errorlog(int argc, char* argv[]);
 
     /**
      * @brief Clears the console screen.
@@ -77,7 +77,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE clearConsole(int argc, char* argv[]);
+    Nebulite::Constants::Error clearConsole(int argc, char* argv[]);
 
     /**
      * @brief Prints the global document to the console.
@@ -86,7 +86,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE printGlobal(int argc, char* argv[]);
+    Nebulite::Constants::Error printGlobal(int argc, char* argv[]);
 
     /**
      * @brief Prints the current state of the renderer to the console.
@@ -95,7 +95,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE printState(int argc, char* argv[]);
+    Nebulite::Constants::Error printState(int argc, char* argv[]);
 
     /**
      * @brief Logs the global document to a file.
@@ -105,7 +105,7 @@ public:
      * Default is "global.log.jsonc" if no name was provided
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE logGlobal(int argc, char* argv[]);
+    Nebulite::Constants::Error logGlobal(int argc, char* argv[]);
 
     /**
      * @brief Logs the current state of the renderer to a file.
@@ -115,7 +115,7 @@ public:
      * Default is "state.log.jsonc" if no name was provided
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE logState(int argc, char* argv[]);
+    Nebulite::Constants::Error logState(int argc, char* argv[]);
 
     /**
      * @brief Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
@@ -124,7 +124,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE render_object(int argc, char** argv);
+    Nebulite::Constants::Error render_object(int argc, char** argv);
 
     /**
      * @brief Crashes the program, useful for checking 
@@ -134,7 +134,7 @@ public:
      * @param argv The argument vector: The type of crash
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE crash(int argc, char** argv);
+    Nebulite::Constants::Error crash(int argc, char** argv);
 
     /**
      * @brief Echoes all arguments as string to the standard error
@@ -143,7 +143,7 @@ public:
      * @param argv The argument vector: <string>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE error(int argc, char* argv[]);
+    Nebulite::Constants::Error error(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -152,7 +152,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Debug(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    Debug(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         //------------------------------------------
         // Binding functions to the FuncTree

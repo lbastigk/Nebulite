@@ -45,24 +45,24 @@ public:
      * @param argc The argument count
      * @param argv The argument vector: 
      */
-    Nebulite::Constants::ERROR_TYPE deleteObject(int argc, char* argv[]);
+    Nebulite::Constants::Error deleteObject(int argc, char* argv[]);
 
     /**
      * @brief Updates the text texture of the object.
      */
-    Nebulite::Constants::ERROR_TYPE updateText(int argc, char* argv[]);
+    Nebulite::Constants::Error updateText(int argc, char* argv[]);
 
     /**
      * @brief Reloads all invokes for the object.
      */
-    Nebulite::Constants::ERROR_TYPE reloadInvokes(int argc, char* argv[]);
+    Nebulite::Constants::Error reloadInvokes(int argc, char* argv[]);
 
     /**
      * @brief Adds an invoke for the object.
      */
-    Nebulite::Constants::ERROR_TYPE addInvoke(int argc, char* argv[]);
-    Nebulite::Constants::ERROR_TYPE removeInvoke(int argc, char* argv[]);
-    Nebulite::Constants::ERROR_TYPE removeAllInvokes(int argc, char* argv[]);
+    Nebulite::Constants::Error addInvoke(int argc, char* argv[]);
+    Nebulite::Constants::Error removeInvoke(int argc, char* argv[]);
+    Nebulite::Constants::Error removeAllInvokes(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -71,7 +71,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    StateUpdate(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    StateUpdate(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         bindFunction(&StateUpdate::deleteObject,        "delete",               "Marks object for deletion");
         bindFunction(&StateUpdate::updateText,          "update-text",          "Calculate text texture");

@@ -48,7 +48,7 @@ public:
      * eval echo $(1+1)    outputs:    2.000000
      * eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
      */
-    Nebulite::Constants::ERROR_TYPE eval(int argc, char* argv[]);
+    Nebulite::Constants::Error eval(int argc, char* argv[]);
 
     /**
      * @brief Exits the entire program
@@ -57,7 +57,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE exitProgram(int argc, char* argv[]);
+    Nebulite::Constants::Error exitProgram(int argc, char* argv[]);
 
     /**
      * @brief Sets the waitCounter to the given value to halt all script tasks for a given amount of frames
@@ -66,7 +66,7 @@ public:
      * @param argv The argument vector: frame count to wait
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE wait(int argc, char* argv[]);
+    Nebulite::Constants::Error wait(int argc, char* argv[]);
 
     /**
      * @brief Loads a task list from a file
@@ -75,7 +75,7 @@ public:
      * @param argv The argument vector: the filename to load
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE loadTaskList(int argc, char* argv[]);
+    Nebulite::Constants::Error loadTaskList(int argc, char* argv[]);
 
     /**
      * @brief Executes a for-loop with a function call
@@ -88,7 +88,7 @@ public:
      *       Currently: for i 0 10 echo $i
      *       New:       for i 0 10 echo {i}
      */
-    Nebulite::Constants::ERROR_TYPE forLoop(int argc, char* argv[]);
+    Nebulite::Constants::Error forLoop(int argc, char* argv[]);
 
     /**
      * @brief Executes a block of code if a condition is true
@@ -97,18 +97,16 @@ public:
      * @param argv The argument vector: <condition> <functioncall>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE ifCondition(int argc, char* argv[]);
+    Nebulite::Constants::Error ifCondition(int argc, char* argv[]);
 
     /**
-     * @brief Returns a custom value of ERROR_TYPE
+     * @brief Returns a custom value of Error
      * 
      * @param argc The argument count
-     * @param argv The argument vector: <value>
-     * @return The specified value of ERROR_TYPE. 
-     * Returns Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS if no value is provided
-     * or Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS if too many values are provided
+     * @param argv The argument vector: <string>
+     * @return The specified value of Error. 
      */
-    Nebulite::Constants::ERROR_TYPE func_return(int argc, char* argv[]);
+    Nebulite::Constants::Error func_return(int argc, char* argv[]);
 
     /**
      * @brief Echoes all arguments as string to the standard output
@@ -117,7 +115,7 @@ public:
      * @param argv The argument vector: <string>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE echo(int argc, char* argv[]);
+    Nebulite::Constants::Error echo(int argc, char* argv[]);
 
 
     // Assert CRITICAL_CUSTOM_ASSERT
@@ -128,7 +126,7 @@ public:
      * @param argv The argument vector: <condition>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE func_assert(int argc, char* argv[]);
+    Nebulite::Constants::Error func_assert(int argc, char* argv[]);
 
     /**
      * @brief Saves the current game state under state prefix
@@ -139,7 +137,7 @@ public:
      * 
      * @todo not implemented, move to separate DomainModule GDM_StateManagement
      */
-    Nebulite::Constants::ERROR_TYPE stateSave(int argc, char* argv[]);
+    Nebulite::Constants::Error stateSave(int argc, char* argv[]);
 
     /**
      * @brief Loads a saved game state
@@ -150,7 +148,7 @@ public:
      * 
      * @todo not implemented, move to separate DomainModule GDM_StateManagement
      */
-    Nebulite::Constants::ERROR_TYPE stateLoad(int argc, char* argv[]);
+    Nebulite::Constants::Error stateLoad(int argc, char* argv[]);
 
     /**
      * @brief Attach a command to the always-taskqueue that is executed on each tick.
@@ -159,7 +157,7 @@ public:
      * @param argv The argument vector: inputs are <command>. The command to attach.
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE always(int argc, char* argv[]);
+    Nebulite::Constants::Error always(int argc, char* argv[]);
 
     /**
      * @brief Clears the entire always-taskqueue.
@@ -168,7 +166,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE alwaysClear(int argc, char* argv[]);
+    Nebulite::Constants::Error alwaysClear(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -177,7 +175,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    General(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    General(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         bindFunction(&General::eval,                "eval",                 "Evaluate an expression and execute the result. Example: eval echo $(1+1)");
         bindFunction(&General::exitProgram,         "exit",                 "Exit the program");

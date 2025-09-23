@@ -48,7 +48,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE set_from_query(int argc, char* argv[]);
+    Nebulite::Constants::Error set_from_query(int argc, char* argv[]);
 
     /**
      * @brief Sets a key from a JSON document.
@@ -59,7 +59,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE set_from_json(int argc, char* argv[]);
+    Nebulite::Constants::Error set_from_json(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -68,7 +68,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    ComplexData(std::string moduleName, Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    ComplexData(std::string moduleName, Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         // Bind functions specific to complex data handling
 

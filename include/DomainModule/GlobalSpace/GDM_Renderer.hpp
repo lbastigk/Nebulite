@@ -100,7 +100,7 @@ public:
      * due to additional passings like |posX=100
      * that are resolved in Renderobject::deserialize / JSON::deserialize
      */
-    Nebulite::Constants::ERROR_TYPE spawn(int argc, char* argv[]);
+    Nebulite::Constants::Error spawn(int argc, char* argv[]);
 
     /**
      * @brief Loads an environment.
@@ -109,7 +109,7 @@ public:
      * @param argv The argument vector: Environment as link to json/jsonc file
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE envload(int argc, char* argv[]);
+    Nebulite::Constants::Error envload(int argc, char* argv[]);
 
     /**
      * @brief Deload entire environment, leaving an empty renderer
@@ -118,7 +118,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE envdeload(int argc, char* argv[]);
+    Nebulite::Constants::Error envdeload(int argc, char* argv[]);
 
     /**
      * @brief Sets resolution of renderer
@@ -134,7 +134,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE setResolution(int argc, char* argv[]);
+    Nebulite::Constants::Error setResolution(int argc, char* argv[]);
 
     /**
      * @brief Sets fps of renderer
@@ -146,7 +146,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE setFPS(int argc, char* argv[]);
+    Nebulite::Constants::Error setFPS(int argc, char* argv[]);
 
     /**
      * @brief Toggle fps on/off
@@ -158,7 +158,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE showFPS(int argc, char* argv[]);
+    Nebulite::Constants::Error showFPS(int argc, char* argv[]);
 
     /**
      * @brief Move cam by a given delta
@@ -167,7 +167,7 @@ public:
      * @param argv The argument vector: <dx> <dy>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE moveCam(int argc, char* argv[]);
+    Nebulite::Constants::Error moveCam(int argc, char* argv[]);
 
     /**
      * @brief Set cam to concrete position
@@ -179,7 +179,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE setCam(int argc, char* argv[]);
+    Nebulite::Constants::Error setCam(int argc, char* argv[]);
 
     /**
      * @brief Create a snapshot of the current renderer screen output
@@ -191,7 +191,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE snapshot(int argc, char* argv[]);
+    Nebulite::Constants::Error snapshot(int argc, char* argv[]);
 
     /**
      * @brief Makes a beep noise
@@ -200,7 +200,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE beep(int argc, char* argv[]);
+    Nebulite::Constants::Error beep(int argc, char* argv[]);
     
     /**
      * @brief Inserts a reference to the selected renderobject by ID to the GlobalSpace
@@ -220,7 +220,7 @@ public:
      * Other ideas would be a shared pointer starting at the spawn-logic, but we need to be careful
      * with purging pointer copies in the invoke logic and the potentially needed self-reference
      */
-    Nebulite::Constants::ERROR_TYPE getObjectFromId(int argc, char* argv[]);
+    Nebulite::Constants::Error getObjectFromId(int argc, char* argv[]);
 
     /**
      * @brief Parses a command on the selected RenderObject
@@ -228,7 +228,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE selectedObjectParse(int argc, char* argv[]);
+    Nebulite::Constants::Error selectedObjectParse(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -237,7 +237,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Renderer(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    Renderer(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         bindFunction(&Renderer::spawn,               "spawn",        "Spawn a renderobject");
         bindFunction(&Renderer::setResolution,       "set-res",      "Set resolution of renderer: <x> <y> [scalar]");

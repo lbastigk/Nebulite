@@ -1,13 +1,13 @@
 /**
  * @file ErrorTypes.hpp
- * @brief Defines the Nebulite::Constants::ERROR_TYPE enumeration for standardized error codes
+ * @brief Defines the Nebulite::Constants::Error for standardized error codes
  * and the Nebulite::Constants::ErrorTable class for mapping error codes to their string descriptions.
  *
- * Functions bound via the FuncTree system utilize a `Nebulite::Constants::ERROR_TYPE foo(int argc, char** argv)` signature.
+ * Functions bound via the FuncTree system utilize a `Nebulite::Constants::Error foo(int argc, char** argv)` signature.
  *
  * Usage:
  *   - Functions such as Nebulite::resolveTaskQueue executes main tree functions
- *     which return an ERROR_TYPE value to indicate the result of execution.
+ *     which return an Error value to indicate the result of execution.
  *   - Critical errors (negative values) signal unrecoverable states and are used
  *     in main.cpp to determine if the engine should halt execution (see
  *     lastCriticalResult and critical_stop logic).
@@ -16,10 +16,17 @@
  *   - The NONE value (0) indicates successful execution with no errors.
  *
  * Example:
- *   Nebulite::Constants::ERROR_TYPE result = Nebulite::resolveTaskQueue(...);
- *   if (result < 0) {
+ * ```cpp
+ *   Nebulite::Constants::Error result = Nebulite::resolveTaskQueue(...);
+ *   if (result.isCritical()) {
  *       // Handle critical error
  *   }
+ * ```
+ * 
+ * Predefined errors are accessed within the ErrorTable struct, e.g.,
+ * ```cpp
+ * Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE;
+ * ```
  *
  * See main.cpp for detailed usage in the main engine loop and error handling.
  */
@@ -39,164 +46,44 @@
 namespace Nebulite{
 namespace Constants {
 
-/**
- * @enum Nebulite::Constants::ERROR_TYPE
- * @brief Enumeration for standardized error codes in the Nebulite engine.
- * 
- * @note Remember to add error type descriptions to the ErrorTable class!
- */
-enum ERROR_TYPE{
-    //------------------------------------------
-    // Critical Errors first with negative value
-    CRITICAL_GENERAL = -1000,
-    //------------------------------------------
-
-    // [Custom]
-    CRITICAL_CUSTOM_ASSERT,
-
-    // [Function]
-    CRITICAL_FUNCTION_NOT_IMPLEMENTED,
-    CRITICAL_FUNCTIONCALL_INVALID,
-    CRITICAL_INVALID_ARGC_ARGV_PARSING,
-
-    // [File]
-    CRITICAL_INVALID_FILE,
-
-    // [SDL]
-    CRITICAL_SDL_RENDERER_INIT_FAILED,
-    CRITICAL_SDL_RENDERER_TARGET_FAILED,
-    
-    // [Texture]
-    CRITICAL_TEXTURE_NOT_FOUND,
-    CRITICAL_TEXTURE_COPY_FAILED,
-    CRITICAL_TEXTURE_COLOR_UNSUPPORTED,
-    CRITICAL_TEXTURE_LOCK_FAILED,
-    CRITICAL_TEXTURE_QUERY_FAILED,
-    CRITICAL_TEXTURE_MODIFICATION_FAILED,
-
-    //------------------------------------------
-    // Non-critical errors positive
-    NONE = 0,
-    //------------------------------------------
-
-    // [Custom]
-    CUSTOM_ERROR,               // used for functioncall "error"
-
-    // [File]
-    FILE_NOT_FOUND,
-
-    // [Function]
-    TOO_MANY_ARGS,              // argc > expected
-    TOO_FEW_ARGS,               // argc < expected
-    UNKNOWN_ARG,                
-    FEATURE_NOT_IMPLEMENTED,
-
-    // [SDL]
-    SNAPSHOT_FAILED,            // Used in Nebulite::DomainModule::GlobalSpace::Renderer::snapshot
-};
-
-
-/**
- * @class Nebulite::Constants::ErrorTable
- * @brief Class for mapping Nebulite error types to their string descriptions.
- */
-class ErrorTable {
+class Error{
 public:
-
     /**
-     * @brief Constructor for ErrorTable.
-     * 
-     * On construction, all error types are mapped to their string descriptions.
-     * Add new values here as needed.
-     * 
-     * @todo Refactor enum and descriptions to perhaps be directly linked, avoiding duplication.
-     *       Perhaps return of type std::pair<int, std::string*>
-     *       With -1 for critical errors, 0 for none, +1 for non-critical errors.
-     *       This would allow us to use existing errors from the database
-     *       as well as custom errors with description.
+     * @enum Type
+     * @brief Enumeration for error types.
      */
-    ErrorTable(){
-        //------------------------------------------
-        // Critical Errors
-        errorTypeToString[Nebulite::Constants::ERROR_TYPE::CRITICAL_GENERAL] = 
-            "General, critical error. It is recommended to NOT use this error type in production.";
-        errorTypeToString[Nebulite::Constants::ERROR_TYPE::CRITICAL_CUSTOM_ASSERT] = 
-            "A custom assertion failed.";
-        errorTypeToString[Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED] = 
-            "Requested function not implemented.";
-        errorTypeToString[Nebulite::Constants::ERROR_TYPE::CRITICAL_INVALID_FILE] = 
-            "Requested file is invalid.";
-        errorTypeToString[Nebulite::Constants::ERROR_TYPE::CRITICAL_INVALID_ARGC_ARGV_PARSING] = 
-            "argc/argv parsing error.";
-        errorTypeToString[Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID] = 
-            "Requested function call is invalid.";
-        errorTypeToString[Nebulite::Constants::ERROR_TYPE::CRITICAL_SDL_RENDERER_INIT_FAILED] = 
-            "Critical Error: SDL Renderer could not be initialized.";
-        //------------------------------------------
-        // Non-critical errors
-        errorTypeToString[Nebulite::Constants::ERROR_TYPE::NONE] = 
-            "No Error";
-        errorTypeToString[Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR] = 
-            "Custom Error return value";
-        errorTypeToString[Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS] = 
-            "Too Many Arguments in function call";
-        errorTypeToString[Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS] = 
-            "Too Few Arguments in function call";
-        errorTypeToString[Nebulite::Constants::ERROR_TYPE::UNKNOWN_ARG] = 
-            "Unknown Argument Error";
-        errorTypeToString[Nebulite::Constants::ERROR_TYPE::FEATURE_NOT_IMPLEMENTED] = 
-            "Requested feature of functioncall is not implemented";
-        errorTypeToString[Nebulite::Constants::ERROR_TYPE::SNAPSHOT_FAILED] = 
-            "Snapshot Failed Error";
-        errorTypeToString[Nebulite::Constants::ERROR_TYPE::FILE_NOT_FOUND] = 
-            "Requested file not found";
-    }
-
-    /**
-     * @brief Get the error description for a given error type.
-     * 
-     * @param errorType The error type to retrieve the description for.
-     * @return The string description of the error type. Returns "Undocumented Error!" if no description is found.
-     */
-    std::string getErrorDescription(Nebulite::Constants::ERROR_TYPE errorType) {
-        auto it = errorTypeToString.find(errorType);
-        if (it != errorTypeToString.end()) {
-            return it->second;
-        }
-        return "Undocumented Error! ID: " + std::to_string(static_cast<int>(errorType));
-    }
-
-private:
-    // hashtable for error type to string mapping
-    absl::flat_hash_map<Nebulite::Constants::ERROR_TYPE, std::string> errorTypeToString;
-};
-} // namespace Constants
-} // namespace Nebulite
-
-
-//------------------------------------------
-// New proposed structure for error handling
-/**
- * @todo Implementation in globalspace
- * If all domains have access to globalspace, we can make this a member of globalspace
- * and access it via domain->getGlobalSpace()->addError(description);
- * as well as the Table instance itself and the predefined errors via domain->getGlobalSpace()->PREMADE_ERRORS::...
- */
-
-// Basic struct for an error
-class ERROR{
-public:
     enum Type{
         // Perhaps some more distinction is necessary here
         // if not, condense to bool isCritical
         CRITICAL,
-        NON_CRITICAL
+        NON_CRITICAL,
+        NONE
     };
 
     /**
-     * @brief Constructor for ERROR struct.
+     * @brief Comparison operator for Error struct.
      */
-    ERROR(std::string* desc, ERROR::Type t) : description(desc), type(t) {}
+    bool operator==(const Error& other) const {
+        // Only relevant part is that they have the same description pointer
+        return description == other.description;
+    }
+
+    /**
+     * @brief Inequality operator for Error struct.
+     */
+    bool operator!=(const Error& other) const {
+        return !(*this == other);
+    }
+
+    /**
+     * @brief Default constructor for ERROR struct.
+     */
+    Error(std::string* desc, Error::Type t) : description(desc), type(t) {}
+
+    /**
+     * @brief Empty Constructor for ERROR struct.
+     */
+    Error() : description(nullptr), type(NONE) {}
 
     /**
      * @brief Get the error description.
@@ -205,67 +92,174 @@ public:
         return *description;
     }
     bool isCritical() const {
-        return type == ERROR::CRITICAL;
+        return type == Error::CRITICAL;
+    }
+    bool isError() const {
+        return type != Error::NONE;
+    }
+
+    void print() const {
+        if(description && type != NONE) std::cout << *description << std::endl;
     }
 private:
     std::string* description;
     Type type;
-    friend class Table;
 };
-
-
-class Table{
+class ErrorTable{
 private:
-    std::vector<ERROR> errors;
-    uint16_t count = 0;
+    std::vector<Error> errors;
+    uint16_t count;
+    
+    static ErrorTable& getInstance() {
+        static ErrorTable instance;
+        return instance;
+    }
+
+    std::vector<std::string> localDescriptions; // To own the strings 
+
 public:
-    ERROR addError(const char* description, ERROR::Type type = ERROR::NON_CRITICAL){
+    ErrorTable() : count(0) {}
+
+    /**
+     * @brief This implementation is not recommendated, as users might pass str.c_str()
+     *        which will be a dangling pointer after the function call.
+     */
+    //static Error addError(const char* description, Error::Type type = Error::NON_CRITICAL){
+    //    return getInstance().addErrorImpl(description, type);
+    //}
+
+    /**
+     * @brief Adds an error to the error table and returns the corresponding Error object.
+     * @param description The error description string. Note that type must be std::string to ensure
+     *                    the pointer remains valid.
+     * @param type The type of error (CRITICAL or NON_CRITICAL). Default is NON_CRITICAL.
+     * @return The corresponding Error object.
+     */
+    static Error addError(std::string description, Error::Type type = Error::NON_CRITICAL){
+        // Make copy of string to store pointer
+        getInstance().localDescriptions.push_back(description);
+        return getInstance().addErrorImpl(getInstance().localDescriptions.back().c_str(), type);
+    }
+
+
+private:
+    Error addErrorImpl(const char* description, Error::Type type = Error::NON_CRITICAL){
         if (count == UINT16_MAX) {
-            // Handle error: maximum number of errors reached
-            // Exit entirely as this should never happen
             std::exit(EXIT_FAILURE);
         }
         errors.emplace_back(new std::string(description), type);
         count++;
         return errors.back();
     }
-};
-/*
-struct PREMADE_ERRORS{
+
+public:
     struct SDL{
-        ERROR CRITICAL_SDL_RENDERER_INIT_FAILED = ERRTABLE.addError("Critical Error: SDL Renderer could not be initialized.");
-        ERROR CRITICAL_SDL_RENDERER_TARGET_FAILED = ERRTABLE.addError("Critical Error: SDL Renderer target could not be set.");
+        static inline Error CRITICAL_SDL_RENDERER_INIT_FAILED(){
+            static Error error = getInstance().addError("Critical Error: SDL Renderer could not be initialized.", Error::CRITICAL);
+            return error;
+        }
+        static inline Error CRITICAL_SDL_RENDERER_TARGET_FAILED(){
+            static Error error = getInstance().addError("Critical Error: SDL Renderer target could not be set.", Error::CRITICAL);
+            return error;
+        }
     } SDL;
 
     struct TEXTURE{
-        ERROR CRITICAL_TEXTURE_NOT_FOUND = ERRTABLE.addError("Critical Error: Texture not found.");
-        ERROR CRITICAL_TEXTURE_COPY_FAILED = ERRTABLE.addError("Critical Error: Texture copy failed.");
-        ERROR CRITICAL_TEXTURE_COLOR_UNSUPPORTED = ERRTABLE.addError("Critical Error: Texture color format unsupported.");
-        ERROR CRITICAL_TEXTURE_LOCK_FAILED = ERRTABLE.addError("Critical Error: Texture lock failed.");
-        ERROR CRITICAL_TEXTURE_QUERY_FAILED = ERRTABLE.addError("Critical Error: Texture query failed.");
-        ERROR CRITICAL_TEXTURE_MODIFICATION_FAILED = ERRTABLE.addError("Critical Error: Texture modification failed.");
+        static inline Error CRITICAL_TEXTURE_NOT_FOUND(){
+            static Error error = getInstance().addError("Critical Error: Texture not found.", Error::CRITICAL);
+            return error;
+        }
+        static inline Error CRITICAL_TEXTURE_COPY_FAILED(){
+            static Error error = getInstance().addError("Critical Error: Texture copy failed.", Error::CRITICAL);
+            return error;
+        }
+        static inline Error CRITICAL_TEXTURE_COLOR_UNSUPPORTED(){
+            static Error error = getInstance().addError("Critical Error: Texture color format unsupported.", Error::CRITICAL);
+            return error;
+        }
+        static inline Error CRITICAL_TEXTURE_LOCK_FAILED(){
+            static Error error = getInstance().addError("Critical Error: Texture lock failed.", Error::CRITICAL);
+            return error;
+        }
+        static inline Error CRITICAL_TEXTURE_QUERY_FAILED(){
+            static Error error = getInstance().addError("Critical Error: Texture query failed.", Error::CRITICAL);
+            return error;
+        }
+        static inline Error CRITICAL_TEXTURE_MODIFICATION_FAILED(){
+            static Error error = getInstance().addError("Critical Error: Texture modification failed.", Error::CRITICAL);
+            return error;
+        }
     } TEXTURE;
 
     struct AUDIO{
-        ERROR CRITICAL_AUDIO_DEVICE_INIT_FAILED = ERRTABLE.addError("Critical Error: Audio device could not be initialized.");
+        static inline Error CRITICAL_AUDIO_DEVICE_INIT_FAILED(){
+            static Error error = getInstance().addError("Critical Error: Audio device could not be initialized.", Error::CRITICAL);
+            return error;
+        }
     } AUDIO;
 
     struct FUNCTIONALL{
-        ERROR CRITICAL_FUNCTION_NOT_IMPLEMENTED = ERRTABLE.addError("Requested function not implemented.");
-        ERROR CRITICAL_FUNCTIONCALL_INVALID = ERRTABLE.addError("Requested function call is invalid.");
-        ERROR CRITICAL_INVALID_ARGC_ARGV_PARSING = ERRTABLE.addError("argc/argv parsing error.");
-        ERROR TOO_MANY_ARGS = ERRTABLE.addError("Too Many Arguments in function call");
-        ERROR TOO_FEW_ARGS = ERRTABLE.addError("Too Few Arguments in function call");
-        ERROR UNKNOWN_ARG = ERRTABLE.addError("Unknown Argument Error");
-        ERROR FEATURE_NOT_IMPLEMENTED = ERRTABLE.addError("Requested feature of functioncall is not implemented");
+        static inline Error CRITICAL_FUNCTION_NOT_IMPLEMENTED(){
+            static Error error = getInstance().addError("Requested function not implemented.", Error::CRITICAL);
+            return error;
+        }
+        static inline Error CRITICAL_FUNCTIONCALL_INVALID(){
+            static Error error = getInstance().addError("Requested function call is invalid.", Error::NON_CRITICAL);
+            return error;
+        }
+        static inline Error CRITICAL_INVALID_ARGC_ARGV_PARSING(){
+            static Error error = getInstance().addError("argc/argv parsing error.", Error::NON_CRITICAL);
+            return error;
+        }
+        static inline Error TOO_MANY_ARGS(){
+            static Error error = getInstance().addError("Too Many Arguments in function call", Error::NON_CRITICAL);
+            return error;
+        }
+        static inline Error TOO_FEW_ARGS(){
+            static Error error = getInstance().addError("Too Few Arguments in function call", Error::NON_CRITICAL);
+            return error;
+        }
+        static inline Error UNKNOWN_ARG(){
+            static Error error = getInstance().addError("Unknown Argument Error", Error::NON_CRITICAL);
+            return error;
+        }
+        static inline Error FEATURE_NOT_IMPLEMENTED(){
+            static Error error = getInstance().addError("Requested feature of functioncall is not implemented", Error::NON_CRITICAL);
+            return error;
+        }
     } FUNCTIONALL;
 
     struct FILE{
-        ERROR FILE_NOT_FOUND = ERRTABLE.addError("Requested file not found");
-        ERROR CRITICAL_INVALID_FILE = ERRTABLE.addError("Requested file is invalid.");
+        static inline Error CRITICAL_INVALID_FILE(){
+            static Error error = getInstance().addError("Requested file is invalid.", Error::CRITICAL);
+            return error;
+        }
     } FILE;
 
-    ERROR CRITICAL_GENERAL = ERRTABLE.addError("General, critical error. It is recommended to NOT use this error type in production.");
-    ERROR CRITICAL_CUSTOM_ASSERT = ERRTABLE.addError("A custom assertion failed.");
+    struct RENDERER{
+        static inline Error CRITICAL_RENDERER_NOT_INITIALIZED(){
+            static Error error = getInstance().addError("Critical Error: Renderer not initialized.", Error::CRITICAL);
+            return error;
+        }
+        static inline Error CRITICAL_RENDERER_SNAPSHOT_FAILED(){
+            static Error error = getInstance().addError("Critical Error: Renderer snapshot failed.", Error::CRITICAL);
+            return error;
+        }
+    } RENDERER;
+
+    static inline Error CRITICAL_GENERAL(){
+        static Error error = getInstance().addError("General, critical error. It is recommended to NOT use this error type in production.", Error::CRITICAL);
+        return error;
+    }
+    static inline Error CRITICAL_CUSTOM_ASSERT(){
+        static Error error = getInstance().addError("A custom assertion failed.", Error::CRITICAL);
+        return error;
+    } 
+    static inline Error NONE(){
+        static Error error = getInstance().addError("", Error::NONE);
+        return error;
+    }   
 };
-*/
+
+} // namespace Constants
+} // namespace Nebulite

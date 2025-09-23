@@ -50,7 +50,7 @@ bool Nebulite::Core::GlobalSpace::RendererExists(){
 }
 
 Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueue& tq, uint64_t* waitCounter){
-    Nebulite::Constants::ERROR_TYPE currentResult = Nebulite::Constants::ERROR_TYPE::NONE;
+    Nebulite::Constants::Error currentResult = Nebulite::Constants::ErrorTable::NONE();
     Nebulite::Core::taskQueueResult result;
 
     // If clearAfterResolving, process and pop each element
@@ -73,7 +73,7 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
             currentResult = parseStr(argStr);
 
             // Check result
-            if (currentResult < Nebulite::Constants::ERROR_TYPE::NONE) {
+            if (currentResult.isCritical()) {
                 result.stoppedAtCriticalResult = true;
             }
             result.errors.push_back(currentResult);
@@ -97,7 +97,7 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
             currentResult = parseStr(argStr);
 
             // Check result
-            if (currentResult < Nebulite::Constants::ERROR_TYPE::NONE) {
+            if (currentResult.isCritical()) {
                 result.stoppedAtCriticalResult = true;
             }
             result.errors.push_back(currentResult);
@@ -107,9 +107,9 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
     return result;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Core::GlobalSpace::parseQueue() {
+Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
     uint64_t* noWaitCounter = nullptr;
-    Nebulite::Constants::ERROR_TYPE lastCriticalResult = Nebulite::Constants::ERROR_TYPE::NONE;
+    Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE();
 
     // 1.) Clear errors from last loop
     queueResult.script.errors.clear();
@@ -137,7 +137,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Core::GlobalSpace::parseQueue() {
         return lastCriticalResult;
     }
 
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 void Nebulite::Core::GlobalSpace::update() {

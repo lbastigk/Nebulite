@@ -51,7 +51,7 @@ public:
      * @param argv The argument vector: ...
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE echo(int argc, char* argv[]);
+    Nebulite::Constants::Error echo(int argc, char* argv[]);
 
     /**
      * @brief Logs the RenderObject to a file
@@ -63,7 +63,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE log(int argc, char* argv[]);
+    Nebulite::Constants::Error log(int argc, char* argv[]);
 
     /**
      * @brief Logs a value to a given file
@@ -74,7 +74,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE logValue(int argc, char* argv[]);
+    Nebulite::Constants::Error logValue(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -83,7 +83,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Logging(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    Logging(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         bindFunction(&Logging::echo,        "echo",         "Prints the arguments to the console");
         bindFunction(&Logging::log,         "log",          "Logs the RenderObject to a file");

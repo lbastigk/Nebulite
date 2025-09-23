@@ -42,7 +42,7 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE force(int argc, char* argv[]);
+    Nebulite::Constants::Error force(int argc, char* argv[]);
 
     /**
      * @brief Clears all forced variables
@@ -51,7 +51,7 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE forceClear(int argc, char* argv[]);
+    Nebulite::Constants::Error forceClear(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -60,7 +60,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    ForceValue(std::string moduleName, Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    ForceValue(std::string moduleName, Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         // Binding
         bindSubtree("force", "Functions to force JSON variable values");

@@ -63,44 +63,44 @@ public:
     // Available Functions
 
     // Basic audio playback
-    Nebulite::Constants::ERROR_TYPE playSound(int argc, char* argv[]);        // Play sound effect: play-sound <file> [volume] [pan]
-    Nebulite::Constants::ERROR_TYPE playMusic(int argc, char* argv[]);        // Play background music: play-music <file> [volume] [loop]
-    Nebulite::Constants::ERROR_TYPE stopSound(int argc, char* argv[]);        // Stop specific sound: stop-sound <id>
-    Nebulite::Constants::ERROR_TYPE stopMusic(int argc, char* argv[]);        // Stop music: stop-music
-    Nebulite::Constants::ERROR_TYPE stopAll(int argc, char* argv[]);          // Stop all audio: stop-all
+    Nebulite::Constants::Error playSound(int argc, char* argv[]);        // Play sound effect: play-sound <file> [volume] [pan]
+    Nebulite::Constants::Error playMusic(int argc, char* argv[]);        // Play background music: play-music <file> [volume] [loop]
+    Nebulite::Constants::Error stopSound(int argc, char* argv[]);        // Stop specific sound: stop-sound <id>
+    Nebulite::Constants::Error stopMusic(int argc, char* argv[]);        // Stop music: stop-music
+    Nebulite::Constants::Error stopAll(int argc, char* argv[]);          // Stop all audio: stop-all
 
     // Volume and mixing controls
-    Nebulite::Constants::ERROR_TYPE setMasterVolume(int argc, char* argv[]);  // Set master volume: set-master-volume <0.0-1.0>
-    Nebulite::Constants::ERROR_TYPE setSfxVolume(int argc, char* argv[]);     // Set sound effects volume: set-sfx-volume <0.0-1.0>
-    Nebulite::Constants::ERROR_TYPE setMusicVolume(int argc, char* argv[]);   // Set music volume: set-music-volume <0.0-1.0>
-    Nebulite::Constants::ERROR_TYPE fadeIn(int argc, char* argv[]);           // Fade in audio: fade-in <file> <duration_ms> [volume]
-    Nebulite::Constants::ERROR_TYPE fadeOut(int argc, char* argv[]);          // Fade out audio: fade-out <id> <duration_ms>
+    Nebulite::Constants::Error setMasterVolume(int argc, char* argv[]);  // Set master volume: set-master-volume <0.0-1.0>
+    Nebulite::Constants::Error setSfxVolume(int argc, char* argv[]);     // Set sound effects volume: set-sfx-volume <0.0-1.0>
+    Nebulite::Constants::Error setMusicVolume(int argc, char* argv[]);   // Set music volume: set-music-volume <0.0-1.0>
+    Nebulite::Constants::Error fadeIn(int argc, char* argv[]);           // Fade in audio: fade-in <file> <duration_ms> [volume]
+    Nebulite::Constants::Error fadeOut(int argc, char* argv[]);          // Fade out audio: fade-out <id> <duration_ms>
 
     // Advanced audio features
-    Nebulite::Constants::ERROR_TYPE setPan(int argc, char* argv[]);           // Set stereo panning: set-pan <id> <-1.0 to 1.0>
-    Nebulite::Constants::ERROR_TYPE setPitch(int argc, char* argv[]);         // Set playback pitch: set-pitch <id> <pitch_factor>
-    Nebulite::Constants::ERROR_TYPE setPosition3D(int argc, char* argv[]);    // Set 3D audio position: set-position-3d <id> <x> <y> <z>
-    Nebulite::Constants::ERROR_TYPE setListener3D(int argc, char* argv[]);    // Set 3D listener position: set-listener-3d <x> <y> <z>
+    Nebulite::Constants::Error setPan(int argc, char* argv[]);           // Set stereo panning: set-pan <id> <-1.0 to 1.0>
+    Nebulite::Constants::Error setPitch(int argc, char* argv[]);         // Set playback pitch: set-pitch <id> <pitch_factor>
+    Nebulite::Constants::Error setPosition3D(int argc, char* argv[]);    // Set 3D audio position: set-position-3d <id> <x> <y> <z>
+    Nebulite::Constants::Error setListener3D(int argc, char* argv[]);    // Set 3D listener position: set-listener-3d <x> <y> <z>
 
     // Procedural audio generation (extending the existing beep functionality)
-    Nebulite::Constants::ERROR_TYPE generateTone(int argc, char* argv[]);     // Generate tone: generate-tone <frequency> <duration_ms> [waveform] [volume]
-    Nebulite::Constants::ERROR_TYPE generateNoise(int argc, char* argv[]);    // Generate noise: generate-noise <type> <duration_ms> [volume]
-    Nebulite::Constants::ERROR_TYPE createWaveform(int argc, char* argv[]);   // Create custom waveform: create-waveform <name> <samples...>
+    Nebulite::Constants::Error generateTone(int argc, char* argv[]);     // Generate tone: generate-tone <frequency> <duration_ms> [waveform] [volume]
+    Nebulite::Constants::Error generateNoise(int argc, char* argv[]);    // Generate noise: generate-noise <type> <duration_ms> [volume]
+    Nebulite::Constants::Error createWaveform(int argc, char* argv[]);   // Create custom waveform: create-waveform <name> <samples...>
 
     // Audio recording and capture
-    Nebulite::Constants::ERROR_TYPE startRecording(int argc, char* argv[]);   // Start audio recording: start-recording [filename]
-    Nebulite::Constants::ERROR_TYPE stopRecording(int argc, char* argv[]);    // Stop audio recording: stop-recording
-    Nebulite::Constants::ERROR_TYPE captureOutput(int argc, char* argv[]);    // Capture engine audio output: capture-output <filename> <duration_ms>
+    Nebulite::Constants::Error startRecording(int argc, char* argv[]);   // Start audio recording: start-recording [filename]
+    Nebulite::Constants::Error stopRecording(int argc, char* argv[]);    // Stop audio recording: stop-recording
+    Nebulite::Constants::Error captureOutput(int argc, char* argv[]);    // Capture engine audio output: capture-output <filename> <duration_ms>
 
     // Audio analysis and visualization
-    Nebulite::Constants::ERROR_TYPE analyzeSpectrum(int argc, char* argv[]);  // Analyze audio spectrum: analyze-spectrum <id>
-    Nebulite::Constants::ERROR_TYPE getVolumeLevels(int argc, char* argv[]);  // Get current volume levels: get-volume-levels
-    Nebulite::Constants::ERROR_TYPE detectBeat(int argc, char* argv[]);       // Beat detection: detect-beat <id> [sensitivity]
+    Nebulite::Constants::Error analyzeSpectrum(int argc, char* argv[]);  // Analyze audio spectrum: analyze-spectrum <id>
+    Nebulite::Constants::Error getVolumeLevels(int argc, char* argv[]);  // Get current volume levels: get-volume-levels
+    Nebulite::Constants::Error detectBeat(int argc, char* argv[]);       // Beat detection: detect-beat <id> [sensitivity]
 
     // Audio device management
-    Nebulite::Constants::ERROR_TYPE listDevices(int argc, char* argv[]);      // List audio devices: list-devices
-    Nebulite::Constants::ERROR_TYPE setOutputDevice(int argc, char* argv[]);  // Set output device: set-output-device <device_id>
-    Nebulite::Constants::ERROR_TYPE setInputDevice(int argc, char* argv[]);   // Set input device: set-input-device <device_id>
+    Nebulite::Constants::Error listDevices(int argc, char* argv[]);      // List audio devices: list-devices
+    Nebulite::Constants::Error setOutputDevice(int argc, char* argv[]);  // Set output device: set-output-device <device_id>
+    Nebulite::Constants::Error setInputDevice(int argc, char* argv[]);   // Set input device: set-input-device <device_id>
 
     //------------------------------------------
     // Setup
@@ -109,7 +109,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Audio(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    Audio(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         // Basic playback
         bindFunction(&Audio::playSound,         "play-sound",           "Play sound effect");

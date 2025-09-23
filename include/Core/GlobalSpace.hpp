@@ -45,7 +45,7 @@ struct taskQueue {
  */
 struct taskQueueResult{
     bool stoppedAtCriticalResult = false;
-    std::vector<Nebulite::Constants::ERROR_TYPE> errors;
+    std::vector<Nebulite::Constants::Error> errors;
 };
 
 //------------------------------------------
@@ -142,10 +142,10 @@ public:
     /**
      * @brief Parses the task queue for execution.
      * 
-     * @return Errorcode `Nebulite::Constants::ERROR_TYPE::None` if there was no critical stop,
+     * @return Errorcode `Nebulite::Constants::ErrorTable::NONE()` if there was no critical stop,
      * the last critical error code otherwise.
      */
-    Nebulite::Constants::ERROR_TYPE parseQueue();
+    Nebulite::Constants::Error parseQueue();
 
     /**
      * @brief Updates the global space.

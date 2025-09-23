@@ -13,7 +13,7 @@ void Nebulite::DomainModule::GlobalSpace::GUI::update() {
 }
 
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::GUI::example(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::GUI::example(int argc, char* argv[]) {
     // Goal is to create an SDL texture with DearImgui and attach it to the renderer queue
     // We might wish to create container variables local to the GUI class to hold DearImgui elements
     // so that we might call update on them, or modify them in any way
@@ -28,5 +28,5 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::GUI::exampl
         nullptr /* SDL_Texture* created from DearImgui */
     );
 
-    return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+    return Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }

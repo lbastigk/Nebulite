@@ -85,7 +85,7 @@ void Nebulite::Core::Texture::loadTextureFromFile(const std::string& filePath) {
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Core::Texture::preParse() {
+Nebulite::Constants::Error Nebulite::Core::Texture::preParse() {
     if(!textureStoredLocally){
         // Make a local copy if we modify the texture
         textureStoredLocally = copyTexture(); 
@@ -93,7 +93,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Core::Texture::preParse() {
 
     if(!textureStoredLocally){
         // Failed to copy texture, cannot proceed with modifications
-        return Nebulite::Constants::ERROR_TYPE::CRITICAL_TEXTURE_COPY_FAILED;
+        return Nebulite::Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_COPY_FAILED();
     }
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }

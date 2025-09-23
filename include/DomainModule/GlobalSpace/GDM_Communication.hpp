@@ -81,37 +81,37 @@ public:
     // Connection Management
 
     // Basic connection functions
-    Nebulite::Constants::ERROR_TYPE connect(int argc, char* argv[]);          // Establish connection: connect [protocol] [address] [port]
-    Nebulite::Constants::ERROR_TYPE disconnect(int argc, char* argv[]);       // Close connection: disconnect
-    Nebulite::Constants::ERROR_TYPE reconnect(int argc, char* argv[]);        // Reconnect using last settings: reconnect
+    Nebulite::Constants::Error connect(int argc, char* argv[]);          // Establish connection: connect [protocol] [address] [port]
+    Nebulite::Constants::Error disconnect(int argc, char* argv[]);       // Close connection: disconnect
+    Nebulite::Constants::Error reconnect(int argc, char* argv[]);        // Reconnect using last settings: reconnect
 
     //------------------------------------------
     // Status Monitoring
 
     // Connection status and health
-    Nebulite::Constants::ERROR_TYPE status(int argc, char* argv[]);           // Show connection status: status
-    Nebulite::Constants::ERROR_TYPE ping(int argc, char* argv[]);             // Test connection: ping
-    Nebulite::Constants::ERROR_TYPE isConnected(int argc, char* argv[]);      // Check if connected: is-connected
+    Nebulite::Constants::Error status(int argc, char* argv[]);           // Show connection status: status
+    Nebulite::Constants::Error ping(int argc, char* argv[]);             // Test connection: ping
+    Nebulite::Constants::Error isConnected(int argc, char* argv[]);      // Check if connected: is-connected
 
     //------------------------------------------
     // Command Parsing and Execution
 
     // Command handling
-    Nebulite::Constants::ERROR_TYPE parseCommand(int argc, char* argv[]);     // Parse incoming command: parse-command <command_string>
-    Nebulite::Constants::ERROR_TYPE executeRemote(int argc, char* argv[]);    // Execute command from remote: execute-remote <command>
-    Nebulite::Constants::ERROR_TYPE setCommandHandler(int argc, char* argv[]); // Set command callback: set-command-handler <callback_command>
+    Nebulite::Constants::Error parseCommand(int argc, char* argv[]);     // Parse incoming command: parse-command <command_string>
+    Nebulite::Constants::Error executeRemote(int argc, char* argv[]);    // Execute command from remote: execute-remote <command>
+    Nebulite::Constants::Error setCommandHandler(int argc, char* argv[]); // Set command callback: set-command-handler <callback_command>
 
     //------------------------------------------
     // Image Transfer
 
     // Image sending functionality
-    Nebulite::Constants::ERROR_TYPE sendImage(int argc, char* argv[]);        // Send image of current renderer to connected client.
+    Nebulite::Constants::Error sendImage(int argc, char* argv[]);        // Send image of current renderer to connected client.
 
     //------------------------------------------
     // Console Output Redirection
 
     // Output redirection
-    Nebulite::Constants::ERROR_TYPE redirectOutput(int argc, char* argv[]);   // Redirect cout to connection: redirect-output <enable/disable>
+    Nebulite::Constants::Error redirectOutput(int argc, char* argv[]);   // Redirect cout to connection: redirect-output <enable/disable>
 
     //------------------------------------------
     // Setup
@@ -120,7 +120,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Communication(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    Communication(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         // Connection management
         bindFunction(&Communication::connect,            "connect",              "Establish connection");

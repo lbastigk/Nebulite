@@ -57,7 +57,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE parse(int argc, char* argv[]);
+    Nebulite::Constants::Error parse(int argc, char* argv[]);
 
     /**
      * @brief Spawn the created draft object
@@ -66,7 +66,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE spawnDraft(int argc, char* argv[]);
+    Nebulite::Constants::Error spawnDraft(int argc, char* argv[]);
 
     /**
      * @brief Reset the draft (does not reset any spawned ones!)
@@ -75,7 +75,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE resetDraft(int argc, char* argv[]);
+    Nebulite::Constants::Error resetDraft(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -84,7 +84,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    RenderObjectDraft(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    RenderObjectDraft(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         // Bind functions
         bindSubtree("draft", "Functions to manipulate and spawn RenderObjects in draft state");

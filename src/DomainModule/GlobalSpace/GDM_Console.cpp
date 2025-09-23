@@ -3,7 +3,7 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Console::Console(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+Console::Console(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
 : DomainModule(moduleName, domain, funcTreePtr) {
     // we cannot do much here, since renderer might not be initialized yet
     // so we do the actual initialization in update() when needed

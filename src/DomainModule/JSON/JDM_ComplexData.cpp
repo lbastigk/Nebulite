@@ -12,21 +12,22 @@ void Nebulite::DomainModule::JSON::ComplexData::update() {
 //------------------------------------------
 // FuncTree-Bound Functions
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::ComplexData::set_from_query(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::JSON::ComplexData::set_from_query(int argc, char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
-    return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+    return Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::ComplexData::set_from_json(int argc, char* argv[]){
+
+Nebulite::Constants::Error Nebulite::DomainModule::JSON::ComplexData::set_from_json(int argc, char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     // Since we have no access to the global space, we cant use the JSON doc cache
     // Instead, we manually load the document to retrieve the key
     if(argc < 3){
         std::cerr << "Error: Too few arguments for set-from-json command." << std::endl;
-        return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
     }
     if(argc > 3){
         std::cerr << "Error: Too many arguments for set-from-json command." << std::endl;
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS();
     }
     std::string myKey = argv[1];
     std::string link_and_key = argv[2];
@@ -47,7 +48,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::ComplexData::set_f
     std::string file = Nebulite::Utility::FileManagement::LoadFile(link);
     if(file.empty()){
         std::cerr << "Error: Could not load file from link: " << link << std::endl;
-        return Nebulite::Constants::ERROR_TYPE::FILE_NOT_FOUND;
+        return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
     Nebulite::Utility::JSON jsonDoc;
     jsonDoc.deserialize(link.c_str());
@@ -83,5 +84,5 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::JSON::ComplexData::set_f
     }
 
 
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }

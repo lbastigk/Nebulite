@@ -48,7 +48,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE example(int argc, char* argv[]);
+    Nebulite::Constants::Error example(int argc, char* argv[]);
     
     //------------------------------------------
     // Setup
@@ -57,7 +57,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    GUI(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    GUI(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         bindSubtree("gui", "Functions to create GUI elements");
         bindFunction(&GUI::example, "gui example", "An example function to demonstrate GUI-Elements");

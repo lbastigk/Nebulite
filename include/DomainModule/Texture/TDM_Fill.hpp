@@ -46,7 +46,7 @@ public:
      * @param argv The argument vector: "fill <color>" or "fill <R> <G> <B>"
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::ERROR_TYPE fill(int argc, char* argv[]);
+    Nebulite::Constants::Error fill(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -55,7 +55,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Fill(std::string moduleName, Nebulite::Core::Texture* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    Fill(std::string moduleName, Nebulite::Core::Texture* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         bindFunction(&Fill::fill, "fill", "Fill the texture with a color: fill <color> or fill R G B");
     }

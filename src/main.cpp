@@ -51,9 +51,9 @@
  *
  * @todo:   settings.jsonc: Renderer size, fps setting (Input Mapping is already a work in progress. See GDM_InputMapping.h)
  * 
- * @todo:   Proper return of Nebulite::Constants::ERROR_TYPE values: All errors to cerr, stop on critical errors, return error code on exit.
+ * @todo:   Proper return of Nebulite::Constants::Error values: All errors to cerr, stop on critical errors, return error code on exit.
  *          Implementation in invoke needed!
- *          Lots of ERROR_TYPE::CUSTOM_ERROR returns need to be replaced with proper error codes.
+ *          Lots of Error::CUSTOM_ERROR returns need to be replaced with proper error codes.
  *          Make sure to incorporate recoverable error mode as well.
  */
 int main(int argc, char* argv[]){
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]){
     bool queueParsed = false;   // Indicates if the task queue has been parsed on this frame render
     bool criticalStop = false;  // Indicates if a critical stop has occurred
     bool continueLoop = true;   // Determines if we continue the loop
-    Nebulite::Constants::ERROR_TYPE lastCriticalResult = Nebulite::Constants::ERROR_TYPE::NONE;
+    Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE(); // Last critical error result
     do {
         // At least one loop, to handle taskQueues
 
@@ -146,7 +146,7 @@ int main(int argc, char* argv[]){
          */
         if(!queueParsed){
             lastCriticalResult = globalSpace.parseQueue();
-            criticalStop = (lastCriticalResult != Nebulite::Constants::ERROR_TYPE::NONE);
+            criticalStop = (lastCriticalResult != Nebulite::Constants::ErrorTable::NONE());
             queueParsed = true;
         }
 
@@ -194,7 +194,7 @@ int main(int argc, char* argv[]){
 
     // Inform user about any errors and return error code
     if(criticalStop){
-        std::cerr << "Critical Error: " << globalSpace.errorTable.getErrorDescription(lastCriticalResult) << std::endl;
+        std::cerr << "Critical Error: " << lastCriticalResult.getDescription() << std::endl;
     }
 
     // Parser handles if error files need to be closed

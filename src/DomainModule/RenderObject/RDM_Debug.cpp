@@ -6,9 +6,9 @@ void Nebulite::DomainModule::RenderObject::Debug::update() {
     // For on-tick-updates
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Debug::printSrcRect(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::printSrcRect(int argc, char* argv[]) {
     if(argc != 1) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS; // No arguments expected
+        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS(); // No arguments expected
     }
 
     SDL_Rect* srcRect = domain->getSrcRect();
@@ -19,12 +19,12 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Debug::pri
         std::cout << "This RenderObject is not a spritesheet." << std::endl;
     }
 
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Debug::printDstRect(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::printDstRect(int argc, char* argv[]) {
     if(argc != 1) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS; // No arguments expected
+        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS(); // No arguments expected
     }
 
     SDL_Rect* dstRect = domain->getDstRect();
@@ -35,29 +35,29 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Debug::pri
         std::cout << "Destination rectangle is not set." << std::endl;
     }
 
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Debug::print(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::print(int argc, char* argv[]){
     std::string serialized = domain->serialize();
     std::cout << serialized << std::endl;
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Debug::printValue(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::printValue(int argc, char* argv[]){
     if(argc<2){
         std::cerr << "print-value requires a <key> argument" << std::endl;
-        return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
     }
     std::string key = argv[1];
     auto value = domain->get<std::string>(key.c_str(), "");
     std::cout << value << std::endl;
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Debug::textureStatus(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::textureStatus(int argc, char* argv[]){
     if(argc != 1) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS; // No arguments expected
+        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS(); // No arguments expected
     }
 
     //------------------------------------------
@@ -99,7 +99,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Debug::tex
             std::cout << " - Format        : " << formatStr << std::endl;
         } else {
             std::cerr << "Failed to query texture: " << SDL_GetError() << std::endl;
-            return Nebulite::Constants::ERROR_TYPE::CRITICAL_TEXTURE_QUERY_FAILED;
+            return Nebulite::Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_QUERY_FAILED();
         }
     } else {
         std::cout << "No texture is associated with this RenderObject." << std::endl;
@@ -108,5 +108,5 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::Debug::tex
     // More info from Nebulite::Core::Texture directly:
     
 
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }

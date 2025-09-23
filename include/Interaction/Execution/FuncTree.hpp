@@ -96,7 +96,7 @@ public:
      * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
      * @param func Function to call before parsing
      */
-    void setPreParse(std::function<Nebulite::Constants::ERROR_TYPE()> func){
+    void setPreParse(std::function<Nebulite::Constants::Error()> func){
         preParse = func;
     }
 
@@ -207,7 +207,7 @@ public:
 
 private:
     // Function to call before parsing (e.g., for setting up variables or locking resources)
-    std::function<Nebulite::Constants::ERROR_TYPE()> preParse = nullptr;
+    std::function<Nebulite::Constants::Error()> preParse = nullptr;
 
     //------------------------------------------
     // Variables
@@ -551,8 +551,8 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(co
 
     // Call preParse function if set
     if(preParse != nullptr){
-        Nebulite::Constants::ERROR_TYPE err = preParse();
-        if(err != Nebulite::Constants::ERROR_TYPE::NONE){
+        Nebulite::Constants::Error err = preParse();
+        if(err != Nebulite::Constants::ErrorTable::NONE()){
             return err; // Return error if preParse failed
         }
     }

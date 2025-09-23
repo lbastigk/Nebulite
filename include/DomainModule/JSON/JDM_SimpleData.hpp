@@ -45,7 +45,7 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE set(int argc, char* argv[]);
+    Nebulite::Constants::Error set(int argc, char* argv[]);
 
     /**
      * @brief Move data from one key to another
@@ -54,7 +54,7 @@ public:
      * @param argv The argument vector: <source_key> <destination_key>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE move(int argc, char* argv[]);
+    Nebulite::Constants::Error move(int argc, char* argv[]);
 
     /**
      * @brief Copy data from one key to another
@@ -63,7 +63,7 @@ public:
      * @param argv The argument vector: <source_key> <destination_key>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE copy(int argc, char* argv[]);
+    Nebulite::Constants::Error copy(int argc, char* argv[]);
 
     /**
      * @brief Delete a key from the JSON document
@@ -72,7 +72,7 @@ public:
      * @param argv The argument vector: <key>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE keyDelete(int argc, char* argv[]);
+    Nebulite::Constants::Error keyDelete(int argc, char* argv[]);
 
     /**
      * @brief Pushes a value to the back of an array
@@ -81,7 +81,7 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE push_back(int argc, char* argv[]);
+    Nebulite::Constants::Error push_back(int argc, char* argv[]);
 
     /**
      * @brief Pops a value from the back of an array
@@ -90,7 +90,7 @@ public:
      * @param argv The argument vector: <key>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE pop_back(int argc, char* argv[]);
+    Nebulite::Constants::Error pop_back(int argc, char* argv[]);
 
     /**
      * @brief Pushes a value to the front of an array
@@ -99,7 +99,7 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE push_front(int argc, char* argv[]);
+    Nebulite::Constants::Error push_front(int argc, char* argv[]);
 
     /**
      * @brief Pops a value from the front of an array
@@ -108,7 +108,7 @@ public:
      * @param argv The argument vector: <key>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE pop_front(int argc, char* argv[]);
+    Nebulite::Constants::Error pop_front(int argc, char* argv[]);
 
     /**
      * @brief Ensures that a key is an array, converting a value to an array if necessary
@@ -117,7 +117,7 @@ public:
      * @param argv The argument vector: <key>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE ensureArray(int argc, char* argv[]);
+    Nebulite::Constants::Error ensureArray(int argc, char* argv[]);
 
 
     //------------------------------------------
@@ -127,7 +127,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    SimpleData(std::string moduleName, Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
+    SimpleData(std::string moduleName, Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         // Bind functions specific to complex data handling
         bindFunction(&SimpleData::set, "set", "Set a key to a value in the JSON document: <key> <value>");
