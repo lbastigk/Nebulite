@@ -141,7 +141,11 @@ if [[ "$minimal_build" == false ]]; then
 fi
 
 # Inform about lines of code:
+CLOC_SETTINGS="--force-lang-def=./nebulite-script-vscode/cloc_lang_define.txt Resources/ TaskFiles/ src/ include/ Scripts/"
 echo ""
 echo ""
 echo "Lines of code for Project + Tests:"
-cloc --force-lang-def=./nebulite-script-vscode/cloc_lang_define.txt Resources/ TaskFiles/ src/ include/ Scripts/
+cloc $CLOC_SETTINGS 2>/dev/null
+echo ""
+cloc $CLOC_SETTINGS --csv 2>/dev/null | tail -1 | awk -F',' '{total=$3+$4+$5; print "Total lines (including comments and blanks): " total}' 2>/dev/null
+echo ""
