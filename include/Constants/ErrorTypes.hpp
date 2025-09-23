@@ -124,10 +124,6 @@ private:
  * 
  *   - Retrieve predefined errors using the nested structs (e.g., `ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED()`).
  * 
- * @todo Implement a python script to check if any errors are unused in the codebase
- *       get all errors: static inline Error <ErrorName()>{...}
- *       search ./include and ./src for Nebulite::ErrorTable::...<ErrorName>()
- * 
  * @todo Implement short-existing errors that are removed after some time (addError should be private, addShortLivedError public)
  */
 class ErrorTable{
