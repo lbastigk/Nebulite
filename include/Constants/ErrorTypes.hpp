@@ -46,6 +46,10 @@
 namespace Nebulite{
 namespace Constants {
 
+/**
+ * @class Error
+ * @brief Represents an error with a description and type.
+ */
 class Error{
 public:
     /**
@@ -105,6 +109,23 @@ private:
     std::string* description;
     Type type;
 };
+
+/**
+ * @class ErrorTable
+ * @brief Singleton class that manages a table of errors and their descriptions.
+ * 
+ * This class provides a centralized way to manage error codes and their corresponding
+ * descriptions. It ensures that each error is unique and provides methods to add and
+ * retrieve errors.
+ * 
+ * Usage:
+ *   - Add errors using the static method `addError`.
+ *   - Retrieve predefined errors using the nested structs (e.g., `ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED()`).
+ * 
+ * @todo Implement a python script to check if any errors are unused in the codebase
+ *       get all errors: static inline Error <ErrorName()>{...}
+ *       search ./include and ./src for Nebulite::ErrorTable::...<ErrorName>()
+ */
 class ErrorTable{
 private:
     std::vector<Error> errors;
@@ -121,7 +142,7 @@ public:
     ErrorTable() : count(0) {}
 
     /**
-     * @brief This implementation is not recommendated, as users might pass str.c_str()
+     * @brief This implementation is not recommended, as users might pass str.c_str()
      *        which will be a dangling pointer after the function call.
      */
     //static Error addError(const char* description, Error::Type type = Error::NON_CRITICAL){
@@ -153,6 +174,13 @@ private:
     }
 
 public:
+    //------------------------------------------
+    // Specific errors
+
+    /**
+     * @struct SDL
+     * @brief Struct grouping SDL related errors.
+     */
     struct SDL{
         static inline Error CRITICAL_SDL_RENDERER_INIT_FAILED(){
             static Error error = getInstance().addError("Critical Error: SDL Renderer could not be initialized.", Error::CRITICAL);
@@ -164,6 +192,25 @@ public:
         }
     } SDL;
 
+    /**
+     * @struct RENDERER
+     * @brief Struct grouping Nebulite::Core::Renderer related errors.
+     */
+    struct RENDERER{
+        static inline Error CRITICAL_RENDERER_NOT_INITIALIZED(){
+            static Error error = getInstance().addError("Critical Error: Renderer not initialized.", Error::CRITICAL);
+            return error;
+        }
+        static inline Error CRITICAL_RENDERER_SNAPSHOT_FAILED(){
+            static Error error = getInstance().addError("Critical Error: Renderer snapshot failed.", Error::CRITICAL);
+            return error;
+        }
+    } RENDERER;
+
+    /**
+     * @struct TEXTURE
+     * @brief Struct grouping Texture related errors.
+     */
     struct TEXTURE{
         static inline Error CRITICAL_TEXTURE_NOT_FOUND(){
             static Error error = getInstance().addError("Critical Error: Texture not found.", Error::CRITICAL);
@@ -191,6 +238,10 @@ public:
         }
     } TEXTURE;
 
+    /**
+     * @struct AUDIO
+     * @brief Struct grouping Audio related errors.
+     */
     struct AUDIO{
         static inline Error CRITICAL_AUDIO_DEVICE_INIT_FAILED(){
             static Error error = getInstance().addError("Critical Error: Audio device could not be initialized.", Error::CRITICAL);
@@ -198,6 +249,10 @@ public:
         }
     } AUDIO;
 
+    /**
+     * @struct RENDERER
+     * @brief Struct grouping Renderer related errors.
+     */
     struct FUNCTIONALL{
         static inline Error CRITICAL_FUNCTION_NOT_IMPLEMENTED(){
             static Error error = getInstance().addError("Requested function not implemented.", Error::CRITICAL);
@@ -229,6 +284,10 @@ public:
         }
     } FUNCTIONALL;
 
+    /**
+     * @struct FILE
+     * @brief Struct grouping File related errors.
+     */
     struct FILE{
         static inline Error CRITICAL_INVALID_FILE(){
             static Error error = getInstance().addError("Requested file is invalid.", Error::CRITICAL);
@@ -236,16 +295,8 @@ public:
         }
     } FILE;
 
-    struct RENDERER{
-        static inline Error CRITICAL_RENDERER_NOT_INITIALIZED(){
-            static Error error = getInstance().addError("Critical Error: Renderer not initialized.", Error::CRITICAL);
-            return error;
-        }
-        static inline Error CRITICAL_RENDERER_SNAPSHOT_FAILED(){
-            static Error error = getInstance().addError("Critical Error: Renderer snapshot failed.", Error::CRITICAL);
-            return error;
-        }
-    } RENDERER;
+    //------------------------------------------
+    // Non-specific errors
 
     static inline Error CRITICAL_GENERAL(){
         static Error error = getInstance().addError("General, critical error. It is recommended to NOT use this error type in production.", Error::CRITICAL);
