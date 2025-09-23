@@ -69,10 +69,14 @@ void Console::update(){
 
                         // Cursor movement
                         case SDLK_LEFT:
-                            // TODO: Move cursor left
+                            /**
+                             * @todo Move cursor left
+                             */
                             break;
                         case SDLK_RIGHT:
-                            // TODO: Move cursor right
+                            /**
+                             * @todo Move cursor right
+                             */
                             break;
 
                         //------------------------------------------
