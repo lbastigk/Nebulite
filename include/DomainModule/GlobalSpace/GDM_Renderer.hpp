@@ -208,11 +208,11 @@ public:
      * @return Potential errors that occured on command execution
      * 
      * @todo If an object is deleted, the reference in GlobalSpace::selectedRenderObject is not cleared!
-     * Fix idea: Renderer::update() gets currently attached object as argument: RenderObject**
-     * reference to pointer, so we can manipulate the pointer!
-     * If its a match, clear the reference
-     * Other ideas would be a shared pointer starting at the spawn-logic, but we need to be careful
-     * with purging pointer copies in the invoke logic and the potentially needed self-reference
+     * Fix idea: Make Renderer a domain itself, with this function as a domainmodule part
+     * Then, we can have the SelectedRenderObject as a private member of the Renderer domain
+     * and manipulate it directly in Renderer::update()
+     * This would also make sense, as the Renderer is the owner of the RenderObjects
+     * and should thus also be the owner of the selected object reference
      */
     Nebulite::Constants::Error getObjectFromId(int argc, char* argv[]);
 
