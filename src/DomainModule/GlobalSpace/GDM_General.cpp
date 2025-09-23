@@ -173,9 +173,17 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::func_as
 
     std::string condition = argv[1];
 
+    // condition must start with $( and end with )
+    if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
+        return Nebulite::Constants::ErrorTable::FUNCTIONALL::UNKNOWN_ARG();
+    }
+
+    // Evaluate condition
     if(!std::stod(domain->invoke->evaluateStandaloneExpression(condition))){
         return Nebulite::Constants::ErrorTable::CRITICAL_CUSTOM_ASSERT();
     }
+
+    // All good
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
