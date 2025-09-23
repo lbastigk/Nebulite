@@ -41,7 +41,33 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::spawn(
             linkOrObject += " " + std::string(argv[i]);
         }
 
-        // Create object
+        // Check if the file exists
+        std::string link = Nebulite::Utility::StringHandler::untilSpecialChar(linkOrObject,'|');
+        if(!Nebulite::Utility::FileManagement::fileExists(link)){
+            // Check in standard directories
+            static std::vector<std::string> standardDirectories = {
+                "./Resources/Renderobjects/",
+                "./Resources/RenderObjects/"
+            };
+
+            // Check all standard directories for the file
+            bool found = false;
+            for(const auto& prefix : standardDirectories){
+                std::string testLink = prefix + link;
+                if(Nebulite::Utility::FileManagement::fileExists(testLink)){
+                    linkOrObject = prefix + linkOrObject;
+                    found = true;
+                    break;
+                }
+            }
+
+            // Not found in standard directories either
+            if(!found){
+                return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
+            }
+        }
+
+        // Create object with link to globalspace
         Nebulite::Core::RenderObject* ro = new Nebulite::Core::RenderObject(domain);
         ro->deserialize(linkOrObject);
 

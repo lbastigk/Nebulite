@@ -93,12 +93,6 @@ public:
      * @param argc The argument count
      * @param argv The argument vector: RenderObject as link to json/jsonc file
      * @return Potential errors that occured on command execution
-     * 
-     * @todo: Add standard-directories to find files in:
-     * spawn Planets/sun.jsonc -> spawn ./Resources/Renderobjects/Planets/sun.jsonc
-     * Note that the link cant be turned into a serial here,
-     * due to additional passings like |posX=100
-     * that are resolved in Renderobject::deserialize / JSON::deserialize
      */
     Nebulite::Constants::Error spawn(int argc, char* argv[]);
 
