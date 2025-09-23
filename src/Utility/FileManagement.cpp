@@ -62,3 +62,7 @@ std::string Nebulite::Utility::FileManagement::currentDir() {
         return "";
     }
 }
+
+bool Nebulite::Utility::FileManagement::fileExists(const std::string& path) {
+    return std::filesystem::exists(path);
+}

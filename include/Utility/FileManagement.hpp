@@ -82,6 +82,17 @@ public:
      * @return The current working directory as a string.
      */
     static std::string currentDir();
+
+    /**
+     * @brief Checks if a file exists at the given path.
+     * 
+     * This function checks if a file exists at the specified path.
+     * 
+     * @param path The path to the file to check.
+     * 
+     * @return True if the file exists, false otherwise.
+     */
+    static bool fileExists(const std::string& path);
 };
 } // namespace Utility
 } // namespace Nebulite
