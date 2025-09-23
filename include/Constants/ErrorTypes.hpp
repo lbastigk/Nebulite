@@ -119,16 +119,28 @@ private:
  * retrieve errors.
  * 
  * Usage:
+ * 
  *   - Add errors using the static method `addError`.
+ * 
  *   - Retrieve predefined errors using the nested structs (e.g., `ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED()`).
  * 
  * @todo Implement a python script to check if any errors are unused in the codebase
  *       get all errors: static inline Error <ErrorName()>{...}
  *       search ./include and ./src for Nebulite::ErrorTable::...<ErrorName>()
+ * 
+ * @todo Implement short-existing errors that are removed after some time (addError should be private, addShortLivedError public)
  */
 class ErrorTable{
 private:
     std::vector<Error> errors;
+
+    /**
+     * @brief Holds count of errors added.
+     * 
+     * There isn't necessarily a need to limit the number of errors,
+     * but this makes sure that we aren't accidently writing more and more errors without deleting them,
+     * preventing memory leaks.
+     */
     uint16_t count;
     
     static ErrorTable& getInstance() {
@@ -166,6 +178,8 @@ public:
 private:
     Error addErrorImpl(const char* description, Error::Type type = Error::NON_CRITICAL){
         if (count == UINT16_MAX) {
+            std::cerr << "ErrorTable has reached its maximum capacity of " << UINT16_MAX << " errors." << std::endl;
+            std::cerr << "Make sure that new errors added are removed after some time if they are not needed anymore." << std::endl;
             std::exit(EXIT_FAILURE);
         }
         errors.emplace_back(new std::string(description), type);
