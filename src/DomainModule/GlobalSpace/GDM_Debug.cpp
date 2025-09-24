@@ -175,3 +175,33 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::error(int
     // No further error to return
     return Nebulite::Constants::ErrorTable::NONE();
 }
+
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::warn(int argc, char* argv[]){
+    if (argc < 2) {
+        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+    }
+
+    std::string str = "";
+    for(int i = 1; i < argc; ++i){
+        str += argv[i];
+        if(i < argc - 1){
+            str += " ";
+        }
+    }
+    return Nebulite::Constants::ErrorTable::addError(str, Nebulite::Constants::Error::NON_CRITICAL);
+}
+
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::critical(int argc, char* argv[]){
+    if (argc < 2) {
+        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+    }
+
+    std::string str = "";
+    for(int i = 1; i < argc; ++i){
+        str += argv[i];
+        if(i < argc - 1){
+            str += " ";
+        }
+    }
+    return Nebulite::Constants::ErrorTable::addError(str, Nebulite::Constants::Error::CRITICAL);
+}

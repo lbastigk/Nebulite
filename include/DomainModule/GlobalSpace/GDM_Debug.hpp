@@ -145,6 +145,24 @@ public:
      */
     Nebulite::Constants::Error error(int argc, char* argv[]);
 
+    /**
+     * @brief Returns a warning: a custom, noncritical error
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <string>
+     * @return The specified value of Error. 
+     */
+    Nebulite::Constants::Error warn(int argc, char* argv[]);
+
+    /**
+     * @brief Returns a critical error
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <string>
+     * @return The specified value of Error.
+     */
+    Nebulite::Constants::Error critical(int argc, char* argv[]);
+
     //------------------------------------------
     // Setup
 
@@ -160,6 +178,8 @@ public:
         bindFunction(&Debug::clearConsole,      "clear",                    "Clear console");
         bindFunction(&Debug::error,             "error",                    "Echo a string to cerr/errorfile: error <string>");
         bindFunction(&Debug::crash,             "crash",                    "Crashes the program: crash [segfault/abort/terminate/throw]");
+        bindFunction(&Debug::warn,              "warn",                     "Return a warning (noncritical error): warn <string>");
+        bindFunction(&Debug::critical,          "critical",                 "Return a critical error: critical <string>");
 
         bindSubtree("print", "Functions to print various data to console");
         bindFunction(&Debug::printGlobal,       "print-global",             "Print global document");
