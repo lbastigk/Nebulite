@@ -42,7 +42,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      * 
-     * @todo not implemented, move to separate DomainModule GDM_StateManagement
+     * @todo not implemented
      */
     Nebulite::Constants::Error stateSave(int argc, char* argv[]);
 
@@ -53,7 +53,7 @@ public:
      * @param argv The argument vector: <name>
      * @return Potential errors that occured on command execution
      * 
-     * @todo not implemented, move to separate DomainModule GDM_StateManagement
+     * @todo not implemented
      */
     Nebulite::Constants::Error stateLoad(int argc, char* argv[]);
 
