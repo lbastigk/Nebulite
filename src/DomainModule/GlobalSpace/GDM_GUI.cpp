@@ -28,5 +28,5 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::GUI::example(int
         nullptr /* SDL_Texture* created from DearImgui */
     );
 
-    return Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
+    return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }

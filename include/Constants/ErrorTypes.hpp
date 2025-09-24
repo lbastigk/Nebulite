@@ -273,7 +273,7 @@ public:
      * @struct RENDERER
      * @brief Struct grouping Renderer related errors.
      */
-    struct FUNCTIONALL{
+    struct FUNCTIONAL{
         static inline Error CRITICAL_FUNCTION_NOT_IMPLEMENTED(){
             static Error error = getInstance().addError("Requested function not implemented.", Error::CRITICAL);
             return error;
@@ -302,7 +302,7 @@ public:
             static Error error = getInstance().addError("Requested feature of functioncall is not implemented", Error::NON_CRITICAL);
             return error;
         }
-    } FUNCTIONALL;
+    } FUNCTIONAL;
 
     /**
      * @struct FILE

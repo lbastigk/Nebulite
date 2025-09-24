@@ -77,7 +77,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::spawn(
     }
     else{
         std::cerr << "No renderobject name provided!" << std::endl;
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
@@ -125,7 +125,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::showFP
         }
         else{
             // unknown arg
-            return Nebulite::Constants::ErrorTable::FUNCTIONALL::UNKNOWN_ARG();
+            return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
         }
     }
     return Nebulite::Constants::ErrorTable::NONE();
@@ -133,10 +133,10 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::showFP
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::moveCam(int argc, char* argv[]){
     if (argc < 3) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (argc > 3) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     int dx = std::stoi(argv[1]);
@@ -161,13 +161,13 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::setCam
         }
         else{
             // unknown arg
-            return Nebulite::Constants::ErrorTable::FUNCTIONALL::UNKNOWN_ARG();
+            return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
         }
     }
     else if(argc > 4){
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+    return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
 }
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::snapshot(int argc, char* argv[]){
@@ -189,7 +189,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::snapsh
         return Nebulite::Constants::ErrorTable::NONE();
     }
     else{
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 }
 
@@ -201,7 +201,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::beep(i
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::getObjectFromId(int argc, char* argv[]) {
     if (argc != 2) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
     uint32_t id = std::stoi(argv[1]);
@@ -219,7 +219,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::getObj
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::selectedObjectParse(int argc, char* argv[]) {
     if(argc < 2){
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     std::string command;
     for (int i = 1; i < argc; ++i) {    // Ignoring first 2 argc: <from> <thisFunctionsName>

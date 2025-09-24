@@ -22,15 +22,15 @@ Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::StateUpdate::up
 }
 
 Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::StateUpdate::reloadInvokes(int argc, char* argv[]){
-    return Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
+    return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 
 Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::StateUpdate::addInvoke(int argc, char* argv[]){
-    return Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
+    return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::StateUpdate::removeInvoke(int argc, char* argv[]){
-    return Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
+    return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::StateUpdate::removeAllInvokes(int argc, char* argv[]){
-    return Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
+    return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }

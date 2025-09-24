@@ -5,10 +5,10 @@
 Nebulite::Constants::Error Nebulite::DomainModule::JSON::ForceValue::force(int argc, char* argv[]) {
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 3) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (argc > 3) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     std::string key = argv[1];

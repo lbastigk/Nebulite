@@ -10,7 +10,7 @@ void Nebulite::DomainModule::Texture::General::update() {
 Nebulite::Constants::Error Nebulite::DomainModule::Texture::General::reloadTexture(int argc, char* argv[]) {
     // Check for correct number of arguments
     if (argc != 1) { // Only the command itself should be present
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     // Load new texture from the document

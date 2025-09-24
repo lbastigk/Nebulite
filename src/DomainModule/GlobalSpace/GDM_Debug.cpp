@@ -107,10 +107,10 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::errorlog(
     }
     else{
         if(argc > 2){
-            return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS();
+            return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
         }
         else{
-            return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+            return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
         }
     }
     return Nebulite::Constants::ErrorTable::NONE();
@@ -118,7 +118,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::errorlog(
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::clearConsole(int argc, char* argv[]){
     if (argc > 1) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     int error = 0;
     #if _WIN32
@@ -178,7 +178,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::error(int
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::warn(int argc, char* argv[]){
     if (argc < 2) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
     std::string str = "";
@@ -193,7 +193,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::warn(int 
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::critical(int argc, char* argv[]){
     if (argc < 2) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
     std::string str = "";

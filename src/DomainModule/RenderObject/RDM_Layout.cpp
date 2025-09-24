@@ -13,8 +13,8 @@ void Nebulite::DomainModule::RenderObject::Layout::update() {
 // FuncTree-Bound Functions
 
 Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Layout::alignText(int argc, char* argv[]){
-    return Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
+    return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Layout::makeBox(int argc, char* argv[]){
-    return Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
+    return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }

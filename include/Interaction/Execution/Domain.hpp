@@ -68,7 +68,7 @@ public:
         funcTree = new Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>( 
                 domainName, 
                 Nebulite::Constants::ErrorTable::NONE(), 
-                Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_FUNCTIONCALL_INVALID()
+                Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
             );
     };
 

@@ -14,7 +14,7 @@ void Nebulite::DomainModule::JSON::ComplexData::update() {
 
 Nebulite::Constants::Error Nebulite::DomainModule::JSON::ComplexData::set_from_query(int argc, char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
-    return Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
+    return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 
 Nebulite::Constants::Error Nebulite::DomainModule::JSON::ComplexData::set_from_json(int argc, char* argv[]){
@@ -23,11 +23,11 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::ComplexData::set_from_j
     // Instead, we manually load the document to retrieve the key
     if(argc < 3){
         std::cerr << "Error: Too few arguments for set-from-json command." << std::endl;
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if(argc > 3){
         std::cerr << "Error: Too many arguments for set-from-json command." << std::endl;
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     std::string myKey = argv[1];
     std::string link_and_key = argv[2];

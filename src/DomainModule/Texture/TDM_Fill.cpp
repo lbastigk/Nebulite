@@ -9,7 +9,7 @@ void Nebulite::DomainModule::Texture::Fill::update() {
 
 Nebulite::Constants::Error Nebulite::DomainModule::Texture::Fill::fill(int argc, char* argv[]) {
     if (argc < 2) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
     // Get the SDL_Renderer
@@ -42,7 +42,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::Texture::Fill::fill(int argc,
         g = static_cast<Uint8>(std::stoi(argv[2]));
         b = static_cast<Uint8>(std::stoi(argv[3]));
     } else {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_INVALID_ARGC_ARGV_PARSING();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_INVALID_ARGC_ARGV_PARSING();
     }
 
     // Lock the texture for pixel manipulation

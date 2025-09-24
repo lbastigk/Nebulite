@@ -51,10 +51,10 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::wait(in
         return Nebulite::Constants::ErrorTable::NONE();
     }
     else if(argc < 2){
-       return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+       return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     else{
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 }
 
@@ -62,10 +62,10 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::loadTas
     std::cout << "Loading task list from file: " << (argc > 1 ? argv[1] : "none") << std::endl;
 
     if (argc < 2) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (argc > 2) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     std::string file = Nebulite::Utility::FileManagement::LoadFile(argv[1]);
@@ -137,7 +137,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::forLoop
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::ifCondition(int argc, char* argv[]) {
     if (argc < 3) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
     std::string result = domain->invoke->evaluateStandaloneExpression(argv[1]);
@@ -164,18 +164,18 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::ifCondi
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::func_assert(int argc, char* argv[]){
     if (argc < 2) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
     if (argc > 2) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     std::string condition = argv[1];
 
     // condition must start with $( and end with )
     if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::UNKNOWN_ARG();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
 
     // Evaluate condition

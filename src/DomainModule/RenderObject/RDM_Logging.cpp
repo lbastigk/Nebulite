@@ -36,7 +36,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Logging::log(in
 
 Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Logging::logValue(int argc, char* argv[]){
     if (argc < 2) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     std::string key = argv[1];
     std::string file = "RenderObject_id" + std::to_string(domain->get(Nebulite::Constants::keyName.renderObject.id.c_str(), 0)) + ".log.jsonc";

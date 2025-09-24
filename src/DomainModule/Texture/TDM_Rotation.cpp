@@ -9,10 +9,10 @@ void Nebulite::DomainModule::Texture::Rotation::update() {
 
 Nebulite::Constants::Error Nebulite::DomainModule::Texture::Rotation::rotate(int argc, char* argv[]) {
     if (argc < 2) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (argc > 2) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     // Get the SDL_Renderer

@@ -8,7 +8,7 @@ void Nebulite::DomainModule::RenderObject::Debug::update() {
 
 Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::printSrcRect(int argc, char* argv[]) {
     if(argc != 1) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS(); // No arguments expected
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
 
     SDL_Rect* srcRect = domain->getSrcRect();
@@ -24,7 +24,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::printSrc
 
 Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::printDstRect(int argc, char* argv[]) {
     if(argc != 1) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS(); // No arguments expected
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
 
     SDL_Rect* dstRect = domain->getDstRect();
@@ -47,7 +47,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::print(in
 Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::printValue(int argc, char* argv[]){
     if(argc<2){
         std::cerr << "print-value requires a <key> argument" << std::endl;
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_FEW_ARGS();
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     std::string key = argv[1];
     auto value = domain->get<std::string>(key.c_str(), "");
@@ -57,7 +57,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::printVal
 
 Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::textureStatus(int argc, char* argv[]){
     if(argc != 1) {
-        return Nebulite::Constants::ErrorTable::FUNCTIONALL::TOO_MANY_ARGS(); // No arguments expected
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
 
     //------------------------------------------
