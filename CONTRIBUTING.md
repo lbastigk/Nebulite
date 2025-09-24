@@ -122,7 +122,7 @@ bindFunction(/**/,"MyModule foo","<Description>"); //<-- This will fail without 
 
 1. **Create expansion file:** `GDM_MyModule.{hpp,cpp}`
 2. **Inherit from DomainModule base class:** Create class inheriting from `Nebulite::Interaction::Execution::DomainModule<DomainClass>`
-3. **Implement command methods:** Functions with `ERROR_TYPE (int argc, char* argv[])` signature
+3. **Implement command methods:** Functions with `Nebulite::Constants::Error (int argc, char* argv[])` signature
 4. **DomainModule init** inside `include/DomainModule/{GDM,JDM,RDM}.hpp`, initialize the DomainModule
 
 <!-- TOC --><a name="complete-code-example"></a>
@@ -133,9 +133,9 @@ bindFunction(/**/,"MyModule foo","<Description>"); //<-- This will fail without 
 ```cpp
 
 /**
- * @file GDM_General.hpp
+ * @file GDM_MyModule.hpp
  * 
- * This file contains the DomainModule of the GlobalSpace for general-purpose functions.
+ * This file contains the DomainModule of the GlobalSpace for MyFeature functions.
  */
 
 #pragma once
@@ -172,7 +172,7 @@ public:
     //----------------------------------------
     // Available Functions
 
-    ERROR_TYPE spawnCircle(int argc, char* argv[]);
+    Nebulite::Constants::Error spawnCircle(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -209,7 +209,7 @@ void Nebulite::DomainModule::GlobalSpace::MyModule::update(){
     // We can update them here
 }
 
-Nebulite::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::MyModule::spawnCircle(int argc, char* argv[]){
+Nebulite::Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::MyModule::spawnCircle(int argc, char* argv[]){
     /*
     Implementation here.
     You can access domain and its members through: 
@@ -256,13 +256,13 @@ void GDM_init(Nebulite::Core::GlobalSpace* target){
 ### Feature Management
 
 If necessary, the entire feature can then be:
-- **disabled** by commenting out `initModule` inside `{GDM,JDM,RDM}.hpp`
-- **removed** by undoing all changes inside `{GDM,JDM,RDM}.hpp`
+- **disabled** by commenting out `initModule` inside `{GDM,JDM,RDM,TDM}.hpp`
+- **removed** by undoing all changes inside `{GDM,JDM,RDM,TDM}.hpp` and potentially deleting its files.
 
 <!-- TOC --><a name="implementation-guidelines"></a>
 ### Implementation Guidelines
 
-- It is recommended to implement unfinished functions inside the cpp file with a return of `Nebulite::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED`
+- It is recommended to implement unfinished functions inside the cpp file with a return of `Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED()`
 - Use filenames `GDM_<ModuleName>.{hpp,cpp}` , `RDM_<ModuleName>.{hpp,cpp}` and `JDM_<ModuleName>.{hpp,cpp}` for module files
 - Use the recommended class naming schemes and namespaces for modules: `Nebulite::DomainModule::GlobalSpace::MyModule`
 
