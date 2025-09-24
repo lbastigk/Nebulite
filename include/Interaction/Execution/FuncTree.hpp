@@ -28,13 +28,6 @@
  * ./main someOtherFunction //-> cout: "Function not found",
  *                          //   cerr: "Function 'someOtherFunction' not found."
  * ```
- * 
- * @todo Going away from classic C-style argc/argv to a more modern approach might be
- * - std::vector<std::string> callTrace // shows the call trace of the function, e.g.: "Nebulite", "eval", "echo"
- * - std::vector<std::string> args      // shows the arguments of the function, e.g.: "echo", "Hello World!"
- * - std::vector<std::string> variables // shows the variables set by the user, e.g.: {"--verbose": "true"}
- * 
- * @todo Allow for longer descriptions via an extra argument: descLong or split description by first line break
  */
 
 #pragma once
