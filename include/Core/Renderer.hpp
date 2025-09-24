@@ -56,10 +56,6 @@ public:
 	 * @brief Serializes the current state of the Renderer.
 	 * 
 	 * @return A JSON string representing the Renderer state.
-	 * 
-	 * @todo Consider serializing render-specific variables if needed.
-	 * Currently, this only serializes the environment state.
-	 * In actuality, we would need to also serialize the global document state.
 	 */
 	std::string serialize(){
 		return env.serialize();
