@@ -57,7 +57,8 @@ public:
      * @param argv The argument vector: <key> <link:key>
      * @return Potential errors that occurred on command execution.
      * 
-     * @todo Not implemented yet
+     * @todo Once all domains have access to the global space, 
+     * use the JSON doc cache instead of loading the document each time.
      */
     Nebulite::Constants::Error set_from_json(int argc, char* argv[]);
 
