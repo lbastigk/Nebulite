@@ -18,6 +18,7 @@
     #include "DomainModule/GlobalSpace/GDM_GUI.hpp"                 // GUI functions for DearImgui integration
     #include "DomainModule/GlobalSpace/GDM_Input.hpp"               // Input handling
     #include "DomainModule/GlobalSpace/GDM_RenderObjectDraft.hpp"   // Mock RenderObject for RenderObject functions in global space
+    #include "DomainModule/GlobalSpace/GDM_StateManagement.hpp"     // State management functions
 #endif
 //------------------------------------------
 namespace Nebulite{
@@ -36,6 +37,7 @@ void GDM_init(Nebulite::Core::GlobalSpace* target){
         target->initModule<Input>("Global Input Functions");
         target->initModule<RenderObjectDraft>("Global RenderObjectDraft Functions");
         target->initModule<Console>("Global Console Functions");
+        target->initModule<StateManagement>("Global State Management Functions");
         
         // Initialize Variable Bindings
         target->bindVariable(&target->cmdVars.headless, "headless", "Set headless mode (no renderer)");

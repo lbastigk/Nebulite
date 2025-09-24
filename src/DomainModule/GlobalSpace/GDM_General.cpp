@@ -227,28 +227,3 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::alwaysC
     domain->tasks.always.taskList.clear();
     return Nebulite::Constants::ErrorTable::NONE();
 }
-
-//------------------------------------------
-// To move
-
-
-// To GDM_StateManagement
-
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::stateLoad(int argc, char* argv[]){ 
-    std::cerr << "Function load not implemented yet!" << std::endl;
-    return Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
-}
-
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::stateSave(int argc, char* argv[]){
-    // <stateName>
-    // Change std::string Nebulite::stateName to name
-    // Check if dir ./States/stateName exists
-
-    // If any env is deloaded, save in stateName
-
-    // Every load of any file must be linked to state! If file exists in state load from there
-    // if not, load from usual path
-
-    std::cerr << "Function save not implemented yet!" << std::endl;
-    return Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
-}
