@@ -1,5 +1,9 @@
 #include "DomainModule/GlobalSpace/GDM_StateManagement.hpp"
 
+void Nebulite::DomainModule::GlobalSpace::StateManagement::update(){
+    // Nothing to do for now
+}
+
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::StateManagement::stateLoad(int argc, char* argv[]){ 
     return Nebulite::Constants::ErrorTable::FUNCTIONALL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
