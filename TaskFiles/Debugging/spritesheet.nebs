@@ -11,7 +11,7 @@ wait 10
 ###########################
 # Part 2: Background
 echo Adding background
-for i 0 30 for j 0 30 eval spawn ./Resources/Renderobjects/Plants/Grass/grass.jsonc|posX=$($i*16)|posY=$($j*16)
+for i 0 30 for j 0 30 eval spawn ./Resources/Renderobjects/Plants/Grass/grass.jsonc|posX=$({i}*16)|posY=$({j}*16)
 
 ###########################
 # Part 3: Output

@@ -128,7 +128,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::forLoop
         std::string args_replaced;
         for(int i = iStart; i <= iEnd; i++){
             // for + args
-            args_replaced = funcName + " " + Nebulite::Utility::StringHandler::replaceAll(args, '$' + varName, std::to_string(i));
+            args_replaced = funcName + " " + Nebulite::Utility::StringHandler::replaceAll(args, '{' + varName + '}', std::to_string(i));
             funcTree->parseStr(args_replaced);
         }
     }

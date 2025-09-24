@@ -4,13 +4,13 @@
 echo "Starting simple spawn test..."
 
 echo Test 1: No Invokes 
-for i 0 100 spawn ./Resources/Renderobjects/standard.jsonc|set posX $i
+for i 0 100 spawn ./Resources/Renderobjects/standard.jsonc|set posX {i}
 wait 60
 echo Passed!
 wait 60
 
 echo Test 2: Local Invokes
-for i 0 100 spawn ./Resources/Renderobjects/Debug/debug_tester.jsonc|set posX $i|set posY 100
+for i 0 100 spawn ./Resources/Renderobjects/Debug/debug_tester.jsonc|set posX {i}|set posY 100
 wait 60
 
 echo Test 3: Global Invokes
@@ -18,7 +18,7 @@ spawn ./Resources/Renderobjects/Planets/sun.jsonc|set posX 250
 spawn ./Resources/Renderobjects/Planets/sun.jsonc|set posX 750
 wait 60
 
-#for i 500 502 spawn ./Resources/Renderobjects/Planets/sun.jsonc|set posX $i
+#for i 500 502 spawn ./Resources/Renderobjects/Planets/sun.jsonc|set posX {i}
 
 
 print-state
