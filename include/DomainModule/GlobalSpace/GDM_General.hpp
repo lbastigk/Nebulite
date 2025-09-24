@@ -125,28 +125,6 @@ public:
     Nebulite::Constants::Error func_assert(int argc, char* argv[]);
 
     /**
-     * @brief Saves the current game state under state prefix
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
-     * 
-     * @todo not implemented, move to separate DomainModule GDM_StateManagement
-     */
-    Nebulite::Constants::Error stateSave(int argc, char* argv[]);
-
-    /**
-     * @brief Loads a saved game state
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <name>
-     * @return Potential errors that occured on command execution
-     * 
-     * @todo not implemented, move to separate DomainModule GDM_StateManagement
-     */
-    Nebulite::Constants::Error stateLoad(int argc, char* argv[]);
-
-    /**
      * @brief Attach a command to the always-taskqueue that is executed on each tick.
      * 
      * @param argc The argument count
@@ -184,10 +162,6 @@ public:
         bindFunction(&General::func_assert,         "assert",               "Assert a condition and throw an error if false: assert <condition>");
         bindFunction(&General::always,              "always",               "Attach function to always run: always <command>");
         bindFunction(&General::alwaysClear,         "always-clear",         "Clear all always-tasks");
-
-        bindSubtree("state", "State management functions");
-        bindFunction(&General::stateSave,           "state save",           "Save the current game state: state-save <name>");
-        bindFunction(&General::stateLoad,           "state load",           "Load a saved game state: state-load <name>");
     }
 };
 }   // namespace GlobalSpace
