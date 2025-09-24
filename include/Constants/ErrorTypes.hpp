@@ -125,6 +125,9 @@ private:
  *   - Retrieve predefined errors using the nested structs (e.g., `ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED()`).
  * 
  * @todo Implement short-existing errors that are removed after some time (addError should be private, addShortLivedError public)
+ *       However, we need to be careful with dangling pointers in that case.
+ *       Perhaps it's best to just keep all errors for the lifetime of the program.
+ *       Then, if we have more than UINT16_MAX errors, we can just exit with a message.
  */
 class ErrorTable{
 private:
@@ -165,6 +168,13 @@ public:
      * @return The corresponding Error object.
      */
     static Error addError(std::string description, Error::Type type = Error::NON_CRITICAL){
+        // Check if we already have this error
+        for(const auto& err : getInstance().errors){
+            if(err.getDescription() == description){
+                return err; // Return existing error
+            }
+        }
+
         // Make copy of string to store pointer
         getInstance().localDescriptions.push_back(description);
         return getInstance().addErrorImpl(getInstance().localDescriptions.back().c_str(), type);
