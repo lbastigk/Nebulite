@@ -29,10 +29,10 @@ namespace RenderObject{
  * @class Nebulite::DomainModule::RenderObject::Debug
  * @brief Debug management for the RenderObject tree DomainModule.
  */
-class Debug : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Debug) {
 public:
     /**
-     * @brief Overridden update function.
+     * @brief Overwridden update function.
      */
     void update();
 
@@ -91,8 +91,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Debug(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Debug) {
         bindSubtree("debug", "Debugging functions for RenderObject");
         bindFunction(&Debug::printSrcRect,  "debug print-src-rect",     "Prints the source rectangle of the spritesheet to console");
         bindFunction(&Debug::printDstRect,  "debug print-dst-rect",     "Prints the destination rectangle of the spritesheet to console");

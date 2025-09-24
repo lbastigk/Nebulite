@@ -131,6 +131,22 @@ bindFunction(/**/,"MyModule foo","<Description>"); //<-- This will fail without 
 **Inside GDM_MyModule.hpp:**
 
 ```cpp
+
+/**
+ * @file GDM_General.hpp
+ * 
+ * This file contains the DomainModule of the GlobalSpace for general-purpose functions.
+ */
+
+#pragma once
+
+//------------------------------------------
+// Includes
+
+// Nebulite
+#include "Constants/ErrorTypes.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
+
 //------------------------------------------
 // Forward declarations
 namespace Nebulite{
@@ -143,7 +159,7 @@ namespace Nebulite{
 namespace Nebulite {
 namespace DomainModule {
 namespace GlobalSpace {
-class MyModule : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, MyModule) {
 public:
     /**
      * @brief Overridden update function.
@@ -165,8 +181,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    MyModule(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, MyModule){
         //------------------------------------------
         // Binding functions to the FuncTree
         bindFunction(&MyModule::spawnCircle, "spawn-circle", "Spawn a circle");

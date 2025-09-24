@@ -28,7 +28,7 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::StateManagement
  * @brief DomainModule for state management within the GlobalSpace.
  */
-class StateManagement : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, StateManagement) {
 public:
     void update();
 
@@ -64,8 +64,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    StateManagement(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, StateManagement){
         bindSubtree("state", "State management functions");
         bindFunction(&StateManagement::stateSave,       "state save",    "Save the current game state: state-save <name>");
         bindFunction(&StateManagement::stateLoad,       "state load",    "Load a saved game state: state-load <name>");

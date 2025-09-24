@@ -7,6 +7,18 @@
 
 #pragma once
 
+/**
+ * @brief Macro to define a new Nebulite DomainModule class.
+ * 
+ * @todo Insert macro into all DomainModules
+ */
+#define NEBULITE_DOMAINMODULE(DomainName,DomainModuleName) \
+    class DomainModuleName : public Nebulite::Interaction::Execution::DomainModule<DomainName>
+
+#define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
+    DomainModuleName(std::string moduleName, DomainName* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) \
+    : DomainModule(moduleName, domain, funcTreePtr)
+
 //------------------------------------------
 // Includes
 
@@ -65,7 +77,7 @@ public:
         : moduleName(moduleName), domain(domain), funcTree(funcTreePtr) {}
 
     /**
-     * @brief Virtual update function to be overridden by derived classes.
+     * @brief Virtual update function to be Overwridden by derived classes.
      */
     virtual void update() = 0;
 

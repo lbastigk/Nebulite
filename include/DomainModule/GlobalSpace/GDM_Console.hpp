@@ -34,10 +34,10 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Console
  * @brief DomainModule for Consoleging capabilities within the GlobalSpace.
  */
-class Console : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Console) {
 public:
     /**
-     * @brief Overridden update function.
+     * @brief Overwridden update function.
      */
     void update();
 
@@ -53,8 +53,11 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Console(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr);
-
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Console){
+        // we cannot do much here, since renderer might not be initialized yet
+        // so we do the actual initialization in update() when needed
+        consoleInputBuffer = &commandIndexZeroBuffer;
+    }
 private: 
     //------------------------------------------
     // Configuration

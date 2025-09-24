@@ -29,7 +29,7 @@ namespace Texture {
  * @class Nebulite::DomainModule::Texture::General
  * @brief DomainModule for general functions within the Texture.
  */
-class General : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::Texture> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, General) {
 public:
     void update();
 
@@ -52,8 +52,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    General(std::string moduleName, Nebulite::Core::Texture* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, General) {
         bindFunction(&General::reloadTexture, "reload-texture",   "Reload the texture from the document.");
     }
 };

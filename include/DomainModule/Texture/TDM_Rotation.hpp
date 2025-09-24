@@ -32,7 +32,7 @@ namespace Texture {
  * @class Nebulite::DomainModule::Texture::Rotation
  * @brief DomainModule for rotation functions within the Texture.
  */
-class Rotation : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::Texture> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Rotation) {
 public:
     void update();
 
@@ -55,8 +55,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Rotation(std::string moduleName, Nebulite::Core::Texture* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Rotation) {
         bindFunction(&Rotation::rotate, "rotate",   "Rotate the texture by a given angle: rotate <angle>");
     }
 };

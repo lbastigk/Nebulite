@@ -32,7 +32,7 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::GUI
  * @brief DomainModule for creating GUI elements and queueing them in the renderer pipeline.
  */
-class GUI : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, GUI) {
 public:
     void update();
 
@@ -57,8 +57,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    GUI(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, GUI){
         bindSubtree("gui", "Functions to create GUI elements");
         bindFunction(&GUI::example, "gui example", "An example function to demonstrate GUI-Elements");
     }

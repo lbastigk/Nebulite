@@ -73,7 +73,7 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Communication
  * @brief DomainModule for communication between the Nebulite engine and external processes.
  */
-class Communication : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Communication){
 public:
     void update();
 
@@ -120,8 +120,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Communication(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Communication){
         // Connection management
         bindFunction(&Communication::connect,            "connect",              "Establish connection");
         bindFunction(&Communication::disconnect,         "disconnect",           "Close connection");

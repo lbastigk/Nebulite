@@ -54,7 +54,28 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::RNG
  * @brief DomainModule for random number generation within the GlobalSpace.
  */
-class RNG : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, RNG) {
+public:
+    /**
+     * @brief Overwridden update function.
+     */
+    void update();
+
+    //------------------------------------------
+    // Available Functions
+
+
+    //------------------------------------------
+    // Setup
+
+    /**
+     * @brief Initializes references to the domain and FuncTree, 
+     * and binds functions to the FuncTree.
+     */
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, RNG){
+        bindSubtree("rng", "Functions to manage random number generation");
+        // bindFunction(&RNG::functionName,   "rng function-name",    "Function description");
+    }
 
 };
 } // namespace GlobalSpace

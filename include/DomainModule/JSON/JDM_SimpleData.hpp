@@ -28,10 +28,10 @@ namespace JSON{
  * @class Nebulite::DomainModule::JSON::SimpleData
  * @brief DomainModule for simple data operations on domain class Nebulite::Utility::JSON
  */
-class SimpleData : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Utility::JSON> {
+NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, SimpleData) {
 public:
     /**
-     * @brief Overridden update function.
+     * @brief Overwridden update function.
      */
     void update();
 
@@ -127,8 +127,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    SimpleData(std::string moduleName, Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, SimpleData){
         // Bind functions specific to complex data handling
         bindFunction(&SimpleData::set, "set", "Set a key to a value in the JSON document: <key> <value>");
 

@@ -30,10 +30,10 @@ namespace RenderObject{
  * @class Nebulite::DomainModule::RenderObject::Parenting
  * @brief Parenting DomainModule of the RenderObject tree.
  */
-class Parenting : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Parenting) {
 public:
     /**
-     * @brief Overridden update function.
+     * @brief Overwridden update function.
      */
     void update();
 
@@ -80,8 +80,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Parenting(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Parenting) {
         bindSubtree("parenting", "Functions to manage RenderObject parenting");
         bindFunction(&Parenting::addChildren,       "parenting add-children",           "Adds children of the RenderObject by name");
         bindFunction(&Parenting::removeChildren,    "parenting remove-children",        "Removes children from the RenderObject");

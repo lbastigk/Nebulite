@@ -57,7 +57,7 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Audio
  * @brief DomainModule for audio operations on domain class Nebulite::Core::GlobalSpace
  */
-class Audio : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Audio){
 public:
     //------------------------------------------
     // Available Functions
@@ -109,8 +109,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    Audio(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Audio){
         // Basic playback
         bindFunction(&Audio::playSound,         "play-sound",           "Play sound effect");
         bindFunction(&Audio::playMusic,         "play-music",           "Play background music");

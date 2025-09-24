@@ -29,10 +29,10 @@ namespace JSON{
  * 
  * DomainModule for complex data operations on domain class Nebulite::Utility::JSON
  */
-class ComplexData : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Utility::JSON> {
+NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ComplexData) {
 public:
     /**
-     * @brief Overridden update function.
+     * @brief Overwridden update function.
      */
     void update();
 
@@ -69,8 +69,7 @@ public:
      * @brief Initializes references to the domain and FuncTree, 
      * and binds functions to the FuncTree.
      */
-    ComplexData(std::string moduleName, Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, ComplexData){
         // Bind functions specific to complex data handling
 
         // SQL Querys
