@@ -86,8 +86,10 @@ public:
     Logging(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
     : DomainModule(moduleName, domain, funcTreePtr) {
         bindFunction(&Logging::echo,        "echo",         "Prints the arguments to the console");
-        bindFunction(&Logging::log,         "log",          "Logs the RenderObject to a file");
-        bindFunction(&Logging::logValue,    "log-value",    "Logs a specific value: <key> <file>");
+
+        bindSubtree("log", "Logging functions for RenderObject");
+        bindFunction(&Logging::log,         "log all",    "Logs the entire RenderObject to a file: [filename]");
+        bindFunction(&Logging::logValue,    "log key",    "Logs a specific value: <key> [filename]");
     }
 };
 }   // namespace DomainModule
