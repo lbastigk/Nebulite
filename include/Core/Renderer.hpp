@@ -210,11 +210,6 @@ public:
 	 * @param link The link to save the snapshot to.
 	 * 
 	 * @return True if the snapshot was successful, false otherwise.
-	 * 
-	 * @todo Snapshot not working on windows via wine.
-	 * Image has right dimensions, but is black.
-	 * Nebulite Linux Release and Debug work fine.
-	 * Nebulite Windows Release and Debug are broken.
 	 */
 	bool snapshot(std::string link);
 	
