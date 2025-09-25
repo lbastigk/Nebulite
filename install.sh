@@ -84,7 +84,8 @@ case $PACKAGE_MANAGER in
         fi
         ;;
     unknown)
-        echo "Please ensure the following packages are installed: SDL2, SDL2_image, SDL2_ttf, freetype, development tools, python3, numpy, alsa-lib, pulseaudio-libs, mingw64-gcc, mingw64-gcc-c++"
+        echo "Please ensure the following packages are installed:"
+        echo "$APT_PACKAGES"
         sleep 10
         ;;
 esac
@@ -93,37 +94,18 @@ esac
 # Setting up directories
 PROGRESS="Setting up directories"
 
-START_DIR=$(pwd)
+ROOT_DIR=$(pwd)
 
 # Basic directories
 mkdir -p ./.build
+mkdir -p ./.build/SDL2
 mkdir -p ./bin
 mkdir -p ./external
 
 # Resources directory
 cd ./Resources      || exit 1
 ../Scripts/CreateResourcesDirectory.sh   || exit 1
-cd "$START_DIR"
-
-####################################
-# Synonyms for SDL_ttf
-PROGRESS="Setting up SDL_ttf synonyms"
-
-# Ensure aclocal-1.16 and automake-1.16 are available as symlinks if only unversioned ones exist
-#if ! command -v aclocal-1.16 >/dev/null 2>&1; then
-#    aclocal_path=$(command -v aclocal)
-#    if [ -n "$aclocal_path" ]; then
-#        ln -sf "$aclocal_path" "$HOME/.local/bin/aclocal-1.16"
-#        export PATH="$HOME/.local/bin:$PATH"
-#    fi
-#fi
-#if ! command -v automake-1.16 >/dev/null 2>&1; then
-#    automake_path=$(command -v automake)
-#    if [ -n "$automake_path" ]; then
-#        ln -sf "$automake_path" "$HOME/.local/bin/automake-1.16"
-#        export PATH="$HOME/.local/bin:$PATH"
-#    fi
-#fi
+cd "$ROOT_DIR"
 
 
 ####################################
@@ -142,24 +124,33 @@ done
 externalsDir=$(pwd)/external
 
 ####################################
-# Submodules: SDL: Externals
-PROGRESS="Setting up SDL externals"
+# Submodules: SDL2
+PROGRESS="Setting up SDL2"
 
-####################################
-# Submodules: SDL
+cd "$externalsDir/SDL_Crossplatform_Local" || exit 1
+Scripts/install.sh          || exit 1
+#Scripts/build.sh            || exit 1 # Not needed, but helpful to see if basic SDL applications work
+#Scripts/test_binaries.sh    || exit 1 # Tests the from build.sh created binaries
+
+cd "$ROOT_DIR"
+cp -r "$externalsDir/SDL_Crossplatform_Local/build/SDL2/"* .build/SDL2/
 
 
 ####################################
 # Building the project
 PROGRESS="Building the project"
-cd "$START_DIR"
+cd "$ROOT_DIR"
 ./build.sh    || { echoerr "build.sh failed";      exit 1; }
+
 ####################################
 # Copy necessary dlls
 PROGRESS="Copying necessary DLLs"
-cd "$START_DIR"
-if [ -f /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll ]; then
-    cp /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll ./bin/
+cd "$ROOT_DIR"
+
+PATTERN=$(find /usr/*x86* -type f -name libwinpthread-1.dll | head -n 1)
+
+if [ -f "$PATTERN" ]; then
+    cp "$PATTERN" ./bin/
 else
     echoerr "libwinpthread-1.dll not found in /usr/x86_64-w64-mingw32/lib/"
     exit 1;
@@ -168,13 +159,13 @@ fi
 ####################################
 # make all scripts executable
 PROGRESS="Making scripts executable"
-cd "$START_DIR"
+cd "$ROOT_DIR"
 find ./Scripts/ -type f -iname "*.sh" -exec chmod +x {} \;
 
 ####################################
 # Run tests
 PROGRESS="Running tests"
-cd "$START_DIR"
+cd "$ROOT_DIR"
 python ./Scripts/validate_json.py
 python ./Scripts/Tests.py
 
