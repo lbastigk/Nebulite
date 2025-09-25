@@ -88,7 +88,9 @@
         "forward_list": "cpp",
         "scoped_allocator": "cpp",
         "typeindex": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "queue": "cpp",
+        "stack": "cpp"
     },
     "editor.inlineSuggest.enabled": true,
     "cmake.ignoreCMakeListsMissing": true,
