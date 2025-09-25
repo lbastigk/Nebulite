@@ -2,8 +2,8 @@
   "binaries" : [
     "./bin/Nebulite --headless",
     "./bin/Nebulite_Debug --headless",
-    "wine ./bin/Nebulite.exe --headless",
-    "wine ./bin/Nebulite_Debug.exe --headless"
+    "DXVK_LOG_LEVEL=none WINEDEBUG=-all wine ./bin/Nebulite.exe --headless",
+    "DXVK_LOG_LEVEL=none WINEDEBUG=-all wine ./bin/Nebulite_Debug.exe --headless"
   ],
   "ignore_lines": {
     "cout" : [],
