@@ -4,13 +4,13 @@
 //------------------------------------------
 // Update
 void Nebulite::DomainModule::RenderObject::Layout::update() {
-    // Add FuncTree-specific updates here!
+    // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
 }
 
 //------------------------------------------
-// FuncTree-Bound Functions
+// Domain-Bound Functions
 
 Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Layout::alignText(int argc, char* argv[]){
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();

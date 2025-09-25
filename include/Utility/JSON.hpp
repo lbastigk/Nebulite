@@ -59,7 +59,7 @@ namespace Utility {
  * If the document is then serialized, the cache is flushed and the values are written to the document.
  * Meaning the last key set will take precedence.
  * Instead, values should only be set if they are guaranteed to be simple values rather than complex objects.
- * For moving and copying complex objects, use the appropriate methods of its FuncTree.
+ * For moving and copying complex objects, use the appropriate methods of its parsing logic.
  * 
  * Due to performance concerns, a rework of the caching system is a low priority.
  * 

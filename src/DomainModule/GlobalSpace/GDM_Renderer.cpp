@@ -6,13 +6,13 @@
 //------------------------------------------
 // Update
 void Nebulite::DomainModule::GlobalSpace::Renderer::update() {
-    // Add FuncTree-specific updates here!
+    // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
 }
 
 //------------------------------------------
-// FuncTree-Bound Functions
+// Domain-Bound Functions
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::envload(int argc, char* argv[]){
     if(argc > 1){

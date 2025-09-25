@@ -142,7 +142,7 @@ int main(int argc, char* argv[]){
          * @note For now, all tasks are parsed even if the program is in console mode.
          *       This is useful as tasks like "spawn" or "echo" are directly executed.
          *       But might break for more complex tasks, so this should be taken into account later on,
-         *       e.G. inside the FuncTree, checking state of Renderer might be useful
+         *       e.G. inside the GlobalSpace, checking state of Renderer might be useful
          */
         if(!queueParsed){
             lastCriticalResult = globalSpace.parseQueue();

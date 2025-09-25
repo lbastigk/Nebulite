@@ -4,13 +4,13 @@
 //------------------------------------------
 // Update
 void Nebulite::DomainModule::JSON::ComplexData::update() {
-    // Add FuncTree-specific updates here!
+    // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
 }
 
 //------------------------------------------
-// FuncTree-Bound Functions
+// Domain-Bound Functions
 
 Nebulite::Constants::Error Nebulite::DomainModule::JSON::ComplexData::set_from_query(int argc, char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access

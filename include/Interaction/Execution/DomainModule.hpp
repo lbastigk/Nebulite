@@ -137,7 +137,9 @@ protected:
     //------------------------------------------
     // Linkages
     DomainType* domain;                                     // Workspace of the DomainModule
-    FuncTree<Nebulite::Constants::Error>* funcTree;    // Where to bind the expanded functions
+
+private:
+    FuncTree<Nebulite::Constants::Error>* funcTree;         // Where to bind the expanded functions
 };
 }   // namespace Interaction
 }   // namespace Execution

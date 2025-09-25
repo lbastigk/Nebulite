@@ -40,9 +40,11 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraf
     argv_new[1] = const_cast<char*>("spawn");
     argv_new[2] = const_cast<char*>(serial.c_str());
 
-    // Parse in globalspace
-    funcTree->parse(3, argv_new);
+    // Combine to new string, Parse in globalspace
+    std::string combined = std::string(argv_new[0]) + " " + argv_new[1] + " " + argv_new[2];
+    domain->parseStr(combined);
 
+    // Ignoring the return value for now
     return Nebulite::Constants::ErrorTable::NONE();
 }
 

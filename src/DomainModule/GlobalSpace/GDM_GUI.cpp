@@ -4,7 +4,7 @@
 //------------------------------------------
 // Update
 void Nebulite::DomainModule::GlobalSpace::GUI::update() {
-    // Add FuncTree-specific updates here!
+    // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
 

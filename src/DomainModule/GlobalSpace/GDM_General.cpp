@@ -5,13 +5,13 @@
 //------------------------------------------
 // Update
 void Nebulite::DomainModule::GlobalSpace::General::update() {
-    // Add FuncTree-specific updates here!
+    // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
 }
 
 //------------------------------------------
-// FuncTree-Bound Functions
+// Domain-Bound Functions
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::eval(int argc, char* argv[]){
     // argc/argv to string for evaluation
@@ -27,7 +27,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::eval(in
     std::string args_evaled = domain->invoke->evaluateStandaloneExpression(args);
 
     // reparse
-    return funcTree->parseStr(args_evaled);
+    return domain->parseStr(args_evaled);
 }
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::exitProgram(int argc, char* argv[]){
@@ -129,7 +129,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::forLoop
         for(int i = iStart; i <= iEnd; i++){
             // for + args
             args_replaced = funcName + " " + Nebulite::Utility::StringHandler::replaceAll(args, '{' + varName + '}', std::to_string(i));
-            funcTree->parseStr(args_replaced);
+            domain->parseStr(args_replaced);
         }
     }
     return Nebulite::Constants::ErrorTable::NONE();
@@ -159,7 +159,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::ifCondi
         }
     }
     commands = "Nebulite::DomainModule::GlobalSpace::General::ifCondition " + commands;
-    return funcTree->parseStr(commands);
+    return domain->parseStr(commands);
 }
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::func_assert(int argc, char* argv[]){

@@ -65,7 +65,7 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 	subscription_size = json.memberSize(Nebulite::Constants::keyName.renderObject.invokeSubscriptions.c_str());
 
 	//------------------------------------------
-    // Link inherited FuncTree json
+    // Link inherited Domains
     inherit<Nebulite::Utility::JSON>(&json);
 	inherit<Nebulite::Core::Texture>(&baseTexture);
 

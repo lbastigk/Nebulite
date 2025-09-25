@@ -38,7 +38,7 @@ public:
 
     //------------------------------------------
     /**
-     * @brief Dummy function for testing function definition collision detection of FuncTree.
+     * @brief Dummy function for testing function definition collision detection of bindFunction.
      * 
      * This function is intentionally left blank to test collision detection.
      * It is not meant to be bound in production code.
@@ -48,7 +48,7 @@ public:
      */
     Nebulite::Constants::Error set(int argc, char* argv[]) {
         // Binding a function with the name "set" is not allowed 
-        // as it already exists in the inherited FuncTree from JSON
+        // as it already exists in the inherited domain JSON
         return Nebulite::Constants::ErrorTable::NONE();
     }
 
@@ -167,11 +167,8 @@ public:
     // Setup
 
     /**
-     * @brief Initializes references to the domain and FuncTree, 
-     * and binds functions to the FuncTree.
+     * @brief Initializes the module, binding functions and variables. 
      */
-    //Debug(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) 
-    //: DomainModule(moduleName, domain, funcTreePtr)
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug){
         //------------------------------------------
         // Binding functions to the FuncTree
@@ -197,10 +194,10 @@ public:
         // Example Bindings that will fail
 
         // TEST: Binding an already existing sub-function
-        //bindFunction(&Debug::set, "set", "Dummy function to test binding with existing name in inherited FuncTree");  // <- THIS WILL FAIL
+        //bindFunction(&Debug::set, "set", "Dummy function to test binding with existing name in inherited Domain");  // <- THIS WILL FAIL
 
         // TEST: Binding an already existing function
-        //bindFunction(&Debug::set, "log", "Dummy function to test binding with existing name in own tree"); // <- THIS WILL FAIL
+        //bindFunction(&Debug::set, "log", "Dummy function to test binding with existing name in own Domain"); // <- THIS WILL FAIL
     }
 
 private:

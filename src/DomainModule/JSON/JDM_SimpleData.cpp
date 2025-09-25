@@ -5,13 +5,13 @@
 // Update
 void Nebulite::DomainModule::JSON::SimpleData::update() {
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
-    // Add FuncTree-specific updates here!
+    // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
 }
 
 //------------------------------------------
-// FuncTree-Bound Functions
+// Domain-Bound Functions
 
 //------------------------------------------
 // General set/get/remove functions
@@ -183,7 +183,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::push_back(i
     }
 
     if (domain->memberCheck(key) != Nebulite::Utility::JSON::KeyType::array) {
-        Nebulite::Constants::Error result = funcTree->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::push_back ensure-array " + key));
+        Nebulite::Constants::Error result = domain->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::push_back ensure-array " + key));
         if (result != Nebulite::Constants::ErrorTable::NONE()) {
             std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
             return result;
@@ -209,7 +209,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::pop_back(in
     std::string key = argv[1];
 
     if (domain->memberCheck(key) != Nebulite::Utility::JSON::KeyType::array) {
-        Nebulite::Constants::Error result = funcTree->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::pop_back ensure-array " + key));
+        Nebulite::Constants::Error result = domain->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::pop_back ensure-array " + key));
         if (result != Nebulite::Constants::ErrorTable::NONE()) {
             std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
             return result;
@@ -246,7 +246,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::push_front(
 
     
     if (domain->memberCheck(key) != Nebulite::Utility::JSON::KeyType::array) {
-        Nebulite::Constants::Error result = funcTree->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::push_front ensure-array " + key));
+        Nebulite::Constants::Error result = domain->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::push_front ensure-array " + key));
         if (result != Nebulite::Constants::ErrorTable::NONE()) {
             std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
             return result;
@@ -294,7 +294,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::pop_front(i
     std::string key = argv[1];
 
     if (domain->memberCheck(key) != Nebulite::Utility::JSON::KeyType::array) {
-        Nebulite::Constants::Error result = funcTree->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::pop_front ensure-array " + key));
+        Nebulite::Constants::Error result = domain->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::pop_front ensure-array " + key));
         if (result != Nebulite::Constants::ErrorTable::NONE()) {
             std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
             return result;

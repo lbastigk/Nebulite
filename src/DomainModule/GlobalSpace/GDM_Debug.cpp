@@ -4,13 +4,13 @@
 //------------------------------------------
 // Update
 void Nebulite::DomainModule::GlobalSpace::Debug::update() {
-    // Add FuncTree-specific updates here!
+    // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
 }
 
 //------------------------------------------
-// FuncTree-Bound Functions
+// Domain-Bound Functions
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::printGlobal(int argc, char* argv[]){
     std::cout << domain->getDoc()->serialize() << std::endl;

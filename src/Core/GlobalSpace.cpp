@@ -20,7 +20,7 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
     names.state  = "";
 
     //------------------------------------------
-    // Link inherited FuncTree in global
+    // Link inherited Domains
     inherit<Nebulite::Utility::JSON>(&global);
 
     //------------------------------------------

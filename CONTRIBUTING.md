@@ -83,7 +83,7 @@ Maintainers can create their own module classes and add them to a specific domai
 | Specific JSON-Documents          | Extend `JDM.hpp` by creating JSON DomainModules         | See `include/Utility/JSON.h` and its modules `include/DomainModule/JSON/JDM_*.h`                             |
 | Specific Textures                | Extend `TDM.hpp` by creating Texture DomainModules      | See `include/Core/Texture.h` and its modules `include/DomainModule/Texture/TDM_*.h`                          |
 
-Each DomainModule has access to a different set of functions through `funcTree->...` and a different domain through `domain->...`: 
+Each DomainModule has access to a different domain through `domain->...` and a different set of functions through `domain->parseStr(command)` : 
 - `GlobalSpace`  modules can access the global space
 - `RenderObject` modules can access the attached RenderObject
 - `JSON`         modules can access the attached JSON
@@ -178,12 +178,11 @@ public:
     // Setup
 
     /**
-     * @brief Initializes references to the domain and FuncTree, 
-     * and binds functions to the FuncTree.
+     * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, MyModule){
         //------------------------------------------
-        // Binding functions to the FuncTree
+        // Binding functions to the Domain
         bindFunction(&MyModule::spawnCircle, "spawn-circle", "Spawn a circle");
         /*Bind more functions of MyModule here*/
         /*You can also implement sublevels to the command using the subtree feature:*/
@@ -214,8 +213,6 @@ Nebulite::Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::MyModu
     Implementation here.
     You can access domain and its members through: 
     `domain->...`
-    As well as the funcTree through: 
-    `funcTree->...`
     */
 }
 ```
