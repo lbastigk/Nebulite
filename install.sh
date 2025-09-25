@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 echo "    _   ____________  __  ____    ________________     _____   ________________    __    __ ";
 echo "   / | / / ____/ __ )/ / / / /   /  _/_  __/ ____/    /  _/ | / / ___/_  __/   |  / /   / / ";
 echo "  /  |/ / __/ / __  / / / / /    / /  / / / __/       / //  |/ /\__ \ / / / /| | / /   / /  ";
@@ -10,6 +10,10 @@ if [ "$EUID" -eq 0 ]; then
   echo "This script should NOT be run as root or with sudo. Please run as a regular user."
   exit 1
 fi
+
+# Set error message on exit
+PROGRESS="Starting"
+trap 'echoerr "An error occurred at $PROGRESS. Exiting..."; exit 1;' ERR
 
 ####################################
 # Removing old installations of local files
@@ -27,6 +31,7 @@ echoerr() { echo "$@" 1>&2; }
 
 ####################################
 # Checking prerequisites
+PROGRESS="Checking prerequisites"
 if [[ "$PWD" =~ [[:space:]] ]]; then
   echo "Error: SDL2 and some build tools like libtool may fail in directories with whitespace."
   echo "Please move your source or build directory to a path without spaces."
@@ -35,47 +40,78 @@ fi
 
 ####################################
 # install necessary components
-sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get install cmake automake build-essential autoconf libtool m4 perl mingw-w64 gcc-mingw-w64 g++-mingw-w64 python3 python3-pip python3-numpy libasound2-dev libpulse-dev
+PROGRESS="Installing necessary components"
+
+# Define package lists for each distro
+APT_PACKAGES="cmake automake build-essential autoconf libtool m4 perl mingw-w64 gcc-mingw-w64 g++-mingw-w64 python3 python3-pip python3-numpy libasound2-dev libpulse-dev"
+DNF_PACKAGES="cmake automake @development-tools autoconf libtool m4 perl mingw64-gcc mingw64-gcc-c++ python3 python3-pip python3-numpy alsa-lib-devel pulseaudio-libs-devel"
+YUM_PACKAGES="cmake automake @development-tools autoconf libtool m4 perl mingw64-gcc mingw64-gcc-c++ python3 python3-pip python3-numpy alsa-lib-devel pulseaudio-libs-devel"
+
+if command -v apt-get >/dev/null; then
+    PACKAGE_MANAGER="apt"
+elif command -v dnf >/dev/null; then
+    PACKAGE_MANAGER="dnf"
+elif command -v yum >/dev/null; then
+    PACKAGE_MANAGER="yum"
+else
+    echo "Unsupported package manager. Please install dependencies manually."
+    sleep 5
+    PACKAGE_MANAGER="unknown"
+fi
+
+case $PACKAGE_MANAGER in
+    apt)
+        sudo apt-get update
+        sudo apt-get upgrade
+        sudo apt-get install $APT_PACKAGES
+        if [ $? -ne 0 ]; then
+            echoerr "Error installing packages with apt-get. Please check your package manager settings."
+            sleep 10
+        fi
+        ;;
+    dnf)
+        sudo dnf install $DNF_PACKAGES
+        if [ $? -ne 0 ]; then
+            echoerr "Error installing packages with dnf. Please check your package manager settings."
+            sleep 10
+        fi
+        ;;
+    yum)
+        sudo yum install $YUM_PACKAGES
+        if [ $? -ne 0 ]; then
+            echoerr "Error installing packages with yum. Please check your package manager settings."
+            sleep 10
+        fi
+        ;;
+    unknown)
+        echo "Please ensure the following packages are installed:"
+        echo "$APT_PACKAGES"
+        sleep 10
+        ;;
+esac
 
 ####################################
-# Set Start directory
-START_DIR=$(pwd)
+# Setting up directories
+PROGRESS="Setting up directories"
 
-####################################
+ROOT_DIR=$(pwd)
+
 # Basic directories
 mkdir -p ./.build
+mkdir -p ./.build/SDL2
 mkdir -p ./bin
 mkdir -p ./external
 
-####################################
-# Synonyms for SDL_ttf
-
-# Ensure aclocal-1.16 and automake-1.16 are available as symlinks if only unversioned ones exist
-if ! command -v aclocal-1.16 >/dev/null 2>&1; then
-    aclocal_path=$(command -v aclocal)
-    if [ -n "$aclocal_path" ]; then
-        ln -sf "$aclocal_path" "$HOME/.local/bin/aclocal-1.16"
-        export PATH="$HOME/.local/bin:$PATH"
-    fi
-fi
-if ! command -v automake-1.16 >/dev/null 2>&1; then
-    automake_path=$(command -v automake)
-    if [ -n "$automake_path" ]; then
-        ln -sf "$automake_path" "$HOME/.local/bin/automake-1.16"
-        export PATH="$HOME/.local/bin:$PATH"
-    fi
-fi
-
-####################################
 # Resources directory
 cd ./Resources      || exit 1
 ../Scripts/CreateResourcesDirectory.sh   || exit 1
-cd "$START_DIR"
+cd "$ROOT_DIR"
+
 
 ####################################
 # Submodules: Init
+PROGRESS="Initializing git submodules"
+
 git submodule update --init --recursive
 set -e
 
@@ -88,234 +124,33 @@ done
 externalsDir=$(pwd)/external
 
 ####################################
-# Submodules: SDL: Externals
-cd "$externalsDir/SDL_ttf/external/"
-FREETYPE_SIZE=$(du -k ./freetype 2>/dev/null | awk '{print $1}')
-HARFBUZZ_SIZE=$(du -k ./harfbuzz 2>/dev/null | awk '{print $1}')
+# Submodules: SDL2
+PROGRESS="Setting up SDL2"
 
-if [ "$FREETYPE_SIZE" -lt 10 ] || [ "$HARFBUZZ_SIZE" -lt 10 ]; then
-    echo "[INFO] freetype or harfbuzz missing or too small — downloading..."
-    rm -rf ./freetype/
-    rm -rf ./harfbuzz/
-    ./download.sh
-else
-    echo "[SUCCESS] freetype and harfbuzz already exist and are large enough, skipping download."
-fi
+cd "$externalsDir/SDL_Crossplatform_Local" || exit 1
+Scripts/install.sh          || exit 1
+#Scripts/build.sh            || exit 1 # Not needed, but helpful to see if basic SDL applications work
+#Scripts/test_binaries.sh    || exit 1 # Tests the from build.sh created binaries
 
-cd "$externalsDir"
+cd "$ROOT_DIR"
+cp -r "$externalsDir/SDL_Crossplatform_Local/build/SDL2/"* .build/SDL2/
+
 
 ####################################
-# Submodules: SDL
-# Creates builds:
-# ./external/SDL2_build/static/
-# ./external/SDL2_build/shared/
-# ./external/SDL2_build/shared_windows/
-
-# Reset
-rm -rf "$externalsDir/SDL2_build"
-mkdir -p "$externalsDir/SDL2_build"
-git submodule foreach --recursive git reset --hard
-git submodule foreach --recursive git clean -fdx
-
-####################################
-# Submodules: SDL: SDL2 static-native
-echo ""
-echo "---------------------------------------------------"
-echo "[INFO] Building SDL2 static-native"
-cd "$externalsDir/SDL2"
-[ -f Makefile ] && make clean || true
-[ -f configure ] || ./autogen.sh
-#autoreconf -f -i
-./configure --prefix="$externalsDir/SDL2_build/static" --enable-static --disable-shared CFLAGS=-fPIC
-make -j"$(nproc)" || { echoerr "[ERROR] SDL2 static-native failed"; exit 1; }
-make install      || { echoerr "[ERROR] SDL2 static-native failed (install)"; exit 1; }
-
-####################################
-# Submodules: SDL: SDL2 shared-native
-echo ""
-echo "---------------------------------------------------"
-echo "[INFO] Building SDL2 shared-native"
-cd "$externalsDir/SDL2"
-[ -f Makefile ] && make clean || true
-[ -f configure ] || ./autogen.sh
-#autoreconf -f -i
-./configure --prefix="$externalsDir/SDL2_build/shared" --disable-static --enable-shared CFLAGS=-fPIC
-make -j"$(nproc)" || { echoerr "[ERROR] SDL2 shared-native failed"; exit 1; }
-make install      || { echoerr "[ERROR] SDL2 shared-native failed (install)"; exit 1; }
-
-####################################
-# Submodules: SDL: SDL_ttf static-native
-echo ""
-echo "---------------------------------------------------"
-echo "[INFO] Building SDL_ttf static-native"
-cd "$externalsDir/SDL_ttf"
-[ -f Makefile ] && make clean || true
-[ -f configure ] || ./autogen.sh
-autoreconf -f -i
-./configure --prefix="$externalsDir/SDL2_build/static" --enable-static --disable-shared CFLAGS=-fPIC --with-sdl-prefix="$externalsDir/SDL2_build/shared"
-make -j"$(nproc)" || { echoerr "[ERROR] SDL_ttf static-native failed"; exit 1; }
-make install      || { echoerr "[ERROR] SDL_ttf static-native failed (install)"; exit 1; }
-
-####################################
-# Submodules: SDL: SDL_ttf shared-native
-echo ""
-echo "---------------------------------------------------"
-echo "[INFO] Building SDL_ttf shared-native"
-cd "$externalsDir/SDL_ttf"
-[ -f Makefile ] && make clean || true
-[ -f configure ] || ./autogen.sh
-autoreconf -f -i
-./configure --prefix="$externalsDir/SDL2_build/shared" --disable-static --enable-shared CFLAGS=-fPIC --with-sdl-prefix="$externalsDir/SDL2_build/shared"
-make -j"$(nproc)" || { echoerr "[ERROR] SDL_ttf shared-native failed"; exit 1; }
-make install      || { echoerr "[ERROR] SDL_ttf shared-native failed (install)"; exit 1; }
-
-####################################
-# Submodules: SDL: SDL_image static-native
-echo ""
-echo "---------------------------------------------------"
-echo "[INFO] Building SDL_image static-native"
-cd "$externalsDir/SDL_image"
-[ -f Makefile ] && make clean || true
-[ -f configure ] || ./autogen.sh
-autoreconf -f -i
-./configure --prefix="$externalsDir/SDL2_build/static" --enable-static --disable-shared CFLAGS=-fPIC --with-sdl-prefix="$externalsDir/SDL2_build/shared"
-make -j"$(nproc)" || { echoerr "[ERROR] SDL_image static-native failed"; exit 1; }
-make install      || { echoerr "[ERROR] SDL_image static-native failed (install)"; exit 1; }
-
-####################################
-# Submodules: SDL: SDL_image shared-native
-echo ""
-echo "---------------------------------------------------"
-echo "[INFO] Building SDL_image shared-native"
-cd "$externalsDir/SDL_image"
-[ -f Makefile ] && make clean || true
-[ -f configure ] || ./autogen.sh
-autoreconf -f -i
-./configure --prefix="$externalsDir/SDL2_build/shared" --disable-static --enable-shared CFLAGS=-fPIC --with-sdl-prefix="$externalsDir/SDL2_build/shared"
-make -j"$(nproc)" || { echoerr "[ERROR] SDL_image shared-native failed"; exit 1; }
-make install      || { echoerr "[ERROR] SDL_image shared-native failed (install)"; exit 1; }
-
-####################################
-# Submodules: SDL: Reset for windows
-git submodule foreach --recursive git reset --hard
-git submodule foreach --recursive git clean -fdx
-
-####################################
-# Submodules: SDL: SDL2 cross-compile
-echo ""
-echo "---------------------------------------------------"
-echo "[INFO] Building SDL2 cross-compile"
-cd "$externalsDir/SDL2"
-[ -f Makefile ] && make clean || true
-[ -f configure ] || ./autogen.sh
-#autoreconf -f -i
-./configure --prefix="$externalsDir/SDL2_build/shared_windows" --disable-static --enable-shared --host=x86_64-w64-mingw32
-make -j"$(nproc)" || { echoerr "[ERROR] SDL2 cross-compile failed"; exit 1; }
-make install      || { echoerr "[ERROR] SDL2 cross-compile failed (install)"; exit 1; }
-
-####################################
-# Submodules: SDL: SDL_ttf cross-compile
-echo ""
-echo "---------------------------------------------------"
-echo "[INFO] Building SDL_ttf cross-compile"
-unset CFLAGS CPPFLAGS LDFLAGS PKG_CONFIG_PATH PKG_CONFIG_LIBDIR
-sdl2_win_prefix="$externalsDir/SDL2_build/shared_windows"
-export PKG_CONFIG_LIBDIR="${sdl2_win_prefix}/lib/pkgconfig"
-export PKG_CONFIG_PATH="${sdl2_win_prefix}/lib/pkgconfig"
-export SDL2_CONFIG=/bin/false
-
-cd "$externalsDir/SDL_ttf"
-[ -f Makefile ] && make clean || true
-[ -f configure ] || ./autogen.sh
-autoreconf -f -i
-
-CPPFLAGS="-I${sdl2_win_prefix}/include -I${sdl2_win_prefix}/include/SDL2" \
-LDFLAGS="-L${sdl2_win_prefix}/lib -lSDL2" \
-./configure --prefix="$externalsDir/SDL2_build/shared_windows" \
-    --disable-static --enable-shared \
-    --host=x86_64-w64-mingw32 \
-    --with-sdl-prefix="${sdl2_win_prefix}"
-
-sed -i -E 's/(,)?-Wl,--enable-new-dtags(,)?//g; s/(,)?--enable-new-dtags(,)?//g' libtool Makefile
-# Remove example programs to avoid WinMain error
-sed -i '/^bin_PROGRAMS/s/showfont\.exe//g' Makefile
-sed -i '/^bin_PROGRAMS/s/glfont\.exe//g' Makefile
-sed -i '/^noinst_PROGRAMS/s/showfont\.exe//g' Makefile
-sed -i '/^noinst_PROGRAMS/s/glfont\.exe//g' Makefile
-
-make -j"$(nproc)" || { echoerr "SDL_ttf encountered an error, assuming non-critical and continuing..."; }
-
-mkdir -p "$externalsDir/SDL2_build/shared_windows/bin" "$externalsDir/SDL2_build/shared_windows/lib"
-dllfile=$(ls .libs/libSDL2_ttf-*.dll 2>/dev/null | head -n1)
-if [ -n "$dllfile" ]; then
-    cp "$dllfile" "$externalsDir/SDL2_build/shared_windows/bin/"
-else
-    echoerr "[ERROR] SDL_ttf cross-compile failed: no dll file found"
-    exit 1
-fi
-cp .libs/*.dll.a   "$externalsDir/SDL2_build/shared_windows/lib/"              || { echoerr "[ERROR] SDL_ttf cross-compile failed: no dll.a file found"; exit 1; }
-cp SDL_ttf.h       "$externalsDir/SDL2_build/shared_windows/include/SDL2/"     || { echoerr "[ERROR] SDL_ttf cross-compile failed: no header file found"; exit 1; }
-
-####################################
-# Submodules: SDL: SDL_image cross-compile
-echo ""
-echo "---------------------------------------------------"
-echo "[INFO] Building SDL_image cross-compile"
-cd "$externalsDir/SDL_image"
-unset CFLAGS CPPFLAGS LDFLAGS PKG_CONFIG_PATH PKG_CONFIG_LIBDIR
-sdl2_win_prefix="$externalsDir/SDL2_build/shared_windows"
-export PKG_CONFIG_LIBDIR="${sdl2_win_prefix}/lib/pkgconfig"
-export PKG_CONFIG_PATH="${sdl2_win_prefix}/lib/pkgconfig"
-export SDL2_CONFIG=/bin/false
-
-cd "$externalsDir/SDL_image"
-[ -f Makefile ] && make clean || true
-[ -f configure ] || ./autogen.sh
-autoreconf -f -i
-
-CPPFLAGS="-I${sdl2_win_prefix}/include -I${sdl2_win_prefix}/include/SDL2" \
-LDFLAGS="-L${sdl2_win_prefix}/lib -lSDL2" \
-./configure --prefix="$externalsDir/SDL2_build/shared_windows" \
-    --disable-static --enable-shared \
-    --host=x86_64-w64-mingw32 \
-    --with-sdl-prefix="${sdl2_win_prefix}"
-
-sed -i -E 's/(,)?-Wl,--enable-new-dtags(,)?//g; s/(,)?--enable-new-dtags(,)?//g' libtool Makefile
-# Remove example programs to avoid WinMain error
-sed -i '/^bin_PROGRAMS/s/showfont\.exe//g' Makefile
-sed -i '/^bin_PROGRAMS/s/glfont\.exe//g' Makefile
-sed -i '/^noinst_PROGRAMS/s/showfont\.exe//g' Makefile
-sed -i '/^noinst_PROGRAMS/s/glfont\.exe//g' Makefile
-
-make -j"$(nproc)" || { echoerr "SDL_image encountered an error, assuming non-critical and continuing..."; }
-
-mkdir -p "$externalsDir/SDL2_build/shared_windows/bin" "$externalsDir/SDL2_build/shared_windows/lib"
-dllfile=$(ls .libs/libSDL2_image-*.dll 2>/dev/null | head -n1)
-if [ -n "$dllfile" ]; then
-    cp "$dllfile" "$externalsDir/SDL2_build/shared_windows/bin/"
-else
-    echoerr "[ERROR] SDL_image cross-compile failed: no dll file found"
-    exit 1
-fi
-cp .libs/*.dll.a        "$externalsDir/SDL2_build/shared_windows/lib/"              || { echoerr "[ERROR] SDL_image cross-compile failed: no dll.a file found"; exit 1; }
-cp include/SDL_image.h  "$externalsDir/SDL2_build/shared_windows/include/SDL2/"     || { echoerr "[ERROR] SDL_image cross-compile failed: no header file found"; exit 1; }
-
-####################################
-# Submodules: SDL: Another Reset of submodules after build
-cd "$START_DIR"
-git submodule foreach --recursive git reset --hard
-git submodule foreach --recursive git clean -fdx
-
-####################################
-# create binaries
-cd "$START_DIR"
+# Building the project
+PROGRESS="Building the project"
+cd "$ROOT_DIR"
 ./build.sh    || { echoerr "build.sh failed";      exit 1; }
 
 ####################################
 # Copy necessary dlls
-cd "$START_DIR"
-if [ -f /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll ]; then
-    cp /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll ./bin/
+PROGRESS="Copying necessary DLLs"
+cd "$ROOT_DIR"
+
+PATTERN=$(find /usr/*x86* -type f -name libwinpthread-1.dll | head -n 1)
+
+if [ -f "$PATTERN" ]; then
+    cp "$PATTERN" ./bin/
 else
     echoerr "libwinpthread-1.dll not found in /usr/x86_64-w64-mingw32/lib/"
     exit 1;
@@ -323,16 +158,21 @@ fi
 
 ####################################
 # make all scripts executable
-cd "$START_DIR"
+PROGRESS="Making scripts executable"
+cd "$ROOT_DIR"
 find ./Scripts/ -type f -iname "*.sh" -exec chmod +x {} \;
 
 ####################################
 # Run tests
-cd "$START_DIR"
+PROGRESS="Running tests"
+cd "$ROOT_DIR"
 python ./Scripts/validate_json.py
 python ./Scripts/Tests.py
 
 ####################################
+# Finishing up
+PROGRESS="Finishing up"
+
 # Show runtime
 end=`date +%s`
 runtime=$((end-start))

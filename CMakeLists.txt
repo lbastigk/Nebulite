@@ -47,16 +47,14 @@ message(STATUS "Starting configuration for project Nebulite")
 
 ############################################################
 # Shortcut paths to external dependencies
-set(SDL2_BUILD_PATH     "${CMAKE_SOURCE_DIR}/external/SDL2_build")
+set(SDL2_BUILD_PATH     "${CMAKE_SOURCE_DIR}/.build/SDL2")
 set(RAPIDJSON_PATH      "${CMAKE_SOURCE_DIR}/external/rapidjson")
 set(EXPRTK_PATH         "${CMAKE_SOURCE_DIR}/external/exprtk")
 set(TINYEXPR_PATH       "${CMAKE_SOURCE_DIR}/external/tinyexpr")
 set(ABSEIL_PATH         "${CMAKE_SOURCE_DIR}/external/abseil")
-#set(ABSEIL_BUILD_PATH   "${CMAKE_SOURCE_DIR}/external/abseil_build")
 
 ############################################################
 # Subdirectories
-# TODO: Perhaps including SDL directly is easier...
 add_subdirectory(${ABSEIL_PATH})
 
 ############################################################
@@ -151,14 +149,22 @@ elseif(UNIX)
     message(STATUS "Targeting Linux")
 
     target_include_directories(Nebulite PRIVATE
-        ${SDL2_BUILD_PATH}/shared/include/SDL2
+        ${SDL2_BUILD_PATH}/static_linux/include/SDL2
     )
 
     target_link_libraries(Nebulite PRIVATE
-        "${SDL2_BUILD_PATH}/static/lib/libSDL2main.a"
-        "${SDL2_BUILD_PATH}/static/lib/libSDL2_ttf.a"
-        "${SDL2_BUILD_PATH}/static/lib/libSDL2_image.a"
-        "${SDL2_BUILD_PATH}/static/lib/libSDL2.a"
+        "${SDL2_BUILD_PATH}/static_linux/lib/libSDL2main.a"
+        "${SDL2_BUILD_PATH}/static_linux/lib/libSDL2_ttf.a"
+        "${SDL2_BUILD_PATH}/static_linux/lib/libSDL2_image.a"
+        "${SDL2_BUILD_PATH}/static_linux/lib/libSDL2.a"
+        "${SDL2_BUILD_PATH}/static_linux/deps/freetype/lib/libfreetype.a"
+        "${SDL2_BUILD_PATH}/static_linux/deps/harfbuzz/lib/libharfbuzz.a"
+        # libfreetype depends on zlib, libpng, bzip2 and brotli
+        z
+        png
+        bz2
+        brotlidec
+        m
     )
 ##################
 # UNKNOWN        #
@@ -169,4 +175,3 @@ else()
     # exit
     exit(1)
 endif()
-
