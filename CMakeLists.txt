@@ -55,7 +55,6 @@ set(ABSEIL_PATH         "${CMAKE_SOURCE_DIR}/external/abseil")
 
 ############################################################
 # Subdirectories
-# TODO: Perhaps including SDL directly is easier...
 add_subdirectory(${ABSEIL_PATH})
 
 ############################################################
@@ -176,4 +175,3 @@ else()
     # exit
     exit(1)
 endif()
-
