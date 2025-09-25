@@ -556,6 +556,21 @@ private:
          */
         static rapidjson::Value* ensure_path(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
+        /**
+         * @brief Traverses a rapidjson value to find the parent of a value identified by its key.
+         * 
+         * - parent.child           -> returns parent,       finalKey = child, arrayIndex = -1
+         * - parent.child[index]    -> returns parent.child, finalKey = child, arrayIndex = index
+         * - parent[index]          -> returns parent,       finalKey = "",    arrayIndex = index
+         * 
+         * @param key The key to search for.
+         * @param root The rapidjson value to search within.
+         * @param finalKey The final key or index of the value to find the parent of.
+         * @param arrayIndex The index if the final key is an array index, -1 otherwise.
+         * @return A pointer to the parent rapidjson value, or nullptr if not found
+         */
+        static rapidjson::Value* traverse_to_parent(const char* fullKey, rapidjson::Value& root, std::string& finalKey, int& arrayIndex);
+
         //------------------------------------------
         // Serialization/Deserialization
 
