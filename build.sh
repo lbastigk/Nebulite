@@ -18,10 +18,7 @@ build_type="None"
 ################################################
 # Check if ./install.sh has been run
 # Should exist on installation:
-# ./bin 
-# ./external/SDL2_build
-# ./external/abseil_build
-if [ ! -d "./bin" ] || [ ! -d ".build/SDL2" ]; then
+if [ ! -d "bin/" ] || [ ! -d ".build/SDL2" ]; then
     echo "Please run ./install.sh first to set up the environment."
     exit 1
 fi
