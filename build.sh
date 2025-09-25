@@ -125,8 +125,8 @@ if [[ "$minimal_build" == false ]]; then
     build_type="Windows Debug"
     build_debug_windows
 
-    # Copy dlls from install.sh-created SDL2_build into the application bin
-    cp external/SDL_Crossplatform_Local/bin/*.dll ./bin/
+    # Copy necessary dlls
+    cp ./.build/SDL2/bin/*.dll ./bin/
 fi
 
 echo "Build done!"

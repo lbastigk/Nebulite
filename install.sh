@@ -19,7 +19,7 @@ trap 'echoerr "An error occurred at $PROGRESS. Exiting..."; exit 1;' ERR
 # Removing old installations of local files
 rm -rf ./.build
 rm -rf ./bin
-rm -rf ./external
+#rm -rf ./external #  Uncomment if you want to force re-download of externals
 
 ####################################
 # starttime of script
@@ -129,32 +129,33 @@ PROGRESS="Setting up SDL2"
 
 cd "$externalsDir/SDL_Crossplatform_Local" || exit 1
 Scripts/install.sh          || exit 1
-#Scripts/build.sh            || exit 1 # Not needed, but helpful to see if basic SDL applications work
+Scripts/build.sh            || exit 1 # Creates simple SDL2 applications and places all necessary dll files into bin/
 #Scripts/test_binaries.sh    || exit 1 # Tests the from build.sh created binaries
 
 cd "$ROOT_DIR"
 cp -r "$externalsDir/SDL_Crossplatform_Local/build/SDL2/"* .build/SDL2/
 
+####################################
+# Place dlls into .build directory
+mkdir -p ./.build/SDL2/bin
+
+# Copy dlls from install.sh-created SDL2_build into the application bin
+cp external/SDL_Crossplatform_Local/bin/*.dll ./.build/SDL2/bin/
+
+# Copy libwinpthread-1.dll if it exists
+PATTERN=$(find /usr/*x86* -type f -name libwinpthread-1.dll | head -n 1)
+if [ -f "$PATTERN" ]; then
+    cp "$PATTERN" ./.build/SDL2/bin/
+else
+    echoerr "libwinpthread-1.dll not found in /usr/x86_64-w64-mingw32/lib/"
+    #exit 1;
+fi
 
 ####################################
 # Building the project
 PROGRESS="Building the project"
 cd "$ROOT_DIR"
 ./build.sh    || { echoerr "build.sh failed";      exit 1; }
-
-####################################
-# Copy necessary dlls
-PROGRESS="Copying necessary DLLs"
-cd "$ROOT_DIR"
-
-PATTERN=$(find /usr/*x86* -type f -name libwinpthread-1.dll | head -n 1)
-
-if [ -f "$PATTERN" ]; then
-    cp "$PATTERN" ./bin/
-else
-    echoerr "libwinpthread-1.dll not found in /usr/x86_64-w64-mingw32/lib/"
-    exit 1;
-fi
 
 ####################################
 # make all scripts executable
