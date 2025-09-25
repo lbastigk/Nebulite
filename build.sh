@@ -143,7 +143,21 @@ fi
 # INFO
 
 # Inform about lines of code:
-CLOC_SETTINGS="--force-lang-def=./nebulite-script-vscode/cloc_lang_define.txt Resources/ TaskFiles/ src/ include/ Scripts/"
+
+# Custom lang define, counting:
+# - custom .nebs files
+# - c++ source files
+# - c++ header files
+# - .sh and .py scripts
+# - custom external for SDL compilation
+CLOC_SETTINGS="--force-lang-def=./nebulite-script-vscode/cloc_lang_define.txt \
+    Resources/ \
+    TaskFiles/ \
+    src/ \
+    include/ \
+    Scripts/ \
+    external/SDL_Crossplatform_Local/Scripts/ \
+    external/SDL_Crossplatform_Local/src/"
 echo ""
 echo ""
 echo "Lines of code for Project + Tests:"
