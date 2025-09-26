@@ -30,7 +30,7 @@
 //------------------------------------------
 // Forward declarations
 namespace Nebulite {
-  namespace Core{
+  namespace Core {
     class RenderObject;
   }
 }
@@ -61,6 +61,26 @@ namespace Interaction{
  * Invoke entries are designed to be lightweight and easily modifiable, allowing for rapid iteration and experimentation.
  * They are encoded in a JSON format for easy manipulation and storage.
  * 
+ * @todo Static and typed invokes
+ *       Static invokes point to a predefined function in the engine, e.g. `gravity`, `collision`, `hitbox`.
+ *       Typed invokes are loaded from a json file
+ *       This allows us to either have a fast, hardcoded invoke or a flexible, user-defined one.
+ * Examples:
+ * ```cpp
+ * void StaticInvokeExample(GlobalSpace* global, RenderObject* self, RenderObject* other){
+ *     // Full implementation of a static invoke
+ *     // Using:
+ *     // domain->set<type>(key, value);         for setting values
+ *     // domain->get<type>(key, defaultValue);  for getting values
+ *     // domain->getDoublePointer(key);         for quick access to a double value, perhaps faster?
+ *     // domain->parseStr(commandStr);          for executing a nebulite command
+ * }
+ * ```
+ * Then we link them with an std::map and each ParsedEntry is either static or typed.
+ * Using a flag inside ParsedEntry to determine which one it is.
+ * If the Deserializer encounters an entry in the Array of invokes that is a string, it looks it up in the map and links it.
+ * If it is not found, perhaps linking to an "Error" static invoke that just prints an error message/returns a Nebulite::Constants::Error.
+ * 
  * @todo Improve language clarity: Use consistent terminology for "domains/document/target" throughout the documentation.
  */
 class Invoke{
@@ -80,7 +100,7 @@ public:
      * 
      * @param queue Reference to the global queue.
      */
-    void linkQueue(std::deque<std::string>& queue){tasks = &queue;}
+    void linkTaskQueue(std::deque<std::string>& queue){tasks = &queue;}
 
     /**
      * @brief Clears all broadcasted invoke entries and pairs.
@@ -98,7 +118,7 @@ public:
     /**
      * @brief Gets the global queue for function calls.
      */
-    std::deque<std::string>* getQueue(){return tasks;};
+    std::deque<std::string>* getTaskQueue(){return tasks;};
     
     //------------------------------------------
     // Send/Listen
@@ -185,10 +205,10 @@ public:
      * @param doc The JSON document to update.
      */
     void updateValueOfKey(
-      Nebulite::Interaction::Logic::Assignment::Operation operation, 
-      const std::string& key, 
-      const std::string& valStr, 
-      Nebulite::Utility::JSON* doc
+        Nebulite::Interaction::Logic::Assignment::Operation operation, 
+        const std::string& key, 
+        const std::string& valStr, 
+        Nebulite::Utility::JSON* doc
     );
 
     /**
@@ -203,10 +223,10 @@ public:
      * @param doc The JSON document to update.
      */
     void updateValueOfKey(
-      Nebulite::Interaction::Logic::Assignment::Operation operation, 
-      const std::string& key, 
-      double value, 
-      Nebulite::Utility::JSON* doc
+        Nebulite::Interaction::Logic::Assignment::Operation operation, 
+        const std::string& key, 
+        double value, 
+        Nebulite::Utility::JSON* doc
     );
 
     /**
@@ -259,15 +279,15 @@ private:
 
     // Current and next commands
     absl::flat_hash_map<
-      std::string, 
-      std::vector<
+        std::string, 
+        std::vector<
         std::shared_ptr<Nebulite::Interaction::ParsedEntry>
       >
     > entries_global;
 
     absl::flat_hash_map<
-      std::string, 
-      std::vector<
+        std::string, 
+        std::vector<
         std::shared_ptr<Nebulite::Interaction::ParsedEntry>
       >
     > entries_global_next; 

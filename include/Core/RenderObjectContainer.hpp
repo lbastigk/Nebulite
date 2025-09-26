@@ -230,7 +230,9 @@ private:
 	 * 
 	 * - Delete
 	 * 
-	 * @todo: Just trash should be enough to resolve all existing references
+	 * Just trash should be enough to resolve all existing references, but we keep this structure for now.
+	 * Perhaps in the future we wish to add a restore option, and thus dont delete purgatory right away.
+	 * Or new mechanisms that require a 2-step deletion.
 	 */
 	struct DeletionProcess{
 		//std::vector<Nebulite::Core::RenderObject*> to_delete;

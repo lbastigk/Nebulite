@@ -3,11 +3,9 @@
         {
             "name": "Linux",
             "includePath": [
-                "/usr/include/c++/13/",
-                "/usr/include/x86_64-linux-gnu/c++/13/",
                 "/usr/include/",
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/external/SDL2_build/static/include/SDL2",
+                "${workspaceFolder}/.build/SDL2/static_linux/include/SDL2",
                 "${workspaceFolder}/external/rapidjson/include/rapidjson",
                 "${workspaceFolder}/external/tinyexpr",
                 "${workspaceFolder}/external/abseil",

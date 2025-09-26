@@ -18,10 +18,7 @@ build_type="None"
 ################################################
 # Check if ./install.sh has been run
 # Should exist on installation:
-# ./bin 
-# ./external/SDL2_build
-# ./external/abseil_build
-if [ ! -d "./bin" ] || [ ! -d "./external/SDL2_build" ]; then
+if [ ! -d "bin/" ] || [ ! -d ".build/SDL2" ]; then
     echo "Please run ./install.sh first to set up the environment."
     exit 1
 fi
@@ -72,7 +69,6 @@ function build_release() {
     strip "./bin/Nebulite"
 }
 
-
 function build_debug_windows() {
       clean_src "./.build/windows-debug/Nebulite.exe" "windows-debug"
       cmake -DCMAKE_BUILD_TYPE=Debug \
@@ -89,9 +85,6 @@ function build_release_windows() {
             -B ./.build/windows-release -S .
       cmake --build ./.build/windows-release -j$(nproc)
       cp ./.build/windows-release/Nebulite.exe ./bin/Nebulite.exe
-
-      # Copy dlls from install.sh-created SDL2_build into the application bin
-      cp external/SDL2_build/shared_windows/bin/*.dll ./bin/
 }
 
 function generate_standards() {
@@ -128,9 +121,15 @@ if [[ "$minimal_build" == false ]]; then
     echo "Step 4: Building Windows debug binary"
     build_type="Windows Debug"
     build_debug_windows
+
+    # Copy necessary dlls
+    cp ./.build/SDL2/bin/*.dll ./bin/
 fi
 
 echo "Build done!"
+
+#############################################################
+# STANDARDS
 
 if [[ "$minimal_build" == false ]]; then
     echo ""
@@ -140,8 +139,29 @@ if [[ "$minimal_build" == false ]]; then
     echo ""
 fi
 
+#############################################################
+# INFO
+
 # Inform about lines of code:
+
+# Custom lang define, counting:
+# - custom .nebs files
+# - c++ source files
+# - c++ header files
+# - .sh and .py scripts
+# - custom external for SDL compilation
+CLOC_SETTINGS="--force-lang-def=./nebulite-script-vscode/cloc_lang_define.txt \
+    Resources/ \
+    TaskFiles/ \
+    src/ \
+    include/ \
+    Scripts/ \
+    external/SDL_Crossplatform_Local/Scripts/ \
+    external/SDL_Crossplatform_Local/src/"
 echo ""
 echo ""
 echo "Lines of code for Project + Tests:"
-cloc --force-lang-def=./nebulite-script-vscode/cloc_lang_define.txt Resources/ TaskFiles/ src/ include/ Scripts/
+cloc $CLOC_SETTINGS 2>/dev/null
+echo ""
+cloc $CLOC_SETTINGS --csv 2>/dev/null | tail -1 | awk -F',' '{total=$3+$4+$5; print "Total lines (including comments and blanks): " total}' 2>/dev/null
+echo ""

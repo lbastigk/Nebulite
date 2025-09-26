@@ -28,13 +28,6 @@
  * ./main someOtherFunction //-> cout: "Function not found",
  *                          //   cerr: "Function 'someOtherFunction' not found."
  * ```
- * 
- * @todo Going away from classic C-style argc/argv to a more modern approach might be
- * - std::vector<std::string> callTrace // shows the call trace of the function, e.g.: "Nebulite", "eval", "echo"
- * - std::vector<std::string> args      // shows the arguments of the function, e.g.: "echo", "Hello World!"
- * - std::vector<std::string> variables // shows the variables set by the user, e.g.: {"--verbose": "true"}
- * 
- * @todo Allow for longer descriptions via an extra argument: descLong
  */
 
 #pragma once
@@ -84,6 +77,10 @@ namespace Execution{
 template<typename RETURN_TYPE>
 class FuncTree{
 public:
+    // Make sure all FuncTrees are friends
+    template<typename RT>
+    friend class FuncTree;
+
     /**
      * @brief Constructor for the FuncTree class.
      * @param treeName Name of the tree
@@ -96,7 +93,7 @@ public:
      * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
      * @param func Function to call before parsing
      */
-    void setPreParse(std::function<Nebulite::Constants::ERROR_TYPE()> func){
+    void setPreParse(std::function<Nebulite::Constants::Error()> func){
         preParse = func;
     }
 
@@ -148,6 +145,9 @@ public:
      * ```cpp 
      * "./bin/Nebulite --myArgument foo"
      * ```
+     * 
+     * @param cmd Command string to parse
+     * @return The return value of the executed function, or the standard/error value.
      */
     RETURN_TYPE parseStr(const std::string& cmd);
 
@@ -157,13 +157,19 @@ public:
      * A subtree acts a "function bundler" to the main tree.
      * 
      * @param name Name of the subtree
+     * @param description Description of the subtree, shown in the help command. First line is shown in the general help, full description in detailed help
      * @return true if the subtree was created successfully, 
      * false if a subtree with the same name already exists.
      */
     bool bindSubtree(const std::string& name, const std::string& description){
         if(subtrees.find(name) != subtrees.end()){
             // Subtree already exists
-            std::cerr << "Warning: A subtree with the name '" << name << "' already exists in the FuncTree '" << TreeName << "'." << std::endl;
+            /**
+             * @note Warning is suppressed here, 
+             * as with different modules we might need to call this in each module, 
+             * just to make sure the subtree exists
+             */
+            // std::cerr << "Warning: A subtree with the name '" << name << "' already exists in the FuncTree '" << TreeName << "'." << std::endl;
             return false;
         }
         subtrees[name] = {std::make_unique<FuncTree<RETURN_TYPE>>(name, _standard, _functionNotFoundError), description};
@@ -177,18 +183,25 @@ public:
      * ```cpp
      * RETURN_TYPE functionName(int argc, char** argv);
      * ```
+     * 
+     * @tparam ClassType The class type of the object instance
+     * @param obj Pointer to the object instance (for member functions)
+     * @param method Pointer to the member function to bind
+     * @param name Name of the function in the command tree
+     * @param helpDescription Help description for the function. First line is shown in the general help, full description in detailed help.
      */
     template<typename ClassType>
-    void bindFunction(ClassType* obj, RETURN_TYPE (ClassType::*method)(int, char**), const std::string& name, const std::string& help);
+    void bindFunction(ClassType* obj, RETURN_TYPE (ClassType::*method)(int, char**), const std::string& name, const std::string& helpDescription);
 
     /**
      * @brief Binds a variable to the command tree.
-     * 
      * Make sure the variable is of type std::string*.
-     * 
      * Once bound, it can be set via command line arguments: --varName=value (Must be before the function name!)
+     * A simple argument of `"--varName"` will set the value to `"true"`
      * 
-     * A simple argument of '--varName' will set the value to "true"
+     * @param varPtr Pointer to the variable to bind
+     * @param name Name of the variable in the command tree
+     * @param helpDescription Help description for the variable. First line is shown in the general help, full description in detailed help.
      */
     void bindVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription);
 
@@ -202,12 +215,14 @@ public:
      * funcTree.hasFunction("myFunction");
      * funcTree.hasFunction("./bin/Nebulite --myVariable myFunction argumentOfMyFunction");
      * ```
+     * 
+     * @param nameOrCommand Name of the function or full command string
      */
     bool hasFunction(const std::string& nameOrCommand);
 
 private:
     // Function to call before parsing (e.g., for setting up variables or locking resources)
-    std::function<Nebulite::Constants::ERROR_TYPE()> preParse = nullptr;
+    std::function<Nebulite::Constants::Error()> preParse = nullptr;
 
     //------------------------------------------
     // Variables
@@ -551,8 +566,8 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(co
 
     // Call preParse function if set
     if(preParse != nullptr){
-        Nebulite::Constants::ERROR_TYPE err = preParse();
-        if(err != Nebulite::Constants::ERROR_TYPE::NONE){
+        Nebulite::Constants::Error err = preParse();
+        if(err != Nebulite::Constants::ErrorTable::NONE()){
             return err; // Return error if preParse failed
         }
     }
@@ -733,6 +748,101 @@ std::vector<std::string> Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>
 
 template<typename RETURN_TYPE>
 RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help(int argc, char* argv[]) {
+    //------------------------------------------
+    // Case 1: Detailed help for a specific function, subtree or variable
+    if(argc > 1){
+        for(int i = 1; i < argc; i++){
+            //------------------------------------------
+            // Name
+            std::string funcName = argv[i];
+
+            //------------------------------------------
+            // Find
+
+           
+            // Functions
+            bool funcFound = false;
+            auto funcIt = functions.find(funcName);
+            if(funcIt != functions.end()){funcFound = true;}
+            else{
+                for(auto& inheritedTree : inheritedTrees){
+                    if(inheritedTree != nullptr){
+                        funcIt = inheritedTree->functions.find(funcName);
+                    }
+                    if(funcIt != inheritedTree->functions.end()){
+                        funcFound = true;
+                        break; // Found in inherited tree, stop searching
+                    }
+                }
+            }
+
+            // Subtrees
+            bool subFound = false;
+            auto subIt = subtrees.find(funcName);
+            if(subIt != subtrees.end()){subFound = true;}
+            else{
+                for(auto& inheritedTree : inheritedTrees){
+                    if(inheritedTree != nullptr){
+                        subIt = inheritedTree->subtrees.find(funcName);
+                    }
+                    if(subIt != inheritedTree->subtrees.end()){
+                        subFound = true;
+                        break; // Found in inherited tree, stop searching
+                    }
+                }
+            }
+
+
+            // Variables
+            bool varFound = false;
+            auto varIt = variables.find(funcName);
+            if(varIt != variables.end()){varFound = true;}
+            else{
+                for(auto& inheritedTree : inheritedTrees){
+                    if(inheritedTree != nullptr){
+                        varIt = inheritedTree->variables.find(funcName);
+                    }
+                    if(varIt != inheritedTree->variables.end()){
+                        varFound = true;
+                        break; // Found in inherited tree, stop searching
+                    }
+                }
+            }
+
+            //------------------------------------------
+            // Print
+
+            // 1.) Function
+            if(funcFound){
+                // Found function, display detailed help
+                std::cout << "\nHelp for function '" << funcName << "':\n" << std::endl;
+                std::cout << funcIt->second.description << "\n";
+            }
+            // 2.) Subtree
+            else if(subFound){
+                // Found subtree, display detailed help
+                std::cout << "\nHelp for subtree '" << funcName << "':\n" << std::endl;
+                std::cout << subIt->second.description << "\n";
+                std::cout << "Subtree functions:\n";
+                subIt->second.tree->help(0, nullptr); // Display all functions in the subtree
+            }
+            // 3.) Variable
+            else if(varFound){
+                // Found variable, display detailed help
+                std::cout << "\nHelp for variable '--" << funcName << "':\n" << std::endl;
+                std::cout << varIt->second.description << "\n";
+            }
+            // 4.) Not found
+            else{
+                std::cout << "Function or Subtree '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
+            }
+        }
+        return _standard;
+    }
+
+    //------------------------------------------
+    // Case 2: General help for all functions, subtrees and variables
+
     // All info: [name, description]
     std::vector<std::pair<std::string, std::string>> allFunctions = getAllFunctions();
     std::vector<std::pair<std::string, std::string>> allVariables = getAllVariables();
@@ -759,8 +869,14 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help(int ar
     std::cout << "\n\tHelp for " << TreeName << "\n\n";
     std::cout << "Available functions:\n";
     for (const auto& [name, description] : allFunctions) {
+        // Only show the first line of the description
+        std::string descriptionFirstLine = description;
+        size_t newlinePos = description.find('\n');
+        if (newlinePos != std::string::npos) {
+            descriptionFirstLine = description.substr(0, newlinePos);
+        }
         std::cout << "  " << std::setw(25) << std::left << name
-                  << " - " << description << std::endl;
+                  << " - " << descriptionFirstLine << std::endl;
     }
 
     // Display variables

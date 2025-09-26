@@ -29,10 +29,10 @@ namespace RenderObject{
  * @class Nebulite::DomainModule::RenderObject::Debug
  * @brief Debug management for the RenderObject tree DomainModule.
  */
-class Debug : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Debug) {
 public:
     /**
-     * @brief Overridden update function.
+     * @brief Overwridden update function.
      */
     void update();
 
@@ -48,7 +48,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE printSrcRect(int argc, char* argv[]);
+    Nebulite::Constants::Error printSrcRect(int argc, char* argv[]);
 
     /**
      * @brief Prints the destination rectangle of the spritesheet to console
@@ -59,7 +59,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE printDstRect(int argc, char* argv[]);
+    Nebulite::Constants::Error printDstRect(int argc, char* argv[]);
 
     /**
      * @brief Prints the document to cout
@@ -68,7 +68,7 @@ public:
      * @param argv The argument vector: <key> <file>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE print(int argc, char* argv[]);
+    Nebulite::Constants::Error print(int argc, char* argv[]);
 
     /**
      * @brief Prints a value to cout
@@ -77,22 +77,20 @@ public:
      * @param argv The argument vector: <key> <file>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE printValue(int argc, char* argv[]);
+    Nebulite::Constants::Error printValue(int argc, char* argv[]);
 
     /**
      * @brief Prints the texture status to cout
      */
-    Nebulite::Constants::ERROR_TYPE textureStatus(int argc, char* argv[]);
+    Nebulite::Constants::Error textureStatus(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
 
     /**
-     * @brief Initializes references to the domain and FuncTree, 
-     * and binds functions to the FuncTree.
+     * @brief Initializes the module, binding functions and variables. 
      */
-    Debug(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Debug) {
         bindSubtree("debug", "Debugging functions for RenderObject");
         bindFunction(&Debug::printSrcRect,  "debug print-src-rect",     "Prints the source rectangle of the spritesheet to console");
         bindFunction(&Debug::printDstRect,  "debug print-dst-rect",     "Prints the destination rectangle of the spritesheet to console");

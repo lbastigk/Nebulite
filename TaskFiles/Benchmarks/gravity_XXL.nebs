@@ -46,7 +46,7 @@ eval set spriteSize $({global.loop.delta})
 
 ###############################################
 # Spawn Objects
-for i {global.loop.start} {global.loop.end} for j {global.loop.start} {global.loop.end} eval spawn ./Resources/Renderobjects/Planets/obj_elastic_to_wall.jsonc|posX=$({global.loop.delta}*$i)|posY=$({global.loop.delta}*$j)|physics.vX=0|physics.vY=0|physics.mass=$( 50000 / ({global.loop.n} * {global.loop.n}))|sprite.sizeX={global.spriteSize}|sprite.sizeY={global.spriteSize}
+for i {global.loop.start} {global.loop.end} for j {global.loop.start} {global.loop.end} eval spawn ./Resources/Renderobjects/Planets/obj_elastic_to_wall.jsonc|posX=$({global.loop.delta}*{i})|posY=$({global.loop.delta}*{j})|physics.vX=0|physics.vY=0|physics.mass=$( 50000 / ({global.loop.n} * {global.loop.n}))|sprite.sizeX={global.spriteSize}|sprite.sizeY={global.spriteSize}
 
 ###############################################
 # Constant Info

@@ -104,45 +104,24 @@ void Nebulite::Utility::JSON::remove_key(const char* key) {
     }
     
     // For complex paths, find the parent and final key/index
-    size_t lastDot = keyStr.find_last_of('.');
-    size_t lastBracket = keyStr.find_last_of('[');
     
-    rapidjson::Value* parent = nullptr;
+    
+    // Now we find the parent value to delete the child from:
+    // - parent.child
+    // - parent[index]
+    // - parent.child[index]
     std::string finalKey;
     int arrayIndex = -1;
-    
-    if (lastBracket != std::string::npos && (lastDot == std::string::npos || lastBracket > lastDot)) {
-        // Last access is array index: var.subvar[2] or var[2]
-        size_t openBracket = keyStr.find_last_of('[');
-        size_t closeBracket = keyStr.find_last_of(']');
-        
-        if (openBracket != std::string::npos && closeBracket != std::string::npos && closeBracket > openBracket) {
-            std::string parentPath = keyStr.substr(0, openBracket);
-            std::string indexStr = keyStr.substr(openBracket + 1, closeBracket - openBracket - 1);
-            
-            try {
-                arrayIndex = std::stoi(indexStr);
-                if (parentPath.empty()) {
-                    parent = &doc;
-                } else {
-                    parent = Nebulite::Utility::JSON::DirectAccess::traverse_path(parentPath.c_str(), doc);
-                }
-            } catch (...) {
-                return; // Invalid index
-            }
-        }
-    } else if (lastDot != std::string::npos) {
-        // Last access is object member: var.subvar.finalkey
-        std::string parentPath = keyStr.substr(0, lastDot);
-        finalKey = keyStr.substr(lastDot + 1);
-        parent = Nebulite::Utility::JSON::DirectAccess::traverse_path(parentPath.c_str(), doc);
-    }
+    rapidjson::Value* parent = Nebulite::Utility::JSON::DirectAccess::traverse_to_parent(key, doc, finalKey, arrayIndex);
     
     // Remove the final key/index from parent
     if (parent != nullptr) {
         if (arrayIndex >= 0) {
-            // Remove array element
-            if (parent->IsArray() && arrayIndex < static_cast<int>(parent->Size())) {
+            // Remove an array element
+            if(finalKey != ""){
+                parent[arrayIndex].RemoveMember(finalKey.c_str());
+            }
+            else if (parent->IsArray() && arrayIndex < static_cast<int>(parent->Size())) {
                 parent->Erase(parent->Begin() + arrayIndex);
             }
         } else if (!finalKey.empty()) {
@@ -614,6 +593,41 @@ std::string Nebulite::Utility::JSON::DirectAccess::stripComments(const std::stri
     }
     
     return result;
+}
+
+rapidjson::Value* Nebulite::Utility::JSON::DirectAccess::traverse_to_parent(const char* fullKey, rapidjson::Value& root, std::string& finalKey, int& arrayIndex) {
+    std::string keyStr(fullKey);
+    size_t lastDot = keyStr.find_last_of('.');
+    size_t lastBracket = keyStr.find_last_of('[');
+
+    rapidjson::Value* parent = nullptr;
+    if (lastBracket != std::string::npos && (lastDot == std::string::npos || lastBracket > lastDot)) {
+        // Last access is array index: var.subvar[2] or var[2]
+        size_t openBracket = keyStr.find_last_of('[');
+        size_t closeBracket = keyStr.find_last_of(']');
+        
+        if (openBracket != std::string::npos && closeBracket != std::string::npos && closeBracket > openBracket) {
+            std::string parentPath = keyStr.substr(0, openBracket);
+            std::string indexStr = keyStr.substr(openBracket + 1, closeBracket - openBracket - 1);
+            
+            try {
+                arrayIndex = std::stoi(indexStr);
+                if (parentPath.empty()) {
+                    parent = &root;
+                } else {
+                    parent = Nebulite::Utility::JSON::DirectAccess::traverse_path(parentPath.c_str(), root);
+                }
+            } catch (...) {
+                return nullptr; // Invalid index
+            }
+        }
+    } else if (lastDot != std::string::npos) {
+        // Last access is object member: var.subvar.finalkey
+        std::string parentPath = keyStr.substr(0, lastDot);
+        finalKey = keyStr.substr(lastDot + 1);
+        parent = Nebulite::Utility::JSON::DirectAccess::traverse_path(parentPath.c_str(), root);
+    }
+    return parent;
 }
 
 //------------------------------------------

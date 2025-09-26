@@ -26,6 +26,9 @@ namespace Interaction{
  * It's field `invokes` holds the relevant invoke information.
  * 
  * @todo ParsedEntry and Deserializer need proper names...
+ * - Nebulite::Interaction::Invoke       -> Nebulite::Interaction::Dispatcher
+ * - Nebulite::Interaction::ParsedEntry  -> Nebulite::Interaction::Ruleset
+ * - Nebulite::Interaction::Deserializer -> Nebulite::Interaction::Reader
  * 
  * @todo Idea for Invoke ruleset overwrites:
  * In addition, add the field "overwrites" to the JSON doc.

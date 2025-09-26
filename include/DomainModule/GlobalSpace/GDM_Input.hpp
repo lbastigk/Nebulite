@@ -32,10 +32,10 @@ namespace Nebulite {
 namespace DomainModule {
 namespace GlobalSpace {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::GUI
- * @brief DomainModule for creating GUI elements and queueing them in the renderer pipeline.
+ * @class Nebulite::DomainModule::GlobalSpace::Input
+ * @brief DomainModule for handling input events and states.
  */
-class Input : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Input) {
 public:
     /**
      * @brief Updates the input states of mouse and keyboard 
@@ -52,11 +52,9 @@ public:
     // Setup
 
     /**
-     * @brief Initializes references to the domain and FuncTree, 
-     * and binds functions to the FuncTree.
+     * @brief Initializes the module, binding functions and variables. 
      */
-    Input(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Input){
         // Starting Polling timer
         RendererPollTime = std::make_shared<Nebulite::Utility::TimeKeeper>();
         RendererPollTime->update(); // Initial update to set t and dt

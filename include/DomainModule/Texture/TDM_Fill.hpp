@@ -32,7 +32,7 @@ namespace Texture {
  * @class Nebulite::DomainModule::Texture::Fill
  * @brief DomainModule for fill functions within the Texture.
  */
-class Fill : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::Texture> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Fill) {
 public:
     void update();
 
@@ -46,17 +46,15 @@ public:
      * @param argv The argument vector: "fill <color>" or "fill <R> <G> <B>"
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::ERROR_TYPE fill(int argc, char* argv[]);
+    Nebulite::Constants::Error fill(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
 
     /**
-     * @brief Initializes references to the domain and FuncTree, 
-     * and binds functions to the FuncTree.
+     * @brief Initializes the module, binding functions and variables. 
      */
-    Fill(std::string moduleName, Nebulite::Core::Texture* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Fill) {
         bindFunction(&Fill::fill, "fill", "Fill the texture with a color: fill <color> or fill R G B");
     }
 };

@@ -12,6 +12,7 @@
 // Nebulite
 #include "Utility/JSON.hpp"
 #include "Utility/FileManagement.hpp"
+#include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
 namespace Nebulite {
@@ -77,8 +78,81 @@ public:
      */
     double* getDoublePointerOf(const std::string& doc_key);
 private:
-    // Cache for read-only documents
-    absl::flat_hash_map<std::string,Nebulite::Utility::JSON> ReadOnlyDocs;
+    /**
+     * @brief Updates the cache by checking a random document for its last usage time.
+     */
+    void update();
+
+    /**
+     * @struct ReadOnlyDoc
+     * @brief Represents a read-only document with its associated metadata.
+     */
+    struct ReadOnlyDoc {
+        Nebulite::Utility::JSON document;
+        Nebulite::Utility::TimeKeeper lastUsed;
+    };
+
+    /**
+     * @brief Map of document paths to their corresponding ReadOnlyDoc instances.
+     * 
+     * @todo Turn into struct, use private variables, proper getters and setters.
+     * This way, the document is never retrieved without updating its metadata.
+     * ReadOnlyDoc as private struct member of ReadOnlyDocs.
+     */
+    struct ReadOnlyDocs{
+        private:
+            /**
+             * @brief Time in milliseconds after which unused documents are unloaded.
+             * 
+             * Documents that have not been accessed within this time frame will be removed from the cache to free up memory.
+             */
+            uint64_t unloadAfter_ms = 5 * 60 * 1000; // Unload documents after 5 minutes of inactivity
+
+            /**
+             * @brief Contains the cached documents mapped by their file paths.
+             */
+            absl::flat_hash_map<std::string, ReadOnlyDoc> docs;
+        public:
+
+            /**
+             * @brief Updates the cache by checking a random document for its last usage time,
+             * and unloading it if it has been unused for too long.
+             */
+            void update(){
+                if(docs.empty()) {
+                    return; // No documents to check
+                }
+
+                // Check the last used time of a random document
+                auto it = docs.begin();
+                std::advance(it, rand() % docs.size());
+                ReadOnlyDoc* docPtr = &it->second;
+
+                // If the document has not been used recently, unload it
+                if (docPtr->lastUsed.projected_dt() > unloadAfter_ms) {
+                    docs.erase(it);
+                }
+            }
+
+            /**
+             * @brief Proper retrieval of a document, loading it if not already cached.
+             * And updating its metadata.
+             */
+            ReadOnlyDoc* getDocument(const std::string& doc) {
+                // Check if the document exists in the cache
+                if (docs.find(doc) == docs.end()) {
+                    // Load the document if it doesn't exist
+                    std::string serial = Nebulite::Utility::FileManagement::LoadFile(doc);
+                    if (serial.empty()) {
+                        return nullptr; // Return nullptr if document loading fails
+                    }
+                    docs[doc].document.deserialize(serial);
+                }
+                ReadOnlyDoc* docPtr = &docs[doc];
+                docPtr->lastUsed.update();
+                return docPtr;
+            }
+    }readOnlyDocs;
 
     // Default value for double pointers, if the document or key is not found
     double zero = 0.0;
@@ -99,16 +173,19 @@ T Nebulite::Utility::DocumentCache::getData(std::string doc_key, const T& defaul
     std::string doc = doc_key.substr(0, pos);
     std::string key = doc_key.substr(pos + 1);
 
+    Nebulite::Utility::DocumentCache::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+
     // Check if the document exists in the cache
-    if (ReadOnlyDocs.find(doc) == ReadOnlyDocs.end()) {
-        // Load the document if it doesn't exist
-        std::string serial = Nebulite::Utility::FileManagement::LoadFile(doc);
-        if (serial.empty()) {
-            return defaultValue; // Return default value if document loading fails
-        }
-        ReadOnlyDocs[doc].deserialize(serial);
+    if (docPtr == nullptr) {
+        return defaultValue; // Return default value if document loading fails
     }
 
+    // Retrieve the value from the document
+    T data = docPtr->document.get<T>(key.c_str(), defaultValue);
+
+    // Update the cache (unload old documents)
+    update();
+
     // Return key:
-    return ReadOnlyDocs[doc].get<T>(key.c_str(), defaultValue); // Use the JSON get method to retrieve the value
+    return data; // Use the JSON get method to retrieve the value
 }

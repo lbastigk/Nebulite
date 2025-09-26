@@ -51,9 +51,9 @@
  *
  * @todo:   settings.jsonc: Renderer size, fps setting (Input Mapping is already a work in progress. See GDM_InputMapping.h)
  * 
- * @todo:   Proper return of Nebulite::Constants::ERROR_TYPE values: All errors to cerr, stop on critical errors, return error code on exit.
+ * @todo:   Proper return of Nebulite::Constants::Error values: All errors to cerr, stop on critical errors, return error code on exit.
  *          Implementation in invoke needed!
- *          Lots of ERROR_TYPE::CUSTOM_ERROR returns need to be replaced with proper error codes.
+ *          Lots of Error::CUSTOM_ERROR returns need to be replaced with proper error codes.
  *          Make sure to incorporate recoverable error mode as well.
  */
 int main(int argc, char* argv[]){
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]){
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                globalSpace.tasks.script.taskList.push_back(command);
+                globalSpace.tasks.script.taskQueue.push_back(command);
             }
         }
     }
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]){
          *       This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
          *    
          */
-        globalSpace.tasks.script.taskList.push_back(std::string("set-fps 60"));
+        globalSpace.tasks.script.taskQueue.push_back(std::string("set-fps 60"));
     }
     
     //------------------------------------------
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]){
     bool queueParsed = false;   // Indicates if the task queue has been parsed on this frame render
     bool criticalStop = false;  // Indicates if a critical stop has occurred
     bool continueLoop = true;   // Determines if we continue the loop
-    Nebulite::Constants::ERROR_TYPE lastCriticalResult = Nebulite::Constants::ERROR_TYPE::NONE;
+    Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE(); // Last critical error result
     do {
         // At least one loop, to handle taskQueues
 
@@ -142,11 +142,11 @@ int main(int argc, char* argv[]){
          * @note For now, all tasks are parsed even if the program is in console mode.
          *       This is useful as tasks like "spawn" or "echo" are directly executed.
          *       But might break for more complex tasks, so this should be taken into account later on,
-         *       e.G. inside the FuncTree, checking state of Renderer might be useful
+         *       e.G. inside the GlobalSpace, checking state of Renderer might be useful
          */
         if(!queueParsed){
             lastCriticalResult = globalSpace.parseQueue();
-            criticalStop = (lastCriticalResult != Nebulite::Constants::ERROR_TYPE::NONE);
+            criticalStop = (lastCriticalResult != Nebulite::Constants::ErrorTable::NONE());
             queueParsed = true;
         }
 
@@ -194,7 +194,7 @@ int main(int argc, char* argv[]){
 
     // Inform user about any errors and return error code
     if(criticalStop){
-        std::cerr << "Critical Error: " << globalSpace.errorTable.getErrorDescription(lastCriticalResult) << std::endl;
+        std::cerr << "Critical Error: " << lastCriticalResult.getDescription() << std::endl;
     }
 
     // Parser handles if error files need to be closed

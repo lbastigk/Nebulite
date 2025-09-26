@@ -39,10 +39,10 @@ namespace GlobalSpace {
  * Allows for the creation and manipulation of RenderObjects in a draft state.
  * Allowing us to easily create draft object to continously spawn.
  */
-class RenderObjectDraft : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, RenderObjectDraft) {
 public:
     /**
-     * @brief Overridden update function.
+     * @brief Overwridden update function.
      */
     void update();
 
@@ -57,7 +57,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE parse(int argc, char* argv[]);
+    Nebulite::Constants::Error parse(int argc, char* argv[]);
 
     /**
      * @brief Spawn the created draft object
@@ -66,7 +66,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE spawnDraft(int argc, char* argv[]);
+    Nebulite::Constants::Error spawnDraft(int argc, char* argv[]);
 
     /**
      * @brief Reset the draft (does not reset any spawned ones!)
@@ -75,17 +75,15 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE resetDraft(int argc, char* argv[]);
+    Nebulite::Constants::Error resetDraft(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
 
     /**
-     * @brief Initializes references to the domain and FuncTree, 
-     * and binds functions to the FuncTree.
+     * @brief Initializes the module, binding functions and variables. 
      */
-    RenderObjectDraft(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, RenderObjectDraft){
         // Bind functions
         bindSubtree("draft", "Functions to manipulate and spawn RenderObjects in draft state");
         bindFunction(&RenderObjectDraft::parse,       "draft parse",   "Parse Renderobject-specific functions on the draft");

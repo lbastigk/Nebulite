@@ -196,7 +196,8 @@ void Nebulite::Interaction::Deserializer::parse(std::vector<std::shared_ptr<Nebu
             invokeEntry->topic = ""; // Keep empty for local identification
         }
 
-        std::string str = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(invokeEntry->logicalArg.getFullExpression()));
+        std::string str = *invokeEntry->logicalArg.getFullExpression();
+        str = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(str));
         invokeEntry->logicalArg.parse(str, *docCache, self->getDoc(), global);
 
         // Get expressions
@@ -239,5 +240,13 @@ void Nebulite::Interaction::Deserializer::parse(std::vector<std::shared_ptr<Nebu
         } else {
             entries_global.push_back(invokeEntry);
         }
+    }
+
+    // Estimate full cost of each entry
+    for (const auto& entry : entries_local) {
+		entry->estimateComputationalCost();
+	}
+	for (const auto& entry : entries_global) {
+        entry->estimateComputationalCost();
     }
 }

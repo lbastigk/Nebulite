@@ -151,9 +151,14 @@ public:
      *
      * @return The full expression as a string.
      */
-    std::string getFullExpression() const {
-        return fullExpression;
+    const std::string* getFullExpression() const noexcept {
+        return &fullExpression;
     }
+
+    /**
+     * @brief Gets the full expression string as a string_view.
+     */
+    std::string_view getFullExpressionStringview() const noexcept { return fullExpression; }
 
     /**
      * @brief Checks if the expression is returnable as a double.

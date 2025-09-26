@@ -30,10 +30,10 @@ namespace RenderObject{
  * @class Nebulite::DomainModule::RenderObject::Parenting
  * @brief Parenting DomainModule of the RenderObject tree.
  */
-class Parenting : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Parenting) {
 public:
     /**
-     * @brief Overridden update function.
+     * @brief Overwridden update function.
      */
     void update();
 
@@ -49,7 +49,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE addChildren(int argc, char* argv[]);
+    Nebulite::Constants::Error addChildren(int argc, char* argv[]);
 
     /**
      * @brief Removes a child from the RenderObject
@@ -60,7 +60,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE removeChildren(int argc, char* argv[]);
+    Nebulite::Constants::Error removeChildren(int argc, char* argv[]);
 
     /**
      * @brief Removes all children from the RenderObject
@@ -71,17 +71,15 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE removeAllChildren(int argc, char* argv[]);
+    Nebulite::Constants::Error removeAllChildren(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
 
     /**
-     * @brief Initializes references to the domain and FuncTree, 
-     * and binds functions to the FuncTree.
+     * @brief Initializes the module, binding functions and variables. 
      */
-    Parenting(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Parenting) {
         bindSubtree("parenting", "Functions to manage RenderObject parenting");
         bindFunction(&Parenting::addChildren,       "parenting add-children",           "Adds children of the RenderObject by name");
         bindFunction(&Parenting::removeChildren,    "parenting remove-children",        "Removes children from the RenderObject");

@@ -29,16 +29,16 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Debug
  * @brief DomainModule for debugging capabilities within the GlobalSpace.
  */
-class Debug : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug) {
 public:
     /**
-     * @brief Overridden update function.
+     * @brief Overwridden update function.
      */
     void update();
 
     //------------------------------------------
     /**
-     * @brief Dummy function for testing function definition collision detection of FuncTree.
+     * @brief Dummy function for testing function definition collision detection of bindFunction.
      * 
      * This function is intentionally left blank to test collision detection.
      * It is not meant to be bound in production code.
@@ -46,10 +46,10 @@ public:
      * Uncomment the bind in setupBindings() to test the collision detection.
      * The binary compilation will work, but execution will fail.
      */
-    Nebulite::Constants::ERROR_TYPE set(int argc, char* argv[]) {
+    Nebulite::Constants::Error set(int argc, char* argv[]) {
         // Binding a function with the name "set" is not allowed 
-        // as it already exists in the inherited FuncTree from JSON
-        return Nebulite::Constants::ERROR_TYPE::NONE;
+        // as it already exists in the inherited domain JSON
+        return Nebulite::Constants::ErrorTable::NONE();
     }
 
     //------------------------------------------
@@ -68,7 +68,7 @@ public:
      * @todo: errorlog on causes crash with wine
      * wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
      */
-    Nebulite::Constants::ERROR_TYPE errorlog(int argc, char* argv[]);
+    Nebulite::Constants::Error errorlog(int argc, char* argv[]);
 
     /**
      * @brief Clears the console screen.
@@ -77,7 +77,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE clearConsole(int argc, char* argv[]);
+    Nebulite::Constants::Error clearConsole(int argc, char* argv[]);
 
     /**
      * @brief Prints the global document to the console.
@@ -86,7 +86,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE printGlobal(int argc, char* argv[]);
+    Nebulite::Constants::Error printGlobal(int argc, char* argv[]);
 
     /**
      * @brief Prints the current state of the renderer to the console.
@@ -95,7 +95,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE printState(int argc, char* argv[]);
+    Nebulite::Constants::Error printState(int argc, char* argv[]);
 
     /**
      * @brief Logs the global document to a file.
@@ -105,7 +105,7 @@ public:
      * Default is "global.log.jsonc" if no name was provided
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE logGlobal(int argc, char* argv[]);
+    Nebulite::Constants::Error logGlobal(int argc, char* argv[]);
 
     /**
      * @brief Logs the current state of the renderer to a file.
@@ -115,29 +115,7 @@ public:
      * Default is "state.log.jsonc" if no name was provided
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE logState(int argc, char* argv[]);
-
-    /**
-     * @brief Attach a command to the always-taskqueue that is executed on each tick.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: inputs are <command>. The command to attach.
-     * @return Potential errors that occured on command execution
-     * 
-     * @todo Move to GDM_General
-     */
-    Nebulite::Constants::ERROR_TYPE always(int argc, char* argv[]);
-
-    /**
-     * @brief Clears the entire always-taskqueue.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
-     * 
-     * @todo Move to GDM_General
-     */
-    Nebulite::Constants::ERROR_TYPE alwaysClear(int argc, char* argv[]);
+    Nebulite::Constants::Error logState(int argc, char* argv[]);
 
     /**
      * @brief Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
@@ -146,7 +124,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE render_object(int argc, char** argv);
+    Nebulite::Constants::Error render_object(int argc, char** argv);
 
     /**
      * @brief Crashes the program, useful for checking 
@@ -156,21 +134,50 @@ public:
      * @param argv The argument vector: The type of crash
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE crash(int argc, char** argv);
+    Nebulite::Constants::Error crash(int argc, char** argv);
+
+    /**
+     * @brief Echoes all arguments as string to the standard error
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <string>
+     * @return Potential errors that occured on command execution
+     */
+    Nebulite::Constants::Error error(int argc, char* argv[]);
+
+    /**
+     * @brief Returns a warning: a custom, noncritical error
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <string>
+     * @return The specified value of Error. 
+     */
+    Nebulite::Constants::Error warn(int argc, char* argv[]);
+
+    /**
+     * @brief Returns a critical error
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: <string>
+     * @return The specified value of Error.
+     */
+    Nebulite::Constants::Error critical(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
 
     /**
-     * @brief Initializes references to the domain and FuncTree, 
-     * and binds functions to the FuncTree.
+     * @brief Initializes the module, binding functions and variables. 
      */
-    Debug(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug){
         //------------------------------------------
         // Binding functions to the FuncTree
         bindFunction(&Debug::errorlog,          "errorlog",                 "Activate/Deactivate error logging: log <on/off>");
         bindFunction(&Debug::clearConsole,      "clear",                    "Clear console");
+        bindFunction(&Debug::error,             "error",                    "Echo a string to cerr/errorfile: error <string>");
+        bindFunction(&Debug::crash,             "crash",                    "Crashes the program: crash [segfault/abort/terminate/throw]");
+        bindFunction(&Debug::warn,              "warn",                     "Return a warning (noncritical error): warn <string>");
+        bindFunction(&Debug::critical,          "critical",                 "Return a critical error: critical <string>");
 
         bindSubtree("print", "Functions to print various data to console");
         bindFunction(&Debug::printGlobal,       "print-global",             "Print global document");
@@ -183,19 +190,14 @@ public:
         bindSubtree("standardfile", "Functions to generate standard files");
         bindFunction(&Debug::render_object,     "standardfile render-object",   "Generates a standard render object at ./Resources/Renderobjects/standard.jsonc");
 
-        bindFunction(&Debug::always,            "always",                   "Attach function to always run: always <command>");
-        bindFunction(&Debug::alwaysClear,       "always-clear",             "Clear all always-tasks");
-
-        bindFunction(&Debug::crash,             "crash",                    "Crashes the program: crash [segfault/abort/terminate/throw]");
-
         //------------------------------------------
         // Example Bindings that will fail
 
         // TEST: Binding an already existing sub-function
-        //bindFunction(&Debug::set, "set", "Dummy function to test binding with existing name in inherited FuncTree");  // <- THIS WILL FAIL
+        //bindFunction(&Debug::set, "set", "Dummy function to test binding with existing name in inherited Domain");  // <- THIS WILL FAIL
 
         // TEST: Binding an already existing function
-        //bindFunction(&Debug::set, "log", "Dummy function to test binding with existing name in own tree"); // <- THIS WILL FAIL
+        //bindFunction(&Debug::set, "log", "Dummy function to test binding with existing name in own Domain"); // <- THIS WILL FAIL
     }
 
 private:

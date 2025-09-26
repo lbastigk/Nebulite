@@ -13,9 +13,9 @@ void Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::update() {
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::parse(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::parse(int argc, char* argv[]) {
     if(argc < 2){
-        return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     std::string command;
     for (int i = 1; i < argc; ++i) {    // Ignoring first 2 argc: <from> <thisFunctionsName>
@@ -25,9 +25,9 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjec
     return draft->parseStr("Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::onDraft " + command);
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::spawnDraft(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::spawnDraft(int argc, char* argv[]) {
     if(argc != 1) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS; // No arguments expected
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
 
     // Turning Renderobject into string serial and parsing:
@@ -40,18 +40,20 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjec
     argv_new[1] = const_cast<char*>("spawn");
     argv_new[2] = const_cast<char*>(serial.c_str());
 
-    // Parse in globalspace
-    funcTree->parse(3, argv_new);
+    // Combine to new string, Parse in globalspace
+    std::string combined = std::string(argv_new[0]) + " " + argv_new[1] + " " + argv_new[2];
+    domain->parseStr(combined);
 
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    // Ignoring the return value for now
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::resetDraft(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::resetDraft(int argc, char* argv[]) {
     if(argc != 1) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS; // No arguments expected
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
 
     Nebulite::Core::RenderObject newDraft(domain);
     draft->deserialize(newDraft.serialize());
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }

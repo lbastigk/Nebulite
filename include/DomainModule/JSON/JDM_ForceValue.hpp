@@ -25,10 +25,10 @@ namespace Nebulite{
 namespace Nebulite {
 namespace DomainModule {
 namespace JSON {
-class ForceValue : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Utility::JSON> {
+NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ForceValue) {
 public:
     /**
-     * @brief Overridden update function.
+     * @brief Overwridden update function.
      */
     void update();
 
@@ -42,7 +42,7 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE force(int argc, char* argv[]);
+    Nebulite::Constants::Error force(int argc, char* argv[]);
 
     /**
      * @brief Clears all forced variables
@@ -51,17 +51,15 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE forceClear(int argc, char* argv[]);
+    Nebulite::Constants::Error forceClear(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
 
     /**
-     * @brief Initializes references to the domain and FuncTree, 
-     * and binds functions to the FuncTree.
+     * @brief Initializes the module, binding functions and variables. 
      */
-    ForceValue(std::string moduleName, Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, ForceValue){
         // Binding
         bindSubtree("force", "Functions to force JSON variable values");
         bindFunction(&ForceValue::force,      "force set",      "Force a variable to a value: force-global <key> <value>");

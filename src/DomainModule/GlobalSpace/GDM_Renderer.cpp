@@ -6,33 +6,33 @@
 //------------------------------------------
 // Update
 void Nebulite::DomainModule::GlobalSpace::Renderer::update() {
-    // Add FuncTree-specific updates here!
+    // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
 }
 
 //------------------------------------------
-// FuncTree-Bound Functions
+// Domain-Bound Functions
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::envload(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::envload(int argc, char* argv[]){
     if(argc > 1){
         domain->getRenderer()->deserialize(argv[1]);
-        return Nebulite::Constants::ERROR_TYPE::NONE;
+        return Nebulite::Constants::ErrorTable::NONE();
     }
     else{
         // no name provided, load empty env
         domain->getRenderer()->deserialize("{}");
-        return Nebulite::Constants::ERROR_TYPE::NONE;
+        return Nebulite::Constants::ErrorTable::NONE();
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::envdeload(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::envdeload(int argc, char* argv[]){
     domain->getRenderer()->purgeObjects();
     domain->getRenderer()->purgeTextures();
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::spawn(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::spawn(int argc, char* argv[]){
     if(argc>1){
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun
@@ -41,7 +41,33 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::s
             linkOrObject += " " + std::string(argv[i]);
         }
 
-        // Create object
+        // Check if the file exists
+        std::string link = Nebulite::Utility::StringHandler::untilSpecialChar(linkOrObject,'|');
+        if(!Nebulite::Utility::FileManagement::fileExists(link)){
+            // Check in standard directories
+            static std::vector<std::string> standardDirectories = {
+                "./Resources/Renderobjects/",
+                "./Resources/RenderObjects/"
+            };
+
+            // Check all standard directories for the file
+            bool found = false;
+            for(const auto& prefix : standardDirectories){
+                std::string testLink = prefix + link;
+                if(Nebulite::Utility::FileManagement::fileExists(testLink)){
+                    linkOrObject = prefix + linkOrObject;
+                    found = true;
+                    break;
+                }
+            }
+
+            // Not found in standard directories either
+            if(!found){
+                return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
+            }
+        }
+
+        // Create object with link to globalspace
         Nebulite::Core::RenderObject* ro = new Nebulite::Core::RenderObject(domain);
         ro->deserialize(linkOrObject);
 
@@ -51,12 +77,12 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::s
     }
     else{
         std::cerr << "No renderobject name provided!" << std::endl;
-        return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::setResolution(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::setResolution(int argc, char* argv[]){
     int w,h,scalar;
     w = 1000;
     h = 1000;
@@ -71,10 +97,10 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::s
         scalar = std::stoi(argv[3]);
     }
     domain->getRenderer()->changeWindowSize(w,h,scalar);
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::setFPS(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::setFPS(int argc, char* argv[]){
     int fps = 60;
     if(argc == 2){
         fps = std::stoi(argv[1]);
@@ -83,10 +109,10 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::s
         
     }
     domain->getRenderer()->setTargetFPS(fps);
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::showFPS(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::showFPS(int argc, char* argv[]){
     if(argc < 2){
         domain->getRenderer()->toggleFps(true);
     }
@@ -99,83 +125,83 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::s
         }
         else{
             // unknown arg
-            return Nebulite::Constants::ERROR_TYPE::UNKNOWN_ARG;
+            return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
         }
     }
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::moveCam(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::moveCam(int argc, char* argv[]){
     if (argc < 3) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (argc > 3) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     int dx = std::stoi(argv[1]);
     int dy = std::stoi(argv[2]);
     domain->getRenderer()->moveCam(dx,dy);
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::setCam(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::setCam(int argc, char* argv[]){
     if(argc == 3){
         int x = std::stoi(argv[1]);
         int y = std::stoi(argv[2]);
         domain->getRenderer()->setCam(x,y);
-        return Nebulite::Constants::ERROR_TYPE::NONE;
+        return Nebulite::Constants::ErrorTable::NONE();
     }
     if(argc == 4){
         if(!strcmp(argv[3], "c")){
             int x = std::stoi(argv[1]);
             int y = std::stoi(argv[2]);
             domain->getRenderer()->setCam(x,y,true);
-            return Nebulite::Constants::ERROR_TYPE::NONE;
+            return Nebulite::Constants::ErrorTable::NONE();
         }
         else{
             // unknown arg
-            return Nebulite::Constants::ERROR_TYPE::UNKNOWN_ARG;
+            return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
         }
     }
     else if(argc > 4){
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
+    return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::snapshot(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::snapshot(int argc, char* argv[]){
     if(argc == 1){
         // No link provided, use default
         bool success = domain->getRenderer()->snapshot("./Resources/Snapshots/snapshot.png");
         if (!success) {
-            return Nebulite::Constants::ERROR_TYPE::SNAPSHOT_FAILED;
+            return Nebulite::Constants::ErrorTable::RENDERER::CRITICAL_RENDERER_SNAPSHOT_FAILED();
         }
-        return Nebulite::Constants::ERROR_TYPE::NONE;
+        return Nebulite::Constants::ErrorTable::NONE();
     }
     else if(argc == 2){
         // Link provided
         std::string link = argv[1];
         bool success = domain->getRenderer()->snapshot(link);
         if (!success) {
-            return Nebulite::Constants::ERROR_TYPE::SNAPSHOT_FAILED;
+            return Nebulite::Constants::ErrorTable::RENDERER::CRITICAL_RENDERER_SNAPSHOT_FAILED();
         }
-        return Nebulite::Constants::ERROR_TYPE::NONE;
+        return Nebulite::Constants::ErrorTable::NONE();
     }
     else{
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::beep(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::beep(int argc, char* argv[]){
     // Beep function for debugging, from SDL
     domain->getRenderer()->beep();
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::getObjectFromId(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::getObjectFromId(int argc, char* argv[]) {
     if (argc != 2) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
     uint32_t id = std::stoi(argv[1]);
@@ -183,17 +209,17 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::g
     
     if (obj) {
         selectedRenderObject = obj;
-        return Nebulite::Constants::ERROR_TYPE::NONE;
+        return Nebulite::Constants::ErrorTable::NONE();
     } else {
         selectedRenderObject = nullptr;
         // Not seen as an error, just no object found
-        return Nebulite::Constants::ERROR_TYPE::NONE;
+        return Nebulite::Constants::ErrorTable::NONE();
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::Renderer::selectedObjectParse(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::selectedObjectParse(int argc, char* argv[]) {
     if(argc < 2){
-        return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     std::string command;
     for (int i = 1; i < argc; ++i) {    // Ignoring first 2 argc: <from> <thisFunctionsName>

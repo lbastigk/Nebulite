@@ -10,16 +10,14 @@ Nebulite::Core::Texture::Texture(Nebulite::Utility::JSON* doc, Nebulite::Core::G
     texture  = nullptr;
 
     // Set preParse function
-    funcTree->setPreParse(std::bind(&Nebulite::Core::Texture::preParse,this));
+    setPreParse(std::bind(&Nebulite::Core::Texture::preParse,this));
 
     // Initialize all DomainModules
     Nebulite::DomainModule::TDM_init(this);
 }
 
 void Nebulite::Core::Texture::update() {
-    for(auto& module : modules){
-        module->update();
-    }
+    updateModules();
 }
 
 bool Nebulite::Core::Texture::copyTexture() {
@@ -87,7 +85,7 @@ void Nebulite::Core::Texture::loadTextureFromFile(const std::string& filePath) {
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Core::Texture::preParse() {
+Nebulite::Constants::Error Nebulite::Core::Texture::preParse() {
     if(!textureStoredLocally){
         // Make a local copy if we modify the texture
         textureStoredLocally = copyTexture(); 
@@ -95,7 +93,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Core::Texture::preParse() {
 
     if(!textureStoredLocally){
         // Failed to copy texture, cannot proceed with modifications
-        return Nebulite::Constants::ERROR_TYPE::CRITICAL_TEXTURE_COPY_FAILED;
+        return Nebulite::Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_COPY_FAILED();
     }
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }

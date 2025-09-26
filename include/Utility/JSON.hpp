@@ -35,33 +35,6 @@
 //------------------------------------------
 namespace Nebulite{
 namespace Utility {
-/**
- * @brief Template for supported cache storages.
- * 
- * This template is used to determine if a type is a simple value that can be cached.
- * 
- * @note Make sure to update this template and Nebulite::Utility::JSON::CacheEntry if the list of supported types changes.
- * 
- * @todo Moving to private of JSON?
- */
-template <typename T>
-struct is_simple_value : std::disjunction<
-    std::is_same<T, int32_t>,
-    std::is_same<T, int64_t>,
-    std::is_same<T, uint32_t>,
-    std::is_same<T, uint64_t>,
-    std::is_same<T, double>,
-    std::is_same<T, std::string>,
-    std::is_same<T, bool>
-> {};
-
-/**
- * @brief Helper variable template for checking if a type is a simple value.
- * 
- * @todo Moving to private of JSON?
- */
-template <typename T>
-inline constexpr bool is_simple_value_v = is_simple_value<T>::value;
 
 /**
  * @class Nebulite::Utility::JSON
@@ -86,7 +59,7 @@ inline constexpr bool is_simple_value_v = is_simple_value<T>::value;
  * If the document is then serialized, the cache is flushed and the values are written to the document.
  * Meaning the last key set will take precedence.
  * Instead, values should only be set if they are guaranteed to be simple values rather than complex objects.
- * For moving and copying complex objects, use the appropriate methods of its FuncTree.
+ * For moving and copying complex objects, use the appropriate methods of its parsing logic.
  * 
  * Due to performance concerns, a rework of the caching system is a low priority.
  * 
@@ -392,10 +365,32 @@ public:
     void empty();
 
 private:
+    //------------------------------------------
+    // Templated helpers
+
     /**
-     * @brief Mutex for thread-safe access.
+     * @brief Template for supported cache storages.
+     * 
+     * This template is used to determine if a type is a simple value that can be cached.
+     * 
+     * @note Make sure to update this template and Nebulite::Utility::JSON::CacheEntry if the list of supported types changes.
      */
-    mutable std::recursive_mutex mtx;
+    template <typename T>
+    struct is_simple_value : std::disjunction<
+        std::is_same<T, int32_t>,
+        std::is_same<T, int64_t>,
+        std::is_same<T, uint32_t>,
+        std::is_same<T, uint64_t>,
+        std::is_same<T, double>,
+        std::is_same<T, std::string>,
+        std::is_same<T, bool>
+    > {};
+
+    /**
+     * @brief Helper variable template for checking if a type is a simple value.
+     */
+    template <typename T>
+    static inline constexpr bool is_simple_value_v = is_simple_value<T>::value;
 
     //------------------------------------------
     // Value storage
@@ -404,7 +399,15 @@ private:
     rapidjson::Document doc;
 
     //------------------------------------------
-    // caching Simple variables
+    // Locking system
+
+    /**
+     * @brief Mutex for thread-safe access.
+     */
+    mutable std::recursive_mutex mtx;
+
+    //------------------------------------------
+    // Caching
 
     /**
      * @brief Variant type for representing simple JSON values.
@@ -552,6 +555,21 @@ private:
          * @return A pointer to the found or created rapidjson value.
          */
         static rapidjson::Value* ensure_path(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+
+        /**
+         * @brief Traverses a rapidjson value to find the parent of a value identified by its key.
+         * 
+         * - parent.child           -> returns parent,       finalKey = child, arrayIndex = -1
+         * - parent.child[index]    -> returns parent.child, finalKey = child, arrayIndex = index
+         * - parent[index]          -> returns parent,       finalKey = "",    arrayIndex = index
+         * 
+         * @param key The key to search for.
+         * @param root The rapidjson value to search within.
+         * @param finalKey The final key or index of the value to find the parent of.
+         * @param arrayIndex The index if the final key is an array index, -1 otherwise.
+         * @return A pointer to the parent rapidjson value, or nullptr if not found
+         */
+        static rapidjson::Value* traverse_to_parent(const char* fullKey, rapidjson::Value& root, std::string& finalKey, int& arrayIndex);
 
         //------------------------------------------
         // Serialization/Deserialization

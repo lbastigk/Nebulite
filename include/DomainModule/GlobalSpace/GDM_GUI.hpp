@@ -32,7 +32,7 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::GUI
  * @brief DomainModule for creating GUI elements and queueing them in the renderer pipeline.
  */
-class GUI : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, GUI) {
 public:
     void update();
 
@@ -48,17 +48,15 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE example(int argc, char* argv[]);
+    Nebulite::Constants::Error example(int argc, char* argv[]);
     
     //------------------------------------------
     // Setup
 
     /**
-     * @brief Initializes references to the domain and FuncTree, 
-     * and binds functions to the FuncTree.
+     * @brief Initializes the module, binding functions and variables. 
      */
-    GUI(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, GUI){
         bindSubtree("gui", "Functions to create GUI elements");
         bindFunction(&GUI::example, "gui example", "An example function to demonstrate GUI-Elements");
     }

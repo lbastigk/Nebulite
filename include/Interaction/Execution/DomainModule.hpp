@@ -7,6 +7,18 @@
 
 #pragma once
 
+/**
+ * @brief Macro to define a new Nebulite DomainModule class.
+ * 
+ * @todo Insert macro into all DomainModules
+ */
+#define NEBULITE_DOMAINMODULE(DomainName,DomainModuleName) \
+    class DomainModuleName : public Nebulite::Interaction::Execution::DomainModule<DomainName>
+
+#define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
+    DomainModuleName(std::string moduleName, DomainName* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTreePtr) \
+    : DomainModule(moduleName, domain, funcTreePtr)
+
 //------------------------------------------
 // Includes
 
@@ -61,11 +73,11 @@ public:
      * The constructor initializes the DomainModule with a reference to the domain and
      * the FuncTree.
      */
-    DomainModule(std::string moduleName, DomainType* domain, FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr)
+    DomainModule(std::string moduleName, DomainType* domain, FuncTree<Nebulite::Constants::Error>* funcTreePtr)
         : moduleName(moduleName), domain(domain), funcTree(funcTreePtr) {}
 
     /**
-     * @brief Virtual update function to be overridden by derived classes.
+     * @brief Virtual update function to be Overwridden by derived classes.
      */
     virtual void update() = 0;
 
@@ -77,7 +89,7 @@ public:
      * 
      * Make sure the function has the signature:
      * ```cpp
-     * ERROR_TYPE functionName(int argc, char** argv);
+     * Error functionName(int argc, char** argv);
      * ```
      *
      * @tparam ClassType The type of the class containing the member function.
@@ -85,7 +97,7 @@ public:
      * @param name The name to associate with the bound function.
      */
     template<typename ClassType>
-    void bindFunction(Nebulite::Constants::ERROR_TYPE (ClassType::*method)(int, char**),const std::string& name,const std::string& help) {
+    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char**),const std::string& name,const std::string& help) {
         // Automatically pass 'this' (the derived class instance) to bindFunction
         funcTree->bindFunction(
             static_cast<ClassType*>(this),  // Auto-cast to correct type
@@ -95,6 +107,15 @@ public:
         );
     }
 
+    /**
+     * @brief Binds a subtree to the FuncTree.
+     * 
+     * A subtree acts as a "function bundler" to the main tree.
+     * 
+     * @param name Name of the subtree
+     * @param description Description of the subtree, shown in the help command. First line is shown in the general help, full description in detailed help
+     * @return true if the subtree was created successfully, false if a subtree with the same name already exists
+     */
     bool bindSubtree(const std::string& name, const std::string& description) {
         return funcTree->bindSubtree(name, description);
     }
@@ -115,17 +136,40 @@ public:
 
     // Prevent copying
     DomainModule(const DomainModule&) = delete;
+
+    // Prevent assignment
     DomainModule& operator=(const DomainModule&) = delete;
 
 protected:
     //------------------------------------------
     // Name of Module
+
+    /**
+     * @brief Name of the DomainModule, useful for debugging and logging.
+     */
     std::string moduleName;
     
     //------------------------------------------
     // Linkages
-    DomainType* domain;                                     // Workspace of the DomainModule
-    FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTree;    // Where to bind the expanded functions
+
+    /**
+     * @brief Workspace of the DomainModule
+     */
+    DomainType* domain;
+
+private:
+    /**
+     * @brief Pointer to the internal FuncTree for binding functions and variables.
+     * 
+     * We need a pointer here to avoid circular dependencies that are hard to resolve,
+     * as both Domain and DomainModule are templated classes
+     * 
+     * FuncTree, however, is fully defined at this point, so we can use it directly.
+     * 
+     * Instead of making a mess by untangling the templates, we simply use a pointer
+     * to the non-templated interface.
+     */
+    FuncTree<Nebulite::Constants::Error>* funcTree;
 };
 }   // namespace Interaction
 }   // namespace Execution

@@ -30,10 +30,10 @@ namespace RenderObject{
  * 
  * Contains RenderObject-specific logging functionality.
  */
-class Logging : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::RenderObject> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Logging) {
 public:
     /**
-     * @brief Overridden update function.
+     * @brief Overwridden update function.
      */
     void update();
 
@@ -51,7 +51,7 @@ public:
      * @param argv The argument vector: ...
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE echo(int argc, char* argv[]);
+    Nebulite::Constants::Error echo(int argc, char* argv[]);
 
     /**
      * @brief Logs the RenderObject to a file
@@ -63,7 +63,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::ERROR_TYPE log(int argc, char* argv[]);
+    Nebulite::Constants::Error log(int argc, char* argv[]);
 
     /**
      * @brief Logs a value to a given file
@@ -74,20 +74,20 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE logValue(int argc, char* argv[]);
+    Nebulite::Constants::Error logValue(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
 
     /**
-     * @brief Initializes references to the domain and FuncTree, 
-     * and binds functions to the FuncTree.
+     * @brief Initializes the module, binding functions and variables. 
      */
-    Logging(std::string moduleName, Nebulite::Core::RenderObject* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Logging) {
         bindFunction(&Logging::echo,        "echo",         "Prints the arguments to the console");
-        bindFunction(&Logging::log,         "log",          "Logs the RenderObject to a file");
-        bindFunction(&Logging::logValue,    "log-value",    "Logs a specific value: <key> <file>");
+
+        bindSubtree("log", "Logging functions for RenderObject");
+        bindFunction(&Logging::log,         "log all",    "Logs the entire RenderObject to a file: [filename]");
+        bindFunction(&Logging::logValue,    "log key",    "Logs a specific value: <key> [filename]");
     }
 };
 }   // namespace DomainModule

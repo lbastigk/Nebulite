@@ -222,10 +222,10 @@ public:
 	 * 
 	 * Based on the amount of evaluations and variables in the invoke entries.
 	 * 
-	 * @param globalInvoke Pointer to the global invoke object
+	 * @param onlyInternal If true, only considers internal invoke entries. Defaults to true.
 	 * @return The estimated computational cost.
 	 */
-	uint64_t estimateComputationalCost();
+	uint64_t estimateComputationalCost(bool onlyInternal = true);
 
 	//------------------------------------------
 	// Management Flags for Renderer-Interaction
@@ -343,13 +343,7 @@ private:
 // Templated setter/getter functions
 
 template <typename T> void Nebulite::Core::RenderObject::set(const char* key, const T data) {
-	//JSONHandler::Set::Any(doc, key, data);
 	json.set(key,data);
-	/**
-	 * @todo Is this still needed?
-	 */
-	calculateDstRect();
-	calculateSrcRect();
 }
 
 template <typename T> T Nebulite::Core::RenderObject::get(const char* key, const T& defaultValue){

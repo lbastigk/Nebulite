@@ -91,7 +91,6 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 		// Handle SDL_ttf initialization error
 		SDL_Quit(); // Clean up SDL
 	}
-
 	loadFonts();
 
 	//------------------------------------------
@@ -168,7 +167,6 @@ void Nebulite::Core::Renderer::loadFonts() {
 	//------------------------------------------
 	// Sizes
 	uint32_t FontSizeGeneral = 60; 			// Does not need to scale
-	uint32_t FontSizeConsole = 60;			// Does not need to scale
 
 	//------------------------------------------
 	// Font location
@@ -183,14 +181,6 @@ void Nebulite::Core::Renderer::loadFonts() {
 		// Handle font loading error
 		std::cerr << TTF_GetError() << " | " << fontpath << "\n";
 	}
-
-	//------------------------------------------
-	// Load console font
-	consoleFont = TTF_OpenFont(fontpath.c_str(), FontSizeConsole); // Adjust size as needed
-	if (consoleFont == NULL) {
-		// Handle font loading error
-		std::cerr << TTF_GetError() << " | " << fontpath << "\n";
-	}
 }
 
 //------------------------------------------
@@ -199,29 +189,28 @@ void Nebulite::Core::Renderer::loadFonts() {
 // For quick and dirty debugging, in case the rendering pipeline breaks somewhere
 //# define debug_on_each_step 1
 void Nebulite::Core::Renderer::tick(){
-	#ifdef debug_on_each_step
-    	std::cout << "clear..." << std::endl;
-	#endif
+	//------------------------------------------
+	// Do all the steps of the rendering pipeline
     clear();           				// 1.) Clear screen FIRST, so that functions like snapshot have acces to the latest frame
-	#ifdef debug_on_each_step
-    	std::cout << "update..." << std::endl;
-	#endif
     updateState();          		// 2.) Update objects, states, etc.
-	#ifdef debug_on_each_step
-    	std::cout << "renderFrame..." << std::endl;
-	#endif
     renderFrame();     				// 3.) Render frame
-	#ifdef debug_on_each_step
-    	std::cout << "renderFPS..." << std::endl;
-	#endif
 	if(showFPS)renderFPS();       	// 4.) Render fps count
-	#ifdef debug_on_each_step
-    	std::cout << "showFrame..." << std::endl;
-	#endif
     showFrame();       				// 5.) Show Frame
-	#ifdef debug_on_each_step
-		std::cout << "done!" << std::endl;
-	#endif
+
+	//------------------------------------------
+	// SDL Polling at the end of the frame
+	events.clear();
+	while (SDL_PollEvent(&event)) {
+		// Store events for other processes, e.g. domain modules
+		events.push_back(event);
+
+		// Handle quit event
+        switch (event.type) {
+            case SDL_QUIT:
+                quit = true;
+                break;
+        }
+    }
 }
 
 bool Nebulite::Core::Renderer::timeToRender() {
@@ -465,15 +454,6 @@ void Nebulite::Core::Renderer::setCam(int X, int Y, bool isMiddle) {
 };
 
 //------------------------------------------
-// Event Handling
-
-SDL_Event Nebulite::Core::Renderer::getEventHandle() {
-	SDL_Event event;
-	SDL_PollEvent(&event);
-	return event;
-}
-
-//------------------------------------------
 // Setting
 
 void Nebulite::Core::Renderer::setTargetFPS(int fps) {
@@ -499,45 +479,6 @@ void Nebulite::Core::Renderer::updateState() {
 	// Update loop timer
 	uint64_t fixed_dt_ms = invoke_ptr->getGlobalPointer()->get<Uint64>(Nebulite::Constants::keyName.renderer.time_fixed_dt_ms.c_str(),0);
 	RendererLoopTime.update(fixed_dt_ms);
-	
-	//------------------------------------------
-	// Basic SDL event polling
-	while (SDL_PollEvent(&event)) {
-        switch (event.type) {
-            case SDL_QUIT:
-                quit = true;
-                break;
-        }
-		// [CONSOLE MODE]
-		if (consoleMode) {
-			switch (event.type) {
-				case SDL_TEXTINPUT:
-					consoleInputBuffer += event.text.text;
-					break;
-
-				case SDL_KEYDOWN:
-					switch (event.key.keysym.sym) {
-						case SDLK_BACKSPACE:
-							if (!consoleInputBuffer.empty()) {
-								consoleInputBuffer.pop_back();
-							}
-							break;
-						case SDLK_RETURN:
-						case SDLK_KP_ENTER:
-							if (!consoleInputBuffer.empty()) {
-								consoleOutput.emplace_back("> " + consoleInputBuffer);
-								invoke_ptr->getQueue()->emplace_back(consoleInputBuffer);
-								consoleInputBuffer.clear();
-							}
-							break;				
-					}
-					break;
-			}
-
-			// Early return so mouse and keyboard polling doesn’t interfere
-			return;
-		}
-    }
 
 	//------------------------------------------
 	// Log time spend in console
@@ -604,15 +545,12 @@ void Nebulite::Core::Renderer::renderFrame() {
 
 	//Render Objects
 	//For all layers, starting at 0
-	for (int layer = 0; layer < Environment::LayerCount; layer++) {
-		// Cast layer to enum
-		Environment::Layer currentLayer = static_cast<Environment::Layer>(layer);
-
+	for (auto layer : *(env.getAllLayers())) {
 		// Get all tile positions to render
 		std::vector<std::pair<int, int>> tilesToRender;
 		for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++) {
 			for (int dY = (tileYpos == 0 ? 0 : -1); dY <= 1; dY++) {
-				if (env.isValidPosition(tileXpos + dX, tileYpos + dY,currentLayer)) {
+				if (env.isValidPosition(tileXpos + dX, tileYpos + dY, layer)) {
 					tilesToRender.emplace_back(tileXpos + dX, tileYpos + dY);
 				}
 			}
@@ -621,7 +559,7 @@ void Nebulite::Core::Renderer::renderFrame() {
 		// For all tiles to render
 		for (const auto& [tileX, tileY] : tilesToRender) {
 			// For all batches inside
-			for (auto& batch : env.getContainerAt(tileX, tileY,currentLayer)) {
+			for (auto& batch : env.getContainerAt(tileX, tileY, layer)) {
 				// For all objects in batch
 				for(auto& obj : batch.objects){
 					error = renderObjectToScreen(obj, dispPosX, dispPosY);
@@ -633,17 +571,16 @@ void Nebulite::Core::Renderer::renderFrame() {
 		}
 
 		// Render all textures that were attached from outside processes
-		for (const auto& [name, texture] : BetweenLayerTextures[static_cast<Environment::Layer>(layer)]) {
-			SDL_RenderCopy(renderer, texture, NULL, NULL);
+		for (const auto& [name, texturePair] : BetweenLayerTextures[layer]) {
+			const auto& texture = texturePair.first;
+			const auto& rect = texturePair.second;
+
+			if (!texture) {
+				continue; // Skip if texture is null
+			}
+			SDL_RenderCopy(renderer, texture, NULL, rect);
 		}
 	}
-
-	//------------------------------------------
-	// Render Console if Active
-	if(consoleMode){
-		renderConsole();
-	}
-
 }
 
 int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject* obj, int dispPosX, int dispPosY){
@@ -712,62 +649,6 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 		return error_sprite;
 	}
 	return error_text;
-}
-
-void Nebulite::Core::Renderer::renderConsole() {
-	// Semi-transparent background
-	uint32_t height = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0) / 2;
-	consoleRect.x = 0;
-	consoleRect.y = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0) - height;
-	consoleRect.w = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
-	consoleRect.h = height;
-
-	SDL_SetRenderDrawColor(renderer, 0, 32, 128, 180); // blue-ish with transparency
-	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_RenderFillRect(renderer, &consoleRect);
-
-	SDL_Color textColor = {255, 255, 255, 255}; // white
-	int lineHeight = (double)TTF_FontHeight(consoleFont) / (double)WindowScale;
-
-	// 1. Draw console input line at bottom
-	if (!consoleInputBuffer.empty()) {
-		// Create text texture
-		SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, consoleInputBuffer.c_str(), textColor);
-		SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-		// Rect size
-		textRect.x = 10;
-		textRect.y = consoleRect.y + consoleRect.h - lineHeight - 10;
-		textRect.w = (double)textSurface->w / (double)WindowScale;
-		textRect.h = (double)textSurface->h / (double)WindowScale;
-
-		// Render the text
-		SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
-		SDL_FreeSurface(textSurface);
-		SDL_DestroyTexture(textTexture);
-	}
-
-	// 2. Render previous output lines above the input
-	int maxLines = floor(consoleRect.h - 20 - lineHeight) / lineHeight;
-	int startLine = std::max(0, (int)consoleOutput.size() - maxLines);
-	for (int i = 0; i < maxLines && (startLine + i) < consoleOutput.size(); ++i) {
-		// Create text texture
-		const std::string& line = consoleOutput[startLine + i];
-		SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, line.c_str(), textColor);
-		SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-		// Rect size
-		SDL_Rect lineRect;
-		lineRect.x = 10;
-		lineRect.y = consoleRect.y + 10 + i * lineHeight;
-		lineRect.w = (double)textSurface->w / (double)WindowScale;
-		lineRect.h = (double)textSurface->h / (double)WindowScale;
-
-		// Render the text
-		SDL_RenderCopy(renderer, textTexture, NULL, &lineRect);
-		SDL_FreeSurface(textSurface);
-		SDL_DestroyTexture(textTexture);
-	}
 }
 
 void Nebulite::Core::Renderer::renderFPS(double scalar) {

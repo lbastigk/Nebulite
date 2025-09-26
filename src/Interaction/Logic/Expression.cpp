@@ -3,9 +3,25 @@
 //------------------------------------------
 // Private:
 
-void Nebulite::Interaction::Logic::Expression::update_vds(std::vector<std::shared_ptr<vd_entry>>* vec, Nebulite::Utility::JSON* link){
+void Nebulite::Interaction::Logic::Expression::update_vds(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>* vec, Nebulite::Utility::JSON* link){
     for(auto& vde : *vec) {
-        vde->virtualDouble->updateCache(link);
+        vde->updateCache(link);
+    }
+}
+
+Nebulite::Interaction::Logic::Expression::~Expression() {
+    // reset all data
+    reset();
+
+    // Remove variables
+    variables.clear();
+
+    // Clear all expressions
+    for(auto& entry : entries) {
+        if(entry.expression != nullptr) {
+            te_free(entry.expression);
+            entry.expression = nullptr;
+        }
     }
 }
 
@@ -20,6 +36,12 @@ void Nebulite::Interaction::Logic::Expression::reset() {
     fullExpression.clear();
     entries.clear();
 
+    // Clear all variable names
+    for(auto name_ptr : te_names) {
+        delete name_ptr;
+    }
+    te_names.clear();
+
     // Clear vds
     virtualDoubles_self.clear();
     virtualDoubles_other.clear();
@@ -30,33 +52,31 @@ void Nebulite::Interaction::Logic::Expression::reset() {
     // Register built-in functions
 
     // Logical comparison functions
-
-    te_variable gt_var =  {"gt",    (void*)expr_custom::gt,             TE_FUNCTION2};
-    variables.push_back(gt_var);
-    te_variable lt_var =  {"lt",    (void*)expr_custom::lt,             TE_FUNCTION2};
-    variables.push_back(lt_var);
-    te_variable geq_var = {"geq",   (void*)expr_custom::geq,            TE_FUNCTION2};
-    variables.push_back(geq_var);
-    te_variable leq_var = {"leq",   (void*)expr_custom::leq,            TE_FUNCTION2};
-    variables.push_back(leq_var);
-    te_variable eq_var =  {"eq",    (void*)expr_custom::eq,             TE_FUNCTION2};
-    variables.push_back(eq_var);
-    te_variable neq_var = {"neq",   (void*)expr_custom::neq,            TE_FUNCTION2};
-    variables.push_back(neq_var);
+    variables.push_back({"gt",          (void*)expr_custom::gt,             TE_FUNCTION2});
+    variables.push_back({"lt",          (void*)expr_custom::lt,             TE_FUNCTION2});
+    variables.push_back({"geq",         (void*)expr_custom::geq,            TE_FUNCTION2});
+    variables.push_back({"leq",         (void*)expr_custom::leq,            TE_FUNCTION2});
+    variables.push_back({"eq",          (void*)expr_custom::eq,             TE_FUNCTION2});
+    variables.push_back({"neq",         (void*)expr_custom::neq,            TE_FUNCTION2});
 
     // Logical gate functions
+    variables.push_back({"not",         (void*)expr_custom::logical_not,    TE_FUNCTION1});
+    variables.push_back({"and",         (void*)expr_custom::logical_and,    TE_FUNCTION2});
+    variables.push_back({"or",          (void*)expr_custom::logical_or,     TE_FUNCTION2});
+    variables.push_back({"xor",         (void*)expr_custom::logical_xor,    TE_FUNCTION2});
+    variables.push_back({"nand",        (void*)expr_custom::logical_nand,   TE_FUNCTION2});
+    variables.push_back({"nor",         (void*)expr_custom::logical_nor,    TE_FUNCTION2});
+    variables.push_back({"xnor",        (void*)expr_custom::logical_xnor,   TE_FUNCTION2});
 
-    te_variable and_var = {"and",   (void*)expr_custom::logical_and,    TE_FUNCTION2};
-    variables.push_back(and_var);
-    te_variable or_var =  {"or",    (void*)expr_custom::logical_or,     TE_FUNCTION2};
-    variables.push_back(or_var);
-    te_variable not_var = {"not",   (void*)expr_custom::logical_not,    TE_FUNCTION1};
-    variables.push_back(not_var);
+    // Other logical functions
+    variables.push_back({"to_bipolar",  (void*)expr_custom::to_bipolar,     TE_FUNCTION1});
+
+    // Mapping functions
+    variables.push_back({"map",         (void*)expr_custom::map,            TE_FUNCTION5});
+    variables.push_back({"constrain",   (void*)expr_custom::constrain,      TE_FUNCTION3});
 
     // More mathematical functions
-
-    te_variable sgn_var = {"sgn",   (void*)expr_custom::sgn,            TE_FUNCTION1};
-    variables.push_back(sgn_var);
+    variables.push_back({"sgn",         (void*)expr_custom::sgn,            TE_FUNCTION1});
 }
 
 std::string Nebulite::Interaction::Logic::Expression::stripContext(const std::string& key) {
@@ -111,40 +131,43 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
     if(!found) {
         // Initialize with reference to document and cache register
         std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble> vd = std::make_shared<Nebulite::Interaction::Logic::VirtualDouble>(key, documentCache);
-        std::shared_ptr<vd_entry> vde = std::make_shared<vd_entry>(vd, context, key, te_name);
 
         // Register cache directly to json file, if possible
-        switch(vde->from) {
+        switch(context) {
             case Entry::From::self:
                 // Type self is remanent, we can register the double directly from document
                 #if use_external_cache
-                    vde->virtualDouble->register_external_double_cache(self);
+                    vd->register_external_double_cache(self);
                 #endif
-                virtualDoubles_self.push_back(vde);
+                virtualDoubles_self.push_back(vd);
                 break;
             case Entry::From::other:
                 // Type other is non-remanent, we need to use the cache from virtualdouble
-                virtualDoubles_other.push_back(vde);
+                virtualDoubles_other.push_back(vd);
                 break;
             case Entry::From::global:
                 // Type global is remanent, we can register the double directly from document
                 #if use_external_cache
-                    vde->virtualDouble->register_external_double_cache(global);
+                    vd->register_external_double_cache(global);
                 #endif
-                virtualDoubles_global.push_back(vde);
+                virtualDoubles_global.push_back(vd);
                 break;
             case Entry::From::resource:
                 // Type resource is non-remanent, we need to use the cache from virtualdouble
                 // The reason is that resource-documents may get deloaded,
                 // making the direct double reference invalid.
-                virtualDoubles_resource.push_back(vde);
+                virtualDoubles_resource.push_back(vd);
                 break;
         }
 
+        // Store variable name for tinyexpr
+        std::string* te_name_ptr = new std::string(te_name);
+        te_names.push_back(te_name_ptr);
+
         // Push back into variable entries
         variables.push_back({
-            vde->te_name.c_str(),
-            vde->virtualDouble->ptr(),
+            te_names.back()->c_str(),
+            vd->ptr(),
             TE_VARIABLE,
             nullptr
         });

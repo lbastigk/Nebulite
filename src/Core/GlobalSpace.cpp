@@ -12,7 +12,7 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
     // Objects and linkages 
     renderer = nullptr; // Uninitialized
     invoke = std::make_unique<Nebulite::Interaction::Invoke>(&global);
-    invoke->linkQueue(tasks.internal.taskList);
+    invoke->linkTaskQueue(tasks.internal.taskQueue);
 
     //------------------------------------------
     // General Variables
@@ -20,8 +20,8 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
     names.state  = "";
 
     //------------------------------------------
-    // Link inherited FuncTree in global
-    inherit(global.funcTree);
+    // Link inherited Domains
+    inherit<Nebulite::Utility::JSON>(&global);
 
     //------------------------------------------
     // Initialize DomainModules
@@ -49,17 +49,17 @@ bool Nebulite::Core::GlobalSpace::RendererExists(){
     return rendererInitialized;
 }
 
-Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueue& tq, uint64_t* waitCounter){
-    Nebulite::Constants::ERROR_TYPE currentResult = Nebulite::Constants::ERROR_TYPE::NONE;
+Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t* waitCounter){
+    Nebulite::Constants::Error currentResult = Nebulite::Constants::ErrorTable::NONE();
     Nebulite::Core::taskQueueResult result;
 
     // If clearAfterResolving, process and pop each element
     if (tq.clearAfterResolving) {
-        while (!tq.taskList.empty() && !result.stoppedAtCriticalResult) {
+        while (!tq.taskQueue.empty() && !result.stoppedAtCriticalResult) {
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
-            std::string argStr = tq.taskList.front();
-            tq.taskList.pop_front();
+            std::string argStr = tq.taskQueue.front();
+            tq.taskQueue.pop_front();
 
             // Add binary name if missing
             // While args from command line have binary name in them, 
@@ -73,14 +73,14 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
             currentResult = parseStr(argStr);
 
             // Check result
-            if (currentResult < Nebulite::Constants::ERROR_TYPE::NONE) {
+            if (currentResult.isCritical()) {
                 result.stoppedAtCriticalResult = true;
             }
             result.errors.push_back(currentResult);
         }
     } else {
         // If not clearing, process every element without popping
-        for (const auto& argStrOrig : tq.taskList) {
+        for (const auto& argStrOrig : tq.taskQueue) {
             if (result.stoppedAtCriticalResult) break;
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
@@ -97,7 +97,7 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
             currentResult = parseStr(argStr);
 
             // Check result
-            if (currentResult < Nebulite::Constants::ERROR_TYPE::NONE) {
+            if (currentResult.isCritical()) {
                 result.stoppedAtCriticalResult = true;
             }
             result.errors.push_back(currentResult);
@@ -107,9 +107,9 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
     return result;
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::Core::GlobalSpace::parseQueue() {
+Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
     uint64_t* noWaitCounter = nullptr;
-    Nebulite::Constants::ERROR_TYPE lastCriticalResult = Nebulite::Constants::ERROR_TYPE::NONE;
+    Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE();
 
     // 1.) Clear errors from last loop
     queueResult.script.errors.clear();
@@ -137,14 +137,12 @@ Nebulite::Constants::ERROR_TYPE Nebulite::Core::GlobalSpace::parseQueue() {
         return lastCriticalResult;
     }
 
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 void Nebulite::Core::GlobalSpace::update() {
     //------------------------------------------
     // Update Domain
-    for(auto& module : modules){
-        module->update();
-    }
+    updateModules();
     getDoc()->update();
 }

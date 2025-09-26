@@ -16,7 +16,8 @@ bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Inter
     if(cmd->selfPtr == otherObj) return false;
 
     // Check if logical arg is as simple as just "1", meaning true
-    if(cmd->logicalArg.getFullExpression() == "1") return true;
+    std::string_view expr = cmd->logicalArg.getFullExpressionStringview();
+    if(expr == "1") return true;
 
     // A logicalArg of "0" would never really be used in prod,
     // (only for errors or quick removals of invokes in debugging)
@@ -30,7 +31,7 @@ bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Inter
 
     // Check for result
     if(isnan(result)){
-        std::cerr << "Evaluated logic to NAN! Logic is: " << cmd->logicalArg.getFullExpression() << std::endl;
+        std::cerr << "Evaluated logic to NAN! Logic is: " << expr << std::endl;
         // A NaN-Result can happen if any variable resolved isnt a number, but a text
         // Under usual circumstances, this is easily avoidable
         // by designing the values to only be assigned a numeric value.
@@ -55,12 +56,13 @@ bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Inter
 
 bool Nebulite::Interaction::Invoke::isTrueLocal(std::shared_ptr<Nebulite::Interaction::ParsedEntry> cmd) {
     // Check if logical arg is as simple as just "1", meaning true
-    if(cmd->logicalArg.getFullExpression() == "1") return true;
+    std::string_view expr = cmd->logicalArg.getFullExpressionStringview();
+    if(expr == "1") return true;
 
     // Resolve logical statement, using self as context for other
     double result = cmd->logicalArg.evalAsDouble(cmd->selfPtr->getDoc());
     if(isnan(result)){
-        std::cerr << "Evaluated logic to NAN! Logic is: " << cmd->logicalArg.getFullExpression() << ". Resetting to 0" << std::endl;
+        std::cerr << "Evaluated logic to NAN! Logic is: " << expr << ". Resetting to 0" << std::endl;
         cmd->logicalArg.parse("0", docCache, cmd->selfPtr->getDoc(), global);
         return false;
     }

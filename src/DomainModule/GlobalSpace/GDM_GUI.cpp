@@ -4,7 +4,7 @@
 //------------------------------------------
 // Update
 void Nebulite::DomainModule::GlobalSpace::GUI::update() {
-    // Add FuncTree-specific updates here!
+    // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
 
@@ -13,7 +13,7 @@ void Nebulite::DomainModule::GlobalSpace::GUI::update() {
 }
 
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::GUI::example(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::GUI::example(int argc, char* argv[]) {
     // Goal is to create an SDL texture with DearImgui and attach it to the renderer queue
     // We might wish to create container variables local to the GUI class to hold DearImgui elements
     // so that we might call update on them, or modify them in any way
@@ -23,10 +23,10 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::GUI::exampl
 
     // Attachment happens once, renderer stores pointer but does not own texture!
     domain->getRenderer()->attachTextureAboveLayer(
-        Nebulite::Core::Environment::Layer::menue, 
+        Nebulite::Core::Environment::Layer::UI, 
         "circle_texture", 
         nullptr /* SDL_Texture* created from DearImgui */
     );
 
-    return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+    return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }

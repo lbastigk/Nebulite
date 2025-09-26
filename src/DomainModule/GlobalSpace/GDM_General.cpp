@@ -5,15 +5,15 @@
 //------------------------------------------
 // Update
 void Nebulite::DomainModule::GlobalSpace::General::update() {
-    // Add FuncTree-specific updates here!
+    // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
 }
 
 //------------------------------------------
-// FuncTree-Bound Functions
+// Domain-Bound Functions
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::eval(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::eval(int argc, char* argv[]){
     // argc/argv to string for evaluation
     std::string args = "";
     for (int i = 0; i < argc; ++i) {
@@ -27,45 +27,51 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::ev
     std::string args_evaled = domain->invoke->evaluateStandaloneExpression(args);
 
     // reparse
-    return funcTree->parseStr(args_evaled);
+    return domain->parseStr(args_evaled);
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::exitProgram(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::exitProgram(int argc, char* argv[]){
+    // Clear all task queues to prevent further execution
+    domain->tasks.script.taskQueue.clear();
+    domain->tasks.internal.taskQueue.clear();
+    domain->tasks.always.taskQueue.clear();
+
+    // Set the renderer to quit
     domain->getRenderer()->setQuit();
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::wait(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::wait(int argc, char* argv[]){
     if(argc == 2){
         std::istringstream iss(argv[1]);
         iss >> domain->scriptWaitCounter;
         if (domain->scriptWaitCounter < 0){
             domain->scriptWaitCounter = 0;
         }
-        return Nebulite::Constants::ERROR_TYPE::NONE;
+        return Nebulite::Constants::ErrorTable::NONE();
     }
     else if(argc < 2){
-       return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
+       return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     else{
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::loadTaskList(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::loadTasks(int argc, char* argv[]) {
     std::cout << "Loading task list from file: " << (argc > 1 ? argv[1] : "none") << std::endl;
 
     if (argc < 2) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (argc > 2) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     std::string file = Nebulite::Utility::FileManagement::LoadFile(argv[1]);
     if (file.empty()) {
         std::cerr << "Error: "<< argv[0] <<" Could not open file '" << argv[1] << "'" << std::endl;
-        return Nebulite::Constants::ERROR_TYPE::CRITICAL_INVALID_FILE;
+        return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
 
     std::vector<std::string> lines;
@@ -88,12 +94,12 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::lo
 
     // Now insert all lines into the task queue
     for (const auto& line : lines){
-        domain->tasks.script.taskList.push_front(line);
+        domain->tasks.script.taskQueue.push_front(line);
     }
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::echo(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::echo(int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         std::cout << argv[i];
         if (i < argc - 1) {
@@ -101,10 +107,10 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::ec
         }
     }
     std::cout << std::endl;
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::forLoop(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::forLoop(int argc, char* argv[]){
     std::string funcName = argv[0];
     if(argc > 4){
         std::string varName = argv[1];
@@ -122,16 +128,16 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::fo
         std::string args_replaced;
         for(int i = iStart; i <= iEnd; i++){
             // for + args
-            args_replaced = funcName + " " + Nebulite::Utility::StringHandler::replaceAll(args, '$' + varName, std::to_string(i));
-            funcTree->parseStr(args_replaced);
+            args_replaced = funcName + " " + Nebulite::Utility::StringHandler::replaceAll(args, '{' + varName + '}', std::to_string(i));
+            domain->parseStr(args_replaced);
         }
     }
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::ifCondition(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::ifCondition(int argc, char* argv[]) {
     if (argc < 3) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
     std::string result = domain->invoke->evaluateStandaloneExpression(argv[1]);
@@ -141,7 +147,7 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::if
 
     if (!condition) {
         // If the condition is false, skip the following commands
-        return Nebulite::Constants::ERROR_TYPE::NONE;
+        return Nebulite::Constants::ErrorTable::NONE();
     }
 
     // Build the command string from rest
@@ -153,69 +159,71 @@ Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::if
         }
     }
     commands = "Nebulite::DomainModule::GlobalSpace::General::ifCondition " + commands;
-    return funcTree->parseStr(commands);
+    return domain->parseStr(commands);
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::func_assert(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::func_assert(int argc, char* argv[]){
     if (argc < 2) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
     if (argc > 2) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     std::string condition = argv[1];
 
+    // condition must start with $( and end with )
+    if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+    }
+
+    // Evaluate condition
     if(!std::stod(domain->invoke->evaluateStandaloneExpression(condition))){
-        return Nebulite::Constants::ERROR_TYPE::CRITICAL_CUSTOM_ASSERT;
+        return Nebulite::Constants::ErrorTable::CRITICAL_CUSTOM_ASSERT();
     }
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+
+    // All good
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::func_return(int argc, char* argv[]){
-    if (argc < 2) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_FEW_ARGS;
-    }
-    if (argc > 2) {
-        return Nebulite::Constants::ERROR_TYPE::TOO_MANY_ARGS;
-    }
-    return (Nebulite::Constants::ERROR_TYPE)std::stoi(argv[1]);
-}
-
-//------------------------------------------
-// To move
-
-// 1.) To GDM_Debug
-
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::error(int argc, char* argv[]) {
-    for (int i = 1; i < argc; ++i) {
-        std::cerr << argv[i];
-        if (i < argc - 1) {
-            std::cerr << " ";
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::func_return(int argc, char* argv[]){
+    std::string str = "";
+    for(int i = 1; i < argc; ++i){
+        str += argv[i];
+        if(i < argc - 1){
+            str += " ";
         }
     }
-    std::cerr << std::endl;
-    return Nebulite::Constants::ERROR_TYPE::CUSTOM_ERROR;
+    return Nebulite::Constants::ErrorTable::addError(str, Nebulite::Constants::Error::CRITICAL);
 }
 
-// 2.) To GDM_StateManagement
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::always(int argc, char* argv[]){
+    if (argc > 1) {
+        std::ostringstream oss;
+        for (int i = 1; i < argc; ++i) {
+            if (i > 1) oss << ' ';
+            oss << argv[i];
+        }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::stateLoad(int argc, char* argv[]){ 
-    std::cerr << "Function load not implemented yet!" << std::endl;
-    return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+        // Split oss.str() on ';' and push each trimmed command
+        std::string argStr = oss.str();
+        std::stringstream ss(argStr);
+        std::string command;
+
+        while (std::getline(ss, command, ';')) {
+            // Trim whitespace from each command
+            command.erase(0, command.find_first_not_of(" \t"));
+            command.erase(command.find_last_not_of(" \t") + 1);
+            if (!command.empty()) {
+                domain->tasks.always.taskQueue.push_back(command);
+            }
+        }
+    }
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::GlobalSpace::General::stateSave(int argc, char* argv[]){
-    // <stateName>
-    // Change std::string Nebulite::stateName to name
-    // Check if dir ./States/stateName exists
-
-    // If any env is deloaded, save in stateName
-
-    // Every load of any file must be linked to state! If file exists in state load from there
-    // if not, load from usual path
-
-    std::cerr << "Function save not implemented yet!" << std::endl;
-    return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::alwaysClear(int argc, char* argv[]){
+    domain->tasks.always.taskQueue.clear();
+    return Nebulite::Constants::ErrorTable::NONE();
 }

@@ -29,10 +29,10 @@ namespace JSON{
  * 
  * DomainModule for complex data operations on domain class Nebulite::Utility::JSON
  */
-class ComplexData : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Utility::JSON> {
+NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ComplexData) {
 public:
     /**
-     * @brief Overridden update function.
+     * @brief Overwridden update function.
      */
     void update();
 
@@ -48,7 +48,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE set_from_query(int argc, char* argv[]);
+    Nebulite::Constants::Error set_from_query(int argc, char* argv[]);
 
     /**
      * @brief Sets a key from a JSON document.
@@ -57,19 +57,18 @@ public:
      * @param argv The argument vector: <key> <link:key>
      * @return Potential errors that occurred on command execution.
      * 
-     * @todo Not implemented yet
+     * @todo Once all domains have access to the global space, 
+     * use the JSON doc cache instead of loading the document each time.
      */
-    Nebulite::Constants::ERROR_TYPE set_from_json(int argc, char* argv[]);
+    Nebulite::Constants::Error set_from_json(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
 
     /**
-     * @brief Initializes references to the domain and FuncTree, 
-     * and binds functions to the FuncTree.
+     * @brief Initializes the module, binding functions and variables. 
      */
-    ComplexData(std::string moduleName, Nebulite::Utility::JSON* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, ComplexData){
         // Bind functions specific to complex data handling
 
         // SQL Querys

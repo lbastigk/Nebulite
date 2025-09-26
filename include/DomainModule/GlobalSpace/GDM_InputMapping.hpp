@@ -30,7 +30,7 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::InputMapping
  * @brief DomainModule for mapping inputs to actions within the GlobalSpace.
  */
-class InputMapping : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Core::GlobalSpace> {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, InputMapping) {
 public:
     /**
      * @brief Updates the input bindings.
@@ -64,7 +64,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE readMappingsFromFile(int argc, char* argv[]);
+    Nebulite::Constants::Error readMappingsFromFile(int argc, char* argv[]);
 
     // Useful if we wish to update mappings ingame
     /**
@@ -76,7 +76,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE updateInputMapping(int argc, char* argv[]);
+    Nebulite::Constants::Error updateInputMapping(int argc, char* argv[]);
 
     /**
      * @brief Writes the current input mappings to a file
@@ -90,17 +90,15 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::ERROR_TYPE writeMappingsToFile(int argc, char* argv[]);
+    Nebulite::Constants::Error writeMappingsToFile(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup
 
     /**
-     * @brief Initializes references to the domain and FuncTree, 
-     * and binds functions to the FuncTree.
+     * @brief Initializes the module, binding functions and variables. 
      */
-    InputMapping(std::string moduleName, Nebulite::Core::GlobalSpace* domain, Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTreePtr) 
-    : DomainModule(moduleName, domain, funcTreePtr) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, InputMapping){
         bindSubtree("input-mapping", "Functions to manage input mappings");
         bindFunction(&InputMapping::readMappingsFromFile,   "input-mapping read-from-file",    "Reads Input Mapping from inputs.jsonc file: [filename]");
         bindFunction(&InputMapping::updateInputMapping,     "input-mapping map",               "Maps one input mapping: <action> <slot> <key> <type>");

@@ -46,8 +46,8 @@ std::string Nebulite::Utility::StringHandler::replaceAll(std::string target, con
 
 std::string Nebulite::Utility::StringHandler::untilSpecialChar(std::string input, char specialChar){
     size_t pos = input.find(specialChar);
-    if (pos != std::string::npos && pos + 1 < input.size()) {
-        return input.substr(0,pos);
+    if (pos != std::string::npos && pos < input.size()) {
+        return input.substr(0, pos);;
     }
     return input;
 }

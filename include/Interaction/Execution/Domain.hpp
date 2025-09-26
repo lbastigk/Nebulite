@@ -14,14 +14,6 @@
 #define NEBULITE_DOMAIN(DomainName) \
     class DomainName : public Nebulite::Interaction::Execution::Domain<DomainName>
 
-/**
- * @brief Macro to define a new Nebulite DomainModule class.
- * 
- * @todo Insert macro into all DomainModules
- */
-#define NEBULITE_DOMAIN_MODULE(DomainName,DomainModuleName) \
-    class DomainModuleName : public Nebulite::Interaction::Execution::DomainModule<DomainName>
-
 //------------------------------------------
 // Includes
 
@@ -61,23 +53,18 @@ namespace Execution{
  * - Parsing strings into Nebulite commands.
  * - Binding additional features via DomainModules.
  * - Updating the domain through its DomainModules.
- * 
- * @todo Finding all similarities of existing domains and abstracting them into this class.
- * 
- * @todo Probably best to fully work the Trees into the Domain class as well.
  */
 template<typename DomainType>
 class Domain{
+    template<typename> friend class Domain;  // All Domain<T> instantiations are friends, so we can access each other's private members
 public:
     Domain(std::string domainName, DomainType* domain, Nebulite::Utility::JSON* doc)
+    : domainName(domainName), domain(domain), doc(doc)
     {
-        this->domainName = domainName;
-        this->domain = domain;
-        this->doc = doc;
-        funcTree = new Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>( 
+        funcTree = new Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>( 
                 domainName, 
-                Nebulite::Constants::ERROR_TYPE::NONE, 
-                Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTIONCALL_INVALID
+                Nebulite::Constants::ErrorTable::NONE(), 
+                Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
             );
     };
 
@@ -85,6 +72,7 @@ public:
      * @brief Factory method for creating DomainModule instances with proper linkage
      * 
      * @tparam DomainModuleType The type of module to initialize
+     * @param moduleName The name of the module
      */
     template<typename DomainModuleType>
     void initModule(std::string moduleName) {
@@ -94,6 +82,8 @@ public:
 
     /**
      * @brief Binds a variable to the FuncTree.
+     * 
+     * For binding functions or subtrees, use the DomainModule interface.
      */
     void bindVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription){
         funcTree->bindVariable(varPtr, name, helpDescription);
@@ -102,8 +92,11 @@ public:
     /**
      * @brief Binds all functions from a inherited FuncTree to the main FuncTree for parsing.
      */
-    void inherit(Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* inheritedFuncTree){
-        funcTree->inherit(inheritedFuncTree);
+    template<typename ToInheritFrom>
+    void inherit(Domain<ToInheritFrom>* toInheritFrom){
+        if(toInheritFrom != nullptr){
+            funcTree->inherit(toInheritFrom->funcTree);
+        }
     }
 
     //------------------------------------------
@@ -111,6 +104,8 @@ public:
 
     /**
      * @brief Updates the domain.
+     * 
+     * @todo should also return type Nebulite::Constants::Error
      */
     virtual void update(){
         // We cannot directly access the potential subdomain JSON here,
@@ -129,15 +124,13 @@ public:
      * 
      * @return A pointer to the internal JSON document.
      */
-    Nebulite::Utility::JSON* getDoc(){return doc;};
-
-    //Nebulite::Interaction::Execution::FuncTree* getFuncTree(){return &funcTree;};
+    Nebulite::Utility::JSON* getDoc() const { return doc; };
 
     //------------------------------------------
     // Command parsing
 
     /**
-	 * @brief Parses a string into a Nebulite command.
+	 * @brief Parses a string into a Nebulite command and prints potential errors to stderr.
 	 * 
 	 * Make sure the first arg is a name and not the function itself!
 	 * 
@@ -156,22 +149,45 @@ public:
 	 * @param str The string to parse.
 	 * @return Potential errors that occured on command execution
 	 */
-	Nebulite::Constants::ERROR_TYPE parseStr(const std::string& str){
-        return funcTree->parseStr(str);
+	Nebulite::Constants::Error parseStr(const std::string& str){
+        Nebulite::Constants::Error err = funcTree->parseStr(str);
+        err.print();
+        return err;
     }
 
     /**
      * @brief Necessary operations before parsing commands.
      */
-    virtual Nebulite::Constants::ERROR_TYPE preParse(){
-        return Nebulite::Constants::ERROR_TYPE::NONE;
+    virtual Nebulite::Constants::Error preParse(){
+        return Nebulite::Constants::ErrorTable::NONE();
     }
 
-//protected:
+    /**
+     * @brief Sets a function to call before parsing commands.
+     */
+    void setPreParse(std::function<Nebulite::Constants::Error()> func){
+        funcTree->setPreParse(func);
+    }
+
     /**
      * @brief Reference to the domain itself
      */
-    DomainType* domain;
+    DomainType* const domain;
+    
+    /**
+     * @brief Updates all DomainModules.
+     */
+    void updateModules(){
+        for(auto& module : modules){
+            module->update();
+        }
+    }
+
+private:
+    /**
+     * @brief The name of the domain.
+     */
+    std::string domainName;
 
     /**
      * @brief Parsing interface for domain-specific commands.
@@ -181,22 +197,19 @@ public:
      * 
      * The Tree is then shared with the DomainModules for modification.
      */
-    Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::ERROR_TYPE>* funcTree;
+    Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTree;
 
     /**
      * @brief Stores all available modules
      */
     std::vector<std::unique_ptr<Nebulite::Interaction::Execution::DomainModule<DomainType>>> modules;
 
-private:
-    std::string domainName;
-
     /**
      * @brief Each domain uses a JSON document to store its data.
      * We use a pointer here, as the JSON class itself is a domain.
      * Meaning the internal JSON doc references to itself.
      */
-    Nebulite::Utility::JSON* doc;
+    Nebulite::Utility::JSON* const doc;
 };
 }   // namespace Execution
 }   // namespace Interaction

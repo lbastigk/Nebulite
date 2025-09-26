@@ -65,9 +65,9 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 	subscription_size = json.memberSize(Nebulite::Constants::keyName.renderObject.invokeSubscriptions.c_str());
 
 	//------------------------------------------
-    // Link inherited FuncTree json
-    inherit(json.funcTree);
-	inherit(baseTexture.funcTree);
+    // Link inherited Domains
+    inherit<Nebulite::Utility::JSON>(&json);
+	inherit<Nebulite::Core::Texture>(&baseTexture);
 
 	//------------------------------------------
 	// Initialize Domain Modules
@@ -214,15 +214,9 @@ void Nebulite::Core::RenderObject::calculateSrcRect() {
 
 void Nebulite::Core::RenderObject::update() {
 	//------------------------------------------
-	// Update Domain
-	for(auto& module : modules){
-		module->update();
-	}
+	// Update modules and all inner domains
+	updateModules();
 	getDoc()->update();
-
-	// Check if Renderer exists and is linked
-	//
-
 	baseTexture.update();
 
 	//------------------------------------------
@@ -271,8 +265,7 @@ void Nebulite::Core::RenderObject::update() {
 	}
 }
 
-uint64_t Nebulite::Core::RenderObject::estimateComputationalCost() {
-
+uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyInternal) {
 	//------------------------------------------
 	// Reload invokes if needed
 	if (flag.reloadInvokes){
@@ -289,17 +282,15 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost() {
 	// Count number of $ and { in logical Arguments
 	uint64_t cost = 0;
 
-	// Global entries aren't relevant for this type of cost estimation, as they are evaluated elsewhere
-
 	// Local entries
-	for (auto entry : entries_local) {
-		std::string expr = entry->logicalArg.getFullExpression();
-		cost += std::count(expr.begin(), expr.end(), '$');
+	for (const auto& entry : entries_local) {
+		cost += entry->estimatedCost;
+	}
 
-		// Count number of $ in exprs
-		for (auto& expr : entry->exprs) {
-			cost += std::count(expr.value.begin(), expr.value.end(), '$');
-			cost += std::count(expr.value.begin(), expr.value.end(), '{');
+	// Global entries
+	if (!onlyInternal) {
+		for (const auto& entry : entries_global) {
+			cost += entry->estimatedCost;
 		}
 	}
 
@@ -310,8 +301,12 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost() {
 // Outside communication with Renderer for text calculation
 
 void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int renderer_X, int renderer_Y){
-	
 	// RECT position to renderer
+	/**
+	 * @todo Is it possible to reduce positionX/Y calls by only doing so in the renderer method?
+	 * This way, we would get position once for object, render object, then use position to render the text
+	 * Then we only need to keep textRect.w/h up to date here, and x/y is set in the renderer
+	 */
 	textRect.x = 	get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str()) + 
 					get<double>(Nebulite::Constants::keyName.renderObject.textDx.c_str()) - renderer_X;
 	textRect.y = 	get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str()) + 

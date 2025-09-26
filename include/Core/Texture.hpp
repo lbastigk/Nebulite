@@ -61,7 +61,7 @@ public:
     /**
      * @brief Necessary operations before parsing commands.
      */
-    Nebulite::Constants::ERROR_TYPE preParse() override;
+    Nebulite::Constants::Error preParse() override;
 
     //------------------------------------------
     // GlobalSpace related

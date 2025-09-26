@@ -27,14 +27,15 @@ namespace Core {
 // General Types used
 
 /**
- * @struct Nebulite::Core::taskQueue
- * @brief Represents a queue of tasks to be processed by the engine.
- * 
- * @todo internal variables as bool instead of string should be enough
+ * @struct Nebulite::Core::taskQueueWrapper
+ * @brief Represents a queue of tasks to be processed by the engine, including metadata.
  */
-struct taskQueue {
-    std::deque<std::string> taskList;   // List of tasks
+struct taskQueueWrapper {
+    std::deque<std::string> taskQueue;  // List of tasks
     bool clearAfterResolving = true;    // Whether to clear the task list after resolving
+    /**
+     * @note Add more metadata as needed, for resolveTaskQueue() to use
+     */
 };
 
 /**
@@ -45,7 +46,7 @@ struct taskQueue {
  */
 struct taskQueueResult{
     bool stoppedAtCriticalResult = false;
-    std::vector<Nebulite::Constants::ERROR_TYPE> errors;
+    std::vector<Nebulite::Constants::Error> errors;
 };
 
 //------------------------------------------
@@ -82,6 +83,8 @@ struct taskQueueResult{
  *   - stateName, binName: Strings for tracking the current engine state and binary name.
  *
  * See main.cpp and other engine modules for usage examples and integration details.
+ * 
+ * @todo internal variables like "--headless" as bool instead of string should be enough
  */
 NEBULITE_DOMAIN(GlobalSpace) {
 public:
@@ -137,15 +140,15 @@ public:
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
      */
-    Nebulite::Core::taskQueueResult resolveTaskQueue(Nebulite::Core::taskQueue& tq, uint64_t* waitCounter);
+    Nebulite::Core::taskQueueResult resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t* waitCounter);
 
     /**
      * @brief Parses the task queue for execution.
      * 
-     * @return Errorcode `Nebulite::Constants::ERROR_TYPE::None` if there was no critical stop,
+     * @return Errorcode `Nebulite::Constants::ErrorTable::NONE()` if there was no critical stop,
      * the last critical error code otherwise.
      */
-    Nebulite::Constants::ERROR_TYPE parseQueue();
+    Nebulite::Constants::Error parseQueue();
 
     /**
      * @brief Updates the global space.
@@ -160,9 +163,9 @@ public:
      * @brief Contains task queues for different types of tasks.
      */
     struct Tasks{
-        Nebulite::Core::taskQueue script;     // Task queue for script files loaded with "task"
-        Nebulite::Core::taskQueue internal;   // Internal task queue from renerObjects, console, etc.
-        Nebulite::Core::taskQueue always;     // Always-tasks added with the prefix "always "
+        Nebulite::Core::taskQueueWrapper script;     // Task queue for script files loaded with "task"
+        Nebulite::Core::taskQueueWrapper internal;   // Internal task queue from renerObjects, console, etc.
+        Nebulite::Core::taskQueueWrapper always;     // Always-tasks added with the prefix "always "
     } tasks;
 
     // Wait counter for script tasks

@@ -4,33 +4,33 @@
 //------------------------------------------
 // Update
 void Nebulite::DomainModule::RenderObject::StateUpdate::update() {
-    // Add FuncTree-specific updates here!
+    // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
 }
 
 //------------------------------------------
-// FuncTree-Bound Functions
+// Domain-Bound Functions
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::StateUpdate::deleteObject(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::StateUpdate::deleteObject(int argc, char* argv[]){
     domain->flag.deleteFromScene = true;
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::StateUpdate::updateText(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::StateUpdate::updateText(int argc, char* argv[]){
     domain->flag.calculateText = true;
-    return Nebulite::Constants::ERROR_TYPE::NONE;
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::StateUpdate::reloadInvokes(int argc, char* argv[]){
-    return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::StateUpdate::reloadInvokes(int argc, char* argv[]){
+    return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::StateUpdate::addInvoke(int argc, char* argv[]){
-    return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::StateUpdate::addInvoke(int argc, char* argv[]){
+    return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::StateUpdate::removeInvoke(int argc, char* argv[]){
-    return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::StateUpdate::removeInvoke(int argc, char* argv[]){
+    return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
-Nebulite::Constants::ERROR_TYPE Nebulite::DomainModule::RenderObject::StateUpdate::removeAllInvokes(int argc, char* argv[]){
-    return Nebulite::Constants::ERROR_TYPE::CRITICAL_FUNCTION_NOT_IMPLEMENTED;
+Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::StateUpdate::removeAllInvokes(int argc, char* argv[]){
+    return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
