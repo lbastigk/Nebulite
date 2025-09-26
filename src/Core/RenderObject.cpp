@@ -301,8 +301,12 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyIntern
 // Outside communication with Renderer for text calculation
 
 void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int renderer_X, int renderer_Y){
-	
 	// RECT position to renderer
+	/**
+	 * @todo Is it possible to reduce positionX/Y calls by only doing so in the renderer method?
+	 * This way, we would get position once for object, render object, then use position to render the text
+	 * Then we only need to keep textRect.w/h up to date here, and x/y is set in the renderer
+	 */
 	textRect.x = 	get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str()) + 
 					get<double>(Nebulite::Constants::keyName.renderObject.textDx.c_str()) - renderer_X;
 	textRect.y = 	get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str()) + 
