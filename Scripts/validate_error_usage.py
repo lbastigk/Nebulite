@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
-"""
-Script to validate error usage in the Nebulite codebase.
 
-From ErrorTypes.hpp:
-* @todo Implement a python script to check if any errors are unused in the codebase
-*       get all errors: 'static inline Error <ErrorName>()'{...}
-*       search ./include and ./src for Nebulite::ErrorTable::<something>::<ErrorName>()
-"""
+# Script to validate error usage in the Nebulite codebase.
 
 import re
 import os
