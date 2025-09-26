@@ -53,10 +53,6 @@ namespace Execution{
  * - Parsing strings into Nebulite commands.
  * - Binding additional features via DomainModules.
  * - Updating the domain through its DomainModules.
- * 
- * @todo Finding all similarities of existing domains and abstracting them into this class.
- * 
- * @todo Probably best to fully work the Trees into the Domain class as well.
  */
 template<typename DomainType>
 class Domain{
@@ -86,6 +82,8 @@ public:
 
     /**
      * @brief Binds a variable to the FuncTree.
+     * 
+     * For binding functions or subtrees, use the DomainModule interface.
      */
     void bindVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription){
         funcTree->bindVariable(varPtr, name, helpDescription);

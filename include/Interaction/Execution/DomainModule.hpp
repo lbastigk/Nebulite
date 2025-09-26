@@ -107,6 +107,15 @@ public:
         );
     }
 
+    /**
+     * @brief Binds a subtree to the FuncTree.
+     * 
+     * A subtree acts as a "function bundler" to the main tree.
+     * 
+     * @param name Name of the subtree
+     * @param description Description of the subtree, shown in the help command. First line is shown in the general help, full description in detailed help
+     * @return true if the subtree was created successfully, false if a subtree with the same name already exists
+     */
     bool bindSubtree(const std::string& name, const std::string& description) {
         return funcTree->bindSubtree(name, description);
     }
@@ -127,6 +136,8 @@ public:
 
     // Prevent copying
     DomainModule(const DomainModule&) = delete;
+
+    // Prevent assignment
     DomainModule& operator=(const DomainModule&) = delete;
 
 protected:
@@ -139,7 +150,18 @@ protected:
     DomainType* domain;                                     // Workspace of the DomainModule
 
 private:
-    FuncTree<Nebulite::Constants::Error>* funcTree;         // Where to bind the expanded functions
+    /**
+     * @brief Pointer to the internal FuncTree for binding functions and variables.
+     * 
+     * We need a pointer here to avoid circular dependencies that are hard to resolve,
+     * as both Domain and DomainModule are templated classes
+     * 
+     * FuncTree, however, is fully defined at this point, so we can use it directly.
+     * 
+     * Instead of making a mess by untangling the templates, we simply use a pointer
+     * to the non-templated interface.
+     */
+    FuncTree<Nebulite::Constants::Error>* funcTree;
 };
 }   // namespace Interaction
 }   // namespace Execution
