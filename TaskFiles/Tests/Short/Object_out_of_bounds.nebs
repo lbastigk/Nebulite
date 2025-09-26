@@ -4,7 +4,7 @@ echo
 echo
 set-res 500 500
 set-fps 600
-set time.fixed_dt_ms 16 # about 10 times as fast as real time
+time set-fixed-dt 16 # about 10 times as fast as real time
 echo
 echo Test 1: no Invokes
 echo

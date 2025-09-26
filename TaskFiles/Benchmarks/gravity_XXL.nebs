@@ -16,7 +16,7 @@ set loop.n 40
 ###############################################
 # [BASICS]
 # It is not recommended to change these!
-set time.fixed_dt_ms 1
+time set-fixed-dt 1
 set physics.G 10
 set-res 640 640 3
 set-fps 10000
@@ -26,7 +26,7 @@ show-fps off
 # [INFO]
 echo
 eval echo Benchmark with $i( {global.loop.n} * {global.loop.n} ) Objects...
-eval echo Rendering with a fixed dt of {global.time.fixed_dt_ms}ms
+eval echo Rendering with a fixed dt of 1 ms
 echo
 
 

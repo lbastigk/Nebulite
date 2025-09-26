@@ -86,6 +86,15 @@ public:
      */
     Nebulite::Constants::Error masterUnlock(int argc, char** argv);
 
+    /**
+     * @brief Sets a fixed delta time for the simulation time.
+     * 
+     * @param argc Argument count.
+     * @param argv Argument vector: the fixed delta time in milliseconds.
+     * @return Error code indicating success or failure.
+     */
+    Nebulite::Constants::Error setFixedDeltaTime(int argc, char** argv);
+
     //------------------------------------------
     // Setup
 
@@ -101,10 +110,11 @@ public:
         //------------------------------------------
         // Bind functions
         bindSubtree("time", "Commands for time management");
-        bindFunction(&Time::haltOnce,       "time halt-once",       "Halt time for one frame: time-halt-once");
-        bindFunction(&Time::lock,           "time lock",            "Lock time with a name: time-lock <name>");
-        bindFunction(&Time::unlock,         "time unlock",          "Unlock time with a name: time-unlock <name>");
-        bindFunction(&Time::masterUnlock,   "time master-unlock",   "Unlock all time locks: time-master-unlock");
+        bindFunction(&Time::haltOnce,           "time halt-once",       "Halt time for one frame: time-halt-once");
+        bindFunction(&Time::lock,               "time lock",            "Lock time with a name: time-lock <name>");
+        bindFunction(&Time::unlock,             "time unlock",          "Unlock time with a name: time-unlock <name>");
+        bindFunction(&Time::masterUnlock,       "time master-unlock",   "Unlock all time locks: time-master-unlock");
+        bindFunction(&Time::setFixedDeltaTime,  "time set-fixed-dt",    "Set a fixed delta time in milliseconds for the simulation time\n time-set-fixed-dt <dt_ms>. Use 0 to disable fixed dt.");
     }
 
 private:
@@ -137,6 +147,11 @@ private:
      * @brief Amount of frames rendererd
      */
     uint64_t frameCount = 0;
+
+    /**
+     * @brief Fixed delta time for the simulation time. If 0, uses real delta time.
+     */
+    uint64_t fixedDeltaTime = 0;
 };
 } // namespace GlobalSpace
 } // namespace DomainModule

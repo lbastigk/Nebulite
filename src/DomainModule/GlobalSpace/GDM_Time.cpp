@@ -24,8 +24,7 @@ void Nebulite::DomainModule::GlobalSpace::Time::update() {
         // Simulation time (can be paused)
 
         // Update with fixed delta time if set
-        uint64_t fixed_dt_ms = domain->getDoc()->get<Uint64>(Nebulite::Constants::keyName.renderer.time_fixed_dt_ms.c_str(),0);
-        SimulationTime.update(fixed_dt_ms);
+        SimulationTime.update(fixedDeltaTime);
         uint64_t dt_ms = SimulationTime.get_dt_ms(); // Either fixed value or calculate from actual simtime difference
         uint64_t t_ms = SimulationTime.get_t_ms();
 
@@ -77,5 +76,18 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::unlock(int
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::masterUnlock(int argc, char** argv){
     timeLocks.clear();
+    return Nebulite::Constants::ErrorTable::NONE();
+}
+
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::setFixedDeltaTime(int argc, char** argv){
+    if(argc < 2){
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    }
+    try{
+        uint64_t dt = std::stoull(argv[1]);
+        fixedDeltaTime = dt;
+    } catch(...){
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+    }
     return Nebulite::Constants::ErrorTable::NONE();
 }
