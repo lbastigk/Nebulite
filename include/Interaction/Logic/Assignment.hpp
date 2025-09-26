@@ -18,8 +18,8 @@ namespace Nebulite {
 namespace Interaction {
 namespace Logic {
 /**
- * @class Nebulite::Interaction::Logic::Assignment
- * @brief Struct representing a variable assignment in the Nebulite scripting language.
+ * @struct Nebulite::Interaction::Logic::Assignment
+ * @brief Representing a variable assignment in the Nebulite scripting language.
  * 
  * Contains:
  * 
@@ -35,7 +35,6 @@ namespace Logic {
  * 
  */
 struct Assignment{
-
     /**
      * @brief Type of operation used
      */
@@ -73,23 +72,6 @@ struct Assignment{
     std::string key;
 
     /**
-     * @brief Represents the full assignment as string
-     * 
-     * e.g. "0", "$($(self.posX) + 1)"
-     * 
-     * Storing the full value is necessary for:
-     * 
-     * - estimating computational cost based on the amount of evaluations `$` as well as variables `{...}`
-     * - parsing the expression later on
-     * 
-     * @todo Is it possible to instead use expression directly? 
-     * Since expression stores the full string as well
-     * 
-     * @todo does this store "key=0" or just "0"? See Deserializer!
-     */
-    std::string value;
-
-    /**
      * @brief The parsed expression in a thread-friendly Pool-Configuration
      */
     Nebulite::Interaction::Logic::ExpressionPool expression;
@@ -122,6 +104,18 @@ struct Assignment{
         }
         return *this;
     }
+    
+    /**
+     * @brief Represents the full assignment as string
+     * 
+     * e.g. "0", "$($(self.posX) + 1)", does not include the assignment operator and target
+     * 
+     * Storing the full value is necessary for:
+     * 
+     * - estimating computational cost based on the amount of evaluations `$` as well as variables `{...}`
+     * - parsing the expression later on
+     */
+    std::string value;
 };
 } // namespace Logic
 } // namespace Interaction

@@ -283,28 +283,14 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyIntern
 	uint64_t cost = 0;
 
 	// Local entries
-	for (auto entry : entries_local) {
-		std::string expr = entry->logicalArg.getFullExpression();
-		cost += std::count(expr.begin(), expr.end(), '$');
-
-		// Count number of $ in exprs
-		for (auto& expr : entry->exprs) {
-			cost += std::count(expr.value.begin(), expr.value.end(), '$');
-			cost += std::count(expr.value.begin(), expr.value.end(), '{');
-		}
+	for (const auto& entry : entries_local) {
+		cost += entry->estimatedCost;
 	}
 
 	// Global entries
 	if (!onlyInternal) {
-		for (auto entry : entries_global) {
-			std::string expr = entry->logicalArg.getFullExpression();
-			cost += std::count(expr.begin(), expr.end(), '$');
-
-			// Count number of $ in exprs
-			for (auto& expr : entry->exprs) {
-				cost += std::count(expr.value.begin(), expr.value.end(), '$');
-				cost += std::count(expr.value.begin(), expr.value.end(), '{');
-			}
+		for (const auto& entry : entries_global) {
+			cost += entry->estimatedCost;
 		}
 	}
 

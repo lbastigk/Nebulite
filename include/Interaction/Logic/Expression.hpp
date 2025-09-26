@@ -109,7 +109,7 @@ public:
      * 
      * @return The full expression string.
      */
-    std::string getFullExpression(){return fullExpression;};
+    const std::string* getFullExpression() const noexcept {return &fullExpression;};
 
 private:
     /**

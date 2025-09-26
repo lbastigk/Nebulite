@@ -115,6 +115,24 @@ struct ParsedEntry{
      */
     std::vector<Nebulite::Interaction::Logic::Assignment> exprs;
 
+    /**
+     * @brief Cost of this entry, estimated during parsing.
+     */
+    uint64_t estimatedCost = 0;
+
+    void estimateComputationalCost() {
+        // Count number of $ and { in logicalArg
+        const std::string* expr = logicalArg.getFullExpression();
+        estimatedCost += std::count(expr->begin(), expr->end(), '$');
+
+        // Count number of $ and { in exprs
+        for (const auto& expr : exprs) {
+            const std::string* value = expr.expression.getFullExpression();
+            estimatedCost += std::count(value->begin(), value->end(), '$');
+            estimatedCost += std::count(value->begin(), value->end(), '{');
+        }
+    }
+
     // Make Entry non-copyable and non-movable
     // All entries should be local to their RenderObject
     ParsedEntry() = default;
