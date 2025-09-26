@@ -1,5 +1,15 @@
 #!/bin/bash
-sudo apt install npm
+
+# Check for apt or dnf and install dependencies
+if command -v apt &> /dev/null; then
+    PACKAGE_MANAGER="apt"
+elif command -v dnf &> /dev/null; then
+    PACKAGE_MANAGER="dnf"
+else
+    echo "Unknown package manager. Please install npm and vsce manually."
+fi
+
+sudo $PACKAGE_MANAGER install npm
 sudo npm install -g vsce
 
 # Enable debugging
