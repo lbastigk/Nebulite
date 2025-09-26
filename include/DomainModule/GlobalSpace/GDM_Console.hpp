@@ -64,6 +64,13 @@ private:
     // Key to toggle console
     std::string toggleKey = "input.keyboard.delta.tab";
 
+    uint8_t MINIMUM_LINES = 5; // Minimum number of lines to show, including input line
+    uint8_t LINE_PADDING = 10; // Padding between lines in pixels
+    uint8_t FONT_MAX_SIZE = 24; // Maximum font size
+
+    // y positions of each line, derived from console height
+    std::vector<uint16_t> line_y_pos;
+    
     //------------------------------------------
     // State
 
@@ -116,6 +123,14 @@ private:
      * Setting size and spacing automatically based on console height.
 	 */
 	void renderConsole();
+
+    /**
+     * @brief Populates vector line_y_pos with the y positions of each line,
+     * and sets font size accordingly.
+     * 
+     * @return The calculated line height.
+     */
+    uint8_t calculateTextAlignment(uint16_t rect_height);
 
     //------------------------------------------
     // Mirrored from Renderer

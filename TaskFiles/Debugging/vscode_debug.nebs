@@ -1,8 +1,27 @@
-# Debugging task called from VSCode
-# This task is called from .vscode/launch.json
-# Tests may vary at any time
+# -----------------------------------------------------------------------------
+# vscode_debug.nebs
+#
+# Short description:
+#   Minimal task script intended for quick debugging from VS Code. The
+#   `.vscode/launch.json` configuration can invoke this file to run a
+#   lightweight scene or custom debug test. Depending on the commands in the
+#   script the engine may run-and-exit or run interactively while the debugger
+#   is attached.
+#
+# Usage:
+#   ./bin/Nebulite task TaskFiles/Debugging/vscode_debug.nebs
+#
+# Notes:
+#   - You may modify this file to suit your debugging needs
+#
+# TODO: Install per-user, do not track in git
+#   Consider creating this file via `./install.sh` and adding it to `.gitignore`
+#   so that different users can have different debugging setups without
+#   interfering with each other.
+# -----------------------------------------------------------------------------
 echo Starting vscode_debug.nebs
+# -----------------------------------------------------------------------------
 
 spawn ./Resources/Renderobjects/Planets/sun.jsonc
 wait 30
-exit
+# exit

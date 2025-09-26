@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/bin/Nebulite_Debug",
             "args": [
                 "task",
-                "TaskFiles/Debugging/vscode_debug.nebs"
+                "${workspaceFolder}/TaskFiles/Debugging/vscode_debug.nebs"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

@@ -20,16 +20,28 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
     names.state  = "";
 
     //------------------------------------------
+    // Domain-Related
+
     // Link inherited Domains
     inherit<Nebulite::Utility::JSON>(&global);
 
-    //------------------------------------------
     // Initialize DomainModules
     Nebulite::DomainModule::GDM_init(this);
 
     //------------------------------------------
     // Do first update
     update();
+}
+
+void Nebulite::Core::GlobalSpace::update() {
+    //------------------------------------------
+    // Update Domain
+
+    // Update modules first
+    updateModules();
+
+    // Then, update inner domains
+    getDoc()->update();
 }
 
 Nebulite::Core::Renderer* Nebulite::Core::GlobalSpace::getRenderer() {
@@ -140,9 +152,3 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-void Nebulite::Core::GlobalSpace::update() {
-    //------------------------------------------
-    // Update Domain
-    updateModules();
-    getDoc()->update();
-}
