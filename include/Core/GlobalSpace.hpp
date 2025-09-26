@@ -29,8 +29,6 @@ namespace Core {
 /**
  * @struct Nebulite::Core::taskQueueWrapper
  * @brief Represents a queue of tasks to be processed by the engine, including metadata.
- * 
- * @todo internal variables as bool instead of string should be enough
  */
 struct taskQueueWrapper {
     std::deque<std::string> taskQueue;  // List of tasks
@@ -85,6 +83,8 @@ struct taskQueueResult{
  *   - stateName, binName: Strings for tracking the current engine state and binary name.
  *
  * See main.cpp and other engine modules for usage examples and integration details.
+ * 
+ * @todo internal variables like "--headless" as bool instead of string should be enough
  */
 NEBULITE_DOMAIN(GlobalSpace) {
 public:
