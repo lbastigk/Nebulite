@@ -98,7 +98,7 @@ public:
      * 
      * @param queue Reference to the global queue.
      */
-    void linkQueue(std::deque<std::string>& queue){tasks = &queue;}
+    void linkTaskQueue(std::deque<std::string>& queue){tasks = &queue;}
 
     /**
      * @brief Clears all broadcasted invoke entries and pairs.
@@ -116,7 +116,7 @@ public:
     /**
      * @brief Gets the global queue for function calls.
      */
-    std::deque<std::string>* getQueue(){return tasks;};
+    std::deque<std::string>* getTaskQueue(){return tasks;};
     
     //------------------------------------------
     // Send/Listen

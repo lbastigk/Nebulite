@@ -249,7 +249,7 @@ void Console::TextInput::submit(Console *console, bool execute){
 
         // Add to queue
         if(execute){
-            console->invoke->getQueue()->emplace_back(*console->consoleInputBuffer);
+            console->invoke->getTaskQueue()->emplace_back(*console->consoleInputBuffer);
             if(console->selectedCommandIndex != 0){
                 // If we were browsing history, reset to latest input
                 console->selectedCommandIndex = 0;

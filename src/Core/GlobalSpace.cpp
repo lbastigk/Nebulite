@@ -12,7 +12,7 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
     // Objects and linkages 
     renderer = nullptr; // Uninitialized
     invoke = std::make_unique<Nebulite::Interaction::Invoke>(&global);
-    invoke->linkQueue(tasks.internal.taskList);
+    invoke->linkTaskQueue(tasks.internal.taskQueue);
 
     //------------------------------------------
     // General Variables
@@ -49,17 +49,17 @@ bool Nebulite::Core::GlobalSpace::RendererExists(){
     return rendererInitialized;
 }
 
-Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueue& tq, uint64_t* waitCounter){
+Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t* waitCounter){
     Nebulite::Constants::Error currentResult = Nebulite::Constants::ErrorTable::NONE();
     Nebulite::Core::taskQueueResult result;
 
     // If clearAfterResolving, process and pop each element
     if (tq.clearAfterResolving) {
-        while (!tq.taskList.empty() && !result.stoppedAtCriticalResult) {
+        while (!tq.taskQueue.empty() && !result.stoppedAtCriticalResult) {
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
-            std::string argStr = tq.taskList.front();
-            tq.taskList.pop_front();
+            std::string argStr = tq.taskQueue.front();
+            tq.taskQueue.pop_front();
 
             // Add binary name if missing
             // While args from command line have binary name in them, 
@@ -80,7 +80,7 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
         }
     } else {
         // If not clearing, process every element without popping
-        for (const auto& argStrOrig : tq.taskList) {
+        for (const auto& argStrOrig : tq.taskQueue) {
             if (result.stoppedAtCriticalResult) break;
             if (waitCounter != nullptr && *waitCounter > 0) break;
 

@@ -32,9 +32,9 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::eval(in
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::exitProgram(int argc, char* argv[]){
     // Clear all task queues to prevent further execution
-    domain->tasks.script.taskList.clear();
-    domain->tasks.internal.taskList.clear();
-    domain->tasks.always.taskList.clear();
+    domain->tasks.script.taskQueue.clear();
+    domain->tasks.internal.taskQueue.clear();
+    domain->tasks.always.taskQueue.clear();
 
     // Set the renderer to quit
     domain->getRenderer()->setQuit();
@@ -58,7 +58,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::wait(in
     }
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::loadTaskList(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::loadTasks(int argc, char* argv[]) {
     std::cout << "Loading task list from file: " << (argc > 1 ? argv[1] : "none") << std::endl;
 
     if (argc < 2) {
@@ -94,7 +94,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::loadTas
 
     // Now insert all lines into the task queue
     for (const auto& line : lines){
-        domain->tasks.script.taskList.push_front(line);
+        domain->tasks.script.taskQueue.push_front(line);
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
@@ -216,7 +216,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::always(
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                domain->tasks.always.taskList.push_back(command);
+                domain->tasks.always.taskQueue.push_back(command);
             }
         }
     }
@@ -224,6 +224,6 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::always(
 }
 
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::alwaysClear(int argc, char* argv[]){
-    domain->tasks.always.taskList.clear();
+    domain->tasks.always.taskQueue.clear();
     return Nebulite::Constants::ErrorTable::NONE();
 }

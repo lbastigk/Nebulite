@@ -27,14 +27,17 @@ namespace Core {
 // General Types used
 
 /**
- * @struct Nebulite::Core::taskQueue
- * @brief Represents a queue of tasks to be processed by the engine.
+ * @struct Nebulite::Core::taskQueueWrapper
+ * @brief Represents a queue of tasks to be processed by the engine, including metadata.
  * 
  * @todo internal variables as bool instead of string should be enough
  */
-struct taskQueue {
-    std::deque<std::string> taskList;   // List of tasks
+struct taskQueueWrapper {
+    std::deque<std::string> taskQueue;  // List of tasks
     bool clearAfterResolving = true;    // Whether to clear the task list after resolving
+    /**
+     * @note Add more metadata as needed, for resolveTaskQueue() to use
+     */
 };
 
 /**
@@ -137,7 +140,7 @@ public:
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
      */
-    Nebulite::Core::taskQueueResult resolveTaskQueue(Nebulite::Core::taskQueue& tq, uint64_t* waitCounter);
+    Nebulite::Core::taskQueueResult resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t* waitCounter);
 
     /**
      * @brief Parses the task queue for execution.
@@ -160,9 +163,9 @@ public:
      * @brief Contains task queues for different types of tasks.
      */
     struct Tasks{
-        Nebulite::Core::taskQueue script;     // Task queue for script files loaded with "task"
-        Nebulite::Core::taskQueue internal;   // Internal task queue from renerObjects, console, etc.
-        Nebulite::Core::taskQueue always;     // Always-tasks added with the prefix "always "
+        Nebulite::Core::taskQueueWrapper script;     // Task queue for script files loaded with "task"
+        Nebulite::Core::taskQueueWrapper internal;   // Internal task queue from renerObjects, console, etc.
+        Nebulite::Core::taskQueueWrapper always;     // Always-tasks added with the prefix "always "
     } tasks;
 
     // Wait counter for script tasks

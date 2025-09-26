@@ -69,13 +69,13 @@ public:
     Nebulite::Constants::Error wait(int argc, char* argv[]);
 
     /**
-     * @brief Loads a task list from a file
+     * @brief Loads tasks from a file into the taskQueue
      * 
      * @param argc The argument count
      * @param argv The argument vector: the filename to load
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error loadTaskList(int argc, char* argv[]);
+    Nebulite::Constants::Error loadTasks(int argc, char* argv[]);
 
     /**
      * @brief Executes a for-loop with a function call
@@ -152,7 +152,7 @@ public:
         bindFunction(&General::eval,                "eval",                 "Evaluate an expression and execute the result. Example: eval echo $(1+1)");
         bindFunction(&General::exitProgram,         "exit",                 "Exit the program");
         bindFunction(&General::wait,                "wait",                 "Wait a given amount of frames: wait <frames>");
-        bindFunction(&General::loadTaskList,        "task",                 "Load a task list from a file: task <filename>");
+        bindFunction(&General::loadTasks,           "task",                 "Load a task list from a file: task <filename>");
         bindFunction(&General::forLoop,             "for",                  "Execute a for-loop with a function call: for <var> <start> <end> <functioncall>");
         bindFunction(&General::ifCondition,         "if",                   "Execute a block of code if a condition is true: if <condition> <functioncall>");
         bindFunction(&General::func_return,         "return",               "Return a custom value");

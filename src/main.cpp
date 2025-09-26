@@ -81,7 +81,7 @@ int main(int argc, char* argv[]){
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                globalSpace.tasks.script.taskList.push_back(command);
+                globalSpace.tasks.script.taskQueue.push_back(command);
             }
         }
     }
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]){
          *       This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
          *    
          */
-        globalSpace.tasks.script.taskList.push_back(std::string("set-fps 60"));
+        globalSpace.tasks.script.taskQueue.push_back(std::string("set-fps 60"));
     }
     
     //------------------------------------------
