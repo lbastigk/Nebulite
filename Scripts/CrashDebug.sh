@@ -5,10 +5,7 @@ ulimit -n 1024
 ulimit -c unlimited
 
 # Define task
-taskfile="TaskFiles/Tests/Short/gravity_classic_some_frames.nebs"
-#taskfile="TaskFiles/Benchmarks/spawn_constantly.nebs"
-#taskfile="TaskFiles/Tests/Short/init_print_global.nebs"
-#taskfile="TaskFiles/Tests/spawn_memleak.nebs"
+taskfile="TaskFiles/Debugging/vscode_debug.nebs"
 
 # Set core dump directory and pattern
 CORE_DIR="/tmp"

@@ -1,0 +1,17 @@
+echo Starting a game of pong
+set-fps 1000
+set-res 640 480 2
+set time.fixed_dt_ms 4
+
+eval spawn ./Resources/Renderobjects/Pong/npc_left.jsonc|posX=0|posY=32
+eval spawn ./Resources/Renderobjects/Pong/npc_right.jsonc|posX=$(640-32)|posY=32
+
+eval spawn ./Resources/Renderobjects/Pong/collision_barrier.jsonc|posX=0|posY=0|sprite.sizeX=640|sprite.sizeY=32
+eval spawn ./Resources/Renderobjects/Pong/collision_barrier.jsonc|posX=0|posY=$(480-32)|sprite.sizeX=640|sprite.sizeY=32
+
+eval spawn ./Resources/Renderobjects/Pong/ball_getting_faster.jsonc|posX=64|posY=64
+
+spawn ./Resources/Renderobjects/Pong/scoreboard.jsonc|posY=455|posX=16
+
+wait 5000
+exit

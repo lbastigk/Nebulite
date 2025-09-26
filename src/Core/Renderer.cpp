@@ -5,7 +5,6 @@
 Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool flag_headless, unsigned int X, unsigned int Y)
 : 	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B")),
-	dist(0, 32767),
 	env(globalSpace)
 	{
 	//------------------------------------------
@@ -254,9 +253,6 @@ void Nebulite::Core::Renderer::append(Nebulite::Core::RenderObject* toAppend) {
 
 	//Load texture
 	loadTexture(toAppend->get<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str()));
-
-	// Update rolling rand
-	update_rrand();
 }
 
 void Nebulite::Core::Renderer::reinsertAllObjects(){
@@ -292,11 +288,6 @@ void Nebulite::Core::Renderer::setGlobalValues(){
 	invoke_ptr->getGlobalPointer()->set<double>( "runtime.t",   t_ms / 1000.0);
 	invoke_ptr->getGlobalPointer()->set<Uint64>( "runtime.dt_ms", dt_ms);
 	invoke_ptr->getGlobalPointer()->set<Uint64>( "runtime.t_ms", t_ms);
-
-	//------------------------------------------
-	// Random
-	update_rand();
-	update_rrand();
 }
 
 //------------------------------------------

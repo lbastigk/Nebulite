@@ -212,6 +212,17 @@ private:
     }names;
 
     //------------------------------------------
+    // Methods
+
+    /**
+     * @brief Sets the pre-parse function for the domain.
+     * 
+     * This function binds a pre-parse function to the domain's function tree,
+     * which is called before parsing any command. It is used to properly handle RNG
+     */
+    Nebulite::Constants::Error preParse() override;
+
+    //------------------------------------------
     // Objects
 
     /**
@@ -223,8 +234,17 @@ private:
      * Due to the way the renderer is initialized, the object is marked as private.
      * Under no circumstances should processes try to access the renderer directly!
      */
-    bool rendererInitialized = false;
     std::unique_ptr<Nebulite::Core::Renderer> renderer;
+
+    /**
+     * @brief Flag indicating whether the renderer has been initialized.
+     */
+    bool rendererInitialized = false;
+
+    /**
+     * @brief Hasher for generating RNG values from last parsed command.
+     */
+    std::hash<std::string> rng_hasher;
 };
 }   // namespace Core
 }   // namespace Nebulite

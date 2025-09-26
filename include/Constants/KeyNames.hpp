@@ -50,8 +50,8 @@ const struct keyName {
         std::string B = "random.B";
         std::string C = "random.C";
         std::string D = "random.D";
-        std::string rand = "rand";
-        std::string rrand = "rrand";
+        //std::string rand = "rand";
+        //std::string rrand = "rrand";
     }random;
 
     /**

@@ -379,19 +379,6 @@ public:
 	 */
 	Nebulite::Interaction::Invoke* getInvoke(){return invoke_ptr;}
 
-	// Updated with each renderer update
-	/**
-	 * @brief Updates the random number generator state.
-	 */
-	void update_rand() {invoke_ptr->getGlobalPointer()->set<Uint64>("rand",   dist(rngA));};
-
-	/**
-	 * @brief Updates the rolling random number generator state.
-	 * 
-	 * Is updated with each renderer update and append.
-	 */
-	void update_rrand(){invoke_ptr->getGlobalPointer()->set<Uint64>("rrand",  dist(rngB));};
-
 	/**
 	 * @brief Gets the RenderObject from its ID.
 	 * 
@@ -503,11 +490,6 @@ private:
 	 * Used for RNG seeding.
 	 */
     std::size_t hashString(const std::string& str){return std::hash<std::string>{}(str);};
-
-	/**
-	 * @brief Used to limit RNG output to fit uint16_t.
-	 */
-	std::uniform_int_distribution<int> dist;
     
 	//------------------------------------------
 	// Renderer::tick related Functions

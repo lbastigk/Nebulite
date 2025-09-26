@@ -183,6 +183,13 @@ public:
         }
     }
 
+    /**
+     * @brief Gets the last parsed string.
+     */
+    std::string getLastParsedString() const {
+        return funcTree->getLastParsedString();
+    }
+
 private:
     /**
      * @brief The name of the domain.
