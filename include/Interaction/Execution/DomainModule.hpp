@@ -143,11 +143,19 @@ public:
 protected:
     //------------------------------------------
     // Name of Module
+
+    /**
+     * @brief Name of the DomainModule, useful for debugging and logging.
+     */
     std::string moduleName;
     
     //------------------------------------------
     // Linkages
-    DomainType* domain;                                     // Workspace of the DomainModule
+
+    /**
+     * @brief Workspace of the DomainModule
+     */
+    DomainType* domain;
 
 private:
     /**
