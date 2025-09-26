@@ -89,8 +89,10 @@ public:
 	 * - renders fps, if enabled
 	 * 
 	 * - presents the frame
+	 * 
+	 * @return True if update was done, false if skipped (e.g. console mode).
 	 */
-	void tick();
+	bool tick();
 
 	/**
 	 * @brief Checks if it's time to render the next frame based on the target FPS.
@@ -126,21 +128,6 @@ public:
 	void reinsertAllObjects();
 
 	/**
-	 * @brief Sets global values in the Nebulite::Utility::JSON global document
-	 * 
-	 * - time
-	 * 
-	 * - framecount
-	 * 
-	 * - runtime
-	 * 
-	 * - RNG
-	 * 
-	 * Does NOT set keyboard/mouse values
-	 */
-	void setGlobalValues();
-
-	/**
 	 * @brief Checks if the Renderer is in a quit state.
 	 * 
 	 * @return True if the Renderer is set to quit, false otherwise.
@@ -151,6 +138,17 @@ public:
 	 * @brief Sets the quit state of the Renderer.
 	 */
 	void setQuit(){quit=true;}
+
+	/**
+	 * @brief Skips updating the next frame.
+	 * 
+	 * This can be useful to avoid rendering a frame when the application is not in focus,
+	 * or when the rendering load is too high.
+	 */
+	void skipUpdateNextFrame(){skipUpdate=true;}
+
+	//------------------------------------------
+	// Texture Management
 
 	/**
 	 * @brief Attaches a texture above a specific layer.
@@ -333,18 +331,6 @@ public:
 	int getPosY(){return invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);}
 
 	/**
-	 * @brief Checks if the console is currently in use.
-	 * 
-	 * @return True if the console is in use, false otherwise.
-	 */
-	bool isConsoleMode(){return consoleMode;}
-
-	/**
-	 * @brief Toggles the console mode.
-	 */
-	void toggleConsoleMode(){consoleMode = !consoleMode;}
-
-	/**
 	 * @brief Gets the current tile position of the camera in the X direction.
 	 * 
 	 * The position to check for tile position is considered to be the top left corner of the screen.
@@ -436,8 +422,8 @@ private:
 	// Boolean Status Variables
 	bool audioInitialized = false;
 	bool quit = false;
-	bool consoleMode = false;
 	bool showFPS = true;			// Set default to false later on
+	bool skipUpdate = false;
 
 	//------------------------------------------
 	// Audio
@@ -460,10 +446,6 @@ private:
 	uint16_t tileXpos;
 	uint16_t tileYpos;
 
-	// Timekeeper
-	Nebulite::Utility::TimeKeeper RendererLoopTime;	// Simulation timing
-	Nebulite::Utility::TimeKeeper RendererFullTime;	// Full application runtime
-
 	// Custom Subclasses
 	Environment env;
 	Nebulite::Interaction::Invoke* invoke_ptr = nullptr;	
@@ -478,6 +460,8 @@ private:
 	SDL_Event event;
 
 	std::vector<SDL_Event> events;
+
+	
 	
 	//------------------------------------------
 	// RNG

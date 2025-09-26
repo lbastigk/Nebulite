@@ -11,6 +11,7 @@
 //------------------------------------------
 // Module includes 
 #if GDM_ENABLED
+    #include "DomainModule/GlobalSpace/GDM_Time.hpp"                // Time management functions
     #include "DomainModule/GlobalSpace/GDM_Console.hpp"             // Console functions for text input and display
     #include "DomainModule/GlobalSpace/GDM_General.hpp"             // General functions like eval, exit, wait, etc.
     #include "DomainModule/GlobalSpace/GDM_Renderer.hpp"            // Renderer functions for graphics and display
@@ -30,6 +31,7 @@ void GDM_init(Nebulite::Core::GlobalSpace* target){
     #if GDM_ENABLED
         // Initialize DomainModules
         using namespace Nebulite::DomainModule::GlobalSpace;
+        target->initModule<Time>("Global Time Functions");
         target->initModule<General>("Global General Functions");
         target->initModule<Renderer>("Global Renderer Functions");
         target->initModule<Debug>("Global Debug Functions");

@@ -155,10 +155,10 @@ int main(int argc, char* argv[]){
         // If renderer wasnt initialized, it is still a nullptr
         if (!criticalStop && globalSpace.RendererExists() && globalSpace.getRenderer()->timeToRender()) {
             globalSpace.update();
-            globalSpace.getRenderer()->tick();
+            bool didUpdate = globalSpace.getRenderer()->tick();
 
-            // Reduce script wait counter if not in console mode
-            if(!globalSpace.getRenderer()->isConsoleMode()){
+            // Reduce script wait counter if not in console mode or other halting states
+            if(didUpdate){
                 if(globalSpace.scriptWaitCounter > 0) globalSpace.scriptWaitCounter--; 
                 if(globalSpace.scriptWaitCounter < 0) globalSpace.scriptWaitCounter = 0;
             }  
