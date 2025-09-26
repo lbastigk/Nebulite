@@ -19,13 +19,23 @@ void Nebulite::DomainModule::GlobalSpace::Time::update() {
     domain->getDoc()->set<Uint64>( "runtime.t_ms", t_ms);
 
     // See if simulation time can progress
-    if(!haltThisFrame && timeLocks.empty()){
+    bool canProgress = !haltThisFrame && timeLocks.empty();
+    if(domain->RendererExists()){
+        canProgress = canProgress && !domain->getRenderer()->isSkippingUpdate();
+    }
+    if(canProgress){
         //------------------------------------------
         // Simulation time (can be paused)
 
-        // Update with fixed delta time if set
-        SimulationTime.update(fixedDeltaTime);
-        uint64_t dt_ms = SimulationTime.get_dt_ms(); // Either fixed value or calculate from actual simtime difference
+        // Update
+        if(fixedDeltaTime > 0){
+            // Use fixed delta time
+            SimulationTime.update(fixedDeltaTime);
+        } else{
+            // Use real delta time
+            SimulationTime.update(dt_ms);
+        }
+        uint64_t dt_ms = SimulationTime.get_dt_ms();
         uint64_t t_ms = SimulationTime.get_t_ms();
 
         // Set in doc

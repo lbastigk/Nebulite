@@ -147,6 +147,13 @@ public:
 	 */
 	void skipUpdateNextFrame(){skipUpdate=true;}
 
+	/**
+	 * @brief Checks if the next frame update is being skipped.
+	 * 
+	 * @return True if the next frame update is being skipped, false otherwise.
+	 */
+	bool isSkippingUpdate(){return skipUpdate;}
+
 	//------------------------------------------
 	// Texture Management
 
