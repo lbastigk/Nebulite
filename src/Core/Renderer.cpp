@@ -60,7 +60,12 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 	int y = SDL_WINDOWPOS_CENTERED;
 	int w = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),X);
 	int h = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),Y);
-	window = SDL_CreateWindow("Nebulite",x,y,w,h,flag_headless ? SDL_WINDOW_HIDDEN :SDL_WINDOW_SHOWN);
+
+	uint32_t flags;
+	flags = flag_headless ? SDL_WINDOW_HIDDEN : SDL_WINDOW_SHOWN;
+	//flags = flags | SDL_WINDOW_RESIZABLE; // Disabled for now, as it causes issues with the logical size rendering
+	flags = flags | SDL_WINDOW_OPENGL;
+	window = SDL_CreateWindow("Nebulite",x,y,w,h,flags);
 	if (!window) {
 		// Window creation failed
 		std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
@@ -211,6 +216,23 @@ void Nebulite::Core::Renderer::tick(){
                 break;
         }
     }
+
+	//------------------------------------------
+	// Check if resolution changed
+	/*
+	int w = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
+	int h = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
+	int current_w, current_h;
+	SDL_GetWindowSize(window, &current_w, &current_h);
+	if (current_w != w || current_h != h) {
+		// Resolution changed, update internal state
+		invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),current_w);
+		invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),current_h);
+		
+		// Since tiles scale with resolution, we need to reinsert all objects
+		reinsertAllObjects();
+	}
+	*/
 }
 
 bool Nebulite::Core::Renderer::timeToRender() {
@@ -396,11 +418,11 @@ void Nebulite::Core::Renderer::destroy() {
 
 void Nebulite::Core::Renderer::changeWindowSize(int w, int h, int scalar) {
 	WindowScale = scalar;
-	if(w < 300 || w > 16384){
+	if(w < 240 || w > 16384){
 		std::cerr << "Selected resolution is not supported:" << w << "x" << h << "x" << std::endl;
 		return;
 	}
-	if(h < 300 || h > 16384){
+	if(h < 240 || h > 16384){
 		std::cerr << "Selected resolution is not supported:" << w << "x" << h << "x" << std::endl;
 		return;
 	}
