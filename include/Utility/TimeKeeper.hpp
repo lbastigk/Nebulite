@@ -45,35 +45,32 @@ public:
      * This function calculates the delta time since the last update and updates the timers full runtime.
      * 
      * @param fixed_dt_ms If greater than 0, this value will be used as the delta time instead of the calculated value.
-     * 
-     * @todo The implemented logic is has too many sets, then resets and all that nonsense. Create a proper branching path
      */
     void update(uint64_t fixed_dt_ms = 0){
         //------------------------------------------
-        // Gathering timing information, even if the timer is not running
-        // The whole timer works on dt integration, so we always need to know the current dt
-
-        // last t, current t, dt
+        // 1.) Gathering timing information, even if the timer is not running
+        //     The whole timer works on dt integration, so we always need to know the current dt
         onUpdate.last_t_ms = onUpdate.t_ms;
-        onUpdate.t_ms = Time::gettime() - t_start;
-        onUpdate.dt = onUpdate.t_ms - onUpdate.last_t_ms;
-
-        // 2.) If a fixed dt was specified, we use that value
-        if(fixed_dt_ms > 0){
-            onUpdate.dt = fixed_dt_ms;
-        }
-
+        onUpdate.t_ms      = Time::gettime() - t_start;
+        
         //------------------------------------------
-        // Set actual dt and t values
-
+        // 2.) Derive dt from status
         if(running){
-            dt_ms = onUpdate.dt;
+            // Check if we have a fixed dt
+            if(fixed_dt_ms > 0){
+                dt_ms = fixed_dt_ms;
+            }
+            else{
+                dt_ms = onUpdate.t_ms - onUpdate.last_t_ms;
+            }
         }
         else{
+            // Not running, dt is 0
             dt_ms = 0;
         }
 
-        // 4.) Integrate dt
+        //------------------------------------------
+        // 3.) Integrate dt
         t_ms += dt_ms;
     }
 
@@ -156,7 +153,6 @@ public:
         std::cout << "  Delta Time (ms): " << dt_ms << std::endl;
         std::cout << "  OnUpdate - Last Time (ms): " << onUpdate.last_t_ms << std::endl;
         std::cout << "  OnUpdate - Current Time (ms): " << onUpdate.t_ms << std::endl;
-        std::cout << "  OnUpdate - Delta (ms): " << onUpdate.dt << std::endl;
         if(running){
             std::cout << "  OnSimulation - Last Time (ms): " << onSimulation.last_t_ms << std::endl;
             std::cout << "  OnSimulation - Current Time (ms): " << onSimulation.t_ms << std::endl;
@@ -198,7 +194,6 @@ private:
     struct OnUpdate{
         uint64_t last_t_ms;
         uint64_t t_ms;
-        uint64_t dt;
     } onUpdate;
 
     /**
