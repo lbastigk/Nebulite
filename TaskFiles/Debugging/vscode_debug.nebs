@@ -22,6 +22,8 @@
 echo Starting vscode_debug.nebs
 # -----------------------------------------------------------------------------
 
-spawn ./Resources/Renderobjects/Planets/sun.jsonc
-wait 30
-# exit
+set-res 640 480
+
+# Print all random values
+# They should change on call!
+always eval echo {global.random.A} {global.random.B} {global.random.C} {global.random.D}

@@ -1,6 +1,8 @@
 #include "Core/GlobalSpace.hpp"
 #include "DomainModule/GDM.hpp"
 
+#include "Constants/KeyNames.hpp"
+
 Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
 : Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite", this, &global)
 {
@@ -21,6 +23,9 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
 
     //------------------------------------------
     // Domain-Related
+
+    // Set preParse function
+    setPreParse(std::bind(&Nebulite::Core::GlobalSpace::preParse, this));
 
     // Link inherited Domains
     inherit<Nebulite::Utility::JSON>(&global);
@@ -152,3 +157,45 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
+Nebulite::Constants::Error Nebulite::Core::GlobalSpace::preParse() {
+    // NOTE: This function is only called once there is a parse-command
+    // Meaning its timing is consistent and not dependent on framerate, frametime variations, etc.
+    // Meaning everything we do here is deterministic!
+
+    // We need to remove all links from the seed, so it's consistent
+    auto args = Nebulite::Utility::StringHandler::parseQuotedArguments(getLastParsedString());
+
+    std::string seed = "";
+    for(auto& arg : args){
+        // All args that arent links are added to the seed
+        if(arg.starts_with("/") || arg.starts_with("\\")){
+            continue;
+
+        } else {
+            seed += arg + " ";
+        }
+    }
+
+    // Using static variables to reuse them next time
+    static uint16_t A, B, C, D = 0;
+
+    // Generate seeds
+    std::string seedA = seed + "A" + std::to_string(A);
+    std::string seedB = seed + "B" + std::to_string(B);
+    std::string seedC = seed + "C" + std::to_string(C);
+    std::string seedD = seed + "D" + std::to_string(D);
+
+    // Hash seeds
+    A = static_cast<uint16_t>(rng_hasher(seedA));
+    B = static_cast<uint16_t>(rng_hasher(seedB));
+    C = static_cast<uint16_t>(rng_hasher(seedC));
+    D = static_cast<uint16_t>(rng_hasher(seedD));
+
+    // Set RNG values in global document
+    global.set<int>(Nebulite::Constants::keyName.random.A.c_str(), A);
+    global.set<int>(Nebulite::Constants::keyName.random.B.c_str(), B);
+    global.set<int>(Nebulite::Constants::keyName.random.C.c_str(), C);
+    global.set<int>(Nebulite::Constants::keyName.random.D.c_str(), D);
+
+    return Nebulite::Constants::ErrorTable::NONE();
+}

@@ -118,6 +118,11 @@ public:
      * @return A vector of strings split on the same depth of parentheses.
      */
     static std::vector<std::string> splitOnSameDepth(const std::string& input, char delimiter);
+
+    /**
+     * @brief Parses a command string into individual arguments, taking quotes into account.
+     */
+    static std::vector<std::string> parseQuotedArguments(const std::string& cmd);
 };
 }   // namespace Utility
 }   // namespace Nebulite
