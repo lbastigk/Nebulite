@@ -78,6 +78,8 @@ namespace Interaction{
  * ```
  * Then we link them with an std::map and each ParsedEntry is either static or typed.
  * Using a flag inside ParsedEntry to determine which one it is.
+ * If the Deserializer encounters an entry in the Array of invokes that is a string, it looks it up in the map and links it.
+ * If it is not found, perhaps linking to an "Error" static invoke that just prints an error message/returns a Nebulite::Constants::Error.
  * 
  * @todo Improve language clarity: Use consistent terminology for "domains/document/target" throughout the documentation.
  */
