@@ -305,7 +305,7 @@ private:
     /**
      * @brief Collection of all variable names
      */
-    std::vector<std::string*> te_names;      // Names of variables for TinyExpr evaluation
+    std::vector<std::shared_ptr<std::string>> te_names;      // Names of variables for TinyExpr evaluation
 
     /**
      * @brief Collection of all registered variables and functions

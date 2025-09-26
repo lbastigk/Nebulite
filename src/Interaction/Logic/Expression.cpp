@@ -37,9 +37,6 @@ void Nebulite::Interaction::Logic::Expression::reset() {
     entries.clear();
 
     // Clear all variable names
-    for(auto name_ptr : te_names) {
-        delete name_ptr;
-    }
     te_names.clear();
 
     // Clear vds
@@ -161,7 +158,7 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
         }
 
         // Store variable name for tinyexpr
-        std::string* te_name_ptr = new std::string(te_name);
+        auto te_name_ptr = std::make_shared<std::string>(te_name);
         te_names.push_back(te_name_ptr);
 
         // Push back into variable entries
