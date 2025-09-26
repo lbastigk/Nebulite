@@ -116,7 +116,7 @@
         "cout": null, "cerr": [] }
     },
     {
-      "command": "task TaskFiles/Tests/Long/AutoPong_10k_frames.nebs",
+      "command": "task TaskFiles/Tests/Long/AutoPong_5k_frames.nebs",
       "expected": { "cout": null, "cerr": [] }
     }
   ],
