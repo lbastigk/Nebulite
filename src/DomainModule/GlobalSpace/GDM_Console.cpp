@@ -243,13 +243,15 @@ void Console::init(){
 
 void Console::TextInput::submit(Console *console, bool execute){
     if (!console->consoleInputBuffer->empty()) {
+        std::string input = *console->consoleInputBuffer;
+
         // History and output
-        console->commandHistory.emplace_back(*console->consoleInputBuffer);
-        console->consoleOutput.emplace_back("> " + *console->consoleInputBuffer);
+        console->commandHistory.emplace_back(input);
+        console->consoleOutput.emplace_back("> " + input);
 
         // Add to queue
         if(execute){
-            console->invoke->getTaskQueue()->emplace_back(*console->consoleInputBuffer);
+            console->invoke->getTaskQueue()->emplace_back(input);
             if(console->selectedCommandIndex != 0){
                 // If we were browsing history, reset to latest input
                 console->selectedCommandIndex = 0;
