@@ -396,11 +396,11 @@ void Nebulite::Core::Renderer::destroy() {
 
 void Nebulite::Core::Renderer::changeWindowSize(int w, int h, int scalar) {
 	WindowScale = scalar;
-	if(w < 64 || w > 16384){
+	if(w < 300 || w > 16384){
 		std::cerr << "Selected resolution is not supported:" << w << "x" << h << "x" << std::endl;
 		return;
 	}
-	if(w < 64 || w > 16384){
+	if(h < 300 || h > 16384){
 		std::cerr << "Selected resolution is not supported:" << w << "x" << h << "x" << std::endl;
 		return;
 	}
