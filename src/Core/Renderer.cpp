@@ -421,7 +421,8 @@ void Nebulite::Core::Renderer::changeWindowSize(int w, int h, int scalar) {
 	);
 
 	// Turn off console mode
-	consoleMode = false;
+	// Not needed anymore, console should dynamically adapt to new window size
+	// consoleMode = false;
 
     // Reinsert objects, due to new tile size
     reinsertAllObjects();

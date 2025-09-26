@@ -259,8 +259,10 @@ public:
 	/**
 	 * @brief Changes the window size.
 	 * 
-	 * @param w The new width of the window.
-	 * @param h The new height of the window.
+	 * Total size is `w*scalar x h*scalar`
+	 * 
+	 * @param w The new pixel width of the window.
+	 * @param h The new pixel height of the window.
 	 * @param scalar The scaling factor to apply.
 	 */
 	void changeWindowSize(int w, int h, int scalar);
