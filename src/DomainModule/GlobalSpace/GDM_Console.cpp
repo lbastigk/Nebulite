@@ -179,16 +179,27 @@ void Console::renderConsole() {
 
     //------------------------------------------
     // Part 2: Input Line
+
+    // Add a darker background for the input line
+    double posY = consoleTexture.rect.h - lineHeight - 1.5 * LINE_PADDING;
+    SDL_Rect inputBackgroundRect = { 0, (int)posY, consoleTexture.rect.w, lineHeight + LINE_PADDING};
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
+    SDL_RenderFillRect(renderer, &inputBackgroundRect);
+
+    // Render input text
     if (!consoleInputBuffer->empty()) {
+        // Create surface and texture
         SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, consoleInputBuffer->c_str(), textColor);
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
+        // Define destination rectangle
         SDL_Rect textRect;
         textRect.x = 10;
         textRect.y = consoleTexture.rect.h - LINE_PADDING - lineHeight;
         textRect.w = (double)textSurface->w;
         textRect.h = (double)textSurface->h;
 
+        // Render
         SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
         SDL_FreeSurface(textSurface);
         SDL_DestroyTexture(textTexture);
@@ -306,7 +317,7 @@ uint8_t Console::calculateTextAlignment(uint16_t rect_height){
     // Populate y positions
     line_y_pos.clear();
     for(int i = 1; i < N; i++){ // i=0 is reserved for input line
-        line_y_pos.push_back( rect_height - LINE_PADDING - LINE_HEIGHT - i*(LINE_HEIGHT + LINE_PADDING) );
+        line_y_pos.push_back( rect_height - LINE_PADDING - 2*LINE_HEIGHT - i*(LINE_HEIGHT + LINE_PADDING) );
     }
 
     // Set correct font size for SDL_ttf
@@ -314,6 +325,7 @@ uint8_t Console::calculateTextAlignment(uint16_t rect_height){
 
     return LINE_HEIGHT;
 }
+
 //--------------------------------------------------
 // TextInput methods
 
