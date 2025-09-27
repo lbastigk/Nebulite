@@ -19,14 +19,13 @@ void Console::update(){
 
     //------------------------------------------
     // Toggle
-    consoleMode = domain->getRenderer()->isConsoleMode();
     events = domain->getRenderer()->getEventHandles();
 
     // Toggling console mode
     bool consoleToggle = domain->getDoc()->get<int>(toggleKey.c_str(),0) == 1;
     if(consoleToggle){
-        domain->getRenderer()->toggleConsoleMode();
-        if(domain->getRenderer()->isConsoleMode()){
+        consoleMode = !consoleMode;
+        if(consoleMode){
             SDL_StartTextInput();
             SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT); // Flush all pending events
         }
@@ -116,6 +115,12 @@ void Console::update(){
             SDL_DestroyTexture(consoleTexture.texture_ptr);
             consoleTexture.texture_ptr = nullptr;
         }
+    }
+
+    //------------------------------------------
+    // Flag setting
+    if(consoleMode){
+        domain->getRenderer()->skipUpdateNextFrame(); // Skip updating the renderer for this frame, as we are in console mode
     }
 }
 

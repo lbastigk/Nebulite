@@ -160,11 +160,6 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 	// Set basic values inside global doc
 	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),X);	
 	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),Y);
-
-	//------------------------------------------
-	// Start timer
-	RendererLoopTime.start();
-	RendererFullTime.start();
 }
 
 void Nebulite::Core::Renderer::loadFonts() {
@@ -192,7 +187,9 @@ void Nebulite::Core::Renderer::loadFonts() {
 
 // For quick and dirty debugging, in case the rendering pipeline breaks somewhere
 //# define debug_on_each_step 1
-void Nebulite::Core::Renderer::tick(){
+bool Nebulite::Core::Renderer::tick(){
+	bool didUpdate = !skipUpdate;
+
 	//------------------------------------------
 	// Do all the steps of the rendering pipeline
     clear();           				// 1.) Clear screen FIRST, so that functions like snapshot have acces to the latest frame
@@ -232,6 +229,8 @@ void Nebulite::Core::Renderer::tick(){
 		reinsertAllObjects();
 	}
 	*/
+
+	return didUpdate;
 }
 
 bool Nebulite::Core::Renderer::timeToRender() {
@@ -260,34 +259,6 @@ void Nebulite::Core::Renderer::reinsertAllObjects(){
 		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0),
 		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0)
 	);
-}
-
-void Nebulite::Core::Renderer::setGlobalValues(){
-	//------------------------------------------
-	// Simulation time
-	uint64_t dt_ms = RendererLoopTime.get_dt_ms(); // Either fixed value or calculate from actual simtime difference
-	uint64_t t_ms = RendererLoopTime.get_t_ms();
-	invoke_ptr->getGlobalPointer()->set<double>( "time.dt", dt_ms / 1000.0);
-	invoke_ptr->getGlobalPointer()->set<double>( "time.t",   t_ms / 1000.0);
-	invoke_ptr->getGlobalPointer()->set<Uint64>( "time.dt_ms", dt_ms);
-	invoke_ptr->getGlobalPointer()->set<Uint64>( "time.t_ms", t_ms);
-
-	//------------------------------------------
-	// Frame count
-
-	// Get Frame count
-	Uint64 ticks = invoke_ptr->getGlobalPointer()->get<Uint64>("frameCount",0);
-	invoke_ptr->getGlobalPointer()->set<Uint64>("frameCount",ticks+1);
-
-	//------------------------------------------
-	// Full time (runtime)
-	RendererFullTime.update();
-	dt_ms = RendererFullTime.get_dt_ms();
-	t_ms  = RendererFullTime.get_t_ms();
-	invoke_ptr->getGlobalPointer()->set<double>( "runtime.dt", dt_ms / 1000.0);
-	invoke_ptr->getGlobalPointer()->set<double>( "runtime.t",   t_ms / 1000.0);
-	invoke_ptr->getGlobalPointer()->set<Uint64>( "runtime.dt_ms", dt_ms);
-	invoke_ptr->getGlobalPointer()->set<Uint64>( "runtime.t_ms", t_ms);
 }
 
 //------------------------------------------
@@ -490,39 +461,20 @@ void Nebulite::Core::Renderer::clear(){
 }
 
 void Nebulite::Core::Renderer::updateState() {
-	// Update loop timer
-	uint64_t fixed_dt_ms = invoke_ptr->getGlobalPointer()->get<Uint64>(Nebulite::Constants::keyName.renderer.time_fixed_dt_ms.c_str(),0);
-	RendererLoopTime.update(fixed_dt_ms);
-
 	//------------------------------------------
-	// Log time spend in console
-	// Not important but might be nice to know
-	if(consoleMode){
-		// Deactivate the loop timer
-		RendererLoopTime.stop();
+	// Skip update if flagged
+	if(skipUpdate){
+		skipUpdate = false;
+		return;
 	}
-	else{
-		// Reactivate the loop timer
-		RendererLoopTime.start();
-	}
-	
 
-	//------------------------------------------
-	// Internal container state
+	// Update invoke pairs, getting broadcast-listen-pairs from last env update
+	invoke_ptr->update();
 
-	// Only do container updates if not in console mode
-	if(!consoleMode){
-		// Set global values like time
-		setGlobalValues();
-
-		// Update invoke pairs, getting broadcast-listen-pairs from last env update
-		invoke_ptr->update();
-
-		// Update environment
-		int dispResX = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
-		int dispResY = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
-		env.update(tileXpos,tileYpos,dispResX,dispResY,invoke_ptr);
-	}
+	// Update environment
+	int dispResX = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
+	int dispResY = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
+	env.update(tileXpos,tileYpos,dispResX,dispResY,invoke_ptr);
 }
 
 void Nebulite::Core::Renderer::renderFrame() {

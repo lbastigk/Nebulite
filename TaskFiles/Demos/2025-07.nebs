@@ -52,7 +52,7 @@ env-deload
 
 #########################
 # Auto player movement
-set time.fixed_dt_ms 0
+time set-fixed-dt 0
 set-res 1080 1080
 set-fps 60
 cam set 0 0

@@ -11,6 +11,7 @@
 //------------------------------------------
 // Module includes 
 #if GDM_ENABLED
+    #include "DomainModule/GlobalSpace/GDM_Time.hpp"                // Time management functions
     #include "DomainModule/GlobalSpace/GDM_Console.hpp"             // Console functions for text input and display
     #include "DomainModule/GlobalSpace/GDM_General.hpp"             // General functions like eval, exit, wait, etc.
     #include "DomainModule/GlobalSpace/GDM_Renderer.hpp"            // Renderer functions for graphics and display
@@ -28,6 +29,7 @@ namespace DomainModule{
  */
 void GDM_init(Nebulite::Core::GlobalSpace* target){
     #if GDM_ENABLED
+        //------------------------------------------
         // Initialize DomainModules
         using namespace Nebulite::DomainModule::GlobalSpace;
         target->initModule<General>("Global General Functions");
@@ -38,7 +40,16 @@ void GDM_init(Nebulite::Core::GlobalSpace* target){
         target->initModule<RenderObjectDraft>("Global RenderObjectDraft Functions");
         target->initModule<Console>("Global Console Functions");
         target->initModule<StateManagement>("Global State Management Functions");
+
+        //------------------------------------------
+        // Time module relies on knowing if anything is locking the time
+        // So we need to initialize it last
+        // Example: Console might want to halt time while open
+        //          if we init time first, it will update before console
+        //          thus ignoring the console's halt request being send to renderer
+        target->initModule<Time>("Global Time Functions");
         
+        //------------------------------------------
         // Initialize Variable Bindings
         target->bindVariable(&target->cmdVars.headless, "headless", "Set headless mode (no renderer)");
         target->bindVariable(&target->cmdVars.recover,  "recover",  "Enable recoverable error mode");

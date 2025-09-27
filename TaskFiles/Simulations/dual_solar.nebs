@@ -1,6 +1,6 @@
 set-res 1000 1000
 set-fps 100
-set time.fixed_dt_ms 10
+time set-fixed-dt 10
 set physics.G 10
 spawn ./Resources/Renderobjects/Planets/sun.jsonc|posX=250|posY=500|physics.vX=020|physics.vY=055|sprite.sizeX=10|sprite.sizeY=10|physics.mass=1500000
 spawn ./Resources/Renderobjects/Planets/sun.jsonc|posX=750|posY=500|physics.vX=-20|physics.vY=-55|sprite.sizeX=10|sprite.sizeY=10|physics.mass=1500000

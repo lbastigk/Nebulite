@@ -1,5 +1,5 @@
 # Fixed dt so the output is always the same
-set time.fixed_dt_ms 1
+time set-fixed-dt 1
 
 # value doesnt matter, but this initializes renderer, which is needed
 set-fps 100 
