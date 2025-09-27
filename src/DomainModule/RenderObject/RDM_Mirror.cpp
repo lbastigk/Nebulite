@@ -51,7 +51,7 @@ Nebulite::Constants::Error Mirror::setupMirrorKey() {
     // Only fetch key once we turn on mirroring
     int id = domain->get<int>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0);
     if(id < 1){
-        return Nebulite::Constants::ErrorTable::addError("Mirror on failed: RenderObject has invalid id", Nebulite::Constants::Error::NON_CRITICAL);
+        return Nebulite::Constants::ErrorTable::addError("Mirror key setup failed: RenderObject has invalid id", Nebulite::Constants::Error::NON_CRITICAL);
     }
 
     mirrorKey = "mirror.renderObject." + std::to_string(id);
