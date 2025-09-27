@@ -180,7 +180,7 @@ public:
         bindFunction(&Debug::critical,          "critical",                 "Return a critical error: critical <string>");
 
         bindSubtree("print", "Functions to print various data to console");
-        bindFunction(&Debug::printGlobal,       "print-global",             "Print global document");
+        bindFunction(&Debug::printGlobal,       "print-global",             "Print global document: [key]");
         bindFunction(&Debug::printState,        "print-state",              "Print current state");
 
         bindSubtree("log", "Functions to log various data to files");

@@ -276,3 +276,14 @@ std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const st
     return expr.eval(other);
 }
 
+std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const std::string& input, Nebulite::Core::RenderObject* selfAndOther) {
+    Nebulite::Utility::JSON* self = selfAndOther->getDoc();
+    Nebulite::Utility::JSON* other = selfAndOther->getDoc();
+    Nebulite::Utility::JSON* global = this->global;
+
+    // Parse string into Expression
+    Nebulite::Interaction::Logic::ExpressionPool expr;
+    expr.parse(input, docCache, self, global);
+    return expr.eval(other);
+}
+

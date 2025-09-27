@@ -247,6 +247,15 @@ public:
     std::string evaluateStandaloneExpression(const std::string& input);
 
     /**
+     * @brief Evaluates a standalone expression with context from a RenderObject.
+     * 
+     * @param input The expression to evaluate.
+     * @param selfAndOther The RenderObject providing context for `self` and `other`.
+     * @return The result of the evaluation.
+     */
+    std::string evaluateStandaloneExpression(const std::string& input, Nebulite::Core::RenderObject* selfAndOther);
+
+    /**
      * @brief Gets a pointer to the DocumentCache.
      * 
      * This function provides access to the DocumentCache used by the invoke class,

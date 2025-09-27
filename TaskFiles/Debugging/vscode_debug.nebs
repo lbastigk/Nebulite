@@ -22,8 +22,20 @@
 echo Starting vscode_debug.nebs
 # -----------------------------------------------------------------------------
 
-set-res 640 480
+# Setup a scene
 
-# Print all random values
-# They should change on call!
-always eval echo {global.random.A} {global.random.B} {global.random.C} {global.random.D}
+task TaskFiles/Simulations/gravity_classic.nebs
+time set-fixed-dt 1
+
+wait 100
+selected-object get 2
+selected-object parse eval echo Selected object with id $05i({self.id}) named {self.text.str}
+selected-object parse mirror on
+wait 1 # wait one frame for mirror to apply
+always clear
+always eval echo Position: ({global.mirror.renderObject.2.posX},{global.mirror.renderObject.2.posY})
+always print-global mirror.renderObject.2
+# TODO: Position does not update, why not?
+# The mirror seems to only apply once?
+# posX and posY are the only fields that are not synced!
+# Renderer works fine, so issue must be in the retrieval of a document?

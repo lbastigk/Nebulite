@@ -40,6 +40,23 @@ public:
     // Available Functions
 
     /**
+     * @brief Evaluates an expression string and executes it
+     * 
+     * Same as for GlobalSpace within GDM_General.hpp, but local to the RenderObject
+     * for variable resolution.
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: the string to evaluate
+     * @return Potential errors that occured on command execution
+     * 
+     * Examples:
+     * 
+     * eval echo $(1+1)    outputs:    2.000000
+     * eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
+     */
+    Nebulite::Constants::Error eval(int argc, char* argv[]);
+
+    /**
      * @brief Prints the source rectangle of the spritesheet to console
      * 
      * @param argc The argument count
@@ -91,6 +108,9 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Debug) {
+        // Some functions like selected-object need eval to resolve variables
+        bindFunction(&Debug::eval,          "eval",                     "Evaluate an expression and execute the result. Example: eval echo $(1+1)");
+
         bindSubtree("debug", "Debugging functions for RenderObject");
         bindFunction(&Debug::printSrcRect,  "debug print-src-rect",     "Prints the source rectangle of the spritesheet to console");
         bindFunction(&Debug::printDstRect,  "debug print-dst-rect",     "Prints the destination rectangle of the spritesheet to console");

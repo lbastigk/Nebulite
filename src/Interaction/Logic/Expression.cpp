@@ -441,7 +441,7 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
                     token = global->get<std::string>(entry.key.c_str(), "0");
                 } else if (entry.from == Entry::resource) {
                     if (globalCache == nullptr) {
-                        std::cerr << "Error: Null globalCache reference in expression: " << entry.key << std::endl;
+                        std::cerr << "Error: Null globalCache reference in expression: " << entry.key  << ". If this shouldn't be a Resource reference, did you forget the prefix self/other/global?" << std::endl;
                         return "0";
                     }
                     token = globalCache->getData<std::string>(entry.key.c_str(), "0");

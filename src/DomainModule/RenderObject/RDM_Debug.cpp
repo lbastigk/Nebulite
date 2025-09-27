@@ -1,9 +1,27 @@
 #include "DomainModule/RenderObject/RDM_Debug.hpp"
 
 #include "Core/RenderObject.hpp"
+#include "Core/GlobalSpace.hpp"
 
 void Nebulite::DomainModule::RenderObject::Debug::update() {
     // For on-tick-updates
+}
+
+Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::eval(int argc, char* argv[]) {
+    // argc/argv to string for evaluation
+    std::string args = "";
+    for (int i = 0; i < argc; ++i) {
+        args += argv[i];
+        if (i < argc - 1) {
+            args += " ";
+        }
+    }
+
+    // Evaulate with context of this RenderObject
+    std::string args_evaled = domain->getGlobalSpace()->invoke->evaluateStandaloneExpression(args, domain);
+
+    // reparse
+    return domain->parseStr(args_evaled);
 }
 
 Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::printSrcRect(int argc, char* argv[]) {

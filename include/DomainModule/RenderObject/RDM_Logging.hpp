@@ -54,6 +54,10 @@ public:
     Nebulite::Constants::Error echo(int argc, char* argv[]);
 
     /**
+     * @brief
+     */
+
+    /**
      * @brief Logs the RenderObject to a file
      * 
      * @param argc The argument count
