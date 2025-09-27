@@ -447,6 +447,12 @@ private:
 	//------------------------------------------
 	//General Variables
 	std::string baseDirectory;
+
+	/**
+	 * @brief Counter for assigning unique IDs to RenderObjects.
+	 * 
+	 * Easier to debug if it starts at 1, as 0 might come up in overflows, and negative values may not be valid
+	 */
 	uint32_t renderobject_id_counter = 1;
 
 	// Positions

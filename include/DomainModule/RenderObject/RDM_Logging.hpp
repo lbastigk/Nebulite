@@ -26,7 +26,7 @@ namespace DomainModule{
 namespace RenderObject{
 /**
  * @class Nebulite::DomainModule::RenderObject::Logging
- * @brief Logging DomainModule of the RenderObject tree.
+ * @brief Logging DomainModule of the RenderObject Domain.
  * 
  * Contains RenderObject-specific logging functionality.
  */

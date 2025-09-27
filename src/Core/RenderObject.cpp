@@ -21,6 +21,8 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 	// Document Values
 
 	// General
+
+	// Initialize to 0, Renderer itself sets proper id, which starts at 1
 	json.set(Nebulite::Constants::keyName.renderObject.id.c_str(),0);
 	json.set(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0);
 	json.set(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0);
