@@ -40,22 +40,7 @@ selected-object parse eval echo Selected object with id $05i({self.id}) named {s
 selected-object parse mirror on
 wait 1 # wait one frame for mirror to apply
 
-# See what output we get from debug prints
-#wait 100
-#exit
-
-# Setup continous tasks
-always clear
-
-#always selected-object parse print
-
-# V1: Access via mirror
-#always print mirror.renderObject.id2
-#always eval echo Position: ({global.mirror.renderObject.id2.posX},{global.mirror.renderObject.id2.posY})
-
-# V2: Access via selected-object
-always selected-object parse print
-always selected-object parse eval echo Position: ({global.mirror.renderObject.id2.posX},{global.mirror.renderObject.id2.posY})
+##############################################################
 
 # TODO: Position does not update, why not?
 # posX and posY are the only fields that are not synced!
@@ -63,3 +48,31 @@ always selected-object parse eval echo Position: ({global.mirror.renderObject.id
 # [POSSIBLE SOLUTION]
 # - posX and posY are type string in mirror, but type double in object itself
 # - perhaps the cache copy does not change type, so it remains string?
+
+set-fps 10
+always echo 
+always echo ----------------------------------------------
+
+###############################
+# V1: Access via mirror
+always echo
+always echo V1: Access via mirror
+
+# [ ] Does not work, posX and posY stay the same
+always print mirror.renderObject.id2.posX
+always print mirror.renderObject.id2.posY
+
+# [ ] Does not work, posX and posY stay the same
+always eval echo Position: ({global.mirror.renderObject.id2.posX},{global.mirror.renderObject.id2.posY})
+
+###############################
+# V2: Access via selected-object
+always echo
+always echo V2: Access via selected-object
+
+# [X] Works, shows correct posX and posY
+always selected-object parse print posX
+always selected-object parse print posY
+
+# [ ] Does not work, posX and posY stay the same
+always selected-object parse eval echo Position: ({global.mirror.renderObject.id2.posX}, {global.mirror.renderObject.id2.posY})
