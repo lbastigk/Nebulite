@@ -9,8 +9,15 @@ namespace RenderObject{
 
 void Mirror::update() {
     if (mirrorEnabled || mirrorOnceEnabled) {
-        domain->getGlobalSpace()->getDoc()->set_subdoc(mirrorKey.c_str(), *domain->getDoc());
-        mirrorOnceEnabled = false; // Reset once flag
+        // Values
+        auto globalDoc = domain->getGlobalSpace()->getDoc();
+        auto objectDoc = domain->getDoc();
+
+        // Mirror to GlobalSpace
+        globalDoc->set_subdoc(mirrorKey.c_str(), objectDoc);
+
+        // Reset once-flag
+        mirrorOnceEnabled = false;
     }
 }
 
@@ -54,7 +61,7 @@ Nebulite::Constants::Error Mirror::setupMirrorKey() {
         return Nebulite::Constants::ErrorTable::addError("Mirror key setup failed: RenderObject has invalid id", Nebulite::Constants::Error::NON_CRITICAL);
     }
 
-    mirrorKey = "mirror.renderObject." + std::to_string(id);
+    mirrorKey = "mirror.renderObject.id" + std::to_string(id);
     return Nebulite::Constants::ErrorTable::NONE();
 }
 

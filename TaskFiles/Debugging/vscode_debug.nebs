@@ -22,11 +22,6 @@
 echo Starting vscode_debug.nebs
 # -----------------------------------------------------------------------------
 
-set-fps 60
-spawn Planets/sun.jsonc
-wait 1
-exit
-
 ###############################
 # Setup a scene
 task TaskFiles/Simulations/gravity_classic.nebs
@@ -44,28 +39,27 @@ selected-object get 2
 selected-object parse eval echo Selected object with id $05i({self.id}) named {self.text.str}
 selected-object parse mirror on
 wait 1 # wait one frame for mirror to apply
-echo Printing mirrror:
-print mirror.renderObject.id2
-echo done!
-exit
+
+# See what output we get from debug prints
+#wait 100
+#exit
 
 # Setup continous tasks
 always clear
-always print mirror.renderObject.id2
+
 #always selected-object parse print
-always eval echo Position: ({global.mirror.renderObject.id2.posX},{global.mirror.renderObject.id2.posY})
+
+# V1: Access via mirror
+#always print mirror.renderObject.id2
+#always eval echo Position: ({global.mirror.renderObject.id2.posX},{global.mirror.renderObject.id2.posY})
+
+# V2: Access via selected-object
+always selected-object parse print
+always selected-object parse eval echo Position: ({global.mirror.renderObject.id2.posX},{global.mirror.renderObject.id2.posY})
 
 # TODO: Position does not update, why not?
 # posX and posY are the only fields that are not synced!
-# Renderer position rendering works fine, so issue must be in the retrieval of a document?
-# is it because posX and posY are not inside a field? Is there a difference in how they are handled?
-# What works:
-# physics.aX, physics.aY
-# physics.vX, physics.vY
-# They all sync correctly.
-# posX and posY are seemingly stuck at their values after the first update: 353.43.. and 488.01..
-# Idea: Maybe flush does not know whether to flush the normal cache or the double-buffered cache?
-# Add a field to each value that indicates which value is newer? Or see if we can simply improve flush?
 
-# - The first access locks in the value, subsequent accesses remain the same
-# - perhaps, with get, we set a cached value, and subsequent accesses use that cached value instead of new values?
+# [POSSIBLE SOLUTION]
+# - posX and posY are type string in mirror, but type double in object itself
+# - perhaps the cache copy does not change type, so it remains string?

@@ -64,7 +64,7 @@
   "pop-front",
   "print",
   "print-dst-rect",
-  "print-global",
+  "print all",
   "print-src-rect",
   "print-state",
   "print-value",

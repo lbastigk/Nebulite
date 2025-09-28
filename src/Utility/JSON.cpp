@@ -1,12 +1,8 @@
 #include "Utility/JSON.hpp"
 #include "DomainModule/JDM.hpp"
 
-/**
- * @def FLUSH_DEBUG
- * 
- * @brief If defined, debug information about cache flushing will be printed to the console.
- */
-#define FLUSH_DEBUG 0
+//------------------------------------------
+// Constructor
 
 Nebulite::Utility::JSON::JSON()
 : Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this)
@@ -16,29 +12,64 @@ Nebulite::Utility::JSON::JSON()
     Nebulite::DomainModule::JDM_init(this);
 }
 
-Nebulite::Utility::JSON::JSON(JSON&& other) noexcept
-: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this)
-{
-    std::scoped_lock lock(mtx, other.mtx); // Locks both, deadlock-free
-    doc = std::move(other.doc);
-    cache = std::move(other.cache);
-}
+//------------------------------------------
+// Destructor
 
 Nebulite::Utility::JSON::~JSON(){
     std::scoped_lock lock(mtx);
     cache.clear();
+    for(auto& [key, ptr] : quick_expr_double_cache) {
+        if(ptr.current_value != nullptr) {
+            delete ptr.current_value;
+            ptr.current_value = nullptr;
+        }
+        if(ptr.previous_value != nullptr) {
+            delete ptr.previous_value;
+            ptr.previous_value = nullptr;
+        }
+    }
+    quick_expr_double_cache.clear();
     Nebulite::Utility::JSON::DirectAccess::empty(doc);
 }
 
+//------------------------------------------
+// Overload of assign/copy/move operators
+
+Nebulite::Utility::JSON::JSON(JSON&& other) noexcept
+: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this){
+    std::scoped_lock lock(mtx, other.mtx); // Locks both, deadlock-free
+    flush();
+    doc = std::move(other.doc);
+}
+
+Nebulite::Utility::JSON& Nebulite::Utility::JSON::operator=(JSON&& other) noexcept {
+    if (this != &other) {
+        std::scoped_lock lock(mtx, other.mtx);
+        flush();
+        doc = std::move(other.doc);
+    }
+    return *this;
+}
+
+//------------------------------------------
+
+void Nebulite::Utility::JSON::update(){
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+    
+    // We ensure that any changes in the double cache are written back to the main cache
+    sync_cache_levels();
+}
+
+
+
+
+
 const std::string Nebulite::Utility::JSON::reservedCharacters = "[]{}.,";
 
-void Nebulite::Utility::JSON::set_subdoc(const char* key, Nebulite::Utility::JSON& child){
+void Nebulite::Utility::JSON::set_subdoc(const char* key, Nebulite::Utility::JSON* child){
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
     // Flush own contents
-    #if FLUSH_DEBUG
-        std::cout << "[DEBUG] Nebulite::Utility::JSON::flush() called from " << __FUNCTION__ << std::endl;
-    #endif
     flush();
 
     // Ensure key path exists
@@ -46,8 +77,8 @@ void Nebulite::Utility::JSON::set_subdoc(const char* key, Nebulite::Utility::JSO
 
     // Insert child document
     if (keyVal != nullptr) {
-        child.flush();
-        Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Document>(child.doc, *keyVal, doc.GetAllocator());
+        child->flush();
+        Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Document>(child->doc, *keyVal, doc.GetAllocator());
     } else {
         std::cerr << "Failed to create or access path: " << key << std::endl;
     }
@@ -55,12 +86,7 @@ void Nebulite::Utility::JSON::set_subdoc(const char* key, Nebulite::Utility::JSO
 
 Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(const char* key){
     std::lock_guard<std::recursive_mutex> lock(mtx);
-
-    #if FLUSH_DEBUG
-        std::cout << "[DEBUG] Nebulite::Utility::JSON::flush() called from " << __FUNCTION__ << std::endl;
-    #endif
     flush();
-
     rapidjson::Value* keyVal = Nebulite::Utility::JSON::DirectAccess::traverse_path(key,doc);
     if(keyVal != nullptr){
         // turn keyVal to doc
@@ -75,9 +101,6 @@ Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(const char* key){
 }
 
 void Nebulite::Utility::JSON::set_empty_array(const char* key){
-    #if FLUSH_DEBUG
-        std::cout << "[DEBUG] Nebulite::Utility::JSON::flush() called from " << __FUNCTION__ << std::endl;
-    #endif
     flush();
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
@@ -88,10 +111,8 @@ void Nebulite::Utility::JSON::set_empty_array(const char* key){
 void Nebulite::Utility::JSON::remove_key(const char* key) {
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
-    #if FLUSH_DEBUG
-        std::cout << "[DEBUG] Nebulite::Utility::JSON::flush() called from " << __FUNCTION__ << std::endl;
-    #endif
-    flush(); // Ensure cache is flushed before removing key
+    // Ensure cache is flushed before removing key
+    flush(); 
 
     std::string keyStr(key);
     
@@ -150,9 +171,6 @@ Nebulite::Utility::JSON::KeyType Nebulite::Utility::JSON::memberCheck(std::strin
     }
 
     // Not directly in cache, flush before accessing the document
-    #if FLUSH_DEBUG
-        std::cout << "[DEBUG] Nebulite::Utility::JSON::flush() called from " << __FUNCTION__ << std::endl;
-    #endif
     flush();
 
     // 4. If not cached, check rapidjson doc
@@ -183,9 +201,6 @@ uint32_t Nebulite::Utility::JSON::memberSize(std::string key){
     }
     else{
         // Is array, get size
-        #if FLUSH_DEBUG
-            std::cout << "[DEBUG] Nebulite::Utility::JSON::flush() called from " << __FUNCTION__ << std::endl;
-        #endif
         flush(); // Ensure cache is flushed before accessing doc
         auto val = Nebulite::Utility::JSON::DirectAccess::traverse_path(key.c_str(),doc);
         return val->Size();
@@ -194,10 +209,6 @@ uint32_t Nebulite::Utility::JSON::memberSize(std::string key){
 
 std::string Nebulite::Utility::JSON::serialize(std::string key){
     std::lock_guard<std::recursive_mutex> lock(mtx);
-
-    #if FLUSH_DEBUG
-        std::cout << "[DEBUG] Nebulite::Utility::JSON::flush() called from " << __FUNCTION__ << std::endl;
-    #endif
     flush();
     if(key.size() == 0){
         // Serialize entire doc
@@ -255,24 +266,69 @@ void Nebulite::Utility::JSON::deserialize(std::string serial_or_link){
     }
 }
 
+void Nebulite::Utility::JSON::sync_cache_levels(){
+    // Update if current != previous, meaning the value was changed
+    // If we were to just write all double cache values back, we would:
+    // - Unnecessarily write unchanged values
+    // - Potentially overwrite changes made directly to the JSON document
+    //   that were not reflected in the double cache
+    // If current != previous, we know something in the pipeline like an expression, changed the value
+    // and we need to write it back to the cache.
+    for(auto& [key, entry] : quick_expr_double_cache) {
+        // Ensure pointers are valid
+        if(entry.current_value != nullptr && entry.previous_value != nullptr) {
+            // Edge case: current or previous are NaN -> do not sync back
+            // Since the double cache is a double representation of the cache itself, we cannot sync a NaN back
+            // We would lose information! E.g. if cache is string, we would replace it with a NaN double
+            if(std::isnan(*entry.current_value) || std::isnan(*entry.previous_value)) {
+                continue;
+            }
+
+            // Now we can safely compare the values
+            if(*entry.current_value != *entry.previous_value) {
+                set<double>(key.c_str(), *(entry.current_value));
+                *entry.previous_value = *entry.current_value; // Update previous to current
+                //std::cout << "Updated cache for key: " << key << " from " << *entry.previous_value << " to: " << *entry.current_value << std::endl;
+            }
+        }
+    }
+}
+
 void Nebulite::Utility::JSON::flush() {
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
-    // [DEBUG] Inform about cache flushing
-    #if FLUSH_DEBUG
-        std::cout << "[DEBUG] Flushing JSON cache..." << std::endl;
-    #endif
-    
+    // Synchronize cache levels first
+    sync_cache_levels();
 
     // Inserting all cached values into the rapidjson document
     for (auto it = cache.begin(); it != cache.end(); it++) {
+        if(it->second.modified == false) {
+            continue; // Skip unmodified entries
+        }
+
         const std::string& key = it->first;
         const SimpleJSONValue& val = it->second.main_value;
-
+        
         // Visit the variant and call set with correct type
         std::visit([this, &key](auto&& arg) {
             Nebulite::Utility::JSON::DirectAccess::set(key.c_str(), arg, doc, doc.GetAllocator());
         }, val);
+
+        // [DEBUG]
+        /*
+        static const std::vector<std::string> filtered_prefixes = {
+            "input.", "time.", "random.", "display.", "platform"
+        };
+        bool show = std::none_of(filtered_prefixes.begin(), filtered_prefixes.end(),
+            [&key](const std::string& prefix) { return key.starts_with(prefix); });
+        if(show) {
+            std::cout << "Flushed key: " << key << " to value: ";
+            std::visit([](const auto& value) {
+                std::cout << value;
+            }, val);
+            std::cout << std::endl;
+        }
+        */
     }
 }
 
@@ -283,6 +339,17 @@ void Nebulite::Utility::JSON::empty(){
     for (auto it = cache.begin(); it != cache.end(); ) {
         cache.erase(it++);
     }
+    for(auto& [key, ptr] : quick_expr_double_cache) {
+        if(ptr.current_value != nullptr) {
+            delete ptr.current_value;
+            ptr.current_value = nullptr;
+        }
+        if(ptr.previous_value != nullptr) {
+            delete ptr.previous_value;
+            ptr.previous_value = nullptr;
+        }
+    }
+    quick_expr_double_cache.clear();
 }
 
 rapidjson::Value* Nebulite::Utility::JSON::DirectAccess::traverse_path(const char* key, rapidjson::Value& val){

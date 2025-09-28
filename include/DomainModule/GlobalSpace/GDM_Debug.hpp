@@ -179,9 +179,9 @@ public:
         bindFunction(&Debug::warn,              "warn",                     "Return a warning (noncritical error): warn <string>");
         bindFunction(&Debug::critical,          "critical",                 "Return a critical error: critical <string>");
 
-        bindSubtree("print", "Functions to print various data to console");
-        bindFunction(&Debug::printGlobal,       "print-global",             "Print global document: [key]");
-        bindFunction(&Debug::printState,        "print-state",              "Print current state");
+        // print State needs to be refactored, as "print" is already a command in JSON
+        //bindSubtree("print", "Functions to print various data to console");
+        //bindFunction(&Debug::printState,        "print state",              "Print current state");
 
         bindSubtree("log", "Functions to log various data to files");
         bindFunction(&Debug::logGlobal,         "log global",               "Log global document: log-global [filename]");

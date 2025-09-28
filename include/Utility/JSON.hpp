@@ -74,22 +74,19 @@ public:
     ~JSON();
 
     //------------------------------------------
-    // Overload of assign operators
+    // Overload of assign/copy/move operators
     /**
      * @todo reinitialization of domain is probably missing at some spots
      */
     JSON(const JSON&) = delete;
-    JSON(JSON&& other) noexcept;
     JSON& operator=(const JSON&) = delete;
-    JSON& operator=(JSON&& other) noexcept 
-    {
-        if (this != &other) {
-            std::scoped_lock lock(mtx, other.mtx);
-            doc = std::move(other.doc);
-            cache = std::move(other.cache);
-        }
-        return *this;
-    }
+    JSON(JSON&& other) noexcept;
+    JSON& operator=(JSON&& other) noexcept;
+
+    /**
+     * @brief Updates the JSON document, ensuring validity between the cache levels.
+     */
+    void update() override;
     
     /**
      * @brief Copies the contents of another JSON object into this one.
@@ -101,7 +98,10 @@ public:
      * serializing and deserializing the JSON.
      */
     void copyFrom(const JSON* other) {
+        // Lock both mutexes to ensure thread safety during the copy operation
         std::scoped_lock lock(mtx, other->mtx);
+
+        // Clear current document
         Nebulite::Utility::JSON::DirectAccess::empty(doc);
         
         if (other == nullptr) return;  // safeguard
@@ -113,6 +113,28 @@ public:
         // Copy cache
         cache.clear();
         cache = other->cache;
+
+        //------------------------------------------
+        // Copy double pointer cache
+        // absl::flat_hash_map<std::string, double*>
+
+        // We cannot directly copy the pointers, as they point to the other document's memory
+        // Instead we need to create new double values for each entry in other->quick_expr_double_cache
+        // As well as carefully setting the values we have to 0
+        
+        // 1.) Set all existing pointers to 0
+        for (auto& [key, entry] : quick_expr_double_cache) {
+            *entry.current_value = 0;
+            *entry.previous_value = 0;
+        }
+
+        // 2.) Copy all entries from other->quick_expr_double_cache
+        for(auto& [key, entry] : other->quick_expr_double_cache) {
+            // Make a copy of the entry
+            double* current = new double(*entry.current_value);
+            double* previous = new double(*entry.previous_value);
+            quick_expr_double_cache[key] = {current, previous};
+        }
     }
 
     /**
@@ -177,6 +199,11 @@ public:
      */
     template <typename T> void set(const char* key, const T& value);
 
+    template <typename T> void set_direct(const char* key, const T& value){
+        std::lock_guard<std::recursive_mutex> lock(mtx);
+        Nebulite::Utility::JSON::DirectAccess::set(key, value, doc, doc.GetAllocator());
+    }
+
     /**
      * @brief Sets a sub-document in the JSON document.
      * 
@@ -188,7 +215,7 @@ public:
      * @param key The key of the sub-document to set.
      * @param child The sub-document to set.
      */
-    void set_subdoc(const char* key, Nebulite::Utility::JSON& child);
+    void set_subdoc(const char* key, Nebulite::Utility::JSON* child);
 
     //------------------------------------------
     // Set empty
@@ -336,19 +363,36 @@ public:
      */
     double* getDoublePointerOf(const std::string& key) {
         std::lock_guard<std::recursive_mutex> lock(mtx);
+
+        // Entry exists, return pointer
         if(quick_expr_double_cache.find(key) != quick_expr_double_cache.end()) {
-            return quick_expr_double_cache[key];
+            return quick_expr_double_cache[key].current_value;
         }
+        // Entry does not exist, create new entry with value 0.0 and return pointer
         else{
-            double* newPtr = new double();
-            quick_expr_double_cache[key] = newPtr;
-            *newPtr = get<double>(key.c_str(), 0.0);
-            return newPtr;
+            double* current = new double(get<double>(key.c_str(), 0.0));
+            double* previous = new double(*current);
+            quick_expr_double_cache[key] = {current, previous};
+            return current;
         }
     }
 
     //------------------------------------------
     // Cache/Doc manipulation
+
+    /**
+     * @brief Empties the main document and cache.
+     */
+    void empty();
+
+private:
+    /**
+     * @brief Synchronizes the cache levels by updating previous values to current values.
+     * 
+     * This function is used to synchronize the cache levels, writing all new values from the double cache
+     * into the main cache. This ensures that the cache is up-to-date with the latest values.
+     */
+    void sync_cache_levels();
 
     /**
      * @brief Flushes the cache content into the main document.
@@ -359,12 +403,6 @@ public:
      */
     void flush();
 
-    /**
-     * @brief Empties the main document and cache.
-     */
-    void empty();
-
-private:
     //------------------------------------------
     // Templated helpers
 
@@ -391,12 +429,6 @@ private:
      */
     template <typename T>
     static inline constexpr bool is_simple_value_v = is_simple_value<T>::value;
-
-    //------------------------------------------
-    // Value storage
-
-    // main doc
-    rapidjson::Document doc;
 
     //------------------------------------------
     // Locking system
@@ -429,19 +461,24 @@ private:
     struct CacheEntry {
         SimpleJSONValue main_value;
         absl::flat_hash_map<std::type_index, SimpleJSONValue> derived_values;
+        /**
+         * @brief Indicates if the cache entry has been modified at all
+         * 
+         * false: never modified, just a mirror of the document
+         * true:  modified at least once, needs to be flushed
+         */
+        bool modified = false;
     };
 
     /**
-     * @brief Cache for storing simple JSON values.
-     */
-    absl::flat_hash_map<std::string, CacheEntry> cache;
-
-    /**
-     * @brief Pointer-Direct-Access-Cache for double values
+     * @brief Wrapper struct for the double cache, allowing us to hold current and previous values.
      * 
-     * Used in Nebulites Expression System in combination with tinyexpr for quick evaluations.
+     * Pointers are stored instead of values to ensure pointer validity.
      */
-    absl::flat_hash_map<std::string, double*> quick_expr_double_cache;
+    struct DoubleCacheEntry {
+        double* current_value = new double(0);
+        double* previous_value = new double(0);
+    };
 
     //------------------------------------------
     // Helper functions for get/set:
@@ -477,6 +514,32 @@ private:
      */
     template <typename T>
     T convert_variant(const SimpleJSONValue& val, const T& defaultValue = T());
+
+    //------------------------------------------
+    // Value storage Levels
+
+    /**
+     * @brief The main rapidjson document.
+     * 
+     * First level of storage for JSON data.
+     */
+    rapidjson::Document doc;
+
+    /**
+     * @brief Cache for storing simple JSON values.
+     * 
+     * Second level of storage for JSON data.
+     */
+    absl::flat_hash_map<std::string, CacheEntry> cache;
+
+    /**
+     * @brief Pointer-Direct-Access-Cache for double values
+     * 
+     * Used in Nebulites Expression System in combination with tinyexpr for quick evaluations.
+     * 
+     * Third level of storage for JSON data.
+     */
+    absl::flat_hash_map<std::string, DoubleCacheEntry> quick_expr_double_cache;
 
     //------------------------------------------
     /**
@@ -739,6 +802,7 @@ void Nebulite::Utility::JSON::set_type(std::string key, const T& value) {
     CacheEntry& entry = cache[key];     // creates or updates entry
     entry.main_value = value;
     entry.derived_values.clear();       // reset derived types
+    entry.modified = true;              // mark as modified
 
     // Set value of its pointer cache
     double* ptr = getDoublePointerOf(key);
@@ -861,6 +925,7 @@ template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValu
 template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<double>(const double& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)          {jsonValue.SetDouble(data);}
 
 template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<long>(const long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {jsonValue.SetInt64(data);}
+
 template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<long long>(const long long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)    {jsonValue.SetInt64(data);}
 
 template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<std::string>(const std::string& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
@@ -891,6 +956,7 @@ template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValu
 template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Document*>(rapidjson::Document* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)   {jsonValue.CopyFrom(*data, allocator);}
 
 template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Document>(const rapidjson::Document& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator)       {jsonValue.CopyFrom(data, allocator);}
+
 
 //------------------------------------------
 // 2.) from JSON Value
