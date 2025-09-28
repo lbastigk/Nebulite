@@ -6,7 +6,7 @@ echo
 time set-fixed-dt 1
 set-res 1440 1440
 set-fps 1000
-print-global
+print all
 echo
 echo
 set physics.G 10

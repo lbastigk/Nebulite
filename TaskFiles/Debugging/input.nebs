@@ -2,7 +2,7 @@
 set-res 200 200 1
 set-fps 1
 always clear
-always print-global
+always print all
 
 #
 

@@ -22,19 +22,39 @@
 echo Starting vscode_debug.nebs
 # -----------------------------------------------------------------------------
 
-# Setup a scene
+set-fps 60
+spawn Planets/sun.jsonc
+wait 1
+exit
 
+###############################
+# Setup a scene
 task TaskFiles/Simulations/gravity_classic.nebs
+clear
 time set-fixed-dt 1
 
+###############################
+# Wait some time
 wait 100
+
+###############################
+# Get a render object and manipulate it
+clear # This is where the relevant commands start
 selected-object get 2
 selected-object parse eval echo Selected object with id $05i({self.id}) named {self.text.str}
 selected-object parse mirror on
 wait 1 # wait one frame for mirror to apply
+echo Printing mirrror:
+print mirror.renderObject.id2
+echo done!
+exit
+
+# Setup continous tasks
 always clear
-always eval echo Position: ({global.mirror.renderObject.2.posX},{global.mirror.renderObject.2.posY})
-always print-global mirror.renderObject.2
+always print mirror.renderObject.id2
+#always selected-object parse print
+always eval echo Position: ({global.mirror.renderObject.id2.posX},{global.mirror.renderObject.id2.posY})
+
 # TODO: Position does not update, why not?
 # posX and posY are the only fields that are not synced!
 # Renderer position rendering works fine, so issue must be in the retrieval of a document?
@@ -46,3 +66,6 @@ always print-global mirror.renderObject.2
 # posX and posY are seemingly stuck at their values after the first update: 353.43.. and 488.01..
 # Idea: Maybe flush does not know whether to flush the normal cache or the double-buffered cache?
 # Add a field to each value that indicates which value is newer? Or see if we can simply improve flush?
+
+# - The first access locks in the value, subsequent accesses remain the same
+# - perhaps, with get, we set a cached value, and subsequent accesses use that cached value instead of new values?

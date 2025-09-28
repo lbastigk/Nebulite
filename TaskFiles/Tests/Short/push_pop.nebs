@@ -1,5 +1,5 @@
 # Using names starting with "zz" so they're at the end of the global doc 
-# This way, they're at the end of the cli output when using print-global 
+# This way, they're at the end of the cli output when using print all 
 
 # Testing general push/pop of arrays
 set zzy[0] 1
@@ -11,5 +11,5 @@ push-back zzy
 # Testing push/pop if a value is NOT an array
 set zzz 1
 push-back zzz 2
-print-global
+print all
 exit

@@ -7,7 +7,7 @@ set physics.G 10
 time set-fixed-dt 10
 set-res 1440 1440
 set-fps 10000
-print-global
+print all
 echo
 echo
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=128|posY=128|physics.vX=4|physics.vY=-3|physics.mass=5000|text.str=obj001|imgLocation=./Resources/Sprites/TEST100P/001.bmp
@@ -83,7 +83,7 @@ echo
 echo
 echo Global Doc:
 echo
-print-global
+print all
 echo
 echo
 snapshot ./Resources/Snapshots/gravity_test.png

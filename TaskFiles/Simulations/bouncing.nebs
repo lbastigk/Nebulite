@@ -23,5 +23,5 @@ spawn ./Resources/Renderobjects/Boxes/bounce.jsonc|posX=100|posY=100|physics.vX=
 #wait 150
 #exit
 #print-state
-#print-global
+#print all
 #exit
