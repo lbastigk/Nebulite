@@ -39,19 +39,25 @@ Nebulite::Utility::JSON::JSON(JSON&& other) noexcept
 : Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this){
     std::scoped_lock lock(mtx, other.mtx); // Locks both, deadlock-free
     flush();
-    doc = std::move(other.doc);
+    copyFrom(&other);
 }
 
 Nebulite::Utility::JSON& Nebulite::Utility::JSON::operator=(JSON&& other) noexcept {
     if (this != &other) {
         std::scoped_lock lock(mtx, other.mtx);
         flush();
-        doc = std::move(other.doc);
+        copyFrom(&other);
     }
     return *this;
 }
 
 //------------------------------------------
+// Constants
+
+const std::string Nebulite::Utility::JSON::reservedCharacters = "[]{}.,";
+
+//------------------------------------------
+// 
 
 void Nebulite::Utility::JSON::update(){
     std::lock_guard<std::recursive_mutex> lock(mtx);
@@ -60,11 +66,6 @@ void Nebulite::Utility::JSON::update(){
     sync_cache_levels();
 }
 
-
-
-
-
-const std::string Nebulite::Utility::JSON::reservedCharacters = "[]{}.,";
 
 void Nebulite::Utility::JSON::set_subdoc(const char* key, Nebulite::Utility::JSON* child){
     std::lock_guard<std::recursive_mutex> lock(mtx);

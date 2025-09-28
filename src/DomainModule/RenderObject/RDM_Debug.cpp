@@ -56,23 +56,6 @@ Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::printDst
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::print(int argc, char* argv[]){
-    std::string serialized = domain->serialize();
-    std::cout << serialized << std::endl;
-    return Nebulite::Constants::ErrorTable::NONE();
-}
-
-Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::printValue(int argc, char* argv[]){
-    if(argc<2){
-        std::cerr << "print-value requires a <key> argument" << std::endl;
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
-    }
-    std::string key = argv[1];
-    auto value = domain->get<std::string>(key.c_str(), "");
-    std::cout << value << std::endl;
-    return Nebulite::Constants::ErrorTable::NONE();
-}
-
 Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::textureStatus(int argc, char* argv[]){
     if(argc != 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected

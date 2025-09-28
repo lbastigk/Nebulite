@@ -124,6 +124,11 @@ public:
         
         // 1.) Set all existing pointers to 0
         for (auto& [key, entry] : quick_expr_double_cache) {
+            // We need to set both current and previous to 0
+            // So that the update routine does not register a change
+            // A singular change in double cache would lead to an overwrite of the normal cache
+            // Which we obviously do not want
+            // So we set current equal to previous -> no change detected
             *entry.current_value = 0;
             *entry.previous_value = 0;
         }
