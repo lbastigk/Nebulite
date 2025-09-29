@@ -85,3 +85,12 @@ always selected-object parse eval echo Position: ({self.posX}, {self.posY})
 
 # [ ] Does not work, posX and posY stay the same
 #always print mirror.renderObject.id1
+
+################################################################
+# TODO: Perhaps a minimal example JSON class to test caching?
+# - custom struct for value
+# - flat hash map to value and double-representation
+# - get/set value
+# - update() to sync double-representation back to main JSON if changed
+# - flush on serialize
+# - unit tests
