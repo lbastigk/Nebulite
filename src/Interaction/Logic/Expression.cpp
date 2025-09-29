@@ -408,9 +408,25 @@ void Nebulite::Interaction::Logic::Expression::parse(const std::string& expr, Ne
 }
 
 std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JSON* current_other) {
+    //------------------------------------------
+    // Making sure all references to double pointers are up to date
+
     // Update references to 'other'
     update_vds(&virtualDoubles_other, current_other);
     update_vds(&virtualDoubles_resource, nullptr);
+
+    // Check if we have to update the vds of self/global
+    if(self->getLastCacheClearTime() > lastCacheClearTime.self) {
+        update_vds(&virtualDoubles_self, self);
+        lastCacheClearTime.self = self->getLastCacheClearTime();
+    }
+    if(global->getLastCacheClearTime() > lastCacheClearTime.global) {
+        update_vds(&virtualDoubles_global, global);
+        lastCacheClearTime.global = global->getLastCacheClearTime();
+    }
+
+    //------------------------------------------
+    // Evaluate expression
 
     // Concatenate results of each entry
     std::string result = "";

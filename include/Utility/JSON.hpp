@@ -30,6 +30,7 @@
 // Nebulite
 #include "Constants/KeyNames.hpp"
 #include "Utility/FileManagement.hpp"
+#include "Utility/Time.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
@@ -97,7 +98,7 @@ public:
      * @note If this fails, it might be helpful to fall back to 
      * serializing and deserializing the JSON.
      */
-    void copyFrom(const JSON* other) {
+    void copyFrom(JSON* other) {
         // Lock both mutexes to ensure thread safety during the copy operation
         std::scoped_lock lock(mtx, other->mtx);
 
@@ -140,6 +141,12 @@ public:
             double* previous = new double(*entry.previous_value);
             quick_expr_double_cache[key] = {current, previous};
         }
+
+        //------------------------------------------
+        // [DEBUG][TEST]
+        // New approch using deserialization from the JSON document.
+        //std::string _serialized = other->serialize();
+        //this->deserialize(_serialized);
     }
 
     /**
@@ -390,7 +397,23 @@ public:
      */
     void empty();
 
+    /**
+     * @brief Clears the cache without modifying the main document.
+     */
+    void emptyCache();
+
+    /**
+     * @brief Returns the last time the cache was cleared
+     */
+    uint64_t getLastCacheClearTime() const { return last_cache_clear_time_ms; }
+
 private:
+
+    /**
+     * @brief Last time the cache was cleared.
+     */
+    uint64_t last_cache_clear_time_ms = 0;
+
     /**
      * @brief Synchronizes the cache levels by updating previous values to current values.
      * 
@@ -956,11 +979,20 @@ template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValu
     }
 }
 
-template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Value*>(rapidjson::Value* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)         {jsonValue.CopyFrom(*data, allocator);}
+template <> inline void 
+Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Value*>
+(rapidjson::Value* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)
+{jsonValue.CopyFrom(*data, allocator);}
 
-template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Document*>(rapidjson::Document* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)   {jsonValue.CopyFrom(*data, allocator);}
+template <> inline void 
+Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Document*>
+(rapidjson::Document* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)
+{jsonValue.CopyFrom(*data, allocator);}
 
-template <> inline void Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Document>(const rapidjson::Document& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator)       {jsonValue.CopyFrom(data, allocator);}
+template <> inline void 
+Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Document>
+(const rapidjson::Document& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator)
+{jsonValue.CopyFrom(data, allocator);}
 
 
 //------------------------------------------

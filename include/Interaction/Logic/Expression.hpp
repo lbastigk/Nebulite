@@ -422,6 +422,13 @@ private:
      */
     void printCompileError(const Entry& entry, int& error);
 
+    /**
+     * @brief last Cache Clear Time of self/global
+     */
+    struct lastCacheClearTime {
+        uint64_t self = 0;
+        uint64_t global = 0;
+    } lastCacheClearTime;
 };
 } // namespace Logic
 } // namespace Interaction

@@ -70,22 +70,49 @@ void Nebulite::Utility::JSON::update(){
 void Nebulite::Utility::JSON::set_subdoc(const char* key, Nebulite::Utility::JSON* child){
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
-    // Flush own contents
-    flush();
+    if(key == nullptr || child == nullptr){
+        std::cerr << "Invalid key or child document." << std::endl;
+        return;
+    }
+
+    // Flush own contents into the document
+    this->flush();
 
     // Ensure key path exists
     rapidjson::Value* keyVal = Nebulite::Utility::JSON::DirectAccess::ensure_path(key, doc, doc.GetAllocator());
 
     // Insert child document
     if (keyVal != nullptr) {
+        // It is likely we will overwrite lots of values in the parent, so we need to clear the cache first
+        this->emptyCache();
+
+        // Old approach, did not properly update child document for some reason...
+        /*
+        // Ensure the child document is up-to-date
+        child->update();
         child->flush();
+
+        // Write child doc into parent
         Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Document>(child->doc, *keyVal, doc.GetAllocator());
+        */
+        
+
+        Nebulite::Utility::JSON childCopy;
+        std::string serial = child->serialize();
+        childCopy.deserialize(serial);
+        childCopy.update();
+
+        Nebulite::Utility::JSON::DirectAccess::ConvertToJSONValue<rapidjson::Document>(childCopy.doc, *keyVal, doc.GetAllocator());
+
+        std::cout << "Child doc: \n" << child->serialize() << std::endl;
+        std::cout << "Setting subdoc at key: " << key << std::endl;
+        std::cout << "Parent doc after setting subdoc at key " << key << ":\n" << serialize() << std::endl;
     } else {
         std::cerr << "Failed to create or access path: " << key << std::endl;
     }
 }
 
-Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(const char* key){
+Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(const char* key) {
     std::lock_guard<std::recursive_mutex> lock(mtx);
     flush();
     rapidjson::Value* keyVal = Nebulite::Utility::JSON::DirectAccess::traverse_path(key,doc);
@@ -208,7 +235,7 @@ uint32_t Nebulite::Utility::JSON::memberSize(std::string key){
     }
 }
 
-std::string Nebulite::Utility::JSON::serialize(std::string key){
+std::string Nebulite::Utility::JSON::serialize(std::string key) {
     std::lock_guard<std::recursive_mutex> lock(mtx);
     flush();
     if(key.size() == 0){
@@ -289,7 +316,6 @@ void Nebulite::Utility::JSON::sync_cache_levels(){
             if(*entry.current_value != *entry.previous_value) {
                 set<double>(key.c_str(), *(entry.current_value));
                 *entry.previous_value = *entry.current_value; // Update previous to current
-                //std::cout << "Updated cache for key: " << key << " from " << *entry.previous_value << " to: " << *entry.current_value << std::endl;
             }
         }
     }
@@ -314,22 +340,6 @@ void Nebulite::Utility::JSON::flush() {
         std::visit([this, &key](auto&& arg) {
             Nebulite::Utility::JSON::DirectAccess::set(key.c_str(), arg, doc, doc.GetAllocator());
         }, val);
-
-        // [DEBUG]
-        /*
-        static const std::vector<std::string> filtered_prefixes = {
-            "input.", "time.", "random.", "display.", "platform"
-        };
-        bool show = std::none_of(filtered_prefixes.begin(), filtered_prefixes.end(),
-            [&key](const std::string& prefix) { return key.starts_with(prefix); });
-        if(show) {
-            std::cout << "Flushed key: " << key << " to value: ";
-            std::visit([](const auto& value) {
-                std::cout << value;
-            }, val);
-            std::cout << std::endl;
-        }
-        */
     }
 }
 
@@ -337,6 +347,13 @@ void Nebulite::Utility::JSON::empty(){
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
     Nebulite::Utility::JSON::DirectAccess::empty(doc);
+    emptyCache();
+}
+
+void Nebulite::Utility::JSON::emptyCache(){
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+    last_cache_clear_time_ms = Time::gettime();
+
     for (auto it = cache.begin(); it != cache.end(); ) {
         cache.erase(it++);
     }
