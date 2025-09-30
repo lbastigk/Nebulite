@@ -44,6 +44,10 @@ private:
         VIRTUAL  // Exists for pointer stability but no real value set (defaults to 0)
     };
 
+    /**
+     * @struct CacheEntry
+     * @brief Represents a cached entry in the JSON document, including its value, state, and stable pointer for double values.
+     */
     struct CacheEntry {
         std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool> value;
         std::unique_ptr<double> stable_double_ptr;  // Never moves, never deleted
@@ -118,8 +122,7 @@ public:
     //------------------------------------------
     // Domain-specific methods
 
-    // TODO: used for domains
-    void update();
+    void update() override;
 
     //------------------------------------------
     // Set methods
@@ -328,7 +331,7 @@ void Nebulite::Utility::JSON::set(const std::string& key, const T& value) {
     } else {
         // New cache value, structural validity is not guaranteed
 
-        // Remove any child keys
+        // Remove any child keys to synchronize the structure
         invalidate_child_keys(key);
 
         // Create new entry directly in DIRTY state

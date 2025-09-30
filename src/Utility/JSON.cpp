@@ -76,6 +76,7 @@ const std::string Nebulite::Utility::JSON::reservedCharacters = "[]{}.,";
 void Nebulite::Utility::JSON::update(){
     // Used once domain is fully set up
     std::lock_guard<std::recursive_mutex> lock(mtx);
+    updateModules();
 }
 
 //------------------------------------------
