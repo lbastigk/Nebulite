@@ -82,24 +82,6 @@ void Nebulite::Utility::JSON::update(){
     // Used once domain is fully set up
     std::lock_guard<std::recursive_mutex> lock(mtx);
     updateModules();
-
-    // DEBUG, check all caches
-    // Do not check global doc, which is why we perform some specific key check
-    if(cache.contains("input.keyboard.current.a")){
-        return;
-    }
-    std::cout << "------------------------------------------" << std::endl;
-    std::cout << "JSON Document Cache Contents:" << std::endl;
-    std::vector<std::string> entries;
-    for (const auto& [key, entry] : cache) {
-        entries.push_back(key);
-    }
-    // Sort entries alphabetically
-    std::sort(entries.begin(), entries.end());
-    for (const auto& key : entries) {
-        const auto& entry = cache[key];
-        std::cout << "Key: " << key << " double value: " << *entry.stable_double_ptr.get() << std::endl;
-    }
 }
 
 //------------------------------------------
@@ -124,7 +106,7 @@ Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(const char* key){
     }
 }
 
-std::shared_ptr<double> Nebulite::Utility::JSON::get_stable_double_ptr(const std::string& key){
+double* Nebulite::Utility::JSON::get_stable_double_ptr(const std::string& key){
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
     // Check cache first
@@ -136,7 +118,7 @@ std::shared_ptr<double> Nebulite::Utility::JSON::get_stable_double_ptr(const std
     // Not in cache
 
     // Instead of repeating code, we just call get to create a cache entry
-    (void)get<double>(key, 0.0);
+    volatile double dummy = get<double>(key, 0.0);
     it = cache.find(key);
     if(it != cache.end()){
         return it->second.stable_double_ptr;

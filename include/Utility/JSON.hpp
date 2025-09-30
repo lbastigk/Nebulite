@@ -50,13 +50,13 @@ private:
      */
     struct CacheEntry {
         std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool> value;
-        std::shared_ptr<double> stable_double_ptr;  // Never deleted. Made shared so that we can hand out copies of the pointer.
+        double* stable_double_ptr;                  // Never deleted.
         double last_double_value;                   // For change detection
         EntryState state = EntryState::DIRTY;       // Default to dirty
         
         CacheEntry() {
             value = 0.0;  // Default virtual entries to 0
-            stable_double_ptr = std::make_shared<double>(0.0);
+            stable_double_ptr = new double(0.0);
             last_double_value = 0.0;
         }
     };
@@ -220,9 +220,9 @@ public:
     std::lock_guard<std::recursive_mutex> lock(){return std::lock_guard<std::recursive_mutex>(mtx);};
 
     /**
-     * @brief Gets a stable pointer to a double value in the JSON document.
+     * @brief Gets a pointer to a to a double value pointer in the JSON document.
      */
-    std::shared_ptr<double> get_stable_double_ptr(const std::string& key);
+    double* get_stable_double_ptr(const std::string& key);
 
     //------------------------------------------
     // Key Types, Sizes

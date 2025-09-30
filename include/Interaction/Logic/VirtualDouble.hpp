@@ -42,10 +42,10 @@ class VirtualDouble {
     std::string key;
 
     // Internal cache for the double value
-    std::shared_ptr<double> internal_cache = std::make_shared<double>(0.0);
+    double* internal_cache = new double(0.0);
 
     // External cache
-    std::shared_ptr<double> external_cache = nullptr;
+    double* external_cache = nullptr;
 public:
     /**
      * @brief Construct a new VirtualDouble object.
@@ -104,7 +104,7 @@ public:
      * 
      * @return A pointer to the double value.
      */
-    std::shared_ptr<double> ptr(){
+    double* ptr(){
         if(external_cache != nullptr) {
             return external_cache;
         }

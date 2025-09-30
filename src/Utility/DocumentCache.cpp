@@ -4,7 +4,7 @@ void Nebulite::Utility::DocumentCache::update() {
     readOnlyDocs.update();
 }
 
-std::shared_ptr<double> Nebulite::Utility::DocumentCache::get_stable_double_ptr(const std::string& doc_key) {
+double* Nebulite::Utility::DocumentCache::get_stable_double_ptr(const std::string& doc_key) {
     // Split the input into document name and key
     size_t pos = doc_key.find(':');
     if (pos == std::string::npos) {

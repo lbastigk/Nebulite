@@ -299,6 +299,35 @@ private:
 	size_t subscription_size = 0;
 
 	//------------------------------------------
+	// References to JSON
+	struct refs{
+		// Position and Size
+		double* posX;
+		double* posY;
+		double* pixelSizeX;
+		double* pixelSizeY;
+
+		// Spritesheet
+		double* isSpritesheet;
+		double* spritesheetOffsetX;
+		double* spritesheetOffsetY;
+		double* spritesheetSizeX;
+		double* spritesheetSizeY;
+
+		// Text
+		double* fontSize;
+		double* textDx;
+		double* textDy;
+		double* textColorR;
+		double* textColorG;
+		double* textColorB;
+		double* textColorA;
+
+	} refs;
+
+	void linkFrequentRefs();
+
+	//------------------------------------------
 	// Texture related
 
 	// Base Texture

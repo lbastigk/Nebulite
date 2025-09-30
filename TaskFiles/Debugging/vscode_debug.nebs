@@ -27,12 +27,14 @@ echo Starting vscode_debug.nebs
 # One object is enough for testing
 # And much easier to debug
 set-fps 20
+set physics.G 10
 time set-fixed-dt 1
 spawn Planets/obj2.jsonc
 
 ###############################
 # Wait some time
-wait 100
+wait 1000000 # wait a long time, we will exit manually
+exit
 
 ###############################
 # Get a render object and manipulate it
