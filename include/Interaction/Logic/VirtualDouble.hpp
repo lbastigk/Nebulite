@@ -42,10 +42,10 @@ class VirtualDouble {
     std::string key;
 
     // Internal cache for the double value
-    double internal_cache = 0.0;
+    std::shared_ptr<double> internal_cache = std::make_shared<double>(0.0);
 
     // External cache
-    double* external_cache = nullptr;
+    std::shared_ptr<double> external_cache = nullptr;
 public:
     /**
      * @brief Construct a new VirtualDouble object.
@@ -85,12 +85,11 @@ public:
      * @param json The JSON document pointer to retrieve the value from. If the pointer is null, we retrieve the value from the document cache.
      */
     void updateCache(Nebulite::Utility::JSON* json) {
-        double fallback_value = 0.0;
         if (json != nullptr) {
-            internal_cache = json->get<double>(key.c_str(), fallback_value);
+            internal_cache = json->get_stable_double_ptr(key.c_str());
         }
         else if (documentCache != nullptr) {
-            internal_cache = documentCache->getData<double>(key.c_str(), fallback_value);
+            internal_cache = documentCache->get_stable_double_ptr(key.c_str());
         }
     }
 
@@ -105,11 +104,11 @@ public:
      * 
      * @return A pointer to the double value.
      */
-    double* ptr(){
+    std::shared_ptr<double> ptr(){
         if(external_cache != nullptr) {
             return external_cache;
         }
-        return &internal_cache;
+        return internal_cache;
     }
 
     /**
@@ -120,7 +119,7 @@ public:
      */
     void register_external_double_cache(Nebulite::Utility::JSON* json) {
         if (json != nullptr) {
-            external_cache = json->get_stable_double_ptr(key.c_str()).get();
+            external_cache = json->get_stable_double_ptr(key.c_str());
         }
         else if (documentCache != nullptr) {
             external_cache = documentCache->get_stable_double_ptr(key);

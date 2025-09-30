@@ -164,7 +164,7 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
         // Push back into variable entries
         variables.push_back({
             te_names.back()->c_str(),
-            vd->ptr(),
+            vd->ptr().get(), // Get raw pointer from shared_ptr. As expression lifetime is tied to virtualdouble lifetime, this is safe.
             TE_VARIABLE,
             nullptr
         });

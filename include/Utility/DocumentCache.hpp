@@ -43,7 +43,9 @@ public:
     /**
      * @brief Default constructor for DocumentCache.
      */
-    DocumentCache() = default;
+    DocumentCache(){
+        zero = std::make_shared<double>(0.0);
+    }
 
     /**
      * @brief Retrieves data from a cached document.
@@ -76,7 +78,7 @@ public:
      * Guaranteed to be valid even if the key does not exist within the document,
      * or if the document itself is not found!
      */
-    double* get_stable_double_ptr(const std::string& doc_key);
+    std::shared_ptr<double> get_stable_double_ptr(const std::string& doc_key);
 private:
     /**
      * @brief Updates the cache by checking a random document for its last usage time.
@@ -155,7 +157,7 @@ private:
     }readOnlyDocs;
 
     // Default value for double pointers, if the document or key is not found
-    double zero = 0.0;
+    std::shared_ptr<double> zero;
 };
 } // namespace Utility
 } // namespace Nebulite
