@@ -82,6 +82,24 @@ void Nebulite::Utility::JSON::update(){
     // Used once domain is fully set up
     std::lock_guard<std::recursive_mutex> lock(mtx);
     updateModules();
+
+    // DEBUG, check all caches
+    // Do not check global doc, which is why we perform some specific key check
+    if(cache.contains("input.keyboard.current.a")){
+        return;
+    }
+    std::cout << "------------------------------------------" << std::endl;
+    std::cout << "JSON Document Cache Contents:" << std::endl;
+    std::vector<std::string> entries;
+    for (const auto& [key, entry] : cache) {
+        entries.push_back(key);
+    }
+    // Sort entries alphabetically
+    std::sort(entries.begin(), entries.end());
+    for (const auto& key : entries) {
+        const auto& entry = cache[key];
+        std::cout << "Key: " << key << " double value: " << *entry.stable_double_ptr.get() << std::endl;
+    }
 }
 
 //------------------------------------------
@@ -324,28 +342,44 @@ void Nebulite::Utility::JSON::remove_key(const char* key){
 void Nebulite::Utility::JSON::set_add(const char* key, double val) {
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
+    // Get current value
     double current = get<double>(key, 0.0);
-    set<double>(key, current + val);
+    double newValue = current + val;
 
     // Update double pointer value
     auto it = cache.find(key);
     if (it != cache.end()) {
-        *(it->second.stable_double_ptr) = current + val;
-        it->second.last_double_value = current + val;
+        *(it->second.stable_double_ptr) = newValue;
+    }
+    else{
+        set<double>(key, newValue);
+        it = cache.find(key);
+        if(it != cache.end()){
+            *(it->second.stable_double_ptr) = newValue;
+            it->second.last_double_value = newValue;
+        }
     }
 }
 
 void Nebulite::Utility::JSON::set_multiply(const char* key, double val) {
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
+    // Get current value
     double current = get<double>(key, 0.0);
-    set<double>(key, current * val);
+    double newValue = current * val;
 
     // Update double pointer value
     auto it = cache.find(key);
     if (it != cache.end()) {
-        *(it->second.stable_double_ptr) = current * val;
-        it->second.last_double_value = current * val;
+        *(it->second.stable_double_ptr) = newValue;
+    }
+    else{
+        set<double>(key, newValue);
+        it = cache.find(key);
+        if(it != cache.end()){
+            *(it->second.stable_double_ptr) = newValue;
+            it->second.last_double_value = newValue;
+        }
     }
 }
 
@@ -355,7 +389,7 @@ void Nebulite::Utility::JSON::set_concat(const char* key, const char* valStr) {
     std::string current = get<std::string>(key, "");
     set<std::string>(key, current + valStr);
 
-    // Update double pointer value
+    // Update double pointer value to default 0.0
     auto it = cache.find(key);
     if (it != cache.end()) {
         // Strings default to 0.0
