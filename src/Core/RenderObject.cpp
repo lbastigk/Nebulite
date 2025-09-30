@@ -78,6 +78,8 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 	//------------------------------------------
 	// Update once to initialize
 	update();
+	calculateSrcRect();
+	calculateDstRect();
 }
 
 Nebulite::Core::RenderObject::~RenderObject() {
@@ -176,11 +178,17 @@ SDL_Rect* Nebulite::Core::RenderObject::getDstRect() {
 }
 
 void Nebulite::Core::RenderObject::calculateDstRect() {
+	// Pointers to frequently used values
+	static std::shared_ptr<double> posX =       getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.positionX.c_str());
+	static std::shared_ptr<double> posY =       getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.positionY.c_str());
+	static std::shared_ptr<double> pixelSizeX = getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.pixelSizeX.c_str());
+	static std::shared_ptr<double> pixelSizeY = getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.pixelSizeY.c_str());
+
 	dstRect = {
-		(int)floor(get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str())),
-		(int)floor(get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str())),
-		(int)floor(get<double>(Nebulite::Constants::keyName.renderObject.pixelSizeX.c_str())), // Set the desired width
-		(int)floor(get<double>(Nebulite::Constants::keyName.renderObject.pixelSizeY.c_str())), // Set the desired height
+		(int)floor(*posX),
+		(int)floor(*posY),
+		(int)floor(*pixelSizeX), // Set the desired width
+		(int)floor(*pixelSizeY), // Set the desired height
 	};
 };
 
@@ -194,19 +202,21 @@ SDL_Rect* Nebulite::Core::RenderObject::getSrcRect() {
 }
 
 void Nebulite::Core::RenderObject::calculateSrcRect() {
+	// Pointers to frequently used values
+	static std::shared_ptr<double> isSpritesheet =      getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str());
+	static std::shared_ptr<double> spritesheetOffsetX = getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX.c_str());
+	static std::shared_ptr<double> spritesheetOffsetY = getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY.c_str());
+	static std::shared_ptr<double> spritesheetSizeX =   getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetSizeX.c_str());
+	static std::shared_ptr<double> spritesheetSizeY =   getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetSizeY.c_str());
+
 	// Check if the object is a sprite
-	if (get<bool>(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str())) {
-		int offsetX = (int)get<double>(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX.c_str(),0);
-		int offsetY = (int)get<double>(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY.c_str(),0);
-		int spriteWidth = get<int>(Nebulite::Constants::keyName.renderObject.spritesheetSizeX.c_str(),0);
-		int spriteHeight = get<int>(Nebulite::Constants::keyName.renderObject.spritesheetSizeY.c_str(),0);
-		
+	if (*isSpritesheet) {
 		// Calculate the source rectangle for the sprite (which portion of the sprite sheet to render)
 		srcRect = {
-			offsetX,       // Start X from the sprite sheet offset
-			offsetY,       // Start Y from the sprite sheet offset
-			spriteWidth,   // The width of the sprite frame
-			spriteHeight   // The height of the sprite frame
+			(int)*spritesheetOffsetX, // Start X from the sprite sheet offset
+			(int)*spritesheetOffsetY, // Start Y from the sprite sheet offset
+			(int)*spritesheetSizeX,   // The width of the sprite frame
+			(int)*spritesheetSizeY    // The height of the sprite frame
 		};
 	}
 }
@@ -303,16 +313,20 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyIntern
 // Outside communication with Renderer for text calculation
 
 void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int renderer_X, int renderer_Y){
-	// RECT position to renderer
-	/**
-	 * @todo Is it possible to reduce positionX/Y calls by only doing so in the renderer method?
-	 * This way, we would get position once for object, render object, then use position to render the text
-	 * Then we only need to keep textRect.w/h up to date here, and x/y is set in the renderer
-	 */
-	textRect.x = 	get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str()) + 
-					get<double>(Nebulite::Constants::keyName.renderObject.textDx.c_str()) - renderer_X;
-	textRect.y = 	get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str()) + 
-					get<double>(Nebulite::Constants::keyName.renderObject.textDy.c_str()) - renderer_Y;
+	// Pointers to frequently used values
+	static std::shared_ptr<double> posX = getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.positionX.c_str());
+	static std::shared_ptr<double> posY = getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.positionY.c_str());
+	static std::shared_ptr<double> textDx = getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textDx.c_str());
+	static std::shared_ptr<double> textDy = getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textDy.c_str());
+	static std::shared_ptr<double> fontSize = getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textFontsize.c_str());
+	static std::shared_ptr<double> textColorR = getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorR.c_str());
+	static std::shared_ptr<double> textColorG = getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorG.c_str());
+	static std::shared_ptr<double> textColorB = getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorB.c_str());
+	static std::shared_ptr<double> textColorA = getDoc()->get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorA.c_str());
+
+	// Set font size if changed
+	textRect.x = *posX + *textDx - renderer_X;
+	textRect.y = *posY + *textDy - renderer_Y;
 	
 	// Recreate texture if recalculate was triggered by user. This is needed for:
 	// - new text
@@ -326,18 +340,17 @@ void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font
         }
 		
 		// Settings influenced by a new text
-		double scalar = 1.0;
-		double fontSize = get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str());
+		double scalar = 1.0; // Perhaps needed
 		std::string text = get<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str());
-		textRect.w = scalar * fontSize * text.length();
-		textRect.h = static_cast<int>(fontSize * 1.5f * scalar);
+		textRect.w = *fontSize * text.length() * scalar;
+		textRect.h = static_cast<int>(*fontSize * 1.5f * scalar);
 
 		// Create text
 		SDL_Color textColor = { 
-			(Uint8)json.get<int>(Nebulite::Constants::keyName.renderObject.textColorR.c_str(),255),
-			(Uint8)json.get<int>(Nebulite::Constants::keyName.renderObject.textColorG.c_str(),255),
-			(Uint8)json.get<int>(Nebulite::Constants::keyName.renderObject.textColorB.c_str(),255),
-			(Uint8)json.get<int>(Nebulite::Constants::keyName.renderObject.textColorA.c_str(),255)
+			(Uint8)*textColorR,
+			(Uint8)*textColorG,
+			(Uint8)*textColorB,
+			(Uint8)*textColorA
 		};
 
 		// Create texture

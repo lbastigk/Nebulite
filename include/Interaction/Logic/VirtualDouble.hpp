@@ -120,7 +120,7 @@ public:
      */
     void register_external_double_cache(Nebulite::Utility::JSON* json) {
         if (json != nullptr) {
-            external_cache = json->get_stable_double_ptr(key.c_str());
+            external_cache = json->get_stable_double_ptr(key.c_str()).get();
         }
         else if (documentCache != nullptr) {
             external_cache = documentCache->get_stable_double_ptr(key);

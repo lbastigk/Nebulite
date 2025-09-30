@@ -50,13 +50,13 @@ private:
      */
     struct CacheEntry {
         std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool> value;
-        std::unique_ptr<double> stable_double_ptr;  // Never moves, never deleted
+        std::shared_ptr<double> stable_double_ptr;  // Never deleted. Made shared so that we can hand out copies of the pointer.
         double last_double_value;                   // For change detection
         EntryState state = EntryState::DIRTY;       // Default to dirty
         
         CacheEntry() {
             value = 0.0;  // Default virtual entries to 0
-            stable_double_ptr = std::make_unique<double>(0.0);
+            stable_double_ptr = std::make_shared<double>(0.0);
             last_double_value = 0.0;
         }
     };
@@ -222,7 +222,7 @@ public:
     /**
      * @brief Gets a stable pointer to a double value in the JSON document.
      */
-    double* get_stable_double_ptr(const std::string& key);
+    std::shared_ptr<double> get_stable_double_ptr(const std::string& key);
 
     //------------------------------------------
     // Key Types, Sizes
@@ -339,7 +339,8 @@ void Nebulite::Utility::JSON::set(const std::string& key, const T& value) {
 
         // Set entry values
         new_entry.value = value;
-        new_entry.stable_double_ptr = std::make_unique<double>(convertVariant<double>(new_entry.value, 0.0));
+        // Pointer was created in constructor, no need to redo make_shared
+        *new_entry.stable_double_ptr = convertVariant<double>(new_entry.value, 0.0);
         new_entry.last_double_value = *(new_entry.stable_double_ptr);
         new_entry.state = EntryState::DIRTY;
         
@@ -434,8 +435,8 @@ T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
             // Mark as clean
             new_entry.state = EntryState::CLEAN;
 
-            // Set stable double pointer
-            new_entry.stable_double_ptr = std::make_unique<double>(convertVariant<double>(new_entry.value, 0.0));
+            // Set stable double pointer. Already created in constructor, no need to redo make_shared
+            *new_entry.stable_double_ptr = convertVariant<double>(new_entry.value, 0.0);
             new_entry.last_double_value = *(new_entry.stable_double_ptr);
 
             // Insert into cache

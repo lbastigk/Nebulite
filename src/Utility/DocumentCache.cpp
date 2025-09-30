@@ -4,6 +4,9 @@ void Nebulite::Utility::DocumentCache::update() {
     readOnlyDocs.update();
 }
 
+/**
+ * @todo change all stable double pointers to shared_ptr
+ */
 double* Nebulite::Utility::DocumentCache::get_stable_double_ptr(const std::string& doc_key) {
     // Split the input into document name and key
     size_t pos = doc_key.find(':');
@@ -22,5 +25,5 @@ double* Nebulite::Utility::DocumentCache::get_stable_double_ptr(const std::strin
     update();
 
     // Return pointer to double value inside the document
-    return docPtr->document.get_stable_double_ptr(key);
+    return docPtr->document.get_stable_double_ptr(key).get();
 }

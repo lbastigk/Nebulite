@@ -68,8 +68,20 @@ struct Assignment{
      * @brief Key of the variable being assigned
      * 
      * e.g.: "posX"
+     * 
+     * @todo If target is self, operator is numeric, and expression is returnable as double, we could store a direct pointer to the JSON value.
      */
     std::string key;
+
+    /**
+     * @brief Target value pointer
+     * 
+     * Is only unequal to nullptr if:
+     * - onType is Self
+     * - operation is numeric (add, multiply)
+     * - expression is returnable as double
+     */
+    double* targetValuePtr = nullptr;
 
     /**
      * @brief The parsed expression in a thread-friendly Pool-Configuration
@@ -91,6 +103,7 @@ struct Assignment{
         , key(std::move(other.key))
         , value(std::move(other.value))
         , expression(std::move(other.expression))
+        , targetValuePtr(other.targetValuePtr)
     {
     }
 
@@ -101,6 +114,7 @@ struct Assignment{
             key = std::move(other.key);
             value = std::move(other.value);
             expression = std::move(other.expression);
+            targetValuePtr = other.targetValuePtr;
         }
         return *this;
     }

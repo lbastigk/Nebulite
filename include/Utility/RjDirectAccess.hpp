@@ -36,6 +36,9 @@
 #include "istreamwrapper.h"
 #include "ostreamwrapper.h"
 
+// Nebulite
+#include "Utility/StringHandler.hpp"
+
 
 
 namespace Nebulite::Utility {
@@ -314,7 +317,13 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(
         result = jsonValue.GetDouble();
     }
     else if(jsonValue.IsString()){
-        result = std::stod(jsonValue.GetString());
+        std::string strValue = jsonValue.GetString();
+        if(Nebulite::Utility::StringHandler::isNumber(strValue)){
+            result = std::stod(strValue);
+        }
+        else{
+            result = defaultvalue;
+        }
     }
     else {
         result = defaultvalue;
