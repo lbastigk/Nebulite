@@ -38,7 +38,7 @@ struct Assignment{
     /**
      * @brief Type of operation used
      */
-    enum class Operation {null, set, add, multiply,concat};
+    enum class Operation {null, set, add, multiply, concat};
 
     /**
      * @brief Type of operation used.

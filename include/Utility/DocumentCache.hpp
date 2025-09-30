@@ -76,7 +76,7 @@ public:
      * Guaranteed to be valid even if the key does not exist within the document,
      * or if the document itself is not found!
      */
-    double* getDoublePointerOf(const std::string& doc_key);
+    double* get_stable_double_ptr(const std::string& doc_key);
 private:
     /**
      * @brief Updates the cache by checking a random document for its last usage time.

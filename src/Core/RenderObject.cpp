@@ -23,35 +23,35 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 	// General
 
 	// Initialize to 0, Renderer itself sets proper id, which starts at 1
-	json.set_direct(Nebulite::Constants::keyName.renderObject.id.c_str(),0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.imageLocation.c_str(), std::string("Resources/Sprites/TEST001P/001.bmp"));
-	json.set_direct(Nebulite::Constants::keyName.renderObject.layer.c_str(), 0);
+	json.set(Nebulite::Constants::keyName.renderObject.id.c_str(),0);
+	json.set(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0);
+	json.set(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0);
+	json.set(Nebulite::Constants::keyName.renderObject.imageLocation.c_str(), std::string("Resources/Sprites/TEST001P/001.bmp"));
+	json.set(Nebulite::Constants::keyName.renderObject.layer.c_str(), 0);
 
 	//for sprite
-	json.set_direct(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str(), false);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX.c_str(), 0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY.c_str(), 0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.spritesheetSizeX.c_str(), 0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.spritesheetSizeY.c_str(), 0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.pixelSizeX.c_str(), 32);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.pixelSizeY.c_str(), 32);
+	json.set(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str(), false);
+	json.set(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX.c_str(), 0);
+	json.set(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY.c_str(), 0);
+	json.set(Nebulite::Constants::keyName.renderObject.spritesheetSizeX.c_str(), 0);
+	json.set(Nebulite::Constants::keyName.renderObject.spritesheetSizeY.c_str(), 0);
+	json.set(Nebulite::Constants::keyName.renderObject.pixelSizeX.c_str(), 32);
+	json.set(Nebulite::Constants::keyName.renderObject.pixelSizeY.c_str(), 32);
 
 	// Invokes
 	json.set_empty_array(Nebulite::Constants::keyName.renderObject.invokes.c_str());
 	json.set_empty_array(Nebulite::Constants::keyName.renderObject.invokeSubscriptions.c_str());
-	json.set_direct((Nebulite::Constants::keyName.renderObject.invokeSubscriptions+"[0]").c_str(),std::string("all"));
+	json.set((Nebulite::Constants::keyName.renderObject.invokeSubscriptions+"[0]").c_str(),std::string("all"));
 
 	// Text
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textStr.c_str(),std::string(""));
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textFontsize.c_str(),0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textDx.c_str(),0.0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textDy.c_str(),0.0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textColorR.c_str(),255);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textColorG.c_str(),255);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textColorB.c_str(),255);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textColorA.c_str(),255);
+	json.set(Nebulite::Constants::keyName.renderObject.textStr.c_str(),std::string(""));
+	json.set(Nebulite::Constants::keyName.renderObject.textFontsize.c_str(),0);
+	json.set(Nebulite::Constants::keyName.renderObject.textDx.c_str(),0.0);
+	json.set(Nebulite::Constants::keyName.renderObject.textDy.c_str(),0.0);
+	json.set(Nebulite::Constants::keyName.renderObject.textColorR.c_str(),255);
+	json.set(Nebulite::Constants::keyName.renderObject.textColorG.c_str(),255);
+	json.set(Nebulite::Constants::keyName.renderObject.textColorB.c_str(),255);
+	json.set(Nebulite::Constants::keyName.renderObject.textColorA.c_str(),255);
 
 	//------------------------------------------
 	// Internal Values

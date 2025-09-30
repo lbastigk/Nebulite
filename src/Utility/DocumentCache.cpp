@@ -4,7 +4,7 @@ void Nebulite::Utility::DocumentCache::update() {
     readOnlyDocs.update();
 }
 
-double* Nebulite::Utility::DocumentCache::getDoublePointerOf(const std::string& doc_key) {
+double* Nebulite::Utility::DocumentCache::get_stable_double_ptr(const std::string& doc_key) {
     // Split the input into document name and key
     size_t pos = doc_key.find(':');
     if (pos == std::string::npos) {
@@ -22,5 +22,5 @@ double* Nebulite::Utility::DocumentCache::getDoublePointerOf(const std::string& 
     update();
 
     // Return pointer to double value inside the document
-    return docPtr->document.getDoublePointerOf(key);
+    return docPtr->document.get_stable_double_ptr(key);
 }

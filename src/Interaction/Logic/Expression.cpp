@@ -415,16 +415,6 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
     update_vds(&virtualDoubles_other, current_other);
     update_vds(&virtualDoubles_resource, nullptr);
 
-    // Check if we have to update the vds of self/global
-    if(self->getLastCacheClearTime() > lastCacheClearTime.self) {
-        update_vds(&virtualDoubles_self, self);
-        lastCacheClearTime.self = self->getLastCacheClearTime();
-    }
-    if(global->getLastCacheClearTime() > lastCacheClearTime.global) {
-        update_vds(&virtualDoubles_global, global);
-        lastCacheClearTime.global = global->getLastCacheClearTime();
-    }
-
     //------------------------------------------
     // Evaluate expression
 

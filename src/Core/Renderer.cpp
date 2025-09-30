@@ -583,7 +583,7 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 	//------------------------------------------
 	// Error Checking
 	if(!texture){
-		std::cerr << "Error: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " texture not found" << std::endl;
+		std::cerr << "Error: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " texture with path '" << innerdir << "' not found" << std::endl;
 		return -1;
 	}
 
