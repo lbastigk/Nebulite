@@ -22,15 +22,17 @@
 echo Starting vscode_debug.nebs
 # -----------------------------------------------------------------------------
 
+
+
 ###############################
 # Setup a scene
 # One object is enough for testing
 # And much easier to debug
-set-fps 2000
-set physics.G 10
+set-fps 1
+set physics.G 10 # Gravity constant, high value for testing
 time set-fixed-dt 1
-spawn Planets/sun.jsonc|set posX 750
-spawn Planets/sun.jsonc|set posX 250
+spawn Planets/sun.jsonc|set posX 750|set posY 500|set text.str SUN1
+spawn Planets/sun.jsonc|set posX 250|set posY 500|set text.str SUN2
 
 ###############################
 # Setup mirror
@@ -41,14 +43,21 @@ selected-object parse mirror on
 wait 1
 
 ###############################
+always inputwait # Wait for user input before each debug output
 always clear
 always echo -------------------------------------------
 always eval echo SUN1:  p({global.mirror.renderObject.id1.posX},{global.mirror.renderObject.id1.posY})
 always eval echo SUN1:  v({global.mirror.renderObject.id1.physics.vX},{global.mirror.renderObject.id1.physics.vY})
 always eval echo SUN1:  a({global.mirror.renderObject.id1.physics.aX},{global.mirror.renderObject.id1.physics.aY})
+always eval echo SUN1:  mass {global.mirror.renderObject.id1.physics.mass}
 always eval echo
 always eval echo SUN2:  p({global.mirror.renderObject.id2.posX},{global.mirror.renderObject.id2.posY})
 always eval echo SUN2:  v({global.mirror.renderObject.id2.physics.vX},{global.mirror.renderObject.id2.physics.vY})
 always eval echo SUN2:  a({global.mirror.renderObject.id2.physics.aX},{global.mirror.renderObject.id2.physics.aY})
+always eval echo SUN2:  mass {global.mirror.renderObject.id2.physics.mass}
 always eval echo
-always print mirror.renderObject.id1.posX
+always eval echo time.dt   : {global.time.dt}
+always eval echo physics.G : {global.physics.G}
+always eval echo
+always echo TODO: Add a table calculation software to compare expected vs actual values
+always echo -------------------------------------------

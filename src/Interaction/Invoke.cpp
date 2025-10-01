@@ -151,7 +151,6 @@ void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logi
 void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interaction::ParsedEntry> entries_self, Nebulite::Core::RenderObject* Obj_other) {
     // Each thread needs its own variable list:
 
-
     // Set References
     Nebulite::Core::RenderObject* Obj_self = entries_self->selfPtr;
     
@@ -193,12 +192,54 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
         if(expr.expression.isReturnableAsDouble()){
             double resolved = expr.expression.evalAsDouble(doc_other);
             updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
+
+            std::string name = toUpdate->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr, "null");
+            std::string operatorStr;
+            switch(expr.operation){
+                case Nebulite::Interaction::Logic::Assignment::Operation::set:
+                    operatorStr = " = ";
+                    break;
+                case Nebulite::Interaction::Logic::Assignment::Operation::add:
+                    operatorStr = " += ";
+                    break;
+                case Nebulite::Interaction::Logic::Assignment::Operation::multiply:
+                    operatorStr = " *= ";
+                    break;
+                case Nebulite::Interaction::Logic::Assignment::Operation::concat:
+                    operatorStr = " .= ";
+                    break;
+                default:
+                    operatorStr = " ?= ";
+                    break;
+            }
+            std::cout << name << " : " << expr.key << " = " << *expr.expression.getFullExpression() << " -> " << operatorStr << " " << resolved << std::endl;
         }
         else
         //*/
         {
             std::string resolved = expr.expression.eval(doc_other);
             updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
+
+            std::string name = toUpdate->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr, "null");
+            std::string operatorStr;
+            switch(expr.operation){
+                case Nebulite::Interaction::Logic::Assignment::Operation::set:
+                    operatorStr = " = ";
+                    break;
+                case Nebulite::Interaction::Logic::Assignment::Operation::add:
+                    operatorStr = " += ";
+                    break;
+                case Nebulite::Interaction::Logic::Assignment::Operation::multiply:
+                    operatorStr = " *= ";
+                    break;
+                case Nebulite::Interaction::Logic::Assignment::Operation::concat:
+                    operatorStr = " .= ";
+                    break;
+                default:
+                    operatorStr = " ?= ";
+                    break;
+            }
+            std::cout << name << " : " << expr.key << " = " << *expr.expression.getFullExpression() << " -> " << operatorStr << " " << resolved << std::endl;
         }
     }
 
