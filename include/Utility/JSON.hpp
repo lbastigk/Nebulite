@@ -73,7 +73,7 @@ private:
     /**
      * @brief The Caching system used for fast access to frequently used values.
      */
-    absl::flat_hash_map<std::string, CacheEntry> cache;
+    absl::flat_hash_map<std::string, std::unique_ptr<CacheEntry>> cache;
 
     // Callback type for cache invalidation notifications
     using InvalidationCallback = std::function<void(const std::string& key, double* old_ptr, double* new_ptr)>;
@@ -319,13 +319,13 @@ void Nebulite::Utility::JSON::set(const std::string& key, const T& value) {
         // Existing cache value, structure validity guaranteed
 
         // Update the entry, mark as dirty
-        it->second.value = value;
-        it->second.state = EntryState::DIRTY;
+        it->second->value = value;
+        it->second->state = EntryState::DIRTY;
         
         // Update double pointer value
         if constexpr (std::is_convertible_v<T, double>) {
-            *(it->second.stable_double_ptr) = convertVariant<double>(value);
-            it->second.last_double_value = *(it->second.stable_double_ptr);
+            *(it->second->stable_double_ptr) = convertVariant<double>(value);
+            it->second->last_double_value = *(it->second->stable_double_ptr);
         }
 
     } else {
@@ -335,14 +335,14 @@ void Nebulite::Utility::JSON::set(const std::string& key, const T& value) {
         invalidate_child_keys(key);
 
         // Create new entry directly in DIRTY state
-        CacheEntry new_entry;
+        std::unique_ptr<CacheEntry> new_entry = std::make_unique<CacheEntry>();
 
         // Set entry values
-        new_entry.value = value;
+        new_entry->value = value;
         // Pointer was created in constructor, no need to redo make_shared
-        *new_entry.stable_double_ptr = convertVariant<double>(new_entry.value, 0.0);
-        new_entry.last_double_value = *(new_entry.stable_double_ptr);
-        new_entry.state = EntryState::DIRTY;
+        *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value, 0.0);
+        new_entry->last_double_value = *(new_entry->stable_double_ptr);
+        new_entry->state = EntryState::DIRTY;
         
         // Insert into cache
         cache[key] = std::move(new_entry);
@@ -358,20 +358,20 @@ T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
 
     // Check cache first
     auto it = cache.find(key);
-    if (it != cache.end() && it->second.state != EntryState::VIRTUAL) {
+    if (it != cache.end() && it->second->state != EntryState::VIRTUAL) {
         // Entry exists and is not virtual
         
         // Check its double value for change detection
-        if(*it->second.stable_double_ptr != it->second.last_double_value) {
+        if(*it->second->stable_double_ptr != it->second->last_double_value) {
             // Value changed since last check
             // We update the actual value with the new double value
             // Then we convert the double to the requested type
-            it->second.last_double_value = *it->second.stable_double_ptr;
-            it->second.value = it->second.last_double_value;
-            it->second.state = EntryState::DIRTY; // Mark as dirty to sync back
-            return convertVariant<T>(it->second.value, defaultValue);
+            it->second->last_double_value = *it->second->stable_double_ptr;
+            it->second->value = it->second->last_double_value;
+            it->second->state = EntryState::DIRTY; // Mark as dirty to sync back
+            return convertVariant<T>(it->second->value, defaultValue);
         }
-        return convertVariant<T>(it->second.value, defaultValue);
+        return convertVariant<T>(it->second->value, defaultValue);
     }
 
     // Check document
@@ -380,70 +380,70 @@ T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
         if(it != cache.end()){
             // Modify existing entry
             if(val->IsInt()){
-                it->second.value = val->GetInt();
+                it->second->value = val->GetInt();
             } else if(val->IsInt64()){
-                it->second.value = val->GetInt64();
+                it->second->value = val->GetInt64();
             } else if(val->IsUint()){
-                it->second.value = val->GetUint();
+                it->second->value = val->GetUint();
             } else if(val->IsUint64()){
-                it->second.value = val->GetUint64();
+                it->second->value = val->GetUint64();
             } else if(val->IsDouble()){
-                it->second.value = val->GetDouble();
+                it->second->value = val->GetDouble();
             } else if(val->IsString()){
-                it->second.value = std::string(val->GetString(), val->GetStringLength());
+                it->second->value = std::string(val->GetString(), val->GetStringLength());
             } else if(val->IsBool()){
-                it->second.value = val->GetBool();
+                it->second->value = val->GetBool();
             } else {
                 // Unsupported type (e.g., Object, Array, Null)
                 return defaultValue;
             }
             
             // Mark as clean
-            it->second.state = EntryState::CLEAN;
+            it->second->state = EntryState::CLEAN;
 
             // Set stable double pointer
-            *it->second.stable_double_ptr = convertVariant<double>(value, 0.0);
-            it->second.last_double_value = *(it->second.stable_double_ptr);
+            *it->second->stable_double_ptr = convertVariant<double>(it->second->value, 0.0);
+            it->second->last_double_value = *(it->second->stable_double_ptr);
 
             // Return converted value
-            return convertVariant<T>(it->second.value, defaultValue);
+            return convertVariant<T>(it->second->value, defaultValue);
         }
         else{
             // Create a new cache entry
-            CacheEntry new_entry;
+            std::unique_ptr<CacheEntry> new_entry = std::make_unique<CacheEntry>();
             
             // Get supported types
             if(val->IsInt()){
-                new_entry.value = val->GetInt();
+                new_entry->value = val->GetInt();
             } else if(val->IsInt64()){
-                new_entry.value = val->GetInt64();
+                new_entry->value = val->GetInt64();
             } else if(val->IsUint()){
-                new_entry.value = val->GetUint();
+                new_entry->value = val->GetUint();
             } else if(val->IsUint64()){
-                new_entry.value = val->GetUint64();
+                new_entry->value = val->GetUint64();
             } else if(val->IsDouble()){
-                new_entry.value = val->GetDouble();
+                new_entry->value = val->GetDouble();
             } else if(val->IsString()){
-                new_entry.value = std::string(val->GetString(), val->GetStringLength());
+                new_entry->value = std::string(val->GetString(), val->GetStringLength());
             } else if(val->IsBool()){
-                new_entry.value = val->GetBool();
+                new_entry->value = val->GetBool();
             } else {
                 // Unsupported type (e.g., Object, Array, Null)
                 return defaultValue;
             }
 
             // Mark as clean
-            new_entry.state = EntryState::CLEAN;
+            new_entry->state = EntryState::CLEAN;
 
             // Set stable double pointer. Already created in constructor, no need to redo make_shared
-            *new_entry.stable_double_ptr = convertVariant<double>(new_entry.value, 0.0);
-            new_entry.last_double_value = *(new_entry.stable_double_ptr);
+            *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value, 0.0);
+            new_entry->last_double_value = *(new_entry->stable_double_ptr);
 
             // Insert into cache
             cache[key] = std::move(new_entry);
 
             // Return converted value
-            return convertVariant<T>(cache[key].value, defaultValue);
+            return convertVariant<T>(cache[key]->value, defaultValue);
         }
     }
 
@@ -451,6 +451,7 @@ T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
     return defaultValue;
 }
 
+// TODO: This function sees a wrong number!
 template<typename newType>
 newType Nebulite::Utility::JSON::convertVariant(const std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool>& var, const newType& defaultValue) {
     /*

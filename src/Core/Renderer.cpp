@@ -603,7 +603,8 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 	// Render the text
 	//*
 	int error_text = 0;
-	if (obj->get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str())>0){
+	double val = obj->get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str());
+	if (val > 0){
 		obj->calculateText(
 			renderer,
 			font,

@@ -46,10 +46,10 @@ void Nebulite::Utility::JSON::invalidate_child_keys(const std::string& parent_ke
     // Find all child keys
     for (auto& [key, entry] : cache) {
         if (key.starts_with(parent_key + ".") || key.starts_with(parent_key + "[")) {
-            entry.state = EntryState::VIRTUAL;
-            entry.value = 0.0; // Reset value to default
-            *(entry.stable_double_ptr) = 0.0;
-            entry.last_double_value = 0.0;
+            entry->state = EntryState::VIRTUAL;
+            entry->value = 0.0; // Reset value to default
+            *(entry->stable_double_ptr) = 0.0;
+            entry->last_double_value = 0.0;
         }
     }
 }
@@ -58,15 +58,15 @@ void Nebulite::Utility::JSON::flush(){
     std::lock_guard<std::recursive_mutex> lock(mtx);
     for (auto& [key, entry] : cache) {
         // If double values changed, mark dirty
-        if(entry.last_double_value != *(entry.stable_double_ptr)) {
-            entry.state = EntryState::DIRTY;
-            entry.last_double_value = *(entry.stable_double_ptr);
-            entry.value = *(entry.stable_double_ptr);
+        if(entry->last_double_value != *(entry->stable_double_ptr)) {
+            entry->state = EntryState::DIRTY;
+            entry->last_double_value = *(entry->stable_double_ptr);
+            entry->value = *(entry->stable_double_ptr);
         }
 
-        if (entry.state == EntryState::DIRTY) {
-            Nebulite::Utility::RjDirectAccess::set(key.c_str(), entry.value, doc, doc.GetAllocator());
-            entry.state = EntryState::CLEAN;
+        if (entry->state == EntryState::DIRTY) {
+            Nebulite::Utility::RjDirectAccess::set(key.c_str(), entry->value, doc, doc.GetAllocator());
+            entry->state = EntryState::CLEAN;
         }
     }
 }
@@ -112,7 +112,7 @@ double* Nebulite::Utility::JSON::get_stable_double_ptr(const std::string& key){
     // Check cache first
     auto it = cache.find(key);
     if (it != cache.end()) {
-        return it->second.stable_double_ptr;
+        return it->second->stable_double_ptr;
     }
 
     // Not in cache
@@ -121,19 +121,19 @@ double* Nebulite::Utility::JSON::get_stable_double_ptr(const std::string& key){
     volatile double dummy = get<double>(key, 0.0);
     it = cache.find(key);
     if(it != cache.end()){
-        return it->second.stable_double_ptr;
+        return it->second->stable_double_ptr;
     }
 
     // If get failed, we create a new virtual entry manually
     // And return its stable pointer
-    CacheEntry new_entry;
-    new_entry.value = 0.0;
+    std::unique_ptr<CacheEntry> new_entry = std::make_unique<CacheEntry>();
+    new_entry->value = 0.0;
     // Pointer already created in constructor, no need to redo make_shared
-    *new_entry.stable_double_ptr = 0.0;
-    new_entry.last_double_value = 0.0;
-    new_entry.state = EntryState::VIRTUAL;
+    *new_entry->stable_double_ptr = 0.0;
+    new_entry->last_double_value = 0.0;
+    new_entry->state = EntryState::VIRTUAL;
     cache[key] = std::move(new_entry);
-    return cache[key].stable_double_ptr;
+    return cache[key]->stable_double_ptr;
 }
 
 //------------------------------------------
@@ -190,10 +190,10 @@ void Nebulite::Utility::JSON::deserialize(std::string serial_or_link){
     flush();
     doc.SetObject();
     for(auto& [key, entry] : cache) {
-        entry.state = EntryState::VIRTUAL;
-        entry.value = 0.0; // Reset value to default
-        *(entry.stable_double_ptr) = 0.0;
-        entry.last_double_value = 0.0;
+        entry->state = EntryState::VIRTUAL;
+        entry->value = 0.0; // Reset value to default
+        *(entry->stable_double_ptr) = 0.0;
+        entry->last_double_value = 0.0;
     }
 
     //------------------------------------------
@@ -215,11 +215,11 @@ void Nebulite::Utility::JSON::deserialize(std::string serial_or_link){
     // Update all cache entries
     for(auto& entry : cache){
         // Mark all as virtual
-        entry.second.state = EntryState::VIRTUAL;
+        entry.second->state = EntryState::VIRTUAL;
 
         // Set its double pointer value
-        *entry.second.stable_double_ptr = Nebulite::Utility::RjDirectAccess::get<double>(entry.first.c_str(), 0.0, doc);
-        entry.second.last_double_value = *(entry.second.stable_double_ptr);
+        *entry.second->stable_double_ptr = Nebulite::Utility::RjDirectAccess::get<double>(entry.first.c_str(), 0.0, doc);
+        entry.second->last_double_value = *(entry.second->stable_double_ptr);
     }
 
     //------------------------------------------
@@ -331,14 +331,14 @@ void Nebulite::Utility::JSON::set_add(const char* key, double val) {
     // Update double pointer value
     auto it = cache.find(key);
     if (it != cache.end()) {
-        *(it->second.stable_double_ptr) = newValue;
+        *(it->second->stable_double_ptr) = newValue;
     }
     else{
         set<double>(key, newValue);
         it = cache.find(key);
         if(it != cache.end()){
-            *(it->second.stable_double_ptr) = newValue;
-            it->second.last_double_value = newValue;
+            *(it->second->stable_double_ptr) = newValue;
+            it->second->last_double_value = newValue;
         }
     }
 }
@@ -353,14 +353,14 @@ void Nebulite::Utility::JSON::set_multiply(const char* key, double val) {
     // Update double pointer value
     auto it = cache.find(key);
     if (it != cache.end()) {
-        *(it->second.stable_double_ptr) = newValue;
+        *(it->second->stable_double_ptr) = newValue;
     }
     else{
         set<double>(key, newValue);
         it = cache.find(key);
         if(it != cache.end()){
-            *(it->second.stable_double_ptr) = newValue;
-            it->second.last_double_value = newValue;
+            *(it->second->stable_double_ptr) = newValue;
+            it->second->last_double_value = newValue;
         }
     }
 }
@@ -375,7 +375,7 @@ void Nebulite::Utility::JSON::set_concat(const char* key, const char* valStr) {
     auto it = cache.find(key);
     if (it != cache.end()) {
         // Strings default to 0.0
-        *(it->second.stable_double_ptr) = 0.0;
-        it->second.last_double_value = 0.0;
+        *(it->second->stable_double_ptr) = 0.0;
+        it->second->last_double_value = 0.0;
     }
 }

@@ -193,7 +193,7 @@ void Nebulite::Core::RenderObject::calculateDstRect() {
 };
 
 SDL_Rect* Nebulite::Core::RenderObject::getSrcRect() {
-	if (get<bool>(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str())) {
+	if (*refs.isSpritesheet) {
 		return &srcRect;
 	}
 	else {

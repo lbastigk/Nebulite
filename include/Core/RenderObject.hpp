@@ -250,7 +250,6 @@ public:
      */
     void linkExternalTexture(SDL_Texture* externalTexture) {
         baseTexture.linkExternalTexture(externalTexture);
-
     }
 
     /**
@@ -376,5 +375,6 @@ template <typename T> void Nebulite::Core::RenderObject::set(const char* key, co
 }
 
 template <typename T> T Nebulite::Core::RenderObject::get(const char* key, const T& defaultValue){
-	return json.get<T>(key,defaultValue);
+	T result = json.get<T>(key,defaultValue);
+	return result;
 }

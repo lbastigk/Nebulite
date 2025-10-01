@@ -26,73 +26,29 @@ echo Starting vscode_debug.nebs
 # Setup a scene
 # One object is enough for testing
 # And much easier to debug
-set-fps 20
+set-fps 2000
 set physics.G 10
 time set-fixed-dt 1
-spawn Planets/obj2.jsonc
+spawn Planets/sun.jsonc|set posX 750
+spawn Planets/sun.jsonc|set posX 250
 
 ###############################
-# Wait some time
-wait 1000000 # wait a long time, we will exit manually
-exit
-
-###############################
-# Get a render object and manipulate it
-clear # This is where the relevant commands start
+# Setup mirror
 selected-object get 1
-selected-object parse eval echo Selected object with id $05i({self.id}) named {self.text.str}
 selected-object parse mirror on
-wait 1 # wait one frame for mirror to apply
+selected-object get 2
+selected-object parse mirror on
+wait 1
 
-##############################################################
-
-# TODO: Position does not update, why not?
-# posX and posY are the only fields that are not synced!
-
-# [POSSIBLE SOLUTION]
-# - posX and posY are type string in mirror, but type double in object itself
-# - perhaps the cache copy does not change type, so it remains string?
-
-set-fps 1000
-always echo 
-always echo ----------------------------------------------
+###############################
 always clear
-
-###############################
-# V1: Access via mirror
-always echo
-always echo V1: Access via mirror
-
-# [ ] Does not work, posX and posY stay the same
+always echo -------------------------------------------
+always eval echo SUN1:  p({global.mirror.renderObject.id1.posX},{global.mirror.renderObject.id1.posY})
+always eval echo SUN1:  v({global.mirror.renderObject.id1.physics.vX},{global.mirror.renderObject.id1.physics.vY})
+always eval echo SUN1:  a({global.mirror.renderObject.id1.physics.aX},{global.mirror.renderObject.id1.physics.aY})
+always eval echo
+always eval echo SUN2:  p({global.mirror.renderObject.id2.posX},{global.mirror.renderObject.id2.posY})
+always eval echo SUN2:  v({global.mirror.renderObject.id2.physics.vX},{global.mirror.renderObject.id2.physics.vY})
+always eval echo SUN2:  a({global.mirror.renderObject.id2.physics.aX},{global.mirror.renderObject.id2.physics.aY})
+always eval echo
 always print mirror.renderObject.id1.posX
-always print mirror.renderObject.id1.posY
-
-# [ ] Does not work, posX and posY stay the same
-always eval echo Position: ({global.mirror.renderObject.id1.posX},{global.mirror.renderObject.id1.posY})
-
-###############################
-# V2: Access via selected-object
-always echo
-always echo V2: Access via selected-object
-
-# [X] Works, shows correct posX and posY
-always selected-object parse print posX
-always selected-object parse print posY
-
-# [X] Works, shows correct posX and posY
-always selected-object parse eval echo Position: ({self.posX}, {self.posY})
-
-###############################
-# V3: Print entire mirror object
-
-# [ ] Does not work, posX and posY stay the same
-#always print mirror.renderObject.id1
-
-################################################################
-# TODO: Perhaps a minimal example JSON class to test caching?
-# - custom struct for value
-# - flat hash map to value and double-representation
-# - get/set value
-# - update() to sync double-representation back to main JSON if changed
-# - flush on serialize
-# - unit tests
