@@ -3,7 +3,7 @@
 //------------------------------------------
 // Private:
 
-void Nebulite::Interaction::Logic::Expression::update_vds(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>* vec, Nebulite::Utility::JSON* link){
+void Nebulite::Interaction::Logic::Expression::updateCacheReference(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>* vec, Nebulite::Utility::JSON* link){
     for(auto& vde : *vec) {
         vde->updateCache(link);
     }
@@ -411,9 +411,9 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
     //------------------------------------------
     // Making sure all references to double pointers are up to date
 
-    // Update references to 'other'
-    update_vds(&virtualDoubles_other, current_other);
-    update_vds(&virtualDoubles_resource, nullptr);
+    // Update references
+    updateCacheReference(&virtualDoubles_other, current_other);
+    updateCacheReference(&virtualDoubles_resource, nullptr);
 
     //------------------------------------------
     // Evaluate expression
@@ -511,7 +511,10 @@ bool Nebulite::Interaction::Logic::Expression::isReturnableAsDouble() {
 }
 
 double Nebulite::Interaction::Logic::Expression::evalAsDouble(Nebulite::Utility::JSON* current_other) {
-    update_vds(&virtualDoubles_other, current_other);
-    update_vds(&virtualDoubles_resource, nullptr);
+    //std::string strSelf  = self->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str(), "null");
+    //std::string strOther = current_other->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str(), "null");
+    //std::cout << "Updating references. Self is: " << strSelf << " Other is: " << strOther << std::endl;
+    updateCacheReference(&virtualDoubles_other, current_other);
+    updateCacheReference(&virtualDoubles_resource, nullptr);
     return te_eval(entries[0].expression);
 }

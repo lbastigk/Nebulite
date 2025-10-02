@@ -193,7 +193,10 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
             double resolved = expr.expression.evalAsDouble(doc_other);
             updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
 
-            std::string name = toUpdate->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr, "null");
+            std::string selfName = doc_self->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr, "null");
+            std::string otherName = doc_other->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr, "null");
+            std::string toUpdateName = toUpdate->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr, "null");
+
             std::string operatorStr;
             switch(expr.operation){
                 case Nebulite::Interaction::Logic::Assignment::Operation::set:
@@ -212,7 +215,7 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
                     operatorStr = " ?= ";
                     break;
             }
-            std::cout << name << " : " << expr.key << " = " << *expr.expression.getFullExpression() << " -> " << operatorStr << " " << resolved << std::endl;
+            std::cout << selfName << "-" << otherName << " updates " << toUpdateName << " : " << expr.key << " = " << *expr.expression.getFullExpression() << " -> " << operatorStr << " " << resolved << std::endl;
         }
         else
         //*/

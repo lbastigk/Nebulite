@@ -281,7 +281,7 @@ private:
      * @param vec The vector of virtual double entries to update
      * @param link The JSON document to update the caches with
      */
-    void update_vds(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>* vec, Nebulite::Utility::JSON* link);
+    void updateCacheReference(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>* vec, Nebulite::Utility::JSON* link);
 
     /**
      * @brief Resets the expression to its initial state.

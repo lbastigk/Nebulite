@@ -13,6 +13,7 @@
 // Includes
 
 // Nebulite
+#include "Constants/KeyNames.hpp"
 #include "Utility/JSON.hpp"
 #include "Utility/DocumentCache.hpp"
 
@@ -87,6 +88,7 @@ public:
     void updateCache(Nebulite::Utility::JSON* json) {
         if (json != nullptr) {
             internal_cache = json->get_stable_double_ptr(key.c_str());
+            std::cout << "Updated internal cache for: " << json->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str()) << "." << key << " to value: " << *internal_cache << std::endl;
         }
         else if (documentCache != nullptr) {
             internal_cache = documentCache->get_stable_double_ptr(key.c_str());
