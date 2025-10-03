@@ -30,7 +30,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::eval(in
     return domain->parseStr(args_evaled);
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::exitProgram(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::exit(int argc, char* argv[]){
     // Clear all task queues to prevent further execution
     domain->tasks.script.taskQueue.clear();
     domain->tasks.internal.taskQueue.clear();
@@ -58,7 +58,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::wait(in
     }
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::loadTasks(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::task(int argc, char* argv[]) {
     std::cout << "Loading task list from file: " << (argc > 1 ? argv[1] : "none") << std::endl;
 
     if (argc < 2) {
@@ -110,7 +110,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::echo(in
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::forLoop(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::func_for(int argc, char* argv[]){
     std::string funcName = argv[0];
     if(argc > 4){
         std::string varName = argv[1];
@@ -135,7 +135,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::forLoop
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::ifCondition(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::func_if(int argc, char* argv[]) {
     if (argc < 3) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -158,7 +158,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::General::ifCondi
             commands += " ";
         }
     }
-    commands = "Nebulite::DomainModule::GlobalSpace::General::ifCondition " + commands;
+    commands = "Nebulite::DomainModule::GlobalSpace::General::func_if " + commands;
     return domain->parseStr(commands);
 }
 
