@@ -34,6 +34,8 @@ namespace Logic {
  * or the lifetime is limited.
  * 
  * This distinction is crucial for efficient and accurate expression evaluations.
+ * 
+ * @todo Rework direct linkage to 
  */
 class VirtualDouble {
     // Linked Read-Only cache
@@ -42,11 +44,12 @@ class VirtualDouble {
     // Key associated with this VirtualDouble
     std::string key;
 
-    // Internal cache for the double value
-    double* internal_cache = new double(0.0);
+    // Old version with references, seems to not work with tinyexpr
+    //double null = 0.0;
+    //double* reference = &null;  // Cannot be nullptr at the start, so we link it to a dummy value.
 
-    // External cache
-    double* external_cache = nullptr;
+    double copied_value = 0.0;          // Used for non-remanent documents, where we copy the value into here
+    double* reference = &copied_value;  // Points to the actual value, either copied_value or external cache
 public:
     /**
      * @brief Construct a new VirtualDouble object.
@@ -85,13 +88,14 @@ public:
      * 
      * @param json The JSON document pointer to retrieve the value from. If the pointer is null, we retrieve the value from the document cache.
      */
-    void updateCache(Nebulite::Utility::JSON* json) {
+    void setUpInternalCache(Nebulite::Utility::JSON* json) {
         if (json != nullptr) {
-            internal_cache = json->get_stable_double_ptr(key.c_str());
-            std::cout << "Updated internal cache for: " << json->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str()) << "." << key << " to value: " << *internal_cache << std::endl;
+            copied_value = *json->get_stable_double_ptr(key.c_str());
+            reference = &copied_value;
         }
         else if (documentCache != nullptr) {
-            internal_cache = documentCache->get_stable_double_ptr(key.c_str());
+            copied_value = *documentCache->get_stable_double_ptr(key.c_str());
+            reference = &copied_value;
         }
     }
 
@@ -107,24 +111,21 @@ public:
      * @return A pointer to the double value.
      */
     double* ptr(){
-        if(external_cache != nullptr) {
-            return external_cache;
-        }
-        return internal_cache;
+        return reference;
     }
 
     /**
      * @brief Register the external cache for this VirtualDouble.
      * 
-     * This function links the VirtualDouble to an external double pointer of a JSON document,
+     * This function links the VirtualDouble to an external double pointer of a JSON document, instead of using its internal cache.
      * allowing it to access and modify the value directly.
      */
-    void register_external_double_cache(Nebulite::Utility::JSON* json) {
+    void setUpExternalCache(Nebulite::Utility::JSON* json) {
         if (json != nullptr) {
-            external_cache = json->get_stable_double_ptr(key.c_str());
+            reference = json->get_stable_double_ptr(key.c_str());
         }
         else if (documentCache != nullptr) {
-            external_cache = documentCache->get_stable_double_ptr(key);
+            reference = documentCache->get_stable_double_ptr(key);
         }
     }
 };

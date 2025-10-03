@@ -5,7 +5,7 @@
 
 void Nebulite::Interaction::Logic::Expression::updateCacheReference(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>* vec, Nebulite::Utility::JSON* link){
     for(auto& vde : *vec) {
-        vde->updateCache(link);
+        vde->setUpInternalCache(link);
     }
 }
 
@@ -14,7 +14,7 @@ Nebulite::Interaction::Logic::Expression::~Expression() {
     reset();
 
     // Remove variables
-    variables.clear();
+    te_variables.clear();
 
     // Clear all expressions
     for(auto& entry : entries) {
@@ -32,7 +32,7 @@ void Nebulite::Interaction::Logic::Expression::reset() {
 
     // Clear existing data
     entries.clear();
-    variables.clear();
+    te_variables.clear();
     fullExpression.clear();
     entries.clear();
 
@@ -49,31 +49,31 @@ void Nebulite::Interaction::Logic::Expression::reset() {
     // Register built-in functions
 
     // Logical comparison functions
-    variables.push_back({"gt",          (void*)expr_custom::gt,             TE_FUNCTION2});
-    variables.push_back({"lt",          (void*)expr_custom::lt,             TE_FUNCTION2});
-    variables.push_back({"geq",         (void*)expr_custom::geq,            TE_FUNCTION2});
-    variables.push_back({"leq",         (void*)expr_custom::leq,            TE_FUNCTION2});
-    variables.push_back({"eq",          (void*)expr_custom::eq,             TE_FUNCTION2});
-    variables.push_back({"neq",         (void*)expr_custom::neq,            TE_FUNCTION2});
+    te_variables.push_back({"gt",          (void*)expr_custom::gt,             TE_FUNCTION2});
+    te_variables.push_back({"lt",          (void*)expr_custom::lt,             TE_FUNCTION2});
+    te_variables.push_back({"geq",         (void*)expr_custom::geq,            TE_FUNCTION2});
+    te_variables.push_back({"leq",         (void*)expr_custom::leq,            TE_FUNCTION2});
+    te_variables.push_back({"eq",          (void*)expr_custom::eq,             TE_FUNCTION2});
+    te_variables.push_back({"neq",         (void*)expr_custom::neq,            TE_FUNCTION2});
 
     // Logical gate functions
-    variables.push_back({"not",         (void*)expr_custom::logical_not,    TE_FUNCTION1});
-    variables.push_back({"and",         (void*)expr_custom::logical_and,    TE_FUNCTION2});
-    variables.push_back({"or",          (void*)expr_custom::logical_or,     TE_FUNCTION2});
-    variables.push_back({"xor",         (void*)expr_custom::logical_xor,    TE_FUNCTION2});
-    variables.push_back({"nand",        (void*)expr_custom::logical_nand,   TE_FUNCTION2});
-    variables.push_back({"nor",         (void*)expr_custom::logical_nor,    TE_FUNCTION2});
-    variables.push_back({"xnor",        (void*)expr_custom::logical_xnor,   TE_FUNCTION2});
+    te_variables.push_back({"not",         (void*)expr_custom::logical_not,    TE_FUNCTION1});
+    te_variables.push_back({"and",         (void*)expr_custom::logical_and,    TE_FUNCTION2});
+    te_variables.push_back({"or",          (void*)expr_custom::logical_or,     TE_FUNCTION2});
+    te_variables.push_back({"xor",         (void*)expr_custom::logical_xor,    TE_FUNCTION2});
+    te_variables.push_back({"nand",        (void*)expr_custom::logical_nand,   TE_FUNCTION2});
+    te_variables.push_back({"nor",         (void*)expr_custom::logical_nor,    TE_FUNCTION2});
+    te_variables.push_back({"xnor",        (void*)expr_custom::logical_xnor,   TE_FUNCTION2});
 
     // Other logical functions
-    variables.push_back({"to_bipolar",  (void*)expr_custom::to_bipolar,     TE_FUNCTION1});
+    te_variables.push_back({"to_bipolar",  (void*)expr_custom::to_bipolar,     TE_FUNCTION1});
 
     // Mapping functions
-    variables.push_back({"map",         (void*)expr_custom::map,            TE_FUNCTION5});
-    variables.push_back({"constrain",   (void*)expr_custom::constrain,      TE_FUNCTION3});
+    te_variables.push_back({"map",         (void*)expr_custom::map,            TE_FUNCTION5});
+    te_variables.push_back({"constrain",   (void*)expr_custom::constrain,      TE_FUNCTION3});
 
     // More mathematical functions
-    variables.push_back({"sgn",         (void*)expr_custom::sgn,            TE_FUNCTION1});
+    te_variables.push_back({"sgn",         (void*)expr_custom::sgn,            TE_FUNCTION1});
 }
 
 std::string Nebulite::Interaction::Logic::Expression::stripContext(const std::string& key) {
@@ -104,14 +104,14 @@ void Nebulite::Interaction::Logic::Expression::compileIfExpression(Entry& entry)
     if (entry.type == Entry::Type::eval) {
         // Compile the expression using TinyExpr
         int error;
-        entry.expression = te_compile(entry.str.c_str(), variables.data(), variables.size(), &error);
+        entry.expression = te_compile(entry.str.c_str(), te_variables.data(), te_variables.size(), &error);
         if (error) {
             printCompileError(entry, error);
 
             // Resetting expression to nan, as explained in error print:
             // using nan directly is not supported.
             // 0/0 directly yields -nan, so we use abs(0/0)
-            entry.expression = te_compile("abs(0/0)", variables.data(), variables.size(), &error);
+            entry.expression = te_compile("abs(0/0)", te_variables.data(), te_variables.size(), &error);
         }
     }
 }
@@ -119,8 +119,8 @@ void Nebulite::Interaction::Logic::Expression::compileIfExpression(Entry& entry)
 void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_name, std::string key, Entry::From context){
     // Check if variable exists in variables vector:
     bool found = false;
-    for(auto var : variables) {
-        if(var.name == te_name) {
+    for(auto te_var : te_variables) {
+        if(te_var.name == te_name) {
             found = true;
             break;
         }
@@ -133,24 +133,20 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
         switch(context) {
             case Entry::From::self:
                 // Type self is remanent, we can register the double directly from document
-                #if use_external_cache
-                    vd->register_external_double_cache(self);
-                #endif
+                vd->setUpExternalCache(self);
                 virtualDoubles_self.push_back(vd);
                 break;
             case Entry::From::other:
-                // Type other is non-remanent, we need to use the cache from virtualdouble
+                // Type other is non-remanent, we need to use the cache that is updated on eval
                 virtualDoubles_other.push_back(vd);
                 break;
             case Entry::From::global:
                 // Type global is remanent, we can register the double directly from document
-                #if use_external_cache
-                    vd->register_external_double_cache(global);
-                #endif
+                vd->setUpExternalCache(global);
                 virtualDoubles_global.push_back(vd);
                 break;
             case Entry::From::resource:
-                // Type resource is non-remanent, we need to use the cache from virtualdouble
+                // Type resource is non-remanent, we need to use the cache that is updated on eval
                 // The reason is that resource-documents may get deloaded,
                 // making the direct double reference invalid.
                 virtualDoubles_resource.push_back(vd);
@@ -162,7 +158,7 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
         te_names.push_back(te_name_ptr);
 
         // Push back into variable entries
-        variables.push_back({
+        te_variables.push_back({
             te_names.back()->c_str(),
             vd->ptr(),
             TE_VARIABLE,
@@ -368,7 +364,7 @@ void Nebulite::Interaction::Logic::Expression::printCompileError(const Entry& en
     std::cerr << "if '$(1 + 1)' echo here! # works" << std::endl;
     std::cerr << std::endl;
     std::cerr << "Registered functions and variables:\n";
-    for (const auto& var : variables) {
+    for (const auto& var : te_variables) {
         std::cerr << "\t'" << var.name << "'\n";
     }
     std::cerr << std::endl;
@@ -409,11 +405,8 @@ void Nebulite::Interaction::Logic::Expression::parse(const std::string& expr, Ne
 
 std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JSON* current_other) {
     //------------------------------------------
-    // Making sure all references to double pointers are up to date
-
-    // Update references
-    updateCacheReference(&virtualDoubles_other, current_other);
-    updateCacheReference(&virtualDoubles_resource, nullptr);
+    // Update caches so that tinyexpr has the correct references
+    updateCaches(current_other);
 
     //------------------------------------------
     // Evaluate expression
@@ -511,10 +504,68 @@ bool Nebulite::Interaction::Logic::Expression::isReturnableAsDouble() {
 }
 
 double Nebulite::Interaction::Logic::Expression::evalAsDouble(Nebulite::Utility::JSON* current_other) {
-    //std::string strSelf  = self->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str(), "null");
-    //std::string strOther = current_other->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str(), "null");
-    //std::cout << "Updating references. Self is: " << strSelf << " Other is: " << strOther << std::endl;
+    // Update caches so that tinyexpr has the correct references
+    updateCaches(current_other);
+
+    // Evaluate expression
+    return te_eval(entries[0].expression);
+}
+
+void Nebulite::Interaction::Logic::Expression::updateCaches(Nebulite::Utility::JSON* current_other) {
+    // Update remanent references for now
+    // This is not needed, as remanent documents keep their double references valid
+    // However, this may be needed for debugging purposes
+    // Uncomment if needed
+    //updateCacheReference(&virtualDoubles_self, self);
+    //updateCacheReference(&virtualDoubles_global, global);
+
+    // Update non-remanent references
     updateCacheReference(&virtualDoubles_other, current_other);
     updateCacheReference(&virtualDoubles_resource, nullptr);
-    return te_eval(entries[0].expression);
+}
+
+//------------------------------------------
+// DEBUGGING
+
+void Nebulite::Interaction::Logic::Expression::printCache(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>& vec) {
+    // Sort alphabetically
+    std::sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
+        return a->getKey() < b->getKey();
+    });
+    for (const auto& vd : vec) {
+        std::cout << "\t" << vd->getKey() << " = " << *(vd->ptr()) << std::endl;
+    }
+}
+
+void Nebulite::Interaction::Logic::Expression::debugOutput(Nebulite::Utility::JSON* current_other){
+    // Debug only a certain expression
+    if(entries[0].str.starts_with("(global_")){
+        std::cout << "\n" << std::endl;
+        std::string strSelf  = self->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str(), "null");
+        std::string strOther = current_other->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str(), "null");
+        std::cout << "Updated references. Self is: " << strSelf << " Other is: " << strOther << std::endl;
+
+        std::cout << "After update:" << std::endl;
+        if(virtualDoubles_self.size() > 0) {
+            std::cout << "Values for self:" << std::endl;
+            printCache(virtualDoubles_self);
+        }
+        if(virtualDoubles_other.size() > 0) {
+            std::cout << "Values for other:" << std::endl;
+            printCache(virtualDoubles_other);
+        }
+        if(virtualDoubles_global.size() > 0) {
+            std::cout << "Values for global:" << std::endl;
+            printCache(virtualDoubles_global);
+        }
+        if(virtualDoubles_resource.size() > 0) {
+            std::cout << "Values for resource:" << std::endl;
+            printCache(virtualDoubles_resource);
+        }
+        std::cout << "Now evaluating expression: " << entries[0].str << std::endl;
+
+        double result = te_eval(entries[0].expression);
+        std::cout << "Result: " << result << std::endl;
+        std::cout << "\n" << std::endl;
+    }
 }
