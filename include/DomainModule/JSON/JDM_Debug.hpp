@@ -45,6 +45,11 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error print(int argc, char* argv[]);
+    std::string print_desc = R"(Prints the JSON document to the console for debugging purposes.
+    If key is empty, prints the entire document.
+
+    Usage: print [key]
+    )";
 
     //------------------------------------------
     // Setup
@@ -54,7 +59,7 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, Debug){
         // Binding
-        bindFunction(&Debug::print, "print", "Prints the JSON document to the console. Usage: print [key]");
+        bindFunction(&Debug::print, "print", print_desc);
     }
 
 private:

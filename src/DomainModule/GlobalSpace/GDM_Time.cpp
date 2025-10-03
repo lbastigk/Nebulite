@@ -56,12 +56,12 @@ void Nebulite::DomainModule::GlobalSpace::Time::update() {
     haltThisFrame = false;
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::haltOnce(int argc, char** argv){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::time_haltOnce(int argc, char** argv){
     haltThisFrame = true;
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::lock(int argc, char** argv){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::time_lock(int argc, char** argv){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -70,7 +70,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::lock(int a
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::unlock(int argc, char** argv){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::time_unlock(int argc, char** argv){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -84,12 +84,12 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::unlock(int
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::masterUnlock(int argc, char** argv){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::time_masterUnlock(int argc, char** argv){
     timeLocks.clear();
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::setFixedDeltaTime(int argc, char** argv){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::time_setFixedDeltaTime(int argc, char** argv){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

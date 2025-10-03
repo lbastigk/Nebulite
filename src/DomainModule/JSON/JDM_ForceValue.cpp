@@ -2,7 +2,7 @@
 
 #include "Utility/JSON.hpp"
 
-Nebulite::Constants::Error Nebulite::DomainModule::JSON::ForceValue::force(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::JSON::ForceValue::force_set(int argc, char* argv[]) {
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 3) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -17,7 +17,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::ForceValue::force(int a
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::JSON::ForceValue::forceClear(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::JSON::ForceValue::force_clear(int argc, char* argv[]) {
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     forced_global_values.clear();
     return Nebulite::Constants::ErrorTable::NONE();

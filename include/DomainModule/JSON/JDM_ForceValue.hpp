@@ -42,7 +42,11 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error force(int argc, char* argv[]);
+    Nebulite::Constants::Error force_set(int argc, char* argv[]);
+    std::string force_set_desc = R"(Force a variable to a value.
+
+    Usage: force set <key> <value>
+    )";
 
     /**
      * @brief Clears all forced variables
@@ -51,7 +55,11 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error forceClear(int argc, char* argv[]);
+    Nebulite::Constants::Error force_clear(int argc, char* argv[]);
+    std::string force_clear_desc = R"(Clear all forced variables.
+
+    Usage: force clear
+    )";
 
     //------------------------------------------
     // Setup
@@ -62,8 +70,8 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, ForceValue){
         // Binding
         bindSubtree("force", "Functions to force JSON variable values");
-        bindFunction(&ForceValue::force,      "force set",      "Force a variable to a value: force-global <key> <value>");
-        bindFunction(&ForceValue::forceClear, "force clear",    "Clear all forced variables");
+        bindFunction(&ForceValue::force_set,      "force set",      force_set_desc);
+        bindFunction(&ForceValue::force_clear,    "force clear",    force_clear_desc);
     }
 
 private:
