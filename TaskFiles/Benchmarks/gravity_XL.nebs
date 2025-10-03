@@ -53,9 +53,9 @@ for i {global.loop.start} {global.loop.end} for j {global.loop.start} {global.lo
 
 ###############################################
 # Spawn extra object later on and wait some more
-wait 500
+#wait 500
 spawn ./Resources/Renderobjects/Planets/sun.jsonc|posX=500|posY=500 # Heavy object
-wait 3500
+wait 1500
 
 ###############################################
 # Inform on runtime
