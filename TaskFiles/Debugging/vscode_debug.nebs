@@ -24,9 +24,8 @@ echo Starting vscode_debug.nebs
 
 ###############################
 # Setup a scene
-# One object is enough for testing
-# And much easier to debug
-set-fps 1
+# Two Suns attracting each other, with mirrors enabled to see if the mirror works
+set-fps 100
 set physics.G 10 # Gravity constant, high value for testing
 time set-fixed-dt 1
 spawn Planets/sun.jsonc|set posX 750|set posY 500|set text.str SUN1
