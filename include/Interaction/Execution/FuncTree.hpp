@@ -793,7 +793,7 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help(int ar
     std::sort(allVariables.begin(), allVariables.end(), caseInsensitiveLess);
 
     // Display:
-    std::cout << "\n\tHelp for " << TreeName << "\n\n";
+    std::cout << "\nHelp for " << TreeName << "\nAdd the entries name to the command for more details.\n";
     std::cout << "Available functions:\n";
     for (const auto& [name, description] : allFunctions) {
         // Only show the first line of the description
