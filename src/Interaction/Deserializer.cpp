@@ -107,8 +107,6 @@ bool Nebulite::Interaction::Deserializer::getExpression(Nebulite::Interaction::L
         return false;
     }
 
-    
-
     return true;
 }
 
@@ -242,11 +240,52 @@ void Nebulite::Interaction::Deserializer::parse(std::vector<std::shared_ptr<Nebu
         }
     }
 
+    // See if we can assign a permanent target double pointer for each assignment
+    optimizeParsedEntries(entries_global, self->getDoc(), global);
+    optimizeParsedEntries(entries_local, self->getDoc(), global);
+
     // Estimate full cost of each entry
     for (const auto& entry : entries_local) {
 		entry->estimateComputationalCost();
 	}
 	for (const auto& entry : entries_global) {
         entry->estimateComputationalCost();
+    }
+}
+
+
+void Nebulite::Interaction::Deserializer::optimizeParsedEntries(
+    std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>>& entries, 
+    Nebulite::Utility::JSON* self,
+    Nebulite::Utility::JSON* global
+){
+    // Valid operations for direct double pointer assignment
+    auto ops = Nebulite::Interaction::Deserializer::numeric_operations;
+
+    // Checking all created entries, if any assignment is a numeric operation on self or global
+    // we try to get a direct stable double pointer from the corresponding JSON document
+    // If successful, we store the pointer in targetValuePtr of the assignment
+    for (const auto& entry : entries) {
+        for (auto& assignment : entry->exprs) {
+            if (assignment.onType == Nebulite::Interaction::Logic::Assignment::Type::Self) {
+                auto ops = Nebulite::Interaction::Deserializer::numeric_operations;
+                if (ops.end() != std::find(ops.begin(), ops.end(), assignment.operation)) {
+                    // Numeric operation on self, try to get a direct pointer
+                    double* ptr = self->getDoc()->get_stable_double_ptr(assignment.key);
+                    if (ptr != nullptr) {
+                        assignment.targetValuePtr = ptr;
+                    }
+                }
+            }
+            if (assignment.onType == Nebulite::Interaction::Logic::Assignment::Type::Global) {
+                if (ops.end() != std::find(ops.begin(), ops.end(), assignment.operation)) {
+                    // Numeric operation on global, try to get a direct pointer
+                    double* ptr = global->get_stable_double_ptr(assignment.key);
+                    if (ptr != nullptr) {
+                        assignment.targetValuePtr = ptr;
+                    }
+                }
+            }
+        }
     }
 }

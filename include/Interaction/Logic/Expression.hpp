@@ -22,26 +22,6 @@
 #include "Utility/DocumentCache.hpp"
 
 //------------------------------------------
-/**
- * @brief Enables the use of an external cache for double-values.
- * 
- * This means that double-values from inside expressions will use the JSON storage directly, if possible.
- * In order to use double-value-pointers from a JSON document, the document must be remanent:
- *
- * - The document is permanently accessible within the expression lifetime
- * 
- * - The document is permanently alive within the expression lifetime
- * 
- * - The document reference is constant within the expression lifetime
- *
- * This is only applicable for `self` and `global`.
- *
- * The `other` context changes frequently and is not suitable for external caching.
- * The `resource` context may be deloaded at any time, rendering double references invalid.
- */
-#define use_external_cache 1
-
-//------------------------------------------
 namespace Nebulite {
 namespace Interaction {
 namespace Logic {
@@ -310,7 +290,7 @@ private:
     /**
      * @brief Collection of all registered variables and functions
      */
-    std::vector<te_variable> variables;   // Variables for TinyExpr evaluation
+    std::vector<te_variable> te_variables;   // Variables for TinyExpr evaluation
 
     /**
      * @brief Reference to the resource context
@@ -421,6 +401,26 @@ private:
      * Includes tips for fixing the error.
      */
     void printCompileError(const Entry& entry, int& error);
+
+    /**
+     * @brief Updates caches
+     */
+    void updateCaches(Nebulite::Utility::JSON* current_other);
+
+    //------------------------------------------
+    // Debugging
+
+    /**
+     * @brief Debugging function to print the current cache of virtual doubles
+     * 
+     * @param vec The vector of virtual doubles to print
+     */
+    void printCache(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>& vec);
+
+    /**
+     * @brief Full debug output of what the expression does with what references
+     */
+    void debugOutput(Nebulite::Utility::JSON* current_other);
 };
 } // namespace Logic
 } // namespace Interaction

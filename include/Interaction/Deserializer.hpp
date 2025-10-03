@@ -125,6 +125,28 @@ private:
         Nebulite::Utility::JSON& entry, 
         int index
     );
+
+    /**
+     * @brief Optimizes the parsed entries by linking direct target pointers.
+     * 
+     * @param entries_global The global InvokeEntry objects to optimize.
+     * @param entries_local The local InvokeEntry objects to optimize.
+     * @param 
+     */
+    static void optimizeParsedEntries(
+        std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>>& entries, 
+        Nebulite::Utility::JSON* self,
+        Nebulite::Utility::JSON* global
+    );
+
+    /**
+     * @brief List of operations that are considered numeric and thus eligible for direct pointer assignment.
+     */
+    inline static const std::vector<Nebulite::Interaction::Logic::Assignment::Operation> numeric_operations = {
+        Nebulite::Interaction::Logic::Assignment::Operation::set,
+        Nebulite::Interaction::Logic::Assignment::Operation::add,
+        Nebulite::Interaction::Logic::Assignment::Operation::multiply
+    };
 };
 } // namespace Interaction
 } // namespace Nebulite

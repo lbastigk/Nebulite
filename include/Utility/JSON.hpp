@@ -323,11 +323,8 @@ void Nebulite::Utility::JSON::set(const std::string& key, const T& value) {
         it->second->state = EntryState::DIRTY;
         
         // Update double pointer value
-        if constexpr (std::is_convertible_v<T, double>) {
-            *(it->second->stable_double_ptr) = convertVariant<double>(value);
-            it->second->last_double_value = *(it->second->stable_double_ptr);
-        }
-
+        *(it->second->stable_double_ptr) = convertVariant<double>(value);
+        it->second->last_double_value = *(it->second->stable_double_ptr);
     } else {
         // New cache value, structural validity is not guaranteed
 

@@ -100,20 +100,20 @@ void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std
     }
 }
 
-void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, const std::string& key, const std::string& valStr, Nebulite::Utility::JSON* doc){    
+void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, const std::string& key, const std::string& valStr, Nebulite::Utility::JSON* target){    
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation){
         case Nebulite::Interaction::Logic::Assignment::Operation::set:
-            doc->set<std::string>(key.c_str(),valStr.c_str());
+            target->set<std::string>(key.c_str(),valStr.c_str());
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::add:
-            doc->set_add(key.c_str(),std::stod(valStr));
+            target->set_add(key.c_str(),std::stod(valStr));
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::multiply:
-            doc->set_multiply(key.c_str(),std::stod(valStr));
+            target->set_multiply(key.c_str(),std::stod(valStr));
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::concat:
-            doc->set_concat(key.c_str(),valStr.c_str());
+            target->set_concat(key.c_str(),valStr.c_str());
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::null:
             std::cerr << "Assignment expression has null operation - skipping" << std::endl;
@@ -124,20 +124,44 @@ void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logi
     }
 }
 
-void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, const std::string& key, double value, Nebulite::Utility::JSON* doc){    
+void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, const std::string& key, double value, Nebulite::Utility::JSON* target){    
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation){
         case Nebulite::Interaction::Logic::Assignment::Operation::set:
-            doc->set<double>(key.c_str(),value);
+            target->set<double>(key.c_str(),value);
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::add:
-            doc->set_add(key.c_str(),value);
+            target->set_add(key.c_str(),value);
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::multiply:
-            doc->set_multiply(key.c_str(),value);
+            target->set_multiply(key.c_str(),value);
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::concat:
-            doc->set_concat(key.c_str(),std::to_string(value).c_str());
+            target->set_concat(key.c_str(),std::to_string(value).c_str());
+            break;
+        case Nebulite::Interaction::Logic::Assignment::Operation::null:
+            std::cerr << "Assignment expression has null operation - skipping" << std::endl;
+            break;
+        default:
+            std::cerr << "Unknown operation type! Enum value:" << (int)operation << std::endl;
+            break;
+    }
+}
+
+void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, const std::string& key, double value, double* target){    
+    // Using Threadsafe manipulation methods of the JSON class:
+    switch (operation){
+        case Nebulite::Interaction::Logic::Assignment::Operation::set:
+            *target = value;
+            break;
+        case Nebulite::Interaction::Logic::Assignment::Operation::add:
+            *target += value;
+            break;
+        case Nebulite::Interaction::Logic::Assignment::Operation::multiply:
+            *target *= value;
+            break;
+        case Nebulite::Interaction::Logic::Assignment::Operation::concat:
+            std::cerr << "Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of an Invoke!" << std::endl;
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::null:
             std::cerr << "Assignment expression has null operation - skipping" << std::endl;
@@ -183,66 +207,57 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
 
         //------------------------------------------
         // Update
-        
-        // Direct use of double-values
-        // Tests show that this causes a slight mismatch. Perhaps due to floating-point precision issues.
-        // However, the functionality is preserved.
-        // It just means that previous tests may not perfectly align with expected outcomes.
-        //*
+
+        // If the expression is returnable as double, we can optimize numeric operations
         if(expr.expression.isReturnableAsDouble()){
             double resolved = expr.expression.evalAsDouble(doc_other);
-            updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
-
-            std::string selfName = doc_self->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr, "null");
-            std::string otherName = doc_other->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr, "null");
-            std::string toUpdateName = toUpdate->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr, "null");
-
-            std::string operatorStr;
-            switch(expr.operation){
+            // DEBUG
+            /*
+            std::string operator_str = "unsupported";
+            switch (expr.operation) {
                 case Nebulite::Interaction::Logic::Assignment::Operation::set:
-                    operatorStr = " = ";
+                    operator_str = "=";
                     break;
                 case Nebulite::Interaction::Logic::Assignment::Operation::add:
-                    operatorStr = " += ";
+                    operator_str = "+=";
                     break;
                 case Nebulite::Interaction::Logic::Assignment::Operation::multiply:
-                    operatorStr = " *= ";
-                    break;
-                case Nebulite::Interaction::Logic::Assignment::Operation::concat:
-                    operatorStr = " .= ";
-                    break;
-                default:
-                    operatorStr = " ?= ";
+                    operator_str = "*=";
                     break;
             }
-            std::cout << selfName << "-" << otherName << " updates " << toUpdateName << " : " << expr.key << " = " << *expr.expression.getFullExpression() << " -> " << operatorStr << " " << resolved << std::endl;
+            std::cout << "Updating: " << expr.key << " , current value: " << *(expr.targetValuePtr) << " with operation: " << operator_str << resolved << std::endl;
+            //*/
+            if(expr.targetValuePtr != nullptr){
+                // TODO: Set directly with pointer
+                auto lock = toUpdate->lock();
+                updateValueOfKey(expr.operation, expr.key, resolved, expr.targetValuePtr);
+            }
+            else{
+                updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
+            }
         }
-        else
-        //*/
-        {
+        // If not, we resolve as string and update that way
+        else{
             std::string resolved = expr.expression.eval(doc_other);
-            updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
-
-            std::string name = toUpdate->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr, "null");
-            std::string operatorStr;
-            switch(expr.operation){
+            // DEBUG
+            /*
+            std::string operator_str = "unsupported";
+            switch (expr.operation) {
                 case Nebulite::Interaction::Logic::Assignment::Operation::set:
-                    operatorStr = " = ";
+                    operator_str = "=";
                     break;
                 case Nebulite::Interaction::Logic::Assignment::Operation::add:
-                    operatorStr = " += ";
+                    operator_str = "+=";
                     break;
                 case Nebulite::Interaction::Logic::Assignment::Operation::multiply:
-                    operatorStr = " *= ";
-                    break;
-                case Nebulite::Interaction::Logic::Assignment::Operation::concat:
-                    operatorStr = " .= ";
-                    break;
-                default:
-                    operatorStr = " ?= ";
+                    operator_str = "*=";
                     break;
             }
-            std::cout << name << " : " << expr.key << " = " << *expr.expression.getFullExpression() << " -> " << operatorStr << " " << resolved << std::endl;
+            std::cout << "Updating: " << expr.key << " , current value: " << *(expr.targetValuePtr) << " with operation: " << operator_str << resolved << std::endl;
+            //*/
+            updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
+
+            
         }
     }
 
