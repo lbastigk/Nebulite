@@ -300,6 +300,13 @@ private:
 
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
+     * 
+     * @todo Improve help output formatting:
+     * ./bin/Nebulite help foo
+     * and
+     * ./bin/Nebulite foo help
+     * should output the same, but the formatting is not ideal yet.
+     * Perhaps some helper functions to retrieve and format all functions and variables could be useful.
      */
     RETURN_TYPE help(int argc, char* argv[]);
 
