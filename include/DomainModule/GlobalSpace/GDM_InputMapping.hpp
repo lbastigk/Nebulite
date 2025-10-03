@@ -99,10 +99,13 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, InputMapping){
+        // Not implemented yet
+        /*
         bindSubtree("input-mapping", "Functions to manage input mappings");
         bindFunction(&InputMapping::readMappingsFromFile,   "input-mapping read-from-file",    "Reads Input Mapping from inputs.jsonc file: [filename]");
         bindFunction(&InputMapping::updateInputMapping,     "input-mapping map",               "Maps one input mapping: <action> <slot> <key> <type>");
         bindFunction(&InputMapping::writeMappingsToFile,    "input-mapping write-to-file",     "Writes Input Mapping to inputs.jsonc file: [filename]");
+        */
     }
 
 private:
