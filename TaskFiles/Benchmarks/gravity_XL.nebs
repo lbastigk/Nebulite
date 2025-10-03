@@ -1,0 +1,66 @@
+###############################################
+# Gravity + Elastic collision Benchmark
+# Spawns n*n objects with a total mass of 50000
+# + a sun object after 5000 frames
+# 
+# Due to the inherent n^2 complexity of gravity, this benchmark is very ressource intensive
+# it is recommended to start this benchmark headless!
+###############################################
+
+###############################################
+# [SETTINGS]
+set loop.n 20
+
+# Frame average for 40x40 objects: 0.745 seconds
+
+###############################################
+# [BASICS]
+# It is not recommended to change these!
+time set-fixed-dt 2
+set physics.G 10
+set-res 640 640 3
+set-fps 10000
+show-fps on
+
+###############################################
+# [INFO]
+echo
+eval echo Benchmark with $i( {global.loop.n} * {global.loop.n} ) Objects...
+eval echo Rendering with a fixed dt of 2 ms
+echo
+
+
+###############################################
+# Spawn barriers
+eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=0|posY=0|sprite.sizeX=640|sprite.sizeY=32
+eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=0|posY=$(640-32)|sprite.sizeX=640|sprite.sizeY=32
+eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=0|posY=32|sprite.sizeX=32|sprite.sizeY=$(640-64)
+eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=$(640-32)|posY=32|sprite.sizeX=32|sprite.sizeY=$(640-64)
+
+###############################################
+# Calculations
+eval set loop.delta $( 200 / ({global.loop.n}) )
+eval set loop.start $i( 220 / {global.loop.delta})
+eval set loop.end   $i( {global.loop.start} + {global.loop.n} - 1 )
+eval set spriteSize $({global.loop.delta})
+
+###############################################
+# Spawn Objects
+for i {global.loop.start} {global.loop.end} for j {global.loop.start} {global.loop.end} eval spawn ./Resources/Renderobjects/Planets/obj_elastic_to_wall.jsonc|posX=$({global.loop.delta}*{i})|posY=$({global.loop.delta}*{j})|physics.vX=0|physics.vY=0|physics.mass=$( 50000 / ({global.loop.n} * {global.loop.n}))|sprite.sizeX={global.spriteSize}|sprite.sizeY={global.spriteSize}
+
+###############################################
+# Constant Info
+
+###############################################
+# Spawn extra object later on and wait some more
+wait 500
+spawn ./Resources/Renderobjects/Planets/sun.jsonc|posX=500|posY=500 # Heavy object
+wait 3500
+
+###############################################
+# Inform on runtime
+eval echo Simulation done! Total runtime: {global.runtime.t} Seconds.
+
+###############################################
+# Exit
+exit
