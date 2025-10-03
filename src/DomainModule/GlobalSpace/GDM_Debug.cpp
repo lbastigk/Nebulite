@@ -12,11 +12,6 @@ void Nebulite::DomainModule::GlobalSpace::Debug::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::printState(int argc, char* argv[]){
-    std::cout << domain->getRenderer()->serialize() << std::endl;
-    return Nebulite::Constants::ErrorTable::NONE();
-}
-
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::logGlobal(int argc, char* argv[]){
     std::string serialized = domain->getDoc()->serialize();
     if (argc>1){
@@ -43,7 +38,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::logState(
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::render_object(int argc, char** argv){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::standardfile_renderobject(int argc, char** argv){
     Nebulite::Core::RenderObject ro(domain);
     Nebulite::Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc",ro.serialize());
     return Nebulite::Constants::ErrorTable::NONE();
