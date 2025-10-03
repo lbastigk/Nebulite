@@ -45,7 +45,7 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 
 	// Text
 	json.set(Nebulite::Constants::keyName.renderObject.textStr.c_str(),std::string(""));
-	json.set(Nebulite::Constants::keyName.renderObject.textFontsize.c_str(),1000);
+	json.set(Nebulite::Constants::keyName.renderObject.textFontsize.c_str(),0);
 	json.set(Nebulite::Constants::keyName.renderObject.textDx.c_str(),0.0);
 	json.set(Nebulite::Constants::keyName.renderObject.textDy.c_str(),0.0);
 	json.set(Nebulite::Constants::keyName.renderObject.textColorR.c_str(),255);
