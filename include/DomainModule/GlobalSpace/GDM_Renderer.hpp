@@ -117,6 +117,8 @@ public:
      * @param argc The argument count
      * @param argv The argument vector: Environment as link to json/jsonc file
      * @return Potential errors that occured on command execution
+     * 
+     * @todo Empty env loading crashes the program. Needs to be fixed.
      */
     Nebulite::Constants::Error env_load(int argc, char* argv[]);
     std::string env_load_desc = R"(Load an environment/level from a json/jsonc file.
@@ -137,7 +139,6 @@ public:
     std::string env_deload_desc = R"(Deload entire environment, leaving an empty renderer.
 
     Usage: env deload
-
     )";
 
     /**
@@ -212,6 +213,8 @@ public:
 
     Usage: cam move <dx> <dy>
 
+    <dx> : Delta x to move camera by
+    <dy> : Delta y to move camera by
     )";
 
     /**
@@ -229,8 +232,9 @@ public:
 
     Usage: cam set <x> <y> [c]
 
-    Where [c] determines if the given position is the camera's center
-
+    <x> : X position to set camera to
+    <y> : Y position to set camera to
+    [c] : Optional. If provided, sets the camera's center to the given position.
     )";
 
     /**
@@ -249,7 +253,6 @@ public:
     Usage: snapshot [filename]
 
     Defaults to "./Resources/Snapshots/snapshot.png" if no argument is provided
-
     )";
 
     /**
@@ -263,7 +266,6 @@ public:
     std::string beep_desc = R"(Make a beep noise.
 
     Usage: beep
-
     )";
     
     /**
@@ -288,7 +290,6 @@ public:
     std::string selectedObject_get_desc = R"(Get a renderobject by its ID.
 
     Usage: selected-object get <id>
-
     )";
 
     /**

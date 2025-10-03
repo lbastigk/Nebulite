@@ -48,7 +48,10 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error set_from_query(int argc, char* argv[]);
+    Nebulite::Constants::Error query_set(int argc, char* argv[]);
+    std::string query_set_desc = R"(Sets a key from a SQL query result.
+    Not implemented yet.
+    )";
 
     /**
      * @brief Sets a key from a JSON document.
@@ -60,7 +63,14 @@ public:
      * @todo Once all domains have access to the global space, 
      * use the JSON doc cache instead of loading the document each time.
      */
-    Nebulite::Constants::Error set_from_json(int argc, char* argv[]);
+    Nebulite::Constants::Error json_set(int argc, char* argv[]);
+    std::string json_set_desc = R"(Sets a key from a JSON document.
+
+    Usage: json set <key_to_set> <link:key>
+
+    Where <link:key> is a link to a JSON document.
+    The document is dynamically loaded and cached for future use.
+    )";
 
     //------------------------------------------
     // Setup
@@ -73,11 +83,11 @@ public:
 
         // SQL Querys
         bindSubtree("query","Functions to manipulate JSON data via SQL query results");
-        bindFunction(&ComplexData::set_from_query, "query set", "Sets a key from a SQL query result: <key> <query>");
+        bindFunction(&ComplexData::query_set, "query set", query_set_desc);
 
         // Set from read only jsons
         bindSubtree("json","Functions to manipulate JSON data via JSON documents");
-        bindFunction(&ComplexData::set_from_json,  "json set",  "Sets a key from a JSON document:    <key> <link:key>");
+        bindFunction(&ComplexData::json_set,  "json set",  json_set_desc);
     }
 };
 }   // namespace DomainModule

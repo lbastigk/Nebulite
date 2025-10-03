@@ -73,7 +73,9 @@ public:
      */
     Nebulite::Constants::Error errorlog(int argc, char* argv[]);
     std::string errorlog_desc = R"(Activates or deactivates error logging to a file.
+
     Usage: errorlog <on/off>
+
     - on:  Activates error logging to 'error.log' in the working directory.
     - off: Deactivates error logging, reverting to standard error output.
     Note: Ensure you have write permissions in the working directory when activating error logging.
@@ -88,7 +90,9 @@ public:
      */
     Nebulite::Constants::Error clearConsole(int argc, char* argv[]);
     std::string clearConsole_desc = R"(Clears the console screen.
+
     Usage: clear
+
     Note: This function attempts to clear the console screen using system-specific commands.
             It may not work in all environments or IDEs.
     )";
@@ -103,7 +107,9 @@ public:
      */
     Nebulite::Constants::Error log_global(int argc, char* argv[]);
     std::string log_global_desc = R"(Logs the global document to a file.
+
     Usage: log global [<filenames>...]
+
     - <filenames>: Optional. One or more filenames to log the global document to.
                     If no filenames are provided, defaults to 'global.log.jsonc'.
     )";
@@ -118,7 +124,9 @@ public:
      */
     Nebulite::Constants::Error log_state(int argc, char* argv[]);
     std::string log_state_desc = R"(Logs the current state of the renderer to a file.
+
     Usage: log state [<filenames>...]
+
     - <filenames>: Optional. One or more filenames to log the renderer state to.
                     If no filenames are provided, defaults to 'state.log.jsonc'.
     )";
@@ -134,7 +142,9 @@ public:
      */
     Nebulite::Constants::Error crash(int argc, char** argv);
     std::string crash_desc = R"(Crashes the program, useful for checking if the testing suite can catch crashes.
+
     Usage: crash [<type>]
+
     - <type>: Optional. The type of crash to induce. Options are:
         - segfault   : Causes a segmentation fault (default)
         - abort      : Calls std::abort()
@@ -151,7 +161,9 @@ public:
      */
     Nebulite::Constants::Error error(int argc, char* argv[]);
     std::string error_desc = R"(Echoes all arguments as string to the standard error.
+
     Usage: error <string...>
+
     - <string...>: One or more strings to echo to the standard error.
     )";
 
@@ -164,8 +176,10 @@ public:
      */
     Nebulite::Constants::Error warn(int argc, char* argv[]);
     std::string warn_desc = R"(Returns a warning: a custom, noncritical error.
-    Usage: warn <string...>
-    - <string...>: One or more strings to include in the warning message.
+
+    Usage: warn <string>
+
+    - <string>: The warning message.
     )";
 
     /**
@@ -177,8 +191,10 @@ public:
      */
     Nebulite::Constants::Error critical(int argc, char* argv[]);
     std::string critical_desc = R"(Returns a critical error.
-    Usage: critical <string...>
-    - <string...>: One or more strings to include in the critical error message.
+
+    Usage: critical <string>
+
+    - <string>: The critical error message.
     )";
 
     /**
@@ -190,7 +206,9 @@ public:
      */
     Nebulite::Constants::Error waitForInput(int argc, char* argv[]);
     std::string waitForInput_desc = R"(Waits for user input before continuing.
+
     Usage: inputwait
+
     Note: This function pauses execution until the user presses Enter.
     )";
 
@@ -203,7 +221,9 @@ public:
      */
     Nebulite::Constants::Error standardfile_renderobject(int argc, char** argv);
     std::string standardfile_renderobject_desc = R"(Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
+
     Usage: standardfile renderobject
+    
     Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.
     )";
 

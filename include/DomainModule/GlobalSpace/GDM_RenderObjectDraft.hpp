@@ -86,7 +86,6 @@ public:
     ::std::string draft_spawn_desc = R"(Spawn the created draft object.
 
     Usage: draft spawn
-
     )";
 
     /**
@@ -102,7 +101,6 @@ public:
     This does not reset any spawned ones!
 
     Usage: draft reset
-
     )";
 
     //------------------------------------------
