@@ -57,7 +57,19 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error parse(int argc, char* argv[]);
+    Nebulite::Constants::Error draft_parse(int argc, char* argv[]);
+    std::string draft_parse_desc = R"(Parse Renderobject-specific functions on the draft.
+
+    Usage: draft parse <function> [args...]
+
+    Use 'draft parse help' to see available functions.
+
+    Examples:
+
+    draft parse set text.str Hello World
+    draft parse set posX 100
+    draft parse set posY 200
+    )";
 
     /**
      * @brief Spawn the created draft object
@@ -66,7 +78,12 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error spawnDraft(int argc, char* argv[]);
+    Nebulite::Constants::Error draft_spawn(int argc, char* argv[]);
+    std::string draft_spawn_desc = R"(Spawn the created draft object.
+
+    Usage: draft spawn
+
+    )";
 
     /**
      * @brief Reset the draft (does not reset any spawned ones!)
@@ -75,7 +92,14 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error resetDraft(int argc, char* argv[]);
+    Nebulite::Constants::Error draft_reset(int argc, char* argv[]);
+    std::string draft_reset_desc = R"(Reset the draft object.
+
+    This does not reset any spawned ones!
+
+    Usage: draft reset
+
+    )";
 
     //------------------------------------------
     // Setup
@@ -86,9 +110,9 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, RenderObjectDraft){
         // Bind functions
         bindSubtree("draft", "Functions to manipulate and spawn RenderObjects in draft state");
-        bindFunction(&RenderObjectDraft::parse,       "draft parse",   "Parse Renderobject-specific functions on the draft");
-        bindFunction(&RenderObjectDraft::spawnDraft,  "draft spawn",   "Spawn the created draft object");
-        bindFunction(&RenderObjectDraft::resetDraft,  "draft reset",   "Reset the draft object (does not reset any spawned ones!)");
+        bindFunction(&RenderObjectDraft::draft_parse,  "draft parse",   draft_parse_desc);
+        bindFunction(&RenderObjectDraft::draft_spawn,  "draft spawn",   draft_spawn_desc);
+        bindFunction(&RenderObjectDraft::draft_reset,  "draft reset",   draft_reset_desc);
     }
 
 private:

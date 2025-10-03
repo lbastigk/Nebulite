@@ -13,7 +13,7 @@ void Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::update() {
     }
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::parse(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::draft_parse(int argc, char* argv[]) {
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -25,7 +25,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraf
     return draft->parseStr("Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::onDraft " + command);
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::spawnDraft(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::draft_spawn(int argc, char* argv[]) {
     if(argc != 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
@@ -36,7 +36,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraf
     // argv[2] : <serial>
     std::string serial = draft->serialize();
     char** argv_new = new char*[3];
-    argv_new[0] = const_cast<char*>("Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::spawnDraft");
+    argv_new[0] = const_cast<char*>("Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::draft_spawn");
     argv_new[1] = const_cast<char*>("spawn");
     argv_new[2] = const_cast<char*>(serial.c_str());
 
@@ -48,7 +48,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraf
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::resetDraft(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::draft_reset(int argc, char* argv[]) {
     if(argc != 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
