@@ -12,7 +12,7 @@ void Nebulite::DomainModule::GlobalSpace::Debug::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::logGlobal(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::log_global(int argc, char* argv[]){
     std::string serialized = domain->getDoc()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -25,7 +25,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::logGlobal
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::logState(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::log_state(int argc, char* argv[]){
     std::string serialized = domain->getRenderer()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){

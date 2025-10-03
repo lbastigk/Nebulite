@@ -101,8 +101,8 @@ public:
      * Default is "global.log.jsonc" if no name was provided
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error logGlobal(int argc, char* argv[]);
-    std::string logGlobal_desc = R"(Logs the global document to a file.
+    Nebulite::Constants::Error log_global(int argc, char* argv[]);
+    std::string log_global_desc = R"(Logs the global document to a file.
     Usage: log global [<filenames>...]
     - <filenames>: Optional. One or more filenames to log the global document to.
                     If no filenames are provided, defaults to 'global.log.jsonc'.
@@ -116,8 +116,8 @@ public:
      * Default is "state.log.jsonc" if no name was provided
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error logState(int argc, char* argv[]);
-    std::string logState_desc = R"(Logs the current state of the renderer to a file.
+    Nebulite::Constants::Error log_state(int argc, char* argv[]);
+    std::string log_state_desc = R"(Logs the current state of the renderer to a file.
     Usage: log state [<filenames>...]
     - <filenames>: Optional. One or more filenames to log the renderer state to.
                     If no filenames are provided, defaults to 'state.log.jsonc'.
@@ -203,7 +203,7 @@ public:
      */
     Nebulite::Constants::Error standardfile_renderobject(int argc, char** argv);
     std::string standardfile_renderobject_desc = R"(Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
-    Usage: standardfile render-object
+    Usage: standardfile renderobject
     Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.
     )";
 
@@ -225,11 +225,11 @@ public:
         bindFunction(&Debug::waitForInput,      "inputwait",                waitForInput_desc);
 
         bindSubtree("log", "Functions to log various data to files");
-        bindFunction(&Debug::logGlobal,         "log global",               logGlobal_desc);
-        bindFunction(&Debug::logState,          "log state",                logState_desc);
+        bindFunction(&Debug::log_global,        "log global",               log_global_desc);
+        bindFunction(&Debug::log_state,         "log state",                log_state_desc);
 
         bindSubtree("standardfile", "Functions to generate standard files");
-        bindFunction(&Debug::standardfile_renderobject,     "standardfile render-object",   standardfile_renderobject_desc);
+        bindFunction(&Debug::standardfile_renderobject,     "standardfile renderobject",   standardfile_renderobject_desc);
 
         //------------------------------------------
         // Example Bindings that will fail
