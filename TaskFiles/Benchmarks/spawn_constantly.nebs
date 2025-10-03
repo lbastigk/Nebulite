@@ -1,8 +1,16 @@
 echo Spawning sun and 100 planets
+
+# Setup Variables
 set spawnCount 0
 set waitTime 100
+set physics.G 10 # Gravity constant, high value for testing
+
+# Setup Renderer
 set-fps 10000
-set physics.G 10
+
+##########################################
+# Spawn sun and 100 planets
+
 spawn ./Resources/Renderobjects/Planets/sun.jsonc
 
 eval wait {global.waitTime}

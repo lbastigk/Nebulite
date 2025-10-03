@@ -250,7 +250,6 @@ public:
      */
     void linkExternalTexture(SDL_Texture* externalTexture) {
         baseTexture.linkExternalTexture(externalTexture);
-
     }
 
     /**
@@ -297,6 +296,35 @@ private:
 
 	// Size of subscriptions
 	size_t subscription_size = 0;
+
+	//------------------------------------------
+	// References to JSON
+	struct refs{
+		// Position and Size
+		double* posX;
+		double* posY;
+		double* pixelSizeX;
+		double* pixelSizeY;
+
+		// Spritesheet
+		double* isSpritesheet;
+		double* spritesheetOffsetX;
+		double* spritesheetOffsetY;
+		double* spritesheetSizeX;
+		double* spritesheetSizeY;
+
+		// Text
+		double* fontSize;
+		double* textDx;
+		double* textDy;
+		double* textColorR;
+		double* textColorG;
+		double* textColorB;
+		double* textColorA;
+
+	} refs;
+
+	void linkFrequentRefs();
 
 	//------------------------------------------
 	// Texture related
@@ -347,5 +375,6 @@ template <typename T> void Nebulite::Core::RenderObject::set(const char* key, co
 }
 
 template <typename T> T Nebulite::Core::RenderObject::get(const char* key, const T& defaultValue){
-	return json.get<T>(key,defaultValue);
+	T result = json.get<T>(key,defaultValue);
+	return result;
 }

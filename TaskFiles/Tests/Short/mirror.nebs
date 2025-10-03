@@ -1,0 +1,35 @@
+###############################
+# Setup a scene
+# Two Suns attracting each other, with mirrors enabled to see if the mirror works
+set-fps 100
+set physics.G 10 # Gravity constant, high value for testing
+time set-fixed-dt 1
+spawn Planets/sun.jsonc|set posX 750|set posY 500|set text.str SUN1
+spawn Planets/sun.jsonc|set posX 250|set posY 500|set text.str SUN2
+
+###############################
+# Setup mirror
+selected-object get 1
+selected-object parse mirror on
+selected-object get 2
+selected-object parse mirror on
+wait 1
+
+###############################
+# Render some frames, then check mirrors
+# Mirrors should be equal, besides:
+# - x-value is different
+# - velocity is opposite in x-direction
+# - acceleration is opposite in x-direction
+# Expected values:
+# TODO
+wait 10
+eval echo SUN1:  p({global.mirror.renderObject.id1.posX},{global.mirror.renderObject.id1.posY})
+eval echo SUN1:  v({global.mirror.renderObject.id1.physics.vX},{global.mirror.renderObject.id1.physics.vY})
+eval echo SUN1:  a({global.mirror.renderObject.id1.physics.aX},{global.mirror.renderObject.id1.physics.aY})
+eval echo SUN1:  mass {global.mirror.renderObject.id1.physics.mass}
+eval echo SUN2:  p({global.mirror.renderObject.id2.posX},{global.mirror.renderObject.id2.posY})
+eval echo SUN2:  v({global.mirror.renderObject.id2.physics.vX},{global.mirror.renderObject.id2.physics.vY})
+eval echo SUN2:  a({global.mirror.renderObject.id2.physics.aX},{global.mirror.renderObject.id2.physics.aY})
+eval echo SUN2:  mass {global.mirror.renderObject.id2.physics.mass}
+exit

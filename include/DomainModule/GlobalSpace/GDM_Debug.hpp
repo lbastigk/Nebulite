@@ -163,6 +163,15 @@ public:
      */
     Nebulite::Constants::Error critical(int argc, char* argv[]);
 
+    /**
+     * @brief Waits for user input before continuing.
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: no arguments available
+     * @return Potential errors that occured on command execution
+     */
+    Nebulite::Constants::Error waitForInput(int argc, char* argv[]);
+
     //------------------------------------------
     // Setup
 
@@ -178,6 +187,7 @@ public:
         bindFunction(&Debug::crash,             "crash",                    "Crashes the program: crash [segfault/abort/terminate/throw]");
         bindFunction(&Debug::warn,              "warn",                     "Return a warning (noncritical error): warn <string>");
         bindFunction(&Debug::critical,          "critical",                 "Return a critical error: critical <string>");
+        bindFunction(&Debug::waitForInput,      "inputwait",                "Waits for user input before continuing");
 
         // print State needs to be refactored, as "print" is already a command in JSON
         //bindSubtree("print", "Functions to print various data to console");

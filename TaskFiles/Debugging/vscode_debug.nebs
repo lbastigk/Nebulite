@@ -24,55 +24,36 @@ echo Starting vscode_debug.nebs
 
 ###############################
 # Setup a scene
-task TaskFiles/Simulations/gravity_classic.nebs
-clear
+# Two Suns attracting each other, with mirrors enabled to see if the mirror works
+set-fps 100
+set physics.G 10 # Gravity constant, high value for testing
 time set-fixed-dt 1
+spawn Planets/sun.jsonc|set posX 750|set posY 500|set text.str SUN1
+spawn Planets/sun.jsonc|set posX 250|set posY 500|set text.str SUN2
 
 ###############################
-# Wait some time
-wait 100
-
-###############################
-# Get a render object and manipulate it
-clear # This is where the relevant commands start
-selected-object get 2
-selected-object parse eval echo Selected object with id $05i({self.id}) named {self.text.str}
+# Setup mirror
+selected-object get 1
 selected-object parse mirror on
-wait 1 # wait one frame for mirror to apply
-
-##############################################################
-
-# TODO: Position does not update, why not?
-# posX and posY are the only fields that are not synced!
-
-# [POSSIBLE SOLUTION]
-# - posX and posY are type string in mirror, but type double in object itself
-# - perhaps the cache copy does not change type, so it remains string?
-
-set-fps 10
-always echo 
-always echo ----------------------------------------------
+selected-object get 2
+selected-object parse mirror on
+wait 1
 
 ###############################
-# V1: Access via mirror
-always echo
-always echo V1: Access via mirror
-
-# [ ] Does not work, posX and posY stay the same
-always print mirror.renderObject.id2.posX
-always print mirror.renderObject.id2.posY
-
-# [ ] Does not work, posX and posY stay the same
-always eval echo Position: ({global.mirror.renderObject.id2.posX},{global.mirror.renderObject.id2.posY})
-
-###############################
-# V2: Access via selected-object
-always echo
-always echo V2: Access via selected-object
-
-# [X] Works, shows correct posX and posY
-always selected-object parse print posX
-always selected-object parse print posY
-
-# [ ] Does not work, posX and posY stay the same
-always selected-object parse eval echo Position: ({global.mirror.renderObject.id2.posX}, {global.mirror.renderObject.id2.posY})
+#always inputwait # Wait for user input before each debug output
+always clear
+always echo -------------------------------------------
+always eval echo SUN1:  p({global.mirror.renderObject.id1.posX},{global.mirror.renderObject.id1.posY})
+always eval echo SUN1:  v({global.mirror.renderObject.id1.physics.vX},{global.mirror.renderObject.id1.physics.vY})
+always eval echo SUN1:  a({global.mirror.renderObject.id1.physics.aX},{global.mirror.renderObject.id1.physics.aY})
+always eval echo SUN1:  mass {global.mirror.renderObject.id1.physics.mass}
+always eval echo
+always eval echo SUN2:  p({global.mirror.renderObject.id2.posX},{global.mirror.renderObject.id2.posY})
+always eval echo SUN2:  v({global.mirror.renderObject.id2.physics.vX},{global.mirror.renderObject.id2.physics.vY})
+always eval echo SUN2:  a({global.mirror.renderObject.id2.physics.aX},{global.mirror.renderObject.id2.physics.aY})
+always eval echo SUN2:  mass {global.mirror.renderObject.id2.physics.mass}
+always eval echo
+always eval echo time.dt   : {global.time.dt}
+always eval echo physics.G : {global.physics.G}
+always eval echo
+always echo -------------------------------------------

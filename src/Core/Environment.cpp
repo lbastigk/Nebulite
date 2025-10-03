@@ -37,7 +37,7 @@ std::string Nebulite::Core::Environment::serialize() {
 		// Add the container JSON object to the main document
 		Nebulite::Utility::JSON layer;
 		layer.deserialize(serializedContainer);
-		doc.set_subdoc(key.c_str(),&layer);
+		doc.set_subdoc(key.c_str(), &layer);
 	}
 	return doc.serialize();
 }

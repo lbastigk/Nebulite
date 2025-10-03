@@ -200,3 +200,13 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::critical(
     }
     return Nebulite::Constants::ErrorTable::addError(str, Nebulite::Constants::Error::CRITICAL);
 }
+
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::waitForInput(int argc, char* argv[]){
+    if (argc > 1) {
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+    }
+
+    std::cout << "Press Enter to continue..." << std::endl;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    return Nebulite::Constants::ErrorTable::NONE();
+}

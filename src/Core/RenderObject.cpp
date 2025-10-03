@@ -23,35 +23,35 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 	// General
 
 	// Initialize to 0, Renderer itself sets proper id, which starts at 1
-	json.set_direct(Nebulite::Constants::keyName.renderObject.id.c_str(),0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.imageLocation.c_str(), std::string("Resources/Sprites/TEST001P/001.bmp"));
-	json.set_direct(Nebulite::Constants::keyName.renderObject.layer.c_str(), 0);
+	json.set(Nebulite::Constants::keyName.renderObject.id.c_str(),0);
+	json.set(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0);
+	json.set(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0);
+	json.set(Nebulite::Constants::keyName.renderObject.imageLocation.c_str(), std::string("Resources/Sprites/TEST001P/001.bmp"));
+	json.set(Nebulite::Constants::keyName.renderObject.layer.c_str(), 0);
 
 	//for sprite
-	json.set_direct(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str(), false);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX.c_str(), 0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY.c_str(), 0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.spritesheetSizeX.c_str(), 0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.spritesheetSizeY.c_str(), 0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.pixelSizeX.c_str(), 32);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.pixelSizeY.c_str(), 32);
+	json.set(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str(), false);
+	json.set(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX.c_str(), 0);
+	json.set(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY.c_str(), 0);
+	json.set(Nebulite::Constants::keyName.renderObject.spritesheetSizeX.c_str(), 0);
+	json.set(Nebulite::Constants::keyName.renderObject.spritesheetSizeY.c_str(), 0);
+	json.set(Nebulite::Constants::keyName.renderObject.pixelSizeX.c_str(), 32);
+	json.set(Nebulite::Constants::keyName.renderObject.pixelSizeY.c_str(), 32);
 
 	// Invokes
 	json.set_empty_array(Nebulite::Constants::keyName.renderObject.invokes.c_str());
 	json.set_empty_array(Nebulite::Constants::keyName.renderObject.invokeSubscriptions.c_str());
-	json.set_direct((Nebulite::Constants::keyName.renderObject.invokeSubscriptions+"[0]").c_str(),std::string("all"));
+	json.set((Nebulite::Constants::keyName.renderObject.invokeSubscriptions+"[0]").c_str(),std::string("all"));
 
 	// Text
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textStr.c_str(),std::string(""));
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textFontsize.c_str(),0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textDx.c_str(),0.0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textDy.c_str(),0.0);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textColorR.c_str(),255);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textColorG.c_str(),255);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textColorB.c_str(),255);
-	json.set_direct(Nebulite::Constants::keyName.renderObject.textColorA.c_str(),255);
+	json.set(Nebulite::Constants::keyName.renderObject.textStr.c_str(),std::string(""));
+	json.set(Nebulite::Constants::keyName.renderObject.textFontsize.c_str(),0);
+	json.set(Nebulite::Constants::keyName.renderObject.textDx.c_str(),0.0);
+	json.set(Nebulite::Constants::keyName.renderObject.textDy.c_str(),0.0);
+	json.set(Nebulite::Constants::keyName.renderObject.textColorR.c_str(),255);
+	json.set(Nebulite::Constants::keyName.renderObject.textColorG.c_str(),255);
+	json.set(Nebulite::Constants::keyName.renderObject.textColorB.c_str(),255);
+	json.set(Nebulite::Constants::keyName.renderObject.textColorA.c_str(),255);
 
 	//------------------------------------------
 	// Internal Values
@@ -72,12 +72,18 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 	inherit<Nebulite::Core::Texture>(&baseTexture);
 
 	//------------------------------------------
+	// Link frequently used values
+	linkFrequentRefs();
+
+	//------------------------------------------
 	// Initialize Domain Modules
 	Nebulite::DomainModule::RDM_init(this);
 
 	//------------------------------------------
 	// Update once to initialize
 	update();
+	calculateSrcRect();
+	calculateDstRect();
 }
 
 Nebulite::Core::RenderObject::~RenderObject() {
@@ -104,7 +110,6 @@ std::string Nebulite::Core::RenderObject::serialize() {
 }
 
 void Nebulite::Core::RenderObject::deserialize(std::string serialOrLink) {
-
 	// Check if argv1 provided is an object
 	if(serialOrLink.starts_with('{')){
 		json.deserialize(serialOrLink);
@@ -151,6 +156,9 @@ void Nebulite::Core::RenderObject::deserialize(std::string serialOrLink) {
 			}
 		}
 	}
+
+	// Re-Establish frequent references
+	linkFrequentRefs();
 	
 	// Prerequisites
 	flag.reloadInvokes = true;
@@ -177,15 +185,15 @@ SDL_Rect* Nebulite::Core::RenderObject::getDstRect() {
 
 void Nebulite::Core::RenderObject::calculateDstRect() {
 	dstRect = {
-		(int)floor(get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str())),
-		(int)floor(get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str())),
-		(int)floor(get<double>(Nebulite::Constants::keyName.renderObject.pixelSizeX.c_str())), // Set the desired width
-		(int)floor(get<double>(Nebulite::Constants::keyName.renderObject.pixelSizeY.c_str())), // Set the desired height
+		(int)floor(*refs.posX),
+		(int)floor(*refs.posY),
+		(int)floor(*refs.pixelSizeX), // Set the desired width
+		(int)floor(*refs.pixelSizeY), // Set the desired height
 	};
 };
 
 SDL_Rect* Nebulite::Core::RenderObject::getSrcRect() {
-	if (get<bool>(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str())) {
+	if (*refs.isSpritesheet) {
 		return &srcRect;
 	}
 	else {
@@ -195,18 +203,13 @@ SDL_Rect* Nebulite::Core::RenderObject::getSrcRect() {
 
 void Nebulite::Core::RenderObject::calculateSrcRect() {
 	// Check if the object is a sprite
-	if (get<bool>(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str())) {
-		int offsetX = (int)get<double>(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX.c_str(),0);
-		int offsetY = (int)get<double>(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY.c_str(),0);
-		int spriteWidth = get<int>(Nebulite::Constants::keyName.renderObject.spritesheetSizeX.c_str(),0);
-		int spriteHeight = get<int>(Nebulite::Constants::keyName.renderObject.spritesheetSizeY.c_str(),0);
-		
+	if (*refs.isSpritesheet) {
 		// Calculate the source rectangle for the sprite (which portion of the sprite sheet to render)
 		srcRect = {
-			offsetX,       // Start X from the sprite sheet offset
-			offsetY,       // Start Y from the sprite sheet offset
-			spriteWidth,   // The width of the sprite frame
-			spriteHeight   // The height of the sprite frame
+			(int)*refs.spritesheetOffsetX, // Start X from the sprite sheet offset
+			(int)*refs.spritesheetOffsetY, // Start Y from the sprite sheet offset
+			(int)*refs.spritesheetSizeX,   // The width of the sprite frame
+			(int)*refs.spritesheetSizeY    // The height of the sprite frame
 		};
 	}
 }
@@ -303,17 +306,10 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyIntern
 // Outside communication with Renderer for text calculation
 
 void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int renderer_X, int renderer_Y){
-	// RECT position to renderer
-	/**
-	 * @todo Is it possible to reduce positionX/Y calls by only doing so in the renderer method?
-	 * This way, we would get position once for object, render object, then use position to render the text
-	 * Then we only need to keep textRect.w/h up to date here, and x/y is set in the renderer
-	 */
-	textRect.x = 	get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str()) + 
-					get<double>(Nebulite::Constants::keyName.renderObject.textDx.c_str()) - renderer_X;
-	textRect.y = 	get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str()) + 
-					get<double>(Nebulite::Constants::keyName.renderObject.textDy.c_str()) - renderer_Y;
-	
+	// Set font size if changed
+	textRect.x = *refs.posX + *refs.textDx - renderer_X;
+	textRect.y = *refs.posY + *refs.textDy - renderer_Y;
+
 	// Recreate texture if recalculate was triggered by user. This is needed for:
 	// - new text
 	// - new color
@@ -326,18 +322,17 @@ void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font
         }
 		
 		// Settings influenced by a new text
-		double scalar = 1.0;
-		double fontSize = get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str());
+		double scalar = 1.0; // Perhaps needed
 		std::string text = get<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str());
-		textRect.w = scalar * fontSize * text.length();
-		textRect.h = static_cast<int>(fontSize * 1.5f * scalar);
+		textRect.w = *refs.fontSize * text.length() * scalar;
+		textRect.h = static_cast<int>(*refs.fontSize * 1.5f * scalar);
 
 		// Create text
 		SDL_Color textColor = { 
-			(Uint8)json.get<int>(Nebulite::Constants::keyName.renderObject.textColorR.c_str(),255),
-			(Uint8)json.get<int>(Nebulite::Constants::keyName.renderObject.textColorG.c_str(),255),
-			(Uint8)json.get<int>(Nebulite::Constants::keyName.renderObject.textColorB.c_str(),255),
-			(Uint8)json.get<int>(Nebulite::Constants::keyName.renderObject.textColorA.c_str(),255)
+			(Uint8)*refs.textColorR,
+			(Uint8)*refs.textColorG,
+			(Uint8)*refs.textColorB,
+			(Uint8)*refs.textColorA
 		};
 
 		// Create texture
@@ -353,4 +348,31 @@ void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font
 		// Set flag back to false
 		flag.calculateText = false;
 	}
+}
+
+
+//------------------------------------------
+
+void Nebulite::Core::RenderObject::linkFrequentRefs() {
+	// Position and Size
+	refs.posX			    = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.positionX.c_str());
+	refs.posY			    = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.positionY.c_str());
+	refs.pixelSizeX         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.pixelSizeX.c_str());
+	refs.pixelSizeY         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.pixelSizeY.c_str());
+
+	// Spritesheet
+	refs.isSpritesheet      = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str());
+	refs.spritesheetOffsetX = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX.c_str());
+	refs.spritesheetOffsetY = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY.c_str());
+	refs.spritesheetSizeX   = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetSizeX.c_str());
+	refs.spritesheetSizeY   = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetSizeY.c_str());
+
+	// Text
+	refs.fontSize           = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textFontsize.c_str());
+	refs.textDx				= json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textDx.c_str());
+	refs.textDy				= json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textDy.c_str());
+	refs.textColorR         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorR.c_str());
+	refs.textColorG         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorG.c_str());
+	refs.textColorB         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorB.c_str());
+	refs.textColorA         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorA.c_str());
 }
