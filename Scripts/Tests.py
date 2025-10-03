@@ -158,7 +158,7 @@ def run_testsuite(config: Dict[str, Any], stop_on_fail: bool = False, verbose: b
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="Nebulite Test Suite")
-    parser.add_argument('-c', '--config', default='tests.json', help='Path to tests.json')
+    parser.add_argument('-c', '--config', default='Tools/tests.json', help='Path to tests.json')
     parser.add_argument('-s', '--stop', action='store_true', help='Stop on first failure')
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
     args = parser.parse_args()

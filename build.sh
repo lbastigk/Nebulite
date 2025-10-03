@@ -72,7 +72,7 @@ function build_release() {
 function build_debug_windows() {
       clean_src "./.build/windows-debug/Nebulite.exe" "windows-debug"
       cmake -DCMAKE_BUILD_TYPE=Debug \
-            -DCMAKE_TOOLCHAIN_FILE=mingw-toolchain.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=Tools/mingw-toolchain.cmake \
             -B ./.build/windows-debug -S .
       cmake --build ./.build/windows-debug -j$(nproc)
       cp ./.build/windows-debug/Nebulite.exe ./bin/Nebulite_Debug.exe
@@ -81,7 +81,7 @@ function build_debug_windows() {
 function build_release_windows() {
       clean_src "./.build/windows-release/Nebulite.exe" "windows-release"
       cmake -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_TOOLCHAIN_FILE=mingw-toolchain.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=Tools/mingw-toolchain.cmake \
             -B ./.build/windows-release -S .
       cmake --build ./.build/windows-release -j$(nproc)
       cp ./.build/windows-release/Nebulite.exe ./bin/Nebulite.exe

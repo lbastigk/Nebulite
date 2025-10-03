@@ -346,23 +346,25 @@ Start engine and enter console mode with `^`. Enter `help` to see available comm
 
 ```bash
 Nebulite/
-├── bin                       # Compiled binaries
-├── doc                       # Documentation: UML-Diagrams, example gifs, screenshots
-├── external                  # Third-party dependencies
-├── include                   # Header files:
-│   ├── Constants             # - constants like key names, thread settings etc.
-│   ├── Core                  # - core components
-│   ├── DomainModule          # - modules specific to certain domains
-│   ├── Interaction           # - parsing, expressions, manipulation
-│   ├── Nebulite.h            # - namespace documentation
-│   └── Utility               # - string-modification, JSON, caching etc.
+├── bin/                      # Compiled binaries
+├── doc/                      # Documentation: UML-Diagrams, example gifs, screenshots
+├── external/                 # Third-party dependencies
+├── include/                  # Header files:
+│   ├── Constants/            # - constants like key names, thread settings etc.
+│   ├── Core/                 # - core components
+│   ├── DomainModule/         # - modules specific to certain domains
+│   ├── Interaction/          # - parsing, expressions, manipulation
+│   ├── Utility/              # - string-modification, JSON, caching etc.
+│   └── Nebulite.h            # - namespace documentation
+
+├── Languages/                # VSCode extension for .nebs and .nebl files
+├── Resources/                # Game assets and data
+├── Scripts/                  # Various scripts for asset creation, file validation, tests etc.
+├── src/                      # Engine source code
+├── TaskFiles/                # Example scripts
+├── Tools/                    # CMake Toolchains, Test definitions
 ├── install.sh                # Installation of Repository
-├── nebulite-logic-vscode     # VSCode extension for .nebl
-├── nebulite-script-vscode    # VSCode extension for .nebs
-├── Resources                 # Game assets and data
-├── Scripts                   # Various scripts for asset creation, file validation, tests etc.
-├── src                       # Engine source code
-└── TaskFiles                 # Example scripts
+└── build.sh                  # Compiling binaries
 ```
 
 <!-- TOC --><a name="platform-support"></a>
@@ -408,9 +410,13 @@ Two primary pathways:
 JSON validation runs via `./Scripts/validate_json.py` prior to tests.
 
 <!-- TOC --><a name="language-extension"></a>
-## Language Extension
+## Languages
 
-Nebulite includes a language extension for `.nebs` scripting files under `./nebulite-script-vscode/`. 
+### Nebulite Script
+
+The `.nebs` *(Nebulite Script)* language is used for parsing commands in different domains.
+
+Nebulite includes a VSCode language extension in `./Languages/nebulite-script-vscode/`. 
 The extension offers proper syntax highlight for:
 - available functions
 - variables
@@ -418,6 +424,10 @@ The extension offers proper syntax highlight for:
 - print-strings (everything after echo/error : meaning its printed to the command line)
 
 Run `build-and-install.sh` inside its directory for installation.
+
+### Nebulite Logic
+
+The `.nebl` *(Nebulite Logic)* language is a work in progress and not yet useable.
 
 <!-- TOC --><a name="contributing"></a>
 ## Contributing
