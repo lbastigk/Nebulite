@@ -14,7 +14,7 @@ void Nebulite::DomainModule::GlobalSpace::Renderer::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::envload(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::env_load(int argc, char* argv[]){
     if(argc > 1){
         domain->getRenderer()->deserialize(argv[1]);
         return Nebulite::Constants::ErrorTable::NONE();
@@ -26,7 +26,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::envloa
     }
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::envdeload(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::env_deload(int argc, char* argv[]){
     domain->getRenderer()->purgeObjects();
     domain->getRenderer()->purgeTextures();
     return Nebulite::Constants::ErrorTable::NONE();
@@ -131,7 +131,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::showFP
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::moveCam(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::cam_move(int argc, char* argv[]){
     if (argc < 3) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -145,7 +145,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::moveCa
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::setCam(int argc, char* argv[]){
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::cam_set(int argc, char* argv[]){
     if(argc == 3){
         int x = std::stoi(argv[1]);
         int y = std::stoi(argv[2]);
@@ -199,7 +199,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::beep(i
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::getObjectFromId(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::selectedObject_get(int argc, char* argv[]) {
     if (argc != 2) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -216,7 +216,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::getObj
     }
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::selectedObjectParse(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::selectedObject_Parse(int argc, char* argv[]) {
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -226,7 +226,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::select
         if (i < argc - 1) command += " ";
     }
     if(selectedRenderObject == nullptr){
-        return Nebulite::Constants::ErrorTable::addError("No RenderObject selected! Use getObjectFromId <id> to select a valid object.", Nebulite::Constants::Error::NON_CRITICAL);
+        return Nebulite::Constants::ErrorTable::addError("No RenderObject selected! Use selectedObject_get <id> to select a valid object.", Nebulite::Constants::Error::NON_CRITICAL);
     }
 
     return selectedRenderObject->parseStr(std::string(__FUNCTION__) + " " + command);
