@@ -148,6 +148,18 @@ public:
 	 * 
 	 * @param str The string to parse.
 	 * @return Potential errors that occured on command execution
+     * 
+     * @todo Disable printing errors if the domain is inside another domain without inheritance.
+     * This needs to be done, otherwise each error is printed twice:
+     * - Parent domain gets parse string, redirects parts to child
+     * - child parses string, fails, prints error
+     * - child returns error to parent
+     * - parent prints error again
+     * Idea: Add a flag to either constructor or a new method to tell each domain what kind of error handling to do.
+     * 
+     * To better understand the difference:
+     * - If we inherit from another domain, we parse once, no double printing
+     * - If we add a domain, for instance, in a DomainModule, we have a parse within a parse, leading to double printing
 	 */
 	Nebulite::Constants::Error parseStr(const std::string& str){
         Nebulite::Constants::Error err = funcTree->parseStr(str);

@@ -49,7 +49,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::move(int ar
     if(domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::document) {
         Nebulite::Utility::JSON subdoc = domain->get_subdoc(sourceKey.c_str());
         domain->remove_key(targetKey.c_str());
-        domain->set_subdoc(targetKey.c_str(), subdoc);
+        domain->set_subdoc(targetKey.c_str(), &subdoc);
         domain->remove_key(sourceKey.c_str());
     }
     else if (domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::array) {
@@ -91,7 +91,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::copy(int ar
     if(domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::document) {
         Nebulite::Utility::JSON subdoc = domain->get_subdoc(sourceKey.c_str());
         domain->remove_key(targetKey.c_str());
-        domain->set_subdoc(targetKey.c_str(), subdoc);
+        domain->set_subdoc(targetKey.c_str(), &subdoc);
     }
     else if (domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::array) {
         // Careful handling required:

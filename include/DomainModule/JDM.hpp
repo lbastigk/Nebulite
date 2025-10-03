@@ -13,6 +13,7 @@
 #if JDM_ENABLED
     #include "DomainModule/JSON/JDM_SimpleData.hpp"
     #include "DomainModule/JSON/JDM_ComplexData.hpp"
+    #include "DomainModule/JSON/JDM_Debug.hpp"
 #endif
 //------------------------------------------
 namespace Nebulite{
@@ -26,6 +27,7 @@ void JDM_init(Nebulite::Utility::JSON* target){
         using namespace Nebulite::DomainModule::JSON;
         target->initModule<SimpleData>("JSON Simple Data Functions");
         target->initModule<ComplexData>("JSON Complex Data Functions");
+        target->initModule<Debug>("JSON Debug Functions");
     #endif
 }
 }

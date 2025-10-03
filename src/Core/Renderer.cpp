@@ -55,10 +55,14 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
 	}
 	// Define window via x|y|w|h
+	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),X);
+	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),Y);
 	int x = SDL_WINDOWPOS_CENTERED;
 	int y = SDL_WINDOWPOS_CENTERED;
-	int w = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),X);
-	int h = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),Y);
+	int w = X;
+	int h = Y;
+
+
 
 	uint32_t flags;
 	flags = flag_headless ? SDL_WINDOW_HIDDEN : SDL_WINDOW_SHOWN;
@@ -160,6 +164,9 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 	// Set basic values inside global doc
 	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),X);	
 	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),Y);
+
+	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);	
+	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);
 }
 
 void Nebulite::Core::Renderer::loadFonts() {
@@ -583,7 +590,7 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 	//------------------------------------------
 	// Error Checking
 	if(!texture){
-		std::cerr << "Error: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " texture not found" << std::endl;
+		std::cerr << "Error: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " texture with path '" << innerdir << "' not found" << std::endl;
 		return -1;
 	}
 
@@ -596,7 +603,8 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 	// Render the text
 	//*
 	int error_text = 0;
-	if (obj->get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str())>0){
+	double val = obj->get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str());
+	if (val > 0){
 		obj->calculateText(
 			renderer,
 			font,

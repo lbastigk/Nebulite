@@ -8,7 +8,7 @@ spawn ./Resources/Renderobjects/Planets/sun.jsonc
 spawn ./Resources/Renderobjects/Planets/obj1.jsonc
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc
 eval wait {global.framesToRender}
-#print-global
+#print all
 #print-state
 echo Test Passed!
 eval echo Rendered {global.framesToRender} Frames in: {global.time.t} Seconds.

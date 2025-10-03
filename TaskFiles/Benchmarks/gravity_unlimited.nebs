@@ -6,7 +6,7 @@ echo
 time set-fixed-dt 10
 set-res 1440 1440
 set-fps 1000
-print-global
+print all
 echo
 echo
 set physics.G 10
@@ -83,7 +83,7 @@ echo
 echo
 echo Global Doc:
 echo
-print-global
+print all
 echo
 echo
 #exit

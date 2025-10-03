@@ -62,7 +62,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::ComplexData::set_from_j
         Nebulite::Utility::JSON subdoc = jsonDoc.get_subdoc(docKey.c_str());
 
         // Set the sub-document in the current JSON tree
-        domain->set_subdoc(myKey.c_str(), subdoc);
+        domain->set_subdoc(myKey.c_str(), &subdoc);
     }
     // === VALUE ===
     else if(type == Nebulite::Utility::JSON::KeyType::value){

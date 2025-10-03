@@ -12,11 +12,6 @@ void Nebulite::DomainModule::GlobalSpace::Debug::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::printGlobal(int argc, char* argv[]){
-    std::cout << domain->getDoc()->serialize() << std::endl;
-    return Nebulite::Constants::ErrorTable::NONE();
-}
-
 Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::printState(int argc, char* argv[]){
     std::cout << domain->getRenderer()->serialize() << std::endl;
     return Nebulite::Constants::ErrorTable::NONE();
@@ -204,4 +199,14 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::critical(
         }
     }
     return Nebulite::Constants::ErrorTable::addError(str, Nebulite::Constants::Error::CRITICAL);
+}
+
+Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Debug::waitForInput(int argc, char* argv[]){
+    if (argc > 1) {
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+    }
+
+    std::cout << "Press Enter to continue..." << std::endl;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    return Nebulite::Constants::ErrorTable::NONE();
 }

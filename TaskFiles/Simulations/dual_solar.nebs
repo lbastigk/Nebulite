@@ -8,4 +8,4 @@ spawn ./Resources/Renderobjects/Planets/obj1.jsonc|sprite.sizeX=3|sprite.sizeY=3
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc|sprite.sizeX=3|sprite.sizeY=3|physics.vX=-20|physics.vY=0120
 wait 100
 print-state
-print-global
+print all

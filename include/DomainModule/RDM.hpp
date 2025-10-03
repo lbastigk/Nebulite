@@ -16,6 +16,7 @@
     #include "DomainModule/RenderObject/RDM_Logging.hpp"
     #include "DomainModule/RenderObject/RDM_Parenting.hpp"
     #include "DomainModule/RenderObject/RDM_StateUpdate.hpp"
+    #include "DomainModule/RenderObject/RDM_Mirror.hpp"
 #endif
 
 //------------------------------------------
@@ -33,6 +34,7 @@ void RDM_init(Nebulite::Core::RenderObject* target){
         target->initModule<Logging>("RenderObject Logging Functions");
         target->initModule<Parenting>("RenderObject Parenting Functions");
         target->initModule<StateUpdate>("RenderObject State Update Functions");
+        target->initModule<Mirror>("RenderObject Mirror Functions");
     #endif
 }
 }

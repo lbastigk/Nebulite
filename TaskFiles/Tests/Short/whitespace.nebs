@@ -7,5 +7,5 @@ set 'zzz_myVariable[1]' 'With quotations'
 push-back zzz_myVariable abc
 # push-back zzz_myVariable abc abc    # does not work, too many arguments
 push-back zzz_myVariable 'abc abc'
-print-global
+print all
 exit

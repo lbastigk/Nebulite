@@ -212,8 +212,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::getObj
         return Nebulite::Constants::ErrorTable::NONE();
     } else {
         selectedRenderObject = nullptr;
-        // Not seen as an error, just no object found
-        return Nebulite::Constants::ErrorTable::NONE();
+        return Nebulite::Constants::ErrorTable::addError("No RenderObject with the specified ID found.", Nebulite::Constants::Error::NON_CRITICAL);
     }
 }
 
@@ -226,5 +225,9 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Renderer::select
         command += argv[i];
         if (i < argc - 1) command += " ";
     }
+    if(selectedRenderObject == nullptr){
+        return Nebulite::Constants::ErrorTable::addError("No RenderObject selected! Use getObjectFromId <id> to select a valid object.", Nebulite::Constants::Error::NON_CRITICAL);
+    }
+
     return selectedRenderObject->parseStr(std::string(__FUNCTION__) + " " + command);
 }

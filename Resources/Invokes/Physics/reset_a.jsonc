@@ -2,8 +2,8 @@
   "topic": "",
   "logicalArg": "1",
   "exprs": [
-    "self.physics.aX = 0",
-    "self.physics.aY = 0"
+    "self.physics.aX = $(0)",
+    "self.physics.aY = $(0)"
   ],
   "functioncalls_global": [],
   "functioncalls_self": [],

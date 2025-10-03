@@ -202,13 +202,13 @@ public:
      * @param operation The operation to perform (set, multiply, concat, etc.).
      * @param key The key to update.
      * @param valStr The new value as a string.
-     * @param doc The JSON document to update.
+     * @param target The JSON document to update.
      */
     void updateValueOfKey(
         Nebulite::Interaction::Logic::Assignment::Operation operation, 
         const std::string& key, 
         const std::string& valStr, 
-        Nebulite::Utility::JSON* doc
+        Nebulite::Utility::JSON* target
     );
 
     /**
@@ -220,13 +220,31 @@ public:
      * @param operation The operation to perform (set, multiply, concat, etc.).
      * @param key The key to update.
      * @param valStr The new value as a double.
-     * @param doc The JSON document to update.
+     * @param target The JSON document to update.
      */
     void updateValueOfKey(
         Nebulite::Interaction::Logic::Assignment::Operation operation, 
         const std::string& key, 
         double value, 
-        Nebulite::Utility::JSON* doc
+        Nebulite::Utility::JSON* target
+    );
+
+    /**
+     * @brief Updates the value of a specific key in the document.
+     * 
+     * This function applies the specified operation to the given key and value,
+     * updating the document accordingly.
+     * 
+     * @param operation The operation to perform (set, multiply, concat, etc.).
+     * @param key The key to update.
+     * @param valStr The new value as a double.
+     * @param target The double pointer to update.
+     */
+    void updateValueOfKey(
+        Nebulite::Interaction::Logic::Assignment::Operation operation, 
+        const std::string& key, 
+        double value, 
+        double* target
     );
 
     /**
@@ -245,6 +263,15 @@ public:
      * @return The result of the evaluation.
      */
     std::string evaluateStandaloneExpression(const std::string& input);
+
+    /**
+     * @brief Evaluates a standalone expression with context from a RenderObject.
+     * 
+     * @param input The expression to evaluate.
+     * @param selfAndOther The RenderObject providing context for `self` and `other`.
+     * @return The result of the evaluation.
+     */
+    std::string evaluateStandaloneExpression(const std::string& input, Nebulite::Core::RenderObject* selfAndOther);
 
     /**
      * @brief Gets a pointer to the DocumentCache.

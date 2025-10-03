@@ -1,9 +1,9 @@
 {
   "topic": "",
-  "logicalArg": "$({self.animation.attack} + 0)",
+  "logicalArg": "$({self.animation.attack})",
   "exprs": [
-    "self.physics.vX = 0",
-    "self.physics.vY = 0"
+    "self.physics.vX = $(0)", // For some reason, setting them with eval is required
+    "self.physics.vY = $(0)"  // Meaning, the $() is needed, otherwise it doesn't work
   ],
   "functioncalls_global": [],
   "functioncalls_self": [],
