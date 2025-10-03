@@ -49,7 +49,9 @@
 - [Platform Support](#platform-support)
 - [Dependencies](#dependencies)
 - [Testing](#testing)
-- [Language Extension](#language-extension)
+- [Languages](#languages)
+   * [Nebulite Script](#nebulite-script)
+   * [Nebulite Logic](#nebulite-logic)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -409,9 +411,10 @@ Two primary pathways:
 
 JSON validation runs via `./Scripts/validate_json.py` prior to tests.
 
-<!-- TOC --><a name="language-extension"></a>
+<!-- TOC --><a name="languages"></a>
 ## Languages
 
+<!-- TOC --><a name="nebulite-script"></a>
 ### Nebulite Script
 
 The `.nebs` *(Nebulite Script)* language is used for parsing commands in different domains.
@@ -425,6 +428,7 @@ The extension offers proper syntax highlight for:
 
 Run `build-and-install.sh` inside its directory for installation.
 
+<!-- TOC --><a name="nebulite-logic"></a>
 ### Nebulite Logic
 
 The `.nebl` *(Nebulite Logic)* language is a work in progress and not yet useable.
