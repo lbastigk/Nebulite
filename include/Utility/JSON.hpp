@@ -38,10 +38,26 @@
 namespace Nebulite::Utility {
 NEBULITE_DOMAIN(JSON) {
 private:
+    /**
+     * @enum EntryState
+     * @brief Represents the state of a cached entry in the JSON document.
+     * 
+     * CLEAN: The entry is synchronized with the RapidJSON document and holds a real value.
+     * DIRTY: The entry has been modified in the cache and needs to be flushed to the RapidJSON document.
+     * VIRTUAL: The entry exists for pointer stability but does not have a real value set (defaults to 0).
+     * If we access old pointers to deleted entries, we re-sync them from the document.
+     * DELETED: The entry is marked for deletion but is not removed from the cache to maintain pointer stability.
+     * 
+     * The basic idea is: On reloading a full document, all entries become DELETED. If we access a double pointer,
+     * we mark the entry as VIRTUAL, as its a resurrected entry, but its potentially not the real value due to casting.
+     * A value becomes DIRTY if it was previously CLEAN and we notice a change in its double value.
+     * On flushing, all DIRTY entries become CLEAN again. VIRTUAL entries remain VIRTUAL as they are not flushed.
+     */
     enum class EntryState {
         CLEAN,   // Synchronized with RapidJSON document, real value
         DIRTY,   // Modified in cache, needs flushing to RapidJSON, real value  
-        VIRTUAL  // Exists for pointer stability but no real value set (defaults to 0)
+        VIRTUAL, // Deleted entry that was re-synced, but may not be the real value due to casting
+        DELETED  // Deleted entry due to deserialization, inner value is invalid
     };
 
     /**
@@ -355,7 +371,7 @@ T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
 
     // Check cache first
     auto it = cache.find(key);
-    if (it != cache.end() && it->second->state != EntryState::VIRTUAL) {
+    if (it != cache.end() && it->second->state != EntryState::VIRTUAL && it->second->state != EntryState::DELETED) {
         // Entry exists and is not virtual
         
         // Check its double value for change detection
@@ -482,6 +498,8 @@ newType Nebulite::Utility::JSON::convertVariant(const std::variant<int32_t, int6
 
         // [STRING] -> [INT]
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int>) {
+            if (stored == "true") return 1;
+            if (stored == "false") return 0;
             try {
                 return static_cast<newType>(std::stoi(stored));
             } catch (...) {
@@ -491,6 +509,8 @@ newType Nebulite::Utility::JSON::convertVariant(const std::variant<int32_t, int6
 
         // [STRING] -> [DOUBLE]
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, double>) {
+            if (stored == "true") return 1.0;
+            if (stored == "false") return 0.0;
             try {
                 return static_cast<newType>(std::stod(stored));
             } catch (...) {
@@ -500,6 +520,8 @@ newType Nebulite::Utility::JSON::convertVariant(const std::variant<int32_t, int6
 
         // [STRING] -> [UNSIGNED LONG]
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, unsigned long>) {
+            if (stored == "true") return 1.0;
+            if (stored == "false") return 0.0;
             try {
                 return static_cast<newType>(std::stoul(stored));
             } catch (...) {
@@ -509,6 +531,8 @@ newType Nebulite::Utility::JSON::convertVariant(const std::variant<int32_t, int6
 
         // [STRING] -> [UNSIGNED LONG LONG]
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, unsigned long long>) {
+            if (stored == "true") return 1;
+            if (stored == "false") return 0;
             try {
                 return static_cast<newType>(std::stoull(stored));
             } catch (...) {

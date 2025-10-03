@@ -182,12 +182,12 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
     Nebulite::Utility::JSON* doc_other = Obj_other->getDoc();
 
     // Update self, other and global
-    for(auto& expr : entries_self->exprs){
+    for(auto& assignment : entries_self->assignments){
         //------------------------------------------
         // Check what to update
         
         Nebulite::Utility::JSON* toUpdate = nullptr;
-        switch (expr.onType) {
+        switch (assignment.onType) {
         case Nebulite::Interaction::Logic::Assignment::Type::Self:
             toUpdate = doc_self;
             break;
@@ -201,7 +201,7 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
             std::cerr << "Assignment expression has null type - skipping" << std::endl;
             continue; // Skip this expression
         default:
-            std::cerr << "Unknown assignment type: " << (int)expr.onType << std::endl;
+            std::cerr << "Unknown assignment type: " << (int)assignment.onType << std::endl;
             return; // Exit if unknown type
         }
 
@@ -209,55 +209,20 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
         // Update
 
         // If the expression is returnable as double, we can optimize numeric operations
-        if(expr.expression.isReturnableAsDouble()){
-            double resolved = expr.expression.evalAsDouble(doc_other);
-            // DEBUG
-            /*
-            std::string operator_str = "unsupported";
-            switch (expr.operation) {
-                case Nebulite::Interaction::Logic::Assignment::Operation::set:
-                    operator_str = "=";
-                    break;
-                case Nebulite::Interaction::Logic::Assignment::Operation::add:
-                    operator_str = "+=";
-                    break;
-                case Nebulite::Interaction::Logic::Assignment::Operation::multiply:
-                    operator_str = "*=";
-                    break;
-            }
-            std::cout << "Updating: " << expr.key << " , current value: " << *(expr.targetValuePtr) << " with operation: " << operator_str << resolved << std::endl;
-            //*/
-            if(expr.targetValuePtr != nullptr){
-                // TODO: Set directly with pointer
-                auto lock = toUpdate->lock();
-                updateValueOfKey(expr.operation, expr.key, resolved, expr.targetValuePtr);
+        // If the assignment is returnable as double, we can optimize numeric operations
+        if(assignment.expression.isReturnableAsDouble()){
+            double resolved = assignment.expression.evalAsDouble(doc_other);
+            if(assignment.targetValuePtr != nullptr){
+                updateValueOfKey(assignment.operation, assignment.key, resolved, assignment.targetValuePtr);
             }
             else{
-                updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
+                updateValueOfKey(assignment.operation, assignment.key, resolved, toUpdate);
             }
         }
         // If not, we resolve as string and update that way
         else{
-            std::string resolved = expr.expression.eval(doc_other);
-            // DEBUG
-            /*
-            std::string operator_str = "unsupported";
-            switch (expr.operation) {
-                case Nebulite::Interaction::Logic::Assignment::Operation::set:
-                    operator_str = "=";
-                    break;
-                case Nebulite::Interaction::Logic::Assignment::Operation::add:
-                    operator_str = "+=";
-                    break;
-                case Nebulite::Interaction::Logic::Assignment::Operation::multiply:
-                    operator_str = "*=";
-                    break;
-            }
-            std::cout << "Updating: " << expr.key << " , current value: " << *(expr.targetValuePtr) << " with operation: " << operator_str << resolved << std::endl;
-            //*/
-            updateValueOfKey(expr.operation, expr.key, resolved, toUpdate);
-
-            
+            std::string resolved = assignment.expression.eval(doc_other);
+            updateValueOfKey(assignment.operation, assignment.key, resolved, toUpdate);
         }
     }
 

@@ -43,10 +43,10 @@ void Nebulite::Utility::JSON::invalidate_child_keys(const std::string& parent_ke
     std::lock_guard<std::recursive_mutex> lock(mtx);
     std::vector<std::string> keys_to_remove;
 
-    // Find all child keys
+    // Find all child keys and invalidate them
     for (auto& [key, entry] : cache) {
         if (key.starts_with(parent_key + ".") || key.starts_with(parent_key + "[")) {
-            entry->state = EntryState::VIRTUAL;
+            entry->state = EntryState::DELETED; // Mark as deleted
             entry->value = 0.0; // Reset value to default
             *(entry->stable_double_ptr) = 0.0;
             entry->last_double_value = 0.0;
@@ -112,6 +112,12 @@ double* Nebulite::Utility::JSON::get_stable_double_ptr(const std::string& key){
     // Check cache first
     auto it = cache.find(key);
     if (it != cache.end()) {
+        // If the entry is deleted, we need to update its value from the document
+        if(it->second->state == EntryState::DELETED){
+            *it->second->stable_double_ptr = get<double>(key, 0.0);
+            it->second->last_double_value = *(it->second->stable_double_ptr);
+            it->second->state = EntryState::VIRTUAL; // Now it's virtual
+        }
         return it->second->stable_double_ptr;
     }
 
@@ -190,7 +196,7 @@ void Nebulite::Utility::JSON::deserialize(std::string serial_or_link){
     flush();
     doc.SetObject();
     for(auto& [key, entry] : cache) {
-        entry->state = EntryState::VIRTUAL;
+        entry->state = EntryState::DELETED; // Mark as deleted
         entry->value = 0.0; // Reset value to default
         *(entry->stable_double_ptr) = 0.0;
         entry->last_double_value = 0.0;
@@ -212,10 +218,10 @@ void Nebulite::Utility::JSON::deserialize(std::string serial_or_link){
     Nebulite::Utility::RjDirectAccess::deserialize(doc,tokens[0]);
 
     //------------------------------------------
-    // Update all cache entries
+    // Delete all cache entries
     for(auto& entry : cache){
-        // Mark all as virtual
-        entry.second->state = EntryState::VIRTUAL;
+        // Mark all as deleted
+        entry.second->state = EntryState::DELETED;
 
         // Set its double pointer value
         *entry.second->stable_double_ptr = Nebulite::Utility::RjDirectAccess::get<double>(entry.first.c_str(), 0.0, doc);

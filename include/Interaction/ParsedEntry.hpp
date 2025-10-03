@@ -113,7 +113,7 @@ struct ParsedEntry{
      * 
      * e.g.: `self.key1 = 0`, `other.key2 *= $( sin({self.key2}) * 2 )`, `global.key3 = 1`
      */
-    std::vector<Nebulite::Interaction::Logic::Assignment> exprs;
+    std::vector<Nebulite::Interaction::Logic::Assignment> assignments;
 
     /**
      * @brief Cost of this entry, estimated during parsing.
@@ -126,8 +126,8 @@ struct ParsedEntry{
         estimatedCost += std::count(expr->begin(), expr->end(), '$');
 
         // Count number of $ and { in exprs
-        for (const auto& expr : exprs) {
-            const std::string* value = expr.expression.getFullExpression();
+        for (const auto& assignment : assignments) {
+            const std::string* value = assignment.expression.getFullExpression();
             estimatedCost += std::count(value->begin(), value->end(), '$');
             estimatedCost += std::count(value->begin(), value->end(), '{');
         }

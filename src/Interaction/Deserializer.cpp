@@ -211,7 +211,7 @@ void Nebulite::Interaction::Deserializer::parse(std::vector<std::shared_ptr<Nebu
                     assignmentExpr.value = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(assignmentExpr.value));
 
                     // Add assignmentExpr to invokeEntry
-                    invokeEntry->exprs.emplace_back(std::move(assignmentExpr));
+                    invokeEntry->assignments.emplace_back(std::move(assignmentExpr));
                 }
             }
         }
@@ -222,8 +222,8 @@ void Nebulite::Interaction::Deserializer::parse(std::vector<std::shared_ptr<Nebu
 
         // Parse all expressions
         uint32_t exprSize = entry.memberSize(Nebulite::Constants::keyName.invoke.exprVector);
-        for (auto& expr : invokeEntry->exprs) {
-            expr.expression.parse(expr.value, *docCache, self->getDoc(), global);
+        for (auto& assignment : invokeEntry->assignments) {
+            assignment.expression.parse(assignment.value, *docCache, self->getDoc(), global);
         }
 
         // Parse all function calls
@@ -266,7 +266,7 @@ void Nebulite::Interaction::Deserializer::optimizeParsedEntries(
     // we try to get a direct stable double pointer from the corresponding JSON document
     // If successful, we store the pointer in targetValuePtr of the assignment
     for (const auto& entry : entries) {
-        for (auto& assignment : entry->exprs) {
+        for (auto& assignment : entry->assignments) {
             if (assignment.onType == Nebulite::Interaction::Logic::Assignment::Type::Self) {
                 auto ops = Nebulite::Interaction::Deserializer::numeric_operations;
                 if (ops.end() != std::find(ops.begin(), ops.end(), assignment.operation)) {

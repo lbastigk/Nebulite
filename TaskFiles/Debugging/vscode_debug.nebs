@@ -22,8 +22,6 @@
 echo Starting vscode_debug.nebs
 # -----------------------------------------------------------------------------
 
-
-
 ###############################
 # Setup a scene
 # One object is enough for testing
