@@ -16,9 +16,6 @@
 # For the expected output, an array of strings is used
 # to mimic the line-by-line nature of the output.
 
-# TODO: Implement ignore_lines (with glob patterns)
-# TODO: allow for jsonc by removing everything after and including '//' each line
-
 #==============================================================================
 # Python Testing Suite for Nebulite
 #==============================================================================
@@ -56,7 +53,27 @@ def apply_ignore_filters(output: List[str], ignore_patterns: List[str]) -> List[
 def run_command(cmd: str, timeout: int) -> Dict[str, Union[List[str], int]]:
     """Run a command and capture stdout and stderr as lists of lines."""
     try:
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=timeout)
+        # Split command into list to avoid shell=True security issue
+        import shlex
+        cmd_parts = shlex.split(cmd)
+        
+        # Separate environment variables from the actual command
+        env_vars = {}
+        cmd_list = []
+        
+        for part in cmd_parts:
+            if '=' in part and not cmd_list:  # Environment variables come before the command
+                key, value = part.split('=', 1)
+                env_vars[key] = value
+            else:
+                cmd_list.append(part)
+        
+        # Merge with current environment
+        import os
+        env = os.environ.copy()
+        env.update(env_vars)
+        
+        result = subprocess.run(cmd_list, env=env, capture_output=True, text=True, timeout=timeout)
         return {
             'cout': result.stdout.splitlines(),
             'cerr': result.stderr.splitlines(),
@@ -73,13 +90,81 @@ def run_command(cmd: str, timeout: int) -> Dict[str, Union[List[str], int]]:
 # Test Suite Logic
 #==============================================================================
 
+def filter_command_output(output: Dict[str, Union[List[str], int]], ignore_lines: Dict[str, List[str]]) -> Dict[str, Union[List[str], int]]:
+    """Apply ignore filters to command output."""
+    if isinstance(output['cout'], list):
+        output['cout'] = apply_ignore_filters(output['cout'], ignore_lines.get('cout', []))
+    if isinstance(output['cerr'], list):
+        output['cerr'] = apply_ignore_filters(output['cerr'], ignore_lines.get('cerr', []))
+    return output
+
+def validate_test_result(output: Dict[str, Union[List[str], int]], expected: Dict[str, Any], verbose: bool = False) -> bool:
+    """Validate if test output matches expected results."""
+    passed = True
+    
+    # Compare expected stdout
+    if 'cout' in expected:
+        if expected["cout"] is not None and output['cout'] != expected['cout']:
+            passed = False
+            if verbose:
+                print(f"  ✗ cout mismatch\n")
+                print(f"    Expected : {expected['cout']}")
+                print(f"    Got      : {output['cout']}")
+    
+    # Compare expected stderr
+    if 'cerr' in expected:
+        if expected["cerr"] is not None and output['cerr'] != expected['cerr']:
+            passed = False
+            if verbose:
+                print(f"  ✗ cerr mismatch\n    Expected: {expected['cerr']}\n    Got: {output['cerr']}")
+    
+    # Check exit code
+    if output['exit_code'] != 0 and not expected.get('allow_nonzero_exit', False):
+        passed = False
+        if verbose:
+            print(f"  ✗ Nonzero exit code: {output['exit_code']}")
+    
+    return passed
+
+def run_single_test(binary: str, test: Dict[str, Any], timeout: int, ignore_lines: Dict[str, List[str]], verbose: bool = False) -> Dict[str, Any]:
+    """Run a single test and return the result."""
+    cmd = f"{binary} {test['command']}"
+    expected = test.get('expected', {})
+    
+    print(f"Test: {cmd}")
+    output = run_command(cmd, timeout)
+    output = filter_command_output(output, ignore_lines)
+    
+    passed = validate_test_result(output, expected, verbose)
+    
+    if passed:
+        print("  ✓ Passed")
+    else:
+        print("  ✗ Failed")
+    
+    return {
+        'cmd': cmd,
+        'passed': passed,
+        'binary': binary,
+        'result': 'PASS' if passed else 'FAIL'
+    }
+
+def print_test_summary(passed_tests: int, failed_tests: int, total_tests: int):
+    """Print the test results summary."""
+    print("\n============== Test Summary ==============")
+    print(f"Tests passed: {passed_tests}")
+    print(f"Tests failed: {failed_tests}")
+    print(f"Total tests:  {total_tests}")
+    print("==========================================\n")
+
 def run_testsuite(config: Dict[str, Any], stop_on_fail: bool = False, verbose: bool = False):
-    timeout  = config.get('timeout', 40)
+    """Run the complete test suite."""
+    timeout = config.get('timeout', 40)
     binaries = config.get('binaries', [])
-    tests    = config.get('tests', [])
+    tests = config.get('tests', [])
     ignore_lines = config.get('ignore_lines', {})
 
-    total_tests  = 0
+    total_tests = 0
     passed_tests = 0
     failed_tests = 0
     results = []
@@ -93,63 +178,26 @@ def run_testsuite(config: Dict[str, Any], stop_on_fail: bool = False, verbose: b
         print(f"\n==============================")
         print(f"Testing binary: {binary}")
         print(f"==============================\n")
+        
         for test in tests:
-            cmd = f"{binary} {test['command']}"
-            expected = test.get('expected', {})
             total_tests += 1
-            print(f"Test: {cmd}")
-            output = run_command(cmd, timeout)
-
-            # Apply ignore filters to output only if they are lists
-            if isinstance(output['cout'], list):
-                output['cout'] = apply_ignore_filters(output['cout'], ignore_lines.get('cout', []))
-            if isinstance(output['cerr'], list):
-                output['cerr'] = apply_ignore_filters(output['cerr'], ignore_lines.get('cerr', []))
-
-            passed = True
-            # Compare expected output
-            if 'cout' in expected:
-                if expected["cout"] == None:
-                    passed = True
-                elif output['cout'] != expected['cout']:
-                    passed = False
-                    if verbose:
-                        print(f"  ✗ cout mismatch\n")
-                        print(f"    Expected : {expected['cout']}")
-                        print(f"    Got      : {output['cout']}")
-            if 'cerr' in expected:
-                if expected["cerr"] == None:
-                    passed = True
-                elif output['cerr'] != expected['cerr']:
-                    passed = False
-                    if verbose:
-                        print(f"  ✗ cerr mismatch\n    Expected: {expected['cerr']}\n    Got: {output['cerr']}")
-            if output['exit_code'] != 0 and not expected.get('allow_nonzero_exit', False):
-                passed = False
-                if verbose:
-                    print(f"  ✗ Nonzero exit code: {output['exit_code']}")
-            if passed:
+            test_result = run_single_test(binary, test, timeout, ignore_lines, verbose)
+            
+            if test_result['passed']:
                 passed_tests += 1
-                print("  ✓ Passed")
             else:
                 failed_tests += 1
-                print("  ✗ Failed")
                 if stop_on_fail:
                     print("Stopping on first failure as requested.")
-                    results.append({'binary': binary, 'test': cmd, 'result': 'FAIL'})
+                    results.append(test_result)
                     break
-            results.append({'binary': binary, 'test': cmd, 'result': 'PASS' if passed else 'FAIL'})
+            
+            results.append(test_result)
+        
         if stop_on_fail and failed_tests > 0:
             break
 
-    # Summary
-    print("\n============== Test Summary ==============")
-    print(f"Tests passed: {passed_tests}")
-    print(f"Tests failed: {failed_tests}")
-    print(f"Total tests:  {total_tests}")
-    print("==========================================\n")
-    #for r in results:
-    #    print(f"Test: {r['test']}\n\t-> {r['result']}")
+    print_test_summary(passed_tests, failed_tests, total_tests)
 
 #==============================================================================
 # Main Entry Point
