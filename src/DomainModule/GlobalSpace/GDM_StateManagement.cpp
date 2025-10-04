@@ -1,14 +1,16 @@
 #include "DomainModule/Unimplemented/GDM_StateManagement.hpp"
 
-void Nebulite::DomainModule::GlobalSpace::StateManagement::update(){
+namespace Nebulite::DomainModule::GlobalSpace {
+
+void StateManagement::update(){
     // Nothing to do for now
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::StateManagement::stateLoad(int argc, char* argv[]){ 
+Nebulite::Constants::Error StateManagement::stateLoad(int argc, char* argv[]){ 
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::StateManagement::stateSave(int argc, char* argv[]){
+Nebulite::Constants::Error StateManagement::stateSave(int argc, char* argv[]){
     // <stateName>
     // Change std::string Nebulite::stateName to name
     // Check if dir ./States/stateName exists
@@ -20,3 +22,5 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::StateManagement:
 
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
+
+} // namespace Nebulite::DomainModule::GlobalSpace

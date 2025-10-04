@@ -62,19 +62,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error draft_parse(int argc, char* argv[]);
-    const std::string draft_parse_name = "draft parse";
-    const std::string draft_parse_desc = R"(Parse Renderobject-specific functions on the draft.
-
-    Usage: draft parse <function> [args...]
-
-    Use 'draft parse help' to see available functions.
-
-    Examples:
-
-    draft parse set text.str Hello World
-    draft parse set posX 100
-    draft parse set posY 200
-    )";
+    static const std::string draft_parse_name;
+    static const std::string draft_parse_desc;
 
     /**
      * @brief Spawn the created draft object
@@ -84,11 +73,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error draft_spawn(int argc, char* argv[]);
-    const std::string draft_spawn_name = "draft spawn";
-    const std::string draft_spawn_desc = R"(Spawn the created draft object.
-
-    Usage: draft spawn
-    )";
+    static const std::string draft_spawn_name;
+    static const std::string draft_spawn_desc;
 
     /**
      * @brief Reset the draft (does not reset any spawned ones!)
@@ -98,13 +84,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error draft_reset(int argc, char* argv[]);
-    const std::string draft_reset_name = "draft reset";
-    const std::string draft_reset_desc = R"(Reset the draft object.
-
-    This does not reset any spawned ones!
-
-    Usage: draft reset
-    )";
+    static const std::string draft_reset_name;
+    static const std::string draft_reset_desc;
 
     //------------------------------------------
     // Setup

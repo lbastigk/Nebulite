@@ -52,12 +52,8 @@ public:
      * @return Error code indicating success or failure.
      */
     Nebulite::Constants::Error time_haltOnce(int argc, char** argv);
-    const std::string time_haltOnce_name = "time halt-once";
-    const std::string time_haltOnce_desc = R"(Halts time for one frame
-    Meaning you can halt time by continuously calling this function.
-
-    Usage: time halt-once
-    )";
+    static const std::string time_haltOnce_name;
+    static const std::string time_haltOnce_desc;
 
     /**
      * @brief Locks time with lock provided, meaning time will not progress until unlocked.
@@ -69,14 +65,8 @@ public:
      * @return Error code indicating success or failure.
      */
     Nebulite::Constants::Error time_lock(int argc, char** argv);
-    const std::string time_lock_name = "time lock";
-    const std::string time_lock_desc = R"(Locks time with lock provided, 
-    Time can only progress if no locks are present.
-
-    Usage: time lock <lock_name>
-
-    <lock_name> : Name of the lock to add. Any string without whitespace is valid.
-    )";
+    static const std::string time_lock_name;
+    static const std::string time_lock_desc;
 
     /**
      * @brief Removes a time lock.
@@ -88,14 +78,8 @@ public:
      * @return Error code indicating success or failure.
      */
     Nebulite::Constants::Error time_unlock(int argc, char** argv);
-    const std::string time_unlock_name = "time unlock";
-    const std::string time_unlock_desc = R"(Removes a time lock.
-    Time can only progress if no locks are present.
-
-    Usage: time unlock <lock_name>
-
-    <lock_name> : Name of the lock to remove. Must match an existing lock.
-    )";
+    static const std::string time_unlock_name;
+    static const std::string time_unlock_desc;
 
     /**
      * @brief Removes all time locks.
@@ -107,12 +91,8 @@ public:
      * @return Error code indicating success or failure.
      */
     Nebulite::Constants::Error time_masterUnlock(int argc, char** argv);
-    const std::string time_masterUnlock_name = "time master-unlock";
-    const std::string time_masterUnlock_desc = R"(Removes all time locks.
-    Time can only progress if no locks are present.
-
-    Usage: time master-unlock
-    )";
+    static const std::string time_masterUnlock_name;
+    static const std::string time_masterUnlock_desc;
 
     /**
      * @brief Sets a fixed delta time for the simulation time.
@@ -122,12 +102,8 @@ public:
      * @return Error code indicating success or failure.
      */
     Nebulite::Constants::Error time_setFixedDeltaTime(int argc, char** argv);
-    const std::string time_setFixedDeltaTime_name = "time set-fixed-dt";
-    const std::string time_setFixedDeltaTime_desc = R"(Sets a fixed delta time in milliseconds for the simulation time.
-    Use 0 to disable fixed dt.
-
-    Usage: time set-fixed-dt <dt_ms>
-    )";
+    static const std::string time_setFixedDeltaTime_name;
+    static const std::string time_setFixedDeltaTime_desc;
 
     //------------------------------------------
     // Setup

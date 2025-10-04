@@ -95,22 +95,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error spawn(int argc, char* argv[]);
-    const std::string spawn_name = "spawn";
-    const std::string spawn_desc = R"(Spawn a RenderObject from a json/jsonc file.
-
-    Usage: spawn <path/to/file.jsonc>
-
-    Supports lookups in standard resource directories:
-    - ./Resources/RenderObjects/
-    - ./Resources/Renderobjects/
-
-    Example: 'spawn Planets/sun.jsonc|set text.str This is a sun'
-    Looks for object 'sun.jsonc' in the standard directories
-    - './Planets/sun.jsonc'
-    - './Resources/RenderObjects/Planets/sun.jsonc'
-    - './Resources/Renderobjects/Planets/sun.jsonc'
-    and spawns the first found object.
-    )"; 
+    static const std::string spawn_name;
+    static const std::string spawn_desc;
 
     /**
      * @brief Loads an environment.
@@ -122,13 +108,8 @@ public:
      * @todo Empty env loading crashes the program. Needs to be fixed.
      */
     Nebulite::Constants::Error env_load(int argc, char* argv[]);
-    const std::string env_load_name = "env load";
-    const std::string env_load_desc = R"(Load an environment/level from a json/jsonc file.
-
-    Usage: env load <path/to/file.jsonc>
-
-    If no argument is provided, an empty environment is loaded.
-    )";
+    static const std::string env_load_name;
+    static const std::string env_load_desc;
 
     /**
      * @brief Deload entire environment, leaving an empty renderer
@@ -138,11 +119,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error env_deload(int argc, char* argv[]);
-    const std::string env_deload_name = "env deload";
-    const std::string env_deload_desc = R"(Deload entire environment, leaving an empty renderer.
-
-    Usage: env deload
-    )";
+    static const std::string env_deload_name;
+    static const std::string env_deload_desc;
 
     /**
      * @brief Sets resolution of renderer
@@ -159,15 +137,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error setResolution(int argc, char* argv[]);
-    const std::string setResolution_name = "set-res";
-    const std::string setResolution_desc = R"(Set resolution of renderer.
-
-    Usage: set-res [Width] [Height] [Scale]
-
-    Defaults to 1000  for width if argument count < 1
-    Defaults to 1000  for height if argument count < 2
-    Defaults to 1     for scale if argument count < 3
-    )";
+    static const std::string setResolution_name;
+    static const std::string setResolution_desc;
 
     /**
      * @brief Sets fps of renderer
@@ -180,13 +151,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error setFPS(int argc, char* argv[]);
-    const std::string setFPS_name = "set-fps";
-    const std::string setFPS_desc = R"(Set FPS of renderer.
-
-    Usage: set-fps [fps]
-
-    Defaults to 60 fps if no argument is provided
-    )";
+    static const std::string setFPS_name;
+    static const std::string setFPS_desc;
 
     /**
      * @brief Toggle fps on/off
@@ -199,13 +165,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error showFPS(int argc, char* argv[]);
-    const std::string showFPS_name = "show-fps";
-    const std::string showFPS_desc = R"(Show FPS of renderer.
-
-    Usage: show-fps [on|off]
-
-    Defaults to on if no argument is provided
-    )";
+    static const std::string showFPS_name;
+    static const std::string showFPS_desc;
 
     /**
      * @brief Move cam by a given delta
@@ -215,14 +176,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error cam_move(int argc, char* argv[]);
-    const std::string cam_move_name = "cam move";
-    const std::string cam_move_desc = R"(Move camera by a given delta.
-
-    Usage: cam move <dx> <dy>
-
-    <dx> : Delta x to move camera by
-    <dy> : Delta y to move camera by
-    )";
+    static const std::string cam_move_name;
+    static const std::string cam_move_desc;
 
     /**
      * @brief Set cam to concrete position
@@ -235,15 +190,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error cam_set(int argc, char* argv[]);
-    const std::string cam_set_name = "cam set";
-    const std::string cam_set_desc = R"(Set camera to concrete position.
-
-    Usage: cam set <x> <y> [c]
-
-    <x> : X position to set camera to
-    <y> : Y position to set camera to
-    [c] : Optional. If provided, sets the camera's center to the given position.
-    )";
+    static const std::string cam_set_name;
+    static const std::string cam_set_desc;
 
     /**
      * @brief Create a snapshot of the current renderer screen output
@@ -256,13 +204,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error snapshot(int argc, char* argv[]);
-    const std::string snapshot_name = "snapshot";
-    const std::string snapshot_desc = R"(Create a snapshot of the current renderer state.
-
-    Usage: snapshot [filename]
-
-    Defaults to "./Resources/Snapshots/snapshot.png" if no argument is provided
-    )";
+    static const std::string snapshot_name;
+    static const std::string snapshot_desc;
 
     /**
      * @brief Makes a beep noise
@@ -272,12 +215,9 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error beep(int argc, char* argv[]);
-    const std::string beep_name = "beep";
-    const std::string beep_desc = R"(Make a beep noise.
+    static const std::string beep_name;
+    static const std::string beep_desc;
 
-    Usage: beep
-    )";
-    
     /**
      * @brief Inserts a reference to the selected renderobject by ID to the GlobalSpace
      * 
@@ -297,11 +237,8 @@ public:
      * and should thus also be the owner of the selected object reference
      */
     Nebulite::Constants::Error selectedObject_get(int argc, char* argv[]);
-    const std::string selectedObject_get_name = "selected-object get";
-    const std::string selectedObject_get_desc = R"(Get a renderobject by its ID.
-
-    Usage: selected-object get <id>
-    )";
+    static const std::string selectedObject_get_name;
+    static const std::string selectedObject_get_desc;
 
     /**
      * @brief Parses a command on the selected RenderObject
@@ -310,14 +247,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error selectedObject_Parse(int argc, char* argv[]);
-    const std::string selectedObject_Parse_name = "selected-object parse";
-    const std::string selectedObject_Parse_desc = R"(Parse a command on the selected RenderObject.
-
-    Usage: selected-object parse <command>
-
-    Use 'selected-object get <id>' to select a RenderObject first.
-    Use 'selected-object parse help' to see available commands for the selected object.
-    )";
+    static const std::string selectedObject_Parse_name;
+    static const std::string selectedObject_Parse_desc;
 
     //------------------------------------------
     // Setup
