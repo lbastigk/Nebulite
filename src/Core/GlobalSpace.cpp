@@ -226,6 +226,8 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::preParse() {
     // Meaning everything we do here is deterministic!
 
     // We need to remove all links from the seed, so it's consistent
+    // This is because links arent relative to the binaries root, but absolute paths
+    // Meaning two users running the same command with different folder structures would get different RNG values otherwise
     auto args = Nebulite::Utility::StringHandler::parseQuotedArguments(getLastParsedString());
 
     std::string seed = "";
@@ -239,26 +241,28 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::preParse() {
         }
     }
 
-    // Using static variables to reuse them next time
-    static uint16_t A, B, C, D = 0;
-
-    // Generate seeds
-    std::string seedA = seed + "A" + std::to_string(A);
-    std::string seedB = seed + "B" + std::to_string(B);
-    std::string seedC = seed + "C" + std::to_string(C);
-    std::string seedD = seed + "D" + std::to_string(D);
-
-    // Hash seeds
-    A = static_cast<uint16_t>(rng_hasher(seedA));
-    B = static_cast<uint16_t>(rng_hasher(seedB));
-    C = static_cast<uint16_t>(rng_hasher(seedC));
-    D = static_cast<uint16_t>(rng_hasher(seedD));
-
-    // Set RNG values in global document
-    global.set<int>(Nebulite::Constants::keyName.random.A.c_str(), A);
-    global.set<int>(Nebulite::Constants::keyName.random.B.c_str(), B);
-    global.set<int>(Nebulite::Constants::keyName.random.C.c_str(), C);
-    global.set<int>(Nebulite::Constants::keyName.random.D.c_str(), D);
+    // Update with normalized seed
+    updateRNGs(seed);
 
     return Nebulite::Constants::ErrorTable::NONE();
+}
+
+void Nebulite::Core::GlobalSpace::updateRNGs(std::string seed){
+    // Generate seeds
+    std::string seedA = seed + "A" + std::to_string(rng.A.get());
+    std::string seedB = seed + "B" + std::to_string(rng.B.get());
+    std::string seedC = seed + "C" + std::to_string(rng.C.get());
+    std::string seedD = seed + "D" + std::to_string(rng.D.get());
+
+    // Hash seeds
+    rng.A.update(seedA);
+    rng.B.update(seedB);
+    rng.C.update(seedC);
+    rng.D.update(seedD);
+
+    // Set RNG values in global document
+    global.set<int>(Nebulite::Constants::keyName.random.A.c_str(), rng.A.get());
+    global.set<int>(Nebulite::Constants::keyName.random.B.c_str(), rng.B.get());
+    global.set<int>(Nebulite::Constants::keyName.random.C.c_str(), rng.C.get());
+    global.set<int>(Nebulite::Constants::keyName.random.D.c_str(), rng.D.get());
 }

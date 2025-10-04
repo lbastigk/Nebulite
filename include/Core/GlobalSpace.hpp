@@ -19,6 +19,7 @@
 #include "Core/Renderer.hpp"
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Utility/RNG.hpp"
 
 //------------------------------------------
 namespace Nebulite {
@@ -195,6 +196,16 @@ public:
     };
     commandLineVariables cmdVars;
 
+    /**
+     * @brief Rolls back all RNGs to their previous state.
+     */
+    void rngRollback(){
+        rng.A.rollback();
+        rng.B.rollback();
+        rng.C.rollback();
+        rng.D.rollback();
+    }
+
 private:
     //------------------------------------------
     // General Variables
@@ -219,6 +230,25 @@ private:
         std::string state;      // Name of the state where files are saved (equal to savegame name)
         std::string binary;     // Name of the binary, used for parsing arguments
     }names;
+
+    /**
+     * @brief Contains RNG instances used in the global space.
+     */
+    struct RNGvars{
+        Nebulite::Utility::RNG A;  // RNG A
+        Nebulite::Utility::RNG B;  // RNG B
+        Nebulite::Utility::RNG C;  // RNG C
+        Nebulite::Utility::RNG D;  // RNG D
+    } rng;
+
+    /**
+     * @brief Updates all RNGs with a new seed.
+     * 
+     * @param seed The normalized seed string used to update the RNGs.
+     * Make sure the seed contains no user-specific information like absolute paths!
+     * Otherwise the RNG is not consistent across different users.
+     */
+    void updateRNGs(std::string seed);
 
     //------------------------------------------
     // Methods
@@ -249,11 +279,6 @@ private:
      * @brief Flag indicating whether the renderer has been initialized.
      */
     bool rendererInitialized = false;
-
-    /**
-     * @brief Hasher for generating RNG values from last parsed command.
-     */
-    std::hash<std::string> rng_hasher;
 };
 }   // namespace Core
 }   // namespace Nebulite
