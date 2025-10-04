@@ -44,7 +44,6 @@ std::string Nebulite::Core::Environment::serialize() {
 void Nebulite::Core::Environment::deserialize(std::string serialOrLink, int dispResX,int dispResY) {
 	Nebulite::Utility::JSON file;
 	file.deserialize(serialOrLink);
-	global->deserialize(file.get_subdoc("global").serialize());
 
 	// Getting all layers
 	for (int i = 0; i < Nebulite::Core::Environment::LayerCount; i++) {
@@ -61,9 +60,6 @@ void Nebulite::Core::Environment::deserialize(std::string serialOrLink, int disp
 
 			// Serialize container layer
 			roc[i].deserialize(str,dispResX,dispResY);
-		}
-		else {
-			std::cerr << "Layer Key " << key << " not found in the document or uncomparible" << std::endl;
 		}
 	}
 }
