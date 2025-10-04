@@ -9,39 +9,26 @@
 //------------------------------------------
 // Includes
 
-// TODO: Remove unused includes
-
 // General
 #include <mutex>
-#include <typeinfo>
-#include <cxxabi.h>
 #include <string>
 #include <variant>
-#include <type_traits>
-#include <typeindex>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cassert>
-#include <memory>
-#include <vector>
-#include <algorithm>
 
 // External
 #include "document.h"
 #include "writer.h"
 #include "stringbuffer.h"
 #include "prettywriter.h"
-#include "encodings.h"
-#include "istreamwrapper.h"
-#include "ostreamwrapper.h"
 
 // Nebulite
 #include "Utility/StringHandler.hpp"
 
-
-
+//------------------------------------------
 namespace Nebulite::Utility {
+/**
+ * @class RjDirectAccess
+ * @brief Provides direct access and manipulation of RapidJSON values.
+ */
 class RjDirectAccess{
 public:
     using simpleValue = std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool>;
@@ -77,7 +64,7 @@ public:
     }
 
     //------------------------------------------
-    // Getter, Setter
+    // Templated Getter, Setter
 
     /**
      * @brief Fallback to direct rapidjson access for getting values.
@@ -87,7 +74,8 @@ public:
      * @param val The rapidjson value to search within.
      * @return The retrieved value or the default value.
      */
-    template <typename T> static T get(const char* key, const T defaultValue, rapidjson::Value& val);
+    template <typename T> 
+    static T get(const char* key, const T defaultValue, rapidjson::Value& val);
 
     /**
      * @brief Fallback to direct rapidjson access for setting values.
@@ -99,7 +87,8 @@ public:
      * @param value The value to set.
      * @param val The rapidjson value to modify.
      */
-    template <typename T> static void set(const char* key, const T& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+    template <typename T> 
+    static void set(const char* key, const T& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
     //------------------------------------------
     // Conversion
@@ -298,11 +287,7 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<ra
 
 // Template specialization for std::variant
 // So we don't have to manually call std::visit every time
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue(
-    const simpleValue& data, 
-    rapidjson::Value& jsonValue, 
-    rapidjson::Document::AllocatorType& allocator) {
-    
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue(const simpleValue& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
     std::visit([&](const auto& value) {
         using T = std::decay_t<decltype(value)>;
         ConvertToJSONValue<T>(value, jsonValue, allocator);
