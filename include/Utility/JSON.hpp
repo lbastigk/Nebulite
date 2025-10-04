@@ -262,8 +262,6 @@ public:
      * 
      * @param key The key to check.
      * @return The type of the key.
-     * 
-     * @todo: add function for mildFlush that does not clear cache!
      */
     const KeyType memberCheck(std::string key);
 
