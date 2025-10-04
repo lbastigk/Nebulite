@@ -1,6 +1,13 @@
 #include "DomainModule/GlobalSpace/GDM_Debug.hpp"
 #include "Core/GlobalSpace.hpp"       // Global Space for Nebulite
 
+#if defined(_WIN32)
+  #include <windows.h>
+#else
+  #include <unistd.h>   // isatty
+  #include <cstdio>
+#endif
+
 namespace Nebulite::DomainModule::GlobalSpace {
 
 const std::string Debug::log_name = "log";
@@ -152,20 +159,45 @@ Usage: errorlog <on/off>
 Note: Ensure you have write permissions in the working directory when activating error logging.
 )";
 
+inline void clear_screen()
+{
+#if defined(_WIN32)
+    // Use Win32 API to clear the console buffer and move cursor to home (0,0).
+    HANDLE hStd = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hStd == INVALID_HANDLE_VALUE) return;
+
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    if (!GetConsoleScreenBufferInfo(hStd, &csbi)) return;
+
+    DWORD cells = csbi.dwSize.X * csbi.dwSize.Y;
+    DWORD written = 0;
+    COORD home = { 0, 0 };
+
+    // Fill the entire buffer with spaces
+    FillConsoleOutputCharacterA(hStd, ' ', cells, home, &written);
+    // Reset attributes
+    FillConsoleOutputAttribute(hStd, csbi.wAttributes, cells, home, &written);
+    // Move the cursor home
+    SetConsoleCursorPosition(hStd, home);
+
+#else
+    // If stdout is a terminal, use ANSI escapes to clear the screen and move cursor to top-left.
+    if (isatty(fileno(stdout))) {
+        // ESC[2J clears screen; ESC[H moves cursor to 1;1
+        std::cout << "\x1b[2J\x1b[H" << std::flush;
+    } else {
+        // Not a TTY (redirected output). We can optionally print newlines or do nothing.
+        // Printing newlines keeps behavior similar to clearing for plain output.
+        std::cout << std::endl;
+    }
+#endif
+}
+
 Nebulite::Constants::Error Debug::clearConsole(int argc, char* argv[]){
     if (argc > 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    int error = 0;
-    #if _WIN32
-        error = std::system("cls");
-    #else
-        error = std::system("clear");
-    #endif
-
-    if (error != 0) {
-        return Nebulite::Constants::ErrorTable::CRITICAL_GENERAL();
-    }
+    clear_screen();
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string Debug::clearConsole_name = "clear";
