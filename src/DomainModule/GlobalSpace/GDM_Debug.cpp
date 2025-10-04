@@ -108,7 +108,6 @@ Nebulite::Constants::Error Debug::errorlog(int argc, char* argv[]){
                     originalCerrBuf = std::cerr.rdbuf(); // Store the original cerr buffer
                     std::cerr.rdbuf(errorFile->rdbuf()); // Redirect to file
                     errorLogStatus = true;
-                    
                 } catch (const std::exception& e) {
                     std::cerr << "Failed to create error log: " << e.what() << std::endl;
                     return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
