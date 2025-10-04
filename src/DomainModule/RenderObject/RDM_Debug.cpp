@@ -95,6 +95,40 @@ If the RenderObject is not a spritesheet, indicates that instead:
 Destination rectangle is not set.
 )";
 
+void printTextureInfo(SDL_Texture* texture) {
+    if(texture) {
+        Uint32 format;
+        int access, w, h;
+        if (SDL_QueryTexture(texture, &format, &access, &w, &h) == 0) {
+            // Decode format and access to human-readable strings
+            std::string accessStr = (access == SDL_TEXTUREACCESS_STATIC)    ? "Static"    :
+                                    (access == SDL_TEXTUREACCESS_STREAMING) ? "Streaming" :
+                                    (access == SDL_TEXTUREACCESS_TARGET)    ? "Target"    :
+                                    "Other";
+            std::string formatStr = (format == SDL_PIXELFORMAT_RGBA8888)    ? "RGBA8888"  :
+                                    (format == SDL_PIXELFORMAT_ARGB8888)    ? "ARGB8888"  :
+                                    (format == SDL_PIXELFORMAT_RGB888)      ? "RGB888"    :
+                                    (format == SDL_PIXELFORMAT_BGR888)      ? "BGR888"    :
+                                    (format == SDL_PIXELFORMAT_RGB565)      ? "RGB565"    :
+                                    (format == SDL_PIXELFORMAT_RGB555)      ? "RGB555"    :
+                                    (format == SDL_PIXELFORMAT_ARGB1555)    ? "ARGB1555"  :
+                                    (format == SDL_PIXELFORMAT_ABGR8888)    ? "ABGR8888"  :
+                                    (format == SDL_PIXELFORMAT_BGRA8888)    ? "BGRA8888"  :
+                                    "Other";
+
+            // Print texture details
+            std::cout << " - Width  : " << w << std::endl;
+            std::cout << " - Height : " << h << std::endl;
+            std::cout << " - Access : " << accessStr << std::endl;
+            std::cout << " - Format : " << formatStr << std::endl;
+        } else {
+            std::cerr << "Failed to query texture: " << SDL_GetError() << std::endl;
+        }
+    } else {
+        std::cout << "No texture is associated with this RenderObject." << std::endl;
+    }
+}
+
 Nebulite::Constants::Error Debug::textureStatus(int argc, char* argv[]){
     if(argc != 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
@@ -112,42 +146,7 @@ Nebulite::Constants::Error Debug::textureStatus(int argc, char* argv[]){
     // SDL info
     std::cout << "SDL Texture Info:" << std::endl;
     SDL_Texture* texture = domain->getTexture()->getSDLTexture();   // Going the long way to ensure outside access is validated
-    if(texture) {
-        Uint32 format;
-        int access, w, h;
-        if (SDL_QueryTexture(texture, &format, &access, &w, &h) == 0) {
-            // Decode format and access to human-readable strings
-            std::string accessStr = (access == SDL_TEXTUREACCESS_STATIC) ? "Static" :
-                                    (access == SDL_TEXTUREACCESS_STREAMING) ? "Streaming" :
-                                    (access == SDL_TEXTUREACCESS_TARGET) ? "Target" :
-                                    "Other";
-            std::string formatStr = (format == SDL_PIXELFORMAT_RGBA8888) ? "RGBA8888" :
-                                    (format == SDL_PIXELFORMAT_ARGB8888) ? "ARGB8888" :
-                                    (format == SDL_PIXELFORMAT_RGB888) ? "RGB888" :
-                                    (format == SDL_PIXELFORMAT_BGR888) ? "BGR888" :
-                                    (format == SDL_PIXELFORMAT_RGB565) ? "RGB565" :
-                                    (format == SDL_PIXELFORMAT_RGB555) ? "RGB555" :
-                                    (format == SDL_PIXELFORMAT_ARGB1555) ? "ARGB1555" :
-                                    (format == SDL_PIXELFORMAT_ABGR8888) ? "ABGR8888" :
-                                    (format == SDL_PIXELFORMAT_BGRA8888) ? "BGRA8888" :
-                                    "Other";
-
-            // Print texture details
-            std::cout << " - Width         : " << w << std::endl;
-            std::cout << " - Height        : " << h << std::endl;
-            std::cout << " - Access        : " << accessStr << std::endl;
-            std::cout << " - Format        : " << formatStr << std::endl;
-        } else {
-            std::cerr << "Failed to query texture: " << SDL_GetError() << std::endl;
-            return Nebulite::Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_QUERY_FAILED();
-        }
-    } else {
-        std::cout << "No texture is associated with this RenderObject." << std::endl;
-    }
-
-    // More info from Nebulite::Core::Texture directly:
-    
-
+    printTextureInfo(texture);
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string Debug::textureStatus_name = "debug texture-status";
