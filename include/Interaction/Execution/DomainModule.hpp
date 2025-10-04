@@ -97,13 +97,13 @@ public:
      * @param name The name to associate with the bound function.
      */
     template<typename ClassType>
-    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char**),const std::string& name,const std::string& help) {
+    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char**),const std::string& name, const std::string* helpDescription) {
         // Automatically pass 'this' (the derived class instance) to bindFunction
         funcTree->bindFunction(
             static_cast<ClassType*>(this),  // Auto-cast to correct type
             method,                         // Member function pointer
             name, 
-            help
+            helpDescription
         );
     }
 
@@ -116,8 +116,8 @@ public:
      * @param description Description of the subtree, shown in the help command. First line is shown in the general help, full description in detailed help
      * @return true if the subtree was created successfully, false if a subtree with the same name already exists
      */
-    bool bindSubtree(const std::string& name, const std::string& description) {
-        return funcTree->bindSubtree(name, description);
+    bool bindSubtree(const std::string& name, const std::string* helpDescription) {
+        return funcTree->bindSubtree(name, helpDescription);
     }
 
     /**
@@ -129,9 +129,9 @@ public:
      * 
      * A simple argument of '--varName' will set the value to "true"
      */
-    void bindVariable(std::string* variablePtr,const std::string& name,const std::string& help) {
+    void bindVariable(std::string* variablePtr,const std::string& name, const std::string* helpDescription) {
         // Bind a variable to the FuncTree
-        funcTree->bindVariable(variablePtr, name, help);
+        funcTree->bindVariable(variablePtr, name, helpDescription);
     }
 
     // Prevent copying

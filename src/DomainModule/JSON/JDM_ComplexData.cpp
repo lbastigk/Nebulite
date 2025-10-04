@@ -3,6 +3,12 @@
 
 namespace Nebulite::DomainModule::JSON{
 
+const std::string ComplexData::query_name = "query";
+const std::string ComplexData::query_desc = R"(Functions to manipulate JSON data via SQL query results)";
+
+const std::string ComplexData::json_name = "json";
+const std::string ComplexData::json_desc = R"(Functions to manipulate JSON data via read-only JSON documents)";
+
 //------------------------------------------
 // Update
 void ComplexData::update() {

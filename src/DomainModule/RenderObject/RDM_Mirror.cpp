@@ -5,6 +5,11 @@
 
 namespace Nebulite::DomainModule::RenderObject {
 
+const std::string Mirror::mirror_name = "mirror";
+const std::string Mirror::mirror_desc = R"(Mirror utilities for RenderObject to GlobalSpace synchronization)";
+
+//------------------------------------------
+// Update
 void Mirror::update() {
     if (mirrorEnabled || mirrorOnceEnabled) {
         // Values

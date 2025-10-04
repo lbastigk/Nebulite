@@ -32,7 +32,7 @@ namespace GlobalSpace {
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 
@@ -178,6 +178,14 @@ public:
     static const std::string standardfile_renderobject_desc;
 
     //------------------------------------------
+    // Subtree names
+    static const std::string log_name;
+    static const std::string log_desc;
+
+    static const std::string standardfile_name;
+    static const std::string standardfile_desc;
+
+    //------------------------------------------
     // Setup
 
     /**
@@ -186,20 +194,20 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug){
         //------------------------------------------
         // Binding functions to the FuncTree
-        bindFunction(&Debug::errorlog,          errorlog_name,                 errorlog_desc);
-        bindFunction(&Debug::clearConsole,      clearConsole_name,             clearConsole_desc);
-        bindFunction(&Debug::error,             error_name,                    error_desc);
-        bindFunction(&Debug::crash,             crash_name,                    crash_desc);
-        bindFunction(&Debug::warn,              warn_name,                     warn_desc);
-        bindFunction(&Debug::critical,          critical_name,                 critical_desc);
-        bindFunction(&Debug::waitForInput,      waitForInput_name,             waitForInput_desc);
+        bindFunction(&Debug::errorlog,          errorlog_name,                 &errorlog_desc);
+        bindFunction(&Debug::clearConsole,      clearConsole_name,             &clearConsole_desc);
+        bindFunction(&Debug::error,             error_name,                    &error_desc);
+        bindFunction(&Debug::crash,             crash_name,                    &crash_desc);
+        bindFunction(&Debug::warn,              warn_name,                     &warn_desc);
+        bindFunction(&Debug::critical,          critical_name,                 &critical_desc);
+        bindFunction(&Debug::waitForInput,      waitForInput_name,             &waitForInput_desc);
 
-        bindSubtree("log", "Functions to log various data to files");
-        bindFunction(&Debug::log_global,        log_global_name,               log_global_desc);
-        bindFunction(&Debug::log_state,         log_state_name,                log_state_desc);
+        bindSubtree(log_name, &log_desc);
+        bindFunction(&Debug::log_global,        log_global_name,               &log_global_desc);
+        bindFunction(&Debug::log_state,         log_state_name,                &log_state_desc);
 
-        bindSubtree("standardfile", "Functions to generate standard files");
-        bindFunction(&Debug::standardfile_renderobject,     standardfile_renderobject_name,   standardfile_renderobject_desc);
+        bindSubtree(standardfile_name, &standardfile_desc);
+        bindFunction(&Debug::standardfile_renderobject,     standardfile_renderobject_name,   &standardfile_renderobject_desc);
 
         //------------------------------------------
         // Example Bindings that will fail

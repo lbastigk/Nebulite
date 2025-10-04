@@ -33,7 +33,7 @@ namespace RenderObject{
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Logging) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 
@@ -90,17 +90,22 @@ public:
     static const std::string log_key_desc;
 
     //------------------------------------------
+    // Subtree names
+    static const std::string log_name;
+    static const std::string log_desc;
+
+    //------------------------------------------
     // Setup
 
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Logging) {
-        bindFunction(&Logging::echo,        echo_name,      echo_desc);
+        bindFunction(&Logging::echo,        echo_name,      &echo_desc);
 
-        bindSubtree("log", "Logging functions for RenderObject");
-        bindFunction(&Logging::log_all,    log_all_name,    log_all_desc);
-        bindFunction(&Logging::log_key,    log_key_name,    log_key_desc);
+        bindSubtree(log_name, &log_desc);
+        bindFunction(&Logging::log_all,    log_all_name,    &log_all_desc);
+        bindFunction(&Logging::log_key,    log_key_name,    &log_key_desc);
     }
 };
 }   // namespace DomainModule

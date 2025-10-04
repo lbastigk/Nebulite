@@ -3,6 +3,12 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
+const std::string Debug::log_name = "log";
+const std::string Debug::log_desc = R"(Functions to log various data to files)";
+
+const std::string Debug::standardfile_name = "standardfile";
+const std::string Debug::standardfile_desc = R"(Functions to generate standard files)";
+
 //------------------------------------------
 // Dummy descriptions 
 const std::string Debug::set_name = "set"; // Name of the function in the inherited JSON domain

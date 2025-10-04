@@ -22,6 +22,10 @@
 //------------------------------------------
 namespace Nebulite{
 namespace DomainModule{
+
+static const std::string headless_desc = "Set headless mode (no renderer)";
+static const std::string recover_desc  = "Enable recoverable error mode";
+
 /**
  * @brief Inserts all DomainModules into the GlobalSpace domain.
  */
@@ -47,8 +51,8 @@ void GDM_init(Nebulite::Core::GlobalSpace* target){
         
         //------------------------------------------
         // Initialize Variable Bindings
-        target->bindVariable(&target->cmdVars.headless, "headless", "Set headless mode (no renderer)");
-        target->bindVariable(&target->cmdVars.recover,  "recover",  "Enable recoverable error mode");
+        target->bindVariable(&target->cmdVars.headless, "headless", &headless_desc);
+        target->bindVariable(&target->cmdVars.recover,  "recover",  &recover_desc);
     #endif
 }
 }

@@ -32,7 +32,7 @@ namespace RenderObject{
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, StateUpdate) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 
@@ -123,8 +123,8 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, StateUpdate) {
-        bindFunction(&StateUpdate::func_delete,         "delete",               "Marks object for deletion");
-        bindFunction(&StateUpdate::updateText,          "update-text",          "Calculate text texture");
+        bindFunction(&StateUpdate::func_delete,         func_delete_name,         &func_delete_desc);
+        bindFunction(&StateUpdate::updateText,          updateText_name,          &updateText_desc);
 
         // TODO: Move to separate Invoke module
         /*

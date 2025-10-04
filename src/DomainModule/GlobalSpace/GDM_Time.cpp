@@ -4,6 +4,9 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
+const std::string Time::time_name = "time";
+const std::string Time::time_desc = R"(Commands for time management)";
+
 void Time::update() {
     //------------------------------------------
     // Full time (runtime)

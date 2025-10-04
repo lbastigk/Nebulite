@@ -165,23 +165,27 @@ public:
     static const std::string alwaysClear_desc;
 
     //------------------------------------------
+    // Subtree names
+
+
+    //------------------------------------------
     // Setup
 
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, General){
-        bindFunction(&General::eval,        eval_name,          eval_desc);
-        bindFunction(&General::exit,        exit_name,          exit_desc);
-        bindFunction(&General::wait,        wait_name,          wait_desc);
-        bindFunction(&General::task,        task_name,          task_desc);
-        bindFunction(&General::func_for,    func_for_name,      func_for_desc);
-        bindFunction(&General::func_if,     func_if_name,       func_if_desc);
-        bindFunction(&General::func_return, func_return_name,   func_return_desc);
-        bindFunction(&General::echo,        echo_name,          echo_desc);
-        bindFunction(&General::func_assert, assert_name,        assert_desc);
-        bindFunction(&General::always,      always_name,        always_desc);
-        bindFunction(&General::alwaysClear, alwaysClear_name,   alwaysClear_desc);
+        bindFunction(&General::eval,        eval_name,          &eval_desc);
+        bindFunction(&General::exit,        exit_name,          &exit_desc);
+        bindFunction(&General::wait,        wait_name,          &wait_desc);
+        bindFunction(&General::task,        task_name,          &task_desc);
+        bindFunction(&General::func_for,    func_for_name,      &func_for_desc);
+        bindFunction(&General::func_if,     func_if_name,       &func_if_desc);
+        bindFunction(&General::func_return, func_return_name,   &func_return_desc);
+        bindFunction(&General::echo,        echo_name,          &echo_desc);
+        bindFunction(&General::func_assert, assert_name,        &assert_desc);
+        bindFunction(&General::always,      always_name,        &always_desc);
+        bindFunction(&General::alwaysClear, alwaysClear_name,   &alwaysClear_desc);
     }
 };
 }   // namespace GlobalSpace

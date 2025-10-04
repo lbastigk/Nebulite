@@ -5,9 +5,17 @@
 
 namespace Nebulite::DomainModule::RenderObject {
 
+const std::string Debug::debug_name = "debug";
+const std::string Debug::debug_desc = R"(Debugging functions for RenderObject)";
+
+//------------------------------------------
+// Update
 void Debug::update() {
     // For on-tick-updates
 }
+
+//------------------------------------------
+// Available Functions
 
 Nebulite::Constants::Error Debug::eval(int argc, char* argv[]) {
     // argc/argv to string for evaluation

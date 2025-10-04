@@ -85,7 +85,7 @@ public:
      * 
      * For binding functions or subtrees, use the DomainModule interface.
      */
-    void bindVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription){
+    void bindVariable(std::string* varPtr, const std::string& name, const std::string* helpDescription){
         funcTree->bindVariable(varPtr, name, helpDescription);
     }
 

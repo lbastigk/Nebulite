@@ -32,7 +32,7 @@ namespace JSON{
 NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ComplexData) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 
@@ -67,6 +67,14 @@ public:
     static const std::string json_set_desc;
 
     //------------------------------------------
+    // Subtree names
+    static const std::string query_name;
+    static const std::string query_desc;
+
+    static const std::string json_name;
+    static const std::string json_desc;
+
+    //------------------------------------------
     // Setup
 
     /**
@@ -76,12 +84,12 @@ public:
         // Bind functions specific to complex data handling
 
         // SQL Querys
-        bindSubtree("query","Functions to manipulate JSON data via SQL query results");
-        bindFunction(&ComplexData::query_set, query_set_name, query_set_desc);
+        bindSubtree(query_name, &query_desc);
+        bindFunction(&ComplexData::query_set, query_set_name, &query_set_desc);
 
         // Set from read only jsons
-        bindSubtree("json","Functions to manipulate JSON data via JSON documents");
-        bindFunction(&ComplexData::json_set,  json_set_name,  json_set_desc);
+        bindSubtree(json_name, &json_desc);
+        bindFunction(&ComplexData::json_set,  json_set_name,  &json_set_desc);
     }
 };
 }   // namespace DomainModule

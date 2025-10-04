@@ -4,6 +4,20 @@
 
 namespace Nebulite::DomainModule::JSON {
 
+const std::string ForceValue::force_name = "force";
+const std::string ForceValue::force_desc = R"(Subtree for forcing variables to specific values.
+This is useful for testing or overriding configuration values.
+)";
+
+void ForceValue::update(){
+    // This might not be enough, as between updates, that value might be changed again.
+    // But its a good start.
+    // Perhaps later on it's good to find a way to lock values directly in the JSON document?
+    for (const auto& [key, value] : forced_global_values) {
+        domain->set(key, value);
+    }
+}
+
 Nebulite::Constants::Error ForceValue::force_set(int argc, char* argv[]) {
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 3) {

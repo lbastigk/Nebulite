@@ -3,6 +3,9 @@
 
 namespace Nebulite::DomainModule::RenderObject{
 
+const std::string Logging::log_name = "log";
+const std::string Logging::log_desc = R"(Logging utilities)";
+
 //------------------------------------------
 // Update
 void Logging::update() {

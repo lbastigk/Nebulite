@@ -32,7 +32,7 @@ namespace RenderObject{
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Debug) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 
@@ -92,6 +92,11 @@ public:
     static const std::string textureStatus_desc;
 
     //------------------------------------------
+    // Subtree names
+    static const std::string debug_name;
+    static const std::string debug_desc;
+
+    //------------------------------------------
     // Setup
 
     /**
@@ -99,12 +104,12 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Debug) {
         // Some functions like selected-object need eval to resolve variables
-        bindFunction(&Debug::eval,          Debug::eval_name,           Debug::eval_desc);
+        bindFunction(&Debug::eval,          eval_name,          &eval_desc);
 
-        bindSubtree("debug", "Debugging functions for RenderObject");
-        bindFunction(&Debug::printSrcRect,  Debug::printSrcRect_name,   Debug::printSrcRect_desc);
-        bindFunction(&Debug::printDstRect,  Debug::printDstRect_name,   Debug::printDstRect_desc);
-        bindFunction(&Debug::textureStatus, Debug::textureStatus_name,  Debug::textureStatus_desc);
+        bindSubtree(debug_name, &debug_desc);
+        bindFunction(&Debug::printSrcRect,  printSrcRect_name,  &printSrcRect_desc);
+        bindFunction(&Debug::printDstRect,  printDstRect_name,  &printDstRect_desc);
+        bindFunction(&Debug::textureStatus, textureStatus_name, &textureStatus_desc);
     }
 };
 }   // namespace DomainModule

@@ -37,7 +37,7 @@ namespace GlobalSpace {
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Console) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 

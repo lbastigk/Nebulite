@@ -46,7 +46,7 @@ namespace GlobalSpace {
 NEBULITE_DOMAINMODULE(::Nebulite::Core::GlobalSpace, RenderObjectDraft) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 
@@ -88,6 +88,11 @@ public:
     static const std::string draft_reset_desc;
 
     //------------------------------------------
+    // Subtree names
+    static const std::string draft_name;
+    static const std::string draft_desc;
+
+    //------------------------------------------
     // Setup
 
     /**
@@ -98,10 +103,10 @@ public:
         draft.setDomain(domain);
         
         // Bind functions
-        bindSubtree("draft", "Functions to manipulate and spawn RenderObjects in draft state");
-        bindFunction(&RenderObjectDraft::draft_parse,  draft_parse_name,   draft_parse_desc);
-        bindFunction(&RenderObjectDraft::draft_spawn,  draft_spawn_name,   draft_spawn_desc);
-        bindFunction(&RenderObjectDraft::draft_reset,  draft_reset_name,   draft_reset_desc);
+        bindSubtree(draft_name, &draft_desc);
+        bindFunction(&RenderObjectDraft::draft_parse,  draft_parse_name,   &draft_parse_desc);
+        bindFunction(&RenderObjectDraft::draft_spawn,  draft_spawn_name,   &draft_spawn_desc);
+        bindFunction(&RenderObjectDraft::draft_reset,  draft_reset_name,   &draft_reset_desc);
     }
 
 private:

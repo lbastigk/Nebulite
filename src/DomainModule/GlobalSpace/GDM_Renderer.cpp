@@ -5,6 +5,15 @@
 
 namespace Nebulite::DomainModule::GlobalSpace{
 
+const std::string Renderer::cam_name = "cam";
+const std::string Renderer::cam_desc = R"(Renderer Camera Functions)";
+
+const std::string Renderer::selectedObject_name = "selected-object";
+const std::string Renderer::selectedObject_desc = R"(Functions to select and interact with a selected RenderObject)";
+
+const std::string Renderer::env_name = "env";
+const std::string Renderer::env_desc = R"(Environment management functions)";
+
 //------------------------------------------
 // Update
 void Renderer::update() {

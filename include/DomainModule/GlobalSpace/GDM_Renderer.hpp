@@ -251,6 +251,17 @@ public:
     static const std::string selectedObject_Parse_desc;
 
     //------------------------------------------
+    // Subtree names
+    static const std::string cam_name;
+    static const std::string cam_desc;
+
+    static const std::string selectedObject_name;
+    static const std::string selectedObject_desc;
+
+    static const std::string env_name;
+    static const std::string env_desc;
+
+    //------------------------------------------
     // Setup
 
     /**
@@ -263,24 +274,24 @@ public:
      * The only downside currently is that we have to implement a method to lazy-init the SDL Renderer within the Renderer domain itself.
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Renderer){
-        bindFunction(&Renderer::spawn,               spawn_name,        spawn_desc);
-        bindFunction(&Renderer::setResolution,       setResolution_name,      setResolution_desc);
-        bindFunction(&Renderer::setFPS,              setFPS_name,      setFPS_desc);
-        bindFunction(&Renderer::showFPS,             showFPS_name,     showFPS_desc);
-        bindFunction(&Renderer::snapshot,            snapshot_name,     snapshot_desc);
-        bindFunction(&Renderer::beep,                beep_name,         beep_desc);
+        bindFunction(&Renderer::spawn,               spawn_name,            &spawn_desc);
+        bindFunction(&Renderer::setResolution,       setResolution_name,      &setResolution_desc);
+        bindFunction(&Renderer::setFPS,              setFPS_name,            &setFPS_desc);
+        bindFunction(&Renderer::showFPS,             showFPS_name,          &showFPS_desc);
+        bindFunction(&Renderer::snapshot,            snapshot_name,         &snapshot_desc);
+        bindFunction(&Renderer::beep,                beep_name,             &beep_desc);
 
-        bindSubtree("cam", "Renderer Camera Functions");
-        bindFunction(&Renderer::cam_move,             cam_move_name,     cam_move_desc);
-        bindFunction(&Renderer::cam_set,              cam_set_name,      cam_set_desc);
+        bindSubtree(cam_name, &cam_desc);
+        bindFunction(&Renderer::cam_move,             cam_move_name,         &cam_move_desc);
+        bindFunction(&Renderer::cam_set,              cam_set_name,          &cam_set_desc);
 
-        bindSubtree("selected-object", "Functions to select and interact with a selected RenderObject");
-        bindFunction(&Renderer::selectedObject_get,   selectedObject_get_name,   selectedObject_get_desc);
-        bindFunction(&Renderer::selectedObject_Parse, selectedObject_Parse_name, selectedObject_Parse_desc);
+        bindSubtree(selectedObject_name, &selectedObject_desc);
+        bindFunction(&Renderer::selectedObject_get,   selectedObject_get_name,   &selectedObject_get_desc);
+        bindFunction(&Renderer::selectedObject_Parse, selectedObject_Parse_name, &selectedObject_Parse_desc);
 
-        bindSubtree("env", "Environment management functions");
-        bindFunction(&Renderer::env_load,             env_load_name,     env_load_desc);
-        bindFunction(&Renderer::env_deload,           env_deload_name,   env_deload_desc);
+        bindSubtree(env_name, &env_desc);
+        bindFunction(&Renderer::env_load,             env_load_name,         &env_load_desc);
+        bindFunction(&Renderer::env_deload,           env_deload_name,       &env_deload_desc);
     }
 
 private:

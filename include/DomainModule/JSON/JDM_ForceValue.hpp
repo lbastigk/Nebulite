@@ -28,7 +28,7 @@ namespace JSON {
 NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ForceValue) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 
@@ -58,6 +58,11 @@ public:
     static const std::string force_clear_desc;
 
     //------------------------------------------
+    // Subtree names
+    static const std::string force_name;
+    static const std::string force_desc;
+
+    //------------------------------------------
     // Setup
 
     /**
@@ -65,9 +70,9 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, ForceValue){
         // Binding
-        bindSubtree("force", "Functions to force JSON variable values");
-        bindFunction(&ForceValue::force_set,      force_set_name,      force_set_desc);
-        bindFunction(&ForceValue::force_clear,    force_clear_name,    force_clear_desc);
+        bindSubtree(force_name, &force_desc);
+        bindFunction(&ForceValue::force_set,      force_set_name,      &force_set_desc);
+        bindFunction(&ForceValue::force_clear,    force_clear_name,    &force_clear_desc);
     }
 
 private:

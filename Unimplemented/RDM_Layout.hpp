@@ -32,7 +32,7 @@ namespace RenderObject{
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Layout) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 
