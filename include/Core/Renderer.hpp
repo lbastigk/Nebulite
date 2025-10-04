@@ -96,8 +96,6 @@ public:
 
 	/**
 	 * @brief Checks if it's time to render the next frame based on the target FPS.
-	 * 
-	 * @todo use custom TimeKeeper class instead for FPS target tracking
 	 */
 	bool timeToRender();
 
@@ -545,11 +543,8 @@ private:
 
 	//------------------------------------------
 	//For FPS Count
-
-	uint64_t prevTicks = SDL_GetTicks64();
-	uint64_t lastFPSRender = SDL_GetTicks64();
-	uint64_t totalframes = 0;
-
+	Nebulite::Utility::TimeKeeper fpsControlTimer;
+	Nebulite::Utility::TimeKeeper fpsRenderTimer;
 	uint16_t TARGET_FPS = 500; 								// Target framerate (e.g., 60 FPS)
 	uint16_t TARGET_TICKS_PER_FRAME = 1000 / TARGET_FPS; 	// Milliseconds per frame
 	uint16_t REAL_FPS_COUNTER = 0;							// Counts fps in a 1-second-interval

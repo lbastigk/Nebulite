@@ -62,8 +62,6 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 	int w = X;
 	int h = Y;
 
-
-
 	uint32_t flags;
 	flags = flag_headless ? SDL_WINDOW_HIDDEN : SDL_WINDOW_SHOWN;
 	//flags = flags | SDL_WINDOW_RESIZABLE; // Disabled for now, as it causes issues with the logical size rendering
@@ -167,6 +165,11 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 
 	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);	
 	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);
+
+	//------------------------------------------
+	// Start timers
+	fpsControlTimer.start();
+	fpsRenderTimer.start();
 }
 
 void Nebulite::Core::Renderer::loadFonts() {
@@ -241,7 +244,7 @@ bool Nebulite::Core::Renderer::tick(){
 }
 
 bool Nebulite::Core::Renderer::timeToRender() {
-	return SDL_GetTicks64() >= (prevTicks + TARGET_TICKS_PER_FRAME);
+	return fpsControlTimer.projected_dt() >= TARGET_TICKS_PER_FRAME;
 }
 
 void Nebulite::Core::Renderer::append(Nebulite::Core::RenderObject* toAppend) {
@@ -497,19 +500,18 @@ void Nebulite::Core::Renderer::renderFrame() {
 	tileYpos = dispPosY / invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
 	
 	//------------------------------------------
-	// FPS Count
-
-	//Ticks and FPS
-	totalframes++;
+	// FPS Count and Control
+	
+	//Calculate fps every second
 	REAL_FPS_COUNTER++;
-	prevTicks = SDL_GetTicks64();
-
-	//Calculate fps
-	if (prevTicks - lastFPSRender >= 1000) {
+	if (fpsRenderTimer.projected_dt() >= 1000) {
 		REAL_FPS = REAL_FPS_COUNTER;
 		REAL_FPS_COUNTER = 0;
-		lastFPSRender = prevTicks;
+		fpsRenderTimer.update();
 	}
+
+	// Control framerate
+	fpsControlTimer.update();
 
 	//------------------------------------------
 	// Rendering
