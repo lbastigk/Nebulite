@@ -121,9 +121,6 @@ public:
 
     //------------------------------------------
     // Overload of assign operators
-    /**
-     * @todo reinitialization of domain is probably missing at some spots
-     */
 
     JSON(const JSON&) = delete;
     JSON& operator=(const JSON&) = delete;
