@@ -82,8 +82,6 @@ public:
      * Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
      * 
      * @return Potential errors that occured on command execution
-     * 
-     * @todo Not implemented yet
      */
     Nebulite::Constants::Error log_key(int argc, char* argv[]);
     static const std::string log_key_name;
