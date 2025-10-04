@@ -47,6 +47,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error rotate(int argc, char* argv[]);
+    static const std::string rotate_name;
+    static const std::string rotate_desc;
 
     //------------------------------------------
     // Setup
@@ -55,7 +57,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Rotation) {
-        bindFunction(&Rotation::rotate, "rotate",   "Rotate the texture by a given angle: rotate <angle>");
+        bindFunction(&Rotation::rotate, rotate_name, rotate_desc);
     }
 };
 }   // namespace Texture

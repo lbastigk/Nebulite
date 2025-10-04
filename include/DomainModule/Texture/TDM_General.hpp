@@ -44,6 +44,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error reloadTexture(int argc, char* argv[]);
+    static const std::string reloadTexture_name;
+    static const std::string reloadTexture_desc;
 
     //------------------------------------------
     // Setup
