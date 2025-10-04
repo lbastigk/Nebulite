@@ -34,7 +34,7 @@ namespace RenderObject{
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Mirror) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 
@@ -48,7 +48,9 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error mirrorOnce(int argc, char* argv[]);
+    Nebulite::Constants::Error mirror_once(int argc, char* argv[]);
+    static const std::string mirror_once_name;
+    static const std::string mirror_once_desc;
 
     /**
      * @brief Enables mirroring to the GlobalSpace document
@@ -57,7 +59,9 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error mirrorOn(int argc, char* argv[]);
+    Nebulite::Constants::Error mirror_on(int argc, char* argv[]);
+    static const std::string mirror_on_name;
+    static const std::string mirror_on_desc;
 
     /**
      * @brief Disables mirroring to the GlobalSpace document
@@ -66,7 +70,9 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error mirrorOff(int argc, char* argv[]);
+    Nebulite::Constants::Error mirror_off(int argc, char* argv[]);
+    static const std::string mirror_off_name;
+    static const std::string mirror_off_desc;
 
     /**
      * @brief Deletes the GlobalSpace document entry for this RenderObject
@@ -75,7 +81,9 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error mirrorDelete(int argc, char* argv[]);
+    Nebulite::Constants::Error mirror_delete(int argc, char* argv[]);
+    static const std::string mirror_delete_name;
+    static const std::string mirror_delete_desc;
 
     /**
      * @brief Deserializes the RenderObject from the GlobalSpace document entry
@@ -84,7 +92,14 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error mirrorFetch(int argc, char* argv[]);
+    Nebulite::Constants::Error mirror_fetch(int argc, char* argv[]);
+    static const std::string mirror_fetch_name;
+    static const std::string mirror_fetch_desc;
+
+    //------------------------------------------
+    // Subtree name
+    static const std::string mirror_name;
+    static const std::string mirror_desc;
 
     //------------------------------------------
     // Setup
@@ -93,12 +108,12 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Mirror) {
-        bindSubtree("mirror", "Mirror functions for RenderObject");
-        bindFunction(&Mirror::mirrorOnce,  "mirror once",      "Mirrors the object to the GlobalSpace document once on next update");
-        bindFunction(&Mirror::mirrorOn,    "mirror on",        "Enables mirroring to the GlobalSpace document");
-        bindFunction(&Mirror::mirrorOff,   "mirror off",       "Disables mirroring to the GlobalSpace document");
-        bindFunction(&Mirror::mirrorDelete,"mirror delete",    "Deletes the GlobalSpace document entry for this RenderObject");
-        bindFunction(&Mirror::mirrorFetch, "mirror fetch",     "Deserializes the RenderObject from the GlobalSpace document entry");
+        bindSubtree(mirror_name, &mirror_desc);
+        bindFunction(&Mirror::mirror_once,  mirror_once_name,      &mirror_once_desc);
+        bindFunction(&Mirror::mirror_on,    mirror_on_name,        &mirror_on_desc);
+        bindFunction(&Mirror::mirror_off,   mirror_off_name,       &mirror_off_desc);
+        bindFunction(&Mirror::mirror_delete,mirror_delete_name,    &mirror_delete_desc);
+        bindFunction(&Mirror::mirror_fetch, mirror_fetch_name,     &mirror_fetch_desc);
     }
 
 private:

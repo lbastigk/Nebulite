@@ -32,7 +32,7 @@ namespace JSON{
 NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ComplexData) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 
@@ -48,7 +48,9 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error set_from_query(int argc, char* argv[]);
+    Nebulite::Constants::Error query_set(int argc, char* argv[]);
+    static const std::string query_set_name;
+    static const std::string query_set_desc;
 
     /**
      * @brief Sets a key from a JSON document.
@@ -60,7 +62,17 @@ public:
      * @todo Once all domains have access to the global space, 
      * use the JSON doc cache instead of loading the document each time.
      */
-    Nebulite::Constants::Error set_from_json(int argc, char* argv[]);
+    Nebulite::Constants::Error json_set(int argc, char* argv[]);
+    static const std::string json_set_name;
+    static const std::string json_set_desc;
+
+    //------------------------------------------
+    // Subtree names
+    static const std::string query_name;
+    static const std::string query_desc;
+
+    static const std::string json_name;
+    static const std::string json_desc;
 
     //------------------------------------------
     // Setup
@@ -72,12 +84,12 @@ public:
         // Bind functions specific to complex data handling
 
         // SQL Querys
-        bindSubtree("query","Functions to manipulate JSON data via SQL query results");
-        bindFunction(&ComplexData::set_from_query, "query set", "Sets a key from a SQL query result: <key> <query>");
+        bindSubtree(query_name, &query_desc);
+        bindFunction(&ComplexData::query_set, query_set_name, &query_set_desc);
 
         // Set from read only jsons
-        bindSubtree("json","Functions to manipulate JSON data via JSON documents");
-        bindFunction(&ComplexData::set_from_json,  "json set",  "Sets a key from a JSON document:    <key> <link:key>");
+        bindSubtree(json_name, &json_desc);
+        bindFunction(&ComplexData::json_set,  json_set_name,  &json_set_desc);
     }
 };
 }   // namespace DomainModule

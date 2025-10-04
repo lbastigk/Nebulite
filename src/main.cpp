@@ -33,6 +33,7 @@
 // Initializes callable functions from both user CLI and runtime environment.
 // Also sets up the global Renderer used across Tree-based function calls.
 #include "Core/GlobalSpace.hpp" 
+#include "DomainModule/GlobalSpace/GDM_Debug.hpp"   // For turning error logging off/on
 
 // ----------------------------------------------------------------------
 // NEBULITE main
@@ -198,7 +199,7 @@ int main(int argc, char* argv[]){
     }
 
     // Parser handles if error files need to be closed
-    globalSpace.parseStr(binaryName + " errorlog off");
+    globalSpace.parseStr(binaryName + " " + Nebulite::DomainModule::GlobalSpace::Debug::errorlog_name + " off");
 
     // Return 1 on critical stop, 0 otherwise
     return (int)criticalStop;

@@ -1,9 +1,11 @@
-#include "DomainModule/GlobalSpace/GDM_GUI.hpp"
+#include "DomainModule/Unimplemented/GDM_GUI.hpp"
 #include "Core/GlobalSpace.hpp"       // Global Space for Nebulite
+
+namespace Nebulite::DomainModule::GlobalSpace {
 
 //------------------------------------------
 // Update
-void Nebulite::DomainModule::GlobalSpace::GUI::update() {
+void GUI::update() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -13,7 +15,7 @@ void Nebulite::DomainModule::GlobalSpace::GUI::update() {
 }
 
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::GUI::example(int argc, char* argv[]) {
+Nebulite::Constants::Error GUI::example(int argc, char* argv[]) {
     // Goal is to create an SDL texture with DearImgui and attach it to the renderer queue
     // We might wish to create container variables local to the GUI class to hold DearImgui elements
     // so that we might call update on them, or modify them in any way
@@ -30,3 +32,5 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::GUI::example(int
 
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
+
+} // namespace Nebulite::DomainModule::GlobalSpace

@@ -28,7 +28,7 @@ namespace JSON {
 NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, Debug) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 
@@ -45,6 +45,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error print(int argc, char* argv[]);
+    static const std::string print_name;
+    static const std::string print_desc;
 
     //------------------------------------------
     // Setup
@@ -54,7 +56,7 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, Debug){
         // Binding
-        bindFunction(&Debug::print, "print", "Prints the JSON document to the console. Usage: print [key]");
+        bindFunction(&Debug::print, print_name, &print_desc);
     }
 
 private:

@@ -28,7 +28,7 @@ namespace JSON {
 NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ForceValue) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 
@@ -42,7 +42,9 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error force(int argc, char* argv[]);
+    Nebulite::Constants::Error force_set(int argc, char* argv[]);
+    static const std::string force_set_name;
+    static const std::string force_set_desc;
 
     /**
      * @brief Clears all forced variables
@@ -51,7 +53,14 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error forceClear(int argc, char* argv[]);
+    Nebulite::Constants::Error force_clear(int argc, char* argv[]);
+    static const std::string force_clear_name;
+    static const std::string force_clear_desc;
+
+    //------------------------------------------
+    // Subtree names
+    static const std::string force_name;
+    static const std::string force_desc;
 
     //------------------------------------------
     // Setup
@@ -61,9 +70,9 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, ForceValue){
         // Binding
-        bindSubtree("force", "Functions to force JSON variable values");
-        bindFunction(&ForceValue::force,      "force set",      "Force a variable to a value: force-global <key> <value>");
-        bindFunction(&ForceValue::forceClear, "force clear",    "Clear all forced variables");
+        bindSubtree(force_name, &force_desc);
+        bindFunction(&ForceValue::force_set,      force_set_name,      &force_set_desc);
+        bindFunction(&ForceValue::force_clear,    force_clear_name,    &force_clear_desc);
     }
 
 private:

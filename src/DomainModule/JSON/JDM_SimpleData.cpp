@@ -1,9 +1,11 @@
 #include "DomainModule/JSON/JDM_SimpleData.hpp"
 #include "Utility/JSON.hpp"
 
+namespace Nebulite::DomainModule::JSON {
+
 //------------------------------------------
 // Update
-void Nebulite::DomainModule::JSON::SimpleData::update() {
+void SimpleData::update() {
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     // Add Domain-specific updates here!
     // General rule:
@@ -16,7 +18,7 @@ void Nebulite::DomainModule::JSON::SimpleData::update() {
 //------------------------------------------
 // General set/get/remove functions
 
-Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::set(int argc, char* argv[]) {
+Nebulite::Constants::Error SimpleData::set(int argc, char* argv[]) {
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if(argc < 3) {
         std::cerr << "Error: Too few arguments for set command." << std::endl;
@@ -31,8 +33,15 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::set(int arg
     domain->set(key.c_str(), value);
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string SimpleData::set_name = "set";
+const std::string SimpleData::set_desc = R"(Set a key to a value in the JSON document.
 
-Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::move(int argc, char* argv[]){
+Usage: set <key> <value>
+
+Note: All values are stored as strings.
+)";
+
+Nebulite::Constants::Error SimpleData::move(int argc, char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc != 3) {
         std::cerr << "Error: Too few arguments for move command." << std::endl;
@@ -73,8 +82,13 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::move(int ar
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string SimpleData::move_name = "move";
+const std::string SimpleData::move_desc = R"(Move data from one key to another.
 
-Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::copy(int argc, char* argv[]){
+Usage: move <source_key> <destination_key>
+)";
+
+Nebulite::Constants::Error SimpleData::copy(int argc, char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc != 3) {
         std::cerr << "Error: Too few arguments for copy command." << std::endl;
@@ -113,8 +127,13 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::copy(int ar
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string SimpleData::copy_name = "copy";
+const std::string SimpleData::copy_desc = R"(Copy data from one key to another.
 
-Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::keyDelete(int argc, char* argv[]){
+Usage: copy <source_key> <destination_key>
+)";
+
+Nebulite::Constants::Error SimpleData::keyDelete(int argc, char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc != 2) {
         std::cerr << "Error: Too few arguments for delete command." << std::endl;
@@ -124,10 +143,15 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::keyDelete(i
     domain->remove_key(key.c_str());
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string SimpleData::keyDelete_name = "keyDelete";
+const std::string SimpleData::keyDelete_desc = R"(Delete a key from the JSON document.
+
+Usage: keyDelete <key>
+)";
 
 //------------------------------------------
 // Array manipulation functions
-Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::ensureArray(int argc, char* argv[]) {
+Nebulite::Constants::Error SimpleData::ensureArray(int argc, char* argv[]) {
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 2) {
         std::cerr << "Error: Too few arguments for ensureArray command." << std::endl;
@@ -164,8 +188,13 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::ensureArray
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
     
 }
+const std::string SimpleData::ensureArray_name = "ensure-array";
+const std::string SimpleData::ensureArray_desc = R"(Ensure that a key is an array, converting a value to an array if necessary.
 
-Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::push_back(int argc, char* argv[]){
+Usage: ensure-array <key>
+)";
+
+Nebulite::Constants::Error SimpleData::push_back(int argc, char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc > 3) {
         std::cerr << "Error: Too many arguments for push_front command." << std::endl;
@@ -183,7 +212,10 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::push_back(i
     }
 
     if (domain->memberCheck(key) != Nebulite::Utility::JSON::KeyType::array) {
-        Nebulite::Constants::Error result = domain->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::push_back ensure-array " + key));
+        std::string command = __FUNCTION__;
+        command += " " + SimpleData::ensureArray_name;
+        command += " " + key;
+        Nebulite::Constants::Error result = domain->parseStr(command);
         if (result != Nebulite::Constants::ErrorTable::NONE()) {
             std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
             return result;
@@ -195,8 +227,13 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::push_back(i
     domain->set(itemKey.c_str(), value);
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string SimpleData::push_back_name = "push-back";
+const std::string SimpleData::push_back_desc = R"(Push a value to the back of an array.
 
-Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::pop_back(int argc, char* argv[]){
+Usage: push-back <key> <value>
+)";
+
+Nebulite::Constants::Error SimpleData::pop_back(int argc, char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 2) {
         std::cerr << "Error: Too few arguments for push_back command." << std::endl;
@@ -209,7 +246,10 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::pop_back(in
     std::string key = argv[1];
 
     if (domain->memberCheck(key) != Nebulite::Utility::JSON::KeyType::array) {
-        Nebulite::Constants::Error result = domain->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::pop_back ensure-array " + key));
+        std::string command = __FUNCTION__;
+        command += " " + SimpleData::ensureArray_name;
+        command += " " + key;
+        Nebulite::Constants::Error result = domain->parseStr(command);
         if (result != Nebulite::Constants::ErrorTable::NONE()) {
             std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
             return result;
@@ -226,8 +266,13 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::pop_back(in
     domain->remove_key(itemKey.c_str());
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string SimpleData::pop_back_name = "pop-back";
+const std::string SimpleData::pop_back_desc = R"(Pop a value from the back of an array.
 
-Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::push_front(int argc, char* argv[]){
+Usage: pop-back <key>
+)";
+
+Nebulite::Constants::Error SimpleData::push_front(int argc, char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc > 3) {
         std::cerr << "Error: Too many arguments for push_front command." << std::endl;
@@ -246,7 +291,10 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::push_front(
 
     
     if (domain->memberCheck(key) != Nebulite::Utility::JSON::KeyType::array) {
-        Nebulite::Constants::Error result = domain->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::push_front ensure-array " + key));
+        std::string command = __FUNCTION__;
+        command += " " + SimpleData::ensureArray_name;
+        command += " " + key;
+        Nebulite::Constants::Error result = domain->parseStr(command);
         if (result != Nebulite::Constants::ErrorTable::NONE()) {
             std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
             return result;
@@ -280,8 +328,13 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::push_front(
     domain->set(itemKey.c_str(), value);
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string SimpleData::push_front_name = "push-front";
+const std::string SimpleData::push_front_desc = R"(Push a value to the front of an array.
 
-Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::pop_front(int argc, char* argv[]){
+Usage: push-front <key> <value>
+)";
+
+Nebulite::Constants::Error SimpleData::pop_front(int argc, char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 2) {
         std::cerr << "Error: Too few arguments for pop_front command." << std::endl;
@@ -294,7 +347,10 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::pop_front(i
     std::string key = argv[1];
 
     if (domain->memberCheck(key) != Nebulite::Utility::JSON::KeyType::array) {
-        Nebulite::Constants::Error result = domain->parseStr(std::string("Nebulite::DomainModule::JSON::SimpleData::pop_front ensure-array " + key));
+        std::string command = __FUNCTION__;
+        command += " " + SimpleData::ensureArray_name;
+        command += " " + key;
+        Nebulite::Constants::Error result = domain->parseStr(command);
         if (result != Nebulite::Constants::ErrorTable::NONE()) {
             std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
             return result;
@@ -330,3 +386,10 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::SimpleData::pop_front(i
 
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string SimpleData::pop_front_name = "pop-front";
+const std::string SimpleData::pop_front_desc = R"(Pop a value from the front of an array.
+
+Usage: pop-front <key>
+)";
+
+} // namespace Nebulite::DomainModule::JSON

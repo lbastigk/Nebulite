@@ -15,6 +15,10 @@ RenderObjectDraft extends the Global Space Tree to provide an in-memory RenderOb
 //------------------------------------------
 // Includes
 
+// Standard Library
+#include <string>
+#include <memory>
+
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
@@ -39,10 +43,10 @@ namespace GlobalSpace {
  * Allows for the creation and manipulation of RenderObjects in a draft state.
  * Allowing us to easily create draft object to continously spawn.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, RenderObjectDraft) {
+NEBULITE_DOMAINMODULE(::Nebulite::Core::GlobalSpace, RenderObjectDraft) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 
@@ -57,7 +61,9 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error parse(int argc, char* argv[]);
+    Nebulite::Constants::Error draft_parse(int argc, char* argv[]);
+    static const std::string draft_parse_name;
+    static const std::string draft_parse_desc;
 
     /**
      * @brief Spawn the created draft object
@@ -66,7 +72,9 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error spawnDraft(int argc, char* argv[]);
+    Nebulite::Constants::Error draft_spawn(int argc, char* argv[]);
+    static const std::string draft_spawn_name;
+    static const std::string draft_spawn_desc;
 
     /**
      * @brief Reset the draft (does not reset any spawned ones!)
@@ -75,7 +83,14 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error resetDraft(int argc, char* argv[]);
+    Nebulite::Constants::Error draft_reset(int argc, char* argv[]);
+    static const std::string draft_reset_name;
+    static const std::string draft_reset_desc;
+
+    //------------------------------------------
+    // Subtree names
+    static const std::string draft_name;
+    static const std::string draft_desc;
 
     //------------------------------------------
     // Setup
@@ -83,16 +98,46 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, RenderObjectDraft){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, RenderObjectDraft) {
+        // Initialize the draft holder with the domain
+        draft.setDomain(domain);
+        
         // Bind functions
-        bindSubtree("draft", "Functions to manipulate and spawn RenderObjects in draft state");
-        bindFunction(&RenderObjectDraft::parse,       "draft parse",   "Parse Renderobject-specific functions on the draft");
-        bindFunction(&RenderObjectDraft::spawnDraft,  "draft spawn",   "Spawn the created draft object");
-        bindFunction(&RenderObjectDraft::resetDraft,  "draft reset",   "Reset the draft object (does not reset any spawned ones!)");
+        bindSubtree(draft_name, &draft_desc);
+        bindFunction(&RenderObjectDraft::draft_parse,  draft_parse_name,   &draft_parse_desc);
+        bindFunction(&RenderObjectDraft::draft_spawn,  draft_spawn_name,   &draft_spawn_desc);
+        bindFunction(&RenderObjectDraft::draft_reset,  draft_reset_name,   &draft_reset_desc);
     }
 
 private:
-    std::unique_ptr<Nebulite::Core::RenderObject> draft;
+    /**
+     * @class DraftHolder
+     * @brief Protector struct for draft RenderObject
+     * Ensuring the draft is only initialized when accessed through lazy-init
+     */
+    class DraftHolder{
+    private:
+        ::std::unique_ptr<Nebulite::Core::RenderObject> ptr;
+        Nebulite::Core::GlobalSpace* domain_ptr;
+    public:
+        DraftHolder() : ptr(nullptr), domain_ptr(nullptr) {}
+        DraftHolder(Nebulite::Core::GlobalSpace* domain) : ptr(nullptr), domain_ptr(domain) {}
+        ~DraftHolder() = default;
+
+        void setDomain(Nebulite::Core::GlobalSpace* domain) {
+            domain_ptr = domain;
+        }
+
+        ::std::unique_ptr<Nebulite::Core::RenderObject> & get() {
+            if(!ptr && domain_ptr) {
+                ptr = ::std::make_unique<Nebulite::Core::RenderObject>(domain_ptr);
+            }
+            return ptr;
+        }
+    };
+
+    DraftHolder draft;
+    
 };
 }   // namespace GlobalSpace
 }   // namespace DomainModule

@@ -161,7 +161,7 @@ public:
      * @return true if the subtree was created successfully, 
      * false if a subtree with the same name already exists.
      */
-    bool bindSubtree(const std::string& name, const std::string& description){
+    bool bindSubtree(const std::string name, const std::string* helpDescription){
         if(subtrees.find(name) != subtrees.end()){
             // Subtree already exists
             /**
@@ -172,7 +172,7 @@ public:
             // std::cerr << "Warning: A subtree with the name '" << name << "' already exists in the FuncTree '" << TreeName << "'." << std::endl;
             return false;
         }
-        subtrees[name] = {std::make_unique<FuncTree<RETURN_TYPE>>(name, _standard, _functionNotFoundError), description};
+        subtrees[name] = {std::make_unique<FuncTree<RETURN_TYPE>>(name, _standard, _functionNotFoundError), helpDescription};
         return true;
     }
 
@@ -191,7 +191,7 @@ public:
      * @param helpDescription Help description for the function. First line is shown in the general help, full description in detailed help.
      */
     template<typename ClassType>
-    void bindFunction(ClassType* obj, RETURN_TYPE (ClassType::*method)(int, char**), const std::string& name, const std::string& helpDescription);
+    void bindFunction(ClassType* obj, RETURN_TYPE (ClassType::*method)(int, char**), const std::string& name, const std::string* helpDescription);
 
     /**
      * @brief Binds a variable to the command tree.
@@ -203,7 +203,7 @@ public:
      * @param name Name of the variable in the command tree
      * @param helpDescription Help description for the variable. First line is shown in the general help, full description in detailed help.
      */
-    void bindVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription);
+    void bindVariable(std::string* varPtr, const std::string& name, const std::string* helpDescription);
 
     // Check if a function with the given name or from a full command exists
     /**
@@ -241,13 +241,13 @@ private:
     // Function - Description pair
     struct FunctionInfo {
         FunctionPtr function;
-        std::string description;
+        const std::string* description;
     };
 
     // Variable - Description pair
     struct VariableInfo {
         std::string* pointer;
-        std::string description;
+        const std::string* description;
     };
 
     // Status "Function not found"
@@ -274,7 +274,7 @@ private:
      */
     struct subtree {
         std::unique_ptr<FuncTree<RETURN_TYPE>> tree;
-        std::string description;
+        const std::string* description;
     };
 
     /**
@@ -308,19 +308,24 @@ private:
      * 
      * @return A vector of pairs containing function names and their descriptions.
      */
-    std::vector<std::pair<std::string, std::string>> getAllFunctions();
+    std::vector<std::pair<std::string, const std::string*>> getAllFunctions();
 
     /**
      * @brief Retrieves a list of all variables and their descriptions.
      * 
      * @return A vector of pairs containing variable names and their descriptions.
      */
-    std::vector<std::pair<std::string, std::string>> getAllVariables();
+    std::vector<std::pair<std::string, const std::string*>> getAllVariables();
 
     /**
      * @brief Stores the last parsed string.
      */
     std::string lastParsedString;
+
+    /**
+     * @brief Help description for the help function.
+     */
+    const std::string help_desc = R"(Show available commands and their descriptions)";
 };
 }   // namespace Execution
 }   // namespace Interaction
@@ -331,7 +336,7 @@ private:
 
 template<typename RETURN_TYPE>
 template<typename ClassType>
-void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(ClassType* obj, RETURN_TYPE (ClassType::*method)(int, char**), const std::string& name, const std::string& help) {
+void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(ClassType* obj, RETURN_TYPE (ClassType::*method)(int, char**), const std::string& name, const std::string* helpDescription) {
     // If the name has a whitespace, the function has to be bound to a subtree
     if(name.find(' ') != name.npos){
         // Split the name by whitespace
@@ -364,7 +369,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(Class
         }
 
         // Bind the function to the subtree
-        subtrees[subtreeName].tree->bindFunction(obj, method, functionName, help);
+        subtrees[subtreeName].tree->bindFunction(obj, method, functionName, helpDescription);
 
         return; // Function bound to subtree, return
     }
@@ -420,12 +425,12 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(Class
         [obj, method](int argc, char** argv) {
             return (obj->*method)(argc, argv);
         },
-        help
+        helpDescription
     };
 }
 
 template<typename RETURN_TYPE>
-void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindVariable(std::string* varPtr, const std::string& name, const std::string& helpDescription) {
+void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindVariable(std::string* varPtr, const std::string& name, const std::string* helpDescription) {
     variables[name] = VariableInfo{varPtr, helpDescription};
 }
 
@@ -433,8 +438,8 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindVariable(std::
 // Getter
 
 template<typename RETURN_TYPE>
-std::vector<std::pair<std::string, std::string>> Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::getAllFunctions() {
-    std::vector<std::pair<std::string, std::string>> allFunctions;
+std::vector<std::pair<std::string, const std::string*>> Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::getAllFunctions() {
+    std::vector<std::pair<std::string, const std::string*>> allFunctions;
     for (const auto& [name, info] : functions) {
         allFunctions.emplace_back(name, info.description);
     }
@@ -458,8 +463,8 @@ std::vector<std::pair<std::string, std::string>> Nebulite::Interaction::Executio
 }
 
 template<typename RETURN_TYPE>
-std::vector<std::pair<std::string, std::string>> Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::getAllVariables() {
-    std::vector<std::pair<std::string, std::string>> allVariables;
+std::vector<std::pair<std::string, const std::string*>> Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::getAllVariables() {
+    std::vector<std::pair<std::string, const std::string*>> allVariables;
     for (const auto& [name, info] : variables) {
         allVariables.emplace_back(name, info.description);
     }
@@ -491,7 +496,7 @@ Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(std::string tr
     // Attach the help function to read out the description of all attached functions
     functions["help"] = FunctionInfo{std::function<RETURN_TYPE(int, char**)>([this](int argc, char** argv) {
         return this->help(argc, argv);
-    }), "Show available commands and their descriptions"};
+    }), &help_desc};
 
     _standard = standard;
     _functionNotFoundError = functionNotFoundError;
@@ -743,21 +748,21 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help(int ar
             if(funcFound){
                 // Found function, display detailed help
                 std::cout << "\nHelp for function '" << funcName << "':\n" << std::endl;
-                std::cout << funcIt->second.description << "\n";
+                std::cout << *funcIt->second.description << "\n";
             }
             // 2.) Subtree
             else if(subFound){
                 // Found subtree, display detailed help
-                std::cout << "\nHelp for subtree '" << funcName << "':\n" << std::endl;
-                std::cout << subIt->second.description << "\n";
-                std::cout << "Subtree functions:\n";
+                //std::cout << "\nHelp for subtree '" << funcName << "':\n" << std::endl;
+                //std::cout << *subIt->second.description << "\n";
+                //std::cout << "Subtree functions:\n";
                 subIt->second.tree->help(0, nullptr); // Display all functions in the subtree
             }
             // 3.) Variable
             else if(varFound){
                 // Found variable, display detailed help
                 std::cout << "\nHelp for variable '--" << funcName << "':\n" << std::endl;
-                std::cout << varIt->second.description << "\n";
+                std::cout << *varIt->second.description << "\n";
             }
             // 4.) Not found
             else{
@@ -771,8 +776,8 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help(int ar
     // Case 2: General help for all functions, subtrees and variables
 
     // All info: [name, description]
-    std::vector<std::pair<std::string, std::string>> allFunctions = getAllFunctions();
-    std::vector<std::pair<std::string, std::string>> allVariables = getAllVariables();
+    std::vector<std::pair<std::string, const std::string*>> allFunctions = getAllFunctions();
+    std::vector<std::pair<std::string, const std::string*>> allVariables = getAllVariables();
 
     // Case-insensitive comparison function
     auto caseInsensitiveLess = [](const auto& a, const auto& b) {
@@ -793,14 +798,14 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help(int ar
     std::sort(allVariables.begin(), allVariables.end(), caseInsensitiveLess);
 
     // Display:
-    std::cout << "\n\tHelp for " << TreeName << "\n\n";
+    std::cout << "\nHelp for " << TreeName << "\nAdd the entries name to the command for more details: " << TreeName << " help <foo>\n";
     std::cout << "Available functions:\n";
     for (const auto& [name, description] : allFunctions) {
         // Only show the first line of the description
-        std::string descriptionFirstLine = description;
-        size_t newlinePos = description.find('\n');
+        std::string descriptionFirstLine = *description;
+        size_t newlinePos = description->find('\n');
         if (newlinePos != std::string::npos) {
-            descriptionFirstLine = description.substr(0, newlinePos);
+            descriptionFirstLine = description->substr(0, newlinePos);
         }
         std::cout << "  " << std::setw(25) << std::left << name
                   << " - " << descriptionFirstLine << std::endl;
@@ -811,7 +816,7 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help(int ar
     for (const auto& [name, description] : allVariables) {
         std::string fullName = "--" + name;  // Prefix with --
         std::cout << "  " << std::setw(25) << std::left << fullName
-                  << " - " << description << std::endl;
+                  << " - " << *description << std::endl;
     }
     return _standard;
 }

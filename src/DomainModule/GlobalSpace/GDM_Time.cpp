@@ -2,8 +2,12 @@
 
 #include "Core/GlobalSpace.hpp"
 
+namespace Nebulite::DomainModule::GlobalSpace {
 
-void Nebulite::DomainModule::GlobalSpace::Time::update() {
+const std::string Time::time_name = "time";
+const std::string Time::time_desc = R"(Commands for time management)";
+
+void Time::update() {
     //------------------------------------------
     // Full time (runtime)
 
@@ -56,12 +60,18 @@ void Nebulite::DomainModule::GlobalSpace::Time::update() {
     haltThisFrame = false;
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::haltOnce(int argc, char** argv){
+Nebulite::Constants::Error Time::time_haltOnce(int argc, char** argv){
     haltThisFrame = true;
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string Time::time_haltOnce_name = "time halt-once";
+const std::string Time::time_haltOnce_desc = R"(Halts time for one frame
+Meaning you can halt time by continuously calling this function.
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::lock(int argc, char** argv){
+Usage: time halt-once
+)";
+
+Nebulite::Constants::Error Time::time_lock(int argc, char** argv){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -69,8 +79,17 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::lock(int a
     timeLocks.insert(lockName);
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string Time::time_lock_name = "time lock";
+const std::string Time::time_lock_desc = R"(Locks time with lock provided, 
+Time can only progress if no locks are present.
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::unlock(int argc, char** argv){
+Usage: time lock <lock_name>
+
+<lock_name> : Name of the lock to add. Any string without whitespace is valid.
+)";
+
+
+Nebulite::Constants::Error Time::time_unlock(int argc, char** argv){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -83,13 +102,27 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::unlock(int
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string Time::time_unlock_name = "time unlock";
+const std::string Time::time_unlock_desc = R"(Removes a time lock.
+Time can only progress if no locks are present.
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::masterUnlock(int argc, char** argv){
+Usage: time unlock <lock_name>
+
+<lock_name> : Name of the lock to remove. Must match an existing lock.
+)";
+
+Nebulite::Constants::Error Time::time_masterUnlock(int argc, char** argv){
     timeLocks.clear();
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string Time::time_masterUnlock_name = "time master-unlock";
+const std::string Time::time_masterUnlock_desc = R"(Removes all time locks.
+Time can only progress if no locks are present.
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::setFixedDeltaTime(int argc, char** argv){
+Usage: time master-unlock
+)";
+
+Nebulite::Constants::Error Time::time_setFixedDeltaTime(int argc, char** argv){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -101,3 +134,11 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::Time::setFixedDe
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string Time::time_setFixedDeltaTime_name = "time set-fixed-dt";
+const std::string Time::time_setFixedDeltaTime_desc = R"(Sets a fixed delta time in milliseconds for the simulation time.
+Use 0 to disable fixed dt.
+
+Usage: time set-fixed-dt <dt_ms>
+)";
+
+} // namespace Nebulite::DomainModule::GlobalSpace

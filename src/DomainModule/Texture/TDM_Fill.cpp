@@ -3,6 +3,8 @@
 #include "Core/GlobalSpace.hpp"
 #include "Core/Texture.hpp"
 
+namespace Nebulite::DomainModule::Texture{
+
 void Nebulite::DomainModule::Texture::Fill::update() {
     // Nothing to do in update for fill
 }
@@ -74,3 +76,15 @@ Nebulite::Constants::Error Nebulite::DomainModule::Texture::Fill::fill(int argc,
               << std::endl;
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string Fill::fill_name = "fill";
+const std::string Fill::fill_desc = R"(Fill the texture with a color
+
+Usage:
+fill <color> 
+fill [R] [G] [B]
+- <color>: Predefined color name (e.g., "red", "green", "blue")
+- [R] [G] [B]: RGB color values (0-255)
+)";
+
+} // namespace Nebulite::DomainModule::Texture
+

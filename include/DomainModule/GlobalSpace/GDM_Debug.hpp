@@ -32,7 +32,7 @@ namespace GlobalSpace {
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 
@@ -51,6 +51,8 @@ public:
         // as it already exists in the inherited domain JSON
         return Nebulite::Constants::ErrorTable::NONE();
     }
+    static const std::string set_name;
+    static const std::string set_desc;
 
     //------------------------------------------
     // Available Functions
@@ -69,6 +71,8 @@ public:
      * wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
      */
     Nebulite::Constants::Error errorlog(int argc, char* argv[]);
+    static const std::string errorlog_name;
+    static const std::string errorlog_desc;
 
     /**
      * @brief Clears the console screen.
@@ -78,24 +82,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error clearConsole(int argc, char* argv[]);
-
-    /**
-     * @brief Prints the global document to the console.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
-     */
-    Nebulite::Constants::Error printGlobal(int argc, char* argv[]);
-
-    /**
-     * @brief Prints the current state of the renderer to the console.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
-     */
-    Nebulite::Constants::Error printState(int argc, char* argv[]);
+    static const std::string clearConsole_name;
+    static const std::string clearConsole_desc;
 
     /**
      * @brief Logs the global document to a file.
@@ -105,7 +93,9 @@ public:
      * Default is "global.log.jsonc" if no name was provided
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error logGlobal(int argc, char* argv[]);
+    Nebulite::Constants::Error log_global(int argc, char* argv[]);
+    static const std::string log_global_name;
+    static const std::string log_global_desc;
 
     /**
      * @brief Logs the current state of the renderer to a file.
@@ -115,26 +105,22 @@ public:
      * Default is "state.log.jsonc" if no name was provided
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error logState(int argc, char* argv[]);
-
-    /**
-     * @brief Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
-     */
-    Nebulite::Constants::Error render_object(int argc, char** argv);
+    Nebulite::Constants::Error log_state(int argc, char* argv[]);
+    static const std::string log_state_name;
+    static const std::string log_state_desc;
 
     /**
      * @brief Crashes the program, useful for checking 
      * if the testing suite can catch crashes.
      * 
      * @param argc The argument count
-     * @param argv The argument vector: The type of crash
+     * @param argv The argument vector: The type of crash: [segfault/abort/terminate/throw]
+     * Default is segfault if no argument was provided
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error crash(int argc, char** argv);
+    static const std::string crash_name;
+    static const std::string crash_desc;
 
     /**
      * @brief Echoes all arguments as string to the standard error
@@ -144,6 +130,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error error(int argc, char* argv[]);
+    static const std::string error_name;
+    static const std::string error_desc;
 
     /**
      * @brief Returns a warning: a custom, noncritical error
@@ -153,6 +141,8 @@ public:
      * @return The specified value of Error. 
      */
     Nebulite::Constants::Error warn(int argc, char* argv[]);
+    static const std::string warn_name;
+    static const std::string warn_desc;
 
     /**
      * @brief Returns a critical error
@@ -162,6 +152,8 @@ public:
      * @return The specified value of Error.
      */
     Nebulite::Constants::Error critical(int argc, char* argv[]);
+    static const std::string critical_name;
+    static const std::string critical_desc;
 
     /**
      * @brief Waits for user input before continuing.
@@ -171,6 +163,27 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error waitForInput(int argc, char* argv[]);
+    static const std::string waitForInput_name;
+    static const std::string waitForInput_desc;
+
+    /**
+     * @brief Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
+     * 
+     * @param argc The argument count
+     * @param argv The argument vector: no arguments available
+     * @return Potential errors that occured on command execution
+     */
+    Nebulite::Constants::Error standardfile_renderobject(int argc, char** argv);
+    static const std::string standardfile_renderobject_name;
+    static const std::string standardfile_renderobject_desc;
+
+    //------------------------------------------
+    // Subtree names
+    static const std::string log_name;
+    static const std::string log_desc;
+
+    static const std::string standardfile_name;
+    static const std::string standardfile_desc;
 
     //------------------------------------------
     // Setup
@@ -181,33 +194,29 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug){
         //------------------------------------------
         // Binding functions to the FuncTree
-        bindFunction(&Debug::errorlog,          "errorlog",                 "Activate/Deactivate error logging: log <on/off>");
-        bindFunction(&Debug::clearConsole,      "clear",                    "Clear console");
-        bindFunction(&Debug::error,             "error",                    "Echo a string to cerr/errorfile: error <string>");
-        bindFunction(&Debug::crash,             "crash",                    "Crashes the program: crash [segfault/abort/terminate/throw]");
-        bindFunction(&Debug::warn,              "warn",                     "Return a warning (noncritical error): warn <string>");
-        bindFunction(&Debug::critical,          "critical",                 "Return a critical error: critical <string>");
-        bindFunction(&Debug::waitForInput,      "inputwait",                "Waits for user input before continuing");
+        bindFunction(&Debug::errorlog,          errorlog_name,                 &errorlog_desc);
+        bindFunction(&Debug::clearConsole,      clearConsole_name,             &clearConsole_desc);
+        bindFunction(&Debug::error,             error_name,                    &error_desc);
+        bindFunction(&Debug::crash,             crash_name,                    &crash_desc);
+        bindFunction(&Debug::warn,              warn_name,                     &warn_desc);
+        bindFunction(&Debug::critical,          critical_name,                 &critical_desc);
+        bindFunction(&Debug::waitForInput,      waitForInput_name,             &waitForInput_desc);
 
-        // print State needs to be refactored, as "print" is already a command in JSON
-        //bindSubtree("print", "Functions to print various data to console");
-        //bindFunction(&Debug::printState,        "print state",              "Print current state");
+        bindSubtree(log_name, &log_desc);
+        bindFunction(&Debug::log_global,        log_global_name,               &log_global_desc);
+        bindFunction(&Debug::log_state,         log_state_name,                &log_state_desc);
 
-        bindSubtree("log", "Functions to log various data to files");
-        bindFunction(&Debug::logGlobal,         "log global",               "Log global document: log-global [filename]");
-        bindFunction(&Debug::logState,          "log state",                "Log current state: log-state [filename]");
-        
-        bindSubtree("standardfile", "Functions to generate standard files");
-        bindFunction(&Debug::render_object,     "standardfile render-object",   "Generates a standard render object at ./Resources/Renderobjects/standard.jsonc");
+        bindSubtree(standardfile_name, &standardfile_desc);
+        bindFunction(&Debug::standardfile_renderobject,     standardfile_renderobject_name,   &standardfile_renderobject_desc);
 
         //------------------------------------------
         // Example Bindings that will fail
 
         // TEST: Binding an already existing sub-function
-        //bindFunction(&Debug::set, "set", "Dummy function to test binding with existing name in inherited Domain");  // <- THIS WILL FAIL
+        //bindFunction(&Debug::set, "set", set_desc);  // <- THIS WILL FAIL, as "set" already exists in the inherited domain JSON
 
         // TEST: Binding an already existing function
-        //bindFunction(&Debug::set, "log", "Dummy function to test binding with existing name in own Domain"); // <- THIS WILL FAIL
+        //bindFunction(&Debug::error, "error", error_desc); // <- THIS WILL FAIL, as "error" already exists in GlobalSpace
     }
 
 private:

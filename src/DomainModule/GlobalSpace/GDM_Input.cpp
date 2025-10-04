@@ -1,7 +1,9 @@
 #include "DomainModule/GlobalSpace/GDM_Input.hpp"
 #include "Core/GlobalSpace.hpp"
 
-void Nebulite::DomainModule::GlobalSpace::Input::update() {
+namespace Nebulite::DomainModule::GlobalSpace {
+
+void Input::update() {
 	//------------------------------------------
 	// Only update if Renderer exists
 	if(domain->RendererExists()){
@@ -37,7 +39,7 @@ void Nebulite::DomainModule::GlobalSpace::Input::update() {
 //------------------------------------------
 // Private Functions
 
-void Nebulite::DomainModule::GlobalSpace::Input::map_key_names() {
+void Input::map_key_names() {
 	for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode) {
 		const char* nameRaw = SDL_GetScancodeName(static_cast<SDL_Scancode>(scancode));
 		if (nameRaw && nameRaw[0] != '\0') {
@@ -53,7 +55,7 @@ void Nebulite::DomainModule::GlobalSpace::Input::map_key_names() {
 	}
 }
 
-void Nebulite::DomainModule::GlobalSpace::Input::write_current_and_delta_inputs() {
+void Input::write_current_and_delta_inputs() {
 	//------------------------------------------
 	// Mouse
     mouse.lastPosX = mouse.posX;
@@ -107,7 +109,7 @@ void Nebulite::DomainModule::GlobalSpace::Input::write_current_and_delta_inputs(
     }
 }
 
-void Nebulite::DomainModule::GlobalSpace::Input::reset_delta_values() {
+void Input::reset_delta_values() {
 	// 1.) Mouse
 	domain->getDoc()->set("input.mouse.delta.X",0);
 	domain->getDoc()->set("input.mouse.delta.Y",0);
@@ -122,3 +124,5 @@ void Nebulite::DomainModule::GlobalSpace::Input::reset_delta_values() {
 		}
 	}
 }
+
+} // namespace Nebulite::DomainModule::GlobalSpace

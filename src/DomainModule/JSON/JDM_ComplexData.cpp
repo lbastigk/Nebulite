@@ -1,9 +1,17 @@
 #include "DomainModule/JSON/JDM_ComplexData.hpp"
 #include "Utility/JSON.hpp"
 
+namespace Nebulite::DomainModule::JSON{
+
+const std::string ComplexData::query_name = "query";
+const std::string ComplexData::query_desc = R"(Functions to manipulate JSON data via SQL query results)";
+
+const std::string ComplexData::json_name = "json";
+const std::string ComplexData::json_desc = R"(Functions to manipulate JSON data via read-only JSON documents)";
+
 //------------------------------------------
 // Update
-void Nebulite::DomainModule::JSON::ComplexData::update() {
+void ComplexData::update() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -12,21 +20,23 @@ void Nebulite::DomainModule::JSON::ComplexData::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error Nebulite::DomainModule::JSON::ComplexData::set_from_query(int argc, char* argv[]){
+Nebulite::Constants::Error ComplexData::query_set(int argc, char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
+const std::string ComplexData::query_set_name = "query set";
+const std::string ComplexData::query_set_desc = R"(Sets a key from a SQL query result.
+Not implemented yet.
+)";
 
-Nebulite::Constants::Error Nebulite::DomainModule::JSON::ComplexData::set_from_json(int argc, char* argv[]){
+Nebulite::Constants::Error ComplexData::json_set(int argc, char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     // Since we have no access to the global space, we cant use the JSON doc cache
     // Instead, we manually load the document to retrieve the key
     if(argc < 3){
-        std::cerr << "Error: Too few arguments for set-from-json command." << std::endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if(argc > 3){
-        std::cerr << "Error: Too many arguments for set-from-json command." << std::endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     std::string myKey = argv[1];
@@ -47,7 +57,6 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::ComplexData::set_from_j
     // Load the JSON document from the link
     std::string file = Nebulite::Utility::FileManagement::LoadFile(link);
     if(file.empty()){
-        std::cerr << "Error: Could not load file from link: " << link << std::endl;
         return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
     Nebulite::Utility::JSON jsonDoc;
@@ -86,3 +95,13 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::ComplexData::set_from_j
 
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string ComplexData::json_set_name = "json set";
+const std::string ComplexData::json_set_desc = R"(Sets a key from a JSON document.
+
+Usage: json set <key_to_set> <link:key>
+
+Where <link:key> is a link to a JSON document.
+The document is dynamically loaded and cached for future use.
+)";
+
+} // namespace Nebulite::DomainModule::JSON

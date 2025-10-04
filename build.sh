@@ -88,7 +88,7 @@ function build_release_windows() {
 }
 
 function generate_standards() {
-    ./bin/Nebulite standardfile render-object
+    ./bin/Nebulite standardfile renderobject
 }
 
 #############################################################
@@ -150,7 +150,7 @@ fi
 # - c++ header files
 # - .sh and .py scripts
 # - custom external for SDL compilation
-CLOC_SETTINGS="--force-lang-def=./nebulite-script-vscode/cloc_lang_define.txt \
+CLOC_SETTINGS="--force-lang-def=./Tools/cloc_lang_define.txt \
     Resources/ \
     TaskFiles/ \
     src/ \

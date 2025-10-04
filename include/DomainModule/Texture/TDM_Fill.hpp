@@ -47,6 +47,8 @@ public:
      * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error fill(int argc, char* argv[]);
+    static const std::string fill_name;
+    static const std::string fill_desc;
 
     //------------------------------------------
     // Setup
@@ -55,7 +57,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Fill) {
-        bindFunction(&Fill::fill, "fill", "Fill the texture with a color: fill <color> or fill R G B");
+        bindFunction(&Fill::fill, fill_name, &fill_desc);
     }
 };
 }   // namespace Texture

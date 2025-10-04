@@ -33,7 +33,7 @@ namespace RenderObject{
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Logging) {
 public:
     /**
-     * @brief Overwridden update function.
+     * @brief Override of update.
      */
     void update();
 
@@ -52,13 +52,15 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error echo(int argc, char* argv[]);
+    static const std::string echo_name;
+    static const std::string echo_desc;
 
     /**
      * @brief
      */
 
     /**
-     * @brief Logs the RenderObject to a file
+     * @brief Logs the entire RenderObject to a file
      * 
      * @param argc The argument count
      * @param argv The argument vector: [filename]
@@ -67,18 +69,30 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error log(int argc, char* argv[]);
+    Nebulite::Constants::Error log_all(int argc, char* argv[]);
+    static const std::string log_all_name;
+    static const std::string log_all_desc;
 
     /**
      * @brief Logs a value to a given file
      * 
      * @param argc The argument count
-     * @param argv The argument vector: <key> <file>
+     * @param argv The argument vector: <key> [file]
+     * 
+     * Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
+     * 
      * @return Potential errors that occured on command execution
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error logValue(int argc, char* argv[]);
+    Nebulite::Constants::Error log_key(int argc, char* argv[]);
+    static const std::string log_key_name;
+    static const std::string log_key_desc;
+
+    //------------------------------------------
+    // Subtree names
+    static const std::string log_name;
+    static const std::string log_desc;
 
     //------------------------------------------
     // Setup
@@ -87,11 +101,11 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Logging) {
-        bindFunction(&Logging::echo,        "echo",         "Prints the arguments to the console");
+        bindFunction(&Logging::echo,        echo_name,      &echo_desc);
 
-        bindSubtree("log", "Logging functions for RenderObject");
-        bindFunction(&Logging::log,         "log all",    "Logs the entire RenderObject to a file: [filename]");
-        bindFunction(&Logging::logValue,    "log key",    "Logs a specific value: <key> [filename]");
+        bindSubtree(log_name, &log_desc);
+        bindFunction(&Logging::log_all,    log_all_name,    &log_all_desc);
+        bindFunction(&Logging::log_key,    log_key_name,    &log_key_desc);
     }
 };
 }   // namespace DomainModule

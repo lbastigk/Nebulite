@@ -3,6 +3,8 @@
 #include "Core/Texture.hpp"
 #include "Utility/JSON.hpp"
 
+namespace Nebulite::DomainModule::Texture {
+
 void Nebulite::DomainModule::Texture::General::update() {
     // No periodic updates needed for general functions
 }
@@ -22,3 +24,11 @@ Nebulite::Constants::Error Nebulite::DomainModule::Texture::General::reloadTextu
 
     return Nebulite::Constants::ErrorTable::NONE(); // No error
 }
+const std::string General::reloadTexture_name = "reload-texture";
+const std::string General::reloadTexture_desc = R"(Reload the texture from the document.
+
+Usage: reload-texture
+)";
+
+} // namespace Nebulite::DomainModule::Texture   
+

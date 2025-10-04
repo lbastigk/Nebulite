@@ -3,6 +3,8 @@
 #include "Core/GlobalSpace.hpp"
 #include "Core/Texture.hpp"
 
+namespace Nebulite::DomainModule::Texture {
+
 void Nebulite::DomainModule::Texture::Rotation::update() {
     // Nothing to do in update for rotation
 }
@@ -62,3 +64,10 @@ Nebulite::Constants::Error Nebulite::DomainModule::Texture::Rotation::rotate(int
     std::cout << "Texture rotated by " << angle << " degrees." << std::endl;
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string Rotation::rotate_name = "rotate";
+const std::string Rotation::rotate_desc = R"(Rotate the texture by a given angle
+
+Usage: rotate <angle>
+)";
+
+}  // namespace Nebulite::DomainModule::Texture

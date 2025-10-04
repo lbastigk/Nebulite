@@ -3,11 +3,21 @@
 #include "Core/RenderObject.hpp"
 #include "Core/GlobalSpace.hpp"
 
-void Nebulite::DomainModule::RenderObject::Debug::update() {
+namespace Nebulite::DomainModule::RenderObject {
+
+const std::string Debug::debug_name = "debug";
+const std::string Debug::debug_desc = R"(Debugging functions for RenderObject)";
+
+//------------------------------------------
+// Update
+void Debug::update() {
     // For on-tick-updates
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::eval(int argc, char* argv[]) {
+//------------------------------------------
+// Available Functions
+
+Nebulite::Constants::Error Debug::eval(int argc, char* argv[]) {
     // argc/argv to string for evaluation
     std::string args = "";
     for (int i = 0; i < argc; ++i) {
@@ -23,8 +33,17 @@ Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::eval(int
     // reparse
     return domain->parseStr(args_evaled);
 }
+const std::string Debug::eval_name = "eval";
+const std::string Debug::eval_desc = R"(Evaluate an expression and execute the result. 
+Example: eval echo $(1+1)
 
-Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::printSrcRect(int argc, char* argv[]) {
+Examples:
+     
+eval echo $(1+1)    outputs:    2.000000
+eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
+)";
+
+Nebulite::Constants::Error Debug::printSrcRect(int argc, char* argv[]) {
     if(argc != 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
@@ -39,8 +58,18 @@ Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::printSrc
 
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string Debug::printSrcRect_name = "debug print-src-rect";
+const std::string Debug::printSrcRect_desc = R"(Prints debug information about the source rectangle to console
 
-Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::printDstRect(int argc, char* argv[]) {
+Usage: debug print-src-rect
+
+Outputs:
+Source Rectangle: { x: ..., y: ..., w: ..., h: ... }
+If the RenderObject is not a spritesheet, indicates that instead:
+This RenderObject is not a spritesheet.
+)";
+
+Nebulite::Constants::Error Debug::printDstRect(int argc, char* argv[]) {
     if(argc != 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
@@ -55,8 +84,18 @@ Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::printDst
 
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string Debug::printDstRect_name = "debug print-dst-rect";
+const std::string Debug::printDstRect_desc = R"(Prints debug information about the destination rectangle to console
 
-Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::textureStatus(int argc, char* argv[]){
+Usage: debug print-dst-rect
+
+Outputs:
+Destination Rectangle: { x: ..., y: ..., w: ..., h: ... }
+If the RenderObject is not a spritesheet, indicates that instead:
+Destination rectangle is not set.
+)";
+
+Nebulite::Constants::Error Debug::textureStatus(int argc, char* argv[]){
     if(argc != 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
@@ -111,3 +150,16 @@ Nebulite::Constants::Error Nebulite::DomainModule::RenderObject::Debug::textureS
 
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string Debug::textureStatus_name = "debug texture-status";
+const std::string Debug::textureStatus_desc = R"(Prints debug information about the texture to console
+
+Usage: debug texture-status
+
+Outputs various details about the texture, including:
+ - Texture Key
+ - Valid Texture
+ - Local Texture
+ - SDL Texture Info (Width, Height, Access, Format)
+)";
+
+} // namespace Nebulite::DomainModule::RenderObject

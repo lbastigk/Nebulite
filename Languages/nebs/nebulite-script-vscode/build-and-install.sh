@@ -35,12 +35,14 @@ fi
 code --list-extensions | grep nebulite || echo "Nebulite extension not found in installed extensions"
 
 # Run python scripts to update config
-python3 ./scripts/extract_keywords.py
+python3 ./Languages/nebs/nebulite-script-vscode/scripts/extract_keywords.py
 
 # Uninstall old versions of the extension
 #code --uninstall-extension lbastigk.nebulite-script
 
 # Build the VS Code extension
+ROOT_DIR=$(pwd)
+cd ./Languages/nebs/nebulite-script-vscode || exit 1
 vsce package
 
 # Install the extension
@@ -48,5 +50,7 @@ code --install-extension *.vsix
 
 # Clean up
 rm *.vsix
+
+cd "$ROOT_DIR" || exit 1
 
 echo "Extension built and installed successfully."

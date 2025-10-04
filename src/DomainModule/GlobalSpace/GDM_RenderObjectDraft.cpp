@@ -1,19 +1,14 @@
 #include "DomainModule/GlobalSpace/GDM_RenderObjectDraft.hpp"
 #include "Core/GlobalSpace.hpp"
 
+namespace Nebulite::DomainModule::GlobalSpace {
 
+const std::string RenderObjectDraft::draft_name = "draft";
+const std::string RenderObjectDraft::draft_desc = R"(Functions to manipulate and spawn RenderObjects in draft state)";
 
-void Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::update() {
-    // For on-tick-updates
+void RenderObjectDraft::update() {}
 
-    // Init draft if not available
-    // Putting this inside setupBindings is UB on windows build, which is why we do it here
-    if(!draft) {
-        draft = std::make_unique<Nebulite::Core::RenderObject>(domain);
-    }
-}
-
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::parse(int argc, char* argv[]) {
+Nebulite::Constants::Error RenderObjectDraft::draft_parse(int argc, char* argv[]) {
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -22,38 +17,54 @@ Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraf
         command += argv[i];
         if (i < argc - 1) command += " ";
     }
-    return draft->parseStr("Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::onDraft " + command);
+    return draft.get()->parseStr(__FUNCTION__ + std::string(" ") + command);
 }
+const std::string RenderObjectDraft::draft_parse_name = "draft parse";
+const std::string RenderObjectDraft::draft_parse_desc = R"(Parse Renderobject-specific functions on the draft.
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::spawnDraft(int argc, char* argv[]) {
+Usage: draft parse <function> [args...]
+
+Use 'draft parse help' to see available functions.
+
+Examples:
+
+draft parse set text.str Hello World
+draft parse set posX 100
+draft parse set posY 200
+)";
+
+Nebulite::Constants::Error RenderObjectDraft::draft_spawn(int argc, char* argv[]) {
     if(argc != 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
-
-    // Turning Renderobject into string serial and parsing:
-    // argv[0] : <from>
-    // argv[1] : spawn
-    // argv[2] : <serial>
-    std::string serial = draft->serialize();
-    char** argv_new = new char*[3];
-    argv_new[0] = const_cast<char*>("Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::spawnDraft");
-    argv_new[1] = const_cast<char*>("spawn");
-    argv_new[2] = const_cast<char*>(serial.c_str());
-
-    // Combine to new string, Parse in globalspace
-    std::string combined = std::string(argv_new[0]) + " " + argv_new[1] + " " + argv_new[2];
-    domain->parseStr(combined);
-
-    // Ignoring the return value for now
+    // Make a copy of the draft's serialized data
+    // Create a new RenderObject on the heap and append it to the renderer
+    std::string serial = draft.get()->serialize();
+    Nebulite::Core::RenderObject* newObj = new Nebulite::Core::RenderObject(domain);
+    newObj->deserialize(serial);
+    domain->getRenderer()->append(newObj);
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string RenderObjectDraft::draft_spawn_name = "draft spawn";
+const std::string RenderObjectDraft::draft_spawn_desc = R"(Spawn the created draft object.
 
-Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::RenderObjectDraft::resetDraft(int argc, char* argv[]) {
+Usage: draft spawn
+)";
+
+Nebulite::Constants::Error RenderObjectDraft::draft_reset(int argc, char* argv[]) {
     if(argc != 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
-
     Nebulite::Core::RenderObject newDraft(domain);
-    draft->deserialize(newDraft.serialize());
+    draft.get()->deserialize(newDraft.serialize());
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string RenderObjectDraft::draft_reset_name = "draft reset";
+const std::string RenderObjectDraft::draft_reset_desc = R"(Reset the draft object.
+
+This does not reset any spawned ones!
+
+Usage: draft reset
+)";
+
+} // namespace Nebulite::DomainModule::GlobalSpace
