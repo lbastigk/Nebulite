@@ -10,7 +10,7 @@ Usage:
     $ python Languages/nebs/nebulite-script-vscode/scripts/extract_keywords.py
 
 The script will:
-1. Scan all .hpp files in ./include/DomainModule/
+1. Scan all .cpp files in ./src/DomainModule/
 2. Look for lines matching: const std::string *_name = "function name";
 3. Extract and split the function names into individual keywords
 4. Save keywords to ./Languages/nebs/nebulite-script-vscode/syntaxes/keywords.json
@@ -24,11 +24,11 @@ import re
 import json
 
 # Directory containing the header files
-INCLUDE_DIR = "./include/DomainModule"
+INCLUDE_DIR = "./src/DomainModule"
 
 # Regex to match const std::string variables ending with _name
-# This handles both "const std::string" and "const ::std::string"
-CONST_STRING_NAME_REGEX = r'^\s*const\s+(?:::)?std::string\s+\w+_name\s*=\s*"([^"]+)"'
+# Matches patterns like: const std::string ClassName::function_name = "value";
+CONST_STRING_NAME_REGEX = r'^\s*const\s+std::string\s+\w+::\w+_name\s*=\s*"([^"]+)"'
 
 # NEBS directory location
 NEBS_DIRECTORY_LOCATION = "./Languages/nebs/nebulite-script-vscode/"
@@ -56,7 +56,7 @@ def extract_keywords():
     # Walk through the DomainModule directory
     for root, _, files in os.walk(INCLUDE_DIR):
         for file in files:
-            if file.endswith(".hpp"):
+            if file.endswith(".cpp"):
                 file_path = os.path.join(root, file)
                 print(f"Processing {file_path}")
                 try:
