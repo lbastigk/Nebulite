@@ -95,37 +95,64 @@ If the RenderObject is not a spritesheet, indicates that instead:
 Destination rectangle is not set.
 )";
 
-void printTextureInfo(SDL_Texture* texture) {
-    if(texture) {
-        Uint32 format;
-        int access, w, h;
-        if (SDL_QueryTexture(texture, &format, &access, &w, &h) == 0) {
-            // Decode format and access to human-readable strings
-            std::string accessStr = (access == SDL_TEXTUREACCESS_STATIC)    ? "Static"    :
-                                    (access == SDL_TEXTUREACCESS_STREAMING) ? "Streaming" :
-                                    (access == SDL_TEXTUREACCESS_TARGET)    ? "Target"    :
-                                    "Other";
-            std::string formatStr = (format == SDL_PIXELFORMAT_RGBA8888)    ? "RGBA8888"  :
-                                    (format == SDL_PIXELFORMAT_ARGB8888)    ? "ARGB8888"  :
-                                    (format == SDL_PIXELFORMAT_RGB888)      ? "RGB888"    :
-                                    (format == SDL_PIXELFORMAT_BGR888)      ? "BGR888"    :
-                                    (format == SDL_PIXELFORMAT_RGB565)      ? "RGB565"    :
-                                    (format == SDL_PIXELFORMAT_RGB555)      ? "RGB555"    :
-                                    (format == SDL_PIXELFORMAT_ARGB1555)    ? "ARGB1555"  :
-                                    (format == SDL_PIXELFORMAT_ABGR8888)    ? "ABGR8888"  :
-                                    (format == SDL_PIXELFORMAT_BGRA8888)    ? "BGRA8888"  :
-                                    "Other";
+// Texture debugging helper
+namespace{
 
-            // Print texture details
-            std::cout << " - Width  : " << w << std::endl;
-            std::cout << " - Height : " << h << std::endl;
-            std::cout << " - Access : " << accessStr << std::endl;
-            std::cout << " - Format : " << formatStr << std::endl;
+    /**
+     * @brief Converts SDL texture access enum to human-readable string.
+     * @param access The SDL texture access enum value.
+     * @return A string representing the access type.
+     */
+    std::string getTextureAccessString(int access) {
+        return (access == SDL_TEXTUREACCESS_STATIC)    ? "Static"    :
+               (access == SDL_TEXTUREACCESS_STREAMING) ? "Streaming" :
+               (access == SDL_TEXTUREACCESS_TARGET)    ? "Target"    :
+               "Other";
+    }
+
+    /**
+     * @brief Converts SDL pixel format enum to human-readable string.
+     * @param format The SDL pixel format enum value.
+     * @return A string representing the pixel format.
+     */
+    std::string getTextureFormatString(Uint32 format) {
+        return (format == SDL_PIXELFORMAT_RGBA8888)    ? "RGBA8888"  :
+               (format == SDL_PIXELFORMAT_ARGB8888)    ? "ARGB8888"  :
+               (format == SDL_PIXELFORMAT_RGB888)      ? "RGB888"    :
+               (format == SDL_PIXELFORMAT_BGR888)      ? "BGR888"    :
+               (format == SDL_PIXELFORMAT_RGB565)      ? "RGB565"    :
+               (format == SDL_PIXELFORMAT_RGB555)      ? "RGB555"    :
+               (format == SDL_PIXELFORMAT_ARGB1555)    ? "ARGB1555"  :
+               (format == SDL_PIXELFORMAT_ABGR8888)    ? "ABGR8888"  :
+               (format == SDL_PIXELFORMAT_BGRA8888)    ? "BGRA8888"  :
+               "Other";
+    }
+
+    /**
+     * @brief Prints detailed information about an SDL_Texture.
+     * 
+     * @param texture Pointer to the SDL_Texture to query.
+     */
+    void printTextureInfo(SDL_Texture* texture) {
+        if(texture) {
+            Uint32 format;
+            int access, w, h;
+            if (SDL_QueryTexture(texture, &format, &access, &w, &h) == 0) {
+                // Decode format and access to human-readable strings
+                std::string accessStr = getTextureAccessString(access);
+                std::string formatStr = getTextureFormatString(format);
+
+                // Print texture details
+                std::cout << " - Width  : " << w << std::endl;
+                std::cout << " - Height : " << h << std::endl;
+                std::cout << " - Access : " << accessStr << std::endl;
+                std::cout << " - Format : " << formatStr << std::endl;
+            } else {
+                std::cerr << "Failed to query texture: " << SDL_GetError() << std::endl;
+            }
         } else {
-            std::cerr << "Failed to query texture: " << SDL_GetError() << std::endl;
+            std::cout << "No texture is associated with this RenderObject." << std::endl;
         }
-    } else {
-        std::cout << "No texture is associated with this RenderObject." << std::endl;
     }
 }
 
