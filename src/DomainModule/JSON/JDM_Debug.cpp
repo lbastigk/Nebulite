@@ -1,9 +1,11 @@
 #include "DomainModule/JSON/JDM_Debug.hpp"
 #include "Utility/JSON.hpp"       // Global Space for Nebulite
 
+namespace Nebulite::DomainModule::JSON {
+
 //------------------------------------------
 // Update
-void Nebulite::DomainModule::JSON::Debug::update() {
+void Debug::update() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -12,7 +14,7 @@ void Nebulite::DomainModule::JSON::Debug::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error Nebulite::DomainModule::JSON::Debug::print(int argc, char* argv[]){
+Nebulite::Constants::Error Debug::print(int argc, char* argv[]){
     if(argc > 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
@@ -35,3 +37,11 @@ Nebulite::Constants::Error Nebulite::DomainModule::JSON::Debug::print(int argc, 
     std::cout << domain->getDoc()->serialize() << std::endl;
     return Nebulite::Constants::ErrorTable::NONE();
 }
+const std::string Debug::print_name = "print";
+const std::string Debug::print_desc = R"(Prints the JSON document to the console for debugging purposes.
+If key is empty, prints the entire document.
+
+Usage: print [key]
+)";
+
+} // namespace Nebulite::DomainModule::JSON
