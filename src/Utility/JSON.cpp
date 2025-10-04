@@ -296,8 +296,11 @@ const uint32_t Nebulite::Utility::JSON::memberSize(std::string key){
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
     auto kt = memberCheck(key);
-    if(kt != KeyType::array){
-        return kt;
+    if(kt == KeyType::null){
+        return 0;
+    }
+    else if(kt == KeyType::value || kt == KeyType::document){
+        return 1;
     }
     else{
         // Is array, get size

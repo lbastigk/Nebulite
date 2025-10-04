@@ -135,8 +135,6 @@ public:
      * @param argc The argument count
      * @param argv The argument vector: <condition>
      * @return Potential errors that occured on command execution
-     * 
-     * @todo Return a custom error string with the failed condition
      */
     Nebulite::Constants::Error func_assert(int argc, char* argv[]);
     static const std::string assert_name;

@@ -31,7 +31,9 @@ Nebulite::Constants::Error General::eval(int argc, char* argv[]){
     // reparse
     return domain->parseStr(args_evaled);
 }
+
 const std::string General::eval_name = "eval";
+
 const std::string General::eval_desc = R"(Evaluates an expression string and executes it.
 Every argument after eval is concatenated with a whitespace to form the expression to be evaluated and then reparsed.
 
@@ -60,7 +62,9 @@ Nebulite::Constants::Error General::exit(int argc, char* argv[]){
     domain->getRenderer()->setQuit();
     return Nebulite::Constants::ErrorTable::NONE();
 }
+
 const std::string General::exit_name = "exit";
+
 const std::string General::exit_desc = R"(Exits the entire program.
 
 Usage: exit
@@ -85,7 +89,9 @@ Nebulite::Constants::Error General::wait(int argc, char* argv[]){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 }
+
 const std::string General::wait_name = "wait";
+
 const std::string General::wait_desc = R"(Sets the waitCounter to the given value to halt all script tasks for a given amount of frames.
 
 Usage: wait <frames>
@@ -141,7 +147,9 @@ Nebulite::Constants::Error General::task(int argc, char* argv[]) {
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
+
 const std::string General::task_name = "task";
+
 const std::string General::task_desc = R"(Loads tasks from a file into the taskQueue.
 
 Usage: task <filename>
@@ -152,17 +160,15 @@ Each line in the file is treated as a separate task.
 Task files are not appended at the end, but right after the current task. 
 This ensures that tasks can be loaded within task files themselves and being executed immediately.
 
-This pseudo-example shows how tasks are loaded and executed:
+This example shows how tasks are loaded and executed:
 
-MAIN_TASK{
+Main task:
     maincommand1
     maincommand2
-    task subtaskfile.txt{
+    task subtaskfile.txt:
         subcommand1
         subcommand2
-    }
     maincommand4
-}
 )";
 
 Nebulite::Constants::Error General::echo(int argc, char* argv[]) {
@@ -175,7 +181,9 @@ Nebulite::Constants::Error General::echo(int argc, char* argv[]) {
     std::cout << std::endl;
     return Nebulite::Constants::ErrorTable::NONE();
 }
+
 const std::string General::echo_name = "echo";
+
 const std::string General::echo_desc = R"(Echoes all arguments as string to the standard output.
 
 Usage: echo <string>
@@ -185,50 +193,6 @@ Example:
 ./bin/Nebulite echo Hello World!
 Outputs:
 Hello World!
-)";
-
-Nebulite::Constants::Error General::func_for(int argc, char* argv[]){
-    std::string funcName = argv[0];
-    if(argc > 4){
-        std::string varName = argv[1];
-
-        int iStart = std::stoi(domain->invoke->evaluateStandaloneExpression(argv[2]));
-        int iEnd   = std::stoi(domain->invoke->evaluateStandaloneExpression(argv[3]));
-
-        std::string args = "";
-        for (int i = 4; i < argc; ++i) {
-            args += argv[i];
-            if (i < argc - 1) {
-                args += " ";
-            }
-        }
-        std::string args_replaced;
-        for(int i = iStart; i <= iEnd; i++){
-            // for + args
-            args_replaced = funcName + " " + Nebulite::Utility::StringHandler::replaceAll(args, '{' + varName + '}', std::to_string(i));
-            domain->parseStr(args_replaced);
-        }
-    }
-    return Nebulite::Constants::ErrorTable::NONE();
-}
-const std::string General::func_for_name = "for";
-const std::string General::func_for_desc = R"(Executes a for-loop with a function call.
-
-Usage: for <var> <start> <end> <functioncall>
-
-Example:
-for i 1 5 echo Iteration {i}
-This will output:
-    Iteration 1
-    Iteration 2
-    Iteration 3
-    Iteration 4
-    Iteration 5
-
-This is useful for:
-- Repeating actions a specific number of times.
-- Iterating over a range of values.
-- Creating complex control flows in scripts.
 )";
 
 Nebulite::Constants::Error General::func_if(int argc, char* argv[]) {
@@ -257,7 +221,9 @@ Nebulite::Constants::Error General::func_if(int argc, char* argv[]) {
     commands = __FUNCTION__ + std::string(" ") + commands;
     return domain->parseStr(commands);
 }
+
 const std::string General::func_if_name = "if";
+
 const std::string General::func_if_desc = R"(Executes a block of code if a condition is true.
 
 Usage: if <condition> <functioncall>
@@ -290,13 +256,15 @@ Nebulite::Constants::Error General::func_assert(int argc, char* argv[]){
 
     // Evaluate condition
     if(!std::stod(domain->invoke->evaluateStandaloneExpression(condition))){
-        return Nebulite::Constants::ErrorTable::CRITICAL_CUSTOM_ASSERT();
+        return Nebulite::Constants::ErrorTable::addError("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.", Nebulite::Constants::Error::CRITICAL);
     }
 
     // All good
     return Nebulite::Constants::ErrorTable::NONE();
 }
+
 const std::string General::assert_name = "assert";
+
 const std::string General::assert_desc = R"(Asserts a condition and throws a custom error if false.
 
 Usage: assert <condition>
@@ -319,7 +287,9 @@ Nebulite::Constants::Error General::func_return(int argc, char* argv[]){
     }
     return Nebulite::Constants::ErrorTable::addError(str, Nebulite::Constants::Error::CRITICAL);
 }
+
 const std::string General::func_return_name = "return";
+
 const std::string General::func_return_desc = R"(Returns a custom value as a Critical Error.
 
 Usage: return <string>
@@ -359,7 +329,9 @@ Nebulite::Constants::Error General::always(int argc, char* argv[]){
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
+
 const std::string General::always_name = "always";
+
 const std::string General::always_desc = R"(Attach a command to the always-taskqueue that is executed on each tick.
 
 Usage: always <command>
@@ -373,7 +345,9 @@ Nebulite::Constants::Error General::alwaysClear(int argc, char* argv[]){
     domain->tasks.always.taskQueue.clear();
     return Nebulite::Constants::ErrorTable::NONE();
 }
+
 const std::string General::alwaysClear_name = "always-clear";
+
 const std::string General::alwaysClear_desc = R"(Clears the entire always-taskqueue.
 
 Usage: always-clear
@@ -381,6 +355,52 @@ Usage: always-clear
 Example:
 always-clear
 This will remove all commands from the always-taskqueue.
+)";
+
+Nebulite::Constants::Error General::func_for(int argc, char* argv[]){
+    std::string funcName = argv[0];
+    if(argc > 4){
+        std::string varName = argv[1];
+
+        int iStart = std::stoi(domain->invoke->evaluateStandaloneExpression(argv[2]));
+        int iEnd   = std::stoi(domain->invoke->evaluateStandaloneExpression(argv[3]));
+
+        std::string args = "";
+        for (int i = 4; i < argc; ++i) {
+            args += argv[i];
+            if (i < argc - 1) {
+                args += " ";
+            }
+        }
+        std::string args_replaced;
+        for(int i = iStart; i <= iEnd; i++){
+            // for + args
+            args_replaced = funcName + " " + Nebulite::Utility::StringHandler::replaceAll(args, '{' + varName + '}', std::to_string(i));
+            domain->parseStr(args_replaced);
+        }
+    }
+    return Nebulite::Constants::ErrorTable::NONE();
+}
+
+const std::string General::func_for_name = "for";
+
+const std::string General::func_for_desc = R"(Executes a for-loop with a function call.
+
+Usage: for <var> <start> <end> <functioncall>
+
+Example:
+for i 1 5 echo Iteration {i}
+This will output:
+    Iteration 1
+    Iteration 2
+    Iteration 3
+    Iteration 4
+    Iteration 5
+
+This is useful for:
+- Repeating actions a specific number of times.
+- Iterating over a range of values.
+- Creating complex control flows in scripts.
 )";
 
 } // namespace Nebulite::DomainModule::GlobalSpace

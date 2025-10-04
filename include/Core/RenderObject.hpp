@@ -321,7 +321,6 @@ private:
 		double* textColorG;
 		double* textColorB;
 		double* textColorA;
-
 	} refs;
 
 	void linkFrequentRefs();

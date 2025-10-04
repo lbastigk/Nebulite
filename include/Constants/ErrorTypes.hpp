@@ -105,6 +105,7 @@ public:
     void print() const {
         if(description && type != NONE) std::cout << *description << std::endl;
     }
+    
 private:
     std::string* description;
     Type type;
@@ -322,10 +323,6 @@ public:
         static Error error = getInstance().addError("General, critical error. It is recommended to NOT use this error type in production.", Error::CRITICAL);
         return error;
     }
-    static inline Error CRITICAL_CUSTOM_ASSERT(){
-        static Error error = getInstance().addError("A custom assertion failed.", Error::CRITICAL);
-        return error;
-    } 
     static inline Error NONE(){
         static Error error = getInstance().addError("", Error::NONE);
         return error;

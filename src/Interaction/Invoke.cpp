@@ -265,7 +265,6 @@ void Nebulite::Interaction::Invoke::clear(){
 }
 
 void Nebulite::Interaction::Invoke::update() {
-
     // Swap in the new set of commands - shared pointers will clean up automatically
     entries_global.clear();
     entries_global.swap(entries_global_next);

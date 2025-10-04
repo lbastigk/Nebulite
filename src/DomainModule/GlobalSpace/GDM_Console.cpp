@@ -37,91 +37,12 @@ void Console::update(){
     //------------------------------------------
     // Input handling
     if (consoleMode) {
-        for (const auto& event : *events) {
-            switch (event.type) {
-                case SDL_TEXTINPUT:
-                    *consoleInputBuffer += event.text.text;
-                    break;
-
-                case SDL_KEYDOWN:
-                    switch (event.key.keysym.sym) {
-                        //------------------------------------------
-                        // Text input manipulation
-
-                        // Remove last character on backspace
-                        case SDLK_BACKSPACE:
-                            TextInput::backspace(this);
-                            break;
-
-                        // Submit command on Enter
-                        case SDLK_RETURN:
-                        case SDLK_KP_ENTER:
-                            TextInput::submit(this);
-                            break;	
-
-                        // Cursor movement
-                        case SDLK_LEFT:
-                            /**
-                             * @todo Move cursor left
-                             */
-                            break;
-                        case SDLK_RIGHT:
-                            /**
-                             * @todo Move cursor right
-                             */
-                            break;
-
-                        //------------------------------------------
-                        // UP/DOWN to cycle through past commands
-                        case SDLK_UP:
-                            TextInput::history_up(this);
-                            break;
-                        case SDLK_DOWN:
-                            TextInput::history_down(this);
-                            break;
-                    }
-                    break;
-            }
-        }
+        processEvents();
     }
 
     //------------------------------------------
-    // Rendering
-    if (consoleMode) {
-        // Render texture and attach
-        renderConsole();
-
-        // Check if texture is valid
-        if(!consoleTexture.texture_ptr){
-            std::cerr << "Could not attach Console: Console texture is null!" << std::endl;
-            return;
-        }
-
-        // Attach texture above UI layer
-        (void)domain->getRenderer()->attachTextureAboveLayer(
-            Nebulite::Core::Environment::Layer::UI,
-            "console_overlay", 
-            consoleTexture.texture_ptr,
-            &consoleTexture.rect
-        );
-    }
-    else{
-        // Clear texture and detach
-        (void)domain->getRenderer()->detachTextureAboveLayer(
-            Nebulite::Core::Environment::Layer::UI,
-            "console_overlay"
-        );
-        if(consoleTexture.texture_ptr){
-            SDL_DestroyTexture(consoleTexture.texture_ptr);
-            consoleTexture.texture_ptr = nullptr;
-        }
-    }
-
-    //------------------------------------------
-    // Flag setting
-    if(consoleMode){
-        domain->getRenderer()->skipUpdateNextFrame(); // Skip updating the renderer for this frame, as we are in console mode
-    }
+    // Processing
+    processMode();
 }
 
 void Console::renderConsole() {
@@ -329,6 +250,93 @@ uint8_t Console::calculateTextAlignment(uint16_t rect_height){
     TTF_SetFontSize(consoleFont, LINE_HEIGHT);
 
     return LINE_HEIGHT;
+}
+
+//--------------------------------------------------
+// Event processing
+
+void Console::processEvents(){
+    for (const auto& event : *events) {
+        switch (event.type) {
+            case SDL_TEXTINPUT:
+                *consoleInputBuffer += event.text.text;
+                break;
+
+            case SDL_KEYDOWN:
+                switch (event.key.keysym.sym) {
+                    //------------------------------------------
+                    // Text input manipulation
+
+                    // Remove last character on backspace
+                    case SDLK_BACKSPACE:
+                        TextInput::backspace(this);
+                        break;
+
+                    // Submit command on Enter
+                    case SDLK_RETURN:
+                    case SDLK_KP_ENTER:
+                        TextInput::submit(this);
+                        break;	
+
+                    // Cursor movement
+                    case SDLK_LEFT:
+                        /**
+                         * @todo Move cursor left
+                         */
+                        break;
+                    case SDLK_RIGHT:
+                        /**
+                         * @todo Move cursor right
+                         */
+                        break;
+
+                    //------------------------------------------
+                    // UP/DOWN to cycle through past commands
+                    case SDLK_UP:
+                        TextInput::history_up(this);
+                        break;
+                    case SDLK_DOWN:
+                        TextInput::history_down(this);
+                        break;
+                }
+                break;
+        }
+    }
+}
+
+void Console::processMode(){
+    if (consoleMode) {
+        // Render texture and attach
+        renderConsole();
+
+        // Check if texture is valid
+        if(!consoleTexture.texture_ptr){
+            std::cerr << "Could not attach Console: Console texture is null!" << std::endl;
+            return;
+        }
+
+        // Attach texture above UI layer
+        (void)domain->getRenderer()->attachTextureAboveLayer(
+            Nebulite::Core::Environment::Layer::UI,
+            "console_overlay", 
+            consoleTexture.texture_ptr,
+            &consoleTexture.rect
+        );
+
+        // Skip updating the renderer for this frame, as we are in console mode
+        domain->getRenderer()->skipUpdateNextFrame(); 
+    }
+    else{
+        // Clear texture and detach
+        (void)domain->getRenderer()->detachTextureAboveLayer(
+            Nebulite::Core::Environment::Layer::UI,
+            "console_overlay"
+        );
+        if(consoleTexture.texture_ptr){
+            SDL_DestroyTexture(consoleTexture.texture_ptr);
+            consoleTexture.texture_ptr = nullptr;
+        }
+    }
 }
 
 //--------------------------------------------------

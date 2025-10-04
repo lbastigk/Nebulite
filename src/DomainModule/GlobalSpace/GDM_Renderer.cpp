@@ -154,7 +154,6 @@ Nebulite::Constants::Error Renderer::setFPS(int argc, char* argv[]){
         fps = std::stoi(argv[1]);
         if(fps < 1) fps=1;
         if(fps > 10000) fps=10000;
-        
     }
     domain->getRenderer()->setTargetFPS(fps);
     return Nebulite::Constants::ErrorTable::NONE();

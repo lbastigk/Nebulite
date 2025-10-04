@@ -51,7 +51,38 @@ public:
      * @return The retrieved data or the default value as type T.
      */
     template  <typename T> 
-    T getData(std::string doc_key, const T& defaultValue = T());
+    T get(std::string doc_key, const T& defaultValue = T());
+
+    /**
+     * @brief Gets a sub-document from the JSON document.
+     * 
+     * This function retrieves a sub-document from the JSON document.
+     * If the key does not exist, an empty JSON object is returned.
+     * 
+     * Note that the document is flushed.
+     * 
+     * @param doc_key The link and key of the sub-document to retrieve.
+     * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
+     */
+    Nebulite::Utility::JSON get_subdoc(const std::string& doc_key){
+        auto [doc, key] = splitDocKey(doc_key);
+
+        Nebulite::Utility::DocumentCache::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+
+        // Check if the document exists in the cache
+        if (docPtr == nullptr) {
+            return Nebulite::Utility::JSON(); // Return empty JSON if document loading fails
+        }
+
+        // Retrieve the sub-document from the document
+        Nebulite::Utility::JSON data = docPtr->document.get_subdoc(key.c_str());
+
+        // Update the cache (unload old documents)
+        update();
+
+        // Return key:
+        return data; // Use the JSON get method to retrieve the value
+    }
 
     /**
      * @brief Retrieves a pointer to a double value from a cached document.
@@ -66,7 +97,108 @@ public:
      * or if the document itself is not found!
      */
     double* get_stable_double_ptr(const std::string& doc_key);
+
+    /**
+     * @brief Checks the type of a key in the JSON document.
+     * 
+     * This function checks the type of a key in the JSON document.
+     * If the key does not exist, the type is considered null.
+     * 
+     * @param doc_key The document and its key to check.
+     * @return The type of the key.
+     */
+    const Nebulite::Utility::JSON::KeyType memberCheck(std::string doc_key){
+        auto [doc, key] = splitDocKey(doc_key);
+
+        Nebulite::Utility::DocumentCache::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+
+        // Check if the document exists in the cache
+        if (docPtr == nullptr) {
+            return Nebulite::Utility::JSON::KeyType::null; // Return null if document loading fails
+        }
+
+        // Retrieve the key type from the document
+        Nebulite::Utility::JSON::KeyType type = docPtr->document.memberCheck(key);
+
+        // Update the cache (unload old documents)
+        update();
+
+        // Return key:
+        return type; // Use the JSON get method to retrieve the value
+    }
+
+    /**
+     * @brief Checks the size of a key in the JSON document.
+     * 
+     * This function checks the size of a key in the JSON document.
+     * 
+     * If the key does not exist, the size is considered 0.
+     * 
+     * If the key represents a document, the size is also considered 1.
+     * 
+     * @param doc_key The key to check.
+     * @return The size of the key.
+     */
+    const uint32_t memberSize(std::string doc_key){
+        auto [doc, key] = splitDocKey(doc_key);
+
+        Nebulite::Utility::DocumentCache::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+
+        // Check if the document exists in the cache
+        if (docPtr == nullptr) {
+            return 0; // Return 0 if document loading fails
+        }
+
+        // Retrieve the key size from the document
+        uint32_t size = docPtr->document.memberSize(key);
+
+        // Update the cache (unload old documents)
+        update();
+
+        // Return key:
+        return size; // Use the JSON get method to retrieve the value
+    }
+
+    /**
+     * @brief Serializes the entire document or a portion of the document
+     * 
+     * @param doc_key The document and key to serialize.
+     * @return The serialized JSON string.
+     */
+    std::string serialize(std::string doc_key) {
+        auto [doc, key] = splitDocKey(doc_key);
+
+        Nebulite::Utility::DocumentCache::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+
+        // Check if the document exists in the cache
+        if (docPtr == nullptr) {
+            return "{}"; // Return empty JSON object if document loading fails
+        }
+
+        // Retrieve the sub-document from the document
+        Nebulite::Utility::JSON data = docPtr->document.get_subdoc(key.c_str());
+
+        // Update the cache (unload old documents)
+        update();
+
+        // Return key:
+        return data.serialize(); // Use the JSON get method to retrieve the value
+    }
+
 private:
+    /**
+     * @brief Splits a doc:key string into its components
+     */
+    std::pair<std::string, std::string> splitDocKey(const std::string& doc_key){
+        size_t pos = doc_key.find(':');
+        if (pos == std::string::npos) {
+            return {"",""}; // Return empty strings if format is incorrect
+        }
+        std::string doc = doc_key.substr(0, pos);
+        std::string key = doc_key.substr(pos + 1);
+        return {doc, key};
+    }
+
     /**
      * @brief Updates the cache by checking a random document for its last usage time.
      */
@@ -84,9 +216,7 @@ private:
     /**
      * @brief Map of document paths to their corresponding ReadOnlyDoc instances.
      * 
-     * @todo Turn into struct, use private variables, proper getters and setters.
-     * This way, the document is never retrieved without updating its metadata.
-     * ReadOnlyDoc as private struct member of ReadOnlyDocs.
+     * Takes care of loading and unloading documents as needed.
      */
     struct ReadOnlyDocs{
         private:
@@ -101,8 +231,8 @@ private:
              * @brief Contains the cached documents mapped by their file paths.
              */
             absl::flat_hash_map<std::string, ReadOnlyDoc> docs;
-        public:
 
+        public:
             /**
              * @brief Updates the cache by checking a random document for its last usage time,
              * and unloading it if it has been unused for too long.
@@ -153,14 +283,8 @@ private:
 // Definitions of template functions
 
 template  <typename T> 
-T Nebulite::Utility::DocumentCache::getData(std::string doc_key, const T& defaultValue) {
-    // Split the input into document name and key
-    size_t pos = doc_key.find(':');
-    if (pos == std::string::npos) {
-        return defaultValue; // Return default value if format is incorrect
-    }
-    std::string doc = doc_key.substr(0, pos);
-    std::string key = doc_key.substr(pos + 1);
+T Nebulite::Utility::DocumentCache::get(std::string doc_key, const T& defaultValue) {
+    auto [doc, key] = splitDocKey(doc_key);
 
     Nebulite::Utility::DocumentCache::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
@@ -178,3 +302,5 @@ T Nebulite::Utility::DocumentCache::getData(std::string doc_key, const T& defaul
     // Return key:
     return data; // Use the JSON get method to retrieve the value
 }
+
+

@@ -54,7 +54,6 @@ namespace Interaction{
  */
 class Deserializer{
 public:
-
     /**
      * @brief Parses a JSON encoded set of Invoke Entries inside a RenderObject into InvokeEntry objects.
      * 
@@ -71,6 +70,7 @@ public:
         Nebulite::Utility::DocumentCache* docCache,
         Nebulite::Utility::JSON* global
     );
+    
 private:
     /**
      * @brief Extracts function calls from a JSON entry document.

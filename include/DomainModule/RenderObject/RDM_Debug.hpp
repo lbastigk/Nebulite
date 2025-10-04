@@ -64,8 +64,6 @@ public:
      * @param argc The argument count
      * @param argv The argument vector: None
      * @return Potential errors that occured on command execution
-     * 
-     * @todo Not implemented yet
      */
     Nebulite::Constants::Error printSrcRect(int argc, char* argv[]);
     static const std::string printSrcRect_name;
@@ -77,8 +75,6 @@ public:
      * @param argc The argument count
      * @param argv The argument vector: None
      * @return Potential errors that occured on command execution
-     * 
-     * @todo Not implemented yet
      */
     Nebulite::Constants::Error printDstRect(int argc, char* argv[]);
     static const std::string printDstRect_name;

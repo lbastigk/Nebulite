@@ -25,7 +25,6 @@ namespace Utility {
  */
 class TimeKeeper{
 public:
-
     /**
      * @brief Constructs a new TimeKeeper object and initializes the timer.
      * 

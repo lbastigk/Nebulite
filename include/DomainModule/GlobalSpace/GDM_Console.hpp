@@ -132,6 +132,16 @@ private:
      */
     uint8_t calculateTextAlignment(uint16_t rect_height);
 
+    /**
+     * @brief Processes input events for the console.
+     */
+    void processEvents();
+
+    /**
+     * @brief Processes the current mode of the console.
+     */
+    void processMode();
+
     //------------------------------------------
     // Mirrored from Renderer
 

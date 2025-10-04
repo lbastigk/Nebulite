@@ -34,22 +34,27 @@ namespace Logic {
  * or the lifetime is limited.
  * 
  * This distinction is crucial for efficient and accurate expression evaluations.
- * 
- * @todo Rework direct linkage to 
  */
 class VirtualDouble {
+private:
     // Linked Read-Only cache
     Nebulite::Utility::DocumentCache* documentCache = nullptr;
 
     // Key associated with this VirtualDouble
     std::string key;
 
-    // Old version with references, seems to not work with tinyexpr
-    //double null = 0.0;
-    //double* reference = &null;  // Cannot be nullptr at the start, so we link it to a dummy value.
+    /**
+     * @brief Internal cache for non-remanent documents.
+     */
+    double copied_value = 0.0;
 
-    double copied_value = 0.0;          // Used for non-remanent documents, where we copy the value into here
-    double* reference = &copied_value;  // Points to the actual value, either copied_value or external cache
+    /**
+     * @brief Pointer to the actual double value.
+     * 
+     * Initially points to the internal cache for non-remanent documents.
+     */
+    double* reference = &copied_value;
+    
 public:
     /**
      * @brief Construct a new VirtualDouble object.

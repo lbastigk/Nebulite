@@ -65,7 +65,7 @@ private:
      * @brief Represents a cached entry in the JSON document, including its value, state, and stable pointer for double values.
      */
     struct CacheEntry {
-        std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool> value;
+        RjDirectAccess::simpleValue value;
         double* stable_double_ptr;                  // Never deleted.
         double last_double_value;                   // For change detection
         EntryState state = EntryState::DIRTY;       // Default to dirty
@@ -104,7 +104,7 @@ private:
      * @brief Helper function to convert any type from cache into another type.
      */
     template<typename newType>
-    newType convertVariant(const std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool>& var, const newType& defaultValue = newType{});
+    newType convertVariant(const RjDirectAccess::simpleValue& var, const newType& defaultValue = newType{});
 
     /**
      * @brief Flush all DIRTY entries in the cache back to the RapidJSON document.
@@ -121,9 +121,6 @@ public:
 
     //------------------------------------------
     // Overload of assign operators
-    /**
-     * @todo reinitialization of domain is probably missing at some spots
-     */
 
     JSON(const JSON&) = delete;
     JSON& operator=(const JSON&) = delete;
@@ -262,8 +259,6 @@ public:
      * 
      * @param key The key to check.
      * @return The type of the key.
-     * 
-     * @todo: add function for mildFlush that does not clear cache!
      */
     const KeyType memberCheck(std::string key);
 
@@ -274,7 +269,7 @@ public:
      * 
      * If the key does not exist, the size is considered 0.
      * 
-     * If the key represents a document, the size is considered -1.
+     * If the key represents a document, the size is considered 1.
      * 
      * @param key The key to check.
      * @return The size of the key.
@@ -387,27 +382,12 @@ T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
         return convertVariant<T>(it->second->value, defaultValue);
     }
 
-    // Check document
+    // Check document, if not in cache
     rapidjson::Value* val = Nebulite::Utility::RjDirectAccess::traverse_path(key.c_str(), doc);
     if(val != nullptr){
         if(it != cache.end()){
             // Modify existing entry
-            if(val->IsInt()){
-                it->second->value = val->GetInt();
-            } else if(val->IsInt64()){
-                it->second->value = val->GetInt64();
-            } else if(val->IsUint()){
-                it->second->value = val->GetUint();
-            } else if(val->IsUint64()){
-                it->second->value = val->GetUint64();
-            } else if(val->IsDouble()){
-                it->second->value = val->GetDouble();
-            } else if(val->IsString()){
-                it->second->value = std::string(val->GetString(), val->GetStringLength());
-            } else if(val->IsBool()){
-                it->second->value = val->GetBool();
-            } else {
-                // Unsupported type (e.g., Object, Array, Null)
+            if(!Nebulite::Utility::RjDirectAccess::getSimpleValue(&it->second->value, val)){
                 return defaultValue;
             }
             
@@ -426,22 +406,7 @@ T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
             std::unique_ptr<CacheEntry> new_entry = std::make_unique<CacheEntry>();
             
             // Get supported types
-            if(val->IsInt()){
-                new_entry->value = val->GetInt();
-            } else if(val->IsInt64()){
-                new_entry->value = val->GetInt64();
-            } else if(val->IsUint()){
-                new_entry->value = val->GetUint();
-            } else if(val->IsUint64()){
-                new_entry->value = val->GetUint64();
-            } else if(val->IsDouble()){
-                new_entry->value = val->GetDouble();
-            } else if(val->IsString()){
-                new_entry->value = std::string(val->GetString(), val->GetStringLength());
-            } else if(val->IsBool()){
-                new_entry->value = val->GetBool();
-            } else {
-                // Unsupported type (e.g., Object, Array, Null)
+            if(!Nebulite::Utility::RjDirectAccess::getSimpleValue(&new_entry->value, val)){
                 return defaultValue;
             }
 
@@ -460,13 +425,13 @@ T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
         }
     }
 
-    // Not found in cache, return default value
+    // Value could not be created, return default
     return defaultValue;
 }
 
 // TODO: This function sees a wrong number!
 template<typename newType>
-newType Nebulite::Utility::JSON::convertVariant(const std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool>& var, const newType& defaultValue) {
+newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValue& var, const newType& defaultValue) {
     /*
     Use std::visit to handle the variant type.
     Conceptually, it works like a type-based switch statement:

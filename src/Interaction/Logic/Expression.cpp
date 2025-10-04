@@ -168,7 +168,6 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
 }
 
 void Nebulite::Interaction::Logic::Expression::parseIntoEntries(const std::string& expr, std::vector<Entry>& entries){
-
     // First, we must split the expression into tokens
     std::vector<std::string> tokensPhase1, tokens;
 
@@ -443,7 +442,7 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
                         std::cerr << "Error: Null globalCache reference in expression: " << entry.key  << ". If this shouldn't be a Resource reference, did you forget the prefix self/other/global?" << std::endl;
                         return "0";
                     }
-                    token = globalCache->getData<std::string>(entry.key.c_str(), "0");
+                    token = globalCache->get<std::string>(entry.key.c_str(), "0");
                 }
                 break;
 

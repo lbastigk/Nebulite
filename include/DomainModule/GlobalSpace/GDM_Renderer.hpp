@@ -104,8 +104,6 @@ public:
      * @param argc The argument count
      * @param argv The argument vector: Environment as link to json/jsonc file
      * @return Potential errors that occured on command execution
-     * 
-     * @todo Empty env loading crashes the program. Needs to be fixed.
      */
     Nebulite::Constants::Error env_load(int argc, char* argv[]);
     static const std::string env_load_name;
