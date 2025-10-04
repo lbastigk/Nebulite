@@ -154,6 +154,15 @@ cd "$ROOT_DIR"
 ./build.sh    || { echoerr "build.sh failed";      exit 1; }
 
 ####################################
+# Install the vscode extensions
+PROGRESS="Installing the VS Code extensions"
+cd "$ROOT_DIR"
+# .nebs language extension
+./Languages/nebs/nebulite-script-vscode/build-and-install.sh || { echoerr "build-and-install.sh of nebs language extension failed"; exit 1; }
+# .nebl language extension
+# Work in progress...
+
+####################################
 # make all scripts executable
 PROGRESS="Making scripts executable"
 cd "$ROOT_DIR"
