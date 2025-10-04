@@ -424,7 +424,6 @@ public:
 	SDL_Texture* loadTextureToMemory(std::string link);
 
 private:
-
 	//------------------------------------------
 	// Boolean Status Variables
 	bool audioInitialized = false;
