@@ -358,7 +358,6 @@ Nebulite/
 │   ├── Interaction/          # - parsing, expressions, manipulation
 │   ├── Utility/              # - string-modification, JSON, caching etc.
 │   └── Nebulite.h            # - namespace documentation
-
 ├── Languages/                # VSCode extension for .nebs and .nebl files
 ├── Resources/                # Game assets and data
 ├── Scripts/                  # Various scripts for asset creation, file validation, tests etc.
