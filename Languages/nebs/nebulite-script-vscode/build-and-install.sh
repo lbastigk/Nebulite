@@ -25,7 +25,7 @@ ls -la
 vsce --version || echo "vsce is not installed"
 
 # Debugging: Check if the extension package is created
-if ls *.vsix 1> /dev/null 2>&1; then
+if ls ./*.vsix 1> /dev/null 2>&1; then
   echo "Extension package created successfully."
 else
   echo "Extension package not found."
