@@ -244,8 +244,14 @@ void Nebulite::Interaction::Logic::Expression::readFormatter(Entry* entry, const
     }
     if(formatter.size() > 1){
         int16_t dotpos = formatter.find('.');
-    
-        entry->alignment = std::stoi(formatter.substr(0, dotpos));
+        // Read alignment
+        if(dotpos == 0){
+            entry->alignment = 0;
+        }
+        else{
+            entry->alignment = std::stoi(formatter.substr(0, dotpos));
+        }
+        // Read precision
         if(dotpos != std::string::npos){
             entry->precision = std::stoi(formatter.substr(dotpos + 1));
         }
