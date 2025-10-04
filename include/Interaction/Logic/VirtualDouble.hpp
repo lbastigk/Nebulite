@@ -38,6 +38,7 @@ namespace Logic {
  * @todo Rework direct linkage to 
  */
 class VirtualDouble {
+private:
     // Linked Read-Only cache
     Nebulite::Utility::DocumentCache* documentCache = nullptr;
 
@@ -50,6 +51,7 @@ class VirtualDouble {
 
     double copied_value = 0.0;          // Used for non-remanent documents, where we copy the value into here
     double* reference = &copied_value;  // Points to the actual value, either copied_value or external cache
+    
 public:
     /**
      * @brief Construct a new VirtualDouble object.

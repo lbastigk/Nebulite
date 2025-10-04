@@ -66,6 +66,7 @@ public:
      * or if the document itself is not found!
      */
     double* get_stable_double_ptr(const std::string& doc_key);
+    
 private:
     /**
      * @brief Updates the cache by checking a random document for its last usage time.
@@ -101,8 +102,8 @@ private:
              * @brief Contains the cached documents mapped by their file paths.
              */
             absl::flat_hash_map<std::string, ReadOnlyDoc> docs;
-        public:
 
+        public:
             /**
              * @brief Updates the cache by checking a random document for its last usage time,
              * and unloading it if it has been unused for too long.
