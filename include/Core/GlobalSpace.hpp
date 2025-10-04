@@ -174,7 +174,7 @@ public:
      */
     struct Tasks{
         Nebulite::Core::taskQueueWrapper script;     // Task queue for script files loaded with "task"
-        Nebulite::Core::taskQueueWrapper internal;   // Internal task queue from renerObjects, console, etc.
+        Nebulite::Core::taskQueueWrapper internal;   // Internal task queue from renderObjects, console, etc.
         Nebulite::Core::taskQueueWrapper always;     // Always-tasks added with the prefix "always "
     } tasks;
 
