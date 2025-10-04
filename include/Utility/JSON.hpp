@@ -269,7 +269,7 @@ public:
      * 
      * If the key does not exist, the size is considered 0.
      * 
-     * If the key represents a document, the size is considered -1.
+     * If the key represents a document, the size is considered 1.
      * 
      * @param key The key to check.
      * @return The size of the key.
