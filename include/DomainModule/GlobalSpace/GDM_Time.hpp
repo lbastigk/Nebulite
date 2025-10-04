@@ -52,7 +52,8 @@ public:
      * @return Error code indicating success or failure.
      */
     Nebulite::Constants::Error time_haltOnce(int argc, char** argv);
-    std::string time_haltOnce_desc = R"(Halts time for one frame
+    const std::string time_haltOnce_name = "time halt-once";
+    const std::string time_haltOnce_desc = R"(Halts time for one frame
     Meaning you can halt time by continuously calling this function.
 
     Usage: time halt-once
@@ -68,7 +69,8 @@ public:
      * @return Error code indicating success or failure.
      */
     Nebulite::Constants::Error time_lock(int argc, char** argv);
-    std::string time_lock_desc = R"(Locks time with lock provided, 
+    const std::string time_lock_name = "time lock";
+    const std::string time_lock_desc = R"(Locks time with lock provided, 
     Time can only progress if no locks are present.
 
     Usage: time lock <lock_name>
@@ -86,7 +88,8 @@ public:
      * @return Error code indicating success or failure.
      */
     Nebulite::Constants::Error time_unlock(int argc, char** argv);
-    std::string time_unlock_desc = R"(Removes a time lock.
+    const std::string time_unlock_name = "time unlock";
+    const std::string time_unlock_desc = R"(Removes a time lock.
     Time can only progress if no locks are present.
 
     Usage: time unlock <lock_name>
@@ -104,7 +107,8 @@ public:
      * @return Error code indicating success or failure.
      */
     Nebulite::Constants::Error time_masterUnlock(int argc, char** argv);
-    std::string time_masterUnlock_desc = R"(Removes all time locks.
+    const std::string time_masterUnlock_name = "time master-unlock";
+    const std::string time_masterUnlock_desc = R"(Removes all time locks.
     Time can only progress if no locks are present.
 
     Usage: time master-unlock
@@ -118,7 +122,8 @@ public:
      * @return Error code indicating success or failure.
      */
     Nebulite::Constants::Error time_setFixedDeltaTime(int argc, char** argv);
-    std::string time_setFixedDeltaTime_desc = R"(Sets a fixed delta time in milliseconds for the simulation time.
+    const std::string time_setFixedDeltaTime_name = "time set-fixed-dt";
+    const std::string time_setFixedDeltaTime_desc = R"(Sets a fixed delta time in milliseconds for the simulation time.
     Use 0 to disable fixed dt.
 
     Usage: time set-fixed-dt <dt_ms>
@@ -139,11 +144,11 @@ public:
         //------------------------------------------
         // Bind functions
         bindSubtree("time", "Commands for time management");
-        bindFunction(&Time::time_haltOnce,           "time halt-once",       time_haltOnce_desc);
-        bindFunction(&Time::time_lock,               "time lock",            time_lock_desc);
-        bindFunction(&Time::time_unlock,             "time unlock",          time_unlock_desc);
-        bindFunction(&Time::time_masterUnlock,       "time master-unlock",   time_masterUnlock_desc);
-        bindFunction(&Time::time_setFixedDeltaTime,  "time set-fixed-dt",    time_setFixedDeltaTime_desc);
+        bindFunction(&Time::time_haltOnce,           time_haltOnce_name,            time_haltOnce_desc);
+        bindFunction(&Time::time_lock,               time_lock_name,                time_lock_desc);
+        bindFunction(&Time::time_unlock,             time_unlock_name,              time_unlock_desc);
+        bindFunction(&Time::time_masterUnlock,       time_masterUnlock_name,        time_masterUnlock_desc);
+        bindFunction(&Time::time_setFixedDeltaTime,  time_setFixedDeltaTime_name,   time_setFixedDeltaTime_desc);
     }
 
 private:

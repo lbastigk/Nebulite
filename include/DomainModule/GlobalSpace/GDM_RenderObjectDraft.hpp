@@ -62,7 +62,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error draft_parse(int argc, char* argv[]);
-    ::std::string draft_parse_desc = R"(Parse Renderobject-specific functions on the draft.
+    const std::string draft_parse_name = "draft parse";
+    const std::string draft_parse_desc = R"(Parse Renderobject-specific functions on the draft.
 
     Usage: draft parse <function> [args...]
 
@@ -83,7 +84,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error draft_spawn(int argc, char* argv[]);
-    ::std::string draft_spawn_desc = R"(Spawn the created draft object.
+    const std::string draft_spawn_name = "draft spawn";
+    const std::string draft_spawn_desc = R"(Spawn the created draft object.
 
     Usage: draft spawn
     )";
@@ -96,7 +98,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error draft_reset(int argc, char* argv[]);
-    ::std::string draft_reset_desc = R"(Reset the draft object.
+    const std::string draft_reset_name = "draft reset";
+    const std::string draft_reset_desc = R"(Reset the draft object.
 
     This does not reset any spawned ones!
 
@@ -115,9 +118,9 @@ public:
         
         // Bind functions
         bindSubtree("draft", "Functions to manipulate and spawn RenderObjects in draft state");
-        bindFunction(&RenderObjectDraft::draft_parse,  "draft parse",   draft_parse_desc);
-        bindFunction(&RenderObjectDraft::draft_spawn,  "draft spawn",   draft_spawn_desc);
-        bindFunction(&RenderObjectDraft::draft_reset,  "draft reset",   draft_reset_desc);
+        bindFunction(&RenderObjectDraft::draft_parse,  draft_parse_name,   draft_parse_desc);
+        bindFunction(&RenderObjectDraft::draft_spawn,  draft_spawn_name,   draft_spawn_desc);
+        bindFunction(&RenderObjectDraft::draft_reset,  draft_reset_name,   draft_reset_desc);
     }
 
 private:
