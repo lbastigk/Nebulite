@@ -105,6 +105,7 @@ public:
     void print() const {
         if(description && type != NONE) std::cout << *description << std::endl;
     }
+    
 private:
     std::string* description;
     Type type;
