@@ -25,7 +25,7 @@ ls -la
 vsce --version || echo "vsce is not installed"
 
 # Debugging: Check if the extension package is created
-if [ -f *.vsix ]; then
+if ls *.vsix 1> /dev/null 2>&1; then
   echo "Extension package created successfully."
 else
   echo "Extension package not found."
@@ -46,10 +46,10 @@ cd ./Languages/nebs/nebulite-script-vscode || exit 1
 vsce package
 
 # Install the extension
-code --install-extension *.vsix
+code --install-extension ./*.vsix
 
 # Clean up
-rm *.vsix
+rm ./*.vsix
 
 cd "$ROOT_DIR" || exit 1
 
