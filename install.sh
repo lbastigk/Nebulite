@@ -23,7 +23,7 @@ rm -rf ./bin
 
 ####################################
 # starttime of script
-start=`date +%s`
+start=$(date +%s)
 
 ####################################
 # Function for echoing errors
@@ -63,22 +63,19 @@ case $PACKAGE_MANAGER in
     apt)
         sudo apt-get update
         sudo apt-get upgrade
-        sudo apt-get install $APT_PACKAGES
-        if [ $? -ne 0 ]; then
+        if ! sudo apt-get install $APT_PACKAGES; then
             echoerr "Error installing packages with apt-get. Please check your package manager settings."
             sleep 10
         fi
         ;;
     dnf)
-        sudo dnf install $DNF_PACKAGES
-        if [ $? -ne 0 ]; then
+        if ! sudo dnf install $DNF_PACKAGES; then
             echoerr "Error installing packages with dnf. Please check your package manager settings."
             sleep 10
         fi
         ;;
     yum)
-        sudo yum install $YUM_PACKAGES
-        if [ $? -ne 0 ]; then
+        if ! sudo yum install $YUM_PACKAGES; then
             echoerr "Error installing packages with yum. Please check your package manager settings."
             sleep 10
         fi
@@ -106,7 +103,6 @@ mkdir -p ./external
 cd ./Resources      || exit 1
 ../Scripts/CreateResourcesDirectory.sh   || exit 1
 cd "$ROOT_DIR"
-
 
 ####################################
 # Submodules: Init
@@ -175,9 +171,8 @@ python ./Scripts/Tests.py
 PROGRESS="Finishing up"
 
 # Show runtime
-end=`date +%s`
+end=$(date +%s)
 runtime=$((end-start))
-
 echo ""
 echo "-----------------------------------------------------"
 echo "Installing + Running tests took $runtime Seconds."
