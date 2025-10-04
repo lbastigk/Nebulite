@@ -174,85 +174,100 @@ std::vector<std::string> Nebulite::Utility::StringHandler::splitOnSameDepth(cons
     return result;
 }
 
+
+// Helpers for parsing quoted arguments
+namespace {
+    struct QuoteParseState {
+        bool inDoubleQuote = false;
+        bool inSingleQuote = false;
+        
+        bool inAnyQuote() const {
+            return inDoubleQuote || inSingleQuote;
+        }
+    };
+
+    void handleEmptyToken(const QuoteParseState& state, std::vector<std::string>& result) {
+        if (!state.inAnyQuote()) {
+            // If not in quotes, add empty token with whitespace
+            result.push_back(" ");
+        } else {
+            // In quotes, append space to last token
+            if (!result.empty()) {
+                result.back() += " ";
+            }
+        }
+    }
+
+    std::string processQuoteToken(const std::string& token, char quoteChar, bool& quoteState) {
+        std::string cleanToken = token.substr(1); // Remove opening quote
+        quoteState = true;
+        
+        // Check if quote closes in same token
+        if (!cleanToken.empty() && cleanToken.back() == quoteChar) {
+            quoteState = false;
+            cleanToken.pop_back(); // Remove closing quote
+        }
+        
+        return cleanToken;
+    }
+
+    void handleQuoteStart(const std::string& token, QuoteParseState& state, std::vector<std::string>& result) {
+        if (token[0] == '"') {
+            std::string cleanToken = processQuoteToken(token, '"', state.inDoubleQuote);
+            result.push_back(cleanToken);
+        } else if (token[0] == '\'') {
+            std::string cleanToken = processQuoteToken(token, '\'', state.inSingleQuote);
+            result.push_back(cleanToken);
+        } else {
+            // Regular unquoted token
+            result.push_back(token);
+        }
+    }
+
+    void handleQuoteEnd(const std::string& token, char quoteChar, bool& quoteState, std::vector<std::string>& result) {
+        quoteState = false;
+        std::string cleanToken = token.substr(0, token.length() - 1);
+        if (!result.empty()) {
+            result.back() += " " + cleanToken;
+        }
+    }
+
+    void handleQuotedToken(const std::string& token, QuoteParseState& state, std::vector<std::string>& result) {
+        if (state.inDoubleQuote && !token.empty() && token.back() == '"') {
+            handleQuoteEnd(token, '"', state.inDoubleQuote, result);
+        } else if (state.inSingleQuote && !token.empty() && token.back() == '\'') {
+            handleQuoteEnd(token, '\'', state.inSingleQuote, result);
+        } else {
+            // Still in quotes, append to last token
+            if (!result.empty()) {
+                result.back() += " " + token;
+            }
+        }
+    }
+}
+
 std::vector<std::string> Nebulite::Utility::StringHandler::parseQuotedArguments(const std::string& cmd) {
     std::vector<std::string> tokens = Nebulite::Utility::StringHandler::split(cmd, ' ');
     std::vector<std::string> result;
-
-    bool inQuoteV1 = false;  // Double quotes
-    bool inQuoteV2 = false;  // Single quotes
+    QuoteParseState state;
     
     for (const auto& token : tokens) {
-        // Keep empty tokens as extra whitespace
-        // This is important, as the user explicitly specified an extra whitespace!
+        // Keep empty tokens as extra whitespace - important for preserving user formatting
         // e.g. for text: "eval echo Value: {global.myVal}  |  Expected: {global.expected}"
-        // So we shouldnt strip those!
-        // The important part now is to strip those on command parsing!
         if (token.empty()) {
-            if(!inQuoteV1 && !inQuoteV2) {
-                // If not in quotes, just add an empty token
-                result.push_back("");
-                result.back() += " ";  // Keep the whitespace
-            }
-            else{
-                result.back() += " ";
-            }
-            
+            handleEmptyToken(state, result);
             continue;
         }
         
-        if (!inQuoteV1 && !inQuoteV2) {
-            // Not in quotes - check if this token starts a quote
-            if (token[0] == '"') {
-                inQuoteV1 = true;
-                // Remove opening quote and add to result
-                std::string cleanToken = token.substr(1);
-                if (!cleanToken.empty() && cleanToken.back() == '"') {
-                    // Quote opens and closes in same token
-                    inQuoteV1 = false;
-                    cleanToken.pop_back(); // Remove closing quote
-                }
-                result.push_back(cleanToken);
-            } else if (token[0] == '\'') {
-                inQuoteV2 = true;
-                // Remove opening quote and add to result
-                std::string cleanToken = token.substr(1);
-                if (!cleanToken.empty() && cleanToken.back() == '\'') {
-                    // Quote opens and closes in same token
-                    inQuoteV2 = false;
-                    cleanToken.pop_back(); // Remove closing quote
-                }
-                result.push_back(cleanToken);
-            } else {
-                // Regular token
-                result.push_back(token);
-            }
+        if (!state.inAnyQuote()) {
+            handleQuoteStart(token, state, result);
         } else {
-            // Currently in quotes - append to last token
-            if (inQuoteV1 && token.back() == '"') {
-                // End of double quote
-                inQuoteV1 = false;
-                std::string cleanToken = token.substr(0, token.length() - 1);
-                if (!result.empty()) {
-                    result.back() += " " + cleanToken;
-                }
-            } else if (inQuoteV2 && token.back() == '\'') {
-                // End of single quote
-                inQuoteV2 = false;
-                std::string cleanToken = token.substr(0, token.length() - 1);
-                if (!result.empty()) {
-                    result.back() += " " + cleanToken;
-                }
-            } else {
-                // Still in quotes, append to last token
-                if (!result.empty()) {
-                    result.back() += " " + token;
-                }
-            }
+            handleQuotedToken(token, state, result);
         }
     }
     
     // Warning for unclosed quotes
-    if (inQuoteV1 || inQuoteV2) {
+    if (state.inAnyQuote()) {
         std::cerr << "Warning: Unclosed quote in command: " << cmd << std::endl;
     }
     
