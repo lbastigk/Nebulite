@@ -168,7 +168,6 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
 }
 
 void Nebulite::Interaction::Logic::Expression::parseIntoEntries(const std::string& expr, std::vector<Entry>& entries){
-
     // First, we must split the expression into tokens
     std::vector<std::string> tokensPhase1, tokens;
 
