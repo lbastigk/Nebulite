@@ -69,6 +69,16 @@
             },
             "problemMatcher": [],
             "detail": "Run a debug Task on the Debug binary with perf to profile performance. Shows results both in CLI with perf and in a GUI using hotspot."
+        },
+        {
+            "label": "Install language extension",
+            "type": "shell",
+            "command": "Languages/nebs/nebulite-script-vscode/build-and-install.sh",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "detail": "Build and install the VSCode language extension for Nebulite Script."
         }
     ]
 }
