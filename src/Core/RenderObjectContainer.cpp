@@ -70,7 +70,6 @@ void Nebulite::Core::RenderObjectContainer::deserialize(const std::string& seria
 // Pipeline
 
 std::pair<int16_t,int16_t> getTilePos(Nebulite::Core::RenderObject* toAppend, int dispResX, int dispResY){
-
     // Calculate correspondingTileXpos using positionX
     double posX = toAppend->get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0.0);
     int16_t correspondingTileXpos = (int16_t)(posX / (double)dispResX);
