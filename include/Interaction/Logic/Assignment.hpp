@@ -68,8 +68,6 @@ struct Assignment{
      * @brief Key of the variable being assigned
      * 
      * e.g.: "posX"
-     * 
-     * @todo If target is self, operator is numeric, and expression is returnable as double, we could store a direct pointer to the JSON value.
      */
     std::string key;
 
