@@ -26,7 +26,6 @@ Nebulite::Core::Environment::Environment(Nebulite::Core::GlobalSpace* globalSpac
 // Marshalling
 
 std::string Nebulite::Core::Environment::serialize() {
-
 	Nebulite::Utility::JSON doc;
 
 	// Serialize each container and add to the document
