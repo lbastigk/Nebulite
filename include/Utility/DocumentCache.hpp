@@ -85,9 +85,7 @@ private:
     /**
      * @brief Map of document paths to their corresponding ReadOnlyDoc instances.
      * 
-     * @todo Turn into struct, use private variables, proper getters and setters.
-     * This way, the document is never retrieved without updating its metadata.
-     * ReadOnlyDoc as private struct member of ReadOnlyDocs.
+     * Takes care of loading and unloading documents as needed.
      */
     struct ReadOnlyDocs{
         private:
