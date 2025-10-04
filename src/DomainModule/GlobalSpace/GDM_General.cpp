@@ -256,7 +256,7 @@ Nebulite::Constants::Error General::func_assert(int argc, char* argv[]){
 
     // Evaluate condition
     if(!std::stod(domain->invoke->evaluateStandaloneExpression(condition))){
-        return Nebulite::Constants::ErrorTable::CRITICAL_CUSTOM_ASSERT();
+        return Nebulite::Constants::ErrorTable::addError("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.", Nebulite::Constants::Error::CRITICAL);
     }
 
     // All good
