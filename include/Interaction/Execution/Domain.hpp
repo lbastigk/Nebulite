@@ -7,10 +7,8 @@
 #pragma once
 
 //------------------------------------------
+// Macro to define a new Nebulite Domain class
 
-/**
- * @brief Macro to define a new Nebulite Domain class.
- */
 #define NEBULITE_DOMAIN(DomainName) \
     class DomainName : public Nebulite::Interaction::Execution::Domain<DomainName>
 
