@@ -134,6 +134,8 @@ public:
      * @param val The rapidjson value to search within.
      * @param allocator The allocator to use for creating new values.
      * @return A pointer to the found or created rapidjson value.
+     * Note that the returned value may be nullptr if the given key is invalid 
+     * (e.g., trying to index into a non-array or using a malformed index).
      */
     static rapidjson::Value* ensure_path(const char* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
@@ -203,6 +205,14 @@ public:
      * @brief Removes a member from a rapidjson object by key.
      */
     static void remove_member(const char* key, rapidjson::Value& val);
+
+private:
+    /**
+     * @brief Extracts the next part of a key from a dot/bracket notation key string.
+     * 
+     * Moves keyView forward past the extracted part.
+     */
+    static std::string_view extractKeyPart(std::string_view* keyView);
 };
 } // namespace Nebulite::Utility
 

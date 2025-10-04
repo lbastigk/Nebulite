@@ -2,43 +2,27 @@
 
 #include "Utility/FileManagement.hpp"
 
+//------------------------------------------
+// Static Public Helper Functions
+
 rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_path(const char* key, rapidjson::Value& val){
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
 
     while (!keyView.empty()) {
-        // Find '.' or '[' as next separators
-        size_t dotPos = keyView.find('.');
-        size_t bracketPos = keyView.find('[');
-
-        size_t nextSep;
-        if (dotPos == std::string_view::npos && bracketPos == std::string_view::npos) {
-            nextSep = keyView.size();  // No separator - last key
-        } else if (dotPos == std::string_view::npos) {
-            nextSep = bracketPos;
-        } else if (bracketPos == std::string_view::npos) {
-            nextSep = dotPos;
-        } else {
-            nextSep = std::min(dotPos, bracketPos);
-        }
-
         // Extract current key part (object key)
-        std::string_view keyPart = keyView.substr(0, nextSep);
+        std::string_view keyPart = extractKeyPart(&keyView);
 
         // Handle object key part if non-empty
         if (!keyPart.empty()) {
             if (!current->IsObject()) {
                 return nullptr;
             }
-
             if (!current->HasMember(std::string(keyPart).c_str())) {
                 return nullptr;
             }
             current = &(*current)[std::string(keyPart).c_str()];
         }
-
-        // Move keyView forward past current key
-        keyView.remove_prefix(nextSep);
 
         // Now handle zero or more array indices if they appear next
         while (!keyView.empty() && keyView[0] == '[') {
@@ -79,7 +63,6 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_path(const char* k
             keyView.remove_prefix(1);
         }
     }
-
     return current;
 }
 
@@ -88,23 +71,8 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::ensure_path(const char* key
     std::string_view keyView(key);
 
     while (!keyView.empty()) {
-        // Find '.' or '[' as next separators
-        size_t dotPos = keyView.find('.');
-        size_t bracketPos = keyView.find('[');
-
-        size_t nextSep;
-        if (dotPos == std::string_view::npos && bracketPos == std::string_view::npos) {
-            nextSep = keyView.size();  // No separator - last key
-        } else if (dotPos == std::string_view::npos) {
-            nextSep = bracketPos;
-        } else if (bracketPos == std::string_view::npos) {
-            nextSep = dotPos;
-        } else {
-            nextSep = std::min(dotPos, bracketPos);
-        }
-
         // Extract current key part (object key)
-        std::string_view keyPart = keyView.substr(0, nextSep);
+        std::string_view keyPart = extractKeyPart(&keyView);
 
         // Handle object key part if non-empty
         if (!keyPart.empty()) {
@@ -119,9 +87,6 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::ensure_path(const char* key
             }
             current = &(*current)[std::string(keyPart).c_str()];
         }
-
-        // Move keyView forward past current key
-        keyView.remove_prefix(nextSep);
 
         // Now handle zero or more array indices if they appear next
         while (!keyView.empty() && keyView[0] == '[') {
@@ -167,8 +132,6 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::ensure_path(const char* key
     return current;
 }
 
-//------------------------------------------
-// Static Helper Functions
 rapidjson::Value Nebulite::Utility::RjDirectAccess::sortRecursive(const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator) {
     if (value.IsObject()) {
         // Sort object keys
@@ -386,4 +349,29 @@ void Nebulite::Utility::RjDirectAccess::remove_member(const char* key, rapidjson
             }
         }
     }
+}
+
+//------------------------------------------
+// Static Private Helper Functions
+
+std::string_view Nebulite::Utility::RjDirectAccess::extractKeyPart(std::string_view* keyView) {
+    // Find '.' or '[' as next separators
+    size_t dotPos = keyView->find('.');
+    size_t bracketPos = keyView->find('[');
+
+    size_t nextSep;
+    if (dotPos == std::string_view::npos && bracketPos == std::string_view::npos) {
+        nextSep = keyView->size();  // No separator - last key
+    } else if (dotPos == std::string_view::npos) {
+        nextSep = bracketPos;
+    } else if (bracketPos == std::string_view::npos) {
+        nextSep = dotPos;
+    } else {
+        nextSep = std::min(dotPos, bracketPos);
+    }
+
+    // Extract current key part (object key)
+    std::string_view keyPart = keyView->substr(0, nextSep);
+    keyView->remove_prefix(nextSep);
+    return keyPart;
 }
