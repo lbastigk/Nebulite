@@ -326,6 +326,13 @@ private:
      * @brief Help description for the help function.
      */
     const std::string help_desc = R"(Show available commands and their descriptions)";
+
+    //------------------------------------------
+    // Splitted help functions for better readability
+    
+    void specificHelp(std::string funcName);
+
+    void generalHelp();
 };
 }   // namespace Execution
 }   // namespace Interaction
@@ -550,8 +557,7 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parse(int a
         else{
             // no more vars to parse
             parseVars = false;
-        }
-        
+        }    
     }
 
     // Check if there are still arguments left
@@ -684,97 +690,103 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help(int ar
     // Case 1: Detailed help for a specific function, subtree or variable
     if(argc > 1){
         for(int i = 1; i < argc; i++){
-            //------------------------------------------
-            // Name
             std::string funcName = argv[i];
-
-            //------------------------------------------
-            // Find
-
-           
-            // Functions
-            bool funcFound = false;
-            auto funcIt = functions.find(funcName);
-            if(funcIt != functions.end()){funcFound = true;}
-            else{
-                for(auto& inheritedTree : inheritedTrees){
-                    if(inheritedTree != nullptr){
-                        funcIt = inheritedTree->functions.find(funcName);
-                    }
-                    if(funcIt != inheritedTree->functions.end()){
-                        funcFound = true;
-                        break; // Found in inherited tree, stop searching
-                    }
-                }
-            }
-
-            // Subtrees
-            bool subFound = false;
-            auto subIt = subtrees.find(funcName);
-            if(subIt != subtrees.end()){subFound = true;}
-            else{
-                for(auto& inheritedTree : inheritedTrees){
-                    if(inheritedTree != nullptr){
-                        subIt = inheritedTree->subtrees.find(funcName);
-                    }
-                    if(subIt != inheritedTree->subtrees.end()){
-                        subFound = true;
-                        break; // Found in inherited tree, stop searching
-                    }
-                }
-            }
-
-
-            // Variables
-            bool varFound = false;
-            auto varIt = variables.find(funcName);
-            if(varIt != variables.end()){varFound = true;}
-            else{
-                for(auto& inheritedTree : inheritedTrees){
-                    if(inheritedTree != nullptr){
-                        varIt = inheritedTree->variables.find(funcName);
-                    }
-                    if(varIt != inheritedTree->variables.end()){
-                        varFound = true;
-                        break; // Found in inherited tree, stop searching
-                    }
-                }
-            }
-
-            //------------------------------------------
-            // Print
-
-            // 1.) Function
-            if(funcFound){
-                // Found function, display detailed help
-                std::cout << "\nHelp for function '" << funcName << "':\n" << std::endl;
-                std::cout << *funcIt->second.description << "\n";
-            }
-            // 2.) Subtree
-            else if(subFound){
-                // Found subtree, display detailed help
-                //std::cout << "\nHelp for subtree '" << funcName << "':\n" << std::endl;
-                //std::cout << *subIt->second.description << "\n";
-                //std::cout << "Subtree functions:\n";
-                subIt->second.tree->help(0, nullptr); // Display all functions in the subtree
-            }
-            // 3.) Variable
-            else if(varFound){
-                // Found variable, display detailed help
-                std::cout << "\nHelp for variable '--" << funcName << "':\n" << std::endl;
-                std::cout << *varIt->second.description << "\n";
-            }
-            // 4.) Not found
-            else{
-                std::cout << "Function or Subtree '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
-            }
+            specificHelp(funcName);
         }
         return _standard;
     }
 
     //------------------------------------------
     // Case 2: General help for all functions, subtrees and variables
+    generalHelp();
+    
+    return _standard;
+}
 
+template<typename RETURN_TYPE>
+void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::specificHelp(std::string funcName) {
+    //------------------------------------------
+    // Find
+
+    // Functions
+    bool funcFound = false;
+    auto funcIt = functions.find(funcName);
+    if(funcIt != functions.end()){funcFound = true;}
+    else{
+        for(auto& inheritedTree : inheritedTrees){
+            if(inheritedTree != nullptr){
+                funcIt = inheritedTree->functions.find(funcName);
+            }
+            if(funcIt != inheritedTree->functions.end()){
+                funcFound = true;
+                break; // Found in inherited tree, stop searching
+            }
+        }
+    }
+
+    // Subtrees
+    bool subFound = false;
+    auto subIt = subtrees.find(funcName);
+    if(subIt != subtrees.end()){subFound = true;}
+    else{
+        for(auto& inheritedTree : inheritedTrees){
+            if(inheritedTree != nullptr){
+                subIt = inheritedTree->subtrees.find(funcName);
+            }
+            if(subIt != inheritedTree->subtrees.end()){
+                subFound = true;
+                break; // Found in inherited tree, stop searching
+            }
+        }
+    }
+
+    // Variables
+    bool varFound = false;
+    auto varIt = variables.find(funcName);
+    if(varIt != variables.end()){varFound = true;}
+    else{
+        for(auto& inheritedTree : inheritedTrees){
+            if(inheritedTree != nullptr){
+                varIt = inheritedTree->variables.find(funcName);
+            }
+            if(varIt != inheritedTree->variables.end()){
+                varFound = true;
+                break; // Found in inherited tree, stop searching
+            }
+        }
+    }
+
+    //------------------------------------------
+    // Print
+
+    // 1.) Function
+    if(funcFound){
+        // Found function, display detailed help
+        std::cout << "\nHelp for function '" << funcName << "':\n" << std::endl;
+        std::cout << *funcIt->second.description << "\n";
+    }
+    // 2.) Subtree
+    else if(subFound){
+        // Found subtree, display detailed help
+        //std::cout << "\nHelp for subtree '" << funcName << "':\n" << std::endl;
+        //std::cout << *subIt->second.description << "\n";
+        //std::cout << "Subtree functions:\n";
+        subIt->second.tree->help(0, nullptr); // Display all functions in the subtree
+    }
+    // 3.) Variable
+    else if(varFound){
+        // Found variable, display detailed help
+        std::cout << "\nHelp for variable '--" << funcName << "':\n" << std::endl;
+        std::cout << *varIt->second.description << "\n";
+    }
+    // 4.) Not found
+    else{
+        std::cout << "Function or Subtree '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
+    }
+}
+
+template<typename RETURN_TYPE>
+void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::generalHelp() {
     // All info: [name, description]
     std::vector<std::pair<std::string, const std::string*>> allFunctions = getAllFunctions();
     std::vector<std::pair<std::string, const std::string*>> allVariables = getAllVariables();
@@ -818,5 +830,4 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help(int ar
         std::cout << "  " << std::setw(25) << std::left << fullName
                   << " - " << *description << std::endl;
     }
-    return _standard;
 }
