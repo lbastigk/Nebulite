@@ -186,7 +186,6 @@ Nebulite::Constants::Error SimpleData::ensureArray(int argc, char* argv[]) {
 
     std::cerr << "Error: Key '" << key << "' is unsupported type " << static_cast<int>(keyType) << ", cannot convert to array." << std::endl;
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
-    
 }
 const std::string SimpleData::ensureArray_name = "ensure-array";
 const std::string SimpleData::ensureArray_desc = R"(Ensure that a key is an array, converting a value to an array if necessary.

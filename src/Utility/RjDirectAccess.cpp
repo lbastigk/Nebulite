@@ -186,7 +186,6 @@ std::string Nebulite::Utility::RjDirectAccess::serialize(const rapidjson::Docume
 }
 
 void Nebulite::Utility::RjDirectAccess::deserialize(rapidjson::Document& doc, std::string serialOrLink) {
-
     std::string jsonString;
     
     // Check if the input is already a serialized JSON string
