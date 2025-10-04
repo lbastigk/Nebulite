@@ -152,17 +152,15 @@ Each line in the file is treated as a separate task.
 Task files are not appended at the end, but right after the current task. 
 This ensures that tasks can be loaded within task files themselves and being executed immediately.
 
-This pseudo-example shows how tasks are loaded and executed:
+This example shows how tasks are loaded and executed:
 
-MAIN_TASK{
+Main task:
     maincommand1
     maincommand2
-    task subtaskfile.txt{
+    task subtaskfile.txt:
         subcommand1
         subcommand2
-    }
     maincommand4
-}
 )";
 
 Nebulite::Constants::Error General::echo(int argc, char* argv[]) {
