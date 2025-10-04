@@ -215,62 +215,83 @@ void Nebulite::Utility::RjDirectAccess::empty(rapidjson::Document &doc) {
     //doc.Swap(rapidjson::Value(rapidjson::kObjectType).Move());
 }
 
-std::string Nebulite::Utility::RjDirectAccess::stripComments(const std::string& jsonc) {
-    std::string result;
-    result.reserve(jsonc.size());
-    
-    bool inString = false;
-    bool inSingleComment = false;
-    bool inMultiComment = false;
-    bool escaped = false;
-    
-    for (size_t i = 0; i < jsonc.size(); ++i) {
-        char c = jsonc[i];
-        char next = (i + 1 < jsonc.size()) ? jsonc[i + 1] : '\0';
-        
-        if (inSingleComment) {
-            if (c == '\n') {
-                inSingleComment = false;
-                result += c; // Preserve newline for line counting
-            }
-            continue;
+/**
+ * @brief Helpers for comment stripping
+ */
+namespace {
+    struct ParseState {
+        bool inString = false;
+        bool inSingleComment = false;
+        bool inMultiComment = false;
+        bool escaped = false;
+    };
+
+    bool handleSingleLineComment(char c, ParseState& state, std::string& result) {
+        if (c == '\n') {
+            state.inSingleComment = false;
+            result += c; // Preserve newline for line counting
         }
-        
-        if (inMultiComment) {
-            if (c == '*' && next == '/') {
-                inMultiComment = false;
-                ++i; // Skip the '/'
-            }
-            continue;
+        return true; // Character was handled
+    }
+
+    bool handleMultiLineComment(char c, char next, ParseState& state, size_t& skipNext) {
+        if (c == '*' && next == '/') {
+            state.inMultiComment = false;
+            skipNext = 1; // Skip the '/'
         }
-        
-        if (inString) {
-            result += c;
-            if (escaped) {
-                escaped = false;
-            } else if (c == '\\') {
-                escaped = true;
-            } else if (c == '"') {
-                inString = false;
-            }
-            continue;
+        return true; // Character was handled
+    }
+
+    bool handleStringContent(char c, ParseState& state, std::string& result) {
+        result += c;
+        if (state.escaped) {
+            state.escaped = false;
+        } else if (c == '\\') {
+            state.escaped = true;
+        } else if (c == '"') {
+            state.inString = false;
         }
-        
-        // Not in string or comment
+        return true; // Character was handled
+    }
+
+    bool handleRegularContent(char c, char next, ParseState& state, std::string& result, size_t& skipNext) {
         if (c == '"') {
-            inString = true;
+            state.inString = true;
             result += c;
         } else if (c == '/' && next == '/') {
-            inSingleComment = true;
-            ++i; // Skip the second '/'
+            state.inSingleComment = true;
+            skipNext = 1; // Skip the second '/'
         } else if (c == '/' && next == '*') {
-            inMultiComment = true;
-            ++i; // Skip the '*'
+            state.inMultiComment = true;
+            skipNext = 1; // Skip the '*'
         } else {
             result += c;
         }
+        return true; // Character was handled
     }
-    
+}
+
+std::string Nebulite::Utility::RjDirectAccess::stripComments(const std::string& jsonc) {
+    std::string result;
+    result.reserve(jsonc.size());
+    ParseState state;
+    for (size_t i = 0; i < jsonc.size(); ++i) {
+        char c = jsonc[i];
+        char next = (i + 1 < jsonc.size()) ? jsonc[i + 1] : '\0';
+        size_t skipNext = 0;
+        
+        if (state.inSingleComment) {
+            handleSingleLineComment(c, state, result);
+        } else if (state.inMultiComment) {
+            handleMultiLineComment(c, next, state, skipNext);
+        } else if (state.inString) {
+            handleStringContent(c, state, result);
+        } else {
+            handleRegularContent(c, next, state, result, skipNext);
+        }
+        
+        i += skipNext; // Skip additional characters if needed
+    }
     return result;
 }
 
