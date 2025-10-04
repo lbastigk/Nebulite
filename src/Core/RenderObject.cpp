@@ -12,7 +12,6 @@
 Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSpace) 
 : Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>("RenderObject", this, &json), 
   baseTexture(&json, globalSpace) {
-
 	//------------------------------------------
 	// Linkages
 	this->globalSpace = globalSpace;
