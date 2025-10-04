@@ -95,7 +95,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error spawn(int argc, char* argv[]);
-    std::string spawn_desc = R"(Spawn a RenderObject from a json/jsonc file.
+    const std::string spawn_name = "spawn";
+    const std::string spawn_desc = R"(Spawn a RenderObject from a json/jsonc file.
 
     Usage: spawn <path/to/file.jsonc>
 
@@ -121,7 +122,8 @@ public:
      * @todo Empty env loading crashes the program. Needs to be fixed.
      */
     Nebulite::Constants::Error env_load(int argc, char* argv[]);
-    std::string env_load_desc = R"(Load an environment/level from a json/jsonc file.
+    const std::string env_load_name = "env load";
+    const std::string env_load_desc = R"(Load an environment/level from a json/jsonc file.
 
     Usage: env load <path/to/file.jsonc>
 
@@ -136,7 +138,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error env_deload(int argc, char* argv[]);
-    std::string env_deload_desc = R"(Deload entire environment, leaving an empty renderer.
+    const std::string env_deload_name = "env deload";
+    const std::string env_deload_desc = R"(Deload entire environment, leaving an empty renderer.
 
     Usage: env deload
     )";
@@ -156,7 +159,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error setResolution(int argc, char* argv[]);
-    std::string setResolution_desc = R"(Set resolution of renderer.
+    const std::string setResolution_name = "set-res";
+    const std::string setResolution_desc = R"(Set resolution of renderer.
 
     Usage: set-res [Width] [Height] [Scale]
 
@@ -176,7 +180,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error setFPS(int argc, char* argv[]);
-    std::string setFPS_desc = R"(Set FPS of renderer.
+    const std::string setFPS_name = "set-fps";
+    const std::string setFPS_desc = R"(Set FPS of renderer.
 
     Usage: set-fps [fps]
 
@@ -194,7 +199,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error showFPS(int argc, char* argv[]);
-    std::string showFPS_desc = R"(Show FPS of renderer.
+    const std::string showFPS_name = "show-fps";
+    const std::string showFPS_desc = R"(Show FPS of renderer.
 
     Usage: show-fps [on|off]
 
@@ -209,7 +215,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error cam_move(int argc, char* argv[]);
-    std::string cam_move_desc = R"(Move camera by a given delta.
+    const std::string cam_move_name = "cam move";
+    const std::string cam_move_desc = R"(Move camera by a given delta.
 
     Usage: cam move <dx> <dy>
 
@@ -228,7 +235,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error cam_set(int argc, char* argv[]);
-    std::string cam_set_desc = R"(Set camera to concrete position.
+    const std::string cam_set_name = "cam set";
+    const std::string cam_set_desc = R"(Set camera to concrete position.
 
     Usage: cam set <x> <y> [c]
 
@@ -248,7 +256,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error snapshot(int argc, char* argv[]);
-    std::string snapshot_desc = R"(Create a snapshot of the current renderer state.
+    const std::string snapshot_name = "snapshot";
+    const std::string snapshot_desc = R"(Create a snapshot of the current renderer state.
 
     Usage: snapshot [filename]
 
@@ -263,7 +272,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error beep(int argc, char* argv[]);
-    std::string beep_desc = R"(Make a beep noise.
+    const std::string beep_name = "beep";
+    const std::string beep_desc = R"(Make a beep noise.
 
     Usage: beep
     )";
@@ -287,7 +297,8 @@ public:
      * and should thus also be the owner of the selected object reference
      */
     Nebulite::Constants::Error selectedObject_get(int argc, char* argv[]);
-    std::string selectedObject_get_desc = R"(Get a renderobject by its ID.
+    const std::string selectedObject_get_name = "selected-object get";
+    const std::string selectedObject_get_desc = R"(Get a renderobject by its ID.
 
     Usage: selected-object get <id>
     )";
@@ -299,7 +310,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error selectedObject_Parse(int argc, char* argv[]);
-    std::string selectedObject_Parse_desc = R"(Parse a command on the selected RenderObject.
+    const std::string selectedObject_Parse_name = "selected-object parse";
+    const std::string selectedObject_Parse_desc = R"(Parse a command on the selected RenderObject.
 
     Usage: selected-object parse <command>
 
@@ -320,24 +332,24 @@ public:
      * The only downside currently is that we have to implement a method to lazy-init the SDL Renderer within the Renderer domain itself.
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Renderer){
-        bindFunction(&Renderer::spawn,               "spawn",        spawn_desc);
-        bindFunction(&Renderer::setResolution,       "set-res",      setResolution_desc);
-        bindFunction(&Renderer::setFPS,              "set-fps",      setFPS_desc);
-        bindFunction(&Renderer::showFPS,             "show-fps",     showFPS_desc);
-        bindFunction(&Renderer::snapshot,            "snapshot",     snapshot_desc);
-        bindFunction(&Renderer::beep,                "beep",         beep_desc);
+        bindFunction(&Renderer::spawn,               spawn_name,        spawn_desc);
+        bindFunction(&Renderer::setResolution,       setResolution_name,      setResolution_desc);
+        bindFunction(&Renderer::setFPS,              setFPS_name,      setFPS_desc);
+        bindFunction(&Renderer::showFPS,             showFPS_name,     showFPS_desc);
+        bindFunction(&Renderer::snapshot,            snapshot_name,     snapshot_desc);
+        bindFunction(&Renderer::beep,                beep_name,         beep_desc);
 
         bindSubtree("cam", "Renderer Camera Functions");
-        bindFunction(&Renderer::cam_move,             "cam move",     cam_move_desc);
-        bindFunction(&Renderer::cam_set,              "cam set",      cam_set_desc);
+        bindFunction(&Renderer::cam_move,             cam_move_name,     cam_move_desc);
+        bindFunction(&Renderer::cam_set,              cam_set_name,      cam_set_desc);
 
         bindSubtree("selected-object", "Functions to select and interact with a selected RenderObject");
-        bindFunction(&Renderer::selectedObject_get,   "selected-object get",   selectedObject_get_desc);
-        bindFunction(&Renderer::selectedObject_Parse, "selected-object parse", selectedObject_Parse_desc);
+        bindFunction(&Renderer::selectedObject_get,   selectedObject_get_name,   selectedObject_get_desc);
+        bindFunction(&Renderer::selectedObject_Parse, selectedObject_Parse_name, selectedObject_Parse_desc);
 
         bindSubtree("env", "Environment management functions");
-        bindFunction(&Renderer::env_load,             "env load",     env_load_desc);
-        bindFunction(&Renderer::env_deload,           "env deload",   env_deload_desc);
+        bindFunction(&Renderer::env_load,             env_load_name,     env_load_desc);
+        bindFunction(&Renderer::env_deload,           env_deload_name,   env_deload_desc);
     }
 
 private:

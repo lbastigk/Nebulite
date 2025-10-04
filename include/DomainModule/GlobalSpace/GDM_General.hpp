@@ -49,7 +49,8 @@ public:
      * eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
      */
     Nebulite::Constants::Error eval(int argc, char* argv[]);
-    std::string eval_desc = R"(Evaluates an expression string and executes it.
+    const std::string eval_name = "eval";
+    const std::string eval_desc = R"(Evaluates an expression string and executes it.
     Every argument after eval is concatenated with a whitespace to form the expression to be evaluated and then reparsed.
 
     Usage: eval <expression>
@@ -75,7 +76,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error exit(int argc, char* argv[]);
-    std::string exit_desc = R"(Exits the entire program.
+    const std::string exit_name = "exit";
+    const std::string exit_desc = R"(Exits the entire program.
 
     Usage: exit
 
@@ -91,7 +93,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error wait(int argc, char* argv[]);
-    std::string wait_desc = R"(Sets the waitCounter to the given value to halt all script tasks for a given amount of frames.
+    const std::string wait_name = "wait";
+    const std::string wait_desc = R"(Sets the waitCounter to the given value to halt all script tasks for a given amount of frames.
 
     Usage: wait <frames>
 
@@ -114,7 +117,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error task(int argc, char* argv[]);
-    std::string task_desc = R"(Loads tasks from a file into the taskQueue.
+    const std::string task_name = "task";
+    const std::string task_desc = R"(Loads tasks from a file into the taskQueue.
 
     Usage: task <filename>
 
@@ -145,7 +149,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error func_for(int argc, char* argv[]);
-    std::string func_for_desc = R"(Executes a for-loop with a function call.
+    const std::string func_for_name = "for";
+    const std::string func_for_desc = R"(Executes a for-loop with a function call.
 
     Usage: for <var> <start> <end> <functioncall>
 
@@ -172,7 +177,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error func_if(int argc, char* argv[]);
-    std::string func_if_desc = R"(Executes a block of code if a condition is true.
+    const std::string func_if_name = "if";
+    const std::string func_if_desc = R"(Executes a block of code if a condition is true.
 
     Usage: if <condition> <functioncall>
 
@@ -194,7 +200,8 @@ public:
      * @return The specified value of Error. 
      */
     Nebulite::Constants::Error func_return(int argc, char* argv[]);
-    std::string func_return_desc = R"(Returns a custom value as a Critical Error.
+    const std::string func_return_name = "return";
+    const std::string func_return_desc = R"(Returns a custom value as a Critical Error.
 
     Usage: return <string>
 
@@ -217,7 +224,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error echo(int argc, char* argv[]);
-    std::string echo_desc = R"(Echoes all arguments as string to the standard output.
+    const std::string echo_name = "echo";
+    const std::string echo_desc = R"(Echoes all arguments as string to the standard output.
 
     Usage: echo <string>
 
@@ -238,7 +246,8 @@ public:
      * @todo Return a custom error string with the failed condition
      */
     Nebulite::Constants::Error func_assert(int argc, char* argv[]);
-    std::string assert_desc = R"(Asserts a condition and throws a custom error if false.
+    const std::string assert_name = "assert";
+    const std::string assert_desc = R"(Asserts a condition and throws a custom error if false.
 
     Usage: assert <condition>
 
@@ -257,7 +266,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error always(int argc, char* argv[]);
-    std::string always_desc = R"(Attach a command to the always-taskqueue that is executed on each tick.
+    const std::string always_name = "always";
+    const std::string always_desc = R"(Attach a command to the always-taskqueue that is executed on each tick.
 
     Usage: always <command>
 
@@ -274,7 +284,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error alwaysClear(int argc, char* argv[]);
-    std::string alwaysClear_desc = R"(Clears the entire always-taskqueue.
+    const std::string alwaysClear_name = "always-clear";
+    const std::string alwaysClear_desc = R"(Clears the entire always-taskqueue.
 
     Usage: always-clear
 
@@ -290,17 +301,17 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, General){
-        bindFunction(&General::eval,        "eval",         eval_desc);
-        bindFunction(&General::exit,        "exit",         exit_desc);
-        bindFunction(&General::wait,        "wait",         wait_desc);
-        bindFunction(&General::task,        "task",         task_desc);
-        bindFunction(&General::func_for,    "for",          func_for_desc);
-        bindFunction(&General::func_if,     "if",           func_if_desc);
-        bindFunction(&General::func_return, "return",       func_return_desc);
-        bindFunction(&General::echo,        "echo",         echo_desc);
-        bindFunction(&General::func_assert, "assert",       assert_desc);
-        bindFunction(&General::always,      "always",       always_desc);
-        bindFunction(&General::alwaysClear, "always-clear", alwaysClear_desc);
+        bindFunction(&General::eval,        eval_name,          eval_desc);
+        bindFunction(&General::exit,        exit_name,          exit_desc);
+        bindFunction(&General::wait,        wait_name,          wait_desc);
+        bindFunction(&General::task,        task_name,          task_desc);
+        bindFunction(&General::func_for,    func_for_name,      func_for_desc);
+        bindFunction(&General::func_if,     func_if_name,       func_if_desc);
+        bindFunction(&General::func_return, func_return_name,   func_return_desc);
+        bindFunction(&General::echo,        echo_name,          echo_desc);
+        bindFunction(&General::func_assert, assert_name,        assert_desc);
+        bindFunction(&General::always,      always_name,        always_desc);
+        bindFunction(&General::alwaysClear, alwaysClear_name,   alwaysClear_desc);
     }
 };
 }   // namespace GlobalSpace

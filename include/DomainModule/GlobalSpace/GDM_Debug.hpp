@@ -51,7 +51,8 @@ public:
         // as it already exists in the inherited domain JSON
         return Nebulite::Constants::ErrorTable::NONE();
     }
-    std::string set_desc = R"(If you see this message, function collision detection is NOT working!
+    const std::string set_name = "set";
+    const std::string set_desc = R"(If you see this message, function collision detection is NOT working!
     With this function, GlobalSpace should not be able to initialize, as the function "set" already exists in the inherited domain JSON.
     )";
 
@@ -72,7 +73,8 @@ public:
      * wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
      */
     Nebulite::Constants::Error errorlog(int argc, char* argv[]);
-    std::string errorlog_desc = R"(Activates or deactivates error logging to a file.
+    const std::string errorlog_name = "errorlog";
+    const std::string errorlog_desc = R"(Activates or deactivates error logging to a file.
 
     Usage: errorlog <on/off>
 
@@ -89,7 +91,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error clearConsole(int argc, char* argv[]);
-    std::string clearConsole_desc = R"(Clears the console screen.
+    const std::string clearConsole_name = "clear";
+    const std::string clearConsole_desc = R"(Clears the console screen.
 
     Usage: clear
 
@@ -106,7 +109,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error log_global(int argc, char* argv[]);
-    std::string log_global_desc = R"(Logs the global document to a file.
+    const std::string log_global_name = "log global";
+    const std::string log_global_desc = R"(Logs the global document to a file.
 
     Usage: log global [<filenames>...]
 
@@ -123,7 +127,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error log_state(int argc, char* argv[]);
-    std::string log_state_desc = R"(Logs the current state of the renderer to a file.
+    const std::string log_state_name = "log state";
+    const std::string log_state_desc = R"(Logs the current state of the renderer to a file.
 
     Usage: log state [<filenames>...]
 
@@ -141,7 +146,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error crash(int argc, char** argv);
-    std::string crash_desc = R"(Crashes the program, useful for checking if the testing suite can catch crashes.
+    const std::string crash_name = "crash";
+    const std::string crash_desc = R"(Crashes the program, useful for checking if the testing suite can catch crashes.
 
     Usage: crash [<type>]
 
@@ -160,7 +166,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error error(int argc, char* argv[]);
-    std::string error_desc = R"(Echoes all arguments as string to the standard error.
+    const std::string error_name = "error";
+    const std::string error_desc = R"(Echoes all arguments as string to the standard error.
 
     Usage: error <string...>
 
@@ -175,7 +182,8 @@ public:
      * @return The specified value of Error. 
      */
     Nebulite::Constants::Error warn(int argc, char* argv[]);
-    std::string warn_desc = R"(Returns a warning: a custom, noncritical error.
+    const std::string warn_name = "warn";
+    const std::string warn_desc = R"(Returns a warning: a custom, noncritical error.
 
     Usage: warn <string>
 
@@ -190,7 +198,8 @@ public:
      * @return The specified value of Error.
      */
     Nebulite::Constants::Error critical(int argc, char* argv[]);
-    std::string critical_desc = R"(Returns a critical error.
+    const std::string critical_name = "critical";
+    const std::string critical_desc = R"(Returns a critical error.
 
     Usage: critical <string>
 
@@ -205,7 +214,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error waitForInput(int argc, char* argv[]);
-    std::string waitForInput_desc = R"(Waits for user input before continuing.
+    const std::string waitForInput_name = "inputwait";
+    const std::string waitForInput_desc = R"(Waits for user input before continuing.
 
     Usage: inputwait
 
@@ -220,7 +230,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error standardfile_renderobject(int argc, char** argv);
-    std::string standardfile_renderobject_desc = R"(Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
+    const std::string standardfile_renderobject_name = "standardfile renderobject";
+    const std::string standardfile_renderobject_desc = R"(Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
 
     Usage: standardfile renderobject
     
@@ -236,20 +247,20 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug){
         //------------------------------------------
         // Binding functions to the FuncTree
-        bindFunction(&Debug::errorlog,          "errorlog",                 errorlog_desc);
-        bindFunction(&Debug::clearConsole,      "clear",                    clearConsole_desc);
-        bindFunction(&Debug::error,             "error",                    error_desc);
-        bindFunction(&Debug::crash,             "crash",                    crash_desc);
-        bindFunction(&Debug::warn,              "warn",                     warn_desc);
-        bindFunction(&Debug::critical,          "critical",                 critical_desc);
-        bindFunction(&Debug::waitForInput,      "inputwait",                waitForInput_desc);
+        bindFunction(&Debug::errorlog,          errorlog_name,                 errorlog_desc);
+        bindFunction(&Debug::clearConsole,      clearConsole_name,             clearConsole_desc);
+        bindFunction(&Debug::error,             error_name,                    error_desc);
+        bindFunction(&Debug::crash,             crash_name,                    crash_desc);
+        bindFunction(&Debug::warn,              warn_name,                     warn_desc);
+        bindFunction(&Debug::critical,          critical_name,                 critical_desc);
+        bindFunction(&Debug::waitForInput,      waitForInput_name,             waitForInput_desc);
 
         bindSubtree("log", "Functions to log various data to files");
-        bindFunction(&Debug::log_global,        "log global",               log_global_desc);
-        bindFunction(&Debug::log_state,         "log state",                log_state_desc);
+        bindFunction(&Debug::log_global,        log_global_name,               log_global_desc);
+        bindFunction(&Debug::log_state,         log_state_name,                log_state_desc);
 
         bindSubtree("standardfile", "Functions to generate standard files");
-        bindFunction(&Debug::standardfile_renderobject,     "standardfile renderobject",   standardfile_renderobject_desc);
+        bindFunction(&Debug::standardfile_renderobject,     standardfile_renderobject_name,   standardfile_renderobject_desc);
 
         //------------------------------------------
         // Example Bindings that will fail
