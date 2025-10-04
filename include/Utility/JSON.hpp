@@ -65,7 +65,7 @@ private:
      * @brief Represents a cached entry in the JSON document, including its value, state, and stable pointer for double values.
      */
     struct CacheEntry {
-        std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool> value;
+        RjDirectAccess::simpleValue value;
         double* stable_double_ptr;                  // Never deleted.
         double last_double_value;                   // For change detection
         EntryState state = EntryState::DIRTY;       // Default to dirty
@@ -104,7 +104,7 @@ private:
      * @brief Helper function to convert any type from cache into another type.
      */
     template<typename newType>
-    newType convertVariant(const std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool>& var, const newType& defaultValue = newType{});
+    newType convertVariant(const RjDirectAccess::simpleValue& var, const newType& defaultValue = newType{});
 
     /**
      * @brief Flush all DIRTY entries in the cache back to the RapidJSON document.
@@ -466,7 +466,7 @@ T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
 
 // TODO: This function sees a wrong number!
 template<typename newType>
-newType Nebulite::Utility::JSON::convertVariant(const std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool>& var, const newType& defaultValue) {
+newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValue& var, const newType& defaultValue) {
     /*
     Use std::visit to handle the variant type.
     Conceptually, it works like a type-based switch statement:

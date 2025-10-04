@@ -44,6 +44,38 @@
 namespace Nebulite::Utility {
 class RjDirectAccess{
 public:
+    using simpleValue = std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool>;
+
+    /**
+     * @brief Getting a simple value from a rapidjson value, using the right type stored in the document.
+     * 
+     * @param value Pointer to the variant to store the value.
+     * @param val Pointer to the rapidjson value to get the value from.
+     * @return true if a supported type was found and value was set, false otherwise (e.g. Object, Array, Null)
+     */
+    static bool getSimpleValue(simpleValue* value, rapidjson::Value* val) {
+        // Get supported types
+        if(val->IsInt()){
+            *value = val->GetInt();
+        } else if(val->IsInt64()){
+            *value = val->GetInt64();
+        } else if(val->IsUint()){
+            *value = val->GetUint();
+        } else if(val->IsUint64()){
+            *value = val->GetUint64();
+        } else if(val->IsDouble()){
+            *value = val->GetDouble();
+        } else if(val->IsString()){
+            *value = std::string(val->GetString(), val->GetStringLength());
+        } else if(val->IsBool()){
+            *value = val->GetBool();
+        } else {
+            // Unsupported type (e.g., Object, Array, Null)
+            return false;
+        }
+        return true;
+    }
+
     //------------------------------------------
     // Getter, Setter
 
@@ -266,8 +298,8 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<ra
 
 // Template specialization for std::variant
 // So we don't have to manually call std::visit every time
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool>>(
-    const std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool>& data, 
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue(
+    const simpleValue& data, 
     rapidjson::Value& jsonValue, 
     rapidjson::Document::AllocatorType& allocator) {
     
