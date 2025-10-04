@@ -4,6 +4,8 @@
 #include "DomainModule/RDM.hpp"
 #include "Interaction/Deserializer.hpp"
 
+#include "DomainModule/JSON/JDM_SimpleData.hpp"
+
 //------------------------------------------
 // Special member Functions
 
@@ -147,6 +149,9 @@ void Nebulite::Core::RenderObject::deserialize(std::string serialOrLink) {
 				//json.set<std::string>(key.c_str(), value);
 
 				// New implementation through functioncall
+				std::string call = __FUNCTION__;
+				call += " set"; // TODO: Use static const string for "set"
+				call += " " + key + " " + value;
 				parseStr("Nebulite::Core::RenderObject::deserialize set " + key + " " + value);
 			}
 			// Handle function call
