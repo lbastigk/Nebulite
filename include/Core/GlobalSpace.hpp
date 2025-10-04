@@ -109,6 +109,17 @@ public:
     // Functions
 
     /**
+     * @brief Parses command line arguments and sets corresponding variables.
+     * 
+     * This function processes the command line arguments passed to the program,
+     * setting internal variables based on recognized flags and options.
+     * 
+     * @param argc The number of command line arguments.
+     * @param argv The array of command line argument strings.
+     */
+    void parseCommandLineArguments(int argc, char* argv[]);
+
+    /**
      * @brief Allows for access to the Renderer instance
      *
      * This function retrieves the renderer instance, creating it if it doesn't already exist.

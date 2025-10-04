@@ -49,6 +49,69 @@ void Nebulite::Core::GlobalSpace::update() {
     getDoc()->update();
 }
 
+void Nebulite::Core::GlobalSpace::parseCommandLineArguments(int argc, char* argv[]){
+//------------------------------------------
+    // Add main args to taskList, split by ';'
+    if (argc > 1) {
+        std::ostringstream oss;
+        for (int i = 1; i < argc; ++i) {
+            if (i > 1) oss << ' ';
+            oss << argv[i];
+        }
+
+        // Split oss.str() on ';' and push each trimmed command
+        std::string argStr = oss.str();
+        std::stringstream ss(argStr);
+        std::string command;
+
+        while (std::getline(ss, command, ';')) {
+            // Trim whitespace from each command
+            command.erase(0, command.find_first_not_of(" \t"));
+            command.erase(command.find_last_not_of(" \t") + 1);
+            if (!command.empty()) {
+                tasks.script.taskQueue.push_back(command);
+            }
+        }
+    }
+    else{
+        /**
+         * If no addition arguments were provided:
+         *
+         * @note For now, an empty Renderer is initiated via set-fps 60
+         * 
+         * @todo Later on it might be helpful to insert a task like:
+         *       `env-load ./Resources/Levels/main.jsonc`
+         *       Which represents the menue screen of the game.
+         *       Or, for a more scripted task:
+         *       `task TaskFiles/main.nebs`.
+         *       Making sure that any state currently loaded is cleared.
+         *       Having main be a state itself is also an idea, 
+         *       but this might become challenging as the user could accidentally overwrite the main state.
+         *       Best solution is therefore an env-load, with the environment architecture yet to be defined
+         *       best solution is probably:
+         * 
+         *       - a field with the container 
+         * 
+         *       - a vector which contains tasks to be executed on environment load
+         * 
+         *       - potentially an extra task vector for tasks that are executed BEFORE the env is loaded
+         * 
+         *       - potentially an extra task vector for tasks that are executed BEFORE the env is de-loaded
+         * 
+         *       Keys like: after-load, after-deload, before-load, before-deload
+         *       For easier usage, hardcoding the env-load task is not a good idea, 
+         *       instead call some function like "entrypoint" or "main" which is defined in a GlobalSpace DomainModule
+         *       This is important, as it's now clear what the entrypoint is, without knowing exactly what main file is loaded
+         *       If a user ever defines addition arguments via, e.g. Steam when launching the game, this might become a problem
+         *       as any additional argument would make the entrypoint not be called.
+         *       So later on, we might consider always calling entrypoint as first task AFTER the command line arguments are parsed
+         *       This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
+         *    
+         */
+        tasks.script.taskQueue.push_back(std::string("set-fps 60"));
+    }
+}
+
 Nebulite::Core::Renderer* Nebulite::Core::GlobalSpace::getRenderer() {
     if (!rendererInitialized) {
         renderer = std::make_unique<Nebulite::Core::Renderer>(this, cmdVars.headless == "true");
