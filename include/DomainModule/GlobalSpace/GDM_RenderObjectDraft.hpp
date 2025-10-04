@@ -117,7 +117,7 @@ private:
      */
     class DraftHolder{
     private:
-        ::std::unique_ptr<Nebulite::Core::RenderObject> ptr;
+        std::unique_ptr<Nebulite::Core::RenderObject> ptr;
         Nebulite::Core::GlobalSpace* domain_ptr;
     public:
         DraftHolder() : ptr(nullptr), domain_ptr(nullptr) {}
@@ -128,16 +128,18 @@ private:
             domain_ptr = domain;
         }
 
-        ::std::unique_ptr<Nebulite::Core::RenderObject> & get() {
+        std::unique_ptr<Nebulite::Core::RenderObject> & get() {
             if(!ptr && domain_ptr) {
-                ptr = ::std::make_unique<Nebulite::Core::RenderObject>(domain_ptr);
+                ptr = std::make_unique<Nebulite::Core::RenderObject>(domain_ptr);
             }
             return ptr;
         }
     };
 
+    /**
+     * @brief The draft RenderObject instance
+     */
     DraftHolder draft;
-    
 };
 }   // namespace GlobalSpace
 }   // namespace DomainModule
