@@ -148,9 +148,20 @@ public:
 	/**
 	 * @brief Checks if the next frame update is being skipped.
 	 * 
+	 * After a renderer tick, this is reset to false.
+	 * 
 	 * @return True if the next frame update is being skipped, false otherwise.
 	 */
 	bool isSkippingUpdate(){return skipUpdate;}
+
+	/**
+	 * @brief Checks if the last frame update was skipped.
+	 * 
+	 * Keeps the value from the last renderer tick.
+	 * 
+	 * @return True if the last frame update was skipped, false otherwise.
+	 */
+	bool hasSkippedUpdate(){return skippedUpdateLastFrame;}
 
 	//------------------------------------------
 	// Texture Management
@@ -428,6 +439,7 @@ private:
 	bool quit = false;
 	bool showFPS = true;			// Set default to false later on
 	bool skipUpdate = false;
+	bool skippedUpdateLastFrame = false;
 
 	//------------------------------------------
 	// Audio

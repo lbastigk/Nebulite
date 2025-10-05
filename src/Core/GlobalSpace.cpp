@@ -223,36 +223,61 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
 Nebulite::Constants::Error Nebulite::Core::GlobalSpace::preParse() {
     // NOTE: This function is only called once there is a parse-command
     // Meaning its timing is consistent and not dependent on framerate, frametime variations, etc.
-    // Meaning everything we do here is deterministic!
+    // Meaning everything we do here is, timing wise, deterministic!
 
-    // We need to remove all links from the seed, so it's consistent
-    // This is because links arent relative to the binaries root, but absolute paths
-    // Meaning two users running the same command with different folder structures would get different RNG values otherwise
-    auto args = Nebulite::Utility::StringHandler::parseQuotedArguments(getLastParsedString());
-
-    std::string seed = "";
-    for(auto& arg : args){
-        // All args that arent links are added to the seed
-        if(arg.starts_with("/") || arg.starts_with("\\")){
-            continue;
-
-        } else {
-            seed += arg + " ";
-        }
+    // Update RNGs
+    // Disabled if renderer skipped update last frame, active otherwise
+    bool RNG_update_enabled = rendererInitialized && getRenderer()->hasSkippedUpdate() == false;
+    RNG_update_enabled |= !rendererInitialized; // If renderer is not initialized, we always update RNGs
+    if(RNG_update_enabled){
+        std::string seed = getLastParsedString();
+        updateRNGs(seed);
     }
-
-    // Update with normalized seed
-    updateRNGs(seed);
 
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
+/**
+ * @define RNG_SEEDER_VOLATILE
+ * @brief If defined, the RNG updater will use the provided seed + last RNG value to generate a new RNG value.
+ * if not defined, it will only use the last RNG value + a constant string.
+ * 
+ * @note If we ever notice inconsistencies between platforms, we should undefine this.
+ */
+#define RNG_SEEDER_VOLATILE 0
+
 void Nebulite::Core::GlobalSpace::updateRNGs(std::string seed){
+    // Set Min and Max values for RNGs in document
+    // Always set, so overwrites dont stick around
+    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.random.min.c_str(), std::numeric_limits<RNGvars::rng_size_t>::min());
+    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.random.max.c_str(), std::numeric_limits<RNGvars::rng_size_t>::max());
+
+    // Set a normalized seed if volatile seeding is enabled
+    // if not, the normalized seed remains empty
+    std::string normalized_seed = "";
+    #ifdef RNG_SEEDER_VOLATILE
+        // We need to remove all links from the seed, so it's consistent
+        // This is because links arent relative to the binaries root, but absolute paths
+        // Meaning two users running the same command with different folder structures would get different RNG values otherwise
+        std::vector<std::string> args = Nebulite::Utility::StringHandler::parseQuotedArguments(seed);
+        for(auto& arg : args){
+            // All args that arent links are added to the seed
+            if(arg.find("/") != std::string::npos || arg.find("\\") != std::string::npos){
+                continue;
+
+            } else {
+                normalized_seed += arg + " ";
+            }
+        }
+    #endif
+
     // Generate seeds
-    std::string seedA = seed + "A" + std::to_string(rng.A.get());
-    std::string seedB = seed + "B" + std::to_string(rng.B.get());
-    std::string seedC = seed + "C" + std::to_string(rng.C.get());
-    std::string seedD = seed + "D" + std::to_string(rng.D.get());
+    // If we ever notice inconsistencies, we can always just hash the last rng + some constant string
+    // Perhaps the provided seed becomes hard to normalize (removing platform-specific paths etc.)
+    std::string seedA = normalized_seed + "A" + std::to_string(rng.A.get());
+    std::string seedB = normalized_seed + "B" + std::to_string(rng.B.get());
+    std::string seedC = normalized_seed + "C" + std::to_string(rng.C.get());
+    std::string seedD = normalized_seed + "D" + std::to_string(rng.D.get());
 
     // Hash seeds
     rng.A.update(seedA);
@@ -261,8 +286,8 @@ void Nebulite::Core::GlobalSpace::updateRNGs(std::string seed){
     rng.D.update(seedD);
 
     // Set RNG values in global document
-    global.set<int>(Nebulite::Constants::keyName.random.A.c_str(), rng.A.get());
-    global.set<int>(Nebulite::Constants::keyName.random.B.c_str(), rng.B.get());
-    global.set<int>(Nebulite::Constants::keyName.random.C.c_str(), rng.C.get());
-    global.set<int>(Nebulite::Constants::keyName.random.D.c_str(), rng.D.get());
+    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.random.A.c_str(), rng.A.get());
+    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.random.B.c_str(), rng.B.get());
+    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.random.C.c_str(), rng.C.get());
+    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.random.D.c_str(), rng.D.get());
 }

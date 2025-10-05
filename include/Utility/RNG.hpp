@@ -16,6 +16,7 @@
 
 namespace Nebulite::Utility {
 
+template<typename rng_size_t>
 class RNG {
 public:
     RNG() = default;
@@ -24,7 +25,7 @@ public:
     /**
      * @brief Retrieves the current RNG value.
      */
-    uint32_t get(){
+    rng_size_t get(){
         return current;
     }
 
@@ -33,7 +34,7 @@ public:
      */
     void update(std::string seed){
         last = current;
-        current = static_cast<uint32_t>(rng_hasher(seed));
+        current = static_cast<rng_size_t>(rng_hasher(seed));
     }
 
     /**
@@ -49,8 +50,8 @@ private:
      */
     std::hash<std::string> rng_hasher;
 
-    uint32_t current = 0;
-    uint32_t last = 0;
+    rng_size_t current = 0;
+    rng_size_t last = 0;
 };
 
 } // namespace Nebulite::Utility
