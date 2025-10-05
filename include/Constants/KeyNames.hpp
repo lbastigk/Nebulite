@@ -44,6 +44,8 @@ const struct keyName {
         std::string B = "random.B";
         std::string C = "random.C";
         std::string D = "random.D";
+        std::string min = "random.min";
+        std::string max = "random.max";
     }random;
 
     /**

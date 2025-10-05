@@ -110,6 +110,9 @@ This is useful for:
 Nebulite::Constants::Error General::task(int argc, char* argv[]) {
     std::cout << "Loading task list from file: " << (argc > 1 ? argv[1] : "none") << std::endl;
 
+    // Rollback RNG, loading a task file should not change the RNG state
+    domain->rngRollback();
+
     if (argc < 2) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

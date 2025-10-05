@@ -19,6 +19,7 @@
 #include "Core/Renderer.hpp"
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Utility/RNG.hpp"
 
 //------------------------------------------
 namespace Nebulite {
@@ -173,7 +174,7 @@ public:
      */
     struct Tasks{
         Nebulite::Core::taskQueueWrapper script;     // Task queue for script files loaded with "task"
-        Nebulite::Core::taskQueueWrapper internal;   // Internal task queue from renerObjects, console, etc.
+        Nebulite::Core::taskQueueWrapper internal;   // Internal task queue from renderObjects, console, etc.
         Nebulite::Core::taskQueueWrapper always;     // Always-tasks added with the prefix "always "
     } tasks;
 
@@ -194,6 +195,16 @@ public:
         /*Add more variables as needed*/
     };
     commandLineVariables cmdVars;
+
+    /**
+     * @brief Rolls back all RNGs to their previous state.
+     */
+    void rngRollback(){
+        rng.A.rollback();
+        rng.B.rollback();
+        rng.C.rollback();
+        rng.D.rollback();
+    }
 
 private:
     //------------------------------------------
@@ -219,6 +230,26 @@ private:
         std::string state;      // Name of the state where files are saved (equal to savegame name)
         std::string binary;     // Name of the binary, used for parsing arguments
     }names;
+
+    /**
+     * @brief Contains RNG instances used in the global space.
+     */
+    struct RNGvars{
+        using rng_size_t = uint16_t;            // Modify this to change the size of the RNGs
+        Nebulite::Utility::RNG<rng_size_t> A;   // RNG with key random.A
+        Nebulite::Utility::RNG<rng_size_t> B;   // RNG with key random.B
+        Nebulite::Utility::RNG<rng_size_t> C;   // RNG with key random.C
+        Nebulite::Utility::RNG<rng_size_t> D;   // RNG with key random.D
+    } rng;
+
+    /**
+     * @brief Updates all RNGs with a new seed.
+     * 
+     * @param seed The normalized seed string used to update the RNGs.
+     * Make sure the seed contains no user-specific information like absolute paths!
+     * Otherwise the RNG is not consistent across different users.
+     */
+    void updateRNGs(std::string seed);
 
     //------------------------------------------
     // Methods
@@ -249,11 +280,6 @@ private:
      * @brief Flag indicating whether the renderer has been initialized.
      */
     bool rendererInitialized = false;
-
-    /**
-     * @brief Hasher for generating RNG values from last parsed command.
-     */
-    std::hash<std::string> rng_hasher;
 };
 }   // namespace Core
 }   // namespace Nebulite

@@ -198,8 +198,6 @@ void Nebulite::Core::Renderer::loadFonts() {
 // For quick and dirty debugging, in case the rendering pipeline breaks somewhere
 //# define debug_on_each_step 1
 bool Nebulite::Core::Renderer::tick(){
-	bool didUpdate = !skipUpdate;
-
 	//------------------------------------------
 	// Do all the steps of the rendering pipeline
     clear();           				// 1.) Clear screen FIRST, so that functions like snapshot have acces to the latest frame
@@ -240,7 +238,9 @@ bool Nebulite::Core::Renderer::tick(){
 	}
 	*/
 
-	return didUpdate;
+	skippedUpdateLastFrame = skipUpdate;
+	skipUpdate = false;
+	return !skippedUpdateLastFrame;
 }
 
 bool Nebulite::Core::Renderer::timeToRender() {
@@ -474,7 +474,6 @@ void Nebulite::Core::Renderer::updateState() {
 	//------------------------------------------
 	// Skip update if flagged
 	if(skipUpdate){
-		skipUpdate = false;
 		return;
 	}
 

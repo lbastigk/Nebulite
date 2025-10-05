@@ -154,6 +154,7 @@ public:
      * - child returns error to parent
      * - parent prints error again
      * Idea: Add a flag to either constructor or a new method to tell each domain what kind of error handling to do.
+     * Another idea would be to not print in parse, but escalate as far as possible, and only print in main.
      * 
      * To better understand the difference:
      * - If we inherit from another domain, we parse once, no double printing
