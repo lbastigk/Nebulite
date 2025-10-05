@@ -1,0 +1,14 @@
+# Random Number Generator (RNG) Test
+# Running a complex task for a set number of iterations should yield the same result each time.
+set-fps 1000
+time set-fixed-dt 20
+set physics.G 10
+for i 0 100 eval spawn Planets/obj1.jsonc|set posX $({i}*10)|set physics.vX 0|set physics.vY 0
+wait 1
+selected-object get 50
+always selected-object parse set posX 100   # using some constant getter, modifies RNG state on each call
+always selected-object parse set posY 100   # using some constant getter, modifies RNG state on each call
+wait 1000
+eval echo {global.random.A}
+exit #20095 is the expected output. If it changed, we either modified the RNG generation or something went wrong
+# Tested with console call, does not modify the RNG state
