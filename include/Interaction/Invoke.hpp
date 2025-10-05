@@ -328,7 +328,17 @@ private:
         >
       >
     > pairs_threadsafe;
-    
+
+    //------------------------------------------
+    // New idea:
+    #define THREADRUNNER_COUNT 10
+    struct ThreadWork{
+      std::vector<std::pair<std::shared_ptr<Nebulite::Interaction::ParsedEntry>, Nebulite::Core::RenderObject*>> work;
+    };
+    ThreadWork pairs_threadsafe_batched[THREADRUNNER_COUNT]; // Then we insert pairs based on ParsedEntry's id % THREADRUNNER_COUNT
+    std::thread threadrunners[THREADRUNNER_COUNT];
+    //------------------------------------------
+
     //------------------------------------------
     // Private methods
 
