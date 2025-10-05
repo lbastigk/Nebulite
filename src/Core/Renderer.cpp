@@ -240,7 +240,7 @@ bool Nebulite::Core::Renderer::tick(){
 
 	skippedUpdateLastFrame = skipUpdate;
 	skipUpdate = false;
-	return skippedUpdateLastFrame;
+	return !skippedUpdateLastFrame;
 }
 
 bool Nebulite::Core::Renderer::timeToRender() {
