@@ -354,7 +354,21 @@ private:
      * @brief Structure to hold broadcasted entries for each thread runner.
      * 
      * @todo Instead of using this temporary storage, find a way to directly create pairs during the broadcast() phase.
-     * This would eliminate the need for this structure and the associated mutex.
+     * This would eliminate the need for this structure and the associated mutex, making the process more efficient.
+     * 
+     * Perhaps two ThreadWork that we switch between on each frame? + a map for the broadcast topic inside?
+     * [topic][id_self][index_ruleset].listeners[id_other]-> BroadCastListenPair
+     * Only annoying part is the index we need for unique identification of the ruleset.
+     * 
+     * [topic][id_self][idx_ruleset].ruleset holds the ruleset self.rulesets[idx_ruleset]
+     * [topic][id_self][idx_ruleset].active = true/false
+     * [topic][id_self][idx_ruleset].listeners[id_other] = BroadCastListenPair
+     * 
+     * On broadcast, we set: [topic][id_self][idx_ruleset].active = true;
+     * On listen, we populate: [topic][id_self][idx_ruleset].listener[id_other] = {[topic][id_self][idx_ruleset].ruleset, Obj_other, true};
+     * Due to the idx_ruleset, we can only have one listener.
+     * 
+     * This should work, but might take some time to implement and test.
      */
     struct BroadCastEntries{
       absl::flat_hash_map<
