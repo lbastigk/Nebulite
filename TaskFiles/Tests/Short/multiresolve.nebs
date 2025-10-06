@@ -1,0 +1,17 @@
+# @file multiresolve.nebs
+# @brief Test multi-resolve within a Nebulite expression
+# @description This test checks that multiple resolve calls within a single Nebulite expression are handled correctly.
+# Example usage:
+# {global.foo.{bar}} turns into {global.foo.value1.value2} if bar resolves to value1.value2
+# Then, {global.foo.value1.value2} is resolved to the final value.
+echo Testing multi-resolve in Nebulite expressions
+set bar value1.value2
+set foo.value1.value2 final_value
+
+# Normal resolution for comparison
+eval echo {global.foo.value1.value2}
+# Expected output: final_value
+
+# Now, try to resolve {global.foo.{bar}}
+eval echo {global.foo.{bar}}
+# Expected output: final_value
