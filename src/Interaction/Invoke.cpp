@@ -79,23 +79,20 @@ void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interact
     }
     
     // Store the shared pointer directly - no ownership issues
-    entries_global_next[toAppend->topic].push_back(toAppend);
+    BroadcastEntriesNextFrame[toAppend->topic].push_back(toAppend);
 }
 
 void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std::string topic){
-    std::lock_guard<std::mutex> lock(entries_global_Mutex);
-    for (auto& entry : entries_global[topic]){
+    for (auto& entry : BroadcastEntriesThisFrame[topic]){
         if(isTrueGlobal(entry,obj)){
-            std::lock_guard<std::mutex> lock(pairsMutex);
+            // Get all IDs and indices needed
+            uint32_t id_self = entry->id;
+            uint32_t id_other = obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0);
+            uint32_t threadIndex = id_self % THREADRUNNER_COUNT;
 
-            // Check if there is any existing batch
-            if (pairs_threadsafe.empty() || pairs_threadsafe.back().size() >= THREADED_MIN_BATCHSIZE) {
-                // Create a new batch
-                pairs_threadsafe.emplace_back(); // Add an empty vector as a new batch
-            }
-
-            // Add to the current batch (last vector)
-            pairs_threadsafe.back().emplace_back(entry, obj);
+            // Lock correct mutex and update the entry
+            std::lock_guard<std::mutex> lock(pairsMutexes[threadIndex]);
+            broadcastListenEntries[threadIndex].work[id_self][id_other].push_back({entry,obj});
         }
     }
 }

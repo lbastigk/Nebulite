@@ -297,47 +297,85 @@ private:
 
     // Mutex lock for tasks and buffers
     mutable std::recursive_mutex tasks_lock;
-    std::mutex entries_global_next_Mutex;
-    std::mutex entries_global_Mutex;
-    std::mutex pairsMutex;
 
     //------------------------------------------
-    // Hashmaps and vectors
+    // Threading for broadcast-listen model
 
-    // Current and next commands
-    absl::flat_hash_map<
-        std::string, 
-        std::vector<
-        std::shared_ptr<Nebulite::Interaction::ParsedEntry>
-      >
-    > entries_global;
-
-    absl::flat_hash_map<
-        std::string, 
-        std::vector<
-        std::shared_ptr<Nebulite::Interaction::ParsedEntry>
-      >
-    > entries_global_next; 
-
-    // All pairs of last listen
-    std::vector<    // Vector...
-      std::vector<  // of threaded batches...
-        std::pair<  // of broadcast-listen-pairs
-          std::shared_ptr<Nebulite::Interaction::ParsedEntry>, // The ParsedEntry that was broadcasted
-          Nebulite::Core::RenderObject*                               // The object that listened to the Broadcast
-        >
-      >
-    > pairs_threadsafe;
-
-    //------------------------------------------
-    // New idea:
     #define THREADRUNNER_COUNT 10
-    struct ThreadWork{
-      std::vector<std::pair<std::shared_ptr<Nebulite::Interaction::ParsedEntry>, Nebulite::Core::RenderObject*>> work;
+
+    /**
+     * @struct BroadCastListenPair
+     * @brief Structure to hold a broadcast-listen pair.
+     */
+    struct BroadCastListenPair{
+        std::shared_ptr<Nebulite::Interaction::ParsedEntry> entry; // The ParsedEntry that was broadcasted
+        Nebulite::Core::RenderObject* Obj_other;                   // The object that listened to the Broadcast
     };
-    ThreadWork pairs_threadsafe_batched[THREADRUNNER_COUNT]; // Then we insert pairs based on ParsedEntry's id % THREADRUNNER_COUNT
+
+    /**
+     * @typedef Ruleset
+     * @brief A shared pointer to a ParsedEntry.
+     * ParsedEntry is owned by its RenderObject, so we use a shared pointer here to avoid ownership issues.
+     */
+    using Ruleset = std::shared_ptr<Nebulite::Interaction::ParsedEntry>;
+
+    /**
+     * @struct ThreadWork
+     * @brief Structure to hold work for each thread runner.
+     * 
+     * Matches broadcast-listen pairs in a threadsafe and predictive manner, where 
+     * each self-id modulo THREADRUNNER_COUNT is assigned to a specific thread runner.
+     */
+    struct ThreadWork{
+      absl::flat_hash_map<
+          uint32_t,             // The ID of self. Each ThreadWorks id here is the same in modulo THREADRUNNER_COUNT. So pairs_threadsafe_batched[1] stores ids 11, 21, 31...
+          absl::flat_hash_map<
+              uint32_t,                           // The ID of other. Can be any number.
+              std::vector<BroadCastListenPair>    // The actual pair of entry and other object. As vector to allow multiple entries from the same self to the same other on the same topic.
+          >
+      > work;
+    };
+
+    /**
+     * @brief Contains Broadcasted Entries for this frame
+     * 
+     * On update, all entries from BroadcastEntriesNextFrame are swapped here.
+     */
+    absl::flat_hash_map<
+        std::string, // The topic of the broadcasted entry
+        std::vector<Ruleset> // The actual entries broadcasted this frame
+    > BroadcastEntriesThisFrame;
+
+    /**
+     * @brief Contains Broadcasted Entries for the next frame
+     * 
+     * Populated during the broadcast() phase.
+     * 
+     * On update, all entries from BroadcastEntriesThisFrame are swapped here.
+     */
+    absl::flat_hash_map<
+        std::string, // The topic of the broadcasted entry
+        std::vector<Ruleset> // The actual entries broadcasted for the next frame
+    > BroadcastEntriesNextFrame;
+
+    /**
+     * @brief Array of thread work structures for managing broadcast-listen pairs.
+     * 
+     * On update, all pairs from broadcastListenEntriesNextFrame are swapped here.
+     */
+    ThreadWork broadcastListenEntries[THREADRUNNER_COUNT]; 
+
+    /**
+     * @brief Array of mutexes for each thread
+     */
+    std::mutex pairsMutexes[THREADRUNNER_COUNT];
+
+    /**
+     * @brief Array of thread runners for processing broadcast-listen pairs.
+     * 
+     * Each thread runner processes pairs assigned to it based on the self ID modulo THREADRUNNER_COUNT.
+     */
     std::thread threadrunners[THREADRUNNER_COUNT];
-    //------------------------------------------
 
     //------------------------------------------
     // Private methods
