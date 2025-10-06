@@ -244,6 +244,15 @@ void Nebulite::Interaction::Deserializer::parse(std::vector<std::shared_ptr<Nebu
     optimizeParsedEntries(entries_global, self->getDoc(), global);
     optimizeParsedEntries(entries_local, self->getDoc(), global);
 
+    // Set IDs
+    uint32_t id = self->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0);
+    for (const auto& entry : entries_local) {
+        entry->id = id;
+    }
+    for (const auto& entry : entries_global) {
+        entry->id = id;
+    }
+
     // Estimate full cost of each entry
     for (const auto& entry : entries_local) {
 		entry->estimateComputationalCost();
@@ -252,7 +261,6 @@ void Nebulite::Interaction::Deserializer::parse(std::vector<std::shared_ptr<Nebu
         entry->estimateComputationalCost();
     }
 }
-
 
 void Nebulite::Interaction::Deserializer::optimizeParsedEntries(
     std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>>& entries, 

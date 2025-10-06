@@ -334,6 +334,19 @@ private:
               std::vector<BroadCastListenPair>    // The actual pair of entry and other object. As vector to allow multiple entries from the same self to the same other on the same topic.
           >
       > work;
+      std::mutex mutex; // Mutex to protect access to the work structure
+    };
+
+    /**
+     * @struct BroadCastEntries
+     * @brief Structure to hold broadcasted entries for each thread runner.
+     */
+    struct BroadCastEntries{
+      absl::flat_hash_map<
+          std::string,          // The topic of the broadcasted entry
+          std::vector<Ruleset>  // The actual entries broadcasted this frame
+      > work;
+      std::mutex mutex; // Mutex to protect access to the work structure
     };
 
     /**
@@ -341,10 +354,7 @@ private:
      * 
      * On update, all entries from BroadcastEntriesNextFrame are swapped here.
      */
-    absl::flat_hash_map<
-        std::string, // The topic of the broadcasted entry
-        std::vector<Ruleset> // The actual entries broadcasted this frame
-    > BroadcastEntriesThisFrame;
+    BroadCastEntries BroadcastEntriesThisFrame[THREADRUNNER_COUNT];
 
     /**
      * @brief Contains Broadcasted Entries for the next frame
@@ -353,10 +363,7 @@ private:
      * 
      * On update, all entries from BroadcastEntriesThisFrame are swapped here.
      */
-    absl::flat_hash_map<
-        std::string, // The topic of the broadcasted entry
-        std::vector<Ruleset> // The actual entries broadcasted for the next frame
-    > BroadcastEntriesNextFrame;
+    BroadCastEntries BroadcastEntriesNextFrame[THREADRUNNER_COUNT];
 
     /**
      * @brief Array of thread work structures for managing broadcast-listen pairs.
@@ -364,11 +371,6 @@ private:
      * On update, all pairs from broadcastListenEntriesNextFrame are swapped here.
      */
     ThreadWork broadcastListenEntries[THREADRUNNER_COUNT]; 
-
-    /**
-     * @brief Array of mutexes for each thread
-     */
-    std::mutex pairsMutexes[THREADRUNNER_COUNT];
 
     /**
      * @brief Array of thread runners for processing broadcast-listen pairs.

@@ -67,6 +67,11 @@ struct ParsedEntry{
     std::string topic = "all";
 
     /**
+     * @brief The id of the object that owns this entry; the `self` domain.
+     */
+    uint32_t id = 0;
+
+    /**
      * @brief The Logical Argument that determines when the invoke entry is triggered.
      * 
      * Logical Arguments are evaluated inside the Invoke class with access to `self`, `other`, and `global` variables.
