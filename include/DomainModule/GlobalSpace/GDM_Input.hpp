@@ -70,7 +70,7 @@ private:
     // Functions
 
     /**
-     * @brief Maps SDL scancodes to human-readable key names.
+     * @brief Maps SDL scancodes to human-readable key names and sets double pointers.
      * 
      * This function populates the keyNames map with SDL scancode values
      * as keys and their corresponding human-readable names as values.
@@ -128,6 +128,16 @@ private:
      * as SDL does that for us.
      */
     bool prevKey[SDL_NUM_SCANCODES] = {false};      // Previous key states
+
+    /**
+     * @brief Array to store pointers to double values representing the delta states of keys.
+     */
+    double* deltaKey[SDL_NUM_SCANCODES] = {nullptr}; // Pointers to delta key states in global doc
+
+    /**
+     * @brief Array to store pointers to double values representing the current states of keys.
+     */
+    double* currentKey[SDL_NUM_SCANCODES] = {nullptr}; // Pointers to current key states in global doc
 };
 }   // namespace GlobalSpace
 }   // namespace DomainModule
