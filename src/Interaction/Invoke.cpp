@@ -84,20 +84,26 @@ void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interact
     BroadcastEntriesNextFrame[threadIndex].work[toAppend->topic].push_back(toAppend);
 }
 
-void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std::string topic){
+void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std::string topic, uint32_t listenerId){
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
-        // No need to lock each BroadcastEntriesThisFrame[i] here,
-        // as this function does not modify it, only reads from it.
-        for (auto& entry : BroadcastEntriesThisFrame[i].work[topic]){
+        // Lock to safely read from BroadcastEntriesThisFrame
+        std::lock_guard<std::mutex> broadcastLock(BroadcastEntriesThisFrame[i].mutex);
+        
+        // Check if topic exists to avoid creating empty entries
+        auto topicIt = BroadcastEntriesThisFrame[i].work.find(topic);
+        if (topicIt == BroadcastEntriesThisFrame[i].work.end()) {
+            continue; // No entries for this topic in this thread
+        }
+        
+        for (auto& entry : topicIt->second){
             if(isTrueGlobal(entry,obj)){
                 // Get all IDs and indices needed
                 uint32_t id_self = entry->id;
-                uint32_t id_other = obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0);
                 uint32_t threadIndex = id_self % THREADRUNNER_COUNT;
 
                 // Lock correct mutex and update the entry
                 std::lock_guard<std::mutex> lock(broadcastListenEntries[threadIndex].mutex);
-                broadcastListenEntries[threadIndex].work[id_self][id_other].push_back({entry,obj});
+                broadcastListenEntries[threadIndex].work[id_self][listenerId][entry->index] = {entry,obj,true};
             }
         }
     }
@@ -235,7 +241,7 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
         std::string call = entry.eval(doc_other);
 
         // attach to task queue
-        std::lock_guard<std::recursive_mutex> lock(tasks_lock);
+        std::lock_guard<std::recursive_mutex> lock(globalTasksLock);
         tasks->emplace_back(call);
     }
 
@@ -260,8 +266,11 @@ void Nebulite::Interaction::Invoke::updateLocal(std::shared_ptr<Nebulite::Intera
 
 void Nebulite::Interaction::Invoke::clear(){
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
+        std::lock_guard<std::mutex> lock1(BroadcastEntriesThisFrame[i].mutex);
         BroadcastEntriesThisFrame[i].work.clear();
+        std::lock_guard<std::mutex> lock2(BroadcastEntriesNextFrame[i].mutex);
         BroadcastEntriesNextFrame[i].work.clear();
+        std::lock_guard<std::mutex> lock3(broadcastListenEntries[i].mutex);
         broadcastListenEntries[i].work.clear();
     }
 }
@@ -269,33 +278,31 @@ void Nebulite::Interaction::Invoke::clear(){
 void Nebulite::Interaction::Invoke::update() {
     // Swap in the new set of commands
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
+        std::lock_guard<std::mutex> lock1(BroadcastEntriesThisFrame[i].mutex);
+        std::lock_guard<std::mutex> lock2(BroadcastEntriesNextFrame[i].mutex);
         BroadcastEntriesThisFrame[i].work = std::move(BroadcastEntriesNextFrame[i].work);
-        BroadcastEntriesNextFrame[i].work.clear();
     }
 
     // Go through all true pairs and update them
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
         threadrunners[i] = std::thread([this, i]() {
+            std::lock_guard<std::mutex> lock(broadcastListenEntries[i].mutex);
             for(auto& [id_self, map_other] : broadcastListenEntries[i].work){
-                for(auto& [id_other, vec_pairs] : map_other){
-                    for(auto& [entry_self, obj_other] : vec_pairs){
-                        updatePair(entry_self, obj_other);
+                for(auto& [id_other, map_pairs] : map_other){
+                    for(auto& [idx_ruleset, pair] : map_pairs){
+                        if(pair.active){
+                            updatePair(pair.entry, pair.Obj_other);
+                            pair.active = false; // Mark as inactive after processing
+                        }
                     }
                 }
             }
-            // Clear after processing
-            broadcastListenEntries[i].work.clear();
         });
     }
     
     // Wait for all threads to finish
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
         if (threadrunners[i].joinable()) threadrunners[i].join();
-    }
-
-    // Cleanup
-    for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
-        broadcastListenEntries[i].work.clear();
     }
 }
 

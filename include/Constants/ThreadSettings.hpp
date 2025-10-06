@@ -11,7 +11,12 @@
  * 
  * Minimum batch size needed to create a new rendering thread of invoke-pairs to process.
  */
-#define THREADED_MIN_BATCHSIZE 500
+//#define THREADED_MIN_BATCHSIZE 500
+
+/**
+ * @brief Number of thread runners for processing broadcast-listen pairs.
+ */
+#define THREADRUNNER_COUNT 25
 
 /**
  * @def BATCH_COST_GOAL
@@ -25,7 +30,7 @@
  *
  * Size of the expression pool for each expression.
  */
-#define INVOKE_EXPR_POOL_SIZE 10
+#define INVOKE_EXPR_POOL_SIZE 25
 
 /*
 RESULTS using ./bin/Nebulite task TaskFiles/Benchmarks/spawn_constantly.nebs 
@@ -40,4 +45,8 @@ Date            Result      THREADED_MIN_BATCHSIZE  BATCH_COST_GOAL INVOKE_EXPR_
 2025-09-03:     10.2s       500                     500             10                      # Fixed flushing issue, improved cache handling, less frequent flushes
 2025-09-25:      9.6s       500                     500             10                      # New SDL2 build + switch from Ubuntu 25.04 to Fedora 42
 2025-10-01:      9.1s       500                     750             10                      # Improved JSON cache handling in combination with Assignments
+------------------------------------------------------------------------------------------
+Date            Result      THREADRUNNER_COUNT      BATCH_COST_GOAL INVOKE_EXPR_POOL_SIZE
+------------------------------------------------------------------------------------------
+2025-10-06: ... TODO ...
 */

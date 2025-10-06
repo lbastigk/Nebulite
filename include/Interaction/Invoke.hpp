@@ -143,7 +143,7 @@ public:
      * @param obj The render object to check.
      * @param topic The topic to listen for.
      */
-    void listen(Nebulite::Core::RenderObject* obj,std::string topic);
+    void listen(Nebulite::Core::RenderObject* obj,std::string topic, uint32_t listenerId);
 
     //------------------------------------------
     // Value checks
@@ -295,13 +295,14 @@ private:
     // pointer to queue
     std::deque<std::string>* tasks = nullptr; 
 
-    // Mutex lock for tasks and buffers
-    mutable std::recursive_mutex tasks_lock;
+    /**
+     * @brief Mutex lock for tasks and buffers.
+     * @todo Turn into a normal mutex, see if that works
+     */
+    mutable std::recursive_mutex globalTasksLock;
 
     //------------------------------------------
     // Threading for broadcast-listen model
-
-    #define THREADRUNNER_COUNT 10
 
     /**
      * @struct BroadCastListenPair
@@ -310,6 +311,7 @@ private:
     struct BroadCastListenPair{
         std::shared_ptr<Nebulite::Interaction::ParsedEntry> entry; // The ParsedEntry that was broadcasted
         Nebulite::Core::RenderObject* Obj_other;                   // The object that listened to the Broadcast
+        bool active = true;                                        // If false, this pair is skipped during update
     };
 
     /**
@@ -328,13 +330,16 @@ private:
      */
     struct ThreadWork{
       absl::flat_hash_map<
-          uint32_t,             // The ID of self. Each ThreadWorks id here is the same in modulo THREADRUNNER_COUNT. So pairs_threadsafe_batched[1] stores ids 11, 21, 31...
+          uint32_t,                      // The ID of self. Each ThreadWorks id here is the same in modulo THREADRUNNER_COUNT. So pairs_threadsafe_batched[1] stores ids 11, 21, 31...
           absl::flat_hash_map<
-              uint32_t,                           // The ID of other. Can be any number.
-              std::vector<BroadCastListenPair>    // The actual pair of entry and other object. As vector to allow multiple entries from the same self to the same other on the same topic.
+              uint32_t,                  // The ID of other. Can be any number.
+              absl::flat_hash_map<
+                  uint32_t,              // The index of the ruleset inside the broadcaster. Provides a unique key to identify the ruleset.
+                  BroadCastListenPair    // The actual pair of entry and other object.
+              >
           >
       > work;
-      std::mutex mutex; // Mutex to protect access to the work structure
+      mutable std::mutex mutex; // Mutex to protect access to the work structure
     };
 
     /**
@@ -346,7 +351,7 @@ private:
           std::string,          // The topic of the broadcasted entry
           std::vector<Ruleset>  // The actual entries broadcasted this frame
       > work;
-      std::mutex mutex; // Mutex to protect access to the work structure
+      mutable std::mutex mutex; // Mutex to protect access to the work structure
     };
 
     /**

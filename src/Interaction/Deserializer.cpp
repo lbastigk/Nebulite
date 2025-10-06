@@ -253,6 +253,14 @@ void Nebulite::Interaction::Deserializer::parse(std::vector<std::shared_ptr<Nebu
         entry->id = id;
     }
 
+    // Set indices
+    for (size_t i = 0; i < entries_local.size(); ++i) {
+        entries_local[i]->index = static_cast<uint32_t>(i);
+    }
+    for (size_t i = 0; i < entries_global.size(); ++i) {
+        entries_global[i]->index = static_cast<uint32_t>(i);
+    }
+
     // Estimate full cost of each entry
     for (const auto& entry : entries_local) {
 		entry->estimateComputationalCost();
