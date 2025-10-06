@@ -300,6 +300,9 @@ private:
 	//------------------------------------------
 	// References to JSON
 	struct refs{
+		// Identity
+		double* id;
+
 		// Position and Size
 		double* posX;
 		double* posY;

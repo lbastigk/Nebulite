@@ -11,7 +11,9 @@
 # [SETTINGS]
 set loop.n 40
 
-# Frame average for 40x40 objects: 0.745 seconds
+# Frame average for 40x40 objects: 
+# 0.745 seconds, 2025-09
+# 0.200 seconds, 2025-10 (new Broadcast-Listen-Model and more efficient threading)
 
 ###############################################
 # [BASICS]
@@ -57,8 +59,8 @@ wait 1
 set framename 0
 always if $(not({global.frameCount}%10)) eval echo Frame {global.frameCount} rendered! Frame average: $( {global.runtime.t} / {global.frameCount} ) seconds. Full runtime: {global.runtime.t} seconds.
 always if $(not({global.frameCount}%10)) eval set framename $i(1 + {global.framename})
-always if $(not({global.frameCount}%10)) eval snapshot ./Resources/Snapshots/ToGif/{global.framename}.png
-always if $(not({global.frameCount}%10)) eval echo stored snapshot: ./Resources/Snapshots/ToGif/{global.framename}.png
+always if $(not({global.frameCount}%10)) eval snapshot ./Resources/Snapshots/ToGif/$05i({global.framename}).png
+always if $(not({global.frameCount}%10)) eval echo stored snapshot: ./Resources/Snapshots/ToGif/$05i({global.framename}).png
 
 ###############################################
 # Spawn extra object later on and wait some more

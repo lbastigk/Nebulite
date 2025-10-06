@@ -16,6 +16,8 @@
 #include <deque>
 #include <shared_mutex>
 #include <thread>
+#include <condition_variable>
+#include <atomic>
 
 // External
 #include "tinyexpr.h"
@@ -96,6 +98,11 @@ public:
     Invoke(Nebulite::Utility::JSON* globalDocPtr);
 
     /**
+     * @brief Destructor - stops worker threads.
+     */
+    ~Invoke();
+
+    /**
      * @brief Links the invoke object to a global queue for function calls.
      * 
      * @param queue Reference to the global queue.
@@ -143,7 +150,7 @@ public:
      * @param obj The render object to check.
      * @param topic The topic to listen for.
      */
-    void listen(Nebulite::Core::RenderObject* obj,std::string topic);
+    void listen(Nebulite::Core::RenderObject* obj,std::string topic, uint32_t listenerId);
 
     //------------------------------------------
     // Value checks
@@ -295,40 +302,156 @@ private:
     // pointer to queue
     std::deque<std::string>* tasks = nullptr; 
 
-    // Mutex lock for tasks and buffers
-    mutable std::recursive_mutex tasks_lock;
-    std::mutex entries_global_next_Mutex;
-    std::mutex entries_global_Mutex;
-    std::mutex pairsMutex;
+    /**
+     * @brief Mutex lock for tasks and buffers.
+     * @todo Turn into a normal mutex, see if that works
+     */
+    mutable std::recursive_mutex globalTasksLock;
 
     //------------------------------------------
-    // Hashmaps and vectors
+    // Threading Containers
 
-    // Current and next commands
-    absl::flat_hash_map<
-        std::string, 
-        std::vector<
-        std::shared_ptr<Nebulite::Interaction::ParsedEntry>
-      >
-    > entries_global;
+    /**
+     * @struct BroadCastListenPair
+     * @brief Structure to hold a broadcast-listen pair.
+     */
+    struct BroadCastListenPair{
+        std::shared_ptr<Nebulite::Interaction::ParsedEntry> entry; // The ParsedEntry that was broadcasted
+        Nebulite::Core::RenderObject* Obj_other;                   // The object that listened to the Broadcast
+        bool active = true;                                        // If false, this pair is skipped during update
+    };
 
-    absl::flat_hash_map<
-        std::string, 
-        std::vector<
-        std::shared_ptr<Nebulite::Interaction::ParsedEntry>
-      >
-    > entries_global_next; 
+    /**
+     * @typedef Ruleset
+     * @brief A shared pointer to a ParsedEntry.
+     * ParsedEntry is owned by its RenderObject, so we use a shared pointer here to avoid ownership issues.
+     */
+    using Ruleset = std::shared_ptr<Nebulite::Interaction::ParsedEntry>;
 
-    // All pairs of last listen
-    std::vector<    // Vector...
-      std::vector<  // of threaded batches...
-        std::pair<  // of broadcast-listen-pairs
-          std::shared_ptr<Nebulite::Interaction::ParsedEntry>, // The ParsedEntry that was broadcasted
-          Nebulite::Core::RenderObject*                               // The object that listened to the Broadcast
-        >
-      >
-    > pairs_threadsafe;
-    
+    /**
+     * @struct ThreadWork
+     * @brief Structure to hold work for each thread runner.
+     * 
+     * Matches broadcast-listen pairs in a threadsafe and predictive manner, where 
+     * each self-id modulo THREADRUNNER_COUNT is assigned to a specific thread runner.
+     */
+    struct ThreadWork{
+      absl::flat_hash_map<
+          uint32_t,                      // The ID of self. Each ThreadWorks id here is the same in modulo THREADRUNNER_COUNT. So pairs_threadsafe_batched[1] stores ids 11, 21, 31...
+          absl::flat_hash_map<
+              uint32_t,                  // The ID of other. Can be any number.
+              absl::flat_hash_map<
+                  uint32_t,              // The index of the ruleset inside the broadcaster. Provides a unique key to identify the ruleset.
+                  BroadCastListenPair    // The actual pair of entry and other object.
+              >
+          >
+      > work;
+      mutable std::mutex mutex; // Mutex to protect access to the work structure
+    };
+
+    /**
+     * @struct BroadCastEntries
+     * @brief Structure to hold broadcasted entries for each thread runner.
+     * 
+     * @todo Instead of using this temporary storage, find a way to directly create pairs during the broadcast() phase.
+     * This would eliminate the need for this structure and the associated mutex, making the process more efficient.
+     * 
+     * Perhaps two ThreadWork that we switch between on each frame? + a map for the broadcast topic inside?
+     * [topic][id_self][index_ruleset].listeners[id_other]-> BroadCastListenPair
+     * Only annoying part is the index we need for unique identification of the ruleset.
+     * 
+     * [topic][id_self].active = true/false, active if self has broadcasted this frame
+     * [topic][id_self].rulesets[idx_ruleset].ptr holds the ruleset pointer self.rulesets[idx_ruleset]
+     * [topic][id_self].rulesets[idx_ruleset].listeners[id_other] = BroadCastListenPair
+     * 
+     * On broadcast, we set:   [topic][id_self].active = true; and set all [topic][id_self].rulesets[idx_ruleset].ptr = entry;
+     * On listen, we populate: [topic][id_self].rulesets[idx_ruleset].listeners[id_other] = {[topic][id_self].rulesets[idx_ruleset].ptr, Obj_other, true};
+     * Due to the idx_ruleset, we can only have one listener.
+     * 
+     * During update, we simple swap between two of these structures, and process all active entries.
+     * And set all active flags to false.
+     * 
+     * This should work, but might take some time to implement and test.
+     */
+    struct BroadCastEntries{
+      absl::flat_hash_map<
+          std::string,          // The topic of the broadcasted entry
+          std::vector<Ruleset>  // The actual entries broadcasted this frame
+      > work;
+      mutable std::mutex mutex; // Mutex to protect access to the work structure
+    };
+
+    /**
+     * @struct BroadCasted
+     * @brief Structure to hold broadcasted progression.
+     * 
+     * - Entries this frame
+     * 
+     * - Entries next frame
+     * 
+     * - Pairings created from the entries and listeners
+     */
+    struct BroadCasted{
+        /**
+         * @brief Contains Broadcasted Entries for this frame
+         * 
+         * On update, all entries from BroadcastEntriesNextFrame are swapped here.
+         */
+        BroadCastEntries entriesThisFrame[THREADRUNNER_COUNT];
+
+        /**
+         * @brief Contains Broadcasted Entries for the next frame
+         * 
+         * Populated during the broadcast() phase.
+         * 
+         * On update, all entries from BroadcastEntriesThisFrame are swapped here.
+         */
+        BroadCastEntries entriesNextFrame[THREADRUNNER_COUNT];
+
+        /**
+         * @brief Array of thread work structures for managing broadcast-listen pairs.
+         * 
+         * On update, all pairs from broadcastListenEntriesNextFrame are swapped here.
+         */
+        ThreadWork pairings[THREADRUNNER_COUNT]; 
+    } broadcasted;
+
+    //------------------------------------------
+    // Threading variables
+
+    /**
+     * @brief Array of thread runners for processing broadcast-listen pairs.
+     * 
+     * Each thread runner processes pairs assigned to it based on the self ID modulo THREADRUNNER_COUNT.
+     */
+    std::thread threadrunners[THREADRUNNER_COUNT];
+
+    /**
+     * @brief Structure to hold threading state.
+     */
+    struct ThreadState{
+        struct IndividualState{
+            /**
+             * @brief Condition variables for thread synchronization.
+             */
+            std::condition_variable condition;
+
+            /**
+             * @brief Flags to indicate when work is ready for each thread.
+             */
+            std::atomic<bool> workReady = false;
+
+            /**
+             * @brief Flags to indicate when work is finished for each thread.
+             */
+            std::atomic<bool> workFinished = false;
+        }individualState[THREADRUNNER_COUNT];
+        /**
+         * @brief Flag to signal threads to stop.
+         */
+        std::atomic<bool> stopFlag;
+    } threadState;
+
     //------------------------------------------
     // Private methods
 

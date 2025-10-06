@@ -258,7 +258,7 @@ void Nebulite::Core::RenderObject::update() {
 		for(int i = 0; i < subscription_size;i++){
 			std::string key = Nebulite::Constants::keyName.renderObject.invokeSubscriptions + "[" + std::to_string(i) + "]";
 			std::string subscription = json.get<std::string>(key.c_str(),"");
-			invoke->listen(this,subscription);
+			invoke->listen(this,subscription, (uint32_t)*refs.id);
 		}
         
 
@@ -358,6 +358,9 @@ void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font
 //------------------------------------------
 
 void Nebulite::Core::RenderObject::linkFrequentRefs() {
+	// Identity
+	refs.id                 = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.id.c_str());
+
 	// Position and Size
 	refs.posX			    = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.positionX.c_str());
 	refs.posY			    = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.positionY.c_str());

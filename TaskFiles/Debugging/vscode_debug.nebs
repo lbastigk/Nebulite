@@ -24,3 +24,5 @@ echo Starting vscode_debug.nebs
 
 # Initialize renderer
 set-fps 60
+
+task TaskFiles/Benchmarks/gravity.nebs 

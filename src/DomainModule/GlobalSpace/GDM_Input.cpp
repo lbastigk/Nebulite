@@ -50,6 +50,12 @@ void Input::map_key_names() {
 			// Don't add if there are special chars in Nebulite::Constants::keyName
 			if(!Nebulite::Utility::StringHandler::containsAnyOf(keyName,Nebulite::Utility::JSON::reservedCharacters)){
 				keyNames[scancode] = keyName;
+
+				// Paths
+				std::string currentPath = "input.keyboard.current." + keyNames[scancode];
+				std::string deltaPath   = "input.keyboard.delta."   + keyNames[scancode];
+				deltaKey[scancode] = domain->getDoc()->get_stable_double_ptr(deltaPath.c_str());
+				currentKey[scancode] = domain->getDoc()->get_stable_double_ptr(currentPath.c_str());
 			}
 		}
 	}
@@ -82,10 +88,6 @@ void Input::write_current_and_delta_inputs() {
     const Uint8* keyState = SDL_GetKeyboardState(NULL);
     for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode) {
 		if(keyNames[scancode] != ""){
-			// Paths
-			std::string currentPath = "input.keyboard.current." + keyNames[scancode];
-			std::string deltaPath   = "input.keyboard.delta."   + keyNames[scancode];
-
 			// Retrieve state, store previous state
 			// If key is currently pressed
 			bool currentPressed = keyState[scancode] != 0;
@@ -101,10 +103,10 @@ void Input::write_current_and_delta_inputs() {
 			else if (!currentPressed &&  prevPressed) delta = -1;
 
 			// Set current state (true/false as int)
-			domain->getDoc()->set<int>(currentPath.c_str(), currentPressed);
+			*currentKey[scancode] = currentPressed;
 
 			// Set delta
-			domain->getDoc()->set<int>(deltaPath.c_str(), delta);
+			*deltaKey[scancode] = delta;
         }
     }
 }

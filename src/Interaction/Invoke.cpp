@@ -6,6 +6,55 @@
 
 Nebulite::Interaction::Invoke::Invoke(Nebulite::Utility::JSON* globalDocPtr){
     global = globalDocPtr;
+    
+    // Initialize synchronization primitives
+    threadState.stopFlag = false;
+    for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
+        threadState.individualState[i].workReady = false;
+        threadState.individualState[i].workFinished = false;
+        
+        // Start worker threads
+        threadrunners[i] = std::thread([this, i]() {
+            while (!threadState.stopFlag) {
+                // Wait for work to be ready
+                std::unique_lock<std::mutex> lock(broadcasted.pairings[i].mutex);
+                threadState.individualState[i].condition.wait(lock, [this, i] { 
+                    return threadState.individualState[i].workReady.load() || threadState.stopFlag.load(); 
+                });
+                
+                if (threadState.stopFlag) break;
+                
+                // Process work
+                for(auto& [id_self, map_other] : broadcasted.pairings[i].work){
+                    for(auto& [id_other, map_pairs] : map_other){
+                        for(auto& [idx_ruleset, pair] : map_pairs){
+                            if(pair.active){
+                                updatePair(pair.entry, pair.Obj_other);
+                                pair.active = false; // Mark as inactive after processing
+                            }
+                        }
+                    }
+                }
+                
+                // Signal work is finished
+                threadState.individualState[i].workReady = false;
+                threadState.individualState[i].workFinished = true;
+            }
+        });
+    }
+}
+
+Nebulite::Interaction::Invoke::~Invoke() {
+    // Signal threads to stop
+    threadState.stopFlag = true;
+    
+    // Wake up all threads and wait for them to finish
+    for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
+        threadState.individualState[i].condition.notify_one();
+        if (threadrunners[i].joinable()) {
+            threadrunners[i].join();
+        }
+    }
 }
 
 bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Interaction::ParsedEntry> cmd, Nebulite::Core::RenderObject* otherObj) {
@@ -70,32 +119,41 @@ bool Nebulite::Interaction::Invoke::isTrueLocal(std::shared_ptr<Nebulite::Intera
 }
 
 void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interaction::ParsedEntry> toAppend){
-    std::lock_guard<std::mutex> lock(entries_global_next_Mutex);
-    
     // Skip entries with empty topics - they should be local only
     if (toAppend->topic.empty()) {
         std::cerr << "Warning: Attempted to broadcast entry with empty topic - skipping" << std::endl;
         return;
     }
+    // Get index
+    uint32_t id_self = toAppend->id;
+    uint32_t threadIndex = id_self % THREADRUNNER_COUNT;
     
-    // Store the shared pointer directly - no ownership issues
-    entries_global_next[toAppend->topic].push_back(toAppend);
+    // Insert into next frame's entries
+    std::lock_guard<std::mutex> lock(broadcasted.entriesNextFrame[threadIndex].mutex);
+    broadcasted.entriesNextFrame[threadIndex].work[toAppend->topic].push_back(toAppend);
 }
 
-void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std::string topic){
-    std::lock_guard<std::mutex> lock(entries_global_Mutex);
-    for (auto& entry : entries_global[topic]){
-        if(isTrueGlobal(entry,obj)){
-            std::lock_guard<std::mutex> lock(pairsMutex);
+void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std::string topic, uint32_t listenerId){
+    for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
+        // Lock to safely read from broadcasted.entriesThisFrame
+        std::lock_guard<std::mutex> broadcastLock(broadcasted.entriesThisFrame[i].mutex);
+        
+        // Check if topic exists to avoid creating empty entries
+        auto topicIt = broadcasted.entriesThisFrame[i].work.find(topic);
+        if (topicIt == broadcasted.entriesThisFrame[i].work.end()) {
+            continue; // No entries for this topic in this thread
+        }
+        
+        for (auto& entry : topicIt->second){
+            if(isTrueGlobal(entry,obj)){
+                // Get all IDs and indices needed
+                uint32_t id_self = entry->id;
+                uint32_t threadIndex = id_self % THREADRUNNER_COUNT;
 
-            // Check if there is any existing batch
-            if (pairs_threadsafe.empty() || pairs_threadsafe.back().size() >= THREADED_MIN_BATCHSIZE) {
-                // Create a new batch
-                pairs_threadsafe.emplace_back(); // Add an empty vector as a new batch
+                // Lock correct mutex and update the entry
+                std::lock_guard<std::mutex> lock(broadcasted.pairings[threadIndex].mutex);
+                broadcasted.pairings[threadIndex].work[id_self][listenerId][entry->index] = {entry,obj,true};
             }
-
-            // Add to the current batch (last vector)
-            pairs_threadsafe.back().emplace_back(entry, obj);
         }
     }
 }
@@ -209,14 +267,25 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
         // Update
 
         // If the expression is returnable as double, we can optimize numeric operations
-        // If the assignment is returnable as double, we can optimize numeric operations
         if(assignment.expression.isReturnableAsDouble()){
             double resolved = assignment.expression.evalAsDouble(doc_other);
             if(assignment.targetValuePtr != nullptr){
                 updateValueOfKey(assignment.operation, assignment.key, resolved, assignment.targetValuePtr);
             }
             else{
-                updateValueOfKey(assignment.operation, assignment.key, resolved, toUpdate);
+                // Target is not associated with a direct double pointer
+                // Likely because the target is in document other
+
+                // Try to get a stable double pointer from the target document
+                double* target = toUpdate->get_stable_double_ptr(assignment.key.c_str());
+                if(target != nullptr){
+                    updateValueOfKey(assignment.operation, assignment.key, resolved, target);
+                }
+                else{
+                    // Still not possible, fallback to using JSON's internal methods
+                    // This is slower, but should work in all cases
+                    updateValueOfKey(assignment.operation, assignment.key, resolved, toUpdate);
+                }
             }
         }
         // If not, we resolve as string and update that way
@@ -232,7 +301,7 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
         std::string call = entry.eval(doc_other);
 
         // attach to task queue
-        std::lock_guard<std::recursive_mutex> lock(tasks_lock);
+        std::lock_guard<std::recursive_mutex> lock(globalTasksLock);
         tasks->emplace_back(call);
     }
 
@@ -256,36 +325,37 @@ void Nebulite::Interaction::Invoke::updateLocal(std::shared_ptr<Nebulite::Intera
 }
 
 void Nebulite::Interaction::Invoke::clear(){
-    // Commands - shared pointers will automatically clean up
-    entries_global.clear();
-    entries_global_next.clear();
-    
-    // Pairs from commands
-    pairs_threadsafe.clear();
+    for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
+        std::lock_guard<std::mutex> lock1(broadcasted.entriesThisFrame[i].mutex);
+        broadcasted.entriesThisFrame[i].work.clear();
+        std::lock_guard<std::mutex> lock2(broadcasted.entriesNextFrame[i].mutex);
+        broadcasted.entriesNextFrame[i].work.clear();
+        std::lock_guard<std::mutex> lock3(broadcasted.pairings[i].mutex);
+        broadcasted.pairings[i].work.clear();
+    }
 }
 
 void Nebulite::Interaction::Invoke::update() {
-    // Swap in the new set of commands - shared pointers will clean up automatically
-    entries_global.clear();
-    entries_global.swap(entries_global_next);
+    // Swap in the new set of commands
+    for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
+        std::lock_guard<std::mutex> lock1(broadcasted.entriesThisFrame[i].mutex);   // Shouldnt be necessary as no other process accesses this during update, but we are paranoid
+        std::lock_guard<std::mutex> lock2(broadcasted.entriesNextFrame[i].mutex);   // Shouldnt be necessary as no other process accesses this during update, but we are paranoid
+        broadcasted.entriesThisFrame[i].work = std::move(broadcasted.entriesNextFrame[i].work);
+    }
+
+    // Signal all worker threads to start processing
+    for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
+        threadState.individualState[i].workFinished = false;
+        threadState.individualState[i].workReady = true;
+        threadState.individualState[i].condition.notify_one();
+    }
     
-    // Go through all true pairs and update them
-    std::vector<std::thread> threads;
-    for (auto& pairs_batch : pairs_threadsafe) {
-        threads.emplace_back([this, pairs_batch]() {
-            for (auto& pair : pairs_batch) {
-                updatePair(pair.first, pair.second);
-            }
-        });
+    // Wait for all threads to finish processing
+    for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
+        while (!threadState.individualState[i].workFinished.load()) {
+            std::this_thread::yield(); // Yield to avoid busy waiting
+        }
     }
-
-    // Wait for all threads to finish
-    for (auto& t : threads) {
-        if (t.joinable()) t.join();
-    }
-
-    // Cleanup
-    pairs_threadsafe.clear();
 }
 
 std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const std::string& input) {
