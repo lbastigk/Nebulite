@@ -360,13 +360,16 @@ private:
      * [topic][id_self][index_ruleset].listeners[id_other]-> BroadCastListenPair
      * Only annoying part is the index we need for unique identification of the ruleset.
      * 
-     * [topic][id_self][idx_ruleset].ruleset holds the ruleset self.rulesets[idx_ruleset]
-     * [topic][id_self][idx_ruleset].active = true/false
-     * [topic][id_self][idx_ruleset].listeners[id_other] = BroadCastListenPair
+     * [topic][id_self].active = true/false, active if self has broadcasted this frame
+     * [topic][id_self].rulesets[idx_ruleset].ptr holds the ruleset pointer self.rulesets[idx_ruleset]
+     * [topic][id_self].rulesets[idx_ruleset].listeners[id_other] = BroadCastListenPair
      * 
-     * On broadcast, we set: [topic][id_self][idx_ruleset].active = true;
-     * On listen, we populate: [topic][id_self][idx_ruleset].listener[id_other] = {[topic][id_self][idx_ruleset].ruleset, Obj_other, true};
+     * On broadcast, we set:   [topic][id_self].active = true; and set all [topic][id_self].rulesets[idx_ruleset].ptr = entry;
+     * On listen, we populate: [topic][id_self].rulesets[idx_ruleset].listeners[id_other] = {[topic][id_self].rulesets[idx_ruleset].ptr, Obj_other, true};
      * Due to the idx_ruleset, we can only have one listener.
+     * 
+     * During update, we simple swap between two of these structures, and process all active entries.
+     * And set all active flags to false.
      * 
      * This should work, but might take some time to implement and test.
      */
