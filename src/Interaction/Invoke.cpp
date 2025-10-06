@@ -6,6 +6,55 @@
 
 Nebulite::Interaction::Invoke::Invoke(Nebulite::Utility::JSON* globalDocPtr){
     global = globalDocPtr;
+    
+    // Initialize synchronization primitives
+    threadState.stopFlag = false;
+    for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
+        threadState.individualState[i].workReady = false;
+        threadState.individualState[i].workFinished = false;
+        
+        // Start worker threads
+        threadrunners[i] = std::thread([this, i]() {
+            while (!threadState.stopFlag) {
+                // Wait for work to be ready
+                std::unique_lock<std::mutex> lock(broadcasted.pairings[i].mutex);
+                threadState.individualState[i].condition.wait(lock, [this, i] { 
+                    return threadState.individualState[i].workReady.load() || threadState.stopFlag.load(); 
+                });
+                
+                if (threadState.stopFlag) break;
+                
+                // Process work
+                for(auto& [id_self, map_other] : broadcasted.pairings[i].work){
+                    for(auto& [id_other, map_pairs] : map_other){
+                        for(auto& [idx_ruleset, pair] : map_pairs){
+                            if(pair.active){
+                                updatePair(pair.entry, pair.Obj_other);
+                                pair.active = false; // Mark as inactive after processing
+                            }
+                        }
+                    }
+                }
+                
+                // Signal work is finished
+                threadState.individualState[i].workReady = false;
+                threadState.individualState[i].workFinished = true;
+            }
+        });
+    }
+}
+
+Nebulite::Interaction::Invoke::~Invoke() {
+    // Signal threads to stop
+    threadState.stopFlag = true;
+    
+    // Wake up all threads and wait for them to finish
+    for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
+        threadState.individualState[i].condition.notify_one();
+        if (threadrunners[i].joinable()) {
+            threadrunners[i].join();
+        }
+    }
 }
 
 bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Interaction::ParsedEntry> cmd, Nebulite::Core::RenderObject* otherObj) {
@@ -80,18 +129,18 @@ void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interact
     uint32_t threadIndex = id_self % THREADRUNNER_COUNT;
     
     // Insert into next frame's entries
-    std::lock_guard<std::mutex> lock(BroadcastEntriesNextFrame[threadIndex].mutex);
-    BroadcastEntriesNextFrame[threadIndex].work[toAppend->topic].push_back(toAppend);
+    std::lock_guard<std::mutex> lock(broadcasted.entriesNextFrame[threadIndex].mutex);
+    broadcasted.entriesNextFrame[threadIndex].work[toAppend->topic].push_back(toAppend);
 }
 
 void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std::string topic, uint32_t listenerId){
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
-        // Lock to safely read from BroadcastEntriesThisFrame
-        std::lock_guard<std::mutex> broadcastLock(BroadcastEntriesThisFrame[i].mutex);
+        // Lock to safely read from broadcasted.entriesThisFrame
+        std::lock_guard<std::mutex> broadcastLock(broadcasted.entriesThisFrame[i].mutex);
         
         // Check if topic exists to avoid creating empty entries
-        auto topicIt = BroadcastEntriesThisFrame[i].work.find(topic);
-        if (topicIt == BroadcastEntriesThisFrame[i].work.end()) {
+        auto topicIt = broadcasted.entriesThisFrame[i].work.find(topic);
+        if (topicIt == broadcasted.entriesThisFrame[i].work.end()) {
             continue; // No entries for this topic in this thread
         }
         
@@ -102,8 +151,8 @@ void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std
                 uint32_t threadIndex = id_self % THREADRUNNER_COUNT;
 
                 // Lock correct mutex and update the entry
-                std::lock_guard<std::mutex> lock(broadcastListenEntries[threadIndex].mutex);
-                broadcastListenEntries[threadIndex].work[id_self][listenerId][entry->index] = {entry,obj,true};
+                std::lock_guard<std::mutex> lock(broadcasted.pairings[threadIndex].mutex);
+                broadcasted.pairings[threadIndex].work[id_self][listenerId][entry->index] = {entry,obj,true};
             }
         }
     }
@@ -266,43 +315,35 @@ void Nebulite::Interaction::Invoke::updateLocal(std::shared_ptr<Nebulite::Intera
 
 void Nebulite::Interaction::Invoke::clear(){
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
-        std::lock_guard<std::mutex> lock1(BroadcastEntriesThisFrame[i].mutex);
-        BroadcastEntriesThisFrame[i].work.clear();
-        std::lock_guard<std::mutex> lock2(BroadcastEntriesNextFrame[i].mutex);
-        BroadcastEntriesNextFrame[i].work.clear();
-        std::lock_guard<std::mutex> lock3(broadcastListenEntries[i].mutex);
-        broadcastListenEntries[i].work.clear();
+        std::lock_guard<std::mutex> lock1(broadcasted.entriesThisFrame[i].mutex);
+        broadcasted.entriesThisFrame[i].work.clear();
+        std::lock_guard<std::mutex> lock2(broadcasted.entriesNextFrame[i].mutex);
+        broadcasted.entriesNextFrame[i].work.clear();
+        std::lock_guard<std::mutex> lock3(broadcasted.pairings[i].mutex);
+        broadcasted.pairings[i].work.clear();
     }
 }
 
 void Nebulite::Interaction::Invoke::update() {
     // Swap in the new set of commands
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
-        std::lock_guard<std::mutex> lock1(BroadcastEntriesThisFrame[i].mutex);
-        std::lock_guard<std::mutex> lock2(BroadcastEntriesNextFrame[i].mutex);
-        BroadcastEntriesThisFrame[i].work = std::move(BroadcastEntriesNextFrame[i].work);
+        std::lock_guard<std::mutex> lock1(broadcasted.entriesThisFrame[i].mutex);   // Shouldnt be necessary as no other process accesses this during update, but we are paranoid
+        std::lock_guard<std::mutex> lock2(broadcasted.entriesNextFrame[i].mutex);   // Shouldnt be necessary as no other process accesses this during update, but we are paranoid
+        broadcasted.entriesThisFrame[i].work = std::move(broadcasted.entriesNextFrame[i].work);
     }
 
-    // Go through all true pairs and update them
+    // Signal all worker threads to start processing
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
-        threadrunners[i] = std::thread([this, i]() {
-            std::lock_guard<std::mutex> lock(broadcastListenEntries[i].mutex);
-            for(auto& [id_self, map_other] : broadcastListenEntries[i].work){
-                for(auto& [id_other, map_pairs] : map_other){
-                    for(auto& [idx_ruleset, pair] : map_pairs){
-                        if(pair.active){
-                            updatePair(pair.entry, pair.Obj_other);
-                            pair.active = false; // Mark as inactive after processing
-                        }
-                    }
-                }
-            }
-        });
+        threadState.individualState[i].workFinished = false;
+        threadState.individualState[i].workReady = true;
+        threadState.individualState[i].condition.notify_one();
     }
     
-    // Wait for all threads to finish
+    // Wait for all threads to finish processing
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
-        if (threadrunners[i].joinable()) threadrunners[i].join();
+        while (!threadState.individualState[i].workFinished.load()) {
+            std::this_thread::yield(); // Yield to avoid busy waiting
+        }
     }
 }
 

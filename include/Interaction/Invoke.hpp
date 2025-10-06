@@ -16,6 +16,8 @@
 #include <deque>
 #include <shared_mutex>
 #include <thread>
+#include <condition_variable>
+#include <atomic>
 
 // External
 #include "tinyexpr.h"
@@ -94,6 +96,11 @@ public:
      * @param globalDocPtr Pointer to the global JSON document.
      */
     Invoke(Nebulite::Utility::JSON* globalDocPtr);
+
+    /**
+     * @brief Destructor - stops worker threads.
+     */
+    ~Invoke();
 
     /**
      * @brief Links the invoke object to a global queue for function calls.
@@ -302,7 +309,7 @@ private:
     mutable std::recursive_mutex globalTasksLock;
 
     //------------------------------------------
-    // Threading for broadcast-listen model
+    // Threading Containers
 
     /**
      * @struct BroadCastListenPair
@@ -345,6 +352,9 @@ private:
     /**
      * @struct BroadCastEntries
      * @brief Structure to hold broadcasted entries for each thread runner.
+     * 
+     * @todo Instead of using this temporary storage, find a way to directly create pairs during the broadcast() phase.
+     * This would eliminate the need for this structure and the associated mutex.
      */
     struct BroadCastEntries{
       absl::flat_hash_map<
@@ -355,27 +365,42 @@ private:
     };
 
     /**
-     * @brief Contains Broadcasted Entries for this frame
+     * @struct BroadCasted
+     * @brief Structure to hold broadcasted progression.
      * 
-     * On update, all entries from BroadcastEntriesNextFrame are swapped here.
+     * - Entries this frame
+     * 
+     * - Entries next frame
+     * 
+     * - Pairings created from the entries and listeners
      */
-    BroadCastEntries BroadcastEntriesThisFrame[THREADRUNNER_COUNT];
+    struct BroadCasted{
+        /**
+         * @brief Contains Broadcasted Entries for this frame
+         * 
+         * On update, all entries from BroadcastEntriesNextFrame are swapped here.
+         */
+        BroadCastEntries entriesThisFrame[THREADRUNNER_COUNT];
 
-    /**
-     * @brief Contains Broadcasted Entries for the next frame
-     * 
-     * Populated during the broadcast() phase.
-     * 
-     * On update, all entries from BroadcastEntriesThisFrame are swapped here.
-     */
-    BroadCastEntries BroadcastEntriesNextFrame[THREADRUNNER_COUNT];
+        /**
+         * @brief Contains Broadcasted Entries for the next frame
+         * 
+         * Populated during the broadcast() phase.
+         * 
+         * On update, all entries from BroadcastEntriesThisFrame are swapped here.
+         */
+        BroadCastEntries entriesNextFrame[THREADRUNNER_COUNT];
 
-    /**
-     * @brief Array of thread work structures for managing broadcast-listen pairs.
-     * 
-     * On update, all pairs from broadcastListenEntriesNextFrame are swapped here.
-     */
-    ThreadWork broadcastListenEntries[THREADRUNNER_COUNT]; 
+        /**
+         * @brief Array of thread work structures for managing broadcast-listen pairs.
+         * 
+         * On update, all pairs from broadcastListenEntriesNextFrame are swapped here.
+         */
+        ThreadWork pairings[THREADRUNNER_COUNT]; 
+    } broadcasted;
+
+    //------------------------------------------
+    // Threading variables
 
     /**
      * @brief Array of thread runners for processing broadcast-listen pairs.
@@ -383,6 +408,32 @@ private:
      * Each thread runner processes pairs assigned to it based on the self ID modulo THREADRUNNER_COUNT.
      */
     std::thread threadrunners[THREADRUNNER_COUNT];
+
+    /**
+     * @brief Structure to hold threading state.
+     */
+    struct ThreadState{
+        struct IndividualState{
+            /**
+             * @brief Condition variables for thread synchronization.
+             */
+            std::condition_variable condition;
+
+            /**
+             * @brief Flags to indicate when work is ready for each thread.
+             */
+            std::atomic<bool> workReady = false;
+
+            /**
+             * @brief Flags to indicate when work is finished for each thread.
+             */
+            std::atomic<bool> workFinished = false;
+        }individualState[THREADRUNNER_COUNT];
+        /**
+         * @brief Flag to signal threads to stop.
+         */
+        std::atomic<bool> stopFlag;
+    } threadState;
 
     //------------------------------------------
     // Private methods

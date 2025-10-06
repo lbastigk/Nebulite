@@ -6,31 +6,30 @@
 
 #pragma once
 
-/**
- * @def THREADED_MIN_BATCHSIZE
- * 
- * Minimum batch size needed to create a new rendering thread of invoke-pairs to process.
- */
-//#define THREADED_MIN_BATCHSIZE 500
+//------------------------------------------
 
 /**
  * @brief Number of thread runners for processing broadcast-listen pairs.
  */
-#define THREADRUNNER_COUNT 25
-
-/**
- * @def BATCH_COST_GOAL
- * 
- * Target cost of each Render::update thread batch.
- */
-#define BATCH_COST_GOAL 750
+#define THREADRUNNER_COUNT 20
 
 /**
  * @def INVOKE_EXPR_POOL_SIZE
  *
  * Size of the expression pool for each expression.
  */
-#define INVOKE_EXPR_POOL_SIZE 25
+#define INVOKE_EXPR_POOL_SIZE 20
+
+//------------------------------------------
+
+/**
+ * @def BATCH_COST_GOAL
+ * 
+ * Target cost of each Render::update thread batch.
+ */
+#define BATCH_COST_GOAL 250
+
+
 
 /*
 RESULTS using ./bin/Nebulite task TaskFiles/Benchmarks/spawn_constantly.nebs 
@@ -48,5 +47,5 @@ Date            Result      THREADED_MIN_BATCHSIZE  BATCH_COST_GOAL INVOKE_EXPR_
 ------------------------------------------------------------------------------------------
 Date            Result      THREADRUNNER_COUNT      BATCH_COST_GOAL INVOKE_EXPR_POOL_SIZE
 ------------------------------------------------------------------------------------------
-2025-10-06: ... TODO ...
+2025-10-06:      8.4s       20                      250             20                      # New threading model for Invoke
 */
