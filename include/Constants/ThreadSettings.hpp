@@ -47,5 +47,5 @@ Date            Result      THREADED_MIN_BATCHSIZE  BATCH_COST_GOAL INVOKE_EXPR_
 ------------------------------------------------------------------------------------------
 Date            Result      THREADRUNNER_COUNT      BATCH_COST_GOAL INVOKE_EXPR_POOL_SIZE
 ------------------------------------------------------------------------------------------
-2025-10-06:      8.4s       20                      250             20                      # New threading model for Invoke
+2025-10-06:      7.7s       20                      250             20                      # New threading model for Invoke
 */

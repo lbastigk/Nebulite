@@ -267,14 +267,25 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
         // Update
 
         // If the expression is returnable as double, we can optimize numeric operations
-        // If the assignment is returnable as double, we can optimize numeric operations
         if(assignment.expression.isReturnableAsDouble()){
             double resolved = assignment.expression.evalAsDouble(doc_other);
             if(assignment.targetValuePtr != nullptr){
                 updateValueOfKey(assignment.operation, assignment.key, resolved, assignment.targetValuePtr);
             }
             else{
-                updateValueOfKey(assignment.operation, assignment.key, resolved, toUpdate);
+                // Target is not associated with a direct double pointer
+                // Likely because the target is in document other
+
+                // Try to get a stable double pointer from the target document
+                double* target = toUpdate->get_stable_double_ptr(assignment.key.c_str());
+                if(target != nullptr){
+                    updateValueOfKey(assignment.operation, assignment.key, resolved, target);
+                }
+                else{
+                    // Still not possible, fallback to using JSON's internal methods
+                    // This is slower, but should work in all cases
+                    updateValueOfKey(assignment.operation, assignment.key, resolved, toUpdate);
+                }
             }
         }
         // If not, we resolve as string and update that way
