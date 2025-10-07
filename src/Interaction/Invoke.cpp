@@ -57,6 +57,20 @@ Nebulite::Interaction::Invoke::~Invoke() {
     }
 }
 
+void Nebulite::Interaction::Invoke::clear(){
+    for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
+        std::lock_guard<std::mutex> lock1(broadcasted.entriesThisFrame[i].mutex);
+        broadcasted.entriesThisFrame[i].work.clear();
+        std::lock_guard<std::mutex> lock2(broadcasted.entriesNextFrame[i].mutex);
+        broadcasted.entriesNextFrame[i].work.clear();
+        std::lock_guard<std::mutex> lock3(broadcasted.pairings[i].mutex);
+        broadcasted.pairings[i].work.clear();
+    }
+}
+
+//------------------------------------------
+// Checks
+
 bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd, Nebulite::Core::RenderObject* otherObj) {
     //------------------------------------------
     // Pre-Checks
@@ -118,6 +132,9 @@ bool Nebulite::Interaction::Invoke::isTrueLocal(std::shared_ptr<Nebulite::Intera
     return result != 0.0;
 }
 
+//------------------------------------------
+// Interactions
+
 void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interaction::Ruleset> toAppend){
     // Skip entries with empty topics - they should be local only
     if (toAppend->topic.empty()) {
@@ -157,6 +174,9 @@ void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std
         }
     }
 }
+
+//------------------------------------------
+// Value Updates
 
 void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, const std::string& key, const std::string& valStr, Nebulite::Utility::JSON* target){    
     // Using Threadsafe manipulation methods of the JSON class:
@@ -230,6 +250,9 @@ void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logi
     }
 }
 
+//------------------------------------------
+// Pair Updates
+
 void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other) {
     // Each thread needs its own variable list:
 
@@ -244,16 +267,16 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
         //------------------------------------------
         // Check what to update
         
-        Nebulite::Utility::JSON* toUpdate = nullptr;
+        Nebulite::Utility::JSON* targetDocument = nullptr;
         switch (assignment.onType) {
         case Nebulite::Interaction::Logic::Assignment::Type::Self:
-            toUpdate = doc_self;
+            targetDocument = doc_self;
             break;
         case Nebulite::Interaction::Logic::Assignment::Type::Other:
-            toUpdate = doc_other;
+            targetDocument = doc_other;
             break;
         case Nebulite::Interaction::Logic::Assignment::Type::Global:
-            toUpdate = global;
+            targetDocument = global;
             break;
         case Nebulite::Interaction::Logic::Assignment::Type::null:
             std::cerr << "Assignment expression has null type - skipping" << std::endl;
@@ -277,21 +300,23 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
                 // Likely because the target is in document other
 
                 // Try to get a stable double pointer from the target document
-                double* target = toUpdate->get_stable_double_ptr(assignment.key.c_str());
+                double* target = targetDocument->get_stable_double_ptr(assignment.key.c_str());
                 if(target != nullptr){
+                    std::lock_guard<std::recursive_mutex> lock(targetDocument->lock());
                     updateValueOfKey(assignment.operation, assignment.key, resolved, target);
                 }
                 else{
                     // Still not possible, fallback to using JSON's internal methods
                     // This is slower, but should work in all cases
-                    updateValueOfKey(assignment.operation, assignment.key, resolved, toUpdate);
+                    std::lock_guard<std::recursive_mutex> lock(targetDocument->lock());
+                    updateValueOfKey(assignment.operation, assignment.key, resolved, targetDocument);
                 }
             }
         }
         // If not, we resolve as string and update that way
         else{
             std::string resolved = assignment.expression.eval(doc_other);
-            updateValueOfKey(assignment.operation, assignment.key, resolved, toUpdate);
+            updateValueOfKey(assignment.operation, assignment.key, resolved, targetDocument);
         }
     }
 
@@ -324,17 +349,6 @@ void Nebulite::Interaction::Invoke::updateLocal(std::shared_ptr<Nebulite::Intera
     updatePair(entries_self, entries_self->selfPtr);
 }
 
-void Nebulite::Interaction::Invoke::clear(){
-    for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
-        std::lock_guard<std::mutex> lock1(broadcasted.entriesThisFrame[i].mutex);
-        broadcasted.entriesThisFrame[i].work.clear();
-        std::lock_guard<std::mutex> lock2(broadcasted.entriesNextFrame[i].mutex);
-        broadcasted.entriesNextFrame[i].work.clear();
-        std::lock_guard<std::mutex> lock3(broadcasted.pairings[i].mutex);
-        broadcasted.pairings[i].work.clear();
-    }
-}
-
 void Nebulite::Interaction::Invoke::update() {
     // Swap in the new set of commands
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
@@ -357,6 +371,10 @@ void Nebulite::Interaction::Invoke::update() {
         }
     }
 }
+
+
+//------------------------------------------
+// Standalone Expression Evaluation
 
 std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const std::string& input) {
     Nebulite::Utility::JSON* self = this->emptyDoc;
