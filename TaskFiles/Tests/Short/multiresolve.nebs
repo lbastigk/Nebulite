@@ -12,6 +12,6 @@ set foo.value1.value2 final_value
 eval echo {global.foo.value1.value2}
 # Expected output: final_value
 
-# Now, try to resolve {global.foo.{bar}}
-eval echo {global.foo.{bar}}
+# Now, try to resolve {global.foo.{{global.bar}}}
+eval echo {global.foo.{global.bar}}
 # Expected output: final_value

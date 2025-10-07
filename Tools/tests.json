@@ -135,6 +135,18 @@
         ], 
         "cerr": [] 
       }
+    },
+    {
+      "command": "task TaskFiles/Tests/Short/multiresolve.nebs",
+      "expected": { 
+        "cout": [
+          "Loading task list from file: TaskFiles/Tests/Short/multiresolve.nebs",
+          "Testing multi-resolve in Nebulite expressions",
+          "final_value",
+          "final_value"
+        ], 
+        "cerr": [] 
+      }
     }
   ],
   "timeout": 40
