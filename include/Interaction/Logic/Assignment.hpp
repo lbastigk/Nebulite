@@ -81,10 +81,18 @@ struct Assignment{
      */
     double* targetValuePtr = nullptr;
 
-    /**
-     * @brief The parsed expression in a thread-friendly Pool-Configuration
-     */
-    Nebulite::Interaction::Logic::ExpressionPool expression;
+    // Activate threadsafe expression pool only if needed
+    #if INVOKE_EXPR_POOL_SIZE < 2
+        /**
+         * @brief The parsed expression
+         */
+        Nebulite::Interaction::Logic::Expression expression;
+    #else
+        /**
+         * @brief The parsed expression in a thread-friendly Pool-Configuration
+         */
+        Nebulite::Interaction::Logic::ExpressionPool expression;
+    #endif
 
     //------------------------------------------
     // Disabling copy, allowing move

@@ -11,14 +11,14 @@
 /**
  * @brief Number of thread runners for processing broadcast-listen pairs.
  */
-#define THREADRUNNER_COUNT 20
+#define THREADRUNNER_COUNT 1
 
 /**
  * @def INVOKE_EXPR_POOL_SIZE
  *
  * Size of the expression pool for each expression.
  */
-#define INVOKE_EXPR_POOL_SIZE 20
+#define INVOKE_EXPR_POOL_SIZE 1
 
 //------------------------------------------
 
