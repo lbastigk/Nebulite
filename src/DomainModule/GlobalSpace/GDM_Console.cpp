@@ -194,9 +194,9 @@ void Console::init(){
 
     // Initialize history with a welcome message
     textInput.append("Welcome to Nebulite!");
-    textInput.submit(domain,TextInput::submitType::HISTORY_ONLY);
+    textInput.submit(domain,Nebulite::Utility::TextInput::submitType::HISTORY_ONLY);
     textInput.append("Type 'help' for a list of commands.");
-    textInput.submit(domain,TextInput::submitType::HISTORY_ONLY);
+    textInput.submit(domain,Nebulite::Utility::TextInput::submitType::HISTORY_ONLY);
 
     //--------------------------------------------------
     // Console now fully functional
@@ -336,66 +336,6 @@ void Console::processMode(){
             SDL_DestroyTexture(consoleTexture.texture_ptr);
             consoleTexture.texture_ptr = nullptr;
         }
-    }
-}
-
-//--------------------------------------------------
-// TextInput methods
-
-Console::TextInput::TextInput(){
-    consoleInputBuffer = &commandIndexZeroBuffer;
-}
-
-void Console::TextInput::submit(Nebulite::Core::GlobalSpace* globalspace, submitType type){
-    if (!consoleInputBuffer->empty()) {
-        std::string input = *consoleInputBuffer;
-
-        // History and output
-        commandHistory.emplace_back(input);
-        consoleOutput.emplace_back("> " + input);
-
-        // Add to queue
-        if(type == submitType::EXECUTE){
-            globalspace->getTaskQueue()->emplace_back(input);
-            if(selectedCommandIndex != 0){
-                // If we were browsing history, reset to latest input
-                selectedCommandIndex = 0;
-                consoleInputBuffer = &commandIndexZeroBuffer;
-            }
-        }
-
-        // Like in typical consoles, we clear the output
-        commandIndexZeroBuffer.clear();
-    }
-}
-
-void Console::TextInput::backspace(){
-    if (!consoleInputBuffer->empty()) {
-        consoleInputBuffer->pop_back();
-    }
-}
-
-void Console::TextInput::history_up(){
-    selectedCommandIndex++;
-    
-    // Get command from history
-    if(selectedCommandIndex > commandHistory.size()){
-        selectedCommandIndex = commandHistory.size();
-    }
-    if(selectedCommandIndex > 0){
-        consoleInputBuffer = &commandHistory[commandHistory.size() - selectedCommandIndex];
-    }
-}
-
-void Console::TextInput::history_down(){
-    if(selectedCommandIndex > 0) selectedCommandIndex--;
-    
-    // Get command from buffer or history
-    if(selectedCommandIndex == 0){
-        consoleInputBuffer = &commandIndexZeroBuffer;
-    }
-    else{
-        consoleInputBuffer = &commandHistory[commandHistory.size() - selectedCommandIndex];
     }
 }
 
