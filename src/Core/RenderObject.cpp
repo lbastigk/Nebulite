@@ -2,7 +2,7 @@
 
 #include "Core/GlobalSpace.hpp"
 #include "DomainModule/RDM.hpp"
-#include "Interaction/Deserializer.hpp"
+#include "Interaction/RulesetCompiler.hpp"
 
 #include "DomainModule/JSON/JDM_SimpleData.hpp"
 
@@ -234,7 +234,7 @@ void Nebulite::Core::RenderObject::update() {
 		//------------------------------------------
 		// 1.) Reload invokes if needed
 		if (flag.reloadInvokes) {
-			Nebulite::Interaction::Deserializer::parse(
+			Nebulite::Interaction::RulesetCompiler::parse(
 				entries_global, entries_local, 
 				this, 
 				invoke->getDocumentCache(), 
@@ -278,7 +278,7 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyIntern
 	//------------------------------------------
 	// Reload invokes if needed
 	if (flag.reloadInvokes){
-		Nebulite::Interaction::Deserializer::parse(
+		Nebulite::Interaction::RulesetCompiler::parse(
 			entries_global, entries_local, 
 			this, 
 			invoke->getDocumentCache(), 

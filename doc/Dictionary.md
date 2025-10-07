@@ -47,7 +47,7 @@ Expressions may include variables. Certain conditions must be met for an express
 
 ## I
 
-**Invoke** - Central object manipulation Class. Invokes may be defined as `ParsedEntries` through `JSON` files and attached to any RenderObject. On valid broadcast, listen and logical condition, its Assignments and `FunctionCalls` are executed. See also: [ParsedEntry](#p)
+**Invoke** - Central object manipulation Class. Invokes may be defined as `ParsedEntries` through `JSON` files and attached to any RenderObject. On valid broadcast, listen and logical condition, its Assignments and `FunctionCalls` are executed. See also: [Ruleset](#p)
 
 ## J
 
@@ -71,7 +71,7 @@ Expressions may include variables. Certain conditions must be met for an express
 
 ## P
 
-**ParsedEntry** - A single instance of a parsed `Invoke` `JSON` file. See `Invoke`.
+
 
 ## Q
 
@@ -80,6 +80,8 @@ Expressions may include variables. Certain conditions must be met for an express
 **RDM** - Renderobject-DomainModule. See also: [DomainModule](#d)
 
 **RenderObject** - Represents a renderable entity in the Nebulite engine. Stores all properties in an internal JSON document, supports dynamic property access, manages SDL rendering (sprites/text), handles invoke commands for interactions, and serves as a `Domain` for function binding. Core building block for visual game objects. See also: [Domain](#d), [JSON](#j), [Invoke](#i)
+
+**Ruleset** - A function or JSON-File describing interactions in a self-other-global model. See also: [Invoke](#i)
 
 ## S
 
