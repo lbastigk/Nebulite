@@ -119,6 +119,11 @@ public:
     void parseCommandLineArguments(int argc, char* argv[]);
 
     /**
+     * @brief Gets the global queue for function calls.
+     */
+    std::deque<std::string>* getTaskQueue(){return &tasks.script.taskQueue;};
+
+    /**
      * @brief Allows for access to the Renderer instance
      *
      * This function retrieves the renderer instance, creating it if it doesn't already exist.

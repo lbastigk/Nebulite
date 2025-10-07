@@ -119,11 +119,6 @@ public:
      * @brief Gets the global JSON document pointer.
      */
     Nebulite::Utility::JSON* getGlobalPointer(){return global;};
-
-    /**
-     * @brief Gets the global queue for function calls.
-     */
-    std::deque<std::string>* getTaskQueue(){return tasks;};
     
     //------------------------------------------
     // Send/Listen
