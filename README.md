@@ -1,5 +1,6 @@
 <div align="center">
 
+<!-- TOC --><a name="nebulite-game-engine"></a>
 # Nebulite Game Engine
 
 [![Author](https://img.shields.io/badge/Author-lbastigk-blue)](https://github.com/lbastigk)
@@ -23,6 +24,28 @@
 
 </div>
 
+<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
+
+- [Nebulite Game Engine](#nebulite-game-engine)
+   * [Overview](#overview)
+   * [Quick Start](#quick-start)
+   * [Learn More](#learn-more)
+   * [Core Concepts](#core-concepts)
+      + [Expression System](#expression-system)
+      + [Invoke System  ](#invoke-system)
+      + [Runtime Modes](#runtime-modes)
+   * [Directory Structure](#directory-structure)
+   * [Platform Support & Dependencies](#platform-support-dependencies)
+   * [Testing](#testing)
+   * [Languages](#languages)
+      + [Nebulite Script](#nebulite-script)
+      + [Nebulite Logic](#nebulite-logic)
+   * [Contributing](#contributing)
+   * [License](#license)
+
+<!-- TOC end -->
+
+<!-- TOC --><a name="overview"></a>
 ## Overview
 
 **Nebulite** is a C++20 2D game engine with a custom Domain-Specific Language (DSL) expressed in JSON / JSONC. It focuses on:
@@ -49,14 +72,17 @@ The goal: quickly prototype and iterate on emergent object logic without rebuild
 
 After making changes, you can run the VSCode task `[BUILD]` to recompile, or run `./build.sh`.
 
+<!-- TOC --><a name="learn-more"></a>
 ## Learn More
 
 - **Tutorials & Examples**: [Nebulite_Examples](https://github.com/lbastigk/Nebulite_Examples) - hands-on tutorials and sample projects
 - **Dictionary**: [./doc/Dictionary.md](./doc/Dictionary.md) - definitions of key terms and concepts
 - **Function Reference**: `./bin/Nebulite help` - complete list of available commands on the GlobalSpace. `./bin/Nebulite draft parse help` - complete list of available commands on RenderObjects.
 
+<!-- TOC --><a name="core-concepts"></a>
 ## Core Concepts
 
+<!-- TOC --><a name="expression-system"></a>
 ### Expression System
 Access and manipulate data using variables `{...}` and mathematical expressions `$(...)`:
 
@@ -74,6 +100,7 @@ Access and manipulate data using variables `{...}` and mathematical expressions 
 
 **Example:** `"other.physics.aY += $({global.physics.G} * {self.physics.mass})"`
 
+<!-- TOC --><a name="invoke-system"></a>
 ### Invoke System  
 Define object interactions via JSON rulesets:
 ```jsonc
@@ -89,12 +116,14 @@ Define object interactions via JSON rulesets:
 }
 ```
 
+<!-- TOC --><a name="runtime-modes"></a>
 ### Runtime Modes
 - **Interactive**: Press `tab` for live console
 - **Task Files**: `./bin/Nebulite task script.nebs` 
 - **Headless**: `--headless` for automation/testing
 - **CLI**: `./bin/Nebulite 'command ; chain'`
 
+<!-- TOC --><a name="directory-structure"></a>
 ## Directory Structure
 
 ```bash
@@ -120,6 +149,7 @@ Nebulite/
 └── build.sh                  # Compiling binaries
 ```
 
+<!-- TOC --><a name="platform-support-dependencies"></a>
 ## Platform Support & Dependencies
 
 **Platforms**: Linux (native), Windows (cross-compiled via MinGW-w64)
@@ -132,6 +162,7 @@ Nebulite/
 - Abseil - fast hash maps
 - Tinyexpr - expression evaluation
 
+<!-- TOC --><a name="testing"></a>
 ## Testing
 
 Run validation and tests:
@@ -140,6 +171,7 @@ python Scripts/Tests.py --stop --verbose
 ```
 Or use VS Code task: `[BUILD + TEST]`
 
+<!-- TOC --><a name="languages"></a>
 ## Languages
 
 <!-- TOC --><a name="nebulite-script"></a>
@@ -164,7 +196,7 @@ The `.nebl` *(Nebulite Logic)* language is a work in progress and not yet useabl
 <!-- TOC --><a name="contributing"></a>
 ## Contributing
 
-Contributions welcome. Quick path:
+Contributions welcome. Quick start:
 1. Fork & create feature branch (`feature/<short-desc>`)
 2. Run install + build + tests
 3. Add/update invokes or DSL features with tests / demo TaskFile
