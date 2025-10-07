@@ -80,9 +80,10 @@ public:
      * @brief Evaluates the expression as a string.
      * 
      * @param current_other The JSON object `other` to evaluate against.
+     * @param max_recursion_depth The maximum recursion depth to prevent infinite loops in nested evaluations.
      * @return The evaluated string value.
      */
-    std::string eval(Nebulite::Utility::JSON* current_other);
+    std::string eval(Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth = 10);
 
     /**
      * @brief Gets the full expression string that was parsed.

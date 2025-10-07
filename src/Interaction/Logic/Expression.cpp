@@ -335,9 +335,11 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(std::string& t
         // Variable outside of eval, no need to register
         if(subToken.starts_with('{')){
             // 1.) remove {}
-            std::string inner, te_name;
-            inner = Nebulite::Utility::StringHandler::replaceAll(subToken, "{", "");
-            inner = Nebulite::Utility::StringHandler::replaceAll(inner     , "}", "");
+            std::string inner;
+            // Replace first and last character of subToken
+            // We keep all other potential {} inside the variable name
+            // For later multiresolve
+            inner = subToken.substr(1, subToken.length() - 2);
             // 2.) determine context
             currentEntry.type = Entry::Type::variable;
             currentEntry.str = inner;
@@ -408,7 +410,7 @@ void Nebulite::Interaction::Logic::Expression::parse(const std::string& expr, Ne
                             (entries[0].cast == Entry::CastType::none);
 }
 
-std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JSON* current_other) {
+std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth) {
     //------------------------------------------
     // Update caches so that tinyexpr has the correct references
     updateCaches(current_other);
@@ -419,41 +421,74 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
     // Concatenate results of each entry
     std::string result = "";
     std::string token;
+    std::string key;
+    Entry::From context;
+    bool failed = false;
     for (auto& entry : entries) {
         token = "";
+        key = entry.key;
+        context = entry.from;
         switch (entry.type){
+            //------------------------------------------
             case Entry::variable:
-                // Variables default to 0
+                // See if the variable contains an inner expression
+                if(entry.str.find('$') != std::string::npos || entry.str.find('{') != std::string::npos) {
+                    if(max_recursion_depth == 0) {
+                        std::cerr << "Error: Maximum recursion depth reached when evaluating variable: " << entry.key << std::endl;
+                        return "0";
+                    }
+                    // Create a temporary expression to evaluate the inner expression
+                    Expression tempExpr;
+                    tempExpr.parse(entry.str, *documentCache, self, global);
+                    key = tempExpr.eval(current_other, max_recursion_depth - 1);
 
-                if (entry.from == Entry::self) {
-                    if(self == nullptr){
-                        std::cerr << "Error: Null self reference in expression: " << entry.key << std::endl;
-                        return "0";
-                    }
-                    token = self->get<std::string>(entry.key.c_str(), "0");
-                } else if (entry.from == Entry::other) {
-                    if(current_other == nullptr) {
-                        std::cerr << "Error: Null other reference in expression: " << entry.key << std::endl;
-                        return "0";
-                    }
-                    token = current_other->get<std::string>(entry.key.c_str(), "0");
-                } else if (entry.from == Entry::global) {
-                    if (global == nullptr) {
-                        std::cerr << "Error: Null global reference in expression: " << entry.key << std::endl;
-                        return "0";
-                    }
-                    token = global->get<std::string>(entry.key.c_str(), "0");
-                } else if (entry.from == Entry::resource) {
-                    if (globalCache == nullptr) {
-                        std::cerr << "Error: Null globalCache reference in expression: " << entry.key  << ". If this shouldn't be a Resource reference, did you forget the prefix self/other/global?" << std::endl;
-                        return "0";
-                    }
-                    token = globalCache->get<std::string>(entry.key.c_str(), "0");
+                    // Redetermine context and strip it from key
+                    context = getContext(key);
+                    key = stripContext(key);
+                }
+
+                // Now, use the key to get the value from the correct document
+                switch(context) {
+                    case Entry::From::self:
+                        if(self == nullptr){
+                            std::cerr << "Error: Null self reference in expression: " << key << std::endl;
+                            failed = true;
+                            break;
+                        }
+                        token = self->get<std::string>(key.c_str(), "0");
+                        break;
+                    case Entry::From::other:
+                        if(current_other == nullptr) {
+                            std::cerr << "Error: Null other reference in expression: " << key << std::endl;
+                            failed = true;
+                            break;
+                        }
+                        token = current_other->get<std::string>(key.c_str(), "0");
+                        break;
+                    case Entry::From::global:
+                        if (global == nullptr) {
+                            std::cerr << "Error: Null global reference in expression: " << key << std::endl;
+                            failed = true;
+                            break;
+                        }
+                        token = global->get<std::string>(key.c_str(), "0");
+                        break;
+                    case Entry::From::resource:
+                    default:
+                        if (globalCache == nullptr) {
+                            std::cerr << "Error: Null globalCache reference in expression: " << key  << ". If this shouldn't be a Resource reference, did you forget the prefix self/other/global?" << std::endl;
+                            failed = true;
+                            break;
+                        }
+                        token = globalCache->get<std::string>(key.c_str(), "0");
+                        break;
+                }
+                if(failed){
+                    return "0";
                 }
                 break;
-
+            //------------------------------------------
             case Entry::eval:
-
                 //------------------------------------------
                 // Handle casting
                 if(entry.cast == Entry::CastType::to_int){
@@ -488,13 +523,12 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
                         token = (entry.leadingZero ? '0' : ' ') + token;
                     }
                 }
-
                 break;
-
+            //------------------------------------------
             case Entry::text:
                 token = entry.str;
                 break;
-
+            //------------------------------------------
             default:
                 break;
         }
