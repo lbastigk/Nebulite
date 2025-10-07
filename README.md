@@ -58,12 +58,21 @@ After making changes, you can run the VSCode task `[BUILD]` to recompile, or run
 ## Core Concepts
 
 ### Expression System
-Access and manipulate data using three contexts:
+Access and manipulate data using variables `{...}` and mathematical expressions `$(...)`:
+
+**Variable Contexts:**
 - `{self.*}` - the object broadcasting logic
 - `{other.*}` - objects listening to the broadcast  
 - `{global.*}` - shared engine state
+- `{file.json:key.path}` - external read-only JSON files
+- `{global.{self.id}}` - nested resolution (multiresolve), works only outside of mathematical expressions.
 
-Example: `"other.physics.aY += $({global.physics.G} * {self.physics.mass})"`
+**Mathematical Expressions:**
+- `$(1 + 2 * {self.mass})` - arithmetic with variables
+- `$(gt({self.hp}, 0))` - logical operations (gt, lt, eq, and, or, not)
+- `$i(3.14)` - cast to integer
+
+**Example:** `"other.physics.aY += $({global.physics.G} * {self.physics.mass})"`
 
 ### Invoke System  
 Define object interactions via JSON rulesets:
