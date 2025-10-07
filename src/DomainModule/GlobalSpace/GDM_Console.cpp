@@ -113,9 +113,9 @@ void Console::renderConsole() {
     SDL_RenderFillRect(renderer, &inputBackgroundRect);
 
     // Render input text
-    if (!consoleInputBuffer->empty()) {
+    if (!textInput.getInputBuffer()->empty()) {
         // Create surface and texture
-        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, consoleInputBuffer->c_str(), textColor);
+        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, textInput.getInputBuffer()->c_str(), textColor);
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
         // Define destination rectangle
@@ -134,7 +134,7 @@ void Console::renderConsole() {
     //------------------------------------------
     // Part 3: Output Lines
     int line_index = 0;
-    uint16_t outputSize = consoleOutput.size();
+    uint16_t outputSize = textInput.getOutput()->size();
 
     // Index-offset: If we have less history than lines,
     // We need to offset to align at the top
@@ -149,7 +149,7 @@ void Console::renderConsole() {
         if(line_index >= outputSize)  break;    // No more lines to show         
 
         // Get line
-        std::string line = consoleOutput[outputSize - 1 - line_index];
+        std::string line = textInput.getOutput()->at(outputSize - 1 - line_index);
         line_index++;
 
         // Render line
@@ -193,10 +193,10 @@ void Console::init(){
     // Console buffer
 
     // Initialize history with a welcome message
-    commandIndexZeroBuffer = "Welcome to Nebulite!";
-    TextInput::submit(this,false);  // Add to history but do not execute
-    commandIndexZeroBuffer = "Type 'help' for a list of commands.";
-    TextInput::submit(this,false);  // Add to history but do not execute
+    textInput.append("Welcome to Nebulite!");
+    textInput.submit(domain,TextInput::submitType::HISTORY_ONLY);
+    textInput.append("Type 'help' for a list of commands.");
+    textInput.submit(domain,TextInput::submitType::HISTORY_ONLY);
 
     //--------------------------------------------------
     // Console now fully functional
@@ -259,7 +259,7 @@ void Console::processEvents(){
     for (const auto& event : *events) {
         switch (event.type) {
             case SDL_TEXTINPUT:
-                *consoleInputBuffer += event.text.text;
+                textInput.append(event.text.text);
                 break;
 
             case SDL_KEYDOWN:
@@ -269,13 +269,13 @@ void Console::processEvents(){
 
                     // Remove last character on backspace
                     case SDLK_BACKSPACE:
-                        TextInput::backspace(this);
+                        textInput.backspace();
                         break;
 
                     // Submit command on Enter
                     case SDLK_RETURN:
                     case SDLK_KP_ENTER:
-                        TextInput::submit(this);
+                        textInput.submit(domain);
                         break;	
 
                     // Cursor movement
@@ -293,10 +293,10 @@ void Console::processEvents(){
                     //------------------------------------------
                     // UP/DOWN to cycle through past commands
                     case SDLK_UP:
-                        TextInput::history_up(this);
+                        textInput.history_up();
                         break;
                     case SDLK_DOWN:
-                        TextInput::history_down(this);
+                        textInput.history_down();
                         break;
                 }
                 break;
@@ -342,56 +342,60 @@ void Console::processMode(){
 //--------------------------------------------------
 // TextInput methods
 
-void Console::TextInput::submit(Console *console, bool execute){
-    if (!console->consoleInputBuffer->empty()) {
-        std::string input = *console->consoleInputBuffer;
+Console::TextInput::TextInput(){
+    consoleInputBuffer = &commandIndexZeroBuffer;
+}
+
+void Console::TextInput::submit(Nebulite::Core::GlobalSpace* globalspace, submitType type){
+    if (!consoleInputBuffer->empty()) {
+        std::string input = *consoleInputBuffer;
 
         // History and output
-        console->commandHistory.emplace_back(input);
-        console->consoleOutput.emplace_back("> " + input);
+        commandHistory.emplace_back(input);
+        consoleOutput.emplace_back("> " + input);
 
         // Add to queue
-        if(execute){
-            console->invoke->getTaskQueue()->emplace_back(input);
-            if(console->selectedCommandIndex != 0){
+        if(type == submitType::EXECUTE){
+            globalspace->getTaskQueue()->emplace_back(input);
+            if(selectedCommandIndex != 0){
                 // If we were browsing history, reset to latest input
-                console->selectedCommandIndex = 0;
-                console->consoleInputBuffer = &console->commandIndexZeroBuffer;
+                selectedCommandIndex = 0;
+                consoleInputBuffer = &commandIndexZeroBuffer;
             }
         }
 
         // Like in typical consoles, we clear the output
-        console->commandIndexZeroBuffer.clear();
+        commandIndexZeroBuffer.clear();
     }
 }
 
-void Console::TextInput::backspace(Console *console){
-    if (!console->consoleInputBuffer->empty()) {
-        console->consoleInputBuffer->pop_back();
+void Console::TextInput::backspace(){
+    if (!consoleInputBuffer->empty()) {
+        consoleInputBuffer->pop_back();
     }
 }
 
-void Console::TextInput::history_up(Console *console){
-    console->selectedCommandIndex++;
+void Console::TextInput::history_up(){
+    selectedCommandIndex++;
     
     // Get command from history
-    if(console->selectedCommandIndex > console->commandHistory.size()){
-        console->selectedCommandIndex = console->commandHistory.size();
+    if(selectedCommandIndex > commandHistory.size()){
+        selectedCommandIndex = commandHistory.size();
     }
-    if(console->selectedCommandIndex > 0){
-        console->consoleInputBuffer = &console->commandHistory[console->commandHistory.size() - console->selectedCommandIndex];
+    if(selectedCommandIndex > 0){
+        consoleInputBuffer = &commandHistory[commandHistory.size() - selectedCommandIndex];
     }
 }
 
-void Console::TextInput::history_down(Console *console){
-    if(console->selectedCommandIndex > 0) console->selectedCommandIndex--;
+void Console::TextInput::history_down(){
+    if(selectedCommandIndex > 0) selectedCommandIndex--;
     
     // Get command from buffer or history
-    if(console->selectedCommandIndex == 0){
-        console->consoleInputBuffer = &console->commandIndexZeroBuffer;
+    if(selectedCommandIndex == 0){
+        consoleInputBuffer = &commandIndexZeroBuffer;
     }
     else{
-        console->consoleInputBuffer = &console->commandHistory[console->commandHistory.size() - console->selectedCommandIndex];
+        consoleInputBuffer = &commandHistory[commandHistory.size() - selectedCommandIndex];
     }
 }
 

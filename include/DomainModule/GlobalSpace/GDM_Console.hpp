@@ -55,7 +55,6 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Console){
         // we cannot do much here, since renderer might not be initialized yet
         // so we do the actual initialization in update() when needed
-        consoleInputBuffer = &commandIndexZeroBuffer;
     }
 private: 
     //------------------------------------------
@@ -96,21 +95,6 @@ private:
         SDL_Rect rect;
         SDL_Texture* texture_ptr = nullptr;
     }consoleTexture;
-
-    //------------------------------------------
-    // IO Buffers
-
-    // What the user is typing
-    std::string* consoleInputBuffer;    // What is shown and modified
-    std::string commandIndexZeroBuffer; // What is being written as unfinished input
-    
-    // Optional: Past output log
-	std::deque<std::string> consoleOutput;      // Static, is not modified
-    std::vector<std::string> commandHistory;    // Dynamic, is modified
-    
-    // Currently selected command from history
-    // 0 means no selection, latest input
-    int selectedCommandIndex = 0;
 
     //------------------------------------------
     // Methods
@@ -164,34 +148,82 @@ private:
      * @brief Helper class to handle text input in the console.
      */
     class TextInput{
+    private:
+        // What the user is typing
+        std::string* consoleInputBuffer;    // What is shown and modified
+        std::string commandIndexZeroBuffer; // What is being written as unfinished input
+
+        // Optional: Past output log
+        std::deque<std::string> consoleOutput;      // Static, is not modified
+        std::vector<std::string> commandHistory;    // Dynamic, is modified
+
+        // Currently selected command from history
+        // 0 means no selection, latest input
+        int selectedCommandIndex = 0;
     public:
         /**
+         * @brief Constructor for TextInput.
+         */
+        TextInput();
+
+        /**
+         * @brief Types of submission for commands.
+         */
+        enum class submitType{
+            EXECUTE,
+            HISTORY_ONLY
+        };
+
+        /**
          * @brief Submits the current input buffer as a command.
-         * @param console The console instance.
+         * @param globalspace The GlobalSpace instance to submit the command to.
          * @param execute (Optional) Whether to execute the command or just add it to history and output. 
          * Default is true.
          */
-        static void submit(Console *console, bool execute = true);
+        void submit(Nebulite::Core::GlobalSpace* globalspace, submitType type = submitType::EXECUTE);
 
         /**
          * @brief Handles backspace input.
          * @param console The console instance.
          */
-        static void backspace(Console *console);
+        void backspace();
 
         /**
          * @brief Navigates up the command history.
          * @param console The console instance.
          */
-        static void history_up(Console *console);
+        void history_up();
 
         /**
          * @brief Navigates down the command history.
          * @param console The console instance.
          */
-        static void history_down(Console *console);
-    };
-    friend class TextInput;
+        void history_down();
+
+        /**
+         * @brief Appends a character to the input buffer.
+         * @param console The console instance.
+         * @param c The character array to append.
+         */
+        void append(const char* c){
+            consoleInputBuffer->append(c);
+        }
+
+        /**
+         * @brief Gets the current input buffer.
+         * @return The current input buffer as a string pointer.
+         */
+        std::string* getInputBuffer() const {
+            return consoleInputBuffer;
+        }
+
+        /**
+         * @brief Gets the queue of output lines.
+         */
+        std::deque<std::string>* getOutput() {
+            return &consoleOutput;
+        }
+    } textInput;
 };
 }   // namespace GlobalSpace
 }   // namespace DomainModule
