@@ -4,6 +4,9 @@
 #include "Utility/StringHandler.hpp"
 #include <limits>
 
+//------------------------------------------
+// Constructor / Destructor
+
 Nebulite::Interaction::Invoke::Invoke(Nebulite::Utility::JSON* globalDocPtr){
     global = globalDocPtr;
     
@@ -29,7 +32,7 @@ Nebulite::Interaction::Invoke::Invoke(Nebulite::Utility::JSON* globalDocPtr){
                     for(auto& [id_other, map_pairs] : map_other){
                         for(auto& [idx_ruleset, pair] : map_pairs){
                             if(pair.active){
-                                updatePair(pair.entry, pair.Obj_other);
+                                applyRulesets(pair.entry, pair.Obj_other);
                                 pair.active = false; // Mark as inactive after processing
                             }
                         }
@@ -71,7 +74,7 @@ void Nebulite::Interaction::Invoke::clear(){
 //------------------------------------------
 // Checks
 
-bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd, Nebulite::Core::RenderObject* otherObj) {
+bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd, Nebulite::Core::RenderObject* otherObj) {
     //------------------------------------------
     // Pre-Checks
     
@@ -117,7 +120,7 @@ bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Inter
     return result != 0.0;
 }
 
-bool Nebulite::Interaction::Invoke::isTrueLocal(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd) {
+bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd) {
     // Check if logical arg is as simple as just "1", meaning true
     std::string_view expr = cmd->logicalArg.getFullExpressionStringview();
     if(expr == "1") return true;
@@ -162,7 +165,7 @@ void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std
         }
         
         for (auto& entry : topicIt->second){
-            if(isTrueGlobal(entry,obj)){
+            if(checkRulesetLogicalCondition(entry,obj)){
                 // Get all IDs and indices needed
                 uint32_t id_self = entry->id;
                 uint32_t threadIndex = id_self % THREADRUNNER_COUNT;
@@ -176,9 +179,9 @@ void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std
 }
 
 //------------------------------------------
-// Value Updates
+// Value sets
 
-void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, const std::string& key, const std::string& valStr, Nebulite::Utility::JSON* target){    
+void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, const std::string& key, const std::string& valStr, Nebulite::Utility::JSON* target){    
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation){
         case Nebulite::Interaction::Logic::Assignment::Operation::set:
@@ -202,7 +205,7 @@ void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logi
     }
 }
 
-void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, const std::string& key, double value, Nebulite::Utility::JSON* target){    
+void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, const std::string& key, double value, Nebulite::Utility::JSON* target){    
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation){
         case Nebulite::Interaction::Logic::Assignment::Operation::set:
@@ -226,7 +229,7 @@ void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logi
     }
 }
 
-void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, const std::string& key, double value, double* target){    
+void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, const std::string& key, double value, double* target){    
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation){
         case Nebulite::Interaction::Logic::Assignment::Operation::set:
@@ -251,9 +254,9 @@ void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logi
 }
 
 //------------------------------------------
-// Pair Updates
+// Ruleset application
 
-void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other) {
+void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other) {
     // Each thread needs its own variable list:
 
     // Set References
@@ -293,7 +296,7 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
         if(assignment.expression.isReturnableAsDouble()){
             double resolved = assignment.expression.evalAsDouble(doc_other);
             if(assignment.targetValuePtr != nullptr){
-                updateValueOfKey(assignment.operation, assignment.key, resolved, assignment.targetValuePtr);
+                setValueOfKey(assignment.operation, assignment.key, resolved, assignment.targetValuePtr);
             }
             else{
                 // Target is not associated with a direct double pointer
@@ -303,20 +306,20 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
                 double* target = targetDocument->get_stable_double_ptr(assignment.key.c_str());
                 if(target != nullptr){
                     std::lock_guard<std::recursive_mutex> lock(targetDocument->lock());
-                    updateValueOfKey(assignment.operation, assignment.key, resolved, target);
+                    setValueOfKey(assignment.operation, assignment.key, resolved, target);
                 }
                 else{
                     // Still not possible, fallback to using JSON's internal methods
                     // This is slower, but should work in all cases
                     std::lock_guard<std::recursive_mutex> lock(targetDocument->lock());
-                    updateValueOfKey(assignment.operation, assignment.key, resolved, targetDocument);
+                    setValueOfKey(assignment.operation, assignment.key, resolved, targetDocument);
                 }
             }
         }
         // If not, we resolve as string and update that way
         else{
             std::string resolved = assignment.expression.eval(doc_other);
-            updateValueOfKey(assignment.operation, assignment.key, resolved, targetDocument);
+            setValueOfKey(assignment.operation, assignment.key, resolved, targetDocument);
         }
     }
 
@@ -345,9 +348,12 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
     }
 }
 
-void Nebulite::Interaction::Invoke::updateLocal(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self){
-    updatePair(entries_self, entries_self->selfPtr);
+void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self){
+    applyRulesets(entries_self, entries_self->selfPtr);
 }
+
+//------------------------------------------
+// Update
 
 void Nebulite::Interaction::Invoke::update() {
     // Swap in the new set of commands
@@ -371,7 +377,6 @@ void Nebulite::Interaction::Invoke::update() {
         }
     }
 }
-
 
 //------------------------------------------
 // Standalone Expression Evaluation

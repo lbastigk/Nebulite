@@ -246,8 +246,8 @@ void Nebulite::Core::RenderObject::update() {
 		//------------------------------------------
 		// 2.) Directly solve local invokes (loop)
 		for (auto entry : entries_local){
-			if(invoke->isTrueLocal(entry)){
-				invoke->updateLocal(entry);
+			if(invoke->checkRulesetLogicalCondition(entry)){
+				invoke->applyRulesets(entry);
 			}
 		}
 

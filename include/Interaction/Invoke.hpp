@@ -160,7 +160,7 @@ public:
      * @param otherObj The other render object to compare against.
      * @return True if the invoke entry is true in the context of the other render object, false otherwise.
      */
-    bool isTrueGlobal(std::shared_ptr<Nebulite::Interaction::Ruleset> entry, Nebulite::Core::RenderObject* otherObj);
+    bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> entry, Nebulite::Core::RenderObject* otherObj);
 
     /**
      * @brief Checks if the invoke entry is true, without any context from other render objects.
@@ -168,7 +168,7 @@ public:
      * @param entry The invoke entry to check.
      * @return True if the invoke entry is true without any context from other render objects, false otherwise.
      */
-    bool isTrueLocal(std::shared_ptr<Nebulite::Interaction::Ruleset> entry);
+    bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> entry);
 
 
     //------------------------------------------
@@ -196,7 +196,7 @@ public:
      * applying any changes or updates as necessary. No broadcast/listening necessary, as no other objects are involved.
      * Changes happen in domain `self` and `global`.
      */
-    void updateLocal(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self);
+    void applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self);
 
     /**
      * @brief Updates the value of a specific key in the document.
@@ -209,7 +209,7 @@ public:
      * @param valStr The new value as a string.
      * @param target The JSON document to update.
      */
-    void updateValueOfKey(
+    void setValueOfKey(
         Nebulite::Interaction::Logic::Assignment::Operation operation, 
         const std::string& key, 
         const std::string& valStr, 
@@ -227,7 +227,7 @@ public:
      * @param valStr The new value as a double.
      * @param target The JSON document to update.
      */
-    void updateValueOfKey(
+    void setValueOfKey(
         Nebulite::Interaction::Logic::Assignment::Operation operation, 
         const std::string& key, 
         double value, 
@@ -245,7 +245,7 @@ public:
      * @param valStr The new value as a double.
      * @param target The double pointer to update.
      */
-    void updateValueOfKey(
+    void setValueOfKey(
         Nebulite::Interaction::Logic::Assignment::Operation operation, 
         const std::string& key, 
         double value, 
@@ -459,7 +459,7 @@ private:
      * @param entries_self The invoke entries for the self domain.
      * @param Obj_other The render object in the other domain to update.
      */
-    void updatePair(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other);
+    void applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other);
 };
 } // namespace Interaction
 } // namespace Nebulite
