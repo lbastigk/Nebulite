@@ -57,7 +57,7 @@ Nebulite::Interaction::Invoke::~Invoke() {
     }
 }
 
-bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Interaction::ParsedEntry> cmd, Nebulite::Core::RenderObject* otherObj) {
+bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd, Nebulite::Core::RenderObject* otherObj) {
     //------------------------------------------
     // Pre-Checks
     
@@ -103,7 +103,7 @@ bool Nebulite::Interaction::Invoke::isTrueGlobal(std::shared_ptr<Nebulite::Inter
     return result != 0.0;
 }
 
-bool Nebulite::Interaction::Invoke::isTrueLocal(std::shared_ptr<Nebulite::Interaction::ParsedEntry> cmd) {
+bool Nebulite::Interaction::Invoke::isTrueLocal(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd) {
     // Check if logical arg is as simple as just "1", meaning true
     std::string_view expr = cmd->logicalArg.getFullExpressionStringview();
     if(expr == "1") return true;
@@ -118,7 +118,7 @@ bool Nebulite::Interaction::Invoke::isTrueLocal(std::shared_ptr<Nebulite::Intera
     return result != 0.0;
 }
 
-void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interaction::ParsedEntry> toAppend){
+void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interaction::Ruleset> toAppend){
     // Skip entries with empty topics - they should be local only
     if (toAppend->topic.empty()) {
         std::cerr << "Warning: Attempted to broadcast entry with empty topic - skipping" << std::endl;
@@ -230,7 +230,7 @@ void Nebulite::Interaction::Invoke::updateValueOfKey(Nebulite::Interaction::Logi
     }
 }
 
-void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interaction::ParsedEntry> entries_self, Nebulite::Core::RenderObject* Obj_other) {
+void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other) {
     // Each thread needs its own variable list:
 
     // Set References
@@ -320,7 +320,7 @@ void Nebulite::Interaction::Invoke::updatePair(std::shared_ptr<Nebulite::Interac
     }
 }
 
-void Nebulite::Interaction::Invoke::updateLocal(std::shared_ptr<Nebulite::Interaction::ParsedEntry> entries_self){
+void Nebulite::Interaction::Invoke::updateLocal(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self){
     updatePair(entries_self, entries_self->selfPtr);
 }
 

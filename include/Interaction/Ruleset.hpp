@@ -1,7 +1,7 @@
 /**
- * @file InvokeEntry.hpp
+ * @file Ruleset.hpp
  * 
- * This file contains the InvokeEntry struct, representing a single invoke entry of a RenderObject for manipulation.
+ * This file contains the Ruleset struct, representing a single invoke entry of a RenderObject for manipulation.
  */
 
 #pragma once
@@ -25,7 +25,7 @@ namespace Nebulite{
 namespace Nebulite {
 namespace Interaction {
 /**
- * @struct Nebulite::Interaction::ParsedEntry
+ * @struct Nebulite::Interaction::Ruleset
  * @brief Represents a single invoke entry of a RenderObject for manipulation.
  * 
  * Invokes are parsed into specific structs. Each Renderobject holds its own InvokeEntries.
@@ -51,9 +51,9 @@ namespace Interaction {
  * 
  * The struct also contains a pointer to the RenderObject that owns this entry (the broadcaster).
  */
-struct ParsedEntry{
+struct Ruleset{
     /**
-     * @struct Nebulite::Interaction::ParsedEntry
+     * @struct Nebulite::Interaction::Ruleset
      * @brief The topic of the invoke entry, used for routing and filtering in the broadcast-listen-model of the Invoke class.
      * 
      * e.g. `gravity`, `hitbox`, `collision`. `all` is the default value. Any RenderObject should be subscribed to this topic.
@@ -145,11 +145,11 @@ struct ParsedEntry{
 
     // Make Entry non-copyable and non-movable
     // All entries should be local to their RenderObject
-    ParsedEntry() = default;
-    ParsedEntry(const ParsedEntry&) = delete;
-    ParsedEntry& operator=(const ParsedEntry&) = delete;
-    ParsedEntry(ParsedEntry&&) = delete;
-    ParsedEntry& operator=(ParsedEntry&&) = delete;
+    Ruleset() = default;
+    Ruleset(const Ruleset&) = delete;
+    Ruleset& operator=(const Ruleset&) = delete;
+    Ruleset(Ruleset&&) = delete;
+    Ruleset& operator=(Ruleset&&) = delete;
 };
 } // namespace Interaction
 } // namespace Nebulite

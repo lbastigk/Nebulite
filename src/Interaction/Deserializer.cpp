@@ -1,10 +1,10 @@
-#include "Interaction/Deserializer.hpp"
+#include "Interaction/RulesetCompiler.hpp"
 
-#include "Interaction/ParsedEntry.hpp"
+#include "Interaction/Ruleset.hpp"
 
-void Nebulite::Interaction::Deserializer::getFunctionCalls(
+void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
     Nebulite::Utility::JSON& entryDoc,
-    Nebulite::Interaction::ParsedEntry& invokeEntry, 
+    Nebulite::Interaction::Ruleset& Ruleset, 
     Nebulite::Core::RenderObject* self,
     Nebulite::Utility::DocumentCache* docCache,
     Nebulite::Utility::JSON* global
@@ -19,7 +19,7 @@ void Nebulite::Interaction::Deserializer::getFunctionCalls(
             // Create a new Expression, parse the function call
             Nebulite::Interaction::Logic::ExpressionPool invokeExpr;
             invokeExpr.parse(funcCall, *docCache, self->getDoc(), global);
-            invokeEntry.functioncalls_global.emplace_back(std::move(invokeExpr));
+            Ruleset.functioncalls_global.emplace_back(std::move(invokeExpr));
         }
     }
     if (entryDoc.memberCheck(Nebulite::Constants::keyName.invoke.functioncalls_self) == Nebulite::Utility::JSON::KeyType::array) {
@@ -38,7 +38,7 @@ void Nebulite::Interaction::Deserializer::getFunctionCalls(
             // Create a new Expression, parse the function call
             Nebulite::Interaction::Logic::ExpressionPool invokeExpr;
             invokeExpr.parse(funcCall, *docCache, self->getDoc(), global);
-            invokeEntry.functioncalls_self.emplace_back(std::move(invokeExpr));
+            Ruleset.functioncalls_self.emplace_back(std::move(invokeExpr));
         }
     }
     if (entryDoc.memberCheck(Nebulite::Constants::keyName.invoke.functioncalls_other) == Nebulite::Utility::JSON::KeyType::array) {
@@ -56,12 +56,12 @@ void Nebulite::Interaction::Deserializer::getFunctionCalls(
             // Create a new Expression, parse the function call
             Nebulite::Interaction::Logic::ExpressionPool invokeExpr;
             invokeExpr.parse(funcCall, *docCache, self->getDoc(), global);
-            invokeEntry.functioncalls_other.emplace_back(std::move(invokeExpr));
+            Ruleset.functioncalls_other.emplace_back(std::move(invokeExpr));
         }
     }
 }
 
-bool Nebulite::Interaction::Deserializer::getExpression(Nebulite::Interaction::Logic::Assignment& assignmentExpr, Nebulite::Utility::JSON& entry, int index){
+bool Nebulite::Interaction::RulesetCompiler::getExpression(Nebulite::Interaction::Logic::Assignment& assignmentExpr, Nebulite::Utility::JSON& entry, int index){
     std::string exprKey = Nebulite::Constants::keyName.invoke.exprVector + "[" + std::to_string(index) + "]";
 
     // Get expression
@@ -110,7 +110,7 @@ bool Nebulite::Interaction::Deserializer::getExpression(Nebulite::Interaction::L
     return true;
 }
 
-std::string Nebulite::Interaction::Deserializer::getLogicalArg(Nebulite::Utility::JSON& entry) {
+std::string Nebulite::Interaction::RulesetCompiler::getLogicalArg(Nebulite::Utility::JSON& entry) {
     std::string logicalArg = "";
     if(entry.memberCheck("logicalArg") == Nebulite::Utility::JSON::KeyType::array){
         uint32_t logicalArgSize = entry.memberSize("logicalArg");
@@ -135,7 +135,7 @@ std::string Nebulite::Interaction::Deserializer::getLogicalArg(Nebulite::Utility
     return logicalArg;
 }
 
-bool Nebulite::Interaction::Deserializer::getInvokeEntry(Nebulite::Utility::JSON& doc, Nebulite::Utility::JSON& entry, int index) {
+bool Nebulite::Interaction::RulesetCompiler::getRuleset(Nebulite::Utility::JSON& doc, Nebulite::Utility::JSON& entry, int index) {
     std::string key = Nebulite::Constants::keyName.renderObject.invokes + "[" + std::to_string(index) + "]";
     if(doc.memberCheck(key.c_str()) == Nebulite::Utility::JSON::KeyType::document) {
         entry = doc.get_subdoc(key.c_str());
@@ -152,7 +152,7 @@ bool Nebulite::Interaction::Deserializer::getInvokeEntry(Nebulite::Utility::JSON
     return true;
 }
 
-void Nebulite::Interaction::Deserializer::parse(std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>>& entries_global, std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>>& entries_local, Nebulite::Core::RenderObject* self, Nebulite::Utility::DocumentCache* docCache, Nebulite::Utility::JSON* global) {
+void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_global, std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_local, Nebulite::Core::RenderObject* self, Nebulite::Utility::DocumentCache* docCache, Nebulite::Utility::JSON* global) {
     // Clean up existing entries - shared pointers will automatically handle cleanup
     entries_global.clear();
     entries_local.clear();
@@ -176,42 +176,42 @@ void Nebulite::Interaction::Deserializer::parse(std::vector<std::shared_ptr<Nebu
     for (int i = 0; i < size; ++i) {
         // Parse entry into separate JSON object
         Nebulite::Utility::JSON entry;
-        if (!Deserializer::getInvokeEntry(*doc, entry, i)) {
+        if (!RulesetCompiler::getRuleset(*doc, entry, i)) {
             std::cerr << "Failed to get invoke entry at index " << i << std::endl;
             continue; // Skip this entry
         }
 
         // Parse into a structure
-        auto invokeEntry = std::make_shared<Nebulite::Interaction::ParsedEntry>();
-        invokeEntry->topic = entry.get<std::string>(Nebulite::Constants::keyName.invoke.topic.c_str(), "all");
-        invokeEntry->logicalArg.parse(Deserializer::getLogicalArg(entry), *docCache, self->getDoc(), global);
+        auto Ruleset = std::make_shared<Nebulite::Interaction::Ruleset>();
+        Ruleset->topic = entry.get<std::string>(Nebulite::Constants::keyName.invoke.topic.c_str(), "all");
+        Ruleset->logicalArg.parse(RulesetCompiler::getLogicalArg(entry), *docCache, self->getDoc(), global);
 
         // Remove whitespaces at start and end from topic and logicalArg:
-        invokeEntry->topic = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(invokeEntry->topic));
+        Ruleset->topic = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(Ruleset->topic));
         
         // If topic becomes empty after stripping, treat as local-only
-        if (invokeEntry->topic.empty()) {
-            invokeEntry->topic = ""; // Keep empty for local identification
+        if (Ruleset->topic.empty()) {
+            Ruleset->topic = ""; // Keep empty for local identification
         }
 
-        std::string str = *invokeEntry->logicalArg.getFullExpression();
+        std::string str = *Ruleset->logicalArg.getFullExpression();
         str = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(str));
-        invokeEntry->logicalArg.parse(str, *docCache, self->getDoc(), global);
+        Ruleset->logicalArg.parse(str, *docCache, self->getDoc(), global);
 
         // Get expressions
         if (entry.memberCheck(Nebulite::Constants::keyName.invoke.exprVector) == Nebulite::Utility::JSON::KeyType::array) {
             uint32_t exprSize = entry.memberSize(Nebulite::Constants::keyName.invoke.exprVector);
             for (uint32_t j = 0; j < exprSize; ++j) {
                 Nebulite::Interaction::Logic::Assignment assignmentExpr;
-                if (Deserializer::getExpression(assignmentExpr, entry, j)){
+                if (RulesetCompiler::getExpression(assignmentExpr, entry, j)){
                     // Successfully parsed expression
 
                     // Remove whitespaces at start and end of key and value
                     assignmentExpr.key = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(assignmentExpr.key));
                     assignmentExpr.value = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(assignmentExpr.value));
 
-                    // Add assignmentExpr to invokeEntry
-                    invokeEntry->assignments.emplace_back(std::move(assignmentExpr));
+                    // Add assignmentExpr to Ruleset
+                    Ruleset->assignments.emplace_back(std::move(assignmentExpr));
                 }
             }
         }
@@ -222,21 +222,21 @@ void Nebulite::Interaction::Deserializer::parse(std::vector<std::shared_ptr<Nebu
 
         // Parse all expressions
         uint32_t exprSize = entry.memberSize(Nebulite::Constants::keyName.invoke.exprVector);
-        for (auto& assignment : invokeEntry->assignments) {
+        for (auto& assignment : Ruleset->assignments) {
             assignment.expression.parse(assignment.value, *docCache, self->getDoc(), global);
         }
 
         // Parse all function calls
-        Nebulite::Interaction::Deserializer::getFunctionCalls(entry, *invokeEntry, self, docCache, global);
+        Nebulite::Interaction::RulesetCompiler::getFunctionCalls(entry, *Ruleset, self, docCache, global);
 
         // Push into vector
-        invokeEntry->selfPtr = self; // Set self pointer
-        if(invokeEntry->topic.empty()){
+        Ruleset->selfPtr = self; // Set self pointer
+        if(Ruleset->topic.empty()){
             // If topic is empty, it is a local invoke
-            invokeEntry->isGlobal = false; // Set isGlobal to false for local invokes
-            entries_local.push_back(invokeEntry);
+            Ruleset->isGlobal = false; // Set isGlobal to false for local invokes
+            entries_local.push_back(Ruleset);
         } else {
-            entries_global.push_back(invokeEntry);
+            entries_global.push_back(Ruleset);
         }
     }
 
@@ -270,13 +270,13 @@ void Nebulite::Interaction::Deserializer::parse(std::vector<std::shared_ptr<Nebu
     }
 }
 
-void Nebulite::Interaction::Deserializer::optimizeParsedEntries(
-    std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>>& entries, 
+void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
+    std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries, 
     Nebulite::Utility::JSON* self,
     Nebulite::Utility::JSON* global
 ){
     // Valid operations for direct double pointer assignment
-    auto ops = Nebulite::Interaction::Deserializer::numeric_operations;
+    auto ops = Nebulite::Interaction::RulesetCompiler::numeric_operations;
 
     // Checking all created entries, if any assignment is a numeric operation on self or global
     // we try to get a direct stable double pointer from the corresponding JSON document
@@ -284,7 +284,7 @@ void Nebulite::Interaction::Deserializer::optimizeParsedEntries(
     for (const auto& entry : entries) {
         for (auto& assignment : entry->assignments) {
             if (assignment.onType == Nebulite::Interaction::Logic::Assignment::Type::Self) {
-                auto ops = Nebulite::Interaction::Deserializer::numeric_operations;
+                auto ops = Nebulite::Interaction::RulesetCompiler::numeric_operations;
                 if (ops.end() != std::find(ops.begin(), ops.end(), assignment.operation)) {
                     // Numeric operation on self, try to get a direct pointer
                     double* ptr = self->getDoc()->get_stable_double_ptr(assignment.key);

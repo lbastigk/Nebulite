@@ -28,7 +28,7 @@ namespace Nebulite{
 	}
 	namespace Interaction{
 		class Invoke; 		// Forward declaration of interaction class Invoke
-		class ParsedEntry; 	// Forward declaration of interaction class ParsedEntry
+		class Ruleset; 	// Forward declaration of interaction class Ruleset
 	}
 }
 
@@ -350,8 +350,8 @@ private:
 
 	//------------------------------------------
 	// Invoke Commands
-	std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>> entries_global;	// Global commands, intended for self-other-global interaction
-	std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>> entries_local;		// Internal commands, intended for self-global interaction
+	std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> entries_global;	// Global commands, intended for self-other-global interaction
+	std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> entries_local;		// Internal commands, intended for self-global interaction
 
 	//------------------------------------------
 	// Linkages

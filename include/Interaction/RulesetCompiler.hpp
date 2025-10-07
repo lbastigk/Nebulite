@@ -1,7 +1,7 @@
 /**
- * @file Deserializer.hpp
+ * @file RulesetCompiler.hpp
  * 
- * This file contains the static Deserializer class.
+ * This file contains the static RulesetCompiler class.
  */
 
 #pragma once
@@ -19,16 +19,11 @@
 namespace Nebulite{
 namespace Interaction{
 /**
- * @class Nebulite::Interaction::Deserializer
+ * @class Nebulite::Interaction::RulesetCompiler
  * 
- * @brief Responsible for parsing compatible JSON documents into `Nebulite::Interaction::ParsedEntry` structs.
+ * @brief Responsible for parsing compatible JSON documents into `Nebulite::Interaction::Ruleset` structs.
  * A `Nebulite::Core::RenderObject` instance is required for context during parsing.
  * It's field `invokes` holds the relevant invoke information.
- * 
- * @todo ParsedEntry and Deserializer need proper names...
- * - Nebulite::Interaction::Invoke       -> Nebulite::Interaction::Dispatcher
- * - Nebulite::Interaction::ParsedEntry  -> Nebulite::Interaction::Ruleset
- * - Nebulite::Interaction::Deserializer -> Nebulite::Interaction::Reader
  * 
  * @todo Idea for Invoke ruleset overwrites:
  * In addition, add the field "overwrites" to the JSON doc.
@@ -52,20 +47,20 @@ namespace Interaction{
  * turns an `$(overwrites.physics.G)` into `9.81` and 
  * defaults to `{global.physics.G}` if not overwritten.
  */
-class Deserializer{
+class RulesetCompiler{
 public:
     /**
-     * @brief Parses a JSON encoded set of Invoke Entries inside a RenderObject into InvokeEntry objects.
+     * @brief Parses a JSON encoded set of Invoke Entries inside a RenderObject into Ruleset objects.
      * 
-     * @param entries_global The global InvokeEntry objects.
-     * @param entries_local The local InvokeEntry objects.
+     * @param entries_global The global Ruleset objects.
+     * @param entries_local The local Ruleset objects.
      * @param self The RenderObject instance associated with the entries.
      * @param docCache The DocumentCache instance to use for parsing expressions.
      * @param global The global JSON document to use for parsing expressions.
      */
     static void parse(
-        std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>>& entries_global, 
-        std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>>& entries_local, 
+        std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_global, 
+        std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_local, 
         Nebulite::Core::RenderObject* self,
         Nebulite::Utility::DocumentCache* docCache,
         Nebulite::Utility::JSON* global
@@ -76,14 +71,14 @@ private:
      * @brief Extracts function calls from a JSON entry document.
      * 
      * @param entryDoc The JSON document containing the entry.
-     * @param invokeEntry The InvokeEntry object to populate with function calls.
+     * @param Ruleset The Ruleset object to populate with function calls.
      * @param self The RenderObject instance associated with the entry.
      * @param docCache The DocumentCache instance to use for parsing expressions.
      * @param global The global JSON document to use for parsing expressions.
      */
     static void getFunctionCalls(
         Nebulite::Utility::JSON& entryDoc,
-        Nebulite::Interaction::ParsedEntry& invokeEntry, 
+        Nebulite::Interaction::Ruleset& Ruleset, 
         Nebulite::Core::RenderObject* self,
         Nebulite::Utility::DocumentCache* docCache,
         Nebulite::Utility::JSON* global
@@ -113,14 +108,14 @@ private:
     static std::string getLogicalArg(Nebulite::Utility::JSON& entry);
 
     /**
-     * @brief Extracts an InvokeEntry object from a JSON entry document.
+     * @brief Extracts an Ruleset object from a JSON entry document.
      * 
      * @param doc The JSON document containing the entry.
      * @param entry The JSON document to populate with the entry.
      * @param index The index of the entry in the document.
-     * @return True if the InvokeEntry was successfully extracted, false otherwise.
+     * @return True if the Ruleset was successfully extracted, false otherwise.
      */
-    static bool getInvokeEntry(
+    static bool getRuleset(
         Nebulite::Utility::JSON& doc, 
         Nebulite::Utility::JSON& entry, 
         int index
@@ -129,12 +124,12 @@ private:
     /**
      * @brief Optimizes the parsed entries by linking direct target pointers.
      * 
-     * @param entries_global The global InvokeEntry objects to optimize.
-     * @param entries_local The local InvokeEntry objects to optimize.
+     * @param entries_global The global Ruleset objects to optimize.
+     * @param entries_local The local Ruleset objects to optimize.
      * @param 
      */
     static void optimizeParsedEntries(
-        std::vector<std::shared_ptr<Nebulite::Interaction::ParsedEntry>>& entries, 
+        std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries, 
         Nebulite::Utility::JSON* self,
         Nebulite::Utility::JSON* global
     );

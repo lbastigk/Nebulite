@@ -27,7 +27,7 @@
 #include "Utility/DocumentCache.hpp"
 #include "Utility/JSON.hpp"
 #include "Interaction/Logic/Assignment.hpp"
-#include "Interaction/ParsedEntry.hpp"
+#include "Interaction/Ruleset.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -78,12 +78,10 @@ namespace Interaction{
  *     // domain->parseStr(commandStr);          for executing a nebulite command
  * }
  * ```
- * Then we link them with an std::map and each ParsedEntry is either static or typed.
- * Using a flag inside ParsedEntry to determine which one it is.
- * If the Deserializer encounters an entry in the Array of invokes that is a string, it looks it up in the map and links it.
+ * Then we link them with an std::map and each Ruleset is either static or typed.
+ * Using a flag inside Ruleset to determine which one it is.
+ * If the RulesetCompiler encounters an entry in the Array of invokes that is a string, it looks it up in the map and links it.
  * If it is not found, perhaps linking to an "Error" static invoke that just prints an error message/returns a Nebulite::Constants::Error.
- * 
- * @todo Improve language clarity: Use consistent terminology for "domains/document/target" throughout the documentation.
  */
 class Invoke{
 public:
@@ -138,7 +136,7 @@ public:
      * 
      * @param entry The invoke entry to broadcast.
      */
-    void broadcast(std::shared_ptr<Nebulite::Interaction::ParsedEntry> entry);
+    void broadcast(std::shared_ptr<Nebulite::Interaction::Ruleset> entry);
 
     /**
      * @brief Listens for invoke entries on a specific topic.
@@ -162,7 +160,7 @@ public:
      * @param otherObj The other render object to compare against.
      * @return True if the invoke entry is true in the context of the other render object, false otherwise.
      */
-    bool isTrueGlobal(std::shared_ptr<Nebulite::Interaction::ParsedEntry> entry, Nebulite::Core::RenderObject* otherObj);
+    bool isTrueGlobal(std::shared_ptr<Nebulite::Interaction::Ruleset> entry, Nebulite::Core::RenderObject* otherObj);
 
     /**
      * @brief Checks if the invoke entry is true, without any context from other render objects.
@@ -170,7 +168,7 @@ public:
      * @param entry The invoke entry to check.
      * @return True if the invoke entry is true without any context from other render objects, false otherwise.
      */
-    bool isTrueLocal(std::shared_ptr<Nebulite::Interaction::ParsedEntry> entry);
+    bool isTrueLocal(std::shared_ptr<Nebulite::Interaction::Ruleset> entry);
 
 
     //------------------------------------------
@@ -198,7 +196,7 @@ public:
      * applying any changes or updates as necessary. No broadcast/listening necessary, as no other objects are involved.
      * Changes happen in domain `self` and `global`.
      */
-    void updateLocal(std::shared_ptr<Nebulite::Interaction::ParsedEntry> entries_self);
+    void updateLocal(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self);
 
     /**
      * @brief Updates the value of a specific key in the document.
@@ -316,17 +314,17 @@ private:
      * @brief Structure to hold a broadcast-listen pair.
      */
     struct BroadCastListenPair{
-        std::shared_ptr<Nebulite::Interaction::ParsedEntry> entry; // The ParsedEntry that was broadcasted
+        std::shared_ptr<Nebulite::Interaction::Ruleset> entry; // The Ruleset that was broadcasted
         Nebulite::Core::RenderObject* Obj_other;                   // The object that listened to the Broadcast
         bool active = true;                                        // If false, this pair is skipped during update
     };
 
     /**
      * @typedef Ruleset
-     * @brief A shared pointer to a ParsedEntry.
-     * ParsedEntry is owned by its RenderObject, so we use a shared pointer here to avoid ownership issues.
+     * @brief A shared pointer to a Ruleset.
+     * Ruleset is owned by its RenderObject, so we use a shared pointer here to avoid ownership issues.
      */
-    using Ruleset = std::shared_ptr<Nebulite::Interaction::ParsedEntry>;
+    using Ruleset = std::shared_ptr<Nebulite::Interaction::Ruleset>;
 
     /**
      * @struct ThreadWork
@@ -461,7 +459,7 @@ private:
      * @param entries_self The invoke entries for the self domain.
      * @param Obj_other The render object in the other domain to update.
      */
-    void updatePair(std::shared_ptr<Nebulite::Interaction::ParsedEntry> entries_self, Nebulite::Core::RenderObject* Obj_other);
+    void updatePair(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other);
 };
 } // namespace Interaction
 } // namespace Nebulite
