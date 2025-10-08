@@ -107,17 +107,26 @@ public:
      * @brief Types of submission for commands.
      */
     enum class submitType{
-        EXECUTE,
-        HISTORY_ONLY
+        INPUT,  // An actual input command
+        COUT,   // A console output line, like std::cout
+        CERR    // A console error line, like std::cerr
     };
 
     /**
-     * @brief Submits the current input buffer as a command.
-     * @param globalspace The GlobalSpace instance to submit the command to.
-     * @param execute (Optional) Whether to execute the command or just add it to history and output. 
-     * Default is true.
+     * @brief Submits the current input buffer as type INPUT.
+     * @return The submitted command.
      */
-    void submit(Nebulite::Core::GlobalSpace* globalspace, submitType type = submitType::EXECUTE);
+    std::string submit();
+
+    /**
+     * @brief Inserts a line into the text output.
+     * @param line The line of text to insert.
+     * @param type The type of submission.
+     * Default is COUT.
+     * 
+     * @todo Proper handling of newlines in the input line.
+     */
+    void insertLine(const std::string& line, submitType type = submitType::COUT);
 
     /**
      * @brief Handles backspace input.

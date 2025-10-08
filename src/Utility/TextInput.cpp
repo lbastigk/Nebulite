@@ -6,7 +6,7 @@ TextInput::TextInput(){
     consoleInputBuffer = &commandIndexZeroBuffer;
 }
 
-void TextInput::submit(Nebulite::Core::GlobalSpace* globalspace, submitType type){
+std::string TextInput::submit(){
     if (!consoleInputBuffer->empty()) {
         std::string input = *consoleInputBuffer;
 
@@ -14,21 +14,29 @@ void TextInput::submit(Nebulite::Core::GlobalSpace* globalspace, submitType type
         commandHistory.emplace_back(input);
         consoleOutput.emplace_back("> " + input);
 
-        // Add to queue
-        if(type == submitType::EXECUTE){
-            globalspace->getTaskQueue()->emplace_back(input);
-            if(selectedCommandIndex != 0){
-                // If we were browsing history, reset to latest input
-                selectedCommandIndex = 0;
-                consoleInputBuffer = &commandIndexZeroBuffer;
-            }
-        }
-
         // Like in typical consoles, we clear the output
         commandIndexZeroBuffer.clear();
 
         // Reset cursor
         cursorOffset = 0;
+
+        return input;
+    }
+    return "";
+}
+
+void TextInput::insertLine(const std::string& line, submitType type){
+    if(type == submitType::COUT){
+        consoleOutput.emplace_back(line);
+    }
+    else if(type == submitType::CERR){
+        consoleOutput.emplace_back("ERROR: " + line);
+    }
+    else{
+        // We should not be inserting INPUT lines here
+        // But we will still do so
+        commandHistory.emplace_back(line);
+        consoleOutput.emplace_back("> " + line);
     }
 }
 

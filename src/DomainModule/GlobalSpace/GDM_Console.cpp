@@ -210,10 +210,8 @@ void Console::init(){
     // Console buffer
 
     // Initialize history with a welcome message
-    textInput.append("Welcome to Nebulite!");
-    textInput.submit(domain,Nebulite::Utility::TextInput::submitType::HISTORY_ONLY);
-    textInput.append("Type 'help' for a list of commands.");
-    textInput.submit(domain,Nebulite::Utility::TextInput::submitType::HISTORY_ONLY);
+    textInput.insertLine("Welcome to Nebulite!");
+    textInput.insertLine("Type 'help' for a list of commands.");
 
     //--------------------------------------------------
     // Console now fully functional
@@ -292,7 +290,9 @@ void Console::processEvents(){
                     // Submit command on Enter
                     case SDLK_RETURN:
                     case SDLK_KP_ENTER:
-                        textInput.submit(domain);
+                        if(!textInput.getInputBuffer()->empty()){
+                            domain->parseStr(std::string(__FUNCTION__) + " " + textInput.submit() ); // Submit and parse command
+                        }
                         break;	
 
                     // Cursor movement
