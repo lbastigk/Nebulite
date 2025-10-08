@@ -113,9 +113,9 @@ void Console::renderConsole() {
     SDL_RenderFillRect(renderer, &inputBackgroundRect);
 
     // Render input text
-    if (!consoleInputBuffer->empty()) {
+    if (!textInput.getInputBuffer()->empty()) {
         // Create surface and texture
-        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, consoleInputBuffer->c_str(), textColor);
+        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, textInput.getInputBuffer()->c_str(), textColor);
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
         // Define destination rectangle
@@ -125,16 +125,33 @@ void Console::renderConsole() {
         textRect.w = (double)textSurface->w;
         textRect.h = (double)textSurface->h;
 
-        // Render
+        // Render the text
         SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
         SDL_FreeSurface(textSurface);
         SDL_DestroyTexture(textTexture);
+
+        // If we have a text: ABCDEF, we highlight all text to the right of the cursor
+        // With a semi-transparent overlay
+        uint16_t cursorOffsetFromEnd = textInput.getCursorOffset();
+        if(cursorOffsetFromEnd > 0){
+            std::string highlightText = textInput.getInputBuffer()->substr(textInput.getInputBuffer()->size() - cursorOffsetFromEnd, cursorOffsetFromEnd);
+            SDL_Surface* highlightSurface = TTF_RenderText_Blended(consoleFont, highlightText.c_str(), {255,0,0,255});
+            SDL_Texture* highlightTexture = SDL_CreateTextureFromSurface(renderer, highlightSurface);
+            SDL_Rect highlightRect;
+            highlightRect.x = textRect.x + textRect.w - highlightSurface->w;
+            highlightRect.y = textRect.y;
+            highlightRect.w = (double)highlightSurface->w;
+            highlightRect.h = (double)highlightSurface->h;
+            SDL_RenderCopy(renderer, highlightTexture, NULL, &highlightRect);
+            SDL_FreeSurface(highlightSurface);
+            SDL_DestroyTexture(highlightTexture);
+        }
     }
 
     //------------------------------------------
     // Part 3: Output Lines
     int line_index = 0;
-    uint16_t outputSize = consoleOutput.size();
+    uint16_t outputSize = textInput.getOutput()->size();
 
     // Index-offset: If we have less history than lines,
     // We need to offset to align at the top
@@ -149,7 +166,7 @@ void Console::renderConsole() {
         if(line_index >= outputSize)  break;    // No more lines to show         
 
         // Get line
-        std::string line = consoleOutput[outputSize - 1 - line_index];
+        std::string line = textInput.getOutput()->at(outputSize - 1 - line_index);
         line_index++;
 
         // Render line
@@ -193,10 +210,8 @@ void Console::init(){
     // Console buffer
 
     // Initialize history with a welcome message
-    commandIndexZeroBuffer = "Welcome to Nebulite!";
-    TextInput::submit(this,false);  // Add to history but do not execute
-    commandIndexZeroBuffer = "Type 'help' for a list of commands.";
-    TextInput::submit(this,false);  // Add to history but do not execute
+    textInput.insertLine("Welcome to Nebulite!");
+    textInput.insertLine("Type 'help' for a list of commands.");
 
     //--------------------------------------------------
     // Console now fully functional
@@ -259,7 +274,7 @@ void Console::processEvents(){
     for (const auto& event : *events) {
         switch (event.type) {
             case SDL_TEXTINPUT:
-                *consoleInputBuffer += event.text.text;
+                textInput.append(event.text.text);
                 break;
 
             case SDL_KEYDOWN:
@@ -269,34 +284,32 @@ void Console::processEvents(){
 
                     // Remove last character on backspace
                     case SDLK_BACKSPACE:
-                        TextInput::backspace(this);
+                        textInput.backspace();
                         break;
 
                     // Submit command on Enter
                     case SDLK_RETURN:
                     case SDLK_KP_ENTER:
-                        TextInput::submit(this);
+                        if(!textInput.getInputBuffer()->empty()){
+                            domain->parseStr(std::string(__FUNCTION__) + " " + textInput.submit() ); // Submit and parse command
+                        }
                         break;	
 
                     // Cursor movement
                     case SDLK_LEFT:
-                        /**
-                         * @todo Move cursor left
-                         */
+                        textInput.moveCursorLeft();
                         break;
                     case SDLK_RIGHT:
-                        /**
-                         * @todo Move cursor right
-                         */
+                        textInput.moveCursorRight();
                         break;
 
                     //------------------------------------------
                     // UP/DOWN to cycle through past commands
                     case SDLK_UP:
-                        TextInput::history_up(this);
+                        textInput.history_up();
                         break;
                     case SDLK_DOWN:
-                        TextInput::history_down(this);
+                        textInput.history_down();
                         break;
                 }
                 break;
@@ -336,62 +349,6 @@ void Console::processMode(){
             SDL_DestroyTexture(consoleTexture.texture_ptr);
             consoleTexture.texture_ptr = nullptr;
         }
-    }
-}
-
-//--------------------------------------------------
-// TextInput methods
-
-void Console::TextInput::submit(Console *console, bool execute){
-    if (!console->consoleInputBuffer->empty()) {
-        std::string input = *console->consoleInputBuffer;
-
-        // History and output
-        console->commandHistory.emplace_back(input);
-        console->consoleOutput.emplace_back("> " + input);
-
-        // Add to queue
-        if(execute){
-            console->invoke->getTaskQueue()->emplace_back(input);
-            if(console->selectedCommandIndex != 0){
-                // If we were browsing history, reset to latest input
-                console->selectedCommandIndex = 0;
-                console->consoleInputBuffer = &console->commandIndexZeroBuffer;
-            }
-        }
-
-        // Like in typical consoles, we clear the output
-        console->commandIndexZeroBuffer.clear();
-    }
-}
-
-void Console::TextInput::backspace(Console *console){
-    if (!console->consoleInputBuffer->empty()) {
-        console->consoleInputBuffer->pop_back();
-    }
-}
-
-void Console::TextInput::history_up(Console *console){
-    console->selectedCommandIndex++;
-    
-    // Get command from history
-    if(console->selectedCommandIndex > console->commandHistory.size()){
-        console->selectedCommandIndex = console->commandHistory.size();
-    }
-    if(console->selectedCommandIndex > 0){
-        console->consoleInputBuffer = &console->commandHistory[console->commandHistory.size() - console->selectedCommandIndex];
-    }
-}
-
-void Console::TextInput::history_down(Console *console){
-    if(console->selectedCommandIndex > 0) console->selectedCommandIndex--;
-    
-    // Get command from buffer or history
-    if(console->selectedCommandIndex == 0){
-        console->consoleInputBuffer = &console->commandIndexZeroBuffer;
-    }
-    else{
-        console->consoleInputBuffer = &console->commandHistory[console->commandHistory.size() - console->selectedCommandIndex];
     }
 }
 
