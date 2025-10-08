@@ -177,6 +177,9 @@ bool Nebulite::Interaction::RulesetCompiler::getRuleset(Nebulite::Utility::JSON&
 }
 
 // Basic helpers for parsing
+// Some of the functions above are probably better suited in the anonymous namespace as well to reduce the size of the header file.
+// Do so later on if the RulesetCompiler class gets more complex.
+// Especially once pre-compiled rulesets are implemented and need to be linked, which could drastically increase complexity of this class.
 namespace{
     /**
      * @brief Sets metadata in the object itself and in each Ruleset entry, including IDs, indices, and estimated computational cost.
