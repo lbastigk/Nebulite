@@ -85,7 +85,7 @@ private:
     );
 
     /**
-     * @brief Extract an expression from a JSON entry document
+     * @brief Extract a single expression from a JSON entry document
      * 
      * @param assignmentExpr The assignment expression to populate.
      * @param entry The JSON entry document to extract the expression from.
@@ -98,6 +98,15 @@ private:
         Nebulite::Utility::JSON& entry, 
         int index
     );
+
+    /**
+     * @brief Extracts all expressions from a JSON entry document.
+     * 
+     * @param Ruleset The Ruleset object to populate with expressions.
+     * @param entry The JSON entry document to extract expressions from.
+     * @return True if the expressions were successfully extracted, false otherwise.
+     */
+    static bool getExpressions(Nebulite::Interaction::Ruleset* Ruleset, Nebulite::Utility::JSON* entry);
 
     /**
      * @brief Extracts a logical argument from a JSON entry document.
@@ -124,9 +133,9 @@ private:
     /**
      * @brief Optimizes the parsed entries by linking direct target pointers.
      * 
-     * @param entries_global The global Ruleset objects to optimize.
-     * @param entries_local The local Ruleset objects to optimize.
-     * @param 
+     * @param entries The Ruleset objects to optimize.
+     * @param self The RenderObject instance associated with the entries.
+     * @param global The global JSON document to use for parsing expressions.
      */
     static void optimizeParsedEntries(
         std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries, 
@@ -136,6 +145,8 @@ private:
 
     /**
      * @brief List of operations that are considered numeric and thus eligible for direct pointer assignment.
+     * 
+     * @note Any new numeric operation must be added here to benefit from optimization techniques in the Invoke class.
      */
     inline static const std::vector<Nebulite::Interaction::Logic::Assignment::Operation> numeric_operations = {
         Nebulite::Interaction::Logic::Assignment::Operation::set,
