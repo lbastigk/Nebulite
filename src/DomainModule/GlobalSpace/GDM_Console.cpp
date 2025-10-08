@@ -125,10 +125,27 @@ void Console::renderConsole() {
         textRect.w = (double)textSurface->w;
         textRect.h = (double)textSurface->h;
 
-        // Render
+        // Render the text
         SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
         SDL_FreeSurface(textSurface);
         SDL_DestroyTexture(textTexture);
+
+        // If we have a text: ABCDEF, we highlight all text to the right of the cursor
+        // With a semi-transparent overlay
+        uint16_t cursorOffsetFromEnd = textInput.getCursorOffset();
+        if(cursorOffsetFromEnd > 0){
+            std::string highlightText = textInput.getInputBuffer()->substr(textInput.getInputBuffer()->size() - cursorOffsetFromEnd, cursorOffsetFromEnd);
+            SDL_Surface* highlightSurface = TTF_RenderText_Blended(consoleFont, highlightText.c_str(), {255,0,0,255});
+            SDL_Texture* highlightTexture = SDL_CreateTextureFromSurface(renderer, highlightSurface);
+            SDL_Rect highlightRect;
+            highlightRect.x = textRect.x + textRect.w - highlightSurface->w;
+            highlightRect.y = textRect.y;
+            highlightRect.w = (double)highlightSurface->w;
+            highlightRect.h = (double)highlightSurface->h;
+            SDL_RenderCopy(renderer, highlightTexture, NULL, &highlightRect);
+            SDL_FreeSurface(highlightSurface);
+            SDL_DestroyTexture(highlightTexture);
+        }
     }
 
     //------------------------------------------
@@ -280,14 +297,10 @@ void Console::processEvents(){
 
                     // Cursor movement
                     case SDLK_LEFT:
-                        /**
-                         * @todo Move cursor left
-                         */
+                        textInput.moveCursorLeft();
                         break;
                     case SDLK_RIGHT:
-                        /**
-                         * @todo Move cursor right
-                         */
+                        textInput.moveCursorRight();
                         break;
 
                     //------------------------------------------

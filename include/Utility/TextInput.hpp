@@ -25,26 +25,43 @@ namespace Nebulite::Utility {
  * @brief Helper class to handle text input.
  * 
  * Includes:
+ * 
  * - Current input buffer
- * - Command history
+ * 
+ * - Command history browsing
+ * 
+ * - Cursor movement
+ * 
  * - Output log
+ * 
+ * - Submit handling to GlobalSpace
  * 
  * @todo Add ability to move cursor within input line
  */
 class TextInput{
 private:
-    // What the user is typing
-    std::string* consoleInputBuffer;    // What is shown and modified
-    std::string commandIndexZeroBuffer; // What is being written as unfinished input
+    /**
+     * @brief Pointer to the current input buffer string.
+     * The string that is being shown and modified.
+     */
+    std::string* consoleInputBuffer;
 
-    // Optional: Past output log
+    /**
+     * @brief Buffer for the command at index 0 in the history.
+     * This is the command that is being written as unfinished input.
+     * 
+     * If selectedCommandIndex is 0, consoleInputBuffer points to this string.
+     * If selectedCommandIndex is > 0, consoleInputBuffer points to an entry in commandHistory.
+     */
+    std::string commandIndexZeroBuffer;
+
     /**
      * @todo Wrap each entry in a struct with extra metadata:
      * - type (input, cout, cerr)
      * - timestamp
      * - string
      */
-    std::deque<std::string> consoleOutput;      // Static, is not modified
+    std::deque<std::string> consoleOutput;
 
     /**
      * @brief History of past commands.
@@ -69,9 +86,16 @@ private:
      */
     std::vector<std::string> commandHistory;    // Dynamic, is modified
 
-    // Currently selected command from history
-    // 0 means no selection, latest input
+    /**
+     * @brief Index of the currently selected command in history.
+     * 0 means no selection, latest input.
+     */
     int selectedCommandIndex = 0;
+
+    /**
+     * @brief Offset of the cursor in the input buffer.
+     */
+    uint16_t cursorOffset = 0;
 
 public:
     /**
@@ -112,15 +136,23 @@ public:
      * @param console The console instance.
      */
     void history_down();
+    
+    /**
+     * @brief Moves the input cursor to the left
+     */
+    void moveCursorLeft();
+
+    /**
+     * @brief Moves the input cursor to the right
+     */
+    void moveCursorRight();
 
     /**
      * @brief Appends a character to the input buffer.
      * @param console The console instance.
      * @param c The character array to append.
      */
-    void append(const char* c){
-        consoleInputBuffer->append(c);
-    }
+    void append(const char* c);
 
     /**
      * @brief Gets the current input buffer.
@@ -135,6 +167,14 @@ public:
      */
     std::deque<std::string>* getOutput() {
         return &consoleOutput;
+    }
+
+    /**
+     * @brief Gets the cursor offset in the input buffer.
+     * @return The cursor offset as an unsigned 16-bit integer.
+     */
+    uint16_t getCursorOffset() const {
+        return cursorOffset;
     }
 };
 } // namespace Nebulite::Utility 
