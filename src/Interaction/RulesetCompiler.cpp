@@ -110,6 +110,30 @@ bool Nebulite::Interaction::RulesetCompiler::getExpression(Nebulite::Interaction
     return true;
 }
 
+bool Nebulite::Interaction::RulesetCompiler::getExpressions(Nebulite::Interaction::Ruleset* Ruleset, Nebulite::Utility::JSON* entry) {
+    if (entry->memberCheck(Nebulite::Constants::keyName.invoke.exprVector) == Nebulite::Utility::JSON::KeyType::array) {
+        uint32_t exprSize = entry->memberSize(Nebulite::Constants::keyName.invoke.exprVector);
+        for (uint32_t j = 0; j < exprSize; ++j) {
+            Nebulite::Interaction::Logic::Assignment assignmentExpr;
+            if (RulesetCompiler::getExpression(assignmentExpr, *entry, j)){
+                // Successfully parsed expression
+
+                // Remove whitespaces at start and end of key and value
+                assignmentExpr.key = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(assignmentExpr.key));
+                assignmentExpr.value = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(assignmentExpr.value));
+
+                // Add assignmentExpr to Ruleset
+                Ruleset->assignments.emplace_back(std::move(assignmentExpr));
+            }
+        }
+    }
+    else {
+        // No expressions
+        return false;
+    }
+    return true;
+}
+
 std::string Nebulite::Interaction::RulesetCompiler::getLogicalArg(Nebulite::Utility::JSON& entry) {
     std::string logicalArg = "";
     if(entry.memberCheck("logicalArg") == Nebulite::Utility::JSON::KeyType::array){
@@ -150,6 +174,43 @@ bool Nebulite::Interaction::RulesetCompiler::getRuleset(Nebulite::Utility::JSON&
         entry.deserialize(file);
     }
     return true;
+}
+
+// Basic helpers for parsing
+namespace{
+    /**
+     * @brief Sets metadata in the object itself and in each Ruleset entry, including IDs, indices, and estimated computational cost.
+     * 
+     * @param self The RenderObject that owns the entries.
+     * @param entries_local The local Ruleset objects.
+     * @param entries_global The global Ruleset objects.
+     */
+    void setMetaData(Nebulite::Core::RenderObject* self, std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_local, std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_global){
+        // Set IDs
+        uint32_t id = self->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0);
+        for (const auto& entry : entries_local) {
+            entry->id = id;
+        }
+        for (const auto& entry : entries_global) {
+            entry->id = id;
+        }
+
+        // Set indices
+        for (size_t i = 0; i < entries_local.size(); ++i) {
+            entries_local[i]->index = static_cast<uint32_t>(i);
+        }
+        for (size_t i = 0; i < entries_global.size(); ++i) {
+            entries_global[i]->index = static_cast<uint32_t>(i);
+        }
+
+        // Estimate full cost of each entry
+        for (const auto& entry : entries_local) {
+            entry->estimateComputationalCost();
+        }
+        for (const auto& entry : entries_global) {
+            entry->estimateComputationalCost();
+        }
+    }
 }
 
 void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_global, std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_local, Nebulite::Core::RenderObject* self, Nebulite::Utility::DocumentCache* docCache, Nebulite::Utility::JSON* global) {
@@ -199,23 +260,8 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
         Ruleset->logicalArg.parse(str, *docCache, self->getDoc(), global);
 
         // Get expressions
-        if (entry.memberCheck(Nebulite::Constants::keyName.invoke.exprVector) == Nebulite::Utility::JSON::KeyType::array) {
-            uint32_t exprSize = entry.memberSize(Nebulite::Constants::keyName.invoke.exprVector);
-            for (uint32_t j = 0; j < exprSize; ++j) {
-                Nebulite::Interaction::Logic::Assignment assignmentExpr;
-                if (RulesetCompiler::getExpression(assignmentExpr, entry, j)){
-                    // Successfully parsed expression
-
-                    // Remove whitespaces at start and end of key and value
-                    assignmentExpr.key = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(assignmentExpr.key));
-                    assignmentExpr.value = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(assignmentExpr.value));
-
-                    // Add assignmentExpr to Ruleset
-                    Ruleset->assignments.emplace_back(std::move(assignmentExpr));
-                }
-            }
-        }
-        else {
+        bool exprSuccess = RulesetCompiler::getExpressions(Ruleset.get(), &entry);
+        if (!exprSuccess) {
             std::cerr << "No expressions found in entry at index " << i << std::endl;
             continue; // Skip this entry if no expressions are found
         }
@@ -244,30 +290,8 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
     optimizeParsedEntries(entries_global, self->getDoc(), global);
     optimizeParsedEntries(entries_local, self->getDoc(), global);
 
-    // Set IDs
-    uint32_t id = self->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0);
-    for (const auto& entry : entries_local) {
-        entry->id = id;
-    }
-    for (const auto& entry : entries_global) {
-        entry->id = id;
-    }
-
-    // Set indices
-    for (size_t i = 0; i < entries_local.size(); ++i) {
-        entries_local[i]->index = static_cast<uint32_t>(i);
-    }
-    for (size_t i = 0; i < entries_global.size(); ++i) {
-        entries_global[i]->index = static_cast<uint32_t>(i);
-    }
-
-    // Estimate full cost of each entry
-    for (const auto& entry : entries_local) {
-		entry->estimateComputationalCost();
-	}
-	for (const auto& entry : entries_global) {
-        entry->estimateComputationalCost();
-    }
+    // Set necessary metadata: IDs, indices, cost estimation
+    setMetaData(self, entries_global, entries_local);
 }
 
 void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
