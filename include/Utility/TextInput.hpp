@@ -12,9 +12,9 @@
 #include <deque>
 #include <vector>
 #include <string>
+#include <cstdint>
 
 // Nebulite
-#include "Core/GlobalSpace.hpp"
 #include "Nebulite.hpp"
 
 //------------------------------------------
@@ -34,9 +34,7 @@ namespace Nebulite::Utility {
  * 
  * - Output log
  * 
- * - Submit handling to GlobalSpace
- * 
- * @todo Add ability to move cursor within input line
+ * - Submit handling
  */
 class TextInput{
 private:
