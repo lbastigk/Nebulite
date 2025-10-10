@@ -101,7 +101,7 @@ mkdir -p ./external
 
 # Resources directory
 cd ./Resources      || exit 1
-../Scripts/CreateResourcesDirectory.sh   || exit 1
+../Scripts/AssetCreation/create_resources_directory.sh   || exit 1
 cd "$ROOT_DIR"
 
 ####################################
