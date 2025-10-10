@@ -53,7 +53,6 @@ Build and test your changes:
 ## Testing
 
 - Use `python ./Scripts/Tests.py` for preconfigured tests
-- Use `./Scripts/CrashDebug.sh` for debugging crashes with predefined taskfiles
 - Use `./Scripts/MemLeakTest.sh` for memory leak testing using `valgrind` and `massif-visualizer`
 - Use the VSCode debugger and its existing tasks
 
