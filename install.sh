@@ -173,7 +173,7 @@ find ./Scripts/ -type f -iname "*.sh" -exec chmod +x {} \;
 PROGRESS="Running tests"
 cd "$ROOT_DIR"
 python ./Scripts/Validation/json_syntax_and_references.py
-python ./Scripts/Tests.py
+python ./Scripts/TestingSuite.py
 
 ####################################
 # Finishing up

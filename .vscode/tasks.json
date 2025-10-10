@@ -40,7 +40,7 @@
         {
             "label": "[TEST]",
             "type": "shell",
-            "command": "python ./Scripts/Validation/json_syntax_and_references.py && python Scripts/Tests.py --stop --verbose && cd ..",
+            "command": "python ./Scripts/Validation/json_syntax_and_references.py && python Scripts/TestingSuite.py --stop --verbose && cd ..",
             "group": {
                 "kind": "test",
                 "isDefault": false
