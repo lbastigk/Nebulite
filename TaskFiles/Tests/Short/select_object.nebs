@@ -1,0 +1,8 @@
+set-fps 60
+spawn Planets/sun.jsonc
+selected-object get 1
+selected-object parse set posX 750
+selected-object parse set posY 750
+selected-object parse print posX
+selected-object parse print posY
+exit

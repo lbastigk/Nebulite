@@ -147,6 +147,17 @@
         ], 
         "cerr": [] 
       }
+    },
+    {
+      "command": "task TaskFiles/Tests/Short/select_object.nebs",
+      "expected": { 
+        "cout": [
+          "Loading task list from file: TaskFiles/Tests/Short/select_object.nebs",
+          "750",
+          "750"
+        ], 
+        "cerr": [] 
+      }
     }
   ],
   "timeout": 40

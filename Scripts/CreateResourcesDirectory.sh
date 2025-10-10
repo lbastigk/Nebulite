@@ -39,7 +39,7 @@ fi
 cd $ResourcesDir/Cursor/
 if [ ! -f "Drakensang.png" ]
 then
-  python3 $ResourcesDir/../Scripts/CreateCursor.py
+  python3 $ResourcesDir/../Scripts/AssetCreation/Cursor.py
 else
   echo "Skipping Cursor Drakensang.png (already exists)"
 fi
@@ -48,7 +48,7 @@ fi
 cd $ResourcesDir/Editor/
 if [ ! -f "Selection.png" ]
 then
-  python3 $ResourcesDir/../Scripts/CreateSelection.py
+  python3 $ResourcesDir/../Scripts/AssetCreation/Selection.py
 else
   echo "Skipping Editor Selection.png (already exists)"
 fi
@@ -85,10 +85,10 @@ fi
 # Test001P
 echo "Creating noisy images for TEST001P"
 cd $ResourcesDir/Sprites/TEST001P
-python3 $ResourcesDir/../Scripts/CreateNoisyImages.py -n 128 -s 1 1
+python3 $ResourcesDir/../Scripts/AssetCreation/NoisyColouredImages.py -n 128 -s 1 1
 
 # Test100P
 echo "Creating noisy images for TEST100P"
 cd $ResourcesDir/Sprites/TEST100P
-python3 $ResourcesDir/../Scripts/CreateNoisyImages.py -n 128 -s 100 100
+python3 $ResourcesDir/../Scripts/AssetCreation/NoisyColouredImages.py -n 128 -s 100 100
 echo "Resources directory creation done"
