@@ -53,7 +53,7 @@ Build and test your changes:
 ## Testing
 
 - Use `python ./Scripts/TestingSuite.py` for preconfigured tests
-- Use `./Scripts/MemLeakTest.sh` for memory leak testing using `valgrind` and `massif-visualizer`
+- Use the VSCode tasks for Memory leak testing, profiling and more
 - Use the VSCode debugger and its existing tasks
 
 You can add custom taskfiles to the test suite by extending the `tests.json` file in the projects root directory.
