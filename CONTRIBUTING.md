@@ -46,15 +46,14 @@ Using VSCode is recommended for an optimal workflow. The project includes precon
 
 Build and test your changes:
 ```bash
-./build.sh && ./Scripts/Tests.py
+./build.sh && ./Scripts/TestingSuite.py
 ```
 
 <!-- TOC --><a name="testing"></a>
 ## Testing
 
-- Use `python ./Scripts/Tests.py` for preconfigured tests
-- Use `./Scripts/CrashDebug.sh` for debugging crashes with predefined taskfiles
-- Use `./Scripts/MemLeakTest.sh` for memory leak testing using `valgrind` and `massif-visualizer`
+- Use `python ./Scripts/TestingSuite.py` for preconfigured tests
+- Use the VSCode tasks for Memory leak testing, profiling and more
 - Use the VSCode debugger and its existing tasks
 
 You can add custom taskfiles to the test suite by extending the `tests.json` file in the projects root directory.
@@ -271,7 +270,7 @@ Preview Editing is currently under development. The current plan is to use the h
 <!-- TOC --><a name="submitting-changes"></a>
 ## Submitting Changes
 
-1. Ensure all tests pass: `./build.sh && python Scripts/Tests.py`
+1. Ensure all tests pass: `./build.sh && python Scripts/TestingSuite.py`
 2. Create a pull request with a clear description of your changes
 3. Include test cases for new functionality
 4. Update documentation as needed

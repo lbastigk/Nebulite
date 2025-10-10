@@ -43,5 +43,9 @@ CMakeCache.txt
 cmake_install.cmake
 Makefile
 
+# ignore python cache files
+__pycache__/
+*.pyc
+
 # Do not ignore any files in ./doc/
 !/doc/ !/doc/**

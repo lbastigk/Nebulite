@@ -101,7 +101,7 @@ mkdir -p ./external
 
 # Resources directory
 cd ./Resources      || exit 1
-../Scripts/CreateResourcesDirectory.sh   || exit 1
+../Scripts/AssetCreation/create_resources_directory.sh   || exit 1
 cd "$ROOT_DIR"
 
 ####################################
@@ -172,8 +172,8 @@ find ./Scripts/ -type f -iname "*.sh" -exec chmod +x {} \;
 # Run tests
 PROGRESS="Running tests"
 cd "$ROOT_DIR"
-python ./Scripts/validate_json.py
-python ./Scripts/Tests.py
+python ./Scripts/Validation/json_syntax_and_references.py
+python ./Scripts/TestingSuite.py
 
 ####################################
 # Finishing up

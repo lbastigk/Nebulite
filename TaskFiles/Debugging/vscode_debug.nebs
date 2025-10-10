@@ -25,4 +25,7 @@ echo Starting vscode_debug.nebs
 # Initialize renderer
 set-fps 60
 
-task TaskFiles/Benchmarks/gravity.nebs 
+spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc
+
+#task TaskFiles/Benchmarks/gravity.nebs 
+

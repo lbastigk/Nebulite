@@ -1,21 +1,3 @@
-# This script is meant as a replacement for Tests.sh
-# Instead of modifying this script with new tests, 
-# modify the tests.json file with structure:
-# tests.json:
-# - binaries:array:string
-# - ignore_lines:
-#   - cout:array:string
-#   - cerr:array:string
-# - tests:array:
-#   - command
-#   - expected:
-#     - cout:array:string/none
-#     - cerr:array:string/none
-# - timeout:int
-
-# For the expected output, an array of strings is used
-# to mimic the line-by-line nature of the output.
-
 #==============================================================================
 # Python Testing Suite for Nebulite
 #==============================================================================

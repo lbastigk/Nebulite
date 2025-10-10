@@ -167,7 +167,7 @@ Nebulite/
 
 Run validation and tests:
 ```bash
-python Scripts/Tests.py --stop --verbose
+python Scripts/TestingSuite.py --stop --verbose
 ```
 Or use VS Code task: `[BUILD + TEST]`
 

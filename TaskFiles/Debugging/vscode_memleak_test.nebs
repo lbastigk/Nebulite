@@ -1,0 +1,11 @@
+# Spawn a bunch of object
+echo Use massif to track memory usage
+echo Expected result: Memory usage goes up, then down once objects are deleted.
+set-res 1000 1000
+set-fps 1000
+time set-fixed-dt 20
+spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc
+wait 5000
+env deload
+wait 5000
+exit

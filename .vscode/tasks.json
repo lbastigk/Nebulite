@@ -40,7 +40,7 @@
         {
             "label": "[TEST]",
             "type": "shell",
-            "command": "python ./Scripts/validate_json.py && python Scripts/Tests.py --stop --verbose && cd ..",
+            "command": "python ./Scripts/Validation/json_syntax_and_references.py && python Scripts/TestingSuite.py --stop --verbose && cd ..",
             "group": {
                 "kind": "test",
                 "isDefault": false
@@ -69,6 +69,17 @@
             },
             "problemMatcher": [],
             "detail": "Run a debug Task on the Debug binary with perf to profile performance. Shows results both in CLI with perf and in a GUI using hotspot."
+        },
+        {
+            "label": "[MEMORY] Check for memory leaks",
+            "type": "shell",
+            "command": "rm -rf massif_output.out ; ulimit -n 32768 && valgrind --tool=massif --massif-out-file=massif_output.out ./bin/Nebulite_Debug task TaskFiles/Debugging/vscode_memleak_test.nebs && massif-visualizer massif_output.out",
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "problemMatcher": [],
+            "detail": "Run a memory leak check using Valgrind's Massif tool."
         },
         {
             "label": "Install language extension",
