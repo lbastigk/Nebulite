@@ -11,7 +11,7 @@
 # - runs tests to verify the binaries
 
 # Check if we are in the root directory of the repository
-if [ ! -f "Scripts/DeploymentTest.sh" ]; then
+if [ ! -f "Scripts/Validation/deployment_test.sh" ]; then
   echo "Please run this script from the root directory of the repository."
   exit 1
 fi
