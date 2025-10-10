@@ -1,9 +1,14 @@
 #!/bin/bash
 
-# This script is used to test the deployment of the application.
+# This script is used to test the deployment of the application:
 # - clones the repository
 # - switches to the branch currently in use
 # - runs the installation script
+
+# The installation script:
+# - initializes the repository
+# - builds the application
+# - runs tests to verify the binaries
 
 # Check if we are in the root directory of the repository
 if [ ! -f "Scripts/DeploymentTest.sh" ]; then
@@ -25,7 +30,7 @@ git clone https://github.com/lbastigk/Nebulite.git
 cd Nebulite || exit 1
 git checkout $CURRENT_BRANCH
 
-# Install the application
+# Install the application and run tests
 echo "Running installation script..."
 chmod +x ./install.sh
 ./install.sh
