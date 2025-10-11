@@ -3,6 +3,7 @@
 
 #include "Constants/KeyNames.hpp"
 
+
 Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
 : Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite", this, &global)
 {
@@ -35,6 +36,7 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
 
     //------------------------------------------
     // Update
+
     // Cannot be done here directly, as GlobalSpace::update() requires command line arguments to be parsed first!
     // Instead, we just update the inner modules and domains once
 
@@ -42,7 +44,15 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
     updateModules();
 
     // Then, update inner domains
-    getDoc()->update();
+    updateInnerDomains();
+}
+
+Nebulite::Constants::Error Nebulite::Core::GlobalSpace::updateInnerDomains(){
+    // For now, just update the JSON domain
+    // Later on the logic here might be more complex
+    // As more inner domains are added
+    Nebulite::Constants::Error result = getDoc()->update();
+    return result;
 }
 
 Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
@@ -76,7 +86,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
         updateModules();
 
         // Then, update inner domains
-        getDoc()->update();
+        updateInnerDomains();
 
         // Update Renderer
         bool didUpdate = getRenderer()->tick();

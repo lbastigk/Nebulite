@@ -261,15 +261,6 @@ private:
         Nebulite::Utility::RNG<rng_size_t> D;   // RNG with key random.D
     } rng;
 
-    /**
-     * @brief Updates all RNGs with a new seed.
-     * 
-     * @param seed The normalized seed string used to update the RNGs.
-     * Make sure the seed contains no user-specific information like absolute paths!
-     * Otherwise the RNG is not consistent across different users.
-     */
-    void updateRNGs(std::string seed);
-
     //------------------------------------------
     // Methods
 
@@ -280,6 +271,22 @@ private:
      * which is called before parsing any command. It is used to properly handle RNG
      */
     Nebulite::Constants::Error preParse() override;
+
+    /**
+     * @brief Updates all RNGs with a new seed.
+     * 
+     * @param seed The normalized seed string used to update the RNGs.
+     * Make sure the seed contains no user-specific information like absolute paths!
+     * Otherwise the RNG is not consistent across different users.
+     */
+    void updateRNGs(std::string seed);
+
+    /**
+     * @brief Updates all inner domains.
+     * 
+     * @return If a critical error occurred, the corresponding error code. None otherwise.
+     */
+    Nebulite::Constants::Error updateInnerDomains();
 
     //------------------------------------------
     // Objects
