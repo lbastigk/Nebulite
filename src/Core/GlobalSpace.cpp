@@ -104,7 +104,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
 
     //------------------------------------------
     // Check if we need to continue the loop
-    continueLoop = !criticalStop && renderer.isSdlInitialized() && !renderer.isQuit();
+    continueLoop = !criticalStop && renderer.isSdlInitialized() && !renderer.shouldQuit();
 
     // Overwrite: If there is a wait operation and no renderer exists, 
     // we need to continue the loop and decrease scriptWaitCounter

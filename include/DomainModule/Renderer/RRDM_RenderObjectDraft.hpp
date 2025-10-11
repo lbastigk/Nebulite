@@ -1,11 +1,5 @@
-/*
-RenderObjectDraft extends the Global Space Tree to provide an in-memory RenderObject to manipulate and spawn.
-
-!
-*/
-
 /**
- * @file GSDM_RenderObjectDraft.hpp
+ * @file RRDM_RenderObjectDraft.hpp
  * 
  * @brief Provides RenderObject creation utilities
  */
@@ -28,22 +22,22 @@ RenderObjectDraft extends the Global Space Tree to provide an in-memory RenderOb
 // Forward declarations
 namespace Nebulite{
     namespace Core{
-        class GlobalSpace; // Forward declaration of domain class GlobalSpace
+        class Renderer; // Forward declaration of domain class Renderer
     }
 }
 
 //------------------------------------------
 namespace Nebulite {
 namespace DomainModule {
-namespace GlobalSpace {
+namespace Renderer {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::RenderObjectDraft
+ * @class Nebulite::DomainModule::Renderer::RenderObjectDraft
  * @brief Utilities for creating and manipulating RenderObjects
  * 
  * Allows for the creation and manipulation of RenderObjects in a draft state.
  * Allowing us to easily create draft object to continously spawn.
  */
-NEBULITE_DOMAINMODULE(::Nebulite::Core::GlobalSpace, RenderObjectDraft) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, RenderObjectDraft) {
 public:
     /**
      * @brief Override of update.
@@ -98,9 +92,9 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, RenderObjectDraft) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RenderObjectDraft) {
         // Initialize the draft holder with the domain
-        draft.setDomain(domain);
+        draft.setDomain(global);
         
         // Bind functions
         bindSubtree(draft_name, &draft_desc);

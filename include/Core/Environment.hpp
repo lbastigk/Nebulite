@@ -150,9 +150,8 @@ public:
 	 * @param tileYpos current camera tile position in the Y direction.
 	 * @param dispResX display resolution width. Necessary for potential RenderObject reinsertions).
 	 * @param dispResY display resolution height. Necessary for potential RenderObject reinsertions).
-	 * @param globalInvoke pointer to the global Invoke instance.
 	 */
-	void update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY, Nebulite::Interaction::Invoke* globalInvoke);
+	void update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY);
 
 	/**
 	 * @brief Rebuilds the Container structure.

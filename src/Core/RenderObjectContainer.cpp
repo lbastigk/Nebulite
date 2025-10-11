@@ -10,7 +10,6 @@
 
 Nebulite::Core::RenderObjectContainer::RenderObjectContainer(Nebulite::Core::GlobalSpace* globalSpace) {
 	this->globalSpace = globalSpace;
-	this->globalInvoke = globalSpace->invoke.get();
 }
 
 //------------------------------------------
@@ -83,24 +82,25 @@ std::pair<int16_t,int16_t> getTilePos(Nebulite::Core::RenderObject* toAppend, in
 }
 
 void Nebulite::Core::RenderObjectContainer::append(Nebulite::Core::RenderObject* toAppend, int dispResX, int dispResY) {
+	// Estimate cost and get tile position
 	uint64_t objectCost = toAppend->estimateComputationalCost();
     std::pair<int16_t,int16_t> pos = getTilePos(toAppend, dispResX, dispResY);
 
 	// Try to insert into an existing batch
 	for (auto& batch : ObjectContainer[pos]) {
 		if (batch.estimatedCost <= BATCH_COST_GOAL) {
-			batch.push(toAppend, globalInvoke);
+			batch.push(toAppend);
 			return;
 		}
 	}
 
 	// No existing batch could accept the object, so create a new one
 	batch newBatch;
-	newBatch.push(toAppend, globalInvoke);
+	newBatch.push(toAppend);
 	ObjectContainer[pos].push_back(std::move(newBatch));
 }
 
-void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY, Nebulite::Interaction::Invoke* globalInvoke) {
+void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY) {
 	//------------------------------------------
 	// 2-Step Deletion
 
@@ -141,7 +141,7 @@ void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t til
 			auto& tile = ObjectContainer[pos];
 
 			for (auto& batch : tile) {
-				batchWorkers.emplace_back([&batch, pos, this, globalInvoke, dispResX, dispResY]() {
+				batchWorkers.emplace_back([&batch, pos, this, dispResX, dispResY]() {
 					// Every batch worker has potential objects to move or delete
 					std::vector<RenderObject*> to_move_local;
 					std::vector<RenderObject*> to_delete_local;
@@ -162,14 +162,14 @@ void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t til
 
 					// All objects to move are collected in queue
 					for (auto ptr : to_move_local) {
-						batch.removeObject(ptr, globalInvoke);
+						batch.removeObject(ptr);
 						std::lock_guard<std::mutex> lock(reinsertionProcess.reinsertMutex);
 						reinsertionProcess.queue.push_back(ptr);
 					}
 
 					// All objects to delete are collected in trash
 					for (auto ptr : to_delete_local) {
-						batch.removeObject(ptr, globalInvoke);
+						batch.removeObject(ptr);
 						std::lock_guard<std::mutex> lock(deletionProcess.deleteMutex);
 						deletionProcess.trash.push_back(ptr);
 					}
@@ -243,7 +243,7 @@ size_t Nebulite::Core::RenderObjectContainer::getObjectCount() {
 //------------------------------------------
 // Batch
 
-Nebulite::Core::RenderObject* Nebulite::Core::RenderObjectContainer::batch::pop(Nebulite::Interaction::Invoke* globalInvoke) {
+Nebulite::Core::RenderObject* Nebulite::Core::RenderObjectContainer::batch::pop() {
 	if (objects.empty()) return nullptr;
 
 	RenderObject* obj = objects.back(); // Get last element
@@ -253,12 +253,12 @@ Nebulite::Core::RenderObject* Nebulite::Core::RenderObjectContainer::batch::pop(
 	return obj;
 }
 
-void Nebulite::Core::RenderObjectContainer::batch::push(RenderObject* obj, Nebulite::Interaction::Invoke* globalInvoke){
+void Nebulite::Core::RenderObjectContainer::batch::push(RenderObject* obj){
 	estimatedCost += obj->estimateComputationalCost();
 	objects.push_back(obj);
 }
 
-bool Nebulite::Core::RenderObjectContainer::batch::removeObject(RenderObject* obj, Nebulite::Interaction::Invoke* globalInvoke) {
+bool Nebulite::Core::RenderObjectContainer::batch::removeObject(RenderObject* obj) {
 	auto it = std::find(objects.begin(), objects.end(), obj);
 	if (it != objects.end()) {
 		estimatedCost -= obj->estimateComputationalCost();

@@ -139,7 +139,6 @@ private:
     //------------------------------------------
     // References
     SDL_Renderer* renderer = nullptr;
-    Nebulite::Interaction::Invoke* invoke = nullptr;
     Nebulite::Utility::JSON* globalDoc = nullptr;
 
     //------------------------------------------

@@ -199,11 +199,9 @@ void Console::renderConsole() {
 void Console::init(){
     //--------------------------------------------------
     // References
-
     consoleFont = domain->getStandardFont();
     renderer = domain->getSdlRenderer();
-    invoke = domain->getInvoke();
-    globalDoc = invoke->getGlobalPointer();
+    globalDoc = domain->getDoc();
 
     //--------------------------------------------------
     // Console buffer

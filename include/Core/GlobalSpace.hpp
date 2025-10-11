@@ -119,11 +119,6 @@ public:
     void parseCommandLineArguments(int argc, char* argv[]);
 
     /**
-     * @brief Gets the global queue for function calls.
-     */
-    std::deque<std::string>* getTaskQueue(){return &tasks.script.taskQueue;};
-
-    /**
      * @brief Resolves a task queue by parsing each task and executing it.
      * 
      * @param tq The task queue to resolve.
@@ -146,6 +141,50 @@ public:
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
     Nebulite::Constants::Error update();
+
+    /**
+     * @brief Quits the renderer by setting the quit flag.
+     */
+    void quitRenderer(){
+        renderer.setQuit();
+    }
+
+    /**
+     * @brief Evaluates a string.
+     */
+    std::string eval(std::string expr){
+        return invoke.evaluateStandaloneExpression(expr);
+    }
+
+    /**
+     * @brief Evaluates a string with context of a RenderObject.
+     */
+    std::string eval(std::string expr, Nebulite::Core::RenderObject* context){
+        return invoke.evaluateStandaloneExpression(expr, context);
+    }
+
+    //------------------------------------------
+    // Getters
+
+    /**
+     * @brief Gets the global queue for function calls.
+     */
+    std::deque<std::string>* getTaskQueue(){return &tasks.script.taskQueue;};
+
+    /**
+     * @brief Gets a pointer to the Renderer instance.
+     */
+    Nebulite::Core::Renderer* getRenderer(){return &renderer;};
+
+    /**
+     * @brief Gets a pointer to the SDL Renderer instance.
+     */
+    SDL_Renderer* getSdlRenderer(){return renderer.getSdlRenderer();};
+
+    /**
+     * @brief Gets a pointer to the Invoke instance.
+     */
+    Nebulite::Interaction::Invoke* getInvoke(){return &invoke;};
 
     //------------------------------------------
     // Public Variables

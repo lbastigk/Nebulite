@@ -23,10 +23,7 @@ Nebulite::Constants::Error Time::update() {
     domain->getDoc()->set<Uint64>( "runtime.t_ms", t_ms);
 
     // See if simulation time can progress
-    bool canProgress = !haltThisFrame && timeLocks.empty();
-    if(domain->RendererExists()){
-        canProgress = canProgress && !domain->getRenderer()->isSkippingUpdate();
-    }
+    bool canProgress = !haltThisFrame && timeLocks.empty() && !domain->getRenderer()->isSkippingUpdate();
     if(canProgress){
         //------------------------------------------
         // Simulation time (can be paused)

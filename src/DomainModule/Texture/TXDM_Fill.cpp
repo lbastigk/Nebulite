@@ -16,7 +16,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::Texture::Fill::fill(int argc,
     }
 
     // Get the SDL_Renderer
-    SDL_Renderer* renderer = domain->getGlobalSpace()->getSDLRenderer();
+    SDL_Renderer* renderer = domain->getGlobalSpace()->getSdlRenderer();
     if (renderer == nullptr) {
         return Nebulite::Constants::ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED();
     }

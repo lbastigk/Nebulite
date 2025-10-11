@@ -141,18 +141,6 @@ public:
 	void reinsertAllObjects();
 
 	/**
-	 * @brief Checks if the Renderer is in a quit state.
-	 * 
-	 * @return True if the Renderer is set to quit, false otherwise.
-	 */
-	bool isQuit(){return quit;}
-
-	/**
-	 * @brief Sets the quit state of the Renderer.
-	 */
-	void setQuit(){quit=true;}
-
-	/**
 	 * @brief Skips updating the next frame.
 	 * 
 	 * This can be useful to avoid rendering a frame when the application is not in focus,
@@ -447,16 +435,26 @@ public:
 	 */
 	bool isSdlInitialized(){return (SDL_initialized);}
 
+	/**
+	 * @brief Checks if the Renderer is set to quit
+	 */
+	bool shouldQuit(){return quit;}
+
+	/**
+	 * @brief Sets the quit flag for the Renderer
+	 */
+	void setQuit(){quit=true;}
+
 private:
 	//------------------------------------------
 	// Boolean Status Variables
 	bool audioInitialized = false;
-	bool quit = false;
 	bool showFPS = true;			// Set default to false later on
 	bool skipUpdate = false;
 	bool skippedUpdateLastFrame = false;
 	bool headless = false;
 	bool SDL_initialized = false;
+	bool quit = false;			// Set to true when SDL_QUIT event is received or outside wants to quit
 
 	//------------------------------------------
 	// Audio

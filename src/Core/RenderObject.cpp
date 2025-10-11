@@ -17,7 +17,7 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 	// Linkages
 	this->globalSpace = globalSpace;
 	global = globalSpace->getDoc();
-	invoke = globalSpace->invoke.get();
+	invoke = globalSpace->getInvoke();
 
 	//------------------------------------------
 	// Document Values

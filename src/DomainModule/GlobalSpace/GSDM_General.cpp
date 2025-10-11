@@ -27,7 +27,7 @@ Nebulite::Constants::Error General::eval(int argc, char* argv[]){
     }
 
     // eval all $(...)
-    std::string args_evaled = domain->invoke->evaluateStandaloneExpression(args);
+    std::string args_evaled = domain->eval(args);
 
     // reparse
     return domain->parseStr(args_evaled);
@@ -60,7 +60,7 @@ Nebulite::Constants::Error General::exit(int argc, char* argv[]){
     domain->tasks.always.taskQueue.clear();
 
     // Set the renderer to quit
-    domain->getRenderer()->setQuit();
+    domain->quitRenderer();
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
@@ -204,7 +204,7 @@ Nebulite::Constants::Error General::func_if(int argc, char* argv[]) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
-    std::string result = domain->invoke->evaluateStandaloneExpression(argv[1]);
+    std::string result = domain->eval(argv[1]);
     double condition_potentially_nan = std::stod(result);
 
     bool condition = !isnan(condition_potentially_nan) && (condition_potentially_nan != 0);
@@ -259,7 +259,7 @@ Nebulite::Constants::Error General::func_assert(int argc, char* argv[]){
     }
 
     // Evaluate condition
-    if(!std::stod(domain->invoke->evaluateStandaloneExpression(condition))){
+    if(!std::stod(domain->eval(condition))){
         return Nebulite::Constants::ErrorTable::addError("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.", Nebulite::Constants::Error::CRITICAL);
     }
 
@@ -366,8 +366,8 @@ Nebulite::Constants::Error General::func_for(int argc, char* argv[]){
     if(argc > 4){
         std::string varName = argv[1];
 
-        int iStart = std::stoi(domain->invoke->evaluateStandaloneExpression(argv[2]));
-        int iEnd   = std::stoi(domain->invoke->evaluateStandaloneExpression(argv[3]));
+        int iStart = std::stoi(domain->eval(argv[2]));
+        int iEnd   = std::stoi(domain->eval(argv[3]));
 
         std::string args = "";
         for (int i = 4; i < argc; ++i) {

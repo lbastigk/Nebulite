@@ -29,7 +29,7 @@ Nebulite::Constants::Error Debug::eval(int argc, char* argv[]) {
     }
 
     // Evaulate with context of this RenderObject
-    std::string args_evaled = domain->getGlobalSpace()->invoke->evaluateStandaloneExpression(args, domain);
+    std::string args_evaled = domain->getGlobalSpace()->eval(args, domain);
 
     // reparse
     return domain->parseStr(args_evaled);

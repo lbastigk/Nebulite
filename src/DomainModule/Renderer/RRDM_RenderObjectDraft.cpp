@@ -1,7 +1,8 @@
-#include "DomainModule/GlobalSpace/GSDM_RenderObjectDraft.hpp"
+#include "DomainModule/Renderer/RRDM_RenderObjectDraft.hpp"
+#include "Core/Renderer.hpp"
 #include "Core/GlobalSpace.hpp"
 
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::DomainModule::Renderer {
 
 const std::string RenderObjectDraft::draft_name = "draft";
 const std::string RenderObjectDraft::draft_desc = R"(Functions to manipulate and spawn RenderObjects in draft state)";
@@ -45,9 +46,9 @@ Nebulite::Constants::Error RenderObjectDraft::draft_spawn(int argc, char* argv[]
     // Make a copy of the draft's serialized data
     // Create a new RenderObject on the heap and append it to the renderer
     std::string serial = draft.get()->serialize();
-    Nebulite::Core::RenderObject* newObj = new Nebulite::Core::RenderObject(domain);
+    Nebulite::Core::RenderObject* newObj = new Nebulite::Core::RenderObject(global);
     newObj->deserialize(serial);
-    domain->getRenderer()->append(newObj);
+    domain->append(newObj);
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string RenderObjectDraft::draft_spawn_name = "draft spawn";
@@ -60,7 +61,7 @@ Nebulite::Constants::Error RenderObjectDraft::draft_reset(int argc, char* argv[]
     if(argc != 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
-    Nebulite::Core::RenderObject newDraft(domain);
+    Nebulite::Core::RenderObject newDraft(global);
     draft.get()->deserialize(newDraft.serialize());
     return Nebulite::Constants::ErrorTable::NONE();
 }

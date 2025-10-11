@@ -19,7 +19,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::Texture::Rotation::rotate(int
     }
 
     // Get the SDL_Renderer
-    SDL_Renderer* renderer = domain->getGlobalSpace()->getSDLRenderer();
+    SDL_Renderer* renderer = domain->getGlobalSpace()->getSdlRenderer();
     if (renderer == nullptr) {
         return Nebulite::Constants::ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED();
     }

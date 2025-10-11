@@ -5,8 +5,8 @@ namespace Nebulite::DomainModule::GlobalSpace {
 
 Nebulite::Constants::Error Input::update() {
 	//------------------------------------------
-	// Only update if Renderer exists
-	if(domain->RendererExists()){
+	// Only update if SDL is initialized
+	if(domain->getRenderer()->isSdlInitialized()){
 		//------------------------------------------
 		// 2-Step Update of Input state
 

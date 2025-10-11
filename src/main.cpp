@@ -72,7 +72,7 @@ int main(int argc, char* argv[]){
     bool criticalStop = lastCriticalResult.isCritical();
 
     // Destroy renderer
-    if(globalSpace.RendererExists()) globalSpace.getRenderer()->destroy();
+    globalSpace.getRenderer()->destroy();
 
     // Inform user about any errors and return error code
     if(criticalStop){

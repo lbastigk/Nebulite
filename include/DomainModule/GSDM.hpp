@@ -15,7 +15,6 @@
     #include "DomainModule/GlobalSpace/GSDM_General.hpp"             // General functions like eval, exit, wait, etc.
     #include "DomainModule/GlobalSpace/GSDM_Debug.hpp"               // Debugging and logging functions
     #include "DomainModule/GlobalSpace/GSDM_Input.hpp"               // Input handling
-    #include "DomainModule/GlobalSpace/GSDM_RenderObjectDraft.hpp"   // Mock RenderObject for RenderObject functions in global space
 #endif
 //------------------------------------------
 namespace Nebulite{
@@ -35,7 +34,6 @@ void GSDM_init(Nebulite::Core::GlobalSpace* target){
         target->initModule<General>("Global General Functions");
         target->initModule<Debug>("Global Debug Functions");
         target->initModule<Input>("Global Input Functions");
-        target->initModule<RenderObjectDraft>("Global RenderObjectDraft Functions");
 
         //------------------------------------------
         // Time module relies on knowing if anything is locking the time

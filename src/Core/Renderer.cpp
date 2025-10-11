@@ -388,6 +388,7 @@ void Nebulite::Core::Renderer::purgeTextures() {
 }
 
 void Nebulite::Core::Renderer::destroy() {
+	if(!SDL_initialized)return;
     if (window) {
         SDL_DestroyWindow(window);
         window = nullptr;
@@ -500,7 +501,7 @@ void Nebulite::Core::Renderer::updateState(Nebulite::Interaction::Invoke* invoke
 	// Update environment
 	int dispResX = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
 	int dispResY = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
-	env.update(tileXpos,tileYpos,dispResX,dispResY,invoke_ptr);
+	env.update(tileXpos,tileYpos,dispResX,dispResY);
 }
 
 void Nebulite::Core::Renderer::renderFrame() {
