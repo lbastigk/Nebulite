@@ -61,69 +61,15 @@ int main(int argc, char* argv[]){
     
     //------------------------------------------
     // Render loop
-    bool queueParsed = false;   // Indicates if the task queue has been parsed on this frame render
-    bool criticalStop = false;  // Indicates if a critical stop has occurred
-    bool continueLoop = true;   // Determines if we continue the loop
     Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE(); // Last critical error result
     do {
-        // At least one loop, to handle taskQueues
-
-        //------------------------------------------
-        /**
-         * Parse queue in GlobalSpace.
-         * Result determines if a critical stop is initiated.
-         * 
-         * We do this once before rendering
-         * 
-         * @note For now, all tasks are parsed even if the program is in console mode.
-         *       This is useful as tasks like "spawn" or "echo" are directly executed.
-         *       But might break for more complex tasks, so this should be taken into account later on,
-         *       e.G. inside the GlobalSpace, checking state of Renderer might be useful
-         */
-        if(!queueParsed){
-            lastCriticalResult = globalSpace.parseQueue();
-            criticalStop = (lastCriticalResult != Nebulite::Constants::ErrorTable::NONE());
-            queueParsed = true;
-        }
-
-        //------------------------------------------
-        // Update and render, only if initialized
-        // If renderer wasnt initialized, it is still a nullptr
-        if (!criticalStop && globalSpace.RendererExists() && globalSpace.getRenderer()->timeToRender()) {
-            globalSpace.update();
-            bool didUpdate = globalSpace.getRenderer()->tick();
-
-            // Reduce script wait counter if not in console mode or other halting states
-            if(didUpdate){
-                if(globalSpace.scriptWaitCounter > 0) globalSpace.scriptWaitCounter--; 
-                if(globalSpace.scriptWaitCounter < 0) globalSpace.scriptWaitCounter = 0;
-            }  
-
-            // Frame was rendered, meaning we potentially have new tasks to process
-            queueParsed = false;
-        }
-
-        //------------------------------------------
-        // Check if we need to continue the loop
-        continueLoop = !criticalStop && globalSpace.RendererExists() && !globalSpace.getRenderer()->isQuit();
-
-        // Overwrite: If there is a wait operation and no renderer exists, 
-        // we need to continue the loop and decrease scriptWaitCounter
-        if(globalSpace.scriptWaitCounter > 0 && !globalSpace.RendererExists()){
-            continueLoop = true;
-            globalSpace.scriptWaitCounter--;
-
-            // Parse new tasks on next loop
-            queueParsed = false;
-        }
-    /**
-     * @note It might be tempting to add the condition that all tasks are done,
-     *       but this could cause issues if the user wishes to quit while a task is still running.
-     */
-    } while (continueLoop);
+        // At least one loop, to handle command line arguments
+        lastCriticalResult = globalSpace.update();
+    } while (globalSpace.shouldContinueLoop());
 
     //------------------------------------------
     // Exit
+    bool criticalStop = lastCriticalResult.isCritical();
 
     // Destroy renderer
     if(globalSpace.RendererExists()) globalSpace.getRenderer()->destroy();

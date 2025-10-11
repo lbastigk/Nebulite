@@ -34,13 +34,9 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
     Nebulite::DomainModule::GDM_init(this);
 
     //------------------------------------------
-    // Do first update
-    update();
-}
-
-void Nebulite::Core::GlobalSpace::update() {
-    //------------------------------------------
-    // Update Domain
+    // Update
+    // Cannot be done here directly, as GlobalSpace::update() requires command line arguments to be parsed first!
+    // Instead, we just update the inner modules and domains once
 
     // Update modules first
     updateModules();
@@ -49,8 +45,77 @@ void Nebulite::Core::GlobalSpace::update() {
     getDoc()->update();
 }
 
+Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
+    static bool queueParsed = false;   // Indicates if the task queue has been parsed on this frame render
+    static bool criticalStop = false;  // Indicates if a critical stop has occurred
+    Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE(); // Last critical error result
+
+    //------------------------------------------
+    /**
+     * Parse queue in GlobalSpace.
+     * Result determines if a critical stop is initiated.
+     * 
+     * We do this once before rendering
+     * 
+     * @note For now, all tasks are parsed even if the program is in console mode.
+     *       This is useful as tasks like "spawn" or "echo" are directly executed.
+     *       But might break for more complex tasks, so this should be taken into account later on,
+     *       e.G. inside the GlobalSpace, checking state of Renderer might be useful
+     */
+    if(!queueParsed){
+        lastCriticalResult = parseQueue();
+        criticalStop = (lastCriticalResult != Nebulite::Constants::ErrorTable::NONE());
+        queueParsed = true;
+    }
+
+    //------------------------------------------
+    // Update and render, only if initialized
+    // If renderer wasnt initialized, it is still a nullptr
+    if (!criticalStop && RendererExists() && getRenderer()->timeToRender()) {
+        // Update modules first
+        updateModules();
+
+        // Then, update inner domains
+        getDoc()->update();
+
+        // Update Renderer
+        bool didUpdate = getRenderer()->tick();
+
+        // Reduce script wait counter if not in console mode or other halting states
+        if(didUpdate){
+            if(scriptWaitCounter > 0) scriptWaitCounter--; 
+            if(scriptWaitCounter < 0) scriptWaitCounter = 0;
+        }  
+
+        // Frame was rendered, meaning we potentially have new tasks to process
+        queueParsed = false;
+    }
+
+    //------------------------------------------
+    // Check if we need to continue the loop
+    continueLoop = !criticalStop && RendererExists() && !getRenderer()->isQuit();
+
+    // Overwrite: If there is a wait operation and no renderer exists, 
+    // we need to continue the loop and decrease scriptWaitCounter
+    /**
+     * @note It might be tempting to add the condition that all tasks are done,
+     *       but this could cause issues if the user wishes to quit while a task is still running.
+     */
+    if(scriptWaitCounter > 0 && !RendererExists()){
+        continueLoop = true;
+        scriptWaitCounter--;
+
+        // Parse new tasks on next loop
+        queueParsed = false;
+    }
+
+    //------------------------------------------
+    // Return last critical result if there was a critical stop
+    return lastCriticalResult;
+}
+
 void Nebulite::Core::GlobalSpace::parseCommandLineArguments(int argc, char* argv[]){
-//------------------------------------------
+    //------------------------------------------
     // Add main args to taskList, split by ';'
     if (argc > 1) {
         std::ostringstream oss;
