@@ -41,13 +41,12 @@ public:
 	/**
 	 * @brief Initializes a Renderer with given dimensions and settings.
 	 * 
-	 * @param invoke Reference to the Nebulite::Interaction::Invoke instance.
-	 * @param global Reference to the global Nebulite::Utility::JSON instance.
-	 * @param flag_headless Boolean flag for headless mode.
+	 * @param globalSpace Reference to the globalspace
+	 * @param flag_headless Reference to the Boolean flag for headless mode.
 	 * @param X Width of the rendering area.
 	 * @param Y Height of the rendering area.
 	 */
-	Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool flag_headless = false, unsigned int X = 1080, unsigned int Y = 1080);
+	Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool* flag_headless, unsigned int X = 1080, unsigned int Y = 1080);
 
 	/**
 	 * @brief Initializes SDL and related subsystems.
@@ -452,9 +451,11 @@ private:
 	bool showFPS = true;			// Set default to false later on
 	bool skipUpdate = false;
 	bool skippedUpdateLastFrame = false;
-	bool headless = false;
 	bool SDL_initialized = false;
 	bool quit = false;			// Set to true when SDL_QUIT event is received or outside wants to quit
+
+	// External Flags
+	bool* headless = nullptr;
 
 	//------------------------------------------
 	// Audio

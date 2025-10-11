@@ -7,7 +7,7 @@
 Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
 : Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite", this, &global, this),
   global(this),
-  renderer(this),
+  renderer(this, &cmdVars.headless),
   invoke(this)
 {
     //------------------------------------------
@@ -31,6 +31,7 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
 
     // Link inherited Domains
     inherit<Nebulite::Utility::JSON>(&global);
+    inherit<Nebulite::Core::Renderer>(&renderer);
 
     // Initialize DomainModules
     Nebulite::DomainModule::GSDM_init(this);
@@ -257,21 +258,21 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
 
     // 2.) Parse script tasks
     queueResult.script = resolveTaskQueue(tasks.script, &scriptWaitCounter);
-    if(queueResult.script.stoppedAtCriticalResult && cmdVars.recover == "false") {
+    if(queueResult.script.stoppedAtCriticalResult && !cmdVars.recover) {
         lastCriticalResult = queueResult.script.errors.back();
         return lastCriticalResult;
     } 
 
     // 3.) Parse internal tasks
     queueResult.internal = resolveTaskQueue(tasks.internal, noWaitCounter);
-    if(queueResult.internal.stoppedAtCriticalResult && cmdVars.recover == "false") {
+    if(queueResult.internal.stoppedAtCriticalResult && !cmdVars.recover) {
         lastCriticalResult = queueResult.internal.errors.back();
         return lastCriticalResult;
     }
 
     // 4.) Parse always-tasks
     queueResult.always = resolveTaskQueue(tasks.always, noWaitCounter);
-    if(queueResult.always.stoppedAtCriticalResult && cmdVars.recover == "false") {
+    if(queueResult.always.stoppedAtCriticalResult && !cmdVars.recover) {
         lastCriticalResult = queueResult.always.errors.back();
         return lastCriticalResult;
     }

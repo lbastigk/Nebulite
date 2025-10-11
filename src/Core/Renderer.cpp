@@ -3,7 +3,7 @@
 #include "Core/GlobalSpace.hpp"
 #include "DomainModule/RRDM.hpp"
 
-Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool flag_headless, unsigned int X, unsigned int Y)
+Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool* flag_headless, unsigned int X, unsigned int Y)
 : 	Nebulite::Interaction::Execution::Domain<Nebulite::Core::Renderer>("Renderer", this, globalSpace->getDoc(), globalSpace),
 	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B")),
@@ -129,7 +129,7 @@ void Nebulite::Core::Renderer::initSDL() {
 	int h = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
 
 	uint32_t flags;
-	flags = headless ? SDL_WINDOW_HIDDEN : SDL_WINDOW_SHOWN;
+	flags = *headless ? SDL_WINDOW_HIDDEN : SDL_WINDOW_SHOWN;
 	//flags = flags | SDL_WINDOW_RESIZABLE; // Disabled for now, as it causes issues with the logical size rendering
 	flags = flags | SDL_WINDOW_OPENGL;
 	window = SDL_CreateWindow("Nebulite",x,y,w,h,flags);
@@ -240,22 +240,11 @@ bool Nebulite::Core::Renderer::tick(Nebulite::Interaction::Invoke* invoke_ptr) {
     }
 
 	//------------------------------------------
-	// Check if resolution changed
-	/*
-	int w = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
-	int h = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
-	int current_w, current_h;
-	SDL_GetWindowSize(window, &current_w, &current_h);
-	if (current_w != w || current_h != h) {
-		// Resolution changed, update internal state
-		getDoc()->set<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),current_w);
-		getDoc()->set<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),current_h);
-		
-		// Since tiles scale with resolution, we need to reinsert all objects
-		reinsertAllObjects();
-	}
-	*/
+	// Update modules
+	updateModules();
 
+	//------------------------------------------
+	// Manage frame skipping
 	skippedUpdateLastFrame = skipUpdate;
 	skipUpdate = false;
 	return !skippedUpdateLastFrame;

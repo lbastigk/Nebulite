@@ -11,7 +11,9 @@
 //------------------------------------------
 // Module includes 
 #if RRDM_ENABLED
-    //#include "DomainModule/Renderer/RRDM_Debug.hpp"
+    #include "DomainModule/Renderer/RRDM_General.hpp"
+    #include "DomainModule/Renderer/RRDM_Console.hpp"
+    #include "DomainModule/Renderer/RRDM_RenderObjectDraft.hpp"
 #endif
 
 //------------------------------------------
@@ -23,8 +25,10 @@ namespace DomainModule{
 void RRDM_init(Nebulite::Core::Renderer* target){
     #if RRDM_ENABLED
         // Initialize DomainModules
-        //using namespace Nebulite::DomainModule::Renderer;
-        //target->initModule<Debug>("Renderer Debug Functions");
+        using namespace Nebulite::DomainModule::Renderer;
+        target->initModule<General>("Renderer General Functions");
+        target->initModule<Console>("Renderer Console Functions");
+        target->initModule<RenderObjectDraft>("Renderer RenderObjectDraft Functions");
     #endif
 }
 }

@@ -1,5 +1,6 @@
 #include "DomainModule/Renderer/RRDM_Console.hpp"
 #include "Core/Renderer.hpp"
+#include "Core/GlobalSpace.hpp"
 
 namespace Nebulite::DomainModule::Renderer {
 
@@ -288,7 +289,8 @@ void Console::processEvents(){
                     case SDLK_RETURN:
                     case SDLK_KP_ENTER:
                         if(!textInput.getInputBuffer()->empty()){
-                            domain->parseStr(std::string(__FUNCTION__) + " " + textInput.submit() ); // Submit and parse command
+                            // Parse command on global level for full access to all functions
+                            global->parseStr(std::string(__FUNCTION__) + " " + textInput.submit() );
                         }
                         break;	
 

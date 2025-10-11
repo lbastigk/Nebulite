@@ -208,8 +208,8 @@ public:
     //------------------------------------------
     // DomainModule variables
     struct commandLineVariables{
-        std::string headless = "false"; // Headless mode (no window)
-        std::string recover = "false";  // Enable recoverable error mode
+        bool headless = false; // Headless mode (no window)
+        bool recover = false;  // Enable recoverable error mode
         /*Add more variables as needed*/
     };
     commandLineVariables cmdVars;

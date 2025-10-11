@@ -129,7 +129,7 @@ public:
      * 
      * A simple argument of '--varName' will set the value to "true"
      */
-    void bindVariable(std::string* variablePtr,const std::string& name, const std::string* helpDescription) {
+    void bindVariable(bool* variablePtr, const std::string& name, const std::string* helpDescription) {
         // Bind a variable to the FuncTree
         funcTree->bindVariable(variablePtr, name, helpDescription);
     }
