@@ -1,6 +1,7 @@
 #include "Core/Renderer.hpp"
 
 #include "Core/GlobalSpace.hpp"
+#include "DomainModule/RRDM.hpp"
 
 Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool flag_headless, unsigned int X, unsigned int Y)
 : 	Nebulite::Interaction::Execution::Domain<Nebulite::Core::Renderer>("Renderer", this, globalSpace->getDoc()),
@@ -171,6 +172,10 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 	// Start timers
 	fpsControlTimer.start();
 	fpsRenderTimer.start();
+
+	//------------------------------------------
+	// Domain Modules
+	Nebulite::DomainModule::RRDM_init(this);
 }
 
 void Nebulite::Core::Renderer::loadFonts() {

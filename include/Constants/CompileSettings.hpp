@@ -1,9 +1,11 @@
 /**
  * @file CompileSettings.hpp
- * @brief Compile-time settings for enabling/disabling domain modules and other features.
+ * @brief Compile-time settings for enabling/disabling domain modules.
  */
 
-#define RODM_ENABLED 1
-#define JSDM_ENABLED 1
 #define GSDM_ENABLED 1
+#define JSDM_ENABLED 1
+#define RODM_ENABLED 1
+#define RRDM_ENABLED 1
 #define TXDM_ENABLED 1
+
