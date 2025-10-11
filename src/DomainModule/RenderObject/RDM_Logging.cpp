@@ -8,10 +8,11 @@ const std::string Logging::log_desc = R"(Logging utilities)";
 
 //------------------------------------------
 // Update
-void Logging::update() {
+Nebulite::Constants::Error Logging::update() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 //------------------------------------------

@@ -3,13 +3,13 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-void Console::update(){
+Nebulite::Constants::Error Console::update(){
     //------------------------------------------
     // Prerequisites
 
-    // Requites renderer
+    // Requires renderer
     if(!domain->RendererExists()){
-        return; // No renderer, no console
+        return Nebulite::Constants::ErrorTable::NONE(); // Not counted as error if renderer doesn't exist
     }
 
     // Initialize font if not done yet
@@ -43,6 +43,10 @@ void Console::update(){
     //------------------------------------------
     // Processing
     processMode();
+
+    //------------------------------------------
+    // Return
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 void Console::renderConsole() {

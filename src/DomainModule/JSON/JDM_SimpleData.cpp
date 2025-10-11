@@ -5,11 +5,12 @@ namespace Nebulite::DomainModule::JSON {
 
 //------------------------------------------
 // Update
-void SimpleData::update() {
+Nebulite::Constants::Error SimpleData::update() {
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 //------------------------------------------

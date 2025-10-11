@@ -5,10 +5,11 @@ namespace Nebulite::DomainModule::RenderObject{
 
 //------------------------------------------
 // Update
-void Layout::update() {
+Nebulite::Constants::Error Layout::update() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 //------------------------------------------

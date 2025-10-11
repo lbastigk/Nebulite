@@ -166,7 +166,7 @@ public:
      * For implementing internal update-procedures 
      * on each new frame
      */
-    void update();
+    Nebulite::Constants::Error update();
 
     //----------------------------------------
     // Available Functions

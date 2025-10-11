@@ -75,7 +75,7 @@ namespace GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Communication){
 public:
-    void update();
+    Nebulite::Constants::Error update() override;
 
     //------------------------------------------
     // Connection Management

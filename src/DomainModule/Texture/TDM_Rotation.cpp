@@ -5,8 +5,9 @@
 
 namespace Nebulite::DomainModule::Texture {
 
-void Nebulite::DomainModule::Texture::Rotation::update() {
+Nebulite::Constants::Error Nebulite::DomainModule::Texture::Rotation::update() {
     // Nothing to do in update for rotation
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 Nebulite::Constants::Error Nebulite::DomainModule::Texture::Rotation::rotate(int argc, char* argv[]) {

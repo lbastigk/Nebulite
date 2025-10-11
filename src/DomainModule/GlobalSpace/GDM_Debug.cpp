@@ -25,10 +25,11 @@ With this function, GlobalSpace should not be able to initialize, as the functio
 
 //------------------------------------------
 // Update
-void Debug::update() {
+Nebulite::Constants::Error Debug::update() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 //------------------------------------------

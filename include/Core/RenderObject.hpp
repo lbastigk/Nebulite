@@ -193,7 +193,7 @@ public:
 	 * 
 	 * @param globalInvoke Pointer to the global invoke object
 	 */
-	void update() override;
+	Nebulite::Constants::Error update() override;
 
 	/**
 	 * @brief Calculates the text texture for the RenderObject.

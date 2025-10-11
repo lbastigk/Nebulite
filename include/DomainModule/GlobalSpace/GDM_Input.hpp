@@ -41,7 +41,7 @@ public:
      * @brief Updates the input states of mouse and keyboard 
      * stored in the global document by polling SDL events.
      */
-    void update();
+    Nebulite::Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions

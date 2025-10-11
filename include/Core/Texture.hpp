@@ -56,7 +56,7 @@ public:
     /**
      * @brief Updates the texture.
      */
-    void update() override;
+    Nebulite::Constants::Error update() override;
 
     /**
      * @brief Necessary operations before parsing commands.

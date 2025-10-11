@@ -33,7 +33,7 @@ public:
     /**
      * @brief Override of update.
      */
-    void update();
+    Nebulite::Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions

@@ -167,8 +167,10 @@ public:
 
     /**
      * @brief Updates the global space.
+     * 
+     * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    void update();
+    Nebulite::Constants::Error update();
 
     //------------------------------------------
     // Public Variables
@@ -211,9 +213,21 @@ public:
         rng.D.rollback();
     }
 
+    /**
+     * @brief Checks if the main loop should continue running.
+     * 
+     * @return True if the main loop should continue, false otherwise.
+     */
+    bool shouldContinueLoop() const { 
+        return continueLoop; 
+    };
+
 private:
     //------------------------------------------
     // General Variables
+
+    // Check if main loop should continue
+    bool continueLoop = true;
 
     // Global JSON Document
     Nebulite::Utility::JSON global;

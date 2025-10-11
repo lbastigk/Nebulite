@@ -10,7 +10,7 @@ const std::string Mirror::mirror_desc = R"(Mirror utilities for RenderObject to 
 
 //------------------------------------------
 // Update
-void Mirror::update() {
+Nebulite::Constants::Error Mirror::update() {
     if (mirrorEnabled || mirrorOnceEnabled) {
         // Values
         auto globalDoc = domain->getGlobalSpace()->getDoc();
@@ -22,6 +22,7 @@ void Mirror::update() {
         // Reset once-flag
         mirrorOnceEnabled = false;
     }
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 //------------------------------------------

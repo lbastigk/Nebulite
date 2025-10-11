@@ -52,7 +52,7 @@ public:
      * }
      * ```
      */
-    void update();
+    Nebulite::Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions

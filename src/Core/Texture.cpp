@@ -16,8 +16,11 @@ Nebulite::Core::Texture::Texture(Nebulite::Utility::JSON* doc, Nebulite::Core::G
     Nebulite::DomainModule::TDM_init(this);
 }
 
-void Nebulite::Core::Texture::update() {
+Nebulite::Constants::Error Nebulite::Core::Texture::update() {
     updateModules();
+
+    // No evaluation of previous lines for now, just return NONE
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 bool Nebulite::Core::Texture::copyTexture() {

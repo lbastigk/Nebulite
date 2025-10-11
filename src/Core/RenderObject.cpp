@@ -221,7 +221,7 @@ void Nebulite::Core::RenderObject::calculateSrcRect() {
 //------------------------------------------
 // Outside communication with invoke for updating and estimation
 
-void Nebulite::Core::RenderObject::update() {
+Nebulite::Constants::Error Nebulite::Core::RenderObject::update() {
 	//------------------------------------------
 	// Update modules and all inner domains
 	updateModules();
@@ -270,8 +270,10 @@ void Nebulite::Core::RenderObject::update() {
 			invoke->broadcast(entry);
 		}
     }else{
-		std::cerr << "Invoke is nullptr!" << std::endl;
+		return Nebulite::Constants::ErrorTable::RENDERER::CRITICAL_INVOKE_NULLPTR();
 	}
+	// No evaluation of domainModules for now, just return NONE
+	return Nebulite::Constants::ErrorTable::NONE();
 }
 
 uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyInternal) {

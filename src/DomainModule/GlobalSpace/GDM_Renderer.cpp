@@ -16,10 +16,11 @@ const std::string Renderer::env_desc = R"(Environment management functions)";
 
 //------------------------------------------
 // Update
-void Renderer::update() {
+Nebulite::Constants::Error Renderer::update() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 //------------------------------------------

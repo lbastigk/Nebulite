@@ -76,7 +76,7 @@ public:
     /**
      * @brief Virtual update function to be Overwridden by derived classes.
      */
-    virtual void update() = 0;
+    virtual Nebulite::Constants::Error update() { return Nebulite::Constants::ErrorTable::NONE(); };
 
     /**
      * @brief Binds a member function to the FuncTree.

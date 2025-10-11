@@ -31,7 +31,7 @@ namespace GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, General) {
 public:
-    void update();
+    Nebulite::Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions

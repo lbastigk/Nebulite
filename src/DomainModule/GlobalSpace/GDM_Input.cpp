@@ -3,7 +3,7 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-void Input::update() {
+Nebulite::Constants::Error Input::update() {
 	//------------------------------------------
 	// Only update if Renderer exists
 	if(domain->RendererExists()){
@@ -34,6 +34,7 @@ void Input::update() {
 			reset_delta_on_next_update = true;
 		}
 	}
+	return Nebulite::Constants::ErrorTable::NONE();
 }
 
 //------------------------------------------

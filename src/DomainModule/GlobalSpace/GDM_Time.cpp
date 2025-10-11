@@ -7,7 +7,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
 const std::string Time::time_name = "time";
 const std::string Time::time_desc = R"(Commands for time management)";
 
-void Time::update() {
+Nebulite::Constants::Error Time::update() {
     //------------------------------------------
     // Full time (runtime)
 
@@ -58,6 +58,9 @@ void Time::update() {
         domain->getRenderer()->skipUpdateNextFrame();
     }
     haltThisFrame = false;
+
+    // Ignoring results for now, just return NONE
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 Nebulite::Constants::Error Time::time_haltOnce(int argc, char** argv){

@@ -6,7 +6,12 @@ namespace Nebulite::DomainModule::GlobalSpace {
 const std::string RenderObjectDraft::draft_name = "draft";
 const std::string RenderObjectDraft::draft_desc = R"(Functions to manipulate and spawn RenderObjects in draft state)";
 
-void RenderObjectDraft::update() {}
+Nebulite::Constants::Error RenderObjectDraft::update() { 
+    // Add Domain-specific updates here!
+    // General rule:
+    // This is used to update all variables/states that are INTERNAL ONLY
+    return Nebulite::Constants::ErrorTable::NONE();
+}
 
 Nebulite::Constants::Error RenderObjectDraft::draft_parse(int argc, char* argv[]) {
     if(argc < 2){

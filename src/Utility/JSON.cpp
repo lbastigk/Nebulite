@@ -1,6 +1,7 @@
 #include "Utility/JSON.hpp"
 
 #include "DomainModule/JDM.hpp"
+#include "Constants/ErrorTypes.hpp"
 #include <vector>
 
 Nebulite::Utility::JSON::JSON()
@@ -78,10 +79,11 @@ const std::string Nebulite::Utility::JSON::reservedCharacters = "[]{}.,";
 // Domain-specific methods
 
 
-void Nebulite::Utility::JSON::update(){
+Nebulite::Constants::Error Nebulite::Utility::JSON::update(){
     // Used once domain is fully set up
     std::lock_guard<std::recursive_mutex> lock(mtx);
     updateModules();
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 //------------------------------------------

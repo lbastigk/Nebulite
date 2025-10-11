@@ -5,8 +5,9 @@
 
 namespace Nebulite::DomainModule::Texture {
 
-void Nebulite::DomainModule::Texture::General::update() {
+Nebulite::Constants::Error Nebulite::DomainModule::Texture::General::update() {
     // No periodic updates needed for general functions
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 Nebulite::Constants::Error Nebulite::DomainModule::Texture::General::reloadTexture(int argc, char* argv[]) {

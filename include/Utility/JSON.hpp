@@ -135,7 +135,7 @@ public:
     //------------------------------------------
     // Domain-specific methods
 
-    void update() override;
+    Nebulite::Constants::Error update() override;
 
     //------------------------------------------
     // Set methods

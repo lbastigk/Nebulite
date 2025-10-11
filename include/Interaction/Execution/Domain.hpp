@@ -103,12 +103,9 @@ public:
     /**
      * @brief Updates the domain.
      * 
-     * @todo should also return type Nebulite::Constants::Error
+     * On overwriting, make sure to update all subdomains and domainmodules as well.
      */
-    virtual void update(){
-        // We cannot directly access the potential subdomain JSON here,
-        // so this function needs to be overwritten in the derived class.
-    }
+    virtual Nebulite::Constants::Error update(){return Nebulite::Constants::ErrorTable::NONE();};
 
     //------------------------------------------
     // Getting private members

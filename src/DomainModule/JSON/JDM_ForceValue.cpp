@@ -9,13 +9,14 @@ const std::string ForceValue::force_desc = R"(Subtree for forcing variables to s
 This is useful for testing or overriding configuration values.
 )";
 
-void ForceValue::update(){
+Nebulite::Constants::Error ForceValue::update(){
     // This might not be enough, as between updates, that value might be changed again.
     // But its a good start.
     // Perhaps later on it's good to find a way to lock values directly in the JSON document?
     for (const auto& [key, value] : forced_global_values) {
         domain->set(key, value);
     }
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 Nebulite::Constants::Error ForceValue::force_set(int argc, char* argv[]) {

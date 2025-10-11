@@ -5,8 +5,9 @@
 
 namespace Nebulite::DomainModule::Texture{
 
-void Nebulite::DomainModule::Texture::Fill::update() {
+Nebulite::Constants::Error Nebulite::DomainModule::Texture::Fill::update() {
     // Nothing to do in update for fill
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 Nebulite::Constants::Error Nebulite::DomainModule::Texture::Fill::fill(int argc, char* argv[]) {
