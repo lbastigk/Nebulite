@@ -60,7 +60,7 @@ Nebulite::Constants::Error ComplexData::json_set(int argc, char* argv[]){
     if(file.empty()){
         return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
-    Nebulite::Utility::JSON jsonDoc;
+    Nebulite::Utility::JSON jsonDoc(global);
     jsonDoc.deserialize(link.c_str());
     
     // Depending on the type of docKey, we retrieve the value

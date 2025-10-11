@@ -16,6 +16,8 @@ namespace Nebulite {
 Nebulite::Core::Environment::Environment(Nebulite::Core::GlobalSpace* globalSpace)
 	: roc(make_roc_array(globalSpace, std::make_index_sequence<Nebulite::Core::Environment::LayerCount>{}))
 {
+	this->globalSpace = globalSpace;
+
 	// Storing pointer copy for easy access of global document
 	global = globalSpace->getDoc();
 }
@@ -26,7 +28,7 @@ Nebulite::Core::Environment::Environment(Nebulite::Core::GlobalSpace* globalSpac
 // Marshalling
 
 std::string Nebulite::Core::Environment::serialize() {
-	Nebulite::Utility::JSON doc;
+	Nebulite::Utility::JSON doc(globalSpace);
 
 	// Serialize each container and add to the document
 	for (int i = 0; i < Nebulite::Core::Environment::LayerCount; i++) {
@@ -34,7 +36,7 @@ std::string Nebulite::Core::Environment::serialize() {
 		std::string serializedContainer = roc[i].serialize();
 
 		// Add the container JSON object to the main document
-		Nebulite::Utility::JSON layer;
+		Nebulite::Utility::JSON layer(globalSpace);
 		layer.deserialize(serializedContainer);
 		doc.set_subdoc(key.c_str(), &layer);
 	}
@@ -42,7 +44,7 @@ std::string Nebulite::Core::Environment::serialize() {
 }
 
 void Nebulite::Core::Environment::deserialize(std::string serialOrLink, int dispResX,int dispResY) {
-	Nebulite::Utility::JSON file;
+	Nebulite::Utility::JSON file(globalSpace);
 	file.deserialize(serialOrLink);
 
 	// Getting all layers

@@ -41,6 +41,13 @@ namespace Nebulite{
         namespace GlobalSpace{}
 
         /**
+         * @namespace Nebulite::DomainModule::Renderer
+         * @brief Contains all classes, functions, types and variables related to the Renderer DomainModules.
+         * See files `Renderer.hpp`, `RRDM.hpp` and `RRDM_*.hpp` for usage.
+         */
+        namespace Renderer{}
+
+        /**
          * @namespace Nebulite::DomainModule::RenderObject
          * @brief Contains all classes, functions, types and variables related to the RenderObject DomainModules.
          * See files `RenderObject.hpp`, `RODM.hpp` and `RODM_*.hpp` for usage.

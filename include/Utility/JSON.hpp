@@ -114,8 +114,13 @@ private:
      */
     void flush();
 
+    /**
+     * @brief Link to the global space.
+     */
+    Nebulite::Core::GlobalSpace* global;
+
 public:
-    JSON();
+    JSON(Nebulite::Core::GlobalSpace* globalSpace);
 
     ~JSON();
 

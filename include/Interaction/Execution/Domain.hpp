@@ -24,6 +24,14 @@
 // Forward declarations
 
 namespace Nebulite{
+    namespace Core{
+        // we cannot include GlobalSpace directly due to circular dependencies,
+        // as GlobalSpace itself is a Domain.
+        class GlobalSpace;
+    } 
+    /**
+     * @todo Is this necessary?
+     */
     namespace Interaction{
         class Invoke;
     }
@@ -56,8 +64,8 @@ template<typename DomainType>
 class Domain{
     template<typename> friend class Domain;  // All Domain<T> instantiations are friends, so we can access each other's private members
 public:
-    Domain(std::string domainName, DomainType* domain, Nebulite::Utility::JSON* doc)
-    : domainName(domainName), domain(domain), doc(doc)
+    Domain(std::string domainName, DomainType* domain, Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* global)
+    : domainName(domainName), domain(domain), doc(doc), global(global)
     {
         funcTree = new Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>( 
                 domainName, 
@@ -74,7 +82,7 @@ public:
      */
     template<typename DomainModuleType>
     void initModule(std::string moduleName) {
-        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, funcTree);
+        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, funcTree, global);
         modules.push_back(std::move(DomainModule));
     }
 
@@ -198,6 +206,14 @@ public:
         return funcTree->getLastParsedString();
     }
 
+    Nebulite::Utility::JSON* getDoc(){
+        return doc;
+    }
+
+    Nebulite::Core::GlobalSpace* getGlobalSpace() const {
+        return global;
+    }
+
 private:
     /**
      * @brief The name of the domain.
@@ -225,6 +241,11 @@ private:
      * Meaning the internal JSON doc references to itself.
      */
     Nebulite::Utility::JSON* const doc;
+
+    /**
+     * @brief Pointer to the globalspace, for accessing global resources and management functions.
+     */
+    Nebulite::Core::GlobalSpace* const global;
 };
 }   // namespace Execution
 }   // namespace Interaction

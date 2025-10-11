@@ -1,16 +1,11 @@
-#include "DomainModule/GlobalSpace/GSDM_Console.hpp"
-#include "Core/GlobalSpace.hpp"
+#include "DomainModule/Renderer/RRDM_Console.hpp"
+#include "Core/Renderer.hpp"
 
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::DomainModule::Renderer {
 
 Nebulite::Constants::Error Console::update(){
     //------------------------------------------
     // Prerequisites
-
-    // Requires renderer
-    if(!domain->RendererExists()){
-        return Nebulite::Constants::ErrorTable::NONE(); // Not counted as error if renderer doesn't exist
-    }
 
     // Initialize font if not done yet
     if(!initialized){
@@ -19,7 +14,7 @@ Nebulite::Constants::Error Console::update(){
 
     //------------------------------------------
     // Toggle
-    events = domain->getRenderer()->getEventHandles();
+    events = domain->getEventHandles();
 
     // Toggling console mode
     bool consoleToggle = domain->getDoc()->get<int>(toggleKey.c_str(),0) == 1;
@@ -205,9 +200,9 @@ void Console::init(){
     //--------------------------------------------------
     // References
 
-    consoleFont = domain->getRenderer()->getStandardFont();
-    renderer = domain->getSDLRenderer();
-    invoke = domain->invoke.get();
+    consoleFont = domain->getStandardFont();
+    renderer = domain->getSdlRenderer();
+    invoke = domain->getInvoke();
     globalDoc = invoke->getGlobalPointer();
 
     //--------------------------------------------------
@@ -333,7 +328,7 @@ void Console::processMode(){
         }
 
         // Attach texture above UI layer
-        (void)domain->getRenderer()->attachTextureAboveLayer(
+        (void)domain->attachTextureAboveLayer(
             Nebulite::Core::Environment::Layer::UI,
             "console_overlay", 
             consoleTexture.texture_ptr,
@@ -341,11 +336,11 @@ void Console::processMode(){
         );
 
         // Skip updating the renderer for this frame, as we are in console mode
-        domain->getRenderer()->skipUpdateNextFrame(); 
+        domain->skipUpdateNextFrame(); 
     }
     else{
         // Clear texture and detach
-        (void)domain->getRenderer()->detachTextureAboveLayer(
+        (void)domain->detachTextureAboveLayer(
             Nebulite::Core::Environment::Layer::UI,
             "console_overlay"
         );

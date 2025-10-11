@@ -91,9 +91,9 @@ public:
     /**
      * @brief Constructs an Invoke object.
      * 
-     * @param globalDocPtr Pointer to the global JSON document.
+     * @param globalSpace Pointer to the global space.
      */
-    Invoke(Nebulite::Utility::JSON* globalDocPtr);
+    Invoke(Nebulite::Core::GlobalSpace* globalSpace);
 
     /**
      * @brief Destructor - stops worker threads.
@@ -118,7 +118,7 @@ public:
     /**
      * @brief Gets the global JSON document pointer.
      */
-    Nebulite::Utility::JSON* getGlobalPointer(){return global;};
+    Nebulite::Utility::JSON* getGlobalPointer(){return globalDoc;};
     
     //------------------------------------------
     // Send/Listen
@@ -287,10 +287,13 @@ private:
     //------------------------------------------
     // General Variables
 
+    // Link to globalspace
+    Nebulite::Core::GlobalSpace* global = nullptr;
+
     // Documents
     Nebulite::Utility::DocumentCache docCache;
-    Nebulite::Utility::JSON* emptyDoc = new Nebulite::Utility::JSON();  // Linking an empty doc is needed for some functions
-    Nebulite::Utility::JSON* global = nullptr;                 // Linkage to global doc
+    Nebulite::Utility::JSON* emptyDoc = new Nebulite::Utility::JSON(global);    // Linking an empty doc is needed for some functions
+    Nebulite::Utility::JSON* globalDoc = nullptr;                               // Linkage to global doc
 
     // pointer to queue
     std::deque<std::string>* tasks = nullptr; 

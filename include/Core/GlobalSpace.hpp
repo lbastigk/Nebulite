@@ -124,31 +124,6 @@ public:
     std::deque<std::string>* getTaskQueue(){return &tasks.script.taskQueue;};
 
     /**
-     * @brief Allows for access to the Renderer instance
-     *
-     * This function retrieves the renderer instance, creating it if it doesn't already exist.
-     *
-     * @return A pointer to the Renderer instance.
-     */
-    Nebulite::Core::Renderer* getRenderer();
-
-    /**
-     * @brief Allows for access to the SDL_Renderer instance
-     *
-     * This function retrieves the SDL_Renderer instance, creating it if it doesn't already exist.
-     *
-     * @return A pointer to the SDL_Renderer instance.
-     */
-    SDL_Renderer* getSDLRenderer();
-
-    /**
-     * @brief Checks if the renderer instance exists.
-     * 
-     * @return True if the renderer exists, false otherwise.
-     */
-    bool RendererExists();
-
-    /**
      * @brief Resolves a task queue by parsing each task and executing it.
      * 
      * @param tq The task queue to resolve.
@@ -191,9 +166,6 @@ public:
     // Error Table for error descriptions
     Nebulite::Constants::ErrorTable errorTable;
 
-    // Invoke Object for parsing expressions etc.
-    std::unique_ptr<Nebulite::Interaction::Invoke> invoke;
-
     //------------------------------------------
     // DomainModule variables
     struct commandLineVariables{
@@ -231,6 +203,12 @@ private:
 
     // Global JSON Document
     Nebulite::Utility::JSON global;
+
+    // Renderer
+    Nebulite::Core::Renderer renderer;
+
+    // Invoke Object for parsing expressions etc.
+    Nebulite::Interaction::Invoke invoke;
 
     //------------------------------------------
     // Structs
@@ -287,25 +265,6 @@ private:
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
     Nebulite::Constants::Error updateInnerDomains();
-
-    //------------------------------------------
-    // Objects
-
-    /**
-     * @brief Pointer to the renderer instance.
-     * 
-     * This pointer is used to access the renderer for drawing operations.
-     * It is initialized on first use via getRenderer(), all access is through this function.
-     * 
-     * Due to the way the renderer is initialized, the object is marked as private.
-     * Under no circumstances should processes try to access the renderer directly!
-     */
-    std::unique_ptr<Nebulite::Core::Renderer> renderer;
-
-    /**
-     * @brief Flag indicating whether the renderer has been initialized.
-     */
-    bool rendererInitialized = false;
 };
 }   // namespace Core
 }   // namespace Nebulite

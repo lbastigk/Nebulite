@@ -239,7 +239,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
     // Iterate through all entries
     for (int i = 0; i < size; ++i) {
         // Parse entry into separate JSON object
-        Nebulite::Utility::JSON entry;
+        Nebulite::Utility::JSON entry(self->getGlobalSpace());
         if (!RulesetCompiler::getRuleset(*doc, entry, i)) {
             std::cerr << "Failed to get invoke entry at index " << i << std::endl;
             continue; // Skip this entry

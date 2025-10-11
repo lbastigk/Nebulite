@@ -4,7 +4,8 @@
 #include "Core/GlobalSpace.hpp"
 
 Nebulite::Core::Texture::Texture(Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* globalSpace) 
-: Nebulite::Interaction::Execution::Domain<Texture>("Texture",this,doc), globalSpace(globalSpace)
+: globalSpace(globalSpace),
+  Nebulite::Interaction::Execution::Domain<Texture>("Texture", this, doc, globalSpace)
 {
     // Start with no texture
     texture  = nullptr;

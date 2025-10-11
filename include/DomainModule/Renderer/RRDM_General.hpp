@@ -1,8 +1,8 @@
 /**
- * @file GSDM_Renderer.hpp
+ * @file RRDM_General.hpp
  * @brief Provides rendering utilities for the Nebulite engine.
  *
- * This file contains a GlobalTree DomainModule for basic rendering-related functioncalls.
+ * This file contains a DomainModule for basic rendering-related functioncalls.
  */
 
 #pragma once
@@ -18,7 +18,7 @@
 // Forward declarations
 namespace Nebulite{
     namespace Core{
-        class GlobalSpace; // Forward declaration of domain class GlobalSpace
+        class Renderer;     // Forward declaration of domain class Renderer
         class RenderObject; // Forward declaration of RenderObject
     }
 }
@@ -26,12 +26,12 @@ namespace Nebulite{
 //------------------------------------------
 namespace Nebulite {
 namespace DomainModule {
-namespace GlobalSpace {
+namespace Renderer {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::Renderer
+ * @class Nebulite::DomainModule::Renderer::General
  * @brief Basic Renderer-Related Functions
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Renderer) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, General) {
 public:
     /**
      * @brief The Renderer DomainModule does not make use of any Render-Updates yet. This function is empty.
@@ -271,25 +271,25 @@ public:
      * This will declutter the globalspace, separating its usage from the Renderer and Environment.
      * The only downside currently is that we have to implement a method to lazy-init the SDL Renderer within the Renderer domain itself.
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Renderer){
-        bindFunction(&Renderer::spawn,               spawn_name,            &spawn_desc);
-        bindFunction(&Renderer::setResolution,       setResolution_name,      &setResolution_desc);
-        bindFunction(&Renderer::setFPS,              setFPS_name,            &setFPS_desc);
-        bindFunction(&Renderer::showFPS,             showFPS_name,          &showFPS_desc);
-        bindFunction(&Renderer::snapshot,            snapshot_name,         &snapshot_desc);
-        bindFunction(&Renderer::beep,                beep_name,             &beep_desc);
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, General){
+        bindFunction(&General::spawn,               spawn_name,            &spawn_desc);
+        bindFunction(&General::setResolution,       setResolution_name,    &setResolution_desc);
+        bindFunction(&General::setFPS,              setFPS_name,           &setFPS_desc);
+        bindFunction(&General::showFPS,             showFPS_name,          &showFPS_desc);
+        bindFunction(&General::snapshot,            snapshot_name,         &snapshot_desc);
+        bindFunction(&General::beep,                beep_name,             &beep_desc);
 
         bindSubtree(cam_name, &cam_desc);
-        bindFunction(&Renderer::cam_move,             cam_move_name,         &cam_move_desc);
-        bindFunction(&Renderer::cam_set,              cam_set_name,          &cam_set_desc);
+        bindFunction(&General::cam_move,             cam_move_name,         &cam_move_desc);
+        bindFunction(&General::cam_set,              cam_set_name,          &cam_set_desc);
 
         bindSubtree(selectedObject_name, &selectedObject_desc);
-        bindFunction(&Renderer::selectedObject_get,   selectedObject_get_name,   &selectedObject_get_desc);
-        bindFunction(&Renderer::selectedObject_Parse, selectedObject_Parse_name, &selectedObject_Parse_desc);
+        bindFunction(&General::selectedObject_get,   selectedObject_get_name,   &selectedObject_get_desc);
+        bindFunction(&General::selectedObject_Parse, selectedObject_Parse_name, &selectedObject_Parse_desc);
 
         bindSubtree(env_name, &env_desc);
-        bindFunction(&Renderer::env_load,             env_load_name,         &env_load_desc);
-        bindFunction(&Renderer::env_deload,           env_deload_name,       &env_deload_desc);
+        bindFunction(&General::env_load,             env_load_name,         &env_load_desc);
+        bindFunction(&General::env_deload,           env_deload_name,       &env_deload_desc);
     }
 
 private:

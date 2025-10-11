@@ -49,6 +49,16 @@ public:
 	 */
 	Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool flag_headless = false, unsigned int X = 1080, unsigned int Y = 1080);
 
+	/**
+	 * @brief Initializes SDL and related subsystems.
+	 */
+	void initSDL();
+
+	/**
+	 * @brief Called before parsing any commands.
+	 */
+	Nebulite::Constants::Error preParse() override;
+
 	//------------------------------------------
 	// Serialization / Deserialization
 
@@ -69,8 +79,8 @@ public:
 	void deserialize(std::string serialOrLink){
 		env.deserialize(
 			serialOrLink, 
-			invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
-			invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0)
+			getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
+			getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0)
 		);
 	}
 
@@ -94,9 +104,10 @@ public:
 	 * 
 	 * - manages state for next frame
 	 * 
+	 * @param invoke_ptr Pointer to the current Invoke instance.
 	 * @return True if update was done, false if skipped (e.g. console mode).
 	 */
-	bool tick();
+	bool tick(Nebulite::Interaction::Invoke* invoke_ptr);
 
 	/**
 	 * @brief Checks if it's time to render the next frame based on the target FPS.
@@ -316,14 +327,14 @@ public:
 	 * 
 	 * @return The current resolution in the X direction.
 	 */
-	int getResX(){return invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);}
+	int getResX(){return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX,0);}
 
 	/**
 	 * @brief Gets the current resolution in the Y direction.
 	 * 
 	 * @return The current resolution in the Y direction.
 	 */
-	int getResY(){return invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);}
+	int getResY(){return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY,0);}
 
 	/**
 	 * @brief Gets the current FPS.
@@ -339,7 +350,7 @@ public:
 	 * 
 	 * @return The current position of the camera in the X direction.
 	 */
-	int getPosX(){return invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);}
+	int getPosX(){return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);}
 
 	/**
 	 * @brief Gets the current position of the camera in the Y direction.
@@ -348,7 +359,7 @@ public:
 	 * 
 	 * @return The current position of the camera in the Y direction.
 	 */
-	int getPosY(){return invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);}
+	int getPosY(){return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);}
 
 	/**
 	 * @brief Gets the current tile position of the camera in the X direction.
@@ -376,14 +387,6 @@ public:
 	 * @return The SDL_Renderer instance.
 	 */
 	SDL_Renderer* getSdlRenderer(){return renderer;}
-
-	/**
-	 * @brief Gets the Invoke instance.
-	 * 
-	 * Allows for access to the underlying Invoke instance for custom operations.
-	 * 
-	 */
-	Nebulite::Interaction::Invoke* getInvoke(){return invoke_ptr;}
 
 	/**
 	 * @brief Gets the RenderObject from its ID.
@@ -436,6 +439,14 @@ public:
 	 */
 	SDL_Texture* loadTextureToMemory(std::string link);
 
+	//------------------------------------------
+	// Status
+
+	/**
+	 * @brief Checks if the Renderer is initialized
+	 */
+	bool isSdlInitialized(){return (SDL_initialized);}
+
 private:
 	//------------------------------------------
 	// Boolean Status Variables
@@ -444,6 +455,8 @@ private:
 	bool showFPS = true;			// Set default to false later on
 	bool skipUpdate = false;
 	bool skippedUpdateLastFrame = false;
+	bool headless = false;
+	bool SDL_initialized = false;
 
 	//------------------------------------------
 	// Audio
@@ -474,7 +487,6 @@ private:
 
 	// Custom Subclasses
 	Environment env;
-	Nebulite::Interaction::Invoke* invoke_ptr = nullptr;	
 
 	// Rendering
 	unsigned int WindowScale = 1;
@@ -525,8 +537,10 @@ private:
 	 * - updates the invoke instance
 	 * 
 	 * - updates the environment
+	 * 
+	 * @param invoke_ptr Pointer to the current Invoke instance.
 	 */
-	void updateState();
+	void updateState(Nebulite::Interaction::Invoke* invoke_ptr);
 
 	/**
 	 * @brief Renders the current frame.

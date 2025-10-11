@@ -4,8 +4,8 @@
 #include "Constants/ErrorTypes.hpp"
 #include <vector>
 
-Nebulite::Utility::JSON::JSON()
-: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this)
+Nebulite::Utility::JSON::JSON(Nebulite::Core::GlobalSpace* globalSpace)
+: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, globalSpace)
 {
     std::lock_guard<std::recursive_mutex> lock(mtx);
     doc.SetObject();
@@ -19,7 +19,7 @@ Nebulite::Utility::JSON::~JSON(){
 }
 
 Nebulite::Utility::JSON::JSON(JSON&& other) noexcept
-: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this)
+: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, other.global)
 {
     std::scoped_lock lock(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);
@@ -98,13 +98,13 @@ Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(const char* key){
     rapidjson::Value* keyVal = Nebulite::Utility::RjDirectAccess::traverse_path(key,doc);
     if(keyVal != nullptr){
         // turn keyVal to doc
-        Nebulite::Utility::JSON json;
+        Nebulite::Utility::JSON json(global);
         json.doc.CopyFrom(*keyVal,json.doc.GetAllocator());
         return json;
     }
     else{
         // Return empty doc
-        return Nebulite::Utility::JSON(); 
+        return Nebulite::Utility::JSON(global);
     }
 }
 

@@ -23,19 +23,19 @@
 // Forward declarations
 namespace Nebulite{
     namespace Core{
-        class GlobalSpace; // Forward declaration of domain class GlobalSpace
+        class Renderer; // Forward declaration of domain class GlobalSpace
     }
 }
 
 //------------------------------------------
 namespace Nebulite {
 namespace DomainModule {
-namespace GlobalSpace {
+namespace Renderer {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::Console
- * @brief DomainModule for Consoleging capabilities within the GlobalSpace.
+ * @class Nebulite::DomainModule::Renderer::Console
+ * @brief DomainModule for Console capabilities within the Renderer.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Console) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Console) {
 public:
     /**
      * @brief Override of update.
@@ -53,7 +53,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Console){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Console){
         // we cannot do much here, since renderer might not be initialized yet
         // so we do the actual initialization in update() when needed
     }

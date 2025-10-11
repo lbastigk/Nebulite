@@ -5,17 +5,18 @@
 
 
 Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
-: Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite", this, &global)
+: Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite", this, &global, this),
+  global(this),
+  renderer(this),
+  invoke(this)
 {
     //------------------------------------------
     // Modify structs                         
     tasks.always.clearAfterResolving = false;
 
     //------------------------------------------
-    // Objects and linkages 
-    renderer = nullptr; // Uninitialized
-    invoke = std::make_unique<Nebulite::Interaction::Invoke>(&global);
-    invoke->linkTaskQueue(tasks.internal.taskQueue);
+    // Subdomains
+    invoke.linkTaskQueue(tasks.internal.taskQueue);                // @todo: do this linkage inside the invoke constructor!
 
     //------------------------------------------
     // General Variables
@@ -81,7 +82,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
     //------------------------------------------
     // Update and render, only if initialized
     // If renderer wasnt initialized, it is still a nullptr
-    if (!criticalStop && RendererExists() && getRenderer()->timeToRender()) {
+    if (!criticalStop && renderer.isSdlInitialized() && renderer.timeToRender()) {
         // Update modules first
         updateModules();
 
@@ -89,7 +90,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
         updateInnerDomains();
 
         // Update Renderer
-        bool didUpdate = getRenderer()->tick();
+        bool didUpdate = renderer.tick(&invoke);
 
         // Reduce script wait counter if not in console mode or other halting states
         if(didUpdate){
@@ -103,7 +104,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
 
     //------------------------------------------
     // Check if we need to continue the loop
-    continueLoop = !criticalStop && RendererExists() && !getRenderer()->isQuit();
+    continueLoop = !criticalStop && renderer.isSdlInitialized() && !renderer.isQuit();
 
     // Overwrite: If there is a wait operation and no renderer exists, 
     // we need to continue the loop and decrease scriptWaitCounter
@@ -111,7 +112,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
      * @note It might be tempting to add the condition that all tasks are done,
      *       but this could cause issues if the user wishes to quit while a task is still running.
      */
-    if(scriptWaitCounter > 0 && !RendererExists()){
+    if(scriptWaitCounter > 0 && !renderer.isSdlInitialized()){
         continueLoop = true;
         scriptWaitCounter--;
 
@@ -185,23 +186,6 @@ void Nebulite::Core::GlobalSpace::parseCommandLineArguments(int argc, char* argv
          */
         tasks.script.taskQueue.push_back(std::string("set-fps 60"));
     }
-}
-
-Nebulite::Core::Renderer* Nebulite::Core::GlobalSpace::getRenderer() {
-    if (!rendererInitialized) {
-        renderer = std::make_unique<Nebulite::Core::Renderer>(this, cmdVars.headless == "true");
-        renderer->setTargetFPS(60); // Standard value for a fresh renderer
-        rendererInitialized = true;
-    }
-    return renderer.get();
-}
-
-SDL_Renderer* Nebulite::Core::GlobalSpace::getSDLRenderer() {
-    return getRenderer()->getSdlRenderer();
-}
-
-bool Nebulite::Core::GlobalSpace::RendererExists(){
-    return rendererInitialized;
 }
 
 Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t* waitCounter){
@@ -302,8 +286,8 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::preParse() {
 
     // Update RNGs
     // Disabled if renderer skipped update last frame, active otherwise
-    bool RNG_update_enabled = rendererInitialized && getRenderer()->hasSkippedUpdate() == false;
-    RNG_update_enabled |= !rendererInitialized; // If renderer is not initialized, we always update RNGs
+    bool RNG_update_enabled = renderer.isSdlInitialized() && renderer.hasSkippedUpdate() == false;
+    RNG_update_enabled |= !renderer.isSdlInitialized(); // If renderer is not initialized, we always update RNGs
     if(RNG_update_enabled){
         std::string seed = getLastParsedString();
         updateRNGs(seed);

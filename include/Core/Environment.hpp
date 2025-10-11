@@ -214,6 +214,9 @@ private:
 	// Link to Global Values
     Nebulite::Utility::JSON* global;
 
+	// Link to GlobalSpace
+	Nebulite::Core::GlobalSpace* globalSpace;
+
 	// Inner RenderObject container layers
 	std::array<Nebulite::Core::RenderObjectContainer, Nebulite::Core::Environment::LayerCount> roc;
 };
