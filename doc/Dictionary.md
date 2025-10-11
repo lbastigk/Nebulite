@@ -47,7 +47,7 @@ All definitions used within the Nebulite framework. While this includes definiti
 
 **Domain** - A class on which a FuncTree acts upon. Supported domains are: `GlobalSpace`, `RenderObject`, `JSON` and `Texture`. See also: [DomainModule](#d) [FuncTree](#f), [GlobalSpace](#g), [JSON](#j)
 
-**DomainModule** - Class that contains a list of functions and variables that are bound to a specific Domain as well as an update-routine. See `GDM_*.h`, `RDM_*.h` and `JDM_*.h` for examples. DomainModules allow for easy separation of functionality. Example: one class for audio, another for inputs etc. See also: [Domain](#d)
+**DomainModule** - Class that contains a list of functions and variables that are bound to a specific Domain as well as an update-routine. See `GSDM_*.h`, `RODM_*.h` and `JSDM_*.h` for examples. DomainModules allow for easy separation of functionality. Example: one class for audio, another for inputs etc. See also: [Domain](#d)
 
 ## E
 
@@ -68,7 +68,7 @@ Expressions may include variables. Certain conditions must be met for an express
 
 ## G
 
-**GDM** - Globalspace-DomainModule. See also: [DomainModule](#d)
+**GSDM** - Globalspace-DomainModule. See also: [DomainModule](#d)
 
 **GlobalSpace** - The core engine controller class that serves as the central coordination point for all engine operations. Accessible to all subcomponents.
 
@@ -80,7 +80,7 @@ Expressions may include variables. Certain conditions must be met for an express
 
 ## J
 
-**JDM** - JSON-DomainModule. See also: [DomainModule](#d)
+**JSDM** - JSON-DomainModule. See also: [DomainModule](#d)
 
 **JSON** - In Nebulites context, a custom wrapper around `rapidjson` for faster variable access. Used for arbitrary variable storing and retrieval in Nebulite `Domains`.
 
@@ -106,7 +106,7 @@ Expressions may include variables. Certain conditions must be met for an express
 
 ## R
 
-**RDM** - Renderobject-DomainModule. See also: [DomainModule](#d)
+**RODM** - Renderobject-DomainModule. See also: [DomainModule](#d)
 
 **RenderObject** - Represents a renderable entity in the Nebulite engine. Stores all properties in an internal JSON document, supports dynamic property access, manages SDL rendering (sprites/text), handles invoke commands for interactions, and serves as a `Domain` for function binding. Core building block for visual game objects. See also: [Domain](#d), [JSON](#j), [Invoke](#i)
 
@@ -116,7 +116,7 @@ Expressions may include variables. Certain conditions must be met for an express
 
 ## T
 
-**TDM** - Texture-DomainModule. See also: [DomainModule](#d)
+**TXDM** - Texture-DomainModule. See also: [DomainModule](#d)
 
 **Texture** - Wrapper Domain for an SDL-Texture. See also: [Domain](#d)
 

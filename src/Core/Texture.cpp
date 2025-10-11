@@ -1,5 +1,5 @@
 #include "Core/Texture.hpp"
-#include "DomainModule/TDM.hpp"
+#include "DomainModule/TXDM.hpp"
 
 #include "Core/GlobalSpace.hpp"
 
@@ -13,7 +13,7 @@ Nebulite::Core::Texture::Texture(Nebulite::Utility::JSON* doc, Nebulite::Core::G
     setPreParse(std::bind(&Nebulite::Core::Texture::preParse,this));
 
     // Initialize all DomainModules
-    Nebulite::DomainModule::TDM_init(this);
+    Nebulite::DomainModule::TXDM_init(this);
 }
 
 Nebulite::Constants::Error Nebulite::Core::Texture::update() {

@@ -3,7 +3,8 @@
 #include "Core/GlobalSpace.hpp"
 
 Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool flag_headless, unsigned int X, unsigned int Y)
-: 	rngA(hashString("Seed for RNG A")),
+: 	Nebulite::Interaction::Execution::Domain<Nebulite::Core::Renderer>("Renderer", this, globalSpace->getDoc()),
+	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B")),
 	env(globalSpace)
 	{

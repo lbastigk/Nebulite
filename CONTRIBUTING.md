@@ -77,10 +77,10 @@ Maintainers can create their own module classes and add them to a specific domai
 
 | Domain: Commands operating on... | Action                                                  | Info                                                                                                         |
 |----------------------------------|---------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| Global level                     | Extend `GDM.hpp` by creating GlobalSpace DomainModules  | See `include/Interaction/Execution/GlobalSpace.h` and its modules `include/DomainModule/GlobalSpace/GDM_*.h` |
-| Specific RenderObjects           | Extend `RDM.hpp` by creating RenderObject DomainModules | See `include/Core/RenderObject.h` and its modules `include/DomainModule/RenderObject/RDM_*.h`                |
-| Specific JSON-Documents          | Extend `JDM.hpp` by creating JSON DomainModules         | See `include/Utility/JSON.h` and its modules `include/DomainModule/JSON/JDM_*.h`                             |
-| Specific Textures                | Extend `TDM.hpp` by creating Texture DomainModules      | See `include/Core/Texture.h` and its modules `include/DomainModule/Texture/TDM_*.h`                          |
+| Global level                     | Extend `GSDM.hpp` by creating GlobalSpace DomainModules  | See `include/Interaction/Execution/GlobalSpace.h` and its modules `include/DomainModule/GlobalSpace/GSDM_*.h` |
+| Specific RenderObjects           | Extend `RODM.hpp` by creating RenderObject DomainModules | See `include/Core/RenderObject.h` and its modules `include/DomainModule/RenderObject/RODM_*.h`                |
+| Specific JSON-Documents          | Extend `JSDM.hpp` by creating JSON DomainModules         | See `include/Utility/JSON.h` and its modules `include/DomainModule/JSON/JSDM_*.h`                             |
+| Specific Textures                | Extend `TXDM.hpp` by creating Texture DomainModules      | See `include/Core/Texture.h` and its modules `include/DomainModule/Texture/TXDM_*.h`                          |
 
 Each DomainModule has access to a different domain through `domain->...` and a different set of functions through `domain->parseStr(command)` : 
 - `GlobalSpace`  modules can access the global space
@@ -119,20 +119,20 @@ bindFunction(/**/,"MyModule foo","<Description>"); //<-- This will fail without 
 <!-- TOC --><a name="step-by-step-process"></a>
 #### Step-by-Step Process
 
-1. **Create expansion file:** `GDM_MyModule.{hpp,cpp}`
+1. **Create expansion file:** `GSDM_MyModule.{hpp,cpp}`
 2. **Inherit from DomainModule base class:** Create class inheriting from `Nebulite::Interaction::Execution::DomainModule<DomainClass>`
 3. **Implement command methods:** Functions with `Nebulite::Constants::Error (int argc, char* argv[])` signature
-4. **DomainModule init** inside `include/DomainModule/{GDM,JDM,RDM}.hpp`, initialize the DomainModule
+4. **DomainModule init** inside `include/DomainModule/{GSDM,JSDM,RODM}.hpp`, initialize the DomainModule
 
 <!-- TOC --><a name="complete-code-example"></a>
 #### Complete Code Example
 
-**Inside GDM_MyModule.hpp:**
+**Inside GSDM_MyModule.hpp:**
 
 ```cpp
 
 /**
- * @file GDM_MyModule.hpp
+ * @file GSDM_MyModule.hpp
  * 
  * This file contains the DomainModule of the GlobalSpace for MyFeature functions.
  */
@@ -196,9 +196,9 @@ private:
 }
 ```
 
-**Inside GDM_MyModule.cpp:**
+**Inside GSDM_MyModule.cpp:**
 ```cpp
-#include "DomainModule/GlobalSpace/GDM_MyModule.hpp"
+#include "DomainModule/GlobalSpace/GSDM_MyModule.hpp"
 #include "Core/GlobalSpace.hpp"
 
 void Nebulite::DomainModule::GlobalSpace::MyModule::update(){
@@ -216,16 +216,16 @@ Nebulite::Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::MyModu
 }
 ```
 
-**Then add the header file to include/DomainModule/GDM.hpp and initialize:**
+**Then add the header file to include/DomainModule/GSDM.hpp and initialize:**
 
 ```cpp
 /*..*/
 
 //------------------------------------------
 // Module includes 
-#if GDM_ENABLED
+#if GSDM_ENABLED
     /*...*/
-    #include "DomainModule/GlobalSpace/GDM_MyModule.hpp"
+    #include "DomainModule/GlobalSpace/GSDM_MyModule.hpp"
     /*...*/
 #endif
 
@@ -235,8 +235,8 @@ namespace DomainModule{
 /**
  * @brief Inserts all DomainModules into the GlobalSpace domain.
  */
-void GDM_init(Nebulite::Core::GlobalSpace* target){
-    #if GDM_ENABLED
+void GSDM_init(Nebulite::Core::GlobalSpace* target){
+    #if GSDM_ENABLED
         // Initialize DomainModules
         using namespace Nebulite::DomainModule::GlobalSpace;
         /*...*/
@@ -252,14 +252,14 @@ void GDM_init(Nebulite::Core::GlobalSpace* target){
 ### Feature Management
 
 If necessary, the entire feature can then be:
-- **disabled** by commenting out `initModule` inside `{GDM,JDM,RDM,TDM}.hpp`
-- **removed** by undoing all changes inside `{GDM,JDM,RDM,TDM}.hpp` and potentially deleting its files.
+- **disabled** by commenting out `initModule` inside `{GSDM,JSDM,RODM,TXDM}.hpp`
+- **removed** by undoing all changes inside `{GSDM,JSDM,RODM,TXDM}.hpp` and potentially deleting its files.
 
 <!-- TOC --><a name="implementation-guidelines"></a>
 ### Implementation Guidelines
 
 - It is recommended to implement unfinished functions inside the cpp file with a return of `Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED()`
-- Use filenames `GDM_<ModuleName>.{hpp,cpp}` , `RDM_<ModuleName>.{hpp,cpp}` and `JDM_<ModuleName>.{hpp,cpp}` for module files
+- Use filenames `GSDM_<ModuleName>.{hpp,cpp}` , `RODM_<ModuleName>.{hpp,cpp}` and `JSDM_<ModuleName>.{hpp,cpp}` for module files
 - Use the recommended class naming schemes and namespaces for modules: `Nebulite::DomainModule::GlobalSpace::MyModule`
 
 <!-- TOC --><a name="preview-editing-work-in-progress"></a>
