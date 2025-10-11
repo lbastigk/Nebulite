@@ -240,13 +240,14 @@ bool Nebulite::Core::Renderer::tick(Nebulite::Interaction::Invoke* invoke_ptr) {
     }
 
 	//------------------------------------------
-	// Update modules
-	updateModules();
-
-	//------------------------------------------
 	// Manage frame skipping
 	skippedUpdateLastFrame = skipUpdate;
 	skipUpdate = false;
+
+	//------------------------------------------
+	// Update modules
+	updateModules();
+
 	return !skippedUpdateLastFrame;
 }
 
