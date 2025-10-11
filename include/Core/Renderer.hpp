@@ -36,7 +36,7 @@ namespace Core {
  * 
  * @brief Responsible for rendering game objects and managing the rendering pipeline.
  */
-class Renderer {
+NEBULITE_DOMAIN(Renderer) {
 public:
 	/**
 	 * @brief Initializes a Renderer with given dimensions and settings.
@@ -82,13 +82,17 @@ public:
 	 * 
 	 * - clears the screen
 	 * 
-	 * - calls the general update function
+	 * - calls the state update function
 	 * 
 	 * - renders frame
 	 * 
 	 * - renders fps, if enabled
 	 * 
 	 * - presents the frame
+	 * 
+	 * - manages SDL events
+	 * 
+	 * - manages state for next frame
 	 * 
 	 * @return True if update was done, false if skipped (e.g. console mode).
 	 */

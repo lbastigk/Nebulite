@@ -1,10 +1,10 @@
 #include "Core/RenderObject.hpp"
 
 #include "Core/GlobalSpace.hpp"
-#include "DomainModule/RDM.hpp"
+#include "DomainModule/RODM.hpp"
 #include "Interaction/RulesetCompiler.hpp"
 
-#include "DomainModule/JSON/JDM_SimpleData.hpp"
+#include "DomainModule/JSON/JSDM_SimpleData.hpp"
 
 //------------------------------------------
 // Special member Functions
@@ -78,7 +78,7 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 
 	//------------------------------------------
 	// Initialize Domain Modules
-	Nebulite::DomainModule::RDM_init(this);
+	Nebulite::DomainModule::RODM_init(this);
 
 	//------------------------------------------
 	// Update once to initialize

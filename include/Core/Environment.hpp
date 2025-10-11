@@ -57,7 +57,7 @@ public:
 	 * 
 	 * *IMPORTANT:* New layers must be added to private variable `allLayers` in the correct order.
 	 * 
-	 * @todo Once GDM_GUI and renderer texture queuing is properly implemented, 
+	 * @todo Once GSDM_GUI and renderer texture queuing is properly implemented, 
 	 * the layer size may be reduced and layer names reworked.
 	 */
 	enum Layer {

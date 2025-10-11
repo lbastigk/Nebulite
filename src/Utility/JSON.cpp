@@ -1,6 +1,6 @@
 #include "Utility/JSON.hpp"
 
-#include "DomainModule/JDM.hpp"
+#include "DomainModule/JSDM.hpp"
 #include "Constants/ErrorTypes.hpp"
 #include <vector>
 
@@ -9,7 +9,7 @@ Nebulite::Utility::JSON::JSON()
 {
     std::lock_guard<std::recursive_mutex> lock(mtx);
     doc.SetObject();
-    Nebulite::DomainModule::JDM_init(this);
+    Nebulite::DomainModule::JSDM_init(this);
 }
 
 Nebulite::Utility::JSON::~JSON(){

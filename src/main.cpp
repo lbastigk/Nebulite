@@ -33,7 +33,7 @@
 // Initializes callable functions from both user CLI and runtime environment.
 // Also sets up the global Renderer used across Tree-based function calls.
 #include "Core/GlobalSpace.hpp" 
-#include "DomainModule/GlobalSpace/GDM_Debug.hpp"   // For turning error logging off/on
+#include "DomainModule/GlobalSpace/GSDM_Debug.hpp"   // For turning error logging off/on
 
 // ----------------------------------------------------------------------
 // NEBULITE main
@@ -50,7 +50,7 @@
  * 
  * Use functions for debugging of specific features and taskFiles for complex, scripted scenarios and tests.
  *
- * @todo:   settings.jsonc: Renderer size, fps setting (Input Mapping is already a work in progress. See GDM_InputMapping.h)
+ * @todo:   settings.jsonc: Renderer size, fps setting (Input Mapping is already a work in progress. See GSDM_InputMapping.h)
  */
 int main(int argc, char* argv[]){
     //------------------------------------------
