@@ -321,8 +321,8 @@ void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Inte
         std::string call = entry.eval(doc_other);
 
         // attach to task queue
-        std::lock_guard<std::recursive_mutex> lock(globalTasksLock);
-        tasks->emplace_back(call);
+        std::lock_guard<std::mutex> lock(taskQueue.mutex);
+        taskQueue.ptr->emplace_back(call);
     }
 
     // === Functioncalls LOCAL: SELF ===

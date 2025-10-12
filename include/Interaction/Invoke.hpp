@@ -105,7 +105,7 @@ public:
      * 
      * @param queue Reference to the global queue.
      */
-    void linkTaskQueue(std::deque<std::string>& queue){tasks = &queue;}
+    void linkTaskQueue(std::deque<std::string>& queue){taskQueue.ptr = &queue;}
 
     //------------------------------------------
     // Getting
@@ -290,14 +290,11 @@ private:
     Nebulite::Utility::JSON* emptyDoc = new Nebulite::Utility::JSON(global);    // Linking an empty doc is needed for some functions
     Nebulite::Utility::JSON* globalDoc = nullptr;                               // Linkage to global doc, linked on construction
 
-    // pointer to queue
-    std::deque<std::string>* tasks = nullptr; 
-
-    /**
-     * @brief Mutex lock for tasks and buffers.
-     * @todo Turn into a normal mutex, see if that works
-     */
-    mutable std::recursive_mutex globalTasksLock;
+    // Task Queue
+    struct TaskQueue {
+        std::deque<std::string>* ptr;
+        mutable std::mutex mutex;
+    } taskQueue;
 
     //------------------------------------------
     // Threading Containers
@@ -307,17 +304,10 @@ private:
      * @brief Structure to hold a broadcast-listen pair.
      */
     struct BroadCastListenPair{
-        std::shared_ptr<Nebulite::Interaction::Ruleset> entry; // The Ruleset that was broadcasted
-        Nebulite::Core::RenderObject* Obj_other;                   // The object that listened to the Broadcast
-        bool active = true;                                        // If false, this pair is skipped during update
+        std::shared_ptr<Nebulite::Interaction::Ruleset> entry;  // The Ruleset that was broadcasted
+        Nebulite::Core::RenderObject* Obj_other;                // The object that listened to the Broadcast
+        bool active = true;                                     // If false, this pair is skipped during update
     };
-
-    /**
-     * @typedef Ruleset
-     * @brief A shared pointer to a Ruleset.
-     * Ruleset is owned by its RenderObject, so we use a shared pointer here to avoid ownership issues.
-     */
-    using Ruleset = std::shared_ptr<Nebulite::Interaction::Ruleset>;
 
     /**
      * @struct ThreadWork
@@ -341,10 +331,17 @@ private:
     };
 
     /**
+     * @typedef Ruleset
+     * @brief A shared pointer to a Ruleset.
+     * Ruleset is owned by its RenderObject, so we use a shared pointer here to avoid ownership issues.
+     */
+    using Ruleset = std::shared_ptr<Nebulite::Interaction::Ruleset>;
+
+    /**
      * @struct BroadCastEntries
      * @brief Structure to hold broadcasted entries for each thread runner.
      * 
-     * @todo Instead of using this temporary storage, find a way to directly create pairs during the broadcast() phase.
+     * @todo Instead of using this temporary storage, find a way to directly create pairs during the broadcast/listen phase.
      * This would eliminate the need for this structure and the associated mutex, making the process more efficient.
      * 
      * Perhaps two ThreadWork that we switch between on each frame? + a map for the broadcast topic inside?
