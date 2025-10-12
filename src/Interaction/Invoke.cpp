@@ -23,7 +23,7 @@ Nebulite::Interaction::Invoke::Invoke(Nebulite::Core::GlobalSpace* globalSpace)
         threadrunners[i] = std::thread([this, i]() {
             while (!threadState.stopFlag) {
                 // Wait for work to be ready
-                std::unique_lock<std::mutex> lock(broadcasted.pairings[i].mutex);
+                std::unique_lock<std::mutex> lock(broadcasted.entriesThisFrame[i].mutex);
                 threadState.individualState[i].condition.wait(lock, [this, i] { 
                     return threadState.individualState[i].workReady.load() || threadState.stopFlag.load(); 
                 });
@@ -31,14 +31,17 @@ Nebulite::Interaction::Invoke::Invoke(Nebulite::Core::GlobalSpace* globalSpace)
                 if (threadState.stopFlag) break;
                 
                 // Process work
-                for(auto& [id_self, map_other] : broadcasted.pairings[i].work){
-                    for(auto& [id_other, map_pairs] : map_other){
-                        for(auto& [idx_ruleset, pair] : map_pairs){
-                            if(pair.active){
-                                applyRulesets(pair.entry, pair.Obj_other);
-                                pair.active = false; // Mark as inactive after processing
+                for(auto& [id_self, map_other] : broadcasted.entriesThisFrame[i].Container){
+                    for(auto& [topic, onTopicFromId] : map_other){
+                        if(!onTopicFromId.active) continue; // Skip if self did not broadcast this frame
+                        for(auto& [idx_ruleset, listenersOnRuleset] : onTopicFromId.rulesets){
+                            for(auto& [listenerId, pair] : listenersOnRuleset.listeners){
+                                if(pair.active){
+                                    applyRulesets(pair.entry, pair.Obj_other);
+                                }
                             }
                         }
+                        onTopicFromId.active = false; // Reset for next frame
                     }
                 }
                 
@@ -142,7 +145,9 @@ void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interact
     
     // Insert into next frame's entries
     std::lock_guard<std::mutex> lock(broadcasted.entriesNextFrame[threadIndex].mutex);
-    broadcasted.entriesNextFrame[threadIndex].work[toAppend->topic].push_back(toAppend);
+    auto onTopicFromId = broadcasted.entriesNextFrame[threadIndex].Container[toAppend->topic][id_self];
+    onTopicFromId.rulesets[toAppend->index].entry = toAppend;
+    onTopicFromId.active = true;
 }
 
 void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std::string topic, uint32_t listenerId){
@@ -151,20 +156,29 @@ void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std
         std::lock_guard<std::mutex> broadcastLock(broadcasted.entriesThisFrame[i].mutex);
         
         // Check if topic exists to avoid creating empty entries
-        auto topicIt = broadcasted.entriesThisFrame[i].work.find(topic);
-        if (topicIt == broadcasted.entriesThisFrame[i].work.end()) {
+        auto topicIt = broadcasted.entriesThisFrame[i].Container.find(topic);
+        if (topicIt == broadcasted.entriesThisFrame[i].Container.end()) {
             continue; // No entries for this topic in this thread
         }
         
-        for (auto& entry : topicIt->second){
-            if(checkRulesetLogicalCondition(entry,obj)){
-                // Get all IDs and indices needed
-                uint32_t id_self = entry->id;
-                uint32_t threadIndex = id_self % THREADRUNNER_COUNT;
+        for (auto& [id_self, onTopicFromId] : topicIt->second) {
+            // Skip if broadcaster and listener are the same object
+            if (id_self == listenerId) continue;
 
-                // Lock correct mutex and update the entry
-                std::lock_guard<std::mutex> lock(broadcasted.pairings[threadIndex].mutex);
-                broadcasted.pairings[threadIndex].work[id_self][listenerId][entry->index] = {entry,obj,true};
+            // Skip if inactive
+            if(!onTopicFromId.active) continue;
+
+            // For all rulesets under this broadcaster and topic
+            for (auto& [idx_ruleset, rulesetPair] : onTopicFromId.rulesets) {
+                // Check if logical condition is met
+                if (checkRulesetLogicalCondition(rulesetPair.entry, obj)) {
+                    // Activate the entry for this listener
+                    rulesetPair.listeners[listenerId] = BroadCastListenPair{rulesetPair.entry, obj, true};
+                }
+                else{
+                    // Deactivate the entry for this listener
+                    rulesetPair.listeners[listenerId] = BroadCastListenPair{rulesetPair.entry, obj, false};
+                }
             }
         }
     }
@@ -352,7 +366,7 @@ void Nebulite::Interaction::Invoke::update() {
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
         std::lock_guard<std::mutex> lock1(broadcasted.entriesThisFrame[i].mutex);   // Shouldnt be necessary as no other process accesses this during update, but we are paranoid
         std::lock_guard<std::mutex> lock2(broadcasted.entriesNextFrame[i].mutex);   // Shouldnt be necessary as no other process accesses this during update, but we are paranoid
-        broadcasted.entriesThisFrame[i].work = std::move(broadcasted.entriesNextFrame[i].work);
+        std::swap(broadcasted.entriesThisFrame[i].Container, broadcasted.entriesNextFrame[i].Container);
     }
 
     // Signal all worker threads to start processing

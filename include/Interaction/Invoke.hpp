@@ -310,63 +310,34 @@ private:
     };
 
     /**
-     * @struct ThreadWork
-     * @brief Structure to hold work for each thread runner.
-     * 
-     * Matches broadcast-listen pairs in a threadsafe and predictive manner, where 
-     * each self-id modulo THREADRUNNER_COUNT is assigned to a specific thread runner.
-     */
-    struct ThreadWork{
-      absl::flat_hash_map<
-          uint32_t,                      // The ID of self. Each ThreadWorks id here is the same in modulo THREADRUNNER_COUNT. So pairs_threadsafe_batched[1] stores ids 11, 21, 31...
-          absl::flat_hash_map<
-              uint32_t,                  // The ID of other. Can be any number.
-              absl::flat_hash_map<
-                  uint32_t,              // The index of the ruleset inside the broadcaster. Provides a unique key to identify the ruleset.
-                  BroadCastListenPair    // The actual pair of entry and other object.
-              >
-          >
-      > work;
-      mutable std::mutex mutex; // Mutex to protect access to the work structure
-    };
-
-    /**
      * @typedef Ruleset
      * @brief A shared pointer to a Ruleset.
      * Ruleset is owned by its RenderObject, so we use a shared pointer here to avoid ownership issues.
      */
     using Ruleset = std::shared_ptr<Nebulite::Interaction::Ruleset>;
 
-    /**
-     * @struct BroadCastEntries
-     * @brief Structure to hold broadcasted entries for each thread runner.
-     * 
-     * @todo Instead of using this temporary storage, find a way to directly create pairs during the broadcast/listen phase.
-     * This would eliminate the need for this structure and the associated mutex, making the process more efficient.
-     * 
-     * Perhaps two ThreadWork that we switch between on each frame? + a map for the broadcast topic inside?
-     * [topic][id_self][index_ruleset].listeners[id_other]-> BroadCastListenPair
-     * Only annoying part is the index we need for unique identification of the ruleset.
-     * 
-     * [topic][id_self].active = true/false, active if self has broadcasted this frame
-     * [topic][id_self].rulesets[idx_ruleset].ptr holds the ruleset pointer self.rulesets[idx_ruleset]
-     * [topic][id_self].rulesets[idx_ruleset].listeners[id_other] = BroadCastListenPair
-     * 
-     * On broadcast, we set:   [topic][id_self].active = true; and set all [topic][id_self].rulesets[idx_ruleset].ptr = entry;
-     * On listen, we populate: [topic][id_self].rulesets[idx_ruleset].listeners[id_other] = {[topic][id_self].rulesets[idx_ruleset].ptr, Obj_other, true};
-     * Due to the idx_ruleset, we can only have one listener.
-     * 
-     * During update, we simple swap between two of these structures, and process all active entries.
-     * And set all active flags to false.
-     * 
-     * This should work, but might take some time to implement and test.
-     */
-    struct BroadCastEntries{
-      absl::flat_hash_map<
-          std::string,          // The topic of the broadcasted entry
-          std::vector<Ruleset>  // The actual entries broadcasted this frame
-      > work;
-      mutable std::mutex mutex; // Mutex to protect access to the work structure
+    struct ListenersOnRuleset{
+        std::shared_ptr<Nebulite::Interaction::Ruleset> entry;
+        absl::flat_hash_map<uint32_t, BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
+    };
+
+    struct OnTopicFromId{
+        bool active = false;                                        // If false, this is skipped during update
+        absl::flat_hash_map<uint32_t, ListenersOnRuleset> rulesets; // idx_ruleset -> ListenersOnRuleset
+    };
+
+    // two of these are needed, and we swap between them on each frame
+    using BroadCastListenContainer = absl::flat_hash_map<
+        std::string,                       // The topic of the broadcasted entry
+        absl::flat_hash_map<
+            uint32_t,                      // The ID of self.
+            OnTopicFromId                  // The struct containing active flag and rulesets
+        >
+    >;
+
+    struct MutableBroadCastListenContainer{
+        BroadCastListenContainer Container;
+        mutable std::mutex mutex; // for read/write access to the container
     };
 
     /**
@@ -381,27 +352,18 @@ private:
      */
     struct BroadCasted{
         /**
-         * @brief Contains Broadcasted Entries for this frame
+         * @brief Container of broadcasted entries for each thread runner.
          * 
-         * On update, all entries from BroadcastEntriesNextFrame are swapped here.
+         * Populated during the listen phase
          */
-        BroadCastEntries entriesThisFrame[THREADRUNNER_COUNT];
+        MutableBroadCastListenContainer entriesThisFrame[THREADRUNNER_COUNT];
 
         /**
-         * @brief Contains Broadcasted Entries for the next frame
+         * @brief Container of broadcasted entries for the next frame for each thread runner.
          * 
-         * Populated during the broadcast() phase.
-         * 
-         * On update, all entries from BroadcastEntriesThisFrame are swapped here.
+         * Populated during the broadcast phase and swapped in at the update phase.
          */
-        BroadCastEntries entriesNextFrame[THREADRUNNER_COUNT];
-
-        /**
-         * @brief Array of thread work structures for managing broadcast-listen pairs.
-         * 
-         * On update, all pairs from broadcastListenEntriesNextFrame are swapped here.
-         */
-        ThreadWork pairings[THREADRUNNER_COUNT]; 
+        MutableBroadCastListenContainer entriesNextFrame[THREADRUNNER_COUNT];
     } broadcasted;
 
     //------------------------------------------

@@ -63,4 +63,4 @@ eval echo Simulation done! Total runtime: {global.runtime.t} Seconds.
 
 ###############################################
 # Exit
-exit
+#exit
