@@ -387,13 +387,13 @@ Nebulite::Interaction::Logic::Expression::Expression() {
     reset();
 }
 
-void Nebulite::Interaction::Logic::Expression::parse(const std::string& expr, Nebulite::Utility::DocumentCache& documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global){
+void Nebulite::Interaction::Logic::Expression::parse(const std::string& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global){
     reset();
 
     // Set references
     this->self = self;
     this->global = global;
-    this->documentCache = &documentCache;
+    this->documentCache = documentCache;
     fullExpression = expr;
 
     // Parse
@@ -439,7 +439,7 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
                     }
                     // Create a temporary expression to evaluate the inner expression
                     Expression tempExpr;
-                    tempExpr.parse(entry.str, *documentCache, self, global);
+                    tempExpr.parse(entry.str, documentCache, self, global);
                     key = tempExpr.eval(current_other, max_recursion_depth - 1);
 
                     // Redetermine context and strip it from key

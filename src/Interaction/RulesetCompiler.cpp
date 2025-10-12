@@ -18,7 +18,7 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
 
             // Create a new Expression, parse the function call
             Nebulite::Interaction::Logic::ExpressionPool invokeExpr;
-            invokeExpr.parse(funcCall, *docCache, self->getDoc(), global);
+            invokeExpr.parse(funcCall, docCache, self->getDoc(), global);
             Ruleset.functioncalls_global.emplace_back(std::move(invokeExpr));
         }
     }
@@ -37,7 +37,7 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
 
             // Create a new Expression, parse the function call
             Nebulite::Interaction::Logic::ExpressionPool invokeExpr;
-            invokeExpr.parse(funcCall, *docCache, self->getDoc(), global);
+            invokeExpr.parse(funcCall, docCache, self->getDoc(), global);
             Ruleset.functioncalls_self.emplace_back(std::move(invokeExpr));
         }
     }
@@ -55,7 +55,7 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
             }
             // Create a new Expression, parse the function call
             Nebulite::Interaction::Logic::ExpressionPool invokeExpr;
-            invokeExpr.parse(funcCall, *docCache, self->getDoc(), global);
+            invokeExpr.parse(funcCall, docCache, self->getDoc(), global);
             Ruleset.functioncalls_other.emplace_back(std::move(invokeExpr));
         }
     }
@@ -248,7 +248,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
         // Parse into a structure
         auto Ruleset = std::make_shared<Nebulite::Interaction::Ruleset>();
         Ruleset->topic = entry.get<std::string>(Nebulite::Constants::keyName.invoke.topic.c_str(), "all");
-        Ruleset->logicalArg.parse(RulesetCompiler::getLogicalArg(entry), *docCache, self->getDoc(), global);
+        Ruleset->logicalArg.parse(RulesetCompiler::getLogicalArg(entry), docCache, self->getDoc(), global);
 
         // Remove whitespaces at start and end from topic and logicalArg:
         Ruleset->topic = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(Ruleset->topic));
@@ -260,7 +260,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
 
         std::string str = *Ruleset->logicalArg.getFullExpression();
         str = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(str));
-        Ruleset->logicalArg.parse(str, *docCache, self->getDoc(), global);
+        Ruleset->logicalArg.parse(str, docCache, self->getDoc(), global);
 
         // Get expressions
         bool exprSuccess = RulesetCompiler::getExpressions(Ruleset.get(), &entry);
@@ -272,7 +272,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
         // Parse all expressions
         uint32_t exprSize = entry.memberSize(Nebulite::Constants::keyName.invoke.exprVector);
         for (auto& assignment : Ruleset->assignments) {
-            assignment.expression.parse(assignment.value, *docCache, self->getDoc(), global);
+            assignment.expression.parse(assignment.value, docCache, self->getDoc(), global);
         }
 
         // Parse all function calls

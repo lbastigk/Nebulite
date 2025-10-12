@@ -9,7 +9,7 @@
 // Constructor / Destructor
 
 Nebulite::Interaction::Invoke::Invoke(Nebulite::Core::GlobalSpace* globalSpace)
-: docCache(globalSpace),
+: docCache(globalSpace->getDocCache()),
   global(globalSpace),
   globalDoc(globalSpace->getDoc())
 {   
@@ -60,17 +60,6 @@ Nebulite::Interaction::Invoke::~Invoke() {
         if (threadrunners[i].joinable()) {
             threadrunners[i].join();
         }
-    }
-}
-
-void Nebulite::Interaction::Invoke::clear(){
-    for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
-        std::lock_guard<std::mutex> lock1(broadcasted.entriesThisFrame[i].mutex);
-        broadcasted.entriesThisFrame[i].work.clear();
-        std::lock_guard<std::mutex> lock2(broadcasted.entriesNextFrame[i].mutex);
-        broadcasted.entriesNextFrame[i].work.clear();
-        std::lock_guard<std::mutex> lock3(broadcasted.pairings[i].mutex);
-        broadcasted.pairings[i].work.clear();
     }
 }
 

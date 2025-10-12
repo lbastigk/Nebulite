@@ -186,6 +186,11 @@ public:
      */
     Nebulite::Interaction::Invoke* getInvoke(){return &invoke;};
 
+    /**
+     * @brief Gets a pointer to the global document cache.
+     */
+    Nebulite::Utility::DocumentCache* getDocCache(){return &docCache;}
+
     //------------------------------------------
     // Public Variables
 
@@ -248,6 +253,9 @@ private:
 
     // Invoke Object for parsing expressions etc.
     Nebulite::Interaction::Invoke invoke;
+
+    // DocumentCache for read-only documents
+    Nebulite::Utility::DocumentCache docCache;
 
     //------------------------------------------
     // Structs
