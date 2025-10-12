@@ -74,6 +74,9 @@ public:
             );
     };
 
+    //------------------------------------------
+    // Binding, initializing and inheriting
+
     /**
      * @brief Factory method for creating DomainModule instances with proper linkage
      * 
@@ -106,7 +109,7 @@ public:
     }
 
     //------------------------------------------
-    // To overwrite
+    // Updating
 
     /**
      * @brief Updates the domain.
@@ -115,19 +118,14 @@ public:
      */
     virtual Nebulite::Constants::Error update(){return Nebulite::Constants::ErrorTable::NONE();};
 
-    //------------------------------------------
-    // Getting private members
-
     /**
-     * @brief Gets a pointer to the internal JSON document of the domain.
-     * 
-     * Each domain uses a JSON document to store its data.
-     * For the JSON domain, this is a reference to itself.
-     * For others, it's a reference to their JSON document.
-     * 
-     * @return A pointer to the internal JSON document.
+     * @brief Updates all DomainModules.
      */
-    Nebulite::Utility::JSON* getDoc() const { return doc; };
+    void updateModules(){
+        for(auto& module : modules){
+            module->update();
+        }
+    }
 
     //------------------------------------------
     // Command parsing
@@ -185,33 +183,43 @@ public:
         funcTree->setPreParse(func);
     }
 
-    /**
-     * @brief Reference to the domain itself
-     */
-    DomainType* const domain;
-    
-    /**
-     * @brief Updates all DomainModules.
-     */
-    void updateModules(){
-        for(auto& module : modules){
-            module->update();
-        }
-    }
-    
-    Nebulite::Utility::JSON* getDoc(){
-        return doc;
-    }
+    //------------------------------------------
+    // Access to private members
 
-    Nebulite::Core::GlobalSpace* getGlobalSpace() const {
-        return global;
-    }
+    /**
+     * @brief Gets a pointer to the internal JSON document of the domain.
+     * 
+     * Each domain uses a JSON document to store its data.
+     * For the JSON domain, this is a reference to itself.
+     * For others, it's a reference to their JSON document.
+     * 
+     * @return A pointer to the internal JSON document.
+     */
+    Nebulite::Utility::JSON* getDoc() const {return doc;}
+
+    /**
+     * @brief Gets a pointer to the globalspace.
+     * 
+     * @return A pointer to the globalspace.
+     */
+    Nebulite::Core::GlobalSpace* getGlobalSpace() const {return global;}
 
 private:
+    //------------------------------------------
+    // Core members
+    
     /**
      * @brief The name of the domain.
      */
     std::string domainName;
+
+    //------------------------------------------
+    // Modules and the FuncTree they act upon
+
+    /**
+     * @brief Stores all available modules
+     */
+    std::vector<std::unique_ptr<Nebulite::Interaction::Execution::DomainModule<DomainType>>> modules;
 
     /**
      * @brief Parsing interface for domain-specific commands.
@@ -223,10 +231,15 @@ private:
      */
     Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTree;
 
+    //------------------------------------------
+    // Inner references
+
     /**
-     * @brief Stores all available modules
+     * @brief Reference to the domain itself
+     * 
+     * Used to initialize DomainModules with a reference to the domain.
      */
-    std::vector<std::unique_ptr<Nebulite::Interaction::Execution::DomainModule<DomainType>>> modules;
+    DomainType* const domain;
 
     /**
      * @brief Each domain uses a JSON document to store its data.
