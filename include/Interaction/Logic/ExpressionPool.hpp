@@ -13,8 +13,8 @@
 // General
 #include <array>
 #include <mutex>
-#include <random>
 #include <string>
+#include <thread>
 
 // Nebulite
 #include "Interaction/Logic/Expression.hpp"
@@ -115,12 +115,13 @@ public:
      * @return The result of the evaluation as a string.
      */
     std::string eval(Nebulite::Utility::JSON* current_other){
-        thread_local std::mt19937 rng(std::random_device{}());
-        thread_local std::uniform_int_distribution<size_t> dist(0, INVOKE_EXPR_POOL_SIZE - 1);
-
-        // Pick a random pool entry and lock it
-        size_t idx = dist(rng);
-
+        // Each thread gets a unique starting position based on thread ID
+        static thread_local size_t thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
+        static thread_local size_t counter = 0;
+        
+        // Rotate through pool entries starting from thread's unique offset
+        size_t idx = (thread_offset + counter++) % INVOKE_EXPR_POOL_SIZE;
+        
         std::lock_guard<std::mutex> guard(locks[idx]);
         return pool[idx].eval(current_other);
     }
@@ -134,11 +135,12 @@ public:
      * @return The result of the evaluation as a double.
      */
     double evalAsDouble(Nebulite::Utility::JSON* current_other){
-        thread_local std::mt19937 rng(std::random_device{}());
-        thread_local std::uniform_int_distribution<size_t> dist(0, INVOKE_EXPR_POOL_SIZE - 1);
-
-        // Pick a random pool entry and lock it
-        size_t idx = dist(rng);
+        // Each thread gets a unique starting position based on thread ID
+        static thread_local size_t thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
+        static thread_local size_t counter = 0;
+        
+        // Rotate through pool entries starting from thread's unique offset
+        size_t idx = (thread_offset + counter++) % INVOKE_EXPR_POOL_SIZE;
 
         std::lock_guard<std::mutex> guard(locks[idx]);
         return pool[idx].evalAsDouble(current_other);
