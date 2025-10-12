@@ -119,36 +119,6 @@ public:
     void parseCommandLineArguments(int argc, char* argv[]);
 
     /**
-     * @brief Gets the global queue for function calls.
-     */
-    std::deque<std::string>* getTaskQueue(){return &tasks.script.taskQueue;};
-
-    /**
-     * @brief Allows for access to the Renderer instance
-     *
-     * This function retrieves the renderer instance, creating it if it doesn't already exist.
-     *
-     * @return A pointer to the Renderer instance.
-     */
-    Nebulite::Core::Renderer* getRenderer();
-
-    /**
-     * @brief Allows for access to the SDL_Renderer instance
-     *
-     * This function retrieves the SDL_Renderer instance, creating it if it doesn't already exist.
-     *
-     * @return A pointer to the SDL_Renderer instance.
-     */
-    SDL_Renderer* getSDLRenderer();
-
-    /**
-     * @brief Checks if the renderer instance exists.
-     * 
-     * @return True if the renderer exists, false otherwise.
-     */
-    bool RendererExists();
-
-    /**
      * @brief Resolves a task queue by parsing each task and executing it.
      * 
      * @param tq The task queue to resolve.
@@ -167,8 +137,59 @@ public:
 
     /**
      * @brief Updates the global space.
+     * 
+     * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    void update();
+    Nebulite::Constants::Error update();
+
+    /**
+     * @brief Quits the renderer by setting the quit flag.
+     */
+    void quitRenderer(){
+        renderer.setQuit();
+    }
+
+    /**
+     * @brief Evaluates a string.
+     */
+    std::string eval(std::string expr){
+        return invoke.evaluateStandaloneExpression(expr);
+    }
+
+    /**
+     * @brief Evaluates a string with context of a RenderObject.
+     */
+    std::string eval(std::string expr, Nebulite::Core::RenderObject* context){
+        return invoke.evaluateStandaloneExpression(expr, context);
+    }
+
+    //------------------------------------------
+    // Getters
+
+    /**
+     * @brief Gets the global queue for function calls.
+     */
+    std::deque<std::string>* getTaskQueue(){return &tasks.script.taskQueue;};
+
+    /**
+     * @brief Gets a pointer to the Renderer instance.
+     */
+    Nebulite::Core::Renderer* getRenderer(){return &renderer;};
+
+    /**
+     * @brief Gets a pointer to the SDL Renderer instance.
+     */
+    SDL_Renderer* getSdlRenderer(){return renderer.getSdlRenderer();};
+
+    /**
+     * @brief Gets a pointer to the Invoke instance.
+     */
+    Nebulite::Interaction::Invoke* getInvoke(){return &invoke;};
+
+    /**
+     * @brief Gets a pointer to the global document cache.
+     */
+    Nebulite::Utility::DocumentCache* getDocCache(){return &docCache;}
 
     //------------------------------------------
     // Public Variables
@@ -189,14 +210,11 @@ public:
     // Error Table for error descriptions
     Nebulite::Constants::ErrorTable errorTable;
 
-    // Invoke Object for parsing expressions etc.
-    std::unique_ptr<Nebulite::Interaction::Invoke> invoke;
-
     //------------------------------------------
     // DomainModule variables
     struct commandLineVariables{
-        std::string headless = "false"; // Headless mode (no window)
-        std::string recover = "false";  // Enable recoverable error mode
+        bool headless = false; // Headless mode (no window)
+        bool recover = false;  // Enable recoverable error mode
         /*Add more variables as needed*/
     };
     commandLineVariables cmdVars;
@@ -211,12 +229,33 @@ public:
         rng.D.rollback();
     }
 
+    /**
+     * @brief Checks if the main loop should continue running.
+     * 
+     * @return True if the main loop should continue, false otherwise.
+     */
+    bool shouldContinueLoop() const { 
+        return continueLoop; 
+    };
+
 private:
     //------------------------------------------
     // General Variables
 
+    // Check if main loop should continue
+    bool continueLoop = true;
+
     // Global JSON Document
     Nebulite::Utility::JSON global;
+
+    // Renderer
+    Nebulite::Core::Renderer renderer;
+
+    // Invoke Object for parsing expressions etc.
+    Nebulite::Interaction::Invoke invoke;
+
+    // DocumentCache for read-only documents
+    Nebulite::Utility::DocumentCache docCache;
 
     //------------------------------------------
     // Structs
@@ -247,15 +286,6 @@ private:
         Nebulite::Utility::RNG<rng_size_t> D;   // RNG with key random.D
     } rng;
 
-    /**
-     * @brief Updates all RNGs with a new seed.
-     * 
-     * @param seed The normalized seed string used to update the RNGs.
-     * Make sure the seed contains no user-specific information like absolute paths!
-     * Otherwise the RNG is not consistent across different users.
-     */
-    void updateRNGs(std::string seed);
-
     //------------------------------------------
     // Methods
 
@@ -267,24 +297,17 @@ private:
      */
     Nebulite::Constants::Error preParse() override;
 
-    //------------------------------------------
-    // Objects
+    /**
+     * @brief Updates all RNGs
+     */
+    void updateRNGs();
 
     /**
-     * @brief Pointer to the renderer instance.
+     * @brief Updates all inner domains.
      * 
-     * This pointer is used to access the renderer for drawing operations.
-     * It is initialized on first use via getRenderer(), all access is through this function.
-     * 
-     * Due to the way the renderer is initialized, the object is marked as private.
-     * Under no circumstances should processes try to access the renderer directly!
+     * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    std::unique_ptr<Nebulite::Core::Renderer> renderer;
-
-    /**
-     * @brief Flag indicating whether the renderer has been initialized.
-     */
-    bool rendererInitialized = false;
+    Nebulite::Constants::Error updateInnerDomains();
 };
 }   // namespace Core
 }   // namespace Nebulite

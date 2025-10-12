@@ -43,14 +43,14 @@ public:
 		 * @brief Pops the last RenderObject from the batch.
 		 * @return Pointer to the popped RenderObject, or nullptr if batch is already empty.
 		 */
-		RenderObject* pop(Nebulite::Interaction::Invoke* globalInvoke);
+		RenderObject* pop();
 
 		/**
 		 * @brief Pushes a RenderObject into the batch.
 		 * @param obj Pointer to the RenderObject to push.
 		 * @param globalInvoke Pointer to the global Invoke instance.
 		 */
-		void push(RenderObject* obj, Nebulite::Interaction::Invoke* globalInvoke);
+		void push(RenderObject* obj);
 
 		/**
 		 * @brief Removes a RenderObject from the batch.
@@ -58,7 +58,7 @@ public:
 		 * @param globalInvoke Pointer to the global Invoke instance.
 		 * @return True if the object was removed, false otherwise.
 		 */
-		bool removeObject(RenderObject* obj, Nebulite::Interaction::Invoke* globalInvoke);
+		bool removeObject(RenderObject* obj);
 	};
 
 	//------------------------------------------
@@ -148,7 +148,7 @@ public:
 	 * @param dispResY The display resolution height. Needed for potential re-insertion.
 	 * @param globalInvoke Pointer to the global Invoke instance for object updates.
 	 */
-	void update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY,Nebulite::Interaction::Invoke* globalInvoke);
+	void update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY);
 
 	/**
 	 * @brief Gets the vector of batches at the specified tile position.
@@ -240,9 +240,6 @@ private:
 		std::vector<Nebulite::Core::RenderObject*> purgatory;	// Deleted each frame
 		std::mutex deleteMutex;									// Threadsafe insertion into trash
 	} deletionProcess;
-
-	// Link to the global Invoke instance for object updates
-	Nebulite::Interaction::Invoke* globalInvoke;
 
 	// Link to the global space for new objects
 	Nebulite::Core::GlobalSpace* globalSpace;

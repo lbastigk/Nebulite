@@ -1,35 +1,34 @@
 #include "Core/Renderer.hpp"
 
 #include "Core/GlobalSpace.hpp"
+#include "DomainModule/RRDM.hpp"
 
-Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool flag_headless, unsigned int X, unsigned int Y)
-: 	rngA(hashString("Seed for RNG A")),
+Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool* flag_headless, unsigned int X, unsigned int Y)
+: 	Nebulite::Interaction::Execution::Domain<Nebulite::Core::Renderer>("Renderer", this, globalSpace->getDoc(), globalSpace),
+	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B")),
 	env(globalSpace)
 	{
-	//------------------------------------------
-	// Linkages
-	invoke_ptr = globalSpace->invoke.get();
 
 	//------------------------------------------
 	// Depending on platform, set Global key "platform":
 	#ifdef _WIN32
-		invoke_ptr->getGlobalPointer()->set<std::string>("platform","windows");
+		getDoc()->set<std::string>("platform","windows");
 	#elif __linux__
-		invoke_ptr->getGlobalPointer()->set<std::string>("platform","linux");
+		getDoc()->set<std::string>("platform","linux");
 	#elif __APPLE__
-		invoke_ptr->getGlobalPointer()->set<std::string>("platform","macos");
+		getDoc()->set<std::string>("platform","macos");
 	#elif __FreeBSD__
-		invoke_ptr->getGlobalPointer()->set<std::string>("platform","freebsd");
+		getDoc()->set<std::string>("platform","freebsd");
 	#elif __unix__
-		invoke_ptr->getGlobalPointer()->set<std::string>("platform","unix");
+		getDoc()->set<std::string>("platform","unix");
 	#elif __ANDROID__
-		invoke_ptr->getGlobalPointer()->set<std::string>("platform","android");
+		getDoc()->set<std::string>("platform","android");
 	#elif __TEMPLEOS__
 		printf("Glory be to TempleOS!\n");
-		invoke_ptr->getGlobalPointer()->set<std::string>("platform","templeos");
+		getDoc()->set<std::string>("platform","templeos");
 	#else
-		invoke_ptr->getGlobalPointer()->set<std::string>("platform","unknown");
+		getDoc()->set<std::string>("platform","unknown");
 	#endif
 
 	//------------------------------------------
@@ -37,6 +36,7 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 
 	// Window
 	WindowScale = 1;
+	headless = flag_headless;
 
 	// Position
 	tileXpos = 0;
@@ -45,81 +45,6 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 	// State
 	event = SDL_Event();
 	baseDirectory = Nebulite::Utility::FileManagement::currentDir();
-
-	//------------------------------------------
-	// Window
-
-	//Create SDL window
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-		// SDL initialization failed
-		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
-	}
-	// Define window via x|y|w|h
-	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),X);
-	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),Y);
-	int x = SDL_WINDOWPOS_CENTERED;
-	int y = SDL_WINDOWPOS_CENTERED;
-	int w = X;
-	int h = Y;
-
-	uint32_t flags;
-	flags = flag_headless ? SDL_WINDOW_HIDDEN : SDL_WINDOW_SHOWN;
-	//flags = flags | SDL_WINDOW_RESIZABLE; // Disabled for now, as it causes issues with the logical size rendering
-	flags = flags | SDL_WINDOW_OPENGL;
-	window = SDL_CreateWindow("Nebulite",x,y,w,h,flags);
-	if (!window) {
-		// Window creation failed
-		std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
-		SDL_Quit();
-	}
-
-	//------------------------------------------
-	// Renderer
-
-	// Create a renderer
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	if (!renderer) {
-		std::cerr << "Renderer creation failed: " << SDL_GetError() << std::endl;
-	}
-
-	// Set virtual rendering size
-	SDL_RenderSetLogicalSize(
-		renderer, 
-		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),X), 
-		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),Y)
-	);
-
-	//------------------------------------------
-	// Fonts
-
-	// Initialize SDL_ttf
-	if (TTF_Init() < 0) {
-		// Handle SDL_ttf initialization error
-		SDL_Quit(); // Clean up SDL
-	}
-	loadFonts();
-
-	//------------------------------------------
-	// Audio
-
-	// Init
-	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
-	} else {
-		SDL_AudioSpec desired, obtained;
-		desired.freq = 44100;
-		desired.format = AUDIO_S16SYS;
-		desired.channels = 1;
-		desired.samples = 1024;
-		desired.callback = nullptr;
-		
-		audioDevice = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
-		if (audioDevice == 0) {
-			std::cerr << "Failed to open audio device: " << SDL_GetError() << std::endl;
-		} else{
-			audioInitialized = true;
-		}
-	}
 
 	// Waveform buffers: Sine wave buffer
 	sineBuffer = new std::vector<Sint16>(samples);
@@ -160,16 +85,109 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 
 	//------------------------------------------
 	// Set basic values inside global doc
-	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),X);	
-	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),Y);
+	getDoc()->set<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),X);	
+	getDoc()->set<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),Y);
 
-	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);	
-	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);
+	getDoc()->set<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);	
+	getDoc()->set<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);
 
 	//------------------------------------------
 	// Start timers
 	fpsControlTimer.start();
 	fpsRenderTimer.start();
+
+	//------------------------------------------
+	// Pre-parse initialization
+	setPreParse(std::bind(&Nebulite::Core::Renderer::preParse, this));
+
+	//------------------------------------------
+	// Domain Modules
+	Nebulite::DomainModule::RRDM_init(this);
+}
+
+Nebulite::Constants::Error Nebulite::Core::Renderer::preParse(){
+	// Initialize SDL and related subsystems
+	initSDL();
+	return Nebulite::Constants::ErrorTable::NONE();
+}
+
+void Nebulite::Core::Renderer::initSDL() {
+	if(SDL_initialized)return;
+
+	//------------------------------------------
+	// Window
+
+	//Create SDL window
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+		// SDL initialization failed
+		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+	}
+	// Define window via x|y|w|h
+	int x = SDL_WINDOWPOS_CENTERED;
+	int y = SDL_WINDOWPOS_CENTERED;
+	int w = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
+	int h = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
+
+	uint32_t flags;
+	flags = *headless ? SDL_WINDOW_HIDDEN : SDL_WINDOW_SHOWN;
+	//flags = flags | SDL_WINDOW_RESIZABLE; // Disabled for now, as it causes issues with the logical size rendering
+	flags = flags | SDL_WINDOW_OPENGL;
+	window = SDL_CreateWindow("Nebulite",x,y,w,h,flags);
+	if (!window) {
+		// Window creation failed
+		std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+		SDL_Quit();
+	}
+
+	//------------------------------------------
+	// Renderer
+
+	// Create a renderer
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	if (!renderer) {
+		std::cerr << "Renderer creation failed: " << SDL_GetError() << std::endl;
+	}
+
+	// Set virtual rendering size
+	SDL_RenderSetLogicalSize(
+		renderer, 
+		w, 
+		h
+	);
+
+	//------------------------------------------
+	// Fonts
+
+	// Initialize SDL_ttf
+	if (TTF_Init() < 0) {
+		// Handle SDL_ttf initialization error
+		SDL_Quit(); // Clean up SDL
+	}
+	loadFonts();
+
+	//------------------------------------------
+	// Audio
+
+	// Init
+	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+	} else {
+		SDL_AudioSpec desired, obtained;
+		desired.freq = 44100;
+		desired.format = AUDIO_S16SYS;
+		desired.channels = 1;
+		desired.samples = 1024;
+		desired.callback = nullptr;
+		
+		audioDevice = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
+		if (audioDevice == 0) {
+			std::cerr << "Failed to open audio device: " << SDL_GetError() << std::endl;
+		} else{
+			audioInitialized = true;
+		}
+	}
+
+	SDL_initialized = true;
 }
 
 void Nebulite::Core::Renderer::loadFonts() {
@@ -197,11 +215,11 @@ void Nebulite::Core::Renderer::loadFonts() {
 
 // For quick and dirty debugging, in case the rendering pipeline breaks somewhere
 //# define debug_on_each_step 1
-bool Nebulite::Core::Renderer::tick(){
+bool Nebulite::Core::Renderer::tick(Nebulite::Interaction::Invoke* invoke_ptr) {
 	//------------------------------------------
 	// Do all the steps of the rendering pipeline
     clear();           				// 1.) Clear screen FIRST, so that functions like snapshot have acces to the latest frame
-    updateState();          		// 2.) Update objects, states, etc.
+    updateState(invoke_ptr);        // 2.) Update objects, states, etc.
     renderFrame();     				// 3.) Render frame
 	if(showFPS)renderFPS();       	// 4.) Render fps count
     showFrame();       				// 5.) Show Frame
@@ -222,24 +240,14 @@ bool Nebulite::Core::Renderer::tick(){
     }
 
 	//------------------------------------------
-	// Check if resolution changed
-	/*
-	int w = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
-	int h = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
-	int current_w, current_h;
-	SDL_GetWindowSize(window, &current_w, &current_h);
-	if (current_w != w || current_h != h) {
-		// Resolution changed, update internal state
-		invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),current_w);
-		invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),current_h);
-		
-		// Since tiles scale with resolution, we need to reinsert all objects
-		reinsertAllObjects();
-	}
-	*/
-
+	// Manage frame skipping
 	skippedUpdateLastFrame = skipUpdate;
 	skipUpdate = false;
+
+	//------------------------------------------
+	// Update modules
+	updateModules();
+
 	return !skippedUpdateLastFrame;
 }
 
@@ -255,8 +263,8 @@ void Nebulite::Core::Renderer::append(Nebulite::Core::RenderObject* toAppend) {
 	//Append to environment, based on layer
 	env.append(
 		toAppend, 
-		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
-		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0), 
+		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
+		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0), 
 		toAppend->get(Nebulite::Constants::keyName.renderObject.layer.c_str(), 0)
 	);
 
@@ -266,8 +274,8 @@ void Nebulite::Core::Renderer::append(Nebulite::Core::RenderObject* toAppend) {
 
 void Nebulite::Core::Renderer::reinsertAllObjects(){
 	env.reinsertAllObjects(
-		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0),
-		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0)
+		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0),
+		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0)
 	);
 }
 
@@ -358,7 +366,6 @@ bool Nebulite::Core::Renderer::snapshot(std::string link) {
 // Purge
 
 void Nebulite::Core::Renderer::purgeObjects() {
-	invoke_ptr->clear();
 	env.purgeObjects();
 }
 
@@ -371,6 +378,7 @@ void Nebulite::Core::Renderer::purgeTextures() {
 }
 
 void Nebulite::Core::Renderer::destroy() {
+	if(!SDL_initialized)return;
     if (window) {
         SDL_DestroyWindow(window);
         window = nullptr;
@@ -399,19 +407,19 @@ void Nebulite::Core::Renderer::changeWindowSize(int w, int h, int scalar) {
 		return;
 	}
 
-	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),w);
-	invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),h);
-    
+	getDoc()->set<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),w);
+	getDoc()->set<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),h);
+
     // Update the window size
     SDL_SetWindowSize(
 		window, 
-		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),360) * WindowScale, 
-		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) * WindowScale
+		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),360) * WindowScale, 
+		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) * WindowScale
 	);
 	SDL_RenderSetLogicalSize(
 		renderer,
-		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),360), 
-		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360)
+		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),360), 
+		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360)
 	);
 
 	// Turn off console mode
@@ -423,13 +431,13 @@ void Nebulite::Core::Renderer::changeWindowSize(int w, int h, int scalar) {
 }
 
 void Nebulite::Core::Renderer::moveCam(int dX, int dY) {
-	invoke_ptr->getGlobalPointer()->set<int>(
+	getDoc()->set<int>(
 		Nebulite::Constants::keyName.renderer.positionX.c_str(),
-		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0) + dX
+		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0) + dX
 	);
-	invoke_ptr->getGlobalPointer()->set<int>(
+	getDoc()->set<int>(
 		Nebulite::Constants::keyName.renderer.positionY.c_str(),
-		invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0) + dY
+		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0) + dY
 	);
 };
 
@@ -437,14 +445,14 @@ void Nebulite::Core::Renderer::setCam(int X, int Y, bool isMiddle) {
 	std::cout << "Setting camera position to: " << X << ", " << Y << ", Middle: " << isMiddle << std::endl;
 
 	if(isMiddle){
-		int newPosX = X - invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0) / 2;
-		int newPosY = Y - invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0) / 2;
-		invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),newPosX);
-		invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),newPosY);
+		int newPosX = X - getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0) / 2;
+		int newPosY = Y - getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0) / 2;
+		getDoc()->set<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),newPosX);
+		getDoc()->set<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),newPosY);
 	}
 	else{
-		invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),X);
-		invoke_ptr->getGlobalPointer()->set<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),Y);
+		getDoc()->set<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),X);
+		getDoc()->set<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),Y);
 	}
 };
 
@@ -470,7 +478,7 @@ void Nebulite::Core::Renderer::clear(){
 	SDL_RenderClear(renderer);
 }
 
-void Nebulite::Core::Renderer::updateState() {
+void Nebulite::Core::Renderer::updateState(Nebulite::Interaction::Invoke* invoke_ptr) {
 	//------------------------------------------
 	// Skip update if flagged
 	if(skipUpdate){
@@ -481,9 +489,9 @@ void Nebulite::Core::Renderer::updateState() {
 	invoke_ptr->update();
 
 	// Update environment
-	int dispResX = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
-	int dispResY = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
-	env.update(tileXpos,tileYpos,dispResX,dispResY,invoke_ptr);
+	int dispResX = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
+	int dispResY = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
+	env.update(tileXpos,tileYpos,dispResX,dispResY);
 }
 
 void Nebulite::Core::Renderer::renderFrame() {
@@ -491,12 +499,12 @@ void Nebulite::Core::Renderer::renderFrame() {
 	// Store for faster access
 
 	// Get camera position
-	int dispPosX = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);
-	int dispPosY = invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);
+	int dispPosX = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);
+	int dispPosY = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);
 
 	// Depending on position, set tiles to render
-	tileXpos = dispPosX / invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
-	tileYpos = dispPosY / invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
+	tileXpos = dispPosX / getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
+	tileYpos = dispPosY / getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
 	
 	//------------------------------------------
 	// FPS Count and Control

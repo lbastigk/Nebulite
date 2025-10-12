@@ -1,20 +1,20 @@
 #include "Core/GlobalSpace.hpp"
-#include "DomainModule/GDM.hpp"
+#include "DomainModule/GSDM.hpp"
 
 #include "Constants/KeyNames.hpp"
 
+
 Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
-: Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite", this, &global)
+: Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite", this, &global, this),
+  global(this),                       // Link the global document to the GlobalSpace
+  docCache(this),                     // Init with reference to GlobalSpace
+  renderer(this, &cmdVars.headless),  // Renderer with reference to GlobalSpace and headless mode boolean
+  invoke(this)                        // Invoke with reference to GlobalSpace
 {
     //------------------------------------------
-    // Modify structs                         
-    tasks.always.clearAfterResolving = false;
-
-    //------------------------------------------
-    // Objects and linkages 
-    renderer = nullptr; // Uninitialized
-    invoke = std::make_unique<Nebulite::Interaction::Invoke>(&global);
-    invoke->linkTaskQueue(tasks.internal.taskQueue);
+    // Setup tasks                         
+    tasks.always.clearAfterResolving = false;       // Always tasks are never cleared
+    invoke.linkTaskQueue(tasks.internal.taskQueue); // Invoke pushes tasks to internal queue
 
     //------------------------------------------
     // General Variables
@@ -29,28 +29,103 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
 
     // Link inherited Domains
     inherit<Nebulite::Utility::JSON>(&global);
+    inherit<Nebulite::Core::Renderer>(&renderer);
 
     // Initialize DomainModules
-    Nebulite::DomainModule::GDM_init(this);
+    Nebulite::DomainModule::GSDM_init(this);
 
     //------------------------------------------
-    // Do first update
-    update();
-}
+    // Update
 
-void Nebulite::Core::GlobalSpace::update() {
-    //------------------------------------------
-    // Update Domain
+    // Cannot be done here directly, as GlobalSpace::update() requires command line arguments to be parsed first!
+    // Instead, we just update the inner modules and domains once
 
     // Update modules first
     updateModules();
 
     // Then, update inner domains
-    getDoc()->update();
+    updateInnerDomains();
+}
+
+Nebulite::Constants::Error Nebulite::Core::GlobalSpace::updateInnerDomains(){
+    // For now, just update the JSON domain
+    // Later on the logic here might be more complex
+    // As more inner domains are added
+    Nebulite::Constants::Error result = getDoc()->update();
+    return result;
+}
+
+Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
+    static bool queueParsed = false;   // Indicates if the task queue has been parsed on this frame render
+    static bool criticalStop = false;  // Indicates if a critical stop has occurred
+    Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE(); // Last critical error result
+
+    //------------------------------------------
+    /**
+     * Parse queue in GlobalSpace.
+     * Result determines if a critical stop is initiated.
+     * 
+     * We do this once before rendering
+     * 
+     * @note For now, all tasks are parsed even if the program is in console mode.
+     *       This is useful as tasks like "spawn" or "echo" are directly executed.
+     *       But might break for more complex tasks, so this should be taken into account later on,
+     *       e.G. inside the GlobalSpace, checking state of Renderer might be useful
+     */
+    if(!queueParsed){
+        lastCriticalResult = parseQueue();
+        criticalStop = (lastCriticalResult != Nebulite::Constants::ErrorTable::NONE());
+        queueParsed = true;
+    }
+
+    //------------------------------------------
+    // Update and render, only if initialized
+    // If renderer wasnt initialized, it is still a nullptr
+    if (!criticalStop && renderer.isSdlInitialized() && renderer.timeToRender()) {
+        // Update modules first
+        updateModules();
+
+        // Then, update inner domains
+        updateInnerDomains();
+
+        // Update Renderer
+        bool didUpdate = renderer.tick(&invoke);
+
+        // Reduce script wait counter if not in console mode or other halting states
+        if(didUpdate){
+            if(scriptWaitCounter > 0) scriptWaitCounter--; 
+            if(scriptWaitCounter < 0) scriptWaitCounter = 0;
+        }  
+
+        // Frame was rendered, meaning we potentially have new tasks to process
+        queueParsed = false;
+    }
+
+    //------------------------------------------
+    // Check if we need to continue the loop
+    continueLoop = !criticalStop && renderer.isSdlInitialized() && !renderer.shouldQuit();
+
+    // Overwrite: If there is a wait operation and no renderer exists, 
+    // we need to continue the loop and decrease scriptWaitCounter
+    /**
+     * @note It might be tempting to add the condition that all tasks are done,
+     *       but this could cause issues if the user wishes to quit while a task is still running.
+     */
+    if(scriptWaitCounter > 0 && !renderer.isSdlInitialized()){
+        continueLoop = true;
+        scriptWaitCounter--;
+
+        // Parse new tasks on next loop
+        queueParsed = false;
+    }
+
+    //------------------------------------------
+    // Return last critical result if there was a critical stop
+    return lastCriticalResult;
 }
 
 void Nebulite::Core::GlobalSpace::parseCommandLineArguments(int argc, char* argv[]){
-//------------------------------------------
+    //------------------------------------------
     // Add main args to taskList, split by ';'
     if (argc > 1) {
         std::ostringstream oss;
@@ -110,23 +185,6 @@ void Nebulite::Core::GlobalSpace::parseCommandLineArguments(int argc, char* argv
          */
         tasks.script.taskQueue.push_back(std::string("set-fps 60"));
     }
-}
-
-Nebulite::Core::Renderer* Nebulite::Core::GlobalSpace::getRenderer() {
-    if (!rendererInitialized) {
-        renderer = std::make_unique<Nebulite::Core::Renderer>(this, cmdVars.headless == "true");
-        renderer->setTargetFPS(60); // Standard value for a fresh renderer
-        rendererInitialized = true;
-    }
-    return renderer.get();
-}
-
-SDL_Renderer* Nebulite::Core::GlobalSpace::getSDLRenderer() {
-    return getRenderer()->getSdlRenderer();
-}
-
-bool Nebulite::Core::GlobalSpace::RendererExists(){
-    return rendererInitialized;
 }
 
 Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t* waitCounter){
@@ -198,21 +256,21 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
 
     // 2.) Parse script tasks
     queueResult.script = resolveTaskQueue(tasks.script, &scriptWaitCounter);
-    if(queueResult.script.stoppedAtCriticalResult && cmdVars.recover == "false") {
+    if(queueResult.script.stoppedAtCriticalResult && !cmdVars.recover) {
         lastCriticalResult = queueResult.script.errors.back();
         return lastCriticalResult;
     } 
 
     // 3.) Parse internal tasks
     queueResult.internal = resolveTaskQueue(tasks.internal, noWaitCounter);
-    if(queueResult.internal.stoppedAtCriticalResult && cmdVars.recover == "false") {
+    if(queueResult.internal.stoppedAtCriticalResult && !cmdVars.recover) {
         lastCriticalResult = queueResult.internal.errors.back();
         return lastCriticalResult;
     }
 
     // 4.) Parse always-tasks
     queueResult.always = resolveTaskQueue(tasks.always, noWaitCounter);
-    if(queueResult.always.stoppedAtCriticalResult && cmdVars.recover == "false") {
+    if(queueResult.always.stoppedAtCriticalResult && !cmdVars.recover) {
         lastCriticalResult = queueResult.always.errors.back();
         return lastCriticalResult;
     }
@@ -227,57 +285,27 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::preParse() {
 
     // Update RNGs
     // Disabled if renderer skipped update last frame, active otherwise
-    bool RNG_update_enabled = rendererInitialized && getRenderer()->hasSkippedUpdate() == false;
-    RNG_update_enabled |= !rendererInitialized; // If renderer is not initialized, we always update RNGs
+    bool RNG_update_enabled = renderer.isSdlInitialized() && renderer.hasSkippedUpdate() == false;
+    RNG_update_enabled |= !renderer.isSdlInitialized(); // If renderer is not initialized, we always update RNGs
     if(RNG_update_enabled){
-        std::string seed = getLastParsedString();
-        updateRNGs(seed);
+        updateRNGs();
     }
 
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-/**
- * @define RNG_SEEDER_VOLATILE
- * @brief If defined, the RNG updater will use the provided seed + last RNG value to generate a new RNG value.
- * if not defined, it will only use the last RNG value + a constant string.
- * 
- * @note If we ever notice inconsistencies between platforms, we should undefine this.
- */
-#define RNG_SEEDER_VOLATILE 0
-
-void Nebulite::Core::GlobalSpace::updateRNGs(std::string seed){
+void Nebulite::Core::GlobalSpace::updateRNGs(){
     // Set Min and Max values for RNGs in document
     // Always set, so overwrites dont stick around
     global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.random.min.c_str(), std::numeric_limits<RNGvars::rng_size_t>::min());
     global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.random.max.c_str(), std::numeric_limits<RNGvars::rng_size_t>::max());
 
-    // Set a normalized seed if volatile seeding is enabled
-    // if not, the normalized seed remains empty
-    std::string normalized_seed = "";
-    #ifdef RNG_SEEDER_VOLATILE
-        // We need to remove all links from the seed, so it's consistent
-        // This is because links arent relative to the binaries root, but absolute paths
-        // Meaning two users running the same command with different folder structures would get different RNG values otherwise
-        std::vector<std::string> args = Nebulite::Utility::StringHandler::parseQuotedArguments(seed);
-        for(auto& arg : args){
-            // All args that arent links are added to the seed
-            if(arg.find("/") != std::string::npos || arg.find("\\") != std::string::npos){
-                continue;
-
-            } else {
-                normalized_seed += arg + " ";
-            }
-        }
-    #endif
-
-    // Generate seeds
-    // If we ever notice inconsistencies, we can always just hash the last rng + some constant string
-    // Perhaps the provided seed becomes hard to normalize (removing platform-specific paths etc.)
-    std::string seedA = normalized_seed + "A" + std::to_string(rng.A.get());
-    std::string seedB = normalized_seed + "B" + std::to_string(rng.B.get());
-    std::string seedC = normalized_seed + "C" + std::to_string(rng.C.get());
-    std::string seedD = normalized_seed + "D" + std::to_string(rng.D.get());
+    // Generate seeds in a predictable manner
+    // Since updateRNG is called at specific times only, we can simply increment RNG with a new seed
+    std::string seedA = "A" + std::to_string(rng.A.get());
+    std::string seedB = "B" + std::to_string(rng.B.get());
+    std::string seedC = "C" + std::to_string(rng.C.get());
+    std::string seedD = "D" + std::to_string(rng.D.get());
 
     // Hash seeds
     rng.A.update(seedA);

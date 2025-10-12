@@ -46,7 +46,7 @@ public:
      *
      * Should use a TimeKeeper so it only updates inputs every n milliseconds
      */
-    void update();
+    Nebulite::Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions

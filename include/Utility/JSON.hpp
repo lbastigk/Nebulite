@@ -114,8 +114,13 @@ private:
      */
     void flush();
 
+    /**
+     * @brief Link to the global space.
+     */
+    Nebulite::Core::GlobalSpace* global;
+
 public:
-    JSON();
+    JSON(Nebulite::Core::GlobalSpace* globalSpace);
 
     ~JSON();
 
@@ -135,7 +140,7 @@ public:
     //------------------------------------------
     // Domain-specific methods
 
-    void update() override;
+    Nebulite::Constants::Error update() override;
 
     //------------------------------------------
     // Set methods
@@ -316,7 +321,7 @@ public:
      * 
      * - `file.json|set-from-json key1.key2[5] otherFile.json:key` - Sets key1.key2[5] from the value of key in otherFile.json
      * 
-     * See `JDM_*.hpp` files for available functioncalls.
+     * See `JSDM_*.hpp` files for available functioncalls.
      */
     void deserialize(std::string serial_or_link);
 };

@@ -30,7 +30,7 @@ public:
     /**
      * @brief Default constructor for DocumentCache.
      */
-    DocumentCache(){
+    DocumentCache(Nebulite::Core::GlobalSpace* globalSpace) : global(globalSpace), readOnlyDocs(globalSpace) {
         zero = new double(0.0);
     }
 
@@ -71,7 +71,7 @@ public:
 
         // Check if the document exists in the cache
         if (docPtr == nullptr) {
-            return Nebulite::Utility::JSON(); // Return empty JSON if document loading fails
+            return Nebulite::Utility::JSON(global); // Return empty JSON if document loading fails
         }
 
         // Retrieve the sub-document from the document
@@ -187,6 +187,11 @@ public:
 
 private:
     /**
+     * @brief Link to the global space.
+     */
+    Nebulite::Core::GlobalSpace* global;
+
+    /**
      * @brief Splits a doc:key string into its components
      */
     std::pair<std::string, std::string> splitDocKey(const std::string& doc_key){
@@ -209,8 +214,10 @@ private:
      * @brief Represents a read-only document with its associated metadata.
      */
     struct ReadOnlyDoc {
-        Nebulite::Utility::JSON document;
+        Nebulite::Utility::JSON document; // The actual JSON document
         Nebulite::Utility::TimeKeeper lastUsed;
+
+        ReadOnlyDoc(Nebulite::Core::GlobalSpace* globalSpace) : document(globalSpace), lastUsed() {}
     };
 
     /**
@@ -232,7 +239,16 @@ private:
              */
             absl::flat_hash_map<std::string, ReadOnlyDoc> docs;
 
+            /**
+             * @brief Reference to the global space for document creation.
+             */
+            Nebulite::Core::GlobalSpace* globalSpace;
+
         public:
+            /**
+             * @brief Constructor that takes a GlobalSpace pointer.
+             */
+            ReadOnlyDocs(Nebulite::Core::GlobalSpace* global) : globalSpace(global) {}
             /**
              * @brief Updates the cache by checking a random document for its last usage time,
              * and unloading it if it has been unused for too long.
@@ -259,15 +275,18 @@ private:
              */
             ReadOnlyDoc* getDocument(const std::string& doc) {
                 // Check if the document exists in the cache
-                if (docs.find(doc) == docs.end()) {
+                auto it = docs.find(doc);
+                if (it == docs.end()) {
                     // Load the document if it doesn't exist
                     std::string serial = Nebulite::Utility::FileManagement::LoadFile(doc);
                     if (serial.empty()) {
                         return nullptr; // Return nullptr if document loading fails
                     }
-                    docs[doc].document.deserialize(serial);
+                    auto result = docs.emplace(doc, ReadOnlyDoc(globalSpace));
+                    result.first->second.document.deserialize(serial);
+                    it = result.first;
                 }
-                ReadOnlyDoc* docPtr = &docs[doc];
+                ReadOnlyDoc* docPtr = &it->second;
                 docPtr->lastUsed.update();
                 return docPtr;
             }

@@ -5,13 +5,14 @@ namespace Nebulite::DomainModule::GlobalSpace {
 
 //------------------------------------------
 // Update
-void GUI::update() {
+Nebulite::Constants::Error GUI::update() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
 
     // We can also update internal states from the local level:
     // int displaySizeX = self->global.get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(), 0);
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 

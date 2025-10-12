@@ -1,22 +1,23 @@
 #include "Core/RenderObject.hpp"
 
 #include "Core/GlobalSpace.hpp"
-#include "DomainModule/RDM.hpp"
+#include "DomainModule/RODM.hpp"
 #include "Interaction/RulesetCompiler.hpp"
 
-#include "DomainModule/JSON/JDM_SimpleData.hpp"
+#include "DomainModule/JSON/JSDM_SimpleData.hpp"
 
 //------------------------------------------
 // Special member Functions
 
 Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSpace) 
-: Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>("RenderObject", this, &json), 
+: json(globalSpace),
+  Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>("RenderObject", this, &json, globalSpace), 
   baseTexture(&json, globalSpace) {
 	//------------------------------------------
 	// Linkages
 	this->globalSpace = globalSpace;
 	global = globalSpace->getDoc();
-	invoke = globalSpace->invoke.get();
+	invoke = globalSpace->getInvoke();
 
 	//------------------------------------------
 	// Document Values
@@ -78,7 +79,7 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 
 	//------------------------------------------
 	// Initialize Domain Modules
-	Nebulite::DomainModule::RDM_init(this);
+	Nebulite::DomainModule::RODM_init(this);
 
 	//------------------------------------------
 	// Update once to initialize
@@ -221,7 +222,7 @@ void Nebulite::Core::RenderObject::calculateSrcRect() {
 //------------------------------------------
 // Outside communication with invoke for updating and estimation
 
-void Nebulite::Core::RenderObject::update() {
+Nebulite::Constants::Error Nebulite::Core::RenderObject::update() {
 	//------------------------------------------
 	// Update modules and all inner domains
 	updateModules();
@@ -270,8 +271,10 @@ void Nebulite::Core::RenderObject::update() {
 			invoke->broadcast(entry);
 		}
     }else{
-		std::cerr << "Invoke is nullptr!" << std::endl;
+		return Nebulite::Constants::ErrorTable::RENDERER::CRITICAL_INVOKE_NULLPTR();
 	}
+	// No evaluation of domainModules for now, just return NONE
+	return Nebulite::Constants::ErrorTable::NONE();
 }
 
 uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyInternal) {

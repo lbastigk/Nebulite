@@ -1,10 +1,11 @@
 #include "Core/Texture.hpp"
-#include "DomainModule/TDM.hpp"
+#include "DomainModule/TXDM.hpp"
 
 #include "Core/GlobalSpace.hpp"
 
 Nebulite::Core::Texture::Texture(Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* globalSpace) 
-: Nebulite::Interaction::Execution::Domain<Texture>("Texture",this,doc), globalSpace(globalSpace)
+: globalSpace(globalSpace), 
+  Nebulite::Interaction::Execution::Domain<Texture>("Texture", this, doc, globalSpace)
 {
     // Start with no texture
     texture  = nullptr;
@@ -13,11 +14,14 @@ Nebulite::Core::Texture::Texture(Nebulite::Utility::JSON* doc, Nebulite::Core::G
     setPreParse(std::bind(&Nebulite::Core::Texture::preParse,this));
 
     // Initialize all DomainModules
-    Nebulite::DomainModule::TDM_init(this);
+    Nebulite::DomainModule::TXDM_init(this);
 }
 
-void Nebulite::Core::Texture::update() {
+Nebulite::Constants::Error Nebulite::Core::Texture::update() {
     updateModules();
+
+    // No evaluation of previous lines for now, just return NONE
+    return Nebulite::Constants::ErrorTable::NONE();
 }
 
 bool Nebulite::Core::Texture::copyTexture() {
@@ -41,27 +45,27 @@ bool Nebulite::Core::Texture::copyTexture() {
     }
 
     // Create a new texture with streaming access for modifications
-    SDL_Texture* newTexture = SDL_CreateTexture(globalSpace->getSDLRenderer(), format, SDL_TEXTUREACCESS_STREAMING, w, h);
+    SDL_Texture* newTexture = SDL_CreateTexture(globalSpace->getSdlRenderer(), format, SDL_TEXTUREACCESS_STREAMING, w, h);
     if (!newTexture) {
         std::cerr << "Failed to create new texture: " << SDL_GetError() << std::endl;
         return false;
     }
 
     // Copy the content from the old texture to the new one
-    if (SDL_SetRenderTarget(globalSpace->getSDLRenderer(), newTexture) != 0) {
+    if (SDL_SetRenderTarget(globalSpace->getSdlRenderer(), newTexture) != 0) {
         std::cerr << "Failed to set render target: " << SDL_GetError() << std::endl;
         SDL_DestroyTexture(newTexture);
         return false;
     }
 
-    if (SDL_RenderCopy(globalSpace->getSDLRenderer(), texture, nullptr, nullptr) != 0) {
+    if (SDL_RenderCopy(globalSpace->getSdlRenderer(), texture, nullptr, nullptr) != 0) {
         std::cerr << "Failed to copy texture: " << SDL_GetError() << std::endl;
-        SDL_SetRenderTarget(globalSpace->getSDLRenderer(), nullptr);
+        SDL_SetRenderTarget(globalSpace->getSdlRenderer(), nullptr);
         SDL_DestroyTexture(newTexture);
         return false;
     }
 
-    SDL_SetRenderTarget(globalSpace->getSDLRenderer(), nullptr);
+    SDL_SetRenderTarget(globalSpace->getSdlRenderer(), nullptr);
 
     // Replace the old texture with the new one
     // We do not destroy the old texture, as it might be managed externally

@@ -36,18 +36,27 @@ namespace Core {
  * 
  * @brief Responsible for rendering game objects and managing the rendering pipeline.
  */
-class Renderer {
+NEBULITE_DOMAIN(Renderer) {
 public:
 	/**
 	 * @brief Initializes a Renderer with given dimensions and settings.
 	 * 
-	 * @param invoke Reference to the Nebulite::Interaction::Invoke instance.
-	 * @param global Reference to the global Nebulite::Utility::JSON instance.
-	 * @param flag_headless Boolean flag for headless mode.
+	 * @param globalSpace Reference to the globalspace
+	 * @param flag_headless Reference to the Boolean flag for headless mode.
 	 * @param X Width of the rendering area.
 	 * @param Y Height of the rendering area.
 	 */
-	Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool flag_headless = false, unsigned int X = 1080, unsigned int Y = 1080);
+	Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool* flag_headless, unsigned int X = 1080, unsigned int Y = 1080);
+
+	/**
+	 * @brief Initializes SDL and related subsystems.
+	 */
+	void initSDL();
+
+	/**
+	 * @brief Called before parsing any commands.
+	 */
+	Nebulite::Constants::Error preParse() override;
 
 	//------------------------------------------
 	// Serialization / Deserialization
@@ -69,8 +78,8 @@ public:
 	void deserialize(std::string serialOrLink){
 		env.deserialize(
 			serialOrLink, 
-			invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
-			invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0)
+			getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
+			getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0)
 		);
 	}
 
@@ -82,7 +91,7 @@ public:
 	 * 
 	 * - clears the screen
 	 * 
-	 * - calls the general update function
+	 * - calls the state update function
 	 * 
 	 * - renders frame
 	 * 
@@ -90,9 +99,14 @@ public:
 	 * 
 	 * - presents the frame
 	 * 
+	 * - manages SDL events
+	 * 
+	 * - manages state for next frame
+	 * 
+	 * @param invoke_ptr Pointer to the current Invoke instance.
 	 * @return True if update was done, false if skipped (e.g. console mode).
 	 */
-	bool tick();
+	bool tick(Nebulite::Interaction::Invoke* invoke_ptr);
 
 	/**
 	 * @brief Checks if it's time to render the next frame based on the target FPS.
@@ -124,18 +138,6 @@ public:
 	 * Does not change the id counter.
 	 */
 	void reinsertAllObjects();
-
-	/**
-	 * @brief Checks if the Renderer is in a quit state.
-	 * 
-	 * @return True if the Renderer is set to quit, false otherwise.
-	 */
-	bool isQuit(){return quit;}
-
-	/**
-	 * @brief Sets the quit state of the Renderer.
-	 */
-	void setQuit(){quit=true;}
 
 	/**
 	 * @brief Skips updating the next frame.
@@ -312,14 +314,14 @@ public:
 	 * 
 	 * @return The current resolution in the X direction.
 	 */
-	int getResX(){return invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);}
+	int getResX(){return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX,0);}
 
 	/**
 	 * @brief Gets the current resolution in the Y direction.
 	 * 
 	 * @return The current resolution in the Y direction.
 	 */
-	int getResY(){return invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);}
+	int getResY(){return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY,0);}
 
 	/**
 	 * @brief Gets the current FPS.
@@ -335,7 +337,7 @@ public:
 	 * 
 	 * @return The current position of the camera in the X direction.
 	 */
-	int getPosX(){return invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);}
+	int getPosX(){return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);}
 
 	/**
 	 * @brief Gets the current position of the camera in the Y direction.
@@ -344,7 +346,7 @@ public:
 	 * 
 	 * @return The current position of the camera in the Y direction.
 	 */
-	int getPosY(){return invoke_ptr->getGlobalPointer()->get<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);}
+	int getPosY(){return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);}
 
 	/**
 	 * @brief Gets the current tile position of the camera in the X direction.
@@ -372,14 +374,6 @@ public:
 	 * @return The SDL_Renderer instance.
 	 */
 	SDL_Renderer* getSdlRenderer(){return renderer;}
-
-	/**
-	 * @brief Gets the Invoke instance.
-	 * 
-	 * Allows for access to the underlying Invoke instance for custom operations.
-	 * 
-	 */
-	Nebulite::Interaction::Invoke* getInvoke(){return invoke_ptr;}
 
 	/**
 	 * @brief Gets the RenderObject from its ID.
@@ -432,14 +426,36 @@ public:
 	 */
 	SDL_Texture* loadTextureToMemory(std::string link);
 
+	//------------------------------------------
+	// Status
+
+	/**
+	 * @brief Checks if the Renderer is initialized
+	 */
+	bool isSdlInitialized(){return (SDL_initialized);}
+
+	/**
+	 * @brief Checks if the Renderer is set to quit
+	 */
+	bool shouldQuit(){return quit;}
+
+	/**
+	 * @brief Sets the quit flag for the Renderer
+	 */
+	void setQuit(){quit=true;}
+
 private:
 	//------------------------------------------
 	// Boolean Status Variables
 	bool audioInitialized = false;
-	bool quit = false;
 	bool showFPS = true;			// Set default to false later on
 	bool skipUpdate = false;
 	bool skippedUpdateLastFrame = false;
+	bool SDL_initialized = false;
+	bool quit = false;			// Set to true when SDL_QUIT event is received or outside wants to quit
+
+	// External Flags
+	bool* headless = nullptr;
 
 	//------------------------------------------
 	// Audio
@@ -470,7 +486,6 @@ private:
 
 	// Custom Subclasses
 	Environment env;
-	Nebulite::Interaction::Invoke* invoke_ptr = nullptr;	
 
 	// Rendering
 	unsigned int WindowScale = 1;
@@ -521,8 +536,10 @@ private:
 	 * - updates the invoke instance
 	 * 
 	 * - updates the environment
+	 * 
+	 * @param invoke_ptr Pointer to the current Invoke instance.
 	 */
-	void updateState();
+	void updateState(Nebulite::Interaction::Invoke* invoke_ptr);
 
 	/**
 	 * @brief Renders the current frame.

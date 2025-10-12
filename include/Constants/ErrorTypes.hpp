@@ -226,6 +226,10 @@ public:
             static Error error = getInstance().addError("Critical Error: Renderer snapshot failed.", Error::CRITICAL);
             return error;
         }
+        static inline Error CRITICAL_INVOKE_NULLPTR(){
+            static Error error = getInstance().addError("Critical Error: Linked Invoke pointer is nullptr.", Error::CRITICAL);
+            return error;
+        }
     } RENDERER;
 
     /**

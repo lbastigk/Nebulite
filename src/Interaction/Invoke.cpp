@@ -1,5 +1,6 @@
 #include "Interaction/Invoke.hpp"
 
+#include "Core/GlobalSpace.hpp"
 #include "Core/RenderObject.hpp"
 #include "Utility/StringHandler.hpp"
 #include <limits>
@@ -7,9 +8,11 @@
 //------------------------------------------
 // Constructor / Destructor
 
-Nebulite::Interaction::Invoke::Invoke(Nebulite::Utility::JSON* globalDocPtr){
-    global = globalDocPtr;
-    
+Nebulite::Interaction::Invoke::Invoke(Nebulite::Core::GlobalSpace* globalSpace)
+: docCache(globalSpace->getDocCache()),
+  global(globalSpace),
+  globalDoc(globalSpace->getDoc())
+{   
     // Initialize synchronization primitives
     threadState.stopFlag = false;
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
@@ -60,17 +63,6 @@ Nebulite::Interaction::Invoke::~Invoke() {
     }
 }
 
-void Nebulite::Interaction::Invoke::clear(){
-    for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
-        std::lock_guard<std::mutex> lock1(broadcasted.entriesThisFrame[i].mutex);
-        broadcasted.entriesThisFrame[i].work.clear();
-        std::lock_guard<std::mutex> lock2(broadcasted.entriesNextFrame[i].mutex);
-        broadcasted.entriesNextFrame[i].work.clear();
-        std::lock_guard<std::mutex> lock3(broadcasted.pairings[i].mutex);
-        broadcasted.pairings[i].work.clear();
-    }
-}
-
 //------------------------------------------
 // Checks
 
@@ -104,7 +96,7 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
 
         // In case this happens, it might be helpful to set the logic to always false:
         // This way, the error log does not happen all the time.
-        cmd->logicalArg.parse("0", docCache, cmd->selfPtr->getDoc(), global);
+        cmd->logicalArg.parse("0", docCache, cmd->selfPtr->getDoc(), globalDoc);
 
         // This can become an unwanted behavior if the following is done:
         // logicalArg = $(not($(global.states.xyz)))
@@ -129,7 +121,7 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
     double result = cmd->logicalArg.evalAsDouble(cmd->selfPtr->getDoc());
     if(isnan(result)){
         std::cerr << "Evaluated logic to NAN! Logic is: " << expr << ". Resetting to 0" << std::endl;
-        cmd->logicalArg.parse("0", docCache, cmd->selfPtr->getDoc(), global);
+        cmd->logicalArg.parse("0", docCache, cmd->selfPtr->getDoc(), globalDoc);
         return false;
     }
     return result != 0.0;
@@ -279,7 +271,7 @@ void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Inte
             targetDocument = doc_other;
             break;
         case Nebulite::Interaction::Logic::Assignment::Type::Global:
-            targetDocument = global;
+            targetDocument = globalDoc;
             break;
         case Nebulite::Interaction::Logic::Assignment::Type::null:
             std::cerr << "Assignment expression has null type - skipping" << std::endl;
@@ -384,7 +376,7 @@ void Nebulite::Interaction::Invoke::update() {
 std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const std::string& input) {
     Nebulite::Utility::JSON* self = this->emptyDoc;
     Nebulite::Utility::JSON* other = this->emptyDoc;
-    Nebulite::Utility::JSON* global = this->global;
+    Nebulite::Utility::JSON* global = this->globalDoc;
 
     // Parse string into Expression
     Nebulite::Interaction::Logic::ExpressionPool expr;
@@ -395,7 +387,7 @@ std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const st
 std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const std::string& input, Nebulite::Core::RenderObject* selfAndOther) {
     Nebulite::Utility::JSON* self = selfAndOther->getDoc();
     Nebulite::Utility::JSON* other = selfAndOther->getDoc();
-    Nebulite::Utility::JSON* global = this->global;
+    Nebulite::Utility::JSON* global = this->globalDoc;
 
     // Parse string into Expression
     Nebulite::Interaction::Logic::ExpressionPool expr;

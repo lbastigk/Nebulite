@@ -91,9 +91,9 @@ public:
     /**
      * @brief Constructs an Invoke object.
      * 
-     * @param globalDocPtr Pointer to the global JSON document.
+     * @param globalSpace Pointer to the global space.
      */
-    Invoke(Nebulite::Utility::JSON* globalDocPtr);
+    Invoke(Nebulite::Core::GlobalSpace* globalSpace);
 
     /**
      * @brief Destructor - stops worker threads.
@@ -107,18 +107,23 @@ public:
      */
     void linkTaskQueue(std::deque<std::string>& queue){tasks = &queue;}
 
-    /**
-     * @brief Clears all broadcasted invoke entries and pairs.
-     */
-    void clear();
-
     //------------------------------------------
     // Getting
 
     /**
      * @brief Gets the global JSON document pointer.
      */
-    Nebulite::Utility::JSON* getGlobalPointer(){return global;};
+    Nebulite::Utility::JSON* getGlobalPointer(){return globalDoc;};
+
+    /**
+     * @brief Gets a pointer to the DocumentCache.
+     * 
+     * This function provides access to the DocumentCache used by the invoke class,
+     * allowing for efficient document management and retrieval.
+     * 
+     * @return A pointer to the DocumentCache.
+     */
+    Nebulite::Utility::DocumentCache* getDocumentCache() { return docCache; }
     
     //------------------------------------------
     // Send/Listen
@@ -273,24 +278,17 @@ public:
      */
     std::string evaluateStandaloneExpression(const std::string& input, Nebulite::Core::RenderObject* selfAndOther);
 
-    /**
-     * @brief Gets a pointer to the DocumentCache.
-     * 
-     * This function provides access to the DocumentCache used by the invoke class,
-     * allowing for efficient document management and retrieval.
-     * 
-     * @return A pointer to the DocumentCache.
-     */
-    Nebulite::Utility::DocumentCache* getDocumentCache() { return &docCache; }
-
 private:
     //------------------------------------------
     // General Variables
 
+    // Link to globalspace
+    Nebulite::Core::GlobalSpace* global = nullptr;
+
     // Documents
-    Nebulite::Utility::DocumentCache docCache;
-    Nebulite::Utility::JSON* emptyDoc = new Nebulite::Utility::JSON();  // Linking an empty doc is needed for some functions
-    Nebulite::Utility::JSON* global = nullptr;                 // Linkage to global doc
+    Nebulite::Utility::DocumentCache* docCache = nullptr;                       // DocumentCache for read-only documents, linked on construction
+    Nebulite::Utility::JSON* emptyDoc = new Nebulite::Utility::JSON(global);    // Linking an empty doc is needed for some functions
+    Nebulite::Utility::JSON* globalDoc = nullptr;                               // Linkage to global doc, linked on construction
 
     // pointer to queue
     std::deque<std::string>* tasks = nullptr; 

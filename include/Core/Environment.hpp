@@ -57,7 +57,7 @@ public:
 	 * 
 	 * *IMPORTANT:* New layers must be added to private variable `allLayers` in the correct order.
 	 * 
-	 * @todo Once GDM_GUI and renderer texture queuing is properly implemented, 
+	 * @todo Once GSDM_GUI and renderer texture queuing is properly implemented, 
 	 * the layer size may be reduced and layer names reworked.
 	 */
 	enum Layer {
@@ -150,9 +150,8 @@ public:
 	 * @param tileYpos current camera tile position in the Y direction.
 	 * @param dispResX display resolution width. Necessary for potential RenderObject reinsertions).
 	 * @param dispResY display resolution height. Necessary for potential RenderObject reinsertions).
-	 * @param globalInvoke pointer to the global Invoke instance.
 	 */
-	void update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY, Nebulite::Interaction::Invoke* globalInvoke);
+	void update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY);
 
 	/**
 	 * @brief Rebuilds the Container structure.
@@ -213,6 +212,9 @@ private:
 
 	// Link to Global Values
     Nebulite::Utility::JSON* global;
+
+	// Link to GlobalSpace
+	Nebulite::Core::GlobalSpace* globalSpace;
 
 	// Inner RenderObject container layers
 	std::array<Nebulite::Core::RenderObjectContainer, Nebulite::Core::Environment::LayerCount> roc;

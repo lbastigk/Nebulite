@@ -24,6 +24,14 @@
 // Forward declarations
 
 namespace Nebulite{
+    namespace Core{
+        // we cannot include GlobalSpace directly due to circular dependencies,
+        // as GlobalSpace itself is a Domain.
+        class GlobalSpace;
+    } 
+    /**
+     * @todo Is this necessary?
+     */
     namespace Interaction{
         class Invoke;
     }
@@ -56,8 +64,8 @@ template<typename DomainType>
 class Domain{
     template<typename> friend class Domain;  // All Domain<T> instantiations are friends, so we can access each other's private members
 public:
-    Domain(std::string domainName, DomainType* domain, Nebulite::Utility::JSON* doc)
-    : domainName(domainName), domain(domain), doc(doc)
+    Domain(std::string domainName, DomainType* domain, Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* global)
+    : domainName(domainName), domain(domain), doc(doc), global(global)
     {
         funcTree = new Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>( 
                 domainName, 
@@ -65,6 +73,9 @@ public:
                 Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
             );
     };
+
+    //------------------------------------------
+    // Binding, initializing and inheriting
 
     /**
      * @brief Factory method for creating DomainModule instances with proper linkage
@@ -74,7 +85,7 @@ public:
      */
     template<typename DomainModuleType>
     void initModule(std::string moduleName) {
-        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, funcTree);
+        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, funcTree, global);
         modules.push_back(std::move(DomainModule));
     }
 
@@ -83,7 +94,7 @@ public:
      * 
      * For binding functions or subtrees, use the DomainModule interface.
      */
-    void bindVariable(std::string* varPtr, const std::string& name, const std::string* helpDescription){
+    void bindVariable(bool* varPtr, const std::string& name, const std::string* helpDescription){
         funcTree->bindVariable(varPtr, name, helpDescription);
     }
 
@@ -98,31 +109,23 @@ public:
     }
 
     //------------------------------------------
-    // To overwrite
+    // Updating
 
     /**
      * @brief Updates the domain.
      * 
-     * @todo should also return type Nebulite::Constants::Error
+     * On overwriting, make sure to update all subdomains and domainmodules as well.
      */
-    virtual void update(){
-        // We cannot directly access the potential subdomain JSON here,
-        // so this function needs to be overwritten in the derived class.
-    }
-
-    //------------------------------------------
-    // Getting private members
+    virtual Nebulite::Constants::Error update(){return Nebulite::Constants::ErrorTable::NONE();};
 
     /**
-     * @brief Gets a pointer to the internal JSON document of the domain.
-     * 
-     * Each domain uses a JSON document to store its data.
-     * For the JSON domain, this is a reference to itself.
-     * For others, it's a reference to their JSON document.
-     * 
-     * @return A pointer to the internal JSON document.
+     * @brief Updates all DomainModules.
      */
-    Nebulite::Utility::JSON* getDoc() const { return doc; };
+    void updateModules(){
+        for(auto& module : modules){
+            module->update();
+        }
+    }
 
     //------------------------------------------
     // Command parsing
@@ -180,32 +183,43 @@ public:
         funcTree->setPreParse(func);
     }
 
-    /**
-     * @brief Reference to the domain itself
-     */
-    DomainType* const domain;
-    
-    /**
-     * @brief Updates all DomainModules.
-     */
-    void updateModules(){
-        for(auto& module : modules){
-            module->update();
-        }
-    }
+    //------------------------------------------
+    // Access to private members
 
     /**
-     * @brief Gets the last parsed string.
+     * @brief Gets a pointer to the internal JSON document of the domain.
+     * 
+     * Each domain uses a JSON document to store its data.
+     * For the JSON domain, this is a reference to itself.
+     * For others, it's a reference to their JSON document.
+     * 
+     * @return A pointer to the internal JSON document.
      */
-    std::string getLastParsedString() const {
-        return funcTree->getLastParsedString();
-    }
+    Nebulite::Utility::JSON* getDoc() const {return doc;}
+
+    /**
+     * @brief Gets a pointer to the globalspace.
+     * 
+     * @return A pointer to the globalspace.
+     */
+    Nebulite::Core::GlobalSpace* getGlobalSpace() const {return global;}
 
 private:
+    //------------------------------------------
+    // Core members
+    
     /**
      * @brief The name of the domain.
      */
     std::string domainName;
+
+    //------------------------------------------
+    // Modules and the FuncTree they act upon
+
+    /**
+     * @brief Stores all available modules
+     */
+    std::vector<std::unique_ptr<Nebulite::Interaction::Execution::DomainModule<DomainType>>> modules;
 
     /**
      * @brief Parsing interface for domain-specific commands.
@@ -217,10 +231,15 @@ private:
      */
     Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTree;
 
+    //------------------------------------------
+    // Inner references
+
     /**
-     * @brief Stores all available modules
+     * @brief Reference to the domain itself
+     * 
+     * Used to initialize DomainModules with a reference to the domain.
      */
-    std::vector<std::unique_ptr<Nebulite::Interaction::Execution::DomainModule<DomainType>>> modules;
+    DomainType* const domain;
 
     /**
      * @brief Each domain uses a JSON document to store its data.
@@ -228,6 +247,11 @@ private:
      * Meaning the internal JSON doc references to itself.
      */
     Nebulite::Utility::JSON* const doc;
+
+    /**
+     * @brief Pointer to the globalspace, for accessing global resources and management functions.
+     */
+    Nebulite::Core::GlobalSpace* const global;
 };
 }   // namespace Execution
 }   // namespace Interaction

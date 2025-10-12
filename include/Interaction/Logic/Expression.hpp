@@ -52,7 +52,7 @@ public:
      * @param self The JSON object representing the "self" context.
      * @param global The JSON object representing the "global" context.
      */
-    void parse(const std::string& expr, Nebulite::Utility::DocumentCache& documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global);
+    void parse(const std::string& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global);
 
     /**
      * @brief Checks if the expression can be returned as a double.

@@ -61,7 +61,7 @@ namespace Execution{
  * 
  * Example:
  * ```cpp
- * std::string myArgument = "false";
+ * bool myArgument = false;
  * int foo(int argc, char** argv){std::cout << "foo: " << myArgument << std::endl}
  * int bar(int argc, char** argv){std::cout << "bar: " << myArgument << std::endl}
  *
@@ -81,6 +81,9 @@ public:
     template<typename RT>
     friend class FuncTree;
 
+    //------------------------------------------
+    // Constructor and inheritance
+
     /**
      * @brief Constructor for the FuncTree class.
      * @param treeName Name of the tree
@@ -88,14 +91,6 @@ public:
      * @param functionNotFoundError Value to return if the parsed function was not found
      */
     FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError);
-
-    /**
-     * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
-     * @param func Function to call before parsing
-     */
-    void setPreParse(std::function<Nebulite::Constants::Error()> func){
-        preParse = func;
-    }
 
     /**
      * @brief Inherits functions from another Tree.
@@ -106,19 +101,16 @@ public:
         inheritedTrees.push_back(toInherit);
     }
 
+    //------------------------------------------
+    // Parsing
+
     /**
-     * @brief Parses the command line arguments and executes the corresponding function.
-     * 
-     * The first argument should be used to identify where the execution comes from.
-     * All subsequent arguments starting with -- are treated as variable assignments.
-     * The first argument after the variable assignments is the function to execute.
-     * 
-     * Example: 
-     * ```cpp 
-     * "./bin/Nebulite --myArgument foo"
-     * ```
+     * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
+     * @param func Function to call before parsing
      */
-    RETURN_TYPE parse(int argc, char* argv[]);
+    void setPreParse(std::function<Nebulite::Constants::Error()> func){
+        preParse = func;
+    }
 
     /**
      * @brief Parses the command line arguments and executes the corresponding function.
@@ -150,6 +142,9 @@ public:
      * @return The return value of the executed function, or the standard/error value.
      */
     RETURN_TYPE parseStr(const std::string& cmd);
+
+    //------------------------------------------
+    // Binding functions and variables
 
     /**
      * @brief Creates a subtree.
@@ -203,39 +198,13 @@ public:
      * @param name Name of the variable in the command tree
      * @param helpDescription Help description for the variable. First line is shown in the general help, full description in detailed help.
      */
-    void bindVariable(std::string* varPtr, const std::string& name, const std::string* helpDescription);
-
-    // Check if a function with the given name or from a full command exists
-    /**
-     * @brief Checks if a function with the given name or from a full command exists.
-     * 
-     * Examples:
-     * ```cpp
-     * // Both check if the function "myFunction" exists
-     * funcTree.hasFunction("myFunction");
-     * funcTree.hasFunction("./bin/Nebulite --myVariable myFunction argumentOfMyFunction");
-     * ```
-     * 
-     * @param nameOrCommand Name of the function or full command string
-     */
-    bool hasFunction(const std::string& nameOrCommand);
-
-    /**
-     * @brief Gets the last parsed string.
-     * 
-     * @return The last parsed string.
-     */
-    std::string getLastParsedString() const {
-        return lastParsedString;
-    }
+    void bindVariable(bool* varPtr, const std::string& name, const std::string* helpDescription);
 
 private:
     // Function to call before parsing (e.g., for setting up variables or locking resources)
     std::function<Nebulite::Constants::Error()> preParse = nullptr;
 
-    //------------------------------------------
-    // Variables
-
+    // Function pointer type
     using FunctionPtr = std::function<RETURN_TYPE(int argc, char* argv[])>;
 
     // Function - Description pair
@@ -246,7 +215,7 @@ private:
 
     // Variable - Description pair
     struct VariableInfo {
-        std::string* pointer;
+        bool* pointer;
         const std::string* description;
     };
 
@@ -285,7 +254,20 @@ private:
     //------------------------------------------
     // Functions
 
-    // Execute the function based on its name, passing the remaining argc and argv
+    /**
+     * @brief Checks if a function with the given name or from a full command exists.
+     * 
+     * Examples:
+     * ```cpp
+     * // Both check if the function "myFunction" exists
+     * funcTree.hasFunction("myFunction");
+     * funcTree.hasFunction("./bin/Nebulite --myVariable myFunction argumentOfMyFunction");
+     * ```
+     * 
+     * @param nameOrCommand Name of the function or full command string
+     */
+    bool hasFunction(const std::string& nameOrCommand);
+    
     /**
      * @brief Executes the function with the given name.
      * 
@@ -316,11 +298,6 @@ private:
      * @return A vector of pairs containing variable names and their descriptions.
      */
     std::vector<std::pair<std::string, const std::string*>> getAllVariables();
-
-    /**
-     * @brief Stores the last parsed string.
-     */
-    std::string lastParsedString;
 
     /**
      * @brief Help description for the help function.
@@ -449,7 +426,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(Class
 }
 
 template<typename RETURN_TYPE>
-void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindVariable(std::string* varPtr, const std::string& name, const std::string* helpDescription) {
+void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindVariable(bool* varPtr, const std::string& name, const std::string* helpDescription) {
     variables[name] = VariableInfo{varPtr, helpDescription};
 }
 
@@ -525,9 +502,22 @@ Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(std::string tr
 // Parsing and execution
 
 template<typename RETURN_TYPE>
-RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parse(int argc, char* argv[]) {
+RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(const std::string& cmd) {
+    // Quote-aware tokenization
+    std::vector<std::string> tokens = Nebulite::Utility::StringHandler::parseQuotedArguments(cmd);
+
+    // Convert to argc/argv
+    int argc = static_cast<int>(tokens.size());
+    std::vector<char*> argv_vec;
+    argv_vec.reserve(argc + 1);
+    for (auto& str : tokens) {
+        argv_vec.push_back(const_cast<char*>(str.c_str()));
+    }
+    argv_vec.push_back(nullptr); // Null-terminate
+
     // First argument is binary name or last function name
     // remove it from the argument list
+    char **argv = argv_vec.data();
     argv++;
     argc--;
 
@@ -541,25 +531,18 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parse(int a
     while(parseVars && argc > 0){
         std::string arg = argv[0];
         if(arg.length() >= 2 && arg.substr(0, 2) == "--" /*same as arg.starts_with("--"), but C++17 compatible*/){
-            // -key=value or --key
-            std::string key, val;
-            size_t eqPos = arg.find('=');
-            if (eqPos != std::string::npos) {
-                key = arg.substr(2, eqPos - 2);
-                val = arg.substr(eqPos + 1);
-            } else {
-                key = arg.substr(2);
-                val = "true";
-            }
+            // Extract name
+            std::string name = arg.substr(2);
 
             // Set variable if attached
-            if (auto varIt = variables.find(key); varIt != variables.end()) {
+            // TODO: Search in inherited FuncTrees as well
+            if (auto varIt = variables.find(name); varIt != variables.end()) {
                 const auto& varInfo = varIt->second;  // Now it's VariableInfo, not a pair
                 if (varInfo.pointer) {
-                    *varInfo.pointer = val;
+                    *varInfo.pointer = true;
                 }
             } else {
-                std::cerr << "Warning: Unknown variable '--" << key << "' in Tree: '" << TreeName << "'\n";
+                std::cerr << "Warning: Unknown variable '--" << name << "'\n";
             }
 
             // Remove from argument list
@@ -573,32 +556,30 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parse(int a
     }
 
     // Check if there are still arguments left
-    if(argc>0){
-        // The first argument left is the new function name
-        std::string funcName = argv[0];  
-
-        // Execute the function corresponding to funcName with the remaining arguments
-        return executeFunction(funcName, argc, argv);
+    if(argc < 1){
+        return _standard;
     }
-    return _standard;
-}
 
-template<typename RETURN_TYPE>
-RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(const std::string& cmd) {
-    // Store last parsed string 
-    lastParsedString = cmd;
+    // The first argument left is the new function name
+    std::string funcName = argv[0];  
 
     // Prerequisite if an inherited FuncTree is linked
-    if(inheritedTrees.size() && !hasFunction(cmd)) {
+    if(inheritedTrees.size() && !hasFunction(funcName)) {
         // Check if the function is in an inherited tree
         for(auto& inheritedTree : inheritedTrees) {
-            if(inheritedTree != nullptr && inheritedTree->hasFunction(cmd)) {
+            if(inheritedTree != nullptr && inheritedTree->hasFunction(funcName)) {
                 // Function is in inherited tree, parse there
-                return inheritedTree->parseStr(cmd);
+                return inheritedTree->executeFunction(funcName, argc, argv);
             }
         }
     }
 
+    // Execute the function corresponding to funcName with the remaining arguments
+    return executeFunction(funcName, argc, argv);
+}
+
+template<typename RETURN_TYPE>
+RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::executeFunction(const std::string& name, int argc, char* argv[]) {
     // Call preParse function if set
     if(preParse != nullptr){
         Nebulite::Constants::Error err = preParse();
@@ -607,24 +588,6 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(co
         }
     }
 
-    // Quote-aware tokenization
-    std::vector<std::string> tokens = Nebulite::Utility::StringHandler::parseQuotedArguments(cmd);
-
-    // Convert to argc/argv
-    int argc = static_cast<int>(tokens.size());
-    std::vector<char*> argv;
-    argv.reserve(argc + 1);
-    for (auto& str : tokens) {
-        argv.push_back(const_cast<char*>(str.c_str()));
-    }
-    argv.push_back(nullptr); // Null-terminate
-
-    // Parse arguments in this FuncTree
-    return parse(argc, argv.data());
-}
-
-template<typename RETURN_TYPE>
-RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::executeFunction(const std::string& name, int argc, char* argv[]) {
     // Strip whitespaces of name
     std::string function = name;
     function = Nebulite::Utility::StringHandler::lstrip(name, ' ');
@@ -636,7 +599,11 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::executeFunc
     } else {
         // Find function name in subtrees
         if(subtrees.find(function) != subtrees.end()){
-            return subtrees[function].tree->parse(argc, argv);
+            std::string cmd = "";
+            for(int i = 0; i < argc; i++){
+                cmd += std::string(argv[i]) + " ";
+            }
+            return subtrees[function].tree->parseStr(cmd);
         }
         else{
             std::cerr << "Function '" << function << "' not found in FuncTree " << TreeName << " or its SubTrees!\n";
@@ -691,7 +658,6 @@ bool Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::hasFunction(const 
     return  (functions.find(function) != functions.end()) || 
             (subtrees.find(function)  != subtrees.end());
 }
-
 
 //------------------------------------------
 // Help function and its helpers

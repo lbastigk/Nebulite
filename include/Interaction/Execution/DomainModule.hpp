@@ -13,8 +13,8 @@
     class DomainModuleName : public ::Nebulite::Interaction::Execution::DomainModule<DomainName>
 
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
-    DomainModuleName(::std::string moduleName, DomainName* domain, ::Nebulite::Interaction::Execution::FuncTree<::Nebulite::Constants::Error>* funcTreePtr) \
-    : DomainModule(moduleName, domain, funcTreePtr)
+    DomainModuleName(::std::string moduleName, DomainName* domain, ::Nebulite::Interaction::Execution::FuncTree<::Nebulite::Constants::Error>* funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
+    : DomainModule(moduleName, domain, funcTreePtr, globalSpace)
 
 //------------------------------------------
 // Includes
@@ -22,6 +22,12 @@
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
+
+//------------------------------------------
+// Pre-declarations
+namespace Nebulite::Core{
+    class GlobalSpace;
+}
 
 //------------------------------------------
 // Helper to detect member function existence
@@ -53,13 +59,10 @@ namespace Execution{
 //------------------------------------------
 /**
  * @class Nebulite::Interaction::Execution::DomainModule
- * @brief Wrapper class for binding functions to a specific category in the FuncTree.
+ * @brief Wrapper class for binding functions to a specific category in the FuncTree and adding separate update routines.
  * 
  * This allows for cleaner separation of object files for different categories
  * and reduces boilerplate code when attaching functions to the FuncTree.
- * 
- * Within the Core FuncTree, Categories are initialized with references to the funcTree,
- * invokeand the GlobalSpace, allowing them to individually bind functions on construction.
  */
 template<typename DomainType>
 class DomainModule{
@@ -70,13 +73,13 @@ public:
      * The constructor initializes the DomainModule with a reference to the domain and
      * the FuncTree.
      */
-    DomainModule(std::string moduleName, DomainType* domain, FuncTree<Nebulite::Constants::Error>* funcTreePtr)
-        : moduleName(moduleName), domain(domain), funcTree(funcTreePtr) {}
+    DomainModule(std::string moduleName, DomainType* domain, FuncTree<Nebulite::Constants::Error>* funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace)
+        : moduleName(moduleName), domain(domain), funcTree(funcTreePtr), global(globalSpace) {}
 
     /**
      * @brief Virtual update function to be Overwridden by derived classes.
      */
-    virtual void update() = 0;
+    virtual Nebulite::Constants::Error update() { return Nebulite::Constants::ErrorTable::NONE(); };
 
     /**
      * @brief Binds a member function to the FuncTree.
@@ -126,7 +129,7 @@ public:
      * 
      * A simple argument of '--varName' will set the value to "true"
      */
-    void bindVariable(std::string* variablePtr,const std::string& name, const std::string* helpDescription) {
+    void bindVariable(bool* variablePtr, const std::string& name, const std::string* helpDescription) {
         // Bind a variable to the FuncTree
         funcTree->bindVariable(variablePtr, name, helpDescription);
     }
@@ -153,6 +156,11 @@ protected:
      * @brief Workspace of the DomainModule
      */
     DomainType* domain;
+
+    /**
+     * @brief Pointer to the global space of the DomainModule
+     */
+    Nebulite::Core::GlobalSpace* global;
 
 private:
     /**
