@@ -198,14 +198,7 @@ public:
             module->update();
         }
     }
-
-    /**
-     * @brief Gets the last parsed string.
-     */
-    std::string getLastParsedString() const {
-        return funcTree->getLastParsedString();
-    }
-
+    
     Nebulite::Utility::JSON* getDoc(){
         return doc;
     }

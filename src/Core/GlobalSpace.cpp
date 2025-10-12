@@ -287,14 +287,13 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::preParse() {
     bool RNG_update_enabled = renderer.isSdlInitialized() && renderer.hasSkippedUpdate() == false;
     RNG_update_enabled |= !renderer.isSdlInitialized(); // If renderer is not initialized, we always update RNGs
     if(RNG_update_enabled){
-        std::string seed = getLastParsedString();
-        updateRNGs(seed);
+        updateRNGs();
     }
 
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-void Nebulite::Core::GlobalSpace::updateRNGs(std::string seed){
+void Nebulite::Core::GlobalSpace::updateRNGs(){
     // Set Min and Max values for RNGs in document
     // Always set, so overwrites dont stick around
     global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.random.min.c_str(), std::numeric_limits<RNGvars::rng_size_t>::min());

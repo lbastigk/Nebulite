@@ -81,6 +81,9 @@ public:
     template<typename RT>
     friend class FuncTree;
 
+    //------------------------------------------
+    // Constructor and inheritance
+
     /**
      * @brief Constructor for the FuncTree class.
      * @param treeName Name of the tree
@@ -90,20 +93,23 @@ public:
     FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError);
 
     /**
-     * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
-     * @param func Function to call before parsing
-     */
-    void setPreParse(std::function<Nebulite::Constants::Error()> func){
-        preParse = func;
-    }
-
-    /**
      * @brief Inherits functions from another Tree.
      * 
      * @param toInherit FuncTree pointer to inherit functions from.
      */
     void inherit(FuncTree<RETURN_TYPE>* toInherit) {
         inheritedTrees.push_back(toInherit);
+    }
+
+    //------------------------------------------
+    // Parsing
+
+    /**
+     * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
+     * @param func Function to call before parsing
+     */
+    void setPreParse(std::function<Nebulite::Constants::Error()> func){
+        preParse = func;
     }
 
     /**
@@ -136,6 +142,9 @@ public:
      * @return The return value of the executed function, or the standard/error value.
      */
     RETURN_TYPE parseStr(const std::string& cmd);
+
+    //------------------------------------------
+    // Binding functions and variables
 
     /**
      * @brief Creates a subtree.
@@ -191,38 +200,11 @@ public:
      */
     void bindVariable(bool* varPtr, const std::string& name, const std::string* helpDescription);
 
-    // Check if a function with the given name or from a full command exists
-    /**
-     * @brief Checks if a function with the given name or from a full command exists.
-     * 
-     * Examples:
-     * ```cpp
-     * // Both check if the function "myFunction" exists
-     * funcTree.hasFunction("myFunction");
-     * funcTree.hasFunction("./bin/Nebulite --myVariable myFunction argumentOfMyFunction");
-     * ```
-     * 
-     * @param nameOrCommand Name of the function or full command string
-     */
-    bool hasFunction(const std::string& nameOrCommand);
-
-    /**
-     * @brief Gets the last parsed string.
-     * 
-     * @return The last parsed string.
-     */
-    std::string getLastParsedString() const {
-        return lastParsedString;
-    }
-
 private:
-
     // Function to call before parsing (e.g., for setting up variables or locking resources)
     std::function<Nebulite::Constants::Error()> preParse = nullptr;
 
-    //------------------------------------------
-    // Variables
-
+    // Function pointer type
     using FunctionPtr = std::function<RETURN_TYPE(int argc, char* argv[])>;
 
     // Function - Description pair
@@ -272,7 +254,20 @@ private:
     //------------------------------------------
     // Functions
 
-    // Execute the function based on its name, passing the remaining argc and argv
+    /**
+     * @brief Checks if a function with the given name or from a full command exists.
+     * 
+     * Examples:
+     * ```cpp
+     * // Both check if the function "myFunction" exists
+     * funcTree.hasFunction("myFunction");
+     * funcTree.hasFunction("./bin/Nebulite --myVariable myFunction argumentOfMyFunction");
+     * ```
+     * 
+     * @param nameOrCommand Name of the function or full command string
+     */
+    bool hasFunction(const std::string& nameOrCommand);
+    
     /**
      * @brief Executes the function with the given name.
      * 
@@ -303,11 +298,6 @@ private:
      * @return A vector of pairs containing variable names and their descriptions.
      */
     std::vector<std::pair<std::string, const std::string*>> getAllVariables();
-
-    /**
-     * @brief Stores the last parsed string.
-     */
-    std::string lastParsedString;
 
     /**
      * @brief Help description for the help function.
@@ -513,9 +503,6 @@ Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(std::string tr
 
 template<typename RETURN_TYPE>
 RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(const std::string& cmd) {
-    // Store last parsed string 
-    lastParsedString = cmd;
-
     // Quote-aware tokenization
     std::vector<std::string> tokens = Nebulite::Utility::StringHandler::parseQuotedArguments(cmd);
 
@@ -671,7 +658,6 @@ bool Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::hasFunction(const 
     return  (functions.find(function) != functions.end()) || 
             (subtrees.find(function)  != subtrees.end());
 }
-
 
 //------------------------------------------
 // Help function and its helpers

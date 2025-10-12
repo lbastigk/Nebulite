@@ -290,13 +290,9 @@ private:
     Nebulite::Constants::Error preParse() override;
 
     /**
-     * @brief Updates all RNGs with a new seed.
-     * 
-     * @param seed The normalized seed string used to update the RNGs.
-     * Make sure the seed contains no user-specific information like absolute paths!
-     * Otherwise the RNG is not consistent across different users.
+     * @brief Updates all RNGs
      */
-    void updateRNGs(std::string seed);
+    void updateRNGs();
 
     /**
      * @brief Updates all inner domains.
