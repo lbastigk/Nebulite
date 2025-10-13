@@ -1,5 +1,5 @@
 /**
- * @file CompileSettings.hpp
+ * @file DomainSettings.hpp
  * @brief Compile-time settings for enabling/disabling domain modules.
  */
 
