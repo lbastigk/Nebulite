@@ -35,9 +35,24 @@ Nebulite::Interaction::Invoke::Invoke(Nebulite::Core::GlobalSpace* globalSpace)
                     for(auto& [topic, onTopicFromId] : map_other){
                         if(!onTopicFromId.active) continue; // Skip if self did not broadcast this frame
                         for(auto& [idx_ruleset, listenersOnRuleset] : onTopicFromId.rulesets){
-                            for(auto& [listenerId, pair] : listenersOnRuleset.listeners){
-                                if(pair.active){
-                                    applyRulesets(pair.entry, pair.Obj_other);
+                            for(auto it = listenersOnRuleset.listeners.begin(); it != listenersOnRuleset.listeners.end();){
+                                if(it->second.active){
+                                    applyRulesets(it->second.entry, it->second.Obj_other);
+                                    it->second.active = false; // Reset for next frame
+                                    ++it;
+                                }
+                                else {
+                                    // Probabilistic cleanup of inactive listeners
+                                    // Use thread_local RNG for better performance
+                                    // Since inactive listeners are rare, this should be fine
+                                    // Sort of self-regulating, as more inactive listeners lead to more frequent cleanups
+                                    thread_local static std::mt19937 cleanup_rng(std::random_device{}());
+                                    if(cleanup_rng() % 100 == 0) {
+                                        listenersOnRuleset.listeners.erase(it++); // Remove inactive entry
+                                    } else {
+                                        it->second.active = false; // Just reset the flag
+                                        ++it;
+                                    }
                                 }
                             }
                         }
@@ -145,13 +160,22 @@ void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interact
     
     // Insert into next frame's entries
     std::lock_guard<std::mutex> lock(broadcasted.entriesNextFrame[threadIndex].mutex);
-    auto onTopicFromId = broadcasted.entriesNextFrame[threadIndex].Container[toAppend->topic][id_self];
+    auto& onTopicFromId = broadcasted.entriesNextFrame[threadIndex].Container[toAppend->topic][id_self];
     onTopicFromId.rulesets[toAppend->index].entry = toAppend;
     onTopicFromId.active = true;
 }
 
 void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std::string topic, uint32_t listenerId){
+    // WARNING: This function should only be called when worker threads are NOT processing
+    // i.e., not between update() signaling workers and workers finishing
+    
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
+        // Ensure workers are not currently processing this container
+        if (threadState.individualState[i].workReady.load()) {
+            std::cerr << "ERROR: listen() called while worker thread " << i << " is processing!" << std::endl;
+            continue; // Skip this thread to avoid corruption
+        }
+        
         // Lock to safely read from broadcasted.entriesThisFrame
         std::lock_guard<std::mutex> broadcastLock(broadcasted.entriesThisFrame[i].mutex);
         
@@ -362,13 +386,6 @@ void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Inte
 // Update
 
 void Nebulite::Interaction::Invoke::update() {
-    // Swap in the new set of commands
-    for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
-        std::lock_guard<std::mutex> lock1(broadcasted.entriesThisFrame[i].mutex);   // Shouldnt be necessary as no other process accesses this during update, but we are paranoid
-        std::lock_guard<std::mutex> lock2(broadcasted.entriesNextFrame[i].mutex);   // Shouldnt be necessary as no other process accesses this during update, but we are paranoid
-        std::swap(broadcasted.entriesThisFrame[i].Container, broadcasted.entriesNextFrame[i].Container);
-    }
-
     // Signal all worker threads to start processing
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
         threadState.individualState[i].workFinished = false;
@@ -381,6 +398,13 @@ void Nebulite::Interaction::Invoke::update() {
         while (!threadState.individualState[i].workFinished.load()) {
             std::this_thread::yield(); // Yield to avoid busy waiting
         }
+    }
+
+    // Swap the containers, preparing for the next frame
+    for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
+        std::lock_guard<std::mutex> lock1(broadcasted.entriesThisFrame[i].mutex);   // Shouldnt be necessary as no other process accesses this during update, but we are paranoid
+        std::lock_guard<std::mutex> lock2(broadcasted.entriesNextFrame[i].mutex);   // Shouldnt be necessary as no other process accesses this during update, but we are paranoid
+        std::swap(broadcasted.entriesThisFrame[i].Container, broadcasted.entriesNextFrame[i].Container);
     }
 }
 
