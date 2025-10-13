@@ -5,7 +5,7 @@
 
 //------------------------------------------
 // Basic includes
-#include "Constants/CompileSettings.hpp"
+#include "Constants/DomainSettings.hpp"
 #include "Core/GlobalSpace.hpp"
 
 //------------------------------------------

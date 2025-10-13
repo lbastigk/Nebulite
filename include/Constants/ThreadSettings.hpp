@@ -11,14 +11,14 @@
 /**
  * @brief Number of thread runners for processing broadcast-listen pairs.
  */
-#define THREADRUNNER_COUNT 20
+#define THREADRUNNER_COUNT 30
 
 /**
  * @def INVOKE_EXPR_POOL_SIZE
  *
  * Size of the expression pool for each expression.
  */
-#define INVOKE_EXPR_POOL_SIZE 20
+#define INVOKE_EXPR_POOL_SIZE 30
 
 //------------------------------------------
 
@@ -48,4 +48,5 @@ Date            Result      THREADED_MIN_BATCHSIZE  BATCH_COST_GOAL INVOKE_EXPR_
 Date            Result      THREADRUNNER_COUNT      BATCH_COST_GOAL INVOKE_EXPR_POOL_SIZE
 ------------------------------------------------------------------------------------------
 2025-10-06:      7.7s       20                      250             20                      # New threading model for Invoke
+2025-10-13:      7.2s       30                      250             30                      # Increased thread count and new BroadCastListen structure
 */
