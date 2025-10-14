@@ -11,7 +11,8 @@
 //------------------------------------------
 // Module includes 
 #if GSDM_ENABLED
-    #include "DomainModule/GlobalSpace/GSDM_Time.hpp"                // Time management functions
+    #include "DomainModule/GlobalSpace/GSDM_Time.hpp"                // Basic Time management functions
+    #include "DomainModule/GlobalSpace/GSDM_Clock.hpp"               // Clock management functions
     #include "DomainModule/GlobalSpace/GSDM_General.hpp"             // General functions like eval, exit, wait, etc.
     #include "DomainModule/GlobalSpace/GSDM_Debug.hpp"               // Debugging and logging functions
     #include "DomainModule/GlobalSpace/GSDM_Input.hpp"               // Input handling
@@ -42,6 +43,7 @@ void GSDM_init(Nebulite::Core::GlobalSpace* target){
         //          if we init time first, it will update before console
         //          thus ignoring the console's halt request being send to renderer
         target->initModule<Time>("Global Time Functions");
+        target->initModule<Clock>("Global Clock Functions"); // Clock relies on time, so init after time
         
         //------------------------------------------
         // Initialize Variable Bindings
