@@ -1,0 +1,15 @@
+# Test to check initial time.t_ms value in debug vs release builds
+set-fps 1000
+time set-fixed-dt 1
+wait 1
+
+# Print initial time values immediately after initialization
+print time.t_ms
+print time.dt
+
+# Expected output:
+# Loading task list from file: ...
+# 1
+# 0.001000
+
+exit
