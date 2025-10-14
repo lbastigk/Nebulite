@@ -158,6 +158,21 @@
         ], 
         "cerr": [] 
       }
+    },
+    {
+      "command": "task TaskFiles/Tests/Short/clock.nebs",
+      "expected": { 
+        "cout": [
+          "Loading task list from file: TaskFiles/Tests/Short/clock.nebs",
+          "0.000000",
+          "99",
+          "1.000000",
+          "100",
+          "0.000000",
+          "101"
+        ], 
+        "cerr": [] 
+      }
     }
   ],
   "timeout": 40
