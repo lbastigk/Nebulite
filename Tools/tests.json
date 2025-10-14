@@ -160,6 +160,17 @@
       }
     },
     {
+      "command": "task TaskFiles/Tests/Short/time_init.nebs",
+      "expected": { 
+        "cout": [
+          "Loading task list from file: TaskFiles/Tests/Short/time_init.nebs",
+          "1",
+          "0.001000"
+        ], 
+        "cerr": [] 
+      }
+    },
+    {
       "command": "task TaskFiles/Tests/Short/clock.nebs",
       "expected": { 
         "cout": [
