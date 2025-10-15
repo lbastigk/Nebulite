@@ -4,8 +4,26 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
+//------------------------------------------
+// Key definitions
+
 const std::string Time::time_name = "time";
 const std::string Time::time_desc = R"(Commands for time management)";
+
+const std::string Time::key_runtime_t = "runtime.t";
+const std::string Time::key_runtime_t_ms = "runtime.t_ms";
+const std::string Time::key_runtime_dt = "runtime.dt";
+const std::string Time::key_runtime_dt_ms = "runtime.dt_ms";
+
+const std::string Time::key_time_t = "time.t";
+const std::string Time::key_time_t_ms = "time.t_ms";
+const std::string Time::key_time_dt = "time.dt";
+const std::string Time::key_time_dt_ms = "time.dt_ms";
+
+const std::string Time::key_framecount = "frameCount";
+
+//------------------------------------------
+// Update
 
 Nebulite::Constants::Error Time::update() {
     //------------------------------------------
@@ -17,10 +35,10 @@ Nebulite::Constants::Error Time::update() {
     uint64_t t_ms  = RealTime.get_t_ms();
 
     // Set in doc
-    domain->getDoc()->set<double>( "runtime.dt", dt_ms / 1000.0);
-    domain->getDoc()->set<double>( "runtime.t",   t_ms / 1000.0);
-    domain->getDoc()->set<Uint64>( "runtime.dt_ms", dt_ms);
-    domain->getDoc()->set<Uint64>( "runtime.t_ms", t_ms);
+    domain->getDoc()->set<double>(key_runtime_dt,    dt_ms / 1000.0);
+    domain->getDoc()->set<double>(key_runtime_t,     t_ms / 1000.0);
+    domain->getDoc()->set<Uint64>(key_runtime_dt_ms, dt_ms);
+    domain->getDoc()->set<Uint64>(key_runtime_t_ms,  t_ms);
 
     // See if simulation time can progress
     bool canProgress = !haltThisFrame && timeLocks.empty() && !domain->getRenderer()->isSkippingUpdate();
@@ -40,14 +58,14 @@ Nebulite::Constants::Error Time::update() {
         uint64_t t_ms = SimulationTime.get_t_ms();
 
         // Set in doc
-        domain->getDoc()->set<double>( "time.dt", dt_ms / 1000.0);
-        domain->getDoc()->set<double>( "time.t",   t_ms / 1000.0);
-        domain->getDoc()->set<Uint64>( "time.dt_ms", dt_ms);
-        domain->getDoc()->set<Uint64>( "time.t_ms", t_ms);
+        domain->getDoc()->set<double>(key_time_dt,    dt_ms / 1000.0);
+        domain->getDoc()->set<double>(key_time_t,     t_ms / 1000.0);
+        domain->getDoc()->set<Uint64>(key_time_dt_ms, dt_ms);
+        domain->getDoc()->set<Uint64>(key_time_t_ms,  t_ms);
 
         //------------------------------------------
         // Increase Frame count
-        domain->getDoc()->set<uint64_t>("frameCount",frameCount); // Starts at 0
+        domain->getDoc()->set<uint64_t>(key_framecount, frameCount); // Starts at 0
         frameCount++;
     } else{
         //------------------------------------------
@@ -59,6 +77,9 @@ Nebulite::Constants::Error Time::update() {
     // Ignoring results for now, just return NONE
     return Nebulite::Constants::ErrorTable::NONE();
 }
+
+//------------------------------------------
+// Available Functions
 
 Nebulite::Constants::Error Time::time_haltOnce(int argc, char** argv){
     haltThisFrame = true;

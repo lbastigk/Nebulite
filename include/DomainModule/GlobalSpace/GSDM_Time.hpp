@@ -111,6 +111,20 @@ public:
     static const std::string time_desc;
 
     //------------------------------------------
+    // Variables
+    static const std::string key_runtime_t;
+    static const std::string key_runtime_t_ms;
+    static const std::string key_runtime_dt;
+    static const std::string key_runtime_dt_ms;
+
+    static const std::string key_time_t;
+    static const std::string key_time_t_ms;
+    static const std::string key_time_dt;
+    static const std::string key_time_dt_ms;
+
+    static const std::string key_framecount;
+
+    //------------------------------------------
     // Setup
 
     /**

@@ -2,6 +2,6 @@ echo Testing global access
 echo
 set-fps 60
 set-res 320 320 3
-wait 30
+wait 31
 eval echo Framecount is: {global.frameCount}
 exit

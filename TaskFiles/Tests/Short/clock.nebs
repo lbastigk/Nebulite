@@ -1,0 +1,26 @@
+set-fps 1000
+time set-fixed-dt 1
+add-clock 10
+wait 99
+
+# One frame before first clock tick
+print clocks.status.ms000010
+print time.t_ms
+wait 1
+# First clock tick
+print clocks.status.ms000010
+print time.t_ms
+wait 1
+# One frame after first clock tick
+print clocks.status.ms000010
+print time.t_ms
+
+# Expected output:
+# Loading task list from file: ...
+# 0.000000
+# 99
+# 1.000000
+# 100
+# 0.000000
+# 101
+exit

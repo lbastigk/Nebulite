@@ -38,13 +38,11 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
     // Update
 
     // Cannot be done here directly, as GlobalSpace::update() requires command line arguments to be parsed first!
-    // Instead, we just update the inner modules and domains once
 
-    // Update modules first
-    updateModules();
-
-    // Then, update inner domains
-    updateInnerDomains();
+    // Note: DO NOT call updateModules or updateInnerDomains here!
+    // Even updating modules here causes a disparity between release and debug builds, possibly due to order of initialization
+    // So we skip it all
+    // If we ever need a full update beforehand, we should manually call update after full initialization
 }
 
 Nebulite::Constants::Error Nebulite::Core::GlobalSpace::updateInnerDomains(){
