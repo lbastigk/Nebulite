@@ -77,7 +77,7 @@ After making changes, you can run the VSCode task `[BUILD]` to recompile, or run
 
 - **Tutorials & Examples**: [Nebulite_Examples](https://github.com/lbastigk/Nebulite_Examples) - hands-on tutorials and sample projects
 - **Dictionary**: [./doc/Dictionary.md](./doc/Dictionary.md) - definitions of key terms and concepts
-- **Function Reference**: `./bin/Nebulite help` - complete list of available commands on the GlobalSpace. `./bin/Nebulite draft parse help` - complete list of available commands on RenderObjects.
+- **Command Reference**: [./doc/Commands.md](./doc/Commands.md) - comprehensive documentation of all available commands for both GlobalSpace and RenderObject domain
 
 <!-- TOC --><a name="core-concepts"></a>
 ## Core Concepts
