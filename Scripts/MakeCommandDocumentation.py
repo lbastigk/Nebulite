@@ -14,7 +14,7 @@ from typing import List, Dict, Tuple, Optional
 # Command configurations
 ROOT_GLOBALSPACE = "./bin/Nebulite"
 ROOT_RENDEROBJECT = "./bin/Nebulite draft parse"
-OUTPUT_FILE = "./doc/CommandDocumentation.md"
+OUTPUT_FILE = "./doc/Commands.md"
 TIMEOUT_SECONDS = 3  # Timeout for commands that might open renderer windows
 
 

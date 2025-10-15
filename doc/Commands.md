@@ -2,7 +2,7 @@
 
 This documentation is automatically generated from the Nebulite executable.
 
-Generated on: Wed Oct 15 10:05:30 CEST 2025
+Generated on: Wed Oct 15 10:14:52 CEST 2025
 
 ## GlobalSpace Commands
 
