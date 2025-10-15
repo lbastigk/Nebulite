@@ -90,6 +90,31 @@
                 "isDefault": false
             },
             "detail": "Build and install the VSCode language extension for Nebulite Script."
+        },
+        {
+            "label": "Uninstall language extension",
+            "type": "shell",
+            "command": "code --uninstall-extension nebulite-script-vscode",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "detail": "Uninstall the VSCode language extension for Nebulite Script."
+        },
+        {
+            "label": "Generate full command documentation",
+            "type": "shell",
+            "command": "python Scripts/MakeCommandDocumentation.py ; python Languages/nebs/nebulite-script-vscode/scripts/extract_keywords.py",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "dependsOn": [
+                "[BUILD]", 
+                "[TEST]"
+            ],
+            "dependsOrder": "sequence",
+            "detail": "Generate full command documentation doc/CommandDocumentation.md as well as list of commands in Languages/nebs/nebulite-script-vscode/syntaxes/keywords.json"
         }
     ]
 }
