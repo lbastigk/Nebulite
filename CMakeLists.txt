@@ -58,7 +58,11 @@ set(ABSEIL_PATH         "${CMAKE_SOURCE_DIR}/external/abseil")
 
 ############################################################
 # Subdirectories
+# Disable warnings for external dependencies
+set(CMAKE_CXX_FLAGS_BACKUP ${CMAKE_CXX_FLAGS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
 add_subdirectory(${ABSEIL_PATH})
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS_BACKUP})
 
 ############################################################
 # Source files - Automatically include all .cpp files in src/
@@ -117,7 +121,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         # Uncomment for more aggressive warnings:
         -Wall                   # Enable most common warnings
         -Wextra                 # Enable extra warnings
-        -Wpedantic              # Enable pedantic warnings
+        # -Wpedantic              # Enable pedantic warnings (Disabled due to __int128 conflicts in external libs)
     )
     
     # GCC-specific warnings
