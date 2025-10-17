@@ -58,9 +58,6 @@ public:
      * @param argc The argument count.
      * @param argv The argument vector: <key> <link:key>
      * @return Potential errors that occurred on command execution.
-     * 
-     * @todo Once all domains have access to the global space, 
-     * use the JSON doc cache instead of loading the document each time.
      */
     Nebulite::Constants::Error json_set(int argc, char* argv[]);
     static const std::string json_set_name;
