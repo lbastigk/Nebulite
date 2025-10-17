@@ -114,11 +114,6 @@ private:
      */
     void flush();
 
-    /**
-     * @brief Link to the global space.
-     */
-    Nebulite::Core::GlobalSpace* global;
-
 public:
     JSON(Nebulite::Core::GlobalSpace* globalSpace);
 
@@ -141,6 +136,19 @@ public:
     // Domain-specific methods
 
     Nebulite::Constants::Error update() override;
+
+    //------------------------------------------
+    // Validity check
+
+    /**
+     * @brief Checks if a string is in JSON or JSONC format.
+     * 
+     * @param str The string to check.
+     * @return true if the string is JSON or JSONC, false otherwise.
+     */
+    static bool is_json_or_jsonc(const std::string& str){
+        return RjDirectAccess::is_json_or_jsonc(str);
+    }
 
     //------------------------------------------
     // Set methods

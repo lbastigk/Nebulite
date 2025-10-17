@@ -19,7 +19,7 @@ Nebulite::Utility::JSON::~JSON(){
 }
 
 Nebulite::Utility::JSON::JSON(JSON&& other) noexcept
-: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, other.global)
+: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, other.getGlobalSpace())
 {
     std::scoped_lock lock(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);
@@ -98,13 +98,13 @@ Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(const char* key){
     rapidjson::Value* keyVal = Nebulite::Utility::RjDirectAccess::traverse_path(key,doc);
     if(keyVal != nullptr){
         // turn keyVal to doc
-        Nebulite::Utility::JSON json(global);
+        Nebulite::Utility::JSON json(getGlobalSpace());
         json.doc.CopyFrom(*keyVal,json.doc.GetAllocator());
         return json;
     }
     else{
         // Return empty doc
-        return Nebulite::Utility::JSON(global);
+        return Nebulite::Utility::JSON(getGlobalSpace());
     }
 }
 
@@ -206,7 +206,15 @@ void Nebulite::Utility::JSON::deserialize(std::string serial_or_link){
 
     //------------------------------------------
     // Split the input into tokens
-    std::vector<std::string> tokens = Nebulite::Utility::StringHandler::split(serial_or_link, '|');
+    std::vector<std::string> tokens;
+    if(is_json_or_jsonc(serial_or_link)){
+        // Direct JSON string, no splitting
+        tokens.push_back(serial_or_link);
+    }
+    else{
+        // Split based on modifiers, indicated by '|'
+        tokens = Nebulite::Utility::StringHandler::split(serial_or_link, '|');
+    }
 
     //------------------------------------------
     // Validity check
@@ -217,7 +225,7 @@ void Nebulite::Utility::JSON::deserialize(std::string serial_or_link){
 
     //------------------------------------------
     // Load the JSON file
-    Nebulite::Utility::RjDirectAccess::deserialize(doc,tokens[0]);
+    Nebulite::Utility::RjDirectAccess::deserialize(doc,tokens[0], getGlobalSpace());
 
     //------------------------------------------
     // Delete all cache entries
