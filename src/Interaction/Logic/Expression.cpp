@@ -147,6 +147,11 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
                 // making the direct double reference invalid.
                 virtualDoubles_resource.push_back(vd);
                 break;
+            case Entry::From::None:
+            default:
+                // Should not happen
+                std::cerr << __FUNCTION__ << ": Tried to register variable with no known context!" << std::endl;
+                break;
         }
 
         // Store variable name for tinyexpr
