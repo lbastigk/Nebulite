@@ -17,13 +17,6 @@ const std::string Debug::standardfile_name = "standardfile";
 const std::string Debug::standardfile_desc = R"(Functions to generate standard files)";
 
 //------------------------------------------
-// Dummy descriptions 
-const std::string Debug::set_name = "set"; // Name of the function in the inherited JSON domain
-const std::string Debug::set_desc = R"(If you see this message, function collision detection is NOT working!
-With this function, GlobalSpace should not be able to initialize, as the function "set" already exists in the inherited domain JSON.
-)";
-
-//------------------------------------------
 // Update
 Nebulite::Constants::Error Debug::update() {
     // Add Domain-specific updates here!

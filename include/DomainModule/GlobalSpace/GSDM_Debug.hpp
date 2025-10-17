@@ -37,24 +37,6 @@ public:
     Nebulite::Constants::Error update() override;
 
     //------------------------------------------
-    /**
-     * @brief Dummy function for testing function definition collision detection of bindFunction.
-     * 
-     * This function is intentionally left blank to test collision detection.
-     * It is not meant to be bound in production code.
-     * Instead, it serves as a placeholder to demonstrate the binding mechanisms collision detection
-     * Uncomment the bind in setupBindings() to test the collision detection.
-     * The binary compilation will work, but execution will fail.
-     */
-    Nebulite::Constants::Error set(int argc, char* argv[]) {
-        // Binding a function with the name "set" is not allowed 
-        // as it already exists in the inherited domain JSON
-        return Nebulite::Constants::ErrorTable::NONE();
-    }
-    static const std::string set_name;
-    static const std::string set_desc;
-
-    //------------------------------------------
     // Available Functions
 
     /**
@@ -208,15 +190,6 @@ public:
 
         bindSubtree(standardfile_name, &standardfile_desc);
         bindFunction(&Debug::standardfile_renderobject,     standardfile_renderobject_name,   &standardfile_renderobject_desc);
-
-        //------------------------------------------
-        // Example Bindings that will fail
-
-        // TEST: Binding an already existing sub-function
-        //bindFunction(&Debug::set, "set", set_desc);  // <- THIS WILL FAIL, as "set" already exists in the inherited domain JSON
-
-        // TEST: Binding an already existing function
-        //bindFunction(&Debug::error, "error", error_desc); // <- THIS WILL FAIL, as "error" already exists in GlobalSpace
     }
 
 private:
