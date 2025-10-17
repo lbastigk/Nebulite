@@ -88,7 +88,7 @@ private:
      * @brief Index of the currently selected command in history.
      * 0 means no selection, latest input.
      */
-    int selectedCommandIndex = 0;
+    size_t selectedCommandIndex = 0;
 
     /**
      * @brief Offset of the cursor in the input buffer.
