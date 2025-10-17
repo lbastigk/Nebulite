@@ -120,7 +120,7 @@ Nebulite::Constants::Error General::task(int argc, char* argv[]) {
     if (argc > 2) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-
+    
     std::string file = Nebulite::Utility::FileManagement::LoadFile(argv[1]);
     if (file.empty()) {
         std::cerr << "Error: "<< argv[0] <<" Could not open file '" << argv[1] << "'" << std::endl;

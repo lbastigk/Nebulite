@@ -167,7 +167,7 @@ bool Nebulite::Interaction::RulesetCompiler::getRuleset(Nebulite::Utility::JSON&
     else{
         // Is link to document
         std::string link = doc.get<std::string>(key.c_str(), "");
-        std::string file = Nebulite::Utility::FileManagement::LoadFile(link);
+        std::string file = Nebulite::Utility::FileManagement::LoadFile(link);   // TODO: Use DocumentCache from globalspace!
         if (file.empty()) {
             return false;
         }

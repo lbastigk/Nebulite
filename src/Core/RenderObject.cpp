@@ -113,7 +113,7 @@ std::string Nebulite::Core::RenderObject::serialize() {
 
 void Nebulite::Core::RenderObject::deserialize(std::string serialOrLink) {
 	// Check if argv1 provided is an object
-	if(serialOrLink.starts_with('{')){
+	if(Nebulite::Utility::JSON::is_json_or_jsonc(serialOrLink)){
 		json.deserialize(serialOrLink);
 	}
 	else{
@@ -157,7 +157,7 @@ void Nebulite::Core::RenderObject::deserialize(std::string serialOrLink) {
 			// Handle function call
 			else {
 				// Forward to FunctionTree for resolution
-				parseStr("Nebulite::Core::RenderObject::deserialize " + token);
+				parseStr(__FUNCTION__ + std::string(" ") + token);
 			}
 		}
 	}
