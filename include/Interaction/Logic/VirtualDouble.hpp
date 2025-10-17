@@ -110,11 +110,12 @@ public:
      * This function updates the internal cache value directly.
      * Used for non-remanent documents where we want to set a value without linking to an external source.
      * 
+     * Assumes that the reference already points to the internal cache!
+     * 
      * @param val The new double value to set.
      */
-    void setDirect(double val){
+    inline void setDirect(double val) noexcept {
         copied_value = val;
-        reference = &copied_value;
     }
 
     /**

@@ -8,7 +8,7 @@
 
 ###############################################
 # [SETTINGS]
-set loop.n 40
+set loop.n 20
 
 # Frame average for 20x20 objects: 010.77 ms.
 # Frame average for 40x40 objects: 117.88 ms.

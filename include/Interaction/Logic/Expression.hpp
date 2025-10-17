@@ -412,7 +412,7 @@ private:
      * 
      * @return A pointer to the vector of double pointers for the expression in the other document.
      */
-    std::vector<double*>* ensure_other_cache_entry(Nebulite::Utility::JSON* current_other);
+    odpvec* ensure_other_cache_entry(Nebulite::Utility::JSON* current_other);
 
     //------------------------------------------
     // Debugging

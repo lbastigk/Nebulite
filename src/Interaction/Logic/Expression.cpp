@@ -550,24 +550,24 @@ double Nebulite::Interaction::Logic::Expression::evalAsDouble(Nebulite::Utility:
     return te_eval(entries[0].expression);
 }
 
-std::vector<double*>* Nebulite::Interaction::Logic::Expression::ensure_other_cache_entry(Nebulite::Utility::JSON* current_other) {
+odpvec* Nebulite::Interaction::Logic::Expression::ensure_other_cache_entry(Nebulite::Utility::JSON* current_other) {
     auto cache = current_other->getExpressionRefsAsOther();
     std::lock_guard<std::mutex> cache_lock(cache->mtx);
     
     // Check if we can use quickcache, that does not rely on a hashmap lookup
     if(uniqueId < ORDERED_DOUBLE_POINTERS_QUICKCACHE_SIZE){
-        if(cache->quickCache[uniqueId].values.empty()){
-            // Not initialized yet, create one
-            Nebulite::Utility::OrderedDoublePointers newCacheList;
+        if(cache->quickCache[uniqueId].orderedValues.empty()){
+            // Not initialized yet, create one with exact size
+            Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles_other.size());
 
             // Populate list with all virtual doubles from type other
             for(auto& vde : virtualDoubles_other) {
                 double* reference = current_other->get_stable_double_ptr(vde->getKey());
-                newCacheList.values.push_back(reference);
+                newCacheList.orderedValues.push_back(reference);
             }
-            cache->quickCache[uniqueId] = newCacheList;
+            cache->quickCache[uniqueId] = std::move(newCacheList);
         }
-        return &cache->quickCache[uniqueId].values;
+        return &cache->quickCache[uniqueId].orderedValues;
     }
 
     // If id is too large for quickcache, use hashmap
@@ -575,18 +575,18 @@ std::vector<double*>* Nebulite::Interaction::Logic::Expression::ensure_other_cac
     
     // If not, create one
     if(it == cache->map.end()) {
-        Nebulite::Utility::OrderedDoublePointers newCacheList;
+        Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles_other.size());
 
         // Populate list with all virtual doubles from type other
         for(auto& vde : virtualDoubles_other) {
             double* reference = current_other->get_stable_double_ptr(vde->getKey());
-            newCacheList.values.push_back(reference);
+            newCacheList.orderedValues.push_back(reference);
         }
 
-        cache->map.emplace(uniqueId, newCacheList);
+        cache->map.emplace(uniqueId, std::move(newCacheList));
         it = cache->map.find(uniqueId);
     }
-    return &it->second.values;
+    return &it->second.orderedValues;
 }
 
 void Nebulite::Interaction::Logic::Expression::updateCaches(Nebulite::Utility::JSON* current_other) {
@@ -596,11 +596,10 @@ void Nebulite::Interaction::Logic::Expression::updateCaches(Nebulite::Utility::J
     // Get a list of all references, insert into virtual doubles
     if(!virtualDoubles_other.empty()){
         auto list = ensure_other_cache_entry(current_other);
-
-        int i = 0;
-        for(auto& vde : virtualDoubles_other) {
-            vde->setDirect(*(list->at(i)));
-            i++;
+        auto* list_data = list->data();
+        const size_t count = virtualDoubles_other.size();
+        for(size_t i = 0; i < count; ++i) {
+            virtualDoubles_other[i]->setDirect(*list_data[i]);
         }
     }
 
