@@ -272,8 +272,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
             continue; // Skip this entry if no expressions are found
         }
 
-        // Parse all expressions
-        uint32_t exprSize = entry.memberSize(Nebulite::Constants::keyName.invoke.exprVector);
+        // Parse all assignments
         for (auto& assignment : Ruleset->assignments) {
             assignment.expression.parse(assignment.value, docCache, self->getDoc(), global);
         }
