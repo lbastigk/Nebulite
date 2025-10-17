@@ -44,6 +44,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # Echo the start of the configuration
 message(STATUS "Starting configuration for project Nebulite")
+message(STATUS "System: ${CMAKE_SYSTEM_NAME}")
+message(STATUS "Source dir: ${CMAKE_SOURCE_DIR}")
+message(STATUS "Binary dir: ${CMAKE_BINARY_DIR}")
 
 ############################################################
 # Shortcut paths to external dependencies
@@ -86,6 +89,9 @@ target_include_directories(Nebulite
         ${TINYEXPR_PATH}
         ${ABSEIL_PATH}
 )
+
+# Link Abseil
+target_link_libraries(Nebulite PRIVATE absl::flat_hash_map)
 
 ############################################################
 # Link externallibraries
@@ -141,6 +147,27 @@ if(WIN32)
         -luuid
         -lwinmm
         -lws2_32
+    )
+
+elseif(APPLE)
+    message(STATUS "Targeting macOS")
+
+    set(SDL2_PATH        ${CMAKE_SOURCE_DIR}/external/SDL_Crossplatform_Local/external/SDL2)
+    set(SDL2_TTF_PATH    ${CMAKE_SOURCE_DIR}/external/SDL_Crossplatform_Local/external/SDL_ttf)
+    set(SDL2_IMAGE_PATH  ${CMAKE_SOURCE_DIR}/external/SDL_Crossplatform_Local/external/SDL_image)
+
+    add_subdirectory(${SDL2_PATH})
+    add_subdirectory(${SDL2_TTF_PATH})
+    add_subdirectory(${SDL2_IMAGE_PATH})
+
+    target_link_libraries(Nebulite PRIVATE SDL2 SDL2_ttf SDL2_image)
+
+    # Frameworks needed for SDL2 on macOS
+    target_link_libraries(Nebulite PRIVATE
+            "-framework Cocoa"
+            "-framework IOKit"
+            "-framework CoreVideo"
+            "-framework Carbon"
     )
 ##################
 # LINUX          #
