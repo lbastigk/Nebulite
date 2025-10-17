@@ -78,9 +78,6 @@ Nebulite::Constants::Error General::wait([[maybe_unused]] int argc, [[maybe_unus
     if(argc == 2){
         std::istringstream iss(argv[1]);
         iss >> domain->scriptWaitCounter;
-        if (domain->scriptWaitCounter < 0){
-            domain->scriptWaitCounter = 0;
-        }
         return Nebulite::Constants::ErrorTable::NONE();
     }
     else if(argc < 2){
