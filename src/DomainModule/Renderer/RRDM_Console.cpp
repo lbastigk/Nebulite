@@ -115,8 +115,10 @@ void Console::renderConsole() {
 
     // Render input text
     if (!textInput.getInputBuffer()->empty()) {
+        std::string inputText = *textInput.getInputBuffer();
+
         // Create surface and texture
-        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, textInput.getInputBuffer()->c_str(), textColor);
+        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, inputText.c_str(), textColor);
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
         // Define destination rectangle
@@ -271,6 +273,7 @@ uint8_t Console::calculateTextAlignment(uint16_t rect_height){
 // Event processing
 
 void Console::processEvents(){
+    static std::string command;
     for (const auto& event : *events) {
         switch (event.type) {
             case SDL_TEXTINPUT:
@@ -290,9 +293,10 @@ void Console::processEvents(){
                     // Submit command on Enter
                     case SDLK_RETURN:
                     case SDLK_KP_ENTER:
-                        if(!textInput.getInputBuffer()->empty()){
+                        command = textInput.submit();
+                        if(!command.empty()){
                             // Parse command on global level for full access to all functions
-                            global->parseStr(std::string(__FUNCTION__) + " " + textInput.submit() );
+                            global->parseStr(std::string(__FUNCTION__) + " " + command);
                         }
                         break;	
 
