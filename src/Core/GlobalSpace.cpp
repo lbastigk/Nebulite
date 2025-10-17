@@ -92,7 +92,6 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
         // Reduce script wait counter if not in console mode or other halting states
         if(didUpdate){
             if(scriptWaitCounter > 0) scriptWaitCounter--; 
-            if(scriptWaitCounter < 0) scriptWaitCounter = 0;
         }  
 
         // Frame was rendered, meaning we potentially have new tasks to process
