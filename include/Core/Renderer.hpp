@@ -197,7 +197,6 @@ public:
 	 * @return True if the texture was successfully removed, false otherwise.
 	 */
 	bool detachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string name) {
-		bool found = false;
 		if(BetweenLayerTextures[aboveThisLayer].contains(name)) {
 			BetweenLayerTextures[aboveThisLayer].erase(name);
 			return true;
