@@ -238,19 +238,25 @@ public:
         return continueLoop; 
     };
 
+    enum class UniqueIdType{
+        EXPRESSION = 0,
+        JSONKEY = 1
+    };
+
     /**
      * @brief Gets a unique ID based on a hash string.
      * 
      * @param hash The hash string to get the unique ID for.
+     * @param type Which rolling counter to use for the unique ID, allowing for separate ID spaces.
      * @return The unique ID corresponding to the hash.
      */
-    uint64_t getUniqueId(std::string hash){
-        auto it = uniqueIdMap.find(hash);
-        if(it != uniqueIdMap.end()){
+    uint64_t getUniqueId(std::string hash, UniqueIdType type){
+        auto it = uniqueIdMap[static_cast<size_t>(type)].find(hash);
+        if(it != uniqueIdMap[static_cast<size_t>(type)].end()){
             return it->second;
         } else {
-            uint64_t newId = uniqueIdCounter++;
-            uniqueIdMap[hash] = newId;
+            uint64_t newId = uniqueIdCounter[static_cast<size_t>(type)]++;
+            uniqueIdMap[static_cast<size_t>(type)][hash] = newId;
             return newId;
         }
     }
@@ -275,8 +281,9 @@ private:
     Nebulite::Utility::DocumentCache docCache;
 
     // Unique ID map
-    uint64_t uniqueIdCounter = 0;
-    absl::flat_hash_map<std::string, uint64_t> uniqueIdMap;
+    uint64_t uniqueIdCounter[2] = {0, 0}; // Size of uniqueIdType!
+    absl::flat_hash_map<std::string, uint64_t> uniqueIdMap[2]; // Size of uniqueIdType!
+    
     
 
     //------------------------------------------

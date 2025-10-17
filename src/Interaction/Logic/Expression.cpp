@@ -407,7 +407,7 @@ void Nebulite::Interaction::Logic::Expression::parse(const std::string& expr, Ne
 
     // Get the unique ID for this expression
     auto globalspace = self->getGlobalSpace();
-    uniqueId = globalspace->getUniqueId(fullExpression);
+    uniqueId = globalspace->getUniqueId(fullExpression, Nebulite::Core::GlobalSpace::UniqueIdType::EXPRESSION);
 }
 
 std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth) {
@@ -553,6 +553,24 @@ double Nebulite::Interaction::Logic::Expression::evalAsDouble(Nebulite::Utility:
 std::vector<double*>* Nebulite::Interaction::Logic::Expression::ensure_other_cache_entry(Nebulite::Utility::JSON* current_other) {
     auto cache = current_other->getExpressionRefsAsOther();
     std::lock_guard<std::mutex> cache_lock(cache->mtx);
+    
+    // Check if we can use quickcache, that does not rely on a hashmap lookup
+    if(uniqueId < ORDERED_DOUBLE_POINTERS_QUICKCACHE_SIZE){
+        if(cache->quickCache[uniqueId].values.empty()){
+            // Not initialized yet, create one
+            Nebulite::Utility::OrderedDoublePointers newCacheList;
+
+            // Populate list with all virtual doubles from type other
+            for(auto& vde : virtualDoubles_other) {
+                double* reference = current_other->get_stable_double_ptr(vde->getKey());
+                newCacheList.values.push_back(reference);
+            }
+            cache->quickCache[uniqueId] = newCacheList;
+        }
+        return &cache->quickCache[uniqueId].values;
+    }
+
+    // If id is too large for quickcache, use hashmap
     auto it = cache->map.find(uniqueId);
     
     // If not, create one

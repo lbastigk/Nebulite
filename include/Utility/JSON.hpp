@@ -37,6 +37,8 @@
 
 #include "RjDirectAccess.hpp"
 
+#define JSON_UID_QUICKCACHE_SIZE 30 // First 30 keys get a quickcache entry for double pointers!
+
 namespace Nebulite::Utility {
 NEBULITE_DOMAIN(JSON) {
 private:
@@ -121,6 +123,11 @@ private:
 		//Nebulite::Utility::MappedOrderedDoublePointers as_self; // Not needed here, but type parent/child might become useful later on!
 		Nebulite::Utility::MappedOrderedDoublePointers<uint64_t> as_other;
 	} expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
+
+    /**
+     * @brief Super quick double cache based on unique IDs, no hash lookup.
+     */
+    double* uidDoubleCache[JSON_UID_QUICKCACHE_SIZE] = {nullptr};
 
 public:
     JSON(Nebulite::Core::GlobalSpace* globalSpace);
@@ -258,6 +265,19 @@ public:
      */
     double* get_stable_double_ptr(const std::string& key);
 
+    /**
+     * @brief Gets a pointer to a to a double value pointer in the JSON document based on a unique ID.
+     * 
+     * @param uid The unique ID of the key, must be smaller than JSON_UID_QUICKCACHE_SIZE !
+     */
+    double* get_uid_double_ptr(uint64_t uid, const std::string& key){
+        if(uidDoubleCache[uid] == nullptr){
+            // Need to create new entry
+            uidDoubleCache[uid] = get_stable_double_ptr(key);
+        }
+        return uidDoubleCache[uid];
+    }
+
     //------------------------------------------
     // Key Types, Sizes
     
@@ -357,6 +377,8 @@ public:
             return &expressionRefs[idx].as_other;
         #endif
 	}
+
+
 };
 }
 

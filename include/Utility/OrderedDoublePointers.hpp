@@ -5,12 +5,25 @@
 
 #pragma once
 
+//------------------------------------------
+// Includes
+
+// Standard library
 #include <vector>
 #include <mutex>
 
+// External
+#include "absl/container/flat_hash_map.h"
+
+// Nebulite
 #include "Nebulite.hpp"
 
-#include "absl/container/flat_hash_map.h"
+//------------------------------------------
+// Defines
+
+#define ORDERED_DOUBLE_POINTERS_QUICKCACHE_SIZE 30
+
+//------------------------------------------
 
 namespace Nebulite::Utility {
 /**
@@ -35,6 +48,17 @@ template <typename hashtype>
 struct MappedOrderedDoublePointers{
     absl::flat_hash_map<hashtype, OrderedDoublePointers> map;
     std::mutex mtx;
+
+    /**
+     * @brief Quick cache for the first few OrderedDoublePointers entries.
+     * 
+     * This array allows for fast access to frequently used entries without the overhead of a hashmap lookup.
+     * 
+     * @todo In order for this to work in production, we need a global functioncall that generates unique IDs for expressions.
+     * E.g. if we know our engine relies a lot on expression A, but it might not be used first,
+     * its best to then call this function early on to assign it a low unique ID.
+     */
+    OrderedDoublePointers quickCache[ORDERED_DOUBLE_POINTERS_QUICKCACHE_SIZE];
 };
 } // namespace Nebulite::Utility
 

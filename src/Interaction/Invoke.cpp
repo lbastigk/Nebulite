@@ -331,9 +331,25 @@ void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Inte
             else{
                 // Target is not associated with a direct double pointer
                 // Likely because the target is in document other
+                double* target = nullptr;
 
-                // Try to get a stable double pointer from the target document
-                double* target = targetDocument->get_stable_double_ptr(assignment.key.c_str());
+                // Try to use unique id for quick access
+                if(!assignment.targetKeyUniqueIdInitialized){
+                    // Initialize unique id
+                    assignment.targetKeyUniqueId = global->getUniqueId(assignment.key, Nebulite::Core::GlobalSpace::UniqueIdType::JSONKEY);
+                    assignment.targetKeyUniqueIdInitialized = true;
+                }
+
+                // Try to use unique id for quick access
+                if(assignment.targetKeyUniqueId < JSON_UID_QUICKCACHE_SIZE){
+                    target = targetDocument->get_uid_double_ptr(assignment.targetKeyUniqueId, assignment.key);
+                }
+                // Fallback to normal method via key to double pointer
+                else{
+                    // Try to get a stable double pointer from the target document
+                    target = targetDocument->get_stable_double_ptr(assignment.key);
+                }
+                
                 if(target != nullptr){
                     std::lock_guard<std::recursive_mutex> lock(targetDocument->lock());
                     setValueOfKey(assignment.operation, assignment.key, resolved, target);
