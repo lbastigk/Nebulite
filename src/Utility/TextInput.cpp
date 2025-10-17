@@ -16,11 +16,18 @@ std::string TextInput::submit(){
 
         // Like in typical consoles, we clear the output
         commandIndexZeroBuffer.clear();
+        consoleInputBuffer = &commandIndexZeroBuffer;
 
         // Reset cursor
         cursorOffset = 0;
 
         return input;
+    }
+    // Use last command if input is empty
+    if(!commandHistory.empty()){
+        std::string lastCommand = commandHistory.back();
+        consoleOutput.emplace_back("> " + lastCommand);
+        return lastCommand;
     }
     return "";
 }
