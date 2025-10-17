@@ -264,7 +264,7 @@ void Nebulite::Utility::JSON::deserialize(std::string serial_or_link){
 //------------------------------------------
 // Key Types, Sizes
 
-const Nebulite::Utility::JSON::KeyType Nebulite::Utility::JSON::memberCheck(std::string key) {
+Nebulite::Utility::JSON::KeyType Nebulite::Utility::JSON::memberCheck(std::string key) {
     // 1. Check if key is empty -> represents the whole document
     if (key.empty()) {
         return KeyType::document;
@@ -302,7 +302,7 @@ const Nebulite::Utility::JSON::KeyType Nebulite::Utility::JSON::memberCheck(std:
     }
 }
 
-const uint32_t Nebulite::Utility::JSON::memberSize(std::string key){
+uint32_t Nebulite::Utility::JSON::memberSize(std::string key){
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
     auto kt = memberCheck(key);
