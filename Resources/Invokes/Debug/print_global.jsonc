@@ -5,7 +5,7 @@
   "functioncalls_global": [
     "echo",
     "echo Global state is:",
-    "print all"
+    "print"
   ],
   "functioncalls_self": [],
   "functioncalls_other": []

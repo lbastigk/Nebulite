@@ -10,15 +10,26 @@
 
 /**
  * @brief Number of thread runners for processing broadcast-listen pairs.
+ * 
+ * Hypothesis:
+ * Should be approximately ORDERED_DOUBLE_POINTERS_MAPS x INVOKE_EXPR_POOL_SIZE ?
  */
-#define THREADRUNNER_COUNT 30
+#define THREADRUNNER_COUNT 25
+
+/**
+ * @brief Number of orderered double pointer maps for expression evaluations.
+ * 
+ * If set to 1, all threads share the same map.
+ * Optimized to not use any special indexing, but simple access to [0] if set to 1.
+ */
+#define ORDERED_DOUBLE_POINTERS_MAPS 5
 
 /**
  * @def INVOKE_EXPR_POOL_SIZE
  *
  * Size of the expression pool for each expression.
  */
-#define INVOKE_EXPR_POOL_SIZE 30
+#define INVOKE_EXPR_POOL_SIZE ORDERED_DOUBLE_POINTERS_MAPS
 
 //------------------------------------------
 
@@ -49,4 +60,5 @@ Date            Result      THREADRUNNER_COUNT      BATCH_COST_GOAL INVOKE_EXPR_
 ------------------------------------------------------------------------------------------
 2025-10-06:      7.7s       20                      250             20                      # New threading model for Invoke
 2025-10-13:      7.2s       30                      250             30                      # Increased thread count and new BroadCastListen structure
+2025-10-17:      6.3s       25                      250             05                      # Improved Expression evaluation with ordered double pointer lists and hash-free access
 */

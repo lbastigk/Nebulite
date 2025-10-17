@@ -23,7 +23,7 @@
             "topic": "",
             "logicalArg": "$( lt({self.posX},0) )",
             "exprs": [
-                "global.score.right += 1"
+                "global.score.right += $(1)"
             ],
             "functioncalls_global": [],
             "functioncalls_self": [
@@ -35,7 +35,7 @@
             "topic": "",
             "logicalArg": "$( gt({self.posX},{global.display.resolution.X}) )",
             "exprs": [
-                "global.score.left += 1"
+                "global.score.left += $(1)"
             ],
             "functioncalls_global": [],
             "functioncalls_self": [

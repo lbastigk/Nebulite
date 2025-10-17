@@ -1,22 +1,22 @@
 ###############################################
 # Gravity + Elastic collision Benchmark
 # Spawns n*n objects with a total mass of 50000
-# + a sun object after 5000 frames
+# + a sun object
 # 
-# Due to the inherent n^2 complexity of gravity, this benchmark is very ressource intensive
-# it is recommended to start this benchmark headless!
+# Due to the inherent n^2 complexity of gravity, this benchmark is very resource intensive
 ###############################################
 
 ###############################################
 # [SETTINGS]
-set loop.n 20
+set loop.n 40
 
-# Frame average for 40x40 objects: 0.745 seconds
+# Frame average for 20x20 objects: 010.77 ms.
+# Frame average for 40x40 objects: 117.88 ms.
 
 ###############################################
 # [BASICS]
 # It is not recommended to change these!
-time set-fixed-dt 2
+time set-fixed-dt 1
 set physics.G 10
 set-res 640 640 3
 set-fps 10000
@@ -60,7 +60,7 @@ wait 2500
 
 ###############################################
 # Inform on runtime
-eval echo Simulation done! Total runtime: {global.runtime.t} Seconds.
+eval echo Simulation done! Total runtime: {global.runtime.t} Seconds. Frame average: $06.2f( 1000 * {global.runtime.t} / {global.frameCount} ) ms.
 
 ###############################################
 # Exit

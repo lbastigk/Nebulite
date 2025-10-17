@@ -2,7 +2,7 @@
   "topic" : "",
   "logicalArg": "1",
   "exprs" : [
-      "self.physics.aY += 981"
+      "self.physics.aY += $(981)"
   ],
   "functioncalls_global": [],
   "functioncalls_self": [],

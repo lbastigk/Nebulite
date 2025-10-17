@@ -105,6 +105,19 @@ public:
     }
 
     /**
+     * @brief Set the value of the VirtualDouble directly.
+     * 
+     * This function updates the internal cache value directly.
+     * Used for non-remanent documents where we want to set a value without linking to an external source.
+     * 
+     * @param val The new double value to set.
+     */
+    void setDirect(double val){
+        copied_value = val;
+        reference = &copied_value;
+    }
+
+    /**
      * @brief Get a pointer to the linked double
      * 
      * Depending on type of linkage, this is either:

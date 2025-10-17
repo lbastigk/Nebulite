@@ -81,6 +81,18 @@ struct Assignment{
      */
     double* targetValuePtr = nullptr;
 
+    /**
+     * @brief A unique id of the key in the target document
+     * 
+     * Used for quick access to a target value pointer in the target document.
+     */
+    uint64_t targetKeyUniqueId = 0;
+
+    /**
+     * @brief if the unique id was already initialized
+     */
+    bool targetKeyUniqueIdInitialized = false;
+
     // Activate threadsafe expression pool only if needed
     #if INVOKE_EXPR_POOL_SIZE < 2
         /**

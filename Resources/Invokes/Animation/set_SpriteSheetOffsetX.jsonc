@@ -6,7 +6,7 @@
   "exprs": [
     "self.sprite.spritesheet.offsetX = $( ({self.sprite.spritesheet.offsetX} + 16) % {self.animation.xRolling.mod} )",
     "self.animation.xRolling.next = $({global.time.t_ms}+150)",
-    "self.animation.xRolling.active = 0"
+    "self.animation.xRolling.active = $(0)"
   ],
   "functioncalls_global": [],
   "functioncalls_self": [],

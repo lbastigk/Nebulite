@@ -29,11 +29,15 @@
 #include "absl/container/flat_hash_map.h"
 
 // Nebulite
-#include "Utility/Time.hpp"
-#include "Utility/FileManagement.hpp"
+#include "Constants/ThreadSettings.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Utility/FileManagement.hpp"
+#include "Utility/OrderedDoublePointers.hpp"
+#include "Utility/Time.hpp"
 
 #include "RjDirectAccess.hpp"
+
+#define JSON_UID_QUICKCACHE_SIZE 30 // First 30 keys get a quickcache entry for double pointers!
 
 namespace Nebulite::Utility {
 NEBULITE_DOMAIN(JSON) {
@@ -113,6 +117,17 @@ private:
      * and up-to-date with the cached values.
      */
     void flush();
+
+    // References for expressions
+	struct ExpressionRef {
+		//Nebulite::Utility::MappedOrderedDoublePointers as_self; // Not needed here, but type parent/child might become useful later on!
+		Nebulite::Utility::MappedOrderedDoublePointers<uint64_t> as_other;
+	} expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
+
+    /**
+     * @brief Super quick double cache based on unique IDs, no hash lookup.
+     */
+    double* uidDoubleCache[JSON_UID_QUICKCACHE_SIZE] = {nullptr};
 
 public:
     JSON(Nebulite::Core::GlobalSpace* globalSpace);
@@ -250,6 +265,19 @@ public:
      */
     double* get_stable_double_ptr(const std::string& key);
 
+    /**
+     * @brief Gets a pointer to a to a double value pointer in the JSON document based on a unique ID.
+     * 
+     * @param uid The unique ID of the key, must be smaller than JSON_UID_QUICKCACHE_SIZE !
+     */
+    double* get_uid_double_ptr(uint64_t uid, const std::string& key){
+        if(uidDoubleCache[uid] == nullptr){
+            // Need to create new entry
+            uidDoubleCache[uid] = get_stable_double_ptr(key);
+        }
+        return uidDoubleCache[uid];
+    }
+
     //------------------------------------------
     // Key Types, Sizes
     
@@ -332,6 +360,25 @@ public:
      * See `JSDM_*.hpp` files for available functioncalls.
      */
     void deserialize(std::string serial_or_link);
+
+    //------------------------------------------
+    // Assorted list of double pointers
+
+	Nebulite::Utility::MappedOrderedDoublePointers<uint64_t>* getExpressionRefsAsOther() {
+        #if ORDERED_DOUBLE_POINTERS_MAPS == 1
+            return &expressionRefs[0].as_other;
+        #else
+            // Each thread gets a unique starting position based on thread ID
+            static thread_local size_t thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
+            static thread_local size_t counter = 0;
+            
+            // Rotate through pool entries starting from thread's unique offset
+            size_t idx = (thread_offset + counter++) % ORDERED_DOUBLE_POINTERS_MAPS;
+            return &expressionRefs[idx].as_other;
+        #endif
+	}
+
+
 };
 }
 
@@ -379,8 +426,8 @@ T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
 
     // Check cache first
     auto it = cache.find(key);
-    if (it != cache.end() && it->second->state != EntryState::VIRTUAL && it->second->state != EntryState::DELETED) {
-        // Entry exists and is not virtual
+    if (it != cache.end() && it->second->state != EntryState::DELETED) {
+        // Entry exists and is not deleted
         
         // Check its double value for change detection
         if(*it->second->stable_double_ptr != it->second->last_double_value) {
