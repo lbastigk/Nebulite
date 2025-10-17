@@ -14,7 +14,6 @@
 
 // External
 #include "absl/container/flat_hash_map.h"
-#include "absl/container/inlined_vector.h"
 
 // Nebulite
 #include "Nebulite.hpp"
@@ -70,36 +69,17 @@ public:
     DynamicFixedArray(const DynamicFixedArray&) = delete;
     DynamicFixedArray& operator=(const DynamicFixedArray&) = delete;
 
-    void push_back(double* ptr) {
+    inline void push_back(double* ptr) {
         if (size_ < capacity_) {
             data_[size_++] = ptr;
         }
     }
 
-    /**
-     * @brief Reserve space and pre-allocate for exactly the needed size.
-     * This is a no-op since space is already allocated, but kept for compatibility.
-     */
-    void reserve(size_t) { /* No-op: space already allocated */ }
+    inline double*& at(size_t index) noexcept { return data_[index]; }
+    
+    inline bool empty() const noexcept { return size_ == 0; }
 
-    double*& operator[](size_t index) { return data_[index]; }
-    const double* operator[](size_t index) const { return data_[index]; }
-
-    double*& at(size_t index) { return data_[index]; }
-    const double* at(size_t index) const { return data_[index]; }
-
-    size_t size() const { return size_; }
-    size_t capacity() const { return capacity_; }
-    bool empty() const { return size_ == 0; }
-    void clear() { size_ = 0; }
-
-    double** begin() { return data_; }
-    double** end() { return data_ + size_; }
-    const double* const* begin() const { return data_; }
-    const double* const* end() const { return data_ + size_; }
-
-    double** data() { return data_; }
-    const double* const* data() const { return data_; }
+    inline double** data() noexcept { return data_; }
 
 private:
     double** data_;
@@ -107,72 +87,17 @@ private:
     size_t capacity_;
 };
 
-/**
- * @brief Fixed-size array wrapper for double pointers with vector-like interface.
- * Template version for compile-time known sizes.
- */
-template<size_t N>
-class FixedDoubleArray {
-public:
-    FixedDoubleArray() : size_(0) {}
 
-    void push_back(double* ptr) {
-        if (size_ < N) {
-            data_[size_++] = ptr;
-        }
-    }
-
-    double*& operator[](size_t index) { return data_[index]; }
-    const double* operator[](size_t index) const { return data_[index]; }
-
-    size_t size() const { return size_; }
-    bool empty() const { return size_ == 0; }
-    void clear() { size_ = 0; }
-
-    double** begin() { return data_; }
-    double** end() { return data_ + size_; }
-    const double* const* begin() const { return data_; }
-    const double* const* end() const { return data_ + size_; }
-
-    double** data() { return data_; }
-    const double* const* data() const { return data_; }
-
-private:
-    double* data_[N];
-    size_t size_;
-};
 
 /**
- * @class OrderedDoublePointers
- * @brief A list of double pointers used in expression evaluations.
- * 
- * Allows for strict ordering of double pointers, potentially reducing overhead of get_double_ptr calls,
- * if the same order is used multiple times.
+ * @brief Lightweight container for ordered double pointers in expression evaluations.
  */
 class OrderedDoublePointers {
 public:
-    /**
-     * @brief Default constructor - uses fallback container.
-     */
     OrderedDoublePointers() : orderedValues() {}
-
-    /**
-     * @brief Constructor with exact size for maximum performance.
-     * @param exact_size The exact number of elements this container will hold.
-     */
     explicit OrderedDoublePointers(size_t exact_size) : orderedValues(exact_size) {}
 
-    /**
-     * @brief Maximum inline size for the container.
-     */
     static constexpr size_t max_inline_size = 32;
-
-    /**
-     * @brief Container for double pointers.
-     * 
-     * Uses a dynamically-sized fixed array that allocates exactly the needed space
-     * once at construction time, providing optimal memory usage and cache locality.
-     */
     DynamicFixedArray orderedValues;
 };
 

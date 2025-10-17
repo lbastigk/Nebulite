@@ -596,11 +596,10 @@ void Nebulite::Interaction::Logic::Expression::updateCaches(Nebulite::Utility::J
     // Get a list of all references, insert into virtual doubles
     if(!virtualDoubles_other.empty()){
         auto list = ensure_other_cache_entry(current_other);
-
-        int i = 0;
-        for(auto& vde : virtualDoubles_other) {
-            vde->setDirect(*(list->at(i)));
-            i++;
+        auto* list_data = list->data();
+        const size_t count = virtualDoubles_other.size();
+        for(size_t i = 0; i < count; ++i) {
+            virtualDoubles_other[i]->setDirect(*list_data[i]);
         }
     }
 
