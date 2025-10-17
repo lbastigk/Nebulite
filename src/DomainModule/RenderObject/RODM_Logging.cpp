@@ -18,7 +18,7 @@ Nebulite::Constants::Error Logging::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error Logging::echo(int argc, char* argv[]){
+Nebulite::Constants::Error Logging::echo([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
     for (int i = 1; i < argc; i++) {
         std::cout << argv[i] << " ";
     }
@@ -37,7 +37,7 @@ Outputs:
 Hello World!
 )";
 
-Nebulite::Constants::Error Logging::log_all(int argc, char* argv[]){
+Nebulite::Constants::Error Logging::log_all([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
     std::string serialized = domain->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -58,7 +58,7 @@ Usage: log [filename]
 Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
 )";
 
-Nebulite::Constants::Error Logging::log_key(int argc, char* argv[]){
+Nebulite::Constants::Error Logging::log_key([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
     if (argc < 2) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

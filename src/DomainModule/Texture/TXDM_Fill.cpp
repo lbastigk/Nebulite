@@ -10,7 +10,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::Texture::Fill::update() {
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::Texture::Fill::fill(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::Texture::Fill::fill([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     if (argc < 2) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

@@ -46,7 +46,7 @@ public:
      * @param argv The argument vector: "fill <color>" or "fill <R> <G> <B>"
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error fill(int argc, char* argv[]);
+    Nebulite::Constants::Error fill([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
     static const std::string fill_name;
     static const std::string fill_desc;
 

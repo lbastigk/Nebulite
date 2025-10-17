@@ -28,7 +28,7 @@ Nebulite::Constants::Error Mirror::update() {
 //------------------------------------------
 // Available Functions
 
-Nebulite::Constants::Error Mirror::mirror_once(int argc, char* argv[]) {
+Nebulite::Constants::Error Mirror::mirror_once([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     auto err = setupMirrorKey();
     if(err.isError()) return err;
     mirrorOnceEnabled = true;
@@ -43,7 +43,7 @@ Mirroring is only done for one frame.
 Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id<id>
 )";
 
-Nebulite::Constants::Error Mirror::mirror_on(int argc, char* argv[]) {
+Nebulite::Constants::Error Mirror::mirror_on([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     auto err = setupMirrorKey();
     if(err.isError()) return err;
     mirrorEnabled = true;
@@ -59,7 +59,7 @@ Constant mirroring is active until turned off with 'mirror off'
 Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id<id>
 )";
 
-Nebulite::Constants::Error Mirror::mirror_off(int argc, char* argv[]) {
+Nebulite::Constants::Error Mirror::mirror_off([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     mirrorEnabled = false;
     return Nebulite::Constants::ErrorTable::NONE();
 }
@@ -73,7 +73,7 @@ Constant mirroring is inactive until turned on again with 'mirror on'
 Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id<id>
 )";
 
-Nebulite::Constants::Error Mirror::mirror_delete(int argc, char* argv[]) {
+Nebulite::Constants::Error Mirror::mirror_delete([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     domain->getGlobalSpace()->getDoc()->remove_key(mirrorKey.c_str());
     return Nebulite::Constants::ErrorTable::NONE();
 }
@@ -85,7 +85,7 @@ Usage: mirror delete
 Mirrors are removed from the GlobalSpace document under key "mirror.renderObject.id<id>
 )";
 
-Nebulite::Constants::Error Mirror::mirror_fetch(int argc, char* argv[]) {
+Nebulite::Constants::Error Mirror::mirror_fetch([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     Nebulite::Utility::JSON::KeyType keyStatus = domain->getGlobalSpace()->getDoc()->memberCheck(mirrorKey.c_str());
     if (keyStatus != Nebulite::Utility::JSON::KeyType::document) {
         return Nebulite::Constants::ErrorTable::addError("Mirror fetch failed: Key '" + mirrorKey + "' not of type document", Nebulite::Constants::Error::NON_CRITICAL);
