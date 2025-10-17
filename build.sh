@@ -31,8 +31,11 @@ trap 'echo ""; echo "[ERROR] Build failed on ${build_type}!"; echo "Consider run
 ################################################
 # Parse arguments
 minimal_build=false
+coverage_build=false
 if [[ "$1" == "-minimal" ]]; then
     minimal_build=true
+elif [[ "$1" == "-coverage" ]]; then
+    coverage_build=true
 fi
 
 ################################################
@@ -69,6 +72,17 @@ function build_release() {
     strip "./bin/Nebulite"
 }
 
+function build_coverage() {
+    clean_src "./.build/coverage/Nebulite" "coverage"
+    # Clean any existing coverage data
+    find . -name "*.gcda" -delete 2>/dev/null || true
+    find . -name "*.gcno" -delete 2>/dev/null || true
+    
+    cmake -DCMAKE_BUILD_TYPE=Coverage -B ./.build/coverage -S .
+    cmake --build ./.build/coverage -j$(nproc)
+    cp ./.build/coverage/Nebulite ./bin/Nebulite_Coverage
+}
+
 function build_debug_windows() {
       clean_src "./.build/windows-debug/Nebulite.exe" "windows-debug"
       cmake -DCMAKE_BUILD_TYPE=Debug \
@@ -97,33 +111,41 @@ rm -rf "./bin/Nebulite"
 rm -rf "./bin/Nebulite_Debug"
 rm -rf "./bin/Nebulite.exe"
 rm -rf "./bin/Nebulite_Debug.exe"
+rm -rf "./bin/Nebulite_Coverage"
 
 echo "#############################################################"
 echo ""
-echo "Step 1: Building Linux release binary"
-build_type="Linux Release"
-build_release
-echo "#############################################################"
-echo ""
-echo "Step 2: Building Linux debug binary"
-build_type="Linux Debug"
-build_debug
 
-if [[ "$minimal_build" == false ]]; then
+if [[ "$coverage_build" == true ]]; then
+    echo "Building coverage binary"
+    build_type="Coverage"
+    build_coverage
+else
+    echo "Step 1: Building Linux release binary"
+    build_type="Linux Release"
+    build_release
     echo "#############################################################"
     echo ""
-    echo "Step 3: Building Windows release binary"
-    build_type="Windows Release"
-    build_release_windows
+    echo "Step 2: Building Linux debug binary"
+    build_type="Linux Debug"
+    build_debug
 
-    echo "#############################################################"
-    echo ""
-    echo "Step 4: Building Windows debug binary"
-    build_type="Windows Debug"
-    build_debug_windows
+    if [[ "$minimal_build" == false ]]; then
+        echo "#############################################################"
+        echo ""
+        echo "Step 3: Building Windows release binary"
+        build_type="Windows Release"
+        build_release_windows
 
-    # Copy necessary dlls
-    cp ./.build/SDL2/bin/*.dll ./bin/
+        echo "#############################################################"
+        echo ""
+        echo "Step 4: Building Windows debug binary"
+        build_type="Windows Debug"
+        build_debug_windows
+
+        # Copy necessary dlls
+        cp ./.build/SDL2/bin/*.dll ./bin/
+    fi
 fi
 
 echo "Build done!"
@@ -131,7 +153,7 @@ echo "Build done!"
 #############################################################
 # STANDARDS
 
-if [[ "$minimal_build" == false ]]; then
+if [[ "$minimal_build" == false && "$coverage_build" == false ]]; then
     echo ""
     echo "Generating standards from Binary:"
     build_type="Generate Standards"
@@ -142,26 +164,28 @@ fi
 #############################################################
 # INFO
 
-# Inform about lines of code:
+if [[ "$coverage_build" == false ]]; then
+    # Inform about lines of code:
 
-# Custom lang define, counting:
-# - custom .nebs files
-# - c++ source files
-# - c++ header files
-# - .sh and .py scripts
-# - custom external for SDL compilation
-CLOC_SETTINGS="--force-lang-def=./Tools/cloc_lang_define.txt \
-    Resources/ \
-    TaskFiles/ \
-    src/ \
-    include/ \
-    Scripts/ \
-    external/SDL_Crossplatform_Local/Scripts/ \
-    external/SDL_Crossplatform_Local/src/"
-echo ""
-echo ""
-echo "Lines of code for Project + Tests:"
-cloc $CLOC_SETTINGS 2>/dev/null
-echo ""
-cloc $CLOC_SETTINGS --csv 2>/dev/null | tail -1 | awk -F',' '{total=$3+$4+$5; print "Total lines (including comments and blanks): " total}' 2>/dev/null
-echo ""
+    # Custom lang define, counting:
+    # - custom .nebs files
+    # - c++ source files
+    # - c++ header files
+    # - .sh and .py scripts
+    # - custom external for SDL compilation
+    CLOC_SETTINGS="--force-lang-def=./Tools/cloc_lang_define.txt \
+        Resources/ \
+        TaskFiles/ \
+        src/ \
+        include/ \
+        Scripts/ \
+        external/SDL_Crossplatform_Local/Scripts/ \
+        external/SDL_Crossplatform_Local/src/"
+    echo ""
+    echo ""
+    echo "Lines of code for Project + Tests:"
+    cloc $CLOC_SETTINGS 2>/dev/null
+    echo ""
+    cloc $CLOC_SETTINGS --csv 2>/dev/null | tail -1 | awk -F',' '{total=$3+$4+$5; print "Total lines (including comments and blanks): " total}' 2>/dev/null
+    echo ""
+fi
