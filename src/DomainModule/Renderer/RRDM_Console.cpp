@@ -368,7 +368,7 @@ Contains commands to manipulate the in-application console.
 //------------------------------------------
 // Available Functions
 
-Nebulite::Constants::Error Console::consoleZoom(int argc, char** argv){
+Nebulite::Constants::Error Console::consoleZoom([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
     //------------------------------------------
     // Prerequisites
 

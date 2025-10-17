@@ -203,7 +203,7 @@ Note: This function attempts to clear the console screen using system-specific c
         It may not work in all environments or IDEs.
 )";
 
-Nebulite::Constants::Error Debug::crash(int argc, char** argv) {
+Nebulite::Constants::Error Debug::crash([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     // If an argument is provided, use it to select crash type
     if (argc > 1 && argv[1]) {
         std::string crashType = argv[1];

@@ -100,7 +100,7 @@ public:
      * Default is segfault if no argument was provided
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error crash(int argc, char** argv);
+    Nebulite::Constants::Error crash([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
     static const std::string crash_name;
     static const std::string crash_desc;
 
@@ -155,7 +155,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error standardfile_renderobject(int argc, char** argv);
+    Nebulite::Constants::Error standardfile_renderobject([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
     static const std::string standardfile_renderobject_name;
     static const std::string standardfile_renderobject_desc;
 

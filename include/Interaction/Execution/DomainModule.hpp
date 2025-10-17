@@ -89,7 +89,7 @@ public:
      * 
      * Make sure the function has the signature:
      * ```cpp
-     * Error functionName(int argc, char** argv);
+     * Error functionName([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
      * ```
      *
      * @tparam ClassType The type of the class containing the member function.
