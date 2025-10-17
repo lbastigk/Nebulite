@@ -517,7 +517,7 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
                 }
 
                 // Adding padding
-                if(entry.alignment > 0 && token.size() < entry.alignment) {
+                if(entry.alignment > 0 && token.size() < static_cast<size_t>(entry.alignment)) {
                     int32_t size = token.size();
                     for(int i = 0; i < entry.alignment - size; i++){
                         token = (entry.leadingZero ? '0' : ' ') + token;
