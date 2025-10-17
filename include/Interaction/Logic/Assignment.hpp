@@ -115,13 +115,15 @@ struct Assignment{
 
     // Enable move constructor and assignment
     Assignment() = default;
-    Assignment(Assignment&& other) noexcept
-        : operation(other.operation)
-        , onType(other.onType)
-        , key(std::move(other.key))
-        , value(std::move(other.value))
-        , expression(std::move(other.expression))
-        , targetValuePtr(other.targetValuePtr)
+    Assignment(Assignment&& other) noexcept : 
+        operation(other.operation),
+        onType(other.onType),
+        key(std::move(other.key)),
+        targetValuePtr(other.targetValuePtr),
+        targetKeyUniqueId(other.targetKeyUniqueId),
+        targetKeyUniqueIdInitialized(other.targetKeyUniqueIdInitialized),
+        expression(std::move(other.expression)),
+        value(std::move(other.value))
     {
     }
 
