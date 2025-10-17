@@ -240,11 +240,11 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
     }
 
     // Iterate through all entries
-    for (int i = 0; i < size; ++i) {
+    for (size_t idx = 0; idx < size; ++idx) {
         // Parse entry into separate JSON object
         Nebulite::Utility::JSON entry(self->getGlobalSpace());
-        if (!RulesetCompiler::getRuleset(*doc, entry, i)) {
-            std::cerr << "Failed to get invoke entry at index " << i << std::endl;
+        if (!RulesetCompiler::getRuleset(*doc, entry, idx)) {
+            std::cerr << "Failed to get invoke entry at index " << idx << std::endl;
             continue; // Skip this entry
         }
 
@@ -268,7 +268,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
         // Get expressions
         bool exprSuccess = RulesetCompiler::getExpressions(Ruleset.get(), &entry);
         if (!exprSuccess) {
-            std::cerr << "No expressions found in entry at index " << i << std::endl;
+            std::cerr << "No expressions found in entry at index " << idx << std::endl;
             continue; // Skip this entry if no expressions are found
         }
 
