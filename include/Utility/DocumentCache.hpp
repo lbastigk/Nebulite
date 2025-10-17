@@ -191,6 +191,23 @@ public:
         return data.serialize(); // Use the JSON get method to retrieve the value
     }
 
+    std::string getDocString(std::string link){
+        Nebulite::Utility::DocumentCache::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(link);
+
+        // Check if the document exists in the cache
+        if (docPtr == nullptr) {
+            return Nebulite::Utility::JSON(global).serialize(); // Return empty JSON if document loading fails
+        }
+
+        // Return string of document:
+        std::string serial = docPtr->document.serialize();
+
+        // Update the cache (unload old documents)
+        update();
+
+        return serial;
+    }
+
 private:
     /**
      * @brief Link to the global space.
