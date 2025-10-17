@@ -66,7 +66,7 @@ public:
      * @param documentCache The DocumentCache to use for retrieving values.
      */
     VirtualDouble(const std::string& k, Nebulite::Utility::DocumentCache* documentCache) 
-        : key(k), documentCache(documentCache) {
+        : documentCache(documentCache), key(k) {
             // Removing self/other/global prefixes in the key
             if (key.find("self.") == 0)         key = key.substr(5);
             else if (key.find("other.") == 0)   key = key.substr(6);
