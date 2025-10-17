@@ -51,7 +51,7 @@
         {
             "label": "[PROFILING] On small gravity test",
             "type": "shell",
-            "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/spawn_constantly.nebs ; hotspot perf.data",
+            "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/spawn_constantly.nebs ; hotspot perf.data",
             "group": {
                 "kind": "test",
                 "isDefault": false
@@ -62,7 +62,7 @@
         {
             "label": "[PROFILING] On large gravity test",
             "type": "shell",
-            "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0  ; perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/gravity_XL.nebs ; hotspot perf.data",
+            "command": "sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/gravity_XL.nebs ; hotspot perf.data",
             "group": {
                 "kind": "test",
                 "isDefault": false
