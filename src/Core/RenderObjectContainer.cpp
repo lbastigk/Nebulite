@@ -47,7 +47,7 @@ void Nebulite::Core::RenderObjectContainer::deserialize(const std::string& seria
 	Nebulite::Utility::JSON layer(globalSpace);
 	layer.deserialize(serialOrLink);
 	if(layer.memberCheck("objects") == Nebulite::Utility::JSON::KeyType::array){
-		for(int i = 0; i < layer.memberSize("objects"); i++){
+		for(uint32_t i = 0; i < layer.memberSize("objects"); i++){
 			std::string key = "objects[" + std::to_string(i) + "]";
 
 			// Check if serial or not:
