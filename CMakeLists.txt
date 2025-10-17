@@ -111,13 +111,13 @@ set_source_files_properties(
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(Nebulite PRIVATE
         -Wunused-function          # Warn about unused static functions
-        -Wunused-variable          # Warn about unused variables
-        -Wunused-parameter         # Warn about unused function parameters
+        #-Wunused-variable          # Warn about unused variables (Deactivated for now, too many entries)
+        #-Wunused-parameter         # Warn about unused function parameters (Deactivated for now, too many entries)
         -Wunreachable-code         # Warn about unreachable code
         # Uncomment for more aggressive warnings:
-        # -Wall                   # Enable most common warnings
-        # -Wextra                 # Enable extra warnings
-        # -Wpedantic              # Enable pedantic warnings
+        -Wall                   # Enable most common warnings
+        -Wextra                 # Enable extra warnings
+        -Wpedantic              # Enable pedantic warnings
     )
     
     # GCC-specific warnings
