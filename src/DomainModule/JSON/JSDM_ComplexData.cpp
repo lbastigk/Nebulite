@@ -1,5 +1,6 @@
 #include "DomainModule/JSON/JSDM_ComplexData.hpp"
 #include "Utility/JSON.hpp"
+#include "Core/GlobalSpace.hpp"
 
 namespace Nebulite::DomainModule::JSON{
 
@@ -41,35 +42,15 @@ Nebulite::Constants::Error ComplexData::json_set(int argc, char* argv[]){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     std::string myKey = argv[1];
-    std::string link_and_key = argv[2];
-
-    //Split link_and_key into link and key
-    size_t colonPos = link_and_key.find(':');
-    std::string link, docKey;
-    if (colonPos == std::string::npos) {
-        // Assuming the link is the whole string and key is empty
-        link = link_and_key;
-        docKey = "";
-    } else {
-        link = link_and_key.substr(0, colonPos);
-        docKey = link_and_key.substr(colonPos + 1);
-    }
-
-    // Load the JSON document from the link
-    std::string file = Nebulite::Utility::FileManagement::LoadFile(link);
-    if(file.empty()){
-        return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
-    }
-    Nebulite::Utility::JSON jsonDoc(global);
-    jsonDoc.deserialize(link.c_str());
+    std::string doc_key = argv[2];
     
     // Depending on the type of docKey, we retrieve the value
-    Nebulite::Utility::JSON::KeyType type = jsonDoc.memberCheck(docKey.c_str());
+    Nebulite::Utility::JSON::KeyType type = global->getDocCache()->memberCheck(doc_key);
 
     // === DOCUMENT ===
     if(type == Nebulite::Utility::JSON::KeyType::document){
         // Retrieve the sub-document
-        Nebulite::Utility::JSON subdoc = jsonDoc.get_subdoc(docKey.c_str());
+        Nebulite::Utility::JSON subdoc = global->getDocCache()->get_subdoc(doc_key);
 
         // Set the sub-document in the current JSON tree
         domain->set_subdoc(myKey.c_str(), &subdoc);
@@ -77,23 +58,21 @@ Nebulite::Constants::Error ComplexData::json_set(int argc, char* argv[]){
     // === VALUE ===
     else if(type == Nebulite::Utility::JSON::KeyType::value){
         // Retrieve the value
-        std::string value = jsonDoc.get<std::string>(docKey.c_str());
+        std::string value = global->getDocCache()->get<std::string>(doc_key);
 
         // Set the value in the current JSON tree
         domain->set(myKey.c_str(), value);
     }
     // === ARRAY ===
     else if(type == Nebulite::Utility::JSON::KeyType::array){
-        uint16_t size = jsonDoc.memberSize(docKey.c_str());
+        uint16_t size = global->getDocCache()->memberSize(doc_key);
         for (uint16_t i = 0; i < size; ++i) {
-            std::string itemKey = docKey + "[" + std::to_string(i) + "]";
-            std::string itemValue = jsonDoc.get<std::string>(itemKey.c_str());
+            std::string itemKey = doc_key + "[" + std::to_string(i) + "]";
+            std::string itemValue = global->getDocCache()->get<std::string>(itemKey);
             std::string newItemKey = myKey + "[" + std::to_string(i) + "]";
             domain->set(newItemKey.c_str(), itemValue);
         }
     }
-
-
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string ComplexData::json_set_name = "json set";

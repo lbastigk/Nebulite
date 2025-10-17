@@ -1,6 +1,8 @@
 #include "Interaction/RulesetCompiler.hpp"
 
+#include "Core/GlobalSpace.hpp"
 #include "Interaction/Ruleset.hpp"
+
 
 void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
     Nebulite::Utility::JSON& entryDoc,
@@ -167,7 +169,8 @@ bool Nebulite::Interaction::RulesetCompiler::getRuleset(Nebulite::Utility::JSON&
     else{
         // Is link to document
         std::string link = doc.get<std::string>(key.c_str(), "");
-        std::string file = Nebulite::Utility::FileManagement::LoadFile(link);
+        std::string file = doc.getGlobalSpace()->getDocCache()->getDocString(link);
+
         if (file.empty()) {
             return false;
         }
@@ -199,11 +202,11 @@ namespace{
         }
 
         // Set indices
-        for (size_t i = 0; i < entries_local.size(); ++i) {
-            entries_local[i]->index = static_cast<uint32_t>(i);
+        for (uint32_t i = 0; i < entries_local.size(); ++i) {
+            entries_local[i]->index = i;
         }
-        for (size_t i = 0; i < entries_global.size(); ++i) {
-            entries_global[i]->index = static_cast<uint32_t>(i);
+        for (uint32_t i = 0; i < entries_global.size(); ++i) {
+            entries_global[i]->index = i;
         }
 
         // Estimate full cost of each entry

@@ -121,9 +121,16 @@ Nebulite::Constants::Error General::task(int argc, char* argv[]) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
-    std::string file = Nebulite::Utility::FileManagement::LoadFile(argv[1]);
+    // Warn if file ending is not .nebs
+    std::string filename = argv[1];
+    if (filename.length() < 6 || !filename.ends_with(".nebs")) {
+        std::cerr << "Warning: unexpected file ending for task file '" << filename << "'. Expected '.nebs'. Trying to load anyway." << std::endl;
+    }
+    
+    // Using FileManagement to load the .nebs file
+    std::string file = Nebulite::Utility::FileManagement::LoadFile(filename);
     if (file.empty()) {
-        std::cerr << "Error: "<< argv[0] <<" Could not open file '" << argv[1] << "'" << std::endl;
+        std::cerr << "Error: "<< argv[0] <<" Could not open file '" << filename << "'" << std::endl;
         return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
 

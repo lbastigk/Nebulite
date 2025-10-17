@@ -52,10 +52,11 @@ for i {global.loop.start} {global.loop.end} for j {global.loop.start} {global.lo
 # Constant Info
 
 ###############################################
-# Spawn extra object later on and wait some more
-#wait 500
+# Spawn a heavy object
 spawn ./Resources/Renderobjects/Planets/sun.jsonc|posX=500|posY=500 # Heavy object
-wait 500
+
+# Wait some time
+wait 2500
 
 ###############################################
 # Inform on runtime
@@ -63,4 +64,4 @@ eval echo Simulation done! Total runtime: {global.runtime.t} Seconds.
 
 ###############################################
 # Exit
-#exit
+exit

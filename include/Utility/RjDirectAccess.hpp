@@ -23,6 +23,10 @@
 // Nebulite
 #include "Utility/StringHandler.hpp"
 
+namespace Nebulite::Core {
+    class GlobalSpace; // Forward declaration
+}
+
 //------------------------------------------
 namespace Nebulite::Utility {
 /**
@@ -171,7 +175,7 @@ public:
      * @param doc The rapidjson document to populate.
      * @param serialOrLink The JSON string to deserialize.
      */
-    static void deserialize(rapidjson::Document& doc, std::string serialOrLink);
+    static void deserialize(rapidjson::Document& doc, std::string serialOrLink, Nebulite::Core::GlobalSpace* global);
     
 
     //------------------------------------------
@@ -205,6 +209,14 @@ public:
      * @brief Removes a member from a rapidjson object by key.
      */
     static void remove_member(const char* key, rapidjson::Value& val);
+
+    /**
+     * @brief Checks if a string is in JSON or JSONC format.
+     * 
+     * @param str The string to check.
+     * @return true if the string is JSON or JSONC, false otherwise.
+     */
+    static bool is_json_or_jsonc(const std::string& str);
 
 private:
     /**

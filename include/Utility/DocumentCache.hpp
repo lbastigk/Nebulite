@@ -9,6 +9,9 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <stdexcept>
+
 // Nebulite
 #include "Utility/JSON.hpp"
 #include "Utility/FileManagement.hpp"
@@ -31,6 +34,9 @@ public:
      * @brief Default constructor for DocumentCache.
      */
     DocumentCache(Nebulite::Core::GlobalSpace* globalSpace) : global(globalSpace), readOnlyDocs(globalSpace) {
+        if (globalSpace == nullptr) {
+            throw std::invalid_argument("DocumentCache: GlobalSpace pointer cannot be null");
+        }
         zero = new double(0.0);
     }
 
@@ -185,6 +191,23 @@ public:
         return data.serialize(); // Use the JSON get method to retrieve the value
     }
 
+    std::string getDocString(std::string link){
+        Nebulite::Utility::DocumentCache::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(link);
+
+        // Check if the document exists in the cache
+        if (docPtr == nullptr) {
+            return Nebulite::Utility::JSON(global).serialize(); // Return empty JSON if document loading fails
+        }
+
+        // Return string of document:
+        std::string serial = docPtr->document.serialize();
+
+        // Update the cache (unload old documents)
+        update();
+
+        return serial;
+    }
+
 private:
     /**
      * @brief Link to the global space.
@@ -197,7 +220,8 @@ private:
     std::pair<std::string, std::string> splitDocKey(const std::string& doc_key){
         size_t pos = doc_key.find(':');
         if (pos == std::string::npos) {
-            return {"",""}; // Return empty strings if format is incorrect
+            // No colon found, meaning the entire string is document name/link
+            return {doc_key, ""};
         }
         std::string doc = doc_key.substr(0, pos);
         std::string key = doc_key.substr(pos + 1);
@@ -248,7 +272,12 @@ private:
             /**
              * @brief Constructor that takes a GlobalSpace pointer.
              */
-            ReadOnlyDocs(Nebulite::Core::GlobalSpace* global) : globalSpace(global) {}
+            ReadOnlyDocs(Nebulite::Core::GlobalSpace* global) : globalSpace(global) {
+                // Validate that globalSpace is not null
+                if (globalSpace == nullptr) {
+                    throw std::invalid_argument("DocumentCache: GlobalSpace pointer cannot be null");
+                }
+            }
             /**
              * @brief Updates the cache by checking a random document for its last usage time,
              * and unloading it if it has been unused for too long.
@@ -274,6 +303,14 @@ private:
              * And updating its metadata.
              */
             ReadOnlyDoc* getDocument(const std::string& doc) {
+                // Validate inputs and state
+                if (doc.empty()) {
+                    return nullptr;
+                }
+                if (globalSpace == nullptr) {
+                    return nullptr;
+                }
+                
                 // Check if the document exists in the cache
                 auto it = docs.find(doc);
                 if (it == docs.end()) {
@@ -283,6 +320,10 @@ private:
                         return nullptr; // Return nullptr if document loading fails
                     }
                     auto result = docs.emplace(doc, ReadOnlyDoc(globalSpace));
+                    if (!result.second) {
+                        // Emplace failed for some reason
+                        return nullptr;
+                    }
                     result.first->second.document.deserialize(serial);
                     it = result.first;
                 }
