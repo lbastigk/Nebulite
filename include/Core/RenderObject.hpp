@@ -328,6 +328,8 @@ private:
 
 	void linkFrequentRefs();
 
+	
+
 	//------------------------------------------
 	// Texture related
 

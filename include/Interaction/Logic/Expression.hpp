@@ -257,14 +257,6 @@ private:
     bool _isReturnableAsDouble;
 
     /**
-     * @brief updates all internal caches of a virtual double
-     * 
-     * @param vec The vector of virtual double entries to update
-     * @param link The JSON document to update the caches with
-     */
-    void updateCacheReference(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>* vec, Nebulite::Utility::JSON* link);
-
-    /**
      * @brief Resets the expression to its initial state.
      * 
      * - Clears all entries
@@ -407,6 +399,15 @@ private:
      * @brief Updates caches
      */
     void updateCaches(Nebulite::Utility::JSON* current_other);
+
+    /**
+     * @brief Ensures that there is a cache entry for the given other JSON document and expression.
+     * 
+     * @param current_other The other JSON document to ensure a cache entry for.
+     * 
+     * @return A pointer to the vector of double pointers for the expression in the other document.
+     */
+    std::vector<double*>* ensure_other_cache_entry(Nebulite::Utility::JSON* current_other);
 
     //------------------------------------------
     // Debugging

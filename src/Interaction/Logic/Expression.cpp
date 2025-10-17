@@ -3,12 +3,6 @@
 //------------------------------------------
 // Private:
 
-void Nebulite::Interaction::Logic::Expression::updateCacheReference(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>* vec, Nebulite::Utility::JSON* link){
-    for(auto& vde : *vec) {
-        vde->setUpInternalCache(link);
-    }
-}
-
 Nebulite::Interaction::Logic::Expression::~Expression() {
     // reset all data
     reset();
@@ -550,17 +544,49 @@ double Nebulite::Interaction::Logic::Expression::evalAsDouble(Nebulite::Utility:
     return te_eval(entries[0].expression);
 }
 
-void Nebulite::Interaction::Logic::Expression::updateCaches(Nebulite::Utility::JSON* current_other) {
-    // Update remanent references for now
-    // This is not needed, as remanent documents keep their double references valid
-    // However, this may be needed for debugging purposes
-    // Uncomment if needed
-    //updateCacheReference(&virtualDoubles_self, self);
-    //updateCacheReference(&virtualDoubles_global, global);
+std::vector<double*>* Nebulite::Interaction::Logic::Expression::ensure_other_cache_entry(Nebulite::Utility::JSON* current_other) {
+    auto cache = current_other->getExpressionRefsAsOther();
+    std::lock_guard<std::mutex> cache_lock(cache->mtx);
+    auto it = cache->map.find(fullExpression);
+    
+    // If not, create one
+    if(it == cache->map.end()) {
+        Nebulite::Utility::OrderedDoublePointers newCacheList;
 
-    // Update non-remanent references
-    updateCacheReference(&virtualDoubles_other, current_other);
-    updateCacheReference(&virtualDoubles_resource, nullptr);
+        // Populate list with all virtual doubles from type other
+        for(auto& vde : virtualDoubles_other) {
+            double* reference = current_other->get_stable_double_ptr(vde->getKey());
+            newCacheList.values.push_back(reference);
+        }
+
+        cache->map.emplace(fullExpression, newCacheList);
+        it = cache->map.find(fullExpression);
+    }
+    return &it->second.values;
+}
+
+void Nebulite::Interaction::Logic::Expression::updateCaches(Nebulite::Utility::JSON* current_other) {
+    //------------------------------------------
+    // 1.) Update other
+
+    // Get a list of all references, insert into virtual doubles
+    if(!virtualDoubles_other.empty()){
+        auto list = ensure_other_cache_entry(current_other);
+
+        int i = 0;
+        for(auto& vde : virtualDoubles_other) {
+            vde->setDirect(*(list->at(i)));
+            i++;
+        }
+    }
+
+    //------------------------------------------
+    // 2.) Update resource
+
+    // Update resource references
+    for(auto& vde : virtualDoubles_resource) {
+        vde->setUpInternalCache(nullptr);
+    }
 }
 
 //------------------------------------------
