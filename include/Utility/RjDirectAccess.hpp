@@ -404,7 +404,3 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(
         result = "unsupported type";
     }
 }
-
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, rapidjson::Document& result, const rapidjson::Document& defaultvalue){
-    result.CopyFrom(jsonValue, result.GetAllocator());
-}
