@@ -98,7 +98,7 @@ public:
 	 * Cleans up any resources used by the RenderObject, including
 	 * textures and surfaces.
 	 */
-	~RenderObject();
+	virtual ~RenderObject();
 
 	// Suppress copy/move operators
 	RenderObject(const RenderObject& other) = delete;
