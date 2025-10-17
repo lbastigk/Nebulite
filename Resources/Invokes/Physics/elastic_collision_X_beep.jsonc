@@ -12,9 +12,9 @@
   ],
   "exprs": [
     "other.physics.vX = $(0.99*({other.physics.vX} - (2 * {self.physics.mass} / ({other.physics.mass} + {self.physics.mass})) * ({other.physics.vX} - {self.physics.vX})))",
-    "other.physics.aX = 0",
-    "other.physics.aY = 0",
-    "other.collision.time.lastX = $({global.time.t} + 0)"
+    "other.physics.aX = $(0)",
+    "other.physics.aY = $(0)",
+    "other.collision.time.lastX = $({global.time.t})"
   ],
   "functioncalls_global": [
     "beep",
