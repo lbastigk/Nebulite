@@ -239,7 +239,7 @@ void Nebulite::Interaction::Logic::Expression::readFormatter(Entry* entry, const
         entry->leadingZero = true;
     }
     if(formatter.size() > 1){
-        int16_t dotpos = formatter.find('.');
+        size_t dotpos = formatter.find('.');
         // Read alignment
         if(dotpos == 0){
             entry->alignment = 0;
