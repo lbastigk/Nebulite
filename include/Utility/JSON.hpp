@@ -29,7 +29,7 @@
 #include "absl/container/flat_hash_map.h"
 
 // Nebulite
-
+#include "Constants/ThreadSettings.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Utility/FileManagement.hpp"
 #include "Utility/OrderedDoublePointers.hpp"
@@ -119,8 +119,8 @@ private:
     // References for expressions
 	struct ExpressionRef {
 		//Nebulite::Utility::MappedOrderedDoublePointers as_self; // Not needed here, but type parent/child might become useful later on!
-		Nebulite::Utility::MappedOrderedDoublePointers as_other;
-	} expressionRefs;
+		Nebulite::Utility::MappedOrderedDoublePointers<uint64_t> as_other;
+	} expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
 
 public:
     JSON(Nebulite::Core::GlobalSpace* globalSpace);
@@ -344,8 +344,18 @@ public:
     //------------------------------------------
     // Assorted list of double pointers
 
-	Nebulite::Utility::MappedOrderedDoublePointers* getExpressionRefsAsOther() {
-		return &expressionRefs.as_other;
+	Nebulite::Utility::MappedOrderedDoublePointers<uint64_t>* getExpressionRefsAsOther() {
+        #if ORDERED_DOUBLE_POINTERS_MAPS == 1
+            return &expressionRefs[0].as_other;
+        #else
+            // Each thread gets a unique starting position based on thread ID
+            static thread_local size_t thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
+            static thread_local size_t counter = 0;
+            
+            // Rotate through pool entries starting from thread's unique offset
+            size_t idx = (thread_offset + counter++) % ORDERED_DOUBLE_POINTERS_MAPS;
+            return &expressionRefs[idx].as_other;
+        #endif
 	}
 };
 }
