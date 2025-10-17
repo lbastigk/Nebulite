@@ -310,18 +310,22 @@ Usage: critical <string>
 )";
 
 Nebulite::Constants::Error Debug::waitForInput(int argc, char* argv[]){
-    if (argc > 1) {
+    if (argc > 2) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-
-    std::cout << "Press Enter to continue..." << std::endl;
+    std::string message = "Press Enter to continue...";
+    if (argc == 2){
+        // Use the provided prompt as message
+        message = argv[1];
+    }
+    std::cout << message << std::endl;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string Debug::waitForInput_name = "inputwait";
 const std::string Debug::waitForInput_desc = R"(Waits for user input before continuing.
 
-Usage: inputwait
+Usage: inputwait [prompt]
 
 Note: This function pauses execution until the user presses Enter.
 )";
