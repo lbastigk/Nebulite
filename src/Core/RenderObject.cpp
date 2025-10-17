@@ -256,8 +256,8 @@ Nebulite::Constants::Error Nebulite::Core::RenderObject::update() {
 		// 3.) Checks this object against all conventional invokes
 		//	   Manipulation happens at the Invoke::update routine later on
 		//     This just generates pairs that need to be updated
-		for(int i = 0; i < subscription_size;i++){
-			std::string key = Nebulite::Constants::keyName.renderObject.invokeSubscriptions + "[" + std::to_string(i) + "]";
+		for(size_t idx = 0; idx < subscription_size; idx++){
+			std::string key = Nebulite::Constants::keyName.renderObject.invokeSubscriptions + "[" + std::to_string(idx) + "]";
 			std::string subscription = json.get<std::string>(key.c_str(),"");
 			invoke->listen(this,subscription, (uint32_t)*refs.id);
 		}
