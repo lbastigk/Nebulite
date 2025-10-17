@@ -60,5 +60,5 @@ Date            Result      THREADRUNNER_COUNT      BATCH_COST_GOAL INVOKE_EXPR_
 ------------------------------------------------------------------------------------------
 2025-10-06:      7.7s       20                      250             20                      # New threading model for Invoke
 2025-10-13:      7.2s       30                      250             30                      # Increased thread count and new BroadCastListen structure
-2025-10-17:      6.6s       25                      250             05                      # Improved Expression evaluation with ordered double pointer lists
+2025-10-17:      6.3s       25                      250             05                      # Improved Expression evaluation with ordered double pointer lists and hash-free access
 */
