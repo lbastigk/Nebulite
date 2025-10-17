@@ -69,8 +69,8 @@ void Nebulite::Core::Environment::deserialize(std::string serialOrLink, int disp
 //------------------------------------------
 // Object Management
 
-void Nebulite::Core::Environment::append(Nebulite::Core::RenderObject* toAppend,int dispResX, int dispResY, int layer) {
-	if (layer < Nebulite::Core::Environment::LayerCount && layer >= 0) {
+void Nebulite::Core::Environment::append(Nebulite::Core::RenderObject* toAppend,int dispResX, int dispResY, unsigned int layer) {
+	if (layer < Nebulite::Core::Environment::LayerCount) {
 		roc[layer].append(toAppend, dispResX, dispResY);
 	}
 	else {
