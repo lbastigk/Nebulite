@@ -346,7 +346,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(Class
         // We re-join the rest of the parts to form the argument for the subtree
         // If there are more than 2 parts, the subtree will create a new subtree
         std::string functionName = parts[1];
-        for(int i = 2; i < parts.size(); i++){
+        for(long unsigned int i = 2; i < parts.size(); i++){
             functionName += parts[i];
         }
 
