@@ -118,8 +118,8 @@ private:
 
     // References for expressions
 	struct ExpressionRef {
-		//Nebulite::Utility::MappedOrderedPointers as_self; // Not needed here, but type parent/child might become useful later on!
-		Nebulite::Utility::MappedOrderedPointers as_other;
+		//Nebulite::Utility::MappedOrderedDoublePointers as_self; // Not needed here, but type parent/child might become useful later on!
+		Nebulite::Utility::MappedOrderedDoublePointers as_other;
 	} expressionRefs;
 
 public:
@@ -344,7 +344,7 @@ public:
     //------------------------------------------
     // Assorted list of double pointers
 
-	Nebulite::Utility::MappedOrderedPointers* getExpressionRefsAsOther() {
+	Nebulite::Utility::MappedOrderedDoublePointers* getExpressionRefsAsOther() {
 		return &expressionRefs.as_other;
 	}
 };

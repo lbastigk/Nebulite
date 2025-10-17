@@ -28,10 +28,10 @@ public:
 };
 
 /**
- * @struct MappedOrderedPointers
+ * @struct MappedOrderedDoublePointers
  * @brief A thread-safe map from strings to OrderedDoublePointers objects.
  */
-struct MappedOrderedPointers{
+struct MappedOrderedDoublePointers{
     absl::flat_hash_map<std::string, OrderedDoublePointers> map;
     std::mutex mtx;
 };
