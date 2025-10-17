@@ -242,15 +242,21 @@ public:
         EXPRESSION = 0,
         JSONKEY = 1
     };
+    static constexpr size_t UniqueIdTypeSize = 2;
 
     /**
      * @brief Gets a unique ID based on a hash string.
+     * 
+     * Threadsafe. Uses a mutex-lock per UniqueIdType.
      * 
      * @param hash The hash string to get the unique ID for.
      * @param type Which rolling counter to use for the unique ID, allowing for separate ID spaces.
      * @return The unique ID corresponding to the hash.
      */
     uint64_t getUniqueId(std::string hash, UniqueIdType type){
+        // Lock and check if hash exists
+        std::lock_guard<std::mutex> lock(uniqueIdMutex[static_cast<size_t>(type)]);
+
         auto it = uniqueIdMap[static_cast<size_t>(type)].find(hash);
         if(it != uniqueIdMap[static_cast<size_t>(type)].end()){
             return it->second;
@@ -281,8 +287,9 @@ private:
     Nebulite::Utility::DocumentCache docCache;
 
     // Unique ID map
-    uint64_t uniqueIdCounter[2] = {0, 0}; // Size of uniqueIdType!
-    absl::flat_hash_map<std::string, uint64_t> uniqueIdMap[2]; // Size of uniqueIdType!
+    uint64_t uniqueIdCounter[UniqueIdTypeSize] = {0, 0};
+    absl::flat_hash_map<std::string, uint64_t> uniqueIdMap[UniqueIdTypeSize];
+    std::mutex uniqueIdMutex[UniqueIdTypeSize];
     
     
 
