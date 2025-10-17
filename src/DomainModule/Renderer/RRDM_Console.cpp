@@ -98,9 +98,10 @@ void Console::renderConsole() {
     // Calculate text alignment if needed
     static uint16_t last_rect_h = 0;
     static uint16_t lineHeight = 0;
-    if(last_rect_h != consoleTexture.rect.h){
+    if(last_rect_h != consoleTexture.rect.h || flag_recalculateTextAlignment){
         last_rect_h = consoleTexture.rect.h;
         lineHeight = calculateTextAlignment(consoleTexture.rect.h);
+        flag_recalculateTextAlignment = false;
     }
 
     //------------------------------------------
@@ -122,8 +123,8 @@ void Console::renderConsole() {
         SDL_Rect textRect;
         textRect.x = 10;
         textRect.y = consoleTexture.rect.h - LINE_PADDING - lineHeight;
-        textRect.w = (double)textSurface->w;
-        textRect.h = (double)textSurface->h;
+        textRect.w = (double)textSurface->w / WindowScale;
+        textRect.h = (double)textSurface->h / WindowScale;
 
         // Render the text
         SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
@@ -176,8 +177,8 @@ void Console::renderConsole() {
         SDL_Rect textRect;
         textRect.x = 10;
         textRect.y = y;
-        textRect.w = (double)textSurface->w;
-        textRect.h = (double)textSurface->h;
+        textRect.w = (double)textSurface->w / WindowScale;
+        textRect.h = (double)textSurface->h / WindowScale;
 
         SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
         SDL_FreeSurface(textSurface);
@@ -260,7 +261,8 @@ uint8_t Console::calculateTextAlignment(uint16_t rect_height){
     }
 
     // Set correct font size for SDL_ttf
-    TTF_SetFontSize(consoleFont, LINE_HEIGHT);
+    WindowScale = global->getRenderer()->getWindowScale();
+    TTF_SetFontSize(consoleFont, LINE_HEIGHT * WindowScale);
 
     return LINE_HEIGHT;
 }
@@ -350,5 +352,59 @@ void Console::processMode(){
         }
     }
 }
+
+//------------------------------------------
+// Subtree strings
+
+const std::string Console::console_name = "console";
+const std::string Console::console_desc = R"(Console commands and settings.
+Contains commands to manipulate the in-application console.
+)";
+
+//------------------------------------------
+// Available Functions
+
+Nebulite::Constants::Error Console::consoleZoom(int argc, char** argv){
+    //------------------------------------------
+    // Prerequisites
+
+    // Validate arguments
+    if(argc > 2){
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+    }
+
+    //------------------------------------------
+    // Determine zoom direction
+
+    if(argc == 2){
+        std::string direction = argv[1];
+        if(direction == "in" || direction == "+"){
+            if(FONT_MAX_SIZE <= 48){
+                FONT_MAX_SIZE++;
+                flag_recalculateTextAlignment = true;
+            }
+        }
+        else if(direction == "out" || direction == "-"){
+            if(FONT_MAX_SIZE >= 8){
+                FONT_MAX_SIZE--;
+                flag_recalculateTextAlignment = true;
+            }
+        }
+        else{
+            return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+        }
+    }
+
+    //------------------------------------------
+    // Return
+    return Nebulite::Constants::ErrorTable::NONE();
+}
+const std::string Console::consoleZoom_name = "console zoom";
+const std::string Console::consoleZoom_desc = R"(Reduces or increases the console font size.
+
+Usage: zoom [in/out/+/-]
+- in / + : Zooms in (increases font size)
+- out / - : Zooms out (decreases font size)
+)";
 
 }   // namespace Nebulite::DomainModule::GlobalSpace::Console
