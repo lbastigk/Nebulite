@@ -1,6 +1,6 @@
 #include "Utility/RjDirectAccess.hpp"
 
-#include "Utility/FileManagement.hpp"
+#include "Core/GlobalSpace.hpp"
 
 //------------------------------------------
 // Static Public Helper Functions
@@ -185,11 +185,11 @@ std::string Nebulite::Utility::RjDirectAccess::serialize(const rapidjson::Docume
     return buffer.GetString();
 }
 
-void Nebulite::Utility::RjDirectAccess::deserialize(rapidjson::Document& doc, std::string serialOrLink) {
+void Nebulite::Utility::RjDirectAccess::deserialize(rapidjson::Document& doc, std::string serialOrLink, Nebulite::Core::GlobalSpace* global) {
     std::string jsonString;
-    
+
     // Check if the input is already a serialized JSON string
-    if (serialOrLink.starts_with("{") || serialOrLink.starts_with("//") || serialOrLink.starts_with("/*") || serialOrLink.starts_with("\n")) {
+    if (Nebulite::Utility::RjDirectAccess::is_json_or_jsonc(serialOrLink)) {
         jsonString = serialOrLink;
     } 
     // If not, treat it as a file path
@@ -197,7 +197,7 @@ void Nebulite::Utility::RjDirectAccess::deserialize(rapidjson::Document& doc, st
         //------------------------------------------
         // Load the JSON file
         // First token is the path or serialized JSON
-        jsonString = Nebulite::Utility::FileManagement::LoadFile(serialOrLink.c_str());
+        jsonString = global->getDocCache()->getDocString(serialOrLink);
     }
     
     // Strip JSONC comments before parsing
@@ -206,6 +206,7 @@ void Nebulite::Utility::RjDirectAccess::deserialize(rapidjson::Document& doc, st
     rapidjson::ParseResult res = doc.Parse(cleanJson.c_str());
     if (!res) {
         std::cerr << "JSON Parse Error at offset " << res.Offset() << std::endl;
+        std::cerr << "String is:\n" << cleanJson << std::endl;
     }
 }
 
@@ -369,6 +370,12 @@ void Nebulite::Utility::RjDirectAccess::remove_member(const char* key, rapidjson
             }
         }
     }
+}
+
+bool Nebulite::Utility::RjDirectAccess::is_json_or_jsonc(const std::string& str) {
+    // So far, we do a simple check based on starting characters
+    bool check1 = str.starts_with("{") || str.starts_with("//") || str.starts_with("/*") || str.starts_with("\n");
+    return check1;
 }
 
 //------------------------------------------
