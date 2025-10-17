@@ -29,9 +29,11 @@
 #include "absl/container/flat_hash_map.h"
 
 // Nebulite
-#include "Utility/Time.hpp"
-#include "Utility/FileManagement.hpp"
+
 #include "Interaction/Execution/Domain.hpp"
+#include "Utility/FileManagement.hpp"
+#include "Utility/OrderedDoublePointers.hpp"
+#include "Utility/Time.hpp"
 
 #include "RjDirectAccess.hpp"
 
@@ -113,6 +115,12 @@ private:
      * and up-to-date with the cached values.
      */
     void flush();
+
+    // References for expressions
+	struct ExpressionRef {
+		//Nebulite::Utility::MappedOrderedPointers as_self; // Not needed here, but type parent/child might become useful later on!
+		Nebulite::Utility::MappedOrderedPointers as_other;
+	} expressionRefs;
 
 public:
     JSON(Nebulite::Core::GlobalSpace* globalSpace);
@@ -332,6 +340,13 @@ public:
      * See `JSDM_*.hpp` files for available functioncalls.
      */
     void deserialize(std::string serial_or_link);
+
+    //------------------------------------------
+    // Assorted list of double pointers
+
+	Nebulite::Utility::MappedOrderedPointers* getExpressionRefsAsOther() {
+		return &expressionRefs.as_other;
+	}
 };
 }
 
