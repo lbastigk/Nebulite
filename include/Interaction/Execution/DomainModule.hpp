@@ -74,7 +74,7 @@ public:
      * the FuncTree.
      */
     DomainModule(std::string moduleName, DomainType* domain, FuncTree<Nebulite::Constants::Error>* funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace)
-        : moduleName(moduleName), domain(domain), funcTree(funcTreePtr), global(globalSpace) {}
+        : moduleName(moduleName), domain(domain), global(globalSpace), funcTree(funcTreePtr) {}
 
     /**
      * @brief Virtual update function to be Overwridden by derived classes.
