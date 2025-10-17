@@ -426,8 +426,8 @@ T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
 
     // Check cache first
     auto it = cache.find(key);
-    if (it != cache.end() && it->second->state != EntryState::VIRTUAL && it->second->state != EntryState::DELETED) {
-        // Entry exists and is not virtual
+    if (it != cache.end() && it->second->state != EntryState::DELETED) {
+        // Entry exists and is not deleted
         
         // Check its double value for change detection
         if(*it->second->stable_double_ptr != it->second->last_double_value) {
