@@ -290,6 +290,11 @@ private:
      */
     Nebulite::Utility::DocumentCache* documentCache = nullptr;
 
+    /**
+     * @brief The unique ID from globalspace for this expression string
+     */
+    uint64_t uniqueId;
+
     //------------------------------------------
     // Helper functions
 

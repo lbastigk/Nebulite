@@ -238,6 +238,23 @@ public:
         return continueLoop; 
     };
 
+    /**
+     * @brief Gets a unique ID based on a hash string.
+     * 
+     * @param hash The hash string to get the unique ID for.
+     * @return The unique ID corresponding to the hash.
+     */
+    uint64_t getUniqueId(std::string hash){
+        auto it = uniqueIdMap.find(hash);
+        if(it != uniqueIdMap.end()){
+            return it->second;
+        } else {
+            uint64_t newId = uniqueIdCounter++;
+            uniqueIdMap[hash] = newId;
+            return newId;
+        }
+    }
+
 private:
     //------------------------------------------
     // General Variables
@@ -256,6 +273,11 @@ private:
 
     // DocumentCache for read-only documents
     Nebulite::Utility::DocumentCache docCache;
+
+    // Unique ID map
+    uint64_t uniqueIdCounter = 0;
+    absl::flat_hash_map<std::string, uint64_t> uniqueIdMap;
+    
 
     //------------------------------------------
     // Structs
