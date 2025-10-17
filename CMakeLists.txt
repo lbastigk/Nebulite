@@ -107,6 +107,34 @@ set_source_files_properties(
   "-w"
 )
 
+# Enable unused function detection (only for GCC/Clang)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(Nebulite PRIVATE
+        -Wunused-function          # Warn about unused static functions
+        -Wunused-variable          # Warn about unused variables
+        -Wunused-parameter         # Warn about unused function parameters
+        -Wunreachable-code         # Warn about unreachable code
+        # Uncomment for more aggressive warnings:
+        # -Wall                   # Enable most common warnings
+        # -Wextra                 # Enable extra warnings
+        # -Wpedantic              # Enable pedantic warnings
+    )
+    
+    # GCC-specific warnings
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_compile_options(Nebulite PRIVATE
+            -Wunused-but-set-variable  # Warn about variables that are set but never used
+        )
+    endif()
+    
+    # Clang-specific warnings
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        target_compile_options(Nebulite PRIVATE
+            -Wdead-code               # Warn about dead code (Clang only)
+        )
+    endif()
+endif()
+
 ############################################################
 # Platform-Specific
 
@@ -148,7 +176,9 @@ if(WIN32)
         -lwinmm
         -lws2_32
     )
-
+##################
+# APPLE          #
+##################
 elseif(APPLE)
     message(STATUS "Targeting macOS")
 
