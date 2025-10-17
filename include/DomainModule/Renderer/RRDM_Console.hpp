@@ -45,7 +45,21 @@ public:
     //------------------------------------------
     // Available Functions
 
-    // None, only update to check for console toggle and render to screen
+    /**
+     * @brief Zooms the console in or out.
+     * @param argc Number of arguments.
+     * @param argv Argument values: [in/out/+/-], defaults to in/+.
+     * @return Error code.
+     */
+    Nebulite::Constants::Error consoleZoom(int argc, char** argv);
+    static const std::string consoleZoom_name;
+    static const std::string consoleZoom_desc;
+
+    //------------------------------------------
+    // Subtree strings
+
+    static const std::string console_name;
+    static const std::string console_desc;
 
     //------------------------------------------
     // Setup
@@ -56,6 +70,8 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Console){
         // we cannot do much here, since renderer might not be initialized yet
         // so we do the actual initialization in update() when needed
+        bindSubtree(console_name, &console_desc);
+        bindFunction(&Console::consoleZoom, consoleZoom_name, &consoleZoom_desc);
     }
 private: 
     //------------------------------------------
@@ -64,9 +80,9 @@ private:
     // Key to toggle console
     std::string toggleKey = "input.keyboard.delta.tab";
 
-    uint8_t MINIMUM_LINES = 5; // Minimum number of lines to show, including input line
-    uint8_t LINE_PADDING = 10; // Padding between lines in pixels
-    uint8_t FONT_MAX_SIZE = 24; // Maximum font size
+    uint8_t MINIMUM_LINES = 5;      // Minimum number of lines to show, including input line
+    uint8_t LINE_PADDING = 10;      // Padding between lines in pixels
+    uint8_t FONT_MAX_SIZE = 24;     // Maximum font size
 
     // y positions of each line, derived from console height
     std::vector<uint16_t> line_y_pos;
@@ -76,6 +92,9 @@ private:
 
     // Whether the console has been initialized
     bool initialized = false;
+
+    // Flag to indicate if text alignment needs recalculation
+    bool flag_recalculateTextAlignment = true;
 
     /**
      * @brief Initializes the console, setting up the font and other necessary components.
@@ -96,6 +115,9 @@ private:
         SDL_Rect rect;
         SDL_Texture* texture_ptr = nullptr;
     }consoleTexture;
+
+    // Scale of the window
+    unsigned int WindowScale = 1;
 
     //------------------------------------------
     // Methods
