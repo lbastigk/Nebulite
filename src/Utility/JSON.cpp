@@ -126,7 +126,7 @@ double* Nebulite::Utility::JSON::get_stable_double_ptr(const std::string& key){
     // Not in cache
 
     // Instead of repeating code, we just call get to create a cache entry
-    [[nodiscard]] volatile double dummy = get<double>(key, 0.0);
+    [[maybe_unused]] volatile double dummy = get<double>(key, 0.0);
     it = cache.find(key);
     if(it != cache.end()){
         return it->second->stable_double_ptr;
