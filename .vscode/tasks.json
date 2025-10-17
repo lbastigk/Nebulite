@@ -115,6 +115,54 @@
             ],
             "dependsOrder": "sequence",
             "detail": "Generate full command documentation doc/CommandDocumentation.md as well as list of commands in Languages/nebs/nebulite-script-vscode/syntaxes/keywords.json"
+        },
+        {
+            "label": "[COVERAGE BUILD]",
+            "type": "shell",
+            "command": "./build.sh -coverage",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [],
+            "detail": "Build Nebulite with code coverage instrumentation enabled."
+        },
+        {
+            "label": "[COVERAGE TEST]",
+            "type": "shell",
+            "command": "python Scripts/TestingSuite.py --coverage --verbose",
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "dependsOn": "[COVERAGE BUILD]",
+            "problemMatcher": [],
+            "detail": "Run tests with coverage data collection and generate coverage report."
+        },
+        {
+            "label": "[COVERAGE REPORT]",
+            "type": "shell",
+            "command": "python Scripts/generate_coverage_report.py",
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "problemMatcher": [],
+            "detail": "Generate HTML coverage report from existing coverage data."
+        },
+        {
+            "label": "[COVERAGE FULL]",
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "dependsOn": [
+                "[COVERAGE BUILD]",
+                "[COVERAGE TEST]"
+            ],
+            "dependsOrder": "sequence",
+            "problemMatcher": [],
+            "detail": "Complete coverage workflow: build with coverage, run tests, generate report."
         }
     ]
 }
