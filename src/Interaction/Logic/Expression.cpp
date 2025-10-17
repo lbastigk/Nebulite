@@ -1,5 +1,7 @@
 #include "Interaction/Logic/Expression.hpp"
 
+#include "Core/GlobalSpace.hpp"
+
 //------------------------------------------
 // Private:
 
@@ -402,6 +404,10 @@ void Nebulite::Interaction::Logic::Expression::parse(const std::string& expr, Ne
     _isReturnableAsDouble = (entries.size() == 1) &&
                             (entries[0].type == Entry::eval) &&
                             (entries[0].cast == Entry::CastType::none);
+
+    // Get the unique ID for this expression
+    auto globalspace = self->getGlobalSpace();
+    uniqueId = globalspace->getUniqueId(fullExpression);
 }
 
 std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth) {
@@ -547,7 +553,7 @@ double Nebulite::Interaction::Logic::Expression::evalAsDouble(Nebulite::Utility:
 std::vector<double*>* Nebulite::Interaction::Logic::Expression::ensure_other_cache_entry(Nebulite::Utility::JSON* current_other) {
     auto cache = current_other->getExpressionRefsAsOther();
     std::lock_guard<std::mutex> cache_lock(cache->mtx);
-    auto it = cache->map.find(fullExpression);
+    auto it = cache->map.find(uniqueId);
     
     // If not, create one
     if(it == cache->map.end()) {
@@ -559,8 +565,8 @@ std::vector<double*>* Nebulite::Interaction::Logic::Expression::ensure_other_cac
             newCacheList.values.push_back(reference);
         }
 
-        cache->map.emplace(fullExpression, newCacheList);
-        it = cache->map.find(fullExpression);
+        cache->map.emplace(uniqueId, newCacheList);
+        it = cache->map.find(uniqueId);
     }
     return &it->second.values;
 }
