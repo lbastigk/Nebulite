@@ -82,8 +82,6 @@ std::pair<int16_t,int16_t> getTilePos(Nebulite::Core::RenderObject* toAppend, in
 }
 
 void Nebulite::Core::RenderObjectContainer::append(Nebulite::Core::RenderObject* toAppend, int dispResX, int dispResY) {
-	// Estimate cost and get tile position
-	uint64_t objectCost = toAppend->estimateComputationalCost();
     std::pair<int16_t,int16_t> pos = getTilePos(toAppend, dispResX, dispResY);
 
 	// Try to insert into an existing batch
