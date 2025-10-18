@@ -51,7 +51,7 @@ void Clock::readClocksFromDocument() {
 //------------------------------------------
 // Functions
 
-Nebulite::Constants::Error Clock::addClock(int argc, char** argv){
+Nebulite::Constants::Error Clock::addClock([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -97,7 +97,10 @@ const std::string Clock::key_doc_status_clocks = "clocks.status";
 //------------------------------------------
 // ClockEntry
 
-Clock::ClockEntry::ClockEntry(uint64_t interval, Nebulite::Utility::JSON* doc, uint64_t current_time) : interval_ms(interval), last_trigger_ms(current_time) {
+Clock::ClockEntry::ClockEntry(uint64_t interval, Nebulite::Utility::JSON* doc, uint64_t current_time) : 
+    last_trigger_ms(current_time),
+    interval_ms(interval)
+{
     // Extract reference to global document entry
     std::string key = key_doc_status_clocks + "." + intervalToKey(interval_ms);
     doc->set(key, 0.0); // Initialize to 0.0

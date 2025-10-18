@@ -48,7 +48,7 @@ public:
      * eval echo $(1+1)    outputs:    2.000000
      * eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
      */
-    Nebulite::Constants::Error eval(int argc, char* argv[]);
+    Nebulite::Constants::Error eval([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
     static const std::string eval_name;
     static const std::string eval_desc;
 
@@ -59,7 +59,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error exit(int argc, char* argv[]);
+    Nebulite::Constants::Error exit([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
     static const std::string exit_name;
     static const std::string exit_desc;
 
@@ -70,7 +70,7 @@ public:
      * @param argv The argument vector: frame count to wait
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error wait(int argc, char* argv[]);
+    Nebulite::Constants::Error wait([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
     static const std::string wait_name;
     static const std::string wait_desc;
 
@@ -81,7 +81,7 @@ public:
      * @param argv The argument vector: the filename to load
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error task(int argc, char* argv[]);
+    Nebulite::Constants::Error task([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
     static const std::string task_name;
     static const std::string task_desc;
 
@@ -92,7 +92,7 @@ public:
      * @param argv The argument vector: <var> <start> <end> <functioncall>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error func_for(int argc, char* argv[]);
+    Nebulite::Constants::Error func_for([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
     static const std::string func_for_name;
     static const std::string func_for_desc;
 
@@ -103,7 +103,7 @@ public:
      * @param argv The argument vector: <condition> <functioncall>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error func_if(int argc, char* argv[]);
+    Nebulite::Constants::Error func_if([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
     static const std::string func_if_name;
     static const std::string func_if_desc;
 
@@ -114,7 +114,7 @@ public:
      * @param argv The argument vector: <string>
      * @return The specified value of Error. 
      */
-    Nebulite::Constants::Error func_return(int argc, char* argv[]);
+    Nebulite::Constants::Error func_return([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
     static const std::string func_return_name;
     static const std::string func_return_desc;
 
@@ -125,7 +125,7 @@ public:
      * @param argv The argument vector: <string>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error echo(int argc, char* argv[]);
+    Nebulite::Constants::Error echo([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
     static const std::string echo_name;
     static const std::string echo_desc;
 
@@ -136,7 +136,7 @@ public:
      * @param argv The argument vector: <condition>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error func_assert(int argc, char* argv[]);
+    Nebulite::Constants::Error func_assert([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
     static const std::string assert_name;
     static const std::string assert_desc;
 
@@ -147,7 +147,7 @@ public:
      * @param argv The argument vector: inputs are <command>. The command to attach.
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error always(int argc, char* argv[]);
+    Nebulite::Constants::Error always([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
     static const std::string always_name;
     static const std::string always_desc;
 
@@ -158,7 +158,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error alwaysClear(int argc, char* argv[]);
+    Nebulite::Constants::Error alwaysClear([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
     static const std::string alwaysClear_name;
     static const std::string alwaysClear_desc;
 

@@ -7,9 +7,9 @@
 Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
 : Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite", this, &global, this),
   global(this),                       // Link the global document to the GlobalSpace
-  docCache(this),                     // Init with reference to GlobalSpace
   renderer(this, &cmdVars.headless),  // Renderer with reference to GlobalSpace and headless mode boolean
-  invoke(this)                        // Invoke with reference to GlobalSpace
+  invoke(this),                       // Invoke with reference to GlobalSpace
+  docCache(this)                      // Init with reference to GlobalSpace
 {
     //------------------------------------------
     // Setup tasks                         
@@ -92,7 +92,6 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
         // Reduce script wait counter if not in console mode or other halting states
         if(didUpdate){
             if(scriptWaitCounter > 0) scriptWaitCounter--; 
-            if(scriptWaitCounter < 0) scriptWaitCounter = 0;
         }  
 
         // Frame was rendered, meaning we potentially have new tasks to process

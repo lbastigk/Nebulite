@@ -226,7 +226,13 @@ namespace {
 
     void handleQuoteEnd(const std::string& token, char quoteChar, bool& quoteState, std::vector<std::string>& result) {
         quoteState = false;
-        std::string cleanToken = token.substr(0, token.length() - 1);
+        std::string cleanToken = token;
+        
+        // Remove the closing quote if it matches the expected quote character
+        if (!cleanToken.empty() && cleanToken.back() == quoteChar) {
+            cleanToken.pop_back();
+        }
+        
         if (!result.empty()) {
             result.back() += " " + cleanToken;
         }

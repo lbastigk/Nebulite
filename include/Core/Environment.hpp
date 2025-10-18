@@ -139,7 +139,7 @@ public:
 	 * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
 	 * @param layer Layer index to append the object to (default is 0).
 	 */
-	void append(Nebulite::Core::RenderObject* toAppend,int dispResX, int dispResY, int layer = 0);
+	void append(Nebulite::Core::RenderObject* toAppend,int dispResX, int dispResY, unsigned int layer = 0);
 
 	/**
 	 * @brief Updates the environment's state.

@@ -264,19 +264,19 @@ void Nebulite::Utility::RjDirectAccess::set(const char* key, const T& value, rap
 // 1.) to JSON value
 //------------------------------------------
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<bool>(const bool& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {jsonValue.SetBool(data);}
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<bool>(const bool& data, rapidjson::Value& jsonValue, [[maybe_unused]] rapidjson::Document::AllocatorType& allocator)              {jsonValue.SetBool(data);}
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<int>(const int& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)                {jsonValue.SetInt(data);}
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<int>(const int& data, rapidjson::Value& jsonValue, [[maybe_unused]] rapidjson::Document::AllocatorType& allocator)                {jsonValue.SetInt(data);}
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<uint32_t>(const uint32_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)      {jsonValue.SetUint(data);}
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<uint32_t>(const uint32_t& data, rapidjson::Value& jsonValue, [[maybe_unused]] rapidjson::Document::AllocatorType& allocator)      {jsonValue.SetUint(data);}
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<uint64_t>(const uint64_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)      {jsonValue.SetUint64(data);}
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<uint64_t>(const uint64_t& data, rapidjson::Value& jsonValue, [[maybe_unused]] rapidjson::Document::AllocatorType& allocator)      {jsonValue.SetUint64(data);}
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<double>(const double& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)          {jsonValue.SetDouble(data);}
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<double>(const double& data, rapidjson::Value& jsonValue, [[maybe_unused]] rapidjson::Document::AllocatorType& allocator)          {jsonValue.SetDouble(data);}
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<long>(const long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {jsonValue.SetInt64(data);}
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<long>(const long& data, rapidjson::Value& jsonValue, [[maybe_unused]] rapidjson::Document::AllocatorType& allocator)              {jsonValue.SetInt64(data);}
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<long long>(const long long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)    {jsonValue.SetInt64(data);}
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<long long>(const long long& data, rapidjson::Value& jsonValue, [[maybe_unused]] rapidjson::Document::AllocatorType& allocator)    {jsonValue.SetInt64(data);}
 
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<std::string>(const std::string& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
     jsonValue.SetString(
@@ -320,9 +320,9 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue(co
 // 2.) from JSON Value
 //------------------------------------------
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, bool& result, const bool& defaultvalue){result = jsonValue.GetBool();}
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, bool& result, [[maybe_unused]] const bool& defaultvalue){result = jsonValue.GetBool();}
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, int& result, const int& defaultvalue) {
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, int& result, [[maybe_unused]] const int& defaultvalue) {
     if (jsonValue.IsInt()) {
         result = jsonValue.GetInt();
     }
@@ -334,9 +334,9 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(
     }
 }
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint32_t& result, const uint32_t& defaultvalue){result = jsonValue.GetUint();}
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint32_t& result, [[maybe_unused]] const uint32_t& defaultvalue){result = jsonValue.GetUint();}
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint64_t& result, const uint64_t& defaultvalue){
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint64_t& result, [[maybe_unused]] const uint64_t& defaultvalue){
     if (jsonValue.IsString()) {
         std::istringstream iss(jsonValue.GetString());
         iss >> result;
@@ -369,7 +369,7 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(
     }
 }
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, std::string& result, const std::string& defaultvalue){
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, std::string& result, [[maybe_unused]] const std::string& defaultvalue){
     if (jsonValue.IsBool()) {
         result = jsonValue.GetBool() ? "true" : "false";
     }
@@ -403,8 +403,4 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(
     else {
         result = "unsupported type";
     }
-}
-
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, rapidjson::Document& result, const rapidjson::Document& defaultvalue){
-    result.CopyFrom(jsonValue, result.GetAllocator());
 }

@@ -44,32 +44,36 @@ void Nebulite::Interaction::Logic::Expression::reset() {
     //------------------------------------------
     // Register built-in functions
 
+    //===================================================================================================
+    // Category             Name           Pointer                             Type           Context
+    //===================================================================================================
+
     // Logical comparison functions
-    te_variables.push_back({"gt",          (void*)expr_custom::gt,             TE_FUNCTION2});
-    te_variables.push_back({"lt",          (void*)expr_custom::lt,             TE_FUNCTION2});
-    te_variables.push_back({"geq",         (void*)expr_custom::geq,            TE_FUNCTION2});
-    te_variables.push_back({"leq",         (void*)expr_custom::leq,            TE_FUNCTION2});
-    te_variables.push_back({"eq",          (void*)expr_custom::eq,             TE_FUNCTION2});
-    te_variables.push_back({"neq",         (void*)expr_custom::neq,            TE_FUNCTION2});
+    te_variables.push_back({"gt",          (void*)expr_custom::gt,             TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"lt",          (void*)expr_custom::lt,             TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"geq",         (void*)expr_custom::geq,            TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"leq",         (void*)expr_custom::leq,            TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"eq",          (void*)expr_custom::eq,             TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"neq",         (void*)expr_custom::neq,            TE_FUNCTION2,  nullptr});
 
     // Logical gate functions
-    te_variables.push_back({"not",         (void*)expr_custom::logical_not,    TE_FUNCTION1});
-    te_variables.push_back({"and",         (void*)expr_custom::logical_and,    TE_FUNCTION2});
-    te_variables.push_back({"or",          (void*)expr_custom::logical_or,     TE_FUNCTION2});
-    te_variables.push_back({"xor",         (void*)expr_custom::logical_xor,    TE_FUNCTION2});
-    te_variables.push_back({"nand",        (void*)expr_custom::logical_nand,   TE_FUNCTION2});
-    te_variables.push_back({"nor",         (void*)expr_custom::logical_nor,    TE_FUNCTION2});
-    te_variables.push_back({"xnor",        (void*)expr_custom::logical_xnor,   TE_FUNCTION2});
+    te_variables.push_back({"not",         (void*)expr_custom::logical_not,    TE_FUNCTION1,  nullptr});
+    te_variables.push_back({"and",         (void*)expr_custom::logical_and,    TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"or",          (void*)expr_custom::logical_or,     TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"xor",         (void*)expr_custom::logical_xor,    TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"nand",        (void*)expr_custom::logical_nand,   TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"nor",         (void*)expr_custom::logical_nor,    TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"xnor",        (void*)expr_custom::logical_xnor,   TE_FUNCTION2,  nullptr});
 
     // Other logical functions
-    te_variables.push_back({"to_bipolar",  (void*)expr_custom::to_bipolar,     TE_FUNCTION1});
+    te_variables.push_back({"to_bipolar",  (void*)expr_custom::to_bipolar,     TE_FUNCTION1,  nullptr});
 
     // Mapping functions
-    te_variables.push_back({"map",         (void*)expr_custom::map,            TE_FUNCTION5});
-    te_variables.push_back({"constrain",   (void*)expr_custom::constrain,      TE_FUNCTION3});
+    te_variables.push_back({"map",         (void*)expr_custom::map,            TE_FUNCTION5,  nullptr});
+    te_variables.push_back({"constrain",   (void*)expr_custom::constrain,      TE_FUNCTION3,  nullptr});
 
     // More mathematical functions
-    te_variables.push_back({"sgn",         (void*)expr_custom::sgn,            TE_FUNCTION1});
+    te_variables.push_back({"sgn",         (void*)expr_custom::sgn,            TE_FUNCTION1,  nullptr});
 }
 
 std::string Nebulite::Interaction::Logic::Expression::stripContext(const std::string& key) {
@@ -146,6 +150,11 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
                 // The reason is that resource-documents may get deloaded,
                 // making the direct double reference invalid.
                 virtualDoubles_resource.push_back(vd);
+                break;
+            case Entry::From::None:
+            default:
+                // Should not happen
+                std::cerr << __FUNCTION__ << ": Tried to register variable with no known context!" << std::endl;
                 break;
         }
 
@@ -239,7 +248,7 @@ void Nebulite::Interaction::Logic::Expression::readFormatter(Entry* entry, const
         entry->leadingZero = true;
     }
     if(formatter.size() > 1){
-        int16_t dotpos = formatter.find('.');
+        size_t dotpos = formatter.find('.');
         // Read alignment
         if(dotpos == 0){
             entry->alignment = 0;
@@ -517,7 +526,7 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
                 }
 
                 // Adding padding
-                if(entry.alignment > 0 && token.size() < entry.alignment) {
+                if(entry.alignment > 0 && token.size() < static_cast<size_t>(entry.alignment)) {
                     int32_t size = token.size();
                     for(int i = 0; i < entry.alignment - size; i++){
                         token = (entry.leadingZero ? '0' : ' ') + token;

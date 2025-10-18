@@ -9,8 +9,8 @@
 // Constructor / Destructor
 
 Nebulite::Interaction::Invoke::Invoke(Nebulite::Core::GlobalSpace* globalSpace)
-: docCache(globalSpace->getDocCache()),
-  global(globalSpace),
+: global(globalSpace),
+  docCache(globalSpace->getDocCache()),
   globalDoc(globalSpace->getDoc())
 {   
     // Initialize synchronization primitives
@@ -259,7 +259,7 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::
     }
 }
 
-void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, const std::string& key, double value, double* target){    
+void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, [[maybe_unused]] const std::string& key, double value, double* target){    
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation){
         case Nebulite::Interaction::Logic::Assignment::Operation::set:

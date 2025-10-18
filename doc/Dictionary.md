@@ -64,7 +64,7 @@ Expressions may include variables. Certain conditions must be met for an express
 
 **Functioncall** - Execution of a bound function with its arguments through `FuncTree` parsing.
 
-**FuncTree** - Central function parsing logic. Allows for Functions of signature `RETURN_TYPE foo(int argc, char** argv)` to be bound to a keyword and executed with this keyword and its arguments. Example: `funcTree.parse("<from> myFunction arg1 arg2")`. Where `<from>` is `argv[0]`; useful for parsing where the `Functioncall` came from so we can create error messages like: `"Error on execution from" + argv[0] + "..."`. This allows for executable logic such as `set-fps 60`, `set posX 100` or  `spawn Planets/sun.jsonc|set posX 500|set posY 100`
+**FuncTree** - Central function parsing logic. Allows for Functions of signature `RETURN_TYPE foo([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])` to be bound to a keyword and executed with this keyword and its arguments. Example: `funcTree.parse("<from> myFunction arg1 arg2")`. Where `<from>` is `argv[0]`; useful for parsing where the `Functioncall` came from so we can create error messages like: `"Error on execution from" + argv[0] + "..."`. This allows for executable logic such as `set-fps 60`, `set posX 100` or  `spawn Planets/sun.jsonc|set posX 500|set posY 100`
 
 ## G
 

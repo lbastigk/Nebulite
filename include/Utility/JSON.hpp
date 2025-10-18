@@ -301,7 +301,7 @@ public:
      * @param key The key to check.
      * @return The type of the key.
      */
-    const KeyType memberCheck(std::string key);
+    KeyType memberCheck(std::string key);
 
     /**
      * @brief Checks the size of a key in the JSON document.
@@ -315,7 +315,7 @@ public:
      * @param key The key to check.
      * @return The size of the key.
      */
-    const uint32_t memberSize(std::string key);
+    uint32_t memberSize(std::string key);
 
     /**
      * @brief Removes a key from the JSON document.

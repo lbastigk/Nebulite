@@ -28,7 +28,7 @@ Nebulite::Constants::Error Debug::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error Debug::log_global(int argc, char* argv[]){
+Nebulite::Constants::Error Debug::log_global([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
     std::string serialized = domain->getDoc()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -49,7 +49,7 @@ Usage: log global [<filenames>...]
                 If no filenames are provided, defaults to 'global.log.jsonc'.
 )";
 
-Nebulite::Constants::Error Debug::log_state(int argc, char* argv[]){
+Nebulite::Constants::Error Debug::log_state([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
     std::string serialized = domain->getRenderer()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -70,7 +70,7 @@ Usage: log state [<filenames>...]
                 If no filenames are provided, defaults to 'state.log.jsonc'.
 )";
 
-Nebulite::Constants::Error Debug::standardfile_renderobject(int argc, char** argv){
+Nebulite::Constants::Error Debug::standardfile_renderobject([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
     Nebulite::Core::RenderObject ro(domain);
     Nebulite::Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc",ro.serialize());
     return Nebulite::Constants::ErrorTable::NONE();
@@ -83,7 +83,7 @@ Usage: standardfile renderobject
 Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.
 )";
 
-Nebulite::Constants::Error Debug::errorlog(int argc, char* argv[]){
+Nebulite::Constants::Error Debug::errorlog([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
     // Initialize the error logging buffer
     if(!originalCerrBuf) {
         // Handle the case where originalCerrBuf is not set
@@ -187,7 +187,7 @@ inline void clear_screen()
 #endif
 }
 
-Nebulite::Constants::Error Debug::clearConsole(int argc, char* argv[]){
+Nebulite::Constants::Error Debug::clearConsole(int argc, [[maybe_unused]] char* argv[]){
     if (argc > 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
@@ -203,7 +203,7 @@ Note: This function attempts to clear the console screen using system-specific c
         It may not work in all environments or IDEs.
 )";
 
-Nebulite::Constants::Error Debug::crash(int argc, char** argv) {
+Nebulite::Constants::Error Debug::crash([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     // If an argument is provided, use it to select crash type
     if (argc > 1 && argv[1]) {
         std::string crashType = argv[1];
@@ -244,7 +244,7 @@ Usage: crash [<type>]
     - throw      : Throws an uncaught exception
 )";
 
-Nebulite::Constants::Error Debug::error(int argc, char* argv[]) {
+Nebulite::Constants::Error Debug::error([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         std::cerr << argv[i];
         if (i < argc - 1) {
@@ -264,7 +264,7 @@ Usage: error <string...>
 - <string...>: One or more strings to echo to the standard error.
 )";
 
-Nebulite::Constants::Error Debug::warn(int argc, char* argv[]){
+Nebulite::Constants::Error Debug::warn([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
     if (argc < 2) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -287,7 +287,7 @@ Usage: warn <string>
 )";
 
 
-Nebulite::Constants::Error Debug::critical(int argc, char* argv[]){
+Nebulite::Constants::Error Debug::critical([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
     if (argc < 2) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -309,19 +309,23 @@ Usage: critical <string>
 - <string>: The critical error message.
 )";
 
-Nebulite::Constants::Error Debug::waitForInput(int argc, char* argv[]){
-    if (argc > 1) {
+Nebulite::Constants::Error Debug::waitForInput([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+    if (argc > 2) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-
-    std::cout << "Press Enter to continue..." << std::endl;
+    std::string message = "Press Enter to continue...";
+    if (argc == 2){
+        // Use the provided prompt as message
+        message = argv[1];
+    }
+    std::cout << message << std::endl;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string Debug::waitForInput_name = "inputwait";
 const std::string Debug::waitForInput_desc = R"(Waits for user input before continuing.
 
-Usage: inputwait
+Usage: inputwait [prompt]
 
 Note: This function pauses execution until the user presses Enter.
 )";

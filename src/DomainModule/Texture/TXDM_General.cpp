@@ -10,7 +10,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::Texture::General::update() {
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::Texture::General::reloadTexture(int argc, char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::Texture::General::reloadTexture([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     // Check for correct number of arguments
     if (argc != 1) { // Only the command itself should be present
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();

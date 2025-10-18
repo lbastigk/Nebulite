@@ -5,9 +5,9 @@
 
 Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool* flag_headless, unsigned int X, unsigned int Y)
 : 	Nebulite::Interaction::Execution::Domain<Nebulite::Core::Renderer>("Renderer", this, globalSpace->getDoc(), globalSpace),
+	env(globalSpace),
 	rngA(hashString("Seed for RNG A")),
-	rngB(hashString("Seed for RNG B")),
-	env(globalSpace)
+	rngB(hashString("Seed for RNG B"))
 	{
 
 	//------------------------------------------

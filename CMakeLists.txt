@@ -58,7 +58,11 @@ set(ABSEIL_PATH         "${CMAKE_SOURCE_DIR}/external/abseil")
 
 ############################################################
 # Subdirectories
+# Disable warnings for external dependencies
+set(CMAKE_CXX_FLAGS_BACKUP ${CMAKE_CXX_FLAGS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
 add_subdirectory(${ABSEIL_PATH})
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS_BACKUP})
 
 ############################################################
 # Source files - Automatically include all .cpp files in src/
@@ -90,16 +94,6 @@ target_include_directories(Nebulite
         ${ABSEIL_PATH}
 )
 
-# Link Abseil
-target_link_libraries(Nebulite PRIVATE absl::flat_hash_map)
-
-############################################################
-# Link externallibraries
-target_link_libraries(Nebulite 
-    PRIVATE
-        absl::flat_hash_map
-)
-
 ############################################################
 # Compile options: Warnings
 set_source_files_properties(
@@ -111,13 +105,13 @@ set_source_files_properties(
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(Nebulite PRIVATE
         -Wunused-function          # Warn about unused static functions
-        -Wunused-variable          # Warn about unused variables
-        -Wunused-parameter         # Warn about unused function parameters
+        -Wunused-variable          # Warn about unused variables (Deactivated for now, too many entries)
+        -Wunused-parameter         # Warn about unused function parameters (Deactivated for now, too many entries)
         -Wunreachable-code         # Warn about unreachable code
         # Uncomment for more aggressive warnings:
-        # -Wall                   # Enable most common warnings
-        # -Wextra                 # Enable extra warnings
-        # -Wpedantic              # Enable pedantic warnings
+        -Wall                   # Enable most common warnings
+        -Wextra                 # Enable extra warnings
+        #-Wpedantic              # Enable pedantic warnings (Not recommended due to __int128 conflicts in abseil libs)
     )
     
     # GCC-specific warnings
@@ -167,6 +161,7 @@ if(WIN32)
         "${SDL2_BUILD_PATH}/shared_windows/lib/libSDL2_ttf.dll.a"
         "${SDL2_BUILD_PATH}/shared_windows/lib/libSDL2_image.dll.a"
         "${SDL2_BUILD_PATH}/shared_windows/lib/libSDL2.dll.a"
+        absl::flat_hash_map
         -lsetupapi
         -limm32
         -lversion
@@ -216,6 +211,7 @@ elseif(UNIX)
         "${SDL2_BUILD_PATH}/static_linux/lib/libSDL2.a"
         "${SDL2_BUILD_PATH}/static_linux/deps/freetype/lib/libfreetype.a"
         "${SDL2_BUILD_PATH}/static_linux/deps/harfbuzz/lib/libharfbuzz.a"
+        absl::flat_hash_map
         # libfreetype depends on zlib, libpng, bzip2 and brotli
         z
         png
