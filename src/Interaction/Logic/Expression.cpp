@@ -1,6 +1,7 @@
 #include "Interaction/Logic/Expression.hpp"
 
 #include "Core/GlobalSpace.hpp"
+#include <cmath>
 
 //------------------------------------------
 // Private:
@@ -245,20 +246,20 @@ void Nebulite::Interaction::Logic::Expression::readFormatter(Entry* entry, const
 
     // Read leading zero
     if(formatter.starts_with("0")) {
-        entry->leadingZero = true;
+        entry->formatter.leadingZero = true;
     }
     if(formatter.size() > 1){
         size_t dotpos = formatter.find('.');
         // Read alignment
         if(dotpos == 0){
-            entry->alignment = 0;
+            entry->formatter.alignment = 0;
         }
         else{
-            entry->alignment = std::stoi(formatter.substr(0, dotpos));
+            entry->formatter.alignment = std::stoi(formatter.substr(0, dotpos));
         }
         // Read precision
         if(dotpos != std::string::npos){
-            entry->precision = std::stoi(formatter.substr(dotpos + 1));
+            entry->formatter.precision = std::stoi(formatter.substr(dotpos + 1));
         }
     }
 }
@@ -499,37 +500,46 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
             //------------------------------------------
             case Entry::eval:
                 //------------------------------------------
-                // Handle casting
+                // Handle casting and precision together
                 if(entry.cast == Entry::CastType::to_int){
                     token = std::to_string(static_cast<int>(te_eval(entry.expression)));
-                } else {
-                    token = std::to_string(te_eval(entry.expression));
+                } else{
+                    // to_double or none, both use double directly 
+                    double value = te_eval(entry.expression);
+                    
+                    // Apply rounding if precision is specified
+                    if (entry.formatter.precision != -1) {
+                        double multiplier = std::pow(10.0, entry.formatter.precision);
+                        value = std::round(value * multiplier) / multiplier;
+                    }
+                    
+                    token = std::to_string(value);
                 }
 
-                // Precision handling
-                if (entry.precision != -1) {
+                // Precision formatting (after rounding)
+                if (entry.formatter.precision != -1) {
                     size_t dotPos = token.find('.');
                     if (dotPos != std::string::npos) {
                         size_t currentPrecision = token.size() - dotPos - 1;
-                        if (currentPrecision < static_cast<size_t>(entry.precision)) {
+                        if (currentPrecision < static_cast<size_t>(entry.formatter.precision)) {
                             // Add zeros to match the required precision
-                            token.append(entry.precision - currentPrecision + 1, '0');
-                        } else {
-                            // Truncate to the required precision
-                            token = token.substr(0, dotPos + entry.precision + 1);
+                            token.append(entry.formatter.precision - currentPrecision, '0');
+                        } else if (currentPrecision > static_cast<size_t>(entry.formatter.precision)) {
+                            // Truncate to the required precision (should be minimal after rounding)
+                            token = token.substr(0, dotPos + entry.formatter.precision + 1);
                         }
                     } else {
                         // No decimal point, add one and pad with zeros
                         token += '.';
-                        token.append(entry.precision, '0');
+                        token.append(entry.formatter.precision, '0');
                     }
                 }
 
                 // Adding padding
-                if(entry.alignment > 0 && token.size() < static_cast<size_t>(entry.alignment)) {
+                if(entry.formatter.alignment > 0 && token.size() < static_cast<size_t>(entry.formatter.alignment)) {
                     int32_t size = token.size();
-                    for(int i = 0; i < entry.alignment - size; i++){
-                        token = (entry.leadingZero ? '0' : ' ') + token;
+                    for(int i = 0; i < entry.formatter.alignment - size; i++){
+                        token = (entry.formatter.leadingZero ? '0' : ' ') + token;
                     }
                 }
                 break;

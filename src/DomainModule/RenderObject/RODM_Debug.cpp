@@ -20,13 +20,7 @@ Nebulite::Constants::Error Debug::update() {
 
 Nebulite::Constants::Error Debug::eval([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     // argc/argv to string for evaluation
-    std::string args = "";
-    for (int i = 0; i < argc; ++i) {
-        args += argv[i];
-        if (i < argc - 1) {
-            args += " ";
-        }
-    }
+    std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc, argv);
 
     // Evaulate with context of this RenderObject
     std::string args_evaled = domain->getGlobalSpace()->eval(args, domain);

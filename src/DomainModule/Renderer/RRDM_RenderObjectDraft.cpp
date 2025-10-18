@@ -18,11 +18,7 @@ Nebulite::Constants::Error RenderObjectDraft::draft_parse([[maybe_unused]] int a
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    std::string command;
-    for (int i = 1; i < argc; ++i) {    // Ignoring first 2 argc: <from> <thisFunctionsName>
-        command += argv[i];
-        if (i < argc - 1) command += " ";
-    }
+    std::string command = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
     return draft.get()->parseStr(__FUNCTION__ + std::string(" ") + command);
 }
 const std::string RenderObjectDraft::draft_parse_name = "draft parse";

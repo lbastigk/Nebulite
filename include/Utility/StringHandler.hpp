@@ -123,6 +123,13 @@ public:
      * @brief Parses a command string into individual arguments, taking quotes into account.
      */
     static std::vector<std::string> parseQuotedArguments(const std::string& cmd);
+
+    /**
+     * @brief Recombines argc/argv into a single string with spaces.
+     * 
+     * Ensures that no extra spaces are added if the original arguments contained spaces.
+     */
+    static std::string recombineArgs(int argc, char* argv[]);
 };
 }   // namespace Utility
 }   // namespace Nebulite

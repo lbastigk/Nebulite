@@ -60,10 +60,7 @@ Nebulite::Constants::Error General::spawn([[maybe_unused]] int argc, [[maybe_unu
     if(argc>1){
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun
-        std::string linkOrObject = argv[1];
-        for (int i = 2; i < argc; i++) {
-            linkOrObject += " " + std::string(argv[i]);
-        }
+        std::string linkOrObject = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
 
         // Check if the file exists
         std::string link = Nebulite::Utility::StringHandler::untilSpecialChar(linkOrObject,'|');
@@ -316,11 +313,7 @@ Nebulite::Constants::Error General::selectedObject_Parse([[maybe_unused]] int ar
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    std::string command;
-    for (int i = 1; i < argc; ++i) {    // Ignoring first 2 argc: <from> <thisFunctionsName>
-        command += argv[i];
-        if (i < argc - 1) command += " ";
-    }
+    std::string command = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
     if(selectedRenderObject == nullptr){
         return Nebulite::Constants::ErrorTable::addError("No RenderObject selected! Use selectedObject_get <id> to select a valid object.", Nebulite::Constants::Error::NON_CRITICAL);
     }
