@@ -165,7 +165,7 @@ public:
 	 */
 	Nebulite::Constants::Error parseStr(const std::string& str){
         Nebulite::Constants::Error err = funcTree->parseStr(str);
-        err.print();
+        //err.print();  // Disabled for now, but needs proper treatment later
         return err;
     }
 
