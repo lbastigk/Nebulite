@@ -149,19 +149,29 @@ private:
         } cast = CastType::none; // Default to none
 
         /**
-         * @brief If true, indicates leading zero formatting (e.g., 03.2f).
+         * @struct Nebulite::Interaction::Logic::Expression::Entry::Formatter
+         * @brief Represents formatting options for the entry.
          */
-        bool leadingZero = false;
+        struct Formatter {
+            /**
+             * @brief Whether to pad with leading zeros.
+             */
+            bool leadingZero = false;
 
-        /**
-         * @brief If positive, indicates the alignment size of the value.
-         */
-        int alignment = -1;
+            /**
+             * @brief The alignment width of the entry.
+             * 
+             * -1 means no formatting.
+             */
+            int alignment = -1;
 
-        /**
-         * @brief If positive, indicates the precision size of the value.
-         */
-        int precision = -1;
+            /**
+             * @brief The precision of the entry.
+             * 
+             * -1 means no formatting.
+             */
+            int precision = -1;
+        } formatter;
 
         /**
          * @brief Holds the string representation of the entry.
