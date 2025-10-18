@@ -69,7 +69,7 @@ namespace Nebulite{
      * 
      * Separated into 2 sub-namespaces: Execution and Logic.
      * 
-     * - `Interaction`: main parts of the Interaction system: the Invoke class, their entries and its parser.
+     * - `Interaction`: main parts of the Interaction system: the Invoke class, their Rulesets and its Compiler.
      * 
      * - `Interaction::Execution`: All Domain-related parser, the FuncTree they're based on and its DomainModule wrapper
      * 
