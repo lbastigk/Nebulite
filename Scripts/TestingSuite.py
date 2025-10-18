@@ -15,12 +15,44 @@ from typing import List, Dict, Any, Union
 # Utility Functions
 #==============================================================================
 
+def strip_jsonc_comments(content: str) -> str:
+    """Strip comments from JSONC content to make it valid JSON."""
+    lines = content.splitlines()
+    cleaned_lines = []
+    
+    for line in lines:
+        # Remove single-line comments (// comment)
+        comment_pos = line.find('//')
+        if comment_pos != -1:
+            # Check if // is inside a string
+            in_string = False
+            escaped = False
+            for i, char in enumerate(line[:comment_pos]):
+                if escaped:
+                    escaped = False
+                    continue
+                if char == '\\':
+                    escaped = True
+                elif char == '"':
+                    in_string = not in_string
+            
+            # If // is not inside a string, remove the comment
+            if not in_string:
+                line = line[:comment_pos].rstrip()
+        
+        cleaned_lines.append(line)
+    
+    return '\n'.join(cleaned_lines)
+
 def load_tests_config(path: str) -> Dict[str, Any]:
-    """Load the test configuration from a JSON file."""
+    """Load the test configuration from a JSONC file."""
     with open(path, 'r') as f:
         content = f.read()
     print(f"Loaded file {path} with {len(content.splitlines())} lines")
-    config = json.loads(content)
+    
+    # Strip JSONC comments to make it valid JSON
+    cleaned_content = strip_jsonc_comments(content)
+    config = json.loads(cleaned_content)
     
     # Process test entries - expand file links
     if 'tests' in config:
@@ -380,7 +412,7 @@ def run_testsuite(config: Dict[str, Any], stop_on_fail: bool = False, verbose: b
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="Nebulite Test Suite")
-    parser.add_argument('-c', '--config', default='Tools/tests.json', help='Path to tests.json')
+    parser.add_argument('-c', '--config', default='Tools/tests.jsonc', help='Path to tests.jsonc')
     parser.add_argument('-s', '--stop', action='store_true', help='Stop on first failure')
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
     parser.add_argument('--coverage', action='store_true', help='Enable code coverage analysis')
