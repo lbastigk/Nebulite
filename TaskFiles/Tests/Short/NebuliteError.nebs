@@ -1,0 +1,3 @@
+# Returns a nebulite error, testing error handling
+set-fps 60
+assert $(0)

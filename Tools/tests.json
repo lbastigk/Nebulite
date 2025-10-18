@@ -195,6 +195,47 @@
         ], 
         "cerr": [] 
       }
+    },
+    {
+      "command": "task TaskFiles/Tests/Short/malformed_key.nebs",
+      "expected": { 
+        "cout": [
+          "Loading task list from file: TaskFiles/Tests/Short/malformed_key.nebs",
+          "",
+          "Part 1: Basic malformed arrays",
+          "valid_key",
+          "0",
+          "0",
+          "0",
+          "",
+          "Part 2: Getting an array of a non-array value",
+          "some_value",
+          "0",
+          "",
+          "Part 3: Getting an out of bounds array index",
+          "first_value",
+          "second_value",
+          "0"
+        ], 
+        "cerr": [
+          "Invalid key: arr[1",
+          "Invalid key: arr[d]",
+          "Invalid key: arr[d"
+        ]
+      }
+    },
+    {
+      "command": "task TaskFiles/Tests/Short/NebuliteError.nebs",
+      "expected": { 
+        "cout": [
+          "Loading task list from file: TaskFiles/Tests/Short/NebuliteError.nebs"
+        ], 
+        "cerr": [
+          "Critical Error: Critical Error: A custom assertion failed.",
+          "Assertion failed: $(0) is not true."
+        ],
+        "ignore_exit": true
+      }
     }
   ],
   "timeout": 40
