@@ -279,3 +279,18 @@ std::vector<std::string> Nebulite::Utility::StringHandler::parseQuotedArguments(
     
     return result;
 }
+
+std::string Nebulite::Utility::StringHandler::recombineArgs(int argc, char* argv[]) {
+    std::string result;
+    for (int i = 0; i < argc; ++i) {
+        result += argv[i];
+        // Don't add a whitespace if it's the last argument
+        if (i < argc - 1) {
+            // Important: dont add a whitespace if the argument already is a whitespace!
+            // This is due to how parseQuotedArguments handles multiple spaces. They are treated as one arg per space.
+            // Meaning, adding an additional space would cause too many spaces!
+            if(argv[i][0] != ' ') result += " ";
+        }
+    }
+    return result;
+}

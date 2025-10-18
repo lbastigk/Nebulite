@@ -19,10 +19,8 @@ Nebulite::Constants::Error Logging::update() {
 // Domain-Bound Functions
 
 Nebulite::Constants::Error Logging::echo([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
-    for (int i = 1; i < argc; i++) {
-        std::cout << argv[i] << " ";
-    }
-    std::cout << std::endl;
+    std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
+    std::cout << args << std::endl;
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string Logging::echo_name = "echo";

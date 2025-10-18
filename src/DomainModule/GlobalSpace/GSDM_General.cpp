@@ -18,13 +18,7 @@ Nebulite::Constants::Error General::update() {
 
 Nebulite::Constants::Error General::eval([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
     // argc/argv to string for evaluation
-    std::string args = "";
-    for (int i = 0; i < argc; ++i) {
-        args += argv[i];
-        if (i < argc - 1) {
-            args += " ";
-        }
-    }
+    std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc, argv);
 
     // eval all $(...)
     std::string args_evaled = domain->eval(args);
@@ -180,13 +174,8 @@ Main task:
 )";
 
 Nebulite::Constants::Error General::echo([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
-    for (int i = 1; i < argc; ++i) {
-        std::cout << argv[i];
-        if (i < argc - 1) {
-            std::cout << " ";
-        }
-    }
-    std::cout << std::endl;
+    std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
+    std::cout << args << std::endl;
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
@@ -219,13 +208,7 @@ Nebulite::Constants::Error General::func_if([[maybe_unused]] int argc, [[maybe_u
     }
 
     // Build the command string from rest
-    std::string commands = "";
-    for (int i = 2; i < argc; i++) {
-        commands += argv[i];
-        if (i < argc - 1) {
-            commands += " ";
-        }
-    }
+    std::string commands = Nebulite::Utility::StringHandler::recombineArgs(argc - 2, argv + 2);
     commands = __FUNCTION__ + std::string(" ") + commands;
     return domain->parseStr(commands);
 }

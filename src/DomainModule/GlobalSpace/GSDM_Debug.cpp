@@ -268,15 +268,8 @@ Nebulite::Constants::Error Debug::warn([[maybe_unused]] int argc, [[maybe_unused
     if (argc < 2) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-
-    std::string str = "";
-    for(int i = 1; i < argc; ++i){
-        str += argv[i];
-        if(i < argc - 1){
-            str += " ";
-        }
-    }
-    return Nebulite::Constants::ErrorTable::addError(str, Nebulite::Constants::Error::NON_CRITICAL);
+    std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
+    return Nebulite::Constants::ErrorTable::addError(args, Nebulite::Constants::Error::NON_CRITICAL);
 }
 const std::string Debug::warn_name = "warn";
 const std::string Debug::warn_desc = R"(Returns a warning: a custom, noncritical error.
@@ -292,14 +285,8 @@ Nebulite::Constants::Error Debug::critical([[maybe_unused]] int argc, [[maybe_un
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
-    std::string str = "";
-    for(int i = 1; i < argc; ++i){
-        str += argv[i];
-        if(i < argc - 1){
-            str += " ";
-        }
-    }
-    return Nebulite::Constants::ErrorTable::addError(str, Nebulite::Constants::Error::CRITICAL);
+    std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
+    return Nebulite::Constants::ErrorTable::addError(args, Nebulite::Constants::Error::CRITICAL);
 }
 const std::string Debug::critical_name = "critical";
 const std::string Debug::critical_desc = R"(Returns a critical error.
