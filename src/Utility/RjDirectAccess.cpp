@@ -378,6 +378,48 @@ bool Nebulite::Utility::RjDirectAccess::is_json_or_jsonc(const std::string& str)
     return check1;
 }
 
+bool Nebulite::Utility::RjDirectAccess::isValidKey(const std::string& key) {
+    std::string_view keyView(key);
+    while (!keyView.empty()) {
+        // Extract current key part (object key)
+        std::string_view keyPart = extractKeyPart(&keyView);
+
+        // Validate object key part if non-empty
+        if (!keyPart.empty()) {
+            // Check for invalid characters in keyPart
+            if (keyPart.find_first_of("[]") != std::string_view::npos) {
+                return false; // Invalid character found
+            }
+        }
+
+        // Now handle zero or more array indices if they appear next
+        while (!keyView.empty() && keyView[0] == '[') {
+            // Find closing ']'
+            size_t closeBracket = keyView.find(']');
+            if (closeBracket == std::string_view::npos) {
+                return false; // Malformed key - missing ']'
+            }
+
+            // Extract index string between '[' and ']'
+            std::string_view idxStr = keyView.substr(1, closeBracket - 1);
+            try {
+                std::stoi(std::string(idxStr));
+            } catch (...) {
+                return false; // invalid number
+            }
+
+            // Remove processed '[index]'
+            keyView.remove_prefix(closeBracket + 1);
+        }
+
+        // If next character is '.', skip it and continue
+        if (!keyView.empty() && keyView[0] == '.') {
+            keyView.remove_prefix(1);
+        }
+    }
+    return true;
+}
+
 //------------------------------------------
 // Static Private Helper Functions
 

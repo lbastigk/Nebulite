@@ -15,12 +15,82 @@ from typing import List, Dict, Any, Union
 # Utility Functions
 #==============================================================================
 
+def strip_jsonc_comments(content: str) -> str:
+    """Strip comments from JSONC content to make it valid JSON."""
+    lines = content.splitlines()
+    cleaned_lines = []
+    
+    for line in lines:
+        # Remove single-line comments (// comment)
+        comment_pos = line.find('//')
+        if comment_pos != -1:
+            # Check if // is inside a string
+            in_string = False
+            escaped = False
+            for i, char in enumerate(line[:comment_pos]):
+                if escaped:
+                    escaped = False
+                    continue
+                if char == '\\':
+                    escaped = True
+                elif char == '"':
+                    in_string = not in_string
+            
+            # If // is not inside a string, remove the comment
+            if not in_string:
+                line = line[:comment_pos].rstrip()
+        
+        cleaned_lines.append(line)
+    
+    return '\n'.join(cleaned_lines)
+
 def load_tests_config(path: str) -> Dict[str, Any]:
-    """Load the test configuration from a JSON file."""
+    """Load the test configuration from a JSONC file."""
     with open(path, 'r') as f:
         content = f.read()
     print(f"Loaded file {path} with {len(content.splitlines())} lines")
-    return json.loads(content)
+    
+    # Strip JSONC comments to make it valid JSON
+    cleaned_content = strip_jsonc_comments(content)
+    config = json.loads(cleaned_content)
+    
+    # Process test entries - expand file links
+    if 'tests' in config:
+        expanded_tests = []
+        base_dir = os.path.dirname(path)
+        
+        for test_entry in config['tests']:
+            if isinstance(test_entry, str):
+                # It's a file link - load the external test file
+                # Use absolute path if provided, otherwise relative to current working directory
+                if os.path.isabs(test_entry):
+                    test_file_path = test_entry
+                else:
+                    test_file_path = test_entry  # Relative to project root (current working directory)
+                try:
+                    print(f"Loading external test file: {test_file_path}")
+                    with open(test_file_path, 'r') as test_file:
+                        external_tests = json.load(test_file)
+                    
+                    if isinstance(external_tests, list):
+                        # It's an array of tests
+                        expanded_tests.extend(external_tests)
+                        print(f"  Loaded {len(external_tests)} tests from {test_file_path}")
+                    else:
+                        print(f"  Warning: {test_file_path} does not contain a JSON array of tests")
+                        
+                except FileNotFoundError:
+                    print(f"  Error: Test file not found: {test_file_path}")
+                except json.JSONDecodeError as e:
+                    print(f"  Error: Invalid JSON in test file {test_file_path}: {e}")
+            else:
+                # It's a regular test object
+                expanded_tests.append(test_entry)
+        
+        config['tests'] = expanded_tests
+        print(f"Total tests loaded: {len(expanded_tests)}")
+    
+    return config
 
 def apply_ignore_filters(output: List[str], ignore_patterns: List[str]) -> List[str]:
     """Filter out lines from output that match any of the ignore patterns."""
@@ -221,7 +291,7 @@ def validate_test_result(output: Dict[str, Union[List[str], int]], expected: Dic
                 print(f"  ✗ cerr mismatch\n    Expected: {expected['cerr']}\n    Got: {output['cerr']}")
     
     # Check exit code
-    if output['exit_code'] != 0 and not expected.get('allow_nonzero_exit', False):
+    if output['exit_code'] != 0 and not expected.get('allow_nonzero_exit', False) and not expected.get('ignore_exit', False):
         passed = False
         if verbose:
             print(f"  ✗ Nonzero exit code: {output['exit_code']}")
@@ -342,7 +412,7 @@ def run_testsuite(config: Dict[str, Any], stop_on_fail: bool = False, verbose: b
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="Nebulite Test Suite")
-    parser.add_argument('-c', '--config', default='Tools/tests.json', help='Path to tests.json')
+    parser.add_argument('-c', '--config', default='Tools/tests.jsonc', help='Path to tests.jsonc')
     parser.add_argument('-s', '--stop', action='store_true', help='Stop on first failure')
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
     parser.add_argument('--coverage', action='store_true', help='Enable code coverage analysis')

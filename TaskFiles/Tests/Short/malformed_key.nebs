@@ -1,0 +1,52 @@
+# Tests the setting and retrieval of malformed keys
+set-fps 60
+wait 1
+
+####################################################
+echo 
+echo Part 1: Basic malformed arrays
+set arr[1] valid_key
+set arr[1  invalid_key1
+set arr[d] invalid_key2
+set arr[d  invalid_key3
+
+# Valid
+eval echo {global.arr[1]}
+# Malformed, causes error and a return of 0
+eval echo {global.arr[1}
+# Malformed, causes error and a return of 0  
+eval echo {global.arr[d]}
+# Malformed, causes error and a return of 0
+eval echo {global.arr[d}
+
+####################################################
+echo 
+echo Part 2: Getting an array of a non-array value
+set MyKey some_value
+
+# Valid, returns some_value
+eval echo {global.MyKey}
+# No error as its not malformed, but returns 0 since MyKey is not an array
+eval echo {global.MyKey[0]}
+
+####################################################
+echo 
+echo Part 3: Getting an out of bounds array index
+set MyArray[0] first_value
+set MyArray[1] second_value
+
+# Valid, returns first_value
+eval echo {global.MyArray[0]}
+# Valid, returns second_value 
+eval echo {global.MyArray[1]}
+# Out of bounds, returns 0
+eval echo {global.MyArray[2]}
+
+####################################################
+echo 
+echo Part 4: Printing an array without indexing
+
+# Should return 0
+eval echo {global.MyArray}
+
+exit

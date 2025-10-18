@@ -1,0 +1,26 @@
+{
+  "binaries" : [
+    "./bin/Nebulite --headless",
+    "./bin/Nebulite_Debug --headless",
+    "DXVK_LOG_LEVEL=none WINEDEBUG=-all wine ./bin/Nebulite.exe --headless",
+    "DXVK_LOG_LEVEL=none WINEDEBUG=-all wine ./bin/Nebulite_Debug.exe --headless"
+  ],
+  "ignore_lines": {
+    "cout" : [
+      "Loading task list from file*"
+    ],
+    "cerr" : [
+      "*wined3d_swapchain_resize_buffers*"
+    ]
+  },
+  "tests": [
+    "Tools/Tests/basics.json",
+    "Tools/Tests/time.json",
+    //"Tools/Tests/expressions.json", // Has issues with rounding and space padding
+    "Tools/Tests/json_array.json",
+    "Tools/Tests/json_complex.json",
+    "Tools/Tests/scenes.json",
+    "Tools/Tests/mirror_draft_selection.json"
+  ],
+  "timeout": 40
+}

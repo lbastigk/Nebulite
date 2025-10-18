@@ -46,7 +46,7 @@
                 "isDefault": false
             },
             "problemMatcher": [],
-            "detail": "Build with JSON validation and run Tests. Stops on first failure."
+            "detail": "Performs JSON validation on all Resource files and runs the testing suite. Stops on first failure."
         },
         {
             "label": "[PROFILING] On small gravity test",
