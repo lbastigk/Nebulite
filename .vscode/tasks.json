@@ -26,7 +26,7 @@
         {
             "label": "[BUILD + TEST]",
             "group": {
-                "kind": "build",
+                "kind": "test",
                 "isDefault": false
             },
             "dependsOn": [
