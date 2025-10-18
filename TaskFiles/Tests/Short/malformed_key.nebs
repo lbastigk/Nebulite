@@ -42,4 +42,11 @@ eval echo {global.MyArray[1]}
 # Out of bounds, returns 0
 eval echo {global.MyArray[2]}
 
+####################################################
+echo 
+echo Part 4: Printing an array without indexing
+
+# Should return 0
+eval echo {global.MyArray}
+
 exit

@@ -1,0 +1,6 @@
+# Generates an array, then overwrites its value with a non-array value
+set test.MyArray[0] first_value
+set test.MyArray[1] second_value
+set test.MyArray some_value
+print test
+exit

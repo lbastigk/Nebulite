@@ -1,0 +1,63 @@
+[
+    {
+      "command": "task TaskFiles/Tests/Short/push_pop.nebs",
+      "expected": {
+        "cout": null, 
+        "cout_actually_fix_pushpop_first": [
+          "{",
+          "    \"zzy\": [",
+          "        \"\",",
+          "        \"0\",",
+          "        \"1\",",
+          "        \"2\",",
+          "        \"\"",
+          "    ],",
+          "    \"zzz\": [",
+          "        \"1\",",
+          "        \"2\"",
+          "    ]",
+          "}"
+        ], "cerr": [] }
+    },
+    {
+      "command": "task TaskFiles/Tests/Short/malformed_key.nebs",
+      "expected": { 
+        "cout": [
+          "",
+          "Part 1: Basic malformed arrays",
+          "valid_key",
+          "0",
+          "0",
+          "0",
+          "",
+          "Part 2: Getting an array of a non-array value",
+          "some_value",
+          "0",
+          "",
+          "Part 3: Getting an out of bounds array index",
+          "first_value",
+          "second_value",
+          "0",
+          "",
+          "Part 4: Printing an array without indexing",
+          "0"
+        ], 
+        "cerr": [
+          "Invalid key: arr[1",
+          "Invalid key: arr[d]",
+          "Invalid key: arr[d"
+        ]
+      }
+    },
+    {
+      "command": "task TaskFiles/Tests/Short/invalidate_json_value_children.nebs",
+      "expected": { 
+        "cout": [
+          "{",
+          "    \"MyArray\": \"some_value\"",
+          "}"
+        ], 
+        "cerr": [] 
+      }
+    }
+]
