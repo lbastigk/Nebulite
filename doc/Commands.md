@@ -2,7 +2,7 @@
 
 This documentation is automatically generated from the Nebulite executable.
 
-Generated on: Wed Oct 15 10:14:52 CEST 2025
+Generated on: Sat Oct 18 12:25:32 CEST 2025
 
 ## GlobalSpace Commands
 
@@ -21,6 +21,7 @@ Help for Nebulite
 | `beep` | Make a beep noise. |
 | `cam` | Renderer Camera Functions |
 | `clear` | Clears the console screen. |
+| `console` | Console commands and settings. |
 | `copy` | Copy data from one key to another. |
 | `crash` | Crashes the program, useful for checking if the testing suite can catch crashes. |
 | `critical` | Returns a critical error. |
@@ -162,6 +163,25 @@ Usage: clear
 
 Note: This function attempts to clear the console screen using system-specific commands.
         It may not work in all environments or IDEs.
+```
+
+#### `console`
+
+### Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `zoom` | Reduces or increases the console font size. |
+
+##### `console zoom`
+
+```
+Reduces or increases the console font size.
+
+Usage: zoom [in/out/+/-]
+- in / + : Zooms in (increases font size)
+- out / - : Zooms out (decreases font size)
 ```
 
 #### `copy`
@@ -344,7 +364,7 @@ if '$(eq(1+1,2))' echo Condition is true!
 ```
 Waits for user input before continuing.
 
-Usage: inputwait
+Usage: inputwait [prompt]
 
 Note: This function pauses execution until the user presses Enter.
 ```
