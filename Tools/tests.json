@@ -184,6 +184,17 @@
         ], 
         "cerr": [] 
       }
+    },
+    {
+      "command": "task TaskFiles/Tests/Short/draft.nebs",
+      "expected": { 
+        "cout": [
+          "Loading task list from file: TaskFiles/Tests/Short/draft.nebs",
+          "666",
+          "555"
+        ], 
+        "cerr": [] 
+      }
     }
   ],
   "timeout": 40

@@ -1,0 +1,15 @@
+# Test draft usage
+set-fps 60
+
+# Create draft object and spawn it
+draft parse set posX 666
+draft parse set posY 555
+draft spawn
+
+# Get that object and view its properties
+wait 1
+selected-object get 1
+wait 1
+draft parse print posX
+draft parse print posY
+exit 
