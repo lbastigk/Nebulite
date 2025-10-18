@@ -171,6 +171,12 @@ void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std
         std::lock_guard<std::mutex> broadcastLock(broadcasted.entriesThisFrame[i].mutex);
         
         // Check if topic exists to avoid creating empty entries
+        /**
+         * @todo Optimize: Consider a separate list that stores all active topics per thread,
+         * to avoid searching through the entire broadcasted.entriesThisFrame map.
+         * 
+         * We could then update this list before the next listen phase starts.
+         */
         auto topicIt = broadcasted.entriesThisFrame[i].Container.find(topic);
         if (topicIt == broadcasted.entriesThisFrame[i].Container.end()) {
             continue; // No entries for this topic in this thread
