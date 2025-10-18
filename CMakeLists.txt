@@ -37,6 +37,13 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-g)
 endif()
 
+# Coverage build configuration
+if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+    add_compile_options(-g --coverage -fprofile-arcs -ftest-coverage)
+    add_link_options(--coverage)
+    message(STATUS "Coverage build enabled")
+endif()
+
 # Setting output inside ./build/<build-type>, 
 # moving to proper location+renaming later on in the build.sh script
 # CMAKE_BINARY_DIR is set by build.sh
