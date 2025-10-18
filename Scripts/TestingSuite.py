@@ -221,7 +221,7 @@ def validate_test_result(output: Dict[str, Union[List[str], int]], expected: Dic
                 print(f"  ✗ cerr mismatch\n    Expected: {expected['cerr']}\n    Got: {output['cerr']}")
     
     # Check exit code
-    if output['exit_code'] != 0 and not expected.get('allow_nonzero_exit', False):
+    if output['exit_code'] != 0 and not expected.get('allow_nonzero_exit', False) and not expected.get('ignore_exit', False):
         passed = False
         if verbose:
             print(f"  ✗ Nonzero exit code: {output['exit_code']}")
