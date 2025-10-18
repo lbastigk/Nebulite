@@ -166,16 +166,7 @@ void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interact
 }
 
 void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std::string topic, uint32_t listenerId){
-    // WARNING: This function should only be called when worker threads are NOT processing
-    // i.e., not between update() signaling workers and workers finishing
-    
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
-        // Ensure workers are not currently processing this container
-        if (threadState.individualState[i].workReady.load()) {
-            std::cerr << "ERROR: listen() called while worker thread " << i << " is processing!" << std::endl;
-            continue; // Skip this thread to avoid corruption
-        }
-        
         // Lock to safely read from broadcasted.entriesThisFrame
         std::lock_guard<std::mutex> broadcastLock(broadcasted.entriesThisFrame[i].mutex);
         
@@ -351,13 +342,14 @@ void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Inte
                 }
                 
                 if(target != nullptr){
+                    // Lock is needed here, otherwise we have race conditions, and the engine is no longer deterministic!
                     std::lock_guard<std::recursive_mutex> lock(targetDocument->lock());
                     setValueOfKey(assignment.operation, assignment.key, resolved, target);
                 }
                 else{
                     // Still not possible, fallback to using JSON's internal methods
                     // This is slower, but should work in all cases
-                    std::lock_guard<std::recursive_mutex> lock(targetDocument->lock());
+                    // No lock needed here, as we use JSON's threadsafe methods
                     setValueOfKey(assignment.operation, assignment.key, resolved, targetDocument);
                 }
             }

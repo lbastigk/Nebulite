@@ -145,6 +145,9 @@ public:
      * invoke entries for the given topic. If an entry's logical condition is
      * satisfied, it is added to the list of pairs for later evaluation.
      * 
+     * WARNING: This function must not be called concurrently with `update()`,
+     * as it may lead to race conditions and undefined behavior!
+     * 
      * @param obj The render object to check.
      * @param topic The topic to listen for.
      */
