@@ -20,7 +20,45 @@ def load_tests_config(path: str) -> Dict[str, Any]:
     with open(path, 'r') as f:
         content = f.read()
     print(f"Loaded file {path} with {len(content.splitlines())} lines")
-    return json.loads(content)
+    config = json.loads(content)
+    
+    # Process test entries - expand file links
+    if 'tests' in config:
+        expanded_tests = []
+        base_dir = os.path.dirname(path)
+        
+        for test_entry in config['tests']:
+            if isinstance(test_entry, str):
+                # It's a file link - load the external test file
+                # Use absolute path if provided, otherwise relative to current working directory
+                if os.path.isabs(test_entry):
+                    test_file_path = test_entry
+                else:
+                    test_file_path = test_entry  # Relative to project root (current working directory)
+                try:
+                    print(f"Loading external test file: {test_file_path}")
+                    with open(test_file_path, 'r') as test_file:
+                        external_tests = json.load(test_file)
+                    
+                    if isinstance(external_tests, list):
+                        # It's an array of tests
+                        expanded_tests.extend(external_tests)
+                        print(f"  Loaded {len(external_tests)} tests from {test_file_path}")
+                    else:
+                        print(f"  Warning: {test_file_path} does not contain a JSON array of tests")
+                        
+                except FileNotFoundError:
+                    print(f"  Error: Test file not found: {test_file_path}")
+                except json.JSONDecodeError as e:
+                    print(f"  Error: Invalid JSON in test file {test_file_path}: {e}")
+            else:
+                # It's a regular test object
+                expanded_tests.append(test_entry)
+        
+        config['tests'] = expanded_tests
+        print(f"Total tests loaded: {len(expanded_tests)}")
+    
+    return config
 
 def apply_ignore_filters(output: List[str], ignore_patterns: List[str]) -> List[str]:
     """Filter out lines from output that match any of the ignore patterns."""
