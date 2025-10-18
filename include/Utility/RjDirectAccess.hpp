@@ -92,7 +92,7 @@ public:
      * @param val The rapidjson value to modify.
      */
     template <typename T> 
-    static void set(const char* key, const T& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+    static bool set(const char* key, const T& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
     //------------------------------------------
     // Conversion
@@ -218,6 +218,14 @@ public:
      */
     static bool is_json_or_jsonc(const std::string& str);
 
+    /**
+     * @brief Validates if a key string is valid for traversal.
+     * 
+     * @param key The key string to validate.
+     * @return true if the key is valid, false otherwise.
+     */
+    static bool isValidKey(const std::string& key);
+
 private:
     /**
      * @brief Extracts the next part of a key from a dot/bracket notation key string.
@@ -247,13 +255,15 @@ T Nebulite::Utility::RjDirectAccess::get(const char* key, const T defaultValue, 
 }
 
 template <typename T>
-void Nebulite::Utility::RjDirectAccess::set(const char* key, const T& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
+bool Nebulite::Utility::RjDirectAccess::set(const char* key, const T& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
     // Ensure key path exists
     rapidjson::Value* keyVal = Nebulite::Utility::RjDirectAccess::ensure_path(key, val, allocator);
     if (keyVal != nullptr) {
         Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<T>(value, *keyVal, allocator);
+        return true;
     } else {
         std::cerr << "Failed to create or access path: " << key << std::endl;
+        return false;
     }
 }
 

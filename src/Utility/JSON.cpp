@@ -66,7 +66,7 @@ void Nebulite::Utility::JSON::flush(){
         }
 
         if (entry->state == EntryState::DIRTY) {
-            Nebulite::Utility::RjDirectAccess::set(key.c_str(), entry->value, doc, doc.GetAllocator());
+            (void)Nebulite::Utility::RjDirectAccess::set(key.c_str(), entry->value, doc, doc.GetAllocator());
             entry->state = EntryState::CLEAN;
         }
     }

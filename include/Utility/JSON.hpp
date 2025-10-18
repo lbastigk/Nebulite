@@ -385,6 +385,13 @@ public:
 template<typename T>
 void Nebulite::Utility::JSON::set(const std::string& key, const T& value) {
     std::lock_guard<std::recursive_mutex> lock(mtx);
+
+    // Check if key is valid
+    if (!RjDirectAccess::isValidKey(key)) {
+        std::cerr << "Invalid key: " << key << std::endl;
+        return;
+    }
+
     auto it = cache.find(key);
     if (it != cache.end()) {
         // Existing cache value, structure validity guaranteed
