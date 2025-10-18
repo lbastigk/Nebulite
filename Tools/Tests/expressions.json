@@ -1,13 +1,31 @@
 [
     {
-      "command": "task TaskFiles/Tests/Short/multiresolve.nebs",
-      "expected": { 
-        "cout": [
-          "Testing multi-resolve in Nebulite expressions",
-          "final_value",
-          "final_value"
-        ], 
-        "cerr": [] 
-      }
+        "command": "eval echo $05.2f(5/3)",
+        "expected": { 
+            "cout": [
+                "01.67"
+            ], 
+            "cerr": [] 
+        }
+    },
+    {
+        "command": "eval echo $5.2f(5/3)",
+        "expected": { 
+            "cout": [
+                " 1.67"
+            ], 
+            "cerr": [] 
+        }
+    },
+    {
+        "command": "task TaskFiles/Tests/Short/multiresolve.nebs",
+        "expected": { 
+            "cout": [
+                "Testing multi-resolve in Nebulite expressions",
+                "final_value",
+                "final_value"
+            ], 
+            "cerr": [] 
+        }
     }
 ]

@@ -1,13 +1,13 @@
 [
     {
-      "command": "task TaskFiles/Tests/Short/json_retrieval.nebs",
-      "expected": { 
-        "cout": [
-          "Printing value retrieved from: ./Resources/Renderobjects/standard.jsonc:text.color.A",
-          "Expected value: 255", 
-          "255"
-        ], 
-        "cerr": [] 
-      }
+        "command": "task TaskFiles/Tests/Short/json_retrieval.nebs",
+        "expected": { 
+            "cout": [
+                "Printing value retrieved from: ./Resources/Renderobjects/standard.jsonc:text.color.A",
+                "Expected value: 255", 
+                "255"
+            ], 
+            "cerr": [] 
+        }
     }
 ]
