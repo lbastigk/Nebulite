@@ -1,9 +1,24 @@
-[submodule "external/SDL_Crossplatform_Local"]
-	path = external/SDL_Crossplatform_Local
-	url = https://github.com/lbastigk/SDL_Crossplatform_Local.git
+[submodule "external/SDL2"]
+	path = external/SDL2
+	url = https://github.com/libsdl-org/SDL.git
+	branch = SDL2
+[submodule "external/SDL2_ttf"]
+	path = external/SDL2_ttf
+	url = https://github.com/libsdl-org/SDL_ttf.git
+	branch = SDL2
+[submodule "external/SDL2_image"]
+	path = external/SDL2_image
+	url = https://github.com/libsdl-org/SDL_image.git
+	branch = SDL2
 [submodule "external/rapidjson"]
 	path = external/rapidjson
 	url = https://github.com/Tencent/rapidjson.git
+[submodule "external/tinyexpr"]
+	path = external/tinyexpr
+	url = https://github.com/codeplea/tinyexpr.git
+[submodule "external/abseil"]
+	path = external/abseil
+	url = https://github.com/abseil/abseil-cpp.git
 [submodule "external/tinyexpr"]
 	path = external/tinyexpr
 	url = https://github.com/codeplea/tinyexpr.git

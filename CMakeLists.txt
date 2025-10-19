@@ -44,9 +44,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
     message(STATUS "Coverage build enabled")
 endif()
 
-# Setting output inside ./build/<build-type>, 
-# moving to proper location+renaming later on in the build.sh script
-# CMAKE_BINARY_DIR is set by build.sh
+# Build artifacts go to ./tmp/build_<preset>/ via CMake presets,
+# Final binaries are placed in ./bin/ with appropriate naming
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # Echo the start of the configuration
@@ -56,20 +55,30 @@ message(STATUS "Source dir: ${CMAKE_SOURCE_DIR}")
 message(STATUS "Binary dir: ${CMAKE_BINARY_DIR}")
 
 ############################################################
-# Shortcut paths to external dependencies
-set(SDL2_BUILD_PATH     "${CMAKE_SOURCE_DIR}/.build/SDL2")
-set(RAPIDJSON_PATH      "${CMAKE_SOURCE_DIR}/external/rapidjson")
-set(EXPRTK_PATH         "${CMAKE_SOURCE_DIR}/external/exprtk")
-set(TINYEXPR_PATH       "${CMAKE_SOURCE_DIR}/external/tinyexpr")
-set(ABSEIL_PATH         "${CMAKE_SOURCE_DIR}/external/abseil")
+# Git submodule initialization and update
+message(STATUS "Updating git submodules...")
+execute_process(
+    COMMAND git submodule update --init --recursive
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    RESULT_VARIABLE GIT_SUBMOD_RESULT
+    OUTPUT_QUIET
+    ERROR_QUIET
+)
+
+if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+    message(WARNING "git submodule update --init --recursive failed with ${GIT_SUBMOD_RESULT}")
+else()
+    message(STATUS "Git submodules updated successfully")
+endif()
 
 ############################################################
-# Subdirectories
-# Disable warnings for external dependencies
-set(CMAKE_CXX_FLAGS_BACKUP ${CMAKE_CXX_FLAGS})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
-add_subdirectory(${ABSEIL_PATH})
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS_BACKUP})
+# Include modular CMake configurations from Tools/CMake directory
+include(${CMAKE_SOURCE_DIR}/Tools/CMake/warnings.cmake)
+include(${CMAKE_SOURCE_DIR}/Tools/CMake/dependencies.cmake)
+
+############################################################
+# Setup external dependencies
+setup_external_subdirectories()
 
 ############################################################
 # Source files - Automatically include all .cpp files in src/
@@ -77,7 +86,7 @@ file(GLOB_RECURSE COMMON_SOURCES
     "${CMAKE_SOURCE_DIR}/src/*.cpp"
 )
 
-# Adddition external files
+# Additional external files
 list(APPEND COMMON_SOURCES 
     ${TINYEXPR_PATH}/tinyexpr.c
 )
@@ -90,51 +99,24 @@ add_executable(Nebulite
 )
 
 ############################################################
-# General include directories
-target_include_directories(Nebulite
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/include
-    SYSTEM
-        ${RAPIDJSON_PATH}/include/rapidjson
-        ${EXPRTK_PATH}
-        ${TINYEXPR_PATH}
-        ${ABSEIL_PATH}
+# Configure binary output directory and naming
+set_target_properties(Nebulite PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/bin
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin
 )
+
+# Set output name based on build type
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite_Debug")
+else()
+    set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite")
+endif()
 
 ############################################################
-# Compile options: Warnings
-set_source_files_properties(
-  ./src/ 
-  "-w"
-)
-
-# Enable unused function detection (only for GCC/Clang)
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(Nebulite PRIVATE
-        -Wunused-function          # Warn about unused static functions
-        -Wunused-variable          # Warn about unused variables (Deactivated for now, too many entries)
-        -Wunused-parameter         # Warn about unused function parameters (Deactivated for now, too many entries)
-        -Wunreachable-code         # Warn about unreachable code
-        # Uncomment for more aggressive warnings:
-        -Wall                   # Enable most common warnings
-        -Wextra                 # Enable extra warnings
-        #-Wpedantic              # Enable pedantic warnings (Not recommended due to __int128 conflicts in abseil libs)
-    )
-    
-    # GCC-specific warnings
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        target_compile_options(Nebulite PRIVATE
-            -Wunused-but-set-variable  # Warn about variables that are set but never used
-        )
-    endif()
-    
-    # Clang-specific warnings
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        target_compile_options(Nebulite PRIVATE
-            -Wdead-code               # Warn about dead code (Clang only)
-        )
-    endif()
-endif()
+# Configure common dependencies and warnings
+configure_common_dependencies(Nebulite)
+configure_warnings(Nebulite)
 
 ############################################################
 # Platform-Specific
@@ -144,88 +126,34 @@ endif()
 ##################
 if(WIN32)
     message(STATUS "Targeting Windows")
-
-    # Include SDL Libraries
-    target_include_directories(Nebulite PRIVATE
-        ${SDL2_BUILD_PATH}/shared_windows/include/SDL2
-    )
-
-    # Force console window in Debug, GUI (no console) in Release
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        target_link_options(Nebulite PRIVATE -mconsole)
-    else()
-        # Later on, for actual release:
-        #target_link_options(Nebulite PRIVATE -mwindows)
-
-        # For now, for console output in release version:
-        target_link_options(Nebulite PRIVATE -mconsole)
-    endif()
-
-    # Link libraries
-    target_link_libraries(Nebulite PRIVATE
-        -lmingw32
-        "${SDL2_BUILD_PATH}/shared_windows/lib/libSDL2main.a"
-        "${SDL2_BUILD_PATH}/shared_windows/lib/libSDL2_ttf.dll.a"
-        "${SDL2_BUILD_PATH}/shared_windows/lib/libSDL2_image.dll.a"
-        "${SDL2_BUILD_PATH}/shared_windows/lib/libSDL2.dll.a"
-        absl::flat_hash_map
-        -lsetupapi
-        -limm32
-        -lversion
-        -loleaut32
-        -lole32
-        -luuid
-        -lwinmm
-        -lws2_32
-    )
+    
+    # Include Windows-specific configuration
+    include(${CMAKE_SOURCE_DIR}/Tools/CMake/windbuild.cmake)
+    
+    # Configure SDL2 for Windows
+    configure_windows_sdl2(Nebulite)
 ##################
 # APPLE          #
 ##################
 elseif(APPLE)
     message(STATUS "Targeting macOS")
-
-    set(SDL2_PATH        ${CMAKE_SOURCE_DIR}/external/SDL_Crossplatform_Local/external/SDL2)
-    set(SDL2_TTF_PATH    ${CMAKE_SOURCE_DIR}/external/SDL_Crossplatform_Local/external/SDL_ttf)
-    set(SDL2_IMAGE_PATH  ${CMAKE_SOURCE_DIR}/external/SDL_Crossplatform_Local/external/SDL_image)
-
-    add_subdirectory(${SDL2_PATH})
-    add_subdirectory(${SDL2_TTF_PATH})
-    add_subdirectory(${SDL2_IMAGE_PATH})
-
-    target_link_libraries(Nebulite PRIVATE SDL2 SDL2_ttf SDL2_image)
-
-    # Frameworks needed for SDL2 on macOS
-    target_link_libraries(Nebulite PRIVATE
-            "-framework Cocoa"
-            "-framework IOKit"
-            "-framework CoreVideo"
-            "-framework Carbon"
-    )
+    
+    # Include macOS-specific configuration
+    include(${CMAKE_SOURCE_DIR}/Tools/CMake/macbuild.cmake)
+    
+    # Configure SDL2 for macOS
+    configure_macos_sdl2(Nebulite)
 ##################
 # LINUX          #
 ##################
 elseif(UNIX)
     message(STATUS "Targeting Linux")
-
-    target_include_directories(Nebulite PRIVATE
-        ${SDL2_BUILD_PATH}/static_linux/include/SDL2
-    )
-
-    target_link_libraries(Nebulite PRIVATE
-        "${SDL2_BUILD_PATH}/static_linux/lib/libSDL2main.a"
-        "${SDL2_BUILD_PATH}/static_linux/lib/libSDL2_ttf.a"
-        "${SDL2_BUILD_PATH}/static_linux/lib/libSDL2_image.a"
-        "${SDL2_BUILD_PATH}/static_linux/lib/libSDL2.a"
-        "${SDL2_BUILD_PATH}/static_linux/deps/freetype/lib/libfreetype.a"
-        "${SDL2_BUILD_PATH}/static_linux/deps/harfbuzz/lib/libharfbuzz.a"
-        absl::flat_hash_map
-        # libfreetype depends on zlib, libpng, bzip2 and brotli
-        z
-        png
-        bz2
-        brotlidec
-        m
-    )
+    
+    # Include Linux-specific configuration
+    include(${CMAKE_SOURCE_DIR}/Tools/CMake/linuxbuild.cmake)
+    
+    # Configure SDL2 for Linux
+    configure_linux_sdl2(Nebulite)
 ##################
 # UNKNOWN        #
 ##################

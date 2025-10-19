@@ -1,7 +1,3 @@
-# Ignore extern builds
-external/SDL2_build/
-external/abseil_build
-
 # Ignore created data
 *.data.old
 *.data
@@ -37,7 +33,7 @@ bin/
 *.exe
 **/build/
 **/bin/
-.build/
+build/
 
 # ignore cmake cache files
 CMakeFiles/

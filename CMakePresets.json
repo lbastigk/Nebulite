@@ -1,0 +1,139 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "displayName": "Base Configuration",
+            "description": "Base configuration with common settings",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/tmp/build_${presetName}",
+            "installDir": "${sourceDir}/bin",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        },
+        {
+            "name": "linux-debug",
+            "inherits": "base",
+            "displayName": "Linux Debug",
+            "description": "Debug build for Linux",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "linux-release",
+            "inherits": "base",
+            "displayName": "Linux Release",
+            "description": "Release build for Linux with optimizations",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_FLAGS_RELEASE": "-O3 -DNDEBUG -march=native",
+                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
+            }
+        },
+        {
+            "name": "linux-coverage",
+            "inherits": "base",
+            "displayName": "Linux Coverage",
+            "description": "Coverage build for Linux",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Coverage"
+            }
+        },
+        {
+            "name": "windows-debug",
+            "inherits": "base",
+            "displayName": "Windows Debug",
+            "description": "Debug build for Windows using MinGW cross-compilation",
+            "toolchainFile": "${sourceDir}/Tools/CMake/mingw-toolchain.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "windows-release",
+            "inherits": "base",
+            "displayName": "Windows Release",
+            "description": "Release build for Windows using MinGW cross-compilation",
+            "toolchainFile": "${sourceDir}/Tools/CMake/mingw-toolchain.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_FLAGS_RELEASE": "-O3 -DNDEBUG",
+                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
+            }
+        },
+        {
+            "name": "macos-debug",
+            "inherits": "base",
+            "displayName": "macOS Debug",
+            "description": "Debug build for macOS",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "macos-release",
+            "inherits": "base",
+            "displayName": "macOS Release", 
+            "description": "Release build for macOS",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_FLAGS_RELEASE": "-O3 -DNDEBUG",
+                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "linux-debug",
+            "configurePreset": "linux-debug",
+            "displayName": "Build Linux Debug",
+            "description": "Build Linux debug binary",
+            "jobs": 0
+        },
+        {
+            "name": "linux-release",
+            "configurePreset": "linux-release",
+            "displayName": "Build Linux Release",
+            "description": "Build Linux release binary",
+            "jobs": 0
+        },
+        {
+            "name": "linux-coverage",
+            "configurePreset": "linux-coverage",
+            "displayName": "Build Linux Coverage",
+            "description": "Build Linux coverage binary",
+            "jobs": 0
+        },
+        {
+            "name": "windows-debug",
+            "configurePreset": "windows-debug",
+            "displayName": "Build Windows Debug",
+            "description": "Build Windows debug binary",
+            "jobs": 0
+        },
+        {
+            "name": "windows-release",
+            "configurePreset": "windows-release",
+            "displayName": "Build Windows Release",
+            "description": "Build Windows release binary",
+            "jobs": 0
+        },
+        {
+            "name": "macos-debug",
+            "configurePreset": "macos-debug",
+            "displayName": "Build macOS Debug",
+            "description": "Build macOS debug binary",
+            "jobs": 0
+        },
+        {
+            "name": "macos-release",
+            "configurePreset": "macos-release",
+            "displayName": "Build macOS Release",
+            "description": "Build macOS release binary",
+            "jobs": 0
+        }
+    ]
+}
