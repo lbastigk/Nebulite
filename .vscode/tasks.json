@@ -119,7 +119,7 @@
         {
             "label": "[COVERAGE BUILD]",
             "type": "shell",
-            "command": "./build.sh -coverage",
+            "command": "cmake --preset linux-coverage && cmake --build --preset linux-coverage",
             "group": {
                 "kind": "build",
                 "isDefault": false
