@@ -60,13 +60,28 @@ The goal: quickly prototype and iterate on emergent object logic without rebuild
 ## Quick Start
 
 1. Clone & enter repo
-2. Build binaries:
-  ```bash
+```bash
+  git clone https://github.com/lbastigk/Nebulite && cd Nebulite
+```
+2. Install dependencies, if necessary
+```bash
+  Scripts/install_dependencies.sh
+```
+2. Build binaries
+```bash
+  # Linux
   cmake --preset linux-debug && cmake --build --preset linux-debug
   cmake --preset linux-release && cmake --build --preset linux-release
+  cmake --preset linux-coverage && cmake --build --preset linux-coverage
+
+  # Windows
   cmake --preset windows-debug && cmake --build --preset windows-debug
   cmake --preset windows-release && cmake --build --preset windows-release
-  ```
+
+  # Mac (Work in Progress)
+  cmake --preset macos-debug && cmake --build --preset macos-debug
+  cmake --preset macos-release && cmake --build --preset macos-release
+```
 3. Download Resources
 ```bash
   Scripts/AssetCreation/create_resources_directory.sh
