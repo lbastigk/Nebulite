@@ -419,6 +419,13 @@ def main():
     parser.add_argument('--no-open', action='store_true', help='Don\'t automatically open coverage report')
     args = parser.parse_args()
 
+    # See if directory Resources exists. If not, tell user to install resources before testing
+    if not os.path.exists('Resources'):
+        print("Error: Resources directory not found. Please install resources before running tests.")
+        print("Please run:")
+        print("Scripts/AssetCreation/create_resources_directory.sh")
+        sys.exit(1)
+
     config = load_tests_config(args.config)
     run_testsuite(config, stop_on_fail=args.stop, verbose=args.verbose, enable_coverage=args.coverage, auto_open_coverage=not args.no_open)
 
