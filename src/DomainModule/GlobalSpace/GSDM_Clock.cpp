@@ -51,7 +51,7 @@ void Clock::readClocksFromDocument() {
 //------------------------------------------
 // Functions
 
-Nebulite::Constants::Error Clock::addClock([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error Clock::addClock( int argc,  char* argv[]){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

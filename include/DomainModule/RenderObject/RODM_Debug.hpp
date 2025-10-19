@@ -54,7 +54,7 @@ public:
      * @param argv The argument vector: the string to evaluate
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error eval([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error eval( int argc,  char* argv[]);
     static const std::string eval_name;
     static const std::string eval_desc;
 
@@ -65,7 +65,7 @@ public:
      * @param argv The argument vector: None
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error printSrcRect([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error printSrcRect( int argc,  char* argv[]);
     static const std::string printSrcRect_name;
     static const std::string printSrcRect_desc;
 
@@ -76,14 +76,14 @@ public:
      * @param argv The argument vector: None
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error printDstRect([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error printDstRect( int argc,  char* argv[]);
     static const std::string printDstRect_name;
     static const std::string printDstRect_desc;
 
     /**
      * @brief Prints the texture status to cout
      */
-    Nebulite::Constants::Error textureStatus([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error textureStatus( int argc,  char* argv[]);
     static const std::string textureStatus_name;
     static const std::string textureStatus_desc;
 

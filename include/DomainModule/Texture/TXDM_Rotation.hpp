@@ -46,7 +46,7 @@ public:
      * @param argv The argument vector: rotation angle in degrees
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error rotate([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error rotate( int argc,  char* argv[]);
     static const std::string rotate_name;
     static const std::string rotate_desc;
 

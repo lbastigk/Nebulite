@@ -45,7 +45,7 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error set([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error set( int argc,  char* argv[]);
     static const std::string set_name;
     static const std::string set_desc;
 
@@ -56,7 +56,7 @@ public:
      * @param argv The argument vector: <source_key> <destination_key>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error move([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error move( int argc,  char* argv[]);
     static const std::string move_name;
     static const std::string move_desc;
 
@@ -67,7 +67,7 @@ public:
      * @param argv The argument vector: <source_key> <destination_key>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error copy([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error copy( int argc,  char* argv[]);
     static const std::string copy_name;
     static const std::string copy_desc;
 
@@ -78,7 +78,7 @@ public:
      * @param argv The argument vector: <key>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error keyDelete([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error keyDelete( int argc,  char* argv[]);
     static const std::string keyDelete_name;
     static const std::string keyDelete_desc;
 
@@ -89,7 +89,7 @@ public:
      * @param argv The argument vector: <key>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error ensureArray([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error ensureArray( int argc,  char* argv[]);
     static const std::string ensureArray_name;
     static const std::string ensureArray_desc;
 
@@ -100,7 +100,7 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error push_back([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error push_back( int argc,  char* argv[]);
     static const std::string push_back_name;
     static const std::string push_back_desc;
 
@@ -111,7 +111,7 @@ public:
      * @param argv The argument vector: <key>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error pop_back([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error pop_back( int argc,  char* argv[]);
     static const std::string pop_back_name;
     static const std::string pop_back_desc;
 
@@ -122,7 +122,7 @@ public:
      * @param argv The argument vector: <key> <value>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error push_front([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error push_front( int argc,  char* argv[]);
     static const std::string push_front_name;
     static const std::string push_front_desc;
 
@@ -133,7 +133,7 @@ public:
      * @param argv The argument vector: <key>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error pop_front([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error pop_front( int argc,  char* argv[]);
     static const std::string pop_front_name;
     static const std::string pop_front_desc;
 

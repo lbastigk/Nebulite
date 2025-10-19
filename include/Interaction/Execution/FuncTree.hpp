@@ -8,9 +8,9 @@
  * Example usage:
  * ```cpp
  * #include "Interaction/Execution/FuncTree.hpp"
- * int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+ * int main( int argc,  char* argv[]) {
  *     FuncTree<std::string> funcTree("Nebulite", "ok", "Function not found");
- *     funcTree.bindFunction([]([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+ *     funcTree.bindFunction([]( int argc,  char* argv[]) {
  *         // Function implementation
  *         return "Function executed";
  *     }, "myFunction", "This function does something");
@@ -238,7 +238,7 @@ private:
     std::function<Nebulite::Constants::Error()> preParse = nullptr;
 
     // Function pointer type
-    using FunctionPtr = std::function<RETURN_TYPE([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])>;
+    using FunctionPtr = std::function<RETURN_TYPE( int argc,  char* argv[])>;
 
     // Function - Description pair
     struct FunctionInfo {
@@ -316,7 +316,7 @@ private:
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
      */
-    RETURN_TYPE help([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    RETURN_TYPE help( int argc,  char* argv[]);
 
     /**
      * @brief Retrieves a list of all functions and their descriptions.
@@ -714,7 +714,7 @@ bool Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::hasFunction(const 
 // Help function and its helpers
 
 template<typename RETURN_TYPE>
-RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help( int argc,  char* argv[]) {
     //------------------------------------------
     // Case 1: Detailed help for a specific function, category or variable
     if(argc > 1){

@@ -22,7 +22,7 @@ Nebulite::Constants::Error ComplexData::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error ComplexData::query_set([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error ComplexData::query_set( int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
@@ -31,7 +31,7 @@ const std::string ComplexData::query_set_desc = R"(Sets a key from a SQL query r
 Not implemented yet.
 )";
 
-Nebulite::Constants::Error ComplexData::json_set([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error ComplexData::json_set( int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     // Since we have no access to the global space, we cant use the JSON doc cache
     // Instead, we manually load the document to retrieve the key

@@ -16,7 +16,7 @@ Nebulite::Constants::Error General::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error General::eval([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error General::eval( int argc,  char* argv[]){
     // argc/argv to string for evaluation
     std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc, argv);
 
@@ -47,7 +47,7 @@ This evaluates to 'spawn ./Resources/RenderObjects/NAME.json',
 where NAME is the current value of the global variable ToSpawn
 )";
 
-Nebulite::Constants::Error General::exit([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error General::exit( int argc,  char* argv[]){
     // Clear all task queues to prevent further execution
     domain->tasks.script.taskQueue.clear();
     domain->tasks.internal.taskQueue.clear();
@@ -68,7 +68,7 @@ Closes the program with exit code 0 (no error)
 Any queued tasks will be discarded.
 )";
 
-Nebulite::Constants::Error General::wait([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error General::wait( int argc,  char* argv[]){
     if(argc == 2){
         std::istringstream iss(argv[1]);
         iss >> domain->scriptWaitCounter;
@@ -99,7 +99,7 @@ This is useful for:
 - Tool assisted speedruns (TAS)
 )";
 
-Nebulite::Constants::Error General::task([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+Nebulite::Constants::Error General::task( int argc,  char* argv[]) {
     std::cout << "Loading task list from file: " << (argc > 1 ? argv[1] : "none") << std::endl;
 
     // Rollback RNG, loading a task file should not change the RNG state
@@ -173,7 +173,7 @@ Main task:
     maincommand4
 )";
 
-Nebulite::Constants::Error General::echo([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+Nebulite::Constants::Error General::echo( int argc,  char* argv[]) {
     std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
     std::cout << args << std::endl;
     return Nebulite::Constants::ErrorTable::NONE();
@@ -192,7 +192,7 @@ Outputs:
 Hello World!
 )";
 
-Nebulite::Constants::Error General::func_if([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+Nebulite::Constants::Error General::func_if( int argc,  char* argv[]) {
     if (argc < 3) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -229,7 +229,7 @@ Example:
 if '$(eq(1+1,2))' echo Condition is true!
 )";
 
-Nebulite::Constants::Error General::func_assert([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error General::func_assert( int argc,  char* argv[]){
     if (argc < 2) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -268,7 +268,7 @@ assert '$(eq(1+1,3))'    // Critical Error: A custom assertion failed.
 Assertion failed: $(eq(1+1,3)) is not true.
 )";
 
-Nebulite::Constants::Error General::func_return([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error General::func_return( int argc,  char* argv[]){
     std::string str = "";
     for(int i = 1; i < argc; ++i){
         str += argv[i];
@@ -296,7 +296,7 @@ We did not anticipate this happening, weird.
 Critical Error: We did not anticipate this happening, weird.
 )";
 
-Nebulite::Constants::Error General::always([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error General::always( int argc,  char* argv[]){
     if (argc > 1) {
         std::ostringstream oss;
         for (int i = 1; i < argc; ++i) {
@@ -332,7 +332,7 @@ always echo This command runs every frame!
 This will output "This command runs every frame!" on every frame.
 )";
 
-Nebulite::Constants::Error General::alwaysClear([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error General::alwaysClear( int argc,  char* argv[]){
     domain->tasks.always.taskQueue.clear();
     return Nebulite::Constants::ErrorTable::NONE();
 }
@@ -348,7 +348,7 @@ always-clear
 This will remove all commands from the always-taskqueue.
 )";
 
-Nebulite::Constants::Error General::func_for([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error General::func_for( int argc,  char* argv[]){
     std::string funcName = argv[0];
     if(argc > 4){
         std::string varName = argv[1];

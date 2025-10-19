@@ -256,7 +256,7 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::
     }
 }
 
-void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, [[maybe_unused]] const std::string& key, double value, double* target){    
+void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation,  const std::string& key, double value, double* target){    
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation){
         case Nebulite::Interaction::Logic::Assignment::Operation::set:

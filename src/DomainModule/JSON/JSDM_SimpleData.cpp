@@ -19,7 +19,7 @@ Nebulite::Constants::Error SimpleData::update() {
 //------------------------------------------
 // General set/get/remove functions
 
-Nebulite::Constants::Error SimpleData::set([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+Nebulite::Constants::Error SimpleData::set( int argc,  char* argv[]) {
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if(argc < 3) {
         std::cerr << "Error: Too few arguments for set command." << std::endl;
@@ -42,7 +42,7 @@ Usage: set <key> <value>
 Note: All values are stored as strings.
 )";
 
-Nebulite::Constants::Error SimpleData::move([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error SimpleData::move( int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc != 3) {
         std::cerr << "Error: Too few arguments for move command." << std::endl;
@@ -89,7 +89,7 @@ const std::string SimpleData::move_desc = R"(Move data from one key to another.
 Usage: move <source_key> <destination_key>
 )";
 
-Nebulite::Constants::Error SimpleData::copy([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error SimpleData::copy( int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc != 3) {
         std::cerr << "Error: Too few arguments for copy command." << std::endl;
@@ -134,7 +134,7 @@ const std::string SimpleData::copy_desc = R"(Copy data from one key to another.
 Usage: copy <source_key> <destination_key>
 )";
 
-Nebulite::Constants::Error SimpleData::keyDelete([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error SimpleData::keyDelete( int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc != 2) {
         std::cerr << "Error: Too few arguments for delete command." << std::endl;
@@ -152,7 +152,7 @@ Usage: keyDelete <key>
 
 //------------------------------------------
 // Array manipulation functions
-Nebulite::Constants::Error SimpleData::ensureArray([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+Nebulite::Constants::Error SimpleData::ensureArray( int argc,  char* argv[]) {
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 2) {
         std::cerr << "Error: Too few arguments for ensureArray command." << std::endl;
@@ -194,7 +194,7 @@ const std::string SimpleData::ensureArray_desc = R"(Ensure that a key is an arra
 Usage: ensure-array <key>
 )";
 
-Nebulite::Constants::Error SimpleData::push_back([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error SimpleData::push_back( int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc > 3) {
         std::cerr << "Error: Too many arguments for push_front command." << std::endl;
@@ -233,7 +233,7 @@ const std::string SimpleData::push_back_desc = R"(Push a value to the back of an
 Usage: push-back <key> <value>
 )";
 
-Nebulite::Constants::Error SimpleData::pop_back([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error SimpleData::pop_back( int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 2) {
         std::cerr << "Error: Too few arguments for push_back command." << std::endl;
@@ -272,7 +272,7 @@ const std::string SimpleData::pop_back_desc = R"(Pop a value from the back of an
 Usage: pop-back <key>
 )";
 
-Nebulite::Constants::Error SimpleData::push_front([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error SimpleData::push_front( int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc > 3) {
         std::cerr << "Error: Too many arguments for push_front command." << std::endl;
@@ -334,7 +334,7 @@ const std::string SimpleData::push_front_desc = R"(Push a value to the front of 
 Usage: push-front <key> <value>
 )";
 
-Nebulite::Constants::Error SimpleData::pop_front([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
+Nebulite::Constants::Error SimpleData::pop_front( int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 2) {
         std::cerr << "Error: Too few arguments for pop_front command." << std::endl;

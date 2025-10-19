@@ -3,7 +3,7 @@
  * @brief Defines the Nebulite::Constants::Error for standardized error codes
  * and the Nebulite::Constants::ErrorTable class for mapping error codes to their string descriptions.
  *
- * Functions bound via the FuncTree system utilize a `Nebulite::Constants::Error foo([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])` signature.
+ * Functions bound via the FuncTree system utilize a `Nebulite::Constants::Error foo( int argc,  char* argv[])` signature.
  *
  * Usage:
  *   - Functions such as Nebulite::resolveTaskQueue executes main tree functions

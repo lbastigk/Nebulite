@@ -52,7 +52,7 @@ public:
      * @todo: errorlog on causes crash with wine
      * wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
      */
-    Nebulite::Constants::Error errorlog([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error errorlog( int argc,  char* argv[]);
     static const std::string errorlog_name;
     static const std::string errorlog_desc;
 
@@ -63,7 +63,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error clearConsole([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error clearConsole( int argc,  char* argv[]);
     static const std::string clearConsole_name;
     static const std::string clearConsole_desc;
 
@@ -75,7 +75,7 @@ public:
      * Default is "global.log.jsonc" if no name was provided
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error log_global([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error log_global( int argc,  char* argv[]);
     static const std::string log_global_name;
     static const std::string log_global_desc;
 
@@ -87,7 +87,7 @@ public:
      * Default is "state.log.jsonc" if no name was provided
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error log_state([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error log_state( int argc,  char* argv[]);
     static const std::string log_state_name;
     static const std::string log_state_desc;
 
@@ -100,7 +100,7 @@ public:
      * Default is segfault if no argument was provided
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error crash([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error crash( int argc,  char* argv[]);
     static const std::string crash_name;
     static const std::string crash_desc;
 
@@ -111,7 +111,7 @@ public:
      * @param argv The argument vector: <string>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error error([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error error( int argc,  char* argv[]);
     static const std::string error_name;
     static const std::string error_desc;
 
@@ -122,7 +122,7 @@ public:
      * @param argv The argument vector: <string>
      * @return The specified value of Error. 
      */
-    Nebulite::Constants::Error warn([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error warn( int argc,  char* argv[]);
     static const std::string warn_name;
     static const std::string warn_desc;
 
@@ -133,7 +133,7 @@ public:
      * @param argv The argument vector: <string>
      * @return The specified value of Error.
      */
-    Nebulite::Constants::Error critical([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error critical( int argc,  char* argv[]);
     static const std::string critical_name;
     static const std::string critical_desc;
 
@@ -144,7 +144,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error waitForInput([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error waitForInput( int argc,  char* argv[]);
     static const std::string waitForInput_name;
     static const std::string waitForInput_desc;
 
@@ -155,7 +155,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error standardfile_renderobject([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error standardfile_renderobject( int argc,  char* argv[]);
     static const std::string standardfile_renderobject_name;
     static const std::string standardfile_renderobject_desc;
 

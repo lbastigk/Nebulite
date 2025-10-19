@@ -9,6 +9,9 @@
             "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/tmp/build_${presetName}",
             "installDir": "${sourceDir}/bin",
+            "warnings": {
+                "unusedCli": false
+            },
             "cacheVariables": {
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }

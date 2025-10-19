@@ -43,7 +43,7 @@ public:
      * @param argv The argument vector: None.
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error debug_collisionDetect_function([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error debug_collisionDetect_function( int argc,  char* argv[]);
     static const std::string debug_collisionDetect_function_name;
     static const std::string debug_collisionDetect_function_desc;
 
@@ -54,7 +54,7 @@ public:
      * @param argv The argument vector: None.
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error debug_collisionDetect_category([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error debug_collisionDetect_category( int argc,  char* argv[]);
     static const std::string debug_collisionDetect_category_name;
     static const std::string debug_collisionDetect_category_desc;
 
@@ -65,7 +65,7 @@ public:
      * @param argv The argument vector: None.
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error debug_collisionDetect_variable([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    Nebulite::Constants::Error debug_collisionDetect_variable( int argc,  char* argv[]);
     static const std::string debug_collisionDetect_variable_name;
     static const std::string debug_collisionDetect_variable_desc;
 
