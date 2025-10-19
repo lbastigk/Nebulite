@@ -171,7 +171,7 @@ def generate_coverage_report(coverage_dir: str = "tmp/coverage_data", output_dir
         filtered_lcov = os.path.join(output_dir, "coverage_filtered.info")
         subprocess.run([
             "lcov", "--remove", lcov_file,
-            "*/external/*", "*/.build/*", "*/usr/include/*", "*/usr/local/*",
+            "*/external/*", "*/tmp/*", "*/usr/include/*", "*/usr/local/*", "*/usr/lib/*",
             "--output-file", filtered_lcov,
             "--ignore-errors", "unused"
         ], check=True, capture_output=True)
@@ -193,7 +193,7 @@ def generate_coverage_report(coverage_dir: str = "tmp/coverage_data", output_dir
             try:
                 import webbrowser
                 report_path = os.path.abspath(f"{output_dir}/html/index.html")
-                print(f"🚀 Opening coverage report in browser...")
+                print(f"Opening coverage report in browser...")
                 webbrowser.open(f"file://{report_path}")
             except Exception as e:
                 print(f"Note: Could not automatically open browser: {e}")
@@ -418,6 +418,13 @@ def main():
     parser.add_argument('--coverage', action='store_true', help='Enable code coverage analysis')
     parser.add_argument('--no-open', action='store_true', help='Don\'t automatically open coverage report')
     args = parser.parse_args()
+
+    # See if directory Resources exists. If not, tell user to install resources before testing
+    if not os.path.exists('Resources'):
+        print("Error: Resources directory not found. Please install resources before running tests.")
+        print("Please run:")
+        print("Scripts/AssetCreation/create_resources_directory.sh")
+        sys.exit(1)
 
     config = load_tests_config(args.config)
     run_testsuite(config, stop_on_fail=args.stop, verbose=args.verbose, enable_coverage=args.coverage, auto_open_coverage=not args.no_open)

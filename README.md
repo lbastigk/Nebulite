@@ -26,22 +26,21 @@
 
 <!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
 
-- [Nebulite Game Engine](#nebulite-game-engine)
-   * [Overview](#overview)
-   * [Quick Start](#quick-start)
-   * [Learn More](#learn-more)
-   * [Core Concepts](#core-concepts)
-      + [Expression System](#expression-system)
-      + [Invoke System  ](#invoke-system)
-      + [Runtime Modes](#runtime-modes)
-   * [Directory Structure](#directory-structure)
-   * [Platform Support & Dependencies](#platform-support-dependencies)
-   * [Testing](#testing)
-   * [Languages](#languages)
-      + [Nebulite Script](#nebulite-script)
-      + [Nebulite Logic](#nebulite-logic)
-   * [Contributing](#contributing)
-   * [License](#license)
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Learn More](#learn-more)
+- [Core Concepts](#core-concepts)
+   * [Expression System](#expression-system)
+   * [Invoke System  ](#invoke-system)
+   * [Runtime Modes](#runtime-modes)
+- [Directory Structure](#directory-structure)
+- [Platform Support & Dependencies](#platform-support-dependencies)
+- [Testing](#testing)
+- [Languages](#languages)
+   * [Nebulite Script](#nebulite-script)
+   * [Nebulite Logic](#nebulite-logic)
+- [Contributing](#contributing)
+- [License](#license)
 
 <!-- TOC end -->
 
@@ -60,10 +59,32 @@ The goal: quickly prototype and iterate on emergent object logic without rebuild
 ## Quick Start
 
 1. Clone & enter repo
-2. Install bundled dependencies (SDL variants, Abseil, etc.) and build the binaries:
-  ```bash
-  ./install.sh
-  ```
+```bash
+  git clone https://github.com/lbastigk/Nebulite && cd Nebulite
+```
+2. Install dependencies, if necessary
+```bash
+  Scripts/install_dependencies.sh
+```
+2. Build binaries
+```bash
+  # Linux
+  cmake --preset linux-debug && cmake --build --preset linux-debug
+  cmake --preset linux-release && cmake --build --preset linux-release
+  cmake --preset linux-coverage && cmake --build --preset linux-coverage
+
+  # Windows
+  cmake --preset windows-debug && cmake --build --preset windows-debug
+  cmake --preset windows-release && cmake --build --preset windows-release
+
+  # Mac (Work in Progress)
+  cmake --preset macos-debug && cmake --build --preset macos-debug
+  cmake --preset macos-release && cmake --build --preset macos-release
+```
+3. Download Resources
+```bash
+  Scripts/AssetCreation/create_resources_directory.sh
+```
 3. Run any script:
   ```bash
   ./bin/Nebulite task TaskFiles/Benchmarks/gravity.nebs 
@@ -144,9 +165,7 @@ Nebulite/
 ├── src/                      # Engine source code
 ├── TaskFiles/                # Example scripts
 ├── Tools/                    # CMake Toolchains, Test definitions
-├── Unimplemented/            # Unimplemented DomainModules
-├── install.sh                # Installation of Repository
-└── build.sh                  # Compiling binaries
+└── Unimplemented/            # Unimplemented DomainModules
 ```
 
 <!-- TOC --><a name="platform-support-dependencies"></a>
@@ -156,7 +175,7 @@ Nebulite/
 
 **Requirements**: CMake 3.16+, C++20 compiler (GCC 11+/Clang 14+), Python 3.8+ (for testing and mock asset creation)
 
-**Dependencies** (bundled via `install.sh`):
+**Dependencies**
 - SDL2, SDL_ttf, SDL_image - rendering and input
 - RapidJSON - JSON parsing  
 - Abseil - fast hash maps
