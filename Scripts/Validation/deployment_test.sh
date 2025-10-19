@@ -21,7 +21,9 @@ CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 echo "Current branch: $CURRENT_BRANCH"
 
 # Create a temporary directory for cloning the repository
-TEMP_DIR=$(mktemp -d)
+TEMP_DIR=tmp/deployment_test
+rm -rf $TEMP_DIR
+mkdir -p $TEMP_DIR
 echo "Cloning repository into temporary directory: $TEMP_DIR"
 
 # Clone the repository and switch to the current branch
@@ -30,7 +32,12 @@ git clone https://github.com/lbastigk/Nebulite.git
 cd Nebulite || exit 1
 git checkout $CURRENT_BRANCH
 
+# Install resources
+Scripts/AssetCreation/create_resources_directory.sh
+
 # Install the application and run tests
-echo "Running installation script..."
-chmod +x ./install.sh
-./install.sh
+cmake --preset linux-debug && cmake --build --preset linux-debug
+cmake --preset linux-release && cmake --build --preset linux-release
+cmake --preset windows-debug && cmake --build --preset windows-debug
+cmake --preset windows-release && cmake --build --preset windows-release
+python Scripts/Validation/json_syntax_and_references.py && python Scripts/TestingSuite.py --stop --verbose
