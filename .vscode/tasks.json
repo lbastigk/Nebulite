@@ -135,7 +135,6 @@
                 "kind": "test",
                 "isDefault": false
             },
-            "dependsOn": "[COVERAGE BUILD]",
             "problemMatcher": [],
             "detail": "Run tests with coverage data collection and generate coverage report."
         },
