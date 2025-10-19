@@ -15,6 +15,7 @@
     },
     "tests": [
         "Tools/Tests/basics.json",
+        "Tools/Tests/binding_collision_detection.json",
         "Tools/Tests/time.json",
         "Tools/Tests/expressions.json",
         "Tools/Tests/json_array.json",
