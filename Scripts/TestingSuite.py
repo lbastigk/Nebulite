@@ -193,7 +193,7 @@ def generate_coverage_report(coverage_dir: str = "tmp/coverage_data", output_dir
             try:
                 import webbrowser
                 report_path = os.path.abspath(f"{output_dir}/html/index.html")
-                print(f"🚀 Opening coverage report in browser...")
+                print(f"Opening coverage report in browser...")
                 webbrowser.open(f"file://{report_path}")
             except Exception as e:
                 print(f"Note: Could not automatically open browser: {e}")
