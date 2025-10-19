@@ -90,7 +90,7 @@ public:
 
         // Function bindings
         bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_function, debug_collisionDetect_function_name, &debug_collisionDetect_function_desc);
-        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_category,  debug_collisionDetect_category_name,  &debug_collisionDetect_category_desc);
+        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_category, debug_collisionDetect_category_name, &debug_collisionDetect_category_desc);
         bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_variable, debug_collisionDetect_variable_name, &debug_collisionDetect_variable_desc);
     }
 
