@@ -157,7 +157,7 @@ public:
      * false if a category with the same name already exists.
      */
     bool bindCategory(const std::string name, const std::string* helpDescription){
-        if(categorys.find(name) != categorys.end()){
+        if(categories.find(name) != categories.end()){
             // Category already exists
             /**
              * @note Warning is suppressed here, 
@@ -167,7 +167,40 @@ public:
             // std::cerr << "Warning: A category with the name '" << name << "' already exists in the FuncTree '" << TreeName << "'." << std::endl;
             return false;
         }
-        categorys[name] = {std::make_unique<FuncTree<RETURN_TYPE>>(name, _standard, _functionNotFoundError), helpDescription};
+        // Split based on whitespaces
+        std::vector<std::string> categoryStructure = Nebulite::Utility::StringHandler::split(name, ' ');
+        size_t depth = categoryStructure.size();
+
+        absl::flat_hash_map<std::string, Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::category>* currentCategoryMap = &categories;
+        for(size_t idx = 0; idx < depth; idx++){
+            std::string currentCategoryName = categoryStructure[idx];
+
+            if(idx < depth -1){
+                // Not yet at last category
+                if(currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()){
+                    // Category exists, go deeper
+                    currentCategoryMap = &(*currentCategoryMap)[currentCategoryName].tree->categories;
+                }
+                else{
+                    // Category does not exist, throw error
+                    std::cerr << "Error: Cannot create category '" << name << "' because parent category '"
+                              << currentCategoryName << "' does not exist." << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+            }
+            else{
+                // Last category, create it, if it doesnt exist yet
+                if(currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()){
+                    // Category exists, throw error
+                    std::cerr << "---------------------------------------------------------------\n";
+                    std::cerr << "A Nebulite FuncTree initialization failed!\n";
+                    std::cerr << "Error: Cannot create category '" << name << "' because it already exists." << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                // Create category
+                (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree<RETURN_TYPE>>(currentCategoryName, _standard, _functionNotFoundError), helpDescription};
+            }
+        }
         return true;
     }
 
@@ -247,9 +280,9 @@ private:
     };
 
     /**
-     * @brief Map of categorys within the FuncTree.
+     * @brief Map of categories within the FuncTree.
      */
-    absl::flat_hash_map<std::string, category> categorys;
+    absl::flat_hash_map<std::string, category> categories;
 
     //------------------------------------------
     // Functions
@@ -319,7 +352,7 @@ private:
     void find(const std::string& name, bool& funcFound, auto& funcIt,  bool& subFound, auto& subIt, bool& varFound, auto& varIt);
 
     /**
-     * @brief Displays general help for all functions, categorys, and variables.
+     * @brief Displays general help for all functions, categories, and variables.
      */
     void generalHelp();
 };
@@ -333,45 +366,50 @@ private:
 template<typename RETURN_TYPE>
 template<typename ClassType>
 void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(ClassType* obj, RETURN_TYPE (ClassType::*method)(int, char**), const std::string& name, const std::string* helpDescription) {
-    // If the name has a whitespace, the function has to be bound to a category
+    // If the name has a whitespace, the function has to be bound to a category hierarchically
     if(name.find(' ') != name.npos){
-        // Split the name by whitespace
-        auto parts = Nebulite::Utility::StringHandler::split(name, ' ');
-        if(parts.size() < 2){
+        // Split the name by whitespace to get the hierarchical path
+        std::vector<std::string> pathStructure = Nebulite::Utility::StringHandler::split(name, ' ');
+        if(pathStructure.size() < 2){
             std::cerr << "Error: Invalid function name '" << name << "'." << std::endl;
             return;
         }
-        std::string categoryName = parts[0];
 
-        // We re-join the rest of the parts to form the argument for the category
-        // If there are more than 2 parts, the category will create a new category
-        std::string functionName = parts[1];
-        for(long unsigned int i = 2; i < parts.size(); i++){
-            functionName += parts[i];
+        // Navigate through the category hierarchy
+        absl::flat_hash_map<std::string, Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::category>* currentCategoryMap = &categories;
+        FuncTree<RETURN_TYPE>* targetTree = this;
+        
+        // Navigate to the target category (all parts except the last one are categories)
+        for(size_t idx = 0; idx < pathStructure.size() - 1; idx++){
+            std::string currentCategoryName = pathStructure[idx];
+            
+            // Check if the category exists at the current level
+            if(currentCategoryMap->find(currentCategoryName) == currentCategoryMap->end()){
+                // Category does not exist, throw an error
+                std::cerr << "---------------------------------------------------------------" << std::endl;
+                std::cerr << "A Nebulite FuncTree binding failed!" << std::endl;
+                std::cerr << "Error: Category '" << currentCategoryName << "' does not exist when trying to bind function '" << name << "'." << std::endl;
+                std::cerr << "Please create the category hierarchy first using bindCategory()." << std::endl;
+                std::cerr << "This Tree: " << TreeName << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            
+            // Move to the next level in the hierarchy
+            targetTree = (*currentCategoryMap)[currentCategoryName].tree.get();
+            currentCategoryMap = &targetTree->categories;
         }
 
-        // Check if the category exists
-        if(categorys.find(categoryName) == categorys.end()){
-            // If the category does not exist, throw an exception
-            // This only fails on an improper function binding,
-            // meaning we tried to bind a function to a category that does not exist
-            // exit the entire program
-            std::cerr << "---------------------------------------------------------------" << std::endl;
-            std::cerr << "A Nebulite FuncTree binding failed!" << std::endl;;
-            std::cerr << "Error: Category '" << categoryName << "' does not exist when trying to bind function '" << name << "'." << std::endl;;
-            std::cerr << "Please create the category first using bindCategory()." << std::endl;;
-            std::cerr << "This Tree: " << TreeName << std::endl;
-            exit(EXIT_FAILURE);
-        }
+        // The last part is the actual function name
+        std::string functionName = pathStructure.back();
+        
+        // Bind the function to the target tree (which is the deepest category)
+        targetTree->bindFunction(obj, method, functionName, helpDescription);
 
-        // Bind the function to the category
-        categorys[categoryName].tree->bindFunction(obj, method, functionName, helpDescription);
-
-        return; // Function bound to category, return
+        return; // Function bound to hierarchical category, return
     }
 
     // Make sure the function to bind is not a category
-    for (const auto& [categoryName, category] : categorys) {
+    for (const auto& [categoryName, category] : categories) {
         if (categoryName == name) {
             std::cerr << "---------------------------------------------------------------" << std::endl;
             std::cerr << "A Nebulite FuncTree binding failed!" << std::endl;
@@ -427,6 +465,19 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(Class
 
 template<typename RETURN_TYPE>
 void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindVariable(bool* varPtr, const std::string& name, const std::string* helpDescription) {
+    // Make sure there are no whitespaces in the variable name
+    if (name.find(' ') != name.npos) {
+        std::cerr << "Error: Variable name '" << name << "' cannot contain whitespaces." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // Make sure the variable isnt bound yet
+    if (variables.find(name) != variables.end()) {
+        std::cerr << "Error: Variable '" << name << "' is already bound." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    
+    // Bind the variable
     variables[name] = VariableInfo{varPtr, helpDescription};
 }
 
@@ -450,8 +501,8 @@ std::vector<std::pair<std::string, const std::string*>> Nebulite::Interaction::E
         }
     }
 
-    // Get just the names of the categorys
-    for (const auto& [categoryName, category] : categorys) {
+    // Get just the names of the categories
+    for (const auto& [categoryName, category] : categories) {
         allFunctions.emplace_back(categoryName, category.description);
     }
 
@@ -597,13 +648,13 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::executeFunc
         auto& [functionPtr, description] = functionPosition->second;
         return functionPtr(argc, argv);  // Call the function
     } else {
-        // Find function name in categorys
-        if(categorys.find(function) != categorys.end()){
+        // Find function name in categories
+        if(categories.find(function) != categories.end()){
             std::string cmd = "";
             for(int i = 0; i < argc; i++){
                 cmd += std::string(argv[i]) + " ";
             }
-            return categorys[function].tree->parseStr(cmd);
+            return categories[function].tree->parseStr(cmd);
         }
         else{
             std::cerr << "Function '" << function << "' not found in FuncTree " << TreeName << " or its SubTrees!\n";
@@ -612,7 +663,7 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::executeFunc
                 std::cerr << "argv[" << i << "] = '" << argv[i] << "'\n";
             }
             std::cerr << "Available functions: " << functions.size() << std::endl;
-            std::cerr << "Available SubTrees:  " << categorys.size()  << std::endl;
+            std::cerr << "Available SubTrees:  " << categories.size()  << std::endl;
             return _functionNotFoundError;  // Return error if function not found
         }
     }
@@ -656,7 +707,7 @@ bool Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::hasFunction(const 
     
     // See if the function is linked
     return  (functions.find(function) != functions.end()) || 
-            (categorys.find(function)  != categorys.end());
+            (categories.find(function)  != categories.end());
 }
 
 //------------------------------------------
@@ -675,7 +726,7 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help([[mayb
     }
 
     //------------------------------------------
-    // Case 2: General help for all functions, categorys and variables
+    // Case 2: General help for all functions, categories and variables
     generalHelp();
     
     return _standard;
@@ -689,7 +740,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::specificHelp(std::
     bool subFound = false;
     bool varFound = false;
     auto funcIt = functions.find(funcName);
-    auto subIt = categorys.find(funcName);
+    auto subIt = categories.find(funcName);
     auto varIt = variables.find(funcName);
     find(funcName, funcFound, funcIt, subFound, subIt, varFound, varIt);
 
@@ -786,13 +837,13 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::find(const std::st
     }
 
     // Categorys
-    if(subIt != categorys.end()){subFound = true;}
+    if(subIt != categories.end()){subFound = true;}
     else{
         for(auto& inheritedTree : inheritedTrees){
             if(inheritedTree != nullptr){
-                subIt = inheritedTree->categorys.find(name);
+                subIt = inheritedTree->categories.find(name);
             }
-            if(subIt != inheritedTree->categorys.end()){
+            if(subIt != inheritedTree->categories.end()){
                 subFound = true;
                 break; // Found in inherited tree, stop searching
             }
