@@ -171,7 +171,7 @@ def generate_coverage_report(coverage_dir: str = "tmp/coverage_data", output_dir
         filtered_lcov = os.path.join(output_dir, "coverage_filtered.info")
         subprocess.run([
             "lcov", "--remove", lcov_file,
-            "*/external/*", "*/.build/*", "*/usr/include/*", "*/usr/local/*",
+            "*/external/*", "*/tmp/*", "*/usr/include/*", "*/usr/local/*", "*/usr/lib/*",
             "--output-file", filtered_lcov,
             "--ignore-errors", "unused"
         ], check=True, capture_output=True)
