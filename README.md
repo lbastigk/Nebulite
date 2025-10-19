@@ -60,10 +60,17 @@ The goal: quickly prototype and iterate on emergent object logic without rebuild
 ## Quick Start
 
 1. Clone & enter repo
-2. Install bundled dependencies (SDL variants, Abseil, etc.) and build the binaries:
+2. Build binaries:
   ```bash
-  ./install.sh
+  cmake --preset linux-debug && cmake --build --preset linux-debug
+  cmake --preset linux-release && cmake --build --preset linux-release
+  cmake --preset windows-debug && cmake --build --preset windows-debug
+  cmake --preset windows-release && cmake --build --preset windows-release
   ```
+3. Download Resources
+```bash
+  Scripts/AssetCreation/create_resources_directory.sh
+```
 3. Run any script:
   ```bash
   ./bin/Nebulite task TaskFiles/Benchmarks/gravity.nebs 
