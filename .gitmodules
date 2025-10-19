@@ -19,9 +19,3 @@
 [submodule "external/abseil"]
 	path = external/abseil
 	url = https://github.com/abseil/abseil-cpp.git
-[submodule "external/tinyexpr"]
-	path = external/tinyexpr
-	url = https://github.com/codeplea/tinyexpr.git
-[submodule "external/abseil"]
-	path = external/abseil
-	url = https://github.com/abseil/abseil-cpp.git
