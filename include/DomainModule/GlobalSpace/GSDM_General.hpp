@@ -163,7 +163,7 @@ public:
     static const std::string alwaysClear_desc;
 
     //------------------------------------------
-    // Subtree names
+    // Category names
 
 
     //------------------------------------------

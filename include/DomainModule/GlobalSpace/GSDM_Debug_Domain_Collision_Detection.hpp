@@ -48,15 +48,15 @@ public:
     static const std::string debug_collisionDetect_function_desc;
 
     /**
-     * @brief Tests collision detection functionalities of subtrees.
+     * @brief Tests collision detection functionalities of categorys.
      * 
      * @param argc The argument count
      * @param argv The argument vector: None.
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error debug_collisionDetect_subtree([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
-    static const std::string debug_collisionDetect_subtree_name;
-    static const std::string debug_collisionDetect_subtree_desc;
+    Nebulite::Constants::Error debug_collisionDetect_category([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]);
+    static const std::string debug_collisionDetect_category_name;
+    static const std::string debug_collisionDetect_category_desc;
 
     /**
      * @brief Tests collision detection functionalities of variables.
@@ -70,7 +70,7 @@ public:
     static const std::string debug_collisionDetect_variable_desc;
 
     //------------------------------------------
-    // Subtree names
+    // Category names
     static const std::string debug_name;
     static const std::string debug_desc;
 
@@ -84,13 +84,13 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug_Domain_Collision_Detection){
-        // Bind the subtrees for the functions
-        bindSubtree(debug_name, &debug_desc);
-        bindSubtree(collisionDetect_name, &collisionDetect_desc);
+        // Bind the categorys for the functions
+        bindCategory(debug_name, &debug_desc);
+        bindCategory(collisionDetect_name, &collisionDetect_desc);
 
         // Function bindings
         bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_function, debug_collisionDetect_function_name, &debug_collisionDetect_function_desc);
-        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_subtree,  debug_collisionDetect_subtree_name,  &debug_collisionDetect_subtree_desc);
+        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_category,  debug_collisionDetect_category_name,  &debug_collisionDetect_category_desc);
         bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_variable, debug_collisionDetect_variable_name, &debug_collisionDetect_variable_desc);
     }
 

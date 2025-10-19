@@ -160,7 +160,7 @@ public:
     static const std::string standardfile_renderobject_desc;
 
     //------------------------------------------
-    // Subtree names
+    // Category names
     static const std::string log_name;
     static const std::string log_desc;
 
@@ -184,11 +184,11 @@ public:
         bindFunction(&Debug::critical,          critical_name,                 &critical_desc);
         bindFunction(&Debug::waitForInput,      waitForInput_name,             &waitForInput_desc);
 
-        bindSubtree(log_name, &log_desc);
+        bindCategory(log_name, &log_desc);
         bindFunction(&Debug::log_global,        log_global_name,               &log_global_desc);
         bindFunction(&Debug::log_state,         log_state_name,                &log_state_desc);
 
-        bindSubtree(standardfile_name, &standardfile_desc);
+        bindCategory(standardfile_name, &standardfile_desc);
         bindFunction(&Debug::standardfile_renderobject,     standardfile_renderobject_name,   &standardfile_renderobject_desc);
     }
 

@@ -8,7 +8,7 @@ Nebulite::Constants::Error Debug_Domain_Collision_Detection::update() {
 }
 
 //------------------------------------------
-// Subtree names
+// Category names
 const std::string Debug_Domain_Collision_Detection::debug_name = "debug";
 const std::string Debug_Domain_Collision_Detection::debug_desc = "DomainModule for special debugging capabilities within the GlobalSpace.";
 
@@ -31,17 +31,17 @@ Tries to bind a function name to globalspace that is already registered, expecti
 Usage: debug collision-detect function
 )";
 
-Nebulite::Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_subtree([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
-    // This will fail, as the subtree name is already registered in GlobalSpace
-    bindSubtree(debug_collisionDetect_subtree_name, &debug_collisionDetect_subtree_desc);
+Nebulite::Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_category([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+    // This will fail, as the category name is already registered in GlobalSpace
+    bindCategory(debug_collisionDetect_category_name, &debug_collisionDetect_category_desc);
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Debug_Domain_Collision_Detection::debug_collisionDetect_subtree_name = "debug collision-detect subtree";
-const std::string Debug_Domain_Collision_Detection::debug_collisionDetect_subtree_desc = R"(Tests collision detection of subtrees
+const std::string Debug_Domain_Collision_Detection::debug_collisionDetect_category_name = "debug collision-detect category";
+const std::string Debug_Domain_Collision_Detection::debug_collisionDetect_category_desc = R"(Tests collision detection of categorys
 
-Tries to bind a subtree that is already registered in globalspace, expecting a collision error.
+Tries to bind a category that is already registered in globalspace, expecting a collision error.
 
-Usage: debug collision-detect subtree
+Usage: debug collision-detect category
 )";
 
 Nebulite::Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_variable([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {

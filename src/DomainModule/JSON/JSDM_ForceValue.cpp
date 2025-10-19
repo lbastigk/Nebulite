@@ -5,7 +5,7 @@
 namespace Nebulite::DomainModule::JSON {
 
 const std::string ForceValue::force_name = "force";
-const std::string ForceValue::force_desc = R"(Subtree for forcing variables to specific values.
+const std::string ForceValue::force_desc = R"(Category for forcing variables to specific values.
 This is useful for testing or overriding configuration values.
 )";
 

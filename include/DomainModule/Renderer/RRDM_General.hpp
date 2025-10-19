@@ -249,7 +249,7 @@ public:
     static const std::string selectedObject_Parse_desc;
 
     //------------------------------------------
-    // Subtree names
+    // Category names
     static const std::string cam_name;
     static const std::string cam_desc;
 
@@ -279,15 +279,15 @@ public:
         bindFunction(&General::snapshot,            snapshot_name,         &snapshot_desc);
         bindFunction(&General::beep,                beep_name,             &beep_desc);
 
-        bindSubtree(cam_name, &cam_desc);
+        bindCategory(cam_name, &cam_desc);
         bindFunction(&General::cam_move,             cam_move_name,         &cam_move_desc);
         bindFunction(&General::cam_set,              cam_set_name,          &cam_set_desc);
 
-        bindSubtree(selectedObject_name, &selectedObject_desc);
+        bindCategory(selectedObject_name, &selectedObject_desc);
         bindFunction(&General::selectedObject_get,   selectedObject_get_name,   &selectedObject_get_desc);
         bindFunction(&General::selectedObject_Parse, selectedObject_Parse_name, &selectedObject_Parse_desc);
 
-        bindSubtree(env_name, &env_desc);
+        bindCategory(env_name, &env_desc);
         bindFunction(&General::env_load,             env_load_name,         &env_load_desc);
         bindFunction(&General::env_deload,           env_deload_name,       &env_deload_desc);
     }

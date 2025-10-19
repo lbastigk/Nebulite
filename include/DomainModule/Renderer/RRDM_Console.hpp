@@ -56,7 +56,7 @@ public:
     static const std::string consoleZoom_desc;
 
     //------------------------------------------
-    // Subtree strings
+    // Category strings
 
     static const std::string console_name;
     static const std::string console_desc;
@@ -70,7 +70,7 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Console){
         // we cannot do much here, since renderer might not be initialized yet
         // so we do the actual initialization in update() when needed
-        bindSubtree(console_name, &console_desc);
+        bindCategory(console_name, &console_desc);
         bindFunction(&Console::consoleZoom, consoleZoom_name, &consoleZoom_desc);
     }
 private: 

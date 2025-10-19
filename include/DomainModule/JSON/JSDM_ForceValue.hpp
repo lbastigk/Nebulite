@@ -58,7 +58,7 @@ public:
     static const std::string force_clear_desc;
 
     //------------------------------------------
-    // Subtree names
+    // Category names
     static const std::string force_name;
     static const std::string force_desc;
 
@@ -70,7 +70,7 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, ForceValue){
         // Binding
-        bindSubtree(force_name, &force_desc);
+        bindCategory(force_name, &force_desc);
         bindFunction(&ForceValue::force_set,      force_set_name,      &force_set_desc);
         bindFunction(&ForceValue::force_clear,    force_clear_name,    &force_clear_desc);
     }

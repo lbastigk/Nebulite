@@ -358,7 +358,7 @@ void Console::processMode(){
 }
 
 //------------------------------------------
-// Subtree strings
+// Category strings
 
 const std::string Console::console_name = "console";
 const std::string Console::console_desc = R"(Console commands and settings.

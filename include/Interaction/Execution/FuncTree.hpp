@@ -147,27 +147,27 @@ public:
     // Binding functions and variables
 
     /**
-     * @brief Creates a subtree.
+     * @brief Creates a category.
      * 
-     * A subtree acts a "function bundler" to the main tree.
+     * A category acts a "function bundler" to the main tree.
      * 
-     * @param name Name of the subtree
-     * @param description Description of the subtree, shown in the help command. First line is shown in the general help, full description in detailed help
-     * @return true if the subtree was created successfully, 
-     * false if a subtree with the same name already exists.
+     * @param name Name of the category
+     * @param description Description of the category, shown in the help command. First line is shown in the general help, full description in detailed help
+     * @return true if the category was created successfully, 
+     * false if a category with the same name already exists.
      */
-    bool bindSubtree(const std::string name, const std::string* helpDescription){
-        if(subtrees.find(name) != subtrees.end()){
-            // Subtree already exists
+    bool bindCategory(const std::string name, const std::string* helpDescription){
+        if(categorys.find(name) != categorys.end()){
+            // Category already exists
             /**
              * @note Warning is suppressed here, 
              * as with different modules we might need to call this in each module, 
-             * just to make sure the subtree exists
+             * just to make sure the category exists
              */
-            // std::cerr << "Warning: A subtree with the name '" << name << "' already exists in the FuncTree '" << TreeName << "'." << std::endl;
+            // std::cerr << "Warning: A category with the name '" << name << "' already exists in the FuncTree '" << TreeName << "'." << std::endl;
             return false;
         }
-        subtrees[name] = {std::make_unique<FuncTree<RETURN_TYPE>>(name, _standard, _functionNotFoundError), helpDescription};
+        categorys[name] = {std::make_unique<FuncTree<RETURN_TYPE>>(name, _standard, _functionNotFoundError), helpDescription};
         return true;
     }
 
@@ -238,18 +238,18 @@ private:
     std::vector<FuncTree<RETURN_TYPE>*> inheritedTrees;
 
     /**
-     * @struct subtree
-     * @brief Represents a subtree within the FuncTree with its description.
+     * @struct category
+     * @brief Represents a category within the FuncTree with its description.
      */
-    struct subtree {
+    struct category {
         std::unique_ptr<FuncTree<RETURN_TYPE>> tree;
         const std::string* description;
     };
 
     /**
-     * @brief Map of subtrees within the FuncTree.
+     * @brief Map of categorys within the FuncTree.
      */
-    absl::flat_hash_map<std::string, subtree> subtrees;
+    absl::flat_hash_map<std::string, category> categorys;
 
     //------------------------------------------
     // Functions
@@ -308,7 +308,7 @@ private:
     // Splitted help functions for better readability
     
     /**
-     * @brief Displays detailed help for a specific function, subtree, or variable.
+     * @brief Displays detailed help for a specific function, category, or variable.
      */
     void specificHelp(std::string funcName);
 
@@ -319,7 +319,7 @@ private:
     void find(const std::string& name, bool& funcFound, auto& funcIt,  bool& subFound, auto& subIt, bool& varFound, auto& varIt);
 
     /**
-     * @brief Displays general help for all functions, subtrees, and variables.
+     * @brief Displays general help for all functions, categorys, and variables.
      */
     void generalHelp();
 };
@@ -333,7 +333,7 @@ private:
 template<typename RETURN_TYPE>
 template<typename ClassType>
 void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(ClassType* obj, RETURN_TYPE (ClassType::*method)(int, char**), const std::string& name, const std::string* helpDescription) {
-    // If the name has a whitespace, the function has to be bound to a subtree
+    // If the name has a whitespace, the function has to be bound to a category
     if(name.find(' ') != name.npos){
         // Split the name by whitespace
         auto parts = Nebulite::Utility::StringHandler::split(name, ' ');
@@ -341,41 +341,41 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(Class
             std::cerr << "Error: Invalid function name '" << name << "'." << std::endl;
             return;
         }
-        std::string subtreeName = parts[0];
+        std::string categoryName = parts[0];
 
-        // We re-join the rest of the parts to form the argument for the subtree
-        // If there are more than 2 parts, the subtree will create a new subtree
+        // We re-join the rest of the parts to form the argument for the category
+        // If there are more than 2 parts, the category will create a new category
         std::string functionName = parts[1];
         for(long unsigned int i = 2; i < parts.size(); i++){
             functionName += parts[i];
         }
 
-        // Check if the subtree exists
-        if(subtrees.find(subtreeName) == subtrees.end()){
-            // If the subtree does not exist, throw an exception
+        // Check if the category exists
+        if(categorys.find(categoryName) == categorys.end()){
+            // If the category does not exist, throw an exception
             // This only fails on an improper function binding,
-            // meaning we tried to bind a function to a subtree that does not exist
+            // meaning we tried to bind a function to a category that does not exist
             // exit the entire program
             std::cerr << "---------------------------------------------------------------" << std::endl;
             std::cerr << "A Nebulite FuncTree binding failed!" << std::endl;;
-            std::cerr << "Error: Subtree '" << subtreeName << "' does not exist when trying to bind function '" << name << "'." << std::endl;;
-            std::cerr << "Please create the subtree first using bindSubtree()." << std::endl;;
+            std::cerr << "Error: Category '" << categoryName << "' does not exist when trying to bind function '" << name << "'." << std::endl;;
+            std::cerr << "Please create the category first using bindCategory()." << std::endl;;
             std::cerr << "This Tree: " << TreeName << std::endl;
             exit(EXIT_FAILURE);
         }
 
-        // Bind the function to the subtree
-        subtrees[subtreeName].tree->bindFunction(obj, method, functionName, helpDescription);
+        // Bind the function to the category
+        categorys[categoryName].tree->bindFunction(obj, method, functionName, helpDescription);
 
-        return; // Function bound to subtree, return
+        return; // Function bound to category, return
     }
 
-    // Make sure the function to bind is not a subtree
-    for (const auto& [subtreeName, subtree] : subtrees) {
-        if (subtreeName == name) {
+    // Make sure the function to bind is not a category
+    for (const auto& [categoryName, category] : categorys) {
+        if (categoryName == name) {
             std::cerr << "---------------------------------------------------------------" << std::endl;
             std::cerr << "A Nebulite FuncTree binding failed!" << std::endl;
-            std::cerr << "Error: Cannot bind function '" << name << "' because a subtree with the same name already exists." << std::endl;
+            std::cerr << "Error: Cannot bind function '" << name << "' because a category with the same name already exists." << std::endl;
             exit(EXIT_FAILURE);
         }
     }
@@ -450,9 +450,9 @@ std::vector<std::pair<std::string, const std::string*>> Nebulite::Interaction::E
         }
     }
 
-    // Get just the names of the subtrees
-    for (const auto& [subtreeName, subtree] : subtrees) {
-        allFunctions.emplace_back(subtreeName, subtree.description);
+    // Get just the names of the categorys
+    for (const auto& [categoryName, category] : categorys) {
+        allFunctions.emplace_back(categoryName, category.description);
     }
 
     return allFunctions;
@@ -597,13 +597,13 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::executeFunc
         auto& [functionPtr, description] = functionPosition->second;
         return functionPtr(argc, argv);  // Call the function
     } else {
-        // Find function name in subtrees
-        if(subtrees.find(function) != subtrees.end()){
+        // Find function name in categorys
+        if(categorys.find(function) != categorys.end()){
             std::string cmd = "";
             for(int i = 0; i < argc; i++){
                 cmd += std::string(argv[i]) + " ";
             }
-            return subtrees[function].tree->parseStr(cmd);
+            return categorys[function].tree->parseStr(cmd);
         }
         else{
             std::cerr << "Function '" << function << "' not found in FuncTree " << TreeName << " or its SubTrees!\n";
@@ -612,7 +612,7 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::executeFunc
                 std::cerr << "argv[" << i << "] = '" << argv[i] << "'\n";
             }
             std::cerr << "Available functions: " << functions.size() << std::endl;
-            std::cerr << "Available SubTrees:  " << subtrees.size()  << std::endl;
+            std::cerr << "Available SubTrees:  " << categorys.size()  << std::endl;
             return _functionNotFoundError;  // Return error if function not found
         }
     }
@@ -656,7 +656,7 @@ bool Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::hasFunction(const 
     
     // See if the function is linked
     return  (functions.find(function) != functions.end()) || 
-            (subtrees.find(function)  != subtrees.end());
+            (categorys.find(function)  != categorys.end());
 }
 
 //------------------------------------------
@@ -665,7 +665,7 @@ bool Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::hasFunction(const 
 template<typename RETURN_TYPE>
 RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     //------------------------------------------
-    // Case 1: Detailed help for a specific function, subtree or variable
+    // Case 1: Detailed help for a specific function, category or variable
     if(argc > 1){
         for(int i = 1; i < argc; i++){
             std::string funcName = argv[i];
@@ -675,7 +675,7 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help([[mayb
     }
 
     //------------------------------------------
-    // Case 2: General help for all functions, subtrees and variables
+    // Case 2: General help for all functions, categorys and variables
     generalHelp();
     
     return _standard;
@@ -689,7 +689,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::specificHelp(std::
     bool subFound = false;
     bool varFound = false;
     auto funcIt = functions.find(funcName);
-    auto subIt = subtrees.find(funcName);
+    auto subIt = categorys.find(funcName);
     auto varIt = variables.find(funcName);
     find(funcName, funcFound, funcIt, subFound, subIt, varFound, varIt);
 
@@ -702,13 +702,13 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::specificHelp(std::
         std::cout << "\nHelp for function '" << funcName << "':\n" << std::endl;
         std::cout << *funcIt->second.description << "\n";
     }
-    // 2.) Subtree
+    // 2.) Category
     else if(subFound){
-        // Found subtree, display detailed help
-        //std::cout << "\nHelp for subtree '" << funcName << "':\n" << std::endl;
+        // Found category, display detailed help
+        //std::cout << "\nHelp for category '" << funcName << "':\n" << std::endl;
         //std::cout << *subIt->second.description << "\n";
-        //std::cout << "Subtree functions:\n";
-        subIt->second.tree->help(0, nullptr); // Display all functions in the subtree
+        //std::cout << "Category functions:\n";
+        subIt->second.tree->help(0, nullptr); // Display all functions in the category
     }
     // 3.) Variable
     else if(varFound){
@@ -718,7 +718,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::specificHelp(std::
     }
     // 4.) Not found
     else{
-        std::cout << "Function or Subtree '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
+        std::cout << "Function or Category '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
     }
 }
 
@@ -785,14 +785,14 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::find(const std::st
         }
     }
 
-    // Subtrees
-    if(subIt != subtrees.end()){subFound = true;}
+    // Categorys
+    if(subIt != categorys.end()){subFound = true;}
     else{
         for(auto& inheritedTree : inheritedTrees){
             if(inheritedTree != nullptr){
-                subIt = inheritedTree->subtrees.find(name);
+                subIt = inheritedTree->categorys.find(name);
             }
-            if(subIt != inheritedTree->subtrees.end()){
+            if(subIt != inheritedTree->categorys.end()){
                 subFound = true;
                 break; // Found in inherited tree, stop searching
             }
