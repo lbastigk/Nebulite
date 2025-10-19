@@ -1,26 +1,4 @@
 ############################################################
-# Nebulite Build Configuration
-#
-# This CMake configuration uses a hybrid approach for dependencies:
-# - SDL2, SDL2_ttf, and SDL2_image are prebuilt (DLLs for Windows, static for Linux)
-#   and linked directly to avoid DLL/runtime issues and simplify cross-compilation.
-# - Abseil is included as a subdirectory and built as part of the project,
-#   as it works out of the box for both windows and linux.
-#
-# Key Directories:
-# - All CMake build artifacts are placed in a dedicated build directory (e.g., build/windows-release).
-# - Final binaries (executables, DLLs) are output to the build directory.
-#
-# Platform Notes:
-# - On Linux, static SDL libraries are linked for portability.
-# - On Windows (cross-compiled from Linux), prebuilt SDL DLL import libraries are linked.
-#
-# To add or update dependencies, see the external/ directory and install.sh script.
-#
-# For more details, see README.md.
-############################################################
-
-############################################################
 # General
 cmake_minimum_required(VERSION 3.16)
 project(Nebulite)
