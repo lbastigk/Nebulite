@@ -22,6 +22,7 @@ echo "Current branch: $CURRENT_BRANCH"
 
 # Create a temporary directory for cloning the repository
 TEMP_DIR=tmp/deployment_test
+rm -rf $TEMP_DIR
 mkdir -p $TEMP_DIR
 echo "Cloning repository into temporary directory: $TEMP_DIR"
 
@@ -37,4 +38,6 @@ Scripts/AssetCreation/create_resources_directory.sh
 # Install the application and run tests
 cmake --preset linux-debug && cmake --build --preset linux-debug
 cmake --preset linux-release && cmake --build --preset linux-release
+cmake --preset windows-debug && cmake --build --preset windows-debug
+cmake --preset windows-release && cmake --build --preset windows-release
 python Scripts/Validation/json_syntax_and_references.py && python Scripts/TestingSuite.py --stop --verbose
