@@ -48,7 +48,7 @@ public:
     static const std::string debug_collisionDetect_function_desc;
 
     /**
-     * @brief Tests collision detection functionalities of categorys.
+     * @brief Tests collision detection functionalities of categories.
      * 
      * @param argc The argument count
      * @param argv The argument vector: None.
@@ -84,7 +84,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug_Domain_Collision_Detection){
-        // Bind the categorys for the functions
+        // Bind the categories for the functions
         bindCategory(debug_name, &debug_desc);
         bindCategory(collisionDetect_name, &collisionDetect_desc);
 
