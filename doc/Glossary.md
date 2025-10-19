@@ -1,4 +1,4 @@
-# Nebulite Dictionary
+# Nebulite Glossary
 
 All definitions used within the Nebulite framework. While this includes definitions of some classes, it's not intended as a full overview of all of them. Rather, it reflects commonly used names within its documentation and shall be used to further streamline its wording.
 

@@ -82,7 +82,7 @@ public:
     static const std::string draft_reset_desc;
 
     //------------------------------------------
-    // Subtree names
+    // Category names
     static const std::string draft_name;
     static const std::string draft_desc;
 
@@ -97,7 +97,7 @@ public:
         draft.setDomain(global);
         
         // Bind functions
-        bindSubtree(draft_name, &draft_desc);
+        bindCategory(draft_name, &draft_desc);
         bindFunction(&RenderObjectDraft::draft_parse,  draft_parse_name,   &draft_parse_desc);
         bindFunction(&RenderObjectDraft::draft_spawn,  draft_spawn_name,   &draft_spawn_desc);
         bindFunction(&RenderObjectDraft::draft_reset,  draft_reset_name,   &draft_reset_desc);

@@ -88,7 +88,7 @@ public:
     static const std::string textureStatus_desc;
 
     //------------------------------------------
-    // Subtree names
+    // Category names
     static const std::string debug_name;
     static const std::string debug_desc;
 
@@ -102,7 +102,7 @@ public:
         // Some functions like selected-object need eval to resolve variables
         bindFunction(&Debug::eval,          eval_name,          &eval_desc);
 
-        bindSubtree(debug_name, &debug_desc);
+        bindCategory(debug_name, &debug_desc);
         bindFunction(&Debug::printSrcRect,  printSrcRect_name,  &printSrcRect_desc);
         bindFunction(&Debug::printDstRect,  printDstRect_name,  &printDstRect_desc);
         bindFunction(&Debug::textureStatus, textureStatus_name, &textureStatus_desc);

@@ -128,7 +128,7 @@ public:
 
         // TODO: Move to separate Invoke module
         /*
-        bindSubtree("invoke", "Functions for managing invokes");
+        bindCategory("invoke", "Functions for managing invokes");
         bindFunction(&StateUpdate::invoke_reload,       "reload-invokes",       "Reload all invokes");
         bindFunction(&StateUpdate::invoke_add,          "add-invoke",           "Add an invoke from a file");
         bindFunction(&StateUpdate::invoke_remove,       "remove-invoke",        "Remove an invoke by name");

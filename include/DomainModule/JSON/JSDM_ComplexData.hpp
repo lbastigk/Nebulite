@@ -64,7 +64,7 @@ public:
     static const std::string json_set_desc;
 
     //------------------------------------------
-    // Subtree names
+    // Category names
     static const std::string query_name;
     static const std::string query_desc;
 
@@ -81,11 +81,11 @@ public:
         // Bind functions specific to complex data handling
 
         // SQL Querys
-        bindSubtree(query_name, &query_desc);
+        bindCategory(query_name, &query_desc);
         bindFunction(&ComplexData::query_set, query_set_name, &query_set_desc);
 
         // Set from read only jsons
-        bindSubtree(json_name, &json_desc);
+        bindCategory(json_name, &json_desc);
         bindFunction(&ComplexData::json_set,  json_set_name,  &json_set_desc);
     }
 };

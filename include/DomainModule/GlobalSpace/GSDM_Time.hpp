@@ -106,7 +106,7 @@ public:
     static const std::string time_setFixedDeltaTime_desc;
 
     //------------------------------------------
-    // Subtree names
+    // Category names
     static const std::string time_name;
     static const std::string time_desc;
 
@@ -138,7 +138,7 @@ public:
 
         //------------------------------------------
         // Bind functions
-        bindSubtree(time_name, &time_desc);
+        bindCategory(time_name, &time_desc);
         bindFunction(&Time::time_haltOnce,           time_haltOnce_name,            &time_haltOnce_desc);
         bindFunction(&Time::time_lock,               time_lock_name,                &time_lock_desc);
         bindFunction(&Time::time_unlock,             time_unlock_name,              &time_unlock_desc);

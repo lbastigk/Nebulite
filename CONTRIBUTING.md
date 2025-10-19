@@ -119,13 +119,13 @@ and more. We then just insert each module into the class and its update function
 
 It is **not allowed** to overwrite already existing functions:
 - If the function `set` was already declared, it is not possible to declare a new `set` function in that same tree
-- If the function `set` was already declared for the subtree, it is not possible to declare a new `set` function in the Tree that inherits the function
+- If the function `set` was already declared for the category, it is not possible to declare a new `set` function in the Tree that inherits the function
 
-Furthermore, it is not allowed to overwrite existing `subtrees` with functions and vice versa. 
+Furthermore, it is not allowed to overwrite existing `categories` with functions and vice versa. 
 
-If a function is bound inside a non-existing `subtree`, the program will exit:
+If a function is bound inside a non-existing `category`, the program will exit:
 ```cpp
-bindSubtree("MyModule","<Description>");
+bindCategory("MyModule","<Description>");
 bindFunction(/**/,"MyModule foo","<Description>"); //<-- This will fail without bindSubTree()
 ```
 
@@ -200,9 +200,9 @@ public:
         // Binding functions to the Domain
         bindFunction(&MyModule::spawnCircle, "spawn-circle", "Spawn a circle");
         /*Bind more functions of MyModule here*/
-        /*You can also implement sublevels to the command using the subtree feature:*/
-        bindSubtree("spawn","Spawn functions");
-        bindSubtree("spawn geometry", "Geometric forms");
+        /*You can also implement sublevels to the command using the category feature:*/
+        bindCategory("spawn","Spawn functions");
+        bindCategory("spawn geometry", "Geometric forms");
         bindFunction(&MyModule::spawnCircle, "spawn geometry circle", "Spawn a circle");
     }
 private:

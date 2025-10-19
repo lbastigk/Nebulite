@@ -92,7 +92,7 @@ public:
     /**
      * @brief Binds a variable to the FuncTree.
      * 
-     * For binding functions or subtrees, use the DomainModule interface.
+     * For binding functions or categories, use the DomainModule interface.
      */
     void bindVariable(bool* varPtr, const std::string& name, const std::string* helpDescription){
         funcTree->bindVariable(varPtr, name, helpDescription);

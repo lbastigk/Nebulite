@@ -88,7 +88,7 @@ public:
     static const std::string log_key_desc;
 
     //------------------------------------------
-    // Subtree names
+    // Category names
     static const std::string log_name;
     static const std::string log_desc;
 
@@ -101,7 +101,7 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Logging) {
         bindFunction(&Logging::echo,        echo_name,      &echo_desc);
 
-        bindSubtree(log_name, &log_desc);
+        bindCategory(log_name, &log_desc);
         bindFunction(&Logging::log_all,    log_all_name,    &log_all_desc);
         bindFunction(&Logging::log_key,    log_key_name,    &log_key_desc);
     }

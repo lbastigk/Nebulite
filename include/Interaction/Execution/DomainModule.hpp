@@ -108,16 +108,16 @@ public:
     }
 
     /**
-     * @brief Binds a subtree to the FuncTree.
+     * @brief Binds a category to the FuncTree.
      * 
-     * A subtree acts as a "function bundler" to the main tree.
+     * A category acts as a "function bundler" to the main tree.
      * 
-     * @param name Name of the subtree
-     * @param description Description of the subtree, shown in the help command. First line is shown in the general help, full description in detailed help
-     * @return true if the subtree was created successfully, false if a subtree with the same name already exists
+     * @param name Name of the category
+     * @param description Description of the category, shown in the help command. First line is shown in the general help, full description in detailed help
+     * @return true if the category was created successfully, false if a category with the same name already exists
      */
-    bool bindSubtree(const std::string& name, const std::string* helpDescription) {
-        return funcTree->bindSubtree(name, helpDescription);
+    bool bindCategory(const std::string& name, const std::string* helpDescription) {
+        return funcTree->bindCategory(name, helpDescription);
     }
 
     /**

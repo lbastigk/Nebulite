@@ -97,7 +97,7 @@ public:
     static const std::string mirror_fetch_desc;
 
     //------------------------------------------
-    // Subtree name
+    // Category name
     static const std::string mirror_name;
     static const std::string mirror_desc;
 
@@ -108,7 +108,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Mirror) {
-        bindSubtree(mirror_name, &mirror_desc);
+        bindCategory(mirror_name, &mirror_desc);
         bindFunction(&Mirror::mirror_once,  mirror_once_name,      &mirror_once_desc);
         bindFunction(&Mirror::mirror_on,    mirror_on_name,        &mirror_on_desc);
         bindFunction(&Mirror::mirror_off,   mirror_off_name,       &mirror_off_desc);

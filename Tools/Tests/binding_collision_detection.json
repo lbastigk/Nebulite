@@ -1,0 +1,61 @@
+[
+    {
+        "command": "debug collision-detect function",
+        "expected": { 
+            "cout": [], 
+            "cerr": [
+                "---------------------------------------------------------------",
+                "Nebulite FuncTree initialization failed!",
+                "Error: A bound Function already exists in this tree.",
+                "Function overwrite is heavily discouraged and thus not allowed.",
+                "Please choose a different name or remove the existing function.",
+                "This Tree: collision-detect",
+                "Function:  function"
+            ],
+            "ignore_exit": true
+        }
+    },
+    {
+        "command": "debug collision-detect category",
+        "expected": { 
+            "cout": [], 
+            "cerr": [
+                "---------------------------------------------------------------",
+                "A Nebulite FuncTree initialization failed!",
+                "Error: Cannot create category 'debug collision-detect' because it already exists."
+            ],
+            "ignore_exit": true
+        }
+    },
+    {
+        "command": "debug collision-detect variable",
+        "expected": { 
+            "cout": [], 
+            "cerr": [
+                "Error: Variable 'headless' is already bound."
+            ],
+            "ignore_exit": true
+        }
+    },
+    {
+        "command": "debug collision-detect function succeed",
+        "expected": { 
+            "cout": [], 
+            "cerr": [] 
+        }
+    },
+    {
+        "command": "debug collision-detect category succeed",
+        "expected": { 
+            "cout": [], 
+            "cerr": [] 
+        }
+    },
+    {
+        "command": "debug collision-detect variable succeed",
+        "expected": { 
+            "cout": [], 
+            "cerr": [] 
+        }
+    }
+]
