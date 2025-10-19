@@ -26,22 +26,21 @@
 
 <!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
 
-- [Nebulite Game Engine](#nebulite-game-engine)
-   * [Overview](#overview)
-   * [Quick Start](#quick-start)
-   * [Learn More](#learn-more)
-   * [Core Concepts](#core-concepts)
-      + [Expression System](#expression-system)
-      + [Invoke System  ](#invoke-system)
-      + [Runtime Modes](#runtime-modes)
-   * [Directory Structure](#directory-structure)
-   * [Platform Support & Dependencies](#platform-support-dependencies)
-   * [Testing](#testing)
-   * [Languages](#languages)
-      + [Nebulite Script](#nebulite-script)
-      + [Nebulite Logic](#nebulite-logic)
-   * [Contributing](#contributing)
-   * [License](#license)
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Learn More](#learn-more)
+- [Core Concepts](#core-concepts)
+   * [Expression System](#expression-system)
+   * [Invoke System  ](#invoke-system)
+   * [Runtime Modes](#runtime-modes)
+- [Directory Structure](#directory-structure)
+- [Platform Support & Dependencies](#platform-support-dependencies)
+- [Testing](#testing)
+- [Languages](#languages)
+   * [Nebulite Script](#nebulite-script)
+   * [Nebulite Logic](#nebulite-logic)
+- [Contributing](#contributing)
+- [License](#license)
 
 <!-- TOC end -->
 
