@@ -121,7 +121,7 @@ It is **not allowed** to overwrite already existing functions:
 - If the function `set` was already declared, it is not possible to declare a new `set` function in that same tree
 - If the function `set` was already declared for the category, it is not possible to declare a new `set` function in the Tree that inherits the function
 
-Furthermore, it is not allowed to overwrite existing `categorys` with functions and vice versa. 
+Furthermore, it is not allowed to overwrite existing `categories` with functions and vice versa. 
 
 If a function is bound inside a non-existing `category`, the program will exit:
 ```cpp
