@@ -40,7 +40,7 @@
         {
             "label": "[TEST]",
             "type": "shell",
-            "command": "python ./Scripts/Validation/json_syntax_and_references.py && python Scripts/TestingSuite.py --stop --verbose && cd ..",
+            "command": "python ./Scripts/Validation/json_syntax_and_references.py && python Scripts/TestingSuite.py --stop --verbose",
             "group": {
                 "kind": "test",
                 "isDefault": false
@@ -138,17 +138,6 @@
             "dependsOn": "[COVERAGE BUILD]",
             "problemMatcher": [],
             "detail": "Run tests with coverage data collection and generate coverage report."
-        },
-        {
-            "label": "[COVERAGE REPORT]",
-            "type": "shell",
-            "command": "python Scripts/generate_coverage_report.py",
-            "group": {
-                "kind": "test",
-                "isDefault": false
-            },
-            "problemMatcher": [],
-            "detail": "Generate HTML coverage report from existing coverage data."
         },
         {
             "label": "[COVERAGE FULL]",
