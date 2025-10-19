@@ -4,24 +4,24 @@
         {
             "label": "[BUILD]",
             "type": "shell",
-            "command": "./build.sh",
+            "command": "cmake --preset linux-debug && cmake --build --preset linux-debug && cmake --preset linux-release && cmake --build --preset linux-release && cmake --preset windows-debug && cmake --build --preset windows-debug && cmake --preset windows-release && cmake --build --preset windows-release",
             "group": {
                 "kind": "build",
                 "isDefault": false
             },
             "problemMatcher": [],
-            "detail": "Build the projects release and debug binaries. Cleans previous builds."
+            "detail": "Build all release and debug binaries."
         },
         {
             "label": "[MINIMAL BUILD]",
             "type": "shell",
-            "command": "./build.sh -minimal",
+            "command": "cmake --preset linux-debug && cmake --build --preset linux-debug && cmake --preset linux-release && cmake --build --preset linux-release",
             "group": {
                 "kind": "build",
                 "isDefault": false
             },
             "problemMatcher": [],
-            "detail": "Builds the projects Linux Release binary."
+            "detail": "Builds the projects Linux binaries."
         },
         {
             "label": "[BUILD + TEST]",
