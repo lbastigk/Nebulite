@@ -31,7 +31,7 @@ We welcome contributions! Nebulite's modular architecture makes it easy to add f
 ### Prerequisites
 
 1. Fork the repository
-2. Install dependencies: `./install.sh`
+2. Install (see README.md)
 3. Create feature branch: `git checkout -b feature/my-feature`
 
 <!-- TOC --><a name="recommended-environment"></a>
@@ -46,7 +46,23 @@ Using VSCode is recommended for an optimal workflow. The project includes precon
 
 Build and test your changes:
 ```bash
-./build.sh && ./Scripts/TestingSuite.py
+    ## BUILD
+
+    # Linux
+    cmake --preset linux-debug && cmake --build --preset linux-debug
+    cmake --preset linux-release && cmake --build --preset linux-release
+    cmake --preset linux-coverage && cmake --build --preset linux-coverage
+
+    # Windows
+    cmake --preset windows-debug && cmake --build --preset windows-debug
+    cmake --preset windows-release && cmake --build --preset windows-release
+
+    # Mac
+    cmake --preset macos-debug && cmake --build --preset macos-debug
+    cmake --preset macos-release && cmake --build --preset macos-release
+
+    ## TEST
+    python Scripts/TestingSuite.py
 ```
 
 <!-- TOC --><a name="testing"></a>
@@ -56,9 +72,9 @@ Build and test your changes:
 - Use the VSCode tasks for Memory leak testing, profiling and more
 - Use the VSCode debugger and its existing tasks
 
-You can add custom taskfiles to the test suite by extending the `tests.json` file in the projects root directory.
+You can add custom taskfiles to the test suite by extending the `Tools/tests.jsonc`.
 ```bash
-./bin/Nebulite task TaskFiles/.../your_test.txt
+./bin/Nebulite task TaskFiles/.../your_test.nebs
 ```
 
 <!-- TOC --><a name="quick-expression-testing"></a>
