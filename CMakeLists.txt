@@ -87,6 +87,8 @@ set_target_properties(Nebulite PROPERTIES
 # Set output name based on build type
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite_Debug")
+elseif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+    set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite_Coverage")
 else()
     set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite")
 endif()

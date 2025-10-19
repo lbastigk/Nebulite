@@ -166,9 +166,7 @@ Nebulite/
 ├── src/                      # Engine source code
 ├── TaskFiles/                # Example scripts
 ├── Tools/                    # CMake Toolchains, Test definitions
-├── Unimplemented/            # Unimplemented DomainModules
-├── install.sh                # Installation of Repository
-└── build.sh                  # Compiling binaries
+└── Unimplemented/            # Unimplemented DomainModules
 ```
 
 <!-- TOC --><a name="platform-support-dependencies"></a>
@@ -178,7 +176,7 @@ Nebulite/
 
 **Requirements**: CMake 3.16+, C++20 compiler (GCC 11+/Clang 14+), Python 3.8+ (for testing and mock asset creation)
 
-**Dependencies** (bundled via `install.sh`):
+**Dependencies**
 - SDL2, SDL_ttf, SDL_image - rendering and input
 - RapidJSON - JSON parsing  
 - Abseil - fast hash maps
