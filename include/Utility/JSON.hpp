@@ -534,7 +534,15 @@ newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValu
         // [STRING] -> [BOOL]
         // Handle string to bool
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, bool>) {
-            return stored == "true" || stored == "1";
+            // Handle numeric strings and "true"
+            if(Nebulite::Utility::StringHandler::isNumber(stored)){
+                try {
+                    return static_cast<newType>(std::stoi(stored) != 0);
+                } catch (...) {
+                    return defaultValue;
+                }
+            }
+            return stored == "true";
         }
 
         // [STRING] -> [INT]
