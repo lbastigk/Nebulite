@@ -9,7 +9,6 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B"))
 	{
-
 	//------------------------------------------
 	// Depending on platform, set Global key "platform":
 	#ifdef _WIN32
