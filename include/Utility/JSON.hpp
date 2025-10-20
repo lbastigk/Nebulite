@@ -387,8 +387,6 @@ public:
             return &expressionRefs[idx].as_other;
         #endif
 	}
-
-
 };
 }
 
