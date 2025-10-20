@@ -137,7 +137,7 @@ bindFunction(/**/,"MyModule foo","<Description>"); //<-- This will fail without 
 
 1. **Create expansion file:** `GSDM_MyModule.{hpp,cpp}`
 2. **Inherit from DomainModule base class:** Create class inheriting from `Nebulite::Interaction::Execution::DomainModule<DomainClass>`
-3. **Implement command methods:** Functions with `Nebulite::Constants::Error ( int argc,  char* argv[])` signature
+3. **Implement command methods:** Functions with `Nebulite::Constants::Error (int argc,  char* argv[])` signature
 4. **DomainModule init** inside `include/DomainModule/{GSDM,JSDM,RODM}.hpp`, initialize the DomainModule
 
 <!-- TOC --><a name="complete-code-example"></a>
@@ -187,7 +187,7 @@ public:
     //----------------------------------------
     // Available Functions
 
-    Nebulite::Constants::Error spawnCircle( int argc,  char* argv[]);
+    Nebulite::Constants::Error spawnCircle(int argc,  char* argv[]);
 
     //------------------------------------------
     // Setup
@@ -223,7 +223,7 @@ void Nebulite::DomainModule::GlobalSpace::MyModule::update(){
     // We can update them here
 }
 
-Nebulite::Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::MyModule::spawnCircle( int argc,  char* argv[]){
+Nebulite::Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::MyModule::spawnCircle(int argc,  char* argv[]){
     /*
     Implementation here.
     You can access domain and its members through: 

@@ -14,7 +14,7 @@ Nebulite::Constants::Error RenderObjectDraft::update() {
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error RenderObjectDraft::draft_parse( int argc,  char* argv[]) {
+Nebulite::Constants::Error RenderObjectDraft::draft_parse(int argc,  char* argv[]) {
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -35,7 +35,7 @@ draft parse set posX 100
 draft parse set posY 200
 )";
 
-Nebulite::Constants::Error RenderObjectDraft::draft_spawn( int argc,  char* argv[]) {
+Nebulite::Constants::Error RenderObjectDraft::draft_spawn(int argc,  char* argv[]) {
     if(argc != 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
@@ -53,7 +53,7 @@ const std::string RenderObjectDraft::draft_spawn_desc = R"(Spawn the created dra
 Usage: draft spawn
 )";
 
-Nebulite::Constants::Error RenderObjectDraft::draft_reset( int argc,  char* argv[]) {
+Nebulite::Constants::Error RenderObjectDraft::draft_reset(int argc,  char* argv[]) {
     if(argc != 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }

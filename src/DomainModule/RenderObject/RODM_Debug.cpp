@@ -18,7 +18,7 @@ Nebulite::Constants::Error Debug::update() {
 //------------------------------------------
 // Available Functions
 
-Nebulite::Constants::Error Debug::eval( int argc,  char* argv[]) {
+Nebulite::Constants::Error Debug::eval(int argc,  char* argv[]) {
     // argc/argv to string for evaluation
     std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc, argv);
 
@@ -38,7 +38,7 @@ eval echo $(1+1)    outputs:    2.000000
 eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
 )";
 
-Nebulite::Constants::Error Debug::printSrcRect( int argc,  char* argv[]) {
+Nebulite::Constants::Error Debug::printSrcRect(int argc,  char* argv[]) {
     if(argc != 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
@@ -64,7 +64,7 @@ If the RenderObject is not a spritesheet, indicates that instead:
 This RenderObject is not a spritesheet.
 )";
 
-Nebulite::Constants::Error Debug::printDstRect( int argc,  char* argv[]) {
+Nebulite::Constants::Error Debug::printDstRect(int argc,  char* argv[]) {
     if(argc != 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
@@ -151,7 +151,7 @@ namespace{
     }
 }
 
-Nebulite::Constants::Error Debug::textureStatus( int argc,  char* argv[]){
+Nebulite::Constants::Error Debug::textureStatus(int argc,  char* argv[]){
     if(argc != 1) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }

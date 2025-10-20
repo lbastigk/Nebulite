@@ -48,7 +48,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error mirror_once( int argc,  char* argv[]);
+    Nebulite::Constants::Error mirror_once(int argc,  char* argv[]);
     static const std::string mirror_once_name;
     static const std::string mirror_once_desc;
 
@@ -59,7 +59,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error mirror_on( int argc,  char* argv[]);
+    Nebulite::Constants::Error mirror_on(int argc,  char* argv[]);
     static const std::string mirror_on_name;
     static const std::string mirror_on_desc;
 
@@ -70,7 +70,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error mirror_off( int argc,  char* argv[]);
+    Nebulite::Constants::Error mirror_off(int argc,  char* argv[]);
     static const std::string mirror_off_name;
     static const std::string mirror_off_desc;
 
@@ -81,7 +81,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error mirror_delete( int argc,  char* argv[]);
+    Nebulite::Constants::Error mirror_delete(int argc,  char* argv[]);
     static const std::string mirror_delete_name;
     static const std::string mirror_delete_desc;
 
@@ -92,7 +92,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error mirror_fetch( int argc,  char* argv[]);
+    Nebulite::Constants::Error mirror_fetch(int argc,  char* argv[]);
     static const std::string mirror_fetch_name;
     static const std::string mirror_fetch_desc;
 

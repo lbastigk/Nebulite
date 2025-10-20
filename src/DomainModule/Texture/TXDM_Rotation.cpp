@@ -10,7 +10,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::Texture::Rotation::update() {
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::DomainModule::Texture::Rotation::rotate( int argc,  char* argv[]) {
+Nebulite::Constants::Error Nebulite::DomainModule::Texture::Rotation::rotate(int argc,  char* argv[]) {
     if (argc < 2) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
