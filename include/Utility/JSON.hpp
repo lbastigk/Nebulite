@@ -106,6 +106,16 @@ private:
 
     /**
      * @brief Helper function to convert any type from cache into another type.
+     * 
+     * @param var The variant value stored in the cache.
+     * @param defaultValue The default value to return if conversion fails.
+     * @return The converted value of type newType, or defaultValue on failure.
+     * 
+     * @todo The if-branches for string "true"/"false" to int/double conversions are currently commented out,
+     * as they cause issues when compiling on macOS. Reason unknown, says it can't convert to the respective type,
+     * even though it is explicitly the correct type. Needs further investigation.
+     * Most likely reason is that the compiler doesn't like the nested if-branch inside the constexpr if?
+     * Even a redundant static_cast to the return didn't help.
      */
     template<typename newType>
     newType convertVariant(const RjDirectAccess::simpleValue& var, const newType& defaultValue = newType{});
@@ -496,7 +506,6 @@ T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
     return defaultValue;
 }
 
-// TODO: This function sees a wrong number!
 template<typename newType>
 newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValue& var, const newType& defaultValue) {
     /*
@@ -530,8 +539,8 @@ newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValu
 
         // [STRING] -> [INT]
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int>) {
-            if (stored == "true") return 1;
-            if (stored == "false") return 0;
+            //if (stored == "true") return 1;
+            //if (stored == "false") return 0;
             try {
                 return static_cast<newType>(std::stoi(stored));
             } catch (...) {
@@ -541,8 +550,8 @@ newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValu
 
         // [STRING] -> [DOUBLE]
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, double>) {
-            if (stored == "true") return 1.0;
-            if (stored == "false") return 0.0;
+            //if (stored == "true") return 1.0;
+            //if (stored == "false") return 0.0;
             try {
                 return static_cast<newType>(std::stod(stored));
             } catch (...) {
@@ -552,8 +561,8 @@ newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValu
 
         // [STRING] -> [UNSIGNED LONG]
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, unsigned long>) {
-            if (stored == "true") return 1.0;
-            if (stored == "false") return 0.0;
+            //if (stored == "true") return 1.0;
+            //if (stored == "false") return 0.0;
             try {
                 return static_cast<newType>(std::stoul(stored));
             } catch (...) {
@@ -563,8 +572,8 @@ newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValu
 
         // [STRING] -> [UNSIGNED LONG LONG]
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, unsigned long long>) {
-            if (stored == "true") return 1;
-            if (stored == "false") return 0;
+            //if (stored == "true") return 1;
+            //if (stored == "false") return 0;
             try {
                 return static_cast<newType>(std::stoull(stored));
             } catch (...) {
