@@ -8,9 +8,9 @@
  * Example usage:
  * ```cpp
  * #include "Interaction/Execution/FuncTree.hpp"
- * int main( int argc,  char* argv[]) {
+ * int main(int argc,  char* argv[]) {
  *     FuncTree<std::string> funcTree("Nebulite", "ok", "Function not found");
- *     funcTree.bindFunction([]( int argc,  char* argv[]) {
+ *     funcTree.bindFunction([](int argc,  char* argv[]) {
  *         // Function implementation
  *         return "Function executed";
  *     }, "myFunction", "This function does something");
@@ -238,7 +238,7 @@ private:
     std::function<Nebulite::Constants::Error()> preParse = nullptr;
 
     // Function pointer type
-    using FunctionPtr = std::function<RETURN_TYPE( int argc,  char* argv[])>;
+    using FunctionPtr = std::function<RETURN_TYPE(int argc,  char* argv[])>;
 
     // Function - Description pair
     struct FunctionInfo {
@@ -316,7 +316,7 @@ private:
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
      */
-    RETURN_TYPE help( int argc,  char* argv[]);
+    RETURN_TYPE help(int argc,  char* argv[]);
 
     /**
      * @brief Retrieves a list of all functions and their descriptions.
@@ -355,6 +355,64 @@ private:
      * @brief Displays general help for all functions, categories, and variables.
      */
     void generalHelp();
+
+    //------------------------------------------
+    // Argument processing helper
+
+    /**
+     * @brief Processes variable arguments at the start of the argument list.
+     * 
+     * @param argc Argument count
+     * @param argv Argument vector
+     */
+    void processVariableArguments(int& argc, char**& argv){
+        while(argc > 0){
+            std::string arg = argv[0];
+            if(arg.length() >= 2 && arg.substr(0, 2) == "--" /*same as arg.starts_with("--"), but C++17 compatible*/){
+                // Extract name
+                std::string name = arg.substr(2);
+
+                // Set variable if attached
+                // TODO: Search in inherited FuncTrees as well
+                if (auto varIt = variables.find(name); varIt != variables.end()) {
+                    const auto& varInfo = varIt->second;  // Now it's VariableInfo, not a pair
+                    if (varInfo.pointer) {
+                        *varInfo.pointer = true;
+                    }
+                } else {
+                    std::cerr << "Warning: Unknown variable '--" << name << "'\n";
+                }
+
+                // Remove from argument list
+                argv++;       // Skip the first argument (function name)
+                argc--;       // Reduce the argument count (function name is processed)
+            }
+            else{
+                // no more vars to parse
+                return;
+            }
+        }
+    }
+
+    /**
+     * @brief Finds an argument in inherited FuncTrees.
+     * 
+     * @param funcName Name of the function to find
+     * @return Pointer to the FuncTree where the function was found, or nullptr if not found.
+     */
+    FuncTree<RETURN_TYPE>* findInInheritedTrees(const std::string& funcName){
+        // Prerequisite if an inherited FuncTree is linked
+        if(inheritedTrees.size() && !hasFunction(funcName)) {
+            // Check if the function is in an inherited tree
+            for(auto& inheritedTree : inheritedTrees) {
+                if(inheritedTree != nullptr && inheritedTree->hasFunction(funcName)) {
+                    // Function is in inherited tree, parse there
+                    return inheritedTree;
+                }
+            }
+        }
+        return nullptr;
+    }
 };
 }   // namespace Execution
 }   // namespace Interaction
@@ -572,60 +630,25 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(co
     argv++;
     argc--;
 
-    // No arguments left to process
-    if (argc < 1) {  
-        return _standard;  // End of execution
-    }
-
     // Process arguments directly after binary/function name (like --count or -c)
-    bool parseVars = true;
-    while(parseVars && argc > 0){
-        std::string arg = argv[0];
-        if(arg.length() >= 2 && arg.substr(0, 2) == "--" /*same as arg.starts_with("--"), but C++17 compatible*/){
-            // Extract name
-            std::string name = arg.substr(2);
-
-            // Set variable if attached
-            // TODO: Search in inherited FuncTrees as well
-            if (auto varIt = variables.find(name); varIt != variables.end()) {
-                const auto& varInfo = varIt->second;  // Now it's VariableInfo, not a pair
-                if (varInfo.pointer) {
-                    *varInfo.pointer = true;
-                }
-            } else {
-                std::cerr << "Warning: Unknown variable '--" << name << "'\n";
-            }
-
-            // Remove from argument list
-            argv++;       // Skip the first argument (function name)
-            argc--;       // Reduce the argument count (function name is processed)
-        }
-        else{
-            // no more vars to parse
-            parseVars = false;
-        }    
-    }
+    processVariableArguments(argc, argv);
 
     // Check if there are still arguments left
-    if(argc < 1){
-        return _standard;
+    if(argc == 0){
+        return _standard;   // Nothing to execute, return standard
     }
 
     // The first argument left is the new function name
-    std::string funcName = argv[0];  
+    std::string funcName = argv[0];
 
-    // Prerequisite if an inherited FuncTree is linked
-    if(inheritedTrees.size() && !hasFunction(funcName)) {
-        // Check if the function is in an inherited tree
-        for(auto& inheritedTree : inheritedTrees) {
-            if(inheritedTree != nullptr && inheritedTree->hasFunction(funcName)) {
-                // Function is in inherited tree, parse there
-                return inheritedTree->executeFunction(funcName, argc, argv);
-            }
-        }
+    // Check in inherited FuncTrees first
+    auto inheritedTree = findInInheritedTrees(funcName);
+    if(inheritedTree != nullptr){
+        // Function is in inherited tree, parse there
+        return inheritedTree->executeFunction(funcName, argc, argv);
     }
 
-    // Execute the function corresponding to funcName with the remaining arguments
+    // Not found in inherited trees, execute the function the main tree
     return executeFunction(funcName, argc, argv);
 }
 
@@ -643,6 +666,8 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::executeFunc
     std::string function = name;
     function = Nebulite::Utility::StringHandler::lstrip(name, ' ');
     function = Nebulite::Utility::StringHandler::rstrip(name, ' ');
+
+    // Find and execute the function
     auto functionPosition = functions.find(function);
     if (functionPosition != functions.end()) {
         auto& [functionPtr, description] = functionPosition->second;
@@ -714,7 +739,7 @@ bool Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::hasFunction(const 
 // Help function and its helpers
 
 template<typename RETURN_TYPE>
-RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help( int argc,  char* argv[]) {
+RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help(int argc,  char* argv[]) {
     //------------------------------------------
     // Case 1: Detailed help for a specific function, category or variable
     if(argc > 1){
@@ -728,7 +753,6 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help( int a
     //------------------------------------------
     // Case 2: General help for all functions, categories and variables
     generalHelp();
-    
     return _standard;
 }
 
