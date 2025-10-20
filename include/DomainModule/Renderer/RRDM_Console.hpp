@@ -51,7 +51,7 @@ public:
      * @param argv Argument values: [in/out/+/-], defaults to in/+.
      * @return Error code.
      */
-    Nebulite::Constants::Error consoleZoom( int argc,  char* argv[]);
+    Nebulite::Constants::Error consoleZoom(int argc,  char* argv[]);
     static const std::string consoleZoom_name;
     static const std::string consoleZoom_desc;
 

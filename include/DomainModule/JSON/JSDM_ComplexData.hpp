@@ -48,7 +48,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error query_set( int argc,  char* argv[]);
+    Nebulite::Constants::Error query_set(int argc,  char* argv[]);
     static const std::string query_set_name;
     static const std::string query_set_desc;
 
@@ -59,7 +59,7 @@ public:
      * @param argv The argument vector: <key> <link:key>
      * @return Potential errors that occurred on command execution.
      */
-    Nebulite::Constants::Error json_set( int argc,  char* argv[]);
+    Nebulite::Constants::Error json_set(int argc,  char* argv[]);
     static const std::string json_set_name;
     static const std::string json_set_desc;
 

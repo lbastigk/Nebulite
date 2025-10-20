@@ -46,7 +46,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error func_delete( int argc,  char* argv[]);
+    Nebulite::Constants::Error func_delete(int argc,  char* argv[]);
     static const std::string func_delete_name;
     static const std::string func_delete_desc;
 
@@ -57,7 +57,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error updateText( int argc,  char* argv[]);
+    Nebulite::Constants::Error updateText(int argc,  char* argv[]);
     static const std::string updateText_name;
     static const std::string updateText_desc;
 
@@ -73,7 +73,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error invoke_reload( int argc,  char* argv[]);
+    Nebulite::Constants::Error invoke_reload(int argc,  char* argv[]);
     static const std::string invoke_reload_name;
     static const std::string invoke_reload_desc;
 
@@ -86,7 +86,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error invoke_add( int argc,  char* argv[]);
+    Nebulite::Constants::Error invoke_add(int argc,  char* argv[]);
     static const std::string invoke_add_name;
     static const std::string invoke_add_desc;
 
@@ -99,7 +99,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error invoke_remove( int argc,  char* argv[]);
+    Nebulite::Constants::Error invoke_remove(int argc,  char* argv[]);
     static const std::string invoke_remove_name;
     static const std::string invoke_remove_desc;
 
@@ -112,7 +112,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error invoke_purge( int argc,  char* argv[]);
+    Nebulite::Constants::Error invoke_purge(int argc,  char* argv[]);
     static const std::string invoke_purge_name;
     static const std::string invoke_purge_desc;
 
