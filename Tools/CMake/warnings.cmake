@@ -12,10 +12,10 @@ function(configure_warnings target_name)
         target_compile_options(${target_name} PRIVATE
             -Wunused-function          # Warn about unused static functions
             -Wunused-variable          # Warn about unused variables
-            -Wunused-parameter         # Warn about unused function parameters
             -Wunreachable-code         # Warn about unreachable code
             -Wall                      # Enable most common warnings
             -Wextra                    # Enable extra warnings
+            -Wno-unused-parameter      # Explicitly disable unused parameter warnings (overrides -Wall. Disabled due to too many false positives with argc/argv signatures that may be unused)
             # -Wpedantic               # Enable pedantic warnings (disabled due to __int128 conflicts in abseil)
         )
         
