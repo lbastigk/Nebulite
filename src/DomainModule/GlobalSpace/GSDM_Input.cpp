@@ -7,6 +7,15 @@ Nebulite::Constants::Error Input::update() {
 	//------------------------------------------
 	// Only update if SDL is initialized
 	if(domain->getRenderer()->isSdlInitialized()){
+		if(!timerInitialized){
+			// Starting Polling timer
+			RendererPollTime = std::make_shared<Nebulite::Utility::TimeKeeper>();
+			RendererPollTime->update(); // Initial update to set t and dt
+			RendererPollTime->start();
+			RendererPollTime->update(); // Initial update to set t and dt
+			timerInitialized = true;
+		}
+
 		//------------------------------------------
 		// 2-Step Update of Input state
 
