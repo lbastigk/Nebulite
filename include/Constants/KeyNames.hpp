@@ -41,14 +41,14 @@ const struct keyName {
      * @struct Random
      * @brief Contains all hardcoded key names used for random number generation.
      */
-    const struct Random{
+    const struct RNGs{
         std::string A = "random.A";
         std::string B = "random.B";
         std::string C = "random.C";
         std::string D = "random.D";
         std::string min = "random.min";
         std::string max = "random.max";
-    }random;
+    }RNGs;
 
     /**
      * @struct renderObject
