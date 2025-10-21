@@ -170,7 +170,7 @@ public:
      * @param doc_key The document and key to serialize.
      * @return The serialized JSON string.
      */
-    std::string serialize(std::string doc_key) {
+    std::string serialize(const std::string& doc_key) {
         auto [doc, key] = splitDocKey(doc_key);
 
         Nebulite::Utility::DocumentCache::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
@@ -190,7 +190,7 @@ public:
         return data.serialize(); // Use the JSON get method to retrieve the value
     }
 
-    std::string getDocString(std::string link){
+    std::string getDocString(const std::string& link){
         Nebulite::Utility::DocumentCache::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(link);
 
         // Check if the document exists in the cache
