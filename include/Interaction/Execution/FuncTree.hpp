@@ -238,6 +238,10 @@ private:
     std::function<Nebulite::Constants::Error()> preParse = nullptr;
 
     // Function pointer type
+    /**
+     * @todo allow for const char** as argv type as well by implementing something
+     * like an std::variant
+     */
     using FunctionPtr = std::function<RETURN_TYPE(int argc,  char* argv[])>;
 
     // Function - Description pair
