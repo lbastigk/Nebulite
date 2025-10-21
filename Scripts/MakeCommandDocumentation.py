@@ -25,28 +25,27 @@ def run_command_with_timeout(command: str, timeout: int = TIMEOUT_SECONDS) -> Op
     Returns the command output or None if timeout/error occurs.
     """
     try:
-        # Determine the correct working directory
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        project_root = os.path.join(script_dir, "..")
+        # Split command into list to avoid shell=True security issue
+        import shlex
+        cmd_parts = shlex.split(command)
         
-        # Special handling for commands with '; exit' - use shell=True
-        if "'; exit'" in command:
-            result = subprocess.run(
-                command,
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                cwd=project_root,
-                shell=True
-            )
-        else:
-            result = subprocess.run(
-                command.split(),
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                cwd=project_root
-            )
+        # Separate environment variables from the actual command
+        env_vars = {}
+        cmd_list = []
+        
+        for part in cmd_parts:
+            if '=' in part and not cmd_list:  # Environment variables come before the command
+                key, value = part.split('=', 1)
+                env_vars[key] = value
+            else:
+                cmd_list.append(part)
+        
+        # Merge with current environment
+        import os
+        env = os.environ.copy()
+        env.update(env_vars)
+        
+        result = subprocess.run(cmd_list, env=env, capture_output=True, text=True, timeout=timeout)
         return result.stdout if result.returncode == 0 else None
     except subprocess.TimeoutExpired:
         print(f"Warning: Command '{command}' timed out after {timeout} seconds")
