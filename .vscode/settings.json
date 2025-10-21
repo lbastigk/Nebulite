@@ -84,6 +84,36 @@
         "cinttypes": "cpp",
         "typeindex": "cpp",
         "typeinfo": "cpp",
-        "variant": "cpp"
-    }
+        "variant": "cpp",
+        "any": "cpp",
+        "cfenv": "cpp",
+        "complex": "cpp",
+        "csignal": "cpp",
+        "regex": "cpp",
+        "future": "cpp",
+        "scoped_allocator": "cpp",
+        "stack": "cpp",
+        "stdfloat": "cpp",
+        "valarray": "cpp"
+    },
+    "c-cpp-flylint.run": "onSave",
+    "c-cpp-flylint.cppcheck.enable": true,
+    "c-cpp-flylint.cppcheck.extraArgs": [
+        "--check-level=exhaustive"
+    ],
+    "c-cpp-flylint.cppcheck.includePaths": [
+        "${workspaceFolder}/include",
+        "${workspaceFolder}/src"
+    ],
+    "c-cpp-flylint.excludeFromWorkspacePaths": [
+        "**/external/**",
+        "**/external/rapidjson/**",
+        "**/external/rapidjson/include/rapidjson/**",
+        "external/**",
+        "external/*",
+        "external/",
+        "/usr/include/c++/**",
+        "/usr/lib/**",
+        "/lib/**"
+    ]
 }

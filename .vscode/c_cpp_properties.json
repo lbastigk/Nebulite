@@ -4,20 +4,22 @@
             "name": "Linux",
             "includePath": [
                 "/usr/include/",
-                "${workspaceFolder}/**",
+                "${workspaceFolder}/include/**",
                 "${workspaceFolder}/external/SDL2/include",
                 "${workspaceFolder}/external/SDL2_image/include",
                 "${workspaceFolder}/external/SDL2_ttf/",
-                "${workspaceFolder}/external/rapidjson/include/rapidjson",
+                "${workspaceFolder}/external/rapidjson/include",
                 "${workspaceFolder}/external/tinyexpr",
-                "${workspaceFolder}/external/abseil",
-                "${workspaceFolder}/include/"
+                "${workspaceFolder}/external/abseil"
             ],
-            "defines": [],
+            "defines": [
+                "SDL_DISABLE_IMPLEMENTS"
+            ],
             "compilerPath": "/usr/bin/g++",
             "cStandard": "c17",
             "cppStandard": "c++20",
             "intelliSenseMode": "linux-gcc-x64",
+            "compileCommands": "${workspaceFolder}/tmp/build_linux-debug/compile_commands.json",
             "browse": {
                 "path": [],
                 "limitSymbolsToIncludedHeaders": true

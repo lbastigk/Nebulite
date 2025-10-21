@@ -90,7 +90,7 @@ public:
 	 * 
 	 * @param global A pointer to the Globalspace instance.
 	 */
-	RenderObject(Nebulite::Core::GlobalSpace* globalSpace);
+	explicit RenderObject(Nebulite::Core::GlobalSpace* globalSpace);
 
 	/**
 	 * @brief Destroys the RenderObject.
@@ -283,13 +283,6 @@ public:
 		return &baseTexture;
 	}
 
-	/**
-	 * @brief Gets a pointer to the linked globalspace.
-	 */
-	Nebulite::Core::GlobalSpace* getGlobalSpace() {
-		return globalSpace;
-	}
-
 private:
 	// Main doc holding values
 	Nebulite::Utility::JSON json;
@@ -299,7 +292,12 @@ private:
 
 	//------------------------------------------
 	// References to JSON
-	struct refs{
+
+	/**
+	 * @struct FrequentRefs
+	 * @brief Holds frequently used references for quick access.
+	 */
+	struct FrequentRefs{
 		// Identity
 		double* id;
 
@@ -326,9 +324,10 @@ private:
 		double* textColorA;
 	} refs;
 
+	/**
+	 * @brief Links frequently used references from the JSON document for quick access.
+	 */
 	void linkFrequentRefs();
-
-	
 
 	//------------------------------------------
 	// Texture related

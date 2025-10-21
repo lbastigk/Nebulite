@@ -9,7 +9,9 @@ double* Nebulite::Utility::DocumentCache::get_stable_double_ptr(const std::strin
 
     ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
     if (docPtr == nullptr) {
-        return zero; // Return a shared_ptr to zero if document loading fails
+        // Return a pointer to zero if document loading fails
+        zero = 0.0;     // Make sure zero is always 0.0
+        return &zero;
     }
 
     // Update the cache (unload old documents)

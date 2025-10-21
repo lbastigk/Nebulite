@@ -19,23 +19,15 @@
 #include <typeindex>
 
 // External
-#include "document.h"
-#include "writer.h"
-#include "stringbuffer.h"
-#include "prettywriter.h"
-#include "encodings.h"
-#include "istreamwrapper.h"
-#include "ostreamwrapper.h"
 #include "absl/container/flat_hash_map.h"
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Interaction/Execution/Domain.hpp"
-#include "Utility/FileManagement.hpp"
+#include "Utility/FileManagement.hpp"           // TODO: remove dependency. If there are any usages, use global->docCache instead!
+#include "Utility/RjDirectAccess.hpp"
 #include "Utility/OrderedDoublePointers.hpp"
 #include "Utility/Time.hpp"
-
-#include "RjDirectAccess.hpp"
 
 #define JSON_UID_QUICKCACHE_SIZE 30 // First 30 keys get a quickcache entry for double pointers!
 
@@ -69,16 +61,19 @@ private:
      * @brief Represents a cached entry in the JSON document, including its value, state, and stable pointer for double values.
      */
     struct CacheEntry {
-        RjDirectAccess::simpleValue value;
-        double* stable_double_ptr;                  // Never deleted.
-        double last_double_value;                   // For change detection
+        // No copying or moving
+        CacheEntry(const CacheEntry&) = delete;
+        CacheEntry& operator=(const CacheEntry&) = delete;
+        CacheEntry(CacheEntry&&) = delete;
+        CacheEntry& operator=(CacheEntry&&) = delete;
+
+        RjDirectAccess::simpleValue value = 0.0;        // Default virtual entries to 0
+        double last_double_value = 0.0;                 // For change detection
+        double* stable_double_ptr = new double(0.0);    // Never deleted.
+
         EntryState state = EntryState::DIRTY;       // Default to dirty
         
-        CacheEntry() {
-            value = 0.0;  // Default virtual entries to 0
-            stable_double_ptr = new double(0.0);
-            last_double_value = 0.0;
-        }
+        CacheEntry() {}
     };
 
     /**
@@ -140,7 +135,7 @@ private:
     double* uidDoubleCache[JSON_UID_QUICKCACHE_SIZE] = {nullptr};
 
 public:
-    JSON(Nebulite::Core::GlobalSpace* globalSpace);
+    explicit JSON(Nebulite::Core::GlobalSpace* globalSpace);
 
     ~JSON();
 
@@ -504,20 +499,73 @@ T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
     return defaultValue;
 }
 
+// Converter helper functions for convertVariant
+namespace{
+    inline bool stringToBool(const std::string& stored, bool defaultValue){
+        // Handle numeric strings and "true"
+        if(Nebulite::Utility::StringHandler::isNumber(stored)){
+            try {
+                return static_cast<bool>(std::stoi(stored) != 0);
+            } catch (...) {
+                return defaultValue;
+            }
+        }
+        return stored == "true";
+    }
+
+    inline int stringToInt(const std::string& stored, int defaultValue){
+        //if (stored == "true") return 1;
+        //if (stored == "false") return 0;
+        try {
+            return static_cast<int>(std::stoi(stored));
+        } catch (...) {
+            return defaultValue;
+        }
+    }
+
+    inline double stringToDouble(const std::string& stored, double defaultValue){
+        //if (stored == "true") return 1.0;
+        //if (stored == "false") return 0.0;
+        try {
+            return static_cast<double>(std::stod(stored));
+        } catch (...) {
+            return defaultValue;
+        }
+    }
+
+    inline unsigned long stringToUnsignedLong(const std::string& stored, unsigned long defaultValue){
+        //if (stored == "true") return 1.0;
+        //if (stored == "false") return 0.0;
+        try {
+            return static_cast<unsigned long>(std::stoul(stored));
+        } catch (...) {
+            return defaultValue;
+        }
+    }
+
+    inline unsigned long long stringToUnsignedLongLong(const std::string& stored, unsigned long long defaultValue){
+        //if (stored == "true") return 1;
+        //if (stored == "false") return 0;
+        try {
+            return static_cast<unsigned long long>(std::stoull(stored));
+        } catch (...) {
+            return defaultValue;
+        }
+    }
+
+    inline void convertVariantErrorMessage(std::string oldType, std::string newType){
+        std::cerr << "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
+                  << oldType
+                  << " to " << newType << ".\n"
+                  << "Please add the required conversion.\n"
+                  << "Fallback conversion from String to any Integral type was disabled due to potential lossy data conversion.\n"
+                  << "Rather, it is recommended to add one explicit conversion path per datatype.\n"
+                  << "Returning default value." << std::endl;
+    }
+}
+
 template<typename newType>
 newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValue& var, const newType& defaultValue) {
-    /*
-    Use std::visit to handle the variant type.
-    Conceptually, it works like a type-based switch statement:
-
-    switch(type):
-            case Type::INT:    return ...;
-            case Type::FLOAT:  return ...;
-            case Type::STRING: return ...;
-
-    However, instead of a switch, std::visit applies the provided callable
-    to the value stored in the std::variant, resolving the type at runtime.
-    */
     return std::visit([&](const auto& stored) -> newType 
     {
         // Removing all qualifiers (const, volatile, references, etc.)
@@ -532,59 +580,27 @@ newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValu
         // [STRING] -> [BOOL]
         // Handle string to bool
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, bool>) {
-            // Handle numeric strings and "true"
-            if(Nebulite::Utility::StringHandler::isNumber(stored)){
-                try {
-                    return static_cast<newType>(std::stoi(stored) != 0);
-                } catch (...) {
-                    return defaultValue;
-                }
-            }
-            return stored == "true";
+            return stringToBool(stored, defaultValue);
         }
 
         // [STRING] -> [INT]
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int>) {
-            //if (stored == "true") return 1;
-            //if (stored == "false") return 0;
-            try {
-                return static_cast<newType>(std::stoi(stored));
-            } catch (...) {
-                return defaultValue;
-            }
+            return stringToInt(stored, defaultValue);
         }
 
         // [STRING] -> [DOUBLE]
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, double>) {
-            //if (stored == "true") return 1.0;
-            //if (stored == "false") return 0.0;
-            try {
-                return static_cast<newType>(std::stod(stored));
-            } catch (...) {
-                return defaultValue;
-            }
+            return stringToDouble(stored, defaultValue);
         }
 
         // [STRING] -> [UNSIGNED LONG]
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, unsigned long>) {
-            //if (stored == "true") return 1.0;
-            //if (stored == "false") return 0.0;
-            try {
-                return static_cast<newType>(std::stoul(stored));
-            } catch (...) {
-                return defaultValue;
-            }
+            return stringToUnsignedLong(stored, defaultValue);
         }
 
         // [STRING] -> [UNSIGNED LONG LONG]
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, unsigned long long>) {
-            //if (stored == "true") return 1;
-            //if (stored == "false") return 0;
-            try {
-                return static_cast<newType>(std::stoull(stored));
-            } catch (...) {
-                return defaultValue;
-            }
+            return stringToUnsignedLongLong(stored, defaultValue);
         }
 
         // [ARITHMETIC] -> [STRING]
@@ -592,41 +608,11 @@ newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValu
             return std::to_string(stored);
         }
 
-        // [STRING] -> [INTEGRAL]
-        // for completion, we may wish to include all other integral types
-        // Not in use anymore, rather specifying types directly!
-        /*
-        Handle string to integral type.
-
-        From cppreference.com: https://en.cppreference.com/w/cpp/types/is_integral.html
-        if T is the type bool, char, char8_t(since C++20), char16_t, char32_t, wchar_t, short, int, 
-        long, long long, or any implementation-defined extended integer types, including any signed, 
-        unsigned, and cv-qualified variants. Otherwise, value is equal to false.
-
-        
-        if constexpr (std::is_same_v<StoredT, std::string> && std::is_integral_v<T>) {
-            // Using a long long conversion
-            try {
-                if constexpr (std::is_signed_v<T>) {
-                    return static_cast<T>(std::stoll(stored));
-                } else {
-                    return static_cast<T>(std::stoull(stored));
-                }
-            } catch (...) {
-                return defaultValue;
-            }
-        }
-        */
-
         //------------------------------------------
         // [FALLBACK]
-        std::cerr << "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
-                  << abi::__cxa_demangle(typeid(stored).name(), nullptr, nullptr, nullptr) 
-                  << " to " << abi::__cxa_demangle(typeid(newType).name(), nullptr, nullptr, nullptr) << ".\n"
-                  << "Please add the required conversion.\n"
-                  << "Fallback conversion from String to any Integral type was disabled due to potential lossy data conversion.\n"
-                  << "Rather, it is recommended to add one explicit conversion path per datatype.\n"
-                  << "Returning default value." << std::endl;
+        std::string oldTypeName = abi::__cxa_demangle(typeid(stored).name(), nullptr, nullptr, nullptr);
+        std::string newTypeName = abi::__cxa_demangle(typeid(newType).name(), nullptr, nullptr, nullptr);
+        convertVariantErrorMessage(oldTypeName, newTypeName);
         return defaultValue;
     }, 
     var);
