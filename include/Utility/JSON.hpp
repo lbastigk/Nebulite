@@ -387,7 +387,7 @@ public:
 
 template<typename T>
 void Nebulite::Utility::JSON::set(const std::string& key, const T& value) {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Check if key is valid
     if (!RjDirectAccess::isValidKey(key)) {
@@ -432,7 +432,7 @@ void Nebulite::Utility::JSON::set(const std::string& key, const T& value) {
 
 template<typename T>
 T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Check cache first
     auto it = cache.find(key);
@@ -553,7 +553,7 @@ namespace{
         }
     }
 
-    inline void convertVariantErrorMessage(std::string oldType, std::string newType){
+    inline void convertVariantErrorMessage(const std::string& oldType, const std::string& newType){
         std::cerr << "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
                   << oldType
                   << " to " << newType << ".\n"
