@@ -119,13 +119,8 @@ void Nebulite::Interaction::Logic::Expression::compileIfExpression(Entry& entry)
 
 void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_name, std::string key, Entry::From context){
     // Check if variable exists in variables vector:
-    bool found = false;
-    for(auto te_var : te_variables) {
-        if(te_var.name == te_name) {
-            found = true;
-            break;
-        }
-    }
+    bool found = std::any_of(te_variables.begin(), te_variables.end(), [&](const auto& te_var) { return te_var.name == te_name; });
+
     if(!found) {
         // Initialize with reference to document and cache register
         std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble> vd = std::make_shared<Nebulite::Interaction::Logic::VirtualDouble>(key, documentCache);
@@ -218,7 +213,7 @@ void Nebulite::Interaction::Logic::Expression::parseIntoEntries(const std::strin
     // - formatting
     // - splitting all text-variable mixes
     // - variable info (from what document, what the key is)
-    for (auto& token : tokens) {
+    for (const auto& token : tokens) {
         if (!token.empty()) {
             Entry currentEntry;
             if(token.starts_with('$')){
