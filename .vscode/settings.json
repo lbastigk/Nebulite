@@ -106,10 +106,11 @@
         "${workspaceFolder}/src"
     ],
     "c-cpp-flylint.excludeFromWorkspacePaths": [
+        "**/external/**",
+        "**/external/rapidjson/**",
+        "**/external/rapidjson/include/rapidjson/**",
         "/usr/include/c++/**",
         "/usr/lib/**",
-        "/lib/**",
-        "external/**",
-        "external/rapidjson/include/rapidjson/**"
+        "/lib/**"
     ]
 }
