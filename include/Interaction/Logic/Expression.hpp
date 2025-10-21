@@ -66,7 +66,9 @@ public:
      * 
      * @return True if the expression can be returned as a double, false otherwise.
      */
-    bool isReturnableAsDouble();
+    bool isReturnableAsDouble(){
+        return _isReturnableAsDouble;
+    }
 
     /**
      * @brief Evaluates the expression as a double.

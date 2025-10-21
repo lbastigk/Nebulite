@@ -557,10 +557,6 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
     return result;
 }
 
-bool Nebulite::Interaction::Logic::Expression::isReturnableAsDouble() {
-    return _isReturnableAsDouble;
-}
-
 double Nebulite::Interaction::Logic::Expression::evalAsDouble(Nebulite::Utility::JSON* current_other) {
     // Update caches so that tinyexpr has the correct references
     updateCaches(current_other);
