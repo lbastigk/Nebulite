@@ -1,6 +1,8 @@
 #include "DomainModule/GlobalSpace/GSDM_Debug.hpp"
 #include "Core/GlobalSpace.hpp"       // Global Space for Nebulite
 
+#include <csignal>
+
 #if defined(_WIN32)
   #include <windows.h>
 #else
@@ -209,8 +211,7 @@ Nebulite::Constants::Error Debug::crash(int argc,  char* argv[]) {
         std::string crashType = argv[1];
         if (crashType == "segfault") {
             // Cause a segmentation fault
-            int* p = nullptr;
-            *p = 42;
+            raise(SIGSEGV);
         } else if (crashType == "abort") {
             // Abort the program
             std::abort();
@@ -226,8 +227,7 @@ Nebulite::Constants::Error Debug::crash(int argc,  char* argv[]) {
         }
     } else {
         // Default: segmentation fault
-        int* p = nullptr;
-        *p = 42;
+        raise(SIGSEGV);
     }
     // Should never reach here
     return Nebulite::Constants::ErrorTable::NONE();
