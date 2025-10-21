@@ -109,6 +109,9 @@
         "**/external/**",
         "**/external/rapidjson/**",
         "**/external/rapidjson/include/rapidjson/**",
+        "external/**",
+        "external/*",
+        "external/",
         "/usr/include/c++/**",
         "/usr/lib/**",
         "/lib/**"
