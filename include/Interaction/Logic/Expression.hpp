@@ -405,14 +405,14 @@ private:
      * @param currentEntry The current entry to populate.
      * @param entries The vector to push the current entry onto.
      */
-    void parseTokenTypeText(std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
+    void parseTokenTypeText(const std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
 
     /**
      * @brief Prints a compilation error message to cerr
      * 
      * Includes tips for fixing the error.
      */
-    void printCompileError(const Entry& entry, int& error);
+    void printCompileError(const Entry& entry, const int error);
 
     /**
      * @brief Updates caches

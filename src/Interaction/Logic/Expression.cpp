@@ -331,7 +331,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(const std::str
     entries.push_back(currentEntry);
 }
 
-void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
+void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(const std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
     // Current token is Text
     // Perhaps mixed with variables...
     std::vector<std::string> subTokens = Nebulite::Utility::StringHandler::splitOnSameDepth(token, '{');
@@ -362,7 +362,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(std::string& t
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::printCompileError(const Entry& entry, int& error) {
+void Nebulite::Interaction::Logic::Expression::printCompileError(const Entry& entry, const int error) {
     std::cerr << "-----------------------------------------------------------------" << std::endl;
     std::cerr << "Error compiling expression: '" << entry.str << "' Error code: " << error << std::endl;
     std::cerr << "You might see this message multiple times due to expression parallelization." << std::endl;
@@ -526,7 +526,7 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
                             token.append(entry.formatter.precision - currentPrecision, '0');
                         } else if (currentPrecision > static_cast<size_t>(entry.formatter.precision)) {
                             // Truncate to the required precision (should be minimal after rounding)
-                            token = token.substr(0, dotPos + entry.formatter.precision + 1);
+                            token.resize(dotPos + entry.formatter.precision + 1);
                         }
                     } else {
                         // No decimal point, add one and pad with zeros
