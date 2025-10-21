@@ -339,13 +339,48 @@ def run_single_test(binary: str, test: Dict[str, Any], timeout: int, ignore_line
         'result': 'PASS' if passed else 'FAIL'
     }
 
-def print_test_summary(passed_tests: int, failed_tests: int, total_tests: int):
+def print_test_summary(process_information: Dict[str, Any]):
     """Print the test results summary."""
     print("\n============== Test Summary ==============")
-    print(f"Tests passed: {passed_tests}")
-    print(f"Tests failed: {failed_tests}")
-    print(f"Total tests:  {total_tests}")
+    print(f"Tests passed: {process_information['passed_tests']}")
+    print(f"Tests failed: {process_information['failed_tests']}")
+    print(f"Total tests:  {process_information['total_tests']}")
     print("==========================================\n")
+
+def process_binaries(binaries, tests: List[Dict[str, Any]], timeout: int, ignore_lines: Dict[str, List[str]], stop_on_fail: bool, verbose: bool) -> Dict[str, Any]:
+    total_tests = 0
+    passed_tests = 0
+    failed_tests = 0
+    results = []
+    for binary in binaries:
+            print(f"\n==============================")
+            print(f"Testing binary: {binary}")
+            print(f"==============================\n")
+            
+            for test in tests:
+                total_tests += 1
+                test_result = run_single_test(binary, test, timeout, ignore_lines, verbose)
+                
+                if test_result['passed']:
+                    passed_tests += 1
+                else:
+                    failed_tests += 1
+                    if stop_on_fail:
+                        print("Stopping on first failure as requested.")
+                        results.append(test_result)
+                        break
+                
+                results.append(test_result)
+            
+            if stop_on_fail and failed_tests > 0:
+                break
+    process_information = {
+        'passed_tests': passed_tests,
+        'failed_tests': failed_tests,
+        'total_tests': total_tests,
+        'results': results
+    }
+    return process_information
 
 def run_testsuite(config: Dict[str, Any], stop_on_fail: bool = False, verbose: bool = False, enable_coverage: bool = False, auto_open_coverage: bool = True):
     """Run the complete test suite."""
@@ -354,64 +389,18 @@ def run_testsuite(config: Dict[str, Any], stop_on_fail: bool = False, verbose: b
     tests = config.get('tests', [])
     ignore_lines = config.get('ignore_lines', {})
 
-    # Filter binaries for coverage if enabled
+    # Replace binaries with singular coverage-enabled binary if coverage is enabled
     if enable_coverage:
-        # Replace regular binaries with coverage versions
-        coverage_binaries = []
-        for binary in binaries:
-            if './bin/Nebulite --headless' in binary:
-                coverage_binaries.append('./bin/Nebulite_Coverage --headless')
-            elif './bin/Nebulite_Debug --headless' in binary:
-                # For coverage, we only need one instrumented binary
-                pass  # Skip debug binary for coverage
-            else:
-                # Skip Windows binaries for coverage (they don't have coverage support)
-                pass
-        
-        if not coverage_binaries:
-            # Fallback: add coverage binary if none found
-            coverage_binaries = ['./bin/Nebulite_Coverage --headless']
-        
-        binaries = coverage_binaries
-        print("Running tests with coverage enabled")
-        print(f"Using coverage binaries: {binaries}")
-        reset_coverage_data()
+        binaries = [ "./bin/Nebulite_Coverage --headless" ]
 
-    total_tests = 0
-    passed_tests = 0
-    failed_tests = 0
-    results = []
-
+    # Run tests
     if len(binaries) == 0:
         print("Warning: No binaries specified!")
     else:
         print(f"Testing {len(binaries)} Binaries")
+    process_information = process_binaries(binaries, tests, timeout, ignore_lines, stop_on_fail, verbose)
+    print_test_summary(process_information)
 
-    for binary in binaries:
-        print(f"\n==============================")
-        print(f"Testing binary: {binary}")
-        print(f"==============================\n")
-        
-        for test in tests:
-            total_tests += 1
-            test_result = run_single_test(binary, test, timeout, ignore_lines, verbose)
-            
-            if test_result['passed']:
-                passed_tests += 1
-            else:
-                failed_tests += 1
-                if stop_on_fail:
-                    print("Stopping on first failure as requested.")
-                    results.append(test_result)
-                    break
-            
-            results.append(test_result)
-        
-        if stop_on_fail and failed_tests > 0:
-            break
-
-    print_test_summary(passed_tests, failed_tests, total_tests)
-    
     # Generate coverage report if enabled
     if enable_coverage:
         print("\n============== Coverage Report ==============")
