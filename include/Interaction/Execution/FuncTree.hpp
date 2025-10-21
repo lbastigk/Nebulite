@@ -622,9 +622,8 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(co
     int argc = static_cast<int>(tokens.size());
     std::vector<char*> argv_vec;
     argv_vec.reserve(argc + 1);
-    for (auto& str : tokens) {
-        argv_vec.push_back(const_cast<char*>(str.c_str()));
-    }
+    std::transform(tokens.begin(), tokens.end(), std::back_inserter(argv_vec),
+        [](std::string& str) { return const_cast<char*>(str.c_str()); });
     argv_vec.push_back(nullptr); // Null-terminate
 
     // First argument is binary name or last function name
