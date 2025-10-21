@@ -125,7 +125,7 @@ public:
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
      */
-    Nebulite::Core::taskQueueResult resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t* waitCounter);
+    Nebulite::Core::taskQueueResult resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, const uint64_t* waitCounter);
 
     /**
      * @brief Parses the task queue for execution.

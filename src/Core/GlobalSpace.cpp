@@ -184,13 +184,13 @@ void Nebulite::Core::GlobalSpace::parseCommandLineArguments(const int argc, cons
     }
 }
 
-Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t* waitCounter){
-    Nebulite::Constants::Error currentResult = Nebulite::Constants::ErrorTable::NONE();
-    Nebulite::Core::taskQueueResult result;
+Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, const uint64_t* waitCounter){
+    Nebulite::Constants::Error currentResult;
+    Nebulite::Core::taskQueueResult fullResult;
 
     // If clearAfterResolving, process and pop each element
     if (tq.clearAfterResolving) {
-        while (!tq.taskQueue.empty() && !result.stoppedAtCriticalResult) {
+        while (!tq.taskQueue.empty() && !fullResult.stoppedAtCriticalResult) {
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
             std::string argStr = tq.taskQueue.front();
@@ -209,14 +209,14 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
 
             // Check result
             if (currentResult.isCritical()) {
-                result.stoppedAtCriticalResult = true;
+                fullResult.stoppedAtCriticalResult = true;
             }
-            result.errors.push_back(currentResult);
+            fullResult.errors.push_back(currentResult);
         }
     } else {
         // If not clearing, process every element without popping
         for (const auto& argStrOrig : tq.taskQueue) {
-            if (result.stoppedAtCriticalResult) break;
+            if (fullResult.stoppedAtCriticalResult) break;
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
             // Add binary name if missing
@@ -233,13 +233,12 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
 
             // Check result
             if (currentResult.isCritical()) {
-                result.stoppedAtCriticalResult = true;
+                fullResult.stoppedAtCriticalResult = true;
             }
-            result.errors.push_back(currentResult);
+            fullResult.errors.push_back(currentResult);
         }
     }
-
-    return result;
+    return fullResult;
 }
 
 Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
