@@ -64,18 +64,6 @@ public:
     Nebulite::Constants::Error preParse() override;
 
     //------------------------------------------
-    // GlobalSpace related
-
-    /**
-     * @brief Gets a pointer to the linked globalspace.
-     * 
-     * @return Pointer to the linked globalspace.
-     */
-    Nebulite::Core::GlobalSpace* getGlobalSpace() {
-        return globalSpace;
-    }
-
-    //------------------------------------------
     // SDL_Texture related
 
     /**
