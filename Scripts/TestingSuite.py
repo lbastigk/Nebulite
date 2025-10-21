@@ -157,11 +157,29 @@ def generate_coverage_report(coverage_dir: str = "tmp/coverage_data", output_dir
     
     # Run lcov to capture coverage data
     lcov_file = os.path.join(output_dir, "coverage.info")
+
+    # See if lcov exists
+    if not shutil.which("lcov"):
+        print("lcov not found. Please install lcov package.")
+        print("On Ubuntu/Debian: sudo apt install lcov")
+        print("On Fedora: sudo dnf install lcov")
+        sys.exit(1)
+    
+    # Get full path to lcov
+    lcov_path = shutil.which("lcov")
+
+    # See if genhtml exists
+    if not shutil.which("genhtml"):
+        print("genhtml not found. Please install lcov package.")
+        print("On Ubuntu/Debian: sudo apt install lcov")
+        print("On Fedora: sudo dnf install lcov")
+        sys.exit(1)
+    genhtml_path = shutil.which("genhtml")
     
     try:
         # Capture coverage data
         subprocess.run([
-            "lcov", "--capture", 
+            f"{lcov_path}", "--capture",
             "--directory", coverage_dir,
             "--output-file", lcov_file,
             "--ignore-errors", "gcov,negative"  # Ignore missing .gcno files and negative counts
@@ -170,7 +188,7 @@ def generate_coverage_report(coverage_dir: str = "tmp/coverage_data", output_dir
         # Filter out unwanted files (external dependencies, tests, etc.)
         filtered_lcov = os.path.join(output_dir, "coverage_filtered.info")
         subprocess.run([
-            "lcov", "--remove", lcov_file,
+            f"{lcov_path}", "--remove", lcov_file,
             "*/external/*", "*/tmp/*", "*/usr/include/*", "*/usr/local/*", "*/usr/lib/*",
             "--output-file", filtered_lcov,
             "--ignore-errors", "unused"
@@ -178,7 +196,7 @@ def generate_coverage_report(coverage_dir: str = "tmp/coverage_data", output_dir
         
         # Generate HTML report
         subprocess.run([
-            "genhtml", filtered_lcov,
+            f"{genhtml_path}", filtered_lcov,
             "--output-directory", os.path.join(output_dir, "html"),
             "--title", "Nebulite Code Coverage Report",
             "--num-spaces", "4",
@@ -200,7 +218,7 @@ def generate_coverage_report(coverage_dir: str = "tmp/coverage_data", output_dir
         
         # Print summary
         try:
-            result = subprocess.run(["lcov", "--summary", filtered_lcov], 
+            result = subprocess.run([f"{lcov_path}", "--summary", filtered_lcov], 
                                   capture_output=True, text=True, check=True)
             print("\nCoverage Summary:")
             print(result.stdout)
