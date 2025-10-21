@@ -141,7 +141,7 @@ public:
      */
     void setUpExternalCache(Nebulite::Utility::JSON* json) {
         if (json != nullptr) {
-            reference = json->getStableDoublePointer(key.c_str());
+            reference = json->getStableDoublePointer(key);
         }
         else if (documentCache != nullptr) {
             reference = documentCache->getStableDoublePointer(key);
