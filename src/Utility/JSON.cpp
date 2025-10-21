@@ -7,13 +7,13 @@
 Nebulite::Utility::JSON::JSON(Nebulite::Core::GlobalSpace* globalSpace)
 : Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, globalSpace)
 {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
     doc.SetObject();
     Nebulite::DomainModule::JSDM_init(this);
 }
 
 Nebulite::Utility::JSON::~JSON(){
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
     cache.clear();
     doc.SetObject();
 }
@@ -21,16 +21,20 @@ Nebulite::Utility::JSON::~JSON(){
 Nebulite::Utility::JSON::JSON(JSON&& other) noexcept
 : Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, other.getGlobalSpace())
 {
-    std::scoped_lock lock(mtx, other.mtx); // Locks both, deadlock-free
+    std::scoped_lock lockGuard(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);
     cache = std::move(other.cache);
 }
 
 Nebulite::Utility::JSON& Nebulite::Utility::JSON::operator=(JSON&& other) noexcept{
     if (this != &other) {
-        std::scoped_lock lock(mtx, other.mtx);
+        std::scoped_lock lockGuard(mtx, other.mtx);
         doc = std::move(other.doc);
         cache = std::move(other.cache);
+        for(size_t idx = 0; idx < JSON_UID_QUICKCACHE_SIZE; idx++){
+            uidDoubleCache[idx] = other.uidDoubleCache[idx];
+            other.uidDoubleCache[idx] = nullptr;
+        }
     }
     return *this;
 }
@@ -41,7 +45,7 @@ Nebulite::Utility::JSON& Nebulite::Utility::JSON::operator=(JSON&& other) noexce
 // Mark all child keys as virtual
 // e.g.: "parent.child1", "parent.child2.subchild", "parent[0]", etc.
 void Nebulite::Utility::JSON::invalidate_child_keys(const std::string& parent_key) {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
     std::vector<std::string> keys_to_remove;
 
     // Find all child keys and invalidate them
@@ -56,7 +60,7 @@ void Nebulite::Utility::JSON::invalidate_child_keys(const std::string& parent_ke
 }
 
 void Nebulite::Utility::JSON::flush(){
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
     for (auto& [key, entry] : cache) {
         // If double values changed, mark dirty
         if(entry->last_double_value != *(entry->stable_double_ptr)) {
@@ -81,7 +85,7 @@ const std::string Nebulite::Utility::JSON::reservedCharacters = "[]{}.,";
 
 Nebulite::Constants::Error Nebulite::Utility::JSON::update(){
     // Used once domain is fully set up
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
     updateModules();
     return Nebulite::Constants::ErrorTable::NONE();
 }
@@ -90,7 +94,7 @@ Nebulite::Constants::Error Nebulite::Utility::JSON::update(){
 // Get methods
 
 Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(const char* key){
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Flush own contents
     flush();
@@ -109,7 +113,7 @@ Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(const char* key){
 }
 
 double* Nebulite::Utility::JSON::get_stable_double_ptr(const std::string& key){
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Check cache first
     auto it = cache.find(key);
@@ -150,7 +154,7 @@ double* Nebulite::Utility::JSON::get_stable_double_ptr(const std::string& key){
 // Set methods
 
 void Nebulite::Utility::JSON::set_subdoc(const char* key, Nebulite::Utility::JSON* child){
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Flush own contents
     flush();
@@ -171,7 +175,7 @@ void Nebulite::Utility::JSON::set_subdoc(const char* key, Nebulite::Utility::JSO
 }
 
 void Nebulite::Utility::JSON::set_empty_array(const char* key){
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
     flush();
     rapidjson::Value* val = Nebulite::Utility::RjDirectAccess::ensure_path(key,doc,doc.GetAllocator());
     val->SetArray();
@@ -181,7 +185,7 @@ void Nebulite::Utility::JSON::set_empty_array(const char* key){
 // Serialize/Deserialize
 
 std::string Nebulite::Utility::JSON::serialize(std::string key) {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
     flush(); // Ensure all changes are reflected in the document
     if(key.size() == 0){
         // Serialize entire doc
@@ -194,7 +198,7 @@ std::string Nebulite::Utility::JSON::serialize(std::string key) {
 }
 
 void Nebulite::Utility::JSON::deserialize(std::string serial_or_link){
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Reset document and cache
     flush();
@@ -273,7 +277,7 @@ Nebulite::Utility::JSON::KeyType Nebulite::Utility::JSON::memberCheck(std::strin
     }
 
     // For all other cases, lock this object
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // 2. Check cache first
     auto it = cache.find(key);
@@ -305,7 +309,7 @@ Nebulite::Utility::JSON::KeyType Nebulite::Utility::JSON::memberCheck(std::strin
 }
 
 uint32_t Nebulite::Utility::JSON::memberSize(std::string key){
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     auto kt = memberCheck(key);
     if(kt == KeyType::null){
@@ -323,7 +327,7 @@ uint32_t Nebulite::Utility::JSON::memberSize(std::string key){
 }
 
 void Nebulite::Utility::JSON::remove_key(const char* key){
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Ensure cache is flushed before removing key
     flush(); 
@@ -343,7 +347,7 @@ void Nebulite::Utility::JSON::remove_key(const char* key){
 // special get-function that returns the cache pointer instead of value
 
 void Nebulite::Utility::JSON::set_add(const char* key, double val) {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Get current value
     double current = get<double>(key, 0.0);
@@ -365,7 +369,7 @@ void Nebulite::Utility::JSON::set_add(const char* key, double val) {
 }
 
 void Nebulite::Utility::JSON::set_multiply(const char* key, double val) {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Get current value
     double current = get<double>(key, 0.0);
@@ -387,7 +391,7 @@ void Nebulite::Utility::JSON::set_multiply(const char* key, double val) {
 }
 
 void Nebulite::Utility::JSON::set_concat(const char* key, const char* valStr) {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     std::string current = get<std::string>(key, "");
     set<std::string>(key, current + valStr);
