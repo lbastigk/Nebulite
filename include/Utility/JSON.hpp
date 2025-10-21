@@ -306,7 +306,7 @@ public:
      * @param key The key to check.
      * @return The type of the key.
      */
-    KeyType memberCheck(std::string key);
+    KeyType memberCheck(const std::string& key);
 
     /**
      * @brief Checks the size of a key in the JSON document.
