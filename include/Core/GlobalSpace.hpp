@@ -91,7 +91,7 @@ public:
     // Special Member Functions
 
     // Constructor
-    GlobalSpace(const std::string binName);
+    explicit GlobalSpace(const std::string& binName);
 
     // Destructor
     ~GlobalSpace() = default;
