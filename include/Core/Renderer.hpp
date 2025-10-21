@@ -75,7 +75,7 @@ public:
 	 * 
 	 * @param serialOrLink The JSON string or link to deserialize.
 	 */
-	void deserialize(std::string serialOrLink){
+	void deserialize(const std::string& serialOrLink){
 		env.deserialize(
 			serialOrLink, 
 			getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
@@ -306,7 +306,7 @@ public:
 	 * 
 	 * @return The number of RenderObjects in the environment.
 	 */
-	size_t getObjectCount(){return env.getObjectCount();}
+	size_t getObjectCount() const {return env.getObjectCount();}
 
 	/**
 	 * @brief Gets the current resolution in the X direction.
