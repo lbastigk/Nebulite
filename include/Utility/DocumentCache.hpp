@@ -271,7 +271,7 @@ private:
             /**
              * @brief Constructor that takes a GlobalSpace pointer.
              */
-            ReadOnlyDocs(Nebulite::Core::GlobalSpace* global) : globalSpace(global) {
+            explicit ReadOnlyDocs(Nebulite::Core::GlobalSpace* global) : globalSpace(global) {
                 // Validate that globalSpace is not null
                 if (globalSpace == nullptr) {
                     throw std::invalid_argument("DocumentCache: GlobalSpace pointer cannot be null");
