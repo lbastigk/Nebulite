@@ -295,15 +295,21 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyIntern
 	uint64_t cost = 0;
 
 	// Local entries
-	for (const auto& entry : entries_local) {
-		cost += entry->estimatedCost;
-	}
+	cost = std::accumulate(
+		entries_local.begin(), entries_local.end(), cost,
+		[](uint64_t acc, const std::shared_ptr<Nebulite::Interaction::Ruleset>& entry) {
+			return acc + entry->estimatedCost;
+		}
+	);
 
 	// Global entries
 	if (!onlyInternal) {
-		for (const auto& entry : entries_global) {
-			cost += entry->estimatedCost;
-		}
+		cost = std::accumulate(
+			entries_global.begin(), entries_global.end(), cost,
+			[](uint64_t acc, const std::shared_ptr<Nebulite::Interaction::Ruleset>& entry) {
+				return acc + entry->estimatedCost;
+			}
+		);
 	}
 
 	return cost;
