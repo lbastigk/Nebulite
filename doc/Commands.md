@@ -2,7 +2,7 @@
 
 This documentation is automatically generated from the Nebulite executable.
 
-Generated on: Sat Oct 18 12:25:32 CEST 2025
+Generated on: Tue Oct 21 20:11:39 CEST 2025
 
 ## GlobalSpace Commands
 
@@ -25,6 +25,7 @@ Help for Nebulite
 | `copy` | Copy data from one key to another. |
 | `crash` | Crashes the program, useful for checking if the testing suite can catch crashes. |
 | `critical` | Returns a critical error. |
+| `debug` | DomainModule for special debugging capabilities within the GlobalSpace. |
 | `draft` | Functions to manipulate and spawn RenderObjects in draft state |
 | `echo` | Echoes all arguments as string to the standard output. |
 | `ensure-array` | Ensure that a key is an array, converting a value to an array if necessary. |
@@ -214,6 +215,62 @@ Returns a critical error.
 Usage: critical <string>
 
 - <string>: The critical error message.
+```
+
+#### `debug`
+
+### Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `collision-detect` | Utilities for testing collision detection functionalities. |
+| `help` | Show available commands and their descriptions |
+
+##### `debug collision-detect`
+
+### Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `category` | Tests collision detection of categories |
+| `function` | Tests collision detection of functions names |
+| `help` | Show available commands and their descriptions |
+| `variable` | Tests collision detection of variable names |
+
+###### `debug collision-detect category`
+
+```
+Tests collision detection of categories
+
+Tries to bind a category that is already registered in globalspace, expecting a collision error.
+
+Usage: debug collision-detect category [fail/succeed]
+
+Defaults to fail
+```
+
+###### `debug collision-detect function`
+
+```
+Tests collision detection of functions names
+
+Tries to bind a function name to globalspace that is already registered, expecting a collision error.
+
+Usage: debug collision-detect function [fail/succeed]
+
+Defaults to fail
+```
+
+###### `debug collision-detect variable`
+
+```
+Tests collision detection of variable names
+
+Tries to bind a variable name to globalspace that is already registered, expecting a collision error.
+
+Usage: debug collision-detect variable [fail/succeed]
+
+Defaults to fail
 ```
 
 #### `echo`
