@@ -13,7 +13,7 @@
     class DomainModuleName : public ::Nebulite::Interaction::Execution::DomainModule<DomainName>
 
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
-    DomainModuleName(::std::string moduleName, DomainName* domain, ::Nebulite::Interaction::Execution::FuncTree<::Nebulite::Constants::Error>* funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
+    DomainModuleName(::std::string moduleName, DomainName* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
     : DomainModule(moduleName, domain, funcTreePtr, globalSpace)
 
 //------------------------------------------
@@ -28,30 +28,6 @@
 namespace Nebulite::Core{
     class GlobalSpace;
 }
-
-//------------------------------------------
-// Helper to detect member function existence
-template <typename T>
-class has_setupBindings {
-    typedef char yes[1];
-    typedef char no[2];
-    template <typename U, void (U::*)()> struct SFINAE {};
-    template <typename U> static yes& test(SFINAE<U, &U::update>*);
-    template <typename U> static no& test(...);
-public:
-    static constexpr bool value = sizeof(test<T>(0)) == sizeof(yes);
-};
-template <typename T>
-class has_update {
-    typedef char yes[1];
-    typedef char no[2];
-    template <typename U, void (U::*)()> struct SFINAE {};
-    template <typename U> static yes& test(SFINAE<U, &U::update>*);
-    template <typename U> static no& test(...);
-public:
-    static constexpr bool value = sizeof(test<T>(0)) == sizeof(yes);
-};
-
 
 namespace Nebulite{
 namespace Interaction{
@@ -73,7 +49,7 @@ public:
      * The constructor initializes the DomainModule with a reference to the domain and
      * the FuncTree.
      */
-    DomainModule(std::string moduleName, DomainType* domain, FuncTree<Nebulite::Constants::Error>* funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace)
+    DomainModule(std::string moduleName, DomainType* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace)
         : moduleName(moduleName), domain(domain), global(globalSpace), funcTree(funcTreePtr) {}
 
     /**
@@ -174,7 +150,7 @@ private:
      * Instead of making a mess by untangling the templates, we simply use a pointer
      * to the non-templated interface.
      */
-    FuncTree<Nebulite::Constants::Error>* funcTree;
+    std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTree;
 };
 }   // namespace Interaction
 }   // namespace Execution

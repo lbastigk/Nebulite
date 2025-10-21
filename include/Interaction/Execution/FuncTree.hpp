@@ -97,7 +97,7 @@ public:
      * 
      * @param toInherit FuncTree pointer to inherit functions from.
      */
-    void inherit(FuncTree<RETURN_TYPE>* toInherit) {
+    void inherit(std::shared_ptr<FuncTree<RETURN_TYPE>> toInherit) {
         inheritedTrees.push_back(toInherit);
     }
 
@@ -156,7 +156,7 @@ public:
      * @return true if the category was created successfully, 
      * false if a category with the same name already exists.
      */
-    bool bindCategory(const std::string name, const std::string* helpDescription){
+    bool bindCategory(const std::string& name, const std::string* helpDescription){
         if(categories.find(name) != categories.end()){
             // Category already exists
             /**
@@ -268,7 +268,7 @@ private:
     std::string TreeName; 
 
     // inherited FuncTrees linked to this tree
-    std::vector<FuncTree<RETURN_TYPE>*> inheritedTrees;
+    std::vector<std::shared_ptr<FuncTree<RETURN_TYPE>>> inheritedTrees;
 
     /**
      * @struct category
@@ -400,7 +400,7 @@ private:
      * @param funcName Name of the function to find
      * @return Pointer to the FuncTree where the function was found, or nullptr if not found.
      */
-    FuncTree<RETURN_TYPE>* findInInheritedTrees(const std::string& funcName){
+    std::shared_ptr<FuncTree<RETURN_TYPE>> findInInheritedTrees(const std::string& funcName){
         // Prerequisite if an inherited FuncTree is linked
         if(inheritedTrees.size() && !hasFunction(funcName)) {
             // Check if the function is in an inherited tree

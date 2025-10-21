@@ -67,11 +67,11 @@ public:
     Domain(std::string domainName, DomainType* domain, Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* global)
     : domainName(domainName), domain(domain), doc(doc), global(global)
     {
-        funcTree = new Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>( 
-                domainName, 
-                Nebulite::Constants::ErrorTable::NONE(), 
-                Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
-            );
+        funcTree = std::make_shared<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>>( 
+            domainName, 
+            Nebulite::Constants::ErrorTable::NONE(), 
+            Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
+        );
     };
 
     //------------------------------------------
@@ -229,7 +229,7 @@ private:
      * 
      * The Tree is then shared with the DomainModules for modification.
      */
-    Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>* funcTree;
+    std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTree;
 
     //------------------------------------------
     // Inner references
