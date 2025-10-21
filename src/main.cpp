@@ -52,12 +52,12 @@
  *
  * @todo:   settings.jsonc: Renderer size, fps setting (Input Mapping is already a work in progress. See GSDM_InputMapping.h)
  */
-int main(const int argc, const char* argv[]){
+int main(int argc, char* argv[]){
     //------------------------------------------
     // Initialize the global space, parse command line arguments
     std::string binaryName = argv[0];
     Nebulite::Core::GlobalSpace globalSpace(binaryName);
-    globalSpace.parseCommandLineArguments(argc, argv);
+    globalSpace.parseCommandLineArguments(argc, const_cast<const char**>(argv));
     
     //------------------------------------------
     // Render loop
