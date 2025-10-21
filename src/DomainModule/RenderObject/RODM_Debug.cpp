@@ -95,13 +95,13 @@ namespace{
 
     /**
      * @brief Converts SDL texture access enum to human-readable string.
-     * @param access The SDL texture access enum value.
+     * @param accessType The SDL texture access enum value.
      * @return A string representing the access type.
      */
-    std::string getTextureAccessString(int access) {
-        return (access == SDL_TEXTUREACCESS_STATIC)    ? "Static"    :
-               (access == SDL_TEXTUREACCESS_STREAMING) ? "Streaming" :
-               (access == SDL_TEXTUREACCESS_TARGET)    ? "Target"    :
+    std::string getTextureAccessString(int accessType) {
+        return (accessType == SDL_TEXTUREACCESS_STATIC)    ? "Static"    :
+               (accessType == SDL_TEXTUREACCESS_STREAMING) ? "Streaming" :
+               (accessType == SDL_TEXTUREACCESS_TARGET)    ? "Target"    :
                "Other";
     }
 
