@@ -68,7 +68,7 @@ public:
 	 * @brief Constructs a new RenderObjectContainer.
 	 * @param globalSpace Pointer to the global Space instance.
 	 */
-	RenderObjectContainer(Nebulite::Core::GlobalSpace* globalSpace);
+	explicit RenderObjectContainer(Nebulite::Core::GlobalSpace* globalSpace);
 
 	//------------------------------------------
 	// Serialization / Deserialization
