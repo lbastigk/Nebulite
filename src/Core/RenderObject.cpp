@@ -150,9 +150,9 @@ void Nebulite::Core::RenderObject::deserialize(std::string serialOrLink) {
 
 				// New implementation through functioncall
 				std::string call = __FUNCTION__;
-				call += " set"; // TODO: Use static const string for "set"
+				call += " " + Nebulite::DomainModule::JSON::SimpleData::set_name;
 				call += " " + key + " " + value;
-				parseStr("Nebulite::Core::RenderObject::deserialize set " + key + " " + value);
+				parseStr(call);
 			}
 			// Handle function call
 			else {
