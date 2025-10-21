@@ -427,6 +427,20 @@ private:
      * @return A pointer to the vector of double pointers for the expression in the other document.
      */
     odpvec* ensure_other_cache_entry(Nebulite::Utility::JSON* current_other);
+
+    /**
+     * @brief Handles the evaluation of a variable entry.
+     * 
+     * @param token The string to populate with the evaluated value.
+     * @param entry The entry to evaluate.
+     * @return True if the evaluation was successful, false otherwise.
+     */
+    bool handleEntryTypeVariable(std::string& token, const Entry& entry, Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth);
+
+    /**
+     * @brief Handles the evaluation of an eval entry.
+     */
+    void handleEntryTypeEval(std::string& token, const Entry& entry);
 };
 } // namespace Logic
 } // namespace Interaction

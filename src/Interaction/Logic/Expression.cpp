@@ -415,6 +415,107 @@ void Nebulite::Interaction::Logic::Expression::parse(const std::string& expr, Ne
     uniqueId = globalspace->getUniqueId(fullExpression, Nebulite::Core::GlobalSpace::UniqueIdType::EXPRESSION);
 }
 
+bool Nebulite::Interaction::Logic::Expression::handleEntryTypeVariable(std::string& token, const Entry& entry, Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth) {
+    std::string key = entry.key;
+    Entry::From context = entry.from;
+    
+    // See if the variable contains an inner expression
+    if(entry.str.find('$') != std::string::npos || entry.str.find('{') != std::string::npos) {
+        if(max_recursion_depth == 0) {
+            std::cerr << "Error: Maximum recursion depth reached when evaluating variable: " << entry.key << std::endl;
+            return false;
+        }
+        // Create a temporary expression to evaluate the inner expression
+        Expression tempExpr;
+        tempExpr.parse(entry.str, documentCache, self, global);
+        key = tempExpr.eval(current_other, max_recursion_depth - 1);
+
+        // Redetermine context and strip it from key
+        context = getContext(key);
+        key = stripContext(key);
+    }
+
+    // Now, use the key to get the value from the correct document
+    switch(context) {
+        case Entry::From::self:
+            if(self == nullptr){
+                std::cerr << "Error: Null self reference in expression: " << key << std::endl;
+                return false;
+            }
+            token = self->get<std::string>(key, "0");
+            break;
+        case Entry::From::other:
+            if(current_other == nullptr) {
+                std::cerr << "Error: Null other reference in expression: " << key << std::endl;
+                return false;
+            }
+            token = current_other->get<std::string>(key, "0");
+            break;
+        case Entry::From::global:
+            if (global == nullptr) {
+                std::cerr << "Error: Null global reference in expression: " << key << std::endl;
+                return false;
+            }
+            token = global->get<std::string>(key, "0");
+            break;
+        case Entry::From::resource:
+        default:
+            if (globalCache == nullptr) {
+                std::cerr << "Error: Null globalCache reference in expression: " << key  << ". If this shouldn't be a Resource reference, did you forget the prefix self/other/global?" << std::endl;
+                return false;
+            }
+            token = globalCache->get<std::string>(key, "0");
+            break;
+    }
+    return true;
+}
+
+void Nebulite::Interaction::Logic::Expression::handleEntryTypeEval(std::string& token, const Entry& entry) {
+    //------------------------------------------
+    // Handle casting and precision together
+    if(entry.cast == Entry::CastType::to_int){
+        token = std::to_string(static_cast<int>(te_eval(entry.expression)));
+    } else{
+        // to_double or none, both use double directly 
+        double value = te_eval(entry.expression);
+        
+        // Apply rounding if precision is specified
+        if (entry.formatter.precision != -1) {
+            double multiplier = std::pow(10.0, entry.formatter.precision);
+            value = std::round(value * multiplier) / multiplier;
+        }
+        
+        token = std::to_string(value);
+    }
+
+    // Precision formatting (after rounding)
+    if (entry.formatter.precision != -1) {
+        size_t dotPos = token.find('.');
+        if (dotPos != std::string::npos) {
+            size_t currentPrecision = token.size() - dotPos - 1;
+            if (currentPrecision < static_cast<size_t>(entry.formatter.precision)) {
+                // Add zeros to match the required precision
+                token.append(entry.formatter.precision - currentPrecision, '0');
+            } else if (currentPrecision > static_cast<size_t>(entry.formatter.precision)) {
+                // Truncate to the required precision (should be minimal after rounding)
+                token.resize(dotPos + entry.formatter.precision + 1);
+            }
+        } else {
+            // No decimal point, add one and pad with zeros
+            token += '.';
+            token.append(entry.formatter.precision, '0');
+        }
+    }
+
+    // Adding padding
+    if(entry.formatter.alignment > 0 && token.size() < static_cast<size_t>(entry.formatter.alignment)) {
+        int32_t size = token.size();
+        for(int i = 0; i < entry.formatter.alignment - size; i++){
+            token = (entry.formatter.leadingZero ? '0' : ' ') + token;
+        }
+    }
+}
+
 std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth) {
     //------------------------------------------
     // Update caches so that tinyexpr has the correct references
@@ -425,118 +526,18 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
 
     // Concatenate results of each entry
     std::string result = "";
-    std::string token;
-    std::string key;
-    Entry::From context;
-    bool failed = false;
-    for (auto& entry : entries) {
-        token = "";
-        key = entry.key;
-        context = entry.from;
+    for (const auto& entry : entries) {
+        std::string token = "";
         switch (entry.type){
             //------------------------------------------
             case Entry::variable:
-                // See if the variable contains an inner expression
-                if(entry.str.find('$') != std::string::npos || entry.str.find('{') != std::string::npos) {
-                    if(max_recursion_depth == 0) {
-                        std::cerr << "Error: Maximum recursion depth reached when evaluating variable: " << entry.key << std::endl;
-                        return "0";
-                    }
-                    // Create a temporary expression to evaluate the inner expression
-                    Expression tempExpr;
-                    tempExpr.parse(entry.str, documentCache, self, global);
-                    key = tempExpr.eval(current_other, max_recursion_depth - 1);
-
-                    // Redetermine context and strip it from key
-                    context = getContext(key);
-                    key = stripContext(key);
-                }
-
-                // Now, use the key to get the value from the correct document
-                switch(context) {
-                    case Entry::From::self:
-                        if(self == nullptr){
-                            std::cerr << "Error: Null self reference in expression: " << key << std::endl;
-                            failed = true;
-                            break;
-                        }
-                        token = self->get<std::string>(key.c_str(), "0");
-                        break;
-                    case Entry::From::other:
-                        if(current_other == nullptr) {
-                            std::cerr << "Error: Null other reference in expression: " << key << std::endl;
-                            failed = true;
-                            break;
-                        }
-                        token = current_other->get<std::string>(key.c_str(), "0");
-                        break;
-                    case Entry::From::global:
-                        if (global == nullptr) {
-                            std::cerr << "Error: Null global reference in expression: " << key << std::endl;
-                            failed = true;
-                            break;
-                        }
-                        token = global->get<std::string>(key.c_str(), "0");
-                        break;
-                    case Entry::From::resource:
-                    default:
-                        if (globalCache == nullptr) {
-                            std::cerr << "Error: Null globalCache reference in expression: " << key  << ". If this shouldn't be a Resource reference, did you forget the prefix self/other/global?" << std::endl;
-                            failed = true;
-                            break;
-                        }
-                        token = globalCache->get<std::string>(key.c_str(), "0");
-                        break;
-                }
-                if(failed){
+                if(!handleEntryTypeVariable(token, entry, current_other, max_recursion_depth)) {
                     return "0";
                 }
                 break;
             //------------------------------------------
             case Entry::eval:
-                //------------------------------------------
-                // Handle casting and precision together
-                if(entry.cast == Entry::CastType::to_int){
-                    token = std::to_string(static_cast<int>(te_eval(entry.expression)));
-                } else{
-                    // to_double or none, both use double directly 
-                    double value = te_eval(entry.expression);
-                    
-                    // Apply rounding if precision is specified
-                    if (entry.formatter.precision != -1) {
-                        double multiplier = std::pow(10.0, entry.formatter.precision);
-                        value = std::round(value * multiplier) / multiplier;
-                    }
-                    
-                    token = std::to_string(value);
-                }
-
-                // Precision formatting (after rounding)
-                if (entry.formatter.precision != -1) {
-                    size_t dotPos = token.find('.');
-                    if (dotPos != std::string::npos) {
-                        size_t currentPrecision = token.size() - dotPos - 1;
-                        if (currentPrecision < static_cast<size_t>(entry.formatter.precision)) {
-                            // Add zeros to match the required precision
-                            token.append(entry.formatter.precision - currentPrecision, '0');
-                        } else if (currentPrecision > static_cast<size_t>(entry.formatter.precision)) {
-                            // Truncate to the required precision (should be minimal after rounding)
-                            token.resize(dotPos + entry.formatter.precision + 1);
-                        }
-                    } else {
-                        // No decimal point, add one and pad with zeros
-                        token += '.';
-                        token.append(entry.formatter.precision, '0');
-                    }
-                }
-
-                // Adding padding
-                if(entry.formatter.alignment > 0 && token.size() < static_cast<size_t>(entry.formatter.alignment)) {
-                    int32_t size = token.size();
-                    for(int i = 0; i < entry.formatter.alignment - size; i++){
-                        token = (entry.formatter.leadingZero ? '0' : ' ') + token;
-                    }
-                }
+                handleEntryTypeEval(token, entry);
                 break;
             //------------------------------------------
             case Entry::text:
