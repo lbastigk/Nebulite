@@ -99,7 +99,8 @@
     "c-cpp-flylint.run": "onSave",
     "c-cpp-flylint.cppcheck.enable": true,
     "c-cpp-flylint.cppcheck.extraArgs": [
-        "--check-level=exhaustive"
+        "--check-level=exhaustive",
+        "--suppress=unusedStructMember",
     ],
     "c-cpp-flylint.cppcheck.includePaths": [
         "${workspaceFolder}/include",
