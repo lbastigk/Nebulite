@@ -52,7 +52,7 @@
  *
  * @todo:   settings.jsonc: Renderer size, fps setting (Input Mapping is already a work in progress. See GSDM_InputMapping.h)
  */
-int main(int argc, char* argv[]){
+int main(const int argc, const char* argv[]){
     //------------------------------------------
     // Initialize the global space, parse command line arguments
     std::string binaryName = argv[0];
