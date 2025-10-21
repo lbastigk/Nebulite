@@ -803,9 +803,6 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::specificHelp(std::
     // 2.) Category
     else if(subFound){
         // Found category, display detailed help
-        //std::cout << "\nHelp for category '" << funcName << "':\n" << std::endl;
-        //std::cout << *subIt->second.description << "\n";
-        //std::cout << "Category functions:\n";
         subIt->second.tree->help(0, nullptr); // Display all functions in the category
     }
     // 3.) Variable
@@ -816,7 +813,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::specificHelp(std::
     }
     // 4.) Not found
     else{
-        std::cout << "Function or Category '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
+        std::cerr << "Function or Category '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
     }
 }
 
