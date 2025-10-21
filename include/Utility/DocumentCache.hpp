@@ -240,7 +240,7 @@ private:
         Nebulite::Utility::JSON document; // The actual JSON document
         Nebulite::Utility::TimeKeeper lastUsed;
 
-        ReadOnlyDoc(Nebulite::Core::GlobalSpace* globalSpace) : document(globalSpace), lastUsed() {}
+        explicit ReadOnlyDoc(Nebulite::Core::GlobalSpace* globalSpace) : document(globalSpace), lastUsed() {}
     };
 
     /**
