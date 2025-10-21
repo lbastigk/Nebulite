@@ -479,23 +479,24 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(Class
     // Making sure the function name is not registered in the inherited FuncTree
     // Note: inherited FuncTree is checked only after constructor completes, so this should be safe
     // The only overwrite that is allowed is the help function
-    for (const auto& inheritedTree : inheritedTrees) {
-        if (inheritedTree && name != "help" && inheritedTree->hasFunction(name)) {
-            // Throw a proper error
-            // exit the entire program
-            std::cerr << "---------------------------------------------------------------\n";
-            std::cerr << "A Nebulite FuncTree initialization failed!\n";
-            std::cerr << "Error: A bound Function already exists in the inherited FuncTree.\n";
-            std::cerr << "Function overwrite is heavily discouraged and thus not allowed.\n";
-            std::cerr << "Please choose a different name or remove the existing function.\n";
-            std::cerr << "This Tree: " << TreeName << "\n";
-            std::cerr << "inherited FuncTree:   " << inheritedTree->TreeName << "\n";
-            std::cerr << "Function:  " << name << "\n";
-            std::exit(EXIT_FAILURE);  // Exit with failure status
-
-            // Just for completion, this will never be reached
-            return;
+    auto conflictIt = std::find_if(
+        inheritedTrees.begin(), inheritedTrees.end(),
+        [&](const auto& inheritedTree) {
+            return inheritedTree && name != "help" && inheritedTree->hasFunction(name);
         }
+    );
+    if (conflictIt != inheritedTrees.end()) {
+        const auto& inheritedTree = *conflictIt;
+        std::cerr << "---------------------------------------------------------------\n";
+        std::cerr << "A Nebulite FuncTree initialization failed!\n";
+        std::cerr << "Error: A bound Function already exists in the inherited FuncTree.\n";
+        std::cerr << "Function overwrite is heavily discouraged and thus not allowed.\n";
+        std::cerr << "Please choose a different name or remove the existing function.\n";
+        std::cerr << "This Tree: " << TreeName << "\n";
+        std::cerr << "inherited FuncTree:   " << inheritedTree->TreeName << "\n";
+        std::cerr << "Function:  " << name << "\n";
+        std::exit(EXIT_FAILURE);  // Exit with failure status
+        return; // Just for completion, this will never be reached
     }
 
     // Same for the own tree
