@@ -56,7 +56,7 @@ public:
      * @return The retrieved data or the default value as type T.
      */
     template  <typename T> 
-    T get(std::string doc_key, const T& defaultValue = T());
+    T get(const std::string& doc_key, const T& defaultValue = T());
 
     /**
      * @brief Gets a sub-document from the JSON document.
@@ -144,7 +144,7 @@ public:
      * @param doc_key The key to check.
      * @return The size of the key.
      */
-    uint32_t memberSize(std::string doc_key){
+    uint32_t memberSize(const std::string& doc_key) {
         auto [doc, key] = splitDocKey(doc_key);
 
         Nebulite::Utility::DocumentCache::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
@@ -342,7 +342,7 @@ private:
 // Definitions of template functions
 
 template  <typename T> 
-T Nebulite::Utility::DocumentCache::get(std::string doc_key, const T& defaultValue) {
+T Nebulite::Utility::DocumentCache::get(const std::string& doc_key, const T& defaultValue) {
     auto [doc, key] = splitDocKey(doc_key);
 
     Nebulite::Utility::DocumentCache::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
