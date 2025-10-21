@@ -277,18 +277,22 @@ bool Nebulite::Utility::RjDirectAccess::set(const char* key, const T& value, rap
 // 1.) to JSON value
 //------------------------------------------
 
-
-
+// cppcheck-suppress constParameterReference
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<bool>(const bool& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {jsonValue.SetBool(data);}
 
+// cppcheck-suppress constParameterReference
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<int>(const int& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)                {jsonValue.SetInt(data);}
 
+// cppcheck-suppress constParameterReference
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<uint32_t>(const uint32_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)      {jsonValue.SetUint(data);}
 
+// cppcheck-suppress constParameterReference
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<uint64_t>(const uint64_t& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)      {jsonValue.SetUint64(data);}
 
+// cppcheck-suppress constParameterReference
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<double>(const double& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)          {jsonValue.SetDouble(data);}
 
+// cppcheck-suppress constParameterReference
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<long>(const long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {jsonValue.SetInt64(data);}
 
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<long long>(const long long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)    {jsonValue.SetInt64(data);}
