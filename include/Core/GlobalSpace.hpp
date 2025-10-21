@@ -152,14 +152,14 @@ public:
     /**
      * @brief Evaluates a string.
      */
-    std::string eval(std::string expr){
+    std::string eval(const std::string& expr){
         return invoke.evaluateStandaloneExpression(expr);
     }
 
     /**
      * @brief Evaluates a string with context of a RenderObject.
      */
-    std::string eval(std::string expr, Nebulite::Core::RenderObject* context){
+    std::string eval(const std::string& expr, Nebulite::Core::RenderObject* context){
         return invoke.evaluateStandaloneExpression(expr, context);
     }
 
