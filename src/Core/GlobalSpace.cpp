@@ -190,7 +190,7 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
 
     // If clearAfterResolving, process and pop each element
     if (tq.clearAfterResolving) {
-        while (!tq.taskQueue.empty() && !fullResult.stoppedAtCriticalResult) {
+        while (!tq.taskQueue.empty() && !fullResult.encounteredCriticalResult) {
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
             std::string argStr = tq.taskQueue.front();
@@ -209,14 +209,14 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
 
             // Check result
             if (currentResult.isCritical()) {
-                fullResult.stoppedAtCriticalResult = true;
+                fullResult.encounteredCriticalResult = true;
             }
             fullResult.errors.push_back(currentResult);
         }
     } else {
         // If not clearing, process every element without popping
         for (const auto& argStrOrig : tq.taskQueue) {
-            if (fullResult.stoppedAtCriticalResult) break;
+            if (fullResult.encounteredCriticalResult) break;
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
             // Add binary name if missing
@@ -233,7 +233,7 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
 
             // Check result
             if (currentResult.isCritical()) {
-                fullResult.stoppedAtCriticalResult = true;
+                fullResult.encounteredCriticalResult = true;
             }
             fullResult.errors.push_back(currentResult);
         }
@@ -252,21 +252,21 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
 
     // 2.) Parse script tasks
     queueResult.script = resolveTaskQueue(tasks.script, &scriptWaitCounter);
-    if(queueResult.script.stoppedAtCriticalResult && !cmdVars.recover) {
+    if(queueResult.script.encounteredCriticalResult && !cmdVars.recover) {
         lastCriticalResult = queueResult.script.errors.back();
         return lastCriticalResult;
     } 
 
     // 3.) Parse internal tasks
     queueResult.internal = resolveTaskQueue(tasks.internal, noWaitCounter);
-    if(queueResult.internal.stoppedAtCriticalResult && !cmdVars.recover) {
+    if(queueResult.internal.encounteredCriticalResult && !cmdVars.recover) {
         lastCriticalResult = queueResult.internal.errors.back();
         return lastCriticalResult;
     }
 
     // 4.) Parse always-tasks
     queueResult.always = resolveTaskQueue(tasks.always, noWaitCounter);
-    if(queueResult.always.stoppedAtCriticalResult && !cmdVars.recover) {
+    if(queueResult.always.encounteredCriticalResult && !cmdVars.recover) {
         lastCriticalResult = queueResult.always.errors.back();
         return lastCriticalResult;
     }

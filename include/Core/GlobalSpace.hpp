@@ -46,7 +46,7 @@ struct taskQueueWrapper {
  * encountered during resolution and whether the process was halted due to a critical error.
  */
 struct taskQueueResult{
-    bool stoppedAtCriticalResult = false;
+    bool encounteredCriticalResult = false;
     std::vector<Nebulite::Constants::Error> errors;
 };
 
