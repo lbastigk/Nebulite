@@ -45,36 +45,36 @@ void Nebulite::Interaction::Logic::Expression::reset() {
     //------------------------------------------
     // Register built-in functions
 
-    //===================================================================================================
-    // Category             Name           Pointer                             Type           Context
-    //===================================================================================================
+    //====================================================================================================================
+    // Category             Name           Pointer                                               Type           Context
+    //====================================================================================================================
 
     // Logical comparison functions
-    te_variables.push_back({"gt",          (void*)expr_custom::gt,             TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"lt",          (void*)expr_custom::lt,             TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"geq",         (void*)expr_custom::geq,            TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"leq",         (void*)expr_custom::leq,            TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"eq",          (void*)expr_custom::eq,             TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"neq",         (void*)expr_custom::neq,            TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"gt",          reinterpret_cast<void*>(expr_custom::gt),             TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"lt",          reinterpret_cast<void*>(expr_custom::lt),             TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"geq",         reinterpret_cast<void*>(expr_custom::geq),            TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"leq",         reinterpret_cast<void*>(expr_custom::leq),            TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"eq",          reinterpret_cast<void*>(expr_custom::eq),             TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"neq",         reinterpret_cast<void*>(expr_custom::neq),            TE_FUNCTION2,  nullptr});
 
     // Logical gate functions
-    te_variables.push_back({"not",         (void*)expr_custom::logical_not,    TE_FUNCTION1,  nullptr});
-    te_variables.push_back({"and",         (void*)expr_custom::logical_and,    TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"or",          (void*)expr_custom::logical_or,     TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"xor",         (void*)expr_custom::logical_xor,    TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"nand",        (void*)expr_custom::logical_nand,   TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"nor",         (void*)expr_custom::logical_nor,    TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"xnor",        (void*)expr_custom::logical_xnor,   TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"not",         reinterpret_cast<void*>(expr_custom::logical_not),    TE_FUNCTION1,  nullptr});
+    te_variables.push_back({"and",         reinterpret_cast<void*>(expr_custom::logical_and),    TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"or",          reinterpret_cast<void*>(expr_custom::logical_or),     TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"xor",         reinterpret_cast<void*>(expr_custom::logical_xor),    TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"nand",        reinterpret_cast<void*>(expr_custom::logical_nand),   TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"nor",         reinterpret_cast<void*>(expr_custom::logical_nor),    TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"xnor",        reinterpret_cast<void*>(expr_custom::logical_xnor),   TE_FUNCTION2,  nullptr});
 
     // Other logical functions
-    te_variables.push_back({"to_bipolar",  (void*)expr_custom::to_bipolar,     TE_FUNCTION1,  nullptr});
+    te_variables.push_back({"to_bipolar",  reinterpret_cast<void*>(expr_custom::to_bipolar),     TE_FUNCTION1,  nullptr});
 
     // Mapping functions
-    te_variables.push_back({"map",         (void*)expr_custom::map,            TE_FUNCTION5,  nullptr});
-    te_variables.push_back({"constrain",   (void*)expr_custom::constrain,      TE_FUNCTION3,  nullptr});
+    te_variables.push_back({"map",         reinterpret_cast<void*>(expr_custom::map),            TE_FUNCTION5,  nullptr});
+    te_variables.push_back({"constrain",   reinterpret_cast<void*>(expr_custom::constrain),      TE_FUNCTION3,  nullptr});
 
     // More mathematical functions
-    te_variables.push_back({"sgn",         (void*)expr_custom::sgn,            TE_FUNCTION1,  nullptr});
+    te_variables.push_back({"sgn",         reinterpret_cast<void*>(expr_custom::sgn),            TE_FUNCTION1,  nullptr});
 }
 
 std::string Nebulite::Interaction::Logic::Expression::stripContext(const std::string& key) {
