@@ -184,7 +184,7 @@ void Nebulite::Utility::JSON::set_empty_array(const char* key){
 //------------------------------------------
 // Serialize/Deserialize
 
-std::string Nebulite::Utility::JSON::serialize(std::string key) {
+std::string Nebulite::Utility::JSON::serialize(const std::string& key) {
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
     flush(); // Ensure all changes are reflected in the document
     if(key.size() == 0){
@@ -197,7 +197,7 @@ std::string Nebulite::Utility::JSON::serialize(std::string key) {
     }
 }
 
-void Nebulite::Utility::JSON::deserialize(std::string serial_or_link){
+void Nebulite::Utility::JSON::deserialize(const std::string& serial_or_link){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Reset document and cache

@@ -343,7 +343,7 @@ public:
      * @param key The key to serialize. (Optional: leave empty to serialize entire document)
      * @return The serialized JSON string.
      */
-    std::string serialize(std::string key = "");
+    std::string serialize(const std::string& key = "");
 
     /**
      * @brief Deserializes a JSON string or loads from a file, with optional modifications.
@@ -364,7 +364,7 @@ public:
      * 
      * See `JSDM_*.hpp` files for available functioncalls.
      */
-    void deserialize(std::string serial_or_link);
+    void deserialize(const std::string& serial_or_link);
 
     //------------------------------------------
     // Assorted list of double pointers
