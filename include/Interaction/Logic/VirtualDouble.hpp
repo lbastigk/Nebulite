@@ -95,11 +95,11 @@ public:
      */
     void setUpInternalCache(Nebulite::Utility::JSON* json) {
         if (json != nullptr) {
-            copied_value = *json->get_stable_double_ptr(key.c_str());
+            copied_value = *json->get_stable_double_ptr(key);
             reference = &copied_value;
         }
         else if (documentCache != nullptr) {
-            copied_value = *documentCache->get_stable_double_ptr(key.c_str());
+            copied_value = *documentCache->get_stable_double_ptr(key);
             reference = &copied_value;
         }
     }
