@@ -107,8 +107,20 @@ private:
     // Font for console text
 	TTF_Font* consoleFont;
 
-    //SDL_Rect rect;
-	SDL_Rect textRect;
+    /**
+     * @brief Rectangle defining the input text area.
+     */
+	SDL_Rect textInputRect;
+
+    /**
+     * @brief Rectangle defining the highlighted text area.
+     */
+    SDL_Rect textInputHighlightRect;
+
+    /**
+     * @brief Rectangle used for each output line.
+     */
+    SDL_Rect textOutputRect;
 
     // Texture for console rendering
     struct SDL_Texture_Wrapper{

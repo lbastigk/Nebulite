@@ -121,14 +121,13 @@ void Console::renderConsole() {
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
         // Define destination rectangle
-        SDL_Rect textRect;
-        textRect.x = 10;
-        textRect.y = consoleTexture.rect.h - LINE_PADDING - lineHeight;
-        textRect.w = (double)textSurface->w / WindowScale;
-        textRect.h = (double)textSurface->h / WindowScale;
+        textInputRect.x = 10;
+        textInputRect.y = consoleTexture.rect.h - LINE_PADDING - lineHeight;
+        textInputRect.w = (double)textSurface->w / WindowScale;
+        textInputRect.h = (double)textSurface->h / WindowScale;
 
         // Render the text
-        SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+        SDL_RenderCopy(renderer, textTexture, NULL, &textInputRect);
         SDL_FreeSurface(textSurface);
         SDL_DestroyTexture(textTexture);
 
@@ -139,12 +138,11 @@ void Console::renderConsole() {
             std::string highlightText = textInput.getInputBuffer()->substr(textInput.getInputBuffer()->size() - cursorOffsetFromEnd, cursorOffsetFromEnd);
             SDL_Surface* highlightSurface = TTF_RenderText_Blended(consoleFont, highlightText.c_str(), {255,0,0,255});
             SDL_Texture* highlightTexture = SDL_CreateTextureFromSurface(renderer, highlightSurface);
-            SDL_Rect highlightRect;
-            highlightRect.x = textRect.x + textRect.w - highlightSurface->w;
-            highlightRect.y = textRect.y;
-            highlightRect.w = (double)highlightSurface->w;
-            highlightRect.h = (double)highlightSurface->h;
-            SDL_RenderCopy(renderer, highlightTexture, NULL, &highlightRect);
+            textInputHighlightRect.x = textInputRect.x + textInputRect.w - highlightSurface->w;
+            textInputHighlightRect.y = textInputRect.y;
+            textInputHighlightRect.w = (double)highlightSurface->w;
+            textInputHighlightRect.h = (double)highlightSurface->h;
+            SDL_RenderCopy(renderer, highlightTexture, NULL, &textInputHighlightRect);
             SDL_FreeSurface(highlightSurface);
             SDL_DestroyTexture(highlightTexture);
         }
@@ -174,14 +172,12 @@ void Console::renderConsole() {
         // Render line
         SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, line.c_str(), textColor);
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        textOutputRect.x = 10;
+        textOutputRect.y = line_y_position;
+        textOutputRect.w = (double)textSurface->w / WindowScale;
+        textOutputRect.h = (double)textSurface->h / WindowScale;
 
-        SDL_Rect textRect;
-        textRect.x = 10;
-        textRect.y = line_y_position;
-        textRect.w = (double)textSurface->w / WindowScale;
-        textRect.h = (double)textSurface->h / WindowScale;
-
-        SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+        SDL_RenderCopy(renderer, textTexture, NULL, &textOutputRect);
         SDL_FreeSurface(textSurface);
         SDL_DestroyTexture(textTexture);
     }
