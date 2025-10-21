@@ -79,7 +79,7 @@ private:
     static void getFunctionCalls(
         Nebulite::Utility::JSON& entryDoc,
         Nebulite::Interaction::Ruleset& Ruleset, 
-        Nebulite::Core::RenderObject* self,
+        const Nebulite::Core::RenderObject* self,
         Nebulite::Utility::DocumentCache* docCache,
         Nebulite::Utility::JSON* global
     );
