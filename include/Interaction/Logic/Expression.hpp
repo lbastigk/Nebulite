@@ -197,25 +197,27 @@ private:
         te_expr* expression = nullptr;
     };
 
+    using vd_list = std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>;
+
     /**
      * @brief Holds all virtual double entries for the self context.
      */
-    std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>> virtualDoubles_self;
+    vd_list virtualDoubles_self;
 
     /**
      * @brief Holds all virtual double entries for the other context.
      */
-    std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>> virtualDoubles_other;
+    vd_list virtualDoubles_other;
 
     /**
      * @brief Holds all virtual double entries for the global context.
      */
-    std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>> virtualDoubles_global;
+    vd_list virtualDoubles_global;
 
     /**
      * @brief Holds all virtual double entries for the resource context.
      */
-    std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>> virtualDoubles_resource;
+    vd_list virtualDoubles_resource;
 
     /**
      * @brief A collection of custom functions for TinyExpr
