@@ -112,7 +112,7 @@ public:
      * @param doc_key The document and its key to check.
      * @return The type of the key.
      */
-    Nebulite::Utility::JSON::KeyType memberCheck(std::string doc_key){
+    Nebulite::Utility::JSON::KeyType memberCheck(const std::string& doc_key) {
         auto [doc, key] = splitDocKey(doc_key);
 
         Nebulite::Utility::DocumentCache::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
