@@ -327,7 +327,32 @@ private:
 	/**
 	 * @brief Links frequently used references from the JSON document for quick access.
 	 */
-	void linkFrequentRefs();
+	void linkFrequentRefs(){
+		// Identity
+		refs.id                 = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.id);
+
+		// Position and Size
+		refs.posX			    = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.positionX);
+		refs.posY			    = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.positionY);
+		refs.pixelSizeX         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.pixelSizeX);
+		refs.pixelSizeY         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.pixelSizeY);
+
+		// Spritesheet
+		refs.isSpritesheet      = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.isSpritesheet);
+		refs.spritesheetOffsetX = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX);
+		refs.spritesheetOffsetY = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY);
+		refs.spritesheetSizeX   = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetSizeX);
+		refs.spritesheetSizeY   = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetSizeY);
+
+		// Text
+		refs.fontSize           = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textFontsize);
+		refs.textDx				= json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textDx);
+		refs.textDy				= json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textDy);
+		refs.textColorR         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorR);
+		refs.textColorG         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorG);
+		refs.textColorB         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorB);
+		refs.textColorA         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorA);
+	}
 
 	//------------------------------------------
 	// Texture related

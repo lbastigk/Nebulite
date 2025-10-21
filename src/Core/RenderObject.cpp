@@ -356,33 +356,3 @@ void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font
 		flag.calculateText = false;
 	}
 }
-
-
-//------------------------------------------
-
-void Nebulite::Core::RenderObject::linkFrequentRefs() {
-	// Identity
-	refs.id                 = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.id.c_str());
-
-	// Position and Size
-	refs.posX			    = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.positionX.c_str());
-	refs.posY			    = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.positionY.c_str());
-	refs.pixelSizeX         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.pixelSizeX.c_str());
-	refs.pixelSizeY         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.pixelSizeY.c_str());
-
-	// Spritesheet
-	refs.isSpritesheet      = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str());
-	refs.spritesheetOffsetX = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX.c_str());
-	refs.spritesheetOffsetY = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY.c_str());
-	refs.spritesheetSizeX   = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetSizeX.c_str());
-	refs.spritesheetSizeY   = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetSizeY.c_str());
-
-	// Text
-	refs.fontSize           = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textFontsize.c_str());
-	refs.textDx				= json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textDx.c_str());
-	refs.textDy				= json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textDy.c_str());
-	refs.textColorR         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorR.c_str());
-	refs.textColorG         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorG.c_str());
-	refs.textColorB         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorB.c_str());
-	refs.textColorA         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorA.c_str());
-}
