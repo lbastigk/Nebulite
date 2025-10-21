@@ -43,7 +43,7 @@ Nebulite::Constants::Error Debug::printSrcRect(int argc,  char* argv[]) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
 
-    SDL_Rect* srcRect = domain->getSrcRect();
+    const SDL_Rect* srcRect = domain->getSrcRect();
     if(srcRect) {
         std::cout << "Source Rectangle: { x: " << srcRect->x << ", y: " << srcRect->y 
                   << ", w: " << srcRect->w << ", h: " << srcRect->h << " }" << std::endl;
@@ -69,7 +69,7 @@ Nebulite::Constants::Error Debug::printDstRect(int argc,  char* argv[]) {
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
 
-    SDL_Rect* dstRect = domain->getDstRect();
+    const SDL_Rect* dstRect = domain->getDstRect();
     if(dstRect) {
         std::cout << "Destination Rectangle: { x: " << dstRect->x << ", y: " << dstRect->y 
                   << ", w: " << dstRect->w << ", h: " << dstRect->h << " }" << std::endl;
@@ -95,13 +95,13 @@ namespace{
 
     /**
      * @brief Converts SDL texture access enum to human-readable string.
-     * @param access The SDL texture access enum value.
+     * @param accessType The SDL texture access enum value.
      * @return A string representing the access type.
      */
-    std::string getTextureAccessString(int access) {
-        return (access == SDL_TEXTUREACCESS_STATIC)    ? "Static"    :
-               (access == SDL_TEXTUREACCESS_STREAMING) ? "Streaming" :
-               (access == SDL_TEXTUREACCESS_TARGET)    ? "Target"    :
+    std::string getTextureAccessString(int accessType) {
+        return (accessType == SDL_TEXTUREACCESS_STATIC)    ? "Static"    :
+               (accessType == SDL_TEXTUREACCESS_STREAMING) ? "Streaming" :
+               (accessType == SDL_TEXTUREACCESS_TARGET)    ? "Target"    :
                "Other";
     }
 
@@ -131,10 +131,10 @@ namespace{
     void printTextureInfo(SDL_Texture* texture) {
         if(texture) {
             Uint32 format;
-            int access, w, h;
-            if (SDL_QueryTexture(texture, &format, &access, &w, &h) == 0) {
+            int accessType, w, h;
+            if (SDL_QueryTexture(texture, &format, &accessType, &w, &h) == 0) {
                 // Decode format and access to human-readable strings
-                std::string accessStr = getTextureAccessString(access);
+                std::string accessStr = getTextureAccessString(accessType);
                 std::string formatStr = getTextureFormatString(format);
 
                 // Print texture details

@@ -94,7 +94,7 @@ public:
 	 * 
 	 * - RenderObject creation
 	 */
-	Environment(Nebulite::Core::GlobalSpace* globalSpace);
+	explicit Environment(Nebulite::Core::GlobalSpace* globalSpace);
 
 	// Suppress copy/move operators
 	Environment(Environment&& other) = delete;
@@ -124,7 +124,7 @@ public:
 	 * @param dispResX Display resolution width. Necessary to position the object correctly in its tile-based container.
 	 * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
 	 */
-	void deserialize(std::string serialOrLink, int dispResX,int dispResY);
+	void deserialize(const std::string& serialOrLink, int dispResX,int dispResY);
 	
 	//------------------------------------------
 	// Object Management
@@ -204,7 +204,7 @@ public:
 	 * 
 	 * @return The total number of render objects in the environment.
 	 */
-	uint32_t getObjectCount();
+	size_t getObjectCount() const;
 
 private:
 	// All layers in rendering order

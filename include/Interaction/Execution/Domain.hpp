@@ -65,14 +65,14 @@ class Domain{
     template<typename> friend class Domain;  // All Domain<T> instantiations are friends, so we can access each other's private members
 public:
     Domain(std::string domainName, DomainType* domain, Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* global)
-    : domainName(domainName), domain(domain), doc(doc), global(global)
-    {
-        funcTree = std::make_shared<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>>( 
-            domainName, 
-            Nebulite::Constants::ErrorTable::NONE(), 
-            Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
-        );
-    };
+    : domainName(domainName),
+      funcTree(std::make_shared<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>>( 
+          domainName, 
+          Nebulite::Constants::ErrorTable::NONE(), 
+          Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
+      )),
+       domain(domain), doc(doc), global(global)
+    {};
 
     //------------------------------------------
     // Binding, initializing and inheriting

@@ -168,12 +168,16 @@ public:
      * @param type The type of error (CRITICAL or NON_CRITICAL). Default is NON_CRITICAL.
      * @return The corresponding Error object.
      */
-    static Error addError(std::string description, Error::Type type = Error::NON_CRITICAL){
+    static Error addError(const std::string& description, Error::Type type = Error::NON_CRITICAL){
         // Check if we already have this error
-        for(const auto& err : getInstance().errors){
-            if(err.getDescription() == description){
-                return err; // Return existing error
-            }
+        auto it = std::find_if(
+            getInstance().errors.begin(),
+            getInstance().errors.end(),
+            [&](const Error& err) { return err.getDescription() == description; }
+        );
+
+        if (it != getInstance().errors.end()) {
+            return *it; // Return existing error
         }
 
         // Make copy of string to store pointer

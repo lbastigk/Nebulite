@@ -135,6 +135,8 @@ struct Assignment{
             value = std::move(other.value);
             expression = std::move(other.expression);
             targetValuePtr = other.targetValuePtr;
+            targetKeyUniqueId = other.targetKeyUniqueId;
+            targetKeyUniqueIdInitialized = other.targetKeyUniqueIdInitialized;
         }
         return *this;
     }

@@ -68,9 +68,9 @@ public:
     VirtualDouble(const std::string& k, Nebulite::Utility::DocumentCache* documentCache) 
         : documentCache(documentCache), key(k) {
             // Removing self/other/global prefixes in the key
-            if (key.find("self.") == 0)         key = key.substr(5);
-            else if (key.find("other.") == 0)   key = key.substr(6);
-            else if (key.find("global.") == 0)  key = key.substr(7);
+            if (key.starts_with("self."))         key = key.substr(5);
+            else if (key.starts_with("other."))   key = key.substr(6);
+            else if (key.starts_with("global."))  key = key.substr(7);
     }
 
     /**
@@ -78,7 +78,7 @@ public:
      * 
      * @return The key as a string.
      */
-    std::string getKey() {
+    const std::string& getKey() const {
         return key;
     }
 
@@ -95,11 +95,11 @@ public:
      */
     void setUpInternalCache(Nebulite::Utility::JSON* json) {
         if (json != nullptr) {
-            copied_value = *json->get_stable_double_ptr(key.c_str());
+            copied_value = *json->getStableDoublePointer(key);
             reference = &copied_value;
         }
         else if (documentCache != nullptr) {
-            copied_value = *documentCache->get_stable_double_ptr(key.c_str());
+            copied_value = *documentCache->getStableDoublePointer(key);
             reference = &copied_value;
         }
     }
@@ -141,10 +141,10 @@ public:
      */
     void setUpExternalCache(Nebulite::Utility::JSON* json) {
         if (json != nullptr) {
-            reference = json->get_stable_double_ptr(key.c_str());
+            reference = json->getStableDoublePointer(key);
         }
         else if (documentCache != nullptr) {
-            reference = documentCache->get_stable_double_ptr(key);
+            reference = documentCache->getStableDoublePointer(key);
         }
     }
 };

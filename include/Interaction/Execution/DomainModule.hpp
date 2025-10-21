@@ -13,7 +13,7 @@
     class DomainModuleName : public ::Nebulite::Interaction::Execution::DomainModule<DomainName>
 
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
-    DomainModuleName(::std::string moduleName, DomainName* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
+    DomainModuleName(const std::string& moduleName, DomainName* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
     : DomainModule(moduleName, domain, funcTreePtr, globalSpace)
 
 //------------------------------------------
@@ -49,7 +49,7 @@ public:
      * The constructor initializes the DomainModule with a reference to the domain and
      * the FuncTree.
      */
-    DomainModule(std::string moduleName, DomainType* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace)
+    DomainModule(const std::string& moduleName, DomainType* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace)
         : moduleName(moduleName), domain(domain), global(globalSpace), funcTree(funcTreePtr) {}
 
     /**
@@ -65,7 +65,7 @@ public:
      * 
      * Make sure the function has the signature:
      * ```cpp
-     * Error functionName(int argc,  char* argv[]);
+     * Error functionName(int argc, char* argv[]);
      * ```
      *
      * @tparam ClassType The type of the class containing the member function.
@@ -73,15 +73,32 @@ public:
      * @param name The name to associate with the bound function.
      */
     template<typename ClassType>
-    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char**),const std::string& name, const std::string* helpDescription) {
-        // Automatically pass 'this' (the derived class instance) to bindFunction
+    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char**), const std::string& name, const std::string* helpDescription) {
         funcTree->bindFunction(
-            static_cast<ClassType*>(this),  // Auto-cast to correct type
-            method,                         // Member function pointer
-            name, 
+            static_cast<ClassType*>(this),
+            std::variant<
+                Nebulite::Constants::Error (ClassType::*)(int, char**),
+                Nebulite::Constants::Error (ClassType::*)(int, const char**)
+            >(method),
+            name,
             helpDescription
         );
     }
+
+    // Overload for const char** version
+    template<typename ClassType>
+    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, const char**), const std::string& name, const std::string* helpDescription) {
+        funcTree->bindFunction(
+            static_cast<ClassType*>(this),
+            std::variant<
+                Nebulite::Constants::Error (ClassType::*)(int, char**),
+                Nebulite::Constants::Error (ClassType::*)(int, const char**)
+            >(method),
+            name,
+            helpDescription
+        );
+    }
+
 
     /**
      * @brief Binds a category to the FuncTree.

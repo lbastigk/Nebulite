@@ -7,6 +7,15 @@ Nebulite::Constants::Error Input::update() {
 	//------------------------------------------
 	// Only update if SDL is initialized
 	if(domain->getRenderer()->isSdlInitialized()){
+		if(!timerInitialized){
+			// Starting Polling timer
+			RendererPollTime = std::make_shared<Nebulite::Utility::TimeKeeper>();
+			RendererPollTime->update(); // Initial update to set t and dt
+			RendererPollTime->start();
+			RendererPollTime->update(); // Initial update to set t and dt
+			timerInitialized = true;
+		}
+
 		//------------------------------------------
 		// 2-Step Update of Input state
 
@@ -43,10 +52,14 @@ Nebulite::Constants::Error Input::update() {
 void Input::map_key_names() {
 	for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode) {
 		const char* nameRaw = SDL_GetScancodeName(static_cast<SDL_Scancode>(scancode));
+
 		if (nameRaw && nameRaw[0] != '\0') {
 			std::string keyName = nameRaw;
-			for (char& c : keyName) c = std::tolower(c);
-			for (char& c : keyName) if (c == ' ') c = '_';
+
+			// Normalize key name: lowercase, spaces to underscores
+			std::transform(keyName.begin(), keyName.end(), keyName.begin(),
+				[](unsigned char c){ return std::tolower(c); });
+			std::replace(keyName.begin(), keyName.end(), ' ', '_');
 
 			// Don't add if there are special chars in Nebulite::Constants::keyName
 			if(!Nebulite::Utility::StringHandler::containsAnyOf(keyName,Nebulite::Utility::JSON::reservedCharacters)){
@@ -55,8 +68,8 @@ void Input::map_key_names() {
 				// Paths
 				std::string currentPath = "input.keyboard.current." + keyNames[scancode];
 				std::string deltaPath   = "input.keyboard.delta."   + keyNames[scancode];
-				deltaKey[scancode] = domain->getDoc()->get_stable_double_ptr(deltaPath.c_str());
-				currentKey[scancode] = domain->getDoc()->get_stable_double_ptr(currentPath.c_str());
+				deltaKey[scancode] = domain->getDoc()->getStableDoublePointer(deltaPath.c_str());
+				currentKey[scancode] = domain->getDoc()->getStableDoublePointer(currentPath.c_str());
 			}
 		}
 	}

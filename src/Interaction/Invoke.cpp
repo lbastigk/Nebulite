@@ -344,7 +344,7 @@ void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Inte
                 // Fallback to normal method via key to double pointer
                 else{
                     // Try to get a stable double pointer from the target document
-                    target = targetDocument->get_stable_double_ptr(assignment.key);
+                    target = targetDocument->getStableDoublePointer(assignment.key);
                 }
                 
                 if(target != nullptr){
@@ -427,14 +427,14 @@ void Nebulite::Interaction::Invoke::update() {
 // Standalone Expression Evaluation
 
 std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const std::string& input) {
-    Nebulite::Utility::JSON* self = this->emptyDoc;
-    Nebulite::Utility::JSON* other = this->emptyDoc;
-    Nebulite::Utility::JSON* global = this->globalDoc;
+    Nebulite::Utility::JSON* docSelf = this->emptyDoc;
+    Nebulite::Utility::JSON* docOther = this->emptyDoc;
+    Nebulite::Utility::JSON* docGlobal = this->globalDoc;
 
     // Parse string into Expression
     Nebulite::Interaction::Logic::ExpressionPool expr;
-    expr.parse(input, docCache, self, global);
-    return expr.eval(other);
+    expr.parse(input, docCache, docSelf, docGlobal);
+    return expr.eval(docOther);
 }
 
 std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const std::string& input, Nebulite::Core::RenderObject* selfAndOther) {

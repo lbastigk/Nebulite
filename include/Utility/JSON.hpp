@@ -268,7 +268,7 @@ public:
     /**
      * @brief Gets a pointer to a to a double value pointer in the JSON document.
      */
-    double* get_stable_double_ptr(const std::string& key);
+    double* getStableDoublePointer(const std::string& key);
 
     /**
      * @brief Gets a pointer to a to a double value pointer in the JSON document based on a unique ID.
@@ -278,7 +278,7 @@ public:
     double* get_uid_double_ptr(uint64_t uid, const std::string& key){
         if(uidDoubleCache[uid] == nullptr){
             // Need to create new entry
-            uidDoubleCache[uid] = get_stable_double_ptr(key);
+            uidDoubleCache[uid] = getStableDoublePointer(key);
         }
         return uidDoubleCache[uid];
     }
@@ -306,7 +306,7 @@ public:
      * @param key The key to check.
      * @return The type of the key.
      */
-    KeyType memberCheck(std::string key);
+    KeyType memberCheck(const std::string& key);
 
     /**
      * @brief Checks the size of a key in the JSON document.
@@ -343,7 +343,7 @@ public:
      * @param key The key to serialize. (Optional: leave empty to serialize entire document)
      * @return The serialized JSON string.
      */
-    std::string serialize(std::string key = "");
+    std::string serialize(const std::string& key = "");
 
     /**
      * @brief Deserializes a JSON string or loads from a file, with optional modifications.
@@ -364,7 +364,7 @@ public:
      * 
      * See `JSDM_*.hpp` files for available functioncalls.
      */
-    void deserialize(std::string serial_or_link);
+    void deserialize(const std::string& serial_or_link);
 
     //------------------------------------------
     // Assorted list of double pointers
@@ -387,7 +387,7 @@ public:
 
 template<typename T>
 void Nebulite::Utility::JSON::set(const std::string& key, const T& value) {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Check if key is valid
     if (!RjDirectAccess::isValidKey(key)) {
@@ -432,7 +432,7 @@ void Nebulite::Utility::JSON::set(const std::string& key, const T& value) {
 
 template<typename T>
 T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Check cache first
     auto it = cache.find(key);
@@ -553,7 +553,7 @@ namespace{
         }
     }
 
-    inline void convertVariantErrorMessage(std::string oldType, std::string newType){
+    inline void convertVariantErrorMessage(const std::string& oldType, const std::string& newType){
         std::cerr << "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
                   << oldType
                   << " to " << newType << ".\n"

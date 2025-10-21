@@ -66,7 +66,9 @@ public:
      * 
      * @return True if the expression can be returned as a double, false otherwise.
      */
-    bool isReturnableAsDouble();
+    bool isReturnableAsDouble(){
+        return _isReturnableAsDouble;
+    }
 
     /**
      * @brief Evaluates the expression as a double.
@@ -197,25 +199,27 @@ private:
         te_expr* expression = nullptr;
     };
 
+    using vd_list = std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>;
+
     /**
      * @brief Holds all virtual double entries for the self context.
      */
-    std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>> virtualDoubles_self;
+    vd_list virtualDoubles_self;
 
     /**
      * @brief Holds all virtual double entries for the other context.
      */
-    std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>> virtualDoubles_other;
+    vd_list virtualDoubles_other;
 
     /**
      * @brief Holds all virtual double entries for the global context.
      */
-    std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>> virtualDoubles_global;
+    vd_list virtualDoubles_global;
 
     /**
      * @brief Holds all virtual double entries for the resource context.
      */
-    std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>> virtualDoubles_resource;
+    vd_list virtualDoubles_resource;
 
     /**
      * @brief A collection of custom functions for TinyExpr
@@ -386,7 +390,7 @@ private:
      * @param currentEntry The current entry to populate.
      * @param entries The vector to push the current entry onto.
      */
-    void parseTokenTypeEval(std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
+    void parseTokenTypeEval(const std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
 
     /**
      * @brief Used to parse a string token of type "text" into an entry.
@@ -401,14 +405,14 @@ private:
      * @param currentEntry The current entry to populate.
      * @param entries The vector to push the current entry onto.
      */
-    void parseTokenTypeText(std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
+    void parseTokenTypeText(const std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
 
     /**
      * @brief Prints a compilation error message to cerr
      * 
      * Includes tips for fixing the error.
      */
-    void printCompileError(const Entry& entry, int& error);
+    void printCompileError(const Entry& entry, const int error);
 
     /**
      * @brief Updates caches
@@ -424,20 +428,19 @@ private:
      */
     odpvec* ensure_other_cache_entry(Nebulite::Utility::JSON* current_other);
 
-    //------------------------------------------
-    // Debugging
-
     /**
-     * @brief Debugging function to print the current cache of virtual doubles
+     * @brief Handles the evaluation of a variable entry.
      * 
-     * @param vec The vector of virtual doubles to print
+     * @param token The string to populate with the evaluated value.
+     * @param entry The entry to evaluate.
+     * @return True if the evaluation was successful, false otherwise.
      */
-    void printCache(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>& vec);
+    bool handleEntryTypeVariable(std::string& token, const Entry& entry, Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth);
 
     /**
-     * @brief Full debug output of what the expression does with what references
+     * @brief Handles the evaluation of an eval entry.
      */
-    void debugOutput(Nebulite::Utility::JSON* current_other);
+    void handleEntryTypeEval(std::string& token, const Entry& entry);
 };
 } // namespace Logic
 } // namespace Interaction

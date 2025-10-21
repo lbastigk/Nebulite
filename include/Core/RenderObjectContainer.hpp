@@ -68,7 +68,7 @@ public:
 	 * @brief Constructs a new RenderObjectContainer.
 	 * @param globalSpace Pointer to the global Space instance.
 	 */
-	RenderObjectContainer(Nebulite::Core::GlobalSpace* globalSpace);
+	explicit RenderObjectContainer(Nebulite::Core::GlobalSpace* globalSpace);
 
 	//------------------------------------------
 	// Serialization / Deserialization
@@ -133,7 +133,7 @@ public:
 	 * @brief Gets the total count of RenderObject instances in the container.
 	 * @return The total number of RenderObject instances.
 	 */
-	size_t getObjectCount();
+	size_t getObjectCount() const;
 
 	/**
 	 * @brief Updates all objects within a 3x3 tile viewport.
@@ -193,6 +193,17 @@ private:
 	 * @brief Holds all batch worker threads.
 	 */
 	std::vector<std::thread> batchWorkers;
+
+	/**
+	 * @brief Creates a worker thread for processing a batch.
+	 * 
+	 * @param batch Reference to the batch to process.
+	 * @param pos The tile position of the batch: (x, y).
+	 * @param dispResX Display resolution width for tile placement.
+	 * @param dispResY Display resolution height for tile placement.
+	 * @return The created worker thread.
+	 */
+	std::thread create_batch_worker(batch& batch, std::pair<uint16_t, uint16_t> pos,int dispResX, int dispResY);
 
 	/**
 	 * @struct Nebulite::Core::RenderObjectContainer::ReinsertionProcess

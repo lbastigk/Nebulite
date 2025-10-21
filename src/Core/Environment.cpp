@@ -43,7 +43,7 @@ std::string Nebulite::Core::Environment::serialize() {
 	return doc.serialize();
 }
 
-void Nebulite::Core::Environment::deserialize(std::string serialOrLink, int dispResX,int dispResY) {
+void Nebulite::Core::Environment::deserialize(const std::string& serialOrLink, int dispResX,int dispResY) {
 	Nebulite::Utility::JSON file(globalSpace);
 	file.deserialize(serialOrLink);
 
@@ -131,13 +131,12 @@ void Nebulite::Core::Environment::purgeObjects() {
 	}
 }
 
-uint32_t Nebulite::Core::Environment::getObjectCount() {
-	// Calculate the total item count
-	uint32_t totalCount = 0;
-
-	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; i++) {
-		totalCount += roc[i].getObjectCount();
-	}
-	return totalCount;
+size_t Nebulite::Core::Environment::getObjectCount() const {
+	return std::accumulate(
+		roc.begin(), roc.end(), 0u,
+		[](size_t acc, const Nebulite::Core::RenderObjectContainer& container) {
+			return acc + container.getObjectCount();
+		}
+	);
 }
 

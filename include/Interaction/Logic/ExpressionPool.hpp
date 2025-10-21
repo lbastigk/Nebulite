@@ -59,7 +59,7 @@ namespace Logic {
  */
 class ExpressionPool {
 public:
-    ExpressionPool() {}
+    ExpressionPool() {_isReturnableAsDouble = false;}
 
     // Disable copy constructor and assignment
     ExpressionPool(const ExpressionPool&) = delete;

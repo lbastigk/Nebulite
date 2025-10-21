@@ -112,7 +112,7 @@ Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(const char* key){
     }
 }
 
-double* Nebulite::Utility::JSON::get_stable_double_ptr(const std::string& key){
+double* Nebulite::Utility::JSON::getStableDoublePointer(const std::string& key){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Check cache first
@@ -184,7 +184,7 @@ void Nebulite::Utility::JSON::set_empty_array(const char* key){
 //------------------------------------------
 // Serialize/Deserialize
 
-std::string Nebulite::Utility::JSON::serialize(std::string key) {
+std::string Nebulite::Utility::JSON::serialize(const std::string& key) {
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
     flush(); // Ensure all changes are reflected in the document
     if(key.size() == 0){
@@ -197,7 +197,7 @@ std::string Nebulite::Utility::JSON::serialize(std::string key) {
     }
 }
 
-void Nebulite::Utility::JSON::deserialize(std::string serial_or_link){
+void Nebulite::Utility::JSON::deserialize(const std::string& serial_or_link){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Reset document and cache
@@ -270,7 +270,7 @@ void Nebulite::Utility::JSON::deserialize(std::string serial_or_link){
 //------------------------------------------
 // Key Types, Sizes
 
-Nebulite::Utility::JSON::KeyType Nebulite::Utility::JSON::memberCheck(std::string key) {
+Nebulite::Utility::JSON::KeyType Nebulite::Utility::JSON::memberCheck(const std::string& key) {
     // 1. Check if key is empty -> represents the whole document
     if (key.empty()) {
         return KeyType::document;

@@ -327,7 +327,32 @@ private:
 	/**
 	 * @brief Links frequently used references from the JSON document for quick access.
 	 */
-	void linkFrequentRefs();
+	void linkFrequentRefs(){
+		// Identity
+		refs.id                 = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.id);
+
+		// Position and Size
+		refs.posX			    = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.positionX);
+		refs.posY			    = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.positionY);
+		refs.pixelSizeX         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.pixelSizeX);
+		refs.pixelSizeY         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.pixelSizeY);
+
+		// Spritesheet
+		refs.isSpritesheet      = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.isSpritesheet);
+		refs.spritesheetOffsetX = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX);
+		refs.spritesheetOffsetY = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY);
+		refs.spritesheetSizeX   = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetSizeX);
+		refs.spritesheetSizeY   = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetSizeY);
+
+		// Text
+		refs.fontSize           = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textFontsize);
+		refs.textDx				= json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textDx);
+		refs.textDy				= json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textDy);
+		refs.textColorR         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorR);
+		refs.textColorG         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorG);
+		refs.textColorB         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorB);
+		refs.textColorA         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorA);
+	}
 
 	//------------------------------------------
 	// Texture related

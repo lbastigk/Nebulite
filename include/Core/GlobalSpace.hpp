@@ -46,7 +46,7 @@ struct taskQueueWrapper {
  * encountered during resolution and whether the process was halted due to a critical error.
  */
 struct taskQueueResult{
-    bool stoppedAtCriticalResult = false;
+    bool encounteredCriticalResult = false;
     std::vector<Nebulite::Constants::Error> errors;
 };
 
@@ -91,7 +91,7 @@ public:
     // Special Member Functions
 
     // Constructor
-    GlobalSpace(const std::string binName);
+    explicit GlobalSpace(const std::string& binName);
 
     // Destructor
     ~GlobalSpace() = default;
@@ -116,7 +116,7 @@ public:
      * @param argc The number of command line arguments.
      * @param argv The array of command line argument strings.
      */
-    void parseCommandLineArguments(int argc, char* argv[]);
+    void parseCommandLineArguments(const int argc, const char* argv[]);
 
     /**
      * @brief Resolves a task queue by parsing each task and executing it.
@@ -125,7 +125,7 @@ public:
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
      */
-    Nebulite::Core::taskQueueResult resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t* waitCounter);
+    Nebulite::Core::taskQueueResult resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, const uint64_t* waitCounter);
 
     /**
      * @brief Parses the task queue for execution.
@@ -140,7 +140,7 @@ public:
      * 
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    Nebulite::Constants::Error update();
+    Nebulite::Constants::Error update() override;
 
     /**
      * @brief Quits the renderer by setting the quit flag.
@@ -152,14 +152,14 @@ public:
     /**
      * @brief Evaluates a string.
      */
-    std::string eval(std::string expr){
+    std::string eval(const std::string& expr){
         return invoke.evaluateStandaloneExpression(expr);
     }
 
     /**
      * @brief Evaluates a string with context of a RenderObject.
      */
-    std::string eval(std::string expr, Nebulite::Core::RenderObject* context){
+    std::string eval(const std::string& expr, Nebulite::Core::RenderObject* context){
         return invoke.evaluateStandaloneExpression(expr, context);
     }
 

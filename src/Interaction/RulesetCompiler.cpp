@@ -7,7 +7,7 @@
 void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
     Nebulite::Utility::JSON& entryDoc,
     Nebulite::Interaction::Ruleset& Ruleset, 
-    Nebulite::Core::RenderObject* self,
+    const Nebulite::Core::RenderObject* self,
     Nebulite::Utility::DocumentCache* docCache,
     Nebulite::Utility::JSON* global
 ) {
@@ -87,24 +87,33 @@ bool Nebulite::Interaction::RulesetCompiler::getExpression(Nebulite::Interaction
     }
 
     // Find the operator position in the full expression, set operation, key and value
-    size_t pos = std::string::npos;
-    if ((pos = expr.find("+=")) != std::string::npos) {
+    size_t pos;
+    if ((pos = expr.find("+=")) != std::string::npos)
+    {
         assignmentExpr.operation = Nebulite::Interaction::Logic::Assignment::Operation::add;
         assignmentExpr.value = expr.substr(pos + 2);
         assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
-    } else if ((pos = expr.find("*=")) != std::string::npos) {
+    }
+    else if ((pos = expr.find("*=")) != std::string::npos)
+    {
         assignmentExpr.operation = Nebulite::Interaction::Logic::Assignment::Operation::multiply;
         assignmentExpr.value = expr.substr(pos + 2);
         assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
-    } else if ((pos = expr.find("|=")) != std::string::npos) {
+    }
+    else if ((pos = expr.find("|=")) != std::string::npos)
+    {
         assignmentExpr.operation = Nebulite::Interaction::Logic::Assignment::Operation::concat;
         assignmentExpr.value = expr.substr(pos + 2);
         assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
-    } else if ((pos = expr.find("=")) != std::string::npos) {
+    }
+    else if ((pos = expr.find("=")) != std::string::npos)
+    {
         assignmentExpr.operation = Nebulite::Interaction::Logic::Assignment::Operation::set;
         assignmentExpr.value = expr.substr(pos + 1);
         assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
-    } else {
+    }
+    else
+    {
         std::cerr << "No operation found in expression: " << expr << std::endl;
         return false;
     }
@@ -191,7 +200,11 @@ namespace{
      * @param entries_local The local Ruleset objects.
      * @param entries_global The global Ruleset objects.
      */
-    void setMetaData(Nebulite::Core::RenderObject* self, std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_local, std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_global){
+    void setMetaData(
+        Nebulite::Core::RenderObject* self, 
+        const std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_local, 
+        const std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_global
+    ){
         // Set IDs
         uint32_t id = self->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0);
         for (const auto& entry : entries_local) {
@@ -316,7 +329,7 @@ void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
                 auto ops = Nebulite::Interaction::RulesetCompiler::numeric_operations;
                 if (ops.end() != std::find(ops.begin(), ops.end(), assignment.operation)) {
                     // Numeric operation on self, try to get a direct pointer
-                    double* ptr = self->getDoc()->get_stable_double_ptr(assignment.key);
+                    double* ptr = self->getDoc()->getStableDoublePointer(assignment.key);
                     if (ptr != nullptr) {
                         assignment.targetValuePtr = ptr;
                     }
@@ -325,7 +338,7 @@ void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
             if (assignment.onType == Nebulite::Interaction::Logic::Assignment::Type::Global) {
                 if (ops.end() != std::find(ops.begin(), ops.end(), assignment.operation)) {
                     // Numeric operation on global, try to get a direct pointer
-                    double* ptr = global->get_stable_double_ptr(assignment.key);
+                    double* ptr = global->getStableDoublePointer(assignment.key);
                     if (ptr != nullptr) {
                         assignment.targetValuePtr = ptr;
                     }

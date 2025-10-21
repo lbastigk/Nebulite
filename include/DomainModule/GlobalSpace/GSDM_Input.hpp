@@ -55,12 +55,6 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Input){
-        // Starting Polling timer
-        RendererPollTime = std::make_shared<Nebulite::Utility::TimeKeeper>();
-        RendererPollTime->update(); // Initial update to set t and dt
-        RendererPollTime->start();
-        RendererPollTime->update(); // Initial update to set t and dt
-
         // Mapping key names
         map_key_names();
     }
@@ -96,6 +90,11 @@ private:
      * If last update is over a threshold, we poll for input again.
      */
     std::shared_ptr<Nebulite::Utility::TimeKeeper> RendererPollTime;
+
+    /**
+     * @brief If the timer was initialized.
+     */
+    bool timerInitialized = false;
 
     /**
      * @brief Flag to reset delta values on the next update.

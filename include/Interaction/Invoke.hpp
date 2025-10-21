@@ -93,7 +93,7 @@ public:
      * 
      * @param globalSpace Pointer to the global space.
      */
-    Invoke(Nebulite::Core::GlobalSpace* globalSpace);
+    explicit Invoke(Nebulite::Core::GlobalSpace* globalSpace);
 
     /**
      * @brief Destructor - stops worker threads.

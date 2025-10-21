@@ -45,36 +45,36 @@ void Nebulite::Interaction::Logic::Expression::reset() {
     //------------------------------------------
     // Register built-in functions
 
-    //===================================================================================================
-    // Category             Name           Pointer                             Type           Context
-    //===================================================================================================
+    //====================================================================================================================
+    // Category             Name           Pointer                                               Type           Context
+    //====================================================================================================================
 
     // Logical comparison functions
-    te_variables.push_back({"gt",          (void*)expr_custom::gt,             TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"lt",          (void*)expr_custom::lt,             TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"geq",         (void*)expr_custom::geq,            TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"leq",         (void*)expr_custom::leq,            TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"eq",          (void*)expr_custom::eq,             TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"neq",         (void*)expr_custom::neq,            TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"gt",          reinterpret_cast<void*>(expr_custom::gt),             TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"lt",          reinterpret_cast<void*>(expr_custom::lt),             TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"geq",         reinterpret_cast<void*>(expr_custom::geq),            TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"leq",         reinterpret_cast<void*>(expr_custom::leq),            TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"eq",          reinterpret_cast<void*>(expr_custom::eq),             TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"neq",         reinterpret_cast<void*>(expr_custom::neq),            TE_FUNCTION2,  nullptr});
 
     // Logical gate functions
-    te_variables.push_back({"not",         (void*)expr_custom::logical_not,    TE_FUNCTION1,  nullptr});
-    te_variables.push_back({"and",         (void*)expr_custom::logical_and,    TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"or",          (void*)expr_custom::logical_or,     TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"xor",         (void*)expr_custom::logical_xor,    TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"nand",        (void*)expr_custom::logical_nand,   TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"nor",         (void*)expr_custom::logical_nor,    TE_FUNCTION2,  nullptr});
-    te_variables.push_back({"xnor",        (void*)expr_custom::logical_xnor,   TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"not",         reinterpret_cast<void*>(expr_custom::logical_not),    TE_FUNCTION1,  nullptr});
+    te_variables.push_back({"and",         reinterpret_cast<void*>(expr_custom::logical_and),    TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"or",          reinterpret_cast<void*>(expr_custom::logical_or),     TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"xor",         reinterpret_cast<void*>(expr_custom::logical_xor),    TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"nand",        reinterpret_cast<void*>(expr_custom::logical_nand),   TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"nor",         reinterpret_cast<void*>(expr_custom::logical_nor),    TE_FUNCTION2,  nullptr});
+    te_variables.push_back({"xnor",        reinterpret_cast<void*>(expr_custom::logical_xnor),   TE_FUNCTION2,  nullptr});
 
     // Other logical functions
-    te_variables.push_back({"to_bipolar",  (void*)expr_custom::to_bipolar,     TE_FUNCTION1,  nullptr});
+    te_variables.push_back({"to_bipolar",  reinterpret_cast<void*>(expr_custom::to_bipolar),     TE_FUNCTION1,  nullptr});
 
     // Mapping functions
-    te_variables.push_back({"map",         (void*)expr_custom::map,            TE_FUNCTION5,  nullptr});
-    te_variables.push_back({"constrain",   (void*)expr_custom::constrain,      TE_FUNCTION3,  nullptr});
+    te_variables.push_back({"map",         reinterpret_cast<void*>(expr_custom::map),            TE_FUNCTION5,  nullptr});
+    te_variables.push_back({"constrain",   reinterpret_cast<void*>(expr_custom::constrain),      TE_FUNCTION3,  nullptr});
 
     // More mathematical functions
-    te_variables.push_back({"sgn",         (void*)expr_custom::sgn,            TE_FUNCTION1,  nullptr});
+    te_variables.push_back({"sgn",         reinterpret_cast<void*>(expr_custom::sgn),            TE_FUNCTION1,  nullptr});
 }
 
 std::string Nebulite::Interaction::Logic::Expression::stripContext(const std::string& key) {
@@ -119,13 +119,8 @@ void Nebulite::Interaction::Logic::Expression::compileIfExpression(Entry& entry)
 
 void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_name, std::string key, Entry::From context){
     // Check if variable exists in variables vector:
-    bool found = false;
-    for(auto te_var : te_variables) {
-        if(te_var.name == te_name) {
-            found = true;
-            break;
-        }
-    }
+    bool found = std::any_of(te_variables.begin(), te_variables.end(), [&](const auto& te_var) { return te_var.name == te_name; });
+
     if(!found) {
         // Initialize with reference to document and cache register
         std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble> vd = std::make_shared<Nebulite::Interaction::Logic::VirtualDouble>(key, documentCache);
@@ -182,7 +177,7 @@ void Nebulite::Interaction::Logic::Expression::parseIntoEntries(const std::strin
     tokensPhase1 = Nebulite::Utility::StringHandler::split(expr, '$', true);
 
     // Now we need to split on same depth
-    for(auto token : tokensPhase1) {
+    for(const auto& token : tokensPhase1) {
         // If the first token starts with '$', it means the string started with '$'
         // If not, the first token is text before the first '$'
         if(token.starts_with('$')) {
@@ -201,9 +196,7 @@ void Nebulite::Interaction::Logic::Expression::parseIntoEntries(const std::strin
             }
 
             // Add all subtokens to the actual list of tokens
-            for (const auto& subToken : subTokens) {
-                tokens.push_back(subToken);
-            }
+            std::copy(subTokens.begin(), subTokens.end(), std::back_inserter(tokens));
         } else {
             // If it doesnt start with a '$', it's a text token / potentially with variables inside
             // Just add the text token
@@ -220,7 +213,7 @@ void Nebulite::Interaction::Logic::Expression::parseIntoEntries(const std::strin
     // - formatting
     // - splitting all text-variable mixes
     // - variable info (from what document, what the key is)
-    for (auto& token : tokens) {
+    for (const auto& token : tokens) {
         if (!token.empty()) {
             Entry currentEntry;
             if(token.starts_with('$')){
@@ -264,7 +257,7 @@ void Nebulite::Interaction::Logic::Expression::readFormatter(Entry* entry, const
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
+void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(const std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
     // $[leading zero][alignment][.][precision]<type:f,i>
     // - bool leading zero   : on/off
     // - int alignment       : <0 means no formatting
@@ -333,7 +326,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(std::string& t
     entries.push_back(currentEntry);
 }
 
-void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
+void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(const std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
     // Current token is Text
     // Perhaps mixed with variables...
     std::vector<std::string> subTokens = Nebulite::Utility::StringHandler::splitOnSameDepth(token, '{');
@@ -364,7 +357,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(std::string& t
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::printCompileError(const Entry& entry, int& error) {
+void Nebulite::Interaction::Logic::Expression::printCompileError(const Entry& entry, const int error) {
     std::cerr << "-----------------------------------------------------------------" << std::endl;
     std::cerr << "Error compiling expression: '" << entry.str << "' Error code: " << error << std::endl;
     std::cerr << "You might see this message multiple times due to expression parallelization." << std::endl;
@@ -390,6 +383,8 @@ void Nebulite::Interaction::Logic::Expression::printCompileError(const Entry& en
 // Public:
 
 Nebulite::Interaction::Logic::Expression::Expression() {
+    _isReturnableAsDouble = false;
+    uniqueId = 0;
     reset();
 }
 
@@ -420,6 +415,107 @@ void Nebulite::Interaction::Logic::Expression::parse(const std::string& expr, Ne
     uniqueId = globalspace->getUniqueId(fullExpression, Nebulite::Core::GlobalSpace::UniqueIdType::EXPRESSION);
 }
 
+bool Nebulite::Interaction::Logic::Expression::handleEntryTypeVariable(std::string& token, const Entry& entry, Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth) {
+    std::string key = entry.key;
+    Entry::From context = entry.from;
+    
+    // See if the variable contains an inner expression
+    if(entry.str.find('$') != std::string::npos || entry.str.find('{') != std::string::npos) {
+        if(max_recursion_depth == 0) {
+            std::cerr << "Error: Maximum recursion depth reached when evaluating variable: " << entry.key << std::endl;
+            return false;
+        }
+        // Create a temporary expression to evaluate the inner expression
+        Expression tempExpr;
+        tempExpr.parse(entry.str, documentCache, self, global);
+        key = tempExpr.eval(current_other, max_recursion_depth - 1);
+
+        // Redetermine context and strip it from key
+        context = getContext(key);
+        key = stripContext(key);
+    }
+
+    // Now, use the key to get the value from the correct document
+    switch(context) {
+        case Entry::From::self:
+            if(self == nullptr){
+                std::cerr << "Error: Null self reference in expression: " << key << std::endl;
+                return false;
+            }
+            token = self->get<std::string>(key, "0");
+            break;
+        case Entry::From::other:
+            if(current_other == nullptr) {
+                std::cerr << "Error: Null other reference in expression: " << key << std::endl;
+                return false;
+            }
+            token = current_other->get<std::string>(key, "0");
+            break;
+        case Entry::From::global:
+            if (global == nullptr) {
+                std::cerr << "Error: Null global reference in expression: " << key << std::endl;
+                return false;
+            }
+            token = global->get<std::string>(key, "0");
+            break;
+        case Entry::From::resource:
+        default:
+            if (globalCache == nullptr) {
+                std::cerr << "Error: Null globalCache reference in expression: " << key  << ". If this shouldn't be a Resource reference, did you forget the prefix self/other/global?" << std::endl;
+                return false;
+            }
+            token = globalCache->get<std::string>(key, "0");
+            break;
+    }
+    return true;
+}
+
+void Nebulite::Interaction::Logic::Expression::handleEntryTypeEval(std::string& token, const Entry& entry) {
+    //------------------------------------------
+    // Handle casting and precision together
+    if(entry.cast == Entry::CastType::to_int){
+        token = std::to_string(static_cast<int>(te_eval(entry.expression)));
+    } else{
+        // to_double or none, both use double directly 
+        double value = te_eval(entry.expression);
+        
+        // Apply rounding if precision is specified
+        if (entry.formatter.precision != -1) {
+            double multiplier = std::pow(10.0, entry.formatter.precision);
+            value = std::round(value * multiplier) / multiplier;
+        }
+        
+        token = std::to_string(value);
+    }
+
+    // Precision formatting (after rounding)
+    if (entry.formatter.precision != -1) {
+        size_t dotPos = token.find('.');
+        if (dotPos != std::string::npos) {
+            size_t currentPrecision = token.size() - dotPos - 1;
+            if (currentPrecision < static_cast<size_t>(entry.formatter.precision)) {
+                // Add zeros to match the required precision
+                token.append(entry.formatter.precision - currentPrecision, '0');
+            } else if (currentPrecision > static_cast<size_t>(entry.formatter.precision)) {
+                // Truncate to the required precision (should be minimal after rounding)
+                token.resize(dotPos + entry.formatter.precision + 1);
+            }
+        } else {
+            // No decimal point, add one and pad with zeros
+            token += '.';
+            token.append(entry.formatter.precision, '0');
+        }
+    }
+
+    // Adding padding
+    if(entry.formatter.alignment > 0 && token.size() < static_cast<size_t>(entry.formatter.alignment)) {
+        int32_t size = token.size();
+        for(int i = 0; i < entry.formatter.alignment - size; i++){
+            token = (entry.formatter.leadingZero ? '0' : ' ') + token;
+        }
+    }
+}
+
 std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth) {
     //------------------------------------------
     // Update caches so that tinyexpr has the correct references
@@ -430,118 +526,18 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
 
     // Concatenate results of each entry
     std::string result = "";
-    std::string token;
-    std::string key;
-    Entry::From context;
-    bool failed = false;
-    for (auto& entry : entries) {
-        token = "";
-        key = entry.key;
-        context = entry.from;
+    for (const auto& entry : entries) {
+        std::string token = "";
         switch (entry.type){
             //------------------------------------------
             case Entry::variable:
-                // See if the variable contains an inner expression
-                if(entry.str.find('$') != std::string::npos || entry.str.find('{') != std::string::npos) {
-                    if(max_recursion_depth == 0) {
-                        std::cerr << "Error: Maximum recursion depth reached when evaluating variable: " << entry.key << std::endl;
-                        return "0";
-                    }
-                    // Create a temporary expression to evaluate the inner expression
-                    Expression tempExpr;
-                    tempExpr.parse(entry.str, documentCache, self, global);
-                    key = tempExpr.eval(current_other, max_recursion_depth - 1);
-
-                    // Redetermine context and strip it from key
-                    context = getContext(key);
-                    key = stripContext(key);
-                }
-
-                // Now, use the key to get the value from the correct document
-                switch(context) {
-                    case Entry::From::self:
-                        if(self == nullptr){
-                            std::cerr << "Error: Null self reference in expression: " << key << std::endl;
-                            failed = true;
-                            break;
-                        }
-                        token = self->get<std::string>(key.c_str(), "0");
-                        break;
-                    case Entry::From::other:
-                        if(current_other == nullptr) {
-                            std::cerr << "Error: Null other reference in expression: " << key << std::endl;
-                            failed = true;
-                            break;
-                        }
-                        token = current_other->get<std::string>(key.c_str(), "0");
-                        break;
-                    case Entry::From::global:
-                        if (global == nullptr) {
-                            std::cerr << "Error: Null global reference in expression: " << key << std::endl;
-                            failed = true;
-                            break;
-                        }
-                        token = global->get<std::string>(key.c_str(), "0");
-                        break;
-                    case Entry::From::resource:
-                    default:
-                        if (globalCache == nullptr) {
-                            std::cerr << "Error: Null globalCache reference in expression: " << key  << ". If this shouldn't be a Resource reference, did you forget the prefix self/other/global?" << std::endl;
-                            failed = true;
-                            break;
-                        }
-                        token = globalCache->get<std::string>(key.c_str(), "0");
-                        break;
-                }
-                if(failed){
+                if(!handleEntryTypeVariable(token, entry, current_other, max_recursion_depth)) {
                     return "0";
                 }
                 break;
             //------------------------------------------
             case Entry::eval:
-                //------------------------------------------
-                // Handle casting and precision together
-                if(entry.cast == Entry::CastType::to_int){
-                    token = std::to_string(static_cast<int>(te_eval(entry.expression)));
-                } else{
-                    // to_double or none, both use double directly 
-                    double value = te_eval(entry.expression);
-                    
-                    // Apply rounding if precision is specified
-                    if (entry.formatter.precision != -1) {
-                        double multiplier = std::pow(10.0, entry.formatter.precision);
-                        value = std::round(value * multiplier) / multiplier;
-                    }
-                    
-                    token = std::to_string(value);
-                }
-
-                // Precision formatting (after rounding)
-                if (entry.formatter.precision != -1) {
-                    size_t dotPos = token.find('.');
-                    if (dotPos != std::string::npos) {
-                        size_t currentPrecision = token.size() - dotPos - 1;
-                        if (currentPrecision < static_cast<size_t>(entry.formatter.precision)) {
-                            // Add zeros to match the required precision
-                            token.append(entry.formatter.precision - currentPrecision, '0');
-                        } else if (currentPrecision > static_cast<size_t>(entry.formatter.precision)) {
-                            // Truncate to the required precision (should be minimal after rounding)
-                            token = token.substr(0, dotPos + entry.formatter.precision + 1);
-                        }
-                    } else {
-                        // No decimal point, add one and pad with zeros
-                        token += '.';
-                        token.append(entry.formatter.precision, '0');
-                    }
-                }
-
-                // Adding padding
-                if(entry.formatter.alignment > 0 && token.size() < static_cast<size_t>(entry.formatter.alignment)) {
-                    int32_t size = token.size();
-                    for(int i = 0; i < entry.formatter.alignment - size; i++){
-                        token = (entry.formatter.leadingZero ? '0' : ' ') + token;
-                    }
-                }
+                handleEntryTypeEval(token, entry);
                 break;
             //------------------------------------------
             case Entry::text:
@@ -555,10 +551,6 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
     }
     
     return result;
-}
-
-bool Nebulite::Interaction::Logic::Expression::isReturnableAsDouble() {
-    return _isReturnableAsDouble;
 }
 
 double Nebulite::Interaction::Logic::Expression::evalAsDouble(Nebulite::Utility::JSON* current_other) {
@@ -580,8 +572,8 @@ odpvec* Nebulite::Interaction::Logic::Expression::ensure_other_cache_entry(Nebul
             Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles_other.size());
 
             // Populate list with all virtual doubles from type other
-            for(auto& vde : virtualDoubles_other) {
-                double* reference = current_other->get_stable_double_ptr(vde->getKey());
+            for(const auto& vde : virtualDoubles_other) {
+                double* reference = current_other->getStableDoublePointer(vde->getKey());
                 newCacheList.orderedValues.push_back(reference);
             }
             cache->quickCache[uniqueId] = std::move(newCacheList);
@@ -597,8 +589,8 @@ odpvec* Nebulite::Interaction::Logic::Expression::ensure_other_cache_entry(Nebul
         Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles_other.size());
 
         // Populate list with all virtual doubles from type other
-        for(auto& vde : virtualDoubles_other) {
-            double* reference = current_other->get_stable_double_ptr(vde->getKey());
+        for(const auto& vde : virtualDoubles_other) {
+            double* reference = current_other->getStableDoublePointer(vde->getKey());
             newCacheList.orderedValues.push_back(reference);
         }
 
@@ -628,51 +620,5 @@ void Nebulite::Interaction::Logic::Expression::updateCaches(Nebulite::Utility::J
     // Update resource references
     for(auto& vde : virtualDoubles_resource) {
         vde->setUpInternalCache(nullptr);
-    }
-}
-
-//------------------------------------------
-// DEBUGGING
-
-void Nebulite::Interaction::Logic::Expression::printCache(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>& vec) {
-    // Sort alphabetically
-    std::sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
-        return a->getKey() < b->getKey();
-    });
-    for (const auto& vd : vec) {
-        std::cout << "\t" << vd->getKey() << " = " << *(vd->ptr()) << std::endl;
-    }
-}
-
-void Nebulite::Interaction::Logic::Expression::debugOutput(Nebulite::Utility::JSON* current_other){
-    // Debug only a certain expression
-    if(entries[0].str.starts_with("(global_")){
-        std::cout << "\n" << std::endl;
-        std::string strSelf  = self->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str(), "null");
-        std::string strOther = current_other->get<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str(), "null");
-        std::cout << "Updated references. Self is: " << strSelf << " Other is: " << strOther << std::endl;
-
-        std::cout << "After update:" << std::endl;
-        if(virtualDoubles_self.size() > 0) {
-            std::cout << "Values for self:" << std::endl;
-            printCache(virtualDoubles_self);
-        }
-        if(virtualDoubles_other.size() > 0) {
-            std::cout << "Values for other:" << std::endl;
-            printCache(virtualDoubles_other);
-        }
-        if(virtualDoubles_global.size() > 0) {
-            std::cout << "Values for global:" << std::endl;
-            printCache(virtualDoubles_global);
-        }
-        if(virtualDoubles_resource.size() > 0) {
-            std::cout << "Values for resource:" << std::endl;
-            printCache(virtualDoubles_resource);
-        }
-        std::cout << "Now evaluating expression: " << entries[0].str << std::endl;
-
-        double result = te_eval(entries[0].expression);
-        std::cout << "Result: " << result << std::endl;
-        std::cout << "\n" << std::endl;
     }
 }

@@ -4,7 +4,7 @@
 #include "Constants/KeyNames.hpp"
 
 
-Nebulite::Core::GlobalSpace::GlobalSpace(const std::string binName)
+Nebulite::Core::GlobalSpace::GlobalSpace(const std::string& binName)
 : Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite", this, &global, this),
   global(this),                       // Link the global document to the GlobalSpace
   renderer(this, &cmdVars.headless),  // Renderer with reference to GlobalSpace and headless mode boolean
@@ -121,7 +121,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
     return lastCriticalResult;
 }
 
-void Nebulite::Core::GlobalSpace::parseCommandLineArguments(int argc, char* argv[]){
+void Nebulite::Core::GlobalSpace::parseCommandLineArguments(const int argc, const char* argv[]){
     //------------------------------------------
     // Add main args to taskList, split by ';'
     if (argc > 1) {
@@ -184,13 +184,13 @@ void Nebulite::Core::GlobalSpace::parseCommandLineArguments(int argc, char* argv
     }
 }
 
-Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t* waitCounter){
-    Nebulite::Constants::Error currentResult = Nebulite::Constants::ErrorTable::NONE();
-    Nebulite::Core::taskQueueResult result;
+Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, const uint64_t* waitCounter){
+    Nebulite::Constants::Error currentResult;
+    Nebulite::Core::taskQueueResult fullResult;
 
     // If clearAfterResolving, process and pop each element
     if (tq.clearAfterResolving) {
-        while (!tq.taskQueue.empty() && !result.stoppedAtCriticalResult) {
+        while (!tq.taskQueue.empty() && !fullResult.encounteredCriticalResult) {
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
             std::string argStr = tq.taskQueue.front();
@@ -209,14 +209,14 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
 
             // Check result
             if (currentResult.isCritical()) {
-                result.stoppedAtCriticalResult = true;
+                fullResult.encounteredCriticalResult = true;
             }
-            result.errors.push_back(currentResult);
+            fullResult.errors.push_back(currentResult);
         }
     } else {
         // If not clearing, process every element without popping
         for (const auto& argStrOrig : tq.taskQueue) {
-            if (result.stoppedAtCriticalResult) break;
+            if (fullResult.encounteredCriticalResult) break;
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
             // Add binary name if missing
@@ -233,13 +233,12 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
 
             // Check result
             if (currentResult.isCritical()) {
-                result.stoppedAtCriticalResult = true;
+                fullResult.encounteredCriticalResult = true;
             }
-            result.errors.push_back(currentResult);
+            fullResult.errors.push_back(currentResult);
         }
     }
-
-    return result;
+    return fullResult;
 }
 
 Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
@@ -253,21 +252,21 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
 
     // 2.) Parse script tasks
     queueResult.script = resolveTaskQueue(tasks.script, &scriptWaitCounter);
-    if(queueResult.script.stoppedAtCriticalResult && !cmdVars.recover) {
+    if(queueResult.script.encounteredCriticalResult && !cmdVars.recover) {
         lastCriticalResult = queueResult.script.errors.back();
         return lastCriticalResult;
     } 
 
     // 3.) Parse internal tasks
     queueResult.internal = resolveTaskQueue(tasks.internal, noWaitCounter);
-    if(queueResult.internal.stoppedAtCriticalResult && !cmdVars.recover) {
+    if(queueResult.internal.encounteredCriticalResult && !cmdVars.recover) {
         lastCriticalResult = queueResult.internal.errors.back();
         return lastCriticalResult;
     }
 
     // 4.) Parse always-tasks
     queueResult.always = resolveTaskQueue(tasks.always, noWaitCounter);
-    if(queueResult.always.stoppedAtCriticalResult && !cmdVars.recover) {
+    if(queueResult.always.encounteredCriticalResult && !cmdVars.recover) {
         lastCriticalResult = queueResult.always.errors.back();
         return lastCriticalResult;
     }
@@ -294,8 +293,8 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::preParse() {
 void Nebulite::Core::GlobalSpace::updateRNGs(){
     // Set Min and Max values for RNGs in document
     // Always set, so overwrites dont stick around
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.random.min.c_str(), std::numeric_limits<RNGvars::rng_size_t>::min());
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.random.max.c_str(), std::numeric_limits<RNGvars::rng_size_t>::max());
+    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.min.c_str(), std::numeric_limits<RNGvars::rng_size_t>::min());
+    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.max.c_str(), std::numeric_limits<RNGvars::rng_size_t>::max());
 
     // Generate seeds in a predictable manner
     // Since updateRNG is called at specific times only, we can simply increment RNG with a new seed
@@ -311,8 +310,8 @@ void Nebulite::Core::GlobalSpace::updateRNGs(){
     rng.D.update(seedD);
 
     // Set RNG values in global document
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.random.A.c_str(), rng.A.get());
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.random.B.c_str(), rng.B.get());
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.random.C.c_str(), rng.C.get());
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.random.D.c_str(), rng.D.get());
+    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.A.c_str(), rng.A.get());
+    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.B.c_str(), rng.B.get());
+    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.C.c_str(), rng.C.get());
+    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.D.c_str(), rng.D.get());
 }

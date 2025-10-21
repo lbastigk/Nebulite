@@ -1,15 +1,43 @@
 #include "DomainModule/GlobalSpace/GSDM_Debug.hpp"
 #include "Core/GlobalSpace.hpp"       // Global Space for Nebulite
+#include <csignal>
 
 #if defined(_WIN32)
-  #include <windows.h>
+    #include <windows.h>
 #else
-  #include <unistd.h>   // isatty
-  #include <cstdio>
+    #include <unistd.h>   // isatty, lstat
+    #include <sys/stat.h> // struct stat, S_ISLNK
+    #include <cstdio>
 #endif
+#include <memory>
+#include <fstream>
+
+namespace {
+    /**
+     * @brief Safely opens a log file for writing, ensuring it is not a symlink.
+     * 
+     * @todo Move this functionality to globalspace
+     */
+    bool safe_open_log(const char* filename, std::unique_ptr<std::ofstream>& out) {
+    #if defined(_WIN32)
+        DWORD attrs = GetFileAttributesA(filename);
+        if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_REPARSE_POINT)) {
+            return false;
+        }
+    #else
+        struct stat sb;
+        if (lstat(filename, &sb) == 0 && S_ISLNK(sb.st_mode)) {
+            return false;
+        }
+    #endif
+        out = std::make_unique<std::ofstream>(filename);
+        return out->is_open();
+    }
+}
+
+
 
 namespace Nebulite::DomainModule::GlobalSpace {
-
 const std::string Debug::log_name = "log";
 const std::string Debug::log_desc = R"(Functions to log various data to files)";
 
@@ -86,52 +114,33 @@ Note: This function creates or overwrites the file 'standard.jsonc' in the './Re
 Nebulite::Constants::Error Debug::errorlog(int argc,  char* argv[]){
     // Initialize the error logging buffer
     if(!originalCerrBuf) {
-        // Handle the case where originalCerrBuf is not set
         originalCerrBuf = std::cerr.rdbuf();
     }
 
     if(argc == 2){
         if(!strcmp(argv[1], "on")){
+            const char* logFilename = "errors.log";
             if(!errorLogStatus){
-                try {
-                    // Create ofstream only when needed (lazy initialization)
-                    if (!errorFile) {
-                        errorFile = std::make_unique<std::ofstream>();
-                    }
-                    
-                    // Log errors in separate file
-                    errorFile->open("errors.log");
-                    if (!(*errorFile)) {
-                        std::cerr << "Failed to open error file." << std::endl;
-                        return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
-                    }
-                    
-                    originalCerrBuf = std::cerr.rdbuf(); // Store the original cerr buffer
-                    std::cerr.rdbuf(errorFile->rdbuf()); // Redirect to file
-                    errorLogStatus = true;
-                } catch (const std::exception& e) {
-                    std::cerr << "Failed to create error log: " << e.what() << std::endl;
-                    return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
-                } catch (...) {
-                    std::cerr << "Failed to create error log: unknown error" << std::endl;
+                if (!safe_open_log(logFilename, errorFile)) {
+                    std::cerr << "Refusing to open log file: '" << logFilename << "' is a symlink or could not be opened." << std::endl;
                     return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
                 }
+                originalCerrBuf = std::cerr.rdbuf();
+                std::cerr.rdbuf(errorFile->rdbuf());
+                errorLogStatus = true;
             }
         }
         else if (!strcmp(argv[1], "off")){
             if(errorLogStatus){
-                // Close error log
-                std::cerr.flush();                    // Flush before restoring
-                std::cerr.rdbuf(originalCerrBuf);     // Restore the original buffer
-                
+                std::cerr.flush();
+                std::cerr.rdbuf(originalCerrBuf);
                 if (errorFile) {
                     errorFile->close();
-                    // Keep the unique_ptr for potential reuse
+                    errorFile.reset();
                 }
-                
                 errorLogStatus = false;
             }
-        } 
+        }
     }
     else{
         if(argc > 2){
@@ -209,8 +218,7 @@ Nebulite::Constants::Error Debug::crash(int argc,  char* argv[]) {
         std::string crashType = argv[1];
         if (crashType == "segfault") {
             // Cause a segmentation fault
-            int* p = nullptr;
-            *p = 42;
+            raise(SIGSEGV);
         } else if (crashType == "abort") {
             // Abort the program
             std::abort();
@@ -226,8 +234,7 @@ Nebulite::Constants::Error Debug::crash(int argc,  char* argv[]) {
         }
     } else {
         // Default: segmentation fault
-        int* p = nullptr;
-        *p = 42;
+        raise(SIGSEGV);
     }
     // Should never reach here
     return Nebulite::Constants::ErrorTable::NONE();
