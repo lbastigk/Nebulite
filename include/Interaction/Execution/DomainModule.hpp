@@ -13,7 +13,7 @@
     class DomainModuleName : public ::Nebulite::Interaction::Execution::DomainModule<DomainName>
 
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
-    DomainModuleName(::std::string moduleName, DomainName* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
+    DomainModuleName(const std::string& moduleName, DomainName* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
     : DomainModule(moduleName, domain, funcTreePtr, globalSpace)
 
 //------------------------------------------
@@ -49,7 +49,7 @@ public:
      * The constructor initializes the DomainModule with a reference to the domain and
      * the FuncTree.
      */
-    DomainModule(std::string moduleName, DomainType* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace)
+    DomainModule(const std::string& moduleName, DomainType* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace)
         : moduleName(moduleName), domain(domain), global(globalSpace), funcTree(funcTreePtr) {}
 
     /**
