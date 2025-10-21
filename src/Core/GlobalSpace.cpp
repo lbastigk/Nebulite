@@ -121,7 +121,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
     return lastCriticalResult;
 }
 
-void Nebulite::Core::GlobalSpace::parseCommandLineArguments(int argc, char* argv[]){
+void Nebulite::Core::GlobalSpace::parseCommandLineArguments(const int argc, const char* argv[]){
     //------------------------------------------
     // Add main args to taskList, split by ';'
     if (argc > 1) {

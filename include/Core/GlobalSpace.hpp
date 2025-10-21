@@ -116,7 +116,7 @@ public:
      * @param argc The number of command line arguments.
      * @param argv The array of command line argument strings.
      */
-    void parseCommandLineArguments(int argc, char* argv[]);
+    void parseCommandLineArguments(const int argc, const char* argv[]);
 
     /**
      * @brief Resolves a task queue by parsing each task and executing it.
