@@ -31,5 +31,5 @@ else
     echo "  - python3, python3-pip, python3-numpy"
     echo "  - audio libraries (alsa-lib-devel, pulseaudio-libs-devel on Linux)"
     echo "  - cloc (for line counting)"
-    read -p "Press Enter when dependencies are installed, or Ctrl+C to exit..."
+    read -r -p "Press Enter when dependencies are installed, or Ctrl+C to exit..."
 fi
