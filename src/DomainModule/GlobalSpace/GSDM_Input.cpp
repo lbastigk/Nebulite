@@ -52,10 +52,14 @@ Nebulite::Constants::Error Input::update() {
 void Input::map_key_names() {
 	for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode) {
 		const char* nameRaw = SDL_GetScancodeName(static_cast<SDL_Scancode>(scancode));
+
 		if (nameRaw && nameRaw[0] != '\0') {
 			std::string keyName = nameRaw;
-			for (char& c : keyName) c = std::tolower(c);
-			for (char& c : keyName) if (c == ' ') c = '_';
+
+			// Normalize key name: lowercase, spaces to underscores
+			std::transform(keyName.begin(), keyName.end(), keyName.begin(),
+				[](unsigned char c){ return std::tolower(c); });
+			std::replace(keyName.begin(), keyName.end(), ' ', '_');
 
 			// Don't add if there are special chars in Nebulite::Constants::keyName
 			if(!Nebulite::Utility::StringHandler::containsAnyOf(keyName,Nebulite::Utility::JSON::reservedCharacters)){
