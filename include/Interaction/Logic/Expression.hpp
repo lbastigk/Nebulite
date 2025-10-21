@@ -427,21 +427,6 @@ private:
      * @return A pointer to the vector of double pointers for the expression in the other document.
      */
     odpvec* ensure_other_cache_entry(Nebulite::Utility::JSON* current_other);
-
-    //------------------------------------------
-    // Debugging
-
-    /**
-     * @brief Debugging function to print the current cache of virtual doubles
-     * 
-     * @param vec The vector of virtual doubles to print
-     */
-    void printCache(std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>& vec);
-
-    /**
-     * @brief Full debug output of what the expression does with what references
-     */
-    void debugOutput(Nebulite::Utility::JSON* current_other);
 };
 } // namespace Logic
 } // namespace Interaction
