@@ -54,14 +54,14 @@ Nebulite::Constants::Error Time::update() {
             // Use real delta time
             SimulationTime.update(dt_ms);
         }
-        uint64_t dt_ms = SimulationTime.get_dt_ms();
-        uint64_t t_ms = SimulationTime.get_t_ms();
+        uint64_t sim_dt_ms = SimulationTime.get_dt_ms();
+        uint64_t sim_t_ms = SimulationTime.get_t_ms();
 
         // Set in doc
-        domain->getDoc()->set<double>(key_time_dt,    dt_ms / 1000.0);
-        domain->getDoc()->set<double>(key_time_t,     t_ms / 1000.0);
-        domain->getDoc()->set<Uint64>(key_time_dt_ms, dt_ms);
-        domain->getDoc()->set<Uint64>(key_time_t_ms,  t_ms);
+        domain->getDoc()->set<double>(key_time_dt,    sim_dt_ms / 1000.0);
+        domain->getDoc()->set<double>(key_time_t,     sim_t_ms / 1000.0);
+        domain->getDoc()->set<Uint64>(key_time_dt_ms, sim_dt_ms);
+        domain->getDoc()->set<Uint64>(key_time_t_ms,  sim_t_ms);
 
         //------------------------------------------
         // Increase Frame count
