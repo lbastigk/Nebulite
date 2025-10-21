@@ -85,7 +85,7 @@ private:
     uint8_t FONT_MAX_SIZE = 24;     // Maximum font size
 
     // y positions of each line, derived from console height
-    std::vector<uint16_t> line_y_pos;
+    std::vector<uint16_t> line_y_positions;
     
     //------------------------------------------
     // State
@@ -132,7 +132,7 @@ private:
 	void renderConsole();
 
     /**
-     * @brief Populates vector line_y_pos with the y positions of each line,
+     * @brief Populates vector line_y_positions with the y positions of each line,
      * and sets font size accordingly.
      * 
      * @return The calculated line height.

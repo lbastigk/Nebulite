@@ -50,7 +50,6 @@ void Console::renderConsole() {
     // Prerequisites
 
     // Derive consoleRect size from display size
-    int x = 0;
     int y = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) / 2;
     int w = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),360);
     int h = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) - y;
@@ -70,7 +69,7 @@ void Console::renderConsole() {
             SDL_DestroyTexture(consoleTexture.texture_ptr);
         }
         consoleTexture = {
-            {x, y, w, h}, // rect
+            {0, y, w, h}, // rect
             SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h)
         };
     }
@@ -158,15 +157,15 @@ void Console::renderConsole() {
 
     // Index-offset: If we have less history than lines,
     // We need to offset to align at the top
-    int16_t y_start = line_y_pos[0];
-    if(outputSize < line_y_pos.size()){
-        y_start = line_y_pos[line_y_pos.size() - outputSize];
+    int16_t y_start = line_y_positions[0];
+    if(outputSize < line_y_positions.size()){
+        y_start = line_y_positions[line_y_positions.size() - outputSize];
     }
 
     // Render lines from bottom to top
-    for(uint16_t y : line_y_pos){
-        if(y > y_start) continue;               // Skip lines under the start position
-        if(line_index >= outputSize)  break;    // No more lines to show         
+    for(uint16_t line_y_position : line_y_positions){
+        if(line_y_position > y_start) continue;  // Skip lines under the start position
+        if(line_index >= outputSize)  break;     // No more lines to show
 
         // Get line
         std::string line = textInput.getOutput()->at(outputSize - 1 - line_index);
@@ -178,7 +177,7 @@ void Console::renderConsole() {
 
         SDL_Rect textRect;
         textRect.x = 10;
-        textRect.y = y;
+        textRect.y = line_y_position;
         textRect.w = (double)textSurface->w / WindowScale;
         textRect.h = (double)textSurface->h / WindowScale;
 
@@ -189,7 +188,7 @@ void Console::renderConsole() {
 
     // [DEBUG] Draw a line at every y position
     /*
-    for(uint16_t y : line_y_pos){
+    for(uint16_t y : line_y_positions){
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderDrawLine(renderer, 0, y - LINE_PADDING/2, consoleTexture.rect.w, y - LINE_PADDING/2);
     }
@@ -257,9 +256,9 @@ uint8_t Console::calculateTextAlignment(uint16_t rect_height){
 
     // Now, line height and N are final
     // Populate y positions
-    line_y_pos.clear();
+    line_y_positions.clear();
     for(int i = 1; i < N; i++){ // i=0 is reserved for input line
-        line_y_pos.push_back( rect_height - LINE_PADDING - 2*LINE_HEIGHT - i*(LINE_HEIGHT + LINE_PADDING) );
+        line_y_positions.push_back( rect_height - LINE_PADDING - 2*LINE_HEIGHT - i*(LINE_HEIGHT + LINE_PADDING) );
     }
 
     // Set correct font size for SDL_ttf
