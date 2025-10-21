@@ -3,6 +3,8 @@
 /**
  * @file KeyNames.hpp
  * @brief Contains all hardcoded key names used within Nebulite.
+ * 
+ * @todo Move key names into classes as static members!
  */
 
 //------------------------------------------
