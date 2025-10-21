@@ -94,7 +94,7 @@ public:
 	 * 
 	 * - RenderObject creation
 	 */
-	Environment(Nebulite::Core::GlobalSpace* globalSpace);
+	explicit Environment(Nebulite::Core::GlobalSpace* globalSpace);
 
 	// Suppress copy/move operators
 	Environment(Environment&& other) = delete;
