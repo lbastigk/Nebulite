@@ -15,10 +15,13 @@
 #include <variant>
 
 // External
-#include "document.h"
-#include "writer.h"
-#include "stringbuffer.h"
-#include "prettywriter.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/prettywriter.h"
+#include "rapidjson/encodings.h"
+#include "rapidjson/istreamwrapper.h"
+#include "rapidjson/ostreamwrapper.h"
 
 // Nebulite
 #include "Utility/StringHandler.hpp"

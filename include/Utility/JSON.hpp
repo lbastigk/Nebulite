@@ -19,13 +19,6 @@
 #include <typeindex>
 
 // External
-#include "document.h"
-#include "writer.h"
-#include "stringbuffer.h"
-#include "prettywriter.h"
-#include "encodings.h"
-#include "istreamwrapper.h"
-#include "ostreamwrapper.h"
 #include "absl/container/flat_hash_map.h"
 
 // Nebulite
@@ -35,7 +28,7 @@
 #include "Utility/OrderedDoublePointers.hpp"
 #include "Utility/Time.hpp"
 
-#include "RjDirectAccess.hpp"
+#include "Utility/RjDirectAccess.hpp"
 
 #define JSON_UID_QUICKCACHE_SIZE 30 // First 30 keys get a quickcache entry for double pointers!
 
