@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 This script generates documentation for command functions in the Nebulite project.
 It extracts command information from both GlobalSpace and RenderObject domains
@@ -18,6 +17,84 @@ ROOT_RENDEROBJECT = "./bin/Nebulite draft parse"
 OUTPUT_FILE = "./doc/Commands.md"
 TIMEOUT_SECONDS = 3  # Timeout for commands that might open renderer windows
 
+# Markdown formatting helpers
+class MarkdownFormatter:
+    def get_header(self, name: str, level: int) -> str:
+        if name == 'root' or not name:
+            return ""
+        header_prefix = "#" * min(level, 6)
+        return f"{header_prefix} `{name}`\n\n"
+
+    def get_intro(self, help_text: str) -> str:
+        if not help_text:
+            return ""
+        for line in help_text.split('\n'):
+            if 'Help for' in line:
+                return f"{line.strip()}\n\n"
+        return ""
+
+    def get_description(self, help_text: str) -> str:
+        if not help_text:
+            return ""
+        lines = help_text.split('\n')
+        description_started = False
+        description_lines = []
+        for line in lines:
+            if description_started:
+                if not line.startswith('Available') and not line.startswith('Add the entries'):
+                    description_lines.append(line)
+                elif line.startswith('Available') or line.startswith('Add the entries'):
+                    break
+            elif 'Help for function' in line or 'Help for' in line:
+                description_started = True
+        # Remove empty lines at the beginning and end
+        while description_lines and not description_lines[0].strip():
+            description_lines.pop(0)
+        while description_lines and not description_lines[-1].strip():
+            description_lines.pop()
+        if description_lines:
+            return "```\n" + '\n'.join(description_lines) + "\n```\n\n"
+        return ""
+
+    def get_functions_table(self, functions, help_text):
+        if not functions:
+            return ""
+        table = "### Available Functions\n\n| Function | Description |\n|----------|-------------|\n"
+        help_lines = help_text.split('\n') if help_text else []
+        func_descriptions = {}
+        for line in help_lines:
+            match = re.match(r'\s+([a-zA-Z0-9_-]+)\s+-\s+(.+)', line)
+            if match:
+                func_descriptions[match.group(1)] = match.group(2)
+        for func in functions:
+            desc = func_descriptions.get(func, "No description available")
+            table += f"| `{func}` | {desc} |\n"
+        return table + "\n"
+
+    def get_variables_table(self, variables, help_text):
+        if not variables:
+            return ""
+        table = "### Available Variables\n\n| Variable | Description |\n|----------|-------------|\n"
+        help_lines = help_text.split('\n') if help_text else []
+        var_descriptions = {}
+        in_variables_section = False
+        for line in help_lines:
+            if line.startswith('Available variables:'):
+                in_variables_section = True
+                continue
+            if in_variables_section and line.strip():
+                match = re.match(r'\s+([a-zA-Z0-9_-]+)\s+-\s+(.+)', line)
+                if match:
+                    var_descriptions[match.group(1)] = match.group(2)
+        for var in variables:
+            desc = var_descriptions.get(var, "No description available")
+            table += f"| `{var}` | {desc} |\n"
+        return table + "\n"
+
+    def get_subcommands(self, subcommands, level, format_section_func):
+        if not subcommands:
+            return ""
+        return ''.join(format_section_func(subcmd_data, level + 1) for subcmd_data in subcommands.values())
 
 def run_command_with_timeout(command: str, timeout: int = TIMEOUT_SECONDS) -> Optional[str]:
     """
@@ -176,106 +253,27 @@ def process_command_recursively(base_command: str, command_name: str = "",
 
 def format_markdown_section(command_data: Dict, level: int = 1) -> str:
     """
-    Format command data into markdown section.
+    Format command data into markdown section using MarkdownFormatter helpers.
     """
     if not command_data:
         return ""
-    
-    markdown = ""
+
+    formatter = MarkdownFormatter()
     name = command_data.get('full_name', command_data.get('name', 'Unknown'))
     help_text = command_data.get('help', '')
-    
-    # For root command, don't add header but include intro
-    if name == 'root' or not name:
-        if help_text:
-            lines = help_text.split('\n')
-            for line in lines:
-                if 'Help for' in line:
-                    markdown += f"{line.strip()}\n\n"
-                    break
-    else:
-        # Create header for subcommands
-        header_prefix = "#" * min(level, 6)
-        markdown += f"{header_prefix} `{name}`\n\n"
-        
-        # Add help content for subcommands (extract and preserve original formatting)
-        if help_text:
-            lines = help_text.split('\n')
-            description_started = False
-            description_lines = []
-            
-            for line in lines:
-                if description_started:
-                    if not line.startswith('Available') and not line.startswith('Add the entries'):
-                        description_lines.append(line)
-                    elif line.startswith('Available') or line.startswith('Add the entries'):
-                        break
-                elif 'Help for function' in line or 'Help for' in line:
-                    description_started = True
-            
-            if description_lines:
-                # Remove empty lines at the beginning and end
-                while description_lines and not description_lines[0].strip():
-                    description_lines.pop(0)
-                while description_lines and not description_lines[-1].strip():
-                    description_lines.pop()
-                
-                if description_lines:
-                    markdown += "```\n"
-                    markdown += '\n'.join(description_lines)
-                    markdown += "\n```\n\n"
-    
-    # Add functions table if present
     functions = command_data.get('functions', [])
-    if functions:
-        markdown += "### Available Functions\n\n"
-        markdown += "| Function | Description |\n"
-        markdown += "|----------|-------------|\n"
-        
-        # Extract function descriptions from help text
-        help_lines = help_text.split('\n') if help_text else []
-        func_descriptions = {}
-        for line in help_lines:
-            match = re.match(r'\s+([a-zA-Z0-9_-]+)\s+-\s+(.+)', line)
-            if match:
-                func_descriptions[match.group(1)] = match.group(2)
-        
-        for func in functions:
-            desc = func_descriptions.get(func, "No description available")
-            markdown += f"| `{func}` | {desc} |\n"
-        markdown += "\n"
-    
-    # Add variables table if present
     variables = command_data.get('variables', [])
-    if variables:
-        markdown += "### Available Variables\n\n"
-        markdown += "| Variable | Description |\n"
-        markdown += "|----------|-------------|\n"
-        
-        # Extract variable descriptions from help text
-        help_lines = help_text.split('\n') if help_text else []
-        var_descriptions = {}
-        in_variables_section = False
-        for line in help_lines:
-            if line.startswith('Available variables:'):
-                in_variables_section = True
-                continue
-            if in_variables_section and line.strip():
-                match = re.match(r'\s+([a-zA-Z0-9_-]+)\s+-\s+(.+)', line)
-                if match:
-                    var_descriptions[match.group(1)] = match.group(2)
-        
-        for var in variables:
-            desc = var_descriptions.get(var, "No description available")
-            markdown += f"| `{var}` | {desc} |\n"
-        markdown += "\n"
-    
-    # Add subcommands recursively
     subcommands = command_data.get('subcommands', {})
-    if subcommands:
-        for subcmd_name, subcmd_data in subcommands.items():
-            markdown += format_markdown_section(subcmd_data, level + 1)
-    
+
+    markdown = ""
+    if name == 'root' or not name:
+        markdown += formatter.get_intro(help_text)
+    else:
+        markdown += formatter.get_header(name, level)
+        markdown += formatter.get_description(help_text)
+    markdown += formatter.get_functions_table(functions, help_text)
+    markdown += formatter.get_variables_table(variables, help_text)
+    markdown += formatter.get_subcommands(subcommands, level, format_markdown_section)
     return markdown
 
 
