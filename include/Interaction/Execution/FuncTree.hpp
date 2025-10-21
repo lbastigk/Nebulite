@@ -252,11 +252,11 @@ private:
         const std::string* description;
     };
 
-    // Status "Function not found"
-    RETURN_TYPE _functionNotFoundError;
-
     // Status "ok"
     RETURN_TYPE _standard;
+
+    // Status "Function not found"
+    RETURN_TYPE _functionNotFoundError;
 
     // Map for Functions: name -> (functionPtr, info)
     absl::flat_hash_map<std::string, FunctionInfo> functions;
