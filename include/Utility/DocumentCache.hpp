@@ -37,7 +37,6 @@ public:
         if (globalSpace == nullptr) {
             throw std::invalid_argument("DocumentCache: GlobalSpace pointer cannot be null");
         }
-        zero = new double(0.0);
     }
 
     /**
@@ -334,7 +333,7 @@ private:
     }readOnlyDocs;
 
     // Default value for double pointers, if the document or key is not found
-    double* zero;
+    double zero = 0.0;
 };
 } // namespace Utility
 } // namespace Nebulite
