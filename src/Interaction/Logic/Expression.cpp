@@ -182,7 +182,7 @@ void Nebulite::Interaction::Logic::Expression::parseIntoEntries(const std::strin
     tokensPhase1 = Nebulite::Utility::StringHandler::split(expr, '$', true);
 
     // Now we need to split on same depth
-    for(auto token : tokensPhase1) {
+    for(const auto& token : tokensPhase1) {
         // If the first token starts with '$', it means the string started with '$'
         // If not, the first token is text before the first '$'
         if(token.starts_with('$')) {
@@ -201,9 +201,7 @@ void Nebulite::Interaction::Logic::Expression::parseIntoEntries(const std::strin
             }
 
             // Add all subtokens to the actual list of tokens
-            for (const auto& subToken : subTokens) {
-                tokens.push_back(subToken);
-            }
+            std::copy(subTokens.begin(), subTokens.end(), std::back_inserter(tokens));
         } else {
             // If it doesnt start with a '$', it's a text token / potentially with variables inside
             // Just add the text token
@@ -264,7 +262,7 @@ void Nebulite::Interaction::Logic::Expression::readFormatter(Entry* entry, const
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
+void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(const std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
     // $[leading zero][alignment][.][precision]<type:f,i>
     // - bool leading zero   : on/off
     // - int alignment       : <0 means no formatting
@@ -390,6 +388,8 @@ void Nebulite::Interaction::Logic::Expression::printCompileError(const Entry& en
 // Public:
 
 Nebulite::Interaction::Logic::Expression::Expression() {
+    _isReturnableAsDouble = false;
+    uniqueId = 0;
     reset();
 }
 

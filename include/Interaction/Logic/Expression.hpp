@@ -390,7 +390,7 @@ private:
      * @param currentEntry The current entry to populate.
      * @param entries The vector to push the current entry onto.
      */
-    void parseTokenTypeEval(std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
+    void parseTokenTypeEval(const std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
 
     /**
      * @brief Used to parse a string token of type "text" into an entry.
