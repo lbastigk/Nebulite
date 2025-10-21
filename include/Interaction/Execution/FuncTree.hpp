@@ -664,8 +664,8 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::executeFunc
 
     // Strip whitespaces of name
     std::string function = name;
-    function = Nebulite::Utility::StringHandler::lstrip(name, ' ');
-    function = Nebulite::Utility::StringHandler::rstrip(name, ' ');
+    function = Nebulite::Utility::StringHandler::lstrip(function, ' ');
+    function = Nebulite::Utility::StringHandler::rstrip(function, ' ');
 
     // Find and execute the function
     auto functionPosition = functions.find(function);
