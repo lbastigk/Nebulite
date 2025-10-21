@@ -140,7 +140,7 @@ public:
      * 
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    Nebulite::Constants::Error update();
+    Nebulite::Constants::Error update() override;
 
     /**
      * @brief Quits the renderer by setting the quit flag.
