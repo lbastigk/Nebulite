@@ -422,10 +422,10 @@ private:
 }   // namespace Nebulite
 
 //------------------------------------------
-// Binding helper
+// Bindinging error messages
 
-namespace{
-    void bindErrorMissingCategory(const std::string& tree, const std::string& category, const std::string& function){
+namespace bindErrorMessage{
+    inline void MissingCategory(const std::string& tree, const std::string& category, const std::string& function){
         std::cerr << "---------------------------------------------------------------" << std::endl;
         std::cerr << "A Nebulite FuncTree binding failed!" << std::endl;
         std::cerr << "Error: Category '" << category << "' does not exist when trying to bind function '" << function << "'." << std::endl;
@@ -434,14 +434,14 @@ namespace{
         exit(EXIT_FAILURE);
     }
 
-    void bindErrorFunctionShadowsCategory(const std::string& function){
+    inline void FunctionShadowsCategory(const std::string& function){
         std::cerr << "---------------------------------------------------------------" << std::endl;
         std::cerr << "A Nebulite FuncTree binding failed!" << std::endl;
         std::cerr << "Error: Cannot bind function '" << function << "' because a category with the same name already exists." << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    void bindErrorFunctionExistsInInheritedTree(const std::string& tree, const std::string& inheritedTree, const std::string& function){
+    inline void FunctionExistsInInheritedTree(const std::string& tree, const std::string& inheritedTree, const std::string& function){
         std::cerr << "---------------------------------------------------------------\n";
         std::cerr << "A Nebulite FuncTree initialization failed!\n";
         std::cerr << "Error: A bound Function already exists in the inherited FuncTree.\n";
@@ -453,7 +453,7 @@ namespace{
         std::exit(EXIT_FAILURE);
     }
 
-    void bindErrorFunctionExists(const std::string& tree, const std::string& function){
+    inline void FunctionExists(const std::string& tree, const std::string& function){
         std::cerr << "---------------------------------------------------------------\n";
         std::cerr << "Nebulite FuncTree initialization failed!\n";
         std::cerr << "Error: A bound Function already exists in this tree.\n";
@@ -463,7 +463,7 @@ namespace{
         std::cerr << "Function:  " << function << "\n";
         std::exit(EXIT_FAILURE);
     }
-}
+} // namespace bindError
 
 template<typename RETURN_TYPE>
 template<typename ClassType>
@@ -485,7 +485,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
         for(size_t idx = 0; idx < pathStructure.size() - 1; idx++){
             std::string currentCategoryName = pathStructure[idx];
             if(currentCategoryMap->find(currentCategoryName) == currentCategoryMap->end()){
-                bindErrorMissingCategory(TreeName, currentCategoryName, name);
+                bindErrorMessage::MissingCategory(TreeName, currentCategoryName, name);
             }
             targetTree = (*currentCategoryMap)[currentCategoryName].tree.get();
             currentCategoryMap = &targetTree->categories;
@@ -496,7 +496,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
     }
     for (const auto& [categoryName, category] : categories) {
         if (categoryName == name) {
-            bindErrorFunctionShadowsCategory(name);
+            bindErrorMessage::FunctionShadowsCategory(name);
         }
     }
     auto conflictIt = std::find_if(
@@ -506,10 +506,11 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
         }
     );
     if (conflictIt != inheritedTrees.end()) {
-        bindErrorFunctionExistsInInheritedTree(TreeName, *conflictIt->TreeName, name);
+        auto conflictTree = *conflictIt;
+        bindErrorMessage::FunctionExistsInInheritedTree(TreeName, conflictTree->TreeName, name);
     }
     if (hasFunction(name)) {
-        bindErrorFunctionExists(TreeName, name);
+        bindErrorMessage::FunctionExists(TreeName, name);
     }
 
     // Use std::visit to bind the correct function type
