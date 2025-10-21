@@ -99,18 +99,9 @@ void Nebulite::Core::RenderObjectContainer::append(Nebulite::Core::RenderObject*
 	ObjectContainer[pos].push_back(std::move(newBatch));
 }
 
-// Helper functions for the following functions
-namespace{
-	/**
-	 * @brief Creates a batch worker thread for updating RenderObjects in a batch.
-	 * 
-	 * @param batch Reference to the batch to be processed.
-	 * @param pos Position of the tile containing the batch.
-	 * @return std::thread The created worker thread.
-	 */
-	auto create_batch_worker = [&](auto& batch, std::pair<uint16_t, uint16_t> pos) {
-    return std::thread([&batch, pos, this, dispResX, dispResY]() {
-        // Every batch worker has potential objects to move or delete
+std::thread Nebulite::Core::RenderObjectContainer::create_batch_worker(batch& batch, std::pair<uint16_t, uint16_t> pos,int dispResX, int dispResY) {
+	return std::thread([&batch, pos, this, dispResX, dispResY]() {
+		// Every batch worker has potential objects to move or delete
 		std::vector<RenderObject*> to_move_local;
 		std::vector<RenderObject*> to_delete_local;
 
@@ -141,8 +132,7 @@ namespace{
 			std::lock_guard<std::mutex> lock(deletionProcess.deleteMutex);
 			deletionProcess.trash.push_back(ptr);
 		}
-    });
-};
+	});
 }
 
 void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY) {
@@ -189,7 +179,7 @@ void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t til
 			std::transform(
 				tile.begin(), tile.end(),
 				std::back_inserter(batchWorkers),
-				[&](auto& batch) { return create_batch_worker(batch, pos); }
+				[&](auto& batch) { return create_batch_worker(batch, pos, dispResX, dispResY); }
 			);
 		}
 	}

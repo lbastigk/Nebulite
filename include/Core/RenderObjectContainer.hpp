@@ -195,6 +195,17 @@ private:
 	std::vector<std::thread> batchWorkers;
 
 	/**
+	 * @brief Creates a worker thread for processing a batch.
+	 * 
+	 * @param batch Reference to the batch to process.
+	 * @param pos The tile position of the batch: (x, y).
+	 * @param dispResX Display resolution width for tile placement.
+	 * @param dispResY Display resolution height for tile placement.
+	 * @return The created worker thread.
+	 */
+	std::thread create_batch_worker(batch& batch, std::pair<uint16_t, uint16_t> pos,int dispResX, int dispResY);
+
+	/**
 	 * @struct Nebulite::Core::RenderObjectContainer::ReinsertionProcess
 	 * @brief Holds all objects that are awaiting re-insertion into the container.
 	 * 
