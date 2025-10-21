@@ -349,7 +349,6 @@ This will remove all commands from the always-taskqueue.
 )";
 
 Nebulite::Constants::Error General::func_for(int argc,  char* argv[]){
-    std::string funcName = argv[0];
     if(argc > 4){
         std::string varName = argv[1];
 
@@ -363,10 +362,9 @@ Nebulite::Constants::Error General::func_for(int argc,  char* argv[]){
                 args += " ";
             }
         }
-        std::string args_replaced;
         for(int i = iStart; i <= iEnd; i++){
             // for + args
-            args_replaced = funcName + " " + Nebulite::Utility::StringHandler::replaceAll(args, '{' + varName + '}', std::to_string(i));
+            std::string args_replaced = std::string(argv[0]) + " " + Nebulite::Utility::StringHandler::replaceAll(args, '{' + varName + '}', std::to_string(i));
             domain->parseStr(args_replaced);
         }
     }
