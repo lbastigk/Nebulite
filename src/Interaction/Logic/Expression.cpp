@@ -588,7 +588,7 @@ odpvec* Nebulite::Interaction::Logic::Expression::ensure_other_cache_entry(Nebul
         Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles_other.size());
 
         // Populate list with all virtual doubles from type other
-        for(auto& vde : virtualDoubles_other) {
+        for(const auto& vde : virtualDoubles_other) {
             double* reference = current_other->getStableDoublePointer(vde->getKey());
             newCacheList.orderedValues.push_back(reference);
         }
