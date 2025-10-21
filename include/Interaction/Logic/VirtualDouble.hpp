@@ -68,9 +68,9 @@ public:
     VirtualDouble(const std::string& k, Nebulite::Utility::DocumentCache* documentCache) 
         : documentCache(documentCache), key(k) {
             // Removing self/other/global prefixes in the key
-            if (key.find("self.") == 0)         key = key.substr(5);
-            else if (key.find("other.") == 0)   key = key.substr(6);
-            else if (key.find("global.") == 0)  key = key.substr(7);
+            if (key.starts_with("self."))         key = key.substr(5);
+            else if (key.starts_with("other."))   key = key.substr(6);
+            else if (key.starts_with("global."))  key = key.substr(7);
     }
 
     /**
@@ -78,7 +78,7 @@ public:
      * 
      * @return The key as a string.
      */
-    std::string getKey() {
+    const std::string& getKey() const {
         return key;
     }
 
