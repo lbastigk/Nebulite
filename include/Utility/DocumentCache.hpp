@@ -33,7 +33,7 @@ public:
     /**
      * @brief Default constructor for DocumentCache.
      */
-    DocumentCache(Nebulite::Core::GlobalSpace* globalSpace) : global(globalSpace), readOnlyDocs(globalSpace) {
+    explicit DocumentCache(Nebulite::Core::GlobalSpace* globalSpace) : global(globalSpace), readOnlyDocs(globalSpace) {
         if (globalSpace == nullptr) {
             throw std::invalid_argument("DocumentCache: GlobalSpace pointer cannot be null");
         }
