@@ -221,6 +221,9 @@ public:
     template<typename ClassType>
     void bindFunction(ClassType* obj, RETURN_TYPE (ClassType::*method)(int, char**), const std::string& name, const std::string* helpDescription);
 
+    template<typename ClassType>
+    void bindFunction(ClassType* obj, RETURN_TYPE (ClassType::*method)(int, const char**), const std::string& name, const std::string* helpDescription);
+
     /**
      * @brief Binds a variable to the command tree.
      * Make sure the variable is of type std::string*.
@@ -238,11 +241,10 @@ private:
     std::function<Nebulite::Constants::Error()> preParse = nullptr;
 
     // Function pointer type
-    /**
-     * @todo allow for const char** as argv type as well by implementing something
-     * like an std::variant
-     */
-    using FunctionPtr = std::function<RETURN_TYPE(int argc,  char* argv[])>;
+    using FunctionPtr = std::variant<
+        std::function<RETURN_TYPE(int, char**)>,
+        std::function<RETURN_TYPE(int, const char**)>
+    >;
 
     // Function - Description pair
     struct FunctionInfo {
@@ -320,7 +322,7 @@ private:
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
      */
-    RETURN_TYPE help(int argc,  char* argv[]);
+    RETURN_TYPE help(int argc,  const char* argv[]);
 
     /**
      * @brief Retrieves a list of all functions and their descriptions.
@@ -526,6 +528,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(Class
     };
 }
 
+
 template<typename RETURN_TYPE>
 void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindVariable(bool* varPtr, const std::string& name, const std::string* helpDescription) {
     // Make sure there are no whitespaces in the variable name
@@ -602,7 +605,7 @@ Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(const std::str
 : _standard(standard), _functionNotFoundError(functionNotFoundError), TreeName(treeName)
 {
     // Attach the help function to read out the description of all attached functions
-    functions["help"] = FunctionInfo{std::function<RETURN_TYPE(int, char**)>([this](int argc, char** argv) {
+    functions["help"] = FunctionInfo{std::function<RETURN_TYPE(int, const char**)>([this](int argc, const char** argv) {
         return this->help(argc, argv);
     }), &help_desc};
 }
@@ -671,7 +674,19 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::executeFunc
     auto functionPosition = functions.find(function);
     if (functionPosition != functions.end()) {
         auto& [functionPtr, description] = functionPosition->second;
-        return functionPtr(argc, argv);  // Call the function
+        return std::visit(
+            [&](auto&& func) -> RETURN_TYPE {
+                using T = std::decay_t<decltype(func)>;
+                if constexpr (std::is_same_v<T, std::function<RETURN_TYPE(int, char**)>>) {
+                    return func(argc, argv);
+                } else if constexpr (std::is_same_v<T, std::function<RETURN_TYPE(int, const char**)>>) {
+                    std::vector<const char*> argv_const(argc);
+                    for (int i = 0; i < argc; ++i) argv_const[i] = argv[i];
+                    return func(argc, argv_const.data());
+                }
+            },
+            functionPtr
+        );
     } else {
         // Find function name in categories
         if(categories.find(function) != categories.end()){
@@ -739,7 +754,7 @@ bool Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::hasFunction(const 
 // Help function and its helpers
 
 template<typename RETURN_TYPE>
-RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help(int argc,  char* argv[]) {
+RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help(int argc, const char* argv[]) {
     //------------------------------------------
     // Case 1: Detailed help for a specific function, category or variable
     if(argc > 1){

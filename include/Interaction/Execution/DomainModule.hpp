@@ -65,7 +65,7 @@ public:
      * 
      * Make sure the function has the signature:
      * ```cpp
-     * Error functionName(int argc,  char* argv[]);
+     * Error functionName(int argc, char* argv[]);
      * ```
      *
      * @tparam ClassType The type of the class containing the member function.
@@ -82,6 +82,34 @@ public:
             helpDescription
         );
     }
+
+    /**
+     * @brief Binds a member function to the FuncTree.
+     * 
+     * This function template allows for binding member functions of any class type
+     * to the FuncTree, automatically handling the necessary type conversions.
+     * 
+     * Make sure the function has the signature:
+     * ```cpp
+     * Error functionName(int argc, const char* argv[]);
+     * ```
+     *
+     * @tparam ClassType The type of the class containing the member function.
+     * @param method A pointer to the member function to bind.
+     * @param name The name to associate with the bound function.
+     */
+    template<typename ClassType>
+    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, const char**),const std::string& name, const std::string* helpDescription) {
+        // Automatically pass 'this' (the derived class instance) to bindFunction
+        funcTree->bindFunction(
+            static_cast<ClassType*>(this),  // Auto-cast to correct type
+            method,                         // Member function pointer
+            name, 
+            helpDescription
+        );
+    }
+
+
 
     /**
      * @brief Binds a category to the FuncTree.
