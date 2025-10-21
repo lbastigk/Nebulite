@@ -101,7 +101,7 @@ public:
      * Guaranteed to be valid even if the key does not exist within the document,
      * or if the document itself is not found!
      */
-    double* get_stable_double_ptr(const std::string& doc_key);
+    double* getStableDoublePointer(const std::string& doc_key);
 
     /**
      * @brief Checks the type of a key in the JSON document.

@@ -104,7 +104,7 @@ Clock::ClockEntry::ClockEntry(uint64_t interval, Nebulite::Utility::JSON* doc, u
     // Extract reference to global document entry
     std::string key = key_doc_status_clocks + "." + intervalToKey(interval_ms);
     doc->set(key, 0.0); // Initialize to 0.0
-    this->globalReference = doc->get_stable_double_ptr(key);
+    this->globalReference = doc->getStableDoublePointer(key);
 }
 
 void Clock::ClockEntry::update(const uint64_t& current_time){

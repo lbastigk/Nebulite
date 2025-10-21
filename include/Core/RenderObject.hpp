@@ -329,29 +329,29 @@ private:
 	 */
 	void linkFrequentRefs(){
 		// Identity
-		refs.id                 = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.id);
+		refs.id                 = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.id);
 
 		// Position and Size
-		refs.posX			    = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.positionX);
-		refs.posY			    = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.positionY);
-		refs.pixelSizeX         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.pixelSizeX);
-		refs.pixelSizeY         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.pixelSizeY);
+		refs.posX			    = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.positionX);
+		refs.posY			    = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.positionY);
+		refs.pixelSizeX         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.pixelSizeX);
+		refs.pixelSizeY         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.pixelSizeY);
 
 		// Spritesheet
-		refs.isSpritesheet      = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.isSpritesheet);
-		refs.spritesheetOffsetX = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX);
-		refs.spritesheetOffsetY = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY);
-		refs.spritesheetSizeX   = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetSizeX);
-		refs.spritesheetSizeY   = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.spritesheetSizeY);
+		refs.isSpritesheet      = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.isSpritesheet);
+		refs.spritesheetOffsetX = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX);
+		refs.spritesheetOffsetY = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY);
+		refs.spritesheetSizeX   = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetSizeX);
+		refs.spritesheetSizeY   = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetSizeY);
 
 		// Text
-		refs.fontSize           = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textFontsize);
-		refs.textDx				= json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textDx);
-		refs.textDy				= json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textDy);
-		refs.textColorR         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorR);
-		refs.textColorG         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorG);
-		refs.textColorB         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorB);
-		refs.textColorA         = json.get_stable_double_ptr(Nebulite::Constants::keyName.renderObject.textColorA);
+		refs.fontSize           = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textFontsize);
+		refs.textDx				= json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textDx);
+		refs.textDy				= json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textDy);
+		refs.textColorR         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorR);
+		refs.textColorG         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorG);
+		refs.textColorB         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorB);
+		refs.textColorA         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorA);
 	}
 
 	//------------------------------------------

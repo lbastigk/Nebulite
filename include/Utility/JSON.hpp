@@ -268,7 +268,7 @@ public:
     /**
      * @brief Gets a pointer to a to a double value pointer in the JSON document.
      */
-    double* get_stable_double_ptr(const std::string& key);
+    double* getStableDoublePointer(const std::string& key);
 
     /**
      * @brief Gets a pointer to a to a double value pointer in the JSON document based on a unique ID.
@@ -278,7 +278,7 @@ public:
     double* get_uid_double_ptr(uint64_t uid, const std::string& key){
         if(uidDoubleCache[uid] == nullptr){
             // Need to create new entry
-            uidDoubleCache[uid] = get_stable_double_ptr(key);
+            uidDoubleCache[uid] = getStableDoublePointer(key);
         }
         return uidDoubleCache[uid];
     }

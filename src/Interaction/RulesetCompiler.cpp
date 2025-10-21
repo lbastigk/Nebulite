@@ -316,7 +316,7 @@ void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
                 auto ops = Nebulite::Interaction::RulesetCompiler::numeric_operations;
                 if (ops.end() != std::find(ops.begin(), ops.end(), assignment.operation)) {
                     // Numeric operation on self, try to get a direct pointer
-                    double* ptr = self->getDoc()->get_stable_double_ptr(assignment.key);
+                    double* ptr = self->getDoc()->getStableDoublePointer(assignment.key);
                     if (ptr != nullptr) {
                         assignment.targetValuePtr = ptr;
                     }
@@ -325,7 +325,7 @@ void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
             if (assignment.onType == Nebulite::Interaction::Logic::Assignment::Type::Global) {
                 if (ops.end() != std::find(ops.begin(), ops.end(), assignment.operation)) {
                     // Numeric operation on global, try to get a direct pointer
-                    double* ptr = global->get_stable_double_ptr(assignment.key);
+                    double* ptr = global->getStableDoublePointer(assignment.key);
                     if (ptr != nullptr) {
                         assignment.targetValuePtr = ptr;
                     }

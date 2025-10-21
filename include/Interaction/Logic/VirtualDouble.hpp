@@ -95,11 +95,11 @@ public:
      */
     void setUpInternalCache(Nebulite::Utility::JSON* json) {
         if (json != nullptr) {
-            copied_value = *json->get_stable_double_ptr(key);
+            copied_value = *json->getStableDoublePointer(key);
             reference = &copied_value;
         }
         else if (documentCache != nullptr) {
-            copied_value = *documentCache->get_stable_double_ptr(key);
+            copied_value = *documentCache->getStableDoublePointer(key);
             reference = &copied_value;
         }
     }
@@ -141,10 +141,10 @@ public:
      */
     void setUpExternalCache(Nebulite::Utility::JSON* json) {
         if (json != nullptr) {
-            reference = json->get_stable_double_ptr(key.c_str());
+            reference = json->getStableDoublePointer(key.c_str());
         }
         else if (documentCache != nullptr) {
-            reference = documentCache->get_stable_double_ptr(key);
+            reference = documentCache->getStableDoublePointer(key);
         }
     }
 };

@@ -112,7 +112,7 @@ Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(const char* key){
     }
 }
 
-double* Nebulite::Utility::JSON::get_stable_double_ptr(const std::string& key){
+double* Nebulite::Utility::JSON::getStableDoublePointer(const std::string& key){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Check cache first

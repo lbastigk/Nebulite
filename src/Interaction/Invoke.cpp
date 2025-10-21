@@ -344,7 +344,7 @@ void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Inte
                 // Fallback to normal method via key to double pointer
                 else{
                     // Try to get a stable double pointer from the target document
-                    target = targetDocument->get_stable_double_ptr(assignment.key);
+                    target = targetDocument->getStableDoublePointer(assignment.key);
                 }
                 
                 if(target != nullptr){

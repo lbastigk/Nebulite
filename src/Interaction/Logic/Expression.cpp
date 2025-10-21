@@ -577,7 +577,7 @@ odpvec* Nebulite::Interaction::Logic::Expression::ensure_other_cache_entry(Nebul
 
             // Populate list with all virtual doubles from type other
             for(auto& vde : virtualDoubles_other) {
-                double* reference = current_other->get_stable_double_ptr(vde->getKey());
+                double* reference = current_other->getStableDoublePointer(vde->getKey());
                 newCacheList.orderedValues.push_back(reference);
             }
             cache->quickCache[uniqueId] = std::move(newCacheList);
@@ -594,7 +594,7 @@ odpvec* Nebulite::Interaction::Logic::Expression::ensure_other_cache_entry(Nebul
 
         // Populate list with all virtual doubles from type other
         for(auto& vde : virtualDoubles_other) {
-            double* reference = current_other->get_stable_double_ptr(vde->getKey());
+            double* reference = current_other->getStableDoublePointer(vde->getKey());
             newCacheList.orderedValues.push_back(reference);
         }
 

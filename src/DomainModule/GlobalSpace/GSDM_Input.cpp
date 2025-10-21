@@ -55,8 +55,8 @@ void Input::map_key_names() {
 				// Paths
 				std::string currentPath = "input.keyboard.current." + keyNames[scancode];
 				std::string deltaPath   = "input.keyboard.delta."   + keyNames[scancode];
-				deltaKey[scancode] = domain->getDoc()->get_stable_double_ptr(deltaPath.c_str());
-				currentKey[scancode] = domain->getDoc()->get_stable_double_ptr(currentPath.c_str());
+				deltaKey[scancode] = domain->getDoc()->getStableDoublePointer(deltaPath.c_str());
+				currentKey[scancode] = domain->getDoc()->getStableDoublePointer(currentPath.c_str());
 			}
 		}
 	}
