@@ -144,8 +144,8 @@ Nebulite::Constants::Error General::task(int argc,  char* argv[]) {
     }
 
     // Now insert all lines into the task queue
-    for (const auto& line : lines){
-        domain->tasks.script.taskQueue.push_front(line);
+    for (const auto& taskline : lines){
+        domain->tasks.script.taskQueue.push_front(taskline);
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
