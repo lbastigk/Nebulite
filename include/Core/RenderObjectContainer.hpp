@@ -133,7 +133,7 @@ public:
 	 * @brief Gets the total count of RenderObject instances in the container.
 	 * @return The total number of RenderObject instances.
 	 */
-	size_t getObjectCount();
+	size_t getObjectCount() const;
 
 	/**
 	 * @brief Updates all objects within a 3x3 tile viewport.

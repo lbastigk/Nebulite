@@ -277,6 +277,8 @@ bool Nebulite::Utility::RjDirectAccess::set(const char* key, const T& value, rap
 // 1.) to JSON value
 //------------------------------------------
 
+
+
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<bool>(const bool& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {jsonValue.SetBool(data);}
 
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<int>(const int& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)                {jsonValue.SetInt(data);}
