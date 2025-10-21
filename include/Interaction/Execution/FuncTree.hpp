@@ -593,19 +593,14 @@ std::vector<std::pair<std::string, const std::string*>> Nebulite::Interaction::E
 //------------------------------------------
 // Constructor implementation
 
-template<typename RETURN_TYPE>
+template <typename RETURN_TYPE>
 Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError)
+: TreeName(treeName), _standard(standard), _functionNotFoundError(functionNotFoundError)
 {
-    // Store name
-    TreeName = treeName;
-
     // Attach the help function to read out the description of all attached functions
     functions["help"] = FunctionInfo{std::function<RETURN_TYPE(int, char**)>([this](int argc, char** argv) {
         return this->help(argc, argv);
     }), &help_desc};
-
-    _standard = standard;
-    _functionNotFoundError = functionNotFoundError;
 }
 
 //------------------------------------------
