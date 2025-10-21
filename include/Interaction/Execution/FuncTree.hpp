@@ -845,7 +845,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::find(const std::st
     // Functions
     if(funcIt != functions.end()){funcFound = true;}
     else{
-        for(auto& inheritedTree : inheritedTrees){
+        for(const auto& inheritedTree : inheritedTrees){
             if(inheritedTree != nullptr){
                 funcIt = inheritedTree->functions.find(name);
             }
@@ -856,10 +856,10 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::find(const std::st
         }
     }
 
-    // Categorys
+    // Categories
     if(subIt != categories.end()){subFound = true;}
     else{
-        for(auto& inheritedTree : inheritedTrees){
+        for(const auto& inheritedTree : inheritedTrees){
             if(inheritedTree != nullptr){
                 subIt = inheritedTree->categories.find(name);
             }
@@ -873,7 +873,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::find(const std::st
     // Variables
     if(varIt != variables.end()){varFound = true;}
     else{
-        for(auto& inheritedTree : inheritedTrees){
+        for(const auto& inheritedTree : inheritedTrees){
             if(inheritedTree != nullptr){
                 varIt = inheritedTree->variables.find(name);
             }
