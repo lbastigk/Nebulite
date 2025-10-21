@@ -9,6 +9,7 @@ import subprocess
 import re
 import os
 import sys
+import shutil
 from typing import List, Dict, Tuple, Optional
 
 # Command configurations
@@ -283,9 +284,21 @@ def generate_documentation() -> str:
     """
     Generate complete documentation for both GlobalSpace and RenderObject domains.
     """
+    # See if command date exists
+    if not shutil.which("date"):
+        print("date command not found. Please install coreutils package.")
+        print("On Ubuntu/Debian: sudo apt install coreutils")
+        print("On Fedora: sudo dnf install coreutils")
+        sys.exit(1)
+
+    # Get full path to date
+    date_path = shutil.which("date")
+    
+    
+
     markdown = "# Nebulite Command Documentation\n\n"
     markdown += "This documentation is automatically generated from the Nebulite executable.\n\n"
-    markdown += f"Generated on: {subprocess.run(['date'], capture_output=True, text=True).stdout.strip()}\n\n"
+    markdown += f"Generated on: {subprocess.run([f'{date_path}'], capture_output=True, text=True).stdout.strip()}\n\n"
     
     # Process GlobalSpace commands
     print("Processing GlobalSpace commands...")
