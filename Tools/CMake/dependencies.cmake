@@ -25,7 +25,7 @@ function(configure_common_dependencies target_name)
         PRIVATE
             ${CMAKE_SOURCE_DIR}/include
         SYSTEM
-            ${RAPIDJSON_PATH}/include/rapidjson
+            ${RAPIDJSON_PATH}/include
             ${EXPRTK_PATH}
             ${TINYEXPR_PATH}
             ${ABSEIL_PATH}
