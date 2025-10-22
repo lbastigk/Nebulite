@@ -3,18 +3,23 @@
  * @brief Defines classes for capturing output.
  */
 
+#include <iostream>
+#include <sstream>
 #include <deque>
 #include <string>
 #include <mutex>
 
 #pragma once
 
-namespace Nebulite::Utility{
+namespace Nebulite::Utility {
 /**
  * @class Nebulite::Utility::Capture
  * @brief Captures output to cout and cerr into an internal log.
  */
 class Capture{
+public:
+    static const std::string endl;
+
     /**
      * @struct OutputLine
      * @brief Represents a line of captured output, either to cout or cerr.
@@ -28,32 +33,40 @@ class Capture{
     };
 
     /**
-     * @brief Captures output to cout into the global space's output log.
+     * @class CaptureStream
+     * @brief Stream class for capturing output and redirecting it to an ostream and internal log.
      */
-    struct CoutCapture{
+    struct CaptureStream{
         Capture* parent;
-        explicit CoutCapture(Capture* p) : parent(p) {}
-        CoutCapture& operator<<(const std::string& str){
-            std::lock_guard<std::mutex> lock(parent->outputLogMutex);
-            parent->outputLog.push_back({str, OutputLine::COUT});
-            return *this;
-        }
-    };
-    CoutCapture cout{this};
+        std::ostream& baseStream;
+        explicit CaptureStream(Capture* p, std::ostream& s) : parent(p), baseStream(s) {}
 
-    /**
-     * @brief Captures output to cerr into the global space's output log.
-     */
-    struct CerrCapture{
-        Capture* parent;
-        explicit CerrCapture(Capture* p) : parent(p) {}
-        CerrCapture& operator<<(const std::string& str){
-            std::lock_guard<std::mutex> lock(parent->outputLogMutex);
-            parent->outputLog.push_back({str, OutputLine::CERR});
+        template<typename T>
+        CaptureStream& operator<<(const T& data) {
+            std::ostringstream oss;
+            oss << data;
+            {
+                std::lock_guard<std::mutex> lock(parent->outputLogMutex);
+                parent->outputLog.push_back({oss.str(), OutputLine::COUT});
+            }
+            baseStream << data;
+            return *this;
+        }
+
+        CaptureStream& operator<<(const char* data) {
+            std::ostringstream oss;
+            oss << data;
+            {
+                std::lock_guard<std::mutex> lock(parent->outputLogMutex);
+                parent->outputLog.push_back({oss.str(), OutputLine::COUT});
+            }
+            baseStream << data;
             return *this;
         }
     };
-    CerrCapture cerr{this};
+
+    CaptureStream cout{this, std::cout};
+    CaptureStream cerr{this, std::cerr}; 
 
     /**
      * @brief Retrieves a pointer to the output log.
