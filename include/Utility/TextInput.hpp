@@ -69,15 +69,10 @@ private:
         std::string timestamp;
 
         LineEntry(const std::string& cont, LineType t)
-            : type(t), content(cont) {
-            // Get current time as timestamp
-            timestamp = Nebulite::Utility::Time::TimeIso8601(Nebulite::Utility::Time::ISO8601FORMATTER::YYYY_MM_DD_HH_MM_SS, true);
-
-            // Remove newline character from ctime
-            if(!timestamp.empty() && timestamp.back() == '\n'){
-                timestamp.pop_back();
-            }
-        }
+            : type(t), 
+              content(cont), 
+              timestamp(Nebulite::Utility::Time::TimeIso8601(Nebulite::Utility::Time::ISO8601FORMATTER::YYYY_MM_DD_HH_MM_SS, true)) 
+              {}
     };
 
     /**
