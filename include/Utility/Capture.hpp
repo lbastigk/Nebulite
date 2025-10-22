@@ -39,7 +39,8 @@ public:
     struct CaptureStream{
         Capture* parent;
         std::ostream& baseStream;
-        explicit CaptureStream(Capture* p, std::ostream& s) : parent(p), baseStream(s) {}
+        OutputLine::Type type;
+        explicit CaptureStream(Capture* p, std::ostream& s, OutputLine::Type t) : parent(p), baseStream(s), type(t) {}
 
         template<typename T>
         CaptureStream& operator<<(const T& data) {
@@ -47,7 +48,14 @@ public:
             oss << data;
             {
                 std::lock_guard<std::mutex> lock(parent->outputLogMutex);
-                parent->outputLog.push_back({oss.str(), OutputLine::COUT});
+
+                // See if the last cout line can be appended to
+                if(!parent->outputLog.empty() && parent->outputLog.back().type == type){
+                    parent->outputLog.back().content += oss.str();
+                }
+                else{
+                    parent->outputLog.push_back({oss.str(), type});
+                }
             }
             baseStream << data;
             return *this;
@@ -58,15 +66,22 @@ public:
             oss << data;
             {
                 std::lock_guard<std::mutex> lock(parent->outputLogMutex);
-                parent->outputLog.push_back({oss.str(), OutputLine::COUT});
+
+                // See if the last cout line can be appended to
+                if(!parent->outputLog.empty() && parent->outputLog.back().type == type){
+                    parent->outputLog.back().content += oss.str();
+                }
+                else{
+                    parent->outputLog.push_back({oss.str(), type});
+                }
             }
             baseStream << data;
             return *this;
         }
     };
 
-    CaptureStream cout{this, std::cout};
-    CaptureStream cerr{this, std::cerr}; 
+    CaptureStream cout{this, std::cout, OutputLine::COUT};
+    CaptureStream cerr{this, std::cerr, OutputLine::CERR};
 
     /**
      * @brief Retrieves a pointer to the output log.

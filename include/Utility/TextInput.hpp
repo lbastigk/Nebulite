@@ -38,21 +38,17 @@ namespace Nebulite::Utility {
  * - Submit handling
  */
 class TextInput{
-private:
+public:
     /**
-     * @brief Pointer to the current input buffer string.
-     * The string that is being shown and modified.
+     * @brief Constructor for TextInput.
      */
-    std::string* consoleInputBuffer;
+    TextInput();
 
     /**
-     * @brief Buffer for the command at index 0 in the history.
-     * This is the command that is being written as unfinished input.
-     * 
-     * If selectedCommandIndex is 0, consoleInputBuffer points to this string.
-     * If selectedCommandIndex is > 0, consoleInputBuffer points to an entry in commandHistory.
+     * @brief Submits the current input buffer as type INPUT.
+     * @return The submitted command.
      */
-    std::string commandIndexZeroBuffer;
+    std::string submit();
 
     /**
      * @brief A line entry with metadata.
@@ -74,60 +70,6 @@ private:
               timestamp(Nebulite::Utility::Time::TimeIso8601(Nebulite::Utility::Time::ISO8601FORMATTER::YYYY_MM_DD_HH_MM_SS, true)) 
               {}
     };
-
-    /**
-     * @todo Wrap each entry in a struct with extra metadata:
-     * - type (input, cout, cerr)
-     * - timestamp
-     * - string
-     */
-    std::deque<LineEntry> consoleOutput;
-
-    /**
-     * @brief History of past commands.
-     * 
-     * If the user presses UP/DOWN, they can cycle through this history.
-     * If we write while browsing history, we modify that entry!
-     * While the output still shows the original command,
-     * the input buffer is modified to show the new command.
-     * 
-     * Example:
-     * - User types "set var1 10" and presses Enter
-     * - User presses UP, input buffer shows "set var1 10"
-     * - User modifies it to "set var1 20"
-     * - User presses Enter, command "set var1 20" is executed and added
-     * - The output shows both commands, but the commandHistory shows "set var1 20" twice, as
-     * we modified the first entry while browsing history.
-     * 
-     * @todo: Perhaps we could wrap each entry in a struct with metadata:
-     * - original command (for output)
-     * - modified command (for input buffer while browsing history)
-     * - if we ever move up/down, we reset the modified command to the original command
-     */
-    std::vector<std::string> commandHistory;    // Dynamic, is modified
-
-    /**
-     * @brief Index of the currently selected command in history.
-     * 0 means no selection, latest input.
-     */
-    size_t selectedCommandIndex = 0;
-
-    /**
-     * @brief Offset of the cursor in the input buffer.
-     */
-    uint16_t cursorOffset = 0;
-
-public:
-    /**
-     * @brief Constructor for TextInput.
-     */
-    TextInput();
-
-    /**
-     * @brief Submits the current input buffer as type INPUT.
-     * @return The submitted command.
-     */
-    std::string submit();
 
     /**
      * @brief Inserts a line into the text output.
@@ -194,5 +136,64 @@ public:
     uint16_t getCursorOffset() const {
         return cursorOffset;
     }
+
+private:
+    /**
+     * @brief Pointer to the current input buffer string.
+     * The string that is being shown and modified.
+     */
+    std::string* consoleInputBuffer;
+
+    /**
+     * @brief Buffer for the command at index 0 in the history.
+     * This is the command that is being written as unfinished input.
+     * 
+     * If selectedCommandIndex is 0, consoleInputBuffer points to this string.
+     * If selectedCommandIndex is > 0, consoleInputBuffer points to an entry in commandHistory.
+     */
+    std::string commandIndexZeroBuffer;
+
+    /**
+     * @todo Wrap each entry in a struct with extra metadata:
+     * - type (input, cout, cerr)
+     * - timestamp
+     * - string
+     */
+    std::deque<LineEntry> consoleOutput;
+
+    /**
+     * @brief History of past commands.
+     * 
+     * If the user presses UP/DOWN, they can cycle through this history.
+     * If we write while browsing history, we modify that entry!
+     * While the output still shows the original command,
+     * the input buffer is modified to show the new command.
+     * 
+     * Example:
+     * - User types "set var1 10" and presses Enter
+     * - User presses UP, input buffer shows "set var1 10"
+     * - User modifies it to "set var1 20"
+     * - User presses Enter, command "set var1 20" is executed and added
+     * - The output shows both commands, but the commandHistory shows "set var1 20" twice, as
+     * we modified the first entry while browsing history.
+     * 
+     * @todo: Perhaps we could wrap each entry in a struct with metadata:
+     * - original command (for output)
+     * - modified command (for input buffer while browsing history)
+     * - if we ever move up/down, we reset the modified command to the original command
+     */
+    std::vector<std::string> commandHistory;    // Dynamic, is modified
+
+    /**
+     * @brief Index of the currently selected command in history.
+     * 0 means no selection, latest input.
+     */
+    size_t selectedCommandIndex = 0;
+
+    /**
+     * @brief Offset of the cursor in the input buffer.
+     */
+    uint16_t cursorOffset = 0;
+
 };
 } // namespace Nebulite::Utility 

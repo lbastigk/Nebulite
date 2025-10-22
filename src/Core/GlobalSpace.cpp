@@ -5,11 +5,11 @@
 
 
 Nebulite::Core::GlobalSpace::GlobalSpace(const std::string& binName)
-: Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite", this, &global, this, &this->capture),
+: Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite", this, &global, this, &this->_capturer),
   global(this),                       // Link the global document to the GlobalSpace
   renderer(this, &cmdVars.headless),  // Renderer with reference to GlobalSpace and headless mode boolean
   invoke(this),                       // Invoke with reference to GlobalSpace
-  docCache(this, &capture)            // Init with reference to GlobalSpace
+  docCache(this, &_capturer)          // Init with reference to GlobalSpace
 {
     //------------------------------------------
     // Setup tasks                         

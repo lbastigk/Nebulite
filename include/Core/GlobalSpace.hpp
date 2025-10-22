@@ -267,11 +267,6 @@ public:
         }
     }
 
-    /**
-     * @brief cout/cerr capture for logging output
-     */
-    Nebulite::Utility::Capture capture;
-
 private:
     //------------------------------------------
     // General Variables
@@ -290,6 +285,11 @@ private:
 
     // DocumentCache for read-only documents
     Nebulite::Utility::DocumentCache docCache;
+
+    /**
+     * @brief cout/cerr capture for logging output
+     */
+    Nebulite::Utility::Capture _capturer;
 
     // Unique ID map
     uint64_t uniqueIdCounter[UniqueIdTypeSize] = {0, 0};

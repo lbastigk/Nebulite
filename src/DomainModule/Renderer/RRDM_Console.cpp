@@ -14,6 +14,35 @@ Nebulite::Constants::Error Console::update(){
     }
 
     //------------------------------------------
+    // Insert new lines from capture streams
+    static size_t last_size = 0;
+    size_t current_size = capture->getOutputLogPtr().size();
+    if(current_size < last_size){
+        // Log was cleared, reset
+        last_size = 0;
+    }
+    for(size_t i = last_size; i < current_size; i++){
+        const auto& input = capture->getOutputLogPtr().at(i);
+
+        const auto& lines = Nebulite::Utility::StringHandler::split(input.content, '\n');
+        Nebulite::Utility::TextInput::LineEntry::LineType type;
+        switch (input.type){
+        case Nebulite::Utility::Capture::OutputLine::COUT:
+            type = Nebulite::Utility::TextInput::LineEntry::LineType::COUT;
+            break;
+        case Nebulite::Utility::Capture::OutputLine::CERR:
+            type = Nebulite::Utility::TextInput::LineEntry::LineType::CERR;
+            break;
+        }
+        for(const auto& line : lines){
+            if(!line.empty()){
+                textInput.insertLine(line, type);
+            }
+        }
+    }
+    last_size = current_size;
+
+    //------------------------------------------
     // Toggle
     events = domain->getEventHandles();
 
@@ -89,10 +118,9 @@ void Console::renderConsole() {
 
     // Draw everything as before, but coordinates relative to (0,0)
     SDL_Rect localRect = {0, 0, consoleTexture.rect.w, consoleTexture.rect.h};
-    SDL_SetRenderDrawColor(renderer, 0, 32, 128, 180);
+    SDL_SetRenderDrawColor(renderer, color.background.r, color.background.g, color.background.b, color.background.a);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_RenderFillRect(renderer, &localRect);
-    SDL_Color textColor = {255, 255, 255, 255};
 
     // Calculate text alignment if needed
     static uint16_t last_rect_h = 0;
@@ -117,7 +145,7 @@ void Console::renderConsole() {
         std::string inputText = *textInput.getInputBuffer();
 
         // Create surface and texture
-        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, inputText.c_str(), textColor);
+        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, inputText.c_str(), color.input);
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
         // Define destination rectangle
@@ -136,7 +164,7 @@ void Console::renderConsole() {
         uint16_t cursorOffsetFromEnd = textInput.getCursorOffset();
         if(cursorOffsetFromEnd > 0){
             std::string highlightText = textInput.getInputBuffer()->substr(textInput.getInputBuffer()->size() - cursorOffsetFromEnd, cursorOffsetFromEnd);
-            SDL_Surface* highlightSurface = TTF_RenderText_Blended(consoleFont, highlightText.c_str(), {255,0,0,255});
+            SDL_Surface* highlightSurface = TTF_RenderText_Blended(consoleFont, highlightText.c_str(), color.highlight);
             SDL_Texture* highlightTexture = SDL_CreateTextureFromSurface(renderer, highlightSurface);
             textInputHighlightRect.x = textInputRect.x + textInputRect.w - highlightSurface->w;
             textInputHighlightRect.y = textInputRect.y;
@@ -165,12 +193,27 @@ void Console::renderConsole() {
         if(line_y_position > y_start) continue;  // Skip lines under the start position
         if(line_index >= outputSize)  break;     // No more lines to show
 
-        // Get line
-        std::string line = textInput.getOutput()->at(outputSize - 1 - line_index).content;
-        line_index++;
+        // Get line info
+        auto lineInfo = textInput.getOutput()->at(outputSize - 1 - line_index);
+        SDL_Color textColor;
+        std::string content;
+        switch (lineInfo.type){
+        case Nebulite::Utility::TextInput::LineEntry::LineType::CERR:
+            textColor = color.cerrStream;
+            content = lineInfo.content;
+            break;
+        case Nebulite::Utility::TextInput::LineEntry::LineType::COUT:
+            textColor = color.coutStream;
+            content = lineInfo.content;
+            break;
+        case Nebulite::Utility::TextInput::LineEntry::LineType::INPUT:
+            textColor = color.input;
+            content = "> " + lineInfo.content;
+            break;
+        }
 
         // Render line
-        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, line.c_str(), textColor);
+        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, content.c_str(), textColor);
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
         textOutputRect.x = 10;
         textOutputRect.y = line_y_position;
@@ -180,6 +223,9 @@ void Console::renderConsole() {
         SDL_RenderCopy(renderer, textTexture, NULL, &textOutputRect);
         SDL_FreeSurface(textSurface);
         SDL_DestroyTexture(textTexture);
+
+        // Next line
+        line_index++;
     }
 
     // [DEBUG] Draw a line at every y position

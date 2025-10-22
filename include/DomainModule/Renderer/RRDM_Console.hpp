@@ -122,6 +122,18 @@ private:
      */
     SDL_Rect textOutputRect;
 
+    /**
+     * @struct Colors
+     * @brief Struct to hold color definitions for the console.
+     */
+    struct Colors{
+        SDL_Color background = {000, 030, 150, 180};    // Semi-transparent blue
+        SDL_Color input      = {200, 200, 200, 255};    // Light gray
+        SDL_Color highlight  = {100, 100, 255, 255};    // Dark gray
+        SDL_Color cerrStream = {255, 000, 000, 255};    // Red
+        SDL_Color coutStream = {255, 255, 255, 255};    // White
+    }color;
+
     // Texture for console rendering
     struct SDL_Texture_Wrapper{
         SDL_Rect rect;

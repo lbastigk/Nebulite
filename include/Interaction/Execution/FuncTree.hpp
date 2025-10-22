@@ -855,16 +855,18 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::generalHelp() {
         if (newlinePos != std::string::npos) {
             descriptionFirstLine = description->substr(0, newlinePos);
         }
-        capture->cout << "  " << std::setw(25) << std::left << name
-                  << " - " << descriptionFirstLine << capture->endl;
+        std::string paddedName = name;
+        paddedName.resize(25, ' ');
+        capture->cout << "  " << paddedName << " - " << descriptionFirstLine << capture->endl;
     }
 
     // Display variables
     capture->cout << "Available variables:\n";
     for (const auto& [name, description] : allVariables) {
         std::string fullName = "--" + name;  // Prefix with --
-        capture->cout << "  " << std::setw(25) << std::left << fullName
-                  << " - " << *description << capture->endl;
+        std::string paddedName = name;
+        paddedName.resize(25, ' ');
+        capture->cout << "  " << paddedName << " - " << *description << capture->endl;
     }
 }
 

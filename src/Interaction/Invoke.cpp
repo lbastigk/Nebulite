@@ -12,7 +12,7 @@ Nebulite::Interaction::Invoke::Invoke(Nebulite::Core::GlobalSpace* globalSpace)
 : global(globalSpace),
   docCache(globalSpace->getDocCache()),
   globalDoc(globalSpace->getDoc()),
-  capture(&globalSpace->capture)
+  capture(globalSpace->capture)
 {   
     // Initialize synchronization primitives
     threadState.stopFlag = false;

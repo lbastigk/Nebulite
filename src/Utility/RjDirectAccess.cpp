@@ -205,7 +205,7 @@ void Nebulite::Utility::RjDirectAccess::deserialize(rapidjson::Document& doc, st
     
     rapidjson::ParseResult res = doc.Parse(cleanJson.c_str());
     if (!res) {
-        Capture* capture = &global->capture;
+        Capture* capture = global->capture;
         capture->cerr << "JSON Parse Error at offset " << res.Offset() << capture->endl;
         capture->cerr << "String is:\n" << cleanJson << capture->endl;
     }
