@@ -60,11 +60,11 @@ Nebulite::Constants::Error Debug::log_global(int argc,  char* argv[]){
     std::string serialized = domain->getDoc()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
-            Nebulite::Utility::FileManagement::WriteFile(argv[i],serialized);
+            Nebulite::Utility::FileManagement::WriteFile(argv[i], serialized, capture);
         }
     }
     else{
-        Nebulite::Utility::FileManagement::WriteFile("global.log.jsonc",serialized);
+        Nebulite::Utility::FileManagement::WriteFile("global.log.jsonc", serialized, capture);
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
@@ -81,11 +81,11 @@ Nebulite::Constants::Error Debug::log_state(int argc,  char* argv[]){
     std::string serialized = domain->getRenderer()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
-            Nebulite::Utility::FileManagement::WriteFile(argv[i],serialized);
+            Nebulite::Utility::FileManagement::WriteFile(argv[i], serialized, capture);
         }
     }
     else{
-        Nebulite::Utility::FileManagement::WriteFile("state.log.jsonc",serialized);
+        Nebulite::Utility::FileManagement::WriteFile("state.log.jsonc", serialized, capture);
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
@@ -100,7 +100,7 @@ Usage: log state [<filenames>...]
 
 Nebulite::Constants::Error Debug::standardfile_renderobject( int argc,  char** argv){
     Nebulite::Core::RenderObject ro(domain);
-    Nebulite::Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc",ro.serialize());
+    Nebulite::Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc",ro.serialize(), capture);
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string Debug::standardfile_renderobject_name = "standardfile renderobject";
@@ -122,7 +122,7 @@ Nebulite::Constants::Error Debug::errorlog(int argc,  char* argv[]){
             const char* logFilename = "errors.log";
             if(!errorLogStatus){
                 if (!safe_open_log(logFilename, errorFile)) {
-                    std::cerr << "Refusing to open log file: '" << logFilename << "' is a symlink or could not be opened." << std::endl;
+                    capture->cerr << "Refusing to open log file: '" << logFilename << "' is a symlink or could not be opened." << capture->endl;
                     return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
                 }
                 originalCerrBuf = std::cerr.rdbuf();
@@ -162,38 +162,37 @@ Usage: errorlog <on/off>
 Note: Ensure you have write permissions in the working directory when activating error logging.
 )";
 
-inline void clear_screen()
-{
-#if defined(_WIN32)
-    // Use Win32 API to clear the console buffer and move cursor to home (0,0).
-    HANDLE hStd = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hStd == INVALID_HANDLE_VALUE) return;
+inline void clear_screen(){
+    #if defined(_WIN32)
+        // Use Win32 API to clear the console buffer and move cursor to home (0,0).
+        HANDLE hStd = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (hStd == INVALID_HANDLE_VALUE) return;
 
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    if (!GetConsoleScreenBufferInfo(hStd, &csbi)) return;
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        if (!GetConsoleScreenBufferInfo(hStd, &csbi)) return;
 
-    DWORD cells = csbi.dwSize.X * csbi.dwSize.Y;
-    DWORD written = 0;
-    COORD home = { 0, 0 };
+        DWORD cells = csbi.dwSize.X * csbi.dwSize.Y;
+        DWORD written = 0;
+        COORD home = { 0, 0 };
 
-    // Fill the entire buffer with spaces
-    FillConsoleOutputCharacterA(hStd, ' ', cells, home, &written);
-    // Reset attributes
-    FillConsoleOutputAttribute(hStd, csbi.wAttributes, cells, home, &written);
-    // Move the cursor home
-    SetConsoleCursorPosition(hStd, home);
+        // Fill the entire buffer with spaces
+        FillConsoleOutputCharacterA(hStd, ' ', cells, home, &written);
+        // Reset attributes
+        FillConsoleOutputAttribute(hStd, csbi.wAttributes, cells, home, &written);
+        // Move the cursor home
+        SetConsoleCursorPosition(hStd, home);
 
-#else
-    // If stdout is a terminal, use ANSI escapes to clear the screen and move cursor to top-left.
-    if (isatty(fileno(stdout))) {
-        // ESC[2J clears screen; ESC[H moves cursor to 1;1
-        std::cout << "\x1b[2J\x1b[H" << std::flush;
-    } else {
-        // Not a TTY (redirected output). We can optionally print newlines or do nothing.
-        // Printing newlines keeps behavior similar to clearing for plain output.
-        std::cout << std::endl;
-    }
-#endif
+    #else
+        // If stdout is a terminal, use ANSI escapes to clear the screen and move cursor to top-left.
+        if (isatty(fileno(stdout))) {
+            // ESC[2J clears screen; ESC[H moves cursor to 1;1
+            std::cout << "\x1b[2J\x1b[H" << std::flush;
+        } else {
+            // Not a TTY (redirected output). We can optionally print newlines or do nothing.
+            // Printing newlines keeps behavior similar to clearing for plain output.
+            std::cout << std::endl;
+        }
+    #endif
 }
 
 Nebulite::Constants::Error Debug::clearConsole(int argc,  char* argv[]){
@@ -229,8 +228,8 @@ Nebulite::Constants::Error Debug::crash(int argc,  char* argv[]) {
             // Throw an uncaught exception
             throw std::runtime_error("Intentional crash: uncaught exception");
         } else {
-            std::cerr << "Unknown crash type requested: " << crashType << std::endl;
-            std::cerr << "Defaulting to segmentation fault" << std::endl;
+            capture->cerr << "Unknown crash type requested: " << crashType << capture->endl;
+            capture->cerr << "Defaulting to segmentation fault" << capture->endl;
         }
     } else {
         // Default: segmentation fault
@@ -253,12 +252,12 @@ Usage: crash [<type>]
 
 Nebulite::Constants::Error Debug::error(int argc,  char* argv[]) {
     for (int i = 1; i < argc; ++i) {
-        std::cerr << argv[i];
+        capture->cerr << argv[i];
         if (i < argc - 1) {
-            std::cerr << " ";
+            capture->cerr << " ";
         }
     }
-    std::cerr << std::endl;
+    capture->cerr << capture->endl;
 
     // No further error to return
     return Nebulite::Constants::ErrorTable::NONE();
@@ -312,7 +311,7 @@ Nebulite::Constants::Error Debug::waitForInput(int argc,  char* argv[]){
         // Use the provided prompt as message
         message = argv[1];
     }
-    std::cout << message << std::endl;
+    capture->cout << message << capture->endl;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return Nebulite::Constants::ErrorTable::NONE();
 }

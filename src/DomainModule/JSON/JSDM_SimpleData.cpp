@@ -22,7 +22,7 @@ Nebulite::Constants::Error SimpleData::update() {
 Nebulite::Constants::Error SimpleData::set(int argc,  char* argv[]) {
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if(argc < 3) {
-        std::cerr << "Error: Too few arguments for set command." << std::endl;
+        capture->cerr << "Error: Too few arguments for set command." << capture->endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     
@@ -45,7 +45,7 @@ Note: All values are stored as strings.
 Nebulite::Constants::Error SimpleData::move(int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc != 3) {
-        std::cerr << "Error: Too few arguments for move command." << std::endl;
+        capture->cerr << "Error: Too few arguments for move command." << capture->endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
@@ -53,7 +53,7 @@ Nebulite::Constants::Error SimpleData::move(int argc,  char* argv[]){
     std::string targetKey = argv[2];
 
     if(domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::null) {
-        std::cerr << "Error: Source key '" << sourceKey << "' does not exist." << std::endl;
+        capture->cerr << "Error: Source key '" << sourceKey << "' does not exist." << capture->endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
     if(domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::document) {
@@ -92,7 +92,7 @@ Usage: move <source_key> <destination_key>
 Nebulite::Constants::Error SimpleData::copy(int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc != 3) {
-        std::cerr << "Error: Too few arguments for copy command." << std::endl;
+        capture->cerr << "Error: Too few arguments for copy command." << capture->endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
@@ -100,7 +100,7 @@ Nebulite::Constants::Error SimpleData::copy(int argc,  char* argv[]){
     std::string targetKey = argv[2];
 
     if(domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::null) {
-        std::cerr << "Error: Source key '" << sourceKey << "' does not exist." << std::endl;
+        capture->cerr << "Error: Source key '" << sourceKey << "' does not exist." << capture->endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
     if(domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::document) {
@@ -137,7 +137,7 @@ Usage: copy <source_key> <destination_key>
 Nebulite::Constants::Error SimpleData::keyDelete(int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc != 2) {
-        std::cerr << "Error: Too few arguments for delete command." << std::endl;
+        capture->cerr << "Error: Too few arguments for delete command." << capture->endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     std::string key = argv[1];
@@ -155,11 +155,11 @@ Usage: keyDelete <key>
 Nebulite::Constants::Error SimpleData::ensureArray(int argc,  char* argv[]) {
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 2) {
-        std::cerr << "Error: Too few arguments for ensureArray command." << std::endl;
+        capture->cerr << "Error: Too few arguments for ensureArray command." << capture->endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (argc > 2) {
-        std::cerr << "Error: Too many arguments for ensureArray command." << std::endl;
+        capture->cerr << "Error: Too many arguments for ensureArray command." << capture->endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
@@ -185,7 +185,7 @@ Nebulite::Constants::Error SimpleData::ensureArray(int argc,  char* argv[]) {
         return Nebulite::Constants::ErrorTable::NONE();
     }
 
-    std::cerr << "Error: Key '" << key << "' is unsupported type " << static_cast<int>(keyType) << ", cannot convert to array." << std::endl;
+    capture->cerr << "Error: Key '" << key << "' is unsupported type " << static_cast<int>(keyType) << ", cannot convert to array." << capture->endl;
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 const std::string SimpleData::ensureArray_name = "ensure-array";
@@ -197,7 +197,7 @@ Usage: ensure-array <key>
 Nebulite::Constants::Error SimpleData::push_back(int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc > 3) {
-        std::cerr << "Error: Too many arguments for push_front command." << std::endl;
+        capture->cerr << "Error: Too many arguments for push_front command." << capture->endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     std::string key = argv[1];
@@ -217,7 +217,7 @@ Nebulite::Constants::Error SimpleData::push_back(int argc,  char* argv[]){
         command += " " + key;
         Nebulite::Constants::Error result = domain->parseStr(command);
         if (result != Nebulite::Constants::ErrorTable::NONE()) {
-            std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
+            capture->cerr << "Error: Failed to ensure array for key '" << key << "'." << capture->endl;
             return result;
         }
     }
@@ -236,11 +236,11 @@ Usage: push-back <key> <value>
 Nebulite::Constants::Error SimpleData::pop_back(int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 2) {
-        std::cerr << "Error: Too few arguments for push_back command." << std::endl;
+        capture->cerr << "Error: Too few arguments for push_back command." << capture->endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (argc > 2) {
-        std::cerr << "Error: Too many arguments for push_back command." << std::endl;
+        capture->cerr << "Error: Too many arguments for push_back command." << capture->endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     std::string key = argv[1];
@@ -251,7 +251,7 @@ Nebulite::Constants::Error SimpleData::pop_back(int argc,  char* argv[]){
         command += " " + key;
         Nebulite::Constants::Error result = domain->parseStr(command);
         if (result != Nebulite::Constants::ErrorTable::NONE()) {
-            std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
+            capture->cerr << "Error: Failed to ensure array for key '" << key << "'." << capture->endl;
             return result;
         }
     }
@@ -275,7 +275,7 @@ Usage: pop-back <key>
 Nebulite::Constants::Error SimpleData::push_front(int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc > 3) {
-        std::cerr << "Error: Too many arguments for push_front command." << std::endl;
+        capture->cerr << "Error: Too many arguments for push_front command." << capture->endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     std::string key = argv[1];
@@ -296,7 +296,7 @@ Nebulite::Constants::Error SimpleData::push_front(int argc,  char* argv[]){
         command += " " + key;
         Nebulite::Constants::Error result = domain->parseStr(command);
         if (result != Nebulite::Constants::ErrorTable::NONE()) {
-            std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
+            capture->cerr << "Error: Failed to ensure array for key '" << key << "'." << capture->endl;
             return result;
         }
     }
@@ -311,7 +311,7 @@ Nebulite::Constants::Error SimpleData::push_front(int argc,  char* argv[]){
         std::string itemKey = key + "[" + std::to_string(i) + "]";
         Nebulite::Utility::JSON::KeyType itemType = domain->memberCheck(itemKey);
         if (itemType == Nebulite::Utility::JSON::KeyType::document) {
-            std::cerr << "Error: Cannot push_front into an array containing documents." << std::endl;
+            capture->cerr << "Error: Cannot push_front into an array containing documents." << capture->endl;
             return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
         }
     }
@@ -337,11 +337,11 @@ Usage: push-front <key> <value>
 Nebulite::Constants::Error SimpleData::pop_front(int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 2) {
-        std::cerr << "Error: Too few arguments for pop_front command." << std::endl;
+        capture->cerr << "Error: Too few arguments for pop_front command." << capture->endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (argc > 2) {
-        std::cerr << "Error: Too many arguments for pop_front command." << std::endl;
+        capture->cerr << "Error: Too many arguments for pop_front command." << capture->endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     std::string key = argv[1];
@@ -352,7 +352,7 @@ Nebulite::Constants::Error SimpleData::pop_front(int argc,  char* argv[]){
         command += " " + key;
         Nebulite::Constants::Error result = domain->parseStr(command);
         if (result != Nebulite::Constants::ErrorTable::NONE()) {
-            std::cerr << "Error: Failed to ensure array for key '" << key << "'." << std::endl;
+            capture->cerr << "Error: Failed to ensure array for key '" << key << "'." << capture->endl;
             return result;
         }
     }
@@ -367,7 +367,7 @@ Nebulite::Constants::Error SimpleData::pop_front(int argc,  char* argv[]){
         std::string itemKey = key + "[" + std::to_string(i) + "]";
         Nebulite::Utility::JSON::KeyType itemType = domain->memberCheck(itemKey);
         if (itemType == Nebulite::Utility::JSON::KeyType::document) {
-            std::cerr << "Error: Cannot push_front into an array containing documents." << std::endl;
+            capture->cerr << "Error: Cannot push_front into an array containing documents." << capture->endl;
             return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
         }
     }

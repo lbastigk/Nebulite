@@ -22,20 +22,20 @@ Nebulite::Constants::Error Debug::print(int argc,  char* argv[]){
     else if(argc == 2){
         auto memberType = domain->getDoc()->memberCheck(argv[1]);
         if(memberType == Nebulite::Utility::JSON::KeyType::null){
-            std::cout << "{}" << std::endl;
+            capture->cout << "{}" << capture->endl;
             return Nebulite::Constants::ErrorTable::NONE();
         }
         if(memberType == Nebulite::Utility::JSON::KeyType::document){
-            std::cout << domain->getDoc()->serialize(argv[1]) << std::endl;
+            capture->cout << domain->getDoc()->serialize(argv[1]) << capture->endl;
             return Nebulite::Constants::ErrorTable::NONE();
         }
         if(memberType == Nebulite::Utility::JSON::KeyType::value){
-            std::cout << domain->getDoc()->get<std::string>(argv[1], "") << std::endl;
+            capture->cout << domain->getDoc()->get<std::string>(argv[1], "") << capture->endl;
             return Nebulite::Constants::ErrorTable::NONE();
         }
     }
 
-    std::cout << domain->getDoc()->serialize() << std::endl;
+    capture->cout << domain->getDoc()->serialize() << capture->endl;
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string Debug::print_name = "print";

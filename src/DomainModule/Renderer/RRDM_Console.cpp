@@ -76,7 +76,7 @@ void Console::renderConsole() {
 
     // Check if texture creation was successful
     if (!consoleTexture.texture_ptr) {
-        std::cerr << "SDL_CreateTexture failed: " << SDL_GetError() << std::endl;
+        capture->cerr << "SDL_CreateTexture failed: " << SDL_GetError() << capture->endl;
         return;
     }
 
@@ -325,7 +325,7 @@ void Console::processMode(){
 
         // Check if texture is valid
         if(!consoleTexture.texture_ptr){
-            std::cerr << "Could not attach Console: Console texture is null!" << std::endl;
+            capture->cerr << "Could not attach Console: Console texture is null!" << capture->endl;
             return;
         }
 

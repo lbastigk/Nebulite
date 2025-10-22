@@ -20,7 +20,7 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
 
             // Create a new Expression, parse the function call
             Nebulite::Interaction::Logic::ExpressionPool invokeExpr;
-            invokeExpr.parse(funcCall, docCache, self->getDoc(), global);
+            invokeExpr.parse(funcCall, docCache, self->getDoc(), global, global->capture);
             Ruleset.functioncalls_global.emplace_back(std::move(invokeExpr));
         }
     }
@@ -39,7 +39,7 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
 
             // Create a new Expression, parse the function call
             Nebulite::Interaction::Logic::ExpressionPool invokeExpr;
-            invokeExpr.parse(funcCall, docCache, self->getDoc(), global);
+            invokeExpr.parse(funcCall, docCache, self->getDoc(), global, global->capture);
             Ruleset.functioncalls_self.emplace_back(std::move(invokeExpr));
         }
     }
@@ -57,7 +57,7 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
             }
             // Create a new Expression, parse the function call
             Nebulite::Interaction::Logic::ExpressionPool invokeExpr;
-            invokeExpr.parse(funcCall, docCache, self->getDoc(), global);
+            invokeExpr.parse(funcCall, docCache, self->getDoc(), global, global->capture);
             Ruleset.functioncalls_other.emplace_back(std::move(invokeExpr));
         }
     }
@@ -114,7 +114,6 @@ bool Nebulite::Interaction::RulesetCompiler::getExpression(Nebulite::Interaction
     }
     else
     {
-        std::cerr << "No operation found in expression: " << expr << std::endl;
         return false;
     }
 
@@ -241,7 +240,6 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
 
     // Check if doc is valid
     if (doc->memberCheck(Nebulite::Constants::keyName.renderObject.invokes) != Nebulite::Utility::JSON::KeyType::array) {
-        std::cerr << "Invokes field is not an array!" << std::endl;
         return;
     }
 
@@ -257,14 +255,13 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
         // Parse entry into separate JSON object
         Nebulite::Utility::JSON entry(self->getGlobalSpace());
         if (!RulesetCompiler::getRuleset(*doc, entry, idx)) {
-            std::cerr << "Failed to get invoke entry at index " << idx << std::endl;
             continue; // Skip this entry
         }
 
         // Parse into a structure
         auto Ruleset = std::make_shared<Nebulite::Interaction::Ruleset>();
         Ruleset->topic = entry.get<std::string>(Nebulite::Constants::keyName.invoke.topic.c_str(), "all");
-        Ruleset->logicalArg.parse(RulesetCompiler::getLogicalArg(entry), docCache, self->getDoc(), global);
+        Ruleset->logicalArg.parse(RulesetCompiler::getLogicalArg(entry), docCache, self->getDoc(), global, global->capture);
 
         // Remove whitespaces at start and end from topic and logicalArg:
         Ruleset->topic = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(Ruleset->topic));
@@ -276,18 +273,17 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
 
         std::string str = *Ruleset->logicalArg.getFullExpression();
         str = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(str));
-        Ruleset->logicalArg.parse(str, docCache, self->getDoc(), global);
+        Ruleset->logicalArg.parse(str, docCache, self->getDoc(), global, global->capture);
 
         // Get expressions
         bool exprSuccess = RulesetCompiler::getExpressions(Ruleset.get(), &entry);
         if (!exprSuccess) {
-            std::cerr << "No expressions found in entry at index " << idx << std::endl;
             continue; // Skip this entry if no expressions are found
         }
 
         // Parse all assignments
         for (auto& assignment : Ruleset->assignments) {
-            assignment.expression.parse(assignment.value, docCache, self->getDoc(), global);
+            assignment.expression.parse(assignment.value, docCache, self->getDoc(), global, global->capture);
         }
 
         // Parse all function calls

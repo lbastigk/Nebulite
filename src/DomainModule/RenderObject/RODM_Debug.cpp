@@ -45,10 +45,10 @@ Nebulite::Constants::Error Debug::printSrcRect(int argc,  char* argv[]) {
 
     const SDL_Rect* srcRect = domain->getSrcRect();
     if(srcRect) {
-        std::cout << "Source Rectangle: { x: " << srcRect->x << ", y: " << srcRect->y 
-                  << ", w: " << srcRect->w << ", h: " << srcRect->h << " }" << std::endl;
+        capture->cout << "Source Rectangle: { x: " << srcRect->x << ", y: " << srcRect->y 
+                  << ", w: " << srcRect->w << ", h: " << srcRect->h << " }" << capture->endl;
     } else {
-        std::cout << "This RenderObject is not a spritesheet." << std::endl;
+        capture->cout << "This RenderObject is not a spritesheet." << capture->endl;
     }
 
     return Nebulite::Constants::ErrorTable::NONE();
@@ -71,10 +71,10 @@ Nebulite::Constants::Error Debug::printDstRect(int argc,  char* argv[]) {
 
     const SDL_Rect* dstRect = domain->getDstRect();
     if(dstRect) {
-        std::cout << "Destination Rectangle: { x: " << dstRect->x << ", y: " << dstRect->y 
-                  << ", w: " << dstRect->w << ", h: " << dstRect->h << " }" << std::endl;
+        capture->cout << "Destination Rectangle: { x: " << dstRect->x << ", y: " << dstRect->y 
+                  << ", w: " << dstRect->w << ", h: " << dstRect->h << " }" << capture->endl;
     } else {
-        std::cout << "Destination rectangle is not set." << std::endl;
+        capture->cout << "Destination rectangle is not set." << capture->endl;
     }
 
     return Nebulite::Constants::ErrorTable::NONE();
@@ -128,7 +128,7 @@ namespace{
      * 
      * @param texture Pointer to the SDL_Texture to query.
      */
-    void printTextureInfo(SDL_Texture* texture) {
+    void printTextureInfo(SDL_Texture* texture, Nebulite::Utility::Capture* capture) {
         if(texture) {
             Uint32 format;
             int accessType, w, h;
@@ -138,15 +138,15 @@ namespace{
                 std::string formatStr = getTextureFormatString(format);
 
                 // Print texture details
-                std::cout << " - Width  : " << w << std::endl;
-                std::cout << " - Height : " << h << std::endl;
-                std::cout << " - Access : " << accessStr << std::endl;
-                std::cout << " - Format : " << formatStr << std::endl;
+                capture->cout << " - Width  : " << w << capture->endl;
+                capture->cout << " - Height : " << h << capture->endl;
+                capture->cout << " - Access : " << accessStr << capture->endl;
+                capture->cout << " - Format : " << formatStr << capture->endl;
             } else {
-                std::cerr << "Failed to query texture: " << SDL_GetError() << std::endl;
+                capture->cerr << "Failed to query texture: " << SDL_GetError() << capture->endl;
             }
         } else {
-            std::cout << "No texture is associated with this RenderObject." << std::endl;
+            capture->cout << "No texture is associated with this RenderObject." << capture->endl;
         }
     }
 }
@@ -158,17 +158,17 @@ Nebulite::Constants::Error Debug::textureStatus(int argc,  char* argv[]){
 
     //------------------------------------------
     // Print Texture Status
-    std::cout << "Texture Status:" << std::endl;
+    capture->cout << "Texture Status:" << capture->endl;
 
     // Nebulite info
-    std::cout << " - Texture Key   : " << domain->get<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str(), "None") << std::endl;
-    std::cout << " - Valid Texture : " << (domain->getTexture()->isTextureValid() ? "Yes" : "No") << std::endl;
-    std::cout << " - Local Texture : " << (domain->getTexture()->isTextureStoredLocally() ? "Yes" : "No") << std::endl;
+    capture->cout << " - Texture Key   : " << domain->get<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str(), "None") << capture->endl;
+    capture->cout << " - Valid Texture : " << (domain->getTexture()->isTextureValid() ? "Yes" : "No") << capture->endl;
+    capture->cout << " - Local Texture : " << (domain->getTexture()->isTextureStoredLocally() ? "Yes" : "No") << capture->endl;
 
     // SDL info
-    std::cout << "SDL Texture Info:" << std::endl;
+    capture->cout << "SDL Texture Info:" << capture->endl;
     SDL_Texture* texture = domain->getTexture()->getSDLTexture();   // Going the long way to ensure outside access is validated
-    printTextureInfo(texture);
+    printTextureInfo(texture, capture);
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string Debug::textureStatus_name = "debug texture-status";
