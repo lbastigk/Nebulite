@@ -79,7 +79,8 @@ void Console::renderConsole() {
     // Prerequisites
 
     // Derive consoleRect size from display size
-    int y = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) / 2;
+    double heightRatio = 0.75; // Console takes 75% of the screen height
+    int y = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) * (1.0 - heightRatio);
     int w = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),360);
     int h = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) - y;
 
