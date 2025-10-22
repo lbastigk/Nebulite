@@ -9,7 +9,7 @@ Nebulite::Core::GlobalSpace::GlobalSpace(const std::string& binName)
   global(this),                       // Link the global document to the GlobalSpace
   renderer(this, &cmdVars.headless),  // Renderer with reference to GlobalSpace and headless mode boolean
   invoke(this),                       // Invoke with reference to GlobalSpace
-  docCache(this)                      // Init with reference to GlobalSpace
+  docCache(this, &capture)            // Init with reference to GlobalSpace
 {
     //------------------------------------------
     // Setup tasks                         

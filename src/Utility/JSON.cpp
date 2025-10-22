@@ -170,7 +170,7 @@ void Nebulite::Utility::JSON::set_subdoc(const char* key, Nebulite::Utility::JSO
         // Since we inserted an entire document, we need to invalidate its child keys:
         invalidate_child_keys(key);
     } else {
-        std::cerr << "Failed to create or access path: " << key << std::endl;
+        capture->cerr << "Failed to create or access path: " << key << capture->endl;
     }
 }
 
@@ -189,7 +189,7 @@ std::string Nebulite::Utility::JSON::serialize(const std::string& key) {
     flush(); // Ensure all changes are reflected in the document
     if(key.size() == 0){
         // Serialize entire doc
-        return Nebulite::Utility::RjDirectAccess::serialize(doc);
+        return Nebulite::Utility::RjDirectAccess::serialize(doc, capture);
     } 
     else{
         Nebulite::Utility::JSON sub = get_subdoc(key.c_str());

@@ -167,9 +167,9 @@ rapidjson::Value Nebulite::Utility::RjDirectAccess::sortRecursive(const rapidjso
     }
 }
 
-std::string Nebulite::Utility::RjDirectAccess::serialize(const rapidjson::Document& doc) {
+std::string Nebulite::Utility::RjDirectAccess::serialize(const rapidjson::Document& doc, Nebulite::Utility::Capture* capture) {
     if (!doc.IsObject() && !doc.IsArray()) {
-        std::cerr << "Serialization only supports JSON objects or arrays!" << std::endl;
+        capture->cerr << "Serialization only supports JSON objects or arrays!" << capture->endl;
         return "{}";
     }
 
@@ -205,8 +205,9 @@ void Nebulite::Utility::RjDirectAccess::deserialize(rapidjson::Document& doc, st
     
     rapidjson::ParseResult res = doc.Parse(cleanJson.c_str());
     if (!res) {
-        std::cerr << "JSON Parse Error at offset " << res.Offset() << std::endl;
-        std::cerr << "String is:\n" << cleanJson << std::endl;
+        Capture* capture = &global->capture;
+        capture->cerr << "JSON Parse Error at offset " << res.Offset() << capture->endl;
+        capture->cerr << "String is:\n" << cleanJson << capture->endl;
     }
 }
 

@@ -391,7 +391,7 @@ void Nebulite::Utility::JSON::set(const std::string& key, const T& value) {
 
     // Check if key is valid
     if (!RjDirectAccess::isValidKey(key)) {
-        std::cerr << "Invalid key: " << key << std::endl;
+        capture->cerr << "Invalid key: " << key << capture->endl;
         return;
     }
 
@@ -553,14 +553,14 @@ namespace{
         }
     }
 
-    inline void convertVariantErrorMessage(const std::string& oldType, const std::string& newType){
-        std::cerr << "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
+    inline void convertVariantErrorMessage(const std::string& oldType, const std::string& newType, Nebulite::Utility::Capture* capture){
+        capture->cerr << "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
                   << oldType
                   << " to " << newType << ".\n"
                   << "Please add the required conversion.\n"
                   << "Fallback conversion from String to any Integral type was disabled due to potential lossy data conversion.\n"
                   << "Rather, it is recommended to add one explicit conversion path per datatype.\n"
-                  << "Returning default value." << std::endl;
+                  << "Returning default value." << capture->endl;
     }
 }
 
@@ -612,7 +612,7 @@ newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValu
         // [FALLBACK]
         std::string oldTypeName = abi::__cxa_demangle(typeid(stored).name(), nullptr, nullptr, nullptr);
         std::string newTypeName = abi::__cxa_demangle(typeid(newType).name(), nullptr, nullptr, nullptr);
-        convertVariantErrorMessage(oldTypeName, newTypeName);
+        convertVariantErrorMessage(oldTypeName, newTypeName, capture);
         return defaultValue;
     }, 
     var);

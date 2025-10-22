@@ -25,6 +25,7 @@
 
 // Nebulite
 #include "Utility/StringHandler.hpp"
+#include "Utility/Capture.hpp"
 
 namespace Nebulite::Core {
     class GlobalSpace; // Forward declaration
@@ -170,7 +171,7 @@ public:
      * @param doc The rapidjson document to serialize.
      * @return The serialized JSON string.
      */
-    static std::string serialize(const rapidjson::Document& doc);
+    static std::string serialize(const rapidjson::Document& doc, Nebulite::Utility::Capture* capture);
 
     /**
      * @brief Deserializes a JSON string into a rapidjson document.
@@ -265,7 +266,6 @@ bool Nebulite::Utility::RjDirectAccess::set(const char* key, const T& value, rap
         Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<T>(value, *keyVal, allocator);
         return true;
     } else {
-        std::cerr << "Failed to create or access path: " << key << std::endl;
         return false;
     }
 }
