@@ -102,10 +102,11 @@ public:
         return type != Error::NONE;
     }
 
-    void print() const {
-        if(description && type != NONE) std::cout << *description << std::endl;
+    std::string toString() const {
+        if(description && type != NONE) return *description;
+        return "";
     }
-    
+
 private:
     std::string* description;
     Type type;
