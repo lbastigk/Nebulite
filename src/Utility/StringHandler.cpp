@@ -1,5 +1,7 @@
 #include "Utility/StringHandler.hpp"
 
+#include "Utility/Capture.hpp"
+
 bool Nebulite::Utility::StringHandler::containsAnyOf(const std::string& str, const std::string& chars) {
     return std::any_of(str.begin(), str.end(), [&](char c) {
         return chars.find(c) != std::string::npos;

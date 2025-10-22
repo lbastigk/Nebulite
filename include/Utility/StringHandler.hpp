@@ -20,12 +20,13 @@
 #include <algorithm>
 #include <unordered_map>
 
-// Nebulite
-#include "Utility/Capture.hpp"
-
 //------------------------------------------
 namespace Nebulite {
 namespace Utility {
+
+// Forward declarations
+class Capture;
+
 /**
  * @class Nebulite::Utility::StringHandler
  * @brief Utility functions for string manipulation and parsing.
