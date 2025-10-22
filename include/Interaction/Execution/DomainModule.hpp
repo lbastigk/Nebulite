@@ -106,7 +106,6 @@ public:
         );
     }
 
-
     /**
      * @brief Binds a category to the FuncTree.
      * 

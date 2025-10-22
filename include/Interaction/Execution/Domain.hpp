@@ -66,14 +66,14 @@ class Domain{
     template<typename> friend class Domain;  // All Domain<T> instantiations are friends, so we can access each other's private members
 public:
     Domain(std::string domainName, DomainType* domain, Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* global, Nebulite::Utility::Capture* capture)
-    : domainName(domainName),
+    : capture(capture), domainName(domainName),
       funcTree(std::make_shared<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>>( 
           domainName, 
           Nebulite::Constants::ErrorTable::NONE(), 
           Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(), 
           capture
       )),
-       domain(domain), doc(doc), global(global), capture(capture)
+      domain(domain), doc(doc), global(global)
     {};
 
     //------------------------------------------
@@ -206,6 +206,11 @@ public:
      */
     Nebulite::Core::GlobalSpace* getGlobalSpace() const {return global;}
 
+    /**
+     * @brief cout/cerr capture for logging output
+     */
+    Nebulite::Utility::Capture* capture;
+
 private:
     //------------------------------------------
     // Core members
@@ -254,11 +259,6 @@ private:
      * @brief Pointer to the globalspace, for accessing global resources and management functions.
      */
     Nebulite::Core::GlobalSpace* const global;
-
-    /**
-     * @brief cout/cerr capture for logging output
-     */
-    Nebulite::Utility::Capture* const capture;
 };
 }   // namespace Execution
 }   // namespace Interaction
