@@ -35,14 +35,14 @@ public:
         YYYY = 4,
         YYYY_MM = 7,
         YYYY_MM_DD = 10,
-        YYYY_MM_DD_HH_MM_SS = 18,
-        YYYY_MM_DD_HH_MM_SS_TZ = 19, // Full ISO 8601 format with Timezone
+        YYYY_MM_DD_HH_MM_SS = 19,
+        YYYY_MM_DD_HH_MM_SS_TZ = 20, // Full ISO 8601 format with Timezone
     };
 
     /**
      * @brief Returns the current time in ISO 8601 format as std::string.
      * Using strftime with the format %FT%TZ
-     * Total length is up to 19 Characters: 2021-03-01T10:44:10Z
+     * Total length is up to 20 Characters: 2021-03-01T10:44:10Z
      * 
      * @param format The format of the string to return. 
      * 

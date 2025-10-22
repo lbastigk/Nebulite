@@ -1,32 +1,31 @@
 #include "Utility/Time.hpp"
 
+#include <array>
+
 std::string Nebulite::Utility::Time::TimeIso8601(Time::ISO8601FORMATTER format, bool local) {
-    int length = static_cast<int>(format);
-
-    std::time_t time = std::time(0); // Get current time
-
-    // Construct local time
-    char loc[sizeof("2021-03-01T10:44:10Z")];
-    std::strftime(loc, sizeof(loc), "%FT%TZ", localtime(&time));
-
-    // Construct UTC time 
-    char utc[sizeof("2021-03-01T10:44:10Z")];
-    std::strftime(utc, sizeof(utc), "%FT%TZ", gmtime(&time));
-    int i;
-    std::stringstream returnval;
+    const char* fmt = "%FT%TZ";
+    std::time_t time = std::time(nullptr);
+    std::tm tm_struct;
 
     if (local) {
-        for (i = 0; i < length; i++) {
-            returnval << loc[i];
-        }
-        return returnval.str();
+        tm_struct = *std::localtime(&time);
+    } else {
+        tm_struct = *std::gmtime(&time);
     }
-    else {
-        for (i = 0; i < length; i++) {
-            returnval << utc[i];
-        }
-        return returnval.str();
+
+    // Use a buffer large enough for any reasonable ISO8601 string
+    std::array<char, 32> buffer{};
+    size_t written = std::strftime(buffer.data(), buffer.size(), fmt, &tm_struct);
+
+    // Defensive: if strftime fails, return empty string
+    if (written == 0) return {};
+
+    // If you want to truncate to 'format' length, do so safely
+    int length = static_cast<int>(format);
+    if (length > 0 && length < static_cast<int>(written)) {
+        return std::string(buffer.data(), length);
     }
+    return std::string(buffer.data());
 }
 
 uint64_t Nebulite::Utility::Time::gettime() {
