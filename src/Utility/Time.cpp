@@ -1,6 +1,6 @@
 #include "Utility/Time.hpp"
 
-std::string Nebulite::Utility::Time::time_iso8601(Time::ISO8601_FORMAT format, int local) {
+std::string Nebulite::Utility::Time::TimeIso8601(Time::ISO8601FORMATTER format, bool local) {
     int length = static_cast<int>(format);
 
     std::time_t time = std::time(0); // Get current time

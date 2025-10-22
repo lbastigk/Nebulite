@@ -29,9 +29,9 @@ public:
      * @brief Enum for ISO 8601 date formats.
      * 
      * This enum defines the different formats available for ISO 8601 date strings
-     * and is to be used with the time_iso8601 function.
+     * and is to be used with the TimeIso8601 function.
      */
-    enum ISO8601_FORMAT {
+    enum ISO8601FORMATTER {
         YYYY = 4,
         YYYY_MM = 7,
         YYYY_MM_DD = 10,
@@ -50,7 +50,7 @@ public:
      * 
      * @return The current time in ISO 8601 format.
      */
-    static std::string time_iso8601(Time::ISO8601_FORMAT format, int local);
+    static std::string TimeIso8601(Time::ISO8601FORMATTER format, bool local);
 
     /**
      * @brief Returns the current time since epoch in milliseconds.
