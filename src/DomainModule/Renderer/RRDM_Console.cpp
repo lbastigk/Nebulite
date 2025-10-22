@@ -166,7 +166,7 @@ void Console::renderConsole() {
         if(line_index >= outputSize)  break;     // No more lines to show
 
         // Get line
-        std::string line = textInput.getOutput()->at(outputSize - 1 - line_index);
+        std::string line = textInput.getOutput()->at(outputSize - 1 - line_index).content;
         line_index++;
 
         // Render line

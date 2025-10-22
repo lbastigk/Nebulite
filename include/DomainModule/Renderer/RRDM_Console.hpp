@@ -105,7 +105,7 @@ private:
     // Texture and Font related
 
     // Font for console text
-	TTF_Font* consoleFont;
+	TTF_Font* consoleFont = nullptr;
 
     /**
      * @brief Rectangle defining the input text area.

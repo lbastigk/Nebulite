@@ -16,6 +16,7 @@
 
 // Nebulite
 #include "Nebulite.hpp"
+#include "Utility/Time.hpp"
 
 //------------------------------------------
 
@@ -54,12 +55,38 @@ private:
     std::string commandIndexZeroBuffer;
 
     /**
+     * @brief A line entry with metadata.
+     */
+    struct LineEntry{
+        enum class LineType{
+            INPUT,
+            COUT,
+            CERR
+        };
+
+        LineType type;
+        std::string content;
+        std::string timestamp;
+
+        LineEntry(const std::string& cont, LineType t)
+            : type(t), content(cont) {
+            // Get current time as timestamp
+            timestamp = Nebulite::Utility::Time::TimeIso8601(Nebulite::Utility::Time::ISO8601FORMATTER::YYYY_MM_DD_HH_MM_SS, true);
+
+            // Remove newline character from ctime
+            if(!timestamp.empty() && timestamp.back() == '\n'){
+                timestamp.pop_back();
+            }
+        }
+    };
+
+    /**
      * @todo Wrap each entry in a struct with extra metadata:
      * - type (input, cout, cerr)
      * - timestamp
      * - string
      */
-    std::deque<std::string> consoleOutput;
+    std::deque<LineEntry> consoleOutput;
 
     /**
      * @brief History of past commands.
@@ -102,15 +129,6 @@ public:
     TextInput();
 
     /**
-     * @brief Types of submission for commands.
-     */
-    enum class submitType{
-        INPUT,  // An actual input command
-        COUT,   // A console output line, like std::cout
-        CERR    // A console error line, like std::cerr
-    };
-
-    /**
      * @brief Submits the current input buffer as type INPUT.
      * @return The submitted command.
      */
@@ -121,10 +139,8 @@ public:
      * @param line The line of text to insert.
      * @param type The type of submission.
      * Default is COUT.
-     * 
-     * @todo Proper handling of newlines in the input line.
      */
-    void insertLine(const std::string& line, submitType type = submitType::COUT);
+    void insertLine(const std::string& line, LineEntry::LineType type = LineEntry::LineType::COUT);
 
     /**
      * @brief Handles backspace input.
@@ -172,7 +188,7 @@ public:
     /**
      * @brief Gets the queue of output lines.
      */
-    std::deque<std::string>* getOutput() {
+    std::deque<LineEntry>* getOutput() {
         return &consoleOutput;
     }
 
