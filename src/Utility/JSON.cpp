@@ -1,11 +1,11 @@
 #include "Utility/JSON.hpp"
 
-#include "DomainModule/JSDM.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Constants/ErrorTypes.hpp"
-#include <vector>
+#include "DomainModule/JSDM.hpp"
 
 Nebulite::Utility::JSON::JSON(Nebulite::Core::GlobalSpace* globalSpace)
-: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, globalSpace)
+: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, globalSpace, &globalSpace->capture)
 {
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
     doc.SetObject();
@@ -19,7 +19,7 @@ Nebulite::Utility::JSON::~JSON(){
 }
 
 Nebulite::Utility::JSON::JSON(JSON&& other) noexcept
-: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, other.getGlobalSpace())
+: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, other.getGlobalSpace(), &other.getGlobalSpace()->capture)
 {
     std::scoped_lock lockGuard(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);

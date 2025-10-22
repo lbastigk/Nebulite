@@ -44,6 +44,7 @@
 
 // Nebulite
 #include "Utility/StringHandler.hpp"  // Using StringHandler for easy argument splitting
+#include "Utility/Capture.hpp"        // Using Capture for output capturing
 
 namespace Nebulite{
 namespace Interaction{
@@ -90,7 +91,7 @@ public:
      * @param standard Value to return if everything is okay
      * @param functionNotFoundError Value to return if the parsed function was not found
      */
-    FuncTree(const std::string& treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError);
+    FuncTree(const std::string& treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError, Nebulite::Utility::Capture* capture);
 
     /**
      * @brief Inherits functions from another Tree.
@@ -198,7 +199,7 @@ public:
                     exit(EXIT_FAILURE);
                 }
                 // Create category
-                (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree<RETURN_TYPE>>(currentCategoryName, _standard, _functionNotFoundError), helpDescription};
+                (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree<RETURN_TYPE>>(currentCategoryName, _standard, _functionNotFoundError, capture), helpDescription};
             }
         }
         return true;
@@ -234,6 +235,9 @@ public:
     void bindVariable(bool* varPtr, const std::string& name, const std::string* helpDescription);
 
 private:
+    // Capture for output capturing
+    Nebulite::Utility::Capture* capture;
+
     // Function to call before parsing (e.g., for setting up variables or locking resources)
     std::function<Nebulite::Constants::Error()> preParse = nullptr;
 
@@ -610,8 +614,8 @@ std::vector<std::pair<std::string, const std::string*>> Nebulite::Interaction::E
 // Constructor implementation
 
 template <typename RETURN_TYPE>
-Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(const std::string& treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError)
-: _standard(standard), _functionNotFoundError(functionNotFoundError), TreeName(treeName)
+Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(const std::string& treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError, Nebulite::Utility::Capture* capture)
+: capture(capture), _standard(standard), _functionNotFoundError(functionNotFoundError), TreeName(treeName)
 {
     // Attach the help function to read out the description of all attached functions
     functions["help"] = FunctionInfo{std::function<RETURN_TYPE(int, const char**)>([this](int argc, const char** argv) {

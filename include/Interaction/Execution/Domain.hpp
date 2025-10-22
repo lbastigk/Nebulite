@@ -19,6 +19,7 @@
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
+#include "Utility/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -64,14 +65,15 @@ template<typename DomainType>
 class Domain{
     template<typename> friend class Domain;  // All Domain<T> instantiations are friends, so we can access each other's private members
 public:
-    Domain(std::string domainName, DomainType* domain, Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* global)
+    Domain(std::string domainName, DomainType* domain, Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* global, Nebulite::Utility::Capture* capture)
     : domainName(domainName),
       funcTree(std::make_shared<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>>( 
           domainName, 
           Nebulite::Constants::ErrorTable::NONE(), 
-          Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
+          Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(), 
+          capture
       )),
-       domain(domain), doc(doc), global(global)
+       domain(domain), doc(doc), global(global), capture(capture)
     {};
 
     //------------------------------------------
@@ -85,7 +87,7 @@ public:
      */
     template<typename DomainModuleType>
     void initModule(std::string moduleName) {
-        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, funcTree, global);
+        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, funcTree, global, capture);
         modules.push_back(std::move(DomainModule));
     }
 
@@ -252,6 +254,11 @@ private:
      * @brief Pointer to the globalspace, for accessing global resources and management functions.
      */
     Nebulite::Core::GlobalSpace* const global;
+
+    /**
+     * @brief cout/cerr capture for logging output
+     */
+    Nebulite::Utility::Capture* const capture;
 };
 }   // namespace Execution
 }   // namespace Interaction
