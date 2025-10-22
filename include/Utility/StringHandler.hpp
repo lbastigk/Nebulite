@@ -20,6 +20,9 @@
 #include <algorithm>
 #include <unordered_map>
 
+// Nebulite
+#include "Utility/Capture.hpp"
+
 //------------------------------------------
 namespace Nebulite {
 namespace Utility {
@@ -121,8 +124,11 @@ public:
 
     /**
      * @brief Parses a command string into individual arguments, taking quotes into account.
+     * 
+     * @param cmd The command string to parse.
+     * @param capture Pointer to Capture object for logging
      */
-    static std::vector<std::string> parseQuotedArguments(const std::string& cmd);
+    static std::vector<std::string> parseQuotedArguments(const std::string& cmd, Nebulite::Utility::Capture* capture);
 
     /**
      * @brief Recombines argc/argv into a single string with spaces.

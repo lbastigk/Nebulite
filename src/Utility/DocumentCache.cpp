@@ -7,7 +7,7 @@ void Nebulite::Utility::DocumentCache::update() {
 double* Nebulite::Utility::DocumentCache::getStableDoublePointer(const std::string& doc_key) {
     auto [doc, key] = splitDocKey(doc_key);
 
-    ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+    ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc, capture);
     if (docPtr == nullptr) {
         // Return a pointer to zero if document loading fails
         zero = 0.0;     // Make sure zero is always 0.0
