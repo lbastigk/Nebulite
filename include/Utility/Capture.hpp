@@ -9,6 +9,8 @@
 #include <string>
 #include <mutex>
 
+#include "Utility/StringHandler.hpp"
+
 #pragma once
 
 namespace Nebulite::Utility {
@@ -37,46 +39,45 @@ public:
      * @brief Stream class for capturing output and redirecting it to an ostream and internal log.
      */
     struct CaptureStream{
-        Capture* parent;
+        std::string lastLine = "";
+        Capture *parent;
         std::ostream& baseStream;
         OutputLine::Type type;
         explicit CaptureStream(Capture* p, std::ostream& s, OutputLine::Type t) : parent(p), baseStream(s), type(t) {}
 
         template<typename T>
         CaptureStream& operator<<(const T& data) {
-            std::ostringstream oss;
-            oss << data;
+            baseStream << data;
             {
                 std::lock_guard<std::mutex> lock(parent->outputLogMutex);
 
-                // See if the last cout line can be appended to
-                if(!parent->outputLog.empty() && parent->outputLog.back().type == type){
-                    parent->outputLog.back().content += oss.str();
+                // Combine lastLine with new data
+                std::ostringstream workingBuffer;
+                workingBuffer << lastLine << data;
+                lastLine = "";
+
+                // Split buffer by newlines
+                std::string buf = workingBuffer.str();
+                std::vector<std::string> lines = Nebulite::Utility::StringHandler::split(buf, '\n');
+
+                // If last character is not newline, keep it in workingBuffer
+                // And do not push it to outputLog yet
+                if(!buf.empty() && buf.back() != '\n'){
+                    lastLine = lines.back();
+                    lines.pop_back();
                 }
-                else{
-                    parent->outputLog.push_back({oss.str(), type});
+
+                // Push complete lines to outputLog
+                for (const auto& line : lines) {
+                    parent->outputLog.push_back({line, type});
                 }
             }
-            baseStream << data;
             return *this;
         }
 
         CaptureStream& operator<<(const char* data) {
-            std::ostringstream oss;
-            oss << data;
-            {
-                std::lock_guard<std::mutex> lock(parent->outputLogMutex);
-
-                // See if the last cout line can be appended to
-                if(!parent->outputLog.empty() && parent->outputLog.back().type == type){
-                    parent->outputLog.back().content += oss.str();
-                }
-                else{
-                    parent->outputLog.push_back({oss.str(), type});
-                }
-            }
-            baseStream << data;
-            return *this;
+            // Cast to std::string, then call templated operator
+            return (*this) << std::string(data);
         }
     };
 
