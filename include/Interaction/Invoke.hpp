@@ -292,6 +292,7 @@ private:
     Nebulite::Utility::DocumentCache* docCache = nullptr;                       // DocumentCache for read-only documents, linked on construction
     Nebulite::Utility::JSON* emptyDoc = new Nebulite::Utility::JSON(global);    // Linking an empty doc is needed for some functions
     Nebulite::Utility::JSON* globalDoc = nullptr;                               // Linkage to global doc, linked on construction
+    Nebulite::Utility::Capture* capture = nullptr;                              // Linkage to capture, linked on construction
 
     // Task Queue
     struct TaskQueue {
