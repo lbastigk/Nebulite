@@ -69,6 +69,8 @@ int main(int argc, char* argv[]){
 
     //------------------------------------------
     // Exit
+
+    // Check if we had a critical error
     bool criticalStop = lastCriticalResult.isCritical();
 
     // Destroy renderer
