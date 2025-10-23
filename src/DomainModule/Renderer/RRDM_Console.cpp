@@ -253,9 +253,15 @@ void Console::renderConsole() {
 void Console::init(){
     //--------------------------------------------------
     // References
-    consoleFont = domain->getStandardFont();
     renderer = domain->getSdlRenderer();
     globalDoc = domain->getDoc();
+
+    // Use a monospaced font for better alignment
+    consoleFont = TTF_OpenFont("Resources/Fonts/JetBrainsMono-Medium.ttf", FONT_MAX_SIZE * global->getRenderer()->getWindowScale());
+    if(!consoleFont){
+        capture->cerr << "TTF_OpenFont failed: " << TTF_GetError() << capture->endl;
+        return;
+    }
 
     //--------------------------------------------------
     // Console buffer
