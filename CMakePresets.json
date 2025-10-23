@@ -13,7 +13,8 @@
                 "unusedCli": false
             },
             "cacheVariables": {
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "SDL2TTF_VENDORED": "ON"
             }
         },
         {
