@@ -127,10 +127,10 @@ private:
      * @brief Struct to hold color definitions for the console.
      */
     struct Colors{
-        SDL_Color background = {  0,  30, 150, 180};    // Semi-transparent blue
+        SDL_Color background = { 30,  30, 100, 150};    // Semi-transparent gray-blue
         SDL_Color input      = {200, 200, 200, 255};    // Light gray
-        SDL_Color highlight  = {100, 100, 255, 255};    // Dark gray
-        SDL_Color cerrStream = {255,  80,  80, 255};    // Light Red
+        SDL_Color highlight  = {100, 100, 100, 255};    // Dark gray
+        SDL_Color cerrStream = {255,  40,  40, 255};    // Light Red
         SDL_Color coutStream = {255, 255, 255, 255};    // White
     }color;
 
