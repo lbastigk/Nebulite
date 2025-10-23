@@ -13,8 +13,8 @@
     class DomainModuleName : public ::Nebulite::Interaction::Execution::DomainModule<DomainName>
 
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
-    DomainModuleName(const std::string& moduleName, DomainName* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace, Nebulite::Utility::Capture* capture) \
-    : DomainModule(moduleName, domain, funcTreePtr, globalSpace, capture)
+    DomainModuleName(const std::string& moduleName, DomainName* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
+    : DomainModule(moduleName, domain, funcTreePtr, globalSpace)
 
 //------------------------------------------
 // Includes
@@ -22,7 +22,7 @@
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
-#include "Utility/Capture.hpp"
+#include "Utility/Capture.hpp" // Allowing logging from DomainModules
 
 //------------------------------------------
 // Pre-declarations
@@ -54,10 +54,9 @@ public:
         const std::string& moduleName, 
         DomainType* domain, 
         std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, 
-        Nebulite::Core::GlobalSpace* globalSpace,
-        Nebulite::Utility::Capture* capture
+        Nebulite::Core::GlobalSpace* globalSpace
     )
-        : moduleName(moduleName), domain(domain), global(globalSpace), capture(capture), funcTree(funcTreePtr) {}
+        : moduleName(moduleName), domain(domain), global(globalSpace), funcTree(funcTreePtr) {}
 
     /**
      * @brief Virtual update function to be Overwridden by derived classes.
@@ -160,11 +159,6 @@ protected:
      * @brief Pointer to the global space of the DomainModule
      */
     Nebulite::Core::GlobalSpace* global;
-
-    /**
-     * @brief Pointer to the capture object of the DomainModule
-     */
-    Nebulite::Utility::Capture* capture;
 
 private:
     /**

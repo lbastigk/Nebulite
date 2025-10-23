@@ -11,8 +11,7 @@
 Nebulite::Interaction::Invoke::Invoke(Nebulite::Core::GlobalSpace* globalSpace)
 : global(globalSpace),
   docCache(globalSpace->getDocCache()),
-  globalDoc(globalSpace->getDoc()),
-  capture(globalSpace->capture)
+  globalDoc(globalSpace->getDoc())
 {   
     // Initialize synchronization primitives
     threadState.stopFlag = false;
@@ -108,14 +107,14 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
 
     // Check for result
     if(isnan(result)){
-        capture->cerr << "Evaluated logic to NAN! Logic is: " << expr << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "Evaluated logic to NAN! Logic is: " << expr << Nebulite::Utility::Capture::endl;
         // A NaN-Result can happen if any variable resolved isnt a number, but a text
         // Under usual circumstances, this is easily avoidable
         // by designing the values to only be assigned a numeric value.
 
         // In case this happens, it might be helpful to set the logic to always false:
         // This way, the error log does not happen all the time.
-        cmd->logicalArg.parse("0", docCache, cmd->selfPtr->getDoc(), globalDoc, capture);
+        cmd->logicalArg.parse("0", docCache, cmd->selfPtr->getDoc(), globalDoc);
 
         // This can become an unwanted behavior if the following is done:
         // logicalArg = $(not($(global.states.xyz)))
@@ -139,8 +138,8 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
     // Resolve logical statement, using self as context for other
     double result = cmd->logicalArg.evalAsDouble(cmd->selfPtr->getDoc());
     if(isnan(result)){
-        capture->cerr << "Evaluated logic to NAN! Logic is: " << expr << ". Resetting to 0" << capture->endl;
-        cmd->logicalArg.parse("0", docCache, cmd->selfPtr->getDoc(), globalDoc, capture);
+        Nebulite::Utility::Capture::cerr() << "Evaluated logic to NAN! Logic is: " << expr << ". Resetting to 0" << Nebulite::Utility::Capture::endl;
+        cmd->logicalArg.parse("0", docCache, cmd->selfPtr->getDoc(), globalDoc);
         return false;
     }
     return result != 0.0;
@@ -152,7 +151,7 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
 void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interaction::Ruleset> toAppend){
     // Skip entries with empty topics - they should be local only
     if (toAppend->topic.empty()) {
-        capture->cerr << "Warning: Attempted to broadcast entry with empty topic - skipping" << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "Warning: Attempted to broadcast entry with empty topic - skipping" << Nebulite::Utility::Capture::endl;
         return;
     }
     // Get index
@@ -225,10 +224,10 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::
             target->set_concat(key.c_str(),valStr.c_str());
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::null:
-            capture->cerr << "Assignment expression has null operation - skipping" << capture->endl;
+            Nebulite::Utility::Capture::cerr() << "Assignment expression has null operation - skipping" << Nebulite::Utility::Capture::endl;
             break;
         default:
-            capture->cerr << "Unknown operation type! Enum value:" << (int)operation << capture->endl;
+            Nebulite::Utility::Capture::cerr() << "Unknown operation type! Enum value:" << (int)operation << Nebulite::Utility::Capture::endl;
             break;
     }
 }
@@ -249,10 +248,10 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::
             target->set_concat(key.c_str(),std::to_string(value).c_str());
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::null:
-            capture->cerr << "Assignment expression has null operation - skipping" << capture->endl;
+            Nebulite::Utility::Capture::cerr() << "Assignment expression has null operation - skipping" << Nebulite::Utility::Capture::endl;
             break;
         default:
-            capture->cerr << "Unknown operation type! Enum value:" << (int)operation << capture->endl;
+            Nebulite::Utility::Capture::cerr() << "Unknown operation type! Enum value:" << (int)operation << Nebulite::Utility::Capture::endl;
             break;
     }
 }
@@ -270,13 +269,13 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::
             *target *= value;
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::concat:
-            capture->cerr << "Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of an Invoke!" << capture->endl;
+            Nebulite::Utility::Capture::cerr() << "Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of an Invoke!" << Nebulite::Utility::Capture::endl;
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::null:
-            capture->cerr << "Assignment expression has null operation - skipping" << capture->endl;
+            Nebulite::Utility::Capture::cerr() << "Assignment expression has null operation - skipping" << Nebulite::Utility::Capture::endl;
             break;
         default:
-            capture->cerr << "Unknown operation type! Enum value:" << (int)operation << capture->endl;
+            Nebulite::Utility::Capture::cerr() << "Unknown operation type! Enum value:" << (int)operation << Nebulite::Utility::Capture::endl;
             break;
     }
 }
@@ -310,10 +309,10 @@ void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Inte
             targetDocument = globalDoc;
             break;
         case Nebulite::Interaction::Logic::Assignment::Type::null:
-            capture->cerr << "Assignment expression has null type - skipping" << capture->endl;
+            Nebulite::Utility::Capture::cerr() << "Assignment expression has null type - skipping" << Nebulite::Utility::Capture::endl;
             continue; // Skip this expression
         default:
-            capture->cerr << "Unknown assignment type: " << (int)assignment.onType << capture->endl;
+            Nebulite::Utility::Capture::cerr() << "Unknown assignment type: " << (int)assignment.onType << Nebulite::Utility::Capture::endl;
             return; // Exit if unknown type
         }
 
@@ -434,7 +433,7 @@ std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const st
 
     // Parse string into Expression
     Nebulite::Interaction::Logic::ExpressionPool expr;
-    expr.parse(input, docCache, docSelf, docGlobal, capture);
+    expr.parse(input, docCache, docSelf, docGlobal);
     return expr.eval(docOther);
 }
 
@@ -445,7 +444,7 @@ std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const st
 
     // Parse string into Expression
     Nebulite::Interaction::Logic::ExpressionPool expr;
-    expr.parse(input, docCache, docSelf, docGlobal, capture);
+    expr.parse(input, docCache, docSelf, docGlobal);
     return expr.eval(docOther);
 }
 

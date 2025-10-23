@@ -16,13 +16,13 @@ Nebulite::Constants::Error Console::update(){
     //------------------------------------------
     // Insert new lines from capture streams
     static size_t last_size = 0;
-    size_t current_size = capture->getOutputLogPtr().size();
+    size_t current_size = Nebulite::Utility::Capture::instance().getOutputLogPtr().size();
     if(current_size < last_size){
         // Log was cleared, reset
         last_size = 0;
     }
     for(size_t i = last_size; i < current_size; i++){
-        const auto& input = capture->getOutputLogPtr().at(i);
+        const auto& input = Nebulite::Utility::Capture::instance().getOutputLogPtr().at(i);
 
         const auto& lines = Nebulite::Utility::StringHandler::split(input.content, '\n');
         Nebulite::Utility::TextInput::LineEntry::LineType type;
@@ -219,7 +219,7 @@ void Console::renderConsole() {
 
     // Ensure console texture is valid
     if(!ensureConsoleTexture()){
-        capture->cerr << "SDL_CreateTexture failed: " << SDL_GetError() << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "SDL_CreateTexture failed: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
         return;
     }
 
@@ -250,7 +250,7 @@ void Console::init(){
     // Use a monospaced font for better alignment
     consoleFont = TTF_OpenFont("Resources/Fonts/JetBrainsMono-Medium.ttf", FONT_MAX_SIZE * global->getRenderer()->getWindowScale());
     if(!consoleFont){
-        capture->cerr << "TTF_OpenFont failed: " << TTF_GetError() << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "TTF_OpenFont failed: " << TTF_GetError() << Nebulite::Utility::Capture::endl;
         return;
     }
 
@@ -377,7 +377,7 @@ void Console::processMode(){
 
         // Check if texture is valid
         if(!consoleTexture.texture_ptr){
-            capture->cerr << "Could not attach Console: Console texture is null!" << capture->endl;
+            Nebulite::Utility::Capture::cerr() << "Could not attach Console: Console texture is null!" << Nebulite::Utility::Capture::endl;
             return;
         }
 

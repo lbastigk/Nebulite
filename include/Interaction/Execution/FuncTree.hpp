@@ -16,7 +16,7 @@
  *     }, "myFunction", "This function does something");
  *
  *     std::string result = funcTree.parse(argc,argv);
- *     capture->cout << result << "\n";
+ *     Nebulite::Utility::Capture::cout() << result << "\n";
  * }
  * ```
  * 
@@ -63,8 +63,8 @@ namespace Execution{
  * Example:
  * ```cpp
  * bool myArgument = false;
- * int foo(int argc, char** argv){capture->cout << "foo: " << myArgument << capture->endl}
- * int bar(int argc, char** argv){capture->cout << "bar: " << myArgument << capture->endl}
+ * int foo(int argc, char** argv){Nebulite::Utility::Capture::cout() << "foo: " << myArgument << Nebulite::Utility::Capture::endl}
+ * int bar(int argc, char** argv){Nebulite::Utility::Capture::cout() << "bar: " << myArgument << Nebulite::Utility::Capture::endl}
  *
  * FuncTree<int> funcTree;
  * funcTree.bindVariable(&myArgument, "myArgument", "This is my argument");
@@ -91,7 +91,7 @@ public:
      * @param standard Value to return if everything is okay
      * @param functionNotFoundError Value to return if the parsed function was not found
      */
-    FuncTree(const std::string& treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError, Nebulite::Utility::Capture* capture);
+    FuncTree(const std::string& treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError);
 
     /**
      * @brief Inherits functions from another Tree.
@@ -165,7 +165,7 @@ public:
              * as with different modules we might need to call this in each module, 
              * just to make sure the category exists
              */
-            // capture->cerr << "Warning: A category with the name '" << name << "' already exists in the FuncTree '" << TreeName << "'." << capture->endl;
+            // Nebulite::Utility::Capture::cerr() << "Warning: A category with the name '" << name << "' already exists in the FuncTree '" << TreeName << "'." << Nebulite::Utility::Capture::endl;
             return false;
         }
         // Split based on whitespaces
@@ -184,8 +184,8 @@ public:
                 }
                 else{
                     // Category does not exist, throw error
-                    capture->cerr << "Error: Cannot create category '" << name << "' because parent category '"
-                              << currentCategoryName << "' does not exist." << capture->endl;
+                    Nebulite::Utility::Capture::cerr() << "Error: Cannot create category '" << name << "' because parent category '"
+                              << currentCategoryName << "' does not exist." << Nebulite::Utility::Capture::endl;
                     exit(EXIT_FAILURE);
                 }
             }
@@ -193,13 +193,13 @@ public:
                 // Last category, create it, if it doesnt exist yet
                 if(currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()){
                     // Category exists, throw error
-                    capture->cerr << "---------------------------------------------------------------\n";
-                    capture->cerr << "A Nebulite FuncTree initialization failed!\n";
-                    capture->cerr << "Error: Cannot create category '" << name << "' because it already exists." << capture->endl;
+                    Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
+                    Nebulite::Utility::Capture::cerr() << "A Nebulite FuncTree initialization failed!\n";
+                    Nebulite::Utility::Capture::cerr() << "Error: Cannot create category '" << name << "' because it already exists." << Nebulite::Utility::Capture::endl;
                     exit(EXIT_FAILURE);
                 }
                 // Create category
-                (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree<RETURN_TYPE>>(currentCategoryName, _standard, _functionNotFoundError, capture), helpDescription};
+                (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree<RETURN_TYPE>>(currentCategoryName, _standard, _functionNotFoundError), helpDescription};
             }
         }
         return true;
@@ -235,9 +235,6 @@ public:
     void bindVariable(bool* varPtr, const std::string& name, const std::string* helpDescription);
 
 private:
-    // Capture for output capturing
-    Nebulite::Utility::Capture* capture;
-
     // Function to call before parsing (e.g., for setting up variables or locking resources)
     std::function<Nebulite::Constants::Error()> preParse = nullptr;
 
@@ -387,7 +384,7 @@ private:
                         *varInfo.pointer = true;
                     }
                 } else {
-                    capture->cerr << "Warning: Unknown variable '--" << name << "'\n";
+                    Nebulite::Utility::Capture::cerr() << "Warning: Unknown variable '--" << name << "'\n";
                 }
 
                 // Remove from argument list
@@ -429,42 +426,42 @@ private:
 // Bindinging error messages
 
 namespace bindErrorMessage{
-    inline void MissingCategory(const std::string& tree, const std::string& category, const std::string& function, Nebulite::Utility::Capture* capture){
-        capture->cerr << "---------------------------------------------------------------" << capture->endl;
-        capture->cerr << "A Nebulite FuncTree binding failed!" << capture->endl;
-        capture->cerr << "Error: Category '" << category << "' does not exist when trying to bind function '" << function << "'." << capture->endl;
-        capture->cerr << "Please create the category hierarchy first using bindCategory()." << capture->endl;
-        capture->cerr << "This Tree: " << tree << capture->endl;
+    inline void MissingCategory(const std::string& tree, const std::string& category, const std::string& function){
+        Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------" << Nebulite::Utility::Capture::endl;
+        Nebulite::Utility::Capture::cerr() << "A Nebulite FuncTree binding failed!" << Nebulite::Utility::Capture::endl;
+        Nebulite::Utility::Capture::cerr() << "Error: Category '" << category << "' does not exist when trying to bind function '" << function << "'." << Nebulite::Utility::Capture::endl;
+        Nebulite::Utility::Capture::cerr() << "Please create the category hierarchy first using bindCategory()." << Nebulite::Utility::Capture::endl;
+        Nebulite::Utility::Capture::cerr() << "This Tree: " << tree << Nebulite::Utility::Capture::endl;
         exit(EXIT_FAILURE);
     }
 
-    inline void FunctionShadowsCategory(const std::string& function, Nebulite::Utility::Capture* capture){
-        capture->cerr << "---------------------------------------------------------------" << capture->endl;
-        capture->cerr << "A Nebulite FuncTree binding failed!" << capture->endl;
-        capture->cerr << "Error: Cannot bind function '" << function << "' because a category with the same name already exists." << capture->endl;
+    inline void FunctionShadowsCategory(const std::string& function){
+        Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------" << Nebulite::Utility::Capture::endl;
+        Nebulite::Utility::Capture::cerr() << "A Nebulite FuncTree binding failed!" << Nebulite::Utility::Capture::endl;
+        Nebulite::Utility::Capture::cerr() << "Error: Cannot bind function '" << function << "' because a category with the same name already exists." << Nebulite::Utility::Capture::endl;
         exit(EXIT_FAILURE);
     }
 
-    inline void FunctionExistsInInheritedTree(const std::string& tree, const std::string& inheritedTree, const std::string& function, Nebulite::Utility::Capture* capture){
-        capture->cerr << "---------------------------------------------------------------\n";
-        capture->cerr << "A Nebulite FuncTree initialization failed!\n";
-        capture->cerr << "Error: A bound Function already exists in the inherited FuncTree.\n";
-        capture->cerr << "Function overwrite is heavily discouraged and thus not allowed.\n";
-        capture->cerr << "Please choose a different name or remove the existing function.\n";
-        capture->cerr << "This Tree: " << tree << "\n";
-        capture->cerr << "inherited FuncTree:   " << inheritedTree << "\n";
-        capture->cerr << "Function:  " << function << "\n";
+    inline void FunctionExistsInInheritedTree(const std::string& tree, const std::string& inheritedTree, const std::string& function){
+        Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
+        Nebulite::Utility::Capture::cerr() << "A Nebulite FuncTree initialization failed!\n";
+        Nebulite::Utility::Capture::cerr() << "Error: A bound Function already exists in the inherited FuncTree.\n";
+        Nebulite::Utility::Capture::cerr() << "Function overwrite is heavily discouraged and thus not allowed.\n";
+        Nebulite::Utility::Capture::cerr() << "Please choose a different name or remove the existing function.\n";
+        Nebulite::Utility::Capture::cerr() << "This Tree: " << tree << "\n";
+        Nebulite::Utility::Capture::cerr() << "inherited FuncTree:   " << inheritedTree << "\n";
+        Nebulite::Utility::Capture::cerr() << "Function:  " << function << "\n";
         std::exit(EXIT_FAILURE);
     }
 
-    inline void FunctionExists(const std::string& tree, const std::string& function, Nebulite::Utility::Capture* capture){
-        capture->cerr << "---------------------------------------------------------------\n";
-        capture->cerr << "Nebulite FuncTree initialization failed!\n";
-        capture->cerr << "Error: A bound Function already exists in this tree.\n";
-        capture->cerr << "Function overwrite is heavily discouraged and thus not allowed.\n";
-        capture->cerr << "Please choose a different name or remove the existing function.\n";
-        capture->cerr << "This Tree: " << tree << "\n";
-        capture->cerr << "Function:  " << function << "\n";
+    inline void FunctionExists(const std::string& tree, const std::string& function){
+        Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
+        Nebulite::Utility::Capture::cerr() << "Nebulite FuncTree initialization failed!\n";
+        Nebulite::Utility::Capture::cerr() << "Error: A bound Function already exists in this tree.\n";
+        Nebulite::Utility::Capture::cerr() << "Function overwrite is heavily discouraged and thus not allowed.\n";
+        Nebulite::Utility::Capture::cerr() << "Please choose a different name or remove the existing function.\n";
+        Nebulite::Utility::Capture::cerr() << "This Tree: " << tree << "\n";
+        Nebulite::Utility::Capture::cerr() << "Function:  " << function << "\n";
         std::exit(EXIT_FAILURE);
     }
 } // namespace bindError
@@ -481,7 +478,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
     if(name.find(' ') != name.npos){
         std::vector<std::string> pathStructure = Nebulite::Utility::StringHandler::split(name, ' ');
         if(pathStructure.size() < 2){
-            capture->cerr << "Error: Invalid function name '" << name << "'." << capture->endl;
+            Nebulite::Utility::Capture::cerr() << "Error: Invalid function name '" << name << "'." << Nebulite::Utility::Capture::endl;
             return;
         }
         absl::flat_hash_map<std::string, Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::category>* currentCategoryMap = &categories;
@@ -489,7 +486,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
         for(size_t idx = 0; idx < pathStructure.size() - 1; idx++){
             std::string currentCategoryName = pathStructure[idx];
             if(currentCategoryMap->find(currentCategoryName) == currentCategoryMap->end()){
-                bindErrorMessage::MissingCategory(TreeName, currentCategoryName, name, capture);
+                bindErrorMessage::MissingCategory(TreeName, currentCategoryName, name);
             }
             targetTree = (*currentCategoryMap)[currentCategoryName].tree.get();
             currentCategoryMap = &targetTree->categories;
@@ -500,7 +497,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
     }
     for (const auto& [categoryName, category] : categories) {
         if (categoryName == name) {
-            bindErrorMessage::FunctionShadowsCategory(name, capture);
+            bindErrorMessage::FunctionShadowsCategory(name);
         }
     }
     auto conflictIt = std::find_if(
@@ -511,10 +508,10 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
     );
     if (conflictIt != inheritedTrees.end()) {
         auto conflictTree = *conflictIt;
-        bindErrorMessage::FunctionExistsInInheritedTree(TreeName, conflictTree->TreeName, name, capture);
+        bindErrorMessage::FunctionExistsInInheritedTree(TreeName, conflictTree->TreeName, name);
     }
     if (hasFunction(name)) {
-        bindErrorMessage::FunctionExists(TreeName, name, capture);
+        bindErrorMessage::FunctionExists(TreeName, name);
     }
 
     // Use std::visit to bind the correct function type
@@ -546,13 +543,13 @@ template<typename RETURN_TYPE>
 void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindVariable(bool* varPtr, const std::string& name, const std::string* helpDescription) {
     // Make sure there are no whitespaces in the variable name
     if (name.find(' ') != name.npos) {
-        capture->cerr << "Error: Variable name '" << name << "' cannot contain whitespaces." << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "Error: Variable name '" << name << "' cannot contain whitespaces." << Nebulite::Utility::Capture::endl;
         exit(EXIT_FAILURE);
     }
 
     // Make sure the variable isnt bound yet
     if (variables.find(name) != variables.end()) {
-        capture->cerr << "Error: Variable '" << name << "' is already bound." << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "Error: Variable '" << name << "' is already bound." << Nebulite::Utility::Capture::endl;
         exit(EXIT_FAILURE);
     }
     
@@ -614,8 +611,8 @@ std::vector<std::pair<std::string, const std::string*>> Nebulite::Interaction::E
 // Constructor implementation
 
 template <typename RETURN_TYPE>
-Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(const std::string& treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError, Nebulite::Utility::Capture* capture)
-: capture(capture), _standard(standard), _functionNotFoundError(functionNotFoundError), TreeName(treeName)
+Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(const std::string& treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError)
+: _standard(standard), _functionNotFoundError(functionNotFoundError), TreeName(treeName)
 {
     // Attach the help function to read out the description of all attached functions
     functions["help"] = FunctionInfo{std::function<RETURN_TYPE(int, const char**)>([this](int argc, const char** argv) {
@@ -629,7 +626,7 @@ Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(const std::str
 template<typename RETURN_TYPE>
 RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(const std::string& cmd) {
     // Quote-aware tokenization
-    std::vector<std::string> tokens = Nebulite::Utility::StringHandler::parseQuotedArguments(cmd, capture);
+    std::vector<std::string> tokens = Nebulite::Utility::StringHandler::parseQuotedArguments(cmd);
 
     // Convert to argc/argv
     int argc = static_cast<int>(tokens.size());
@@ -709,13 +706,13 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::executeFunc
             return categories[function].tree->parseStr(cmd);
         }
         else{
-            capture->cerr << "Function '" << function << "' not found in FuncTree " << TreeName << " or its SubTrees!\n";
-            capture->cerr << "Arguments are:" << capture->endl;
+            Nebulite::Utility::Capture::cerr() << "Function '" << function << "' not found in FuncTree " << TreeName << " or its SubTrees!\n";
+            Nebulite::Utility::Capture::cerr() << "Arguments are:" << Nebulite::Utility::Capture::endl;
             for(int i = 0; i < argc; i++){
-                capture->cerr << "argv[" << i << "] = '" << argv[i] << "'\n";
+                Nebulite::Utility::Capture::cerr() << "argv[" << i << "] = '" << argv[i] << "'\n";
             }
-            capture->cerr << "Available functions: " << functions.size() << capture->endl;
-            capture->cerr << "Available SubTrees:  " << categories.size()  << capture->endl;
+            Nebulite::Utility::Capture::cerr() << "Available functions: " << functions.size() << Nebulite::Utility::Capture::endl;
+            Nebulite::Utility::Capture::cerr() << "Available SubTrees:  " << categories.size()  << Nebulite::Utility::Capture::endl;
             return _functionNotFoundError;  // Return error if function not found
         }
     }
@@ -801,8 +798,8 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::specificHelp(std::
     // 1.) Function
     if(funcFound){
         // Found function, display detailed help
-        capture->cout << "\nHelp for function '" << funcName << "':\n" << capture->endl;
-        capture->cout << *funcIt->second.description << "\n";
+        Nebulite::Utility::Capture::cout() << "\nHelp for function '" << funcName << "':\n" << Nebulite::Utility::Capture::endl;
+        Nebulite::Utility::Capture::cout() << *funcIt->second.description << "\n";
     }
     // 2.) Category
     else if(subFound){
@@ -812,12 +809,12 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::specificHelp(std::
     // 3.) Variable
     else if(varFound){
         // Found variable, display detailed help
-        capture->cout << "\nHelp for variable '--" << funcName << "':\n" << capture->endl;
-        capture->cout << *varIt->second.description << "\n";
+        Nebulite::Utility::Capture::cout() << "\nHelp for variable '--" << funcName << "':\n" << Nebulite::Utility::Capture::endl;
+        Nebulite::Utility::Capture::cout() << *varIt->second.description << "\n";
     }
     // 4.) Not found
     else{
-        capture->cerr << "Function or Category '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
+        Nebulite::Utility::Capture::cerr() << "Function or Category '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
     }
 }
 
@@ -846,8 +843,8 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::generalHelp() {
     std::sort(allVariables.begin(), allVariables.end(), caseInsensitiveLess);
 
     // Display:
-    capture->cout << "\nHelp for " << TreeName << "\nAdd the entries name to the command for more details: " << TreeName << " help <foo>\n";
-    capture->cout << "Available functions:\n";
+    Nebulite::Utility::Capture::cout() << "\nHelp for " << TreeName << "\nAdd the entries name to the command for more details: " << TreeName << " help <foo>\n";
+    Nebulite::Utility::Capture::cout() << "Available functions:\n";
     for (const auto& [name, description] : allFunctions) {
         // Only show the first line of the description
         std::string descriptionFirstLine = *description;
@@ -857,16 +854,16 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::generalHelp() {
         }
         std::string paddedName = name;
         paddedName.resize(25, ' ');
-        capture->cout << "  " << paddedName << " - " << descriptionFirstLine << capture->endl;
+        Nebulite::Utility::Capture::cout() << "  " << paddedName << " - " << descriptionFirstLine << Nebulite::Utility::Capture::endl;
     }
 
     // Display variables
-    capture->cout << "Available variables:\n";
+    Nebulite::Utility::Capture::cout() << "Available variables:\n";
     for (const auto& [name, description] : allVariables) {
         std::string fullName = "--" + name;  // Prefix with --
         std::string paddedName = name;
         paddedName.resize(25, ' ');
-        capture->cout << "  " << paddedName << " - " << *description << capture->endl;
+        Nebulite::Utility::Capture::cout() << "  " << paddedName << " - " << *description << Nebulite::Utility::Capture::endl;
     }
 }
 

@@ -171,7 +171,7 @@ public:
      * @param doc The rapidjson document to serialize.
      * @return The serialized JSON string.
      */
-    static std::string serialize(const rapidjson::Document& doc, Nebulite::Utility::Capture* capture);
+    static std::string serialize(const rapidjson::Document& doc);
 
     /**
      * @brief Deserializes a JSON string into a rapidjson document.

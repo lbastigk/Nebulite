@@ -127,9 +127,8 @@ public:
      * @brief Parses a command string into individual arguments, taking quotes into account.
      * 
      * @param cmd The command string to parse.
-     * @param capture Pointer to Capture object for logging
      */
-    static std::vector<std::string> parseQuotedArguments(const std::string& cmd, Nebulite::Utility::Capture* capture);
+    static std::vector<std::string> parseQuotedArguments(const std::string& cmd);
 
     /**
      * @brief Recombines argc/argv into a single string with spaces.

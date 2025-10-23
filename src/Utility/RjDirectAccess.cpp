@@ -167,9 +167,9 @@ rapidjson::Value Nebulite::Utility::RjDirectAccess::sortRecursive(const rapidjso
     }
 }
 
-std::string Nebulite::Utility::RjDirectAccess::serialize(const rapidjson::Document& doc, Nebulite::Utility::Capture* capture) {
+std::string Nebulite::Utility::RjDirectAccess::serialize(const rapidjson::Document& doc) {
     if (!doc.IsObject() && !doc.IsArray()) {
-        capture->cerr << "Serialization only supports JSON objects or arrays!" << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "Serialization only supports JSON objects or arrays!" << Nebulite::Utility::Capture::endl;
         return "{}";
     }
 
@@ -205,9 +205,8 @@ void Nebulite::Utility::RjDirectAccess::deserialize(rapidjson::Document& doc, st
     
     rapidjson::ParseResult res = doc.Parse(cleanJson.c_str());
     if (!res) {
-        Capture* capture = global->capture;
-        capture->cerr << "JSON Parse Error at offset " << res.Offset() << capture->endl;
-        capture->cerr << "String is:\n" << cleanJson << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "JSON Parse Error at offset " << res.Offset() << Nebulite::Utility::Capture::endl;
+        Nebulite::Utility::Capture::cerr() << "String is:\n" << cleanJson << Nebulite::Utility::Capture::endl;
     }
 }
 
@@ -403,9 +402,7 @@ bool Nebulite::Utility::RjDirectAccess::isValidKey(const std::string& key) {
 
             // Extract index string between '[' and ']'
             std::string_view idxStr = keyView.substr(1, closeBracket - 1);
-            try {
-                std::stoi(std::string(idxStr));
-            } catch (...) {
+            if(!Nebulite::Utility::StringHandler::isNumber(std::string(idxStr))){
                 return false; // invalid number
             }
 

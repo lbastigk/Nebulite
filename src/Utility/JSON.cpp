@@ -5,7 +5,7 @@
 #include "DomainModule/JSDM.hpp"
 
 Nebulite::Utility::JSON::JSON(Nebulite::Core::GlobalSpace* globalSpace)
-: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, globalSpace, globalSpace->capture)
+: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, globalSpace)
 {
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
     doc.SetObject();
@@ -19,7 +19,7 @@ Nebulite::Utility::JSON::~JSON(){
 }
 
 Nebulite::Utility::JSON::JSON(JSON&& other) noexcept
-: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, other.getGlobalSpace(), other.getGlobalSpace()->capture)
+: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, other.getGlobalSpace())
 {
     std::scoped_lock lockGuard(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);
@@ -170,7 +170,7 @@ void Nebulite::Utility::JSON::set_subdoc(const char* key, Nebulite::Utility::JSO
         // Since we inserted an entire document, we need to invalidate its child keys:
         invalidate_child_keys(key);
     } else {
-        capture->cerr << "Failed to create or access path: " << key << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "Failed to create or access path: " << key << Nebulite::Utility::Capture::endl;
     }
 }
 
@@ -189,7 +189,7 @@ std::string Nebulite::Utility::JSON::serialize(const std::string& key) {
     flush(); // Ensure all changes are reflected in the document
     if(key.size() == 0){
         // Serialize entire doc
-        return Nebulite::Utility::RjDirectAccess::serialize(doc, capture);
+        return Nebulite::Utility::RjDirectAccess::serialize(doc);
     } 
     else{
         Nebulite::Utility::JSON sub = get_subdoc(key.c_str());

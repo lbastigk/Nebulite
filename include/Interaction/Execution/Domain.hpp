@@ -19,7 +19,6 @@
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
-#include "Utility/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -65,13 +64,12 @@ template<typename DomainType>
 class Domain{
     template<typename> friend class Domain;  // All Domain<T> instantiations are friends, so we can access each other's private members
 public:
-    Domain(std::string domainName, DomainType* domain, Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* global, Nebulite::Utility::Capture* capture)
-    : capture(capture), domainName(domainName),
+    Domain(std::string domainName, DomainType* domain, Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* global)
+    : domainName(domainName),
       funcTree(std::make_shared<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>>( 
           domainName, 
           Nebulite::Constants::ErrorTable::NONE(), 
-          Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(), 
-          capture
+          Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
       )),
       domain(domain), doc(doc), global(global)
     {};
@@ -87,7 +85,7 @@ public:
      */
     template<typename DomainModuleType>
     void initModule(std::string moduleName) {
-        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, funcTree, global, capture);
+        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, funcTree, global);
         modules.push_back(std::move(DomainModule));
     }
 
@@ -205,11 +203,6 @@ public:
      * @return A pointer to the globalspace.
      */
     Nebulite::Core::GlobalSpace* getGlobalSpace() const {return global;}
-
-    /**
-     * @brief cout/cerr capture for logging output
-     */
-    Nebulite::Utility::Capture* capture;
 
 private:
     //------------------------------------------

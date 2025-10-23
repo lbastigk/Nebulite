@@ -254,7 +254,7 @@ namespace {
     }
 }
 
-std::vector<std::string> Nebulite::Utility::StringHandler::parseQuotedArguments(const std::string& cmd, Nebulite::Utility::Capture* capture) {
+std::vector<std::string> Nebulite::Utility::StringHandler::parseQuotedArguments(const std::string& cmd) {
     std::vector<std::string> tokens = Nebulite::Utility::StringHandler::split(cmd, ' ');
     std::vector<std::string> result;
     QuoteParseState state;
@@ -276,7 +276,7 @@ std::vector<std::string> Nebulite::Utility::StringHandler::parseQuotedArguments(
     
     // Warning for unclosed quotes
     if (state.inAnyQuote()) {
-        capture->cerr << "Warning: Unclosed quote in command: " << cmd << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "Warning: Unclosed quote in command: " << cmd << Nebulite::Utility::Capture::endl;
     }
     
     return result;

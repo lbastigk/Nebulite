@@ -286,11 +286,6 @@ private:
     // DocumentCache for read-only documents
     Nebulite::Utility::DocumentCache docCache;
 
-    /**
-     * @brief cout/cerr capture for logging output
-     */
-    Nebulite::Utility::Capture _capturer;
-
     // Unique ID map
     uint64_t uniqueIdCounter[UniqueIdTypeSize] = {0, 0};
     absl::flat_hash_map<std::string, uint64_t> uniqueIdMap[UniqueIdTypeSize];

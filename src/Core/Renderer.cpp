@@ -4,7 +4,7 @@
 #include "DomainModule/RRDM.hpp"
 
 Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool* flag_headless, unsigned int X, unsigned int Y)
-: 	Nebulite::Interaction::Execution::Domain<Nebulite::Core::Renderer>("Renderer", this, globalSpace->getDoc(), globalSpace, globalSpace->capture),
+: 	Nebulite::Interaction::Execution::Domain<Nebulite::Core::Renderer>("Renderer", this, globalSpace->getDoc(), globalSpace),
 	env(globalSpace),
 	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B"))
@@ -43,7 +43,7 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 
 	// State
 	event = SDL_Event();
-	baseDirectory = Nebulite::Utility::FileManagement::currentDir(capture);
+	baseDirectory = Nebulite::Utility::FileManagement::currentDir();
 
 	// Waveform buffers: Sine wave buffer
 	sineBuffer = new std::vector<Sint16>(samples);
@@ -119,7 +119,7 @@ void Nebulite::Core::Renderer::initSDL() {
 	//Create SDL window
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		// SDL initialization failed
-		capture->cerr << "SDL_Init Error: " << SDL_GetError() << capture->endl;
+		Nebulite::Utility::Capture::cerr() << "SDL_Init Error: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
 	}
 	// Define window via x|y|w|h
 	int x = SDL_WINDOWPOS_CENTERED;
@@ -134,7 +134,7 @@ void Nebulite::Core::Renderer::initSDL() {
 	window = SDL_CreateWindow("Nebulite",x,y,w,h,flags);
 	if (!window) {
 		// Window creation failed
-		capture->cerr << "SDL_CreateWindow Error: " << SDL_GetError() << capture->endl;
+		Nebulite::Utility::Capture::cerr() << "SDL_CreateWindow Error: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
 		SDL_Quit();
 	}
 
@@ -144,7 +144,7 @@ void Nebulite::Core::Renderer::initSDL() {
 	// Create a renderer
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	if (!renderer) {
-		capture->cerr << "Renderer creation failed: " << SDL_GetError() << capture->endl;
+		Nebulite::Utility::Capture::cerr() << "Renderer creation failed: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
 	}
 
 	// Set virtual rendering size
@@ -169,7 +169,7 @@ void Nebulite::Core::Renderer::initSDL() {
 
 	// Init
 	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-		capture->cerr << "SDL_Init Error: " << SDL_GetError() << capture->endl;
+		Nebulite::Utility::Capture::cerr() << "SDL_Init Error: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
 	} else {
 		SDL_AudioSpec desired, obtained;
 		desired.freq = 44100;
@@ -180,7 +180,7 @@ void Nebulite::Core::Renderer::initSDL() {
 		
 		audioDevice = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
 		if (audioDevice == 0) {
-			capture->cerr << "Failed to open audio device: " << SDL_GetError() << capture->endl;
+			Nebulite::Utility::Capture::cerr() << "Failed to open audio device: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
 		} else{
 			audioInitialized = true;
 		}
@@ -205,7 +205,7 @@ void Nebulite::Core::Renderer::loadFonts() {
 	font = TTF_OpenFont(fontpath.c_str(), FontSizeGeneral); // Adjust size as needed
 	if (font == NULL) {
 		// Handle font loading error
-		capture->cerr << TTF_GetError() << " | " << fontpath << "\n";
+		Nebulite::Utility::Capture::cerr() << TTF_GetError() << " | " << fontpath << "\n";
 	}
 }
 
@@ -291,7 +291,7 @@ void Nebulite::Core::Renderer::beep() {
 
 bool Nebulite::Core::Renderer::snapshot(std::string link) {
     if (!renderer) {
-        capture->cerr << "Cannot take snapshot: renderer not initialized" << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "Cannot take snapshot: renderer not initialized" << Nebulite::Utility::Capture::endl;
         return false;
     }
     
@@ -305,7 +305,7 @@ bool Nebulite::Core::Renderer::snapshot(std::string link) {
         SDL_GetRendererOutputSize(renderer, &width, &height);
     }
     
-    //capture->cout << "Taking snapshot (" << width << "x" << height << ") to: " << link << capture->endl;
+    //Nebulite::Utility::Capture::cout() << "Taking snapshot (" << width << "x" << height << ") to: " << link << Nebulite::Utility::Capture::endl;
     
     // Create surface to capture pixels
     SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32,
@@ -315,14 +315,14 @@ bool Nebulite::Core::Renderer::snapshot(std::string link) {
                                                 0xff000000); // Alpha mask
     
     if (!surface) {
-        capture->cerr << "Failed to create surface for snapshot: " << SDL_GetError() << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "Failed to create surface for snapshot: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
         return false;
     }
     
     // Read pixels from renderer
     if (SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, 
                             surface->pixels, surface->pitch) != 0) {
-        capture->cerr << "Failed to read pixels for snapshot: " << SDL_GetError() << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "Failed to read pixels for snapshot: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
         SDL_FreeSurface(surface);
         return false;
     }
@@ -341,7 +341,7 @@ bool Nebulite::Core::Renderer::snapshot(std::string link) {
         try {
             std::filesystem::create_directories(directory);
         } catch (const std::exception& e) {
-            //capture->cerr << "Warning: Could not create directory " << directory << ": " << e.what() << capture->endl;
+            //Nebulite::Utility::Capture::cerr() << "Warning: Could not create directory " << directory << ": " << e.what() << Nebulite::Utility::Capture::endl;
             // Continue anyway - maybe directory already exists
         }
     }
@@ -353,11 +353,11 @@ bool Nebulite::Core::Renderer::snapshot(std::string link) {
     SDL_FreeSurface(surface);
     
     if (result != 0) {
-        capture->cerr << "Failed to save snapshot: " << IMG_GetError() << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "Failed to save snapshot: " << IMG_GetError() << Nebulite::Utility::Capture::endl;
         return false;
     }
     
-    //capture->cout << "Snapshot saved successfully to: " << link << capture->endl;
+    //Nebulite::Utility::Capture::cout() << "Snapshot saved successfully to: " << link << Nebulite::Utility::Capture::endl;
     return true;
 }
 
@@ -398,11 +398,11 @@ void Nebulite::Core::Renderer::destroy() {
 void Nebulite::Core::Renderer::changeWindowSize(int w, int h, int scalar) {
 	WindowScale = scalar;
 	if(w < 240 || w > 16384){
-		capture->cerr << "Selected resolution is not supported:" << w << "x" << h << "x" << capture->endl;
+		Nebulite::Utility::Capture::cerr() << "Selected resolution is not supported:" << w << "x" << h << "x" << Nebulite::Utility::Capture::endl;
 		return;
 	}
 	if(h < 240 || h > 16384){
-		capture->cerr << "Selected resolution is not supported:" << w << "x" << h << "x" << capture->endl;
+		Nebulite::Utility::Capture::cerr() << "Selected resolution is not supported:" << w << "x" << h << "x" << Nebulite::Utility::Capture::endl;
 		return;
 	}
 
@@ -441,7 +441,7 @@ void Nebulite::Core::Renderer::moveCam(int dX, int dY) {
 };
 
 void Nebulite::Core::Renderer::setCam(int X, int Y, bool isMiddle) {
-	capture->cout << "Setting camera position to: " << X << ", " << Y << ", Middle: " << isMiddle << capture->endl;
+	Nebulite::Utility::Capture::cout() << "Setting camera position to: " << X << ", " << Y << ", Middle: " << isMiddle << Nebulite::Utility::Capture::endl;
 
 	if(isMiddle){
 		int newPosX = X - getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0) / 2;
@@ -545,7 +545,7 @@ void Nebulite::Core::Renderer::renderFrame() {
 				for(auto& obj : batch.objects){
 					error = renderObjectToScreen(obj, dispPosX, dispPosY);
 					if(error != 0){
-						capture->cerr << "Error rendering object ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << ": " << error << capture->endl;
+						Nebulite::Utility::Capture::cerr() << "Error rendering object ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << ": " << error << Nebulite::Utility::Capture::endl;
 					}
 				}
 			}
@@ -598,7 +598,7 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 	//------------------------------------------
 	// Error Checking
 	if(!texture){
-		capture->cerr << "Error: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " texture with path '" << innerdir << "' not found" << capture->endl;
+		Nebulite::Utility::Capture::cerr() << "Error: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " texture with path '" << innerdir << "' not found" << Nebulite::Utility::Capture::endl;
 		return -1;
 	}
 
@@ -691,7 +691,7 @@ SDL_Texture* Nebulite::Core::Renderer::loadTextureToMemory(std::string link) {
 		extension = path.substr(dotPos + 1);
 	}
 	else {
-		capture->cerr << "Failed to load image '" << path << "': No file extension found." << capture->endl;
+		Nebulite::Utility::Capture::cerr() << "Failed to load image '" << path << "': No file extension found." << Nebulite::Utility::Capture::endl;
 		return nullptr;
 	}
 
@@ -709,7 +709,7 @@ SDL_Texture* Nebulite::Core::Renderer::loadTextureToMemory(std::string link) {
 
 	// Unknown format or other issues with surface
 	if (surface == nullptr) {
-		capture->cerr << "Failed to load image '" << path << "': " << SDL_GetError() << capture->endl;
+		Nebulite::Utility::Capture::cerr() << "Failed to load image '" << path << "': " << SDL_GetError() << Nebulite::Utility::Capture::endl;
 		return nullptr;
 	}
 
@@ -719,7 +719,7 @@ SDL_Texture* Nebulite::Core::Renderer::loadTextureToMemory(std::string link) {
 
 	// Check for texture issues
 	if (!texture) {
-		capture->cerr << "Failed to create texture from surface: " << SDL_GetError() << capture->endl;
+		Nebulite::Utility::Capture::cerr() << "Failed to create texture from surface: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
 		return nullptr;
 	}
 

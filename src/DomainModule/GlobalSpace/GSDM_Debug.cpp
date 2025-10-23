@@ -60,11 +60,11 @@ Nebulite::Constants::Error Debug::log_global(int argc,  char* argv[]){
     std::string serialized = domain->getDoc()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
-            Nebulite::Utility::FileManagement::WriteFile(argv[i], serialized, capture);
+            Nebulite::Utility::FileManagement::WriteFile(argv[i], serialized);
         }
     }
     else{
-        Nebulite::Utility::FileManagement::WriteFile("global.log.jsonc", serialized, capture);
+        Nebulite::Utility::FileManagement::WriteFile("global.log.jsonc", serialized);
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
@@ -81,11 +81,11 @@ Nebulite::Constants::Error Debug::log_state(int argc,  char* argv[]){
     std::string serialized = domain->getRenderer()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
-            Nebulite::Utility::FileManagement::WriteFile(argv[i], serialized, capture);
+            Nebulite::Utility::FileManagement::WriteFile(argv[i], serialized);
         }
     }
     else{
-        Nebulite::Utility::FileManagement::WriteFile("state.log.jsonc", serialized, capture);
+        Nebulite::Utility::FileManagement::WriteFile("state.log.jsonc", serialized);
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
@@ -100,7 +100,7 @@ Usage: log state [<filenames>...]
 
 Nebulite::Constants::Error Debug::standardfile_renderobject( int argc,  char** argv){
     Nebulite::Core::RenderObject ro(domain);
-    Nebulite::Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc",ro.serialize(), capture);
+    Nebulite::Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc",ro.serialize());
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string Debug::standardfile_renderobject_name = "standardfile renderobject";
@@ -122,7 +122,7 @@ Nebulite::Constants::Error Debug::errorlog(int argc,  char* argv[]){
             const char* logFilename = "errors.log";
             if(!errorLogStatus){
                 if (!safe_open_log(logFilename, errorFile)) {
-                    capture->cerr << "Refusing to open log file: '" << logFilename << "' is a symlink or could not be opened." << capture->endl;
+                    Nebulite::Utility::Capture::cerr() << "Refusing to open log file: '" << logFilename << "' is a symlink or could not be opened." << Nebulite::Utility::Capture::endl;
                     return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
                 }
                 originalCerrBuf = std::cerr.rdbuf();
@@ -228,8 +228,8 @@ Nebulite::Constants::Error Debug::crash(int argc,  char* argv[]) {
             // Throw an uncaught exception
             throw std::runtime_error("Intentional crash: uncaught exception");
         } else {
-            capture->cerr << "Unknown crash type requested: " << crashType << capture->endl;
-            capture->cerr << "Defaulting to segmentation fault" << capture->endl;
+            Nebulite::Utility::Capture::cerr() << "Unknown crash type requested: " << crashType << Nebulite::Utility::Capture::endl;
+            Nebulite::Utility::Capture::cerr() << "Defaulting to segmentation fault" << Nebulite::Utility::Capture::endl;
         }
     } else {
         // Default: segmentation fault
@@ -252,12 +252,12 @@ Usage: crash [<type>]
 
 Nebulite::Constants::Error Debug::error(int argc,  char* argv[]) {
     for (int i = 1; i < argc; ++i) {
-        capture->cerr << argv[i];
+        Nebulite::Utility::Capture::cerr() << argv[i];
         if (i < argc - 1) {
-            capture->cerr << " ";
+            Nebulite::Utility::Capture::cerr() << " ";
         }
     }
-    capture->cerr << capture->endl;
+    Nebulite::Utility::Capture::cerr() << Nebulite::Utility::Capture::endl;
 
     // No further error to return
     return Nebulite::Constants::ErrorTable::NONE();
@@ -311,7 +311,7 @@ Nebulite::Constants::Error Debug::waitForInput(int argc,  char* argv[]){
         // Use the provided prompt as message
         message = argv[1];
     }
-    capture->cout << message << capture->endl;
+    Nebulite::Utility::Capture::cout() << message << Nebulite::Utility::Capture::endl;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return Nebulite::Constants::ErrorTable::NONE();
 }

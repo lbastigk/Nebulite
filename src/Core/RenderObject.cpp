@@ -10,7 +10,7 @@
 // Special member Functions
 
 Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSpace) 
-: Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>("RenderObject", this, &json, globalSpace, globalSpace->capture), 
+: Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>("RenderObject", this, &json, globalSpace), 
   json(globalSpace),
   baseTexture(&json, globalSpace) {
 	//------------------------------------------

@@ -20,7 +20,7 @@ Nebulite::Constants::Error Logging::update() {
 
 Nebulite::Constants::Error Logging::echo(int argc,  char* argv[]){
     std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
-    capture->cout << args << capture->endl;
+    Nebulite::Utility::Capture::cout() << args << Nebulite::Utility::Capture::endl;
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string Logging::echo_name = "echo";
@@ -39,12 +39,12 @@ Nebulite::Constants::Error Logging::log_all(int argc,  char* argv[]){
     std::string serialized = domain->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
-            Nebulite::Utility::FileManagement::WriteFile(argv[i], serialized, capture);
+            Nebulite::Utility::FileManagement::WriteFile(argv[i], serialized);
         }
     }
     else{
         std::string id = std::to_string(domain->get(Nebulite::Constants::keyName.renderObject.id.c_str(),0));
-        Nebulite::Utility::FileManagement::WriteFile("RenderObject_id"+id+".log.jsonc", serialized, capture);
+        Nebulite::Utility::FileManagement::WriteFile("RenderObject_id"+id+".log.jsonc", serialized);
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
@@ -66,7 +66,7 @@ Nebulite::Constants::Error Logging::log_key(int argc,  char* argv[]){
         file = argv[2];
     }
     std::string value = domain->get<std::string>(key.c_str(), "Key not found");
-    Nebulite::Utility::FileManagement::WriteFile(file, value, capture);
+    Nebulite::Utility::FileManagement::WriteFile(file, value);
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string Logging::log_key_name = "log key";

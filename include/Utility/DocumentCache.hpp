@@ -31,7 +31,7 @@ public:
     /**
      * @brief Default constructor for DocumentCache.
      */
-    explicit DocumentCache(Nebulite::Core::GlobalSpace* globalSpace, Nebulite::Utility::Capture* capture) : global(globalSpace), capture(capture), readOnlyDocs(globalSpace) {
+    explicit DocumentCache(Nebulite::Core::GlobalSpace* globalSpace) : global(globalSpace), readOnlyDocs(globalSpace) {
         if (globalSpace == nullptr) {
             throw std::invalid_argument("DocumentCache: GlobalSpace pointer cannot be null");
         }
@@ -70,7 +70,7 @@ public:
     Nebulite::Utility::JSON get_subdoc(const std::string& doc_key){
         auto [doc, key] = splitDocKey(doc_key);
 
-        Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc, capture);
+        Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr) {
@@ -113,7 +113,7 @@ public:
     Nebulite::Utility::JSON::KeyType memberCheck(const std::string& doc_key) {
         auto [doc, key] = splitDocKey(doc_key);
 
-        Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc, capture);
+        Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr) {
@@ -145,7 +145,7 @@ public:
     uint32_t memberSize(const std::string& doc_key) {
         auto [doc, key] = splitDocKey(doc_key);
 
-        Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc, capture);
+        Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr) {
@@ -171,7 +171,7 @@ public:
     std::string serialize(const std::string& doc_key) {
         auto [doc, key] = splitDocKey(doc_key);
 
-        Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc, capture);
+        Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr) {
@@ -195,7 +195,7 @@ public:
      * @return The serialized JSON string of the entire document.
      */
     std::string getDocString(const std::string& link){
-        Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(link, capture);
+        Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(link);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr) {
@@ -216,11 +216,6 @@ private:
      * @brief Link to the global space.
      */
     Nebulite::Core::GlobalSpace* global;
-
-    /**
-     * @brief Pointer to the Capture object for logging.
-     */
-    Nebulite::Utility::Capture* capture;
 
     /**
      * @brief Read-only document cache.
@@ -258,7 +253,7 @@ template  <typename T>
 T Nebulite::Utility::DocumentCache::get(const std::string& doc_key, const T& defaultValue) {
     auto [doc, key] = splitDocKey(doc_key);
 
-    Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc, capture);
+    Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
     // Check if the document exists in the cache
     if (docPtr == nullptr) {

@@ -100,7 +100,7 @@ This is useful for:
 )";
 
 Nebulite::Constants::Error General::task(int argc,  char* argv[]) {
-    capture->cout << "Loading task list from file: " << (argc > 1 ? argv[1] : "none") << capture->endl;
+    Nebulite::Utility::Capture::cout() << "Loading task list from file: " << (argc > 1 ? argv[1] : "none") << Nebulite::Utility::Capture::endl;
 
     // Rollback RNG, loading a task file should not change the RNG state
     domain->rngRollback();
@@ -115,13 +115,13 @@ Nebulite::Constants::Error General::task(int argc,  char* argv[]) {
     // Warn if file ending is not .nebs
     std::string filename = argv[1];
     if (filename.length() < 6 || !filename.ends_with(".nebs")) {
-        capture->cerr << "Warning: unexpected file ending for task file '" << filename << "'. Expected '.nebs'. Trying to load anyway." << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "Warning: unexpected file ending for task file '" << filename << "'. Expected '.nebs'. Trying to load anyway." << Nebulite::Utility::Capture::endl;
     }
     
     // Using FileManagement to load the .nebs file
-    std::string file = Nebulite::Utility::FileManagement::LoadFile(filename, capture);
+    std::string file = Nebulite::Utility::FileManagement::LoadFile(filename);
     if (file.empty()) {
-        capture->cerr << "Error: "<< argv[0] <<" Could not open file '" << filename << "'" << capture->endl;
+        Nebulite::Utility::Capture::cerr() << "Error: "<< argv[0] <<" Could not open file '" << filename << "'" << Nebulite::Utility::Capture::endl;
         return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
 
@@ -175,7 +175,7 @@ Main task:
 
 Nebulite::Constants::Error General::echo(int argc,  char* argv[]) {
     std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
-    capture->cout << args << capture->endl;
+    Nebulite::Utility::Capture::cout() << args << Nebulite::Utility::Capture::endl;
     return Nebulite::Constants::ErrorTable::NONE();
 }
 

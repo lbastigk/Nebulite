@@ -91,10 +91,9 @@ struct ReadOnlyDocs{
          * And updating its metadata.
          * 
          * @param doc The link to the document.
-         * @param capture Pointer to Capture object for logging.
          * @return Pointer to the ReadOnlyDoc, or nullptr if loading fails.
          */
-        ReadOnlyDoc* getDocument(const std::string& doc, Nebulite::Utility::Capture* capture) {
+        ReadOnlyDoc* getDocument(const std::string& doc) {
             // Validate inputs and state
             if (doc.empty()) {
                 return nullptr;
@@ -107,7 +106,7 @@ struct ReadOnlyDocs{
             auto it = docs.find(doc);
             if (it == docs.end()) {
                 // Load the document if it doesn't exist
-                std::string serial = Nebulite::Utility::FileManagement::LoadFile(doc, capture);
+                std::string serial = Nebulite::Utility::FileManagement::LoadFile(doc);
                 if (serial.empty()) {
                     return nullptr; // Return nullptr if document loading fails
                 }
