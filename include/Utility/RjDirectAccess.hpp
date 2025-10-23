@@ -295,6 +295,7 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<do
 // cppcheck-suppress constParameterReference
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<long>(const long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {jsonValue.SetInt64(data);}
 
+// cppcheck-suppress constParameterReference
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<long long>(const long long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)    {jsonValue.SetInt64(data);}
 
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<std::string>(const std::string& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
