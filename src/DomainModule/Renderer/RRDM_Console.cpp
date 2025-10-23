@@ -161,9 +161,14 @@ void Console::drawInput(uint16_t lineHeight) {
     }
 }
 
-void Console::drawOutput() {
-    int line_index = 0;
+void Console::drawOutput(uint16_t maxLineLength) {
+    uint16_t lineIndex = 0;
+    std::string lineContentRest;                        // Rest of line after linebreak
     uint16_t outputSize = textInput.getOutput()->size();
+
+    // Since we start from the bottom, we need to invert the scrolling offset
+    // is increased in-loop due to linebreaks
+    int32_t lineIndexOffset = - outputScrollingOffset;   
 
     // Index-offset: If we have less history than lines,
     // We need to offset to align at the top
@@ -175,25 +180,61 @@ void Console::drawOutput() {
     // Render lines from bottom to top
     for(uint16_t line_y_position : line_y_positions){
         if(line_y_position > y_start) continue;  // Skip lines under the start position
-        if(line_index >= outputSize)  break;     // No more lines to show
+        if(lineIndex >= outputSize)  break;     // No more lines to show
+
+        // Constrain outputScrollingOffset by investigating the current index
+        int32_t currentIndex = outputSize - 1 - lineIndex + lineIndexOffset;
+        if(currentIndex < 0){
+            // Cour outputScrollingOffset is too high, we reached the top
+            outputScrollingOffset --;
+            break;
+        }
+        if(currentIndex >= outputSize){
+            // Current outputScrollingOffset is too low, we reached the bottom
+            outputScrollingOffset ++;
+            break;
+        }
 
         // Get line info
-        auto lineInfo = textInput.getOutput()->at(outputSize - 1 - line_index);
+        auto lineInfo = textInput.getOutput()->at(currentIndex);
         SDL_Color textColor;
         std::string content;
-        switch (lineInfo.type){
-        case Nebulite::Utility::TextInput::LineEntry::LineType::CERR:
-            textColor = color.cerrStream;
-            content = lineInfo.content;
-            break;
-        case Nebulite::Utility::TextInput::LineEntry::LineType::COUT:
-            textColor = color.coutStream;
-            content = lineInfo.content;
-            break;
-        case Nebulite::Utility::TextInput::LineEntry::LineType::INPUT:
-            textColor = color.input;
-            content = "> " + lineInfo.content;
-            break;
+
+        if(!lineContentRest.empty()){
+            // We have a rest from the previous linebreak
+            content = lineContentRest;
+            lineContentRest.clear();
+            lineIndexOffset++; // Increase offset since we are using an extra line
+        }
+        else{
+            // New line
+            switch (lineInfo.type){
+            case Nebulite::Utility::TextInput::LineEntry::LineType::CERR:
+                textColor = color.cerrStream;
+                content = lineInfo.content;
+                break;
+            case Nebulite::Utility::TextInput::LineEntry::LineType::COUT:
+                textColor = color.coutStream;
+                content = lineInfo.content;
+                break;
+            case Nebulite::Utility::TextInput::LineEntry::LineType::INPUT:
+                textColor = color.input;
+                content = "> " + lineInfo.content;
+                break;
+            }
+        }
+
+        // If line is too long, split it
+        if(content.length() > maxLineLength){
+            // Since we draw from bottom to top, we need to get the substring of the end first
+            uint16_t thisLength = content.length() % maxLineLength;
+            if(thisLength == 0) thisLength = maxLineLength;
+
+            content = content.substr(content.length() - thisLength, thisLength);
+            lineContentRest = lineInfo.content.substr(0, lineInfo.content.length() - thisLength);
+        }
+        else{
+            lineContentRest.clear();
         }
 
         // Render line
@@ -209,7 +250,7 @@ void Console::drawOutput() {
         SDL_DestroyTexture(textTexture);
 
         // Next line
-        line_index++;
+        lineIndex++;
     }
 }
 
@@ -224,12 +265,30 @@ void Console::renderConsole() {
     }
 
     // Calculate text alignment if needed
-    static uint16_t last_rect_h = 0;
+    static uint16_t maxLineLength = 10;
+    static uint16_t lastTextureHeight = 0;
     static uint16_t lineHeight = 0;
-    if(last_rect_h != consoleTexture.rect.h || flag_recalculateTextAlignment){
-        last_rect_h = consoleTexture.rect.h;
+    if(lastTextureHeight != consoleTexture.rect.h || flag_recalculateTextAlignment){
+        lastTextureHeight = consoleTexture.rect.h;
         lineHeight = calculateTextAlignment(consoleTexture.rect.h);
         flag_recalculateTextAlignment = false;
+
+        // Experimentally derive max line length based on console width and font size
+        // by creating increasing length strings until they exceed the width
+        maxLineLength = 0;
+        std::string testString;
+        while(maxLineLength < 256){
+            // Use 'W' as it's typically the widest character, even though we use a monospaced font
+            // This is a nice fallback in case we ever use a non-monospaced font
+            testString += "W";
+            SDL_Surface* testSurface = TTF_RenderText_Blended(consoleFont, testString.c_str(), color.coutStream);
+            if((double)testSurface->w / WindowScale > consoleTexture.rect.w - 20){ // 20 for padding
+                SDL_FreeSurface(testSurface);
+                break;
+            }
+            SDL_FreeSurface(testSurface);
+            maxLineLength++;
+        }
     }
 
     //------------------------------------------
@@ -237,7 +296,7 @@ void Console::renderConsole() {
     SDL_SetRenderTarget(renderer, consoleTexture.texture_ptr);
     drawBackground();
     drawInput(lineHeight);
-    drawOutput();
+    drawOutput(maxLineLength);
     SDL_SetRenderTarget(renderer, nullptr);
 }
 
@@ -364,6 +423,18 @@ void Console::processEvents(){
                     case SDLK_DOWN:
                         textInput.history_down();
                         break;
+
+                    //------------------------------------------
+                    // Scroll through output with PAGE UP/DOWN
+                    case SDLK_PAGEUP:
+                        if(outputScrollingOffset < UINT16_MAX - 1){
+                            outputScrollingOffset += 1;
+                        }
+                        break;
+                    case SDLK_PAGEDOWN:
+                        if(outputScrollingOffset > 0){
+                            outputScrollingOffset -= 1;
+                        }
                 }
                 break;
         }

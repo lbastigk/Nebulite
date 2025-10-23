@@ -96,6 +96,9 @@ private:
     // Flag to indicate if text alignment needs recalculation
     bool flag_recalculateTextAlignment = true;
 
+    // Scrolling offset for output lines
+    uint16_t outputScrollingOffset = 0;
+
     /**
      * @brief Initializes the console, setting up the font and other necessary components.
      */
@@ -197,10 +200,11 @@ private:
     /**
      * @brief Draws the output lines.
      * 
+     * @param maxLineLength The maximum length of a line before linebreaking, in characters.
+     * 
      * @todo Implement scrolling for output lines if they exceed the visible area.
-     * @todo Implement linebreaking for long lines, perhaps with a continuation character string, e.g., "..."?
      */
-    void drawOutput();
+    void drawOutput(uint16_t maxLineLength);
 
     //------------------------------------------
     // Mirrored from Renderer
