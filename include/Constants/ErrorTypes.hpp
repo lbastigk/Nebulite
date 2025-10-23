@@ -266,6 +266,10 @@ public:
             static Error error = getInstance().addError("Critical Error: Texture modification failed.", Error::CRITICAL);
             return error;
         }
+        static inline Error CRITICAL_TEXTURE_INVALID(){
+            static Error error = getInstance().addError("Critical Error: Texture is invalid.", Error::CRITICAL);
+            return error;
+        }
     } TEXTURE;
 
     /**
