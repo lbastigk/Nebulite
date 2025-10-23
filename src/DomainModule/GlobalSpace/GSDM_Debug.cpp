@@ -1,5 +1,6 @@
 #include "DomainModule/GlobalSpace/GSDM_Debug.hpp"
 #include "Core/GlobalSpace.hpp"       // Global Space for Nebulite
+#include "Utility/Capture.hpp"
 #include <csignal>
 
 #if defined(_WIN32)
@@ -200,6 +201,7 @@ Nebulite::Constants::Error Debug::clearConsole(int argc,  char* argv[]){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     clear_screen();
+    Nebulite::Utility::Capture::clear();
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string Debug::clearConsole_name = "clear";
