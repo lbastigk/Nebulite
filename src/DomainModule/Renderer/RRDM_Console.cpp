@@ -379,72 +379,101 @@ uint8_t Console::calculateTextAlignment(uint16_t rect_height){
 //--------------------------------------------------
 // Event processing
 
+void Console::processSubmitCommand(){
+    std::string command;
+    command = textInput.submit();
+    if(!command.empty()){
+        // Parse command on global level for full access to all functions
+        global->parseStr(std::string(__FUNCTION__) + " " + command);
+    }
+    outputScrollingOffset = 0; // Reset scrolling to bottom on new input
+}
+
+void Console::processScrollUp(){
+    if(outputScrollingOffset < UINT16_MAX - 1){
+        outputScrollingOffset += 1;
+    }
+}
+
+void Console::processScrollDown(){
+    if(outputScrollingOffset > 0){
+        outputScrollingOffset -= 1;
+    }
+}
+
+void Console::processKeyDownEvent(const SDL_KeyboardEvent& key){
+    switch (key.keysym.sym) {
+        //------------------------------------------
+        // Text input manipulation
+
+        // Remove last character on backspace
+        case SDLK_BACKSPACE:
+            textInput.backspace();
+            break;
+
+        // Submit command on Enter
+        case SDLK_RETURN:
+        case SDLK_KP_ENTER:
+            processSubmitCommand();
+            break;	
+
+        // Cursor movement
+        case SDLK_LEFT:
+            textInput.moveCursorLeft();
+            break;
+        case SDLK_RIGHT:
+            textInput.moveCursorRight();
+            break;
+
+        //------------------------------------------
+        // UP/DOWN to cycle through past commands
+        case SDLK_UP:
+            textInput.history_up();
+            break;
+        case SDLK_DOWN:
+            textInput.history_down();
+            break;
+
+        //------------------------------------------
+        // Scroll through output with PAGE UP/DOWN
+        case SDLK_PAGEUP:
+            processScrollUp();
+            break;
+        case SDLK_PAGEDOWN:
+            processScrollDown();
+            break;
+
+        //------------------------------------------
+        // Zoom in/out with +/- keys
+        case SDLK_PLUS:
+        case SDLK_KP_PLUS:
+            // Make sure that ctrl is held
+            if(!(key.keysym.mod & KMOD_CTRL)) break;
+            domain->parseStr(__FUNCTION__ + std::string(" ") + Nebulite::DomainModule::Renderer::Console::consoleZoom_name + " in");
+            break;
+
+        case SDLK_MINUS:
+        case SDLK_KP_MINUS:
+            // Make sure that ctrl is held
+            if(!(key.keysym.mod & KMOD_CTRL)) break;
+            domain->parseStr(__FUNCTION__ + std::string(" ") + Nebulite::DomainModule::Renderer::Console::consoleZoom_name + " out");
+            break;
+        }
+}
+
 void Console::processEvents(){
-    static std::string command;
     for (const auto& event : *events) {
         switch (event.type) {
             case SDL_TEXTINPUT:
+                // Do not append if ctrl is held (to allow copy/paste and other shortcuts)
+                if (event.key.keysym.mod & KMOD_CTRL) {
+                    break;
+                }
                 textInput.append(event.text.text);
                 break;
 
             case SDL_KEYDOWN:
-                switch (event.key.keysym.sym) {
-                    //------------------------------------------
-                    // Text input manipulation
-
-                    // Remove last character on backspace
-                    case SDLK_BACKSPACE:
-                        textInput.backspace();
-                        break;
-
-                    // Submit command on Enter
-                    case SDLK_RETURN:
-                    case SDLK_KP_ENTER:
-                        command = textInput.submit();
-                        if(!command.empty()){
-                            // Parse command on global level for full access to all functions
-                            global->parseStr(std::string(__FUNCTION__) + " " + command);
-                        }
-                        outputScrollingOffset = 0; // Reset scrolling to bottom on new input
-                        break;	
-
-                    // Cursor movement
-                    case SDLK_LEFT:
-                        textInput.moveCursorLeft();
-                        break;
-                    case SDLK_RIGHT:
-                        textInput.moveCursorRight();
-                        break;
-
-                    //------------------------------------------
-                    // UP/DOWN to cycle through past commands
-                    case SDLK_UP:
-                        textInput.history_up();
-                        break;
-                    case SDLK_DOWN:
-                        textInput.history_down();
-                        break;
-
-                    //------------------------------------------
-                    // Scroll through output with PAGE UP/DOWN
-                    case SDLK_PAGEUP:
-                        /**
-                         * @todo The current implementation causes a constant jittering when the top is reached,
-                         * as Rendering the output will notice the offset is too high and decrease it again,
-                         * but the input here will increase it again.
-                         * We could prevent this by adding a timer that is triggered if we reach the top/bottom,
-                         * preventing further scrolling in that direction for a short time or even preventing scrolling
-                         * until a new input event is received (size of capture buffer changes)
-                         */
-                        if(outputScrollingOffset < UINT16_MAX - 1){
-                            outputScrollingOffset += 1;
-                        }
-                        break;
-                    case SDLK_PAGEDOWN:
-                        if(outputScrollingOffset > 0){
-                            outputScrollingOffset -= 1;
-                        }
-                }
+                processKeyDownEvent(event.key);
                 break;
         }
     }

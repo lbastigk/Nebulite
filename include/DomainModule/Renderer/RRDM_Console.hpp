@@ -162,6 +162,8 @@ private:
      * @brief Populates vector line_y_positions with the y positions of each line,
      * and sets font size accordingly.
      * 
+     * @todo Make sure the lines are aligned at the top instead of the bottom to reduce jitter when resizing.
+     * 
      * @return The calculated line height.
      */
     uint8_t calculateTextAlignment(uint16_t rect_height);
@@ -175,6 +177,29 @@ private:
      * @brief Processes the current mode of the console.
      */
     void processMode();
+
+    //------------------------------------------
+    // Processing helpers
+
+    /**
+     * @brief Processes a keydown event.
+     */
+    void processKeyDownEvent(const SDL_KeyboardEvent& key);
+
+    /**
+     * @brief Submits the current command in the text input.
+     */
+    void processSubmitCommand();
+
+    /**
+     * @brief Scrolls the output up by one line.
+     */
+    void processScrollUp();
+
+    /**
+     * @brief Scrolls the output down by one line.
+     */
+    void processScrollDown();
 
     //------------------------------------------
     // RenderConsole helpers
