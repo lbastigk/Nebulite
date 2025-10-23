@@ -81,8 +81,26 @@ public:
         }
     };
 
-    CaptureStream cout{this, std::cout, OutputLine::COUT};
-    CaptureStream cerr{this, std::cerr, OutputLine::CERR};
+    /**
+     * @brief Retrieves the singleton instance of Capture.
+     * @return Reference to the singleton Capture instance.
+     */
+    static Capture& instance() {
+        static Capture singleton;
+        return singleton;
+    }
+
+    /**
+     * @brief Retrieves the CaptureStream for cout.
+     * @return Reference to the CaptureStream for cout.
+     */
+    static CaptureStream& cout() { return instance().coutStream; }
+
+    /**
+     * @brief Retrieves the CaptureStream for cerr.
+     * @return Reference to the CaptureStream for cerr.
+     */
+    static CaptureStream& cerr() { return instance().cerrStream; }
 
     /**
      * @brief Retrieves a pointer to the output log.
@@ -93,6 +111,12 @@ public:
     }
 
 private:
+    // Make constructor private for singleton
+    Capture() : coutStream(this, std::cout, OutputLine::COUT), cerrStream(this, std::cerr, OutputLine::CERR) {}
+
+    CaptureStream coutStream{this, std::cout, OutputLine::COUT};
+    CaptureStream cerrStream{this, std::cerr, OutputLine::CERR};
+
     std::deque<OutputLine> outputLog; // Log of captured output lines
     std::mutex outputLogMutex;  // Mutex for thread-safe access to outputLog
 };
