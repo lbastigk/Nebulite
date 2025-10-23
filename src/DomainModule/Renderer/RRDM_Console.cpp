@@ -405,6 +405,7 @@ void Console::processEvents(){
                             // Parse command on global level for full access to all functions
                             global->parseStr(std::string(__FUNCTION__) + " " + command);
                         }
+                        outputScrollingOffset = 0; // Reset scrolling to bottom on new input
                         break;	
 
                     // Cursor movement
@@ -427,6 +428,14 @@ void Console::processEvents(){
                     //------------------------------------------
                     // Scroll through output with PAGE UP/DOWN
                     case SDLK_PAGEUP:
+                        /**
+                         * @todo The current implementation causes a constant jittering when the top is reached,
+                         * as Rendering the output will notice the offset is too high and decrease it again,
+                         * but the input here will increase it again.
+                         * We could prevent this by adding a timer that is triggered if we reach the top/bottom,
+                         * preventing further scrolling in that direction for a short time or even preventing scrolling
+                         * until a new input event is received (size of capture buffer changes)
+                         */
                         if(outputScrollingOffset < UINT16_MAX - 1){
                             outputScrollingOffset += 1;
                         }
