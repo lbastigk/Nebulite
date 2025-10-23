@@ -178,9 +178,29 @@ private:
 
     /**
      * @brief Ensures the console texture is created and valid.
-     * @return true if the console texture is valid, false otherwise.
+     * @return true if the created console texture is valid, false if creation failed.
      */
     bool ensureConsoleTexture();
+
+    /**
+     * @brief Draws the background of the console.
+     */
+    void drawBackground();
+
+    /**
+     * @brief Draws the input text.
+     * 
+     * @param lineHeight The height of each line in pixels.
+     */
+    void drawInput(uint16_t lineHeight);
+
+    /**
+     * @brief Draws the output lines.
+     * 
+     * @todo Implement scrolling for output lines if they exceed the visible area.
+     * @todo Implement linebreaking for long lines, perhaps with a continuation character string, e.g., "..."?
+     */
+    void drawOutput();
 
     //------------------------------------------
     // Mirrored from Renderer

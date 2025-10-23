@@ -108,41 +108,16 @@ bool Console::ensureConsoleTexture() {
     return consoleTexture.texture_ptr != nullptr;
 }
 
-void Console::renderConsole() {
+void Console::drawBackground(){
     //------------------------------------------
-    // Prerequisites
-
-    // Ensure console texture is valid
-    if(!ensureConsoleTexture()){
-        capture->cerr << "SDL_CreateTexture failed: " << SDL_GetError() << capture->endl;
-        return;
-    }
-
-    //------------------------------------------
-    // Target: Texture
-    SDL_SetRenderTarget(renderer, consoleTexture.texture_ptr);
-
-    //------------------------------------------
-    // Part 1: Background
-
     // Draw everything as before, but coordinates relative to (0,0)
     SDL_Rect localRect = {0, 0, consoleTexture.rect.w, consoleTexture.rect.h};
     SDL_SetRenderDrawColor(renderer, color.background.r, color.background.g, color.background.b, color.background.a);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_RenderFillRect(renderer, &localRect);
+}
 
-    // Calculate text alignment if needed
-    static uint16_t last_rect_h = 0;
-    static uint16_t lineHeight = 0;
-    if(last_rect_h != consoleTexture.rect.h || flag_recalculateTextAlignment){
-        last_rect_h = consoleTexture.rect.h;
-        lineHeight = calculateTextAlignment(consoleTexture.rect.h);
-        flag_recalculateTextAlignment = false;
-    }
-
-    //------------------------------------------
-    // Part 2: Input Line
-
+void Console::drawInput(uint16_t lineHeight) {
     // Add a darker background for the input line
     double posY = consoleTexture.rect.h - lineHeight - 1.5 * LINE_PADDING;
     SDL_Rect inputBackgroundRect = { 0, (int)posY, consoleTexture.rect.w, lineHeight + LINE_PADDING};
@@ -184,9 +159,9 @@ void Console::renderConsole() {
             SDL_DestroyTexture(highlightTexture);
         }
     }
+}
 
-    //------------------------------------------
-    // Part 3: Output Lines
+void Console::drawOutput() {
     int line_index = 0;
     uint16_t outputSize = textInput.getOutput()->size();
 
@@ -236,17 +211,33 @@ void Console::renderConsole() {
         // Next line
         line_index++;
     }
+}
 
-    // [DEBUG] Draw a line at every y position
-    /*
-    for(uint16_t y : line_y_positions){
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderDrawLine(renderer, 0, y - LINE_PADDING/2, consoleTexture.rect.w, y - LINE_PADDING/2);
+void Console::renderConsole() {
+    //------------------------------------------
+    // Prerequisites
+
+    // Ensure console texture is valid
+    if(!ensureConsoleTexture()){
+        capture->cerr << "SDL_CreateTexture failed: " << SDL_GetError() << capture->endl;
+        return;
     }
-    //*/
+
+    // Calculate text alignment if needed
+    static uint16_t last_rect_h = 0;
+    static uint16_t lineHeight = 0;
+    if(last_rect_h != consoleTexture.rect.h || flag_recalculateTextAlignment){
+        last_rect_h = consoleTexture.rect.h;
+        lineHeight = calculateTextAlignment(consoleTexture.rect.h);
+        flag_recalculateTextAlignment = false;
+    }
 
     //------------------------------------------
-    // Target: Back to window
+    // Rendering
+    SDL_SetRenderTarget(renderer, consoleTexture.texture_ptr);
+    drawBackground();
+    drawInput(lineHeight);
+    drawOutput();
     SDL_SetRenderTarget(renderer, nullptr);
 }
 
