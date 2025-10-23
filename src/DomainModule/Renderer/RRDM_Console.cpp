@@ -112,9 +112,16 @@ void Console::drawBackground(){
     //------------------------------------------
     // Draw everything as before, but coordinates relative to (0,0)
     SDL_Rect localRect = {0, 0, consoleTexture.rect.w, consoleTexture.rect.h};
-    SDL_SetRenderDrawColor(renderer, color.background.r, color.background.g, color.background.b, color.background.a);
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_RenderFillRect(renderer, &localRect);
+
+    // If we have a background image, draw it instead
+    if(backgroundImageTexture != nullptr){
+        SDL_RenderCopy(renderer, backgroundImageTexture, NULL, &localRect);
+    }
+    else{
+        SDL_SetRenderDrawColor(renderer, color.background.r, color.background.g, color.background.b, color.background.a);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_RenderFillRect(renderer, &localRect);
+    }
 }
 
 void Console::drawInput(uint16_t lineHeight) {
@@ -566,6 +573,58 @@ const std::string Console::consoleZoom_desc = R"(Reduces or increases the consol
 Usage: zoom [in/out/+/-]
 - in / + : Zooms in (increases font size)
 - out / - : Zooms out (decreases font size)
+)";
+
+Nebulite::Constants::Error Console::consoleSetBackground(int argc,  char* argv[]){
+    //------------------------------------------
+    // Prerequisites
+
+    // Validate arguments
+    if(argc < 2){
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    }
+    if(argc > 2){
+        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+    }
+
+    //------------------------------------------
+    // Delete previous background if any
+    if(backgroundImageTexture != nullptr){
+        SDL_DestroyTexture(backgroundImageTexture);
+        backgroundImageTexture = nullptr;
+    }
+
+    //------------------------------------------
+    // Load image
+
+    std::string imagePath = argv[1];
+    SDL_Surface* imageSurface = SDL_LoadBMP(imagePath.c_str());
+    if(!imageSurface){
+        // Try to load as PNG/JPG using SDL_image
+        imageSurface = IMG_Load(imagePath.c_str());
+        if(!imageSurface){
+            return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
+        }
+    }
+
+    // Create texture from surface
+    SDL_Texture* backgroundTexture = SDL_CreateTextureFromSurface(renderer, imageSurface);
+    SDL_FreeSurface(imageSurface);
+    if(!backgroundTexture){
+        return Nebulite::Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_INVALID();
+    }
+
+    // Set as console background
+    backgroundImageTexture = backgroundTexture;
+
+    //------------------------------------------
+    // Return
+    return Nebulite::Constants::ErrorTable::NONE();
+}
+const std::string Console::consoleSetBackground_name = "console set-background";
+const std::string Console::consoleSetBackground_desc = R"(Sets a background image for the console.
+
+Usage: set-background <image_path>
 )";
 
 }   // namespace Nebulite::DomainModule::GlobalSpace::Console

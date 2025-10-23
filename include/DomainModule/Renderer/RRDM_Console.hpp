@@ -55,6 +55,16 @@ public:
     static const std::string consoleZoom_name;
     static const std::string consoleZoom_desc;
 
+    /**
+     * @brief Sets a background image for the console.
+     * @param argc Number of arguments.
+     * @param argv Argument values: [image_path].
+     * @return Error code.
+     */
+    Nebulite::Constants::Error consoleSetBackground(int argc,  char* argv[]);
+    static const std::string consoleSetBackground_name;
+    static const std::string consoleSetBackground_desc;
+
     //------------------------------------------
     // Category strings
 
@@ -71,7 +81,8 @@ public:
         // we cannot do much here, since renderer might not be initialized yet
         // so we do the actual initialization in update() when needed
         bindCategory(console_name, &console_desc);
-        bindFunction(&Console::consoleZoom, consoleZoom_name, &consoleZoom_desc);
+        bindFunction(&Console::consoleZoom,             consoleZoom_name,           &consoleZoom_desc);
+        bindFunction(&Console::consoleSetBackground,    consoleSetBackground_name,  &consoleSetBackground_desc);
     }
 private: 
     //------------------------------------------
@@ -114,6 +125,11 @@ private:
      * @brief Rectangle defining the input text area.
      */
 	SDL_Rect textInputRect;
+
+    /**
+     * @brief Texture for the background image.
+     */
+    SDL_Texture* backgroundImageTexture = nullptr;
 
     /**
      * @brief Rectangle defining the highlighted text area.
@@ -227,7 +243,7 @@ private:
      * 
      * @param maxLineLength The maximum length of a line before linebreaking, in characters.
      * 
-     * @todo Implement scrolling for output lines if they exceed the visible area.
+     * @todo Newline handling does not work if a line is split into more than two lines.
      */
     void drawOutput(uint16_t maxLineLength);
 
