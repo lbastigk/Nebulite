@@ -110,6 +110,13 @@ public:
         return outputLog;
     }
 
+    /**
+     * @brief Clears the output log.
+     */
+    static void clear() {
+        instance().outputLog.clear();
+    }
+
 private:
     // Make constructor private for singleton
     Capture() : coutStream(this, std::cout, OutputLine::COUT), cerrStream(this, std::cerr, OutputLine::CERR) {}
