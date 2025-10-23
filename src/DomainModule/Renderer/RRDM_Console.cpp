@@ -74,7 +74,7 @@ Nebulite::Constants::Error Console::update(){
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-void Console::renderConsole() {
+bool Console::ensureConsoleTexture() {
     //------------------------------------------
     // Prerequisites
 
@@ -104,8 +104,16 @@ void Console::renderConsole() {
         };
     }
 
-    // Check if texture creation was successful
-    if (!consoleTexture.texture_ptr) {
+    // Validate texture
+    return consoleTexture.texture_ptr != nullptr;
+}
+
+void Console::renderConsole() {
+    //------------------------------------------
+    // Prerequisites
+
+    // Ensure console texture is valid
+    if(!ensureConsoleTexture()){
         capture->cerr << "SDL_CreateTexture failed: " << SDL_GetError() << capture->endl;
         return;
     }

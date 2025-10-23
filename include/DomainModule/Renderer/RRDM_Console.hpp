@@ -174,6 +174,15 @@ private:
     void processMode();
 
     //------------------------------------------
+    // RenderConsole helpers
+
+    /**
+     * @brief Ensures the console texture is created and valid.
+     * @return true if the console texture is valid, false otherwise.
+     */
+    bool ensureConsoleTexture();
+
+    //------------------------------------------
     // Mirrored from Renderer
 
     // Whether the console is currently active
