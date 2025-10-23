@@ -154,10 +154,7 @@ private:
     std::string commandIndexZeroBuffer;
 
     /**
-     * @todo Wrap each entry in a struct with extra metadata:
-     * - type (input, cout, cerr)
-     * - timestamp
-     * - string
+     * @brief Output log of the console.
      */
     std::deque<LineEntry> consoleOutput;
 
@@ -176,11 +173,6 @@ private:
      * - User presses Enter, command "set var1 20" is executed and added
      * - The output shows both commands, but the commandHistory shows "set var1 20" twice, as
      * we modified the first entry while browsing history.
-     * 
-     * @todo: Perhaps we could wrap each entry in a struct with metadata:
-     * - original command (for output)
-     * - modified command (for input buffer while browsing history)
-     * - if we ever move up/down, we reset the modified command to the original command
      */
     std::vector<std::string> commandHistory;    // Dynamic, is modified
 
