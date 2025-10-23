@@ -91,7 +91,7 @@ private:
     // Key to toggle console
     std::string toggleKey = "input.keyboard.delta.tab";
 
-    uint8_t MINIMUM_LINES = 5;      // Minimum number of lines to show, including input line
+    uint8_t MINIMUM_LINES = 8;      // Minimum number of lines to show, including input line
     uint8_t LINE_PADDING = 10;      // Padding between lines in pixels
     uint8_t FONT_MAX_SIZE = 24;     // Maximum font size
 
@@ -167,10 +167,6 @@ private:
 
     /**
 	 * @brief Renders the console to the screen.
-     * 
-     * @todo Improve rendering by always rendering a fixed number of lines,
-     * or less if size starts to become an issue.
-     * Setting size and spacing automatically based on console height.
 	 */
 	void renderConsole();
 
