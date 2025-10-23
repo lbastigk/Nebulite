@@ -18,12 +18,19 @@ std::string TextInput::submit(){
         // Reset cursor
         cursorOffset = 0;
 
+        // Reset history navigation
+        selectedCommandIndex = 0;
+
         return input;
     }
     // Use last command if input is empty
     if(!commandHistory.empty()){
         std::string lastCommand = commandHistory.back();
         insertLine(lastCommand, LineEntry::LineType::INPUT);
+
+        // Reset history navigation
+        selectedCommandIndex = 0;
+
         return lastCommand;
     }
     // Nothing to submit
