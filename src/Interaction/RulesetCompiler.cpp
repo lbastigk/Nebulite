@@ -171,8 +171,8 @@ std::string Nebulite::Interaction::RulesetCompiler::getLogicalArg(Nebulite::Util
 
 bool Nebulite::Interaction::RulesetCompiler::getRuleset(Nebulite::Utility::JSON& doc, Nebulite::Utility::JSON& entry, int index) {
     std::string key = Nebulite::Constants::keyName.renderObject.invokes + "[" + std::to_string(index) + "]";
-    if(doc.memberCheck(key.c_str()) == Nebulite::Utility::JSON::KeyType::document) {
-        entry = doc.get_subdoc(key.c_str());
+    if(doc.memberCheck(key) == Nebulite::Utility::JSON::KeyType::document) {
+        entry = doc.get_subdoc(key);
     }
     else{
         // Is link to document
@@ -309,7 +309,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
 }
 
 void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
-    std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries, 
+    const std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries, 
     Nebulite::Utility::JSON* self,
     Nebulite::Utility::JSON* global
 ){
@@ -322,7 +322,6 @@ void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
     for (const auto& entry : entries) {
         for (auto& assignment : entry->assignments) {
             if (assignment.onType == Nebulite::Interaction::Logic::Assignment::Type::Self) {
-                auto ops = Nebulite::Interaction::RulesetCompiler::numeric_operations;
                 if (ops.end() != std::find(ops.begin(), ops.end(), assignment.operation)) {
                     // Numeric operation on self, try to get a direct pointer
                     double* ptr = self->getDoc()->getStableDoublePointer(assignment.key);
