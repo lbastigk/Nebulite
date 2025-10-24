@@ -201,17 +201,27 @@ private:
     /**
      * @brief Submits the current command in the text input.
      */
-    void processSubmitCommand();
+    void keyTriggerSubmit();
 
     /**
      * @brief Scrolls the output up by one line.
      */
-    void processScrollUp();
+    void keyTriggerScrollUp();
 
     /**
      * @brief Scrolls the output down by one line.
      */
-    void processScrollDown();
+    void keyTriggerScrollDown();
+
+    /**
+     * @brief Zooms the console in, if ctrl is held.
+     */
+    void keyTriggerZoomIn(const SDL_KeyboardEvent& key);
+
+    /**
+     * @brief Zooms the console out, if ctrl is held.
+     */
+    void keyTriggerZoomOut(const SDL_KeyboardEvent& key);
 
     //------------------------------------------
     // RenderConsole helpers

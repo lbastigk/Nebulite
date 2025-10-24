@@ -386,7 +386,7 @@ uint8_t Console::calculateTextAlignment(uint16_t rect_height){
 //--------------------------------------------------
 // Event processing
 
-void Console::processSubmitCommand(){
+void Console::keyTriggerSubmit(){
     std::string command;
     command = textInput.submit();
     if(!command.empty()){
@@ -396,16 +396,28 @@ void Console::processSubmitCommand(){
     outputScrollingOffset = 0; // Reset scrolling to bottom on new input
 }
 
-void Console::processScrollUp(){
+void Console::keyTriggerScrollUp(){
     if(outputScrollingOffset < UINT16_MAX - 1){
         outputScrollingOffset += 1;
     }
 }
 
-void Console::processScrollDown(){
+void Console::keyTriggerScrollDown(){
     if(outputScrollingOffset > 0){
         outputScrollingOffset -= 1;
     }
+}
+
+void Console::keyTriggerZoomIn(const SDL_KeyboardEvent& key){
+    // Make sure that ctrl is held
+    if(!(key.keysym.mod & KMOD_CTRL)) return;
+    domain->parseStr(__FUNCTION__ + std::string(" ") + Nebulite::DomainModule::Renderer::Console::consoleZoom_name + " in");
+}
+
+void Console::keyTriggerZoomOut(const SDL_KeyboardEvent& key){
+    // Make sure that ctrl is held
+    if(!(key.keysym.mod & KMOD_CTRL)) return;
+    domain->parseStr(__FUNCTION__ + std::string(" ") + Nebulite::DomainModule::Renderer::Console::consoleZoom_name + " out");
 }
 
 void Console::processKeyDownEvent(const SDL_KeyboardEvent& key){
@@ -421,7 +433,7 @@ void Console::processKeyDownEvent(const SDL_KeyboardEvent& key){
         // Submit command on Enter
         case SDLK_RETURN:
         case SDLK_KP_ENTER:
-            processSubmitCommand();
+            keyTriggerSubmit();
             break;	
 
         // Cursor movement
@@ -444,26 +456,22 @@ void Console::processKeyDownEvent(const SDL_KeyboardEvent& key){
         //------------------------------------------
         // Scroll through output with PAGE UP/DOWN
         case SDLK_PAGEUP:
-            processScrollUp();
+            keyTriggerScrollUp();
             break;
         case SDLK_PAGEDOWN:
-            processScrollDown();
+            keyTriggerScrollDown();
             break;
 
         //------------------------------------------
         // Zoom in/out with +/- keys
         case SDLK_PLUS:
         case SDLK_KP_PLUS:
-            // Make sure that ctrl is held
-            if(!(key.keysym.mod & KMOD_CTRL)) break;
-            domain->parseStr(__FUNCTION__ + std::string(" ") + Nebulite::DomainModule::Renderer::Console::consoleZoom_name + " in");
+            keyTriggerZoomIn(key);
             break;
 
         case SDLK_MINUS:
         case SDLK_KP_MINUS:
-            // Make sure that ctrl is held
-            if(!(key.keysym.mod & KMOD_CTRL)) break;
-            domain->parseStr(__FUNCTION__ + std::string(" ") + Nebulite::DomainModule::Renderer::Console::consoleZoom_name + " out");
+            keyTriggerZoomOut(key);
             break;
         }
 }
