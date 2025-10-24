@@ -467,7 +467,11 @@ void Console::processKeyDownEvent(const SDL_KeyboardEvent& key){
          * textfocus gui <gui_element_id>
          * textfocus console force on/off
          * etc.
-         * 
+         *
+         * Then, we could have Renderer::setActiveTextInput(shared<TextInput>) which overwrites the current active text input, if its not forced.
+         * And on Renderer::update(), we forward all text input and key events to that active TextInput instance.
+         * Meaning this entire function would be moved to TextInput class, and Console would just set itself as active when in console mode.
+         *
          * If a textfocus is active, we may wish to disable normal key processing from Input DomainModule.
          * 
          * For this to work, we need to modify TextInput into two modes:
@@ -510,7 +514,7 @@ void Console::processKeyDownEvent(const SDL_KeyboardEvent& key){
         case SDLK_KP_MINUS:
             keyTriggerZoomOut(key);
             break;
-        }
+    }
 }
 
 void Console::processEvents(){
