@@ -20,7 +20,7 @@
  * @brief Number of orderered double pointer maps for expression evaluations.
  * 
  * If set to 1, all threads share the same map.
- * Optimized to not use any special indexing, but simple access to [0] if set to 1.
+ * Optimized to not use any special indexing, but simple access to [0] if set to 1. 
  */
 #define ORDERED_DOUBLE_POINTERS_MAPS 5
 
@@ -28,6 +28,10 @@
  * @def INVOKE_EXPR_POOL_SIZE
  *
  * Size of the expression pool for each expression.
+ * 
+ * @todo more benchmarks necessary, initial tests show that
+ * A poolsize of 1 (no pool) is minimally faster.
+ * Perhaps a small overhaul is needed to actually make use of the pool?
  */
 #define INVOKE_EXPR_POOL_SIZE ORDERED_DOUBLE_POINTERS_MAPS
 

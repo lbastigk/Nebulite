@@ -223,94 +223,85 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::
 //------------------------------------------
 // Ruleset application
 
-void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other) {
-    // Each thread needs its own variable list:
-
-    // Set References
-    Nebulite::Core::RenderObject* Obj_self = entries_self->selfPtr;
+void Nebulite::Interaction::Invoke::applyAssignment(Nebulite::Interaction::Logic::Assignment& assignment, Nebulite::Core::RenderObject const* Obj_self, Nebulite::Core::RenderObject const* Obj_other){
+    //------------------------------------------
+    // Check what the target document to apply the ruleset to is
     
-    Nebulite::Utility::JSON* doc_self = Obj_self->getDoc();
-    Nebulite::Utility::JSON* doc_other = Obj_other->getDoc();
-
-    // Update self, other and global
-    for(auto& assignment : entries_self->assignments){
-        //------------------------------------------
-        // Check what to update
-        
-        Nebulite::Utility::JSON* targetDocument = nullptr;
-        switch (assignment.onType) {
-        case Nebulite::Interaction::Logic::Assignment::Type::Self:
-            targetDocument = doc_self;
-            break;
-        case Nebulite::Interaction::Logic::Assignment::Type::Other:
-            targetDocument = doc_other;
-            break;
-        case Nebulite::Interaction::Logic::Assignment::Type::Global:
-            targetDocument = globalDoc;
-            break;
-        case Nebulite::Interaction::Logic::Assignment::Type::null:
-            Nebulite::Utility::Capture::cerr() << "Assignment expression has null type - skipping" << Nebulite::Utility::Capture::endl;
-            continue; // Skip this expression
-        default:
-            Nebulite::Utility::Capture::cerr() << "Unknown assignment type: " << (int)assignment.onType << Nebulite::Utility::Capture::endl;
-            return; // Exit if unknown type
-        }
-
-        //------------------------------------------
-        // Update
-
-        // If the expression is returnable as double, we can optimize numeric operations
-        if(assignment.expression.isReturnableAsDouble()){
-            double resolved = assignment.expression.evalAsDouble(doc_other);
-            if(assignment.targetValuePtr != nullptr){
-                setValueOfKey(assignment.operation, assignment.key, resolved, assignment.targetValuePtr);
-            }
-            else{
-                // Target is not associated with a direct double pointer
-                // Likely because the target is in document other
-                double* target = nullptr;
-
-                // Try to use unique id for quick access
-                if(!assignment.targetKeyUniqueIdInitialized){
-                    // Initialize unique id
-                    assignment.targetKeyUniqueId = global->getUniqueId(assignment.key, Nebulite::Core::GlobalSpace::UniqueIdType::JSONKEY);
-                    assignment.targetKeyUniqueIdInitialized = true;
-                }
-
-                // Try to use unique id for quick access
-                if(assignment.targetKeyUniqueId < JSON_UID_QUICKCACHE_SIZE){
-                    target = targetDocument->get_uid_double_ptr(assignment.targetKeyUniqueId, assignment.key);
-                }
-                // Fallback to normal method via key to double pointer
-                else{
-                    // Try to get a stable double pointer from the target document
-                    target = targetDocument->getStableDoublePointer(assignment.key);
-                }
-                
-                if(target != nullptr){
-                    // Lock is needed here, otherwise we have race conditions, and the engine is no longer deterministic!
-                    std::lock_guard<std::recursive_mutex> lock(targetDocument->lock());
-                    setValueOfKey(assignment.operation, assignment.key, resolved, target);
-                }
-                else{
-                    // Still not possible, fallback to using JSON's internal methods
-                    // This is slower, but should work in all cases
-                    // No lock needed here, as we use JSON's threadsafe methods
-                    setValueOfKey(assignment.operation, assignment.key, resolved, targetDocument);
-                }
-            }
-        }
-        // If not, we resolve as string and update that way
-        else{
-            std::string resolved = assignment.expression.eval(doc_other);
-            setValueOfKey(assignment.operation, assignment.key, resolved, targetDocument);
-        }
+    Nebulite::Utility::JSON* targetDocument = nullptr;
+    switch (assignment.onType) {
+    case Nebulite::Interaction::Logic::Assignment::Type::Self:
+        targetDocument = Obj_self->getDoc();
+        break;
+    case Nebulite::Interaction::Logic::Assignment::Type::Other:
+        targetDocument = Obj_other->getDoc();
+        break;
+    case Nebulite::Interaction::Logic::Assignment::Type::Global:
+        targetDocument = globalDoc;
+        break;
+    case Nebulite::Interaction::Logic::Assignment::Type::null:
+        Nebulite::Utility::Capture::cerr() << "Assignment expression has null type - skipping" << Nebulite::Utility::Capture::endl;
+        return; // Skip this expression
+    default:
+        Nebulite::Utility::Capture::cerr() << "Unknown assignment type: " << (int)assignment.onType << Nebulite::Utility::Capture::endl;
+        return; // Exit if unknown type
     }
 
+    //------------------------------------------
+    // Update
+
+    // If the expression is returnable as double, we can optimize numeric operations
+    if(assignment.expression.isReturnableAsDouble()){
+        double resolved = assignment.expression.evalAsDouble(Obj_other->getDoc());
+        if(assignment.targetValuePtr != nullptr){
+            setValueOfKey(assignment.operation, assignment.key, resolved, assignment.targetValuePtr);
+        }
+        else{
+            // Target is not associated with a direct double pointer
+            // Likely because the target is in document other
+            double* target = nullptr;
+
+            // Try to use unique id for quick access
+            if(!assignment.targetKeyUniqueIdInitialized){
+                // Initialize unique id
+                assignment.targetKeyUniqueId = global->getUniqueId(assignment.key, Nebulite::Core::GlobalSpace::UniqueIdType::JSONKEY);
+                assignment.targetKeyUniqueIdInitialized = true;
+            }
+
+            // Try to use unique id for quick access
+            if(assignment.targetKeyUniqueId < JSON_UID_QUICKCACHE_SIZE){
+                target = targetDocument->get_uid_double_ptr(assignment.targetKeyUniqueId, assignment.key);
+            }
+            // Fallback to normal method via key to double pointer
+            else{
+                // Try to get a stable double pointer from the target document
+                target = targetDocument->getStableDoublePointer(assignment.key);
+            }
+            
+            if(target != nullptr){
+                // Lock is needed here, otherwise we have race conditions, and the engine is no longer deterministic!
+                std::lock_guard<std::recursive_mutex> lock(targetDocument->lock());
+                setValueOfKey(assignment.operation, assignment.key, resolved, target);
+            }
+            else{
+                // Still not possible, fallback to using JSON's internal methods
+                // This is slower, but should work in all cases
+                // No lock needed here, as we use JSON's threadsafe methods
+                setValueOfKey(assignment.operation, assignment.key, resolved, targetDocument);
+            }
+        }
+    }
+    // If not, we resolve as string and update that way
+    else{
+        std::string resolved = assignment.expression.eval(Obj_other->getDoc());
+        setValueOfKey(assignment.operation, assignment.key, resolved, targetDocument);
+    }
+}
+
+void Nebulite::Interaction::Invoke::applyFunctionCalls(Nebulite::Interaction::Ruleset& ruleset, Nebulite::Core::RenderObject *Obj_self, Nebulite::Core::RenderObject *Obj_other) {
     // === Functioncalls GLOBAL ===
-    for(auto& entry : entries_self->functioncalls_global){
+    for(auto& entry : ruleset.functioncalls_global){
         // replace vars
-        std::string call = entry.eval(doc_other);
+        std::string call = entry.eval(Obj_other->getDoc());
 
         // attach to task queue
         std::lock_guard<std::mutex> lock(taskQueue.mutex);
@@ -318,18 +309,31 @@ void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Inte
     }
 
     // === Functioncalls LOCAL: SELF ===
-    for(auto& entry : entries_self->functioncalls_self){
+    for(auto& entry : ruleset.functioncalls_self){
         // replace vars
-        std::string call = entry.eval(doc_other);
+        std::string call = entry.eval(Obj_other->getDoc());
         (void)Obj_self->parseStr(call);
     }
 
     // === Functioncalls LOCAL: OTHER ===
-    for(auto& entry : entries_self->functioncalls_other){
+    for(auto& entry : ruleset.functioncalls_other){
         // replace vars
-        std::string call = entry.eval(doc_other);
+        std::string call = entry.eval(Obj_other->getDoc());
         (void)Obj_other->parseStr(call);
     }
+}
+
+void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other) {
+    // References
+    Nebulite::Core::RenderObject* Obj_self = entries_self->selfPtr;
+
+    // Update self, other and global
+    for(auto& assignment : entries_self->assignments){
+        applyAssignment(assignment, Obj_self, Obj_other);
+    }
+
+    // Apply function calls
+    applyFunctionCalls(*entries_self, Obj_self, Obj_other);
 }
 
 void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self){
@@ -356,9 +360,7 @@ void Nebulite::Interaction::Invoke::update() {
 
     // Swap the containers, preparing for the next frame
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
-        // Lock should not be necessary, as no workers are active
-        //std::lock_guard<std::mutex> lock1(broadcasted.entriesThisFrame[i].mutex);   // Shouldnt be necessary as no other process accesses this during update, but we are paranoid
-        //std::lock_guard<std::mutex> lock2(broadcasted.entriesNextFrame[i].mutex);   // Shouldnt be necessary as no other process accesses this during update, but we are paranoid
+        // No workers active -> no mutex lock needed
         std::swap(broadcasted.entriesThisFrame[i].Container, broadcasted.entriesNextFrame[i].Container);
     }
 }

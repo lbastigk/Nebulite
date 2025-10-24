@@ -21,6 +21,13 @@
 //------------------------------------------
 // Defines
 
+/**
+ * @brief Size of the quickcache for ordered double pointers.
+ * This defines how many OrderedDoublePointers can be cached for quick access
+ * without needing to look them up in a hashmap.
+ * 
+ * see MappedOrderedDoublePointers::quickCache for important considerations.
+ */
 #define ORDERED_DOUBLE_POINTERS_QUICKCACHE_SIZE 30
 
 //------------------------------------------

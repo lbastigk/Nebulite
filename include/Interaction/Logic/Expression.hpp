@@ -72,6 +72,14 @@ public:
     }
 
     /**
+     * @brief Checks if the expression is always true (i.e., "1").
+     * @return True if the expression is always true, false otherwise.
+     */
+    bool isAlwaysTrue() {
+        return _isAlwaysTrue;
+    }
+
+    /**
      * @brief Evaluates the expression as a double.
      * 
      * @param current_other The JSON object `other` to evaluate against.
@@ -95,9 +103,35 @@ public:
      */
     std::string const* getFullExpression() const noexcept {return &fullExpression;};
 
+    /**
+     * @brief Forcefully sets the unique ID for the expression.
+     * Be careful when using this, as it might lead to issues with virtualDouble tracking!
+     * This is only used when the id was calculated externally, e.g. in ExpressionPool.
+     * @param id The unique ID to set.
+     */
+    void setUniqueId(uint64_t id){
+        uniqueId = id;
+    }
+
+    //------------------------------------------
+    // Helpers for recalculating expression info
+    // helpful for expressionpool to reduce the amount of parsing needed
+
+    /**
+     * @brief Recalculates whether the expression is returnable as a double.
+     * @return True if the expression can be returned as a double, false otherwise.
+     */
+    bool recalculateIsReturnableAsDouble();
+
+    /**
+     * @brief Recalculates whether the expression is always true (i.e., "1").
+     * @return True if the expression is always true, false otherwise.
+     */
+    bool recalculateIsAlwaysTrue();
+
 private:
     /**
-     * @brief link to the remanentself context
+     * @brief link to the remanent self context
      */
     Nebulite::Utility::JSON* self = nullptr;
 
@@ -200,27 +234,33 @@ private:
         te_expr* expression = nullptr;
     };
 
-    using vd_list = std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>;
-
     /**
-     * @brief Holds all virtual double entries for the self context.
+     * @struct Nebulite::Interaction::Logic::Expression::VirtualDoubleLists
+     * @brief Holds lists of VirtualDouble entries for different contexts.
      */
-    vd_list virtualDoubles_self;
+    struct VirtualDoubleLists{
+        using vd_list = std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>;
 
-    /**
-     * @brief Holds all virtual double entries for the other context.
-     */
-    vd_list virtualDoubles_other;
+        /**
+         * @brief Holds all virtual double entries for the self context.
+         */
+        vd_list self;
 
-    /**
-     * @brief Holds all virtual double entries for the global context.
-     */
-    vd_list virtualDoubles_global;
+        /**
+         * @brief Holds all virtual double entries for the other context.
+         */
+        vd_list other;
 
-    /**
-     * @brief Holds all virtual double entries for the resource context.
-     */
-    vd_list virtualDoubles_resource;
+        /**
+         * @brief Holds all virtual double entries for the global context.
+         */
+        vd_list global;
+
+        /**
+         * @brief Holds all virtual double entries for the resource context.
+         */
+        vd_list resource;
+    } virtualDoubles;
 
     /**
      * @brief A collection of custom functions for TinyExpr
@@ -270,6 +310,11 @@ private:
      * @brief Storing info about the expression's returnability
      */
     bool _isReturnableAsDouble;
+
+    /**
+     * @brief Storing info about the expression's always-true state
+     */
+    bool _isAlwaysTrue;
 
     /**
      * @brief Resets the expression to its initial state.
@@ -418,16 +463,22 @@ private:
     /**
      * @brief Updates caches
      */
-    void updateCaches(Nebulite::Utility::JSON* current_other);
+    void updateCaches(Nebulite::Utility::JSON* reference);
 
     /**
-     * @brief Ensures that there is a cache entry for the given other JSON document and expression.
-     * 
-     * @param current_other The other JSON document to ensure a cache entry for.
-     * 
-     * @return A pointer to the vector of double pointers for the expression in the other document.
+     * @brief Ensures the existence of an ordered cache list of double pointers for "other" context variables.
+     *
+     * This function checks if the current "other" reference JSON document contains a cached, ordered list of double pointers
+     * corresponding to all variables referenced by this Expression in the "other" context. If the cache entry does not exist,
+     * it is created and populated for fast indexed access during expression evaluation.
+     *
+     * This caching mechanism is critical for Nebulite's high-performance expression system, as it avoids repeated
+     * string lookups and pointer resolutions for variables in other objects, enabling near O(1) access.
+     *
+     * @param reference The JSON document representing the "other" context for variable resolution.
+     * @return A pointer to the ordered vector of double pointers for the referenced "other" variables.
      */
-    odpvec* ensure_other_cache_entry(Nebulite::Utility::JSON* current_other);
+    odpvec* ensureOtherOrderedCacheList(Nebulite::Utility::JSON* reference);
 
     /**
      * @brief Handles the evaluation of a variable entry.

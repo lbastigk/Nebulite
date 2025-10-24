@@ -416,6 +416,19 @@ private:
      * @param Obj_other The render object in the other domain to update.
      */
     void applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other);
+
+    /**
+     * @brief Applies a single assignment from an invoke entry.
+     * 
+     * @param entry The invoke entry to apply.
+     * @param Obj_other The render object in the other domain to update.
+     */
+    void applyAssignment(Nebulite::Interaction::Logic::Assignment& assignment, Nebulite::Core::RenderObject const* Obj_self, Nebulite::Core::RenderObject const* Obj_other);
+
+    /**
+     * @brief Applies all functioncalls
+     */
+    void applyFunctionCalls(Nebulite::Interaction::Ruleset& ruleset, Nebulite::Core::RenderObject *Obj_self, Nebulite::Core::RenderObject *Obj_other);
 };
 } // namespace Interaction
 } // namespace Nebulite

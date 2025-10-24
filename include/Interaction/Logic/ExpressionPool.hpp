@@ -102,15 +102,21 @@ public:
      */
     void parse(std::string const& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global) {
         fullExpression = expr;
-        for (auto& e : pool) {
-            e.parse(expr, documentCache, self, global);
+
+        // Parse the first one, then copy to others
+        pool[0].parse(expr, documentCache, self, global);
+        for (size_t i = 1; i < pool.size(); ++i) {
+            pool[i] = pool[0];
         }
 
-        // Store if this expression is returnable as double
-        _isReturnableAsDouble = pool[0].isReturnableAsDouble();
-
-        // Check if expression is always true (i.e., "1")
-        _isAlwaysTrue = (*pool[0].getFullExpression() == "1");
+        // Calculate metadata and unique ID from first entry
+        #if INVOKE_EXPR_POOL_SIZE > 1
+            _isReturnableAsDouble = pool[0].recalculateIsReturnableAsDouble();
+            _isAlwaysTrue = pool[0].recalculateIsAlwaysTrue();
+        #else
+            _isReturnableAsDouble = pool[0].isReturnableAsDouble();
+            _isAlwaysTrue = pool[0].isAlwaysTrue();
+        #endif
     }
 
     /**
@@ -182,6 +188,7 @@ public:
 
     /**
      * @brief Checks if the expression is always true (i.e., "1").
+     * @return True if the expression is always true, false otherwise.
      */
     bool isAlwaysTrue() {
         return _isAlwaysTrue;

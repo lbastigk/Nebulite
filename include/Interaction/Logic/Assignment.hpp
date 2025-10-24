@@ -94,16 +94,16 @@ struct Assignment{
     bool targetKeyUniqueIdInitialized = false;
 
     // Activate threadsafe expression pool only if needed
-    #if INVOKE_EXPR_POOL_SIZE < 2
-        /**
-         * @brief The parsed expression
-         */
-        Nebulite::Interaction::Logic::Expression expression;
-    #else
+    #if INVOKE_EXPR_POOL_SIZE > 1
         /**
          * @brief The parsed expression in a thread-friendly Pool-Configuration
          */
         Nebulite::Interaction::Logic::ExpressionPool expression;
+    #else
+        /**
+         * @brief The parsed expression
+         */
+        Nebulite::Interaction::Logic::Expression expression;
     #endif
 
     //------------------------------------------

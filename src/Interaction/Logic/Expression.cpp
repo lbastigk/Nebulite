@@ -37,10 +37,10 @@ void Nebulite::Interaction::Logic::Expression::reset() {
     te_names.clear();
 
     // Clear vds
-    virtualDoubles_self.clear();
-    virtualDoubles_other.clear();
-    virtualDoubles_global.clear();
-    virtualDoubles_resource.clear();
+    virtualDoubles.self.clear();
+    virtualDoubles.other.clear();
+    virtualDoubles.global.clear();
+    virtualDoubles.resource.clear();
 
     //------------------------------------------
     // Register built-in functions
@@ -130,22 +130,22 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
             case Entry::From::self:
                 // Type self is remanent, we can register the double directly from document
                 vd->setUpExternalCache(self);
-                virtualDoubles_self.push_back(vd);
+                virtualDoubles.self.push_back(vd);
                 break;
             case Entry::From::other:
                 // Type other is non-remanent, we need to use the cache that is updated on eval
-                virtualDoubles_other.push_back(vd);
+                virtualDoubles.other.push_back(vd);
                 break;
             case Entry::From::global:
                 // Type global is remanent, we can register the double directly from document
                 vd->setUpExternalCache(global);
-                virtualDoubles_global.push_back(vd);
+                virtualDoubles.global.push_back(vd);
                 break;
             case Entry::From::resource:
                 // Type resource is non-remanent, we need to use the cache that is updated on eval
                 // The reason is that resource-documents may get deloaded,
                 // making the direct double reference invalid.
-                virtualDoubles_resource.push_back(vd);
+                virtualDoubles.resource.push_back(vd);
                 break;
             case Entry::From::None:
             default:
@@ -384,6 +384,7 @@ void Nebulite::Interaction::Logic::Expression::printCompileError(const Entry& en
 
 Nebulite::Interaction::Logic::Expression::Expression() {
     _isReturnableAsDouble = false;
+    _isAlwaysTrue = false;
     uniqueId = 0;
     reset();
 }
@@ -405,14 +406,14 @@ void Nebulite::Interaction::Logic::Expression::parse(std::string const& expr, Ne
         compileIfExpression(entry);
     }
 
-    // Check if parsed expression is returnable as double
-    _isReturnableAsDouble = (entries.size() == 1) &&
-                            (entries[0].type == Entry::eval) &&
-                            (entries[0].cast == Entry::CastType::none);
-
-    // Get the unique ID for this expression
     auto globalspace = self->getGlobalSpace();
     uniqueId = globalspace->getUniqueId(fullExpression, Nebulite::Core::GlobalSpace::UniqueIdType::EXPRESSION);
+
+    // Calculate optimization flags in-expression only if pools are not used
+    #if INVOKE_EXPR_POOL_SIZE == 1
+        _isReturnableAsDouble = recalculateIsReturnableAsDouble();
+        _isAlwaysTrue = recalculateIsAlwaysTrue();
+    #endif
 }
 
 bool Nebulite::Interaction::Logic::Expression::handleEntryTypeVariable(std::string& token, const Entry& entry, Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth) {
@@ -561,20 +562,20 @@ double Nebulite::Interaction::Logic::Expression::evalAsDouble(Nebulite::Utility:
     return te_eval(entries[0].expression);
 }
 
-odpvec* Nebulite::Interaction::Logic::Expression::ensure_other_cache_entry(Nebulite::Utility::JSON* current_other) {
-    auto cache = current_other->getExpressionRefsAsOther();
+odpvec* Nebulite::Interaction::Logic::Expression::ensureOtherOrderedCacheList(Nebulite::Utility::JSON* reference) {
+    auto cache = reference->getExpressionRefsAsOther();
     std::lock_guard<std::mutex> cache_lock(cache->mtx);
     
     // Check if we can use quickcache, that does not rely on a hashmap lookup
     if(uniqueId < ORDERED_DOUBLE_POINTERS_QUICKCACHE_SIZE){
         if(cache->quickCache[uniqueId].orderedValues.empty()){
             // Not initialized yet, create one with exact size
-            Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles_other.size());
+            Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles.other.size());
 
             // Populate list with all virtual doubles from type other
-            for(auto const& vde : virtualDoubles_other) {
-                double* reference = current_other->getStableDoublePointer(vde->getKey());
-                newCacheList.orderedValues.push_back(reference);
+            for(auto const& vde : virtualDoubles.other) {
+                double* ptr = reference->getStableDoublePointer(vde->getKey());
+                newCacheList.orderedValues.push_back(ptr);
             }
             cache->quickCache[uniqueId] = std::move(newCacheList);
         }
@@ -586,12 +587,12 @@ odpvec* Nebulite::Interaction::Logic::Expression::ensure_other_cache_entry(Nebul
     
     // If not, create one
     if(it == cache->map.end()) {
-        Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles_other.size());
+        Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles.other.size());
 
         // Populate list with all virtual doubles from type other
-        for(auto const& vde : virtualDoubles_other) {
-            double* reference = current_other->getStableDoublePointer(vde->getKey());
-            newCacheList.orderedValues.push_back(reference);
+        for(auto const& vde : virtualDoubles.other) {
+            double* ptr = reference->getStableDoublePointer(vde->getKey());
+            newCacheList.orderedValues.push_back(ptr);
         }
 
         cache->map.emplace(uniqueId, std::move(newCacheList));
@@ -600,17 +601,17 @@ odpvec* Nebulite::Interaction::Logic::Expression::ensure_other_cache_entry(Nebul
     return &it->second.orderedValues;
 }
 
-void Nebulite::Interaction::Logic::Expression::updateCaches(Nebulite::Utility::JSON* current_other) {
+void Nebulite::Interaction::Logic::Expression::updateCaches(Nebulite::Utility::JSON* reference) {
     //------------------------------------------
     // 1.) Update other
 
     // Get a list of all references, insert into virtual doubles
-    if(!virtualDoubles_other.empty()){
-        auto list = ensure_other_cache_entry(current_other);
+    if(!virtualDoubles.other.empty()){
+        auto list = ensureOtherOrderedCacheList(reference);
         auto* list_data = list->data();
-        const size_t count = virtualDoubles_other.size();
+        const size_t count = virtualDoubles.other.size();
         for(size_t i = 0; i < count; ++i) {
-            virtualDoubles_other[i]->setDirect(*list_data[i]);
+            virtualDoubles.other[i]->setDirect(*list_data[i]);
         }
     }
 
@@ -618,7 +619,19 @@ void Nebulite::Interaction::Logic::Expression::updateCaches(Nebulite::Utility::J
     // 2.) Update resource
 
     // Update resource references
-    for(auto& vde : virtualDoubles_resource) {
+    for(auto& vde : virtualDoubles.resource) {
         vde->setUpInternalCache(nullptr);
     }
+}
+
+//------------------------------------------
+// Recalculation helpers:
+
+
+bool Nebulite::Interaction::Logic::Expression::recalculateIsReturnableAsDouble() {
+    return (entries.size() == 1) && (entries[0].type == Entry::eval) && (entries[0].cast == Entry::CastType::none);
+}
+
+bool Nebulite::Interaction::Logic::Expression::recalculateIsAlwaysTrue() {
+    return (fullExpression == "1");
 }
