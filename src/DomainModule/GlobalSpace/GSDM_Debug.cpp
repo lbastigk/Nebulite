@@ -129,8 +129,8 @@ Nebulite::Constants::Error Debug::errorlog(int argc,  char* argv[]){
 
     if(argc == 2){
         if(!strcmp(argv[1], "on")){
-            const char* logFilename = "errors.log";
             if(!errorLogStatus){
+                const char* logFilename = "errors.log";
                 if (!safe_open_log(logFilename, errorFile)) {
                     Nebulite::Utility::Capture::cerr() << "Refusing to open log file: '" << logFilename << "' is a symlink or could not be opened." << Nebulite::Utility::Capture::endl;
                     return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
