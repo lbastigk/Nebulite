@@ -444,6 +444,31 @@ void Console::processKeyDownEvent(const SDL_KeyboardEvent& key){
             textInput.moveCursorRight();
             break;
 
+        /**
+         * @todo: Implement copy/paste functionality with CTRL + C/V
+         * perhaps integrate a clipboard manager into Renderer class?
+         * Then, it could be used for both the console and other TextInput instances.
+         *
+         * For this to work properly, we should consider text handling to be only registered by one instance at a time.
+         * Perhaps we can move every keytrigger event to Renderer, and have it forward events to the active TextInput instance.
+         * 
+         * Then we may have functions to move focus to objects:
+         * 
+         * for Domain RenderObject:
+         * textfocus self
+         * 
+         * which itself sends a "textfocus id" to the "bus" that triggers on the scope of the Renderer by using:
+         * 
+         * textfocus id <renderer_object_id>
+         * 
+         * Then, we could have more textfocus additions like:
+         * textfocus gui <gui_element_id>
+         * textfocus console force on/off
+         * etc.
+         * 
+         * If a textfocus is active, we may wish to disable normal key processing from Input DomainModule.
+         */
+
         //------------------------------------------
         // UP/DOWN to cycle through past commands
         case SDLK_UP:
