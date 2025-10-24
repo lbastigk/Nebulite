@@ -65,6 +65,11 @@ Nebulite::Constants::Error Time::update() {
 
         //------------------------------------------
         // Increase Frame count
+        /**
+         * @todo Consider a secondary frame count that only increases when simulation time progresses
+         * Perhaps even use that as standard frame count, and have a separate "real frame count" for total frames rendered
+         * Best idea would be to check if the renderer is skipping the update, and only increase frame count if not
+         */
         domain->getDoc()->set<uint64_t>(key_framecount, frameCount); // Starts at 0
         frameCount++;
     } else{

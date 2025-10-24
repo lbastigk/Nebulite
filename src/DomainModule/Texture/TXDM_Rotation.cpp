@@ -62,7 +62,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::Texture::Rotation::rotate(int
     // Replace the original texture with the rotated texture
     domain->setInternalTexture(rotatedTexture);
 
-    std::cout << "Texture rotated by " << angle << " degrees." << std::endl;
+    Nebulite::Utility::Capture::cout() << "Texture rotated by " << angle << " degrees." << Nebulite::Utility::Capture::endl;
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string Rotation::rotate_name = "rotate";

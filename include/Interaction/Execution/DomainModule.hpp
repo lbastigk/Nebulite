@@ -22,6 +22,7 @@
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
+#include "Utility/Capture.hpp" // Allowing logging from DomainModules
 
 //------------------------------------------
 // Pre-declarations
@@ -49,7 +50,12 @@ public:
      * The constructor initializes the DomainModule with a reference to the domain and
      * the FuncTree.
      */
-    DomainModule(const std::string& moduleName, DomainType* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace)
+    DomainModule(
+        const std::string& moduleName, 
+        DomainType* domain, 
+        std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, 
+        Nebulite::Core::GlobalSpace* globalSpace
+    )
         : moduleName(moduleName), domain(domain), global(globalSpace), funcTree(funcTreePtr) {}
 
     /**
@@ -98,7 +104,6 @@ public:
             helpDescription
         );
     }
-
 
     /**
      * @brief Binds a category to the FuncTree.

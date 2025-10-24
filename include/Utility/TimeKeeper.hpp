@@ -144,21 +144,6 @@ public:
         return dt_ms;
     }
 
-    void debug(){
-        std::cout << "TimeKeeper Debug Info:" << std::endl;
-        std::cout << "  Running: " << (running ? "Yes" : "No") << std::endl;
-        std::cout << "  Start Time (ms): " << t_start << std::endl;
-        std::cout << "  Current Time (ms): " << t_ms << std::endl;
-        std::cout << "  Delta Time (ms): " << dt_ms << std::endl;
-        std::cout << "  OnUpdate - Last Time (ms): " << onUpdate.last_t_ms << std::endl;
-        std::cout << "  OnUpdate - Current Time (ms): " << onUpdate.t_ms << std::endl;
-        if(running){
-            std::cout << "  OnSimulation - Last Time (ms): " << onSimulation.last_t_ms << std::endl;
-            std::cout << "  OnSimulation - Current Time (ms): " << onSimulation.t_ms << std::endl;
-            std::cout << "  OnSimulation - Delta (ms): " << onSimulation.dt << std::endl;
-        }
-    }
-
 private:
     // Basic values for current time
 

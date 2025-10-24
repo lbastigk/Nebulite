@@ -52,7 +52,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::Texture::Fill::fill(int argc,
     void* pixels;
     int pitch;
     if (SDL_LockTexture(texture, nullptr, &pixels, &pitch) != 0) {
-        std::cerr << "Failed to lock texture: " << SDL_GetError() << std::endl;
+        Nebulite::Utility::Capture::cerr() << "Failed to lock texture: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
         return Nebulite::Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_LOCK_FAILED();
     }
 
@@ -70,11 +70,11 @@ Nebulite::Constants::Error Nebulite::DomainModule::Texture::Fill::fill(int argc,
     // Unlock the texture
     SDL_UnlockTexture(texture);
 
-    std::cout << "Texture filled with color: "
+    Nebulite::Utility::Capture::cout() << "Texture filled with color: "
               << " R=" << static_cast<int>(r)
               << " G=" << static_cast<int>(g)
               << " B=" << static_cast<int>(b) 
-              << std::endl;
+              << Nebulite::Utility::Capture::endl;
     return Nebulite::Constants::ErrorTable::NONE();
 }
 const std::string Fill::fill_name = "fill";

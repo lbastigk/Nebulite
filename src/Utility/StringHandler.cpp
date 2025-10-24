@@ -1,5 +1,7 @@
 #include "Utility/StringHandler.hpp"
 
+#include "Utility/Capture.hpp"
+
 bool Nebulite::Utility::StringHandler::containsAnyOf(const std::string& str, const std::string& chars) {
     return std::any_of(str.begin(), str.end(), [&](char c) {
         return chars.find(c) != std::string::npos;
@@ -274,12 +276,13 @@ std::vector<std::string> Nebulite::Utility::StringHandler::parseQuotedArguments(
     
     // Warning for unclosed quotes
     if (state.inAnyQuote()) {
-        std::cerr << "Warning: Unclosed quote in command: " << cmd << std::endl;
+        Nebulite::Utility::Capture::cerr() << "Warning: Unclosed quote in command: " << cmd << Nebulite::Utility::Capture::endl;
     }
     
     return result;
 }
 
+// cppcheck-suppress constParameterReference
 std::string Nebulite::Utility::StringHandler::recombineArgs(int argc, char* argv[]) {
     std::string result;
     for (int i = 0; i < argc; ++i) {

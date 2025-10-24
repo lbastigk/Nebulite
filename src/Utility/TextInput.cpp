@@ -9,10 +9,7 @@ TextInput::TextInput(){
 std::string TextInput::submit(){
     if (!consoleInputBuffer->empty()) {
         std::string input = *consoleInputBuffer;
-
-        // History and output
-        commandHistory.emplace_back(input);
-        consoleOutput.emplace_back("> " + input);
+        insertLine(input, LineEntry::LineType::INPUT);
 
         // Like in typical consoles, we clear the output
         commandIndexZeroBuffer.clear();
@@ -21,29 +18,43 @@ std::string TextInput::submit(){
         // Reset cursor
         cursorOffset = 0;
 
+        // Reset history navigation
+        selectedCommandIndex = 0;
+
         return input;
     }
     // Use last command if input is empty
     if(!commandHistory.empty()){
         std::string lastCommand = commandHistory.back();
-        consoleOutput.emplace_back("> " + lastCommand);
+        insertLine(lastCommand, LineEntry::LineType::INPUT);
+
+        // Reset history navigation
+        selectedCommandIndex = 0;
+
         return lastCommand;
     }
+    // Nothing to submit
     return "";
 }
 
-void TextInput::insertLine(const std::string& line, submitType type){
-    if(type == submitType::COUT){
-        consoleOutput.emplace_back(line);
-    }
-    else if(type == submitType::CERR){
-        consoleOutput.emplace_back("ERROR: " + line);
-    }
-    else{
-        // We should not be inserting INPUT lines here
-        // But we will still do so
-        commandHistory.emplace_back(line);
-        consoleOutput.emplace_back("> " + line);
+void TextInput::insertLine(const std::string& line, LineEntry::LineType type){
+    switch(type){
+        case LineEntry::LineType::COUT: {
+            LineEntry entry(line, LineEntry::LineType::COUT);
+            consoleOutput.emplace_back(entry);
+            break;
+        }
+        case LineEntry::LineType::CERR: {
+            LineEntry entry(line, LineEntry::LineType::CERR);
+            consoleOutput.emplace_back(entry);
+            break;
+        }
+        case LineEntry::LineType::INPUT: {
+            LineEntry entry(line, LineEntry::LineType::INPUT);
+            commandHistory.emplace_back(line);
+            consoleOutput.emplace_back(entry);
+            break;
+        }
     }
 }
 

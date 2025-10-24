@@ -391,7 +391,7 @@ void Nebulite::Utility::JSON::set(const std::string& key, const T& value) {
 
     // Check if key is valid
     if (!RjDirectAccess::isValidKey(key)) {
-        std::cerr << "Invalid key: " << key << std::endl;
+        Nebulite::Utility::Capture::cerr() << "Invalid key: " << key << Nebulite::Utility::Capture::endl;
         return;
     }
 
@@ -554,13 +554,13 @@ namespace{
     }
 
     inline void convertVariantErrorMessage(const std::string& oldType, const std::string& newType){
-        std::cerr << "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
+        Nebulite::Utility::Capture::cerr() << "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
                   << oldType
                   << " to " << newType << ".\n"
                   << "Please add the required conversion.\n"
                   << "Fallback conversion from String to any Integral type was disabled due to potential lossy data conversion.\n"
                   << "Rather, it is recommended to add one explicit conversion path per datatype.\n"
-                  << "Returning default value." << std::endl;
+                  << "Returning default value." << Nebulite::Utility::Capture::endl;
     }
 }
 

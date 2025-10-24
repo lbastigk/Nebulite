@@ -40,26 +40,26 @@ bool Nebulite::Core::Texture::copyTexture() {
     Uint32 format;
     int access;
     if (SDL_QueryTexture(texture, &format, &access, &w, &h) != 0) {
-        std::cerr << "Failed to query texture: " << SDL_GetError() << std::endl;
+        Nebulite::Utility::Capture::cerr() << "Failed to query texture: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
         return false;
     }
 
     // Create a new texture with streaming access for modifications
     SDL_Texture* newTexture = SDL_CreateTexture(globalSpace->getSdlRenderer(), format, SDL_TEXTUREACCESS_STREAMING, w, h);
     if (!newTexture) {
-        std::cerr << "Failed to create new texture: " << SDL_GetError() << std::endl;
+        Nebulite::Utility::Capture::cerr() << "Failed to create new texture: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
         return false;
     }
 
     // Copy the content from the old texture to the new one
     if (SDL_SetRenderTarget(globalSpace->getSdlRenderer(), newTexture) != 0) {
-        std::cerr << "Failed to set render target: " << SDL_GetError() << std::endl;
+        Nebulite::Utility::Capture::cerr() << "Failed to set render target: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
         SDL_DestroyTexture(newTexture);
         return false;
     }
 
     if (SDL_RenderCopy(globalSpace->getSdlRenderer(), texture, nullptr, nullptr) != 0) {
-        std::cerr << "Failed to copy texture: " << SDL_GetError() << std::endl;
+        Nebulite::Utility::Capture::cerr() << "Failed to copy texture: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
         SDL_SetRenderTarget(globalSpace->getSdlRenderer(), nullptr);
         SDL_DestroyTexture(newTexture);
         return false;
@@ -85,7 +85,7 @@ void Nebulite::Core::Texture::loadTextureFromFile(const std::string& filePath) {
         texture = newTexture;
         textureStoredLocally = false; // New texture is not yet modified
     } else {
-        std::cerr << "Failed to load texture from file: " << filePath << std::endl;
+        Nebulite::Utility::Capture::cerr() << "Failed to load texture from file: " << filePath << Nebulite::Utility::Capture::endl;
     }
 }
 

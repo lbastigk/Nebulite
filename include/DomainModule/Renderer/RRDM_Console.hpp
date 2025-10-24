@@ -55,6 +55,16 @@ public:
     static const std::string consoleZoom_name;
     static const std::string consoleZoom_desc;
 
+    /**
+     * @brief Sets a background image for the console.
+     * @param argc Number of arguments.
+     * @param argv Argument values: [image_path].
+     * @return Error code.
+     */
+    Nebulite::Constants::Error consoleSetBackground(int argc,  char* argv[]);
+    static const std::string consoleSetBackground_name;
+    static const std::string consoleSetBackground_desc;
+
     //------------------------------------------
     // Category strings
 
@@ -71,7 +81,8 @@ public:
         // we cannot do much here, since renderer might not be initialized yet
         // so we do the actual initialization in update() when needed
         bindCategory(console_name, &console_desc);
-        bindFunction(&Console::consoleZoom, consoleZoom_name, &consoleZoom_desc);
+        bindFunction(&Console::consoleZoom,             consoleZoom_name,           &consoleZoom_desc);
+        bindFunction(&Console::consoleSetBackground,    consoleSetBackground_name,  &consoleSetBackground_desc);
     }
 private: 
     //------------------------------------------
@@ -80,7 +91,7 @@ private:
     // Key to toggle console
     std::string toggleKey = "input.keyboard.delta.tab";
 
-    uint8_t MINIMUM_LINES = 5;      // Minimum number of lines to show, including input line
+    uint8_t MINIMUM_LINES = 8;      // Minimum number of lines to show, including input line
     uint8_t LINE_PADDING = 10;      // Padding between lines in pixels
     uint8_t FONT_MAX_SIZE = 24;     // Maximum font size
 
@@ -96,6 +107,9 @@ private:
     // Flag to indicate if text alignment needs recalculation
     bool flag_recalculateTextAlignment = true;
 
+    // Scrolling offset for output lines
+    uint16_t outputScrollingOffset = 0;
+
     /**
      * @brief Initializes the console, setting up the font and other necessary components.
      */
@@ -105,12 +119,17 @@ private:
     // Texture and Font related
 
     // Font for console text
-	TTF_Font* consoleFont;
+	TTF_Font* consoleFont = nullptr;
 
     /**
      * @brief Rectangle defining the input text area.
      */
 	SDL_Rect textInputRect;
+
+    /**
+     * @brief Texture for the background image.
+     */
+    SDL_Texture* backgroundImageTexture = nullptr;
 
     /**
      * @brief Rectangle defining the highlighted text area.
@@ -121,6 +140,18 @@ private:
      * @brief Rectangle used for each output line.
      */
     SDL_Rect textOutputRect;
+
+    /**
+     * @struct Colors
+     * @brief Struct to hold color definitions for the console.
+     */
+    struct Colors{
+        SDL_Color background = { 30,  30, 100, 150};    // Semi-transparent gray-blue
+        SDL_Color input      = {200, 200, 200, 255};    // Light gray
+        SDL_Color highlight  = {100, 100, 100, 255};    // Dark gray
+        SDL_Color cerrStream = {255,  40,  40, 255};    // Light Red
+        SDL_Color coutStream = {255, 255, 255, 255};    // White
+    }color;
 
     // Texture for console rendering
     struct SDL_Texture_Wrapper{
@@ -136,16 +167,14 @@ private:
 
     /**
 	 * @brief Renders the console to the screen.
-     * 
-     * @todo Improve rendering by always rendering a fixed number of lines,
-     * or less if size starts to become an issue.
-     * Setting size and spacing automatically based on console height.
 	 */
 	void renderConsole();
 
     /**
      * @brief Populates vector line_y_positions with the y positions of each line,
      * and sets font size accordingly.
+     * 
+     * @todo Make sure the lines are aligned at the top instead of the bottom to reduce jitter when resizing.
      * 
      * @return The calculated line height.
      */
@@ -160,6 +189,69 @@ private:
      * @brief Processes the current mode of the console.
      */
     void processMode();
+
+    //------------------------------------------
+    // Processing helpers
+
+    /**
+     * @brief Processes a keydown event.
+     */
+    void processKeyDownEvent(const SDL_KeyboardEvent& key);
+
+    /**
+     * @brief Submits the current command in the text input.
+     */
+    void keyTriggerSubmit();
+
+    /**
+     * @brief Scrolls the output up by one line.
+     */
+    void keyTriggerScrollUp();
+
+    /**
+     * @brief Scrolls the output down by one line.
+     */
+    void keyTriggerScrollDown();
+
+    /**
+     * @brief Zooms the console in, if ctrl is held.
+     */
+    void keyTriggerZoomIn(const SDL_KeyboardEvent& key);
+
+    /**
+     * @brief Zooms the console out, if ctrl is held.
+     */
+    void keyTriggerZoomOut(const SDL_KeyboardEvent& key);
+
+    //------------------------------------------
+    // RenderConsole helpers
+
+    /**
+     * @brief Ensures the console texture is created and valid.
+     * @return true if the created console texture is valid, false if creation failed.
+     */
+    bool ensureConsoleTexture();
+
+    /**
+     * @brief Draws the background of the console.
+     */
+    void drawBackground();
+
+    /**
+     * @brief Draws the input text.
+     * 
+     * @param lineHeight The height of each line in pixels.
+     */
+    void drawInput(uint16_t lineHeight);
+
+    /**
+     * @brief Draws the output lines.
+     * 
+     * @param maxLineLength The maximum length of a line before linebreaking, in characters.
+     * 
+     * @todo Newline handling does not work if a line is split into more than two lines.
+     */
+    void drawOutput(uint16_t maxLineLength);
 
     //------------------------------------------
     // Mirrored from Renderer

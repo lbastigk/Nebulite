@@ -23,6 +23,10 @@
 //------------------------------------------
 namespace Nebulite {
 namespace Utility {
+
+// Forward declarations
+class Capture;
+
 /**
  * @class Nebulite::Utility::StringHandler
  * @brief Utility functions for string manipulation and parsing.
@@ -121,6 +125,8 @@ public:
 
     /**
      * @brief Parses a command string into individual arguments, taking quotes into account.
+     * 
+     * @param cmd The command string to parse.
      */
     static std::vector<std::string> parseQuotedArguments(const std::string& cmd);
 

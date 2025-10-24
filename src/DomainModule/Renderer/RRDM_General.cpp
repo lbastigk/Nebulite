@@ -97,7 +97,7 @@ Nebulite::Constants::Error General::spawn(int argc,  char* argv[]){
         domain->append(ro);
     }
     else{
-        std::cerr << "No renderobject name provided!" << std::endl;
+        Nebulite::Utility::Capture::cerr() << "No renderobject name provided!" << Nebulite::Utility::Capture::endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     return Nebulite::Constants::ErrorTable::NONE();

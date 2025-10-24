@@ -1,8 +1,8 @@
 #include "Utility/JSON.hpp"
 
-#include "DomainModule/JSDM.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Constants/ErrorTypes.hpp"
-#include <vector>
+#include "DomainModule/JSDM.hpp"
 
 Nebulite::Utility::JSON::JSON(Nebulite::Core::GlobalSpace* globalSpace)
 : Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, globalSpace)
@@ -170,7 +170,7 @@ void Nebulite::Utility::JSON::set_subdoc(const char* key, Nebulite::Utility::JSO
         // Since we inserted an entire document, we need to invalidate its child keys:
         invalidate_child_keys(key);
     } else {
-        std::cerr << "Failed to create or access path: " << key << std::endl;
+        Nebulite::Utility::Capture::cerr() << "Failed to create or access path: " << key << Nebulite::Utility::Capture::endl;
     }
 }
 

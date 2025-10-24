@@ -14,7 +14,7 @@ std::string Nebulite::Utility::FileManagement::LoadFile(const std::string& link)
     // Use C-style file I/O to avoid locale issues
     FILE* file = fopen(link.c_str(), "rb");
     if (!file) {
-        std::cerr << "File '" << link << "' could not be opened!" << std::endl;
+        Nebulite::Utility::Capture::cerr() << "File '" << link << "' could not be opened!" << Nebulite::Utility::Capture::endl;
         return "";
     }
     
@@ -24,7 +24,7 @@ std::string Nebulite::Utility::FileManagement::LoadFile(const std::string& link)
     fseek(file, 0, SEEK_SET);
     
     if (fileSize <= 0) {
-        std::cerr << "File '" << link << "' is empty or invalid!" << std::endl;
+        Nebulite::Utility::Capture::cerr() << "File '" << link << "' is empty or invalid!" << Nebulite::Utility::Capture::endl;
         fclose(file);
         return "";
     }
@@ -44,7 +44,7 @@ void Nebulite::Utility::FileManagement::WriteFile(const std::string& filename, c
 
     std::ofstream file(filepath, std::ios::out);
     if (!file.is_open()) {
-        std::cerr << "File '" << filepath << "' could not be opened/created for writing!" << std::endl;
+        Nebulite::Utility::Capture::cerr() << "File '" << filepath << "' could not be opened/created for writing!" << Nebulite::Utility::Capture::endl;
         return;
     }
     file << text;
@@ -58,7 +58,7 @@ std::string Nebulite::Utility::FileManagement::currentDir() {
     try {
         return std::filesystem::current_path().string();
     } catch (const std::exception& e) {
-        std::cerr << "Error getting current directory: " << e.what() << std::endl;
+        Nebulite::Utility::Capture::cerr() << "Error getting current directory: " << e.what() << Nebulite::Utility::Capture::endl;
         return "";
     }
 }

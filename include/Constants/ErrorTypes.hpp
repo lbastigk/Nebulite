@@ -41,6 +41,7 @@
 
 // Nebulite
 #include "Nebulite.hpp"                       // Namespace Documentation
+#include "Utility/Capture.hpp"                // For capturing error output
 
 //------------------------------------------
 namespace Nebulite{
@@ -102,10 +103,11 @@ public:
         return type != Error::NONE;
     }
 
-    void print() const {
-        if(description && type != NONE) std::cout << *description << std::endl;
+    std::string toString() const {
+        if(description && type != NONE) return *description;
+        return "";
     }
-    
+
 private:
     std::string* description;
     Type type;
@@ -189,8 +191,8 @@ public:
 private:
     Error addErrorImpl(const char* description, Error::Type type = Error::NON_CRITICAL){
         if (count == UINT16_MAX) {
-            std::cerr << "ErrorTable has reached its maximum capacity of " << UINT16_MAX << " errors." << std::endl;
-            std::cerr << "Make sure that new errors added are removed after some time if they are not needed anymore." << std::endl;
+            Nebulite::Utility::Capture::cerr() << "ErrorTable has reached its maximum capacity of " << UINT16_MAX << " errors." << Nebulite::Utility::Capture::endl;
+            Nebulite::Utility::Capture::cerr() << "Make sure that new errors added are removed after some time if they are not needed anymore." << Nebulite::Utility::Capture::endl;
             std::exit(EXIT_FAILURE);
         }
         errors.emplace_back(new std::string(description), type);
@@ -263,6 +265,10 @@ public:
         }
         static inline Error CRITICAL_TEXTURE_MODIFICATION_FAILED(){
             static Error error = getInstance().addError("Critical Error: Texture modification failed.", Error::CRITICAL);
+            return error;
+        }
+        static inline Error CRITICAL_TEXTURE_INVALID(){
+            static Error error = getInstance().addError("Critical Error: Texture is invalid.", Error::CRITICAL);
             return error;
         }
     } TEXTURE;

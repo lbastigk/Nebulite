@@ -290,18 +290,17 @@ private:
     uint64_t uniqueIdCounter[UniqueIdTypeSize] = {0, 0};
     absl::flat_hash_map<std::string, uint64_t> uniqueIdMap[UniqueIdTypeSize];
     std::mutex uniqueIdMutex[UniqueIdTypeSize];
-    
-    
 
     //------------------------------------------
     // Structs
 
     // For resolving tasks
-    struct QueueResult {
+    struct QueueResult
+    {
         Nebulite::Core::taskQueueResult script;       // Result of script-tasks
         Nebulite::Core::taskQueueResult internal;     // Result of internal-tasks
         Nebulite::Core::taskQueueResult always;       // Result of always-tasks
-    }queueResult;
+    } queueResult;
 
     /**
      * @brief Contains names used in the global space that are not bound to the global document.

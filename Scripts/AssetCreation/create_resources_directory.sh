@@ -23,13 +23,16 @@ mkdir -p ./Sprites
 #----------------------------------------
 # Fonts
 cd $ResourcesDir/Fonts/
-if [ ! -f "Arimo-Bold.ttf" ] || [ ! -f "Arimo-BoldItalic.ttf" ] || [ ! -f "Arimo-Italic.ttf" ] || [ ! -f "Arimo-Regular.ttf" ]
-then
+if ! ls Arimo*.ttf JetBrains*.ttf 1> /dev/null 2>&1; then
   git clone https://github.com/googlefonts/Arimo
   mv ./Arimo/fonts/ttf/*.ttf ./
   rm -rf ./Arimo/
+
+  git clone https://github.com/JetBrains/JetBrainsMono.git
+  mv ./JetBrainsMono/fonts/ttf/*.ttf ./
+  rm -rf ./JetBrainsMono/
 else
-  echo "Skipping Arimo (already exists)"
+  echo "Skipping Arimo/JetBrainsMono (already exists)"
 fi
 
 #----------------------------------------

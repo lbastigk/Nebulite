@@ -107,7 +107,7 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
 
     // Check for result
     if(isnan(result)){
-        std::cerr << "Evaluated logic to NAN! Logic is: " << expr << std::endl;
+        Nebulite::Utility::Capture::cerr() << "Evaluated logic to NAN! Logic is: " << expr << Nebulite::Utility::Capture::endl;
         // A NaN-Result can happen if any variable resolved isnt a number, but a text
         // Under usual circumstances, this is easily avoidable
         // by designing the values to only be assigned a numeric value.
@@ -138,7 +138,7 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
     // Resolve logical statement, using self as context for other
     double result = cmd->logicalArg.evalAsDouble(cmd->selfPtr->getDoc());
     if(isnan(result)){
-        std::cerr << "Evaluated logic to NAN! Logic is: " << expr << ". Resetting to 0" << std::endl;
+        Nebulite::Utility::Capture::cerr() << "Evaluated logic to NAN! Logic is: " << expr << ". Resetting to 0" << Nebulite::Utility::Capture::endl;
         cmd->logicalArg.parse("0", docCache, cmd->selfPtr->getDoc(), globalDoc);
         return false;
     }
@@ -151,7 +151,7 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
 void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interaction::Ruleset> toAppend){
     // Skip entries with empty topics - they should be local only
     if (toAppend->topic.empty()) {
-        std::cerr << "Warning: Attempted to broadcast entry with empty topic - skipping" << std::endl;
+        Nebulite::Utility::Capture::cerr() << "Warning: Attempted to broadcast entry with empty topic - skipping" << Nebulite::Utility::Capture::endl;
         return;
     }
     // Get index
@@ -224,10 +224,10 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::
             target->set_concat(key.c_str(),valStr.c_str());
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::null:
-            std::cerr << "Assignment expression has null operation - skipping" << std::endl;
+            Nebulite::Utility::Capture::cerr() << "Assignment expression has null operation - skipping" << Nebulite::Utility::Capture::endl;
             break;
         default:
-            std::cerr << "Unknown operation type! Enum value:" << (int)operation << std::endl;
+            Nebulite::Utility::Capture::cerr() << "Unknown operation type! Enum value:" << (int)operation << Nebulite::Utility::Capture::endl;
             break;
     }
 }
@@ -248,10 +248,10 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::
             target->set_concat(key.c_str(),std::to_string(value).c_str());
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::null:
-            std::cerr << "Assignment expression has null operation - skipping" << std::endl;
+            Nebulite::Utility::Capture::cerr() << "Assignment expression has null operation - skipping" << Nebulite::Utility::Capture::endl;
             break;
         default:
-            std::cerr << "Unknown operation type! Enum value:" << (int)operation << std::endl;
+            Nebulite::Utility::Capture::cerr() << "Unknown operation type! Enum value:" << (int)operation << Nebulite::Utility::Capture::endl;
             break;
     }
 }
@@ -269,13 +269,13 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::
             *target *= value;
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::concat:
-            std::cerr << "Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of an Invoke!" << std::endl;
+            Nebulite::Utility::Capture::cerr() << "Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of an Invoke!" << Nebulite::Utility::Capture::endl;
             break;
         case Nebulite::Interaction::Logic::Assignment::Operation::null:
-            std::cerr << "Assignment expression has null operation - skipping" << std::endl;
+            Nebulite::Utility::Capture::cerr() << "Assignment expression has null operation - skipping" << Nebulite::Utility::Capture::endl;
             break;
         default:
-            std::cerr << "Unknown operation type! Enum value:" << (int)operation << std::endl;
+            Nebulite::Utility::Capture::cerr() << "Unknown operation type! Enum value:" << (int)operation << Nebulite::Utility::Capture::endl;
             break;
     }
 }
@@ -309,10 +309,10 @@ void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Inte
             targetDocument = globalDoc;
             break;
         case Nebulite::Interaction::Logic::Assignment::Type::null:
-            std::cerr << "Assignment expression has null type - skipping" << std::endl;
+            Nebulite::Utility::Capture::cerr() << "Assignment expression has null type - skipping" << Nebulite::Utility::Capture::endl;
             continue; // Skip this expression
         default:
-            std::cerr << "Unknown assignment type: " << (int)assignment.onType << std::endl;
+            Nebulite::Utility::Capture::cerr() << "Unknown assignment type: " << (int)assignment.onType << Nebulite::Utility::Capture::endl;
             return; // Exit if unknown type
         }
 
@@ -438,13 +438,13 @@ std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const st
 }
 
 std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const std::string& input, Nebulite::Core::RenderObject* selfAndOther) {
-    Nebulite::Utility::JSON* self = selfAndOther->getDoc();
-    Nebulite::Utility::JSON* other = selfAndOther->getDoc();
-    Nebulite::Utility::JSON* global = this->globalDoc;
+    Nebulite::Utility::JSON* docSelf = selfAndOther->getDoc();
+    Nebulite::Utility::JSON* docOther = selfAndOther->getDoc();
+    Nebulite::Utility::JSON* docGlobal = this->globalDoc;
 
     // Parse string into Expression
     Nebulite::Interaction::Logic::ExpressionPool expr;
-    expr.parse(input, docCache, self, global);
-    return expr.eval(other);
+    expr.parse(input, docCache, docSelf, docGlobal);
+    return expr.eval(docOther);
 }
 

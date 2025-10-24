@@ -19,6 +19,7 @@
 // Nebulite
 #include "Interaction/Logic/Expression.hpp"
 #include "Constants/ThreadSettings.hpp"       // Poolsize is defined here
+#include "Utility/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite {

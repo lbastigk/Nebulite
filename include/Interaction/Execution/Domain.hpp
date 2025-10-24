@@ -71,7 +71,7 @@ public:
           Nebulite::Constants::ErrorTable::NONE(), 
           Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
       )),
-       domain(domain), doc(doc), global(global)
+      domain(domain), doc(doc), global(global)
     {};
 
     //------------------------------------------

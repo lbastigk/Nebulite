@@ -18,6 +18,9 @@
 #include <fstream>
 #include <string>
 
+// Nebulite
+#include "Utility/Capture.hpp"
+
 //------------------------------------------
 namespace Nebulite{
 namespace Utility {
@@ -44,10 +47,9 @@ public:
      * @brief Loads the contents of a file into a string.
      * 
      * This function takes a file path and reads its contents into a string.
-     * Outputs error messages to std::cerr if the file cannot be opened or read.
+     * Outputs error messages to Nebulite::Utility::Capture::cerr() if the file cannot be opened or read.
      * 
      * @param link The path to the file to read.
-     * 
      * @return The contents of the file as a string. If the file cannot be read,
      *         an empty string is returned.
      */
@@ -57,7 +59,7 @@ public:
      * @brief Writes a string to a file.
      * 
      * This function takes a filename and a string and writes the string to the file.
-     * Outputs error messages to std::cerr if the file cannot be opened/created for writing.
+     * Outputs error messages to Nebulite::Utility::Capture::cerr() if the file cannot be opened/created for writing.
      * 
      * @param filename The name of the file to write to.
      * @param text The text to write to the file.
@@ -77,7 +79,7 @@ public:
      * @brief Returns the current working directory.
      * 
      * This function returns the current working directory as a string.
-     * Outputs error messages to std::cerr if the directory cannot be accessed.
+     * Outputs error messages to Nebulite::Utility::Capture::cerr() if the directory cannot be accessed.
      * 
      * @return The current working directory as a string.
      */

@@ -150,7 +150,7 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
             case Entry::From::None:
             default:
                 // Should not happen
-                std::cerr << __FUNCTION__ << ": Tried to register variable with no known context!" << std::endl;
+                Nebulite::Utility::Capture::cerr() << __FUNCTION__ << ": Tried to register variable with no known context!" << Nebulite::Utility::Capture::endl;
                 break;
         }
 
@@ -358,25 +358,25 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(const std::str
 }
 
 void Nebulite::Interaction::Logic::Expression::printCompileError(const Entry& entry, const int error) {
-    std::cerr << "-----------------------------------------------------------------" << std::endl;
-    std::cerr << "Error compiling expression: '" << entry.str << "' Error code: " << error << std::endl;
-    std::cerr << "You might see this message multiple times due to expression parallelization." << std::endl;
-    std::cerr << std::endl;
-    std::cerr << "If you only see the start of your expression, make sure to encompass your expression in quotes" << std::endl;
-    std::cerr << "Some functions assume that the expression is inside, e.g. argv[1]." << std::endl;
-    std::cerr << "Example: " << std::endl;
-    std::cerr << "if $(1+1)     echo here! # works" << std::endl;
-    std::cerr << "if $(1 + 1)   echo here! # doesnt work!" << std::endl;
-    std::cerr << "if '$(1 + 1)' echo here! # works" << std::endl;
-    std::cerr << std::endl;
-    std::cerr << "Registered functions and variables:\n";
+    Nebulite::Utility::Capture::cerr() << "-----------------------------------------------------------------" << Nebulite::Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << "Error compiling expression: '" << entry.str << "' Error code: " << std::to_string(error) << Nebulite::Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << "You might see this message multiple times due to expression parallelization." << Nebulite::Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << Nebulite::Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << "If you only see the start of your expression, make sure to encompass your expression in quotes" << Nebulite::Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << "Some functions assume that the expression is inside, e.g. argv[1]." << Nebulite::Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << "Example: " << Nebulite::Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << "if $(1+1)     echo here! # works" << Nebulite::Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << "if $(1 + 1)   echo here! # doesnt work!" << Nebulite::Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << "if '$(1 + 1)' echo here! # works" << Nebulite::Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << Nebulite::Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << "Registered functions and variables:\n";
     for (const auto& var : te_variables) {
-        std::cerr << "\t'" << var.name << "'\n";
+        Nebulite::Utility::Capture::cerr() << "\t'" << var.name << "'\n";
     }
-    std::cerr << std::endl;
-    std::cerr << "Resetting expression to always yield 'nan'" << std::endl;
-    std::cerr << std::endl;
-    std::cerr << std::endl;
+    Nebulite::Utility::Capture::cerr() << Nebulite::Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << "Resetting expression to always yield 'nan'" << Nebulite::Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << Nebulite::Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << Nebulite::Utility::Capture::endl;
 }
 
 //------------------------------------------
@@ -388,7 +388,7 @@ Nebulite::Interaction::Logic::Expression::Expression() {
     reset();
 }
 
-void Nebulite::Interaction::Logic::Expression::parse(const std::string& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global){
+void Nebulite::Interaction::Logic::Expression::parse(const std::string& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global) {
     reset();
 
     // Set references
@@ -422,7 +422,7 @@ bool Nebulite::Interaction::Logic::Expression::handleEntryTypeVariable(std::stri
     // See if the variable contains an inner expression
     if(entry.str.find('$') != std::string::npos || entry.str.find('{') != std::string::npos) {
         if(max_recursion_depth == 0) {
-            std::cerr << "Error: Maximum recursion depth reached when evaluating variable: " << entry.key << std::endl;
+            Nebulite::Utility::Capture::cerr() << "Error: Maximum recursion depth reached when evaluating variable: " << entry.key << Nebulite::Utility::Capture::endl;
             return false;
         }
         // Create a temporary expression to evaluate the inner expression
@@ -439,21 +439,21 @@ bool Nebulite::Interaction::Logic::Expression::handleEntryTypeVariable(std::stri
     switch(context) {
         case Entry::From::self:
             if(self == nullptr){
-                std::cerr << "Error: Null self reference in expression: " << key << std::endl;
+                Nebulite::Utility::Capture::cerr() << "Error: Null self reference in expression: " << key << Nebulite::Utility::Capture::endl;
                 return false;
             }
             token = self->get<std::string>(key, "0");
             break;
         case Entry::From::other:
             if(current_other == nullptr) {
-                std::cerr << "Error: Null other reference in expression: " << key << std::endl;
+                Nebulite::Utility::Capture::cerr() << "Error: Null other reference in expression: " << key << Nebulite::Utility::Capture::endl;
                 return false;
             }
             token = current_other->get<std::string>(key, "0");
             break;
         case Entry::From::global:
             if (global == nullptr) {
-                std::cerr << "Error: Null global reference in expression: " << key << std::endl;
+                Nebulite::Utility::Capture::cerr() << "Error: Null global reference in expression: " << key << Nebulite::Utility::Capture::endl;
                 return false;
             }
             token = global->get<std::string>(key, "0");
@@ -461,7 +461,7 @@ bool Nebulite::Interaction::Logic::Expression::handleEntryTypeVariable(std::stri
         case Entry::From::resource:
         default:
             if (globalCache == nullptr) {
-                std::cerr << "Error: Null globalCache reference in expression: " << key  << ". If this shouldn't be a Resource reference, did you forget the prefix self/other/global?" << std::endl;
+                Nebulite::Utility::Capture::cerr() << "Error: Null globalCache reference in expression: " << key  << ". If this shouldn't be a Resource reference, did you forget the prefix self/other/global?" << Nebulite::Utility::Capture::endl;
                 return false;
             }
             token = globalCache->get<std::string>(key, "0");

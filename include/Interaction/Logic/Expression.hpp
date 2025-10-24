@@ -20,6 +20,7 @@
 // Nebulite
 #include "Interaction/Logic/VirtualDouble.hpp"
 #include "Utility/DocumentCache.hpp"
+#include "Utility/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite {
