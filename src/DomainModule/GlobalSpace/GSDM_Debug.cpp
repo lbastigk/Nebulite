@@ -112,6 +112,15 @@ Usage: standardfile renderobject
 Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.
 )";
 
+/**
+ * @todo Use new capture system for error logging
+ * Perhaps along the lines of:
+ * 
+ * Capture::appendStream(errorFile);
+ * Capture::removeStream(errorFile);
+ * 
+ * Make sure errorFile is a unique_ptr<std::ofstream>
+ */
 Nebulite::Constants::Error Debug::errorlog(int argc,  char* argv[]){
     // Initialize the error logging buffer
     if(!originalCerrBuf) {

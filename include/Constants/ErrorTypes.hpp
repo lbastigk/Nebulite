@@ -41,6 +41,7 @@
 
 // Nebulite
 #include "Nebulite.hpp"                       // Namespace Documentation
+#include "Utility/Capture.hpp"                // For capturing error output
 
 //------------------------------------------
 namespace Nebulite{
@@ -190,8 +191,8 @@ public:
 private:
     Error addErrorImpl(const char* description, Error::Type type = Error::NON_CRITICAL){
         if (count == UINT16_MAX) {
-            std::cerr << "ErrorTable has reached its maximum capacity of " << UINT16_MAX << " errors." << std::endl;
-            std::cerr << "Make sure that new errors added are removed after some time if they are not needed anymore." << std::endl;
+            Capture::cerr() << "ErrorTable has reached its maximum capacity of " << UINT16_MAX << " errors." << std::endl;
+            Capture::cerr() << "Make sure that new errors added are removed after some time if they are not needed anymore." << std::endl;
             std::exit(EXIT_FAILURE);
         }
         errors.emplace_back(new std::string(description), type);
