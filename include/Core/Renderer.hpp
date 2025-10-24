@@ -75,7 +75,7 @@ public:
 	 * 
 	 * @param serialOrLink The JSON string or link to deserialize.
 	 */
-	void deserialize(const std::string& serialOrLink){
+	void deserialize(std::string const& serialOrLink){
 		env.deserialize(
 			serialOrLink, 
 			getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
@@ -458,15 +458,22 @@ private:
 
 	//------------------------------------------
 	// Audio
-	SDL_AudioDeviceID audioDevice = 0;
-	SDL_AudioSpec desired, obtained;
-	const int frequency = 440;  // 440 Hz beep
-	const int duration = 200;   // 200ms
-	const int sampleRate = 44100;
-	const int samples = (sampleRate * duration) / 1000;
-	std::vector<Sint16>* sineBuffer = nullptr;
-	std::vector<Sint16>* squareBuffer = nullptr;
-	std::vector<Sint16>* triangleBuffer = nullptr;
+	struct Audio{
+		SDL_AudioDeviceID device = 0;
+		SDL_AudioSpec desired, obtained;
+	} audio;
+	
+	struct BasicAudioWaveforms{
+		const int frequency = 440;  // 440 Hz beep
+		const int duration = 200;   // 200ms
+		const int sampleRate = 44100;
+		const int samples = (sampleRate * duration) / 1000;
+		std::vector<int16_t>* sineBuffer = nullptr;
+		std::vector<int16_t>* squareBuffer = nullptr;
+		std::vector<int16_t>* triangleBuffer = nullptr;
+	} basicAudioWaveforms;
+
+	
 
 	//------------------------------------------
 	//General Variables
@@ -509,7 +516,7 @@ private:
 	 * 
 	 * Used for RNG seeding.
 	 */
-    std::size_t hashString(const std::string& str){return std::hash<std::string>{}(str);};
+    std::size_t hashString(std::string const& str){return std::hash<std::string>{}(str);};
     
 	//------------------------------------------
 	// Renderer::tick related Functions
@@ -588,7 +595,7 @@ private:
 	 * 
 	 * @param link The file path to load the texture from.
 	 */
-	void loadTexture(std::string link);
+	void loadTexture(std::string const& link);
 
 	/**
 	 * @brief Texture container for the Renderer

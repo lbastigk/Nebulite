@@ -46,31 +46,31 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 	baseDirectory = Nebulite::Utility::FileManagement::currentDir();
 
 	// Waveform buffers: Sine wave buffer
-	sineBuffer = new std::vector<Sint16>(samples);
-	for (int i = 0; i < samples; i++) {
-		double time = (double)i / sampleRate;
-		(*sineBuffer)[i] = (Sint16)(32767 * 0.3 * sin(2.0 * M_PI * frequency * time));
+	basicAudioWaveforms.sineBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
+	for (int i = 0; i < basicAudioWaveforms.samples; i++) {
+		double time = (double)i / basicAudioWaveforms.sampleRate;
+		(*basicAudioWaveforms.sineBuffer)[i] = (Sint16)(32767 * 0.3 * sin(2.0 * M_PI * basicAudioWaveforms.frequency * time));
 	}
 
 	// Waveform buffers: Square wave buffer
-	squareBuffer = new std::vector<Sint16>(samples);
-	for (int i = 0; i < samples; i++) {
-		double time = (double)i / sampleRate;
-    
+	basicAudioWaveforms.squareBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
+	for (int i = 0; i < basicAudioWaveforms.samples; i++) {
+		double time = (double)i / basicAudioWaveforms.sampleRate;
+
 		// Square wave: alternates between +1 and -1
-		double phase = 2.0 * M_PI * frequency * time;
+		double phase = 2.0 * M_PI * basicAudioWaveforms.frequency * time;
 		double squareValue = (sin(phase) >= 0) ? 1.0 : -1.0;
 		
-		(*squareBuffer)[i] = (Sint16)(32767 * 0.3 * squareValue);
+		(*basicAudioWaveforms.squareBuffer)[i] = (Sint16)(32767 * 0.3 * squareValue);
 	}
 
 	// Waveform buffers: Triangle wave buffer
-	triangleBuffer = new std::vector<Sint16>(samples);
-	for (int i = 0; i < samples; i++) {
-		double time = (double)i / sampleRate;
-    
+	basicAudioWaveforms.triangleBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
+	for (int i = 0; i < basicAudioWaveforms.samples; i++) {
+		double time = (double)i / basicAudioWaveforms.sampleRate;
+
 		// Triangle wave: linear ramp up and down
-		double phase = fmod(frequency * time, 1.0);  // 0 to 1
+		double phase = fmod(basicAudioWaveforms.frequency * time, 1.0);  // 0 to 1
 		double triangleValue;
 		
 		if (phase < 0.5) {
@@ -79,7 +79,7 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 			triangleValue = 3.0 - 4.0 * phase;      // +1 to -1 (falling)
 		}
 		
-		(*triangleBuffer)[i] = (Sint16)(32767 * 0.3 * triangleValue);
+		(*basicAudioWaveforms.triangleBuffer)[i] = (Sint16)(32767 * 0.3 * triangleValue);
 	}
 
 	//------------------------------------------
@@ -171,15 +171,14 @@ void Nebulite::Core::Renderer::initSDL() {
 	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
 		Nebulite::Utility::Capture::cerr() << "SDL_Init Error: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
 	} else {
-		SDL_AudioSpec desired, obtained;
-		desired.freq = 44100;
-		desired.format = AUDIO_S16SYS;
-		desired.channels = 1;
-		desired.samples = 1024;
-		desired.callback = nullptr;
-		
-		audioDevice = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
-		if (audioDevice == 0) {
+		audio.desired.freq = 44100;
+		audio.desired.format = AUDIO_S16SYS;
+		audio.desired.channels = 1;
+		audio.desired.samples = 1024;
+		audio.desired.callback = nullptr;
+
+		audio.device = SDL_OpenAudioDevice(nullptr, 0, &audio.desired, &audio.obtained, 0);
+		if (audio.device == 0) {
 			Nebulite::Utility::Capture::cerr() << "Failed to open audio device: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
 		} else{
 			audioInitialized = true;
@@ -284,8 +283,8 @@ void Nebulite::Core::Renderer::reinsertAllObjects(){
 void Nebulite::Core::Renderer::beep() {
 	// Beep sound effect
 	if(audioInitialized) {
-		SDL_QueueAudio(audioDevice, squareBuffer->data(), samples * sizeof(Sint16));
-		SDL_PauseAudioDevice(audioDevice, 0);  // Start playing
+		SDL_QueueAudio(audio.device, basicAudioWaveforms.squareBuffer->data(), basicAudioWaveforms.samples * sizeof(Sint16));
+		SDL_PauseAudioDevice(audio.device, 0);  // Start playing
 	}
 }
 
@@ -580,7 +579,6 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 	if(obj->isTextureValid() == false){
 		obj->linkExternalTexture(TextureContainer[innerdir]);
 	}
-	SDL_Texture* texture = obj->getSDLTexture();
 
 	//------------------------------------------
 	// Source and Destination Rectangles
@@ -597,7 +595,7 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 
 	//------------------------------------------
 	// Error Checking
-	if(!texture){
+	if(!obj->getSDLTexture()){
 		Nebulite::Utility::Capture::cerr() << "Error: RenderObject ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << " texture with path '" << innerdir << "' not found" << Nebulite::Utility::Capture::endl;
 		return -1;
 	}
@@ -606,10 +604,9 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 	// Rendering
 
 	// Render the texture
-	int error_sprite = SDL_RenderCopy(renderer, texture, obj->getSrcRect(), obj->getDstRect());
+	int error_sprite = SDL_RenderCopy(renderer, obj->getSDLTexture(), obj->getSrcRect(), obj->getDstRect());
 
 	// Render the text
-	//*
 	int error_text = 0;
 	double val = obj->get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str());
 	if (val > 0){
@@ -619,9 +616,8 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 			dispPosX,
 			dispPosY
 		);
-		SDL_Texture* texture = obj->getTextTexture();
-		if(texture && obj->getTextRect()){
-			error_text = SDL_RenderCopy(renderer,texture,NULL,obj->getTextRect());
+		if(obj->getTextTexture() && obj->getTextRect()){
+			error_text = SDL_RenderCopy(renderer,obj->getTextTexture(),NULL,obj->getTextRect());
 		}
 	}
 	
@@ -671,7 +667,7 @@ void Nebulite::Core::Renderer::showFrame() {
 //------------------------------------------
 // Texture-Related
 
-void Nebulite::Core::Renderer::loadTexture(std::string link) {
+void Nebulite::Core::Renderer::loadTexture(std::string const& link) {
 	SDL_Texture* texture = loadTextureToMemory(link);
 	if (texture) {
 		TextureContainer[link] = texture;
