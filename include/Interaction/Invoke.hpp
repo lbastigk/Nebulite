@@ -134,7 +134,7 @@ public:
      * This function sends the specified invoke entry to all render objects
      * that are listening for the entry's topic.
      * 
-     * @param entry The invoke entry to broadcast.
+     * @param entry The invoke entry to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
     void broadcast(std::shared_ptr<Nebulite::Interaction::Ruleset> entry);
 
@@ -161,6 +161,7 @@ public:
      * 
      * @param entry The invoke entry to check.
      * @param otherObj The other render object to compare against.
+     * Make sure entry and otherObj are not the same object!
      * @return True if the invoke entry is true in the context of the other render object, false otherwise.
      */
     bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> entry, Nebulite::Core::RenderObject const* otherObj);

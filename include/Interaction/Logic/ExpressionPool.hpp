@@ -60,7 +60,10 @@ namespace Logic {
  */
 class ExpressionPool {
 public:
-    ExpressionPool() {_isReturnableAsDouble = false;}
+    ExpressionPool() {
+        _isReturnableAsDouble = false; 
+        _isAlwaysTrue = false; 
+    }
 
     // Disable copy constructor and assignment
     ExpressionPool(const ExpressionPool&) = delete;
@@ -105,6 +108,9 @@ public:
 
         // Store if this expression is returnable as double
         _isReturnableAsDouble = pool[0].isReturnableAsDouble();
+
+        // Check if expression is always true (i.e., "1")
+        _isAlwaysTrue = (*pool[0].getFullExpression() == "1");
     }
 
     /**
@@ -174,6 +180,13 @@ public:
         return _isReturnableAsDouble;
     }
 
+    /**
+     * @brief Checks if the expression is always true (i.e., "1").
+     */
+    bool isAlwaysTrue() {
+        return _isAlwaysTrue;
+    }
+
 private:
     // Pool of expressions
     std::array<Expression, INVOKE_EXPR_POOL_SIZE> pool;
@@ -190,6 +203,9 @@ private:
 
     // Storing info about the expression's returnability
     bool _isReturnableAsDouble;
+
+    // If the expression is just "1", meaning always true
+    bool _isAlwaysTrue;
 };
 } // namespace Logic
 } // namespace Interaction

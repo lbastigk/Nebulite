@@ -85,45 +85,12 @@ Nebulite::Interaction::Invoke::~Invoke() {
 // Checks
 
 bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd, Nebulite::Core::RenderObject const* otherObj) {
-    //------------------------------------------
-    // Pre-Checks
-    
-    // If self and other are the same object, the global check is always false
-    if(cmd->selfPtr == otherObj) return false;
-
     // Check if logical arg is as simple as just "1", meaning true
-    std::string_view expr = cmd->logicalArg.getFullExpressionStringview();
-    if(expr == "1") return true;
+    if(cmd->logicalArg.isAlwaysTrue()) return true;
 
-    // A logicalArg of "0" would never really be used in prod,
-    // (only for errors or quick removals of invokes in debugging)
-    // which is why this check -> return false is not done.
-
-    //------------------------------------------
-    // Evaluation
-
-    // Get result
     double result = cmd->logicalArg.evalAsDouble(otherObj->getDoc());
-
-    // Check for result
     if(isnan(result)){
-        Nebulite::Utility::Capture::cerr() << "Evaluated logic to NAN! Logic is: " << expr << Nebulite::Utility::Capture::endl;
-        // A NaN-Result can happen if any variable resolved isnt a number, but a text
-        // Under usual circumstances, this is easily avoidable
-        // by designing the values to only be assigned a numeric value.
-
-        // In case this happens, it might be helpful to set the logic to always false:
-        // This way, the error log does not happen all the time.
-        cmd->logicalArg.parse("0", docCache, cmd->selfPtr->getDoc(), globalDoc);
-
-        // This can become an unwanted behavior if the following is done:
-        // logicalArg = $(not($(global.states.xyz)))
-        // Perhaps that variable is 1 for now, 
-        // but some other routine sets it to a non-numeric string 
-        // e.g.: "wating"
-        // If we now set logicalArg to "0", it will remain 0 unless the invoke is reloaded by the RenderObject flag.
-
-        // Still, this behavior might be useful as it essentially says "This invoke has encountered an error, supressing evaulation"
+        // We consider NaN as false
         return false;
     }
     // Any double-value unequal to 0 is seen as "true"
@@ -131,29 +98,14 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
 }
 
 bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd) {
-    // Check if logical arg is as simple as just "1", meaning true
-    std::string_view expr = cmd->logicalArg.getFullExpressionStringview();
-    if(expr == "1") return true;
-
-    // Resolve logical statement, using self as context for other
-    double result = cmd->logicalArg.evalAsDouble(cmd->selfPtr->getDoc());
-    if(isnan(result)){
-        Nebulite::Utility::Capture::cerr() << "Evaluated logic to NAN! Logic is: " << expr << ". Resetting to 0" << Nebulite::Utility::Capture::endl;
-        cmd->logicalArg.parse("0", docCache, cmd->selfPtr->getDoc(), globalDoc);
-        return false;
-    }
-    return result != 0.0;
+    // Use selfPtr as otherObj
+    return checkRulesetLogicalCondition(cmd, cmd->selfPtr);
 }
 
 //------------------------------------------
 // Interactions
 
-void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interaction::Ruleset> toAppend){
-    // Skip entries with empty topics - they should be local only
-    if (toAppend->topic.empty()) {
-        Nebulite::Utility::Capture::cerr() << "Warning: Attempted to broadcast entry with empty topic - skipping" << Nebulite::Utility::Capture::endl;
-        return;
-    }
+void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interaction::Ruleset> toAppend){    
     // Get index
     uint32_t id_self = toAppend->id;
     uint32_t threadIndex = id_self % THREADRUNNER_COUNT;
@@ -170,13 +122,7 @@ void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std
         // Lock to safely read from broadcasted.entriesThisFrame
         std::lock_guard<std::mutex> broadcastLock(broadcasted.entriesThisFrame[i].mutex);
         
-        // Check if topic exists to avoid creating empty entries
-        /**
-         * @todo Optimize: Consider a separate list that stores all active topics per thread,
-         * to avoid searching through the entire broadcasted.entriesThisFrame map.
-         * 
-         * We could then update this list before the next listen phase starts.
-         */
+        // Check if any object has broadcasted on this topic
         auto topicIt = broadcasted.entriesThisFrame[i].Container.find(topic);
         if (topicIt == broadcasted.entriesThisFrame[i].Container.end()) {
             continue; // No entries for this topic in this thread
@@ -192,14 +138,8 @@ void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std
             // For all rulesets under this broadcaster and topic
             for (auto& [idx_ruleset, rulesetPair] : onTopicFromId.rulesets) {
                 // Check if logical condition is met
-                if (checkRulesetLogicalCondition(rulesetPair.entry, obj)) {
-                    // Activate the entry for this listener
-                    rulesetPair.listeners[listenerId] = BroadCastListenPair{rulesetPair.entry, obj, true};
-                }
-                else{
-                    // Deactivate the entry for this listener
-                    rulesetPair.listeners[listenerId] = BroadCastListenPair{rulesetPair.entry, obj, false};
-                }
+                bool pairStatus = checkRulesetLogicalCondition(rulesetPair.entry, obj);
+                rulesetPair.listeners[listenerId] = BroadCastListenPair{rulesetPair.entry, obj, pairStatus};
             }
         }
     }
@@ -427,8 +367,8 @@ void Nebulite::Interaction::Invoke::update() {
 // Standalone Expression Evaluation
 
 std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::string const& input) {
-    Nebulite::Utility::JSON* docSelf = this->emptyDoc;
-    Nebulite::Utility::JSON* docOther = this->emptyDoc;
+    Nebulite::Utility::JSON* docSelf = this->emptyDoc;      // no self context
+    Nebulite::Utility::JSON* docOther = this->emptyDoc;     // no other context
     Nebulite::Utility::JSON* docGlobal = this->globalDoc;
 
     // Parse string into Expression
@@ -438,6 +378,7 @@ std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::str
 }
 
 std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::string const& input, Nebulite::Core::RenderObject* selfAndOther) {
+    // Expression is evaluated within a domain's context, use it as self and other
     Nebulite::Utility::JSON* docSelf = selfAndOther->getDoc();
     Nebulite::Utility::JSON* docOther = selfAndOther->getDoc();
     Nebulite::Utility::JSON* docGlobal = this->globalDoc;
