@@ -115,7 +115,7 @@ private:
         Nebulite::Core::GlobalSpace* domain_ptr;
     public:
         DraftHolder() : ptr(nullptr), domain_ptr(nullptr) {}
-        DraftHolder(Nebulite::Core::GlobalSpace* domain) : ptr(nullptr), domain_ptr(domain) {}
+        explicit DraftHolder(Nebulite::Core::GlobalSpace* domain) : ptr(nullptr), domain_ptr(domain) {}
 
         void setDomain(Nebulite::Core::GlobalSpace* domain) {
             domain_ptr = domain;
