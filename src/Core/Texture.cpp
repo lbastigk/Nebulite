@@ -38,8 +38,8 @@ bool Nebulite::Core::Texture::copyTexture() {
     // Get texture info
     int w, h;
     Uint32 format;
-    int access;
-    if (SDL_QueryTexture(texture, &format, &access, &w, &h) != 0) {
+    int textureAccess;
+    if (SDL_QueryTexture(texture, &format, &textureAccess, &w, &h) != 0) {
         Nebulite::Utility::Capture::cerr() << "Failed to query texture: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
         return false;
     }
