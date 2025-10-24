@@ -464,10 +464,10 @@ private:
 	} audio;
 	
 	struct BasicAudioWaveforms{
-		const int frequency = 440;  // 440 Hz beep
-		const int duration = 200;   // 200ms
-		const int sampleRate = 44100;
-		const int samples = (sampleRate * duration) / 1000;
+		int const frequency = 440;  // 440 Hz beep
+		int const duration = 200;   // 200ms
+		int const sampleRate = 44100;
+		int const samples = (sampleRate * duration) / 1000;
 		std::vector<int16_t>* sineBuffer = nullptr;
 		std::vector<int16_t>* squareBuffer = nullptr;
 		std::vector<int16_t>* triangleBuffer = nullptr;

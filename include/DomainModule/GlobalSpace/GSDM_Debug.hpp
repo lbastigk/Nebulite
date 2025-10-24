@@ -53,8 +53,8 @@ public:
      * wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
      */
     Nebulite::Constants::Error errorlog(int argc,  char* argv[]);
-    static const std::string errorlog_name;
-    static const std::string errorlog_desc;
+    static std::string const errorlog_name;
+    static std::string const errorlog_desc;
 
     /**
      * @brief Clears the console screen.
@@ -64,8 +64,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error clearConsole(int argc,  char* argv[]);
-    static const std::string clearConsole_name;
-    static const std::string clearConsole_desc;
+    static std::string const clearConsole_name;
+    static std::string const clearConsole_desc;
 
     /**
      * @brief Logs the global document to a file.
@@ -76,8 +76,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error log_global(int argc,  char* argv[]);
-    static const std::string log_global_name;
-    static const std::string log_global_desc;
+    static std::string const log_global_name;
+    static std::string const log_global_desc;
 
     /**
      * @brief Logs the current state of the renderer to a file.
@@ -88,8 +88,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error log_state(int argc,  char* argv[]);
-    static const std::string log_state_name;
-    static const std::string log_state_desc;
+    static std::string const log_state_name;
+    static std::string const log_state_desc;
 
     /**
      * @brief Crashes the program, useful for checking 
@@ -101,8 +101,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error crash(int argc,  char* argv[]);
-    static const std::string crash_name;
-    static const std::string crash_desc;
+    static std::string const crash_name;
+    static std::string const crash_desc;
 
     /**
      * @brief Echoes all arguments as string to the standard error
@@ -112,8 +112,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error error(int argc,  char* argv[]);
-    static const std::string error_name;
-    static const std::string error_desc;
+    static std::string const error_name;
+    static std::string const error_desc;
 
     /**
      * @brief Returns a warning: a custom, noncritical error
@@ -123,8 +123,8 @@ public:
      * @return The specified value of Error. 
      */
     Nebulite::Constants::Error warn(int argc,  char* argv[]);
-    static const std::string warn_name;
-    static const std::string warn_desc;
+    static std::string const warn_name;
+    static std::string const warn_desc;
 
     /**
      * @brief Returns a critical error
@@ -134,8 +134,8 @@ public:
      * @return The specified value of Error.
      */
     Nebulite::Constants::Error critical(int argc,  char* argv[]);
-    static const std::string critical_name;
-    static const std::string critical_desc;
+    static std::string const critical_name;
+    static std::string const critical_desc;
 
     /**
      * @brief Waits for user input before continuing.
@@ -145,8 +145,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error waitForInput(int argc,  char* argv[]);
-    static const std::string waitForInput_name;
-    static const std::string waitForInput_desc;
+    static std::string const waitForInput_name;
+    static std::string const waitForInput_desc;
 
     /**
      * @brief Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
@@ -156,16 +156,16 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error standardfile_renderobject(int argc,  char* argv[]);
-    static const std::string standardfile_renderobject_name;
-    static const std::string standardfile_renderobject_desc;
+    static std::string const standardfile_renderobject_name;
+    static std::string const standardfile_renderobject_desc;
 
     //------------------------------------------
     // Category names
-    static const std::string log_name;
-    static const std::string log_desc;
+    static std::string const log_name;
+    static std::string const log_desc;
 
-    static const std::string standardfile_name;
-    static const std::string standardfile_desc;
+    static std::string const standardfile_name;
+    static std::string const standardfile_desc;
 
     //------------------------------------------
     // Setup

@@ -38,8 +38,8 @@ Nebulite::Constants::Error Debug::print(int argc,  char* argv[]){
     Nebulite::Utility::Capture::cout() << domain->getDoc()->serialize() << Nebulite::Utility::Capture::endl;
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Debug::print_name = "print";
-const std::string Debug::print_desc = R"(Prints the JSON document to the console for debugging purposes.
+std::string const Debug::print_name = "print";
+std::string const Debug::print_desc = R"(Prints the JSON document to the console for debugging purposes.
 If key is empty, prints the entire document.
 
 Usage: print [key]

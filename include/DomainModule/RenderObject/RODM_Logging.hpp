@@ -52,8 +52,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error echo(int argc,  char* argv[]);
-    static const std::string echo_name;
-    static const std::string echo_desc;
+    static std::string const echo_name;
+    static std::string const echo_desc;
 
     /**
      * @brief
@@ -70,8 +70,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error log_all(int argc,  char* argv[]);
-    static const std::string log_all_name;
-    static const std::string log_all_desc;
+    static std::string const log_all_name;
+    static std::string const log_all_desc;
 
     /**
      * @brief Logs a value to a given file
@@ -84,13 +84,13 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error log_key(int argc,  char* argv[]);
-    static const std::string log_key_name;
-    static const std::string log_key_desc;
+    static std::string const log_key_name;
+    static std::string const log_key_desc;
 
     //------------------------------------------
     // Category names
-    static const std::string log_name;
-    static const std::string log_desc;
+    static std::string const log_name;
+    static std::string const log_desc;
 
     //------------------------------------------
     // Setup

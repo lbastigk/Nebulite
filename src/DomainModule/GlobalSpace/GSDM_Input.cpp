@@ -51,7 +51,7 @@ Nebulite::Constants::Error Input::update() {
 
 void Input::map_key_names() {
 	for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode) {
-		const char* nameRaw = SDL_GetScancodeName(static_cast<SDL_Scancode>(scancode));
+		char const* nameRaw = SDL_GetScancodeName(static_cast<SDL_Scancode>(scancode));
 
 		if (nameRaw && nameRaw[0] != '\0') {
 			std::string keyName = nameRaw;

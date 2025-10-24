@@ -154,7 +154,7 @@ public:
      *
      * @return The full expression as a string.
      */
-    const std::string* getFullExpression() const noexcept {
+    std::string const* getFullExpression() const noexcept {
         return &fullExpression;
     }
 

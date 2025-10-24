@@ -43,9 +43,9 @@ public:
      * @param argv The argument vector: None.
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error debug_collisionDetect_function(int argc, const char* argv[]);
-    static const std::string debug_collisionDetect_function_name;
-    static const std::string debug_collisionDetect_function_desc;
+    Nebulite::Constants::Error debug_collisionDetect_function(int argc, char const* argv[]);
+    static std::string const debug_collisionDetect_function_name;
+    static std::string const debug_collisionDetect_function_desc;
 
     /**
      * @brief Tests collision detection functionalities of categories.
@@ -54,9 +54,9 @@ public:
      * @param argv The argument vector: None.
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error debug_collisionDetect_category(int argc, const char* argv[]);
-    static const std::string debug_collisionDetect_category_name;
-    static const std::string debug_collisionDetect_category_desc;
+    Nebulite::Constants::Error debug_collisionDetect_category(int argc, char const* argv[]);
+    static std::string const debug_collisionDetect_category_name;
+    static std::string const debug_collisionDetect_category_desc;
 
     /**
      * @brief Tests collision detection functionalities of variables.
@@ -65,17 +65,17 @@ public:
      * @param argv The argument vector: None.
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error debug_collisionDetect_variable(int argc, const char* argv[]);
-    static const std::string debug_collisionDetect_variable_name;
-    static const std::string debug_collisionDetect_variable_desc;
+    Nebulite::Constants::Error debug_collisionDetect_variable(int argc, char const* argv[]);
+    static std::string const debug_collisionDetect_variable_name;
+    static std::string const debug_collisionDetect_variable_desc;
 
     //------------------------------------------
     // Category names
-    static const std::string debug_name;
-    static const std::string debug_desc;
+    static std::string const debug_name;
+    static std::string const debug_desc;
 
-    static const std::string collisionDetect_name;
-    static const std::string collisionDetect_desc;
+    static std::string const collisionDetect_name;
+    static std::string const collisionDetect_desc;
 
     //------------------------------------------
     // Setup

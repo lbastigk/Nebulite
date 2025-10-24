@@ -537,7 +537,7 @@ void Nebulite::Core::Renderer::renderFrame() {
 		}
 
 		// For all tiles to render
-		for (const auto& [tileX, tileY] : tilesToRender) {
+		for (auto const& [tileX, tileY] : tilesToRender) {
 			// For all batches inside
 			for (auto& batch : env.getContainerAt(tileX, tileY, layer)) {
 				// For all objects in batch
@@ -551,9 +551,9 @@ void Nebulite::Core::Renderer::renderFrame() {
 		}
 
 		// Render all textures that were attached from outside processes
-		for (const auto& [name, texturePair] : BetweenLayerTextures[layer]) {
-			const auto& texture = texturePair.first;
-			const auto& rect = texturePair.second;
+		for (auto const& [name, texturePair] : BetweenLayerTextures[layer]) {
+			auto const& texture = texturePair.first;
+			auto const& rect = texturePair.second;
 
 			if (!texture) {
 				continue; // Skip if texture is null

@@ -43,8 +43,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error force_set(int argc,  char* argv[]);
-    static const std::string force_set_name;
-    static const std::string force_set_desc;
+    static std::string const force_set_name;
+    static std::string const force_set_desc;
 
     /**
      * @brief Clears all forced variables
@@ -54,13 +54,13 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error force_clear(int argc,  char* argv[]);
-    static const std::string force_clear_name;
-    static const std::string force_clear_desc;
+    static std::string const force_clear_name;
+    static std::string const force_clear_desc;
 
     //------------------------------------------
     // Category names
-    static const std::string force_name;
-    static const std::string force_desc;
+    static std::string const force_name;
+    static std::string const force_desc;
 
     //------------------------------------------
     // Setup

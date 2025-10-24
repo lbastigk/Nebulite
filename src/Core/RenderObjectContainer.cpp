@@ -210,7 +210,7 @@ void Nebulite::Core::RenderObjectContainer::reinsertAllObjects(int dispResX, int
 	ObjectContainer.clear(); 
 
 	// Reinsert
-	for (const auto& ptr : toReinsert) {
+	for (auto const& ptr : toReinsert) {
 		append(ptr,dispResX,dispResY);
 	}
 }

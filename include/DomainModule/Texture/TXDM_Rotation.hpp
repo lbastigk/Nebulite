@@ -47,8 +47,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error rotate(int argc,  char* argv[]);
-    static const std::string rotate_name;
-    static const std::string rotate_desc;
+    static std::string const rotate_name;
+    static std::string const rotate_desc;
 
     //------------------------------------------
     // Setup

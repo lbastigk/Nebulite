@@ -46,7 +46,7 @@ std::string Nebulite::Utility::StringHandler::replaceAll(std::string target, std
     return target;
 }
 
-std::string Nebulite::Utility::StringHandler::untilSpecialChar(std::string input, char specialChar){
+std::string Nebulite::Utility::StringHandler::untilSpecialChar(std::string const& input, char specialChar){
     size_t pos = input.find(specialChar);
     if (pos != std::string::npos && pos < input.size()) {
         return input.substr(0, pos);;
@@ -54,7 +54,7 @@ std::string Nebulite::Utility::StringHandler::untilSpecialChar(std::string input
     return input;
 }
 
-std::string Nebulite::Utility::StringHandler::afterSpecialChar(std::string input, char specialChar){
+std::string Nebulite::Utility::StringHandler::afterSpecialChar(std::string const& input, char specialChar){
     size_t pos = input.find(specialChar);
     if (pos != std::string::npos && pos + 1 < input.size()) {
         return input.substr(pos+1);
@@ -129,7 +129,7 @@ std::vector<std::string> Nebulite::Utility::StringHandler::splitOnSameDepth(std:
 
     // Find the matching closing delimiter
     char closing = 0;
-    for (auto &p : pairs) {
+    for (auto const &p : pairs) {
         if (p.first == delimiter) {
             closing = p.second;
             break;
@@ -161,7 +161,7 @@ std::vector<std::string> Nebulite::Utility::StringHandler::splitOnSameDepth(std:
         } else if (depth == 0) {
             // Outside delimiter groups
             // If the current string is complete text before a new delimiter
-            if (!current.empty() && (i + 1 < input.size() && input[i+1] == delimiter)) {
+            if (i + 1 < input.size() && input[i+1] == delimiter) {
                 result.push_back(current);
                 current.clear();
             }
@@ -259,7 +259,7 @@ std::vector<std::string> Nebulite::Utility::StringHandler::parseQuotedArguments(
     std::vector<std::string> result;
     QuoteParseState state;
     
-    for (const auto& token : tokens) {
+    for (auto const& token : tokens) {
         // Keep empty tokens as extra whitespace - important for preserving user formatting
         // e.g. for text: "eval echo Value: {global.myVal}  |  Expected: {global.expected}"
         if (token.empty()) {
@@ -282,7 +282,7 @@ std::vector<std::string> Nebulite::Utility::StringHandler::parseQuotedArguments(
     return result;
 }
 
-// cppcheck-suppress constParameterReference
+// cppcheck-suppress constParameter
 std::string Nebulite::Utility::StringHandler::recombineArgs(int argc, char* argv[]) {
     std::string result;
     for (int i = 0; i < argc; ++i) {

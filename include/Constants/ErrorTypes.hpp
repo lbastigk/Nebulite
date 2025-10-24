@@ -68,7 +68,7 @@ public:
     /**
      * @brief Comparison operator for Error struct.
      */
-    bool operator==(const Error& other) const {
+    bool operator==(Error const& other) const {
         // Only relevant part is that they have the same description pointer
         return description == other.description;
     }
@@ -76,7 +76,7 @@ public:
     /**
      * @brief Inequality operator for Error struct.
      */
-    bool operator!=(const Error& other) const {
+    bool operator!=(Error const& other) const {
         return !(*this == other);
     }
 
@@ -159,7 +159,7 @@ public:
      * @brief This implementation is not recommended, as users might pass str.c_str()
      *        which will be a dangling pointer after the function call.
      */
-    //static Error addError(const char* description, Error::Type type = Error::NON_CRITICAL){
+    //static Error addError(char const* description, Error::Type type = Error::NON_CRITICAL){
     //    return getInstance().addErrorImpl(description, type);
     //}
 
@@ -175,7 +175,7 @@ public:
         auto it = std::find_if(
             getInstance().errors.begin(),
             getInstance().errors.end(),
-            [&](const Error& err) { return err.getDescription() == description; }
+            [&](Error const& err) { return err.getDescription() == description; }
         );
 
         if (it != getInstance().errors.end()) {
@@ -189,7 +189,7 @@ public:
 
 
 private:
-    Error addErrorImpl(const char* description, Error::Type type = Error::NON_CRITICAL){
+    Error addErrorImpl(char const* description, Error::Type type = Error::NON_CRITICAL){
         if (count == UINT16_MAX) {
             Nebulite::Utility::Capture::cerr() << "ErrorTable has reached its maximum capacity of " << UINT16_MAX << " errors." << Nebulite::Utility::Capture::endl;
             Nebulite::Utility::Capture::cerr() << "Make sure that new errors added are removed after some time if they are not needed anymore." << Nebulite::Utility::Capture::endl;

@@ -49,8 +49,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error mirror_once(int argc,  char* argv[]);
-    static const std::string mirror_once_name;
-    static const std::string mirror_once_desc;
+    static std::string const mirror_once_name;
+    static std::string const mirror_once_desc;
 
     /**
      * @brief Enables mirroring to the GlobalSpace document
@@ -60,8 +60,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error mirror_on(int argc,  char* argv[]);
-    static const std::string mirror_on_name;
-    static const std::string mirror_on_desc;
+    static std::string const mirror_on_name;
+    static std::string const mirror_on_desc;
 
     /**
      * @brief Disables mirroring to the GlobalSpace document
@@ -71,8 +71,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error mirror_off(int argc,  char* argv[]);
-    static const std::string mirror_off_name;
-    static const std::string mirror_off_desc;
+    static std::string const mirror_off_name;
+    static std::string const mirror_off_desc;
 
     /**
      * @brief Deletes the GlobalSpace document entry for this RenderObject
@@ -82,8 +82,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error mirror_delete(int argc,  char* argv[]);
-    static const std::string mirror_delete_name;
-    static const std::string mirror_delete_desc;
+    static std::string const mirror_delete_name;
+    static std::string const mirror_delete_desc;
 
     /**
      * @brief Deserializes the RenderObject from the GlobalSpace document entry
@@ -93,13 +93,13 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error mirror_fetch(int argc,  char* argv[]);
-    static const std::string mirror_fetch_name;
-    static const std::string mirror_fetch_desc;
+    static std::string const mirror_fetch_name;
+    static std::string const mirror_fetch_desc;
 
     //------------------------------------------
     // Category name
-    static const std::string mirror_name;
-    static const std::string mirror_desc;
+    static std::string const mirror_name;
+    static std::string const mirror_desc;
 
     //------------------------------------------
     // Setup

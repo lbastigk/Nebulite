@@ -68,7 +68,7 @@ public:
      * @return The substring from the start of the input until the special character is found,
      * but not including the special character itself.
      */
-    static std::string untilSpecialChar(std::string input, char specialChar);
+    static std::string untilSpecialChar(std::string const& input, char specialChar);
 
     /**
      * @brief Extracts the substring from the input after a special character is found.
@@ -77,7 +77,7 @@ public:
      * @param specialChar The special character to look for.
      * @return The substring from the input after the special character is found.
      */
-    static std::string afterSpecialChar(std::string input, char specialChar);
+    static std::string afterSpecialChar(std::string const& input, char specialChar);
 
     /**
      * @brief Left strips a string of a special character.

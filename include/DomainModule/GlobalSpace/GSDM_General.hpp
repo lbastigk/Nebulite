@@ -49,8 +49,8 @@ public:
      * eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
      */
     Nebulite::Constants::Error eval(int argc,  char* argv[]);
-    static const std::string eval_name;
-    static const std::string eval_desc;
+    static std::string const eval_name;
+    static std::string const eval_desc;
 
     /**
      * @brief Exits the entire program
@@ -60,8 +60,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error exit(int argc,  char* argv[]);
-    static const std::string exit_name;
-    static const std::string exit_desc;
+    static std::string const exit_name;
+    static std::string const exit_desc;
 
     /**
      * @brief Sets the waitCounter to the given value to halt all script tasks for a given amount of frames
@@ -71,8 +71,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error wait(int argc,  char* argv[]);
-    static const std::string wait_name;
-    static const std::string wait_desc;
+    static std::string const wait_name;
+    static std::string const wait_desc;
 
     /**
      * @brief Loads tasks from a file into the taskQueue
@@ -82,8 +82,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error task(int argc,  char* argv[]);
-    static const std::string task_name;
-    static const std::string task_desc;
+    static std::string const task_name;
+    static std::string const task_desc;
 
     /**
      * @brief Executes a for-loop with a function call
@@ -93,8 +93,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error func_for(int argc,  char* argv[]);
-    static const std::string func_for_name;
-    static const std::string func_for_desc;
+    static std::string const func_for_name;
+    static std::string const func_for_desc;
 
     /**
      * @brief Executes a block of code if a condition is true
@@ -104,8 +104,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error func_if(int argc,  char* argv[]);
-    static const std::string func_if_name;
-    static const std::string func_if_desc;
+    static std::string const func_if_name;
+    static std::string const func_if_desc;
 
     /**
      * @brief Returns a custom value of type Critical Error
@@ -115,8 +115,8 @@ public:
      * @return The specified value of Error. 
      */
     Nebulite::Constants::Error func_return(int argc,  char* argv[]);
-    static const std::string func_return_name;
-    static const std::string func_return_desc;
+    static std::string const func_return_name;
+    static std::string const func_return_desc;
 
     /**
      * @brief Echoes all arguments as string to the standard output
@@ -126,8 +126,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error echo(int argc,  char* argv[]);
-    static const std::string echo_name;
-    static const std::string echo_desc;
+    static std::string const echo_name;
+    static std::string const echo_desc;
 
     /**
      * @brief Asserts a condition and throws a custom error if false
@@ -137,8 +137,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error func_assert(int argc,  char* argv[]);
-    static const std::string assert_name;
-    static const std::string assert_desc;
+    static std::string const assert_name;
+    static std::string const assert_desc;
 
     /**
      * @brief Attach a command to the always-taskqueue that is executed on each tick.
@@ -148,8 +148,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error always(int argc,  char* argv[]);
-    static const std::string always_name;
-    static const std::string always_desc;
+    static std::string const always_name;
+    static std::string const always_desc;
 
     /**
      * @brief Clears the entire always-taskqueue.
@@ -159,8 +159,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error alwaysClear(int argc,  char* argv[]);
-    static const std::string alwaysClear_name;
-    static const std::string alwaysClear_desc;
+    static std::string const alwaysClear_name;
+    static std::string const alwaysClear_desc;
 
     //------------------------------------------
     // Category names

@@ -42,8 +42,8 @@ public:
      * @brief Adds a clock to the global clock list.
      */
     Nebulite::Constants::Error addClock(int argc,  char* argv[]);
-    static const std::string addClock_name;
-    static const std::string addClock_desc;
+    static std::string const addClock_name;
+    static std::string const addClock_desc;
 
     //------------------------------------------
     // Keys in the global document
@@ -53,7 +53,7 @@ public:
      * 
      * access with key_arr_active_clocks + ".ms" + <interval_padded>
      */
-    static const std::string key_arr_active_clocks;
+    static std::string const key_arr_active_clocks;
 
     /**
      * @brief Key for accessing the status of each clock.
@@ -62,7 +62,7 @@ public:
      * 
      * Example: key_doc_status_clocks + ".ms000100" for the clock with 100ms interval
      */
-    static const std::string key_doc_status_clocks; 
+    static std::string const key_doc_status_clocks; 
 
     //------------------------------------------
     // Setup
@@ -104,7 +104,7 @@ private:
          * If dt is greater than or equal to the interval, sets the global reference to 1.0.
          * Otherwise, sets it to 0.0.
          */
-        void update(const uint64_t& current_time);
+        void update(uint64_t const& current_time);
     };
 
     /**
@@ -136,7 +136,7 @@ private:
      * @param interval_ms The clock interval in milliseconds.
      * @return The key string for the clock entry.
      */
-    static std::string intervalToKey(const uint64_t& interval_ms){
+    static std::string intervalToKey(uint64_t const& interval_ms){
         static uint16_t padding = 6; // Not enough for uint64_t max value, but reasonable for practical clock intervals
         return "ms" + std::to_string(interval_ms).insert(0, padding - std::to_string(interval_ms).length(), '0');
     }

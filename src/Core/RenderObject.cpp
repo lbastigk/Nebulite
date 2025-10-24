@@ -135,7 +135,7 @@ void Nebulite::Core::RenderObject::deserialize(std::string serialOrLink) {
 		//------------------------------------------
         // Now apply modifications
 		tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
-		for (const auto& token : tokens) {
+		for (auto const& token : tokens) {
 			if (token.empty()) continue; // Skip empty tokens
 
 			// Legacy: Handle key=value pairs

@@ -46,8 +46,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error set(int argc,  char* argv[]);
-    static const std::string set_name;
-    static const std::string set_desc;
+    static std::string const set_name;
+    static std::string const set_desc;
 
     /**
      * @brief Move data from one key to another
@@ -57,8 +57,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error move(int argc,  char* argv[]);
-    static const std::string move_name;
-    static const std::string move_desc;
+    static std::string const move_name;
+    static std::string const move_desc;
 
     /**
      * @brief Copy data from one key to another
@@ -68,8 +68,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error copy(int argc,  char* argv[]);
-    static const std::string copy_name;
-    static const std::string copy_desc;
+    static std::string const copy_name;
+    static std::string const copy_desc;
 
     /**
      * @brief Delete a key from the JSON document
@@ -79,8 +79,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error keyDelete(int argc,  char* argv[]);
-    static const std::string keyDelete_name;
-    static const std::string keyDelete_desc;
+    static std::string const keyDelete_name;
+    static std::string const keyDelete_desc;
 
     /**
      * @brief Ensures that a key is an array, converting a value to an array if necessary
@@ -90,8 +90,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error ensureArray(int argc,  char* argv[]);
-    static const std::string ensureArray_name;
-    static const std::string ensureArray_desc;
+    static std::string const ensureArray_name;
+    static std::string const ensureArray_desc;
 
     /**
      * @brief Pushes a value to the back of an array
@@ -101,8 +101,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error push_back(int argc,  char* argv[]);
-    static const std::string push_back_name;
-    static const std::string push_back_desc;
+    static std::string const push_back_name;
+    static std::string const push_back_desc;
 
     /**
      * @brief Pops a value from the back of an array
@@ -112,8 +112,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error pop_back(int argc,  char* argv[]);
-    static const std::string pop_back_name;
-    static const std::string pop_back_desc;
+    static std::string const pop_back_name;
+    static std::string const pop_back_desc;
 
     /**
      * @brief Pushes a value to the front of an array
@@ -123,8 +123,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error push_front(int argc,  char* argv[]);
-    static const std::string push_front_name;
-    static const std::string push_front_desc;
+    static std::string const push_front_name;
+    static std::string const push_front_desc;
 
     /**
      * @brief Pops a value from the front of an array
@@ -134,8 +134,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error pop_front(int argc,  char* argv[]);
-    static const std::string pop_front_name;
-    static const std::string pop_front_desc;
+    static std::string const pop_front_name;
+    static std::string const pop_front_desc;
 
     //------------------------------------------
     // Setup

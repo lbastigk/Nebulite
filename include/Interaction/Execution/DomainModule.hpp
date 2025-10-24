@@ -79,26 +79,26 @@ public:
      * @param name The name to associate with the bound function.
      */
     template<typename ClassType>
-    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char**), std::string const& name, const std::string* helpDescription) {
+    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char**), std::string const& name, std::string const* helpDescription) {
         funcTree->bindFunction(
             static_cast<ClassType*>(this),
             std::variant<
                 Nebulite::Constants::Error (ClassType::*)(int, char**),
-                Nebulite::Constants::Error (ClassType::*)(int, const char**)
+                Nebulite::Constants::Error (ClassType::*)(int, char const**)
             >(method),
             name,
             helpDescription
         );
     }
 
-    // Overload for const char** version
+    // Overload for char const** version
     template<typename ClassType>
-    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, const char**), std::string const& name, const std::string* helpDescription) {
+    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char const**), std::string const& name, std::string const* helpDescription) {
         funcTree->bindFunction(
             static_cast<ClassType*>(this),
             std::variant<
                 Nebulite::Constants::Error (ClassType::*)(int, char**),
-                Nebulite::Constants::Error (ClassType::*)(int, const char**)
+                Nebulite::Constants::Error (ClassType::*)(int, char const**)
             >(method),
             name,
             helpDescription
@@ -114,7 +114,7 @@ public:
      * @param description Description of the category, shown in the help command. First line is shown in the general help, full description in detailed help
      * @return true if the category was created successfully, false if a category with the same name already exists
      */
-    bool bindCategory(std::string const& name, const std::string* helpDescription) {
+    bool bindCategory(std::string const& name, std::string const* helpDescription) {
         return funcTree->bindCategory(name, helpDescription);
     }
 
@@ -127,7 +127,7 @@ public:
      * 
      * A simple argument of '--varName' will set the value to "true"
      */
-    void bindVariable(bool* variablePtr, std::string const& name, const std::string* helpDescription) {
+    void bindVariable(bool* variablePtr, std::string const& name, std::string const* helpDescription) {
         // Bind a variable to the FuncTree
         funcTree->bindVariable(variablePtr, name, helpDescription);
     }

@@ -47,8 +47,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error func_delete(int argc,  char* argv[]);
-    static const std::string func_delete_name;
-    static const std::string func_delete_desc;
+    static std::string const func_delete_name;
+    static std::string const func_delete_desc;
 
     /**
      * @brief Updates the text texture of the object.
@@ -58,8 +58,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error updateText(int argc,  char* argv[]);
-    static const std::string updateText_name;
-    static const std::string updateText_desc;
+    static std::string const updateText_name;
+    static std::string const updateText_desc;
 
     //------------------------------------------
     // TODOs
@@ -74,8 +74,8 @@ public:
      * @todo Not implemented yet
      */
     Nebulite::Constants::Error invoke_reload(int argc,  char* argv[]);
-    static const std::string invoke_reload_name;
-    static const std::string invoke_reload_desc;
+    static std::string const invoke_reload_name;
+    static std::string const invoke_reload_desc;
 
     /**
      * @brief Adds an invoke for the object.
@@ -87,8 +87,8 @@ public:
      * @todo Not implemented yet
      */
     Nebulite::Constants::Error invoke_add(int argc,  char* argv[]);
-    static const std::string invoke_add_name;
-    static const std::string invoke_add_desc;
+    static std::string const invoke_add_name;
+    static std::string const invoke_add_desc;
 
     /**
      * @brief Removes an invoke from the object.
@@ -100,8 +100,8 @@ public:
      * @todo Not implemented yet
      */
     Nebulite::Constants::Error invoke_remove(int argc,  char* argv[]);
-    static const std::string invoke_remove_name;
-    static const std::string invoke_remove_desc;
+    static std::string const invoke_remove_name;
+    static std::string const invoke_remove_desc;
 
     /**
      * @brief Removes all invokes from the object.
@@ -113,8 +113,8 @@ public:
      * @todo Not implemented yet
      */
     Nebulite::Constants::Error invoke_purge(int argc,  char* argv[]);
-    static const std::string invoke_purge_name;
-    static const std::string invoke_purge_desc;
+    static std::string const invoke_purge_name;
+    static std::string const invoke_purge_desc;
 
     //------------------------------------------
     // Setup

@@ -5,14 +5,14 @@
 
 namespace Nebulite::DomainModule::Renderer {
 
-const std::string General::cam_name = "cam";
-const std::string General::cam_desc = R"(Renderer Camera Functions)";
+std::string const General::cam_name = "cam";
+std::string const General::cam_desc = R"(Renderer Camera Functions)";
 
-const std::string General::selectedObject_name = "selected-object";
-const std::string General::selectedObject_desc = R"(Functions to select and interact with a selected RenderObject)";
+std::string const General::selectedObject_name = "selected-object";
+std::string const General::selectedObject_desc = R"(Functions to select and interact with a selected RenderObject)";
 
-const std::string General::env_name = "env";
-const std::string General::env_desc = R"(Environment management functions)";
+std::string const General::env_name = "env";
+std::string const General::env_desc = R"(Environment management functions)";
 
 //------------------------------------------
 // Update
@@ -37,8 +37,8 @@ Nebulite::Constants::Error General::env_load(int argc,  char* argv[]){
         return Nebulite::Constants::ErrorTable::NONE();
     }
 }
-const std::string General::env_load_name = "env load";
-const std::string General::env_load_desc = R"(Load an environment/level from a json/jsonc file.
+std::string const General::env_load_name = "env load";
+std::string const General::env_load_desc = R"(Load an environment/level from a json/jsonc file.
 
 Usage: env load <path/to/file.jsonc>
 
@@ -50,8 +50,8 @@ Nebulite::Constants::Error General::env_deload(int argc,  char* argv[]){
     domain->purgeTextures();
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string General::env_deload_name = "env deload";
-const std::string General::env_deload_desc = R"(Deload entire environment, leaving an empty renderer.
+std::string const General::env_deload_name = "env deload";
+std::string const General::env_deload_desc = R"(Deload entire environment, leaving an empty renderer.
 
 Usage: env deload
 )";
@@ -73,7 +73,7 @@ Nebulite::Constants::Error General::spawn(int argc,  char* argv[]){
 
             // Check all standard directories for the file
             bool found = false;
-            for(const auto& prefix : standardDirectories){
+            for(auto const& prefix : standardDirectories){
                 std::string testLink = prefix + link;
                 if(Nebulite::Utility::FileManagement::fileExists(testLink)){
                     linkOrObject = prefix + linkOrObject;
@@ -102,8 +102,8 @@ Nebulite::Constants::Error General::spawn(int argc,  char* argv[]){
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string General::spawn_name = "spawn";
-const std::string General::spawn_desc = R"(Spawn a RenderObject from a json/jsonc file.
+std::string const General::spawn_name = "spawn";
+std::string const General::spawn_desc = R"(Spawn a RenderObject from a json/jsonc file.
 
 Usage: spawn <path/to/file.jsonc>
 
@@ -136,8 +136,8 @@ Nebulite::Constants::Error General::setResolution(int argc,  char* argv[]){
     domain->changeWindowSize(w,h,scalar);
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string General::setResolution_name = "set-res";
-const std::string General::setResolution_desc = R"(Set resolution of renderer.
+std::string const General::setResolution_name = "set-res";
+std::string const General::setResolution_desc = R"(Set resolution of renderer.
 
 Usage: set-res [Width] [Height] [Scale]
 
@@ -156,8 +156,8 @@ Nebulite::Constants::Error General::setFPS(int argc,  char* argv[]){
     domain->setTargetFPS(fps);
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string General::setFPS_name = "set-fps";
-const std::string General::setFPS_desc = R"(Set FPS of renderer.
+std::string const General::setFPS_name = "set-fps";
+std::string const General::setFPS_desc = R"(Set FPS of renderer.
 
 Usage: set-fps [fps]
 
@@ -182,8 +182,8 @@ Nebulite::Constants::Error General::showFPS(int argc,  char* argv[]){
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string General::showFPS_name = "show-fps";
-const std::string General::showFPS_desc = R"(Show FPS of renderer.
+std::string const General::showFPS_name = "show-fps";
+std::string const General::showFPS_desc = R"(Show FPS of renderer.
 
 Usage: show-fps [on|off]
 
@@ -203,8 +203,8 @@ Nebulite::Constants::Error General::cam_move(int argc,  char* argv[]){
     domain->moveCam(dx,dy);
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string General::cam_move_name = "cam move";
-const std::string General::cam_move_desc = R"(Move camera by a given delta.
+std::string const General::cam_move_name = "cam move";
+std::string const General::cam_move_desc = R"(Move camera by a given delta.
 
 Usage: cam move <dx> <dy>
 
@@ -236,8 +236,8 @@ Nebulite::Constants::Error General::cam_set(int argc,  char* argv[]){
     }
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
 }
-const std::string General::cam_set_name = "cam set";
-const std::string General::cam_set_desc = R"(Set camera to concrete position.
+std::string const General::cam_set_name = "cam set";
+std::string const General::cam_set_desc = R"(Set camera to concrete position.
 
 Usage: cam set <x> <y> [c]
 
@@ -268,8 +268,8 @@ Nebulite::Constants::Error General::snapshot(int argc,  char* argv[]){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 }
-const std::string General::snapshot_name = "snapshot";
-const std::string General::snapshot_desc = R"(Create a snapshot of the current renderer state.
+std::string const General::snapshot_name = "snapshot";
+std::string const General::snapshot_desc = R"(Create a snapshot of the current renderer state.
 
 Usage: snapshot [filename]
 
@@ -281,8 +281,8 @@ Nebulite::Constants::Error General::beep(int argc,  char* argv[]){
     domain->beep();
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string General::beep_name = "beep";
-const std::string General::beep_desc = R"(Make a beep noise.
+std::string const General::beep_name = "beep";
+std::string const General::beep_desc = R"(Make a beep noise.
 
 Usage: beep
 )";
@@ -303,8 +303,8 @@ Nebulite::Constants::Error General::selectedObject_get(int argc,  char* argv[]) 
         return Nebulite::Constants::ErrorTable::addError("No RenderObject with the specified ID found.", Nebulite::Constants::Error::NON_CRITICAL);
     }
 }
-const std::string General::selectedObject_get_name = "selected-object get";
-const std::string General::selectedObject_get_desc = R"(Get a renderobject by its ID.
+std::string const General::selectedObject_get_name = "selected-object get";
+std::string const General::selectedObject_get_desc = R"(Get a renderobject by its ID.
 
 Usage: selected-object get <id>
 )";
@@ -320,8 +320,8 @@ Nebulite::Constants::Error General::selectedObject_Parse(int argc,  char* argv[]
 
     return selectedRenderObject->parseStr(std::string(__FUNCTION__) + " " + command);
 }
-const std::string General::selectedObject_Parse_name = "selected-object parse";
-const std::string General::selectedObject_Parse_desc = R"(Parse a command on the selected RenderObject.
+std::string const General::selectedObject_Parse_name = "selected-object parse";
+std::string const General::selectedObject_Parse_desc = R"(Parse a command on the selected RenderObject.
 
 Usage: selected-object parse <command>
 

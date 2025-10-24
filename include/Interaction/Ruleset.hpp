@@ -132,12 +132,12 @@ struct Ruleset{
 
     void estimateComputationalCost() {
         // Count number of $ and { in logicalArg
-        const std::string* expr = logicalArg.getFullExpression();
+        std::string const* expr = logicalArg.getFullExpression();
         estimatedCost += std::count(expr->begin(), expr->end(), '$');
 
         // Count number of $ and { in exprs
-        for (const auto& assignment : assignments) {
-            const std::string* value = assignment.expression.getFullExpression();
+        for (auto const& assignment : assignments) {
+            std::string const* value = assignment.expression.getFullExpression();
             estimatedCost += std::count(value->begin(), value->end(), '$');
             estimatedCost += std::count(value->begin(), value->end(), '{');
         }

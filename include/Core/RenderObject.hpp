@@ -115,7 +115,7 @@ public:
 	 * @param key The key of the value to set.
 	 * @param data The value to set.
 	 */
-    template <typename T> void set(const char* key, const T data);
+    template <typename T> void set(char const* key, T const data);
 
     /**
      * @brief Gets a value from the Domain's JSON document.
@@ -125,7 +125,7 @@ public:
      * @param defaultValue The default value to return if the key is not found.
      * @return The value from the JSON document, or the default value if not found.
      */
-    template <typename T> T get(const char* key, const T& defaultValue = T());
+    template <typename T> T get(char const* key, T const& defaultValue = T());
 
 
 	//------------------------------------------
@@ -398,11 +398,11 @@ private:
 //------------------------------------------
 // Templated setter/getter functions
 
-template <typename T> void Nebulite::Core::RenderObject::set(const char* key, const T data) {
+template <typename T> void Nebulite::Core::RenderObject::set(char const* key, T const data) {
 	json.set(key,data);
 }
 
-template <typename T> T Nebulite::Core::RenderObject::get(const char* key, const T& defaultValue){
+template <typename T> T Nebulite::Core::RenderObject::get(char const* key, T const& defaultValue){
 	T result = json.get<T>(key,defaultValue);
 	return result;
 }

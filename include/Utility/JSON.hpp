@@ -184,7 +184,7 @@ public:
      * @param value The value to set.
      */
     template <typename T>
-    void set(std::string const& key, const T& val);
+    void set(std::string const& key, T const& val);
 
     /**
      * @brief Sets a sub-document in the JSON document.
@@ -197,7 +197,7 @@ public:
      * @param key The key of the sub-document to set.
      * @param child The sub-document to set.
      */
-    void set_subdoc(const char* key, Nebulite::Utility::JSON* child);
+    void set_subdoc(char const* key, Nebulite::Utility::JSON* child);
 
     /**
      * @brief Sets an empty array in the JSON document.
@@ -209,7 +209,7 @@ public:
      * 
      * @param key The key of the array to set.
      */
-    void set_empty_array(const char* key);
+    void set_empty_array(char const* key);
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
@@ -217,17 +217,17 @@ public:
     /**
      * @brief Performs an addition operation on a numeric value in the JSON document.
      */
-    void set_add     (const char* key, double val);
+    void set_add     (char const* key, double val);
 
     /**
      * @brief Performs a multiplication operation on a numeric value in the JSON document.
      */
-    void set_multiply(const char* key, double val);
+    void set_multiply(char const* key, double val);
 
     /**
      * @brief Performs a concatenation operation on a string value in the JSON document.
      */
-    void set_concat  (const char* key, const char* valStr);
+    void set_concat  (char const* key, char const* valStr);
 
     //------------------------------------------
     // Get methods
@@ -244,7 +244,7 @@ public:
      * @return The value associated with the key, or the default value if the key does not exist.
      */
     template <typename T>
-    T get(std::string const& key, const T& defaultValue = T());
+    T get(std::string const& key, T const& defaultValue = T());
 
     /**
      * @brief Gets a sub-document from the JSON document.
@@ -332,7 +332,7 @@ public:
      * 
      * @param key The key to remove.
      */
-    void remove_key(const char* key);
+    void remove_key(char const* key);
 
     //------------------------------------------
     // Serialize/Deserialize
@@ -386,7 +386,7 @@ public:
 }
 
 template<typename T>
-void Nebulite::Utility::JSON::set(std::string const& key, const T& value) {
+void Nebulite::Utility::JSON::set(std::string const& key, T const& value) {
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Check if key is valid
@@ -431,7 +431,7 @@ void Nebulite::Utility::JSON::set(std::string const& key, const T& value) {
 }
 
 template<typename T>
-T Nebulite::Utility::JSON::get(std::string const& key, const T& defaultValue) {
+T Nebulite::Utility::JSON::get(std::string const& key, T const& defaultValue) {
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Check cache first
@@ -566,7 +566,7 @@ namespace{
 
 template<typename newType>
 newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValue& var, const newType& defaultValue) {
-    return std::visit([&](const auto& stored) -> newType 
+    return std::visit([&](auto const& stored) -> newType 
     {
         // Removing all qualifiers (const, volatile, references, etc.)
         using StoredT = std::decay_t<decltype(stored)>;

@@ -93,7 +93,7 @@ public:
      * 
      * @return The full expression string.
      */
-    const std::string* getFullExpression() const noexcept {return &fullExpression;};
+    std::string const* getFullExpression() const noexcept {return &fullExpression;};
 
 private:
     /**
@@ -413,7 +413,7 @@ private:
      * 
      * Includes tips for fixing the error.
      */
-    void printCompileError(const Entry& entry, const int error);
+    void printCompileError(const Entry& entry, int const error);
 
     /**
      * @brief Updates caches

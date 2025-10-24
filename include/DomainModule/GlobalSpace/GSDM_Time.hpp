@@ -52,8 +52,8 @@ public:
      * @return Error code indicating success or failure.
      */
     Nebulite::Constants::Error time_haltOnce(int argc,  char* argv[]);
-    static const std::string time_haltOnce_name;
-    static const std::string time_haltOnce_desc;
+    static std::string const time_haltOnce_name;
+    static std::string const time_haltOnce_desc;
 
     /**
      * @brief Locks time with lock provided, meaning time will not progress until unlocked.
@@ -65,8 +65,8 @@ public:
      * @return Error code indicating success or failure.
      */
     Nebulite::Constants::Error time_lock(int argc,  char* argv[]);
-    static const std::string time_lock_name;
-    static const std::string time_lock_desc;
+    static std::string const time_lock_name;
+    static std::string const time_lock_desc;
 
     /**
      * @brief Removes a time lock.
@@ -78,8 +78,8 @@ public:
      * @return Error code indicating success or failure.
      */
     Nebulite::Constants::Error time_unlock(int argc,  char* argv[]);
-    static const std::string time_unlock_name;
-    static const std::string time_unlock_desc;
+    static std::string const time_unlock_name;
+    static std::string const time_unlock_desc;
 
     /**
      * @brief Removes all time locks.
@@ -91,8 +91,8 @@ public:
      * @return Error code indicating success or failure.
      */
     Nebulite::Constants::Error time_masterUnlock(int argc,  char* argv[]);
-    static const std::string time_masterUnlock_name;
-    static const std::string time_masterUnlock_desc;
+    static std::string const time_masterUnlock_name;
+    static std::string const time_masterUnlock_desc;
 
     /**
      * @brief Sets a fixed delta time for the simulation time.
@@ -102,27 +102,27 @@ public:
      * @return Error code indicating success or failure.
      */
     Nebulite::Constants::Error time_setFixedDeltaTime(int argc,  char* argv[]);
-    static const std::string time_setFixedDeltaTime_name;
-    static const std::string time_setFixedDeltaTime_desc;
+    static std::string const time_setFixedDeltaTime_name;
+    static std::string const time_setFixedDeltaTime_desc;
 
     //------------------------------------------
     // Category names
-    static const std::string time_name;
-    static const std::string time_desc;
+    static std::string const time_name;
+    static std::string const time_desc;
 
     //------------------------------------------
     // Variables
-    static const std::string key_runtime_t;
-    static const std::string key_runtime_t_ms;
-    static const std::string key_runtime_dt;
-    static const std::string key_runtime_dt_ms;
+    static std::string const key_runtime_t;
+    static std::string const key_runtime_t_ms;
+    static std::string const key_runtime_dt;
+    static std::string const key_runtime_dt_ms;
 
-    static const std::string key_time_t;
-    static const std::string key_time_t_ms;
-    static const std::string key_time_dt;
-    static const std::string key_time_dt_ms;
+    static std::string const key_time_t;
+    static std::string const key_time_t_ms;
+    static std::string const key_time_dt;
+    static std::string const key_time_dt_ms;
 
-    static const std::string key_framecount;
+    static std::string const key_framecount;
 
     //------------------------------------------
     // Setup

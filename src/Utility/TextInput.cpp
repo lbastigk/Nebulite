@@ -115,7 +115,7 @@ void TextInput::moveCursorRight(){
     }
 }
 
-void TextInput::append(const char* c){
+void TextInput::append(char const* c){
     std::string input(c);
 
     std::string newBuffer;

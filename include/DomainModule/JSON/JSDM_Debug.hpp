@@ -45,8 +45,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error print(int argc,  char* argv[]);
-    static const std::string print_name;
-    static const std::string print_desc;
+    static std::string const print_name;
+    static std::string const print_desc;
 
     //------------------------------------------
     // Setup

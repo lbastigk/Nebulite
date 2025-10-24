@@ -5,8 +5,8 @@
 
 namespace Nebulite::DomainModule::RenderObject {
 
-const std::string Mirror::mirror_name = "mirror";
-const std::string Mirror::mirror_desc = R"(Mirror utilities for RenderObject to GlobalSpace synchronization)";
+std::string const Mirror::mirror_name = "mirror";
+std::string const Mirror::mirror_desc = R"(Mirror utilities for RenderObject to GlobalSpace synchronization)";
 
 //------------------------------------------
 // Update
@@ -34,8 +34,8 @@ Nebulite::Constants::Error Mirror::mirror_once(int argc,  char* argv[]) {
     mirrorOnceEnabled = true;
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Mirror::mirror_once_name = "mirror once";
-const std::string Mirror::mirror_once_desc = R"(Mirrors the object to the GlobalSpace document once on next update
+std::string const Mirror::mirror_once_name = "mirror once";
+std::string const Mirror::mirror_once_desc = R"(Mirrors the object to the GlobalSpace document once on next update
 
 Usage: mirror once
 
@@ -49,8 +49,8 @@ Nebulite::Constants::Error Mirror::mirror_on(int argc,  char* argv[]) {
     mirrorEnabled = true;
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Mirror::mirror_on_name = "mirror on";
-const std::string Mirror::mirror_on_desc = R"(Enables mirroring to the GlobalSpace document
+std::string const Mirror::mirror_on_name = "mirror on";
+std::string const Mirror::mirror_on_desc = R"(Enables mirroring to the GlobalSpace document
 
 Usage: mirror on
 
@@ -63,8 +63,8 @@ Nebulite::Constants::Error Mirror::mirror_off(int argc,  char* argv[]) {
     mirrorEnabled = false;
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Mirror::mirror_off_name = "mirror off";
-const std::string Mirror::mirror_off_desc = R"(Disables mirroring to the GlobalSpace document
+std::string const Mirror::mirror_off_name = "mirror off";
+std::string const Mirror::mirror_off_desc = R"(Disables mirroring to the GlobalSpace document
 
 Usage: mirror off
 
@@ -77,8 +77,8 @@ Nebulite::Constants::Error Mirror::mirror_delete(int argc,  char* argv[]) {
     domain->getGlobalSpace()->getDoc()->remove_key(mirrorKey.c_str());
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Mirror::mirror_delete_name = "mirror delete";
-const std::string Mirror::mirror_delete_desc = R"(Deletes the GlobalSpace document entry for this RenderObject
+std::string const Mirror::mirror_delete_name = "mirror delete";
+std::string const Mirror::mirror_delete_desc = R"(Deletes the GlobalSpace document entry for this RenderObject
 
 Usage: mirror delete
 
@@ -93,8 +93,8 @@ Nebulite::Constants::Error Mirror::mirror_fetch(int argc,  char* argv[]) {
     domain->deserialize(domain->getGlobalSpace()->getDoc()->serialize(mirrorKey.c_str()));
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Mirror::mirror_fetch_name = "mirror fetch";
-const std::string Mirror::mirror_fetch_desc = R"(Deserializes the RenderObject from the GlobalSpace document entry
+std::string const Mirror::mirror_fetch_name = "mirror fetch";
+std::string const Mirror::mirror_fetch_desc = R"(Deserializes the RenderObject from the GlobalSpace document entry
 
 Usage: mirror fetch
 

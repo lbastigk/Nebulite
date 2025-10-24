@@ -3,7 +3,7 @@
 #include <array>
 
 std::string Nebulite::Utility::Time::TimeIso8601(Time::ISO8601FORMATTER format, bool local) {
-    const char* fmt = "%FT%TZ";
+    char const* fmt = "%FT%TZ";
     std::time_t time = std::time(nullptr);
     std::tm tm_struct;
 

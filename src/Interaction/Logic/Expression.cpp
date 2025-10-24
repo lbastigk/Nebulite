@@ -119,7 +119,7 @@ void Nebulite::Interaction::Logic::Expression::compileIfExpression(Entry& entry)
 
 void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_name, std::string key, Entry::From context){
     // Check if variable exists in variables vector:
-    bool found = std::any_of(te_variables.begin(), te_variables.end(), [&](const auto& te_var) { return te_var.name == te_name; });
+    bool found = std::any_of(te_variables.begin(), te_variables.end(), [&](auto const& te_var) { return te_var.name == te_name; });
 
     if(!found) {
         // Initialize with reference to document and cache register
@@ -177,7 +177,7 @@ void Nebulite::Interaction::Logic::Expression::parseIntoEntries(std::string cons
     tokensPhase1 = Nebulite::Utility::StringHandler::split(expr, '$', true);
 
     // Now we need to split on same depth
-    for(const auto& token : tokensPhase1) {
+    for(auto const& token : tokensPhase1) {
         // If the first token starts with '$', it means the string started with '$'
         // If not, the first token is text before the first '$'
         if(token.starts_with('$')) {
@@ -213,7 +213,7 @@ void Nebulite::Interaction::Logic::Expression::parseIntoEntries(std::string cons
     // - formatting
     // - splitting all text-variable mixes
     // - variable info (from what document, what the key is)
-    for (const auto& token : tokens) {
+    for (auto const& token : tokens) {
         if (!token.empty()) {
             Entry currentEntry;
             if(token.starts_with('$')){
@@ -297,7 +297,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(std::string co
     std::string newString = "";
     std::vector<std::string> subTokens = Nebulite::Utility::StringHandler::splitOnSameDepth(expression, '{');
 
-    for (const auto& subToken : subTokens) {
+    for (auto const& subToken : subTokens) {
         if(subToken.starts_with('{')){
             // 1.) remove {}
             std::string key, te_name;
@@ -330,7 +330,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(std::string co
     // Current token is Text
     // Perhaps mixed with variables...
     std::vector<std::string> subTokens = Nebulite::Utility::StringHandler::splitOnSameDepth(token, '{');
-    for (const auto& subToken : subTokens) {
+    for (auto const& subToken : subTokens) {
         // Variable outside of eval, no need to register
         if(subToken.starts_with('{')){
             // 1.) remove {}
@@ -357,7 +357,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(std::string co
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::printCompileError(const Entry& entry, const int error) {
+void Nebulite::Interaction::Logic::Expression::printCompileError(const Entry& entry, int const error) {
     Nebulite::Utility::Capture::cerr() << "-----------------------------------------------------------------" << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "Error compiling expression: '" << entry.str << "' Error code: " << std::to_string(error) << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "You might see this message multiple times due to expression parallelization." << Nebulite::Utility::Capture::endl;
@@ -370,7 +370,7 @@ void Nebulite::Interaction::Logic::Expression::printCompileError(const Entry& en
     Nebulite::Utility::Capture::cerr() << "if '$(1 + 1)' echo here! # works" << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "Registered functions and variables:\n";
-    for (const auto& var : te_variables) {
+    for (auto const& var : te_variables) {
         Nebulite::Utility::Capture::cerr() << "\t'" << var.name << "'\n";
     }
     Nebulite::Utility::Capture::cerr() << Nebulite::Utility::Capture::endl;
@@ -526,7 +526,7 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
 
     // Concatenate results of each entry
     std::string result = "";
-    for (const auto& entry : entries) {
+    for (auto const& entry : entries) {
         std::string token = "";
         switch (entry.type){
             //------------------------------------------
@@ -572,7 +572,7 @@ odpvec* Nebulite::Interaction::Logic::Expression::ensure_other_cache_entry(Nebul
             Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles_other.size());
 
             // Populate list with all virtual doubles from type other
-            for(const auto& vde : virtualDoubles_other) {
+            for(auto const& vde : virtualDoubles_other) {
                 double* reference = current_other->getStableDoublePointer(vde->getKey());
                 newCacheList.orderedValues.push_back(reference);
             }
@@ -589,7 +589,7 @@ odpvec* Nebulite::Interaction::Logic::Expression::ensure_other_cache_entry(Nebul
         Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles_other.size());
 
         // Populate list with all virtual doubles from type other
-        for(const auto& vde : virtualDoubles_other) {
+        for(auto const& vde : virtualDoubles_other) {
             double* reference = current_other->getStableDoublePointer(vde->getKey());
             newCacheList.orderedValues.push_back(reference);
         }

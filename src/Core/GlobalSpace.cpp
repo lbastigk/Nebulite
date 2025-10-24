@@ -121,7 +121,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
     return lastCriticalResult;
 }
 
-void Nebulite::Core::GlobalSpace::parseCommandLineArguments(const int argc, const char* argv[]){
+void Nebulite::Core::GlobalSpace::parseCommandLineArguments(int const argc, char const* argv[]){
     //------------------------------------------
     // Add main args to taskList, split by ';'
     if (argc > 1) {
@@ -184,7 +184,7 @@ void Nebulite::Core::GlobalSpace::parseCommandLineArguments(const int argc, cons
     }
 }
 
-Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, const uint64_t* waitCounter){
+Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t const* waitCounter){
     Nebulite::Constants::Error currentResult;
     Nebulite::Core::taskQueueResult fullResult;
 
@@ -215,7 +215,7 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
         }
     } else {
         // If not clearing, process every element without popping
-        for (const auto& argStrOrig : tq.taskQueue) {
+        for (auto const& argStrOrig : tq.taskQueue) {
             if (fullResult.encounteredCriticalResult) break;
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
@@ -242,7 +242,7 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
 }
 
 Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
-    static const uint64_t* noWaitCounter = nullptr;
+    static uint64_t const* noWaitCounter = nullptr;
     Nebulite::Constants::Error lastCriticalResult;
 
     // 1.) Clear errors from last loop

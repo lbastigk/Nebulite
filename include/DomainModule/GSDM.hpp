@@ -23,8 +23,8 @@
 namespace Nebulite{
 namespace DomainModule{
 
-static const std::string headless_desc = "Set headless mode (no renderer)";
-static const std::string recover_desc  = "Enable recoverable error mode";
+static std::string const headless_desc = "Set headless mode (no renderer)";
+static std::string const recover_desc  = "Enable recoverable error mode";
 
 /**
  * @brief Inserts all DomainModules into the GlobalSpace domain.

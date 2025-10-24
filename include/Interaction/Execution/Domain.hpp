@@ -94,7 +94,7 @@ public:
      * 
      * For binding functions or categories, use the DomainModule interface.
      */
-    void bindVariable(bool* varPtr, std::string const& name, const std::string* helpDescription){
+    void bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription){
         funcTree->bindVariable(varPtr, name, helpDescription);
     }
 

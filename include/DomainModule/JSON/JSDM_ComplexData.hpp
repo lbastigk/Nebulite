@@ -49,8 +49,8 @@ public:
      * @todo Not implemented yet
      */
     Nebulite::Constants::Error query_set(int argc,  char* argv[]);
-    static const std::string query_set_name;
-    static const std::string query_set_desc;
+    static std::string const query_set_name;
+    static std::string const query_set_desc;
 
     /**
      * @brief Sets a key from a JSON document.
@@ -60,16 +60,16 @@ public:
      * @return Potential errors that occurred on command execution.
      */
     Nebulite::Constants::Error json_set(int argc,  char* argv[]);
-    static const std::string json_set_name;
-    static const std::string json_set_desc;
+    static std::string const json_set_name;
+    static std::string const json_set_desc;
 
     //------------------------------------------
     // Category names
-    static const std::string query_name;
-    static const std::string query_desc;
+    static std::string const query_name;
+    static std::string const query_desc;
 
-    static const std::string json_name;
-    static const std::string json_desc;
+    static std::string const json_name;
+    static std::string const json_desc;
 
     //------------------------------------------
     // Setup

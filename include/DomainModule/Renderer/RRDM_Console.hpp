@@ -52,8 +52,8 @@ public:
      * @return Error code.
      */
     Nebulite::Constants::Error consoleZoom(int argc,  char* argv[]);
-    static const std::string consoleZoom_name;
-    static const std::string consoleZoom_desc;
+    static std::string const consoleZoom_name;
+    static std::string const consoleZoom_desc;
 
     /**
      * @brief Sets a background image for the console.
@@ -62,14 +62,14 @@ public:
      * @return Error code.
      */
     Nebulite::Constants::Error consoleSetBackground(int argc,  char* argv[]);
-    static const std::string consoleSetBackground_name;
-    static const std::string consoleSetBackground_desc;
+    static std::string const consoleSetBackground_name;
+    static std::string const consoleSetBackground_desc;
 
     //------------------------------------------
     // Category strings
 
-    static const std::string console_name;
-    static const std::string console_desc;
+    static std::string const console_name;
+    static std::string const console_desc;
 
     //------------------------------------------
     // Setup

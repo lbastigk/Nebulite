@@ -4,11 +4,11 @@
 
 namespace Nebulite::DomainModule::JSON{
 
-const std::string ComplexData::query_name = "query";
-const std::string ComplexData::query_desc = R"(Functions to manipulate JSON data via SQL query results)";
+std::string const ComplexData::query_name = "query";
+std::string const ComplexData::query_desc = R"(Functions to manipulate JSON data via SQL query results)";
 
-const std::string ComplexData::json_name = "json";
-const std::string ComplexData::json_desc = R"(Functions to manipulate JSON data via read-only JSON documents)";
+std::string const ComplexData::json_name = "json";
+std::string const ComplexData::json_desc = R"(Functions to manipulate JSON data via read-only JSON documents)";
 
 //------------------------------------------
 // Update
@@ -26,8 +26,8 @@ Nebulite::Constants::Error ComplexData::query_set(int argc,  char* argv[]){
     std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
-const std::string ComplexData::query_set_name = "query set";
-const std::string ComplexData::query_set_desc = R"(Sets a key from a SQL query result.
+std::string const ComplexData::query_set_name = "query set";
+std::string const ComplexData::query_set_desc = R"(Sets a key from a SQL query result.
 Not implemented yet.
 )";
 
@@ -75,8 +75,8 @@ Nebulite::Constants::Error ComplexData::json_set(int argc,  char* argv[]){
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string ComplexData::json_set_name = "json set";
-const std::string ComplexData::json_set_desc = R"(Sets a key from a JSON document.
+std::string const ComplexData::json_set_name = "json set";
+std::string const ComplexData::json_set_desc = R"(Sets a key from a JSON document.
 
 Usage: json set <key_to_set> <link:key>
 

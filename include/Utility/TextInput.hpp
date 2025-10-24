@@ -112,7 +112,7 @@ public:
      * @param console The console instance.
      * @param c The character array to append.
      */
-    void append(const char* c);
+    void append(char const* c);
 
     /**
      * @brief Gets the current input buffer.

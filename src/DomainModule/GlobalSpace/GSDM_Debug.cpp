@@ -19,7 +19,7 @@ namespace {
      * 
      * @todo Move this functionality to globalspace
      */
-    bool safe_open_log(const char* filename, std::unique_ptr<std::ofstream>& out) {
+    bool safe_open_log(char const* filename, std::unique_ptr<std::ofstream>& out) {
     #if defined(_WIN32)
         DWORD attrs = GetFileAttributesA(filename);
         if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_REPARSE_POINT)) {
@@ -39,11 +39,11 @@ namespace {
 
 
 namespace Nebulite::DomainModule::GlobalSpace {
-const std::string Debug::log_name = "log";
-const std::string Debug::log_desc = R"(Functions to log various data to files)";
+std::string const Debug::log_name = "log";
+std::string const Debug::log_desc = R"(Functions to log various data to files)";
 
-const std::string Debug::standardfile_name = "standardfile";
-const std::string Debug::standardfile_desc = R"(Functions to generate standard files)";
+std::string const Debug::standardfile_name = "standardfile";
+std::string const Debug::standardfile_desc = R"(Functions to generate standard files)";
 
 //------------------------------------------
 // Update
@@ -69,8 +69,8 @@ Nebulite::Constants::Error Debug::log_global(int argc,  char* argv[]){
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Debug::log_global_name = "log global";
-const std::string Debug::log_global_desc = R"(Logs the global document to a file.
+std::string const Debug::log_global_name = "log global";
+std::string const Debug::log_global_desc = R"(Logs the global document to a file.
 
 Usage: log global [<filenames>...]
 
@@ -90,8 +90,8 @@ Nebulite::Constants::Error Debug::log_state(int argc,  char* argv[]){
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Debug::log_state_name = "log state";
-const std::string Debug::log_state_desc = R"(Logs the current state of the renderer to a file.
+std::string const Debug::log_state_name = "log state";
+std::string const Debug::log_state_desc = R"(Logs the current state of the renderer to a file.
 
 Usage: log state [<filenames>...]
 
@@ -104,8 +104,8 @@ Nebulite::Constants::Error Debug::standardfile_renderobject( int argc,  char** a
     Nebulite::Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc",ro.serialize());
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Debug::standardfile_renderobject_name = "standardfile renderobject";
-const std::string Debug::standardfile_renderobject_desc = R"(Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
+std::string const Debug::standardfile_renderobject_name = "standardfile renderobject";
+std::string const Debug::standardfile_renderobject_desc = R"(Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
 
 Usage: standardfile renderobject
 
@@ -130,7 +130,7 @@ Nebulite::Constants::Error Debug::errorlog(int argc,  char* argv[]){
     if(argc == 2){
         if(!strcmp(argv[1], "on")){
             if(!errorLogStatus){
-                const char* logFilename = "errors.log";
+                char const* logFilename = "errors.log";
                 if (!safe_open_log(logFilename, errorFile)) {
                     Nebulite::Utility::Capture::cerr() << "Refusing to open log file: '" << logFilename << "' is a symlink or could not be opened." << Nebulite::Utility::Capture::endl;
                     return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
@@ -162,8 +162,8 @@ Nebulite::Constants::Error Debug::errorlog(int argc,  char* argv[]){
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Debug::errorlog_name = "errorlog";
-const std::string Debug::errorlog_desc = R"(Activates or deactivates error logging to a file.
+std::string const Debug::errorlog_name = "errorlog";
+std::string const Debug::errorlog_desc = R"(Activates or deactivates error logging to a file.
 
 Usage: errorlog <on/off>
 
@@ -213,8 +213,8 @@ Nebulite::Constants::Error Debug::clearConsole(int argc,  char* argv[]){
     Nebulite::Utility::Capture::clear();
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Debug::clearConsole_name = "clear";
-const std::string Debug::clearConsole_desc = R"(Clears the console screen.
+std::string const Debug::clearConsole_name = "clear";
+std::string const Debug::clearConsole_desc = R"(Clears the console screen.
 
 Usage: clear
 
@@ -249,8 +249,8 @@ Nebulite::Constants::Error Debug::crash(int argc,  char* argv[]) {
     // Should never reach here
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Debug::crash_name = "crash";
-const std::string Debug::crash_desc = R"(Crashes the program, useful for checking if the testing suite can catch crashes.
+std::string const Debug::crash_name = "crash";
+std::string const Debug::crash_desc = R"(Crashes the program, useful for checking if the testing suite can catch crashes.
 
 Usage: crash [<type>]
 
@@ -273,8 +273,8 @@ Nebulite::Constants::Error Debug::error(int argc,  char* argv[]) {
     // No further error to return
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Debug::error_name = "error";
-const std::string Debug::error_desc = R"(Echoes all arguments as string to the standard error.
+std::string const Debug::error_name = "error";
+std::string const Debug::error_desc = R"(Echoes all arguments as string to the standard error.
 
 Usage: error <string...>
 
@@ -288,8 +288,8 @@ Nebulite::Constants::Error Debug::warn(int argc,  char* argv[]){
     std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
     return Nebulite::Constants::ErrorTable::addError(args, Nebulite::Constants::Error::NON_CRITICAL);
 }
-const std::string Debug::warn_name = "warn";
-const std::string Debug::warn_desc = R"(Returns a warning: a custom, noncritical error.
+std::string const Debug::warn_name = "warn";
+std::string const Debug::warn_desc = R"(Returns a warning: a custom, noncritical error.
 
 Usage: warn <string>
 
@@ -305,8 +305,8 @@ Nebulite::Constants::Error Debug::critical(int argc,  char* argv[]){
     std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
     return Nebulite::Constants::ErrorTable::addError(args, Nebulite::Constants::Error::CRITICAL);
 }
-const std::string Debug::critical_name = "critical";
-const std::string Debug::critical_desc = R"(Returns a critical error.
+std::string const Debug::critical_name = "critical";
+std::string const Debug::critical_desc = R"(Returns a critical error.
 
 Usage: critical <string>
 
@@ -326,8 +326,8 @@ Nebulite::Constants::Error Debug::waitForInput(int argc,  char* argv[]){
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Debug::waitForInput_name = "inputwait";
-const std::string Debug::waitForInput_desc = R"(Waits for user input before continuing.
+std::string const Debug::waitForInput_name = "inputwait";
+std::string const Debug::waitForInput_desc = R"(Waits for user input before continuing.
 
 Usage: inputwait [prompt]
 

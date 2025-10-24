@@ -20,7 +20,7 @@ namespace Nebulite::Utility {
  */
 class Capture{
 public:
-    static const std::string endl;
+    static std::string const endl;
 
     /**
      * @struct OutputLine
@@ -46,7 +46,7 @@ public:
         explicit CaptureStream(Capture* p, std::ostream& s, OutputLine::Type t) : parent(p), baseStream(s), type(t) {}
 
         template<typename T>
-        CaptureStream& operator<<(const T& data) {
+        CaptureStream& operator<<(T const& data) {
             baseStream << data;
             {
                 std::lock_guard<std::mutex> lock(parent->outputLogMutex);
@@ -68,14 +68,14 @@ public:
                 }
 
                 // Push complete lines to outputLog
-                for (const auto& line : lines) {
+                for (auto const& line : lines) {
                     parent->outputLog.push_back({line, type});
                 }
             }
             return *this;
         }
 
-        CaptureStream& operator<<(const char* data) {
+        CaptureStream& operator<<(char const* data) {
             // Cast to std::string, then call templated operator
             return (*this) << std::string(data);
         }

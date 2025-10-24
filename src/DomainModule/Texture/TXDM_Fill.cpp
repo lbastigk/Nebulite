@@ -77,8 +77,8 @@ Nebulite::Constants::Error Nebulite::DomainModule::Texture::Fill::fill(int argc,
               << Nebulite::Utility::Capture::endl;
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Fill::fill_name = "fill";
-const std::string Fill::fill_desc = R"(Fill the texture with a color
+std::string const Fill::fill_name = "fill";
+std::string const Fill::fill_desc = R"(Fill the texture with a color
 
 Usage:
 fill <color> 

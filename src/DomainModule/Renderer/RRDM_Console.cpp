@@ -23,8 +23,8 @@ Nebulite::Constants::Error Console::update(){
     }
     for(size_t i = last_size; i < current_size; i++){
         // Split input line by newlines
-        const auto& input = Nebulite::Utility::Capture::instance().getOutputLogPtr().at(i);
-        const auto& lines = Nebulite::Utility::StringHandler::split(input.content, '\n');
+        auto const& input = Nebulite::Utility::Capture::instance().getOutputLogPtr().at(i);
+        auto const& lines = Nebulite::Utility::StringHandler::split(input.content, '\n');
 
         // Insert into text input
         Nebulite::Utility::TextInput::LineEntry::LineType type;
@@ -36,7 +36,7 @@ Nebulite::Constants::Error Console::update(){
             type = Nebulite::Utility::TextInput::LineEntry::LineType::CERR;
             break;
         }
-        for(const auto& line : lines){
+        for(auto const& line : lines){
             if(!line.empty()){
                 textInput.insertLine(line, type);
             }
@@ -518,7 +518,7 @@ void Console::processKeyDownEvent(const SDL_KeyboardEvent& key){
 }
 
 void Console::processEvents(){
-    for (const auto& event : *events) {
+    for (auto const& event : *events) {
         switch (event.type) {
             case SDL_TEXTINPUT:
                 // Do not append if ctrl is held (to allow copy/paste and other shortcuts)
@@ -573,8 +573,8 @@ void Console::processMode(){
 //------------------------------------------
 // Category strings
 
-const std::string Console::console_name = "console";
-const std::string Console::console_desc = R"(Console commands and settings.
+std::string const Console::console_name = "console";
+std::string const Console::console_desc = R"(Console commands and settings.
 Contains commands to manipulate the in-application console.
 )";
 
@@ -616,8 +616,8 @@ Nebulite::Constants::Error Console::consoleZoom(int argc,  char* argv[]){
     // Return
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Console::consoleZoom_name = "console zoom";
-const std::string Console::consoleZoom_desc = R"(Reduces or increases the console font size.
+std::string const Console::consoleZoom_name = "console zoom";
+std::string const Console::consoleZoom_desc = R"(Reduces or increases the console font size.
 
 Usage: zoom [in/out/+/-]
 - in / + : Zooms in (increases font size)
@@ -670,8 +670,8 @@ Nebulite::Constants::Error Console::consoleSetBackground(int argc,  char* argv[]
     // Return
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Console::consoleSetBackground_name = "console set-background";
-const std::string Console::consoleSetBackground_desc = R"(Sets a background image for the console.
+std::string const Console::consoleSetBackground_name = "console set-background";
+std::string const Console::consoleSetBackground_desc = R"(Sets a background image for the console.
 
 Usage: set-background <image_path>
 )";

@@ -75,7 +75,7 @@ void Nebulite::Utility::JSON::flush(){
     }
 }
 
-const std::string Nebulite::Utility::JSON::reservedCharacters = "[]{}.,";
+std::string const Nebulite::Utility::JSON::reservedCharacters = "[]{}.,";
 
 
 //------------------------------------------
@@ -152,7 +152,7 @@ double* Nebulite::Utility::JSON::getStableDoublePointer(std::string const& key){
 //------------------------------------------
 // Set methods
 
-void Nebulite::Utility::JSON::set_subdoc(const char* key, Nebulite::Utility::JSON* child){
+void Nebulite::Utility::JSON::set_subdoc(char const* key, Nebulite::Utility::JSON* child){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Flush own contents
@@ -173,7 +173,7 @@ void Nebulite::Utility::JSON::set_subdoc(const char* key, Nebulite::Utility::JSO
     }
 }
 
-void Nebulite::Utility::JSON::set_empty_array(const char* key){
+void Nebulite::Utility::JSON::set_empty_array(char const* key){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
     flush();
     rapidjson::Value* val = Nebulite::Utility::RjDirectAccess::ensure_path(key,doc,doc.GetAllocator());
@@ -246,7 +246,7 @@ void Nebulite::Utility::JSON::deserialize(std::string const& serial_or_link){
     //------------------------------------------
     // Now apply modifications
     tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
-    for(const auto& token : tokens) {
+    for(auto const& token : tokens) {
         if (token.empty()) continue; // Skip empty tokens
 
         // Legacy: Handle key=value pairs
@@ -325,7 +325,7 @@ uint32_t Nebulite::Utility::JSON::memberSize(std::string const& key){
     }
 }
 
-void Nebulite::Utility::JSON::remove_key(const char* key){
+void Nebulite::Utility::JSON::remove_key(char const* key){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Ensure cache is flushed before removing key
@@ -345,7 +345,7 @@ void Nebulite::Utility::JSON::remove_key(const char* key){
 // TODO: optimize by avoiding double cache lookups
 // special get-function that returns the cache pointer instead of value
 
-void Nebulite::Utility::JSON::set_add(const char* key, double val) {
+void Nebulite::Utility::JSON::set_add(char const* key, double val) {
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Get current value
@@ -367,7 +367,7 @@ void Nebulite::Utility::JSON::set_add(const char* key, double val) {
     }
 }
 
-void Nebulite::Utility::JSON::set_multiply(const char* key, double val) {
+void Nebulite::Utility::JSON::set_multiply(char const* key, double val) {
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Get current value
@@ -389,7 +389,7 @@ void Nebulite::Utility::JSON::set_multiply(const char* key, double val) {
     }
 }
 
-void Nebulite::Utility::JSON::set_concat(const char* key, const char* valStr) {
+void Nebulite::Utility::JSON::set_concat(char const* key, char const* valStr) {
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     std::string current = get<std::string>(key, "");

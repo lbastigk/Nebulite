@@ -47,8 +47,8 @@ public:
      * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error fill(int argc,  char* argv[]);
-    static const std::string fill_name;
-    static const std::string fill_desc;
+    static std::string const fill_name;
+    static std::string const fill_desc;
 
     //------------------------------------------
     // Setup

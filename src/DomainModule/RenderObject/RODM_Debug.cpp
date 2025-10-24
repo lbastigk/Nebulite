@@ -5,8 +5,8 @@
 
 namespace Nebulite::DomainModule::RenderObject {
 
-const std::string Debug::debug_name = "debug";
-const std::string Debug::debug_desc = R"(Debugging functions for RenderObject)";
+std::string const Debug::debug_name = "debug";
+std::string const Debug::debug_desc = R"(Debugging functions for RenderObject)";
 
 //------------------------------------------
 // Update
@@ -28,8 +28,8 @@ Nebulite::Constants::Error Debug::eval(int argc,  char* argv[]) {
     // reparse
     return domain->parseStr(args_evaled);
 }
-const std::string Debug::eval_name = "eval";
-const std::string Debug::eval_desc = R"(Evaluate an expression and execute the result. 
+std::string const Debug::eval_name = "eval";
+std::string const Debug::eval_desc = R"(Evaluate an expression and execute the result. 
 Example: eval echo $(1+1)
 
 Examples:
@@ -53,8 +53,8 @@ Nebulite::Constants::Error Debug::printSrcRect(int argc,  char* argv[]) {
 
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Debug::printSrcRect_name = "debug print-src-rect";
-const std::string Debug::printSrcRect_desc = R"(Prints debug information about the source rectangle to console
+std::string const Debug::printSrcRect_name = "debug print-src-rect";
+std::string const Debug::printSrcRect_desc = R"(Prints debug information about the source rectangle to console
 
 Usage: debug print-src-rect
 
@@ -79,8 +79,8 @@ Nebulite::Constants::Error Debug::printDstRect(int argc,  char* argv[]) {
 
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Debug::printDstRect_name = "debug print-dst-rect";
-const std::string Debug::printDstRect_desc = R"(Prints debug information about the destination rectangle to console
+std::string const Debug::printDstRect_name = "debug print-dst-rect";
+std::string const Debug::printDstRect_desc = R"(Prints debug information about the destination rectangle to console
 
 Usage: debug print-dst-rect
 
@@ -171,8 +171,8 @@ Nebulite::Constants::Error Debug::textureStatus(int argc,  char* argv[]){
     printTextureInfo(texture);
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Debug::textureStatus_name = "debug texture-status";
-const std::string Debug::textureStatus_desc = R"(Prints debug information about the texture to console
+std::string const Debug::textureStatus_name = "debug texture-status";
+std::string const Debug::textureStatus_desc = R"(Prints debug information about the texture to console
 
 Usage: debug texture-status
 

@@ -206,10 +206,10 @@ namespace{
     ){
         // Set IDs
         uint32_t id = self->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0);
-        for (const auto& entry : entries_local) {
+        for (auto const& entry : entries_local) {
             entry->id = id;
         }
-        for (const auto& entry : entries_global) {
+        for (auto const& entry : entries_global) {
             entry->id = id;
         }
 
@@ -222,10 +222,10 @@ namespace{
         }
 
         // Estimate full cost of each entry
-        for (const auto& entry : entries_local) {
+        for (auto const& entry : entries_local) {
             entry->estimateComputationalCost();
         }
-        for (const auto& entry : entries_global) {
+        for (auto const& entry : entries_global) {
             entry->estimateComputationalCost();
         }
     }
@@ -319,7 +319,7 @@ void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
     // Checking all created entries, if any assignment is a numeric operation on self or global
     // we try to get a direct stable double pointer from the corresponding JSON document
     // If successful, we store the pointer in targetValuePtr of the assignment
-    for (const auto& entry : entries) {
+    for (auto const& entry : entries) {
         for (auto& assignment : entry->assignments) {
             if (assignment.onType == Nebulite::Interaction::Logic::Assignment::Type::Self) {
                 if (ops.end() != std::find(ops.begin(), ops.end(), assignment.operation)) {

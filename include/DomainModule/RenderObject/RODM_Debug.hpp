@@ -55,8 +55,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error eval(int argc,  char* argv[]);
-    static const std::string eval_name;
-    static const std::string eval_desc;
+    static std::string const eval_name;
+    static std::string const eval_desc;
 
     /**
      * @brief Prints the source rectangle of the spritesheet to console
@@ -66,8 +66,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error printSrcRect(int argc,  char* argv[]);
-    static const std::string printSrcRect_name;
-    static const std::string printSrcRect_desc;
+    static std::string const printSrcRect_name;
+    static std::string const printSrcRect_desc;
 
     /**
      * @brief Prints the destination rectangle of the spritesheet to console
@@ -77,20 +77,20 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error printDstRect(int argc,  char* argv[]);
-    static const std::string printDstRect_name;
-    static const std::string printDstRect_desc;
+    static std::string const printDstRect_name;
+    static std::string const printDstRect_desc;
 
     /**
      * @brief Prints the texture status to cout
      */
     Nebulite::Constants::Error textureStatus(int argc,  char* argv[]);
-    static const std::string textureStatus_name;
-    static const std::string textureStatus_desc;
+    static std::string const textureStatus_name;
+    static std::string const textureStatus_desc;
 
     //------------------------------------------
     // Category names
-    static const std::string debug_name;
-    static const std::string debug_desc;
+    static std::string const debug_name;
+    static std::string const debug_desc;
 
     //------------------------------------------
     // Setup

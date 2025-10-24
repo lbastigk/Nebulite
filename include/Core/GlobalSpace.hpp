@@ -116,7 +116,7 @@ public:
      * @param argc The number of command line arguments.
      * @param argv The array of command line argument strings.
      */
-    void parseCommandLineArguments(const int argc, const char* argv[]);
+    void parseCommandLineArguments(int const argc, char const* argv[]);
 
     /**
      * @brief Resolves a task queue by parsing each task and executing it.
@@ -125,7 +125,7 @@ public:
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
      */
-    Nebulite::Core::taskQueueResult resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, const uint64_t* waitCounter);
+    Nebulite::Core::taskQueueResult resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t const* waitCounter);
 
     /**
      * @brief Parses the task queue for execution.

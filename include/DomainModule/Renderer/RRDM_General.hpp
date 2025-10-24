@@ -95,8 +95,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error spawn(int argc,  char* argv[]);
-    static const std::string spawn_name;
-    static const std::string spawn_desc;
+    static std::string const spawn_name;
+    static std::string const spawn_desc;
 
     /**
      * @brief Loads an environment.
@@ -106,8 +106,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error env_load(int argc,  char* argv[]);
-    static const std::string env_load_name;
-    static const std::string env_load_desc;
+    static std::string const env_load_name;
+    static std::string const env_load_desc;
 
     /**
      * @brief Deload entire environment, leaving an empty renderer
@@ -117,8 +117,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error env_deload(int argc,  char* argv[]);
-    static const std::string env_deload_name;
-    static const std::string env_deload_desc;
+    static std::string const env_deload_name;
+    static std::string const env_deload_desc;
 
     /**
      * @brief Sets resolution of renderer
@@ -135,8 +135,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error setResolution(int argc,  char* argv[]);
-    static const std::string setResolution_name;
-    static const std::string setResolution_desc;
+    static std::string const setResolution_name;
+    static std::string const setResolution_desc;
 
     /**
      * @brief Sets fps of renderer
@@ -149,8 +149,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error setFPS(int argc,  char* argv[]);
-    static const std::string setFPS_name;
-    static const std::string setFPS_desc;
+    static std::string const setFPS_name;
+    static std::string const setFPS_desc;
 
     /**
      * @brief Toggle fps on/off
@@ -163,8 +163,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error showFPS(int argc,  char* argv[]);
-    static const std::string showFPS_name;
-    static const std::string showFPS_desc;
+    static std::string const showFPS_name;
+    static std::string const showFPS_desc;
 
     /**
      * @brief Move cam by a given delta
@@ -174,8 +174,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error cam_move(int argc,  char* argv[]);
-    static const std::string cam_move_name;
-    static const std::string cam_move_desc;
+    static std::string const cam_move_name;
+    static std::string const cam_move_desc;
 
     /**
      * @brief Set cam to concrete position
@@ -188,8 +188,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error cam_set(int argc,  char* argv[]);
-    static const std::string cam_set_name;
-    static const std::string cam_set_desc;
+    static std::string const cam_set_name;
+    static std::string const cam_set_desc;
 
     /**
      * @brief Create a snapshot of the current renderer screen output
@@ -202,8 +202,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error snapshot(int argc,  char* argv[]);
-    static const std::string snapshot_name;
-    static const std::string snapshot_desc;
+    static std::string const snapshot_name;
+    static std::string const snapshot_desc;
 
     /**
      * @brief Makes a beep noise
@@ -213,8 +213,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error beep(int argc,  char* argv[]);
-    static const std::string beep_name;
-    static const std::string beep_desc;
+    static std::string const beep_name;
+    static std::string const beep_desc;
 
     /**
      * @brief Inserts a reference to the selected renderobject by ID to the GlobalSpace
@@ -235,8 +235,8 @@ public:
      * and should thus also be the owner of the selected object reference
      */
     Nebulite::Constants::Error selectedObject_get(int argc,  char* argv[]);
-    static const std::string selectedObject_get_name;
-    static const std::string selectedObject_get_desc;
+    static std::string const selectedObject_get_name;
+    static std::string const selectedObject_get_desc;
 
     /**
      * @brief Parses a command on the selected RenderObject
@@ -245,19 +245,19 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error selectedObject_Parse(int argc,  char* argv[]);
-    static const std::string selectedObject_Parse_name;
-    static const std::string selectedObject_Parse_desc;
+    static std::string const selectedObject_Parse_name;
+    static std::string const selectedObject_Parse_desc;
 
     //------------------------------------------
     // Category names
-    static const std::string cam_name;
-    static const std::string cam_desc;
+    static std::string const cam_name;
+    static std::string const cam_desc;
 
-    static const std::string selectedObject_name;
-    static const std::string selectedObject_desc;
+    static std::string const selectedObject_name;
+    static std::string const selectedObject_desc;
 
-    static const std::string env_name;
-    static const std::string env_desc;
+    static std::string const env_name;
+    static std::string const env_desc;
 
     //------------------------------------------
     // Setup

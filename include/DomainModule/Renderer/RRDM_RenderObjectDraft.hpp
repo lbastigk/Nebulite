@@ -56,8 +56,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error draft_parse(int argc,  char* argv[]);
-    static const std::string draft_parse_name;
-    static const std::string draft_parse_desc;
+    static std::string const draft_parse_name;
+    static std::string const draft_parse_desc;
 
     /**
      * @brief Spawn the created draft object
@@ -67,8 +67,8 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error draft_spawn(int argc,  char* argv[]);
-    static const std::string draft_spawn_name;
-    static const std::string draft_spawn_desc;
+    static std::string const draft_spawn_name;
+    static std::string const draft_spawn_desc;
 
     /**
      * @brief Reset the draft (does not reset any spawned ones!)
@@ -78,13 +78,13 @@ public:
      * @return Potential errors that occured on command execution
      */
     Nebulite::Constants::Error draft_reset(int argc,  char* argv[]);
-    static const std::string draft_reset_name;
-    static const std::string draft_reset_desc;
+    static std::string const draft_reset_name;
+    static std::string const draft_reset_desc;
 
     //------------------------------------------
     // Category names
-    static const std::string draft_name;
-    static const std::string draft_desc;
+    static std::string const draft_name;
+    static std::string const draft_desc;
 
     //------------------------------------------
     // Setup

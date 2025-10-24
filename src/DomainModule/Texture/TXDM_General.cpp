@@ -25,8 +25,8 @@ Nebulite::Constants::Error Nebulite::DomainModule::Texture::General::reloadTextu
 
     return Nebulite::Constants::ErrorTable::NONE(); // No error
 }
-const std::string General::reloadTexture_name = "reload-texture";
-const std::string General::reloadTexture_desc = R"(Reload the texture from the document.
+std::string const General::reloadTexture_name = "reload-texture";
+std::string const General::reloadTexture_desc = R"(Reload the texture from the document.
 
 Usage: reload-texture
 )";

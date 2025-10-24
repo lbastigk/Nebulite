@@ -34,8 +34,8 @@ Nebulite::Constants::Error SimpleData::set(int argc,  char* argv[]) {
     domain->set(key.c_str(), value);
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string SimpleData::set_name = "set";
-const std::string SimpleData::set_desc = R"(Set a key to a value in the JSON document.
+std::string const SimpleData::set_name = "set";
+std::string const SimpleData::set_desc = R"(Set a key to a value in the JSON document.
 
 Usage: set <key> <value>
 
@@ -83,8 +83,8 @@ Nebulite::Constants::Error SimpleData::move(int argc,  char* argv[]){
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string SimpleData::move_name = "move";
-const std::string SimpleData::move_desc = R"(Move data from one key to another.
+std::string const SimpleData::move_name = "move";
+std::string const SimpleData::move_desc = R"(Move data from one key to another.
 
 Usage: move <source_key> <destination_key>
 )";
@@ -128,8 +128,8 @@ Nebulite::Constants::Error SimpleData::copy(int argc,  char* argv[]){
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string SimpleData::copy_name = "copy";
-const std::string SimpleData::copy_desc = R"(Copy data from one key to another.
+std::string const SimpleData::copy_name = "copy";
+std::string const SimpleData::copy_desc = R"(Copy data from one key to another.
 
 Usage: copy <source_key> <destination_key>
 )";
@@ -144,8 +144,8 @@ Nebulite::Constants::Error SimpleData::keyDelete(int argc,  char* argv[]){
     domain->remove_key(key.c_str());
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string SimpleData::keyDelete_name = "keyDelete";
-const std::string SimpleData::keyDelete_desc = R"(Delete a key from the JSON document.
+std::string const SimpleData::keyDelete_name = "keyDelete";
+std::string const SimpleData::keyDelete_desc = R"(Delete a key from the JSON document.
 
 Usage: keyDelete <key>
 )";
@@ -188,8 +188,8 @@ Nebulite::Constants::Error SimpleData::ensureArray(int argc,  char* argv[]) {
     Nebulite::Utility::Capture::cerr() << "Error: Key '" << key << "' is unsupported type " << static_cast<int>(keyType) << ", cannot convert to array." << Nebulite::Utility::Capture::endl;
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
-const std::string SimpleData::ensureArray_name = "ensure-array";
-const std::string SimpleData::ensureArray_desc = R"(Ensure that a key is an array, converting a value to an array if necessary.
+std::string const SimpleData::ensureArray_name = "ensure-array";
+std::string const SimpleData::ensureArray_desc = R"(Ensure that a key is an array, converting a value to an array if necessary.
 
 Usage: ensure-array <key>
 )";
@@ -227,8 +227,8 @@ Nebulite::Constants::Error SimpleData::push_back(int argc,  char* argv[]){
     domain->set(itemKey.c_str(), value);
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string SimpleData::push_back_name = "push-back";
-const std::string SimpleData::push_back_desc = R"(Push a value to the back of an array.
+std::string const SimpleData::push_back_name = "push-back";
+std::string const SimpleData::push_back_desc = R"(Push a value to the back of an array.
 
 Usage: push-back <key> <value>
 )";
@@ -266,8 +266,8 @@ Nebulite::Constants::Error SimpleData::pop_back(int argc,  char* argv[]){
     domain->remove_key(itemKey.c_str());
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string SimpleData::pop_back_name = "pop-back";
-const std::string SimpleData::pop_back_desc = R"(Pop a value from the back of an array.
+std::string const SimpleData::pop_back_name = "pop-back";
+std::string const SimpleData::pop_back_desc = R"(Pop a value from the back of an array.
 
 Usage: pop-back <key>
 )";
@@ -328,8 +328,8 @@ Nebulite::Constants::Error SimpleData::push_front(int argc,  char* argv[]){
     domain->set(itemKey.c_str(), value);
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string SimpleData::push_front_name = "push-front";
-const std::string SimpleData::push_front_desc = R"(Push a value to the front of an array.
+std::string const SimpleData::push_front_name = "push-front";
+std::string const SimpleData::push_front_desc = R"(Push a value to the front of an array.
 
 Usage: push-front <key> <value>
 )";
@@ -386,8 +386,8 @@ Nebulite::Constants::Error SimpleData::pop_front(int argc,  char* argv[]){
 
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string SimpleData::pop_front_name = "pop-front";
-const std::string SimpleData::pop_front_desc = R"(Pop a value from the front of an array.
+std::string const SimpleData::pop_front_name = "pop-front";
+std::string const SimpleData::pop_front_desc = R"(Pop a value from the front of an array.
 
 Usage: pop-front <key>
 )";
