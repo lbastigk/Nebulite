@@ -78,7 +78,7 @@ int main(int argc, char* argv[]){
 
     // Inform user about any errors and return error code
     if(criticalStop){
-        std::cerr << "Critical Error: " << lastCriticalResult.getDescription() << std::endl;
+        std::cerr << "Critical Error: " << lastCriticalResult.getDescription() << "\n";
     }
 
     // Parser handles if error files need to be closed
