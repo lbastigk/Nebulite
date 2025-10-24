@@ -4,6 +4,8 @@
  *
  * This file contains the input handling logic for the NEBULITE engine,
  * including keyboard and mouse input processing.
+ * 
+ * @todo Move to Renderer Domain, since it relies on SDL events!
  */
 
 #pragma once
