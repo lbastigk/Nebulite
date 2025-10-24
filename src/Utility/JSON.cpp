@@ -126,22 +126,21 @@ double* Nebulite::Utility::JSON::getStableDoublePointer(std::string const& key){
         return it->second->stable_double_ptr;
     }
 
-    // Not in cache
-    // Instead of repeating code, we just call get to create a cache entry
-    /**
-     * @todo Instead of a dummy-get, we should refactor get to have a helper that creates the cache entry
-     */
-    volatile double dummy = get<double>(key, 0.0);
+    // Try loading from document into cache
+    rapidjson::Value const* val = Nebulite::Utility::RjDirectAccess::traverse_path(key.c_str(), doc);
+    if(val != nullptr){
+        jsonValueToCache<double>(key, val, 0.0);
+    }
+
+    // Check cache again
     it = cache.find(key);
     if(it != cache.end()){
         return it->second->stable_double_ptr;
     }
 
-    // If get failed, we create a new virtual entry manually
-    // And return its stable pointer
+    // If loading from document failed, create a new virtual entry
     std::unique_ptr<CacheEntry> new_entry = std::make_unique<CacheEntry>();
     new_entry->value = 0.0;
-    // Pointer already created in constructor, no need to redo make_shared
     *new_entry->stable_double_ptr = 0.0;
     new_entry->last_double_value = 0.0;
     new_entry->state = EntryState::VIRTUAL;

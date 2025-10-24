@@ -5,7 +5,7 @@
 //------------------------------------------
 // Static Public Helper Functions
 
-rapidjson::Value const* Nebulite::Utility::RjDirectAccess::traverse_path(char const* key, rapidjson::Value const& val){
+rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_path(char const* key, rapidjson::Value const& val){
     rapidjson::Value const* current = &val;
     std::string_view keyView(key);
 
@@ -63,10 +63,10 @@ rapidjson::Value const* Nebulite::Utility::RjDirectAccess::traverse_path(char co
             keyView.remove_prefix(1);
         }
     }
-    return current;
+    return const_cast<rapidjson::Value*>(current);
 }
 
-rapidjson::Value const* Nebulite::Utility::RjDirectAccess::ensure_path(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
+rapidjson::Value* Nebulite::Utility::RjDirectAccess::ensure_path(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
 
@@ -296,7 +296,7 @@ std::string Nebulite::Utility::RjDirectAccess::stripComments(std::string const& 
     return result;
 }
 
-rapidjson::Value const* Nebulite::Utility::RjDirectAccess::traverse_to_parent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex) {
+rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_to_parent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex) {
     std::string keyStr(fullKey);
     size_t lastDot = keyStr.find_last_of('.');
     size_t lastBracket = keyStr.find_last_of('[');
@@ -328,7 +328,7 @@ rapidjson::Value const* Nebulite::Utility::RjDirectAccess::traverse_to_parent(ch
         finalKey = keyStr.substr(lastDot + 1);
         parent = Nebulite::Utility::RjDirectAccess::traverse_path(parentPath.c_str(), root);
     }
-    return parent;
+    return const_cast<rapidjson::Value*>(parent);
 }
 
 void Nebulite::Utility::RjDirectAccess::remove_member(char const* key, rapidjson::Value& val) {

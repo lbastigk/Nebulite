@@ -77,6 +77,17 @@ private:
     };
 
     /**
+     * @brief Inserts a rapidjson value into the cache, converting it to the appropriate C++ type.
+     * 
+     * @param key The key of the value to cache.
+     * @param val The rapidjson value to cache.
+     * @param defaultValue The default value to use if conversion fails.
+     */
+    template<typename T>
+    T jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue);
+
+
+    /**
      * @brief Invalidate all child keys of a given parent key.
      * 
      * For example, if parent_key is "config", it will invalidate
@@ -472,31 +483,37 @@ T Nebulite::Utility::JSON::get(std::string const& key, T const& defaultValue) {
             return convertVariant<T>(it->second->value, defaultValue);
         }
         else{
-            // Create a new cache entry
-            std::unique_ptr<CacheEntry> new_entry = std::make_unique<CacheEntry>();
-            
-            // Get supported types
-            if(!Nebulite::Utility::RjDirectAccess::getSimpleValue(&new_entry->value, val)){
-                return defaultValue;
-            }
-
-            // Mark as clean
-            new_entry->state = EntryState::CLEAN;
-
-            // Set stable double pointer. Already created in constructor, no need to redo make_shared
-            *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value, 0.0);
-            new_entry->last_double_value = *(new_entry->stable_double_ptr);
-
-            // Insert into cache
-            cache[key] = std::move(new_entry);
-
-            // Return converted value
-            return convertVariant<T>(cache[key]->value, defaultValue);
+            // Create new cache entry
+            return jsonValueToCache<T>(key, val, defaultValue);
         }
     }
 
     // Value could not be created, return default
     return defaultValue;
+}
+
+template<typename T>
+T Nebulite::Utility::JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue) {
+    // Create a new cache entry
+    std::unique_ptr<CacheEntry> new_entry = std::make_unique<CacheEntry>();
+    
+    // Get supported types
+    if(!Nebulite::Utility::RjDirectAccess::getSimpleValue(&new_entry->value, val)){
+        return defaultValue;
+    }
+
+    // Mark as clean
+    new_entry->state = EntryState::CLEAN;
+
+    // Set stable double pointer
+    *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value, 0.0);
+    new_entry->last_double_value = *(new_entry->stable_double_ptr);
+
+    // Insert into cache
+    cache[key] = std::move(new_entry);
+
+    // Return converted value
+    return convertVariant<T>(cache[key]->value, defaultValue);
 }
 
 // Converter helper functions for convertVariant

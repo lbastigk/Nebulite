@@ -48,7 +48,7 @@ public:
      * @param val Pointer to the rapidjson value to get the value from.
      * @return true if a supported type was found and value was set, false otherwise (e.g. Object, Array, Null)
      */
-    static bool getSimpleValue(simpleValue* value, rapidjson::Value* val) {
+    static bool getSimpleValue(simpleValue* value, rapidjson::Value const* val) {
         // Get supported types
         if(val->IsInt()){
             *value = val->GetInt();
@@ -133,7 +133,7 @@ public:
      * @param val The rapidjson value to search within.
      * @return A pointer to the found rapidjson value, or nullptr if not found.
      */
-    static rapidjson::Value const* traverse_path(char const* key, rapidjson::Value const& val);
+    static rapidjson::Value* traverse_path(char const* key, rapidjson::Value const& val);
 
     /**
      * @brief Traverses a rapidjson value to find or create a value within identified by its key.
@@ -145,7 +145,7 @@ public:
      * Note that the returned value may be nullptr if the given key is invalid 
      * (e.g., trying to index into a non-array or using a malformed index).
      */
-    static rapidjson::Value const* ensure_path(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+    static rapidjson::Value* ensure_path(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
     /**
      * @brief Traverses a rapidjson value to find the parent of a value identified by its key.
@@ -161,7 +161,7 @@ public:
      * @param arrayIndex The index if the final key is an array index, -1 otherwise.
      * @return A pointer to the parent rapidjson value, or nullptr if not found
      */
-    static rapidjson::Value const* traverse_to_parent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex);
+    static rapidjson::Value* traverse_to_parent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex);
 
     //------------------------------------------
     // Serialization/Deserialization
