@@ -242,8 +242,8 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
 }
 
 Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
-    uint64_t* noWaitCounter = nullptr;
-    Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE();
+    static const uint64_t* noWaitCounter = nullptr;
+    Nebulite::Constants::Error lastCriticalResult;
 
     // 1.) Clear errors from last loop
     queueResult.script.errors.clear();
