@@ -22,9 +22,11 @@ Nebulite::Constants::Error Console::update(){
         last_size = 0;
     }
     for(size_t i = last_size; i < current_size; i++){
+        // Split input line by newlines
         const auto& input = Nebulite::Utility::Capture::instance().getOutputLogPtr().at(i);
-
         const auto& lines = Nebulite::Utility::StringHandler::split(input.content, '\n');
+
+        // Insert into text input
         Nebulite::Utility::TextInput::LineEntry::LineType type;
         switch (input.type){
         case Nebulite::Utility::Capture::OutputLine::COUT:
@@ -467,6 +469,16 @@ void Console::processKeyDownEvent(const SDL_KeyboardEvent& key){
          * etc.
          * 
          * If a textfocus is active, we may wish to disable normal key processing from Input DomainModule.
+         * 
+         * For this to work, we need to modify TextInput into two modes:
+         * - On submit, store text in vector (for console)
+         * - On submit, lose focus           (for single-line text inputs)
+         * 
+         * This requires a big rework of TextInput class, we may wish to extract the core functionality of single-line text input with cursor to a separate class.
+         * - TextInput for core functionality
+         * - Use Capture class directly for console readout
+         * Since the current TextInput class has a lot logic that is the same as Capture's output log.
+         * Only thing left is to add a Capture type for commands entered.
          */
 
         //------------------------------------------
