@@ -170,7 +170,7 @@ public:
      * @param type The type of error (CRITICAL or NON_CRITICAL). Default is NON_CRITICAL.
      * @return The corresponding Error object.
      */
-    static Error addError(const std::string& description, Error::Type type = Error::NON_CRITICAL){
+    static Error addError(std::string const& description, Error::Type type = Error::NON_CRITICAL){
         // Check if we already have this error
         auto it = std::find_if(
             getInstance().errors.begin(),

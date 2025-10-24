@@ -163,7 +163,7 @@ public:
      * @param otherObj The other render object to compare against.
      * @return True if the invoke entry is true in the context of the other render object, false otherwise.
      */
-    bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> entry, Nebulite::Core::RenderObject* otherObj);
+    bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> entry, Nebulite::Core::RenderObject const* otherObj);
 
     /**
      * @brief Checks if the invoke entry is true, without any context from other render objects.
@@ -214,8 +214,8 @@ public:
      */
     void setValueOfKey(
         Nebulite::Interaction::Logic::Assignment::Operation operation, 
-        const std::string& key, 
-        const std::string& valStr, 
+        std::string const& key, 
+        std::string const& valStr, 
         Nebulite::Utility::JSON* target
     );
 
@@ -232,7 +232,7 @@ public:
      */
     void setValueOfKey(
         Nebulite::Interaction::Logic::Assignment::Operation operation, 
-        const std::string& key, 
+        std::string const& key, 
         double value, 
         Nebulite::Utility::JSON* target
     );
@@ -250,7 +250,7 @@ public:
      */
     void setValueOfKey(
         Nebulite::Interaction::Logic::Assignment::Operation operation, 
-        const std::string& key, 
+        std::string const& key, 
         double value, 
         double* target
     );
@@ -270,7 +270,7 @@ public:
      * @param input The expression to evaluate.
      * @return The result of the evaluation.
      */
-    std::string evaluateStandaloneExpression(const std::string& input);
+    std::string evaluateStandaloneExpression(std::string const& input);
 
     /**
      * @brief Evaluates a standalone expression with context from a RenderObject.
@@ -279,7 +279,7 @@ public:
      * @param selfAndOther The RenderObject providing context for `self` and `other`.
      * @return The result of the evaluation.
      */
-    std::string evaluateStandaloneExpression(const std::string& input, Nebulite::Core::RenderObject* selfAndOther);
+    std::string evaluateStandaloneExpression(std::string const& input, Nebulite::Core::RenderObject* selfAndOther);
 
 private:
     //------------------------------------------

@@ -53,7 +53,7 @@ public:
      * @param self The JSON object representing the "self" context.
      * @param global The JSON object representing the "global" context.
      */
-    void parse(const std::string& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global);
+    void parse(std::string const& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global);
 
     /**
      * @brief Checks if the expression can be returned as a double.
@@ -349,7 +349,7 @@ private:
      * 
      * @return The key without its context prefix.
      */
-    static std::string stripContext(const std::string& key);
+    static std::string stripContext(std::string const& key);
 
     /**
      * @brief Gets the context from a key before it's stripped
@@ -360,7 +360,7 @@ private:
      * 
      * @return The context of the key.
      */
-    static Entry::From getContext(const std::string& key);
+    static Entry::From getContext(std::string const& key);
 
     /**
      * @brief Parses the given expression into a series of entries.
@@ -368,7 +368,7 @@ private:
      * @param expr The expression string to parse.
      * @param entries The vector to populate with the parsed entries.
      */
-    void parseIntoEntries(const std::string& expr, std::vector<Entry>& entries);
+    void parseIntoEntries(std::string const& expr, std::vector<Entry>& entries);
 
     /**
      * @brief Reads the formatter string from a string and parses it intro the entry.
@@ -376,7 +376,7 @@ private:
      * @param entry The entry to populate with the parsed formatter.
      * @param formatter The formatter string to parse.
      */
-    static void readFormatter(Entry* entry, const std::string& formatter);
+    static void readFormatter(Entry* entry, std::string const& formatter);
 
     /**
      * @brief Used to parse a string token of type "eval" into an entry.
@@ -391,7 +391,7 @@ private:
      * @param currentEntry The current entry to populate.
      * @param entries The vector to push the current entry onto.
      */
-    void parseTokenTypeEval(const std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
+    void parseTokenTypeEval(std::string const& token, Entry& currentEntry, std::vector<Entry>& entries);
 
     /**
      * @brief Used to parse a string token of type "text" into an entry.
@@ -406,7 +406,7 @@ private:
      * @param currentEntry The current entry to populate.
      * @param entries The vector to push the current entry onto.
      */
-    void parseTokenTypeText(const std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
+    void parseTokenTypeText(std::string const& token, Entry& currentEntry, std::vector<Entry>& entries);
 
     /**
      * @brief Prints a compilation error message to cerr

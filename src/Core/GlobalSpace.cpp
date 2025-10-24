@@ -4,7 +4,7 @@
 #include "Constants/KeyNames.hpp"
 
 
-Nebulite::Core::GlobalSpace::GlobalSpace(const std::string& binName)
+Nebulite::Core::GlobalSpace::GlobalSpace(std::string const& binName)
 : Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite", this, &global, this),
   global(this),                       // Link the global document to the GlobalSpace
   renderer(this, &cmdVars.headless),  // Renderer with reference to GlobalSpace and headless mode boolean

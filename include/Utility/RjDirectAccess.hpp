@@ -179,7 +179,7 @@ public:
      * @param doc The rapidjson document to populate.
      * @param serialOrLink The JSON string to deserialize.
      */
-    static void deserialize(rapidjson::Document& doc, std::string serialOrLink, Nebulite::Core::GlobalSpace* global);
+    static void deserialize(rapidjson::Document& doc, std::string const& serialOrLink, Nebulite::Core::GlobalSpace* global);
     
 
     //------------------------------------------
@@ -200,7 +200,7 @@ public:
      * @param jsonc The JSONC string to process.
      * @return The JSON-compatible string.
      */
-    static std::string stripComments(const std::string& jsonc);
+    static std::string stripComments(std::string const& jsonc);
 
     /**
      * @brief Empties a rapidjson document.
@@ -220,7 +220,7 @@ public:
      * @param str The string to check.
      * @return true if the string is JSON or JSONC, false otherwise.
      */
-    static bool is_json_or_jsonc(const std::string& str);
+    static bool is_json_or_jsonc(std::string const& str);
 
     /**
      * @brief Validates if a key string is valid for traversal.
@@ -228,7 +228,7 @@ public:
      * @param key The key string to validate.
      * @return true if the key is valid, false otherwise.
      */
-    static bool isValidKey(const std::string& key);
+    static bool isValidKey(std::string const& key);
 
 private:
     /**
@@ -298,7 +298,7 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<lo
 // cppcheck-suppress constParameterReference
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<long long>(const long long& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)    {jsonValue.SetInt64(data);}
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<std::string>(const std::string& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<std::string>(std::string const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
     jsonValue.SetString(
         data.c_str(), 
         static_cast<rapidjson::SizeType>(data.length()), allocator
@@ -389,7 +389,7 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(
     }
 }
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, std::string& result,  const std::string& defaultvalue){
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, std::string& result,  std::string const& defaultvalue){
     if (jsonValue.IsBool()) {
         result = jsonValue.GetBool() ? "true" : "false";
     }

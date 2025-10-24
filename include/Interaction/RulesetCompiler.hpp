@@ -141,7 +141,7 @@ private:
      */
     static void optimizeParsedEntries(
         const std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries, 
-        Nebulite::Utility::JSON* self,
+        Nebulite::Utility::JSON const* self,
         Nebulite::Utility::JSON* global
     );
 

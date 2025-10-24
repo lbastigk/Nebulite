@@ -85,7 +85,7 @@ public:
 	 * @param dispResX Display resolution width for tile initialization.
 	 * @param dispResY Display resolution height for tile initialization.
 	 */
-	void deserialize(const std::string& serialOrLink, int dispResX, int dispResY);
+	void deserialize(std::string const& serialOrLink, int dispResX, int dispResY);
 
 	//------------------------------------------
 	// Pipeline

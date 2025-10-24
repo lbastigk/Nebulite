@@ -74,7 +74,7 @@ bool Nebulite::Core::Texture::copyTexture() {
     return true; // Successfully copied
 }
 
-void Nebulite::Core::Texture::loadTextureFromFile(const std::string& filePath) {
+void Nebulite::Core::Texture::loadTextureFromFile(std::string const& filePath) {
     // Load the texture using the global renderer
     SDL_Texture* newTexture = globalSpace->getRenderer()->loadTextureToMemory(filePath);
     if (newTexture) {

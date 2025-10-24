@@ -310,7 +310,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
 
 void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
     const std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries, 
-    Nebulite::Utility::JSON* self,
+    Nebulite::Utility::JSON const* self,
     Nebulite::Utility::JSON* global
 ){
     // Valid operations for direct double pointer assignment

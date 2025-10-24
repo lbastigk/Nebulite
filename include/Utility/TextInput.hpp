@@ -64,7 +64,7 @@ public:
         std::string content;
         std::string timestamp;
 
-        LineEntry(const std::string& cont, LineType t)
+        LineEntry(std::string const& cont, LineType t)
             : type(t), 
               content(cont), 
               timestamp(Nebulite::Utility::Time::TimeIso8601(Nebulite::Utility::Time::ISO8601FORMATTER::YYYY_MM_DD_HH_MM_SS, true)) 
@@ -77,7 +77,7 @@ public:
      * @param type The type of submission.
      * Default is COUT.
      */
-    void insertLine(const std::string& line, LineEntry::LineType type = LineEntry::LineType::COUT);
+    void insertLine(std::string const& line, LineEntry::LineType type = LineEntry::LineType::COUT);
 
     /**
      * @brief Handles backspace input.

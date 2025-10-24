@@ -112,7 +112,7 @@ public:
         return texture;
     }
 
-    void loadTextureFromFile(const std::string& filePath);
+    void loadTextureFromFile(std::string const& filePath);
 private:
     /**
      * @brief Pointer to the linked globalspace.

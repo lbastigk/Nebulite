@@ -43,7 +43,7 @@ std::string Nebulite::Core::Environment::serialize() {
 	return doc.serialize();
 }
 
-void Nebulite::Core::Environment::deserialize(const std::string& serialOrLink, int dispResX,int dispResY) {
+void Nebulite::Core::Environment::deserialize(std::string const& serialOrLink, int dispResX,int dispResY) {
 	Nebulite::Utility::JSON file(globalSpace);
 	file.deserialize(serialOrLink);
 

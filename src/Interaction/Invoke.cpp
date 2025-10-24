@@ -84,7 +84,7 @@ Nebulite::Interaction::Invoke::~Invoke() {
 //------------------------------------------
 // Checks
 
-bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd, Nebulite::Core::RenderObject* otherObj) {
+bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd, Nebulite::Core::RenderObject const* otherObj) {
     //------------------------------------------
     // Pre-Checks
     
@@ -208,7 +208,7 @@ void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std
 //------------------------------------------
 // Value sets
 
-void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, const std::string& key, const std::string& valStr, Nebulite::Utility::JSON* target){    
+void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, std::string const& key, std::string const& valStr, Nebulite::Utility::JSON* target){    
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation){
         case Nebulite::Interaction::Logic::Assignment::Operation::set:
@@ -232,7 +232,7 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::
     }
 }
 
-void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, const std::string& key, double value, Nebulite::Utility::JSON* target){    
+void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation, std::string const& key, double value, Nebulite::Utility::JSON* target){    
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation){
         case Nebulite::Interaction::Logic::Assignment::Operation::set:
@@ -256,7 +256,7 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::
     }
 }
 
-void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation,  const std::string& key, double value, double* target){    
+void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::Assignment::Operation operation,  std::string const& key, double value, double* target){    
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation){
         case Nebulite::Interaction::Logic::Assignment::Operation::set:
@@ -426,7 +426,7 @@ void Nebulite::Interaction::Invoke::update() {
 //------------------------------------------
 // Standalone Expression Evaluation
 
-std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const std::string& input) {
+std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::string const& input) {
     Nebulite::Utility::JSON* docSelf = this->emptyDoc;
     Nebulite::Utility::JSON* docOther = this->emptyDoc;
     Nebulite::Utility::JSON* docGlobal = this->globalDoc;
@@ -437,7 +437,7 @@ std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const st
     return expr.eval(docOther);
 }
 
-std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(const std::string& input, Nebulite::Core::RenderObject* selfAndOther) {
+std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::string const& input, Nebulite::Core::RenderObject* selfAndOther) {
     Nebulite::Utility::JSON* docSelf = selfAndOther->getDoc();
     Nebulite::Utility::JSON* docOther = selfAndOther->getDoc();
     Nebulite::Utility::JSON* docGlobal = this->globalDoc;

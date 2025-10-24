@@ -44,9 +44,8 @@ Nebulite::Utility::JSON& Nebulite::Utility::JSON::operator=(JSON&& other) noexce
 
 // Mark all child keys as virtual
 // e.g.: "parent.child1", "parent.child2.subchild", "parent[0]", etc.
-void Nebulite::Utility::JSON::invalidate_child_keys(const std::string& parent_key) {
+void Nebulite::Utility::JSON::invalidate_child_keys(std::string const& parent_key) {
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
-    std::vector<std::string> keys_to_remove;
 
     // Find all child keys and invalidate them
     for (auto& [key, entry] : cache) {
@@ -93,7 +92,7 @@ Nebulite::Constants::Error Nebulite::Utility::JSON::update(){
 //------------------------------------------
 // Get methods
 
-Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(const std::string& key){
+Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(std::string const& key){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Flush own contents
@@ -112,7 +111,7 @@ Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(const std::string& k
     }
 }
 
-double* Nebulite::Utility::JSON::getStableDoublePointer(const std::string& key){
+double* Nebulite::Utility::JSON::getStableDoublePointer(std::string const& key){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Check cache first
@@ -184,7 +183,7 @@ void Nebulite::Utility::JSON::set_empty_array(const char* key){
 //------------------------------------------
 // Serialize/Deserialize
 
-std::string Nebulite::Utility::JSON::serialize(const std::string& key) {
+std::string Nebulite::Utility::JSON::serialize(std::string const& key) {
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
     flush(); // Ensure all changes are reflected in the document
     if(key.size() == 0){
@@ -197,7 +196,7 @@ std::string Nebulite::Utility::JSON::serialize(const std::string& key) {
     }
 }
 
-void Nebulite::Utility::JSON::deserialize(const std::string& serial_or_link){
+void Nebulite::Utility::JSON::deserialize(std::string const& serial_or_link){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Reset document and cache
@@ -270,7 +269,7 @@ void Nebulite::Utility::JSON::deserialize(const std::string& serial_or_link){
 //------------------------------------------
 // Key Types, Sizes
 
-Nebulite::Utility::JSON::KeyType Nebulite::Utility::JSON::memberCheck(const std::string& key) {
+Nebulite::Utility::JSON::KeyType Nebulite::Utility::JSON::memberCheck(std::string const& key) {
     // 1. Check if key is empty -> represents the whole document
     if (key.empty()) {
         return KeyType::document;
@@ -308,7 +307,7 @@ Nebulite::Utility::JSON::KeyType Nebulite::Utility::JSON::memberCheck(const std:
     }
 }
 
-uint32_t Nebulite::Utility::JSON::memberSize(std::string key){
+uint32_t Nebulite::Utility::JSON::memberSize(std::string const& key){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     auto kt = memberCheck(key);

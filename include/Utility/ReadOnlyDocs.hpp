@@ -93,7 +93,7 @@ struct ReadOnlyDocs{
          * @param doc The link to the document.
          * @return Pointer to the ReadOnlyDoc, or nullptr if loading fails.
          */
-        ReadOnlyDoc* getDocument(const std::string& doc) {
+        ReadOnlyDoc* getDocument(std::string const& doc) {
             // Validate inputs and state
             if (doc.empty()) {
                 return nullptr;

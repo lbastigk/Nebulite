@@ -41,7 +41,7 @@ public:
      * 
      * @return The combined path as a string.
      */
-    static std::string CombinePaths(const std::string& baseDir, const std::string& innerDir);
+    static std::string CombinePaths(std::string const& baseDir, std::string const& innerDir);
 
     /**
      * @brief Loads the contents of a file into a string.
@@ -53,7 +53,7 @@ public:
      * @return The contents of the file as a string. If the file cannot be read,
      *         an empty string is returned.
      */
-    static std::string LoadFile(const std::string& link);
+    static std::string LoadFile(std::string const& link);
 
     /**
      * @brief Writes a string to a file.
@@ -64,7 +64,7 @@ public:
      * @param filename The name of the file to write to.
      * @param text The text to write to the file.
      */
-    static void WriteFile(const std::string& filename, const std::string& text);
+    static void WriteFile(std::string const& filename, std::string const& text);
 
     /**
      * @brief Returns the preferred directory separator for the platform.
@@ -94,7 +94,7 @@ public:
      * 
      * @return True if the file exists, false otherwise.
      */
-    static bool fileExists(const std::string& path);
+    static bool fileExists(std::string const& path);
 };
 } // namespace Utility
 } // namespace Nebulite

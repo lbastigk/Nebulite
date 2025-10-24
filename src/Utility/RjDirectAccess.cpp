@@ -185,7 +185,7 @@ std::string Nebulite::Utility::RjDirectAccess::serialize(const rapidjson::Docume
     return buffer.GetString();
 }
 
-void Nebulite::Utility::RjDirectAccess::deserialize(rapidjson::Document& doc, std::string serialOrLink, Nebulite::Core::GlobalSpace* global) {
+void Nebulite::Utility::RjDirectAccess::deserialize(rapidjson::Document& doc, std::string const& serialOrLink, Nebulite::Core::GlobalSpace* global) {
     std::string jsonString;
 
     // Check if the input is already a serialized JSON string
@@ -272,7 +272,7 @@ namespace {
     }
 }
 
-std::string Nebulite::Utility::RjDirectAccess::stripComments(const std::string& jsonc) {
+std::string Nebulite::Utility::RjDirectAccess::stripComments(std::string const& jsonc) {
     std::string result;
     result.reserve(jsonc.size());
     ParseState state;
@@ -372,13 +372,13 @@ void Nebulite::Utility::RjDirectAccess::remove_member(const char* key, rapidjson
     }
 }
 
-bool Nebulite::Utility::RjDirectAccess::is_json_or_jsonc(const std::string& str) {
+bool Nebulite::Utility::RjDirectAccess::is_json_or_jsonc(std::string const& str) {
     // So far, we do a simple check based on starting characters
     bool check1 = str.starts_with("{") || str.starts_with("//") || str.starts_with("/*") || str.starts_with("\n");
     return check1;
 }
 
-bool Nebulite::Utility::RjDirectAccess::isValidKey(const std::string& key) {
+bool Nebulite::Utility::RjDirectAccess::isValidKey(std::string const& key) {
     std::string_view keyView(key);
     while (!keyView.empty()) {
         // Extract current key part (object key)

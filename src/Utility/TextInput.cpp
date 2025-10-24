@@ -37,7 +37,7 @@ std::string TextInput::submit(){
     return "";
 }
 
-void TextInput::insertLine(const std::string& line, LineEntry::LineType type){
+void TextInput::insertLine(std::string const& line, LineEntry::LineType type){
     switch(type){
         case LineEntry::LineType::COUT: {
             LineEntry entry(line, LineEntry::LineType::COUT);

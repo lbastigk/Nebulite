@@ -2,7 +2,7 @@
 
 #include "Utility/Capture.hpp"
 
-bool Nebulite::Utility::StringHandler::containsAnyOf(const std::string& str, const std::string& chars) {
+bool Nebulite::Utility::StringHandler::containsAnyOf(std::string const& str, std::string const& chars) {
     return std::any_of(str.begin(), str.end(), [&](char c) {
         return chars.find(c) != std::string::npos;
     });
@@ -37,7 +37,7 @@ bool Nebulite::Utility::StringHandler::isNumber(std::string str) {
     return hasDigits;
 }
 
-std::string Nebulite::Utility::StringHandler::replaceAll(std::string target, const std::string& toReplace, const std::string& replacer) {
+std::string Nebulite::Utility::StringHandler::replaceAll(std::string target, std::string const& toReplace, std::string const& replacer) {
     std::string::size_type pos = 0u;
     while ((pos = target.find(toReplace, pos)) != std::string::npos) {
         target.replace(pos, toReplace.length(), replacer);
@@ -62,17 +62,17 @@ std::string Nebulite::Utility::StringHandler::afterSpecialChar(std::string input
     return input;
 }
 
-std::string Nebulite::Utility::StringHandler::lstrip(const std::string& input, char specialChar) {
+std::string Nebulite::Utility::StringHandler::lstrip(std::string const& input, char specialChar) {
     size_t start = input.find_first_not_of(specialChar);
     return (start == std::string::npos) ? "" : input.substr(start);
 }
 
-std::string Nebulite::Utility::StringHandler::rstrip(const std::string& input, char specialChar) {
+std::string Nebulite::Utility::StringHandler::rstrip(std::string const& input, char specialChar) {
     size_t end = input.find_last_not_of(specialChar);
     return (end == std::string::npos) ? "" : input.substr(0, end + 1);
 }
 
-std::vector<std::string> Nebulite::Utility::StringHandler::split(const std::string& input, char delimiter, bool keepDelimiter) {
+std::vector<std::string> Nebulite::Utility::StringHandler::split(std::string const& input, char delimiter, bool keepDelimiter) {
     std::vector<std::string> tokens;
     
     if (!keepDelimiter) {
@@ -119,7 +119,7 @@ std::vector<std::string> Nebulite::Utility::StringHandler::split(const std::stri
     return tokens;
 }
 
-std::vector<std::string> Nebulite::Utility::StringHandler::splitOnSameDepth(const std::string& input, char delimiter) {
+std::vector<std::string> Nebulite::Utility::StringHandler::splitOnSameDepth(std::string const& input, char delimiter) {
     std::vector<std::string> result;
 
     // Map opening delimiters to their closing ones
@@ -200,7 +200,7 @@ namespace {
         }
     }
 
-    std::string processQuoteToken(const std::string& token, char quoteChar, bool& quoteState) {
+    std::string processQuoteToken(std::string const& token, char quoteChar, bool& quoteState) {
         std::string cleanToken = token.substr(1); // Remove opening quote
         quoteState = true;
         
@@ -213,7 +213,7 @@ namespace {
         return cleanToken;
     }
 
-    void handleQuoteStart(const std::string& token, QuoteParseState& state, std::vector<std::string>& result) {
+    void handleQuoteStart(std::string const& token, QuoteParseState& state, std::vector<std::string>& result) {
         if (token[0] == '"') {
             std::string cleanToken = processQuoteToken(token, '"', state.inDoubleQuote);
             result.push_back(cleanToken);
@@ -226,7 +226,7 @@ namespace {
         }
     }
 
-    void handleQuoteEnd(const std::string& token, char quoteChar, bool& quoteState, std::vector<std::string>& result) {
+    void handleQuoteEnd(std::string const& token, char quoteChar, bool& quoteState, std::vector<std::string>& result) {
         quoteState = false;
         std::string cleanToken = token;
         
@@ -240,7 +240,7 @@ namespace {
         }
     }
 
-    void handleQuotedToken(const std::string& token, QuoteParseState& state, std::vector<std::string>& result) {
+    void handleQuotedToken(std::string const& token, QuoteParseState& state, std::vector<std::string>& result) {
         if (state.inDoubleQuote && !token.empty() && token.back() == '"') {
             handleQuoteEnd(token, '"', state.inDoubleQuote, result);
         } else if (state.inSingleQuote && !token.empty() && token.back() == '\'') {
@@ -254,7 +254,7 @@ namespace {
     }
 }
 
-std::vector<std::string> Nebulite::Utility::StringHandler::parseQuotedArguments(const std::string& cmd) {
+std::vector<std::string> Nebulite::Utility::StringHandler::parseQuotedArguments(std::string const& cmd) {
     std::vector<std::string> tokens = Nebulite::Utility::StringHandler::split(cmd, ' ');
     std::vector<std::string> result;
     QuoteParseState state;

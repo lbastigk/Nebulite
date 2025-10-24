@@ -43,7 +43,7 @@ std::string Nebulite::Core::RenderObjectContainer::serialize() {
 	return doc.serialize();
 }
 
-void Nebulite::Core::RenderObjectContainer::deserialize(const std::string& serialOrLink, int dispResX, int dispResY) {
+void Nebulite::Core::RenderObjectContainer::deserialize(std::string const& serialOrLink, int dispResX, int dispResY) {
 	Nebulite::Utility::JSON layer(globalSpace);
 	layer.deserialize(serialOrLink);
 	if(layer.memberCheck("objects") == Nebulite::Utility::JSON::KeyType::array){

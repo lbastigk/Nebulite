@@ -13,7 +13,7 @@
     class DomainModuleName : public ::Nebulite::Interaction::Execution::DomainModule<DomainName>
 
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
-    DomainModuleName(const std::string& moduleName, DomainName* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
+    DomainModuleName(std::string const& moduleName, DomainName* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
     : DomainModule(moduleName, domain, funcTreePtr, globalSpace)
 
 //------------------------------------------
@@ -51,7 +51,7 @@ public:
      * the FuncTree.
      */
     DomainModule(
-        const std::string& moduleName, 
+        std::string const& moduleName, 
         DomainType* domain, 
         std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, 
         Nebulite::Core::GlobalSpace* globalSpace
@@ -79,7 +79,7 @@ public:
      * @param name The name to associate with the bound function.
      */
     template<typename ClassType>
-    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char**), const std::string& name, const std::string* helpDescription) {
+    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char**), std::string const& name, const std::string* helpDescription) {
         funcTree->bindFunction(
             static_cast<ClassType*>(this),
             std::variant<
@@ -93,7 +93,7 @@ public:
 
     // Overload for const char** version
     template<typename ClassType>
-    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, const char**), const std::string& name, const std::string* helpDescription) {
+    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, const char**), std::string const& name, const std::string* helpDescription) {
         funcTree->bindFunction(
             static_cast<ClassType*>(this),
             std::variant<
@@ -114,7 +114,7 @@ public:
      * @param description Description of the category, shown in the help command. First line is shown in the general help, full description in detailed help
      * @return true if the category was created successfully, false if a category with the same name already exists
      */
-    bool bindCategory(const std::string& name, const std::string* helpDescription) {
+    bool bindCategory(std::string const& name, const std::string* helpDescription) {
         return funcTree->bindCategory(name, helpDescription);
     }
 
@@ -127,7 +127,7 @@ public:
      * 
      * A simple argument of '--varName' will set the value to "true"
      */
-    void bindVariable(bool* variablePtr, const std::string& name, const std::string* helpDescription) {
+    void bindVariable(bool* variablePtr, std::string const& name, const std::string* helpDescription) {
         // Bind a variable to the FuncTree
         funcTree->bindVariable(variablePtr, name, helpDescription);
     }

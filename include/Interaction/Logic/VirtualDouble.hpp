@@ -65,7 +65,7 @@ public:
      * @param k The key associated with this VirtualDouble.
      * @param documentCache The DocumentCache to use for retrieving values.
      */
-    VirtualDouble(const std::string& k, Nebulite::Utility::DocumentCache* documentCache) 
+    VirtualDouble(std::string const& k, Nebulite::Utility::DocumentCache* documentCache) 
         : documentCache(documentCache), key(k) {
             // Removing self/other/global prefixes in the key
             if (key.starts_with("self."))         key = key.substr(5);
@@ -78,7 +78,7 @@ public:
      * 
      * @return The key as a string.
      */
-    const std::string& getKey() const {
+    std::string const& getKey() const {
         return key;
     }
 

@@ -3,14 +3,14 @@
 //------------------------------------------
 // Nebulite::Utility::FileManagement Functions
 
-std::string Nebulite::Utility::FileManagement::CombinePaths(const std::string& baseDir, const std::string& innerDir) {
+std::string Nebulite::Utility::FileManagement::CombinePaths(std::string const& baseDir, std::string const& innerDir) {
     std::filesystem::path basePath(baseDir);
     std::filesystem::path innerPath(innerDir);
     std::filesystem::path fullPath = basePath / innerPath;
     return fullPath.string();
 }
 
-std::string Nebulite::Utility::FileManagement::LoadFile(const std::string& link) {  
+std::string Nebulite::Utility::FileManagement::LoadFile(std::string const& link) {  
     // Use C-style file I/O to avoid locale issues
     FILE* file = fopen(link.c_str(), "rb");
     if (!file) {
@@ -39,7 +39,7 @@ std::string Nebulite::Utility::FileManagement::LoadFile(const std::string& link)
     return content;
 }
 
-void Nebulite::Utility::FileManagement::WriteFile(const std::string& filename, const std::string& text) {
+void Nebulite::Utility::FileManagement::WriteFile(std::string const& filename, std::string const& text) {
     std::filesystem::path filepath(filename);  // Modern: handles encoding and platform separators
 
     std::ofstream file(filepath, std::ios::out);
@@ -63,6 +63,6 @@ std::string Nebulite::Utility::FileManagement::currentDir() {
     }
 }
 
-bool Nebulite::Utility::FileManagement::fileExists(const std::string& path) {
+bool Nebulite::Utility::FileManagement::fileExists(std::string const& path) {
     return std::filesystem::exists(path);
 }

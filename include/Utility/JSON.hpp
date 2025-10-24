@@ -83,7 +83,7 @@ private:
      * "config.option1", "config.option2.suboption", etc.
      * as well as "config[0]", "config[1].suboption", etc.
      */
-    void invalidate_child_keys(const std::string& parent_key);
+    void invalidate_child_keys(std::string const& parent_key);
 
     /**
      * @brief The Caching system used for fast access to frequently used values.
@@ -91,7 +91,7 @@ private:
     absl::flat_hash_map<std::string, std::unique_ptr<CacheEntry>> cache;
 
     // Callback type for cache invalidation notifications
-    using InvalidationCallback = std::function<void(const std::string& key, double* old_ptr, double* new_ptr)>;
+    using InvalidationCallback = std::function<void(std::string const& key, double* old_ptr, double* new_ptr)>;
 
     // Actual RapidJSON document
     rapidjson::Document doc;
@@ -166,7 +166,7 @@ public:
      * @param str The string to check.
      * @return true if the string is JSON or JSONC, false otherwise.
      */
-    static bool is_json_or_jsonc(const std::string& str){
+    static bool is_json_or_jsonc(std::string const& str){
         return RjDirectAccess::is_json_or_jsonc(str);
     }
 
@@ -184,7 +184,7 @@ public:
      * @param value The value to set.
      */
     template <typename T>
-    void set(const std::string& key, const T& val);
+    void set(std::string const& key, const T& val);
 
     /**
      * @brief Sets a sub-document in the JSON document.
@@ -244,7 +244,7 @@ public:
      * @return The value associated with the key, or the default value if the key does not exist.
      */
     template <typename T>
-    T get(const std::string& key, const T& defaultValue = T());
+    T get(std::string const& key, const T& defaultValue = T());
 
     /**
      * @brief Gets a sub-document from the JSON document.
@@ -257,7 +257,7 @@ public:
      * @param key The key of the sub-document to retrieve.
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
      */
-    Nebulite::Utility::JSON get_subdoc(const std::string& key);
+    Nebulite::Utility::JSON get_subdoc(std::string const& key);
 
     /**
      * @brief Provides access to the internal mutex for thread-safe operations.
@@ -268,14 +268,14 @@ public:
     /**
      * @brief Gets a pointer to a to a double value pointer in the JSON document.
      */
-    double* getStableDoublePointer(const std::string& key);
+    double* getStableDoublePointer(std::string const& key);
 
     /**
      * @brief Gets a pointer to a to a double value pointer in the JSON document based on a unique ID.
      * 
      * @param uid The unique ID of the key, must be smaller than JSON_UID_QUICKCACHE_SIZE !
      */
-    double* get_uid_double_ptr(uint64_t uid, const std::string& key){
+    double* get_uid_double_ptr(uint64_t uid, std::string const& key){
         if(uidDoubleCache[uid] == nullptr){
             // Need to create new entry
             uidDoubleCache[uid] = getStableDoublePointer(key);
@@ -306,7 +306,7 @@ public:
      * @param key The key to check.
      * @return The type of the key.
      */
-    KeyType memberCheck(const std::string& key);
+    KeyType memberCheck(std::string const& key);
 
     /**
      * @brief Checks the size of a key in the JSON document.
@@ -320,7 +320,7 @@ public:
      * @param key The key to check.
      * @return The size of the key.
      */
-    uint32_t memberSize(std::string key);
+    uint32_t memberSize(std::string const& key);
 
     /**
      * @brief Removes a key from the JSON document.
@@ -343,7 +343,7 @@ public:
      * @param key The key to serialize. (Optional: leave empty to serialize entire document)
      * @return The serialized JSON string.
      */
-    std::string serialize(const std::string& key = "");
+    std::string serialize(std::string const& key = "");
 
     /**
      * @brief Deserializes a JSON string or loads from a file, with optional modifications.
@@ -364,7 +364,7 @@ public:
      * 
      * See `JSDM_*.hpp` files for available functioncalls.
      */
-    void deserialize(const std::string& serial_or_link);
+    void deserialize(std::string const& serial_or_link);
 
     //------------------------------------------
     // Assorted list of double pointers
@@ -386,7 +386,7 @@ public:
 }
 
 template<typename T>
-void Nebulite::Utility::JSON::set(const std::string& key, const T& value) {
+void Nebulite::Utility::JSON::set(std::string const& key, const T& value) {
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Check if key is valid
@@ -431,7 +431,7 @@ void Nebulite::Utility::JSON::set(const std::string& key, const T& value) {
 }
 
 template<typename T>
-T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
+T Nebulite::Utility::JSON::get(std::string const& key, const T& defaultValue) {
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Check cache first
@@ -501,7 +501,7 @@ T Nebulite::Utility::JSON::get(const std::string& key, const T& defaultValue) {
 
 // Converter helper functions for convertVariant
 namespace{
-    inline bool stringToBool(const std::string& stored, bool defaultValue){
+    inline bool stringToBool(std::string const& stored, bool defaultValue){
         // Handle numeric strings and "true"
         if(Nebulite::Utility::StringHandler::isNumber(stored)){
             try {
@@ -513,7 +513,7 @@ namespace{
         return stored == "true";
     }
 
-    inline int stringToInt(const std::string& stored, int defaultValue){
+    inline int stringToInt(std::string const& stored, int defaultValue){
         //if (stored == "true") return 1;
         //if (stored == "false") return 0;
         try {
@@ -523,7 +523,7 @@ namespace{
         }
     }
 
-    inline double stringToDouble(const std::string& stored, double defaultValue){
+    inline double stringToDouble(std::string const& stored, double defaultValue){
         //if (stored == "true") return 1.0;
         //if (stored == "false") return 0.0;
         try {
@@ -533,7 +533,7 @@ namespace{
         }
     }
 
-    inline unsigned long stringToUnsignedLong(const std::string& stored, unsigned long defaultValue){
+    inline unsigned long stringToUnsignedLong(std::string const& stored, unsigned long defaultValue){
         //if (stored == "true") return 1.0;
         //if (stored == "false") return 0.0;
         try {
@@ -543,7 +543,7 @@ namespace{
         }
     }
 
-    inline unsigned long long stringToUnsignedLongLong(const std::string& stored, unsigned long long defaultValue){
+    inline unsigned long long stringToUnsignedLongLong(std::string const& stored, unsigned long long defaultValue){
         //if (stored == "true") return 1;
         //if (stored == "false") return 0;
         try {
@@ -553,7 +553,7 @@ namespace{
         }
     }
 
-    inline void convertVariantErrorMessage(const std::string& oldType, const std::string& newType){
+    inline void convertVariantErrorMessage(std::string const& oldType, std::string const& newType){
         Nebulite::Utility::Capture::cerr() << "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
                   << oldType
                   << " to " << newType << ".\n"

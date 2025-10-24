@@ -124,7 +124,7 @@ public:
 	 * @param dispResX Display resolution width. Necessary to position the object correctly in its tile-based container.
 	 * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
 	 */
-	void deserialize(const std::string& serialOrLink, int dispResX,int dispResY);
+	void deserialize(std::string const& serialOrLink, int dispResX,int dispResY);
 	
 	//------------------------------------------
 	// Object Management

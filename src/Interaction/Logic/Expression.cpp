@@ -77,7 +77,7 @@ void Nebulite::Interaction::Logic::Expression::reset() {
     te_variables.push_back({"sgn",         reinterpret_cast<void*>(expr_custom::sgn),            TE_FUNCTION1,  nullptr});
 }
 
-std::string Nebulite::Interaction::Logic::Expression::stripContext(const std::string& key) {
+std::string Nebulite::Interaction::Logic::Expression::stripContext(std::string const& key) {
     if (key.starts_with("self.")) {
         return key.substr(5);
     } else if (key.starts_with("other.")) {
@@ -89,7 +89,7 @@ std::string Nebulite::Interaction::Logic::Expression::stripContext(const std::st
     }
 }
 
-Nebulite::Interaction::Logic::Expression::Entry::From Nebulite::Interaction::Logic::Expression::getContext(const std::string& key) {
+Nebulite::Interaction::Logic::Expression::Entry::From Nebulite::Interaction::Logic::Expression::getContext(std::string const& key) {
     if (key.starts_with("self.")) {
         return Entry::From::self;
     } else if (key.starts_with("other.")) {
@@ -168,7 +168,7 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::parseIntoEntries(const std::string& expr, std::vector<Entry>& entries){
+void Nebulite::Interaction::Logic::Expression::parseIntoEntries(std::string const& expr, std::vector<Entry>& entries){
     // First, we must split the expression into tokens
     std::vector<std::string> tokensPhase1, tokens;
 
@@ -226,7 +226,7 @@ void Nebulite::Interaction::Logic::Expression::parseIntoEntries(const std::strin
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::readFormatter(Entry* entry, const std::string& formatter) {
+void Nebulite::Interaction::Logic::Expression::readFormatter(Entry* entry, std::string const& formatter) {
     // Check formatter. Integer cast should not include precision. Is ignored later on in casting but acceptable as input
     // Examples:
     // $i     : leadingZero = false , alignment = -1 , precision = -1
@@ -257,7 +257,7 @@ void Nebulite::Interaction::Logic::Expression::readFormatter(Entry* entry, const
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(const std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
+void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(std::string const& token, Entry& currentEntry, std::vector<Entry>& entries) {
     // $[leading zero][alignment][.][precision]<type:f,i>
     // - bool leading zero   : on/off
     // - int alignment       : <0 means no formatting
@@ -326,7 +326,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(const std::str
     entries.push_back(currentEntry);
 }
 
-void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(const std::string& token, Entry& currentEntry, std::vector<Entry>& entries) {
+void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(std::string const& token, Entry& currentEntry, std::vector<Entry>& entries) {
     // Current token is Text
     // Perhaps mixed with variables...
     std::vector<std::string> subTokens = Nebulite::Utility::StringHandler::splitOnSameDepth(token, '{');
@@ -388,7 +388,7 @@ Nebulite::Interaction::Logic::Expression::Expression() {
     reset();
 }
 
-void Nebulite::Interaction::Logic::Expression::parse(const std::string& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global) {
+void Nebulite::Interaction::Logic::Expression::parse(std::string const& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global) {
     reset();
 
     // Set references

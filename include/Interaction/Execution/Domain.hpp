@@ -94,7 +94,7 @@ public:
      * 
      * For binding functions or categories, use the DomainModule interface.
      */
-    void bindVariable(bool* varPtr, const std::string& name, const std::string* helpDescription){
+    void bindVariable(bool* varPtr, std::string const& name, const std::string* helpDescription){
         funcTree->bindVariable(varPtr, name, helpDescription);
     }
 
@@ -163,7 +163,7 @@ public:
      * - If we inherit from another domain, we parse once, no double printing
      * - If we add a domain, for instance, in a DomainModule, we have a parse within a parse, leading to double printing
 	 */
-	Nebulite::Constants::Error parseStr(const std::string& str){
+	Nebulite::Constants::Error parseStr(std::string const& str){
         Nebulite::Constants::Error err = funcTree->parseStr(str);
         //err.print();  // Disabled for now, but needs proper treatment later
         return err;

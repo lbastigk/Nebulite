@@ -91,7 +91,7 @@ public:
     // Special Member Functions
 
     // Constructor
-    explicit GlobalSpace(const std::string& binName);
+    explicit GlobalSpace(std::string const& binName);
 
     // Destructor
     ~GlobalSpace() = default;
@@ -152,14 +152,14 @@ public:
     /**
      * @brief Evaluates a string.
      */
-    std::string eval(const std::string& expr){
+    std::string eval(std::string const& expr){
         return invoke.evaluateStandaloneExpression(expr);
     }
 
     /**
      * @brief Evaluates a string with context of a RenderObject.
      */
-    std::string eval(const std::string& expr, Nebulite::Core::RenderObject* context){
+    std::string eval(std::string const& expr, Nebulite::Core::RenderObject* context){
         return invoke.evaluateStandaloneExpression(expr, context);
     }
 
