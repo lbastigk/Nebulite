@@ -423,7 +423,7 @@ public:
 	 * @param link The file path to load the texture from.
 	 * @return A pointer to the loaded SDL_Texture, or nullptr if loading failed.
 	 */
-	SDL_Texture* loadTextureToMemory(std::string link);
+	SDL_Texture* loadTextureToMemory(std::string const& link);
 
 	//------------------------------------------
 	// Status

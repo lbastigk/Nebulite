@@ -677,7 +677,7 @@ void Nebulite::Core::Renderer::loadTexture(std::string const& link) {
 /**
  * @todo Texture not created with SDL_TEXTUREACCESS_TARGET, so cannot be used with SDL_SetRenderTarget
  */
-SDL_Texture* Nebulite::Core::Renderer::loadTextureToMemory(std::string link) {
+SDL_Texture* Nebulite::Core::Renderer::loadTextureToMemory(std::string const& link) {
     std::string path = Nebulite::Utility::FileManagement::CombinePaths(baseDirectory, link);
     
 	// Get file extension, based on last dot

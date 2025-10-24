@@ -143,7 +143,7 @@ public:
 	 * 
 	 * @param serialOrLink The JSON string to deserialize.
 	 */
-	void deserialize(std::string serialOrLink);
+	void deserialize(std::string const& serialOrLink);
 
 	/**
 	 * @brief Gets a pointer to the SDL_Rect describing the destination of the sprite.

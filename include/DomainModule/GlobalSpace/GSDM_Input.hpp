@@ -132,11 +132,13 @@ private:
 
     /**
      * @brief Array to store pointers to double values representing the delta states of keys.
+     * Represents their values inside the global document.
      */
     double* deltaKey[SDL_NUM_SCANCODES] = {nullptr}; // Pointers to delta key states in global doc
 
     /**
      * @brief Array to store pointers to double values representing the current states of keys.
+     * Represents their values inside the global document.
      */
     double* currentKey[SDL_NUM_SCANCODES] = {nullptr}; // Pointers to current key states in global doc
 };

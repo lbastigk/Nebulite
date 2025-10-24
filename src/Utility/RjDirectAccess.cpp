@@ -5,8 +5,8 @@
 //------------------------------------------
 // Static Public Helper Functions
 
-rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_path(char const* key, rapidjson::Value& val){
-    rapidjson::Value* current = &val;
+rapidjson::Value const* Nebulite::Utility::RjDirectAccess::traverse_path(char const* key, rapidjson::Value const& val){
+    rapidjson::Value const* current = &val;
     std::string_view keyView(key);
 
     while (!keyView.empty()) {
@@ -66,7 +66,7 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_path(char const* k
     return current;
 }
 
-rapidjson::Value* Nebulite::Utility::RjDirectAccess::ensure_path(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
+rapidjson::Value const* Nebulite::Utility::RjDirectAccess::ensure_path(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
 
@@ -132,7 +132,7 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::ensure_path(char const* key
     return current;
 }
 
-rapidjson::Value Nebulite::Utility::RjDirectAccess::sortRecursive(const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator) {
+rapidjson::Value Nebulite::Utility::RjDirectAccess::sortRecursive(rapidjson::Value const& value, rapidjson::Document::AllocatorType& allocator) {
     if (value.IsObject()) {
         // Sort object keys
         std::vector<std::pair<std::string, const rapidjson::Value*>> members;
@@ -296,12 +296,12 @@ std::string Nebulite::Utility::RjDirectAccess::stripComments(std::string const& 
     return result;
 }
 
-rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_to_parent(char const* fullKey, rapidjson::Value& root, std::string& finalKey, int& arrayIndex) {
+rapidjson::Value const* Nebulite::Utility::RjDirectAccess::traverse_to_parent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex) {
     std::string keyStr(fullKey);
     size_t lastDot = keyStr.find_last_of('.');
     size_t lastBracket = keyStr.find_last_of('[');
 
-    rapidjson::Value* parent = nullptr;
+    rapidjson::Value const* parent = nullptr;
     if (lastBracket != std::string::npos && (lastDot == std::string::npos || lastBracket > lastDot)) {
         // Last access is array index: var.subvar[2] or var[2]
         size_t openBracket = keyStr.find_last_of('[');
@@ -351,7 +351,7 @@ void Nebulite::Utility::RjDirectAccess::remove_member(char const* key, rapidjson
     // - parent.child[index]
     std::string finalKey;
     int arrayIndex = -1;
-    rapidjson::Value* parent = Nebulite::Utility::RjDirectAccess::traverse_to_parent(key, val, finalKey, arrayIndex);
+    rapidjson::Value* parent = const_cast<rapidjson::Value*>(Nebulite::Utility::RjDirectAccess::traverse_to_parent(key, val, finalKey, arrayIndex));
     
     // Remove the final key/index from parent
     if (parent != nullptr) {

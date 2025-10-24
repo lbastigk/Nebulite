@@ -110,7 +110,7 @@ public:
      * @param defaultvalue The default value to use if conversion fails.
      */
     template <typename T>
-    static void ConvertFromJSONValue(const rapidjson::Value& jsonValue, T& result, T const& defaultvalue = T());
+    static void ConvertFromJSONValue(rapidjson::Value const& jsonValue, T& result, T const& defaultvalue = T());
 
     /**
      * @brief Converts a C++ type to a rapidjson value.
@@ -133,7 +133,7 @@ public:
      * @param val The rapidjson value to search within.
      * @return A pointer to the found rapidjson value, or nullptr if not found.
      */
-    static rapidjson::Value* traverse_path(char const* key, rapidjson::Value& val);
+    static rapidjson::Value const* traverse_path(char const* key, rapidjson::Value const& val);
 
     /**
      * @brief Traverses a rapidjson value to find or create a value within identified by its key.
@@ -145,7 +145,7 @@ public:
      * Note that the returned value may be nullptr if the given key is invalid 
      * (e.g., trying to index into a non-array or using a malformed index).
      */
-    static rapidjson::Value* ensure_path(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+    static rapidjson::Value const* ensure_path(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
     /**
      * @brief Traverses a rapidjson value to find the parent of a value identified by its key.
@@ -156,11 +156,12 @@ public:
      * 
      * @param key The key to search for.
      * @param root The rapidjson value to search within.
+     * 
      * @param finalKey The final key or index of the value to find the parent of.
      * @param arrayIndex The index if the final key is an array index, -1 otherwise.
      * @return A pointer to the parent rapidjson value, or nullptr if not found
      */
-    static rapidjson::Value* traverse_to_parent(char const* fullKey, rapidjson::Value& root, std::string& finalKey, int& arrayIndex);
+    static rapidjson::Value const* traverse_to_parent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex);
 
     //------------------------------------------
     // Serialization/Deserialization
@@ -192,7 +193,7 @@ public:
      * @param allocator The allocator to use for creating new rapidjson values.
      * @return A new rapidjson value representing the sorted input.
      */
-    static rapidjson::Value sortRecursive(const rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator);
+    static rapidjson::Value sortRecursive(rapidjson::Value const& value, rapidjson::Document::AllocatorType& allocator);
 
     /**
      * @brief Strips comments from a JSONC string for a JSON-compatible output.
@@ -340,9 +341,9 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue(co
 // 2.) from JSON Value
 //------------------------------------------
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, bool& result,  bool const& defaultvalue){result = jsonValue.GetBool();}
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, bool& result,  bool const& defaultvalue){result = jsonValue.GetBool();}
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, int& result,  int const& defaultvalue) {
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, int& result,  int const& defaultvalue) {
     if (jsonValue.IsInt()) {
         result = jsonValue.GetInt();
     }
@@ -354,9 +355,9 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(
     }
 }
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint32_t& result,  uint32_t const& defaultvalue){result = jsonValue.GetUint();}
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, uint32_t& result,  uint32_t const& defaultvalue){result = jsonValue.GetUint();}
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, uint64_t& result,  uint64_t const& defaultvalue){
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, uint64_t& result,  uint64_t const& defaultvalue){
     if (jsonValue.IsString()) {
         std::istringstream iss(jsonValue.GetString());
         iss >> result;
@@ -371,7 +372,7 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(
     }
 }
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, double& result, double const& defaultvalue){
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, double& result, double const& defaultvalue){
     if (jsonValue.IsNumber()){
         result = jsonValue.GetDouble();
     }
@@ -389,7 +390,7 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(
     }
 }
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(const rapidjson::Value& jsonValue, std::string& result,  std::string const& defaultvalue){
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, std::string& result,  std::string const& defaultvalue){
     if (jsonValue.IsBool()) {
         result = jsonValue.GetBool() ? "true" : "false";
     }

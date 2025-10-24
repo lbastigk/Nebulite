@@ -111,7 +111,7 @@ std::string Nebulite::Core::RenderObject::serialize() {
 	return json.serialize();
 }
 
-void Nebulite::Core::RenderObject::deserialize(std::string serialOrLink) {
+void Nebulite::Core::RenderObject::deserialize(std::string const& serialOrLink) {
 	// Check if argv1 provided is an object
 	if(Nebulite::Utility::JSON::is_json_or_jsonc(serialOrLink)){
 		json.deserialize(serialOrLink);
