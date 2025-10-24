@@ -55,7 +55,7 @@ void Nebulite::Core::Environment::deserialize(const std::string& serialOrLink, i
 		// Check if the key exists in the document
 		if (file.memberCheck(key) != Nebulite::Utility::JSON::KeyType::null) {
 			// Extract the value corresponding to the key
-			Nebulite::Utility::JSON layer = file.get_subdoc(key.c_str());
+			Nebulite::Utility::JSON layer = file.get_subdoc(key);
 
 			// Convert the JSON object to a pretty-printed string
 			std::string str = layer.serialize();

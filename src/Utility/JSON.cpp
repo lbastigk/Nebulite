@@ -93,13 +93,13 @@ Nebulite::Constants::Error Nebulite::Utility::JSON::update(){
 //------------------------------------------
 // Get methods
 
-Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(const char* key){
+Nebulite::Utility::JSON Nebulite::Utility::JSON::get_subdoc(const std::string& key){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Flush own contents
     flush();
 
-    rapidjson::Value* keyVal = Nebulite::Utility::RjDirectAccess::traverse_path(key,doc);
+    rapidjson::Value* keyVal = Nebulite::Utility::RjDirectAccess::traverse_path(key.c_str(),doc);
     if(keyVal != nullptr){
         // turn keyVal to doc
         Nebulite::Utility::JSON json(getGlobalSpace());
@@ -192,7 +192,7 @@ std::string Nebulite::Utility::JSON::serialize(const std::string& key) {
         return Nebulite::Utility::RjDirectAccess::serialize(doc);
     } 
     else{
-        Nebulite::Utility::JSON sub = get_subdoc(key.c_str());
+        Nebulite::Utility::JSON sub = get_subdoc(key);
         return sub.serialize();
     }
 }

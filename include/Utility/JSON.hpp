@@ -257,7 +257,7 @@ public:
      * @param key The key of the sub-document to retrieve.
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
      */
-    Nebulite::Utility::JSON get_subdoc(const char* key);
+    Nebulite::Utility::JSON get_subdoc(const std::string& key);
 
     /**
      * @brief Provides access to the internal mutex for thread-safe operations.

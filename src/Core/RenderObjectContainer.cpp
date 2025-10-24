@@ -54,7 +54,7 @@ void Nebulite::Core::RenderObjectContainer::deserialize(const std::string& seria
 			std::string ro_serial = layer.get<std::string>(key.c_str());
 			if(ro_serial == "{Object}"){
 				Nebulite::Utility::JSON tmp(globalSpace);
-				tmp = layer.get_subdoc(key.c_str());
+				tmp = layer.get_subdoc(key);
 				ro_serial = tmp.serialize();
 			}
 
