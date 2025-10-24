@@ -112,6 +112,7 @@ void Nebulite::Interaction::Logic::Expression::compileIfExpression(Entry& entry)
             // Resetting expression to nan, as explained in error print:
             // using nan directly is not supported.
             // 0/0 directly yields -nan, so we use abs(0/0)
+            te_free(entry.expression);
             entry.expression = te_compile("abs(0/0)", te_variables.data(), te_variables.size(), &error);
         }
     }
