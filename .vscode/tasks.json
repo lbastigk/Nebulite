@@ -81,6 +81,17 @@
             "problemMatcher": [],
             "detail": "Run a memory leak check using Valgrind's Massif tool."
         },
+            {
+                "label": "[MEMORY] Leak check (Valgrind Memcheck)",
+                "type": "shell",
+                "command": "ulimit -n 32768 && valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./bin/Nebulite_Debug task TaskFiles/Debugging/vscode_memleak_test.nebs",
+                "group": {
+                    "kind": "test",
+                    "isDefault": false
+                },
+                "problemMatcher": [],
+                "detail": "Run a memory leak check using Valgrind Memcheck (shows detailed leak info in terminal)."
+            },
         {
             "label": "Install language extension",
             "type": "shell",
