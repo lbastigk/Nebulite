@@ -22,10 +22,15 @@
 echo Starting vscode_debug.nebs
 # -----------------------------------------------------------------------------
 
-# Initialize renderer
-set-fps 60
+# Fixed dt so the output is always the same
+time set-fixed-dt 1
 
-#task TaskFiles/Benchmarks/spawn_constantly.nebs
+# value doesnt matter, but this initializes renderer, which is needed
+set-fps 100 
+wait 10
 
-#task TaskFiles/Benchmarks/gravity.nebs 
+# Should be 0.001000 and 1.001000
+eval echo {global.time.dt}
+eval echo $({global.time.dt} + 1)
+exit
 
