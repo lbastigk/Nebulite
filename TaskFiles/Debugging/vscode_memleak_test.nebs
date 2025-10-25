@@ -21,7 +21,7 @@ spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc
 wait 10
 
 
-wait 5000
+wait 500
 env deload
-wait 1000
+wait 100
 exit
