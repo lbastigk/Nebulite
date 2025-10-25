@@ -14,8 +14,21 @@ Nebulite::Utility::JSON::JSON(Nebulite::Core::GlobalSpace* globalSpace)
 
 Nebulite::Utility::JSON::~JSON(){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
-    cache.clear();
     doc.SetObject();
+
+    // Delete all cached stable pointers
+    // We assume that noone will use them after JSON is destroyed
+
+    // 1.) UID quickcache
+    for(size_t idx = 0; idx < JSON_UID_QUICKCACHE_SIZE; idx++){
+        uidDoubleCache[idx] = nullptr;
+    }
+
+    // 2.) Delete cache and its pointers
+    for(auto& [key, entry] : cache){
+        delete entry->stable_double_ptr;
+    }
+    cache.clear();
 }
 
 Nebulite::Utility::JSON::JSON(JSON&& other) noexcept
