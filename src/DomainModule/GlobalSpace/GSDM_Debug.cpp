@@ -5,6 +5,7 @@
 
 #if defined(_WIN32)
     #include <windows.h>
+    #include <psapi.h>
 #else
     #include <unistd.h>   // isatty, lstat
     #include <sys/stat.h> // struct stat, S_ISLNK
