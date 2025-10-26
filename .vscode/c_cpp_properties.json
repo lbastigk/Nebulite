@@ -5,6 +5,7 @@
             "includePath": [
                 "/usr/include/",
                 "${workspaceFolder}/include/**",
+                "${workspaceFolder}/external/**",
                 "${workspaceFolder}/external/SDL2/include",
                 "${workspaceFolder}/external/SDL2_image/include",
                 "${workspaceFolder}/external/SDL2_ttf/",
