@@ -20,8 +20,7 @@
     #include "DomainModule/GlobalSpace/GSDM_Debug_Domain_Collision_Detection.hpp" // Special debugging utilities for domain collision detection
 #endif
 //------------------------------------------
-namespace Nebulite{
-namespace DomainModule{
+namespace Nebulite::DomainModule {
 
 static std::string const headless_desc = "Set headless mode (no renderer)";
 static std::string const recover_desc  = "Enable recoverable error mode";
@@ -57,5 +56,4 @@ void GSDM_init(Nebulite::Core::GlobalSpace* target){
         target->bindVariable(&target->cmdVars.recover,  "recover",  &recover_desc);
     #endif
 }
-}
-}
+} // namespace Nebulite::DomainModule

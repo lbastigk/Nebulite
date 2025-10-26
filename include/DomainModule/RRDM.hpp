@@ -17,8 +17,7 @@
 #endif
 
 //------------------------------------------
-namespace Nebulite{
-namespace DomainModule{
+namespace Nebulite::DomainModule {
 /**
  * @brief Inserts all DomainModules into the Renderer domain.
  */
@@ -31,5 +30,4 @@ void RRDM_init(Nebulite::Core::Renderer* target){
         target->initModule<RenderObjectDraft>("Renderer RenderObjectDraft Functions");
     #endif
 }
-}
-}
+} // namespace Nebulite::DomainModule

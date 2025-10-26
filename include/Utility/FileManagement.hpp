@@ -4,7 +4,8 @@
  * @brief This file contains the FileManagement class for managing file operations.
  */
 
-#pragma once
+#ifndef NEBULITE_UTILITY_FILEMANAGEMENT_HPP
+#define NEBULITE_UTILITY_FILEMANAGEMENT_HPP
 
 //------------------------------------------
 // Includes
@@ -22,8 +23,7 @@
 #include "Utility/Capture.hpp"
 
 //------------------------------------------
-namespace Nebulite{
-namespace Utility {
+namespace Nebulite::Utility {
 /**
  * @class Nebulite::Utility::FileManagement
  * @brief Provides utilities for file management operations via a static class.
@@ -96,5 +96,5 @@ public:
      */
     static bool fileExists(std::string const& path);
 };
-} // namespace Utility
-} // namespace Nebulite
+} // namespace Nebulite::Utility
+#endif // NEBULITE_UTILITY_FILEMANAGEMENT_HPP

@@ -658,11 +658,11 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(st
     auto inheritedTree = findInInheritedTrees(funcName);
     if(inheritedTree != nullptr){
         // Function is in inherited tree, parse there
-        return inheritedTree->executeFunction(funcName, argc, argv);
+        return inheritedTree->executeFunction(funcName, static_cast<int>(argc), argv);
     }
 
     // Not found in inherited trees, execute the function the main tree
-    return executeFunction(funcName, argc, argv);
+    return executeFunction(funcName, static_cast<int>(argc), argv);
 }
 
 template<typename RETURN_TYPE>
@@ -831,8 +831,8 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::generalHelp(){
         std::string const& sb = b.first;
         size_t n = std::min(sa.size(), sb.size());
         for (size_t i = 0; i < n; ++i){
-            char ca = std::tolower(static_cast<unsigned char>(sa[i]));
-            char cb = std::tolower(static_cast<unsigned char>(sb[i]));
+            char ca = static_cast<char>(std::tolower(static_cast<unsigned char>(sa[i])));
+            char cb = static_cast<char>(std::tolower(static_cast<unsigned char>(sb[i])));
             if (ca < cb) return true;
             if (ca > cb) return false;
         }

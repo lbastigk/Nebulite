@@ -4,7 +4,8 @@
  * This file contains the static RulesetCompiler class.
  */
 
-#pragma once
+#ifndef NEBULITE_RULESETCOMPILER_HPP
+#define NEBULITE_RULESETCOMPILER_HPP
 
 //------------------------------------------
 // Includes
@@ -16,8 +17,7 @@
 #include "Utility/DocumentCache.hpp"
 
 //------------------------------------------
-namespace Nebulite{
-namespace Interaction{
+namespace Nebulite::Interaction{
 /**
  * @class Nebulite::Interaction::RulesetCompiler
  * 
@@ -156,6 +156,5 @@ private:
         Nebulite::Interaction::Logic::Assignment::Operation::multiply
     };
 };
-} // namespace Interaction
-} // namespace Nebulite
-
+} // namespace Nebulite::Interaction
+#endif // NEBULITE_RULESETCOMPILER_HPP

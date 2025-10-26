@@ -16,8 +16,7 @@
     #include "DomainModule/JSON/JSDM_Debug.hpp"
 #endif
 //------------------------------------------
-namespace Nebulite{
-namespace DomainModule{
+namespace Nebulite::DomainModule {
 /**
  * @brief Inserts all DomainModules into the JSON domain.
  */
@@ -30,5 +29,4 @@ void JSDM_init(Nebulite::Utility::JSON* target){
         target->initModule<Debug>("JSON Debug Functions");
     #endif
 }
-}
-}
+} // namespace Nebulite::DomainModule

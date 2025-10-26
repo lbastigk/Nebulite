@@ -3,7 +3,8 @@
  * @brief Utility functions for string manipulation and parsing.
  */
 
-#pragma once
+#ifndef NEBULITE_UTILITY_STRINGHANDLER_HPP
+#define NEBULITE_UTILITY_STRINGHANDLER_HPP
 
 //------------------------------------------
 // Includes
@@ -21,11 +22,7 @@
 #include <unordered_map>
 
 //------------------------------------------
-namespace Nebulite {
-namespace Utility {
-
-// Forward declarations
-class Capture;
+namespace Nebulite::Utility {
 
 /**
  * @class Nebulite::Utility::StringHandler
@@ -137,5 +134,5 @@ public:
      */
     static std::string recombineArgs(int argc, char* argv[]);
 };
-}   // namespace Utility
-}   // namespace Nebulite
+}   // namespace Nebulite::Utility
+#endif // NEBULITE_UTILITY_STRINGHANDLER_HPP
