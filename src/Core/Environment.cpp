@@ -1,28 +1,36 @@
 #include "Core/Environment.hpp"
-#include <utility>
-
 #include "Core/GlobalSpace.hpp"
 
-
-// Helper function to build the RenderObjectContainer array
-namespace Nebulite {
-    template<std::size_t... Is>
-    std::array<Nebulite::Core::RenderObjectContainer, sizeof...(Is)> 
-    make_roc_array(Nebulite::Core::GlobalSpace* globalSpace, std::index_sequence<Is...>) {
-        return {{(static_cast<void>(Is), Nebulite::Core::RenderObjectContainer(globalSpace))...}};
-    }
-}   // namespace Nebulite
+/**
+ * @brief Helper functions to create an array of RenderObjectContainer instances.
+ */
+namespace {
+	/**
+	 * @brief Creates an array of RenderObjectContainer instances.
+	 * 
+	 * @tparam LayerCount The number of layers (size of the array).
+	 * @param globalSpace Pointer to the GlobalSpace instance.
+	 * @return An array of RenderObjectContainer instances.
+	 */
+	template<std::size_t LayerCount>
+	std::array<Nebulite::Core::RenderObjectContainer, LayerCount>
+	make_roc_array(Nebulite::Core::GlobalSpace* globalSpace) {
+		return []<std::size_t... Is>(Nebulite::Core::GlobalSpace* gs, std::index_sequence<Is...>) {
+			return std::array<Nebulite::Core::RenderObjectContainer, sizeof...(Is)>{
+				{(static_cast<void>(Is), Nebulite::Core::RenderObjectContainer(gs))...}
+			};
+		}(globalSpace, std::make_index_sequence<LayerCount>{});
+	}
+}
 
 Nebulite::Core::Environment::Environment(Nebulite::Core::GlobalSpace* globalSpace)
-	: roc(make_roc_array(globalSpace, std::make_index_sequence<Nebulite::Core::Environment::LayerCount>{}))
+	: roc(make_roc_array<Nebulite::Core::Environment::LayerCount>(globalSpace))
 {
 	this->globalSpace = globalSpace;
 
 	// Storing pointer copy for easy access of global document
 	global = globalSpace->getDoc();
 }
-
-
 
 //------------------------------------------
 // Marshalling
@@ -78,9 +86,9 @@ void Nebulite::Core::Environment::append(Nebulite::Core::RenderObject* toAppend,
 	}
 }
 
-void Nebulite::Core::Environment::update(int16_t tileXpos, int16_t tileYpos,int dispResX,int dispResY) {
+void Nebulite::Core::Environment::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY) {
 	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; i++) {
-		roc[i].update(tileXpos,tileYpos,dispResX,dispResY);
+		roc[i].update(tileXpos, tileYpos, dispResX, dispResY);
 	}
 }
 

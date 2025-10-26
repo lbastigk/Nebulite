@@ -2,8 +2,8 @@
  * @file Environment.hpp
  * @brief Contains the definition of the Nebulite::Core::Environment class.
  */
-
-#pragma once
+#ifndef NEBULITE_CORE_ENVIRONMENT_HPP
+#define NEBULITE_CORE_ENVIRONMENT_HPP
 
 //------------------------------------------
 // Includes
@@ -221,3 +221,5 @@ private:
 };
 } // namespace Core
 } // namespace Nebulite
+
+#endif // NEBULITE_CORE_ENVIRONMENT_HPP
