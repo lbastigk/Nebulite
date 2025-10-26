@@ -72,7 +72,7 @@ public:
           Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
       )),
       domain(domain), doc(doc), global(global)
-    {};
+    {}
 
     //------------------------------------------
     // Binding, initializing and inheriting
@@ -116,7 +116,7 @@ public:
      * 
      * On overwriting, make sure to update all subdomains and domainmodules as well.
      */
-    virtual Nebulite::Constants::Error update(){return Nebulite::Constants::ErrorTable::NONE();};
+    virtual Nebulite::Constants::Error update(){ return Nebulite::Constants::ErrorTable::NONE(); }
 
     /**
      * @brief Updates all DomainModules.
