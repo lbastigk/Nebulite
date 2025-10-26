@@ -121,40 +121,13 @@
         "-std=c++20",
         "-I${workspaceFolder}/include",
         "-I${workspaceFolder}/src",
-        "-I${workspaceFolder}/external/**",
-        "-stdlib=libc++",
-        "-isystem", "/usr/include",
-        "-Wno-system-headers",
-        "-Wunused-function",
-        "-Wunused-variable",
-        "-Wunreachable-code",
         "-Wall",
         "-Wextra",
         "-Wpedantic",
-        "-Wconversion",
-        "-Wshadow",
-        "-Wold-style-cast",
-        "-Wnon-virtual-dtor",
-        "-Wnull-dereference",
-        "-Wdouble-promotion",
-        "-Wformat=2",
-        "-Wcast-align",
-        "-Woverloaded-virtual",
-        "-Wmissing-field-initializers",
-        "-Wfloat-equal",
-        "-Wextra-semi",
-        "-Wundef",
-        "-Wunused-parameter"
+        "-Wno-system-headers"
     ],
     "c-cpp-flylint.excludeFromWorkspacePaths": [
-        "external/**",
-        "external/*",
-        "external/",
         "**/external/**",
-        "**/build/**",
-        "**/third_party/**",
-        "/usr/include/c++/**",
-        "/usr/lib/**",
-        "/lib/**"
+        "${workspaceFolder}/external/**"
     ]
 }
