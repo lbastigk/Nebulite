@@ -39,18 +39,11 @@ endfunction()
 function(setup_external_subdirectories)
     message(STATUS "Setting up external subdirectories...")
     
-    # Disable warnings for external dependencies
-    set(CMAKE_CXX_FLAGS_BACKUP ${CMAKE_CXX_FLAGS})
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
-    
     # Add Abseil subdirectory
     add_subdirectory(${ABSEIL_PATH})
     
     # SDL2 setup is handled in platform-specific configurations
     # to avoid duplicate target issues
-    
-    # Restore original flags
-    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS_BACKUP})
     
     message(STATUS "External subdirectories setup complete")
 endfunction()

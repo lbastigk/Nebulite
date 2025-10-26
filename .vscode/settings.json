@@ -100,27 +100,42 @@
     "c-cpp-flylint.cppcheck.enable": true,
     "c-cpp-flylint.cppcheck.extraArgs": [
         "--check-level=exhaustive",
-        "--suppress=unusedStructMember",
-        "--suppress=missingIncludeSystem"
+        "--suppress=unusedStructMember"
     ],
     "c-cpp-flylint.cppcheck.includePaths": [
         "${workspaceFolder}/include",
         "${workspaceFolder}/src"
     ],
+    "c-cpp-flylint.clang.enable": true,
     "c-cpp-flylint.clang.extraArgs": [
         "-std=c++20",
         "-I${workspaceFolder}/include",
         "-I${workspaceFolder}/src",
-        "-isystem /usr/include",
-        "-isystem /usr/include/c++/15"
+        "-stdlib=libc++",
+        "-isystem", "/usr/include",
+        "-Wunused-function",
+        "-Wunused-variable",
+        "-Wunreachable-code",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Wconversion",
+        "-Wshadow",
+        "-Wold-style-cast",
+        "-Wnon-virtual-dtor",
+        "-Wnull-dereference",
+        "-Wdouble-promotion",
+        "-Wformat=2",
+        "-Wcast-align",
+        "-Woverloaded-virtual",
+        "-Wmissing-field-initializers",
+        "-Wfloat-equal",
+        "-Wextra-semi",
+        "-Wundef",
+        "-Wno-system-headers"
     ],
     "c-cpp-flylint.excludeFromWorkspacePaths": [
-        "**/external/**",
-        "**/external/rapidjson/**",
-        "**/external/rapidjson/include/rapidjson/**",
         "external/**",
-        "external/*",
-        "external/",
         "/usr/include/c++/**",
         "/usr/lib/**",
         "/lib/**"

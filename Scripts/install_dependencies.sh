@@ -26,7 +26,7 @@ elif command -v brew >/dev/null; then
 else
     echo "Unknown package manager. Please install dependencies manually:"
     echo "  - cmake, ninja-build"
-    echo "  - build tools (gcc, g++, automake, autoconf, libtool)"
+    echo "  - build tools (gcc, g++, automake, autoconf, libtool, clang, etc.)"
     echo "  - mingw-w64 (for Windows cross-compilation)"
     echo "  - python3, python3-pip, python3-numpy"
     echo "  - audio libraries (alsa-lib-devel, pulseaudio-libs-devel on Linux)"
