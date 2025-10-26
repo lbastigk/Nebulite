@@ -294,15 +294,18 @@ private:
     //------------------------------------------
     // Structs
 
-    // For resolving tasks
-    struct QueueResult
-    {
+    /**
+     * @struct QueueResult
+     * @brief Holds the results of resolving different task queues.
+     */
+    struct QueueResult {
         Nebulite::Core::taskQueueResult script;       // Result of script-tasks
         Nebulite::Core::taskQueueResult internal;     // Result of internal-tasks
         Nebulite::Core::taskQueueResult always;       // Result of always-tasks
     } queueResult;
 
     /**
+     * @struct names
      * @brief Contains names used in the global space that are not bound to the global document.
      */
     struct names{
@@ -311,6 +314,7 @@ private:
     }names;
 
     /**
+     * @struct RNGvars
      * @brief Contains RNG instances used in the global space.
      */
     struct RNGvars{
