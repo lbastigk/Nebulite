@@ -29,7 +29,7 @@ namespace JSON{
  * 
  * DomainModule for complex data operations on domain class Nebulite::Utility::JSON
  */
-NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ComplexData) {
+NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ComplexData){
 public:
     /**
      * @brief Override of update.

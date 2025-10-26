@@ -14,8 +14,8 @@ namespace {
 	 */
 	template<std::size_t LayerCount>
 	std::array<Nebulite::Core::RenderObjectContainer, LayerCount>
-	make_roc_array(Nebulite::Core::GlobalSpace* globalSpace) {
-		return []<std::size_t... Is>(Nebulite::Core::GlobalSpace* gs, std::index_sequence<Is...>) {
+	make_roc_array(Nebulite::Core::GlobalSpace* globalSpace){
+		return []<std::size_t... Is>(Nebulite::Core::GlobalSpace* gs, std::index_sequence<Is...>){
 			return std::array<Nebulite::Core::RenderObjectContainer, sizeof...(Is)>{
 				{(static_cast<void>(Is), Nebulite::Core::RenderObjectContainer(gs))...}
 			};
@@ -35,11 +35,11 @@ Nebulite::Core::Environment::Environment(Nebulite::Core::GlobalSpace* globalSpac
 //------------------------------------------
 // Marshalling
 
-std::string Nebulite::Core::Environment::serialize() {
+std::string Nebulite::Core::Environment::serialize(){
 	Nebulite::Utility::JSON doc(globalSpace);
 
 	// Serialize each container and add to the document
-	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; i++) {
+	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; i++){
 		std::string key = "containerLayer" + std::to_string(i);
 		std::string serializedContainer = roc[i].serialize();
 
@@ -51,17 +51,17 @@ std::string Nebulite::Core::Environment::serialize() {
 	return doc.serialize();
 }
 
-void Nebulite::Core::Environment::deserialize(std::string const& serialOrLink, int dispResX,int dispResY) {
+void Nebulite::Core::Environment::deserialize(std::string const& serialOrLink, int dispResX,int dispResY){
 	Nebulite::Utility::JSON file(globalSpace);
 	file.deserialize(serialOrLink);
 
 	// Getting all layers
-	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; i++) {
+	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; i++){
 		// Key name
 		std::string key = "containerLayer" + std::to_string(i) ;
 
 		// Check if the key exists in the document
-		if (file.memberCheck(key) != Nebulite::Utility::JSON::KeyType::null) {
+		if (file.memberCheck(key) != Nebulite::Utility::JSON::KeyType::null){
 			// Extract the value corresponding to the key
 			Nebulite::Utility::JSON layer = file.get_subdoc(key);
 
@@ -77,8 +77,8 @@ void Nebulite::Core::Environment::deserialize(std::string const& serialOrLink, i
 //------------------------------------------
 // Object Management
 
-void Nebulite::Core::Environment::append(Nebulite::Core::RenderObject* toAppend,int dispResX, int dispResY, unsigned int layer) {
-	if (layer < Nebulite::Core::Environment::LayerCount) {
+void Nebulite::Core::Environment::append(Nebulite::Core::RenderObject* toAppend,int dispResX, int dispResY, unsigned int layer){
+	if (layer < Nebulite::Core::Environment::LayerCount){
 		roc[layer].append(toAppend, dispResX, dispResY);
 	}
 	else {
@@ -86,23 +86,23 @@ void Nebulite::Core::Environment::append(Nebulite::Core::RenderObject* toAppend,
 	}
 }
 
-void Nebulite::Core::Environment::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY) {
-	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; i++) {
+void Nebulite::Core::Environment::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY){
+	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; i++){
 		roc[i].update(tileXpos, tileYpos, dispResX, dispResY);
 	}
 }
 
 void Nebulite::Core::Environment::reinsertAllObjects(int dispResX,int dispResY){
-	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; i++) {
+	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; i++){
 		roc[i].reinsertAllObjects(dispResX,dispResY);
 	}
 }
 
-Nebulite::Core::RenderObject* Nebulite::Core::Environment::getObjectFromId(uint32_t id) {
+Nebulite::Core::RenderObject* Nebulite::Core::Environment::getObjectFromId(uint32_t id){
 	// Go through all layers
-	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; ++i) {
+	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; ++i){
 		auto obj = roc[i].getObjectFromId(id);
-		if (obj != nullptr) {
+		if (obj != nullptr){
 			return obj;
 		}
 	}
@@ -112,9 +112,9 @@ Nebulite::Core::RenderObject* Nebulite::Core::Environment::getObjectFromId(uint3
 //------------------------------------------
 // Container Management
 
-std::vector<Nebulite::Core::RenderObjectContainer::batch>& Nebulite::Core::Environment::getContainerAt(int16_t x, int16_t y, Environment::Layer layer) {
+std::vector<Nebulite::Core::RenderObjectContainer::batch>& Nebulite::Core::Environment::getContainerAt(int16_t x, int16_t y, Environment::Layer layer){
 	auto pos = std::make_pair(x,y);
-	if (layer < Nebulite::Core::Environment::LayerCount && layer >= 0) {
+	if (layer < Nebulite::Core::Environment::LayerCount && layer >= 0){
 		return roc[layer].getContainerAt(pos);
 	}
 	else {
@@ -122,9 +122,9 @@ std::vector<Nebulite::Core::RenderObjectContainer::batch>& Nebulite::Core::Envir
 	}
 }
 
-bool Nebulite::Core::Environment::isValidPosition(int x, int y, Environment::Layer layer) {
+bool Nebulite::Core::Environment::isValidPosition(int x, int y, Environment::Layer layer){
 	auto pos = std::make_pair(x,y);
-	if (layer < Nebulite::Core::Environment::LayerCount && layer >= 0) {
+	if (layer < Nebulite::Core::Environment::LayerCount && layer >= 0){
 		return roc[layer].isValidPosition(pos);
 	}
 	else {
@@ -132,9 +132,9 @@ bool Nebulite::Core::Environment::isValidPosition(int x, int y, Environment::Lay
 	}
 }
 
-void Nebulite::Core::Environment::purgeObjects() {
+void Nebulite::Core::Environment::purgeObjects(){
 	// Release resources for ObjectContainer
-	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; i++) {
+	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; i++){
 		roc[i].purgeObjects();
 	}
 }
@@ -142,7 +142,7 @@ void Nebulite::Core::Environment::purgeObjects() {
 size_t Nebulite::Core::Environment::getObjectCount() const {
 	return std::accumulate(
 		roc.begin(), roc.end(), 0u,
-		[](size_t acc, const Nebulite::Core::RenderObjectContainer& container) {
+		[](size_t acc, const Nebulite::Core::RenderObjectContainer& container){
 			return acc + container.getObjectCount();
 		}
 	);

@@ -5,7 +5,8 @@
  * Defines the Nebulite::Core::RenderObject class.
  */
 
-#pragma once
+#ifndef NEBULITE_CORE_RENDEROBJECT_HPP
+#define NEBULITE_CORE_RENDEROBJECT_HPP
 
 //------------------------------------------
 // Includes
@@ -33,8 +34,7 @@ namespace Nebulite{
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace Core {
+namespace Nebulite::Core {
 /**
  * @class Nebulite::Core::RenderObject
  * @brief Represents a renderable object in the Nebulite engine. 
@@ -78,7 +78,7 @@ namespace Core {
  * 
  * Copy and move operations are disabled to prevent accidental resource duplication.
  */
-NEBULITE_DOMAIN(RenderObject) {
+NEBULITE_DOMAIN(RenderObject){
 public:
 	//------------------------------------------
 	// Special member Functions
@@ -115,7 +115,7 @@ public:
 	 * @param key The key of the value to set.
 	 * @param data The value to set.
 	 */
-    template <typename T> void set(char const* key, T const data);
+    template <typename T> void set(char const* key, T const& data);
 
     /**
      * @brief Gets a value from the Domain's JSON document.
@@ -248,7 +248,7 @@ public:
      * 
      * @param externalTexture Pointer to the external SDL_Texture.
      */
-    void linkExternalTexture(SDL_Texture* externalTexture) {
+    void linkExternalTexture(SDL_Texture* externalTexture){
         baseTexture.linkExternalTexture(externalTexture);
     }
 
@@ -257,7 +257,7 @@ public:
      * 
      * @return true if the texture has been modified, false otherwise.
      */
-    bool isTextureStoredLocally() {
+    bool isTextureStoredLocally(){
         return baseTexture.isTextureStoredLocally();
     }
 
@@ -266,7 +266,7 @@ public:
      * 
      * @return true if the texture is valid, false otherwise.
      */
-    bool isTextureValid() {
+    bool isTextureValid(){
         return baseTexture.isTextureValid();
     }
 
@@ -275,11 +275,11 @@ public:
      * 
      * @return Pointer to the current SDL_Texture.
      */
-    SDL_Texture* getSDLTexture() {
+    SDL_Texture* getSDLTexture(){
         return baseTexture.getSDLTexture();
     }
 
-	Nebulite::Core::Texture* getTexture() {
+	Nebulite::Core::Texture* getTexture(){
 		return &baseTexture;
 	}
 
@@ -391,14 +391,13 @@ private:
 	// Linkage to the global invoke for update calls
 	Nebulite::Interaction::Invoke* invoke;
 };
-} // namespace Core
-} // namespace Nebulite
+} // namespace Nebulite::Core
 
 
 //------------------------------------------
 // Templated setter/getter functions
 
-template <typename T> void Nebulite::Core::RenderObject::set(char const* key, T const data) {
+template <typename T> void Nebulite::Core::RenderObject::set(char const* key, T const& data){
 	json.set(key,data);
 }
 
@@ -406,3 +405,4 @@ template <typename T> T Nebulite::Core::RenderObject::get(char const* key, T con
 	T result = json.get<T>(key,defaultValue);
 	return result;
 }
+#endif // NEBULITE_CORE_RENDEROBJECT_HPP

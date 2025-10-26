@@ -4,7 +4,8 @@
  * This file contains the DomainModule of the GlobalSpace for debugging capabilities.
  */
 
-#pragma once
+#ifndef NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_DEBUG_HPP
+#define NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_DEBUG_HPP
 
 //------------------------------------------
 // Includes
@@ -22,14 +23,12 @@ namespace Nebulite{
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace GlobalSpace {
+namespace Nebulite::DomainModule::GlobalSpace{
 /**
  * @class Nebulite::DomainModule::GlobalSpace::Debug
  * @brief DomainModule for debugging capabilities within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug){
 public:
     /**
      * @brief Override of update.
@@ -201,6 +200,5 @@ private:
     // true  : logging to file
     bool errorLogStatus = false;
 };
-}   // namespace GlobalSpace
-}   // namespace DomainModule
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::GlobalSpace
+#endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_DEBUG_HPP

@@ -29,7 +29,7 @@ namespace RenderObject{
  * @class Nebulite::DomainModule::RenderObject::Debug
  * @brief Debug management for the RenderObject tree DomainModule.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Debug) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Debug){
 public:
     /**
      * @brief Override of update.
@@ -98,7 +98,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Debug) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Debug){
         // Some functions like selected-object need eval to resolve variables
         bindFunction(&Debug::eval,          eval_name,          &eval_desc);
 

@@ -31,7 +31,7 @@ namespace RenderObject{
  * 
  * Contains RenderObject-specific Mirror functionality, syncing data with the GlobalSpace document.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Mirror) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Mirror){
 public:
     /**
      * @brief Override of update.
@@ -107,7 +107,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Mirror) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Mirror){
         bindCategory(mirror_name, &mirror_desc);
         bindFunction(&Mirror::mirror_once,  mirror_once_name,      &mirror_once_desc);
         bindFunction(&Mirror::mirror_on,    mirror_on_name,        &mirror_on_desc);

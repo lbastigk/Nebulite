@@ -10,6 +10,7 @@
 
 // General
 #include <mutex>
+#include <cmath>
 #include <typeinfo>
 #include <cxxabi.h>
 #include <iostream>
@@ -32,7 +33,7 @@
 #define JSON_UID_QUICKCACHE_SIZE 30 // First 30 keys get a quickcache entry for double pointers!
 
 namespace Nebulite::Utility {
-NEBULITE_DOMAIN(JSON) {
+NEBULITE_DOMAIN(JSON){
 private:
     /**
      * @enum EntryState
@@ -73,7 +74,7 @@ private:
 
         EntryState state = EntryState::DIRTY;       // Default to dirty
         
-        CacheEntry() {}
+        CacheEntry(){}
     };
 
     /**
@@ -148,7 +149,7 @@ private:
 public:
     explicit JSON(Nebulite::Core::GlobalSpace* globalSpace);
 
-    ~JSON();
+    virtual ~JSON();
 
     //------------------------------------------
     // Overload of assign operators
@@ -274,7 +275,7 @@ public:
      * @brief Provides access to the internal mutex for thread-safe operations.
      * Allowing modules to lock the JSON document.
      */
-    std::lock_guard<std::recursive_mutex> lock(){return std::lock_guard<std::recursive_mutex>(mtx);};
+    std::lock_guard<std::recursive_mutex> lock(){return std::lock_guard<std::recursive_mutex>(mtx);}
 
     /**
      * @brief Gets a pointer to a to a double value pointer in the JSON document.
@@ -331,7 +332,7 @@ public:
      * @param key The key to check.
      * @return The size of the key.
      */
-    uint32_t memberSize(std::string const& key);
+    size_t memberSize(std::string const& key);
 
     /**
      * @brief Removes a key from the JSON document.
@@ -380,7 +381,7 @@ public:
     //------------------------------------------
     // Assorted list of double pointers
 
-	Nebulite::Utility::MappedOrderedDoublePointers<uint64_t>* getExpressionRefsAsOther() {
+	Nebulite::Utility::MappedOrderedDoublePointers<uint64_t>* getExpressionRefsAsOther(){
         #if ORDERED_DOUBLE_POINTERS_MAPS == 1
             return &expressionRefs[0].as_other;
         #else
@@ -397,17 +398,17 @@ public:
 }
 
 template<typename T>
-void Nebulite::Utility::JSON::set(std::string const& key, T const& value) {
+void Nebulite::Utility::JSON::set(std::string const& key, T const& value){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
 
     // Check if key is valid
-    if (!RjDirectAccess::isValidKey(key)) {
+    if (!RjDirectAccess::isValidKey(key)){
         Nebulite::Utility::Capture::cerr() << "Invalid key: " << key << Nebulite::Utility::Capture::endl;
         return;
     }
 
     auto it = cache.find(key);
-    if (it != cache.end()) {
+    if (it != cache.end()){
         // Existing cache value, structure validity guaranteed
 
         // Update the entry, mark as dirty
@@ -442,23 +443,25 @@ void Nebulite::Utility::JSON::set(std::string const& key, T const& value) {
 }
 
 template<typename T>
-T Nebulite::Utility::JSON::get(std::string const& key, T const& defaultValue) {
+T Nebulite::Utility::JSON::get(std::string const& key, T const& defaultValue){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
-
     // Check cache first
     auto it = cache.find(key);
-    if (it != cache.end() && it->second->state != EntryState::DELETED) {
+    if (it != cache.end() && it->second->state != EntryState::DELETED){
         // Entry exists and is not deleted
         
-        // Check its double value for change detection
-        if(*it->second->stable_double_ptr != it->second->last_double_value) {
-            // Value changed since last check
-            // We update the actual value with the new double value
-            // Then we convert the double to the requested type
-            it->second->last_double_value = *it->second->stable_double_ptr;
-            it->second->value = it->second->last_double_value;
-            it->second->state = EntryState::DIRTY; // Mark as dirty to sync back
-            return convertVariant<T>(it->second->value, defaultValue);
+        // Check its double value for change detection using an epsilon to avoid unsafe direct comparison
+        {
+            const double eps = 1e-9;
+            if(std::fabs(*it->second->stable_double_ptr - it->second->last_double_value) > eps){
+                // Value changed since last check
+                // We update the actual value with the new double value
+                // Then we convert the double to the requested type
+                it->second->last_double_value = *it->second->stable_double_ptr;
+                it->second->value = it->second->last_double_value;
+                it->second->state = EntryState::DIRTY; // Mark as dirty to sync back
+                return convertVariant<T>(it->second->value, defaultValue);
+            }
         }
         return convertVariant<T>(it->second->value, defaultValue);
     }
@@ -493,7 +496,7 @@ T Nebulite::Utility::JSON::get(std::string const& key, T const& defaultValue) {
 }
 
 template<typename T>
-T Nebulite::Utility::JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue) {
+T Nebulite::Utility::JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue){
     // Create a new cache entry
     std::unique_ptr<CacheEntry> new_entry = std::make_unique<CacheEntry>();
     
@@ -523,7 +526,7 @@ namespace{
         if(Nebulite::Utility::StringHandler::isNumber(stored)){
             try {
                 return static_cast<bool>(std::stoi(stored) != 0);
-            } catch (...) {
+            } catch (...){
                 return defaultValue;
             }
         }
@@ -535,7 +538,7 @@ namespace{
         //if (stored == "false") return 0;
         try {
             return static_cast<int>(std::stoi(stored));
-        } catch (...) {
+        } catch (...){
             return defaultValue;
         }
     }
@@ -545,7 +548,7 @@ namespace{
         //if (stored == "false") return 0.0;
         try {
             return static_cast<double>(std::stod(stored));
-        } catch (...) {
+        } catch (...){
             return defaultValue;
         }
     }
@@ -555,7 +558,7 @@ namespace{
         //if (stored == "false") return 0.0;
         try {
             return static_cast<unsigned long>(std::stoul(stored));
-        } catch (...) {
+        } catch (...){
             return defaultValue;
         }
     }
@@ -565,7 +568,7 @@ namespace{
         //if (stored == "false") return 0;
         try {
             return static_cast<unsigned long long>(std::stoull(stored));
-        } catch (...) {
+        } catch (...){
             return defaultValue;
         }
     }
@@ -582,7 +585,7 @@ namespace{
 }
 
 template<typename newType>
-newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValue& var, const newType& defaultValue) {
+newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValue& var, const newType& defaultValue){
     return std::visit([&](auto const& stored) -> newType 
     {
         // Removing all qualifiers (const, volatile, references, etc.)
@@ -590,38 +593,38 @@ newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValu
 
         // [DIRECT]
         // Directly cast if types are convertible
-        if constexpr (std::is_convertible_v<StoredT, newType>) {
+        if constexpr (std::is_convertible_v<StoredT, newType>){
             return static_cast<newType>(stored);
         }
 
         // [STRING] -> [BOOL]
         // Handle string to bool
-        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, bool>) {
+        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, bool>){
             return stringToBool(stored, defaultValue);
         }
 
         // [STRING] -> [INT]
-        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int>) {
+        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int>){
             return stringToInt(stored, defaultValue);
         }
 
         // [STRING] -> [DOUBLE]
-        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, double>) {
+        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, double>){
             return stringToDouble(stored, defaultValue);
         }
 
         // [STRING] -> [UNSIGNED LONG]
-        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, unsigned long>) {
+        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, unsigned long>){
             return stringToUnsignedLong(stored, defaultValue);
         }
 
         // [STRING] -> [UNSIGNED LONG LONG]
-        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, unsigned long long>) {
+        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, unsigned long long>){
             return stringToUnsignedLongLong(stored, defaultValue);
         }
 
         // [ARITHMETIC] -> [STRING]
-        if constexpr (std::is_arithmetic_v<StoredT> && std::is_same_v<newType, std::string>) {
+        if constexpr (std::is_arithmetic_v<StoredT> && std::is_same_v<newType, std::string>){
             return std::to_string(stored);
         }
 

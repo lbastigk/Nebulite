@@ -30,7 +30,7 @@ namespace RenderObject{
  * 
  * Contains RenderObject-specific logging functionality.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Logging) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Logging){
 public:
     /**
      * @brief Override of update.
@@ -98,7 +98,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Logging) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Logging){
         bindFunction(&Logging::echo,        echo_name,      &echo_desc);
 
         bindCategory(log_name, &log_desc);

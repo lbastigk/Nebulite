@@ -4,7 +4,8 @@
  * @brief This file contains the DocumentCache class for managing cached, read-only documents.
  */
 
-#pragma once
+#ifndef NEBULITE_UTILITY_DOCUMENTCACHE_HPP
+#define NEBULITE_UTILITY_DOCUMENTCACHE_HPP
 
 //------------------------------------------
 // Includes
@@ -31,8 +32,8 @@ public:
     /**
      * @brief Default constructor for DocumentCache.
      */
-    explicit DocumentCache(Nebulite::Core::GlobalSpace* globalSpace) : global(globalSpace), readOnlyDocs(globalSpace) {
-        if (globalSpace == nullptr) {
+    explicit DocumentCache(Nebulite::Core::GlobalSpace* globalSpace) : global(globalSpace), readOnlyDocs(globalSpace){
+        if (globalSpace == nullptr){
             throw std::invalid_argument("DocumentCache: GlobalSpace pointer cannot be null");
         }
     }
@@ -73,7 +74,7 @@ public:
         Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
-        if (docPtr == nullptr) {
+        if (docPtr == nullptr){
             return Nebulite::Utility::JSON(global); // Return empty JSON if document loading fails
         }
 
@@ -110,13 +111,13 @@ public:
      * @param doc_key The document and its key to check.
      * @return The type of the key.
      */
-    Nebulite::Utility::JSON::KeyType memberCheck(std::string const& doc_key) {
+    Nebulite::Utility::JSON::KeyType memberCheck(std::string const& doc_key){
         auto [doc, key] = splitDocKey(doc_key);
 
         Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
-        if (docPtr == nullptr) {
+        if (docPtr == nullptr){
             return Nebulite::Utility::JSON::KeyType::null; // Return null if document loading fails
         }
 
@@ -142,13 +143,13 @@ public:
      * @param doc_key The key to check.
      * @return The size of the key.
      */
-    uint32_t memberSize(std::string const& doc_key) {
+    size_t memberSize(std::string const& doc_key){
         auto [doc, key] = splitDocKey(doc_key);
 
         Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
-        if (docPtr == nullptr) {
+        if (docPtr == nullptr){
             return 0; // Return 0 if document loading fails
         }
 
@@ -168,13 +169,13 @@ public:
      * @param doc_key The document and key to serialize.
      * @return The serialized JSON string.
      */
-    std::string serialize(std::string const& doc_key) {
+    std::string serialize(std::string const& doc_key){
         auto [doc, key] = splitDocKey(doc_key);
 
         Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
-        if (docPtr == nullptr) {
+        if (docPtr == nullptr){
             return "{}"; // Return empty JSON object if document loading fails
         }
 
@@ -198,7 +199,7 @@ public:
         Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(link);
 
         // Check if the document exists in the cache
-        if (docPtr == nullptr) {
+        if (docPtr == nullptr){
             return Nebulite::Utility::JSON(global).serialize(); // Return empty JSON if document loading fails
         }
 
@@ -227,7 +228,7 @@ private:
      */
     std::pair<std::string, std::string> splitDocKey(std::string const& doc_key){
         size_t pos = doc_key.find(':');
-        if (pos == std::string::npos) {
+        if (pos == std::string::npos){
             // No colon found, meaning the entire string is document name/link
             return {doc_key, ""};
         }
@@ -250,13 +251,13 @@ private:
 // Definitions of template functions
 
 template  <typename T> 
-T Nebulite::Utility::DocumentCache::get(std::string const& doc_key, T const& defaultValue) {
+T Nebulite::Utility::DocumentCache::get(std::string const& doc_key, T const& defaultValue){
     auto [doc, key] = splitDocKey(doc_key);
 
     Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
     // Check if the document exists in the cache
-    if (docPtr == nullptr) {
+    if (docPtr == nullptr){
         return defaultValue; // Return default value if document loading fails
     }
 
@@ -270,4 +271,4 @@ T Nebulite::Utility::DocumentCache::get(std::string const& doc_key, T const& def
     return data; // Use the JSON get method to retrieve the value
 }
 
-
+#endif // NEBULITE_UTILITY_DOCUMENTCACHE_HPP

@@ -3,7 +3,7 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Nebulite::Constants::Error Input::update() {
+Nebulite::Constants::Error Input::update(){
 	//------------------------------------------
 	// Only update if SDL is initialized
 	if(domain->getRenderer()->isSdlInitialized()){
@@ -49,11 +49,11 @@ Nebulite::Constants::Error Input::update() {
 //------------------------------------------
 // Private Functions
 
-void Input::map_key_names() {
-	for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode) {
+void Input::map_key_names(){
+	for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode){
 		char const* nameRaw = SDL_GetScancodeName(static_cast<SDL_Scancode>(scancode));
 
-		if (nameRaw && nameRaw[0] != '\0') {
+		if (nameRaw && nameRaw[0] != '\0'){
 			std::string keyName = nameRaw;
 
 			// Normalize key name: lowercase, spaces to underscores
@@ -75,7 +75,7 @@ void Input::map_key_names() {
 	}
 }
 
-void Input::write_current_and_delta_inputs() {
+void Input::write_current_and_delta_inputs(){
 	//------------------------------------------
 	// Mouse
     mouse.lastPosX = mouse.posX;
@@ -100,7 +100,7 @@ void Input::write_current_and_delta_inputs() {
     //------------------------------------------
 	// Keyboard
     const Uint8* keyState = SDL_GetKeyboardState(NULL);
-    for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode) {
+    for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode){
 		if(keyNames[scancode] != ""){
 			// Retrieve state, store previous state
 			// If key is currently pressed
@@ -125,7 +125,7 @@ void Input::write_current_and_delta_inputs() {
     }
 }
 
-void Input::reset_delta_values() {
+void Input::reset_delta_values(){
 	// 1.) Mouse
 	domain->getDoc()->set("input.mouse.delta.X",0);
 	domain->getDoc()->set("input.mouse.delta.Y",0);
@@ -133,7 +133,7 @@ void Input::reset_delta_values() {
 	domain->getDoc()->set("input.mouse.delta.right",0);
 
 	// 2.) Keyboard
-	for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode) {
+	for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode){
 		if(keyNames[scancode] != ""){
 			std::string deltaPath = "input.keyboard.delta." + keyNames[scancode];
 			domain->getDoc()->set<int>(deltaPath.c_str(), 0);

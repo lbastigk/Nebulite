@@ -39,16 +39,16 @@ namespace Nebulite::Utility {
  */
 class DynamicFixedArray {
 public:
-    DynamicFixedArray() : data_(nullptr), size_(0), capacity_(0) {}
+    DynamicFixedArray() : data_(nullptr), size_(0), capacity_(0){}
     
     explicit DynamicFixedArray(size_t fixed_size) 
         : data_(fixed_size > 0 ? new double*[fixed_size] : nullptr), 
           size_(0), 
-          capacity_(fixed_size) {}
+          capacity_(fixed_size){}
 
     // Move constructor
     DynamicFixedArray(DynamicFixedArray&& other) noexcept 
-        : data_(other.data_), size_(other.size_), capacity_(other.capacity_) {
+        : data_(other.data_), size_(other.size_), capacity_(other.capacity_){
         other.data_ = nullptr;
         other.size_ = 0;
         other.capacity_ = 0;
@@ -56,7 +56,7 @@ public:
 
     // Move assignment
     DynamicFixedArray& operator=(DynamicFixedArray&& other) noexcept {
-        if (this != &other) {
+        if (this != &other){
             delete[] data_;
             data_ = other.data_;
             size_ = other.size_;
@@ -68,7 +68,7 @@ public:
         return *this;
     }
 
-    ~DynamicFixedArray() {
+    ~DynamicFixedArray(){
         delete[] data_;
     }
 
@@ -76,8 +76,8 @@ public:
     DynamicFixedArray(const DynamicFixedArray&) = delete;
     DynamicFixedArray& operator=(const DynamicFixedArray&) = delete;
 
-    inline void push_back(double* ptr) {
-        if (size_ < capacity_) {
+    inline void push_back(double* ptr){
+        if (size_ < capacity_){
             data_[size_++] = ptr;
         }
     }
@@ -101,8 +101,8 @@ private:
  */
 class OrderedDoublePointers {
 public:
-    OrderedDoublePointers() : orderedValues() {}
-    explicit OrderedDoublePointers(size_t exact_size) : orderedValues(exact_size) {}
+    OrderedDoublePointers() : orderedValues(){}
+    explicit OrderedDoublePointers(size_t exact_size) : orderedValues(exact_size){}
 
     static constexpr size_t max_inline_size = 32;
     DynamicFixedArray orderedValues;

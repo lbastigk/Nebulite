@@ -75,7 +75,7 @@ public:
      * @brief Checks if the expression is always true (i.e., "1").
      * @return True if the expression is always true, false otherwise.
      */
-    bool isAlwaysTrue() {
+    bool isAlwaysTrue(){
         return _isAlwaysTrue;
     }
 
@@ -101,7 +101,7 @@ public:
      * 
      * @return The full expression string.
      */
-    std::string const* getFullExpression() const noexcept {return &fullExpression;};
+    std::string const* getFullExpression() const noexcept {return &fullExpression;}
 
     /**
      * @brief Forcefully sets the unique ID for the expression.
@@ -241,7 +241,7 @@ private:
         /**
          * @brief Destructor to clean up allocated resources.
          */
-        ~Component() {
+        ~Component(){
             te_free(expression);
         }
 
@@ -260,7 +260,7 @@ private:
 
         // Move assignment
         Component& operator=(Component&& other) noexcept {
-            if (this != &other) {
+            if (this != &other){
                 te_free(expression);
                 type = other.type;
                 from = other.from;
@@ -310,34 +310,75 @@ private:
      */
     class expr_custom{
     public:
+        /**
+         * @brief Epsilon value for floating-point comparisons.
+         */
+        static constexpr double epsilon = 1e-9;
+
         // Logical comparison functions
-        static double gt(double a, double b) {return a > b;}
-        static double lt(double a, double b) {return a < b;}
-        static double geq(double a, double b) {return a >= b;}
-        static double leq(double a, double b) {return a <= b;}
-        static double eq(double a, double b){return a == b;}
-        static double neq(double a, double b){return a != b;}
+        static double gt(double a, double b){return a > b;}
+        static double lt(double a, double b){return a < b;}
+        static double geq(double a, double b){return a >= b;}
+        static double leq(double a, double b){return a <= b;}
+        static double eq(double a, double b){
+            return (std::fabs(a - b) < epsilon);
+        }
+        static double neq(double a, double b){
+            return !(std::fabs(a - b) > epsilon);
+        }
 
         // Logical gate functions
-        static double logical_not(double a){return !a;}
+        static double logical_not(double a){
+            return !(std::fabs(a) > epsilon);
+        }
 
-        static double logical_and(double a, double b){return a && b;}
-        static double logical_or(double a, double b){return a || b;}
-        static double logical_xor(double a, double b){return (a || b) && !(a && b);}
+        static double logical_and(double a, double b){
+            bool aLogical = (std::fabs(a) > epsilon);
+            bool bLogical = (std::fabs(b) > epsilon);
+            return static_cast<double>(aLogical && bLogical);
+        }
+        static double logical_or(double a, double b){
+            static constexpr double epsilon = 1e-9;
+            bool aLogical = (std::fabs(a) > epsilon);
+            bool bLogical = (std::fabs(b) > epsilon);
+            return static_cast<double>(aLogical || bLogical);
+        }
+        static double logical_xor(double a, double b){
+            static constexpr double epsilon = 1e-9;
+            bool aLogical = (std::fabs(a) > epsilon);
+            bool bLogical = (std::fabs(b) > epsilon);
+            return static_cast<double>(aLogical != bLogical);
+        }
 
-        static double logical_nand(double a, double b){return !(a && b);}
-        static double logical_nor(double a, double b){return !(a || b);}
-        static double logical_xnor(double a, double b){return !( (a || b) && !(a && b) );}
+        static double logical_nand(double a, double b){
+            bool aLogical = (std::fabs(a) > epsilon);
+            bool bLogical = (std::fabs(b) > epsilon);
+            return !(aLogical && bLogical);
+        }
+        static double logical_nor(double a, double b){
+            bool aLogical = (std::fabs(a) > epsilon);
+            bool bLogical = (std::fabs(b) > epsilon);
+            return static_cast<double>(!(aLogical || bLogical));
+        }
+        static double logical_xnor(double a, double b){
+            bool aLogical = (std::fabs(a) > epsilon);
+            bool bLogical = (std::fabs(b) > epsilon);
+            return static_cast<double>(!( (aLogical || bLogical) && !(aLogical && bLogical) ));
+        }
 
         // Other logical functions
-        static double to_bipolar(double a){return a != 0 ? 1 : -1;}
+        static double to_bipolar(double a){
+            return (std::fabs(a) > epsilon) ? 1 : -1;
+        }
 
         // Mapping functions
-        static double map(double value, double in_min, double in_max, double out_min, double out_max) {
-            if(in_max - in_min == 0) return out_min; // Prevent division by zero
+        static double map(double value, double in_min, double in_max, double out_min, double out_max){
+            if(std::fabs(in_max - in_min) < epsilon) return out_min; // Prevent division by zero
+            if(value < in_min) return out_min;
+            if(value > in_max) return out_max;
             return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
         }
-        static double constrain(double value, double min, double max) {
+        static double constrain(double value, double min, double max){
             if(value < min) return min;
             if(value > max) return max;
             return value;

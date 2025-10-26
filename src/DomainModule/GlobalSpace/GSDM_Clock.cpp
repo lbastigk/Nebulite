@@ -5,40 +5,40 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Nebulite::Constants::Error Clock::update() {
+Nebulite::Constants::Error Clock::update(){
     // Update current time from document
     current_time_ms = domain->getDoc()->get<uint64_t>(Time::key_time_t_ms);
 
     // Check all Timers against their desired time
-    for(auto& clockEntry : clockEntries) {
+    for(auto& clockEntry : clockEntries){
         clockEntry.second.update(current_time_ms);
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-void Clock::readClocksFromDocument() {
+void Clock::readClocksFromDocument(){
     // Remove all existing entries
     clockEntries.clear();
 
     // Read all clocks from the document
     auto type = domain->getDoc()->memberCheck(key_arr_active_clocks);
-    if(type != Nebulite::Utility::JSON::KeyType::array) {
+    if(type != Nebulite::Utility::JSON::KeyType::array){
         // No clocks found, nothing to do
         return;
     }
 
     uint64_t size = domain->getDoc()->memberSize(key_arr_active_clocks);
 
-    for(uint64_t i = 0; i < size; i++) {
+    for(uint64_t i = 0; i < size; i++){
         std::string key = key_arr_active_clocks + "[" + std::to_string(i) + "]";
         auto interval_type = domain->getDoc()->memberCheck(key);
-        if(interval_type != Nebulite::Utility::JSON::KeyType::value) {
+        if(interval_type != Nebulite::Utility::JSON::KeyType::value){
             // Invalid entry, skip
             continue;
         }
 
         uint64_t interval_ms = domain->getDoc()->get<uint64_t>(key);
-        if(interval_ms < 1) {
+        if(interval_ms < 1){
             // Invalid interval, skip
             continue;
         }

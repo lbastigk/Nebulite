@@ -3,7 +3,8 @@
  * @brief Contains the Nebulite::Core::RenderObjectContainer class.
  */
 
-#pragma once
+#ifndef NEBULITE_CORE_RENDEROBJECTCONTAINER_HPP
+#define NEBULITE_CORE_RENDEROBJECTCONTAINER_HPP
 
 //------------------------------------------
 // Includes
@@ -15,8 +16,7 @@
 #include "Core/RenderObject.hpp"
 
 //------------------------------------------
-namespace Nebulite {
-namespace Core {
+namespace Nebulite::Core {
 /**
  * @class Nebulite::Core::RenderObjectContainer
  * @brief Manages a collection of RenderObject instances in a tile-based container.
@@ -167,12 +167,12 @@ public:
 	 * @param id The unique ID of the RenderObject to retrieve.
 	 * @return Pointer to the RenderObject if found, nullptr otherwise.
 	 */
-	RenderObject* getObjectFromId(uint32_t id) {
+	RenderObject* getObjectFromId(uint32_t id){
 		// Go through all batches
-		for (auto& [pos, batchVec] : ObjectContainer) {
-			for (auto& obj : batchVec) {
-				for (auto& renderObj : obj.objects) {
-					if (renderObj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0) == id) {
+		for (auto& [pos, batchVec] : ObjectContainer){
+			for (auto& obj : batchVec){
+				for (auto& renderObj : obj.objects){
+					if (renderObj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0) == id){
 						return renderObj;
 					}
 				}
@@ -255,5 +255,5 @@ private:
 	// Link to the global space for new objects
 	Nebulite::Core::GlobalSpace* globalSpace;
 };
-} 	// namespace Core
-}   // namespace Nebulite
+}   // namespace Nebulite::Core
+#endif // NEBULITE_CORE_RENDEROBJECTCONTAINER_HPP

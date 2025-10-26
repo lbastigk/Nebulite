@@ -16,7 +16,7 @@ std::string const General::env_desc = R"(Environment management functions)";
 
 //------------------------------------------
 // Update
-Nebulite::Constants::Error General::update() {
+Nebulite::Constants::Error General::update(){
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -191,10 +191,10 @@ Defaults to on if no argument is provided
 )";
 
 Nebulite::Constants::Error General::cam_move(int argc,  char* argv[]){
-    if (argc < 3) {
+    if (argc < 3){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    if (argc > 3) {
+    if (argc > 3){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
@@ -250,7 +250,7 @@ Nebulite::Constants::Error General::snapshot(int argc,  char* argv[]){
     if(argc == 1){
         // No link provided, use default
         bool success = domain->snapshot("./Resources/Snapshots/snapshot.png");
-        if (!success) {
+        if (!success){
             return Nebulite::Constants::ErrorTable::RENDERER::CRITICAL_RENDERER_SNAPSHOT_FAILED();
         }
         return Nebulite::Constants::ErrorTable::NONE();
@@ -259,7 +259,7 @@ Nebulite::Constants::Error General::snapshot(int argc,  char* argv[]){
         // Link provided
         std::string link = argv[1];
         bool success = domain->snapshot(link);
-        if (!success) {
+        if (!success){
             return Nebulite::Constants::ErrorTable::RENDERER::CRITICAL_RENDERER_SNAPSHOT_FAILED();
         }
         return Nebulite::Constants::ErrorTable::NONE();
@@ -287,15 +287,15 @@ std::string const General::beep_desc = R"(Make a beep noise.
 Usage: beep
 )";
 
-Nebulite::Constants::Error General::selectedObject_get(int argc,  char* argv[]) {
-    if (argc != 2) {
+Nebulite::Constants::Error General::selectedObject_get(int argc,  char* argv[]){
+    if (argc != 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
     uint32_t id = std::stoi(argv[1]);
     Nebulite::Core::RenderObject* obj = domain->getObjectFromId(id);
     
-    if (obj) {
+    if (obj){
         selectedRenderObject = obj;
         return Nebulite::Constants::ErrorTable::NONE();
     } else {
@@ -309,7 +309,7 @@ std::string const General::selectedObject_get_desc = R"(Get a renderobject by it
 Usage: selected-object get <id>
 )";
 
-Nebulite::Constants::Error General::selectedObject_Parse(int argc,  char* argv[]) {
+Nebulite::Constants::Error General::selectedObject_Parse(int argc,  char* argv[]){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

@@ -4,7 +4,8 @@
  * Threading settings for Nebulite's rendering and expression evaluation.
  */
 
-#pragma once
+#ifndef NEBULITE_CONSTANTS_THREADSETTINGS_HPP
+#define NEBULITE_CONSTANTS_THREADSETTINGS_HPP
 
 //------------------------------------------
 
@@ -66,3 +67,5 @@ Date            Result      THREADRUNNER_COUNT      BATCH_COST_GOAL INVOKE_EXPR_
 2025-10-13:      7.2s       30                      250             30                      # Increased thread count and new BroadCastListen structure
 2025-10-17:      6.3s       25                      250             05                      # Improved Expression evaluation with ordered double pointer lists and hash-free access
 */
+
+#endif // NEBULITE_CONSTANTS_THREADSETTINGS_HPP

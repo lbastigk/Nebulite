@@ -37,7 +37,7 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Input
  * @brief DomainModule for handling input events and states.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Input) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Input){
 public:
     /**
      * @brief Updates the input states of mouse and keyboard 

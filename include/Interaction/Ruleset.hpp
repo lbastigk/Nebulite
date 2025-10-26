@@ -128,18 +128,18 @@ struct Ruleset{
     /**
      * @brief Cost of this entry, estimated during parsing.
      */
-    uint64_t estimatedCost = 0;
+    size_t estimatedCost = 0;
 
-    void estimateComputationalCost() {
+    void estimateComputationalCost(){
         // Count number of $ and { in logicalArg
         std::string const* expr = logicalArg.getFullExpression();
-        estimatedCost += std::count(expr->begin(), expr->end(), '$');
+        estimatedCost += static_cast<size_t>(std::count(expr->begin(), expr->end(), '$'));
 
         // Count number of $ and { in exprs
-        for (auto const& assignment : assignments) {
+        for (auto const& assignment : assignments){
             std::string const* value = assignment.expression.getFullExpression();
-            estimatedCost += std::count(value->begin(), value->end(), '$');
-            estimatedCost += std::count(value->begin(), value->end(), '{');
+            estimatedCost += static_cast<size_t>(std::count(value->begin(), value->end(), '$'));
+            estimatedCost += static_cast<size_t>(std::count(value->begin(), value->end(), '{'));
         }
     }
 

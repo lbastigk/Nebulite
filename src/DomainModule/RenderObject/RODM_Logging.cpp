@@ -8,7 +8,7 @@ std::string const Logging::log_desc = R"(Logging utilities)";
 
 //------------------------------------------
 // Update
-Nebulite::Constants::Error Logging::update() {
+Nebulite::Constants::Error Logging::update(){
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -57,7 +57,7 @@ Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
 )";
 
 Nebulite::Constants::Error Logging::log_key(int argc,  char* argv[]){
-    if (argc < 2) {
+    if (argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     std::string key = argv[1];

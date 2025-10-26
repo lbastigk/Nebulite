@@ -35,7 +35,7 @@ namespace Renderer {
  * @class Nebulite::DomainModule::Renderer::Console
  * @brief DomainModule for Console capabilities within the Renderer.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Console) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Console){
 public:
     /**
      * @brief Override of update.

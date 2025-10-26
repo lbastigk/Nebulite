@@ -25,7 +25,7 @@ std::string const Time::key_framecount = "frameCount";
 //------------------------------------------
 // Update
 
-Nebulite::Constants::Error Time::update() {
+Nebulite::Constants::Error Time::update(){
     //------------------------------------------
     // Full time (runtime)
 

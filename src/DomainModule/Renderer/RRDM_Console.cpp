@@ -63,7 +63,7 @@ Nebulite::Constants::Error Console::update(){
 
     //------------------------------------------
     // Input handling
-    if (consoleMode) {
+    if (consoleMode){
         processEvents();
     }
 
@@ -76,7 +76,7 @@ Nebulite::Constants::Error Console::update(){
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-bool Console::ensureConsoleTexture() {
+bool Console::ensureConsoleTexture(){
     //------------------------------------------
     // Prerequisites
 
@@ -126,7 +126,7 @@ void Console::drawBackground(){
     }
 }
 
-void Console::drawInput(uint16_t lineHeight) {
+void Console::drawInput(uint16_t lineHeight){
     // Add a darker background for the input line
     double posY = consoleTexture.rect.h - lineHeight - 1.5 * LINE_PADDING;
     SDL_Rect inputBackgroundRect = { 0, (int)posY, consoleTexture.rect.w, lineHeight + LINE_PADDING};
@@ -134,7 +134,7 @@ void Console::drawInput(uint16_t lineHeight) {
     SDL_RenderFillRect(renderer, &inputBackgroundRect);
 
     // Render input text
-    if (!textInput.getInputBuffer()->empty()) {
+    if (!textInput.getInputBuffer()->empty()){
         std::string inputText = *textInput.getInputBuffer();
 
         // Create surface and texture
@@ -170,7 +170,7 @@ void Console::drawInput(uint16_t lineHeight) {
     }
 }
 
-void Console::drawOutput(uint16_t maxLineLength) {
+void Console::drawOutput(uint16_t maxLineLength){
     uint16_t lineIndex = 0;
     std::string lineContentRest;                        // Rest of line after linebreak
     uint16_t outputSize = textInput.getOutput()->size();
@@ -263,7 +263,7 @@ void Console::drawOutput(uint16_t maxLineLength) {
     }
 }
 
-void Console::renderConsole() {
+void Console::renderConsole(){
     //------------------------------------------
     // Prerequisites
 
@@ -423,7 +423,7 @@ void Console::keyTriggerZoomOut(const SDL_KeyboardEvent& key){
 }
 
 void Console::processKeyDownEvent(const SDL_KeyboardEvent& key){
-    switch (key.keysym.sym) {
+    switch (key.keysym.sym){
         //------------------------------------------
         // Text input manipulation
 
@@ -518,11 +518,11 @@ void Console::processKeyDownEvent(const SDL_KeyboardEvent& key){
 }
 
 void Console::processEvents(){
-    for (auto const& event : *events) {
-        switch (event.type) {
+    for (auto const& event : *events){
+        switch (event.type){
             case SDL_TEXTINPUT:
                 // Do not append if ctrl is held (to allow copy/paste and other shortcuts)
-                if (event.key.keysym.mod & KMOD_CTRL) {
+                if (event.key.keysym.mod & KMOD_CTRL){
                     break;
                 }
                 textInput.append(event.text.text);
@@ -536,7 +536,7 @@ void Console::processEvents(){
 }
 
 void Console::processMode(){
-    if (consoleMode) {
+    if (consoleMode){
         // Render texture and attach
         renderConsole();
 

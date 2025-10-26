@@ -10,11 +10,11 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
     const Nebulite::Core::RenderObject* self,
     Nebulite::Utility::DocumentCache* docCache,
     Nebulite::Utility::JSON* global
-) {
+){
     // Get function calls: GLOBAL, SELF, OTHER
-    if (entryDoc.memberCheck(Nebulite::Constants::keyName.invoke.functioncalls_global) == Nebulite::Utility::JSON::KeyType::array) {
+    if (entryDoc.memberCheck(Nebulite::Constants::keyName.invoke.functioncalls_global) == Nebulite::Utility::JSON::KeyType::array){
         uint32_t funcSize = entryDoc.memberSize(Nebulite::Constants::keyName.invoke.functioncalls_global);
-        for (uint32_t j = 0; j < funcSize; ++j) {
+        for (uint32_t j = 0; j < funcSize; ++j){
             std::string funcKey = Nebulite::Constants::keyName.invoke.functioncalls_global + "[" + std::to_string(j) + "]";
             std::string funcCall = entryDoc.get<std::string>(funcKey.c_str(), "");
 
@@ -24,16 +24,16 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
             Ruleset.functioncalls_global.emplace_back(std::move(invokeExpr));
         }
     }
-    if (entryDoc.memberCheck(Nebulite::Constants::keyName.invoke.functioncalls_self) == Nebulite::Utility::JSON::KeyType::array) {
+    if (entryDoc.memberCheck(Nebulite::Constants::keyName.invoke.functioncalls_self) == Nebulite::Utility::JSON::KeyType::array){
         uint32_t funcSize = entryDoc.memberSize(Nebulite::Constants::keyName.invoke.functioncalls_self);
-        for (uint32_t j = 0; j < funcSize; ++j) {
+        for (uint32_t j = 0; j < funcSize; ++j){
             std::string funcKey = Nebulite::Constants::keyName.invoke.functioncalls_self + "[" + std::to_string(j) + "]";
             std::string funcCall = entryDoc.get<std::string>(funcKey.c_str(), "");
 
             // The first arg has to be some reference of where the function is called
             // Global functions explicitly place the Binary name on the front in the global space
             // Here, we just reference "self" as the first argument
-            if (!funcCall.starts_with("self ")) {
+            if (!funcCall.starts_with("self ")){
                 funcCall = "self " + funcCall;
             }
 
@@ -43,16 +43,16 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
             Ruleset.functioncalls_self.emplace_back(std::move(invokeExpr));
         }
     }
-    if (entryDoc.memberCheck(Nebulite::Constants::keyName.invoke.functioncalls_other) == Nebulite::Utility::JSON::KeyType::array) {
+    if (entryDoc.memberCheck(Nebulite::Constants::keyName.invoke.functioncalls_other) == Nebulite::Utility::JSON::KeyType::array){
         uint32_t funcSize = entryDoc.memberSize(Nebulite::Constants::keyName.invoke.functioncalls_other);
-        for (uint32_t j = 0; j < funcSize; ++j) {
+        for (uint32_t j = 0; j < funcSize; ++j){
             std::string funcKey = Nebulite::Constants::keyName.invoke.functioncalls_other + "[" + std::to_string(j) + "]";
             std::string funcCall = entryDoc.get<std::string>(funcKey.c_str(), "");
 
             // The first arg has to be some reference of where the function is called
             // Global functions explicitly place the Binary name on the front in the global space
             // Here, we just reference "other" as the first argument
-            if (!funcCall.starts_with("other ")) {
+            if (!funcCall.starts_with("other ")){
                 funcCall = "other " + funcCall;
             }
             // Create a new Expression, parse the function call
@@ -71,13 +71,13 @@ bool Nebulite::Interaction::RulesetCompiler::getExpression(Nebulite::Interaction
 
     // needs to start with "self.", "other." or "global."
     std::string prefix;
-    if (expr.starts_with(Nebulite::Constants::keyName.invoke.typeSelf + ".")) {
+    if (expr.starts_with(Nebulite::Constants::keyName.invoke.typeSelf + ".")){
         assignmentExpr.onType = Nebulite::Interaction::Logic::Assignment::Type::Self;
         prefix = Nebulite::Constants::keyName.invoke.typeSelf + ".";
-    } else if (expr.starts_with(Nebulite::Constants::keyName.invoke.typeOther + ".")) {
+    } else if (expr.starts_with(Nebulite::Constants::keyName.invoke.typeOther + ".")){
         assignmentExpr.onType = Nebulite::Interaction::Logic::Assignment::Type::Other;
         prefix = Nebulite::Constants::keyName.invoke.typeOther + ".";
-    } else if (expr.starts_with(Nebulite::Constants::keyName.invoke.typeGlobal + ".")) {
+    } else if (expr.starts_with(Nebulite::Constants::keyName.invoke.typeGlobal + ".")){
         assignmentExpr.onType = Nebulite::Interaction::Logic::Assignment::Type::Global;
         prefix = Nebulite::Constants::keyName.invoke.typeGlobal + ".";
     } else {
@@ -120,10 +120,10 @@ bool Nebulite::Interaction::RulesetCompiler::getExpression(Nebulite::Interaction
     return true;
 }
 
-bool Nebulite::Interaction::RulesetCompiler::getExpressions(Nebulite::Interaction::Ruleset* Ruleset, Nebulite::Utility::JSON* entry) {
-    if (entry->memberCheck(Nebulite::Constants::keyName.invoke.exprVector) == Nebulite::Utility::JSON::KeyType::array) {
+bool Nebulite::Interaction::RulesetCompiler::getExpressions(Nebulite::Interaction::Ruleset* Ruleset, Nebulite::Utility::JSON* entry){
+    if (entry->memberCheck(Nebulite::Constants::keyName.invoke.exprVector) == Nebulite::Utility::JSON::KeyType::array){
         uint32_t exprSize = entry->memberSize(Nebulite::Constants::keyName.invoke.exprVector);
-        for (uint32_t j = 0; j < exprSize; ++j) {
+        for (uint32_t j = 0; j < exprSize; ++j){
             Nebulite::Interaction::Logic::Assignment assignmentExpr;
             if (RulesetCompiler::getExpression(assignmentExpr, *entry, j)){
                 // Successfully parsed expression
@@ -144,14 +144,14 @@ bool Nebulite::Interaction::RulesetCompiler::getExpressions(Nebulite::Interactio
     return true;
 }
 
-std::string Nebulite::Interaction::RulesetCompiler::getLogicalArg(Nebulite::Utility::JSON& entry) {
+std::string Nebulite::Interaction::RulesetCompiler::getLogicalArg(Nebulite::Utility::JSON& entry){
     std::string logicalArg = "";
     if(entry.memberCheck("logicalArg") == Nebulite::Utility::JSON::KeyType::array){
         uint32_t logicalArgSize = entry.memberSize("logicalArg");
-        for(uint32_t j = 0; j < logicalArgSize; ++j) {
+        for(uint32_t j = 0; j < logicalArgSize; ++j){
             std::string logicalArgKey = "logicalArg[" + std::to_string(j) + "]";
             logicalArg += "(" + entry.get<std::string>(logicalArgKey.c_str(), "0") + ")";
-            if (j < logicalArgSize - 1) {
+            if (j < logicalArgSize - 1){
                 logicalArg += "*"; // Arguments in vector need to be all true: &-logic -> Multiplication
             }
         }
@@ -162,16 +162,16 @@ std::string Nebulite::Interaction::RulesetCompiler::getLogicalArg(Nebulite::Util
     }
 
     // Add $()
-    if(!logicalArg.starts_with("$(")) {
+    if(!logicalArg.starts_with("$(")){
         logicalArg = "$(" + logicalArg + ")";
     }
 
     return logicalArg;
 }
 
-bool Nebulite::Interaction::RulesetCompiler::getRuleset(Nebulite::Utility::JSON& doc, Nebulite::Utility::JSON& entry, int index) {
+bool Nebulite::Interaction::RulesetCompiler::getRuleset(Nebulite::Utility::JSON& doc, Nebulite::Utility::JSON& entry, int index){
     std::string key = Nebulite::Constants::keyName.renderObject.invokes + "[" + std::to_string(index) + "]";
-    if(doc.memberCheck(key) == Nebulite::Utility::JSON::KeyType::document) {
+    if(doc.memberCheck(key) == Nebulite::Utility::JSON::KeyType::document){
         entry = doc.get_subdoc(key);
     }
     else{
@@ -179,7 +179,7 @@ bool Nebulite::Interaction::RulesetCompiler::getRuleset(Nebulite::Utility::JSON&
         std::string link = doc.get<std::string>(key.c_str(), "");
         std::string file = doc.getGlobalSpace()->getDocCache()->getDocString(link);
 
-        if (file.empty()) {
+        if (file.empty()){
             return false;
         }
         entry.deserialize(file);
@@ -206,32 +206,32 @@ namespace{
     ){
         // Set IDs
         uint32_t id = self->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0);
-        for (auto const& entry : entries_local) {
+        for (auto const& entry : entries_local){
             entry->id = id;
         }
-        for (auto const& entry : entries_global) {
+        for (auto const& entry : entries_global){
             entry->id = id;
         }
 
         // Set indices
-        for (uint32_t i = 0; i < entries_local.size(); ++i) {
+        for (uint32_t i = 0; i < entries_local.size(); ++i){
             entries_local[i]->index = i;
         }
-        for (uint32_t i = 0; i < entries_global.size(); ++i) {
+        for (uint32_t i = 0; i < entries_global.size(); ++i){
             entries_global[i]->index = i;
         }
 
         // Estimate full cost of each entry
-        for (auto const& entry : entries_local) {
+        for (auto const& entry : entries_local){
             entry->estimateComputationalCost();
         }
-        for (auto const& entry : entries_global) {
+        for (auto const& entry : entries_global){
             entry->estimateComputationalCost();
         }
     }
 }
 
-void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_global, std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_local, Nebulite::Core::RenderObject* self, Nebulite::Utility::DocumentCache* docCache, Nebulite::Utility::JSON* global) {
+void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_global, std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_local, Nebulite::Core::RenderObject* self, Nebulite::Utility::DocumentCache* docCache, Nebulite::Utility::JSON* global){
     // Clean up existing entries - shared pointers will automatically handle cleanup
     entries_global.clear();
     entries_local.clear();
@@ -239,22 +239,22 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
     Nebulite::Utility::JSON* doc = self->getDoc();
 
     // Check if doc is valid
-    if (doc->memberCheck(Nebulite::Constants::keyName.renderObject.invokes) != Nebulite::Utility::JSON::KeyType::array) {
+    if (doc->memberCheck(Nebulite::Constants::keyName.renderObject.invokes) != Nebulite::Utility::JSON::KeyType::array){
         return;
     }
 
     // Get size of entries
     uint32_t size = doc->memberSize(Nebulite::Constants::keyName.renderObject.invokes);
-    if (size == 0) {
+    if (size == 0){
         // Object has no invokes
         return;
     }
 
     // Iterate through all entries
-    for (size_t idx = 0; idx < size; ++idx) {
+    for (size_t idx = 0; idx < size; ++idx){
         // Parse entry into separate JSON object
         Nebulite::Utility::JSON entry(self->getGlobalSpace());
-        if (!RulesetCompiler::getRuleset(*doc, entry, idx)) {
+        if (!RulesetCompiler::getRuleset(*doc, entry, idx)){
             continue; // Skip this entry
         }
 
@@ -267,7 +267,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
         Ruleset->topic = Nebulite::Utility::StringHandler::rstrip(Nebulite::Utility::StringHandler::lstrip(Ruleset->topic));
         
         // If topic becomes empty after stripping, treat as local-only
-        if (Ruleset->topic.empty()) {
+        if (Ruleset->topic.empty()){
             Ruleset->topic = ""; // Keep empty for local identification
         }
 
@@ -277,12 +277,12 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
 
         // Get expressions
         bool exprSuccess = RulesetCompiler::getExpressions(Ruleset.get(), &entry);
-        if (!exprSuccess) {
+        if (!exprSuccess){
             continue; // Skip this entry if no expressions are found
         }
 
         // Parse all assignments
-        for (auto& assignment : Ruleset->assignments) {
+        for (auto& assignment : Ruleset->assignments){
             assignment.expression.parse(assignment.value, docCache, self->getDoc(), global);
         }
 
@@ -319,22 +319,22 @@ void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
     // Checking all created entries, if any assignment is a numeric operation on self or global
     // we try to get a direct stable double pointer from the corresponding JSON document
     // If successful, we store the pointer in targetValuePtr of the assignment
-    for (auto const& entry : entries) {
-        for (auto& assignment : entry->assignments) {
-            if (assignment.onType == Nebulite::Interaction::Logic::Assignment::Type::Self) {
-                if (ops.end() != std::find(ops.begin(), ops.end(), assignment.operation)) {
+    for (auto const& entry : entries){
+        for (auto& assignment : entry->assignments){
+            if (assignment.onType == Nebulite::Interaction::Logic::Assignment::Type::Self){
+                if (ops.end() != std::find(ops.begin(), ops.end(), assignment.operation)){
                     // Numeric operation on self, try to get a direct pointer
                     double* ptr = self->getDoc()->getStableDoublePointer(assignment.key);
-                    if (ptr != nullptr) {
+                    if (ptr != nullptr){
                         assignment.targetValuePtr = ptr;
                     }
                 }
             }
-            if (assignment.onType == Nebulite::Interaction::Logic::Assignment::Type::Global) {
-                if (ops.end() != std::find(ops.begin(), ops.end(), assignment.operation)) {
+            if (assignment.onType == Nebulite::Interaction::Logic::Assignment::Type::Global){
+                if (ops.end() != std::find(ops.begin(), ops.end(), assignment.operation)){
                     // Numeric operation on global, try to get a direct pointer
                     double* ptr = global->getStableDoublePointer(assignment.key);
-                    if (ptr != nullptr) {
+                    if (ptr != nullptr){
                         assignment.targetValuePtr = ptr;
                     }
                 }

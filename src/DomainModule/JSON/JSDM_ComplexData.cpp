@@ -12,7 +12,7 @@ std::string const ComplexData::json_desc = R"(Functions to manipulate JSON data 
 
 //------------------------------------------
 // Update
-Nebulite::Constants::Error ComplexData::update() {
+Nebulite::Constants::Error ComplexData::update(){
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -66,7 +66,7 @@ Nebulite::Constants::Error ComplexData::json_set(int argc,  char* argv[]){
     // === ARRAY ===
     else if(type == Nebulite::Utility::JSON::KeyType::array){
         uint16_t size = global->getDocCache()->memberSize(doc_key);
-        for (uint16_t i = 0; i < size; ++i) {
+        for (uint16_t i = 0; i < size; ++i){
             std::string itemKey = doc_key + "[" + std::to_string(i) + "]";
             std::string itemValue = global->getDocCache()->get<std::string>(itemKey);
             std::string newItemKey = myKey + "[" + std::to_string(i) + "]";

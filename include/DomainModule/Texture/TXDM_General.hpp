@@ -29,7 +29,7 @@ namespace Texture {
  * @class Nebulite::DomainModule::Texture::General
  * @brief DomainModule for general functions within the Texture.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, General) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, General){
 public:
     Nebulite::Constants::Error update() override;
 
@@ -53,7 +53,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, General) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, General){
         bindFunction(&General::reloadTexture, reloadTexture_name, &reloadTexture_desc);
     }
 };

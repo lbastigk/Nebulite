@@ -7,7 +7,7 @@ TextInput::TextInput(){
 }
 
 std::string TextInput::submit(){
-    if (!consoleInputBuffer->empty()) {
+    if (!consoleInputBuffer->empty()){
         std::string input = *consoleInputBuffer;
         insertLine(input, LineEntry::LineType::INPUT);
 
@@ -60,7 +60,7 @@ void TextInput::insertLine(std::string const& line, LineEntry::LineType type){
 
 void TextInput::backspace(){
     // We can only backspace if the buffer is not empty
-    if (!consoleInputBuffer->empty()) {
+    if (!consoleInputBuffer->empty()){
         // We can only backspace if the cursor is not at the start
         if(cursorOffset != consoleInputBuffer->size()){
             if(cursorOffset > 0){

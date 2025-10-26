@@ -7,14 +7,14 @@ namespace Nebulite::DomainModule::Renderer {
 std::string const RenderObjectDraft::draft_name = "draft";
 std::string const RenderObjectDraft::draft_desc = R"(Functions to manipulate and spawn RenderObjects in draft state)";
 
-Nebulite::Constants::Error RenderObjectDraft::update() { 
+Nebulite::Constants::Error RenderObjectDraft::update(){ 
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error RenderObjectDraft::draft_parse(int argc,  char* argv[]) {
+Nebulite::Constants::Error RenderObjectDraft::draft_parse(int argc,  char* argv[]){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -35,8 +35,8 @@ draft parse set posX 100
 draft parse set posY 200
 )";
 
-Nebulite::Constants::Error RenderObjectDraft::draft_spawn(int argc,  char* argv[]) {
-    if(argc != 1) {
+Nebulite::Constants::Error RenderObjectDraft::draft_spawn(int argc,  char* argv[]){
+    if(argc != 1){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
     // Make a copy of the draft's serialized data
@@ -53,8 +53,8 @@ std::string const RenderObjectDraft::draft_spawn_desc = R"(Spawn the created dra
 Usage: draft spawn
 )";
 
-Nebulite::Constants::Error RenderObjectDraft::draft_reset(int argc,  char* argv[]) {
-    if(argc != 1) {
+Nebulite::Constants::Error RenderObjectDraft::draft_reset(int argc,  char* argv[]){
+    if(argc != 1){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
     Nebulite::Core::RenderObject newDraft(global);

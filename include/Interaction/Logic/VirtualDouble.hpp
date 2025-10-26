@@ -66,7 +66,7 @@ public:
      * @param documentCache The DocumentCache to use for retrieving values.
      */
     VirtualDouble(std::string const& k, Nebulite::Utility::DocumentCache* documentCache) 
-        : documentCache(documentCache), key(k) {
+        : documentCache(documentCache), key(k){
             // Removing self/other/global prefixes in the key
             if (key.starts_with("self."))         key = key.substr(5);
             else if (key.starts_with("other."))   key = key.substr(6);
@@ -93,12 +93,12 @@ public:
      * 
      * @param json The JSON document pointer to retrieve the value from. If the pointer is null, we retrieve the value from the document cache.
      */
-    void setUpInternalCache(Nebulite::Utility::JSON* json) {
-        if (json != nullptr) {
+    void setUpInternalCache(Nebulite::Utility::JSON* json){
+        if (json != nullptr){
             copied_value = *json->getStableDoublePointer(key);
             reference = &copied_value;
         }
-        else if (documentCache != nullptr) {
+        else if (documentCache != nullptr){
             copied_value = *documentCache->getStableDoublePointer(key);
             reference = &copied_value;
         }
@@ -139,11 +139,11 @@ public:
      * This function links the VirtualDouble to an external double pointer of a JSON document, instead of using its internal cache.
      * allowing it to access and modify the value directly.
      */
-    void setUpExternalCache(Nebulite::Utility::JSON* json) {
-        if (json != nullptr) {
+    void setUpExternalCache(Nebulite::Utility::JSON* json){
+        if (json != nullptr){
             reference = json->getStableDoublePointer(key);
         }
-        else if (documentCache != nullptr) {
+        else if (documentCache != nullptr){
             reference = documentCache->getStableDoublePointer(key);
         }
     }

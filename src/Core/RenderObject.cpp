@@ -12,7 +12,7 @@
 Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSpace) 
 : Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>("RenderObject", this, &json, globalSpace), 
   json(globalSpace),
-  baseTexture(&json, globalSpace) {
+  baseTexture(&json, globalSpace){
 	//------------------------------------------
 	// Linkages
 	this->globalSpace = globalSpace;
@@ -88,13 +88,13 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 	calculateDstRect();
 }
 
-Nebulite::Core::RenderObject::~RenderObject() {
-    if (textSurface) {
+Nebulite::Core::RenderObject::~RenderObject(){
+    if (textSurface){
         SDL_FreeSurface(textSurface);
         textSurface = nullptr;
     }
 
-    if (textTexture) {
+    if (textTexture){
         SDL_DestroyTexture(textTexture);
         textTexture = nullptr;
     }
@@ -107,11 +107,11 @@ Nebulite::Core::RenderObject::~RenderObject() {
 //------------------------------------------
 // Marshalling
 
-std::string Nebulite::Core::RenderObject::serialize() {
+std::string Nebulite::Core::RenderObject::serialize(){
 	return json.serialize();
 }
 
-void Nebulite::Core::RenderObject::deserialize(std::string const& serialOrLink) {
+void Nebulite::Core::RenderObject::deserialize(std::string const& serialOrLink){
 	// Check if argv1 provided is an object
 	if(Nebulite::Utility::JSON::is_json_or_jsonc(serialOrLink)){
 		json.deserialize(serialOrLink);
@@ -123,7 +123,7 @@ void Nebulite::Core::RenderObject::deserialize(std::string const& serialOrLink) 
 
 		//------------------------------------------
         // Validity check
-		if (tokens.empty()) {
+		if (tokens.empty()){
 			return; // or handle error properly
 		}
 
@@ -135,11 +135,11 @@ void Nebulite::Core::RenderObject::deserialize(std::string const& serialOrLink) 
 		//------------------------------------------
         // Now apply modifications
 		tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
-		for (auto const& token : tokens) {
+		for (auto const& token : tokens){
 			if (token.empty()) continue; // Skip empty tokens
 
 			// Legacy: Handle key=value pairs
-			if (token.find('=') != std::string::npos) {
+			if (token.find('=') != std::string::npos){
 				// Handle modifier (key=value)
 				auto pos = token.find('=');
 				std::string key = token.substr(0, pos);
@@ -184,11 +184,11 @@ SDL_Rect* Nebulite::Core::RenderObject::getTextRect(){
 	return &textRect;
 }
 
-SDL_Rect* Nebulite::Core::RenderObject::getDstRect() {
+SDL_Rect* Nebulite::Core::RenderObject::getDstRect(){
 	return &dstRect;
 }
 
-void Nebulite::Core::RenderObject::calculateDstRect() {
+void Nebulite::Core::RenderObject::calculateDstRect(){
 	dstRect = {
 		(int)floor(*refs.posX),
 		(int)floor(*refs.posY),
@@ -197,8 +197,8 @@ void Nebulite::Core::RenderObject::calculateDstRect() {
 	};
 };
 
-SDL_Rect* Nebulite::Core::RenderObject::getSrcRect() {
-	if (*refs.isSpritesheet) {
+SDL_Rect* Nebulite::Core::RenderObject::getSrcRect(){
+	if (*refs.isSpritesheet){
 		return &srcRect;
 	}
 	else {
@@ -206,9 +206,9 @@ SDL_Rect* Nebulite::Core::RenderObject::getSrcRect() {
 	}
 }
 
-void Nebulite::Core::RenderObject::calculateSrcRect() {
+void Nebulite::Core::RenderObject::calculateSrcRect(){
 	// Check if the object is a sprite
-	if (*refs.isSpritesheet) {
+	if (*refs.isSpritesheet){
 		// Calculate the source rectangle for the sprite (which portion of the sprite sheet to render)
 		srcRect = {
 			(int)*refs.spritesheetOffsetX, // Start X from the sprite sheet offset
@@ -222,7 +222,7 @@ void Nebulite::Core::RenderObject::calculateSrcRect() {
 //------------------------------------------
 // Outside communication with invoke for updating and estimation
 
-Nebulite::Constants::Error Nebulite::Core::RenderObject::update() {
+Nebulite::Constants::Error Nebulite::Core::RenderObject::update(){
 	//------------------------------------------
 	// Update modules and all inner domains
 	updateModules();
@@ -231,10 +231,10 @@ Nebulite::Constants::Error Nebulite::Core::RenderObject::update() {
 
 	//------------------------------------------
 	// Check all invokes
-	if (invoke != nullptr) {
+	if (invoke != nullptr){
 		//------------------------------------------
 		// 1.) Reload invokes if needed
-		if (flag.reloadInvokes) {
+		if (flag.reloadInvokes){
 			Nebulite::Interaction::RulesetCompiler::parse(
 				entries_global, entries_local, 
 				this, 
@@ -277,7 +277,7 @@ Nebulite::Constants::Error Nebulite::Core::RenderObject::update() {
 	return Nebulite::Constants::ErrorTable::NONE();
 }
 
-uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyInternal) {
+uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyInternal){
 	//------------------------------------------
 	// Reload invokes if needed
 	if (flag.reloadInvokes){
@@ -297,16 +297,16 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyIntern
 	// Local entries
 	cost = std::accumulate(
 		entries_local.begin(), entries_local.end(), cost,
-		[](uint64_t acc, const std::shared_ptr<Nebulite::Interaction::Ruleset>& entry) {
+		[](uint64_t acc, const std::shared_ptr<Nebulite::Interaction::Ruleset>& entry){
 			return acc + entry->estimatedCost;
 		}
 	);
 
 	// Global entries
-	if (!onlyInternal) {
+	if (!onlyInternal){
 		cost = std::accumulate(
 			entries_global.begin(), entries_global.end(), cost,
-			[](uint64_t acc, const std::shared_ptr<Nebulite::Interaction::Ruleset>& entry) {
+			[](uint64_t acc, const std::shared_ptr<Nebulite::Interaction::Ruleset>& entry){
 				return acc + entry->estimatedCost;
 			}
 		);
@@ -329,7 +329,7 @@ void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font
 	// - new text size
 	if(flag.calculateText){
 		// Free previous texture
-        if (textTexture != nullptr) {
+        if (textTexture != nullptr){
             SDL_DestroyTexture(textTexture);
             textTexture = nullptr;
         }
@@ -349,9 +349,9 @@ void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font
 		};
 
 		// Create texture
-        if (!text.empty() && font && renderer) {
+        if (!text.empty() && font && renderer){
             textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
-            if (textSurface) {
+            if (textSurface){
                 textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 				SDL_FreeSurface(textSurface); // Free surface after creating texture
                 textSurface = nullptr;

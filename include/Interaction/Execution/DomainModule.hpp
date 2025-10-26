@@ -5,7 +5,9 @@
  * class to support category-based function bindings.
  */
 
-#pragma once
+#ifndef NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_HPP
+#define NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_HPP
+
 //------------------------------------------
 // Macro for DomainModule definition
 
@@ -30,10 +32,8 @@ namespace Nebulite::Core{
     class GlobalSpace;
 }
 
-namespace Nebulite{
-namespace Interaction{
-namespace Execution{
 //------------------------------------------
+namespace Nebulite::Interaction::Execution{
 /**
  * @class Nebulite::Interaction::Execution::DomainModule
  * @brief Wrapper class for binding functions to a specific category in the FuncTree and adding separate update routines.
@@ -56,12 +56,17 @@ public:
         std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, 
         Nebulite::Core::GlobalSpace* globalSpace
     )
-        : moduleName(moduleName), domain(domain), global(globalSpace), funcTree(funcTreePtr) {}
+        : moduleName(moduleName), domain(domain), global(globalSpace), funcTree(funcTreePtr){}
+
+    /**
+     * @brief Virtual destructor for DomainModule.
+     */
+    virtual ~DomainModule() = default;
 
     /**
      * @brief Virtual update function to be Overwridden by derived classes.
      */
-    virtual Nebulite::Constants::Error update() { return Nebulite::Constants::ErrorTable::NONE(); };
+    virtual Nebulite::Constants::Error update(){ return Nebulite::Constants::ErrorTable::NONE(); }
 
     /**
      * @brief Binds a member function to the FuncTree.
@@ -79,7 +84,7 @@ public:
      * @param name The name to associate with the bound function.
      */
     template<typename ClassType>
-    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char**), std::string const& name, std::string const* helpDescription) {
+    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char**), std::string const& name, std::string const* helpDescription){
         funcTree->bindFunction(
             static_cast<ClassType*>(this),
             std::variant<
@@ -93,7 +98,7 @@ public:
 
     // Overload for char const** version
     template<typename ClassType>
-    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char const**), std::string const& name, std::string const* helpDescription) {
+    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char const**), std::string const& name, std::string const* helpDescription){
         funcTree->bindFunction(
             static_cast<ClassType*>(this),
             std::variant<
@@ -114,7 +119,7 @@ public:
      * @param description Description of the category, shown in the help command. First line is shown in the general help, full description in detailed help
      * @return true if the category was created successfully, false if a category with the same name already exists
      */
-    bool bindCategory(std::string const& name, std::string const* helpDescription) {
+    bool bindCategory(std::string const& name, std::string const* helpDescription){
         return funcTree->bindCategory(name, helpDescription);
     }
 
@@ -127,7 +132,7 @@ public:
      * 
      * A simple argument of '--varName' will set the value to "true"
      */
-    void bindVariable(bool* variablePtr, std::string const& name, std::string const* helpDescription) {
+    void bindVariable(bool* variablePtr, std::string const& name, std::string const* helpDescription){
         // Bind a variable to the FuncTree
         funcTree->bindVariable(variablePtr, name, helpDescription);
     }
@@ -174,6 +179,5 @@ private:
      */
     std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTree;
 };
-}   // namespace Interaction
-}   // namespace Execution
-}   // namespace Nebulite
+}   // namespace Nebulite::Interaction::Execution
+#endif // NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_HPP

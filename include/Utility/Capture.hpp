@@ -43,10 +43,10 @@ public:
         Capture *parent;
         std::ostream& baseStream;
         OutputLine::Type type;
-        explicit CaptureStream(Capture* p, std::ostream& s, OutputLine::Type t) : parent(p), baseStream(s), type(t) {}
+        explicit CaptureStream(Capture* p, std::ostream& s, OutputLine::Type t) : parent(p), baseStream(s), type(t){}
 
         template<typename T>
-        CaptureStream& operator<<(T const& data) {
+        CaptureStream& operator<<(T const& data){
             baseStream << data;
             {
                 std::lock_guard<std::mutex> lock(parent->outputLogMutex);
@@ -68,14 +68,14 @@ public:
                 }
 
                 // Push complete lines to outputLog
-                for (auto const& line : lines) {
+                for (auto const& line : lines){
                     parent->outputLog.push_back({line, type});
                 }
             }
             return *this;
         }
 
-        CaptureStream& operator<<(char const* data) {
+        CaptureStream& operator<<(char const* data){
             // Cast to std::string, then call templated operator
             return (*this) << std::string(data);
         }
@@ -85,7 +85,7 @@ public:
      * @brief Retrieves the singleton instance of Capture.
      * @return Reference to the singleton Capture instance.
      */
-    static Capture& instance() {
+    static Capture& instance(){
         static Capture singleton;
         return singleton;
     }
@@ -94,13 +94,13 @@ public:
      * @brief Retrieves the CaptureStream for cout.
      * @return Reference to the CaptureStream for cout.
      */
-    static CaptureStream& cout() { return instance().coutStream; }
+    static CaptureStream& cout(){ return instance().coutStream; }
 
     /**
      * @brief Retrieves the CaptureStream for cerr.
      * @return Reference to the CaptureStream for cerr.
      */
-    static CaptureStream& cerr() { return instance().cerrStream; }
+    static CaptureStream& cerr(){ return instance().cerrStream; }
 
     /**
      * @brief Retrieves a pointer to the output log.
@@ -113,13 +113,13 @@ public:
     /**
      * @brief Clears the output log.
      */
-    static void clear() {
+    static void clear(){
         instance().outputLog.clear();
     }
 
 private:
     // Make constructor private for singleton
-    Capture() : coutStream(this, std::cout, OutputLine::COUT), cerrStream(this, std::cerr, OutputLine::CERR) {}
+    Capture() : coutStream(this, std::cout, OutputLine::COUT), cerrStream(this, std::cerr, OutputLine::CERR){}
 
     CaptureStream coutStream{this, std::cout, OutputLine::COUT};
     CaptureStream cerrStream{this, std::cerr, OutputLine::CERR};

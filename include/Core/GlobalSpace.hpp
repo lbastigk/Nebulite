@@ -7,7 +7,8 @@
  * and structures in Nebulite::Core namespace.
  */
 
-#pragma once
+#ifndef NEBULITE_CORE_GLOBALSPACE_HPP
+#define NEBULITE_CORE_GLOBALSPACE_HPP
 
 //------------------------------------------
 // Includes
@@ -22,10 +23,7 @@
 #include "Utility/RNG.hpp"
 
 //------------------------------------------
-namespace Nebulite {
-namespace Core {
-//------------------------------------------
-// General Types used
+namespace Nebulite::Core {
 
 /**
  * @struct Nebulite::Core::taskQueueWrapper
@@ -85,7 +83,7 @@ struct taskQueueResult{
  *
  * See main.cpp and other engine modules for usage examples and integration details.
  */
-NEBULITE_DOMAIN(GlobalSpace) {
+NEBULITE_DOMAIN(GlobalSpace){
 public:
     //------------------------------------------
     // Special Member Functions
@@ -346,5 +344,5 @@ private:
      */
     Nebulite::Constants::Error updateInnerDomains();
 };
-}   // namespace Core
-}   // namespace Nebulite
+}   // namespace Nebulite::Core
+#endif // NEBULITE_CORE_GLOBALSPACE_HPP

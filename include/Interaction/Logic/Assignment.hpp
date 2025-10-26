@@ -128,7 +128,7 @@ struct Assignment{
     }
 
     Assignment& operator=(Assignment&& other) noexcept {
-        if (this != &other) {
+        if (this != &other){
             operation = other.operation;
             onType = other.onType;
             key = std::move(other.key);

@@ -6,7 +6,7 @@ namespace Nebulite::DomainModule::GlobalSpace{
 
 //------------------------------------------
 // Update
-Nebulite::Constants::Error General::update() {
+Nebulite::Constants::Error General::update(){
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -99,28 +99,28 @@ This is useful for:
 - Tool assisted speedruns (TAS)
 )";
 
-Nebulite::Constants::Error General::task(int argc,  char* argv[]) {
+Nebulite::Constants::Error General::task(int argc,  char* argv[]){
     Nebulite::Utility::Capture::cout() << "Loading task list from file: " << (argc > 1 ? argv[1] : "none") << Nebulite::Utility::Capture::endl;
 
     // Rollback RNG, loading a task file should not change the RNG state
     domain->rngRollback();
 
-    if (argc < 2) {
+    if (argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    if (argc > 2) {
+    if (argc > 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     // Warn if file ending is not .nebs
     std::string filename = argv[1];
-    if (filename.length() < 6 || !filename.ends_with(".nebs")) {
+    if (filename.length() < 6 || !filename.ends_with(".nebs")){
         Nebulite::Utility::Capture::cerr() << "Warning: unexpected file ending for task file '" << filename << "'. Expected '.nebs'. Trying to load anyway." << Nebulite::Utility::Capture::endl;
     }
     
     // Using FileManagement to load the .nebs file
     std::string file = Nebulite::Utility::FileManagement::LoadFile(filename);
-    if (file.empty()) {
+    if (file.empty()){
         Nebulite::Utility::Capture::cerr() << "Error: "<< argv[0] <<" Could not open file '" << filename << "'" << Nebulite::Utility::Capture::endl;
         return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
@@ -130,7 +130,7 @@ Nebulite::Constants::Error General::task(int argc,  char* argv[]) {
     // Split std::string file into lines and remove comments
     std::istringstream stream(file);
     std::string line;
-    while (std::getline(stream, line)) {
+    while (std::getline(stream, line)){
         line = Nebulite::Utility::StringHandler::untilSpecialChar(line,'#');   // Remove comments.
         line = Nebulite::Utility::StringHandler::lstrip(line,' ');             // Remove whitespaces at start
         if(line.length() == 0){
@@ -173,7 +173,7 @@ Main task:
     maincommand4
 )";
 
-Nebulite::Constants::Error General::echo(int argc,  char* argv[]) {
+Nebulite::Constants::Error General::echo(int argc,  char* argv[]){
     std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
     Nebulite::Utility::Capture::cout() << args << Nebulite::Utility::Capture::endl;
     return Nebulite::Constants::ErrorTable::NONE();
@@ -192,8 +192,8 @@ Outputs:
 Hello World!
 )";
 
-Nebulite::Constants::Error General::func_if(int argc,  char* argv[]) {
-    if (argc < 3) {
+Nebulite::Constants::Error General::func_if(int argc,  char* argv[]){
+    if (argc < 3){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
@@ -202,7 +202,7 @@ Nebulite::Constants::Error General::func_if(int argc,  char* argv[]) {
 
     bool condition = !isnan(condition_potentially_nan) && (condition_potentially_nan != 0);
 
-    if (!condition) {
+    if (!condition){
         // If the condition is false, skip the following commands
         return Nebulite::Constants::ErrorTable::NONE();
     }
@@ -230,18 +230,18 @@ if '$(eq(1+1,2))' echo Condition is true!
 )";
 
 Nebulite::Constants::Error General::func_assert(int argc,  char* argv[]){
-    if (argc < 2) {
+    if (argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
-    if (argc > 2) {
+    if (argc > 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     std::string condition = argv[1];
 
     // condition must start with $( and end with )
-    if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
+    if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')'){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
 
@@ -297,9 +297,9 @@ Critical Error: We did not anticipate this happening, weird.
 )";
 
 Nebulite::Constants::Error General::always(int argc,  char* argv[]){
-    if (argc > 1) {
+    if (argc > 1){
         std::ostringstream oss;
-        for (int i = 1; i < argc; ++i) {
+        for (int i = 1; i < argc; ++i){
             if (i > 1) oss << ' ';
             oss << argv[i];
         }
@@ -309,11 +309,11 @@ Nebulite::Constants::Error General::always(int argc,  char* argv[]){
         std::stringstream ss(argStr);
         std::string command;
 
-        while (std::getline(ss, command, ';')) {
+        while (std::getline(ss, command, ';')){
             // Trim whitespace from each command
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
-            if (!command.empty()) {
+            if (!command.empty()){
                 domain->tasks.always.taskQueue.push_back(command);
             }
         }
@@ -356,9 +356,9 @@ Nebulite::Constants::Error General::func_for(int argc,  char* argv[]){
         int iEnd   = std::stoi(domain->eval(argv[3]));
 
         std::string args = "";
-        for (int i = 4; i < argc; ++i) {
+        for (int i = 4; i < argc; ++i){
             args += argv[i];
-            if (i < argc - 1) {
+            if (i < argc - 1){
                 args += " ";
             }
         }

@@ -136,6 +136,11 @@
     ],
     "c-cpp-flylint.excludeFromWorkspacePaths": [
         "external/**",
+        "external/*",
+        "external/",
+        "**/external/**",
+        "**/build/**",
+        "**/third_party/**",
         "/usr/include/c++/**",
         "/usr/lib/**",
         "/lib/**"

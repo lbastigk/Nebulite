@@ -34,7 +34,7 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Time
  * @brief DomainModule for time management within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Time) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Time){
 public:
     /**
      * @brief Override of update.

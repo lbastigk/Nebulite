@@ -2,7 +2,7 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Nebulite::Constants::Error Debug_Domain_Collision_Detection::update() {
+Nebulite::Constants::Error Debug_Domain_Collision_Detection::update(){
     // No periodic update needed for this domain module
     return Nebulite::Constants::ErrorTable::NONE();
 }
@@ -18,7 +18,7 @@ std::string const Debug_Domain_Collision_Detection::collisionDetect_desc = "Util
 //------------------------------------------
 // Available Functions
 
-Nebulite::Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_function(int argc, char const* argv[]) {
+Nebulite::Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_function(int argc, char const* argv[]){
     bool fail = true;
     if(argc >= 2){
         std::string mode = argv[1];
@@ -53,7 +53,7 @@ Usage: debug collision-detect function [fail/succeed]
 Defaults to fail
 )";
 
-Nebulite::Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_category(int argc, char const* argv[]) {
+Nebulite::Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_category(int argc, char const* argv[]){
     bool fail = true;
     if(argc >= 2){
         std::string mode = argv[1];
@@ -91,7 +91,7 @@ Usage: debug collision-detect category [fail/succeed]
 Defaults to fail
 )";
 
-Nebulite::Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_variable(int argc, char const* argv[]) {
+Nebulite::Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_variable(int argc, char const* argv[]){
     bool fail = true;
     if(argc >= 2){
         std::string mode = argv[1];

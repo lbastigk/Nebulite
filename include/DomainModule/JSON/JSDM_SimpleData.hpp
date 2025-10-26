@@ -28,7 +28,7 @@ namespace JSON{
  * @class Nebulite::DomainModule::JSON::SimpleData
  * @brief DomainModule for simple data operations on domain class Nebulite::Utility::JSON
  */
-NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, SimpleData) {
+NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, SimpleData){
 public:
     /**
      * @brief Override of update.

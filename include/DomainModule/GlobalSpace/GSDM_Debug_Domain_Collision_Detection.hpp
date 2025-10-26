@@ -3,7 +3,8 @@
  * @brief Contains the Debug Domain Module for testing collision detection functionalities of Domains/DomainModules.
  */
 
-#pragma once
+#ifndef NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_DEBUG_DOMAIN_COLLISION_DETECTION_HPP
+#define NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_DEBUG_DOMAIN_COLLISION_DETECTION_HPP
 
 //------------------------------------------
 // Includes
@@ -26,7 +27,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Debug_Domain_Collision_Detection
  * @brief DomainModule for debugging capabilities within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug_Domain_Collision_Detection) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug_Domain_Collision_Detection){
 public:
     /**
      * @brief Override of update.
@@ -97,3 +98,4 @@ public:
 private:
 };
 }   // namespace Nebulite::DomainModule::GlobalSpace
+#endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_DEBUG_DOMAIN_COLLISION_DETECTION_HPP

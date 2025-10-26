@@ -1,11 +1,11 @@
-#pragma once
-
 /**
  * @file KeyNames.hpp
  * @brief Contains all hardcoded key names used within Nebulite.
  * 
  * @todo Move key names into classes as static members!
  */
+#ifndef NEBULITE_CONSTANTS_KEYNAMES_HPP
+#define NEBULITE_CONSTANTS_KEYNAMES_HPP
 
 //------------------------------------------
 // Includes
@@ -14,8 +14,7 @@
 #include <string>
 
 //------------------------------------------
-namespace Nebulite{
-namespace Constants {
+namespace Nebulite::Constants {
 /**
  * @struct keyName
  * @brief Contains all hardcoded key names used within Nebulite.
@@ -105,5 +104,5 @@ const struct keyName {
         std::string renderObjectContainer = "RenderObjectContainer";
     }environment;
 }keyName;
-}   // namespace Constants
-}   // namespace Nebulite
+}   // namespace Nebulite::Constants
+#endif // NEBULITE_CONSTANTS_KEYNAMES_HPP

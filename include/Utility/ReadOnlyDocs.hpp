@@ -28,7 +28,7 @@ struct ReadOnlyDoc {
     Nebulite::Utility::JSON document; // The actual JSON document
     Nebulite::Utility::TimeKeeper lastUsed;
 
-    explicit ReadOnlyDoc(Nebulite::Core::GlobalSpace* globalSpace) : document(globalSpace), lastUsed() {}
+    explicit ReadOnlyDoc(Nebulite::Core::GlobalSpace* globalSpace) : document(globalSpace), lastUsed(){}
 };
 
 /**
@@ -59,9 +59,9 @@ struct ReadOnlyDocs{
         /**
          * @brief Constructor that takes a GlobalSpace pointer.
          */
-        explicit ReadOnlyDocs(Nebulite::Core::GlobalSpace* global) : globalSpace(global) {
+        explicit ReadOnlyDocs(Nebulite::Core::GlobalSpace* global) : globalSpace(global){
             // Validate that globalSpace is not null
-            if (globalSpace == nullptr) {
+            if (globalSpace == nullptr){
                 throw std::invalid_argument("DocumentCache: GlobalSpace pointer cannot be null");
             }
         }
@@ -71,7 +71,7 @@ struct ReadOnlyDocs{
          * and unloading it if it has been unused for too long.
          */
         void update(){
-            if(docs.empty()) {
+            if(docs.empty()){
                 return; // No documents to check
             }
 
@@ -81,7 +81,7 @@ struct ReadOnlyDocs{
             ReadOnlyDoc* docPtr = &it->second;
 
             // If the document has not been used recently, unload it
-            if (docPtr->lastUsed.projected_dt() > unloadAfter_ms) {
+            if (docPtr->lastUsed.projected_dt() > unloadAfter_ms){
                 docs.erase(it);
             }
         }
@@ -93,25 +93,25 @@ struct ReadOnlyDocs{
          * @param doc The link to the document.
          * @return Pointer to the ReadOnlyDoc, or nullptr if loading fails.
          */
-        ReadOnlyDoc* getDocument(std::string const& doc) {
+        ReadOnlyDoc* getDocument(std::string const& doc){
             // Validate inputs and state
-            if (doc.empty()) {
+            if (doc.empty()){
                 return nullptr;
             }
-            if (globalSpace == nullptr) {
+            if (globalSpace == nullptr){
                 return nullptr;
             }
             
             // Check if the document exists in the cache
             auto it = docs.find(doc);
-            if (it == docs.end()) {
+            if (it == docs.end()){
                 // Load the document if it doesn't exist
                 std::string serial = Nebulite::Utility::FileManagement::LoadFile(doc);
-                if (serial.empty()) {
+                if (serial.empty()){
                     return nullptr; // Return nullptr if document loading fails
                 }
                 auto result = docs.emplace(doc, ReadOnlyDoc(globalSpace));
-                if (!result.second) {
+                if (!result.second){
                     // Emplace failed for some reason
                     return nullptr;
                 }

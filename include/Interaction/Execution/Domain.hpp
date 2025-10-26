@@ -84,7 +84,7 @@ public:
      * @param moduleName The name of the module
      */
     template<typename DomainModuleType>
-    void initModule(std::string moduleName) {
+    void initModule(std::string moduleName){
         auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, funcTree, global);
         modules.push_back(std::move(DomainModule));
     }
@@ -141,7 +141,7 @@ public:
 	 * 
 	 * The first argument is reserved for debugging and should be used as a way to tell the parser from where it was called:
 	 * ```cpp
-	 * void myFunction() {
+	 * void myFunction(){
 	 *   parseStr("myFunction set text.str Hello World");
 	 * }
 	 * ```

@@ -10,7 +10,7 @@ std::string const Debug::debug_desc = R"(Debugging functions for RenderObject)";
 
 //------------------------------------------
 // Update
-Nebulite::Constants::Error Debug::update() {
+Nebulite::Constants::Error Debug::update(){
     // For on-tick-updates
     return Nebulite::Constants::ErrorTable::NONE();
 }
@@ -18,7 +18,7 @@ Nebulite::Constants::Error Debug::update() {
 //------------------------------------------
 // Available Functions
 
-Nebulite::Constants::Error Debug::eval(int argc,  char* argv[]) {
+Nebulite::Constants::Error Debug::eval(int argc,  char* argv[]){
     // argc/argv to string for evaluation
     std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc, argv);
 
@@ -38,13 +38,13 @@ eval echo $(1+1)    outputs:    2.000000
 eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
 )";
 
-Nebulite::Constants::Error Debug::printSrcRect(int argc,  char* argv[]) {
-    if(argc != 1) {
+Nebulite::Constants::Error Debug::printSrcRect(int argc,  char* argv[]){
+    if(argc != 1){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
 
     const SDL_Rect* srcRect = domain->getSrcRect();
-    if(srcRect) {
+    if(srcRect){
         Nebulite::Utility::Capture::cout() << "Source Rectangle: { x: " << srcRect->x << ", y: " << srcRect->y 
                   << ", w: " << srcRect->w << ", h: " << srcRect->h << " }" << Nebulite::Utility::Capture::endl;
     } else {
@@ -64,13 +64,13 @@ If the RenderObject is not a spritesheet, indicates that instead:
 This RenderObject is not a spritesheet.
 )";
 
-Nebulite::Constants::Error Debug::printDstRect(int argc,  char* argv[]) {
-    if(argc != 1) {
+Nebulite::Constants::Error Debug::printDstRect(int argc,  char* argv[]){
+    if(argc != 1){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
 
     const SDL_Rect* dstRect = domain->getDstRect();
-    if(dstRect) {
+    if(dstRect){
         Nebulite::Utility::Capture::cout() << "Destination Rectangle: { x: " << dstRect->x << ", y: " << dstRect->y 
                   << ", w: " << dstRect->w << ", h: " << dstRect->h << " }" << Nebulite::Utility::Capture::endl;
     } else {
@@ -98,7 +98,7 @@ namespace{
      * @param accessType The SDL texture access enum value.
      * @return A string representing the access type.
      */
-    std::string getTextureAccessString(int accessType) {
+    std::string getTextureAccessString(int accessType){
         return (accessType == SDL_TEXTUREACCESS_STATIC)    ? "Static"    :
                (accessType == SDL_TEXTUREACCESS_STREAMING) ? "Streaming" :
                (accessType == SDL_TEXTUREACCESS_TARGET)    ? "Target"    :
@@ -110,7 +110,7 @@ namespace{
      * @param format The SDL pixel format enum value.
      * @return A string representing the pixel format.
      */
-    std::string getTextureFormatString(Uint32 format) {
+    std::string getTextureFormatString(Uint32 format){
         return (format == SDL_PIXELFORMAT_RGBA8888)    ? "RGBA8888"  :
                (format == SDL_PIXELFORMAT_ARGB8888)    ? "ARGB8888"  :
                (format == SDL_PIXELFORMAT_RGB888)      ? "RGB888"    :
@@ -128,11 +128,11 @@ namespace{
      * 
      * @param texture Pointer to the SDL_Texture to query.
      */
-    void printTextureInfo(SDL_Texture* texture) {
-        if(texture) {
+    void printTextureInfo(SDL_Texture* texture){
+        if(texture){
             Uint32 format;
             int accessType, w, h;
-            if (SDL_QueryTexture(texture, &format, &accessType, &w, &h) == 0) {
+            if (SDL_QueryTexture(texture, &format, &accessType, &w, &h) == 0){
                 // Decode format and access to human-readable strings
                 std::string accessStr = getTextureAccessString(accessType);
                 std::string formatStr = getTextureFormatString(format);
@@ -152,7 +152,7 @@ namespace{
 }
 
 Nebulite::Constants::Error Debug::textureStatus(int argc,  char* argv[]){
-    if(argc != 1) {
+    if(argc != 1){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
 

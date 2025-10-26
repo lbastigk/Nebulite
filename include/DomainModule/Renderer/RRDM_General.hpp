@@ -31,7 +31,7 @@ namespace Renderer {
  * @class Nebulite::DomainModule::Renderer::General
  * @brief Basic Renderer-Related Functions
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, General) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, General){
 public:
     /**
      * @brief The Renderer DomainModule does not make use of any Render-Updates yet. This function is empty.

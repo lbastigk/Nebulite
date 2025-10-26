@@ -174,7 +174,7 @@ namespace Nebulite{
 namespace Nebulite {
 namespace DomainModule {
 namespace GlobalSpace {
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, MyModule) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, MyModule){
 public:
     /**
      * @brief Overridden update function.

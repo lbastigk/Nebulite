@@ -5,7 +5,7 @@ namespace Nebulite::DomainModule::JSON {
 
 //------------------------------------------
 // Update
-Nebulite::Constants::Error Debug::update() {
+Nebulite::Constants::Error Debug::update(){
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY

@@ -5,7 +5,8 @@
  * the game objects and managing the rendering pipeline.
  */
 
-#pragma once
+#ifndef NEBULITE_CORE_RENDERER_HPP
+#define NEBULITE_CORE_RENDERER_HPP
 
 //------------------------------------------
 // Includes
@@ -16,9 +17,9 @@
 #include <stdint.h>
 
 // External
-#include <SDL.h>
-#include <SDL_ttf.h>
-#include <SDL_image.h>
+#include "SDL.h"
+#include "SDL_ttf.h"
+#include "SDL_image.h"
 #include "absl/container/flat_hash_map.h"
 
 // Nebulite
@@ -29,14 +30,14 @@
 #include "Interaction/Invoke.hpp"
 
 //------------------------------------------
-namespace Nebulite{
-namespace Core {
+namespace Nebulite::Core {
+	
 /**
  * @class Nebulite::Core::Renderer
  * 
  * @brief Responsible for rendering game objects and managing the rendering pipeline.
  */
-NEBULITE_DOMAIN(Renderer) {
+NEBULITE_DOMAIN(Renderer){
 public:
 	/**
 	 * @brief Initializes a Renderer with given dimensions and settings.
@@ -176,12 +177,12 @@ public:
 	 * @param texture The SDL_Texture to attach.
 	 * @return True if the texture was successfully attached, false otherwise.
 	 */
-	bool attachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string name, SDL_Texture* texture, SDL_Rect* rect = nullptr) {
-		if(texture == nullptr) {
+	bool attachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string name, SDL_Texture* texture, SDL_Rect* rect = nullptr){
+		if(texture == nullptr){
 			return false; // Cannot attach a null texture
 		}
 
-		if(BetweenLayerTextures[aboveThisLayer].contains(name)) {
+		if(BetweenLayerTextures[aboveThisLayer].contains(name)){
 			return false; // Texture with this name already exists in the specified layer
 		}
 
@@ -196,8 +197,8 @@ public:
 	 * @param name The name of the texture to remove.
 	 * @return True if the texture was successfully removed, false otherwise.
 	 */
-	bool detachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string name) {
-		if(BetweenLayerTextures[aboveThisLayer].contains(name)) {
+	bool detachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string name){
+		if(BetweenLayerTextures[aboveThisLayer].contains(name)){
 			BetweenLayerTextures[aboveThisLayer].erase(name);
 			return true;
 		}
@@ -207,7 +208,7 @@ public:
 	/** 
 	 * @brief Detaches all textures from all layers.  
 	 */
-	void detachAllTextures() {
+	void detachAllTextures(){
 		BetweenLayerTextures.clear();
 	}
 
@@ -380,7 +381,7 @@ public:
 	 * @param id The ID of the RenderObject to retrieve.
 	 * @return A pointer to the RenderObject, or nullptr if not found.
 	 */
-	Nebulite::Core::RenderObject* getObjectFromId(uint32_t id) {
+	Nebulite::Core::RenderObject* getObjectFromId(uint32_t id){
 		return env.getObjectFromId(id);
 	}
 
@@ -391,7 +392,7 @@ public:
 	 * 
 	 * @return A pointer to the TTF_Font instance.
 	 */
-	TTF_Font* getStandardFont() {
+	TTF_Font* getStandardFont(){
 		// Should always be loaded at this point
 		return font;
 	}
@@ -633,5 +634,5 @@ private:
 	 */
 	void loadFonts();
 };
-} 	// namespace Core
-}   // namespace Nebulite
+}   // namespace Nebulite::Core
+#endif // NEBULITE_CORE_RENDERER_HPP

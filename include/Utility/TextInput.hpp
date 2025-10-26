@@ -3,7 +3,8 @@
  * @brief Header file for the TextInput class.
  */
 
- #pragma once
+#ifndef NEBULITE_UTILITY_TEXTINPUT_HPP
+#define NEBULITE_UTILITY_TEXTINPUT_HPP
 
 //------------------------------------------
 // Includes
@@ -125,7 +126,7 @@ public:
     /**
      * @brief Gets the queue of output lines.
      */
-    std::deque<LineEntry>* getOutput() {
+    std::deque<LineEntry>* getOutput(){
         return &consoleOutput;
     }
 
@@ -189,3 +190,4 @@ private:
 
 };
 } // namespace Nebulite::Utility 
+#endif // NEBULITE_UTILITY_TEXTINPUT_HPP

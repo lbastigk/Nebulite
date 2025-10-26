@@ -18,7 +18,7 @@
  * Example:
  * ```cpp
  *   Nebulite::Constants::Error result = Nebulite::resolveTaskQueue(...);
- *   if (result.isCritical()) {
+ *   if (result.isCritical()){
  *       // Handle critical error
  *   }
  * ```
@@ -31,7 +31,8 @@
  * See main.cpp for detailed usage in the main engine loop and error handling.
  */
 
-#pragma once
+#ifndef NEBULITE_CONSTANTS_ERRORTYPES_HPP
+#define NEBULITE_CONSTANTS_ERRORTYPES_HPP
 
 //------------------------------------------
 // Includes
@@ -44,8 +45,7 @@
 #include "Utility/Capture.hpp"                // For capturing error output
 
 //------------------------------------------
-namespace Nebulite{
-namespace Constants {
+namespace Nebulite::Constants {
 
 /**
  * @class Error
@@ -83,12 +83,12 @@ public:
     /**
      * @brief Default constructor for ERROR struct.
      */
-    Error(std::string* desc, Error::Type t) : description(desc), type(t) {}
+    Error(std::string* desc, Error::Type t) : description(desc), type(t){}
 
     /**
      * @brief Empty Constructor for ERROR struct.
      */
-    Error() : description(nullptr), type(NONE) {}
+    Error() : description(nullptr), type(NONE){}
 
     /**
      * @brief Get the error description.
@@ -145,7 +145,7 @@ private:
      */
     uint16_t count;
     
-    static ErrorTable& getInstance() {
+    static ErrorTable& getInstance(){
         static ErrorTable instance;
         return instance;
     }
@@ -153,7 +153,7 @@ private:
     std::vector<std::string> localDescriptions; // To own the strings 
 
 public:
-    ErrorTable() : count(0) {}
+    ErrorTable() : count(0){}
 
     /**
      * @brief This implementation is not recommended, as users might pass str.c_str()
@@ -175,10 +175,10 @@ public:
         auto it = std::find_if(
             getInstance().errors.begin(),
             getInstance().errors.end(),
-            [&](Error const& err) { return err.getDescription() == description; }
+            [&](Error const& err){ return err.getDescription() == description; }
         );
 
-        if (it != getInstance().errors.end()) {
+        if (it != getInstance().errors.end()){
             return *it; // Return existing error
         }
 
@@ -190,7 +190,7 @@ public:
 
 private:
     Error addErrorImpl(char const* description, Error::Type type = Error::NON_CRITICAL){
-        if (count == UINT16_MAX) {
+        if (count == UINT16_MAX){
             Nebulite::Utility::Capture::cerr() << "ErrorTable has reached its maximum capacity of " << UINT16_MAX << " errors." << Nebulite::Utility::Capture::endl;
             Nebulite::Utility::Capture::cerr() << "Make sure that new errors added are removed after some time if they are not needed anymore." << Nebulite::Utility::Capture::endl;
             std::exit(EXIT_FAILURE);
@@ -342,6 +342,5 @@ public:
         return error;
     }   
 };
-
-} // namespace Constants
-} // namespace Nebulite
+} // namespace Nebulite::Constants
+#endif // NEBULITE_CONSTANTS_ERRORTYPES_HPP

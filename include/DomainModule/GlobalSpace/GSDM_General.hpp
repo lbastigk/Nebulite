@@ -29,7 +29,7 @@ namespace GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::General
  * @brief DomainModule for general-purpose functions within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, General) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, General){
 public:
     Nebulite::Constants::Error update() override;
 

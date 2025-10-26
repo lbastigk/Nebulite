@@ -37,7 +37,7 @@ namespace Renderer {
  * Allows for the creation and manipulation of RenderObjects in a draft state.
  * Allowing us to easily create draft object to continously spawn.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, RenderObjectDraft) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, RenderObjectDraft){
 public:
     /**
      * @brief Override of update.
@@ -92,7 +92,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RenderObjectDraft) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RenderObjectDraft){
         // Initialize the draft holder with the domain
         draft.setDomain(global);
         
@@ -114,15 +114,15 @@ private:
         std::unique_ptr<Nebulite::Core::RenderObject> ptr;
         Nebulite::Core::GlobalSpace* domain_ptr;
     public:
-        DraftHolder() : ptr(nullptr), domain_ptr(nullptr) {}
-        explicit DraftHolder(Nebulite::Core::GlobalSpace* domain) : ptr(nullptr), domain_ptr(domain) {}
+        DraftHolder() : ptr(nullptr), domain_ptr(nullptr){}
+        explicit DraftHolder(Nebulite::Core::GlobalSpace* domain) : ptr(nullptr), domain_ptr(domain){}
 
-        void setDomain(Nebulite::Core::GlobalSpace* domain) {
+        void setDomain(Nebulite::Core::GlobalSpace* domain){
             domain_ptr = domain;
         }
 
-        std::unique_ptr<Nebulite::Core::RenderObject> & get() {
-            if(!ptr && domain_ptr) {
+        std::unique_ptr<Nebulite::Core::RenderObject> & get(){
+            if(!ptr && domain_ptr){
                 ptr = std::make_unique<Nebulite::Core::RenderObject>(domain_ptr);
             }
             return ptr;

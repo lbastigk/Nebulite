@@ -60,7 +60,7 @@ namespace Logic {
  */
 class ExpressionPool {
 public:
-    ExpressionPool() {
+    ExpressionPool(){
         _isReturnableAsDouble = false; 
         _isAlwaysTrue = false; 
     }
@@ -79,7 +79,7 @@ public:
     }
 
     ExpressionPool& operator=(ExpressionPool&& other) noexcept {
-        if (this != &other) {
+        if (this != &other){
             pool = std::move(other.pool);
             fullExpression = std::move(other.fullExpression);
             // locks array stays as-is (new default-constructed mutexes)
@@ -100,12 +100,12 @@ public:
      * @param self The JSON object representing the "self" context.
      * @param global The JSON object representing the "global" context.
      */
-    void parse(std::string const& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global) {
+    void parse(std::string const& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global){
         fullExpression = expr;
 
         // Parse the first one, then copy to others
         pool[0].parse(expr, documentCache, self, global);
-        for (size_t i = 1; i < pool.size(); ++i) {
+        for (size_t i = 1; i < pool.size(); ++i){
             pool[i] = pool[0];
         }
 
@@ -182,7 +182,7 @@ public:
      *
      * @return True if the expression is returnable as a double, false otherwise.
      */
-    bool isReturnableAsDouble() {
+    bool isReturnableAsDouble(){
         return _isReturnableAsDouble;
     }
 
@@ -190,7 +190,7 @@ public:
      * @brief Checks if the expression is always true (i.e., "1").
      * @return True if the expression is always true, false otherwise.
      */
-    bool isAlwaysTrue() {
+    bool isAlwaysTrue(){
         return _isAlwaysTrue;
     }
 

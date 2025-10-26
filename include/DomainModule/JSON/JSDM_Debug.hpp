@@ -25,7 +25,7 @@ namespace Nebulite{
 namespace Nebulite {
 namespace DomainModule {
 namespace JSON {
-NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, Debug) {
+NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, Debug){
 public:
     /**
      * @brief Override of update.

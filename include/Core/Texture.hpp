@@ -11,9 +11,9 @@
 // Includes
 
 // External
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
+#include "SDL.h"
+#include "SDL_image.h"
+#include "SDL_ttf.h"
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
@@ -30,7 +30,7 @@ namespace Nebulite{
 //------------------------------------------
 namespace Nebulite {
 namespace Core {
-NEBULITE_DOMAIN(Texture) {
+NEBULITE_DOMAIN(Texture){
 public:
     /**
      * @brief Constructs a new Texture domain.
@@ -45,10 +45,10 @@ public:
     /**
      * @brief Destroys the Texture and frees resources.
      */
-    ~Texture() {
+    ~Texture(){
         // Only destroy the texture if it was modified
         // And thus a local copy exists
-        if(texture != nullptr && textureStoredLocally) {
+        if(texture != nullptr && textureStoredLocally){
             SDL_DestroyTexture(texture);
         }
     };
@@ -71,14 +71,14 @@ public:
      * 
      * @param externalTexture Pointer to the external SDL_Texture.
      */
-    void linkExternalTexture(SDL_Texture* externalTexture) {
+    void linkExternalTexture(SDL_Texture* externalTexture){
         texture = externalTexture;
         textureStoredLocally = false; // Reset modification flag
     }
 
-    void setInternalTexture(SDL_Texture* newTexture) {
+    void setInternalTexture(SDL_Texture* newTexture){
         // Destroy any old internal texture if it was modified
-        if (texture != nullptr && textureStoredLocally) {
+        if (texture != nullptr && textureStoredLocally){
             SDL_DestroyTexture(texture);
         }
         texture = newTexture;
@@ -90,7 +90,7 @@ public:
      * 
      * @return true if the texture has been modified, false otherwise.
      */
-    bool isTextureStoredLocally() {
+    bool isTextureStoredLocally(){
         return textureStoredLocally;
     }
 
@@ -99,7 +99,7 @@ public:
      * 
      * @return true if the texture is valid, false otherwise.
      */
-    bool isTextureValid() {
+    bool isTextureValid(){
         return texture != nullptr;
     }
 
@@ -108,7 +108,7 @@ public:
      * 
      * @return Pointer to the current SDL_Texture.
      */
-    SDL_Texture* getSDLTexture() {
+    SDL_Texture* getSDLTexture(){
         return texture;
     }
 

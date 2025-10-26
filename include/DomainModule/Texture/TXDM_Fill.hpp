@@ -32,7 +32,7 @@ namespace Texture {
  * @class Nebulite::DomainModule::Texture::Fill
  * @brief DomainModule for fill functions within the Texture.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Fill) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Fill){
 public:
     Nebulite::Constants::Error update() override;
 
@@ -56,7 +56,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Fill) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Fill){
         bindFunction(&Fill::fill, fill_name, &fill_desc);
     }
 };

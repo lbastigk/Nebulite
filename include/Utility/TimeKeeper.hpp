@@ -188,7 +188,7 @@ private:
         uint64_t last_t_ms;
         uint64_t t_ms;
 
-        OnUpdate() : last_t_ms(0), t_ms(0) {}
+        OnUpdate() : last_t_ms(0), t_ms(0){}
     } onUpdate;
 
     /**
@@ -200,7 +200,7 @@ private:
         uint64_t t_ms;
         uint64_t dt;
 
-        OnSimulation() : last_t_ms(0), t_ms(0), dt(0) {}
+        OnSimulation() : last_t_ms(0), t_ms(0), dt(0){}
     } onSimulation;
 };
 }   // namespace Utility

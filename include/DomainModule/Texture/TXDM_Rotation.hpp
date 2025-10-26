@@ -7,7 +7,8 @@
  * Prioritize later, once some more important features are overhauled.
  */
 
-#pragma once
+#ifndef NEBULITE_DOMAINMODULE_TEXTURE_TXDM_ROTATION_HPP
+#define NEBULITE_DOMAINMODULE_TEXTURE_TXDM_ROTATION_HPP
 
 //------------------------------------------
 // Includes
@@ -25,14 +26,12 @@ namespace Nebulite{
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace Texture {
+namespace Nebulite::DomainModule::Texture{
 /**
  * @class Nebulite::DomainModule::Texture::Rotation
  * @brief DomainModule for rotation functions within the Texture.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Rotation) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Rotation){
 public:
     Nebulite::Constants::Error update() override;
 
@@ -56,10 +55,9 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Rotation) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Rotation){
         bindFunction(&Rotation::rotate, rotate_name, &rotate_desc);
     }
 };
-}   // namespace Texture
-}   // namespace DomainModule
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::Texture
+#endif // NEBULITE_DOMAINMODULE_TEXTURE_TXDM_ROTATION_HPP

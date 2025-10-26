@@ -15,13 +15,13 @@ Nebulite::Interaction::Invoke::Invoke(Nebulite::Core::GlobalSpace* globalSpace)
 {   
     // Initialize synchronization primitives
     threadState.stopFlag = false;
-    for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
+    for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
         threadState.individualState[i].workReady = false;
         threadState.individualState[i].workFinished = false;
         
         // Start worker threads
-        threadrunners[i] = std::thread([this, i]() {
-            while (!threadState.stopFlag) {
+        threadrunners[i] = std::thread([this, i](){
+            while (!threadState.stopFlag){
                 // Wait for work to be ready
                 std::unique_lock<std::mutex> lock(broadcasted.entriesThisFrame[i].mutex);
                 threadState.individualState[i].condition.wait(lock, [this, i] { 
@@ -47,7 +47,7 @@ Nebulite::Interaction::Invoke::Invoke(Nebulite::Core::GlobalSpace* globalSpace)
                                     // Since inactive listeners are rare, this should be fine
                                     // Sort of self-regulating, as more inactive listeners lead to more frequent cleanups
                                     thread_local static std::mt19937 cleanup_rng(std::random_device{}());
-                                    if(cleanup_rng() % 100 == 0) {
+                                    if(cleanup_rng() % 100 == 0){
                                         listenersOnRuleset.listeners.erase(it++); // Remove inactive entry
                                     } else {
                                         it->second.active = false; // Just reset the flag
@@ -68,14 +68,14 @@ Nebulite::Interaction::Invoke::Invoke(Nebulite::Core::GlobalSpace* globalSpace)
     }
 }
 
-Nebulite::Interaction::Invoke::~Invoke() {
+Nebulite::Interaction::Invoke::~Invoke(){
     // Signal threads to stop
     threadState.stopFlag = true;
     
     // Wake up all threads and wait for them to finish
-    for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
+    for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
         threadState.individualState[i].condition.notify_one();
-        if (threadrunners[i].joinable()) {
+        if (threadrunners[i].joinable()){
             threadrunners[i].join();
         }
     }
@@ -84,7 +84,7 @@ Nebulite::Interaction::Invoke::~Invoke() {
 //------------------------------------------
 // Checks
 
-bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd, Nebulite::Core::RenderObject const* otherObj) {
+bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd, Nebulite::Core::RenderObject const* otherObj){
     // Check if logical arg is as simple as just "1", meaning true
     if(cmd->logicalArg.isAlwaysTrue()) return true;
 
@@ -97,7 +97,7 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
     return result != 0.0;
 }
 
-bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd) {
+bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd){
     // Use selfPtr as otherObj
     return checkRulesetLogicalCondition(cmd, cmd->selfPtr);
 }
@@ -124,11 +124,11 @@ void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std
         
         // Check if any object has broadcasted on this topic
         auto topicIt = broadcasted.entriesThisFrame[i].Container.find(topic);
-        if (topicIt == broadcasted.entriesThisFrame[i].Container.end()) {
+        if (topicIt == broadcasted.entriesThisFrame[i].Container.end()){
             continue; // No entries for this topic in this thread
         }
         
-        for (auto& [id_self, onTopicFromId] : topicIt->second) {
+        for (auto& [id_self, onTopicFromId] : topicIt->second){
             // Skip if broadcaster and listener are the same object
             if (id_self == listenerId) continue;
 
@@ -136,7 +136,7 @@ void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std
             if(!onTopicFromId.active) continue;
 
             // For all rulesets under this broadcaster and topic
-            for (auto& [idx_ruleset, rulesetPair] : onTopicFromId.rulesets) {
+            for (auto& [idx_ruleset, rulesetPair] : onTopicFromId.rulesets){
                 // Check if logical condition is met
                 bool pairStatus = checkRulesetLogicalCondition(rulesetPair.entry, obj);
                 rulesetPair.listeners[listenerId] = BroadCastListenPair{rulesetPair.entry, obj, pairStatus};
@@ -228,7 +228,7 @@ void Nebulite::Interaction::Invoke::applyAssignment(Nebulite::Interaction::Logic
     // Check what the target document to apply the ruleset to is
     
     Nebulite::Utility::JSON* targetDocument = nullptr;
-    switch (assignment.onType) {
+    switch (assignment.onType){
     case Nebulite::Interaction::Logic::Assignment::Type::Self:
         targetDocument = Obj_self->getDoc();
         break;
@@ -297,7 +297,7 @@ void Nebulite::Interaction::Invoke::applyAssignment(Nebulite::Interaction::Logic
     }
 }
 
-void Nebulite::Interaction::Invoke::applyFunctionCalls(Nebulite::Interaction::Ruleset& ruleset, Nebulite::Core::RenderObject *Obj_self, Nebulite::Core::RenderObject *Obj_other) {
+void Nebulite::Interaction::Invoke::applyFunctionCalls(Nebulite::Interaction::Ruleset& ruleset, Nebulite::Core::RenderObject *Obj_self, Nebulite::Core::RenderObject *Obj_other){
     // === Functioncalls GLOBAL ===
     for(auto& entry : ruleset.functioncalls_global){
         // replace vars
@@ -323,7 +323,7 @@ void Nebulite::Interaction::Invoke::applyFunctionCalls(Nebulite::Interaction::Ru
     }
 }
 
-void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other) {
+void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other){
     // References
     Nebulite::Core::RenderObject* Obj_self = entries_self->selfPtr;
 
@@ -343,7 +343,7 @@ void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Nebulite::Inte
 //------------------------------------------
 // Update
 
-void Nebulite::Interaction::Invoke::update() {
+void Nebulite::Interaction::Invoke::update(){
     // Signal all worker threads to start processing
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
         threadState.individualState[i].workFinished = false;
@@ -353,7 +353,7 @@ void Nebulite::Interaction::Invoke::update() {
     
     // Wait for all threads to finish processing
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
-        while (!threadState.individualState[i].workFinished.load()) {
+        while (!threadState.individualState[i].workFinished.load()){
             std::this_thread::yield(); // Yield to avoid busy waiting
         }
     }
@@ -368,7 +368,7 @@ void Nebulite::Interaction::Invoke::update() {
 //------------------------------------------
 // Standalone Expression Evaluation
 
-std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::string const& input) {
+std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::string const& input){
     Nebulite::Utility::JSON* docSelf = this->emptyDoc;      // no self context
     Nebulite::Utility::JSON* docOther = this->emptyDoc;     // no other context
     Nebulite::Utility::JSON* docGlobal = this->globalDoc;
@@ -379,7 +379,7 @@ std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::str
     return expr.eval(docOther);
 }
 
-std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::string const& input, Nebulite::Core::RenderObject* selfAndOther) {
+std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::string const& input, Nebulite::Core::RenderObject* selfAndOther){
     // Expression is evaluated within a domain's context, use it as self and other
     Nebulite::Utility::JSON* docSelf = selfAndOther->getDoc();
     Nebulite::Utility::JSON* docOther = selfAndOther->getDoc();

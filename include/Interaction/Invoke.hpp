@@ -5,7 +5,8 @@
  * dynamic object logic in the Nebulite engine.
  */
 
-#pragma once
+#ifndef NEBULITE_INTERACTION_INVOKE_HPP
+#define NEBULITE_INTERACTION_INVOKE_HPP
 
 //------------------------------------------
 // Includes 
@@ -31,15 +32,14 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite {
-  namespace Core {
+namespace Nebulite{
+  namespace Core{
     class RenderObject;
   }
 }
 
 //------------------------------------------
-namespace Nebulite{
-namespace Interaction{
+namespace Nebulite::Interaction{
 /**
  * @class Nebulite::Interaction::Invoke
  * @brief The Invoke class manages dynamic object logic in Nebulite.
@@ -113,7 +113,7 @@ public:
     /**
      * @brief Gets the global JSON document pointer.
      */
-    Nebulite::Utility::JSON* getGlobalPointer(){return globalDoc;};
+    Nebulite::Utility::JSON* getGlobalPointer(){return globalDoc;}
 
     /**
      * @brief Gets a pointer to the DocumentCache.
@@ -123,7 +123,7 @@ public:
      * 
      * @return A pointer to the DocumentCache.
      */
-    Nebulite::Utility::DocumentCache* getDocumentCache() { return docCache; }
+    Nebulite::Utility::DocumentCache* getDocumentCache(){ return docCache; }
     
     //------------------------------------------
     // Send/Listen
@@ -430,5 +430,5 @@ private:
      */
     void applyFunctionCalls(Nebulite::Interaction::Ruleset& ruleset, Nebulite::Core::RenderObject *Obj_self, Nebulite::Core::RenderObject *Obj_other);
 };
-} // namespace Interaction
-} // namespace Nebulite
+} // namespace Nebulite::Interaction
+#endif // NEBULITE_INTERACTION_INVOKE_HPP

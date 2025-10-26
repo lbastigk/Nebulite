@@ -29,7 +29,7 @@ namespace RenderObject{
  * @class Nebulite::DomainModule::RenderObject::StateUpdate
  * @brief State update DomainModule of the RenderObject tree.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, StateUpdate) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, StateUpdate){
 public:
     /**
      * @brief Override of update.
@@ -122,7 +122,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, StateUpdate) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, StateUpdate){
         bindFunction(&StateUpdate::func_delete,         func_delete_name,         &func_delete_desc);
         bindFunction(&StateUpdate::updateText,          updateText_name,          &updateText_desc);
 

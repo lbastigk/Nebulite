@@ -21,15 +21,15 @@ namespace {
      * 
      * @todo Move this functionality to globalspace
      */
-    bool safe_open_log(char const* filename, std::unique_ptr<std::ofstream>& out) {
+    bool safe_open_log(char const* filename, std::unique_ptr<std::ofstream>& out){
     #if defined(_WIN32)
         DWORD attrs = GetFileAttributesA(filename);
-        if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_REPARSE_POINT)) {
+        if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_REPARSE_POINT)){
             return false;
         }
     #else
         struct stat sb;
-        if (lstat(filename, &sb) == 0 && S_ISLNK(sb.st_mode)) {
+        if (lstat(filename, &sb) == 0 && S_ISLNK(sb.st_mode)){
             return false;
         }
     #endif
@@ -37,7 +37,7 @@ namespace {
         return out->is_open();
     }
 
-    void getMemoryUsageMB(double& virtualMemMB, double& residentMemMB) {
+    void getMemoryUsageMB(double& virtualMemMB, double& residentMemMB){
         #if defined(_WIN32)
             PROCESS_MEMORY_COUNTERS_EX pmc;
             GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
@@ -87,7 +87,7 @@ std::string const Debug::standardfile_desc = R"(Functions to generate standard f
 
 //------------------------------------------
 // Update
-Nebulite::Constants::Error Debug::update() {
+Nebulite::Constants::Error Debug::update(){
     //------------------------------------------
     // Memory usage
 
@@ -179,7 +179,7 @@ Note: This function creates or overwrites the file 'standard.jsonc' in the './Re
  */
 Nebulite::Constants::Error Debug::errorlog(int argc,  char* argv[]){
     // Initialize the error logging buffer
-    if(!originalCerrBuf) {
+    if(!originalCerrBuf){
         originalCerrBuf = std::cerr.rdbuf();
     }
 
@@ -187,7 +187,7 @@ Nebulite::Constants::Error Debug::errorlog(int argc,  char* argv[]){
         if(!strcmp(argv[1], "on")){
             if(!errorLogStatus){
                 char const* logFilename = "errors.log";
-                if (!safe_open_log(logFilename, errorFile)) {
+                if (!safe_open_log(logFilename, errorFile)){
                     Nebulite::Utility::Capture::cerr() << "Refusing to open log file: '" << logFilename << "' is a symlink or could not be opened." << Nebulite::Utility::Capture::endl;
                     return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
                 }
@@ -200,7 +200,7 @@ Nebulite::Constants::Error Debug::errorlog(int argc,  char* argv[]){
             if(errorLogStatus){
                 std::cerr.flush();
                 std::cerr.rdbuf(originalCerrBuf);
-                if (errorFile) {
+                if (errorFile){
                     errorFile->close();
                     errorFile.reset();
                 }
@@ -250,7 +250,7 @@ inline void clear_screen(){
 
     #else
         // If stdout is a terminal, use ANSI escapes to clear the screen and move cursor to top-left.
-        if (isatty(fileno(stdout))) {
+        if (isatty(fileno(stdout))){
             // ESC[2J clears screen; ESC[H moves cursor to 1;1
             std::cout << "\x1b[2J\x1b[H" << std::flush;
         } else {
@@ -262,7 +262,7 @@ inline void clear_screen(){
 }
 
 Nebulite::Constants::Error Debug::clearConsole(int argc,  char* argv[]){
-    if (argc > 1) {
+    if (argc > 1){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     clear_screen();
@@ -278,20 +278,20 @@ Note: This function attempts to clear the console screen using system-specific c
         It may not work in all environments or IDEs.
 )";
 
-Nebulite::Constants::Error Debug::crash(int argc,  char* argv[]) {
+Nebulite::Constants::Error Debug::crash(int argc,  char* argv[]){
     // If an argument is provided, use it to select crash type
-    if (argc > 1 && argv[1]) {
+    if (argc > 1 && argv[1]){
         std::string crashType = argv[1];
-        if (crashType == "segfault") {
+        if (crashType == "segfault"){
             // Cause a segmentation fault
             raise(SIGSEGV);
-        } else if (crashType == "abort") {
+        } else if (crashType == "abort"){
             // Abort the program
             std::abort();
-        } else if (crashType == "terminate") {
+        } else if (crashType == "terminate"){
             // Terminate with std::terminate
             std::terminate();
-        } else if (crashType == "throw") {
+        } else if (crashType == "throw"){
             // Throw an uncaught exception
             throw std::runtime_error("Intentional crash: uncaught exception");
         } else {
@@ -317,10 +317,10 @@ Usage: crash [<type>]
     - throw      : Throws an uncaught exception
 )";
 
-Nebulite::Constants::Error Debug::error(int argc,  char* argv[]) {
-    for (int i = 1; i < argc; ++i) {
+Nebulite::Constants::Error Debug::error(int argc,  char* argv[]){
+    for (int i = 1; i < argc; ++i){
         Nebulite::Utility::Capture::cerr() << argv[i];
-        if (i < argc - 1) {
+        if (i < argc - 1){
             Nebulite::Utility::Capture::cerr() << " ";
         }
     }
@@ -338,7 +338,7 @@ Usage: error <string...>
 )";
 
 Nebulite::Constants::Error Debug::warn(int argc,  char* argv[]){
-    if (argc < 2) {
+    if (argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
@@ -354,7 +354,7 @@ Usage: warn <string>
 
 
 Nebulite::Constants::Error Debug::critical(int argc,  char* argv[]){
-    if (argc < 2) {
+    if (argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
@@ -370,7 +370,7 @@ Usage: critical <string>
 )";
 
 Nebulite::Constants::Error Debug::waitForInput(int argc,  char* argv[]){
-    if (argc > 2) {
+    if (argc > 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     std::string message = "Press Enter to continue...";
