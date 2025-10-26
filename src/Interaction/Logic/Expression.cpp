@@ -216,12 +216,11 @@ void Nebulite::Interaction::Logic::Expression::parseIntoComponents(const std::st
     // - variable info (from what document, what the key is)
     for (const auto& token : tokens) {
         if (!token.empty()) {
-            std::shared_ptr<Component> currentComponent = std::make_shared<Component>();
             if(token.starts_with('$')){
-                parseTokenTypeEval(token, currentComponent, components);
+                parseTokenTypeEval(token, components);
             }
             else{
-                parseTokenTypeText(token, currentComponent, components);
+                parseTokenTypeText(token, components);
             }
         }
     }
@@ -258,7 +257,7 @@ void Nebulite::Interaction::Logic::Expression::readFormatter(std::shared_ptr<Com
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(const std::string& token, std::shared_ptr<Component>& currentComponent, std::vector<std::shared_ptr<Component>>& components) {
+void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(const std::string& token, std::vector<std::shared_ptr<Component>>& components) {
     // $[leading zero][alignment][.][precision]<type:f,i>
     // - bool leading zero   : on/off
     // - int alignment       : <0 means no formatting
@@ -272,6 +271,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(const std::str
     // $f(1.23)     "f"             "(1.23)"
     // $i(42)       "i"             "(42)"
     // $4.2f(2/3)   "4.2f"          "(2/3)"
+    std::shared_ptr<Component> currentComponent =  std::make_shared<Component>();
 
     int16_t pos = token.find('(');
     std::string formatter  = token.substr(1, pos - 1); // Remove leading $
@@ -327,18 +327,19 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(const std::str
     components.push_back(currentComponent);
 }
 
-void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(const std::string& token, std::shared_ptr<Component>& currentComponent, std::vector<std::shared_ptr<Component>>& components) {
+void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(const std::string& token, std::vector<std::shared_ptr<Component>>& components) {
     // Current token is Text
     // Perhaps mixed with variables...
     std::vector<std::string> subTokens = Nebulite::Utility::StringHandler::splitOnSameDepth(token, '{');
     for (const auto& subToken : subTokens) {
-        // Variable outside of eval, no need to register
+        std::shared_ptr<Component> currentComponent =  std::make_shared<Component>();
+
+        // Token is type variable
         if(subToken.starts_with('{')){
             // 1.) remove {}
+            // We keep all other potential {} inside the variable name for later multiresolve
             std::string inner;
-            // Replace first and last character of subToken
-            // We keep all other potential {} inside the variable name
-            // For later multiresolve
+            
             inner = subToken.substr(1, subToken.length() - 2);
             // 2.) determine context
             currentComponent->type = Component::Type::variable;
@@ -346,6 +347,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(const std::str
             currentComponent->from = getContext(inner);
             currentComponent->key = stripContext(inner);
         }
+        // Token is type text
         else{
             // Determine context
             currentComponent->type = Component::Type::text;

@@ -429,10 +429,9 @@ private:
      * - Pushes the current component onto the components vector.
      * 
      * @param token The token to parse.
-     * @param currentComponent The current component to populate.
-     * @param components The vector to push the current component onto.
+     * @param components The vector to push the component onto.
      */
-    void parseTokenTypeEval(const std::string& token, std::shared_ptr<Component>& currentComponent, std::vector<std::shared_ptr<Component>>& components);
+    void parseTokenTypeEval(const std::string& token, std::vector<std::shared_ptr<Component>>& components);
 
     /**
      * @brief Used to parse a string token of type "text" into an component.
@@ -444,10 +443,9 @@ private:
      * - Pushes the current component onto the components vector.
      * 
      * @param token The token to parse.
-     * @param currentComponent The current component to populate.
-     * @param components The vector to push the current component onto.
+     * @param components The vector to push the component onto.
      */
-    void parseTokenTypeText(const std::string& token, std::shared_ptr<Component>& currentComponent, std::vector<std::shared_ptr<Component>>& components);
+    void parseTokenTypeText(const std::string& token, std::vector<std::shared_ptr<Component>>& components);
 
     /**
      * @brief Prints a compilation error message to cerr
