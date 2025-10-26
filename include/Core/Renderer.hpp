@@ -409,7 +409,7 @@ public:
 	/**
 	 * @brief Gets the current window scale factor.
 	 */
-	unsigned int getWindowScale() { return WindowScale; };
+	unsigned int getWindowScale() { return WindowScale; }
 
 	//------------------------------------------
 	// Texture-Related
@@ -517,7 +517,7 @@ private:
 	 * 
 	 * Used for RNG seeding.
 	 */
-    std::size_t hashString(std::string const& str){return std::hash<std::string>{}(str);};
+    std::size_t hashString(std::string const& str){return std::hash<std::string>{}(str);}
     
 	//------------------------------------------
 	// Renderer::tick related Functions

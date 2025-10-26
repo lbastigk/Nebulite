@@ -9,7 +9,6 @@
 #else
     #include <unistd.h>   // isatty, lstat
     #include <sys/stat.h> // struct stat, S_ISLNK
-    #include <cstdio>
 #endif
 #include <memory>
 #include <fstream>
@@ -72,8 +71,8 @@ namespace {
             stat_stream.close();
 
             long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
-            virtualMemMB  = vsize / (1024.0 * 1024.0);
-            residentMemMB = rss * page_size_kb / 1024.0;
+            virtualMemMB  = static_cast<double>(vsize) / (1024.0 * 1024.0);
+            residentMemMB = static_cast<double>(rss) * static_cast<double>(page_size_kb) / 1024.0;
         #endif
     }
 } // anonymous namespace

@@ -117,10 +117,10 @@ void Input::write_current_and_delta_inputs(){
 			else if (!currentPressed &&  prevPressed) delta = -1;
 
 			// Set current state (true/false as int)
-			*currentKey[scancode] = (double)currentPressed;
+			*currentKey[scancode] = static_cast<double>(currentPressed);
 
 			// Set delta
-			*deltaKey[scancode] = (double)delta;
+			*deltaKey[scancode] = static_cast<double>(delta);
         }
     }
 }

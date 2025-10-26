@@ -11,7 +11,6 @@
 // Includes
 
 // General
-#include <mutex>
 #include <string>
 #include <variant>
 
@@ -26,7 +25,6 @@
 
 // Nebulite
 #include "Utility/StringHandler.hpp"
-#include "Utility/Capture.hpp"
 
 namespace Nebulite::Core {
     class GlobalSpace; // Forward declaration

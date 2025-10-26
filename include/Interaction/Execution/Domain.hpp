@@ -73,6 +73,8 @@ public:
       domain(domain), doc(doc), global(global)
     {}
 
+    virtual ~Domain() = default;
+    
     //------------------------------------------
     // Binding, initializing and inheriting
 

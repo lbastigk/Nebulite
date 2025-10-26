@@ -37,6 +37,12 @@
 //------------------------------------------
 // Includes
 
+// Standard
+#include <string>                           // For std::string
+#include <vector>                           // For std::vector
+#include <algorithm>                        // For std::find_if
+#include <cstdint>                          // For uint16_t
+
 // External
 #include <absl/container/flat_hash_map.h>   // For error type to string mapping
 
@@ -45,6 +51,7 @@
 #include "Utility/Capture.hpp"                // For capturing error output
 
 //------------------------------------------
+
 namespace Nebulite::Constants {
 
 /**

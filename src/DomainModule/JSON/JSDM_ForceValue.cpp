@@ -1,5 +1,4 @@
 #include "DomainModule/JSON/JSDM_ForceValue.hpp"
-
 #include "Utility/JSON.hpp"
 
 namespace Nebulite::DomainModule::JSON {
