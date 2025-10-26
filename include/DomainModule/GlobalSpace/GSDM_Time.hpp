@@ -4,7 +4,8 @@
  * @brief Contains the declaration of the Time DomainModule for the GlobalSpace domain.
  */
 
-#pragma once
+#ifndef NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_TIME_HPP
+#define NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_TIME_HPP
 
 //------------------------------------------
 // Includes
@@ -20,16 +21,12 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class GlobalSpace; // Forward declaration of domain class GlobalSpace
-    }
+namespace Nebulite::Core{
+    class GlobalSpace; // Forward declaration of domain class GlobalSpace
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace GlobalSpace {
+namespace Nebulite::DomainModule::GlobalSpace {
 /**
  * @class Nebulite::DomainModule::GlobalSpace::Time
  * @brief DomainModule for time management within the GlobalSpace.
@@ -182,6 +179,5 @@ private:
      */
     uint64_t fixedDeltaTime = 0;
 };
-} // namespace GlobalSpace
-} // namespace DomainModule
-} // namespace Nebulite
+} // namespace Nebulite::DomainModule::GlobalSpace
+#endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_TIME_HPP

@@ -8,7 +8,8 @@
  * @todo Move to Renderer Domain, since it relies on SDL events!
  */
 
-#pragma once
+#ifndef NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_INPUT_HPP
+#define NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_INPUT_HPP
 
 //------------------------------------------
 // Includes
@@ -23,16 +24,12 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class GlobalSpace; // Forward declaration of domain class GlobalSpace
-    }
+namespace Nebulite::Core{
+    class GlobalSpace; // Forward declaration of domain class GlobalSpace
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace GlobalSpace {
+namespace Nebulite::DomainModule::GlobalSpace {
 /**
  * @class Nebulite::DomainModule::GlobalSpace::Input
  * @brief DomainModule for handling input events and states.
@@ -142,6 +139,5 @@ private:
      */
     double* currentKey[SDL_NUM_SCANCODES] = {nullptr}; // Pointers to current key states in global doc
 };
-}   // namespace GlobalSpace
-}   // namespace DomainModule
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::GlobalSpace
+#endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_INPUT_HPP

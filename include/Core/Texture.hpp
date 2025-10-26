@@ -5,7 +5,8 @@
  * functionality.
  */
 
-#pragma once
+#ifndef NEBULITE_CORE_TEXTURE_HPP
+#define NEBULITE_CORE_TEXTURE_HPP
 
 //------------------------------------------
 // Includes
@@ -28,8 +29,7 @@ namespace Nebulite{
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace Core {
+namespace Nebulite::Core {
 NEBULITE_DOMAIN(Texture){
 public:
     /**
@@ -136,5 +136,5 @@ private:
      */
     bool copyTexture();
 };
-}   // namespace Core
-}   // namespace Nebulite
+}   // namespace Nebulite::Core
+#endif // NEBULITE_CORE_TEXTURE_HPP

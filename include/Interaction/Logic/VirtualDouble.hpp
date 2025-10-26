@@ -7,7 +7,8 @@
  * contexts for efficient expression evaluation.
  */
 
-#pragma once
+#ifndef NEBULITE_INTERACTION_LOGIC_VIRTUALDOUBLE_HPP
+#define NEBULITE_INTERACTION_LOGIC_VIRTUALDOUBLE_HPP
 
 //------------------------------------------
 // Includes
@@ -18,9 +19,7 @@
 #include "Utility/DocumentCache.hpp"
 
 //------------------------------------------
-namespace Nebulite{
-namespace Interaction{
-namespace Logic {
+namespace Nebulite::Interaction::Logic {
 /**
  * @brief A wrapper class for accessing and modifying double values in JSON documents.
  * 
@@ -148,6 +147,5 @@ public:
         }
     }
 };
-}   // namespace Logic
-}   // namespace Interaction
-}   // namespace Nebulite
+}   // namespace Nebulite::Interaction::Logic
+#endif // NEBULITE_INTERACTION_LOGIC_VIRTUALDOUBLE_HPP

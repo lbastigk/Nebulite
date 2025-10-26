@@ -4,7 +4,8 @@
  * This file contains the definition of the Expression class, which is responsible for parsing and evaluating expressions within the Nebulite engine.
  */
 
-#pragma once
+#ifndef NEBULITE_INTERACTION_LOGIC_EXPRESSION_HPP
+#define NEBULITE_INTERACTION_LOGIC_EXPRESSION_HPP
 
 //------------------------------------------
 // Includes
@@ -23,9 +24,7 @@
 #include "Utility/Capture.hpp"
 
 //------------------------------------------
-namespace Nebulite {
-namespace Interaction {
-namespace Logic {
+namespace Nebulite::Interaction::Logic {
 /**
  * @class Nebulite::Interaction::Logic::Expression
  * @brief The Expression class is responsible for parsing and evaluating expressions.
@@ -338,13 +337,11 @@ private:
             return static_cast<double>(aLogical && bLogical);
         }
         static double logical_or(double a, double b){
-            static constexpr double epsilon = 1e-9;
             bool aLogical = (std::fabs(a) > epsilon);
             bool bLogical = (std::fabs(b) > epsilon);
             return static_cast<double>(aLogical || bLogical);
         }
         static double logical_xor(double a, double b){
-            static constexpr double epsilon = 1e-9;
             bool aLogical = (std::fabs(a) > epsilon);
             bool bLogical = (std::fabs(b) > epsilon);
             return static_cast<double>(aLogical != bLogical);
@@ -579,6 +576,5 @@ private:
      */
     void handleComponentTypeEval(std::string& token, const std::shared_ptr<Component>& component);
 };
-} // namespace Logic
-} // namespace Interaction
-} // namespace Nebulite
+} // namespace Nebulite::Interaction::Logic
+#endif // NEBULITE_INTERACTION_LOGIC_EXPRESSION_HPP

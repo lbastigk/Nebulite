@@ -4,7 +4,8 @@
  * @brief This file contains the DomainModule of the Texture for general functions.
  */
 
- #pragma once
+#ifndef NEBULITE_DOMAINMODULE_TEXTURE_TXDM_GENERAL_HPP
+#define NEBULITE_DOMAINMODULE_TEXTURE_TXDM_GENERAL_HPP
 
 //------------------------------------------
 // Includes
@@ -15,16 +16,12 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class Texture; // Forward declaration of domain class Texture
-    }
+namespace Nebulite::Core {
+    class Texture; // Forward declaration of domain class Texture
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace Texture {
+namespace Nebulite::DomainModule::Texture {
 /**
  * @class Nebulite::DomainModule::Texture::General
  * @brief DomainModule for general functions within the Texture.
@@ -57,6 +54,5 @@ public:
         bindFunction(&General::reloadTexture, reloadTexture_name, &reloadTexture_desc);
     }
 };
-}   // namespace Texture
-}   // namespace DomainModule
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::Texture
+#endif // NEBULITE_DOMAINMODULE_TEXTURE_TXDM_GENERAL_HPP

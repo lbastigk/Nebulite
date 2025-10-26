@@ -154,7 +154,7 @@ public:
         }
 
         // Retrieve the key size from the document
-        uint32_t size = docPtr->document.memberSize(key);
+        size_t size = docPtr->document.memberSize(key);
 
         // Update the cache (unload old documents)
         update();
