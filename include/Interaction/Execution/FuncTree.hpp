@@ -8,9 +8,9 @@
  * Example usage:
  * ```cpp
  * #include "Interaction/Execution/FuncTree.hpp"
- * int main(int argc,  char* argv[]){
+ * int main(int argc,  char** argv){
  *     FuncTree<std::string> funcTree("Nebulite", "ok", "Function not found");
- *     funcTree.bindFunction([](int argc,  char* argv[]){
+ *     funcTree.bindFunction([](int argc,  char** argv){
  *         // Function implementation
  *         return "Function executed";
  *     }, "myFunction", "This function does something");

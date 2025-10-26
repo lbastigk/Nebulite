@@ -42,7 +42,7 @@ public:
     /**
      * @brief Adds a clock to the global clock list.
      */
-    Nebulite::Constants::Error addClock(int argc,  char* argv[]);
+    Nebulite::Constants::Error addClock(int argc,  char** argv);
     static std::string const addClock_name;
     static std::string const addClock_desc;
 

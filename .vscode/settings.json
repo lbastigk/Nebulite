@@ -124,6 +124,7 @@
         "-I${workspaceFolder}/external/**",
         "-stdlib=libc++",
         "-isystem", "/usr/include",
+        "-Wno-system-headers",
         "-Wunused-function",
         "-Wunused-variable",
         "-Wunreachable-code",
@@ -143,7 +144,6 @@
         "-Wfloat-equal",
         "-Wextra-semi",
         "-Wundef",
-        "-Wno-system-headers",
         "-Wunused-parameter"
     ],
     "c-cpp-flylint.excludeFromWorkspacePaths": [

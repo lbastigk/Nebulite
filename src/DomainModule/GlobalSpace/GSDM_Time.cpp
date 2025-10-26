@@ -86,7 +86,7 @@ Nebulite::Constants::Error Time::update(){
 //------------------------------------------
 // Available Functions
 
-Nebulite::Constants::Error Time::time_haltOnce(int argc,  char* argv[]){
+Nebulite::Constants::Error Time::time_haltOnce(int argc,  char** argv){
     haltThisFrame = true;
     return Nebulite::Constants::ErrorTable::NONE();
 }
@@ -97,7 +97,7 @@ Meaning you can halt time by continuously calling this function.
 Usage: time halt-once
 )";
 
-Nebulite::Constants::Error Time::time_lock(int argc,  char* argv[]){
+Nebulite::Constants::Error Time::time_lock(int argc,  char** argv){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -115,7 +115,7 @@ Usage: time lock <lock_name>
 )";
 
 
-Nebulite::Constants::Error Time::time_unlock(int argc,  char* argv[]){
+Nebulite::Constants::Error Time::time_unlock(int argc,  char** argv){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -137,7 +137,7 @@ Usage: time unlock <lock_name>
 <lock_name> : Name of the lock to remove. Must match an existing lock.
 )";
 
-Nebulite::Constants::Error Time::time_masterUnlock(int argc,  char* argv[]){
+Nebulite::Constants::Error Time::time_masterUnlock(int argc,  char** argv){
     timeLocks.clear();
     return Nebulite::Constants::ErrorTable::NONE();
 }
@@ -148,7 +148,7 @@ Time can only progress if no locks are present.
 Usage: time master-unlock
 )";
 
-Nebulite::Constants::Error Time::time_setFixedDeltaTime(int argc,  char* argv[]){
+Nebulite::Constants::Error Time::time_setFixedDeltaTime(int argc,  char** argv){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

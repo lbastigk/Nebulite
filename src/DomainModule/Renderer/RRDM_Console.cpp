@@ -581,7 +581,7 @@ Contains commands to manipulate the in-application console.
 //------------------------------------------
 // Available Functions
 
-Nebulite::Constants::Error Console::consoleZoom(int argc,  char* argv[]){
+Nebulite::Constants::Error Console::consoleZoom(int argc,  char** argv){
     //------------------------------------------
     // Prerequisites
 
@@ -624,7 +624,7 @@ Usage: zoom [in/out/+/-]
 - out / - : Zooms out (decreases font size)
 )";
 
-Nebulite::Constants::Error Console::consoleSetBackground(int argc,  char* argv[]){
+Nebulite::Constants::Error Console::consoleSetBackground(int argc,  char** argv){
     //------------------------------------------
     // Prerequisites
 

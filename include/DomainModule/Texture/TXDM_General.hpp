@@ -40,7 +40,7 @@ public:
      * @param argv The argument vector: no arguments required, texture is reloaded from document
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error reloadTexture(int argc,  char* argv[]);
+    Nebulite::Constants::Error reloadTexture(int argc,  char** argv);
     static std::string const reloadTexture_name;
     static std::string const reloadTexture_desc;
 

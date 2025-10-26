@@ -26,7 +26,7 @@ Nebulite::Constants::Error General::update(){
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error General::env_load(int argc,  char* argv[]){
+Nebulite::Constants::Error General::env_load(int argc,  char** argv){
     if(argc > 1){
         domain->deserialize(argv[1]);
         return Nebulite::Constants::ErrorTable::NONE();
@@ -45,7 +45,7 @@ Usage: env load <path/to/file.jsonc>
 If no argument is provided, an empty environment is loaded.
 )";
 
-Nebulite::Constants::Error General::env_deload(int argc,  char* argv[]){
+Nebulite::Constants::Error General::env_deload(int argc,  char** argv){
     domain->purgeObjects();
     domain->purgeTextures();
     return Nebulite::Constants::ErrorTable::NONE();
@@ -56,7 +56,7 @@ std::string const General::env_deload_desc = R"(Deload entire environment, leavi
 Usage: env deload
 )";
 
-Nebulite::Constants::Error General::spawn(int argc,  char* argv[]){
+Nebulite::Constants::Error General::spawn(int argc,  char** argv){
     if(argc>1){
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun
@@ -119,7 +119,7 @@ Looks for object 'sun.jsonc' in the standard directories
 and spawns the first found object.
 )"; 
 
-Nebulite::Constants::Error General::setResolution(int argc,  char* argv[]){
+Nebulite::Constants::Error General::setResolution(int argc,  char** argv){
     int w,h,scalar;
     w = 1000;
     h = 1000;
@@ -146,7 +146,7 @@ Defaults to 1000  for height if argument count < 2
 Defaults to 1     for scale if argument count < 3
 )";
 
-Nebulite::Constants::Error General::setFPS(int argc,  char* argv[]){
+Nebulite::Constants::Error General::setFPS(int argc,  char** argv){
     int fps = 60;
     if(argc == 2){
         fps = std::stoi(argv[1]);
@@ -164,7 +164,7 @@ Usage: set-fps [fps]
 Defaults to 60 fps if no argument is provided
 )";
 
-Nebulite::Constants::Error General::showFPS(int argc,  char* argv[]){
+Nebulite::Constants::Error General::showFPS(int argc,  char** argv){
     if(argc < 2){
         domain->toggleFps(true);
     }
@@ -190,7 +190,7 @@ Usage: show-fps [on|off]
 Defaults to on if no argument is provided
 )";
 
-Nebulite::Constants::Error General::cam_move(int argc,  char* argv[]){
+Nebulite::Constants::Error General::cam_move(int argc,  char** argv){
     if (argc < 3){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -212,7 +212,7 @@ Usage: cam move <dx> <dy>
 <dy> : Delta y to move camera by
 )";
 
-Nebulite::Constants::Error General::cam_set(int argc,  char* argv[]){
+Nebulite::Constants::Error General::cam_set(int argc,  char** argv){
     if(argc == 3){
         int x = std::stoi(argv[1]);
         int y = std::stoi(argv[2]);
@@ -246,7 +246,7 @@ Usage: cam set <x> <y> [c]
 [c] : Optional. If provided, sets the camera's center to the given position.
 )";
 
-Nebulite::Constants::Error General::snapshot(int argc,  char* argv[]){
+Nebulite::Constants::Error General::snapshot(int argc,  char** argv){
     if(argc == 1){
         // No link provided, use default
         bool success = domain->snapshot("./Resources/Snapshots/snapshot.png");
@@ -276,7 +276,7 @@ Usage: snapshot [filename]
 Defaults to "./Resources/Snapshots/snapshot.png" if no argument is provided
 )";
 
-Nebulite::Constants::Error General::beep(int argc,  char* argv[]){
+Nebulite::Constants::Error General::beep(int argc,  char** argv){
     // Beep function for debugging, from SDL
     domain->beep();
     return Nebulite::Constants::ErrorTable::NONE();
@@ -287,7 +287,7 @@ std::string const General::beep_desc = R"(Make a beep noise.
 Usage: beep
 )";
 
-Nebulite::Constants::Error General::selectedObject_get(int argc,  char* argv[]){
+Nebulite::Constants::Error General::selectedObject_get(int argc,  char** argv){
     if (argc != 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -309,7 +309,7 @@ std::string const General::selectedObject_get_desc = R"(Get a renderobject by it
 Usage: selected-object get <id>
 )";
 
-Nebulite::Constants::Error General::selectedObject_Parse(int argc,  char* argv[]){
+Nebulite::Constants::Error General::selectedObject_Parse(int argc,  char** argv){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

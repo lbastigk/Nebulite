@@ -15,7 +15,7 @@ Nebulite::Constants::Error Debug::update(){
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error Debug::print(int argc,  char* argv[]){
+Nebulite::Constants::Error Debug::print(int argc,  char** argv){
     if(argc > 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }

@@ -48,7 +48,7 @@ public:
      * @param argv The argument vector: ...
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error echo(int argc,  char* argv[]);
+    Nebulite::Constants::Error echo(int argc,  char** argv);
     static std::string const echo_name;
     static std::string const echo_desc;
 
@@ -66,7 +66,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error log_all(int argc,  char* argv[]);
+    Nebulite::Constants::Error log_all(int argc,  char** argv);
     static std::string const log_all_name;
     static std::string const log_all_desc;
 
@@ -80,7 +80,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error log_key(int argc,  char* argv[]);
+    Nebulite::Constants::Error log_key(int argc,  char** argv);
     static std::string const log_key_name;
     static std::string const log_key_desc;
 

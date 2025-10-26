@@ -91,7 +91,7 @@ public:
      * @param argv The argument vector: RenderObject as link to json/jsonc file
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error spawn(int argc,  char* argv[]);
+    Nebulite::Constants::Error spawn(int argc,  char** argv);
     static std::string const spawn_name;
     static std::string const spawn_desc;
 
@@ -102,7 +102,7 @@ public:
      * @param argv The argument vector: Environment as link to json/jsonc file
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error env_load(int argc,  char* argv[]);
+    Nebulite::Constants::Error env_load(int argc,  char** argv);
     static std::string const env_load_name;
     static std::string const env_load_desc;
 
@@ -113,7 +113,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error env_deload(int argc,  char* argv[]);
+    Nebulite::Constants::Error env_deload(int argc,  char** argv);
     static std::string const env_deload_name;
     static std::string const env_deload_desc;
 
@@ -131,7 +131,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error setResolution(int argc,  char* argv[]);
+    Nebulite::Constants::Error setResolution(int argc,  char** argv);
     static std::string const setResolution_name;
     static std::string const setResolution_desc;
 
@@ -145,7 +145,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error setFPS(int argc,  char* argv[]);
+    Nebulite::Constants::Error setFPS(int argc,  char** argv);
     static std::string const setFPS_name;
     static std::string const setFPS_desc;
 
@@ -159,7 +159,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error showFPS(int argc,  char* argv[]);
+    Nebulite::Constants::Error showFPS(int argc,  char** argv);
     static std::string const showFPS_name;
     static std::string const showFPS_desc;
 
@@ -170,7 +170,7 @@ public:
      * @param argv The argument vector: <dx> <dy>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error cam_move(int argc,  char* argv[]);
+    Nebulite::Constants::Error cam_move(int argc,  char** argv);
     static std::string const cam_move_name;
     static std::string const cam_move_desc;
 
@@ -184,7 +184,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error cam_set(int argc,  char* argv[]);
+    Nebulite::Constants::Error cam_set(int argc,  char** argv);
     static std::string const cam_set_name;
     static std::string const cam_set_desc;
 
@@ -198,7 +198,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error snapshot(int argc,  char* argv[]);
+    Nebulite::Constants::Error snapshot(int argc,  char** argv);
     static std::string const snapshot_name;
     static std::string const snapshot_desc;
 
@@ -209,7 +209,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error beep(int argc,  char* argv[]);
+    Nebulite::Constants::Error beep(int argc,  char** argv);
     static std::string const beep_name;
     static std::string const beep_desc;
 
@@ -231,7 +231,7 @@ public:
      * This would also make sense, as the Renderer is the owner of the RenderObjects
      * and should thus also be the owner of the selected object reference
      */
-    Nebulite::Constants::Error selectedObject_get(int argc,  char* argv[]);
+    Nebulite::Constants::Error selectedObject_get(int argc,  char** argv);
     static std::string const selectedObject_get_name;
     static std::string const selectedObject_get_desc;
 
@@ -241,7 +241,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error selectedObject_Parse(int argc,  char* argv[]);
+    Nebulite::Constants::Error selectedObject_Parse(int argc,  char** argv);
     static std::string const selectedObject_Parse_name;
     static std::string const selectedObject_Parse_desc;
 

@@ -43,7 +43,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error func_delete(int argc,  char* argv[]);
+    Nebulite::Constants::Error func_delete(int argc,  char** argv);
     static std::string const func_delete_name;
     static std::string const func_delete_desc;
 
@@ -54,7 +54,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error updateText(int argc,  char* argv[]);
+    Nebulite::Constants::Error updateText(int argc,  char** argv);
     static std::string const updateText_name;
     static std::string const updateText_desc;
 
@@ -70,7 +70,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error invoke_reload(int argc,  char* argv[]);
+    Nebulite::Constants::Error invoke_reload(int argc,  char** argv);
     static std::string const invoke_reload_name;
     static std::string const invoke_reload_desc;
 
@@ -83,7 +83,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error invoke_add(int argc,  char* argv[]);
+    Nebulite::Constants::Error invoke_add(int argc,  char** argv);
     static std::string const invoke_add_name;
     static std::string const invoke_add_desc;
 
@@ -96,7 +96,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error invoke_remove(int argc,  char* argv[]);
+    Nebulite::Constants::Error invoke_remove(int argc,  char** argv);
     static std::string const invoke_remove_name;
     static std::string const invoke_remove_desc;
 
@@ -109,7 +109,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error invoke_purge(int argc,  char* argv[]);
+    Nebulite::Constants::Error invoke_purge(int argc,  char** argv);
     static std::string const invoke_purge_name;
     static std::string const invoke_purge_desc;
 

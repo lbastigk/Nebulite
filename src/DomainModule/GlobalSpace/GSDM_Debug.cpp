@@ -113,7 +113,7 @@ Nebulite::Constants::Error Debug::update(){
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error Debug::log_global(int argc,  char* argv[]){
+Nebulite::Constants::Error Debug::log_global(int argc,  char** argv){
     std::string serialized = domain->getDoc()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -134,7 +134,7 @@ Usage: log global [<filenames>...]
                 If no filenames are provided, defaults to 'global.log.jsonc'.
 )";
 
-Nebulite::Constants::Error Debug::log_state(int argc,  char* argv[]){
+Nebulite::Constants::Error Debug::log_state(int argc,  char** argv){
     std::string serialized = domain->getRenderer()->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -177,7 +177,7 @@ Note: This function creates or overwrites the file 'standard.jsonc' in the './Re
  * 
  * Make sure errorFile is a unique_ptr<std::ofstream>
  */
-Nebulite::Constants::Error Debug::errorlog(int argc,  char* argv[]){
+Nebulite::Constants::Error Debug::errorlog(int argc,  char** argv){
     // Initialize the error logging buffer
     if(!originalCerrBuf){
         originalCerrBuf = std::cerr.rdbuf();
@@ -261,7 +261,7 @@ inline void clear_screen(){
     #endif
 }
 
-Nebulite::Constants::Error Debug::clearConsole(int argc,  char* argv[]){
+Nebulite::Constants::Error Debug::clearConsole(int argc,  char** argv){
     if (argc > 1){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
@@ -278,7 +278,7 @@ Note: This function attempts to clear the console screen using system-specific c
         It may not work in all environments or IDEs.
 )";
 
-Nebulite::Constants::Error Debug::crash(int argc,  char* argv[]){
+Nebulite::Constants::Error Debug::crash(int argc,  char** argv){
     // If an argument is provided, use it to select crash type
     if (argc > 1 && argv[1]){
         std::string crashType = argv[1];
@@ -317,7 +317,7 @@ Usage: crash [<type>]
     - throw      : Throws an uncaught exception
 )";
 
-Nebulite::Constants::Error Debug::error(int argc,  char* argv[]){
+Nebulite::Constants::Error Debug::error(int argc,  char** argv){
     for (int i = 1; i < argc; ++i){
         Nebulite::Utility::Capture::cerr() << argv[i];
         if (i < argc - 1){
@@ -337,7 +337,7 @@ Usage: error <string...>
 - <string...>: One or more strings to echo to the standard error.
 )";
 
-Nebulite::Constants::Error Debug::warn(int argc,  char* argv[]){
+Nebulite::Constants::Error Debug::warn(int argc,  char** argv){
     if (argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -353,7 +353,7 @@ Usage: warn <string>
 )";
 
 
-Nebulite::Constants::Error Debug::critical(int argc,  char* argv[]){
+Nebulite::Constants::Error Debug::critical(int argc,  char** argv){
     if (argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -369,7 +369,7 @@ Usage: critical <string>
 - <string>: The critical error message.
 )";
 
-Nebulite::Constants::Error Debug::waitForInput(int argc,  char* argv[]){
+Nebulite::Constants::Error Debug::waitForInput(int argc,  char** argv){
     if (argc > 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }

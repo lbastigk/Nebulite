@@ -50,7 +50,7 @@ public:
      * @param argv Argument values: [in/out/+/-], defaults to in/+.
      * @return Error code.
      */
-    Nebulite::Constants::Error consoleZoom(int argc,  char* argv[]);
+    Nebulite::Constants::Error consoleZoom(int argc,  char** argv);
     static std::string const consoleZoom_name;
     static std::string const consoleZoom_desc;
 
@@ -60,7 +60,7 @@ public:
      * @param argv Argument values: [image_path].
      * @return Error code.
      */
-    Nebulite::Constants::Error consoleSetBackground(int argc,  char* argv[]);
+    Nebulite::Constants::Error consoleSetBackground(int argc,  char** argv);
     static std::string const consoleSetBackground_name;
     static std::string const consoleSetBackground_desc;
 

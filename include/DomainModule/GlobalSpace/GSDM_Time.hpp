@@ -48,7 +48,7 @@ public:
      * @param argv Argument vector: no arguments available.
      * @return Error code indicating success or failure.
      */
-    Nebulite::Constants::Error time_haltOnce(int argc,  char* argv[]);
+    Nebulite::Constants::Error time_haltOnce(int argc,  char** argv);
     static std::string const time_haltOnce_name;
     static std::string const time_haltOnce_desc;
 
@@ -61,7 +61,7 @@ public:
      * @param argv Argument vector: the locks name.
      * @return Error code indicating success or failure.
      */
-    Nebulite::Constants::Error time_lock(int argc,  char* argv[]);
+    Nebulite::Constants::Error time_lock(int argc,  char** argv);
     static std::string const time_lock_name;
     static std::string const time_lock_desc;
 
@@ -74,7 +74,7 @@ public:
      * @param argv Argument vector: the locks name.
      * @return Error code indicating success or failure.
      */
-    Nebulite::Constants::Error time_unlock(int argc,  char* argv[]);
+    Nebulite::Constants::Error time_unlock(int argc,  char** argv);
     static std::string const time_unlock_name;
     static std::string const time_unlock_desc;
 
@@ -87,7 +87,7 @@ public:
      * @param argv Argument vector: no arguments available.
      * @return Error code indicating success or failure.
      */
-    Nebulite::Constants::Error time_masterUnlock(int argc,  char* argv[]);
+    Nebulite::Constants::Error time_masterUnlock(int argc,  char** argv);
     static std::string const time_masterUnlock_name;
     static std::string const time_masterUnlock_desc;
 
@@ -98,7 +98,7 @@ public:
      * @param argv Argument vector: the fixed delta time in milliseconds.
      * @return Error code indicating success or failure.
      */
-    Nebulite::Constants::Error time_setFixedDeltaTime(int argc,  char* argv[]);
+    Nebulite::Constants::Error time_setFixedDeltaTime(int argc,  char** argv);
     static std::string const time_setFixedDeltaTime_name;
     static std::string const time_setFixedDeltaTime_desc;
 

@@ -52,7 +52,7 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error draft_parse(int argc,  char* argv[]);
+    Nebulite::Constants::Error draft_parse(int argc,  char** argv);
     static std::string const draft_parse_name;
     static std::string const draft_parse_desc;
 
@@ -63,7 +63,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error draft_spawn(int argc,  char* argv[]);
+    Nebulite::Constants::Error draft_spawn(int argc,  char** argv);
     static std::string const draft_spawn_name;
     static std::string const draft_spawn_desc;
 
@@ -74,7 +74,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error draft_reset(int argc,  char* argv[]);
+    Nebulite::Constants::Error draft_reset(int argc,  char** argv);
     static std::string const draft_reset_name;
     static std::string const draft_reset_desc;
 
