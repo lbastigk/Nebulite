@@ -30,7 +30,8 @@
  * ```
  */
 
-#pragma once
+#ifndef NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
+#define NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
 
 //------------------------------------------
 // Includes
@@ -109,7 +110,7 @@ public:
      * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
      * @param func Function to call before parsing
      */
-    void setPreParse(std::function<Nebulite::Constants::Error()> func){
+    void setPreParse(std::function<RETURN_TYPE()> func){
         preParse = func;
     }
 
@@ -236,7 +237,7 @@ public:
 
 private:
     // Function to call before parsing (e.g., for setting up variables or locking resources)
-    std::function<Nebulite::Constants::Error()> preParse = nullptr;
+    std::function<RETURN_TYPE()> preParse = nullptr;
 
     // Function pointer type
     using FunctionPtr = std::variant<
@@ -369,7 +370,7 @@ private:
      * @param argc Argument count
      * @param argv Argument vector
      */
-    void processVariableArguments(int& argc, char**& argv){
+    void processVariableArguments(size_t& argc, char**& argv){
         while(argc > 0){
             std::string arg = argv[0];
             if(arg.length() >= 2 && arg.substr(0, 2) == "--" /*same as arg.starts_with("--"), but C++17 compatible*/){
@@ -527,8 +528,8 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
         } else if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(int, char const**)>) {
             functions[name] = FunctionInfo{
                 [obj, mptr](int argc, char** argv) {
-                    std::vector<char const*> argv_const(argc);
-                    for (int i = 0; i < argc; ++i) argv_const[i] = argv[i];
+                    std::vector<char const*> argv_const(static_cast<size_t>(argc));
+                    for (size_t i = 0; i < static_cast<size_t>(argc); ++i) argv_const[i] = argv[i];
                     return (obj->*mptr)(argc, argv_const.data());
                 },
                 helpDescription
@@ -629,7 +630,7 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(st
     std::vector<std::string> tokens = Nebulite::Utility::StringHandler::parseQuotedArguments(cmd);
 
     // Convert to argc/argv
-    int argc = static_cast<int>(tokens.size());
+    size_t argc = tokens.size();
     std::vector<char*> argv_vec;
     argv_vec.reserve(argc + 1);
     std::transform(tokens.begin(), tokens.end(), std::back_inserter(argv_vec),
@@ -668,8 +669,8 @@ template<typename RETURN_TYPE>
 RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::executeFunction(std::string const& name, int argc, char* argv[]) {
     // Call preParse function if set
     if(preParse != nullptr){
-        Nebulite::Constants::Error err = preParse();
-        if(err != Nebulite::Constants::ErrorTable::NONE()){
+        RETURN_TYPE err = preParse();
+        if(err != _standard){
             return err; // Return error if preParse failed
         }
     }
@@ -689,8 +690,8 @@ RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::executeFunc
                 if constexpr (std::is_same_v<T, std::function<RETURN_TYPE(int, char**)>>) {
                     return func(argc, argv);
                 } else if constexpr (std::is_same_v<T, std::function<RETURN_TYPE(int, char const**)>>) {
-                    std::vector<char const*> argv_const(argc);
-                    for (int i = 0; i < argc; ++i) argv_const[i] = argv[i];
+                    std::vector<char const*> argv_const(static_cast<size_t>(argc));
+                    for (size_t i = 0; i < static_cast<size_t>(argc); ++i) argv_const[i] = argv[i];
                     return func(argc, argv_const.data());
                 }
             },
@@ -911,3 +912,4 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::find(std::string c
         }
     }
 }
+#endif // NEBULITE_INCLUDE_INTERACTION_EXECUTION_FUNCTREE_HPP
