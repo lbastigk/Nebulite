@@ -15,43 +15,7 @@ add_compile_definitions(NOMINMAX)
 
 # Windows-specific SDL2 configuration using SDL2 submodules (same as Linux)
 function(configure_windows_sdl2 target_name)
-    message(STATUS "Configuring SDL2 for Windows target: ${target_name}")
-    
-    # Force static linking to avoid DLL dependencies
-    set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)
-    message(STATUS "Windows build: Forced static linking (BUILD_SHARED_LIBS=OFF)")
-    
-    # Configure SDL2 build options to minimize dependencies (same as Linux)
-    set(SDL_SHARED OFF CACHE BOOL "Build SDL2 as shared library" FORCE)
-    set(SDL_STATIC ON CACHE BOOL "Build SDL2 as static library" FORCE)
-    set(SDL_TEST OFF CACHE BOOL "Build SDL2 test programs" FORCE)
-    
-    # Configure SDL2_image build options 
-    set(SDL2IMAGE_INSTALL OFF CACHE BOOL "Disable SDL2_image install" FORCE)
-    set(SDL2IMAGE_SAMPLES OFF CACHE BOOL "Disable SDL2_image samples" FORCE)
-    set(SDL2IMAGE_TESTS OFF CACHE BOOL "Disable SDL2_image tests" FORCE)
-    
-    # Configure SDL2_ttf build options
-    set(SDL2TTF_INSTALL OFF CACHE BOOL "Disable SDL2_ttf install" FORCE)
-    set(SDL2TTF_SAMPLES OFF CACHE BOOL "Disable SDL2_ttf samples" FORCE)
-    set(SDL2TTF_VENDORED ON CACHE BOOL "Use bundled freetype for Windows" FORCE)
-    
-    # Add SDL2 subdirectories in correct order (SDL2 first, then extensions)
-    add_subdirectory(${SDL2_PATH} SDL2 EXCLUDE_FROM_ALL)
-    add_subdirectory(${SDL2_TTF_PATH} SDL2_ttf EXCLUDE_FROM_ALL)
-    add_subdirectory(${SDL2_IMAGE_PATH} SDL2_image EXCLUDE_FROM_ALL)
-    
-    # Use the same SDL2 submodules as Linux
-    message(STATUS "Using SDL2 submodules for Windows cross-compilation")
-    
-    # Link against the static SDL2 libraries built from submodules
-    target_link_libraries(${target_name} PRIVATE
-        SDL2main
-        SDL2-static
-        SDL2_ttf
-        SDL2_image
-        absl::flat_hash_map
-    )
+    message(STATUS "Configuring ${target_name} for Windows, build type: ${CMAKE_BUILD_TYPE}")
     
     # Windows system libraries needed for static linking
     target_link_libraries(${target_name} PRIVATE
