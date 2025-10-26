@@ -101,10 +101,16 @@
     "c-cpp-flylint.cppcheck.extraArgs": [
         "--check-level=exhaustive",
         "--suppress=unusedStructMember",
+        "--suppress=missingIncludeSystem"
     ],
     "c-cpp-flylint.cppcheck.includePaths": [
         "${workspaceFolder}/include",
         "${workspaceFolder}/src"
+    ],
+    "c-cpp-flylint.clang.extraArgs": [
+        "-std=c++20",
+        "-I${workspaceFolder}/include",
+        "-I${workspaceFolder}/src"
     ],
     "c-cpp-flylint.excludeFromWorkspacePaths": [
         "**/external/**",
