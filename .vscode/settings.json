@@ -106,11 +106,10 @@
         "ios": "cpp",
         "locale": "cpp"
     },
+    "clangd.enable": true,
+    "clangd.checkUpdates": true,
+    "clangd.path": "/bin/clangd",
     "clangd.arguments": [
-        "--clang-tidy",
-        "--clang-tidy-checks=-*,clang-analyzer-*",
-        "-isystem ${workspaceFolder}/external/",
-        "-I${workspaceFolder}/include/**",
-        "-I${workspaceFolder}/src/**"
+        "--compile-commands-dir=${workspaceFolder}/tmp/build_linux-debug/"
     ]
 }

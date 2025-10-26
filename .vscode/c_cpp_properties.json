@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "/usr/include/",
-                "/usr/include/c++/15", // Optional, adjust version as needed
+                "/usr/include/c++/15",
+                "${workspaceFolder}/include",
                 "${workspaceFolder}/include/**",
                 "${workspaceFolder}/external/**",
                 "${workspaceFolder}/external/SDL2/include",
@@ -21,6 +22,7 @@
             "cStandard": "c17",
             "cppStandard": "c++20",
             "intelliSenseMode": "linux-clang-x64",
+            "compileCommands": "${workspaceFolder}/tmp/build_linux-debug/compile_commands.json",
             "browse": {
                 "path": [
                     "${workspaceFolder}/include",
