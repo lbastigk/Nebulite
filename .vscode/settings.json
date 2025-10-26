@@ -132,7 +132,8 @@
         "-Wfloat-equal",
         "-Wextra-semi",
         "-Wundef",
-        "-Wno-system-headers"
+        "-Wno-system-headers",
+        "-Wunused-parameter"
     ],
     "c-cpp-flylint.excludeFromWorkspacePaths": [
         "external/**",
