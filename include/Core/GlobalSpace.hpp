@@ -169,27 +169,27 @@ public:
     /**
      * @brief Gets the global queue for function calls.
      */
-    std::deque<std::string>* getTaskQueue(){return &tasks.script.taskQueue;};
+    std::deque<std::string>* getTaskQueue(){ return &tasks.script.taskQueue; }
 
     /**
      * @brief Gets a pointer to the Renderer instance.
      */
-    Nebulite::Core::Renderer* getRenderer(){return &renderer;};
+    Nebulite::Core::Renderer* getRenderer(){ return &renderer; }
 
     /**
      * @brief Gets a pointer to the SDL Renderer instance.
      */
-    SDL_Renderer* getSdlRenderer(){return renderer.getSdlRenderer();};
+    SDL_Renderer* getSdlRenderer(){ return renderer.getSdlRenderer(); }
 
     /**
      * @brief Gets a pointer to the Invoke instance.
      */
-    Nebulite::Interaction::Invoke* getInvoke(){return &invoke;};
+    Nebulite::Interaction::Invoke* getInvoke(){ return &invoke; }
 
     /**
      * @brief Gets a pointer to the global document cache.
      */
-    Nebulite::Utility::DocumentCache* getDocCache(){return &docCache;}
+    Nebulite::Utility::DocumentCache* getDocCache(){ return &docCache; }
 
     //------------------------------------------
     // Public Variables
@@ -234,9 +234,7 @@ public:
      * 
      * @return True if the main loop should continue, false otherwise.
      */
-    bool shouldContinueLoop() const { 
-        return continueLoop; 
-    };
+    bool shouldContinueLoop() const { return continueLoop; }
 
     enum class UniqueIdType{
         EXPRESSION = 0,
