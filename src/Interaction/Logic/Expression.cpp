@@ -89,7 +89,7 @@ std::string Nebulite::Interaction::Logic::Expression::stripContext(std::string c
     }
 }
 
-Nebulite::Interaction::Logic::Expression::Component::From Nebulite::Interaction::Logic::Expression::getContext(const std::string& key) {
+Nebulite::Interaction::Logic::Expression::Component::From Nebulite::Interaction::Logic::Expression::getContext(std::string const& key) {
     if (key.starts_with("self.")) {
         return Component::From::self;
     } else if (key.starts_with("other.")) {
@@ -169,7 +169,7 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::parseIntoComponents(const std::string& expr, std::vector<std::shared_ptr<Component>>& components){
+void Nebulite::Interaction::Logic::Expression::parseIntoComponents(std::string const& expr, std::vector<std::shared_ptr<Component>>& components){
     // First, we must split the expression into tokens
     std::vector<std::string> tokensPhase1, tokens;
 
@@ -226,7 +226,7 @@ void Nebulite::Interaction::Logic::Expression::parseIntoComponents(const std::st
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::readFormatter(std::shared_ptr<Component>& component, const std::string& formatter) {
+void Nebulite::Interaction::Logic::Expression::readFormatter(std::shared_ptr<Component> const& component, std::string const& formatter) {
     // Check formatter. Integer cast should not include precision. Is ignored later on in casting but acceptable as input
     // Examples:
     // $i     : leadingZero = false , alignment = -1 , precision = -1
@@ -257,7 +257,7 @@ void Nebulite::Interaction::Logic::Expression::readFormatter(std::shared_ptr<Com
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(const std::string& token, std::vector<std::shared_ptr<Component>>& components) {
+void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(std::string const& token, std::vector<std::shared_ptr<Component>>& components) {
     // $[leading zero][alignment][.][precision]<type:f,i>
     // - bool leading zero   : on/off
     // - int alignment       : <0 means no formatting
@@ -327,7 +327,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(const std::str
     components.push_back(currentComponent);
 }
 
-void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(const std::string& token, std::vector<std::shared_ptr<Component>>& components) {
+void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(std::string const& token, std::vector<std::shared_ptr<Component>>& components) {
     // Current token is Text
     // Perhaps mixed with variables...
     std::vector<std::string> subTokens = Nebulite::Utility::StringHandler::splitOnSameDepth(token, '{');
@@ -632,7 +632,7 @@ void Nebulite::Interaction::Logic::Expression::updateCaches(Nebulite::Utility::J
 
 
 bool Nebulite::Interaction::Logic::Expression::recalculateIsReturnableAsDouble() {
-    return (entries.size() == 1) && (entries[0].type == Entry::eval) && (entries[0].cast == Entry::CastType::none);
+    return (components.size() == 1) && (components[0]->type == Component::Type::eval) && (components[0]->cast == Component::CastType::none);
 }
 
 bool Nebulite::Interaction::Logic::Expression::recalculateIsAlwaysTrue() {

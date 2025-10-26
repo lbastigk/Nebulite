@@ -446,7 +446,7 @@ private:
      * 
      * @return The context of the key.
      */
-    static Component::From getContext(const std::string& key);
+    static Component::From getContext(std::string const& key);
 
     /**
      * @brief Parses the given expression into a series of components.
@@ -454,7 +454,7 @@ private:
      * @param expr The expression string to parse.
      * @param components The vector to populate with the parsed components.
      */
-    void parseIntoComponents(const std::string& expr, std::vector<std::shared_ptr<Component>>& components);
+    void parseIntoComponents(std::string const& expr, std::vector<std::shared_ptr<Component>>& components);
 
     /**
      * @brief Reads the formatter string from a string and parses it intro the component.
@@ -462,7 +462,7 @@ private:
      * @param component The component to populate with the parsed formatter.
      * @param formatter The formatter string to parse.
      */
-    static void readFormatter(std::shared_ptr<Component>& component, const std::string& formatter);
+    static void readFormatter(std::shared_ptr<Component> const& component, std::string const& formatter);
 
     /**
      * @brief Used to parse a string token of type "eval" into an component.
@@ -476,7 +476,7 @@ private:
      * @param token The token to parse.
      * @param components The vector to push the component onto.
      */
-    void parseTokenTypeEval(const std::string& token, std::vector<std::shared_ptr<Component>>& components);
+    void parseTokenTypeEval(std::string const& token, std::vector<std::shared_ptr<Component>>& components);
 
     /**
      * @brief Used to parse a string token of type "text" into an component.
@@ -490,7 +490,7 @@ private:
      * @param token The token to parse.
      * @param components The vector to push the component onto.
      */
-    void parseTokenTypeText(const std::string& token, std::vector<std::shared_ptr<Component>>& components);
+    void parseTokenTypeText(std::string const& token, std::vector<std::shared_ptr<Component>>& components);
 
     /**
      * @brief Prints a compilation error message to cerr
