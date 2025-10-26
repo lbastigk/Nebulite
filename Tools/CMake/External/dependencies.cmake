@@ -68,9 +68,9 @@ function(setup_external_subdirectories)
     sdl_setup()
 
     # Add SDL2 subdirectories in correct order (SDL2 first, then extensions)
-    add_subdirectory(${SDL2_PATH} SDL2 EXCLUDE_FROM_ALL)
-    add_subdirectory(${SDL2_TTF_PATH} SDL2_ttf EXCLUDE_FROM_ALL)
-    add_subdirectory(${SDL2_IMAGE_PATH} SDL2_image EXCLUDE_FROM_ALL)
+    add_subdirectory(${SDL2_PATH})
+    add_subdirectory(${SDL2_TTF_PATH})
+    add_subdirectory(${SDL2_IMAGE_PATH})
 
     message(STATUS "External subdirectories setup complete")
 endfunction()
