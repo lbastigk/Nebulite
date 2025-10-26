@@ -409,7 +409,7 @@ public:
 	/**
 	 * @brief Gets the current window scale factor.
 	 */
-	unsigned int getWindowScale(){return WindowScale;};
+	unsigned int getWindowScale() { return WindowScale; };
 
 	//------------------------------------------
 	// Texture-Related

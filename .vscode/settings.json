@@ -106,47 +106,11 @@
         "ios": "cpp",
         "locale": "cpp"
     },
-    "c-cpp-flylint.run": "onSave",
-    "c-cpp-flylint.includePaths": [
-        "include/",
-        "include/Constants/",
-        "include/Core/",
-        "include/DomainModule/",
-        "include/DomainModule/Environment/",
-        "include/DomainModule/GlobalSpace/",
-        "include/DomainModule/JSON/",
-        "include/DomainModule/RenderObject/",
-        "include/DomainModule/Renderer/",
-        "include/DomainModule/Texture/",
-        "include/Interaction/",
-        "include/Interaction/Logic/",
-        "include/Utility/",
-        "src/",
-        "src/Core/",
-        "src/DomainModule/",
-        "src/DomainModule/GlobalSpace/",
-        "src/DomainModule/JSON/",
-        "src/DomainModule/RenderObject/",
-        "src/DomainModule/Renderer/",
-        "src/DomainModule/Texture/",
-        "src/Interaction/",
-        "src/Interaction/Logic/",
-        "src/Utility/",
-        "external/abseil/",
-        "external/rapidjson/include/",
-        "external/SDL2/include/",
-        "external/SDL2_image/include/",
-        "external/SDL2_ttf/",
-        "external/tinyexpr/"
-    ],
-    "c-cpp-flylint.cppcheck.enable": true,
-    "c-cpp-flylint.cppcheck.extraArgs": [
-        "--check-level=exhaustive",
-        "-I${workspaceFolder}/external/SDL2_image/include"
-    ],
-    "c-cpp-flylint.clang.enable": true,
-    "c-cpp-flylint.clang.extraArgs": [],
-    "c-cpp-flylint.clang.standard": [
-        "c++20"
+    "clangd.arguments": [
+        "--clang-tidy",
+        "--clang-tidy-checks=-*,clang-analyzer-*",
+        "-isystem ${workspaceFolder}/external/",
+        "-I${workspaceFolder}/include/**",
+        "-I${workspaceFolder}/src/**"
     ]
 }
