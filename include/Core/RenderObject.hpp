@@ -12,8 +12,8 @@
 // Includes
 
 // External
-#include "SDL.h"		// SDL Renderer is used for some methods to calculate text
-#include "SDL_ttf.h"	// Same for ttf
+#include <SDL.h>		// SDL Renderer is used for some methods to calculate text
+#include <SDL_ttf.h>	// Same for ttf
 
 // Nebulite
 #include "Constants/KeyNames.hpp"

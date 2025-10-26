@@ -16,7 +16,7 @@
 #include <deque>
 
 // External
-#include "tinyexpr.h"
+#include <tinyexpr.h>
 
 // Nebulite
 #include "Interaction/Logic/VirtualDouble.hpp"
