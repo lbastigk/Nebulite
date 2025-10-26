@@ -4,7 +4,8 @@
  * Debug functions for the the domain RenderObject.
  */
 
-#pragma once
+#ifndef NEBULITE_DOMAINMODULE_RENDEROBJECT_RODM_DEBUG_HPP
+#define NEBULITE_DOMAINMODULE_RENDEROBJECT_RODM_DEBUG_HPP
 
 //------------------------------------------
 // Includes
@@ -15,16 +16,12 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class RenderObject; // Forward declaration of domain class RenderObject
-    }
+namespace Nebulite::Core {
+    class RenderObject; // Forward declaration of domain class RenderObject
 }
 
 //------------------------------------------
-namespace Nebulite{
-namespace DomainModule{
-namespace RenderObject{
+namespace Nebulite::DomainModule::RenderObject {
 /**
  * @class Nebulite::DomainModule::RenderObject::Debug
  * @brief Debug management for the RenderObject tree DomainModule.
@@ -108,6 +105,5 @@ public:
         bindFunction(&Debug::textureStatus, textureStatus_name, &textureStatus_desc);
     }
 };
-}   // namespace DomainModule
-}   // namespace RenderObject
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::RenderObject
+#endif // NEBULITE_DOMAINMODULE_RENDEROBJECT_RODM_DEBUG_HPP

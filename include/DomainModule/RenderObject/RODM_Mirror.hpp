@@ -3,7 +3,8 @@
  * @brief Header file for the Mirror DomainModule of the RenderObject tree.
  */
 
-#pragma once
+#ifndef NEBULITE_DOMAINMODULE_RENDEROBJECT_RODM_MIRROR_HPP
+#define NEBULITE_DOMAINMODULE_RENDEROBJECT_RODM_MIRROR_HPP
 
 //------------------------------------------
 // Includes
@@ -15,16 +16,12 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class RenderObject; // Forward declaration of domain class RenderObject
-    }
+namespace Nebulite::Core{
+    class RenderObject; // Forward declaration of domain class RenderObject
 }
 
 //------------------------------------------
-namespace Nebulite{
-namespace DomainModule{
-namespace RenderObject{
+namespace Nebulite::DomainModule::RenderObject{
 /**
  * @class Nebulite::DomainModule::RenderObject::Mirror
  * @brief Mirror DomainModule of the RenderObject Domain.
@@ -143,6 +140,5 @@ private:
      */
     Nebulite::Constants::Error setupMirrorKey();
 };
-}   // namespace DomainModule
-}   // namespace RenderObject
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::RenderObject
+#endif // NEBULITE_DOMAINMODULE_RENDEROBJECT_RODM_MIRROR_HPP

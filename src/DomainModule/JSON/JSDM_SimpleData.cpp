@@ -112,8 +112,8 @@ Nebulite::Constants::Error SimpleData::copy(int argc,  char* argv[]){
         // Careful handling required:
         domain->remove_key(targetKey.c_str());
 
-        uint16_t size = domain->memberSize(sourceKey);
-        for (uint16_t i = 0; i < size; ++i){
+        size_t size = domain->memberSize(sourceKey);
+        for (size_t i = 0; i < size; ++i){
             std::string itemKey = sourceKey + "[" + std::to_string(i) + "]";
             std::string itemValue = domain->get<std::string>(itemKey.c_str());
             std::string targetItemKey = targetKey + "[" + std::to_string(i) + "]";

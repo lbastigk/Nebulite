@@ -4,7 +4,8 @@
  * @brief This file defines the Domain class, which serves as a base class for creating a Nebulite domain.
  */
 
-#pragma once
+#ifndef NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
+#define NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
 
 //------------------------------------------
 // Macro to define a new Nebulite Domain class
@@ -45,9 +46,7 @@ namespace Nebulite{
 
 
 //------------------------------------------
-namespace Nebulite{
-namespace Interaction{
-namespace Execution{
+namespace Nebulite::Interaction::Execution{
 /**
  * @class Domain
  * @brief The Domain class serves as a base class for creating a Nebulite domain.
@@ -253,6 +252,5 @@ private:
      */
     Nebulite::Core::GlobalSpace* const global;
 };
-}   // namespace Execution
-}   // namespace Interaction
-}   // namespace Nebulite
+}   // namespace Nebulite::Interaction::Execution
+#endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP

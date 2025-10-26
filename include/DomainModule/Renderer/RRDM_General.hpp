@@ -5,7 +5,8 @@
  * This file contains a DomainModule for basic rendering-related functioncalls.
  */
 
-#pragma once
+#ifndef NEBULITE_DOMAINMODULE_RENDERER_RRDM_GENERAL_HPP
+#define NEBULITE_DOMAINMODULE_RENDERER_RRDM_GENERAL_HPP
 
 //------------------------------------------
 // Includes
@@ -16,17 +17,13 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class Renderer;     // Forward declaration of domain class Renderer
-        class RenderObject; // Forward declaration of RenderObject
-    }
+namespace Nebulite::Core{
+    class Renderer;     // Forward declaration of domain class Renderer
+    class RenderObject; // Forward declaration of RenderObject
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace Renderer {
+namespace Nebulite::DomainModule::Renderer {
 /**
  * @class Nebulite::DomainModule::Renderer::General
  * @brief Basic Renderer-Related Functions
@@ -298,6 +295,5 @@ private:
      */
     Nebulite::Core::RenderObject* selectedRenderObject = nullptr;
 };
-}   // namespace GlobalSpace
-}   // namespace DomainModule
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::Renderer
+#endif // NEBULITE_DOMAINMODULE_RENDERER_RRDM_GENERAL_HPP

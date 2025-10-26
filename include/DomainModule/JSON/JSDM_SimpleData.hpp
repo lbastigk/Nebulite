@@ -3,7 +3,8 @@
  * @brief DomainModule for simple data operations on domain class Nebulite::Utility::JSON
  */
 
-#pragma once
+#ifndef NEBULITE_DOMAINMODULE_JSON_JSDM_SIMPLEDATA_HPP
+#define NEBULITE_DOMAINMODULE_JSON_JSDM_SIMPLEDATA_HPP
 
 //------------------------------------------
 // Includes
@@ -21,9 +22,7 @@ namespace Nebulite{
 }
 
 //------------------------------------------
-namespace Nebulite{
-namespace DomainModule{
-namespace JSON{
+namespace Nebulite::DomainModule::JSON {
 /**
  * @class Nebulite::DomainModule::JSON::SimpleData
  * @brief DomainModule for simple data operations on domain class Nebulite::Utility::JSON
@@ -162,6 +161,5 @@ public:
         bindFunction(&SimpleData::ensureArray,  ensureArray_name,   &ensureArray_desc);
     }
 };
-}   // namespace DomainModule
-}   // namespace JSON
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::JSON
+#endif // NEBULITE_DOMAINMODULE_JSON_JSDM_SIMPLEDATA_HPP

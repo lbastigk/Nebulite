@@ -4,7 +4,8 @@
  * @brief Provides RenderObject creation utilities
  */
 
-#pragma once
+#ifndef NEBULITE_DOMAINMODULE_RENDERER_RRDM_RENDEROBJECTDRAFT_HPP
+#define NEBULITE_DOMAINMODULE_RENDERER_RRDM_RENDEROBJECTDRAFT_HPP
 
 //------------------------------------------
 // Includes
@@ -20,16 +21,12 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class Renderer; // Forward declaration of domain class Renderer
-    }
+namespace Nebulite::Core {
+    class Renderer; // Forward declaration of domain class Renderer
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace Renderer {
+namespace Nebulite::DomainModule::Renderer {
 /**
  * @class Nebulite::DomainModule::Renderer::RenderObjectDraft
  * @brief Utilities for creating and manipulating RenderObjects
@@ -134,6 +131,5 @@ private:
      */
     DraftHolder draft;
 };
-}   // namespace GlobalSpace
-}   // namespace DomainModule
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::Renderer
+#endif // NEBULITE_DOMAINMODULE_RENDERER_RRDM_RENDEROBJECTDRAFT_HPP

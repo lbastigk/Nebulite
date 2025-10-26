@@ -3,7 +3,8 @@
  * @brief Defines a list of double pointers for interaction logic.
  */
 
-#pragma once
+#ifndef NEBULITE_UTILITY_ORDEREDDOUBLEPOINTERS_HPP
+#define NEBULITE_UTILITY_ORDEREDDOUBLEPOINTERS_HPP
 
 //------------------------------------------
 // Includes
@@ -131,4 +132,6 @@ struct MappedOrderedDoublePointers{
 } // namespace Nebulite::Utility
 
 using odpvec = Nebulite::Utility::DynamicFixedArray;
+
+#endif // NEBULITE_UTILITY_ORDEREDDOUBLEPOINTERS_HPP
 

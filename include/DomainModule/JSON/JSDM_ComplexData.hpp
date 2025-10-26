@@ -20,9 +20,7 @@ namespace Nebulite::Utility {
 }
 
 //------------------------------------------
-namespace Nebulite{
-namespace DomainModule{
-namespace JSON{
+namespace Nebulite::DomainModule::JSON {
 /**
  * @class Nebulite::DomainModule::JSON::ComplexData
  * 
@@ -88,6 +86,5 @@ public:
         bindFunction(&ComplexData::jsonSet,  jsonSet_name,  &jsonSet_desc);
     }
 };
-}   // namespace DomainModule
-}   // namespace JSON
-}   // namespace Nebulite
+}   // namespace Nebulite::JSON::DomainModule
+#endif // NEBULITE_DOMAINMODULE_JSON_JSDM_COMPLEXDATA_HPP
