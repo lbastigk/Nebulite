@@ -2,8 +2,8 @@
  * @file ReadOnlyDocs.hpp
  * @brief Defines structures for managing read-only documents.
  */
-
-#pragma once
+#ifndef NEBULITE_UTILITY_READONLYDOCS_HPP
+#define NEBULITE_UTILITY_READONLYDOCS_HPP
 
 //------------------------------------------
 // Includes
@@ -77,7 +77,7 @@ struct ReadOnlyDocs{
 
             // Check the last used time of a random document
             auto it = docs.begin();
-            std::advance(it, rand() % docs.size());
+            std::advance(it, static_cast<size_t>(rand()) % docs.size());
             ReadOnlyDoc* docPtr = &it->second;
 
             // If the document has not been used recently, unload it
@@ -124,3 +124,4 @@ struct ReadOnlyDocs{
         }
 };
 }
+#endif // NEBULITE_UTILITY_READONLYDOCS_HPP
