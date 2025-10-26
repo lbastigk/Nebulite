@@ -3,8 +3,8 @@
  * @brief DomainModule for complex data operations on domain class Nebulite::Utility::JSON
  */
 
-#ifndef NEBULITE_DOMAINMODULE_JSON_JSDM_COMPLEXDATA_HPP
-#define NEBULITE_DOMAINMODULE_JSON_JSDM_COMPLEXDATA_HPP
+#ifndef NEBULITE_JSDM_COMPLEXDATA_HPP
+#define NEBULITE_JSDM_COMPLEXDATA_HPP
 
 //------------------------------------------
 // Includes
@@ -87,4 +87,4 @@ public:
     }
 };
 }   // namespace Nebulite::JSON::DomainModule
-#endif // NEBULITE_DOMAINMODULE_JSON_JSDM_COMPLEXDATA_HPP
+#endif // NEBULITE_JSDM_COMPLEXDATA_HPP

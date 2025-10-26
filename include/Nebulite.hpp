@@ -8,7 +8,8 @@
  * We use a separate file for each namespace to avoid conflicts with doxigen documentation.
  */
 
- #pragma once
+#ifndef NEBULITE_HPP
+#define NEBULITE_HPP
 
 /**
  * @namespace Nebulite
@@ -98,3 +99,4 @@ namespace Nebulite{
     namespace Utility{}
 
 }   // namespace Nebulite
+#endif // NEBULITE_HPP

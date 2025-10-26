@@ -5,7 +5,8 @@
  * This file defines the `ExpressionPool` class.
  */
 
-#pragma once
+#ifndef NEBULITE_INTERACTION_LOGIC_EXPRESSIONPOOL_HPP
+#define NEBULITE_INTERACTION_LOGIC_EXPRESSIONPOOL_HPP
 
 //------------------------------------------
 // Includes
@@ -22,9 +23,7 @@
 #include "Utility/Capture.hpp"
 
 //------------------------------------------
-namespace Nebulite {
-namespace Interaction {
-namespace Logic {
+namespace Nebulite::Interaction::Logic {
 /**
  * @class Nebulite::Interaction::Logic::ExpressionPool
  * @brief A thread-safe pool of Expression instances for concurrent evaluation.
@@ -214,6 +213,5 @@ private:
     // If the expression is just "1", meaning always true
     bool _isAlwaysTrue;
 };
-} // namespace Logic
-} // namespace Interaction
-} // namespace Nebulite
+} // namespace Nebulite::Interaction::Logic
+#endif // NEBULITE_INTERACTION_LOGIC_EXPRESSIONPOOL_HPP

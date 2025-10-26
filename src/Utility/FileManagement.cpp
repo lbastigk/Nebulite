@@ -10,6 +10,9 @@ std::string Nebulite::Utility::FileManagement::CombinePaths(std::string const& b
     return fullPath.string();
 }
 
+/**
+ * @todo Switch back to std::filesystem
+ */
 std::string Nebulite::Utility::FileManagement::LoadFile(std::string const& link){  
     // Use C-style file I/O to avoid locale issues
     FILE* file = fopen(link.c_str(), "rb");

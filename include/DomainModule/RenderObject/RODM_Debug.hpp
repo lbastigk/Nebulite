@@ -4,8 +4,8 @@
  * Debug functions for the the domain RenderObject.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_RENDEROBJECT_RODM_DEBUG_HPP
-#define NEBULITE_DOMAINMODULE_RENDEROBJECT_RODM_DEBUG_HPP
+#ifndef NEBULITE_RODM_DEBUG_HPP
+#define NEBULITE_RODM_DEBUG_HPP
 
 //------------------------------------------
 // Includes
@@ -106,4 +106,4 @@ public:
     }
 };
 }   // namespace Nebulite::DomainModule::RenderObject
-#endif // NEBULITE_DOMAINMODULE_RENDEROBJECT_RODM_DEBUG_HPP
+#endif // NEBULITE_RODM_DEBUG_HPP

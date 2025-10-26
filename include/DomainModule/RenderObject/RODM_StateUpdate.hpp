@@ -4,7 +4,8 @@
  * Contains the RenderObject DomainModule for updating the state of render objects.
  */
 
-#pragma once
+#ifndef NEBULITE_RODM_STATEUPDATE_HPP
+#define NEBULITE_RODM_STATEUPDATE_HPP
 
 //------------------------------------------
 // Includes
@@ -15,16 +16,12 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class RenderObject; // Forward declaration of domain class RenderObject
-    }
+namespace Nebulite::Core {
+    class RenderObject; // Forward declaration of domain class RenderObject
 }
 
 //------------------------------------------
-namespace Nebulite{
-namespace DomainModule{
-namespace RenderObject{
+namespace Nebulite::DomainModule::RenderObject {
 /**
  * @class Nebulite::DomainModule::RenderObject::StateUpdate
  * @brief State update DomainModule of the RenderObject tree.
@@ -136,6 +133,5 @@ public:
         */
     }
 };
-}   // namespace DomainModule
-}   // namespace RenderObject
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::RenderObject
+#endif // NEBULITE_RODM_STATEUPDATE_HPP

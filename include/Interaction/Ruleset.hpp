@@ -4,7 +4,8 @@
  * This file contains the Ruleset struct, representing a single invoke entry of a RenderObject for manipulation.
  */
 
-#pragma once
+#ifndef NEBULITE_INTERACTION_RULESET_HPP
+#define NEBULITE_INTERACTION_RULESET_HPP
 
 //------------------------------------------
 // Includes
@@ -15,15 +16,12 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class RenderObject;
-    }
+namespace Nebulite::Core {
+    class RenderObject; // Forward declaration of RenderObject
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace Interaction {
+namespace Nebulite::Interaction {
 /**
  * @struct Nebulite::Interaction::Ruleset
  * @brief Represents a single invoke entry of a RenderObject for manipulation.
@@ -151,5 +149,5 @@ struct Ruleset{
     Ruleset(Ruleset&&) = delete;
     Ruleset& operator=(Ruleset&&) = delete;
 };
-} // namespace Interaction
-} // namespace Nebulite
+} // namespace Nebulite::Interaction
+#endif // NEBULITE_INTERACTION_RULESET_HPP

@@ -3,7 +3,8 @@
  * @brief A wrapper around rapidjson to simplify JSON manipulation in Nebulite.
  */
 
-#pragma once
+#ifndef NEBULITE_UTILITY_JSON_HPP
+#define NEBULITE_UTILITY_JSON_HPP
 
 //------------------------------------------
 // Includes
@@ -637,3 +638,5 @@ newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValu
     }, 
     var);
 }
+
+#endif // NEBULITE_UTILITY_JSON_HPP

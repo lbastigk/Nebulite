@@ -5,7 +5,8 @@
  * variable assignments in the Nebulite scripting language.
  */
 
-#pragma once
+#ifndef NEBULITE_INTERACTION_LOGIC_ASSIGNMENT_HPP
+#define NEBULITE_INTERACTION_LOGIC_ASSIGNMENT_HPP
 
 //------------------------------------------
 // Includes
@@ -14,9 +15,7 @@
 #include "Interaction/Logic/ExpressionPool.hpp"
 
 //------------------------------------------
-namespace Nebulite {
-namespace Interaction {
-namespace Logic {
+namespace Nebulite::Interaction::Logic {
 /**
  * @struct Nebulite::Interaction::Logic::Assignment
  * @brief Representing a variable assignment in the Nebulite scripting language.
@@ -153,6 +152,5 @@ struct Assignment{
      */
     std::string value;
 };
-} // namespace Logic
-} // namespace Interaction
-} // namespace Nebulite
+} // namespace Nebulite::Interaction::Logic
+#endif // NEBULITE_INTERACTION_LOGIC_ASSIGNMENT_HPP

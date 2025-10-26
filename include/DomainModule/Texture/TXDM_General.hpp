@@ -4,8 +4,8 @@
  * @brief This file contains the DomainModule of the Texture for general functions.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_TEXTURE_TXDM_GENERAL_HPP
-#define NEBULITE_DOMAINMODULE_TEXTURE_TXDM_GENERAL_HPP
+#ifndef NEBULITE_TXDM_GENERAL_HPP
+#define NEBULITE_TXDM_GENERAL_HPP
 
 //------------------------------------------
 // Includes
@@ -55,4 +55,4 @@ public:
     }
 };
 }   // namespace Nebulite::DomainModule::Texture
-#endif // NEBULITE_DOMAINMODULE_TEXTURE_TXDM_GENERAL_HPP
+#endif // NEBULITE_TXDM_GENERAL_HPP

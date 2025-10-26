@@ -4,8 +4,8 @@
  * This file contains the DomainModule of the GlobalSpace to provide console capabilities.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_RENDERER_RRDM_CONSOLE_HPP
-#define NEBULITE_DOMAINMODULE_RENDERER_RRDM_CONSOLE_HPP
+#ifndef NEBULITE_RRDM_CONSOLE_HPP
+#define NEBULITE_RRDM_CONSOLE_HPP
 
 //------------------------------------------
 // Includes
@@ -271,4 +271,4 @@ private:
     Nebulite::Utility::TextInput textInput;
 };
 }   // namespace Nebulite::DomainModule::GlobalSpace
-#endif // NEBULITE_DOMAINMODULE_RENDERER_RRDM_CONSOLE_HPP
+#endif // NEBULITE_RRDM_CONSOLE_HPP

@@ -7,7 +7,8 @@
  * Prioritize later, once some more important features are overhauled.
  */
 
-#pragma once
+#ifndef NEBULITE_TXDM_FILL_HPP
+#define NEBULITE_TXDM_FILL_HPP
 
 //------------------------------------------
 // Includes
@@ -25,9 +26,7 @@ namespace Nebulite{
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace Texture {
+namespace Nebulite::DomainModule::Texture {
 /**
  * @class Nebulite::DomainModule::Texture::Fill
  * @brief DomainModule for fill functions within the Texture.
@@ -60,6 +59,5 @@ public:
         bindFunction(&Fill::fill, fill_name, &fill_desc);
     }
 };
-}   // namespace Texture
-}   // namespace DomainModule
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::Texture
+#endif // NEBULITE_TXDM_FILL_HPP

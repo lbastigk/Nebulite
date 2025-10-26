@@ -4,8 +4,8 @@
  * This file contains the DomainModule of the GlobalSpace for clock management capabilities.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_CLOCK_HPP
-#define NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_CLOCK_HPP
+#ifndef NEBULITE_GSDM_CLOCK_HPP
+#define NEBULITE_GSDM_CLOCK_HPP
 
 //------------------------------------------
 // Includes
@@ -143,4 +143,4 @@ private:
     }
 };
 }   // namespace Nebulite::DomainModule::GlobalSpace
-#endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_CLOCK_HPP
+#endif // NEBULITE_GSDM_CLOCK_HPP

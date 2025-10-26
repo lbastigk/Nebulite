@@ -4,8 +4,8 @@
  * @brief Contains the declaration of the Time DomainModule for the GlobalSpace domain.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_TIME_HPP
-#define NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_TIME_HPP
+#ifndef NEBULITE_GSDM_TIME_HPP
+#define NEBULITE_GSDM_TIME_HPP
 
 //------------------------------------------
 // Includes
@@ -180,4 +180,4 @@ private:
     uint64_t fixedDeltaTime = 0;
 };
 } // namespace Nebulite::DomainModule::GlobalSpace
-#endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_TIME_HPP
+#endif // NEBULITE_GSDM_TIME_HPP

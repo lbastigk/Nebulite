@@ -3,6 +3,9 @@
  * @brief Defines classes for capturing output.
  */
 
+#ifndef NEBULITE_UTILITY_CAPTURE_HPP
+#define NEBULITE_UTILITY_CAPTURE_HPP
+
 #include <iostream>
 #include <sstream>
 #include <deque>
@@ -10,8 +13,6 @@
 #include <mutex>
 
 #include "Utility/StringHandler.hpp"
-
-#pragma once
 
 namespace Nebulite::Utility {
 /**
@@ -128,3 +129,4 @@ private:
     std::mutex outputLogMutex;  // Mutex for thread-safe access to outputLog
 };
 } // namespace Nebulite::Utility
+#endif // NEBULITE_UTILITY_CAPTURE_HPP

@@ -8,8 +8,8 @@
  * @todo Move to Renderer Domain, since it relies on SDL events!
  */
 
-#ifndef NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_INPUT_HPP
-#define NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_INPUT_HPP
+#ifndef NEBULITE_GSDM_INPUT_HPP
+#define NEBULITE_GSDM_INPUT_HPP
 
 //------------------------------------------
 // Includes
@@ -140,4 +140,4 @@ private:
     double* currentKey[SDL_NUM_SCANCODES] = {nullptr}; // Pointers to current key states in global doc
 };
 }   // namespace Nebulite::DomainModule::GlobalSpace
-#endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_GSDM_INPUT_HPP
+#endif // NEBULITE_GSDM_INPUT_HPP
