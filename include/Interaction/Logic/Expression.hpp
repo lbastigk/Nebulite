@@ -63,7 +63,7 @@ public:
      * "$(1+1)"  is returnable as double, as it evaluates to 2
      * "$i(1+1)" is not returnable as double, due to the casting
      * 
-     * An expression needs to consist of a single eval entry with no cast to be returnable as double.
+     * An expression needs to consist of a single eval component with no cast to be returnable as double.
      * 
      * @return True if the expression can be returned as a double, false otherwise.
      */
@@ -112,16 +112,16 @@ private:
     Nebulite::Utility::DocumentCache* globalCache = nullptr;
 
     /**
-     * @struct Nebulite::Interaction::Logic::Expression::Entry
-     * @brief Represents a single entry in an expression.
+     * @struct Nebulite::Interaction::Logic::Expression::Component
+     * @brief Represents a single component in an expression, such as a variable, evaluation, or text.
      * 
      * This struct holds information about a specific part of the expression,
      * including its type, source, and any associated metadata.
      */
-    struct Entry {
+    struct Component {
         /**
-         * @enum Nebulite::Interaction::Logic::Expression::Entry::Type
-         * @brief Represents the type of an expression entry.
+         * @enum Nebulite::Interaction::Logic::Expression::Component::Type
+         * @brief Represents the type of an expression component.
          */
         enum Type {
             variable,   // outside $<cast>(...), Starts with self, other, global or a dot for link, represents a variable reference, outside of an evaluatable context
@@ -130,7 +130,7 @@ private:
         } type = Type::text;
 
         /**
-         * @enum Nebulite::Interaction::Logic::Expression::Entry::From
+         * @enum Nebulite::Interaction::Logic::Expression::Component::From
          * @brief Represents the source of a variable reference.
          */
         enum From {
@@ -142,8 +142,8 @@ private:
         } from = From::None; // Default to None
 
         /**
-         * @enum Nebulite::Interaction::Logic::Expression::Entry::CastType
-         * @brief Represents the type of cast to apply to an expression entry.
+         * @enum Nebulite::Interaction::Logic::Expression::Component::CastType
+         * @brief Represents the type of cast to apply to an expression component.
          */
         enum CastType {
             none,       // No cast -> using pure string
@@ -152,8 +152,8 @@ private:
         } cast = CastType::none; // Default to none
 
         /**
-         * @struct Nebulite::Interaction::Logic::Expression::Entry::Formatter
-         * @brief Represents formatting options for the entry.
+         * @struct Nebulite::Interaction::Logic::Expression::Component::Formatter
+         * @brief Represents formatting options for the component.
          */
         struct Formatter {
             /**
@@ -162,14 +162,14 @@ private:
             bool leadingZero = false;
 
             /**
-             * @brief The alignment width of the entry.
+             * @brief The alignment width of the component.
              * 
              * -1 means no formatting.
              */
             int alignment = -1;
 
             /**
-             * @brief The precision of the entry.
+             * @brief The precision of the component.
              * 
              * -1 means no formatting.
              */
@@ -177,7 +177,7 @@ private:
         } formatter;
 
         /**
-         * @brief Holds the string representation of the entry.
+         * @brief Holds the string representation of the component.
          * 
          * Depending on context Either:
          * 
@@ -190,7 +190,7 @@ private:
         std::string str;
 
         /**
-         * @brief Holds the context-stripped key of the entry, if it's of type variable.
+         * @brief Holds the context-stripped key of the component, if it's of type variable.
          */
         std::string key;
 
@@ -198,6 +198,47 @@ private:
          * @brief Pointer to the tinyexpr representation of the expression.
          */
         te_expr* expression = nullptr;
+
+        /**
+         * @brief Default constructor for Component.
+         */
+        Component() = default;
+
+        /**
+         * @brief Destructor to clean up allocated resources.
+         */
+        ~Component() {
+            te_free(expression);
+        }
+
+        // Delete copy constructor/assignment
+        Component(const Component&) = delete;
+        Component& operator=(const Component&) = delete;
+
+        // Move constructor
+        Component(Component&& other) noexcept
+            : type(other.type), from(other.from), cast(other.cast),
+            formatter(other.formatter), str(std::move(other.str)), key(std::move(other.key)),
+            expression(other.expression)
+        {
+            other.expression = nullptr;
+        }
+
+        // Move assignment
+        Component& operator=(Component&& other) noexcept {
+            if (this != &other) {
+                te_free(expression);
+                type = other.type;
+                from = other.from;
+                cast = other.cast;
+                formatter = other.formatter;
+                str = std::move(other.str);
+                key = std::move(other.key);
+                expression = other.expression;
+                other.expression = nullptr;
+            }
+            return *this;
+        }
     };
 
     using vd_list = std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>;
@@ -274,16 +315,16 @@ private:
     /**
      * @brief Resets the expression to its initial state.
      * 
-     * - Clears all entries
+     * - Clears all components
      * - Clears all variables and re-registers standard functions
      * - Clears all virtual double entries
      */
     void reset();
 
     /**
-     * @brief Holds all parsed entries from the expression.
+     * @brief Holds all parsed components from the expression.
      */
-    std::vector<Entry> entries;
+    std::vector<std::shared_ptr<Component>> components;
 
     /**
      * @brief Holds the full expression as a string.
@@ -314,14 +355,14 @@ private:
     // Helper functions
 
     /**
-     * @brief Compiles an entry, if its of type Expression
+     * @brief Compiles an component, if its of type Expression
      * 
-     * @param entry The entry to potentially compile
+     * @param component The component to potentially compile
      */
-    void compileIfExpression(Entry& entry);
+    void compileIfExpression(std::shared_ptr<Component>& component);
 
     /**
-     * @brief Registers a variable with the given name and key in the context of the entry.
+     * @brief Registers a variable with the given name and key in the context of the component.
      * 
      * Makes sure to only register variables that are not already registered.
      * 
@@ -329,7 +370,7 @@ private:
      * @param key The key in the JSON document that the variable refers to.
      * @param context The context from which the variable is being registered.
      */
-    void registerVariable(std::string te_name, std::string key, Entry::From context);
+    void registerVariable(std::string te_name, std::string key, Component::From context);
 
     /**
      * @brief used to strip any context prefix from a key
@@ -360,60 +401,58 @@ private:
      * 
      * @return The context of the key.
      */
-    static Entry::From getContext(const std::string& key);
+    static Component::From getContext(const std::string& key);
 
     /**
-     * @brief Parses the given expression into a series of entries.
+     * @brief Parses the given expression into a series of components.
      * 
      * @param expr The expression string to parse.
-     * @param entries The vector to populate with the parsed entries.
+     * @param components The vector to populate with the parsed components.
      */
-    void parseIntoEntries(const std::string& expr, std::vector<Entry>& entries);
+    void parseIntoComponents(const std::string& expr, std::vector<std::shared_ptr<Component>>& components);
 
     /**
-     * @brief Reads the formatter string from a string and parses it intro the entry.
+     * @brief Reads the formatter string from a string and parses it intro the component.
      * 
-     * @param entry The entry to populate with the parsed formatter.
+     * @param component The component to populate with the parsed formatter.
      * @param formatter The formatter string to parse.
      */
-    static void readFormatter(Entry* entry, const std::string& formatter);
+    static void readFormatter(std::shared_ptr<Component>& component, const std::string& formatter);
 
     /**
-     * @brief Used to parse a string token of type "eval" into an entry.
+     * @brief Used to parse a string token of type "eval" into an component.
      * 
      * - Parses the token on the assumption that it is of type "eval".
      * 
-     * - Populates the current entry with the parsed information.
+     * - Populates the current component with the parsed information.
      * 
-     * - Pushes the current entry onto the entries vector.
+     * - Pushes the current component onto the components vector.
      * 
      * @param token The token to parse.
-     * @param currentEntry The current entry to populate.
-     * @param entries The vector to push the current entry onto.
+     * @param components The vector to push the component onto.
      */
-    void parseTokenTypeEval(const std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
+    void parseTokenTypeEval(const std::string& token, std::vector<std::shared_ptr<Component>>& components);
 
     /**
-     * @brief Used to parse a string token of type "text" into an entry.
+     * @brief Used to parse a string token of type "text" into an component.
      * 
      * - Parses the token on the assumption that it is of type "text".
      * 
-     * - Populates the current entry with the parsed information.
+     * - Populates the current component with the parsed information.
      * 
-     * - Pushes the current entry onto the entries vector.
+     * - Pushes the current component onto the components vector.
      * 
      * @param token The token to parse.
-     * @param currentEntry The current entry to populate.
-     * @param entries The vector to push the current entry onto.
+     * @param components The vector to push the component onto.
      */
-    void parseTokenTypeText(const std::string& token, Entry& currentEntry, std::vector<Entry>& entries);
+    void parseTokenTypeText(const std::string& token, std::vector<std::shared_ptr<Component>>& components);
 
     /**
      * @brief Prints a compilation error message to cerr
      * 
      * Includes tips for fixing the error.
      */
-    void printCompileError(const Entry& entry, const int error);
+    void printCompileError(const std::shared_ptr<Component>& component, const int error);
 
     /**
      * @brief Updates caches
@@ -421,27 +460,27 @@ private:
     void updateCaches(Nebulite::Utility::JSON* current_other);
 
     /**
-     * @brief Ensures that there is a cache entry for the given other JSON document and expression.
+     * @brief Ensures that there is a cache component for the given other JSON document and expression.
      * 
-     * @param current_other The other JSON document to ensure a cache entry for.
+     * @param current_other The other JSON document to ensure a cache component for.
      * 
      * @return A pointer to the vector of double pointers for the expression in the other document.
      */
-    odpvec* ensure_other_cache_entry(Nebulite::Utility::JSON* current_other);
+    odpvec* ensure_other_cache_component(Nebulite::Utility::JSON* current_other);
 
     /**
-     * @brief Handles the evaluation of a variable entry.
+     * @brief Handles the evaluation of a variable component.
      * 
      * @param token The string to populate with the evaluated value.
-     * @param entry The entry to evaluate.
+     * @param component The component to evaluate.
      * @return True if the evaluation was successful, false otherwise.
      */
-    bool handleEntryTypeVariable(std::string& token, const Entry& entry, Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth);
+    bool handleComponentTypeVariable(std::string& token, const std::shared_ptr<Component>& component, Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth);
 
     /**
-     * @brief Handles the evaluation of an eval entry.
+     * @brief Handles the evaluation of an eval component.
      */
-    void handleEntryTypeEval(std::string& token, const Entry& entry);
+    void handleComponentTypeEval(std::string& token, const std::shared_ptr<Component>& component);
 };
 } // namespace Logic
 } // namespace Interaction

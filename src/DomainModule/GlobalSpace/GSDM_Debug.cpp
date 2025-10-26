@@ -5,6 +5,7 @@
 
 #if defined(_WIN32)
     #include <windows.h>
+    #include <psapi.h>
 #else
     #include <unistd.h>   // isatty, lstat
     #include <sys/stat.h> // struct stat, S_ISLNK
@@ -13,6 +14,7 @@
 #include <memory>
 #include <fstream>
 
+// Platform-specific functions
 namespace {
     /**
      * @brief Safely opens a log file for writing, ensuring it is not a symlink.
@@ -34,9 +36,47 @@ namespace {
         out = std::make_unique<std::ofstream>(filename);
         return out->is_open();
     }
-}
 
+    void getMemoryUsageMB(double& virtualMemMB, double& residentMemMB) {
+        #if defined(_WIN32)
+            PROCESS_MEMORY_COUNTERS_EX pmc;
+            GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
+            virtualMemMB = static_cast<double>(pmc.PrivateUsage) / (1024.0 * 1024.0);
+            residentMemMB = static_cast<double>(pmc.WorkingSetSize) / (1024.0 * 1024.0);
+        #else
+            // derived from
+            // https://stackoverflow.com/questions/669438/how-to-get-memory-usage-at-runtime-using-c
 
+            virtualMemMB  = 0.0;
+            residentMemMB = 0.0;
+
+            // 'file' stat seems to give the most reliable results
+            std::ifstream stat_stream("/proc/self/stat", std::ios_base::in);
+
+            // dummy vars for leading entries in stat that we don't care about
+            //
+            std::string pid, comm, state, ppid, pgrp, session, tty_nr;
+            std::string tpgid, flags, minflt, cminflt, majflt, cmajflt;
+            std::string utime, stime, cutime, cstime, priority, nice;
+            std::string O, itrealvalue, starttime;
+
+            // the two fields we want
+            unsigned long vsize;
+            long rss;
+
+            stat_stream >> pid >> comm >> state >> ppid >> pgrp >> session >> tty_nr
+                        >> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt
+                        >> utime >> stime >> cutime >> cstime >> priority >> nice
+                        >> O >> itrealvalue >> starttime >> vsize >> rss; // don't care about the rest
+
+            stat_stream.close();
+
+            long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
+            virtualMemMB  = vsize / (1024.0 * 1024.0);
+            residentMemMB = rss * page_size_kb / 1024.0;
+        #endif
+    }
+} // anonymous namespace
 
 namespace Nebulite::DomainModule::GlobalSpace {
 const std::string Debug::log_name = "log";
@@ -48,9 +88,25 @@ const std::string Debug::standardfile_desc = R"(Functions to generate standard f
 //------------------------------------------
 // Update
 Nebulite::Constants::Error Debug::update() {
-    // Add Domain-specific updates here!
-    // General rule:
-    // This is used to update all variables/states that are INTERNAL ONLY
+    //------------------------------------------
+    // Memory usage
+
+    // store memory usage in global document
+
+    // Call every second
+    static Nebulite::Utility::TimeKeeper memoryUsagePoller;
+    if(memoryUsagePoller.projected_dt() > 1000 || !memoryUsagePoller.is_running()){
+        double virtualMemMB = 0.0;
+        double residentMemMB = 0.0;
+        getMemoryUsageMB(virtualMemMB, residentMemMB);
+        domain->getDoc()->set<double>("debug.memory.virtualMB", virtualMemMB);
+        domain->getDoc()->set<double>("debug.memory.residentMB", residentMemMB);
+    }
+    if(!memoryUsagePoller.is_running()){
+        memoryUsagePoller.start();
+    }
+
+    //------------------------------------------
     return Nebulite::Constants::ErrorTable::NONE();
 }
 

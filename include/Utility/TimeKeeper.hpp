@@ -99,6 +99,15 @@ public:
     }
 
     /**
+     * @brief Checks if the timer is currently running.
+     * 
+     * @return True if the timer is running, false otherwise.
+     */
+    bool is_running() const {
+        return running;
+    }
+
+    /**
      * @brief Calculates the projected dt if `update()` were to be called.
      * 
      * It does this by simulating the passage of time through a direct `system_clock` call for elapsed time.
