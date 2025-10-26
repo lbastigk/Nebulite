@@ -110,7 +110,9 @@
     "c-cpp-flylint.clang.extraArgs": [
         "-std=c++20",
         "-I${workspaceFolder}/include",
-        "-I${workspaceFolder}/src"
+        "-I${workspaceFolder}/src",
+        "-isystem /usr/include",
+        "-isystem /usr/include/c++/15"
     ],
     "c-cpp-flylint.excludeFromWorkspacePaths": [
         "**/external/**",
