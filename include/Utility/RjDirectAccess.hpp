@@ -156,7 +156,6 @@ public:
      * 
      * @param key The key to search for.
      * @param root The rapidjson value to search within.
-     * 
      * @param finalKey The final key or index of the value to find the parent of.
      * @param arrayIndex The index if the final key is an array index, -1 otherwise.
      * @return A pointer to the parent rapidjson value, or nullptr if not found
@@ -179,6 +178,7 @@ public:
      * 
      * @param doc The rapidjson document to populate.
      * @param serialOrLink The JSON string to deserialize.
+     * @param global Pointer to the GlobalSpace, used for resolving links.
      */
     static void deserialize(rapidjson::Document& doc, std::string const& serialOrLink, Nebulite::Core::GlobalSpace* global);
     
