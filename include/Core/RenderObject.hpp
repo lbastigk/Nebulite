@@ -29,7 +29,7 @@ namespace Nebulite{
 	}
 	namespace Interaction{
 		class Invoke; 		// Forward declaration of interaction class Invoke
-		class Ruleset; 	// Forward declaration of interaction class Ruleset
+		struct Ruleset; 	// Forward declaration of interaction struct Ruleset
 	}
 }
 
