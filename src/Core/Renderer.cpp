@@ -2,6 +2,8 @@
 
 #include "Core/GlobalSpace.hpp"
 #include "DomainModule/RRDM.hpp"
+#include <cstdint>
+#include <sys/types.h>
 
 Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool* flag_headless, unsigned int X, unsigned int Y)
 : 	Nebulite::Interaction::Execution::Domain<Nebulite::Core::Renderer>("Renderer", this, globalSpace->getDoc(), globalSpace),
@@ -47,27 +49,27 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 
 	// Waveform buffers: Sine wave buffer
 	basicAudioWaveforms.sineBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
-	for (int i = 0; i < basicAudioWaveforms.samples; i++){
-		double time = (double)i / basicAudioWaveforms.sampleRate;
-		(*basicAudioWaveforms.sineBuffer)[i] = (Sint16)(32767 * 0.3 * sin(2.0 * M_PI * basicAudioWaveforms.frequency * time));
+	for (size_t i = 0; i < basicAudioWaveforms.samples; i++) {
+		double time = static_cast<double>(i) / basicAudioWaveforms.sampleRate;
+		(*basicAudioWaveforms.sineBuffer)[i] = static_cast<int16_t>(32767 * 0.3 * sin(2.0 * M_PI * basicAudioWaveforms.frequency * time));
 	}
 
 	// Waveform buffers: Square wave buffer
 	basicAudioWaveforms.squareBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
-	for (int i = 0; i < basicAudioWaveforms.samples; i++){
-		double time = (double)i / basicAudioWaveforms.sampleRate;
+	for (size_t i = 0; i < basicAudioWaveforms.samples; i++){
+		double time = static_cast<double>(i) / basicAudioWaveforms.sampleRate;
 
 		// Square wave: alternates between +1 and -1
 		double phase = 2.0 * M_PI * basicAudioWaveforms.frequency * time;
 		double squareValue = (sin(phase) >= 0) ? 1.0 : -1.0;
-		
-		(*basicAudioWaveforms.squareBuffer)[i] = (Sint16)(32767 * 0.3 * squareValue);
+
+		(*basicAudioWaveforms.squareBuffer)[i] = static_cast<int16_t>(32767 * 0.3 * squareValue);
 	}
 
 	// Waveform buffers: Triangle wave buffer
 	basicAudioWaveforms.triangleBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
-	for (int i = 0; i < basicAudioWaveforms.samples; i++){
-		double time = (double)i / basicAudioWaveforms.sampleRate;
+	for (size_t i = 0; i < basicAudioWaveforms.samples; i++){
+		double time = static_cast<double>(i) / basicAudioWaveforms.sampleRate;
 
 		// Triangle wave: linear ramp up and down
 		double phase = fmod(basicAudioWaveforms.frequency * time, 1.0);  // 0 to 1
@@ -78,17 +80,17 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 		} else {
 			triangleValue = 3.0 - 4.0 * phase;      // +1 to -1 (falling)
 		}
-		
-		(*basicAudioWaveforms.triangleBuffer)[i] = (Sint16)(32767 * 0.3 * triangleValue);
+
+		(*basicAudioWaveforms.triangleBuffer)[i] = static_cast<int16_t>(32767 * 0.3 * triangleValue);
 	}
 
 	//------------------------------------------
 	// Set basic values inside global doc
-	getDoc()->set<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),X);	
-	getDoc()->set<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),Y);
+	getDoc()->set<unsigned int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),X);	
+	getDoc()->set<unsigned int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),Y);
 
-	getDoc()->set<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);	
-	getDoc()->set<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);
+	getDoc()->set<unsigned int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);	
+	getDoc()->set<unsigned int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);
 
 	//------------------------------------------
 	// Start timers
@@ -201,7 +203,7 @@ void Nebulite::Core::Renderer::loadFonts(){
 	
 	//------------------------------------------
 	// Load general font
-	font = TTF_OpenFont(fontpath.c_str(), FontSizeGeneral); // Adjust size as needed
+	font = TTF_OpenFont(fontpath.c_str(), static_cast<int>(FontSizeGeneral)); // Adjust size as needed
 	if (font == NULL){
 		// Handle font loading error
 		Nebulite::Utility::Capture::cerr() << TTF_GetError() << " | " << fontpath << "\n";
@@ -261,9 +263,9 @@ void Nebulite::Core::Renderer::append(Nebulite::Core::RenderObject* toAppend){
 	//Append to environment, based on layer
 	env.append(
 		toAppend, 
-		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
-		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0), 
-		toAppend->get(Nebulite::Constants::keyName.renderObject.layer.c_str(), 0)
+		getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
+		getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0), 
+		toAppend->get<uint8_t>(Nebulite::Constants::keyName.renderObject.layer.c_str(), 0)
 	);
 
 	//Load texture
@@ -283,7 +285,8 @@ void Nebulite::Core::Renderer::reinsertAllObjects(){
 void Nebulite::Core::Renderer::beep(){
 	// Beep sound effect
 	if(audioInitialized){
-		SDL_QueueAudio(audio.device, basicAudioWaveforms.squareBuffer->data(), basicAudioWaveforms.samples * sizeof(Sint16));
+		uint32_t audioLength = static_cast<uint32_t>(basicAudioWaveforms.samples * sizeof(int16_t));
+		SDL_QueueAudio(audio.device, basicAudioWaveforms.squareBuffer->data(), audioLength);
 		SDL_PauseAudioDevice(audio.device, 0);  // Start playing
 	}
 }
@@ -394,7 +397,7 @@ void Nebulite::Core::Renderer::destroy(){
 //------------------------------------------
 // Manipulation
 
-void Nebulite::Core::Renderer::changeWindowSize(int w, int h, int scalar){
+void Nebulite::Core::Renderer::changeWindowSize(int w, int h, uint16_t scalar){
 	WindowScale = scalar;
 	if(w < 240 || w > 16384){
 		Nebulite::Utility::Capture::cerr() << "Selected resolution is not supported:" << w << "x" << h << "x" << Nebulite::Utility::Capture::endl;
@@ -437,7 +440,7 @@ void Nebulite::Core::Renderer::moveCam(int dX, int dY){
 		Nebulite::Constants::keyName.renderer.positionY.c_str(),
 		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0) + dY
 	);
-};
+}
 
 void Nebulite::Core::Renderer::setCam(int X, int Y, bool isMiddle){
 	Nebulite::Utility::Capture::cout() << "Setting camera position to: " << X << ", " << Y << ", Middle: " << isMiddle << Nebulite::Utility::Capture::endl;
@@ -452,12 +455,12 @@ void Nebulite::Core::Renderer::setCam(int X, int Y, bool isMiddle){
 		getDoc()->set<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),X);
 		getDoc()->set<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),Y);
 	}
-};
+}
 
 //------------------------------------------
 // Setting
 
-void Nebulite::Core::Renderer::setTargetFPS(int fps){
+void Nebulite::Core::Renderer::setTargetFPS(uint16_t fps){
 	if (fps > 0){
 		TARGET_FPS = fps;
 		TARGET_TICKS_PER_FRAME = 1000 / TARGET_FPS;
@@ -487,8 +490,8 @@ void Nebulite::Core::Renderer::updateState(Nebulite::Interaction::Invoke* invoke
 	invoke_ptr->update();
 
 	// Update environment
-	int dispResX = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
-	int dispResY = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
+	uint16_t dispResX = getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
+	uint16_t dispResY = getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
 	env.update(tileXpos,tileYpos,dispResX,dispResY);
 }
 
@@ -497,13 +500,13 @@ void Nebulite::Core::Renderer::renderFrame(){
 	// Store for faster access
 
 	// Get camera position
-	int dispPosX = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);
-	int dispPosY = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);
+	int16_t dispPosX = getDoc()->get<int16_t>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);
+	int16_t dispPosY = getDoc()->get<int16_t>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);
 
 	// Depending on position, set tiles to render
-	tileXpos = dispPosX / getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
-	tileYpos = dispPosY / getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
-	
+	tileXpos = dispPosX / getDoc()->get<int16_t>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0);
+	tileYpos = dispPosY / getDoc()->get<int16_t>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0);
+
 	//------------------------------------------
 	// FPS Count and Control
 	
@@ -527,7 +530,7 @@ void Nebulite::Core::Renderer::renderFrame(){
 	//For all layers, starting at 0
 	for (auto layer : *(env.getAllLayers())){
 		// Get all tile positions to render
-		std::vector<std::pair<int, int>> tilesToRender;
+		std::vector<std::pair<int16_t, int16_t>> tilesToRender;
 		for (int dX = (tileXpos == 0 ? 0 : -1); dX <= 1; dX++){
 			for (int dY = (tileYpos == 0 ? 0 : -1); dY <= 1; dY++){
 				if (env.isValidPosition(tileXpos + dX, tileYpos + dY, layer)){
@@ -630,7 +633,7 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 }
 
 void Nebulite::Core::Renderer::renderFPS(double scalar){
-	scalar = scalar / (double)WindowScale;
+	scalar = scalar / static_cast<double>(WindowScale);
 
 	// Create a string with the FPS value
 	std::string fpsText = "FPS: " + std::to_string(REAL_FPS);
@@ -638,9 +641,9 @@ void Nebulite::Core::Renderer::renderFPS(double scalar){
 	double fontSize = 16;
 
 	// Define the destination rectangle for rendering the text
-	SDL_Rect textRect = { (int)(scalar*10.0), (int)(scalar*10.0), 0, 0 }; // Adjust position as needed
-	textRect.w = scalar * fontSize * fpsText.length(); // Width based on text length
-	textRect.h = (int)((double)fontSize * 1.5 * scalar);
+	SDL_Rect textRect = { static_cast<int>(scalar*10.0), static_cast<int>(scalar*10.0), 0, 0 }; // Adjust position as needed
+	textRect.w = static_cast<int>(scalar * fontSize * static_cast<int>(fpsText.length())); // Width based on text length
+	textRect.h = static_cast<int>(fontSize * 1.5 * scalar);
 
 	// Clear the area where the FPS text will be rendered
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Set background color (black)

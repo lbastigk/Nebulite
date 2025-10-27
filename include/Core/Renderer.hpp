@@ -257,7 +257,7 @@ public:
 	/**
 	 * @brief Sets the target FPS for the renderer.
 	 */
-	void setTargetFPS(int fps);
+	void setTargetFPS(uint16_t fps);
 
 	/**
 	 * @brief Sets the camera position.
@@ -278,7 +278,7 @@ public:
 	 * @param h The new pixel height of the window.
 	 * @param scalar The scaling factor to apply.
 	 */
-	void changeWindowSize(int w, int h, int scalar);
+	void changeWindowSize(int w, int h, uint16_t scalar);
 
 	/**
 	 * @brief Moves the camera by a certain amount.
@@ -325,7 +325,7 @@ public:
 	 * 
 	 * @return The current FPS.
 	 */
-	int getFPS(){return REAL_FPS;}
+	uint16_t getFPS(){return REAL_FPS;}
 
 	/**
 	 * @brief Gets the current position of the camera in the X direction.
@@ -352,7 +352,7 @@ public:
 	 * 
 	 * @return The current tile position of the camera in the X direction.
 	 */
-	unsigned int getTileXpos(){return tileXpos;}
+	int16_t getTileXpos(){return tileXpos;}
 
 	/**
 	 * @brief Gets the current tile position of the camera in the Y direction.
@@ -361,7 +361,7 @@ public:
 	 * 
 	 * @return The current tile position of the camera in the Y direction.
 	 */
-	unsigned int getTileYpos(){return tileYpos;}
+	int16_t getTileYpos(){return tileYpos;}
 
 	/**
 	 * @brief Gets the SDL_Renderer instance.
@@ -462,10 +462,10 @@ private:
 	} audio;
 	
 	struct BasicAudioWaveforms{
-		int const frequency = 440;  // 440 Hz beep
-		int const duration = 200;   // 200ms
-		int const sampleRate = 44100;
-		int const samples = (sampleRate * duration) / 1000;
+		double const frequency = 440.0;  		// 440 Hz beep
+		double const duration = 200.0;   		// 200ms
+		double const sampleRate = 44100.0;
+		size_t const samples = static_cast<size_t>((sampleRate * duration) / 1000.0);	// Number of samples
 		std::vector<int16_t>* sineBuffer = nullptr;
 		std::vector<int16_t>* squareBuffer = nullptr;
 		std::vector<int16_t>* triangleBuffer = nullptr;
@@ -485,14 +485,14 @@ private:
 	uint32_t renderobject_id_counter = 1;
 
 	// Positions
-	uint16_t tileXpos;
-	uint16_t tileYpos;
+	int16_t tileXpos;
+	int16_t tileYpos;
 
 	// Custom Subclasses
 	Environment env;
 
 	// Rendering
-	unsigned int WindowScale = 1;
+	uint16_t WindowScale = 1;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 
