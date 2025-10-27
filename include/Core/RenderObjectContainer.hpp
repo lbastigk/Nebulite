@@ -99,7 +99,7 @@ public:
 	 * @param dispResX Display resolution width for tile placement.
 	 * @param dispResY Display resolution height for tile placement.
 	 */
-	void append(Nebulite::Core::RenderObject* toAppend, int dispResX, int dispResY);
+	void append(Nebulite::Core::RenderObject* toAppend, uint16_t dispResX, uint16_t dispResY);
 
 	/**
 	 * @brief Reinserts all objects into the container.
