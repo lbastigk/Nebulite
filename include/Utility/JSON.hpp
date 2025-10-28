@@ -14,11 +14,10 @@
 #include <cmath>
 #include <typeinfo>
 #include <cxxabi.h>
-#include <iostream>
 #include <string>
 #include <variant>
 #include <type_traits>
-#include <typeindex>
+#include <thread>
 
 // External
 #include <absl/container/flat_hash_map.h>
@@ -26,10 +25,9 @@
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Interaction/Execution/Domain.hpp"
-#include "Utility/FileManagement.hpp"           // TODO: remove dependency. If there are any usages, use global->docCache instead!
 #include "Utility/RjDirectAccess.hpp"
 #include "Utility/OrderedDoublePointers.hpp"
-#include "Utility/Time.hpp"
+
 
 #define JSON_UID_QUICKCACHE_SIZE 30 // First 30 keys get a quickcache entry for double pointers!
 

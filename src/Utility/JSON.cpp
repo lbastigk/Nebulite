@@ -4,6 +4,7 @@
 #include "Constants/ErrorTypes.hpp"
 #include "DomainModule/JSDM.hpp"
 
+
 Nebulite::Utility::JSON::JSON(Nebulite::Core::GlobalSpace* globalSpace)
 : Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, globalSpace)
 {
