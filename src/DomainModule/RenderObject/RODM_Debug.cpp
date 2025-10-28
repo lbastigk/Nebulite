@@ -10,6 +10,7 @@ std::string const Debug::debug_desc = R"(Debugging functions for RenderObject)";
 
 //------------------------------------------
 // Update
+
 Nebulite::Constants::Error Debug::update(){
     // For on-tick-updates
     return Nebulite::Constants::ErrorTable::NONE();

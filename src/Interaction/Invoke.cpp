@@ -2,8 +2,6 @@
 
 #include "Core/GlobalSpace.hpp"
 #include "Core/RenderObject.hpp"
-#include "Utility/StringHandler.hpp"
-#include <limits>
 
 //------------------------------------------
 // Constructor / Destructor
@@ -167,7 +165,7 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::
             Nebulite::Utility::Capture::cerr() << "Assignment expression has null operation - skipping" << Nebulite::Utility::Capture::endl;
             break;
         default:
-            Nebulite::Utility::Capture::cerr() << "Unknown operation type! Enum value:" << (int)operation << Nebulite::Utility::Capture::endl;
+            Nebulite::Utility::Capture::cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << Nebulite::Utility::Capture::endl;
             break;
     }
 }
@@ -191,7 +189,7 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::
             Nebulite::Utility::Capture::cerr() << "Assignment expression has null operation - skipping" << Nebulite::Utility::Capture::endl;
             break;
         default:
-            Nebulite::Utility::Capture::cerr() << "Unknown operation type! Enum value:" << (int)operation << Nebulite::Utility::Capture::endl;
+            Nebulite::Utility::Capture::cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << Nebulite::Utility::Capture::endl;
             break;
     }
 }
@@ -215,7 +213,7 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Nebulite::Interaction::Logic::
             Nebulite::Utility::Capture::cerr() << "Assignment expression has null operation - skipping" << Nebulite::Utility::Capture::endl;
             break;
         default:
-            Nebulite::Utility::Capture::cerr() << "Unknown operation type! Enum value:" << (int)operation << Nebulite::Utility::Capture::endl;
+            Nebulite::Utility::Capture::cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << Nebulite::Utility::Capture::endl;
             break;
     }
 }
@@ -242,7 +240,7 @@ void Nebulite::Interaction::Invoke::applyAssignment(Nebulite::Interaction::Logic
         Nebulite::Utility::Capture::cerr() << "Assignment expression has null type - skipping" << Nebulite::Utility::Capture::endl;
         return; // Skip this expression
     default:
-        Nebulite::Utility::Capture::cerr() << "Unknown assignment type: " << (int)assignment.onType << Nebulite::Utility::Capture::endl;
+        Nebulite::Utility::Capture::cerr() << "Unknown assignment type: " << static_cast<int>(assignment.onType) << Nebulite::Utility::Capture::endl;
         return; // Exit if unknown type
     }
 

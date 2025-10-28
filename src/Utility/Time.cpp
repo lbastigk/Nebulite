@@ -1,6 +1,8 @@
 #include "Utility/Time.hpp"
 
+#include <thread>
 #include <array>
+#include <chrono>
 
 std::string Nebulite::Utility::Time::TimeIso8601(Time::ISO8601FORMATTER format, bool local){
     char const* fmt = "%FT%TZ";

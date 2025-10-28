@@ -1,5 +1,6 @@
 #include "DomainModule/RenderObject/RODM_Logging.hpp"
 #include "Core/RenderObject.hpp"
+#include "Utility/FileManagement.hpp"
 
 namespace Nebulite::DomainModule::RenderObject{
 

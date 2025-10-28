@@ -10,9 +10,8 @@
 // Includes
 
 // Standard Library
-#include <thread>
-#include <iostream>
-#include <sstream>
+#include <string>
+#include <cstdint>
 
 //------------------------------------------
 namespace Nebulite::Utility {

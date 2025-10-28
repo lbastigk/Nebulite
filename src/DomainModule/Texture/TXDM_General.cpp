@@ -1,5 +1,6 @@
 #include "DomainModule/Texture/TXDM_General.hpp"
 
+#include "Constants/KeyNames.hpp"
 #include "Core/Texture.hpp"
 #include "Utility/JSON.hpp"
 
