@@ -10,9 +10,14 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <fstream>
+#include <memory>
+
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
+
 
 //------------------------------------------
 // Forward declarations

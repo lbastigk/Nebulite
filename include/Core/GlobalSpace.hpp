@@ -13,7 +13,7 @@
 //------------------------------------------
 // Includes
 
-// Standard Library
+// Standard library
 #include <deque>
 
 // Nebulite

@@ -10,17 +10,9 @@
 //------------------------------------------
 // Includes
 
-// Standard Library
-#include <filesystem>
+// Standard library
 #include <string>
-#include <cstring>
-#include <iostream>
-#include <sstream>
-#include <fstream>
 #include <string>
-
-// Nebulite
-#include "Utility/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility {

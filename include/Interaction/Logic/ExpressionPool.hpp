@@ -11,7 +11,7 @@
 //------------------------------------------
 // Includes
 
-// Standard Library
+// Standard library
 #include <array>
 #include <mutex>
 #include <string>

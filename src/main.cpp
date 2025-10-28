@@ -85,5 +85,5 @@ int main(int argc, char* argv[]){
     globalSpace.parseStr(binaryName + " " + Nebulite::DomainModule::GlobalSpace::Debug::errorlog_name + " off");
 
     // Return 1 on critical stop, 0 otherwise
-    return (int)criticalStop;
+    return static_cast<int>(criticalStop);
 }

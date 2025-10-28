@@ -10,7 +10,7 @@
 //------------------------------------------
 // Includes
 
-// Standard Library
+// Standard library
 #include <unordered_set>
 
 // Nebulite

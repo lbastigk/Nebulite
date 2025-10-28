@@ -11,7 +11,7 @@
 //------------------------------------------
 // Includes
 
-// Standard Library
+// Standard library
 #include <random>
 #include <stdint.h>
 

@@ -1,5 +1,11 @@
 #include "Utility/FileManagement.hpp"
 
+#include <filesystem>
+#include <cstring>
+#include <iostream>
+#include <fstream>
+#include "Utility/Capture.hpp"
+
 //------------------------------------------
 // Nebulite::Utility::FileManagement Functions
 
