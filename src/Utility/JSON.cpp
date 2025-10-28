@@ -1,9 +1,10 @@
 #include "Utility/JSON.hpp"
 
+#include <cfloat>
+
 #include "Core/GlobalSpace.hpp"
 #include "Constants/ErrorTypes.hpp"
 #include "DomainModule/JSDM.hpp"
-
 
 Nebulite::Utility::JSON::JSON(Nebulite::Core::GlobalSpace* globalSpace)
 : Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, globalSpace)
@@ -76,7 +77,7 @@ void Nebulite::Utility::JSON::flush(){
     std::lock_guard<std::recursive_mutex> lockGuard(mtx);
     for (auto& [key, entry] : cache){
         // If double values changed, mark dirty
-        if(entry->last_double_value != *(entry->stable_double_ptr)){
+        if(std::abs(entry->last_double_value - *(entry->stable_double_ptr)) > DBL_EPSILON){
             entry->state = EntryState::DIRTY;
             entry->last_double_value = *(entry->stable_double_ptr);
             entry->value = *(entry->stable_double_ptr);

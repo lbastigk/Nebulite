@@ -13,7 +13,8 @@
 // Standard Library
 #include <string>
 #include <memory>
-#include <deque>
+#include <cfloat>
+#include <cmath>
 
 // External
 #include <tinyexpr.h>
@@ -309,68 +310,63 @@ private:
      */
     class expr_custom{
     public:
-        /**
-         * @brief Epsilon value for floating-point comparisons.
-         */
-        static constexpr double epsilon = 1e-9;
-
         // Logical comparison functions
         static double gt(double a, double b){return a > b;}
         static double lt(double a, double b){return a < b;}
         static double geq(double a, double b){return a >= b;}
         static double leq(double a, double b){return a <= b;}
         static double eq(double a, double b){
-            return (std::fabs(a - b) < epsilon);
+            return (std::fabs(a - b) < DBL_EPSILON);
         }
         static double neq(double a, double b){
-            return !(std::fabs(a - b) > epsilon);
+            return !(std::fabs(a - b) > DBL_EPSILON);
         }
 
         // Logical gate functions
         static double logical_not(double a){
-            return !(std::fabs(a) > epsilon);
+            return !(std::fabs(a) > DBL_EPSILON);
         }
 
         static double logical_and(double a, double b){
-            bool aLogical = (std::fabs(a) > epsilon);
-            bool bLogical = (std::fabs(b) > epsilon);
+            bool aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool bLogical = (std::fabs(b) > DBL_EPSILON);
             return static_cast<double>(aLogical && bLogical);
         }
         static double logical_or(double a, double b){
-            bool aLogical = (std::fabs(a) > epsilon);
-            bool bLogical = (std::fabs(b) > epsilon);
+            bool aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool bLogical = (std::fabs(b) > DBL_EPSILON);
             return static_cast<double>(aLogical || bLogical);
         }
         static double logical_xor(double a, double b){
-            bool aLogical = (std::fabs(a) > epsilon);
-            bool bLogical = (std::fabs(b) > epsilon);
+            bool aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool bLogical = (std::fabs(b) > DBL_EPSILON);
             return static_cast<double>(aLogical != bLogical);
         }
 
         static double logical_nand(double a, double b){
-            bool aLogical = (std::fabs(a) > epsilon);
-            bool bLogical = (std::fabs(b) > epsilon);
+            bool aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool bLogical = (std::fabs(b) > DBL_EPSILON);
             return !(aLogical && bLogical);
         }
         static double logical_nor(double a, double b){
-            bool aLogical = (std::fabs(a) > epsilon);
-            bool bLogical = (std::fabs(b) > epsilon);
+            bool aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool bLogical = (std::fabs(b) > DBL_EPSILON);
             return static_cast<double>(!(aLogical || bLogical));
         }
         static double logical_xnor(double a, double b){
-            bool aLogical = (std::fabs(a) > epsilon);
-            bool bLogical = (std::fabs(b) > epsilon);
+            bool aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool bLogical = (std::fabs(b) > DBL_EPSILON);
             return static_cast<double>(!( (aLogical || bLogical) && !(aLogical && bLogical) ));
         }
 
         // Other logical functions
         static double to_bipolar(double a){
-            return (std::fabs(a) > epsilon) ? 1 : -1;
+            return (std::fabs(a) > DBL_EPSILON) ? 1 : -1;
         }
 
         // Mapping functions
         static double map(double value, double in_min, double in_max, double out_min, double out_max){
-            if(std::fabs(in_max - in_min) < epsilon) return out_min; // Prevent division by zero
+            if(std::fabs(in_max - in_min) < DBL_EPSILON) return out_min; // Prevent division by zero
             if(value < in_min) return out_min;
             if(value > in_max) return out_max;
             return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;

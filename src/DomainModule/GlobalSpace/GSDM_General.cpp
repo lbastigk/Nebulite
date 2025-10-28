@@ -198,10 +198,7 @@ Nebulite::Constants::Error General::func_if(int argc,  char** argv){
 
     std::string result = domain->eval(argv[1]);
     double condition_potentially_nan = std::stod(result);
-
-    static const double epsilon = 1e-10;
-    bool condition = !isnan(condition_potentially_nan) && (std::abs(condition_potentially_nan) > epsilon);
-
+    bool condition = !isnan(condition_potentially_nan) && (std::abs(condition_potentially_nan) > DBL_EPSILON);
     if (!condition){
         // If the condition is false, skip the following commands
         return Nebulite::Constants::ErrorTable::NONE();
