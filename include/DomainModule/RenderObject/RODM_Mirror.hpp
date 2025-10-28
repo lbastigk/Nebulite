@@ -9,7 +9,7 @@
 //------------------------------------------
 // Includes
 
-// General
+// Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Constants/KeyNames.hpp"
 #include "Interaction/Execution/DomainModule.hpp"

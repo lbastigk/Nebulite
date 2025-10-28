@@ -9,7 +9,7 @@
 //------------------------------------------
 // Includes
 
-// General
+// Standard Library
 #include <mutex>
 #include <cmath>
 #include <typeinfo>

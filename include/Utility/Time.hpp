@@ -9,7 +9,7 @@
 //------------------------------------------
 // Includes
 
-// General
+// Standard Library
 #include <thread>
 #include <iostream>
 #include <sstream>

@@ -8,7 +8,7 @@
 //------------------------------------------
 // Includes
 
-// Standard library
+// Standard Library
 #include <stdexcept>
 
 // Nebulite

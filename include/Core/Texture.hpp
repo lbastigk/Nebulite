@@ -17,7 +17,6 @@
 #include <SDL_ttf.h>
 
 // Nebulite
-#include "Constants/KeyNames.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
@@ -51,7 +50,7 @@ public:
         if(texture != nullptr && textureStoredLocally){
             SDL_DestroyTexture(texture);
         }
-    };
+    }
 
     /**
      * @brief Updates the texture.

@@ -11,7 +11,7 @@
 //------------------------------------------
 // Includes
 
-// General
+// Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 

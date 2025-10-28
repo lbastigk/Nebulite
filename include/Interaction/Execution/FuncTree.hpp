@@ -36,7 +36,7 @@
 //------------------------------------------
 // Includes
 
-// General
+// Standard Library
 #include <iostream>
 #include <vector>
 

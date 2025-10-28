@@ -44,10 +44,7 @@
  * Target cost of each Render::update thread batch.
  */
 #define BATCH_COST_GOAL 250
-
-
-
-/*
+/**
 RESULTS using ./bin/Nebulite task TaskFiles/Benchmarks/spawn_constantly.nebs 
 
 Date            Result      THREADED_MIN_BATCHSIZE  BATCH_COST_GOAL INVOKE_EXPR_POOL_SIZE

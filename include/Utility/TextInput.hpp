@@ -9,7 +9,7 @@
 //------------------------------------------
 // Includes
 
-// General
+// Standard Library
 #include <deque>
 #include <vector>
 #include <string>

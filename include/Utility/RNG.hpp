@@ -9,7 +9,7 @@
 //------------------------------------------
 // Includes
 
-// General
+// Standard Library
 #include <string>
 #include <cstdint>
 

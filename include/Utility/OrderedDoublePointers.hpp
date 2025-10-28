@@ -9,7 +9,7 @@
 //------------------------------------------
 // Includes
 
-// Standard library
+// Standard Library
 #include <vector>
 #include <mutex>
 

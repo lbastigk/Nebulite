@@ -14,7 +14,7 @@
 //------------------------------------------
 // Includes
 
-// General
+// External
 #include <SDL.h>    // Needed to access SDL input events
 
 // Nebulite

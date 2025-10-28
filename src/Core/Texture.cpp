@@ -1,7 +1,8 @@
 #include "Core/Texture.hpp"
-#include "DomainModule/TXDM.hpp"
 
+#include "Constants/KeyNames.hpp"
 #include "Core/GlobalSpace.hpp"
+#include "DomainModule/TXDM.hpp"
 
 Nebulite::Core::Texture::Texture(Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* globalSpace) 
 :   Nebulite::Interaction::Execution::Domain<Texture>("Texture", this, doc, globalSpace), 
