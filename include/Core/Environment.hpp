@@ -24,6 +24,7 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite{
 	namespace Core{
 		class GlobalSpace; // Forward declaration of core class GlobalSpace
@@ -31,8 +32,7 @@ namespace Nebulite{
 }
 
 //------------------------------------------
-namespace Nebulite{
-namespace Core{
+namespace Nebulite::Core{
 /**
  * @class Nebulite::Core::Environment
  * @brief Represents the container of all render objects loaded in memory.
@@ -219,7 +219,6 @@ private:
 	// Inner RenderObject container layers
 	std::array<Nebulite::Core::RenderObjectContainer, Nebulite::Core::Environment::LayerCount> roc;
 };
-} // namespace Core
-} // namespace Nebulite
+} // namespace Nebulite::Core
 
 #endif // NEBULITE_CORE_ENVIRONMENT_HPP
