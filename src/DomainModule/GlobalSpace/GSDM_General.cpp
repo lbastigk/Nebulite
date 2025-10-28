@@ -99,7 +99,8 @@ This is useful for:
 )";
 
 Nebulite::Constants::Error General::task(int argc,  char** argv){
-    Nebulite::Utility::Capture::cout() << "Loading task list from file: " << (argc > 1 ? argv[1] : "none") << Nebulite::Utility::Capture::endl;
+    std::string message = "Loading task list from file: " + (argc > 1 ? std::string(argv[1]) : "none");
+    logln(message);
 
     // Rollback RNG, loading a task file should not change the RNG state
     domain->rngRollback();

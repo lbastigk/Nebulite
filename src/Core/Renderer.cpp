@@ -307,8 +307,6 @@ bool Nebulite::Core::Renderer::snapshot(std::string link){
         SDL_GetRendererOutputSize(renderer, &width, &height);
     }
     
-    //Nebulite::Utility::Capture::cout() << "Taking snapshot (" << width << "x" << height << ") to: " << link << Nebulite::Utility::Capture::endl;
-    
     // Create surface to capture pixels
     SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32,
                                                 0x00ff0000,  // Red mask
@@ -358,8 +356,6 @@ bool Nebulite::Core::Renderer::snapshot(std::string link){
         Nebulite::Utility::Capture::cerr() << "Failed to save snapshot: " << IMG_GetError() << Nebulite::Utility::Capture::endl;
         return false;
     }
-    
-    //Nebulite::Utility::Capture::cout() << "Snapshot saved successfully to: " << link << Nebulite::Utility::Capture::endl;
     return true;
 }
 
@@ -443,7 +439,7 @@ void Nebulite::Core::Renderer::moveCam(int dX, int dY){
 }
 
 void Nebulite::Core::Renderer::setCam(int X, int Y, bool isMiddle){
-	Nebulite::Utility::Capture::cout() << "Setting camera position to: " << X << ", " << Y << ", Middle: " << isMiddle << Nebulite::Utility::Capture::endl;
+	logln("Setting camera position to: " + std::to_string(X) + ", " + std::to_string(Y) + ", Middle: " + std::to_string(isMiddle));
 
 	if(isMiddle){
 		int newPosX = X - getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0) / 2;

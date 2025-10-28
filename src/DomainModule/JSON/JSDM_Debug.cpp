@@ -22,20 +22,19 @@ Nebulite::Constants::Error Debug::print(int argc,  char** argv){
     else if(argc == 2){
         auto memberType = domain->getDoc()->memberCheck(argv[1]);
         if(memberType == Nebulite::Utility::JSON::KeyType::null){
-            Nebulite::Utility::Capture::cout() << "{}" << Nebulite::Utility::Capture::endl;
+            logln("{}");
             return Nebulite::Constants::ErrorTable::NONE();
         }
         if(memberType == Nebulite::Utility::JSON::KeyType::document){
-            Nebulite::Utility::Capture::cout() << domain->getDoc()->serialize(argv[1]) << Nebulite::Utility::Capture::endl;
+            logln(domain->getDoc()->serialize(argv[1]));
             return Nebulite::Constants::ErrorTable::NONE();
         }
         if(memberType == Nebulite::Utility::JSON::KeyType::value){
-            Nebulite::Utility::Capture::cout() << domain->getDoc()->get<std::string>(argv[1], "") << Nebulite::Utility::Capture::endl;
+            logln(domain->getDoc()->get<std::string>(argv[1], ""));
             return Nebulite::Constants::ErrorTable::NONE();
         }
     }
-
-    Nebulite::Utility::Capture::cout() << domain->getDoc()->serialize() << Nebulite::Utility::Capture::endl;
+    logln(domain->getDoc()->serialize());
     return Nebulite::Constants::ErrorTable::NONE();
 }
 std::string const Debug::print_name = "print";

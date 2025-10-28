@@ -377,7 +377,7 @@ Nebulite::Constants::Error Debug::waitForInput(int argc,  char** argv){
         // Use the provided prompt as message
         message = argv[1];
     }
-    Nebulite::Utility::Capture::cout() << message << Nebulite::Utility::Capture::endl;
+    logln(message);
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return Nebulite::Constants::ErrorTable::NONE();
 }
