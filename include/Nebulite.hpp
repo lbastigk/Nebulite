@@ -1,11 +1,17 @@
 /**
  * @file Nebulite.hpp
- * 
- * @brief Central file for Nebulite namespace documentation.
- * 
+ *
+ * @brief Central file for Nebulite namespace documentation. And globally available objects.
+ *
  * While classes/variables have on central definition file, namespaces are only loosely bound.
  * Meaning there isnt a consensus who first defined the namespace.
  * We use a separate file for each namespace to avoid conflicts with doxigen documentation.
+ */
+
+/**
+ * @brief Header file for the Nebulite framework.
+ *
+ * This file includes all necessary headers and defines the main Nebulite namespace.
  */
 
 #ifndef NEBULITE_HPP
