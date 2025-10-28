@@ -96,7 +96,7 @@ private:
     static bool getExpression(
         Nebulite::Interaction::Logic::Assignment& assignmentExpr, 
         Nebulite::Utility::JSON& entry, 
-        int index
+        size_t index
     );
 
     /**
@@ -127,7 +127,7 @@ private:
     static bool getRuleset(
         Nebulite::Utility::JSON& doc, 
         Nebulite::Utility::JSON& entry, 
-        int index
+        size_t index
     );
 
     /**

@@ -2,6 +2,7 @@
 
 #include "Core/GlobalSpace.hpp"
 #include "Interaction/Ruleset.hpp"
+#include <cstddef>
 
 
 void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
@@ -13,8 +14,8 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
 ){
     // Get function calls: GLOBAL, SELF, OTHER
     if (entryDoc.memberCheck(Nebulite::Constants::keyName.invoke.functioncalls_global) == Nebulite::Utility::JSON::KeyType::array){
-        uint32_t funcSize = entryDoc.memberSize(Nebulite::Constants::keyName.invoke.functioncalls_global);
-        for (uint32_t j = 0; j < funcSize; ++j){
+        size_t funcSize = entryDoc.memberSize(Nebulite::Constants::keyName.invoke.functioncalls_global);
+        for (size_t j = 0; j < funcSize; ++j){
             std::string funcKey = Nebulite::Constants::keyName.invoke.functioncalls_global + "[" + std::to_string(j) + "]";
             std::string funcCall = entryDoc.get<std::string>(funcKey.c_str(), "");
 
@@ -25,8 +26,8 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
         }
     }
     if (entryDoc.memberCheck(Nebulite::Constants::keyName.invoke.functioncalls_self) == Nebulite::Utility::JSON::KeyType::array){
-        uint32_t funcSize = entryDoc.memberSize(Nebulite::Constants::keyName.invoke.functioncalls_self);
-        for (uint32_t j = 0; j < funcSize; ++j){
+        size_t funcSize = entryDoc.memberSize(Nebulite::Constants::keyName.invoke.functioncalls_self);
+        for (size_t j = 0; j < funcSize; ++j){
             std::string funcKey = Nebulite::Constants::keyName.invoke.functioncalls_self + "[" + std::to_string(j) + "]";
             std::string funcCall = entryDoc.get<std::string>(funcKey.c_str(), "");
 
@@ -44,8 +45,8 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
         }
     }
     if (entryDoc.memberCheck(Nebulite::Constants::keyName.invoke.functioncalls_other) == Nebulite::Utility::JSON::KeyType::array){
-        uint32_t funcSize = entryDoc.memberSize(Nebulite::Constants::keyName.invoke.functioncalls_other);
-        for (uint32_t j = 0; j < funcSize; ++j){
+        size_t funcSize = entryDoc.memberSize(Nebulite::Constants::keyName.invoke.functioncalls_other);
+        for (size_t j = 0; j < funcSize; ++j){
             std::string funcKey = Nebulite::Constants::keyName.invoke.functioncalls_other + "[" + std::to_string(j) + "]";
             std::string funcCall = entryDoc.get<std::string>(funcKey.c_str(), "");
 
@@ -63,7 +64,7 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
     }
 }
 
-bool Nebulite::Interaction::RulesetCompiler::getExpression(Nebulite::Interaction::Logic::Assignment& assignmentExpr, Nebulite::Utility::JSON& entry, int index){
+bool Nebulite::Interaction::RulesetCompiler::getExpression(Nebulite::Interaction::Logic::Assignment& assignmentExpr, Nebulite::Utility::JSON& entry, size_t index){
     std::string exprKey = Nebulite::Constants::keyName.invoke.exprVector + "[" + std::to_string(index) + "]";
 
     // Get expression
@@ -122,8 +123,8 @@ bool Nebulite::Interaction::RulesetCompiler::getExpression(Nebulite::Interaction
 
 bool Nebulite::Interaction::RulesetCompiler::getExpressions(Nebulite::Interaction::Ruleset* Ruleset, Nebulite::Utility::JSON* entry){
     if (entry->memberCheck(Nebulite::Constants::keyName.invoke.exprVector) == Nebulite::Utility::JSON::KeyType::array){
-        uint32_t exprSize = entry->memberSize(Nebulite::Constants::keyName.invoke.exprVector);
-        for (uint32_t j = 0; j < exprSize; ++j){
+        size_t exprSize = entry->memberSize(Nebulite::Constants::keyName.invoke.exprVector);
+        for (size_t j = 0; j < exprSize; ++j){
             Nebulite::Interaction::Logic::Assignment assignmentExpr;
             if (RulesetCompiler::getExpression(assignmentExpr, *entry, j)){
                 // Successfully parsed expression
@@ -147,8 +148,8 @@ bool Nebulite::Interaction::RulesetCompiler::getExpressions(Nebulite::Interactio
 std::string Nebulite::Interaction::RulesetCompiler::getLogicalArg(Nebulite::Utility::JSON& entry){
     std::string logicalArg = "";
     if(entry.memberCheck("logicalArg") == Nebulite::Utility::JSON::KeyType::array){
-        uint32_t logicalArgSize = entry.memberSize("logicalArg");
-        for(uint32_t j = 0; j < logicalArgSize; ++j){
+        size_t logicalArgSize = entry.memberSize("logicalArg");
+        for(size_t j = 0; j < logicalArgSize; ++j){
             std::string logicalArgKey = "logicalArg[" + std::to_string(j) + "]";
             logicalArg += "(" + entry.get<std::string>(logicalArgKey.c_str(), "0") + ")";
             if (j < logicalArgSize - 1){
@@ -169,7 +170,7 @@ std::string Nebulite::Interaction::RulesetCompiler::getLogicalArg(Nebulite::Util
     return logicalArg;
 }
 
-bool Nebulite::Interaction::RulesetCompiler::getRuleset(Nebulite::Utility::JSON& doc, Nebulite::Utility::JSON& entry, int index){
+bool Nebulite::Interaction::RulesetCompiler::getRuleset(Nebulite::Utility::JSON& doc, Nebulite::Utility::JSON& entry, size_t index){
     std::string key = Nebulite::Constants::keyName.renderObject.invokes + "[" + std::to_string(index) + "]";
     if(doc.memberCheck(key) == Nebulite::Utility::JSON::KeyType::document){
         entry = doc.get_subdoc(key);
@@ -244,7 +245,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
     }
 
     // Get size of entries
-    uint32_t size = doc->memberSize(Nebulite::Constants::keyName.renderObject.invokes);
+    size_t size = doc->memberSize(Nebulite::Constants::keyName.renderObject.invokes);
     if (size == 0){
         // Object has no invokes
         return;
