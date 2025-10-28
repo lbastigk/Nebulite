@@ -22,7 +22,6 @@
 // Nebulite
 #include "Interaction/Logic/VirtualDouble.hpp"
 #include "Utility/DocumentCache.hpp"
-#include "Utility/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -130,20 +129,11 @@ public:
     bool recalculateIsAlwaysTrue();
 
 private:
-    /**
-     * @brief link to the remanent self context
-     */
-    Nebulite::Utility::JSON* self = nullptr;
-
-    /**
-     * @brief link to the remanent global context
-     */
-    Nebulite::Utility::JSON* global = nullptr;
-
-    /**
-     * @brief link to the non-remanent document cache
-     */
-    Nebulite::Utility::DocumentCache* globalCache = nullptr;
+    struct References{
+        Nebulite::Utility::JSON* self = nullptr;
+        Nebulite::Utility::JSON* global = nullptr;
+        Nebulite::Utility::DocumentCache* documentCache = nullptr;
+    } references;
 
     /**
      * @struct Nebulite::Interaction::Logic::Expression::Component
@@ -421,11 +411,6 @@ private:
     std::vector<te_variable> te_variables;   // Variables for TinyExpr evaluation
 
     /**
-     * @brief Reference to the resource context
-     */
-    Nebulite::Utility::DocumentCache* documentCache = nullptr;
-
-    /**
      * @brief The unique ID from globalspace for this expression string
      */
     uint64_t uniqueId;
@@ -486,9 +471,8 @@ private:
      * @brief Parses the given expression into a series of components.
      * 
      * @param expr The expression string to parse.
-     * @param components The vector to populate with the parsed components.
      */
-    void parseIntoComponents(std::string const& expr, std::vector<std::shared_ptr<Component>>& components);
+    void parseIntoComponents(std::string const& expr);
 
     /**
      * @brief Reads the formatter string from a string and parses it intro the component.
@@ -508,9 +492,8 @@ private:
      * - Pushes the current component onto the components vector.
      * 
      * @param token The token to parse.
-     * @param components The vector to push the component onto.
      */
-    void parseTokenTypeEval(std::string const& token, std::vector<std::shared_ptr<Component>>& components);
+    void parseTokenTypeEval(std::string const& token);
 
     /**
      * @brief Used to parse a string token of type "text" into an component.
@@ -524,7 +507,7 @@ private:
      * @param token The token to parse.
      * @param components The vector to push the component onto.
      */
-    void parseTokenTypeText(std::string const& token, std::vector<std::shared_ptr<Component>>& components);
+    void parseTokenTypeText(std::string const& token);
 
     /**
      * @brief Prints a compilation error message to cerr
