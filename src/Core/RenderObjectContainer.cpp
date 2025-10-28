@@ -81,7 +81,7 @@ std::pair<int16_t,int16_t> getTilePos(Nebulite::Core::RenderObject* toAppend, in
 	return std::make_pair(correspondingTileXpos,correspondingTileYpos);
 }
 
-void Nebulite::Core::RenderObjectContainer::append(Nebulite::Core::RenderObject* toAppend, int dispResX, int dispResY){
+void Nebulite::Core::RenderObjectContainer::append(Nebulite::Core::RenderObject* toAppend, uint16_t dispResX, uint16_t dispResY){
     std::pair<int16_t,int16_t> pos = getTilePos(toAppend, dispResX, dispResY);
 
 	// Try to insert into an existing batch

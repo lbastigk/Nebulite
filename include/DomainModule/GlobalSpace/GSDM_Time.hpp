@@ -11,7 +11,6 @@
 // Includes
 
 // General
-#include <functional>
 #include <unordered_set>
 
 // Nebulite

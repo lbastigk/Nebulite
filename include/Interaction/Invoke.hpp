@@ -21,7 +21,7 @@
 #include <atomic>
 
 // External
-#include "tinyexpr.h"
+#include <tinyexpr.h>
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"

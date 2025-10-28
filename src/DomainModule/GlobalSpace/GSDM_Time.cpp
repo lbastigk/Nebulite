@@ -1,5 +1,4 @@
 #include "DomainModule/GlobalSpace/GSDM_Time.hpp"
-
 #include "Core/GlobalSpace.hpp"
 
 namespace Nebulite::DomainModule::GlobalSpace {
@@ -35,8 +34,8 @@ Nebulite::Constants::Error Time::update(){
     uint64_t t_ms  = RealTime.get_t_ms();
 
     // Set in doc
-    domain->getDoc()->set<double>(key_runtime_dt,    dt_ms / 1000.0);
-    domain->getDoc()->set<double>(key_runtime_t,     t_ms / 1000.0);
+    domain->getDoc()->set<double>(key_runtime_dt,    static_cast<double>(dt_ms) / 1000.0);
+    domain->getDoc()->set<double>(key_runtime_t,     static_cast<double>(t_ms)  / 1000.0);
     domain->getDoc()->set<Uint64>(key_runtime_dt_ms, dt_ms);
     domain->getDoc()->set<Uint64>(key_runtime_t_ms,  t_ms);
 
@@ -58,8 +57,8 @@ Nebulite::Constants::Error Time::update(){
         uint64_t sim_t_ms = SimulationTime.get_t_ms();
 
         // Set in doc
-        domain->getDoc()->set<double>(key_time_dt,    sim_dt_ms / 1000.0);
-        domain->getDoc()->set<double>(key_time_t,     sim_t_ms / 1000.0);
+        domain->getDoc()->set<double>(key_time_dt,    static_cast<double>(sim_dt_ms) / 1000.0);
+        domain->getDoc()->set<double>(key_time_t,     static_cast<double>(sim_t_ms)  / 1000.0);
         domain->getDoc()->set<Uint64>(key_time_dt_ms, sim_dt_ms);
         domain->getDoc()->set<Uint64>(key_time_t_ms,  sim_t_ms);
 

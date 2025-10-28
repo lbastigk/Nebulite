@@ -65,8 +65,8 @@ Nebulite::Constants::Error ComplexData::jsonSet(int argc,  char** argv){
     }
     // === ARRAY ===
     else if(type == Nebulite::Utility::JSON::KeyType::array){
-        uint16_t size = global->getDocCache()->memberSize(doc_key);
-        for (uint16_t i = 0; i < size; ++i){
+        size_t size = global->getDocCache()->memberSize(doc_key);
+        for (size_t i = 0; i < size; ++i){
             std::string itemKey = doc_key + "[" + std::to_string(i) + "]";
             std::string itemValue = global->getDocCache()->get<std::string>(itemKey);
             std::string newItemKey = myKey + "[" + std::to_string(i) + "]";

@@ -1,6 +1,5 @@
 #include "DomainModule/GlobalSpace/GSDM_General.hpp"
 #include "Core/GlobalSpace.hpp"       // Global Space for Nebulite
-#include "Interaction/Invoke.hpp"            // Invoke for parsing expressions
 
 namespace Nebulite::DomainModule::GlobalSpace{
 
@@ -200,7 +199,8 @@ Nebulite::Constants::Error General::func_if(int argc,  char** argv){
     std::string result = domain->eval(argv[1]);
     double condition_potentially_nan = std::stod(result);
 
-    bool condition = !isnan(condition_potentially_nan) && (condition_potentially_nan != 0);
+    static const double epsilon = 1e-10;
+    bool condition = !isnan(condition_potentially_nan) && (std::abs(condition_potentially_nan) > epsilon);
 
     if (!condition){
         // If the condition is false, skip the following commands
@@ -246,7 +246,8 @@ Nebulite::Constants::Error General::func_assert(int argc,  char** argv){
     }
 
     // Evaluate condition
-    if(!std::stod(domain->eval(condition))){
+    double result = std::stod(domain->eval(condition));
+    if(!static_cast<bool>(result)){
         return Nebulite::Constants::ErrorTable::addError("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.", Nebulite::Constants::Error::CRITICAL);
     }
 

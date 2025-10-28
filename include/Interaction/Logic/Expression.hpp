@@ -11,12 +11,12 @@
 // Includes
 
 // General
-#include "string"
+#include <string>
 #include <memory>
 #include <deque>
 
 // External
-#include "tinyexpr.h"
+#include <tinyexpr.h>
 
 // Nebulite
 #include "Interaction/Logic/VirtualDouble.hpp"

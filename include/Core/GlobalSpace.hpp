@@ -92,7 +92,7 @@ public:
     explicit GlobalSpace(std::string const& binName);
 
     // Destructor
-    ~GlobalSpace() = default;
+    virtual ~GlobalSpace() = default;
 
     // Prevent copying
     GlobalSpace(const GlobalSpace&) = delete;

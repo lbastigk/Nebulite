@@ -11,22 +11,20 @@
 // Includes
 
 // General
-#include <mutex>
 #include <string>
 #include <variant>
 
 // External
-#include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/prettywriter.h"
-#include "rapidjson/encodings.h"
-#include "rapidjson/istreamwrapper.h"
-#include "rapidjson/ostreamwrapper.h"
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/encodings.h>
+#include <rapidjson/istreamwrapper.h>
+#include <rapidjson/ostreamwrapper.h>
 
 // Nebulite
 #include "Utility/StringHandler.hpp"
-#include "Utility/Capture.hpp"
 
 namespace Nebulite::Core {
     class GlobalSpace; // Forward declaration

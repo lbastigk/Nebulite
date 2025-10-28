@@ -195,7 +195,7 @@ void Nebulite::Core::RenderObject::calculateDstRect(){
 		(int)floor(*refs.pixelSizeX), // Set the desired width
 		(int)floor(*refs.pixelSizeY), // Set the desired height
 	};
-};
+}
 
 SDL_Rect* Nebulite::Core::RenderObject::getSrcRect(){
 	if (*refs.isSpritesheet){

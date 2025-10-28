@@ -4,7 +4,10 @@
             "name": "Linux",
             "includePath": [
                 "/usr/include/",
+                "/usr/include/c++/15",
+                "${workspaceFolder}/include",
                 "${workspaceFolder}/include/**",
+                "${workspaceFolder}/external/**",
                 "${workspaceFolder}/external/SDL2/include",
                 "${workspaceFolder}/external/SDL2_image/include",
                 "${workspaceFolder}/external/SDL2_ttf/",

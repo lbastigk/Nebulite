@@ -16,6 +16,22 @@ set(SDL2_TTF_PATH       "${CMAKE_SOURCE_DIR}/external/SDL2_ttf")
 set(SDL2_IMAGE_PATH     "${CMAKE_SOURCE_DIR}/external/SDL2_image")
 
 ############################################################
+# Linked libraries from all external dependencies
+
+# SDL2 related libraries
+set(SDL2_LINK_LIBS
+    SDL2::SDL2main
+    SDL2::SDL2-static
+    SDL2_ttf
+    SDL2_image
+)
+
+# Abseil libraries
+set(ABSL_LINK_LIBS
+    absl::flat_hash_map
+)
+
+############################################################
 # Function to configure common dependencies for a target
 function(configure_common_dependencies target_name)
     message(STATUS "Configuring common dependencies for target: ${target_name}")
@@ -30,6 +46,12 @@ function(configure_common_dependencies target_name)
             ${TINYEXPR_PATH}
             ${ABSEIL_PATH}
     )
+
+    # Link common libraries
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        ${SDL2_LINK_LIBS}
+        ${ABSL_LINK_LIBS}
+    )
     
     message(STATUS "Common dependencies configured for ${target_name}")
 endfunction()
@@ -41,10 +63,15 @@ function(setup_external_subdirectories)
     
     # Add Abseil subdirectory
     add_subdirectory(${ABSEIL_PATH})
-    
-    # SDL2 setup is handled in platform-specific configurations
-    # to avoid duplicate target issues
-    
+
+    # Include shared SDL2/SDL2_image/SDL2_ttf build settings
+    sdl_setup()
+
+    # Add SDL2 subdirectories in correct order (SDL2 first, then extensions)
+    add_subdirectory(${SDL2_PATH})
+    add_subdirectory(${SDL2_TTF_PATH})
+    add_subdirectory(${SDL2_IMAGE_PATH})
+
     message(STATUS "External subdirectories setup complete")
 endfunction()
 

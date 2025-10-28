@@ -15,13 +15,13 @@
         {
             "label": "[MINIMAL BUILD]",
             "type": "shell",
-            "command": "cmake --preset linux-debug && cmake --build --preset linux-debug && cmake --preset linux-release && cmake --build --preset linux-release",
+            "command": "cmake --preset linux-release && cmake --build --preset linux-release && cmake --preset linux-debug && cmake --build --preset linux-debug",
             "group": {
                 "kind": "build",
                 "isDefault": false
             },
             "problemMatcher": [],
-            "detail": "Builds the projects Linux binaries."
+            "detail": "Builds the projects Linux binaries. Builds release first to catch any errors without all the debug warnings cluttering the output."
         },
         {
             "label": "[BUILD + TEST]",
