@@ -1,6 +1,7 @@
 #include "DomainModule/Renderer/RRDM_Console.hpp"
 #include "Core/Renderer.hpp"
 #include "Core/GlobalSpace.hpp"
+#include <cstdint>
 
 namespace Nebulite::DomainModule::Renderer {
 
@@ -82,27 +83,30 @@ bool Console::ensureConsoleTexture(){
 
     // Derive consoleRect size from display size
     double heightRatio = 0.75; // Console takes 75% of the screen height
-    int y = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) * (1.0 - heightRatio);
-    int w = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),360);
-    int h = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) - y;
+    double consoleHeight = static_cast<double>(globalDoc->get<size_t>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360)) * heightRatio;
+    static SDL_Rect currentConsolePosition;
+    currentConsolePosition.x = 0;
+    currentConsolePosition.y = static_cast<int>(globalDoc->get<double>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) - consoleHeight);
+    currentConsolePosition.w = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),360);
+    currentConsolePosition.h = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) - currentConsolePosition.y;
 
     //------------------------------------------
     // Texture Setup
 
     // Status
-    bool textureStatus = false;
-    textureStatus = textureStatus || !consoleTexture.texture_ptr;   // No texture yet
-    textureStatus = textureStatus || consoleTexture.rect.w != w;    // Width changed
-    textureStatus = textureStatus || consoleTexture.rect.h != h;    // Height changed
+    bool recreateTexture = false;
+    recreateTexture = recreateTexture || !consoleTexture.texture_ptr;   // No texture yet
+    recreateTexture = recreateTexture || consoleTexture.rect.w != currentConsolePosition.w;    // Width changed
+    recreateTexture = recreateTexture || consoleTexture.rect.h != currentConsolePosition.h;    // Height changed
 
     // Update rectangle if needed
-    if(textureStatus){
+    if(recreateTexture){
         if (consoleTexture.texture_ptr){
             SDL_DestroyTexture(consoleTexture.texture_ptr);
         }
         consoleTexture = {
-            {0, y, w, h}, // rect
-            SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h)
+            currentConsolePosition,
+            SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, currentConsolePosition.w, currentConsolePosition.h)
         };
     }
 
@@ -129,7 +133,7 @@ void Console::drawBackground(){
 void Console::drawInput(uint16_t lineHeight){
     // Add a darker background for the input line
     double posY = consoleTexture.rect.h - lineHeight - 1.5 * LINE_PADDING;
-    SDL_Rect inputBackgroundRect = { 0, (int)posY, consoleTexture.rect.w, lineHeight + LINE_PADDING};
+    SDL_Rect inputBackgroundRect = { 0, static_cast<int>(posY), consoleTexture.rect.w, lineHeight + LINE_PADDING};
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
     SDL_RenderFillRect(renderer, &inputBackgroundRect);
 
@@ -144,8 +148,8 @@ void Console::drawInput(uint16_t lineHeight){
         // Define destination rectangle
         textInputRect.x = 10;
         textInputRect.y = consoleTexture.rect.h - LINE_PADDING - lineHeight;
-        textInputRect.w = (double)textSurface->w / WindowScale;
-        textInputRect.h = (double)textSurface->h / WindowScale;
+        textInputRect.w = static_cast<int>(static_cast<double>(textSurface->w) / static_cast<double>(WindowScale));
+        textInputRect.h = static_cast<int>(static_cast<double>(textSurface->h) / static_cast<double>(WindowScale));
 
         // Render the text
         SDL_RenderCopy(renderer, textTexture, NULL, &textInputRect);
@@ -161,8 +165,8 @@ void Console::drawInput(uint16_t lineHeight){
             SDL_Texture* highlightTexture = SDL_CreateTextureFromSurface(renderer, highlightSurface);
             textInputHighlightRect.x = textInputRect.x + textInputRect.w - highlightSurface->w;
             textInputHighlightRect.y = textInputRect.y;
-            textInputHighlightRect.w = (double)highlightSurface->w;
-            textInputHighlightRect.h = (double)highlightSurface->h;
+            textInputHighlightRect.w = highlightSurface->w;
+            textInputHighlightRect.h = highlightSurface->h;
             SDL_RenderCopy(renderer, highlightTexture, NULL, &textInputHighlightRect);
             SDL_FreeSurface(highlightSurface);
             SDL_DestroyTexture(highlightTexture);
@@ -173,15 +177,15 @@ void Console::drawInput(uint16_t lineHeight){
 void Console::drawOutput(uint16_t maxLineLength){
     uint16_t lineIndex = 0;
     std::string lineContentRest;                        // Rest of line after linebreak
-    uint16_t outputSize = textInput.getOutput()->size();
+    uint16_t outputSize = static_cast<uint16_t>(textInput.getOutput()->size());
 
     // Since we start from the bottom, we need to invert the scrolling offset
     // is increased in-loop due to linebreaks
-    int32_t lineIndexOffset = - outputScrollingOffset;   
+    uint16_t lineIndexOffset = - outputScrollingOffset;   
 
     // Index-offset: If we have less history than lines,
     // We need to offset to align at the top
-    int16_t y_start = line_y_positions[0];
+    uint16_t y_start = line_y_positions[0];
     if(outputSize < line_y_positions.size()){
         y_start = line_y_positions[line_y_positions.size() - outputSize];
     }
@@ -192,7 +196,7 @@ void Console::drawOutput(uint16_t maxLineLength){
         if(lineIndex >= outputSize)  break;     // No more lines to show
 
         // Constrain outputScrollingOffset by investigating the current index
-        int32_t currentIndex = outputSize - 1 - lineIndex + lineIndexOffset;
+        uint16_t currentIndex = outputSize - 1 - lineIndex + lineIndexOffset;
         if(currentIndex < 0){
             // Cour outputScrollingOffset is too high, we reached the top
             outputScrollingOffset --;
@@ -251,8 +255,8 @@ void Console::drawOutput(uint16_t maxLineLength){
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
         textOutputRect.x = 10;
         textOutputRect.y = line_y_position;
-        textOutputRect.w = (double)textSurface->w / WindowScale;
-        textOutputRect.h = (double)textSurface->h / WindowScale;
+        textOutputRect.w = static_cast<int>(static_cast<double>(textSurface->w) / static_cast<double>(WindowScale));
+        textOutputRect.h = static_cast<int>(static_cast<double>(textSurface->h) / static_cast<double>(WindowScale));
 
         SDL_RenderCopy(renderer, textTexture, NULL, &textOutputRect);
         SDL_FreeSurface(textSurface);
@@ -278,7 +282,7 @@ void Console::renderConsole(){
     static uint16_t lastTextureHeight = 0;
     static uint16_t lineHeight = 0;
     if(lastTextureHeight != consoleTexture.rect.h || flag_recalculateTextAlignment){
-        lastTextureHeight = consoleTexture.rect.h;
+        lastTextureHeight = static_cast<uint16_t>(consoleTexture.rect.h);
         lineHeight = calculateTextAlignment(consoleTexture.rect.h);
         flag_recalculateTextAlignment = false;
 
