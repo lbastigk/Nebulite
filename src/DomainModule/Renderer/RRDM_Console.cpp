@@ -82,8 +82,7 @@ bool Console::ensureConsoleTexture(){
     // Prerequisites
 
     // Derive consoleRect size from display size
-    double heightRatio = 0.75; // Console takes 75% of the screen height
-    double consoleHeight = static_cast<double>(globalDoc->get<size_t>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360)) * heightRatio;
+    double consoleHeight = static_cast<double>(globalDoc->get<size_t>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360)) * consoleLayout.heightRatio;
     static SDL_Rect currentConsolePosition;
     currentConsolePosition.x = 0;
     currentConsolePosition.y = static_cast<int>(globalDoc->get<double>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) - consoleHeight);
@@ -132,8 +131,8 @@ void Console::drawBackground(){
 
 void Console::drawInput(uint16_t lineHeight){
     // Add a darker background for the input line
-    double posY = consoleTexture.rect.h - lineHeight - 1.5 * LINE_PADDING;
-    SDL_Rect inputBackgroundRect = { 0, static_cast<int>(posY), consoleTexture.rect.w, lineHeight + LINE_PADDING};
+    double posY = consoleTexture.rect.h - lineHeight - 1.5 * consoleLayout.LINE_PADDING;
+    SDL_Rect inputBackgroundRect = { 0, static_cast<int>(posY), consoleTexture.rect.w, lineHeight + consoleLayout.LINE_PADDING};
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
     SDL_RenderFillRect(renderer, &inputBackgroundRect);
 
@@ -147,7 +146,7 @@ void Console::drawInput(uint16_t lineHeight){
 
         // Define destination rectangle
         textInputRect.x = 10;
-        textInputRect.y = consoleTexture.rect.h - LINE_PADDING - lineHeight;
+        textInputRect.y = consoleTexture.rect.h - consoleLayout.LINE_PADDING - lineHeight;
         textInputRect.w = static_cast<int>(static_cast<double>(textSurface->w) / static_cast<double>(WindowScale));
         textInputRect.h = static_cast<int>(static_cast<double>(textSurface->h) / static_cast<double>(WindowScale));
 
@@ -175,28 +174,29 @@ void Console::drawInput(uint16_t lineHeight){
 }
 
 void Console::drawOutput(uint16_t maxLineLength){
-    uint16_t lineIndex = 0;
+    int32_t lineIndex = 0;
     std::string lineContentRest;                        // Rest of line after linebreak
-    uint16_t outputSize = static_cast<uint16_t>(textInput.getOutput()->size());
+    int32_t outputSize = static_cast<int32_t>(textInput.getOutput()->size());
 
     // Since we start from the bottom, we need to invert the scrolling offset
     // is increased in-loop due to linebreaks
-    uint16_t lineIndexOffset = - outputScrollingOffset;   
+    int32_t lineIndexOffset = - outputScrollingOffset;   
 
     // Index-offset: If we have less history than lines,
     // We need to offset to align at the top
-    uint16_t y_start = line_y_positions[0];
-    if(outputSize < line_y_positions.size()){
-        y_start = line_y_positions[line_y_positions.size() - outputSize];
+    int32_t y_start = line_y_positions[0];
+    int32_t availableLines = static_cast<int32_t>(line_y_positions.size());
+    if(outputSize < availableLines){
+        y_start = line_y_positions[static_cast<size_t>(availableLines - outputSize)];
     }
 
     // Render lines from bottom to top
-    for(uint16_t line_y_position : line_y_positions){
+    for(int32_t line_y_position : line_y_positions){
         if(line_y_position > y_start) continue;  // Skip lines under the start position
         if(lineIndex >= outputSize)  break;     // No more lines to show
 
         // Constrain outputScrollingOffset by investigating the current index
-        uint16_t currentIndex = outputSize - 1 - lineIndex + lineIndexOffset;
+        int32_t currentIndex = outputSize - 1 - lineIndex + lineIndexOffset;
         if(currentIndex < 0){
             // Cour outputScrollingOffset is too high, we reached the top
             outputScrollingOffset --;
@@ -209,7 +209,7 @@ void Console::drawOutput(uint16_t maxLineLength){
         }
 
         // Get line info
-        auto lineInfo = textInput.getOutput()->at(currentIndex);
+        auto lineInfo = textInput.getOutput()->at(static_cast<size_t>(currentIndex));
         SDL_Color textColor;
         std::string content;
 
@@ -283,7 +283,7 @@ void Console::renderConsole(){
     static uint16_t lineHeight = 0;
     if(lastTextureHeight != consoleTexture.rect.h || flag_recalculateTextAlignment){
         lastTextureHeight = static_cast<uint16_t>(consoleTexture.rect.h);
-        lineHeight = calculateTextAlignment(consoleTexture.rect.h);
+        lineHeight = calculateTextAlignment(static_cast<uint16_t>(consoleTexture.rect.h));
         flag_recalculateTextAlignment = false;
 
         // Experimentally derive max line length based on console width and font size
@@ -295,7 +295,7 @@ void Console::renderConsole(){
             // This is a nice fallback in case we ever use a non-monospaced font
             testString += "W";
             SDL_Surface* testSurface = TTF_RenderText_Blended(consoleFont, testString.c_str(), color.coutStream);
-            if((double)testSurface->w / WindowScale > consoleTexture.rect.w - 20){ // 20 for padding
+            if(static_cast<double>(testSurface->w) / WindowScale > consoleTexture.rect.w - 20){ // 20 for padding
                 SDL_FreeSurface(testSurface);
                 break;
             }
@@ -320,7 +320,7 @@ void Console::init(){
     globalDoc = domain->getDoc();
 
     // Use a monospaced font for better alignment
-    consoleFont = TTF_OpenFont("Resources/Fonts/JetBrainsMono-Medium.ttf", FONT_MAX_SIZE * global->getRenderer()->getWindowScale());
+    consoleFont = TTF_OpenFont(consoleFontPath.c_str(), static_cast<int>(consoleLayout.FONT_MAX_SIZE * global->getRenderer()->getWindowScale()));
     if(!consoleFont){
         Nebulite::Utility::Capture::cerr() << "TTF_OpenFont failed: " << TTF_GetError() << Nebulite::Utility::Capture::endl;
         return;
@@ -339,7 +339,7 @@ void Console::init(){
     initialized = true;
 }
 
-uint8_t Console::calculateTextAlignment(uint16_t rect_height){
+uint16_t Console::calculateTextAlignment(uint16_t rect_height){
     // Populating the rect:
     /*
     <PADDING>
@@ -364,27 +364,27 @@ uint8_t Console::calculateTextAlignment(uint16_t rect_height){
     // Constraints:
     // LINE_HEIGHT <= FONT_MAX_SIZE
     // MINIMUM_LINES <= N
-    uint16_t LINE_HEIGHT = FONT_MAX_SIZE;
+    uint16_t LINE_HEIGHT = consoleLayout.FONT_MAX_SIZE;
 
     // See where we land for N with the maximum font size
-    uint16_t N = floor((double)(rect_height - 3*LINE_PADDING) / (double)(LINE_HEIGHT + LINE_PADDING));
+    uint16_t N = static_cast<uint16_t>(std::floor(static_cast<double>(rect_height - 3 * consoleLayout.LINE_PADDING) / static_cast<double>(LINE_HEIGHT + consoleLayout.LINE_PADDING)));
 
     // Reduce line height if we have less than minimum lines
-    if(N < MINIMUM_LINES){
-        N = MINIMUM_LINES;
-        LINE_HEIGHT = (rect_height - (N+3)*LINE_PADDING) / (N+1);
+    if(N < consoleLayout.MINIMUM_LINES){
+        N = consoleLayout.MINIMUM_LINES;
+        LINE_HEIGHT = (rect_height - (N+3)*consoleLayout.LINE_PADDING) / (N+1);
     }
 
     // Now, line height and N are final
     // Populate y positions
     line_y_positions.clear();
     for(int i = 1; i < N; i++){ // i=0 is reserved for input line
-        line_y_positions.push_back( rect_height - LINE_PADDING - 2*LINE_HEIGHT - i*(LINE_HEIGHT + LINE_PADDING) );
+        line_y_positions.push_back(static_cast<uint16_t>(rect_height - consoleLayout.LINE_PADDING - 2*LINE_HEIGHT - i*(LINE_HEIGHT + consoleLayout.LINE_PADDING)));
     }
 
     // Set correct font size for SDL_ttf
     WindowScale = global->getRenderer()->getWindowScale();
-    TTF_SetFontSize(consoleFont, LINE_HEIGHT * WindowScale);
+    TTF_SetFontSize(consoleFont, static_cast<int>(LINE_HEIGHT * WindowScale));
 
     return LINE_HEIGHT;
 }
@@ -600,14 +600,14 @@ Nebulite::Constants::Error Console::consoleZoom(int argc,  char** argv){
     if(argc == 2){
         std::string direction = argv[1];
         if(direction == "in" || direction == "+"){
-            if(FONT_MAX_SIZE <= 48){
-                FONT_MAX_SIZE++;
+            if(consoleLayout.FONT_MAX_SIZE <= 48){
+                consoleLayout.FONT_MAX_SIZE++;
                 flag_recalculateTextAlignment = true;
             }
         }
         else if(direction == "out" || direction == "-"){
-            if(FONT_MAX_SIZE >= 8){
-                FONT_MAX_SIZE--;
+            if(consoleLayout.FONT_MAX_SIZE >= 8){
+                consoleLayout.FONT_MAX_SIZE--;
                 flag_recalculateTextAlignment = true;
             }
         }
@@ -624,7 +624,7 @@ std::string const Console::consoleZoom_name = "console zoom";
 std::string const Console::consoleZoom_desc = R"(Reduces or increases the console font size.
 
 Usage: zoom [in/out/+/-]
-- in / + : Zooms in (increases font size)
+- in  / + : Zooms in  (increases font size)
 - out / - : Zooms out (decreases font size)
 )";
 
