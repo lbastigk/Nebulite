@@ -200,10 +200,10 @@ public:
 	 * 
 	 * @param renderer The SDL_Renderer to use for rendering.
 	 * @param font The TTF_Font to use for rendering the text.
-	 * @param renderer_X The X position of the renderer used for text offset.
-	 * @param renderer_Y The Y position of the renderer used for text offset.
+	 * @param renderPositionX The X position of the renderer used for text offset.
+	 * @param renderPositionY The Y position of the renderer used for text offset.
 	 */
-	void calculateText(SDL_Renderer* renderer,TTF_Font* font, int renderer_X, int renderer_Y);
+	void calculateText(SDL_Renderer* renderer,TTF_Font* font, int renderPositionX, int renderPositionY);
 
 	/**
 	 * @brief Calculates the destination rectangle for the sprite.

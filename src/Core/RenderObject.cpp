@@ -190,15 +190,15 @@ SDL_Rect* Nebulite::Core::RenderObject::getDstRect(){
 
 void Nebulite::Core::RenderObject::calculateDstRect(){
 	dstRect = {
-		(int)floor(*refs.posX),
-		(int)floor(*refs.posY),
-		(int)floor(*refs.pixelSizeX), // Set the desired width
-		(int)floor(*refs.pixelSizeY), // Set the desired height
+		static_cast<int>(floor(*refs.posX)),
+		static_cast<int>(floor(*refs.posY)),
+		static_cast<int>(floor(*refs.pixelSizeX)), // Set the desired width
+		static_cast<int>(floor(*refs.pixelSizeY)), // Set the desired height
 	};
 }
 
 SDL_Rect* Nebulite::Core::RenderObject::getSrcRect(){
-	if (*refs.isSpritesheet){
+	if (*refs.isSpritesheet > DBL_EPSILON){ // isSpritesheet is true
 		return &srcRect;
 	}
 	else {
@@ -208,7 +208,7 @@ SDL_Rect* Nebulite::Core::RenderObject::getSrcRect(){
 
 void Nebulite::Core::RenderObject::calculateSrcRect(){
 	// Check if the object is a sprite
-	if (*refs.isSpritesheet){
+	if (*refs.isSpritesheet > DBL_EPSILON){ // isSpritesheet is true
 		// Calculate the source rectangle for the sprite (which portion of the sprite sheet to render)
 		srcRect = {
 			static_cast<int>(*refs.spritesheetOffsetX), // Start X from the sprite sheet offset
@@ -259,7 +259,7 @@ Nebulite::Constants::Error Nebulite::Core::RenderObject::update(){
 		for(size_t idx = 0; idx < subscription_size; idx++){
 			std::string key = Nebulite::Constants::keyName.renderObject.invokeSubscriptions + "[" + std::to_string(idx) + "]";
 			std::string subscription = json.get<std::string>(key.c_str(),"");
-			invoke->listen(this,subscription, (uint32_t)*refs.id);
+			invoke->listen(this,subscription, static_cast<uint32_t>(*refs.id));
 		}
         
 
@@ -318,10 +318,10 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyIntern
 //------------------------------------------
 // Outside communication with Renderer for text calculation
 
-void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font,int renderer_X, int renderer_Y){
+void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font, int renderPositionX, int renderPositionY){
 	// Set font size if changed
-	textRect.x = *refs.posX + *refs.textDx - renderer_X;
-	textRect.y = *refs.posY + *refs.textDy - renderer_Y;
+	textRect.x = static_cast<int>(*refs.posX + *refs.textDx - static_cast<double>(renderPositionX));
+	textRect.y = static_cast<int>(*refs.posY + *refs.textDy - static_cast<double>(renderPositionY));
 
 	// Recreate texture if recalculate was triggered by user. This is needed for:
 	// - new text
@@ -337,15 +337,15 @@ void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font
 		// Settings influenced by a new text
 		double scalar = 1.0; // Perhaps needed
 		std::string text = get<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str());
-		textRect.w = *refs.fontSize * text.length() * scalar;
-		textRect.h = static_cast<int>(*refs.fontSize * 1.5f * scalar);
+		textRect.w = static_cast<int>(*refs.fontSize * static_cast<double>(text.length()) * scalar);
+		textRect.h = static_cast<int>(*refs.fontSize * 1.5 * scalar);
 
 		// Create text
 		SDL_Color textColor = { 
-			(Uint8)*refs.textColorR,
-			(Uint8)*refs.textColorG,
-			(Uint8)*refs.textColorB,
-			(Uint8)*refs.textColorA
+			static_cast<Uint8>(*refs.textColorR),
+			static_cast<Uint8>(*refs.textColorG),
+			static_cast<Uint8>(*refs.textColorB),
+			static_cast<Uint8>(*refs.textColorA)
 		};
 
 		// Create texture
