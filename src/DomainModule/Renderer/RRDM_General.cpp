@@ -120,10 +120,9 @@ and spawns the first found object.
 )"; 
 
 Nebulite::Constants::Error General::setResolution(int argc,  char** argv){
-    int w,h,scalar;
-    w = 1000;
-    h = 1000;
-    scalar = 1;
+    int w = 1000;
+    int h = 1000;
+    uint16_t scalar = 1;
     if(argc > 1){
         w = std::stoi(argv[1]);
     }
@@ -131,7 +130,13 @@ Nebulite::Constants::Error General::setResolution(int argc,  char** argv){
         h = std::stoi(argv[2]);
     }
     if(argc > 3){
-        scalar = std::stoi(argv[3]);
+        int signedScalar = std::stoi(argv[3]);
+        if(signedScalar > 0){
+            scalar = static_cast<uint16_t>(signedScalar);
+        }
+        else{
+            scalar = 1;
+        }
     }
     domain->changeWindowSize(w,h,scalar);
     return Nebulite::Constants::ErrorTable::NONE();
@@ -147,11 +152,11 @@ Defaults to 1     for scale if argument count < 3
 )";
 
 Nebulite::Constants::Error General::setFPS(int argc,  char** argv){
-    int fps = 60;
+    uint16_t fps = 60;
     if(argc == 2){
-        fps = std::stoi(argv[1]);
-        if(fps < 1) fps=1;
-        if(fps > 10000) fps=10000;
+        int fpsSigned = std::stoi(argv[1]);
+        if(fpsSigned < 1) fps=1;
+        if(fpsSigned > 10000) fps=10000;
     }
     domain->setTargetFPS(fps);
     return Nebulite::Constants::ErrorTable::NONE();
@@ -292,7 +297,8 @@ Nebulite::Constants::Error General::selectedObject_get(int argc,  char** argv){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
-    uint32_t id = std::stoi(argv[1]);
+    // Supports only uint32_t ids
+    uint32_t id = static_cast<uint32_t>(std::stoul(argv[1]));
     Nebulite::Core::RenderObject* obj = domain->getObjectFromId(id);
     
     if (obj){
