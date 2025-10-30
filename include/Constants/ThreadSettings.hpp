@@ -4,7 +4,8 @@
  * Threading settings for Nebulite's rendering and expression evaluation.
  */
 
-#pragma once
+#ifndef NEBULITE_CONSTANTS_THREADSETTINGS_HPP
+#define NEBULITE_CONSTANTS_THREADSETTINGS_HPP
 
 //------------------------------------------
 
@@ -20,7 +21,7 @@
  * @brief Number of orderered double pointer maps for expression evaluations.
  * 
  * If set to 1, all threads share the same map.
- * Optimized to not use any special indexing, but simple access to [0] if set to 1.
+ * Optimized to not use any special indexing, but simple access to [0] if set to 1. 
  */
 #define ORDERED_DOUBLE_POINTERS_MAPS 5
 
@@ -28,6 +29,10 @@
  * @def INVOKE_EXPR_POOL_SIZE
  *
  * Size of the expression pool for each expression.
+ * 
+ * @todo more benchmarks necessary, initial tests show that
+ * A poolsize of 1 (no pool) is minimally faster.
+ * Perhaps a small overhaul is needed to actually make use of the pool?
  */
 #define INVOKE_EXPR_POOL_SIZE ORDERED_DOUBLE_POINTERS_MAPS
 
@@ -39,10 +44,7 @@
  * Target cost of each Render::update thread batch.
  */
 #define BATCH_COST_GOAL 250
-
-
-
-/*
+/**
 RESULTS using ./bin/Nebulite task TaskFiles/Benchmarks/spawn_constantly.nebs 
 
 Date            Result      THREADED_MIN_BATCHSIZE  BATCH_COST_GOAL INVOKE_EXPR_POOL_SIZE
@@ -62,3 +64,5 @@ Date            Result      THREADRUNNER_COUNT      BATCH_COST_GOAL INVOKE_EXPR_
 2025-10-13:      7.2s       30                      250             30                      # Increased thread count and new BroadCastListen structure
 2025-10-17:      6.3s       25                      250             05                      # Improved Expression evaluation with ordered double pointer lists and hash-free access
 */
+
+#endif // NEBULITE_CONSTANTS_THREADSETTINGS_HPP

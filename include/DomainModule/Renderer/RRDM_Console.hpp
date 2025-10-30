@@ -4,7 +4,8 @@
  * This file contains the DomainModule of the GlobalSpace to provide console capabilities.
  */
 
-#pragma once
+#ifndef NEBULITE_RRDM_CONSOLE_HPP
+#define NEBULITE_RRDM_CONSOLE_HPP
 
 //------------------------------------------
 // Includes
@@ -28,14 +29,12 @@ namespace Nebulite{
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace Renderer {
+namespace Nebulite::DomainModule::Renderer {
 /**
  * @class Nebulite::DomainModule::Renderer::Console
  * @brief DomainModule for Console capabilities within the Renderer.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Console) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Console){
 public:
     /**
      * @brief Override of update.
@@ -51,9 +50,9 @@ public:
      * @param argv Argument values: [in/out/+/-], defaults to in/+.
      * @return Error code.
      */
-    Nebulite::Constants::Error consoleZoom(int argc,  char* argv[]);
-    static const std::string consoleZoom_name;
-    static const std::string consoleZoom_desc;
+    Nebulite::Constants::Error consoleZoom(int argc,  char** argv);
+    static std::string const consoleZoom_name;
+    static std::string const consoleZoom_desc;
 
     /**
      * @brief Sets a background image for the console.
@@ -61,15 +60,15 @@ public:
      * @param argv Argument values: [image_path].
      * @return Error code.
      */
-    Nebulite::Constants::Error consoleSetBackground(int argc,  char* argv[]);
-    static const std::string consoleSetBackground_name;
-    static const std::string consoleSetBackground_desc;
+    Nebulite::Constants::Error consoleSetBackground(int argc,  char** argv);
+    static std::string const consoleSetBackground_name;
+    static std::string const consoleSetBackground_desc;
 
     //------------------------------------------
     // Category strings
 
-    static const std::string console_name;
-    static const std::string console_desc;
+    static std::string const console_name;
+    static std::string const console_desc;
 
     //------------------------------------------
     // Setup
@@ -86,20 +85,35 @@ public:
     }
 private: 
     //------------------------------------------
-    // Configuration
+    // Basic Configuration
 
     // Key to toggle console
     std::string toggleKey = "input.keyboard.delta.tab";
 
-    uint8_t MINIMUM_LINES = 8;      // Minimum number of lines to show, including input line
-    uint8_t LINE_PADDING = 10;      // Padding between lines in pixels
-    uint8_t FONT_MAX_SIZE = 24;     // Maximum font size
+    // Font to use
+    std::string consoleFontPath = "Resources/Fonts/JetBrainsMono-Medium.ttf";
 
-    // y positions of each line, derived from console height
-    std::vector<uint16_t> line_y_positions;
+    struct ConsoleLayout{
+        uint16_t MINIMUM_LINES = 8;     // Minimum number of lines to show, including input line
+        uint16_t LINE_PADDING = 10;     // Padding between lines in pixels
+        uint16_t FONT_MAX_SIZE = 24;    // Maximum font size
+        double heightRatio = 0.75;      // Console takes 75% of the screen height
+    } consoleLayout;
+
+    /**
+     * @struct Colors
+     * @brief Struct to hold color definitions for the console.
+     */
+    struct Colors{
+        SDL_Color background = { 30,  30, 100, 150};    // Semi-transparent gray-blue
+        SDL_Color input      = {200, 200, 200, 255};    // Light gray
+        SDL_Color highlight  = {100, 100, 100, 255};    // Dark gray
+        SDL_Color cerrStream = {255,  40,  40, 255};    // Light Red
+        SDL_Color coutStream = {255, 255, 255, 255};    // White
+    }color;
     
     //------------------------------------------
-    // State
+    // State-related variables and functions
 
     // Whether the console has been initialized
     bool initialized = false;
@@ -107,8 +121,11 @@ private:
     // Flag to indicate if text alignment needs recalculation
     bool flag_recalculateTextAlignment = true;
 
-    // Scrolling offset for output lines
-    uint16_t outputScrollingOffset = 0;
+    /**
+     * @brief Scrolling offset for output lines
+     * Used to scroll through previous console output.
+     */
+    int32_t outputScrollingOffset = 0;
 
     /**
      * @brief Initializes the console, setting up the font and other necessary components.
@@ -116,7 +133,13 @@ private:
     void init();
 
     //------------------------------------------
-    // Texture and Font related
+    // Other variables
+
+    // y positions of each line, derived from console height
+    std::vector<uint16_t> line_y_positions;
+
+    //------------------------------------------
+    // Texture and Font related objects
 
     // Font for console text
 	TTF_Font* consoleFont = nullptr;
@@ -141,18 +164,6 @@ private:
      */
     SDL_Rect textOutputRect;
 
-    /**
-     * @struct Colors
-     * @brief Struct to hold color definitions for the console.
-     */
-    struct Colors{
-        SDL_Color background = { 30,  30, 100, 150};    // Semi-transparent gray-blue
-        SDL_Color input      = {200, 200, 200, 255};    // Light gray
-        SDL_Color highlight  = {100, 100, 100, 255};    // Dark gray
-        SDL_Color cerrStream = {255,  40,  40, 255};    // Light Red
-        SDL_Color coutStream = {255, 255, 255, 255};    // White
-    }color;
-
     // Texture for console rendering
     struct SDL_Texture_Wrapper{
         SDL_Rect rect;
@@ -174,11 +185,12 @@ private:
      * @brief Populates vector line_y_positions with the y positions of each line,
      * and sets font size accordingly.
      * 
-     * @todo Make sure the lines are aligned at the top instead of the bottom to reduce jitter when resizing.
-     * 
+     * @param rect_height The height of the console rectangle in pixels.
      * @return The calculated line height.
+     * 
+     * @todo Make sure the lines are aligned at the top instead of the bottom to reduce jitter when resizing.
      */
-    uint8_t calculateTextAlignment(uint16_t rect_height);
+    uint16_t calculateTextAlignment(uint16_t rect_height);
 
     /**
      * @brief Processes input events for the console.
@@ -271,6 +283,5 @@ private:
     // Text input handling
     Nebulite::Utility::TextInput textInput;
 };
-}   // namespace GlobalSpace
-}   // namespace DomainModule
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::GlobalSpace
+#endif // NEBULITE_RRDM_CONSOLE_HPP

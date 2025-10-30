@@ -14,7 +14,9 @@
             },
             "cacheVariables": {
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "SDL2TTF_VENDORED": "ON"
+                "SDL2TTF_VENDORED": "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
             }
         },
         {
@@ -23,7 +25,8 @@
             "displayName": "Linux Debug",
             "description": "Debug build for Linux",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_FLAGS": "-mno-avx512f -mno-avx512bw -mno-avx512vl -mno-avx512dq -mno-avx512ifma -mno-avx512vbmi -mno-avx512bf16"
             }
         },
         {
@@ -33,7 +36,7 @@
             "description": "Release build for Linux with optimizations",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_CXX_FLAGS_RELEASE": "-O3 -DNDEBUG -march=native",
+                "CMAKE_CXX_FLAGS": "-O3 -DNDEBUG",
                 "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
             }
         },
@@ -43,6 +46,8 @@
             "displayName": "Linux Coverage",
             "description": "Coverage build for Linux",
             "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++",
                 "CMAKE_BUILD_TYPE": "Coverage"
             }
         },

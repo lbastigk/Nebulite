@@ -17,8 +17,7 @@
 #endif
 
 //------------------------------------------
-namespace Nebulite{
-namespace DomainModule{
+namespace Nebulite::DomainModule {
 /**
  * @brief Inserts all DomainModules into the Texture domain.
  */
@@ -31,5 +30,4 @@ void TXDM_init(Nebulite::Core::Texture* target){
         target->initModule<Fill>("Texture Fill Functions");
     #endif
 }
-}
-}
+} // namespace Nebulite::DomainModule

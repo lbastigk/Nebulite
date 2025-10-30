@@ -4,7 +4,8 @@
  * This file contains the Ruleset struct, representing a single invoke entry of a RenderObject for manipulation.
  */
 
-#pragma once
+#ifndef NEBULITE_INTERACTION_RULESET_HPP
+#define NEBULITE_INTERACTION_RULESET_HPP
 
 //------------------------------------------
 // Includes
@@ -15,15 +16,12 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class RenderObject;
-    }
+namespace Nebulite::Core {
+    class RenderObject; // Forward declaration of RenderObject
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace Interaction {
+namespace Nebulite::Interaction {
 /**
  * @struct Nebulite::Interaction::Ruleset
  * @brief Represents a single invoke entry of a RenderObject for manipulation.
@@ -128,18 +126,18 @@ struct Ruleset{
     /**
      * @brief Cost of this entry, estimated during parsing.
      */
-    uint64_t estimatedCost = 0;
+    size_t estimatedCost = 0;
 
-    void estimateComputationalCost() {
+    void estimateComputationalCost(){
         // Count number of $ and { in logicalArg
-        const std::string* expr = logicalArg.getFullExpression();
-        estimatedCost += std::count(expr->begin(), expr->end(), '$');
+        std::string const* expr = logicalArg.getFullExpression();
+        estimatedCost += static_cast<size_t>(std::count(expr->begin(), expr->end(), '$'));
 
         // Count number of $ and { in exprs
-        for (const auto& assignment : assignments) {
-            const std::string* value = assignment.expression.getFullExpression();
-            estimatedCost += std::count(value->begin(), value->end(), '$');
-            estimatedCost += std::count(value->begin(), value->end(), '{');
+        for (auto const& assignment : assignments){
+            std::string const* value = assignment.expression.getFullExpression();
+            estimatedCost += static_cast<size_t>(std::count(value->begin(), value->end(), '$'));
+            estimatedCost += static_cast<size_t>(std::count(value->begin(), value->end(), '{'));
         }
     }
 
@@ -151,5 +149,5 @@ struct Ruleset{
     Ruleset(Ruleset&&) = delete;
     Ruleset& operator=(Ruleset&&) = delete;
 };
-} // namespace Interaction
-} // namespace Nebulite
+} // namespace Nebulite::Interaction
+#endif // NEBULITE_INTERACTION_RULESET_HPP

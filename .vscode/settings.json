@@ -94,33 +94,40 @@
         "scoped_allocator": "cpp",
         "stack": "cpp",
         "stdfloat": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "print": "cpp",
+        "__bit_reference": "cpp",
+        "__hash_table": "cpp",
+        "__locale": "cpp",
+        "__node_handle": "cpp",
+        "__split_buffer": "cpp",
+        "__verbose_abort": "cpp",
+        "execution": "cpp",
+        "ios": "cpp",
+        "locale": "cpp",
+        "strstream": "cpp",
+        "barrier": "cpp",
+        "coroutine": "cpp",
+        "csetjmp": "cpp",
+        "cuchar": "cpp",
+        "expected": "cpp",
+        "netfwd": "cpp",
+        "source_location": "cpp",
+        "rope": "cpp",
+        "slist": "cpp",
+        "flat_map": "cpp",
+        "flat_set": "cpp",
+        "generator": "cpp",
+        "latch": "cpp",
+        "spanstream": "cpp",
+        "stacktrace": "cpp",
+        "syncstream": "cpp",
+        "__tree": "cpp"
     },
-    "c-cpp-flylint.run": "onSave",
-    "c-cpp-flylint.cppcheck.enable": true,
-    "c-cpp-flylint.cppcheck.extraArgs": [
-        "--check-level=exhaustive",
-        "--suppress=unusedStructMember",
-        "--suppress=missingIncludeSystem"
-    ],
-    "c-cpp-flylint.cppcheck.includePaths": [
-        "${workspaceFolder}/include",
-        "${workspaceFolder}/src"
-    ],
-    "c-cpp-flylint.clang.extraArgs": [
-        "-std=c++20",
-        "-I${workspaceFolder}/include",
-        "-I${workspaceFolder}/src"
-    ],
-    "c-cpp-flylint.excludeFromWorkspacePaths": [
-        "**/external/**",
-        "**/external/rapidjson/**",
-        "**/external/rapidjson/include/rapidjson/**",
-        "external/**",
-        "external/*",
-        "external/",
-        "/usr/include/c++/**",
-        "/usr/lib/**",
-        "/lib/**"
+    "clangd.enable": true,
+    "clangd.checkUpdates": true,
+    "clangd.path": "/bin/clangd",
+    "clangd.arguments": [
+        "--compile-commands-dir=${workspaceFolder}/tmp/build_linux-debug/"
     ]
 }

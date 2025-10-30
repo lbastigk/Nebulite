@@ -4,14 +4,20 @@
  * This file contains the DomainModule of the GlobalSpace for debugging capabilities.
  */
 
-#pragma once
+#ifndef NEBULITE_GSDM_DEBUG_HPP
+#define NEBULITE_GSDM_DEBUG_HPP
 
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <fstream>
+#include <memory>
+
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
+
 
 //------------------------------------------
 // Forward declarations
@@ -22,14 +28,12 @@ namespace Nebulite{
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace GlobalSpace {
+namespace Nebulite::DomainModule::GlobalSpace{
 /**
  * @class Nebulite::DomainModule::GlobalSpace::Debug
  * @brief DomainModule for debugging capabilities within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug){
 public:
     /**
      * @brief Override of update.
@@ -52,9 +56,9 @@ public:
      * @todo: errorlog on causes crash with wine
      * wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
      */
-    Nebulite::Constants::Error errorlog(int argc,  char* argv[]);
-    static const std::string errorlog_name;
-    static const std::string errorlog_desc;
+    Nebulite::Constants::Error errorlog(int argc,  char** argv);
+    static std::string const errorlog_name;
+    static std::string const errorlog_desc;
 
     /**
      * @brief Clears the console screen.
@@ -63,9 +67,9 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error clearConsole(int argc,  char* argv[]);
-    static const std::string clearConsole_name;
-    static const std::string clearConsole_desc;
+    Nebulite::Constants::Error clearConsole(int argc,  char** argv);
+    static std::string const clearConsole_name;
+    static std::string const clearConsole_desc;
 
     /**
      * @brief Logs the global document to a file.
@@ -75,9 +79,9 @@ public:
      * Default is "global.log.jsonc" if no name was provided
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error log_global(int argc,  char* argv[]);
-    static const std::string log_global_name;
-    static const std::string log_global_desc;
+    Nebulite::Constants::Error log_global(int argc,  char** argv);
+    static std::string const log_global_name;
+    static std::string const log_global_desc;
 
     /**
      * @brief Logs the current state of the renderer to a file.
@@ -87,9 +91,9 @@ public:
      * Default is "state.log.jsonc" if no name was provided
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error log_state(int argc,  char* argv[]);
-    static const std::string log_state_name;
-    static const std::string log_state_desc;
+    Nebulite::Constants::Error log_state(int argc,  char** argv);
+    static std::string const log_state_name;
+    static std::string const log_state_desc;
 
     /**
      * @brief Crashes the program, useful for checking 
@@ -100,9 +104,9 @@ public:
      * Default is segfault if no argument was provided
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error crash(int argc,  char* argv[]);
-    static const std::string crash_name;
-    static const std::string crash_desc;
+    Nebulite::Constants::Error crash(int argc,  char** argv);
+    static std::string const crash_name;
+    static std::string const crash_desc;
 
     /**
      * @brief Echoes all arguments as string to the standard error
@@ -111,9 +115,9 @@ public:
      * @param argv The argument vector: <string>
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error error(int argc,  char* argv[]);
-    static const std::string error_name;
-    static const std::string error_desc;
+    Nebulite::Constants::Error error(int argc,  char** argv);
+    static std::string const error_name;
+    static std::string const error_desc;
 
     /**
      * @brief Returns a warning: a custom, noncritical error
@@ -122,9 +126,9 @@ public:
      * @param argv The argument vector: <string>
      * @return The specified value of Error. 
      */
-    Nebulite::Constants::Error warn(int argc,  char* argv[]);
-    static const std::string warn_name;
-    static const std::string warn_desc;
+    Nebulite::Constants::Error warn(int argc,  char** argv);
+    static std::string const warn_name;
+    static std::string const warn_desc;
 
     /**
      * @brief Returns a critical error
@@ -133,9 +137,9 @@ public:
      * @param argv The argument vector: <string>
      * @return The specified value of Error.
      */
-    Nebulite::Constants::Error critical(int argc,  char* argv[]);
-    static const std::string critical_name;
-    static const std::string critical_desc;
+    Nebulite::Constants::Error critical(int argc,  char** argv);
+    static std::string const critical_name;
+    static std::string const critical_desc;
 
     /**
      * @brief Waits for user input before continuing.
@@ -144,9 +148,9 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error waitForInput(int argc,  char* argv[]);
-    static const std::string waitForInput_name;
-    static const std::string waitForInput_desc;
+    Nebulite::Constants::Error waitForInput(int argc,  char** argv);
+    static std::string const waitForInput_name;
+    static std::string const waitForInput_desc;
 
     /**
      * @brief Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
@@ -155,17 +159,17 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error standardfile_renderobject(int argc,  char* argv[]);
-    static const std::string standardfile_renderobject_name;
-    static const std::string standardfile_renderobject_desc;
+    Nebulite::Constants::Error standardfile_renderobject(int argc,  char** argv);
+    static std::string const standardfile_renderobject_name;
+    static std::string const standardfile_renderobject_desc;
 
     //------------------------------------------
     // Category names
-    static const std::string log_name;
-    static const std::string log_desc;
+    static std::string const log_name;
+    static std::string const log_desc;
 
-    static const std::string standardfile_name;
-    static const std::string standardfile_desc;
+    static std::string const standardfile_name;
+    static std::string const standardfile_desc;
 
     //------------------------------------------
     // Setup
@@ -201,6 +205,5 @@ private:
     // true  : logging to file
     bool errorLogStatus = false;
 };
-}   // namespace GlobalSpace
-}   // namespace DomainModule
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::GlobalSpace
+#endif // NEBULITE_GSDM_DEBUG_HPP

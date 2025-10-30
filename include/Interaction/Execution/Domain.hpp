@@ -4,7 +4,8 @@
  * @brief This file defines the Domain class, which serves as a base class for creating a Nebulite domain.
  */
 
-#pragma once
+#ifndef NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
+#define NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
 
 //------------------------------------------
 // Macro to define a new Nebulite Domain class
@@ -45,9 +46,7 @@ namespace Nebulite{
 
 
 //------------------------------------------
-namespace Nebulite{
-namespace Interaction{
-namespace Execution{
+namespace Nebulite::Interaction::Execution{
 /**
  * @class Domain
  * @brief The Domain class serves as a base class for creating a Nebulite domain.
@@ -72,8 +71,10 @@ public:
           Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
       )),
       domain(domain), doc(doc), global(global)
-    {};
+    {}
 
+    virtual ~Domain() = default;
+    
     //------------------------------------------
     // Binding, initializing and inheriting
 
@@ -84,7 +85,7 @@ public:
      * @param moduleName The name of the module
      */
     template<typename DomainModuleType>
-    void initModule(std::string moduleName) {
+    void initModule(std::string moduleName){
         auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, funcTree, global);
         modules.push_back(std::move(DomainModule));
     }
@@ -94,7 +95,7 @@ public:
      * 
      * For binding functions or categories, use the DomainModule interface.
      */
-    void bindVariable(bool* varPtr, const std::string& name, const std::string* helpDescription){
+    void bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription){
         funcTree->bindVariable(varPtr, name, helpDescription);
     }
 
@@ -116,7 +117,7 @@ public:
      * 
      * On overwriting, make sure to update all subdomains and domainmodules as well.
      */
-    virtual Nebulite::Constants::Error update(){return Nebulite::Constants::ErrorTable::NONE();};
+    virtual Nebulite::Constants::Error update(){ return Nebulite::Constants::ErrorTable::NONE(); }
 
     /**
      * @brief Updates all DomainModules.
@@ -141,7 +142,7 @@ public:
 	 * 
 	 * The first argument is reserved for debugging and should be used as a way to tell the parser from where it was called:
 	 * ```cpp
-	 * void myFunction() {
+	 * void myFunction(){
 	 *   parseStr("myFunction set text.str Hello World");
 	 * }
 	 * ```
@@ -163,7 +164,7 @@ public:
      * - If we inherit from another domain, we parse once, no double printing
      * - If we add a domain, for instance, in a DomainModule, we have a parse within a parse, leading to double printing
 	 */
-	Nebulite::Constants::Error parseStr(const std::string& str){
+	Nebulite::Constants::Error parseStr(std::string const& str){
         Nebulite::Constants::Error err = funcTree->parseStr(str);
         //err.print();  // Disabled for now, but needs proper treatment later
         return err;
@@ -203,6 +204,38 @@ public:
      * @return A pointer to the globalspace.
      */
     Nebulite::Core::GlobalSpace* getGlobalSpace() const {return global;}
+
+    //------------------------------------------
+    // Logging
+
+    /**
+     * @brief Logs to the Nebulite logging system with a newline.
+     * 
+     * This function logs a message to the Nebulite logging system and appends a newline.
+     * 
+     * @param message The message to log.
+     */
+    void logln(std::string const& message){
+        Nebulite::Utility::Capture::cout() << message << Nebulite::Utility::Capture::endl;
+    }
+
+    /**
+     * @brief Log an error to the Nebulite logging system.
+     * 
+     * @param message The error message to log.
+     */
+    void logError(std::string const& message){
+        Nebulite::Utility::Capture::cerr() << message;
+    }
+
+    /**
+     * @brief Logs an error to the Nebulite logging system with a newline.
+     * 
+     * @param message The error message to log.
+     */
+    void logErrorln(std::string const& message){
+        Nebulite::Utility::Capture::cerr() << message << Nebulite::Utility::Capture::endl;
+    }
 
 private:
     //------------------------------------------
@@ -253,6 +286,5 @@ private:
      */
     Nebulite::Core::GlobalSpace* const global;
 };
-}   // namespace Execution
-}   // namespace Interaction
-}   // namespace Nebulite
+}   // namespace Nebulite::Interaction::Execution
+#endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP

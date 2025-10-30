@@ -3,12 +3,13 @@
  * @brief Random Number Generation utilities.
  */
 
-#pragma once
+#ifndef NEBULITE_UTILITY_RNG_HPP
+#define NEBULITE_UTILITY_RNG_HPP
 
 //------------------------------------------
 // Includes
 
-// General
+// Standard library
 #include <string>
 #include <cstdint>
 
@@ -55,3 +56,4 @@ private:
 };
 
 } // namespace Nebulite::Utility
+#endif // NEBULITE_UTILITY_RNG_HPP

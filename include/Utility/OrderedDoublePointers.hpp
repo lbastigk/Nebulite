@@ -3,7 +3,8 @@
  * @brief Defines a list of double pointers for interaction logic.
  */
 
-#pragma once
+#ifndef NEBULITE_UTILITY_ORDEREDDOUBLEPOINTERS_HPP
+#define NEBULITE_UTILITY_ORDEREDDOUBLEPOINTERS_HPP
 
 //------------------------------------------
 // Includes
@@ -13,7 +14,7 @@
 #include <mutex>
 
 // External
-#include "absl/container/flat_hash_map.h"
+#include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Nebulite.hpp"
@@ -21,6 +22,13 @@
 //------------------------------------------
 // Defines
 
+/**
+ * @brief Size of the quickcache for ordered double pointers.
+ * This defines how many OrderedDoublePointers can be cached for quick access
+ * without needing to look them up in a hashmap.
+ * 
+ * see MappedOrderedDoublePointers::quickCache for important considerations.
+ */
 #define ORDERED_DOUBLE_POINTERS_QUICKCACHE_SIZE 30
 
 //------------------------------------------
@@ -32,16 +40,16 @@ namespace Nebulite::Utility {
  */
 class DynamicFixedArray {
 public:
-    DynamicFixedArray() : data_(nullptr), size_(0), capacity_(0) {}
+    DynamicFixedArray() : data_(nullptr), size_(0), capacity_(0){}
     
     explicit DynamicFixedArray(size_t fixed_size) 
         : data_(fixed_size > 0 ? new double*[fixed_size] : nullptr), 
           size_(0), 
-          capacity_(fixed_size) {}
+          capacity_(fixed_size){}
 
     // Move constructor
     DynamicFixedArray(DynamicFixedArray&& other) noexcept 
-        : data_(other.data_), size_(other.size_), capacity_(other.capacity_) {
+        : data_(other.data_), size_(other.size_), capacity_(other.capacity_){
         other.data_ = nullptr;
         other.size_ = 0;
         other.capacity_ = 0;
@@ -49,7 +57,7 @@ public:
 
     // Move assignment
     DynamicFixedArray& operator=(DynamicFixedArray&& other) noexcept {
-        if (this != &other) {
+        if (this != &other){
             delete[] data_;
             data_ = other.data_;
             size_ = other.size_;
@@ -61,7 +69,7 @@ public:
         return *this;
     }
 
-    ~DynamicFixedArray() {
+    ~DynamicFixedArray(){
         delete[] data_;
     }
 
@@ -69,8 +77,8 @@ public:
     DynamicFixedArray(const DynamicFixedArray&) = delete;
     DynamicFixedArray& operator=(const DynamicFixedArray&) = delete;
 
-    inline void push_back(double* ptr) {
-        if (size_ < capacity_) {
+    inline void push_back(double* ptr){
+        if (size_ < capacity_){
             data_[size_++] = ptr;
         }
     }
@@ -94,8 +102,8 @@ private:
  */
 class OrderedDoublePointers {
 public:
-    OrderedDoublePointers() : orderedValues() {}
-    explicit OrderedDoublePointers(size_t exact_size) : orderedValues(exact_size) {}
+    OrderedDoublePointers() : orderedValues(){}
+    explicit OrderedDoublePointers(size_t exact_size) : orderedValues(exact_size){}
 
     static constexpr size_t max_inline_size = 32;
     DynamicFixedArray orderedValues;
@@ -124,4 +132,6 @@ struct MappedOrderedDoublePointers{
 } // namespace Nebulite::Utility
 
 using odpvec = Nebulite::Utility::DynamicFixedArray;
+
+#endif // NEBULITE_UTILITY_ORDEREDDOUBLEPOINTERS_HPP
 

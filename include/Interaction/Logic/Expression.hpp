@@ -4,28 +4,27 @@
  * This file contains the definition of the Expression class, which is responsible for parsing and evaluating expressions within the Nebulite engine.
  */
 
-#pragma once
+#ifndef NEBULITE_INTERACTION_LOGIC_EXPRESSION_HPP
+#define NEBULITE_INTERACTION_LOGIC_EXPRESSION_HPP
 
 //------------------------------------------
 // Includes
 
-// General
-#include "string"
+// Standard library
+#include <string>
 #include <memory>
-#include <deque>
+#include <cfloat>
+#include <cmath>
 
 // External
-#include "tinyexpr.h"
+#include <tinyexpr.h>
 
 // Nebulite
 #include "Interaction/Logic/VirtualDouble.hpp"
 #include "Utility/DocumentCache.hpp"
-#include "Utility/Capture.hpp"
 
 //------------------------------------------
-namespace Nebulite {
-namespace Interaction {
-namespace Logic {
+namespace Nebulite::Interaction::Logic {
 /**
  * @class Nebulite::Interaction::Logic::Expression
  * @brief The Expression class is responsible for parsing and evaluating expressions.
@@ -53,7 +52,7 @@ public:
      * @param self The JSON object representing the "self" context.
      * @param global The JSON object representing the "global" context.
      */
-    void parse(const std::string& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global);
+    void parse(std::string const& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global);
 
     /**
      * @brief Checks if the expression can be returned as a double.
@@ -69,6 +68,14 @@ public:
      */
     bool isReturnableAsDouble(){
         return _isReturnableAsDouble;
+    }
+
+    /**
+     * @brief Checks if the expression is always true (i.e., "1").
+     * @return True if the expression is always true, false otherwise.
+     */
+    bool isAlwaysTrue(){
+        return _isAlwaysTrue;
     }
 
     /**
@@ -93,23 +100,40 @@ public:
      * 
      * @return The full expression string.
      */
-    const std::string* getFullExpression() const noexcept {return &fullExpression;};
+    std::string const* getFullExpression() const noexcept {return &fullExpression;}
+
+    /**
+     * @brief Forcefully sets the unique ID for the expression.
+     * Be careful when using this, as it might lead to issues with virtualDouble tracking!
+     * This is only used when the id was calculated externally, e.g. in ExpressionPool.
+     * @param id The unique ID to set.
+     */
+    void setUniqueId(uint64_t id){
+        uniqueId = id;
+    }
+
+    //------------------------------------------
+    // Helpers for recalculating expression info
+    // helpful for expressionpool to reduce the amount of parsing needed
+
+    /**
+     * @brief Recalculates whether the expression is returnable as a double.
+     * @return True if the expression can be returned as a double, false otherwise.
+     */
+    bool recalculateIsReturnableAsDouble();
+
+    /**
+     * @brief Recalculates whether the expression is always true (i.e., "1").
+     * @return True if the expression is always true, false otherwise.
+     */
+    bool recalculateIsAlwaysTrue();
 
 private:
-    /**
-     * @brief link to the remanentself context
-     */
-    Nebulite::Utility::JSON* self = nullptr;
-
-    /**
-     * @brief link to the remanent global context
-     */
-    Nebulite::Utility::JSON* global = nullptr;
-
-    /**
-     * @brief link to the non-remanent document cache
-     */
-    Nebulite::Utility::DocumentCache* globalCache = nullptr;
+    struct References{
+        Nebulite::Utility::JSON* self = nullptr;
+        Nebulite::Utility::JSON* global = nullptr;
+        Nebulite::Utility::DocumentCache* documentCache = nullptr;
+    } references;
 
     /**
      * @struct Nebulite::Interaction::Logic::Expression::Component
@@ -207,7 +231,7 @@ private:
         /**
          * @brief Destructor to clean up allocated resources.
          */
-        ~Component() {
+        ~Component(){
             te_free(expression);
         }
 
@@ -226,7 +250,7 @@ private:
 
         // Move assignment
         Component& operator=(Component&& other) noexcept {
-            if (this != &other) {
+            if (this != &other){
                 te_free(expression);
                 type = other.type;
                 from = other.from;
@@ -241,27 +265,33 @@ private:
         }
     };
 
-    using vd_list = std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>;
-
     /**
-     * @brief Holds all virtual double entries for the self context.
+     * @struct Nebulite::Interaction::Logic::Expression::VirtualDoubleLists
+     * @brief Holds lists of VirtualDouble entries for different contexts.
      */
-    vd_list virtualDoubles_self;
+    struct VirtualDoubleLists{
+        using vd_list = std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>;
 
-    /**
-     * @brief Holds all virtual double entries for the other context.
-     */
-    vd_list virtualDoubles_other;
+        /**
+         * @brief Holds all virtual double entries for the self context.
+         */
+        vd_list self;
 
-    /**
-     * @brief Holds all virtual double entries for the global context.
-     */
-    vd_list virtualDoubles_global;
+        /**
+         * @brief Holds all virtual double entries for the other context.
+         */
+        vd_list other;
 
-    /**
-     * @brief Holds all virtual double entries for the resource context.
-     */
-    vd_list virtualDoubles_resource;
+        /**
+         * @brief Holds all virtual double entries for the global context.
+         */
+        vd_list global;
+
+        /**
+         * @brief Holds all virtual double entries for the resource context.
+         */
+        vd_list resource;
+    } virtualDoubles;
 
     /**
      * @brief A collection of custom functions for TinyExpr
@@ -271,33 +301,67 @@ private:
     class expr_custom{
     public:
         // Logical comparison functions
-        static double gt(double a, double b) {return a > b;}
-        static double lt(double a, double b) {return a < b;}
-        static double geq(double a, double b) {return a >= b;}
-        static double leq(double a, double b) {return a <= b;}
-        static double eq(double a, double b){return a == b;}
-        static double neq(double a, double b){return a != b;}
+        static double gt(double a, double b){return a > b;}
+        static double lt(double a, double b){return a < b;}
+        static double geq(double a, double b){return a >= b;}
+        static double leq(double a, double b){return a <= b;}
+        static double eq(double a, double b){
+            return (std::fabs(a - b) < DBL_EPSILON);
+        }
+        static double neq(double a, double b){
+            return !(std::fabs(a - b) > DBL_EPSILON);
+        }
 
         // Logical gate functions
-        static double logical_not(double a){return !a;}
+        static double logical_not(double a){
+            return !(std::fabs(a) > DBL_EPSILON);
+        }
 
-        static double logical_and(double a, double b){return a && b;}
-        static double logical_or(double a, double b){return a || b;}
-        static double logical_xor(double a, double b){return (a || b) && !(a && b);}
+        static double logical_and(double a, double b){
+            bool aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool bLogical = (std::fabs(b) > DBL_EPSILON);
+            return static_cast<double>(aLogical && bLogical);
+        }
+        static double logical_or(double a, double b){
+            bool aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool bLogical = (std::fabs(b) > DBL_EPSILON);
+            return static_cast<double>(aLogical || bLogical);
+        }
+        static double logical_xor(double a, double b){
+            bool aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool bLogical = (std::fabs(b) > DBL_EPSILON);
+            return static_cast<double>(aLogical != bLogical);
+        }
 
-        static double logical_nand(double a, double b){return !(a && b);}
-        static double logical_nor(double a, double b){return !(a || b);}
-        static double logical_xnor(double a, double b){return !( (a || b) && !(a && b) );}
+        static double logical_nand(double a, double b){
+            bool aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool bLogical = (std::fabs(b) > DBL_EPSILON);
+            return !(aLogical && bLogical);
+        }
+        static double logical_nor(double a, double b){
+            bool aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool bLogical = (std::fabs(b) > DBL_EPSILON);
+            return static_cast<double>(!(aLogical || bLogical));
+        }
+        static double logical_xnor(double a, double b){
+            bool aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool bLogical = (std::fabs(b) > DBL_EPSILON);
+            return static_cast<double>(!( (aLogical || bLogical) && !(aLogical && bLogical) ));
+        }
 
         // Other logical functions
-        static double to_bipolar(double a){return a != 0 ? 1 : -1;}
+        static double to_bipolar(double a){
+            return (std::fabs(a) > DBL_EPSILON) ? 1 : -1;
+        }
 
         // Mapping functions
-        static double map(double value, double in_min, double in_max, double out_min, double out_max) {
-            if(in_max - in_min == 0) return out_min; // Prevent division by zero
+        static double map(double value, double in_min, double in_max, double out_min, double out_max){
+            if(std::fabs(in_max - in_min) < DBL_EPSILON) return out_min; // Prevent division by zero
+            if(value < in_min) return out_min;
+            if(value > in_max) return out_max;
             return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
         }
-        static double constrain(double value, double min, double max) {
+        static double constrain(double value, double min, double max){
             if(value < min) return min;
             if(value > max) return max;
             return value;
@@ -311,6 +375,11 @@ private:
      * @brief Storing info about the expression's returnability
      */
     bool _isReturnableAsDouble;
+
+    /**
+     * @brief Storing info about the expression's always-true state
+     */
+    bool _isAlwaysTrue;
 
     /**
      * @brief Resets the expression to its initial state.
@@ -340,11 +409,6 @@ private:
      * @brief Collection of all registered variables and functions
      */
     std::vector<te_variable> te_variables;   // Variables for TinyExpr evaluation
-
-    /**
-     * @brief Reference to the resource context
-     */
-    Nebulite::Utility::DocumentCache* documentCache = nullptr;
 
     /**
      * @brief The unique ID from globalspace for this expression string
@@ -390,7 +454,7 @@ private:
      * 
      * @return The key without its context prefix.
      */
-    static std::string stripContext(const std::string& key);
+    static std::string stripContext(std::string const& key);
 
     /**
      * @brief Gets the context from a key before it's stripped
@@ -401,15 +465,14 @@ private:
      * 
      * @return The context of the key.
      */
-    static Component::From getContext(const std::string& key);
+    static Component::From getContext(std::string const& key);
 
     /**
      * @brief Parses the given expression into a series of components.
      * 
      * @param expr The expression string to parse.
-     * @param components The vector to populate with the parsed components.
      */
-    void parseIntoComponents(const std::string& expr, std::vector<std::shared_ptr<Component>>& components);
+    void parseIntoComponents(std::string const& expr);
 
     /**
      * @brief Reads the formatter string from a string and parses it intro the component.
@@ -417,7 +480,7 @@ private:
      * @param component The component to populate with the parsed formatter.
      * @param formatter The formatter string to parse.
      */
-    static void readFormatter(std::shared_ptr<Component>& component, const std::string& formatter);
+    static void readFormatter(std::shared_ptr<Component> const& component, std::string const& formatter);
 
     /**
      * @brief Used to parse a string token of type "eval" into an component.
@@ -429,9 +492,8 @@ private:
      * - Pushes the current component onto the components vector.
      * 
      * @param token The token to parse.
-     * @param components The vector to push the component onto.
      */
-    void parseTokenTypeEval(const std::string& token, std::vector<std::shared_ptr<Component>>& components);
+    void parseTokenTypeEval(std::string const& token);
 
     /**
      * @brief Used to parse a string token of type "text" into an component.
@@ -445,7 +507,7 @@ private:
      * @param token The token to parse.
      * @param components The vector to push the component onto.
      */
-    void parseTokenTypeText(const std::string& token, std::vector<std::shared_ptr<Component>>& components);
+    void parseTokenTypeText(std::string const& token);
 
     /**
      * @brief Prints a compilation error message to cerr
@@ -457,16 +519,27 @@ private:
     /**
      * @brief Updates caches
      */
-    void updateCaches(Nebulite::Utility::JSON* current_other);
+    void updateCaches(Nebulite::Utility::JSON* reference);
 
     /**
+     * @brief Ensures the existence of an ordered cache list of double pointers for "other" context variables.
+     *
+     * This function checks if the current "other" reference JSON document contains a cached, ordered list of double pointers
+     * corresponding to all variables referenced by this Expression in the "other" context. If the cache entry does not exist,
+     * it is created and populated for fast indexed access during expression evaluation.
+     *
+     * This caching mechanism is critical for Nebulite's high-performance expression system, as it avoids repeated
+     * string lookups and pointer resolutions for variables in other objects, enabling near O(1) access.
+     *
+     * @param reference The JSON document representing the "other" context for variable resolution.
+     * @return A pointer to the ordered vector of double pointers for the referenced "other" variables.
      * @brief Ensures that there is a cache component for the given other JSON document and expression.
      * 
      * @param current_other The other JSON document to ensure a cache component for.
      * 
      * @return A pointer to the vector of double pointers for the expression in the other document.
      */
-    odpvec* ensure_other_cache_component(Nebulite::Utility::JSON* current_other);
+    odpvec* ensureOtherOrderedCacheList(Nebulite::Utility::JSON* reference);
 
     /**
      * @brief Handles the evaluation of a variable component.
@@ -482,6 +555,5 @@ private:
      */
     void handleComponentTypeEval(std::string& token, const std::shared_ptr<Component>& component);
 };
-} // namespace Logic
-} // namespace Interaction
-} // namespace Nebulite
+} // namespace Nebulite::Interaction::Logic
+#endif // NEBULITE_INTERACTION_LOGIC_EXPRESSION_HPP

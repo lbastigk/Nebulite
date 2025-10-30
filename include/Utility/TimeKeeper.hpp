@@ -3,7 +3,8 @@
  * @brief Contains the Nebulite::Utility::TimeKeeper class for managing time-related operations.
  */
 
-#pragma once
+#ifndef NEBULITE_UTILITY_TIMEKEEPER_HPP
+#define NEBULITE_UTILITY_TIMEKEEPER_HPP
 
 //------------------------------------------
 // Includes
@@ -12,8 +13,7 @@
 #include "Utility/Time.hpp"
 
 //------------------------------------------
-namespace Nebulite {
-namespace Utility {
+namespace Nebulite::Utility {
 /**
  * @class Nebulite::Utility::TimeKeeper
  * @brief Manages time-related operations in the Nebulite engine.
@@ -188,7 +188,7 @@ private:
         uint64_t last_t_ms;
         uint64_t t_ms;
 
-        OnUpdate() : last_t_ms(0), t_ms(0) {}
+        OnUpdate() : last_t_ms(0), t_ms(0){}
     } onUpdate;
 
     /**
@@ -200,8 +200,8 @@ private:
         uint64_t t_ms;
         uint64_t dt;
 
-        OnSimulation() : last_t_ms(0), t_ms(0), dt(0) {}
+        OnSimulation() : last_t_ms(0), t_ms(0), dt(0){}
     } onSimulation;
 };
-}   // namespace Utility
-}   // namespace Nebulite
+}   // namespace Nebulite::Utility
+#endif // NEBULITE_UTILITY_TIMEKEEPER_HPP

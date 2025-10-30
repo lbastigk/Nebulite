@@ -1,14 +1,22 @@
 /**
  * @file Nebulite.hpp
- * 
- * @brief Central file for Nebulite namespace documentation.
- * 
+ *
+ * @brief Central file for Nebulite namespace documentation. And globally available objects.
+ *
  * While classes/variables have on central definition file, namespaces are only loosely bound.
  * Meaning there isnt a consensus who first defined the namespace.
  * We use a separate file for each namespace to avoid conflicts with doxigen documentation.
+ * 
+ * @todo Since global namespace documentation is not shown in-editor, we may use this central file
+ * for globally available objects instead:
+ * 
+ * - Global ErrorTable object
+ * - Global Logger object
+ * - Globalspace Object
  */
 
- #pragma once
+#ifndef NEBULITE_HPP
+#define NEBULITE_HPP
 
 /**
  * @namespace Nebulite
@@ -98,3 +106,4 @@ namespace Nebulite{
     namespace Utility{}
 
 }   // namespace Nebulite
+#endif // NEBULITE_HPP

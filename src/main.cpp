@@ -57,7 +57,7 @@ int main(int argc, char* argv[]){
     // Initialize the global space, parse command line arguments
     std::string binaryName = argv[0];
     Nebulite::Core::GlobalSpace globalSpace(binaryName);
-    globalSpace.parseCommandLineArguments(argc, const_cast<const char**>(argv));
+    globalSpace.parseCommandLineArguments(argc, const_cast<char const**>(argv));
     
     //------------------------------------------
     // Render loop
@@ -85,5 +85,5 @@ int main(int argc, char* argv[]){
     globalSpace.parseStr(binaryName + " " + Nebulite::DomainModule::GlobalSpace::Debug::errorlog_name + " off");
 
     // Return 1 on critical stop, 0 otherwise
-    return (int)criticalStop;
+    return static_cast<int>(criticalStop);
 }

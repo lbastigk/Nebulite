@@ -18,8 +18,7 @@
 #endif
 
 //------------------------------------------
-namespace Nebulite{
-namespace DomainModule{
+namespace Nebulite::DomainModule {
 /**
  * @brief Inserts all DomainModules into the RenderObject domain.
  */
@@ -33,5 +32,4 @@ void RODM_init(Nebulite::Core::RenderObject* target){
         target->initModule<Mirror>("RenderObject Mirror Functions");
     #endif
 }
-}
-}
+} // namespace Nebulite::DomainModule

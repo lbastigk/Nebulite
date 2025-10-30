@@ -3,12 +3,13 @@
  * @brief Utility functions for string manipulation and parsing.
  */
 
-#pragma once
+#ifndef NEBULITE_UTILITY_STRINGHANDLER_HPP
+#define NEBULITE_UTILITY_STRINGHANDLER_HPP
 
 //------------------------------------------
 // Includes
 
-// General
+// Standard library
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -21,11 +22,7 @@
 #include <unordered_map>
 
 //------------------------------------------
-namespace Nebulite {
-namespace Utility {
-
-// Forward declarations
-class Capture;
+namespace Nebulite::Utility {
 
 /**
  * @class Nebulite::Utility::StringHandler
@@ -40,7 +37,7 @@ public:
      * @param chars The set of characters to look for.
      * @return true if any character from chars is found in str, false otherwise.
      */
-    static bool containsAnyOf(const std::string& str, const std::string& chars);
+    static bool containsAnyOf(std::string const& str, std::string const& chars);
 
     /**
      * @brief Checks if a string represents a valid number.
@@ -58,7 +55,7 @@ public:
      * @param replacer The replacement substring.
      * @return The modified string with all occurrences replaced.
      */
-    static std::string replaceAll(std::string target, const std::string& toReplace, const std::string& replacer);
+    static std::string replaceAll(std::string target, std::string const& toReplace, std::string const& replacer);
 
     /**
      * @brief Extracts the substring from the start of the input until a special character is found.
@@ -68,7 +65,7 @@ public:
      * @return The substring from the start of the input until the special character is found,
      * but not including the special character itself.
      */
-    static std::string untilSpecialChar(std::string input, char specialChar);
+    static std::string untilSpecialChar(std::string const& input, char specialChar);
 
     /**
      * @brief Extracts the substring from the input after a special character is found.
@@ -77,7 +74,7 @@ public:
      * @param specialChar The special character to look for.
      * @return The substring from the input after the special character is found.
      */
-    static std::string afterSpecialChar(std::string input, char specialChar);
+    static std::string afterSpecialChar(std::string const& input, char specialChar);
 
     /**
      * @brief Left strips a string of a special character.
@@ -86,7 +83,7 @@ public:
      * @param specialChar The special character to remove.
      * @return The left-stripped string.
      */
-    static std::string lstrip(const std::string& input, char specialChar = ' ');
+    static std::string lstrip(std::string const& input, char specialChar = ' ');
 
     /**
      * @brief Right strips a string of a special character.
@@ -95,7 +92,7 @@ public:
      * @param specialChar The special character to remove.
      * @return The right-stripped string.
      */
-    static std::string rstrip(const std::string& input, char specialChar = ' ');
+    static std::string rstrip(std::string const& input, char specialChar = ' ');
 
     /**
      * @brief Splits a string into tokens based on a delimiter.
@@ -106,7 +103,7 @@ public:
      * Keeps the delimiter at the start of the token. (Optional, default: false)
      * @return A vector of tokens extracted from the input string.
      */
-    static std::vector<std::string> split(const std::string& input, char delimiter, bool keepDelimiter = false);
+    static std::vector<std::string> split(std::string const& input, char delimiter, bool keepDelimiter = false);
 
     /**
      * @brief Splits a string on the same depth of parentheses.
@@ -121,14 +118,14 @@ public:
      * @param delimiter The opening parenthesis to split on.
      * @return A vector of strings split on the same depth of parentheses.
      */
-    static std::vector<std::string> splitOnSameDepth(const std::string& input, char delimiter);
+    static std::vector<std::string> splitOnSameDepth(std::string const& input, char delimiter);
 
     /**
      * @brief Parses a command string into individual arguments, taking quotes into account.
      * 
      * @param cmd The command string to parse.
      */
-    static std::vector<std::string> parseQuotedArguments(const std::string& cmd);
+    static std::vector<std::string> parseQuotedArguments(std::string const& cmd);
 
     /**
      * @brief Recombines argc/argv into a single string with spaces.
@@ -137,5 +134,5 @@ public:
      */
     static std::string recombineArgs(int argc, char* argv[]);
 };
-}   // namespace Utility
-}   // namespace Nebulite
+}   // namespace Nebulite::Utility
+#endif // NEBULITE_UTILITY_STRINGHANDLER_HPP

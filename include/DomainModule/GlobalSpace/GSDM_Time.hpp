@@ -4,13 +4,13 @@
  * @brief Contains the declaration of the Time DomainModule for the GlobalSpace domain.
  */
 
-#pragma once
+#ifndef NEBULITE_GSDM_TIME_HPP
+#define NEBULITE_GSDM_TIME_HPP
 
 //------------------------------------------
 // Includes
 
-// General
-#include <functional>
+// Standard library
 #include <unordered_set>
 
 // Nebulite
@@ -20,21 +20,17 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class GlobalSpace; // Forward declaration of domain class GlobalSpace
-    }
+namespace Nebulite::Core{
+    class GlobalSpace; // Forward declaration of domain class GlobalSpace
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace GlobalSpace {
+namespace Nebulite::DomainModule::GlobalSpace {
 /**
  * @class Nebulite::DomainModule::GlobalSpace::Time
  * @brief DomainModule for time management within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Time) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Time){
 public:
     /**
      * @brief Override of update.
@@ -51,9 +47,9 @@ public:
      * @param argv Argument vector: no arguments available.
      * @return Error code indicating success or failure.
      */
-    Nebulite::Constants::Error time_haltOnce(int argc,  char* argv[]);
-    static const std::string time_haltOnce_name;
-    static const std::string time_haltOnce_desc;
+    Nebulite::Constants::Error time_haltOnce(int argc,  char** argv);
+    static std::string const time_haltOnce_name;
+    static std::string const time_haltOnce_desc;
 
     /**
      * @brief Locks time with lock provided, meaning time will not progress until unlocked.
@@ -64,9 +60,9 @@ public:
      * @param argv Argument vector: the locks name.
      * @return Error code indicating success or failure.
      */
-    Nebulite::Constants::Error time_lock(int argc,  char* argv[]);
-    static const std::string time_lock_name;
-    static const std::string time_lock_desc;
+    Nebulite::Constants::Error time_lock(int argc,  char** argv);
+    static std::string const time_lock_name;
+    static std::string const time_lock_desc;
 
     /**
      * @brief Removes a time lock.
@@ -77,9 +73,9 @@ public:
      * @param argv Argument vector: the locks name.
      * @return Error code indicating success or failure.
      */
-    Nebulite::Constants::Error time_unlock(int argc,  char* argv[]);
-    static const std::string time_unlock_name;
-    static const std::string time_unlock_desc;
+    Nebulite::Constants::Error time_unlock(int argc,  char** argv);
+    static std::string const time_unlock_name;
+    static std::string const time_unlock_desc;
 
     /**
      * @brief Removes all time locks.
@@ -90,9 +86,9 @@ public:
      * @param argv Argument vector: no arguments available.
      * @return Error code indicating success or failure.
      */
-    Nebulite::Constants::Error time_masterUnlock(int argc,  char* argv[]);
-    static const std::string time_masterUnlock_name;
-    static const std::string time_masterUnlock_desc;
+    Nebulite::Constants::Error time_masterUnlock(int argc,  char** argv);
+    static std::string const time_masterUnlock_name;
+    static std::string const time_masterUnlock_desc;
 
     /**
      * @brief Sets a fixed delta time for the simulation time.
@@ -101,28 +97,28 @@ public:
      * @param argv Argument vector: the fixed delta time in milliseconds.
      * @return Error code indicating success or failure.
      */
-    Nebulite::Constants::Error time_setFixedDeltaTime(int argc,  char* argv[]);
-    static const std::string time_setFixedDeltaTime_name;
-    static const std::string time_setFixedDeltaTime_desc;
+    Nebulite::Constants::Error time_setFixedDeltaTime(int argc,  char** argv);
+    static std::string const time_setFixedDeltaTime_name;
+    static std::string const time_setFixedDeltaTime_desc;
 
     //------------------------------------------
     // Category names
-    static const std::string time_name;
-    static const std::string time_desc;
+    static std::string const time_name;
+    static std::string const time_desc;
 
     //------------------------------------------
     // Variables
-    static const std::string key_runtime_t;
-    static const std::string key_runtime_t_ms;
-    static const std::string key_runtime_dt;
-    static const std::string key_runtime_dt_ms;
+    static std::string const key_runtime_t;
+    static std::string const key_runtime_t_ms;
+    static std::string const key_runtime_dt;
+    static std::string const key_runtime_dt_ms;
 
-    static const std::string key_time_t;
-    static const std::string key_time_t_ms;
-    static const std::string key_time_dt;
-    static const std::string key_time_dt_ms;
+    static std::string const key_time_t;
+    static std::string const key_time_t_ms;
+    static std::string const key_time_dt;
+    static std::string const key_time_dt_ms;
 
-    static const std::string key_framecount;
+    static std::string const key_framecount;
 
     //------------------------------------------
     // Setup
@@ -182,6 +178,5 @@ private:
      */
     uint64_t fixedDeltaTime = 0;
 };
-} // namespace GlobalSpace
-} // namespace DomainModule
-} // namespace Nebulite
+} // namespace Nebulite::DomainModule::GlobalSpace
+#endif // NEBULITE_GSDM_TIME_HPP

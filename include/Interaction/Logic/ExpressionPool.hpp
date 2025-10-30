@@ -5,12 +5,13 @@
  * This file defines the `ExpressionPool` class.
  */
 
-#pragma once
+#ifndef NEBULITE_INTERACTION_LOGIC_EXPRESSIONPOOL_HPP
+#define NEBULITE_INTERACTION_LOGIC_EXPRESSIONPOOL_HPP
 
 //------------------------------------------
 // Includes
 
-// General
+// Standard library
 #include <array>
 #include <mutex>
 #include <string>
@@ -22,9 +23,7 @@
 #include "Utility/Capture.hpp"
 
 //------------------------------------------
-namespace Nebulite {
-namespace Interaction {
-namespace Logic {
+namespace Nebulite::Interaction::Logic {
 /**
  * @class Nebulite::Interaction::Logic::ExpressionPool
  * @brief A thread-safe pool of Expression instances for concurrent evaluation.
@@ -60,7 +59,10 @@ namespace Logic {
  */
 class ExpressionPool {
 public:
-    ExpressionPool() {_isReturnableAsDouble = false;}
+    ExpressionPool(){
+        _isReturnableAsDouble = false; 
+        _isAlwaysTrue = false; 
+    }
 
     // Disable copy constructor and assignment
     ExpressionPool(const ExpressionPool&) = delete;
@@ -76,7 +78,7 @@ public:
     }
 
     ExpressionPool& operator=(ExpressionPool&& other) noexcept {
-        if (this != &other) {
+        if (this != &other){
             pool = std::move(other.pool);
             fullExpression = std::move(other.fullExpression);
             // locks array stays as-is (new default-constructed mutexes)
@@ -97,14 +99,23 @@ public:
      * @param self The JSON object representing the "self" context.
      * @param global The JSON object representing the "global" context.
      */
-    void parse(const std::string& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global) {
+    void parse(std::string const& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global){
         fullExpression = expr;
-        for (auto& e : pool) {
-            e.parse(expr, documentCache, self, global);
+
+        // Parse the first one, then copy to others
+        pool[0].parse(expr, documentCache, self, global);
+        for (size_t i = 1; i < pool.size(); ++i){
+            pool[i] = pool[0];
         }
 
-        // Store if this expression is returnable as double
-        _isReturnableAsDouble = pool[0].isReturnableAsDouble();
+        // Calculate metadata and unique ID from first entry
+        #if INVOKE_EXPR_POOL_SIZE > 1
+            _isReturnableAsDouble = pool[0].recalculateIsReturnableAsDouble();
+            _isAlwaysTrue = pool[0].recalculateIsAlwaysTrue();
+        #else
+            _isReturnableAsDouble = pool[0].isReturnableAsDouble();
+            _isAlwaysTrue = pool[0].isAlwaysTrue();
+        #endif
     }
 
     /**
@@ -154,7 +165,7 @@ public:
      *
      * @return The full expression as a string.
      */
-    const std::string* getFullExpression() const noexcept {
+    std::string const* getFullExpression() const noexcept {
         return &fullExpression;
     }
 
@@ -170,8 +181,16 @@ public:
      *
      * @return True if the expression is returnable as a double, false otherwise.
      */
-    bool isReturnableAsDouble() {
+    bool isReturnableAsDouble(){
         return _isReturnableAsDouble;
+    }
+
+    /**
+     * @brief Checks if the expression is always true (i.e., "1").
+     * @return True if the expression is always true, false otherwise.
+     */
+    bool isAlwaysTrue(){
+        return _isAlwaysTrue;
     }
 
 private:
@@ -190,7 +209,9 @@ private:
 
     // Storing info about the expression's returnability
     bool _isReturnableAsDouble;
+
+    // If the expression is just "1", meaning always true
+    bool _isAlwaysTrue;
 };
-} // namespace Logic
-} // namespace Interaction
-} // namespace Nebulite
+} // namespace Nebulite::Interaction::Logic
+#endif // NEBULITE_INTERACTION_LOGIC_EXPRESSIONPOOL_HPP

@@ -4,7 +4,8 @@
  * @brief This file contains the DomainModule of the Texture for general functions.
  */
 
- #pragma once
+#ifndef NEBULITE_TXDM_GENERAL_HPP
+#define NEBULITE_TXDM_GENERAL_HPP
 
 //------------------------------------------
 // Includes
@@ -15,21 +16,17 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class Texture; // Forward declaration of domain class Texture
-    }
+namespace Nebulite::Core {
+    class Texture; // Forward declaration of domain class Texture
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace Texture {
+namespace Nebulite::DomainModule::Texture {
 /**
  * @class Nebulite::DomainModule::Texture::General
  * @brief DomainModule for general functions within the Texture.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, General) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, General){
 public:
     Nebulite::Constants::Error update() override;
 
@@ -43,9 +40,9 @@ public:
      * @param argv The argument vector: no arguments required, texture is reloaded from document
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error reloadTexture(int argc,  char* argv[]);
-    static const std::string reloadTexture_name;
-    static const std::string reloadTexture_desc;
+    Nebulite::Constants::Error reloadTexture(int argc,  char** argv);
+    static std::string const reloadTexture_name;
+    static std::string const reloadTexture_desc;
 
     //------------------------------------------
     // Setup
@@ -53,10 +50,9 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, General) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, General){
         bindFunction(&General::reloadTexture, reloadTexture_name, &reloadTexture_desc);
     }
 };
-}   // namespace Texture
-}   // namespace DomainModule
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::Texture
+#endif // NEBULITE_TXDM_GENERAL_HPP

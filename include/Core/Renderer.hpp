@@ -5,13 +5,13 @@
  * the game objects and managing the rendering pipeline.
  */
 
-#pragma once
+#ifndef NEBULITE_CORE_RENDERER_HPP
+#define NEBULITE_CORE_RENDERER_HPP
 
 //------------------------------------------
 // Includes
 
-// General
-#include <thread>
+// Standard library
 #include <random>
 #include <stdint.h>
 
@@ -19,24 +19,22 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
-#include "absl/container/flat_hash_map.h"
+#include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Core/Environment.hpp"
-#include "Utility/FileManagement.hpp"
-#include "Utility/Time.hpp"
 #include "Utility/TimeKeeper.hpp"
 #include "Interaction/Invoke.hpp"
 
 //------------------------------------------
-namespace Nebulite{
-namespace Core {
+namespace Nebulite::Core {
+	
 /**
  * @class Nebulite::Core::Renderer
  * 
  * @brief Responsible for rendering game objects and managing the rendering pipeline.
  */
-NEBULITE_DOMAIN(Renderer) {
+NEBULITE_DOMAIN(Renderer){
 public:
 	/**
 	 * @brief Initializes a Renderer with given dimensions and settings.
@@ -75,11 +73,11 @@ public:
 	 * 
 	 * @param serialOrLink The JSON string or link to deserialize.
 	 */
-	void deserialize(const std::string& serialOrLink){
+	inline void deserialize(std::string const& serialOrLink) noexcept {
 		env.deserialize(
 			serialOrLink, 
-			getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
-			getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0)
+			getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
+			getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0)
 		);
 	}
 
@@ -176,12 +174,12 @@ public:
 	 * @param texture The SDL_Texture to attach.
 	 * @return True if the texture was successfully attached, false otherwise.
 	 */
-	bool attachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string name, SDL_Texture* texture, SDL_Rect* rect = nullptr) {
-		if(texture == nullptr) {
+	bool attachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string name, SDL_Texture* texture, SDL_Rect* rect = nullptr){
+		if(texture == nullptr){
 			return false; // Cannot attach a null texture
 		}
 
-		if(BetweenLayerTextures[aboveThisLayer].contains(name)) {
+		if(BetweenLayerTextures[aboveThisLayer].contains(name)){
 			return false; // Texture with this name already exists in the specified layer
 		}
 
@@ -196,8 +194,8 @@ public:
 	 * @param name The name of the texture to remove.
 	 * @return True if the texture was successfully removed, false otherwise.
 	 */
-	bool detachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string name) {
-		if(BetweenLayerTextures[aboveThisLayer].contains(name)) {
+	bool detachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string name){
+		if(BetweenLayerTextures[aboveThisLayer].contains(name)){
 			BetweenLayerTextures[aboveThisLayer].erase(name);
 			return true;
 		}
@@ -207,7 +205,7 @@ public:
 	/** 
 	 * @brief Detaches all textures from all layers.  
 	 */
-	void detachAllTextures() {
+	void detachAllTextures(){
 		BetweenLayerTextures.clear();
 	}
 
@@ -259,7 +257,7 @@ public:
 	/**
 	 * @brief Sets the target FPS for the renderer.
 	 */
-	void setTargetFPS(int fps);
+	void setTargetFPS(uint16_t fps);
 
 	/**
 	 * @brief Sets the camera position.
@@ -280,7 +278,7 @@ public:
 	 * @param h The new pixel height of the window.
 	 * @param scalar The scaling factor to apply.
 	 */
-	void changeWindowSize(int w, int h, int scalar);
+	void changeWindowSize(int w, int h, uint16_t scalar);
 
 	/**
 	 * @brief Moves the camera by a certain amount.
@@ -327,7 +325,7 @@ public:
 	 * 
 	 * @return The current FPS.
 	 */
-	int getFPS(){return REAL_FPS;}
+	uint16_t getFPS(){return REAL_FPS;}
 
 	/**
 	 * @brief Gets the current position of the camera in the X direction.
@@ -354,7 +352,7 @@ public:
 	 * 
 	 * @return The current tile position of the camera in the X direction.
 	 */
-	unsigned int getTileXpos(){return tileXpos;}
+	int16_t getTileXpos(){return tileXpos;}
 
 	/**
 	 * @brief Gets the current tile position of the camera in the Y direction.
@@ -363,7 +361,7 @@ public:
 	 * 
 	 * @return The current tile position of the camera in the Y direction.
 	 */
-	unsigned int getTileYpos(){return tileYpos;}
+	int16_t getTileYpos(){return tileYpos;}
 
 	/**
 	 * @brief Gets the SDL_Renderer instance.
@@ -380,7 +378,7 @@ public:
 	 * @param id The ID of the RenderObject to retrieve.
 	 * @return A pointer to the RenderObject, or nullptr if not found.
 	 */
-	Nebulite::Core::RenderObject* getObjectFromId(uint32_t id) {
+	Nebulite::Core::RenderObject* getObjectFromId(uint32_t id){
 		return env.getObjectFromId(id);
 	}
 
@@ -391,7 +389,7 @@ public:
 	 * 
 	 * @return A pointer to the TTF_Font instance.
 	 */
-	TTF_Font* getStandardFont() {
+	TTF_Font* getStandardFont(){
 		// Should always be loaded at this point
 		return font;
 	}
@@ -408,7 +406,7 @@ public:
 	/**
 	 * @brief Gets the current window scale factor.
 	 */
-	unsigned int getWindowScale(){return WindowScale;};
+	unsigned int getWindowScale() { return WindowScale; }
 
 	//------------------------------------------
 	// Texture-Related
@@ -423,7 +421,7 @@ public:
 	 * @param link The file path to load the texture from.
 	 * @return A pointer to the loaded SDL_Texture, or nullptr if loading failed.
 	 */
-	SDL_Texture* loadTextureToMemory(std::string link);
+	SDL_Texture* loadTextureToMemory(std::string const& link);
 
 	//------------------------------------------
 	// Status
@@ -458,15 +456,22 @@ private:
 
 	//------------------------------------------
 	// Audio
-	SDL_AudioDeviceID audioDevice = 0;
-	SDL_AudioSpec desired, obtained;
-	const int frequency = 440;  // 440 Hz beep
-	const int duration = 200;   // 200ms
-	const int sampleRate = 44100;
-	const int samples = (sampleRate * duration) / 1000;
-	std::vector<Sint16>* sineBuffer = nullptr;
-	std::vector<Sint16>* squareBuffer = nullptr;
-	std::vector<Sint16>* triangleBuffer = nullptr;
+	struct Audio{
+		SDL_AudioDeviceID device = 0;
+		SDL_AudioSpec desired, obtained;
+	} audio;
+	
+	struct BasicAudioWaveforms{
+		double const frequency = 440.0;  		// 440 Hz beep
+		double const duration = 200.0;   		// 200ms
+		double const sampleRate = 44100.0;
+		size_t const samples = static_cast<size_t>((sampleRate * duration) / 1000.0);	// Number of samples
+		std::vector<int16_t>* sineBuffer = nullptr;
+		std::vector<int16_t>* squareBuffer = nullptr;
+		std::vector<int16_t>* triangleBuffer = nullptr;
+	} basicAudioWaveforms;
+
+	
 
 	//------------------------------------------
 	//General Variables
@@ -480,14 +485,14 @@ private:
 	uint32_t renderobject_id_counter = 1;
 
 	// Positions
-	uint16_t tileXpos;
-	uint16_t tileYpos;
+	int16_t tileXpos;
+	int16_t tileYpos;
 
 	// Custom Subclasses
 	Environment env;
 
 	// Rendering
-	unsigned int WindowScale = 1;
+	uint16_t WindowScale = 1;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 
@@ -509,7 +514,7 @@ private:
 	 * 
 	 * Used for RNG seeding.
 	 */
-    std::size_t hashString(const std::string& str){return std::hash<std::string>{}(str);};
+    std::size_t hashString(std::string const& str){return std::hash<std::string>{}(str);}
     
 	//------------------------------------------
 	// Renderer::tick related Functions
@@ -588,7 +593,7 @@ private:
 	 * 
 	 * @param link The file path to load the texture from.
 	 */
-	void loadTexture(std::string link);
+	void loadTexture(std::string const& link);
 
 	/**
 	 * @brief Texture container for the Renderer
@@ -626,5 +631,5 @@ private:
 	 */
 	void loadFonts();
 };
-} 	// namespace Core
-}   // namespace Nebulite
+}   // namespace Nebulite::Core
+#endif // NEBULITE_CORE_RENDERER_HPP

@@ -2,20 +2,18 @@
  * @file Environment.hpp
  * @brief Contains the definition of the Nebulite::Core::Environment class.
  */
-
-#pragma once
+#ifndef NEBULITE_CORE_ENVIRONMENT_HPP
+#define NEBULITE_CORE_ENVIRONMENT_HPP
 
 //------------------------------------------
 // Includes
 
-// General
-#include <iostream>
+// Standard library
 #include <string>
-#include <utility>
 #include <vector>
 
 // External
-#include "absl/container/flat_hash_map.h"
+#include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Nebulite.hpp"
@@ -24,6 +22,7 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite{
 	namespace Core{
 		class GlobalSpace; // Forward declaration of core class GlobalSpace
@@ -31,8 +30,7 @@ namespace Nebulite{
 }
 
 //------------------------------------------
-namespace Nebulite{
-namespace Core{
+namespace Nebulite::Core{
 /**
  * @class Nebulite::Core::Environment
  * @brief Represents the container of all render objects loaded in memory.
@@ -124,7 +122,7 @@ public:
 	 * @param dispResX Display resolution width. Necessary to position the object correctly in its tile-based container.
 	 * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
 	 */
-	void deserialize(const std::string& serialOrLink, int dispResX,int dispResY);
+	void deserialize(std::string const& serialOrLink, uint16_t dispResX,uint16_t dispResY);
 	
 	//------------------------------------------
 	// Object Management
@@ -139,7 +137,7 @@ public:
 	 * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
 	 * @param layer Layer index to append the object to (default is 0).
 	 */
-	void append(Nebulite::Core::RenderObject* toAppend,int dispResX, int dispResY, unsigned int layer = 0);
+	void append(Nebulite::Core::RenderObject* toAppend,uint16_t dispResX, uint16_t dispResY, uint8_t layer = 0);
 
 	/**
 	 * @brief Updates the environment's state.
@@ -151,7 +149,7 @@ public:
 	 * @param dispResX display resolution width. Necessary for potential RenderObject reinsertions).
 	 * @param dispResY display resolution height. Necessary for potential RenderObject reinsertions).
 	 */
-	void update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY);
+	void update(int16_t tileXpos, int16_t tileYpos, uint16_t dispResX, uint16_t dispResY);
 
 	/**
 	 * @brief Rebuilds the Container structure.
@@ -161,7 +159,7 @@ public:
 	 * @param dispResX Display resolution width. Necessary for positioning the objects correctly in their tile-based containers.
 	 * @param dispResY Display resolution height. Necessary for positioning the objects correctly in their tile-based containers.
 	 */
-	void reinsertAllObjects(int dispResX,int dispResY);
+	void reinsertAllObjects(uint16_t dispResX,uint16_t dispResY);
 
 	/**
 	 * @brief Retrieves a RenderObject by its ID.
@@ -219,5 +217,6 @@ private:
 	// Inner RenderObject container layers
 	std::array<Nebulite::Core::RenderObjectContainer, Nebulite::Core::Environment::LayerCount> roc;
 };
-} // namespace Core
-} // namespace Nebulite
+} // namespace Nebulite::Core
+
+#endif // NEBULITE_CORE_ENVIRONMENT_HPP

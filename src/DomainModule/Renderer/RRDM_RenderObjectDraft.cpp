@@ -4,25 +4,25 @@
 
 namespace Nebulite::DomainModule::Renderer {
 
-const std::string RenderObjectDraft::draft_name = "draft";
-const std::string RenderObjectDraft::draft_desc = R"(Functions to manipulate and spawn RenderObjects in draft state)";
+std::string const RenderObjectDraft::draft_name = "draft";
+std::string const RenderObjectDraft::draft_desc = R"(Functions to manipulate and spawn RenderObjects in draft state)";
 
-Nebulite::Constants::Error RenderObjectDraft::update() { 
+Nebulite::Constants::Error RenderObjectDraft::update(){ 
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error RenderObjectDraft::draft_parse(int argc,  char* argv[]) {
+Nebulite::Constants::Error RenderObjectDraft::draft_parse(int argc,  char** argv){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     std::string command = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
     return draft.get()->parseStr(__FUNCTION__ + std::string(" ") + command);
 }
-const std::string RenderObjectDraft::draft_parse_name = "draft parse";
-const std::string RenderObjectDraft::draft_parse_desc = R"(Parse Renderobject-specific functions on the draft.
+std::string const RenderObjectDraft::draft_parse_name = "draft parse";
+std::string const RenderObjectDraft::draft_parse_desc = R"(Parse Renderobject-specific functions on the draft.
 
 Usage: draft parse <function> [args...]
 
@@ -35,8 +35,8 @@ draft parse set posX 100
 draft parse set posY 200
 )";
 
-Nebulite::Constants::Error RenderObjectDraft::draft_spawn(int argc,  char* argv[]) {
-    if(argc != 1) {
+Nebulite::Constants::Error RenderObjectDraft::draft_spawn(int argc,  char** argv){
+    if(argc != 1){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
     // Make a copy of the draft's serialized data
@@ -47,22 +47,22 @@ Nebulite::Constants::Error RenderObjectDraft::draft_spawn(int argc,  char* argv[
     domain->append(newObj);
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string RenderObjectDraft::draft_spawn_name = "draft spawn";
-const std::string RenderObjectDraft::draft_spawn_desc = R"(Spawn the created draft object.
+std::string const RenderObjectDraft::draft_spawn_name = "draft spawn";
+std::string const RenderObjectDraft::draft_spawn_desc = R"(Spawn the created draft object.
 
 Usage: draft spawn
 )";
 
-Nebulite::Constants::Error RenderObjectDraft::draft_reset(int argc,  char* argv[]) {
-    if(argc != 1) {
+Nebulite::Constants::Error RenderObjectDraft::draft_reset(int argc,  char** argv){
+    if(argc != 1){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
     Nebulite::Core::RenderObject newDraft(global);
     draft.get()->deserialize(newDraft.serialize());
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string RenderObjectDraft::draft_reset_name = "draft reset";
-const std::string RenderObjectDraft::draft_reset_desc = R"(Reset the draft object.
+std::string const RenderObjectDraft::draft_reset_name = "draft reset";
+std::string const RenderObjectDraft::draft_reset_desc = R"(Reset the draft object.
 
 This does not reset any spawned ones!
 

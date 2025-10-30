@@ -7,12 +7,13 @@
  * and structures in Nebulite::Core namespace.
  */
 
-#pragma once
+#ifndef NEBULITE_CORE_GLOBALSPACE_HPP
+#define NEBULITE_CORE_GLOBALSPACE_HPP
 
 //------------------------------------------
 // Includes
 
-// General
+// Standard library
 #include <deque>
 
 // Nebulite
@@ -22,10 +23,7 @@
 #include "Utility/RNG.hpp"
 
 //------------------------------------------
-namespace Nebulite {
-namespace Core {
-//------------------------------------------
-// General Types used
+namespace Nebulite::Core {
 
 /**
  * @struct Nebulite::Core::taskQueueWrapper
@@ -85,16 +83,16 @@ struct taskQueueResult{
  *
  * See main.cpp and other engine modules for usage examples and integration details.
  */
-NEBULITE_DOMAIN(GlobalSpace) {
+NEBULITE_DOMAIN(GlobalSpace){
 public:
     //------------------------------------------
     // Special Member Functions
 
     // Constructor
-    explicit GlobalSpace(const std::string& binName);
+    explicit GlobalSpace(std::string const& binName);
 
     // Destructor
-    ~GlobalSpace() = default;
+    virtual ~GlobalSpace() = default;
 
     // Prevent copying
     GlobalSpace(const GlobalSpace&) = delete;
@@ -116,7 +114,7 @@ public:
      * @param argc The number of command line arguments.
      * @param argv The array of command line argument strings.
      */
-    void parseCommandLineArguments(const int argc, const char* argv[]);
+    void parseCommandLineArguments(int const argc, char const* argv[]);
 
     /**
      * @brief Resolves a task queue by parsing each task and executing it.
@@ -125,7 +123,7 @@ public:
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
      */
-    Nebulite::Core::taskQueueResult resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, const uint64_t* waitCounter);
+    Nebulite::Core::taskQueueResult resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t const* waitCounter);
 
     /**
      * @brief Parses the task queue for execution.
@@ -152,14 +150,14 @@ public:
     /**
      * @brief Evaluates a string.
      */
-    std::string eval(const std::string& expr){
+    std::string eval(std::string const& expr){
         return invoke.evaluateStandaloneExpression(expr);
     }
 
     /**
      * @brief Evaluates a string with context of a RenderObject.
      */
-    std::string eval(const std::string& expr, Nebulite::Core::RenderObject* context){
+    std::string eval(std::string const& expr, Nebulite::Core::RenderObject* context){
         return invoke.evaluateStandaloneExpression(expr, context);
     }
 
@@ -169,27 +167,27 @@ public:
     /**
      * @brief Gets the global queue for function calls.
      */
-    std::deque<std::string>* getTaskQueue(){return &tasks.script.taskQueue;};
+    std::deque<std::string>* getTaskQueue(){ return &tasks.script.taskQueue; }
 
     /**
      * @brief Gets a pointer to the Renderer instance.
      */
-    Nebulite::Core::Renderer* getRenderer(){return &renderer;};
+    Nebulite::Core::Renderer* getRenderer(){ return &renderer; }
 
     /**
      * @brief Gets a pointer to the SDL Renderer instance.
      */
-    SDL_Renderer* getSdlRenderer(){return renderer.getSdlRenderer();};
+    SDL_Renderer* getSdlRenderer(){ return renderer.getSdlRenderer(); }
 
     /**
      * @brief Gets a pointer to the Invoke instance.
      */
-    Nebulite::Interaction::Invoke* getInvoke(){return &invoke;};
+    Nebulite::Interaction::Invoke* getInvoke(){ return &invoke; }
 
     /**
      * @brief Gets a pointer to the global document cache.
      */
-    Nebulite::Utility::DocumentCache* getDocCache(){return &docCache;}
+    Nebulite::Utility::DocumentCache* getDocCache(){ return &docCache; }
 
     //------------------------------------------
     // Public Variables
@@ -234,9 +232,7 @@ public:
      * 
      * @return True if the main loop should continue, false otherwise.
      */
-    bool shouldContinueLoop() const { 
-        return continueLoop; 
-    };
+    bool shouldContinueLoop() const { return continueLoop; }
 
     enum class UniqueIdType{
         EXPRESSION = 0,
@@ -294,15 +290,18 @@ private:
     //------------------------------------------
     // Structs
 
-    // For resolving tasks
-    struct QueueResult
-    {
+    /**
+     * @struct QueueResult
+     * @brief Holds the results of resolving different task queues.
+     */
+    struct QueueResult {
         Nebulite::Core::taskQueueResult script;       // Result of script-tasks
         Nebulite::Core::taskQueueResult internal;     // Result of internal-tasks
         Nebulite::Core::taskQueueResult always;       // Result of always-tasks
     } queueResult;
 
     /**
+     * @struct names
      * @brief Contains names used in the global space that are not bound to the global document.
      */
     struct names{
@@ -311,6 +310,7 @@ private:
     }names;
 
     /**
+     * @struct RNGvars
      * @brief Contains RNG instances used in the global space.
      */
     struct RNGvars{
@@ -344,5 +344,5 @@ private:
      */
     Nebulite::Constants::Error updateInnerDomains();
 };
-}   // namespace Core
-}   // namespace Nebulite
+}   // namespace Nebulite::Core
+#endif // NEBULITE_CORE_GLOBALSPACE_HPP

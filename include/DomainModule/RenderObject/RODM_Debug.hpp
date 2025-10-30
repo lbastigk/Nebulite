@@ -4,32 +4,29 @@
  * Debug functions for the the domain RenderObject.
  */
 
-#pragma once
+#ifndef NEBULITE_RODM_DEBUG_HPP
+#define NEBULITE_RODM_DEBUG_HPP
 
 //------------------------------------------
 // Includes
 
-// General
+// Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class RenderObject; // Forward declaration of domain class RenderObject
-    }
+namespace Nebulite::Core {
+    class RenderObject; // Forward declaration of domain class RenderObject
 }
 
 //------------------------------------------
-namespace Nebulite{
-namespace DomainModule{
-namespace RenderObject{
+namespace Nebulite::DomainModule::RenderObject {
 /**
  * @class Nebulite::DomainModule::RenderObject::Debug
  * @brief Debug management for the RenderObject tree DomainModule.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Debug) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Debug){
 public:
     /**
      * @brief Override of update.
@@ -54,9 +51,9 @@ public:
      * @param argv The argument vector: the string to evaluate
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error eval(int argc,  char* argv[]);
-    static const std::string eval_name;
-    static const std::string eval_desc;
+    Nebulite::Constants::Error eval(int argc,  char** argv);
+    static std::string const eval_name;
+    static std::string const eval_desc;
 
     /**
      * @brief Prints the source rectangle of the spritesheet to console
@@ -65,9 +62,9 @@ public:
      * @param argv The argument vector: None
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error printSrcRect(int argc,  char* argv[]);
-    static const std::string printSrcRect_name;
-    static const std::string printSrcRect_desc;
+    Nebulite::Constants::Error printSrcRect(int argc,  char** argv);
+    static std::string const printSrcRect_name;
+    static std::string const printSrcRect_desc;
 
     /**
      * @brief Prints the destination rectangle of the spritesheet to console
@@ -76,21 +73,21 @@ public:
      * @param argv The argument vector: None
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error printDstRect(int argc,  char* argv[]);
-    static const std::string printDstRect_name;
-    static const std::string printDstRect_desc;
+    Nebulite::Constants::Error printDstRect(int argc,  char** argv);
+    static std::string const printDstRect_name;
+    static std::string const printDstRect_desc;
 
     /**
      * @brief Prints the texture status to cout
      */
-    Nebulite::Constants::Error textureStatus(int argc,  char* argv[]);
-    static const std::string textureStatus_name;
-    static const std::string textureStatus_desc;
+    Nebulite::Constants::Error textureStatus(int argc,  char** argv);
+    static std::string const textureStatus_name;
+    static std::string const textureStatus_desc;
 
     //------------------------------------------
     // Category names
-    static const std::string debug_name;
-    static const std::string debug_desc;
+    static std::string const debug_name;
+    static std::string const debug_desc;
 
     //------------------------------------------
     // Setup
@@ -98,7 +95,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Debug) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Debug){
         // Some functions like selected-object need eval to resolve variables
         bindFunction(&Debug::eval,          eval_name,          &eval_desc);
 
@@ -108,6 +105,5 @@ public:
         bindFunction(&Debug::textureStatus, textureStatus_name, &textureStatus_desc);
     }
 };
-}   // namespace DomainModule
-}   // namespace RenderObject
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::RenderObject
+#endif // NEBULITE_RODM_DEBUG_HPP

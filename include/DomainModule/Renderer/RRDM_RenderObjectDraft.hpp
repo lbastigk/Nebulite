@@ -4,12 +4,13 @@
  * @brief Provides RenderObject creation utilities
  */
 
-#pragma once
+#ifndef NEBULITE_RRDM_RENDEROBJECTDRAFT_HPP
+#define NEBULITE_RRDM_RENDEROBJECTDRAFT_HPP
 
 //------------------------------------------
 // Includes
 
-// Standard Library
+// Standard library
 #include <string>
 #include <memory>
 
@@ -20,16 +21,12 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class Renderer; // Forward declaration of domain class Renderer
-    }
+namespace Nebulite::Core {
+    class Renderer; // Forward declaration of domain class Renderer
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace Renderer {
+namespace Nebulite::DomainModule::Renderer {
 /**
  * @class Nebulite::DomainModule::Renderer::RenderObjectDraft
  * @brief Utilities for creating and manipulating RenderObjects
@@ -37,7 +34,7 @@ namespace Renderer {
  * Allows for the creation and manipulation of RenderObjects in a draft state.
  * Allowing us to easily create draft object to continously spawn.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, RenderObjectDraft) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, RenderObjectDraft){
 public:
     /**
      * @brief Override of update.
@@ -55,9 +52,9 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error draft_parse(int argc,  char* argv[]);
-    static const std::string draft_parse_name;
-    static const std::string draft_parse_desc;
+    Nebulite::Constants::Error draft_parse(int argc,  char** argv);
+    static std::string const draft_parse_name;
+    static std::string const draft_parse_desc;
 
     /**
      * @brief Spawn the created draft object
@@ -66,9 +63,9 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error draft_spawn(int argc,  char* argv[]);
-    static const std::string draft_spawn_name;
-    static const std::string draft_spawn_desc;
+    Nebulite::Constants::Error draft_spawn(int argc,  char** argv);
+    static std::string const draft_spawn_name;
+    static std::string const draft_spawn_desc;
 
     /**
      * @brief Reset the draft (does not reset any spawned ones!)
@@ -77,14 +74,14 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error draft_reset(int argc,  char* argv[]);
-    static const std::string draft_reset_name;
-    static const std::string draft_reset_desc;
+    Nebulite::Constants::Error draft_reset(int argc,  char** argv);
+    static std::string const draft_reset_name;
+    static std::string const draft_reset_desc;
 
     //------------------------------------------
     // Category names
-    static const std::string draft_name;
-    static const std::string draft_desc;
+    static std::string const draft_name;
+    static std::string const draft_desc;
 
     //------------------------------------------
     // Setup
@@ -92,7 +89,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RenderObjectDraft) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RenderObjectDraft){
         // Initialize the draft holder with the domain
         draft.setDomain(global);
         
@@ -114,15 +111,15 @@ private:
         std::unique_ptr<Nebulite::Core::RenderObject> ptr;
         Nebulite::Core::GlobalSpace* domain_ptr;
     public:
-        DraftHolder() : ptr(nullptr), domain_ptr(nullptr) {}
-        DraftHolder(Nebulite::Core::GlobalSpace* domain) : ptr(nullptr), domain_ptr(domain) {}
+        DraftHolder() : ptr(nullptr), domain_ptr(nullptr){}
+        explicit DraftHolder(Nebulite::Core::GlobalSpace* domain) : ptr(nullptr), domain_ptr(domain){}
 
-        void setDomain(Nebulite::Core::GlobalSpace* domain) {
+        void setDomain(Nebulite::Core::GlobalSpace* domain){
             domain_ptr = domain;
         }
 
-        std::unique_ptr<Nebulite::Core::RenderObject> & get() {
-            if(!ptr && domain_ptr) {
+        std::unique_ptr<Nebulite::Core::RenderObject> & get(){
+            if(!ptr && domain_ptr){
                 ptr = std::make_unique<Nebulite::Core::RenderObject>(domain_ptr);
             }
             return ptr;
@@ -134,6 +131,5 @@ private:
      */
     DraftHolder draft;
 };
-}   // namespace GlobalSpace
-}   // namespace DomainModule
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::Renderer
+#endif // NEBULITE_RRDM_RENDEROBJECTDRAFT_HPP

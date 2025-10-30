@@ -8,12 +8,13 @@
  * @todo Move to Renderer Domain, since it relies on SDL events!
  */
 
-#pragma once
+#ifndef NEBULITE_GSDM_INPUT_HPP
+#define NEBULITE_GSDM_INPUT_HPP
 
 //------------------------------------------
 // Includes
 
-// General
+// External
 #include <SDL.h>    // Needed to access SDL input events
 
 // Nebulite
@@ -23,21 +24,17 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class GlobalSpace; // Forward declaration of domain class GlobalSpace
-    }
+namespace Nebulite::Core{
+    class GlobalSpace; // Forward declaration of domain class GlobalSpace
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace GlobalSpace {
+namespace Nebulite::DomainModule::GlobalSpace {
 /**
  * @class Nebulite::DomainModule::GlobalSpace::Input
  * @brief DomainModule for handling input events and states.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Input) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Input){
 public:
     /**
      * @brief Updates the input states of mouse and keyboard 
@@ -132,14 +129,15 @@ private:
 
     /**
      * @brief Array to store pointers to double values representing the delta states of keys.
+     * Represents their values inside the global document.
      */
     double* deltaKey[SDL_NUM_SCANCODES] = {nullptr}; // Pointers to delta key states in global doc
 
     /**
      * @brief Array to store pointers to double values representing the current states of keys.
+     * Represents their values inside the global document.
      */
     double* currentKey[SDL_NUM_SCANCODES] = {nullptr}; // Pointers to current key states in global doc
 };
-}   // namespace GlobalSpace
-}   // namespace DomainModule
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::GlobalSpace
+#endif // NEBULITE_GSDM_INPUT_HPP

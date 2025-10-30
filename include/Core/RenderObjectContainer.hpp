@@ -3,20 +3,20 @@
  * @brief Contains the Nebulite::Core::RenderObjectContainer class.
  */
 
-#pragma once
+#ifndef NEBULITE_CORE_RENDEROBJECTCONTAINER_HPP
+#define NEBULITE_CORE_RENDEROBJECTCONTAINER_HPP
 
 //------------------------------------------
 // Includes
 
-// General
+// Standard library
 #include <thread>
 
 // Nebulite
 #include "Core/RenderObject.hpp"
 
 //------------------------------------------
-namespace Nebulite {
-namespace Core {
+namespace Nebulite::Core {
 /**
  * @class Nebulite::Core::RenderObjectContainer
  * @brief Manages a collection of RenderObject instances in a tile-based container.
@@ -85,7 +85,7 @@ public:
 	 * @param dispResX Display resolution width for tile initialization.
 	 * @param dispResY Display resolution height for tile initialization.
 	 */
-	void deserialize(const std::string& serialOrLink, int dispResX, int dispResY);
+	void deserialize(std::string const& serialOrLink, uint16_t dispResX, uint16_t dispResY);
 
 	//------------------------------------------
 	// Pipeline
@@ -99,7 +99,7 @@ public:
 	 * @param dispResX Display resolution width for tile placement.
 	 * @param dispResY Display resolution height for tile placement.
 	 */
-	void append(Nebulite::Core::RenderObject* toAppend, int dispResX, int dispResY);
+	void append(Nebulite::Core::RenderObject* toAppend, uint16_t dispResX, uint16_t dispResY);
 
 	/**
 	 * @brief Reinserts all objects into the container.
@@ -110,7 +110,7 @@ public:
 	 * @param dispResX Display resolution width for tile placement.
 	 * @param dispResY Display resolution height for tile placement.
 	 */
-	void reinsertAllObjects(int dispResX, int dispResY);
+	void reinsertAllObjects(uint16_t dispResX, uint16_t dispResY);
 
 	/**
 	 * @brief Checks if the given tile position is valid; contains objects.
@@ -148,7 +148,7 @@ public:
 	 * @param dispResY The display resolution height. Needed for potential re-insertion.
 	 * @param globalInvoke Pointer to the global Invoke instance for object updates.
 	 */
-	void update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY);
+	void update(int16_t tileXpos, int16_t tileYpos, uint16_t dispResX, uint16_t dispResY);
 
 	/**
 	 * @brief Gets the vector of batches at the specified tile position.
@@ -167,12 +167,12 @@ public:
 	 * @param id The unique ID of the RenderObject to retrieve.
 	 * @return Pointer to the RenderObject if found, nullptr otherwise.
 	 */
-	RenderObject* getObjectFromId(uint32_t id) {
+	RenderObject* getObjectFromId(uint32_t id){
 		// Go through all batches
-		for (auto& [pos, batchVec] : ObjectContainer) {
-			for (auto& obj : batchVec) {
-				for (auto& renderObj : obj.objects) {
-					if (renderObj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0) == id) {
+		for (auto& [pos, batchVec] : ObjectContainer){
+			for (auto& obj : batchVec){
+				for (auto& renderObj : obj.objects){
+					if (renderObj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0) == id){
 						return renderObj;
 					}
 				}
@@ -203,7 +203,7 @@ private:
 	 * @param dispResY Display resolution height for tile placement.
 	 * @return The created worker thread.
 	 */
-	std::thread create_batch_worker(batch& batch, std::pair<uint16_t, uint16_t> pos,int dispResX, int dispResY);
+	std::thread create_batch_worker(batch& batch, std::pair<uint16_t, uint16_t> pos,uint16_t dispResX, uint16_t dispResY);
 
 	/**
 	 * @struct Nebulite::Core::RenderObjectContainer::ReinsertionProcess
@@ -255,5 +255,5 @@ private:
 	// Link to the global space for new objects
 	Nebulite::Core::GlobalSpace* globalSpace;
 };
-} 	// namespace Core
-}   // namespace Nebulite
+}   // namespace Nebulite::Core
+#endif // NEBULITE_CORE_RENDEROBJECTCONTAINER_HPP

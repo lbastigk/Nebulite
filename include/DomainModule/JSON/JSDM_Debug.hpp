@@ -4,7 +4,8 @@
  * @brief Implementation of force and clearForce functions for forcing JSON variable values.
  */
 
-#pragma once
+#ifndef NEBULITE_JSDM_DEBUG_HPP
+#define NEBULITE_JSDM_DEBUG_HPP
 
 //------------------------------------------
 // Includes
@@ -22,10 +23,8 @@ namespace Nebulite{
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace JSON {
-NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, Debug) {
+namespace Nebulite::DomainModule::JSON {
+NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, Debug){
 public:
     /**
      * @brief Override of update.
@@ -44,9 +43,9 @@ public:
      * @param argv The argument vector: [key]
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error print(int argc,  char* argv[]);
-    static const std::string print_name;
-    static const std::string print_desc;
+    Nebulite::Constants::Error print(int argc,  char** argv);
+    static std::string const print_name;
+    static std::string const print_desc;
 
     //------------------------------------------
     // Setup
@@ -62,7 +61,6 @@ public:
 private:
     absl::flat_hash_map<std::string, std::string> forced_global_values; // Key-Value pairs to set in global JSON
 };
-}   // namespace JSON
-}   // namespace DomainModule
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::JSON
+#endif // NEBULITE_JSDM_DEBUG_HPP
 

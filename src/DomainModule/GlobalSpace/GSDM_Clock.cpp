@@ -5,40 +5,40 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Nebulite::Constants::Error Clock::update() {
+Nebulite::Constants::Error Clock::update(){
     // Update current time from document
     current_time_ms = domain->getDoc()->get<uint64_t>(Time::key_time_t_ms);
 
     // Check all Timers against their desired time
-    for(auto& clockEntry : clockEntries) {
+    for(auto& clockEntry : clockEntries){
         clockEntry.second.update(current_time_ms);
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-void Clock::readClocksFromDocument() {
+void Clock::readClocksFromDocument(){
     // Remove all existing entries
     clockEntries.clear();
 
     // Read all clocks from the document
     auto type = domain->getDoc()->memberCheck(key_arr_active_clocks);
-    if(type != Nebulite::Utility::JSON::KeyType::array) {
+    if(type != Nebulite::Utility::JSON::KeyType::array){
         // No clocks found, nothing to do
         return;
     }
 
     uint64_t size = domain->getDoc()->memberSize(key_arr_active_clocks);
 
-    for(uint64_t i = 0; i < size; i++) {
+    for(uint64_t i = 0; i < size; i++){
         std::string key = key_arr_active_clocks + "[" + std::to_string(i) + "]";
         auto interval_type = domain->getDoc()->memberCheck(key);
-        if(interval_type != Nebulite::Utility::JSON::KeyType::value) {
+        if(interval_type != Nebulite::Utility::JSON::KeyType::value){
             // Invalid entry, skip
             continue;
         }
 
         uint64_t interval_ms = domain->getDoc()->get<uint64_t>(key);
-        if(interval_ms < 1) {
+        if(interval_ms < 1){
             // Invalid interval, skip
             continue;
         }
@@ -51,7 +51,7 @@ void Clock::readClocksFromDocument() {
 //------------------------------------------
 // Functions
 
-Nebulite::Constants::Error Clock::addClock(int argc,  char* argv[]){
+Nebulite::Constants::Error Clock::addClock(int argc,  char** argv){
     if(argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -86,13 +86,13 @@ Nebulite::Constants::Error Clock::addClock(int argc,  char* argv[]){
 
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Clock::addClock_name = "add-clock";
-const std::string Clock::addClock_desc = "Adds a clock with specified interval (ms) to the global clock system";
+std::string const Clock::addClock_name = "add-clock";
+std::string const Clock::addClock_desc = "Adds a clock with specified interval (ms) to the global clock system";
 
 //------------------------------------------
 // Keys
-const std::string Clock::key_arr_active_clocks = "clocks.active";
-const std::string Clock::key_doc_status_clocks = "clocks.status";
+std::string const Clock::key_arr_active_clocks = "clocks.active";
+std::string const Clock::key_doc_status_clocks = "clocks.status";
 
 //------------------------------------------
 // ClockEntry
@@ -107,7 +107,7 @@ Clock::ClockEntry::ClockEntry(uint64_t interval, Nebulite::Utility::JSON* doc, u
     this->globalReference = doc->getStableDoublePointer(key);
 }
 
-void Clock::ClockEntry::update(const uint64_t& current_time){
+void Clock::ClockEntry::update(uint64_t const& current_time){
     // Check projected dt of timer
     if(current_time - last_trigger_ms >= interval_ms){
         // Instead of setting last_trigger_ms to current_time, 

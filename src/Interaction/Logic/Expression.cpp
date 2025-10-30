@@ -1,12 +1,15 @@
 #include "Interaction/Logic/Expression.hpp"
 
-#include "Core/GlobalSpace.hpp"
 #include <cmath>
+
+#include "Core/GlobalSpace.hpp"
+#include "Utility/Capture.hpp"
+
 
 //------------------------------------------
 // Private:
 
-Nebulite::Interaction::Logic::Expression::~Expression() {
+Nebulite::Interaction::Logic::Expression::~Expression(){
     // reset all data
     reset();
 
@@ -14,18 +17,18 @@ Nebulite::Interaction::Logic::Expression::~Expression() {
     te_variables.clear();
 
     // Clear all expressions
-    for(auto& component : components) {
-        if(component->expression != nullptr) {
+    for(auto& component : components){
+        if(component->expression != nullptr){
             te_free(component->expression);
             component->expression = nullptr;
         }
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::reset() {
-    documentCache = nullptr;
-    self = nullptr;
-    global = nullptr;
+void Nebulite::Interaction::Logic::Expression::reset(){
+    references.documentCache = nullptr;
+    references.self = nullptr;
+    references.global = nullptr;
 
     // Clear existing data
     components.clear();
@@ -37,10 +40,10 @@ void Nebulite::Interaction::Logic::Expression::reset() {
     te_names.clear();
 
     // Clear vds
-    virtualDoubles_self.clear();
-    virtualDoubles_other.clear();
-    virtualDoubles_global.clear();
-    virtualDoubles_resource.clear();
+    virtualDoubles.self.clear();
+    virtualDoubles.other.clear();
+    virtualDoubles.global.clear();
+    virtualDoubles.resource.clear();
 
     //------------------------------------------
     // Register built-in functions
@@ -77,76 +80,76 @@ void Nebulite::Interaction::Logic::Expression::reset() {
     te_variables.push_back({"sgn",         reinterpret_cast<void*>(expr_custom::sgn),            TE_FUNCTION1,  nullptr});
 }
 
-std::string Nebulite::Interaction::Logic::Expression::stripContext(const std::string& key) {
-    if (key.starts_with("self.")) {
+std::string Nebulite::Interaction::Logic::Expression::stripContext(std::string const& key){
+    if (key.starts_with("self.")){
         return key.substr(5);
-    } else if (key.starts_with("other.")) {
+    } else if (key.starts_with("other.")){
         return key.substr(6);
-    } else if (key.starts_with("global.")) {
+    } else if (key.starts_with("global.")){
         return key.substr(7);
     } else {
         return key;
     }
 }
 
-Nebulite::Interaction::Logic::Expression::Component::From Nebulite::Interaction::Logic::Expression::getContext(const std::string& key) {
-    if (key.starts_with("self.")) {
+Nebulite::Interaction::Logic::Expression::Component::From Nebulite::Interaction::Logic::Expression::getContext(std::string const& key){
+    if (key.starts_with("self.")){
         return Component::From::self;
-    } else if (key.starts_with("other.")) {
+    } else if (key.starts_with("other.")){
         return Component::From::other;
-    } else if (key.starts_with("global.")) {
+    } else if (key.starts_with("global.")){
         return Component::From::global;
     } else {
         return Component::From::resource;
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::compileIfExpression(std::shared_ptr<Component>& component) {
-    if (component->type == Component::Type::eval) {
+void Nebulite::Interaction::Logic::Expression::compileIfExpression(std::shared_ptr<Component>& component){
+    if (component->type == Component::Type::eval){
         // Compile the expression using TinyExpr
         int error;
-        component->expression = te_compile(component->str.c_str(), te_variables.data(), te_variables.size(), &error);
-        if (error) {
+        component->expression = te_compile(component->str.c_str(), te_variables.data(), static_cast<int>(te_variables.size()), &error);
+        if (error){
             printCompileError(component, error);
 
             // Resetting expression to nan, as explained in error print:
             // using nan directly is not supported.
             // 0/0 directly yields -nan, so we use abs(0/0)
             te_free(component->expression);
-            component->expression = te_compile("abs(0/0)", te_variables.data(), te_variables.size(), &error);
+            component->expression = te_compile("abs(0/0)", te_variables.data(), static_cast<int>(te_variables.size()), &error);
         }
     }
 }
 
 void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_name, std::string key, Component::From context){
     // Check if variable exists in variables vector:
-    bool found = std::any_of(te_variables.begin(), te_variables.end(), [&](const auto& te_var) { return te_var.name == te_name; });
+    bool found = std::any_of(te_variables.begin(), te_variables.end(), [&](auto const& te_var){ return te_var.name == te_name; });
 
-    if(!found) {
+    if(!found){
         // Initialize with reference to document and cache register
-        std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble> vd = std::make_shared<Nebulite::Interaction::Logic::VirtualDouble>(key, documentCache);
+        std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble> vd = std::make_shared<Nebulite::Interaction::Logic::VirtualDouble>(key, references.documentCache);
 
         // Register cache directly to json file, if possible
-        switch(context) {
+        switch(context){
             case Component::From::self:
                 // Type self is remanent, we can register the double directly from document
-                vd->setUpExternalCache(self);
-                virtualDoubles_self.push_back(vd);
+                vd->setUpExternalCache(references.self);
+                virtualDoubles.self.push_back(vd);
                 break;
             case Component::From::other:
                 // Type other is non-remanent, we need to use the cache that is updated on eval
-                virtualDoubles_other.push_back(vd);
+                virtualDoubles.other.push_back(vd);
                 break;
             case Component::From::global:
                 // Type global is remanent, we can register the double directly from document
-                vd->setUpExternalCache(global);
-                virtualDoubles_global.push_back(vd);
+                vd->setUpExternalCache(references.global);
+                virtualDoubles.global.push_back(vd);
                 break;
             case Component::From::resource:
                 // Type resource is non-remanent, we need to use the cache that is updated on eval
                 // The reason is that resource-documents may get deloaded,
                 // making the direct double reference invalid.
-                virtualDoubles_resource.push_back(vd);
+                virtualDoubles.resource.push_back(vd);
                 break;
             case Component::From::None:
             default:
@@ -169,7 +172,7 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::parseIntoComponents(const std::string& expr, std::vector<std::shared_ptr<Component>>& components){
+void Nebulite::Interaction::Logic::Expression::parseIntoComponents(std::string const& expr){
     // First, we must split the expression into tokens
     std::vector<std::string> tokensPhase1, tokens;
 
@@ -178,10 +181,10 @@ void Nebulite::Interaction::Logic::Expression::parseIntoComponents(const std::st
     tokensPhase1 = Nebulite::Utility::StringHandler::split(expr, '$', true);
 
     // Now we need to split on same depth
-    for(const auto& token : tokensPhase1) {
+    for(auto const& token : tokensPhase1){
         // If the first token starts with '$', it means the string started with '$'
         // If not, the first token is text before the first '$'
-        if(token.starts_with('$')) {
+        if(token.starts_with('$')){
             // Remove everything until a '('
             // This part represents the '$' + formatter
             // Cannot be used, as splitOnSameDepth expects the first character to be the opening parenthesis
@@ -192,7 +195,7 @@ void Nebulite::Interaction::Logic::Expression::parseIntoComponents(const std::st
             std::vector<std::string> subTokens = Nebulite::Utility::StringHandler::splitOnSameDepth(tokenWithoutstart, '(');
 
             // Add back the '$' + formatter to first subToken
-            if(subTokens.size() > 0) {
+            if(subTokens.size() > 0){
                 subTokens[0] = start + subTokens[0];
             }
 
@@ -214,19 +217,19 @@ void Nebulite::Interaction::Logic::Expression::parseIntoComponents(const std::st
     // - formatting
     // - splitting all text-variable mixes
     // - variable info (from what document, what the key is)
-    for (const auto& token : tokens) {
-        if (!token.empty()) {
+    for (auto const& token : tokens){
+        if (!token.empty()){
             if(token.starts_with('$')){
-                parseTokenTypeEval(token, components);
+                parseTokenTypeEval(token);
             }
             else{
-                parseTokenTypeText(token, components);
+                parseTokenTypeText(token);
             }
         }
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::readFormatter(std::shared_ptr<Component>& component, const std::string& formatter) {
+void Nebulite::Interaction::Logic::Expression::readFormatter(std::shared_ptr<Component> const& component, std::string const& formatter){
     // Check formatter. Integer cast should not include precision. Is ignored later on in casting but acceptable as input
     // Examples:
     // $i     : leadingZero = false , alignment = -1 , precision = -1
@@ -238,7 +241,7 @@ void Nebulite::Interaction::Logic::Expression::readFormatter(std::shared_ptr<Com
     }
 
     // Read leading zero
-    if(formatter.starts_with("0")) {
+    if(formatter.starts_with("0")){
         component->formatter.leadingZero = true;
     }
     if(formatter.size() > 1){
@@ -257,7 +260,7 @@ void Nebulite::Interaction::Logic::Expression::readFormatter(std::shared_ptr<Com
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(const std::string& token, std::vector<std::shared_ptr<Component>>& components) {
+void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(std::string const& token){
     // $[leading zero][alignment][.][precision]<type:f,i>
     // - bool leading zero   : on/off
     // - int alignment       : <0 means no formatting
@@ -273,7 +276,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(const std::str
     // $4.2f(2/3)   "4.2f"          "(2/3)"
     std::shared_ptr<Component> currentComponent =  std::make_shared<Component>();
 
-    int16_t pos = token.find('(');
+    size_t pos = token.find('(');
     std::string formatter  = token.substr(1, pos - 1); // Remove leading $
     std::string expression = token.substr(pos);
 
@@ -298,7 +301,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(const std::str
     std::string newString = "";
     std::vector<std::string> subTokens = Nebulite::Utility::StringHandler::splitOnSameDepth(expression, '{');
 
-    for (const auto& subToken : subTokens) {
+    for (auto const& subToken : subTokens){
         if(subToken.starts_with('{')){
             // 1.) remove {}
             std::string key, te_name;
@@ -327,11 +330,11 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(const std::str
     components.push_back(currentComponent);
 }
 
-void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(const std::string& token, std::vector<std::shared_ptr<Component>>& components) {
+void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(std::string const& token){
     // Current token is Text
     // Perhaps mixed with variables...
     std::vector<std::string> subTokens = Nebulite::Utility::StringHandler::splitOnSameDepth(token, '{');
-    for (const auto& subToken : subTokens) {
+    for (const auto& subToken : subTokens){
         std::shared_ptr<Component> currentComponent =  std::make_shared<Component>();
 
         // Token is type variable
@@ -360,7 +363,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(const std::str
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::printCompileError(const std::shared_ptr<Component>& component, const int error) {
+void Nebulite::Interaction::Logic::Expression::printCompileError(const std::shared_ptr<Component>& component, const int error){
     Nebulite::Utility::Capture::cerr() << "-----------------------------------------------------------------" << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "Error compiling expression: '" << component->str << "' Error code: " << std::to_string(error) << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "You might see this message multiple times due to expression parallelization." << Nebulite::Utility::Capture::endl;
@@ -373,7 +376,7 @@ void Nebulite::Interaction::Logic::Expression::printCompileError(const std::shar
     Nebulite::Utility::Capture::cerr() << "if '$(1 + 1)' echo here! # works" << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "Registered functions and variables:\n";
-    for (const auto& var : te_variables) {
+    for (auto const& var : te_variables){
         Nebulite::Utility::Capture::cerr() << "\t'" << var.name << "'\n";
     }
     Nebulite::Utility::Capture::cerr() << Nebulite::Utility::Capture::endl;
@@ -385,52 +388,53 @@ void Nebulite::Interaction::Logic::Expression::printCompileError(const std::shar
 //------------------------------------------
 // Public:
 
-Nebulite::Interaction::Logic::Expression::Expression() {
+Nebulite::Interaction::Logic::Expression::Expression(){
     _isReturnableAsDouble = false;
+    _isAlwaysTrue = false;
     uniqueId = 0;
     reset();
 }
 
-void Nebulite::Interaction::Logic::Expression::parse(const std::string& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global) {
+void Nebulite::Interaction::Logic::Expression::parse(std::string const& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global){
     reset();
 
     // Set references
-    this->self = self;
-    this->global = global;
-    this->documentCache = documentCache;
+    references.self = self;
+    references.global = global;
+    references.documentCache = documentCache;
     fullExpression = expr;
 
     // Parse
-    parseIntoComponents(expr, components);
+    parseIntoComponents(expr);
 
     // Now compile all components:
-    for (auto& component : components) {
+    for (auto& component : components){
         compileIfExpression(component);
     }
 
-    // Check if parsed expression is returnable as double
-    _isReturnableAsDouble = (components.size() == 1) &&
-                            (components[0]->type == Component::eval) &&
-                            (components[0]->cast == Component::CastType::none);
-
-    // Get the unique ID for this expression
     auto globalspace = self->getGlobalSpace();
     uniqueId = globalspace->getUniqueId(fullExpression, Nebulite::Core::GlobalSpace::UniqueIdType::EXPRESSION);
+
+    // Calculate optimization flags in-expression only if pools are not used
+    #if INVOKE_EXPR_POOL_SIZE == 1
+        _isReturnableAsDouble = recalculateIsReturnableAsDouble();
+        _isAlwaysTrue = recalculateIsAlwaysTrue();
+    #endif
 }
 
-bool Nebulite::Interaction::Logic::Expression::handleComponentTypeVariable(std::string& token, const std::shared_ptr<Component>& component, Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth) {
+bool Nebulite::Interaction::Logic::Expression::handleComponentTypeVariable(std::string& token, const std::shared_ptr<Component>& component, Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth){
     std::string key = component->key;
     Component::From context = component->from;
 
     // See if the variable contains an inner expression
-    if(component->str.find('$') != std::string::npos || component->str.find('{') != std::string::npos) {
-        if(max_recursion_depth == 0) {
+    if(component->str.find('$') != std::string::npos || component->str.find('{') != std::string::npos){
+        if(max_recursion_depth == 0){
             Nebulite::Utility::Capture::cerr() << "Error: Maximum recursion depth reached when evaluating variable: " << component->key << Nebulite::Utility::Capture::endl;
             return false;
         }
         // Create a temporary expression to evaluate the inner expression
         Expression tempExpr;
-        tempExpr.parse(component->str, documentCache, self, global);
+        tempExpr.parse(component->str, references.documentCache, references.self, references.global);
         key = tempExpr.eval(current_other, max_recursion_depth - 1);
 
         // Redetermine context and strip it from key
@@ -439,41 +443,41 @@ bool Nebulite::Interaction::Logic::Expression::handleComponentTypeVariable(std::
     }
 
     // Now, use the key to get the value from the correct document
-    switch(context) {
+    switch(context){
         case Component::From::self:
-            if(self == nullptr){
+            if(references.self == nullptr){
                 Nebulite::Utility::Capture::cerr() << "Error: Null self reference in expression: " << key << Nebulite::Utility::Capture::endl;
                 return false;
             }
-            token = self->get<std::string>(key, "0");
+            token = references.self->get<std::string>(key, "0");
             break;
         case Component::From::other:
-            if(current_other == nullptr) {
+            if(current_other == nullptr){
                 Nebulite::Utility::Capture::cerr() << "Error: Null other reference in expression: " << key << Nebulite::Utility::Capture::endl;
                 return false;
             }
             token = current_other->get<std::string>(key, "0");
             break;
         case Component::From::global:
-            if (global == nullptr) {
+            if (references.global == nullptr){
                 Nebulite::Utility::Capture::cerr() << "Error: Null global reference in expression: " << key << Nebulite::Utility::Capture::endl;
                 return false;
             }
-            token = global->get<std::string>(key, "0");
+            token = references.global->get<std::string>(key, "0");
             break;
         case Component::From::resource:
         default:
-            if (globalCache == nullptr) {
+            if (references.documentCache == nullptr){
                 Nebulite::Utility::Capture::cerr() << "Error: Null globalCache reference in expression: " << key  << ". If this shouldn't be a Resource reference, did you forget the prefix self/other/global?" << Nebulite::Utility::Capture::endl;
                 return false;
             }
-            token = globalCache->get<std::string>(key, "0");
+            token = references.documentCache->get<std::string>(key, "0");
             break;
     }
     return true;
 }
 
-void Nebulite::Interaction::Logic::Expression::handleComponentTypeEval(std::string& token, const std::shared_ptr<Component>& component) {
+void Nebulite::Interaction::Logic::Expression::handleComponentTypeEval(std::string& token, const std::shared_ptr<Component>& component){
     //------------------------------------------
     // Handle casting and precision together
     if(component->cast == Component::CastType::to_int){
@@ -483,7 +487,7 @@ void Nebulite::Interaction::Logic::Expression::handleComponentTypeEval(std::stri
         double value = te_eval(component->expression);
         
         // Apply rounding if precision is specified
-        if (component->formatter.precision != -1) {
+        if (component->formatter.precision != -1){
             double multiplier = std::pow(10.0, component->formatter.precision);
             value = std::round(value * multiplier) / multiplier;
         }
@@ -492,34 +496,35 @@ void Nebulite::Interaction::Logic::Expression::handleComponentTypeEval(std::stri
     }
 
     // Precision formatting (after rounding)
-    if (component->formatter.precision != -1) {
+    if (component->formatter.precision != -1){
         size_t dotPos = token.find('.');
-        if (dotPos != std::string::npos) {
+        if (dotPos != std::string::npos){
             size_t currentPrecision = token.size() - dotPos - 1;
-            if (currentPrecision < static_cast<size_t>(component->formatter.precision)) {
+            if (currentPrecision < static_cast<size_t>(component->formatter.precision)){
                 // Add zeros to match the required precision
-                token.append(component->formatter.precision - currentPrecision, '0');
-            } else if (currentPrecision > static_cast<size_t>(component->formatter.precision)) {
+                token.append(static_cast<size_t>(component->formatter.precision) - currentPrecision, '0');
+            } else if (currentPrecision > static_cast<size_t>(component->formatter.precision)){
                 // Truncate to the required precision (should be minimal after rounding)
-                token.resize(dotPos + component->formatter.precision + 1);
+                token.resize(dotPos + static_cast<size_t>(component->formatter.precision) + 1);
             }
         } else {
             // No decimal point, add one and pad with zeros
             token += '.';
-            token.append(component->formatter.precision, '0');
+            token.append(static_cast<size_t>(component->formatter.precision), '0');
         }
     }
 
     // Adding padding
-    if(component->formatter.alignment > 0 && token.size() < static_cast<size_t>(component->formatter.alignment)) {
-        int32_t size = token.size();
+    if(component->formatter.alignment > 0 && token.size() < static_cast<size_t>(component->formatter.alignment)){
+        // Cast to int, as alignment may be negative (-1 signals no alignment)
+        int size = static_cast<int>(token.size());
         for(int i = 0; i < component->formatter.alignment - size; i++){
             token = (component->formatter.leadingZero ? '0' : ' ') + token;
         }
     }
 }
 
-std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth) {
+std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth){
     //------------------------------------------
     // Update caches so that tinyexpr has the correct references
     updateCaches(current_other);
@@ -529,12 +534,12 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
 
     // Concatenate results of each component
     std::string result = "";
-    for (const auto& component : components) {
+    for (const auto& component : components){
         std::string token = "";
         switch (component->type){
             //------------------------------------------
             case Component::variable:
-                if(!handleComponentTypeVariable(token, component, current_other, max_recursion_depth)) {
+                if(!handleComponentTypeVariable(token, component, current_other, max_recursion_depth)){
                     return "0";
                 }
                 break;
@@ -556,7 +561,7 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
     return result;
 }
 
-double Nebulite::Interaction::Logic::Expression::evalAsDouble(Nebulite::Utility::JSON* current_other) {
+double Nebulite::Interaction::Logic::Expression::evalAsDouble(Nebulite::Utility::JSON* current_other){
     // Update caches so that tinyexpr has the correct references
     updateCaches(current_other);
 
@@ -564,20 +569,20 @@ double Nebulite::Interaction::Logic::Expression::evalAsDouble(Nebulite::Utility:
     return te_eval(components[0]->expression);
 }
 
-odpvec* Nebulite::Interaction::Logic::Expression::ensure_other_cache_component(Nebulite::Utility::JSON* current_other) {
-    auto cache = current_other->getExpressionRefsAsOther();
+odpvec* Nebulite::Interaction::Logic::Expression::ensureOtherOrderedCacheList(Nebulite::Utility::JSON* reference){
+    auto cache = reference->getExpressionRefsAsOther();
     std::lock_guard<std::mutex> cache_lock(cache->mtx);
     
     // Check if we can use quickcache, that does not rely on a hashmap lookup
     if(uniqueId < ORDERED_DOUBLE_POINTERS_QUICKCACHE_SIZE){
         if(cache->quickCache[uniqueId].orderedValues.empty()){
             // Not initialized yet, create one with exact size
-            Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles_other.size());
+            Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles.other.size());
 
             // Populate list with all virtual doubles from type other
-            for(const auto& vde : virtualDoubles_other) {
-                double* reference = current_other->getStableDoublePointer(vde->getKey());
-                newCacheList.orderedValues.push_back(reference);
+            for(auto const& vde : virtualDoubles.other){
+                double* ptr = reference->getStableDoublePointer(vde->getKey());
+                newCacheList.orderedValues.push_back(ptr);
             }
             cache->quickCache[uniqueId] = std::move(newCacheList);
         }
@@ -588,13 +593,13 @@ odpvec* Nebulite::Interaction::Logic::Expression::ensure_other_cache_component(N
     auto it = cache->map.find(uniqueId);
     
     // If not, create one
-    if(it == cache->map.end()) {
-        Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles_other.size());
+    if(it == cache->map.end()){
+        Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles.other.size());
 
         // Populate list with all virtual doubles from type other
-        for(const auto& vde : virtualDoubles_other) {
-            double* reference = current_other->getStableDoublePointer(vde->getKey());
-            newCacheList.orderedValues.push_back(reference);
+        for(auto const& vde : virtualDoubles.other){
+            double* ptr = reference->getStableDoublePointer(vde->getKey());
+            newCacheList.orderedValues.push_back(ptr);
         }
 
         cache->map.emplace(uniqueId, std::move(newCacheList));
@@ -603,17 +608,17 @@ odpvec* Nebulite::Interaction::Logic::Expression::ensure_other_cache_component(N
     return &it->second.orderedValues;
 }
 
-void Nebulite::Interaction::Logic::Expression::updateCaches(Nebulite::Utility::JSON* current_other) {
+void Nebulite::Interaction::Logic::Expression::updateCaches(Nebulite::Utility::JSON* reference){
     //------------------------------------------
     // 1.) Update other
 
     // Get a list of all references, insert into virtual doubles
-    if(!virtualDoubles_other.empty()){
-        auto list = ensure_other_cache_component(current_other);
+    if(!virtualDoubles.other.empty()){
+        auto list = ensureOtherOrderedCacheList(reference);
         auto* list_data = list->data();
-        const size_t count = virtualDoubles_other.size();
-        for(size_t i = 0; i < count; ++i) {
-            virtualDoubles_other[i]->setDirect(*list_data[i]);
+        const size_t count = virtualDoubles.other.size();
+        for(size_t i = 0; i < count; ++i){
+            virtualDoubles.other[i]->setDirect(*list_data[i]);
         }
     }
 
@@ -621,7 +626,19 @@ void Nebulite::Interaction::Logic::Expression::updateCaches(Nebulite::Utility::J
     // 2.) Update resource
 
     // Update resource references
-    for(auto& vde : virtualDoubles_resource) {
+    for(auto& vde : virtualDoubles.resource){
         vde->setUpInternalCache(nullptr);
     }
+}
+
+//------------------------------------------
+// Recalculation helpers:
+
+
+bool Nebulite::Interaction::Logic::Expression::recalculateIsReturnableAsDouble(){
+    return (components.size() == 1) && (components[0]->type == Component::Type::eval) && (components[0]->cast == Component::CastType::none);
+}
+
+bool Nebulite::Interaction::Logic::Expression::recalculateIsAlwaysTrue(){
+    return (fullExpression == "1");
 }

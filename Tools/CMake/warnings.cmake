@@ -6,36 +6,51 @@ message(STATUS "Loading compiler warnings configuration...")
 # Function to configure warnings for a target
 function(configure_warnings target_name)
     message(STATUS "Configuring warnings for target: ${target_name}")
+
+    # Only show warnings in non-release builds
+    if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+        message(STATUS "Release build detected, skipping warning configuration for target: ${target_name}")
+        return()
+    endif()
+
+    # Common base (both compilers)
+    set(BASE_WARNINGS
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Wno-unused-parameter
+        -Wnon-virtual-dtor
+        -Woverloaded-virtual
+        -Wcast-align
+        -Wmissing-field-initializers
+        -Wformat=2
+        -Wundef
+    )
     
-    # Enable unused function detection (only for GCC/Clang)
-    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        target_compile_options(${target_name} PRIVATE
-            -Wunused-function          # Warn about unused static functions
-            -Wunused-variable          # Warn about unused variables
-            -Wunreachable-code         # Warn about unreachable code
-            -Wall                      # Enable most common warnings
-            -Wextra                    # Enable extra warnings
-            -Wno-unused-parameter      # Explicitly disable unused parameter warnings (overrides -Wall. Disabled due to too many false positives with argc/argv signatures that may be unused)
-            # -Wpedantic               # Enable pedantic warnings (disabled due to __int128 conflicts in abseil)
+    ########################################
+    # GCC
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_compile_options(${target_name} PRIVATE ${BASE_WARNINGS}
+            -Wnull-dereference
+            -Wdouble-promotion
+            -Wfloat-equal
+            -Wshadow
         )
-        
-        # GCC-specific warnings
-        if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-            target_compile_options(${target_name} PRIVATE
-                -Wunused-but-set-variable  # Warn about variables that are set but never used
-            )
-            message(STATUS "Applied GCC-specific warnings")
-        endif()
-        
-        # Clang-specific warnings
-        if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-            target_compile_options(${target_name} PRIVATE
-                -Wdead-code               # Warn about dead code (Clang only)
-            )
-            message(STATUS "Applied Clang-specific warnings")
-        endif()
-        
-        message(STATUS "Applied common GCC/Clang warnings")
+        message(STATUS "Applied GCC-specific warnings")
+    ########################################
+    # Clang
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        target_compile_options(${target_name} PRIVATE ${BASE_WARNINGS}
+            # Clang-only checks
+            -Wnull-dereference
+            -Wdouble-promotion
+            -Wfloat-equal
+            -Wextra-semi
+            -Wshadow
+        )
+        message(STATUS "Applied Clang warnings")
+    ########################################
+    # MSVC
     elseif(MSVC)
         # MSVC-specific warnings
         target_compile_options(${target_name} PRIVATE
@@ -43,6 +58,8 @@ function(configure_warnings target_name)
             /WX-                       # Don't treat warnings as errors (can be changed)
         )
         message(STATUS "Applied MSVC warnings")
+    ########################################
+    # Unknown compiler
     else()
         message(STATUS "Unknown compiler, no specific warnings applied")
     endif()

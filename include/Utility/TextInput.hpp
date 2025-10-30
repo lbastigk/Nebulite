@@ -3,12 +3,13 @@
  * @brief Header file for the TextInput class.
  */
 
- #pragma once
+#ifndef NEBULITE_UTILITY_TEXTINPUT_HPP
+#define NEBULITE_UTILITY_TEXTINPUT_HPP
 
 //------------------------------------------
 // Includes
 
-// General
+// Standard library
 #include <deque>
 #include <vector>
 #include <string>
@@ -64,7 +65,7 @@ public:
         std::string content;
         std::string timestamp;
 
-        LineEntry(const std::string& cont, LineType t)
+        LineEntry(std::string const& cont, LineType t)
             : type(t), 
               content(cont), 
               timestamp(Nebulite::Utility::Time::TimeIso8601(Nebulite::Utility::Time::ISO8601FORMATTER::YYYY_MM_DD_HH_MM_SS, true)) 
@@ -77,7 +78,7 @@ public:
      * @param type The type of submission.
      * Default is COUT.
      */
-    void insertLine(const std::string& line, LineEntry::LineType type = LineEntry::LineType::COUT);
+    void insertLine(std::string const& line, LineEntry::LineType type = LineEntry::LineType::COUT);
 
     /**
      * @brief Handles backspace input.
@@ -112,7 +113,7 @@ public:
      * @param console The console instance.
      * @param c The character array to append.
      */
-    void append(const char* c);
+    void append(char const* c);
 
     /**
      * @brief Gets the current input buffer.
@@ -125,7 +126,7 @@ public:
     /**
      * @brief Gets the queue of output lines.
      */
-    std::deque<LineEntry>* getOutput() {
+    std::deque<LineEntry>* getOutput(){
         return &consoleOutput;
     }
 
@@ -189,3 +190,4 @@ private:
 
 };
 } // namespace Nebulite::Utility 
+#endif // NEBULITE_UTILITY_TEXTINPUT_HPP

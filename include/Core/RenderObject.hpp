@@ -5,14 +5,15 @@
  * Defines the Nebulite::Core::RenderObject class.
  */
 
-#pragma once
+#ifndef NEBULITE_CORE_RENDEROBJECT_HPP
+#define NEBULITE_CORE_RENDEROBJECT_HPP
 
 //------------------------------------------
 // Includes
 
 // External
-#include "SDL.h"		// SDL Renderer is used for some methods to calculate text
-#include "SDL_ttf.h"	// Same for ttf
+#include <SDL.h>		// SDL Renderer is used for some methods to calculate text
+#include <SDL_ttf.h>	// Same for ttf
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
@@ -28,13 +29,12 @@ namespace Nebulite{
 	}
 	namespace Interaction{
 		class Invoke; 		// Forward declaration of interaction class Invoke
-		class Ruleset; 	// Forward declaration of interaction class Ruleset
+		struct Ruleset; 	// Forward declaration of interaction struct Ruleset
 	}
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace Core {
+namespace Nebulite::Core {
 /**
  * @class Nebulite::Core::RenderObject
  * @brief Represents a renderable object in the Nebulite engine. 
@@ -78,7 +78,7 @@ namespace Core {
  * 
  * Copy and move operations are disabled to prevent accidental resource duplication.
  */
-NEBULITE_DOMAIN(RenderObject) {
+NEBULITE_DOMAIN(RenderObject){
 public:
 	//------------------------------------------
 	// Special member Functions
@@ -115,7 +115,7 @@ public:
 	 * @param key The key of the value to set.
 	 * @param data The value to set.
 	 */
-    template <typename T> void set(const char* key, const T data);
+    template <typename T> void set(char const* key, T const& data);
 
     /**
      * @brief Gets a value from the Domain's JSON document.
@@ -125,7 +125,7 @@ public:
      * @param defaultValue The default value to return if the key is not found.
      * @return The value from the JSON document, or the default value if not found.
      */
-    template <typename T> T get(const char* key, const T& defaultValue = T());
+    template <typename T> T get(char const* key, T const& defaultValue = T());
 
 
 	//------------------------------------------
@@ -143,7 +143,7 @@ public:
 	 * 
 	 * @param serialOrLink The JSON string to deserialize.
 	 */
-	void deserialize(std::string serialOrLink);
+	void deserialize(std::string const& serialOrLink);
 
 	/**
 	 * @brief Gets a pointer to the SDL_Rect describing the destination of the sprite.
@@ -200,10 +200,10 @@ public:
 	 * 
 	 * @param renderer The SDL_Renderer to use for rendering.
 	 * @param font The TTF_Font to use for rendering the text.
-	 * @param renderer_X The X position of the renderer used for text offset.
-	 * @param renderer_Y The Y position of the renderer used for text offset.
+	 * @param renderPositionX The X position of the renderer used for text offset.
+	 * @param renderPositionY The Y position of the renderer used for text offset.
 	 */
-	void calculateText(SDL_Renderer* renderer,TTF_Font* font, int renderer_X, int renderer_Y);
+	void calculateText(SDL_Renderer* renderer,TTF_Font* font, int renderPositionX, int renderPositionY);
 
 	/**
 	 * @brief Calculates the destination rectangle for the sprite.
@@ -248,7 +248,7 @@ public:
      * 
      * @param externalTexture Pointer to the external SDL_Texture.
      */
-    void linkExternalTexture(SDL_Texture* externalTexture) {
+    void linkExternalTexture(SDL_Texture* externalTexture){
         baseTexture.linkExternalTexture(externalTexture);
     }
 
@@ -257,7 +257,7 @@ public:
      * 
      * @return true if the texture has been modified, false otherwise.
      */
-    bool isTextureStoredLocally() {
+    bool isTextureStoredLocally(){
         return baseTexture.isTextureStoredLocally();
     }
 
@@ -266,7 +266,7 @@ public:
      * 
      * @return true if the texture is valid, false otherwise.
      */
-    bool isTextureValid() {
+    bool isTextureValid(){
         return baseTexture.isTextureValid();
     }
 
@@ -275,11 +275,11 @@ public:
      * 
      * @return Pointer to the current SDL_Texture.
      */
-    SDL_Texture* getSDLTexture() {
+    SDL_Texture* getSDLTexture(){
         return baseTexture.getSDLTexture();
     }
 
-	Nebulite::Core::Texture* getTexture() {
+	Nebulite::Core::Texture* getTexture(){
 		return &baseTexture;
 	}
 
@@ -391,18 +391,18 @@ private:
 	// Linkage to the global invoke for update calls
 	Nebulite::Interaction::Invoke* invoke;
 };
-} // namespace Core
-} // namespace Nebulite
+} // namespace Nebulite::Core
 
 
 //------------------------------------------
 // Templated setter/getter functions
 
-template <typename T> void Nebulite::Core::RenderObject::set(const char* key, const T data) {
+template <typename T> void Nebulite::Core::RenderObject::set(char const* key, T const& data){
 	json.set(key,data);
 }
 
-template <typename T> T Nebulite::Core::RenderObject::get(const char* key, const T& defaultValue){
+template <typename T> T Nebulite::Core::RenderObject::get(char const* key, T const& defaultValue){
 	T result = json.get<T>(key,defaultValue);
 	return result;
 }
+#endif // NEBULITE_CORE_RENDEROBJECT_HPP

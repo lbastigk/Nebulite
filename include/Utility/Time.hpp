@@ -3,19 +3,18 @@
  * @brief Provides utilities for time-related functions.
  */
 
-#pragma once
+#ifndef NEBULITE_UTILITY_TIME_HPP
+#define NEBULITE_UTILITY_TIME_HPP
 
 //------------------------------------------
 // Includes
 
-// General
-#include <thread>
-#include <iostream>
-#include <sstream>
+// Standard library
+#include <string>
+#include <cstdint>
 
 //------------------------------------------
-namespace Nebulite {
-namespace Utility {
+namespace Nebulite::Utility {
 /**
  * @class Time
  * @brief Provides utilities for time-related functions.
@@ -73,5 +72,5 @@ public:
      */
     static void waitnanoseconds(uint64_t ns);
 };
-}   // namespace Utility
-}   // namespace Nebulite
+}   // namespace Nebulite::Utility
+#endif // NEBULITE_UTILITY_TIME_HPP

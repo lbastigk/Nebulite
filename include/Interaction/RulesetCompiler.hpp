@@ -4,7 +4,8 @@
  * This file contains the static RulesetCompiler class.
  */
 
-#pragma once
+#ifndef NEBULITE_RULESETCOMPILER_HPP
+#define NEBULITE_RULESETCOMPILER_HPP
 
 //------------------------------------------
 // Includes
@@ -16,8 +17,7 @@
 #include "Utility/DocumentCache.hpp"
 
 //------------------------------------------
-namespace Nebulite{
-namespace Interaction{
+namespace Nebulite::Interaction{
 /**
  * @class Nebulite::Interaction::RulesetCompiler
  * 
@@ -96,7 +96,7 @@ private:
     static bool getExpression(
         Nebulite::Interaction::Logic::Assignment& assignmentExpr, 
         Nebulite::Utility::JSON& entry, 
-        int index
+        size_t index
     );
 
     /**
@@ -127,19 +127,21 @@ private:
     static bool getRuleset(
         Nebulite::Utility::JSON& doc, 
         Nebulite::Utility::JSON& entry, 
-        int index
+        size_t index
     );
 
     /**
      * @brief Optimizes the parsed entries by linking direct target pointers.
+     * 
+     * Potentially modifying self and global by registering stable double pointers. 
      * 
      * @param entries The Ruleset objects to optimize.
      * @param self The RenderObject instance associated with the entries.
      * @param global The global JSON document to use for parsing expressions.
      */
     static void optimizeParsedEntries(
-        std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries, 
-        Nebulite::Utility::JSON* self,
+        const std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries, 
+        Nebulite::Utility::JSON const* self,
         Nebulite::Utility::JSON* global
     );
 
@@ -154,6 +156,5 @@ private:
         Nebulite::Interaction::Logic::Assignment::Operation::multiply
     };
 };
-} // namespace Interaction
-} // namespace Nebulite
-
+} // namespace Nebulite::Interaction
+#endif // NEBULITE_RULESETCOMPILER_HPP

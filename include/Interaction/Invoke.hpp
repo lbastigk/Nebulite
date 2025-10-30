@@ -5,22 +5,21 @@
  * dynamic object logic in the Nebulite engine.
  */
 
-#pragma once
+#ifndef NEBULITE_INTERACTION_INVOKE_HPP
+#define NEBULITE_INTERACTION_INVOKE_HPP
 
 //------------------------------------------
 // Includes 
 
-// General
+// Standard library
 #include <string>
-#include <vector>
 #include <deque>
-#include <shared_mutex>
 #include <thread>
 #include <condition_variable>
 #include <atomic>
 
 // External
-#include "tinyexpr.h"
+#include <tinyexpr.h>
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
@@ -31,15 +30,14 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite {
-  namespace Core {
+namespace Nebulite{
+  namespace Core{
     class RenderObject;
   }
 }
 
 //------------------------------------------
-namespace Nebulite{
-namespace Interaction{
+namespace Nebulite::Interaction{
 /**
  * @class Nebulite::Interaction::Invoke
  * @brief The Invoke class manages dynamic object logic in Nebulite.
@@ -113,7 +111,7 @@ public:
     /**
      * @brief Gets the global JSON document pointer.
      */
-    Nebulite::Utility::JSON* getGlobalPointer(){return globalDoc;};
+    Nebulite::Utility::JSON* getGlobalPointer(){return globalDoc;}
 
     /**
      * @brief Gets a pointer to the DocumentCache.
@@ -123,7 +121,7 @@ public:
      * 
      * @return A pointer to the DocumentCache.
      */
-    Nebulite::Utility::DocumentCache* getDocumentCache() { return docCache; }
+    Nebulite::Utility::DocumentCache* getDocumentCache(){ return docCache; }
     
     //------------------------------------------
     // Send/Listen
@@ -134,7 +132,7 @@ public:
      * This function sends the specified invoke entry to all render objects
      * that are listening for the entry's topic.
      * 
-     * @param entry The invoke entry to broadcast.
+     * @param entry The invoke entry to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
     void broadcast(std::shared_ptr<Nebulite::Interaction::Ruleset> entry);
 
@@ -161,9 +159,10 @@ public:
      * 
      * @param entry The invoke entry to check.
      * @param otherObj The other render object to compare against.
+     * Make sure entry and otherObj are not the same object!
      * @return True if the invoke entry is true in the context of the other render object, false otherwise.
      */
-    bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> entry, Nebulite::Core::RenderObject* otherObj);
+    bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> entry, Nebulite::Core::RenderObject const* otherObj);
 
     /**
      * @brief Checks if the invoke entry is true, without any context from other render objects.
@@ -214,8 +213,8 @@ public:
      */
     void setValueOfKey(
         Nebulite::Interaction::Logic::Assignment::Operation operation, 
-        const std::string& key, 
-        const std::string& valStr, 
+        std::string const& key, 
+        std::string const& valStr, 
         Nebulite::Utility::JSON* target
     );
 
@@ -232,7 +231,7 @@ public:
      */
     void setValueOfKey(
         Nebulite::Interaction::Logic::Assignment::Operation operation, 
-        const std::string& key, 
+        std::string const& key, 
         double value, 
         Nebulite::Utility::JSON* target
     );
@@ -250,7 +249,7 @@ public:
      */
     void setValueOfKey(
         Nebulite::Interaction::Logic::Assignment::Operation operation, 
-        const std::string& key, 
+        std::string const& key, 
         double value, 
         double* target
     );
@@ -270,7 +269,7 @@ public:
      * @param input The expression to evaluate.
      * @return The result of the evaluation.
      */
-    std::string evaluateStandaloneExpression(const std::string& input);
+    std::string evaluateStandaloneExpression(std::string const& input);
 
     /**
      * @brief Evaluates a standalone expression with context from a RenderObject.
@@ -279,7 +278,7 @@ public:
      * @param selfAndOther The RenderObject providing context for `self` and `other`.
      * @return The result of the evaluation.
      */
-    std::string evaluateStandaloneExpression(const std::string& input, Nebulite::Core::RenderObject* selfAndOther);
+    std::string evaluateStandaloneExpression(std::string const& input, Nebulite::Core::RenderObject* selfAndOther);
 
 private:
     //------------------------------------------
@@ -415,6 +414,19 @@ private:
      * @param Obj_other The render object in the other domain to update.
      */
     void applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other);
+
+    /**
+     * @brief Applies a single assignment from an invoke entry.
+     * 
+     * @param entry The invoke entry to apply.
+     * @param Obj_other The render object in the other domain to update.
+     */
+    void applyAssignment(Nebulite::Interaction::Logic::Assignment& assignment, Nebulite::Core::RenderObject const* Obj_self, Nebulite::Core::RenderObject const* Obj_other);
+
+    /**
+     * @brief Applies all functioncalls
+     */
+    void applyFunctionCalls(Nebulite::Interaction::Ruleset& ruleset, Nebulite::Core::RenderObject *Obj_self, Nebulite::Core::RenderObject *Obj_other);
 };
-} // namespace Interaction
-} // namespace Nebulite
+} // namespace Nebulite::Interaction
+#endif // NEBULITE_INTERACTION_INVOKE_HPP

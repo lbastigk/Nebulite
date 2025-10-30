@@ -4,7 +4,7 @@
 #include "Constants/KeyNames.hpp"
 
 
-Nebulite::Core::GlobalSpace::GlobalSpace(const std::string& binName)
+Nebulite::Core::GlobalSpace::GlobalSpace(std::string const& binName)
 : Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite", this, &global, this),
   global(this),                       // Link the global document to the GlobalSpace
   renderer(this, &cmdVars.headless),  // Renderer with reference to GlobalSpace and headless mode boolean
@@ -53,7 +53,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::updateInnerDomains(){
     return result;
 }
 
-Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
+Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update(){
     static bool queueParsed = false;   // Indicates if the task queue has been parsed on this frame render
     static bool criticalStop = false;  // Indicates if a critical stop has occurred
     Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE(); // Last critical error result
@@ -79,7 +79,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
     //------------------------------------------
     // Update and render, only if initialized
     // If renderer wasnt initialized, it is still a nullptr
-    if (!criticalStop && renderer.isSdlInitialized() && renderer.timeToRender()) {
+    if (!criticalStop && renderer.isSdlInitialized() && renderer.timeToRender()){
         // Update modules first
         updateModules();
 
@@ -121,12 +121,12 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update() {
     return lastCriticalResult;
 }
 
-void Nebulite::Core::GlobalSpace::parseCommandLineArguments(const int argc, const char* argv[]){
+void Nebulite::Core::GlobalSpace::parseCommandLineArguments(int const argc, char const* argv[]){
     //------------------------------------------
     // Add main args to taskList, split by ';'
-    if (argc > 1) {
+    if (argc > 1){
         std::ostringstream oss;
-        for (int i = 1; i < argc; ++i) {
+        for (int i = 1; i < argc; ++i){
             if (i > 1) oss << ' ';
             oss << argv[i];
         }
@@ -136,11 +136,11 @@ void Nebulite::Core::GlobalSpace::parseCommandLineArguments(const int argc, cons
         std::stringstream ss(argStr);
         std::string command;
 
-        while (std::getline(ss, command, ';')) {
+        while (std::getline(ss, command, ';')){
             // Trim whitespace from each command
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
-            if (!command.empty()) {
+            if (!command.empty()){
                 tasks.script.taskQueue.push_back(command);
             }
         }
@@ -184,13 +184,13 @@ void Nebulite::Core::GlobalSpace::parseCommandLineArguments(const int argc, cons
     }
 }
 
-Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, const uint64_t* waitCounter){
+Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t const* waitCounter){
     Nebulite::Constants::Error currentResult;
     Nebulite::Core::taskQueueResult fullResult;
 
     // If clearAfterResolving, process and pop each element
-    if (tq.clearAfterResolving) {
-        while (!tq.taskQueue.empty() && !fullResult.encounteredCriticalResult) {
+    if (tq.clearAfterResolving){
+        while (!tq.taskQueue.empty() && !fullResult.encounteredCriticalResult){
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
             std::string argStr = tq.taskQueue.front();
@@ -200,7 +200,7 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
             // While args from command line have binary name in them, 
             // commands from Renderobject, taskfile or console do not.
             // Is needed for correct parsing; argv[0] is alwys binary name.
-            if (!argStr.starts_with(names.binary + " ")) {
+            if (!argStr.starts_with(names.binary + " ")){
                 argStr = names.binary + " " + argStr;
             }
 
@@ -208,14 +208,14 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
             currentResult = parseStr(argStr);
 
             // Check result
-            if (currentResult.isCritical()) {
+            if (currentResult.isCritical()){
                 fullResult.encounteredCriticalResult = true;
             }
             fullResult.errors.push_back(currentResult);
         }
     } else {
         // If not clearing, process every element without popping
-        for (const auto& argStrOrig : tq.taskQueue) {
+        for (auto const& argStrOrig : tq.taskQueue){
             if (fullResult.encounteredCriticalResult) break;
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
@@ -224,7 +224,7 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
             // commands from Renderobject, taskfile or console do not.
             // Is needed for correct parsing; argv[0] is alwys binary name.
             std::string argStr = argStrOrig;
-            if (!argStr.starts_with(names.binary + " ")) {
+            if (!argStr.starts_with(names.binary + " ")){
                 argStr = names.binary + " " + argStr;
             }
 
@@ -232,7 +232,7 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
             currentResult = parseStr(argStr);
 
             // Check result
-            if (currentResult.isCritical()) {
+            if (currentResult.isCritical()){
                 fullResult.encounteredCriticalResult = true;
             }
             fullResult.errors.push_back(currentResult);
@@ -241,9 +241,9 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
     return fullResult;
 }
 
-Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
-    uint64_t* noWaitCounter = nullptr;
-    Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE();
+Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue(){
+    static uint64_t const* noWaitCounter = nullptr;
+    Nebulite::Constants::Error lastCriticalResult;
 
     // 1.) Clear errors from last loop
     queueResult.script.errors.clear();
@@ -252,21 +252,21 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
 
     // 2.) Parse script tasks
     queueResult.script = resolveTaskQueue(tasks.script, &scriptWaitCounter);
-    if(queueResult.script.encounteredCriticalResult && !cmdVars.recover) {
+    if(queueResult.script.encounteredCriticalResult && !cmdVars.recover){
         lastCriticalResult = queueResult.script.errors.back();
         return lastCriticalResult;
     } 
 
     // 3.) Parse internal tasks
     queueResult.internal = resolveTaskQueue(tasks.internal, noWaitCounter);
-    if(queueResult.internal.encounteredCriticalResult && !cmdVars.recover) {
+    if(queueResult.internal.encounteredCriticalResult && !cmdVars.recover){
         lastCriticalResult = queueResult.internal.errors.back();
         return lastCriticalResult;
     }
 
     // 4.) Parse always-tasks
     queueResult.always = resolveTaskQueue(tasks.always, noWaitCounter);
-    if(queueResult.always.encounteredCriticalResult && !cmdVars.recover) {
+    if(queueResult.always.encounteredCriticalResult && !cmdVars.recover){
         lastCriticalResult = queueResult.always.errors.back();
         return lastCriticalResult;
     }
@@ -274,7 +274,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue() {
     return Nebulite::Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::Core::GlobalSpace::preParse() {
+Nebulite::Constants::Error Nebulite::Core::GlobalSpace::preParse(){
     // NOTE: This function is only called once there is a parse-command
     // Meaning its timing is consistent and not dependent on framerate, frametime variations, etc.
     // Meaning everything we do here is, timing wise, deterministic!

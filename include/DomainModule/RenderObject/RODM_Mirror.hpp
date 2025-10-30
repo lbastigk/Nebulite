@@ -3,35 +3,31 @@
  * @brief Header file for the Mirror DomainModule of the RenderObject tree.
  */
 
-#pragma once
+#ifndef NEBULITE_RODM_MIRROR_HPP
+#define NEBULITE_RODM_MIRROR_HPP
 
 //------------------------------------------
 // Includes
 
-// General
+// Nebulite
 #include "Constants/ErrorTypes.hpp"
-#include "Constants/KeyNames.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class RenderObject; // Forward declaration of domain class RenderObject
-    }
+namespace Nebulite::Core{
+    class RenderObject; // Forward declaration of domain class RenderObject
 }
 
 //------------------------------------------
-namespace Nebulite{
-namespace DomainModule{
-namespace RenderObject{
+namespace Nebulite::DomainModule::RenderObject{
 /**
  * @class Nebulite::DomainModule::RenderObject::Mirror
  * @brief Mirror DomainModule of the RenderObject Domain.
  * 
  * Contains RenderObject-specific Mirror functionality, syncing data with the GlobalSpace document.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Mirror) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Mirror){
 public:
     /**
      * @brief Override of update.
@@ -48,9 +44,9 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error mirror_once(int argc,  char* argv[]);
-    static const std::string mirror_once_name;
-    static const std::string mirror_once_desc;
+    Nebulite::Constants::Error mirror_once(int argc,  char** argv);
+    static std::string const mirror_once_name;
+    static std::string const mirror_once_desc;
 
     /**
      * @brief Enables mirroring to the GlobalSpace document
@@ -59,9 +55,9 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error mirror_on(int argc,  char* argv[]);
-    static const std::string mirror_on_name;
-    static const std::string mirror_on_desc;
+    Nebulite::Constants::Error mirror_on(int argc,  char** argv);
+    static std::string const mirror_on_name;
+    static std::string const mirror_on_desc;
 
     /**
      * @brief Disables mirroring to the GlobalSpace document
@@ -70,9 +66,9 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error mirror_off(int argc,  char* argv[]);
-    static const std::string mirror_off_name;
-    static const std::string mirror_off_desc;
+    Nebulite::Constants::Error mirror_off(int argc,  char** argv);
+    static std::string const mirror_off_name;
+    static std::string const mirror_off_desc;
 
     /**
      * @brief Deletes the GlobalSpace document entry for this RenderObject
@@ -81,9 +77,9 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error mirror_delete(int argc,  char* argv[]);
-    static const std::string mirror_delete_name;
-    static const std::string mirror_delete_desc;
+    Nebulite::Constants::Error mirror_delete(int argc,  char** argv);
+    static std::string const mirror_delete_name;
+    static std::string const mirror_delete_desc;
 
     /**
      * @brief Deserializes the RenderObject from the GlobalSpace document entry
@@ -92,14 +88,14 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error mirror_fetch(int argc,  char* argv[]);
-    static const std::string mirror_fetch_name;
-    static const std::string mirror_fetch_desc;
+    Nebulite::Constants::Error mirror_fetch(int argc,  char** argv);
+    static std::string const mirror_fetch_name;
+    static std::string const mirror_fetch_desc;
 
     //------------------------------------------
     // Category name
-    static const std::string mirror_name;
-    static const std::string mirror_desc;
+    static std::string const mirror_name;
+    static std::string const mirror_desc;
 
     //------------------------------------------
     // Setup
@@ -107,7 +103,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Mirror) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Mirror){
         bindCategory(mirror_name, &mirror_desc);
         bindFunction(&Mirror::mirror_once,  mirror_once_name,      &mirror_once_desc);
         bindFunction(&Mirror::mirror_on,    mirror_on_name,        &mirror_on_desc);
@@ -143,6 +139,5 @@ private:
      */
     Nebulite::Constants::Error setupMirrorKey();
 };
-}   // namespace DomainModule
-}   // namespace RenderObject
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::RenderObject
+#endif // NEBULITE_RODM_MIRROR_HPP

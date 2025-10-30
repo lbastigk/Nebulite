@@ -1,14 +1,15 @@
 #include "DomainModule/RenderObject/RODM_Logging.hpp"
 #include "Core/RenderObject.hpp"
+#include "Utility/FileManagement.hpp"
 
 namespace Nebulite::DomainModule::RenderObject{
 
-const std::string Logging::log_name = "log";
-const std::string Logging::log_desc = R"(Logging utilities)";
+std::string const Logging::log_name = "log";
+std::string const Logging::log_desc = R"(Logging utilities)";
 
 //------------------------------------------
 // Update
-Nebulite::Constants::Error Logging::update() {
+Nebulite::Constants::Error Logging::update(){
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -18,13 +19,13 @@ Nebulite::Constants::Error Logging::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error Logging::echo(int argc,  char* argv[]){
+Nebulite::Constants::Error Logging::echo(int argc,  char** argv){
     std::string args = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
     Nebulite::Utility::Capture::cout() << args << Nebulite::Utility::Capture::endl;
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Logging::echo_name = "echo";
-const std::string Logging::echo_desc = R"(Echoes all arguments as string to the standard output.
+std::string const Logging::echo_name = "echo";
+std::string const Logging::echo_desc = R"(Echoes all arguments as string to the standard output.
 
 Usage: echo <string>
 
@@ -35,7 +36,7 @@ Outputs:
 Hello World!
 )";
 
-Nebulite::Constants::Error Logging::log_all(int argc,  char* argv[]){
+Nebulite::Constants::Error Logging::log_all(int argc,  char** argv){
     std::string serialized = domain->serialize();
     if (argc>1){
         for(int i=1; i < argc; i++){
@@ -48,16 +49,16 @@ Nebulite::Constants::Error Logging::log_all(int argc,  char* argv[]){
     }
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Logging::log_all_name = "log all";
-const std::string Logging::log_all_desc = R"(Logs the entire RenderObject to a file.
+std::string const Logging::log_all_name = "log all";
+std::string const Logging::log_all_desc = R"(Logs the entire RenderObject to a file.
 
 Usage: log [filename]
 
 Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
 )";
 
-Nebulite::Constants::Error Logging::log_key(int argc,  char* argv[]){
-    if (argc < 2) {
+Nebulite::Constants::Error Logging::log_key(int argc,  char** argv){
+    if (argc < 2){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     std::string key = argv[1];
@@ -69,8 +70,8 @@ Nebulite::Constants::Error Logging::log_key(int argc,  char* argv[]){
     Nebulite::Utility::FileManagement::WriteFile(file, value);
     return Nebulite::Constants::ErrorTable::NONE();
 }
-const std::string Logging::log_key_name = "log key";
-const std::string Logging::log_key_desc = R"(Logs a specific value from the RenderObject to a file.
+std::string const Logging::log_key_name = "log key";
+std::string const Logging::log_key_desc = R"(Logs a specific value from the RenderObject to a file.
 
 Usage: log key <key> [filename]
 

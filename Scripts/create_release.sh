@@ -28,7 +28,7 @@ NC='\033[0m' # No Color
 echo -e "${BLUE}Creating Nebulite ${VERSION} release archives...${NC}"
 
 # Function to create LICENSE.txt content
-create_license_txt() {
+create_license_txt(){
     cat << 'EOF'
 The MIT License (MIT)
 =====================
@@ -59,7 +59,7 @@ EOF
 }
 
 # Function to create THIRD_PARTY_LICENSES.txt content
-create_third_party_licenses_txt() {
+create_third_party_licenses_txt(){
     cat << 'EOF'
 Nebulite Third-Party Library Licenses
 =====================================
@@ -189,7 +189,7 @@ EOF
 }
 
 # Function to create README.txt for releases
-create_readme_txt() {
+create_readme_txt(){
     cat << EOF
 Nebulite ${VERSION} - Game Engine
 =================================
@@ -219,7 +219,7 @@ EOF
 }
 
 # Check if binaries exist
-check_binaries() {
+check_binaries(){
     local missing=0
     
     if [ ! -f "bin/Nebulite" ]; then
@@ -243,14 +243,14 @@ check_binaries() {
 }
 
 # Create build directory
-prepare_build_dir() {
+prepare_build_dir(){
     echo -e "${BLUE}Preparing build directory...${NC}"
     rm -rf "$BUILD_DIR"
     mkdir -p "$BUILD_DIR"
 }
 
 # Create Windows archive
-create_windows_archive() {
+create_windows_archive(){
     if [ ! -f "bin/Nebulite.exe" ] || [ ! -f "bin/Nebulite_Debug.exe" ]; then
         echo -e "${YELLOW}Skipping Windows archive - Windows binaries not found${NC}"
         return
@@ -282,7 +282,7 @@ create_windows_archive() {
 }
 
 # Create Linux archive
-create_linux_archive() {
+create_linux_archive(){
     echo -e "${BLUE}Creating Linux archive...${NC}"
     
     local linux_dir="$BUILD_DIR/linux"
@@ -310,7 +310,7 @@ create_linux_archive() {
 }
 
 # Show archive info
-show_info() {
+show_info(){
     echo -e "\n${GREEN}Release archives created successfully!${NC}"
     echo -e "${BLUE}Archives:${NC}"
     
@@ -327,7 +327,7 @@ show_info() {
 }
 
 # Main execution
-main() {
+main(){
     echo -e "${BLUE}Nebulite Release Creator${NC}"
     echo -e "${BLUE}Version: ${VERSION}${NC}\n"
     

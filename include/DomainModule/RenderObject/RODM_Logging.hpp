@@ -3,34 +3,31 @@
  * @brief Header file for the Logging DomainModule of the RenderObject tree.
  */
 
-#pragma once
+#ifndef NEBULITE_RODM_LOGGING_HPP
+#define NEBULITE_RODM_LOGGING_HPP
 
 //------------------------------------------
 // Includes
 
-// General
+// Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class RenderObject; // Forward declaration of domain class RenderObject
-    }
+namespace Nebulite::Core{
+    class RenderObject; // Forward declaration of domain class RenderObject
 }
 
 //------------------------------------------
-namespace Nebulite{
-namespace DomainModule{
-namespace RenderObject{
+namespace Nebulite::DomainModule::RenderObject {
 /**
  * @class Nebulite::DomainModule::RenderObject::Logging
  * @brief Logging DomainModule of the RenderObject Domain.
  * 
  * Contains RenderObject-specific logging functionality.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Logging) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Logging){
 public:
     /**
      * @brief Override of update.
@@ -51,9 +48,9 @@ public:
      * @param argv The argument vector: ...
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error echo(int argc,  char* argv[]);
-    static const std::string echo_name;
-    static const std::string echo_desc;
+    Nebulite::Constants::Error echo(int argc,  char** argv);
+    static std::string const echo_name;
+    static std::string const echo_desc;
 
     /**
      * @brief
@@ -69,9 +66,9 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error log_all(int argc,  char* argv[]);
-    static const std::string log_all_name;
-    static const std::string log_all_desc;
+    Nebulite::Constants::Error log_all(int argc,  char** argv);
+    static std::string const log_all_name;
+    static std::string const log_all_desc;
 
     /**
      * @brief Logs a value to a given file
@@ -83,14 +80,14 @@ public:
      * 
      * @return Potential errors that occured on command execution
      */
-    Nebulite::Constants::Error log_key(int argc,  char* argv[]);
-    static const std::string log_key_name;
-    static const std::string log_key_desc;
+    Nebulite::Constants::Error log_key(int argc,  char** argv);
+    static std::string const log_key_name;
+    static std::string const log_key_desc;
 
     //------------------------------------------
     // Category names
-    static const std::string log_name;
-    static const std::string log_desc;
+    static std::string const log_name;
+    static std::string const log_desc;
 
     //------------------------------------------
     // Setup
@@ -98,7 +95,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Logging) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Logging){
         bindFunction(&Logging::echo,        echo_name,      &echo_desc);
 
         bindCategory(log_name, &log_desc);
@@ -106,6 +103,5 @@ public:
         bindFunction(&Logging::log_key,    log_key_name,    &log_key_desc);
     }
 };
-}   // namespace DomainModule
-}   // namespace RenderObject
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::RenderObject
+#endif // NEBULITE_RODM_LOGGING_HPP
