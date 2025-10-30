@@ -32,8 +32,10 @@
 // Include the Global Space class
 // Initializes callable functions from both user CLI and runtime environment.
 // Also sets up the global Renderer used across Tree-based function calls.
-#include "Core/GlobalSpace.hpp" 
-#include "DomainModule/GlobalSpace/GSDM_Debug.hpp"   // For turning error logging off/on
+#include "Constants/ErrorTypes.hpp"                 // For error handling
+#include "Core/GlobalSpace.hpp"                     // Global Workspace of Nebulite
+#include "DomainModule/GlobalSpace/GSDM_Debug.hpp"  // For turning error logging off/on
+#include "Utility/Capture.hpp"                      // For error output capture
 
 // ----------------------------------------------------------------------
 // NEBULITE main
@@ -55,27 +57,17 @@
 int main(int argc, char* argv[]){
     //------------------------------------------
     // Initialize the global space, parse command line arguments
-    std::string binaryName = argv[0];
+    const std::string binaryName = argv[0];
     Nebulite::Core::GlobalSpace globalSpace(binaryName);
     globalSpace.parseCommandLineArguments(argc, const_cast<char const**>(argv));
     
     //------------------------------------------
     // Render loop
     Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE(); // Last critical error result
-    // Keep loop semantics (execute at least once) but store the
-    // loop-condition in a local variable so the backward-branch
-    // depends on a register/local instead of an object reference.
-    // This reduces ID-dependent backward-branch warnings from static
-    // analyzers (e.g. altera-id-dependent-backward-branch).
-    bool keepRunning = true;
-    do {
+    do{
         // At least one loop, to handle command line arguments
         lastCriticalResult = globalSpace.update();
-
-        // Evaluate condition once per iteration and keep in a local
-        // variable; semantics remain the same (re-evaluated each loop).
-        keepRunning = globalSpace.shouldContinueLoop();
-    } while (keepRunning);
+    } while(globalSpace.shouldContinueLoop());
 
     //------------------------------------------
     // Exit
