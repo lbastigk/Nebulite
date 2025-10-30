@@ -151,10 +151,11 @@ Defaults to 1000  for height if argument count < 2
 Defaults to 1     for scale if argument count < 3
 )";
 
-Nebulite::Constants::Error General::setFPS(int argc,  char** argv){
+Nebulite::Constants::Error General::setFPS(int argc, char** argv){
     uint16_t fps = 60;
     if(argc == 2){
         int fpsSigned = std::stoi(argv[1]);
+        fps = static_cast<uint16_t>(fpsSigned);
         if(fpsSigned < 1) fps=1;
         if(fpsSigned > 10000) fps=10000;
     }
