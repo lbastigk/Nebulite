@@ -219,6 +219,9 @@ private:
      * the description of the already existing error.
      * Or something along those lines. The current implementation is too complex 
      * and probably tried to circumvent an issue that does not exist.
+     * 
+     * The idea of the localDescriptions was to reduce the exhaustive copying of strings when retrieving existing errors.
+     * Since technically, each new Error object would have to copy the string into its own storage otherwise.
      */
     Error addErrorImpl(std::string const& description, Error::Type type = Error::NON_CRITICAL){
         if (count == UINT16_MAX){
