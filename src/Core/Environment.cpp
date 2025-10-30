@@ -51,7 +51,7 @@ std::string Nebulite::Core::Environment::serialize(){
 	return doc.serialize();
 }
 
-void Nebulite::Core::Environment::deserialize(std::string const& serialOrLink, int dispResX,int dispResY){
+void Nebulite::Core::Environment::deserialize(std::string const& serialOrLink, uint16_t dispResX,uint16_t dispResY){
 	Nebulite::Utility::JSON file(globalSpace);
 	file.deserialize(serialOrLink);
 
@@ -92,7 +92,7 @@ void Nebulite::Core::Environment::update(int16_t tileXpos, int16_t tileYpos, uin
 	}
 }
 
-void Nebulite::Core::Environment::reinsertAllObjects(int dispResX,int dispResY){
+void Nebulite::Core::Environment::reinsertAllObjects(uint16_t dispResX,uint16_t dispResY){
 	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; i++){
 		roc[i].reinsertAllObjects(dispResX,dispResY);
 	}

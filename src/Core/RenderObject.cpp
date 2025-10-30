@@ -211,10 +211,10 @@ void Nebulite::Core::RenderObject::calculateSrcRect(){
 	if (*refs.isSpritesheet){
 		// Calculate the source rectangle for the sprite (which portion of the sprite sheet to render)
 		srcRect = {
-			(int)*refs.spritesheetOffsetX, // Start X from the sprite sheet offset
-			(int)*refs.spritesheetOffsetY, // Start Y from the sprite sheet offset
-			(int)*refs.spritesheetSizeX,   // The width of the sprite frame
-			(int)*refs.spritesheetSizeY    // The height of the sprite frame
+			static_cast<int>(*refs.spritesheetOffsetX), // Start X from the sprite sheet offset
+			static_cast<int>(*refs.spritesheetOffsetY), // Start Y from the sprite sheet offset
+			static_cast<int>(*refs.spritesheetSizeX),   // The width of the sprite frame
+			static_cast<int>(*refs.spritesheetSizeY)    // The height of the sprite frame
 		};
 	}
 }

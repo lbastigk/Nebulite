@@ -43,7 +43,7 @@ std::string Nebulite::Core::RenderObjectContainer::serialize(){
 	return doc.serialize();
 }
 
-void Nebulite::Core::RenderObjectContainer::deserialize(std::string const& serialOrLink, int dispResX, int dispResY){
+void Nebulite::Core::RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_t dispResX, uint16_t dispResY){
 	Nebulite::Utility::JSON layer(globalSpace);
 	layer.deserialize(serialOrLink);
 	if(layer.memberCheck("objects") == Nebulite::Utility::JSON::KeyType::array){
@@ -68,16 +68,16 @@ void Nebulite::Core::RenderObjectContainer::deserialize(std::string const& seria
 //------------------------------------------
 // Pipeline
 
-std::pair<int16_t,int16_t> getTilePos(Nebulite::Core::RenderObject* toAppend, int dispResX, int dispResY){
+std::pair<int16_t,int16_t> getTilePos(Nebulite::Core::RenderObject* toAppend, uint16_t dispResX, uint16_t dispResY){
     // Calculate correspondingTileXpos using positionX
     double posX = toAppend->get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0.0);
-    int16_t correspondingTileXpos = (int16_t)(posX / (double)dispResX);
+    int16_t correspondingTileXpos = static_cast<int16_t>(posX / static_cast<double>(dispResX));
 
     // Calculate correspondingTileYpos using positionY
     double posY = toAppend->get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0.0);
-    int16_t correspondingTileYpos = (int16_t)(posY / (double)dispResY);
+    int16_t correspondingTileYpos = static_cast<int16_t>(posY / static_cast<double>(dispResY));
 
-    // Ensure the position is valid, grow the ObjectContainer if necessary
+    // Form pair and return
 	return std::make_pair(correspondingTileXpos,correspondingTileYpos);
 }
 
@@ -99,7 +99,7 @@ void Nebulite::Core::RenderObjectContainer::append(Nebulite::Core::RenderObject*
 	ObjectContainer[pos].push_back(std::move(newBatch));
 }
 
-std::thread Nebulite::Core::RenderObjectContainer::create_batch_worker(batch& batch, std::pair<uint16_t, uint16_t> pos,int dispResX, int dispResY){
+std::thread Nebulite::Core::RenderObjectContainer::create_batch_worker(batch& batch, std::pair<uint16_t, uint16_t> pos,uint16_t dispResX, uint16_t dispResY){
 	return std::thread([&batch, pos, this, dispResX, dispResY](){
 		// Every batch worker has potential objects to move or delete
 		std::vector<RenderObject*> to_move_local;
@@ -135,7 +135,7 @@ std::thread Nebulite::Core::RenderObjectContainer::create_batch_worker(batch& ba
 	});
 }
 
-void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY){
+void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos, uint16_t dispResX, uint16_t dispResY){
 	//------------------------------------------
 	// 2-Step Deletion
 
@@ -196,7 +196,7 @@ void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t til
 	reinsertionProcess.queue.clear();
 }
 
-void Nebulite::Core::RenderObjectContainer::reinsertAllObjects(int dispResX, int dispResY){
+void Nebulite::Core::RenderObjectContainer::reinsertAllObjects(uint16_t dispResX, uint16_t dispResY){
 	// Collect all objects
 	std::vector<RenderObject*> toReinsert;
 	for (auto it = ObjectContainer.begin(); it != ObjectContainer.end(); it++){
