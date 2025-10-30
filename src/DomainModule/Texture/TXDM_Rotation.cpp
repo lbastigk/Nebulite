@@ -53,7 +53,7 @@ Nebulite::Constants::Error Nebulite::DomainModule::Texture::Rotation::rotate(int
     SDL_RenderClear(renderer);
 
     // Rotate the texture and render it to the new texture
-    float angle = std::stof(argv[1]);
+    double angle = std::stod(argv[1]);
     SDL_Point center = {width / 2, height / 2}; // Rotate around the center
     SDL_RendererFlip flip = SDL_FLIP_NONE;
     SDL_RenderCopyEx(renderer, texture, nullptr, nullptr, angle, &center, flip);
