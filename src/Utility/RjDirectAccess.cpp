@@ -35,9 +35,9 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_path(char const* k
 
             // Extract index string between '[' and ']'
             std::string_view idxStr = keyView.substr(1, closeBracket - 1);
-            int index = 0;
+            unsigned int index = 0;
             try {
-                index = std::stoi(std::string(idxStr));
+                index = static_cast<unsigned int>(std::stoul(std::string(idxStr)));
             } catch (...){
                 return nullptr; // invalid number
             }
@@ -99,9 +99,9 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::ensure_path(char const* key
 
             // Extract index string between '[' and ']'
             std::string_view idxStr = keyView.substr(1, closeBracket - 1);
-            int index = 0;
+            unsigned int index = 0;
             try {
-                index = std::stoi(std::string(idxStr));
+                index = static_cast<unsigned int>(std::stoul(std::string(idxStr)));
             } catch (...){
                 return nullptr; // invalid number
             }
