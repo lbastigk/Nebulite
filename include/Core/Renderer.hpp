@@ -152,7 +152,7 @@ public:
 	 * 
 	 * @return True if the next frame update is being skipped, false otherwise.
 	 */
-	bool isSkippingUpdate(){return skipUpdate;}
+	bool isSkippingUpdate() const noexcept {return skipUpdate;}
 
 	/**
 	 * @brief Checks if the last frame update was skipped.
@@ -352,7 +352,7 @@ public:
 	 * 
 	 * @return The current tile position of the camera in the X direction.
 	 */
-	int16_t getTileXpos(){return tileXpos;}
+	int16_t getTileXpos() const noexcept {return tileXpos;}
 
 	/**
 	 * @brief Gets the current tile position of the camera in the Y direction.
@@ -361,7 +361,7 @@ public:
 	 * 
 	 * @return The current tile position of the camera in the Y direction.
 	 */
-	int16_t getTileYpos(){return tileYpos;}
+	int16_t getTileYpos() const noexcept {return tileYpos;}
 
 	/**
 	 * @brief Gets the SDL_Renderer instance.
@@ -399,14 +399,14 @@ public:
 	 * 
 	 * @return Vector of all SDL events from the current frame.
 	 */
-	std::vector<SDL_Event>* getEventHandles(){
+	std::vector<SDL_Event>* getEventHandles() noexcept {
 		return &events;
 	}
 
 	/**
 	 * @brief Gets the current window scale factor.
 	 */
-	unsigned int getWindowScale() { return WindowScale; }
+	unsigned int getWindowScale() const noexcept { return WindowScale; }
 
 	//------------------------------------------
 	// Texture-Related
@@ -429,17 +429,17 @@ public:
 	/**
 	 * @brief Checks if the Renderer is initialized
 	 */
-	bool isSdlInitialized(){return (SDL_initialized);}
+	bool isSdlInitialized() const noexcept {return SDL_initialized;}
 
 	/**
 	 * @brief Checks if the Renderer is set to quit
 	 */
-	bool shouldQuit(){return quit;}
+	bool shouldQuit() const noexcept {return quit;}
 
 	/**
 	 * @brief Sets the quit flag for the Renderer
 	 */
-	void setQuit(){quit=true;}
+	void setQuit() noexcept {quit=true;}
 
 private:
 	//------------------------------------------

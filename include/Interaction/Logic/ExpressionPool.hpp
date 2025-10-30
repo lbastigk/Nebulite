@@ -181,7 +181,7 @@ public:
      *
      * @return True if the expression is returnable as a double, false otherwise.
      */
-    bool isReturnableAsDouble(){
+    bool isReturnableAsDouble() const noexcept {
         return _isReturnableAsDouble;
     }
 
@@ -189,7 +189,7 @@ public:
      * @brief Checks if the expression is always true (i.e., "1").
      * @return True if the expression is always true, false otherwise.
      */
-    bool isAlwaysTrue(){
+    bool isAlwaysTrue() const noexcept {
         return _isAlwaysTrue;
     }
 

@@ -89,7 +89,7 @@ public:
      * 
      * @return true if the texture has been modified, false otherwise.
      */
-    bool isTextureStoredLocally(){
+    bool isTextureStoredLocally() const noexcept {
         return textureStoredLocally;
     }
 

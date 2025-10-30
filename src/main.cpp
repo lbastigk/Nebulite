@@ -62,23 +62,33 @@ int main(int argc, char* argv[]){
     //------------------------------------------
     // Render loop
     Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE(); // Last critical error result
+    // Keep loop semantics (execute at least once) but store the
+    // loop-condition in a local variable so the backward-branch
+    // depends on a register/local instead of an object reference.
+    // This reduces ID-dependent backward-branch warnings from static
+    // analyzers (e.g. altera-id-dependent-backward-branch).
+    bool keepRunning = true;
     do {
         // At least one loop, to handle command line arguments
         lastCriticalResult = globalSpace.update();
-    } while (globalSpace.shouldContinueLoop());
+
+        // Evaluate condition once per iteration and keep in a local
+        // variable; semantics remain the same (re-evaluated each loop).
+        keepRunning = globalSpace.shouldContinueLoop();
+    } while (keepRunning);
 
     //------------------------------------------
     // Exit
 
     // Check if we had a critical error
-    bool criticalStop = lastCriticalResult.isCritical();
+    const bool criticalStop = lastCriticalResult.isCritical();
 
     // Destroy renderer
     globalSpace.getRenderer()->destroy();
 
     // Inform user about any errors and return error code
     if(criticalStop){
-        std::cerr << "Critical Error: " << lastCriticalResult.getDescription() << "\n";
+        Nebulite::Utility::Capture::cerr() << "Critical Error: " << lastCriticalResult.getDescription() << "\n";
     }
 
     // Parser handles if error files need to be closed
