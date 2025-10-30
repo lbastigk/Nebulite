@@ -1,15 +1,15 @@
 # Compiler warnings configuration
 # This file contains compiler-specific warning configurations
 
-message(STATUS "Loading compiler warnings configuration...")
+message(STATUS "[COMPILER] Loading compiler warnings configuration...")
 
 # Function to configure warnings for a target
 function(configure_warnings target_name)
-    message(STATUS "Configuring warnings for target: ${target_name}")
+    message(STATUS "[COMPILER] Configuring warnings for target: ${target_name}")
 
     # Only show warnings in non-release builds
     if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-        message(STATUS "Release build detected, skipping warning configuration for target: ${target_name}")
+        message(STATUS "[COMPILER] Release build detected, skipping warning configuration for target: ${target_name}")
         return()
     endif()
 
@@ -36,7 +36,7 @@ function(configure_warnings target_name)
             -Wfloat-equal
             -Wshadow
         )
-        message(STATUS "Applied GCC-specific warnings")
+        message(STATUS "[COMPILER] Applied GCC-specific warnings")
     ########################################
     # Clang
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -48,7 +48,27 @@ function(configure_warnings target_name)
             -Wextra-semi
             -Wshadow
         )
-        message(STATUS "Applied Clang warnings")
+
+        # TODO: Make sure this doesn't flag any stdlib or external code issues
+        option(ENABLE_CLANG_TIDY "Run clang-tidy as part of build when using Clang (can be slow)" OFF)
+        if(ENABLE_CLANG_TIDY)
+            find_program(CLANG_TIDY_EXE NAMES clang-tidy clang-tidy-14 clang-tidy-15)
+            if(CLANG_TIDY_EXE)
+                # Attach clang-tidy per-target so every target that calls
+                # configure_warnings gets the tidy invocation.
+                set_target_properties(${target_name} PROPERTIES
+                    CXX_CLANG_TIDY
+                    "${CLANG_TIDY_EXE};-checks=*,-llvmlibc-*;-header-filter=^${CMAKE_SOURCE_DIR}/(src|include)"
+                )
+                # Print the property so it's easy to confirm during configure
+                get_target_property(_ct_prop ${target_name} CXX_CLANG_TIDY)
+                message(STATUS "[COMPILER] CXX_CLANG_TIDY for ${target_name}: ${_ct_prop}")
+            else()
+                message(WARNING "[COMPILER] ENABLE_CLANG_TIDY is ON but clang-tidy executable not found.")
+            endif()
+        endif()
+
+        message(STATUS "[COMPILER] Applied Clang warnings")
     ########################################
     # MSVC
     elseif(MSVC)
@@ -61,8 +81,8 @@ function(configure_warnings target_name)
     ########################################
     # Unknown compiler
     else()
-        message(STATUS "Unknown compiler, no specific warnings applied")
+        message(STATUS "[COMPILER] Unknown compiler, no specific warnings applied")
     endif()
 endfunction()
 
-message(STATUS "Compiler warnings configuration loaded successfully")
+message(STATUS "[COMPILER] Compiler warnings configuration loaded successfully")
