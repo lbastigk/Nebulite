@@ -85,7 +85,7 @@ public:
 	 * @param dispResX Display resolution width for tile initialization.
 	 * @param dispResY Display resolution height for tile initialization.
 	 */
-	void deserialize(std::string const& serialOrLink, int dispResX, int dispResY);
+	void deserialize(std::string const& serialOrLink, uint16_t dispResX, uint16_t dispResY);
 
 	//------------------------------------------
 	// Pipeline
@@ -110,7 +110,7 @@ public:
 	 * @param dispResX Display resolution width for tile placement.
 	 * @param dispResY Display resolution height for tile placement.
 	 */
-	void reinsertAllObjects(int dispResX, int dispResY);
+	void reinsertAllObjects(uint16_t dispResX, uint16_t dispResY);
 
 	/**
 	 * @brief Checks if the given tile position is valid; contains objects.
@@ -148,7 +148,7 @@ public:
 	 * @param dispResY The display resolution height. Needed for potential re-insertion.
 	 * @param globalInvoke Pointer to the global Invoke instance for object updates.
 	 */
-	void update(int16_t tileXpos, int16_t tileYpos, int dispResX, int dispResY);
+	void update(int16_t tileXpos, int16_t tileYpos, uint16_t dispResX, uint16_t dispResY);
 
 	/**
 	 * @brief Gets the vector of batches at the specified tile position.
@@ -203,7 +203,7 @@ private:
 	 * @param dispResY Display resolution height for tile placement.
 	 * @return The created worker thread.
 	 */
-	std::thread create_batch_worker(batch& batch, std::pair<uint16_t, uint16_t> pos,int dispResX, int dispResY);
+	std::thread create_batch_worker(batch& batch, std::pair<uint16_t, uint16_t> pos,uint16_t dispResX, uint16_t dispResY);
 
 	/**
 	 * @struct Nebulite::Core::RenderObjectContainer::ReinsertionProcess

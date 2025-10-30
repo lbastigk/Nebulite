@@ -122,7 +122,7 @@ public:
 	 * @param dispResX Display resolution width. Necessary to position the object correctly in its tile-based container.
 	 * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
 	 */
-	void deserialize(std::string const& serialOrLink, int dispResX,int dispResY);
+	void deserialize(std::string const& serialOrLink, uint16_t dispResX,uint16_t dispResY);
 	
 	//------------------------------------------
 	// Object Management
@@ -159,7 +159,7 @@ public:
 	 * @param dispResX Display resolution width. Necessary for positioning the objects correctly in their tile-based containers.
 	 * @param dispResY Display resolution height. Necessary for positioning the objects correctly in their tile-based containers.
 	 */
-	void reinsertAllObjects(int dispResX,int dispResY);
+	void reinsertAllObjects(uint16_t dispResX,uint16_t dispResY);
 
 	/**
 	 * @brief Retrieves a RenderObject by its ID.
