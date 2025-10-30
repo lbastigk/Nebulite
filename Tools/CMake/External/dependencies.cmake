@@ -39,8 +39,8 @@ function(configure_common_dependencies target_name)
     # Include directories
     target_include_directories(${target_name}
         PRIVATE
-            ${CMAKE_SOURCE_DIR}/include
-        SYSTEM
+            ${CMAKE_SOURCE_DIR}/include # Nebulite common include directory
+        SYSTEM PRIVATE
             ${RAPIDJSON_PATH}/include
             ${EXPRTK_PATH}
             ${TINYEXPR_PATH}
@@ -48,10 +48,50 @@ function(configure_common_dependencies target_name)
     )
 
     # Link common libraries
-    target_link_libraries(${PROJECT_NAME} PRIVATE
+    target_link_libraries(${target_name} PRIVATE
         ${SDL2_LINK_LIBS}
         ${ABSL_LINK_LIBS}
     )
+
+    ##########################################################
+    # Evil workaround to suppress warnings from third-party headers
+    # Feel free to improve this section and send a PR.
+    # Please, I beg you.
+    
+    # If linked external targets export include directories, re-add them as SYSTEM
+    # for this target so compiler warnings from third-party headers are suppressed.
+    # We iterate the known link lists and, if a target exists, consume its
+    # INTERFACE_INCLUDE_DIRECTORIES as SYSTEM PRIVATE for our target.
+    foreach(_lib ${SDL2_LINK_LIBS})
+        if(TARGET ${_lib})
+            target_include_directories(${target_name} SYSTEM PRIVATE
+                $<TARGET_PROPERTY:${_lib},INTERFACE_INCLUDE_DIRECTORIES>
+            )
+        endif()
+    endforeach()
+
+    foreach(_lib ${ABSL_LINK_LIBS})
+        if(TARGET ${_lib})
+            target_include_directories(${target_name} SYSTEM PRIVATE
+                $<TARGET_PROPERTY:${_lib},INTERFACE_INCLUDE_DIRECTORIES>
+            )
+        endif()
+    endforeach()
+
+    # Some bundled C sources (e.g. tinyexpr) are compiled as part of this target
+    # and can trigger project-wide warnings. Silence targeted warnings for
+    # known third-party C sources by setting per-source compile flags.
+    if(EXISTS "${TINYEXPR_PATH}/tinyexpr.c")
+        message(STATUS "Applying per-source warning suppression for tinyexpr.c")
+        # Disable all warnings for this bundled C source in a portable way.
+        # - For GCC/Clang we pass -w
+        # - For MSVC we pass /W0
+        # Use COMPILE_OPTIONS with generator expressions so the flags apply only
+        # when compiling this C source and are evaluated for the active C compiler.
+        set_source_files_properties("${TINYEXPR_PATH}/tinyexpr.c" PROPERTIES
+            COMPILE_OPTIONS "$<$<OR:$<COMPILE_LANG_AND_ID:C,Clang>,$<COMPILE_LANG_AND_ID:C,GNU>>:-w>;$<$<COMPILE_LANG_AND_ID:C,MSVC>:/W0>"
+        )
+    endif()
     
     message(STATUS "Common dependencies configured for ${target_name}")
 endfunction()
