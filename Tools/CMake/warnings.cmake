@@ -12,38 +12,41 @@ function(configure_warnings target_name)
         message(STATUS "Release build detected, skipping warning configuration for target: ${target_name}")
         return()
     endif()
+
+    # Common base (both compilers)
+    set(BASE_WARNINGS
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Wno-unused-parameter
+        -Wnon-virtual-dtor
+        -Woverloaded-virtual
+        -Wcast-align
+        -Wmissing-field-initializers
+        -Wformat=2
+        -Wundef
+    )
     
     ########################################
     # GCC
     if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        target_compile_options(${target_name} PRIVATE
-            -Wall                      # Enable most common warnings
-            -Wextra                    # Enable extra warnings
-            -Wpedantic                 # Enable pedantic warnings
-            -Wno-unused-parameter      # Explicitly disable unused parameter warnings due to too many false positives with argc/argv signatures that may be unused
+        target_compile_options(${target_name} PRIVATE ${BASE_WARNINGS}
+            -Wnull-dereference
+            -Wdouble-promotion
+            -Wfloat-equal
+            -Wshadow
         )
         message(STATUS "Applied GCC-specific warnings")
     ########################################
     # Clang
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        target_compile_options(${target_name} PRIVATE
-            -Wall                           # Enable most common warnings
-            -Wextra                         # Enable extra warnings
-            -Wpedantic                      # Enable pedantic warnings
-            -Wno-unused-parameter           # Explicitly disable unused parameter warnings due to too many false positives with argc/argv signatures that may be unused
-            -Wconversion                    # Warn on implicit type conversions that may alter a value
-            -Wshadow                        # Warn on variable shadowing
-            -Wold-style-cast                # Warn on old-style casts
-            -Wnon-virtual-dtor              # Warn if a class with virtual functions is not properly destroyed
-            -Wnull-dereference              # Warn on null pointer dereferences
-            -Wdouble-promotion              # Warn on double promotion
-            -Wformat=2                      # Enable format string warnings
-            -Wcast-align                    # Warn on pointer casts that may change alignment
-            -Woverloaded-virtual            # Warn on overloaded virtual functions
-            -Wmissing-field-initializers    # Warn on missing initializers for struct fields
-            -Wfloat-equal                   # Warn on floating-point comparisons
-            -Wextra-semi                    # Warn on extra semicolons
-            -Wundef                         # Warn on undefined macros
+        target_compile_options(${target_name} PRIVATE ${BASE_WARNINGS}
+            # Clang-only checks
+            -Wnull-dereference
+            -Wdouble-promotion
+            -Wfloat-equal
+            -Wextra-semi
+            -Wshadow
         )
         message(STATUS "Applied Clang warnings")
     ########################################
