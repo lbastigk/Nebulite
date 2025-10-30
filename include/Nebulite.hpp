@@ -1,3 +1,5 @@
+#ifndef NEBULITE_HPP
+#define NEBULITE_HPP
 /**
  * @file Nebulite.hpp
  *
@@ -14,9 +16,6 @@
  * - Global Logger object
  * - Globalspace Object
  */
-
-#ifndef NEBULITE_HPP
-#define NEBULITE_HPP
 
 /**
  * @namespace Nebulite
