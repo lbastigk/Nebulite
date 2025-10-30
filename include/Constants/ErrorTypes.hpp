@@ -37,9 +37,10 @@
 //------------------------------------------
 // Includes
 
-// Standard
 #include <string>                           // For std::string
+#include <string_view>                      // For std::string_view
 #include <vector>                           // For std::vector
+#include <deque>                            // For std::deque (stable references)
 #include <algorithm>                        // For std::find_if
 #include <cstdint>                          // For uint16_t
 
@@ -63,6 +64,8 @@ public:
     /**
      * @enum Type
      * @brief Enumeration for error types.
+     * 
+     * @todo Condense to bool isCritical if no further distinction is necessary.
      */
     enum Type{
         // Perhaps some more distinction is necessary here
@@ -75,7 +78,7 @@ public:
     /**
      * @brief Comparison operator for Error struct.
      */
-    bool operator==(Error const& other) const {
+    bool operator==(Error const& other) const noexcept {
         // Only relevant part is that they have the same description pointer
         return description == other.description;
     }
@@ -83,14 +86,15 @@ public:
     /**
      * @brief Inequality operator for Error struct.
      */
-    bool operator!=(Error const& other) const {
+    bool operator!=(Error const& other) const noexcept {
         return !(*this == other);
     }
 
     /**
-     * @brief Default constructor for ERROR struct.
+     * @brief Construct an Error referencing an existing description string.
+     * The Error does not own the string; the ErrorTable manages lifetime.
      */
-    Error(std::string* desc, Error::Type t) : description(desc), type(t){}
+    Error(const std::string* desc, Error::Type t) : description(desc), type(t){}
 
     /**
      * @brief Empty Constructor for ERROR struct.
@@ -100,23 +104,31 @@ public:
     /**
      * @brief Get the error description.
      */
-    std::string getDescription() const {
-        return *description;
+    // Return a non-owning view of the description. This avoids allocations
+    // and can safely be marked noexcept. The view is valid as long as the
+    // ErrorTable keeps the backing string alive (which it does).
+    std::string_view getDescription() const noexcept {
+        return description ? std::string_view(*description) : std::string_view();
     }
-    bool isCritical() const {
+
+    /**
+     * @brief Check if the error is critical.
+     * @return True if the error is critical, false otherwise.
+     */
+    bool isCritical() const noexcept {
         return type == Error::CRITICAL;
     }
-    bool isError() const {
+
+    /**
+     * @brief Check if there is an error (not NONE).
+     * @return True if there is an error, false otherwise.
+     */
+    bool isError() const noexcept {
         return type != Error::NONE;
     }
 
-    std::string toString() const {
-        if(description && type != NONE) return *description;
-        return "";
-    }
-
 private:
-    std::string* description;
+    const std::string* description;
     Type type;
 };
 
@@ -157,7 +169,11 @@ private:
         return instance;
     }
 
-    std::vector<std::string> localDescriptions; // To own the strings 
+    /**
+     * @brief Holds local copies of error description strings.
+     * Uses deque to ensure stable addresses for Error objects.
+     */
+    std::deque<std::string> localDescriptions; // To own the strings 
 
 public:
     ErrorTable() : count(0){}
@@ -189,20 +205,32 @@ public:
             return *it; // Return existing error
         }
 
-        // Make copy of string to store pointer
-        getInstance().localDescriptions.push_back(description);
-        return getInstance().addErrorImpl(getInstance().localDescriptions.back().c_str(), type);
+        // Delegate storage and construction to implementation which will
+        // store the description into `localDescriptions` and return an
+        // Error referencing that stored string.
+        return getInstance().addErrorImpl(description, type);
     }
 
 
 private:
-    Error addErrorImpl(char const* description, Error::Type type = Error::NON_CRITICAL){
+    /**
+     * @todo It might be better to not use a local description container, and instead rely on them being stored in the
+     * error object itself. Then, when we get pre-declared errors, we use a special constructor that references
+     * the description of the already existing error.
+     * Or something along those lines. The current implementation is too complex 
+     * and probably tried to circumvent an issue that does not exist.
+     */
+    Error addErrorImpl(std::string const& description, Error::Type type = Error::NON_CRITICAL){
         if (count == UINT16_MAX){
+            // Too many errors, exit entirely with message
             Nebulite::Utility::Capture::cerr() << "ErrorTable has reached its maximum capacity of " << UINT16_MAX << " errors." << Nebulite::Utility::Capture::endl;
             Nebulite::Utility::Capture::cerr() << "Make sure that new errors added are removed after some time if they are not needed anymore." << Nebulite::Utility::Capture::endl;
             std::exit(EXIT_FAILURE);
         }
-        errors.emplace_back(new std::string(description), type);
+        // Store the description in the owned container and reference it from
+        // the Error object. Use deque to guarantee stable element addresses.
+        localDescriptions.push_back(description);
+        errors.emplace_back(&localDescriptions.back(), type);
         count++;
         return errors.back();
     }
