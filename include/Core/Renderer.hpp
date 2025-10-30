@@ -73,11 +73,11 @@ public:
 	 * 
 	 * @param serialOrLink The JSON string or link to deserialize.
 	 */
-	void deserialize(std::string const& serialOrLink){
+	inline void deserialize(std::string const& serialOrLink) noexcept {
 		env.deserialize(
 			serialOrLink, 
-			getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
-			getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0)
+			getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
+			getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0)
 		);
 	}
 

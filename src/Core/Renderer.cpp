@@ -274,8 +274,8 @@ void Nebulite::Core::Renderer::append(Nebulite::Core::RenderObject* toAppend){
 
 void Nebulite::Core::Renderer::reinsertAllObjects(){
 	env.reinsertAllObjects(
-		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0),
-		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0)
+		getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0),
+		getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0)
 	);
 }
 
