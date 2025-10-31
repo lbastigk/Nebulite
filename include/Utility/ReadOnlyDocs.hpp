@@ -24,7 +24,7 @@ namespace Nebulite::Utility {
  * @struct ReadOnlyDoc
  * @brief Represents a read-only document with its associated metadata.
  */
-struct ReadOnlyDoc {
+struct __attribute__((aligned(2*sizeof(uint64_t)))) ReadOnlyDoc {
     Nebulite::Utility::JSON document; // The actual JSON document
     Nebulite::Utility::TimeKeeper lastUsed;
 
