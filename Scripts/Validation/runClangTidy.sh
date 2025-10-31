@@ -17,6 +17,7 @@ for file in {src/*,include/*}; do
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-cppcoreguidelines-pro-bounds-pointer-arithmetic" # Suppress warnings about pointer arithmetic, too many false positives
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-altera-id-dependent-backward-branch" # Suppress warnings about backward branches, not relevant for us
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-misc-non-private-member-variables-in-classes"    # Suppress warnings about non-private member variables in classes
+    EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-altera-unroll-loops"                 # Suppress warnings about loop unrolling
 
     # Run clang-tidy with the specified checks and header filter
     clang-tidy "$file" \
