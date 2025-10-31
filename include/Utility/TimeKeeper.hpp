@@ -122,9 +122,7 @@ public:
             onSimulation.dt = onSimulation.t_ms - onSimulation.last_t_ms;
             return onSimulation.dt;
         }
-        else{
-            return 0;
-        }
+        return 0;
     }
 
     /**
