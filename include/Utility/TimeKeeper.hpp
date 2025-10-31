@@ -183,25 +183,29 @@ private:
     /**
      * @struct OnUpdate
      * @brief Stores the timing information for the update phase.
+     * 
+     * Aligned to 2*sizeof(uint64_t) to ensure proper alignment for SIMD operations,
+     * since the struct holds 2 uint64_t members.
      */
-    struct OnUpdate{
-        uint64_t last_t_ms;
-        uint64_t t_ms;
-
-        OnUpdate() : last_t_ms(0), t_ms(0){}
-    } onUpdate;
+    struct __attribute__((aligned(2*sizeof(uint64_t)))) OnUpdate{
+        uint64_t last_t_ms = 0;
+        uint64_t t_ms = 0;
+        OnUpdate() = default;
+    }  __attribute__((packed)) onUpdate;
 
     /**
      * @struct OnSimulation
      * @brief Stores the timing information for the update simulation phase.
+     * 
+     * Aligned to 4*sizeof(uint64_t) to ensure proper alignment for SIMD operations,
+     * since the struct holds 3 uint64_t members. 4 being the next power of two.
      */
-    struct OnSimulation{
-        uint64_t last_t_ms;
-        uint64_t t_ms;
-        uint64_t dt;
-
-        OnSimulation() : last_t_ms(0), t_ms(0), dt(0){}
-    } onSimulation;
+    struct __attribute__((aligned(4*sizeof(uint64_t)))) OnSimulation{
+        uint64_t last_t_ms = 0;
+        uint64_t t_ms = 0;
+        uint64_t dt = 0;
+        OnSimulation() = default;
+    }  __attribute__((packed)) onSimulation;
 };
 }   // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_TIMEKEEPER_HPP
