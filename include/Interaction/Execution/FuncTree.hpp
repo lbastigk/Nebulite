@@ -464,7 +464,7 @@ namespace bindErrorMessage{
         Nebulite::Utility::Capture::cerr() << "Function:  " << function << "\n";
         std::exit(EXIT_FAILURE);
     }
-} // namespace bindError
+} // anonymous namespace
 
 template<typename RETURN_TYPE>
 template<typename ClassType>
@@ -820,6 +820,10 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::specificHelp(std::
 
 template<typename RETURN_TYPE>
 void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::generalHelp(){
+    // Padding size for names
+    // '<name padded> - <description>'
+    const uint16_t namePaddingSize = 25;
+
     // All info: [name, description]
     std::vector<std::pair<std::string, std::string const*>> allFunctions = getAllFunctions();
     std::vector<std::pair<std::string, std::string const*>> allVariables = getAllVariables();
@@ -853,7 +857,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::generalHelp(){
             descriptionFirstLine = description->substr(0, newlinePos);
         }
         std::string paddedName = name;
-        paddedName.resize(25, ' ');
+        paddedName.resize(namePaddingSize, ' ');
         Nebulite::Utility::Capture::cout() << "  " << paddedName << " - " << descriptionFirstLine << Nebulite::Utility::Capture::endl;
     }
 
@@ -862,7 +866,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::generalHelp(){
     for (auto const& [name, description] : allVariables){
         std::string fullName = "--" + name;  // Prefix with --
         std::string paddedName = name;
-        paddedName.resize(25, ' ');
+        paddedName.resize(namePaddingSize, ' ');
         Nebulite::Utility::Capture::cout() << "  " << paddedName << " - " << *description << Nebulite::Utility::Capture::endl;
     }
 }
@@ -870,7 +874,9 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::generalHelp(){
 template<typename RETURN_TYPE>
 void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::find(std::string const& name, bool& funcFound, auto& funcIt,  bool& subFound, auto& subIt, bool& varFound, auto& varIt){
     // Functions
-    if(funcIt != functions.end()){funcFound = true;}
+    if(funcIt != functions.end()){
+        funcFound = true;
+    }
     else{
         for(auto const& inheritedTree : inheritedTrees){
             if(inheritedTree != nullptr){
@@ -884,7 +890,9 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::find(std::string c
     }
 
     // Categories
-    if(subIt != categories.end()){subFound = true;}
+    if(subIt != categories.end()){
+        subFound = true;
+    }
     else{
         for(auto const& inheritedTree : inheritedTrees){
             if(inheritedTree != nullptr){
@@ -898,7 +906,9 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::find(std::string c
     }
 
     // Variables
-    if(varIt != variables.end()){varFound = true;}
+    if(varIt != variables.end()){
+        varFound = true;
+    }
     else{
         for(auto const& inheritedTree : inheritedTrees){
             if(inheritedTree != nullptr){
