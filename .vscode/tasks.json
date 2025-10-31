@@ -26,7 +26,7 @@
         {
             "label": "[LINT]",
             "type": "shell",
-            "command": "Scripts/Validation/runClangTidy.sh",
+            "command": "Scripts/Validation/runClangTidy.sh ; echo 'finished running Scripts/Validation/runClangTidy.sh'",
             "group": {
                 "kind": "build",
                 "isDefault": false
