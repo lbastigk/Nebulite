@@ -10,6 +10,7 @@
 
 // Standard library
 #include <stdexcept>
+#include <random>
 
 // Nebulite
 #include "Utility/JSON.hpp"
@@ -77,7 +78,9 @@ struct ReadOnlyDocs{
 
             // Check the last used time of a random document
             auto it = docs.begin();
-            std::advance(it, static_cast<size_t>(rand()) % docs.size());
+            thread_local std::mt19937_64 rng{std::random_device{}()};
+            std::uniform_int_distribution<std::size_t> dist(0, docs.size() - 1);
+            std::advance(it, dist(rng));
             ReadOnlyDoc* docPtr = &it->second;
 
             // If the document has not been used recently, unload it
