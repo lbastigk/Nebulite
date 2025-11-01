@@ -23,7 +23,7 @@ Nebulite::Constants::Error ComplexData::update(){
 // Domain-Bound Functions
 
 Nebulite::Constants::Error ComplexData::querySet(int argc,  char** argv){
-    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 std::string const ComplexData::querySet_name = "query set";
@@ -32,7 +32,7 @@ Not implemented yet.
 )";
 
 Nebulite::Constants::Error ComplexData::jsonSet(int argc,  char** argv){
-    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     // Since we have no access to the global space, we cant use the JSON doc cache
     // Instead, we manually load the document to retrieve the key
     if(argc < 3){

@@ -122,14 +122,14 @@ std::thread Nebulite::Core::RenderObjectContainer::create_batch_worker(batch& ba
 		// All objects to move are collected in queue
 		for (auto ptr : to_move_local){
 			batch.removeObject(ptr);
-			std::lock_guard<std::mutex> lock(reinsertionProcess.reinsertMutex);
+			std::scoped_lock<std::mutex> lock(reinsertionProcess.reinsertMutex);
 			reinsertionProcess.queue.push_back(ptr);
 		}
 
 		// All objects to delete are collected in trash
 		for (auto ptr : to_delete_local){
 			batch.removeObject(ptr);
-			std::lock_guard<std::mutex> lock(deletionProcess.deleteMutex);
+			std::scoped_lock<std::mutex> lock(deletionProcess.deleteMutex);
 			deletionProcess.trash.push_back(ptr);
 		}
 	});

@@ -109,7 +109,7 @@ void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interact
     uint32_t threadIndex = id_self % THREADRUNNER_COUNT;
     
     // Insert into next frame's entries
-    std::lock_guard<std::mutex> lock(broadcasted.entriesNextFrame[threadIndex].mutex);
+    std::scoped_lock<std::mutex> lock(broadcasted.entriesNextFrame[threadIndex].mutex);
     auto& onTopicFromId = broadcasted.entriesNextFrame[threadIndex].Container[toAppend->topic][id_self];
     onTopicFromId.rulesets[toAppend->index].entry = toAppend;
     onTopicFromId.active = true;
@@ -118,7 +118,7 @@ void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interact
 void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std::string topic, uint32_t listenerId){
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
         // Lock to safely read from broadcasted.entriesThisFrame
-        std::lock_guard<std::mutex> broadcastLock(broadcasted.entriesThisFrame[i].mutex);
+        std::scoped_lock<std::mutex> broadcastLock(broadcasted.entriesThisFrame[i].mutex);
         
         // Check if any object has broadcasted on this topic
         auto topicIt = broadcasted.entriesThisFrame[i].Container.find(topic);
@@ -277,7 +277,7 @@ void Nebulite::Interaction::Invoke::applyAssignment(Nebulite::Interaction::Logic
             
             if(target != nullptr){
                 // Lock is needed here, otherwise we have race conditions, and the engine is no longer deterministic!
-                std::lock_guard<std::recursive_mutex> lock(targetDocument->lock());
+                std::scoped_lock<std::recursive_mutex> lock(targetDocument->lock());
                 setValueOfKey(assignment.operation, assignment.key, resolved, target);
             }
             else{
@@ -302,7 +302,7 @@ void Nebulite::Interaction::Invoke::applyFunctionCalls(Nebulite::Interaction::Ru
         std::string call = entry.eval(Obj_other->getDoc());
 
         // attach to task queue
-        std::lock_guard<std::mutex> lock(taskQueue.mutex);
+        std::scoped_lock<std::mutex> lock(taskQueue.mutex);
         taskQueue.ptr->emplace_back(call);
     }
 

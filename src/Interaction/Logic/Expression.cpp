@@ -571,7 +571,7 @@ double Nebulite::Interaction::Logic::Expression::evalAsDouble(Nebulite::Utility:
 
 odpvec* Nebulite::Interaction::Logic::Expression::ensureOtherOrderedCacheList(Nebulite::Utility::JSON* reference){
     auto cache = reference->getExpressionRefsAsOther();
-    std::lock_guard<std::mutex> cache_lock(cache->mtx);
+    std::scoped_lock<std::mutex> cache_lock(cache->mtx);
     
     // Check if we can use quickcache, that does not rely on a hashmap lookup
     if(uniqueId < Utility::MappedOrderedDoublePointers::quickCacheSize){

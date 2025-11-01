@@ -52,7 +52,7 @@ public:
         CaptureStream& operator<<(T const& data){
             baseStream << data;
             {
-                std::lock_guard<std::mutex> lock(parent->outputLogMutex);
+                std::scoped_lock<std::mutex> lock(parent->outputLogMutex);
 
                 // Combine lastLine with new data
                 std::ostringstream workingBuffer;

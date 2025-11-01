@@ -134,7 +134,7 @@ public:
         // Rotate through pool entries starting from thread's unique offset
         size_t idx = (thread_offset + counter++) % INVOKE_EXPR_POOL_SIZE;
         
-        std::lock_guard<std::mutex> guard(locks[idx]);
+        std::scoped_lock<std::mutex> guard(locks[idx]);
         return pool[idx].eval(current_other);
     }
 
@@ -154,7 +154,7 @@ public:
         // Rotate through pool entries starting from thread's unique offset
         size_t idx = (thread_offset + counter++) % INVOKE_EXPR_POOL_SIZE;
 
-        std::lock_guard<std::mutex> guard(locks[idx]);
+        std::scoped_lock<std::mutex> guard(locks[idx]);
         return pool[idx].evalAsDouble(current_other);
     }
 

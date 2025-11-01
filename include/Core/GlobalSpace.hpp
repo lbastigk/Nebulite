@@ -251,7 +251,7 @@ public:
      */
     uint64_t getUniqueId(std::string hash, UniqueIdType type){
         // Lock and check if hash exists
-        std::lock_guard<std::mutex> lock(uniqueIdMutex[static_cast<size_t>(type)]);
+        std::scoped_lock<std::mutex> lock(uniqueIdMutex[static_cast<size_t>(type)]);
 
         auto it = uniqueIdMap[static_cast<size_t>(type)].find(hash);
         if(it != uniqueIdMap[static_cast<size_t>(type)].end()){
