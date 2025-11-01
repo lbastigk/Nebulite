@@ -19,6 +19,7 @@ for file in {src/*,include/*}; do
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-misc-non-private-member-variables-in-classes"    # Suppress warnings about non-private member variables in classes
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-altera-unroll-loops"                 # Suppress warnings about loop unrolling
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-modernize-use-nodiscard"             # Suppress warnings about missing [[nodiscard]] attributes
+    EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-fuchsia-default-arguments-declarations"          # Suppress warnings about default arguments in function declarations
 
     # Run clang-tidy with the specified checks and header filter
     clang-tidy "$file" \
