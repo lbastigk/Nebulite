@@ -32,7 +32,7 @@
 
 namespace Nebulite::Core {
     class GlobalSpace;
-}
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::Utility {
@@ -269,9 +269,8 @@ bool Nebulite::Utility::RjDirectAccess::set(char const* key, T const& value, rap
     if (keyVal != nullptr){
         Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<T>(value, *keyVal, allocator);
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 //------------------------------------------
@@ -312,13 +311,7 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<do
 }
 
 // cppcheck-suppress constParameterReference
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<long>(long const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {
-    jsonValue.SetInt64(data);
-    (void)allocator; // Suppress unused parameter warning
-}
-
-// cppcheck-suppress constParameterReference
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<long long>(long long const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)    {
+template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<int64_t>(int64_t const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)    {
     jsonValue.SetInt64(data);
     (void)allocator; // Suppress unused parameter warning
 }
@@ -331,7 +324,7 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<st
 }
 
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<char const*>(char const* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
-    if (data){
+    if (data != nullptr){
         jsonValue.SetString(data, allocator);
     } else {
         jsonValue.SetNull();
@@ -339,7 +332,7 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<ch
 }
 
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<char*>(char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
-    if (data){
+    if (data != nullptr){
         jsonValue.SetString(data, allocator);
     } else {
         jsonValue.SetNull();
@@ -388,19 +381,16 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(
 template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, uint32_t& result,  uint32_t const& defaultvalue){
     if(jsonValue.IsUint()){
         result = jsonValue.GetUint();
-        return;
     }
     else if(jsonValue.IsNumber()){
-        int tmp = jsonValue.GetInt();
+        const int tmp = jsonValue.GetInt();
         if(tmp >= 0){
             result = static_cast<uint32_t>(tmp);
-            return;
         }
     }
     else if(jsonValue.IsString()){
         std::istringstream iss(jsonValue.GetString());
         iss >> result;
-        return;
     }
     else{
         result = defaultvalue;
@@ -416,7 +406,7 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(
     } else if (jsonValue.IsUint()){
         result = static_cast<uint64_t>(jsonValue.GetUint());
     } else if (jsonValue.IsNumber()){
-        int64_t tmp = jsonValue.GetInt64();
+        const int64_t tmp = jsonValue.GetInt64();
         if (tmp >= 0){
             result = static_cast<uint64_t>(tmp);
         } else {
