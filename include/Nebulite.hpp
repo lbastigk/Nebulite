@@ -1,7 +1,7 @@
 /**
  * @file Nebulite.hpp
  *
- * @brief Central file for Nebulite namespace documentation. And globally available objects.
+ * @brief Central file for Nebulite namespace documentation, global constants and more.
  *
  * While classes/variables have on central definition file, namespaces are only loosely bound.
  * Meaning there isnt a consensus who first defined the namespace.
@@ -13,10 +13,31 @@
  * - Global ErrorTable object
  * - Global Logger object
  * - Globalspace Object
- */
+ */ 
 
 #ifndef NEBULITE_HPP
 #define NEBULITE_HPP
+
+//------------------------------------------
+// Includes
+
+#include <cstddef>
+
+//------------------------------------------
+// Define alignment constants
+
+#if defined(__cpp_lib_hardware_interference_size)
+    inline constexpr std::size_t CACHE_LINE_SIZE = std::hardware_destructive_interference_size;
+#else
+    inline constexpr std::size_t CACHE_LINE_SIZE = 64u; // common on x86_64
+#endif
+
+inline constexpr std::size_t SIMD_ALIGNMENT = 32u; // AVX/AVX2 (use 16 for SSE)
+
+static_assert((CACHE_LINE_SIZE & (CACHE_LINE_SIZE - 1)) == 0, "CACHE_LINE_SIZE must be power of two");
+
+//------------------------------------------
+// Namespace documentation
 
 /**
  * @namespace Nebulite
@@ -107,3 +128,8 @@ namespace Nebulite{
 
 }   // namespace Nebulite
 #endif // NEBULITE_HPP
+
+/**
+ * @todo: Add global() function here for accessing globalspace.
+ * Also add global ErrorTable and Logger objects here.
+ */
