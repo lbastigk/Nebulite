@@ -134,10 +134,13 @@ private:
      */
     void flush();
 
-    // References for expressions
+    /**
+     * @brief Structure to hold multiple maps for expression references.
+     * 
+     * Currently, only reference "other" is used, but later on references like "parent" or "child" could be added.
+     */
 	struct ExpressionRef {
-		//Nebulite::Utility::MappedOrderedDoublePointers as_self; // Not needed here, but type parent/child might become useful later on!
-		Nebulite::Utility::MappedOrderedDoublePointers<uint64_t> as_other;
+		Nebulite::Utility::MappedOrderedDoublePointers as_other;
 	} expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
 
     /**
@@ -380,7 +383,7 @@ public:
     //------------------------------------------
     // Assorted list of double pointers
 
-	Nebulite::Utility::MappedOrderedDoublePointers<uint64_t>* getExpressionRefsAsOther(){
+	Nebulite::Utility::MappedOrderedDoublePointers* getExpressionRefsAsOther(){
         #if ORDERED_DOUBLE_POINTERS_MAPS == 1
             return &expressionRefs[0].as_other;
         #else

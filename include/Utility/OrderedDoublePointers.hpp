@@ -111,9 +111,8 @@ public:
  * @struct MappedOrderedDoublePointers
  * @brief A thread-safe map from strings to OrderedDoublePointers objects.
  */
-template <typename hashtype>
 struct MappedOrderedDoublePointers{
-    absl::flat_hash_map<hashtype, OrderedDoublePointers> map;
+    absl::flat_hash_map<uint64_t, OrderedDoublePointers> map;
     std::mutex mtx;
 
     /**
