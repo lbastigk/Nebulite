@@ -10,6 +10,7 @@
 // Includes
 
 // Nebulite
+#include "Nebulite.hpp"
 #include "Utility/Time.hpp"
 
 //------------------------------------------
@@ -30,7 +31,7 @@ public:
      * 
      * The start time is set to construction time. Timer is initialized to not running.
      */
-    TimeKeeper() : t_start(Time::gettime()), t_ms(0), dt_ms(0) {}
+    TimeKeeper() noexcept : t_start(Time::gettime()) {}
 
     /**
      * @brief Updates the timer.
@@ -39,7 +40,7 @@ public:
      * 
      * @param fixed_dt_ms If greater than 0, this value will be used as the delta time instead of the calculated value.
      */
-    void update(uint64_t fixed_dt_ms = 0){
+    void update(uint64_t fixed_dt_ms = 0) noexcept {
         //------------------------------------------
         // 1.) Gathering timing information, even if the timer is not running
         //     The whole timer works on dt integration, so we always need to know the current dt
@@ -75,7 +76,7 @@ public:
      * Make sure to call update() before start() to get an accurate dt,
      * if you don't start the timer immediately after construction.
      */
-    void start(){
+    void start() noexcept {
         running = true;
     }
 
@@ -88,7 +89,7 @@ public:
      * 
      * Make sure to call `update()` before `stop()` to get an accurate dt.
      */
-    void stop(){
+    void stop() noexcept {
         running = false;
     }
 
@@ -97,7 +98,7 @@ public:
      * 
      * @return True if the timer is running, false otherwise.
      */
-    bool is_running() const {
+    bool is_running() const noexcept {
         return running;
     }
 
@@ -109,7 +110,7 @@ public:
      * 
      * @return The projected delta time in milliseconds.
      */
-    uint64_t projected_dt(){
+    uint64_t projected_dt() noexcept {
         if(running){
             onSimulation.last_t_ms = onUpdate.t_ms;
             onSimulation.t_ms = Time::gettime() - t_start;
@@ -128,7 +129,7 @@ public:
      * 
      * @return The time elapsed since the timer started in milliseconds.
      */
-    uint64_t get_t_ms() const {
+    uint64_t get_t_ms() const noexcept {
         return t_ms;
     }
 
@@ -141,7 +142,7 @@ public:
      * 
      * @return The time difference between the last two updates in milliseconds.
      */
-    uint64_t get_dt_ms() const {
+    uint64_t get_dt_ms() const noexcept {
         return dt_ms;
     }
 
@@ -158,12 +159,12 @@ private:
     /**
      * @brief The current time in milliseconds of the last update.
      */
-    uint64_t t_ms;
+    uint64_t t_ms = 0;
 
     /**
      * @brief The delta time in milliseconds between the last two updates.
      */
-    uint64_t dt_ms;
+    uint64_t dt_ms = 0;
 
     /**
      * @brief Indicates whether the timer is currently running.
@@ -175,29 +176,33 @@ private:
     /**
      * @struct OnUpdate
      * @brief Stores the timing information for the update phase.
-     * 
-     * Aligned to 2*sizeof(uint64_t) to ensure proper alignment for SIMD operations,
-     * since the struct holds 2 uint64_t members.
      */
-    struct __attribute__((aligned(2*sizeof(uint64_t)))) OnUpdate{
+    struct alignas(2 * sizeof(uint64_t)) OnUpdate{
         uint64_t last_t_ms = 0;
         uint64_t t_ms = 0;
         OnUpdate() = default;
-    }  __attribute__((packed)) onUpdate;
+    } onUpdate;
+
+    /**
+     * @brief Ensures proper alignment for OnUpdate struct.
+     */
+    static_assert(alignof(OnUpdate) >= 2 * sizeof(uint64_t), "OnUpdate alignment");
 
     /**
      * @struct OnSimulation
      * @brief Stores the timing information for the update simulation phase.
-     * 
-     * Aligned to 4*sizeof(uint64_t) to ensure proper alignment for SIMD operations,
-     * since the struct holds 3 uint64_t members. 4 being the next power of two.
      */
-    struct __attribute__((aligned(4*sizeof(uint64_t)))) OnSimulation{
+    struct alignas(SIMD_ALIGNMENT) OnSimulation{
         uint64_t last_t_ms = 0;
         uint64_t t_ms = 0;
         uint64_t dt = 0;
         OnSimulation() = default;
-    }  __attribute__((packed)) onSimulation;
+    } onSimulation;
+
+    /**
+     * @brief Ensures proper alignment for OnSimulation struct.
+     */
+    static_assert(alignof(OnSimulation) >= SIMD_ALIGNMENT, "OnSimulation alignment");
 };
 }   // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_TIMEKEEPER_HPP
