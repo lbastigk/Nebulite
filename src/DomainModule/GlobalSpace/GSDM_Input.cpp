@@ -99,7 +99,7 @@ void Input::write_current_and_delta_inputs(){
 
     //------------------------------------------
 	// Keyboard
-    const Uint8* keyState = SDL_GetKeyboardState(NULL);
+    uint8_t const* keyState = SDL_GetKeyboardState(NULL);
     for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++scancode){
 		if(keyNames[scancode] != ""){
 			// Retrieve state, store previous state

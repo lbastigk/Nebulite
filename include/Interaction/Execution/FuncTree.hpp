@@ -822,7 +822,7 @@ template<typename RETURN_TYPE>
 void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::generalHelp(){
     // Padding size for names
     // '<name padded> - <description>'
-    const uint16_t namePaddingSize = 25;
+    uint16_t const namePaddingSize = 25;
 
     // All info: [name, description]
     std::vector<std::pair<std::string, std::string const*>> allFunctions = getAllFunctions();

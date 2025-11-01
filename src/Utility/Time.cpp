@@ -36,8 +36,8 @@ std::string Nebulite::Utility::Time::TimeIso8601(Time::ISO8601Format format, boo
     // Use the stored maximum length for this format (from isoInfo)
     // and return at most 'written' characters. This avoids using the
     // enum numeric value (which is the choice index, not a length).
-    const std::size_t maxLen = info.maxLen; // IsoFmtInfo second member
-    const std::size_t retLen = (written > maxLen) ? maxLen : written;
+    std::size_t const maxLen = info.maxLen; // IsoFmtInfo second member
+    std::size_t const retLen = (written > maxLen) ? maxLen : written;
     return std::string(buffer.data(), retLen);
 }
 

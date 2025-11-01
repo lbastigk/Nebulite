@@ -79,7 +79,7 @@ private:
     static void getFunctionCalls(
         Nebulite::Utility::JSON& entryDoc,
         Nebulite::Interaction::Ruleset& Ruleset, 
-        const Nebulite::Core::RenderObject* self,
+        Nebulite::Core::RenderObject const* self,
         Nebulite::Utility::DocumentCache* docCache,
         Nebulite::Utility::JSON* global
     );
@@ -140,7 +140,7 @@ private:
      * @param global The global JSON document to use for parsing expressions.
      */
     static void optimizeParsedEntries(
-        const std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries, 
+        std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> const& entries, 
         Nebulite::Utility::JSON const* self,
         Nebulite::Utility::JSON* global
     );
@@ -150,7 +150,7 @@ private:
      * 
      * @note Any new numeric operation must be added here to benefit from optimization techniques in the Invoke class.
      */
-    inline static const std::vector<Nebulite::Interaction::Logic::Assignment::Operation> numeric_operations = {
+    inline static std::vector<Nebulite::Interaction::Logic::Assignment::Operation> const numeric_operations = {
         Nebulite::Interaction::Logic::Assignment::Operation::set,
         Nebulite::Interaction::Logic::Assignment::Operation::add,
         Nebulite::Interaction::Logic::Assignment::Operation::multiply

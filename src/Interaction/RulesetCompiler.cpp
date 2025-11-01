@@ -8,7 +8,7 @@
 void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
     Nebulite::Utility::JSON& entryDoc,
     Nebulite::Interaction::Ruleset& Ruleset, 
-    const Nebulite::Core::RenderObject* self,
+    Nebulite::Core::RenderObject const* self,
     Nebulite::Utility::DocumentCache* docCache,
     Nebulite::Utility::JSON* global
 ){
@@ -202,8 +202,8 @@ namespace{
      */
     void setMetaData(
         Nebulite::Core::RenderObject* self, 
-        const std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_local, 
-        const std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_global
+        std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> const& entries_local, 
+        std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> const& entries_global
     ){
         // Set IDs
         uint32_t id = self->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0);
@@ -310,7 +310,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<N
 }
 
 void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
-    const std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries, 
+    std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> const& entries, 
     Nebulite::Utility::JSON const* self,
     Nebulite::Utility::JSON* global
 ){

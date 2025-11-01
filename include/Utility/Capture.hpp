@@ -107,7 +107,7 @@ public:
      * @brief Retrieves a pointer to the output log.
      * @return A pointer to the output log deque, const.
      */
-    const std::deque<OutputLine>& getOutputLogPtr() const {
+    std::deque<OutputLine> const& getOutputLogPtr() const {
         return outputLog;
     }
 

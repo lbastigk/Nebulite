@@ -126,7 +126,7 @@ std::vector<std::string> Nebulite::Utility::StringHandler::splitOnSameDepth(std:
     std::vector<std::string> result;
 
     // Map opening delimiters to their closing ones
-    static const std::unordered_map<char, char> pairs = {
+    static std::unordered_map<char, char> const pairs = {
         {'(', ')'}, {'[', ']'}, {'{', '}'}
     };
 
