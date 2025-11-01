@@ -30,13 +30,7 @@ public:
      * 
      * The start time is set to construction time. Timer is initialized to not running.
      */
-    TimeKeeper(){
-        t_start = Time::gettime();
-        t_ms = 0;
-        dt_ms = 0;
-        onUpdate.t_ms = t_ms;
-        onUpdate.last_t_ms = t_ms;
-    }
+    TimeKeeper() : t_start(Time::gettime()), t_ms(0), dt_ms(0) {}
 
     /**
      * @brief Updates the timer.
@@ -155,6 +149,13 @@ private:
     // Basic values for current time
 
     /**
+     * @brief The start time in milliseconds when the timer was created.
+     * 
+     * For Reference: This value is used to calculate the total elapsed time since the timer was created.
+     */
+    uint64_t t_start;
+
+    /**
      * @brief The current time in milliseconds of the last update.
      */
     uint64_t t_ms;
@@ -163,13 +164,6 @@ private:
      * @brief The delta time in milliseconds between the last two updates.
      */
     uint64_t dt_ms;
-
-    /**
-     * @brief The start time in milliseconds when the timer was created.
-     * 
-     * For Reference: This value is used to calculate the total elapsed time since the timer was created.
-     */
-    uint64_t t_start;
 
     /**
      * @brief Indicates whether the timer is currently running.
