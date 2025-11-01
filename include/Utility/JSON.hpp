@@ -401,7 +401,7 @@ public:
 
 template<typename T>
 void Nebulite::Utility::JSON::set(std::string const& key, T const& value){
-    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
+    std::lock_guard<std::recursive_mutex> const lockGuard(mtx);
 
     // Check if key is valid
     if (!RjDirectAccess::isValidKey(key)){
@@ -446,7 +446,7 @@ void Nebulite::Utility::JSON::set(std::string const& key, T const& value){
 
 template<typename T>
 T Nebulite::Utility::JSON::get(std::string const& key, T const& defaultValue){
-    std::lock_guard<std::recursive_mutex> lockGuard(mtx);
+    std::lock_guard<std::recursive_mutex> const lockGuard(mtx);
     // Check cache first
     auto it = cache.find(key);
     if (it != cache.end() && it->second->state != EntryState::DELETED){
@@ -469,7 +469,7 @@ T Nebulite::Utility::JSON::get(std::string const& key, T const& defaultValue){
     }
 
     // Check document, if not in cache
-    rapidjson::Value* val = Nebulite::Utility::RjDirectAccess::traverse_path(key.c_str(), doc);
+    rapidjson::Value const* val = Nebulite::Utility::RjDirectAccess::traverse_path(key.c_str(), doc);
     if(val != nullptr){
         if(it != cache.end()){
             // Modify existing entry
@@ -487,10 +487,8 @@ T Nebulite::Utility::JSON::get(std::string const& key, T const& defaultValue){
             // Return converted value
             return convertVariant<T>(it->second->value, defaultValue);
         }
-        else{
-            // Create new cache entry
-            return jsonValueToCache<T>(key, val, defaultValue);
-        }
+        // Create new cache entry
+        return jsonValueToCache<T>(key, val, defaultValue);
     }
 
     // Value could not be created, return default
@@ -522,7 +520,7 @@ T Nebulite::Utility::JSON::jsonValueToCache(std::string const& key, rapidjson::V
 }
 
 // Converter helper functions for convertVariant
-namespace{
+namespace ConverterHelper {
     inline static bool stringToBool(std::string const& stored, bool defaultValue){
         // Handle numeric strings and "true"
         if(Nebulite::Utility::StringHandler::isNumber(stored)){
@@ -539,7 +537,7 @@ namespace{
         //if (stored == "true") return 1;
         //if (stored == "false") return 0;
         try {
-            return static_cast<int>(std::stoi(stored));
+            return std::stoi(stored);
         } catch (...){
             return defaultValue;
         }
@@ -556,16 +554,17 @@ namespace{
     }
 
     inline static void convertVariantErrorMessage(std::string const& oldType, std::string const& newType){
-        Nebulite::Utility::Capture::cerr() << "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
-                  << oldType
-                  << " to " << newType << ".\n"
-                  << "Please add the required conversion.\n"
-                  << "Fallback conversion from String to any Integral type was disabled due to potential lossy data conversion.\n"
-                  << "Rather, it is recommended to add one explicit conversion path per datatype.\n"
-                  << "Returning default value." << Nebulite::Utility::Capture::endl;
+        std::string const message = "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
+                    + oldType
+                    + " to " + newType + ".\n"
+                    + "Please add the required conversion.\n"
+                    + "Fallback conversion from String to any Integral type was disabled due to potential lossy data conversion.\n"
+                    + "Rather, it is recommended to add one explicit conversion path per datatype.\n"
+                    + "Returning default value.";
+        Nebulite::Utility::Capture::cerr() << message << Nebulite::Utility::Capture::endl;
         // Exiting the program would be nice, but since this is likely run in a threaded environment, we just display the error.
     }
-} // anonymous namespace
+} // namespace ConverterHelper
 
 template<typename newType>
 newType Nebulite::Utility::JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue){
@@ -583,12 +582,12 @@ newType Nebulite::Utility::JSON::convertVariant(RjDirectAccess::simpleValue cons
         // [STRING] -> [BOOL]
         // Handle string to bool
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, bool>){
-            return stringToBool(stored, defaultValue);
+            return ConverterHelper::stringToBool(stored, defaultValue);
         }
 
         // [STRING] -> [DOUBLE]
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, double>){
-            return stringToDouble(stored, defaultValue);
+            return ConverterHelper::stringToDouble(stored, defaultValue);
         }
         
 
@@ -601,7 +600,7 @@ newType Nebulite::Utility::JSON::convertVariant(RjDirectAccess::simpleValue cons
         // [ERROR] Unsupported conversion
         std::string const oldTypeName = abi::__cxa_demangle(typeid(stored).name(), nullptr, nullptr, nullptr);
         std::string const newTypeName = abi::__cxa_demangle(typeid(newType).name(), nullptr, nullptr, nullptr);
-        convertVariantErrorMessage(oldTypeName, newTypeName);
+        ConverterHelper::convertVariantErrorMessage(oldTypeName, newTypeName);
         return defaultValue;
     }, 
     var);

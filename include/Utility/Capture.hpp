@@ -18,6 +18,8 @@ namespace Nebulite::Utility {
 /**
  * @class Nebulite::Utility::Capture
  * @brief Captures output to cout and cerr into an internal log.
+ * 
+ * Both outputs logs cout and cerr are threadsafe.
  */
 class Capture{
 public:
