@@ -432,7 +432,7 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(
         result = jsonValue.GetDouble();
     }
     else if(jsonValue.IsString()){
-        std::string strValue = jsonValue.GetString();
+        const std::string strValue = jsonValue.GetString();
         if(Nebulite::Utility::StringHandler::isNumber(strValue)){
             result = std::stod(strValue);
         }
