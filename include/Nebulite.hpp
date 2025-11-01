@@ -26,13 +26,13 @@
 //------------------------------------------
 // Define alignment constants
 
-#if defined(__cpp_lib_hardware_interference_size)
+#ifdef __cpp_lib_hardware_interference_size
     inline constexpr std::size_t CACHE_LINE_SIZE = std::hardware_destructive_interference_size;
 #else
-    inline constexpr std::size_t CACHE_LINE_SIZE = 64u; // common on x86_64
+    inline constexpr std::size_t CACHE_LINE_SIZE = 64U; // common on x86_64
 #endif
 
-inline constexpr std::size_t SIMD_ALIGNMENT = 32u; // AVX/AVX2 (use 16 for SSE)
+inline constexpr std::size_t SIMD_ALIGNMENT = 32U; // AVX/AVX2 (use 16 for SSE)
 
 static_assert((CACHE_LINE_SIZE & (CACHE_LINE_SIZE - 1)) == 0, "CACHE_LINE_SIZE must be power of two");
 
