@@ -332,7 +332,7 @@ void Console::init(){
     // Initialize history with a welcome message
     textInput.insertLine("Welcome to Nebulite!");
     textInput.insertLine("Type 'help' for a list of commands.");
-    textInput.insertLine("Console started at: " + Nebulite::Utility::Time::TimeIso8601(Nebulite::Utility::Time::ISO8601FORMATTER::YYYY_MM_DD_HH_MM_SS, true));
+    textInput.insertLine("Console started at: " + Nebulite::Utility::Time::TimeIso8601(Nebulite::Utility::Time::ISO8601Format::YYYY_MM_DD_HH_MM_SS, true));
 
     //--------------------------------------------------
     // Console now fully functional
