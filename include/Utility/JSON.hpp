@@ -565,16 +565,6 @@ namespace{
         }
     }
 
-    inline unsigned long long stringToUnsignedLongLong(std::string const& stored, unsigned long long defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
-        try {
-            return static_cast<unsigned long long>(std::stoull(stored));
-        } catch (...){
-            return defaultValue;
-        }
-    }
-
     inline void convertVariantErrorMessage(std::string const& oldType, std::string const& newType){
         Nebulite::Utility::Capture::cerr() << "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
                   << oldType
@@ -583,6 +573,8 @@ namespace{
                   << "Fallback conversion from String to any Integral type was disabled due to potential lossy data conversion.\n"
                   << "Rather, it is recommended to add one explicit conversion path per datatype.\n"
                   << "Returning default value." << Nebulite::Utility::Capture::endl;
+        // Exit program
+        std::exit(EXIT_FAILURE);
     }
 }
 
@@ -605,25 +597,11 @@ newType Nebulite::Utility::JSON::convertVariant(RjDirectAccess::simpleValue cons
             return stringToBool(stored, defaultValue);
         }
 
-        // [STRING] -> [INT]
-        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int>){
-            return stringToInt(stored, defaultValue);
-        }
-
         // [STRING] -> [DOUBLE]
         if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, double>){
             return stringToDouble(stored, defaultValue);
         }
-
-        // [STRING] -> [UNSIGNED LONG]
-        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, unsigned long>){
-            return stringToUnsignedLong(stored, defaultValue);
-        }
-
-        // [STRING] -> [UNSIGNED LONG LONG]
-        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, unsigned long long>){
-            return stringToUnsignedLongLong(stored, defaultValue);
-        }
+        
 
         // [ARITHMETIC] -> [STRING]
         if constexpr (std::is_arithmetic_v<StoredT> && std::is_same_v<newType, std::string>){
@@ -631,9 +609,9 @@ newType Nebulite::Utility::JSON::convertVariant(RjDirectAccess::simpleValue cons
         }
 
         //------------------------------------------
-        // [FALLBACK]
-        std::string oldTypeName = abi::__cxa_demangle(typeid(stored).name(), nullptr, nullptr, nullptr);
-        std::string newTypeName = abi::__cxa_demangle(typeid(newType).name(), nullptr, nullptr, nullptr);
+        // [ERROR] Unsupported conversion
+        std::string const oldTypeName = abi::__cxa_demangle(typeid(stored).name(), nullptr, nullptr, nullptr);
+        std::string const newTypeName = abi::__cxa_demangle(typeid(newType).name(), nullptr, nullptr, nullptr);
         convertVariantErrorMessage(oldTypeName, newTypeName);
         return defaultValue;
     }, 
