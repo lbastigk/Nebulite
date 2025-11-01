@@ -13,6 +13,7 @@
 #include <stdexcept>
 
 // Nebulite
+#include "Nebulite.hpp"
 #include "Utility/Capture.hpp"
 #include "Utility/FileManagement.hpp"
 #include "Utility/JSON.hpp"
