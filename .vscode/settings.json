@@ -122,7 +122,8 @@
         "spanstream": "cpp",
         "stacktrace": "cpp",
         "syncstream": "cpp",
-        "__tree": "cpp"
+        "__tree": "cpp",
+        "cfloat": "cpp"
     },
     "clangd.enable": true,
     "clangd.checkUpdates": true,
