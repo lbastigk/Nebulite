@@ -305,11 +305,11 @@ public:
      * @enum KeyType
      * @brief Enum representing the type of a key in the JSON document.
      */
-    enum KeyType{
-        document = -1,
-        null = 0,
-        value = 1,
-        array = 2
+    enum class KeyType{
+        null,
+        document,
+        value,
+        array
     };
 
     /**
@@ -389,19 +389,18 @@ public:
             return &expressionRefs[0].as_other;
         #else
             // Each thread gets a unique starting position based on thread ID
-            static thread_local size_t thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
+            static thread_local const size_t thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
             static thread_local size_t counter = 0;
             
             // Rotate through pool entries starting from thread's unique offset
-            size_t idx = (thread_offset + counter++) % ORDERED_DOUBLE_POINTERS_MAPS;
+            size_t const idx = (thread_offset + counter++) % ORDERED_DOUBLE_POINTERS_MAPS;
             return &expressionRefs[idx].as_other;
         #endif
 	}
 };
-}
 
 template<typename T>
-void Nebulite::Utility::JSON::set(std::string const& key, T const& value){
+void JSON::set(std::string const& key, T const& value){
     std::scoped_lock<std::recursive_mutex> const lockGuard(mtx);
 
     // Check if key is valid
@@ -446,7 +445,7 @@ void Nebulite::Utility::JSON::set(std::string const& key, T const& value){
 }
 
 template<typename T>
-T Nebulite::Utility::JSON::get(std::string const& key, T const& defaultValue){
+T JSON::get(std::string const& key, T const& defaultValue){
     std::scoped_lock<std::recursive_mutex> const lockGuard(mtx);
     // Check cache first
     auto it = cache.find(key);
@@ -496,7 +495,7 @@ T Nebulite::Utility::JSON::get(std::string const& key, T const& defaultValue){
 }
 
 template<typename T>
-T Nebulite::Utility::JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue){
+T JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue){
     // Create a new cache entry
     std::unique_ptr<CacheEntry> new_entry = std::make_unique<CacheEntry>();
     
@@ -554,7 +553,7 @@ namespace ConverterHelper {
     }
 
     inline static void convertVariantErrorMessage(std::string const& oldType, std::string const& newType){
-        std::string const message = "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
+        std::string const message = "[ERROR] JSON::convert_variant - Unsupported conversion from " 
                     + oldType
                     + " to " + newType + ".\n"
                     + "Please add the required conversion.\n"
@@ -567,7 +566,7 @@ namespace ConverterHelper {
 } // namespace ConverterHelper
 
 template<typename newType>
-newType Nebulite::Utility::JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue){
+newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue){
     return std::visit([&](auto const& stored)
     {
         // Removing all qualifiers (const, volatile, references, etc.)
@@ -605,5 +604,5 @@ newType Nebulite::Utility::JSON::convertVariant(RjDirectAccess::simpleValue cons
     }, 
     var);
 }
-
+} // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_JSON_HPP
