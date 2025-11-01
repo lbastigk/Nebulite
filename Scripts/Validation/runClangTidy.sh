@@ -20,6 +20,7 @@ for file in {src/*,include/*}; do
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-altera-unroll-loops"                 # Suppress warnings about loop unrolling
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-modernize-use-nodiscard"             # Suppress warnings about missing [[nodiscard]] attributes
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-fuchsia-default-arguments-declarations"          # Suppress warnings about default arguments in function declarations
+    EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-readability-avoid-const-params-in-decls"         # Suppress warnings about const parameters in declarations
 
     # To enable later on
     # 1.) c-arrays are still being used for FuncTree class. Later on we may refactor the entire program to use c++ containers instead of c-arrays.
