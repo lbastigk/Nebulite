@@ -10,7 +10,6 @@
 // Includes
 
 // Standard library
-#include <vector>
 #include <mutex>
 
 // External
