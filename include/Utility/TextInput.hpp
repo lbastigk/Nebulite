@@ -68,7 +68,7 @@ public:
         LineEntry(std::string const& cont, LineType t)
             : type(t), 
               content(cont), 
-              timestamp(Nebulite::Utility::Time::TimeIso8601(Nebulite::Utility::Time::ISO8601FORMATTER::YYYY_MM_DD_HH_MM_SS, true)) 
+              timestamp(Nebulite::Utility::Time::TimeIso8601(Nebulite::Utility::Time::ISO8601Format::YYYY_MM_DD_HH_MM_SS, true)) 
               {}
     };
 
