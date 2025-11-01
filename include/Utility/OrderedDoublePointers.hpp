@@ -74,8 +74,8 @@ public:
     }
 
     // No copy operations since size is fixed
-    DynamicFixedArray(const DynamicFixedArray&) = delete;
-    DynamicFixedArray& operator=(const DynamicFixedArray&) = delete;
+    DynamicFixedArray(DynamicFixedArray const&) = delete;
+    DynamicFixedArray& operator=(DynamicFixedArray const&) = delete;
 
     inline void push_back(double* ptr){
         if (size_ < capacity_){

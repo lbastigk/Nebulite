@@ -101,7 +101,7 @@ public:
 	virtual ~RenderObject();
 
 	// Suppress copy/move operators
-	RenderObject(const RenderObject& other) = delete;
+	RenderObject(RenderObject const& other) = delete;
 	RenderObject(RenderObject&& other) = delete;
 	RenderObject& operator=(RenderObject&& other) = delete;
 

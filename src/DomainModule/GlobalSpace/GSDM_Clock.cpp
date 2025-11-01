@@ -64,7 +64,7 @@ Nebulite::Constants::Error Clock::addClock(int argc,  char** argv){
     try{
         interval_ms = std::stoull(argv[1]);
     }
-    catch(const std::exception& e){
+    catch(std::exception const& e){
         return Nebulite::Constants::ErrorTable::addError(__FUNCTION__ + std::string(": Invalid interval argument, must be a positive integer"), Nebulite::Constants::Error::NON_CRITICAL);
     }
 

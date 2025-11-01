@@ -414,19 +414,19 @@ void Console::keyTriggerScrollDown(){
     }
 }
 
-void Console::keyTriggerZoomIn(const SDL_KeyboardEvent& key){
+void Console::keyTriggerZoomIn(SDL_KeyboardEvent const& key){
     // Make sure that ctrl is held
     if(!(key.keysym.mod & KMOD_CTRL)) return;
     domain->parseStr(__FUNCTION__ + std::string(" ") + Nebulite::DomainModule::Renderer::Console::consoleZoom_name + " in");
 }
 
-void Console::keyTriggerZoomOut(const SDL_KeyboardEvent& key){
+void Console::keyTriggerZoomOut(SDL_KeyboardEvent const& key){
     // Make sure that ctrl is held
     if(!(key.keysym.mod & KMOD_CTRL)) return;
     domain->parseStr(__FUNCTION__ + std::string(" ") + Nebulite::DomainModule::Renderer::Console::consoleZoom_name + " out");
 }
 
-void Console::processKeyDownEvent(const SDL_KeyboardEvent& key){
+void Console::processKeyDownEvent(SDL_KeyboardEvent const& key){
     switch (key.keysym.sym){
         //------------------------------------------
         // Text input manipulation

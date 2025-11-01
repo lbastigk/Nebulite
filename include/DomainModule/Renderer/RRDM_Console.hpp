@@ -208,7 +208,7 @@ private:
     /**
      * @brief Processes a keydown event.
      */
-    void processKeyDownEvent(const SDL_KeyboardEvent& key);
+    void processKeyDownEvent(SDL_KeyboardEvent const& key);
 
     /**
      * @brief Submits the current command in the text input.
@@ -228,12 +228,12 @@ private:
     /**
      * @brief Zooms the console in, if ctrl is held.
      */
-    void keyTriggerZoomIn(const SDL_KeyboardEvent& key);
+    void keyTriggerZoomIn(SDL_KeyboardEvent const& key);
 
     /**
      * @brief Zooms the console out, if ctrl is held.
      */
-    void keyTriggerZoomOut(const SDL_KeyboardEvent& key);
+    void keyTriggerZoomOut(SDL_KeyboardEvent const& key);
 
     //------------------------------------------
     // RenderConsole helpers

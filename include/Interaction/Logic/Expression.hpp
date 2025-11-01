@@ -236,8 +236,8 @@ private:
         }
 
         // Delete copy constructor/assignment
-        Component(const Component&) = delete;
-        Component& operator=(const Component&) = delete;
+        Component(Component const&) = delete;
+        Component& operator=(Component const&) = delete;
 
         // Move constructor
         Component(Component&& other) noexcept
@@ -514,7 +514,7 @@ private:
      * 
      * Includes tips for fixing the error.
      */
-    void printCompileError(const std::shared_ptr<Component>& component, const int error);
+    void printCompileError(std::shared_ptr<Component> const& component, int const error);
 
     /**
      * @brief Updates caches
@@ -548,12 +548,12 @@ private:
      * @param component The component to evaluate.
      * @return True if the evaluation was successful, false otherwise.
      */
-    bool handleComponentTypeVariable(std::string& token, const std::shared_ptr<Component>& component, Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth);
+    bool handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth);
 
     /**
      * @brief Handles the evaluation of an eval component.
      */
-    void handleComponentTypeEval(std::string& token, const std::shared_ptr<Component>& component);
+    void handleComponentTypeEval(std::string& token, std::shared_ptr<Component> const& component);
 };
 } // namespace Nebulite::Interaction::Logic
 #endif // NEBULITE_INTERACTION_LOGIC_EXPRESSION_HPP

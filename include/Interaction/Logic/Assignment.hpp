@@ -109,8 +109,8 @@ struct Assignment{
     // Disabling copy, allowing move
 
     // Disable copy constructor and assignment
-    Assignment(const Assignment&) = delete;
-    Assignment& operator=(const Assignment&) = delete;
+    Assignment(Assignment const&) = delete;
+    Assignment& operator=(Assignment const&) = delete;
 
     // Enable move constructor and assignment
     Assignment() = default;

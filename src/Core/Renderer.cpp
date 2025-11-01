@@ -340,7 +340,7 @@ bool Nebulite::Core::Renderer::snapshot(std::string link){
         // Create directory using C++17 filesystem
         try {
             std::filesystem::create_directories(directory);
-        } catch (const std::exception& e){
+        } catch (std::exception const& e){
             //Nebulite::Utility::Capture::cerr() << "Warning: Could not create directory " << directory << ": " << e.what() << Nebulite::Utility::Capture::endl;
             // Continue anyway - maybe directory already exists
         }

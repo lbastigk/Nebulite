@@ -66,7 +66,7 @@ char Nebulite::Utility::FileManagement::preferredSeparator(){
 std::string Nebulite::Utility::FileManagement::currentDir(){
     try {
         return std::filesystem::current_path().string();
-    } catch (const std::exception& e){
+    } catch (std::exception const& e){
         Nebulite::Utility::Capture::cerr() << "Error getting current directory: " << e.what() << Nebulite::Utility::Capture::endl;
         return "";
     }

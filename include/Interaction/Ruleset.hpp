@@ -144,8 +144,8 @@ struct Ruleset{
     // Make Entry non-copyable and non-movable
     // All entries should be local to their RenderObject
     Ruleset() = default;
-    Ruleset(const Ruleset&) = delete;
-    Ruleset& operator=(const Ruleset&) = delete;
+    Ruleset(Ruleset const&) = delete;
+    Ruleset& operator=(Ruleset const&) = delete;
     Ruleset(Ruleset&&) = delete;
     Ruleset& operator=(Ruleset&&) = delete;
 };

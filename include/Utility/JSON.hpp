@@ -62,8 +62,8 @@ private:
      */
     struct CacheEntry {
         // No copying or moving
-        CacheEntry(const CacheEntry&) = delete;
-        CacheEntry& operator=(const CacheEntry&) = delete;
+        CacheEntry(CacheEntry const&) = delete;
+        CacheEntry& operator=(CacheEntry const&) = delete;
         CacheEntry(CacheEntry&&) = delete;
         CacheEntry& operator=(CacheEntry&&) = delete;
 
@@ -124,7 +124,7 @@ private:
      * Even a redundant static_cast to the return didn't help.
      */
     template<typename newType>
-    newType convertVariant(const RjDirectAccess::simpleValue& var, const newType& defaultValue = newType{});
+    newType convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue = newType{});
 
     /**
      * @brief Flush all DIRTY entries in the cache back to the RapidJSON document.
@@ -153,8 +153,8 @@ public:
     //------------------------------------------
     // Overload of assign operators
 
-    JSON(const JSON&) = delete;
-    JSON& operator=(const JSON&) = delete;
+    JSON(JSON const&) = delete;
+    JSON& operator=(JSON const&) = delete;
     JSON(JSON&& other) noexcept;
     JSON& operator=(JSON&& other) noexcept;
 
@@ -584,7 +584,7 @@ namespace{
 }
 
 template<typename newType>
-newType Nebulite::Utility::JSON::convertVariant(const RjDirectAccess::simpleValue& var, const newType& defaultValue){
+newType Nebulite::Utility::JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue){
     return std::visit([&](auto const& stored) -> newType 
     {
         // Removing all qualifiers (const, volatile, references, etc.)

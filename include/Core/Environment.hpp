@@ -97,7 +97,7 @@ public:
 	// Suppress copy/move operators
 	Environment(Environment&& other) = delete;
 	Environment& operator=(Environment&& other) = delete;
-	Environment& operator=(const Environment& other) = delete;
+	Environment& operator=(Environment const& other) = delete;
 
 	//------------------------------------------
 	// Marshalling

@@ -334,7 +334,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(std::string co
     // Current token is Text
     // Perhaps mixed with variables...
     std::vector<std::string> subTokens = Nebulite::Utility::StringHandler::splitOnSameDepth(token, '{');
-    for (const auto& subToken : subTokens){
+    for (auto const& subToken : subTokens){
         std::shared_ptr<Component> currentComponent =  std::make_shared<Component>();
 
         // Token is type variable
@@ -363,7 +363,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(std::string co
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::printCompileError(const std::shared_ptr<Component>& component, const int error){
+void Nebulite::Interaction::Logic::Expression::printCompileError(std::shared_ptr<Component> const& component, int const error){
     Nebulite::Utility::Capture::cerr() << "-----------------------------------------------------------------" << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "Error compiling expression: '" << component->str << "' Error code: " << std::to_string(error) << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "You might see this message multiple times due to expression parallelization." << Nebulite::Utility::Capture::endl;
@@ -422,7 +422,7 @@ void Nebulite::Interaction::Logic::Expression::parse(std::string const& expr, Ne
     #endif
 }
 
-bool Nebulite::Interaction::Logic::Expression::handleComponentTypeVariable(std::string& token, const std::shared_ptr<Component>& component, Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth){
+bool Nebulite::Interaction::Logic::Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth){
     std::string key = component->key;
     Component::From context = component->from;
 
@@ -477,7 +477,7 @@ bool Nebulite::Interaction::Logic::Expression::handleComponentTypeVariable(std::
     return true;
 }
 
-void Nebulite::Interaction::Logic::Expression::handleComponentTypeEval(std::string& token, const std::shared_ptr<Component>& component){
+void Nebulite::Interaction::Logic::Expression::handleComponentTypeEval(std::string& token, std::shared_ptr<Component> const& component){
     //------------------------------------------
     // Handle casting and precision together
     if(component->cast == Component::CastType::to_int){
@@ -534,7 +534,7 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
 
     // Concatenate results of each component
     std::string result = "";
-    for (const auto& component : components){
+    for (auto const& component : components){
         std::string token = "";
         switch (component->type){
             //------------------------------------------

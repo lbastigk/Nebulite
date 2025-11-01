@@ -86,7 +86,7 @@ void Nebulite::Core::RenderObjectContainer::append(Nebulite::Core::RenderObject*
 
 	// Try to insert into an existing batch
 	auto it = std::find_if(ObjectContainer[pos].begin(), ObjectContainer[pos].end(),
-		[](const batch& b){ return b.estimatedCost <= BATCH_COST_GOAL; }
+		[](batch const& b){ return b.estimatedCost <= BATCH_COST_GOAL; }
 	);
 	if (it != ObjectContainer[pos].end()){
 		it->push(toAppend);

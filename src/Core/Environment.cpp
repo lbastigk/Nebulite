@@ -142,7 +142,7 @@ void Nebulite::Core::Environment::purgeObjects(){
 size_t Nebulite::Core::Environment::getObjectCount() const {
 	return std::accumulate(
 		roc.begin(), roc.end(), 0u,
-		[](size_t acc, const Nebulite::Core::RenderObjectContainer& container){
+		[](size_t acc, Nebulite::Core::RenderObjectContainer const& container){
 			return acc + container.getObjectCount();
 		}
 	);

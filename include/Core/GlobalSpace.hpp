@@ -95,8 +95,8 @@ public:
     virtual ~GlobalSpace() = default;
 
     // Prevent copying
-    GlobalSpace(const GlobalSpace&) = delete;
-    GlobalSpace& operator=(const GlobalSpace&) = delete;
+    GlobalSpace(GlobalSpace const&) = delete;
+    GlobalSpace& operator=(GlobalSpace const&) = delete;
 
     // Prevent moving
     GlobalSpace(GlobalSpace&&) = delete;

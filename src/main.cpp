@@ -57,7 +57,7 @@
 int main(int argc, char* argv[]){
     //------------------------------------------
     // Initialize the global space, parse command line arguments
-    const std::string binaryName = std::string(argv[0]);
+    std::string const binaryName = std::string(argv[0]);
     Nebulite::Core::GlobalSpace globalSpace(binaryName);
     globalSpace.parseCommandLineArguments(argc, const_cast<char const**>(argv));
     
@@ -86,7 +86,7 @@ int main(int argc, char* argv[]){
     // Parser handles if error files need to be closed
     try{
         globalSpace.parseStr(binaryName + " " + Nebulite::DomainModule::GlobalSpace::Debug::errorlog_name + " off");
-    } catch(const std::exception& e){
+    } catch(std::exception const& e){
         Nebulite::Utility::Capture::cerr() << "Error closing error log: " << e.what() << "\n";
         return 2;   // Return a different error code for log closing failure
     }

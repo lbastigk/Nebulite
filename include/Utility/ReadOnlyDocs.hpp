@@ -43,7 +43,7 @@ struct ReadOnlyDocs{
          * 
          * Documents that have not been accessed within this time frame will be removed from the cache to free up memory.
          */
-        uint64_t unloadAfter_ms = 5 * 60 * 1000; // Unload documents after 5 minutes of inactivity
+        const uint64_t unloadTime = 5 * 60 * 1000; // Unload documents after 5 minutes of inactivity
 
         /**
          * @brief Contains the cached documents mapped by their file paths.
@@ -81,7 +81,7 @@ struct ReadOnlyDocs{
             ReadOnlyDoc* docPtr = &it->second;
 
             // If the document has not been used recently, unload it
-            if (docPtr->lastUsed.projected_dt() > unloadAfter_ms){
+            if (docPtr->lastUsed.projected_dt() > unloadTime){
                 docs.erase(it);
             }
         }
@@ -106,7 +106,7 @@ struct ReadOnlyDocs{
             auto it = docs.find(doc);
             if (it == docs.end()){
                 // Load the document if it doesn't exist
-                std::string serial = Nebulite::Utility::FileManagement::LoadFile(doc);
+                std::string const serial = Nebulite::Utility::FileManagement::LoadFile(doc);
                 if (serial.empty()){
                     return nullptr; // Return nullptr if document loading fails
                 }
@@ -123,5 +123,5 @@ struct ReadOnlyDocs{
             return docPtr;
         }
 };
-}
+} // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_READONLYDOCS_HPP

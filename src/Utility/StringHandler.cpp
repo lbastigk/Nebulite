@@ -191,7 +191,7 @@ namespace {
         }
     };
 
-    void handleEmptyToken(const QuoteParseState& state, std::vector<std::string>& result){
+    void handleEmptyToken(QuoteParseState const& state, std::vector<std::string>& result){
         if (!state.inAnyQuote()){
             // If not in quotes, add empty token with whitespace
             result.push_back(" ");

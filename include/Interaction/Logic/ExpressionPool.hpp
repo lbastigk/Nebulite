@@ -65,8 +65,8 @@ public:
     }
 
     // Disable copy constructor and assignment
-    ExpressionPool(const ExpressionPool&) = delete;
-    ExpressionPool& operator=(const ExpressionPool&) = delete;
+    ExpressionPool(ExpressionPool const&) = delete;
+    ExpressionPool& operator=(ExpressionPool const&) = delete;
 
     // Enable move constructor and assignment
     ExpressionPool(ExpressionPool&& other) noexcept

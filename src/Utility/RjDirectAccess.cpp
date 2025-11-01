@@ -135,7 +135,7 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::ensure_path(char const* key
 rapidjson::Value Nebulite::Utility::RjDirectAccess::sortRecursive(rapidjson::Value const& value, rapidjson::Document::AllocatorType& allocator){
     if (value.IsObject()){
         // Sort object keys
-        std::vector<std::pair<std::string, const rapidjson::Value*>> members;
+        std::vector<std::pair<std::string, rapidjson::Value const*>> members;
         for (auto itr = value.MemberBegin(); itr != value.MemberEnd(); ++itr){
             members.emplace_back(itr->name.GetString(), &itr->value);
         }
@@ -167,7 +167,7 @@ rapidjson::Value Nebulite::Utility::RjDirectAccess::sortRecursive(rapidjson::Val
     }
 }
 
-std::string Nebulite::Utility::RjDirectAccess::serialize(const rapidjson::Document& doc){
+std::string Nebulite::Utility::RjDirectAccess::serialize(rapidjson::Document const& doc){
     if (!doc.IsObject() && !doc.IsArray()){
         Nebulite::Utility::Capture::cerr() << "Serialization only supports JSON objects or arrays!" << Nebulite::Utility::Capture::endl;
         return "{}";

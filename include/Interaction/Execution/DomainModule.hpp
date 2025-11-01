@@ -178,10 +178,10 @@ public:
     }
 
     // Prevent copying
-    DomainModule(const DomainModule&) = delete;
+    DomainModule(DomainModule const&) = delete;
 
     // Prevent assignment
-    DomainModule& operator=(const DomainModule&) = delete;
+    DomainModule& operator=(DomainModule const&) = delete;
 
 protected:
     //------------------------------------------

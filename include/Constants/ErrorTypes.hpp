@@ -94,7 +94,7 @@ public:
      * @brief Construct an Error referencing an existing description string.
      * The Error does not own the string; the ErrorTable manages lifetime.
      */
-    Error(const std::string* desc, Error::Type t) : description(desc), type(t){}
+    Error(std::string const* desc, Error::Type t) : description(desc), type(t){}
 
     /**
      * @brief Empty Constructor for ERROR struct.
@@ -128,7 +128,7 @@ public:
     }
 
 private:
-    const std::string* description;
+    std::string const* description;
     Type type;
 };
 
