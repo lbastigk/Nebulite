@@ -10,14 +10,15 @@
 // Includes
 
 // Standard library
-#include <mutex>
+#include <cfloat>
 #include <cmath>
-#include <typeinfo>
 #include <cxxabi.h>
+#include <mutex>
 #include <string>
-#include <variant>
-#include <type_traits>
 #include <thread>
+#include <type_traits>
+#include <typeinfo>
+#include <variant>
 
 // External
 #include <absl/container/flat_hash_map.h>
@@ -277,7 +278,7 @@ public:
      * @brief Provides access to the internal mutex for thread-safe operations.
      * Allowing modules to lock the JSON document.
      */
-    std::lock_guard<std::recursive_mutex> lock(){return std::lock_guard<std::recursive_mutex>(mtx);}
+    std::scoped_lock<std::recursive_mutex> lock(){return std::scoped_lock<std::recursive_mutex>(mtx);}
 
     /**
      * @brief Gets a pointer to a to a double value pointer in the JSON document.
@@ -401,7 +402,7 @@ public:
 
 template<typename T>
 void Nebulite::Utility::JSON::set(std::string const& key, T const& value){
-    std::lock_guard<std::recursive_mutex> const lockGuard(mtx);
+    std::scoped_lock<std::recursive_mutex> const lockGuard(mtx);
 
     // Check if key is valid
     if (!RjDirectAccess::isValidKey(key)){
@@ -446,7 +447,7 @@ void Nebulite::Utility::JSON::set(std::string const& key, T const& value){
 
 template<typename T>
 T Nebulite::Utility::JSON::get(std::string const& key, T const& defaultValue){
-    std::lock_guard<std::recursive_mutex> const lockGuard(mtx);
+    std::scoped_lock<std::recursive_mutex> const lockGuard(mtx);
     // Check cache first
     auto it = cache.find(key);
     if (it != cache.end() && it->second->state != EntryState::DELETED){
@@ -454,8 +455,7 @@ T Nebulite::Utility::JSON::get(std::string const& key, T const& defaultValue){
         
         // Check its double value for change detection using an epsilon to avoid unsafe direct comparison
         {
-            const double eps = 1e-9;
-            if(std::fabs(*it->second->stable_double_ptr - it->second->last_double_value) > eps){
+            if(std::fabs(*it->second->stable_double_ptr - it->second->last_double_value) > DBL_EPSILON){
                 // Value changed since last check
                 // We update the actual value with the new double value
                 // Then we convert the double to the requested type
