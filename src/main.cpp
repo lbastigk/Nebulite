@@ -29,9 +29,11 @@
 // ----------------------------------------------------------------------
 // Includes
 
-// Include the Global Space class
-// Initializes callable functions from both user CLI and runtime environment.
-// Also sets up the global Renderer used across Tree-based function calls.
+// Standard library
+#include <exception>
+#include <string>
+
+// Nebulite
 #include "Constants/ErrorTypes.hpp"                 // For error handling
 #include "Core/GlobalSpace.hpp"                     // Global Workspace of Nebulite
 #include "DomainModule/GlobalSpace/GSDM_Debug.hpp"  // For turning error logging off/on
