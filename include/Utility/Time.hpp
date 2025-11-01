@@ -10,8 +10,11 @@
 // Includes
 
 // Standard library
-#include <string>
 #include <cstdint>
+#include <string>
+
+// Nebulite
+#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility {
@@ -38,7 +41,7 @@ public:
         YYYY_MM_DD_HH_MM_SS_TZ,
     };
 
-    struct IsoFmtInfo {
+    struct alignas(SIMD_ALIGNMENT) IsoFmtInfo {
         std::string_view fmt;   // strftime format or a token you use
         std::size_t maxLen;
     };
