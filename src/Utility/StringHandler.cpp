@@ -1,5 +1,8 @@
 #include "Utility/StringHandler.hpp"
 
+#include <algorithm>
+#include <unordered_map>
+
 #include "Utility/Capture.hpp"
 
 bool Nebulite::Utility::StringHandler::containsAnyOf(std::string const& str, std::string const& chars){

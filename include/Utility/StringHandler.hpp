@@ -10,16 +10,8 @@
 // Includes
 
 // Standard library
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <locale>
-#include <cstdint> // For fixed-width integer types
+#include <string>
 #include <vector>
-#include <locale.h>
-#include <codecvt>
-#include <algorithm>
-#include <unordered_map>
 
 //------------------------------------------
 namespace Nebulite::Utility {
