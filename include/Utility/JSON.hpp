@@ -555,16 +555,6 @@ namespace{
         }
     }
 
-    inline unsigned long stringToUnsignedLong(std::string const& stored, unsigned long defaultValue){
-        //if (stored == "true") return 1.0;
-        //if (stored == "false") return 0.0;
-        try {
-            return static_cast<unsigned long>(std::stoul(stored));
-        } catch (...){
-            return defaultValue;
-        }
-    }
-
     inline void convertVariantErrorMessage(std::string const& oldType, std::string const& newType){
         Nebulite::Utility::Capture::cerr() << "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
                   << oldType
