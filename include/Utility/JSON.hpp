@@ -305,7 +305,7 @@ public:
      * @enum KeyType
      * @brief Enum representing the type of a key in the JSON document.
      */
-    enum class KeyType{
+    enum class KeyType : uint8_t {
         null,
         document,
         value,

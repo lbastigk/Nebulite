@@ -44,8 +44,10 @@ private:
      * @brief Time in milliseconds after which unused documents are unloaded.
      * 
      * Documents that have not been accessed within this time frame will be removed from the cache to free up memory.
+     * 
+     * Unload documents after 5 minutes of inactivity
      */
-    static constexpr uint64_t unloadTime = 5U * Nebulite::Utility::Time::Conversion::millisecondsPerMinute; // Unload documents after 5 minutes of inactivity
+    static constexpr uint64_t unloadTime = 5U * Nebulite::Utility::Time::Conversion::millisecondsPerMinute;
 
     /**
      * @brief Contains the cached documents mapped by their file paths.
