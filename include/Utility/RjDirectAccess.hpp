@@ -13,6 +13,7 @@
 // Standard library
 #include <string>
 #include <variant>
+#include <sstream>
 
 // External
 #include <rapidjson/document.h>
@@ -26,8 +27,11 @@
 // Nebulite
 #include "Utility/StringHandler.hpp"
 
+//------------------------------------------
+// Forward declarations
+
 namespace Nebulite::Core {
-    class GlobalSpace; // Forward declaration
+    class GlobalSpace;
 }
 
 //------------------------------------------
