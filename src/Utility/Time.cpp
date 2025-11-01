@@ -4,7 +4,7 @@
 #include <array>
 #include <chrono>
 
-std::string Nebulite::Utility::Time::TimeIso8601(Time::ISO8601FORMATTER format, bool local){
+std::string Nebulite::Utility::Time::TimeIso8601(Time::ISO8601FORMATTER format, bool local) noexcept{
     char const* fmt = "%FT%TZ";
     std::time_t time = std::time(nullptr);
     std::tm tm_struct;
@@ -30,8 +30,12 @@ std::string Nebulite::Utility::Time::TimeIso8601(Time::ISO8601FORMATTER format, 
     return std::string(buffer.data());
 }
 
-uint64_t Nebulite::Utility::Time::gettime(){
-    return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+uint64_t Nebulite::Utility::Time::gettime() noexcept {
+    return static_cast<uint64_t>(
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count()
+    );
 }
 
 void Nebulite::Utility::Time::wait(int ms){

@@ -49,13 +49,13 @@ public:
      * 
      * @return The current time in ISO 8601 format.
      */
-    static std::string TimeIso8601(Time::ISO8601FORMATTER format, bool local);
+    static std::string TimeIso8601(Time::ISO8601FORMATTER format, bool local) noexcept ;
 
     /**
      * @brief Returns the current time since epoch in milliseconds.
      * @return The current time since epoch in milliseconds.
      */
-    static uint64_t gettime();
+    static uint64_t gettime() noexcept ;
 
     /**
      * @brief Waits for the specified amount of time in milliseconds.
