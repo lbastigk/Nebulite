@@ -104,8 +104,6 @@ class OrderedDoublePointers {
 public:
     OrderedDoublePointers() : orderedValues(){}
     explicit OrderedDoublePointers(size_t exact_size) : orderedValues(exact_size){}
-
-    static constexpr size_t max_inline_size = 32;
     DynamicFixedArray orderedValues;
 };
 
@@ -126,11 +124,17 @@ struct MappedOrderedDoublePointers{
      * @todo In order for this to work in production, we need a global functioncall that generates unique IDs for expressions.
      * E.g. if we know our engine relies a lot on expression A, but it might not be used first,
      * its best to then call this function early on to assign it a low unique ID.
+     * 
+     * Idea: DomainModule for performance: GSDM_Performance.hpp that has a function to register frequently used expressions:
+     * registerId <string>
+     * This function assigns a unique integer ID to the string expression, which can then be used to access the quick cache.
+     * This function should be called right at the start of the program for known expressions to ensure they get low IDs.
      */
     OrderedDoublePointers quickCache[ORDERED_DOUBLE_POINTERS_QUICKCACHE_SIZE];
 };
 } // namespace Nebulite::Utility
 
+// Vector alias for easier usage of ordered double pointer vectors
 using odpvec = Nebulite::Utility::DynamicFixedArray;
 
 #endif // NEBULITE_UTILITY_ORDEREDDOUBLEPOINTERS_HPP
