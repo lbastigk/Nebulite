@@ -574,7 +574,7 @@ odpvec* Nebulite::Interaction::Logic::Expression::ensureOtherOrderedCacheList(Ne
     std::lock_guard<std::mutex> cache_lock(cache->mtx);
     
     // Check if we can use quickcache, that does not rely on a hashmap lookup
-    if(uniqueId < ORDERED_DOUBLE_POINTERS_QUICKCACHE_SIZE){
+    if(uniqueId < Utility::MappedOrderedDoublePointers::quickCacheSize){
         if(cache->quickCache[uniqueId].orderedValues.empty()){
             // Not initialized yet, create one with exact size
             Nebulite::Utility::OrderedDoublePointers newCacheList(virtualDoubles.other.size());

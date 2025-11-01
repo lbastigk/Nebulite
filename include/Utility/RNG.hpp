@@ -11,31 +11,32 @@
 
 // Standard library
 #include <string>
-#include <cstdint>
 
 //------------------------------------------
 
 namespace Nebulite::Utility {
-
-template<typename rng_size_t>
+/**
+ * @class RNG
+ * @brief Simple RNG class using string seeds.
+ * 
+ * @tparam rngSize_t The type used for RNG values (e.g., uint32_t, uint64_t).
+ */
+template<typename rngSize_t>
 class RNG {
 public:
-    RNG() = default;
-    ~RNG() = default;
-
     /**
      * @brief Retrieves the current RNG value.
      */
-    rng_size_t get(){
+    rngSize_t get(){
         return current;
     }
 
     /**
      * @brief Retrieves the last RNG value.
      */
-    void update(std::string seed){
+    void update(std::string const& seed){
         last = current;
-        current = static_cast<rng_size_t>(rng_hasher(seed));
+        current = static_cast<rngSize_t>(rng_hasher(seed));
     }
 
     /**
@@ -51,8 +52,15 @@ private:
      */
     std::hash<std::string> rng_hasher;
 
-    rng_size_t current = 0;
-    rng_size_t last = 0;
+    /**
+     * @brief Current RNG value.
+     */
+    rngSize_t current = 0;
+
+    /**
+     * @brief Last RNG value.
+     */
+    rngSize_t last = 0;
 };
 
 } // namespace Nebulite::Utility

@@ -314,11 +314,11 @@ private:
      * @brief Contains RNG instances used in the global space.
      */
     struct RNGvars{
-        using rng_size_t = uint16_t;            // Modify this to change the size of the RNGs
-        Nebulite::Utility::RNG<rng_size_t> A;   // RNG with key random.A
-        Nebulite::Utility::RNG<rng_size_t> B;   // RNG with key random.B
-        Nebulite::Utility::RNG<rng_size_t> C;   // RNG with key random.C
-        Nebulite::Utility::RNG<rng_size_t> D;   // RNG with key random.D
+        using rngSize_t = uint16_t;            // Modify this to change the size of the RNGs
+        Nebulite::Utility::RNG<rngSize_t> A;   // RNG with key random.A
+        Nebulite::Utility::RNG<rngSize_t> B;   // RNG with key random.B
+        Nebulite::Utility::RNG<rngSize_t> C;   // RNG with key random.C
+        Nebulite::Utility::RNG<rngSize_t> D;   // RNG with key random.D
     } rng;
 
     //------------------------------------------

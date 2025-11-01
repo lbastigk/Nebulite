@@ -293,8 +293,8 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::preParse(){
 void Nebulite::Core::GlobalSpace::updateRNGs(){
     // Set Min and Max values for RNGs in document
     // Always set, so overwrites dont stick around
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.min.c_str(), std::numeric_limits<RNGvars::rng_size_t>::min());
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.max.c_str(), std::numeric_limits<RNGvars::rng_size_t>::max());
+    global.set<RNGvars::rngSize_t>(Nebulite::Constants::keyName.RNGs.min.c_str(), std::numeric_limits<RNGvars::rngSize_t>::min());
+    global.set<RNGvars::rngSize_t>(Nebulite::Constants::keyName.RNGs.max.c_str(), std::numeric_limits<RNGvars::rngSize_t>::max());
 
     // Generate seeds in a predictable manner
     // Since updateRNG is called at specific times only, we can simply increment RNG with a new seed
@@ -310,8 +310,8 @@ void Nebulite::Core::GlobalSpace::updateRNGs(){
     rng.D.update(seedD);
 
     // Set RNG values in global document
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.A.c_str(), rng.A.get());
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.B.c_str(), rng.B.get());
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.C.c_str(), rng.C.get());
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.D.c_str(), rng.D.get());
+    global.set<RNGvars::rngSize_t>(Nebulite::Constants::keyName.RNGs.A.c_str(), rng.A.get());
+    global.set<RNGvars::rngSize_t>(Nebulite::Constants::keyName.RNGs.B.c_str(), rng.B.get());
+    global.set<RNGvars::rngSize_t>(Nebulite::Constants::keyName.RNGs.C.c_str(), rng.C.get());
+    global.set<RNGvars::rngSize_t>(Nebulite::Constants::keyName.RNGs.D.c_str(), rng.D.get());
 }
