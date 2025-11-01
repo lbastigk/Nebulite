@@ -30,12 +30,17 @@ public:
      * This enum defines the different formats available for ISO 8601 date strings
      * and is to be used with the TimeIso8601 function.
      */
-    enum ISO8601FORMATTER {
-        YYYY = 4,
-        YYYY_MM = 7,
-        YYYY_MM_DD = 10,
-        YYYY_MM_DD_HH_MM_SS = 19,
-        YYYY_MM_DD_HH_MM_SS_TZ = 20, // Full ISO 8601 format with Timezone
+    enum class ISO8601Format : uint8_t {
+        YYYY,
+        YYYY_MM,
+        YYYY_MM_DD,
+        YYYY_MM_DD_HH_MM_SS,
+        YYYY_MM_DD_HH_MM_SS_TZ,
+    };
+
+    struct IsoFmtInfo {
+        std::string_view fmt;   // strftime format or a token you use
+        std::size_t maxLen;
     };
 
     /**
@@ -49,7 +54,7 @@ public:
      * 
      * @return The current time in ISO 8601 format.
      */
-    static std::string TimeIso8601(Time::ISO8601FORMATTER format, bool local) noexcept ;
+    static std::string TimeIso8601(Time::ISO8601Format format, bool local) noexcept ;
 
     /**
      * @brief Returns the current time since epoch in milliseconds.
@@ -60,17 +65,17 @@ public:
     /**
      * @brief Waits for the specified amount of time in milliseconds.
      */
-    static void wait(int ms);
+    static void wait(uint64_t milliseconds);
 
     /**
      * @brief Waits for the specified amount of time in microseconds.
      */
-    static void waitmicroseconds(uint64_t us);
+    static void waitmicroseconds(uint64_t microseconds);
 
     /**
      * @brief Waits for the specified amount of time in nanoseconds.
      */
-    static void waitnanoseconds(uint64_t ns);
+    static void waitnanoseconds(uint64_t nanoseconds);
 };
 }   // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_TIME_HPP
