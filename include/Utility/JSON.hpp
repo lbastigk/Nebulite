@@ -523,7 +523,7 @@ T Nebulite::Utility::JSON::jsonValueToCache(std::string const& key, rapidjson::V
 
 // Converter helper functions for convertVariant
 namespace{
-    inline bool stringToBool(std::string const& stored, bool defaultValue){
+    inline static bool stringToBool(std::string const& stored, bool defaultValue){
         // Handle numeric strings and "true"
         if(Nebulite::Utility::StringHandler::isNumber(stored)){
             try {
@@ -535,7 +535,7 @@ namespace{
         return stored == "true";
     }
 
-    inline int stringToInt(std::string const& stored, int defaultValue){
+    inline static int stringToInt(std::string const& stored, int defaultValue){
         //if (stored == "true") return 1;
         //if (stored == "false") return 0;
         try {
@@ -545,17 +545,17 @@ namespace{
         }
     }
 
-    inline double stringToDouble(std::string const& stored, double defaultValue){
+    inline static double stringToDouble(std::string const& stored, double defaultValue){
         //if (stored == "true") return 1.0;
         //if (stored == "false") return 0.0;
         try {
-            return static_cast<double>(std::stod(stored));
+            return std::stod(stored);
         } catch (...){
             return defaultValue;
         }
     }
 
-    inline void convertVariantErrorMessage(std::string const& oldType, std::string const& newType){
+    inline static void convertVariantErrorMessage(std::string const& oldType, std::string const& newType){
         Nebulite::Utility::Capture::cerr() << "[ERROR] Nebulite::Utility::JSON::convert_variant - Unsupported conversion from " 
                   << oldType
                   << " to " << newType << ".\n"
@@ -563,14 +563,13 @@ namespace{
                   << "Fallback conversion from String to any Integral type was disabled due to potential lossy data conversion.\n"
                   << "Rather, it is recommended to add one explicit conversion path per datatype.\n"
                   << "Returning default value." << Nebulite::Utility::Capture::endl;
-        // Exit program
-        std::exit(EXIT_FAILURE);
+        // Exiting the program would be nice, but since this is likely run in a threaded environment, we just display the error.
     }
-}
+} // anonymous namespace
 
 template<typename newType>
 newType Nebulite::Utility::JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue){
-    return std::visit([&](auto const& stored) -> newType 
+    return std::visit([&](auto const& stored)
     {
         // Removing all qualifiers (const, volatile, references, etc.)
         using StoredT = std::decay_t<decltype(stored)>;
