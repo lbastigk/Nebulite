@@ -21,6 +21,10 @@ for file in {src/*,include/*}; do
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-modernize-use-nodiscard"             # Suppress warnings about missing [[nodiscard]] attributes
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-fuchsia-default-arguments-declarations"          # Suppress warnings about default arguments in function declarations
 
+    # To enable later on
+    # 1.) c-arrays are still being used for FuncTree class. Later on we may refactor the entire program to use c++ containers instead of c-arrays.
+    EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-cppcoreguidelines-avoid-c-arrays,-hicpp-avoid-c-arrays,-modernize-avoid-c-arrays"
+
     # Run clang-tidy with the specified checks and header filter
     clang-tidy "$file" \
         -p tmp/build_linux-debug \
