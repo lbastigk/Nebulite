@@ -27,6 +27,13 @@ namespace Nebulite::Utility {
  */
 class Time {
 public:
+    struct Conversion{
+        static constexpr uint64_t MS_IN_SECOND = 1000U;
+        static constexpr uint64_t MS_IN_MINUTE = 60U * MS_IN_SECOND;
+        static constexpr uint64_t MS_IN_HOUR   = 60U * MS_IN_MINUTE;
+        static constexpr uint64_t MS_IN_DAY    = 24U * MS_IN_HOUR;
+    };
+
     /**
      * @brief Enum for ISO 8601 date formats.
      * 

@@ -44,7 +44,7 @@ struct ReadOnlyDocs{
          * 
          * Documents that have not been accessed within this time frame will be removed from the cache to free up memory.
          */
-        const uint64_t unloadTime = 5 * 60 * 1000; // Unload documents after 5 minutes of inactivity
+        const uint64_t unloadTime = 5 * Nebulite::Utility::Time::Conversion::MS_IN_MINUTE; // Unload documents after 5 minutes of inactivity
 
         /**
          * @brief Contains the cached documents mapped by their file paths.
