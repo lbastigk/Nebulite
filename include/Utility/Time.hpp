@@ -28,10 +28,10 @@ namespace Nebulite::Utility {
 class Time {
 public:
     struct Conversion{
-        static constexpr uint64_t MS_IN_SECOND = 1000U;
-        static constexpr uint64_t MS_IN_MINUTE = 60U * MS_IN_SECOND;
-        static constexpr uint64_t MS_IN_HOUR   = 60U * MS_IN_MINUTE;
-        static constexpr uint64_t MS_IN_DAY    = 24U * MS_IN_HOUR;
+        static constexpr uint64_t millisecondsPerSecond = 1000U;
+        static constexpr uint64_t millisecondsPerMinute = 60U * millisecondsPerSecond;
+        static constexpr uint64_t millisecondsPerHour   = 60U * millisecondsPerMinute;
+        static constexpr uint64_t millisecondsPerDay    = 24U * millisecondsPerHour;
     };
 
     /**
