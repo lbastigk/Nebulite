@@ -27,9 +27,6 @@ Nebulite::Utility::JSON::~JSON(){
     }
 
     // 2.) Delete cache and its pointers
-    for(auto& [key, entry] : cache){
-        delete entry->stable_double_ptr;
-    }
     cache.clear();
 }
 
