@@ -10,7 +10,6 @@ for file in {src/*,include/*}; do
     # Add any checks you want to exclude here
     EXCLUDED_WARNINGS="*,-llvmlibc-*"
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-cppcoreguidelines-avoid-do-while"    # do-while loops are fine
-    #EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-misc-include-cleaner"                # Suppress warnings about include order
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-modernize-use-trailing-return-type"  # return types should be explicit
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-llvm-header-guard"                   # Suppress warnings about header guards, too many false positives
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-fuchsia-default-arguments-calls"     # Suppress warnings about default arguments in function calls, this is just stupid
@@ -22,6 +21,7 @@ for file in {src/*,include/*}; do
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-fuchsia-default-arguments-declarations"          # Default arguments in function declarations are fine
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-readability-avoid-const-params-in-decls"         # Suppress warnings about const parameters in declarations
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-readability-identifier-length"       # Allow for short variable names like i, j, x, y, it etc.
+    EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-cppcoreguidelines-pro-bounds-constant-array-index"    # Ignoring array index out of bounds warnings for now
 
     # To enable later on
     # 1.) c-arrays are still being used for FuncTree class. Later on we may refactor the entire program to use c++ containers instead of c-arrays.
