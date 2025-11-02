@@ -36,7 +36,7 @@ public:
      * @struct OutputLine
      * @brief Represents a line of captured output, either to cout or cerr.
      */
-    struct alignas(CACHE_LINE_SIZE) OutputLine{
+    struct alignas(CACHE_LINE_ALIGNMENT) OutputLine{
         std::string content;
         enum class Type : uint8_t {
             COUT,
@@ -48,7 +48,7 @@ public:
      * @class CaptureStream
      * @brief Stream class for capturing output and redirecting it to an ostream and internal log.
      */
-    struct alignas(CACHE_LINE_SIZE) CaptureStream{
+    struct alignas(CACHE_LINE_ALIGNMENT) CaptureStream{
         std::string lastLine;
         Capture *parent;                                    // Parent reference so we can lock its mutex, so cout/cerr don't interfere
         std::reference_wrapper<std::ostream> baseStream;    // ostream outlives CaptureStream, so reference is safe

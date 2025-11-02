@@ -26,7 +26,7 @@ namespace Nebulite::Utility {
  * @struct ReadOnlyDoc
  * @brief Represents a read-only document with its associated metadata.
  */
-struct alignas(2 * CACHE_LINE_SIZE) ReadOnlyDoc {
+struct alignas(DUAL_CACHE_LINE_ALIGNMENT) ReadOnlyDoc {
     Nebulite::Utility::JSON document; // The actual JSON document
     Nebulite::Utility::TimeKeeper lastUsed;
 
@@ -38,7 +38,7 @@ struct alignas(2 * CACHE_LINE_SIZE) ReadOnlyDoc {
  * 
  * Takes care of loading and unloading documents as needed.
  */
-struct alignas(CACHE_LINE_SIZE) ReadOnlyDocs{
+struct alignas(CACHE_LINE_ALIGNMENT) ReadOnlyDocs{
 private:
     /**
      * @brief Time in milliseconds after which unused documents are unloaded.

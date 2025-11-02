@@ -50,7 +50,7 @@ namespace Nebulite::Interaction {
  * 
  * The struct also contains a pointer to the RenderObject that owns this entry (the broadcaster).
  */
-struct alignas(2 * CACHE_LINE_SIZE) Ruleset{
+struct alignas(DUAL_CACHE_LINE_ALIGNMENT) Ruleset{
     /**
      * @struct Nebulite::Interaction::Ruleset
      * @brief The topic of the invoke entry, used for routing and filtering in the broadcast-listen-model of the Invoke class.

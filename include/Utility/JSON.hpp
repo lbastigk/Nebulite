@@ -69,7 +69,7 @@ private:
      * @struct CacheEntry
      * @brief Represents a cached entry in the JSON document, including its value, state, and stable pointer for double values.
      */
-    struct alignas(CACHE_LINE_SIZE) CacheEntry {
+    struct alignas(CACHE_LINE_ALIGNMENT) CacheEntry {
         CacheEntry() = default;
         ~CacheEntry() {
             delete stable_double_ptr;
@@ -151,7 +151,7 @@ private:
      * 
      * Currently, only reference "other" is used, but later on references like "parent" or "child" could be added.
      */
-	struct alignas(2 * CACHE_LINE_SIZE) ExpressionRef {
+	struct alignas(DUAL_CACHE_LINE_ALIGNMENT) ExpressionRef {
 		Nebulite::Utility::MappedOrderedDoublePointers as_other;
 	} expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
 

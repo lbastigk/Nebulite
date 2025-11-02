@@ -26,15 +26,25 @@
 //------------------------------------------
 // Define alignment constants
 
+
+
+// CACHE LINE alignment
 #ifdef __cpp_lib_hardware_interference_size
-    inline constexpr std::size_t CACHE_LINE_SIZE = std::hardware_destructive_interference_size;
+    inline constexpr std::size_t CACHE_LINE_ALIGNMENT = std::hardware_destructive_interference_size;
 #else
-    inline constexpr std::size_t CACHE_LINE_SIZE = 64U; // common on x86_64
+    inline constexpr std::size_t CACHE_LINE_ALIGNMENT = 64U; // common on x86_64
 #endif
 
-inline constexpr std::size_t SIMD_ALIGNMENT = 32U; // AVX/AVX2 (use 16 for SSE)
+// DUAL CACHE LINE alignment
+inline constexpr std::size_t DUAL_CACHE_LINE_ALIGNMENT = 2 * CACHE_LINE_ALIGNMENT;
 
-static_assert((CACHE_LINE_SIZE & (CACHE_LINE_SIZE - 1)) == 0, "CACHE_LINE_SIZE must be power of two");
+// SIMD alignment (AVX/AVX2)
+inline constexpr std::size_t SIMD_ALIGNMENT = 32U;
+
+// SSE alignment
+inline constexpr std::size_t SSE_ALIGNMENT = 16U;
+
+static_assert((CACHE_LINE_ALIGNMENT & (CACHE_LINE_ALIGNMENT - 1)) == 0, "CACHE_LINE_ALIGNMENT must be power of two");
 
 //------------------------------------------
 // Namespace documentation
