@@ -30,10 +30,10 @@ Nebulite::Constants::Error Console::update(){
         // Insert into text input
         Nebulite::Utility::TextInput::LineEntry::LineType type;
         switch (input.type){
-        case Nebulite::Utility::Capture::OutputLine::COUT:
+        case Nebulite::Utility::Capture::OutputLine::Type::COUT:
             type = Nebulite::Utility::TextInput::LineEntry::LineType::COUT;
             break;
-        case Nebulite::Utility::Capture::OutputLine::CERR:
+        case Nebulite::Utility::Capture::OutputLine::Type::CERR:
             type = Nebulite::Utility::TextInput::LineEntry::LineType::CERR;
             break;
         }
