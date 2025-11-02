@@ -32,7 +32,7 @@ public:
     /**
      * @brief Default constructor for DocumentCache.
      */
-    explicit DocumentCache(Nebulite::Core::GlobalSpace* globalSpace) : readOnlyDocs(globalSpace), global(globalSpace), zero(0) {
+    explicit DocumentCache(Nebulite::Core::GlobalSpace* globalSpace) : readOnlyDocs(globalSpace), global(globalSpace) {
         if (globalSpace == nullptr){
             throw std::invalid_argument("DocumentCache: GlobalSpace pointer cannot be null");
         }
@@ -101,7 +101,7 @@ public:
      * or if the document itself is not found!
      */
     double* getStableDoublePointer(std::string const& doc_key);
-
+    
     /**
      * @brief Checks the type of a key in the JSON document.
      * 
