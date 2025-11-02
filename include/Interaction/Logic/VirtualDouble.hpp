@@ -14,9 +14,8 @@
 // Includes
 
 // Nebulite
-#include "Constants/KeyNames.hpp"
-#include "Utility/JSON.hpp"
 #include "Utility/DocumentCache.hpp"
+#include "Utility/JSON.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -53,6 +52,15 @@ private:
      * Initially points to the internal cache for non-remanent documents.
      */
     double* reference = &copied_value;
+
+    /**
+     * @brief Key prefixes for different contexts.
+     */
+    struct ContextPrefix {
+        static constexpr std::string_view self   = "self.";
+        static constexpr std::string_view other  = "other.";
+        static constexpr std::string_view global = "global.";
+    };
     
 public:
     /**
@@ -64,12 +72,12 @@ public:
      * @param k The key associated with this VirtualDouble.
      * @param documentCache The DocumentCache to use for retrieving values.
      */
-    VirtualDouble(std::string const& k, Nebulite::Utility::DocumentCache* documentCache) 
-        : documentCache(documentCache), key(k){
-            // Removing self/other/global prefixes in the key
-            if (key.starts_with("self."))         key = key.substr(5);
-            else if (key.starts_with("other."))   key = key.substr(6);
-            else if (key.starts_with("global."))  key = key.substr(7);
+    VirtualDouble(std::string k, Nebulite::Utility::DocumentCache* documentCache) noexcept
+    : documentCache(documentCache), key(std::move(k))
+    {
+        if      (key.starts_with(ContextPrefix::self))   { key.erase(0, ContextPrefix::self.size());   }
+        else if (key.starts_with(ContextPrefix::other))  { key.erase(0, ContextPrefix::other.size());  }
+        else if (key.starts_with(ContextPrefix::global)) { key.erase(0, ContextPrefix::global.size()); }
     }
 
     /**
@@ -77,7 +85,7 @@ public:
      * 
      * @return The key as a string.
      */
-    std::string const& getKey() const {
+    std::string const& getKey() const noexcept {
         return key;
     }
 
@@ -104,6 +112,21 @@ public:
     }
 
     /**
+     * @brief Register the external cache for this VirtualDouble.
+     * 
+     * This function links the VirtualDouble to an external double pointer of a JSON document, instead of using its internal cache.
+     * allowing it to access and modify the value directly.
+     */
+    void setUpExternalCache(Nebulite::Utility::JSON* json){
+        if (json != nullptr){
+            reference = json->getStableDoublePointer(key);
+        }
+        else if (documentCache != nullptr){
+            reference = documentCache->getStableDoublePointer(key);
+        }
+    }
+
+    /**
      * @brief Set the value of the VirtualDouble directly.
      * 
      * This function updates the internal cache value directly.
@@ -113,7 +136,7 @@ public:
      * 
      * @param val The new double value to set.
      */
-    inline void setDirect(double val) noexcept {
+    void setDirect(double val) noexcept {
         copied_value = val;
     }
 
@@ -128,23 +151,8 @@ public:
      * 
      * @return A pointer to the double value.
      */
-    double* ptr(){
+    double* ptr() const noexcept {
         return reference;
-    }
-
-    /**
-     * @brief Register the external cache for this VirtualDouble.
-     * 
-     * This function links the VirtualDouble to an external double pointer of a JSON document, instead of using its internal cache.
-     * allowing it to access and modify the value directly.
-     */
-    void setUpExternalCache(Nebulite::Utility::JSON* json){
-        if (json != nullptr){
-            reference = json->getStableDoublePointer(key);
-        }
-        else if (documentCache != nullptr){
-            reference = documentCache->getStableDoublePointer(key);
-        }
     }
 };
 }   // namespace Nebulite::Interaction::Logic
