@@ -1,10 +1,8 @@
-#include "Core/RenderObject.hpp"
-
 #include "Core/GlobalSpace.hpp"
+#include "Core/RenderObject.hpp"
 #include "DomainModule/Initializer.hpp"
-#include "Interaction/RulesetCompiler.hpp"
-
 #include "DomainModule/JSON/JSDM_SimpleData.hpp"
+#include "Interaction/RulesetCompiler.hpp"
 
 //------------------------------------------
 // Special member Functions
