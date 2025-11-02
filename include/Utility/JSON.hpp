@@ -26,14 +26,22 @@
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Interaction/Execution/Domain.hpp"
-#include "Utility/RjDirectAccess.hpp"
 #include "Utility/OrderedDoublePointers.hpp"
+#include "Utility/RjDirectAccess.hpp"
 
-
-#define JSON_UID_QUICKCACHE_SIZE 30 // First 30 keys get a quickcache entry for double pointers!
-
+//------------------------------------------
 namespace Nebulite::Utility {
 NEBULITE_DOMAIN(JSON){
+public:
+    //------------------------------------------
+    // Unique id Cache size
+    // Declared above as public for easy access
+    // and so that inner data structures can use it as well.
+
+    /**
+     * @brief Size of the unique ID quick cache for double pointers.
+     */
+    static constexpr size_t uidQuickCacheSize = 30;
 private:
     /**
      * @enum EntryState
@@ -50,7 +58,7 @@ private:
      * A value becomes DIRTY if it was previously CLEAN and we notice a change in its double value.
      * On flushing, all DIRTY entries become CLEAN again. VIRTUAL entries remain VIRTUAL as they are not flushed.
      */
-    enum class EntryState {
+    enum class EntryState : uint8_t {
         CLEAN,   // Synchronized with RapidJSON document, real value
         DIRTY,   // Modified in cache, needs flushing to RapidJSON, real value  
         VIRTUAL, // Deleted entry that was re-synced, but may not be the real value due to casting
@@ -61,7 +69,12 @@ private:
      * @struct CacheEntry
      * @brief Represents a cached entry in the JSON document, including its value, state, and stable pointer for double values.
      */
-    struct CacheEntry {
+    struct alignas(CACHE_LINE_SIZE) CacheEntry {
+        CacheEntry() = default;
+        ~CacheEntry() {
+            delete stable_double_ptr;
+        }
+
         // No copying or moving
         CacheEntry(CacheEntry const&) = delete;
         CacheEntry& operator=(CacheEntry const&) = delete;
@@ -72,9 +85,7 @@ private:
         double last_double_value = 0.0;                 // For change detection
         double* stable_double_ptr = new double(0.0);    // Never deleted.
 
-        EntryState state = EntryState::DIRTY;       // Default to dirty
-        
-        CacheEntry(){}
+        EntryState state = EntryState::DIRTY;           // Default to dirty: each new entry needs flushing
     };
 
     /**
@@ -140,19 +151,19 @@ private:
      * 
      * Currently, only reference "other" is used, but later on references like "parent" or "child" could be added.
      */
-	struct ExpressionRef {
+	struct alignas(2 * CACHE_LINE_SIZE) ExpressionRef {
 		Nebulite::Utility::MappedOrderedDoublePointers as_other;
 	} expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
 
     /**
      * @brief Super quick double cache based on unique IDs, no hash lookup.
      */
-    double* uidDoubleCache[JSON_UID_QUICKCACHE_SIZE] = {nullptr};
+    double* uidDoubleCache[Nebulite::Utility::JSON::uidQuickCacheSize] = {nullptr};
 
 public:
     explicit JSON(Nebulite::Core::GlobalSpace* globalSpace);
 
-    virtual ~JSON();
+    ~JSON() override ;
 
     //------------------------------------------
     // Overload of assign operators
@@ -288,7 +299,7 @@ public:
     /**
      * @brief Gets a pointer to a to a double value pointer in the JSON document based on a unique ID.
      * 
-     * @param uid The unique ID of the key, must be smaller than JSON_UID_QUICKCACHE_SIZE !
+     * @param uid The unique ID of the key, must be smaller than Nebulite::Utility::JSON::uidQuickCacheSize !
      */
     double* get_uid_double_ptr(uint64_t uid, std::string const& key){
         if(uidDoubleCache[uid] == nullptr){

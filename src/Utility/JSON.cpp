@@ -22,7 +22,7 @@ Nebulite::Utility::JSON::~JSON(){
     // We assume that noone will use them after JSON is destroyed
 
     // 1.) UID quickcache
-    for(size_t idx = 0; idx < JSON_UID_QUICKCACHE_SIZE; idx++){
+    for(size_t idx = 0; idx < Nebulite::Utility::JSON::uidQuickCacheSize; idx++){
         uidDoubleCache[idx] = nullptr;
     }
 
@@ -46,7 +46,7 @@ Nebulite::Utility::JSON& Nebulite::Utility::JSON::operator=(JSON&& other) noexce
         std::scoped_lock lockGuard(mtx, other.mtx);
         doc = std::move(other.doc);
         cache = std::move(other.cache);
-        for(size_t idx = 0; idx < JSON_UID_QUICKCACHE_SIZE; idx++){
+        for(size_t idx = 0; idx < Nebulite::Utility::JSON::uidQuickCacheSize; idx++){
             uidDoubleCache[idx] = other.uidDoubleCache[idx];
             other.uidDoubleCache[idx] = nullptr;
         }
