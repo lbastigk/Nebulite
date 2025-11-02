@@ -32,7 +32,7 @@ public:
     /**
      * @brief Default constructor for DocumentCache.
      */
-    explicit DocumentCache(Nebulite::Core::GlobalSpace* globalSpace) : global(globalSpace), readOnlyDocs(globalSpace){
+    explicit DocumentCache(Nebulite::Core::GlobalSpace* globalSpace) : readOnlyDocs(globalSpace), global(globalSpace), zero(0) {
         if (globalSpace == nullptr){
             throw std::invalid_argument("DocumentCache: GlobalSpace pointer cannot be null");
         }
@@ -122,7 +122,7 @@ public:
         }
 
         // Retrieve the key type from the document
-        Nebulite::Utility::JSON::KeyType type = docPtr->document.memberCheck(key);
+        Nebulite::Utility::JSON::KeyType const type = docPtr->document.memberCheck(key);
 
         // Update the cache (unload old documents)
         update();
@@ -154,7 +154,7 @@ public:
         }
 
         // Retrieve the key size from the document
-        size_t size = docPtr->document.memberSize(key);
+        size_t const size = docPtr->document.memberSize(key);
 
         // Update the cache (unload old documents)
         update();
@@ -214,26 +214,38 @@ public:
 
 private:
     /**
-     * @brief Link to the global space.
-     */
-    Nebulite::Core::GlobalSpace* global;
-
-    /**
      * @brief Read-only document cache.
      */
     Nebulite::Utility::ReadOnlyDocs readOnlyDocs;
 
     /**
+     * @brief Link to the global space.
+     */
+    Nebulite::Core::GlobalSpace* global;
+
+    // Default value for double pointers, if the document or key is not found
+    /**
+     * @brief Default zero value for stable double pointers.
+     * 
+     * @todo Currently used as a fallback for missing documents/keys and set to 0 on each access.
+     * Consider optimizing this by implementing a more sophisticated handling mechanism.
+     * Perhaps storing a unique double pointer for each missing key instead and keeping track of them and their keys.
+     * This would usually not be needed, as zero is only assigned for missing documents? 
+     * But at least one pointer per key would be better than resetting this one each time.
+     */
+    double zero = 0.0;
+
+    /**
      * @brief Splits a doc:key string into its components
      */
-    std::pair<std::string, std::string> splitDocKey(std::string const& doc_key){
-        size_t pos = doc_key.find(':');
+    static std::pair<std::string, std::string> splitDocKey(std::string const& doc_key){
+        size_t const pos = doc_key.find(':');
         if (pos == std::string::npos){
             // No colon found, meaning the entire string is document name/link
             return {doc_key, ""};
         }
-        std::string doc = doc_key.substr(0, pos);
-        std::string key = doc_key.substr(pos + 1);
+        std::string const doc = doc_key.substr(0, pos);
+        std::string const key = doc_key.substr(pos + 1);
         return {doc, key};
     }
 
@@ -241,9 +253,6 @@ private:
      * @brief Updates the cache by checking a random document for its last usage time.
      */
     void update();
-
-    // Default value for double pointers, if the document or key is not found
-    double zero = 0.0;
 };
 } // namespace Nebulite::Utility 
 
