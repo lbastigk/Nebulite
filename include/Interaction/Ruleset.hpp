@@ -16,9 +16,10 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
-    class RenderObject; // Forward declaration of RenderObject
-}
+    class RenderObject;
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::Interaction {
@@ -49,7 +50,7 @@ namespace Nebulite::Interaction {
  * 
  * The struct also contains a pointer to the RenderObject that owns this entry (the broadcaster).
  */
-struct Ruleset{
+struct alignas(2 * CACHE_LINE_SIZE) Ruleset{
     /**
      * @struct Nebulite::Interaction::Ruleset
      * @brief The topic of the invoke entry, used for routing and filtering in the broadcast-listen-model of the Invoke class.
@@ -141,9 +142,13 @@ struct Ruleset{
         }
     }
 
+    //------------------------------------------
     // Make Entry non-copyable and non-movable
     // All entries should be local to their RenderObject
+
     Ruleset() = default;
+    ~Ruleset() = default;
+
     Ruleset(Ruleset const&) = delete;
     Ruleset& operator=(Ruleset const&) = delete;
     Ruleset(Ruleset&&) = delete;
