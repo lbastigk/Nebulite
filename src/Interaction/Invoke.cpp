@@ -266,7 +266,7 @@ void Nebulite::Interaction::Invoke::applyAssignment(Nebulite::Interaction::Logic
             }
 
             // Try to use unique id for quick access
-            if(assignment.targetKeyUniqueId < JSON_UID_QUICKCACHE_SIZE){
+            if(assignment.targetKeyUniqueId < Nebulite::Utility::JSON::uidQuickCacheSize){
                 target = targetDocument->get_uid_double_ptr(assignment.targetKeyUniqueId, assignment.key);
             }
             // Fallback to normal method via key to double pointer
