@@ -484,7 +484,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
         absl::flat_hash_map<std::string, Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::category>* currentCategoryMap = &categories;
         FuncTree<RETURN_TYPE>* targetTree = this;
         for(size_t idx = 0; idx < pathStructure.size() - 1; idx++){
-            const std::string& currentCategoryName = pathStructure[idx];
+            std::string const& currentCategoryName = pathStructure[idx];
             if(currentCategoryMap->find(currentCategoryName) == currentCategoryMap->end()){
                 bindErrorMessage::MissingCategory(TreeName, currentCategoryName, name);
             }
