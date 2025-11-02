@@ -475,7 +475,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
     std::string const* helpDescription)
 {
     // If the name has a whitespace, the function has to be bound to a category hierarchically
-    if(name.find(' ') != name.npos){
+    if(name.find(' ') != std::string::npos){
         std::vector<std::string> pathStructure = Nebulite::Utility::StringHandler::split(name, ' ');
         if(pathStructure.size() < 2){
             Nebulite::Utility::Capture::cerr() << "Error: Invalid function name '" << name << "'." << Nebulite::Utility::Capture::endl;
@@ -484,7 +484,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
         absl::flat_hash_map<std::string, Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::category>* currentCategoryMap = &categories;
         FuncTree<RETURN_TYPE>* targetTree = this;
         for(size_t idx = 0; idx < pathStructure.size() - 1; idx++){
-            std::string currentCategoryName = pathStructure[idx];
+            const std::string& currentCategoryName = pathStructure[idx];
             if(currentCategoryMap->find(currentCategoryName) == currentCategoryMap->end()){
                 bindErrorMessage::MissingCategory(TreeName, currentCategoryName, name);
             }
