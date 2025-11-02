@@ -18,9 +18,8 @@
 #include <thread>
 
 // Nebulite
-#include "Interaction/Logic/Expression.hpp"
 #include "Constants/ThreadSettings.hpp"       // Poolsize is defined here
-#include "Utility/Capture.hpp"
+#include "Interaction/Logic/Expression.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -59,10 +58,9 @@ namespace Nebulite::Interaction::Logic {
  */
 class ExpressionPool {
 public:
-    ExpressionPool(){
-        _isReturnableAsDouble = false; 
-        _isAlwaysTrue = false; 
-    }
+    ExpressionPool() = default;
+
+    ~ExpressionPool() = default;
 
     // Disable copy constructor and assignment
     ExpressionPool(ExpressionPool const&) = delete;
@@ -70,8 +68,7 @@ public:
 
     // Enable move constructor and assignment
     ExpressionPool(ExpressionPool&& other) noexcept
-        : pool(std::move(other.pool))
-        , fullExpression(std::move(other.fullExpression))
+    : pool(std::move(other.pool)), fullExpression(std::move(other.fullExpression))
     {
         // locks array cannot be moved, so we just reinitialize it
         // This is safe since mutexes should only be moved when not in use
@@ -128,13 +125,13 @@ public:
      */
     std::string eval(Nebulite::Utility::JSON* current_other){
         // Each thread gets a unique starting position based on thread ID
-        static thread_local size_t thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
+        static thread_local size_t const thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
         static thread_local size_t counter = 0;
         
         // Rotate through pool entries starting from thread's unique offset
-        size_t idx = (thread_offset + counter++) % INVOKE_EXPR_POOL_SIZE;
+        size_t const idx = (thread_offset + counter++) % INVOKE_EXPR_POOL_SIZE;
         
-        std::scoped_lock<std::mutex> guard(locks[idx]);
+        std::scoped_lock<std::mutex> const guard(locks[idx]);
         return pool[idx].eval(current_other);
     }
 
@@ -148,13 +145,13 @@ public:
      */
     double evalAsDouble(Nebulite::Utility::JSON* current_other){
         // Each thread gets a unique starting position based on thread ID
-        static thread_local size_t thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
+        static thread_local size_t const thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
         static thread_local size_t counter = 0;
-        
-        // Rotate through pool entries starting from thread's unique offset
-        size_t idx = (thread_offset + counter++) % INVOKE_EXPR_POOL_SIZE;
 
-        std::scoped_lock<std::mutex> guard(locks[idx]);
+        // Rotate through pool entries starting from thread's unique offset
+        size_t const idx = (thread_offset + counter++) % INVOKE_EXPR_POOL_SIZE;
+
+        std::scoped_lock<std::mutex> const guard(locks[idx]);
         return pool[idx].evalAsDouble(current_other);
     }
 
@@ -208,10 +205,10 @@ private:
     std::string fullExpression;
 
     // Storing info about the expression's returnability
-    bool _isReturnableAsDouble;
+    bool _isReturnableAsDouble = false;
 
     // If the expression is just "1", meaning always true
-    bool _isAlwaysTrue;
+    bool _isAlwaysTrue = false;
 };
 } // namespace Nebulite::Interaction::Logic
 #endif // NEBULITE_INTERACTION_LOGIC_EXPRESSIONPOOL_HPP
