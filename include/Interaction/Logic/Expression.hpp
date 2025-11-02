@@ -11,10 +11,10 @@
 // Includes
 
 // Standard library
-#include <string>
-#include <memory>
 #include <cfloat>
 #include <cmath>
+#include <memory>
+#include <string>
 
 // External
 #include <tinyexpr.h>
@@ -44,9 +44,11 @@ public:
 
     ~Expression();
 
-    /**
-     * @todo: Copy/move constructors and assignment operators
-     */
+    // Standard constructors/assignments
+    Expression(Expression const&) = default;
+    Expression(Expression&&) = default;
+    Expression& operator=(Expression const&) = default;
+    Expression& operator=(Expression&&) = default;
 
     /**
      * @brief Standard maximum recursion depth for nested expression evaluations.
