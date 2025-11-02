@@ -1,7 +1,8 @@
 #include "Core/Renderer.hpp"
 
 #include "Core/GlobalSpace.hpp"
-#include "DomainModule/RRDM.hpp"
+#include "DomainModule/Initializer.hpp"
+
 #include <cstdint>
 #include <sys/types.h>
 
@@ -103,7 +104,7 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 
 	//------------------------------------------
 	// Domain Modules
-	Nebulite::DomainModule::RRDM_init(this);
+	Nebulite::DomainModule::Initializer::initRenderer(this);
 }
 
 Nebulite::Constants::Error Nebulite::Core::Renderer::preParse(){

@@ -4,14 +4,14 @@
 
 #include "Core/GlobalSpace.hpp"
 #include "Constants/ErrorTypes.hpp"
-#include "DomainModule/JSDM.hpp"
+#include "DomainModule/Initializer.hpp"
 
 Nebulite::Utility::JSON::JSON(Nebulite::Core::GlobalSpace* globalSpace)
 : Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, globalSpace)
 {
     std::scoped_lock<std::recursive_mutex> const lockGuard(mtx);
     doc.SetObject();
-    Nebulite::DomainModule::JSDM_init(this);
+    Nebulite::DomainModule::Initializer::initJSON(this);
 }
 
 Nebulite::Utility::JSON::~JSON(){

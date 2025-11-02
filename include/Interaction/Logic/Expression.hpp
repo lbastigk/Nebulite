@@ -318,34 +318,34 @@ private:
         }
 
         static double logical_and(double a, double b){
-            bool aLogical = (std::fabs(a) > DBL_EPSILON);
-            bool bLogical = (std::fabs(b) > DBL_EPSILON);
+            bool const aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool const bLogical = (std::fabs(b) > DBL_EPSILON);
             return static_cast<double>(aLogical && bLogical);
         }
         static double logical_or(double a, double b){
-            bool aLogical = (std::fabs(a) > DBL_EPSILON);
-            bool bLogical = (std::fabs(b) > DBL_EPSILON);
+            bool const aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool const bLogical = (std::fabs(b) > DBL_EPSILON);
             return static_cast<double>(aLogical || bLogical);
         }
         static double logical_xor(double a, double b){
-            bool aLogical = (std::fabs(a) > DBL_EPSILON);
-            bool bLogical = (std::fabs(b) > DBL_EPSILON);
+            bool const aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool const bLogical = (std::fabs(b) > DBL_EPSILON);
             return static_cast<double>(aLogical != bLogical);
         }
 
         static double logical_nand(double a, double b){
-            bool aLogical = (std::fabs(a) > DBL_EPSILON);
-            bool bLogical = (std::fabs(b) > DBL_EPSILON);
+            bool const aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool const bLogical = (std::fabs(b) > DBL_EPSILON);
             return !(aLogical && bLogical);
         }
         static double logical_nor(double a, double b){
-            bool aLogical = (std::fabs(a) > DBL_EPSILON);
-            bool bLogical = (std::fabs(b) > DBL_EPSILON);
+            bool const aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool const bLogical = (std::fabs(b) > DBL_EPSILON);
             return static_cast<double>(!(aLogical || bLogical));
         }
         static double logical_xnor(double a, double b){
-            bool aLogical = (std::fabs(a) > DBL_EPSILON);
-            bool bLogical = (std::fabs(b) > DBL_EPSILON);
+            bool const aLogical = (std::fabs(a) > DBL_EPSILON);
+            bool const bLogical = (std::fabs(b) > DBL_EPSILON);
             return static_cast<double>(!( (aLogical || bLogical) && !(aLogical && bLogical) ));
         }
 
@@ -356,14 +356,14 @@ private:
 
         // Mapping functions
         static double map(double value, double in_min, double in_max, double out_min, double out_max){
-            if(std::fabs(in_max - in_min) < DBL_EPSILON) return out_min; // Prevent division by zero
-            if(value < in_min) return out_min;
-            if(value > in_max) return out_max;
-            return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+            if(std::fabs(in_max - in_min) < DBL_EPSILON) { return out_min; } // Prevent division by zero
+            if(value < in_min) { return out_min; }
+            if(value > in_max) { return out_max; }
+            return ((value - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
         }
         static double constrain(double value, double min, double max){
-            if(value < min) return min;
-            if(value > max) return max;
+            if(value < min) { return min; }
+            if(value > max) { return max; }
             return value;
         }
 

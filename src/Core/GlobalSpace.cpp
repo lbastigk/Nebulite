@@ -1,5 +1,5 @@
 #include "Core/GlobalSpace.hpp"
-#include "DomainModule/GSDM.hpp"
+#include "DomainModule/Initializer.hpp"
 
 #include "Constants/KeyNames.hpp"
 
@@ -32,7 +32,7 @@ Nebulite::Core::GlobalSpace::GlobalSpace(std::string const& binName)
     inherit<Nebulite::Core::Renderer>(&renderer);
 
     // Initialize DomainModules
-    Nebulite::DomainModule::GSDM_init(this);
+    Nebulite::DomainModule::Initializer::initGlobalSpace(this);
 
     //------------------------------------------
     // Update

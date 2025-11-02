@@ -2,7 +2,7 @@
 
 #include "Constants/KeyNames.hpp"
 #include "Core/GlobalSpace.hpp"
-#include "DomainModule/TXDM.hpp"
+#include "DomainModule/Initializer.hpp"
 
 Nebulite::Core::Texture::Texture(Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* globalSpace) 
 :   Nebulite::Interaction::Execution::Domain<Texture>("Texture", this, doc, globalSpace), 
@@ -15,7 +15,7 @@ Nebulite::Core::Texture::Texture(Nebulite::Utility::JSON* doc, Nebulite::Core::G
     setPreParse(std::bind(&Nebulite::Core::Texture::preParse,this));
 
     // Initialize all DomainModules
-    Nebulite::DomainModule::TXDM_init(this);
+    Nebulite::DomainModule::Initializer::initTexture(this);
 }
 
 Nebulite::Constants::Error Nebulite::Core::Texture::update(){
