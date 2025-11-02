@@ -169,7 +169,7 @@ private:
          * @enum Nebulite::Interaction::Logic::Expression::Component::CastType
          * @brief Represents the type of cast to apply to an expression component.
          */
-        enum CastType {
+        enum class CastType {
             none,       // No cast -> using pure string
             to_int,     // Cast to integer
             to_double   // Cast to double
@@ -179,7 +179,7 @@ private:
          * @struct Nebulite::Interaction::Logic::Expression::Component::Formatter
          * @brief Represents formatting options for the component.
          */
-        struct Formatter {
+        struct alignas(SSE_ALIGNMENT) Formatter {
             /**
              * @brief Whether to pad with leading zeros.
              */
@@ -269,7 +269,7 @@ private:
      * @struct Nebulite::Interaction::Logic::Expression::VirtualDoubleLists
      * @brief Holds lists of VirtualDouble entries for different contexts.
      */
-    struct VirtualDoubleLists{
+    struct alignas(DUAL_CACHE_LINE_ALIGNMENT) VirtualDoubleLists {
         using vd_list = std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>;
 
         /**
@@ -301,20 +301,20 @@ private:
     class expr_custom{
     public:
         // Logical comparison functions
-        static double gt(double a, double b){return a > b;}
-        static double lt(double a, double b){return a < b;}
-        static double geq(double a, double b){return a >= b;}
-        static double leq(double a, double b){return a <= b;}
+        static double gt(double a, double b) {return static_cast<double>(a > b); }
+        static double lt(double a, double b) {return static_cast<double>(a < b); }
+        static double geq(double a, double b){return static_cast<double>(a >= b);}
+        static double leq(double a, double b){return static_cast<double>(a <= b);}
         static double eq(double a, double b){
-            return (std::fabs(a - b) < DBL_EPSILON);
+            return static_cast<double>(std::fabs(a - b) < DBL_EPSILON);
         }
         static double neq(double a, double b){
-            return !(std::fabs(a - b) > DBL_EPSILON);
+            return static_cast<double>(!(std::fabs(a - b) > DBL_EPSILON));
         }
 
         // Logical gate functions
         static double logical_not(double a){
-            return !(std::fabs(a) > DBL_EPSILON);
+            return static_cast<double>(!(std::fabs(a) > DBL_EPSILON));
         }
 
         static double logical_and(double a, double b){
@@ -336,7 +336,7 @@ private:
         static double logical_nand(double a, double b){
             bool const aLogical = (std::fabs(a) > DBL_EPSILON);
             bool const bLogical = (std::fabs(b) > DBL_EPSILON);
-            return !(aLogical && bLogical);
+            return static_cast<double>(!(aLogical && bLogical));
         }
         static double logical_nor(double a, double b){
             bool const aLogical = (std::fabs(a) > DBL_EPSILON);
@@ -346,7 +346,7 @@ private:
         static double logical_xnor(double a, double b){
             bool const aLogical = (std::fabs(a) > DBL_EPSILON);
             bool const bLogical = (std::fabs(b) > DBL_EPSILON);
-            return static_cast<double>(!( (aLogical || bLogical) && !(aLogical && bLogical) ));
+            return static_cast<double>(!(aLogical != bLogical));
         }
 
         // Other logical functions
@@ -359,7 +359,7 @@ private:
             if(std::fabs(in_max - in_min) < DBL_EPSILON) { return out_min; } // Prevent division by zero
             if(value < in_min) { return out_min; }
             if(value > in_max) { return out_max; }
-            return ((value - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
+            return ((value - in_min) * (out_max - out_min) / (in_max - in_min)) + out_min;
         }
         static double constrain(double value, double min, double max){
             if(value < min) { return min; }
@@ -555,5 +555,6 @@ private:
      */
     void handleComponentTypeEval(std::string& token, std::shared_ptr<Component> const& component);
 };
+
 } // namespace Nebulite::Interaction::Logic
 #endif // NEBULITE_INTERACTION_LOGIC_EXPRESSION_HPP
