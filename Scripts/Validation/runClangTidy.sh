@@ -22,6 +22,7 @@ for file in {src/*,include/*}; do
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-readability-avoid-const-params-in-decls"         # Suppress warnings about const parameters in declarations
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-readability-identifier-length"       # Allow for short variable names like i, j, x, y, it etc.
     EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-cppcoreguidelines-pro-bounds-constant-array-index"    # Ignoring array index out of bounds warnings for now
+    EXCLUDED_WARNINGS="$EXCLUDED_WARNINGS,-fuchsia-overloaded-operator"         # We allow overloaded operators in our codebase for Capture cout/cerr streams using <<
 
     # To enable later on
     # 1.) c-arrays are still being used for FuncTree class. Later on we may refactor the entire program to use c++ containers instead of c-arrays.
