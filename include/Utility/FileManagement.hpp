@@ -12,7 +12,6 @@
 
 // Standard library
 #include <string>
-#include <string>
 
 //------------------------------------------
 namespace Nebulite::Utility {
