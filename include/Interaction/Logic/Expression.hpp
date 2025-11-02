@@ -45,6 +45,15 @@ public:
     ~Expression();
 
     /**
+     * @todo: Copy/move constructors and assignment operators
+     */
+
+    /**
+     * @brief Standard maximum recursion depth for nested expression evaluations.
+     */
+    static constexpr uint16_t standardMaximumRecursionDepth = 10;
+
+    /**
      * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
      * 
      * @param expr The expression string to parse.
@@ -93,7 +102,7 @@ public:
      * @param max_recursion_depth The maximum recursion depth to prevent infinite loops in nested evaluations.
      * @return The evaluated string value.
      */
-    std::string eval(Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth = 10);
+    std::string eval(Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth = standardMaximumRecursionDepth);
 
     /**
      * @brief Gets the full expression string that was parsed.
@@ -129,7 +138,7 @@ public:
     bool recalculateIsAlwaysTrue();
 
 private:
-    struct References{
+    struct alignas(SIMD_ALIGNMENT) References{
         Nebulite::Utility::JSON* self = nullptr;
         Nebulite::Utility::JSON* global = nullptr;
         Nebulite::Utility::DocumentCache* documentCache = nullptr;
@@ -142,12 +151,12 @@ private:
      * This struct holds information about a specific part of the expression,
      * including its type, source, and any associated metadata.
      */
-    struct Component {
+    struct alignas(DUAL_CACHE_LINE_ALIGNMENT) Component {
         /**
          * @enum Nebulite::Interaction::Logic::Expression::Component::Type
          * @brief Represents the type of an expression component.
          */
-        enum Type {
+        enum class Type : uint8_t {
             variable,   // outside $<cast>(...), Starts with self, other, global or a dot for link, represents a variable reference, outside of an evaluatable context
             eval,       // inside $<cast>(...), represents an evaluatable expression
             text        // outside of a $<cast>(...), not a variable reference, Represents a plain text string
@@ -157,7 +166,7 @@ private:
          * @enum Nebulite::Interaction::Logic::Expression::Component::From
          * @brief Represents the source of a variable reference.
          */
-        enum From {
+        enum class From : uint8_t {
             self,       // Using the "self" document for expression evaluation
             other,      // Using the "other" document for expression evaluation
             global,     // Using the "global" document for expression evaluation
@@ -169,7 +178,7 @@ private:
          * @enum Nebulite::Interaction::Logic::Expression::Component::CastType
          * @brief Represents the type of cast to apply to an expression component.
          */
-        enum class CastType {
+        enum class CastType : uint8_t {
             none,       // No cast -> using pure string
             to_int,     // Cast to integer
             to_double   // Cast to double

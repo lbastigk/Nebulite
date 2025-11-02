@@ -538,17 +538,17 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
         std::string token = "";
         switch (component->type){
             //------------------------------------------
-            case Component::variable:
+            case Component::Type::variable:
                 if(!handleComponentTypeVariable(token, component, current_other, max_recursion_depth)){
                     return "0";
                 }
                 break;
             //------------------------------------------
-            case Component::eval:
+            case Component::Type::eval:
                 handleComponentTypeEval(token, component);
                 break;
             //------------------------------------------
-            case Component::text:
+            case Component::Type::text:
                 token = component->str;
                 break;
             //------------------------------------------
