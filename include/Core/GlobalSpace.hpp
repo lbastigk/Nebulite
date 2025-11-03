@@ -128,7 +128,7 @@ public:
     /**
      * @brief Parses the task queue for execution.
      * 
-     * @return Errorcode `Nebulite::Constants::ErrorTable::NONE()` if there was no critical stop,
+     * @return Error code `Nebulite::Constants::ErrorTable::NONE()` if there was no critical stop,
      * the last critical error code otherwise.
      */
     Nebulite::Constants::Error parseQueue();
@@ -235,8 +235,8 @@ public:
     bool shouldContinueLoop() const { return continueLoop; }
 
     enum class UniqueIdType{
-        EXPRESSION = 0,
-        JSONKEY = 1
+        expression = 0,
+        jsonKey = 1
     };
     static constexpr size_t UniqueIdTypeSize = 2;
 
@@ -249,7 +249,7 @@ public:
      * @param type Which rolling counter to use for the unique ID, allowing for separate ID spaces.
      * @return The unique ID corresponding to the hash.
      */
-    uint64_t getUniqueId(std::string hash, UniqueIdType type){
+    uint64_t getUniqueId(std::string const& hash, UniqueIdType type){
         // Lock and check if hash exists
         std::scoped_lock<std::mutex> lock(uniqueIdMutex[static_cast<size_t>(type)]);
 
@@ -310,10 +310,10 @@ private:
     }names;
 
     /**
-     * @struct RNGvars
+     * @struct RngVars
      * @brief Contains RNG instances used in the global space.
      */
-    struct RNGvars{
+    struct RngVars{
         using rngSize_t = uint16_t;            // Modify this to change the size of the RNGs
         Nebulite::Utility::RNG<rngSize_t> A;   // RNG with key random.A
         Nebulite::Utility::RNG<rngSize_t> B;   // RNG with key random.B
