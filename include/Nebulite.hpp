@@ -4,15 +4,15 @@
  * @brief Central file for Nebulite namespace documentation, global constants and more.
  *
  * While classes/variables have on central definition file, namespaces are only loosely bound.
- * Meaning there isnt a consensus who first defined the namespace.
- * We use a separate file for each namespace to avoid conflicts with doxigen documentation.
+ * Meaning there isn't a consensus who first defined the namespace.
+ * We use a separate file for each namespace to avoid conflicts with doxygen documentation.
  * 
  * @todo Since global namespace documentation is not shown in-editor, we may use this central file
  * for globally available objects instead:
  * 
  * - Global ErrorTable object
  * - Global Logger object
- * - Globalspace Object
+ * - GlobalSpace Object
  */ 
 
 #ifndef NEBULITE_HPP
@@ -140,6 +140,6 @@ namespace Nebulite{
 #endif // NEBULITE_HPP
 
 /**
- * @todo: Add global() function here for accessing globalspace.
+ * @todo: Add global() function here for accessing GlobalSpace.
  * Also add global ErrorTable and Logger objects here.
  */
