@@ -516,11 +516,16 @@ void Nebulite::Interaction::Logic::Expression::handleComponentTypeEval(std::stri
     // Adding padding
     if(component->formatter.alignment > 0 && token.size() < static_cast<size_t>(component->formatter.alignment)){
         // Cast to int, as alignment may be negative (-1 signals no alignment)
-        int size = static_cast<int>(token.size());
+        int const size = static_cast<int>(token.size());
+        std::string padding;
         for(int i = 0; i < component->formatter.alignment - size; i++){
-            std::string const padding = std::to_string(component->formatter.leadingZero ? '0' : ' ');
-            token.append(padding);
+            if(component->formatter.leadingZero){
+                padding += "0";
+            } else {
+                padding += " ";
+            }
         }
+        token.insert(0,padding);
     }
 }
 
