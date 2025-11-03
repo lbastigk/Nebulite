@@ -82,7 +82,7 @@ Nebulite::Interaction::Invoke::~Invoke(){
 //------------------------------------------
 // Checks
 
-bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd, Nebulite::Core::RenderObject const* otherObj){
+bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> const& cmd, Nebulite::Core::RenderObject const* otherObj){
     // Check if logical arg is as simple as just "1", meaning true
     if(cmd->logicalArg.isAlwaysTrue()) return true;
 
@@ -95,7 +95,7 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
     return result != 0.0;
 }
 
-bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> cmd){
+bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> const& cmd){
     // Use selfPtr as otherObj
     return checkRulesetLogicalCondition(cmd, cmd->selfPtr);
 }
@@ -103,7 +103,7 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
 //------------------------------------------
 // Interactions
 
-void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interaction::Ruleset> toAppend){    
+void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interaction::Ruleset> const& toAppend){
     // Get index
     uint32_t id_self = toAppend->id;
     uint32_t threadIndex = id_self % THREADRUNNER_COUNT;
@@ -261,7 +261,7 @@ void Nebulite::Interaction::Invoke::applyAssignment(Nebulite::Interaction::Logic
             // Try to use unique id for quick access
             if(!assignment.targetKeyUniqueIdInitialized){
                 // Initialize unique id
-                assignment.targetKeyUniqueId = global->getUniqueId(assignment.key, Nebulite::Core::GlobalSpace::UniqueIdType::JSONKEY);
+                assignment.targetKeyUniqueId = global->getUniqueId(assignment.key, Nebulite::Core::GlobalSpace::UniqueIdType::jsonKey);
                 assignment.targetKeyUniqueIdInitialized = true;
             }
 

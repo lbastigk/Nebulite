@@ -134,7 +134,7 @@ public:
      * 
      * @param entry The invoke entry to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
-    void broadcast(std::shared_ptr<Nebulite::Interaction::Ruleset> entry);
+    void broadcast(std::shared_ptr<Nebulite::Interaction::Ruleset> const& entry);
 
     /**
      * @brief Listens for invoke entries on a specific topic.
@@ -148,6 +148,7 @@ public:
      * 
      * @param obj The render object to check.
      * @param topic The topic to listen for.
+     * @param listenerId The unique ID of the listener render object.
      */
     void listen(Nebulite::Core::RenderObject* obj,std::string topic, uint32_t listenerId);
 
@@ -162,7 +163,7 @@ public:
      * Make sure entry and otherObj are not the same object!
      * @return True if the invoke entry is true in the context of the other render object, false otherwise.
      */
-    bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> entry, Nebulite::Core::RenderObject const* otherObj);
+    static bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> const& cmd, Nebulite::Core::RenderObject const* otherObj);
 
     /**
      * @brief Checks if the invoke entry is true, without any context from other render objects.
@@ -170,7 +171,7 @@ public:
      * @param entry The invoke entry to check.
      * @return True if the invoke entry is true without any context from other render objects, false otherwise.
      */
-    bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> entry);
+    bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> const& cmd);
 
 
     //------------------------------------------
