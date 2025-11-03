@@ -12,14 +12,11 @@
 // Includes 
 
 // Standard library
-#include <string>
-#include <deque>
-#include <thread>
-#include <condition_variable>
 #include <atomic>
-
-// External
-#include <tinyexpr.h>
+#include <condition_variable>
+#include <deque>
+#include <string>
+#include <thread>
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
@@ -30,18 +27,16 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-  namespace Core{
+namespace Nebulite::Core {
     class RenderObject;
-  }
-}
+}   // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::Interaction{
+namespace Nebulite::Interaction {
 /**
  * @class Nebulite::Interaction::Invoke
  * @brief The Invoke class manages dynamic object logic in Nebulite.
- * 
+ *
  * This class is responsible for handling the invocation of functions and the
  * communication between different render objects within the Nebulite engine.
  * 
@@ -111,7 +106,7 @@ public:
     /**
      * @brief Gets the global JSON document pointer.
      */
-    Nebulite::Utility::JSON* getGlobalPointer(){return globalDoc;}
+    Nebulite::Utility::JSON* getGlobalPointer() const {return globalDoc;}
 
     /**
      * @brief Gets a pointer to the DocumentCache.
@@ -121,18 +116,18 @@ public:
      * 
      * @return A pointer to the DocumentCache.
      */
-    Nebulite::Utility::DocumentCache* getDocumentCache(){ return docCache; }
+    Nebulite::Utility::DocumentCache* getDocumentCache() const { return docCache; }
     
     //------------------------------------------
     // Send/Listen
 
     /**
-     * @brief Broadcasts an invoke entry to other render objects.
+     * @brief Broadcasts a ruleset to other render objects.
      * 
-     * This function sends the specified invoke entry to all render objects
+     * This function sends the specified ruleset to all render objects
      * that are listening for the entry's topic.
      * 
-     * @param entry The invoke entry to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
+     * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
     void broadcast(std::shared_ptr<Nebulite::Interaction::Ruleset> const& entry);
 
@@ -150,28 +145,28 @@ public:
      * @param topic The topic to listen for.
      * @param listenerId The unique ID of the listener render object.
      */
-    void listen(Nebulite::Core::RenderObject* obj,std::string topic, uint32_t listenerId);
+    void listen(Nebulite::Core::RenderObject* obj,std::string const& topic, uint32_t listenerId);
 
     //------------------------------------------
     // Value checks
 
     /**
-     * @brief Checks if the invoke entry is true in the context of the other render object.
+     * @brief Checks if the ruleset is true in the context of the other render object.
      * 
-     * @param entry The invoke entry to check.
+     * @param cmd The Ruleset to check.
      * @param otherObj The other render object to compare against.
      * Make sure entry and otherObj are not the same object!
-     * @return True if the invoke entry is true in the context of the other render object, false otherwise.
+     * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
     static bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> const& cmd, Nebulite::Core::RenderObject const* otherObj);
 
     /**
-     * @brief Checks if the invoke entry is true, without any context from other render objects.
-     * 
-     * @param entry The invoke entry to check.
-     * @return True if the invoke entry is true without any context from other render objects, false otherwise.
+     * @brief Checks if the ruleset is true, without any context from other render objects.
+     *
+     * @param cmd The Ruleset.
+     * @return True if the ruleset is true without any context from other render objects, false otherwise.
      */
-    bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> const& cmd);
+    static bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> const& cmd);
 
 
     //------------------------------------------
@@ -227,7 +222,7 @@ public:
      * 
      * @param operation The operation to perform (set, multiply, concat, etc.).
      * @param key The key to update.
-     * @param valStr The new value as a double.
+     * @param value The new value as a double.
      * @param target The JSON document to update.
      */
     void setValueOfKey(
@@ -245,7 +240,7 @@ public:
      * 
      * @param operation The operation to perform (set, multiply, concat, etc.).
      * @param key The key to update.
-     * @param valStr The new value as a double.
+     * @param value The new value as a double.
      * @param target The double pointer to update.
      */
     void setValueOfKey(
@@ -263,9 +258,9 @@ public:
      * 
      * An empty document is used for the `self` and `other` context:
      * 
-     * - All variable access outside of an expression defaults to an empty string
+     * - All variable access outside an expression defaults to an empty string
      * 
-     * - All variable access inside of an expression defaults to 0.0
+     * - All variable access inside an expression defaults to 0.0
      * 
      * @param input The expression to evaluate.
      * @return The result of the evaluation.
@@ -409,7 +404,7 @@ private:
     // Private methods
 
     /**
-     * @brief Updates a build pair of invoke entry with given domain `other`
+     * @brief Updates a build pair of ruleset with given domain `other`
      * 
      * @param entries_self The invoke entries for the self domain.
      * @param Obj_other The render object in the other domain to update.
@@ -417,15 +412,16 @@ private:
     void applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other);
 
     /**
-     * @brief Applies a single assignment from an invoke entry.
+     * @brief Applies a single assignment from a ruleset.
      * 
-     * @param entry The invoke entry to apply.
+     * @param assignment The assignment to apply.
+     * @param Obj_self The render object in the self domain to update.
      * @param Obj_other The render object in the other domain to update.
      */
     void applyAssignment(Nebulite::Interaction::Logic::Assignment& assignment, Nebulite::Core::RenderObject const* Obj_self, Nebulite::Core::RenderObject const* Obj_other);
 
     /**
-     * @brief Applies all functioncalls
+     * @brief Applies all function calls from a Ruleset.
      */
     void applyFunctionCalls(Nebulite::Interaction::Ruleset& ruleset, Nebulite::Core::RenderObject *Obj_self, Nebulite::Core::RenderObject *Obj_other);
 };

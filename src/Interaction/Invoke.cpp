@@ -86,7 +86,7 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
     // Check if logical arg is as simple as just "1", meaning true
     if(cmd->logicalArg.isAlwaysTrue()) return true;
 
-    double result = cmd->logicalArg.evalAsDouble(otherObj->getDoc());
+    double const result = cmd->logicalArg.evalAsDouble(otherObj->getDoc());
     if(isnan(result)){
         // We consider NaN as false
         return false;
@@ -115,7 +115,7 @@ void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Nebulite::Interact
     onTopicFromId.active = true;
 }
 
-void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std::string topic, uint32_t listenerId){
+void Nebulite::Interaction::Invoke::listen(Nebulite::Core::RenderObject* obj,std::string const& topic, uint32_t listenerId){
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
         // Lock to safely read from broadcasted.entriesThisFrame
         std::scoped_lock<std::mutex> broadcastLock(broadcasted.entriesThisFrame[i].mutex);
