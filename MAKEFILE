@@ -10,6 +10,7 @@
 PRESETS := linux-release linux-debug linux-coverage \
 		   windows-release windows-debug \
 		   macos-release macos-debug
+.PHONY: $(PRESETS)
 $(PRESETS):
 	cmake --preset $@ && cmake --build --preset $@
 
@@ -40,11 +41,8 @@ endif
 endif
 endif
 
-# Define all targets
+# Define target "all" as building all available presets
 all: $(AVAILABLE_PRESETS)
-linux: linux-debug linux-release linux-coverage
-windows: windows-debug windows-release
-macos: macos-debug macos-release
 
 
 ##################################
@@ -67,6 +65,10 @@ clean:
 
 message-available-presets:
 	@echo "Available presets for this machine: $(AVAILABLE_PRESETS)"
+
+coverage-report: linux-coverage
+	@echo "Generating coverage report..."
+	python Scripts/TestingSuite.py --coverage --verbose
 
 ##################################
 # Combined Targets
