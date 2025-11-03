@@ -71,8 +71,9 @@ coverage-report: linux-coverage
 	python Scripts/TestingSuite.py --coverage --verbose
 
 ##################################
-# Combined Targets
+# Full testing pipelines
 ##################################
 
-run-and-test-native: $(NATIVE_PRESET) test
-run-and-test-available: message-available-presets $(AVAILABLE_PRESETS) test
+run-and-test-native: clean $(NATIVE_PRESET) test
+
+run-and-test-available: message-available-presets clean $(AVAILABLE_PRESETS) test
