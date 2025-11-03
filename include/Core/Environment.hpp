@@ -23,11 +23,9 @@
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite{
-	namespace Core{
-		class GlobalSpace; // Forward declaration of core class GlobalSpace
-	}
-}
+namespace Nebulite::Core {
+    class GlobalSpace; // Forward declaration of core class GlobalSpace
+}   // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::Core{
@@ -51,7 +49,7 @@ public:
 	 * However, there is no real distinction in how the layers are processed.
 	 * The only difference is the order in which they are rendered.
 	 * Each layer can be thought of as a separate "pass" over the render objects.
-	 * Starting with the lowest layer (background) and ending with the highest layer (menue).
+	 * Starting with the lowest layer (background) and ending with the highest layer (menu).
 	 * 
 	 * *IMPORTANT:* New layers must be added to private variable `allLayers` in the correct order.
 	 * 
@@ -72,7 +70,7 @@ public:
 	/**
 	 * @brief The number of RenderObjectContainer layers in the Environment.
 	 */
-	const static unsigned int LayerCount = 5;
+	static constexpr uint8_t LayerCount = 5;
 
 	//------------------------------------------
 	//Constructor
@@ -82,8 +80,8 @@ public:
 	 *
 	 * Creates an environment with its subcontainers for proper layer-based rendering.
 	 *
-	 * @param globalInvoke Pointer to the global Invoke instance.
-	 * The Global Invoke instance is necessary for the Environment and its Container Layers to communicate with the global space.
+	 * @param globalSpace Pointer to the globalSpace instance.
+	 * is necessary for the Environment and its Container Layers to communicate with the global space.
 	 * This is necessary for:
 	 * 
 	 * - RenderObject updates
@@ -144,12 +142,12 @@ public:
 	 * 
 	 * This function is responsible for updating the state of all render objects in the environment.
 	 * 
-	 * @param tileXpos current camera tile position in the X direction.
-	 * @param tileYpos current camera tile position in the Y direction.
-	 * @param dispResX display resolution width. Necessary for potential RenderObject reinsertions).
-	 * @param dispResY display resolution height. Necessary for potential RenderObject reinsertions).
+	 * @param tileXposition current camera tile position in the X direction.
+	 * @param tileYposition current camera tile position in the Y direction.
+	 * @param dispResX display resolution width. Necessary for potential RenderObject reinsertions.
+	 * @param dispResY display resolution height. Necessary for potential RenderObject reinsertions.
 	 */
-	void update(int16_t tileXpos, int16_t tileYpos, uint16_t dispResX, uint16_t dispResY);
+	void update(int16_t tileXposition, int16_t tileYposition, uint16_t dispResX, uint16_t dispResY);
 
 	/**
 	 * @brief Rebuilds the Container structure.
@@ -202,7 +200,7 @@ public:
 	 * 
 	 * @return The total number of render objects in the environment.
 	 */
-	size_t getObjectCount() const;
+	[[nodiscard]] size_t getObjectCount() const;
 
 private:
 	// All layers in rendering order

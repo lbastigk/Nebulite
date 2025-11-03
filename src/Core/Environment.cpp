@@ -86,9 +86,9 @@ void Nebulite::Core::Environment::append(Nebulite::Core::RenderObject* toAppend,
 	}
 }
 
-void Nebulite::Core::Environment::update(int16_t tileXpos, int16_t tileYpos, uint16_t dispResX, uint16_t dispResY){
+void Nebulite::Core::Environment::update(int16_t tileXposition, int16_t tileYposition, uint16_t dispResX, uint16_t dispResY){
 	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; i++){
-		roc[i].update(tileXpos, tileYpos, dispResX, dispResY);
+		roc[i].update(tileXposition, tileYposition, dispResX, dispResY);
 	}
 }
 
