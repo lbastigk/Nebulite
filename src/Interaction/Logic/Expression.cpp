@@ -104,7 +104,7 @@ Nebulite::Interaction::Logic::Expression::Component::From Nebulite::Interaction:
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::compileIfExpression(std::shared_ptr<Component>& component){
+void Nebulite::Interaction::Logic::Expression::compileIfExpression(std::shared_ptr<Component> const& component) const {
     if (component->type == Component::Type::eval){
         // Compile the expression using TinyExpr
         int error;
@@ -121,9 +121,9 @@ void Nebulite::Interaction::Logic::Expression::compileIfExpression(std::shared_p
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_name, std::string const& key, Component::From context){
+void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_name, std::string const& key, Component::From const& context){
     // Check if variable exists in variables vector:
-    bool found = std::any_of(te_variables.begin(), te_variables.end(), [&](auto const& te_var){ return te_var.name == te_name; });
+    bool found = std::ranges::any_of(te_variables.begin(), te_variables.end(), [&](auto const& te_var){ return te_var.name == te_name; });
 
     if(!found){
         // Initialize with reference to document and cache register
@@ -174,11 +174,10 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
 
 void Nebulite::Interaction::Logic::Expression::parseIntoComponents(std::string const& expr){
     // First, we must split the expression into tokens
-    std::vector<std::string> tokensPhase1, tokens;
-
     // Split, keep delimiter(at start)
     // "abc$def$ghi" -> ["abc", "$def", "$ghi"]
-    tokensPhase1 = Nebulite::Utility::StringHandler::split(expr, '$', true);
+    std::vector<std::string> const tokensPhase1 = Nebulite::Utility::StringHandler::split(expr, '$', true);
+    std::vector<std::string> tokens;
 
     // Now we need to split on same depth
     for(auto const& token : tokensPhase1){
@@ -189,20 +188,20 @@ void Nebulite::Interaction::Logic::Expression::parseIntoComponents(std::string c
             // This part represents the '$' + formatter
             // Cannot be used, as splitOnSameDepth expects the first character to be the opening parenthesis
             std::string start = token.substr(0, token.find('('));
-            std::string tokenWithoutstart = token.substr(start.length()); // Remove the leading '$'
+            std::string tokenWithoutStart = token.substr(start.length()); // Remove the leading '$'
 
             // Split on same depth
-            std::vector<std::string> subTokens = Nebulite::Utility::StringHandler::splitOnSameDepth(tokenWithoutstart, '(');
+            std::vector<std::string> subTokens = Nebulite::Utility::StringHandler::splitOnSameDepth(tokenWithoutStart, '(');
 
             // Add back the '$' + formatter to first subToken
-            if(subTokens.size() > 0){
+            if(!subTokens.empty()){
                 subTokens[0] = start + subTokens[0];
             }
 
             // Add all subtokens to the actual list of tokens
-            std::copy(subTokens.begin(), subTokens.end(), std::back_inserter(tokens));
+            std::ranges::copy(subTokens, std::back_inserter(tokens));
         } else {
-            // If it doesnt start with a '$', it's a text token / potentially with variables inside
+            // If it doesn't start with a '$', it's a text token / potentially with variables inside
             // Just add the text token
             tokens.push_back(token);
         }
@@ -236,7 +235,7 @@ void Nebulite::Interaction::Logic::Expression::readFormatter(std::shared_ptr<Com
     // $04i   : leadingZero = true  , alignment =  4 , precision = -1
     // $03.5i : leadingZero = true  , alignment =  3 , precision =  5
 
-    if(!formatter.size()){
+    if(formatter.empty()){
         return;
     }
 
@@ -245,17 +244,17 @@ void Nebulite::Interaction::Logic::Expression::readFormatter(std::shared_ptr<Com
         component->formatter.leadingZero = true;
     }
     if(formatter.size() > 1){
-        size_t dotpos = formatter.find('.');
+        size_t dotPos = formatter.find('.');
         // Read alignment
-        if(dotpos == 0){
+        if(dotPos == 0){
             component->formatter.alignment = 0;
         }
         else{
-            component->formatter.alignment = std::stoi(formatter.substr(0, dotpos));
+            component->formatter.alignment = std::stoi(formatter.substr(0, dotPos));
         }
         // Read precision
-        if(dotpos != std::string::npos){
-            component->formatter.precision = std::stoi(formatter.substr(dotpos + 1));
+        if(dotPos != std::string::npos){
+            component->formatter.precision = std::stoi(formatter.substr(dotPos + 1));
         }
     }
 }
@@ -265,7 +264,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(std::string co
     // - bool leading zero   : on/off
     // - int alignment       : <0 means no formatting
     // - int precision       : <0 means no formatting
-    // - CastType::none is then used to determine if we can simple use the double return from tinyexpr
+    // - CastType::none is then used to determine if we can simply use the double return from tinyexpr
 
     // 1.) find next '(' and split into formatter and token
     // Examples:
@@ -298,16 +297,16 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(std::string co
 
     // Register internal variables
     // And build equivalent expression
-    std::string newString = "";
+    std::string newString;
     std::vector<std::string> subTokens = Nebulite::Utility::StringHandler::splitOnSameDepth(expression, '{');
 
     for (auto const& subToken : subTokens){
         if(subToken.starts_with('{')){
             // 1.) remove {}
-            std::string key, te_name;
+            std::string key;
             key = Nebulite::Utility::StringHandler::replaceAll(subToken, "{", "");
             key = Nebulite::Utility::StringHandler::replaceAll(key     , "}", "");
-            te_name = Nebulite::Utility::StringHandler::replaceAll(key, ".", "_");
+            std::string const te_name = Nebulite::Utility::StringHandler::replaceAll(key, ".", "_");
             // 2.) determine context
             Component::From context = getContext(key);
             key     = stripContext(key);
@@ -322,7 +321,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(std::string co
     }
     // Determine context
     currentComponent->type = Component::Type::eval;
-    currentComponent->str = newString; // Shouldnt contain any $
+    currentComponent->str = newString; // shouldn't contain any $
     currentComponent->from = Component::From::None;
     currentComponent->key = ""; // No key for eval expressions
 
@@ -340,7 +339,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(std::string co
         // Token is type variable
         if(subToken.starts_with('{')){
             // 1.) remove {}
-            // We keep all other potential {} inside the variable name for later multiresolve
+            // We keep all other potential {} inside the variable name for later MultiResolve
             std::string inner;
             
             inner = subToken.substr(1, subToken.length() - 2);
@@ -363,7 +362,7 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(std::string co
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::printCompileError(std::shared_ptr<Component> const& component, int const error){
+void Nebulite::Interaction::Logic::Expression::printCompileError(std::shared_ptr<Component> const& component, int error) const {
     Nebulite::Utility::Capture::cerr() << "-----------------------------------------------------------------" << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "Error compiling expression: '" << component->str << "' Error code: " << std::to_string(error) << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "You might see this message multiple times due to expression parallelization." << Nebulite::Utility::Capture::endl;
@@ -422,20 +421,20 @@ void Nebulite::Interaction::Logic::Expression::parse(std::string const& expr, Ne
     #endif
 }
 
-bool Nebulite::Interaction::Logic::Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth){
+bool Nebulite::Interaction::Logic::Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Nebulite::Utility::JSON* current_other, uint16_t maximumRecursionDepth) const {
     std::string key = component->key;
     Component::From context = component->from;
 
     // See if the variable contains an inner expression
     if(component->str.find('$') != std::string::npos || component->str.find('{') != std::string::npos){
-        if(max_recursion_depth == 0){
+        if(maximumRecursionDepth == 0){
             Nebulite::Utility::Capture::cerr() << "Error: Maximum recursion depth reached when evaluating variable: " << component->key << Nebulite::Utility::Capture::endl;
             return false;
         }
         // Create a temporary expression to evaluate the inner expression
         Expression tempExpr;
         tempExpr.parse(component->str, references.documentCache, references.self, references.global);
-        key = tempExpr.eval(current_other, max_recursion_depth - 1);
+        key = tempExpr.eval(current_other, maximumRecursionDepth - 1);
 
         // Redetermine context and strip it from key
         context = getContext(key);
@@ -519,7 +518,8 @@ void Nebulite::Interaction::Logic::Expression::handleComponentTypeEval(std::stri
         // Cast to int, as alignment may be negative (-1 signals no alignment)
         int size = static_cast<int>(token.size());
         for(int i = 0; i < component->formatter.alignment - size; i++){
-            token = (component->formatter.leadingZero ? '0' : ' ') + token;
+            std::string const padding = std::to_string(component->formatter.leadingZero ? '0' : ' ');
+            token.append(padding);
         }
     }
 }
@@ -533,9 +533,9 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Nebulite::Utility::JS
     // Evaluate expression
 
     // Concatenate results of each component
-    std::string result = "";
+    std::string result;
     for (auto const& component : components){
-        std::string token = "";
+        std::string token;
         switch (component->type){
             //------------------------------------------
             case Component::Type::variable:
@@ -635,10 +635,10 @@ void Nebulite::Interaction::Logic::Expression::updateCaches(Nebulite::Utility::J
 // Recalculation helpers:
 
 
-bool Nebulite::Interaction::Logic::Expression::recalculateIsReturnableAsDouble(){
+bool Nebulite::Interaction::Logic::Expression::recalculateIsReturnableAsDouble() const {
     return (components.size() == 1) && (components[0]->type == Component::Type::eval) && (components[0]->cast == Component::CastType::none);
 }
 
-bool Nebulite::Interaction::Logic::Expression::recalculateIsAlwaysTrue(){
+bool Nebulite::Interaction::Logic::Expression::recalculateIsAlwaysTrue() const {
     return (fullExpression == "1");
 }

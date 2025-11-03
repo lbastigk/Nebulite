@@ -77,7 +77,7 @@ public:
      * 
      * @return True if the expression can be returned as a double, false otherwise.
      */
-    bool isReturnableAsDouble() const noexcept {
+    [[nodiscard]] bool isReturnableAsDouble() const noexcept {
         return _isReturnableAsDouble;
     }
 
@@ -85,7 +85,7 @@ public:
      * @brief Checks if the expression is always true (i.e., "1").
      * @return True if the expression is always true, false otherwise.
      */
-    bool isAlwaysTrue() const noexcept {
+    [[nodiscard]] bool isAlwaysTrue() const noexcept {
         return _isAlwaysTrue;
     }
 
@@ -111,7 +111,7 @@ public:
      * 
      * @return The full expression string.
      */
-    std::string const* getFullExpression() const noexcept {return &fullExpression;}
+    [[nodiscard]] std::string const* getFullExpression() const noexcept {return &fullExpression;}
 
     /**
      * @brief Forcefully sets the unique ID for the expression.
@@ -125,19 +125,19 @@ public:
 
     //------------------------------------------
     // Helpers for recalculating expression info
-    // helpful for expressionpool to reduce the amount of parsing needed
+    // helpful for ExpressionPool to reduce the amount of parsing needed
 
     /**
      * @brief Recalculates whether the expression is returnable as a double.
      * @return True if the expression can be returned as a double, false otherwise.
      */
-    bool recalculateIsReturnableAsDouble();
+    [[nodiscard]] bool recalculateIsReturnableAsDouble() const ;
 
     /**
      * @brief Recalculates whether the expression is always true (i.e., "1").
      * @return True if the expression is always true, false otherwise.
      */
-    bool recalculateIsAlwaysTrue();
+    [[nodiscard]] bool recalculateIsAlwaysTrue() const ;
 
 private:
     struct alignas(SIMD_ALIGNMENT) References{
@@ -156,10 +156,10 @@ private:
     struct alignas(DUAL_CACHE_LINE_ALIGNMENT) Component {
         /**
          * @enum Nebulite::Interaction::Logic::Expression::Component::Type
-         * @brief Represents the type of an expression component.
+         * @brief Each component can be of type variable, eval or text that differ in how they are evaluated.
          */
         enum class Type : uint8_t {
-            variable,   // outside $<cast>(...), Starts with self, other, global or a dot for link, represents a variable reference, outside of an evaluatable context
+            variable,   // outside $<cast>(...), Starts with self, other, global or a dot for link, represents a variable reference, outside an evaluatable context
             eval,       // inside $<cast>(...), represents an evaluatable expression
             text        // outside of a $<cast>(...), not a variable reference, Represents a plain text string
         } type = Type::text;
@@ -357,7 +357,7 @@ private:
         static double logical_xnor(double a, double b){
             bool const aLogical = (std::fabs(a) > DBL_EPSILON);
             bool const bLogical = (std::fabs(b) > DBL_EPSILON);
-            return static_cast<double>(!(aLogical != bLogical));
+            return static_cast<double>(aLogical == bLogical);
         }
 
         // Other logical functions
@@ -430,11 +430,11 @@ private:
     // Helper functions
 
     /**
-     * @brief Compiles an component, if its of type Expression
+     * @brief Compiles a component, if its of type Expression
      * 
      * @param component The component to potentially compile
      */
-    void compileIfExpression(std::shared_ptr<Component>& component);
+    void compileIfExpression(std::shared_ptr<Component> const& component) const ;
 
     /**
      * @brief Registers a variable with the given name and key in the context of the component.
@@ -445,7 +445,7 @@ private:
      * @param key The key in the JSON document that the variable refers to.
      * @param context The context from which the variable is being registered.
      */
-    void registerVariable(std::string te_name, std::string const& key, Component::From context);
+    void registerVariable(std::string te_name, std::string const& key, Component::From const& context);
 
     /**
      * @brief used to strip any context prefix from a key
@@ -470,7 +470,7 @@ private:
     /**
      * @brief Gets the context from a key before it's stripped
      *
-     * If the key doesnt start with `self.`, `other.`, or `global.`, it is considered a resource variable.
+     * If the key doesn't start with `self.`, `other.`, or `global.`, it is considered a resource variable.
      * 
      * @param key The key to get the context from.
      * 
@@ -494,7 +494,7 @@ private:
     static void readFormatter(std::shared_ptr<Component> const& component, std::string const& formatter);
 
     /**
-     * @brief Used to parse a string token of type "eval" into an component.
+     * @brief Used to parse a string token of type "eval" into a component.
      * 
      * - Parses the token on the assumption that it is of type "eval".
      * 
@@ -507,7 +507,7 @@ private:
     void parseTokenTypeEval(std::string const& token);
 
     /**
-     * @brief Used to parse a string token of type "text" into an component.
+     * @brief Used to parse a string token of type "text" into a component.
      * 
      * - Parses the token on the assumption that it is of type "text".
      * 
@@ -516,7 +516,6 @@ private:
      * - Pushes the current component onto the components vector.
      * 
      * @param token The token to parse.
-     * @param components The vector to push the component onto.
      */
     void parseTokenTypeText(std::string const& token);
 
@@ -525,7 +524,7 @@ private:
      * 
      * Includes tips for fixing the error.
      */
-    void printCompileError(std::shared_ptr<Component> const& component, int const error);
+    void printCompileError(std::shared_ptr<Component> const& component, int error) const;
 
     /**
      * @brief Updates caches
@@ -544,11 +543,6 @@ private:
      *
      * @param reference The JSON document representing the "other" context for variable resolution.
      * @return A pointer to the ordered vector of double pointers for the referenced "other" variables.
-     * @brief Ensures that there is a cache component for the given other JSON document and expression.
-     * 
-     * @param current_other The other JSON document to ensure a cache component for.
-     * 
-     * @return A pointer to the vector of double pointers for the expression in the other document.
      */
     odpvec* ensureOtherOrderedCacheList(Nebulite::Utility::JSON* reference);
 
@@ -557,14 +551,16 @@ private:
      * 
      * @param token The string to populate with the evaluated value.
      * @param component The component to evaluate.
+     * @param current_other The JSON object `other` to evaluate against.
+     * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
      * @return True if the evaluation was successful, false otherwise.
      */
-    bool handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth);
+    bool handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Nebulite::Utility::JSON* current_other, uint16_t maximumRecursionDepth) const ;
 
     /**
      * @brief Handles the evaluation of an eval component.
      */
-    void handleComponentTypeEval(std::string& token, std::shared_ptr<Component> const& component);
+    static void handleComponentTypeEval(std::string& token, std::shared_ptr<Component> const& component);
 };
 
 } // namespace Nebulite::Interaction::Logic
