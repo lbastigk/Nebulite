@@ -1,0 +1,76 @@
+##############################################################
+# Makefile for building Nebulite with CMake presets
+##############################################################
+
+##################################
+# Base CMake Presets Build Targets
+##################################
+
+# Define all available presets and their build
+PRESETS := linux-release linux-debug linux-coverage \
+		   windows-release windows-debug \
+		   macos-release macos-debug
+$(PRESETS):
+	cmake --preset $@ && cmake --build --preset $@
+
+# Find native build preset for this machine
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+	NATIVE_PRESET := linux-release linux-debug linux-coverage
+else ifeq ($(UNAME_S),Darwin)
+	NATIVE_PRESET := macos-release macos-debug
+else ifeq ($(OS),Windows_NT)
+	NATIVE_PRESET := windows-release windows-debug
+else
+	NATIVE_PRESET := linux-release linux-debug linux-coverage
+endif
+
+# Find available presets for this machine based on OS and compilers available
+# We consider NATIVE_PRESET as well as any cross-compilation presets possible
+# Currently, we only check if wine and mingw are available for Windows cross-compilation
+AVAILABLE_PRESETS := $(NATIVE_PRESET)
+ifeq ($(UNAME_S),Linux)
+# check for wine and mingw availability
+# if available, add windows presets
+ifneq ($(shell command -v wine 2> /dev/null),)
+ifneq ($(shell command -v x86_64-w64-mingw32-g++ 2> /dev/null),)
+	# add windows presets
+	AVAILABLE_PRESETS += windows-release windows-debug
+endif
+endif
+endif
+
+# Define all targets
+all: $(AVAILABLE_PRESETS)
+linux: linux-debug linux-release linux-coverage
+windows: windows-debug windows-release
+macos: macos-debug macos-release
+
+
+##################################
+# Define other useful targets
+##################################
+
+.PHONY: all install-deps resources test run clean $(NATIVE_PRESET)
+
+install-deps:
+	./Scripts/install_dependencies.sh
+
+resources:
+	./Scripts/AssetCreation/create_resources_directory.sh
+
+test:
+	python3 Scripts/TestingSuite.py --stop --verbose
+
+clean:
+	rm -rf tmp/ bin/ || true
+
+message-available-presets:
+	@echo "Available presets for this machine: $(AVAILABLE_PRESETS)"
+
+##################################
+# Combined Targets
+##################################
+
+run-and-test-native: $(NATIVE_PRESET) test
+run-and-test-available: message-available-presets $(AVAILABLE_PRESETS) test
