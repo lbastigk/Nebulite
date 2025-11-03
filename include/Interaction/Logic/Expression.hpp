@@ -445,7 +445,7 @@ private:
      * @param key The key in the JSON document that the variable refers to.
      * @param context The context from which the variable is being registered.
      */
-    void registerVariable(std::string te_name, std::string key, Component::From context);
+    void registerVariable(std::string te_name, std::string const& key, Component::From context);
 
     /**
      * @brief used to strip any context prefix from a key

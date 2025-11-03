@@ -121,7 +121,7 @@ void Nebulite::Interaction::Logic::Expression::compileIfExpression(std::shared_p
     }
 }
 
-void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_name, std::string key, Component::From context){
+void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_name, std::string const& key, Component::From context){
     // Check if variable exists in variables vector:
     bool found = std::any_of(te_variables.begin(), te_variables.end(), [&](auto const& te_var){ return te_var.name == te_name; });
 
@@ -413,7 +413,7 @@ void Nebulite::Interaction::Logic::Expression::parse(std::string const& expr, Ne
     }
 
     auto globalspace = self->getGlobalSpace();
-    uniqueId = globalspace->getUniqueId(fullExpression, Nebulite::Core::GlobalSpace::UniqueIdType::EXPRESSION);
+    uniqueId = globalspace->getUniqueId(fullExpression, Nebulite::Core::GlobalSpace::UniqueIdType::expression);
 
     // Calculate optimization flags in-expression only if pools are not used
     #if INVOKE_EXPR_POOL_SIZE == 1
