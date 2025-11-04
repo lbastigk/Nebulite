@@ -227,10 +227,10 @@ std::vector<Nebulite::Core::RenderObjectContainer::batch>& Nebulite::Core::Rende
 
 void Nebulite::Core::RenderObjectContainer::purgeObjects(){
 	for (auto it = ObjectContainer.begin(); it != ObjectContainer.end(); ){
-		for (auto& batch : it->second){
+		for (auto& [objects, _] : it->second){
 			// Move all objects to trash
-			std::move(batch.objects.begin(), batch.objects.end(), std::back_inserter(deletionProcess.trash));
-			batch.objects.clear(); // Remove all objects from the batch
+			std::ranges::move(objects.begin(), objects.end(), std::back_inserter(deletionProcess.trash));
+			objects.clear(); // Remove all objects from the batch
 		}
 		++it;
 	}
