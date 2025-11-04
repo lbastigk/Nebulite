@@ -37,15 +37,15 @@ namespace Nebulite::DomainModule {
  */
 class Initializer{
 public:
-    static void initGlobalSpace(Nebulite::Core::GlobalSpace* target);
+    static void initGlobalSpace(Core::GlobalSpace* target);
 
-    static void initJSON(Nebulite::Utility::JSON* target);
+    static void initJSON(Utility::JSON* target);
 
-    static void initRenderObject(Nebulite::Core::RenderObject* target);
+    static void initRenderObject(Core::RenderObject* target);
 
-    static void initRenderer(Nebulite::Core::Renderer* target);
+    static void initRenderer(Core::Renderer* target);
 
-    static void initTexture(Nebulite::Core::Texture* target);
+    static void initTexture(Core::Texture* target);
 };
 } // namespace Nebulite::DomainModule
 #endif // NEBULITE_DOMAINMODULE_INITIALIZER_HPP
