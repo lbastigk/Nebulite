@@ -13,12 +13,11 @@
 
 // Standard library
 #include <random>
-#include <stdint.h>
+#include <cstdint>
 
 // External
 #include <SDL.h>
 #include <SDL_ttf.h>
-#include <SDL_image.h>
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
@@ -44,7 +43,7 @@ public:
 	 * @param X Width of the rendering area.
 	 * @param Y Height of the rendering area.
 	 */
-	Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool* flag_headless, unsigned int X = 1080, unsigned int Y = 1080);
+	Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool* flag_headless, unsigned int const& X = 1080, unsigned int const& Y  = 1080);
 
 	/**
 	 * @brief Initializes SDL and related subsystems.
@@ -76,8 +75,8 @@ public:
 	inline void deserialize(std::string const& serialOrLink) noexcept {
 		env.deserialize(
 			serialOrLink, 
-			getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),0), 
-			getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),0)
+			getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResX,0),
+			getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResY,0)
 		);
 	}
 
@@ -152,7 +151,7 @@ public:
 	 * 
 	 * @return True if the next frame update is being skipped, false otherwise.
 	 */
-	bool isSkippingUpdate() const noexcept {return skipUpdate;}
+	[[nodiscard]] bool isSkippingUpdate() const noexcept {return skipUpdate;}
 
 	/**
 	 * @brief Checks if the last frame update was skipped.
@@ -161,7 +160,7 @@ public:
 	 * 
 	 * @return True if the last frame update was skipped, false otherwise.
 	 */
-	bool hasSkippedUpdate(){return skippedUpdateLastFrame;}
+	[[nodiscard]] bool hasSkippedUpdate() const {return skippedUpdateLastFrame;}
 
 	//------------------------------------------
 	// Texture Management
@@ -172,9 +171,10 @@ public:
 	 * @param aboveThisLayer The layer above which to attach the texture.
 	 * @param name The name of the texture.
 	 * @param texture The SDL_Texture to attach.
+	 * @param rect Optional SDL_Rect defining the area to render the texture.
 	 * @return True if the texture was successfully attached, false otherwise.
 	 */
-	bool attachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string name, SDL_Texture* texture, SDL_Rect* rect = nullptr){
+	bool attachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string const& name, SDL_Texture* texture, SDL_Rect* rect = nullptr){
 		if(texture == nullptr){
 			return false; // Cannot attach a null texture
 		}
@@ -194,7 +194,7 @@ public:
 	 * @param name The name of the texture to remove.
 	 * @return True if the texture was successfully removed, false otherwise.
 	 */
-	bool detachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string name){
+	bool detachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string const& name){
 		if(BetweenLayerTextures[aboveThisLayer].contains(name)){
 			BetweenLayerTextures[aboveThisLayer].erase(name);
 			return true;
@@ -215,7 +215,7 @@ public:
 	/**
 	 * @brief Beeps the system speaker.
 	 */
-	void beep();
+	void beep() const;
 
 	/**
 	 * @brief Takes a snapshot of the current Renderer state.
@@ -224,7 +224,7 @@ public:
 	 * 
 	 * @return True if the snapshot was successful, false otherwise.
 	 */
-	bool snapshot(std::string link);
+	[[nodiscard]] bool snapshot(std::string link) const ;
 	
 	//------------------------------------------
 	// Purge
@@ -286,7 +286,7 @@ public:
 	 * @param dX The amount to move the camera in the X direction.
 	 * @param dY The amount to move the camera in the Y direction.
 	 */
-	void moveCam(int dX, int dY);
+	void moveCam(int dX, int dY) const ;
 
 	
 	//------------------------------------------
@@ -297,35 +297,35 @@ public:
 	 * 
 	 * @return The number of textures.
 	 */
-	size_t getTextureAmount(){return TextureContainer.size();}
+	[[nodiscard]] size_t getTextureAmount() const {return TextureContainer.size();}
 
 	/**
 	 * @brief Gets the amount of RenderObjects currently loaded.
 	 * 
 	 * @return The number of RenderObjects in the environment.
 	 */
-	size_t getObjectCount() const {return env.getObjectCount();}
+	[[nodiscard]] size_t getObjectCount() const {return env.getObjectCount();}
 
 	/**
 	 * @brief Gets the current resolution in the X direction.
 	 * 
 	 * @return The current resolution in the X direction.
 	 */
-	int getResX(){return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX,0);}
+	[[nodiscard]] int getResX() const {return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX,0);}
 
 	/**
 	 * @brief Gets the current resolution in the Y direction.
 	 * 
 	 * @return The current resolution in the Y direction.
 	 */
-	int getResY(){return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY,0);}
+	[[nodiscard]] int getResY() const {return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY,0);}
 
 	/**
 	 * @brief Gets the current FPS.
 	 * 
 	 * @return The current FPS.
 	 */
-	uint16_t getFPS(){return REAL_FPS;}
+	[[nodiscard]] uint16_t getFPS() const {return REAL_FPS;}
 
 	/**
 	 * @brief Gets the current position of the camera in the X direction.
@@ -334,7 +334,7 @@ public:
 	 * 
 	 * @return The current position of the camera in the X direction.
 	 */
-	int getPosX(){return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionX.c_str(),0);}
+	[[nodiscard]] int getPosX() const {return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionX,0);}
 
 	/**
 	 * @brief Gets the current position of the camera in the Y direction.
@@ -343,7 +343,7 @@ public:
 	 * 
 	 * @return The current position of the camera in the Y direction.
 	 */
-	int getPosY(){return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionY.c_str(),0);}
+	[[nodiscard]] int getPosY() const {return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionY,0);}
 
 	/**
 	 * @brief Gets the current tile position of the camera in the X direction.
@@ -352,7 +352,7 @@ public:
 	 * 
 	 * @return The current tile position of the camera in the X direction.
 	 */
-	int16_t getTileXpos() const noexcept {return tileXpos;}
+	[[nodiscard]] int16_t getTilePositionX() const noexcept {return tilePositionX;}
 
 	/**
 	 * @brief Gets the current tile position of the camera in the Y direction.
@@ -361,7 +361,7 @@ public:
 	 * 
 	 * @return The current tile position of the camera in the Y direction.
 	 */
-	int16_t getTileYpos() const noexcept {return tileYpos;}
+	[[nodiscard]] int16_t getTilePositionY() const noexcept {return tilePositionY;}
 
 	/**
 	 * @brief Gets the SDL_Renderer instance.
@@ -370,7 +370,7 @@ public:
 	 * 
 	 * @return The SDL_Renderer instance.
 	 */
-	SDL_Renderer* getSdlRenderer(){return renderer;}
+	[[nodiscard]] SDL_Renderer* getSdlRenderer() const {return renderer;}
 
 	/**
 	 * @brief Gets the RenderObject from its ID.
@@ -389,7 +389,7 @@ public:
 	 * 
 	 * @return A pointer to the TTF_Font instance.
 	 */
-	TTF_Font* getStandardFont(){
+	[[nodiscard]] TTF_Font* getStandardFont() const {
 		// Should always be loaded at this point
 		return font;
 	}
@@ -406,7 +406,7 @@ public:
 	/**
 	 * @brief Gets the current window scale factor.
 	 */
-	unsigned int getWindowScale() const noexcept { return WindowScale; }
+	[[nodiscard]] unsigned int getWindowScale() const noexcept { return WindowScale; }
 
 	//------------------------------------------
 	// Texture-Related
@@ -421,7 +421,7 @@ public:
 	 * @param link The file path to load the texture from.
 	 * @return A pointer to the loaded SDL_Texture, or nullptr if loading failed.
 	 */
-	SDL_Texture* loadTextureToMemory(std::string const& link);
+	[[nodiscard]] SDL_Texture* loadTextureToMemory(std::string const& link) const ;
 
 	//------------------------------------------
 	// Status
@@ -429,12 +429,12 @@ public:
 	/**
 	 * @brief Checks if the Renderer is initialized
 	 */
-	bool isSdlInitialized() const noexcept {return SDL_initialized;}
+	[[nodiscard]] bool isSdlInitialized() const noexcept {return SDL_initialized;}
 
 	/**
 	 * @brief Checks if the Renderer is set to quit
 	 */
-	bool shouldQuit() const noexcept {return quit;}
+	[[nodiscard]] bool shouldQuit() const noexcept {return quit;}
 
 	/**
 	 * @brief Sets the quit flag for the Renderer
@@ -482,23 +482,23 @@ private:
 	 * 
 	 * Easier to debug if it starts at 1, as 0 might come up in overflows, and negative values may not be valid
 	 */
-	uint32_t renderobject_id_counter = 1;
+	uint32_t renderObjectIdCounter = 1;
 
 	// Positions
-	int16_t tileXpos;
-	int16_t tileYpos;
+	int16_t tilePositionX;
+	int16_t tilePositionY;
 
 	// Custom Subclasses
 	Environment env;
 
 	// Rendering
 	uint16_t WindowScale = 1;
-	SDL_Window* window;
-	SDL_Renderer* renderer;
+	SDL_Window* window{};
+	SDL_Renderer* renderer{};
 
 	//------------------------------------------
 	// Event Handling
-	SDL_Event event;
+	SDL_Event event{};
 
 	std::vector<SDL_Event> events;
 
@@ -514,7 +514,7 @@ private:
 	 * 
 	 * Used for RNG seeding.
 	 */
-    std::size_t hashString(std::string const& str){return std::hash<std::string>{}(str);}
+	static std::size_t hashString(std::string const& str){return std::hash<std::string>{}(str);}
     
 	//------------------------------------------
 	// Renderer::tick related Functions
@@ -524,7 +524,7 @@ private:
 	 * 
 	 * This function clears renderer to an all black screen.
 	 */
-	void clear();
+	void clear() const ;
 
 	/**
 	 * @brief Updates the Renderer state.
@@ -556,20 +556,20 @@ private:
 
 	/**
 	 * @brief Renders the current FPS on screen
-	 * 
-	 * @param scalar Scaling factor for the FPS text size.
 	 */
-	void renderFPS(double scalar = 1.0);
+	void renderFPS() const ;
 
 	/**
 	 * @brief Presents the rendered frame to the screen.
 	 */
-	void showFrame();
+	void showFrame() const ;
 
 	/**
 	 * @brief Renders a single object to the screen.
 	 * 
 	 * @param obj Pointer to the RenderObject to render.
+	 * @param dispPosX The X position on the screen to render the object.
+	 * @param dispPosY The Y position on the screen to render the object.
 	 * @return SDL_Error code from SDL_RenderCopy, 0 if successful.
 	 */
 	int renderObjectToScreen(Nebulite::Core::RenderObject* obj, int dispPosX, int dispPosY);
@@ -624,7 +624,7 @@ private:
 	SDL_Color textColor = { 255, 255, 255, 255 }; // White color
 
 	// General font
-	TTF_Font* font;
+	TTF_Font* font{};
 
 	/**
 	 * @brief Loads fonts for the Renderer.
