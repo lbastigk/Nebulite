@@ -88,7 +88,7 @@ public:
 	 * 
 	 * RenderObjects are initialized with reference to the Globalspace.
 	 * 
-	 * @param global A pointer to the Globalspace instance.
+	 * @param globalSpace A pointer to the Globalspace instance.
 	 */
 	explicit RenderObject(Nebulite::Core::GlobalSpace* globalSpace);
 
@@ -98,7 +98,7 @@ public:
 	 * Cleans up any resources used by the RenderObject, including
 	 * textures and surfaces.
 	 */
-	virtual ~RenderObject();
+	~RenderObject() override;
 
 	// Suppress copy/move operators
 	RenderObject(RenderObject const& other) = delete;
@@ -190,8 +190,8 @@ public:
 	 * - broadcasts its own global invokes
 	 * 
 	 * - calculates source and destination rects
-	 * 
-	 * @param globalInvoke Pointer to the global invoke object
+	 *
+	 * @return Nebulite::Constants::Error indicating success or failure.
 	 */
 	Nebulite::Constants::Error update() override;
 
@@ -216,13 +216,12 @@ public:
 	 */
 	void calculateSrcRect();
 
-	// Estimate computationcal cost of update (based on size of cmds_internal)
 	/**
 	 * @brief Estimates the computational cost of updating the RenderObject.
 	 * 
-	 * Based on the amount of evaluations and variables in the invoke entries.
+	 * Based on the amount of evaluations and variables in the ruleset.
 	 * 
-	 * @param onlyInternal If true, only considers internal invoke entries. Defaults to true.
+	 * @param onlyInternal If true, only considers internal rulesets. Defaults to true.
 	 * @return The estimated computational cost.
 	 */
 	uint64_t estimateComputationalCost(bool onlyInternal = true);
@@ -257,7 +256,7 @@ public:
      * 
      * @return true if the texture has been modified, false otherwise.
      */
-    bool isTextureStoredLocally(){
+    [[nodiscard]] bool isTextureStoredLocally() const {
         return baseTexture.isTextureStoredLocally();
     }
 
