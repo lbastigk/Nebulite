@@ -40,7 +40,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      * 
      * @todo not implemented
      */
@@ -51,7 +51,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <name>
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      * 
      * @todo not implemented
      */

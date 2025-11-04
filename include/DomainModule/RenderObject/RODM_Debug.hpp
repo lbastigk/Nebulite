@@ -49,7 +49,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: the string to evaluate
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error eval(int argc,  char** argv);
     static std::string const eval_name;
@@ -60,7 +60,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: None
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error printSrcRect(int argc,  char** argv);
     static std::string const printSrcRect_name;
@@ -71,7 +71,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: None
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error printDstRect(int argc,  char** argv);
     static std::string const printDstRect_name;

@@ -149,7 +149,7 @@ public:
 	 * If set fails, we can use the first argument `argv[0]` to identify the source of the command.
 	 * 
 	 * @param str The string to parse.
-	 * @return Potential errors that occured on command execution
+	 * @return Potential errors that occurred on command execution
      * 
      * @todo Disable printing errors if the domain is inside another domain without inheritance.
      * This needs to be done, otherwise each error is printed twice:

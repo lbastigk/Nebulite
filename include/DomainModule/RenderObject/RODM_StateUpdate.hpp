@@ -41,7 +41,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error func_delete(int argc,  char** argv);
     static std::string const func_delete_name;
@@ -52,7 +52,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error updateText(int argc,  char** argv);
     static std::string const updateText_name;
@@ -66,7 +66,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      * 
      * @todo Not implemented yet
      */
@@ -79,7 +79,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      * 
      * @todo Not implemented yet
      */
@@ -92,7 +92,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      * 
      * @todo Not implemented yet
      */
@@ -105,7 +105,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      * 
      * @todo Not implemented yet
      */

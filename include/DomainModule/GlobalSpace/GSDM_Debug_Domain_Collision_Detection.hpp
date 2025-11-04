@@ -42,7 +42,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: None.
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error debug_collisionDetect_function(int argc, char const* argv[]);
     static std::string const debug_collisionDetect_function_name;
@@ -53,7 +53,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: None.
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error debug_collisionDetect_category(int argc, char const* argv[]);
     static std::string const debug_collisionDetect_category_name;
@@ -64,7 +64,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: None.
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error debug_collisionDetect_variable(int argc, char const* argv[]);
     static std::string const debug_collisionDetect_variable_name;

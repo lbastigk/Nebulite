@@ -1,8 +1,20 @@
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <cstdint>
+
+// External
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
+
+// Nebulite
 #include "DomainModule/Renderer/RRDM_Console.hpp"
 #include "Core/Renderer.hpp"
 #include "Core/GlobalSpace.hpp"
-#include <cstdint>
 
+//------------------------------------------
 namespace Nebulite::DomainModule::Renderer {
 
 Nebulite::Constants::Error Console::update(){

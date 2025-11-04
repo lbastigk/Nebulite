@@ -41,7 +41,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: [key]
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error print(int argc,  char** argv);
     static std::string const print_name;

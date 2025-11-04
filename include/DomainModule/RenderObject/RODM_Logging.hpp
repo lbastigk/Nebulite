@@ -46,7 +46,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: ...
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error echo(int argc,  char** argv);
     static std::string const echo_name;
@@ -64,7 +64,7 @@ public:
      * 
      * Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
      * 
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error log_all(int argc,  char** argv);
     static std::string const log_all_name;
@@ -78,7 +78,7 @@ public:
      * 
      * Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
      * 
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error log_key(int argc,  char** argv);
     static std::string const log_key_name;

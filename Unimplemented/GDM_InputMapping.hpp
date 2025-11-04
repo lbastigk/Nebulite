@@ -60,7 +60,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: [filename]
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      * 
      * @todo Not implemented yet
      */
@@ -72,7 +72,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <action> <slot> <key> <type>
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      * 
      * @todo Not implemented yet
      */
@@ -86,7 +86,7 @@ public:
      * 
      * Uses inputs.jsonc if no filename is provided
      * 
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      * 
      * @todo Not implemented yet
      */

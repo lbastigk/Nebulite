@@ -265,7 +265,7 @@ public:
      * 
      * @return true if the texture is valid, false otherwise.
      */
-    bool isTextureValid(){
+    [[nodiscard]] bool isTextureValid() const {
         return baseTexture.isTextureValid();
     }
 
@@ -274,7 +274,7 @@ public:
      * 
      * @return Pointer to the current SDL_Texture.
      */
-    SDL_Texture* getSDLTexture(){
+    [[nodiscard]] SDL_Texture* getSDLTexture() const {
         return baseTexture.getSDLTexture();
     }
 

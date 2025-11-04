@@ -89,7 +89,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: RenderObject as link to json/jsonc file
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error spawn(int argc,  char** argv);
     static std::string const spawn_name;
@@ -100,7 +100,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: Environment as link to json/jsonc file
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error env_load(int argc,  char** argv);
     static std::string const env_load_name;
@@ -111,7 +111,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error env_deload(int argc,  char** argv);
     static std::string const env_deload_name;
@@ -129,7 +129,7 @@ public:
      * 
      * Defaults to 1000 for width if argument count < 1
      * 
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error setResolution(int argc,  char** argv);
     static std::string const setResolution_name;
@@ -143,7 +143,7 @@ public:
      * 
      * Defaults to 60 fps if no argument is provided
      * 
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error setFPS(int argc,  char** argv);
     static std::string const setFPS_name;
@@ -157,7 +157,7 @@ public:
      * 
      * Defaults to on if no argument is provided
      * 
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error showFPS(int argc,  char** argv);
     static std::string const showFPS_name;
@@ -168,7 +168,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <dx> <dy>
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error cam_move(int argc,  char** argv);
     static std::string const cam_move_name;
@@ -182,7 +182,7 @@ public:
      * 
      * Where [c] determines if the given position is the camera's center
      * 
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error cam_set(int argc,  char** argv);
     static std::string const cam_set_name;
@@ -196,7 +196,7 @@ public:
      * 
      * Defaults to "./Resources/Snapshots/snapshot.png" if no argument is provided
      * 
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error snapshot(int argc,  char** argv);
     static std::string const snapshot_name;
@@ -207,7 +207,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error beep(int argc,  char** argv);
     static std::string const beep_name;
@@ -222,7 +222,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <id>
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      * 
      * @todo If an object is deleted, the reference in GlobalSpace::selectedRenderObject is not cleared!
      * Fix idea: Make Renderer a domain itself, with this function as a domainmodule part
@@ -239,7 +239,7 @@ public:
      * @brief Parses a command on the selected RenderObject
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error selectedObject_Parse(int argc,  char** argv);
     static std::string const selectedObject_Parse_name;

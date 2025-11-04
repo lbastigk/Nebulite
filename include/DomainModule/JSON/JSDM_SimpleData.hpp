@@ -42,7 +42,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <key> <value>
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error set(int argc,  char** argv);
     static std::string const set_name;
@@ -53,7 +53,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <source_key> <destination_key>
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error move(int argc,  char** argv);
     static std::string const move_name;
@@ -64,7 +64,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <source_key> <destination_key>
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error copy(int argc,  char** argv);
     static std::string const copy_name;
@@ -75,7 +75,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <key>
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error keyDelete(int argc,  char** argv);
     static std::string const keyDelete_name;
@@ -86,7 +86,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <key>
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error ensureArray(int argc,  char** argv);
     static std::string const ensureArray_name;
@@ -97,7 +97,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <key> <value>
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error push_back(int argc,  char** argv);
     static std::string const push_back_name;
@@ -108,7 +108,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <key>
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error pop_back(int argc,  char** argv);
     static std::string const pop_back_name;
@@ -119,7 +119,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <key> <value>
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error push_front(int argc,  char** argv);
     static std::string const push_front_name;
@@ -130,7 +130,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <key>
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error pop_front(int argc,  char** argv);
     static std::string const pop_front_name;

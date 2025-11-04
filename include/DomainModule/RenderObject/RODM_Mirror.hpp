@@ -42,7 +42,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error mirror_once(int argc,  char** argv);
     static std::string const mirror_once_name;
@@ -53,7 +53,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error mirror_on(int argc,  char** argv);
     static std::string const mirror_on_name;
@@ -64,7 +64,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error mirror_off(int argc,  char** argv);
     static std::string const mirror_off_name;
@@ -75,7 +75,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error mirror_delete(int argc,  char** argv);
     static std::string const mirror_delete_name;
@@ -86,7 +86,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: no arguments available
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error mirror_fetch(int argc,  char** argv);
     static std::string const mirror_fetch_name;
@@ -135,7 +135,7 @@ private:
      * 
      * If the RenderObject has an invalid ID (<1), mirrorKey wont be set.
      * 
-     * @return Potential errors that occured during setup
+     * @return Potential errors that occurred during setup
      */
     Nebulite::Constants::Error setupMirrorKey();
 };

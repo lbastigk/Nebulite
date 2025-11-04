@@ -39,7 +39,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <key> <value>
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error force_set(int argc,  char** argv);
     static std::string const force_set_name;
@@ -50,7 +50,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: <key> <value>
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
     Nebulite::Constants::Error force_clear(int argc,  char** argv);
     static std::string const force_clear_name;
