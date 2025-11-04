@@ -83,7 +83,7 @@ public:
 	 * @param dispResX Display resolution width for tile initialization.
 	 * @param dispResY Display resolution height for tile initialization.
 	 */
-	void deserialize(std::string const& serialOrLink, uint16_t dispResX, uint16_t dispResY);
+	void deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY);
 
 	//------------------------------------------
 	// Pipeline
@@ -97,7 +97,7 @@ public:
 	 * @param dispResX Display resolution width for tile placement.
 	 * @param dispResY Display resolution height for tile placement.
 	 */
-	void append(Nebulite::Core::RenderObject* toAppend, uint16_t dispResX, uint16_t dispResY);
+	void append(Nebulite::Core::RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY);
 
 	/**
 	 * @brief Reinserts all objects into the container.

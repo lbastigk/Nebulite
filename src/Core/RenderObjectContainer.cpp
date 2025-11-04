@@ -8,7 +8,7 @@
 //------------------------------------------
 //Constructor
 
-Nebulite::Core::RenderObjectContainer::RenderObjectContainer(Nebulite::Core::GlobalSpace* globalSpace){
+Nebulite::Core::RenderObjectContainer::RenderObjectContainer(GlobalSpace* globalSpace){
 	this->globalSpace = globalSpace;
 }
 
@@ -19,15 +19,15 @@ std::string Nebulite::Core::RenderObjectContainer::serialize(){
 	// Setup
 
 	// Initialize RapidJSON document
-	Nebulite::Utility::JSON doc(globalSpace);
+	Utility::JSON doc(globalSpace);
 
 	//------------------------------------------
 	// Get all objects in container
 	int i = 0;
 	for (auto& currentBatch : std::views::values(ObjectContainer)){
 		for (auto& [objects, _] : currentBatch){
-			for(auto& obj : objects){
-				Nebulite::Utility::JSON obj_serial(globalSpace);
+			for(auto const& obj : objects){
+				Utility::JSON obj_serial(globalSpace);
 				obj_serial.deserialize(obj->serialize());
 					
 				// insert into doc
@@ -43,7 +43,7 @@ std::string Nebulite::Core::RenderObjectContainer::serialize(){
 	return doc.serialize();
 }
 
-void Nebulite::Core::RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_t dispResX, uint16_t dispResY){
+void Nebulite::Core::RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY){
 	Nebulite::Utility::JSON layer(globalSpace);
 	layer.deserialize(serialOrLink);
 	if(layer.memberCheck("objects") == Nebulite::Utility::JSON::KeyType::array){
@@ -68,7 +68,7 @@ void Nebulite::Core::RenderObjectContainer::deserialize(std::string const& seria
 //------------------------------------------
 // Pipeline
 
-std::pair<int16_t,int16_t> getTilePos(Nebulite::Core::RenderObject* toAppend, uint16_t displayResolutionX, uint16_t displayResolutionY){
+std::pair<int16_t,int16_t> getTilePos(Nebulite::Core::RenderObject* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY){
     // Calculate correspondingTilePositionX using positionX
     auto positionX = toAppend->get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0.0);
     auto correspondingTilePositionX = static_cast<int16_t>(positionX / static_cast<double>(displayResolutionX));
@@ -81,7 +81,7 @@ std::pair<int16_t,int16_t> getTilePos(Nebulite::Core::RenderObject* toAppend, ui
 	return std::make_pair(correspondingTilePositionX,correspondingTilePositionY);
 }
 
-void Nebulite::Core::RenderObjectContainer::append(Nebulite::Core::RenderObject* toAppend, uint16_t dispResX, uint16_t dispResY){
+void Nebulite::Core::RenderObjectContainer::append(Nebulite::Core::RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY){
     std::pair<int16_t,int16_t> pos = getTilePos(toAppend, dispResX, dispResY);
 
 	// Try to insert into an existing batch
