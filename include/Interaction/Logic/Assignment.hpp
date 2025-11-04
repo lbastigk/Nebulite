@@ -63,12 +63,12 @@ struct alignas(DUAL_CACHE_LINE_ALIGNMENT) Assignment{
         /**
          * @brief The parsed expression in a thread-friendly Pool-Configuration
          */
-        Nebulite::Interaction::Logic::ExpressionPool expression;
+        ExpressionPool expression;
     #else
         /**
          * @brief The parsed expression
          */
-        Nebulite::Interaction::Logic::Expression expression;
+        Expression expression;
     #endif
 
     /**

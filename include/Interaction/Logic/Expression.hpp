@@ -63,7 +63,7 @@ public:
      * @param self The JSON object representing the "self" context.
      * @param global The JSON object representing the "global" context.
      */
-    void parse(std::string const& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global);
+    void parse(std::string const& expr, Utility::DocumentCache* documentCache, Utility::JSON* self, Utility::JSON* global);
 
     /**
      * @brief Checks if the expression can be returned as a double.
@@ -95,7 +95,7 @@ public:
      * @param current_other The JSON object `other` to evaluate against.
      * @return The evaluated double value.
      */
-    double evalAsDouble(Nebulite::Utility::JSON* current_other);
+    double evalAsDouble(Utility::JSON* current_other);
     
     /**
      * @brief Evaluates the expression as a string.
@@ -104,7 +104,7 @@ public:
      * @param max_recursion_depth The maximum recursion depth to prevent infinite loops in nested evaluations.
      * @return The evaluated string value.
      */
-    std::string eval(Nebulite::Utility::JSON* current_other, uint16_t max_recursion_depth = standardMaximumRecursionDepth);
+    std::string eval(Utility::JSON* current_other, uint16_t max_recursion_depth = standardMaximumRecursionDepth);
 
     /**
      * @brief Gets the full expression string that was parsed.
@@ -119,7 +119,7 @@ public:
      * This is only used when the id was calculated externally, e.g. in ExpressionPool.
      * @param id The unique ID to set.
      */
-    void setUniqueId(uint64_t id){
+    void setUniqueId(uint64_t const id){
         uniqueId = id;
     }
 
@@ -141,9 +141,9 @@ public:
 
 private:
     struct alignas(SIMD_ALIGNMENT) References{
-        Nebulite::Utility::JSON* self = nullptr;
-        Nebulite::Utility::JSON* global = nullptr;
-        Nebulite::Utility::DocumentCache* documentCache = nullptr;
+        Utility::JSON* self = nullptr;
+        Utility::JSON* global = nullptr;
+        Utility::DocumentCache* documentCache = nullptr;
     } references;
 
     /**
@@ -281,7 +281,7 @@ private:
      * @brief Holds lists of VirtualDouble entries for different contexts.
      */
     struct alignas(DUAL_CACHE_LINE_ALIGNMENT) VirtualDoubleLists {
-        using vd_list = std::vector<std::shared_ptr<Nebulite::Interaction::Logic::VirtualDouble>>;
+        using vd_list = std::vector<std::shared_ptr<VirtualDouble>>;
 
         /**
          * @brief Holds all virtual double entries for the self context.
@@ -312,57 +312,57 @@ private:
     class expr_custom{
     public:
         // Logical comparison functions
-        static double gt(double a, double b) {return static_cast<double>(a > b); }
-        static double lt(double a, double b) {return static_cast<double>(a < b); }
-        static double geq(double a, double b){return static_cast<double>(a >= b);}
-        static double leq(double a, double b){return static_cast<double>(a <= b);}
+        static double gt(double a, double b) {return a > b; }
+        static double lt(double a, double b) {return a < b; }
+        static double geq(double a, double b){return a >= b;}
+        static double leq(double a, double b){return a <= b;}
         static double eq(double a, double b){
-            return static_cast<double>(std::fabs(a - b) < DBL_EPSILON);
+            return std::fabs(a - b) < DBL_EPSILON;
         }
         static double neq(double a, double b){
-            return static_cast<double>(!(std::fabs(a - b) > DBL_EPSILON));
+            return !(std::fabs(a - b) > DBL_EPSILON);
         }
 
         // Logical gate functions
         static double logical_not(double a){
-            return static_cast<double>(!(std::fabs(a) > DBL_EPSILON));
+            return !(std::fabs(a) > DBL_EPSILON);
         }
 
         static double logical_and(double a, double b){
-            bool const aLogical = (std::fabs(a) > DBL_EPSILON);
-            bool const bLogical = (std::fabs(b) > DBL_EPSILON);
-            return static_cast<double>(aLogical && bLogical);
+            bool const aLogical = std::fabs(a) > DBL_EPSILON;
+            bool const bLogical = std::fabs(b) > DBL_EPSILON;
+            return aLogical && bLogical;
         }
         static double logical_or(double a, double b){
-            bool const aLogical = (std::fabs(a) > DBL_EPSILON);
-            bool const bLogical = (std::fabs(b) > DBL_EPSILON);
-            return static_cast<double>(aLogical || bLogical);
+            bool const aLogical = std::fabs(a) > DBL_EPSILON;
+            bool const bLogical = std::fabs(b) > DBL_EPSILON;
+            return aLogical || bLogical;
         }
         static double logical_xor(double a, double b){
-            bool const aLogical = (std::fabs(a) > DBL_EPSILON);
-            bool const bLogical = (std::fabs(b) > DBL_EPSILON);
-            return static_cast<double>(aLogical != bLogical);
+            bool const aLogical = std::fabs(a) > DBL_EPSILON;
+            bool const bLogical = std::fabs(b) > DBL_EPSILON;
+            return aLogical != bLogical;
         }
 
         static double logical_nand(double a, double b){
-            bool const aLogical = (std::fabs(a) > DBL_EPSILON);
-            bool const bLogical = (std::fabs(b) > DBL_EPSILON);
-            return static_cast<double>(!(aLogical && bLogical));
+            bool const aLogical = std::fabs(a) > DBL_EPSILON;
+            bool const bLogical = std::fabs(b) > DBL_EPSILON;
+            return !(aLogical && bLogical);
         }
         static double logical_nor(double a, double b){
-            bool const aLogical = (std::fabs(a) > DBL_EPSILON);
-            bool const bLogical = (std::fabs(b) > DBL_EPSILON);
-            return static_cast<double>(!(aLogical || bLogical));
+            bool const aLogical = std::fabs(a) > DBL_EPSILON;
+            bool const bLogical = std::fabs(b) > DBL_EPSILON;
+            return !(aLogical || bLogical);
         }
         static double logical_xnor(double a, double b){
-            bool const aLogical = (std::fabs(a) > DBL_EPSILON);
-            bool const bLogical = (std::fabs(b) > DBL_EPSILON);
-            return static_cast<double>(aLogical == bLogical);
+            bool const aLogical = std::fabs(a) > DBL_EPSILON;
+            bool const bLogical = std::fabs(b) > DBL_EPSILON;
+            return aLogical == bLogical;
         }
 
         // Other logical functions
         static double to_bipolar(double a){
-            return (std::fabs(a) > DBL_EPSILON) ? 1 : -1;
+            return std::fabs(a) > DBL_EPSILON ? 1 : -1;
         }
 
         // Mapping functions
@@ -370,7 +370,7 @@ private:
             if(std::fabs(in_max - in_min) < DBL_EPSILON) { return out_min; } // Prevent division by zero
             if(value < in_min) { return out_min; }
             if(value > in_max) { return out_max; }
-            return ((value - in_min) * (out_max - out_min) / (in_max - in_min)) + out_min;
+            return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
         }
         static double constrain(double value, double min, double max){
             if(value < min) { return min; }
@@ -529,7 +529,7 @@ private:
     /**
      * @brief Updates caches
      */
-    void updateCaches(Nebulite::Utility::JSON* reference);
+    void updateCaches(Utility::JSON* reference);
 
     /**
      * @brief Ensures the existence of an ordered cache list of double pointers for "other" context variables.
@@ -544,7 +544,7 @@ private:
      * @param reference The JSON document representing the "other" context for variable resolution.
      * @return A pointer to the ordered vector of double pointers for the referenced "other" variables.
      */
-    odpvec* ensureOtherOrderedCacheList(Nebulite::Utility::JSON* reference);
+    odpvec* ensureOtherOrderedCacheList(Utility::JSON* reference);
 
     /**
      * @brief Handles the evaluation of a variable component.
@@ -555,7 +555,7 @@ private:
      * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
      * @return True if the evaluation was successful, false otherwise.
      */
-    bool handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Nebulite::Utility::JSON* current_other, uint16_t maximumRecursionDepth) const ;
+    bool handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Utility::JSON* current_other, uint16_t maximumRecursionDepth) const ;
 
     /**
      * @brief Handles the evaluation of an eval component.
