@@ -66,7 +66,7 @@ public:
 	 * @brief Constructs a new RenderObjectContainer.
 	 * @param globalSpace Pointer to the global Space instance.
 	 */
-	explicit RenderObjectContainer(Nebulite::Core::GlobalSpace* globalSpace);
+	explicit RenderObjectContainer(GlobalSpace* globalSpace);
 
 	//------------------------------------------
 	// Serialization / Deserialization
@@ -97,7 +97,7 @@ public:
 	 * @param dispResX Display resolution width for tile placement.
 	 * @param dispResY Display resolution height for tile placement.
 	 */
-	void append(Nebulite::Core::RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY);
+	void append(RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY);
 
 	/**
 	 * @brief Reinserts all objects into the container.
@@ -145,7 +145,7 @@ public:
 	 * @param dispResX The display resolution width. Needed for potential re-insertion.
 	 * @param dispResY The display resolution height. Needed for potential re-insertion.
 	 */
-	void update(int16_t tilePosX, int16_t tilePosY, uint16_t dispResX, uint16_t dispResY);
+	void update(int16_t const& tilePosX, int16_t const& tilePosY, uint16_t const& dispResX, uint16_t const& dispResY);
 
 	/**
 	 * @brief Gets the vector of batches at the specified tile position.
@@ -166,12 +166,12 @@ public:
 	 * @param id The unique ID of the RenderObject to retrieve.
 	 * @return Pointer to the RenderObject if found, nullptr otherwise.
 	 */
-	RenderObject* getObjectFromId(uint32_t id){
+	RenderObject* getObjectFromId(uint32_t const& id){
 		// Go through all batches
 		for (auto& batches : std::views::values(ObjectContainer)){
 			for (auto& [objects, _] : batches){
-				for (auto& object : objects){
-					if (object->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0) == id){
+				for (auto const& object : objects){
+					if (object->get<uint32_t>(Constants::keyName.renderObject.id.c_str(), 0) == id){
 						return object;
 					}
 				}
@@ -218,7 +218,7 @@ private:
 	 * - Reinsert into the correct tile and batch
 	 */
 	struct ReinsertionProcess {
-		std::vector<Nebulite::Core::RenderObject*> queue;
+		std::vector<RenderObject*> queue;
 		std::mutex reinsertMutex;
 	} reinsertionProcess;
 
@@ -246,13 +246,13 @@ private:
 	 */
 	struct DeletionProcess{
 		//std::vector<Nebulite::Core::RenderObject*> to_delete;
-		std::vector<Nebulite::Core::RenderObject*> trash;		// Moving objects, marking for deletion
-		std::vector<Nebulite::Core::RenderObject*> purgatory;	// Deleted each frame
+		std::vector<RenderObject*> trash;		// Moving objects, marking for deletion
+		std::vector<RenderObject*> purgatory;	// Deleted each frame
 		std::mutex deleteMutex;									// Threadsafe insertion into trash
 	} deletionProcess;
 
 	// Link to the global space for new objects
-	Nebulite::Core::GlobalSpace* globalSpace;
+	GlobalSpace* globalSpace;
 };
 }   // namespace Nebulite::Core
 #endif // NEBULITE_CORE_RENDEROBJECTCONTAINER_HPP
