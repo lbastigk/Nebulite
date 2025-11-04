@@ -107,7 +107,7 @@ public:
     // Return a non-owning view of the description. This avoids allocations
     // and can safely be marked noexcept. The view is valid as long as the
     // ErrorTable keeps the backing string alive (which it does).
-    std::string_view getDescription() const noexcept {
+    [[nodiscard]] std::string_view getDescription() const noexcept {
         return description ? std::string_view(*description) : std::string_view();
     }
 
@@ -115,7 +115,7 @@ public:
      * @brief Check if the error is critical.
      * @return True if the error is critical, false otherwise.
      */
-    bool isCritical() const noexcept {
+    [[nodiscard]] bool isCritical() const noexcept {
         return type == Error::CRITICAL;
     }
 
@@ -123,7 +123,7 @@ public:
      * @brief Check if there is an error (not NONE).
      * @return True if there is an error, false otherwise.
      */
-    bool isError() const noexcept {
+    [[nodiscard]] bool isError() const noexcept {
         return type != Error::NONE;
     }
 
@@ -183,7 +183,7 @@ public:
      *        which will be a dangling pointer after the function call.
      */
     //static Error addError(char const* description, Error::Type type = Error::NON_CRITICAL){
-    //    return getInstance().addErrorImpl(description, type);
+    //    return addErrorImpl(description, type);
     //}
 
     /**
@@ -195,7 +195,7 @@ public:
      */
     static Error addError(std::string const& description, Error::Type type = Error::NON_CRITICAL){
         // Check if we already have this error
-        auto it = std::find_if(
+        auto it = std::ranges::find_if(
             getInstance().errors.begin(),
             getInstance().errors.end(),
             [&](Error const& err){ return err.getDescription() == description; }
@@ -248,14 +248,14 @@ public:
      */
     struct SDL{
         static inline Error CRITICAL_SDL_RENDERER_INIT_FAILED(){
-            static Error error = getInstance().addError("Critical Error: SDL Renderer could not be initialized.", Error::CRITICAL);
+            static Error error = addError("Critical Error: SDL Renderer could not be initialized.", Error::CRITICAL);
             return error;
         }
         static inline Error CRITICAL_SDL_RENDERER_TARGET_FAILED(){
-            static Error error = getInstance().addError("Critical Error: SDL Renderer target could not be set.", Error::CRITICAL);
+            static Error error = addError("Critical Error: SDL Renderer target could not be set.", Error::CRITICAL);
             return error;
         }
-    } SDL;
+    };
 
     /**
      * @struct RENDERER
@@ -263,18 +263,18 @@ public:
      */
     struct RENDERER{
         static inline Error CRITICAL_RENDERER_NOT_INITIALIZED(){
-            static Error error = getInstance().addError("Critical Error: Renderer not initialized.", Error::CRITICAL);
+            static Error error = addError("Critical Error: Renderer not initialized.", Error::CRITICAL);
             return error;
         }
         static inline Error CRITICAL_RENDERER_SNAPSHOT_FAILED(){
-            static Error error = getInstance().addError("Critical Error: Renderer snapshot failed.", Error::CRITICAL);
+            static Error error = addError("Critical Error: Renderer snapshot failed.", Error::CRITICAL);
             return error;
         }
         static inline Error CRITICAL_INVOKE_NULLPTR(){
-            static Error error = getInstance().addError("Critical Error: Linked Invoke pointer is nullptr.", Error::CRITICAL);
+            static Error error = addError("Critical Error: Linked Invoke pointer is nullptr.", Error::CRITICAL);
             return error;
         }
-    } RENDERER;
+    };
 
     /**
      * @struct TEXTURE
@@ -282,34 +282,34 @@ public:
      */
     struct TEXTURE{
         static inline Error CRITICAL_TEXTURE_NOT_FOUND(){
-            static Error error = getInstance().addError("Critical Error: Texture not found.", Error::CRITICAL);
+            static Error error = addError("Critical Error: Texture not found.", Error::CRITICAL);
             return error;
         }
         static inline Error CRITICAL_TEXTURE_COPY_FAILED(){
-            static Error error = getInstance().addError("Critical Error: Texture copy failed.", Error::CRITICAL);
+            static Error error = addError("Critical Error: Texture copy failed.", Error::CRITICAL);
             return error;
         }
         static inline Error CRITICAL_TEXTURE_COLOR_UNSUPPORTED(){
-            static Error error = getInstance().addError("Critical Error: Texture color format unsupported.", Error::CRITICAL);
+            static Error error = addError("Critical Error: Texture color format unsupported.", Error::CRITICAL);
             return error;
         }
         static inline Error CRITICAL_TEXTURE_LOCK_FAILED(){
-            static Error error = getInstance().addError("Critical Error: Texture lock failed.", Error::CRITICAL);
+            static Error error = addError("Critical Error: Texture lock failed.", Error::CRITICAL);
             return error;
         }
         static inline Error CRITICAL_TEXTURE_QUERY_FAILED(){
-            static Error error = getInstance().addError("Critical Error: Texture query failed.", Error::CRITICAL);
+            static Error error = addError("Critical Error: Texture query failed.", Error::CRITICAL);
             return error;
         }
         static inline Error CRITICAL_TEXTURE_MODIFICATION_FAILED(){
-            static Error error = getInstance().addError("Critical Error: Texture modification failed.", Error::CRITICAL);
+            static Error error = addError("Critical Error: Texture modification failed.", Error::CRITICAL);
             return error;
         }
         static inline Error CRITICAL_TEXTURE_INVALID(){
-            static Error error = getInstance().addError("Critical Error: Texture is invalid.", Error::CRITICAL);
+            static Error error = addError("Critical Error: Texture is invalid.", Error::CRITICAL);
             return error;
         }
-    } TEXTURE;
+    };
 
     /**
      * @struct AUDIO
@@ -317,45 +317,45 @@ public:
      */
     struct AUDIO{
         static inline Error CRITICAL_AUDIO_DEVICE_INIT_FAILED(){
-            static Error error = getInstance().addError("Critical Error: Audio device could not be initialized.", Error::CRITICAL);
+            static Error error = addError("Critical Error: Audio device could not be initialized.", Error::CRITICAL);
             return error;
         }
-    } AUDIO;
+    };
 
     /**
-     * @struct RENDERER
-     * @brief Struct grouping Renderer related errors.
+     * @struct FUNCTIONAL
+     * @brief Struct grouping .nebs function related errors.
      */
     struct FUNCTIONAL{
         static inline Error CRITICAL_FUNCTION_NOT_IMPLEMENTED(){
-            static Error error = getInstance().addError("Requested function not implemented.", Error::CRITICAL);
+            static Error error = addError("Requested function not implemented.", Error::CRITICAL);
             return error;
         }
         static inline Error CRITICAL_FUNCTIONCALL_INVALID(){
-            static Error error = getInstance().addError("Requested function call is invalid.", Error::NON_CRITICAL);
+            static Error error = addError("Requested function call is invalid.", Error::NON_CRITICAL);
             return error;
         }
         static inline Error CRITICAL_INVALID_ARGC_ARGV_PARSING(){
-            static Error error = getInstance().addError("argc/argv parsing error.", Error::NON_CRITICAL);
+            static Error error = addError("argc/argv parsing error.", Error::NON_CRITICAL);
             return error;
         }
         static inline Error TOO_MANY_ARGS(){
-            static Error error = getInstance().addError("Too Many Arguments in function call", Error::NON_CRITICAL);
+            static Error error = addError("Too Many Arguments in function call", Error::NON_CRITICAL);
             return error;
         }
         static inline Error TOO_FEW_ARGS(){
-            static Error error = getInstance().addError("Too Few Arguments in function call", Error::NON_CRITICAL);
+            static Error error = addError("Too Few Arguments in function call", Error::NON_CRITICAL);
             return error;
         }
         static inline Error UNKNOWN_ARG(){
-            static Error error = getInstance().addError("Unknown Argument Error", Error::NON_CRITICAL);
+            static Error error = addError("Unknown Argument Error", Error::NON_CRITICAL);
             return error;
         }
         static inline Error FEATURE_NOT_IMPLEMENTED(){
-            static Error error = getInstance().addError("Requested feature of functioncall is not implemented", Error::NON_CRITICAL);
+            static Error error = addError("Requested feature of functioncall is not implemented", Error::NON_CRITICAL);
             return error;
         }
-    } FUNCTIONAL;
+    };
 
     /**
      * @struct FILE
@@ -363,20 +363,20 @@ public:
      */
     struct FILE{
         static inline Error CRITICAL_INVALID_FILE(){
-            static Error error = getInstance().addError("Requested file is invalid.", Error::CRITICAL);
+            static Error error = addError("Requested file is invalid.", Error::CRITICAL);
             return error;
         }
-    } FILE;
+    };
 
     //------------------------------------------
     // Non-specific errors
 
     static inline Error CRITICAL_GENERAL(){
-        static Error error = getInstance().addError("General, critical error. It is recommended to NOT use this error type in production.", Error::CRITICAL);
+        static Error error = addError("General, critical error. It is recommended to NOT use this error type in production.", Error::CRITICAL);
         return error;
     }
     static inline Error NONE(){
-        static Error error = getInstance().addError("", Error::NONE);
+        static Error error = addError("", Error::NONE);
         return error;
     }   
 };
