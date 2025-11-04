@@ -17,7 +17,7 @@
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Core {
-    class Texture; // Forward declaration of domain class Texture
+    class Texture;
 }
 
 //------------------------------------------
@@ -28,7 +28,7 @@ namespace Nebulite::DomainModule::Texture {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, General){
 public:
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions
@@ -40,7 +40,7 @@ public:
      * @param argv The argument vector: no arguments required, texture is reloaded from document
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error reloadTexture(int argc,  char** argv);
+    Constants::Error reloadTexture(int argc,  char** argv);
     static std::string const reloadTexture_name;
     static std::string const reloadTexture_desc;
 

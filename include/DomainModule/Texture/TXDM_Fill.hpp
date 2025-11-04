@@ -19,11 +19,10 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class Texture; // Forward declaration of domain class Texture
-    }
-}
+namespace Nebulite::Core{
+    class Texture;
+}   // namespace Nebulite::Core
+
 
 //------------------------------------------
 namespace Nebulite::DomainModule::Texture {
@@ -33,7 +32,7 @@ namespace Nebulite::DomainModule::Texture {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Fill){
 public:
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions
@@ -45,7 +44,7 @@ public:
      * @param argv The argument vector: "fill <color>" or "fill <R> <G> <B>"
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error fill(int argc,  char** argv);
+    Constants::Error fill(int argc,  char** argv);
     static std::string const fill_name;
     static std::string const fill_desc;
 
