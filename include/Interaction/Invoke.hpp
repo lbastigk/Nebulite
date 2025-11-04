@@ -145,7 +145,7 @@ public:
      * @param topic The topic to listen for.
      * @param listenerId The unique ID of the listener render object.
      */
-    void listen(Nebulite::Core::RenderObject* obj,std::string const& topic, uint32_t listenerId);
+    void listen(Nebulite::Core::RenderObject* obj,std::string const& topic, uint32_t const& listenerId);
 
     //------------------------------------------
     // Value checks
@@ -194,7 +194,7 @@ public:
      * applying any changes or updates as necessary. No broadcast/listening necessary, as no other objects are involved.
      * Changes happen in domain `self` and `global`.
      */
-    void applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self);
+    void applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> const& entries_self) const ;
 
     /**
      * @brief Updates the value of a specific key in the document.
@@ -207,7 +207,7 @@ public:
      * @param valStr The new value as a string.
      * @param target The JSON document to update.
      */
-    void setValueOfKey(
+    static void setValueOfKey(
         Nebulite::Interaction::Logic::Assignment::Operation operation, 
         std::string const& key, 
         std::string const& valStr, 
@@ -225,10 +225,10 @@ public:
      * @param value The new value as a double.
      * @param target The JSON document to update.
      */
-    void setValueOfKey(
+    static void setValueOfKey(
         Nebulite::Interaction::Logic::Assignment::Operation operation, 
         std::string const& key, 
-        double value, 
+        double const& value,
         Nebulite::Utility::JSON* target
     );
 
@@ -243,10 +243,10 @@ public:
      * @param value The new value as a double.
      * @param target The double pointer to update.
      */
-    void setValueOfKey(
+    static void setValueOfKey(
         Nebulite::Interaction::Logic::Assignment::Operation operation, 
         std::string const& key, 
-        double value, 
+        double const& value,
         double* target
     );
 
@@ -265,7 +265,7 @@ public:
      * @param input The expression to evaluate.
      * @return The result of the evaluation.
      */
-    std::string evaluateStandaloneExpression(std::string const& input);
+    std::string evaluateStandaloneExpression(std::string const& input) const ;
 
     /**
      * @brief Evaluates a standalone expression with context from a RenderObject.
@@ -274,7 +274,7 @@ public:
      * @param selfAndOther The RenderObject providing context for `self` and `other`.
      * @return The result of the evaluation.
      */
-    std::string evaluateStandaloneExpression(std::string const& input, Nebulite::Core::RenderObject* selfAndOther);
+    std::string evaluateStandaloneExpression(std::string const& input, Nebulite::Core::RenderObject const* selfAndOther) const ;
 
 private:
     //------------------------------------------
@@ -409,7 +409,7 @@ private:
      * @param entries_self The invoke entries for the self domain.
      * @param Obj_other The render object in the other domain to update.
      */
-    void applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other);
+    void applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> const& entries_self, Nebulite::Core::RenderObject* Obj_other) const ;
 
     /**
      * @brief Applies a single assignment from a ruleset.
@@ -418,12 +418,12 @@ private:
      * @param Obj_self The render object in the self domain to update.
      * @param Obj_other The render object in the other domain to update.
      */
-    void applyAssignment(Nebulite::Interaction::Logic::Assignment& assignment, Nebulite::Core::RenderObject const* Obj_self, Nebulite::Core::RenderObject const* Obj_other);
+    void applyAssignment(Nebulite::Interaction::Logic::Assignment& assignment, Nebulite::Core::RenderObject const* Obj_self, Nebulite::Core::RenderObject const* Obj_other) const ;
 
     /**
      * @brief Applies all function calls from a Ruleset.
      */
-    void applyFunctionCalls(Nebulite::Interaction::Ruleset& ruleset, Nebulite::Core::RenderObject *Obj_self, Nebulite::Core::RenderObject *Obj_other);
+    void applyFunctionCalls(Nebulite::Interaction::Ruleset& ruleset, Nebulite::Core::RenderObject *Obj_self, Nebulite::Core::RenderObject *Obj_other) const ;
 };
 } // namespace Nebulite::Interaction
 #endif // NEBULITE_INTERACTION_INVOKE_HPP
