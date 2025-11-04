@@ -24,9 +24,9 @@ std::string Nebulite::Core::RenderObjectContainer::serialize(){
 	//------------------------------------------
 	// Get all objects in container
 	int i = 0;
-	for (auto it = ObjectContainer.begin(); it != ObjectContainer.end(); ++it){
-		for (auto& batch : it->second){
-			for(auto& obj : batch.objects){
+	for (auto& currentBatch : std::views::values(ObjectContainer)){
+		for (auto& [objects, _] : currentBatch){
+			for(auto& obj : objects){
 				Nebulite::Utility::JSON obj_serial(globalSpace);
 				obj_serial.deserialize(obj->serialize());
 					
@@ -85,7 +85,7 @@ void Nebulite::Core::RenderObjectContainer::append(Nebulite::Core::RenderObject*
     std::pair<int16_t,int16_t> pos = getTilePos(toAppend, dispResX, dispResY);
 
 	// Try to insert into an existing batch
-	auto it = std::find_if(ObjectContainer[pos].begin(), ObjectContainer[pos].end(),
+	auto const it = std::ranges::find_if(ObjectContainer[pos].begin(), ObjectContainer[pos].end(),
 		[](batch const& b){ return b.estimatedCost <= BATCH_COST_GOAL; }
 	);
 	if (it != ObjectContainer[pos].end()){
@@ -208,10 +208,10 @@ void Nebulite::Core::RenderObjectContainer::update(int16_t tilePosX, int16_t til
 void Nebulite::Core::RenderObjectContainer::reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY){
 	// Collect all objects
 	std::vector<RenderObject*> toReinsert;
-	for (auto it = ObjectContainer.begin(); it != ObjectContainer.end(); it++){
-		for (auto batch : it->second){
+	for (auto& batches : std::views::values(ObjectContainer)){
+		for (auto& [objects, _] : batches){
 			// Collect all objects from the batch
-			std::copy(batch.objects.begin(), batch.objects.end(), std::back_inserter(toReinsert));
+			std::ranges::copy(objects.begin(), objects.end(), std::back_inserter(toReinsert));
 		}
 	}
 
@@ -224,9 +224,9 @@ void Nebulite::Core::RenderObjectContainer::reinsertAllObjects(uint16_t const& d
 	}
 }
 
-bool Nebulite::Core::RenderObjectContainer::isValidPosition(std::pair<uint16_t,uint16_t> pos){
+bool Nebulite::Core::RenderObjectContainer::isValidPosition(std::pair<uint16_t,uint16_t> const& position){
     // Check if ObjectContainer is not empty
-	auto it = ObjectContainer.find(pos);
+	auto it = ObjectContainer.find(position);
 	return it != ObjectContainer.end();
 }
 
@@ -269,7 +269,7 @@ void Nebulite::Core::RenderObjectContainer::batch::push(RenderObject* obj){
 }
 
 bool Nebulite::Core::RenderObjectContainer::batch::removeObject(RenderObject* obj){
-	auto it = std::find(objects.begin(), objects.end(), obj);
+	auto const it = std::ranges::find(objects.begin(), objects.end(), obj);
 	if (it != objects.end()){
 		estimatedCost -= obj->estimateComputationalCost();
 		objects.erase(it);

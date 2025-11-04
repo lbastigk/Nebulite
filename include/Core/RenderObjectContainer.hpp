@@ -112,10 +112,10 @@ public:
 
 	/**
 	 * @brief Checks if the given tile position is valid; contains objects.
-	 * @param pos The tile position to check: (x, y).
+	 * @param position The tile position to check: (x, y).
 	 * @return True if the position contains objects, false otherwise.
 	 */
-	bool isValidPosition(std::pair<uint16_t,uint16_t> pos);
+	bool isValidPosition(std::pair<uint16_t,uint16_t> const& position);
 
 	// removes all objects
 	/**
@@ -168,11 +168,11 @@ public:
 	 */
 	RenderObject* getObjectFromId(uint32_t id){
 		// Go through all batches
-		for (auto& [pos, batchVec] : ObjectContainer){
-			for (auto& obj : batchVec){
-				for (auto& renderObj : obj.objects){
-					if (renderObj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0) == id){
-						return renderObj;
+		for (auto& batches : std::views::values(ObjectContainer)){
+			for (auto& [objects, _] : batches){
+				for (auto& object : objects){
+					if (object->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0) == id){
+						return object;
 					}
 				}
 			}
