@@ -43,7 +43,7 @@ public:
 	 * @param X Width of the rendering area.
 	 * @param Y Height of the rendering area.
 	 */
-	Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool* flag_headless, unsigned int const& X = 1080, unsigned int const& Y  = 1080);
+	Renderer(GlobalSpace* globalSpace, bool* flag_headless, unsigned int const& X = 1080, unsigned int const& Y  = 1080);
 
 	/**
 	 * @brief Initializes SDL and related subsystems.
@@ -53,7 +53,7 @@ public:
 	/**
 	 * @brief Called before parsing any commands.
 	 */
-	Nebulite::Constants::Error preParse() override;
+	Constants::Error preParse() override;
 
 	//------------------------------------------
 	// Serialization / Deserialization
@@ -72,11 +72,11 @@ public:
 	 * 
 	 * @param serialOrLink The JSON string or link to deserialize.
 	 */
-	inline void deserialize(std::string const& serialOrLink) noexcept {
+	void deserialize(std::string const& serialOrLink) noexcept {
 		env.deserialize(
 			serialOrLink, 
-			getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResX,0),
-			getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResY,0)
+			getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResX,0),
+			getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResY,0)
 		);
 	}
 
@@ -103,7 +103,7 @@ public:
 	 * @param invoke_ptr Pointer to the current Invoke instance.
 	 * @return True if update was done, false if skipped (e.g. console mode).
 	 */
-	bool tick(Nebulite::Interaction::Invoke* invoke_ptr);
+	bool tick(Interaction::Invoke* invoke_ptr);
 
 	/**
 	 * @brief Checks if it's time to render the next frame based on the target FPS.
@@ -127,7 +127,7 @@ public:
 	 * 
 	 * @param toAppend Pointer to the RenderObject to append.
 	 */
-	void append(Nebulite::Core::RenderObject* toAppend);
+	void append(RenderObject* toAppend);
 
 	/**
 	 * @brief Reinserts all objects into the rendering pipeline.
@@ -174,7 +174,7 @@ public:
 	 * @param rect Optional SDL_Rect defining the area to render the texture.
 	 * @return True if the texture was successfully attached, false otherwise.
 	 */
-	bool attachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string const& name, SDL_Texture* texture, SDL_Rect* rect = nullptr){
+	bool attachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name, SDL_Texture* texture, SDL_Rect* rect = nullptr){
 		if(texture == nullptr){
 			return false; // Cannot attach a null texture
 		}
@@ -194,7 +194,7 @@ public:
 	 * @param name The name of the texture to remove.
 	 * @return True if the texture was successfully removed, false otherwise.
 	 */
-	bool detachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string const& name){
+	bool detachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name){
 		if(BetweenLayerTextures[aboveThisLayer].contains(name)){
 			BetweenLayerTextures[aboveThisLayer].erase(name);
 			return true;
@@ -250,7 +250,7 @@ public:
 	/**
 	 * @brief Toggles the display of the FPS counter.
 	 */
-	void toggleFps(bool show = true){
+	void toggleFps(bool const& show = true){
 		showFPS = show;
 	}
 
@@ -311,14 +311,14 @@ public:
 	 * 
 	 * @return The current resolution in the X direction.
 	 */
-	[[nodiscard]] int getResX() const {return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX,0);}
+	[[nodiscard]] int getResX() const {return getDoc()->get<int>(Constants::keyName.renderer.dispResX,0);}
 
 	/**
 	 * @brief Gets the current resolution in the Y direction.
 	 * 
 	 * @return The current resolution in the Y direction.
 	 */
-	[[nodiscard]] int getResY() const {return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY,0);}
+	[[nodiscard]] int getResY() const {return getDoc()->get<int>(Constants::keyName.renderer.dispResY,0);}
 
 	/**
 	 * @brief Gets the current FPS.
@@ -334,7 +334,7 @@ public:
 	 * 
 	 * @return The current position of the camera in the X direction.
 	 */
-	[[nodiscard]] int getPosX() const {return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionX,0);}
+	[[nodiscard]] int getPosX() const {return getDoc()->get<int>(Constants::keyName.renderer.positionX,0);}
 
 	/**
 	 * @brief Gets the current position of the camera in the Y direction.
@@ -343,7 +343,7 @@ public:
 	 * 
 	 * @return The current position of the camera in the Y direction.
 	 */
-	[[nodiscard]] int getPosY() const {return getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionY,0);}
+	[[nodiscard]] int getPosY() const {return getDoc()->get<int>(Constants::keyName.renderer.positionY,0);}
 
 	/**
 	 * @brief Gets the current tile position of the camera in the X direction.
@@ -378,7 +378,7 @@ public:
 	 * @param id The ID of the RenderObject to retrieve.
 	 * @return A pointer to the RenderObject, or nullptr if not found.
 	 */
-	Nebulite::Core::RenderObject* getObjectFromId(uint32_t id){
+	RenderObject* getObjectFromId(uint32_t const& id){
 		return env.getObjectFromId(id);
 	}
 
@@ -465,7 +465,7 @@ private:
 		double const frequency = 440.0;  		// 440 Hz beep
 		double const duration = 200.0;   		// 200ms
 		double const sampleRate = 44100.0;
-		size_t const samples = static_cast<size_t>((sampleRate * duration) / 1000.0);	// Number of samples
+		size_t const samples = static_cast<size_t>(sampleRate * duration / 1000.0);	// Number of samples
 		std::vector<int16_t>* sineBuffer = nullptr;
 		std::vector<int16_t>* squareBuffer = nullptr;
 		std::vector<int16_t>* triangleBuffer = nullptr;
@@ -543,7 +543,7 @@ private:
 	 * 
 	 * @param invoke_ptr Pointer to the current Invoke instance.
 	 */
-	void updateState(Nebulite::Interaction::Invoke* invoke_ptr);
+	void updateState(Interaction::Invoke* invoke_ptr);
 
 	/**
 	 * @brief Renders the current frame.
@@ -572,12 +572,12 @@ private:
 	 * @param dispPosY The Y position on the screen to render the object.
 	 * @return SDL_Error code from SDL_RenderCopy, 0 if successful.
 	 */
-	int renderObjectToScreen(Nebulite::Core::RenderObject* obj, int dispPosX, int dispPosY);
+	int renderObjectToScreen(RenderObject* obj, int dispPosX, int dispPosY);
 
 	//------------------------------------------
 	//For FPS Count
-	Nebulite::Utility::TimeKeeper fpsControlTimer;
-	Nebulite::Utility::TimeKeeper fpsRenderTimer;
+	Utility::TimeKeeper fpsControlTimer;
+	Utility::TimeKeeper fpsRenderTimer;
 	uint16_t TARGET_FPS = 500; 								// Target framerate (e.g., 60 FPS)
 	uint16_t TARGET_TICKS_PER_FRAME = 1000 / TARGET_FPS; 	// Milliseconds per frame
 	uint16_t REAL_FPS_COUNTER = 0;							// Counts fps in a 1-second-interval

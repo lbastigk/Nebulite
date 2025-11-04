@@ -94,7 +94,7 @@ public:
 	 * 
 	 * - RenderObject creation
 	 */
-	explicit Environment(Nebulite::Core::GlobalSpace* globalSpace);
+	explicit Environment(GlobalSpace* globalSpace);
 
 	// Suppress copy/move operators
 	Environment(Environment&& other) = delete;
@@ -139,7 +139,7 @@ public:
 	 * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
 	 * @param layer Layer index to append the object to (default is 0).
 	 */
-	void append(Nebulite::Core::RenderObject* toAppend,uint16_t dispResX, uint16_t dispResY, uint8_t layer = 0);
+	void append(RenderObject* toAppend,uint16_t dispResX, uint16_t dispResY, uint8_t layer = 0);
 
 	/**
 	 * @brief Updates the environment's state.
@@ -169,7 +169,7 @@ public:
 	 * @param id The ID of the RenderObject to retrieve.
 	 * @return A pointer to the RenderObject if found, nullptr otherwise.
 	 */
-	Nebulite::Core::RenderObject* getObjectFromId(uint32_t id);
+	RenderObject* getObjectFromId(uint32_t id);
 
 	//------------------------------------------
 	// Container Management
@@ -182,7 +182,7 @@ public:
 	 * @param layer The layer index.
 	 * @return A reference to the RenderObjectContainer at the specified position and layer: A vector of batched RenderObjects.
 	 */
-	std::vector<Nebulite::Core::RenderObjectContainer::batch>& getContainerAt(int16_t x, int16_t y, Environment::Layer layer);
+	std::vector<RenderObjectContainer::batch>& getContainerAt(int16_t x, int16_t y, Layer layer);
 
 	/**
 	 * @brief Checks if the specified position and layer are valid, meaning they are within the bounds of the environment.
@@ -192,7 +192,7 @@ public:
 	 * @param layer The layer index.
 	 * @return True if the position and layer are valid, false otherwise.
 	 */
-	bool isValidPosition(int x, int y, Environment::Layer layer);
+	bool isValidPosition(int x, int y, Layer layer);
 
 	/**
 	 * @brief Purges all objects from the environment by placing them in the deletion process.
@@ -211,13 +211,13 @@ private:
 	std::vector<Layer> allLayers = {Layer::background, Layer::general, Layer::foreground, Layer::effects, Layer::UI};
 
 	// Link to Global Values
-    Nebulite::Utility::JSON* global;
+    Utility::JSON* global;
 
 	// Link to GlobalSpace
-	Nebulite::Core::GlobalSpace* globalSpace;
+	GlobalSpace* globalSpace;
 
 	// Inner RenderObject container layers
-	std::array<Nebulite::Core::RenderObjectContainer, Nebulite::Core::Environment::LayerCount> roc;
+	std::array<RenderObjectContainer, LayerCount> roc;
 };
 } // namespace Nebulite::Core
 

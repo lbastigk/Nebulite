@@ -90,7 +90,7 @@ public:
 	 * 
 	 * @param globalSpace A pointer to the Globalspace instance.
 	 */
-	explicit RenderObject(Nebulite::Core::GlobalSpace* globalSpace);
+	explicit RenderObject(GlobalSpace* globalSpace);
 
 	/**
 	 * @brief Destroys the RenderObject.
@@ -191,9 +191,9 @@ public:
 	 * 
 	 * - calculates source and destination rects
 	 *
-	 * @return Nebulite::Constants::Error indicating success or failure.
+	 * @return Constants::Error indicating success or failure.
 	 */
-	Nebulite::Constants::Error update() override;
+	Constants::Error update() override;
 
 	/**
 	 * @brief Calculates the text texture for the RenderObject.
@@ -278,13 +278,13 @@ public:
         return baseTexture.getSDLTexture();
     }
 
-	Nebulite::Core::Texture* getTexture(){
+	Texture* getTexture(){
 		return &baseTexture;
 	}
 
 private:
 	// Main doc holding values
-	Nebulite::Utility::JSON json;
+	Utility::JSON json;
 
 	// Size of subscriptions
 	size_t subscription_size = 0;
@@ -328,36 +328,36 @@ private:
 	 */
 	void linkFrequentRefs(){
 		// Identity
-		refs.id                 = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.id);
+		refs.id                 = json.getStableDoublePointer(Constants::keyName.renderObject.id);
 
 		// Position and Size
-		refs.posX			    = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.positionX);
-		refs.posY			    = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.positionY);
-		refs.pixelSizeX         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.pixelSizeX);
-		refs.pixelSizeY         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.pixelSizeY);
+		refs.posX			    = json.getStableDoublePointer(Constants::keyName.renderObject.positionX);
+		refs.posY			    = json.getStableDoublePointer(Constants::keyName.renderObject.positionY);
+		refs.pixelSizeX         = json.getStableDoublePointer(Constants::keyName.renderObject.pixelSizeX);
+		refs.pixelSizeY         = json.getStableDoublePointer(Constants::keyName.renderObject.pixelSizeY);
 
 		// Spritesheet
-		refs.isSpritesheet      = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.isSpritesheet);
-		refs.spritesheetOffsetX = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX);
-		refs.spritesheetOffsetY = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY);
-		refs.spritesheetSizeX   = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetSizeX);
-		refs.spritesheetSizeY   = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetSizeY);
+		refs.isSpritesheet      = json.getStableDoublePointer(Constants::keyName.renderObject.isSpritesheet);
+		refs.spritesheetOffsetX = json.getStableDoublePointer(Constants::keyName.renderObject.spritesheetOffsetX);
+		refs.spritesheetOffsetY = json.getStableDoublePointer(Constants::keyName.renderObject.spritesheetOffsetY);
+		refs.spritesheetSizeX   = json.getStableDoublePointer(Constants::keyName.renderObject.spritesheetSizeX);
+		refs.spritesheetSizeY   = json.getStableDoublePointer(Constants::keyName.renderObject.spritesheetSizeY);
 
 		// Text
-		refs.fontSize           = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textFontsize);
-		refs.textDx				= json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textDx);
-		refs.textDy				= json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textDy);
-		refs.textColorR         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorR);
-		refs.textColorG         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorG);
-		refs.textColorB         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorB);
-		refs.textColorA         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorA);
+		refs.fontSize           = json.getStableDoublePointer(Constants::keyName.renderObject.textFontsize);
+		refs.textDx				= json.getStableDoublePointer(Constants::keyName.renderObject.textDx);
+		refs.textDy				= json.getStableDoublePointer(Constants::keyName.renderObject.textDy);
+		refs.textColorR         = json.getStableDoublePointer(Constants::keyName.renderObject.textColorR);
+		refs.textColorG         = json.getStableDoublePointer(Constants::keyName.renderObject.textColorG);
+		refs.textColorB         = json.getStableDoublePointer(Constants::keyName.renderObject.textColorB);
+		refs.textColorA         = json.getStableDoublePointer(Constants::keyName.renderObject.textColorA);
 	}
 
 	//------------------------------------------
 	// Texture related
 
 	// Base Texture
-	Nebulite::Core::Texture baseTexture;
+	Texture baseTexture;
 	
 	// === TO REWORK ===
 
@@ -375,20 +375,20 @@ private:
 
 	//------------------------------------------
 	// Invoke Commands
-	std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> entries_global;	// Global commands, intended for self-other-global interaction
-	std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> entries_local;		// Internal commands, intended for self-global interaction
+	std::vector<std::shared_ptr<Interaction::Ruleset>> entries_global;	// Global commands, intended for self-other-global interaction
+	std::vector<std::shared_ptr<Interaction::Ruleset>> entries_local;		// Internal commands, intended for self-global interaction
 
 	//------------------------------------------
 	// Linkages
 
 	// Linkage to the entire global space
-	Nebulite::Core::GlobalSpace* globalSpace;
+	GlobalSpace* globalSpace;
 
 	// Each RenderObject with linkage to the global document
-	Nebulite::Utility::JSON* global;
+	Utility::JSON* global;
 
 	// Linkage to the global invoke for update calls
-	Nebulite::Interaction::Invoke* invoke;
+	Interaction::Invoke* invoke;
 };
 } // namespace Nebulite::Core
 
