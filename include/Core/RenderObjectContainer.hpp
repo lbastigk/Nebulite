@@ -48,14 +48,12 @@ public:
 		/**
 		 * @brief Pushes a RenderObject into the batch.
 		 * @param obj Pointer to the RenderObject to push.
-		 * @param globalInvoke Pointer to the global Invoke instance.
 		 */
 		void push(RenderObject* obj);
 
 		/**
 		 * @brief Removes a RenderObject from the batch.
 		 * @param obj Pointer to the RenderObject to remove.
-		 * @param globalInvoke Pointer to the global Invoke instance.
 		 * @return True if the object was removed, false otherwise.
 		 */
 		bool removeObject(RenderObject* obj);
@@ -110,7 +108,7 @@ public:
 	 * @param dispResX Display resolution width for tile placement.
 	 * @param dispResY Display resolution height for tile placement.
 	 */
-	void reinsertAllObjects(uint16_t dispResX, uint16_t dispResY);
+	void reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY);
 
 	/**
 	 * @brief Checks if the given tile position is valid; contains objects.
@@ -133,7 +131,7 @@ public:
 	 * @brief Gets the total count of RenderObject instances in the container.
 	 * @return The total number of RenderObject instances.
 	 */
-	size_t getObjectCount() const;
+	[[nodiscard]] size_t getObjectCount() const;
 
 	/**
 	 * @brief Updates all objects within a 3x3 tile viewport.
@@ -142,20 +140,21 @@ public:
 	 * that are currently within the specified tile viewport. It takes into account the
 	 * display resolution for potential re-insertions.
 	 * 
-	 * @param tileXpos The middle tile to in x-axis.
-	 * @param tileYpos The middle tile to in y-axis.
+	 * @param tilePosX The middle tile to in x-axis.
+	 * @param tilePosY The middle tile to in y-axis.
 	 * @param dispResX The display resolution width. Needed for potential re-insertion.
 	 * @param dispResY The display resolution height. Needed for potential re-insertion.
-	 * @param globalInvoke Pointer to the global Invoke instance for object updates.
 	 */
-	void update(int16_t tileXpos, int16_t tileYpos, uint16_t dispResX, uint16_t dispResY);
+	void update(int16_t tilePosX, int16_t tilePosY, uint16_t dispResX, uint16_t dispResY);
 
 	/**
 	 * @brief Gets the vector of batches at the specified tile position.
-	 * @param pos The tile position to query: (x, y).
+	 * @param position The tile position to query: (x, y).
 	 * @return A reference to the vector of batches at the specified position.
 	 */
-	std::vector<batch>& getContainerAt(std::pair<uint16_t,uint16_t> pos);
+	std::vector<batch>& getContainerAt(std::pair<uint16_t,uint16_t> const& position){
+		return ObjectContainer[position];
+	}
 
 	/**
 	 * @brief Retrieves a RenderObject from the container by its unique ID.
@@ -242,7 +241,7 @@ private:
 	 * - Delete
 	 * 
 	 * Just trash should be enough to resolve all existing references, but we keep this structure for now.
-	 * Perhaps in the future we wish to add a restore option, and thus dont delete purgatory right away.
+	 * Perhaps in the future we wish to add a restore option, meaning we don't delete purgatory right away.
 	 * Or new mechanisms that require a 2-step deletion.
 	 */
 	struct DeletionProcess{

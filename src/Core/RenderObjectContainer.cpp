@@ -51,14 +51,14 @@ void Nebulite::Core::RenderObjectContainer::deserialize(std::string const& seria
 			std::string key = "objects[" + std::to_string(i) + "]";
 
 			// Check if serial or not:
-			std::string ro_serial = layer.get<std::string>(key.c_str());
+			auto ro_serial = layer.get<std::string>(key);
 			if(ro_serial == "{Object}"){
 				Nebulite::Utility::JSON tmp(globalSpace);
 				tmp = layer.get_subdoc(key);
 				ro_serial = tmp.serialize();
 			}
 
-			RenderObject* ro = new RenderObject(globalSpace);
+			auto* ro = new RenderObject(globalSpace);
 			ro->deserialize(ro_serial);
 			append(ro, dispResX, dispResY);
 		}
@@ -68,17 +68,17 @@ void Nebulite::Core::RenderObjectContainer::deserialize(std::string const& seria
 //------------------------------------------
 // Pipeline
 
-std::pair<int16_t,int16_t> getTilePos(Nebulite::Core::RenderObject* toAppend, uint16_t dispResX, uint16_t dispResY){
-    // Calculate correspondingTileXpos using positionX
-    double posX = toAppend->get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0.0);
-    int16_t correspondingTileXpos = static_cast<int16_t>(posX / static_cast<double>(dispResX));
+std::pair<int16_t,int16_t> getTilePos(Nebulite::Core::RenderObject* toAppend, uint16_t displayResolutionX, uint16_t displayResolutionY){
+    // Calculate correspondingTilePositionX using positionX
+    auto positionX = toAppend->get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0.0);
+    auto correspondingTilePositionX = static_cast<int16_t>(positionX / static_cast<double>(displayResolutionX));
 
-    // Calculate correspondingTileYpos using positionY
-    double posY = toAppend->get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0.0);
-    int16_t correspondingTileYpos = static_cast<int16_t>(posY / static_cast<double>(dispResY));
+    // Calculate correspondingTilePositionY using positionY
+    auto positionY = toAppend->get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0.0);
+    auto correspondingTilePositionY = static_cast<int16_t>(positionY / static_cast<double>(displayResolutionY));
 
     // Form pair and return
-	return std::make_pair(correspondingTileXpos,correspondingTileYpos);
+	return std::make_pair(correspondingTilePositionX,correspondingTilePositionY);
 }
 
 void Nebulite::Core::RenderObjectContainer::append(Nebulite::Core::RenderObject* toAppend, uint16_t dispResX, uint16_t dispResY){
@@ -135,12 +135,19 @@ std::thread Nebulite::Core::RenderObjectContainer::create_batch_worker(batch& ba
 	});
 }
 
-void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t tileYpos, uint16_t dispResX, uint16_t dispResY){
+void Nebulite::Core::RenderObjectContainer::update(int16_t tilePosX, int16_t tilePosY, uint16_t dispResX, uint16_t dispResY){
+	//------------------------------------------
+	// Define tile offsets that are being rendered
+
+	// Currently, tile size is based on resolution so we render a 3x3 grid of tiles
+	std::vector<int16_t> tileOffsetsX = {-1, 0, 1};
+	std::vector<int16_t> tileOffsetsY = {-1, 0, 1};
+
 	//------------------------------------------
 	// 2-Step Deletion
 
-	// Deleteflag--->Trash--->Purgatory-->Destructor
-	// This way, any invokes previously send are safe to never access nullpointers
+	// Deletion flag --> Trash --> Purgatory --> Destructor
+	// This way, any invokes previously send are safe to never access any deleted memory
 
 	// Finalize deletion of objects in purgatory
 	if (!deletionProcess.purgatory.empty()){
@@ -170,13 +177,15 @@ void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t til
 	// [ ][ ][ ][ ][ ][ ][ ][ ][ ]
 	// [ ][ ][ ][ ][ ][ ][ ][ ][ ]
 	// [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-	for (int16_t dX = tileXpos - 1; dX <= tileXpos + 1; dX++){
-		for (int16_t dY = tileYpos - 1; dY <= tileYpos + 1; dY++){
-			std::pair<uint16_t,uint16_t> pos = std::make_pair(dX, dY);
+	for (int16_t const dX : tileOffsetsX){
+		uint16_t const currentTilePosX = tilePosX - dX;
+		for (int16_t const dY : tileOffsetsY){
+			uint16_t const currentTilePosY = tilePosY - dY;
+			std::pair<uint16_t,uint16_t> pos = std::make_pair(currentTilePosX, currentTilePosY);
 			auto& tile = ObjectContainer[pos];
 
 			// Create batch workers for each batch in the tile
-			std::transform(
+			std::ranges::transform(
 				tile.begin(), tile.end(),
 				std::back_inserter(batchWorkers),
 				[&](auto& batch){ return create_batch_worker(batch, pos, dispResX, dispResY); }
@@ -196,7 +205,7 @@ void Nebulite::Core::RenderObjectContainer::update(int16_t tileXpos, int16_t til
 	reinsertionProcess.queue.clear();
 }
 
-void Nebulite::Core::RenderObjectContainer::reinsertAllObjects(uint16_t dispResX, uint16_t dispResY){
+void Nebulite::Core::RenderObjectContainer::reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY){
 	// Collect all objects
 	std::vector<RenderObject*> toReinsert;
 	for (auto it = ObjectContainer.begin(); it != ObjectContainer.end(); it++){
@@ -219,10 +228,6 @@ bool Nebulite::Core::RenderObjectContainer::isValidPosition(std::pair<uint16_t,u
     // Check if ObjectContainer is not empty
 	auto it = ObjectContainer.find(pos);
 	return it != ObjectContainer.end();
-}
-
-std::vector<Nebulite::Core::RenderObjectContainer::batch>& Nebulite::Core::RenderObjectContainer::getContainerAt(std::pair<uint16_t,uint16_t> pos){
-	return ObjectContainer[pos];
 }
 
 void Nebulite::Core::RenderObjectContainer::purgeObjects(){
