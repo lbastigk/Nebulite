@@ -1,5 +1,5 @@
 /**
- * @file GSDM_Console.hpp
+ * @file RRDM_Console.hpp
  * 
  * This file contains the DomainModule of the GlobalSpace to provide console capabilities.
  */
@@ -22,11 +22,10 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class Renderer; // Forward declaration of domain class GlobalSpace
-    }
-}
+namespace Nebulite::Core{
+    class Renderer;
+}   // namespace Nebulite::Core
+
 
 //------------------------------------------
 namespace Nebulite::DomainModule::Renderer {
@@ -39,7 +38,7 @@ public:
     /**
      * @brief Override of update.
      */
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions
@@ -50,7 +49,7 @@ public:
      * @param argv Argument values: [in/out/+/-], defaults to in/+.
      * @return Error code.
      */
-    Nebulite::Constants::Error consoleZoom(int argc,  char** argv);
+    Constants::Error consoleZoom(int argc,  char** argv);
     static std::string const consoleZoom_name;
     static std::string const consoleZoom_desc;
 
@@ -60,7 +59,7 @@ public:
      * @param argv Argument values: [image_path].
      * @return Error code.
      */
-    Nebulite::Constants::Error consoleSetBackground(int argc,  char** argv);
+    Constants::Error consoleSetBackground(int argc,  char** argv);
     static std::string const consoleSetBackground_name;
     static std::string const consoleSetBackground_desc;
 
@@ -79,7 +78,7 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Console){
         // we cannot do much here, since renderer might not be initialized yet
         // so we do the actual initialization in update() when needed
-        bindCategory(console_name, &console_desc);
+        (void)bindCategory(console_name, &console_desc);
         bindFunction(&Console::consoleZoom,             consoleZoom_name,           &consoleZoom_desc);
         bindFunction(&Console::consoleSetBackground,    consoleSetBackground_name,  &consoleSetBackground_desc);
     }
@@ -147,7 +146,7 @@ private:
     /**
      * @brief Rectangle defining the input text area.
      */
-	SDL_Rect textInputRect;
+	SDL_Rect textInputRect = {0,0,0,0};
 
     /**
      * @brief Texture for the background image.
@@ -157,16 +156,16 @@ private:
     /**
      * @brief Rectangle defining the highlighted text area.
      */
-    SDL_Rect textInputHighlightRect;
+    SDL_Rect textInputHighlightRect = {0,0,0,0};
 
     /**
      * @brief Rectangle used for each output line.
      */
-    SDL_Rect textOutputRect;
+    SDL_Rect textOutputRect = {0,0,0,0};
 
     // Texture for console rendering
     struct SDL_Texture_Wrapper{
-        SDL_Rect rect;
+        SDL_Rect rect = {0,0,0,0};
         SDL_Texture* texture_ptr = nullptr;
     }consoleTexture;
 
@@ -259,7 +258,7 @@ private:
     /**
      * @brief Draws the output lines.
      * 
-     * @param maxLineLength The maximum length of a line before linebreaking, in characters.
+     * @param maxLineLength The maximum length of a line before line breaking happens, in characters.
      * 
      * @todo Newline handling does not work if a line is split into more than two lines.
      */
@@ -277,11 +276,11 @@ private:
     //------------------------------------------
     // References
     SDL_Renderer* renderer = nullptr;
-    Nebulite::Utility::JSON* globalDoc = nullptr;
+    Utility::JSON* globalDoc = nullptr;
 
     //------------------------------------------
     // Text input handling
-    Nebulite::Utility::TextInput textInput;
+    Utility::TextInput textInput;
 };
 }   // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_RRDM_CONSOLE_HPP

@@ -49,7 +49,7 @@ public:
      * }
      * ```
      */
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions
@@ -85,13 +85,13 @@ public:
      * 
      * - RenderObject deletion mechanism in Renderer::update()
      * 
-     * As of now, the implementation is fully functional so its a low priority task.
+     * As of now, the implementation is fully functional so it's a low priority task.
      * 
      * @param argc The argument count
      * @param argv The argument vector: RenderObject as link to json/jsonc file
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error spawn(int argc,  char** argv);
+    Constants::Error spawn(int argc,  char** argv);
     static std::string const spawn_name;
     static std::string const spawn_desc;
 
@@ -102,7 +102,7 @@ public:
      * @param argv The argument vector: Environment as link to json/jsonc file
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error env_load(int argc,  char** argv);
+    Constants::Error env_load(int argc,  char** argv);
     static std::string const env_load_name;
     static std::string const env_load_desc;
 
@@ -113,7 +113,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error env_deload(int argc,  char** argv);
+    Constants::Error env_deload(int argc,  char** argv);
     static std::string const env_deload_name;
     static std::string const env_deload_desc;
 
@@ -131,7 +131,7 @@ public:
      * 
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error setResolution(int argc,  char** argv);
+    Constants::Error setResolution(int argc,  char** argv);
     static std::string const setResolution_name;
     static std::string const setResolution_desc;
 
@@ -145,7 +145,7 @@ public:
      * 
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error setFPS(int argc,  char** argv);
+    Constants::Error setFPS(int argc,  char** argv);
     static std::string const setFPS_name;
     static std::string const setFPS_desc;
 
@@ -159,7 +159,7 @@ public:
      * 
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error showFPS(int argc,  char** argv);
+    Constants::Error showFPS(int argc,  char** argv);
     static std::string const showFPS_name;
     static std::string const showFPS_desc;
 
@@ -170,7 +170,7 @@ public:
      * @param argv The argument vector: <dx> <dy>
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error cam_move(int argc,  char** argv);
+    Constants::Error cam_move(int argc,  char** argv);
     static std::string const cam_move_name;
     static std::string const cam_move_desc;
 
@@ -184,7 +184,7 @@ public:
      * 
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error cam_set(int argc,  char** argv);
+    Constants::Error cam_set(int argc,  char** argv);
     static std::string const cam_set_name;
     static std::string const cam_set_desc;
 
@@ -198,7 +198,7 @@ public:
      * 
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error snapshot(int argc,  char** argv);
+    Constants::Error snapshot(int argc,  char** argv);
     static std::string const snapshot_name;
     static std::string const snapshot_desc;
 
@@ -209,7 +209,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error beep(int argc,  char** argv);
+    Constants::Error beep(int argc,  char** argv);
     static std::string const beep_name;
     static std::string const beep_desc;
 
@@ -231,7 +231,7 @@ public:
      * This would also make sense, as the Renderer is the owner of the RenderObjects
      * and should thus also be the owner of the selected object reference
      */
-    Nebulite::Constants::Error selectedObject_get(int argc,  char** argv);
+    Constants::Error selectedObject_get(int argc,  char** argv);
     static std::string const selectedObject_get_name;
     static std::string const selectedObject_get_desc;
 
@@ -241,7 +241,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error selectedObject_Parse(int argc,  char** argv);
+    Constants::Error selectedObject_Parse(int argc,  char** argv);
     static std::string const selectedObject_Parse_name;
     static std::string const selectedObject_Parse_desc;
 
@@ -276,15 +276,15 @@ public:
         bindFunction(&General::snapshot,            snapshot_name,         &snapshot_desc);
         bindFunction(&General::beep,                beep_name,             &beep_desc);
 
-        bindCategory(cam_name, &cam_desc);
+        (void)bindCategory(cam_name, &cam_desc);
         bindFunction(&General::cam_move,             cam_move_name,         &cam_move_desc);
         bindFunction(&General::cam_set,              cam_set_name,          &cam_set_desc);
 
-        bindCategory(selectedObject_name, &selectedObject_desc);
+        (void)bindCategory(selectedObject_name, &selectedObject_desc);
         bindFunction(&General::selectedObject_get,   selectedObject_get_name,   &selectedObject_get_desc);
         bindFunction(&General::selectedObject_Parse, selectedObject_Parse_name, &selectedObject_Parse_desc);
 
-        bindCategory(env_name, &env_desc);
+        (void)bindCategory(env_name, &env_desc);
         bindFunction(&General::env_load,             env_load_name,         &env_load_desc);
         bindFunction(&General::env_deload,           env_deload_name,       &env_deload_desc);
     }
@@ -293,7 +293,7 @@ private:
     /**
      * @brief Pointer to the currently selected RenderObject
      */
-    Nebulite::Core::RenderObject* selectedRenderObject = nullptr;
+    Core::RenderObject* selectedRenderObject = nullptr;
 };
 }   // namespace Nebulite::DomainModule::Renderer
 #endif // NEBULITE_RRDM_GENERAL_HPP
