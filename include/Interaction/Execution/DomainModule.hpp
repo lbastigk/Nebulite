@@ -16,7 +16,7 @@
 
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
     explicit DomainModuleName(std::string const& moduleName, DomainName* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
-    : DomainModule(moduleName, domain, funcTreePtr, globalSpace)
+    : DomainModule(moduleName, domain, std::move(funcTreePtr), globalSpace)
 
 //------------------------------------------
 // Includes
@@ -84,7 +84,7 @@ public:
      * @tparam ClassType The type of the class containing the member function.
      * @param method A pointer to the member function to bind.
      * @param name The name to associate with the bound function.
-     * @param helpDescription An pointer to a string containing the help description for the function.
+     * @param helpDescription A pointer to a string containing the help description for the function.
      */
     template<typename ClassType>
     void bindFunction(Constants::Error (ClassType::*method)(int, char**), std::string const& name, std::string const* helpDescription){
