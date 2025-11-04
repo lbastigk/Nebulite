@@ -40,7 +40,7 @@ public:
      * @brief Updates the input states of mouse and keyboard 
      * stored in the global document by polling SDL events.
      */
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions
@@ -88,7 +88,7 @@ private:
      * 
      * If last update is over a threshold, we poll for input again.
      */
-    std::shared_ptr<Nebulite::Utility::TimeKeeper> RendererPollTime;
+    std::shared_ptr<Utility::TimeKeeper> RendererPollTime;
 
     /**
      * @brief If the timer was initialized.

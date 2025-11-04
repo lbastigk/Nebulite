@@ -15,11 +15,9 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class GlobalSpace; // Forward declaration of domain class GlobalSpace
-    }
-}
+namespace Nebulite::Core{
+    class GlobalSpace; // Forward declaration of domain class GlobalSpace
+}   // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {
@@ -32,7 +30,7 @@ public:
     /**
      * @brief Override of update.
      */
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions
@@ -44,7 +42,7 @@ public:
      * @param argv The argument vector: None.
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error debug_collisionDetect_function(int argc, char const* argv[]);
+    Constants::Error debug_collisionDetect_function(int argc, char const* argv[]);
     static std::string const debug_collisionDetect_function_name;
     static std::string const debug_collisionDetect_function_desc;
 
@@ -55,7 +53,7 @@ public:
      * @param argv The argument vector: None.
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error debug_collisionDetect_category(int argc, char const* argv[]);
+    Constants::Error debug_collisionDetect_category(int argc, char const* argv[]);
     static std::string const debug_collisionDetect_category_name;
     static std::string const debug_collisionDetect_category_desc;
 
@@ -66,7 +64,7 @@ public:
      * @param argv The argument vector: None.
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error debug_collisionDetect_variable(int argc, char const* argv[]);
+    Constants::Error debug_collisionDetect_variable(int argc, char const* argv[]);
     static std::string const debug_collisionDetect_variable_name;
     static std::string const debug_collisionDetect_variable_desc;
 
@@ -86,16 +84,14 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug_Domain_Collision_Detection){
         // Bind the categories for the functions
-        bindCategory(debug_name, &debug_desc);
-        bindCategory(collisionDetect_name, &collisionDetect_desc);
+        (void)bindCategory(debug_name, &debug_desc);
+        (void)bindCategory(collisionDetect_name, &collisionDetect_desc);
 
         // Function bindings
         bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_function, debug_collisionDetect_function_name, &debug_collisionDetect_function_desc);
         bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_category, debug_collisionDetect_category_name, &debug_collisionDetect_category_desc);
         bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_variable, debug_collisionDetect_variable_name, &debug_collisionDetect_variable_desc);
     }
-
-private:
 };
 }   // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_GSDM_DEBUG_DOMAIN_COLLISION_DETECTION_HPP
