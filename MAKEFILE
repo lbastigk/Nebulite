@@ -6,13 +6,48 @@
 # Base CMake Presets Build Targets
 ##################################
 
-# Define all available presets and their build
-PRESETS := linux-release linux-debug linux-coverage \
-		   windows-release windows-debug \
-		   macos-release macos-debug
-.PHONY: $(PRESETS)
-$(PRESETS):
-	cmake --preset $@ && cmake --build --preset $@
+# We define presets one by one,
+# otherwise some linters complain about unresolved prerequisites later on
+
+linux-release:
+	@echo "Building preset: $@"
+	cmake --preset $@
+	cmake --build --preset $@
+
+linux-debug:
+	@echo "Building preset: $@"
+	cmake --preset $@
+	cmake --build --preset $@
+
+linux-coverage:
+	@echo "Building preset: $@"
+	cmake --preset $@
+	cmake --build --preset $@
+
+windows-release:
+	@echo "Building preset: $@"
+	cmake --preset $@
+	cmake --build --preset $@
+
+windows-debug:
+	@echo "Building preset: $@"
+	cmake --preset $@
+	cmake --build --preset $@
+
+macos-release:
+	@echo "Building preset: $@"
+	cmake --preset $@
+	cmake --build --preset $@
+
+macos-debug:
+	@echo "Building preset: $@"
+	cmake --preset $@
+	cmake --build --preset $@
+
+##################################
+# Native and Available Presets
+##################################
+
 
 # Find native build preset for this machine
 UNAME_S := $(shell uname -s)
@@ -90,4 +125,4 @@ clean-run-and-test-available: message-available-presets clean $(AVAILABLE_PRESET
 # Profiling and benchmarking targets
 ##################################
 
-# TODO: Implement profiling and similiar targets from .vscode/tasks.json
+# TODO: Implement profiling and similar targets from .vscode/tasks.json
