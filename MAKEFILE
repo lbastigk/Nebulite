@@ -85,3 +85,9 @@ run-and-test-available: message-available-presets $(AVAILABLE_PRESETS) test
 clean-run-and-test-native: clean $(NATIVE_PRESET) test
 
 clean-run-and-test-available: message-available-presets clean $(AVAILABLE_PRESETS) test
+
+##################################
+# Profiling and benchmarking targets
+##################################
+
+# TODO: Implement profiling and similiar targets from .vscode/tasks.json
