@@ -1,5 +1,21 @@
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <string>
+#include <vector>
+
+// External
+#include <absl/container/flat_hash_map.h>
+
+// Nebulite
+#include "Nebulite.hpp"
 #include "Core/Environment.hpp"
 #include "Core/GlobalSpace.hpp"
+#include "Core/RenderObjectContainer.hpp"
+#include "Utility/JSON.hpp"
+
+//------------------------------------------
 
 /**
  * @brief Helper functions to create an array of RenderObjectContainer instances.
@@ -21,10 +37,10 @@ namespace {
 			};
 		}(globalSpace, std::make_index_sequence<LayerCount>{});
 	}
-}
+}	// anonymous namespace
 
 Nebulite::Core::Environment::Environment(Nebulite::Core::GlobalSpace* globalSpace)
-	: roc(make_roc_array<Nebulite::Core::Environment::LayerCount>(globalSpace))
+: roc(make_roc_array<Nebulite::Core::Environment::LayerCount>(globalSpace))
 {
 	this->globalSpace = globalSpace;
 
@@ -51,7 +67,7 @@ std::string Nebulite::Core::Environment::serialize(){
 	return doc.serialize();
 }
 
-void Nebulite::Core::Environment::deserialize(std::string const& serialOrLink, uint16_t dispResX,uint16_t dispResY){
+void Nebulite::Core::Environment::deserialize(std::string const& serialOrLink, uint16_t const& dispResX,uint16_t const& dispResY){
 	Nebulite::Utility::JSON file(globalSpace);
 	file.deserialize(serialOrLink);
 
@@ -92,7 +108,7 @@ void Nebulite::Core::Environment::update(int16_t tileXposition, int16_t tileYpos
 	}
 }
 
-void Nebulite::Core::Environment::reinsertAllObjects(uint16_t dispResX,uint16_t dispResY){
+void Nebulite::Core::Environment::reinsertAllObjects(uint16_t const& dispResX,uint16_t const& dispResY){
 	for (unsigned int i = 0; i < Nebulite::Core::Environment::LayerCount; i++){
 		roc[i].reinsertAllObjects(dispResX,dispResY);
 	}
@@ -114,8 +130,8 @@ Nebulite::Core::RenderObject* Nebulite::Core::Environment::getObjectFromId(uint3
 
 std::vector<Nebulite::Core::RenderObjectContainer::batch>& Nebulite::Core::Environment::getContainerAt(int16_t x, int16_t y, Environment::Layer layer){
 	auto pos = std::make_pair(x,y);
-	if (layer < Nebulite::Core::Environment::LayerCount && layer >= 0){
-		return roc[layer].getContainerAt(pos);
+	if (static_cast<uint8_t>(layer) < Nebulite::Core::Environment::LayerCount){
+		return roc[static_cast<uint8_t>(layer)].getContainerAt(pos);
 	}
 	else {
 		return roc[0].getContainerAt(pos);
@@ -124,8 +140,8 @@ std::vector<Nebulite::Core::RenderObjectContainer::batch>& Nebulite::Core::Envir
 
 bool Nebulite::Core::Environment::isValidPosition(int x, int y, Environment::Layer layer){
 	auto pos = std::make_pair(x,y);
-	if (layer < Nebulite::Core::Environment::LayerCount && layer >= 0){
-		return roc[layer].isValidPosition(pos);
+	if (static_cast<uint8_t>(layer) < Nebulite::Core::Environment::LayerCount){
+		return roc[static_cast<uint8_t>(layer)].isValidPosition(pos);
 	}
 	else {
 		return roc[0].isValidPosition(pos);

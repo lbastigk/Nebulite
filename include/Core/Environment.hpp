@@ -18,7 +18,6 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Core/RenderObjectContainer.hpp"
-#include "Utility/JSON.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -56,13 +55,18 @@ public:
 	 * @todo Once GSDM_GUI and renderer texture queuing is properly implemented, 
 	 * the layer size may be reduced and layer names reworked.
 	 */
-	enum Layer {
+	enum class Layer : uint8_t {
 		background,
 		general,
 		foreground,
 		effects,
 		UI
 	};
+
+	/**
+	 * @brief Retrieves all layers in rendering order.
+	 * @return the vector of all layers.
+	 */
 	std::vector<Layer>* getAllLayers(){
 		return &allLayers;
 	}
@@ -120,7 +124,7 @@ public:
 	 * @param dispResX Display resolution width. Necessary to position the object correctly in its tile-based container.
 	 * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
 	 */
-	void deserialize(std::string const& serialOrLink, uint16_t dispResX,uint16_t dispResY);
+	void deserialize(std::string const& serialOrLink, uint16_t const& dispResX,uint16_t const& dispResY);
 	
 	//------------------------------------------
 	// Object Management
@@ -157,7 +161,7 @@ public:
 	 * @param dispResX Display resolution width. Necessary for positioning the objects correctly in their tile-based containers.
 	 * @param dispResY Display resolution height. Necessary for positioning the objects correctly in their tile-based containers.
 	 */
-	void reinsertAllObjects(uint16_t dispResX,uint16_t dispResY);
+	void reinsertAllObjects(uint16_t const& dispResX,uint16_t const& dispResY);
 
 	/**
 	 * @brief Retrieves a RenderObject by its ID.
@@ -204,7 +208,7 @@ public:
 
 private:
 	// All layers in rendering order
-	std::vector<Layer> allLayers = {background, general, foreground, effects, UI};
+	std::vector<Layer> allLayers = {Layer::background, Layer::general, Layer::foreground, Layer::effects, Layer::UI};
 
 	// Link to Global Values
     Nebulite::Utility::JSON* global;
