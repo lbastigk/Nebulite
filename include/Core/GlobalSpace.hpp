@@ -92,7 +92,7 @@ public:
     explicit GlobalSpace(std::string const& binName);
 
     // Destructor
-    virtual ~GlobalSpace() = default;
+    ~GlobalSpace() override = default;
 
     // Prevent copying
     GlobalSpace(GlobalSpace const&) = delete;
@@ -114,7 +114,7 @@ public:
      * @param argc The number of command line arguments.
      * @param argv The array of command line argument strings.
      */
-    void parseCommandLineArguments(int const argc, char const* argv[]);
+    void parseCommandLineArguments(int const& argc, char const* argv[]);
 
     /**
      * @brief Resolves a task queue by parsing each task and executing it.
@@ -342,7 +342,7 @@ private:
      * 
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    Nebulite::Constants::Error updateInnerDomains();
+    Nebulite::Constants::Error updateInnerDomains() const;
 };
 }   // namespace Nebulite::Core
 #endif // NEBULITE_CORE_GLOBALSPACE_HPP

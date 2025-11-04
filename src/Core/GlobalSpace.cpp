@@ -25,7 +25,7 @@ Nebulite::Core::GlobalSpace::GlobalSpace(std::string const& binName)
     // Domain-Related
 
     // Set preParse function
-    setPreParse(std::bind(&Nebulite::Core::GlobalSpace::preParse, this));
+    setPreParse([this] { return preParse(); });
 
     // Link inherited Domains
     inherit<Nebulite::Utility::JSON>(&global);
@@ -45,7 +45,7 @@ Nebulite::Core::GlobalSpace::GlobalSpace(std::string const& binName)
     // If we ever need a full update beforehand, we should manually call update after full initialization
 }
 
-Nebulite::Constants::Error Nebulite::Core::GlobalSpace::updateInnerDomains(){
+Nebulite::Constants::Error Nebulite::Core::GlobalSpace::updateInnerDomains() const {
     // For now, just update the JSON domain
     // Later on the logic here might be more complex
     // As more inner domains are added
@@ -78,19 +78,19 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update(){
 
     //------------------------------------------
     // Update and render, only if initialized
-    // If renderer wasnt initialized, it is still a nullptr
     if (!criticalStop && renderer.isSdlInitialized() && renderer.timeToRender()){
         // Update modules first
         updateModules();
 
         // Then, update inner domains
-        updateInnerDomains();
+        if (auto const result = updateInnerDomains(); result.isCritical() && !cmdVars.recover){
+            criticalStop = true;
+            lastCriticalResult = result;
+        }
 
-        // Update Renderer
-        bool didUpdate = renderer.tick(&invoke);
-
-        // Reduce script wait counter if not in console mode or other halting states
-        if(didUpdate){
+        // Do a Renderer tick and check if an update occurred
+        // Reduce script wait counter if not in console mode or other halting states (tick returns false in those cases)
+        if(renderer.tick(&invoke)){
             if(scriptWaitCounter > 0) scriptWaitCounter--; 
         }  
 
@@ -121,7 +121,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update(){
     return lastCriticalResult;
 }
 
-void Nebulite::Core::GlobalSpace::parseCommandLineArguments(int const argc, char const* argv[]){
+void Nebulite::Core::GlobalSpace::parseCommandLineArguments(int const& argc, char const* argv[]){
     //------------------------------------------
     // Add main args to taskList, split by ';'
     if (argc > 1){
@@ -180,7 +180,7 @@ void Nebulite::Core::GlobalSpace::parseCommandLineArguments(int const argc, char
          *       This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
          *    
          */
-        tasks.script.taskQueue.push_back(std::string("set-fps 60"));
+        tasks.script.taskQueue.emplace_back("set-fps 60");
     }
 }
 
@@ -197,11 +197,8 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
             tq.taskQueue.pop_front();
 
             // Add binary name if missing
-            // While args from command line have binary name in them, 
-            // commands from Renderobject, taskfile or console do not.
-            // Is needed for correct parsing; argv[0] is alwys binary name.
             if (!argStr.starts_with(names.binary + " ")){
-                argStr = names.binary + " " + argStr;
+                argStr.insert(0, names.binary + " ");
             }
 
             // Parse
@@ -220,12 +217,9 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
             // Add binary name if missing
-            // While args from command line have binary name in them, 
-            // commands from Renderobject, taskfile or console do not.
-            // Is needed for correct parsing; argv[0] is alwys binary name.
             std::string argStr = argStrOrig;
             if (!argStr.starts_with(names.binary + " ")){
-                argStr = names.binary + " " + argStr;
+                argStr.insert(0, names.binary + " ");
             }
 
             // Parse
@@ -276,7 +270,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue(){
 
 Nebulite::Constants::Error Nebulite::Core::GlobalSpace::preParse(){
     // NOTE: This function is only called once there is a parse-command
-    // Meaning its timing is consistent and not dependent on framerate, frametime variations, etc.
+    // Meaning its timing is consistent and not dependent on framerate, frame time variations, etc.
     // Meaning everything we do here is, timing wise, deterministic!
 
     // Update RNGs
@@ -292,7 +286,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::preParse(){
 
 void Nebulite::Core::GlobalSpace::updateRNGs(){
     // Set Min and Max values for RNGs in document
-    // Always set, so overwrites dont stick around
+    // Always set, so overwrites don't stick around
     global.set<RngVars::rngSize_t>(Nebulite::Constants::keyName.RNGs.min, std::numeric_limits<RngVars::rngSize_t>::min());
     global.set<RngVars::rngSize_t>(Nebulite::Constants::keyName.RNGs.max, std::numeric_limits<RngVars::rngSize_t>::max());
 
