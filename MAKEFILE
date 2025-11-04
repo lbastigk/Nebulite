@@ -74,6 +74,14 @@ coverage-report: linux-coverage
 # Full testing pipelines
 ##################################
 
-run-and-test-native: clean $(NATIVE_PRESET) test
+# Without clean
 
-run-and-test-available: message-available-presets clean $(AVAILABLE_PRESETS) test
+run-and-test-native: $(NATIVE_PRESET) test
+
+run-and-test-available: message-available-presets $(AVAILABLE_PRESETS) test
+
+# With clean
+
+clean-run-and-test-native: clean $(NATIVE_PRESET) test
+
+clean-run-and-test-available: message-available-presets clean $(AVAILABLE_PRESETS) test
