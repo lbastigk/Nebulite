@@ -18,7 +18,7 @@
 #include <thread>
 
 // Nebulite
-#include "Constants/ThreadSettings.hpp"       // Poolsize is defined here
+#include "Constants/ThreadSettings.hpp"       // pool size is defined here
 #include "Interaction/Logic/Expression.hpp"
 
 //------------------------------------------
@@ -96,7 +96,7 @@ public:
      * @param self The JSON object representing the "self" context.
      * @param global The JSON object representing the "global" context.
      */
-    void parse(std::string const& expr, Nebulite::Utility::DocumentCache* documentCache, Nebulite::Utility::JSON* self, Nebulite::Utility::JSON* global){
+    void parse(std::string const& expr, Utility::DocumentCache* documentCache, Utility::JSON* self, Utility::JSON* global){
         fullExpression = expr;
 
         // Parse the first one, then copy to others
@@ -123,15 +123,15 @@ public:
      * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a string.
      */
-    std::string eval(Nebulite::Utility::JSON* current_other){
+    std::string eval(Utility::JSON* current_other){
         // Each thread gets a unique starting position based on thread ID
-        static thread_local size_t const thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
-        static thread_local size_t counter = 0;
+        thread_local size_t const thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
+        thread_local size_t counter = 0;
         
         // Rotate through pool entries starting from thread's unique offset
         size_t const idx = (thread_offset + counter++) % INVOKE_EXPR_POOL_SIZE;
         
-        std::scoped_lock<std::mutex> const guard(locks[idx]);
+        std::scoped_lock const guard(locks[idx]);
         return pool[idx].eval(current_other);
     }
 
@@ -143,15 +143,15 @@ public:
      * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a double.
      */
-    double evalAsDouble(Nebulite::Utility::JSON* current_other){
+    double evalAsDouble(Utility::JSON* current_other){
         // Each thread gets a unique starting position based on thread ID
-        static thread_local size_t const thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
-        static thread_local size_t counter = 0;
+        thread_local size_t const thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
+        thread_local size_t counter = 0;
 
         // Rotate through pool entries starting from thread's unique offset
         size_t const idx = (thread_offset + counter++) % INVOKE_EXPR_POOL_SIZE;
 
-        std::scoped_lock<std::mutex> const guard(locks[idx]);
+        std::scoped_lock const guard(locks[idx]);
         return pool[idx].evalAsDouble(current_other);
     }
 
@@ -162,14 +162,14 @@ public:
      *
      * @return The full expression as a string.
      */
-    std::string const* getFullExpression() const noexcept {
+    [[nodiscard]] std::string const* getFullExpression() const noexcept {
         return &fullExpression;
     }
 
     /**
      * @brief Gets the full expression string as a string_view.
      */
-    std::string_view getFullExpressionStringview() const noexcept { return fullExpression; }
+    [[nodiscard]] std::string_view getFullExpressionStringView() const noexcept { return fullExpression; }
 
     /**
      * @brief Checks if the expression is returnable as a double.
@@ -178,7 +178,7 @@ public:
      *
      * @return True if the expression is returnable as a double, false otherwise.
      */
-    bool isReturnableAsDouble() const noexcept {
+    [[nodiscard]] bool isReturnableAsDouble() const noexcept {
         return _isReturnableAsDouble;
     }
 
@@ -186,7 +186,7 @@ public:
      * @brief Checks if the expression is always true (i.e., "1").
      * @return True if the expression is always true, false otherwise.
      */
-    bool isAlwaysTrue() const noexcept {
+    [[nodiscard]] bool isAlwaysTrue() const noexcept {
         return _isAlwaysTrue;
     }
 

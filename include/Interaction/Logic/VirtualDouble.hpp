@@ -27,16 +27,15 @@ namespace Nebulite::Interaction::Logic {
  * 
  * - Remanent contexts: For `self`, `global`, where the context remains constant.
  * 
- * - Non-remanent contexts: For `other` and `documentcache`, 
+ * - Non-remanent contexts: For `other` and `documentCache`,
  * where the context changes dynamically during evaluations
  * or the lifetime is limited.
  * 
  * This distinction is crucial for efficient and accurate expression evaluations.
  */
 class VirtualDouble {
-private:
     // Linked Read-Only cache
-    Nebulite::Utility::DocumentCache* documentCache = nullptr;
+    Utility::DocumentCache* documentCache = nullptr;
 
     // Key associated with this VirtualDouble
     std::string key;
@@ -72,7 +71,7 @@ public:
      * @param k The key associated with this VirtualDouble.
      * @param documentCache The DocumentCache to use for retrieving values.
      */
-    VirtualDouble(std::string k, Nebulite::Utility::DocumentCache* documentCache) noexcept
+    VirtualDouble(std::string k, Utility::DocumentCache* documentCache) noexcept
     : documentCache(documentCache), key(std::move(k))
     {
         if      (key.starts_with(ContextPrefix::self))   { key.erase(0, ContextPrefix::self.size());   }
@@ -85,7 +84,7 @@ public:
      * 
      * @return The key as a string.
      */
-    std::string const& getKey() const noexcept {
+    [[nodiscard]] std::string const& getKey() const noexcept {
         return key;
     }
 
@@ -100,7 +99,7 @@ public:
      * 
      * @param json The JSON document pointer to retrieve the value from. If the pointer is null, we retrieve the value from the document cache.
      */
-    void setUpInternalCache(Nebulite::Utility::JSON* json){
+    void setUpInternalCache(Utility::JSON* json){
         if (json != nullptr){
             copied_value = *json->getStableDoublePointer(key);
             reference = &copied_value;
@@ -117,7 +116,7 @@ public:
      * This function links the VirtualDouble to an external double pointer of a JSON document, instead of using its internal cache.
      * allowing it to access and modify the value directly.
      */
-    void setUpExternalCache(Nebulite::Utility::JSON* json){
+    void setUpExternalCache(Utility::JSON* json){
         if (json != nullptr){
             reference = json->getStableDoublePointer(key);
         }
@@ -136,7 +135,7 @@ public:
      * 
      * @param val The new double value to set.
      */
-    void setDirect(double val) noexcept {
+    void setDirect(double const& val) noexcept {
         copied_value = val;
     }
 
@@ -151,7 +150,7 @@ public:
      * 
      * @return A pointer to the double value.
      */
-    double* ptr() const noexcept {
+    [[nodiscard]] double* ptr() const noexcept {
         return reference;
     }
 };

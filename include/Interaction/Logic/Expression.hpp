@@ -312,74 +312,74 @@ private:
     class expr_custom{
     public:
         // Logical comparison functions
-        static double gt(double a, double b) {return a > b; }
-        static double lt(double a, double b) {return a < b; }
-        static double geq(double a, double b){return a >= b;}
-        static double leq(double a, double b){return a <= b;}
-        static double eq(double a, double b){
+        static double gt(double const& a, double const& b) {return a > b; }
+        static double lt(double const& a, double const& b) {return a < b; }
+        static double geq(double const& a, double const& b){return a >= b;}
+        static double leq(double const& a, double const& b){return a <= b;}
+        static double eq(double const& a, double const& b){
             return std::fabs(a - b) < DBL_EPSILON;
         }
-        static double neq(double a, double b){
+        static double neq(double const& a, double const& b){
             return !(std::fabs(a - b) > DBL_EPSILON);
         }
 
         // Logical gate functions
-        static double logical_not(double a){
+        static double logical_not(double const& a){
             return !(std::fabs(a) > DBL_EPSILON);
         }
 
-        static double logical_and(double a, double b){
+        static double logical_and(double const& a, double const& b){
             bool const aLogical = std::fabs(a) > DBL_EPSILON;
             bool const bLogical = std::fabs(b) > DBL_EPSILON;
             return aLogical && bLogical;
         }
-        static double logical_or(double a, double b){
+        static double logical_or(double const& a, double const& b){
             bool const aLogical = std::fabs(a) > DBL_EPSILON;
             bool const bLogical = std::fabs(b) > DBL_EPSILON;
             return aLogical || bLogical;
         }
-        static double logical_xor(double a, double b){
+        static double logical_xor(double const& a, double const& b){
             bool const aLogical = std::fabs(a) > DBL_EPSILON;
             bool const bLogical = std::fabs(b) > DBL_EPSILON;
             return aLogical != bLogical;
         }
 
-        static double logical_nand(double a, double b){
+        static double logical_nand(double const& a, double const& b){
             bool const aLogical = std::fabs(a) > DBL_EPSILON;
             bool const bLogical = std::fabs(b) > DBL_EPSILON;
             return !(aLogical && bLogical);
         }
-        static double logical_nor(double a, double b){
+        static double logical_nor(double const& a, double const& b){
             bool const aLogical = std::fabs(a) > DBL_EPSILON;
             bool const bLogical = std::fabs(b) > DBL_EPSILON;
             return !(aLogical || bLogical);
         }
-        static double logical_xnor(double a, double b){
+        static double logical_xnor(double const& a, double const& b){
             bool const aLogical = std::fabs(a) > DBL_EPSILON;
             bool const bLogical = std::fabs(b) > DBL_EPSILON;
             return aLogical == bLogical;
         }
 
         // Other logical functions
-        static double to_bipolar(double a){
+        static double to_bipolar(double const& a){
             return std::fabs(a) > DBL_EPSILON ? 1 : -1;
         }
 
         // Mapping functions
-        static double map(double value, double in_min, double in_max, double out_min, double out_max){
+        static double map(double const& value, double const& in_min, double const& in_max, double const& out_min, double const& out_max){
             if(std::fabs(in_max - in_min) < DBL_EPSILON) { return out_min; } // Prevent division by zero
             if(value < in_min) { return out_min; }
             if(value > in_max) { return out_max; }
             return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
         }
-        static double constrain(double value, double min, double max){
+        static double constrain(double const& value, double const& min, double const& max){
             if(value < min) { return min; }
             if(value > max) { return max; }
             return value;
         }
 
         // More mathematical functions
-        static double sgn(double a){return std::copysign(1.0, a);}
+        static double sgn(double const& a){return std::copysign(1.0, a);}
     };
 
     /**
