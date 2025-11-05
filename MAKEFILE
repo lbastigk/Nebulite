@@ -150,7 +150,6 @@ clean-run-and-test-available: message-available-presets clean $(AVAILABLE_PRESET
 # 3.) Update tmp/.lastModified file
 
 WATCH_DIRS := src Scripts Tests include Resources
-
 commit-test-pipeline:
 	@echo "Checking sources for changes in: $(WATCH_DIRS)"
 	@dirs=$$(for d in $(WATCH_DIRS); do [ -d "$$d" ] && printf "%s " "$$d"; done); \
@@ -158,21 +157,27 @@ commit-test-pipeline:
 		echo "No watch directories exist. Skipping."; \
 		exit 0; \
 	fi; \
-	# get newest file with its epoch mtime and full path
-	latest_info=$$(find $$dirs -type f -print0 2>/dev/null | xargs -0 stat -c '%Y %n' 2>/dev/null | sort -n | tail -n1); \
+	EXCLUDE=".git .idea .vscode tmp bin build node_modules"; \
+	# build the prune expression like: \( -path '*/.git/*' -o -path '*/.idea/*' \) -prune -o
+	prune_expr=""; \
+	for e in $$EXCLUDE; do prune_expr="$$prune_expr -o -path '*/$$e/*'"; done; \
+	# run find limited to WATCH_DIRS and applying the prune expression, then get newest mtime+path
+	latest_info=$$(eval "find $$dirs \\( $${prune_expr# -o} \\) -prune -o -type f -print0" 2>/dev/null | \
+	  xargs -0 stat -c '%Y %n' 2>/dev/null | sort -n | tail -n1); \
 	if [ -z "$$latest_info" ]; then \
-		echo "No files found in $$dirs. Skipping."; \
+		echo "No files found in $$dirs after exclusions. Skipping."; \
 		exit 0; \
 	fi; \
 	latest_time=$$(printf "%s" "$$latest_info" | awk '{print $$1}'); \
 	latest_file=$$(printf "%s" "$$latest_info" | cut -d' ' -f2-); \
+	echo "Latest modified file: $$latest_file (mtime: $$latest_time)"; \
 	if [ -f tmp/.lastModified ]; then last=$$(cat tmp/.lastModified); else last=0; fi; \
 	if [ "$$latest_time" -gt "$$last" ]; then \
 		echo "Changes detected (new: $$latest_time > old: $$last). Running full testing pipeline..."; \
 		$(MAKE) -f $(abspath $(lastword $(MAKEFILE_LIST))) -C $(CURDIR) run-and-test-native || { echo "Pipeline failed"; exit 1; }; \
 		date +%s > tmp/.lastModified; \
 		echo "tmp/.lastModified updated."; \
-		echo "Latest modified file: $$latest_file (mtime: $$latest_time) vs the stored time: $$last"; \
 	else \
 		echo "No changes since tmp/.lastModified ($$last)."; \
 	fi
+
