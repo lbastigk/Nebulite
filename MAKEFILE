@@ -148,36 +148,33 @@ clean-run-and-test-available: message-available-presets clean $(AVAILABLE_PRESET
 # 1.) Check sources last modified times against tmp/.lastModified
 # 2.) If any changes, run full testing pipeline on native presets
 # 3.) Update tmp/.lastModified file
+# - Shows last modified file at the end
 
-WATCH_DIRS := src Scripts Tests include Resources
+WATCH_DIRS := src Scripts TaskFiles include
+LAST_MOD_FILE := tmp/.lastModified
+ROOT_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+
 commit-test-pipeline:
 	@echo "Checking sources for changes in: $(WATCH_DIRS)"
-	@dirs=$$(for d in $(WATCH_DIRS); do [ -d "$$d" ] && printf "%s " "$$d"; done); \
-	if [ -z "$$dirs" ]; then \
-		echo "No watch directories exist. Skipping."; \
-		exit 0; \
-	fi; \
-	EXCLUDE=".git .idea .vscode tmp bin build node_modules"; \
-	# build the prune expression like: \( -path '*/.git/*' -o -path '*/.idea/*' \) -prune -o
-	prune_expr=""; \
-	for e in $$EXCLUDE; do prune_expr="$$prune_expr -o -path '*/$$e/*'"; done; \
-	# run find limited to WATCH_DIRS and applying the prune expression, then get newest mtime+path
-	latest_info=$$(eval "find $$dirs \\( $${prune_expr# -o} \\) -prune -o -type f -print0" 2>/dev/null | \
-	  xargs -0 stat -c '%Y %n' 2>/dev/null | sort -n | tail -n1); \
-	if [ -z "$$latest_info" ]; then \
-		echo "No files found in $$dirs after exclusions. Skipping."; \
-		exit 0; \
-	fi; \
-	latest_time=$$(printf "%s" "$$latest_info" | awk '{print $$1}'); \
-	latest_file=$$(printf "%s" "$$latest_info" | cut -d' ' -f2-); \
-	echo "Latest modified file: $$latest_file (mtime: $$latest_time)"; \
-	if [ -f tmp/.lastModified ]; then last=$$(cat tmp/.lastModified); else last=0; fi; \
-	if [ "$$latest_time" -gt "$$last" ]; then \
-		echo "Changes detected (new: $$latest_time > old: $$last). Running full testing pipeline..."; \
-		$(MAKE) -f $(abspath $(lastword $(MAKEFILE_LIST))) -C $(CURDIR) run-and-test-native || { echo "Pipeline failed"; exit 1; }; \
-		date +%s > tmp/.lastModified; \
-		echo "tmp/.lastModified updated."; \
+	@mkdir -p tmp
+	@echo "Finding last modified time..."
+	@find $(WATCH_DIRS) -type f -exec stat -c '%Y %n' {} + | sort -nr | head -n 1 > tmp/.latest
+	@if [ ! -f $(LAST_MOD_FILE) ]; then \
+		echo "No previous timestamp file found. Running full pipeline..."; \
+		cd $(ROOT_DIR) && $(MAKE) -f $(lastword $(MAKEFILE_LIST)) run-and-test-native; \
 	else \
-		echo "No changes since tmp/.lastModified ($$last)."; \
+		latest=$$(cut -d' ' -f1 tmp/.latest); \
+		last=$$(cat $(LAST_MOD_FILE)); \
+		if [ $$latest -gt $$last ]; then \
+			echo "Changes detected. Running full pipeline in $(ROOT_DIR)"; \
+			cd $(ROOT_DIR) && $(MAKE) -f $(lastword $(MAKEFILE_LIST)) run-and-test-native; \
+		else \
+			echo "No changes detected. Skipping tests."; \
+		fi; \
 	fi
+	@cut -d' ' -f2- tmp/.latest | xargs -I{} echo "Last modified file: {}"
+	@cut -d' ' -f1 tmp/.latest > $(LAST_MOD_FILE)
+
+
+
 
