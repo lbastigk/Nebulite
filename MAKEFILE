@@ -105,17 +105,26 @@ coverage-report: linux-coverage
 	@echo "Generating coverage report..."
 	python Scripts/TestingSuite.py --coverage --verbose
 
+delete-binaries:
+	rm -rf bin/* || true
+
+##################################
+# Debugging
+##################################
+
+# TODO: Implement debugging targets from .vscode/launch.json
+
 ##################################
 # Full testing pipelines
 ##################################
 
-# Without clean
+# Non-clean build
 
-run-and-test-native: $(NATIVE_PRESET) test
+run-and-test-native: delete-binaries $(NATIVE_PRESET) test
 
-run-and-test-available: message-available-presets $(AVAILABLE_PRESETS) test
+run-and-test-available: message-available-presets delete-binaries $(AVAILABLE_PRESETS) test
 
-# With clean
+# Clean build
 
 clean-run-and-test-native: clean $(NATIVE_PRESET) test
 
