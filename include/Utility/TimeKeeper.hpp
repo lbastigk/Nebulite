@@ -31,7 +31,7 @@ public:
      * 
      * The start time is set to construction time. Timer is initialized to not running.
      */
-    TimeKeeper() noexcept : t_start(Time::gettime()) {}
+    TimeKeeper() noexcept : t_start(Time::getTime()) {}
 
     /**
      * @brief Updates the timer.
@@ -45,7 +45,7 @@ public:
         // 1.) Gathering timing information, even if the timer is not running
         //     The whole timer works on dt integration, so we always need to know the current dt
         onUpdate.last_t_ms = onUpdate.t_ms;
-        onUpdate.t_ms      = Time::gettime() - t_start;
+        onUpdate.t_ms      = Time::getTime() - t_start;
         
         //------------------------------------------
         // 2.) Derive dt from status
@@ -113,7 +113,7 @@ public:
     uint64_t projected_dt() noexcept {
         if(running){
             onSimulation.last_t_ms = onUpdate.t_ms;
-            onSimulation.t_ms = Time::gettime() - t_start;
+            onSimulation.t_ms = Time::getTime() - t_start;
             onSimulation.dt = onSimulation.t_ms - onSimulation.last_t_ms;
             return onSimulation.dt;
         }
