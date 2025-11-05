@@ -6,12 +6,12 @@
 #include "Constants/ErrorTypes.hpp"
 #include "DomainModule/Initializer.hpp"
 
-Nebulite::Utility::JSON::JSON(Nebulite::Core::GlobalSpace* globalSpace)
-: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, globalSpace)
+Nebulite::Utility::JSON::JSON(Core::GlobalSpace* globalSpace)
+: Domain("JSON", this, this, globalSpace)
 {
-    std::scoped_lock<std::recursive_mutex> const lockGuard(mtx);
+    std::scoped_lock const lockGuard(mtx);
     doc.SetObject();
-    Nebulite::DomainModule::Initializer::initJSON(this);
+    DomainModule::Initializer::initJSON(this);
 }
 
 Nebulite::Utility::JSON::~JSON(){
@@ -31,7 +31,7 @@ Nebulite::Utility::JSON::~JSON(){
 }
 
 Nebulite::Utility::JSON::JSON(JSON&& other) noexcept
-: Nebulite::Interaction::Execution::Domain<Nebulite::Utility::JSON>("JSON", this, this, other.getGlobalSpace())
+: Domain<JSON>("JSON", this, this, other.getGlobalSpace())
 {
     std::scoped_lock lockGuard(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);
@@ -268,7 +268,9 @@ void Nebulite::Utility::JSON::deserialize(std::string const& serial_or_link){
             std::string value = token.substr(pos + 1);  
 
             // New implementation through functioncall
-            parseStr("Nebulite::Utility::JSON::deserialize set " + key + " " + value);
+            if (parseStr("Nebulite::Utility::JSON::deserialize set " + key + " " + value) != Constants::ErrorTable::NONE()){;
+                Capture::cerr() << "Failed to apply deserialize modifier: " << token << Capture::endl;
+            }
         }
         else{
             // Forward to FunctionTree for resolution
