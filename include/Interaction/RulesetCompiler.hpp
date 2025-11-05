@@ -96,7 +96,7 @@ private:
     static bool getExpression(
         Logic::Assignment& assignmentExpr, 
         Utility::JSON& entry, 
-        size_t index
+        size_t const& index
     );
 
     /**
@@ -106,7 +106,7 @@ private:
      * @param entry The JSON entry document to extract expressions from.
      * @return True if the expressions were successfully extracted, false otherwise.
      */
-    static bool getExpressions(Ruleset* Ruleset, Utility::JSON* entry);
+    static bool getExpressions(std::shared_ptr<Ruleset> const& Ruleset, Utility::JSON* entry);
 
     /**
      * @brief Extracts a logical argument from a JSON entry document.
@@ -127,7 +127,7 @@ private:
     static bool getRuleset(
         Utility::JSON& doc, 
         Utility::JSON& entry, 
-        size_t index
+        size_t const& index
     );
 
     /**
