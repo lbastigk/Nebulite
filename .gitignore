@@ -50,3 +50,6 @@ __pycache__/
 
 # Do not ignore any files in ./doc/
 !/doc/ !/doc/**
+
+# Ignore MAKEFILE pipeline temp files
+tmp/.lastModified
