@@ -115,7 +115,13 @@ delete-binaries:
 # TODO: Implement debugging targets from .vscode/launch.json
 
 
+##################################
+# Build
+##################################
 
+build-native: $(NATIVE_PRESET)
+
+build-available: message-available-presets $(AVAILABLE_PRESETS)
 
 ##################################
 # Full testing pipelines
@@ -123,15 +129,15 @@ delete-binaries:
 
 # Non-clean build
 
-run-and-test-native: delete-binaries $(NATIVE_PRESET) test
+build-and-test-native: delete-binaries build-native test
 
-run-and-test-available: message-available-presets delete-binaries $(AVAILABLE_PRESETS) test
+build-and-test-available: delete-binaries build-available test
 
 # Clean build
 
-clean-run-and-test-native: clean $(NATIVE_PRESET) test
+clean-build-and-test-native: clean build-native test
 
-clean-run-and-test-available: message-available-presets clean $(AVAILABLE_PRESETS) test
+clean-build-and-test-available: message-available-presets clean build-available test
 
 ##################################
 # Profiling and benchmarking targets
@@ -161,13 +167,13 @@ commit-test-pipeline:
 	@find $(WATCH_DIRS) -type f -exec stat -c '%Y %n' {} + | sort -nr | head -n 1 > tmp/.latest
 	@if [ ! -f $(LAST_MOD_FILE) ]; then \
 		echo "No previous timestamp file found. Running full pipeline..."; \
-		cd $(ROOT_DIR) && $(MAKE) -f $(lastword $(MAKEFILE_LIST)) run-and-test-native; \
+		cd $(ROOT_DIR) && $(MAKE) -f $(lastword $(MAKEFILE_LIST)) build-and-test-native; \
 	else \
 		latest=$$(cut -d' ' -f1 tmp/.latest); \
 		last=$$(cat $(LAST_MOD_FILE)); \
 		if [ $$latest -gt $$last ]; then \
 			echo "Changes detected. Running full pipeline in $(ROOT_DIR)"; \
-			cd $(ROOT_DIR) && $(MAKE) -f $(lastword $(MAKEFILE_LIST)) run-and-test-native; \
+			cd $(ROOT_DIR) && $(MAKE) -f $(lastword $(MAKEFILE_LIST)) build-and-test-native; \
 		else \
 			echo "No changes detected. Skipping tests."; \
 		fi; \
