@@ -356,6 +356,13 @@ def process_binaries(binaries, tests: List[Dict[str, Any]], timeout: int, ignore
             print(f"\n==============================")
             print(f"Testing binary: {binary}")
             print(f"==============================\n")
+
+            # Skip if binary does not exist
+            # Run binary with 'help' to check if it exists
+            help_check = run_command(f"{binary} help", timeout)
+            if help_check['exit_code'] != 0:
+                print(f"Error: Binary '{binary}' not found or not executable. Skipping tests for this binary.")
+                continue
             
             for test in tests:
                 total_tests += 1

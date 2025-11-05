@@ -114,6 +114,9 @@ delete-binaries:
 
 # TODO: Implement debugging targets from .vscode/launch.json
 
+
+
+
 ##################################
 # Full testing pipelines
 ##################################
@@ -135,3 +138,42 @@ clean-run-and-test-available: message-available-presets clean $(AVAILABLE_PRESET
 ##################################
 
 # TODO: Implement profiling and similar targets from .vscode/tasks.json
+
+##################################
+# Commit testing pipelines
+##################################
+
+# Checks if there are any changes in the code since the last run
+# If there are, runs the full testing pipeline on native presets
+# 1.) Check sources last modified times against tmp/.lastModified
+# 2.) If any changes, run full testing pipeline on native presets
+# 3.) Update tmp/.lastModified file
+
+WATCH_DIRS := src Scripts Tests include Resources
+EXCLUDE_DIRS := .git tmp bin build node_modules .venv .pytest_cache .idea .vscode
+
+commit-test-pipeline:
+	@echo "Checking sources for changes in: $(WATCH_DIRS)"
+	@dirs=$$(for d in $(WATCH_DIRS); do [ -d "$$d" ] && printf "%s " "$$d"; done); \
+	if [ -z "$$dirs" ]; then \
+		echo "No watch directories exist. Skipping."; \
+		exit 0; \
+	fi; \
+	# build find prune expression for exclusions
+	prune_args=""; \
+	for e in $(EXCLUDE_DIRS); do prune_args="$$prune_args -path ./$$e -prune -o"; done; \
+	# find all regular files in watch dirs while excluding prune paths, get newest mtime
+	latest=$$(find $$dirs $$prune_args -type f -print0 2>/dev/null | xargs -0 stat -c '%Y' 2>/dev/null | sort -n | tail -n1); \
+	if [ -z "$$latest" ]; then \
+		echo "No files found in $$dirs after exclusions. Skipping."; \
+		exit 0; \
+	fi; \
+	if [ -f tmp/.lastModified ]; then last=$$(cat tmp/.lastModified); else last=0; fi; \
+	if [ "$$latest" -gt "$$last" ]; then \
+		echo "Changes detected (new: $$latest > old: $$last). Running full testing pipeline..."; \
+		$(MAKE) -f $(abspath $(lastword $(MAKEFILE_LIST))) -C $(CURDIR) run-and-test-native || { echo "Pipeline failed"; exit 1; }; \
+		date +%s > tmp/.lastModified; \
+		echo "tmp/.lastModified updated."; \
+	else \
+		echo "No changes since tmp/.lastModified ($$last)."; \
+	fi
