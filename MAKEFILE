@@ -150,7 +150,7 @@ clean-run-and-test-available: message-available-presets clean $(AVAILABLE_PRESET
 # 3.) Update tmp/.lastModified file
 
 WATCH_DIRS := src Scripts Tests include Resources
-EXCLUDE_DIRS := .git tmp bin build node_modules .venv .pytest_cache .idea .vscode
+EXCLUDE_DIRS := .git tmp bin build .idea .vscode
 
 commit-test-pipeline:
 	@echo "Checking sources for changes in: $(WATCH_DIRS)"
