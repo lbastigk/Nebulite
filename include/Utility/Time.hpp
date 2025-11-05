@@ -58,34 +58,32 @@ public:
      * Using strftime with the format %FT%TZ
      * Total length is up to 20 Characters: 2021-03-01T10:44:10Z
      * 
-     * @param format The format of the string to return. 
-     * 
+     * @param format The format of the string to return.
      * @param local If true, return the local time; otherwise, return UTC time.
-     * 
      * @return The current time in ISO 8601 format.
      */
-    static std::string TimeIso8601(Time::ISO8601Format format, bool local) noexcept ;
+    static std::string TimeIso8601(ISO8601Format format, bool const& local) noexcept ;
 
     /**
      * @brief Returns the current time since epoch in milliseconds.
      * @return The current time since epoch in milliseconds.
      */
-    static uint64_t gettime() noexcept ;
+    static uint64_t getTime() noexcept ;
 
     /**
      * @brief Waits for the specified amount of time in milliseconds.
      */
-    static void wait(uint64_t milliseconds);
+    static void wait(uint64_t const& milliseconds);
 
     /**
      * @brief Waits for the specified amount of time in microseconds.
      */
-    static void waitmicroseconds(uint64_t microseconds);
+    static void waitMicroseconds(uint64_t const& microseconds);
 
     /**
      * @brief Waits for the specified amount of time in nanoseconds.
      */
-    static void waitnanoseconds(uint64_t nanoseconds);
+    static void waitNanoseconds(uint64_t const& nanoseconds);
 };
 }   // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_TIME_HPP
