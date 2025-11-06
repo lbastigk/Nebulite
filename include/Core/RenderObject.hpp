@@ -171,7 +171,7 @@ public:
 	 * 
 	 * @return A pointer to the SDL_Texture representing the text.
 	 */
-	SDL_Texture* getTextTexture();
+	[[nodiscard]] SDL_Texture* getTextTexture() const ;
 	
 	//------------------------------------------
 	// Update-Oriented functions
@@ -203,7 +203,7 @@ public:
 	 * @param renderPositionX The X position of the renderer used for text offset.
 	 * @param renderPositionY The Y position of the renderer used for text offset.
 	 */
-	void calculateText(SDL_Renderer* renderer,TTF_Font* font, int renderPositionX, int renderPositionY);
+	void calculateText(SDL_Renderer* renderer,TTF_Font* font, int const& renderPositionX, int const& renderPositionY);
 
 	/**
 	 * @brief Calculates the destination rectangle for the sprite.
@@ -224,7 +224,7 @@ public:
 	 * @param onlyInternal If true, only considers internal rulesets. Defaults to true.
 	 * @return The estimated computational cost.
 	 */
-	uint64_t estimateComputationalCost(bool onlyInternal = true);
+	uint64_t estimateComputationalCost(bool const& onlyInternal = true);
 
 	//------------------------------------------
 	// Management Flags for Renderer-Interaction
@@ -290,38 +290,50 @@ private:
 	size_t subscription_size = 0;
 
 	//------------------------------------------
+	// Initialization
+
+	/**
+	 * @brief Helper function to avoid calls to virtual functions in constructor.
+	 *        In order for this one to make more sense, it initializes the inherited domains and DomainModules as well.
+	 */
+	void init();
+
+	//------------------------------------------
 	// References to JSON
 
 	/**
 	 * @struct FrequentRefs
 	 * @brief Holds frequently used references for quick access.
+	 *
+	 * @note Another option would be to use static pointers for each method that needs them,
+	 *       making variables more enclosed to their use case, but that would create duplicate pointers.
 	 */
 	struct FrequentRefs{
 		// Identity
-		double* id;
+		double* id = nullptr;
 
 		// Position and Size
-		double* posX;
-		double* posY;
-		double* pixelSizeX;
-		double* pixelSizeY;
+		double* posX = nullptr;
+		double* posY = nullptr;
+		double* pixelSizeX = nullptr;
+		double* pixelSizeY = nullptr;
 
 		// Spritesheet
-		double* isSpritesheet;
-		double* spritesheetOffsetX;
-		double* spritesheetOffsetY;
-		double* spritesheetSizeX;
-		double* spritesheetSizeY;
+		double* isSpritesheet = nullptr;
+		double* spritesheetOffsetX = nullptr;
+		double* spritesheetOffsetY = nullptr;
+		double* spritesheetSizeX = nullptr;
+		double* spritesheetSizeY = nullptr;
 
 		// Text
-		double* fontSize;
-		double* textDx;
-		double* textDy;
-		double* textColorR;
-		double* textColorG;
-		double* textColorB;
-		double* textColorA;
-	} refs;
+		double* fontSize = nullptr;
+		double* textDx = nullptr;
+		double* textDy = nullptr;
+		double* textColorR = nullptr;
+		double* textColorG = nullptr;
+		double* textColorB = nullptr;
+		double* textColorA = nullptr;
+	} refs = {};
 
 	/**
 	 * @brief Links frequently used references from the JSON document for quick access.
@@ -362,9 +374,9 @@ private:
 	// === TO REWORK ===
 
 	// for caching of SDL Positions
-	SDL_Rect dstRect;	// destination of sprite
-	SDL_Rect srcRect;	// source of sprite from spritesheet
-	SDL_Rect textRect;	// destination of text texture
+	SDL_Rect dstRect = { 0, 0, 0, 0 };		// destination of sprite
+	SDL_Rect srcRect = { 0, 0, 0, 0 };		// source of sprite from spritesheet
+	SDL_Rect textRect  = { 0, 0, 0, 0 };	// destination of text texture
 
 	// Surface and Texture of Text
 	SDL_Surface* textSurface;	// Surface for the text
