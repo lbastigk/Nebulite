@@ -2,6 +2,11 @@
  * @file Domain.hpp
  * 
  * @brief This file defines the Domain class, which serves as a base class for creating a Nebulite domain.
+ *
+ *
+ * @todo Implement a DomainBase class without templates to reduce code bloat.
+ *       This allows us to access common functionality without needing to instantiate templates.
+ *       E.g. for context structs in the Invoke class: DomainBase* self, DomainBase* other, etc...
  */
 
 #ifndef NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
