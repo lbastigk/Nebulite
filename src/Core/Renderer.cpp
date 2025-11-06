@@ -19,8 +19,10 @@
 #include "Utility/TimeKeeper.hpp"
 #include "Interaction/Invoke.hpp"
 
-Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, bool* flag_headless, unsigned int const& X, unsigned int const& Y)
-: 	Nebulite::Interaction::Execution::Domain<Nebulite::Core::Renderer>("Renderer", this, globalSpace->getDoc(), globalSpace),
+namespace Nebulite::Core{
+
+Renderer::Renderer(GlobalSpace* globalSpace, bool* flag_headless, unsigned int const& X, unsigned int const& Y)
+: 	Domain("Renderer", this, globalSpace->getDoc(), globalSpace),
 	env(globalSpace),
 	rngA(hashString("Seed for RNG A")),
 	rngB(hashString("Seed for RNG B"))
@@ -59,23 +61,23 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 
 	// State
 	event = SDL_Event();
-	baseDirectory = Nebulite::Utility::FileManagement::currentDir();
+	baseDirectory = Utility::FileManagement::currentDir();
 
 	// Waveform buffers: Sine wave buffer
 	basicAudioWaveforms.sineBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
 	for (size_t i = 0; i < basicAudioWaveforms.samples; i++) {
-		double time = static_cast<double>(i) / basicAudioWaveforms.sampleRate;
+		double const time = static_cast<double>(i) / basicAudioWaveforms.sampleRate;
 		(*basicAudioWaveforms.sineBuffer)[i] = static_cast<int16_t>(32767 * 0.3 * sin(2.0 * M_PI * basicAudioWaveforms.frequency * time));
 	}
 
 	// Waveform buffers: Square wave buffer
 	basicAudioWaveforms.squareBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
 	for (size_t i = 0; i < basicAudioWaveforms.samples; i++){
-		double time = static_cast<double>(i) / basicAudioWaveforms.sampleRate;
+		double const time = static_cast<double>(i) / basicAudioWaveforms.sampleRate;
 
 		// Square wave: alternates between +1 and -1
-		double phase = 2.0 * M_PI * basicAudioWaveforms.frequency * time;
-		double squareValue = (sin(phase) >= 0) ? 1.0 : -1.0;
+		double const phase = 2.0 * M_PI * basicAudioWaveforms.frequency * time;
+		double const squareValue = sin(phase) >= 0 ? 1.0 : -1.0;
 
 		(*basicAudioWaveforms.squareBuffer)[i] = static_cast<int16_t>(32767 * 0.3 * squareValue);
 	}
@@ -83,10 +85,10 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 	// Waveform buffers: Triangle wave buffer
 	basicAudioWaveforms.triangleBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
 	for (size_t i = 0; i < basicAudioWaveforms.samples; i++){
-		double time = static_cast<double>(i) / basicAudioWaveforms.sampleRate;
+		double const time = static_cast<double>(i) / basicAudioWaveforms.sampleRate;
 
 		// Triangle wave: linear ramp up and down
-		double phase = fmod(basicAudioWaveforms.frequency * time, 1.0);  // 0 to 1
+		double const phase = fmod(basicAudioWaveforms.frequency * time, 1.0);  // 0 to 1
 		double triangleValue;
 		
 		if (phase < 0.5){
@@ -100,11 +102,11 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 
 	//------------------------------------------
 	// Set basic values inside global doc
-	getDoc()->set<unsigned int>(Nebulite::Constants::keyName.renderer.dispResX,X);
-	getDoc()->set<unsigned int>(Nebulite::Constants::keyName.renderer.dispResY,Y);
+	getDoc()->set<unsigned int>(Constants::keyName.renderer.dispResX,X);
+	getDoc()->set<unsigned int>(Constants::keyName.renderer.dispResY,Y);
 
-	getDoc()->set<unsigned int>(Nebulite::Constants::keyName.renderer.positionX,0);
-	getDoc()->set<unsigned int>(Nebulite::Constants::keyName.renderer.positionY,0);
+	getDoc()->set<unsigned int>(Constants::keyName.renderer.positionX,0);
+	getDoc()->set<unsigned int>(Constants::keyName.renderer.positionY,0);
 
 	//------------------------------------------
 	// Start timers
@@ -117,16 +119,16 @@ Nebulite::Core::Renderer::Renderer(Nebulite::Core::GlobalSpace* globalSpace, boo
 
 	//------------------------------------------
 	// Domain Modules
-	Nebulite::DomainModule::Initializer::initRenderer(this);
+	DomainModule::Initializer::initRenderer(this);
 }
 
-Nebulite::Constants::Error Nebulite::Core::Renderer::preParse(){
+Constants::Error Renderer::preParse(){
 	// Initialize SDL and related subsystems
 	initSDL();
-	return Nebulite::Constants::ErrorTable::NONE();
+	return Constants::ErrorTable::NONE();
 }
 
-void Nebulite::Core::Renderer::initSDL(){
+void Renderer::initSDL(){
 	if(SDL_initialized)return;
 
 	//------------------------------------------
@@ -135,13 +137,13 @@ void Nebulite::Core::Renderer::initSDL(){
 	//Create SDL window
 	if (SDL_Init(SDL_INIT_VIDEO) != 0){
 		// SDL initialization failed
-		Nebulite::Utility::Capture::cerr() << "SDL_Init Error: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
+		Utility::Capture::cerr() << "SDL_Init Error: " << SDL_GetError() << Utility::Capture::endl;
 	}
 	// Define window via x|y|w|h
-	int x = SDL_WINDOWPOS_CENTERED;
-	int y = SDL_WINDOWPOS_CENTERED;
-	int w = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX,0);
-	int h = getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY,0);
+	int constexpr x = SDL_WINDOWPOS_CENTERED;
+	int constexpr y = SDL_WINDOWPOS_CENTERED;
+	int const w = getDoc()->get<int>(Constants::keyName.renderer.dispResX,0);
+	int const h = getDoc()->get<int>(Constants::keyName.renderer.dispResY,0);
 
 	uint32_t flags = *headless ? SDL_WINDOW_HIDDEN : SDL_WINDOW_SHOWN;
 	//flags = flags | SDL_WINDOW_RESIZABLE; // Disabled for now, as it causes issues with the logical size rendering
@@ -149,7 +151,7 @@ void Nebulite::Core::Renderer::initSDL(){
 	window = SDL_CreateWindow("Nebulite",x,y,w,h,flags);
 	if (!window){
 		// Window creation failed
-		Nebulite::Utility::Capture::cerr() << "SDL_CreateWindow Error: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
+		Utility::Capture::cerr() << "SDL_CreateWindow Error: " << SDL_GetError() << Utility::Capture::endl;
 		SDL_Quit();
 	}
 
@@ -159,7 +161,7 @@ void Nebulite::Core::Renderer::initSDL(){
 	// Create a renderer
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	if (!renderer){
-		Nebulite::Utility::Capture::cerr() << "Renderer creation failed: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
+		Utility::Capture::cerr() << "Renderer creation failed: " << SDL_GetError() << Utility::Capture::endl;
 	}
 
 	// Set virtual rendering size
@@ -184,7 +186,7 @@ void Nebulite::Core::Renderer::initSDL(){
 
 	// Init
 	if (SDL_Init(SDL_INIT_AUDIO) < 0){
-		Nebulite::Utility::Capture::cerr() << "SDL_Init Error: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
+		Utility::Capture::cerr() << "SDL_Init Error: " << SDL_GetError() << Utility::Capture::endl;
 	} else {
 		audio.desired.freq = 44100;
 		audio.desired.format = AUDIO_S16SYS;
@@ -194,7 +196,7 @@ void Nebulite::Core::Renderer::initSDL(){
 
 		audio.device = SDL_OpenAudioDevice(nullptr, 0, &audio.desired, &audio.obtained, 0);
 		if (audio.device == 0){
-			Nebulite::Utility::Capture::cerr() << "Failed to open audio device: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
+			Utility::Capture::cerr() << "Failed to open audio device: " << SDL_GetError() << Utility::Capture::endl;
 		} else{
 			audioInitialized = true;
 		}
@@ -203,23 +205,23 @@ void Nebulite::Core::Renderer::initSDL(){
 	SDL_initialized = true;
 }
 
-void Nebulite::Core::Renderer::loadFonts(){
+void Renderer::loadFonts(){
 	//------------------------------------------
 	// Sizes
-	uint32_t FontSizeGeneral = 60; 			// Does not need to scale
+	uint32_t constexpr FontSizeGeneral = 60; 			// Does not need to scale
 
 	//------------------------------------------
 	// Font location
-	std::string sep(1,Nebulite::Utility::FileManagement::preferredSeparator());
-	std::string fontDir = std::string("Resources") + sep + std::string("Fonts") + sep + std::string("Arimo-Regular.ttf");
-	std::string fontPath = Nebulite::Utility::FileManagement::CombinePaths(baseDirectory, fontDir);
+	std::string const sep(1,Utility::FileManagement::preferredSeparator());
+	std::string const fontDir = std::string("Resources") + sep + std::string("Fonts") + sep + std::string("Arimo-Regular.ttf");
+	std::string const fontPath = Utility::FileManagement::CombinePaths(baseDirectory, fontDir);
 	
 	//------------------------------------------
 	// Load general font
-	font = TTF_OpenFont(fontPath.c_str(), static_cast<int>(FontSizeGeneral)); // Adjust size as needed
+	font = TTF_OpenFont(fontPath.c_str(), FontSizeGeneral); // Adjust size as needed
 	if (font == nullptr){
 		// Handle font loading error
-		Nebulite::Utility::Capture::cerr() << TTF_GetError() << " | " << fontPath << "\n";
+		Utility::Capture::cerr() << TTF_GetError() << " | " << fontPath << "\n";
 	}
 }
 
@@ -228,7 +230,7 @@ void Nebulite::Core::Renderer::loadFonts(){
 
 // For quick and dirty debugging, in case the rendering pipeline breaks somewhere
 //# define debug_on_each_step 1
-bool Nebulite::Core::Renderer::tick(Nebulite::Interaction::Invoke* invoke_ptr){
+bool Renderer::tick(Interaction::Invoke* invoke_ptr){
 	//------------------------------------------
 	// Do all the steps of the rendering pipeline
     clear();           				// 1.) Clear screen FIRST, so that functions like snapshot have access to the latest frame
@@ -260,38 +262,38 @@ bool Nebulite::Core::Renderer::tick(Nebulite::Interaction::Invoke* invoke_ptr){
 	return !skippedUpdateLastFrame;
 }
 
-bool Nebulite::Core::Renderer::timeToRender(){
+bool Renderer::timeToRender(){
 	return fpsControlTimer.projected_dt() >= TARGET_TICKS_PER_FRAME;
 }
 
-void Nebulite::Core::Renderer::append(Nebulite::Core::RenderObject* toAppend){
+void Renderer::append(RenderObject* toAppend){
 	// Set ID
-	toAppend->set<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),renderObjectIdCounter);
+	toAppend->set<uint32_t>(Constants::keyName.renderObject.id.c_str(),renderObjectIdCounter);
 	renderObjectIdCounter++;
 
 	//Append to environment, based on layer
 	env.append(
 		toAppend, 
-		getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResX,0),
-		getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResY,0),
-		toAppend->get<uint8_t>(Nebulite::Constants::keyName.renderObject.layer.c_str(), 0)
+		getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResX,0),
+		getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResY,0),
+		toAppend->get<uint8_t>(Constants::keyName.renderObject.layer.c_str(), 0)
 	);
 
 	//Load texture
-	loadTexture(toAppend->get<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str()));
+	loadTexture(toAppend->get<std::string>(Constants::keyName.renderObject.imageLocation.c_str()));
 }
 
-void Nebulite::Core::Renderer::reinsertAllObjects(){
+void Renderer::reinsertAllObjects(){
 	env.reinsertAllObjects(
-		getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResX,0),
-		getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResY,0)
+		getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResX,0),
+		getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResY,0)
 	);
 }
 
 //------------------------------------------
 // Special Functions
 
-void Nebulite::Core::Renderer::beep() const {
+void Renderer::beep() const {
 	// Beep sound effect
 	if(audioInitialized){
 		auto const audioLength = static_cast<uint32_t>(basicAudioWaveforms.samples * sizeof(int16_t));
@@ -300,9 +302,9 @@ void Nebulite::Core::Renderer::beep() const {
 	}
 }
 
-bool Nebulite::Core::Renderer::snapshot(std::string link) const {
+bool Renderer::snapshot(std::string link) const {
     if (!renderer){
-        Nebulite::Utility::Capture::cerr() << "Cannot take snapshot: renderer not initialized" << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "Cannot take snapshot: renderer not initialized" << Utility::Capture::endl;
         return false;
     }
     
@@ -324,14 +326,14 @@ bool Nebulite::Core::Renderer::snapshot(std::string link) const {
                                                 0xff000000); // Alpha mask
     
     if (!surface){
-        Nebulite::Utility::Capture::cerr() << "Failed to create surface for snapshot: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "Failed to create surface for snapshot: " << SDL_GetError() << Utility::Capture::endl;
         return false;
     }
     
     // Read pixels from renderer
     if (SDL_RenderReadPixels(renderer, nullptr, SDL_PIXELFORMAT_ARGB8888,
                             surface->pixels, surface->pitch) != 0){
-        Nebulite::Utility::Capture::cerr() << "Failed to read pixels for snapshot: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "Failed to read pixels for snapshot: " << SDL_GetError() << Utility::Capture::endl;
         SDL_FreeSurface(surface);
         return false;
     }
@@ -350,19 +352,19 @@ bool Nebulite::Core::Renderer::snapshot(std::string link) const {
         try {
             std::filesystem::create_directories(directory);
         } catch (std::exception const& e){
-            Nebulite::Utility::Capture::cerr() << "Warning: Could not create directory " << directory << ": " << e.what() << Nebulite::Utility::Capture::endl;
+            Utility::Capture::cerr() << "Warning: Could not create directory " << directory << ": " << e.what() << Utility::Capture::endl;
             // Continue anyway - maybe directory already exists
         }
     }
     
     // Save surface as PNG
-    int result = IMG_SavePNG(surface, link.c_str());
+    int const result = IMG_SavePNG(surface, link.c_str());
     
     // Cleanup
     SDL_FreeSurface(surface);
     
     if (result != 0){
-        Nebulite::Utility::Capture::cerr() << "Failed to save snapshot: " << IMG_GetError() << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "Failed to save snapshot: " << IMG_GetError() << Utility::Capture::endl;
         return false;
     }
     return true;
@@ -371,11 +373,11 @@ bool Nebulite::Core::Renderer::snapshot(std::string link) const {
 //------------------------------------------
 // Purge
 
-void Nebulite::Core::Renderer::purgeObjects(){
+void Renderer::purgeObjects(){
 	env.purgeObjects();
 }
 
-void Nebulite::Core::Renderer::purgeTextures(){
+void Renderer::purgeTextures(){
 	// Release resources for TextureContainer
 	for (auto const& texture : std::views::values(TextureContainer)){
 		SDL_DestroyTexture(texture);
@@ -383,7 +385,7 @@ void Nebulite::Core::Renderer::purgeTextures(){
 	TextureContainer.clear(); // Clear the map to release resources
 }
 
-void Nebulite::Core::Renderer::destroy(){
+void Renderer::destroy(){
 	if(!SDL_initialized)return;
     if (window){
         SDL_DestroyWindow(window);
@@ -402,30 +404,30 @@ void Nebulite::Core::Renderer::destroy(){
 //------------------------------------------
 // Manipulation
 
-void Nebulite::Core::Renderer::changeWindowSize(int w, int h, uint16_t scalar){
+void Renderer::changeWindowSize(int  const& w, int const&  h, uint16_t const& scalar){
 	WindowScale = scalar;
 	if(w < 240 || w > 16384){
-		Nebulite::Utility::Capture::cerr() << "Selected resolution is not supported:" << w << "x" << h << "x" << Nebulite::Utility::Capture::endl;
+		Utility::Capture::cerr() << "Selected resolution is not supported:" << w << "x" << h << "x" << Utility::Capture::endl;
 		return;
 	}
 	if(h < 240 || h > 16384){
-		Nebulite::Utility::Capture::cerr() << "Selected resolution is not supported:" << w << "x" << h << "x" << Nebulite::Utility::Capture::endl;
+		Utility::Capture::cerr() << "Selected resolution is not supported:" << w << "x" << h << "x" << Utility::Capture::endl;
 		return;
 	}
 
-	getDoc()->set<int>(Nebulite::Constants::keyName.renderer.dispResX,w);
-	getDoc()->set<int>(Nebulite::Constants::keyName.renderer.dispResY,h);
+	getDoc()->set<int>(Constants::keyName.renderer.dispResX,w);
+	getDoc()->set<int>(Constants::keyName.renderer.dispResY,h);
 
     // Update the window size
     SDL_SetWindowSize(
 		window, 
-		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX,360) * WindowScale,
-		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY,360) * WindowScale
+		getDoc()->get<int>(Constants::keyName.renderer.dispResX,360) * WindowScale,
+		getDoc()->get<int>(Constants::keyName.renderer.dispResY,360) * WindowScale
 	);
 	SDL_RenderSetLogicalSize(
 		renderer,
-		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX,360),
-		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY,360)
+		getDoc()->get<int>(Constants::keyName.renderer.dispResX,360),
+		getDoc()->get<int>(Constants::keyName.renderer.dispResY,360)
 	);
 
 	// Turn off console mode
@@ -436,36 +438,36 @@ void Nebulite::Core::Renderer::changeWindowSize(int w, int h, uint16_t scalar){
     reinsertAllObjects();
 }
 
-void Nebulite::Core::Renderer::moveCam(int dX, int dY) const {
+void Renderer::moveCam(int const& dX, int const& dY) const {
 	getDoc()->set<int>(
-		Nebulite::Constants::keyName.renderer.positionX,
-		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionX,0) + dX
+		Constants::keyName.renderer.positionX,
+		getDoc()->get<int>(Constants::keyName.renderer.positionX,0) + dX
 	);
 	getDoc()->set<int>(
-		Nebulite::Constants::keyName.renderer.positionY,
-		getDoc()->get<int>(Nebulite::Constants::keyName.renderer.positionY,0) + dY
+		Constants::keyName.renderer.positionY,
+		getDoc()->get<int>(Constants::keyName.renderer.positionY,0) + dY
 	);
 }
 
-void Nebulite::Core::Renderer::setCam(int X, int Y, bool isMiddle){
+void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle){
 	logln("Setting camera position to: " + std::to_string(X) + ", " + std::to_string(Y) + ", Middle: " + std::to_string(isMiddle));
 
 	if(isMiddle){
-		int newPosX = X - getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResX,0) / 2;
-		int newPosY = Y - getDoc()->get<int>(Nebulite::Constants::keyName.renderer.dispResY,0) / 2;
-		getDoc()->set<int>(Nebulite::Constants::keyName.renderer.positionX,newPosX);
-		getDoc()->set<int>(Nebulite::Constants::keyName.renderer.positionY,newPosY);
+		int const newPosX = X - getDoc()->get<int>(Constants::keyName.renderer.dispResX,0) / 2;
+		int const newPosY = Y - getDoc()->get<int>(Constants::keyName.renderer.dispResY,0) / 2;
+		getDoc()->set<int>(Constants::keyName.renderer.positionX,newPosX);
+		getDoc()->set<int>(Constants::keyName.renderer.positionY,newPosY);
 	}
 	else{
-		getDoc()->set<int>(Nebulite::Constants::keyName.renderer.positionX,X);
-		getDoc()->set<int>(Nebulite::Constants::keyName.renderer.positionY,Y);
+		getDoc()->set<int>(Constants::keyName.renderer.positionX,X);
+		getDoc()->set<int>(Constants::keyName.renderer.positionY,Y);
 	}
 }
 
 //------------------------------------------
 // Setting
 
-void Nebulite::Core::Renderer::setTargetFPS(uint16_t fps){
+void Renderer::setTargetFPS(uint16_t const& fps){
 	if (fps > 0){
 		TARGET_FPS = fps;
 		TARGET_TICKS_PER_FRAME = 1000 / TARGET_FPS;
@@ -479,12 +481,12 @@ void Nebulite::Core::Renderer::setTargetFPS(uint16_t fps){
 //------------------------------------------
 // Renderer::tick Functions
 
-void Nebulite::Core::Renderer::clear() const {
+void Renderer::clear() const {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
 	SDL_RenderClear(renderer);
 }
 
-void Nebulite::Core::Renderer::updateState(Nebulite::Interaction::Invoke* invoke_ptr){
+void Renderer::updateState(Interaction::Invoke* invoke_ptr){
 	//------------------------------------------
 	// Skip update if flagged
 	if(skipUpdate){
@@ -495,22 +497,22 @@ void Nebulite::Core::Renderer::updateState(Nebulite::Interaction::Invoke* invoke
 	invoke_ptr->update();
 
 	// Update environment
-	auto dispResX = getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResX,0);
-	auto dispResY = getDoc()->get<uint16_t>(Nebulite::Constants::keyName.renderer.dispResY,0);
+	auto const dispResX = getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResX,0);
+	auto const dispResY = getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResY,0);
 	env.update(tilePositionX,tilePositionY,dispResX,dispResY);
 }
 
-void Nebulite::Core::Renderer::renderFrame(){
+void Renderer::renderFrame(){
 	//------------------------------------------
 	// Store for faster access
 
 	// Get camera position
-	auto dispPosX = getDoc()->get<int16_t>(Nebulite::Constants::keyName.renderer.positionX,0);
-	auto dispPosY = getDoc()->get<int16_t>(Nebulite::Constants::keyName.renderer.positionY,0);
+	auto const dispPosX = getDoc()->get<int16_t>(Constants::keyName.renderer.positionX,0);
+	auto const dispPosY = getDoc()->get<int16_t>(Constants::keyName.renderer.positionY,0);
 
 	// Depending on position, set tiles to render
-	tilePositionX = static_cast<int16_t>( dispPosX / getDoc()->get<int16_t>(Nebulite::Constants::keyName.renderer.dispResX,0));
-	tilePositionY = static_cast<int16_t>( dispPosY / getDoc()->get<int16_t>(Nebulite::Constants::keyName.renderer.dispResY,0));
+	tilePositionX = static_cast<int16_t>( dispPosX / getDoc()->get<int16_t>(Constants::keyName.renderer.dispResX,0));
+	tilePositionY = static_cast<int16_t>( dispPosY / getDoc()->get<int16_t>(Constants::keyName.renderer.dispResY,0));
 
 	//------------------------------------------
 	// FPS Count and Control
@@ -533,11 +535,11 @@ void Nebulite::Core::Renderer::renderFrame(){
 
 	//Render Objects
 	//For all layers, starting at 0
-	for (auto layer : *(env.getAllLayers())){
+	for (auto layer : *env.getAllLayers()){
 		// Get all tile positions to render
 		std::vector<std::pair<int16_t, int16_t>> tilesToRender;
-		for (int dX = (tilePositionX == 0 ? 0 : -1); dX <= 1; dX++){
-			for (int dY = (tilePositionY == 0 ? 0 : -1); dY <= 1; dY++){
+		for (int dX = tilePositionX == 0 ? 0 : -1; dX <= 1; dX++){
+			for (int dY = tilePositionY == 0 ? 0 : -1; dY <= 1; dY++){
 				if (env.isValidPosition(tilePositionX + dX, tilePositionY + dY, layer)){
 					tilesToRender.emplace_back(tilePositionX + dX, tilePositionY + dY);
 				}
@@ -547,12 +549,12 @@ void Nebulite::Core::Renderer::renderFrame(){
 		// For all tiles to render
 		for (auto const& [tileX, tileY] : tilesToRender){
 			// For all batches inside
-			for (auto& batch : env.getContainerAt(tileX, tileY, layer)){
+			for (auto const& [objectsInThisBatch, _] : env.getContainerAt(tileX, tileY, layer)){
 				// For all objects in batch
-				for(auto& obj : batch.objects){
+				for(auto const& obj : objectsInThisBatch){
 					error = renderObjectToScreen(obj, dispPosX, dispPosY);
 					if(error != 0){
-						Nebulite::Utility::Capture::cerr() << "Error rendering object ID " << obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0) << ": " << error << Nebulite::Utility::Capture::endl;
+						Utility::Capture::cerr() << "Error rendering object ID " << obj->get<uint32_t>(Constants::keyName.renderObject.id.c_str(),0) << ": " << error << Utility::Capture::endl;
 					}
 				}
 			}
@@ -568,12 +570,12 @@ void Nebulite::Core::Renderer::renderFrame(){
 	}
 }
 
-int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject* obj, int dispPosX, int dispPosY){
+int Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY){
 	//------------------------------------------
 	// Texture Loading
 	
 	// Check for texture
-	auto innerDirectory = obj->get<std::string>(Nebulite::Constants::keyName.renderObject.imageLocation.c_str());
+	auto const innerDirectory = obj->get<std::string>(Constants::keyName.renderObject.imageLocation.c_str());
 
 	// Load texture if not yet loaded
 	if (TextureContainer.find(innerDirectory) == TextureContainer.end()){
@@ -601,13 +603,13 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 	//------------------------------------------
 	// Error Checking
 	if(!obj->getSDLTexture()){
-		Nebulite::Utility::Capture::cerr()
+		Utility::Capture::cerr()
 		<< "Error: RenderObject ID "
-		<< obj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(),0)
+		<< obj->get<uint32_t>(Constants::keyName.renderObject.id.c_str(),0)
 		<< " texture with path '"
 		<< innerDirectory
 		<< "' not found"
-		<< Nebulite::Utility::Capture::endl;
+		<< Utility::Capture::endl;
 		return -1;
 	}
 
@@ -615,11 +617,11 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 	// Rendering
 
 	// Render the texture
-	int error_sprite = SDL_RenderCopy(renderer, obj->getSDLTexture(), obj->getSrcRect(), obj->getDstRect());
+	int const error_sprite = SDL_RenderCopy(renderer, obj->getSDLTexture(), obj->getSrcRect(), obj->getDstRect());
 
 	// Render the text
 	int error_text = 0;
-	if (obj->get<double>(Nebulite::Constants::keyName.renderObject.textFontsize.c_str()) > 0){
+	if (obj->get<double>(Constants::keyName.renderObject.textFontsize.c_str()) > 0){
 		obj->calculateText(
 			renderer,
 			font,
@@ -639,7 +641,7 @@ int Nebulite::Core::Renderer::renderObjectToScreen(Nebulite::Core::RenderObject*
 	return error_text;
 }
 
-void Nebulite::Core::Renderer::renderFPS() const {
+void Renderer::renderFPS() const {
 	// Size of the font
 	double constexpr fontSize = 16;
 
@@ -647,7 +649,7 @@ void Nebulite::Core::Renderer::renderFPS() const {
 	std::string const fpsText = "FPS: " + std::to_string(REAL_FPS);
 
 	// Define the destination rectangle for rendering the text
-	SDL_Rect textRect = {
+	SDL_Rect const textRect = {
 		10,
 		10,
 		static_cast<int>(fontSize * static_cast<int>(fpsText.length())),
@@ -672,14 +674,14 @@ void Nebulite::Core::Renderer::renderFPS() const {
 	SDL_DestroyTexture(textTexture);
 }
 
-void Nebulite::Core::Renderer::showFrame() const {
+void Renderer::showFrame() const {
 	SDL_RenderPresent(renderer);
 }
 
 //------------------------------------------
 // Texture-Related
 
-void Nebulite::Core::Renderer::loadTexture(std::string const& link){
+void Renderer::loadTexture(std::string const& link){
 	if (SDL_Texture* texture = loadTextureToMemory(link)){
 		TextureContainer[link] = texture;
 	}
@@ -688,17 +690,16 @@ void Nebulite::Core::Renderer::loadTexture(std::string const& link){
 /**
  * @todo Texture not created with SDL_TEXTUREACCESS_TARGET, so cannot be used with SDL_SetRenderTarget
  */
-SDL_Texture* Nebulite::Core::Renderer::loadTextureToMemory(std::string const& link) const {
-    std::string path = Nebulite::Utility::FileManagement::CombinePaths(baseDirectory, link);
+SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
+    std::string const path = Utility::FileManagement::CombinePaths(baseDirectory, link);
     
 	// Get file extension, based on last dot
 	std::string extension;
-	size_t dotPos = path.find_last_of('.');
-	if (dotPos != std::string::npos){
+	if (size_t const dotPos = path.find_last_of('.'); dotPos != std::string::npos){
 		extension = path.substr(dotPos + 1);
 	}
 	else {
-		Nebulite::Utility::Capture::cerr() << "Failed to load image '" << path << "': No file extension found." << Nebulite::Utility::Capture::endl;
+		Utility::Capture::cerr() << "Failed to load image '" << path << "': No file extension found." << Utility::Capture::endl;
 		return nullptr;
 	}
 
@@ -716,7 +717,7 @@ SDL_Texture* Nebulite::Core::Renderer::loadTextureToMemory(std::string const& li
 
 	// Unknown format or other issues with surface
 	if (surface == nullptr){
-		Nebulite::Utility::Capture::cerr() << "Failed to load image '" << path << "': " << SDL_GetError() << Nebulite::Utility::Capture::endl;
+		Utility::Capture::cerr() << "Failed to load image '" << path << "': " << SDL_GetError() << Utility::Capture::endl;
 		return nullptr;
 	}
 
@@ -726,7 +727,7 @@ SDL_Texture* Nebulite::Core::Renderer::loadTextureToMemory(std::string const& li
 
 	// Check for texture issues
 	if (!texture){
-		Nebulite::Utility::Capture::cerr() << "Failed to create texture from surface: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
+		Utility::Capture::cerr() << "Failed to create texture from surface: " << SDL_GetError() << Utility::Capture::endl;
 		return nullptr;
 	}
 
@@ -734,4 +735,4 @@ SDL_Texture* Nebulite::Core::Renderer::loadTextureToMemory(std::string const& li
 	return texture;
 }
 
-
+}	// namespace Nebulite::Core

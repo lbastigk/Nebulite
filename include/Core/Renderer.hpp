@@ -257,7 +257,7 @@ public:
 	/**
 	 * @brief Sets the target FPS for the renderer.
 	 */
-	void setTargetFPS(uint16_t fps);
+	void setTargetFPS(uint16_t const& fps);
 
 	/**
 	 * @brief Sets the camera position.
@@ -267,7 +267,7 @@ public:
 	 * @param isMiddle If true, the (x,y) coordinates relate to the middle of the screen.
 	 * If false, they relate to the top left corner.
 	 */
-	void setCam(int X, int Y, bool isMiddle = false);
+	void setCam(int const& X, int const& Y, bool const& isMiddle = false);
 
 	/**
 	 * @brief Changes the window size.
@@ -278,7 +278,7 @@ public:
 	 * @param h The new pixel height of the window.
 	 * @param scalar The scaling factor to apply.
 	 */
-	void changeWindowSize(int w, int h, uint16_t scalar);
+	void changeWindowSize(int const& w, int const& h, uint16_t const& scalar);
 
 	/**
 	 * @brief Moves the camera by a certain amount.
@@ -286,7 +286,7 @@ public:
 	 * @param dX The amount to move the camera in the X direction.
 	 * @param dY The amount to move the camera in the Y direction.
 	 */
-	void moveCam(int dX, int dY) const ;
+	void moveCam(int const& dX, int const& dY) const ;
 
 	
 	//------------------------------------------
@@ -572,7 +572,7 @@ private:
 	 * @param dispPosY The Y position on the screen to render the object.
 	 * @return SDL_Error code from SDL_RenderCopy, 0 if successful.
 	 */
-	int renderObjectToScreen(RenderObject* obj, int dispPosX, int dispPosY);
+	int renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
 
 	//------------------------------------------
 	//For FPS Count
