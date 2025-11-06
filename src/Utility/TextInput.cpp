@@ -37,7 +37,7 @@ std::string TextInput::submit(){
     return "";
 }
 
-void TextInput::insertLine(std::string const& line, LineEntry::LineType type){
+void TextInput::insertLine(std::string const& line, LineEntry::LineType const& type){
     switch(type){
         case LineEntry::LineType::COUT: {
             LineEntry entry(line, LineEntry::LineType::COUT);
@@ -58,16 +58,16 @@ void TextInput::insertLine(std::string const& line, LineEntry::LineType type){
     }
 }
 
-void TextInput::backspace(){
+void TextInput::backspace() const {
     // We can only backspace if the buffer is not empty
     if (!consoleInputBuffer->empty()){
         // We can only backspace if the cursor is not at the start
         if(cursorOffset != consoleInputBuffer->size()){
             if(cursorOffset > 0){
                 // Remove character before cursor
-                std::string string_before_cursor = consoleInputBuffer->substr(0, consoleInputBuffer->size() - cursorOffset - 1);
-                std::string string_after_cursor = consoleInputBuffer->substr(consoleInputBuffer->size() - cursorOffset);
-                *consoleInputBuffer = string_before_cursor + string_after_cursor;
+                std::string const beforeCursor = consoleInputBuffer->substr(0, consoleInputBuffer->size() - cursorOffset - 1);
+                std::string const afterCursor = consoleInputBuffer->substr(consoleInputBuffer->size() - cursorOffset);
+                *consoleInputBuffer = beforeCursor + afterCursor;
             }
             else{
                 // Remove last character
@@ -102,27 +102,26 @@ void TextInput::history_down(){
 }
 
 void TextInput::moveCursorLeft(){
-    // Move cursor left if its smaller than the input buffer size
+    // Move cursor left if it's smaller than the input buffer size
     if(cursorOffset < consoleInputBuffer->size()){
         cursorOffset++;
     }
 }
 
 void TextInput::moveCursorRight(){
-    // Move cursor right if its greater than 0
+    // Move cursor right if it's greater than 0
     if(cursorOffset > 0){
         cursorOffset--;
     }
 }
 
-void TextInput::append(char const* c){
-    std::string input(c);
-
+void TextInput::append(char const* c) const {
+    std::string const input(c);
     std::string newBuffer;
     if(cursorOffset > 0){
         // Insert character at cursor position
-        std::string string_before_cursor = consoleInputBuffer->substr(0, consoleInputBuffer->size() - cursorOffset);
-        std::string string_after_cursor = consoleInputBuffer->substr(consoleInputBuffer->size() - cursorOffset);
+        std::string const string_before_cursor = consoleInputBuffer->substr(0, consoleInputBuffer->size() - cursorOffset);
+        std::string const string_after_cursor = consoleInputBuffer->substr(consoleInputBuffer->size() - cursorOffset);
         newBuffer = string_before_cursor + input + string_after_cursor;
     }
     else{
