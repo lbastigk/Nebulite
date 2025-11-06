@@ -44,7 +44,7 @@ inline constexpr std::size_t SIMD_ALIGNMENT = 32U;
 // SSE alignment
 inline constexpr std::size_t SSE_ALIGNMENT = 16U;
 
-static_assert((CACHE_LINE_ALIGNMENT & (CACHE_LINE_ALIGNMENT - 1)) == 0, "CACHE_LINE_ALIGNMENT must be power of two");
+static_assert((CACHE_LINE_ALIGNMENT & CACHE_LINE_ALIGNMENT - 1) == 0, "CACHE_LINE_ALIGNMENT must be power of two");
 
 //------------------------------------------
 // Namespace documentation
