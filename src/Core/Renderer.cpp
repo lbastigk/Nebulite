@@ -449,7 +449,7 @@ void Renderer::moveCam(int const& dX, int const& dY) const {
 	);
 }
 
-void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle){
+void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle) const {
 	logln("Setting camera position to: " + std::to_string(X) + ", " + std::to_string(Y) + ", Middle: " + std::to_string(isMiddle));
 
 	if(isMiddle){
@@ -704,7 +704,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
 	}
 
 	// turn to lowercase
-	std::ranges::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+	std::ranges::transform(extension.begin(), extension.end(), extension.begin(), tolower);
 
 	// Check for known image formats
 	SDL_Surface* surface = nullptr;

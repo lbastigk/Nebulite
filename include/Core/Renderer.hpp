@@ -267,7 +267,7 @@ public:
 	 * @param isMiddle If true, the (x,y) coordinates relate to the middle of the screen.
 	 * If false, they relate to the top left corner.
 	 */
-	void setCam(int const& X, int const& Y, bool const& isMiddle = false);
+	void setCam(int const& X, int const& Y, bool const& isMiddle = false) const ;
 
 	/**
 	 * @brief Changes the window size.
