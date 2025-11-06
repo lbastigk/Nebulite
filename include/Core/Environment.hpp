@@ -139,7 +139,7 @@ public:
 	 * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
 	 * @param layer Layer index to append the object to (default is 0).
 	 */
-	void append(RenderObject* toAppend,uint16_t dispResX, uint16_t dispResY, uint8_t layer = 0);
+	void append(RenderObject* toAppend,uint16_t const& dispResX, uint16_t const& dispResY, uint8_t const& layer = 0);
 
 	/**
 	 * @brief Updates the environment's state.
@@ -151,7 +151,7 @@ public:
 	 * @param dispResX display resolution width. Necessary for potential RenderObject reinsertions.
 	 * @param dispResY display resolution height. Necessary for potential RenderObject reinsertions.
 	 */
-	void update(int16_t tileXposition, int16_t tileYposition, uint16_t dispResX, uint16_t dispResY);
+	void update(int16_t const& tileXposition, int16_t const& tileYposition, uint16_t const& dispResX, uint16_t const& dispResY);
 
 	/**
 	 * @brief Rebuilds the Container structure.
@@ -169,7 +169,7 @@ public:
 	 * @param id The ID of the RenderObject to retrieve.
 	 * @return A pointer to the RenderObject if found, nullptr otherwise.
 	 */
-	RenderObject* getObjectFromId(uint32_t id);
+	RenderObject* getObjectFromId(uint32_t const& id);
 
 	//------------------------------------------
 	// Container Management
