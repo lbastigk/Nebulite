@@ -67,8 +67,11 @@ RenderObject::RenderObject(GlobalSpace* globalSpace)
 	flag.deleteFromScene = false;
 	flag.calculateText = true;		// In order to calculate text texture on first update
 	flag.reloadInvokes = true;		// In order to reload invokes on first update
-
 	subscription_size = json.memberSize(Constants::keyName.renderObject.invokeSubscriptions);
+
+	//------------------------------------------
+	// Initialize Linkages, References and DomainModules and object itself
+	init();
 }
 
 void RenderObject::init(){
