@@ -126,8 +126,8 @@ bool Nebulite::Interaction::RulesetCompiler::getExpressions(std::shared_ptr<Rule
                 // Successfully parsed expression
 
                 // Remove whitespaces at start and end of key and value
-                assignmentExpr.key = Utility::StringHandler::rstrip(Utility::StringHandler::lstrip(assignmentExpr.key));
-                assignmentExpr.value = Utility::StringHandler::rstrip(Utility::StringHandler::lstrip(assignmentExpr.value));
+                assignmentExpr.key = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(assignmentExpr.key));
+                assignmentExpr.value = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(assignmentExpr.value));
 
                 // Add assignmentExpr to Ruleset
                 Ruleset->assignments.emplace_back(std::move(assignmentExpr));
@@ -260,7 +260,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
         Ruleset->logicalArg.parse(getLogicalArg(entry), docCache, self->getDoc(), global);
 
         // Remove whitespaces at start and end from topic and logicalArg:
-        Ruleset->topic = Utility::StringHandler::rstrip(Utility::StringHandler::lstrip(Ruleset->topic));
+        Ruleset->topic = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(Ruleset->topic));
 
         // If topic becomes empty after stripping, treat as local-only
         if (Ruleset->topic.empty()){
@@ -268,7 +268,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
         }
 
         std::string str = *Ruleset->logicalArg.getFullExpression();
-        str = Utility::StringHandler::rstrip(Utility::StringHandler::lstrip(str));
+        str = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(str));
         Ruleset->logicalArg.parse(str, docCache, self->getDoc(), global);
 
         // Get expressions
