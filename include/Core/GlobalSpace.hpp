@@ -123,7 +123,7 @@ public:
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
      */
-    taskQueueResult resolveTaskQueue(taskQueueWrapper& tq, uint64_t const* waitCounter);
+    taskQueueResult resolveTaskQueue(taskQueueWrapper& tq, uint64_t const* waitCounter) const ;
 
     /**
      * @brief Parses the task queue for execution.
