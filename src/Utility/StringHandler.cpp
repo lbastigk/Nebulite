@@ -26,10 +26,10 @@ bool StringHandler::isNumber(std::string const& str){
     // Then check if + or - is only at the start
     return std::ranges::all_of(str, [](char const c){
         return std::isdigit(c) || c == '+' || c == '-' || c == '.';
-    }) &&
-    (std::ranges::count(str, '.') <= 1) &&
-    (str.find_first_of("+-") <= 0 || str.find_first_of("+-") == std::string::npos) &&
-    !str.empty();
+    })
+    && std::ranges::count(str, '.') <= 1
+    && (str.find_first_of("+-") <= 0 || str.find_first_of("+-") == std::string::npos)
+    && !str.empty();
 }
 
 std::string StringHandler::replaceAll(std::string target, std::string const& toReplace, std::string const& replacer){
