@@ -1,46 +1,38 @@
-#include "Utility/StringHandler.hpp"
+//------------------------------------------
+// Includes
 
+// Standard library
 #include <algorithm>
 #include <unordered_map>
 
+// Nebulite
+#include "Utility/StringHandler.hpp"
 #include "Utility/Capture.hpp"
 
-bool Nebulite::Utility::StringHandler::containsAnyOf(std::string const& str, std::string const& chars){
+
+
+//------------------------------------------
+namespace Nebulite::Utility {
+
+bool StringHandler::containsAnyOf(std::string const& str, std::string const& chars){
     return std::ranges::any_of(str, [&](char const c){
         return chars.find(c) != std::string::npos;
     });
 }
 
-bool Nebulite::Utility::StringHandler::isNumber(std::string str){
-    // Trim leading/trailing whitespace
-    str.erase(0, str.find_first_not_of(" \t\n\r"));
-    str.erase(str.find_last_not_of(" \t\n\r") + 1);
-
-    if (str.empty()) return false;
-
-    size_t i = 0;
-
-    // Optional sign
-    if (str[i] == '+' || str[i] == '-') i++;
-
-    bool hasDigits = false;
-    bool hasDot = false;
-
-    for (; i < str.length(); ++i){
-        if (std::isdigit(str[i])){
-            hasDigits = true;
-        } else if (str[i] == '.'){
-            if (hasDot) return false; // Only one dot allowed
-            hasDot = true;
-        } else {
-            return false; // Invalid character
-        }
-    }
-
-    return hasDigits;
+bool StringHandler::isNumber(std::string const& str){
+    // Check if all characters are digits, +, -, or .
+    // Then check if count of . is at most 1
+    // Then check if + or - is only at the start
+    return std::ranges::all_of(str, [](char const c){
+        return std::isdigit(c) || c == '+' || c == '-' || c == '.';
+    }) &&
+    (std::ranges::count(str, '.') <= 1) &&
+    (str.find_first_of("+-") <= 0 || str.find_first_of("+-") == std::string::npos) &&
+    !str.empty();
 }
 
-std::string Nebulite::Utility::StringHandler::replaceAll(std::string target, std::string const& toReplace, std::string const& replacer){
+std::string StringHandler::replaceAll(std::string target, std::string const& toReplace, std::string const& replacer){
     std::string::size_type pos = 0u;
     while ((pos = target.find(toReplace, pos)) != std::string::npos){
         target.replace(pos, toReplace.length(), replacer);
@@ -49,31 +41,31 @@ std::string Nebulite::Utility::StringHandler::replaceAll(std::string target, std
     return target;
 }
 
-std::string Nebulite::Utility::StringHandler::untilSpecialChar(std::string const& input, char const& specialChar){
+std::string StringHandler::untilSpecialChar(std::string const& input, char const& specialChar){
     if (size_t const pos = input.find(specialChar); pos != std::string::npos && pos < input.size()){
         return input.substr(0, pos);
     }
     return input;
 }
 
-std::string Nebulite::Utility::StringHandler::afterSpecialChar(std::string const& input, char const& specialChar){
+std::string StringHandler::afterSpecialChar(std::string const& input, char const& specialChar){
     if (size_t const pos = input.find(specialChar); pos != std::string::npos && pos + 1 < input.size()){
         return input.substr(pos+1);
     }
     return input;
 }
 
-std::string Nebulite::Utility::StringHandler::lStrip(std::string const& input, char const& specialChar){
+std::string StringHandler::lStrip(std::string const& input, char const& specialChar){
     size_t const start = input.find_first_not_of(specialChar);
     return start == std::string::npos ? "" : input.substr(start);
 }
 
-std::string Nebulite::Utility::StringHandler::rStrip(std::string const& input, char const& specialChar){
+std::string StringHandler::rStrip(std::string const& input, char const& specialChar){
     size_t const end = input.find_last_not_of(specialChar);
     return end == std::string::npos ? "" : input.substr(0, end + 1);
 }
 
-std::vector<std::string> Nebulite::Utility::StringHandler::split(std::string const& input, char const& delimiter, bool const& keepDelimiter){
+std::vector<std::string> StringHandler::split(std::string const& input, char const& delimiter, bool const& keepDelimiter){
     std::vector<std::string> tokens;
     
     if (!keepDelimiter){
@@ -119,7 +111,7 @@ std::vector<std::string> Nebulite::Utility::StringHandler::split(std::string con
     return tokens;
 }
 
-std::vector<std::string> Nebulite::Utility::StringHandler::splitOnSameDepth(std::string const& input, char const& delimiter){
+std::vector<std::string> StringHandler::splitOnSameDepth(std::string const& input, char const& delimiter){
     std::vector<std::string> result;
 
     // Map opening delimiters to their closing ones
@@ -254,7 +246,7 @@ namespace {
     }
 }
 
-std::vector<std::string> Nebulite::Utility::StringHandler::parseQuotedArguments(std::string const& cmd){
+std::vector<std::string> StringHandler::parseQuotedArguments(std::string const& cmd){
     std::vector<std::string> const tokens = split(cmd, ' ');
     std::vector<std::string> result;
     QuoteParseState state;
@@ -283,7 +275,7 @@ std::vector<std::string> Nebulite::Utility::StringHandler::parseQuotedArguments(
 }
 
 // cppcheck-suppress constParameter
-std::string Nebulite::Utility::StringHandler::recombineArgs(int const argc, char* argv[]){
+std::string StringHandler::recombineArgs(int const argc, char* argv[]){
     std::string result;
     for (int i = 0; i < argc; ++i){
         result += argv[i];
@@ -296,3 +288,5 @@ std::string Nebulite::Utility::StringHandler::recombineArgs(int const argc, char
     }
     return result;
 }
+
+} // namespace Nebulite::Utility

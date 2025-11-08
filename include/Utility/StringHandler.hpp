@@ -37,7 +37,7 @@ public:
      * @param str The input string to check.
      * @return true if the string is a valid number, false otherwise.
      */
-    static bool isNumber(std::string str);
+    static bool isNumber(std::string const& str);
 
     /**
      * @brief Replaces all occurrences of a substring within a string.
