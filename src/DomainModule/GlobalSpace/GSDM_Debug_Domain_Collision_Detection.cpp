@@ -2,9 +2,9 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Nebulite::Constants::Error Debug_Domain_Collision_Detection::update(){
+Constants::Error Debug_Domain_Collision_Detection::update(){
     // No periodic update needed for this domain module
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 
 //------------------------------------------
@@ -18,18 +18,18 @@ std::string const Debug_Domain_Collision_Detection::collisionDetect_desc = "Util
 //------------------------------------------
 // Available Functions
 
-Nebulite::Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_function(int argc, char const* argv[]){
+// NOLINTNEXTLINE
+Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_function(int argc, char const* argv[]){
     bool fail = true;
     if(argc >= 2){
-        std::string mode = argv[1];
-        if(mode == "succeed"){
+        if(std::string const mode = argv[1]; mode == "succeed"){
             fail = false;
         }
         else if(mode == "fail"){
             fail = true;
         }
         else{
-            return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+            return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
         }
     }
 
@@ -41,7 +41,7 @@ Nebulite::Constants::Error Debug_Domain_Collision_Detection::debug_collisionDete
         // Try to bind a new function with a unique name
         bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_function, "123456", &debug_collisionDetect_function_desc);
     }
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const Debug_Domain_Collision_Detection::debug_collisionDetect_function_name = "debug collision-detect function";
 std::string const Debug_Domain_Collision_Detection::debug_collisionDetect_function_desc = R"(Tests collision detection of functions names
@@ -53,33 +53,42 @@ Usage: debug collision-detect function [fail/succeed]
 Defaults to fail
 )";
 
-Nebulite::Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_category(int argc, char const* argv[]){
+// NOLINTNEXTLINE
+Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_category(int argc, char const* argv[]){
     bool fail = true;
     if(argc >= 2){
-        std::string mode = argv[1];
-        if(mode == "succeed"){
+        if(std::string const mode = argv[1]; mode == "succeed"){
             fail = false;
         }
         else if(mode == "fail"){
             fail = true;
         }
         else{
-            return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+            return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
         }
     }
 
     if(fail){
         // This will fail, as the category name is already registered in GlobalSpace
-        bindCategory(collisionDetect_name, &debug_collisionDetect_category_desc);
+        if (!bindCategory(collisionDetect_name, &debug_collisionDetect_category_desc)) {
+            // Binding failed as expected
+            return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION();
+        }
     }
     else{
         // Try to bind a new category with a unique name
-        bindCategory("123456", &debug_collisionDetect_category_desc);
+        if (!bindCategory("123456", &debug_collisionDetect_category_desc)) {
+            // This should not happen
+            return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION();
+        }
 
         // Just to be safe, we bind a sub-category as well
-        bindCategory("123456 789", &debug_collisionDetect_category_desc);
+        if (!bindCategory("123456 789", &debug_collisionDetect_category_desc)) {
+            // This should not happen
+            return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION();
+        }
     }
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const Debug_Domain_Collision_Detection::debug_collisionDetect_category_name = "debug collision-detect category";
 std::string const Debug_Domain_Collision_Detection::debug_collisionDetect_category_desc = R"(Tests collision detection of categories
@@ -91,18 +100,18 @@ Usage: debug collision-detect category [fail/succeed]
 Defaults to fail
 )";
 
-Nebulite::Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_variable(int argc, char const* argv[]){
+// NOLINTNEXTLINE
+Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_variable(int argc, char const* argv[]){
     bool fail = true;
     if(argc >= 2){
-        std::string mode = argv[1];
-        if(mode == "succeed"){
+        if(std::string const mode = argv[1]; mode == "succeed"){
             fail = false;
         }
         else if(mode == "fail"){
             fail = true;
         }
         else{
-            return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+            return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
         }
     }
 
@@ -117,7 +126,7 @@ Nebulite::Constants::Error Debug_Domain_Collision_Detection::debug_collisionDete
         static bool testVar = false;
         bindVariable(&testVar, "debug_collision_detect_test_variable", &debug_collisionDetect_variable_desc);
     }
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const Debug_Domain_Collision_Detection::debug_collisionDetect_variable_name = "debug collision-detect variable";
 std::string const Debug_Domain_Collision_Detection::debug_collisionDetect_variable_desc = R"(Tests collision detection of variable names
