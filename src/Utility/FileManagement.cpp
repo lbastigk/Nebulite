@@ -1,46 +1,53 @@
-#include "Utility/FileManagement.hpp"
+//------------------------------------------
+// Includes
 
+// Standard library
 #include <filesystem>
 #include <cstring>
 #include <iostream>
 #include <fstream>
 #include "Utility/Capture.hpp"
 
-//------------------------------------------
-// Nebulite::Utility::FileManagement Functions
+// Nebulite
+#include "Utility/FileManagement.hpp"
 
-std::string Nebulite::Utility::FileManagement::CombinePaths(std::string const& baseDir, std::string const& innerDir){
-    std::filesystem::path basePath(baseDir);
-    std::filesystem::path innerPath(innerDir);
-    std::filesystem::path fullPath = basePath / innerPath;
+//------------------------------------------
+namespace Nebulite::Utility {
+
+std::string FileManagement::CombinePaths(std::string const& baseDir, std::string const& innerDir){
+    std::filesystem::path const basePath(baseDir);
+    std::filesystem::path const innerPath(innerDir);
+    std::filesystem::path const fullPath = basePath / innerPath;
     return fullPath.string();
 }
 
 /**
  * @todo Switch back to std::filesystem
+ *       this old version was used to avoid locale issues on some platforms.
+ *       Should work now, issue was probably some borked Kubuntu install.
  */
-std::string Nebulite::Utility::FileManagement::LoadFile(std::string const& link){  
+std::string FileManagement::LoadFile(std::string const& link){  
     // Use C-style file I/O to avoid locale issues
     FILE* file = fopen(link.c_str(), "rb");
     if (!file){
-        Nebulite::Utility::Capture::cerr() << "File '" << link << "' could not be opened!" << Nebulite::Utility::Capture::endl;
+        Capture::cerr() << "File '" << link << "' could not be opened!" << Capture::endl;
         return "";
     }
     
     // Get file size
     fseek(file, 0, SEEK_END);
-    long fileSize = ftell(file);
+    long const fileSize = ftell(file);
     fseek(file, 0, SEEK_SET);
     
     if (fileSize <= 0){
-        Nebulite::Utility::Capture::cerr() << "File '" << link << "' is empty or invalid!" << Nebulite::Utility::Capture::endl;
+        Capture::cerr() << "File '" << link << "' is empty or invalid!" << Capture::endl;
         fclose(file);
         return "";
     }
     
     // Read entire file into string
     std::string content(static_cast<size_t>(fileSize), '\0');
-    size_t bytesRead = fread(&content[0], 1, static_cast<size_t>(fileSize), file);
+    size_t const bytesRead = fread(&content[0], 1, static_cast<size_t>(fileSize), file);
     fclose(file);
     
     // Adjust string size to actual bytes read
@@ -48,30 +55,32 @@ std::string Nebulite::Utility::FileManagement::LoadFile(std::string const& link)
     return content;
 }
 
-void Nebulite::Utility::FileManagement::WriteFile(std::string const& filename, std::string const& text){
-    std::filesystem::path filepath(filename);  // Modern: handles encoding and platform separators
+void FileManagement::WriteFile(std::string const& filename, std::string const& text){
+    std::filesystem::path const filepath(filename);  // Modern: handles encoding and platform separators
 
     std::ofstream file(filepath, std::ios::out);
     if (!file.is_open()){
-        Nebulite::Utility::Capture::cerr() << "File '" << filepath << "' could not be opened/created for writing!" << Nebulite::Utility::Capture::endl;
+        Capture::cerr() << "File '" << filepath << "' could not be opened/created for writing!" << Capture::endl;
         return;
     }
     file << text;
 }
 
-char Nebulite::Utility::FileManagement::preferredSeparator(){
+char FileManagement::preferredSeparator(){
     return std::filesystem::path::preferred_separator;
 }
 
-std::string Nebulite::Utility::FileManagement::currentDir(){
+std::string FileManagement::currentDir(){
     try {
         return std::filesystem::current_path().string();
     } catch (std::exception const& e){
-        Nebulite::Utility::Capture::cerr() << "Error getting current directory: " << e.what() << Nebulite::Utility::Capture::endl;
+        Capture::cerr() << "Error getting current directory: " << e.what() << Capture::endl;
         return "";
     }
 }
 
-bool Nebulite::Utility::FileManagement::fileExists(std::string const& path){
+bool FileManagement::fileExists(std::string const& path){
     return std::filesystem::exists(path);
 }
+
+}   // namespace Nebulite::Utility
