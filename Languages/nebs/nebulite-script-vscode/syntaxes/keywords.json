@@ -31,7 +31,7 @@
   "global",
   "halt-once",
   "if",
-  "inputwait",
+  "input-wait",
   "json",
   "key",
   "keyDelete",
