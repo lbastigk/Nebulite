@@ -3,6 +3,7 @@
 
 // Standard library
 #include <algorithm>
+#include <ranges>
 #include <unordered_map>
 
 // Nebulite
@@ -33,12 +34,10 @@ bool StringHandler::isNumber(std::string const& str){
 }
 
 std::string StringHandler::replaceAll(std::string target, std::string const& toReplace, std::string const& replacer){
-    std::string::size_type pos = 0u;
-    while ((pos = target.find(toReplace, pos)) != std::string::npos){
-        target.replace(pos, toReplace.length(), replacer);
-        pos += toReplace.length();
-    }
-    return target;
+    if (toReplace.empty()) return target;
+    return target | std::views::split(toReplace)
+                  | std::views::join_with(replacer)
+                  | std::ranges::to<std::string>();
 }
 
 std::string StringHandler::untilSpecialChar(std::string const& input, char const& specialChar){
