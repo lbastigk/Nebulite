@@ -45,7 +45,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: ...
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      * 
      * @todo Not implemented yet
      */
@@ -56,7 +56,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: ...
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      * 
      * @todo Not implemented yet
      */
@@ -67,7 +67,7 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: ...
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      * 
      * @todo Not implemented yet
      */

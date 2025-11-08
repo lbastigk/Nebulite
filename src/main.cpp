@@ -22,18 +22,22 @@
  * ```bash
  * ./bin/Nebulite spawn <RenderObject.jsonc>      # Load a single renderobject
  * ./bin/Nebulite env-load <level.jsonc>          # Load and render a level
- * ./bin/Nebulite task <task.nebs>                # Run a tasktile
+ * ./bin/Nebulite task <task.nebs>                # Run a task file
  * ```
  */
 
 // ----------------------------------------------------------------------
 // Includes
 
-// Include the Global Space class
-// Initializes callable functions from both user CLI and runtime environment.
-// Also sets up the global Renderer used across Tree-based function calls.
-#include "Core/GlobalSpace.hpp" 
-#include "DomainModule/GlobalSpace/GSDM_Debug.hpp"   // For turning error logging off/on
+// Standard library
+#include <exception>
+#include <string>
+
+// Nebulite
+#include "Constants/ErrorTypes.hpp"                 // For error handling
+#include "Core/GlobalSpace.hpp"                     // Global Workspace of Nebulite
+#include "DomainModule/GlobalSpace/GSDM_Debug.hpp"  // For turning error logging off/on
+#include "Utility/Capture.hpp"                      // For error output capture
 
 // ----------------------------------------------------------------------
 // NEBULITE main
@@ -46,36 +50,26 @@
  * 
  * - Expand the GlobalSpace for specials scenarios and call with: `./bin/Nebulite my-scenario`
  * 
- * - Create taskfiles for scripted tests and call with `./bin/Nebulite task <taskfile.nebs>`
+ * - Create task files for scripted tests and call with `./bin/Nebulite task </path/to/task/file.nebs>`
  * 
  * Use functions for debugging of specific features and taskFiles for complex, scripted scenarios and tests.
  *
  * @todo:   settings.jsonc: Renderer size, fps setting (Input Mapping is already a work in progress. See GSDM_InputMapping.h)
  */
-int main(int argc, char* argv[]){
+int main(int const argc, char* argv[]){
     //------------------------------------------
     // Initialize the global space, parse command line arguments
-    std::string binaryName = argv[0];
+    auto const binaryName = std::string(argv[0]);
     Nebulite::Core::GlobalSpace globalSpace(binaryName);
     globalSpace.parseCommandLineArguments(argc, const_cast<char const**>(argv));
     
     //------------------------------------------
     // Render loop
     Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE(); // Last critical error result
-    // Keep loop semantics (execute at least once) but store the
-    // loop-condition in a local variable so the backward-branch
-    // depends on a register/local instead of an object reference.
-    // This reduces ID-dependent backward-branch warnings from static
-    // analyzers (e.g. altera-id-dependent-backward-branch).
-    bool keepRunning = true;
-    do {
+    do{
         // At least one loop, to handle command line arguments
         lastCriticalResult = globalSpace.update();
-
-        // Evaluate condition once per iteration and keep in a local
-        // variable; semantics remain the same (re-evaluated each loop).
-        keepRunning = globalSpace.shouldContinueLoop();
-    } while (keepRunning);
+    } while(globalSpace.shouldContinueLoop());
 
     //------------------------------------------
     // Exit
@@ -92,8 +86,17 @@ int main(int argc, char* argv[]){
     }
 
     // Parser handles if error files need to be closed
-    globalSpace.parseStr(binaryName + " " + Nebulite::DomainModule::GlobalSpace::Debug::errorlog_name + " off");
+    try{
+        if (Nebulite::Constants::Error const result = globalSpace.parseStr(binaryName + " " + Nebulite::DomainModule::GlobalSpace::Debug::errorlog_name + " off"); result .isCritical()){
+            Nebulite::Utility::Capture::cerr() << "Error disabling error log: " << result.getDescription() << "\n";
+            return 2;   // Return a different error code for log closing failure
+        }
+    } catch(std::exception const& e){
+        Nebulite::Utility::Capture::cerr() << "Error closing error log: " << e.what() << "\n";
+        return 2;   // Return a different error code for log closing failure
+    }
+    
 
     // Return 1 on critical stop, 0 otherwise
-    return static_cast<int>(criticalStop);
+    return criticalStop;
 }

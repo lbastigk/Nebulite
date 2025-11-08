@@ -9,7 +9,10 @@ function(initialize_git_submodules)
     )
 
     if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-        message(WARNING "git submodule update --init --recursive failed with ${GIT_SUBMOD_RESULT}")
+        # We supress the warning message due to false positives.
+        # TODO: Why does this happen? Investigate further.
+        #message(WARNING "git submodule update --init --recursive failed with ${GIT_SUBMOD_RESULT}")
+        message(STATUS "git submodule update failed (suppressed): ${GIT_SUBMOD_RESULT}")
     else()
         message(STATUS "Git submodules updated successfully")
     endif()

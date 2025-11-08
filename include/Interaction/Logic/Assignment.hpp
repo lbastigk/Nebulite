@@ -12,6 +12,7 @@
 // Includes
 
 // Nebulite
+#include "Nebulite.hpp"
 #include "Interaction/Logic/ExpressionPool.hpp"
 
 //------------------------------------------
@@ -33,11 +34,63 @@ namespace Nebulite::Interaction::Logic {
  * - The value as parsed expression
  * 
  */
-struct Assignment{
+struct alignas(DUAL_CACHE_LINE_ALIGNMENT) Assignment{
+    //------------------------------------------
+    // Standard constructor/destructor
+    Assignment() = default;
+    ~Assignment() = default;
+
+    //------------------------------------------
+    // Since assignments are unique to a RenderObject
+    // Disabling copy, allowing move for certain operations
+
+    /**
+     * @todo Using shared_ptr for Assignments so that even move operations are not necessary
+     */
+
+    // Disable copy constructor and assignment
+    Assignment(Assignment const&) = delete;
+    Assignment& operator=(Assignment const&) = delete;
+
+    // Enable move constructor and assignment
+    Assignment(Assignment&& other) noexcept = default;
+    Assignment& operator=(Assignment&& other) noexcept = default;
+
+    //------------------------------------------
+
+    // Activate threadsafe expression pool only if needed
+    #if INVOKE_EXPR_POOL_SIZE > 1
+        /**
+         * @brief The parsed expression in a thread-friendly Pool-Configuration
+         */
+        ExpressionPool expression;
+    #else
+        /**
+         * @brief The parsed expression
+         */
+        Expression expression;
+    #endif
+
+    /**
+     * @brief Expression assignment target as double pointer
+     * 
+     * Is only unequal to nullptr if:
+     * - onType is Self
+     * - operation is numeric (add, multiply)
+     * - expression is returnable as double
+     */
+    double* targetValuePtr = nullptr;
+
     /**
      * @brief Type of operation used
      */
-    enum class Operation {null, set, add, multiply, concat};
+    enum class Operation : uint8_t {
+        null, 
+        set, 
+        add, 
+        multiply, 
+        concat
+    };
 
     /**
      * @brief Type of operation used.
@@ -52,7 +105,12 @@ struct Assignment{
     /**
      * @brief Target document type (Self, Other, Global)
      */
-    enum class Type {null, Self, Other, Global};
+    enum class Type : uint8_t {
+        null, 
+        Self, 
+        Other, 
+        Global
+    };
 
     /**
      * @brief Target document type (Self, Other, Global)
@@ -70,15 +128,7 @@ struct Assignment{
      */
     std::string key;
 
-    /**
-     * @brief Target value pointer
-     * 
-     * Is only unequal to nullptr if:
-     * - onType is Self
-     * - operation is numeric (add, multiply)
-     * - expression is returnable as double
-     */
-    double* targetValuePtr = nullptr;
+    
 
     /**
      * @brief A unique id of the key in the target document
@@ -92,53 +142,7 @@ struct Assignment{
      */
     bool targetKeyUniqueIdInitialized = false;
 
-    // Activate threadsafe expression pool only if needed
-    #if INVOKE_EXPR_POOL_SIZE > 1
-        /**
-         * @brief The parsed expression in a thread-friendly Pool-Configuration
-         */
-        Nebulite::Interaction::Logic::ExpressionPool expression;
-    #else
-        /**
-         * @brief The parsed expression
-         */
-        Nebulite::Interaction::Logic::Expression expression;
-    #endif
-
-    //------------------------------------------
-    // Disabling copy, allowing move
-
-    // Disable copy constructor and assignment
-    Assignment(const Assignment&) = delete;
-    Assignment& operator=(const Assignment&) = delete;
-
-    // Enable move constructor and assignment
-    Assignment() = default;
-    Assignment(Assignment&& other) noexcept : 
-        operation(other.operation),
-        onType(other.onType),
-        key(std::move(other.key)),
-        targetValuePtr(other.targetValuePtr),
-        targetKeyUniqueId(other.targetKeyUniqueId),
-        targetKeyUniqueIdInitialized(other.targetKeyUniqueIdInitialized),
-        expression(std::move(other.expression)),
-        value(std::move(other.value))
-    {
-    }
-
-    Assignment& operator=(Assignment&& other) noexcept {
-        if (this != &other){
-            operation = other.operation;
-            onType = other.onType;
-            key = std::move(other.key);
-            value = std::move(other.value);
-            expression = std::move(other.expression);
-            targetValuePtr = other.targetValuePtr;
-            targetKeyUniqueId = other.targetKeyUniqueId;
-            targetKeyUniqueIdInitialized = other.targetKeyUniqueIdInitialized;
-        }
-        return *this;
-    }
+    
     
     /**
      * @brief Represents the full assignment as string

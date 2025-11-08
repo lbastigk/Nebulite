@@ -88,9 +88,9 @@ public:
 	 * 
 	 * RenderObjects are initialized with reference to the Globalspace.
 	 * 
-	 * @param global A pointer to the Globalspace instance.
+	 * @param globalSpace A pointer to the Globalspace instance.
 	 */
-	explicit RenderObject(Nebulite::Core::GlobalSpace* globalSpace);
+	explicit RenderObject(GlobalSpace* globalSpace);
 
 	/**
 	 * @brief Destroys the RenderObject.
@@ -98,10 +98,10 @@ public:
 	 * Cleans up any resources used by the RenderObject, including
 	 * textures and surfaces.
 	 */
-	virtual ~RenderObject();
+	~RenderObject() override;
 
 	// Suppress copy/move operators
-	RenderObject(const RenderObject& other) = delete;
+	RenderObject(RenderObject const& other) = delete;
 	RenderObject(RenderObject&& other) = delete;
 	RenderObject& operator=(RenderObject&& other) = delete;
 
@@ -171,7 +171,7 @@ public:
 	 * 
 	 * @return A pointer to the SDL_Texture representing the text.
 	 */
-	SDL_Texture* getTextTexture();
+	[[nodiscard]] SDL_Texture* getTextTexture() const ;
 	
 	//------------------------------------------
 	// Update-Oriented functions
@@ -190,10 +190,10 @@ public:
 	 * - broadcasts its own global invokes
 	 * 
 	 * - calculates source and destination rects
-	 * 
-	 * @param globalInvoke Pointer to the global invoke object
+	 *
+	 * @return Constants::Error indicating success or failure.
 	 */
-	Nebulite::Constants::Error update() override;
+	Constants::Error update() override;
 
 	/**
 	 * @brief Calculates the text texture for the RenderObject.
@@ -203,7 +203,7 @@ public:
 	 * @param renderPositionX The X position of the renderer used for text offset.
 	 * @param renderPositionY The Y position of the renderer used for text offset.
 	 */
-	void calculateText(SDL_Renderer* renderer,TTF_Font* font, int renderPositionX, int renderPositionY);
+	void calculateText(SDL_Renderer* renderer,TTF_Font* font, int const& renderPositionX, int const& renderPositionY);
 
 	/**
 	 * @brief Calculates the destination rectangle for the sprite.
@@ -216,16 +216,15 @@ public:
 	 */
 	void calculateSrcRect();
 
-	// Estimate computationcal cost of update (based on size of cmds_internal)
 	/**
 	 * @brief Estimates the computational cost of updating the RenderObject.
 	 * 
-	 * Based on the amount of evaluations and variables in the invoke entries.
+	 * Based on the amount of evaluations and variables in the ruleset.
 	 * 
-	 * @param onlyInternal If true, only considers internal invoke entries. Defaults to true.
+	 * @param onlyInternal If true, only considers internal rulesets. Defaults to true.
 	 * @return The estimated computational cost.
 	 */
-	uint64_t estimateComputationalCost(bool onlyInternal = true);
+	uint64_t estimateComputationalCost(bool const& onlyInternal = true);
 
 	//------------------------------------------
 	// Management Flags for Renderer-Interaction
@@ -257,7 +256,7 @@ public:
      * 
      * @return true if the texture has been modified, false otherwise.
      */
-    bool isTextureStoredLocally(){
+    [[nodiscard]] bool isTextureStoredLocally() const {
         return baseTexture.isTextureStoredLocally();
     }
 
@@ -266,7 +265,7 @@ public:
      * 
      * @return true if the texture is valid, false otherwise.
      */
-    bool isTextureValid(){
+    [[nodiscard]] bool isTextureValid() const {
         return baseTexture.isTextureValid();
     }
 
@@ -275,20 +274,29 @@ public:
      * 
      * @return Pointer to the current SDL_Texture.
      */
-    SDL_Texture* getSDLTexture(){
+    [[nodiscard]] SDL_Texture* getSDLTexture() const {
         return baseTexture.getSDLTexture();
     }
 
-	Nebulite::Core::Texture* getTexture(){
+	Texture* getTexture(){
 		return &baseTexture;
 	}
 
 private:
 	// Main doc holding values
-	Nebulite::Utility::JSON json;
+	Utility::JSON json;
 
 	// Size of subscriptions
 	size_t subscription_size = 0;
+
+	//------------------------------------------
+	// Initialization
+
+	/**
+	 * @brief Helper function to avoid calls to virtual functions in constructor.
+	 *        In order for this one to make more sense, it initializes the inherited domains and DomainModules as well.
+	 */
+	void init();
 
 	//------------------------------------------
 	// References to JSON
@@ -296,76 +304,79 @@ private:
 	/**
 	 * @struct FrequentRefs
 	 * @brief Holds frequently used references for quick access.
+	 *
+	 * @note Another option would be to use static pointers for each method that needs them,
+	 *       making variables more enclosed to their use case, but that would create duplicate pointers.
 	 */
 	struct FrequentRefs{
 		// Identity
-		double* id;
+		double* id = nullptr;
 
 		// Position and Size
-		double* posX;
-		double* posY;
-		double* pixelSizeX;
-		double* pixelSizeY;
+		double* posX = nullptr;
+		double* posY = nullptr;
+		double* pixelSizeX = nullptr;
+		double* pixelSizeY = nullptr;
 
 		// Spritesheet
-		double* isSpritesheet;
-		double* spritesheetOffsetX;
-		double* spritesheetOffsetY;
-		double* spritesheetSizeX;
-		double* spritesheetSizeY;
+		double* isSpritesheet = nullptr;
+		double* spritesheetOffsetX = nullptr;
+		double* spritesheetOffsetY = nullptr;
+		double* spritesheetSizeX = nullptr;
+		double* spritesheetSizeY = nullptr;
 
 		// Text
-		double* fontSize;
-		double* textDx;
-		double* textDy;
-		double* textColorR;
-		double* textColorG;
-		double* textColorB;
-		double* textColorA;
-	} refs;
+		double* fontSize = nullptr;
+		double* textDx = nullptr;
+		double* textDy = nullptr;
+		double* textColorR = nullptr;
+		double* textColorG = nullptr;
+		double* textColorB = nullptr;
+		double* textColorA = nullptr;
+	} refs = {};
 
 	/**
 	 * @brief Links frequently used references from the JSON document for quick access.
 	 */
 	void linkFrequentRefs(){
 		// Identity
-		refs.id                 = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.id);
+		refs.id                 = json.getStableDoublePointer(Constants::keyName.renderObject.id);
 
 		// Position and Size
-		refs.posX			    = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.positionX);
-		refs.posY			    = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.positionY);
-		refs.pixelSizeX         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.pixelSizeX);
-		refs.pixelSizeY         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.pixelSizeY);
+		refs.posX			    = json.getStableDoublePointer(Constants::keyName.renderObject.positionX);
+		refs.posY			    = json.getStableDoublePointer(Constants::keyName.renderObject.positionY);
+		refs.pixelSizeX         = json.getStableDoublePointer(Constants::keyName.renderObject.pixelSizeX);
+		refs.pixelSizeY         = json.getStableDoublePointer(Constants::keyName.renderObject.pixelSizeY);
 
 		// Spritesheet
-		refs.isSpritesheet      = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.isSpritesheet);
-		refs.spritesheetOffsetX = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX);
-		refs.spritesheetOffsetY = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY);
-		refs.spritesheetSizeX   = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetSizeX);
-		refs.spritesheetSizeY   = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.spritesheetSizeY);
+		refs.isSpritesheet      = json.getStableDoublePointer(Constants::keyName.renderObject.isSpritesheet);
+		refs.spritesheetOffsetX = json.getStableDoublePointer(Constants::keyName.renderObject.spritesheetOffsetX);
+		refs.spritesheetOffsetY = json.getStableDoublePointer(Constants::keyName.renderObject.spritesheetOffsetY);
+		refs.spritesheetSizeX   = json.getStableDoublePointer(Constants::keyName.renderObject.spritesheetSizeX);
+		refs.spritesheetSizeY   = json.getStableDoublePointer(Constants::keyName.renderObject.spritesheetSizeY);
 
 		// Text
-		refs.fontSize           = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textFontsize);
-		refs.textDx				= json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textDx);
-		refs.textDy				= json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textDy);
-		refs.textColorR         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorR);
-		refs.textColorG         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorG);
-		refs.textColorB         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorB);
-		refs.textColorA         = json.getStableDoublePointer(Nebulite::Constants::keyName.renderObject.textColorA);
+		refs.fontSize           = json.getStableDoublePointer(Constants::keyName.renderObject.textFontsize);
+		refs.textDx				= json.getStableDoublePointer(Constants::keyName.renderObject.textDx);
+		refs.textDy				= json.getStableDoublePointer(Constants::keyName.renderObject.textDy);
+		refs.textColorR         = json.getStableDoublePointer(Constants::keyName.renderObject.textColorR);
+		refs.textColorG         = json.getStableDoublePointer(Constants::keyName.renderObject.textColorG);
+		refs.textColorB         = json.getStableDoublePointer(Constants::keyName.renderObject.textColorB);
+		refs.textColorA         = json.getStableDoublePointer(Constants::keyName.renderObject.textColorA);
 	}
 
 	//------------------------------------------
 	// Texture related
 
 	// Base Texture
-	Nebulite::Core::Texture baseTexture;
+	Texture baseTexture;
 	
 	// === TO REWORK ===
 
 	// for caching of SDL Positions
-	SDL_Rect dstRect;	// destination of sprite
-	SDL_Rect srcRect;	// source of sprite from spritesheet
-	SDL_Rect textRect;	// destination of text texture
+	SDL_Rect dstRect = { 0, 0, 0, 0 };		// destination of sprite
+	SDL_Rect srcRect = { 0, 0, 0, 0 };		// source of sprite from spritesheet
+	SDL_Rect textRect  = { 0, 0, 0, 0 };	// destination of text texture
 
 	// Surface and Texture of Text
 	SDL_Surface* textSurface;	// Surface for the text
@@ -376,20 +387,20 @@ private:
 
 	//------------------------------------------
 	// Invoke Commands
-	std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> entries_global;	// Global commands, intended for self-other-global interaction
-	std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> entries_local;		// Internal commands, intended for self-global interaction
+	std::vector<std::shared_ptr<Interaction::Ruleset>> entries_global;	// Global commands, intended for self-other-global interaction
+	std::vector<std::shared_ptr<Interaction::Ruleset>> entries_local;		// Internal commands, intended for self-global interaction
 
 	//------------------------------------------
 	// Linkages
 
 	// Linkage to the entire global space
-	Nebulite::Core::GlobalSpace* globalSpace;
+	GlobalSpace* globalSpace;
 
 	// Each RenderObject with linkage to the global document
-	Nebulite::Utility::JSON* global;
+	Utility::JSON* global;
 
 	// Linkage to the global invoke for update calls
-	Nebulite::Interaction::Invoke* invoke;
+	Interaction::Invoke* invoke;
 };
 } // namespace Nebulite::Core
 

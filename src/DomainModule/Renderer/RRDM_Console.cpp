@@ -1,8 +1,20 @@
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <cstdint>
+
+// External
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
+
+// Nebulite
 #include "DomainModule/Renderer/RRDM_Console.hpp"
 #include "Core/Renderer.hpp"
 #include "Core/GlobalSpace.hpp"
-#include <cstdint>
 
+//------------------------------------------
 namespace Nebulite::DomainModule::Renderer {
 
 Nebulite::Constants::Error Console::update(){
@@ -30,10 +42,10 @@ Nebulite::Constants::Error Console::update(){
         // Insert into text input
         Nebulite::Utility::TextInput::LineEntry::LineType type;
         switch (input.type){
-        case Nebulite::Utility::Capture::OutputLine::COUT:
+        case Nebulite::Utility::Capture::OutputLine::Type::COUT:
             type = Nebulite::Utility::TextInput::LineEntry::LineType::COUT;
             break;
-        case Nebulite::Utility::Capture::OutputLine::CERR:
+        case Nebulite::Utility::Capture::OutputLine::Type::CERR:
             type = Nebulite::Utility::TextInput::LineEntry::LineType::CERR;
             break;
         }
@@ -332,7 +344,7 @@ void Console::init(){
     // Initialize history with a welcome message
     textInput.insertLine("Welcome to Nebulite!");
     textInput.insertLine("Type 'help' for a list of commands.");
-    textInput.insertLine("Console started at: " + Nebulite::Utility::Time::TimeIso8601(Nebulite::Utility::Time::ISO8601FORMATTER::YYYY_MM_DD_HH_MM_SS, true));
+    textInput.insertLine("Console started at: " + Nebulite::Utility::Time::TimeIso8601(Nebulite::Utility::Time::ISO8601Format::YYYY_MM_DD_HH_MM_SS, true));
 
     //--------------------------------------------------
     // Console now fully functional
@@ -414,19 +426,19 @@ void Console::keyTriggerScrollDown(){
     }
 }
 
-void Console::keyTriggerZoomIn(const SDL_KeyboardEvent& key){
+void Console::keyTriggerZoomIn(SDL_KeyboardEvent const& key){
     // Make sure that ctrl is held
     if(!(key.keysym.mod & KMOD_CTRL)) return;
     domain->parseStr(__FUNCTION__ + std::string(" ") + Nebulite::DomainModule::Renderer::Console::consoleZoom_name + " in");
 }
 
-void Console::keyTriggerZoomOut(const SDL_KeyboardEvent& key){
+void Console::keyTriggerZoomOut(SDL_KeyboardEvent const& key){
     // Make sure that ctrl is held
     if(!(key.keysym.mod & KMOD_CTRL)) return;
     domain->parseStr(__FUNCTION__ + std::string(" ") + Nebulite::DomainModule::Renderer::Console::consoleZoom_name + " out");
 }
 
-void Console::processKeyDownEvent(const SDL_KeyboardEvent& key){
+void Console::processKeyDownEvent(SDL_KeyboardEvent const& key){
     switch (key.keysym.sym){
         //------------------------------------------
         // Text input manipulation

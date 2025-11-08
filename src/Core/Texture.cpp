@@ -1,35 +1,44 @@
-#include "Core/Texture.hpp"
+//------------------------------------------
+// Includes
 
+// External
+#include <SDL.h>
+
+// Nebulite
 #include "Constants/KeyNames.hpp"
 #include "Core/GlobalSpace.hpp"
-#include "DomainModule/TXDM.hpp"
+#include "Core/Texture.hpp"
+#include "DomainModule/Initializer.hpp"
+#include "Interaction/Execution/Domain.hpp"
 
-Nebulite::Core::Texture::Texture(Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* globalSpace) 
-:   Nebulite::Interaction::Execution::Domain<Texture>("Texture", this, doc, globalSpace), 
+namespace Nebulite::Core {
+
+Texture::Texture(Utility::JSON* doc, GlobalSpace* globalSpace)
+:   Domain("Texture", this, doc, globalSpace),
     globalSpace(globalSpace)
 {
     // Start with no texture
     texture  = nullptr;
 
     // Set preParse function
-    setPreParse(std::bind(&Nebulite::Core::Texture::preParse,this));
+    setPreParse([this] { return preParse(); });
 
     // Initialize all DomainModules
-    Nebulite::DomainModule::TXDM_init(this);
+    DomainModule::Initializer::initTexture(this);
 }
 
-Nebulite::Constants::Error Nebulite::Core::Texture::update(){
+Constants::Error Texture::update(){
     updateModules();
 
     // No evaluation of previous lines for now, just return NONE
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 
-bool Nebulite::Core::Texture::copyTexture(){
+bool Texture::copyTexture(){
     // If no texture is linked, try to load from the document
     if (texture == nullptr){
-        std::string imageLocation = Nebulite::Constants::keyName.renderObject.imageLocation;
-        texture = globalSpace->getRenderer()->loadTextureToMemory(getDoc()->get<std::string>(imageLocation.c_str(),""));
+        std::string const imageLocation = Constants::keyName.renderObject.imageLocation;
+        texture = globalSpace->getRenderer()->loadTextureToMemory(getDoc()->get<std::string>(imageLocation,""));
 
         if(texture == nullptr){
             return false; // No texture to copy
@@ -41,26 +50,26 @@ bool Nebulite::Core::Texture::copyTexture(){
     Uint32 format;
     int textureAccess;
     if (SDL_QueryTexture(texture, &format, &textureAccess, &w, &h) != 0){
-        Nebulite::Utility::Capture::cerr() << "Failed to query texture: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "Failed to query texture: " << SDL_GetError() << Utility::Capture::endl;
         return false;
     }
 
     // Create a new texture with streaming access for modifications
     SDL_Texture* newTexture = SDL_CreateTexture(globalSpace->getSdlRenderer(), format, SDL_TEXTUREACCESS_STREAMING, w, h);
     if (!newTexture){
-        Nebulite::Utility::Capture::cerr() << "Failed to create new texture: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "Failed to create new texture: " << SDL_GetError() << Utility::Capture::endl;
         return false;
     }
 
     // Copy the content from the old texture to the new one
     if (SDL_SetRenderTarget(globalSpace->getSdlRenderer(), newTexture) != 0){
-        Nebulite::Utility::Capture::cerr() << "Failed to set render target: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "Failed to set render target: " << SDL_GetError() << Utility::Capture::endl;
         SDL_DestroyTexture(newTexture);
         return false;
     }
 
     if (SDL_RenderCopy(globalSpace->getSdlRenderer(), texture, nullptr, nullptr) != 0){
-        Nebulite::Utility::Capture::cerr() << "Failed to copy texture: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "Failed to copy texture: " << SDL_GetError() << Utility::Capture::endl;
         SDL_SetRenderTarget(globalSpace->getSdlRenderer(), nullptr);
         SDL_DestroyTexture(newTexture);
         return false;
@@ -75,10 +84,9 @@ bool Nebulite::Core::Texture::copyTexture(){
     return true; // Successfully copied
 }
 
-void Nebulite::Core::Texture::loadTextureFromFile(std::string const& filePath){
+void Texture::loadTextureFromFile(std::string const& filePath){
     // Load the texture using the global renderer
-    SDL_Texture* newTexture = globalSpace->getRenderer()->loadTextureToMemory(filePath);
-    if (newTexture){
+    if (SDL_Texture* newTexture = globalSpace->getRenderer()->loadTextureToMemory(filePath); newTexture){
         // If a texture already exists and is stored locally, destroy it
         if (textureStoredLocally && texture){
             SDL_DestroyTexture(texture);
@@ -86,19 +94,21 @@ void Nebulite::Core::Texture::loadTextureFromFile(std::string const& filePath){
         texture = newTexture;
         textureStoredLocally = false; // New texture is not yet modified
     } else {
-        Nebulite::Utility::Capture::cerr() << "Failed to load texture from file: " << filePath << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "Failed to load texture from file: " << filePath << Utility::Capture::endl;
     }
 }
 
-Nebulite::Constants::Error Nebulite::Core::Texture::preParse(){
+Constants::Error Texture::preParse(){
     if(!textureStoredLocally){
         // Make a local copy if we modify the texture
-        textureStoredLocally = copyTexture(); 
+        textureStoredLocally = copyTexture();
     }
 
     if(!textureStoredLocally){
         // Failed to copy texture, cannot proceed with modifications
-        return Nebulite::Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_COPY_FAILED();
+        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_COPY_FAILED();
     }
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
+
+}  // namespace Nebulite::Core

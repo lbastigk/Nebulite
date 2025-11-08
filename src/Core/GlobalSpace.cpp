@@ -1,18 +1,19 @@
 #include "Core/GlobalSpace.hpp"
-#include "DomainModule/GSDM.hpp"
+#include "DomainModule/Initializer.hpp"
 
 #include "Constants/KeyNames.hpp"
 
-
-Nebulite::Core::GlobalSpace::GlobalSpace(std::string const& binName)
-: Nebulite::Interaction::Execution::Domain<Nebulite::Core::GlobalSpace>("Nebulite", this, &global, this),
+namespace Nebulite::Core{
+    
+GlobalSpace::GlobalSpace(std::string const& binName)
+: Domain("Nebulite", this, &global, this),
   global(this),                       // Link the global document to the GlobalSpace
   renderer(this, &cmdVars.headless),  // Renderer with reference to GlobalSpace and headless mode boolean
   invoke(this),                       // Invoke with reference to GlobalSpace
   docCache(this)                      // Init with reference to GlobalSpace
 {
     //------------------------------------------
-    // Setup tasks                         
+    // Setup tasks
     tasks.always.clearAfterResolving = false;       // Always tasks are never cleared
     invoke.linkTaskQueue(tasks.internal.taskQueue); // Invoke pushes tasks to internal queue
 
@@ -25,14 +26,14 @@ Nebulite::Core::GlobalSpace::GlobalSpace(std::string const& binName)
     // Domain-Related
 
     // Set preParse function
-    setPreParse(std::bind(&Nebulite::Core::GlobalSpace::preParse, this));
+    setPreParse([this] { return preParse(); });
 
     // Link inherited Domains
-    inherit<Nebulite::Utility::JSON>(&global);
-    inherit<Nebulite::Core::Renderer>(&renderer);
+    inherit<Utility::JSON>(&global);
+    inherit<Renderer>(&renderer);
 
     // Initialize DomainModules
-    Nebulite::DomainModule::GSDM_init(this);
+    DomainModule::Initializer::initGlobalSpace(this);
 
     //------------------------------------------
     // Update
@@ -45,26 +46,26 @@ Nebulite::Core::GlobalSpace::GlobalSpace(std::string const& binName)
     // If we ever need a full update beforehand, we should manually call update after full initialization
 }
 
-Nebulite::Constants::Error Nebulite::Core::GlobalSpace::updateInnerDomains(){
+Constants::Error GlobalSpace::updateInnerDomains() const {
     // For now, just update the JSON domain
     // Later on the logic here might be more complex
     // As more inner domains are added
-    Nebulite::Constants::Error result = getDoc()->update();
+    Constants::Error const result = getDoc()->update();
     return result;
 }
 
-Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update(){
+Constants::Error GlobalSpace::update(){
     static bool queueParsed = false;   // Indicates if the task queue has been parsed on this frame render
     static bool criticalStop = false;  // Indicates if a critical stop has occurred
-    Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE(); // Last critical error result
+    Constants::Error lastCriticalResult = Constants::ErrorTable::NONE(); // Last critical error result
 
     //------------------------------------------
     /**
      * Parse queue in GlobalSpace.
      * Result determines if a critical stop is initiated.
-     * 
+     *
      * We do this once before rendering
-     * 
+     *
      * @note For now, all tasks are parsed even if the program is in console mode.
      *       This is useful as tasks like "spawn" or "echo" are directly executed.
      *       But might break for more complex tasks, so this should be taken into account later on,
@@ -72,27 +73,27 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update(){
      */
     if(!queueParsed){
         lastCriticalResult = parseQueue();
-        criticalStop = (lastCriticalResult != Nebulite::Constants::ErrorTable::NONE());
+        criticalStop = lastCriticalResult != Constants::ErrorTable::NONE();
         queueParsed = true;
     }
 
     //------------------------------------------
     // Update and render, only if initialized
-    // If renderer wasnt initialized, it is still a nullptr
     if (!criticalStop && renderer.isSdlInitialized() && renderer.timeToRender()){
         // Update modules first
         updateModules();
 
         // Then, update inner domains
-        updateInnerDomains();
+        if (auto const result = updateInnerDomains(); result.isCritical() && !cmdVars.recover){
+            criticalStop = true;
+            lastCriticalResult = result;
+        }
 
-        // Update Renderer
-        bool didUpdate = renderer.tick(&invoke);
-
-        // Reduce script wait counter if not in console mode or other halting states
-        if(didUpdate){
-            if(scriptWaitCounter > 0) scriptWaitCounter--; 
-        }  
+        // Do a Renderer tick and check if an update occurred
+        // Reduce script wait counter if not in console mode or other halting states (tick returns false in those cases)
+        if(renderer.tick(&invoke)){
+            if(scriptWaitCounter > 0) scriptWaitCounter--;
+        }
 
         // Frame was rendered, meaning we potentially have new tasks to process
         queueParsed = false;
@@ -102,7 +103,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update(){
     // Check if we need to continue the loop
     continueLoop = !criticalStop && renderer.isSdlInitialized() && !renderer.shouldQuit();
 
-    // Overwrite: If there is a wait operation and no renderer exists, 
+    // Overwrite: If there is a wait operation and no renderer exists,
     // we need to continue the loop and decrease scriptWaitCounter
     /**
      * @note It might be tempting to add the condition that all tasks are done,
@@ -121,7 +122,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::update(){
     return lastCriticalResult;
 }
 
-void Nebulite::Core::GlobalSpace::parseCommandLineArguments(int const argc, char const* argv[]){
+void GlobalSpace::parseCommandLineArguments(int const& argc, char const* argv[]){
     //------------------------------------------
     // Add main args to taskList, split by ';'
     if (argc > 1){
@@ -150,43 +151,43 @@ void Nebulite::Core::GlobalSpace::parseCommandLineArguments(int const argc, char
          * If no addition arguments were provided:
          *
          * @note For now, an empty Renderer is initiated via set-fps 60
-         * 
+         *
          * @todo Later on it might be helpful to insert a task like:
          *       `env-load ./Resources/Levels/main.jsonc`
          *       Which represents the menue screen of the game.
          *       Or, for a more scripted task:
          *       `task TaskFiles/main.nebs`.
          *       Making sure that any state currently loaded is cleared.
-         *       Having main be a state itself is also an idea, 
+         *       Having main be a state itself is also an idea,
          *       but this might become challenging as the user could accidentally overwrite the main state.
          *       Best solution is therefore an env-load, with the environment architecture yet to be defined
          *       best solution is probably:
-         * 
-         *       - a field with the container 
-         * 
+         *
+         *       - a field with the container
+         *
          *       - a vector which contains tasks to be executed on environment load
-         * 
+         *
          *       - potentially an extra task vector for tasks that are executed BEFORE the env is loaded
-         * 
+         *
          *       - potentially an extra task vector for tasks that are executed BEFORE the env is de-loaded
-         * 
+         *
          *       Keys like: after-load, after-deload, before-load, before-deload
-         *       For easier usage, hardcoding the env-load task is not a good idea, 
+         *       For easier usage, hardcoding the env-load task is not a good idea,
          *       instead call some function like "entrypoint" or "main" which is defined in a GlobalSpace DomainModule
          *       This is important, as it's now clear what the entrypoint is, without knowing exactly what main file is loaded
          *       If a user ever defines addition arguments via, e.g. Steam when launching the game, this might become a problem
          *       as any additional argument would make the entrypoint not be called.
          *       So later on, we might consider always calling entrypoint as first task AFTER the command line arguments are parsed
          *       This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
-         *    
+         *
          */
-        tasks.script.taskQueue.push_back(std::string("set-fps 60"));
+        tasks.script.taskQueue.emplace_back("set-fps 60");
     }
 }
 
-Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t const* waitCounter){
-    Nebulite::Constants::Error currentResult;
-    Nebulite::Core::taskQueueResult fullResult;
+taskQueueResult GlobalSpace::resolveTaskQueue(taskQueueWrapper& tq, uint64_t const* waitCounter) const {
+    Constants::Error currentResult;
+    taskQueueResult fullResult;
 
     // If clearAfterResolving, process and pop each element
     if (tq.clearAfterResolving){
@@ -197,11 +198,8 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
             tq.taskQueue.pop_front();
 
             // Add binary name if missing
-            // While args from command line have binary name in them, 
-            // commands from Renderobject, taskfile or console do not.
-            // Is needed for correct parsing; argv[0] is alwys binary name.
             if (!argStr.starts_with(names.binary + " ")){
-                argStr = names.binary + " " + argStr;
+                argStr.insert(0, names.binary + " ");
             }
 
             // Parse
@@ -220,12 +218,9 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
             // Add binary name if missing
-            // While args from command line have binary name in them, 
-            // commands from Renderobject, taskfile or console do not.
-            // Is needed for correct parsing; argv[0] is alwys binary name.
             std::string argStr = argStrOrig;
             if (!argStr.starts_with(names.binary + " ")){
-                argStr = names.binary + " " + argStr;
+                argStr.insert(0, names.binary + " ");
             }
 
             // Parse
@@ -241,9 +236,9 @@ Nebulite::Core::taskQueueResult Nebulite::Core::GlobalSpace::resolveTaskQueue(Ne
     return fullResult;
 }
 
-Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue(){
+Constants::Error GlobalSpace::parseQueue(){
     static uint64_t const* noWaitCounter = nullptr;
-    Nebulite::Constants::Error lastCriticalResult;
+    Constants::Error lastCriticalResult;
 
     // 1.) Clear errors from last loop
     queueResult.script.errors.clear();
@@ -255,7 +250,7 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue(){
     if(queueResult.script.encounteredCriticalResult && !cmdVars.recover){
         lastCriticalResult = queueResult.script.errors.back();
         return lastCriticalResult;
-    } 
+    }
 
     // 3.) Parse internal tasks
     queueResult.internal = resolveTaskQueue(tasks.internal, noWaitCounter);
@@ -271,12 +266,12 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::parseQueue(){
         return lastCriticalResult;
     }
 
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 
-Nebulite::Constants::Error Nebulite::Core::GlobalSpace::preParse(){
+Constants::Error GlobalSpace::preParse(){
     // NOTE: This function is only called once there is a parse-command
-    // Meaning its timing is consistent and not dependent on framerate, frametime variations, etc.
+    // Meaning its timing is consistent and not dependent on framerate, frame time variations, etc.
     // Meaning everything we do here is, timing wise, deterministic!
 
     // Update RNGs
@@ -287,21 +282,21 @@ Nebulite::Constants::Error Nebulite::Core::GlobalSpace::preParse(){
         updateRNGs();
     }
 
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 
-void Nebulite::Core::GlobalSpace::updateRNGs(){
+void GlobalSpace::updateRNGs(){
     // Set Min and Max values for RNGs in document
-    // Always set, so overwrites dont stick around
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.min.c_str(), std::numeric_limits<RNGvars::rng_size_t>::min());
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.max.c_str(), std::numeric_limits<RNGvars::rng_size_t>::max());
+    // Always set, so overwrites don't stick around
+    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.min, std::numeric_limits<RngVars::rngSize_t>::min());
+    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.max, std::numeric_limits<RngVars::rngSize_t>::max());
 
     // Generate seeds in a predictable manner
     // Since updateRNG is called at specific times only, we can simply increment RNG with a new seed
-    std::string seedA = "A" + std::to_string(rng.A.get());
-    std::string seedB = "B" + std::to_string(rng.B.get());
-    std::string seedC = "C" + std::to_string(rng.C.get());
-    std::string seedD = "D" + std::to_string(rng.D.get());
+    std::string const seedA = "A" + std::to_string(rng.A.get());
+    std::string const seedB = "B" + std::to_string(rng.B.get());
+    std::string const seedC = "C" + std::to_string(rng.C.get());
+    std::string const seedD = "D" + std::to_string(rng.D.get());
 
     // Hash seeds
     rng.A.update(seedA);
@@ -310,8 +305,10 @@ void Nebulite::Core::GlobalSpace::updateRNGs(){
     rng.D.update(seedD);
 
     // Set RNG values in global document
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.A.c_str(), rng.A.get());
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.B.c_str(), rng.B.get());
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.C.c_str(), rng.C.get());
-    global.set<RNGvars::rng_size_t>(Nebulite::Constants::keyName.RNGs.D.c_str(), rng.D.get());
+    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.A, rng.A.get());
+    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.B, rng.B.get());
+    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.C, rng.C.get());
+    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.D, rng.D.get());
 }
+
+}  // namespace Nebulite::Core

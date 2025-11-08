@@ -19,10 +19,10 @@
 //------------------------------------------
 namespace Nebulite::Interaction{
 /**
- * @class Nebulite::Interaction::RulesetCompiler
+ * @class RulesetCompiler
  * 
- * @brief Responsible for parsing compatible JSON documents into `Nebulite::Interaction::Ruleset` structs.
- * A `Nebulite::Core::RenderObject` instance is required for context during parsing.
+ * @brief Responsible for parsing compatible JSON documents into `Ruleset` structs.
+ * A `Core::RenderObject` instance is required for context during parsing.
  * It's field `invokes` holds the relevant invoke information.
  * 
  * @todo Idea for Invoke ruleset overwrites:
@@ -59,11 +59,11 @@ public:
      * @param global The global JSON document to use for parsing expressions.
      */
     static void parse(
-        std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_global, 
-        std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries_local, 
-        Nebulite::Core::RenderObject* self,
-        Nebulite::Utility::DocumentCache* docCache,
-        Nebulite::Utility::JSON* global
+        std::vector<std::shared_ptr<Ruleset>>& entries_global, 
+        std::vector<std::shared_ptr<Ruleset>>& entries_local, 
+        Core::RenderObject* self,
+        Utility::DocumentCache* docCache,
+        Utility::JSON* global
     );
     
 private:
@@ -77,11 +77,11 @@ private:
      * @param global The global JSON document to use for parsing expressions.
      */
     static void getFunctionCalls(
-        Nebulite::Utility::JSON& entryDoc,
-        Nebulite::Interaction::Ruleset& Ruleset, 
-        const Nebulite::Core::RenderObject* self,
-        Nebulite::Utility::DocumentCache* docCache,
-        Nebulite::Utility::JSON* global
+        Utility::JSON& entryDoc,
+        Ruleset& Ruleset, 
+        Core::RenderObject const* self,
+        Utility::DocumentCache* docCache,
+        Utility::JSON* global
     );
 
     /**
@@ -94,9 +94,9 @@ private:
      * @return True if the expression was successfully extracted, false otherwise.
      */
     static bool getExpression(
-        Nebulite::Interaction::Logic::Assignment& assignmentExpr, 
-        Nebulite::Utility::JSON& entry, 
-        size_t index
+        Logic::Assignment& assignmentExpr, 
+        Utility::JSON& entry, 
+        size_t const& index
     );
 
     /**
@@ -106,7 +106,7 @@ private:
      * @param entry The JSON entry document to extract expressions from.
      * @return True if the expressions were successfully extracted, false otherwise.
      */
-    static bool getExpressions(Nebulite::Interaction::Ruleset* Ruleset, Nebulite::Utility::JSON* entry);
+    static bool getExpressions(std::shared_ptr<Ruleset> const& Ruleset, Utility::JSON* entry);
 
     /**
      * @brief Extracts a logical argument from a JSON entry document.
@@ -114,7 +114,7 @@ private:
      * @param entry The JSON entry document to extract the argument from.
      * @return The extracted logical argument as a string.
      */
-    static std::string getLogicalArg(Nebulite::Utility::JSON& entry);
+    static std::string getLogicalArg(Utility::JSON& entry);
 
     /**
      * @brief Extracts an Ruleset object from a JSON entry document.
@@ -125,9 +125,9 @@ private:
      * @return True if the Ruleset was successfully extracted, false otherwise.
      */
     static bool getRuleset(
-        Nebulite::Utility::JSON& doc, 
-        Nebulite::Utility::JSON& entry, 
-        size_t index
+        Utility::JSON& doc, 
+        Utility::JSON& entry, 
+        size_t const& index
     );
 
     /**
@@ -140,9 +140,9 @@ private:
      * @param global The global JSON document to use for parsing expressions.
      */
     static void optimizeParsedEntries(
-        const std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>>& entries, 
-        Nebulite::Utility::JSON const* self,
-        Nebulite::Utility::JSON* global
+        std::vector<std::shared_ptr<Ruleset>> const& entries, 
+        Utility::JSON const* self,
+        Utility::JSON* global
     );
 
     /**
@@ -150,10 +150,10 @@ private:
      * 
      * @note Any new numeric operation must be added here to benefit from optimization techniques in the Invoke class.
      */
-    inline static const std::vector<Nebulite::Interaction::Logic::Assignment::Operation> numeric_operations = {
-        Nebulite::Interaction::Logic::Assignment::Operation::set,
-        Nebulite::Interaction::Logic::Assignment::Operation::add,
-        Nebulite::Interaction::Logic::Assignment::Operation::multiply
+    inline static std::vector<Logic::Assignment::Operation> const numeric_operations = {
+        Logic::Assignment::Operation::set,
+        Logic::Assignment::Operation::add,
+        Logic::Assignment::Operation::multiply
     };
 };
 } // namespace Nebulite::Interaction

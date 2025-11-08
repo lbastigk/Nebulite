@@ -11,24 +11,22 @@
 // Includes
 
 // Standard library
+#include <sstream>
 #include <string>
 #include <variant>
 
 // External
 #include <rapidjson/document.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/encodings.h>
-#include <rapidjson/istreamwrapper.h>
-#include <rapidjson/ostreamwrapper.h>
 
 // Nebulite
 #include "Utility/StringHandler.hpp"
 
+//------------------------------------------
+// Forward declarations
+
 namespace Nebulite::Core {
-    class GlobalSpace; // Forward declaration
-}
+    class GlobalSpace;
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::Utility {
@@ -82,7 +80,7 @@ public:
      * @return The retrieved value or the default value.
      */
     template <typename T> 
-    static T get(char const* key, T const defaultValue, rapidjson::Value& val);
+    static T get(char const* key, T const& defaultValue, rapidjson::Value& val);
 
     /**
      * @brief Fallback to direct rapidjson access for setting values.
@@ -93,6 +91,8 @@ public:
      * @param key The key of the value to set.
      * @param value The value to set.
      * @param val The rapidjson value to modify.
+     * @param allocator The allocator to use for creating new rapidjson values.
+     * @return true if the value was set successfully, false otherwise.
      */
     template <typename T> 
     static bool set(char const* key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
@@ -106,10 +106,10 @@ public:
      * @tparam T The C++ type to convert to.
      * @param jsonValue The rapidjson value to convert.
      * @param result The C++ variable to store the result.
-     * @param defaultvalue The default value to use if conversion fails.
+     * @param defaultValue The default value to use if conversion fails.
      */
     template <typename T>
-    static void ConvertFromJSONValue(rapidjson::Value const& jsonValue, T& result, T const& defaultvalue = T());
+    static void ConvertFromJSONValue(rapidjson::Value const& jsonValue, T& result, T const& defaultValue = T());
 
     /**
      * @brief Converts a C++ type to a rapidjson value.
@@ -149,11 +149,11 @@ public:
     /**
      * @brief Traverses a rapidjson value to find the parent of a value identified by its key.
      * 
-     * - parent.child           -> returns parent,       finalKey = child, arrayIndex = -1
-     * - parent.child[index]    -> returns parent.child, finalKey = child, arrayIndex = index
-     * - parent[index]          -> returns parent,       finalKey = "",    arrayIndex = index
+     * - `parent.child`           -> returns `parent`,       finalKey = `child`,   arrayIndex = -1
+     * - `parent.child[index]`    -> returns `parent.child`, finalKey = `child`,   arrayIndex = index
+     * - `parent[index]`          -> returns `parent`,       finalKey = "",        arrayIndex = index
      * 
-     * @param key The key to search for.
+     * @param fullKey The key to search for.
      * @param root The rapidjson value to search within.
      * @param finalKey The final key or index of the value to find the parent of.
      * @param arrayIndex The index if the final key is an array index, -1 otherwise.
@@ -170,7 +170,7 @@ public:
      * @param doc The rapidjson document to serialize.
      * @return The serialized JSON string.
      */
-    static std::string serialize(const rapidjson::Document& doc);
+    static std::string serialize(rapidjson::Document const& doc);
 
     /**
      * @brief Deserializes a JSON string into a rapidjson document.
@@ -179,7 +179,7 @@ public:
      * @param serialOrLink The JSON string to deserialize.
      * @param global Pointer to the GlobalSpace, used for resolving links.
      */
-    static void deserialize(rapidjson::Document& doc, std::string const& serialOrLink, Nebulite::Core::GlobalSpace* global);
+    static void deserialize(rapidjson::Document& doc, std::string const& serialOrLink, Core::GlobalSpace* global);
     
 
     //------------------------------------------
@@ -233,41 +233,38 @@ public:
 private:
     /**
      * @brief Extracts the next part of a key from a dot/bracket notation key string.
-     * 
      * Moves keyView forward past the extracted part.
+     *
+     * @param keyView Pointer to the key string view to extract from and modify.
+     * @return The extracted key part as a std::string.
      */
-    static std::string_view extractKeyPart(std::string_view* keyView);
+    static std::string extractKeyPart(std::string_view* keyView);
 };
-} // namespace Nebulite::Utility
 
 //------------------------------------------
 // Direct access get/set
 
 template <typename T>
-T Nebulite::Utility::RjDirectAccess::get(char const* key, T const defaultValue, rapidjson::Value& val){
-    rapidjson::Value* keyVal = Nebulite::Utility::RjDirectAccess::traverse_path(key,val);
+T RjDirectAccess::get(char const* key, T const& defaultValue, rapidjson::Value& val){
+    rapidjson::Value const* keyVal = traverse_path(key,val);
     if(keyVal == nullptr){
-        // Value doesnt exist in doc, return default
+        // Value doesn't exist in doc, return default
         return defaultValue;
     }
-    else{
-        // Base case: convert currentVal to T using JSONHandler
-        T tmp;
-        Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue<T>(*keyVal, tmp, defaultValue);
-        return tmp;
-    }
+    // Base case: convert currentVal to T using JSONHandler
+    T tmp;
+    RjDirectAccess::ConvertFromJSONValue<T>(*keyVal, tmp, defaultValue);
+    return tmp;
 }
 
 template <typename T>
-bool Nebulite::Utility::RjDirectAccess::set(char const* key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator){
+bool RjDirectAccess::set(char const* key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator){
     // Ensure key path exists
-    rapidjson::Value* keyVal = Nebulite::Utility::RjDirectAccess::ensure_path(key, val, allocator);
-    if (keyVal != nullptr){
-        Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<T>(value, *keyVal, allocator);
+    if (rapidjson::Value* keyVal = ensure_path(key, val, allocator); keyVal != nullptr){
+        RjDirectAccess::ConvertToJSONValue<T>(value, *keyVal, allocator);
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 //------------------------------------------
@@ -278,82 +275,76 @@ bool Nebulite::Utility::RjDirectAccess::set(char const* key, T const& value, rap
 //------------------------------------------
 
 // cppcheck-suppress constParameterReference
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<bool>(bool const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {
+template <> inline void RjDirectAccess::ConvertToJSONValue<bool>(bool const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {
     jsonValue.SetBool(data);
     (void)allocator; // Suppress unused parameter warning
 }
 
 // cppcheck-suppress constParameterReference
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<int>(int const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)                {
+template <> inline void RjDirectAccess::ConvertToJSONValue<int>(int const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)                {
     jsonValue.SetInt(data);
     (void)allocator; // Suppress unused parameter warning
 }
 
 // cppcheck-suppress constParameterReference
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<uint32_t>(uint32_t const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)      {
+template <> inline void RjDirectAccess::ConvertToJSONValue<uint32_t>(uint32_t const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)      {
     jsonValue.SetUint(data);
     (void)allocator; // Suppress unused parameter warning
 }
 
 // cppcheck-suppress constParameterReference
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<uint64_t>(uint64_t const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)      {
+template <> inline void RjDirectAccess::ConvertToJSONValue<uint64_t>(uint64_t const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)      {
     jsonValue.SetUint64(data);
     (void)allocator; // Suppress unused parameter warning
 }
 
 // cppcheck-suppress constParameterReference
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<double>(double const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)          {
+template <> inline void RjDirectAccess::ConvertToJSONValue<double>(double const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)          {
     jsonValue.SetDouble(data);
     (void)allocator; // Suppress unused parameter warning
 }
 
 // cppcheck-suppress constParameterReference
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<long>(long const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {
+template <> inline void RjDirectAccess::ConvertToJSONValue<int64_t>(int64_t const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)    {
     jsonValue.SetInt64(data);
     (void)allocator; // Suppress unused parameter warning
 }
 
-// cppcheck-suppress constParameterReference
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<long long>(long long const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)    {
-    jsonValue.SetInt64(data);
-    (void)allocator; // Suppress unused parameter warning
-}
-
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<std::string>(std::string const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
+template <> inline void RjDirectAccess::ConvertToJSONValue<std::string>(std::string const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
     jsonValue.SetString(
         data.c_str(), 
         static_cast<rapidjson::SizeType>(data.length()), allocator
     );
 }
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<char const*>(char const* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
-    if (data){
+template <> inline void RjDirectAccess::ConvertToJSONValue<char const*>(char const* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
+    if (data != nullptr){
         jsonValue.SetString(data, allocator);
     } else {
         jsonValue.SetNull();
     }
 }
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<char*>(char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
-    if (data){
+template <> inline void RjDirectAccess::ConvertToJSONValue<char*>(char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
+    if (data != nullptr){
         jsonValue.SetString(data, allocator);
     } else {
         jsonValue.SetNull();
     }
 }
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<rapidjson::Value*>(rapidjson::Value* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)         {jsonValue.CopyFrom(*data, allocator);}
+template <> inline void RjDirectAccess::ConvertToJSONValue<rapidjson::Value*>(rapidjson::Value* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)         {jsonValue.CopyFrom(*data, allocator);}
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<rapidjson::Document*>(rapidjson::Document* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)   {jsonValue.CopyFrom(*data, allocator);}
+template <> inline void RjDirectAccess::ConvertToJSONValue<rapidjson::Document*>(rapidjson::Document* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)   {jsonValue.CopyFrom(*data, allocator);}
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue<rapidjson::Document>(const rapidjson::Document& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator)       {jsonValue.CopyFrom(data, allocator);}
+template <> inline void RjDirectAccess::ConvertToJSONValue<rapidjson::Document>(rapidjson::Document const& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator)       {jsonValue.CopyFrom(data, allocator);}
 
 // Template specialization for std::variant
 // So we don't have to manually call std::visit every time
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue(const simpleValue& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
-    std::visit([&](auto const& value){
-        using T = std::decay_t<decltype(value)>;
-        ConvertToJSONValue<T>(value, jsonValue, allocator);
+template <> inline void RjDirectAccess::ConvertToJSONValue(simpleValue const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
+    std::visit([&]<typename T>(T const& value){
+        using Decayed = std::decay_t<T>;
+        ConvertToJSONValue<Decayed>(value, jsonValue, allocator);
     }, data);
 }
 
@@ -361,49 +352,45 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertToJSONValue(co
 // 2.) from JSON Value
 //------------------------------------------
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, bool& result,  bool const& defaultvalue){
+template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, bool& result,  bool const& defaultValue){
     if (jsonValue.IsBool()){
         result = jsonValue.GetBool();
     } else {
-        result = defaultvalue;
+        result = defaultValue;
     }
 }
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, int& result,  int const& defaultvalue){
+template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, int& result,  int const& defaultValue){
     if (jsonValue.IsInt()){
         result = jsonValue.GetInt();
     }
     else if(jsonValue.IsBool()){
-        result = jsonValue.GetBool();
+        result = static_cast<int>(jsonValue.GetBool());
     }
     else{
-        result = defaultvalue;
+        result = defaultValue;
     }
 }
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, uint32_t& result,  uint32_t const& defaultvalue){
+template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, uint32_t& result,  uint32_t const& defaultValue){
     if(jsonValue.IsUint()){
         result = jsonValue.GetUint();
-        return;
     }
     else if(jsonValue.IsNumber()){
-        int tmp = jsonValue.GetInt();
-        if(tmp >= 0){
+        if(int const tmp = jsonValue.GetInt(); tmp >= 0){
             result = static_cast<uint32_t>(tmp);
-            return;
         }
     }
     else if(jsonValue.IsString()){
         std::istringstream iss(jsonValue.GetString());
         iss >> result;
-        return;
     }
     else{
-        result = defaultvalue;
+        result = defaultValue;
     }
 }
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, uint64_t& result,  uint64_t const& defaultvalue){
+template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, uint64_t& result,  uint64_t const& defaultValue){
     if (jsonValue.IsString()){
         std::istringstream iss(jsonValue.GetString());
         iss >> result;
@@ -412,36 +399,34 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(
     } else if (jsonValue.IsUint()){
         result = static_cast<uint64_t>(jsonValue.GetUint());
     } else if (jsonValue.IsNumber()){
-        int64_t tmp = jsonValue.GetInt64();
-        if (tmp >= 0){
+        if (int64_t const tmp = jsonValue.GetInt64(); tmp >= 0){
             result = static_cast<uint64_t>(tmp);
         } else {
-            result = defaultvalue;
+            result = defaultValue;
         }
     } else {
-        result = defaultvalue;
+        result = defaultValue;
     }
 }
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, double& result, double const& defaultvalue){
+template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, double& result, double const& defaultValue){
     if (jsonValue.IsNumber()){
         result = jsonValue.GetDouble();
     }
     else if(jsonValue.IsString()){
-        std::string strValue = jsonValue.GetString();
-        if(Nebulite::Utility::StringHandler::isNumber(strValue)){
-            result = std::stod(strValue);
+        if(StringHandler::isNumber(jsonValue.GetString())){
+            result = std::stod(jsonValue.GetString());
         }
         else{
-            result = defaultvalue;
+            result = defaultValue;
         }
     }
     else {
-        result = defaultvalue;
+        result = defaultValue;
     }
 }
 
-template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, std::string& result, std::string const& defaultvalue){
+template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, std::string& result, std::string const& defaultValue){
     if (jsonValue.IsBool()){
         result = jsonValue.GetBool() ? "true" : "false";
     }
@@ -473,7 +458,8 @@ template <> inline void Nebulite::Utility::RjDirectAccess::ConvertFromJSONValue(
         result = "{Object}";  // Just a placeholder since objects can't easily be converted to a single string
     }
     else {
-        result = defaultvalue;
+        result = defaultValue;
     }
 }
+} // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_RJDIRECTACCESS_HPP

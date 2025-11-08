@@ -347,6 +347,9 @@ def print_test_summary(process_information: Dict[str, Any]):
     print(f"Total tests:  {process_information['total_tests']}")
     print("==========================================\n")
 
+    if(process_information['failed_tests'] > 0):
+        sys.exit(1)
+
 def process_binaries(binaries, tests: List[Dict[str, Any]], timeout: int, ignore_lines: Dict[str, List[str]], stop_on_fail: bool, verbose: bool) -> Dict[str, Any]:
     total_tests = 0
     passed_tests = 0
@@ -356,6 +359,13 @@ def process_binaries(binaries, tests: List[Dict[str, Any]], timeout: int, ignore
             print(f"\n==============================")
             print(f"Testing binary: {binary}")
             print(f"==============================\n")
+
+            # Skip if binary does not exist
+            # Run binary with 'help' to check if it exists
+            help_check = run_command(f"{binary} help", timeout)
+            if help_check['exit_code'] != 0:
+                print(f"Error: Binary '{binary}' not found or not executable. Skipping tests for this binary.")
+                continue
             
             for test in tests:
                 total_tests += 1

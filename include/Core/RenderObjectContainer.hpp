@@ -48,14 +48,12 @@ public:
 		/**
 		 * @brief Pushes a RenderObject into the batch.
 		 * @param obj Pointer to the RenderObject to push.
-		 * @param globalInvoke Pointer to the global Invoke instance.
 		 */
 		void push(RenderObject* obj);
 
 		/**
 		 * @brief Removes a RenderObject from the batch.
 		 * @param obj Pointer to the RenderObject to remove.
-		 * @param globalInvoke Pointer to the global Invoke instance.
 		 * @return True if the object was removed, false otherwise.
 		 */
 		bool removeObject(RenderObject* obj);
@@ -68,7 +66,7 @@ public:
 	 * @brief Constructs a new RenderObjectContainer.
 	 * @param globalSpace Pointer to the global Space instance.
 	 */
-	explicit RenderObjectContainer(Nebulite::Core::GlobalSpace* globalSpace);
+	explicit RenderObjectContainer(GlobalSpace* globalSpace);
 
 	//------------------------------------------
 	// Serialization / Deserialization
@@ -85,7 +83,7 @@ public:
 	 * @param dispResX Display resolution width for tile initialization.
 	 * @param dispResY Display resolution height for tile initialization.
 	 */
-	void deserialize(std::string const& serialOrLink, uint16_t dispResX, uint16_t dispResY);
+	void deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY);
 
 	//------------------------------------------
 	// Pipeline
@@ -99,7 +97,7 @@ public:
 	 * @param dispResX Display resolution width for tile placement.
 	 * @param dispResY Display resolution height for tile placement.
 	 */
-	void append(Nebulite::Core::RenderObject* toAppend, uint16_t dispResX, uint16_t dispResY);
+	void append(RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY);
 
 	/**
 	 * @brief Reinserts all objects into the container.
@@ -110,14 +108,14 @@ public:
 	 * @param dispResX Display resolution width for tile placement.
 	 * @param dispResY Display resolution height for tile placement.
 	 */
-	void reinsertAllObjects(uint16_t dispResX, uint16_t dispResY);
+	void reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY);
 
 	/**
 	 * @brief Checks if the given tile position is valid; contains objects.
-	 * @param pos The tile position to check: (x, y).
+	 * @param position The tile position to check: (x, y).
 	 * @return True if the position contains objects, false otherwise.
 	 */
-	bool isValidPosition(std::pair<uint16_t,uint16_t> pos);
+	bool isValidPosition(std::pair<uint16_t,uint16_t> const& position);
 
 	// removes all objects
 	/**
@@ -133,7 +131,7 @@ public:
 	 * @brief Gets the total count of RenderObject instances in the container.
 	 * @return The total number of RenderObject instances.
 	 */
-	size_t getObjectCount() const;
+	[[nodiscard]] size_t getObjectCount() const;
 
 	/**
 	 * @brief Updates all objects within a 3x3 tile viewport.
@@ -142,20 +140,21 @@ public:
 	 * that are currently within the specified tile viewport. It takes into account the
 	 * display resolution for potential re-insertions.
 	 * 
-	 * @param tileXpos The middle tile to in x-axis.
-	 * @param tileYpos The middle tile to in y-axis.
+	 * @param tilePosX The middle tile to in x-axis.
+	 * @param tilePosY The middle tile to in y-axis.
 	 * @param dispResX The display resolution width. Needed for potential re-insertion.
 	 * @param dispResY The display resolution height. Needed for potential re-insertion.
-	 * @param globalInvoke Pointer to the global Invoke instance for object updates.
 	 */
-	void update(int16_t tileXpos, int16_t tileYpos, uint16_t dispResX, uint16_t dispResY);
+	void update(int16_t const& tilePosX, int16_t const& tilePosY, uint16_t const& dispResX, uint16_t const& dispResY);
 
 	/**
 	 * @brief Gets the vector of batches at the specified tile position.
-	 * @param pos The tile position to query: (x, y).
+	 * @param position The tile position to query: (x, y).
 	 * @return A reference to the vector of batches at the specified position.
 	 */
-	std::vector<batch>& getContainerAt(std::pair<uint16_t,uint16_t> pos);
+	std::vector<batch>& getContainerAt(std::pair<uint16_t,uint16_t> const& position){
+		return ObjectContainer[position];
+	}
 
 	/**
 	 * @brief Retrieves a RenderObject from the container by its unique ID.
@@ -167,13 +166,13 @@ public:
 	 * @param id The unique ID of the RenderObject to retrieve.
 	 * @return Pointer to the RenderObject if found, nullptr otherwise.
 	 */
-	RenderObject* getObjectFromId(uint32_t id){
+	RenderObject* getObjectFromId(uint32_t const& id){
 		// Go through all batches
-		for (auto& [pos, batchVec] : ObjectContainer){
-			for (auto& obj : batchVec){
-				for (auto& renderObj : obj.objects){
-					if (renderObj->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0) == id){
-						return renderObj;
+		for (auto& batches : std::views::values(ObjectContainer)){
+			for (auto& [objects, _] : batches){
+				for (auto const& object : objects){
+					if (object->get<uint32_t>(Constants::keyName.renderObject.id.c_str(), 0) == id){
+						return object;
 					}
 				}
 			}
@@ -219,7 +218,7 @@ private:
 	 * - Reinsert into the correct tile and batch
 	 */
 	struct ReinsertionProcess {
-		std::vector<Nebulite::Core::RenderObject*> queue;
+		std::vector<RenderObject*> queue;
 		std::mutex reinsertMutex;
 	} reinsertionProcess;
 
@@ -242,18 +241,18 @@ private:
 	 * - Delete
 	 * 
 	 * Just trash should be enough to resolve all existing references, but we keep this structure for now.
-	 * Perhaps in the future we wish to add a restore option, and thus dont delete purgatory right away.
+	 * Perhaps in the future we wish to add a restore option, meaning we don't delete purgatory right away.
 	 * Or new mechanisms that require a 2-step deletion.
 	 */
 	struct DeletionProcess{
 		//std::vector<Nebulite::Core::RenderObject*> to_delete;
-		std::vector<Nebulite::Core::RenderObject*> trash;		// Moving objects, marking for deletion
-		std::vector<Nebulite::Core::RenderObject*> purgatory;	// Deleted each frame
+		std::vector<RenderObject*> trash;		// Moving objects, marking for deletion
+		std::vector<RenderObject*> purgatory;	// Deleted each frame
 		std::mutex deleteMutex;									// Threadsafe insertion into trash
 	} deletionProcess;
 
 	// Link to the global space for new objects
-	Nebulite::Core::GlobalSpace* globalSpace;
+	GlobalSpace* globalSpace;
 };
 }   // namespace Nebulite::Core
 #endif // NEBULITE_CORE_RENDEROBJECTCONTAINER_HPP

@@ -13,19 +13,15 @@
 
 // External
 #include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
 
 // Nebulite
 #include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class GlobalSpace; // Forward declaration of core class GlobalSpace
-    }
-}
+namespace Nebulite::Core{
+    class GlobalSpace; // Forward declaration of core class GlobalSpace
+}   // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -36,15 +32,13 @@ public:
      * 
      * @param doc Pointer to the JSON document for storing texture properties.
      * @param globalSpace Pointer to the GlobalSpace for accessing the renderer.
-     * @param renderer Pointer to the SDL_Renderer for texture operations.
-     * @param texture Optional pointer to an existing SDL_Texture.
      */
-    Texture(Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* globalSpace);
+    Texture(Utility::JSON* doc, GlobalSpace* globalSpace);
 
     /**
      * @brief Destroys the Texture and frees resources.
      */
-    ~Texture(){
+    ~Texture() override {
         // Only destroy the texture if it was modified
         // And thus a local copy exists
         if(texture != nullptr && textureStoredLocally){
@@ -55,12 +49,12 @@ public:
     /**
      * @brief Updates the texture.
      */
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     /**
      * @brief Necessary operations before parsing commands.
      */
-    Nebulite::Constants::Error preParse() override;
+    Constants::Error preParse() override;
 
     //------------------------------------------
     // SDL_Texture related
@@ -89,7 +83,7 @@ public:
      * 
      * @return true if the texture has been modified, false otherwise.
      */
-    bool isTextureStoredLocally() const noexcept {
+    [[nodiscard]] bool isTextureStoredLocally() const noexcept {
         return textureStoredLocally;
     }
 
@@ -98,7 +92,7 @@ public:
      * 
      * @return true if the texture is valid, false otherwise.
      */
-    bool isTextureValid(){
+    [[nodiscard]] bool isTextureValid() const noexcept {
         return texture != nullptr;
     }
 
@@ -107,7 +101,7 @@ public:
      * 
      * @return Pointer to the current SDL_Texture.
      */
-    SDL_Texture* getSDLTexture(){
+    [[nodiscard]] SDL_Texture* getSDLTexture() const noexcept {
         return texture;
     }
 
@@ -116,7 +110,7 @@ private:
     /**
      * @brief Pointer to the linked globalspace.
      */
-    Nebulite::Core::GlobalSpace* globalSpace;
+    GlobalSpace* globalSpace;
 
     /**
      * @brief The SDL texture managed by this class.

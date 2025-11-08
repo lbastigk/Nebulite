@@ -12,16 +12,18 @@
 // Macro for DomainModule definition
 
 #define NEBULITE_DOMAINMODULE(DomainName,DomainModuleName) \
-    class DomainModuleName : public ::Nebulite::Interaction::Execution::DomainModule<DomainName>
+    class DomainModuleName final : public Nebulite::Interaction::Execution::DomainModule<DomainName>
 
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
-    DomainModuleName(std::string const& moduleName, DomainName* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
-    : DomainModule(moduleName, domain, funcTreePtr, globalSpace)
+    explicit DomainModuleName(std::string const& moduleName, DomainName* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
+    : DomainModule(moduleName, domain, std::move(funcTreePtr), globalSpace)
 
 //------------------------------------------
 // Includes
 
 // Nebulite
+#include <utility>
+
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Utility/Capture.hpp" // Allowing logging from DomainModules
@@ -51,12 +53,12 @@ public:
      * the FuncTree.
      */
     DomainModule(
-        std::string const& moduleName, 
+        std::string  moduleName,
         DomainType* domain, 
-        std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, 
-        Nebulite::Core::GlobalSpace* globalSpace
+        std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr,
+        Core::GlobalSpace* globalSpace
     )
-        : moduleName(moduleName), domain(domain), global(globalSpace), funcTree(funcTreePtr){}
+        : moduleName(std::move(moduleName)), domain(domain), global(globalSpace), funcTree(std::move(std::move(funcTreePtr))){}
 
     /**
      * @brief Virtual destructor for DomainModule.
@@ -64,9 +66,9 @@ public:
     virtual ~DomainModule() = default;
 
     /**
-     * @brief Virtual update function to be Overwridden by derived classes.
+     * @brief Virtual update function to be Overwritten by derived classes.
      */
-    virtual Nebulite::Constants::Error update(){ return Nebulite::Constants::ErrorTable::NONE(); }
+    virtual Constants::Error update(){ return Constants::ErrorTable::NONE(); }
 
     /**
      * @brief Binds a member function to the FuncTree.
@@ -82,14 +84,15 @@ public:
      * @tparam ClassType The type of the class containing the member function.
      * @param method A pointer to the member function to bind.
      * @param name The name to associate with the bound function.
+     * @param helpDescription A pointer to a string containing the help description for the function.
      */
     template<typename ClassType>
-    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char**), std::string const& name, std::string const* helpDescription){
+    void bindFunction(Constants::Error (ClassType::*method)(int, char**), std::string const& name, std::string const* helpDescription){
         funcTree->bindFunction(
             static_cast<ClassType*>(this),
             std::variant<
-                Nebulite::Constants::Error (ClassType::*)(int, char**),
-                Nebulite::Constants::Error (ClassType::*)(int, char const**)
+                Constants::Error (ClassType::*)(int, char**),
+                Constants::Error (ClassType::*)(int, char const**)
             >(method),
             name,
             helpDescription
@@ -98,12 +101,12 @@ public:
 
     // Overload for char const** version
     template<typename ClassType>
-    void bindFunction(Nebulite::Constants::Error (ClassType::*method)(int, char const**), std::string const& name, std::string const* helpDescription){
+    void bindFunction(Constants::Error (ClassType::*method)(int, char const**), std::string const& name, std::string const* helpDescription){
         funcTree->bindFunction(
             static_cast<ClassType*>(this),
             std::variant<
-                Nebulite::Constants::Error (ClassType::*)(int, char**),
-                Nebulite::Constants::Error (ClassType::*)(int, char const**)
+                Constants::Error (ClassType::*)(int, char**),
+                Constants::Error (ClassType::*)(int, char const**)
             >(method),
             name,
             helpDescription
@@ -116,10 +119,10 @@ public:
      * A category acts as a "function bundler" to the main tree.
      * 
      * @param name Name of the category
-     * @param description Description of the category, shown in the help command. First line is shown in the general help, full description in detailed help
+     * @param helpDescription Description of the category, shown in the help command. First line is shown in the general help, full description in detailed help
      * @return true if the category was created successfully, false if a category with the same name already exists
      */
-    bool bindCategory(std::string const& name, std::string const* helpDescription){
+    bool bindCategory(std::string const& name, std::string const* helpDescription) const {
         return funcTree->bindCategory(name, helpDescription);
     }
 
@@ -132,7 +135,7 @@ public:
      * 
      * A simple argument of '--varName' will set the value to "true"
      */
-    void bindVariable(bool* variablePtr, std::string const& name, std::string const* helpDescription){
+    void bindVariable(bool* variablePtr, std::string const& name, std::string const* helpDescription) const {
         // Bind a variable to the FuncTree
         funcTree->bindVariable(variablePtr, name, helpDescription);
     }
@@ -144,8 +147,8 @@ public:
      * 
      * @param message The message to log.
      */
-    void log(std::string const& message){
-        Nebulite::Utility::Capture::cout() << message;
+    static void log(std::string const& message){
+        Utility::Capture::cout() << message;
     }
 
     /**
@@ -155,8 +158,8 @@ public:
      * 
      * @param message The message to log.
      */
-    void logln(std::string const& message){
-        Nebulite::Utility::Capture::cout() << message << Nebulite::Utility::Capture::endl;
+    static void logln(std::string const& message){
+        Utility::Capture::cout() << message << Utility::Capture::endl;
     }
 
     /**
@@ -164,8 +167,8 @@ public:
      * 
      * @param message The error message to log.
      */
-    void logError(std::string const& message){
-        Nebulite::Utility::Capture::cerr() << message;
+    static void logError(std::string const& message){
+        Utility::Capture::cerr() << message;
     }
 
     /**
@@ -173,15 +176,15 @@ public:
      * 
      * @param message The error message to log.
      */
-    void logErrorln(std::string const& message){
-        Nebulite::Utility::Capture::cerr() << message << Nebulite::Utility::Capture::endl;
+    static void logErrorln(std::string const& message){
+        Utility::Capture::cerr() << message << Utility::Capture::endl;
     }
 
     // Prevent copying
-    DomainModule(const DomainModule&) = delete;
+    DomainModule(DomainModule const&) = delete;
 
     // Prevent assignment
-    DomainModule& operator=(const DomainModule&) = delete;
+    DomainModule& operator=(DomainModule const&) = delete;
 
 protected:
     //------------------------------------------
@@ -203,7 +206,7 @@ protected:
     /**
      * @brief Pointer to the global space of the DomainModule
      */
-    Nebulite::Core::GlobalSpace* global;
+    Core::GlobalSpace* global;
 
 private:
     /**
@@ -217,7 +220,7 @@ private:
      * Instead of making a mess by untangling the templates, we simply use a pointer
      * to the non-templated interface.
      */
-    std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTree;
+    std::shared_ptr<FuncTree<Constants::Error>> funcTree;
 };
 }   // namespace Nebulite::Interaction::Execution
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_HPP

@@ -1,8 +1,3 @@
-# Minimal clang-format config tuned to keep/reflow doxygen-style block comments
-Language:        Cpp
-BasedOnStyle:    LLVM
-ReflowComments:  true
-
-# Additionals
+BasedOnStyle: LLVM
 IndentWidth: 4
-UseTab: Never
+NamespaceIndentation: None

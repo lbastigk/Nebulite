@@ -2,6 +2,11 @@
  * @file Domain.hpp
  * 
  * @brief This file defines the Domain class, which serves as a base class for creating a Nebulite domain.
+ *
+ *
+ * @todo Implement a DomainBase class without templates to reduce code bloat.
+ *       This allows us to access common functionality without needing to instantiate templates.
+ *       E.g. for context structs in the Invoke class: DomainBase* self, DomainBase* other, etc...
  */
 
 #ifndef NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
@@ -63,12 +68,12 @@ template<typename DomainType>
 class Domain{
     template<typename> friend class Domain;  // All Domain<T> instantiations are friends, so we can access each other's private members
 public:
-    Domain(std::string domainName, DomainType* domain, Nebulite::Utility::JSON* doc, Nebulite::Core::GlobalSpace* global)
+    Domain(std::string domainName, DomainType* domain, Utility::JSON* doc, Core::GlobalSpace* global)
     : domainName(domainName),
-      funcTree(std::make_shared<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>>( 
+      funcTree(std::make_shared<FuncTree<Constants::Error>>(
           domainName, 
-          Nebulite::Constants::ErrorTable::NONE(), 
-          Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
+          Constants::ErrorTable::NONE(), 
+          Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
       )),
       domain(domain), doc(doc), global(global)
     {}
@@ -95,12 +100,12 @@ public:
      * 
      * For binding functions or categories, use the DomainModule interface.
      */
-    void bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription){
+    void bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription) const {
         funcTree->bindVariable(varPtr, name, helpDescription);
     }
 
     /**
-     * @brief Binds all functions from a inherited FuncTree to the main FuncTree for parsing.
+     * @brief Binds all functions from an inherited FuncTree to the main FuncTree for parsing.
      */
     template<typename ToInheritFrom>
     void inherit(Domain<ToInheritFrom>* toInheritFrom){
@@ -115,9 +120,9 @@ public:
     /**
      * @brief Updates the domain.
      * 
-     * On overwriting, make sure to update all subdomains and domainmodules as well.
+     * On overwriting, make sure to update all subdomains and DomainModules as well.
      */
-    virtual Nebulite::Constants::Error update(){ return Nebulite::Constants::ErrorTable::NONE(); }
+    virtual Constants::Error update(){ return Constants::ErrorTable::NONE(); }
 
     /**
      * @brief Updates all DomainModules.
@@ -136,20 +141,20 @@ public:
 	 * 
 	 * Make sure the first arg is a name and not the function itself!
 	 * 
-	 * - `parseStr("set text.str Hello World")` -> does not work!
+	 * - `parseStr("set text Hello World")` -> does not work!
 	 * 
-	 * - `parseStr("<someName> set text.str Hello World")` -> works
+	 * - `parseStr("<someName> set text Hello World")` -> works
 	 * 
 	 * The first argument is reserved for debugging and should be used as a way to tell the parser from where it was called:
 	 * ```cpp
 	 * void myFunction(){
-	 *   parseStr("myFunction set text.str Hello World");
+	 *   parseStr("myFunction set text Hello World");
 	 * }
 	 * ```
 	 * If set fails, we can use the first argument `argv[0]` to identify the source of the command.
 	 * 
 	 * @param str The string to parse.
-	 * @return Potential errors that occured on command execution
+	 * @return Potential errors that occurred on command execution
      * 
      * @todo Disable printing errors if the domain is inside another domain without inheritance.
      * This needs to be done, otherwise each error is printed twice:
@@ -164,8 +169,8 @@ public:
      * - If we inherit from another domain, we parse once, no double printing
      * - If we add a domain, for instance, in a DomainModule, we have a parse within a parse, leading to double printing
 	 */
-	Nebulite::Constants::Error parseStr(std::string const& str){
-        Nebulite::Constants::Error err = funcTree->parseStr(str);
+	[[nodiscard]] Constants::Error parseStr(std::string const& str) const {
+        Constants::Error const err = funcTree->parseStr(str);
         //err.print();  // Disabled for now, but needs proper treatment later
         return err;
     }
@@ -173,14 +178,14 @@ public:
     /**
      * @brief Necessary operations before parsing commands.
      */
-    virtual Nebulite::Constants::Error preParse(){
-        return Nebulite::Constants::ErrorTable::NONE();
+    virtual Constants::Error preParse(){
+        return Constants::ErrorTable::NONE();
     }
 
     /**
      * @brief Sets a function to call before parsing commands.
      */
-    void setPreParse(std::function<Nebulite::Constants::Error()> func){
+    void setPreParse(std::function<Constants::Error()> const& func) const {
         funcTree->setPreParse(func);
     }
 
@@ -196,14 +201,14 @@ public:
      * 
      * @return A pointer to the internal JSON document.
      */
-    Nebulite::Utility::JSON* getDoc() const {return doc;}
+    [[nodiscard]] Utility::JSON* getDoc() const {return doc;}
 
     /**
      * @brief Gets a pointer to the globalspace.
      * 
      * @return A pointer to the globalspace.
      */
-    Nebulite::Core::GlobalSpace* getGlobalSpace() const {return global;}
+    [[nodiscard]] Core::GlobalSpace* getGlobalSpace() const {return global;}
 
     //------------------------------------------
     // Logging
@@ -215,8 +220,8 @@ public:
      * 
      * @param message The message to log.
      */
-    void logln(std::string const& message){
-        Nebulite::Utility::Capture::cout() << message << Nebulite::Utility::Capture::endl;
+    static void logln(std::string const& message){
+        Utility::Capture::cout() << message << Utility::Capture::endl;
     }
 
     /**
@@ -224,8 +229,8 @@ public:
      * 
      * @param message The error message to log.
      */
-    void logError(std::string const& message){
-        Nebulite::Utility::Capture::cerr() << message;
+    static void logError(std::string const& message){
+        Utility::Capture::cerr() << message;
     }
 
     /**
@@ -233,8 +238,8 @@ public:
      * 
      * @param message The error message to log.
      */
-    void logErrorln(std::string const& message){
-        Nebulite::Utility::Capture::cerr() << message << Nebulite::Utility::Capture::endl;
+    static void logErrorln(std::string const& message){
+        Utility::Capture::cerr() << message << Utility::Capture::endl;
     }
 
 private:
@@ -252,17 +257,17 @@ private:
     /**
      * @brief Stores all available modules
      */
-    std::vector<std::unique_ptr<Nebulite::Interaction::Execution::DomainModule<DomainType>>> modules;
+    std::vector<std::unique_ptr<DomainModule<DomainType>>> modules;
 
     /**
      * @brief Parsing interface for domain-specific commands.
      * 
      * We use a pointer here so we can 
-     * easily create the object with a inherited FuncTree inside the constructor.
+     * easily create the object with an inherited FuncTree inside the constructor.
      * 
      * The Tree is then shared with the DomainModules for modification.
      */
-    std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTree;
+    std::shared_ptr<FuncTree<Constants::Error>> funcTree;
 
     //------------------------------------------
     // Inner references
@@ -279,12 +284,12 @@ private:
      * We use a pointer here, as the JSON class itself is a domain.
      * Meaning the internal JSON doc references to itself.
      */
-    Nebulite::Utility::JSON* const doc;
+    Utility::JSON* const doc;
 
     /**
      * @brief Pointer to the globalspace, for accessing global resources and management functions.
      */
-    Nebulite::Core::GlobalSpace* const global;
+    Core::GlobalSpace* const global;
 };
 }   // namespace Nebulite::Interaction::Execution
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP

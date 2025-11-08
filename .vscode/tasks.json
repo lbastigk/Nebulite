@@ -24,6 +24,17 @@
             "detail": "Builds the projects Linux binaries. Builds release first to catch any errors without all the debug warnings cluttering the output."
         },
         {
+            "label": "[LINT]",
+            "type": "shell",
+            "command": "Scripts/Validation/runClangTidy.sh ; echo 'finished running Scripts/Validation/runClangTidy.sh'",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [],
+            "detail": "Run clang-tidy on the entire codebase to check for code issues and style problems."
+        },
+        {
             "label": "[BUILD + TEST]",
             "group": {
                 "kind": "test",

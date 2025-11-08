@@ -16,11 +16,10 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Utility{
-        class JSON; // Forward declaration of Utility::JSON
-    }
-}
+namespace Nebulite::Utility{
+    class JSON;
+}   // namespace Nebulite::Utility
+
 
 //------------------------------------------
 namespace Nebulite::DomainModule::JSON {
@@ -29,7 +28,7 @@ public:
     /**
      * @brief Override of update.
      */
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions
@@ -38,10 +37,10 @@ public:
      * @brief Forces a variable to a specific value
      * 
      * @param argc The argument count
-     * @param argv The argument vector: <key> <value>
-     * @return Potential errors that occured on command execution
+     * @param argv The argument vector: <key> <newvalue>
+     * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error force_set(int argc,  char** argv);
+    Constants::Error force_set(int argc,  char** argv);
     static std::string const force_set_name;
     static std::string const force_set_desc;
 
@@ -49,10 +48,10 @@ public:
      * @brief Clears all forced variables
      * 
      * @param argc The argument count
-     * @param argv The argument vector: <key> <value>
-     * @return Potential errors that occured on command execution
+     * @param argv The argument vector: No arguments available
+     * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error force_clear(int argc,  char** argv);
+    Constants::Error force_clear(int argc,  char** argv);
     static std::string const force_clear_name;
     static std::string const force_clear_desc;
 
@@ -69,7 +68,7 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, ForceValue){
         // Binding
-        bindCategory(force_name, &force_desc);
+        (void)bindCategory(force_name, &force_desc);
         bindFunction(&ForceValue::force_set,      force_set_name,      &force_set_desc);
         bindFunction(&ForceValue::force_clear,    force_clear_name,    &force_clear_desc);
     }

@@ -1,7 +1,7 @@
 /**
  * @file RODM_Debug.hpp
  * 
- * Debug functions for the the domain RenderObject.
+ * Debug functions for the domain RenderObject.
  */
 
 #ifndef NEBULITE_RODM_DEBUG_HPP
@@ -17,7 +17,7 @@
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Core {
-    class RenderObject; // Forward declaration of domain class RenderObject
+    class RenderObject;
 }
 
 //------------------------------------------
@@ -31,7 +31,7 @@ public:
     /**
      * @brief Override of update.
      */
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions
@@ -49,9 +49,9 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: the string to evaluate
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error eval(int argc,  char** argv);
+    Constants::Error eval(int argc,  char** argv);
     static std::string const eval_name;
     static std::string const eval_desc;
 
@@ -60,9 +60,9 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: None
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error printSrcRect(int argc,  char** argv);
+    Constants::Error printSrcRect(int argc,  char** argv);
     static std::string const printSrcRect_name;
     static std::string const printSrcRect_desc;
 
@@ -71,16 +71,16 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: None
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error printDstRect(int argc,  char** argv);
+    Constants::Error printDstRect(int argc,  char** argv);
     static std::string const printDstRect_name;
     static std::string const printDstRect_desc;
 
     /**
      * @brief Prints the texture status to cout
      */
-    Nebulite::Constants::Error textureStatus(int argc,  char** argv);
+    Constants::Error textureStatus(int argc,  char** argv);
     static std::string const textureStatus_name;
     static std::string const textureStatus_desc;
 
@@ -99,7 +99,7 @@ public:
         // Some functions like selected-object need eval to resolve variables
         bindFunction(&Debug::eval,          eval_name,          &eval_desc);
 
-        bindCategory(debug_name, &debug_desc);
+        (void)bindCategory(debug_name, &debug_desc);
         bindFunction(&Debug::printSrcRect,  printSrcRect_name,  &printSrcRect_desc);
         bindFunction(&Debug::printDstRect,  printDstRect_name,  &printDstRect_desc);
         bindFunction(&Debug::textureStatus, textureStatus_name, &textureStatus_desc);

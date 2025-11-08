@@ -25,8 +25,7 @@
             "compileCommands": "${workspaceFolder}/tmp/build_linux-debug/compile_commands.json",
             "browse": {
                 "path": [
-                    "${workspaceFolder}/include",
-                    "${workspaceFolder}/src"
+                    "${workspaceFolder}"
                 ],
                 "limitSymbolsToIncludedHeaders": false
             }

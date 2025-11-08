@@ -18,16 +18,13 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Core/RenderObjectContainer.hpp"
-#include "Utility/JSON.hpp"
 
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite{
-	namespace Core{
-		class GlobalSpace; // Forward declaration of core class GlobalSpace
-	}
-}
+namespace Nebulite::Core {
+    class GlobalSpace; // Forward declaration of core class GlobalSpace
+}   // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::Core{
@@ -51,20 +48,25 @@ public:
 	 * However, there is no real distinction in how the layers are processed.
 	 * The only difference is the order in which they are rendered.
 	 * Each layer can be thought of as a separate "pass" over the render objects.
-	 * Starting with the lowest layer (background) and ending with the highest layer (menue).
+	 * Starting with the lowest layer (background) and ending with the highest layer (menu).
 	 * 
 	 * *IMPORTANT:* New layers must be added to private variable `allLayers` in the correct order.
 	 * 
 	 * @todo Once GSDM_GUI and renderer texture queuing is properly implemented, 
 	 * the layer size may be reduced and layer names reworked.
 	 */
-	enum Layer {
+	enum class Layer : uint8_t {
 		background,
 		general,
 		foreground,
 		effects,
 		UI
 	};
+
+	/**
+	 * @brief Retrieves all layers in rendering order.
+	 * @return the vector of all layers.
+	 */
 	std::vector<Layer>* getAllLayers(){
 		return &allLayers;
 	}
@@ -72,7 +74,7 @@ public:
 	/**
 	 * @brief The number of RenderObjectContainer layers in the Environment.
 	 */
-	const static unsigned int LayerCount = 5;
+	static constexpr uint8_t LayerCount = 5;
 
 	//------------------------------------------
 	//Constructor
@@ -82,8 +84,8 @@ public:
 	 *
 	 * Creates an environment with its subcontainers for proper layer-based rendering.
 	 *
-	 * @param globalInvoke Pointer to the global Invoke instance.
-	 * The Global Invoke instance is necessary for the Environment and its Container Layers to communicate with the global space.
+	 * @param globalSpace Pointer to the globalSpace instance.
+	 * is necessary for the Environment and its Container Layers to communicate with the global space.
 	 * This is necessary for:
 	 * 
 	 * - RenderObject updates
@@ -92,12 +94,12 @@ public:
 	 * 
 	 * - RenderObject creation
 	 */
-	explicit Environment(Nebulite::Core::GlobalSpace* globalSpace);
+	explicit Environment(GlobalSpace* globalSpace);
 
 	// Suppress copy/move operators
 	Environment(Environment&& other) = delete;
 	Environment& operator=(Environment&& other) = delete;
-	Environment& operator=(const Environment& other) = delete;
+	Environment& operator=(Environment const& other) = delete;
 
 	//------------------------------------------
 	// Marshalling
@@ -122,7 +124,7 @@ public:
 	 * @param dispResX Display resolution width. Necessary to position the object correctly in its tile-based container.
 	 * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
 	 */
-	void deserialize(std::string const& serialOrLink, uint16_t dispResX,uint16_t dispResY);
+	void deserialize(std::string const& serialOrLink, uint16_t const& dispResX,uint16_t const& dispResY);
 	
 	//------------------------------------------
 	// Object Management
@@ -137,19 +139,19 @@ public:
 	 * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
 	 * @param layer Layer index to append the object to (default is 0).
 	 */
-	void append(Nebulite::Core::RenderObject* toAppend,uint16_t dispResX, uint16_t dispResY, uint8_t layer = 0);
+	void append(RenderObject* toAppend,uint16_t const& dispResX, uint16_t const& dispResY, uint8_t const& layer = 0);
 
 	/**
 	 * @brief Updates the environment's state.
 	 * 
 	 * This function is responsible for updating the state of all render objects in the environment.
 	 * 
-	 * @param tileXpos current camera tile position in the X direction.
-	 * @param tileYpos current camera tile position in the Y direction.
-	 * @param dispResX display resolution width. Necessary for potential RenderObject reinsertions).
-	 * @param dispResY display resolution height. Necessary for potential RenderObject reinsertions).
+	 * @param tileXposition current camera tile position in the X direction.
+	 * @param tileYposition current camera tile position in the Y direction.
+	 * @param dispResX display resolution width. Necessary for potential RenderObject reinsertions.
+	 * @param dispResY display resolution height. Necessary for potential RenderObject reinsertions.
 	 */
-	void update(int16_t tileXpos, int16_t tileYpos, uint16_t dispResX, uint16_t dispResY);
+	void update(int16_t const& tileXposition, int16_t const& tileYposition, uint16_t const& dispResX, uint16_t const& dispResY);
 
 	/**
 	 * @brief Rebuilds the Container structure.
@@ -159,7 +161,7 @@ public:
 	 * @param dispResX Display resolution width. Necessary for positioning the objects correctly in their tile-based containers.
 	 * @param dispResY Display resolution height. Necessary for positioning the objects correctly in their tile-based containers.
 	 */
-	void reinsertAllObjects(uint16_t dispResX,uint16_t dispResY);
+	void reinsertAllObjects(uint16_t const& dispResX,uint16_t const& dispResY);
 
 	/**
 	 * @brief Retrieves a RenderObject by its ID.
@@ -167,7 +169,7 @@ public:
 	 * @param id The ID of the RenderObject to retrieve.
 	 * @return A pointer to the RenderObject if found, nullptr otherwise.
 	 */
-	Nebulite::Core::RenderObject* getObjectFromId(uint32_t id);
+	RenderObject* getObjectFromId(uint32_t const& id);
 
 	//------------------------------------------
 	// Container Management
@@ -180,7 +182,7 @@ public:
 	 * @param layer The layer index.
 	 * @return A reference to the RenderObjectContainer at the specified position and layer: A vector of batched RenderObjects.
 	 */
-	std::vector<Nebulite::Core::RenderObjectContainer::batch>& getContainerAt(int16_t x, int16_t y, Environment::Layer layer);
+	std::vector<RenderObjectContainer::batch>& getContainerAt(int16_t x, int16_t y, Layer layer);
 
 	/**
 	 * @brief Checks if the specified position and layer are valid, meaning they are within the bounds of the environment.
@@ -190,7 +192,7 @@ public:
 	 * @param layer The layer index.
 	 * @return True if the position and layer are valid, false otherwise.
 	 */
-	bool isValidPosition(int x, int y, Environment::Layer layer);
+	bool isValidPosition(int x, int y, Layer layer);
 
 	/**
 	 * @brief Purges all objects from the environment by placing them in the deletion process.
@@ -202,20 +204,20 @@ public:
 	 * 
 	 * @return The total number of render objects in the environment.
 	 */
-	size_t getObjectCount() const;
+	[[nodiscard]] size_t getObjectCount() const;
 
 private:
 	// All layers in rendering order
-	std::vector<Layer> allLayers = {background, general, foreground, effects, UI};
+	std::vector<Layer> allLayers = {Layer::background, Layer::general, Layer::foreground, Layer::effects, Layer::UI};
 
 	// Link to Global Values
-    Nebulite::Utility::JSON* global;
+    Utility::JSON* global;
 
 	// Link to GlobalSpace
-	Nebulite::Core::GlobalSpace* globalSpace;
+	GlobalSpace* globalSpace;
 
 	// Inner RenderObject container layers
-	std::array<Nebulite::Core::RenderObjectContainer, Nebulite::Core::Environment::LayerCount> roc;
+	std::array<RenderObjectContainer, LayerCount> roc;
 };
 } // namespace Nebulite::Core
 

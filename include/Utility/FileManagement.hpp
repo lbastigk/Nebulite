@@ -1,6 +1,5 @@
 /**
- * @file Nebulite::Utility::FileManagement.hpp
- * 
+ * @file FileManagement.hpp
  * @brief This file contains the FileManagement class for managing file operations.
  */
 
@@ -11,7 +10,6 @@
 // Includes
 
 // Standard library
-#include <string>
 #include <string>
 
 //------------------------------------------

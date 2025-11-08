@@ -1,22 +1,53 @@
 /**
  * @file Nebulite.hpp
  *
- * @brief Central file for Nebulite namespace documentation. And globally available objects.
+ * @brief Central file for Nebulite namespace documentation, global constants and more.
  *
  * While classes/variables have on central definition file, namespaces are only loosely bound.
- * Meaning there isnt a consensus who first defined the namespace.
- * We use a separate file for each namespace to avoid conflicts with doxigen documentation.
+ * Meaning there isn't a consensus who first defined the namespace.
+ * We use a separate file for each namespace to avoid conflicts with doxygen documentation.
  * 
  * @todo Since global namespace documentation is not shown in-editor, we may use this central file
  * for globally available objects instead:
  * 
  * - Global ErrorTable object
  * - Global Logger object
- * - Globalspace Object
- */
+ * - GlobalSpace Object
+ */ 
 
 #ifndef NEBULITE_HPP
 #define NEBULITE_HPP
+
+//------------------------------------------
+// Includes
+
+#include <cstddef>
+
+//------------------------------------------
+// Define alignment constants
+
+
+
+// CACHE LINE alignment
+#ifdef __cpp_lib_hardware_interference_size
+    inline constexpr std::size_t CACHE_LINE_ALIGNMENT = std::hardware_destructive_interference_size;
+#else
+    inline constexpr std::size_t CACHE_LINE_ALIGNMENT = 64U; // common on x86_64
+#endif
+
+// DUAL CACHE LINE alignment
+inline constexpr std::size_t DUAL_CACHE_LINE_ALIGNMENT = 2 * CACHE_LINE_ALIGNMENT;
+
+// SIMD alignment (AVX/AVX2)
+inline constexpr std::size_t SIMD_ALIGNMENT = 32U;
+
+// SSE alignment
+inline constexpr std::size_t SSE_ALIGNMENT = 16U;
+
+static_assert((CACHE_LINE_ALIGNMENT & CACHE_LINE_ALIGNMENT - 1) == 0, "CACHE_LINE_ALIGNMENT must be power of two");
+
+//------------------------------------------
+// Namespace documentation
 
 /**
  * @namespace Nebulite
@@ -107,3 +138,8 @@ namespace Nebulite{
 
 }   // namespace Nebulite
 #endif // NEBULITE_HPP
+
+/**
+ * @todo: Add global() function here for accessing GlobalSpace.
+ * Also add global ErrorTable and Logger objects here.
+ */

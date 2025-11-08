@@ -12,14 +12,11 @@
 // Includes 
 
 // Standard library
-#include <string>
-#include <deque>
-#include <thread>
-#include <condition_variable>
 #include <atomic>
-
-// External
-#include <tinyexpr.h>
+#include <condition_variable>
+#include <deque>
+#include <string>
+#include <thread>
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
@@ -30,18 +27,16 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-  namespace Core{
+namespace Nebulite::Core {
     class RenderObject;
-  }
-}
+}   // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::Interaction{
+namespace Nebulite::Interaction {
 /**
  * @class Nebulite::Interaction::Invoke
  * @brief The Invoke class manages dynamic object logic in Nebulite.
- * 
+ *
  * This class is responsible for handling the invocation of functions and the
  * communication between different render objects within the Nebulite engine.
  * 
@@ -91,7 +86,7 @@ public:
      * 
      * @param globalSpace Pointer to the global space.
      */
-    explicit Invoke(Nebulite::Core::GlobalSpace* globalSpace);
+    explicit Invoke(Core::GlobalSpace* globalSpace);
 
     /**
      * @brief Destructor - stops worker threads.
@@ -111,7 +106,7 @@ public:
     /**
      * @brief Gets the global JSON document pointer.
      */
-    Nebulite::Utility::JSON* getGlobalPointer(){return globalDoc;}
+    Utility::JSON* getGlobalPointer() const {return globalDoc;}
 
     /**
      * @brief Gets a pointer to the DocumentCache.
@@ -121,20 +116,20 @@ public:
      * 
      * @return A pointer to the DocumentCache.
      */
-    Nebulite::Utility::DocumentCache* getDocumentCache(){ return docCache; }
+    Utility::DocumentCache* getDocumentCache() const { return docCache; }
     
     //------------------------------------------
     // Send/Listen
 
     /**
-     * @brief Broadcasts an invoke entry to other render objects.
+     * @brief Broadcasts a ruleset to other render objects.
      * 
-     * This function sends the specified invoke entry to all render objects
+     * This function sends the specified ruleset to all render objects
      * that are listening for the entry's topic.
      * 
-     * @param entry The invoke entry to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
+     * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
-    void broadcast(std::shared_ptr<Nebulite::Interaction::Ruleset> entry);
+    void broadcast(std::shared_ptr<Ruleset> const& entry);
 
     /**
      * @brief Listens for invoke entries on a specific topic.
@@ -148,29 +143,30 @@ public:
      * 
      * @param obj The render object to check.
      * @param topic The topic to listen for.
+     * @param listenerId The unique ID of the listener render object.
      */
-    void listen(Nebulite::Core::RenderObject* obj,std::string topic, uint32_t listenerId);
+    void listen(Core::RenderObject* obj,std::string const& topic, uint32_t const& listenerId);
 
     //------------------------------------------
     // Value checks
 
     /**
-     * @brief Checks if the invoke entry is true in the context of the other render object.
+     * @brief Checks if the ruleset is true in the context of the other render object.
      * 
-     * @param entry The invoke entry to check.
+     * @param cmd The Ruleset to check.
      * @param otherObj The other render object to compare against.
      * Make sure entry and otherObj are not the same object!
-     * @return True if the invoke entry is true in the context of the other render object, false otherwise.
+     * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> entry, Nebulite::Core::RenderObject const* otherObj);
+    static bool checkRulesetLogicalCondition(std::shared_ptr<Ruleset> const& cmd, Core::RenderObject const* otherObj);
 
     /**
-     * @brief Checks if the invoke entry is true, without any context from other render objects.
-     * 
-     * @param entry The invoke entry to check.
-     * @return True if the invoke entry is true without any context from other render objects, false otherwise.
+     * @brief Checks if the ruleset is true, without any context from other render objects.
+     *
+     * @param cmd The Ruleset.
+     * @return True if the ruleset is true without any context from other render objects, false otherwise.
      */
-    bool checkRulesetLogicalCondition(std::shared_ptr<Nebulite::Interaction::Ruleset> entry);
+    static bool checkRulesetLogicalCondition(std::shared_ptr<Ruleset> const& cmd);
 
 
     //------------------------------------------
@@ -198,7 +194,7 @@ public:
      * applying any changes or updates as necessary. No broadcast/listening necessary, as no other objects are involved.
      * Changes happen in domain `self` and `global`.
      */
-    void applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self);
+    void applyRulesets(std::shared_ptr<Ruleset> const& entries_self) const ;
 
     /**
      * @brief Updates the value of a specific key in the document.
@@ -211,11 +207,11 @@ public:
      * @param valStr The new value as a string.
      * @param target The JSON document to update.
      */
-    void setValueOfKey(
-        Nebulite::Interaction::Logic::Assignment::Operation operation, 
+    static void setValueOfKey(
+        Logic::Assignment::Operation operation,
         std::string const& key, 
         std::string const& valStr, 
-        Nebulite::Utility::JSON* target
+        Utility::JSON* target
     );
 
     /**
@@ -226,14 +222,14 @@ public:
      * 
      * @param operation The operation to perform (set, multiply, concat, etc.).
      * @param key The key to update.
-     * @param valStr The new value as a double.
+     * @param value The new value as a double.
      * @param target The JSON document to update.
      */
-    void setValueOfKey(
-        Nebulite::Interaction::Logic::Assignment::Operation operation, 
-        std::string const& key, 
-        double value, 
-        Nebulite::Utility::JSON* target
+    static void setValueOfKey(
+        Logic::Assignment::Operation operation,
+        std::string const& key,
+        double const& value,
+        Utility::JSON* target
     );
 
     /**
@@ -243,14 +239,12 @@ public:
      * updating the document accordingly.
      * 
      * @param operation The operation to perform (set, multiply, concat, etc.).
-     * @param key The key to update.
-     * @param valStr The new value as a double.
+     * @param value The new value as a double.
      * @param target The double pointer to update.
      */
-    void setValueOfKey(
-        Nebulite::Interaction::Logic::Assignment::Operation operation, 
-        std::string const& key, 
-        double value, 
+    static void setValueOfKey(
+        Logic::Assignment::Operation operation,
+        double const& value,
         double* target
     );
 
@@ -262,14 +256,14 @@ public:
      * 
      * An empty document is used for the `self` and `other` context:
      * 
-     * - All variable access outside of an expression defaults to an empty string
+     * - All variable access outside an expression defaults to an empty string
      * 
-     * - All variable access inside of an expression defaults to 0.0
+     * - All variable access inside an expression defaults to 0.0
      * 
      * @param input The expression to evaluate.
      * @return The result of the evaluation.
      */
-    std::string evaluateStandaloneExpression(std::string const& input);
+    std::string evaluateStandaloneExpression(std::string const& input) const ;
 
     /**
      * @brief Evaluates a standalone expression with context from a RenderObject.
@@ -278,19 +272,19 @@ public:
      * @param selfAndOther The RenderObject providing context for `self` and `other`.
      * @return The result of the evaluation.
      */
-    std::string evaluateStandaloneExpression(std::string const& input, Nebulite::Core::RenderObject* selfAndOther);
+    std::string evaluateStandaloneExpression(std::string const& input, Core::RenderObject const* selfAndOther) const ;
 
 private:
     //------------------------------------------
     // General Variables
 
     // Link to globalspace
-    Nebulite::Core::GlobalSpace* global = nullptr;
+    Core::GlobalSpace* global = nullptr;
 
     // Documents
-    Nebulite::Utility::DocumentCache* docCache = nullptr;                       // DocumentCache for read-only documents, linked on construction
-    Nebulite::Utility::JSON* emptyDoc = new Nebulite::Utility::JSON(global);    // Linking an empty doc is needed for some functions
-    Nebulite::Utility::JSON* globalDoc = nullptr;                               // Linkage to global doc, linked on construction
+    Utility::DocumentCache* docCache = nullptr;                       // DocumentCache for read-only documents, linked on construction
+    Utility::JSON* emptyDoc = new Utility::JSON(global);    // Linking an empty doc is needed for some functions
+    Utility::JSON* globalDoc = nullptr;                               // Linkage to global doc, linked on construction
 
     // Task Queue
     struct TaskQueue {
@@ -306,20 +300,13 @@ private:
      * @brief Structure to hold a broadcast-listen pair.
      */
     struct BroadCastListenPair{
-        std::shared_ptr<Nebulite::Interaction::Ruleset> entry;  // The Ruleset that was broadcasted
-        Nebulite::Core::RenderObject* Obj_other;                // The object that listened to the Broadcast
+        std::shared_ptr<Ruleset> entry;  // The Ruleset that was broadcasted
+        Core::RenderObject* Obj_other;                // The object that listened to the Broadcast
         bool active = true;                                     // If false, this pair is skipped during update
     };
 
-    /**
-     * @typedef Ruleset
-     * @brief A shared pointer to a Ruleset.
-     * Ruleset is owned by its RenderObject, so we use a shared pointer here to avoid ownership issues.
-     */
-    using Ruleset = std::shared_ptr<Nebulite::Interaction::Ruleset>;
-
     struct ListenersOnRuleset{
-        std::shared_ptr<Nebulite::Interaction::Ruleset> entry;
+        std::shared_ptr<Ruleset> entry;
         absl::flat_hash_map<uint32_t, BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
     };
 
@@ -408,25 +395,26 @@ private:
     // Private methods
 
     /**
-     * @brief Updates a build pair of invoke entry with given domain `other`
+     * @brief Updates a build pair of ruleset with given domain `other`
      * 
      * @param entries_self The invoke entries for the self domain.
      * @param Obj_other The render object in the other domain to update.
      */
-    void applyRulesets(std::shared_ptr<Nebulite::Interaction::Ruleset> entries_self, Nebulite::Core::RenderObject* Obj_other);
+    void applyRulesets(std::shared_ptr<Ruleset> const& entries_self, Core::RenderObject const* Obj_other) const ;
 
     /**
-     * @brief Applies a single assignment from an invoke entry.
+     * @brief Applies a single assignment from a ruleset.
      * 
-     * @param entry The invoke entry to apply.
+     * @param assignment The assignment to apply.
+     * @param Obj_self The render object in the self domain to update.
      * @param Obj_other The render object in the other domain to update.
      */
-    void applyAssignment(Nebulite::Interaction::Logic::Assignment& assignment, Nebulite::Core::RenderObject const* Obj_self, Nebulite::Core::RenderObject const* Obj_other);
+    void applyAssignment(Logic::Assignment& assignment, Core::RenderObject const* Obj_self, Core::RenderObject const* Obj_other) const ;
 
     /**
-     * @brief Applies all functioncalls
+     * @brief Applies all function calls from a Ruleset.
      */
-    void applyFunctionCalls(Nebulite::Interaction::Ruleset& ruleset, Nebulite::Core::RenderObject *Obj_self, Nebulite::Core::RenderObject *Obj_other);
+    void applyFunctionCalls(std::shared_ptr<Ruleset> const& ruleset, Core::RenderObject const* Obj_self, Core::RenderObject const* Obj_other) const ;
 };
 } // namespace Nebulite::Interaction
 #endif // NEBULITE_INTERACTION_INVOKE_HPP

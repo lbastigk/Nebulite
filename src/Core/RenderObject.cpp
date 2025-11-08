@@ -1,16 +1,18 @@
-#include "Core/RenderObject.hpp"
-
 #include "Core/GlobalSpace.hpp"
-#include "DomainModule/RODM.hpp"
+#include "Core/RenderObject.hpp"
+#include "DomainModule/Initializer.hpp"
+#include "DomainModule/JSON/JSDM_SimpleData.hpp"
 #include "Interaction/RulesetCompiler.hpp"
 
-#include "DomainModule/JSON/JSDM_SimpleData.hpp"
-
+namespace Nebulite::Core{
+	
 //------------------------------------------
 // Special member Functions
 
-Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSpace) 
-: Nebulite::Interaction::Execution::Domain<Nebulite::Core::RenderObject>("RenderObject", this, &json, globalSpace), 
+// Helper function to initialize RenderObject in constructor
+
+RenderObject::RenderObject(GlobalSpace* globalSpace)
+: Domain("RenderObject", this, &json, globalSpace),
   json(globalSpace),
   baseTexture(&json, globalSpace){
 	//------------------------------------------
@@ -25,53 +27,58 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 	// General
 
 	// Initialize to 0, Renderer itself sets proper id, which starts at 1
-	json.set(Nebulite::Constants::keyName.renderObject.id.c_str(),0);
-	json.set(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0);
-	json.set(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0);
-	json.set(Nebulite::Constants::keyName.renderObject.imageLocation.c_str(), std::string("Resources/Sprites/TEST001P/001.bmp"));
-	json.set(Nebulite::Constants::keyName.renderObject.layer.c_str(), 0);
+	json.set(Constants::keyName.renderObject.id,0);
+	json.set(Constants::keyName.renderObject.positionX, 0);
+	json.set(Constants::keyName.renderObject.positionY, 0);
+	json.set(Constants::keyName.renderObject.imageLocation, std::string("Resources/Sprites/TEST001P/001.bmp"));
+	json.set(Constants::keyName.renderObject.layer, 0);
 
 	//for sprite
-	json.set(Nebulite::Constants::keyName.renderObject.isSpritesheet.c_str(), false);
-	json.set(Nebulite::Constants::keyName.renderObject.spritesheetOffsetX.c_str(), 0);
-	json.set(Nebulite::Constants::keyName.renderObject.spritesheetOffsetY.c_str(), 0);
-	json.set(Nebulite::Constants::keyName.renderObject.spritesheetSizeX.c_str(), 0);
-	json.set(Nebulite::Constants::keyName.renderObject.spritesheetSizeY.c_str(), 0);
-	json.set(Nebulite::Constants::keyName.renderObject.pixelSizeX.c_str(), 32);
-	json.set(Nebulite::Constants::keyName.renderObject.pixelSizeY.c_str(), 32);
+	json.set(Constants::keyName.renderObject.isSpritesheet, false);
+	json.set(Constants::keyName.renderObject.spritesheetOffsetX, 0);
+	json.set(Constants::keyName.renderObject.spritesheetOffsetY, 0);
+	json.set(Constants::keyName.renderObject.spritesheetSizeX, 0);
+	json.set(Constants::keyName.renderObject.spritesheetSizeY, 0);
+	json.set(Constants::keyName.renderObject.pixelSizeX, 32);
+	json.set(Constants::keyName.renderObject.pixelSizeY, 32);
 
 	// Invokes
-	json.set_empty_array(Nebulite::Constants::keyName.renderObject.invokes.c_str());
-	json.set_empty_array(Nebulite::Constants::keyName.renderObject.invokeSubscriptions.c_str());
-	json.set((Nebulite::Constants::keyName.renderObject.invokeSubscriptions+"[0]").c_str(),std::string("all"));
+	json.set_empty_array(Constants::keyName.renderObject.invokes.c_str());
+	json.set_empty_array(Constants::keyName.renderObject.invokeSubscriptions.c_str());
+	json.set(Constants::keyName.renderObject.invokeSubscriptions+"[0]",std::string("all"));
 
 	// Text
-	json.set(Nebulite::Constants::keyName.renderObject.textStr.c_str(),std::string(""));
-	json.set(Nebulite::Constants::keyName.renderObject.textFontsize.c_str(),0);
-	json.set(Nebulite::Constants::keyName.renderObject.textDx.c_str(),0.0);
-	json.set(Nebulite::Constants::keyName.renderObject.textDy.c_str(),0.0);
-	json.set(Nebulite::Constants::keyName.renderObject.textColorR.c_str(),255);
-	json.set(Nebulite::Constants::keyName.renderObject.textColorG.c_str(),255);
-	json.set(Nebulite::Constants::keyName.renderObject.textColorB.c_str(),255);
-	json.set(Nebulite::Constants::keyName.renderObject.textColorA.c_str(),255);
+	json.set(Constants::keyName.renderObject.textStr,std::string(""));
+	json.set(Constants::keyName.renderObject.textFontsize,0);
+	json.set(Constants::keyName.renderObject.textDx,0.0);
+	json.set(Constants::keyName.renderObject.textDy,0.0);
+	json.set(Constants::keyName.renderObject.textColorR,255);
+	json.set(Constants::keyName.renderObject.textColorG,255);
+	json.set(Constants::keyName.renderObject.textColorB,255);
+	json.set(Constants::keyName.renderObject.textColorA,255);
 
 	//------------------------------------------
 	// Internal Values
 	textSurface = nullptr;
-    textTexture = nullptr;
+	textTexture = nullptr;
 
 	//------------------------------------------
 	// Flags
 	flag.deleteFromScene = false;
 	flag.calculateText = true;		// In order to calculate text texture on first update
 	flag.reloadInvokes = true;		// In order to reload invokes on first update
-
-	subscription_size = json.memberSize(Nebulite::Constants::keyName.renderObject.invokeSubscriptions.c_str());
+	subscription_size = json.memberSize(Constants::keyName.renderObject.invokeSubscriptions);
 
 	//------------------------------------------
-    // Link inherited Domains
-    inherit<Nebulite::Utility::JSON>(&json);
-	inherit<Nebulite::Core::Texture>(&baseTexture);
+	// Initialize Linkages, References and DomainModules and object itself
+	init();
+}
+
+void RenderObject::init(){
+	//------------------------------------------
+	// Link inherited Domains
+	inherit<Utility::JSON>(&json);
+	inherit<Texture>(&baseTexture);
 
 	//------------------------------------------
 	// Link frequently used values
@@ -79,7 +86,7 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 
 	//------------------------------------------
 	// Initialize Domain Modules
-	Nebulite::DomainModule::RODM_init(this);
+	DomainModule::Initializer::initRenderObject(this);
 
 	//------------------------------------------
 	// Update once to initialize
@@ -88,41 +95,41 @@ Nebulite::Core::RenderObject::RenderObject(Nebulite::Core::GlobalSpace* globalSp
 	calculateDstRect();
 }
 
-Nebulite::Core::RenderObject::~RenderObject(){
-    if (textSurface){
-        SDL_FreeSurface(textSurface);
-        textSurface = nullptr;
-    }
+RenderObject::~RenderObject(){
+	if (textSurface){
+		SDL_FreeSurface(textSurface);
+		textSurface = nullptr;
+	}
 
-    if (textTexture){
-        SDL_DestroyTexture(textTexture);
-        textTexture = nullptr;
-    }
+	if (textTexture){
+		SDL_DestroyTexture(textTexture);
+		textTexture = nullptr;
+	}
 
-    // Clean up invoke entries - shared pointers will automatically handle cleanup
-    entries_global.clear();
-    entries_local.clear();
+	// Clean up invoke entries - shared pointers will automatically handle cleanup
+	entries_global.clear();
+	entries_local.clear();
 }
 
 //------------------------------------------
 // Marshalling
 
-std::string Nebulite::Core::RenderObject::serialize(){
+std::string RenderObject::serialize(){
 	return json.serialize();
 }
 
-void Nebulite::Core::RenderObject::deserialize(std::string const& serialOrLink){
+void RenderObject::deserialize(std::string const& serialOrLink){
 	// Check if argv1 provided is an object
-	if(Nebulite::Utility::JSON::is_json_or_jsonc(serialOrLink)){
+	if(Utility::JSON::is_json_or_jsonc(serialOrLink)){
 		json.deserialize(serialOrLink);
 	}
 	else{
 		//------------------------------------------
 		// Split the input into tokens
-		std::vector<std::string> tokens = Nebulite::Utility::StringHandler::split(serialOrLink, '|');
+		std::vector<std::string> tokens = Utility::StringHandler::split(serialOrLink, '|');
 
 		//------------------------------------------
-        // Validity check
+		// Validity check
 		if (tokens.empty()){
 			return; // or handle error properly
 		}
@@ -133,7 +140,7 @@ void Nebulite::Core::RenderObject::deserialize(std::string const& serialOrLink){
 		json.deserialize(tokens[0]);
 
 		//------------------------------------------
-        // Now apply modifications
+		// Now apply modifications
 		tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
 		for (auto const& token : tokens){
 			if (token.empty()) continue; // Skip empty tokens
@@ -141,54 +148,56 @@ void Nebulite::Core::RenderObject::deserialize(std::string const& serialOrLink){
 			// Legacy: Handle key=value pairs
 			if (token.find('=') != std::string::npos){
 				// Handle modifier (key=value)
-				auto pos = token.find('=');
+				auto const pos = token.find('=');
 				std::string key = token.substr(0, pos);
 				std::string value = token.substr(pos + 1);
-
-				// Old implementation via direct set
-				//json.set<std::string>(key.c_str(), value);
-
-				// New implementation through functioncall
 				std::string call = __FUNCTION__;
-				call += " " + Nebulite::DomainModule::JSON::SimpleData::set_name;
-				call += " " + key + " " + value;
-				parseStr(call);
+				call.append(" " + DomainModule::JSON::SimpleData::set_name);
+				call.append(" " + key);
+				call.append(" " + value);
+				if(auto const err = parseStr(call); err != Constants::ErrorTable::NONE()){
+					Utility::Capture::cerr() << "Warning: Failed to parse modifier '" << token << "' during RenderObject deserialization." << Utility::Capture::endl;
+					Utility::Capture::cerr() << "Error Code: " << err.getDescription() << Utility::Capture::endl;
+				}
 			}
 			// Handle function call
 			else {
 				// Forward to FunctionTree for resolution
-				parseStr(__FUNCTION__ + std::string(" ") + token);
+				if (auto const err = parseStr(__FUNCTION__ + std::string(" ") + token); err != Constants::ErrorTable::NONE()){
+					Utility::Capture::cerr() << "Warning: Failed to parse function call '" << token << "' during RenderObject deserialization." << Utility::Capture::endl;
+					Utility::Capture::cerr() << "Error Code: " << err.getDescription() << Utility::Capture::endl;
+				}
 			}
 		}
 	}
 
 	// Re-Establish frequent references
 	linkFrequentRefs();
-	
+
 	// Prerequisites
 	flag.reloadInvokes = true;
 	flag.calculateText = true;
 
 	// Update subscription size
-	subscription_size = json.memberSize(Nebulite::Constants::keyName.renderObject.invokeSubscriptions.c_str());
+	subscription_size = json.memberSize(Constants::keyName.renderObject.invokeSubscriptions);
 }
 
 //------------------------------------------
 // General functions
 
-SDL_Texture* Nebulite::Core::RenderObject::getTextTexture(){
+SDL_Texture* RenderObject::getTextTexture() const {
 	return textTexture;
 }
 
-SDL_Rect* Nebulite::Core::RenderObject::getTextRect(){
+SDL_Rect* RenderObject::getTextRect(){
 	return &textRect;
 }
 
-SDL_Rect* Nebulite::Core::RenderObject::getDstRect(){
+SDL_Rect* RenderObject::getDstRect(){
 	return &dstRect;
 }
 
-void Nebulite::Core::RenderObject::calculateDstRect(){
+void RenderObject::calculateDstRect(){
 	dstRect = {
 		static_cast<int>(floor(*refs.posX)),
 		static_cast<int>(floor(*refs.posY)),
@@ -197,16 +206,14 @@ void Nebulite::Core::RenderObject::calculateDstRect(){
 	};
 }
 
-SDL_Rect* Nebulite::Core::RenderObject::getSrcRect(){
+SDL_Rect* RenderObject::getSrcRect(){
 	if (*refs.isSpritesheet > DBL_EPSILON){ // isSpritesheet is true
 		return &srcRect;
 	}
-	else {
-		return nullptr;
-	}
+	return nullptr;
 }
 
-void Nebulite::Core::RenderObject::calculateSrcRect(){
+void RenderObject::calculateSrcRect(){
 	// Check if the object is a sprite
 	if (*refs.isSpritesheet > DBL_EPSILON){ // isSpritesheet is true
 		// Calculate the source rectangle for the sprite (which portion of the sprite sheet to render)
@@ -222,7 +229,7 @@ void Nebulite::Core::RenderObject::calculateSrcRect(){
 //------------------------------------------
 // Outside communication with invoke for updating and estimation
 
-Nebulite::Constants::Error Nebulite::Core::RenderObject::update(){
+Constants::Error RenderObject::update(){
 	//------------------------------------------
 	// Update modules and all inner domains
 	updateModules();
@@ -235,10 +242,10 @@ Nebulite::Constants::Error Nebulite::Core::RenderObject::update(){
 		//------------------------------------------
 		// 1.) Reload invokes if needed
 		if (flag.reloadInvokes){
-			Nebulite::Interaction::RulesetCompiler::parse(
-				entries_global, entries_local, 
-				this, 
-				invoke->getDocumentCache(), 
+			Interaction::RulesetCompiler::parse(
+				entries_global, entries_local,
+				this,
+				invoke->getDocumentCache(),
 				invoke->getGlobalPointer()
 			);
 			flag.reloadInvokes = false;
@@ -246,8 +253,8 @@ Nebulite::Constants::Error Nebulite::Core::RenderObject::update(){
 
 		//------------------------------------------
 		// 2.) Directly solve local invokes (loop)
-		for (auto entry : entries_local){
-			if(invoke->checkRulesetLogicalCondition(entry)){
+		for (auto const& entry : entries_local){
+			if(Interaction::Invoke::checkRulesetLogicalCondition(entry)){
 				invoke->applyRulesets(entry);
 			}
 		}
@@ -257,34 +264,34 @@ Nebulite::Constants::Error Nebulite::Core::RenderObject::update(){
 		//	   Manipulation happens at the Invoke::update routine later on
 		//     This just generates pairs that need to be updated
 		for(size_t idx = 0; idx < subscription_size; idx++){
-			std::string key = Nebulite::Constants::keyName.renderObject.invokeSubscriptions + "[" + std::to_string(idx) + "]";
-			std::string subscription = json.get<std::string>(key.c_str(),"");
+			std::string key = Constants::keyName.renderObject.invokeSubscriptions + "[" + std::to_string(idx) + "]";
+			auto const subscription = json.get<std::string>(key,"");
 			invoke->listen(this,subscription, static_cast<uint32_t>(*refs.id));
 		}
-        
+
 
 		//------------------------------------------
 		// 4.) Append general invokes from object itself back for global check
 		//     This makes sure that no invokes from inactive objects stay in the list
-		for (auto entry : entries_global){
+		for (auto const& entry : entries_global){
 			// add pointer to invoke command to global
 			invoke->broadcast(entry);
 		}
-    }else{
-		return Nebulite::Constants::ErrorTable::RENDERER::CRITICAL_INVOKE_NULLPTR();
+	}else{
+		return Constants::ErrorTable::RENDERER::CRITICAL_INVOKE_NULLPTR();
 	}
 	// No evaluation of domainModules for now, just return NONE
-	return Nebulite::Constants::ErrorTable::NONE();
+	return Constants::ErrorTable::NONE();
 }
 
-uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyInternal){
+uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal){
 	//------------------------------------------
 	// Reload invokes if needed
 	if (flag.reloadInvokes){
-		Nebulite::Interaction::RulesetCompiler::parse(
-			entries_global, entries_local, 
-			this, 
-			invoke->getDocumentCache(), 
+		Interaction::RulesetCompiler::parse(
+			entries_global, entries_local,
+			this,
+			invoke->getDocumentCache(),
 			invoke->getGlobalPointer()
 		);
 		flag.reloadInvokes = false;
@@ -297,7 +304,7 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyIntern
 	// Local entries
 	cost = std::accumulate(
 		entries_local.begin(), entries_local.end(), cost,
-		[](uint64_t acc, const std::shared_ptr<Nebulite::Interaction::Ruleset>& entry){
+		[](uint64_t const acc, std::shared_ptr<Interaction::Ruleset> const& entry){
 			return acc + entry->estimatedCost;
 		}
 	);
@@ -306,7 +313,7 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyIntern
 	if (!onlyInternal){
 		cost = std::accumulate(
 			entries_global.begin(), entries_global.end(), cost,
-			[](uint64_t acc, const std::shared_ptr<Nebulite::Interaction::Ruleset>& entry){
+			[](uint64_t const acc, std::shared_ptr<Interaction::Ruleset> const& entry){
 				return acc + entry->estimatedCost;
 			}
 		);
@@ -318,7 +325,7 @@ uint64_t Nebulite::Core::RenderObject::estimateComputationalCost(bool onlyIntern
 //------------------------------------------
 // Outside communication with Renderer for text calculation
 
-void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font, int renderPositionX, int renderPositionY){
+void RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font* font, int const& renderPositionX, int const& renderPositionY){
 	// Set font size if changed
 	textRect.x = static_cast<int>(*refs.posX + *refs.textDx - static_cast<double>(renderPositionX));
 	textRect.y = static_cast<int>(*refs.posY + *refs.textDy - static_cast<double>(renderPositionY));
@@ -329,19 +336,19 @@ void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font
 	// - new text size
 	if(flag.calculateText){
 		// Free previous texture
-        if (textTexture != nullptr){
-            SDL_DestroyTexture(textTexture);
-            textTexture = nullptr;
-        }
-		
+		if (textTexture != nullptr){
+			SDL_DestroyTexture(textTexture);
+			textTexture = nullptr;
+		}
+
 		// Settings influenced by a new text
-		double scalar = 1.0; // Perhaps needed
-		std::string text = get<std::string>(Nebulite::Constants::keyName.renderObject.textStr.c_str());
+		double constexpr scalar = 1.0; // Perhaps needed later on for scaling
+		auto const text = get<std::string>(Constants::keyName.renderObject.textStr.c_str());
 		textRect.w = static_cast<int>(*refs.fontSize * static_cast<double>(text.length()) * scalar);
 		textRect.h = static_cast<int>(*refs.fontSize * 1.5 * scalar);
 
 		// Create text
-		SDL_Color textColor = { 
+		SDL_Color const textColor = {
 			static_cast<Uint8>(*refs.textColorR),
 			static_cast<Uint8>(*refs.textColorG),
 			static_cast<Uint8>(*refs.textColorB),
@@ -349,16 +356,18 @@ void Nebulite::Core::RenderObject::calculateText(SDL_Renderer* renderer,TTF_Font
 		};
 
 		// Create texture
-        if (!text.empty() && font && renderer){
-            textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
-            if (textSurface){
-                textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+		if (!text.empty() && font && renderer){
+			textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
+			if (textSurface){
+				textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 				SDL_FreeSurface(textSurface); // Free surface after creating texture
-                textSurface = nullptr;
-            }
-        }
+				textSurface = nullptr;
+			}
+		}
 
 		// Set flag back to false
 		flag.calculateText = false;
 	}
 }
+
+}	// namespace Nebulite::Core

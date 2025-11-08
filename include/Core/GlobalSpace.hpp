@@ -26,7 +26,7 @@
 namespace Nebulite::Core {
 
 /**
- * @struct Nebulite::Core::taskQueueWrapper
+ * @struct taskQueueWrapper
  * @brief Represents a queue of tasks to be processed by the engine, including metadata.
  */
 struct taskQueueWrapper {
@@ -45,7 +45,7 @@ struct taskQueueWrapper {
  */
 struct taskQueueResult{
     bool encounteredCriticalResult = false;
-    std::vector<Nebulite::Constants::Error> errors;
+    std::vector<Constants::Error> errors;
 };
 
 //------------------------------------------
@@ -92,11 +92,11 @@ public:
     explicit GlobalSpace(std::string const& binName);
 
     // Destructor
-    virtual ~GlobalSpace() = default;
+    ~GlobalSpace() override = default;
 
     // Prevent copying
-    GlobalSpace(const GlobalSpace&) = delete;
-    GlobalSpace& operator=(const GlobalSpace&) = delete;
+    GlobalSpace(GlobalSpace const&) = delete;
+    GlobalSpace& operator=(GlobalSpace const&) = delete;
 
     // Prevent moving
     GlobalSpace(GlobalSpace&&) = delete;
@@ -114,7 +114,7 @@ public:
      * @param argc The number of command line arguments.
      * @param argv The array of command line argument strings.
      */
-    void parseCommandLineArguments(int const argc, char const* argv[]);
+    void parseCommandLineArguments(int const& argc, char const* argv[]);
 
     /**
      * @brief Resolves a task queue by parsing each task and executing it.
@@ -123,22 +123,22 @@ public:
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
      */
-    Nebulite::Core::taskQueueResult resolveTaskQueue(Nebulite::Core::taskQueueWrapper& tq, uint64_t const* waitCounter);
+    taskQueueResult resolveTaskQueue(taskQueueWrapper& tq, uint64_t const* waitCounter) const ;
 
     /**
      * @brief Parses the task queue for execution.
      * 
-     * @return Errorcode `Nebulite::Constants::ErrorTable::NONE()` if there was no critical stop,
+     * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      * the last critical error code otherwise.
      */
-    Nebulite::Constants::Error parseQueue();
+    Constants::Error parseQueue();
 
     /**
      * @brief Updates the global space.
      * 
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     /**
      * @brief Quits the renderer by setting the quit flag.
@@ -150,14 +150,14 @@ public:
     /**
      * @brief Evaluates a string.
      */
-    std::string eval(std::string const& expr){
+    std::string eval(std::string const& expr) const {
         return invoke.evaluateStandaloneExpression(expr);
     }
 
     /**
      * @brief Evaluates a string with context of a RenderObject.
      */
-    std::string eval(std::string const& expr, Nebulite::Core::RenderObject* context){
+    std::string eval(std::string const& expr, RenderObject const* context) const {
         return invoke.evaluateStandaloneExpression(expr, context);
     }
 
@@ -172,22 +172,22 @@ public:
     /**
      * @brief Gets a pointer to the Renderer instance.
      */
-    Nebulite::Core::Renderer* getRenderer(){ return &renderer; }
+    Renderer* getRenderer(){ return &renderer; }
 
     /**
      * @brief Gets a pointer to the SDL Renderer instance.
      */
-    SDL_Renderer* getSdlRenderer(){ return renderer.getSdlRenderer(); }
+    SDL_Renderer* getSdlRenderer() const { return renderer.getSdlRenderer(); }
 
     /**
      * @brief Gets a pointer to the Invoke instance.
      */
-    Nebulite::Interaction::Invoke* getInvoke(){ return &invoke; }
+    Interaction::Invoke* getInvoke(){ return &invoke; }
 
     /**
      * @brief Gets a pointer to the global document cache.
      */
-    Nebulite::Utility::DocumentCache* getDocCache(){ return &docCache; }
+    Utility::DocumentCache* getDocCache(){ return &docCache; }
 
     //------------------------------------------
     // Public Variables
@@ -197,16 +197,16 @@ public:
      * @brief Contains task queues for different types of tasks.
      */
     struct Tasks{
-        Nebulite::Core::taskQueueWrapper script;     // Task queue for script files loaded with "task"
-        Nebulite::Core::taskQueueWrapper internal;   // Internal task queue from renderObjects, console, etc.
-        Nebulite::Core::taskQueueWrapper always;     // Always-tasks added with the prefix "always "
+        taskQueueWrapper script;     // Task queue for script files loaded with "task"
+        taskQueueWrapper internal;   // Internal task queue from renderObjects, console, etc.
+        taskQueueWrapper always;     // Always-tasks added with the prefix "always "
     } tasks;
 
     // Wait counter for script tasks
     uint64_t scriptWaitCounter = 0;
 
     // Error Table for error descriptions
-    Nebulite::Constants::ErrorTable errorTable;
+    Constants::ErrorTable errorTable;
 
     //------------------------------------------
     // DomainModule variables
@@ -235,8 +235,8 @@ public:
     bool shouldContinueLoop() const { return continueLoop; }
 
     enum class UniqueIdType{
-        EXPRESSION = 0,
-        JSONKEY = 1
+        expression = 0,
+        jsonKey = 1
     };
     static constexpr size_t UniqueIdTypeSize = 2;
 
@@ -249,18 +249,15 @@ public:
      * @param type Which rolling counter to use for the unique ID, allowing for separate ID spaces.
      * @return The unique ID corresponding to the hash.
      */
-    uint64_t getUniqueId(std::string hash, UniqueIdType type){
-        // Lock and check if hash exists
-        std::lock_guard<std::mutex> lock(uniqueIdMutex[static_cast<size_t>(type)]);
-
-        auto it = uniqueIdMap[static_cast<size_t>(type)].find(hash);
-        if(it != uniqueIdMap[static_cast<size_t>(type)].end()){
+    uint64_t getUniqueId(std::string const& hash, UniqueIdType type){
+        // Lock and check if hash exists. If not, create new ID
+        std::scoped_lock lock(uniqueIdMutex[static_cast<size_t>(type)]);
+        if(auto const it = uniqueIdMap[static_cast<size_t>(type)].find(hash); it != uniqueIdMap[static_cast<size_t>(type)].end()){
             return it->second;
-        } else {
-            uint64_t newId = uniqueIdCounter[static_cast<size_t>(type)]++;
-            uniqueIdMap[static_cast<size_t>(type)][hash] = newId;
-            return newId;
         }
+        uint64_t const newId = uniqueIdCounter[static_cast<size_t>(type)]++;
+        uniqueIdMap[static_cast<size_t>(type)][hash] = newId;
+        return newId;
     }
 
 private:
@@ -271,16 +268,16 @@ private:
     bool continueLoop = true;
 
     // Global JSON Document
-    Nebulite::Utility::JSON global;
+    Utility::JSON global;
 
     // Renderer
-    Nebulite::Core::Renderer renderer;
+    Renderer renderer;
 
     // Invoke Object for parsing expressions etc.
-    Nebulite::Interaction::Invoke invoke;
+    Interaction::Invoke invoke;
 
     // DocumentCache for read-only documents
-    Nebulite::Utility::DocumentCache docCache;
+    Utility::DocumentCache docCache;
 
     // Unique ID map
     uint64_t uniqueIdCounter[UniqueIdTypeSize] = {0, 0};
@@ -295,9 +292,9 @@ private:
      * @brief Holds the results of resolving different task queues.
      */
     struct QueueResult {
-        Nebulite::Core::taskQueueResult script;       // Result of script-tasks
-        Nebulite::Core::taskQueueResult internal;     // Result of internal-tasks
-        Nebulite::Core::taskQueueResult always;       // Result of always-tasks
+        taskQueueResult script;       // Result of script-tasks
+        taskQueueResult internal;     // Result of internal-tasks
+        taskQueueResult always;       // Result of always-tasks
     } queueResult;
 
     /**
@@ -310,15 +307,15 @@ private:
     }names;
 
     /**
-     * @struct RNGvars
+     * @struct RngVars
      * @brief Contains RNG instances used in the global space.
      */
-    struct RNGvars{
-        using rng_size_t = uint16_t;            // Modify this to change the size of the RNGs
-        Nebulite::Utility::RNG<rng_size_t> A;   // RNG with key random.A
-        Nebulite::Utility::RNG<rng_size_t> B;   // RNG with key random.B
-        Nebulite::Utility::RNG<rng_size_t> C;   // RNG with key random.C
-        Nebulite::Utility::RNG<rng_size_t> D;   // RNG with key random.D
+    struct RngVars{
+        using rngSize_t = uint16_t;            // Modify this to change the size of the RNGs
+        Utility::RNG<rngSize_t> A;   // RNG with key random.A
+        Utility::RNG<rngSize_t> B;   // RNG with key random.B
+        Utility::RNG<rngSize_t> C;   // RNG with key random.C
+        Utility::RNG<rngSize_t> D;   // RNG with key random.D
     } rng;
 
     //------------------------------------------
@@ -330,7 +327,7 @@ private:
      * This function binds a pre-parse function to the domain's function tree,
      * which is called before parsing any command. It is used to properly handle RNG
      */
-    Nebulite::Constants::Error preParse() override;
+    Constants::Error preParse() override;
 
     /**
      * @brief Updates all RNGs
@@ -342,7 +339,7 @@ private:
      * 
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    Nebulite::Constants::Error updateInnerDomains();
+    Constants::Error updateInnerDomains() const;
 };
 }   // namespace Nebulite::Core
 #endif // NEBULITE_CORE_GLOBALSPACE_HPP

@@ -16,7 +16,7 @@
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Core{
-    class RenderObject; // Forward declaration of domain class RenderObject
+    class RenderObject;
 }
 
 //------------------------------------------
@@ -32,7 +32,7 @@ public:
     /**
      * @brief Override of update.
      */
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions
@@ -46,9 +46,9 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: ...
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error echo(int argc,  char** argv);
+    Constants::Error echo(int argc,  char** argv);
     static std::string const echo_name;
     static std::string const echo_desc;
 
@@ -64,9 +64,9 @@ public:
      * 
      * Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
      * 
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error log_all(int argc,  char** argv);
+    Constants::Error log_all(int argc,  char** argv);
     static std::string const log_all_name;
     static std::string const log_all_desc;
 
@@ -78,9 +78,9 @@ public:
      * 
      * Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
      * 
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error log_key(int argc,  char** argv);
+    Constants::Error log_key(int argc,  char** argv);
     static std::string const log_key_name;
     static std::string const log_key_desc;
 
@@ -98,7 +98,7 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Logging){
         bindFunction(&Logging::echo,        echo_name,      &echo_desc);
 
-        bindCategory(log_name, &log_desc);
+        (void)bindCategory(log_name, &log_desc);
         bindFunction(&Logging::log_all,    log_all_name,    &log_all_desc);
         bindFunction(&Logging::log_key,    log_key_name,    &log_key_desc);
     }

@@ -19,7 +19,7 @@ Nebulite::Constants::Error ForceValue::update(){
 }
 
 Nebulite::Constants::Error ForceValue::force_set(int argc,  char** argv){
-    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 3){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -39,7 +39,7 @@ Usage: force set <key> <value>
 )";
 
 Nebulite::Constants::Error ForceValue::force_clear(int argc,  char** argv){
-    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     forced_global_values.clear();
     return Nebulite::Constants::ErrorTable::NONE();
 }

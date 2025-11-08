@@ -16,8 +16,8 @@
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Utility {
-    class JSON; // Forward declaration of domain class JSON
-}
+    class JSON;
+}   // namespace Nebulite::Utility
 
 //------------------------------------------
 namespace Nebulite::DomainModule::JSON {
@@ -31,7 +31,7 @@ public:
     /**
      * @brief Override of update.
      */
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions
@@ -45,7 +45,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error querySet(int argc,  char** argv);
+    Constants::Error querySet(int argc,  char** argv);
     static std::string const querySet_name;
     static std::string const querySet_desc;
 
@@ -56,7 +56,7 @@ public:
      * @param argv The argument vector: <key> <link:key>
      * @return Potential errors that occurred on command execution.
      */
-    Nebulite::Constants::Error jsonSet(int argc,  char** argv);
+    Constants::Error jsonSet(int argc,  char** argv);
     static std::string const jsonSet_name;
     static std::string const jsonSet_desc;
 
@@ -77,12 +77,12 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, ComplexData){
         // Bind functions specific to complex data handling
 
-        // SQL Querys
-        bindCategory(query_name, &query_desc);
+        // SQL Queries
+        (void)bindCategory(query_name, &query_desc);
         bindFunction(&ComplexData::querySet, querySet_name, &querySet_desc);
 
         // Set from read only jsons
-        bindCategory(json_name, &json_desc);
+        (void)bindCategory(json_name, &json_desc);
         bindFunction(&ComplexData::jsonSet,  jsonSet_name,  &jsonSet_desc);
     }
 };

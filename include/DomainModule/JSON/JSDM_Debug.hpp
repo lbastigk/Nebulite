@@ -16,11 +16,9 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Utility{
-        class JSON; // Forward declaration of Utility::JSON
-    }
-}
+namespace Nebulite::Utility{
+    class JSON;
+}   // namespace Nebulite::Utility
 
 //------------------------------------------
 namespace Nebulite::DomainModule::JSON {
@@ -29,7 +27,7 @@ public:
     /**
      * @brief Override of update.
      */
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions
@@ -41,9 +39,9 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: [key]
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error print(int argc,  char** argv);
+    Constants::Error print(int argc,  char** argv);
     static std::string const print_name;
     static std::string const print_desc;
 

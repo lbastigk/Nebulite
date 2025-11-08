@@ -11,6 +11,7 @@
 
 // Standard library
 #include <deque>
+#include <utility>
 #include <vector>
 #include <string>
 #include <cstdint>
@@ -65,10 +66,10 @@ public:
         std::string content;
         std::string timestamp;
 
-        LineEntry(std::string const& cont, LineType t)
+        LineEntry(std::string cont, LineType const& t)
             : type(t), 
-              content(cont), 
-              timestamp(Nebulite::Utility::Time::TimeIso8601(Nebulite::Utility::Time::ISO8601FORMATTER::YYYY_MM_DD_HH_MM_SS, true)) 
+              content(std::move(cont)),
+              timestamp(Time::TimeIso8601(Time::ISO8601Format::YYYY_MM_DD_HH_MM_SS, true))
               {}
     };
 
@@ -78,23 +79,20 @@ public:
      * @param type The type of submission.
      * Default is COUT.
      */
-    void insertLine(std::string const& line, LineEntry::LineType type = LineEntry::LineType::COUT);
+    void insertLine(std::string const& line, LineEntry::LineType const& type = LineEntry::LineType::COUT);
 
     /**
      * @brief Handles backspace input.
-     * @param console The console instance.
      */
-    void backspace();
+    void backspace() const ;
 
     /**
      * @brief Navigates up the command history.
-     * @param console The console instance.
      */
     void history_up();
 
     /**
      * @brief Navigates down the command history.
-     * @param console The console instance.
      */
     void history_down();
     
@@ -110,16 +108,15 @@ public:
 
     /**
      * @brief Appends a character to the input buffer.
-     * @param console The console instance.
      * @param c The character array to append.
      */
-    void append(char const* c);
+    void append(char const* c) const ;
 
     /**
      * @brief Gets the current input buffer.
      * @return The current input buffer as a string pointer.
      */
-    std::string* getInputBuffer() const {
+    [[nodiscard]] std::string* getInputBuffer() const {
         return consoleInputBuffer;
     }
 
@@ -134,7 +131,7 @@ public:
      * @brief Gets the cursor offset in the input buffer.
      * @return The cursor offset as an unsigned 16-bit integer.
      */
-    uint16_t getCursorOffset() const {
+    [[nodiscard]] uint16_t getCursorOffset() const {
         return cursorOffset;
     }
 

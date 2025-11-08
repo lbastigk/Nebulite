@@ -132,7 +132,7 @@ Nebulite::Constants::Error General::task(int argc,  char** argv){
     std::string line;
     while (std::getline(stream, line)){
         line = Nebulite::Utility::StringHandler::untilSpecialChar(line,'#');   // Remove comments.
-        line = Nebulite::Utility::StringHandler::lstrip(line,' ');             // Remove whitespaces at start
+        line = Nebulite::Utility::StringHandler::lStrip(line,' ');             // Remove whitespaces at start
         if(line.length() == 0){
             // line is empty
             continue;

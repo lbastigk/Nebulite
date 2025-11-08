@@ -10,7 +10,6 @@
 // Includes
 
 // Standard library
-#include <vector>
 #include <mutex>
 
 // External
@@ -18,18 +17,6 @@
 
 // Nebulite
 #include "Nebulite.hpp"
-
-//------------------------------------------
-// Defines
-
-/**
- * @brief Size of the quickcache for ordered double pointers.
- * This defines how many OrderedDoublePointers can be cached for quick access
- * without needing to look them up in a hashmap.
- * 
- * see MappedOrderedDoublePointers::quickCache for important considerations.
- */
-#define ORDERED_DOUBLE_POINTERS_QUICKCACHE_SIZE 30
 
 //------------------------------------------
 
@@ -74,20 +61,20 @@ public:
     }
 
     // No copy operations since size is fixed
-    DynamicFixedArray(const DynamicFixedArray&) = delete;
-    DynamicFixedArray& operator=(const DynamicFixedArray&) = delete;
+    DynamicFixedArray(DynamicFixedArray const&) = delete;
+    DynamicFixedArray& operator=(DynamicFixedArray const&) = delete;
 
-    inline void push_back(double* ptr){
+    void push_back(double* ptr){
         if (size_ < capacity_){
             data_[size_++] = ptr;
         }
     }
 
-    inline double*& at(size_t index) noexcept { return data_[index]; }
+    double*& at(size_t index) noexcept { return data_[index]; }
     
-    inline bool empty() const noexcept { return size_ == 0; }
+    bool empty() const noexcept { return size_ == 0; }
 
-    inline double** data() noexcept { return data_; }
+    double** data() noexcept { return data_; }
 
 private:
     double** data_;
@@ -102,20 +89,34 @@ private:
  */
 class OrderedDoublePointers {
 public:
-    OrderedDoublePointers() : orderedValues(){}
+    OrderedDoublePointers() = default;
     explicit OrderedDoublePointers(size_t exact_size) : orderedValues(exact_size){}
-
-    static constexpr size_t max_inline_size = 32;
     DynamicFixedArray orderedValues;
 };
 
 /**
- * @struct MappedOrderedDoublePointers
+ * @class MappedOrderedDoublePointers
  * @brief A thread-safe map from strings to OrderedDoublePointers objects.
  */
-template <typename hashtype>
-struct MappedOrderedDoublePointers{
-    absl::flat_hash_map<hashtype, OrderedDoublePointers> map;
+class MappedOrderedDoublePointers{
+public:
+    /**
+     * @brief Size of the quickcache for ordered double pointers.
+     * This defines how many OrderedDoublePointers can be cached for quick access
+     * without needing to look them up in a hashmap.
+     * 
+     * see MappedOrderedDoublePointers::quickCache for important considerations.
+     */
+    static constexpr size_t quickCacheSize = 30;
+
+    /**
+     * @brief Map from unique IDs to OrderedDoublePointers objects.
+     */
+    absl::flat_hash_map<uint64_t, OrderedDoublePointers> map;
+
+    /**
+     * @brief Mutex for thread-safe access to the map.
+     */
     std::mutex mtx;
 
     /**
@@ -126,11 +127,17 @@ struct MappedOrderedDoublePointers{
      * @todo In order for this to work in production, we need a global functioncall that generates unique IDs for expressions.
      * E.g. if we know our engine relies a lot on expression A, but it might not be used first,
      * its best to then call this function early on to assign it a low unique ID.
+     * 
+     * Idea: DomainModule for performance: GSDM_Performance.hpp that has a function to register frequently used expressions:
+     * registerId <string>
+     * This function assigns a unique integer ID to the string expression, which can then be used to access the quick cache.
+     * This function should be called right at the start of the program for known expressions to ensure they get low IDs.
      */
-    OrderedDoublePointers quickCache[ORDERED_DOUBLE_POINTERS_QUICKCACHE_SIZE];
+    OrderedDoublePointers quickCache[quickCacheSize];
 };
 } // namespace Nebulite::Utility
 
+// Vector alias for easier usage of ordered double pointer vectors
 using odpvec = Nebulite::Utility::DynamicFixedArray;
 
 #endif // NEBULITE_UTILITY_ORDEREDDOUBLEPOINTERS_HPP

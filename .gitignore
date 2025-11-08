@@ -6,6 +6,9 @@
 tmp/
 tmp/**
 
+# Ignore .idea files
+.idea/
+
 # Ignore game resources and error logs
 Resources/Sprites/
 Resources/Fonts/
@@ -47,3 +50,6 @@ __pycache__/
 
 # Do not ignore any files in ./doc/
 !/doc/ !/doc/**
+
+# Ignore MAKEFILE pipeline temp files
+tmp/.lastModified

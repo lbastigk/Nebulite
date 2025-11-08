@@ -17,11 +17,9 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class GlobalSpace; // Forward declaration of domain class GlobalSpace
-    }
-}
+namespace Nebulite::Core{
+    class GlobalSpace; // Forward declaration of domain class GlobalSpace
+}   // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {
@@ -34,7 +32,7 @@ public:
     /**
      * @brief Override of update.
      */
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions
@@ -42,7 +40,7 @@ public:
     /**
      * @brief Adds a clock to the global clock list.
      */
-    Nebulite::Constants::Error addClock(int argc,  char** argv);
+    Constants::Error addClock(int argc,  char** argv);
     static std::string const addClock_name;
     static std::string const addClock_desc;
 
@@ -97,7 +95,7 @@ private:
         uint64_t interval_ms;       // Trigger interval in milliseconds
         double* globalReference;    // Pointer to the global document entry
 
-        ClockEntry(uint64_t interval, Nebulite::Utility::JSON* doc, uint64_t current_time);
+        ClockEntry(uint64_t const& interval, Utility::JSON* doc, uint64_t const& current_time);
 
         /**
          * @brief Updates the clock entry, setting the global reference based on the timer.

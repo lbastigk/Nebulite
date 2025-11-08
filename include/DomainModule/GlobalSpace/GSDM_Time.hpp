@@ -35,7 +35,7 @@ public:
     /**
      * @brief Override of update.
      */
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions
@@ -47,7 +47,7 @@ public:
      * @param argv Argument vector: no arguments available.
      * @return Error code indicating success or failure.
      */
-    Nebulite::Constants::Error time_haltOnce(int argc,  char** argv);
+    Constants::Error time_haltOnce(int argc,  char** argv);
     static std::string const time_haltOnce_name;
     static std::string const time_haltOnce_desc;
 
@@ -60,7 +60,7 @@ public:
      * @param argv Argument vector: the locks name.
      * @return Error code indicating success or failure.
      */
-    Nebulite::Constants::Error time_lock(int argc,  char** argv);
+    Constants::Error time_lock(int argc,  char** argv);
     static std::string const time_lock_name;
     static std::string const time_lock_desc;
 
@@ -73,7 +73,7 @@ public:
      * @param argv Argument vector: the locks name.
      * @return Error code indicating success or failure.
      */
-    Nebulite::Constants::Error time_unlock(int argc,  char** argv);
+    Constants::Error time_unlock(int argc,  char** argv);
     static std::string const time_unlock_name;
     static std::string const time_unlock_desc;
 
@@ -86,7 +86,7 @@ public:
      * @param argv Argument vector: no arguments available.
      * @return Error code indicating success or failure.
      */
-    Nebulite::Constants::Error time_masterUnlock(int argc,  char** argv);
+    Constants::Error time_masterUnlock(int argc,  char** argv);
     static std::string const time_masterUnlock_name;
     static std::string const time_masterUnlock_desc;
 
@@ -97,7 +97,7 @@ public:
      * @param argv Argument vector: the fixed delta time in milliseconds.
      * @return Error code indicating success or failure.
      */
-    Nebulite::Constants::Error time_setFixedDeltaTime(int argc,  char** argv);
+    Constants::Error time_setFixedDeltaTime(int argc,  char** argv);
     static std::string const time_setFixedDeltaTime_name;
     static std::string const time_setFixedDeltaTime_desc;
 
@@ -134,7 +134,7 @@ public:
 
         //------------------------------------------
         // Bind functions
-        bindCategory(time_name, &time_desc);
+        (void)bindCategory(time_name, &time_desc);
         bindFunction(&Time::time_haltOnce,           time_haltOnce_name,            &time_haltOnce_desc);
         bindFunction(&Time::time_lock,               time_lock_name,                &time_lock_desc);
         bindFunction(&Time::time_unlock,             time_unlock_name,              &time_unlock_desc);
@@ -161,15 +161,15 @@ private:
     /**
      * @brief Simulation time, which can be paused/modified.
      */
-	Nebulite::Utility::TimeKeeper SimulationTime;
+	Utility::TimeKeeper SimulationTime;
 
     /**
      * @brief Full application runtime
      */
-	Nebulite::Utility::TimeKeeper RealTime;
+	Utility::TimeKeeper RealTime;
 
     /**
-     * @brief Amount of frames rendererd
+     * @brief Amount of frames rendered
      */
     uint64_t frameCount = 0;
 

@@ -16,7 +16,8 @@
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "SDL2TTF_VENDORED": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/clang",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
+                "CMAKE_SUPPRESS_DEVELOPER_WARNINGS": "TRUE"
             }
         },
         {

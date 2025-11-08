@@ -6,7 +6,7 @@ namespace Nebulite::DomainModule::JSON {
 //------------------------------------------
 // Update
 Nebulite::Constants::Error SimpleData::update(){
-    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -20,7 +20,7 @@ Nebulite::Constants::Error SimpleData::update(){
 // General set/get/remove functions
 
 Nebulite::Constants::Error SimpleData::set(int argc,  char** argv){
-    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if(argc < 3){
         Nebulite::Utility::Capture::cerr() << "Error: Too few arguments for set command." << Nebulite::Utility::Capture::endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -43,7 +43,7 @@ Note: All values are stored as strings.
 )";
 
 Nebulite::Constants::Error SimpleData::move(int argc,  char** argv){
-    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc != 3){
         Nebulite::Utility::Capture::cerr() << "Error: Too few arguments for move command." << Nebulite::Utility::Capture::endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -57,9 +57,9 @@ Nebulite::Constants::Error SimpleData::move(int argc,  char** argv){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
     if(domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::document){
-        Nebulite::Utility::JSON subdoc = domain->get_subdoc(sourceKey);
+        Nebulite::Utility::JSON subdoc = domain->getSubDoc(sourceKey);
         domain->remove_key(targetKey.c_str());
-        domain->set_subdoc(targetKey.c_str(), &subdoc);
+        domain->setSubDoc(targetKey.c_str(), &subdoc);
         domain->remove_key(sourceKey.c_str());
     }
     else if (domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::array){
@@ -90,7 +90,7 @@ Usage: move <source_key> <destination_key>
 )";
 
 Nebulite::Constants::Error SimpleData::copy(int argc,  char** argv){
-    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc != 3){
         Nebulite::Utility::Capture::cerr() << "Error: Too few arguments for copy command." << Nebulite::Utility::Capture::endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -104,9 +104,9 @@ Nebulite::Constants::Error SimpleData::copy(int argc,  char** argv){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
     if(domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::document){
-        Nebulite::Utility::JSON subdoc = domain->get_subdoc(sourceKey);
+        Nebulite::Utility::JSON subdoc = domain->getSubDoc(sourceKey);
         domain->remove_key(targetKey.c_str());
-        domain->set_subdoc(targetKey.c_str(), &subdoc);
+        domain->setSubDoc(targetKey.c_str(), &subdoc);
     }
     else if (domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::array){
         // Careful handling required:
@@ -135,7 +135,7 @@ Usage: copy <source_key> <destination_key>
 )";
 
 Nebulite::Constants::Error SimpleData::keyDelete(int argc,  char** argv){
-    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc != 2){
         Nebulite::Utility::Capture::cerr() << "Error: Too few arguments for delete command." << Nebulite::Utility::Capture::endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -153,7 +153,7 @@ Usage: keyDelete <key>
 //------------------------------------------
 // Array manipulation functions
 Nebulite::Constants::Error SimpleData::ensureArray(int argc,  char** argv){
-    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 2){
         Nebulite::Utility::Capture::cerr() << "Error: Too few arguments for ensureArray command." << Nebulite::Utility::Capture::endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -195,7 +195,7 @@ Usage: ensure-array <key>
 )";
 
 Nebulite::Constants::Error SimpleData::push_back(int argc,  char** argv){
-    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc > 3){
         Nebulite::Utility::Capture::cerr() << "Error: Too many arguments for push_front command." << Nebulite::Utility::Capture::endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
@@ -234,7 +234,7 @@ Usage: push-back <key> <value>
 )";
 
 Nebulite::Constants::Error SimpleData::pop_back(int argc,  char** argv){
-    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 2){
         Nebulite::Utility::Capture::cerr() << "Error: Too few arguments for push_back command." << Nebulite::Utility::Capture::endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -273,7 +273,7 @@ Usage: pop-back <key>
 )";
 
 Nebulite::Constants::Error SimpleData::push_front(int argc,  char** argv){
-    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc > 3){
         Nebulite::Utility::Capture::cerr() << "Error: Too many arguments for push_front command." << Nebulite::Utility::Capture::endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
@@ -335,7 +335,7 @@ Usage: push-front <key> <value>
 )";
 
 Nebulite::Constants::Error SimpleData::pop_front(int argc,  char** argv){
-    std::lock_guard<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 2){
         Nebulite::Utility::Capture::cerr() << "Error: Too few arguments for pop_front command." << Nebulite::Utility::Capture::endl;
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();

@@ -4,44 +4,54 @@
 #include <array>
 #include <chrono>
 
-std::string Nebulite::Utility::Time::TimeIso8601(Time::ISO8601FORMATTER format, bool local){
-    char const* fmt = "%FT%TZ";
-    std::time_t time = std::time(nullptr);
-    std::tm tm_struct;
+std::string Nebulite::Utility::Time::TimeIso8601(ISO8601Format format, bool const& local) noexcept
+{
+    // Convert enum to index and get format info
+    static constexpr std::array<IsoFmtInfo, 5> isoInfo{{
+        {"%Y", 4},
+        {"%Y-%m", 7},
+        {"%Y-%m-%d", 10},
+        {"%Y-%m-%dT%H:%M:%S", 19},
+        {"%Y-%m-%dT%H:%M:%SZ", 20},
+    }};
 
-    if (local){
-        tm_struct = *std::localtime(&time);
-    } else {
-        tm_struct = *std::gmtime(&time);
-    }
+    // Get current time
+    std::time_t const time = std::time(nullptr);
+
+    // Consider local vs UTC time
+    std::tm const tm_struct = local ? *std::localtime(&time) : *std::gmtime(&time);
 
     // Use a buffer large enough for any reasonable ISO8601 string
     std::array<char, 32> buffer{};
-    size_t written = std::strftime(buffer.data(), buffer.size(), fmt, &tm_struct);
+    const auto& [fmt, maxLen] = isoInfo[static_cast<std::size_t>(format)];
+    size_t const written = std::strftime(buffer.data(), buffer.size(), fmt.data(), &tm_struct);
 
     // Defensive: if strftime fails, return empty string
     if (written == 0) return {};
 
-    // If you want to truncate to 'format' length, do so safely
-    size_t length = static_cast<size_t>(format);
-    if (length > 0 && length < written){
-        return std::string(buffer.data(), length);
-    }
-    return std::string(buffer.data());
+    // Use the stored maximum length for this format (from isoInfo)
+    // and return at most 'written' characters. This avoids using the
+    // enum numeric value (which is the choice index, not a length).
+    std::size_t const retLen = written > maxLen ? maxLen : written;
+    return {buffer.data(), retLen};
 }
 
-uint64_t Nebulite::Utility::Time::gettime(){
-    return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+uint64_t Nebulite::Utility::Time::getTime() noexcept {
+    return static_cast<uint64_t>(
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count()
+    );
 }
 
-void Nebulite::Utility::Time::wait(int ms){
-    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+void Nebulite::Utility::Time::wait(uint64_t const& milliseconds){
+    std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
 
-void Nebulite::Utility::Time::waitmicroseconds(uint64_t us){
-    std::this_thread::sleep_for(std::chrono::microseconds(us));
+void Nebulite::Utility::Time::waitMicroseconds(uint64_t const& microseconds){
+    std::this_thread::sleep_for(std::chrono::microseconds(microseconds));
 }
 
-void Nebulite::Utility::Time::waitnanoseconds(uint64_t ns){
-    std::this_thread::sleep_for(std::chrono::nanoseconds(ns));
+void Nebulite::Utility::Time::waitNanoseconds(uint64_t const& nanoseconds){
+    std::this_thread::sleep_for(std::chrono::nanoseconds(nanoseconds));
 }

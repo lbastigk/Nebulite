@@ -19,11 +19,10 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class Texture; // Forward declaration of domain class Texture
-    }
-}
+namespace Nebulite::Core{
+    class Texture;
+}   // namespace Nebulite::Core
+
 
 //------------------------------------------
 namespace Nebulite::DomainModule::Texture{
@@ -33,7 +32,7 @@ namespace Nebulite::DomainModule::Texture{
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Rotation){
 public:
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions
@@ -43,9 +42,9 @@ public:
      * 
      * @param argc The argument count
      * @param argv The argument vector: rotation angle in degrees
-     * @return Potential errors that occured on command execution
+     * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error rotate(int argc,  char** argv);
+    Constants::Error rotate(int argc,  char** argv);
     static std::string const rotate_name;
     static std::string const rotate_desc;
 

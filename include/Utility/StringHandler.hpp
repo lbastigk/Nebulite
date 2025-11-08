@@ -10,16 +10,8 @@
 // Includes
 
 // Standard library
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <locale>
-#include <cstdint> // For fixed-width integer types
+#include <string>
 #include <vector>
-#include <locale.h>
-#include <codecvt>
-#include <algorithm>
-#include <unordered_map>
 
 //------------------------------------------
 namespace Nebulite::Utility {
@@ -45,7 +37,7 @@ public:
      * @param str The input string to check.
      * @return true if the string is a valid number, false otherwise.
      */
-    static bool isNumber(std::string str);
+    static bool isNumber(std::string const& str);
 
     /**
      * @brief Replaces all occurrences of a substring within a string.
@@ -65,7 +57,7 @@ public:
      * @return The substring from the start of the input until the special character is found,
      * but not including the special character itself.
      */
-    static std::string untilSpecialChar(std::string const& input, char specialChar);
+    static std::string untilSpecialChar(std::string const& input, char const& specialChar);
 
     /**
      * @brief Extracts the substring from the input after a special character is found.
@@ -74,7 +66,7 @@ public:
      * @param specialChar The special character to look for.
      * @return The substring from the input after the special character is found.
      */
-    static std::string afterSpecialChar(std::string const& input, char specialChar);
+    static std::string afterSpecialChar(std::string const& input, char const& specialChar);
 
     /**
      * @brief Left strips a string of a special character.
@@ -83,7 +75,7 @@ public:
      * @param specialChar The special character to remove.
      * @return The left-stripped string.
      */
-    static std::string lstrip(std::string const& input, char specialChar = ' ');
+    static std::string lStrip(std::string const& input, char const& specialChar = ' ');
 
     /**
      * @brief Right strips a string of a special character.
@@ -92,7 +84,7 @@ public:
      * @param specialChar The special character to remove.
      * @return The right-stripped string.
      */
-    static std::string rstrip(std::string const& input, char specialChar = ' ');
+    static std::string rStrip(std::string const& input, char const& specialChar = ' ');
 
     /**
      * @brief Splits a string into tokens based on a delimiter.
@@ -103,22 +95,22 @@ public:
      * Keeps the delimiter at the start of the token. (Optional, default: false)
      * @return A vector of tokens extracted from the input string.
      */
-    static std::vector<std::string> split(std::string const& input, char delimiter, bool keepDelimiter = false);
+    static std::vector<std::string> split(std::string const& input, char const& delimiter, bool const& keepDelimiter = false);
 
     /**
      * @brief Splits a string on the same depth of parentheses.
      * 
      * Example:
      * 
-     * `"This is a text {with} {some}{!} nested {{paranthesis}}"`
+     * `"This is a text {with} {some}{!} nested {{parenthesis}}"`
      * 
-     * -> `["This is a text ", "{with}", " ", "{some}", "{!}", " nested ", "{{paranthesis}}"]`
+     * -> `["This is a text ", "{with}", " ", "{some}", "{!}", " nested ", "{{parenthesis}}"]`
      * 
      * @param input The original string.
      * @param delimiter The opening parenthesis to split on.
      * @return A vector of strings split on the same depth of parentheses.
      */
-    static std::vector<std::string> splitOnSameDepth(std::string const& input, char delimiter);
+    static std::vector<std::string> splitOnSameDepth(std::string const& input, char const& delimiter);
 
     /**
      * @brief Parses a command string into individual arguments, taking quotes into account.
