@@ -237,10 +237,12 @@ public:
 private:
     /**
      * @brief Extracts the next part of a key from a dot/bracket notation key string.
-     * 
      * Moves keyView forward past the extracted part.
+     *
+     * @param keyView Pointer to the key string view to extract from and modify.
+     * @return The extracted key part as a std::string.
      */
-    static std::string_view extractKeyPart(std::string_view* keyView);
+    static std::string extractKeyPart(std::string_view* keyView);
 };
 
 //------------------------------------------

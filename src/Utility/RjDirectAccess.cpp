@@ -11,17 +11,17 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_path(char const* k
 
     while (!keyView.empty()){
         // Extract current key part (object key)
-        std::string_view keyPart = extractKeyPart(&keyView);
+        std::string keyPart = extractKeyPart(&keyView);
 
         // Handle object key part if non-empty
         if (!keyPart.empty()){
             if (!current->IsObject()){
                 return nullptr;
             }
-            if (!current->HasMember(std::string(keyPart).c_str())){
+            if (!current->HasMember(keyPart.c_str())){
                 return nullptr;
             }
-            current = &(*current)[std::string(keyPart).c_str()];
+            current = &(*current)[keyPart.c_str()];
         }
 
         // Now handle zero or more array indices if they appear next
@@ -42,7 +42,7 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_path(char const* k
                 return nullptr; // invalid number
             }
 
-            // Make sure current is array
+            // Make sure current is an array
             if (!current->IsArray()){
                 return nullptr;
             }
@@ -72,7 +72,7 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::ensure_path(char const* key
 
     while (!keyView.empty()){
         // Extract current key part (object key)
-        std::string_view keyPart = extractKeyPart(&keyView);
+        std::string keyPart = extractKeyPart(&keyView);
 
         // Handle object key part if non-empty
         if (!keyPart.empty()){
@@ -80,12 +80,12 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::ensure_path(char const* key
                 current->SetObject();
             }
 
-            if (!current->HasMember(std::string(keyPart).c_str())){
-                rapidjson::Value keyVal(std::string(keyPart).c_str(), allocator);
+            if (!current->HasMember(keyPart.c_str())){
+                rapidjson::Value keyVal(keyPart.c_str(), allocator);
                 rapidjson::Value newObj(rapidjson::kObjectType);
                 current->AddMember(keyVal, newObj, allocator);
             }
-            current = &(*current)[std::string(keyPart).c_str()];
+            current = &(*current)[keyPart.c_str()];
         }
 
         // Now handle zero or more array indices if they appear next
@@ -106,7 +106,7 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::ensure_path(char const* key
                 return nullptr; // invalid number
             }
 
-            // Make sure current is array
+            // Make sure current is an array
             if (!current->IsArray()){
                 current->SetArray();
             }
@@ -139,20 +139,14 @@ rapidjson::Value Nebulite::Utility::RjDirectAccess::sortRecursive(rapidjson::Val
         for (auto itr = value.MemberBegin(); itr != value.MemberEnd(); ++itr){
             members.emplace_back(itr->name.GetString(), &itr->value);
         }
-
-        std::sort(members.begin(), members.end(),
-                  [](auto const& a, auto const& b){
-                      return a.first < b.first;
-                  });
-
+        std::ranges::sort(members,[](auto const& a, auto const& b){return a.first < b.first;});
         rapidjson::Value sortedObj(rapidjson::kObjectType);
-        for (auto const& pair : members){
-            rapidjson::Value name(pair.first.c_str(), allocator);
-            rapidjson::Value sortedVal = sortRecursive(*pair.second, allocator);
+        for (auto const& [key, unsortedValue] : members){
+            rapidjson::Value name(key.c_str(), allocator);
+            rapidjson::Value sortedVal = sortRecursive(*unsortedValue, allocator);
             sortedObj.AddMember(name, sortedVal, allocator);
         }
         return sortedObj;
-
     }
     if (value.IsArray()){
         // Preserve array order; sort internal objects if any
@@ -201,9 +195,7 @@ void Nebulite::Utility::RjDirectAccess::deserialize(rapidjson::Document& doc, st
     
     // Strip JSONC comments before parsing
     std::string const cleanJson = stripComments(jsonString);
-    
-    rapidjson::ParseResult res = doc.Parse(cleanJson.c_str());
-    if (!res){
+    if (rapidjson::ParseResult const res = doc.Parse(cleanJson.c_str()); !res){
         Capture::cerr() << "JSON Parse Error at offset " << res.Offset() << Capture::endl;
         Capture::cerr() << "String is:\n" << cleanJson << Capture::endl;
     }
@@ -300,7 +292,7 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_to_parent(char con
 
     rapidjson::Value const* parent = nullptr;
     if (lastBracket != std::string::npos && (lastDot == std::string::npos || lastBracket > lastDot)){
-        // Last access is array index: var.subvar[2] or var[2]
+        // Last access is array index: var.subVar[2] or var[2]
         size_t const openBracket = keyStr.find_last_of('[');
         if (size_t const closeBracket = keyStr.find_last_of(']'); openBracket != std::string::npos && closeBracket != std::string::npos && closeBracket > openBracket){
             std::string const parentPath = keyStr.substr(0, openBracket);
@@ -318,7 +310,7 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_to_parent(char con
             }
         }
     } else if (lastDot != std::string::npos){
-        // Last access is object member: var.subvar.finalkey
+        // Last access is object member: var.subVar.finalKey
         std::string const parentPath = keyStr.substr(0, lastDot);
         finalKey = keyStr.substr(lastDot + 1);
         parent = traverse_path(parentPath.c_str(), root);
@@ -373,10 +365,8 @@ bool Nebulite::Utility::RjDirectAccess::isValidKey(std::string const& key){
     std::string_view keyView(key);
     while (!keyView.empty()){
         // Extract current key part (object key)
-        std::string_view keyPart = extractKeyPart(&keyView);
-
         // Validate object key part if non-empty
-        if (!keyPart.empty()){
+        if (std::string keyPart = extractKeyPart(&keyView); !keyPart.empty()){
             // Check for invalid characters in keyPart
             if (keyPart.find_first_of("[]") != std::string_view::npos){
                 return false; // Invalid character found
@@ -392,8 +382,7 @@ bool Nebulite::Utility::RjDirectAccess::isValidKey(std::string const& key){
             }
 
             // Extract index string between '[' and ']'
-            std::string_view idxStr = keyView.substr(1, closeBracket - 1);
-            if(!StringHandler::isNumber(std::string(idxStr))){
+            if(std::string_view idxStr = keyView.substr(1, closeBracket - 1); !StringHandler::isNumber(std::string(idxStr))){
                 return false; // invalid number
             }
 
@@ -412,8 +401,9 @@ bool Nebulite::Utility::RjDirectAccess::isValidKey(std::string const& key){
 //------------------------------------------
 // Static Private Helper Functions
 
-std::string_view Nebulite::Utility::RjDirectAccess::extractKeyPart(std::string_view* keyView){
-    if (!keyView) return std::string_view{};
+// Helper for key traversal: extracts next key part and advances the view
+std::string Nebulite::Utility::RjDirectAccess::extractKeyPart(std::string_view* keyView){
+    if (!keyView) return std::string{};
     // Find '.' or '[' as next separators
     size_t const dotPos     = keyView->find('.');
     size_t const bracketPos = keyView->find('[');
@@ -429,8 +419,8 @@ std::string_view Nebulite::Utility::RjDirectAccess::extractKeyPart(std::string_v
         nextSep = std::min(dotPos, bracketPos);
     }
 
-    // Build the result view from the current data/length before modifying the input view.
-    std::string_view const result(keyView->data(), nextSep);
+    // Build the result string from the current data/length before modifying the input view.
+    std::string const result(keyView->data(), nextSep);
     keyView->remove_prefix(nextSep);
     return result;
 }
