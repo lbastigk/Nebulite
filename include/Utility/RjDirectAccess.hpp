@@ -91,6 +91,8 @@ public:
      * @param key The key of the value to set.
      * @param value The value to set.
      * @param val The rapidjson value to modify.
+     * @param allocator The allocator to use for creating new rapidjson values.
+     * @return true if the value was set successfully, false otherwise.
      */
     template <typename T> 
     static bool set(char const* key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
@@ -104,10 +106,10 @@ public:
      * @tparam T The C++ type to convert to.
      * @param jsonValue The rapidjson value to convert.
      * @param result The C++ variable to store the result.
-     * @param defaultvalue The default value to use if conversion fails.
+     * @param defaultValue The default value to use if conversion fails.
      */
     template <typename T>
-    static void ConvertFromJSONValue(rapidjson::Value const& jsonValue, T& result, T const& defaultvalue = T());
+    static void ConvertFromJSONValue(rapidjson::Value const& jsonValue, T& result, T const& defaultValue = T());
 
     /**
      * @brief Converts a C++ type to a rapidjson value.
@@ -147,9 +149,9 @@ public:
     /**
      * @brief Traverses a rapidjson value to find the parent of a value identified by its key.
      * 
-     * - parent.child           -> returns parent,       finalKey = child, arrayIndex = -1
-     * - parent.child[index]    -> returns parent.child, finalKey = child, arrayIndex = index
-     * - parent[index]          -> returns parent,       finalKey = "",    arrayIndex = index
+     * - `parent.child`           -> returns `parent`,       finalKey = `child`,   arrayIndex = -1
+     * - `parent.child[index]`    -> returns `parent.child`, finalKey = `child`,   arrayIndex = index
+     * - `parent[index]`          -> returns `parent`,       finalKey = "",        arrayIndex = index
      * 
      * @param fullKey The key to search for.
      * @param root The rapidjson value to search within.
@@ -246,7 +248,7 @@ template <typename T>
 T RjDirectAccess::get(char const* key, T const& defaultValue, rapidjson::Value& val){
     rapidjson::Value const* keyVal = traverse_path(key,val);
     if(keyVal == nullptr){
-        // Value doesnt exist in doc, return default
+        // Value doesn't exist in doc, return default
         return defaultValue;
     }
     // Base case: convert currentVal to T using JSONHandler
@@ -340,9 +342,9 @@ template <> inline void RjDirectAccess::ConvertToJSONValue<rapidjson::Document>(
 // Template specialization for std::variant
 // So we don't have to manually call std::visit every time
 template <> inline void RjDirectAccess::ConvertToJSONValue(simpleValue const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
-    std::visit([&](auto const& value){
-        using T = std::decay_t<decltype(value)>;
-        ConvertToJSONValue<T>(value, jsonValue, allocator);
+    std::visit([&]<typename T>(T const& value){
+        using Decayed = std::decay_t<T>;
+        ConvertToJSONValue<Decayed>(value, jsonValue, allocator);
     }, data);
 }
 
@@ -350,15 +352,15 @@ template <> inline void RjDirectAccess::ConvertToJSONValue(simpleValue const& da
 // 2.) from JSON Value
 //------------------------------------------
 
-template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, bool& result,  bool const& defaultvalue){
+template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, bool& result,  bool const& defaultValue){
     if (jsonValue.IsBool()){
         result = jsonValue.GetBool();
     } else {
-        result = defaultvalue;
+        result = defaultValue;
     }
 }
 
-template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, int& result,  int const& defaultvalue){
+template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, int& result,  int const& defaultValue){
     if (jsonValue.IsInt()){
         result = jsonValue.GetInt();
     }
@@ -366,17 +368,16 @@ template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value co
         result = static_cast<int>(jsonValue.GetBool());
     }
     else{
-        result = defaultvalue;
+        result = defaultValue;
     }
 }
 
-template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, uint32_t& result,  uint32_t const& defaultvalue){
+template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, uint32_t& result,  uint32_t const& defaultValue){
     if(jsonValue.IsUint()){
         result = jsonValue.GetUint();
     }
     else if(jsonValue.IsNumber()){
-        int const tmp = jsonValue.GetInt();
-        if(tmp >= 0){
+        if(int const tmp = jsonValue.GetInt(); tmp >= 0){
             result = static_cast<uint32_t>(tmp);
         }
     }
@@ -385,11 +386,11 @@ template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value co
         iss >> result;
     }
     else{
-        result = defaultvalue;
+        result = defaultValue;
     }
 }
 
-template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, uint64_t& result,  uint64_t const& defaultvalue){
+template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, uint64_t& result,  uint64_t const& defaultValue){
     if (jsonValue.IsString()){
         std::istringstream iss(jsonValue.GetString());
         iss >> result;
@@ -398,18 +399,17 @@ template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value co
     } else if (jsonValue.IsUint()){
         result = static_cast<uint64_t>(jsonValue.GetUint());
     } else if (jsonValue.IsNumber()){
-        int64_t const tmp = jsonValue.GetInt64();
-        if (tmp >= 0){
+        if (int64_t const tmp = jsonValue.GetInt64(); tmp >= 0){
             result = static_cast<uint64_t>(tmp);
         } else {
-            result = defaultvalue;
+            result = defaultValue;
         }
     } else {
-        result = defaultvalue;
+        result = defaultValue;
     }
 }
 
-template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, double& result, double const& defaultvalue){
+template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, double& result, double const& defaultValue){
     if (jsonValue.IsNumber()){
         result = jsonValue.GetDouble();
     }
@@ -418,15 +418,15 @@ template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value co
             result = std::stod(jsonValue.GetString());
         }
         else{
-            result = defaultvalue;
+            result = defaultValue;
         }
     }
     else {
-        result = defaultvalue;
+        result = defaultValue;
     }
 }
 
-template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, std::string& result, std::string const& defaultvalue){
+template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, std::string& result, std::string const& defaultValue){
     if (jsonValue.IsBool()){
         result = jsonValue.GetBool() ? "true" : "false";
     }
@@ -458,7 +458,7 @@ template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value co
         result = "{Object}";  // Just a placeholder since objects can't easily be converted to a single string
     }
     else {
-        result = defaultvalue;
+        result = defaultValue;
     }
 }
 } // namespace Nebulite::Utility

@@ -32,7 +32,7 @@ std::string Nebulite::Core::RenderObjectContainer::serialize(){
 					
 				// insert into doc
 				std::string key = "objects[" + std::to_string(i) + "]";
-				doc.set_subdoc(key.c_str(), &obj_serial);
+				doc.setSubDoc(key.c_str(), &obj_serial);
 				i++;
 			}
 		}
@@ -54,7 +54,7 @@ void Nebulite::Core::RenderObjectContainer::deserialize(std::string const& seria
 			auto ro_serial = layer.get<std::string>(key);
 			if(ro_serial == "{Object}"){
 				Utility::JSON tmp(globalSpace);
-				tmp = layer.get_subdoc(key);
+				tmp = layer.getSubDoc(key);
 				ro_serial = tmp.serialize();
 			}
 

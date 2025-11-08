@@ -66,7 +66,7 @@ std::string Environment::serialize(){
 		// Add the container JSON object to the main document
 		Utility::JSON layer(globalSpace);
 		layer.deserialize(serializedContainer);
-		doc.set_subdoc(key.c_str(), &layer);
+		doc.setSubDoc(key.c_str(), &layer);
 	}
 	return doc.serialize();
 }
@@ -80,7 +80,7 @@ void Environment::deserialize(std::string const& serialOrLink, uint16_t const& d
 		// Check if the key exists in the document
 		if (std::string key = "containerLayer" + std::to_string(i); file.memberCheck(key) != Utility::JSON::KeyType::null){
 			// Extract the value corresponding to the key
-			Utility::JSON layer = file.get_subdoc(key);
+			Utility::JSON layer = file.getSubDoc(key);
 
 			// Convert the JSON object to a pretty-printed string
 			std::string str = layer.serialize();

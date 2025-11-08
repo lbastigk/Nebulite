@@ -57,9 +57,9 @@ Nebulite::Constants::Error SimpleData::move(int argc,  char** argv){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
     if(domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::document){
-        Nebulite::Utility::JSON subdoc = domain->get_subdoc(sourceKey);
+        Nebulite::Utility::JSON subdoc = domain->getSubDoc(sourceKey);
         domain->remove_key(targetKey.c_str());
-        domain->set_subdoc(targetKey.c_str(), &subdoc);
+        domain->setSubDoc(targetKey.c_str(), &subdoc);
         domain->remove_key(sourceKey.c_str());
     }
     else if (domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::array){
@@ -104,9 +104,9 @@ Nebulite::Constants::Error SimpleData::copy(int argc,  char** argv){
         return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
     if(domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::document){
-        Nebulite::Utility::JSON subdoc = domain->get_subdoc(sourceKey);
+        Nebulite::Utility::JSON subdoc = domain->getSubDoc(sourceKey);
         domain->remove_key(targetKey.c_str());
-        domain->set_subdoc(targetKey.c_str(), &subdoc);
+        domain->setSubDoc(targetKey.c_str(), &subdoc);
     }
     else if (domain->memberCheck(sourceKey) == Nebulite::Utility::JSON::KeyType::array){
         // Careful handling required:

@@ -79,7 +79,7 @@ public:
         }
 
         // Retrieve the sub-document from the document
-        Nebulite::Utility::JSON data = docPtr->document.get_subdoc(key);
+        Nebulite::Utility::JSON data = docPtr->document.getSubDoc(key);
 
         // Update the cache (unload old documents)
         update();
@@ -180,7 +180,7 @@ public:
         }
 
         // Retrieve the sub-document from the document
-        Nebulite::Utility::JSON data = docPtr->document.get_subdoc(key);
+        Nebulite::Utility::JSON data = docPtr->document.getSubDoc(key);
 
         // Update the cache (unload old documents)
         update();

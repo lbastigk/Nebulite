@@ -151,13 +151,13 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Logic::Assignment::Operation o
             target->set<std::string>(key,valStr);
             break;
         case Logic::Assignment::Operation::add:
-            target->set_add(key.c_str(),std::stod(valStr));
+            target->set_add(key,std::stod(valStr));
             break;
         case Logic::Assignment::Operation::multiply:
-            target->set_multiply(key.c_str(),std::stod(valStr));
+            target->set_multiply(key,std::stod(valStr));
             break;
         case Logic::Assignment::Operation::concat:
-            target->set_concat(key.c_str(),valStr.c_str());
+            target->set_concat(key,valStr);
             break;
         case Logic::Assignment::Operation::null:
             Utility::Capture::cerr() << "Assignment expression has null operation - skipping" << Utility::Capture::endl;

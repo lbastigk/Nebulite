@@ -18,7 +18,7 @@ Nebulite::Constants::Error Mirror::update(){
         auto objectDoc = domain->getDoc();
 
         // Mirror to GlobalSpace
-        globalDoc->set_subdoc(mirrorKey.c_str(), objectDoc);
+        globalDoc->setSubDoc(mirrorKey.c_str(), objectDoc);
 
         // Reset once-flag
         mirrorOnceEnabled = false;
