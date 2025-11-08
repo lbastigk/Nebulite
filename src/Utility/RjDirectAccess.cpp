@@ -1,11 +1,21 @@
-#include "Utility/RjDirectAccess.hpp"
+//------------------------------------------
+// Includes
 
+// External
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/prettywriter.h>
+
+// Nebulite
 #include "Core/GlobalSpace.hpp"
+#include "Utility/RjDirectAccess.hpp"
+#include "Utility/StringHandler.hpp"
 
+//------------------------------------------
+namespace Nebulite::Utility {
 //------------------------------------------
 // Static Public Helper Functions
 
-rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_path(char const* key, rapidjson::Value const& val){
+rapidjson::Value* RjDirectAccess::traverse_path(char const* key, rapidjson::Value const& val){
     rapidjson::Value const* current = &val;
     std::string_view keyView(key);
 
@@ -66,7 +76,7 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_path(char const* k
     return const_cast<rapidjson::Value*>(current);
 }
 
-rapidjson::Value* Nebulite::Utility::RjDirectAccess::ensure_path(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator){
+rapidjson::Value* RjDirectAccess::ensure_path(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator){
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
 
@@ -132,7 +142,7 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::ensure_path(char const* key
     return current;
 }
 
-rapidjson::Value Nebulite::Utility::RjDirectAccess::sortRecursive(rapidjson::Value const& value, rapidjson::Document::AllocatorType& allocator){
+rapidjson::Value RjDirectAccess::sortRecursive(rapidjson::Value const& value, rapidjson::Document::AllocatorType& allocator){
     if (value.IsObject()){
         // Sort object keys
         std::vector<std::pair<std::string, rapidjson::Value const*>> members;
@@ -160,7 +170,7 @@ rapidjson::Value Nebulite::Utility::RjDirectAccess::sortRecursive(rapidjson::Val
     return {value, allocator};
 }
 
-std::string Nebulite::Utility::RjDirectAccess::serialize(rapidjson::Document const& doc){
+std::string RjDirectAccess::serialize(rapidjson::Document const& doc){
     if (!doc.IsObject() && !doc.IsArray()){
         Capture::cerr() << "Serialization only supports JSON objects or arrays!" << Capture::endl;
         return "{}";
@@ -178,13 +188,13 @@ std::string Nebulite::Utility::RjDirectAccess::serialize(rapidjson::Document con
     return buffer.GetString();
 }
 
-void Nebulite::Utility::RjDirectAccess::deserialize(rapidjson::Document& doc, std::string const& serialOrLink, Core::GlobalSpace* global){
+void RjDirectAccess::deserialize(rapidjson::Document& doc, std::string const& serialOrLink, Core::GlobalSpace* global){
     std::string jsonString;
 
     // Check if the input is already a serialized JSON string
     if (is_json_or_jsonc(serialOrLink)){
         jsonString = serialOrLink;
-    } 
+    }
     // If not, treat it as a file path
     else {
         //------------------------------------------
@@ -192,7 +202,7 @@ void Nebulite::Utility::RjDirectAccess::deserialize(rapidjson::Document& doc, st
         // First token is the path or serialized JSON
         jsonString = global->getDocCache()->getDocString(serialOrLink);
     }
-    
+
     // Strip JSONC comments before parsing
     std::string const cleanJson = stripComments(jsonString);
     if (rapidjson::ParseResult const res = doc.Parse(cleanJson.c_str()); !res){
@@ -201,7 +211,7 @@ void Nebulite::Utility::RjDirectAccess::deserialize(rapidjson::Document& doc, st
     }
 }
 
-void Nebulite::Utility::RjDirectAccess::empty(rapidjson::Document &doc){
+void RjDirectAccess::empty(rapidjson::Document &doc){
     doc.SetNull();
 }
 
@@ -261,7 +271,7 @@ namespace {
     }
 }
 
-std::string Nebulite::Utility::RjDirectAccess::stripComments(std::string const& jsonc){
+std::string RjDirectAccess::stripComments(std::string const& jsonc){
     std::string result;
     result.reserve(jsonc.size());
     ParseState state;
@@ -269,7 +279,7 @@ std::string Nebulite::Utility::RjDirectAccess::stripComments(std::string const& 
         char const c = jsonc[i];
         char const next = i + 1 < jsonc.size() ? jsonc[i + 1] : '\0';
         size_t skipNext = 0;
-        
+
         if (state.inSingleComment){
             handleSingleLineComment(c, state, result);
         } else if (state.inMultiComment){
@@ -279,13 +289,13 @@ std::string Nebulite::Utility::RjDirectAccess::stripComments(std::string const& 
         } else {
             handleRegularContent(c, next, state, result, skipNext);
         }
-        
+
         i += skipNext; // Skip additional characters if needed
     }
     return result;
 }
 
-rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_to_parent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex){
+rapidjson::Value* RjDirectAccess::traverse_to_parent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex){
     std::string const keyStr(fullKey);
     size_t const lastDot = keyStr.find_last_of('.');
     size_t const lastBracket = keyStr.find_last_of('[');
@@ -297,7 +307,7 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_to_parent(char con
         if (size_t const closeBracket = keyStr.find_last_of(']'); openBracket != std::string::npos && closeBracket != std::string::npos && closeBracket > openBracket){
             std::string const parentPath = keyStr.substr(0, openBracket);
             std::string const indexStr = keyStr.substr(openBracket + 1, closeBracket - openBracket - 1);
-            
+
             try {
                 arrayIndex = std::stoi(indexStr);
                 if (parentPath.empty()){
@@ -318,7 +328,7 @@ rapidjson::Value* Nebulite::Utility::RjDirectAccess::traverse_to_parent(char con
     return const_cast<rapidjson::Value*>(parent);
 }
 
-void Nebulite::Utility::RjDirectAccess::remove_member(char const* key, rapidjson::Value& val){
+void RjDirectAccess::remove_member(char const* key, rapidjson::Value& val){
     // Handle simple case: direct member of root document
     if (std::string const keyStr(key); keyStr.find('.') == std::string::npos && keyStr.find('[') == std::string::npos){
         if (val.HasMember(key)){
@@ -326,10 +336,10 @@ void Nebulite::Utility::RjDirectAccess::remove_member(char const* key, rapidjson
         }
         return;
     }
-    
+
     // For complex paths, find the parent and final key/index
-    
-    
+
+
     // Now we find the parent value to delete the child from:
     // - parent.child
     // - parent[index]
@@ -355,13 +365,13 @@ void Nebulite::Utility::RjDirectAccess::remove_member(char const* key, rapidjson
     }
 }
 
-bool Nebulite::Utility::RjDirectAccess::is_json_or_jsonc(std::string const& str){
+bool RjDirectAccess::is_json_or_jsonc(std::string const& str){
     // So far, we do a simple check based on starting characters
     bool const check1 = str.starts_with("{") || str.starts_with("//") || str.starts_with("/*") || str.starts_with("\n");
     return check1;
 }
 
-bool Nebulite::Utility::RjDirectAccess::isValidKey(std::string const& key){
+bool RjDirectAccess::isValidKey(std::string const& key){
     std::string_view keyView(key);
     while (!keyView.empty()){
         // Extract current key part (object key)
@@ -402,7 +412,7 @@ bool Nebulite::Utility::RjDirectAccess::isValidKey(std::string const& key){
 // Static Private Helper Functions
 
 // Helper for key traversal: extracts next key part and advances the view
-std::string Nebulite::Utility::RjDirectAccess::extractKeyPart(std::string_view* keyView){
+std::string RjDirectAccess::extractKeyPart(std::string_view* keyView){
     if (!keyView) return std::string{};
     // Find '.' or '[' as next separators
     size_t const dotPos     = keyView->find('.');
@@ -424,3 +434,4 @@ std::string Nebulite::Utility::RjDirectAccess::extractKeyPart(std::string_view* 
     keyView->remove_prefix(nextSep);
     return result;
 }
+} // namespace Nebulite::Utility

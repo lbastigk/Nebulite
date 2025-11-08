@@ -17,12 +17,6 @@
 
 // External
 #include <rapidjson/document.h>
-#include <rapidjson/encodings.h>
-#include <rapidjson/istreamwrapper.h>
-#include <rapidjson/ostreamwrapper.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
 
 // Nebulite
 #include "Utility/StringHandler.hpp"
@@ -86,7 +80,7 @@ public:
      * @return The retrieved value or the default value.
      */
     template <typename T> 
-    static T get(char const* key, T const defaultValue, rapidjson::Value& val);
+    static T get(char const* key, T const& defaultValue, rapidjson::Value& val);
 
     /**
      * @brief Fallback to direct rapidjson access for setting values.
@@ -157,7 +151,7 @@ public:
      * - parent.child[index]    -> returns parent.child, finalKey = child, arrayIndex = index
      * - parent[index]          -> returns parent,       finalKey = "",    arrayIndex = index
      * 
-     * @param key The key to search for.
+     * @param fullKey The key to search for.
      * @param root The rapidjson value to search within.
      * @param finalKey The final key or index of the value to find the parent of.
      * @param arrayIndex The index if the final key is an array index, -1 otherwise.
@@ -183,7 +177,7 @@ public:
      * @param serialOrLink The JSON string to deserialize.
      * @param global Pointer to the GlobalSpace, used for resolving links.
      */
-    static void deserialize(rapidjson::Document& doc, std::string const& serialOrLink, Nebulite::Core::GlobalSpace* global);
+    static void deserialize(rapidjson::Document& doc, std::string const& serialOrLink, Core::GlobalSpace* global);
     
 
     //------------------------------------------
@@ -249,8 +243,8 @@ private:
 // Direct access get/set
 
 template <typename T>
-T RjDirectAccess::get(char const* key, T const defaultValue, rapidjson::Value& val){
-    rapidjson::Value* keyVal = RjDirectAccess::traverse_path(key,val);
+T RjDirectAccess::get(char const* key, T const& defaultValue, rapidjson::Value& val){
+    rapidjson::Value const* keyVal = traverse_path(key,val);
     if(keyVal == nullptr){
         // Value doesnt exist in doc, return default
         return defaultValue;
@@ -264,8 +258,7 @@ T RjDirectAccess::get(char const* key, T const defaultValue, rapidjson::Value& v
 template <typename T>
 bool RjDirectAccess::set(char const* key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator){
     // Ensure key path exists
-    rapidjson::Value* keyVal = RjDirectAccess::ensure_path(key, val, allocator);
-    if (keyVal != nullptr){
+    if (rapidjson::Value* keyVal = ensure_path(key, val, allocator); keyVal != nullptr){
         RjDirectAccess::ConvertToJSONValue<T>(value, *keyVal, allocator);
         return true;
     }
@@ -421,9 +414,8 @@ template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value co
         result = jsonValue.GetDouble();
     }
     else if(jsonValue.IsString()){
-        std::string const strValue = jsonValue.GetString();
-        if(Nebulite::Utility::StringHandler::isNumber(strValue)){
-            result = std::stod(strValue);
+        if(StringHandler::isNumber(jsonValue.GetString())){
+            result = std::stod(jsonValue.GetString());
         }
         else{
             result = defaultvalue;
