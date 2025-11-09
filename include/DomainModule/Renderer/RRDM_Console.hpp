@@ -32,6 +32,8 @@ namespace Nebulite::DomainModule::Renderer {
 /**
  * @class Nebulite::DomainModule::Renderer::Console
  * @brief DomainModule for Console capabilities within the Renderer.
+ *
+ * @todo: Add functions to open/close the console via commands.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Console){
 public:
