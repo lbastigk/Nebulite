@@ -2,17 +2,15 @@
  * @file Nebulite.hpp
  *
  * @brief Central file for Nebulite namespace documentation, global constants and more.
- *
  * While classes/variables have on central definition file, namespaces are only loosely bound.
  * Meaning there isn't a consensus who first defined the namespace.
  * We use a separate file for each namespace to avoid conflicts with doxygen documentation.
  * 
  * @todo Since global namespace documentation is not shown in-editor, we may use this central file
- * for globally available objects instead:
- * 
- * - Global ErrorTable object
- * - Global Logger object
- * - GlobalSpace Object
+ *       for globally available objects instead/additionally, such as:
+ *       - Global ErrorTable object
+ *       - Global Logger object
+ *       - GlobalSpace Object
  */ 
 
 #ifndef NEBULITE_HPP
@@ -26,11 +24,11 @@
 //------------------------------------------
 // Define alignment constants
 
-
-
 // CACHE LINE alignment
 #ifdef __cpp_lib_hardware_interference_size
-    inline constexpr std::size_t CACHE_LINE_ALIGNMENT = std::hardware_destructive_interference_size;
+    //inline constexpr std::size_t CACHE_LINE_ALIGNMENT = std::hardware_destructive_interference_size;
+    constexpr std::size_t CACHE_LINE_ALIGNMENT = 64U; // temporary workaround until MSVC supports it
+    // TODO: Ensure that the windows build system has a compile option to enable hardware_interference_size
 #else
     inline constexpr std::size_t CACHE_LINE_ALIGNMENT = 64U; // common on x86_64
 #endif
@@ -44,7 +42,9 @@ inline constexpr std::size_t SIMD_ALIGNMENT = 32U;
 // SSE alignment
 inline constexpr std::size_t SSE_ALIGNMENT = 16U;
 
-static_assert((CACHE_LINE_ALIGNMENT & CACHE_LINE_ALIGNMENT - 1) == 0, "CACHE_LINE_ALIGNMENT must be power of two");
+// Technically, the parenthesis around "CACHE_LINE_ALIGNMENT - 1" is not needed, but it improves readability
+// NOLINTNEXTLINE
+static_assert((CACHE_LINE_ALIGNMENT & (CACHE_LINE_ALIGNMENT - 1)) == 0, "CACHE_LINE_ALIGNMENT must be power of two");
 
 //------------------------------------------
 // Namespace documentation
@@ -141,5 +141,5 @@ namespace Nebulite{
 
 /**
  * @todo: Add global() function here for accessing GlobalSpace.
- * Also add global ErrorTable and Logger objects here.
+ *        Also add global ErrorTable and Logger objects here.
  */

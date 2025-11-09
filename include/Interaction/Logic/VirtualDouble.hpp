@@ -69,10 +69,10 @@ public:
      * It also removes any prefixes from the key to ensure consistent access.
      * 
      * @param k The key associated with this VirtualDouble.
-     * @param documentCache The DocumentCache to use for retrieving values.
+     * @param documentCachePtr Pointer to the DocumentCache to use for retrieving values.
      */
-    VirtualDouble(std::string k, Utility::DocumentCache* documentCache) noexcept
-    : documentCache(documentCache), key(std::move(k))
+    VirtualDouble(std::string k, Utility::DocumentCache* documentCachePtr) noexcept
+    : documentCache(documentCachePtr), key(std::move(k))
     {
         if      (key.starts_with(ContextPrefix::self))   { key.erase(0, ContextPrefix::self.size());   }
         else if (key.starts_with(ContextPrefix::other))  { key.erase(0, ContextPrefix::other.size());  }

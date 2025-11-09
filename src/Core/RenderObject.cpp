@@ -11,13 +11,13 @@ namespace Nebulite::Core{
 
 // Helper function to initialize RenderObject in constructor
 
-RenderObject::RenderObject(GlobalSpace* globalSpace)
-: Domain("RenderObject", this, &json, globalSpace),
-  json(globalSpace),
-  baseTexture(&json, globalSpace){
+RenderObject::RenderObject(GlobalSpace* globalSpacePtr)
+: Domain("RenderObject", this, &json, globalSpacePtr),
+  json(globalSpacePtr),
+  baseTexture(&json, globalSpacePtr){
 	//------------------------------------------
 	// Linkages
-	this->globalSpace = globalSpace;
+	this->globalSpace = globalSpacePtr;
 	global = globalSpace->getDoc();
 	invoke = globalSpace->getInvoke();
 

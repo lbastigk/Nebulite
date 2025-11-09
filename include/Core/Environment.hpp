@@ -84,7 +84,7 @@ public:
 	 *
 	 * Creates an environment with its subcontainers for proper layer-based rendering.
 	 *
-	 * @param globalSpace Pointer to the globalSpace instance.
+	 * @param globalSpacePtr Pointer to the globalSpace instance.
 	 * is necessary for the Environment and its Container Layers to communicate with the global space.
 	 * This is necessary for:
 	 * 
@@ -94,7 +94,7 @@ public:
 	 * 
 	 * - RenderObject creation
 	 */
-	explicit Environment(GlobalSpace* globalSpace);
+	explicit Environment(GlobalSpace* globalSpacePtr);
 
 	// Suppress copy/move operators
 	Environment(Environment&& other) = delete;
@@ -182,7 +182,7 @@ public:
 	 * @param layer The layer index.
 	 * @return A reference to the RenderObjectContainer at the specified position and layer: A vector of batched RenderObjects.
 	 */
-	std::vector<RenderObjectContainer::batch>& getContainerAt(int16_t x, int16_t y, Layer layer);
+	std::vector<RenderObjectContainer::Batch>& getContainerAt(int16_t x, int16_t y, Layer layer);
 
 	/**
 	 * @brief Checks if the specified position and layer are valid, meaning they are within the bounds of the environment.

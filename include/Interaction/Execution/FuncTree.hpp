@@ -492,7 +492,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
         targetTree->bindFunction(obj, method, functionName, helpDescription);
         return;
     }
-    for (auto const& [categoryName, category] : categories){
+    for (auto const& [categoryName, _] : categories){
         if (categoryName == name){
             bindErrorMessage::FunctionShadowsCategory(name);
         }
@@ -575,8 +575,8 @@ std::vector<std::pair<std::string, std::string const*>> Nebulite::Interaction::E
     }
 
     // Get just the names of the categories
-    for (auto const& [categoryName, category] : categories){
-        allFunctions.emplace_back(categoryName, category.description);
+    for (auto const& [categoryName, cat] : categories){
+        allFunctions.emplace_back(categoryName, cat.description);
     }
 
     return allFunctions;

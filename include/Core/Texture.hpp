@@ -29,11 +29,10 @@ NEBULITE_DOMAIN(Texture){
 public:
     /**
      * @brief Constructs a new Texture domain.
-     * 
-     * @param doc Pointer to the JSON document for storing texture properties.
-     * @param globalSpace Pointer to the GlobalSpace for accessing the renderer.
+     *
+     * @param globalSpacePtr Pointer to the GlobalSpace for accessing the renderer.
      */
-    Texture(Utility::JSON* doc, GlobalSpace* globalSpace);
+    explicit Texture(Utility::JSON* documentPtr, GlobalSpace* globalSpacePtr);
 
     /**
      * @brief Destroys the Texture and frees resources.
@@ -107,11 +106,6 @@ public:
 
     void loadTextureFromFile(std::string const& filePath);
 private:
-    /**
-     * @brief Pointer to the linked globalspace.
-     */
-    GlobalSpace* globalSpace;
-
     /**
      * @brief The SDL texture managed by this class.
      * If the texture is unmodified, this will reference the renderer's texture.

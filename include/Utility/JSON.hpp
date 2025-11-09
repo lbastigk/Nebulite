@@ -533,7 +533,7 @@ T JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T 
 
 // Converter helper functions for convertVariant
 namespace ConverterHelper {
-    static bool stringToBool(std::string const& stored, bool const& defaultValue){
+    inline bool stringToBool(std::string const& stored, bool const& defaultValue){
         // Handle numeric strings and "true"
         if(StringHandler::isNumber(stored)){
             try {
@@ -545,7 +545,7 @@ namespace ConverterHelper {
         return stored == "true";
     }
 
-    static int stringToInt(std::string const& stored, int const& defaultValue){
+    inline int stringToInt(std::string const& stored, int const& defaultValue){
         //if (stored == "true") return 1;
         //if (stored == "false") return 0;
         try {
@@ -555,7 +555,7 @@ namespace ConverterHelper {
         }
     }
 
-    static double stringToDouble(std::string const& stored, double const& defaultValue){
+    inline double stringToDouble(std::string const& stored, double const& defaultValue){
         //if (stored == "true") return 1.0;
         //if (stored == "false") return 0.0;
         try {
@@ -565,7 +565,7 @@ namespace ConverterHelper {
         }
     }
 
-    static void convertVariantErrorMessage(std::string const& oldType, std::string const& newType){
+    inline void convertVariantErrorMessage(std::string const& oldType, std::string const& newType){
         std::string const message = "[ERROR] JSON::convert_variant - Unsupported conversion from " 
                     + oldType
                     + " to " + newType + ".\n"

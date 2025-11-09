@@ -15,8 +15,8 @@
     class DomainModuleName final : public Nebulite::Interaction::Execution::DomainModule<DomainName>
 
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
-    explicit DomainModuleName(std::string const& moduleName, DomainName* domain, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
-    : DomainModule(moduleName, domain, std::move(funcTreePtr), globalSpace)
+    explicit DomainModuleName(std::string const& name, DomainName* domainPtr, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
+    : DomainModule(name, domainPtr, std::move(funcTreePtr), globalSpace)
 
 //------------------------------------------
 // Includes
@@ -53,12 +53,12 @@ public:
      * the FuncTree.
      */
     DomainModule(
-        std::string  moduleName,
-        DomainType* domain, 
+        std::string const& name,
+        DomainType* domainPtr,
         std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr,
         Core::GlobalSpace* globalSpace
     )
-        : moduleName(std::move(moduleName)), domain(domain), global(globalSpace), funcTree(std::move(std::move(funcTreePtr))){}
+    : moduleName(name), domain(domainPtr), global(globalSpace), funcTree(std::move(std::move(funcTreePtr))){}
 
     /**
      * @brief Virtual destructor for DomainModule.

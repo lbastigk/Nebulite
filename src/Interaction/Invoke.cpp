@@ -91,7 +91,7 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
         return false;
     }
     // Any double-value unequal to 0 is seen as "true"
-    return result != 0.0;
+    return std::abs(result) > std::numeric_limits<double>::epsilon();
 }
 
 bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Ruleset> const& cmd){
