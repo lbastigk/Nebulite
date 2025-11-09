@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------
+//------------------------------------------
 //     _   ____________  __  ____    ________________
 //    / | / / ____/ __ )/ / / / /   /  _/_  __/ ____/
 //   /  |/ / __/ / __  / / / / /    / /  / / / __/   
@@ -26,7 +26,7 @@
  * ```
  */
 
-// ----------------------------------------------------------------------
+//------------------------------------------
 // Includes
 
 // Standard library
@@ -39,8 +39,21 @@
 #include "DomainModule/GlobalSpace/GSDM_Debug.hpp"  // For turning error logging off/on
 #include "Utility/Capture.hpp"                      // For error output capture
 
-// ----------------------------------------------------------------------
+//------------------------------------------
+// Constants
+
+namespace Nebulite::Constants {
+    struct MainReturnValues {
+        static constexpr int success = 0;               ///< Return value for successful execution
+        static constexpr int criticalError = 1;         ///< Return value for execution halted by critical error
+        static constexpr int logCloseError = 2;         ///< Return value for failure to close error log
+        static constexpr int logCloseException = 3;     ///< Return value for exception during error log closure
+    };
+}   // namespace Nebulite::Constants
+
+//------------------------------------------
 // NEBULITE main
+
 /**
  * @brief Main function for the NEBULITE engine.
  * 
@@ -89,14 +102,17 @@ int main(int const argc, char* argv[]){
     try{
         if (Nebulite::Constants::Error const result = globalSpace.parseStr(binaryName + " " + Nebulite::DomainModule::GlobalSpace::Debug::errorlog_name + " off"); result .isCritical()){
             Nebulite::Utility::Capture::cerr() << "Error disabling error log: " << result.getDescription() << "\n";
-            return 2;   // Return a different error code for log closing failure
+            return Nebulite::Constants::MainReturnValues::logCloseError;   // Closing log failed without exceptions
         }
     } catch(std::exception const& e){
         Nebulite::Utility::Capture::cerr() << "Error closing error log: " << e.what() << "\n";
-        return 2;   // Return a different error code for log closing failure
+        return Nebulite::Constants::MainReturnValues::logCloseException;   // Return a different error code for log closing failure with exceptions
     }
     
 
     // Return 1 on critical stop, 0 otherwise
-    return criticalStop;
+    if (criticalStop) {
+        return Nebulite::Constants::MainReturnValues::criticalError;
+    }
+    return Nebulite::Constants::MainReturnValues::success;
 }
