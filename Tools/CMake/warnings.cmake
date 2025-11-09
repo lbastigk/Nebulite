@@ -19,8 +19,6 @@ function(configure_warnings target_name)
         -Wextra
         -Wpedantic
         -Wno-unused-parameter
-        -Wnon-virtual-dtor
-        -Woverloaded-virtual
         -Wcast-align
         -Wmissing-field-initializers
         -Wformat=2

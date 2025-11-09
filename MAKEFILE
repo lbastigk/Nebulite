@@ -119,25 +119,33 @@ delete-binaries:
 # Build
 ##################################
 
+# Fast build targets for native and available presets
+
 build-native: $(NATIVE_PRESET)
 
 build-available: message-available-presets $(AVAILABLE_PRESETS)
+
+# Clean build targets for native and available presets
+
+clean-build-native: clean build-native
+
+clean-build-available: message-available-presets clean build-available
 
 ##################################
 # Full testing pipelines
 ##################################
 
-# Non-clean build
+# Non-clean build + test
 
 build-and-test-native: delete-binaries build-native test
 
 build-and-test-available: delete-binaries build-available test
 
-# Clean build
+# Clean build + test
 
-clean-build-and-test-native: clean build-native test
+clean-build-and-test-native: clean-build-native test
 
-clean-build-and-test-available: message-available-presets clean build-available test
+clean-build-and-test-available: clean-build-available test
 
 ##################################
 # Profiling and benchmarking targets
