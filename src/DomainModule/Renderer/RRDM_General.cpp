@@ -16,26 +16,25 @@ std::string const General::env_desc = R"(Environment management functions)";
 
 //------------------------------------------
 // Update
-Nebulite::Constants::Error General::update(){
+Constants::Error General::update(){
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error General::env_load(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error General::env_load(int argc,  char** argv){
     if(argc > 1){
         domain->deserialize(argv[1]);
-        return Nebulite::Constants::ErrorTable::NONE();
+        return Constants::ErrorTable::NONE();
     }
-    else{
-        // no name provided, load empty env
-        domain->deserialize("{}");
-        return Nebulite::Constants::ErrorTable::NONE();
-    }
+    // no name provided, load empty env
+    domain->deserialize("{}");
+    return Constants::ErrorTable::NONE();
 }
 std::string const General::env_load_name = "env load";
 std::string const General::env_load_desc = R"(Load an environment/level from a json/jsonc file.
@@ -45,10 +44,11 @@ Usage: env load <path/to/file.jsonc>
 If no argument is provided, an empty environment is loaded.
 )";
 
-Nebulite::Constants::Error General::env_deload(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error General::env_deload(int argc,  char** argv){
     domain->purgeObjects();
     domain->purgeTextures();
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const General::env_deload_name = "env deload";
 std::string const General::env_deload_desc = R"(Deload entire environment, leaving an empty renderer.
@@ -56,15 +56,15 @@ std::string const General::env_deload_desc = R"(Deload entire environment, leavi
 Usage: env deload
 )";
 
-Nebulite::Constants::Error General::spawn(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error General::spawn(int argc,  char** argv){
     if(argc>1){
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun
-        std::string linkOrObject = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
+        std::string linkOrObject = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
 
         // Check if the file exists
-        std::string link = Nebulite::Utility::StringHandler::untilSpecialChar(linkOrObject,'|');
-        if(!Nebulite::Utility::FileManagement::fileExists(link)){
+        if(std::string const link = Utility::StringHandler::untilSpecialChar(linkOrObject,'|'); !Utility::FileManagement::fileExists(link)){
             // Check in standard directories
             static std::vector<std::string> standardDirectories = {
                 "./Resources/Renderobjects/",
@@ -74,9 +74,8 @@ Nebulite::Constants::Error General::spawn(int argc,  char** argv){
             // Check all standard directories for the file
             bool found = false;
             for(auto const& prefix : standardDirectories){
-                std::string testLink = prefix + link;
-                if(Nebulite::Utility::FileManagement::fileExists(testLink)){
-                    linkOrObject = prefix + linkOrObject;
+                if(std::string const testLink = prefix + link; Utility::FileManagement::fileExists(testLink)){
+                    linkOrObject.insert(0, prefix);
                     found = true;
                     break;
                 }
@@ -84,12 +83,12 @@ Nebulite::Constants::Error General::spawn(int argc,  char** argv){
 
             // Not found in standard directories either
             if(!found){
-                return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
+                return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
             }
         }
 
         // Create object with link to globalspace
-        Nebulite::Core::RenderObject* ro = new Nebulite::Core::RenderObject(global);
+        auto* ro = new Core::RenderObject(global);
         ro->deserialize(linkOrObject);
 
         // Append to renderer
@@ -97,10 +96,10 @@ Nebulite::Constants::Error General::spawn(int argc,  char** argv){
         domain->append(ro);
     }
     else{
-        Nebulite::Utility::Capture::cerr() << "No renderobject name provided!" << Nebulite::Utility::Capture::endl;
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        Utility::Capture::cerr() << "No renderobject name provided!" << Utility::Capture::endl;
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const General::spawn_name = "spawn";
 std::string const General::spawn_desc = R"(Spawn a RenderObject from a json/jsonc file.
@@ -119,7 +118,8 @@ Looks for object 'sun.jsonc' in the standard directories
 and spawns the first found object.
 )"; 
 
-Nebulite::Constants::Error General::setResolution(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error General::setResolution(int argc,  char** argv){
     int w = 1000;
     int h = 1000;
     uint16_t scalar = 1;
@@ -130,8 +130,7 @@ Nebulite::Constants::Error General::setResolution(int argc,  char** argv){
         h = std::stoi(argv[2]);
     }
     if(argc > 3){
-        int signedScalar = std::stoi(argv[3]);
-        if(signedScalar > 0){
+        if(int const signedScalar = std::stoi(argv[3]); signedScalar > 0){
             scalar = static_cast<uint16_t>(signedScalar);
         }
         else{
@@ -139,7 +138,7 @@ Nebulite::Constants::Error General::setResolution(int argc,  char** argv){
         }
     }
     domain->changeWindowSize(w,h,scalar);
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const General::setResolution_name = "set-res";
 std::string const General::setResolution_desc = R"(Set resolution of renderer.
@@ -151,11 +150,12 @@ Defaults to 1000  for height if argument count < 2
 Defaults to 1     for scale if argument count < 3
 )";
 
-Nebulite::Constants::Error General::setFPS(int argc, char** argv){
+// NOLINTNEXTLINE
+Constants::Error General::setFPS(int argc, char** argv){
     // Standard value for no argument
     uint16_t fps = 60;
     if(argc == 2){
-        int fpsSigned = std::stoi(argv[1]);
+        int const fpsSigned = std::stoi(argv[1]);
         fps = static_cast<uint16_t>(fpsSigned);
 
         // Constrain fps to reasonable values
@@ -163,7 +163,7 @@ Nebulite::Constants::Error General::setFPS(int argc, char** argv){
         if(fpsSigned > 10000) fps=10000;
     }
     domain->setTargetFPS(fps);
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const General::setFPS_name = "set-fps";
 std::string const General::setFPS_desc = R"(Set FPS of renderer.
@@ -173,7 +173,8 @@ Usage: set-fps [fps]
 Defaults to 60 fps if no argument is provided
 )";
 
-Nebulite::Constants::Error General::showFPS(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error General::showFPS(int argc,  char** argv){
     if(argc < 2){
         domain->toggleFps(true);
     }
@@ -186,10 +187,10 @@ Nebulite::Constants::Error General::showFPS(int argc,  char** argv){
         }
         else{
             // unknown arg
-            return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+            return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
         }
     }
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const General::showFPS_name = "show-fps";
 std::string const General::showFPS_desc = R"(Show FPS of renderer.
@@ -199,18 +200,19 @@ Usage: show-fps [on|off]
 Defaults to on if no argument is provided
 )";
 
-Nebulite::Constants::Error General::cam_move(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error General::cam_move(int argc,  char** argv){
     if (argc < 3){
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (argc > 3){
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
-    int dx = std::stoi(argv[1]);
-    int dy = std::stoi(argv[2]);
+    int const dx = std::stoi(argv[1]);
+    int const dy = std::stoi(argv[2]);
     domain->moveCam(dx,dy);
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const General::cam_move_name = "cam move";
 std::string const General::cam_move_desc = R"(Move camera by a given delta.
@@ -221,29 +223,28 @@ Usage: cam move <dx> <dy>
 <dy> : Delta y to move camera by
 )";
 
-Nebulite::Constants::Error General::cam_set(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error General::cam_set(int argc,  char** argv){
     if(argc == 3){
-        int x = std::stoi(argv[1]);
-        int y = std::stoi(argv[2]);
+        int const x = std::stoi(argv[1]);
+        int const y = std::stoi(argv[2]);
         domain->setCam(x,y);
-        return Nebulite::Constants::ErrorTable::NONE();
+        return Constants::ErrorTable::NONE();
     }
     if(argc == 4){
         if(!strcmp(argv[3], "c")){
-            int x = std::stoi(argv[1]);
-            int y = std::stoi(argv[2]);
+            int const x = std::stoi(argv[1]);
+            int const y = std::stoi(argv[2]);
             domain->setCam(x,y,true);
-            return Nebulite::Constants::ErrorTable::NONE();
+            return Constants::ErrorTable::NONE();
         }
-        else{
-            // unknown arg
-            return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
-        }
+        // unknown arg
+        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
-    else if(argc > 4){
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+    if(argc > 4){
+        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
 }
 std::string const General::cam_set_name = "cam set";
 std::string const General::cam_set_desc = R"(Set camera to concrete position.
@@ -255,27 +256,23 @@ Usage: cam set <x> <y> [c]
 [c] : Optional. If provided, sets the camera's center to the given position.
 )";
 
-Nebulite::Constants::Error General::snapshot(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error General::snapshot(int argc,  char** argv){
     if(argc == 1){
         // No link provided, use default
-        bool success = domain->snapshot("./Resources/Snapshots/snapshot.png");
-        if (!success){
-            return Nebulite::Constants::ErrorTable::RENDERER::CRITICAL_RENDERER_SNAPSHOT_FAILED();
+        if (!domain->snapshot("./Resources/Snapshots/snapshot.png")){
+            return Constants::ErrorTable::RENDERER::CRITICAL_RENDERER_SNAPSHOT_FAILED();
         }
-        return Nebulite::Constants::ErrorTable::NONE();
+        return Constants::ErrorTable::NONE();
     }
-    else if(argc == 2){
+    if(argc == 2){
         // Link provided
-        std::string link = argv[1];
-        bool success = domain->snapshot(link);
-        if (!success){
-            return Nebulite::Constants::ErrorTable::RENDERER::CRITICAL_RENDERER_SNAPSHOT_FAILED();
+        if (!domain->snapshot(argv[1])){
+            return Constants::ErrorTable::RENDERER::CRITICAL_RENDERER_SNAPSHOT_FAILED();
         }
-        return Nebulite::Constants::ErrorTable::NONE();
+        return Constants::ErrorTable::NONE();
     }
-    else{
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
-    }
+        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
 }
 std::string const General::snapshot_name = "snapshot";
 std::string const General::snapshot_desc = R"(Create a snapshot of the current renderer state.
@@ -285,10 +282,11 @@ Usage: snapshot [filename]
 Defaults to "./Resources/Snapshots/snapshot.png" if no argument is provided
 )";
 
-Nebulite::Constants::Error General::beep(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error General::beep(int argc,  char** argv){
     // Beep function for debugging, from SDL
     domain->beep();
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const General::beep_name = "beep";
 std::string const General::beep_desc = R"(Make a beep noise.
@@ -296,22 +294,20 @@ std::string const General::beep_desc = R"(Make a beep noise.
 Usage: beep
 )";
 
-Nebulite::Constants::Error General::selectedObject_get(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error General::selectedObject_get(int argc,  char** argv){
     if (argc != 2){
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
     // Supports only uint32_t ids
-    uint32_t id = static_cast<uint32_t>(std::stoul(argv[1]));
-    Nebulite::Core::RenderObject* obj = domain->getObjectFromId(id);
-    
-    if (obj){
+    uint32_t const id = static_cast<uint32_t>(std::stoul(argv[1]));
+    if (Core::RenderObject* obj = domain->getObjectFromId(id); obj){
         selectedRenderObject = obj;
-        return Nebulite::Constants::ErrorTable::NONE();
-    } else {
-        selectedRenderObject = nullptr;
-        return Nebulite::Constants::ErrorTable::addError("No RenderObject with the specified ID found.", Nebulite::Constants::Error::NON_CRITICAL);
+        return Constants::ErrorTable::NONE();
     }
+    selectedRenderObject = nullptr;
+    return Constants::ErrorTable::addError("No RenderObject with the specified ID found.", Constants::Error::NON_CRITICAL);
 }
 std::string const General::selectedObject_get_name = "selected-object get";
 std::string const General::selectedObject_get_desc = R"(Get a renderobject by its ID.
@@ -319,13 +315,14 @@ std::string const General::selectedObject_get_desc = R"(Get a renderobject by it
 Usage: selected-object get <id>
 )";
 
-Nebulite::Constants::Error General::selectedObject_Parse(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error General::selectedObject_Parse(int argc,  char** argv){
     if(argc < 2){
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    std::string command = Nebulite::Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
+    std::string const command = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
     if(selectedRenderObject == nullptr){
-        return Nebulite::Constants::ErrorTable::addError("No RenderObject selected! Use selectedObject_get <id> to select a valid object.", Nebulite::Constants::Error::NON_CRITICAL);
+        return Constants::ErrorTable::addError("No RenderObject selected! Use selectedObject_get <id> to select a valid object.", Constants::Error::NON_CRITICAL);
     }
 
     return selectedRenderObject->parseStr(std::string(__FUNCTION__) + " " + command);
