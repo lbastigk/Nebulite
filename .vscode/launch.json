@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/bin/Nebulite_Debug",
             "args": [
                 "task",
-                "${workspaceFolder}/TaskFiles/Debugging/vscode_debug.nebs"
+                "${workspaceFolder}/TaskFiles/Debugging/debug.nebs"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -35,7 +35,7 @@
             "program": "${workspaceFolder}/bin/Nebulite_Debug",
             "args": [
                 "task",
-                "TaskFiles/Debugging/vscode_debug.nebs"
+                "TaskFiles/Debugging/debug.nebs"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -59,7 +59,7 @@
             "args": [
                 "--headless",
                 "task",
-                "TaskFiles/Debugging/vscode_debug.nebs"
+                "TaskFiles/Debugging/debug.nebs"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

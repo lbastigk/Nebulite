@@ -37,7 +37,7 @@ Help for Nebulite
 | `for` | Executes a for-loop with a function call. |
 | `help` | Show available commands and their descriptions |
 | `if` | Executes a block of code if a condition is true. |
-| `inputwait` | Waits for user input before continuing. |
+| `input-wait` | Waits for user input before continuing. |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
 | `log` | Functions to log various data to files |
@@ -416,12 +416,12 @@ Example:
 if '$(eq(1+1,2))' echo Condition is true!
 ```
 
-#### `inputwait`
+#### `input-wait`
 
 ```
 Waits for user input before continuing.
 
-Usage: inputwait [prompt]
+Usage: input-wait [prompt]
 
 Note: This function pauses execution until the user presses Enter.
 ```

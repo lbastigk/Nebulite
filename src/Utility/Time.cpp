@@ -4,27 +4,39 @@
 #include <array>
 #include <chrono>
 
-std::string Nebulite::Utility::Time::TimeIso8601(ISO8601Format format, bool const& local) noexcept
+std::string Nebulite::Utility::Time::TimeIso8601(ISO8601Format const& format, bool const& local) noexcept
 {
-    // Convert enum to index and get format info
-    static constexpr std::array<IsoFmtInfo, 5> isoInfo{{
-        {"%Y", 4},
-        {"%Y-%m", 7},
-        {"%Y-%m-%d", 10},
-        {"%Y-%m-%dT%H:%M:%S", 19},
-        {"%Y-%m-%dT%H:%M:%SZ", 20},
-    }};
-
     // Get current time
     std::time_t const time = std::time(nullptr);
 
     // Consider local vs UTC time
     std::tm const tm_struct = local ? *std::localtime(&time) : *std::gmtime(&time);
 
-    // Use a buffer large enough for any reasonable ISO8601 string
+    // Write into buffer
+    // Using a switch so that the compiler sees a format literal at compile time,
+    // meaning its format type is checked properly.
     std::array<char, 32> buffer{};
-    const auto& [fmt, maxLen] = isoInfo[static_cast<std::size_t>(format)];
-    size_t const written = std::strftime(buffer.data(), buffer.size(), fmt.data(), &tm_struct);
+    std::size_t constexpr maxLen = 32; // maximum length of the buffer
+    std::size_t written = 0;
+    switch (format) {
+        case ISO8601Format::YYYY:
+            written = std::strftime(buffer.data(), sizeof(buffer), "%Y", &tm_struct);
+            break;
+        case ISO8601Format::YYYY_MM:
+            written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m", &tm_struct);
+            break;
+        case ISO8601Format::YYYY_MM_DD:
+            written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%d", &tm_struct);
+            break;
+        case ISO8601Format::YYYY_MM_DD_HH_MM_SS:
+            written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%dT%H:%M:%S", &tm_struct);
+            break;
+        case ISO8601Format::YYYY_MM_DD_HH_MM_SS_TZ:
+            written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%dT%H:%M:%SZ", &tm_struct);
+            break;
+        default:
+            return {};
+    }
 
     // Defensive: if strftime fails, return empty string
     if (written == 0) return {};

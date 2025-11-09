@@ -65,7 +65,7 @@ int main(int const argc, char* argv[]){
     
     //------------------------------------------
     // Render loop
-    Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE(); // Last critical error result
+    Nebulite::Constants::Error lastCriticalResult; // Last critical error result
     do{
         // At least one loop, to handle command line arguments
         lastCriticalResult = globalSpace.update();

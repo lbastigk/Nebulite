@@ -12,68 +12,65 @@ std::string const ComplexData::json_desc = R"(Functions to manipulate JSON data 
 
 //------------------------------------------
 // Update
-Nebulite::Constants::Error ComplexData::update(){
+Constants::Error ComplexData::update(){
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error ComplexData::querySet(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error ComplexData::querySet(int argc,  char** argv){
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
-    return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
+    return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 std::string const ComplexData::querySet_name = "query set";
 std::string const ComplexData::querySet_desc = R"(Sets a key from a SQL query result.
 Not implemented yet.
 )";
 
-Nebulite::Constants::Error ComplexData::jsonSet(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error ComplexData::jsonSet(int argc,  char** argv){
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     // Since we have no access to the global space, we cant use the JSON doc cache
     // Instead, we manually load the document to retrieve the key
     if(argc < 3){
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if(argc > 3){
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    std::string myKey = argv[1];
-    std::string doc_key = argv[2];
+    std::string const myKey = argv[1];
+    std::string const docKey = argv[2];
     
     // Depending on the type of docKey, we retrieve the value
-    Nebulite::Utility::JSON::KeyType type = global->getDocCache()->memberCheck(doc_key);
 
     // === DOCUMENT ===
-    if(type == Nebulite::Utility::JSON::KeyType::document){
+    if(Utility::JSON::KeyType const type = global->getDocCache()->memberCheck(docKey); type == Utility::JSON::KeyType::document){
         // Retrieve the sub-document
-        Nebulite::Utility::JSON subdoc = global->getDocCache()->get_subdoc(doc_key);
+        Utility::JSON subDoc = global->getDocCache()->get_subdoc(docKey);
 
         // Set the sub-document in the current JSON tree
-        domain->setSubDoc(myKey.c_str(), &subdoc);
+        domain->setSubDoc(myKey.c_str(), &subDoc);
     }
     // === VALUE ===
-    else if(type == Nebulite::Utility::JSON::KeyType::value){
-        // Retrieve the value
-        std::string value = global->getDocCache()->get<std::string>(doc_key);
-
-        // Set the value in the current JSON tree
-        domain->set(myKey.c_str(), value);
+    else if(type == Utility::JSON::KeyType::value){
+        domain->set(myKey, global->getDocCache()->get<std::string>(docKey));
     }
     // === ARRAY ===
-    else if(type == Nebulite::Utility::JSON::KeyType::array){
-        size_t size = global->getDocCache()->memberSize(doc_key);
+    else if(type == Utility::JSON::KeyType::array){
+        size_t const size = global->getDocCache()->memberSize(docKey);
         for (size_t i = 0; i < size; ++i){
-            std::string itemKey = doc_key + "[" + std::to_string(i) + "]";
-            std::string itemValue = global->getDocCache()->get<std::string>(itemKey);
+            std::string itemKey = docKey + "[" + std::to_string(i) + "]";
+            auto itemValue = global->getDocCache()->get<std::string>(itemKey);
             std::string newItemKey = myKey + "[" + std::to_string(i) + "]";
-            domain->set(newItemKey.c_str(), itemValue);
+            domain->set(newItemKey, itemValue);
         }
     }
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const ComplexData::jsonSet_name = "json set";
 std::string const ComplexData::jsonSet_desc = R"(Sets a key from a JSON document.

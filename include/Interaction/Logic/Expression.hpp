@@ -104,7 +104,7 @@ public:
      * @param max_recursion_depth The maximum recursion depth to prevent infinite loops in nested evaluations.
      * @return The evaluated string value.
      */
-    std::string eval(Utility::JSON* current_other, uint16_t max_recursion_depth = standardMaximumRecursionDepth);
+    std::string eval(Utility::JSON* current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth);
 
     /**
      * @brief Gets the full expression string that was parsed.
@@ -563,7 +563,7 @@ private:
      * 
      * Includes tips for fixing the error.
      */
-    void printCompileError(std::shared_ptr<Component> const& component, int error) const;
+    void printCompileError(std::shared_ptr<Component> const& component, int const& error) const;
 
     /**
      * @brief Updates caches
@@ -594,7 +594,7 @@ private:
      * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
      * @return True if the evaluation was successful, false otherwise.
      */
-    bool handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Utility::JSON* current_other, uint16_t maximumRecursionDepth) const ;
+    bool handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Utility::JSON* current_other, uint16_t const& maximumRecursionDepth) const ;
 
     /**
      * @brief Handles the evaluation of an eval component.

@@ -88,9 +88,9 @@ public:
 	 * 
 	 * RenderObjects are initialized with reference to the Globalspace.
 	 * 
-	 * @param globalSpace A pointer to the Globalspace instance.
+	 * @param globalSpacePtr A pointer to the Globalspace instance.
 	 */
-	explicit RenderObject(GlobalSpace* globalSpace);
+	explicit RenderObject(GlobalSpace* globalSpacePtr);
 
 	/**
 	 * @brief Destroys the RenderObject.

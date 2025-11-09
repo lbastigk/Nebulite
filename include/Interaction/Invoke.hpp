@@ -274,6 +274,40 @@ public:
      */
     std::string evaluateStandaloneExpression(std::string const& input, Core::RenderObject const* selfAndOther) const ;
 
+    /**
+     * @brief Evaluates a standalone expression and returns the result as a double.
+     *
+     * @param input The expression to evaluate.
+     * @return The result of the evaluation as a double.
+     */
+    double evaluateStandaloneExpressionAsDouble(std::string const& input) const ;
+
+    /**
+     * @brief Evaluates a standalone expression with context from a RenderObject and returns the result as a double.
+     *
+     * @param input The expression to evaluate.
+     * @param selfAndOther The RenderObject providing context for `self` and `other`.
+     * @return The result of the evaluation as a double.
+     */
+    double evaluateStandaloneExpressionAsDouble(std::string const& input, Core::RenderObject const* selfAndOther) const ;
+
+    /**
+     * @brief Evaluates a standalone expression and returns the result as a boolean.
+     *
+     * @param input The expression to evaluate.
+     * @return The result of the evaluation as a boolean.
+     */
+    bool evaluateStandaloneExpressionAsBool(std::string const& input) const ;
+
+    /**
+     * @brief Evaluates a standalone expression with context from a RenderObject and returns the result as a boolean.
+     *
+     * @param input The expression to evaluate.
+     * @param selfAndOther The RenderObject providing context for `self` and `other`.
+     * @return The result of the evaluation as a boolean.
+     */
+    bool evaluateStandaloneExpressionAsBool(std::string const& input, Core::RenderObject const* selfAndOther) const ;
+
 private:
     //------------------------------------------
     // General Variables

@@ -68,14 +68,14 @@ template<typename DomainType>
 class Domain{
     template<typename> friend class Domain;  // All Domain<T> instantiations are friends, so we can access each other's private members
 public:
-    Domain(std::string domainName, DomainType* domain, Utility::JSON* doc, Core::GlobalSpace* global)
-    : domainName(domainName),
+    Domain(std::string name, DomainType* domainTypePtr, Utility::JSON* documentPtr, Core::GlobalSpace* globalSpacePtr)
+    : domainName(name),
       funcTree(std::make_shared<FuncTree<Constants::Error>>(
-          domainName, 
+          name,
           Constants::ErrorTable::NONE(), 
           Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
       )),
-      domain(domain), doc(doc), global(global)
+      domain(domainTypePtr), doc(documentPtr), global(globalSpacePtr)
     {}
 
     virtual ~Domain() = default;

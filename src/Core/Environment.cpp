@@ -43,12 +43,14 @@ namespace Nebulite::Core{
 
 
 
-Environment::Environment(GlobalSpace* globalSpace)
-: roc(make_roc_array<LayerCount>(globalSpace))
+Environment::Environment(GlobalSpace* globalSpacePtr)
+: roc(make_roc_array<LayerCount>(globalSpacePtr))
 {
-	this->globalSpace = globalSpace;
+	this->globalSpace = globalSpacePtr;
 
 	// Storing pointer copy for easy access of global document
+        // TODO: Make Environment a Domain to avoid this hack
+        //       makes it easier to manage DomainModules in the future as well
 	global = globalSpace->getDoc();
 }
 
@@ -128,7 +130,7 @@ RenderObject* Environment::getObjectFromId(uint32_t const& id){
 //------------------------------------------
 // Container Management
 
-std::vector<RenderObjectContainer::batch>& Environment::getContainerAt(int16_t x, int16_t y, Layer layer){
+std::vector<RenderObjectContainer::Batch>& Environment::getContainerAt(int16_t x, int16_t y, Layer layer){
 	auto const pos = std::make_pair(x,y);
 	if (static_cast<uint8_t>(layer) < LayerCount){
 		return roc[static_cast<uint8_t>(layer)].getContainerAt(pos);

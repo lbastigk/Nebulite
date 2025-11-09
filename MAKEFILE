@@ -119,31 +119,64 @@ delete-binaries:
 # Build
 ##################################
 
+# Fast build targets for native and available presets
+
 build-native: $(NATIVE_PRESET)
 
 build-available: message-available-presets $(AVAILABLE_PRESETS)
+
+# Clean build targets for native and available presets
+
+clean-build-native: clean build-native
+
+clean-build-available: message-available-presets clean build-available
 
 ##################################
 # Full testing pipelines
 ##################################
 
-# Non-clean build
+# Non-clean build + test
 
 build-and-test-native: delete-binaries build-native test
 
 build-and-test-available: delete-binaries build-available test
 
-# Clean build
+# Clean build + test
 
-clean-build-and-test-native: clean build-native test
+clean-build-and-test-native: clean-build-native test
 
-clean-build-and-test-available: message-available-presets clean build-available test
+clean-build-and-test-available: clean-build-available test
 
 ##################################
-# Profiling and benchmarking targets
+# Profiling, Benchmarking, etc.
 ##################################
 
 # TODO: Implement profiling and similar targets from .vscode/tasks.json
+
+cli-lint:
+	@echo "Running CLI linter..."
+	./Scripts/Validation/runClangTidy.sh
+	@echo "CLI linting completed."
+
+profiling-small:
+	@echo "Running small profiling suite..."
+	sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/spawn_constantly.nebs ; hotspot perf.data
+	@echo "Small profiling completed."
+
+profiling-large:
+	@echo "Running large profiling suite..."
+	sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/gravity_XL.nebs ; hotspot perf.data
+	@echo "Large profiling completed."
+
+memory-check-gui:
+	@echo "Running memory check with Valgrind..."
+	rm -rf massif_output.out ; ulimit -n 32768 && valgrind --tool=massif --massif-out-file=massif_output.out --max-snapshots=500 --detailed-freq=1 ./bin/Nebulite_Debug task TaskFiles/Debugging/memoryleak.nebs && massif-visualizer massif_output.out
+	@echo "Memory check completed."
+
+memory-check-cli:
+	@echo "Running memory check with Valgrind..."
+	ulimit -n 32768 && valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./bin/Nebulite_Debug task TaskFiles/Debugging/memoryleak.nebs
+	@echo "Memory check completed. See valgrind_output.txt for details."
 
 ##################################
 # Commit testing pipelines

@@ -17,7 +17,7 @@
 //------------------------------------------
 namespace Nebulite::DomainModule::Renderer {
 
-Nebulite::Constants::Error Console::update(){
+Constants::Error Console::update(){
     //------------------------------------------
     // Prerequisites
 
@@ -29,24 +29,24 @@ Nebulite::Constants::Error Console::update(){
     //------------------------------------------
     // Insert new lines from capture streams
     static size_t last_size = 0;
-    size_t current_size = Nebulite::Utility::Capture::instance().getOutputLogPtr().size();
+    size_t const current_size = Utility::Capture::instance().getOutputLogPtr().size();
     if(current_size < last_size){
         // Log was cleared, reset
         last_size = 0;
     }
     for(size_t i = last_size; i < current_size; i++){
         // Split input line by newlines
-        auto const& input = Nebulite::Utility::Capture::instance().getOutputLogPtr().at(i);
-        auto const& lines = Nebulite::Utility::StringHandler::split(input.content, '\n');
+        auto const& [lineContent, lineType] = Utility::Capture::instance().getOutputLogPtr().at(i);
+        auto const& lines = Utility::StringHandler::split(lineContent, '\n');
 
         // Insert into text input
-        Nebulite::Utility::TextInput::LineEntry::LineType type;
-        switch (input.type){
-        case Nebulite::Utility::Capture::OutputLine::Type::COUT:
-            type = Nebulite::Utility::TextInput::LineEntry::LineType::COUT;
+        Utility::TextInput::LineEntry::LineType type;
+        switch (lineType){
+        case Utility::Capture::OutputLine::Type::COUT:
+            type = Utility::TextInput::LineEntry::LineType::COUT;
             break;
-        case Nebulite::Utility::Capture::OutputLine::Type::CERR:
-            type = Nebulite::Utility::TextInput::LineEntry::LineType::CERR;
+        case Utility::Capture::OutputLine::Type::CERR:
+            type = Utility::TextInput::LineEntry::LineType::CERR;
             break;
         }
         for(auto const& line : lines){
@@ -62,8 +62,7 @@ Nebulite::Constants::Error Console::update(){
     events = domain->getEventHandles();
 
     // Toggling console mode
-    bool consoleToggle = domain->getDoc()->get<int>(toggleKey.c_str(),0) == 1;
-    if(consoleToggle){
+    if(domain->getDoc()->get<int>(toggleKey,0) == 1){
         consoleMode = !consoleMode;
         if(consoleMode){
             SDL_StartTextInput();
@@ -86,7 +85,7 @@ Nebulite::Constants::Error Console::update(){
 
     //------------------------------------------
     // Return
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 
 bool Console::ensureConsoleTexture(){
@@ -94,19 +93,18 @@ bool Console::ensureConsoleTexture(){
     // Prerequisites
 
     // Derive consoleRect size from display size
-    double consoleHeight = static_cast<double>(globalDoc->get<size_t>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360)) * consoleLayout.heightRatio;
+    double const consoleHeight = static_cast<double>(globalDoc->get<size_t>(Constants::keyName.renderer.dispResY,360)) * consoleLayout.heightRatio;
     static SDL_Rect currentConsolePosition;
     currentConsolePosition.x = 0;
-    currentConsolePosition.y = static_cast<int>(globalDoc->get<double>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) - consoleHeight);
-    currentConsolePosition.w = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(),360);
-    currentConsolePosition.h = globalDoc->get<int>(Nebulite::Constants::keyName.renderer.dispResY.c_str(),360) - currentConsolePosition.y;
+    currentConsolePosition.y = static_cast<int>(globalDoc->get<double>(Constants::keyName.renderer.dispResY,360) - consoleHeight);
+    currentConsolePosition.w = globalDoc->get<int>(Constants::keyName.renderer.dispResX,360);
+    currentConsolePosition.h = globalDoc->get<int>(Constants::keyName.renderer.dispResY,360) - currentConsolePosition.y;
 
     //------------------------------------------
     // Texture Setup
 
     // Status
-    bool recreateTexture = false;
-    recreateTexture = recreateTexture || !consoleTexture.texture_ptr;   // No texture yet
+    bool recreateTexture = !consoleTexture.texture_ptr;   // No texture yet
     recreateTexture = recreateTexture || consoleTexture.rect.w != currentConsolePosition.w;    // Width changed
     recreateTexture = recreateTexture || consoleTexture.rect.h != currentConsolePosition.h;    // Height changed
 
@@ -125,14 +123,14 @@ bool Console::ensureConsoleTexture(){
     return consoleTexture.texture_ptr != nullptr;
 }
 
-void Console::drawBackground(){
+void Console::drawBackground() const {
     //------------------------------------------
     // Draw everything as before, but coordinates relative to (0,0)
-    SDL_Rect localRect = {0, 0, consoleTexture.rect.w, consoleTexture.rect.h};
+    SDL_Rect const localRect = {0, 0, consoleTexture.rect.w, consoleTexture.rect.h};
 
     // If we have a background image, draw it instead
     if(backgroundImageTexture != nullptr){
-        SDL_RenderCopy(renderer, backgroundImageTexture, NULL, &localRect);
+        SDL_RenderCopy(renderer, backgroundImageTexture, nullptr, &localRect);
     }
     else{
         SDL_SetRenderDrawColor(renderer, color.background.r, color.background.g, color.background.b, color.background.a);
@@ -141,16 +139,16 @@ void Console::drawBackground(){
     }
 }
 
-void Console::drawInput(uint16_t lineHeight){
+void Console::drawInput(uint16_t const& lineHeight){
     // Add a darker background for the input line
-    double posY = consoleTexture.rect.h - lineHeight - 1.5 * consoleLayout.LINE_PADDING;
-    SDL_Rect inputBackgroundRect = { 0, static_cast<int>(posY), consoleTexture.rect.w, lineHeight + consoleLayout.LINE_PADDING};
+    double const posY = consoleTexture.rect.h - lineHeight - 1.5 * consoleLayout.LINE_PADDING;
+    SDL_Rect const inputBackgroundRect = { 0, static_cast<int>(posY), consoleTexture.rect.w, lineHeight + consoleLayout.LINE_PADDING};
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
     SDL_RenderFillRect(renderer, &inputBackgroundRect);
 
     // Render input text
     if (!textInput.getInputBuffer()->empty()){
-        std::string inputText = *textInput.getInputBuffer();
+        std::string const inputText = *textInput.getInputBuffer();
 
         // Create surface and texture
         SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, inputText.c_str(), color.input);
@@ -163,32 +161,31 @@ void Console::drawInput(uint16_t lineHeight){
         textInputRect.h = static_cast<int>(static_cast<double>(textSurface->h) / static_cast<double>(WindowScale));
 
         // Render the text
-        SDL_RenderCopy(renderer, textTexture, NULL, &textInputRect);
+        SDL_RenderCopy(renderer, textTexture, nullptr, &textInputRect);
         SDL_FreeSurface(textSurface);
         SDL_DestroyTexture(textTexture);
 
         // If we have a text: ABCDEF, we highlight all text to the right of the cursor
         // With a semi-transparent overlay
-        uint16_t cursorOffsetFromEnd = textInput.getCursorOffset();
-        if(cursorOffsetFromEnd > 0){
-            std::string highlightText = textInput.getInputBuffer()->substr(textInput.getInputBuffer()->size() - cursorOffsetFromEnd, cursorOffsetFromEnd);
+        if(uint16_t const cursorOffsetFromEnd = textInput.getCursorOffset(); cursorOffsetFromEnd > 0){
+            std::string const highlightText = textInput.getInputBuffer()->substr(textInput.getInputBuffer()->size() - cursorOffsetFromEnd, cursorOffsetFromEnd);
             SDL_Surface* highlightSurface = TTF_RenderText_Blended(consoleFont, highlightText.c_str(), color.highlight);
             SDL_Texture* highlightTexture = SDL_CreateTextureFromSurface(renderer, highlightSurface);
             textInputHighlightRect.x = textInputRect.x + textInputRect.w - highlightSurface->w;
             textInputHighlightRect.y = textInputRect.y;
             textInputHighlightRect.w = highlightSurface->w;
             textInputHighlightRect.h = highlightSurface->h;
-            SDL_RenderCopy(renderer, highlightTexture, NULL, &textInputHighlightRect);
+            SDL_RenderCopy(renderer, highlightTexture, nullptr, &textInputHighlightRect);
             SDL_FreeSurface(highlightSurface);
             SDL_DestroyTexture(highlightTexture);
         }
     }
 }
 
-void Console::drawOutput(uint16_t maxLineLength){
+void Console::drawOutput(uint16_t const& maxLineLength){
     int32_t lineIndex = 0;
     std::string lineContentRest;                        // Rest of line after linebreak
-    int32_t outputSize = static_cast<int32_t>(textInput.getOutput()->size());
+    auto const outputSize = static_cast<int32_t>(textInput.getOutput()->size());
 
     // Since we start from the bottom, we need to invert the scrolling offset
     // is increased in-loop due to linebreaks
@@ -197,18 +194,17 @@ void Console::drawOutput(uint16_t maxLineLength){
     // Index-offset: If we have less history than lines,
     // We need to offset to align at the top
     int32_t y_start = line_y_positions[0];
-    int32_t availableLines = static_cast<int32_t>(line_y_positions.size());
-    if(outputSize < availableLines){
+    if(auto const availableLines = static_cast<int32_t>(line_y_positions.size()); outputSize < availableLines){
         y_start = line_y_positions[static_cast<size_t>(availableLines - outputSize)];
     }
 
     // Render lines from bottom to top
-    for(int32_t line_y_position : line_y_positions){
+    for(int32_t const& line_y_position : line_y_positions){
         if(line_y_position > y_start) continue;  // Skip lines under the start position
         if(lineIndex >= outputSize)  break;     // No more lines to show
 
         // Constrain outputScrollingOffset by investigating the current index
-        int32_t currentIndex = outputSize - 1 - lineIndex + lineIndexOffset;
+        int32_t const currentIndex = outputSize - 1 - lineIndex + lineIndexOffset;
         if(currentIndex < 0){
             // Cour outputScrollingOffset is too high, we reached the top
             outputScrollingOffset --;
@@ -222,7 +218,7 @@ void Console::drawOutput(uint16_t maxLineLength){
 
         // Get line info
         auto lineInfo = textInput.getOutput()->at(static_cast<size_t>(currentIndex));
-        SDL_Color textColor;
+        SDL_Color textColor = color.input;
         std::string content;
 
         if(!lineContentRest.empty()){
@@ -234,18 +230,21 @@ void Console::drawOutput(uint16_t maxLineLength){
         else{
             // New line
             switch (lineInfo.type){
-            case Nebulite::Utility::TextInput::LineEntry::LineType::CERR:
+            case Utility::TextInput::LineEntry::LineType::CERR:
                 textColor = color.cerrStream;
                 content = lineInfo.content;
                 break;
-            case Nebulite::Utility::TextInput::LineEntry::LineType::COUT:
+            case Utility::TextInput::LineEntry::LineType::COUT:
                 textColor = color.coutStream;
                 content = lineInfo.content;
                 break;
-            case Nebulite::Utility::TextInput::LineEntry::LineType::INPUT:
+            case Utility::TextInput::LineEntry::LineType::INPUT:
                 textColor = color.input;
                 content = "> " + lineInfo.content;
                 break;
+            default:
+                textColor = color.cerrStream;
+                content = "[ERROR] Unknown line type! Please fix: " + std::string(__FUNCTION__);
             }
         }
 
@@ -270,7 +269,7 @@ void Console::drawOutput(uint16_t maxLineLength){
         textOutputRect.w = static_cast<int>(static_cast<double>(textSurface->w) / static_cast<double>(WindowScale));
         textOutputRect.h = static_cast<int>(static_cast<double>(textSurface->h) / static_cast<double>(WindowScale));
 
-        SDL_RenderCopy(renderer, textTexture, NULL, &textOutputRect);
+        SDL_RenderCopy(renderer, textTexture, nullptr, &textOutputRect);
         SDL_FreeSurface(textSurface);
         SDL_DestroyTexture(textTexture);
 
@@ -285,7 +284,7 @@ void Console::renderConsole(){
 
     // Ensure console texture is valid
     if(!ensureConsoleTexture()){
-        Nebulite::Utility::Capture::cerr() << "SDL_CreateTexture failed: " << SDL_GetError() << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "SDL_CreateTexture failed: " << SDL_GetError() << Utility::Capture::endl;
         return;
     }
 
@@ -334,7 +333,7 @@ void Console::init(){
     // Use a monospaced font for better alignment
     consoleFont = TTF_OpenFont(consoleFontPath.c_str(), static_cast<int>(consoleLayout.FONT_MAX_SIZE * global->getRenderer()->getWindowScale()));
     if(!consoleFont){
-        Nebulite::Utility::Capture::cerr() << "TTF_OpenFont failed: " << TTF_GetError() << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "TTF_OpenFont failed: " << TTF_GetError() << Utility::Capture::endl;
         return;
     }
 
@@ -344,14 +343,14 @@ void Console::init(){
     // Initialize history with a welcome message
     textInput.insertLine("Welcome to Nebulite!");
     textInput.insertLine("Type 'help' for a list of commands.");
-    textInput.insertLine("Console started at: " + Nebulite::Utility::Time::TimeIso8601(Nebulite::Utility::Time::ISO8601Format::YYYY_MM_DD_HH_MM_SS, true));
+    textInput.insertLine("Console started at: " + Utility::Time::TimeIso8601(Utility::Time::ISO8601Format::YYYY_MM_DD_HH_MM_SS, true));
 
     //--------------------------------------------------
     // Console now fully functional
     initialized = true;
 }
 
-uint16_t Console::calculateTextAlignment(uint16_t rect_height){
+uint16_t Console::calculateTextAlignment(uint16_t const& rect_height){
     // Populating the rect:
     /*
     <PADDING>
@@ -379,7 +378,7 @@ uint16_t Console::calculateTextAlignment(uint16_t rect_height){
     uint16_t LINE_HEIGHT = consoleLayout.FONT_MAX_SIZE;
 
     // See where we land for N with the maximum font size
-    uint16_t N = static_cast<uint16_t>(std::floor(static_cast<double>(rect_height - 3 * consoleLayout.LINE_PADDING) / static_cast<double>(LINE_HEIGHT + consoleLayout.LINE_PADDING)));
+    auto N = static_cast<uint16_t>(std::floor(static_cast<double>(rect_height - 3 * consoleLayout.LINE_PADDING) / static_cast<double>(LINE_HEIGHT + consoleLayout.LINE_PADDING)));
 
     // Reduce line height if we have less than minimum lines
     if(N < consoleLayout.MINIMUM_LINES){
@@ -391,7 +390,7 @@ uint16_t Console::calculateTextAlignment(uint16_t rect_height){
     // Populate y positions
     line_y_positions.clear();
     for(int i = 1; i < N; i++){ // i=0 is reserved for input line
-        line_y_positions.push_back(static_cast<uint16_t>(rect_height - consoleLayout.LINE_PADDING - 2*LINE_HEIGHT - i*(LINE_HEIGHT + consoleLayout.LINE_PADDING)));
+        line_y_positions.push_back(rect_height - consoleLayout.LINE_PADDING - 2*LINE_HEIGHT - i*(LINE_HEIGHT + consoleLayout.LINE_PADDING));
     }
 
     // Set correct font size for SDL_ttf
@@ -405,11 +404,11 @@ uint16_t Console::calculateTextAlignment(uint16_t rect_height){
 // Event processing
 
 void Console::keyTriggerSubmit(){
-    std::string command;
-    command = textInput.submit();
-    if(!command.empty()){
+    if(std::string const command = textInput.submit(); !command.empty()){
         // Parse command on global level for full access to all functions
-        global->parseStr(std::string(__FUNCTION__) + " " + command);
+        if (auto const err = global->parseStr(std::string(__FUNCTION__) + " " + command); err != Constants::ErrorTable::NONE()){
+            Utility::Capture::cerr() << "Error: Failed to execute command '" << command << "': " << err.getDescription()  << Utility::Capture::endl;
+        }
     }
     outputScrollingOffset = 0; // Reset scrolling to bottom on new input
 }
@@ -426,16 +425,20 @@ void Console::keyTriggerScrollDown(){
     }
 }
 
-void Console::keyTriggerZoomIn(SDL_KeyboardEvent const& key){
+void Console::keyTriggerZoomIn(SDL_KeyboardEvent const& key) const {
     // Make sure that ctrl is held
     if(!(key.keysym.mod & KMOD_CTRL)) return;
-    domain->parseStr(__FUNCTION__ + std::string(" ") + Nebulite::DomainModule::Renderer::Console::consoleZoom_name + " in");
+    if (auto const err = domain->parseStr(__FUNCTION__ + std::string(" ") + consoleZoom_name + " in"); err != Constants::ErrorTable::NONE()){
+        Utility::Capture::cerr() << "Error: Failed to zoom into console: " << err.getDescription()  << Utility::Capture::endl;
+    }
 }
 
-void Console::keyTriggerZoomOut(SDL_KeyboardEvent const& key){
+void Console::keyTriggerZoomOut(SDL_KeyboardEvent const& key) const {
     // Make sure that ctrl is held
     if(!(key.keysym.mod & KMOD_CTRL)) return;
-    domain->parseStr(__FUNCTION__ + std::string(" ") + Nebulite::DomainModule::Renderer::Console::consoleZoom_name + " out");
+    if (auto const err = domain->parseStr(__FUNCTION__ + std::string(" ") + consoleZoom_name + " out"); err != Constants::ErrorTable::NONE()){
+        Utility::Capture::cerr() << "Error: Failed to zoom out console: " << err.getDescription()  << Utility::Capture::endl;
+    }
 }
 
 void Console::processKeyDownEvent(SDL_KeyboardEvent const& key){
@@ -530,6 +533,11 @@ void Console::processKeyDownEvent(SDL_KeyboardEvent const& key){
         case SDLK_KP_MINUS:
             keyTriggerZoomOut(key);
             break;
+
+        //------------------------------------------
+        default:
+            break;
+
     }
 }
 
@@ -543,9 +551,10 @@ void Console::processEvents(){
                 }
                 textInput.append(event.text.text);
                 break;
-
             case SDL_KEYDOWN:
                 processKeyDownEvent(event.key);
+                break;
+            default:
                 break;
         }
     }
@@ -558,13 +567,13 @@ void Console::processMode(){
 
         // Check if texture is valid
         if(!consoleTexture.texture_ptr){
-            Nebulite::Utility::Capture::cerr() << "Could not attach Console: Console texture is null!" << Nebulite::Utility::Capture::endl;
+            Utility::Capture::cerr() << "Could not attach Console: Console texture is null!" << Utility::Capture::endl;
             return;
         }
 
         // Attach texture above UI layer
         (void)domain->attachTextureAboveLayer(
-            Nebulite::Core::Environment::Layer::UI,
+            Core::Environment::Layer::UI,
             "console_overlay", 
             consoleTexture.texture_ptr,
             &consoleTexture.rect
@@ -576,7 +585,7 @@ void Console::processMode(){
     else{
         // Clear texture and detach
         (void)domain->detachTextureAboveLayer(
-            Nebulite::Core::Environment::Layer::UI,
+            Core::Environment::Layer::UI,
             "console_overlay"
         );
         if(consoleTexture.texture_ptr){
@@ -597,21 +606,22 @@ Contains commands to manipulate the in-application console.
 //------------------------------------------
 // Available Functions
 
-Nebulite::Constants::Error Console::consoleZoom(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error Console::consoleZoom(int argc,  char** argv){
     //------------------------------------------
     // Prerequisites
 
     // Validate arguments
     if(argc > 2){
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     //------------------------------------------
     // Determine zoom direction
 
     if(argc == 2){
-        std::string direction = argv[1];
-        if(direction == "in" || direction == "+"){
+
+        if(std::string const direction = argv[1]; direction == "in" || direction == "+"){
             if(consoleLayout.FONT_MAX_SIZE <= 48){
                 consoleLayout.FONT_MAX_SIZE++;
                 flag_recalculateTextAlignment = true;
@@ -624,13 +634,13 @@ Nebulite::Constants::Error Console::consoleZoom(int argc,  char** argv){
             }
         }
         else{
-            return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+            return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
         }
     }
 
     //------------------------------------------
     // Return
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const Console::consoleZoom_name = "console zoom";
 std::string const Console::consoleZoom_desc = R"(Reduces or increases the console font size.
@@ -640,16 +650,17 @@ Usage: zoom [in/out/+/-]
 - out / - : Zooms out (decreases font size)
 )";
 
-Nebulite::Constants::Error Console::consoleSetBackground(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error Console::consoleSetBackground(int argc,  char** argv){
     //------------------------------------------
     // Prerequisites
 
     // Validate arguments
     if(argc < 2){
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if(argc > 2){
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     //------------------------------------------
@@ -662,13 +673,13 @@ Nebulite::Constants::Error Console::consoleSetBackground(int argc,  char** argv)
     //------------------------------------------
     // Load image
 
-    std::string imagePath = argv[1];
+    std::string const imagePath = argv[1];
     SDL_Surface* imageSurface = SDL_LoadBMP(imagePath.c_str());
     if(!imageSurface){
         // Try to load as PNG/JPG using SDL_image
         imageSurface = IMG_Load(imagePath.c_str());
         if(!imageSurface){
-            return Nebulite::Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
+            return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
         }
     }
 
@@ -676,7 +687,7 @@ Nebulite::Constants::Error Console::consoleSetBackground(int argc,  char** argv)
     SDL_Texture* backgroundTexture = SDL_CreateTextureFromSurface(renderer, imageSurface);
     SDL_FreeSurface(imageSurface);
     if(!backgroundTexture){
-        return Nebulite::Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_INVALID();
+        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_INVALID();
     }
 
     // Set as console background
@@ -684,7 +695,7 @@ Nebulite::Constants::Error Console::consoleSetBackground(int argc,  char** argv)
 
     //------------------------------------------
     // Return
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const Console::consoleSetBackground_name = "console set-background";
 std::string const Console::consoleSetBackground_desc = R"(Sets a background image for the console.

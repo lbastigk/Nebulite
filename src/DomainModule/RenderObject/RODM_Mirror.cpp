@@ -11,11 +11,11 @@ std::string const Mirror::mirror_desc = R"(Mirror utilities for RenderObject to 
 
 //------------------------------------------
 // Update
-Nebulite::Constants::Error Mirror::update(){
+Constants::Error Mirror::update(){
     if (mirrorEnabled || mirrorOnceEnabled){
         // Values
-        auto globalDoc = domain->getGlobalSpace()->getDoc();
-        auto objectDoc = domain->getDoc();
+        auto const globalDoc = domain->getGlobalSpace()->getDoc();
+        auto const objectDoc = domain->getDoc();
 
         // Mirror to GlobalSpace
         globalDoc->setSubDoc(mirrorKey.c_str(), objectDoc);
@@ -23,17 +23,17 @@ Nebulite::Constants::Error Mirror::update(){
         // Reset once-flag
         mirrorOnceEnabled = false;
     }
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 
 //------------------------------------------
 // Available Functions
 
-Nebulite::Constants::Error Mirror::mirror_once(int argc,  char** argv){
-    auto err = setupMirrorKey();
-    if(err.isError()) return err;
+// NOLINTNEXTLINE
+Constants::Error Mirror::mirror_once(int argc,  char** argv){
+    if(auto const err = setupMirrorKey(); err.isError()) return err;
     mirrorOnceEnabled = true;
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const Mirror::mirror_once_name = "mirror once";
 std::string const Mirror::mirror_once_desc = R"(Mirrors the object to the GlobalSpace document once on next update
@@ -44,11 +44,11 @@ Mirroring is only done for one frame.
 Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id<id>
 )";
 
-Nebulite::Constants::Error Mirror::mirror_on(int argc,  char** argv){
-    auto err = setupMirrorKey();
-    if(err.isError()) return err;
+// NOLINTNEXTLINE
+Constants::Error Mirror::mirror_on(int argc,  char** argv){
+    if(auto const err = setupMirrorKey(); err.isError()) return err;
     mirrorEnabled = true;
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const Mirror::mirror_on_name = "mirror on";
 std::string const Mirror::mirror_on_desc = R"(Enables mirroring to the GlobalSpace document
@@ -60,9 +60,10 @@ Constant mirroring is active until turned off with 'mirror off'
 Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id<id>
 )";
 
-Nebulite::Constants::Error Mirror::mirror_off(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error Mirror::mirror_off(int argc,  char** argv){
     mirrorEnabled = false;
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const Mirror::mirror_off_name = "mirror off";
 std::string const Mirror::mirror_off_desc = R"(Disables mirroring to the GlobalSpace document
@@ -74,9 +75,10 @@ Constant mirroring is inactive until turned on again with 'mirror on'
 Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id<id>
 )";
 
-Nebulite::Constants::Error Mirror::mirror_delete(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error Mirror::mirror_delete(int argc,  char** argv){
     domain->getGlobalSpace()->getDoc()->remove_key(mirrorKey.c_str());
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const Mirror::mirror_delete_name = "mirror delete";
 std::string const Mirror::mirror_delete_desc = R"(Deletes the GlobalSpace document entry for this RenderObject
@@ -86,13 +88,13 @@ Usage: mirror delete
 Mirrors are removed from the GlobalSpace document under key "mirror.renderObject.id<id>
 )";
 
-Nebulite::Constants::Error Mirror::mirror_fetch(int argc,  char** argv){
-    Nebulite::Utility::JSON::KeyType keyStatus = domain->getGlobalSpace()->getDoc()->memberCheck(mirrorKey.c_str());
-    if (keyStatus != Nebulite::Utility::JSON::KeyType::document){
-        return Nebulite::Constants::ErrorTable::addError("Mirror fetch failed: Key '" + mirrorKey + "' not of type document", Nebulite::Constants::Error::NON_CRITICAL);
+// NOLINTNEXTLINE
+Constants::Error Mirror::mirror_fetch(int argc,  char** argv){
+    if (domain->getGlobalSpace()->getDoc()->memberCheck(mirrorKey) != Utility::JSON::KeyType::document){
+        return Constants::ErrorTable::addError("Mirror fetch failed: Key '" + mirrorKey + "' not of type document", Constants::Error::NON_CRITICAL);
     }
-    domain->deserialize(domain->getGlobalSpace()->getDoc()->serialize(mirrorKey.c_str()));
-    return Nebulite::Constants::ErrorTable::NONE();
+    domain->deserialize(domain->getGlobalSpace()->getDoc()->serialize(mirrorKey));
+    return Constants::ErrorTable::NONE();
 }
 std::string const Mirror::mirror_fetch_name = "mirror fetch";
 std::string const Mirror::mirror_fetch_desc = R"(Deserializes the RenderObject from the GlobalSpace document entry
@@ -105,15 +107,15 @@ Mirrors are fetched from the GlobalSpace document under key "mirror.renderObject
 //------------------------------------------
 // Helper
 
-Nebulite::Constants::Error Mirror::setupMirrorKey(){
+Constants::Error Mirror::setupMirrorKey(){
     // Only fetch key once we turn on mirroring
-    int id = domain->get<int>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0);
+    int const id = domain->get<int>(Constants::keyName.renderObject.id.c_str(), 0);
     if(id < 1){
-        return Nebulite::Constants::ErrorTable::addError("Mirror key setup failed: RenderObject has invalid id", Nebulite::Constants::Error::NON_CRITICAL);
+        return Constants::ErrorTable::addError("Mirror key setup failed: RenderObject has invalid id", Constants::Error::NON_CRITICAL);
     }
 
     mirrorKey = "mirror.renderObject.id" + std::to_string(id);
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 
 }   // namespace Nebulite::DomainModule::RenderObject

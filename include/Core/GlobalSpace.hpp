@@ -149,6 +149,8 @@ public:
 
     /**
      * @brief Evaluates a string.
+     * @param expr The expression to evaluate.
+     * @return The evaluated result as a string.
      */
     std::string eval(std::string const& expr) const {
         return invoke.evaluateStandaloneExpression(expr);
@@ -156,9 +158,50 @@ public:
 
     /**
      * @brief Evaluates a string with context of a RenderObject.
+     * @param expr The expression to evaluate.
+     * @param context The RenderObject providing context for the evaluation.
+     * @return The evaluated result as a string.
      */
     std::string eval(std::string const& expr, RenderObject const* context) const {
         return invoke.evaluateStandaloneExpression(expr, context);
+    }
+
+    /**
+     * @brief Evaluates a string and returns the result as a double.
+     * @param expr The expression to evaluate.
+     * @return The evaluated result as a double.
+     */
+    double evalAsDouble(std::string const& expr) const {
+        return invoke.evaluateStandaloneExpressionAsDouble(expr);
+    }
+
+    /**
+     * @brief Evaluates a string with context of a RenderObject and returns the result as a double.
+     * @param expr The expression to evaluate.
+     * @param context The RenderObject providing context for the evaluation.
+     * @return The evaluated result as a double.
+     */
+    double evalAsDouble(std::string const& expr, RenderObject const* context) const {
+        return invoke.evaluateStandaloneExpressionAsDouble(expr, context);
+    }
+
+    /**
+     * @brief Evaluates a string and returns the result as a boolean.
+     * @param expr The expression to evaluate.
+     * @return The evaluated result as a boolean.
+     */
+    bool evalAsBool(std::string const& expr) const {
+        return invoke.evaluateStandaloneExpressionAsBool(expr);
+    }
+
+    /**
+     * @brief Evaluates a string with context of a RenderObject and returns the result as a boolean.
+     * @param expr The expression to evaluate.
+     * @param context The RenderObject providing context for the evaluation.
+     * @return The evaluated result as a boolean.
+     */
+    bool evalAsBool(std::string const& expr, RenderObject const* context) const {
+        return invoke.evaluateStandaloneExpressionAsBool(expr, context);
     }
 
     //------------------------------------------

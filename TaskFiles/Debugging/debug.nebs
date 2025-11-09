@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# vscode_debug.nebs
+# debug.nebs
 #
 # Short description:
 #   Minimal task script intended for quick debugging from VS Code. The
@@ -9,7 +9,7 @@
 #   is attached.
 #
 # Usage:
-#   ./bin/Nebulite task TaskFiles/Debugging/vscode_debug.nebs
+#   ./bin/Nebulite task TaskFiles/Debugging/debug.nebs
 #
 # Notes:
 #   - You may modify this file to suit your debugging needs
@@ -19,7 +19,7 @@
 #   so that different users can have different debugging setups without
 #   interfering with each other.
 # -----------------------------------------------------------------------------
-echo Starting vscode_debug.nebs
+echo Starting debug.nebs
 # -----------------------------------------------------------------------------
 
 # Fixed dt so the output is always the same
