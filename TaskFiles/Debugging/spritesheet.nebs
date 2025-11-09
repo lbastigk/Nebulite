@@ -27,8 +27,8 @@ always selected-object parse debug print-src-rect
 always selected-object parse debug print-dst-rect
 always selected-object parse echo
 always selected-object parse echo Position:
-always selected-object parse debug print-value posX
-always selected-object parse debug print-value posY
+always selected-object parse print posX
+always selected-object parse print posY
 always selected-object parse echo
 always selected-object parse echo Texture:
 always selected-object parse debug texture-status
@@ -41,8 +41,8 @@ always selected-object parse debug print-src-rect
 always selected-object parse debug print-dst-rect
 always selected-object parse echo
 always selected-object parse echo Position:
-always selected-object parse debug print-value posX
-always selected-object parse debug print-value posY
+always selected-object parse print posX
+always selected-object parse print posY
 always selected-object parse echo
 always selected-object parse echo Texture:
 always selected-object parse debug texture-status

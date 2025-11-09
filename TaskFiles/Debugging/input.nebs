@@ -1,10 +1,5 @@
 # Debugging inputs from player
 set-res 200 200 1
 set-fps 1
-always clear
-always print all
-
-#
-
-#always eval echo "Value of key w: " + {global.input.keyboard.current.w}
-#always eval echo "Delta of key w: " + {global.input.keyboard.delta.w}
+always eval echo "Value of key w: " + {global.input.keyboard.current.w}
+always eval echo "Delta of key w: " + {global.input.keyboard.delta.w}
