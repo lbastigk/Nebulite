@@ -26,8 +26,8 @@ JSON::~JSON(){
     // We assume that noone will use them after JSON is destroyed
 
     // 1.) UID quickcache
-    for(size_t idx = 0; idx < uidQuickCacheSize; idx++){
-        uidDoubleCache[idx] = nullptr;
+    for (auto const& ptr : uidDoubleCache){
+        delete ptr;
     }
 
     // 2.) Delete cache and its pointers
@@ -188,7 +188,7 @@ void JSON::set_empty_array(char const* key){
 std::string JSON::serialize(std::string const& key){
     std::scoped_lock const lockGuard(mtx);
     flush(); // Ensure all changes are reflected in the document
-    if(key.size() == 0){
+    if(key.empty()){
         // Serialize entire doc
         return RjDirectAccess::serialize(doc);
     }
@@ -250,14 +250,13 @@ void JSON::deserialize(std::string const& serial_or_link){
         if (token.empty()) continue; // Skip empty tokens
 
         // Legacy: Handle key=value pairs
-        if (token.find('=') != std::string::npos){
+        if (auto const pos = token.find('='); pos != std::string::npos){
             // Handle modifier (key=value)
-            auto const pos = token.find('=');
-            std::string key = token.substr(0, pos);
-            std::string value = token.substr(pos + 1);  
+            std::string keyAndValue = token;
+            if (pos != std::string::npos) keyAndValue[pos] = ' ';
 
             // New implementation through functioncall
-            if (std::string const callStr = std::string(__FUNCTION__) + " set " + key + " " + value; parseStr(callStr) != Constants::ErrorTable::NONE()){
+            if (std::string const callStr = std::string(__FUNCTION__) + " set " + keyAndValue; parseStr(callStr) != Constants::ErrorTable::NONE()){
                 Capture::cerr() << "Failed to apply deserialize modifier: " << callStr << Capture::endl;
             }
         }

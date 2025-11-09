@@ -158,7 +158,7 @@ private:
     /**
      * @brief Super quick double cache based on unique IDs, no hash lookup.
      */
-    double* uidDoubleCache[uidQuickCacheSize] = {nullptr};
+    std::array<double*, uidQuickCacheSize> uidDoubleCache{nullptr};
 
 public:
     explicit JSON(Core::GlobalSpace* globalSpace);
