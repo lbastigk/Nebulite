@@ -135,18 +135,18 @@ private:
     // Other variables
 
     // y positions of each line, derived from console height
-    std::vector<uint16_t> line_y_positions;
+    std::vector<int32_t> line_y_positions;
 
     //------------------------------------------
     // Texture and Font related objects
 
     // Font for console text
-	TTF_Font* consoleFont = nullptr;
+    TTF_Font* consoleFont = nullptr;
 
     /**
      * @brief Rectangle defining the input text area.
      */
-	SDL_Rect textInputRect = {0,0,0,0};
+    SDL_Rect textInputRect = {0,0,0,0};
 
     /**
      * @brief Texture for the background image.
@@ -176,9 +176,9 @@ private:
     // Methods
 
     /**
-	 * @brief Renders the console to the screen.
-	 */
-	void renderConsole();
+     * @brief Renders the console to the screen.
+     */
+    void renderConsole();
 
     /**
      * @brief Populates vector line_y_positions with the y positions of each line,
@@ -189,7 +189,7 @@ private:
      * 
      * @todo Make sure the lines are aligned at the top instead of the bottom to reduce jitter when resizing.
      */
-    uint16_t calculateTextAlignment(uint16_t rect_height);
+    uint16_t calculateTextAlignment(uint16_t const& rect_height);
 
     /**
      * @brief Processes input events for the console.
@@ -227,12 +227,12 @@ private:
     /**
      * @brief Zooms the console in, if ctrl is held.
      */
-    void keyTriggerZoomIn(SDL_KeyboardEvent const& key);
+    void keyTriggerZoomIn(SDL_KeyboardEvent const& key) const ;
 
     /**
      * @brief Zooms the console out, if ctrl is held.
      */
-    void keyTriggerZoomOut(SDL_KeyboardEvent const& key);
+    void keyTriggerZoomOut(SDL_KeyboardEvent const& key) const ;
 
     //------------------------------------------
     // RenderConsole helpers
@@ -246,14 +246,14 @@ private:
     /**
      * @brief Draws the background of the console.
      */
-    void drawBackground();
+    void drawBackground() const ;
 
     /**
      * @brief Draws the input text.
      * 
      * @param lineHeight The height of each line in pixels.
      */
-    void drawInput(uint16_t lineHeight);
+    void drawInput(uint16_t const& lineHeight);
 
     /**
      * @brief Draws the output lines.
@@ -262,7 +262,7 @@ private:
      * 
      * @todo Newline handling does not work if a line is split into more than two lines.
      */
-    void drawOutput(uint16_t maxLineLength);
+    void drawOutput(uint16_t const& maxLineLength);
 
     //------------------------------------------
     // Mirrored from Renderer
