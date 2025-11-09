@@ -175,13 +175,13 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Logic::Assignment::Operation o
             target->set<double>(key,value);
             break;
         case Logic::Assignment::Operation::add:
-            target->set_add(key.c_str(),value);
+            target->set_add(key,value);
             break;
         case Logic::Assignment::Operation::multiply:
-            target->set_multiply(key.c_str(),value);
+            target->set_multiply(key,value);
             break;
         case Logic::Assignment::Operation::concat:
-            target->set_concat(key.c_str(),std::to_string(value).c_str());
+            target->set_concat(key,std::to_string(value));
             break;
         case Logic::Assignment::Operation::null:
             Utility::Capture::cerr() << "Assignment expression has null operation - skipping" << Utility::Capture::endl;
@@ -364,6 +364,8 @@ void Nebulite::Interaction::Invoke::update(){
 //------------------------------------------
 // Standalone Expression Evaluation
 
+// String evaluation
+
 std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::string const& input) const {
     Utility::JSON* docSelf = this->emptyDoc;      // no self context
     Utility::JSON* docOther = this->emptyDoc;     // no other context
@@ -385,5 +387,67 @@ std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::str
     Logic::ExpressionPool expr;
     expr.parse(input, docCache, docSelf, docGlobal);
     return expr.eval(docOther);
+}
+
+// Double evaluation
+
+double Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsDouble(std::string const& input) const {
+    Utility::JSON* docSelf = this->emptyDoc;      // no self context
+    Utility::JSON* docOther = this->emptyDoc;     // no other context
+    Utility::JSON* docGlobal = this->globalDoc;
+
+    // Parse string into Expression
+    Logic::ExpressionPool expr;
+    expr.parse(input, docCache, docSelf, docGlobal);
+    return expr.evalAsDouble(docOther);
+}
+
+double Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsDouble(std::string const& input, Core::RenderObject const* selfAndOther) const {
+    // Expression is evaluated within a domain's context, use it as self and other
+    Utility::JSON* docSelf = selfAndOther->getDoc();
+    Utility::JSON* docOther = selfAndOther->getDoc();
+    Utility::JSON* docGlobal = this->globalDoc;
+
+    // Parse string into Expression
+    Logic::ExpressionPool expr;
+    expr.parse(input, docCache, docSelf, docGlobal);
+    return expr.evalAsDouble(docOther);
+}
+
+// Boolean evaluation
+
+bool Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsBool(std::string const& input) const {
+    Utility::JSON* docSelf = this->emptyDoc;      // no self context
+    Utility::JSON* docOther = this->emptyDoc;     // no other context
+    Utility::JSON* docGlobal = this->globalDoc;
+
+    // Parse string into Expression
+    Logic::ExpressionPool expr;
+    expr.parse(input, docCache, docSelf, docGlobal);
+    double const result = expr.evalAsDouble(docOther);
+    if(isnan(result)){
+        // We consider NaN as false
+        return false;
+    }
+    // Any double-value unequal to 0 is seen as "true"
+    return std::abs(result) > std::numeric_limits<double>::epsilon();
+}
+
+bool Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsBool(std::string const& input, Core::RenderObject const* selfAndOther) const {
+    // Expression is evaluated within a domain's context, use it as self and other
+    Utility::JSON* docSelf = selfAndOther->getDoc();
+    Utility::JSON* docOther = selfAndOther->getDoc();
+    Utility::JSON* docGlobal = this->globalDoc;
+
+    // Parse string into Expression
+    Logic::ExpressionPool expr;
+    expr.parse(input, docCache, docSelf, docGlobal);
+    double const result = expr.evalAsDouble(docOther);
+    if(isnan(result)){
+        // We consider NaN as false
+        return false;
+    }
+    // Any double-value unequal to 0 is seen as "true"
+    return std::abs(result) > std::numeric_limits<double>::epsilon();
 }
 
