@@ -73,12 +73,12 @@ private:
     /**
      * @brief Writes the current and delta input states to the global JSON structure.
      */
-    void write_current_and_delta_inputs();
+    void writeCurrentAndDeltaInputs();
 
     /**
      * @brief Resets all delta input values to zero.
      */
-    void reset_delta_values();
+    void resetDeltaValues() const ;
 
     //---------------------------------
     // Variables
@@ -98,7 +98,7 @@ private:
     /**
      * @brief Flag to reset delta values on the next update.
      */
-    bool reset_delta_on_next_update = false;
+    bool resetDeltaOnNextUpdate = false;
 
     /**
      * @struct Mouse
@@ -110,8 +110,8 @@ private:
         int posY = 0;
         int lastPosX = 0;
         int lastPosY = 0;
-        Uint32 lastState;
-        Uint32 state;
+        Uint32 lastState = 0;
+        Uint32 state = 0;
     } mouse;
 
     /**

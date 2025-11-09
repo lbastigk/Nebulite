@@ -24,14 +24,14 @@ std::string const Time::key_framecount = "frameCount";
 //------------------------------------------
 // Update
 
-Nebulite::Constants::Error Time::update(){
+Constants::Error Time::update(){
     //------------------------------------------
     // Full time (runtime)
 
     // Update
     RealTime.update();
-    uint64_t dt_ms = RealTime.get_dt_ms();
-    uint64_t t_ms  = RealTime.get_t_ms();
+    uint64_t const dt_ms = RealTime.get_dt_ms();
+    uint64_t const t_ms  = RealTime.get_t_ms();
 
     // Set in doc
     domain->getDoc()->set<double>(key_runtime_dt,    static_cast<double>(dt_ms) / 1000.0);
@@ -40,8 +40,7 @@ Nebulite::Constants::Error Time::update(){
     domain->getDoc()->set<Uint64>(key_runtime_t_ms,  t_ms);
 
     // See if simulation time can progress
-    bool canProgress = !haltThisFrame && timeLocks.empty() && !domain->getRenderer()->isSkippingUpdate();
-    if(canProgress){
+    if(!haltThisFrame && timeLocks.empty() && !domain->getRenderer()->isSkippingUpdate()){
         //------------------------------------------
         // Simulation time (can be paused)
 
@@ -53,8 +52,8 @@ Nebulite::Constants::Error Time::update(){
             // Use real delta time
             SimulationTime.update(dt_ms);
         }
-        uint64_t sim_dt_ms = SimulationTime.get_dt_ms();
-        uint64_t sim_t_ms = SimulationTime.get_t_ms();
+        uint64_t const sim_dt_ms = SimulationTime.get_dt_ms();
+        uint64_t const sim_t_ms = SimulationTime.get_t_ms();
 
         // Set in doc
         domain->getDoc()->set<double>(key_time_dt,    static_cast<double>(sim_dt_ms) / 1000.0);
@@ -79,15 +78,16 @@ Nebulite::Constants::Error Time::update(){
     haltThisFrame = false;
 
     // Ignoring results for now, just return NONE
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 
 //------------------------------------------
 // Available Functions
 
-Nebulite::Constants::Error Time::time_haltOnce(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error Time::time_haltOnce(int argc,  char** argv){
     haltThisFrame = true;
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const Time::time_haltOnce_name = "time halt-once";
 std::string const Time::time_haltOnce_desc = R"(Halts time for one frame
@@ -96,13 +96,14 @@ Meaning you can halt time by continuously calling this function.
 Usage: time halt-once
 )";
 
-Nebulite::Constants::Error Time::time_lock(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error Time::time_lock(int argc,  char** argv){
     if(argc < 2){
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    std::string lockName = argv[1];
+    std::string const lockName = argv[1];
     timeLocks.insert(lockName);
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const Time::time_lock_name = "time lock";
 std::string const Time::time_lock_desc = R"(Locks time with lock provided, 
@@ -113,19 +114,18 @@ Usage: time lock <lock_name>
 <lock_name> : Name of the lock to add. Any string without whitespace is valid.
 )";
 
-
-Nebulite::Constants::Error Time::time_unlock(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error Time::time_unlock(int argc,  char** argv){
     if(argc < 2){
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    std::string lockName = argv[1];
-    auto it = timeLocks.find(lockName);
-    if(it != timeLocks.end()){
+    std::string const lockName = argv[1];
+    if(auto const it = timeLocks.find(lockName); it != timeLocks.end()){
         timeLocks.erase(it);
     } else{
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const Time::time_unlock_name = "time unlock";
 std::string const Time::time_unlock_desc = R"(Removes a time lock.
@@ -136,9 +136,10 @@ Usage: time unlock <lock_name>
 <lock_name> : Name of the lock to remove. Must match an existing lock.
 )";
 
-Nebulite::Constants::Error Time::time_masterUnlock(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error Time::time_masterUnlock(int argc,  char** argv){
     timeLocks.clear();
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const Time::time_masterUnlock_name = "time master-unlock";
 std::string const Time::time_masterUnlock_desc = R"(Removes all time locks.
@@ -147,17 +148,18 @@ Time can only progress if no locks are present.
 Usage: time master-unlock
 )";
 
-Nebulite::Constants::Error Time::time_setFixedDeltaTime(int argc,  char** argv){
+// NOLINTNEXTLINE
+Constants::Error Time::time_setFixedDeltaTime(int argc,  char** argv){
     if(argc < 2){
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     try{
-        uint64_t dt = std::stoull(argv[1]);
+        uint64_t const dt = std::stoull(argv[1]);
         fixedDeltaTime = dt;
     } catch(...){
-        return Nebulite::Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
-    return Nebulite::Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::NONE();
 }
 std::string const Time::time_setFixedDeltaTime_name = "time set-fixed-dt";
 std::string const Time::time_setFixedDeltaTime_desc = R"(Sets a fixed delta time in milliseconds for the simulation time.
