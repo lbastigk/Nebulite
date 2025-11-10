@@ -29,8 +29,8 @@ GlobalSpace::GlobalSpace(std::string const& binName)
     setPreParse([this] { return preParse(); });
 
     // Link inherited Domains
-    inherit<Utility::JSON>(&global);
-    inherit<Renderer>(&renderer);
+    inherit(&global);
+    inherit(&renderer);
 
     // Initialize DomainModules
     DomainModule::Initializer::initGlobalSpace(this);

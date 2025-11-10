@@ -77,8 +77,8 @@ RenderObject::RenderObject(GlobalSpace* globalSpacePtr)
 void RenderObject::init(){
 	//------------------------------------------
 	// Link inherited Domains
-	inherit<Utility::JSON>(&json);
-	inherit<Texture>(&baseTexture);
+	inherit(&json);
+	inherit(&baseTexture);
 
 	//------------------------------------------
 	// Link frequently used values
