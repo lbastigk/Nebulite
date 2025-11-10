@@ -307,14 +307,14 @@ void Nebulite::Interaction::Invoke::applyFunctionCalls(std::shared_ptr<Ruleset> 
     // === Function Calls LOCAL: SELF ===
     for(auto& entry : ruleset->functioncalls_self){
         // replace vars
-        std::string call = entry.eval(Obj_other->getDoc());
+        std::string const call = __FUNCTION__ + entry.eval(Obj_other->getDoc());
         (void)Obj_self->parseStr(call);
     }
 
     // === Function Calls LOCAL: OTHER ===
     for(auto& entry : ruleset->functioncalls_other){
         // replace vars
-        std::string call = entry.eval(Obj_other->getDoc());
+        std::string const call = __FUNCTION__ + entry.eval(Obj_other->getDoc());
         (void)Obj_other->parseStr(call);
     }
 }

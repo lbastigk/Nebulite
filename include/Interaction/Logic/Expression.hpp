@@ -336,7 +336,7 @@ private:
 
         // NOLINTNEXTLINE
         static double neq(double a, double b){
-            return !(std::fabs(a - b) > DBL_EPSILON);
+            return std::fabs(a - b) > DBL_EPSILON;
         }
 
         //----------------------------------

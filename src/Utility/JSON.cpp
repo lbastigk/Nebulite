@@ -27,7 +27,9 @@ JSON::~JSON(){
 
     // 1.) UID quickcache
     for (auto const& ptr : uidDoubleCache){
-        delete ptr;
+        // This is not necessary, probably because cache
+        // itself will delete them...
+        //delete ptr;
     }
 
     // 2.) Delete cache and its pointers
