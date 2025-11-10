@@ -23,14 +23,5 @@ echo Starting debug.nebs
 # -----------------------------------------------------------------------------
 
 # Fixed dt so the output is always the same
-time set-fixed-dt 1
-
-# value doesnt matter, but this initializes renderer, which is needed
-set-fps 100 
-wait 10
-
-# Should be 0.001000 and 1.001000
-eval echo {global.time.dt}
-eval echo $({global.time.dt} + 1)
-exit
+task TaskFiles/Tests/Long/AutoPong_5k_frames.nebs
 

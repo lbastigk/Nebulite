@@ -1,0 +1,14 @@
+echo Debugging spritesheet rendering
+set-res 320 240 6
+set-fps 60
+
+###########################
+# Part 1: Player
+echo Adding character with wasd-control
+spawn ./Resources/Renderobjects/Creatures/player.jsonc|posX=32|posY=32
+wait 10
+
+###########################
+# Part 2: Background
+echo Adding background
+for i 0 5 for j 0 5 eval spawn ./Resources/Renderobjects/Plants/Grass/grass.jsonc|posX=$({i}*16)|posY=$({j}*16)
