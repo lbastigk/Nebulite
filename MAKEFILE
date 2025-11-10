@@ -123,7 +123,7 @@ delete-binaries:
 
 build-native: $(NATIVE_PRESET)
 
-build-available: message-available-presets $(AVAILABLE_PRESETS)
+build-available: $(AVAILABLE_PRESETS) message-available-presets
 
 build-coverage: linux-coverage coverage-report
 
@@ -131,7 +131,7 @@ build-coverage: linux-coverage coverage-report
 
 clean-build-native: clean build-native
 
-clean-build-available: message-available-presets clean build-available
+clean-build-available: clean build-available
 
 ##################################
 # Full testing pipelines
