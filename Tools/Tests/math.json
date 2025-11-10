@@ -1,0 +1,106 @@
+[
+    {
+        "command": "eval echo $(1+1)",
+        "expected": { "cout": ["2.000000"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(gt(1,0))",
+        "expected": { "cout": ["1"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(lt(1,0))",
+        "expected": { "cout": ["0"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(geq(0,0))",
+        "expected": { "cout": ["1"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(leq(0,-1))",
+        "expected": { "cout": ["0"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(eq(0,-1))",
+        "expected": { "cout": ["0"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(neq(0,-1))",
+        "expected": { "cout": ["1"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(and(1,1))",
+        "expected": { "cout": ["1"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(and(0,1))",
+        "expected": { "cout": ["0"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(or(1,1))",
+        "expected": { "cout": ["1"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(or(0,0))",
+        "expected": { "cout": ["0"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(xor(1,0))",
+        "expected": { "cout": ["1"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(nand(1,1))",
+        "expected": { "cout": ["0"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(nor(0,0))",
+        "expected": { "cout": ["1"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(xnor(1,0))",
+        "expected": { "cout": ["0"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(to_bipolar(1))",
+        "expected": { "cout": ["1"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(to_bipolar(0))",
+        "expected": { "cout": ["-1"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(map(1,0,10,0,100))",
+        "expected": { "cout": ["10"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(map(1000,0,10,0,100))",
+        "expected": { "cout": ["100"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(constrain(100,0,10))",
+        "expected": { "cout": ["10"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(constrain(-100,0,10))",
+        "expected": { "cout": ["0"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(constrain(5,0,10))",
+        "expected": { "cout": ["5"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(sgn(-100))",
+        "expected": { "cout": ["-1"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(sgn(100))",
+        "expected": { "cout": ["1"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $06.2f(1/3)",
+        "expected": { "cout": ["000.33"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $6.2f(1/3)",
+        "expected": { "cout": ["  0.33"], "cerr": [] }
+    }
+]

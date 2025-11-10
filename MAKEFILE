@@ -101,7 +101,7 @@ clean:
 message-available-presets:
 	@echo "Available presets for this machine: $(AVAILABLE_PRESETS)"
 
-coverage-report: linux-coverage
+coverage-report:
 	@echo "Generating coverage report..."
 	python Scripts/TestingSuite.py --coverage --verbose
 
@@ -124,6 +124,8 @@ delete-binaries:
 build-native: $(NATIVE_PRESET)
 
 build-available: message-available-presets $(AVAILABLE_PRESETS)
+
+build-coverage: linux-coverage coverage-report
 
 # Clean build targets for native and available presets
 
