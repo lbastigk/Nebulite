@@ -582,18 +582,8 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::generalHelp(){
     // '<name padded> - <description>'
     uint16_t constexpr namePaddingSize = 25;
 
-    // All info: [name, description]
-    std::vector<std::pair<std::string, std::string const*>> allFunctions = getAllFunctions();
-    std::vector<std::pair<std::string, std::string const*>> allVariables = getAllVariables();
-
-    // Sort by name
-    std::ranges::sort(allFunctions, SortFunctions::caseInsensitiveLess);
-    std::ranges::sort(allVariables, SortFunctions::caseInsensitiveLess);
-
-    // Display:
-    Utility::Capture::cout() << "\nHelp for " << TreeName << "\nAdd the entries name to the command for more details: " << TreeName << " help <foo>\n";
-    Utility::Capture::cout() << "Available functions:\n";
-    for (auto const& [name, description] : allFunctions){
+    // Define a lambda to process each member
+    auto displayMember = [](std::string const& name, std::string const* description) -> void {
         // Only show the first line of the description
         std::string descriptionFirstLine = *description;
         if (size_t const newlinePos = description->find('\n'); newlinePos != std::string::npos){
@@ -602,78 +592,77 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::generalHelp(){
         std::string paddedName = name;
         paddedName.resize(namePaddingSize, ' ');
         Utility::Capture::cout() << "  " << paddedName << " - " << descriptionFirstLine << Utility::Capture::endl;
-    }
+    };
 
-    // Display variables
+    // All info: [name, description]
+    auto allFunctions = getAllFunctions();   // includes categories
+    auto allVariables = getAllVariables();
+
+    // Sort by name
+    std::ranges::sort(allFunctions, SortFunctions::caseInsensitiveLess);
+    std::ranges::sort(allVariables, SortFunctions::caseInsensitiveLess);
+
+    // Display:
+    Utility::Capture::cout() << "\nHelp for " << TreeName << "\nAdd the entries name to the command for more details: " << TreeName << " help <foo>\n";
+    Utility::Capture::cout() << "Available functions:\n";
+
+    // Use lambda with for_each on all functions and variables
+    // TODO: using structured bindings here would be nice, but that won't compile for some reason
+    std::ranges::for_each(allFunctions, [&](auto const& pair){
+        displayMember(pair.first, pair.second);
+    });
     Utility::Capture::cout() << "Available variables:\n";
-    for (auto const& [name, description] : allVariables){
-        std::string paddedName = name;
-        paddedName.resize(namePaddingSize, ' ');
-        Utility::Capture::cout() << "  " << paddedName << " - " << *description << Utility::Capture::endl;
-    }
+    std::ranges::for_each(allVariables, [&](auto const& pair){
+        displayMember(pair.first, pair.second);
+    });
 }
 
-// TODO: Modernize with find_if etc.
 template<typename RETURN_TYPE, typename... additionalArgs>
-FuncTree<RETURN_TYPE, additionalArgs...>::BindingSearchResult FuncTree<RETURN_TYPE, additionalArgs...>::find(std::string const& name){
+FuncTree<RETURN_TYPE, additionalArgs...>::BindingSearchResult
+FuncTree<RETURN_TYPE, additionalArgs...>::find(std::string const& name) {
     BindingSearchResult result;
+
+    // Helper lambda to search in inherited trees
+    auto searchInInherited = [&](auto mapMember, auto& iteratorMember, bool& foundFlag) {
+        for (auto const& inheritedTree : inheritedTrees) {
+            if (inheritedTree) {
+                iteratorMember = (inheritedTree->bindingContainer.*mapMember).find(name);
+                if (iteratorMember != (inheritedTree->bindingContainer.*mapMember).end()) {
+                    foundFlag = true;
+                    return;
+                }
+            }
+        }
+    };
+
+    // --- Categories ---
     result.catIt = bindingContainer.categories.find(name);
-    result.funIt = bindingContainer.functions.find(name);
-    result.varIt = bindingContainer.variables.find(name);
-
-    // Categories
-    if(result.catIt != bindingContainer.categories.end()){
+    if (result.catIt != bindingContainer.categories.end()) {
         result.category = true;
-    }
-    else{
-        for(auto const& inheritedTree : inheritedTrees){
-            if(inheritedTree != nullptr){
-                result.catIt = inheritedTree->bindingContainer.categories.find(name);
-            }
-            if(result.catIt != inheritedTree->bindingContainer.categories.end()){
-                result.category = true;
-                break; // Found in inherited tree, stop searching
-            }
-        }
+    } else {
+        searchInInherited(&BindingContainer::categories, result.catIt, result.category);
     }
 
-    // Functions
-    if(result.funIt != bindingContainer.functions.end()){
+    // --- Functions ---
+    result.funIt = bindingContainer.functions.find(name);
+    if (result.funIt != bindingContainer.functions.end()) {
         result.function = true;
-    }
-    else{
-        for(auto const& inheritedTree : inheritedTrees){
-            if(inheritedTree != nullptr){
-                result.funIt = inheritedTree->bindingContainer.functions.find(name);
-            }
-            if(result.funIt != inheritedTree->bindingContainer.functions.end()){
-                result.function = true;
-                break; // Found in inherited tree, stop searching
-            }
-        }
+    } else {
+        searchInInherited(&BindingContainer::functions, result.funIt, result.function);
     }
 
-    // Variables
-    if(result.varIt != bindingContainer.variables.end()){
+    // --- Variables ---
+    result.varIt = bindingContainer.variables.find(name);
+    if (result.varIt != bindingContainer.variables.end()) {
         result.variable = true;
-    }
-    else{
-        for(auto const& inheritedTree : inheritedTrees){
-            if(inheritedTree != nullptr){
-                result.varIt = inheritedTree->bindingContainer.variables.find(name);
-            }
-            if(result.varIt != inheritedTree->bindingContainer.variables.end()){
-                result.variable = true;
-                break; // Found in inherited tree, stop searching
-            }
-        }
+    } else {
+        searchInInherited(&BindingContainer::variables, result.varIt, result.variable);
     }
 
-    if (result.category || result.function || result.variable){
-        result.any = true;
-    }
+    result.any = result.category || result.function || result.variable;
     return result;
 }
+
 
 }   // namespace Nebulite::Interaction::Execution
 #endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREE_TPP
