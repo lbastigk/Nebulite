@@ -71,7 +71,12 @@ namespace bindErrorMessage{
     }
 } // anonymous namespace
 
-static std::string demangle(const char* name) {
+/**
+ * @brief Demangles a C++ type name.
+ * @param name The mangled type name from typeid().name()
+ * @return An unmangled, human-readable type name.
+ */
+inline std::string demangle(const char* name) {
     int status = 0;
     char* dem = abi::__cxa_demangle(name, nullptr, nullptr, &status);
     std::string out = status == 0 && dem ? dem : name;
