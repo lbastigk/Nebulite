@@ -518,17 +518,14 @@ bool FuncTree<RETURN_TYPE, additionalArgs...>::hasFunction(std::string const& na
 
 namespace SortFunctions {
     // Case-insensitive comparison function
-    inline auto caseInsensitiveLess = [](auto const& a, auto const& b){
-        std::string const& sa = a.first;
-        std::string const& sb = b.first;
-        size_t const n = std::min(sa.size(), sb.size());
-        for (size_t i = 0; i < n; ++i){
-            char const ca = static_cast<char>(std::tolower(static_cast<unsigned char>(sa[i])));
-            char const cb = static_cast<char>(std::tolower(static_cast<unsigned char>(sb[i])));
-            if (ca < cb) return true;
-            if (ca > cb) return false;
-        }
-        return sa.size() < sb.size();
+    inline auto caseInsensitiveLess = [](auto const& a, auto const& b) {
+        return std::ranges::lexicographical_compare(
+            a.first, b.first,
+            [](char const lhs, char const rhs) {
+                return std::tolower(static_cast<unsigned char>(lhs)) <
+                       std::tolower(static_cast<unsigned char>(rhs));
+            }
+        );
     };
 }   // namespace SortFunctions
 
