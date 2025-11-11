@@ -345,9 +345,14 @@ std::vector<std::pair<std::string, std::string const*>> FuncTree<RETURN_TYPE, ad
 // Parsing and execution
 
 template<typename RETURN_TYPE, typename... additionalArgs>
-RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::parseStr(std::string const& cmd){
+RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::parseStr(std::string const& cmd, additionalArgs... addArgs){
     // Quote-aware tokenization
     std::vector<std::string> tokens = Utility::StringHandler::parseQuotedArguments(cmd);
+
+    ////////////////////////////////////////////
+    //------------------------------------------
+    // TODO: parsing variables etc should be done with tokens or with the span
+    //       then we only convert to argc/argv if we need to inside executeFunction
 
     // Convert to argc/argv
     size_t argc = tokens.size();
@@ -371,25 +376,32 @@ RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::parseStr(std::string const
         return _standard;   // Nothing to execute, return standard
     }
 
+    // turn argc/argv into span
+    std::vector<std::string> argsVec;
+    argsVec.reserve(argc);
+    for(size_t i = 0; i < argc; i++){
+        argsVec.emplace_back(argv[i]);
+    }
+    auto tokensSpan = std::span<std::string const>(argsVec.data(), argsVec.size());
+
+    ////////////////////////////////////////////
+
     // The first argument left is the new function name
-    std::string funcName = argv[0];
+    std::string funcName = tokensSpan.front();
 
     // Check in inherited FuncTrees first
     auto inheritedTree = findInInheritedTrees(funcName);
     if(inheritedTree != nullptr){
         // Function is in inherited tree, parse there
-        return inheritedTree->executeFunction(funcName, static_cast<int>(argc), argv);
+        return inheritedTree->executeFunction(funcName, argc, argv, tokensSpan, addArgs...);
     }
 
     // Not found in inherited trees, execute the function the main tree
-    return executeFunction(funcName, static_cast<int>(argc), argv);
+    return executeFunction(funcName, argc, argv, tokensSpan, addArgs...);
 }
 
-// TODO: Modify to take all types of arguments and passing them to the functions
-//       executeFunction(name, SpanArgs args, additionalArgs... addArgs)
-//       executeFunction(name, int argc, char** argv, additionalArgs... addArgs)
 template<typename RETURN_TYPE, typename... additionalArgs>
-RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::executeFunction(std::string const& name, int argc, char* argv[]){
+RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::executeFunction(std::string const& name, int argc, char** argv, std::span<std::string const> const& args, additionalArgs... addArgs){
     // Call preParse function if set
     if(preParse != nullptr){
         RETURN_TYPE err = preParse();
@@ -412,21 +424,17 @@ RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::executeFunction(std::strin
 
             // Legacy function types
             if constexpr (std::is_same_v<T, std::function<RETURN_TYPE(int, char**)>>){
+                // Convert to argc/argv
                 return func(argc, argv);
             } else if constexpr (std::is_same_v<T, std::function<RETURN_TYPE(int, char const**)>>){
+                // Convert char** to char const**
                 std::vector<char const*> argv_const(static_cast<size_t>(argc));
                 for (size_t i = 0; i < static_cast<size_t>(argc); ++i) argv_const[i] = argv[i];
                 return func(argc, argv_const.data());
             }
             // Modern function types
             else if constexpr (std::is_same_v<T, SpanFn>){
-                // Convert argc, argv to std::span<std::string const>
-                std::vector<std::string> argsVec(static_cast<size_t>(argc));
-                for (size_t i = 0; i < static_cast<size_t>(argc); ++i){
-                    argsVec[i] = std::string(argv[i]);
-                }
-                std::span<std::string const> argsSpan(argsVec.data(), argsVec.size());
-                return func(argsSpan);
+                return func(args, addArgs...);
             }
             // Unknown function type
             else {

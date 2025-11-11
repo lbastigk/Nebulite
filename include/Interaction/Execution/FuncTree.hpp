@@ -163,9 +163,10 @@ public:
      * ```
      * 
      * @param cmd Command string to parse
+     * @param addArgs Additional arguments to pass to the executed function
      * @return The return value of the executed function, or the standard/error value.
      */
-    RETURN_TYPE parseStr(std::string const& cmd);
+    RETURN_TYPE parseStr(std::string const& cmd, additionalArgs... addArgs);
 
     //------------------------------------------
     // Binding functions and variables
@@ -281,11 +282,13 @@ private:
      * This function looks up the function by name and calls it with the provided arguments.
      * 
      * @param name The name of the function to execute.
-     * @param argc The argument count.
-     * @param argv The argument vector.
+     * @param argc [Legacy] Argument count.
+     * @param argv [Legacy] Argument vector.
+     * @param args Modern argument span.
+     * @param addArgs Additional arguments to pass to the function.
      * @return The return value of the function.
      */
-    RETURN_TYPE executeFunction(std::string const& name, int argc, char* argv[]);
+    RETURN_TYPE executeFunction(std::string const& name, int argc, char** argv, std::span<std::string const> const& args, additionalArgs... addArgs);
 
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
