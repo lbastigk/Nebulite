@@ -62,8 +62,8 @@ namespace Nebulite::Interaction::Execution{
  * Example:
  * ```cpp
  * bool myArgument = false;
- * int foo(int argc, char** argv){Utility::Capture::cout() << "foo: " << myArgument << Utility::Capture::endl}
- * int bar(int argc, char** argv){Utility::Capture::cout() << "bar: " << myArgument << Utility::Capture::endl}
+ * int foo(std::span<std::string const> const& args){Utility::Capture::cout() << "foo: " << myArgument << Utility::Capture::endl}
+ * int bar(std::span<std::string const> const& args){Utility::Capture::cout() << "bar: " << myArgument << Utility::Capture::endl}
  *
  * FuncTree<int> funcTree;
  * funcTree.bindVariable(&myArgument, "myArgument", "This is my argument");
@@ -74,21 +74,22 @@ namespace Nebulite::Interaction::Execution{
  * funcTree.parseStr(command);  // output: "foo: true"
  * ```
  */
-template<typename RETURN_TYPE>
+template<typename RETURN_TYPE, typename... additionalArgs>
 class FuncTree {
 public:
     // Make sure all FuncTrees are friends
-    template<typename RT>
+    template<typename RT, typename... AA>
     friend class FuncTree;
 
     // canonical span function type (no reference-qualified std::function)
-    using SpanFn = std::function<RETURN_TYPE(std::span<std::string const> const&)>;
+    using SpanArgs = std::span<std::string const>;
+    using SpanFn = std::function<RETURN_TYPE (SpanArgs const&, additionalArgs...)>;
 
     // Function pointer type
     using FunctionPtr = std::variant<
         // Legacy (goal is to rewrite all functions to modern style, so we can remove these eventually)
-        std::function<RETURN_TYPE(int, char**)>,
-        std::function<RETURN_TYPE(int, char const**)>,
+        std::function<RETURN_TYPE (int, char**)>,
+        std::function<RETURN_TYPE (int, char const**)>,
         // Modern
         SpanFn
     >;
@@ -100,8 +101,8 @@ public:
         RETURN_TYPE (ClassType::*)(int, char**),
         RETURN_TYPE (ClassType::*)(int, char const**),
         // Modern
-        RETURN_TYPE (ClassType::*)(std::span<std::string const>),
-        RETURN_TYPE (ClassType::*)(std::span<std::string const>) const
+        RETURN_TYPE (ClassType::*)(SpanArgs, additionalArgs...),
+        RETURN_TYPE (ClassType::*)(SpanArgs, additionalArgs...) const
     >;
 
     //------------------------------------------
