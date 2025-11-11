@@ -120,10 +120,10 @@ public:
     /**
      * @brief Constructor for the FuncTree class.
      * @param treeName Name of the tree
-     * @param standard Value to return if everything is okay
-     * @param functionNotFoundError Value to return if the parsed function was not found
+     * @param valDefault Value to return if everything is okay
+     * @param valFunctionNotFound Value to return if the parsed function was not found
      */
-    FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError);
+    FuncTree(std::string treeName, RETURN_TYPE valDefault, RETURN_TYPE valFunctionNotFound);
 
     /**
      * @brief Inherits functions from another Tree.
@@ -227,8 +227,25 @@ public:
     void bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription);
 
 private:
+    // Name of the tree, used for help and output
+    std::string TreeName;
+
     // Function to call before parsing (e.g., for setting up variables or locking resources)
     std::function<RETURN_TYPE()> preParse = nullptr;
+
+    struct StandardReturnValues{
+        RETURN_TYPE valDefault;
+        RETURN_TYPE valFunctionNotFound;
+    } standardReturn;
+
+    /**
+     * @struct CategoryInfo
+     * @brief Represents a category within the FuncTree with its description.
+     */
+    struct CategoryInfo {
+        std::unique_ptr<FuncTree> tree;
+        std::string const* description;
+    };
 
     /**
      * @struct FunctionInfo
@@ -248,29 +265,13 @@ private:
         std::string const* description;
     };
 
-    /**
-     * @struct CategoryInfo
-     * @brief Represents a category within the FuncTree with its description.
-     */
-    struct CategoryInfo {
-        std::unique_ptr<FuncTree> tree;
-        std::string const* description;
-    };
-
-    // Status "ok"
-    RETURN_TYPE _standard;
-
-    // Status "Function not found"
-    RETURN_TYPE _functionNotFoundError;
-
-
-
-    // Name of the tree, used for help and output
-    std::string TreeName; 
-
     // inherited FuncTrees linked to this tree
     std::vector<std::shared_ptr<FuncTree>> inheritedTrees;
 
+    /**
+     * @struct BindingContainer
+     * @brief Contains all bindings for categories, functions, and variables.
+     */
     struct BindingContainer {
         // Map for Categories: name -> (category, info)
         absl::flat_hash_map<std::string, CategoryInfo> categories;
@@ -282,11 +283,11 @@ private:
         absl::flat_hash_map<std::string, VariableInfo> variables;
     } bindingContainer;
 
-
-
+    ////////////////////////////////////////////
+    // Functions
 
     //------------------------------------------
-    // Functions
+    // Basic Functionality
 
     /**
      * @brief Checks if a function with the given name or from a full command exists.
@@ -346,13 +347,31 @@ private:
     /**
      * @brief Displays detailed help for a specific function, category, or variable.
      */
-    void specificHelp(std::string funcName);
+    void specificHelp(std::string const& funcName);
+
+    /**
+     * @struct BindingSearchResult
+     * @brief Helper struct to store search results for find
+     */
+    struct BindingSearchResult {
+        bool any = false;
+        bool function = false;
+        bool category = false;
+        bool variable = false;
+
+        absl::flat_hash_map<std::string, CategoryInfo>::iterator catIt;
+        absl::flat_hash_map<std::string, FunctionInfo>::iterator funIt;
+        absl::flat_hash_map<std::string, VariableInfo>::iterator varIt;
+    };
 
     /**
      * @brief After calling find on each hashmap, this function takes a closer look at the results
      * and sets the found flags accordingly.
+     *
+     * @param name Name of the function/category/variable to find
+     * @return SearchResult struct containing found flags
      */
-    void find(std::string const& name, bool& funcFound, auto& funcIt,  bool& subFound, auto& subIt, bool& varFound, auto& varIt);
+    BindingSearchResult find(std::string const& name);
 
     /**
      * @brief Displays general help for all functions, categories, and variables.

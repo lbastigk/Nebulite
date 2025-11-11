@@ -91,8 +91,9 @@ namespace Nebulite::Interaction::Execution{
 // Constructor implementation
 
 template<typename RETURN_TYPE, typename... additionalArgs>
-FuncTree<RETURN_TYPE, additionalArgs...>::FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError)
-: _standard(standard), _functionNotFoundError(functionNotFoundError), TreeName(std::move(treeName))
+FuncTree<RETURN_TYPE, additionalArgs...>::FuncTree(std::string treeName, RETURN_TYPE valDefault, RETURN_TYPE valFunctionNotFound)
+: TreeName(std::move(treeName)),
+  standardReturn{valDefault, valFunctionNotFound}
 {
     // construct the help entry in-place to avoid assignment and ambiguous lambda conversions
     bindingContainer.functions.emplace(
@@ -190,7 +191,7 @@ bool FuncTree<RETURN_TYPE, additionalArgs...>::bindCategory(std::string const& n
                 exit(EXIT_FAILURE);
             }
             // Create category
-            (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree>(currentCategoryName, _standard, _functionNotFoundError), helpDescription};
+            (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree>(currentCategoryName,   standardReturn.valDefault,  standardReturn.valFunctionNotFound), helpDescription};
         }
     }
     return true;
@@ -373,7 +374,7 @@ RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::parseStr(std::string const
 
     // Check if there are still arguments left
     if(argc == 0){
-        return _standard;   // Nothing to execute, return standard
+        return standardReturn.valDefault;   // Nothing to execute, return standard
     }
 
     // turn argc/argv into span
@@ -405,7 +406,7 @@ RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::executeFunction(std::strin
     // Call preParse function if set
     if(preParse != nullptr){
         RETURN_TYPE err = preParse();
-        if(err != _standard){
+        if(err !=    standardReturn.valDefault){
             return err; // Return error if preParse failed
         }
     }
@@ -460,7 +461,7 @@ RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::executeFunction(std::strin
     }
     Utility::Capture::cerr() << "Available functions:  " << bindingContainer.functions.size() << Utility::Capture::endl;
     Utility::Capture::cerr() << "Available categories: " << bindingContainer.categories.size()  << Utility::Capture::endl;
-    return _functionNotFoundError;  // Return error if function not found
+    return standardReturn.valFunctionNotFound;  // Return error if function not found
 }
 
 template<typename RETURN_TYPE, typename... additionalArgs>
@@ -500,8 +501,8 @@ bool FuncTree<RETURN_TYPE, additionalArgs...>::hasFunction(std::string const& na
     }
 
     // See if the function is linked
-    return  bindingContainer.functions.find(function)  != bindingContainer.functions.end() ||
-            bindingContainer.categories.find(function) != bindingContainer.categories.end();
+    return bindingContainer.functions.find(function)  != bindingContainer.functions.end() ||
+           bindingContainer.categories.find(function) != bindingContainer.categories.end();
 }
 
 //------------------------------------------
@@ -532,48 +533,36 @@ RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::help(std::span<std::string
         for (auto const& arg : args){
             specificHelp(arg);
         }
-        return _standard;
+        return standardReturn.valDefault;
     }
 
     //------------------------------------------
     // Case 2: General help for all functions, bindingContainer.categories and variables
     generalHelp();
-    return _standard;
+    return standardReturn.valDefault;
 }
 
 template<typename RETURN_TYPE, typename... additionalArgs>
-void FuncTree<RETURN_TYPE, additionalArgs...>::specificHelp(std::string funcName){
-    //------------------------------------------
-    // Find
-    bool funcFound = false;
-    bool subFound = false;
-    bool varFound = false;
-    auto funcIt = bindingContainer.functions.find(funcName);
-    auto subIt = bindingContainer.categories.find(funcName);
-    auto varIt = bindingContainer.variables.find(funcName);
-    find(funcName, funcFound, funcIt, subFound, subIt, varFound, varIt);
-
-    //------------------------------------------
-    // Print
-
-    // 1.) Function
-    if(funcFound){
-        // Found function, display detailed help
-        Utility::Capture::cout() << "\nHelp for function '" << funcName << "':\n" << Utility::Capture::endl;
-        Utility::Capture::cout() << *funcIt->second.description << "\n";
+void FuncTree<RETURN_TYPE, additionalArgs...>::specificHelp(std::string const& funcName){
+    if (BindingSearchResult const searchResult = find(funcName); searchResult.any){
+        // 1.) Function
+        if(searchResult.function){
+            // Found function, display detailed help
+            Utility::Capture::cout() << "\nHelp for function '" << funcName << "':\n" << Utility::Capture::endl;
+            Utility::Capture::cout() << *searchResult.funIt->second.description << "\n";
+        }
+        // 2.) Category
+        else if(searchResult.category){
+            // Found category, display detailed help
+            searchResult.catIt->second.tree->help({}); // Display all functions in the category
+        }
+        // 3.) Variable
+        else if(searchResult.variable){
+            // Found variable, display detailed help
+            Utility::Capture::cout() << "\nHelp for variable '--" << funcName << "':\n" << Utility::Capture::endl;
+            Utility::Capture::cout() << *searchResult.varIt->second.description << "\n";
+        }
     }
-    // 2.) Category
-    else if(subFound){
-        // Found category, display detailed help
-        subIt->second.tree->help({}); // Display all functions in the category
-    }
-    // 3.) Variable
-    else if(varFound){
-        // Found variable, display detailed help
-        Utility::Capture::cout() << "\nHelp for variable '--" << funcName << "':\n" << Utility::Capture::endl;
-        Utility::Capture::cout() << *varIt->second.description << "\n";
-    }
-    // 4.) Not found
     else{
         Utility::Capture::cerr() << "Function or Category '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
     }
@@ -617,54 +606,64 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::generalHelp(){
 }
 
 template<typename RETURN_TYPE, typename... additionalArgs>
-void FuncTree<RETURN_TYPE, additionalArgs...>::find(std::string const& name, bool& funcFound, auto& funcIt,  bool& subFound, auto& subIt, bool& varFound, auto& varIt){
-    // Functions
-    if(funcIt != bindingContainer.functions.end()){
-        funcFound = true;
+FuncTree<RETURN_TYPE, additionalArgs...>::BindingSearchResult FuncTree<RETURN_TYPE, additionalArgs...>::find(std::string const& name){
+    BindingSearchResult result;
+    result.catIt = bindingContainer.categories.find(name);
+    result.funIt = bindingContainer.functions.find(name);
+    result.varIt = bindingContainer.variables.find(name);
+
+    // Categories
+    if(result.catIt != bindingContainer.categories.end()){
+        result.category = true;
     }
     else{
         for(auto const& inheritedTree : inheritedTrees){
             if(inheritedTree != nullptr){
-                funcIt = inheritedTree->bindingContainer.functions.find(name);
+                result.catIt = inheritedTree->bindingContainer.categories.find(name);
             }
-            if(funcIt != inheritedTree->bindingContainer.functions.end()){
-                funcFound = true;
+            if(result.catIt != inheritedTree->bindingContainer.categories.end()){
+                result.category = true;
                 break; // Found in inherited tree, stop searching
             }
         }
     }
 
-    // Categories
-    if(subIt != bindingContainer.categories.end()){
-        subFound = true;
+    // Functions
+    if(result.funIt != bindingContainer.functions.end()){
+        result.function = true;
     }
     else{
         for(auto const& inheritedTree : inheritedTrees){
             if(inheritedTree != nullptr){
-                subIt = inheritedTree->bindingContainer.categories.find(name);
+                result.funIt = inheritedTree->bindingContainer.functions.find(name);
             }
-            if(subIt != inheritedTree->bindingContainer.categories.end()){
-                subFound = true;
+            if(result.funIt != inheritedTree->bindingContainer.functions.end()){
+                result.function = true;
                 break; // Found in inherited tree, stop searching
             }
         }
     }
 
     // Variables
-    if(varIt != bindingContainer.variables.end()){
-        varFound = true;
+    if(result.varIt != bindingContainer.variables.end()){
+        result.variable = true;
     }
     else{
         for(auto const& inheritedTree : inheritedTrees){
             if(inheritedTree != nullptr){
-                varIt = inheritedTree->bindingContainer.variables.find(name);
+                result.varIt = inheritedTree->bindingContainer.variables.find(name);
             }
-            if(varIt != inheritedTree->bindingContainer.variables.end()){
-                varFound = true;
+            if(result.varIt != inheritedTree->bindingContainer.variables.end()){
+                result.variable = true;
                 break; // Found in inherited tree, stop searching
             }
         }
     }
+
+    if (result.category || result.function || result.variable){
+        result.any = true;
+    }
+    return result;
 }
 
 }   // namespace Nebulite::Interaction::Execution
