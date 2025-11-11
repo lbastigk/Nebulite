@@ -71,35 +71,11 @@ public:
     virtual Constants::Error update(){ return Constants::ErrorTable::NONE(); }
 
     /**
-     * @brief Binds a member function to the FuncTree.
-     * 
+    * @brief Binds a member function to the FuncTree.
+     *
      * This function template allows for binding member functions of any class type
      * to the FuncTree, automatically handling the necessary type conversions.
-     * 
-     * Make sure the function has the signature:
-     * ```cpp
-     * Error functionName(int argc, char* argv[]);
-     * ```
      *
-     * @tparam ClassType The type of the class containing the member function.
-     * @param methodVariant A pointer to the member function to bind.
-     * @param name The name to associate with the bound function.
-     * @param helpDescription A pointer to a string containing the help description for the function.
-     */
-    template<typename ClassType>
-    void bindFunction(FuncTree<Constants::Error>::MemberMethod<ClassType> const& methodVariant, std::string const& name, std::string const* helpDescription){
-        std::visit([&](auto methodPtr) {
-            funcTree->bindFunction(
-                static_cast<ClassType*>(this),
-                FuncTree<Constants::Error>::MemberMethod<ClassType>(methodPtr),
-                name,
-                helpDescription
-            );
-        }, methodVariant);
-    }
-
-    /**
-     * @brief Deduction Helper.
      * @tparam ClassType The type of the class containing the member function.
      * @tparam ReturnType The return type of the member function.
      * @tparam Args The argument types of the member function.
@@ -111,7 +87,14 @@ public:
     void bindFunction(ReturnType (ClassType::*methodPtr)(Args...), std::string const& name, std::string const* helpDescription){
         using MemberVariant = FuncTree<Constants::Error>::MemberMethod<ClassType>;
         MemberVariant methodVariant{methodPtr};
-        bindFunction<ClassType>(methodVariant, name, helpDescription);
+        std::visit([&](auto mpr) {
+            funcTree->bindFunction(
+                static_cast<ClassType*>(this),
+                FuncTree<Constants::Error>::MemberMethod<ClassType>(mpr),
+                name,
+                helpDescription
+            );
+        }, methodVariant);
     }
 
     /**
