@@ -152,7 +152,6 @@ bool FuncTree<RETURN_TYPE>::bindCategory(std::string const& name, std::string co
          * as with different modules we might need to call this in each module,
          * just to make sure the category exists
          */
-        // Utility::Capture::cerr() << "Warning: A category with the name '" << name << "' already exists in the FuncTree '" << TreeName << "'." << Utility::Capture::endl;
         return false;
     }
     // Split based on whitespaces
@@ -245,6 +244,11 @@ void FuncTree<RETURN_TYPE>::directBind(std::string const& name, std::string cons
     std::visit([&]<typename MethodPointer>(MethodPointer&& methodPointer){
         using MethodType = std::decay_t<MethodPointer>;
 
+        // See if the method pointer is a modernized function
+        bool constexpr isModern = std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(std::span<std::string const>)> ||
+                                  std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(std::span<std::string const>) const> ||
+                                  std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(std::span<std::string const>) const&>;
+
         // Legacy Bindings
         if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(int, char**)>){
             functions.emplace(name, FunctionInfo{
@@ -268,19 +272,7 @@ void FuncTree<RETURN_TYPE>::directBind(std::string const& name, std::string cons
         }
 
         // Modern Bindings
-        else if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(std::span<std::string const>)>){
-            functions.emplace(name, FunctionInfo{
-                std::function<RETURN_TYPE(std::span<std::string const>)>(
-                    [obj, methodPointer](std::span<std::string const> args){
-                        return (obj->*methodPointer)(args);
-                    }
-                ),
-                helpDescription
-            });
-        }
-        // 4.) Bind std::span<std::string const> const method
-        else if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(std::span<std::string const>) const> ||
-                           std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(std::span<std::string const>) const&>){
+        else if constexpr (isModern){
             functions.emplace(name, FunctionInfo{
                 std::function<RETURN_TYPE(std::span<std::string const>)>(
                     [obj, methodPointer](std::span<std::string const> args){
