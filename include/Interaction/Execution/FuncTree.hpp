@@ -101,8 +101,8 @@ public:
         RETURN_TYPE (ClassType::*)(int, char**),
         RETURN_TYPE (ClassType::*)(int, char const**),
         // Modern
-        RETURN_TYPE (ClassType::*)(SpanArgs, additionalArgs...),
-        RETURN_TYPE (ClassType::*)(SpanArgs, additionalArgs...) const
+        RETURN_TYPE (ClassType::*)(SpanArgs, additionalArgs...)
+        //, RETURN_TYPE (ClassType::*)(SpanArgs, additionalArgs...) const
     >;
 
     //------------------------------------------
@@ -202,8 +202,7 @@ public:
     /**
      * @brief Binds a variable to the command tree.
      * Make sure the variable is of type std::string*.
-     * Once bound, it can be set via command line arguments: --varName=value (Must be before the function name!)
-     * A simple argument of `"--varName"` will set the value to `"true"`
+     * Once bound, it can be set via command line arguments: `--varName` (Must be before the function name!)
      * 
      * @param varPtr Pointer to the variable to bind
      * @param name Name of the variable in the command tree

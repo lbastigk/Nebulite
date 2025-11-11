@@ -250,9 +250,9 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::directBind(std::string const& nam
         using MethodType = std::decay_t<MethodPointer>;
 
         // See if the method pointer is a modernized function
-        bool constexpr isModern = std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(std::span<std::string const>)> ||
-                                  std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(std::span<std::string const>) const> ||
-                                  std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(std::span<std::string const>) const&>;
+        bool constexpr isModern =  std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(SpanArgs, additionalArgs...)>
+                                || std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(SpanArgs, additionalArgs...) const>
+                                || std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(SpanArgs, additionalArgs...) const&>;
 
         // Legacy Bindings
         if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(int, char**)>){
@@ -386,7 +386,8 @@ RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::parseStr(std::string const
 }
 
 // TODO: Modify to take all types of arguments and passing them to the functions
-//       executeFunction(name, args)
+//       executeFunction(name, SpanArgs args, additionalArgs... addArgs)
+//       executeFunction(name, int argc, char** argv, additionalArgs... addArgs)
 template<typename RETURN_TYPE, typename... additionalArgs>
 RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::executeFunction(std::string const& name, int argc, char* argv[]){
     // Call preParse function if set
