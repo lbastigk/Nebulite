@@ -10,7 +10,7 @@
  * #include "Interaction/Execution/FuncTree.hpp"
  * int main(int argc,  char** argv){
  *     FuncTree<std::string> funcTree("Nebulite", "ok", "Function not found");
- *     funcTree.bindFunction([](int argc,  char** argv){
+ *     funcTree.bindFunction([](int argc, char** argv){
  *         // Function implementation
  *         return "Function executed";
  *     }, "myFunction", "This function does something");
@@ -65,10 +65,13 @@ namespace Nebulite::Interaction::Execution{
  * int foo(std::span<std::string const> const& args){Utility::Capture::cout() << "foo: " << myArgument << Utility::Capture::endl}
  * int bar(std::span<std::string const> const& args){Utility::Capture::cout() << "bar: " << myArgument << Utility::Capture::endl}
  *
+ * // Note: The description actually needs to be a pointer to a string, so that it can be stored without copying.
+ * // The snippet below is simplified for clarity.
  * FuncTree<int> funcTree;
+ * funcTree.bindCategory("myCategory", "This is my category");
  * funcTree.bindVariable(&myArgument, "myArgument", "This is my argument");
- * funcTree.bindFunction(&foo, "foo", "This function does foo");
- * funcTree.bindFunction(&bar, "bar", "This function does bar");
+ * funcTree.bindFunction(&foo, "foo",            "This function does foo");
+ * funcTree.bindFunction(&bar, "myCategory bar", "This function does bar and is only callable via the category");
  *
  * std::string command = "FromExample --myArgument foo";
  * funcTree.parseStr(command);  // output: "foo: true"
@@ -77,9 +80,15 @@ namespace Nebulite::Interaction::Execution{
 template<typename RETURN_TYPE, typename... additionalArgs>
 class FuncTree {
 public:
+    //------------------------------------------
+    // Access
+
     // Make sure all FuncTrees are friends
     template<typename RT, typename... AA>
     friend class FuncTree;
+
+    //------------------------------------------
+    // Important types
 
     // canonical span function type (no reference-qualified std::function)
     using SpanArgs = std::span<std::string const>;
@@ -139,28 +148,34 @@ public:
     /**
      * @brief Parses the command line arguments and executes the corresponding function.
      * 
-     * All whitespaces outside of quotes are seen as argument separators:
-     * 
-     * Example: 
-     * ```cpp
-     * // Input string:
-     * "./bin/Nebulite if '$({myCondition} and {myOtherCondition})' echo here!"
-     * // Result:
-     * argv[0] = "./bin/Nebulite"
-     * argv[1] = "if"
-     * argv[2] = "$({myCondition} and {myOtherCondition})"  // due to the quotes, this is treated as a single argument
-     * argv[3] = "echo"
-     * argv[4] = "here!"
-     * ```
-     * 
+     * All whitespaces outside of quotes are seen as argument separators.
      * The first argument should be used to identify where the execution comes from.
      * All subsequent arguments starting with -- are treated as variable assignments.
      * The first argument after the variable assignments is the function to execute.
      * 
-     * Examples: 
-     * ```cpp 
-     * "./bin/Nebulite --myArgument foo"
+     * Example:
+     *
+     * ```cpp
+     * // Input string:
+     * "./bin/Nebulite --headless if '$({myCondition} and {myOtherCondition})' echo here!"
+     * // Result being parsed:
+     * argv[0] = "./bin/Nebulite"                           // The executable name or any other name specified on FuncTree construction
+     * argv[1] = "--headless"                               // Variable assignment
+     * argv[2] = "if"                                       // The function being executed
+     * argv[3] = "$({myCondition} and {myOtherCondition})"  // due to the quotes, this is treated as a single argument
+     * argv[4] = "echo"                                     // function argument
+     * argv[5] = "here!"                                    // function argument
      * ```
+     *
+     * The following arguments are passed to the executed function:
+     *
+     * - argv[0] = "if"
+     *
+     * - argv[1] = "$({myCondition} and {myOtherCondition})"
+     *
+     * - argv[2] = "echo"
+     *
+     * - argv[3] = "here!"
      * 
      * @param cmd Command string to parse
      * @param addArgs Additional arguments to pass to the executed function
@@ -169,7 +184,7 @@ public:
     RETURN_TYPE parseStr(std::string const& cmd, additionalArgs... addArgs);
 
     //------------------------------------------
-    // Binding functions and variables
+    // Binding (Functions, Categories, Variables)
 
     /**
      * @brief Creates a category.
@@ -215,15 +230,30 @@ private:
     // Function to call before parsing (e.g., for setting up variables or locking resources)
     std::function<RETURN_TYPE()> preParse = nullptr;
 
-    // Function - Description pair
+    /**
+     * @struct FunctionInfo
+     * @brief Contains information about a bound function, including its pointer and description.
+     */
     struct FunctionInfo {
         FunctionPtr function;
         std::string const* description;
     };
 
-    // Variable - Description pair
+    /**
+     * @struct VariableInfo
+     * @brief Contains information about a bound variable, including its pointer and description.
+     */
     struct VariableInfo {
         bool* pointer;
+        std::string const* description;
+    };
+
+    /**
+     * @struct CategoryInfo
+     * @brief Represents a category within the FuncTree with its description.
+     */
+    struct CategoryInfo {
+        std::unique_ptr<FuncTree> tree;
         std::string const* description;
     };
 
@@ -233,11 +263,7 @@ private:
     // Status "Function not found"
     RETURN_TYPE _functionNotFoundError;
 
-    // Map for Functions: name -> (functionPtr, info)
-    absl::flat_hash_map<std::string, FunctionInfo> functions;
 
-    // Map for variables: name -> (pointer, info)
-    absl::flat_hash_map<std::string, VariableInfo> variables;
 
     // Name of the tree, used for help and output
     std::string TreeName; 
@@ -245,19 +271,19 @@ private:
     // inherited FuncTrees linked to this tree
     std::vector<std::shared_ptr<FuncTree>> inheritedTrees;
 
-    /**
-     * @struct category
-     * @brief Represents a category within the FuncTree with its description.
-     */
-    struct category {
-        std::unique_ptr<FuncTree> tree;
-        std::string const* description;
-    };
+    struct BindingContainer {
+        // Map for Categories: name -> (category, info)
+        absl::flat_hash_map<std::string, CategoryInfo> categories;
 
-    /**
-     * @brief Map of categories within the FuncTree.
-     */
-    absl::flat_hash_map<std::string, category> categories;
+        // Map for Functions: name -> (functionPtr, info)
+        absl::flat_hash_map<std::string, FunctionInfo> functions;
+
+        // Map for variables: name -> (pointer, info)
+        absl::flat_hash_map<std::string, VariableInfo> variables;
+    } bindingContainer;
+
+
+
 
     //------------------------------------------
     // Functions
@@ -350,7 +376,7 @@ private:
 
                 // Set variable if attached
                 // TODO: Search in inherited FuncTrees as well
-                if (auto varIt = variables.find(name); varIt != variables.end()){
+                if (auto varIt = bindingContainer.variables.find(name); varIt != bindingContainer.variables.end()){
                     if (auto const& varInfo = varIt->second; varInfo.pointer){
                         *varInfo.pointer = true;
                     }

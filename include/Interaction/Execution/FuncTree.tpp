@@ -95,7 +95,7 @@ FuncTree<RETURN_TYPE, additionalArgs...>::FuncTree(std::string treeName, RETURN_
 : _standard(standard), _functionNotFoundError(functionNotFoundError), TreeName(std::move(treeName))
 {
     // construct the help entry in-place to avoid assignment and ambiguous lambda conversions
-    functions.emplace(
+    bindingContainer.functions.emplace(
         "help",
         FunctionInfo{
             std::function<RETURN_TYPE(std::span<std::string const> const&)>(
@@ -126,7 +126,7 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::bindFunction(
             Utility::Capture::cerr() << "Error: Invalid function name '" << name << "'." << Utility::Capture::endl;
             return;
         }
-        absl::flat_hash_map<std::string, category>* currentCategoryMap = &categories;
+        absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
         FuncTree* targetTree = this;
         for(size_t idx = 0; idx < pathStructure.size() - 1; idx++){
             std::string const& currentCategoryName = pathStructure[idx];
@@ -134,7 +134,7 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::bindFunction(
                 bindErrorMessage::MissingCategory(TreeName, currentCategoryName, name);
             }
             targetTree = (*currentCategoryMap)[currentCategoryName].tree.get();
-            currentCategoryMap = &targetTree->categories;
+            currentCategoryMap = &targetTree->bindingContainer.categories;
         }
         std::string functionName = pathStructure.back();
         targetTree->bindFunction(obj, method, functionName, helpDescription);
@@ -150,7 +150,7 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::bindFunction(
 
 template<typename RETURN_TYPE, typename... additionalArgs>
 bool FuncTree<RETURN_TYPE, additionalArgs...>::bindCategory(std::string const& name, std::string const* helpDescription){
-    if(categories.find(name) != categories.end()){
+    if(bindingContainer.categories.find(name) != bindingContainer.categories.end()){
         // Category already exists
         /**
          * @note Warning is suppressed here,
@@ -163,7 +163,7 @@ bool FuncTree<RETURN_TYPE, additionalArgs...>::bindCategory(std::string const& n
     std::vector<std::string> const categoryStructure = Utility::StringHandler::split(name, ' ');
     size_t const depth = categoryStructure.size();
 
-    absl::flat_hash_map<std::string, category>* currentCategoryMap = &categories;
+    absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
     for(size_t idx = 0; idx < depth; idx++){
         std::string currentCategoryName = categoryStructure[idx];
 
@@ -171,7 +171,7 @@ bool FuncTree<RETURN_TYPE, additionalArgs...>::bindCategory(std::string const& n
             // Not yet at last category
             if(currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()){
                 // Category exists, go deeper
-                currentCategoryMap = &(*currentCategoryMap)[currentCategoryName].tree->categories;
+                currentCategoryMap = &(*currentCategoryMap)[currentCategoryName].tree->bindingContainer.categories;
             }
             else{
                 // Category does not exist, throw error
@@ -208,13 +208,13 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::bindVariable(bool* varPtr, std::s
     }
 
     // Make sure the variable isn't bound yet
-    if (variables.find(name) != variables.end()){
+    if (bindingContainer.variables.find(name) != bindingContainer.variables.end()){
         Utility::Capture::cerr() << "Error: Variable '" << name << "' is already bound." << Utility::Capture::endl;
         exit(EXIT_FAILURE);
     }
 
     // Bind the variable
-    variables.emplace(name, VariableInfo{varPtr, helpDescription});
+    bindingContainer.variables.emplace(name, VariableInfo{varPtr, helpDescription});
 }
 
 //------------------------------------------
@@ -222,7 +222,7 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::bindVariable(bool* varPtr, std::s
 
 template<typename RETURN_TYPE, typename... additionalArgs>
 void FuncTree<RETURN_TYPE, additionalArgs...>::conflictCheck(std::string const &name) {
-    for (auto const& [categoryName, _] : categories){
+    for (auto const& [categoryName, _] : bindingContainer.categories){
         if (categoryName == name){
             bindErrorMessage::FunctionShadowsCategory(name);
         }
@@ -256,7 +256,7 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::directBind(std::string const& nam
 
         // Legacy Bindings
         if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(int, char**)>){
-            functions.emplace(name, FunctionInfo{
+            bindingContainer.functions.emplace(name, FunctionInfo{
                 std::function<RETURN_TYPE(int, char**)>(
                     [obj, methodPointer](int argc, char** argv){
                         return (obj->*methodPointer)(argc, argv);
@@ -266,7 +266,7 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::directBind(std::string const& nam
             });
         }
         else if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(int, char const**)>){
-            functions.emplace(name, FunctionInfo{
+            bindingContainer.functions.emplace(name, FunctionInfo{
                 std::function<RETURN_TYPE(int, char const**)>(
                     [obj, methodPointer](int argc, char const** argv){
                         return (obj->*methodPointer)(argc, argv);
@@ -278,7 +278,7 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::directBind(std::string const& nam
 
         // Modern Bindings
         else if constexpr (isModern){
-            functions.emplace(name, FunctionInfo{
+            bindingContainer.functions.emplace(name, FunctionInfo{
                 std::function<RETURN_TYPE(std::span<std::string const>)>(
                     [obj, methodPointer](std::span<std::string const> args){
                         return (obj->*methodPointer)(args);
@@ -300,21 +300,21 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::directBind(std::string const& nam
 template<typename RETURN_TYPE, typename... additionalArgs>
 std::vector<std::pair<std::string, std::string const*>> FuncTree<RETURN_TYPE, additionalArgs...>::getAllFunctions(){
     std::vector<std::pair<std::string, std::string const*>> allFunctions;
-    for (auto const& [name, info] : functions){
+    for (auto const& [name, info] : bindingContainer.functions){
         allFunctions.emplace_back(name, info.description);
     }
 
     // Get functions from inherited FuncTrees
     for(auto& inheritedTree : inheritedTrees){
         for (auto const& [name, description] : inheritedTree->getAllFunctions()){
-            if (functions.find(name) == functions.end()){
+            if (bindingContainer.functions.find(name) == bindingContainer.functions.end()){
                 allFunctions.emplace_back(name, description);
             }
         }
     }
 
-    // Get just the names of the categories
-    for (auto const& [categoryName, cat] : categories){
+    // Get just the names of the bindingContainer.categories
+    for (auto const& [categoryName, cat] : bindingContainer.categories){
         allFunctions.emplace_back(categoryName, cat.description);
     }
 
@@ -324,7 +324,7 @@ std::vector<std::pair<std::string, std::string const*>> FuncTree<RETURN_TYPE, ad
 template<typename RETURN_TYPE, typename... additionalArgs>
 std::vector<std::pair<std::string, std::string const*>> FuncTree<RETURN_TYPE, additionalArgs...>::getAllVariables(){
     std::vector<std::pair<std::string, std::string const*>> allVariables;
-    for (auto const& [name, info] : variables){
+    for (auto const& [name, info] : bindingContainer.variables){
         allVariables.emplace_back(name, info.description);
     }
 
@@ -332,7 +332,7 @@ std::vector<std::pair<std::string, std::string const*>> FuncTree<RETURN_TYPE, ad
     for (auto& inheritedTree : inheritedTrees){
         // Case by case, making sure we do not have duplicates
         for (auto const& [name, description] : inheritedTree->getAllVariables()){
-            if (variables.find(name) == variables.end()){
+            if (bindingContainer.variables.find(name) == bindingContainer.variables.end()){
                 allVariables.emplace_back(name, description);
             }
         }
@@ -416,8 +416,8 @@ RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::executeFunction(std::strin
     function = Utility::StringHandler::rStrip(function, ' ');
 
     // Find and execute the function
-    auto functionPosition = functions.find(function);
-    if (functionPosition != functions.end()){
+    auto functionPosition = bindingContainer.functions.find(function);
+    if (functionPosition != bindingContainer.functions.end()){
         auto& [functionPtr, description] = functionPosition->second;
         return std::visit([&]<typename Func>(Func&& func) -> RETURN_TYPE {
             using T = std::decay_t<Func>;
@@ -445,21 +445,21 @@ RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::executeFunction(std::strin
             }
         }, functionPtr);
     }
-    // Find function name in categories
-    if(categories.find(function) != categories.end()){
+    // Find function name in bindingContainer.categories
+    if(bindingContainer.categories.find(function) != bindingContainer.categories.end()){
         std::string cmd;
         for(int i = 0; i < argc; i++){
             cmd += std::string(argv[i]) + " ";
         }
-        return categories[function].tree->parseStr(cmd);
+        return bindingContainer.categories[function].tree->parseStr(cmd);
     }
-    Utility::Capture::cerr() << "Function '" << function << "' not found in FuncTree " << TreeName << " or its SubTrees!\n";
+    Utility::Capture::cerr() << "Function '" << function << "' not found in FuncTree " << TreeName << ", its inherited FuncTrees or their categories!\n";
     Utility::Capture::cerr() << "Arguments are:" << Utility::Capture::endl;
     for(int i = 0; i < argc; i++){
         Utility::Capture::cerr() << "argv[" << i << "] = '" << argv[i] << "'\n";
     }
-    Utility::Capture::cerr() << "Available functions: " << functions.size() << Utility::Capture::endl;
-    Utility::Capture::cerr() << "Available SubTrees:  " << categories.size()  << Utility::Capture::endl;
+    Utility::Capture::cerr() << "Available functions:  " << bindingContainer.functions.size() << Utility::Capture::endl;
+    Utility::Capture::cerr() << "Available categories: " << bindingContainer.categories.size()  << Utility::Capture::endl;
     return _functionNotFoundError;  // Return error if function not found
 }
 
@@ -500,8 +500,8 @@ bool FuncTree<RETURN_TYPE, additionalArgs...>::hasFunction(std::string const& na
     }
 
     // See if the function is linked
-    return  functions.find(function)  != functions.end() ||
-            categories.find(function) != categories.end();
+    return  bindingContainer.functions.find(function)  != bindingContainer.functions.end() ||
+            bindingContainer.categories.find(function) != bindingContainer.categories.end();
 }
 
 //------------------------------------------
@@ -536,7 +536,7 @@ RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::help(std::span<std::string
     }
 
     //------------------------------------------
-    // Case 2: General help for all functions, categories and variables
+    // Case 2: General help for all functions, bindingContainer.categories and variables
     generalHelp();
     return _standard;
 }
@@ -548,9 +548,9 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::specificHelp(std::string funcName
     bool funcFound = false;
     bool subFound = false;
     bool varFound = false;
-    auto funcIt = functions.find(funcName);
-    auto subIt = categories.find(funcName);
-    auto varIt = variables.find(funcName);
+    auto funcIt = bindingContainer.functions.find(funcName);
+    auto subIt = bindingContainer.categories.find(funcName);
+    auto varIt = bindingContainer.variables.find(funcName);
     find(funcName, funcFound, funcIt, subFound, subIt, varFound, varIt);
 
     //------------------------------------------
@@ -619,15 +619,15 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::generalHelp(){
 template<typename RETURN_TYPE, typename... additionalArgs>
 void FuncTree<RETURN_TYPE, additionalArgs...>::find(std::string const& name, bool& funcFound, auto& funcIt,  bool& subFound, auto& subIt, bool& varFound, auto& varIt){
     // Functions
-    if(funcIt != functions.end()){
+    if(funcIt != bindingContainer.functions.end()){
         funcFound = true;
     }
     else{
         for(auto const& inheritedTree : inheritedTrees){
             if(inheritedTree != nullptr){
-                funcIt = inheritedTree->functions.find(name);
+                funcIt = inheritedTree->bindingContainer.functions.find(name);
             }
-            if(funcIt != inheritedTree->functions.end()){
+            if(funcIt != inheritedTree->bindingContainer.functions.end()){
                 funcFound = true;
                 break; // Found in inherited tree, stop searching
             }
@@ -635,15 +635,15 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::find(std::string const& name, boo
     }
 
     // Categories
-    if(subIt != categories.end()){
+    if(subIt != bindingContainer.categories.end()){
         subFound = true;
     }
     else{
         for(auto const& inheritedTree : inheritedTrees){
             if(inheritedTree != nullptr){
-                subIt = inheritedTree->categories.find(name);
+                subIt = inheritedTree->bindingContainer.categories.find(name);
             }
-            if(subIt != inheritedTree->categories.end()){
+            if(subIt != inheritedTree->bindingContainer.categories.end()){
                 subFound = true;
                 break; // Found in inherited tree, stop searching
             }
@@ -651,15 +651,15 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::find(std::string const& name, boo
     }
 
     // Variables
-    if(varIt != variables.end()){
+    if(varIt != bindingContainer.variables.end()){
         varFound = true;
     }
     else{
         for(auto const& inheritedTree : inheritedTrees){
             if(inheritedTree != nullptr){
-                varIt = inheritedTree->variables.find(name);
+                varIt = inheritedTree->bindingContainer.variables.find(name);
             }
-            if(varIt != inheritedTree->variables.end()){
+            if(varIt != inheritedTree->bindingContainer.variables.end()){
                 varFound = true;
                 break; // Found in inherited tree, stop searching
             }
