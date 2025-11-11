@@ -103,8 +103,8 @@ namespace Nebulite::Interaction::Execution{
 //------------------------------------------
 // Constructor implementation
 
-template<typename RETURN_TYPE, typename... additionalArgs>
-FuncTree<RETURN_TYPE, additionalArgs...>::FuncTree(std::string treeName, RETURN_TYPE valDefault, RETURN_TYPE valFunctionNotFound)
+template<typename returnType, typename... additionalArgs>
+FuncTree<returnType, additionalArgs...>::FuncTree(std::string treeName, returnType valDefault, returnType valFunctionNotFound)
 : TreeName(std::move(treeName)),
   standardReturn{valDefault, valFunctionNotFound}
 {
@@ -112,7 +112,7 @@ FuncTree<RETURN_TYPE, additionalArgs...>::FuncTree(std::string treeName, RETURN_
     bindingContainer.functions.emplace(
         "help",
         FunctionInfo{
-            std::function<RETURN_TYPE(std::span<std::string const> const&)>(
+            std::function<returnType(std::span<std::string const> const&)>(
                 [this](std::span<std::string const> const& args){
                     return this->help(args);
                 }
@@ -125,9 +125,9 @@ FuncTree<RETURN_TYPE, additionalArgs...>::FuncTree(std::string treeName, RETURN_
 //------------------------------------------
 // Binding (Functions, Categories, Variables)
 
-template<typename RETURN_TYPE, typename... additionalArgs>
+template<typename returnType, typename... additionalArgs>
 template<typename ClassType>
-void FuncTree<RETURN_TYPE, additionalArgs...>::bindFunction(
+void FuncTree<returnType, additionalArgs...>::bindFunction(
     ClassType* obj,
     MemberMethod<ClassType> method,
     std::string const& name,
@@ -162,8 +162,8 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::bindFunction(
     directBind(name, helpDescription, method, obj);
 }
 
-template<typename RETURN_TYPE, typename... additionalArgs>
-bool FuncTree<RETURN_TYPE, additionalArgs...>::bindCategory(std::string const& name, std::string const* helpDescription){
+template<typename returnType, typename... additionalArgs>
+bool FuncTree<returnType, additionalArgs...>::bindCategory(std::string const& name, std::string const* helpDescription){
     if(bindingContainer.categories.find(name) != bindingContainer.categories.end()){
         // Category already exists
         /**
@@ -207,9 +207,9 @@ bool FuncTree<RETURN_TYPE, additionalArgs...>::bindCategory(std::string const& n
 
 // Using noLint, as varPtr would be flagged as it's not const.
 // But this causes issues with binding variables.
-template<typename RETURN_TYPE, typename... additionalArgs>
+template<typename returnType, typename... additionalArgs>
 // NOLINTNEXTLINE
-void FuncTree<RETURN_TYPE, additionalArgs...>::bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription){
+void FuncTree<returnType, additionalArgs...>::bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription){
     // Make sure there are no whitespaces in the variable name
     if (name.find(' ') != std::string::npos){
         Utility::Capture::cerr() << "Error: Variable name '" << name << "' cannot contain whitespaces." << Utility::Capture::endl;
@@ -229,8 +229,8 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::bindVariable(bool* varPtr, std::s
 //------------------------------------------
 // Binding helper functions
 
-template<typename RETURN_TYPE, typename... additionalArgs>
-void FuncTree<RETURN_TYPE, additionalArgs...>::conflictCheck(std::string const &name) {
+template<typename returnType, typename... additionalArgs>
+void FuncTree<returnType, additionalArgs...>::conflictCheck(std::string const &name) {
     for (auto const& [categoryName, _] : bindingContainer.categories){
         if (categoryName == name){
             bindErrorMessage::FunctionShadowsCategory(name);
@@ -251,22 +251,22 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::conflictCheck(std::string const &
     }
 }
 
-template<typename RETURN_TYPE, typename... additionalArgs>
+template<typename returnType, typename... additionalArgs>
 template<typename ClassType>
-void FuncTree<RETURN_TYPE, additionalArgs...>::directBind(std::string const& name, std::string const* helpDescription, MemberMethod<ClassType> method, ClassType* obj){
+void FuncTree<returnType, additionalArgs...>::directBind(std::string const& name, std::string const* helpDescription, MemberMethod<ClassType> method, ClassType* obj){
     // Use std::visit to bind the correct function type
     std::visit([&]<typename MethodPointer>(MethodPointer&& methodPointer){
         using MethodType = std::decay_t<MethodPointer>;
 
         // See if the method pointer is a modernized function
-        bool constexpr isModern =  std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(SpanArgs, additionalArgs...)>
-                                || std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(SpanArgs, additionalArgs...) const>
-                                || std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(SpanArgs, additionalArgs...) const&>;
+        bool constexpr isModern =  std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs, additionalArgs...)>
+                                || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs, additionalArgs...) const>
+                                || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs, additionalArgs...) const&>;
 
         // Legacy Bindings
-        if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(int, char**)>){
+        if constexpr (std::is_same_v<MethodType, returnType (ClassType::*)(int, char**)>){
             bindingContainer.functions.emplace(name, FunctionInfo{
-                std::function<RETURN_TYPE(int, char**)>(
+                std::function<returnType(int, char**)>(
                     [obj, methodPointer](int argc, char** argv){
                         return (obj->*methodPointer)(argc, argv);
                     }
@@ -274,9 +274,9 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::directBind(std::string const& nam
                 helpDescription
             });
         }
-        else if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(int, char const**)>){
+        else if constexpr (std::is_same_v<MethodType, returnType (ClassType::*)(int, char const**)>){
             bindingContainer.functions.emplace(name, FunctionInfo{
-                std::function<RETURN_TYPE(int, char const**)>(
+                std::function<returnType(int, char const**)>(
                     [obj, methodPointer](int argc, char const** argv){
                         return (obj->*methodPointer)(argc, argv);
                     }
@@ -288,7 +288,7 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::directBind(std::string const& nam
         // Modern Bindings
         else if constexpr (isModern){
             bindingContainer.functions.emplace(name, FunctionInfo{
-                std::function<RETURN_TYPE(std::span<std::string const>)>(
+                std::function<returnType(std::span<std::string const>)>(
                     [obj, methodPointer](std::span<std::string const> args){
                         return (obj->*methodPointer)(args);
                     }
@@ -306,8 +306,8 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::directBind(std::string const& nam
 //------------------------------------------
 // Getter
 
-template<typename RETURN_TYPE, typename... additionalArgs>
-std::vector<std::pair<std::string, std::string const*>> FuncTree<RETURN_TYPE, additionalArgs...>::getAllFunctions(){
+template<typename returnType, typename... additionalArgs>
+std::vector<std::pair<std::string, std::string const*>> FuncTree<returnType, additionalArgs...>::getAllFunctions(){
     std::vector<std::pair<std::string, std::string const*>> allFunctions;
     for (auto const& [name, info] : bindingContainer.functions){
         allFunctions.emplace_back(name, info.description);
@@ -330,8 +330,8 @@ std::vector<std::pair<std::string, std::string const*>> FuncTree<RETURN_TYPE, ad
     return allFunctions;
 }
 
-template<typename RETURN_TYPE, typename... additionalArgs>
-std::vector<std::pair<std::string, std::string const*>> FuncTree<RETURN_TYPE, additionalArgs...>::getAllVariables(){
+template<typename returnType, typename... additionalArgs>
+std::vector<std::pair<std::string, std::string const*>> FuncTree<returnType, additionalArgs...>::getAllVariables(){
     std::vector<std::pair<std::string, std::string const*>> allVariables;
     for (auto const& [name, info] : bindingContainer.variables){
         allVariables.emplace_back(name, info.description);
@@ -353,8 +353,8 @@ std::vector<std::pair<std::string, std::string const*>> FuncTree<RETURN_TYPE, ad
 //------------------------------------------
 // Parsing and execution
 
-template<typename RETURN_TYPE, typename... additionalArgs>
-RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::parseStr(std::string const& cmd, additionalArgs... addArgs){
+template<typename returnType, typename... additionalArgs>
+returnType FuncTree<returnType, additionalArgs...>::parseStr(std::string const& cmd, additionalArgs... addArgs){
     // Quote-aware tokenization
     std::vector<std::string> tokens = Utility::StringHandler::parseQuotedArguments(cmd);
 
@@ -409,11 +409,11 @@ RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::parseStr(std::string const
     return executeFunction(funcName, argc, argv, tokensSpan, addArgs...);
 }
 
-template<typename RETURN_TYPE, typename... additionalArgs>
-RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::executeFunction(std::string const& name, int argc, char** argv, std::span<std::string const> const& args, additionalArgs... addArgs){
+template<typename returnType, typename... additionalArgs>
+returnType FuncTree<returnType, additionalArgs...>::executeFunction(std::string const& name, int argc, char** argv, std::span<std::string const> const& args, additionalArgs... addArgs){
     // Call preParse function if set
     if(preParse != nullptr){
-        RETURN_TYPE err = preParse();
+        returnType err = preParse();
         if(err !=    standardReturn.valDefault){
             return err; // Return error if preParse failed
         }
@@ -428,14 +428,14 @@ RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::executeFunction(std::strin
     auto functionPosition = bindingContainer.functions.find(function);
     if (functionPosition != bindingContainer.functions.end()){
         auto& [functionPtr, description] = functionPosition->second;
-        return std::visit([&]<typename Func>(Func&& func) -> RETURN_TYPE {
+        return std::visit([&]<typename Func>(Func&& func) -> returnType {
             using T = std::decay_t<Func>;
 
             // Legacy function types
-            if constexpr (std::is_same_v<T, std::function<RETURN_TYPE(int, char**)>>){
+            if constexpr (std::is_same_v<T, std::function<returnType(int, char**)>>){
                 // Convert to argc/argv
                 return func(argc, argv);
-            } else if constexpr (std::is_same_v<T, std::function<RETURN_TYPE(int, char const**)>>){
+            } else if constexpr (std::is_same_v<T, std::function<returnType(int, char const**)>>){
                 // Convert char** to char const**
                 std::vector<char const*> argv_const(static_cast<size_t>(argc));
                 for (size_t i = 0; i < static_cast<size_t>(argc); ++i) argv_const[i] = argv[i];
@@ -472,8 +472,8 @@ RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::executeFunction(std::strin
     return standardReturn.valFunctionNotFound;  // Return error if function not found
 }
 
-template<typename RETURN_TYPE, typename... additionalArgs>
-bool FuncTree<RETURN_TYPE, additionalArgs...>::hasFunction(std::string const& nameOrCommand){
+template<typename returnType, typename... additionalArgs>
+bool FuncTree<returnType, additionalArgs...>::hasFunction(std::string const& nameOrCommand){
     // Make sure only the command name is used
     std::vector<std::string> tokens = Utility::StringHandler::split(nameOrCommand, ' ');
 
@@ -529,8 +529,8 @@ namespace SortFunctions {
     };
 }   // namespace SortFunctions
 
-template<typename RETURN_TYPE, typename... additionalArgs>
-RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::help(std::span<std::string const> const& args){
+template<typename returnType, typename... additionalArgs>
+returnType FuncTree<returnType, additionalArgs...>::help(std::span<std::string const> const& args){
     //------------------------------------------
     // Case 1: Detailed help for a specific function, category or variable
     if(args.size() > 1){
@@ -547,8 +547,8 @@ RETURN_TYPE FuncTree<RETURN_TYPE, additionalArgs...>::help(std::span<std::string
     return standardReturn.valDefault;
 }
 
-template<typename RETURN_TYPE, typename... additionalArgs>
-void FuncTree<RETURN_TYPE, additionalArgs...>::specificHelp(std::string const& funcName){
+template<typename returnType, typename... additionalArgs>
+void FuncTree<returnType, additionalArgs...>::specificHelp(std::string const& funcName){
     if (BindingSearchResult const searchResult = find(funcName); searchResult.any){
         // 1.) Function
         if(searchResult.function){
@@ -573,8 +573,8 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::specificHelp(std::string const& f
     }
 }
 
-template<typename RETURN_TYPE, typename... additionalArgs>
-void FuncTree<RETURN_TYPE, additionalArgs...>::generalHelp(){
+template<typename returnType, typename... additionalArgs>
+void FuncTree<returnType, additionalArgs...>::generalHelp(){
     // Padding size for names
     // '<name padded> - <description>'
     uint16_t constexpr namePaddingSize = 25;
@@ -614,9 +614,9 @@ void FuncTree<RETURN_TYPE, additionalArgs...>::generalHelp(){
     });
 }
 
-template<typename RETURN_TYPE, typename... additionalArgs>
-FuncTree<RETURN_TYPE, additionalArgs...>::BindingSearchResult
-FuncTree<RETURN_TYPE, additionalArgs...>::find(std::string const& name) {
+template<typename returnType, typename... additionalArgs>
+FuncTree<returnType, additionalArgs...>::BindingSearchResult
+FuncTree<returnType, additionalArgs...>::find(std::string const& name) {
     BindingSearchResult result;
 
     // Helper lambda to search in inherited trees

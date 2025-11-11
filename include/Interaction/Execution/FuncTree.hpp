@@ -77,7 +77,7 @@ namespace Nebulite::Interaction::Execution{
  * funcTree.parseStr(command);  // output: "foo: true"
  * ```
  */
-template<typename RETURN_TYPE, typename... additionalArgs>
+template<typename returnValue, typename... additionalArgs>
 class FuncTree {
 public:
     //------------------------------------------
@@ -92,13 +92,13 @@ public:
 
     // canonical span function type (no reference-qualified std::function)
     using SpanArgs = std::span<std::string const>;
-    using SpanFn = std::function<RETURN_TYPE (SpanArgs const&, additionalArgs...)>;
+    using SpanFn = std::function<returnValue (SpanArgs const&, additionalArgs...)>;
 
     // Function pointer type
     using FunctionPtr = std::variant<
         // Legacy (goal is to rewrite all functions to modern style, so we can remove these eventually)
-        std::function<RETURN_TYPE (int, char**)>,
-        std::function<RETURN_TYPE (int, char const**)>,
+        std::function<returnValue (int, char**)>,
+        std::function<returnValue (int, char const**)>,
         // Modern
         SpanFn
     >;
@@ -107,11 +107,10 @@ public:
     template<typename ClassType>
     using MemberMethod = std::variant<
         // Legacy
-        RETURN_TYPE (ClassType::*)(int, char**),
-        RETURN_TYPE (ClassType::*)(int, char const**),
+        returnValue (ClassType::*)(int, char**),
+        returnValue (ClassType::*)(int, char const**),
         // Modern
-        RETURN_TYPE (ClassType::*)(SpanArgs, additionalArgs...)
-        //, RETURN_TYPE (ClassType::*)(SpanArgs, additionalArgs...) const
+        returnValue (ClassType::*)(SpanArgs, additionalArgs...)
     >;
 
     //------------------------------------------
@@ -123,7 +122,7 @@ public:
      * @param valDefault Value to return if everything is okay
      * @param valFunctionNotFound Value to return if the parsed function was not found
      */
-    FuncTree(std::string treeName, RETURN_TYPE valDefault, RETURN_TYPE valFunctionNotFound);
+    FuncTree(std::string treeName, returnValue valDefault, returnValue valFunctionNotFound);
 
     /**
      * @brief Inherits functions from another Tree.
@@ -141,7 +140,7 @@ public:
      * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
      * @param func Function to call before parsing
      */
-    void setPreParse(std::function<RETURN_TYPE()> func){
+    void setPreParse(std::function<returnValue()> func){
         preParse = func;
     }
 
@@ -181,7 +180,7 @@ public:
      * @param addArgs Additional arguments to pass to the executed function
      * @return The return value of the executed function, or the standard/error value.
      */
-    RETURN_TYPE parseStr(std::string const& cmd, additionalArgs... addArgs);
+    returnValue parseStr(std::string const& cmd, additionalArgs... addArgs);
 
     //------------------------------------------
     // Binding (Functions, Categories, Variables)
@@ -203,7 +202,7 @@ public:
      * 
      * Make sure the function has the signature:
      * ```cpp
-     * RETURN_TYPE functionName(int argc, char** argv);
+     * returnValue functionName(int argc, char** argv);
      * ```
      * 
      * @tparam ClassType The class type of the object instance
@@ -231,11 +230,11 @@ private:
     std::string TreeName;
 
     // Function to call before parsing (e.g., for setting up variables or locking resources)
-    std::function<RETURN_TYPE()> preParse = nullptr;
+    std::function<returnValue()> preParse = nullptr;
 
     struct StandardReturnValues{
-        RETURN_TYPE valDefault;
-        RETURN_TYPE valFunctionNotFound;
+        returnValue valDefault;
+        returnValue valFunctionNotFound;
     } standardReturn;
 
     /**
@@ -315,12 +314,12 @@ private:
      * @param addArgs Additional arguments to pass to the function.
      * @return The return value of the function.
      */
-    RETURN_TYPE executeFunction(std::string const& name, int argc, char** argv, std::span<std::string const> const& args, additionalArgs... addArgs);
+    returnValue executeFunction(std::string const& name, int argc, char** argv, std::span<std::string const> const& args, additionalArgs... addArgs);
 
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
      */
-    RETURN_TYPE help(std::span<std::string const> const& args);
+    returnValue help(std::span<std::string const> const& args);
 
     /**
      * @brief Retrieves a list of all functions and their descriptions.
