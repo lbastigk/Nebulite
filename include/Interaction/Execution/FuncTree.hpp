@@ -37,6 +37,7 @@
 // Includes
 
 // Standard library
+#include <span>
 #include <utility>
 #include <vector>
 
@@ -75,11 +76,26 @@ namespace Nebulite::Interaction::Execution{
  * ```
  */
 template<typename RETURN_TYPE>
-class FuncTree{
+class FuncTree {
 public:
     // Make sure all FuncTrees are friends
     template<typename RT>
     friend class FuncTree;
+
+    // Function pointer type
+    using FunctionPtr = std::variant<
+        std::function<RETURN_TYPE(int, char**)>,
+        std::function<RETURN_TYPE(int, char const**)>,
+        std::function<RETURN_TYPE(std::span<std::string const>)>
+    >;
+
+    // Function pointer with class type
+    template<typename ClassType>
+    using MemberMethod = std::variant<
+        RETURN_TYPE (ClassType::*)(int, char**),
+        RETURN_TYPE (ClassType::*)(int, char const**),
+        RETURN_TYPE (ClassType::*)(std::span<std::string const>)
+    >;
 
     //------------------------------------------
     // Constructor and inheritance
@@ -90,7 +106,7 @@ public:
      * @param standard Value to return if everything is okay
      * @param functionNotFoundError Value to return if the parsed function was not found
      */
-    FuncTree(std::string  treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError);
+    FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError);
 
     /**
      * @brief Inherits functions from another Tree.
@@ -219,7 +235,7 @@ public:
      * @param helpDescription Help description for the function. First line is shown in the general help, full description in detailed help.
      */
     template<typename ClassType>
-    void bindFunction(ClassType* obj, std::variant<RETURN_TYPE (ClassType::*)(int, char**), RETURN_TYPE (ClassType::*)(int, char const**)> method, std::string const& name, std::string const* helpDescription);
+    void bindFunction(ClassType* obj, MemberMethod<ClassType> method, std::string const& name, std::string const* helpDescription);
 
     /**
      * @brief Binds a variable to the command tree.
@@ -236,12 +252,6 @@ public:
 private:
     // Function to call before parsing (e.g., for setting up variables or locking resources)
     std::function<RETURN_TYPE()> preParse = nullptr;
-
-    // Function pointer type
-    using FunctionPtr = std::variant<
-        std::function<RETURN_TYPE(int, char**)>,
-        std::function<RETURN_TYPE(int, char const**)>
-    >;
 
     // Function - Description pair
     struct FunctionInfo {
@@ -403,7 +413,7 @@ private:
      */
     std::shared_ptr<FuncTree> findInInheritedTrees(std::string const& funcName){
         // Prerequisite if an inherited FuncTree is linked
-        if(inheritedTrees.size() && !hasFunction(funcName)){
+        if(!inheritedTrees.empty() && !hasFunction(funcName)){
             // Check if the function is in an inherited tree
             for(auto& inheritedTree : inheritedTrees){
                 if(inheritedTree != nullptr && inheritedTree->hasFunction(funcName)){
@@ -461,13 +471,20 @@ namespace bindErrorMessage{
         Nebulite::Utility::Capture::cerr() << "Function:  " << function << "\n";
         std::exit(EXIT_FAILURE);
     }
+
+    inline void UnknownMethodPointerType(std::string const& tree, std::string const& function){
+        Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
+        Nebulite::Utility::Capture::cerr() << "Nebulite FuncTree initialization failed!\n";
+        Nebulite::Utility::Capture::cerr() << "Error: Unknown method pointer type for function '" << function << "' in FuncTree '" << tree << "'.\n";
+        std::exit(EXIT_FAILURE);
+    }
 } // anonymous namespace
 
 template<typename RETURN_TYPE>
 template<typename ClassType>
 void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
     ClassType* obj,
-    std::variant<RETURN_TYPE (ClassType::*)(int, char**), RETURN_TYPE (ClassType::*)(int, char const**)> method,
+    MemberMethod<ClassType> method,
     std::string const& name,
     std::string const* helpDescription)
 {
@@ -492,6 +509,8 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
         targetTree->bindFunction(obj, method, functionName, helpDescription);
         return;
     }
+
+    // Check for name conflicts
     for (auto const& [categoryName, _] : categories){
         if (categoryName == name){
             bindErrorMessage::FunctionShadowsCategory(name);
@@ -514,6 +533,8 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
     // Use std::visit to bind the correct function type
     std::visit([&]<typename MethodPointer>(MethodPointer&& methodPointer){
         using MethodType = std::decay_t<MethodPointer>;
+
+        // 1.) Bind classic int, char** method
         if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(int, char**)>){
             functions[name] = FunctionInfo{
                 [obj, methodPointer](int argc, char** argv){
@@ -521,6 +542,7 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
                 },
                 helpDescription
             };
+        // 2.) Bind int, char const** method
         } else if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(int, char const**)>){
             functions[name] = FunctionInfo{
                 [obj, methodPointer](int argc, char** argv){
@@ -530,6 +552,18 @@ void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
                 },
                 helpDescription
             };
+        // 3.) Bind std::span<std::string const&> method
+        } else if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(std::span<std::string const>)>){
+            functions[name] = FunctionInfo{
+                std::function<RETURN_TYPE(std::span<std::string const>)>(
+                    [obj, methodPointer](std::span<std::string const> args) {
+                        return (obj->*methodPointer)(args);
+                    }
+                ),
+                helpDescription
+            };
+        } else {
+            bindErrorMessage::UnknownMethodPointerType(TreeName, name);
         }
     }, method);
 }
@@ -610,9 +644,13 @@ Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(std::string tr
 : _standard(standard), _functionNotFoundError(functionNotFoundError), TreeName(std::move(treeName))
 {
     // Attach the help function to read out the description of all attached functions
-    functions["help"] = FunctionInfo{std::function<RETURN_TYPE(int, char const**)>([this](int const argc, char const** argv){
-        return this->help(argc, argv);
-    }), &help_desc};
+    functions["help"] = FunctionInfo{
+        std::function<RETURN_TYPE(int, char const**)>(
+            [this](int const argc, char const** argv){
+                return this->help(argc, argv);
+            }
+        ),
+    &help_desc};
 }
 
 //------------------------------------------
