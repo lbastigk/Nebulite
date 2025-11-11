@@ -6,6 +6,18 @@
 #ifndef NEBULITE_INTERACTION_EXECUTION_FUNCTREE_TPP
 #define NEBULITE_INTERACTION_EXECUTION_FUNCTREE_TPP
 
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <cxxabi.h>
+#include <memory>
+#include <cstdlib>
+#include <typeinfo>
+#include <string>
+
+// Nebulite
+#include "Utility/StringHandler.hpp"  // Using StringHandler for easy argument splitting
 #include "Interaction/Execution/FuncTree.hpp"
 
 //------------------------------------------
@@ -59,9 +71,40 @@ namespace bindErrorMessage{
     }
 } // anonymous namespace
 
+static std::string demangle(const char* name) {
+    int status = 0;
+    char* dem = abi::__cxa_demangle(name, nullptr, nullptr, &status);
+    std::string out = status == 0 && dem ? dem : name;
+    std::free(dem);
+    return out;
+}
+
 //------------------------------------------
 namespace Nebulite::Interaction::Execution{
 
+//------------------------------------------
+// Constructor implementation
+
+template <typename RETURN_TYPE>
+FuncTree<RETURN_TYPE>::FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError)
+: _standard(standard), _functionNotFoundError(functionNotFoundError), TreeName(std::move(treeName))
+{
+    // construct the help entry in-place to avoid assignment and ambiguous lambda conversions
+    functions.emplace(
+        "help",
+        FunctionInfo{
+            std::function<RETURN_TYPE(std::span<std::string const> const&)>(
+                [this](std::span<std::string const> const& args){
+                    return this->help(args);
+                }
+            ),
+            &help_desc
+        }
+    );
+}
+
+//------------------------------------------
+// Binding (Functions, Categories, Variables)
 
 template<typename RETURN_TYPE>
 template<typename ClassType>
@@ -94,6 +137,87 @@ void FuncTree<RETURN_TYPE>::bindFunction(
     }
 
     // Check for name conflicts
+    conflictCheck(name);
+
+    // Bind to this tree directly
+    directBind(name, helpDescription, method, obj);
+}
+
+template<typename RETURN_TYPE>
+bool FuncTree<RETURN_TYPE>::bindCategory(std::string const& name, std::string const* helpDescription){
+    if(categories.find(name) != categories.end()){
+        // Category already exists
+        /**
+         * @note Warning is suppressed here,
+         * as with different modules we might need to call this in each module,
+         * just to make sure the category exists
+         */
+        // Utility::Capture::cerr() << "Warning: A category with the name '" << name << "' already exists in the FuncTree '" << TreeName << "'." << Utility::Capture::endl;
+        return false;
+    }
+    // Split based on whitespaces
+    std::vector<std::string> const categoryStructure = Utility::StringHandler::split(name, ' ');
+    size_t const depth = categoryStructure.size();
+
+    absl::flat_hash_map<std::string, category>* currentCategoryMap = &categories;
+    for(size_t idx = 0; idx < depth; idx++){
+        std::string currentCategoryName = categoryStructure[idx];
+
+        if(idx < depth -1){
+            // Not yet at last category
+            if(currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()){
+                // Category exists, go deeper
+                currentCategoryMap = &(*currentCategoryMap)[currentCategoryName].tree->categories;
+            }
+            else{
+                // Category does not exist, throw error
+                Utility::Capture::cerr() << "Error: Cannot create category '" << name << "' because parent category '"
+                          << currentCategoryName << "' does not exist." << Utility::Capture::endl;
+                exit(EXIT_FAILURE);
+            }
+        }
+        else{
+            // Last category, create it, if it doesn't exist yet
+            if(currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()){
+                // Category exists, throw error
+                Utility::Capture::cerr() << "---------------------------------------------------------------\n";
+                Utility::Capture::cerr() << "A Nebulite FuncTree initialization failed!\n";
+                Utility::Capture::cerr() << "Error: Cannot create category '" << name << "' because it already exists." << Utility::Capture::endl;
+                exit(EXIT_FAILURE);
+            }
+            // Create category
+            (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree>(currentCategoryName, _standard, _functionNotFoundError), helpDescription};
+        }
+    }
+    return true;
+}
+
+// Using noLint, as varPtr would be flagged as it's not const.
+// But this causes issues with binding variables.
+template<typename RETURN_TYPE>
+// NOLINTNEXTLINE
+void FuncTree<RETURN_TYPE>::bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription){
+    // Make sure there are no whitespaces in the variable name
+    if (name.find(' ') != std::string::npos){
+        Utility::Capture::cerr() << "Error: Variable name '" << name << "' cannot contain whitespaces." << Utility::Capture::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // Make sure the variable isn't bound yet
+    if (variables.find(name) != variables.end()){
+        Utility::Capture::cerr() << "Error: Variable '" << name << "' is already bound." << Utility::Capture::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // Bind the variable
+    variables.emplace(name, VariableInfo{varPtr, helpDescription});
+}
+
+//------------------------------------------
+// Binding helper functions
+
+template <typename RETURN_TYPE>
+void FuncTree<RETURN_TYPE>::conflictCheck(std::string const &name) {
     for (auto const& [categoryName, _] : categories){
         if (categoryName == name){
             bindErrorMessage::FunctionShadowsCategory(name);
@@ -112,64 +236,65 @@ void FuncTree<RETURN_TYPE>::bindFunction(
     if (hasFunction(name)){
         bindErrorMessage::FunctionExists(TreeName, name);
     }
+}
 
+template <typename RETURN_TYPE>
+template<typename ClassType>
+void FuncTree<RETURN_TYPE>::directBind(std::string const& name, std::string const* helpDescription, MemberMethod<ClassType> method, ClassType* obj){
     // Use std::visit to bind the correct function type
     std::visit([&]<typename MethodPointer>(MethodPointer&& methodPointer){
         using MethodType = std::decay_t<MethodPointer>;
 
-        // 1.) Bind classic int, char** method
+        // Legacy Bindings
         if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(int, char**)>){
-            functions[name] = FunctionInfo{
-                [obj, methodPointer](int argc, char** argv){
-                    return (obj->*methodPointer)(argc, argv);
-                },
+            functions.emplace(name, FunctionInfo{
+                std::function<RETURN_TYPE(int, char**)>(
+                    [obj, methodPointer](int argc, char** argv){
+                        return (obj->*methodPointer)(argc, argv);
+                    }
+                ),
                 helpDescription
-            };
-        // 2.) Bind int, char const** method
-        } else if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(int, char const**)>){
-            functions[name] = FunctionInfo{
-                [obj, methodPointer](int argc, char** argv){
-                    std::vector<char const*> argv_const(static_cast<size_t>(argc));
-                    for (size_t i = 0; i < static_cast<size_t>(argc); ++i) argv_const[i] = argv[i];
-                    return (obj->*methodPointer)(argc, argv_const.data());
-                },
+            });
+        }
+        else if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(int, char const**)>){
+            functions.emplace(name, FunctionInfo{
+                std::function<RETURN_TYPE(int, char const**)>(
+                    [obj, methodPointer](int argc, char const** argv){
+                        return (obj->*methodPointer)(argc, argv);
+                    }
+                ),
                 helpDescription
-            };
-        // 3.) Bind std::span<std::string const&> method
-        } else if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(std::span<std::string const>)>){
-            functions[name] = FunctionInfo{
+            });
+        }
+
+        // Modern Bindings
+        else if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(std::span<std::string const>)>){
+            functions.emplace(name, FunctionInfo{
                 std::function<RETURN_TYPE(std::span<std::string const>)>(
-                    [obj, methodPointer](std::span<std::string const> args) {
+                    [obj, methodPointer](std::span<std::string const> args){
                         return (obj->*methodPointer)(args);
                     }
                 ),
                 helpDescription
-            };
-        } else {
+            });
+        }
+        // 4.) Bind std::span<std::string const> const method
+        else if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(std::span<std::string const>) const> ||
+                           std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(std::span<std::string const>) const&>){
+            functions.emplace(name, FunctionInfo{
+                std::function<RETURN_TYPE(std::span<std::string const>)>(
+                    [obj, methodPointer](std::span<std::string const> args){
+                        return (obj->*methodPointer)(args);
+                    }
+                ),
+                helpDescription
+            });
+        }
+        // 5.) Unsupported method pointer type
+        else {
             bindErrorMessage::UnknownMethodPointerType(TreeName, name);
         }
     }, method);
-}
-
-// Using noLint, as varPtr would be flagged as it's not const.
-// But this causes issues with binding variables.
-template<typename RETURN_TYPE>
-// NOLINTNEXTLINE
-void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription){
-    // Make sure there are no whitespaces in the variable name
-    if (name.find(' ') != std::string::npos){
-        Utility::Capture::cerr() << "Error: Variable name '" << name << "' cannot contain whitespaces." << Utility::Capture::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    // Make sure the variable isn't bound yet
-    if (variables.find(name) != variables.end()){
-        Utility::Capture::cerr() << "Error: Variable '" << name << "' is already bound." << Utility::Capture::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    // Bind the variable
-    variables[name] = VariableInfo{varPtr, helpDescription};
 }
 
 //------------------------------------------
@@ -220,23 +345,6 @@ std::vector<std::pair<std::string, std::string const*>> FuncTree<RETURN_TYPE>::g
 }
 
 //------------------------------------------
-// Constructor implementation
-
-template <typename RETURN_TYPE>
-FuncTree<RETURN_TYPE>::FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError)
-: _standard(standard), _functionNotFoundError(functionNotFoundError), TreeName(std::move(treeName))
-{
-    // Attach the help function to read out the description of all attached functions
-    functions["help"] = FunctionInfo{
-        std::function<RETURN_TYPE(int, char const**)>(
-            [this](int const argc, char const** argv){
-                return this->help(argc, argv);
-            }
-        ),
-    &help_desc};
-}
-
-//------------------------------------------
 // Parsing and execution
 
 template<typename RETURN_TYPE>
@@ -280,6 +388,8 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::parseStr(std::string const& cmd){
     return executeFunction(funcName, static_cast<int>(argc), argv);
 }
 
+// TODO: Modify to take all types of arguments and passing them to the functions
+//       executeFunction(name, args)
 template<typename RETURN_TYPE>
 RETURN_TYPE FuncTree<RETURN_TYPE>::executeFunction(std::string const& name, int argc, char* argv[]){
     // Call preParse function if set
@@ -301,14 +411,30 @@ RETURN_TYPE FuncTree<RETURN_TYPE>::executeFunction(std::string const& name, int 
         auto& [functionPtr, description] = functionPosition->second;
         return std::visit([&]<typename Func>(Func&& func) -> RETURN_TYPE {
             using T = std::decay_t<Func>;
+
+            // Legacy function types
             if constexpr (std::is_same_v<T, std::function<RETURN_TYPE(int, char**)>>){
                 return func(argc, argv);
             } else if constexpr (std::is_same_v<T, std::function<RETURN_TYPE(int, char const**)>>){
                 std::vector<char const*> argv_const(static_cast<size_t>(argc));
                 for (size_t i = 0; i < static_cast<size_t>(argc); ++i) argv_const[i] = argv[i];
                 return func(argc, argv_const.data());
-            } else {
-                Utility::Capture::cerr() << "Error: Unknown function type for function '" << function << "' in FuncTree '" << TreeName << "'." << Utility::Capture::endl;
+            }
+            // Modern function types
+            else if constexpr (std::is_same_v<T, SpanFn>){
+                // Convert argc, argv to std::span<std::string const>
+                std::vector<std::string> argsVec(static_cast<size_t>(argc));
+                for (size_t i = 0; i < static_cast<size_t>(argc); ++i){
+                    argsVec[i] = std::string(argv[i]);
+                }
+                std::span<std::string const> argsSpan(argsVec.data(), argsVec.size());
+                return func(argsSpan);
+            }
+            // Unknown function type
+            else {
+                Utility::Capture::cerr() << "Error: Unknown function signature for function '" << function << "' in FuncTree '" << TreeName << "'." << Utility::Capture::endl;
+                Utility::Capture::cerr() << "Visitor matched type (mangled):   " << typeid(T).name() << Utility::Capture::endl;
+                Utility::Capture::cerr() << "Visitor matched type (demangled): " << demangle(typeid(T).name()) << Utility::Capture::endl;
                 std::exit(EXIT_FAILURE);
             }
         }, functionPtr);
@@ -375,14 +501,30 @@ bool FuncTree<RETURN_TYPE>::hasFunction(std::string const& nameOrCommand){
 //------------------------------------------
 // Help function and its helpers
 
+namespace SortFunctions {
+    // Case-insensitive comparison function
+    inline auto caseInsensitiveLess = [](auto const& a, auto const& b){
+        std::string const& sa = a.first;
+        std::string const& sb = b.first;
+        size_t const n = std::min(sa.size(), sb.size());
+        for (size_t i = 0; i < n; ++i){
+            char const ca = static_cast<char>(std::tolower(static_cast<unsigned char>(sa[i])));
+            char const cb = static_cast<char>(std::tolower(static_cast<unsigned char>(sb[i])));
+            if (ca < cb) return true;
+            if (ca > cb) return false;
+        }
+        return sa.size() < sb.size();
+    };
+}   // namespace SortFunctions
+
 template<typename RETURN_TYPE>
-RETURN_TYPE FuncTree<RETURN_TYPE>::help(int const argc, char const* argv[]){
+RETURN_TYPE FuncTree<RETURN_TYPE>::help(std::span<std::string const> const& args){
     //------------------------------------------
     // Case 1: Detailed help for a specific function, category or variable
-    if(argc > 1){
-        for(int i = 1; i < argc; i++){
-            std::string const funcName = argv[i];
-            specificHelp(funcName);
+    if(args.size() > 1){
+        // Call specific help for each argument, except the first one (which is the binary name or last function name)
+        for (auto const& arg : args){
+            specificHelp(arg);
         }
         return _standard;
     }
@@ -417,7 +559,7 @@ void FuncTree<RETURN_TYPE>::specificHelp(std::string funcName){
     // 2.) Category
     else if(subFound){
         // Found category, display detailed help
-        subIt->second.tree->help(0, nullptr); // Display all functions in the category
+        subIt->second.tree->help({}); // Display all functions in the category
     }
     // 3.) Variable
     else if(varFound){
@@ -441,23 +583,9 @@ void FuncTree<RETURN_TYPE>::generalHelp(){
     std::vector<std::pair<std::string, std::string const*>> allFunctions = getAllFunctions();
     std::vector<std::pair<std::string, std::string const*>> allVariables = getAllVariables();
 
-    // Case-insensitive comparison function
-    auto caseInsensitiveLess = [](auto const& a, auto const& b){
-        std::string const& sa = a.first;
-        std::string const& sb = b.first;
-        size_t const n = std::min(sa.size(), sb.size());
-        for (size_t i = 0; i < n; ++i){
-            char const ca = static_cast<char>(std::tolower(static_cast<unsigned char>(sa[i])));
-            char const cb = static_cast<char>(std::tolower(static_cast<unsigned char>(sb[i])));
-            if (ca < cb) return true;
-            if (ca > cb) return false;
-        }
-        return sa.size() < sb.size();
-    };
-
     // Sort by name
-    std::sort(allFunctions.begin(), allFunctions.end(), caseInsensitiveLess);
-    std::sort(allVariables.begin(), allVariables.end(), caseInsensitiveLess);
+    std::ranges::sort(allFunctions, SortFunctions::caseInsensitiveLess);
+    std::ranges::sort(allVariables, SortFunctions::caseInsensitiveLess);
 
     // Display:
     Utility::Capture::cout() << "\nHelp for " << TreeName << "\nAdd the entries name to the command for more details: " << TreeName << " help <foo>\n";

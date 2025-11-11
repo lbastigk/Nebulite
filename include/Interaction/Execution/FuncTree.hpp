@@ -45,7 +45,6 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Utility/StringHandler.hpp"  // Using StringHandler for easy argument splitting
 #include "Utility/Capture.hpp"        // Using Capture for output capturing
 
 //------------------------------------------
@@ -82,19 +81,27 @@ public:
     template<typename RT>
     friend class FuncTree;
 
+    // canonical span function type (no reference-qualified std::function)
+    using SpanFn = std::function<RETURN_TYPE(std::span<std::string const> const&)>;
+
     // Function pointer type
     using FunctionPtr = std::variant<
+        // Legacy (goal is to rewrite all functions to modern style, so we can remove these eventually)
         std::function<RETURN_TYPE(int, char**)>,
         std::function<RETURN_TYPE(int, char const**)>,
-        std::function<RETURN_TYPE(std::span<std::string const>)>
+        // Modern
+        SpanFn
     >;
 
     // Function pointer with class type
     template<typename ClassType>
     using MemberMethod = std::variant<
+        // Legacy
         RETURN_TYPE (ClassType::*)(int, char**),
         RETURN_TYPE (ClassType::*)(int, char const**),
-        RETURN_TYPE (ClassType::*)(std::span<std::string const>)
+        // Modern
+        RETURN_TYPE (ClassType::*)(std::span<std::string const>),
+        RETURN_TYPE (ClassType::*)(std::span<std::string const>) const
     >;
 
     //------------------------------------------
@@ -172,53 +179,7 @@ public:
      * @return true if the category was created successfully, 
      * false if a category with the same name already exists.
      */
-    bool bindCategory(std::string const& name, std::string const* helpDescription){
-        if(categories.find(name) != categories.end()){
-            // Category already exists
-            /**
-             * @note Warning is suppressed here, 
-             * as with different modules we might need to call this in each module, 
-             * just to make sure the category exists
-             */
-            // Utility::Capture::cerr() << "Warning: A category with the name '" << name << "' already exists in the FuncTree '" << TreeName << "'." << Utility::Capture::endl;
-            return false;
-        }
-        // Split based on whitespaces
-        std::vector<std::string> const categoryStructure = Utility::StringHandler::split(name, ' ');
-        size_t const depth = categoryStructure.size();
-
-        absl::flat_hash_map<std::string, category>* currentCategoryMap = &categories;
-        for(size_t idx = 0; idx < depth; idx++){
-            std::string currentCategoryName = categoryStructure[idx];
-
-            if(idx < depth -1){
-                // Not yet at last category
-                if(currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()){
-                    // Category exists, go deeper
-                    currentCategoryMap = &(*currentCategoryMap)[currentCategoryName].tree->categories;
-                }
-                else{
-                    // Category does not exist, throw error
-                    Utility::Capture::cerr() << "Error: Cannot create category '" << name << "' because parent category '"
-                              << currentCategoryName << "' does not exist." << Utility::Capture::endl;
-                    exit(EXIT_FAILURE);
-                }
-            }
-            else{
-                // Last category, create it, if it doesn't exist yet
-                if(currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()){
-                    // Category exists, throw error
-                    Utility::Capture::cerr() << "---------------------------------------------------------------\n";
-                    Utility::Capture::cerr() << "A Nebulite FuncTree initialization failed!\n";
-                    Utility::Capture::cerr() << "Error: Cannot create category '" << name << "' because it already exists." << Utility::Capture::endl;
-                    exit(EXIT_FAILURE);
-                }
-                // Create category
-                (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree>(currentCategoryName, _standard, _functionNotFoundError), helpDescription};
-            }
-        }
-        return true;
-    }
+    bool bindCategory(std::string const& name, std::string const* helpDescription);
 
     /**
      * @brief Binds a function to the command tree.
@@ -329,7 +290,7 @@ private:
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
      */
-    RETURN_TYPE help(int argc,  char const* argv[]);
+    RETURN_TYPE help(std::span<std::string const> const& args);
 
     /**
      * @brief Retrieves a list of all functions and their descriptions.
@@ -424,6 +385,26 @@ private:
         }
         return nullptr;
     }
+
+    //------------------------------------------
+    // Binding Helper functions
+
+    /**
+     * @brief Checks if there is a binding conflict with the given function name. Prints an error message and exits if a conflict is found.
+     * @param name The name of the function to check for conflicts.
+     */
+    void conflictCheck(std::string const& name);
+
+    /**
+     * @brief Binds a function directly to this FuncTree without checking for categories or conflicts.
+     * @tparam ClassType The class type of the object instance
+     * @param name The name of the function to bind
+     * @param helpDescription Pointer to the help description for the function
+     * @param method The member method to bind
+     * @param obj The object instance that holds the member method
+     */
+    template<typename ClassType>
+    void directBind(std::string const& name, std::string const* helpDescription, MemberMethod<ClassType> method, ClassType* obj);
 };
 } // namespace Nebulite::Interaction::Execution
 
