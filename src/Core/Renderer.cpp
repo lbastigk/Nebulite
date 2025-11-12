@@ -23,8 +23,8 @@
 
 namespace Nebulite::Core {
 
-Renderer::Renderer(Utility::JSON* doc, bool *flag_headless, unsigned int const &X, unsigned int const &Y)
-    : Domain("Renderer", this, doc),
+Renderer::Renderer(Utility::JSON* docRef, bool *flag_headless, unsigned int const &X, unsigned int const &Y)
+    : Domain("Renderer", this, docRef),
       rngA(hashString("Seed for RNG A")),
       rngB(hashString("Seed for RNG B")) {
     //------------------------------------------

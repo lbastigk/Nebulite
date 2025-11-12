@@ -38,12 +38,12 @@ public:
     /**
      * @brief Initializes a Renderer with given dimensions and settings.
      *
-     * @param doc Pointer to the JSON document
+     * @param docRef Pointer to the JSON document
      * @param flag_headless Reference to the Boolean flag for headless mode.
      * @param X Width of the rendering area.
      * @param Y Height of the rendering area.
      */
-    Renderer(Utility::JSON* doc, bool *flag_headless, unsigned int const &X = 1080, unsigned int const &Y = 1080);
+    Renderer(Utility::JSON* docRef, bool *flag_headless, unsigned int const &X = 1080, unsigned int const &Y = 1080);
 
     /**
      * @brief Initializes SDL and related subsystems.
