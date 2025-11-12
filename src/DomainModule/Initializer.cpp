@@ -12,7 +12,7 @@
 // DomainModules
 
 // GlobalSpace
-#include "DomainModule/GlobalSpace/FeatureTest.hpp"              // Feature testing module
+#include "DomainModule/GlobalSpace/GSDM_FeatureTest.hpp"         // Feature testing module
 #include "DomainModule/GlobalSpace/GSDM_Time.hpp"                // Basic Time management functions
 #include "DomainModule/GlobalSpace/GSDM_Clock.hpp"               // Clock management functions
 #include "DomainModule/GlobalSpace/GSDM_General.hpp"             // General functions like eval, exit, wait, etc.

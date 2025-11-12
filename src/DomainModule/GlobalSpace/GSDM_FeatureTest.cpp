@@ -5,9 +5,7 @@
 #include <cmath>
 
 // Nebulite
-#include "DomainModule/GlobalSpace/FeatureTest.hpp"
-
-#include "../../../include/Interaction/Execution/Domain.hpp"
+#include "DomainModule/GlobalSpace/GSDM_FeatureTest.hpp"
 #include "Utility/JSON.hpp"
 
 //------------------------------------------
@@ -27,7 +25,7 @@ public:
                 sum += std::stod(arg);
             } catch (std::invalid_argument const&) {
                 // Ignore invalid arguments
-                return NAN;
+                return std::numeric_limits<double>::quiet_NaN();
             }
         }
         return sum;
@@ -35,35 +33,23 @@ public:
 };
 
 Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& args) {
-
-    //
-    Utility::Capture::cout() << "FeatureTest::testFuncTree called with " << args.size() << " arguments." << Utility::Capture::endl;
-    for (auto const& arg : args){
-        Utility::Capture::cout() << "  Arg: " << arg << Utility::Capture::endl;
-    }
-
     // Create an instance of MathModifier so we can bind its method
     MathModifier mathModifier;
 
     // Build a FuncTree with extra argument JSON&
-    Interaction::Execution::FuncTree<double, double> funcTree(
-        "TestFuncTree",
-        0.0,   // default return value
-        NAN    // error return value
-    );
+    Interaction::Execution::FuncTree<double, double> testTree("TestFuncTree", 0.0, std::numeric_limits<double>::quiet_NaN());
 
     std::string const addName = "add";
     std::string const addDesc = "Adds all provided numbers to the input number.\nUsage: <name> add num1 num2 ... numN";
 
     // Using the DomainModule bindFunctionStatic to bind the add method, otherwise we would need to do some complex template/visit gymnastics here
-    DomainModule::bindFunctionStatic(&funcTree, &mathModifier, &MathModifier::add, addName, &addDesc);
+    DomainModule::bindFunctionStatic(&testTree, &mathModifier, &MathModifier::add, addName, &addDesc);
 
+    // Call the function
     std::string const funcCall = "<name> add 1.5 2.5 3.0";
-    double const result = funcTree.parseStr(funcCall,0.0);
+    double const result = testTree.parseStr(funcCall,0.0);
     Utility::Capture::cout() << "FuncTree result for call '" << funcCall << "': " << result << Utility::Capture::endl;
-
     return Constants::ErrorTable::NONE();
-
 }
 std::string const FeatureTest::testFuncTree_name = "feature-test functree";
 std::string const FeatureTest::testFuncTree_desc = "Builds a funcTree with extra arguments and tests it";

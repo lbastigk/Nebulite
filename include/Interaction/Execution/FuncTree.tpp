@@ -123,6 +123,20 @@ FuncTree<returnType, additionalArgs...>::FuncTree(std::string treeName, returnTy
 }
 
 //------------------------------------------
+// Template comparison
+
+template<typename T> bool isEqual(T const& a, T const& b){
+    if constexpr (std::is_floating_point_v<T>){
+        // Consider EPSILON for floating point comparison
+        return std::fabs(a - b) < std::numeric_limits<T>::epsilon();
+    }
+    else {
+        // Default comparison
+        return a == b;
+    }
+}
+
+//------------------------------------------
 // Binding (Functions, Categories, Variables)
 
 template<typename returnType, typename... additionalArgs>
@@ -414,8 +428,7 @@ template<typename returnType, typename... additionalArgs>
 returnType FuncTree<returnType, additionalArgs...>::executeFunction(std::string const& name, int argc, char** argv, std::span<std::string const> const& args, additionalArgs... addArgs){
     // Call preParse function if set
     if(preParse != nullptr){
-        returnType err = preParse();
-        if(err !=    standardReturn.valDefault){
+        if(returnType err = preParse(); !isEqual(err, standardReturn.valDefault)){
             return err; // Return error if preParse failed
         }
     }
@@ -429,7 +442,7 @@ returnType FuncTree<returnType, additionalArgs...>::executeFunction(std::string 
     auto functionPosition = bindingContainer.functions.find(function);
     if (functionPosition != bindingContainer.functions.end()){
         auto& [functionPtr, description] = functionPosition->second;
-        return std::visit([&]<typename Func>(Func&& func) -> returnType {
+        return std::visit([&]<typename Func>(Func&& func) {
             using T = std::decay_t<Func>;
 
             // Legacy function types

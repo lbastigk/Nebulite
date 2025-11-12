@@ -1,5 +1,5 @@
 ##############################################################
-# Makefile for building Nebulite with CMake presets
+# Makefile for building and testing Nebulite
 ##############################################################
 
 ##################################
@@ -11,38 +11,38 @@
 
 linux-release:
 	@echo "Building preset: $@"
-	cmake --preset $@
-	cmake --build --preset $@
+	@cmake --preset $@
+	@cmake --build --preset $@
 
 linux-debug:
 	@echo "Building preset: $@"
-	cmake --preset $@
-	cmake --build --preset $@
+	@cmake --preset $@
+	@cmake --build --preset $@
 
 linux-coverage:
 	@echo "Building preset: $@"
-	cmake --preset $@
-	cmake --build --preset $@
+	@cmake --preset $@
+	@cmake --build --preset $@
 
 windows-release:
 	@echo "Building preset: $@"
-	cmake --preset $@
-	cmake --build --preset $@
+	@cmake --preset $@
+	@cmake --build --preset $@
 
 windows-debug:
 	@echo "Building preset: $@"
-	cmake --preset $@
-	cmake --build --preset $@
+	@cmake --preset $@
+	@cmake --build --preset $@
 
 macos-release:
 	@echo "Building preset: $@"
-	cmake --preset $@
-	cmake --build --preset $@
+	@cmake --preset $@
+	@cmake --build --preset $@
 
 macos-debug:
 	@echo "Building preset: $@"
-	cmake --preset $@
-	cmake --build --preset $@
+	@cmake --preset $@
+	@cmake --build --preset $@
 
 ##################################
 # Native and Available Presets
@@ -87,26 +87,26 @@ all: $(AVAILABLE_PRESETS)
 .PHONY: all install-deps resources test run clean $(NATIVE_PRESET)
 
 install-deps:
-	./Scripts/install_dependencies.sh
+	@./Scripts/install_dependencies.sh
 
 resources:
-	./Scripts/AssetCreation/create_resources_directory.sh
+	@./Scripts/AssetCreation/create_resources_directory.sh
 
 test:
-	python3 Scripts/TestingSuite.py --stop --verbose
+	@python3 Scripts/TestingSuite.py --stop --verbose
 
 clean:
-	rm -rf tmp/ bin/ || true
+	@rm -rf tmp/ bin/ || true
 
 message-available-presets:
 	@echo "Available presets for this machine: $(AVAILABLE_PRESETS)"
 
 coverage-report:
 	@echo "Generating coverage report..."
-	python Scripts/TestingSuite.py --coverage --verbose
+	@python Scripts/TestingSuite.py --coverage --verbose
 
 delete-binaries:
-	rm -rf bin/* || true
+	@rm -rf bin/* || true
 
 ##################################
 # Debugging
@@ -159,7 +159,7 @@ debug-linux:
 
 debug-linux-interactive:
 	@echo "Starting interactive debugger for native preset..."
-	gdb --args ./bin/Nebulite_Debug task TaskFiles/Debugging/debug.nebs
+	@gdb --args ./bin/Nebulite_Debug task TaskFiles/Debugging/debug.nebs
 
 
 ##################################
@@ -170,27 +170,27 @@ debug-linux-interactive:
 
 cli-lint:
 	@echo "Running CLI linter..."
-	./Scripts/Validation/runClangTidy.sh
+	@./Scripts/Validation/runClangTidy.sh
 	@echo "CLI linting completed."
 
 profiling-small:
 	@echo "Running small profiling suite..."
-	sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/spawn_constantly.nebs ; hotspot perf.data
+	@sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/spawn_constantly.nebs ; hotspot perf.data
 	@echo "Small profiling completed."
 
 profiling-large:
 	@echo "Running large profiling suite..."
-	sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/gravity_XL.nebs ; hotspot perf.data
+	@sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/gravity_XL.nebs ; hotspot perf.data
 	@echo "Large profiling completed."
 
 memory-check-gui:
 	@echo "Running memory check with Valgrind..."
-	rm -rf massif_output.out ; ulimit -n 32768 && valgrind --tool=massif --massif-out-file=massif_output.out --max-snapshots=500 --detailed-freq=1 ./bin/Nebulite_Debug task TaskFiles/Debugging/memoryleak.nebs && massif-visualizer massif_output.out
+	@rm -rf massif_output.out ; ulimit -n 32768 && valgrind --tool=massif --massif-out-file=massif_output.out --max-snapshots=500 --detailed-freq=1 ./bin/Nebulite_Debug task TaskFiles/Debugging/memoryleak.nebs && massif-visualizer massif_output.out
 	@echo "Memory check completed."
 
 memory-check-cli:
 	@echo "Running memory check with Valgrind..."
-	ulimit -n 32768 && valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./bin/Nebulite_Debug task TaskFiles/Debugging/memoryleak.nebs
+	@ulimit -n 32768 && valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./bin/Nebulite_Debug task TaskFiles/Debugging/memoryleak.nebs
 	@echo "Memory check completed. See valgrind_output.txt for details."
 
 ##################################

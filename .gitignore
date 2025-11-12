@@ -6,9 +6,6 @@
 tmp/
 tmp/**
 
-# Ignore .idea files
-.idea/
-
 # Ignore game resources and error logs
 Resources/Sprites/
 Resources/Fonts/
@@ -25,6 +22,9 @@ Resources/Snapshots/**
 
 # Ignore binaries
 bin/
+
+# Ignore IDE project files
+.idea/
 
 # Ignore dlls
 *.dll
@@ -53,3 +53,6 @@ __pycache__/
 
 # Ignore MAKEFILE pipeline temp files
 tmp/.lastModified
+
+# Linkage to correct compile_commands.json
+compile_commands.json

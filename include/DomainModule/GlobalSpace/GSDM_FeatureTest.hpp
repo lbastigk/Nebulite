@@ -1,5 +1,5 @@
 /**
- * @file FeatureTest.hpp
+ * @file GSDM_FeatureTest.hpp
  *
  * This file contains the DomainModule of the GlobalSpace for testing features.
  */

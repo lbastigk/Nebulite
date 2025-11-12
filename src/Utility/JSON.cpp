@@ -21,18 +21,6 @@ JSON::JSON(Core::GlobalSpace* globalSpace)
 JSON::~JSON(){
     std::scoped_lock const lockGuard(mtx);
     doc.SetObject();
-
-    // Delete all cached stable pointers
-    // We assume that noone will use them after JSON is destroyed
-
-    // 1.) UID quickcache
-    for (auto const& ptr : uidDoubleCache){
-        // This is not necessary, probably because cache
-        // itself will delete them...
-        //delete ptr;
-    }
-
-    // 2.) Delete cache and its pointers
     cache.clear();
 }
 
