@@ -407,7 +407,8 @@ void Console::keyTriggerSubmit(){
     if(std::string const command = textInput.submit(); !command.empty()){
         // Parse command on global level for full access to all functions
         if (auto const err = global->parseStr(std::string(__FUNCTION__) + " " + command); err != Constants::ErrorTable::NONE()){
-            Utility::Capture::cerr() << "Error: Failed to execute command '" << command << "': " << err.getDescription()  << Utility::Capture::endl;
+            // Cannot escalate error further, print to cerr
+            Utility::Capture::cerr() << err.getDescription() << Utility::Capture::endl;
         }
     }
     outputScrollingOffset = 0; // Reset scrolling to bottom on new input

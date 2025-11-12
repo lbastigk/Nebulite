@@ -12,6 +12,7 @@
 // DomainModules
 
 // GlobalSpace
+#include "DomainModule/GlobalSpace/GSDM_FeatureTest.hpp"         // Feature testing module
 #include "DomainModule/GlobalSpace/GSDM_Time.hpp"                // Basic Time management functions
 #include "DomainModule/GlobalSpace/GSDM_Clock.hpp"               // Clock management functions
 #include "DomainModule/GlobalSpace/GSDM_General.hpp"             // General functions like eval, exit, wait, etc.
@@ -57,6 +58,10 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     //------------------------------------------
     // Special debugging utilities
     target->initModule<Debug_Domain_Collision_Detection>("Global Debug Domain Collision Detection");
+
+    //------------------------------------------
+    // Feature Test Modules
+    target->initModule<FeatureTest>("Global Feature Test Functions");
 
     //------------------------------------------
     // Time module relies on knowing if anything is locking the time

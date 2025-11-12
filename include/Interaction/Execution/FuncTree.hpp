@@ -10,7 +10,7 @@
  * #include "Interaction/Execution/FuncTree.hpp"
  * int main(int argc,  char** argv){
  *     FuncTree<std::string> funcTree("Nebulite", "ok", "Function not found");
- *     funcTree.bindFunction([](int argc,  char** argv){
+ *     funcTree.bindFunction([](int argc, char** argv){
  *         // Function implementation
  *         return "Function executed";
  *     }, "myFunction", "This function does something");
@@ -37,6 +37,7 @@
 // Includes
 
 // Standard library
+#include <span>
 #include <utility>
 #include <vector>
 
@@ -44,7 +45,6 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Utility/StringHandler.hpp"  // Using StringHandler for easy argument splitting
 #include "Utility/Capture.hpp"        // Using Capture for output capturing
 
 //------------------------------------------
@@ -62,24 +62,62 @@ namespace Nebulite::Interaction::Execution{
  * Example:
  * ```cpp
  * bool myArgument = false;
- * int foo(int argc, char** argv){Utility::Capture::cout() << "foo: " << myArgument << Utility::Capture::endl}
- * int bar(int argc, char** argv){Utility::Capture::cout() << "bar: " << myArgument << Utility::Capture::endl}
+ * int foo(std::span<std::string const> const& args){Utility::Capture::cout() << "foo: " << myArgument << Utility::Capture::endl}
+ * int bar(std::span<std::string const> const& args){Utility::Capture::cout() << "bar: " << myArgument << Utility::Capture::endl}
  *
+ * // Note: The description actually needs to be a pointer to a string, so that it can be stored without copying.
+ * // The snippet below is simplified for clarity.
  * FuncTree<int> funcTree;
+ * funcTree.bindCategory("myCategory", "This is my category");
  * funcTree.bindVariable(&myArgument, "myArgument", "This is my argument");
- * funcTree.bindFunction(&foo, "foo", "This function does foo");
- * funcTree.bindFunction(&bar, "bar", "This function does bar");
+ * funcTree.bindFunction(&foo, "foo",            "This function does foo");
+ * funcTree.bindFunction(&bar, "myCategory bar", "This function does bar and is only callable via the category");
  *
  * std::string command = "FromExample --myArgument foo";
  * funcTree.parseStr(command);  // output: "foo: true"
  * ```
  */
-template<typename RETURN_TYPE>
-class FuncTree{
+template<typename returnValue, typename... additionalArgs>
+class FuncTree {
 public:
+    //------------------------------------------
+    // Access
+
     // Make sure all FuncTrees are friends
-    template<typename RT>
+    template<typename RT, typename... AA>
     friend class FuncTree;
+
+    //------------------------------------------
+    // Important types
+
+    // canonical span function type (no reference-qualified std::function)
+    using SpanArgs = std::span<std::string const>;
+    using SpanArgsConstRef = std::span<std::string const> const&;
+    using SpanFn = std::function<returnValue (SpanArgs, additionalArgs...)>;
+    using SpanFnConstRef = std::function<returnValue (SpanArgsConstRef, additionalArgs...)>;
+
+    // Function pointer type
+    using FunctionPtr = std::variant<
+        // Legacy (goal is to rewrite all functions to modern style, so we can remove these eventually)
+        std::function<returnValue (int, char**)>,
+        std::function<returnValue (int, char const**)>,
+        // Modern
+        SpanFn,
+        SpanFnConstRef
+    >;
+
+    // Function pointer with class type
+    template<typename ClassType>
+    using MemberMethod = std::variant<
+        // Legacy
+        returnValue (ClassType::*)(int, char**),
+        returnValue (ClassType::*)(int, char const**),
+        // Modern
+        returnValue (ClassType::*)(SpanArgs, additionalArgs...),
+        returnValue (ClassType::*)(SpanArgs, additionalArgs...) const,
+        returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...),
+        returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...) const
+    >;
 
     //------------------------------------------
     // Constructor and inheritance
@@ -87,10 +125,10 @@ public:
     /**
      * @brief Constructor for the FuncTree class.
      * @param treeName Name of the tree
-     * @param standard Value to return if everything is okay
-     * @param functionNotFoundError Value to return if the parsed function was not found
+     * @param valDefault Value to return if everything is okay
+     * @param valFunctionNotFound Value to return if the parsed function was not found
      */
-    FuncTree(std::string  treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError);
+    FuncTree(std::string treeName, returnValue valDefault, returnValue valFunctionNotFound);
 
     /**
      * @brief Inherits functions from another Tree.
@@ -108,43 +146,50 @@ public:
      * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
      * @param func Function to call before parsing
      */
-    void setPreParse(std::function<RETURN_TYPE()> func){
+    void setPreParse(std::function<returnValue()> func){
         preParse = func;
     }
 
     /**
      * @brief Parses the command line arguments and executes the corresponding function.
      * 
-     * All whitespaces outside of quotes are seen as argument separators:
-     * 
-     * Example: 
-     * ```cpp
-     * // Input string:
-     * "./bin/Nebulite if '$({myCondition} and {myOtherCondition})' echo here!"
-     * // Result:
-     * argv[0] = "./bin/Nebulite"
-     * argv[1] = "if"
-     * argv[2] = "$({myCondition} and {myOtherCondition})"  // due to the quotes, this is treated as a single argument
-     * argv[3] = "echo"
-     * argv[4] = "here!"
-     * ```
-     * 
+     * All whitespaces outside of quotes are seen as argument separators.
      * The first argument should be used to identify where the execution comes from.
      * All subsequent arguments starting with -- are treated as variable assignments.
      * The first argument after the variable assignments is the function to execute.
      * 
-     * Examples: 
-     * ```cpp 
-     * "./bin/Nebulite --myArgument foo"
+     * Example:
+     *
+     * ```cpp
+     * // Input string:
+     * "./bin/Nebulite --headless if '$({myCondition} and {myOtherCondition})' echo here!"
+     * // Result being parsed:
+     * argv[0] = "./bin/Nebulite"                           // The executable name or any other name specified on FuncTree construction
+     * argv[1] = "--headless"                               // Variable assignment
+     * argv[2] = "if"                                       // The function being executed
+     * argv[3] = "$({myCondition} and {myOtherCondition})"  // due to the quotes, this is treated as a single argument
+     * argv[4] = "echo"                                     // function argument
+     * argv[5] = "here!"                                    // function argument
      * ```
+     *
+     * The following arguments are passed to the executed function:
+     *
+     * - argv[0] = "if"
+     *
+     * - argv[1] = "$({myCondition} and {myOtherCondition})"
+     *
+     * - argv[2] = "echo"
+     *
+     * - argv[3] = "here!"
      * 
      * @param cmd Command string to parse
+     * @param addArgs Additional arguments to pass to the executed function
      * @return The return value of the executed function, or the standard/error value.
      */
-    RETURN_TYPE parseStr(std::string const& cmd);
+    returnValue parseStr(std::string const& cmd, additionalArgs... addArgs);
 
     //------------------------------------------
-    // Binding functions and variables
+    // Binding (Functions, Categories, Variables)
 
     /**
      * @brief Creates a category.
@@ -156,60 +201,14 @@ public:
      * @return true if the category was created successfully, 
      * false if a category with the same name already exists.
      */
-    bool bindCategory(std::string const& name, std::string const* helpDescription){
-        if(categories.find(name) != categories.end()){
-            // Category already exists
-            /**
-             * @note Warning is suppressed here, 
-             * as with different modules we might need to call this in each module, 
-             * just to make sure the category exists
-             */
-            // Utility::Capture::cerr() << "Warning: A category with the name '" << name << "' already exists in the FuncTree '" << TreeName << "'." << Utility::Capture::endl;
-            return false;
-        }
-        // Split based on whitespaces
-        std::vector<std::string> const categoryStructure = Utility::StringHandler::split(name, ' ');
-        size_t const depth = categoryStructure.size();
-
-        absl::flat_hash_map<std::string, category>* currentCategoryMap = &categories;
-        for(size_t idx = 0; idx < depth; idx++){
-            std::string currentCategoryName = categoryStructure[idx];
-
-            if(idx < depth -1){
-                // Not yet at last category
-                if(currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()){
-                    // Category exists, go deeper
-                    currentCategoryMap = &(*currentCategoryMap)[currentCategoryName].tree->categories;
-                }
-                else{
-                    // Category does not exist, throw error
-                    Utility::Capture::cerr() << "Error: Cannot create category '" << name << "' because parent category '"
-                              << currentCategoryName << "' does not exist." << Utility::Capture::endl;
-                    exit(EXIT_FAILURE);
-                }
-            }
-            else{
-                // Last category, create it, if it doesn't exist yet
-                if(currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()){
-                    // Category exists, throw error
-                    Utility::Capture::cerr() << "---------------------------------------------------------------\n";
-                    Utility::Capture::cerr() << "A Nebulite FuncTree initialization failed!\n";
-                    Utility::Capture::cerr() << "Error: Cannot create category '" << name << "' because it already exists." << Utility::Capture::endl;
-                    exit(EXIT_FAILURE);
-                }
-                // Create category
-                (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree>(currentCategoryName, _standard, _functionNotFoundError), helpDescription};
-            }
-        }
-        return true;
-    }
+    bool bindCategory(std::string const& name, std::string const* helpDescription);
 
     /**
      * @brief Binds a function to the command tree.
      * 
      * Make sure the function has the signature:
      * ```cpp
-     * RETURN_TYPE functionName(int argc, char** argv);
+     * returnValue functionName(int argc, char** argv);
      * ```
      * 
      * @tparam ClassType The class type of the object instance
@@ -219,13 +218,12 @@ public:
      * @param helpDescription Help description for the function. First line is shown in the general help, full description in detailed help.
      */
     template<typename ClassType>
-    void bindFunction(ClassType* obj, std::variant<RETURN_TYPE (ClassType::*)(int, char**), RETURN_TYPE (ClassType::*)(int, char const**)> method, std::string const& name, std::string const* helpDescription);
+    void bindFunction(ClassType* obj, MemberMethod<ClassType> method, std::string const& name, std::string const* helpDescription);
 
     /**
      * @brief Binds a variable to the command tree.
      * Make sure the variable is of type std::string*.
-     * Once bound, it can be set via command line arguments: --varName=value (Must be before the function name!)
-     * A simple argument of `"--varName"` will set the value to `"true"`
+     * Once bound, it can be set via command line arguments: `--varName` (Must be before the function name!)
      * 
      * @param varPtr Pointer to the variable to bind
      * @param name Name of the variable in the command tree
@@ -234,61 +232,67 @@ public:
     void bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription);
 
 private:
-    // Function to call before parsing (e.g., for setting up variables or locking resources)
-    std::function<RETURN_TYPE()> preParse = nullptr;
-
-    // Function pointer type
-    using FunctionPtr = std::variant<
-        std::function<RETURN_TYPE(int, char**)>,
-        std::function<RETURN_TYPE(int, char const**)>
-    >;
-
-    // Function - Description pair
-    struct FunctionInfo {
-        FunctionPtr function;
-        std::string const* description;
-    };
-
-    // Variable - Description pair
-    struct VariableInfo {
-        bool* pointer;
-        std::string const* description;
-    };
-
-    // Status "ok"
-    RETURN_TYPE _standard;
-
-    // Status "Function not found"
-    RETURN_TYPE _functionNotFoundError;
-
-    // Map for Functions: name -> (functionPtr, info)
-    absl::flat_hash_map<std::string, FunctionInfo> functions;
-
-    // Map for variables: name -> (pointer, info)
-    absl::flat_hash_map<std::string, VariableInfo> variables;
-
     // Name of the tree, used for help and output
-    std::string TreeName; 
+    std::string TreeName;
 
-    // inherited FuncTrees linked to this tree
-    std::vector<std::shared_ptr<FuncTree>> inheritedTrees;
+    // Function to call before parsing (e.g., for setting up variables or locking resources)
+    std::function<returnValue()> preParse = nullptr;
+
+    struct StandardReturnValues{
+        returnValue valDefault;
+        returnValue valFunctionNotFound;
+    } standardReturn;
 
     /**
-     * @struct category
+     * @struct CategoryInfo
      * @brief Represents a category within the FuncTree with its description.
      */
-    struct category {
+    struct CategoryInfo {
         std::unique_ptr<FuncTree> tree;
         std::string const* description;
     };
 
     /**
-     * @brief Map of categories within the FuncTree.
+     * @struct FunctionInfo
+     * @brief Contains information about a bound function, including its pointer and description.
      */
-    absl::flat_hash_map<std::string, category> categories;
+    struct FunctionInfo {
+        FunctionPtr function;
+        std::string const* description;
+    };
+
+    /**
+     * @struct VariableInfo
+     * @brief Contains information about a bound variable, including its pointer and description.
+     */
+    struct VariableInfo {
+        bool* pointer;
+        std::string const* description;
+    };
+
+    // inherited FuncTrees linked to this tree
+    std::vector<std::shared_ptr<FuncTree>> inheritedTrees;
+
+    /**
+     * @struct BindingContainer
+     * @brief Contains all bindings for categories, functions, and variables.
+     */
+    struct BindingContainer {
+        // Map for Categories: name -> (category, info)
+        absl::flat_hash_map<std::string, CategoryInfo> categories;
+
+        // Map for Functions: name -> (functionPtr, info)
+        absl::flat_hash_map<std::string, FunctionInfo> functions;
+
+        // Map for variables: name -> (pointer, info)
+        absl::flat_hash_map<std::string, VariableInfo> variables;
+    } bindingContainer;
+
+    ////////////////////////////////////////////
+    // Functions
 
     //------------------------------------------
-    // Functions
+    // Basic Functionality
 
     /**
      * @brief Checks if a function with the given name or from a full command exists.
@@ -310,16 +314,18 @@ private:
      * This function looks up the function by name and calls it with the provided arguments.
      * 
      * @param name The name of the function to execute.
-     * @param argc The argument count.
-     * @param argv The argument vector.
+     * @param argc [Legacy] Argument count.
+     * @param argv [Legacy] Argument vector.
+     * @param args Modern argument span.
+     * @param addArgs Additional arguments to pass to the function.
      * @return The return value of the function.
      */
-    RETURN_TYPE executeFunction(std::string const& name, int argc, char* argv[]);
+    returnValue executeFunction(std::string const& name, int argc, char** argv, std::span<std::string const> const& args, additionalArgs... addArgs);
 
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
      */
-    RETURN_TYPE help(int argc,  char const* argv[]);
+    returnValue help(std::span<std::string const> const& args, additionalArgs... addArgs);
 
     /**
      * @brief Retrieves a list of all functions and their descriptions.
@@ -346,13 +352,31 @@ private:
     /**
      * @brief Displays detailed help for a specific function, category, or variable.
      */
-    void specificHelp(std::string funcName);
+    void specificHelp(std::string const& funcName, additionalArgs... addArgs);
+
+    /**
+     * @struct BindingSearchResult
+     * @brief Helper struct to store search results for find
+     */
+    struct BindingSearchResult {
+        bool any = false;
+        bool function = false;
+        bool category = false;
+        bool variable = false;
+
+        absl::flat_hash_map<std::string, CategoryInfo>::iterator catIt;
+        absl::flat_hash_map<std::string, FunctionInfo>::iterator funIt;
+        absl::flat_hash_map<std::string, VariableInfo>::iterator varIt;
+    };
 
     /**
      * @brief After calling find on each hashmap, this function takes a closer look at the results
      * and sets the found flags accordingly.
+     *
+     * @param name Name of the function/category/variable to find
+     * @return SearchResult struct containing found flags
      */
-    void find(std::string const& name, bool& funcFound, auto& funcIt,  bool& subFound, auto& subIt, bool& varFound, auto& varIt);
+    BindingSearchResult find(std::string const& name);
 
     /**
      * @brief Displays general help for all functions, categories, and variables.
@@ -376,7 +400,7 @@ private:
 
                 // Set variable if attached
                 // TODO: Search in inherited FuncTrees as well
-                if (auto varIt = variables.find(name); varIt != variables.end()){
+                if (auto varIt = bindingContainer.variables.find(name); varIt != bindingContainer.variables.end()){
                     if (auto const& varInfo = varIt->second; varInfo.pointer){
                         *varInfo.pointer = true;
                     }
@@ -403,7 +427,7 @@ private:
      */
     std::shared_ptr<FuncTree> findInInheritedTrees(std::string const& funcName){
         // Prerequisite if an inherited FuncTree is linked
-        if(inheritedTrees.size() && !hasFunction(funcName)){
+        if(!inheritedTrees.empty() && !hasFunction(funcName)){
             // Check if the function is in an inherited tree
             for(auto& inheritedTree : inheritedTrees){
                 if(inheritedTree != nullptr && inheritedTree->hasFunction(funcName)){
@@ -414,501 +438,30 @@ private:
         }
         return nullptr;
     }
+
+    //------------------------------------------
+    // Binding Helper functions
+
+    /**
+     * @brief Checks if there is a binding conflict with the given function name. Prints an error message and exits if a conflict is found.
+     * @param name The name of the function to check for conflicts.
+     */
+    void conflictCheck(std::string const& name);
+
+    /**
+     * @brief Binds a function directly to this FuncTree without checking for categories or conflicts.
+     * @tparam ClassType The class type of the object instance
+     * @param name The name of the function to bind
+     * @param helpDescription Pointer to the help description for the function
+     * @param method The member method to bind
+     * @param obj The object instance that holds the member method
+     */
+    template<typename ClassType>
+    void directBind(std::string const& name, std::string const* helpDescription, MemberMethod<ClassType> method, ClassType* obj);
 };
 } // namespace Nebulite::Interaction::Execution
 
-
-
-//------------------------------------------
-// Binding error messages
-
-namespace bindErrorMessage{
-    inline void MissingCategory(std::string const& tree, std::string const& category, std::string const& function){
-        Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------" << Nebulite::Utility::Capture::endl;
-        Nebulite::Utility::Capture::cerr() << "A Nebulite FuncTree binding failed!" << Nebulite::Utility::Capture::endl;
-        Nebulite::Utility::Capture::cerr() << "Error: Category '" << category << "' does not exist when trying to bind function '" << function << "'." << Nebulite::Utility::Capture::endl;
-        Nebulite::Utility::Capture::cerr() << "Please create the category hierarchy first using bindCategory()." << Nebulite::Utility::Capture::endl;
-        Nebulite::Utility::Capture::cerr() << "This Tree: " << tree << Nebulite::Utility::Capture::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    inline void FunctionShadowsCategory(std::string const& function){
-        Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------" << Nebulite::Utility::Capture::endl;
-        Nebulite::Utility::Capture::cerr() << "A Nebulite FuncTree binding failed!" << Nebulite::Utility::Capture::endl;
-        Nebulite::Utility::Capture::cerr() << "Error: Cannot bind function '" << function << "' because a category with the same name already exists." << Nebulite::Utility::Capture::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    inline void FunctionExistsInInheritedTree(std::string const& tree, std::string const& inheritedTree, std::string const& function){
-        Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
-        Nebulite::Utility::Capture::cerr() << "A Nebulite FuncTree initialization failed!\n";
-        Nebulite::Utility::Capture::cerr() << "Error: A bound Function already exists in the inherited FuncTree.\n";
-        Nebulite::Utility::Capture::cerr() << "Function overwrite is heavily discouraged and thus not allowed.\n";
-        Nebulite::Utility::Capture::cerr() << "Please choose a different name or remove the existing function.\n";
-        Nebulite::Utility::Capture::cerr() << "This Tree: " << tree << "\n";
-        Nebulite::Utility::Capture::cerr() << "inherited FuncTree:   " << inheritedTree << "\n";
-        Nebulite::Utility::Capture::cerr() << "Function:  " << function << "\n";
-        std::exit(EXIT_FAILURE);
-    }
-
-    inline void FunctionExists(std::string const& tree, std::string const& function){
-        Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
-        Nebulite::Utility::Capture::cerr() << "Nebulite FuncTree initialization failed!\n";
-        Nebulite::Utility::Capture::cerr() << "Error: A bound Function already exists in this tree.\n";
-        Nebulite::Utility::Capture::cerr() << "Function overwrite is heavily discouraged and thus not allowed.\n";
-        Nebulite::Utility::Capture::cerr() << "Please choose a different name or remove the existing function.\n";
-        Nebulite::Utility::Capture::cerr() << "This Tree: " << tree << "\n";
-        Nebulite::Utility::Capture::cerr() << "Function:  " << function << "\n";
-        std::exit(EXIT_FAILURE);
-    }
-} // anonymous namespace
-
-template<typename RETURN_TYPE>
-template<typename ClassType>
-void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindFunction(
-    ClassType* obj,
-    std::variant<RETURN_TYPE (ClassType::*)(int, char**), RETURN_TYPE (ClassType::*)(int, char const**)> method,
-    std::string const& name,
-    std::string const* helpDescription)
-{
-    // If the name has a whitespace, the function has to be bound to a category hierarchically
-    if(name.find(' ') != std::string::npos){
-        std::vector<std::string> const pathStructure = Utility::StringHandler::split(name, ' ');
-        if(pathStructure.size() < 2){
-            Utility::Capture::cerr() << "Error: Invalid function name '" << name << "'." << Utility::Capture::endl;
-            return;
-        }
-        absl::flat_hash_map<std::string, category>* currentCategoryMap = &categories;
-        FuncTree* targetTree = this;
-        for(size_t idx = 0; idx < pathStructure.size() - 1; idx++){
-            std::string const& currentCategoryName = pathStructure[idx];
-            if(currentCategoryMap->find(currentCategoryName) == currentCategoryMap->end()){
-                bindErrorMessage::MissingCategory(TreeName, currentCategoryName, name);
-            }
-            targetTree = (*currentCategoryMap)[currentCategoryName].tree.get();
-            currentCategoryMap = &targetTree->categories;
-        }
-        std::string functionName = pathStructure.back();
-        targetTree->bindFunction(obj, method, functionName, helpDescription);
-        return;
-    }
-    for (auto const& [categoryName, _] : categories){
-        if (categoryName == name){
-            bindErrorMessage::FunctionShadowsCategory(name);
-        }
-    }
-    auto conflictIt = std::find_if(
-        inheritedTrees.begin(), inheritedTrees.end(),
-        [&](auto const& inheritedTree){
-            return inheritedTree && name != "help" && inheritedTree->hasFunction(name);
-        }
-    );
-    if (conflictIt != inheritedTrees.end()){
-        auto conflictTree = *conflictIt;
-        bindErrorMessage::FunctionExistsInInheritedTree(TreeName, conflictTree->TreeName, name);
-    }
-    if (hasFunction(name)){
-        bindErrorMessage::FunctionExists(TreeName, name);
-    }
-
-    // Use std::visit to bind the correct function type
-    std::visit([&]<typename MethodPointer>(MethodPointer&& methodPointer){
-        using MethodType = std::decay_t<MethodPointer>;
-        if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(int, char**)>){
-            functions[name] = FunctionInfo{
-                [obj, methodPointer](int argc, char** argv){
-                    return (obj->*methodPointer)(argc, argv);
-                },
-                helpDescription
-            };
-        } else if constexpr (std::is_same_v<MethodType, RETURN_TYPE (ClassType::*)(int, char const**)>){
-            functions[name] = FunctionInfo{
-                [obj, methodPointer](int argc, char** argv){
-                    std::vector<char const*> argv_const(static_cast<size_t>(argc));
-                    for (size_t i = 0; i < static_cast<size_t>(argc); ++i) argv_const[i] = argv[i];
-                    return (obj->*methodPointer)(argc, argv_const.data());
-                },
-                helpDescription
-            };
-        }
-    }, method);
-}
-
-// Using noLint, as varPtr would be flagged as it's not const.
-// But this causes issues with binding variables.
-template<typename RETURN_TYPE>
-// NOLINTNEXTLINE
-void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription){
-    // Make sure there are no whitespaces in the variable name
-    if (name.find(' ') != std::string::npos){
-        Utility::Capture::cerr() << "Error: Variable name '" << name << "' cannot contain whitespaces." << Utility::Capture::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    // Make sure the variable isn't bound yet
-    if (variables.find(name) != variables.end()){
-        Utility::Capture::cerr() << "Error: Variable '" << name << "' is already bound." << Utility::Capture::endl;
-        exit(EXIT_FAILURE);
-    }
-    
-    // Bind the variable
-    variables[name] = VariableInfo{varPtr, helpDescription};
-}
-
-//------------------------------------------
-// Getter
-
-template<typename RETURN_TYPE>
-std::vector<std::pair<std::string, std::string const*>> Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::getAllFunctions(){
-    std::vector<std::pair<std::string, std::string const*>> allFunctions;
-    for (auto const& [name, info] : functions){
-        allFunctions.emplace_back(name, info.description);
-    }
-
-    // Get functions from inherited FuncTrees
-    for(auto& inheritedTree : inheritedTrees){
-        for (auto const& [name, description] : inheritedTree->getAllFunctions()){
-            if (functions.find(name) == functions.end()){
-                allFunctions.emplace_back(name, description);
-            }
-        }
-    }
-
-    // Get just the names of the categories
-    for (auto const& [categoryName, cat] : categories){
-        allFunctions.emplace_back(categoryName, cat.description);
-    }
-
-    return allFunctions;
-}
-
-template<typename RETURN_TYPE>
-std::vector<std::pair<std::string, std::string const*>> Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::getAllVariables(){
-    std::vector<std::pair<std::string, std::string const*>> allVariables;
-    for (auto const& [name, info] : variables){
-        allVariables.emplace_back(name, info.description);
-    }
-
-    // Get from inherited FuncTree
-    for (auto& inheritedTree : inheritedTrees){
-        // Case by case, making sure we do not have duplicates
-        for (auto const& [name, description] : inheritedTree->getAllVariables()){
-            if (variables.find(name) == variables.end()){
-                allVariables.emplace_back(name, description);
-            }
-        }
-    }
-
-    return allVariables;
-}
-
-//------------------------------------------
-// Constructor implementation
-
-template <typename RETURN_TYPE>
-Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::FuncTree(std::string treeName, RETURN_TYPE standard, RETURN_TYPE functionNotFoundError)
-: _standard(standard), _functionNotFoundError(functionNotFoundError), TreeName(std::move(treeName))
-{
-    // Attach the help function to read out the description of all attached functions
-    functions["help"] = FunctionInfo{std::function<RETURN_TYPE(int, char const**)>([this](int const argc, char const** argv){
-        return this->help(argc, argv);
-    }), &help_desc};
-}
-
-//------------------------------------------
-// Parsing and execution
-
-template<typename RETURN_TYPE>
-RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::parseStr(std::string const& cmd){
-    // Quote-aware tokenization
-    std::vector<std::string> tokens = Utility::StringHandler::parseQuotedArguments(cmd);
-
-    // Convert to argc/argv
-    size_t argc = tokens.size();
-    std::vector<char*> argv_vec;
-    argv_vec.reserve(argc + 1);
-    std::transform(tokens.begin(), tokens.end(), std::back_inserter(argv_vec),
-        [](std::string const& str){ return const_cast<char*>(str.c_str()); });
-    argv_vec.push_back(nullptr); // Null-terminate
-
-    // First argument is binary name or last function name
-    // remove it from the argument list
-    char **argv = argv_vec.data();
-    argv++;
-    argc--;
-
-    // Process arguments directly after binary/function name (like --count or -c)
-    processVariableArguments(argc, argv);
-
-    // Check if there are still arguments left
-    if(argc == 0){
-        return _standard;   // Nothing to execute, return standard
-    }
-
-    // The first argument left is the new function name
-    std::string funcName = argv[0];
-
-    // Check in inherited FuncTrees first
-    auto inheritedTree = findInInheritedTrees(funcName);
-    if(inheritedTree != nullptr){
-        // Function is in inherited tree, parse there
-        return inheritedTree->executeFunction(funcName, static_cast<int>(argc), argv);
-    }
-
-    // Not found in inherited trees, execute the function the main tree
-    return executeFunction(funcName, static_cast<int>(argc), argv);
-}
-
-template<typename RETURN_TYPE>
-RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::executeFunction(std::string const& name, int argc, char* argv[]){
-    // Call preParse function if set
-    if(preParse != nullptr){
-        RETURN_TYPE err = preParse();
-        if(err != _standard){
-            return err; // Return error if preParse failed
-        }
-    }
-
-    // Strip whitespaces of name
-    std::string function = name;
-    function = Utility::StringHandler::lStrip(function, ' ');
-    function = Utility::StringHandler::rStrip(function, ' ');
-
-    // Find and execute the function
-    auto functionPosition = functions.find(function);
-    if (functionPosition != functions.end()){
-        auto& [functionPtr, description] = functionPosition->second;
-        return std::visit([&]<typename Func>(Func&& func) -> RETURN_TYPE {
-            using T = std::decay_t<Func>;
-            if constexpr (std::is_same_v<T, std::function<RETURN_TYPE(int, char**)>>){
-                return func(argc, argv);
-            } else if constexpr (std::is_same_v<T, std::function<RETURN_TYPE(int, char const**)>>){
-                std::vector<char const*> argv_const(static_cast<size_t>(argc));
-                for (size_t i = 0; i < static_cast<size_t>(argc); ++i) argv_const[i] = argv[i];
-                return func(argc, argv_const.data());
-            } else {
-                Utility::Capture::cerr() << "Error: Unknown function type for function '" << function << "' in FuncTree '" << TreeName << "'." << Utility::Capture::endl;
-                std::exit(EXIT_FAILURE);
-            }
-        }, functionPtr);
-    }
-    // Find function name in categories
-    if(categories.find(function) != categories.end()){
-        std::string cmd;
-        for(int i = 0; i < argc; i++){
-            cmd += std::string(argv[i]) + " ";
-        }
-        return categories[function].tree->parseStr(cmd);
-    }
-    Utility::Capture::cerr() << "Function '" << function << "' not found in FuncTree " << TreeName << " or its SubTrees!\n";
-    Utility::Capture::cerr() << "Arguments are:" << Utility::Capture::endl;
-    for(int i = 0; i < argc; i++){
-        Utility::Capture::cerr() << "argv[" << i << "] = '" << argv[i] << "'\n";
-    }
-    Utility::Capture::cerr() << "Available functions: " << functions.size() << Utility::Capture::endl;
-    Utility::Capture::cerr() << "Available SubTrees:  " << categories.size()  << Utility::Capture::endl;
-    return _functionNotFoundError;  // Return error if function not found
-}
-
-template<typename RETURN_TYPE>
-bool Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::hasFunction(std::string const& nameOrCommand){
-    // Make sure only the command name is used
-    std::vector<std::string> tokens = Utility::StringHandler::split(nameOrCommand, ' ');
-
-    // Remove all tokens starting with "--"
-    tokens.erase(std::remove_if(tokens.begin(), tokens.end(),
-        [](std::string const& token){
-            return token.starts_with("--");
-        }), tokens.end());
-
-    // Remove all empty tokens
-    tokens.erase(std::remove_if(tokens.begin(), tokens.end(),
-        [](std::string const& token){
-            return token.empty();
-        }), tokens.end());
-
-    if (tokens.empty()){
-        return false;  // No command provided
-    }
-
-    // Depending on token count, function name is at different positions
-    std::string function;
-    if(tokens.size() == 1){
-        // Case 1:
-        // Is a single function name. 
-        // e.g.: "set"
-        function = tokens[0];
-    }
-    else{
-        // Case 2:
-        // Is a full command
-        // e.g.: <whereCommandComesFrom> set key value
-        function = tokens[1];
-    }
-    
-    // See if the function is linked
-    return  functions.find(function)  != functions.end() ||
-            categories.find(function) != categories.end();
-}
-
-//------------------------------------------
-// Help function and its helpers
-
-template<typename RETURN_TYPE>
-RETURN_TYPE Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::help(int const argc, char const* argv[]){
-    //------------------------------------------
-    // Case 1: Detailed help for a specific function, category or variable
-    if(argc > 1){
-        for(int i = 1; i < argc; i++){
-            std::string const funcName = argv[i];
-            specificHelp(funcName);
-        }
-        return _standard;
-    }
-
-    //------------------------------------------
-    // Case 2: General help for all functions, categories and variables
-    generalHelp();
-    return _standard;
-}
-
-template<typename RETURN_TYPE>
-void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::specificHelp(std::string funcName){
-    //------------------------------------------
-    // Find
-    bool funcFound = false;
-    bool subFound = false;
-    bool varFound = false;
-    auto funcIt = functions.find(funcName);
-    auto subIt = categories.find(funcName);
-    auto varIt = variables.find(funcName);
-    find(funcName, funcFound, funcIt, subFound, subIt, varFound, varIt);
-
-    //------------------------------------------
-    // Print
-
-    // 1.) Function
-    if(funcFound){
-        // Found function, display detailed help
-        Utility::Capture::cout() << "\nHelp for function '" << funcName << "':\n" << Utility::Capture::endl;
-        Utility::Capture::cout() << *funcIt->second.description << "\n";
-    }
-    // 2.) Category
-    else if(subFound){
-        // Found category, display detailed help
-        subIt->second.tree->help(0, nullptr); // Display all functions in the category
-    }
-    // 3.) Variable
-    else if(varFound){
-        // Found variable, display detailed help
-        Utility::Capture::cout() << "\nHelp for variable '--" << funcName << "':\n" << Utility::Capture::endl;
-        Utility::Capture::cout() << *varIt->second.description << "\n";
-    }
-    // 4.) Not found
-    else{
-        Utility::Capture::cerr() << "Function or Category '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
-    }
-}
-
-template<typename RETURN_TYPE>
-void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::generalHelp(){
-    // Padding size for names
-    // '<name padded> - <description>'
-    uint16_t constexpr namePaddingSize = 25;
-
-    // All info: [name, description]
-    std::vector<std::pair<std::string, std::string const*>> allFunctions = getAllFunctions();
-    std::vector<std::pair<std::string, std::string const*>> allVariables = getAllVariables();
-
-    // Case-insensitive comparison function
-    auto caseInsensitiveLess = [](auto const& a, auto const& b){
-        std::string const& sa = a.first;
-        std::string const& sb = b.first;
-        size_t const n = std::min(sa.size(), sb.size());
-        for (size_t i = 0; i < n; ++i){
-            char const ca = static_cast<char>(std::tolower(static_cast<unsigned char>(sa[i])));
-            char const cb = static_cast<char>(std::tolower(static_cast<unsigned char>(sb[i])));
-            if (ca < cb) return true;
-            if (ca > cb) return false;
-        }
-        return sa.size() < sb.size();
-    };
-
-    // Sort by name
-    std::sort(allFunctions.begin(), allFunctions.end(), caseInsensitiveLess);
-    std::sort(allVariables.begin(), allVariables.end(), caseInsensitiveLess);
-
-    // Display:
-    Utility::Capture::cout() << "\nHelp for " << TreeName << "\nAdd the entries name to the command for more details: " << TreeName << " help <foo>\n";
-    Utility::Capture::cout() << "Available functions:\n";
-    for (auto const& [name, description] : allFunctions){
-        // Only show the first line of the description
-        std::string descriptionFirstLine = *description;
-        if (size_t const newlinePos = description->find('\n'); newlinePos != std::string::npos){
-            descriptionFirstLine = description->substr(0, newlinePos);
-        }
-        std::string paddedName = name;
-        paddedName.resize(namePaddingSize, ' ');
-        Utility::Capture::cout() << "  " << paddedName << " - " << descriptionFirstLine << Utility::Capture::endl;
-    }
-
-    // Display variables
-    Utility::Capture::cout() << "Available variables:\n";
-    for (auto const& [name, description] : allVariables){
-        std::string paddedName = name;
-        paddedName.resize(namePaddingSize, ' ');
-        Utility::Capture::cout() << "  " << paddedName << " - " << *description << Utility::Capture::endl;
-    }
-}
-
-template<typename RETURN_TYPE>
-void Nebulite::Interaction::Execution::FuncTree<RETURN_TYPE>::find(std::string const& name, bool& funcFound, auto& funcIt,  bool& subFound, auto& subIt, bool& varFound, auto& varIt){
-    // Functions
-    if(funcIt != functions.end()){
-        funcFound = true;
-    }
-    else{
-        for(auto const& inheritedTree : inheritedTrees){
-            if(inheritedTree != nullptr){
-                funcIt = inheritedTree->functions.find(name);
-            }
-            if(funcIt != inheritedTree->functions.end()){
-                funcFound = true;
-                break; // Found in inherited tree, stop searching
-            }
-        }
-    }
-
-    // Categories
-    if(subIt != categories.end()){
-        subFound = true;
-    }
-    else{
-        for(auto const& inheritedTree : inheritedTrees){
-            if(inheritedTree != nullptr){
-                subIt = inheritedTree->categories.find(name);
-            }
-            if(subIt != inheritedTree->categories.end()){
-                subFound = true;
-                break; // Found in inherited tree, stop searching
-            }
-        }
-    }
-
-    // Variables
-    if(varIt != variables.end()){
-        varFound = true;
-    }
-    else{
-        for(auto const& inheritedTree : inheritedTrees){
-            if(inheritedTree != nullptr){
-                varIt = inheritedTree->variables.find(name);
-            }
-            if(varIt != inheritedTree->variables.end()){
-                varFound = true;
-                break; // Found in inherited tree, stop searching
-            }
-        }
-    }
-}
 #endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
+
+// Template implementation
+#include "Interaction/Execution/FuncTree.tpp"

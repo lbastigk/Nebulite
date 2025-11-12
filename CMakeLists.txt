@@ -38,12 +38,12 @@ initialize_git_submodules()
 setup_external_subdirectories()
 
 ############################################################
-## Source files
-setup_common_sources()
-
-############################################################
 ## Define executable
 setup_binary_settings()
+
+############################################################
+## Source files
+setup_common_sources(Nebulite)
 
 ############################################################
 ## Dependencies
@@ -56,6 +56,10 @@ configure_common_dependencies(Nebulite)
 # - sets up compilter-specific warnings
 # - sets up build-type-specific warnings
 configure_warnings(Nebulite)
+
+############################################################
+# Set basic include directory
+target_include_directories(Nebulite PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
 ############################################################
 ## Platform-Specific

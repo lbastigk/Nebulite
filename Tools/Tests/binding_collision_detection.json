@@ -10,7 +10,9 @@
                 "Function overwrite is heavily discouraged and thus not allowed.",
                 "Please choose a different name or remove the existing function.",
                 "This Tree: collision-detect",
-                "Function:  function"
+                "Function:  function",
+                "terminate called after throwing an instance of 'std::runtime_error'",
+                "  what():  FuncTree binding failed due to function already existing."
             ],
             "ignore_exit": true
         }
@@ -22,7 +24,9 @@
             "cerr": [
                 "---------------------------------------------------------------",
                 "A Nebulite FuncTree initialization failed!",
-                "Error: Cannot create category 'debug collision-detect' because it already exists."
+                "Error: Cannot create category 'debug collision-detect' because it already exists.",
+                "terminate called after throwing an instance of 'std::runtime_error'",
+                "  what():  FuncTree binding failed due to category already existing."
             ],
             "ignore_exit": true
         }
