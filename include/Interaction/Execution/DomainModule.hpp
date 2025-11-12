@@ -71,10 +71,38 @@ public:
     virtual Constants::Error update(){ return Constants::ErrorTable::NONE(); }
 
     /**
+     * @brief Static helper function to bind a member function to a given FuncTree.
+     * @tparam ClassType The type of the class containing the member function.
+     * @tparam FuncTreeType The type of the FuncTree to bind the function to.
+     * @tparam ReturnType The return type of the member function, must match the FuncTree's return type.
+     * @tparam Args The argument types of the member function, must match the FuncTree's additional argument types.
+     * @param tree Pointer to the FuncTree to bind the function to.
+     * @param obj Pointer to the object instance containing the member function.
+     * @param methodPtr Pointer to the member function to bind.
+     * @param name Name to associate with the bound function.
+     * @param helpDescription Pointer to a string containing the help description for the function.
+     */
+    template<typename ClassType, typename FuncTreeType, typename ReturnType, typename... Args>
+    void bindFunctionStatic(FuncTreeType* tree, ClassType* obj, ReturnType (ClassType::*methodPtr)(Args...), std::string const& name, std::string const* helpDescription){
+        using MemberVariant = FuncTreeType::template MemberMethod<ClassType>;
+        MemberVariant methodVariant{methodPtr}; // Wrap the member function pointer in the variant
+        std::visit([&](auto mpr) {  // Dispatch to the actual funcTree->bindFunction using std::visit
+            tree->bindFunction(
+                obj,
+                MemberVariant(mpr),
+                name,
+                helpDescription
+            );
+        }, methodVariant);
+    }
+
+    /**
     * @brief Binds a member function to the FuncTree.
      *
      * This function template allows for binding member functions of any class type
      * to the FuncTree, automatically handling the necessary type conversions.
+     *
+     * This function is a wrapper around the static bindFunctionStatic helper for methods inside the DomainModule.
      *
      * @tparam ClassType The type of the class containing the member function.
      * @tparam ReturnType The return type of the member function.
@@ -85,17 +113,10 @@ public:
      */
     template<typename ClassType, typename ReturnType, typename... Args>
     void bindFunction(ReturnType (ClassType::*methodPtr)(Args...), std::string const& name, std::string const* helpDescription){
-        using MemberVariant = FuncTree<Constants::Error>::MemberMethod<ClassType>;
-        MemberVariant methodVariant{methodPtr};
-        std::visit([&](auto mpr) {
-            funcTree->bindFunction(
-                static_cast<ClassType*>(this),
-                FuncTree<Constants::Error>::MemberMethod<ClassType>(mpr),
-                name,
-                helpDescription
-            );
-        }, methodVariant);
+        bindFunctionStatic(funcTree.get(), static_cast<ClassType*>(this), methodPtr, name, helpDescription);
     }
+
+
 
     /**
      * @brief Binds a category to the FuncTree.

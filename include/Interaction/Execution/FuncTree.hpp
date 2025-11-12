@@ -92,7 +92,9 @@ public:
 
     // canonical span function type (no reference-qualified std::function)
     using SpanArgs = std::span<std::string const>;
-    using SpanFn = std::function<returnValue (SpanArgs const&, additionalArgs...)>;
+    using SpanArgsConstRef = std::span<std::string const> const&;
+    using SpanFn = std::function<returnValue (SpanArgs, additionalArgs...)>;
+    using SpanFnConstRef = std::function<returnValue (SpanArgsConstRef, additionalArgs...)>;
 
     // Function pointer type
     using FunctionPtr = std::variant<
@@ -100,7 +102,8 @@ public:
         std::function<returnValue (int, char**)>,
         std::function<returnValue (int, char const**)>,
         // Modern
-        SpanFn
+        SpanFn,
+        SpanFnConstRef
     >;
 
     // Function pointer with class type
@@ -110,7 +113,10 @@ public:
         returnValue (ClassType::*)(int, char**),
         returnValue (ClassType::*)(int, char const**),
         // Modern
-        returnValue (ClassType::*)(SpanArgs, additionalArgs...)
+        returnValue (ClassType::*)(SpanArgs, additionalArgs...),
+        returnValue (ClassType::*)(SpanArgs, additionalArgs...) const,
+        returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...),
+        returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...) const
     >;
 
     //------------------------------------------
@@ -319,7 +325,7 @@ private:
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
      */
-    returnValue help(std::span<std::string const> const& args);
+    returnValue help(std::span<std::string const> const& args, additionalArgs... addArgs);
 
     /**
      * @brief Retrieves a list of all functions and their descriptions.
@@ -346,7 +352,7 @@ private:
     /**
      * @brief Displays detailed help for a specific function, category, or variable.
      */
-    void specificHelp(std::string const& funcName);
+    void specificHelp(std::string const& funcName, additionalArgs... addArgs);
 
     /**
      * @struct BindingSearchResult

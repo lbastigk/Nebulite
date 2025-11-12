@@ -112,9 +112,9 @@ FuncTree<returnType, additionalArgs...>::FuncTree(std::string treeName, returnTy
     bindingContainer.functions.emplace(
         "help",
         FunctionInfo{
-            std::function<returnType(std::span<std::string const> const&)>(
-                [this](std::span<std::string const> const& args){
-                    return this->help(args);
+            std::function<returnType(std::span<std::string const> const&, additionalArgs...)>(
+                [this](std::span<std::string const> const& args, additionalArgs... rest) {
+                    return this->help(args, std::forward<additionalArgs>(rest)...);
                 }
             ),
             &help_desc
@@ -260,10 +260,11 @@ void FuncTree<returnType, additionalArgs...>::directBind(std::string const& name
 
         // See if the method pointer is a modernized function
         bool constexpr isModern =  std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs, additionalArgs...)>
-                                || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs, additionalArgs...) const>
-                                || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs, additionalArgs...) const&>;
+                                || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs, additionalArgs...) const>;
+        bool constexpr isModernRefArgs =  std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgsConstRef, additionalArgs...)>
+                                       || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgsConstRef, additionalArgs...) const>;
 
-        // Legacy Bindings
+        // Legacy Bindings, not supporting additionalArgs at the moment
         if constexpr (std::is_same_v<MethodType, returnType (ClassType::*)(int, char**)>){
             bindingContainer.functions.emplace(name, FunctionInfo{
                 std::function<returnType(int, char**)>(
@@ -285,12 +286,12 @@ void FuncTree<returnType, additionalArgs...>::directBind(std::string const& name
             });
         }
 
-        // Modern Bindings
-        else if constexpr (isModern){
+        // Modern Bindings, allow additionalArgs...
+        else if constexpr (isModern || isModernRefArgs){
             bindingContainer.functions.emplace(name, FunctionInfo{
-                std::function<returnType(std::span<std::string const>)>(
-                    [obj, methodPointer](std::span<std::string const> args){
-                        return (obj->*methodPointer)(args);
+                std::function<returnType(std::span<std::string const>, additionalArgs...)>(
+                    [obj, methodPointer](std::span<std::string const> args, additionalArgs... rest){
+                        return (obj->*methodPointer)(args, std::forward<additionalArgs>(rest)...);
                     }
                 ),
                 helpDescription
@@ -442,7 +443,7 @@ returnType FuncTree<returnType, additionalArgs...>::executeFunction(std::string 
                 return func(argc, argv_const.data());
             }
             // Modern function types
-            else if constexpr (std::is_same_v<T, SpanFn>){
+            else if constexpr (std::is_same_v<T, SpanFn> || std::is_same_v<T, SpanFnConstRef>){
                 return func(args, addArgs...);
             }
             // Unknown function type
@@ -460,7 +461,7 @@ returnType FuncTree<returnType, additionalArgs...>::executeFunction(std::string 
         for(int i = 0; i < argc; i++){
             cmd += std::string(argv[i]) + " ";
         }
-        return bindingContainer.categories[function].tree->parseStr(cmd);
+        return bindingContainer.categories[function].tree->parseStr(cmd, addArgs...);
     }
     Utility::Capture::cerr() << "Function '" << function << "' not found in FuncTree " << TreeName << ", its inherited FuncTrees or their categories!\n";
     Utility::Capture::cerr() << "Arguments are:" << Utility::Capture::endl;
@@ -530,13 +531,13 @@ namespace SortFunctions {
 }   // namespace SortFunctions
 
 template<typename returnType, typename... additionalArgs>
-returnType FuncTree<returnType, additionalArgs...>::help(std::span<std::string const> const& args){
+returnType FuncTree<returnType, additionalArgs...>::help(std::span<std::string const> const& args, additionalArgs... addArgs){
     //------------------------------------------
     // Case 1: Detailed help for a specific function, category or variable
     if(args.size() > 1){
         // Call specific help for each argument, except the first one (which is the binary name or last function name)
         for (auto const& arg : args){
-            specificHelp(arg);
+            specificHelp(arg, addArgs...);
         }
         return standardReturn.valDefault;
     }
@@ -548,7 +549,7 @@ returnType FuncTree<returnType, additionalArgs...>::help(std::span<std::string c
 }
 
 template<typename returnType, typename... additionalArgs>
-void FuncTree<returnType, additionalArgs...>::specificHelp(std::string const& funcName){
+void FuncTree<returnType, additionalArgs...>::specificHelp(std::string const& funcName, additionalArgs... addArgs){
     if (BindingSearchResult const searchResult = find(funcName); searchResult.any){
         // 1.) Function
         if(searchResult.function){
@@ -559,7 +560,7 @@ void FuncTree<returnType, additionalArgs...>::specificHelp(std::string const& fu
         // 2.) Category
         else if(searchResult.category){
             // Found category, display detailed help
-            searchResult.catIt->second.tree->help({}); // Display all functions in the category
+            searchResult.catIt->second.tree->help({}, addArgs...); // Display all functions in the category
         }
         // 3.) Variable
         else if(searchResult.variable){
