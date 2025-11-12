@@ -27,11 +27,6 @@
 // Forward declarations
 
 namespace Nebulite{
-    namespace Core{
-        // we cannot include GlobalSpace directly due to circular dependencies,
-        // as GlobalSpace itself is a Domain.
-        class GlobalSpace;
-    } 
     /**
      * @todo Is this necessary?
      */
@@ -57,36 +52,15 @@ namespace Nebulite::Interaction::Execution{
  *        This allows for a simplified interface for accessing common domain functionality.
  */
 class DomainBase {
-    /**
-     * @brief Friend declaration for all Domain specializations.
-     * @todo This is still necessary for inheritance of FuncTrees, but a better solution would be a proper getter for the functree.
-     */
-    //template<typename> friend class Domain;
-
-    /**
-     * @brief Allow DomainModules full access to Domain private members.
-     *        this simplifies the implementation of DomainModules significantly.
-     *        Reducing the amount of setter and getter methods needed.
-     *        This decision is a bit controversial, as it would allow DomainModules to modify
-     *        potentially critical parts of the Domain class.
-     *        But this functionality might be helpful for rapid prototyping of new DomainModules.
-     *        Uncomment if full access is desired.
-     */
-    //template<typename> friend class DomainModule;
-
-    /**
-     * @brief Allow Domain to access private members of DomainBase.
-     */
-    //template<typename> friend class Domain;
 public:
-    DomainBase(std::string const& name, Utility::JSON* documentPtr, Core::GlobalSpace* globalSpacePtr)
+    DomainBase(std::string const& name, Utility::JSON* documentPtr)
     : domainName(name),
       funcTree(std::make_shared<FuncTree<Constants::Error>>(
           name,
           Constants::ErrorTable::NONE(),
           Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
       )),
-      doc(documentPtr), global(globalSpacePtr)
+      doc(documentPtr)
     {}
 
     virtual ~DomainBase() = default;
@@ -192,45 +166,6 @@ public:
      */
     [[nodiscard]] Utility::JSON* getDoc() const {return doc;}
 
-    /**
-     * @brief Gets a pointer to the globalspace.
-     *
-     * @return A pointer to the globalspace.
-     */
-    [[nodiscard]] Core::GlobalSpace* getGlobalSpace() const {return global;}
-
-    //------------------------------------------
-    // Logging
-
-    /**
-     * @brief Logs to the Nebulite logging system with a newline.
-     *
-     * This function logs a message to the Nebulite logging system and appends a newline.
-     *
-     * @param message The message to log.
-     */
-    static void logln(std::string const& message){
-        Utility::Capture::cout() << message << Utility::Capture::endl;
-    }
-
-    /**
-     * @brief Log an error to the Nebulite logging system.
-     *
-     * @param message The error message to log.
-     */
-    static void logError(std::string const& message){
-        Utility::Capture::cerr() << message;
-    }
-
-    /**
-     * @brief Logs an error to the Nebulite logging system with a newline.
-     *
-     * @param message The error message to log.
-     */
-    static void logErrorln(std::string const& message){
-        Utility::Capture::cerr() << message << Utility::Capture::endl;
-    }
-
 protected:
 
     std::shared_ptr<FuncTree<Constants::Error>> getFuncTree(){
@@ -259,11 +194,6 @@ private:
      * Meaning the internal JSON doc references to itself.
      */
     Utility::JSON* const doc;
-
-    /**
-     * @brief Pointer to the globalspace, for accessing global resources and management functions.
-     */
-    Core::GlobalSpace* const global;
 };
 
 /**
@@ -280,32 +210,6 @@ private:
  */
 template<typename DomainType>
 class Domain : public DomainBase {
-public:
-    Domain(std::string const& name, DomainType* domainTypePtr, Utility::JSON* documentPtr, Core::GlobalSpace* globalSpacePtr)
-    : DomainBase(name, documentPtr, globalSpacePtr), domain(domainTypePtr)
-    {}
-
-    /**
-     * @brief Factory method for creating DomainModule instances with proper linkage
-     *
-     * @tparam DomainModuleType The type of module to initialize
-     * @param moduleName The name of the module
-     */
-    template<typename DomainModuleType>
-    void initModule(std::string moduleName){
-        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, getFuncTree(), getGlobalSpace());
-        modules.push_back(std::move(DomainModule));
-    }
-
-    /**
-     * @brief Updates all DomainModules.
-     */
-    void updateModules(){
-        for(auto& module : modules){
-            module->update();
-        }
-    }
-
 private:
     /**
      * @brief Stores all available modules
@@ -321,6 +225,32 @@ private:
      * Used to initialize DomainModules with a reference to the domain.
      */
     DomainType* const domain;
+
+public:
+    Domain(std::string const& name, DomainType* domainTypePtr, Utility::JSON* documentPtr)
+    : DomainBase(name, documentPtr), domain(domainTypePtr)
+    {}
+
+    /**
+     * @brief Factory method for creating DomainModule instances with proper linkage
+     *
+     * @tparam DomainModuleType The type of module to initialize
+     * @param moduleName The name of the module
+     */
+    template<typename DomainModuleType>
+    void initModule(std::string moduleName){
+        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, getFuncTree());
+        modules.push_back(std::move(DomainModule));
+    }
+
+    /**
+     * @brief Updates all DomainModules.
+     */
+    void updateModules(){
+        for(auto& module : modules){
+            module->update();
+        }
+    }
 };
 }   // namespace Nebulite::Interaction::Execution
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP

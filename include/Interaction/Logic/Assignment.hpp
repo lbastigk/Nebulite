@@ -12,7 +12,6 @@
 // Includes
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Interaction/Logic/ExpressionPool.hpp"
 
 //------------------------------------------
@@ -34,7 +33,7 @@ namespace Nebulite::Interaction::Logic {
  * - The value as parsed expression
  * 
  */
-struct alignas(DUAL_CACHE_LINE_ALIGNMENT) Assignment{
+struct Assignment{
     //------------------------------------------
     // Standard constructor/destructor
     Assignment() = default;

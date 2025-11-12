@@ -1,7 +1,9 @@
+
 #include "DomainModule/GlobalSpace/GSDM_Debug.hpp"
-#include "Core/GlobalSpace.hpp"       // Global Space for Nebulite
-#include "Utility/Capture.hpp"
+
 #include <csignal>
+
+#include "Nebulite.hpp"
 
 #if defined(_WIN32)
     #include <windows.h>
@@ -164,7 +166,7 @@ Usage: log state [<filenames>...]
 
 // NOLINTNEXTLINE
 Constants::Error Debug::standardfile_renderobject( int argc,  char** argv){
-    Core::RenderObject ro(domain);
+    Core::RenderObject ro;
     Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc",ro.serialize());
     return Constants::ErrorTable::NONE();
 }
@@ -187,7 +189,7 @@ Constants::Error Debug::errorlog(int argc,  char** argv){
         if(!strcmp(argv[1], "on")){
             if(!errorLogStatus){
                 if (!safe_open_log(errorFile)){
-                    Utility::Capture::cerr() << "Refusing to open log file: '" << logFilename << "' is a symlink or could not be opened." << Utility::Capture::endl;
+                    Nebulite::cerr() << "Refusing to open log file: '" << logFilename << "' is a symlink or could not be opened." << Nebulite::endl;
                     return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
                 }
                 originalCerrBuf = std::cerr.rdbuf();
@@ -304,8 +306,8 @@ Constants::Error Debug::crash(int argc,  char** argv){
             // Throw an uncaught exception
             throw std::runtime_error("Intentional crash: uncaught exception");
         } else {
-            Utility::Capture::cerr() << "Unknown crash type requested: " << crashType << Utility::Capture::endl;
-            Utility::Capture::cerr() << "Defaulting to segmentation fault" << Utility::Capture::endl;
+            Nebulite::cerr() << "Unknown crash type requested: " << crashType << Nebulite::endl;
+            Nebulite::cerr() << "Defaulting to segmentation fault" << Nebulite::endl;
         }
     } else {
         // Default: segmentation fault
@@ -329,12 +331,12 @@ Usage: crash [<type>]
 // NOLINTNEXTLINE
 Constants::Error Debug::error(int argc,  char** argv){
     for (int i = 1; i < argc; ++i){
-        Utility::Capture::cerr() << argv[i];
+        Nebulite::cerr() << argv[i];
         if (i < argc - 1){
-            Utility::Capture::cerr() << " ";
+            Nebulite::cerr() << " ";
         }
     }
-    Utility::Capture::cerr() << Utility::Capture::endl;
+    Nebulite::cerr() << Nebulite::endl;
 
     // No further error to return
     return Constants::ErrorTable::NONE();
@@ -390,7 +392,7 @@ Constants::Error Debug::waitForInput(int argc,  char** argv){
         // Use the provided prompt as message
         message = argv[1];
     }
-    logln(message);
+    Nebulite::cout() << message << Nebulite::endl;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return Constants::ErrorTable::NONE();
 }

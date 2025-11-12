@@ -32,11 +32,7 @@ public:
     /**
      * @brief Default constructor for DocumentCache.
      */
-    explicit DocumentCache(Nebulite::Core::GlobalSpace* globalSpace) : readOnlyDocs(globalSpace), global(globalSpace) {
-        if (globalSpace == nullptr){
-            throw std::invalid_argument("DocumentCache: GlobalSpace pointer cannot be null");
-        }
-    }
+    DocumentCache() = default;
 
     /**
      * @brief Retrieves data from a cached document.
@@ -68,14 +64,14 @@ public:
      * @param doc_key The link and key of the sub-document to retrieve.
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
      */
-    Nebulite::Utility::JSON get_subdoc(std::string const& doc_key){
+    Nebulite::Utility::JSON getSubDoc(std::string const& doc_key){
         auto [doc, key] = splitDocKey(doc_key);
 
         Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr){
-            return Nebulite::Utility::JSON(global); // Return empty JSON if document loading fails
+            return Nebulite::Utility::JSON{}; // Return empty JSON if document loading fails
         }
 
         // Retrieve the sub-document from the document
@@ -103,9 +99,9 @@ public:
     double* getStableDoublePointer(std::string const& doc_key);
     
     /**
-     * @brief Checks the type of a key in the JSON document.
+     * @brief Checks the type of any key in the JSON document.
      * 
-     * This function checks the type of a key in the JSON document.
+     * This function checks the type of any key in the JSON document.
      * If the key does not exist, the type is considered null.
      * 
      * @param doc_key The document and its key to check.
@@ -200,7 +196,7 @@ public:
 
         // Check if the document exists in the cache
         if (docPtr == nullptr){
-            return Nebulite::Utility::JSON(global).serialize(); // Return empty JSON if document loading fails
+            return Nebulite::Utility::JSON().serialize(); // Return empty JSON if document loading fails
         }
 
         // Return string of document:
@@ -217,11 +213,6 @@ private:
      * @brief Read-only document cache.
      */
     Nebulite::Utility::ReadOnlyDocs readOnlyDocs;
-
-    /**
-     * @brief Link to the global space.
-     */
-    Nebulite::Core::GlobalSpace* global;
 
     // Default value for double pointers, if the document or key is not found
     /**

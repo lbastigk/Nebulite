@@ -1,6 +1,8 @@
 #include "DomainModule/JSON/JSDM_Debug.hpp"
 #include "Utility/JSON.hpp"       // Global Space for Nebulite
 
+#include "Nebulite.hpp"
+
 namespace Nebulite::DomainModule::JSON {
 
 //------------------------------------------
@@ -23,19 +25,19 @@ Constants::Error Debug::print(int argc,  char** argv){
     if(argc == 2){
         auto const memberType = domain->getDoc()->memberCheck(argv[1]);
         if(memberType == Utility::JSON::KeyType::null){
-            logln("{}");
+            Nebulite::cout() << "{}" << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
         if(memberType == Utility::JSON::KeyType::document){
-            logln(domain->getDoc()->serialize(argv[1]));
+            Nebulite::cout() << domain->getDoc()->serialize(argv[1]) << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
         if(memberType == Utility::JSON::KeyType::value){
-            logln(domain->getDoc()->get<std::string>(argv[1], ""));
+            Nebulite::cout() << domain->getDoc()->get<std::string>(argv[1], "") << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
     }
-    logln(domain->getDoc()->serialize());
+    Nebulite::cout() << domain->getDoc()->serialize() << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
 std::string const Debug::print_name = "print";

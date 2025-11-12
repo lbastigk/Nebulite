@@ -1,14 +1,11 @@
 #include "Interaction/RulesetCompiler.hpp"
-
-#include "Core/GlobalSpace.hpp"
 #include "Interaction/Ruleset.hpp"
+#include "Nebulite.hpp"
 
 void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
     Utility::JSON& entryDoc,
     Ruleset& Ruleset,
-    Core::RenderObject const* self,
-    Utility::DocumentCache* docCache,
-    Utility::JSON* global
+    Core::RenderObject const* self
 ){
     // Get function calls: GLOBAL, SELF, OTHER
     if (entryDoc.memberCheck(Constants::keyName.invoke.functioncalls_global) == Utility::JSON::KeyType::array){
@@ -19,7 +16,7 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
 
             // Create a new Expression, parse the function call
             Logic::ExpressionPool invokeExpr;
-            invokeExpr.parse(funcCall, docCache, self->getDoc(), global);
+            invokeExpr.parse(funcCall, self->getDoc());
             Ruleset.functioncalls_global.emplace_back(std::move(invokeExpr));
         }
     }
@@ -38,7 +35,7 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
 
             // Create a new Expression, parse the function call
             Logic::ExpressionPool invokeExpr;
-            invokeExpr.parse(funcCall, docCache, self->getDoc(), global);
+            invokeExpr.parse(funcCall, self->getDoc());
             Ruleset.functioncalls_self.emplace_back(std::move(invokeExpr));
         }
     }
@@ -56,7 +53,7 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
             }
             // Create a new Expression, parse the function call
             Logic::ExpressionPool invokeExpr;
-            invokeExpr.parse(funcCall, docCache, self->getDoc(), global);
+            invokeExpr.parse(funcCall, self->getDoc());
             Ruleset.functioncalls_other.emplace_back(std::move(invokeExpr));
         }
     }
@@ -173,7 +170,7 @@ bool Nebulite::Interaction::RulesetCompiler::getRuleset(Utility::JSON& doc, Util
     else{
         // Is link to document
         auto const link = doc.get<std::string>(key, "");
-        std::string const file = doc.getGlobalSpace()->getDocCache()->getDocString(link);
+        std::string const file = Nebulite::global().getDocCache()->getDocString(link);
 
         if (file.empty()){
             return false;
@@ -227,7 +224,7 @@ namespace{
     }
 }
 
-void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& entries_global, std::vector<std::shared_ptr<Ruleset>>& entries_local, Core::RenderObject* self, Utility::DocumentCache* docCache, Utility::JSON* global){
+void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& entries_global, std::vector<std::shared_ptr<Ruleset>>& entries_local, Core::RenderObject* self){
     // Clean up existing entries - shared pointers will automatically handle cleanup
     entries_global.clear();
     entries_local.clear();
@@ -249,7 +246,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
     // Iterate through all entries
     for (size_t idx = 0; idx < size; ++idx){
         // Parse entry into separate JSON object
-        Utility::JSON entry(self->getGlobalSpace());
+        Utility::JSON entry;
         if (!getRuleset(*doc, entry, idx)){
             continue; // Skip this entry
         }
@@ -257,7 +254,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
         // Parse into a structure
         auto Ruleset = std::make_shared<Interaction::Ruleset>();
         Ruleset->topic = entry.get<std::string>(Constants::keyName.invoke.topic, "all");
-        Ruleset->logicalArg.parse(getLogicalArg(entry), docCache, self->getDoc(), global);
+        Ruleset->logicalArg.parse(getLogicalArg(entry), self->getDoc());
 
         // Remove whitespaces at start and end from topic and logicalArg:
         Ruleset->topic = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(Ruleset->topic));
@@ -269,7 +266,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
 
         std::string str = *Ruleset->logicalArg.getFullExpression();
         str = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(str));
-        Ruleset->logicalArg.parse(str, docCache, self->getDoc(), global);
+        Ruleset->logicalArg.parse(str, self->getDoc());
 
         // Get expressions
         if (bool const exprSuccess = getExpressions(Ruleset, &entry); !exprSuccess){
@@ -278,11 +275,11 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
 
         // Parse all assignments
         for (auto& assignment : Ruleset->assignments){
-            assignment.expression.parse(assignment.value, docCache, self->getDoc(), global);
+            assignment.expression.parse(assignment.value, self->getDoc());
         }
 
         // Parse all function calls
-        getFunctionCalls(entry, *Ruleset, self, docCache, global);
+        getFunctionCalls(entry, *Ruleset, self);
 
         // Push into vector
         Ruleset->selfPtr = self; // Set self pointer
@@ -296,8 +293,8 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
     }
 
     // See if we can assign a permanent target double pointer for each assignment
-    optimizeParsedEntries(entries_global, self->getDoc(), global);
-    optimizeParsedEntries(entries_local, self->getDoc(), global);
+    optimizeParsedEntries(entries_global, self->getDoc());
+    optimizeParsedEntries(entries_local, self->getDoc());
 
     // Set necessary metadata: IDs, indices, cost estimation
     setMetaData(self, entries_global, entries_local);
@@ -305,8 +302,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
 
 void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
     std::vector<std::shared_ptr<Ruleset>> const& entries,
-    Utility::JSON const* self,
-    Utility::JSON* global
+    Utility::JSON* self
 ){
     // Valid operations for direct double pointer assignment
     auto& ops = numeric_operations;
@@ -319,7 +315,7 @@ void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
             if (assignment.onType == Logic::Assignment::Type::Self){
                 if (std::ranges::find(ops, assignment.operation) != std::ranges::end(ops)){
                     // Numeric operation on self, try to get a direct pointer
-                    if (double* ptr = self->getDoc()->getStableDoublePointer(assignment.key); ptr != nullptr){
+                    if (double* ptr = self->getStableDoublePointer(assignment.key); ptr != nullptr){
                         assignment.targetValuePtr = ptr;
                     }
                 }
@@ -327,7 +323,7 @@ void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
             if (assignment.onType == Logic::Assignment::Type::Global){
                 if (std::ranges::find(ops, assignment.operation) != std::ranges::end(ops)){
                     // Numeric operation on global, try to get a direct pointer
-                    if (double* ptr = global->getStableDoublePointer(assignment.key); ptr != nullptr){
+                    if (double* ptr = Nebulite::global().getDoc()->getStableDoublePointer(assignment.key); ptr != nullptr){
                         assignment.targetValuePtr = ptr;
                     }
                 }

@@ -81,12 +81,7 @@ public:
     //------------------------------------------
     // General
 
-    /**
-     * @brief Constructs an Invoke object.
-     * 
-     * @param globalSpace Pointer to the global space.
-     */
-    explicit Invoke(Core::GlobalSpace* globalSpace);
+    Invoke();
 
     /**
      * @brief Destructor - stops worker threads.
@@ -99,24 +94,6 @@ public:
      * @param queue Reference to the global queue.
      */
     void linkTaskQueue(std::deque<std::string>& queue){taskQueue.ptr = &queue;}
-
-    //------------------------------------------
-    // Getting
-
-    /**
-     * @brief Gets the global JSON document pointer.
-     */
-    Utility::JSON* getGlobalPointer() const {return globalDoc;}
-
-    /**
-     * @brief Gets a pointer to the DocumentCache.
-     * 
-     * This function provides access to the DocumentCache used by the invoke class,
-     * allowing for efficient document management and retrieval.
-     * 
-     * @return A pointer to the DocumentCache.
-     */
-    Utility::DocumentCache* getDocumentCache() const { return docCache; }
     
     //------------------------------------------
     // Send/Listen
@@ -312,13 +289,8 @@ private:
     //------------------------------------------
     // General Variables
 
-    // Link to globalspace
-    Core::GlobalSpace* global = nullptr;
-
     // Documents
-    Utility::DocumentCache* docCache = nullptr;                       // DocumentCache for read-only documents, linked on construction
-    Utility::JSON* emptyDoc = new Utility::JSON(global);    // Linking an empty doc is needed for some functions
-    Utility::JSON* globalDoc = nullptr;                               // Linkage to global doc, linked on construction
+    Utility::JSON* emptyDoc = new Utility::JSON();    // Linking an empty doc is needed for some functions
 
     // Task Queue
     struct TaskQueue {

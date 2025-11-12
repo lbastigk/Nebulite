@@ -3,8 +3,8 @@
  * @brief Contains the Nebulite::Core::RenderObjectContainer class.
  */
 
-#ifndef NEBULITE_CORE_RENDEROBJECTCONTAINER_HPP
-#define NEBULITE_CORE_RENDEROBJECTCONTAINER_HPP
+#ifndef NEBULITE_CORE_RENDEROBJECT_CONTAINER_HPP
+#define NEBULITE_CORE_RENDEROBJECT_CONTAINER_HPP
 
 //------------------------------------------
 // Includes
@@ -64,9 +64,8 @@ public:
 
     /**
      * @brief Constructs a new RenderObjectContainer.
-     * @param globalSpacePtr Pointer to the global Space instance.
      */
-    explicit RenderObjectContainer(GlobalSpace *globalSpacePtr);
+    RenderObjectContainer() = default;
 
     //------------------------------------------
     // Serialization / Deserialization
@@ -250,9 +249,6 @@ private:
         std::vector<RenderObject *> purgatory; // Deleted each frame
         std::mutex deleteMutex; // Threadsafe insertion into trash
     } deletionProcess;
-
-    // Link to the global space for new objects
-    GlobalSpace *globalSpace;
 };
 } // namespace Nebulite::Core
-#endif // NEBULITE_CORE_RENDEROBJECTCONTAINER_HPP
+#endif // NEBULITE_CORE_RENDEROBJECT_CONTAINER_HPP

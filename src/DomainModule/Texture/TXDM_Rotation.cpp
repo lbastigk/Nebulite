@@ -1,7 +1,6 @@
 #include "DomainModule/Texture/TXDM_Rotation.hpp"
-
-#include "Core/GlobalSpace.hpp"
 #include "Core/Texture.hpp"
+#include "Nebulite.hpp"
 
 namespace Nebulite::DomainModule::Texture {
 
@@ -20,7 +19,7 @@ Constants::Error Rotation::rotate(int argc,  char** argv){
     }
 
     // Get the SDL_Renderer
-    SDL_Renderer* renderer = domain->getGlobalSpace()->getSdlRenderer();
+    SDL_Renderer* renderer = Nebulite::global().getSdlRenderer();
     if (renderer == nullptr){
         return Constants::ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED();
     }
@@ -63,7 +62,7 @@ Constants::Error Rotation::rotate(int argc,  char** argv){
     // Replace the original texture with the rotated texture
     domain->setInternalTexture(rotatedTexture);
 
-    Utility::Capture::cout() << "Texture rotated by " << angle << " degrees." << Utility::Capture::endl;
+    Nebulite::cout() << "Texture rotated by " << angle << " degrees." << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
 std::string const Rotation::rotate_name = "rotate";

@@ -10,7 +10,6 @@
 // Includes
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Utility/Time.hpp"
 
 //------------------------------------------
@@ -98,7 +97,7 @@ public:
      * 
      * @return True if the timer is running, false otherwise.
      */
-    bool is_running() const noexcept {
+    [[nodiscard]] bool is_running() const noexcept {
         return running;
     }
 
@@ -129,7 +128,7 @@ public:
      * 
      * @return The time elapsed since the timer started in milliseconds.
      */
-    uint64_t get_t_ms() const noexcept {
+    [[nodiscard]] uint64_t get_t_ms() const noexcept {
         return t_ms;
     }
 
@@ -142,7 +141,7 @@ public:
      * 
      * @return The time difference between the last two updates in milliseconds.
      */
-    uint64_t get_dt_ms() const noexcept {
+    [[nodiscard]] uint64_t get_dt_ms() const noexcept {
         return dt_ms;
     }
 
@@ -192,17 +191,12 @@ private:
      * @struct OnSimulation
      * @brief Stores the timing information for the update simulation phase.
      */
-    struct alignas(SIMD_ALIGNMENT) OnSimulation{
+    struct OnSimulation{
         uint64_t last_t_ms = 0;
         uint64_t t_ms = 0;
         uint64_t dt = 0;
         OnSimulation() = default;
     } onSimulation;
-
-    /**
-     * @brief Ensures proper alignment for OnSimulation struct.
-     */
-    static_assert(alignof(OnSimulation) >= SIMD_ALIGNMENT, "OnSimulation alignment");
 };
 }   // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_TIMEKEEPER_HPP

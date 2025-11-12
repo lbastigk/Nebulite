@@ -6,11 +6,8 @@
 namespace Nebulite::Core{
     
 GlobalSpace::GlobalSpace(std::string const& binName)
-: Domain("Nebulite", this, &global, this),
-  global(this),                       // Link the global document to the GlobalSpace
-  renderer(this, &cmdVars.headless),  // Renderer with reference to GlobalSpace and headless mode boolean
-  invoke(this),                       // Invoke with reference to GlobalSpace
-  docCache(this)                      // Init with reference to GlobalSpace
+: Domain("Nebulite", this, &global),
+  renderer(&global, &cmdVars.headless)  // Renderer with reference to GlobalSpace and headless mode boolean
 {
     //------------------------------------------
     // Setup tasks

@@ -7,8 +7,8 @@
 #include <unordered_map>
 
 // Nebulite
+#include "Nebulite.hpp"
 #include "Utility/StringHandler.hpp"
-#include "Utility/Capture.hpp"
 
 
 
@@ -267,7 +267,7 @@ std::vector<std::string> StringHandler::parseQuotedArguments(std::string const& 
     
     // Warning for unclosed quotes
     if (state.inAnyQuote()){
-        Capture::cerr() << "Warning: Unclosed quote in command: " << cmd << Capture::endl;
+        Nebulite::cerr() << "Warning: Unclosed quote in command: " << cmd << Nebulite::endl;
     }
     
     return result;

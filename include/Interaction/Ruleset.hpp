@@ -29,7 +29,7 @@ namespace Nebulite::Interaction {
  * Invokes are parsed into specific structs. Each Renderobject holds its own InvokeEntries.
  * The struct also contains a pointer to the RenderObject that owns this entry (the broadcaster).
  */
-struct alignas(DUAL_CACHE_LINE_ALIGNMENT) Ruleset{
+struct Ruleset{
     /**
      * @struct Nebulite::Interaction::Ruleset
      * @brief The topic of the invoke entry, used for routing and filtering in the broadcast-listen-model of the Invoke class.

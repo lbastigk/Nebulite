@@ -1,7 +1,7 @@
 #include "DomainModule/Texture/TXDM_Fill.hpp"
-
-#include "Core/GlobalSpace.hpp"
 #include "Core/Texture.hpp"
+
+#include "Nebulite.hpp"
 
 namespace Nebulite::DomainModule::Texture{
 
@@ -17,7 +17,7 @@ Constants::Error Fill::fill(int argc,  char** argv){
     }
 
     // Get the SDL_Renderer
-    if (domain->getGlobalSpace()->getSdlRenderer() == nullptr){
+    if (Nebulite::global().getSdlRenderer() == nullptr){
         return Constants::ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED();
     }
 
@@ -51,7 +51,7 @@ Constants::Error Fill::fill(int argc,  char** argv){
     void* pixels;
     int pitch;
     if (SDL_LockTexture(texture, nullptr, &pixels, &pitch) != 0){
-        Utility::Capture::cerr() << "Failed to lock texture: " << SDL_GetError() << Utility::Capture::endl;
+        Nebulite::cerr() << "Failed to lock texture: " << SDL_GetError() << Nebulite::endl;
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_LOCK_FAILED();
     }
 
@@ -69,11 +69,11 @@ Constants::Error Fill::fill(int argc,  char** argv){
     // Unlock the texture
     SDL_UnlockTexture(texture);
 
-    Utility::Capture::cout() << "Texture filled with color: "
+    Nebulite::cout() << "Texture filled with color: "
               << " R=" << static_cast<int>(r)
               << " G=" << static_cast<int>(g)
               << " B=" << static_cast<int>(b) 
-              << Utility::Capture::endl;
+              << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
 std::string const Fill::fill_name = "fill";

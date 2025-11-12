@@ -2,6 +2,8 @@
 #include "Core/RenderObject.hpp"
 #include "Utility/FileManagement.hpp"
 
+#include "Nebulite.hpp"
+
 namespace Nebulite::DomainModule::RenderObject{
 
 std::string const Logging::log_name = "log";
@@ -22,7 +24,7 @@ Constants::Error Logging::update(){
 // NOLINTNEXTLINE
 Constants::Error Logging::echo(int argc,  char** argv){
     std::string const args = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
-    Utility::Capture::cout() << args << Utility::Capture::endl;
+    Nebulite::cout() << args << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
 std::string const Logging::echo_name = "echo";

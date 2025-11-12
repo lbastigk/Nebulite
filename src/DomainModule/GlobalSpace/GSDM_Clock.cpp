@@ -1,7 +1,7 @@
 #include "DomainModule/GlobalSpace/GSDM_Clock.hpp"
-
-#include "Core/GlobalSpace.hpp"
 #include "DomainModule/GlobalSpace/GSDM_Time.hpp"
+
+#include "Nebulite.hpp"
 
 namespace Nebulite::DomainModule::GlobalSpace {
 

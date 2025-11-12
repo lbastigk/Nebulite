@@ -15,9 +15,6 @@
 // External
 #include <absl/container/flat_hash_map.h>
 
-// Nebulite
-#include "Nebulite.hpp"
-
 //------------------------------------------
 
 namespace Nebulite::Utility {

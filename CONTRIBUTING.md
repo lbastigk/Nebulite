@@ -215,7 +215,6 @@ private:
 **Inside GSDM_MyModule.cpp:**
 ```cpp
 #include "DomainModule/GlobalSpace/GSDM_MyModule.hpp"
-#include "Core/GlobalSpace.hpp"
 
 void Nebulite::DomainModule::GlobalSpace::MyModule::update(){
     // If our expansion uses any internal values 

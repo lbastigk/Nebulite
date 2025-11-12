@@ -19,32 +19,14 @@
 //------------------------------------------
 // Includes
 
+// Standard library
 #include <cstddef>
+#include <deque>
+#include <string>
 
-//------------------------------------------
-// Define alignment constants
-
-// CACHE LINE alignment
-#ifdef __cpp_lib_hardware_interference_size
-    //inline constexpr std::size_t CACHE_LINE_ALIGNMENT = std::hardware_destructive_interference_size;
-    constexpr std::size_t CACHE_LINE_ALIGNMENT = 64U; // temporary workaround until MSVC supports it
-    // TODO: Ensure that the windows build system has a compile option to enable hardware_interference_size
-#else
-    inline constexpr std::size_t CACHE_LINE_ALIGNMENT = 64U; // common on x86_64
-#endif
-
-// DUAL CACHE LINE alignment
-inline constexpr std::size_t DUAL_CACHE_LINE_ALIGNMENT = 2 * CACHE_LINE_ALIGNMENT;
-
-// SIMD alignment (AVX/AVX2)
-inline constexpr std::size_t SIMD_ALIGNMENT = 32U;
-
-// SSE alignment
-inline constexpr std::size_t SSE_ALIGNMENT = 16U;
-
-// Technically, the parenthesis around "CACHE_LINE_ALIGNMENT - 1" is not needed, but it improves readability
-// NOLINTNEXTLINE
-static_assert((CACHE_LINE_ALIGNMENT & (CACHE_LINE_ALIGNMENT - 1)) == 0, "CACHE_LINE_ALIGNMENT must be power of two");
+// Nebulite
+#include "Core/GlobalSpace.hpp"
+#include "Utility/Capture.hpp"
 
 //------------------------------------------
 // Namespace documentation
@@ -137,9 +119,33 @@ namespace Nebulite{
     namespace Utility{}
 
 }   // namespace Nebulite
-#endif // NEBULITE_HPP
 
 /**
  * @todo: Add global() function here for accessing GlobalSpace.
  *        Also add global ErrorTable and Logger objects here.
  */
+namespace Nebulite{
+    /**
+     * @brief Singleton accessor for the global GlobalSpace object.
+     */
+    Core::GlobalSpace& global();
+
+    /**
+     * @brief Singleton accessor for the cout capture object
+     */
+    Nebulite::Utility::CaptureStream& cout();
+
+    /**
+     * @brief Singleton accessor for the cerr capture object
+     */
+    Nebulite::Utility::CaptureStream& cerr();
+
+    /**
+     * @brief End line string for capturing output
+     *        At the moment, this is just a placeholder for `"\n"`.
+     */
+    static std::string const endl = "\n";
+
+}   // namespace Nebulite
+
+#endif // NEBULITE_HPP

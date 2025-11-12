@@ -4,8 +4,8 @@
  * @brief Provides RenderObject creation utilities
  */
 
-#ifndef NEBULITE_RRDM_RENDEROBJECTDRAFT_HPP
-#define NEBULITE_RRDM_RENDEROBJECTDRAFT_HPP
+#ifndef NEBULITE_RRDM_RENDER_OBJECT_DRAFT_HPP
+#define NEBULITE_RRDM_RENDER_OBJECT_DRAFT_HPP
 
 //------------------------------------------
 // Includes
@@ -90,9 +90,6 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RenderObjectDraft){
-        // Initialize the draft holder with the domain
-        draft.setDomain(global);
-        
         // Bind functions
         (void)bindCategory(draft_name, &draft_desc);
         bindFunction(&RenderObjectDraft::draft_parse,  draft_parse_name,   &draft_parse_desc);
@@ -108,18 +105,12 @@ private:
      */
     class DraftHolder{
         std::unique_ptr<Core::RenderObject> ptr;
-        Core::GlobalSpace* domain_ptr;
     public:
-        DraftHolder() : ptr(nullptr), domain_ptr(nullptr){}
-        explicit DraftHolder(Core::GlobalSpace* domain) : ptr(nullptr), domain_ptr(domain){}
-
-        void setDomain(Core::GlobalSpace* domain){
-            domain_ptr = domain;
-        }
+        DraftHolder() = default;
 
         std::unique_ptr<Core::RenderObject> & get(){
-            if(!ptr && domain_ptr){
-                ptr = std::make_unique<Core::RenderObject>(domain_ptr);
+            if(!ptr){
+                ptr = std::make_unique<Core::RenderObject>();
             }
             return ptr;
         }
@@ -131,4 +122,4 @@ private:
     DraftHolder draft;
 };
 }   // namespace Nebulite::DomainModule::Renderer
-#endif // NEBULITE_RRDM_RENDEROBJECTDRAFT_HPP
+#endif // NEBULITE_RRDM_RENDER_OBJECT_DRAFT_HPP

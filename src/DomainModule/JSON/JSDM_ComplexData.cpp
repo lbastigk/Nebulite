@@ -1,6 +1,7 @@
 #include "DomainModule/JSON/JSDM_ComplexData.hpp"
 #include "Utility/JSON.hpp"
-#include "Core/GlobalSpace.hpp"
+
+#include "Nebulite.hpp"
 
 namespace Nebulite::DomainModule::JSON{
 
@@ -49,23 +50,23 @@ Constants::Error ComplexData::jsonSet(int argc,  char** argv){
     // Depending on the type of docKey, we retrieve the value
 
     // === DOCUMENT ===
-    if(Utility::JSON::KeyType const type = global->getDocCache()->memberCheck(docKey); type == Utility::JSON::KeyType::document){
+    if(Utility::JSON::KeyType const type = Nebulite::global().getDocCache()->memberCheck(docKey); type == Utility::JSON::KeyType::document){
         // Retrieve the sub-document
-        Utility::JSON subDoc = global->getDocCache()->get_subdoc(docKey);
+        Utility::JSON subDoc = Nebulite::global().getDocCache()->getSubDoc(docKey);
 
         // Set the sub-document in the current JSON tree
         domain->setSubDoc(myKey.c_str(), &subDoc);
     }
     // === VALUE ===
     else if(type == Utility::JSON::KeyType::value){
-        domain->set(myKey, global->getDocCache()->get<std::string>(docKey));
+        domain->set(myKey, Nebulite::global().getDocCache()->get<std::string>(docKey));
     }
     // === ARRAY ===
     else if(type == Utility::JSON::KeyType::array){
-        size_t const size = global->getDocCache()->memberSize(docKey);
+        size_t const size = Nebulite::global().getDocCache()->memberSize(docKey);
         for (size_t i = 0; i < size; ++i){
             std::string itemKey = docKey + "[" + std::to_string(i) + "]";
-            auto itemValue = global->getDocCache()->get<std::string>(itemKey);
+            auto itemValue = Nebulite::global().getDocCache()->get<std::string>(itemKey);
             std::string newItemKey = myKey + "[" + std::to_string(i) + "]";
             domain->set(newItemKey, itemValue);
         }

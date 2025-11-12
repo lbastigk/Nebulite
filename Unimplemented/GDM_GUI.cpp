@@ -1,5 +1,4 @@
 #include "DomainModule/Unimplemented/GDM_GUI.hpp"
-#include "Core/GlobalSpace.hpp"       // Global Space for Nebulite
 
 namespace Nebulite::DomainModule::GlobalSpace {
 

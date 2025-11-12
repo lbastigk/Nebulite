@@ -1,7 +1,8 @@
 #include "DomainModule/RenderObject/RODM_Debug.hpp"
 
 #include "Core/RenderObject.hpp"
-#include "Core/GlobalSpace.hpp"
+
+#include "Nebulite.hpp"
 
 namespace Nebulite::DomainModule::RenderObject {
 
@@ -22,7 +23,7 @@ Constants::Error Debug::update(){
 // NOLINTNEXTLINE
 Constants::Error Debug::eval(int argc,  char** argv){
     std::string const args = Utility::StringHandler::recombineArgs(argc, argv);
-    std::string const evaluatedArgs = domain->getGlobalSpace()->eval(args, domain);
+    std::string const evaluatedArgs = Nebulite::global().eval(args, domain);
     return domain->parseStr(evaluatedArgs);
 }
 std::string const Debug::eval_name = "eval";
@@ -49,9 +50,9 @@ Constants::Error Debug::printSrcRect(int argc,  char** argv){
         message += ", w: " + std::to_string(srcRect->w);
         message += ", h: " + std::to_string(srcRect->h);
         message += " }";
-        logln(message);
+        Nebulite::cout() << message << Nebulite::endl;
     } else {
-        logln("This RenderObject is not a spritesheet.");
+        Nebulite::cout() << "This RenderObject is not a spritesheet." << Nebulite::endl;
     }
 
     return Constants::ErrorTable::NONE();
@@ -82,9 +83,9 @@ Constants::Error Debug::printDstRect(int argc,  char** argv){
         message += ", w: " + std::to_string(dstRect->w);
         message += ", h: " + std::to_string(dstRect->h);
         message += " }";
-        logln(message);
+        Nebulite::cout() << message << Nebulite::endl;
     } else {
-        logln("Destination rectangle is not set.");
+        Nebulite::cout() << "Destination rectangle is not set." << Nebulite::endl;
     }
 
     return Constants::ErrorTable::NONE();
@@ -171,17 +172,16 @@ Constants::Error Debug::textureStatus(int argc,  char** argv){
 
     //------------------------------------------
     // Print Texture Status
-    logln("Texture Status:");
+    Nebulite::cout() << "Texture Status:" << Nebulite::endl;
 
     // Nebulite info
-    logln(std::string(" - Texture Key   : ") + domain->get<std::string>(Constants::keyName.renderObject.imageLocation.c_str(), "None"));
-    logln(std::string(" - Valid Texture : ") + (domain->getTexture()->isTextureValid() ? "Yes" : "No"));
-    logln(std::string(" - Local Texture : ") + (domain->getTexture()->isTextureStoredLocally() ? "Yes" : "No"));
+    Nebulite::cout() << std::string(" - Texture Key   : ") + domain->get<std::string>(Constants::keyName.renderObject.imageLocation.c_str(), "None") << Nebulite::endl;
+    Nebulite::cout() << std::string(" - Valid Texture : ") + (domain->getTexture()->isTextureValid() ? "Yes" : "No") << Nebulite::endl;
+    Nebulite::cout() << std::string(" - Local Texture : ") + (domain->getTexture()->isTextureStoredLocally() ? "Yes" : "No") << Nebulite::endl;
 
     // SDL info
-    logln("SDL Texture Info:");
-    SDL_Texture* texture = domain->getTexture()->getSDLTexture();   // Going the long way to ensure outside access is validated
-    logln(getTextureInfoString(texture));
+    Nebulite::cout() << "SDL Texture Info:" << Nebulite::endl;
+    Nebulite::cout() << getTextureInfoString(domain->getTexture()->getSDLTexture()) << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
 std::string const Debug::textureStatus_name = "debug texture-status";

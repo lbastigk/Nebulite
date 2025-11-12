@@ -34,10 +34,9 @@
 #include <string>
 
 // Nebulite
+#include "Nebulite.hpp"                             // Main Nebulite include
 #include "Constants/ErrorTypes.hpp"                 // For error handling
-#include "Core/GlobalSpace.hpp"                     // Global Workspace of Nebulite
 #include "DomainModule/GlobalSpace/GSDM_Debug.hpp"  // For turning error logging off/on
-#include "Utility/Capture.hpp"                      // For error output capture
 
 //------------------------------------------
 // Constants
@@ -95,17 +94,17 @@ int main(int const argc, char* argv[]){
 
     // Inform user about any errors and return error code
     if(criticalStop){
-        Nebulite::Utility::Capture::cerr() << "Critical Error: " << lastCriticalResult.getDescription() << "\n";
+        Nebulite::cerr() << "Critical Error: " << lastCriticalResult.getDescription() << "\n";
     }
 
     // Parser handles if error files need to be closed
     try{
         if (Nebulite::Constants::Error const result = globalSpace.parseStr(binaryName + " " + Nebulite::DomainModule::GlobalSpace::Debug::errorlog_name + " off"); result .isCritical()){
-            Nebulite::Utility::Capture::cerr() << "Error disabling error log: " << result.getDescription() << "\n";
+            Nebulite::cerr() << "Error disabling error log: " << result.getDescription() << "\n";
             return Nebulite::Constants::MainReturnValues::logCloseError;   // Closing log failed without exceptions
         }
     } catch(std::exception const& e){
-        Nebulite::Utility::Capture::cerr() << "Error closing error log: " << e.what() << "\n";
+        Nebulite::cerr() << "Error closing error log: " << e.what() << "\n";
         return Nebulite::Constants::MainReturnValues::logCloseException;   // Return a different error code for log closing failure with exceptions
     }
     

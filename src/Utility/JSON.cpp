@@ -2,16 +2,17 @@
 
 #include <cfloat>
 
-#include "Core/GlobalSpace.hpp"
 #include "Constants/ErrorTypes.hpp"
 #include "DomainModule/Initializer.hpp"
+
+#include "Nebulite.hpp"
 
 namespace Nebulite::Utility {
 
 std::string const JSON::reservedCharacters = "[]{}.,";
 
-JSON::JSON(Core::GlobalSpace* globalSpace)
-: Domain("JSON", this, this, globalSpace)
+JSON::JSON()
+: Domain("JSON", this, this)
 {
     std::scoped_lock const lockGuard(mtx);
     doc.SetObject();
@@ -25,7 +26,7 @@ JSON::~JSON(){
 }
 
 JSON::JSON(JSON&& other) noexcept
-: Domain("JSON", this, this, other.getGlobalSpace())
+: Domain("JSON", this, this)
 {
     std::scoped_lock lockGuard(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);
@@ -100,11 +101,11 @@ JSON JSON::getSubDoc(std::string const& key){
     flush();
     if(rapidjson::Value const* keyVal = RjDirectAccess::traverse_path(key.c_str(),doc); keyVal != nullptr){
         // turn keyVal to doc
-        JSON json(getGlobalSpace());
+        JSON json;
         json.doc.CopyFrom(*keyVal,json.doc.GetAllocator());
         return json;
     }
-    return JSON(getGlobalSpace());
+    return JSON{};
 }
 
 double* JSON::getStableDoublePointer(std::string const& key){
@@ -161,7 +162,7 @@ void JSON::setSubDoc(char const* key, JSON* child){
         // Since we inserted an entire document, we need to invalidate its child keys:
         invalidate_child_keys(key);
     } else {
-        Capture::cerr() << "Failed to create or access path: " << key << Capture::endl;
+        Nebulite::cerr() << "Failed to create or access path: " << key << Nebulite::endl;
     }
 }
 
@@ -220,7 +221,7 @@ void JSON::deserialize(std::string const& serial_or_link){
 
     //------------------------------------------
     // Load the JSON file
-    RjDirectAccess::deserialize(doc,tokens[0], getGlobalSpace());
+    RjDirectAccess::deserialize(doc,tokens[0]);
 
     //------------------------------------------
     // Delete all cache entries
@@ -247,13 +248,13 @@ void JSON::deserialize(std::string const& serial_or_link){
 
             // New implementation through functioncall
             if (std::string const callStr = std::string(__FUNCTION__) + " set " + keyAndValue; parseStr(callStr) != Constants::ErrorTable::NONE()){
-                Capture::cerr() << "Failed to apply deserialize modifier: " << callStr << Capture::endl;
+                Nebulite::cerr() << "Failed to apply deserialize modifier: " << callStr << Nebulite::endl;
             }
         }
         else{
             // Forward to FunctionTree for resolution
             if (std::string const callStr = std::string(__FUNCTION__) + " " + token; parseStr(callStr) != Constants::ErrorTable::NONE()){
-                Capture::cerr() << "Failed to apply deserialize modifier: " << callStr << Capture::endl;
+                Nebulite::cerr() << "Failed to apply deserialize modifier: " << callStr << Nebulite::endl;
             }
         }
     }

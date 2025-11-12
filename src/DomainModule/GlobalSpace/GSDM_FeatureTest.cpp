@@ -5,6 +5,7 @@
 #include <cmath>
 
 // Nebulite
+#include "Nebulite.hpp"
 #include "DomainModule/GlobalSpace/GSDM_FeatureTest.hpp"
 #include "Utility/JSON.hpp"
 
@@ -48,7 +49,7 @@ Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& a
     // Call the function
     std::string const funcCall = "<name> add 1.5 2.5 3.0";
     double const result = testTree.parseStr(funcCall,0.0);
-    Utility::Capture::cout() << "FuncTree result for call '" << funcCall << "': " << result << Utility::Capture::endl;
+    Nebulite::cout() << "FuncTree result for call '" << funcCall << "': " << result << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
 std::string const FeatureTest::testFuncTree_name = "feature-test functree";

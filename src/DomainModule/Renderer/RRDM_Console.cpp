@@ -10,9 +10,9 @@
 #include <SDL_ttf.h>
 
 // Nebulite
+#include "Nebulite.hpp"
 #include "DomainModule/Renderer/RRDM_Console.hpp"
 #include "Core/Renderer.hpp"
-#include "Core/GlobalSpace.hpp"
 
 //------------------------------------------
 namespace Nebulite::DomainModule::Renderer {
@@ -42,10 +42,10 @@ Constants::Error Console::update(){
         // Insert into text input
         Utility::TextInput::LineEntry::LineType type;
         switch (lineType){
-        case Utility::Capture::OutputLine::Type::COUT:
+        case Utility::OutputLine::Type::COUT:
             type = Utility::TextInput::LineEntry::LineType::COUT;
             break;
-        case Utility::Capture::OutputLine::Type::CERR:
+        case Utility::OutputLine::Type::CERR:
             type = Utility::TextInput::LineEntry::LineType::CERR;
             break;
         }
@@ -284,7 +284,7 @@ void Console::renderConsole(){
 
     // Ensure console texture is valid
     if(!ensureConsoleTexture()){
-        Utility::Capture::cerr() << "SDL_CreateTexture failed: " << SDL_GetError() << Utility::Capture::endl;
+        Nebulite::cerr() << "SDL_CreateTexture failed: " << SDL_GetError() << Nebulite::endl;
         return;
     }
 
@@ -331,9 +331,9 @@ void Console::init(){
     globalDoc = domain->getDoc();
 
     // Use a monospaced font for better alignment
-    consoleFont = TTF_OpenFont(consoleFontPath.c_str(), static_cast<int>(consoleLayout.FONT_MAX_SIZE * global->getRenderer()->getWindowScale()));
+    consoleFont = TTF_OpenFont(consoleFontPath.c_str(), static_cast<int>(consoleLayout.FONT_MAX_SIZE * Nebulite::global().getRenderer()->getWindowScale()));
     if(!consoleFont){
-        Utility::Capture::cerr() << "TTF_OpenFont failed: " << TTF_GetError() << Utility::Capture::endl;
+        Nebulite::cerr() << "TTF_OpenFont failed: " << TTF_GetError() << Nebulite::endl;
         return;
     }
 
@@ -394,7 +394,7 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height){
     }
 
     // Set correct font size for SDL_ttf
-    WindowScale = global->getRenderer()->getWindowScale();
+    WindowScale = Nebulite::global().getRenderer()->getWindowScale();
     TTF_SetFontSize(consoleFont, static_cast<int>(LINE_HEIGHT * WindowScale));
 
     return LINE_HEIGHT;
@@ -406,9 +406,9 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height){
 void Console::keyTriggerSubmit(){
     if(std::string const command = textInput.submit(); !command.empty()){
         // Parse command on global level for full access to all functions
-        if (auto const err = global->parseStr(std::string(__FUNCTION__) + " " + command); err != Constants::ErrorTable::NONE()){
+        if (auto const err = Nebulite::global().parseStr(std::string(__FUNCTION__) + " " + command); err != Constants::ErrorTable::NONE()){
             // Cannot escalate error further, print to cerr
-            Utility::Capture::cerr() << err.getDescription() << Utility::Capture::endl;
+            Nebulite::cerr() << err.getDescription() << Nebulite::endl;
         }
     }
     outputScrollingOffset = 0; // Reset scrolling to bottom on new input
@@ -430,7 +430,7 @@ void Console::keyTriggerZoomIn(SDL_KeyboardEvent const& key) const {
     // Make sure that ctrl is held
     if(!(key.keysym.mod & KMOD_CTRL)) return;
     if (auto const err = domain->parseStr(__FUNCTION__ + std::string(" ") + consoleZoom_name + " in"); err != Constants::ErrorTable::NONE()){
-        Utility::Capture::cerr() << "Error: Failed to zoom into console: " << err.getDescription()  << Utility::Capture::endl;
+        Nebulite::cerr() << "Error: Failed to zoom into console: " << err.getDescription()  << Nebulite::endl;
     }
 }
 
@@ -438,7 +438,7 @@ void Console::keyTriggerZoomOut(SDL_KeyboardEvent const& key) const {
     // Make sure that ctrl is held
     if(!(key.keysym.mod & KMOD_CTRL)) return;
     if (auto const err = domain->parseStr(__FUNCTION__ + std::string(" ") + consoleZoom_name + " out"); err != Constants::ErrorTable::NONE()){
-        Utility::Capture::cerr() << "Error: Failed to zoom out console: " << err.getDescription()  << Utility::Capture::endl;
+        Nebulite::cerr() << "Error: Failed to zoom out console: " << err.getDescription()  << Nebulite::endl;
     }
 }
 
@@ -568,7 +568,7 @@ void Console::processMode(){
 
         // Check if texture is valid
         if(!consoleTexture.texture_ptr){
-            Utility::Capture::cerr() << "Could not attach Console: Console texture is null!" << Utility::Capture::endl;
+            Nebulite::cerr() << "Could not attach Console: Console texture is null!" << Nebulite::endl;
             return;
         }
 

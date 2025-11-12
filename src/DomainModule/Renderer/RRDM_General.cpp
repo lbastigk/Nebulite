@@ -1,3 +1,4 @@
+#include "Nebulite.hpp"
 #include "DomainModule/Renderer/RRDM_General.hpp"
 #include "Core/Renderer.hpp"       // The domain
 #include "Interaction/Invoke.hpp"  // Invoke for parsing expressions
@@ -88,7 +89,7 @@ Constants::Error General::spawn(int argc,  char** argv){
         }
 
         // Create object with link to globalspace
-        auto* ro = new Core::RenderObject(global);
+        auto* ro = new Core::RenderObject;
         ro->deserialize(linkOrObject);
 
         // Append to renderer
@@ -96,7 +97,7 @@ Constants::Error General::spawn(int argc,  char** argv){
         domain->append(ro);
     }
     else{
-        Utility::Capture::cerr() << "No renderobject name provided!" << Utility::Capture::endl;
+        Nebulite::cerr() << "No renderobject name provided!" << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     return Constants::ErrorTable::NONE();

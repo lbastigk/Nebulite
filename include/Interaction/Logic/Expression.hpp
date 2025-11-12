@@ -59,11 +59,9 @@ public:
      * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
      * 
      * @param expr The expression string to parse.
-     * @param documentCache The document cache to use for variable resolution.
      * @param self The JSON object representing the "self" context.
-     * @param global The JSON object representing the "global" context.
      */
-    void parse(std::string const& expr, Utility::DocumentCache* documentCache, Utility::JSON* self, Utility::JSON* global);
+    void parse(std::string const& expr, Utility::JSON* self);
 
     /**
      * @brief Checks if the expression can be returned as a double.
@@ -140,10 +138,8 @@ public:
     [[nodiscard]] bool recalculateIsAlwaysTrue() const ;
 
 private:
-    struct alignas(SIMD_ALIGNMENT) References{
+    struct References{
         Utility::JSON* self = nullptr;
-        Utility::JSON* global = nullptr;
-        Utility::DocumentCache* documentCache = nullptr;
     } references;
 
     /**
@@ -153,7 +149,7 @@ private:
      * This struct holds information about a specific part of the expression,
      * including its type, source, and any associated metadata.
      */
-    struct alignas(DUAL_CACHE_LINE_ALIGNMENT) Component {
+    struct Component {
         /**
          * @enum Nebulite::Interaction::Logic::Expression::Component::Type
          * @brief Each component can be of type variable, eval or text that differ in how they are evaluated.
@@ -190,7 +186,7 @@ private:
          * @struct Nebulite::Interaction::Logic::Expression::Component::Formatter
          * @brief Represents formatting options for the component.
          */
-        struct alignas(SSE_ALIGNMENT) Formatter {
+        struct Formatter {
             /**
              * @brief Whether to pad with leading zeros.
              */
@@ -280,7 +276,7 @@ private:
      * @struct Nebulite::Interaction::Logic::Expression::VirtualDoubleLists
      * @brief Holds lists of VirtualDouble entries for different contexts.
      */
-    struct alignas(DUAL_CACHE_LINE_ALIGNMENT) VirtualDoubleLists {
+    struct VirtualDoubleLists {
         using vd_list = std::vector<std::shared_ptr<VirtualDouble>>;
 
         /**

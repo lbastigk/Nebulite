@@ -31,25 +31,21 @@
  * See main.cpp for detailed usage in the main engine loop and error handling.
  */
 
-#ifndef NEBULITE_CONSTANTS_ERRORTYPES_HPP
-#define NEBULITE_CONSTANTS_ERRORTYPES_HPP
+#ifndef NEBULITE_CONSTANTS_ERROR_TYPES_HPP
+#define NEBULITE_CONSTANTS_ERROR_TYPES_HPP
 
 //------------------------------------------
 // Includes
 
-#include <string>                           // For std::string
-#include <string_view>                      // For std::string_view
-#include <vector>                           // For std::vector
-#include <deque>                            // For std::deque (stable references)
-#include <algorithm>                        // For std::find_if
-#include <cstdint>                          // For uint16_t
+#include <string>
+#include <string_view>
+#include <vector>
+#include <deque>
+#include <algorithm>
+#include <cstdint>
 
 // External
-#include <absl/container/flat_hash_map.h>   // For error type to string mapping
-
-// Nebulite
-#include "Nebulite.hpp"                       // Namespace Documentation
-#include "Utility/Capture.hpp"                // For capturing error output
+#include <absl/container/flat_hash_map.h>
 
 //------------------------------------------
 
@@ -228,9 +224,7 @@ private:
     Error addErrorImpl(std::string const& description, Error::Type type = Error::NON_CRITICAL){
         if (count == UINT16_MAX){
             // Too many errors, exit entirely with message
-            Utility::Capture::cerr() << "ErrorTable has reached its maximum capacity of " << UINT16_MAX << " errors." << Utility::Capture::endl;
-            Utility::Capture::cerr() << "Make sure that new errors added are removed after some time if they are not needed anymore." << Utility::Capture::endl;
-            std::exit(EXIT_FAILURE);
+            throw std::runtime_error("ErrorTable has reached its maximum capacity of errors. Make sure that new errors added are removed after some time if they are not needed anymore.");
         }
         // Store the description in the owned container and reference it from
         // the Error object. Use deque to guarantee stable element addresses.
@@ -387,4 +381,4 @@ public:
     }   
 };
 } // namespace Nebulite::Constants
-#endif // NEBULITE_CONSTANTS_ERRORTYPES_HPP
+#endif // NEBULITE_CONSTANTS_ERROR_TYPES_HPP

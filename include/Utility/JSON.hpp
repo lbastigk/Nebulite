@@ -69,7 +69,7 @@ private:
      * @struct CacheEntry
      * @brief Represents a cached entry in the JSON document, including its value, state, and stable pointer for double values.
      */
-    struct alignas(CACHE_LINE_ALIGNMENT) CacheEntry {
+    struct CacheEntry {
         CacheEntry() = default;
         ~CacheEntry() {
             delete stable_double_ptr;
@@ -151,7 +151,7 @@ private:
      * 
      * Currently, only reference "other" is used, but later on references like "parent" or "child" could be added.
      */
-	struct alignas(DUAL_CACHE_LINE_ALIGNMENT) ExpressionRef {
+	struct ExpressionRef {
 		MappedOrderedDoublePointers as_other;
 	} expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
 
@@ -161,7 +161,7 @@ private:
     std::array<double*, uidQuickCacheSize> uidDoubleCache{nullptr};
 
 public:
-    explicit JSON(Core::GlobalSpace* globalSpace);
+    JSON();
 
     ~JSON() override ;
 
@@ -420,7 +420,7 @@ void JSON::set(std::string const& key, T const& val){
 
     // Check if key is valid
     if (!RjDirectAccess::isValidKey(key)){
-        Capture::cerr() << "Invalid key: " << key << Capture::endl;
+        Nebulite::Utility::Capture::cerr() << "Invalid key: " << key << Nebulite::Utility::Capture::endl;
         return;
     }
     
@@ -573,7 +573,7 @@ namespace ConverterHelper {
                     + "Fallback conversion from String to any Integral type was disabled due to potential lossy data conversion.\n"
                     + "Rather, it is recommended to add one explicit conversion path per datatype.\n"
                     + "Returning default value.";
-        Capture::cerr() << message << Capture::endl;
+        Nebulite::Utility::Capture::cerr() << message << Nebulite::Utility::Capture::endl;
         // Exiting the program would be nice, but since this is likely run in a threaded environment, we just display the error.
     }
 } // namespace ConverterHelper

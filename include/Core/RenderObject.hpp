@@ -23,14 +23,9 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-	namespace Core{
-		class GlobalSpace; // Forward declaration of core class GlobalSpace
-	}
-	namespace Interaction{
-		class Invoke; 		// Forward declaration of interaction class Invoke
-		struct Ruleset; 	// Forward declaration of interaction struct Ruleset
-	}
+namespace Nebulite::Interaction{
+    class Invoke;
+    struct Ruleset;
 }
 
 //------------------------------------------
@@ -85,12 +80,8 @@ public:
 
 	/**
 	 * @brief Constructs a new RenderObject.
-	 * 
-	 * RenderObjects are initialized with reference to the Globalspace.
-	 * 
-	 * @param globalSpacePtr A pointer to the Globalspace instance.
 	 */
-	explicit RenderObject(GlobalSpace* globalSpacePtr);
+	RenderObject();
 
 	/**
 	 * @brief Destroys the RenderObject.
@@ -177,17 +168,17 @@ public:
 	// Update-Oriented functions
 
 	/**
-	 * @brief Updates the RenderObject based on the given global invoke.
+	 * @brief Updates the RenderObject.
 	 * 
-	 * - updates the internal FuncTrees
+	 * - updates the domain
 	 * 
-	 * - reloads invokes if needed
+	 * - reloads rulesets if needed
 	 * 
-	 * - updates local invokes
+	 * - updates local rulesets
 	 * 
-	 * - listens to global invokes
+	 * - listens to global rulesets
 	 * 
-	 * - broadcasts its own global invokes
+	 * - broadcasts its own global rulesets
 	 * 
 	 * - calculates source and destination rects
 	 *
@@ -387,20 +378,8 @@ private:
 
 	//------------------------------------------
 	// Invoke Commands
-	std::vector<std::shared_ptr<Interaction::Ruleset>> entries_global;	// Global commands, intended for self-other-global interaction
-	std::vector<std::shared_ptr<Interaction::Ruleset>> entries_local;		// Internal commands, intended for self-global interaction
-
-	//------------------------------------------
-	// Linkages
-
-	// Linkage to the entire global space
-	GlobalSpace* globalSpace;
-
-	// Each RenderObject with linkage to the global document
-	Utility::JSON* global;
-
-	// Linkage to the global invoke for update calls
-	Interaction::Invoke* invoke;
+	std::vector<std::shared_ptr<Interaction::Ruleset>> entries_global;  // Global commands, intended for self-other-global interaction
+	std::vector<std::shared_ptr<Interaction::Ruleset>> entries_local;   // Internal commands, intended for self-global interaction
 };
 } // namespace Nebulite::Core
 

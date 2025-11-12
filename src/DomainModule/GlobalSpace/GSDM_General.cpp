@@ -1,5 +1,6 @@
 #include "DomainModule/GlobalSpace/GSDM_General.hpp"
-#include "Core/GlobalSpace.hpp"       // Global Space for Nebulite
+
+#include "Nebulite.hpp"
 
 namespace Nebulite::DomainModule::GlobalSpace{
 
@@ -96,7 +97,7 @@ This is useful for:
 // NOLINTNEXTLINE
 Constants::Error General::task(int argc,  char** argv){
     std::string const message = "Loading task list from file: " + (argc > 1 ? std::string(argv[1]) : "none");
-    logln(message);
+    Nebulite::cout() << message << Nebulite::endl;
 
     // Rollback RNG, loading a task file should not change the RNG state
     domain->rngRollback();
@@ -111,13 +112,13 @@ Constants::Error General::task(int argc,  char** argv){
     // Warn if file ending is not .nebs
     std::string const filename = argv[1];
     if (filename.length() < 6 || !filename.ends_with(".nebs")){
-        Utility::Capture::cerr() << "Warning: unexpected file ending for task file '" << filename << "'. Expected '.nebs'. Trying to load anyway." << Utility::Capture::endl;
+        Nebulite::cerr() << "Warning: unexpected file ending for task file '" << filename << "'. Expected '.nebs'. Trying to load anyway." << Nebulite::endl;
     }
 
     // Using FileManagement to load the .nebs file
     std::string const file = Utility::FileManagement::LoadFile(filename);
     if (file.empty()){
-        Utility::Capture::cerr() << "Error: "<< argv[0] <<" Could not open file '" << filename << "'" << Utility::Capture::endl;
+        Nebulite::cerr() << "Error: "<< argv[0] <<" Could not open file '" << filename << "'" << Nebulite::endl;
         return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
 
@@ -168,7 +169,7 @@ Main task:
 // NOLINTNEXTLINE
 Constants::Error General::echo(int argc,  char** argv){
     std::string const args = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
-    Utility::Capture::cout() << args << Utility::Capture::endl;
+    Nebulite::cout() << args << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
 std::string const General::echo_name = "echo";
@@ -346,7 +347,7 @@ Constants::Error General::func_for(int argc,  char** argv){
                 return err;
             }
             else {
-                Utility::Capture::cout() << err.getDescription() << Utility::Capture::endl;
+                Nebulite::cout() << err.getDescription() << Nebulite::endl;
             }
         }
     }

@@ -5,8 +5,8 @@
  * This file defines the `ExpressionPool` class.
  */
 
-#ifndef NEBULITE_INTERACTION_LOGIC_EXPRESSIONPOOL_HPP
-#define NEBULITE_INTERACTION_LOGIC_EXPRESSIONPOOL_HPP
+#ifndef NEBULITE_INTERACTION_LOGIC_EXPRESSION_POOL_HPP
+#define NEBULITE_INTERACTION_LOGIC_EXPRESSION_POOL_HPP
 
 //------------------------------------------
 // Includes
@@ -92,15 +92,13 @@ public:
      * Matches Nebulite::Interaction::Logic::Expression::parse, but allows for concurrent evaluation across multiple threads.
      *
      * @param expr The expression to parse.
-     * @param documentCache The document cache to use during parsing and evaluation.
      * @param self The JSON object representing the "self" context.
-     * @param global The JSON object representing the "global" context.
      */
-    void parse(std::string const& expr, Utility::DocumentCache* documentCache, Utility::JSON* self, Utility::JSON* global){
+    void parse(std::string const& expr, Utility::JSON* self){
         fullExpression = expr;
 
         // Parse the first one, then copy to others
-        pool[0].parse(expr, documentCache, self, global);
+        pool[0].parse(expr, self);
         for (size_t i = 1; i < pool.size(); ++i){
             pool[i] = pool[0];
         }
@@ -211,4 +209,4 @@ private:
     bool _isAlwaysTrue = false;
 };
 } // namespace Nebulite::Interaction::Logic
-#endif // NEBULITE_INTERACTION_LOGIC_EXPRESSIONPOOL_HPP
+#endif // NEBULITE_INTERACTION_LOGIC_EXPRESSION_POOL_HPP

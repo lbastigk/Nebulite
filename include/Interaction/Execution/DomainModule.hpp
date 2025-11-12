@@ -15,24 +15,18 @@
     class DomainModuleName final : public Nebulite::Interaction::Execution::DomainModule<DomainName>
 
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
-    explicit DomainModuleName(std::string const& name, DomainName* domainPtr, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
-    : DomainModule(name, domainPtr, std::move(funcTreePtr), globalSpace)
+    explicit DomainModuleName(std::string const& name, DomainName* domainPtr, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr) \
+    : DomainModule(name, domainPtr, std::move(funcTreePtr))
 
 //------------------------------------------
 // Includes
 
-// Nebulite
+// Standard library
 #include <utility>
 
+// Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
-#include "Utility/Capture.hpp" // Allowing logging from DomainModules
-
-//------------------------------------------
-// Pre-declarations
-namespace Nebulite::Core{
-    class GlobalSpace;
-}
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution{
@@ -55,10 +49,9 @@ public:
     DomainModule(
         std::string name,
         DomainType* domainPtr,
-        std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr,
-        Core::GlobalSpace* globalSpace
+        std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr
     )
-    : moduleName(std::move(name)), domain(domainPtr), global(globalSpace), funcTree(std::move(std::move(funcTreePtr))){}
+    : moduleName(std::move(name)), domain(domainPtr), funcTree(std::move(funcTreePtr)){}
 
     /**
      * @brief Virtual destructor for DomainModule.
@@ -145,46 +138,6 @@ public:
         funcTree->bindVariable(variablePtr, name, helpDescription);
     }
 
-    /**
-     * @brief Log to the Nebulite logging system.
-     * 
-     * This function logs a message to the Nebulite logging system.
-     * 
-     * @param message The message to log.
-     */
-    static void log(std::string const& message){
-        Utility::Capture::cout() << message;
-    }
-
-    /**
-     * @brief Logs to the Nebulite logging system with a newline.
-     * 
-     * This function logs a message to the Nebulite logging system and appends a newline.
-     * 
-     * @param message The message to log.
-     */
-    static void logln(std::string const& message){
-        Utility::Capture::cout() << message << Utility::Capture::endl;
-    }
-
-    /**
-     * @brief Log an error to the Nebulite logging system.
-     * 
-     * @param message The error message to log.
-     */
-    static void logError(std::string const& message){
-        Utility::Capture::cerr() << message;
-    }
-
-    /**
-     * @brief Logs an error to the Nebulite logging system with a newline.
-     * 
-     * @param message The error message to log.
-     */
-    static void logErrorln(std::string const& message){
-        Utility::Capture::cerr() << message << Utility::Capture::endl;
-    }
-
     // Prevent copying
     DomainModule(DomainModule const&) = delete;
 
@@ -207,11 +160,6 @@ protected:
      * @brief Workspace of the DomainModule
      */
     DomainType* domain;
-
-    /**
-     * @brief Pointer to the global space of the DomainModule
-     */
-    Core::GlobalSpace* global;
 
 private:
     /**
