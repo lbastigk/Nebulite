@@ -25,7 +25,7 @@ public:
         for (auto const& arg : args.subspan(1)) {
             try {
                 sum += std::stod(arg);
-            } catch (const std::invalid_argument&) {
+            } catch (std::invalid_argument const&) {
                 // Ignore invalid arguments
                 return NAN;
             }
