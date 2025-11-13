@@ -110,7 +110,7 @@ Mirrors are fetched from the GlobalSpace document under key "mirror.renderObject
 
 Constants::Error Mirror::setupMirrorKey(){
     // Only fetch key once we turn on mirroring
-    int const id = domain->get<int>(Constants::keyName.renderObject.id.c_str(), 0);
+    int const id = domain->getDoc()->get<int>(Constants::keyName.renderObject.id.c_str(), 0);
     if(id < 1){
         return Constants::ErrorTable::addError("Mirror key setup failed: RenderObject has invalid id", Constants::Error::NON_CRITICAL);
     }

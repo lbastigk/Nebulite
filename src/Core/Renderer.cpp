@@ -270,7 +270,7 @@ bool Renderer::timeToRender() {
 
 void Renderer::append(RenderObject *toAppend) {
     // Set ID
-    toAppend->set<uint32_t>(Constants::keyName.renderObject.id.c_str(), renderObjectIdCounter);
+    toAppend->getDoc()->set<uint32_t>(Constants::keyName.renderObject.id.c_str(), renderObjectIdCounter);
     renderObjectIdCounter++;
 
     //Append to environment, based on layer
@@ -278,18 +278,18 @@ void Renderer::append(RenderObject *toAppend) {
         toAppend,
         getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResX, 0),
         getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResY, 0),
-        toAppend->get<uint8_t>(Constants::keyName.renderObject.layer.c_str(), 0)
+        toAppend->getDoc()->get<uint8_t>(Constants::keyName.renderObject.layer.c_str(), 0)
         );
 
     //Load texture
-    loadTexture(toAppend->get<std::string>(Constants::keyName.renderObject.imageLocation.c_str()));
+    loadTexture(toAppend->getDoc()->get<std::string>(Constants::keyName.renderObject.imageLocation.c_str()));
 }
 
 void Renderer::reinsertAllObjects() {
     env.reinsertAllObjects(
         getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResX, 0),
         getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResY, 0)
-        );
+    );
 }
 
 //------------------------------------------
@@ -553,7 +553,7 @@ void Renderer::renderFrame() {
                 for (auto const &obj : objectsInThisBatch) {
                     error = renderObjectToScreen(obj, dispPosX, dispPosY);
                     if (error != 0) {
-                        Nebulite::cerr() << "Error rendering object ID " << obj->get<uint32_t>(Constants::keyName.renderObject.id.c_str(), 0) << ": " << error << Nebulite::endl;
+                        Nebulite::cerr() << "Error rendering object ID " << obj->getDoc()->get<uint32_t>(Constants::keyName.renderObject.id.c_str(), 0) << ": " << error << Nebulite::endl;
                     }
                 }
             }
@@ -574,7 +574,7 @@ int Renderer::renderObjectToScreen(RenderObject *obj, int const &dispPosX, int c
     // Texture Loading
 
     // Check for texture
-    auto const innerDirectory = obj->get<std::string>(Constants::keyName.renderObject.imageLocation.c_str());
+    auto const innerDirectory = obj->getDoc()->get<std::string>(Constants::keyName.renderObject.imageLocation.c_str());
 
     // Load texture if not yet loaded
     if (TextureContainer.find(innerDirectory) == TextureContainer.end()) {
@@ -602,7 +602,7 @@ int Renderer::renderObjectToScreen(RenderObject *obj, int const &dispPosX, int c
     if (!obj->getSDLTexture()) {
         Nebulite::cerr()
             << "Error: RenderObject ID "
-            << obj->get<uint32_t>(Constants::keyName.renderObject.id.c_str(), 0)
+            << obj->getDoc()->get<uint32_t>(Constants::keyName.renderObject.id.c_str(), 0)
             << " texture with path '"
             << innerDirectory
             << "' not found"
@@ -618,7 +618,7 @@ int Renderer::renderObjectToScreen(RenderObject *obj, int const &dispPosX, int c
 
     // Render the text
     int error_text = 0;
-    if (obj->get<double>(Constants::keyName.renderObject.textFontsize.c_str()) > 0) {
+    if (obj->getDoc()->get<double>(Constants::keyName.renderObject.textFontsize.c_str()) > 0) {
         obj->calculateText(
             renderer,
             font,

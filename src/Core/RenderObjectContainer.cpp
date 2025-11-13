@@ -61,11 +61,11 @@ void Nebulite::Core::RenderObjectContainer::deserialize(std::string const &seria
 
 std::pair<int16_t, int16_t> getTilePos(Nebulite::Core::RenderObject *toAppend, uint16_t const &displayResolutionX, uint16_t const &displayResolutionY) {
     // Calculate correspondingTilePositionX using positionX
-    auto const positionX = toAppend->get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0.0);
+    auto const positionX = toAppend->getDoc()->get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0.0);
     auto correspondingTilePositionX = static_cast<int16_t>(positionX / static_cast<double>(displayResolutionX));
 
     // Calculate correspondingTilePositionY using positionY
-    auto const positionY = toAppend->get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0.0);
+    auto const positionY = toAppend->getDoc()->get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0.0);
     auto correspondingTilePositionY = static_cast<int16_t>(positionY / static_cast<double>(displayResolutionY));
 
     // Form pair and return

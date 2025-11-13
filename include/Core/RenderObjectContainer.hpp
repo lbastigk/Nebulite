@@ -14,6 +14,7 @@
 
 // Nebulite
 #include "Core/RenderObject.hpp"
+#include "Utility/JSON.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -170,7 +171,7 @@ public:
         for (auto &batches : std::views::values(ObjectContainer)) {
             for (auto &[objects, _] : batches) {
                 for (auto const &object : objects) {
-                    if (object->get<uint32_t>(Constants::keyName.renderObject.id.c_str(), 0) == id) {
+                    if (object->getDoc()->get<uint32_t>(Constants::keyName.renderObject.id.c_str(), 0) == id) {
                         return object;
                     }
                 }

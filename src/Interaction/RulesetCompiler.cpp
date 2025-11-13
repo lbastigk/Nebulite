@@ -198,7 +198,7 @@ namespace{
         std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> const& entries_global
     ){
         // Set IDs
-        auto const id = self->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0);
+        auto const id = self->getDoc()->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0);
         for (auto const& entry : entries_local){
             entry->id = id;
         }

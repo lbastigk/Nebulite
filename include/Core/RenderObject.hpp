@@ -12,7 +12,7 @@
 // Includes
 
 // External
-#include <SDL.h>		// SDL Renderer is used for some methods to calculate text
+#include <SDL.h>	// SDL Renderer is used for some methods to calculate text
 #include <SDL_ttf.h>	// Same for ttf
 
 // Nebulite
@@ -23,46 +23,49 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Interaction{
+namespace Nebulite::Interaction {
     class Invoke;
     struct Ruleset;
+}
+namespace Nebulite::Utility {
+    class JSON;
 }
 
 //------------------------------------------
 namespace Nebulite::Core {
 /**
  * @class Nebulite::Core::RenderObject
- * @brief Represents a renderable object in the Nebulite engine. 
+ * @brief Represents a renderable object in the Nebulite engine.
  * This class encapsulates all data and logic needed to
  * display, update, and interact with a single object on the screen.
  *
  * Key Features:
- * 
+ *
  *   - Stores all render-related data in an internal JSON document for flexible property management.
- * 
+ *
  *   - Provides methods for serialization and deserialization to and from strings or files.
- * 
+ *
  *   - Supports dynamic property access and modification via set/get templates.
- * 
+ *
  *   - Manages SDL_Rect structures for sprite and text positioning, and caches these for performance.
- * 
+ *
  *   - Handles text rendering using SDL_ttf, including texture creation and caching.
- * 
+ *
  *   - Supports invoke command lists for both general (global) and internal (local) interactions.
- * 
+ *
  *   - Offers update and reload mechanisms to synchronize state with global invokes and JSON data.
- * 
+ *
  *   - Calculates computational cost estimates for update operations.
- * 
+ *
  *   - allows for flexible additions through DomainModules for local function calls.
  *
  * Interaction with Invoke:
- * 
+ *
  *   - Invokes are loaded in from JSON files and categorized into global and local commands.
- * 
+ *
  *   - Global commands are based on a self-other-global interaction model, while local commands are focused on self-global interactions.
  *     They are broadcasted to the Invoke class on defined topics to find matching objects that are listening to those topics.
- * 
+ *
  *   - Local commands are defined by an empty topic and are based on a self-global interaction model.
  *
  * Usage:
@@ -70,181 +73,158 @@ namespace Nebulite::Core {
  *   - Instantiate a RenderObject to represent a sprite, text, or other visual entity. Create a JSON document to hold its properties.
  *
  *   - Append the RenderObject to the Renderer via `./bin/Nebulite spawn myObject.json`
- * 
+ *
  * Copy and move operations are disabled to prevent accidental resource duplication.
  */
-NEBULITE_DOMAIN(RenderObject){
+NEBULITE_DOMAIN(RenderObject) {
 public:
-	//------------------------------------------
-	// Special member Functions
-
-	/**
-	 * @brief Constructs a new RenderObject.
-	 */
-	RenderObject();
-
-	/**
-	 * @brief Destroys the RenderObject.
-	 * 
-	 * Cleans up any resources used by the RenderObject, including
-	 * textures and surfaces.
-	 */
-	~RenderObject() override;
-
-	// Suppress copy/move operators
-	RenderObject(RenderObject const& other) = delete;
-	RenderObject(RenderObject&& other) = delete;
-	RenderObject& operator=(RenderObject&& other) = delete;
-
-	//------------------------------------------
-	// Set/Get
+    //------------------------------------------
+    // Special member Functions
 
     /**
-	 * @brief Sets a value in the Domain's JSON document.
-	 * 
-	 * @tparam T The type of the value to set.
-	 * @param key The key of the value to set.
-	 * @param data The value to set.
-	 */
-    template <typename T> void set(char const* key, T const& data);
+     * @brief Constructs a new RenderObject.
+     */
+    RenderObject();
 
     /**
-     * @brief Gets a value from the Domain's JSON document.
-     * 
-     * @tparam T The type of the value to get.
-     * @param key The key of the value to get.
-     * @param defaultValue The default value to return if the key is not found.
-     * @return The value from the JSON document, or the default value if not found.
+     * @brief Destroys the RenderObject.
+     *
+     * Cleans up any resources used by the RenderObject, including
+     * textures and surfaces.
      */
-    template <typename T> T get(char const* key, T const& defaultValue = T());
+    ~RenderObject() override;
 
+    // Suppress copy/move operators
+    RenderObject(RenderObject const &other) = delete;
+    RenderObject(RenderObject &&other) = delete;
+    RenderObject &operator=(RenderObject &&other) = delete;
 
-	//------------------------------------------
-	// Serializing/Deserializing
+    //------------------------------------------
+    // Serializing/Deserializing
 
-	/**
-	 * @brief Serializes the RenderObject to a JSON string.
-	 * 
-	 * @return A string representation of the RenderObject's JSON document.
-	 */
-	std::string serialize();
-
-	/**
-	 * @brief Deserializes the RenderObject from a JSON string.
-	 * 
-	 * @param serialOrLink The JSON string to deserialize.
-	 */
-	void deserialize(std::string const& serialOrLink);
-
-	/**
-	 * @brief Gets a pointer to the SDL_Rect describing the destination of the sprite.
-	 * 
-	 * @return A pointer to the SDL_Rect describing the destination of the sprite.
-	 */
-	SDL_Rect* getDstRect();
-
-	/**
-	 * @brief Gets a pointer to the SDL_Rect describing the source of the sprite.
-	 * 
-	 * @return A pointer to the SDL_Rect describing the source of the sprite.
-	 */
-	SDL_Rect* getSrcRect();
-
-	/**
-	 * @brief Gets a pointer to the SDL_Rect describing the destination of the text.
-	 * 
-	 * @return A pointer to the SDL_Rect describing the destination of the text.
-	 */
-	SDL_Rect* getTextRect();
-
-	/**
-	 * @brief Gets the texture of the text.
-	 * 
-	 * @return A pointer to the SDL_Texture representing the text.
-	 */
-	[[nodiscard]] SDL_Texture* getTextTexture() const ;
-	
-	//------------------------------------------
-	// Update-Oriented functions
-
-	/**
-	 * @brief Updates the RenderObject.
-	 * 
-	 * - updates the domain
-	 * 
-	 * - reloads rulesets if needed
-	 * 
-	 * - updates local rulesets
-	 * 
-	 * - listens to global rulesets
-	 * 
-	 * - broadcasts its own global rulesets
-	 * 
-	 * - calculates source and destination rects
-	 *
-	 * @return Constants::Error indicating success or failure.
-	 */
-	Constants::Error update() override;
-
-	/**
-	 * @brief Calculates the text texture for the RenderObject.
-	 * 
-	 * @param renderer The SDL_Renderer to use for rendering.
-	 * @param font The TTF_Font to use for rendering the text.
-	 * @param renderPositionX The X position of the renderer used for text offset.
-	 * @param renderPositionY The Y position of the renderer used for text offset.
-	 */
-	void calculateText(SDL_Renderer* renderer,TTF_Font* font, int const& renderPositionX, int const& renderPositionY);
-
-	/**
-	 * @brief Calculates the destination rectangle for the sprite.
-	 */
-	void calculateDstRect();
-
-	// Calculate sprite source
-	/**
-	 * @brief Calculates the source rectangle for the sprite.
-	 */
-	void calculateSrcRect();
-
-	/**
-	 * @brief Estimates the computational cost of updating the RenderObject.
-	 * 
-	 * Based on the amount of evaluations and variables in the ruleset.
-	 * 
-	 * @param onlyInternal If true, only considers internal rulesets. Defaults to true.
-	 * @return The estimated computational cost.
-	 */
-	uint64_t estimateComputationalCost(bool const& onlyInternal = true);
-
-	//------------------------------------------
-	// Management Flags for Renderer-Interaction
-
-	/**
-	 * @struct flag
-	 * @brief Flags for managing RenderObject behavior
-	 */
-	struct flag{
-		bool deleteFromScene = false;	// If true, delete this object from scene on next update
-		bool calculateText = false;		// If true, calculate text texture on next update
-		bool reloadInvokes = false;		// If true, reload invokes on next update
-	} flag;
-
-	//------------------------------------------
-	// Texture related
-
-	/**
-     * @brief Links an external SDL_Texture to this domain.
-     * 
-     * @param externalTexture Pointer to the external SDL_Texture.
+    /**
+     * @brief Serializes the RenderObject to a JSON string.
+     *
+     * @return A string representation of the RenderObject's JSON document.
      */
-    void linkExternalTexture(SDL_Texture* externalTexture){
+    std::string serialize();
+
+    /**
+     * @brief Deserializes the RenderObject from a JSON string.
+     *
+     * @param serialOrLink The JSON string to deserialize.
+     */
+    void deserialize(std::string const &serialOrLink);
+
+    /**
+     * @brief Gets a pointer to the SDL_Rect describing the destination of the sprite.
+     *
+     * @return A pointer to the SDL_Rect describing the destination of the sprite.
+     */
+    SDL_Rect *getDstRect();
+
+    /**
+     * @brief Gets a pointer to the SDL_Rect describing the source of the sprite.
+     *
+     * @return A pointer to the SDL_Rect describing the source of the sprite.
+     */
+    SDL_Rect *getSrcRect();
+
+    /**
+     * @brief Gets a pointer to the SDL_Rect describing the destination of the text.
+     *
+     * @return A pointer to the SDL_Rect describing the destination of the text.
+     */
+    SDL_Rect *getTextRect();
+
+    /**
+     * @brief Gets the texture of the text.
+     *
+     * @return A pointer to the SDL_Texture representing the text.
+     */
+    [[nodiscard]] SDL_Texture *getTextTexture() const;
+
+    //------------------------------------------
+    // Update-Oriented functions
+
+    /**
+     * @brief Updates the RenderObject.
+     *
+     * - updates the domain
+     *
+     * - reloads rulesets if needed
+     *
+     * - updates local rulesets
+     *
+     * - listens to global rulesets
+     *
+     * - broadcasts its own global rulesets
+     *
+     * - calculates source and destination rects
+     *
+     * @return Constants::Error indicating success or failure.
+     */
+    Constants::Error update() override;
+
+    /**
+     * @brief Calculates the text texture for the RenderObject.
+     *
+     * @param renderer The SDL_Renderer to use for rendering.
+     * @param font The TTF_Font to use for rendering the text.
+     * @param renderPositionX The X position of the renderer used for text offset.
+     * @param renderPositionY The Y position of the renderer used for text offset.
+     */
+    void calculateText(SDL_Renderer *renderer, TTF_Font *font, int const &renderPositionX, int const &renderPositionY);
+
+    /**
+     * @brief Calculates the destination rectangle for the sprite.
+     */
+    void calculateDstRect();
+
+    // Calculate sprite source
+    /**
+     * @brief Calculates the source rectangle for the sprite.
+     */
+    void calculateSrcRect();
+
+    /**
+     * @brief Estimates the computational cost of updating the RenderObject.
+     *
+     * Based on the amount of evaluations and variables in the ruleset.
+     *
+     * @param onlyInternal If true, only considers internal rulesets. Defaults to true.
+     * @return The estimated computational cost.
+     */
+    uint64_t estimateComputationalCost(bool const &onlyInternal = true);
+
+    //------------------------------------------
+    // Management Flags for Renderer-Interaction
+
+    /**
+     * @struct flag
+     * @brief Flags for managing RenderObject behavior
+     */
+    struct flag {
+        bool deleteFromScene = false; // If true, delete this object from scene on next update
+        bool calculateText = false; // If true, calculate text texture on next update
+        bool reloadInvokes = false; // If true, reload invokes on next update
+    } flag;
+
+    //------------------------------------------
+    // Texture related
+
+    /**
+ * @brief Links an external SDL_Texture to this domain.
+ *
+ * @param externalTexture Pointer to the external SDL_Texture.
+ */
+    void linkExternalTexture(SDL_Texture *externalTexture) {
         baseTexture.linkExternalTexture(externalTexture);
     }
 
     /**
      * @brief Checks if the texture has been modified.
-     * 
+     *
      * @return true if the texture has been modified, false otherwise.
      */
     [[nodiscard]] bool isTextureStoredLocally() const {
@@ -253,7 +233,7 @@ public:
 
     /**
      * @brief Checks if the texture is valid (not null).
-     * 
+     *
      * @return true if the texture is valid, false otherwise.
      */
     [[nodiscard]] bool isTextureValid() const {
@@ -262,137 +242,99 @@ public:
 
     /**
      * @brief Gets the current SDL_Texture.
-     * 
+     *
      * @return Pointer to the current SDL_Texture.
      */
-    [[nodiscard]] SDL_Texture* getSDLTexture() const {
+    [[nodiscard]] SDL_Texture *getSDLTexture() const {
         return baseTexture.getSDLTexture();
     }
 
-	Texture* getTexture(){
-		return &baseTexture;
-	}
+    Texture *getTexture() {
+        return &baseTexture;
+    }
 
 private:
-	// Main doc holding values
-	Utility::JSON json;
+    // Size of subscriptions
+    size_t subscription_size = 0;
 
-	// Size of subscriptions
-	size_t subscription_size = 0;
+    // Each RenderObject has its own JSON document
+    Utility::JSON document;
 
-	//------------------------------------------
-	// Initialization
+    //------------------------------------------
+    // Initialization
 
-	/**
-	 * @brief Helper function to avoid calls to virtual functions in constructor.
-	 *        In order for this one to make more sense, it initializes the inherited domains and DomainModules as well.
-	 */
-	void init();
+    /**
+     * @brief Helper function to avoid calls to virtual functions in constructor.
+     *        In order for this one to make more sense, it initializes the inherited domains and DomainModules as well.
+     */
+    void init();
 
-	//------------------------------------------
-	// References to JSON
+    //------------------------------------------
+    // References to JSON
 
-	/**
-	 * @struct FrequentRefs
-	 * @brief Holds frequently used references for quick access.
-	 *
-	 * @note Another option would be to use static pointers for each method that needs them,
-	 *       making variables more enclosed to their use case, but that would create duplicate pointers.
-	 */
-	struct FrequentRefs{
-		// Identity
-		double* id = nullptr;
+    /**
+     * @struct FrequentRefs
+     * @brief Holds frequently used references for quick access.
+     *
+     * @note Another option would be to use static pointers for each method that needs them,
+     *       making variables more enclosed to their use case, but that would create duplicate pointers.
+     */
+    struct FrequentRefs {
+        // Identity
+        double *id = nullptr;
 
-		// Position and Size
-		double* posX = nullptr;
-		double* posY = nullptr;
-		double* pixelSizeX = nullptr;
-		double* pixelSizeY = nullptr;
+        // Position and Size
+        double *posX = nullptr;
+        double *posY = nullptr;
+        double *pixelSizeX = nullptr;
+        double *pixelSizeY = nullptr;
 
-		// Spritesheet
-		double* isSpritesheet = nullptr;
-		double* spritesheetOffsetX = nullptr;
-		double* spritesheetOffsetY = nullptr;
-		double* spritesheetSizeX = nullptr;
-		double* spritesheetSizeY = nullptr;
+        // Spritesheet
+        double *isSpritesheet = nullptr;
+        double *spritesheetOffsetX = nullptr;
+        double *spritesheetOffsetY = nullptr;
+        double *spritesheetSizeX = nullptr;
+        double *spritesheetSizeY = nullptr;
 
-		// Text
-		double* fontSize = nullptr;
-		double* textDx = nullptr;
-		double* textDy = nullptr;
-		double* textColorR = nullptr;
-		double* textColorG = nullptr;
-		double* textColorB = nullptr;
-		double* textColorA = nullptr;
-	} refs = {};
+        // Text
+        double *fontSize = nullptr;
+        double *textDx = nullptr;
+        double *textDy = nullptr;
+        double *textColorR = nullptr;
+        double *textColorG = nullptr;
+        double *textColorB = nullptr;
+        double *textColorA = nullptr;
+    } refs = {};
 
-	/**
-	 * @brief Links frequently used references from the JSON document for quick access.
-	 */
-	void linkFrequentRefs(){
-		// Identity
-		refs.id                 = json.getStableDoublePointer(Constants::keyName.renderObject.id);
+    /**
+     * @brief Links frequently used references from the JSON document for quick access.
+     */
+    void linkFrequentRefs();
 
-		// Position and Size
-		refs.posX			    = json.getStableDoublePointer(Constants::keyName.renderObject.positionX);
-		refs.posY			    = json.getStableDoublePointer(Constants::keyName.renderObject.positionY);
-		refs.pixelSizeX         = json.getStableDoublePointer(Constants::keyName.renderObject.pixelSizeX);
-		refs.pixelSizeY         = json.getStableDoublePointer(Constants::keyName.renderObject.pixelSizeY);
+    //------------------------------------------
+    // Texture related
 
-		// Spritesheet
-		refs.isSpritesheet      = json.getStableDoublePointer(Constants::keyName.renderObject.isSpritesheet);
-		refs.spritesheetOffsetX = json.getStableDoublePointer(Constants::keyName.renderObject.spritesheetOffsetX);
-		refs.spritesheetOffsetY = json.getStableDoublePointer(Constants::keyName.renderObject.spritesheetOffsetY);
-		refs.spritesheetSizeX   = json.getStableDoublePointer(Constants::keyName.renderObject.spritesheetSizeX);
-		refs.spritesheetSizeY   = json.getStableDoublePointer(Constants::keyName.renderObject.spritesheetSizeY);
+    // Base Texture
+    Texture baseTexture;
 
-		// Text
-		refs.fontSize           = json.getStableDoublePointer(Constants::keyName.renderObject.textFontsize);
-		refs.textDx				= json.getStableDoublePointer(Constants::keyName.renderObject.textDx);
-		refs.textDy				= json.getStableDoublePointer(Constants::keyName.renderObject.textDy);
-		refs.textColorR         = json.getStableDoublePointer(Constants::keyName.renderObject.textColorR);
-		refs.textColorG         = json.getStableDoublePointer(Constants::keyName.renderObject.textColorG);
-		refs.textColorB         = json.getStableDoublePointer(Constants::keyName.renderObject.textColorB);
-		refs.textColorA         = json.getStableDoublePointer(Constants::keyName.renderObject.textColorA);
-	}
+    // === TO REWORK ===
 
-	//------------------------------------------
-	// Texture related
+    // for caching of SDL Positions
+    SDL_Rect dstRect = {0, 0, 0, 0}; // destination of sprite
+    SDL_Rect srcRect = {0, 0, 0, 0}; // source of sprite from spritesheet
+    SDL_Rect textRect = {0, 0, 0, 0}; // destination of text texture
 
-	// Base Texture
-	Texture baseTexture;
-	
-	// === TO REWORK ===
+    // Surface and Texture of Text
+    SDL_Surface *textSurface; // Surface for the text
+    SDL_Texture *textTexture; // Texture for the text
 
-	// for caching of SDL Positions
-	SDL_Rect dstRect = { 0, 0, 0, 0 };		// destination of sprite
-	SDL_Rect srcRect = { 0, 0, 0, 0 };		// source of sprite from spritesheet
-	SDL_Rect textRect  = { 0, 0, 0, 0 };	// destination of text texture
-
-	// Surface and Texture of Text
-	SDL_Surface* textSurface;	// Surface for the text
-	SDL_Texture* textTexture;	// Texture for the text
-
-	// ==================
+    // ==================
 
 
-	//------------------------------------------
-	// Invoke Commands
-	std::vector<std::shared_ptr<Interaction::Ruleset>> entries_global;  // Global commands, intended for self-other-global interaction
-	std::vector<std::shared_ptr<Interaction::Ruleset>> entries_local;   // Internal commands, intended for self-global interaction
+    //------------------------------------------
+    // Invoke Commands
+    std::vector<std::shared_ptr<Interaction::Ruleset>> entries_global; // Global commands, intended for self-other-global interaction
+    std::vector<std::shared_ptr<Interaction::Ruleset>> entries_local; // Internal commands, intended for self-global interaction
 };
 } // namespace Nebulite::Core
-
-
-//------------------------------------------
-// Templated setter/getter functions
-
-template <typename T> void Nebulite::Core::RenderObject::set(char const* key, T const& data){
-	json.set(key,data);
-}
-
-template <typename T> T Nebulite::Core::RenderObject::get(char const* key, T const& defaultValue){
-	T result = json.get<T>(key,defaultValue);
-	return result;
-}
 #endif // NEBULITE_CORE_RENDEROBJECT_HPP

@@ -48,7 +48,7 @@ Constants::Error Logging::log_all(int argc,  char** argv){
         }
     }
     else{
-        std::string const id = std::to_string(domain->get(Constants::keyName.renderObject.id.c_str(),0));
+        std::string const id = std::to_string(domain->getDoc()->get(Constants::keyName.renderObject.id.c_str(),0));
         Utility::FileManagement::WriteFile("RenderObject_id"+id+".log.jsonc", serialized);
     }
     return Constants::ErrorTable::NONE();
@@ -67,11 +67,11 @@ Constants::Error Logging::log_key(int argc,  char** argv){
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     std::string const key = argv[1];
-    std::string file = "RenderObject_id" + std::to_string(domain->get(Constants::keyName.renderObject.id.c_str(), 0)) + ".log.jsonc";
+    std::string file = "RenderObject_id" + std::to_string(domain->getDoc()->get(Constants::keyName.renderObject.id.c_str(), 0)) + ".log.jsonc";
     if(argc > 2){
         file = argv[2];
     }
-    auto const value = domain->get<std::string>(key.c_str(), "Key not found");
+    auto const value = domain->getDoc()->get<std::string>(key.c_str(), "Key not found");
     Utility::FileManagement::WriteFile(file, value);
     return Constants::ErrorTable::NONE();
 }

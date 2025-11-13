@@ -1,9 +1,9 @@
+#include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "DomainModule/JSON/JSDM_SimpleData.hpp"
 #include "Interaction/RulesetCompiler.hpp"
-
-#include "Nebulite.hpp"
+#include "Utility/JSON.hpp"
 
 namespace Nebulite::Core {
 
@@ -12,45 +12,42 @@ namespace Nebulite::Core {
 
 // Helper function to initialize RenderObject in constructor
 
-RenderObject::RenderObject()
-    : Domain("RenderObject", this, &json),
-      json(),
-      baseTexture(&json) {
+RenderObject::RenderObject() : Domain("RenderObject", this, &document), baseTexture(&document) {
     //------------------------------------------
     // Document Values
 
     // General
 
     // Initialize to 0, Renderer itself sets proper id, which starts at 1
-    json.set(Constants::keyName.renderObject.id, 0);
-    json.set(Constants::keyName.renderObject.positionX, 0);
-    json.set(Constants::keyName.renderObject.positionY, 0);
-    json.set(Constants::keyName.renderObject.imageLocation, std::string("Resources/Sprites/TEST001P/001.bmp"));
-    json.set(Constants::keyName.renderObject.layer, 0);
+    document.set(Constants::keyName.renderObject.id, 0);
+    document.set(Constants::keyName.renderObject.positionX, 0);
+    document.set(Constants::keyName.renderObject.positionY, 0);
+    document.set(Constants::keyName.renderObject.imageLocation, std::string("Resources/Sprites/TEST001P/001.bmp"));
+    document.set(Constants::keyName.renderObject.layer, 0);
 
     //for sprite
-    json.set(Constants::keyName.renderObject.isSpritesheet, false);
-    json.set(Constants::keyName.renderObject.spritesheetOffsetX, 0);
-    json.set(Constants::keyName.renderObject.spritesheetOffsetY, 0);
-    json.set(Constants::keyName.renderObject.spritesheetSizeX, 0);
-    json.set(Constants::keyName.renderObject.spritesheetSizeY, 0);
-    json.set(Constants::keyName.renderObject.pixelSizeX, 32);
-    json.set(Constants::keyName.renderObject.pixelSizeY, 32);
+    document.set(Constants::keyName.renderObject.isSpritesheet, false);
+    document.set(Constants::keyName.renderObject.spritesheetOffsetX, 0);
+    document.set(Constants::keyName.renderObject.spritesheetOffsetY, 0);
+    document.set(Constants::keyName.renderObject.spritesheetSizeX, 0);
+    document.set(Constants::keyName.renderObject.spritesheetSizeY, 0);
+    document.set(Constants::keyName.renderObject.pixelSizeX, 32);
+    document.set(Constants::keyName.renderObject.pixelSizeY, 32);
 
     // Invokes
-    json.set_empty_array(Constants::keyName.renderObject.invokes.c_str());
-    json.set_empty_array(Constants::keyName.renderObject.invokeSubscriptions.c_str());
-    json.set(Constants::keyName.renderObject.invokeSubscriptions + "[0]", std::string("all"));
+    document.set_empty_array(Constants::keyName.renderObject.invokes.c_str());
+    document.set_empty_array(Constants::keyName.renderObject.invokeSubscriptions.c_str());
+    document.set(Constants::keyName.renderObject.invokeSubscriptions + "[0]", std::string("all"));
 
     // Text
-    json.set(Constants::keyName.renderObject.textStr, std::string(""));
-    json.set(Constants::keyName.renderObject.textFontsize, 0);
-    json.set(Constants::keyName.renderObject.textDx, 0.0);
-    json.set(Constants::keyName.renderObject.textDy, 0.0);
-    json.set(Constants::keyName.renderObject.textColorR, 255);
-    json.set(Constants::keyName.renderObject.textColorG, 255);
-    json.set(Constants::keyName.renderObject.textColorB, 255);
-    json.set(Constants::keyName.renderObject.textColorA, 255);
+    document.set(Constants::keyName.renderObject.textStr, std::string(""));
+    document.set(Constants::keyName.renderObject.textFontsize, 0);
+    document.set(Constants::keyName.renderObject.textDx, 0.0);
+    document.set(Constants::keyName.renderObject.textDy, 0.0);
+    document.set(Constants::keyName.renderObject.textColorR, 255);
+    document.set(Constants::keyName.renderObject.textColorG, 255);
+    document.set(Constants::keyName.renderObject.textColorB, 255);
+    document.set(Constants::keyName.renderObject.textColorA, 255);
 
     //------------------------------------------
     // Internal Values
@@ -62,7 +59,7 @@ RenderObject::RenderObject()
     flag.deleteFromScene = false;
     flag.calculateText = true; // In order to calculate text texture on first update
     flag.reloadInvokes = true; // In order to reload invokes on first update
-    subscription_size = json.memberSize(Constants::keyName.renderObject.invokeSubscriptions);
+    subscription_size = document.memberSize(Constants::keyName.renderObject.invokeSubscriptions);
 
     //------------------------------------------
     // Initialize Linkages, References and DomainModules and object itself
@@ -72,7 +69,7 @@ RenderObject::RenderObject()
 void RenderObject::init() {
     //------------------------------------------
     // Link inherited Domains
-    inherit(&json);
+    inherit(&document);
     inherit(&baseTexture);
 
     //------------------------------------------
@@ -110,13 +107,13 @@ RenderObject::~RenderObject() {
 // Marshalling
 
 std::string RenderObject::serialize() {
-    return json.serialize();
+    return document.serialize();
 }
 
 void RenderObject::deserialize(std::string const &serialOrLink) {
     // Check if argv1 provided is an object
     if (Utility::JSON::is_json_or_jsonc(serialOrLink)) {
-        json.deserialize(serialOrLink);
+        document.deserialize(serialOrLink);
     } else {
         //------------------------------------------
         // Split the input into tokens
@@ -131,7 +128,7 @@ void RenderObject::deserialize(std::string const &serialOrLink) {
         //------------------------------------------
         // Load the JSON file
         // First token is the path or serialized JSON
-        json.deserialize(tokens[0]);
+        document.deserialize(tokens[0]);
 
         //------------------------------------------
         // Now apply modifications
@@ -174,7 +171,7 @@ void RenderObject::deserialize(std::string const &serialOrLink) {
     flag.calculateText = true;
 
     // Update subscription size
-    subscription_size = json.memberSize(Constants::keyName.renderObject.invokeSubscriptions);
+    subscription_size = document.memberSize(Constants::keyName.renderObject.invokeSubscriptions);
 }
 
 //------------------------------------------
@@ -223,6 +220,33 @@ void RenderObject::calculateSrcRect() {
     }
 }
 
+void RenderObject::linkFrequentRefs() {
+    // Identity
+    refs.id = document.getStableDoublePointer(Constants::keyName.renderObject.id);
+
+    // Position and Size
+    refs.posX = document.getStableDoublePointer(Constants::keyName.renderObject.positionX);
+    refs.posY = document.getStableDoublePointer(Constants::keyName.renderObject.positionY);
+    refs.pixelSizeX = document.getStableDoublePointer(Constants::keyName.renderObject.pixelSizeX);
+    refs.pixelSizeY = document.getStableDoublePointer(Constants::keyName.renderObject.pixelSizeY);
+
+    // Spritesheet
+    refs.isSpritesheet = document.getStableDoublePointer(Constants::keyName.renderObject.isSpritesheet);
+    refs.spritesheetOffsetX = document.getStableDoublePointer(Constants::keyName.renderObject.spritesheetOffsetX);
+    refs.spritesheetOffsetY = document.getStableDoublePointer(Constants::keyName.renderObject.spritesheetOffsetY);
+    refs.spritesheetSizeX = document.getStableDoublePointer(Constants::keyName.renderObject.spritesheetSizeX);
+    refs.spritesheetSizeY = document.getStableDoublePointer(Constants::keyName.renderObject.spritesheetSizeY);
+
+    // Text
+    refs.fontSize = document.getStableDoublePointer(Constants::keyName.renderObject.textFontsize);
+    refs.textDx = document.getStableDoublePointer(Constants::keyName.renderObject.textDx);
+    refs.textDy = document.getStableDoublePointer(Constants::keyName.renderObject.textDy);
+    refs.textColorR = document.getStableDoublePointer(Constants::keyName.renderObject.textColorR);
+    refs.textColorG = document.getStableDoublePointer(Constants::keyName.renderObject.textColorG);
+    refs.textColorB = document.getStableDoublePointer(Constants::keyName.renderObject.textColorB);
+    refs.textColorA = document.getStableDoublePointer(Constants::keyName.renderObject.textColorA);
+}
+
 //------------------------------------------
 // Outside communication with invoke for updating and estimation
 
@@ -230,7 +254,7 @@ Constants::Error RenderObject::update() {
     //------------------------------------------
     // Update modules and all inner domains
     updateModules();
-    getDoc()->update();
+    document.update();
     baseTexture.update();
 
     //------------------------------------------
@@ -257,7 +281,7 @@ Constants::Error RenderObject::update() {
         //     This just generates pairs that need to be updated
         for (size_t idx = 0; idx < subscription_size; idx++) {
             std::string key = Constants::keyName.renderObject.invokeSubscriptions + "[" + std::to_string(idx) + "]";
-            auto const subscription = json.get<std::string>(key, "");
+            auto const subscription = document.get<std::string>(key, "");
             Nebulite::global().getInvoke()->listen(this, subscription, static_cast<uint32_t>(*refs.id));
         }
 
@@ -329,7 +353,7 @@ void RenderObject::calculateText(SDL_Renderer *renderer, TTF_Font *font, int con
 
         // Settings influenced by a new text
         double constexpr scalar = 1.0; // Perhaps needed later on for scaling
-        auto const text = get<std::string>(Constants::keyName.renderObject.textStr.c_str());
+        auto const text = document.get<std::string>(Constants::keyName.renderObject.textStr.c_str());
         textRect.w = static_cast<int>(*refs.fontSize * static_cast<double>(text.length()) * scalar);
         textRect.h = static_cast<int>(*refs.fontSize * 1.5 * scalar);
 
