@@ -5,9 +5,10 @@
 
 namespace Nebulite::Core{
     
-GlobalSpace::GlobalSpace(std::string const& binName)
-: Domain("Nebulite", this, &global),
-  renderer(&global, &cmdVars.headless)  // Renderer with reference to GlobalSpace and headless mode boolean
+GlobalSpace::GlobalSpace(std::string const& name)
+: Domain("Nebulite", this, &document),
+  document("GlobalSpace Document"),  // JSON
+  renderer(&document, &cmdVars.headless)  // Renderer with reference to GlobalSpace and headless mode boolean
 {
     //------------------------------------------
     // Setup tasks
@@ -16,7 +17,7 @@ GlobalSpace::GlobalSpace(std::string const& binName)
 
     //------------------------------------------
     // General Variables
-    names.binary = binName;
+    names.binary = name;
     names.state  = "";
 
     //------------------------------------------
@@ -26,7 +27,7 @@ GlobalSpace::GlobalSpace(std::string const& binName)
     setPreParse([this] { return preParse(); });
 
     // Link inherited Domains
-    inherit(&global);
+    inherit(&document);
     inherit(&renderer);
 
     // Initialize DomainModules
@@ -285,8 +286,8 @@ Constants::Error GlobalSpace::preParse(){
 void GlobalSpace::updateRNGs(){
     // Set Min and Max values for RNGs in document
     // Always set, so overwrites don't stick around
-    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.min, std::numeric_limits<RngVars::rngSize_t>::min());
-    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.max, std::numeric_limits<RngVars::rngSize_t>::max());
+    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.min, std::numeric_limits<RngVars::rngSize_t>::min());
+    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.max, std::numeric_limits<RngVars::rngSize_t>::max());
 
     // Generate seeds in a predictable manner
     // Since updateRNG is called at specific times only, we can simply increment RNG with a new seed
@@ -302,10 +303,10 @@ void GlobalSpace::updateRNGs(){
     rng.D.update(seedD);
 
     // Set RNG values in global document
-    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.A, rng.A.get());
-    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.B, rng.B.get());
-    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.C, rng.C.get());
-    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.D, rng.D.get());
+    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.A, rng.A.get());
+    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.B, rng.B.get());
+    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.C, rng.C.get());
+    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.D, rng.D.get());
 }
 
 }  // namespace Nebulite::Core

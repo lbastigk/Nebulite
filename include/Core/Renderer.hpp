@@ -45,15 +45,13 @@ public:
      */
     Renderer(Utility::JSON* docRef, bool *flag_headless, unsigned int const &X = 1080, unsigned int const &Y = 1080);
 
-    /**
-     * @brief Initializes SDL and related subsystems.
-     */
-    void initSDL();
+    //------------------------------------------
+    // Disallow copying and moving
 
-    /**
-     * @brief Called before parsing any commands.
-     */
-    Constants::Error preParse() override;
+    Renderer(Renderer const &) = delete;
+    Renderer &operator=(Renderer const &) = delete;
+    Renderer(Renderer &&) = delete;
+    Renderer &operator=(Renderer &&) = delete;
 
     //------------------------------------------
     // Serialization / Deserialization
@@ -82,6 +80,16 @@ public:
 
     //------------------------------------------
     // Pipeline
+
+    /**
+     * @brief Initializes SDL and related subsystems.
+     */
+    void initSDL();
+
+    /**
+     * @brief Called before parsing any commands.
+     */
+    Constants::Error preParse() override;
 
     /**
      * @brief Updates the renderer for the next frame.

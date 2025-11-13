@@ -11,8 +11,8 @@ namespace Nebulite::Utility {
 
 std::string const JSON::reservedCharacters = "[]{}.,";
 
-JSON::JSON()
-: Domain("JSON", this, this)
+JSON::JSON(std::string const& name)
+: Domain(name, this, this)
 {
     std::scoped_lock const lockGuard(mtx);
     doc.SetObject();

@@ -33,18 +33,16 @@ namespace Nebulite::Interaction::Execution{
 /**
  * @class Nebulite::Interaction::Execution::DomainModule
  * @brief Wrapper class for binding functions to a specific category in the FuncTree and adding separate update routines.
- * 
- * This allows for cleaner separation of object files for different categories
- * and reduces boilerplate code when attaching functions to the FuncTree.
+ *        This allows for cleaner separation of object files for different categories
+ *        and reduces boilerplate code when attaching functions to the FuncTree.
  */
 template<typename DomainType>
 class DomainModule{
 public:
     /**
      * @brief Constructor for the DomainModule base class.
-     * 
-     * The constructor initializes the DomainModule with a reference to the domain and
-     * the FuncTree.
+     *        The constructor initializes the DomainModule with a reference to the domain and
+     *        the FuncTree.
      */
     DomainModule(
         std::string name,
@@ -91,12 +89,9 @@ public:
 
     /**
     * @brief Binds a member function to the FuncTree.
-     *
-     * This function template allows for binding member functions of any class type
-     * to the FuncTree, automatically handling the necessary type conversions.
-     *
-     * This function is a wrapper around the static bindFunctionStatic helper for methods inside the DomainModule.
-     *
+     *       This function template allows for binding member functions of any class type
+     *       to the FuncTree, automatically handling the necessary type conversions.
+     *       This function is a wrapper around the static bindFunctionStatic helper for methods inside the DomainModule.
      * @tparam ClassType The type of the class containing the member function.
      * @tparam ReturnType The return type of the member function.
      * @tparam Args The argument types of the member function.
@@ -108,8 +103,6 @@ public:
     void bindFunction(ReturnType (ClassType::*methodPtr)(Args...), std::string const& name, std::string const* helpDescription){
         bindFunctionStatic(funcTree.get(), static_cast<ClassType*>(this), methodPtr, name, helpDescription);
     }
-
-
 
     /**
      * @brief Binds a category to the FuncTree.

@@ -290,7 +290,7 @@ private:
     // General Variables
 
     // Documents
-    Utility::JSON* emptyDoc = new Utility::JSON();    // Linking an empty doc is needed for some functions
+    Utility::JSON* emptyDoc = new Utility::JSON("Empty JSON document for Invoke");    // Linking an empty doc is needed for some functions
 
     // Task Queue
     struct TaskQueue {

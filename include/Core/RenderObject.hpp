@@ -94,7 +94,9 @@ public:
      */
     ~RenderObject() override;
 
-    // Suppress copy/move operators
+    //------------------------------------------
+    // Disable Copying and Moving
+
     RenderObject(RenderObject const &other) = delete;
     RenderObject(RenderObject &&other) = delete;
     RenderObject &operator=(RenderObject &&other) = delete;

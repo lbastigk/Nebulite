@@ -161,7 +161,7 @@ private:
     std::array<double*, uidQuickCacheSize> uidDoubleCache{nullptr};
 
 public:
-    JSON();
+    JSON(std::string const& name = "Unnamed JSON Document");
 
     ~JSON() override ;
 

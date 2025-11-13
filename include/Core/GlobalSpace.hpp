@@ -89,7 +89,7 @@ public:
     // Special Member Functions
 
     // Constructor
-    explicit GlobalSpace(std::string const& binName);
+    explicit GlobalSpace(std::string const& name = "Unnamed GlobalSpace");
 
     // Destructor
     ~GlobalSpace() override = default;
@@ -311,16 +311,16 @@ private:
     bool continueLoop = true;
 
     // Global JSON Document
-    Utility::JSON global;
+    Utility::JSON document;
+
+    // DocumentCache for read-only documents
+    Utility::DocumentCache docCache;
 
     // Renderer
     Renderer renderer;
 
     // Invoke Object for parsing expressions etc.
     Interaction::Invoke invoke;
-
-    // DocumentCache for read-only documents
-    Utility::DocumentCache docCache;
 
     // Unique ID map
     uint64_t uniqueIdCounter[UniqueIdTypeSize] = {0, 0};

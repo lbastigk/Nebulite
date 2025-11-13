@@ -55,6 +55,14 @@ public:
     virtual ~DomainBase() = default;
 
     //------------------------------------------
+    // Disallow copying and moving
+
+    DomainBase(DomainBase const&) = delete;
+    DomainBase& operator=(DomainBase const&) = delete;
+    DomainBase(DomainBase&&) = delete;
+    DomainBase& operator=(DomainBase&&) = delete;
+
+    //------------------------------------------
     // Binding, initializing and inheriting
 
     /**
@@ -145,6 +153,12 @@ public:
      */
     [[nodiscard]] Utility::JSON* getDoc() const {return document;}
 
+    /**
+     * @brief Gets the name of the domain.
+     * @return The name of the domain.
+     */
+    [[nodiscard]] std::string const& getName() const {return domainName;}
+
 protected:
     /**
      * @brief Offers access to the internal FuncTree for function binding.
@@ -208,6 +222,17 @@ public:
     Domain(std::string const& name, DomainType* domainTypePtr, Utility::JSON* documentPtr)
     : DomainBase(name, documentPtr), domain(domainTypePtr)
     {}
+
+    //------------------------------------------
+    // Disallow copying and moving
+
+    Domain(Domain const&) = delete;
+    Domain& operator=(Domain const&) = delete;
+    Domain(Domain&&) = delete;
+    Domain& operator=(Domain&&) = delete;
+
+    //------------------------------------------
+    // Module Initialization and Updating
 
     /**
      * @brief Factory method for creating DomainModule instances with proper linkage
