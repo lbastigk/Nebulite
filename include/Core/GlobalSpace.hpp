@@ -1,10 +1,9 @@
-
 /**
  * @file GlobalSpace.hpp
  * 
  * @brief Contains the Nebulite::Core::GlobalSpace class declaration 
- * for the Nebulite Engine for core functionality
- * and structures in Nebulite::Core namespace.
+ *        for the Nebulite Engine for core functionality
+ *        and structures in Nebulite::Core namespace.
  */
 
 #ifndef NEBULITE_CORE_GLOBALSPACE_HPP
@@ -39,9 +38,8 @@ struct taskQueueWrapper {
 
 /**
  * @brief Represents the result of resolving a task queue.
- *
- * This structure holds the outcome of processing a task queue, including any errors
- * encountered during resolution and whether the process was halted due to a critical error.
+ *        This structure holds the outcome of processing a task queue, including any errors
+ *        encountered during resolution and whether the process was halted due to a critical error.
  */
 struct taskQueueResult{
     bool encounteredCriticalResult = false;
@@ -53,35 +51,8 @@ struct taskQueueResult{
 
 /**
  * @class Nebulite::Core::GlobalSpace
- * @brief Declares the core types, global objects, and functions for the Nebulite Engine
- *
- * Overview:
- * 
- *   - Provides the main engine interface, including task queue management, renderer access,
- *     and error logging facilities.
- * 
- *   - Defines the `taskQueue` and `taskQueueResult` structures for managing and tracking
- *     the execution of queued engine tasks.
- * 
- *   - Declares global engine objects (such as the main function tree, renderer, and global state)
- *     and task queues used throughout the engine.
- * 
- *   - Exposes functions for engine initialization, renderer management, and task queue resolution.
- *
- * Key Components:
- * 
- *   - taskQueue: Holds a list of tasks to be executed, along with parsing and state info.
- * 
- *   - taskQueueResult: Stores the result of processing a task queue, including error codes and
- *     whether execution was stopped due to a critical error.
- * 
- *   - renderer: Pointer to the main rendering engine, lazily initialized.
- * 
- *   - error logging: Facilities for redirecting and storing error output.
- * 
- *   - stateName, binName: Strings for tracking the current engine state and binary name.
- *
- * See main.cpp and other engine modules for usage examples and integration details.
+ * @brief Declares the core types, global objects, and functions for the Nebulite Engine.
+ *        Used as a global workspace for functionality such as Rendering, Time, RNGs, etc.
  */
 NEBULITE_DOMAIN(GlobalSpace){
 public:
@@ -106,11 +77,7 @@ public:
     // Functions
 
     /**
-     * @brief Parses command line arguments and sets corresponding variables.
-     * 
-     * This function processes the command line arguments passed to the program,
-     * setting internal variables based on recognized flags and options.
-     * 
+     * @brief Parses command line arguments from the main function and sets corresponding variables.
      * @param argc The number of command line arguments.
      * @param argv The array of command line argument strings.
      */
@@ -118,7 +85,6 @@ public:
 
     /**
      * @brief Resolves a task queue by parsing each task and executing it.
-     * 
      * @param tq The task queue to resolve.
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
@@ -135,7 +101,6 @@ public:
 
     /**
      * @brief Updates the global space.
-     * 
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
     Constants::Error update() override;
@@ -214,21 +179,25 @@ public:
 
     /**
      * @brief Gets a pointer to the Renderer instance.
+     * @return Pointer to the Renderer instance.
      */
     Renderer* getRenderer(){ return &renderer; }
 
     /**
      * @brief Gets a pointer to the SDL Renderer instance.
+     * @return Pointer to the SDL_Renderer instance.
      */
     SDL_Renderer* getSdlRenderer() const { return renderer.getSdlRenderer(); }
 
     /**
      * @brief Gets a pointer to the Invoke instance.
+     * @return Pointer to the Invoke instance.
      */
     Interaction::Invoke* getInvoke(){ return &invoke; }
 
     /**
      * @brief Gets a pointer to the global document cache.
+     * @return Pointer to the DocumentCache instance.
      */
     Utility::DocumentCache* getDocCache(){ return &docCache; }
 
@@ -253,6 +222,7 @@ public:
 
     //------------------------------------------
     // DomainModule variables
+
     struct commandLineVariables{
         bool headless = false; // Headless mode (no window)
         bool recover = false;  // Enable recoverable error mode
@@ -272,7 +242,6 @@ public:
 
     /**
      * @brief Checks if the main loop should continue running.
-     * 
      * @return True if the main loop should continue, false otherwise.
      */
     bool shouldContinueLoop() const { return continueLoop; }
@@ -285,9 +254,7 @@ public:
 
     /**
      * @brief Gets a unique ID based on a hash string.
-     * 
-     * Threadsafe. Uses a mutex-lock per UniqueIdType.
-     * 
+     *        Threadsafe. Uses a mutex-lock per UniqueIdType.
      * @param hash The hash string to get the unique ID for.
      * @param type Which rolling counter to use for the unique ID, allowing for separate ID spaces.
      * @return The unique ID corresponding to the hash.
@@ -365,10 +332,11 @@ private:
     // Methods
 
     /**
-     * @brief Sets the pre-parse function for the domain.
-     * 
-     * This function binds a pre-parse function to the domain's function tree,
-     * which is called before parsing any command. It is used to properly handle RNG
+     * @brief Sets the pre-parse function for the domain,
+     *        which is called before parsing any command.
+     *        It is used here to properly handle RNG
+     * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
+     *         an error code otherwise.
      */
     Constants::Error preParse() override;
 
@@ -379,7 +347,6 @@ private:
 
     /**
      * @brief Updates all inner domains.
-     * 
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
     Constants::Error updateInnerDomains() const;
