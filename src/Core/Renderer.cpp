@@ -110,8 +110,8 @@ Renderer::Renderer(Utility::JSON* docRef, bool *flag_headless, unsigned int cons
 
     //------------------------------------------
     // Start timers
-    fpsControlTimer.start();
-    fpsRenderTimer.start();
+    fps.controlTimer.start();
+    fps.renderTimer.start();
 
     //------------------------------------------
     // Pre-parse initialization
@@ -265,7 +265,18 @@ bool Renderer::tick(Interaction::Invoke *invoke_ptr) {
 }
 
 bool Renderer::timeToRender() {
-    return fpsControlTimer.projected_dt() >= TARGET_TICKS_PER_FRAME;
+    // Goal: projected_dt() == target
+    // Issue: target might be fractional, projected_dt() is integer milliseconds
+    // Solution: use probabilistic rounding
+    // Example: target = 16.67 ms
+    // set target to 16, remainder = 0.67
+    // so do 16 for 67% of the time, and 17 for 33% of the time
+    static std::uniform_real_distribution<double> distribution(0.0, 1.0);
+    static std::mt19937 randNum(hashString("RNG for FPS control"));
+    double const target = 1000.0 / static_cast<double>(fps.target);
+    double const remainder = target - static_cast<double>(static_cast<uint32_t>(target));    // between 0.0 and 1.0
+    uint32_t const adjustedTarget = static_cast<uint32_t>(target) + (distribution(randNum) < remainder ? 1 : 0);
+    return fps.controlTimer.projected_dt() >= adjustedTarget;
 }
 
 void Renderer::append(RenderObject *toAppend) {
@@ -467,14 +478,8 @@ void Renderer::setCam(int const &X, int const &Y, bool const &isMiddle) const {
 //------------------------------------------
 // Setting
 
-void Renderer::setTargetFPS(uint16_t const &fps) {
-    if (fps > 0) {
-        TARGET_FPS = fps;
-        TARGET_TICKS_PER_FRAME = 1000 / TARGET_FPS;
-    } else {
-        TARGET_FPS = 60;
-        TARGET_TICKS_PER_FRAME = 1000 / TARGET_FPS;
-    }
+void Renderer::setTargetFPS(uint16_t const& targetFps) {
+    fps.target = targetFps;
 }
 
 //------------------------------------------
@@ -517,15 +522,15 @@ void Renderer::renderFrame() {
     // FPS Count and Control
 
     //Calculate fps every second
-    REAL_FPS_COUNTER++;
-    if (fpsRenderTimer.projected_dt() >= 1000) {
-        REAL_FPS = REAL_FPS_COUNTER;
-        REAL_FPS_COUNTER = 0;
-        fpsRenderTimer.update();
+    fps.realCounter++;
+    if (fps.renderTimer.projected_dt() >= 1000) {
+        fps.real = fps.realCounter;
+        fps.realCounter = 0;
+        fps.renderTimer.update();
     }
 
     // Control framerate
-    fpsControlTimer.update();
+    fps.controlTimer.update();
 
     //------------------------------------------
     // Rendering
@@ -643,7 +648,7 @@ void Renderer::renderFPS() const {
     double constexpr fontSize = 16;
 
     // Create a string with the FPS value
-    std::string const fpsText = "FPS: " + std::to_string(REAL_FPS);
+    std::string const fpsText = "FPS: " + std::to_string(fps.real);
 
     // Define the destination rectangle for rendering the text
     SDL_Rect const textRect = {

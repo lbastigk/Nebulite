@@ -30,20 +30,18 @@ namespace Nebulite::Core {
 
 /**
  * @class Nebulite::Core::Renderer
- *
  * @brief Responsible for rendering game objects and managing the rendering pipeline.
  */
 NEBULITE_DOMAIN(Renderer) {
 public:
     /**
      * @brief Initializes a Renderer with given dimensions and settings.
-     *
      * @param docRef Pointer to the JSON document
      * @param flag_headless Reference to the Boolean flag for headless mode.
      * @param X Width of the rendering area.
      * @param Y Height of the rendering area.
      */
-    Renderer(Utility::JSON* docRef, bool *flag_headless, unsigned int const &X = 1080, unsigned int const &Y = 1080);
+    Renderer(Utility::JSON *docRef, bool *flag_headless, unsigned int const &X = 1080, unsigned int const &Y = 1080);
 
     //------------------------------------------
     // Disallow copying and moving
@@ -58,7 +56,6 @@ public:
 
     /**
      * @brief Serializes the current state of the Renderer.
-     *
      * @return A JSON string representing the Renderer state.
      */
     std::string serialize() {
@@ -67,7 +64,6 @@ public:
 
     /**
      * @brief Deserializes the Renderer state from a JSON string or link.
-     *
      * @param serialOrLink The JSON string or link to deserialize.
      */
     void deserialize(std::string const &serialOrLink) noexcept {
@@ -93,23 +89,15 @@ public:
 
     /**
      * @brief Updates the renderer for the next frame.
-     *
-     * - clears the screen
-     *
-     * - calls the state update function
-     *
-     * - renders frame
-     *
-     * - renders fps, if enabled
-     *
-     * - presents the frame
-     *
-     * - manages SDL events
-     *
-     * - manages state for next frame
-     *
+     *        - clears the screen
+     *        - calls the state update function
+     *        - renders frame
+     *        - renders fps, if enabled
+     *        - presents the frame
+     *        - manages SDL events
+     *        - manages state for next frame
      * @param invoke_ptr Pointer to the current Invoke instance.
-     * @return True if update was done, false if skipped (e.g. console mode).
+     * @return True if update was done, false if skipped (e.g. console mode or other blocking processes are active).
      */
     bool tick(Interaction::Invoke *invoke_ptr);
 
@@ -119,53 +107,40 @@ public:
     bool timeToRender();
 
     /**
-     * @brief Appends a RenderObject to the Renderer.
-     *
-     * This function adds a RenderObject to the rendering pipeline.
-     *
-     * - Sets id of the RenderObject.
-     *
-     * - Increases the id counter.
-     *
-     * - Appends the RenderObject to the environment.
-     *
-     * - Loads its texture
-     *
-     * - updates the rolling random number generator.
-     *
+     * @brief Appends a RenderObject to the Renderer to the rendering pipeline.
+     *        - Sets id of the RenderObject.
+     *        - Increases the id counter.
+     *        - Appends the RenderObject to the environment.
+     *        - Loads its texture
+     *        - updates the rolling random number generator.
      * @param toAppend Pointer to the RenderObject to append.
      */
     void append(RenderObject *toAppend);
 
     /**
      * @brief Reinserts all objects into the rendering pipeline.
-     *
-     * Does not change the id counter.
+     *        Does not change the id counter.
      */
     void reinsertAllObjects();
 
     /**
      * @brief Skips updating the next frame.
-     *
-     * This can be useful to avoid rendering a frame when the application is not in focus,
-     * or when the rendering load is too high.
+     *        This can be useful to avoid rendering a frame when the application is not in focus,
+     *        or when the rendering load is too high.
      */
     void skipUpdateNextFrame() { skipUpdate = true; }
 
     /**
      * @brief Checks if the next frame update is being skipped.
-     *
-     * After a renderer tick, this is reset to false.
-     *
+     *        After a renderer tick, this is reset to false
+     *        so new blocking processes have to call `skipUpdateNextFrame()` each frame.
      * @return True if the next frame update is being skipped, false otherwise.
      */
     [[nodiscard]] bool isSkippingUpdate() const noexcept { return skipUpdate; }
 
     /**
      * @brief Checks if the last frame update was skipped.
-     *
-     * Keeps the value from the last renderer tick.
-     *
+     *        Keeps the value from the last renderer tick.
      * @return True if the last frame update was skipped, false otherwise.
      */
     [[nodiscard]] bool hasSkippedUpdate() const { return skippedUpdateLastFrame; }
@@ -175,7 +150,6 @@ public:
 
     /**
      * @brief Attaches a texture above a specific layer.
-     *
      * @param aboveThisLayer The layer above which to attach the texture.
      * @param name The name of the texture.
      * @param texture The SDL_Texture to attach.
@@ -186,18 +160,15 @@ public:
         if (texture == nullptr) {
             return false; // Cannot attach a null texture
         }
-
         if (BetweenLayerTextures[aboveThisLayer].contains(name)) {
             return false; // Texture with this name already exists in the specified layer
         }
-
         BetweenLayerTextures[aboveThisLayer][name] = std::make_pair(texture, rect);
         return true;
     }
 
     /**
      * @brief Detaches a texture above a specific layer.
-     *
      * @param aboveThisLayer The layer above which to detach the texture.
      * @param name The name of the texture to remove.
      * @return True if the texture was successfully removed, false otherwise.
@@ -227,9 +198,7 @@ public:
 
     /**
      * @brief Takes a snapshot of the current Renderer state.
-     *
      * @param link The link to save the snapshot to.
-     *
      * @return True if the snapshot was successful, false otherwise.
      */
     [[nodiscard]] bool snapshot(std::string link) const;
@@ -265,11 +234,10 @@ public:
     /**
      * @brief Sets the target FPS for the renderer.
      */
-    void setTargetFPS(uint16_t const &fps);
+    void setTargetFPS(uint16_t const& targetFps);
 
     /**
      * @brief Sets the camera position.
-     *
      * @param X The new X position of the camera.
      * @param Y The new Y position of the camera.
      * @param isMiddle If true, the (x,y) coordinates relate to the middle of the screen.
@@ -279,9 +247,7 @@ public:
 
     /**
      * @brief Changes the window size.
-     *
-     * Total size is `w*scalar x h*scalar`
-     *
+     *        Total size is `w*scalar x h*scalar`
      * @param w The new pixel width of the window.
      * @param h The new pixel height of the window.
      * @param scalar The scaling factor to apply.
@@ -290,7 +256,6 @@ public:
 
     /**
      * @brief Moves the camera by a certain amount.
-     *
      * @param dX The amount to move the camera in the X direction.
      * @param dY The amount to move the camera in the Y direction.
      */
@@ -302,87 +267,71 @@ public:
 
     /**
      * @brief Gets the amount of textures currently loaded.
-     *
      * @return The number of textures.
      */
     [[nodiscard]] size_t getTextureAmount() const { return TextureContainer.size(); }
 
     /**
      * @brief Gets the amount of RenderObjects currently loaded.
-     *
      * @return The number of RenderObjects in the environment.
      */
     [[nodiscard]] size_t getObjectCount() const { return env.getObjectCount(); }
 
     /**
      * @brief Gets the current resolution in the X direction.
-     *
      * @return The current resolution in the X direction.
      */
     [[nodiscard]] int getResX() const { return getDoc()->get<int>(Constants::keyName.renderer.dispResX, 0); }
 
     /**
      * @brief Gets the current resolution in the Y direction.
-     *
      * @return The current resolution in the Y direction.
      */
     [[nodiscard]] int getResY() const { return getDoc()->get<int>(Constants::keyName.renderer.dispResY, 0); }
 
     /**
      * @brief Gets the current FPS.
-     *
      * @return The current FPS.
      */
-    [[nodiscard]] uint16_t getFPS() const { return REAL_FPS; }
+    [[nodiscard]] uint16_t getFPS() const { return fps.real; }
 
     /**
      * @brief Gets the current position of the camera in the X direction.
-     *
-     * The position is considered to be the top left corner of the screen.
-     *
+     *        The position is considered to be the top left corner of the screen.
      * @return The current position of the camera in the X direction.
      */
     [[nodiscard]] int getPosX() const { return getDoc()->get<int>(Constants::keyName.renderer.positionX, 0); }
 
     /**
      * @brief Gets the current position of the camera in the Y direction.
-     *
-     * The position is considered to be the top left corner of the screen.
-     *
+     *        The position is considered to be the top left corner of the screen.
      * @return The current position of the camera in the Y direction.
      */
     [[nodiscard]] int getPosY() const { return getDoc()->get<int>(Constants::keyName.renderer.positionY, 0); }
 
     /**
      * @brief Gets the current tile position of the camera in the X direction.
-     *
-     * The position to check for tile position is considered to be the top left corner of the screen.
-     *
+     *        The position to check for tile position is considered to be the top left corner of the screen.
      * @return The current tile position of the camera in the X direction.
      */
     [[nodiscard]] int16_t getTilePositionX() const noexcept { return tilePositionX; }
 
     /**
      * @brief Gets the current tile position of the camera in the Y direction.
-     *
-     * The position to check for tile position is considered to be the top left corner of the screen.
-     *
+     *        The position to check for tile position is considered to be the top left corner of the screen.
      * @return The current tile position of the camera in the Y direction.
      */
     [[nodiscard]] int16_t getTilePositionY() const noexcept { return tilePositionY; }
 
     /**
      * @brief Gets the SDL_Renderer instance.
-     *
-     * Allows for access to the underlying SDL renderer for custom rendering operations.
-     *
+     *        Allows for access to the underlying SDL renderer for custom rendering operations.
      * @return The SDL_Renderer instance.
      */
     [[nodiscard]] SDL_Renderer *getSdlRenderer() const { return renderer; }
 
     /**
      * @brief Gets the RenderObject from its ID.
-     *
      * @param id The ID of the RenderObject to retrieve.
      * @return A pointer to the RenderObject, or nullptr if not found.
      */
@@ -392,9 +341,7 @@ public:
 
     /**
      * @brief Gets the standard font used by the Renderer.
-     *
-     * Loads the font if it hasn't been loaded yet.
-     *
+     *        Loads the font if it hasn't been loaded yet.
      * @return A pointer to the TTF_Font instance.
      */
     [[nodiscard]] TTF_Font *getStandardFont() const {
@@ -404,7 +351,6 @@ public:
 
     /**
      * @brief Gets the current SDL event.
-     *
      * @return Vector of all SDL events from the current frame.
      */
     std::vector<SDL_Event> *getEventHandles() noexcept {
@@ -421,11 +367,9 @@ public:
 
     /**
      * @brief Loads a texture from a file into memory without adding it to the TextureContainer.
-     *
-     * This function creates the necessary surface and texture object from a given file path,
-     * but does not store it in the TextureContainer. It is useful for temporary textures or
-     * textures that are managed externally.
-     *
+     *        Creates the necessary surface and texture object from a given file path,
+     *        but does not store it in the TextureContainer. It is useful for temporary textures or
+     *        textures that are managed externally.
      * @param link The file path to load the texture from.
      * @return A pointer to the loaded SDL_Texture, or nullptr if loading failed.
      */
@@ -486,8 +430,7 @@ private:
 
     /**
      * @brief Counter for assigning unique IDs to RenderObjects.
-     *
-     * Easier to debug if it starts at 1, as 0 might come up in overflows, and negative values may not be valid
+     *        Easier to debug if it starts at 1, as 0 might come up in overflows, and negative values may not be valid
      */
     uint32_t renderObjectIdCounter = 1;
 
@@ -527,34 +470,26 @@ private:
 
     /**
      * @brief Clears the Renderer screen
-     *
-     * This function clears renderer to an all black screen.
+     *        This function clears renderer to an all black screen.
      */
     void clear() const;
 
     /**
      * @brief Updates the Renderer state.
-     *
-     * - updates timer
-     *
-     * - polls SDL events
-     *
-     * - polls mouse and keyboard state
-     *
-     * - sets global values
-     *
-     * - updates the invoke instance
-     *
-     * - updates the environment
+     *        - updates timer
+     *        - polls SDL events
+     *        - polls mouse and keyboard state
+     *        - sets global values
+     *        - updates the invoke instance
+     *        - updates the environment
      */
     void updateState();
 
     /**
      * @brief Renders the current frame.
-     *
-     * Takes all RenderObjects potentially visible in the current frame and renders them.
-     * See the Environment and RenderObjectContainer class for more details on how objects
-     * are managed in the tile-based-container
+     *        Takes all RenderObjects potentially visible in the current frame and renders them.
+     *        See the Environment and RenderObjectContainer class for more details on how objects
+     *        are managed in the tile-based-container
      */
     void renderFrame();
 
@@ -570,7 +505,6 @@ private:
 
     /**
      * @brief Renders a single object to the screen.
-     *
      * @param obj Pointer to the RenderObject to render.
      * @param dispPosX The X position on the screen to render the object.
      * @param dispPosY The Y position on the screen to render the object.
@@ -579,22 +513,22 @@ private:
     int renderObjectToScreen(RenderObject *obj, int const &dispPosX, int const &dispPosY);
 
     //------------------------------------------
-    //For FPS Count
-    Utility::TimeKeeper fpsControlTimer;
-    Utility::TimeKeeper fpsRenderTimer;
-    uint16_t TARGET_FPS = 500; // Target framerate (e.g., 60 FPS)
-    uint16_t TARGET_TICKS_PER_FRAME = 1000 / TARGET_FPS; // Milliseconds per frame
-    uint16_t REAL_FPS_COUNTER = 0; // Counts fps in a 1-second-interval
-    uint16_t REAL_FPS = 0; // Actual fps this past second
+    //For FPS Count and Control
+    struct FpsControl {
+        Utility::TimeKeeper controlTimer;
+        Utility::TimeKeeper renderTimer;
+
+        uint16_t target = 500; // Target framerate (e.g., 60 FPS)
+        uint16_t realCounter = 0; // Counts fps in a 1-second-interval; reset every second
+        uint16_t real = 0;        // Actual fps this past second. Stores the last value of realCounter every second
+    }fps;
 
     //------------------------------------------
     // Texture-Related
 
     /**
      * @brief Loads a texture into the TextureContainer
-     *
-     * Creates the necessary surface and texture object from a given file path.
-     *
+     *        Creates the necessary surface and texture object from a given file path.
      * @param link The file path to load the texture from.
      */
     void loadTexture(std::string const &link);
