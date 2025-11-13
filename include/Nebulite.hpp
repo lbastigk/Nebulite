@@ -89,7 +89,6 @@ namespace Nebulite{
      * - `Interaction::Logic`: All logic-related classes and functions
      */
     namespace Interaction{
-
         /**
          * @namespace Nebulite::Interaction::Execution
          * @brief Contains all classes, functions, types and variables related to domain-specific command-processing.
@@ -112,9 +111,11 @@ namespace Nebulite{
 
 }   // namespace Nebulite
 
+//------------------------------------------
+// Singleton accessors
+
 /**
- * @todo: Add global() function here for accessing GlobalSpace.
- *        Also add global ErrorTable and Logger objects here.
+ * @todo: add ErrorTable for access via single header file.
  */
 namespace Nebulite{
     /**
@@ -124,11 +125,13 @@ namespace Nebulite{
 
     /**
      * @brief Singleton accessor for the cout capture object
+     * @return CaptureStream object for capturing cout output
      */
     Nebulite::Utility::CaptureStream& cout();
 
     /**
      * @brief Singleton accessor for the cerr capture object
+     * @return CaptureStream object for capturing cerr output
      */
     Nebulite::Utility::CaptureStream& cerr();
 
@@ -139,5 +142,4 @@ namespace Nebulite{
     static std::string const endl = "\n";
 
 }   // namespace Nebulite
-
 #endif // NEBULITE_HPP
