@@ -16,4 +16,4 @@ Nebulite::Utility::CaptureStream& cerr() {
     return Nebulite::Utility::Capture::cerr();
 }
 
-}
+}   // namespace Nebulite
