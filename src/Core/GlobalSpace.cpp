@@ -11,6 +11,14 @@ GlobalSpace::GlobalSpace(std::string const& name)
   renderer(&document, &cmdVars.headless)  // Renderer with reference to GlobalSpace and headless mode boolean
 {
     //------------------------------------------
+    // There should only be one GlobalSpace
+    static bool globalSpaceExists = false;
+    if(globalSpaceExists){
+        throw std::runtime_error("GlobalSpace instance already exists! Only one instance is allowed.");
+    }
+    globalSpaceExists = true;
+
+    //------------------------------------------
     // Setup tasks
     tasks.always.clearAfterResolving = false;       // Always tasks are never cleared
     invoke.linkTaskQueue(tasks.internal.taskQueue); // Invoke pushes tasks to internal queue
