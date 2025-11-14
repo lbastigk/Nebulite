@@ -1,8 +1,11 @@
+//------------------------------------------
+// Includes
+
 #include "Core/GlobalSpace.hpp"
+#include "Constants/KeyNames.hpp"
 #include "DomainModule/Initializer.hpp"
 
-#include "Constants/KeyNames.hpp"
-
+//------------------------------------------
 namespace Nebulite::Core{
     
 GlobalSpace::GlobalSpace(std::string const& name)
@@ -128,7 +131,7 @@ Constants::Error GlobalSpace::update(){
     return lastCriticalResult;
 }
 
-void GlobalSpace::parseCommandLineArguments(int const& argc, char const* argv[]){
+void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv){
     //------------------------------------------
     // Add main args to taskList, split by ';'
     if (argc > 1){

@@ -20,7 +20,7 @@
 #include "Utility/Capture.hpp"
 #include "Utility/TimeKeeper.hpp"
 
-
+//------------------------------------------
 namespace Nebulite::Core {
 
 Renderer::Renderer(Utility::JSON* docRef, bool *flag_headless, unsigned int const &X, unsigned int const &Y)

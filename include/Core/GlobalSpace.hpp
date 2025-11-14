@@ -4,6 +4,7 @@
  * @brief Contains the Nebulite::Core::GlobalSpace class declaration 
  *        for the Nebulite Engine for core functionality
  *        and structures in Nebulite::Core namespace.
+ *        Manages rendering, task queues, RNGs, and similar global features.
  */
 
 #ifndef NEBULITE_CORE_GLOBALSPACE_HPP
@@ -14,6 +15,11 @@
 
 // Standard library
 #include <deque>
+#include <string>
+#include <vector>
+#include <mutex>
+#include <cstdint>
+#include <cstddef>
 
 // Nebulite
 #include "Core/Renderer.hpp"
@@ -33,6 +39,19 @@ struct taskQueueWrapper {
     bool clearAfterResolving = true;    // Whether to clear the task list after resolving
     /**
      * @note Add more metadata as needed, for resolveTaskQueue() to use
+     *       in case new task types are added in the future.
+     *       Perhaps even a hashmap of string to variant around this wrapper for
+     *       maximum flexibility.
+     *       map string -> taskQueueWrapper{taskQueue, <metadata>}
+     *       This way, each task could be sorted into different queues based on type,
+     *       so we can simply call <task> for normal tasks,
+     *       and specify "on-queue <type> <task>" for specific task types
+     *       that we wish to execute in a different manner.
+     *       This could allow us to auto-sort tasks into e.g. always-tasks etc.
+     *       or even manage tasks with calls such as "modify-task <identifier> <modification>"
+     * @todo Implement waitcounter into each taskQueueWrapper, so each queue can have its own wait counter
+     *       Then, have function such as wait, task, etc. modify a specifiy taskQueue.
+     *       calls with "on-queue", e.g. "on-queue <always/wait/etc.> <args>" can modify specific queues.
      */
 };
 
@@ -59,11 +78,15 @@ public:
     //------------------------------------------
     // Special Member Functions
 
-    // Constructor
+    // Constructor itself notices if multiple instances are created
+    // and throws an error in that case
+
     explicit GlobalSpace(std::string const& name = "Unnamed GlobalSpace");
 
-    // Destructor
     ~GlobalSpace() override = default;
+
+    // Globalspace is wrapped in a singleton pattern
+    // we disallow copying and moving
 
     // Prevent copying
     GlobalSpace(GlobalSpace const&) = delete;
@@ -77,11 +100,13 @@ public:
     // Functions
 
     /**
-     * @brief Parses command line arguments from the main function and sets corresponding variables.
+     * @brief Parses command line arguments from the main function.
+     *        - sets command line variables
+     *        - adds given tasks to the script task queue
      * @param argc The number of command line arguments.
      * @param argv The array of command line argument strings.
      */
-    void parseCommandLineArguments(int const& argc, char const* argv[]);
+    void parseCommandLineArguments(int const& argc, char const** argv);
 
     /**
      * @brief Resolves a task queue by parsing each task and executing it.
@@ -93,9 +118,8 @@ public:
 
     /**
      * @brief Parses the task queue for execution.
-     * 
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
-     * the last critical error code otherwise.
+     *         the last critical error code otherwise.
      */
     Constants::Error parseQueue();
 
@@ -114,6 +138,10 @@ public:
 
     /**
      * @brief Evaluates a string.
+     *        Example: "$i(2 + 2)" -> "4"
+     *        Allowed context:
+     *        - global (GlobalSpace)
+     *        - resources (Read only documents)
      * @param expr The expression to evaluate.
      * @return The evaluated result as a string.
      */
@@ -122,7 +150,13 @@ public:
     }
 
     /**
-     * @brief Evaluates a string with context of a RenderObject.
+     * @brief Evaluates a string with a RenderObject as context "self" and "other".
+     *        Example: "My Value is: {other.positionX}" -> "My Value is: 100"
+     *        Allowed context:
+     *        - self (RenderObject)
+     *        - other (RenderObject)
+     *        - global (GlobalSpace)
+     *        - resources (Read only documents)
      * @param expr The expression to evaluate.
      * @param context The RenderObject providing context for the evaluation.
      * @return The evaluated result as a string.
@@ -133,6 +167,10 @@ public:
 
     /**
      * @brief Evaluates a string and returns the result as a double.
+     *        Example: "$(2 + 2)" -> 4.0
+     *        Allowed context:
+     *        - global (GlobalSpace)
+     *        - resources (Read only documents)
      * @param expr The expression to evaluate.
      * @return The evaluated result as a double.
      */
@@ -141,7 +179,14 @@ public:
     }
 
     /**
-     * @brief Evaluates a string with context of a RenderObject and returns the result as a double.
+     * @brief Evaluates a string with context of a RenderObject "self" and "other"
+     *        and returns the result as a double.
+     *        Example: "$({global.time.dt} * {self.physics.vX})" -> 1.168
+     *        Allowed context:
+     *        - self (RenderObject)
+     *        - other (RenderObject)
+     *        - global (GlobalSpace)
+     *        - resources (Read only documents)
      * @param expr The expression to evaluate.
      * @param context The RenderObject providing context for the evaluation.
      * @return The evaluated result as a double.
@@ -152,6 +197,9 @@ public:
 
     /**
      * @brief Evaluates a string and returns the result as a boolean.
+     *        Allowed context:
+     *        - global (GlobalSpace)
+     *        - resources (Read only documents)
      * @param expr The expression to evaluate.
      * @return The evaluated result as a boolean.
      */
@@ -161,6 +209,11 @@ public:
 
     /**
      * @brief Evaluates a string with context of a RenderObject and returns the result as a boolean.
+     *        Allowed context:
+     *        - self (RenderObject)
+     *        - other (RenderObject)
+     *        - global (GlobalSpace)
+     *        - resources (Read only documents)
      * @param expr The expression to evaluate.
      * @param context The RenderObject providing context for the evaluation.
      * @return The evaluated result as a boolean.
@@ -174,6 +227,10 @@ public:
 
     /**
      * @brief Gets the global queue for function calls.
+     * @return Pointer to the task queue deque for script tasks.
+     * @todo Consider more versatile task queue management in the future.
+     *       Returning the correct deque based on task type, etc.
+     *       With fallback to a default queue if type is unknown.
      */
     std::deque<std::string>* getTaskQueue(){ return &tasks.script.taskQueue; }
 
@@ -207,6 +264,8 @@ public:
     /**
      * @struct Tasks
      * @brief Contains task queues for different types of tasks.
+     * @todo Use a hashmap instead, with a default task queue for unknown types.
+     *       (should be internal task queue)
      */
     struct Tasks{
         taskQueueWrapper script;     // Task queue for script files loaded with "task"
@@ -232,6 +291,10 @@ public:
 
     /**
      * @brief Rolls back all RNGs to their previous state.
+     *        Can be called by any domainModule function
+     *        if you dont want this functioncall to modify RNG state.
+     *        Example: calling a script should not modify RNG, so that we can
+     *                 always load scripts for TAS without RNG state changes.
      */
     void rngRollback(){
         rng.A.rollback();
@@ -247,10 +310,11 @@ public:
     bool shouldContinueLoop() const { return continueLoop; }
 
     enum class UniqueIdType{
-        expression = 0,
-        jsonKey = 1
+        expression,
+        jsonKey,
+        NONE    // Keep this as last entry
     };
-    static constexpr size_t UniqueIdTypeSize = 2;
+    static constexpr size_t UniqueIdTypeSize = static_cast<size_t>(UniqueIdType::NONE) + 1;
 
     /**
      * @brief Gets a unique ID based on a hash string.
