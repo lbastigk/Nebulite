@@ -286,8 +286,7 @@ public:
         bool headless = false; // Headless mode (no window)
         bool recover = false;  // Enable recoverable error mode
         /*Add more variables as needed*/
-    };
-    commandLineVariables cmdVars;
+    } cmdVars;
 
     /**
      * @brief Rolls back all RNGs to their previous state.

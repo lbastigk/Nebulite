@@ -157,10 +157,7 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv){
     }
     else{
         /**
-         * If no addition arguments were provided:
-         *
-         * @note For now, an empty Renderer is initiated via set-fps 60
-         *
+         * @note For now, an empty Renderer is initiated via set-fps 60 if no arguments are provided
          * @todo Later on it might be helpful to insert a task like:
          *       `env-load ./Resources/Levels/main.jsonc`
          *       Which represents the menue screen of the game.
@@ -171,15 +168,10 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv){
          *       but this might become challenging as the user could accidentally overwrite the main state.
          *       Best solution is therefore an env-load, with the environment architecture yet to be defined
          *       best solution is probably:
-         *
          *       - a field with the container
-         *
          *       - a vector which contains tasks to be executed on environment load
-         *
          *       - potentially an extra task vector for tasks that are executed BEFORE the env is loaded
-         *
          *       - potentially an extra task vector for tasks that are executed BEFORE the env is de-loaded
-         *
          *       Keys like: after-load, after-deload, before-load, before-deload
          *       For easier usage, hardcoding the env-load task is not a good idea,
          *       instead call some function like "entrypoint" or "main" which is defined in a GlobalSpace DomainModule
@@ -188,7 +180,6 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv){
          *       as any additional argument would make the entrypoint not be called.
          *       So later on, we might consider always calling entrypoint as first task AFTER the command line arguments are parsed
          *       This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
-         *
          */
         tasks.script.taskQueue.emplace_back("set-fps 60");
     }
@@ -198,11 +189,14 @@ taskQueueResult GlobalSpace::resolveTaskQueue(taskQueueWrapper& tq, uint64_t con
     Constants::Error currentResult;
     taskQueueResult fullResult;
 
-    // If clearAfterResolving, process and pop each element
+    // 1.) Process and pop tasks
     if (tq.clearAfterResolving){
-        while (!tq.taskQueue.empty() && !fullResult.encounteredCriticalResult){
+        while (!tq.taskQueue.empty()){
+            // Check stop conditions
+            if (fullResult.encounteredCriticalResult && !cmdVars.recover) break;
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
+            // Pop front
             std::string argStr = tq.taskQueue.front();
             tq.taskQueue.pop_front();
 
@@ -220,10 +214,12 @@ taskQueueResult GlobalSpace::resolveTaskQueue(taskQueueWrapper& tq, uint64_t con
             }
             fullResult.errors.push_back(currentResult);
         }
-    } else {
-        // If not clearing, process every element without popping
+    }
+    // 2.) Process without popping tasks
+    else {
         for (auto const& argStrOrig : tq.taskQueue){
-            if (fullResult.encounteredCriticalResult) break;
+            // Check stop conditions
+            if (fullResult.encounteredCriticalResult && !cmdVars.recover) break;
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
             // Add binary name if missing
@@ -242,6 +238,7 @@ taskQueueResult GlobalSpace::resolveTaskQueue(taskQueueWrapper& tq, uint64_t con
             fullResult.errors.push_back(currentResult);
         }
     }
+
     return fullResult;
 }
 
