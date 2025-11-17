@@ -96,10 +96,9 @@ public:
      *        - presents the frame
      *        - manages SDL events
      *        - manages state for next frame
-     * @param invoke_ptr Pointer to the current Invoke instance.
      * @return True if update was done, false if skipped (e.g. console mode or other blocking processes are active).
      */
-    bool tick(Interaction::Invoke *invoke_ptr);
+    bool tick();
 
     /**
      * @brief Checks if it's time to render the next frame based on the target FPS.

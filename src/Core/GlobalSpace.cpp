@@ -60,6 +60,8 @@ Constants::Error GlobalSpace::updateInnerDomains() const {
     // Later on the logic here might be more complex
     // As more inner domains are added
     Constants::Error const result = getDoc()->update();
+    // Renderer is not updated here, as it is updated in GlobalSpace::update()
+    // TODO: See if we can generalize this so that we can safely call renderer.update() here as well
     return result;
 }
 
@@ -100,7 +102,7 @@ Constants::Error GlobalSpace::update(){
 
         // Do a Renderer tick and check if an update occurred
         // Reduce script wait counter if not in console mode or other halting states (tick returns false in those cases)
-        if(renderer.tick(&invoke)){
+        if(renderer.tick()){
             if(scriptWaitCounter > 0) scriptWaitCounter--;
         }
 

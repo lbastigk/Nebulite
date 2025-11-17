@@ -231,7 +231,7 @@ void Renderer::loadFonts() {
 
 // For quick and dirty debugging, in case the rendering pipeline breaks somewhere
 //# define debug_on_each_step 1
-bool Renderer::tick(Interaction::Invoke *invoke_ptr) {
+bool Renderer::tick() {
     //------------------------------------------
     // Do all the steps of the rendering pipeline
     clear(); // 1.) Clear screen FIRST, so that functions like snapshot have access to the latest frame
