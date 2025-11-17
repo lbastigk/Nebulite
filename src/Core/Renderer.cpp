@@ -27,26 +27,6 @@ Renderer::Renderer(Utility::JSON* docRef, bool *flag_headless, unsigned int cons
     : Domain("Renderer", this, docRef),
       rngA(hashString("Seed for RNG A")),
       rngB(hashString("Seed for RNG B")) {
-    //------------------------------------------
-    // Depending on platform, set Global key "platform":
-#ifdef _WIN32
-    getDoc()->set<std::string>("platform", "windows");
-#elif __linux__
-    getDoc()->set<std::string>("platform", "linux");
-#elif __APPLE__
-    getDoc()->set<std::string>("platform", "macos");
-#elif __FreeBSD__
-    getDoc()->set<std::string>("platform", "freebsd");
-#elif __unix__
-    getDoc()->set<std::string>("platform", "unix");
-#elif __ANDROID__
-    getDoc()->set<std::string>("platform", "android");
-#elif __TEMPLEOS__
-    printf("Glory be to TempleOS!\n");
-    getDoc()->set<std::string>("platform", "templeos");
-#else
-    getDoc()->set<std::string>("platform", "unknown");
-#endif
 
     //------------------------------------------
     // Initialize internal variables

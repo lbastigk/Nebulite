@@ -404,4 +404,29 @@ Usage: input-wait [prompt]
 Note: This function pauses execution until the user presses Enter.
 )";
 
+//------------------------------------------
+// Private Methods
+
+void Debug::setupPlatformInfo() {
+    #ifdef _WIN32
+        domain->getDoc()->set<std::string>("platform", "windows");
+    #elif __linux__
+        domain->getDoc()->set<std::string>("platform", "linux");
+    #elif __APPLE__
+        domain->getDoc()->set<std::string>("platform", "macos");
+    #elif __FreeBSD__
+        domain->getDoc()->set<std::string>("platform", "freebsd");
+    #elif __unix__
+        domain->getDoc()->set<std::string>("platform", "unix");
+    #elif __ANDROID__
+        domain->getDoc()->set<std::string>("platform", "android");
+    #elif __TEMPLEOS__
+        printf("Glory be to TempleOS!\n");
+        domain->getDoc()->set<std::string>("platform", "templeos");
+    #else
+        domain->getDoc()->set<std::string>("platform", "unknown");
+    #endif
+}
+
+
 } // namespace Nebulite::DomainModule::GlobalSpace

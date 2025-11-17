@@ -178,6 +178,10 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug){
         //------------------------------------------
+        // Show platform info
+        setupPlatformInfo();
+
+        //------------------------------------------
         // Binding functions to the FuncTree
         bindFunction(&Debug::errorlog,          errorlog_name,                 &errorlog_desc);
         bindFunction(&Debug::clearConsole,      clearConsole_name,             &clearConsole_desc);
@@ -203,6 +207,11 @@ private:
     // false : logging to cerr
     // true  : logging to file
     bool errorLogStatus = false;
+
+    /**
+     * @brief Sets up platform information in the global document.
+     */
+    void setupPlatformInfo();
 };
 }   // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_GSDM_DEBUG_HPP
