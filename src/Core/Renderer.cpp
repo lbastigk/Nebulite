@@ -23,8 +23,9 @@
 //------------------------------------------
 namespace Nebulite::Core {
 
-Renderer::Renderer(Utility::JSON* docRef, bool *flag_headless, unsigned int const &X, unsigned int const &Y)
+Renderer::Renderer(Utility::JSON *docRef, bool *flag_headless, unsigned int const &X, unsigned int const &Y)
     : Domain("Renderer", this, docRef),
+      env(docRef),
       rngA(hashString("Seed for RNG A")),
       rngB(hashString("Seed for RNG B")) {
 
@@ -254,7 +255,7 @@ bool Renderer::timeToRender() {
     static std::uniform_real_distribution<double> distribution(0.0, 1.0);
     static std::mt19937 randNum(hashString("RNG for FPS control"));
     double const target = 1000.0 / static_cast<double>(fps.target);
-    double const remainder = target - static_cast<double>(static_cast<uint32_t>(target));    // between 0.0 and 1.0
+    double const remainder = target - static_cast<double>(static_cast<uint32_t>(target)); // between 0.0 and 1.0
     uint32_t const adjustedTarget = static_cast<uint32_t>(target) + (distribution(randNum) < remainder ? 1 : 0);
     return fps.controlTimer.projected_dt() >= adjustedTarget;
 }
@@ -280,7 +281,7 @@ void Renderer::reinsertAllObjects() {
     env.reinsertAllObjects(
         getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResX, 0),
         getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResY, 0)
-    );
+        );
 }
 
 //------------------------------------------
@@ -458,7 +459,7 @@ void Renderer::setCam(int const &X, int const &Y, bool const &isMiddle) const {
 //------------------------------------------
 // Setting
 
-void Renderer::setTargetFPS(uint16_t const& targetFps) {
+void Renderer::setTargetFPS(uint16_t const &targetFps) {
     fps.target = targetFps;
 }
 
@@ -483,7 +484,7 @@ void Renderer::updateState() {
     // Update environment
     auto const dispResX = getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResX, 0);
     auto const dispResY = getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResY, 0);
-    env.update(tilePositionX, tilePositionY, dispResX, dispResY);
+    env.updateObjects(tilePositionX, tilePositionY, dispResX, dispResY);
 }
 
 void Renderer::renderFrame() {

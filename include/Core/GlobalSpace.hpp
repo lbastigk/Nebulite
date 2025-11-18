@@ -49,8 +49,8 @@ struct taskQueueWrapper {
      *       that we wish to execute in a different manner.
      *       This could allow us to auto-sort tasks into e.g. always-tasks etc.
      *       or even manage tasks with calls such as "modify-task <identifier> <modification>"
-     * @todo Implement waitcounter into each taskQueueWrapper, so each queue can have its own wait counter
-     *       Then, have function such as wait, task, etc. modify a specifiy taskQueue.
+     * @todo Implement waitCounter into each taskQueueWrapper, so each queue can have its own wait counter
+     *       Then, have function such as wait, task, etc. modify a specify taskQueue.
      *       calls with "on-queue", e.g. "on-queue <always/wait/etc.> <args>" can modify specific queues.
      */
 };
@@ -291,7 +291,7 @@ public:
     /**
      * @brief Rolls back all RNGs to their previous state.
      *        Can be called by any domainModule function
-     *        if you dont want this functioncall to modify RNG state.
+     *        if you don't want this functioncall to modify RNG state.
      *        Example: calling a script should not modify RNG, so that we can
      *                 always load scripts for TAS without RNG state changes.
      */

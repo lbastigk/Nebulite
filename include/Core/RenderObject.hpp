@@ -1,8 +1,6 @@
 /**
  * @file RenderObject.hpp
  * @brief Declaration of the RenderObject class.
- * 
- * Defines the Nebulite::Core::RenderObject class.
  */
 
 #ifndef NEBULITE_CORE_RENDEROBJECT_HPP
@@ -36,45 +34,8 @@ namespace Nebulite::Core {
 /**
  * @class Nebulite::Core::RenderObject
  * @brief Represents a renderable object in the Nebulite engine.
- * This class encapsulates all data and logic needed to
- * display, update, and interact with a single object on the screen.
- *
- * Key Features:
- *
- *   - Stores all render-related data in an internal JSON document for flexible property management.
- *
- *   - Provides methods for serialization and deserialization to and from strings or files.
- *
- *   - Supports dynamic property access and modification via set/get templates.
- *
- *   - Manages SDL_Rect structures for sprite and text positioning, and caches these for performance.
- *
- *   - Handles text rendering using SDL_ttf, including texture creation and caching.
- *
- *   - Supports invoke command lists for both general (global) and internal (local) interactions.
- *
- *   - Offers update and reload mechanisms to synchronize state with global invokes and JSON data.
- *
- *   - Calculates computational cost estimates for update operations.
- *
- *   - allows for flexible additions through DomainModules for local function calls.
- *
- * Interaction with Invoke:
- *
- *   - Invokes are loaded in from JSON files and categorized into global and local commands.
- *
- *   - Global commands are based on a self-other-global interaction model, while local commands are focused on self-global interactions.
- *     They are broadcasted to the Invoke class on defined topics to find matching objects that are listening to those topics.
- *
- *   - Local commands are defined by an empty topic and are based on a self-global interaction model.
- *
- * Usage:
- *
- *   - Instantiate a RenderObject to represent a sprite, text, or other visual entity. Create a JSON document to hold its properties.
- *
- *   - Append the RenderObject to the Renderer via `./bin/Nebulite spawn myObject.json`
- *
- * Copy and move operations are disabled to prevent accidental resource duplication.
+ *        This class encapsulates all data and logic needed to
+ *        display, update, and interact with a single object on the screen.
  */
 NEBULITE_DOMAIN(RenderObject) {
 public:
@@ -88,9 +49,8 @@ public:
 
     /**
      * @brief Destroys the RenderObject.
-     *
-     * Cleans up any resources used by the RenderObject, including
-     * textures and surfaces.
+     *        Cleans up any resources used by the RenderObject, including
+     *        textures and surfaces.
      */
     ~RenderObject() override;
 
@@ -106,42 +66,36 @@ public:
 
     /**
      * @brief Serializes the RenderObject to a JSON string.
-     *
      * @return A string representation of the RenderObject's JSON document.
      */
     std::string serialize();
 
     /**
      * @brief Deserializes the RenderObject from a JSON string.
-     *
      * @param serialOrLink The JSON string to deserialize.
      */
     void deserialize(std::string const &serialOrLink);
 
     /**
      * @brief Gets a pointer to the SDL_Rect describing the destination of the sprite.
-     *
      * @return A pointer to the SDL_Rect describing the destination of the sprite.
      */
     SDL_Rect *getDstRect();
 
     /**
      * @brief Gets a pointer to the SDL_Rect describing the source of the sprite.
-     *
      * @return A pointer to the SDL_Rect describing the source of the sprite.
      */
     SDL_Rect *getSrcRect();
 
     /**
      * @brief Gets a pointer to the SDL_Rect describing the destination of the text.
-     *
      * @return A pointer to the SDL_Rect describing the destination of the text.
      */
     SDL_Rect *getTextRect();
 
     /**
      * @brief Gets the texture of the text.
-     *
      * @return A pointer to the SDL_Texture representing the text.
      */
     [[nodiscard]] SDL_Texture *getTextTexture() const;
@@ -151,26 +105,18 @@ public:
 
     /**
      * @brief Updates the RenderObject.
-     *
-     * - updates the domain
-     *
-     * - reloads rulesets if needed
-     *
-     * - updates local rulesets
-     *
-     * - listens to global rulesets
-     *
-     * - broadcasts its own global rulesets
-     *
-     * - calculates source and destination rects
-     *
+     *        - updates the domain
+     *        - reloads rulesets if needed
+     *        - updates local rulesets
+     *        - listens to global rulesets
+     *        - broadcasts its own global rulesets
+     *        - calculates source and destination rects
      * @return Constants::Error indicating success or failure.
      */
     Constants::Error update() override;
 
     /**
      * @brief Calculates the text texture for the RenderObject.
-     *
      * @param renderer The SDL_Renderer to use for rendering.
      * @param font The TTF_Font to use for rendering the text.
      * @param renderPositionX The X position of the renderer used for text offset.
@@ -191,9 +137,7 @@ public:
 
     /**
      * @brief Estimates the computational cost of updating the RenderObject.
-     *
-     * Based on the amount of evaluations and variables in the ruleset.
-     *
+     *        Based on the amount of evaluations and variables in the ruleset.
      * @param onlyInternal If true, only considers internal rulesets. Defaults to true.
      * @return The estimated computational cost.
      */
@@ -216,17 +160,15 @@ public:
     // Texture related
 
     /**
- * @brief Links an external SDL_Texture to this domain.
- *
- * @param externalTexture Pointer to the external SDL_Texture.
- */
+     * @brief Links an external SDL_Texture to this domain.
+     * @param externalTexture Pointer to the external SDL_Texture.
+     */
     void linkExternalTexture(SDL_Texture *externalTexture) {
         baseTexture.linkExternalTexture(externalTexture);
     }
 
     /**
      * @brief Checks if the texture has been modified.
-     *
      * @return true if the texture has been modified, false otherwise.
      */
     [[nodiscard]] bool isTextureStoredLocally() const {
@@ -235,7 +177,6 @@ public:
 
     /**
      * @brief Checks if the texture is valid (not null).
-     *
      * @return true if the texture is valid, false otherwise.
      */
     [[nodiscard]] bool isTextureValid() const {
@@ -244,13 +185,16 @@ public:
 
     /**
      * @brief Gets the current SDL_Texture.
-     *
      * @return Pointer to the current SDL_Texture.
      */
     [[nodiscard]] SDL_Texture *getSDLTexture() const {
         return baseTexture.getSDLTexture();
     }
 
+    /**
+     * @brief Gets the Texture object.
+     * @return Pointer to the Texture object.
+     */
     Texture *getTexture() {
         return &baseTexture;
     }
@@ -277,9 +221,10 @@ private:
     /**
      * @struct FrequentRefs
      * @brief Holds frequently used references for quick access.
-     *
      * @note Another option would be to use static pointers for each method that needs them,
      *       making variables more enclosed to their use case, but that would create duplicate pointers.
+     *       So this is a compromise between encapsulation and memory usage.
+     *       Later on, we may wish to use static in-function pointers like it's planned for rulesets.
      */
     struct FrequentRefs {
         // Identity
@@ -322,8 +267,8 @@ private:
     // === TO REWORK ===
 
     // for caching of SDL Positions
-    SDL_Rect dstRect = {0, 0, 0, 0}; // destination of sprite
-    SDL_Rect srcRect = {0, 0, 0, 0}; // source of sprite from spritesheet
+    SDL_Rect dstRect = {0, 0, 0, 0};  // destination of sprite
+    SDL_Rect srcRect = {0, 0, 0, 0};  // source of sprite from spritesheet
     SDL_Rect textRect = {0, 0, 0, 0}; // destination of text texture
 
     // Surface and Texture of Text
@@ -332,11 +277,11 @@ private:
 
     // ==================
 
-
     //------------------------------------------
-    // Invoke Commands
-    std::vector<std::shared_ptr<Interaction::Ruleset>> entries_global; // Global commands, intended for self-other-global interaction
-    std::vector<std::shared_ptr<Interaction::Ruleset>> entries_local; // Internal commands, intended for self-global interaction
+    // Ruleset Management
+
+    std::vector<std::shared_ptr<Interaction::Ruleset>> entries_global; // Global rulesets, intended for self-other-global interaction
+    std::vector<std::shared_ptr<Interaction::Ruleset>> entries_local;  // Internal rulesets, intended for self-global interaction
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_CORE_RENDEROBJECT_HPP
