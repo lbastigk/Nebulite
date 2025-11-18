@@ -312,7 +312,7 @@ public:
      * @enum UniqueIdType
      * @brief Types of unique ID spaces.
      *        We allow for multiple unique ID spaces so that different systems
-     *        can have their own unique IDs without interfering their counters.
+     *        are all in their own container.
      */
     enum class UniqueIdType {
         expression, // Each expression gets a unique ID
