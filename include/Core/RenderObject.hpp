@@ -22,11 +22,12 @@
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Interaction {
-    class Invoke;
-    struct Ruleset;
+class Invoke;
+struct Ruleset;
 }
+
 namespace Nebulite::Utility {
-    class JSON;
+class JSON;
 }
 
 //------------------------------------------
@@ -267,8 +268,8 @@ private:
     // === TO REWORK ===
 
     // for caching of SDL Positions
-    SDL_Rect dstRect = {0, 0, 0, 0};  // destination of sprite
-    SDL_Rect srcRect = {0, 0, 0, 0};  // source of sprite from spritesheet
+    SDL_Rect dstRect = {0, 0, 0, 0}; // destination of sprite
+    SDL_Rect srcRect = {0, 0, 0, 0}; // source of sprite from spritesheet
     SDL_Rect textRect = {0, 0, 0, 0}; // destination of text texture
 
     // Surface and Texture of Text
@@ -281,7 +282,7 @@ private:
     // Ruleset Management
 
     std::vector<std::shared_ptr<Interaction::Ruleset>> entries_global; // Global rulesets, intended for self-other-global interaction
-    std::vector<std::shared_ptr<Interaction::Ruleset>> entries_local;  // Internal rulesets, intended for self-global interaction
+    std::vector<std::shared_ptr<Interaction::Ruleset>> entries_local; // Internal rulesets, intended for self-global interaction
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_CORE_RENDEROBJECT_HPP
