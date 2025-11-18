@@ -35,8 +35,8 @@ namespace Nebulite::Core {
  * @brief Represents a queue of tasks to be processed by the engine, including metadata.
  */
 struct taskQueueWrapper {
-    std::deque<std::string> taskQueue;  // List of tasks
-    bool clearAfterResolving = true;    // Whether to clear the task list after resolving
+    std::deque<std::string> taskQueue; // List of tasks
+    bool clearAfterResolving = true; // Whether to clear the task list after resolving
     /**
      * @note Add more metadata as needed, for resolveTaskQueue() to use
      *       in case new task types are added in the future.
@@ -60,7 +60,7 @@ struct taskQueueWrapper {
  *        This structure holds the outcome of processing a task queue, including any errors
  *        encountered during resolution and whether the process was halted due to a critical error.
  */
-struct taskQueueResult{
+struct taskQueueResult {
     bool encounteredCriticalResult = false;
     std::vector<Constants::Error> errors;
 };
@@ -73,7 +73,7 @@ struct taskQueueResult{
  * @brief Declares the core types, global objects, and functions for the Nebulite Engine.
  *        Used as a global workspace for functionality such as Rendering, Time, RNGs, etc.
  */
-NEBULITE_DOMAIN(GlobalSpace){
+NEBULITE_DOMAIN(GlobalSpace) {
 public:
     //------------------------------------------
     // Special Member Functions
@@ -81,7 +81,7 @@ public:
     // Constructor itself notices if multiple instances are created
     // and throws an error in that case
 
-    explicit GlobalSpace(std::string const& name = "Unnamed GlobalSpace");
+    explicit GlobalSpace(std::string const &name = "Unnamed GlobalSpace");
 
     ~GlobalSpace() override = default;
 
@@ -89,12 +89,12 @@ public:
     // we disallow copying and moving
 
     // Prevent copying
-    GlobalSpace(GlobalSpace const&) = delete;
-    GlobalSpace& operator=(GlobalSpace const&) = delete;
+    GlobalSpace(GlobalSpace const &) = delete;
+    GlobalSpace &operator=(GlobalSpace const &) = delete;
 
     // Prevent moving
-    GlobalSpace(GlobalSpace&&) = delete;
-    GlobalSpace& operator=(GlobalSpace&&) = delete;
+    GlobalSpace(GlobalSpace &&) = delete;
+    GlobalSpace &operator=(GlobalSpace &&) = delete;
 
     //------------------------------------------
     // Functions
@@ -106,7 +106,7 @@ public:
      * @param argc The number of command line arguments.
      * @param argv The array of command line argument strings.
      */
-    void parseCommandLineArguments(int const& argc, char const** argv);
+    void parseCommandLineArguments(int const &argc, char const **argv);
 
     /**
      * @brief Resolves a task queue by parsing each task and executing it.
@@ -114,7 +114,7 @@ public:
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
      */
-    taskQueueResult resolveTaskQueue(taskQueueWrapper& tq, uint64_t const* waitCounter) const ;
+    taskQueueResult resolveTaskQueue(taskQueueWrapper &tq, uint64_t const *waitCounter) const;
 
     /**
      * @brief Parses the task queue for execution.
@@ -132,7 +132,7 @@ public:
     /**
      * @brief Quits the renderer by setting the quit flag.
      */
-    void quitRenderer(){
+    void quitRenderer() {
         renderer.setQuit();
     }
 
@@ -145,7 +145,7 @@ public:
      * @param expr The expression to evaluate.
      * @return The evaluated result as a string.
      */
-    std::string eval(std::string const& expr) const {
+    std::string eval(std::string const &expr) const {
         return invoke.evaluateStandaloneExpression(expr);
     }
 
@@ -161,7 +161,7 @@ public:
      * @param context The RenderObject providing context for the evaluation.
      * @return The evaluated result as a string.
      */
-    std::string eval(std::string const& expr, RenderObject const* context) const {
+    std::string eval(std::string const &expr, RenderObject const *context) const {
         return invoke.evaluateStandaloneExpression(expr, context);
     }
 
@@ -174,7 +174,7 @@ public:
      * @param expr The expression to evaluate.
      * @return The evaluated result as a double.
      */
-    double evalAsDouble(std::string const& expr) const {
+    double evalAsDouble(std::string const &expr) const {
         return invoke.evaluateStandaloneExpressionAsDouble(expr);
     }
 
@@ -191,7 +191,7 @@ public:
      * @param context The RenderObject providing context for the evaluation.
      * @return The evaluated result as a double.
      */
-    double evalAsDouble(std::string const& expr, RenderObject const* context) const {
+    double evalAsDouble(std::string const &expr, RenderObject const *context) const {
         return invoke.evaluateStandaloneExpressionAsDouble(expr, context);
     }
 
@@ -203,7 +203,7 @@ public:
      * @param expr The expression to evaluate.
      * @return The evaluated result as a boolean.
      */
-    bool evalAsBool(std::string const& expr) const {
+    bool evalAsBool(std::string const &expr) const {
         return invoke.evaluateStandaloneExpressionAsBool(expr);
     }
 
@@ -218,7 +218,7 @@ public:
      * @param context The RenderObject providing context for the evaluation.
      * @return The evaluated result as a boolean.
      */
-    bool evalAsBool(std::string const& expr, RenderObject const* context) const {
+    bool evalAsBool(std::string const &expr, RenderObject const *context) const {
         return invoke.evaluateStandaloneExpressionAsBool(expr, context);
     }
 
@@ -232,31 +232,31 @@ public:
      *       Returning the correct deque based on task type, etc.
      *       With fallback to a default queue if type is unknown.
      */
-    std::deque<std::string>* getTaskQueue(){ return &tasks.script.taskQueue; }
+    std::deque<std::string> *getTaskQueue() { return &tasks.script.taskQueue; }
 
     /**
      * @brief Gets a pointer to the Renderer instance.
      * @return Pointer to the Renderer instance.
      */
-    Renderer* getRenderer(){ return &renderer; }
+    Renderer *getRenderer() { return &renderer; }
 
     /**
      * @brief Gets a pointer to the SDL Renderer instance.
      * @return Pointer to the SDL_Renderer instance.
      */
-    SDL_Renderer* getSdlRenderer() const { return renderer.getSdlRenderer(); }
+    SDL_Renderer *getSdlRenderer() const { return renderer.getSdlRenderer(); }
 
     /**
      * @brief Gets a pointer to the Invoke instance.
      * @return Pointer to the Invoke instance.
      */
-    Interaction::Invoke* getInvoke(){ return &invoke; }
+    Interaction::Invoke *getInvoke() { return &invoke; }
 
     /**
      * @brief Gets a pointer to the global document cache.
      * @return Pointer to the DocumentCache instance.
      */
-    Utility::DocumentCache* getDocCache(){ return &docCache; }
+    Utility::DocumentCache *getDocCache() { return &docCache; }
 
     //------------------------------------------
     // Public Variables
@@ -267,10 +267,10 @@ public:
      * @todo Use a hashmap instead, with a default task queue for unknown types.
      *       (should be internal task queue)
      */
-    struct Tasks{
-        taskQueueWrapper script;     // Task queue for script files loaded with "task"
-        taskQueueWrapper internal;   // Internal task queue from renderObjects, console, etc.
-        taskQueueWrapper always;     // Always-tasks added with the prefix "always "
+    struct Tasks {
+        taskQueueWrapper script; // Task queue for script files loaded with "task"
+        taskQueueWrapper internal; // Internal task queue from renderObjects, console, etc.
+        taskQueueWrapper always; // Always-tasks added with the prefix "always "
     } tasks;
 
     // Wait counter for script tasks
@@ -282,9 +282,9 @@ public:
     //------------------------------------------
     // DomainModule variables
 
-    struct commandLineVariables{
+    struct commandLineVariables {
         bool headless = false; // Headless mode (no window)
-        bool recover = false;  // Enable recoverable error mode
+        bool recover = false; // Enable recoverable error mode
         /*Add more variables as needed*/
     } cmdVars;
 
@@ -295,7 +295,7 @@ public:
      *        Example: calling a script should not modify RNG, so that we can
      *                 always load scripts for TAS without RNG state changes.
      */
-    void rngRollback(){
+    void rngRollback() {
         rng.A.rollback();
         rng.B.rollback();
         rng.C.rollback();
@@ -308,11 +308,21 @@ public:
      */
     bool shouldContinueLoop() const { return continueLoop; }
 
-    enum class UniqueIdType{
-        expression,
-        jsonKey,
-        NONE    // Keep this as last entry
+    /**
+     * @enum UniqueIdType
+     * @brief Types of unique ID spaces.
+     *        We allow for multiple unique ID spaces so that different systems
+     *        can have their own unique IDs without interfering their counters.
+     */
+    enum class UniqueIdType {
+        expression, // Each expression gets a unique ID
+        jsonKey, // Each JSON key gets a unique ID
+        NONE // Keep this as last entry
     };
+
+    /**
+     * @brief Amount of different UniqueIdTypes.
+     */
     static constexpr size_t UniqueIdTypeSize = static_cast<size_t>(UniqueIdType::NONE) + 1;
 
     /**
@@ -322,10 +332,9 @@ public:
      * @param type Which rolling counter to use for the unique ID, allowing for separate ID spaces.
      * @return The unique ID corresponding to the hash.
      */
-    uint64_t getUniqueId(std::string const& hash, UniqueIdType type){
-        // Lock and check if hash exists. If not, create new ID
+    uint64_t getUniqueId(std::string const &hash, UniqueIdType type) {
         std::scoped_lock lock(uniqueIdMutex[static_cast<size_t>(type)]);
-        if(auto const it = uniqueIdMap[static_cast<size_t>(type)].find(hash); it != uniqueIdMap[static_cast<size_t>(type)].end()){
+        if (auto const it = uniqueIdMap[static_cast<size_t>(type)].find(hash); it != uniqueIdMap[static_cast<size_t>(type)].end()) {
             return it->second;
         }
         uint64_t const newId = uniqueIdCounter[static_cast<size_t>(type)]++;
@@ -365,30 +374,30 @@ private:
      * @brief Holds the results of resolving different task queues.
      */
     struct QueueResult {
-        taskQueueResult script;       // Result of script-tasks
-        taskQueueResult internal;     // Result of internal-tasks
-        taskQueueResult always;       // Result of always-tasks
+        taskQueueResult script; // Result of script-tasks
+        taskQueueResult internal; // Result of internal-tasks
+        taskQueueResult always; // Result of always-tasks
     } queueResult;
 
     /**
      * @struct names
      * @brief Contains names used in the global space that are not bound to the global document.
      */
-    struct names{
-        std::string state;      // Name of the state where files are saved (equal to savegame name)
-        std::string binary;     // Name of the binary, used for parsing arguments
-    }names;
+    struct names {
+        std::string state; // Name of the state where files are saved (equal to savegame name)
+        std::string binary; // Name of the binary, used for parsing arguments
+    } names;
 
     /**
      * @struct RngVars
      * @brief Contains RNG instances used in the global space.
      */
-    struct RngVars{
-        using rngSize_t = uint16_t;            // Modify this to change the size of the RNGs
-        Utility::RNG<rngSize_t> A;   // RNG with key random.A
-        Utility::RNG<rngSize_t> B;   // RNG with key random.B
-        Utility::RNG<rngSize_t> C;   // RNG with key random.C
-        Utility::RNG<rngSize_t> D;   // RNG with key random.D
+    struct RngVars {
+        using rngSize_t = uint16_t; // Modify this to change the size of the RNGs
+        Utility::RNG<rngSize_t> A; // RNG with key random.A
+        Utility::RNG<rngSize_t> B; // RNG with key random.B
+        Utility::RNG<rngSize_t> C; // RNG with key random.C
+        Utility::RNG<rngSize_t> D; // RNG with key random.D
     } rng;
 
     //------------------------------------------
@@ -414,5 +423,5 @@ private:
      */
     Constants::Error updateInnerDomains() const;
 };
-}   // namespace Nebulite::Core
+} // namespace Nebulite::Core
 #endif // NEBULITE_CORE_GLOBALSPACE_HPP
