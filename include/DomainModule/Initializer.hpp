@@ -18,9 +18,9 @@
 namespace Nebulite{
     namespace Core{
         class GlobalSpace;
+        class RenderObject;
         class Renderer;
         class Texture;
-        class RenderObject;
     }
     namespace Utility{
         class JSON;
@@ -39,10 +39,19 @@ namespace Nebulite::DomainModule {
  */
 class Initializer{
 public:
+    /**
+     * @brief Initializes DomainModules for the GlobalSpace Domain.
+     * @param target Pointer to the GlobalSpace domain to initialize.
+     */
     static void initGlobalSpace(Core::GlobalSpace* target);
 
+    /**
+     * @brief Initializes DomainModules for the JSON Domain.
+     * @param target Pointer to the JSON domain to initialize.
+     */
     static void initJSON(Utility::JSON* target);
 
+    
     static void initRenderObject(Core::RenderObject* target);
 
     static void initRenderer(Core::Renderer* target);
