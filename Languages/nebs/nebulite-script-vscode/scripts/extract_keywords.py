@@ -135,6 +135,10 @@ def update_tmlanguage_file(keywords):
         print("Keywords were still saved to keywords.json")
 
 def main():
+    # TODO: Use command documentation markdown file instead of parsing source files directly.
+    # for now, we exit directly and tell the user this version is deprecated.
+    system.exit("This script is deprecated as it does not work with the new naming conventions. Please send a pull request to update it to use the command documentation markdown file instead.")
+
     keywords = extract_keywords()
     save_keywords_to_file(keywords)
     update_tmlanguage_file(keywords)

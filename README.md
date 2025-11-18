@@ -5,9 +5,9 @@
 
 [![Author](https://img.shields.io/badge/Author-lbastigk-blue)](https://github.com/lbastigk)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE.md)
-[![C++ Standard](https://img.shields.io/badge/C%2B%2B-20-blue)]()
+[![C++ Standard](https://img.shields.io/badge/C%2B%2B-23-blue)]()
 [![Status](https://img.shields.io/badge/State-Active%20Dev-orange)]()
-<!-- Add a CI badge once available: [![Build](https://github.com/<org>/<repo>/actions/workflows/build.yml/badge.svg)]() -->
+
 
 <strong>A data‑driven 2D engine + declarative DSL for rapid experimentation with object interactions and emergent mechanics.</strong>
 
@@ -30,15 +30,14 @@
 - [Quick Start](#quick-start)
 - [Learn More](#learn-more)
 - [Core Concepts](#core-concepts)
-   * [Expression System](#expression-system)
-   * [Invoke System  ](#invoke-system)
-   * [Runtime Modes](#runtime-modes)
-- [Directory Structure](#directory-structure)
+  * [Expression System](#expression-system)
+  * [Invoke System  ](#invoke-system)
+  * [Runtime Modes](#runtime-modes)
 - [Platform Support & Dependencies](#platform-support-dependencies)
 - [Testing](#testing)
 - [Languages](#languages)
-   * [Nebulite Script](#nebulite-script)
-   * [Nebulite Logic](#nebulite-logic)
+  * [Nebulite Script](#nebulite-script)
+  * [Nebulite Logic](#nebulite-logic)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -77,7 +76,7 @@ The goal: quickly prototype and iterate on emergent object logic without rebuild
   cmake --preset windows-debug && cmake --build --preset windows-debug
   cmake --preset windows-release && cmake --build --preset windows-release
 
-  # Mac (Work in Progress)
+  # Mac
   cmake --preset macos-debug && cmake --build --preset macos-debug
   cmake --preset macos-release && cmake --build --preset macos-release
 ```
@@ -90,8 +89,6 @@ The goal: quickly prototype and iterate on emergent object logic without rebuild
   ./bin/Nebulite task TaskFiles/Benchmarks/gravity.nebs 
   ```
 4. Open console (press `tab`) and type `help` for interactive commands.
-
-After making changes, you can run the VSCode task `[BUILD]` to recompile, or run `./build.sh`.
 
 <!-- TOC --><a name="learn-more"></a>
 ## Learn More
@@ -109,10 +106,10 @@ Access and manipulate data using variables `{...}` and mathematical expressions 
 
 **Variable Contexts:**
 - `{self.*}` - the object broadcasting logic
-- `{other.*}` - objects listening to the broadcast  
+- `{other.*}` - objects listening to the broadcast
 - `{global.*}` - shared engine state
 - `{file.json:key.path}` - external read-only JSON files
-- `{global.{self.id}}` - nested resolution (multiresolve), works only outside of mathematical expressions.
+- `{global.{self.id}}` - nested resolution (multiresolve), works only outside mathematical expressions.
 
 **Mathematical Expressions:**
 - `$(1 + 2 * {self.mass})` - arithmetic with variables
@@ -122,13 +119,13 @@ Access and manipulate data using variables `{...}` and mathematical expressions 
 **Example:** `"other.physics.aY += $({global.physics.G} * {self.physics.mass})"`
 
 <!-- TOC --><a name="invoke-system"></a>
-### Invoke System  
+### Invoke System
 Define object interactions via JSON rulesets:
-```jsonc
+```json
 {
-  "topic": "gravity",           // Broadcast channel
-  "logicalArg": "1",           // Condition to execute
-  "exprs": [                   // Modify values
+  "topic": "gravity",            // Broadcast channel
+  "logicalArg": "1",             // Condition to execute
+  "exprs": [                     // Modify values
     "other.physics.aY += $({global.physics.G} * {self.physics.mass})"
   ],
   "functioncalls_global": [...], // Commands to parse on domain GlobalSpace
@@ -140,44 +137,20 @@ Define object interactions via JSON rulesets:
 <!-- TOC --><a name="runtime-modes"></a>
 ### Runtime Modes
 - **Interactive**: Press `tab` for live console
-- **Task Files**: `./bin/Nebulite task script.nebs` 
+- **Task Files**: `./bin/Nebulite task script.nebs`
 - **Headless**: `--headless` for automation/testing
 - **CLI**: `./bin/Nebulite 'command ; chain'`
-
-<!-- TOC --><a name="directory-structure"></a>
-## Directory Structure
-
-```bash
-Nebulite/
-├── bin/                      # Compiled binaries
-├── doc/                      # Documentation: UML-Diagrams, example gifs, screenshots
-├── external/                 # Third-party dependencies
-├── include/                  # Header files:
-│   ├── Constants/            # - constants like key names, thread settings etc.
-│   ├── Core/                 # - core components
-│   ├── DomainModule/         # - modules specific to certain domains
-│   ├── Interaction/          # - parsing, expressions, manipulation
-│   ├── Utility/              # - string-modification, JSON, caching etc.
-│   └── Nebulite.h            # - namespace documentation
-├── Languages/                # VSCode extension for .nebs and .nebl files
-├── Resources/                # Game assets and data
-├── Scripts/                  # Various scripts for asset creation, file validation, tests etc.
-├── src/                      # Engine source code
-├── TaskFiles/                # Example scripts
-├── Tools/                    # CMake Toolchains, Test definitions
-└── Unimplemented/            # Unimplemented DomainModules
-```
 
 <!-- TOC --><a name="platform-support-dependencies"></a>
 ## Platform Support & Dependencies
 
-**Platforms**: Linux (native), Windows (cross-compiled via MinGW-w64)
+**Platforms**: Linux (native), Windows (cross-compiled via MinGW-w64), MacOS
 
-**Requirements**: CMake 3.16+, C++20 compiler (GCC 11+/Clang 14+), Python 3.8+ (for testing and mock asset creation)
+**Requirements**: CMake 3.16+, C++23 compiler, Python 3.8+ (for testing and mock asset creation)
 
 **Dependencies**
 - SDL2, SDL_ttf, SDL_image - rendering and input
-- RapidJSON - JSON parsing  
+- RapidJSON - JSON parsing
 - Abseil - fast hash maps
 - Tinyexpr - expression evaluation
 
@@ -188,7 +161,6 @@ Run validation and tests:
 ```bash
 python Scripts/TestingSuite.py --stop --verbose
 ```
-Or use VS Code task: `[BUILD + TEST]`
 
 <!-- TOC --><a name="languages"></a>
 ## Languages
@@ -198,12 +170,14 @@ Or use VS Code task: `[BUILD + TEST]`
 
 The `.nebs` *(Nebulite Script)* language is used for parsing commands in different domains.
 
-Nebulite includes a VSCode language extension in `./Languages/nebulite-script-vscode/`. 
+Nebulite includes a VSCode language extension in `./Languages/nebulite-script-vscode/`.
 The extension offers proper syntax highlight for:
 - available functions
 - variables
 - comments
 - print-strings (everything after echo/error : meaning its printed to the command line)
+
+Language extensions for other editors may be added in the future.
 
 Run `build-and-install.sh` inside its directory for installation.
 

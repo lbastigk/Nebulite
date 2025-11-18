@@ -2,7 +2,7 @@
 
 This documentation is automatically generated from the Nebulite executable.
 
-Generated on: Tue Oct 21 20:11:39 CEST 2025
+Generated on: Tue Nov 18 10:12:07 CET 2025
 
 ## GlobalSpace Commands
 
@@ -34,6 +34,7 @@ Help for Nebulite
 | `errorlog` | Activates or deactivates error logging to a file. |
 | `eval` | Evaluates an expression string and executes it. |
 | `exit` | Exits the entire program. |
+| `feature-test` | Functions for testing features in the GlobalSpace |
 | `for` | Executes a for-loop with a function call. |
 | `help` | Show available commands and their descriptions |
 | `if` | Executes a block of code if a condition is true. |
@@ -66,18 +67,26 @@ Help for Nebulite
 
 | Variable | Description |
 |----------|-------------|
-| `--headless` | Set headless mode (no renderer) |
-| `--recover` | Enable recoverable error mode |
+| `headless` | Set headless mode (no renderer) |
+| `recover` | Enable recoverable error mode |
 
 #### `add-clock`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'add-clock':
+
 Adds a clock with specified interval (ms) to the global clock system
 ```
 
 #### `always`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'always':
+
 Attach a command to the always-taskqueue that is executed on each tick.
 
 Usage: always <command>
@@ -90,6 +99,10 @@ This will output "This command runs every frame!" on every frame.
 #### `always-clear`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'always-clear':
+
 Clears the entire always-taskqueue.
 
 Usage: always-clear
@@ -102,6 +115,10 @@ This will remove all commands from the always-taskqueue.
 #### `assert`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'assert':
+
 Asserts a condition and throws a custom error if false.
 
 Usage: assert <condition>
@@ -117,12 +134,22 @@ Assertion failed: $(eq(1+1,3)) is not true.
 #### `beep`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'beep':
+
 Make a beep noise.
 
 Usage: beep
 ```
 
 #### `cam`
+
+```
+Show available commands and their descriptions
+
+Help for cam
+```
 
 ### Available Functions
 
@@ -135,6 +162,10 @@ Usage: beep
 ##### `cam move`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'move':
+
 Move camera by a given delta.
 
 Usage: cam move <dx> <dy>
@@ -146,6 +177,10 @@ Usage: cam move <dx> <dy>
 ##### `cam set`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'set':
+
 Set camera to concrete position.
 
 Usage: cam set <x> <y> [c]
@@ -158,6 +193,10 @@ Usage: cam set <x> <y> [c]
 #### `clear`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'clear':
+
 Clears the console screen.
 
 Usage: clear
@@ -168,26 +207,53 @@ Note: This function attempts to clear the console screen using system-specific c
 
 #### `console`
 
+```
+Show available commands and their descriptions
+
+Help for console
+```
+
 ### Available Functions
 
 | Function | Description |
 |----------|-------------|
 | `help` | Show available commands and their descriptions |
+| `set-background` | Sets a background image for the console. |
 | `zoom` | Reduces or increases the console font size. |
+
+##### `console set-background`
+
+```
+Show available commands and their descriptions
+
+Help for function 'set-background':
+
+Sets a background image for the console.
+
+Usage: set-background <image_path>
+```
 
 ##### `console zoom`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'zoom':
+
 Reduces or increases the console font size.
 
 Usage: zoom [in/out/+/-]
-- in / + : Zooms in (increases font size)
+- in  / + : Zooms in  (increases font size)
 - out / - : Zooms out (decreases font size)
 ```
 
 #### `copy`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'copy':
+
 Copy data from one key to another.
 
 Usage: copy <source_key> <destination_key>
@@ -196,6 +262,10 @@ Usage: copy <source_key> <destination_key>
 #### `crash`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'crash':
+
 Crashes the program, useful for checking if the testing suite can catch crashes.
 
 Usage: crash [<type>]
@@ -210,6 +280,10 @@ Usage: crash [<type>]
 #### `critical`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'critical':
+
 Returns a critical error.
 
 Usage: critical <string>
@@ -219,6 +293,12 @@ Usage: critical <string>
 
 #### `debug`
 
+```
+Show available commands and their descriptions
+
+Help for debug
+```
+
 ### Available Functions
 
 | Function | Description |
@@ -227,6 +307,12 @@ Usage: critical <string>
 | `help` | Show available commands and their descriptions |
 
 ##### `debug collision-detect`
+
+```
+Show available commands and their descriptions
+
+Help for collision-detect
+```
 
 ### Available Functions
 
@@ -240,6 +326,10 @@ Usage: critical <string>
 ###### `debug collision-detect category`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'category':
+
 Tests collision detection of categories
 
 Tries to bind a category that is already registered in globalspace, expecting a collision error.
@@ -252,6 +342,10 @@ Defaults to fail
 ###### `debug collision-detect function`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'function':
+
 Tests collision detection of functions names
 
 Tries to bind a function name to globalspace that is already registered, expecting a collision error.
@@ -264,6 +358,10 @@ Defaults to fail
 ###### `debug collision-detect variable`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'variable':
+
 Tests collision detection of variable names
 
 Tries to bind a variable name to globalspace that is already registered, expecting a collision error.
@@ -276,6 +374,10 @@ Defaults to fail
 #### `echo`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'echo':
+
 Echoes all arguments as string to the standard output.
 
 Usage: echo <string>
@@ -290,12 +392,22 @@ Hello World!
 #### `ensure-array`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'ensure-array':
+
 Ensure that a key is an array, converting a value to an array if necessary.
 
 Usage: ensure-array <key>
 ```
 
 #### `env`
+
+```
+Show available commands and their descriptions
+
+Help for env
+```
 
 ### Available Functions
 
@@ -308,6 +420,10 @@ Usage: ensure-array <key>
 ##### `env deload`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'deload':
+
 Deload entire environment, leaving an empty renderer.
 
 Usage: env deload
@@ -316,6 +432,10 @@ Usage: env deload
 ##### `env load`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'load':
+
 Load an environment/level from a json/jsonc file.
 
 Usage: env load <path/to/file.jsonc>
@@ -326,6 +446,10 @@ If no argument is provided, an empty environment is loaded.
 #### `error`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'error':
+
 Echoes all arguments as string to the standard error.
 
 Usage: error <string...>
@@ -336,6 +460,10 @@ Usage: error <string...>
 #### `errorlog`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'errorlog':
+
 Activates or deactivates error logging to a file.
 
 Usage: errorlog <on/off>
@@ -348,6 +476,10 @@ Note: Ensure you have write permissions in the working directory when activating
 #### `eval`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'eval':
+
 Evaluates an expression string and executes it.
 Every argument after eval is concatenated with a whitespace to form the expression to be evaluated and then reparsed.
 
@@ -355,20 +487,24 @@ Usage: eval <expression>
 
 Examples:
 
-eval echo $(1+1)    
+eval echo $(1+1)
 outputs: 2.000000
-First, eval evaluates every argument, then concatenates them with a whitespace, 
+First, eval evaluates every argument, then concatenates them with a whitespace,
 and finally executes the resulting string as a command.
 The string 'echo $(1+1)' is evaluated to "echo 2.000000", which is then executed.
 
 eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
-This evaluates to 'spawn ./Resources/RenderObjects/NAME.json', 
+This evaluates to 'spawn ./Resources/RenderObjects/NAME.json',
 where NAME is the current value of the global variable ToSpawn
 ```
 
 #### `exit`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'exit':
+
 Exits the entire program.
 
 Usage: exit
@@ -377,9 +513,38 @@ Closes the program with exit code 0 (no error)
 Any queued tasks will be discarded.
 ```
 
+#### `feature-test`
+
+```
+Show available commands and their descriptions
+
+Help for feature-test
+```
+
+### Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `functree` | Builds a funcTree with extra arguments and tests it |
+| `help` | Show available commands and their descriptions |
+
+##### `feature-test functree`
+
+```
+Show available commands and their descriptions
+
+Help for function 'functree':
+
+Builds a funcTree with extra arguments and tests it
+```
+
 #### `for`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'for':
+
 Executes a for-loop with a function call.
 
 Usage: for <var> <start> <end> <functioncall>
@@ -402,13 +567,17 @@ This is useful for:
 #### `if`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'if':
+
 Executes a block of code if a condition is true.
 
 Usage: if <condition> <functioncall>
 
 It is recommended to wrap the condition in quotes to prevent parsing issues.
 
-However, This is not supported for in-console usage. 
+However, This is not supported for in-console usage.
 This is because the console itself removes quotes before passing the arguments to the FuncTree,
 rendering them useless.
 
@@ -419,6 +588,10 @@ if '$(eq(1+1,2))' echo Condition is true!
 #### `input-wait`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'input-wait':
+
 Waits for user input before continuing.
 
 Usage: input-wait [prompt]
@@ -427,6 +600,12 @@ Note: This function pauses execution until the user presses Enter.
 ```
 
 #### `json`
+
+```
+Show available commands and their descriptions
+
+Help for json
+```
 
 ### Available Functions
 
@@ -438,6 +617,10 @@ Note: This function pauses execution until the user presses Enter.
 ##### `json set`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'set':
+
 Sets a key from a JSON document.
 
 Usage: json set <key_to_set> <link:key>
@@ -449,12 +632,22 @@ The document is dynamically loaded and cached for future use.
 #### `keyDelete`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'keyDelete':
+
 Delete a key from the JSON document.
 
 Usage: keyDelete <key>
 ```
 
 #### `log`
+
+```
+Show available commands and their descriptions
+
+Help for log
+```
 
 ### Available Functions
 
@@ -467,6 +660,10 @@ Usage: keyDelete <key>
 ##### `log global`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'global':
+
 Logs the global document to a file.
 
 Usage: log global [<filenames>...]
@@ -478,6 +675,10 @@ Usage: log global [<filenames>...]
 ##### `log state`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'state':
+
 Logs the current state of the renderer to a file.
 
 Usage: log state [<filenames>...]
@@ -489,6 +690,10 @@ Usage: log state [<filenames>...]
 #### `move`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'move':
+
 Move data from one key to another.
 
 Usage: move <source_key> <destination_key>
@@ -497,6 +702,10 @@ Usage: move <source_key> <destination_key>
 #### `pop-back`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'pop-back':
+
 Pop a value from the back of an array.
 
 Usage: pop-back <key>
@@ -505,6 +714,10 @@ Usage: pop-back <key>
 #### `pop-front`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'pop-front':
+
 Pop a value from the front of an array.
 
 Usage: pop-front <key>
@@ -513,6 +726,10 @@ Usage: pop-front <key>
 #### `print`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'print':
+
 Prints the JSON document to the console for debugging purposes.
 If key is empty, prints the entire document.
 
@@ -522,6 +739,10 @@ Usage: print [key]
 #### `push-back`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'push-back':
+
 Push a value to the back of an array.
 
 Usage: push-back <key> <value>
@@ -530,12 +751,22 @@ Usage: push-back <key> <value>
 #### `push-front`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'push-front':
+
 Push a value to the front of an array.
 
 Usage: push-front <key> <value>
 ```
 
 #### `query`
+
+```
+Show available commands and their descriptions
+
+Help for query
+```
 
 ### Available Functions
 
@@ -547,6 +778,10 @@ Usage: push-front <key> <value>
 ##### `query set`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'set':
+
 Sets a key from a SQL query result.
 Not implemented yet.
 ```
@@ -554,6 +789,10 @@ Not implemented yet.
 #### `return`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'return':
+
 Returns a custom value as a Critical Error.
 
 Usage: return <string>
@@ -571,6 +810,12 @@ Critical Error: We did not anticipate this happening, weird.
 
 #### `selected-object`
 
+```
+Show available commands and their descriptions
+
+Help for selected-object
+```
+
 ### Available Functions
 
 | Function | Description |
@@ -582,6 +827,10 @@ Critical Error: We did not anticipate this happening, weird.
 ##### `selected-object get`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'get':
+
 Get a renderobject by its ID.
 
 Usage: selected-object get <id>
@@ -590,6 +839,10 @@ Usage: selected-object get <id>
 ##### `selected-object parse`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'parse':
+
 Parse a command on the selected RenderObject.
 
 Usage: selected-object parse <command>
@@ -601,6 +854,10 @@ Use 'selected-object parse help' to see available commands for the selected obje
 #### `set`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'set':
+
 Set a key to a value in the JSON document.
 
 Usage: set <key> <value>
@@ -611,6 +868,10 @@ Note: All values are stored as strings.
 #### `set-fps`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'set-fps':
+
 Set FPS of renderer.
 
 Usage: set-fps [fps]
@@ -621,6 +882,10 @@ Defaults to 60 fps if no argument is provided
 #### `set-res`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'set-res':
+
 Set resolution of renderer.
 
 Usage: set-res [Width] [Height] [Scale]
@@ -633,6 +898,10 @@ Defaults to 1     for scale if argument count < 3
 #### `show-fps`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'show-fps':
+
 Show FPS of renderer.
 
 Usage: show-fps [on|off]
@@ -643,6 +912,10 @@ Defaults to on if no argument is provided
 #### `snapshot`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'snapshot':
+
 Create a snapshot of the current renderer state.
 
 Usage: snapshot [filename]
@@ -653,6 +926,10 @@ Defaults to "./Resources/Snapshots/snapshot.png" if no argument is provided
 #### `spawn`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'spawn':
+
 Spawn a RenderObject from a json/jsonc file.
 
 Usage: spawn <path/to/file.jsonc>
@@ -671,6 +948,12 @@ and spawns the first found object.
 
 #### `standardfile`
 
+```
+Show available commands and their descriptions
+
+Help for standardfile
+```
+
 ### Available Functions
 
 | Function | Description |
@@ -681,6 +964,10 @@ and spawns the first found object.
 ##### `standardfile renderobject`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'renderobject':
+
 Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
 
 Usage: standardfile renderobject
@@ -691,6 +978,10 @@ Note: This function creates or overwrites the file 'standard.jsonc' in the './Re
 #### `task`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'task':
+
 Loads tasks from a file into the taskQueue.
 
 Usage: task <filename>
@@ -698,21 +989,27 @@ Usage: task <filename>
 This command loads a list of tasks from the specified file into the task queue.
 Each line in the file is treated as a separate task.
 
-Task files are not appended at the end, but right after the current task. 
+Task files are not appended at the end, but right after the current task.
 This ensures that tasks can be loaded within task files themselves and being executed immediately.
 
 This example shows how tasks are loaded and executed:
 
 Main task:
-    maincommand1
-    maincommand2
-    task subtaskfile.txt:
-        subcommand1
-        subcommand2
-    maincommand4
+    mainCommand1
+    mainCommand2
+    task subTaskFile.txt:
+        subCommand1
+        subCommand2
+    mainCommand4
 ```
 
 #### `time`
+
+```
+Show available commands and their descriptions
+
+Help for time
+```
 
 ### Available Functions
 
@@ -728,6 +1025,10 @@ Main task:
 ##### `time halt-once`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'halt-once':
+
 Halts time for one frame
 Meaning you can halt time by continuously calling this function.
 
@@ -737,6 +1038,10 @@ Usage: time halt-once
 ##### `time lock`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'lock':
+
 Locks time with lock provided, 
 Time can only progress if no locks are present.
 
@@ -748,6 +1053,10 @@ Usage: time lock <lock_name>
 ##### `time master-unlock`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'master-unlock':
+
 Removes all time locks.
 Time can only progress if no locks are present.
 
@@ -757,6 +1066,10 @@ Usage: time master-unlock
 ##### `time set-fixed-dt`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'set-fixed-dt':
+
 Sets a fixed delta time in milliseconds for the simulation time.
 Use 0 to disable fixed dt.
 
@@ -766,6 +1079,10 @@ Usage: time set-fixed-dt <dt_ms>
 ##### `time unlock`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'unlock':
+
 Removes a time lock.
 Time can only progress if no locks are present.
 
@@ -777,12 +1094,16 @@ Usage: time unlock <lock_name>
 #### `wait`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'wait':
+
 Sets the waitCounter to the given value to halt all script tasks for a given amount of frames.
 
 Usage: wait <frames>
 
 This command pauses the execution of all script tasks for the specified number of frames.
-This does not halt any tasks comming from objects within the environment and cannot be used by them.
+This does not halt any tasks coming from objects within the environment and cannot be used by them.
 
 The wait-command is intended for scripts only, allowing for timed delays between commands.
 
@@ -795,6 +1116,10 @@ This is useful for:
 #### `warn`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'warn':
+
 Returns a warning: a custom, noncritical error.
 
 Usage: warn <string>
@@ -839,12 +1164,22 @@ Help for RenderObject
 #### `copy`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'copy':
+
 Copy data from one key to another.
 
 Usage: copy <source_key> <destination_key>
 ```
 
 #### `debug`
+
+```
+Show available commands and their descriptions
+
+Help for debug
+```
 
 ### Available Functions
 
@@ -858,6 +1193,10 @@ Usage: copy <source_key> <destination_key>
 ##### `debug print-dst-rect`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'print-dst-rect':
+
 Prints debug information about the destination rectangle to console
 
 Usage: debug print-dst-rect
@@ -871,6 +1210,10 @@ Destination rectangle is not set.
 ##### `debug print-src-rect`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'print-src-rect':
+
 Prints debug information about the source rectangle to console
 
 Usage: debug print-src-rect
@@ -884,6 +1227,10 @@ This RenderObject is not a spritesheet.
 ##### `debug texture-status`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'texture-status':
+
 Prints debug information about the texture to console
 
 Usage: debug texture-status
@@ -898,6 +1245,10 @@ Outputs various details about the texture, including:
 #### `delete`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'delete':
+
 Marks object for deletion
 
 Usage: delete
@@ -908,6 +1259,10 @@ Marks the object for deletion on the next update cycle.
 #### `echo`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'echo':
+
 Echoes all arguments as string to the standard output.
 
 Usage: echo <string>
@@ -922,6 +1277,10 @@ Hello World!
 #### `ensure-array`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'ensure-array':
+
 Ensure that a key is an array, converting a value to an array if necessary.
 
 Usage: ensure-array <key>
@@ -930,6 +1289,10 @@ Usage: ensure-array <key>
 #### `eval`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'eval':
+
 Evaluate an expression and execute the result. 
 Example: eval echo $(1+1)
 
@@ -942,6 +1305,10 @@ eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
 #### `fill`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'fill':
+
 Fill the texture with a color
 
 Usage:
@@ -953,6 +1320,12 @@ fill [R] [G] [B]
 
 #### `json`
 
+```
+Show available commands and their descriptions
+
+Help for json
+```
+
 ### Available Functions
 
 | Function | Description |
@@ -963,6 +1336,10 @@ fill [R] [G] [B]
 ##### `json set`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'set':
+
 Sets a key from a JSON document.
 
 Usage: json set <key_to_set> <link:key>
@@ -974,12 +1351,22 @@ The document is dynamically loaded and cached for future use.
 #### `keyDelete`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'keyDelete':
+
 Delete a key from the JSON document.
 
 Usage: keyDelete <key>
 ```
 
 #### `log`
+
+```
+Show available commands and their descriptions
+
+Help for log
+```
 
 ### Available Functions
 
@@ -992,6 +1379,10 @@ Usage: keyDelete <key>
 ##### `log all`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'all':
+
 Logs the entire RenderObject to a file.
 
 Usage: log [filename]
@@ -1002,6 +1393,10 @@ Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
 ##### `log key`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'key':
+
 Logs a specific value from the RenderObject to a file.
 
 Usage: log key <key> [filename]
@@ -1011,6 +1406,12 @@ or to `RenderObject_id<id>.log.jsonc` if no filename is provided.
 ```
 
 #### `mirror`
+
+```
+Show available commands and their descriptions
+
+Help for mirror
+```
 
 ### Available Functions
 
@@ -1026,6 +1427,10 @@ or to `RenderObject_id<id>.log.jsonc` if no filename is provided.
 ##### `mirror delete`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'delete':
+
 Deletes the GlobalSpace document entry for this RenderObject
 
 Usage: mirror delete
@@ -1036,6 +1441,10 @@ Mirrors are removed from the GlobalSpace document under key "mirror.renderObject
 ##### `mirror fetch`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'fetch':
+
 Deserializes the RenderObject from the GlobalSpace document entry
 
 Usage: mirror fetch
@@ -1046,6 +1455,10 @@ Mirrors are fetched from the GlobalSpace document under key "mirror.renderObject
 ##### `mirror off`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'off':
+
 Disables mirroring to the GlobalSpace document
 
 Usage: mirror off
@@ -1058,6 +1471,10 @@ Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id
 ##### `mirror on`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'on':
+
 Enables mirroring to the GlobalSpace document
 
 Usage: mirror on
@@ -1070,6 +1487,10 @@ Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id
 ##### `mirror once`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'once':
+
 Mirrors the object to the GlobalSpace document once on next update
 
 Usage: mirror once
@@ -1081,6 +1502,10 @@ Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id
 #### `move`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'move':
+
 Move data from one key to another.
 
 Usage: move <source_key> <destination_key>
@@ -1089,6 +1514,10 @@ Usage: move <source_key> <destination_key>
 #### `pop-back`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'pop-back':
+
 Pop a value from the back of an array.
 
 Usage: pop-back <key>
@@ -1097,6 +1526,10 @@ Usage: pop-back <key>
 #### `pop-front`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'pop-front':
+
 Pop a value from the front of an array.
 
 Usage: pop-front <key>
@@ -1105,6 +1538,10 @@ Usage: pop-front <key>
 #### `print`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'print':
+
 Prints the JSON document to the console for debugging purposes.
 If key is empty, prints the entire document.
 
@@ -1114,6 +1551,10 @@ Usage: print [key]
 #### `push-back`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'push-back':
+
 Push a value to the back of an array.
 
 Usage: push-back <key> <value>
@@ -1122,12 +1563,22 @@ Usage: push-back <key> <value>
 #### `push-front`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'push-front':
+
 Push a value to the front of an array.
 
 Usage: push-front <key> <value>
 ```
 
 #### `query`
+
+```
+Show available commands and their descriptions
+
+Help for query
+```
 
 ### Available Functions
 
@@ -1139,6 +1590,10 @@ Usage: push-front <key> <value>
 ##### `query set`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'set':
+
 Sets a key from a SQL query result.
 Not implemented yet.
 ```
@@ -1146,6 +1601,10 @@ Not implemented yet.
 #### `reload-texture`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'reload-texture':
+
 Reload the texture from the document.
 
 Usage: reload-texture
@@ -1154,6 +1613,10 @@ Usage: reload-texture
 #### `rotate`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'rotate':
+
 Rotate the texture by a given angle
 
 Usage: rotate <angle>
@@ -1162,6 +1625,10 @@ Usage: rotate <angle>
 #### `set`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'set':
+
 Set a key to a value in the JSON document.
 
 Usage: set <key> <value>
@@ -1172,6 +1639,10 @@ Note: All values are stored as strings.
 #### `update-text`
 
 ```
+Show available commands and their descriptions
+
+Help for function 'update-text':
+
 Calculate text texture
 
 Usage: update-text
