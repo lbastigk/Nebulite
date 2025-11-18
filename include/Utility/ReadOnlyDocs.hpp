@@ -2,8 +2,8 @@
  * @file ReadOnlyDocs.hpp
  * @brief Defines structures for managing read-only documents.
  */
-#ifndef NEBULITE_UTILITY_READONLYDOCS_HPP
-#define NEBULITE_UTILITY_READONLYDOCS_HPP
+#ifndef NEBULITE_UTILITY_READ_ONLY_DOCS_HPP
+#define NEBULITE_UTILITY_READ_ONLY_DOCS_HPP
 
 //------------------------------------------
 // Includes
@@ -13,8 +13,6 @@
 #include <stdexcept>
 
 // Nebulite
-#include "Nebulite.hpp"
-#include "Utility/Capture.hpp"
 #include "Utility/FileManagement.hpp"
 #include "Utility/JSON.hpp"
 #include "Utility/TimeKeeper.hpp"
@@ -26,11 +24,11 @@ namespace Nebulite::Utility {
  * @struct ReadOnlyDoc
  * @brief Represents a read-only document with its associated metadata.
  */
-struct alignas(DUAL_CACHE_LINE_ALIGNMENT) ReadOnlyDoc {
+struct ReadOnlyDoc {
     Nebulite::Utility::JSON document; // The actual JSON document
     Nebulite::Utility::TimeKeeper lastUsed;
 
-    explicit ReadOnlyDoc(Nebulite::Core::GlobalSpace* globalSpace) : document(globalSpace){}
+    ReadOnlyDoc() = default;
 };
 
 /**
@@ -38,7 +36,7 @@ struct alignas(DUAL_CACHE_LINE_ALIGNMENT) ReadOnlyDoc {
  * 
  * Takes care of loading and unloading documents as needed.
  */
-struct alignas(CACHE_LINE_ALIGNMENT) ReadOnlyDocs{
+struct ReadOnlyDocs{
 private:
     /**
      * @brief Time in milliseconds after which unused documents are unloaded.
@@ -54,21 +52,11 @@ private:
      */
     absl::flat_hash_map<std::string, ReadOnlyDoc> docs;
 
-    /**
-     * @brief Reference to the global space for document creation.
-     */
-    Nebulite::Core::GlobalSpace* globalSpace;
-
 public:
     /**
      * @brief Constructor that takes a GlobalSpace pointer.
      */
-    explicit ReadOnlyDocs(Nebulite::Core::GlobalSpace* global) : globalSpace(global){
-        // Validate that globalSpace is not null
-        if (globalSpace == nullptr){
-            throw std::invalid_argument("DocumentCache: GlobalSpace pointer cannot be null");
-        }
-    }
+    ReadOnlyDocs() = default;
 
     /**
      * @brief Updates the cache by checking a random document for its last usage time,
@@ -104,9 +92,6 @@ public:
         if (doc.empty()){
             return nullptr;
         }
-        if (globalSpace == nullptr){
-            return nullptr;
-        }
         
         // Check if the document exists in the cache
         auto it = docs.find(doc);
@@ -116,7 +101,7 @@ public:
             if (serial.empty()){
                 return nullptr; // Return nullptr if document loading fails
             }
-            auto result = docs.emplace(doc, ReadOnlyDoc(globalSpace));
+            auto result = docs.emplace(doc, ReadOnlyDoc());
             if (!result.second){
                 // Emplace failed for some reason
                 return nullptr;
@@ -130,4 +115,4 @@ public:
     }
 };
 } // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_READONLYDOCS_HPP
+#endif // NEBULITE_UTILITY_READ_ONLY_DOCS_HPP

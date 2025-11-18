@@ -4,8 +4,8 @@
  * This file contains the static RulesetCompiler class.
  */
 
-#ifndef NEBULITE_RULESETCOMPILER_HPP
-#define NEBULITE_RULESETCOMPILER_HPP
+#ifndef NEBULITE_RULESET_COMPILER_HPP
+#define NEBULITE_RULESET_COMPILER_HPP
 
 //------------------------------------------
 // Includes
@@ -56,14 +56,11 @@ public:
      * @param entries_local The local Ruleset objects.
      * @param self The RenderObject instance associated with the entries.
      * @param docCache The DocumentCache instance to use for parsing expressions.
-     * @param global The global JSON document to use for parsing expressions.
      */
     static void parse(
         std::vector<std::shared_ptr<Ruleset>>& entries_global, 
         std::vector<std::shared_ptr<Ruleset>>& entries_local, 
-        Core::RenderObject* self,
-        Utility::DocumentCache* docCache,
-        Utility::JSON* global
+        Core::RenderObject* self
     );
     
 private:
@@ -73,15 +70,11 @@ private:
      * @param entryDoc The JSON document containing the entry.
      * @param Ruleset The Ruleset object to populate with function calls.
      * @param self The RenderObject instance associated with the entry.
-     * @param docCache The DocumentCache instance to use for parsing expressions.
-     * @param global The global JSON document to use for parsing expressions.
      */
     static void getFunctionCalls(
         Utility::JSON& entryDoc,
         Ruleset& Ruleset, 
-        Core::RenderObject const* self,
-        Utility::DocumentCache* docCache,
-        Utility::JSON* global
+        Core::RenderObject const* self
     );
 
     /**
@@ -137,12 +130,10 @@ private:
      * 
      * @param entries The Ruleset objects to optimize.
      * @param self The RenderObject instance associated with the entries.
-     * @param global The global JSON document to use for parsing expressions.
      */
     static void optimizeParsedEntries(
         std::vector<std::shared_ptr<Ruleset>> const& entries, 
-        Utility::JSON const* self,
-        Utility::JSON* global
+        Utility::JSON* self
     );
 
     /**
@@ -157,4 +148,4 @@ private:
     };
 };
 } // namespace Nebulite::Interaction
-#endif // NEBULITE_RULESETCOMPILER_HPP
+#endif // NEBULITE_RULESET_COMPILER_HPP

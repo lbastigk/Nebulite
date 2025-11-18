@@ -7,8 +7,8 @@
  * contexts for efficient expression evaluation.
  */
 
-#ifndef NEBULITE_INTERACTION_LOGIC_VIRTUALDOUBLE_HPP
-#define NEBULITE_INTERACTION_LOGIC_VIRTUALDOUBLE_HPP
+#ifndef NEBULITE_INTERACTION_LOGIC_VIRTUAL_DOUBLE_HPP
+#define NEBULITE_INTERACTION_LOGIC_VIRTUAL_DOUBLE_HPP
 
 //------------------------------------------
 // Includes
@@ -34,9 +34,6 @@ namespace Nebulite::Interaction::Logic {
  * This distinction is crucial for efficient and accurate expression evaluations.
  */
 class VirtualDouble {
-    // Linked Read-Only cache
-    Utility::DocumentCache* documentCache = nullptr;
-
     // Key associated with this VirtualDouble
     std::string key;
 
@@ -71,13 +68,7 @@ public:
      * @param k The key associated with this VirtualDouble.
      * @param documentCachePtr Pointer to the DocumentCache to use for retrieving values.
      */
-    VirtualDouble(std::string k, Utility::DocumentCache* documentCachePtr) noexcept
-    : documentCache(documentCachePtr), key(std::move(k))
-    {
-        if      (key.starts_with(ContextPrefix::self))   { key.erase(0, ContextPrefix::self.size());   }
-        else if (key.starts_with(ContextPrefix::other))  { key.erase(0, ContextPrefix::other.size());  }
-        else if (key.starts_with(ContextPrefix::global)) { key.erase(0, ContextPrefix::global.size()); }
-    }
+    explicit VirtualDouble(std::string k) noexcept ;
 
     /**
      * @brief Get the key associated with this VirtualDouble.
@@ -99,16 +90,7 @@ public:
      * 
      * @param json The JSON document pointer to retrieve the value from. If the pointer is null, we retrieve the value from the document cache.
      */
-    void setUpInternalCache(Utility::JSON* json){
-        if (json != nullptr){
-            copied_value = *json->getStableDoublePointer(key);
-            reference = &copied_value;
-        }
-        else if (documentCache != nullptr){
-            copied_value = *documentCache->getStableDoublePointer(key);
-            reference = &copied_value;
-        }
-    }
+    void setUpInternalCache(Utility::JSON* json);
 
     /**
      * @brief Register the external cache for this VirtualDouble.
@@ -116,14 +98,7 @@ public:
      * This function links the VirtualDouble to an external double pointer of a JSON document, instead of using its internal cache.
      * allowing it to access and modify the value directly.
      */
-    void setUpExternalCache(Utility::JSON* json){
-        if (json != nullptr){
-            reference = json->getStableDoublePointer(key);
-        }
-        else if (documentCache != nullptr){
-            reference = documentCache->getStableDoublePointer(key);
-        }
-    }
+    void setUpExternalCache(Utility::JSON* json);
 
     /**
      * @brief Set the value of the VirtualDouble directly.
@@ -155,4 +130,4 @@ public:
     }
 };
 }   // namespace Nebulite::Interaction::Logic
-#endif // NEBULITE_INTERACTION_LOGIC_VIRTUALDOUBLE_HPP
+#endif // NEBULITE_INTERACTION_LOGIC_VIRTUAL_DOUBLE_HPP

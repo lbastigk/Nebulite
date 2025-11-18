@@ -26,26 +26,11 @@
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite{
-    namespace Core{
-        // we cannot include GlobalSpace directly due to circular dependencies,
-        // as GlobalSpace itself is a Domain.
-        class GlobalSpace;
-    } 
-    /**
-     * @todo Is this necessary?
-     */
-    namespace Interaction{
-        class Invoke;
-    }
-    namespace Utility{
-        // We cannot include JSON directly due to circular dependencies,
-        // as JSON itself is a domain.
-        class JSON;
-    }
+namespace Nebulite::Utility{
+    // We cannot include JSON directly due to circular dependencies,
+    // as JSON itself is a domain.
+    class JSON;
 }
-
-
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution{
@@ -57,47 +42,31 @@ namespace Nebulite::Interaction::Execution{
  *        This allows for a simplified interface for accessing common domain functionality.
  */
 class DomainBase {
-    /**
-     * @brief Friend declaration for all Domain specializations.
-     * @todo This is still necessary for inheritance of FuncTrees, but a better solution would be a proper getter for the functree.
-     */
-    //template<typename> friend class Domain;
-
-    /**
-     * @brief Allow DomainModules full access to Domain private members.
-     *        this simplifies the implementation of DomainModules significantly.
-     *        Reducing the amount of setter and getter methods needed.
-     *        This decision is a bit controversial, as it would allow DomainModules to modify
-     *        potentially critical parts of the Domain class.
-     *        But this functionality might be helpful for rapid prototyping of new DomainModules.
-     *        Uncomment if full access is desired.
-     */
-    //template<typename> friend class DomainModule;
-
-    /**
-     * @brief Allow Domain to access private members of DomainBase.
-     */
-    //template<typename> friend class Domain;
 public:
-    DomainBase(std::string const& name, Utility::JSON* documentPtr, Core::GlobalSpace* globalSpacePtr)
-    : domainName(name),
+    DomainBase(std::string const& name, Utility::JSON* documentPtr)
+    : domainName(name), document(documentPtr),
       funcTree(std::make_shared<FuncTree<Constants::Error>>(
           name,
           Constants::ErrorTable::NONE(),
           Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
-      )),
-      doc(documentPtr), global(globalSpacePtr)
+      ))
     {}
 
     virtual ~DomainBase() = default;
+
+    //------------------------------------------
+    // Disallow copying and moving
+
+    DomainBase(DomainBase const&) = delete;
+    DomainBase& operator=(DomainBase const&) = delete;
+    DomainBase(DomainBase&&) = delete;
+    DomainBase& operator=(DomainBase&&) = delete;
 
     //------------------------------------------
     // Binding, initializing and inheriting
 
     /**
      * @brief Binds a variable to the FuncTree.
-     *
-     * For binding functions or categories, use the DomainModule interface.
      */
     void bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription) const {
         funcTree->bindVariable(varPtr, name, helpDescription);
@@ -117,8 +86,7 @@ public:
 
     /**
      * @brief Updates the domain.
-     *
-     * On overwriting, make sure to update all subdomains and DomainModules as well.
+     *        On overwriting, make sure to update all subdomains and DomainModules as well.
      */
     virtual Constants::Error update(){ return Constants::ErrorTable::NONE(); }
 
@@ -127,36 +95,31 @@ public:
 
     /**
      * @brief Parses a string into a Nebulite command and prints potential errors to stderr.
-     *
-     * Make sure the first arg is a name and not the function itself!
-     *
-     * - `parseStr("set text Hello World")` -> does not work!
-     *
-     * - `parseStr("<someName> set text Hello World")` -> works
-     *
-     * The first argument is reserved for debugging and should be used as a way to tell the parser from where it was called:
-     * ```cpp
-     * void myFunction(){
-     *   parseStr("myFunction set text Hello World");
-     * }
-     * ```
-     * If set fails, we can use the first argument `argv[0]` to identify the source of the command.
+     *        Make sure the first arg is a name and not the function itself!
+     *        - `parseStr("set text Hello World")` -> does not work!
+     *        - `parseStr("<someName> set text Hello World")` -> works
+     *        The first argument is reserved for debugging and should be used as a way to tell the parser from where it was called:
+     *        ```cpp
+     *        void myFunction(){
+     *            parseStr("myFunction set text Hello World");
+     *        }
+     *        ```
+     *        If set fails, we can use the first argument `argv[0]` to identify the source of the command.
      *
      * @param str The string to parse.
      * @return Potential errors that occurred on command execution
      *
      * @todo Disable printing errors if the domain is inside another domain without inheritance.
-     * This needs to be done, otherwise each error is printed twice:
-     * - Parent domain gets parse string, redirects parts to child
-     * - child parses string, fails, prints error
-     * - child returns error to parent
-     * - parent prints error again
-     * Idea: Add a flag to either constructor or a new method to tell each domain what kind of error handling to do.
-     * Another idea would be to not print in parse, but escalate as far as possible, and only print in main.
-     *
-     * To better understand the difference:
-     * - If we inherit from another domain, we parse once, no double printing
-     * - If we add a domain, for instance, in a DomainModule, we have a parse within a parse, leading to double printing
+     *       This needs to be done, otherwise each error is printed twice:
+     *       - Parent domain gets parse string, redirects parts to child
+     *       - child parses string, fails, prints error
+     *       - child returns error to parent
+     *       - parent prints error again
+     *       Idea: Add a flag to either constructor or a new method to tell each domain what kind of error handling to do.
+     *       Another idea would be to not print in parse, but escalate as far as possible, and only print in main.
+     *       To better understand the difference:
+     *       - If we inherit from another domain, we parse once, no double printing
+     *       - If we add a domain, for instance, in a DomainModule, we have a parse within a parse, leading to double printing
      */
     [[nodiscard]] Constants::Error parseStr(std::string const& str) const {
         Constants::Error const err = funcTree->parseStr(str);
@@ -183,56 +146,25 @@ public:
 
     /**
      * @brief Gets a pointer to the internal JSON document of the domain.
-     *
-     * Each domain uses a JSON document to store its data.
-     * For the JSON domain, this is a reference to itself.
-     * For others, it's a reference to their JSON document.
-     *
+     *        Each domain uses a JSON document to store its data.
+     *        For the JSON domain, this is a reference to itself.
+     *        For others, it's a reference to their JSON document.
      * @return A pointer to the internal JSON document.
      */
-    [[nodiscard]] Utility::JSON* getDoc() const {return doc;}
+    [[nodiscard]] Utility::JSON* getDoc() const {return document;}
 
     /**
-     * @brief Gets a pointer to the globalspace.
-     *
-     * @return A pointer to the globalspace.
+     * @brief Gets the name of the domain.
+     * @return The name of the domain.
      */
-    [[nodiscard]] Core::GlobalSpace* getGlobalSpace() const {return global;}
-
-    //------------------------------------------
-    // Logging
-
-    /**
-     * @brief Logs to the Nebulite logging system with a newline.
-     *
-     * This function logs a message to the Nebulite logging system and appends a newline.
-     *
-     * @param message The message to log.
-     */
-    static void logln(std::string const& message){
-        Utility::Capture::cout() << message << Utility::Capture::endl;
-    }
-
-    /**
-     * @brief Log an error to the Nebulite logging system.
-     *
-     * @param message The error message to log.
-     */
-    static void logError(std::string const& message){
-        Utility::Capture::cerr() << message;
-    }
-
-    /**
-     * @brief Logs an error to the Nebulite logging system with a newline.
-     *
-     * @param message The error message to log.
-     */
-    static void logErrorln(std::string const& message){
-        Utility::Capture::cerr() << message << Utility::Capture::endl;
-    }
+    [[nodiscard]] std::string const& getName() const {return domainName;}
 
 protected:
-
+    /**
+     * @brief Offers access to the internal FuncTree for function binding.
+     *        Marked as protected, as it's only used to initialize DomainModules.
+     * @return A shared pointer to the internal FuncTree.
+     */
     std::shared_ptr<FuncTree<Constants::Error>> getFuncTree(){
         return funcTree;
     }
@@ -244,56 +176,72 @@ private:
     std::string domainName;
 
     /**
+     * @brief Each domain uses a JSON document to store its data.
+     *        We use a pointer here, as the JSON class itself is a domain.
+     *        Meaning the internal JSON doc references to itself.
+     */
+    Utility::JSON* const document;
+
+    /**
      * @brief Parsing interface for domain-specific commands.
-     *
-     * We use a pointer here so we can
-     * easily create the object with an inherited FuncTree inside the constructor.
-     *
-     * The Tree is then shared with the DomainModules for modification.
+     *        We use a pointer here so we can
+     *        easily create the object with an inherited FuncTree inside the constructor.
+     *        The Tree is then shared with the DomainModules for modification.
      */
     std::shared_ptr<FuncTree<Constants::Error>> funcTree;
-
-    /**
-     * @brief Each domain uses a JSON document to store its data.
-     * We use a pointer here, as the JSON class itself is a domain.
-     * Meaning the internal JSON doc references to itself.
-     */
-    Utility::JSON* const doc;
-
-    /**
-     * @brief Pointer to the globalspace, for accessing global resources and management functions.
-     */
-    Core::GlobalSpace* const global;
 };
 
 /**
  * @class Domain
  * @brief The Domain class serves as a base class for creating a Nebulite domain.
- * 
- * Each domain has the following features:
- * 
- * - Setting and getting values in its internal JSON document.
- * - Returning a pointer to its internal JSON document.
- * - Parsing strings into Nebulite commands.
- * - Binding additional features via DomainModules.
- * - Updating the domain through its DomainModules.
+ *        Each domain has the following features:
+ *        - Setting and getting values in its internal JSON document.
+ *        - Returning a pointer to its internal JSON document.
+ *        - Parsing strings into Nebulite commands.
+ *        - Binding additional features via DomainModules.
+ *        - Updating the domain through its DomainModules.
  */
 template<typename DomainType>
 class Domain : public DomainBase {
+private:
+    /**
+     * @brief Stores all available modules
+     */
+    std::vector<std::unique_ptr<DomainModule<DomainType>>> modules;
+
+    //------------------------------------------
+    // Inner references
+
+    /**
+     * @brief Reference to the domain itself
+     *        Used to initialize DomainModules with a reference to the domain
+     */
+    DomainType* const domain;
+
 public:
-    Domain(std::string const& name, DomainType* domainTypePtr, Utility::JSON* documentPtr, Core::GlobalSpace* globalSpacePtr)
-    : DomainBase(name, documentPtr, globalSpacePtr), domain(domainTypePtr)
+    Domain(std::string const& name, DomainType* domainTypePtr, Utility::JSON* documentPtr)
+    : DomainBase(name, documentPtr), domain(domainTypePtr)
     {}
+
+    //------------------------------------------
+    // Disallow copying and moving
+
+    Domain(Domain const&) = delete;
+    Domain& operator=(Domain const&) = delete;
+    Domain(Domain&&) = delete;
+    Domain& operator=(Domain&&) = delete;
+
+    //------------------------------------------
+    // Module Initialization and Updating
 
     /**
      * @brief Factory method for creating DomainModule instances with proper linkage
-     *
      * @tparam DomainModuleType The type of module to initialize
      * @param moduleName The name of the module
      */
     template<typename DomainModuleType>
     void initModule(std::string moduleName){
-        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, getFuncTree(), getGlobalSpace());
+        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, getFuncTree());
         modules.push_back(std::move(DomainModule));
     }
 
@@ -306,21 +254,6 @@ public:
         }
     }
 
-private:
-    /**
-     * @brief Stores all available modules
-     */
-    std::vector<std::unique_ptr<DomainModule<DomainType>>> modules;
-
-    //------------------------------------------
-    // Inner references
-
-    /**
-     * @brief Reference to the domain itself
-     *
-     * Used to initialize DomainModules with a reference to the domain.
-     */
-    DomainType* const domain;
 };
 }   // namespace Nebulite::Interaction::Execution
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP

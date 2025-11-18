@@ -18,21 +18,15 @@
 #include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
-// Forward declarations
-namespace Nebulite::Core{
-    class GlobalSpace; // Forward declaration of core class GlobalSpace
-}   // namespace Nebulite::Core
-
-//------------------------------------------
 namespace Nebulite::Core {
 NEBULITE_DOMAIN(Texture){
 public:
     /**
      * @brief Constructs a new Texture domain.
      *
-     * @param globalSpacePtr Pointer to the GlobalSpace for accessing the renderer.
+     * @param documentPtr Pointer to the JSON document for this domain.
      */
-    explicit Texture(Utility::JSON* documentPtr, GlobalSpace* globalSpacePtr);
+    explicit Texture(Utility::JSON* documentPtr);
 
     /**
      * @brief Destroys the Texture and frees resources.

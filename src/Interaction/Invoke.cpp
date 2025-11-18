@@ -1,16 +1,12 @@
 #include "Interaction/Invoke.hpp"
-
-#include "Core/GlobalSpace.hpp"
 #include "Core/RenderObject.hpp"
+
+#include "Nebulite.hpp"
 
 //------------------------------------------
 // Constructor / Destructor
 
-Nebulite::Interaction::Invoke::Invoke(Core::GlobalSpace* globalSpace)
-: global(globalSpace),
-  docCache(globalSpace->getDocCache()),
-  globalDoc(globalSpace->getDoc())
-{   
+Nebulite::Interaction::Invoke::Invoke(){
     // Initialize synchronization primitives
     threadState.stopFlag = false;
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++){
@@ -160,10 +156,10 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Logic::Assignment::Operation o
             target->set_concat(key,valStr);
             break;
         case Logic::Assignment::Operation::null:
-            Utility::Capture::cerr() << "Assignment expression has null operation - skipping" << Utility::Capture::endl;
+            Nebulite::cerr() << "Assignment expression has null operation - skipping" << Nebulite::endl;
             break;
         default:
-            Utility::Capture::cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << Utility::Capture::endl;
+            Nebulite::cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << Nebulite::endl;
             break;
     }
 }
@@ -184,10 +180,10 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Logic::Assignment::Operation o
             target->set_concat(key,std::to_string(value));
             break;
         case Logic::Assignment::Operation::null:
-            Utility::Capture::cerr() << "Assignment expression has null operation - skipping" << Utility::Capture::endl;
+            Nebulite::cerr() << "Assignment expression has null operation - skipping" << Nebulite::endl;
             break;
         default:
-            Utility::Capture::cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << Utility::Capture::endl;
+            Nebulite::cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << Nebulite::endl;
             break;
     }
 }
@@ -205,13 +201,13 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Logic::Assignment::Operation o
             *target *= value;
             break;
         case Logic::Assignment::Operation::concat:
-            Utility::Capture::cerr() << "Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of an Invoke!" << Utility::Capture::endl;
+            Nebulite::cerr() << "Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of an Invoke!" << Nebulite::endl;
             break;
         case Logic::Assignment::Operation::null:
-            Utility::Capture::cerr() << "Assignment expression has null operation - skipping" << Utility::Capture::endl;
+            Nebulite::cerr() << "Assignment expression has null operation - skipping" << Nebulite::endl;
             break;
         default:
-            Utility::Capture::cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << Utility::Capture::endl;
+            Nebulite::cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << Nebulite::endl;
             break;
     }
 }
@@ -232,13 +228,13 @@ void Nebulite::Interaction::Invoke::applyAssignment(Logic::Assignment& assignmen
         targetDocument = Obj_other->getDoc();
         break;
     case Logic::Assignment::Type::Global:
-        targetDocument = globalDoc;
+        targetDocument = Nebulite::global().getDoc();
         break;
     case Logic::Assignment::Type::null:
-        Utility::Capture::cerr() << "Assignment expression has null type - skipping" << Utility::Capture::endl;
+        Nebulite::cerr() << "Assignment expression has null type - skipping" << Nebulite::endl;
         return; // Skip this expression
     default:
-        Utility::Capture::cerr() << "Unknown assignment type: " << static_cast<int>(assignment.onType) << Utility::Capture::endl;
+        Nebulite::cerr() << "Unknown assignment type: " << static_cast<int>(assignment.onType) << Nebulite::endl;
         return; // Exit if unknown type
     }
 
@@ -259,7 +255,7 @@ void Nebulite::Interaction::Invoke::applyAssignment(Logic::Assignment& assignmen
             // Try to use unique id for quick access
             if(!assignment.targetKeyUniqueIdInitialized){
                 // Initialize unique id
-                assignment.targetKeyUniqueId = global->getUniqueId(assignment.key, Core::GlobalSpace::UniqueIdType::jsonKey);
+                assignment.targetKeyUniqueId = Nebulite::global().getUniqueId(assignment.key, Core::GlobalSpace::UniqueIdType::jsonKey);
                 assignment.targetKeyUniqueIdInitialized = true;
             }
 
@@ -369,11 +365,10 @@ void Nebulite::Interaction::Invoke::update(){
 std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::string const& input) const {
     Utility::JSON* docSelf = this->emptyDoc;      // no self context
     Utility::JSON* docOther = this->emptyDoc;     // no other context
-    Utility::JSON* docGlobal = this->globalDoc;
 
     // Parse string into Expression
     Logic::ExpressionPool expr;
-    expr.parse(input, docCache, docSelf, docGlobal);
+    expr.parse(input, docSelf);
     return expr.eval(docOther);
 }
 
@@ -381,11 +376,10 @@ std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::str
     // Expression is evaluated within a domain's context, use it as self and other
     Utility::JSON* docSelf = selfAndOther->getDoc();
     Utility::JSON* docOther = selfAndOther->getDoc();
-    Utility::JSON* docGlobal = this->globalDoc;
 
     // Parse string into Expression
     Logic::ExpressionPool expr;
-    expr.parse(input, docCache, docSelf, docGlobal);
+    expr.parse(input, docSelf);
     return expr.eval(docOther);
 }
 
@@ -394,11 +388,10 @@ std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::str
 double Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsDouble(std::string const& input) const {
     Utility::JSON* docSelf = this->emptyDoc;      // no self context
     Utility::JSON* docOther = this->emptyDoc;     // no other context
-    Utility::JSON* docGlobal = this->globalDoc;
 
     // Parse string into Expression
     Logic::ExpressionPool expr;
-    expr.parse(input, docCache, docSelf, docGlobal);
+    expr.parse(input, docSelf);
     return expr.evalAsDouble(docOther);
 }
 
@@ -406,11 +399,10 @@ double Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsDouble(std::
     // Expression is evaluated within a domain's context, use it as self and other
     Utility::JSON* docSelf = selfAndOther->getDoc();
     Utility::JSON* docOther = selfAndOther->getDoc();
-    Utility::JSON* docGlobal = this->globalDoc;
 
     // Parse string into Expression
     Logic::ExpressionPool expr;
-    expr.parse(input, docCache, docSelf, docGlobal);
+    expr.parse(input, docSelf);
     return expr.evalAsDouble(docOther);
 }
 
@@ -419,11 +411,10 @@ double Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsDouble(std::
 bool Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsBool(std::string const& input) const {
     Utility::JSON* docSelf = this->emptyDoc;      // no self context
     Utility::JSON* docOther = this->emptyDoc;     // no other context
-    Utility::JSON* docGlobal = this->globalDoc;
 
     // Parse string into Expression
     Logic::ExpressionPool expr;
-    expr.parse(input, docCache, docSelf, docGlobal);
+    expr.parse(input, docSelf);
     double const result = expr.evalAsDouble(docOther);
     if(isnan(result)){
         // We consider NaN as false
@@ -437,11 +428,10 @@ bool Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsBool(std::stri
     // Expression is evaluated within a domain's context, use it as self and other
     Utility::JSON* docSelf = selfAndOther->getDoc();
     Utility::JSON* docOther = selfAndOther->getDoc();
-    Utility::JSON* docGlobal = this->globalDoc;
 
     // Parse string into Expression
     Logic::ExpressionPool expr;
-    expr.parse(input, docCache, docSelf, docGlobal);
+    expr.parse(input, docSelf);
     double const result = expr.evalAsDouble(docOther);
     if(isnan(result)){
         // We consider NaN as false

@@ -16,7 +16,7 @@
  *     }, "myFunction", "This function does something");
  *
  *     std::string result = funcTree.parse(argc,argv);
- *     Utility::Capture::cout() << result << "\n";
+ *     Nebulite::cout() << result << "\n";
  * }
  * ```
  * 
@@ -45,7 +45,7 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Utility/Capture.hpp"        // Using Capture for output capturing
+#include "Utility/Capture.hpp"  // Due to circular dependencies, we use Capture for logging instead of Nebulite.hpp
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution{
@@ -62,8 +62,8 @@ namespace Nebulite::Interaction::Execution{
  * Example:
  * ```cpp
  * bool myArgument = false;
- * int foo(std::span<std::string const> const& args){Utility::Capture::cout() << "foo: " << myArgument << Utility::Capture::endl}
- * int bar(std::span<std::string const> const& args){Utility::Capture::cout() << "bar: " << myArgument << Utility::Capture::endl}
+ * int foo(std::span<std::string const> const& args){Nebulite::Utility::Capture::cerr() << "foo: " << myArgument << Nebulite::Utility::Capture::endl}
+ * int bar(std::span<std::string const> const& args){Nebulite::Utility::Capture::cerr() << "bar: " << myArgument << Nebulite::Utility::Capture::endl}
  *
  * // Note: The description actually needs to be a pointer to a string, so that it can be stored without copying.
  * // The snippet below is simplified for clarity.
@@ -405,7 +405,7 @@ private:
                         *varInfo.pointer = true;
                     }
                 } else {
-                    Utility::Capture::cerr() << "Warning: Unknown variable '--" << name << "'\n";
+                    Nebulite::Utility::Capture::cerr() << "Warning: Unknown variable '--" << name << "'\n";
                 }
 
                 // Remove from argument list

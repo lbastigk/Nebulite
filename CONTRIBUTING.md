@@ -34,43 +34,8 @@ We welcome contributions! Nebulite's modular architecture makes it easy to add f
 2. Install (see README.md)
 3. Create feature branch: `git checkout -b feature/my-feature`
 
-<!-- TOC --><a name="recommended-environment"></a>
-### Recommended Environment
-
-Using VSCode is recommended for an optimal workflow. The project includes preconfigured tasks:
-- `CTRL + SHIFT + T` for test options
-- `CTRL + SHIFT + B` for build options
-
-<!-- TOC --><a name="building"></a>
-### Building
-
-Build and test your changes:
-```bash
-    ## BUILD
-
-    # Linux
-    cmake --preset linux-debug && cmake --build --preset linux-debug
-    cmake --preset linux-release && cmake --build --preset linux-release
-    cmake --preset linux-coverage && cmake --build --preset linux-coverage
-
-    # Windows
-    cmake --preset windows-debug && cmake --build --preset windows-debug
-    cmake --preset windows-release && cmake --build --preset windows-release
-
-    # Mac
-    cmake --preset macos-debug && cmake --build --preset macos-debug
-    cmake --preset macos-release && cmake --build --preset macos-release
-
-    ## TEST
-    python Scripts/TestingSuite.py
-```
-
 <!-- TOC --><a name="testing"></a>
 ## Testing
-
-- Use `python ./Scripts/TestingSuite.py` for preconfigured tests
-- Use the VSCode tasks for Memory leak testing, profiling and more
-- Use the VSCode debugger and its existing tasks
 
 You can add custom taskfiles to the test suite by extending the `Tools/tests.jsonc`.
 ```bash
@@ -91,20 +56,18 @@ You can quickly verify the correctness of an expression with the command line:
 Nebulite offers clean expansions of its functionality through its DomainModules. 
 Maintainers can create their own module classes and add them to a specific domain.
 
-| Domain: Commands operating on... | Action                                                  | Info                                                                                                         |
-|----------------------------------|---------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| Global level                     | Extend `GSDM.hpp` by creating GlobalSpace DomainModules  | See `include/Interaction/Execution/GlobalSpace.h` and its modules `include/DomainModule/GlobalSpace/GSDM_*.h` |
-| Specific RenderObjects           | Extend `RODM.hpp` by creating RenderObject DomainModules | See `include/Core/RenderObject.h` and its modules `include/DomainModule/RenderObject/RODM_*.h`                |
-| Specific JSON-Documents          | Extend `JSDM.hpp` by creating JSON DomainModules         | See `include/Utility/JSON.h` and its modules `include/DomainModule/JSON/JSDM_*.h`                             |
-| Specific Textures                | Extend `TXDM.hpp` by creating Texture DomainModules      | See `include/Core/Texture.h` and its modules `include/DomainModule/Texture/TXDM_*.h`                          |
+| Domain: Commands operating on...  | Action                                                            | Info                                                                                      |
+|-----------------------------------|-------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| Global level                      | Extend `Initializer.hpp` by creating GlobalSpace DomainModules    | See `include/Core/GlobalSpace.h` and its modules  `include/DomainModule/GlobalSpace/*.h`  |
+| Renderer                          | Extend `Initializer.hpp` by creating Renderer DomainModules       | See `include/Core/Renderer.h` and its modules     `include/DomainModule/Renderer/*.h`     |
+| Environment                       | Extend `Initializer.hpp` by creating Environment DomainModules    | See `include/Core/Environment.h` and its modules  `include/DomainModule/Environment/*.h`  |
+| Specific RenderObjects            | Extend `Initializer.hpp` by creating RenderObject DomainModules   | See `include/Core/RenderObject.h` and its modules `include/DomainModule/RenderObject/*.h` |
+| Specific JSON-Documents           | Extend `Initializer.hpp` by creating JSON DomainModules           | See `include/Utility/JSON.h` and its modules      `include/DomainModule/JSON/*.h`         |
+| Specific Textures                 | Extend `Initializer.hpp` by creating Texture DomainModules        | See `include/Core/Texture.h` and its modules      `include/DomainModule/Texture/*.h`      |
 
-Each DomainModule has access to a different domain through `domain->...` and a different set of functions through `domain->parseStr(command)` : 
-- `GlobalSpace`  modules can access the global space
-- `RenderObject` modules can access the attached RenderObject
-- `JSON`         modules can access the attached JSON
-- `Texture`      modules can access the attached Texture
 
-Each DomainModule can make use of an update routine, allowing us to declutter classes by binding routines to specific modules:
+Each DomainModule has access to a different domain workspace through `domain->...`,
+as well as an update routine, allowing us to declutter classes by binding routines to specific modules:
 - input-reading
 - state-update
 - lifetime management
@@ -114,6 +77,7 @@ and more. We then just insert each module into the class and its update function
 <!-- TOC --><a name="function-collision-prevention"></a>
 ### Function Collision Prevention
 
+Domains follow an inheritance tree structure for their functions:
 - `GlobalSpace` automatically inherits all functions from `JSON`, which act on the global document
 - `RenderObject` automatically inherits all functions from `JSON`, which act on the objects document
 
@@ -126,7 +90,7 @@ Furthermore, it is not allowed to overwrite existing `categories` with functions
 If a function is bound inside a non-existing `category`, the program will exit:
 ```cpp
 bindCategory("MyModule","<Description>");
-bindFunction(/**/,"MyModule foo","<Description>"); //<-- This will fail without bindSubTree()
+bindFunction(/**/,"MyModule foo","<Description>"); //<-- This would fail without bindCategory being called first
 ```
 
 <!-- TOC --><a name="example-adding-a-new-globalspace-feature"></a>
@@ -135,10 +99,10 @@ bindFunction(/**/,"MyModule foo","<Description>"); //<-- This will fail without 
 <!-- TOC --><a name="step-by-step-process"></a>
 #### Step-by-Step Process
 
-1. **Create expansion file:** `GSDM_MyModule.{hpp,cpp}`
-2. **Inherit from DomainModule base class:** Create class inheriting from `Nebulite::Interaction::Execution::DomainModule<DomainClass>`
-3. **Implement command methods:** Functions with `Nebulite::Constants::Error (int argc,  char** argv)` signature
-4. **DomainModule init** inside `include/DomainModule/{GSDM,JSDM,RODM}.hpp`, initialize the DomainModule
+1. **Create expansion file**
+2. **Inherit from DomainModule base class:** Create class using the `NEBULITE_DOMAINMODULE(Domain,MyDomainModule)` macro
+3. **Implement command methods:** Functions with `Nebulite::Constants::Error (std::span<std::string const> const& args)` signature
+4. **DomainModule init** inside `include/DomainModule/Initializer.hpp`, initialize the DomainModule
 
 <!-- TOC --><a name="complete-code-example"></a>
 #### Complete Code Example
@@ -146,11 +110,9 @@ bindFunction(/**/,"MyModule foo","<Description>"); //<-- This will fail without 
 **Inside GSDM_MyModule.hpp:**
 
 ```cpp
-
 /**
- * @file GSDM_MyModule.hpp
- * 
- * This file contains the DomainModule of the GlobalSpace for MyFeature functions.
+ * @file MyModule.hpp
+ * @brief Contains the DomainModule of the GlobalSpace for MyFeature functions.
  */
 
 #pragma once
@@ -164,10 +126,8 @@ bindFunction(/**/,"MyModule foo","<Description>"); //<-- This will fail without 
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class GlobalSpace; // Forward declaration of domain class GlobalSpace
-    }
+namespace Nebulite::Core{
+    class GlobalSpace; // Forward declaration of domain class GlobalSpace
 }
 
 //------------------------------------------
@@ -178,7 +138,6 @@ NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, MyModule){
 public:
     /**
      * @brief Overridden update function.
-     * 
      * For implementing internal update-procedures 
      * on each new frame
      */
@@ -187,7 +146,12 @@ public:
     //----------------------------------------
     // Available Functions
 
-    Nebulite::Constants::Error spawnCircle(int argc,  char** argv);
+    Nebulite::Constants::Error spawnCircle(std::span<std::string const> const& args);
+    
+    //------------------------------------------
+    // Names
+    static std::string const spawnCircleName;   // Defined in MyModule.cpp: "spawn geometry circle"
+    static std::string const spawnCircleDesc;   // Defined in MyModule.cpp: "<oneline-description>\n<details>"
 
     //------------------------------------------
     // Setup
@@ -198,12 +162,9 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, MyModule){
         //------------------------------------------
         // Binding functions to the Domain
-        bindFunction(&MyModule::spawnCircle, "spawn-circle", "Spawn a circle");
-        /*Bind more functions of MyModule here*/
-        /*You can also implement sublevels to the command using the category feature:*/
         bindCategory("spawn","Spawn functions");
         bindCategory("spawn geometry", "Geometric forms");
-        bindFunction(&MyModule::spawnCircle, "spawn geometry circle", "Spawn a circle");
+        bindFunction(&MyModule::spawnCircle, MyModule::spawnCircleName, &MyModule::spawnCircleDesc);
     }
 private:
     /*Add necessary variables here*/
@@ -212,70 +173,12 @@ private:
 }
 ```
 
-**Inside GSDM_MyModule.cpp:**
-```cpp
-#include "DomainModule/GlobalSpace/GSDM_MyModule.hpp"
-#include "Core/GlobalSpace.hpp"
-
-void Nebulite::DomainModule::GlobalSpace::MyModule::update(){
-    // If our expansion uses any internal values 
-    // that need to be updated on each frame
-    // We can update them here
-}
-
-Nebulite::Nebulite::Constants::Error Nebulite::DomainModule::GlobalSpace::MyModule::spawnCircle(int argc,  char** argv){
-    /*
-    Implementation here.
-    You can access domain and its members through: 
-    `domain->...`
-    */
-}
-```
-
-**Then add the header file to include/DomainModule/GSDM.hpp and initialize:**
-
-```cpp
-/*..*/
-
-//------------------------------------------
-// Module includes 
-#if GSDM_ENABLED
-    /*...*/
-    #include "DomainModule/GlobalSpace/GSDM_MyModule.hpp"
-    /*...*/
-#endif
-
-//------------------------------------------
-namespace Nebulite{
-namespace DomainModule{
-/**
- * @brief Inserts all DomainModules into the GlobalSpace domain.
- */
-void GSDM_init(Nebulite::Core::GlobalSpace* target){
-    #if GSDM_ENABLED
-        // Initialize DomainModules
-        using namespace Nebulite::DomainModule::GlobalSpace;
-        /*...*/
-        target->initModule<MyModule>("<Feature Description>");
-        /*...*/
-    #endif
-}
-}
-}
-```
-
-<!-- TOC --><a name="feature-management"></a>
-### Feature Management
-
-If necessary, the entire feature can then be:
-- **disabled** by commenting out `initModule` inside `{GSDM,JSDM,RODM,TXDM}.hpp`
-- **removed** by undoing all changes inside `{GSDM,JSDM,RODM,TXDM}.hpp` and potentially deleting its files.
+**Then add the header file to `include/DomainModule/Initializer.hpp` and initialize in the cpp file.**
 
 <!-- TOC --><a name="implementation-guidelines"></a>
 ### Implementation Guidelines
 
 - It is recommended to implement unfinished functions inside the cpp file with a return of `Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED()`
-- Use filenames `GSDM_<ModuleName>.{hpp,cpp}` , `RODM_<ModuleName>.{hpp,cpp}` and `JSDM_<ModuleName>.{hpp,cpp}` for module files
 - Use the recommended class naming schemes and namespaces for modules: `Nebulite::DomainModule::GlobalSpace::MyModule`
 
 <!-- TOC --><a name="preview-editing-work-in-progress"></a>

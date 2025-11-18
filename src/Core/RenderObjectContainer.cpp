@@ -1,16 +1,7 @@
 #include "Core/RenderObjectContainer.hpp"
 
-#include "Core/GlobalSpace.hpp"
-
 //------------------------------------------
 // RenderObjectContainer
-
-//------------------------------------------
-//Constructor
-
-Nebulite::Core::RenderObjectContainer::RenderObjectContainer(GlobalSpace *globalSpacePtr) {
-    this->globalSpace = globalSpacePtr;
-}
 
 //------------------------------------------
 //Marshalling
@@ -19,7 +10,7 @@ std::string Nebulite::Core::RenderObjectContainer::serialize() {
     // Setup
 
     // Initialize RapidJSON document
-    Utility::JSON doc(globalSpace);
+    Utility::JSON doc;
 
     //------------------------------------------
     // Get all objects in container
@@ -27,7 +18,7 @@ std::string Nebulite::Core::RenderObjectContainer::serialize() {
     for (auto &currentBatch : std::views::values(ObjectContainer)) {
         for (auto &[objects, _] : currentBatch) {
             for (auto const &obj : objects) {
-                Utility::JSON obj_serial(globalSpace);
+                Utility::JSON obj_serial;
                 obj_serial.deserialize(obj->serialize());
 
                 // insert into doc
@@ -44,7 +35,7 @@ std::string Nebulite::Core::RenderObjectContainer::serialize() {
 }
 
 void Nebulite::Core::RenderObjectContainer::deserialize(std::string const &serialOrLink, uint16_t const &dispResX, uint16_t const &dispResY) {
-    Utility::JSON layer(globalSpace);
+    Utility::JSON layer;
     layer.deserialize(serialOrLink);
     if (layer.memberCheck("objects") == Utility::JSON::KeyType::array) {
         for (uint32_t i = 0; i < layer.memberSize("objects"); i++) {
@@ -53,12 +44,12 @@ void Nebulite::Core::RenderObjectContainer::deserialize(std::string const &seria
             // Check if serial or not:
             auto ro_serial = layer.get<std::string>(key);
             if (ro_serial == "{Object}") {
-                Utility::JSON tmp(globalSpace);
+                Utility::JSON tmp;
                 tmp = layer.getSubDoc(key);
                 ro_serial = tmp.serialize();
             }
 
-            auto *ro = new RenderObject(globalSpace);
+            auto *ro = new RenderObject;
             ro->deserialize(ro_serial);
             append(ro, dispResX, dispResY);
         }
@@ -70,11 +61,11 @@ void Nebulite::Core::RenderObjectContainer::deserialize(std::string const &seria
 
 std::pair<int16_t, int16_t> getTilePos(Nebulite::Core::RenderObject *toAppend, uint16_t const &displayResolutionX, uint16_t const &displayResolutionY) {
     // Calculate correspondingTilePositionX using positionX
-    auto const positionX = toAppend->get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0.0);
+    auto const positionX = toAppend->getDoc()->get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0.0);
     auto correspondingTilePositionX = static_cast<int16_t>(positionX / static_cast<double>(displayResolutionX));
 
     // Calculate correspondingTilePositionY using positionY
-    auto const positionY = toAppend->get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0.0);
+    auto const positionY = toAppend->getDoc()->get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0.0);
     auto correspondingTilePositionY = static_cast<int16_t>(positionY / static_cast<double>(displayResolutionY));
 
     // Form pair and return

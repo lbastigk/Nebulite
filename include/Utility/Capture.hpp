@@ -17,11 +17,48 @@
 #include <string>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility {
+
+// Predeclaration of Capture
+class Capture;
+
+/**
+ * @struct OutputLine
+ * @brief Represents a line of captured output, either to cout or cerr.
+ */
+struct OutputLine{
+    std::string content;
+    enum class Type : uint8_t {
+        COUT,
+        CERR
+    } type;
+};
+
+/**
+ * @struct CaptureStream
+ * @brief Stream class for capturing output and redirecting it to an ostream and internal log.
+ */
+class CaptureStream{
+    std::string lastLine;
+    Capture *parent;                                    // Parent reference so we can lock its mutex, so cout/cerr don't interfere
+    std::reference_wrapper<std::ostream> baseStream;    // ostream outlives CaptureStream, so reference is safe
+    OutputLine::Type type;
+    explicit CaptureStream(Capture* p, std::ostream& s, OutputLine::Type t) : parent(p), baseStream(s), type(t){}
+public:
+    friend class Capture;
+
+    template<typename T>
+    CaptureStream& operator<<(T const& data);
+
+    CaptureStream& operator<<(char const* data){
+        // Cast to std::string, then call templated operator
+        return (*this) << std::string(data);
+    }
+};
+
 /**
  * @class Nebulite::Utility::Capture
  * @brief Captures output to cout and cerr into an internal log.
@@ -30,66 +67,7 @@ namespace Nebulite::Utility {
  */
 class Capture{
 public:
-    static std::string const endl;
-
-    /**
-     * @struct OutputLine
-     * @brief Represents a line of captured output, either to cout or cerr.
-     */
-    struct alignas(CACHE_LINE_ALIGNMENT) OutputLine{
-        std::string content;
-        enum class Type : uint8_t {
-            COUT,
-            CERR
-        } type;
-    };
-
-    /**
-     * @class CaptureStream
-     * @brief Stream class for capturing output and redirecting it to an ostream and internal log.
-     */
-    struct alignas(CACHE_LINE_ALIGNMENT) CaptureStream{
-        std::string lastLine;
-        Capture *parent;                                    // Parent reference so we can lock its mutex, so cout/cerr don't interfere
-        std::reference_wrapper<std::ostream> baseStream;    // ostream outlives CaptureStream, so reference is safe
-        OutputLine::Type type;
-        explicit CaptureStream(Capture* p, std::ostream& s, OutputLine::Type t) : parent(p), baseStream(s), type(t){}
-
-        template<typename T>
-        CaptureStream& operator<<(T const& data){
-            baseStream.get() << data;
-            {
-                std::scoped_lock<std::mutex> const lock(parent->outputLogMutex);
-
-                // Combine lastLine with new data
-                std::ostringstream workingBuffer;
-                workingBuffer << lastLine << data;
-                lastLine = "";
-
-                // Split buffer by newlines
-                std::string buf = workingBuffer.str();
-                std::vector<std::string> lines = Nebulite::Utility::StringHandler::split(buf, '\n');
-
-                // If last character is not newline, keep it in workingBuffer
-                // And do not push it to outputLog yet
-                if(!buf.empty() && buf.back() != '\n'){
-                    lastLine = lines.back();
-                    lines.pop_back();
-                }
-
-                // Push complete lines to outputLog
-                for (auto const& line : lines){
-                    parent->outputLog.push_back({line, type});
-                }
-            }
-            return *this;
-        }
-
-        CaptureStream& operator<<(char const* data){
-            // Cast to std::string, then call templated operator
-            return (*this) << std::string(data);
-        }
-    };
+    friend class CaptureStream;
 
     /**
      * @brief Retrieves the singleton instance of Capture.
@@ -116,7 +94,7 @@ public:
      * @brief Retrieves a pointer to the output log.
      * @return A pointer to the output log deque, const.
      */
-    std::deque<OutputLine> const& getOutputLogPtr() const {
+    [[nodiscard]] std::deque<OutputLine> const& getOutputLogPtr() const {
         return outputLog;
     }
 
@@ -126,6 +104,8 @@ public:
     static void clear(){
         instance().outputLog.clear();
     }
+
+    static constexpr char const* endl = "\n";
 
 private:
     // Make constructor private for singleton
@@ -137,5 +117,36 @@ private:
     std::deque<OutputLine> outputLog; // Log of captured output lines
     std::mutex outputLogMutex;  // Mutex for thread-safe access to outputLog
 };
+
+template<typename T>
+CaptureStream& CaptureStream::operator<<(T const& data){
+    baseStream.get() << data;
+    {
+        std::scoped_lock<std::mutex> const lock(parent->outputLogMutex);
+
+        // Combine lastLine with new data
+        std::ostringstream workingBuffer;
+        workingBuffer << lastLine << data;
+        lastLine = "";
+
+        // Split buffer by newlines
+        std::string buf = workingBuffer.str();
+        std::vector<std::string> lines = Nebulite::Utility::StringHandler::split(buf, '\n');
+
+        // If last character is not newline, keep it in workingBuffer
+        // And do not push it to outputLog yet
+        if(!buf.empty() && buf.back() != '\n'){
+            lastLine = lines.back();
+            lines.pop_back();
+        }
+
+        // Push complete lines to outputLog
+        for (auto const& line : lines){
+            parent->outputLog.push_back({line, type});
+        }
+    }
+    return *this;
+}
+
 } // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_CAPTURE_HPP

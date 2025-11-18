@@ -151,7 +151,7 @@ void FuncTree<returnType, additionalArgs...>::bindFunction(
     if(name.find(' ') != std::string::npos){
         std::vector<std::string> const pathStructure = Utility::StringHandler::split(name, ' ');
         if(pathStructure.size() < 2){
-            Utility::Capture::cerr() << "Error: Invalid function name '" << name << "'." << Utility::Capture::endl;
+            Nebulite::Utility::Capture::cerr() << "Error: Invalid function name '" << name << "'." << Nebulite::Utility::Capture::endl;
             return;
         }
         absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
@@ -226,13 +226,13 @@ template<typename returnType, typename... additionalArgs>
 void FuncTree<returnType, additionalArgs...>::bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription){
     // Make sure there are no whitespaces in the variable name
     if (name.find(' ') != std::string::npos){
-        Utility::Capture::cerr() << "Error: Variable name '" << name << "' cannot contain whitespaces." << Utility::Capture::endl;
+        Nebulite::Utility::Capture::cerr() << "Error: Variable name '" << name << "' cannot contain whitespaces." << Nebulite::Utility::Capture::endl;
         exit(EXIT_FAILURE);
     }
 
     // Make sure the variable isn't bound yet
     if (bindingContainer.variables.find(name) != bindingContainer.variables.end()){
-        Utility::Capture::cerr() << "Error: Variable '" << name << "' is already bound." << Utility::Capture::endl;
+        Nebulite::Utility::Capture::cerr() << "Error: Variable '" << name << "' is already bound." << Nebulite::Utility::Capture::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -461,9 +461,9 @@ returnType FuncTree<returnType, additionalArgs...>::executeFunction(std::string 
             }
             // Unknown function type
             else {
-                Utility::Capture::cerr() << "Error: Unknown function signature for function '" << function << "' in FuncTree '" << TreeName << "'." << Utility::Capture::endl;
-                Utility::Capture::cerr() << "Visitor matched type (mangled):   " << typeid(T).name() << Utility::Capture::endl;
-                Utility::Capture::cerr() << "Visitor matched type (demangled): " << demangle(typeid(T).name()) << Utility::Capture::endl;
+                Nebulite::Utility::Capture::cerr() << "Error: Unknown function signature for function '" << function << "' in FuncTree '" << TreeName << "'." << Nebulite::Utility::Capture::endl;
+                Nebulite::Utility::Capture::cerr() << "Visitor matched type (mangled):   " << typeid(T).name() << Nebulite::Utility::Capture::endl;
+                Nebulite::Utility::Capture::cerr() << "Visitor matched type (demangled): " << demangle(typeid(T).name()) << Nebulite::Utility::Capture::endl;
                 std::exit(EXIT_FAILURE);
             }
         }, functionPtr);
@@ -476,13 +476,13 @@ returnType FuncTree<returnType, additionalArgs...>::executeFunction(std::string 
         }
         return bindingContainer.categories[function].tree->parseStr(cmd, addArgs...);
     }
-    Utility::Capture::cerr() << "Function '" << function << "' not found in FuncTree " << TreeName << ", its inherited FuncTrees or their categories!\n";
-    Utility::Capture::cerr() << "Arguments are:" << Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << "Function '" << function << "' not found in FuncTree " << TreeName << ", its inherited FuncTrees or their categories!\n";
+    Nebulite::Utility::Capture::cerr() << "Arguments are:" << Nebulite::Utility::Capture::endl;
     for(int i = 0; i < argc; i++){
-        Utility::Capture::cerr() << "argv[" << i << "] = '" << argv[i] << "'\n";
+        Nebulite::Utility::Capture::cerr() << "argv[" << i << "] = '" << argv[i] << "'\n";
     }
-    Utility::Capture::cerr() << "Available functions:  " << bindingContainer.functions.size() << Utility::Capture::endl;
-    Utility::Capture::cerr() << "Available categories: " << bindingContainer.categories.size()  << Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << "Available functions:  " << bindingContainer.functions.size() << Nebulite::Utility::Capture::endl;
+    Nebulite::Utility::Capture::cerr() << "Available categories: " << bindingContainer.categories.size()  << Nebulite::Utility::Capture::endl;
     return standardReturn.valFunctionNotFound;  // Return error if function not found
 }
 
@@ -567,8 +567,8 @@ void FuncTree<returnType, additionalArgs...>::specificHelp(std::string const& fu
         // 1.) Function
         if(searchResult.function){
             // Found function, display detailed help
-            Utility::Capture::cout() << "\nHelp for function '" << funcName << "':\n" << Utility::Capture::endl;
-            Utility::Capture::cout() << *searchResult.funIt->second.description << "\n";
+            Nebulite::Utility::Capture::cout() << "\nHelp for function '" << funcName << "':\n" << Nebulite::Utility::Capture::endl;
+            Nebulite::Utility::Capture::cout() << *searchResult.funIt->second.description << "\n";
         }
         // 2.) Category
         else if(searchResult.category){
@@ -578,12 +578,12 @@ void FuncTree<returnType, additionalArgs...>::specificHelp(std::string const& fu
         // 3.) Variable
         else if(searchResult.variable){
             // Found variable, display detailed help
-            Utility::Capture::cout() << "\nHelp for variable '--" << funcName << "':\n" << Utility::Capture::endl;
-            Utility::Capture::cout() << *searchResult.varIt->second.description << "\n";
+            Nebulite::Utility::Capture::cout() << "\nHelp for variable '--" << funcName << "':\n" << Nebulite::Utility::Capture::endl;
+            Nebulite::Utility::Capture::cout() << *searchResult.varIt->second.description << "\n";
         }
     }
     else{
-        Utility::Capture::cerr() << "Function or Category '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
+        Nebulite::Utility::Capture::cerr() << "Function or Category '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
     }
 }
 
@@ -602,7 +602,7 @@ void FuncTree<returnType, additionalArgs...>::generalHelp(){
         }
         std::string paddedName = name;
         paddedName.resize(namePaddingSize, ' ');
-        Utility::Capture::cout() << "  " << paddedName << " - " << descriptionFirstLine << Utility::Capture::endl;
+        Nebulite::Utility::Capture::cout() << "  " << paddedName << " - " << descriptionFirstLine << Nebulite::Utility::Capture::endl;
     };
 
     // All info: [name, description]
@@ -614,15 +614,15 @@ void FuncTree<returnType, additionalArgs...>::generalHelp(){
     std::ranges::sort(allVariables, SortFunctions::caseInsensitiveLess);
 
     // Display:
-    Utility::Capture::cout() << "\nHelp for " << TreeName << "\nAdd the entries name to the command for more details: " << TreeName << " help <foo>\n";
-    Utility::Capture::cout() << "Available functions:\n";
+    Nebulite::Utility::Capture::cout() << "\nHelp for " << TreeName << "\nAdd the entries name to the command for more details: " << TreeName << " help <foo>\n";
+    Nebulite::Utility::Capture::cout() << "Available functions:\n";
 
     // Use lambda with for_each on all functions and variables
     // TODO: using structured bindings here would be nice, but that won't compile for some reason
     std::ranges::for_each(allFunctions, [&](auto const& pair){
         displayMember(pair.first, pair.second);
     });
-    Utility::Capture::cout() << "Available variables:\n";
+    Nebulite::Utility::Capture::cout() << "Available variables:\n";
     std::ranges::for_each(allVariables, [&](auto const& pair){
         displayMember(pair.first, pair.second);
     });

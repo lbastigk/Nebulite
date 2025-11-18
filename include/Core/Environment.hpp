@@ -16,15 +16,7 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Core/RenderObjectContainer.hpp"
-
-//------------------------------------------
-// Forward declarations
-
-namespace Nebulite::Core {
-    class GlobalSpace; // Forward declaration of core class GlobalSpace
-}   // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::Core{
@@ -79,22 +71,7 @@ public:
 	//------------------------------------------
 	//Constructor
 
-	/**
-	 * @brief Constructs the Environment with a global Invoke instance.
-	 *
-	 * Creates an environment with its subcontainers for proper layer-based rendering.
-	 *
-	 * @param globalSpacePtr Pointer to the globalSpace instance.
-	 * is necessary for the Environment and its Container Layers to communicate with the global space.
-	 * This is necessary for:
-	 * 
-	 * - RenderObject updates
-	 * 
-	 * - RenderObject cost estimation
-	 * 
-	 * - RenderObject creation
-	 */
-	explicit Environment(GlobalSpace* globalSpacePtr);
+	Environment();
 
 	// Suppress copy/move operators
 	Environment(Environment&& other) = delete;
@@ -146,12 +123,12 @@ public:
 	 * 
 	 * This function is responsible for updating the state of all render objects in the environment.
 	 * 
-	 * @param tileXposition current camera tile position in the X direction.
-	 * @param tileYposition current camera tile position in the Y direction.
+	 * @param tilePositionX current camera tile position in the X direction.
+	 * @param tilePositionY current camera tile position in the Y direction.
 	 * @param dispResX display resolution width. Necessary for potential RenderObject reinsertions.
 	 * @param dispResY display resolution height. Necessary for potential RenderObject reinsertions.
 	 */
-	void update(int16_t const& tileXposition, int16_t const& tileYposition, uint16_t const& dispResX, uint16_t const& dispResY);
+	void update(int16_t const& tilePositionX, int16_t const& tilePositionY, uint16_t const& dispResX, uint16_t const& dispResY);
 
 	/**
 	 * @brief Rebuilds the Container structure.
@@ -209,12 +186,6 @@ public:
 private:
 	// All layers in rendering order
 	std::vector<Layer> allLayers = {Layer::background, Layer::general, Layer::foreground, Layer::effects, Layer::UI};
-
-	// Link to Global Values
-    Utility::JSON* global;
-
-	// Link to GlobalSpace
-	GlobalSpace* globalSpace;
 
 	// Inner RenderObject container layers
 	std::array<RenderObjectContainer, LayerCount> roc;

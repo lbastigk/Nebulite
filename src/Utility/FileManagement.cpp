@@ -6,9 +6,9 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
-#include "Utility/Capture.hpp"
 
 // Nebulite
+#include "Nebulite.hpp"
 #include "Utility/FileManagement.hpp"
 
 //------------------------------------------
@@ -30,7 +30,7 @@ std::string FileManagement::LoadFile(std::string const& link){
     // Use C-style file I/O to avoid locale issues
     FILE* file = fopen(link.c_str(), "rb");
     if (!file){
-        Capture::cerr() << "File '" << link << "' could not be opened!" << Capture::endl;
+        Nebulite::cerr() << "File '" << link << "' could not be opened!" << Nebulite::endl;
         return "";
     }
     
@@ -40,7 +40,7 @@ std::string FileManagement::LoadFile(std::string const& link){
     fseek(file, 0, SEEK_SET);
     
     if (fileSize <= 0){
-        Capture::cerr() << "File '" << link << "' is empty or invalid!" << Capture::endl;
+        Nebulite::cerr() << "File '" << link << "' is empty or invalid!" << Nebulite::endl;
         fclose(file);
         return "";
     }
@@ -60,7 +60,7 @@ void FileManagement::WriteFile(std::string const& filename, std::string const& t
 
     std::ofstream file(filepath, std::ios::out);
     if (!file.is_open()){
-        Capture::cerr() << "File '" << filepath << "' could not be opened/created for writing!" << Capture::endl;
+        Nebulite::cerr() << "File '" << filepath << "' could not be opened/created for writing!" << Nebulite::endl;
         return;
     }
     file << text;
@@ -74,7 +74,7 @@ std::string FileManagement::currentDir(){
     try {
         return std::filesystem::current_path().string();
     } catch (std::exception const& e){
-        Capture::cerr() << "Error getting current directory: " << e.what() << Capture::endl;
+        Nebulite::cerr() << "Error getting current directory: " << e.what() << Nebulite::endl;
         return "";
     }
 }

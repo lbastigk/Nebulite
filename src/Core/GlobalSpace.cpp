@@ -1,17 +1,26 @@
+//------------------------------------------
+// Includes
+
 #include "Core/GlobalSpace.hpp"
+#include "Constants/KeyNames.hpp"
 #include "DomainModule/Initializer.hpp"
 
-#include "Constants/KeyNames.hpp"
-
+//------------------------------------------
 namespace Nebulite::Core{
     
-GlobalSpace::GlobalSpace(std::string const& binName)
-: Domain("Nebulite", this, &global, this),
-  global(this),                       // Link the global document to the GlobalSpace
-  renderer(this, &cmdVars.headless),  // Renderer with reference to GlobalSpace and headless mode boolean
-  invoke(this),                       // Invoke with reference to GlobalSpace
-  docCache(this)                      // Init with reference to GlobalSpace
+GlobalSpace::GlobalSpace(std::string const& name)
+: Domain("Nebulite", this, &document),
+  document("GlobalSpace Document"),  // JSON
+  renderer(&document, &cmdVars.headless)  // Renderer with reference to GlobalSpace and headless mode boolean
 {
+    //------------------------------------------
+    // There should only be one GlobalSpace
+    static bool globalSpaceExists = false;
+    if(globalSpaceExists){
+        throw std::runtime_error("GlobalSpace instance already exists! Only one instance is allowed.");
+    }
+    globalSpaceExists = true;
+
     //------------------------------------------
     // Setup tasks
     tasks.always.clearAfterResolving = false;       // Always tasks are never cleared
@@ -19,7 +28,7 @@ GlobalSpace::GlobalSpace(std::string const& binName)
 
     //------------------------------------------
     // General Variables
-    names.binary = binName;
+    names.binary = name;
     names.state  = "";
 
     //------------------------------------------
@@ -29,7 +38,7 @@ GlobalSpace::GlobalSpace(std::string const& binName)
     setPreParse([this] { return preParse(); });
 
     // Link inherited Domains
-    inherit(&global);
+    inherit(&document);
     inherit(&renderer);
 
     // Initialize DomainModules
@@ -51,6 +60,8 @@ Constants::Error GlobalSpace::updateInnerDomains() const {
     // Later on the logic here might be more complex
     // As more inner domains are added
     Constants::Error const result = getDoc()->update();
+    // Renderer is not updated here, as it is updated in GlobalSpace::update()
+    // TODO: See if we can generalize this so that we can safely call renderer.update() here as well
     return result;
 }
 
@@ -91,7 +102,7 @@ Constants::Error GlobalSpace::update(){
 
         // Do a Renderer tick and check if an update occurred
         // Reduce script wait counter if not in console mode or other halting states (tick returns false in those cases)
-        if(renderer.tick(&invoke)){
+        if(renderer.tick()){
             if(scriptWaitCounter > 0) scriptWaitCounter--;
         }
 
@@ -122,7 +133,7 @@ Constants::Error GlobalSpace::update(){
     return lastCriticalResult;
 }
 
-void GlobalSpace::parseCommandLineArguments(int const& argc, char const* argv[]){
+void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv){
     //------------------------------------------
     // Add main args to taskList, split by ';'
     if (argc > 1){
@@ -148,10 +159,7 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const* argv[])
     }
     else{
         /**
-         * If no addition arguments were provided:
-         *
-         * @note For now, an empty Renderer is initiated via set-fps 60
-         *
+         * @note For now, an empty Renderer is initiated via set-fps 60 if no arguments are provided
          * @todo Later on it might be helpful to insert a task like:
          *       `env-load ./Resources/Levels/main.jsonc`
          *       Which represents the menue screen of the game.
@@ -162,15 +170,10 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const* argv[])
          *       but this might become challenging as the user could accidentally overwrite the main state.
          *       Best solution is therefore an env-load, with the environment architecture yet to be defined
          *       best solution is probably:
-         *
          *       - a field with the container
-         *
          *       - a vector which contains tasks to be executed on environment load
-         *
          *       - potentially an extra task vector for tasks that are executed BEFORE the env is loaded
-         *
          *       - potentially an extra task vector for tasks that are executed BEFORE the env is de-loaded
-         *
          *       Keys like: after-load, after-deload, before-load, before-deload
          *       For easier usage, hardcoding the env-load task is not a good idea,
          *       instead call some function like "entrypoint" or "main" which is defined in a GlobalSpace DomainModule
@@ -179,7 +182,6 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const* argv[])
          *       as any additional argument would make the entrypoint not be called.
          *       So later on, we might consider always calling entrypoint as first task AFTER the command line arguments are parsed
          *       This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
-         *
          */
         tasks.script.taskQueue.emplace_back("set-fps 60");
     }
@@ -189,11 +191,14 @@ taskQueueResult GlobalSpace::resolveTaskQueue(taskQueueWrapper& tq, uint64_t con
     Constants::Error currentResult;
     taskQueueResult fullResult;
 
-    // If clearAfterResolving, process and pop each element
+    // 1.) Process and pop tasks
     if (tq.clearAfterResolving){
-        while (!tq.taskQueue.empty() && !fullResult.encounteredCriticalResult){
+        while (!tq.taskQueue.empty()){
+            // Check stop conditions
+            if (fullResult.encounteredCriticalResult && !cmdVars.recover) break;
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
+            // Pop front
             std::string argStr = tq.taskQueue.front();
             tq.taskQueue.pop_front();
 
@@ -211,10 +216,12 @@ taskQueueResult GlobalSpace::resolveTaskQueue(taskQueueWrapper& tq, uint64_t con
             }
             fullResult.errors.push_back(currentResult);
         }
-    } else {
-        // If not clearing, process every element without popping
+    }
+    // 2.) Process without popping tasks
+    else {
         for (auto const& argStrOrig : tq.taskQueue){
-            if (fullResult.encounteredCriticalResult) break;
+            // Check stop conditions
+            if (fullResult.encounteredCriticalResult && !cmdVars.recover) break;
             if (waitCounter != nullptr && *waitCounter > 0) break;
 
             // Add binary name if missing
@@ -233,6 +240,7 @@ taskQueueResult GlobalSpace::resolveTaskQueue(taskQueueWrapper& tq, uint64_t con
             fullResult.errors.push_back(currentResult);
         }
     }
+
     return fullResult;
 }
 
@@ -288,8 +296,8 @@ Constants::Error GlobalSpace::preParse(){
 void GlobalSpace::updateRNGs(){
     // Set Min and Max values for RNGs in document
     // Always set, so overwrites don't stick around
-    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.min, std::numeric_limits<RngVars::rngSize_t>::min());
-    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.max, std::numeric_limits<RngVars::rngSize_t>::max());
+    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.min, std::numeric_limits<RngVars::rngSize_t>::min());
+    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.max, std::numeric_limits<RngVars::rngSize_t>::max());
 
     // Generate seeds in a predictable manner
     // Since updateRNG is called at specific times only, we can simply increment RNG with a new seed
@@ -305,10 +313,10 @@ void GlobalSpace::updateRNGs(){
     rng.D.update(seedD);
 
     // Set RNG values in global document
-    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.A, rng.A.get());
-    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.B, rng.B.get());
-    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.C, rng.C.get());
-    global.set<RngVars::rngSize_t>(Constants::keyName.RNGs.D, rng.D.get());
+    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.A, rng.A.get());
+    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.B, rng.B.get());
+    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.C, rng.C.get());
+    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.D, rng.D.get());
 }
 
 }  // namespace Nebulite::Core

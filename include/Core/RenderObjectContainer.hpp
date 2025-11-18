@@ -3,8 +3,8 @@
  * @brief Contains the Nebulite::Core::RenderObjectContainer class.
  */
 
-#ifndef NEBULITE_CORE_RENDEROBJECTCONTAINER_HPP
-#define NEBULITE_CORE_RENDEROBJECTCONTAINER_HPP
+#ifndef NEBULITE_CORE_RENDEROBJECT_CONTAINER_HPP
+#define NEBULITE_CORE_RENDEROBJECT_CONTAINER_HPP
 
 //------------------------------------------
 // Includes
@@ -14,6 +14,7 @@
 
 // Nebulite
 #include "Core/RenderObject.hpp"
+#include "Utility/JSON.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -64,9 +65,8 @@ public:
 
     /**
      * @brief Constructs a new RenderObjectContainer.
-     * @param globalSpacePtr Pointer to the global Space instance.
      */
-    explicit RenderObjectContainer(GlobalSpace *globalSpacePtr);
+    RenderObjectContainer() = default;
 
     //------------------------------------------
     // Serialization / Deserialization
@@ -171,7 +171,7 @@ public:
         for (auto &batches : std::views::values(ObjectContainer)) {
             for (auto &[objects, _] : batches) {
                 for (auto const &object : objects) {
-                    if (object->get<uint32_t>(Constants::keyName.renderObject.id.c_str(), 0) == id) {
+                    if (object->getDoc()->get<uint32_t>(Constants::keyName.renderObject.id.c_str(), 0) == id) {
                         return object;
                     }
                 }
@@ -250,9 +250,6 @@ private:
         std::vector<RenderObject *> purgatory; // Deleted each frame
         std::mutex deleteMutex; // Threadsafe insertion into trash
     } deletionProcess;
-
-    // Link to the global space for new objects
-    GlobalSpace *globalSpace;
 };
 } // namespace Nebulite::Core
-#endif // NEBULITE_CORE_RENDEROBJECTCONTAINER_HPP
+#endif // NEBULITE_CORE_RENDEROBJECT_CONTAINER_HPP

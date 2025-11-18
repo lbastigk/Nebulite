@@ -1,16 +1,8 @@
 /**
  * @file Nebulite.hpp
  *
- * @brief Central file for Nebulite namespace documentation, global constants and more.
- * While classes/variables have on central definition file, namespaces are only loosely bound.
- * Meaning there isn't a consensus who first defined the namespace.
- * We use a separate file for each namespace to avoid conflicts with doxygen documentation.
- * 
- * @todo Since global namespace documentation is not shown in-editor, we may use this central file
- *       for globally available objects instead/additionally, such as:
- *       - Global ErrorTable object
- *       - Global Logger object
- *       - GlobalSpace Object
+ * @brief Central file for Nebulite namespace documentation and public singleton accessors.
+ *        Offers access to core Nebulite functionality for instances such as DomainModules
  */ 
 
 #ifndef NEBULITE_HPP
@@ -19,32 +11,14 @@
 //------------------------------------------
 // Includes
 
+// Standard library
 #include <cstddef>
+#include <deque>
+#include <string>
 
-//------------------------------------------
-// Define alignment constants
-
-// CACHE LINE alignment
-#ifdef __cpp_lib_hardware_interference_size
-    //inline constexpr std::size_t CACHE_LINE_ALIGNMENT = std::hardware_destructive_interference_size;
-    constexpr std::size_t CACHE_LINE_ALIGNMENT = 64U; // temporary workaround until MSVC supports it
-    // TODO: Ensure that the windows build system has a compile option to enable hardware_interference_size
-#else
-    inline constexpr std::size_t CACHE_LINE_ALIGNMENT = 64U; // common on x86_64
-#endif
-
-// DUAL CACHE LINE alignment
-inline constexpr std::size_t DUAL_CACHE_LINE_ALIGNMENT = 2 * CACHE_LINE_ALIGNMENT;
-
-// SIMD alignment (AVX/AVX2)
-inline constexpr std::size_t SIMD_ALIGNMENT = 32U;
-
-// SSE alignment
-inline constexpr std::size_t SSE_ALIGNMENT = 16U;
-
-// Technically, the parenthesis around "CACHE_LINE_ALIGNMENT - 1" is not needed, but it improves readability
-// NOLINTNEXTLINE
-static_assert((CACHE_LINE_ALIGNMENT & (CACHE_LINE_ALIGNMENT - 1)) == 0, "CACHE_LINE_ALIGNMENT must be power of two");
+// Nebulite
+#include "Core/GlobalSpace.hpp"
+#include "Utility/Capture.hpp"
 
 //------------------------------------------
 // Namespace documentation
@@ -115,7 +89,6 @@ namespace Nebulite{
      * - `Interaction::Logic`: All logic-related classes and functions
      */
     namespace Interaction{
-
         /**
          * @namespace Nebulite::Interaction::Execution
          * @brief Contains all classes, functions, types and variables related to domain-specific command-processing.
@@ -137,9 +110,36 @@ namespace Nebulite{
     namespace Utility{}
 
 }   // namespace Nebulite
-#endif // NEBULITE_HPP
+
+//------------------------------------------
+// Singleton accessors
 
 /**
- * @todo: Add global() function here for accessing GlobalSpace.
- *        Also add global ErrorTable and Logger objects here.
+ * @todo: add ErrorTable for access via single header file.
  */
+namespace Nebulite{
+    /**
+     * @brief Singleton accessor for the global GlobalSpace object.
+     */
+    Core::GlobalSpace& global();
+
+    /**
+     * @brief Singleton accessor for the cout capture object
+     * @return CaptureStream object for capturing cout output
+     */
+    Nebulite::Utility::CaptureStream& cout();
+
+    /**
+     * @brief Singleton accessor for the cerr capture object
+     * @return CaptureStream object for capturing cerr output
+     */
+    Nebulite::Utility::CaptureStream& cerr();
+
+    /**
+     * @brief End line string for capturing output
+     *        At the moment, this is just a placeholder for `"\n"`.
+     */
+    static std::string const endl = "\n";
+
+}   // namespace Nebulite
+#endif // NEBULITE_HPP

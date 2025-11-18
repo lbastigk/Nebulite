@@ -1,12 +1,15 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <ranges>
+
 // External
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/prettywriter.h>
 
 // Nebulite
-#include "Core/GlobalSpace.hpp"
+#include "Nebulite.hpp"
 #include "Utility/RjDirectAccess.hpp"
 #include "Utility/StringHandler.hpp"
 
@@ -172,7 +175,7 @@ rapidjson::Value RjDirectAccess::sortRecursive(rapidjson::Value const& value, ra
 
 std::string RjDirectAccess::serialize(rapidjson::Document const& doc){
     if (!doc.IsObject() && !doc.IsArray()){
-        Capture::cerr() << "Serialization only supports JSON objects or arrays!" << Capture::endl;
+        Nebulite::cerr() << "Serialization only supports JSON objects or arrays!" << Nebulite::endl;
         return "{}";
     }
 
@@ -188,7 +191,7 @@ std::string RjDirectAccess::serialize(rapidjson::Document const& doc){
     return buffer.GetString();
 }
 
-void RjDirectAccess::deserialize(rapidjson::Document& doc, std::string const& serialOrLink, Core::GlobalSpace* global){
+void RjDirectAccess::deserialize(rapidjson::Document& doc, std::string const& serialOrLink){
     std::string jsonString;
 
     // Check if the input is already a serialized JSON string
@@ -200,14 +203,14 @@ void RjDirectAccess::deserialize(rapidjson::Document& doc, std::string const& se
         //------------------------------------------
         // Load the JSON file
         // First token is the path or serialized JSON
-        jsonString = global->getDocCache()->getDocString(serialOrLink);
+        jsonString = global().getDocCache()->getDocString(serialOrLink);
     }
 
     // Strip JSONC comments before parsing
     std::string const cleanJson = stripComments(jsonString);
     if (rapidjson::ParseResult const res = doc.Parse(cleanJson.c_str()); !res){
-        Capture::cerr() << "JSON Parse Error at offset " << res.Offset() << Capture::endl;
-        Capture::cerr() << "String is:\n" << cleanJson << Capture::endl;
+        Nebulite::cerr() << "JSON Parse Error at offset " << res.Offset() << Nebulite::endl;
+        Nebulite::cerr() << "String is:\n" << cleanJson << Nebulite::endl;
     }
 }
 

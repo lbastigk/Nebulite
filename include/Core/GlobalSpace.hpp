@@ -1,10 +1,10 @@
-
 /**
  * @file GlobalSpace.hpp
  * 
  * @brief Contains the Nebulite::Core::GlobalSpace class declaration 
- * for the Nebulite Engine for core functionality
- * and structures in Nebulite::Core namespace.
+ *        for the Nebulite Engine for core functionality
+ *        and structures in Nebulite::Core namespace.
+ *        Manages rendering, task queues, RNGs, and similar global features.
  */
 
 #ifndef NEBULITE_CORE_GLOBALSPACE_HPP
@@ -15,6 +15,11 @@
 
 // Standard library
 #include <deque>
+#include <string>
+#include <vector>
+#include <mutex>
+#include <cstdint>
+#include <cstddef>
 
 // Nebulite
 #include "Core/Renderer.hpp"
@@ -34,14 +39,26 @@ struct taskQueueWrapper {
     bool clearAfterResolving = true;    // Whether to clear the task list after resolving
     /**
      * @note Add more metadata as needed, for resolveTaskQueue() to use
+     *       in case new task types are added in the future.
+     *       Perhaps even a hashmap of string to variant around this wrapper for
+     *       maximum flexibility.
+     *       map string -> taskQueueWrapper{taskQueue, <metadata>}
+     *       This way, each task could be sorted into different queues based on type,
+     *       so we can simply call <task> for normal tasks,
+     *       and specify "on-queue <type> <task>" for specific task types
+     *       that we wish to execute in a different manner.
+     *       This could allow us to auto-sort tasks into e.g. always-tasks etc.
+     *       or even manage tasks with calls such as "modify-task <identifier> <modification>"
+     * @todo Implement waitcounter into each taskQueueWrapper, so each queue can have its own wait counter
+     *       Then, have function such as wait, task, etc. modify a specifiy taskQueue.
+     *       calls with "on-queue", e.g. "on-queue <always/wait/etc.> <args>" can modify specific queues.
      */
 };
 
 /**
  * @brief Represents the result of resolving a task queue.
- *
- * This structure holds the outcome of processing a task queue, including any errors
- * encountered during resolution and whether the process was halted due to a critical error.
+ *        This structure holds the outcome of processing a task queue, including any errors
+ *        encountered during resolution and whether the process was halted due to a critical error.
  */
 struct taskQueueResult{
     bool encounteredCriticalResult = false;
@@ -53,46 +70,23 @@ struct taskQueueResult{
 
 /**
  * @class Nebulite::Core::GlobalSpace
- * @brief Declares the core types, global objects, and functions for the Nebulite Engine
- *
- * Overview:
- * 
- *   - Provides the main engine interface, including task queue management, renderer access,
- *     and error logging facilities.
- * 
- *   - Defines the `taskQueue` and `taskQueueResult` structures for managing and tracking
- *     the execution of queued engine tasks.
- * 
- *   - Declares global engine objects (such as the main function tree, renderer, and global state)
- *     and task queues used throughout the engine.
- * 
- *   - Exposes functions for engine initialization, renderer management, and task queue resolution.
- *
- * Key Components:
- * 
- *   - taskQueue: Holds a list of tasks to be executed, along with parsing and state info.
- * 
- *   - taskQueueResult: Stores the result of processing a task queue, including error codes and
- *     whether execution was stopped due to a critical error.
- * 
- *   - renderer: Pointer to the main rendering engine, lazily initialized.
- * 
- *   - error logging: Facilities for redirecting and storing error output.
- * 
- *   - stateName, binName: Strings for tracking the current engine state and binary name.
- *
- * See main.cpp and other engine modules for usage examples and integration details.
+ * @brief Declares the core types, global objects, and functions for the Nebulite Engine.
+ *        Used as a global workspace for functionality such as Rendering, Time, RNGs, etc.
  */
 NEBULITE_DOMAIN(GlobalSpace){
 public:
     //------------------------------------------
     // Special Member Functions
 
-    // Constructor
-    explicit GlobalSpace(std::string const& binName);
+    // Constructor itself notices if multiple instances are created
+    // and throws an error in that case
 
-    // Destructor
+    explicit GlobalSpace(std::string const& name = "Unnamed GlobalSpace");
+
     ~GlobalSpace() override = default;
+
+    // Globalspace is wrapped in a singleton pattern
+    // we disallow copying and moving
 
     // Prevent copying
     GlobalSpace(GlobalSpace const&) = delete;
@@ -106,19 +100,16 @@ public:
     // Functions
 
     /**
-     * @brief Parses command line arguments and sets corresponding variables.
-     * 
-     * This function processes the command line arguments passed to the program,
-     * setting internal variables based on recognized flags and options.
-     * 
+     * @brief Parses command line arguments from the main function.
+     *        - sets command line variables
+     *        - adds given tasks to the script task queue
      * @param argc The number of command line arguments.
      * @param argv The array of command line argument strings.
      */
-    void parseCommandLineArguments(int const& argc, char const* argv[]);
+    void parseCommandLineArguments(int const& argc, char const** argv);
 
     /**
      * @brief Resolves a task queue by parsing each task and executing it.
-     * 
      * @param tq The task queue to resolve.
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
@@ -127,15 +118,13 @@ public:
 
     /**
      * @brief Parses the task queue for execution.
-     * 
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
-     * the last critical error code otherwise.
+     *         the last critical error code otherwise.
      */
     Constants::Error parseQueue();
 
     /**
      * @brief Updates the global space.
-     * 
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
     Constants::Error update() override;
@@ -149,6 +138,10 @@ public:
 
     /**
      * @brief Evaluates a string.
+     *        Example: "$i(2 + 2)" -> "4"
+     *        Allowed context:
+     *        - global (GlobalSpace)
+     *        - resources (Read only documents)
      * @param expr The expression to evaluate.
      * @return The evaluated result as a string.
      */
@@ -157,7 +150,13 @@ public:
     }
 
     /**
-     * @brief Evaluates a string with context of a RenderObject.
+     * @brief Evaluates a string with a RenderObject as context "self" and "other".
+     *        Example: "My Value is: {other.positionX}" -> "My Value is: 100"
+     *        Allowed context:
+     *        - self (RenderObject)
+     *        - other (RenderObject)
+     *        - global (GlobalSpace)
+     *        - resources (Read only documents)
      * @param expr The expression to evaluate.
      * @param context The RenderObject providing context for the evaluation.
      * @return The evaluated result as a string.
@@ -168,6 +167,10 @@ public:
 
     /**
      * @brief Evaluates a string and returns the result as a double.
+     *        Example: "$(2 + 2)" -> 4.0
+     *        Allowed context:
+     *        - global (GlobalSpace)
+     *        - resources (Read only documents)
      * @param expr The expression to evaluate.
      * @return The evaluated result as a double.
      */
@@ -176,7 +179,14 @@ public:
     }
 
     /**
-     * @brief Evaluates a string with context of a RenderObject and returns the result as a double.
+     * @brief Evaluates a string with context of a RenderObject "self" and "other"
+     *        and returns the result as a double.
+     *        Example: "$({global.time.dt} * {self.physics.vX})" -> 1.168
+     *        Allowed context:
+     *        - self (RenderObject)
+     *        - other (RenderObject)
+     *        - global (GlobalSpace)
+     *        - resources (Read only documents)
      * @param expr The expression to evaluate.
      * @param context The RenderObject providing context for the evaluation.
      * @return The evaluated result as a double.
@@ -187,6 +197,9 @@ public:
 
     /**
      * @brief Evaluates a string and returns the result as a boolean.
+     *        Allowed context:
+     *        - global (GlobalSpace)
+     *        - resources (Read only documents)
      * @param expr The expression to evaluate.
      * @return The evaluated result as a boolean.
      */
@@ -196,6 +209,11 @@ public:
 
     /**
      * @brief Evaluates a string with context of a RenderObject and returns the result as a boolean.
+     *        Allowed context:
+     *        - self (RenderObject)
+     *        - other (RenderObject)
+     *        - global (GlobalSpace)
+     *        - resources (Read only documents)
      * @param expr The expression to evaluate.
      * @param context The RenderObject providing context for the evaluation.
      * @return The evaluated result as a boolean.
@@ -209,26 +227,34 @@ public:
 
     /**
      * @brief Gets the global queue for function calls.
+     * @return Pointer to the task queue deque for script tasks.
+     * @todo Consider more versatile task queue management in the future.
+     *       Returning the correct deque based on task type, etc.
+     *       With fallback to a default queue if type is unknown.
      */
     std::deque<std::string>* getTaskQueue(){ return &tasks.script.taskQueue; }
 
     /**
      * @brief Gets a pointer to the Renderer instance.
+     * @return Pointer to the Renderer instance.
      */
     Renderer* getRenderer(){ return &renderer; }
 
     /**
      * @brief Gets a pointer to the SDL Renderer instance.
+     * @return Pointer to the SDL_Renderer instance.
      */
     SDL_Renderer* getSdlRenderer() const { return renderer.getSdlRenderer(); }
 
     /**
      * @brief Gets a pointer to the Invoke instance.
+     * @return Pointer to the Invoke instance.
      */
     Interaction::Invoke* getInvoke(){ return &invoke; }
 
     /**
      * @brief Gets a pointer to the global document cache.
+     * @return Pointer to the DocumentCache instance.
      */
     Utility::DocumentCache* getDocCache(){ return &docCache; }
 
@@ -238,6 +264,8 @@ public:
     /**
      * @struct Tasks
      * @brief Contains task queues for different types of tasks.
+     * @todo Use a hashmap instead, with a default task queue for unknown types.
+     *       (should be internal task queue)
      */
     struct Tasks{
         taskQueueWrapper script;     // Task queue for script files loaded with "task"
@@ -253,15 +281,19 @@ public:
 
     //------------------------------------------
     // DomainModule variables
+
     struct commandLineVariables{
         bool headless = false; // Headless mode (no window)
         bool recover = false;  // Enable recoverable error mode
         /*Add more variables as needed*/
-    };
-    commandLineVariables cmdVars;
+    } cmdVars;
 
     /**
      * @brief Rolls back all RNGs to their previous state.
+     *        Can be called by any domainModule function
+     *        if you dont want this functioncall to modify RNG state.
+     *        Example: calling a script should not modify RNG, so that we can
+     *                 always load scripts for TAS without RNG state changes.
      */
     void rngRollback(){
         rng.A.rollback();
@@ -272,22 +304,20 @@ public:
 
     /**
      * @brief Checks if the main loop should continue running.
-     * 
      * @return True if the main loop should continue, false otherwise.
      */
     bool shouldContinueLoop() const { return continueLoop; }
 
     enum class UniqueIdType{
-        expression = 0,
-        jsonKey = 1
+        expression,
+        jsonKey,
+        NONE    // Keep this as last entry
     };
-    static constexpr size_t UniqueIdTypeSize = 2;
+    static constexpr size_t UniqueIdTypeSize = static_cast<size_t>(UniqueIdType::NONE) + 1;
 
     /**
      * @brief Gets a unique ID based on a hash string.
-     * 
-     * Threadsafe. Uses a mutex-lock per UniqueIdType.
-     * 
+     *        Threadsafe. Uses a mutex-lock per UniqueIdType.
      * @param hash The hash string to get the unique ID for.
      * @param type Which rolling counter to use for the unique ID, allowing for separate ID spaces.
      * @return The unique ID corresponding to the hash.
@@ -311,16 +341,16 @@ private:
     bool continueLoop = true;
 
     // Global JSON Document
-    Utility::JSON global;
+    Utility::JSON document;
+
+    // DocumentCache for read-only documents
+    Utility::DocumentCache docCache;
 
     // Renderer
     Renderer renderer;
 
     // Invoke Object for parsing expressions etc.
     Interaction::Invoke invoke;
-
-    // DocumentCache for read-only documents
-    Utility::DocumentCache docCache;
 
     // Unique ID map
     uint64_t uniqueIdCounter[UniqueIdTypeSize] = {0, 0};
@@ -365,10 +395,11 @@ private:
     // Methods
 
     /**
-     * @brief Sets the pre-parse function for the domain.
-     * 
-     * This function binds a pre-parse function to the domain's function tree,
-     * which is called before parsing any command. It is used to properly handle RNG
+     * @brief Sets the pre-parse function for the domain,
+     *        which is called before parsing any command.
+     *        It is used here to properly handle RNG
+     * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
+     *         an error code otherwise.
      */
     Constants::Error preParse() override;
 
@@ -379,7 +410,6 @@ private:
 
     /**
      * @brief Updates all inner domains.
-     * 
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
     Constants::Error updateInnerDomains() const;

@@ -15,50 +15,41 @@
     class DomainModuleName final : public Nebulite::Interaction::Execution::DomainModule<DomainName>
 
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
-    explicit DomainModuleName(std::string const& name, DomainName* domainPtr, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Nebulite::Core::GlobalSpace* globalSpace) \
-    : DomainModule(name, domainPtr, std::move(funcTreePtr), globalSpace)
+    explicit DomainModuleName(std::string const& name, DomainName* domainPtr, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr) \
+    : DomainModule(name, domainPtr, std::move(funcTreePtr))
 
 //------------------------------------------
 // Includes
 
-// Nebulite
+// Standard library
 #include <utility>
 
+// Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
-#include "Utility/Capture.hpp" // Allowing logging from DomainModules
-
-//------------------------------------------
-// Pre-declarations
-namespace Nebulite::Core{
-    class GlobalSpace;
-}
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution{
 /**
  * @class Nebulite::Interaction::Execution::DomainModule
  * @brief Wrapper class for binding functions to a specific category in the FuncTree and adding separate update routines.
- * 
- * This allows for cleaner separation of object files for different categories
- * and reduces boilerplate code when attaching functions to the FuncTree.
+ *        This allows for cleaner separation of object files for different categories
+ *        and reduces boilerplate code when attaching functions to the FuncTree.
  */
 template<typename DomainType>
 class DomainModule{
 public:
     /**
      * @brief Constructor for the DomainModule base class.
-     * 
-     * The constructor initializes the DomainModule with a reference to the domain and
-     * the FuncTree.
+     *        The constructor initializes the DomainModule with a reference to the domain and
+     *        the FuncTree.
      */
     DomainModule(
         std::string name,
         DomainType* domainPtr,
-        std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr,
-        Core::GlobalSpace* globalSpace
+        std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr
     )
-    : moduleName(std::move(name)), domain(domainPtr), global(globalSpace), funcTree(std::move(std::move(funcTreePtr))){}
+    : moduleName(std::move(name)), domain(domainPtr), funcTree(std::move(funcTreePtr)){}
 
     /**
      * @brief Virtual destructor for DomainModule.
@@ -98,12 +89,9 @@ public:
 
     /**
     * @brief Binds a member function to the FuncTree.
-     *
-     * This function template allows for binding member functions of any class type
-     * to the FuncTree, automatically handling the necessary type conversions.
-     *
-     * This function is a wrapper around the static bindFunctionStatic helper for methods inside the DomainModule.
-     *
+     *       This function template allows for binding member functions of any class type
+     *       to the FuncTree, automatically handling the necessary type conversions.
+     *       This function is a wrapper around the static bindFunctionStatic helper for methods inside the DomainModule.
      * @tparam ClassType The type of the class containing the member function.
      * @tparam ReturnType The return type of the member function.
      * @tparam Args The argument types of the member function.
@@ -115,8 +103,6 @@ public:
     void bindFunction(ReturnType (ClassType::*methodPtr)(Args...), std::string const& name, std::string const* helpDescription){
         bindFunctionStatic(funcTree.get(), static_cast<ClassType*>(this), methodPtr, name, helpDescription);
     }
-
-
 
     /**
      * @brief Binds a category to the FuncTree.
@@ -145,46 +131,6 @@ public:
         funcTree->bindVariable(variablePtr, name, helpDescription);
     }
 
-    /**
-     * @brief Log to the Nebulite logging system.
-     * 
-     * This function logs a message to the Nebulite logging system.
-     * 
-     * @param message The message to log.
-     */
-    static void log(std::string const& message){
-        Utility::Capture::cout() << message;
-    }
-
-    /**
-     * @brief Logs to the Nebulite logging system with a newline.
-     * 
-     * This function logs a message to the Nebulite logging system and appends a newline.
-     * 
-     * @param message The message to log.
-     */
-    static void logln(std::string const& message){
-        Utility::Capture::cout() << message << Utility::Capture::endl;
-    }
-
-    /**
-     * @brief Log an error to the Nebulite logging system.
-     * 
-     * @param message The error message to log.
-     */
-    static void logError(std::string const& message){
-        Utility::Capture::cerr() << message;
-    }
-
-    /**
-     * @brief Logs an error to the Nebulite logging system with a newline.
-     * 
-     * @param message The error message to log.
-     */
-    static void logErrorln(std::string const& message){
-        Utility::Capture::cerr() << message << Utility::Capture::endl;
-    }
-
     // Prevent copying
     DomainModule(DomainModule const&) = delete;
 
@@ -207,11 +153,6 @@ protected:
      * @brief Workspace of the DomainModule
      */
     DomainType* domain;
-
-    /**
-     * @brief Pointer to the global space of the DomainModule
-     */
-    Core::GlobalSpace* global;
 
 private:
     /**

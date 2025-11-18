@@ -22,13 +22,6 @@
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------
-// Forward declarations
-
-namespace Nebulite::Core {
-    class GlobalSpace;
-} // namespace Nebulite::Core
-
-//------------------------------------------
 namespace Nebulite::Utility {
 /**
  * @class RjDirectAccess
@@ -177,9 +170,8 @@ public:
      * 
      * @param doc The rapidjson document to populate.
      * @param serialOrLink The JSON string to deserialize.
-     * @param global Pointer to the GlobalSpace, used for resolving links.
      */
-    static void deserialize(rapidjson::Document& doc, std::string const& serialOrLink, Core::GlobalSpace* global);
+    static void deserialize(rapidjson::Document& doc, std::string const& serialOrLink);
     
 
     //------------------------------------------

@@ -11,7 +11,6 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Core/Environment.hpp"
-#include "Core/GlobalSpace.hpp"
 #include "Core/RenderObjectContainer.hpp"
 #include "Utility/JSON.hpp"
 
@@ -25,17 +24,16 @@ namespace {
 	 * @brief Creates an array of RenderObjectContainer instances.
 	 * 
 	 * @tparam LayerCount The number of layers (size of the array).
-	 * @param globalSpace Pointer to the GlobalSpace instance.
 	 * @return An array of RenderObjectContainer instances.
 	 */
 	template<std::size_t LayerCount>
 	std::array<Nebulite::Core::RenderObjectContainer, LayerCount>
-	make_roc_array(Nebulite::Core::GlobalSpace* globalSpace){
-		return []<std::size_t... Is>(Nebulite::Core::GlobalSpace* gs, std::index_sequence<Is...>){
+	make_roc_array(){
+		return []<std::size_t... Is>(std::index_sequence<Is...>){
 			return std::array<Nebulite::Core::RenderObjectContainer, sizeof...(Is)>{
-				{(static_cast<void>(Is), Nebulite::Core::RenderObjectContainer(gs))...}
+				{(static_cast<void>(Is), Nebulite::Core::RenderObjectContainer{})...}
 			};
-		}(globalSpace, std::make_index_sequence<LayerCount>{});
+		}(std::make_index_sequence<LayerCount>{});
 	}
 }	// anonymous namespace
 
@@ -43,22 +41,13 @@ namespace Nebulite::Core{
 
 
 
-Environment::Environment(GlobalSpace* globalSpacePtr)
-: roc(make_roc_array<LayerCount>(globalSpacePtr))
-{
-	this->globalSpace = globalSpacePtr;
-
-	// Storing pointer copy for easy access of global document
-        // TODO: Make Environment a Domain to avoid this hack
-        //       makes it easier to manage DomainModules in the future as well
-	global = globalSpace->getDoc();
-}
+Environment::Environment() : roc(make_roc_array<LayerCount>()){}
 
 //------------------------------------------
 // Marshalling
 
 std::string Environment::serialize(){
-	Utility::JSON doc(globalSpace);
+	Utility::JSON doc;
 
 	// Serialize each container and add to the document
 	for (unsigned int i = 0; i < LayerCount; i++){
@@ -66,7 +55,7 @@ std::string Environment::serialize(){
 		std::string serializedContainer = roc[i].serialize();
 
 		// Add the container JSON object to the main document
-		Utility::JSON layer(globalSpace);
+		Utility::JSON layer;
 		layer.deserialize(serializedContainer);
 		doc.setSubDoc(key.c_str(), &layer);
 	}
@@ -74,7 +63,7 @@ std::string Environment::serialize(){
 }
 
 void Environment::deserialize(std::string const& serialOrLink, uint16_t const& dispResX,uint16_t const& dispResY){
-	Utility::JSON file(globalSpace);
+	Utility::JSON file;
 	file.deserialize(serialOrLink);
 
 	// Getting all layers
@@ -105,9 +94,9 @@ void Environment::append(RenderObject* toAppend,uint16_t const& dispResX, uint16
 	}
 }
 
-void Environment::update(int16_t const& tileXposition, int16_t const& tileYposition, uint16_t const& dispResX, uint16_t const& dispResY){
+void Environment::update(int16_t const& tilePositionX, int16_t const& tilePositionY, uint16_t const& dispResX, uint16_t const& dispResY){
 	for (unsigned int i = 0; i < LayerCount; i++){
-		roc[i].update(tileXposition, tileYposition, dispResX, dispResY);
+		roc[i].update(tilePositionX, tilePositionY, dispResX, dispResY);
 	}
 }
 
