@@ -1,10 +1,12 @@
 {
-  "topic" : "",
-  "logicalArg": "1",
-  "exprs" : [],
-  "functioncalls_global": [
-    "echo TEST"
-  ],
-  "functioncalls_self": [],
-  "functioncalls_other": []
+    "topic": "",
+    "logicalArg": "1",
+    "exprs": [],
+    "functioncalls": {
+        "global": [
+            "echo TEST"
+        ],
+        "self": [],
+        "other": []
+    }
 }

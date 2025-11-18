@@ -1,11 +1,13 @@
 {
-  "topic": "",
-  "logicalArg": "1",
-  "exprs": [
-    "self.physics.vX += $({self.physics.aX} * {global.time.dt})",
-    "self.physics.vY += $({self.physics.aY} * {global.time.dt})"
-  ],
-  "functioncalls_global": [],
-  "functioncalls_self": [],
-  "functioncalls_other": []
+    "topic": "",
+    "logicalArg": "1",
+    "exprs": [
+        "self.physics.vX += $({self.physics.aX} * {global.time.dt})",
+        "self.physics.vY += $({self.physics.aY} * {global.time.dt})"
+    ],
+    "functioncalls": {
+        "global": [],
+        "self": [],
+        "other": []
+    }
 }

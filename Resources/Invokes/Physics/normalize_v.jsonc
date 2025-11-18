@@ -1,12 +1,14 @@
 {
-  "topic": "",
-  "logicalArg": "$(neq({self.physics.vX},0) + neq({self.physics.vY},0))",
-  "exprs": [
-    "self.physics.v = $( sqrt( {self.physics.vX}^2 + {self.physics.vY}^2 ) )",
-    "self.physics.vX = $( {self.physics.vX} /  {self.physics.v} )",
-    "self.physics.vY = $( {self.physics.vY} /  {self.physics.v} )"
-  ],
-  "functioncalls_global": [],
-  "functioncalls_self": [],
-  "functioncalls_other": []
+    "topic": "",
+    "logicalArg": "$(neq({self.physics.vX},0) + neq({self.physics.vY},0))",
+    "exprs": [
+        "self.physics.v = $( sqrt( {self.physics.vX}^2 + {self.physics.vY}^2 ) )",
+        "self.physics.vX = $( {self.physics.vX} /  {self.physics.v} )",
+        "self.physics.vY = $( {self.physics.vY} /  {self.physics.v} )"
+    ],
+    "functioncalls": {
+        "global": [],
+        "self": [],
+        "other": []
+    }
 }

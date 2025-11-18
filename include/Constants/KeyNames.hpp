@@ -86,9 +86,9 @@ const struct keyName {
     const struct invoke{
         std::string _self = "invoke";
         std::string logicalArg = "logicalArg";
-        std::string functioncalls_global = "functioncalls_global";
-        std::string functioncalls_self = "functioncalls_self";
-        std::string functioncalls_other = "functioncalls_other";
+        std::string functioncalls_global = "functioncalls.global";
+        std::string functioncalls_self = "functioncalls.self";
+        std::string functioncalls_other = "functioncalls.other";
         std::string topic = "topic";
         std::string exprVector = "exprs";
         std::string typeSelf = "self";

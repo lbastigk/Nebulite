@@ -1,18 +1,20 @@
 {
-  "topic": "",
-  "logicalArg": "$( {global.input.keyboard.current.w} + {global.input.keyboard.current.a} + {global.input.keyboard.current.s} + {global.input.keyboard.current.d} )",
-  /*
-  This sets the spritesheet position depending on wasd
-  0*16 : Down
-  1*16 : Up
-  2*16 : Right
-  3*16 : Left
-  None pressed: Down
-  */
-  "exprs": [
-    "self.anmimation.Direction = $( {global.input.keyboard.current.w} * 16 + {global.input.keyboard.current.d} * 32 * not({global.input.keyboard.current.w}) + {global.input.keyboard.current.a} * 48 * not({global.input.keyboard.current.w}) *not({global.input.keyboard.current.d}) )"
-  ],
-  "functioncalls_global": [],
-  "functioncalls_self": [],
-  "functioncalls_other": []
+    "topic": "",
+    "logicalArg": "$( {global.input.keyboard.current.w} + {global.input.keyboard.current.a} + {global.input.keyboard.current.s} + {global.input.keyboard.current.d} )",
+    /*
+    This sets the spritesheet position depending on wasd
+    0*16 : Down
+    1*16 : Up
+    2*16 : Right
+    3*16 : Left
+    None pressed: Down
+    */
+    "exprs": [
+        "self.anmimation.Direction = $( {global.input.keyboard.current.w} * 16 + {global.input.keyboard.current.d} * 32 * not({global.input.keyboard.current.w}) + {global.input.keyboard.current.a} * 48 * not({global.input.keyboard.current.w}) *not({global.input.keyboard.current.d}) )"
+    ],
+    "functioncalls": {
+        "global": [],
+        "self": [],
+        "other": []
+    }
 }

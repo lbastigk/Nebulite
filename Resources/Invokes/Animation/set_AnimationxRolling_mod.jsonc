@@ -1,10 +1,12 @@
 {
-  "topic": "",
-  "logicalArg": "1",
-  "exprs": [
-    "self.animation.xRolling.mod = $( 80 - {self.animation.attack} * 16 )"
-  ],
-  "functioncalls_global": [],
-  "functioncalls_self": [],
-  "functioncalls_other": []
+    "topic": "",
+    "logicalArg": "1",
+    "exprs": [
+        "self.animation.xRolling.mod = $( 80 - {self.animation.attack} * 16 )"
+    ],
+    "functioncalls": {
+        "global": [],
+        "self": [],
+        "other": []
+    }
 }

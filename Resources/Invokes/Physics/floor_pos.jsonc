@@ -1,11 +1,13 @@
 {
-  "topic" : "",
-  "logicalArg": "1",
-  "exprs" : [
-      "self.posX = $(floor({self.posX}))",
-      "self.posY = $(floor({self.posY}))"
-  ],
-  "functioncalls_global": [],
-  "functioncalls_self": [],
-  "functioncalls_other": []
+    "topic": "",
+    "logicalArg": "1",
+    "exprs": [
+        "self.posX = $(floor({self.posX}))",
+        "self.posY = $(floor({self.posY}))"
+    ],
+    "functioncalls": {
+        "global": [],
+        "self": [],
+        "other": []
+    }
 }

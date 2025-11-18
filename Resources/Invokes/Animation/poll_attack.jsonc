@@ -1,11 +1,13 @@
 {
-  "topic": "",
-  "logicalArg": "1",
-  "exprs": [
-    "self.sprite.spritesheet.offsetX = $( {self.sprite.spritesheet.offsetX} * not( not({self.animation.attack}) * {global.input.keyboard.current.space} ) )",
-    "self.animation.attack = $( neq( {global.input.keyboard.current.space} + {self.animation.attack} * {self.sprite.spritesheet.offsetX} ,0) )"
-  ],
-  "functioncalls_global": [],
-  "functioncalls_self": [],
-  "functioncalls_other": []
+    "topic": "",
+    "logicalArg": "1",
+    "exprs": [
+        "self.sprite.spritesheet.offsetX = $( {self.sprite.spritesheet.offsetX} * not( not({self.animation.attack}) * {global.input.keyboard.current.space} ) )",
+        "self.animation.attack = $( neq( {global.input.keyboard.current.space} + {self.animation.attack} * {self.sprite.spritesheet.offsetX} ,0) )"
+    ],
+    "functioncalls": {
+        "global": [],
+        "self": [],
+        "other": []
+    }
 }
