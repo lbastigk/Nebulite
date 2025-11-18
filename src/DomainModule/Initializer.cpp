@@ -12,34 +12,34 @@
 // DomainModules
 
 // GlobalSpace
-#include "DomainModule/GlobalSpace/GSDM_FeatureTest.hpp"         // Feature testing module
-#include "DomainModule/GlobalSpace/GSDM_Time.hpp"                // Basic Time management functions
-#include "DomainModule/GlobalSpace/GSDM_Clock.hpp"               // Clock management functions
-#include "DomainModule/GlobalSpace/GSDM_General.hpp"             // General functions like eval, exit, wait, etc.
-#include "DomainModule/GlobalSpace/GSDM_Debug.hpp"               // Debugging and logging functions
-#include "DomainModule/GlobalSpace/GSDM_Input.hpp"               // Input handling
-#include "DomainModule/GlobalSpace/GSDM_Debug_Domain_Collision_Detection.hpp" // Special debugging utilities for domain collision detection
+#include "DomainModule/GlobalSpace/FeatureTest.hpp"         // Feature testing module
+#include "DomainModule/GlobalSpace/Time.hpp"                // Basic Time management functions
+#include "DomainModule/GlobalSpace/Clock.hpp"               // Clock management functions
+#include "DomainModule/GlobalSpace/General.hpp"             // General functions like eval, exit, wait, etc.
+#include "DomainModule/GlobalSpace/Debug.hpp"               // Debugging and logging functions
+#include "DomainModule/GlobalSpace/Input.hpp"               // Input handling
+#include "DomainModule/GlobalSpace/Debug_Domain_Collision_Detection.hpp" // Special debugging utilities for domain collision detection
 
 // JSON
-#include "DomainModule/JSON/JSDM_SimpleData.hpp"
-#include "DomainModule/JSON/JSDM_ComplexData.hpp"
-#include "DomainModule/JSON/JSDM_Debug.hpp"
+#include "DomainModule/JSON/SimpleData.hpp"
+#include "DomainModule/JSON/ComplexData.hpp"
+#include "DomainModule/JSON/Debug.hpp"
 
 // RenderObject
-#include "DomainModule/RenderObject/RODM_Debug.hpp"
-#include "DomainModule/RenderObject/RODM_Logging.hpp"
-#include "DomainModule/RenderObject/RODM_StateUpdate.hpp"
-#include "DomainModule/RenderObject/RODM_Mirror.hpp"
+#include "DomainModule/RenderObject/Debug.hpp"
+#include "DomainModule/RenderObject/Logging.hpp"
+#include "DomainModule/RenderObject/StateUpdate.hpp"
+#include "DomainModule/RenderObject/Mirror.hpp"
 
 // Renderer
-#include "DomainModule/Renderer/RRDM_General.hpp"
-#include "DomainModule/Renderer/RRDM_Console.hpp"
-#include "DomainModule/Renderer/RRDM_RenderObjectDraft.hpp"
+#include "DomainModule/Renderer/General.hpp"
+#include "DomainModule/Renderer/Console.hpp"
+#include "DomainModule/Renderer/RenderObjectDraft.hpp"
 
 // Texture
-#include "DomainModule/Texture/TXDM_General.hpp"
-#include "DomainModule/Texture/TXDM_Rotation.hpp"
-#include "DomainModule/Texture/TXDM_Fill.hpp"
+#include "DomainModule/Texture/General.hpp"
+#include "DomainModule/Texture/Rotation.hpp"
+#include "DomainModule/Texture/Fill.hpp"
 
 //------------------------------------------
 namespace Nebulite::DomainModule {

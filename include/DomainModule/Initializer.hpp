@@ -1,7 +1,6 @@
 /**
  * @file Initializer.hpp
  * @brief Header file for DomainModule initializers.
- *
  * @todo Later on, all features for GlobalSpace, JSON, Renderer, Texture, and RenderObject should be initialized in a more modular way.
  *       E.g. with json files describing which modules to load.
  */

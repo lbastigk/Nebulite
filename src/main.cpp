@@ -36,7 +36,7 @@
 // Nebulite
 #include "Nebulite.hpp"                             // Main Nebulite include
 #include "Constants/ErrorTypes.hpp"                 // For error handling
-#include "DomainModule/GlobalSpace/GSDM_Debug.hpp"  // For turning error logging off/on
+#include "DomainModule/GlobalSpace/Debug.hpp"  // For turning error logging off/on
 
 //------------------------------------------
 // Constants

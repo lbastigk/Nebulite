@@ -1,7 +1,7 @@
 #include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
 #include "DomainModule/Initializer.hpp"
-#include "DomainModule/JSON/JSDM_SimpleData.hpp"
+#include "DomainModule/JSON/SimpleData.hpp"
 #include "Interaction/RulesetCompiler.hpp"
 #include "Utility/JSON.hpp"
 
