@@ -15,9 +15,10 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Core{
-    class GlobalSpace; // Forward declaration of domain class GlobalSpace
-}   // namespace Nebulite::Core
+
+namespace Nebulite::Core {
+class GlobalSpace;
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {
@@ -25,7 +26,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Clock
  * @brief DomainModule for clock management capabilities within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Clock){
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Clock) {
 public:
     /**
      * @brief Override of update.
@@ -38,7 +39,7 @@ public:
     /**
      * @brief Adds a clock to the global clock list.
      */
-    Constants::Error addClock(int argc,  char** argv);
+    Constants::Error addClock(int argc, char **argv);
     static std::string const addClock_name;
     static std::string const addClock_desc;
 
@@ -59,7 +60,7 @@ public:
      * 
      * Example: key_doc_status_clocks + ".ms000100" for the clock with 100ms interval
      */
-    static std::string const key_doc_status_clocks; 
+    static std::string const key_doc_status_clocks;
 
     //------------------------------------------
     // Setup
@@ -67,10 +68,10 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Clock){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Clock) {
         //------------------------------------------
         // Binding functions to the FuncTree
-        bindFunction(&Clock::addClock,          addClock_name,                 &addClock_desc);
+        bindFunction(&Clock::addClock, addClock_name, &addClock_desc);
 
         // Read clock list from document
         readClocksFromDocument();
@@ -89,11 +90,11 @@ private:
      * @brief Structure representing a clock entry in the global clock list.
      */
     struct ClockEntry {
-        uint64_t last_trigger_ms;   // Last time the clock was triggered
-        uint64_t interval_ms;       // Trigger interval in milliseconds
-        double* globalReference;    // Pointer to the global document entry
+        uint64_t last_trigger_ms; // Last time the clock was triggered
+        uint64_t interval_ms; // Trigger interval in milliseconds
+        double *globalReference; // Pointer to the global document entry
 
-        ClockEntry(uint64_t const& interval, Utility::JSON* doc, uint64_t const& current_time);
+        ClockEntry(uint64_t const &interval, Utility::JSON *doc, uint64_t const &current_time);
 
         /**
          * @brief Updates the clock entry, setting the global reference based on the timer.
@@ -101,7 +102,7 @@ private:
          * If dt is greater than or equal to the interval, sets the global reference to 1.0.
          * Otherwise, sets it to 0.0.
          */
-        void update(uint64_t const& current_time);
+        void update(uint64_t const &current_time);
     };
 
     /**
@@ -133,10 +134,10 @@ private:
      * @param interval_ms The clock interval in milliseconds.
      * @return The key string for the clock entry.
      */
-    static std::string intervalToKey(uint64_t const& interval_ms){
+    static std::string intervalToKey(uint64_t const &interval_ms) {
         static uint16_t padding = 6; // Not enough for uint64_t max value, but reasonable for practical clock intervals
         return "ms" + std::to_string(interval_ms).insert(0, padding - std::to_string(interval_ms).length(), '0');
     }
 };
-}   // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_GSDM_CLOCK_HPP
