@@ -15,16 +15,18 @@
 //------------------------------------------
 // Predeclarations of Domains
 
-namespace Nebulite{
-    namespace Core{
-        class GlobalSpace;
-        class RenderObject;
-        class Renderer;
-        class Texture;
-    }
-    namespace Utility{
-        class JSON;
-    }
+namespace Nebulite {
+namespace Core {
+class Environment;
+class GlobalSpace;
+class RenderObject;
+class Renderer;
+class Texture;
+}
+
+namespace Utility {
+class JSON;
+}
 }
 
 //------------------------------------------
@@ -32,31 +34,49 @@ namespace Nebulite::DomainModule {
 
 /**
  * @class Nebulite::DomainModule::Initializer
- * @brief Initializes DomainModules for various Domains.
- * 
+ * @brief Initializes DomainModules for Domains.
  * @todo Later on, we might consider initialization based on configuration inside the Domain,
  *       e.g., only initialize certain modules if enabled inside the Domain's JSON document.
+ *       -> This would be the core of a ECS-like system, + the rulesets (hardcoded and json-defined)
+ *       for RenderObjects to use
  */
-class Initializer{
+class Initializer {
 public:
+    /**
+     * @brief Initializes DomainModules for the Environment Domain.
+     * @param target Pointer to the Environment domain to initialize.
+     */
+    static void initEnvironment(Core::GlobalSpace *target);
+
     /**
      * @brief Initializes DomainModules for the GlobalSpace Domain.
      * @param target Pointer to the GlobalSpace domain to initialize.
      */
-    static void initGlobalSpace(Core::GlobalSpace* target);
+    static void initGlobalSpace(Core::GlobalSpace *target);
 
     /**
      * @brief Initializes DomainModules for the JSON Domain.
      * @param target Pointer to the JSON domain to initialize.
      */
-    static void initJSON(Utility::JSON* target);
+    static void initJSON(Utility::JSON *target);
 
-    
-    static void initRenderObject(Core::RenderObject* target);
+    /**
+     * @brief Initializes DomainModules for the RenderObject Domain.
+     * @param target Pointer to the RenderObject domain to initialize.
+     */
+    static void initRenderObject(Core::RenderObject *target);
 
-    static void initRenderer(Core::Renderer* target);
+    /**
+     * @brief Initializes DomainModules for the Renderer Domain.
+     * @param target Pointer to the Renderer domain to initialize.
+     */
+    static void initRenderer(Core::Renderer *target);
 
-    static void initTexture(Core::Texture* target);
+    /**
+     * @brief Initializes DomainModules for the Texture Domain.
+     * @param target Pointer to the Texture domain to initialize.
+     */
+    static void initTexture(Core::Texture *target);
 };
 } // namespace Nebulite::DomainModule
 #endif // NEBULITE_DOMAINMODULE_INITIALIZER_HPP
