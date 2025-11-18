@@ -1,8 +1,6 @@
 /**
  * @file Texture.hpp
- * 
- * Proposed new Domain for Nebulite to bundle all texture related
- * functionality.
+ * @brief Texture management domain for Nebulite.
  */
 
 #ifndef NEBULITE_CORE_TEXTURE_HPP
@@ -23,7 +21,6 @@ NEBULITE_DOMAIN(Texture){
 public:
     /**
      * @brief Constructs a new Texture domain.
-     *
      * @param documentPtr Pointer to the JSON document for this domain.
      */
     explicit Texture(Utility::JSON* documentPtr);
@@ -54,7 +51,6 @@ public:
 
     /**
      * @brief Links an external SDL_Texture to this domain.
-     * 
      * @param externalTexture Pointer to the external SDL_Texture.
      */
     void linkExternalTexture(SDL_Texture* externalTexture){
@@ -62,6 +58,10 @@ public:
         textureStoredLocally = false; // Reset modification flag
     }
 
+    /**
+     * @brief Sets a new internal SDL_Texture, marking it as modified.
+     * @param newTexture Pointer to the new SDL_Texture.
+     */
     void setInternalTexture(SDL_Texture* newTexture){
         // Destroy any old internal texture if it was modified
         if (texture != nullptr && textureStoredLocally){
@@ -73,7 +73,6 @@ public:
 
     /**
      * @brief Checks if the texture has been modified.
-     * 
      * @return true if the texture has been modified, false otherwise.
      */
     [[nodiscard]] bool isTextureStoredLocally() const noexcept {
@@ -82,7 +81,6 @@ public:
 
     /**
      * @brief Checks if the texture is valid (not null).
-     * 
      * @return true if the texture is valid, false otherwise.
      */
     [[nodiscard]] bool isTextureValid() const noexcept {
@@ -91,7 +89,6 @@ public:
 
     /**
      * @brief Gets the current SDL_Texture.
-     * 
      * @return Pointer to the current SDL_Texture.
      */
     [[nodiscard]] SDL_Texture* getSDLTexture() const noexcept {
@@ -102,17 +99,18 @@ public:
 private:
     /**
      * @brief The SDL texture managed by this class.
-     * If the texture is unmodified, this will reference the renderer's texture.
-     * If modified, it will be a separate texture.
+     *        If the texture is unmodified, this will reference the renderer's texture.
+     *        If modified, it will be a separate texture.
      */
     SDL_Texture* texture;
 
-    // Flag to indicate if the texture is locally stored
+    /**
+     * @brief Flag indicating if the texture is stored locally (modified).
+     */
     bool textureStoredLocally = false;
 
     /**
      * @brief Makes a copy of the texture currently managed by this class.
-     * 
      * @return true if the copy was successful, false otherwise.
      */
     bool copyTexture();
