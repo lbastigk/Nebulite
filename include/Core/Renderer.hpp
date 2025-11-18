@@ -233,7 +233,7 @@ public:
     /**
      * @brief Sets the target FPS for the renderer.
      */
-    void setTargetFPS(uint16_t const& targetFps);
+    void setTargetFPS(uint16_t const &targetFps);
 
     /**
      * @brief Sets the camera position.
@@ -409,7 +409,8 @@ private:
     // Audio
     struct Audio {
         SDL_AudioDeviceID device = 0;
-        SDL_AudioSpec desired, obtained;
+        SDL_AudioSpec desired = {};
+        SDL_AudioSpec obtained = {};
     } audio;
 
     struct BasicAudioWaveforms {
@@ -422,9 +423,13 @@ private:
         std::vector<int16_t> *triangleBuffer = nullptr;
     } basicAudioWaveforms;
 
-
     //------------------------------------------
     //General Variables
+
+    /**
+     * @brief Base directory for resource loading.
+     * @todo Route all resource loading through Nebulite::global() for consistent path management.
+     */
     std::string baseDirectory;
 
     /**
@@ -447,10 +452,8 @@ private:
 
     //------------------------------------------
     // Event Handling
-    SDL_Event event{};
 
     std::vector<SDL_Event> events;
-
 
     //------------------------------------------
     // RNG
@@ -519,8 +522,8 @@ private:
 
         uint16_t target = 500; // Target framerate (e.g., 60 FPS)
         uint16_t realCounter = 0; // Counts fps in a 1-second-interval; reset every second
-        uint16_t real = 0;        // Actual fps this past second. Stores the last value of realCounter every second
-    }fps;
+        uint16_t real = 0; // Actual fps this past second. Stores the last value of realCounter every second
+    } fps;
 
     //------------------------------------------
     // Texture-Related
