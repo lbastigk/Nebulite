@@ -1,0 +1,9 @@
+# Tests json modifier usage
+set-fps 60
+wait 1
+set test.MyKey 3
+wait 1
+eval echo {global.test.MyKey}
+eval echo {global.test.MyKey|add 2}
+print test
+exit
