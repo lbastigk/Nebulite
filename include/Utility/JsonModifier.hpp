@@ -53,6 +53,10 @@ private:
     static std::string const multiplyName;
     static std::string const multiplyDesc;
 
+    bool mod(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const modName;
+    static std::string const modDesc;
+
     //------------------------------------------
     // Type Modifiers
 
@@ -70,6 +74,10 @@ private:
     bool length(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string const lengthName;
     static std::string const lengthDesc;
+
+    bool at(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const atName;
+    static std::string const atDesc;
 
 public:
     JsonModifier();

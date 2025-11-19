@@ -16,6 +16,7 @@ JsonModifier::JsonModifier() {
     // Arithmetic Modifiers
     bindModifierFunction(&JsonModifier::add, addName, &addDesc);
     bindModifierFunction(&JsonModifier::multiply, multiplyName, &multiplyDesc);
+    bindModifierFunction(&JsonModifier::mod, modName, &modDesc);
 
     // Type Modifiers
     bindModifierFunction(&JsonModifier::typeAsString, typeAsStringName, &typeAsStringDesc);
@@ -81,6 +82,30 @@ std::string const JsonModifier::multiplyName = "multiply";
 std::string const JsonModifier::multiplyDesc = "Multiplies the current JSON value by a numeric value. "
     "Usage: |multiply <number1> <number2> ...";
 
+bool JsonModifier::mod(std::span<std::string const> const& args, JSON* jsonDoc) {
+    if (args.size() < 2) {
+        return false;
+    }
+    try {
+        double modValue = std::stod(args[1]);
+        double currentValue = jsonDoc->get<double>(valueKey, 0.0);
+        if (modValue == 0.0) {
+            return false; // Modulo by zero is undefined
+        }
+        double result = std::fmod(currentValue, modValue);
+        jsonDoc->set<double>(valueKey, result);
+        return true;
+    } catch (const std::invalid_argument&) {
+        return false;
+    } catch (const std::out_of_range&) {
+        return false;
+    }
+}
+
+std::string const JsonModifier::modName = "mod";
+std::string const JsonModifier::modDesc = "Calculates the modulo of the current JSON value by a numeric value. "
+    "Usage: |mod <number> -> {number}";
+
 //------------------------------------------
 // Type Modifiers
 
@@ -125,8 +150,33 @@ bool JsonModifier::length(std::span<std::string const> const& args, JSON* jsonDo
     jsonDoc->set(valueKey, static_cast<double>(len));
     return true;
 }
+
 std::string const JsonModifier::lengthName = "length";
 std::string const JsonModifier::lengthDesc = "Gets the length of the array in the current JSON value. "
     "Usage: |length -> {number}";
 
+bool JsonModifier::at(std::span<std::string const> const& args, JSON* jsonDoc) {
+    if (args.size() < 2) {
+        return false;
+    }
+    try {
+        size_t index = static_cast<size_t>(std::stoul(args[1]));
+        size_t arraySize = jsonDoc->memberSize(valueKey);
+        if (index >= arraySize) {
+            return false; // Index out of bounds
+        }
+        /**
+         * @todo Implement a getVariant method to avoid type issues like this.
+         *       simpleValue getVariant(std::string const& key);    // We need to make sure the value actually exists
+         *       void setVariant(std::string const& key, simpleValue const& val);
+         *       RjDirectAccess::valueType(key); // returns the type of the value stored at key, so we can handle it accordingly
+         *       // So we need a large enum for all possible types that rapidjson can differentiate between with IsX() methods.
+         */
+        auto value = jsonDoc->get<std::string>(valueKey + "[" + std::to_string(index) + "]");
+        jsonDoc->set(valueKey, value);
+        return true;
+    } catch (const std::invalid_argument&) {
+        return false;
+    }
+}
 } // namespace Nebulite::Utility
