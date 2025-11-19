@@ -28,7 +28,7 @@ Constants::Error Debug::print(int argc,  char** argv){
             Nebulite::cout() << "{}" << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
-        if(memberType == Utility::JSON::KeyType::document){
+        if(memberType == Utility::JSON::KeyType::object){
             Nebulite::cout() << domain->getDoc()->serialize(argv[1]) << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }

@@ -2,6 +2,9 @@
  * @file JsonModifier.hpp
  * @brief Utility functions for modifying JSON keys.
  *        JSON(key) -> value | modifier on value | modifier on value ... -> new value
+ *        This allows for dynamic modification of JSON values during retrieval.
+ *        Note that the 'Modifier' name comes from it affecting the returned value,
+ *        not the stored value in the JSON document.
  */
 
 #ifndef NEBULITE_UTILITY_JSON_MODIFIER_HPP
@@ -40,17 +43,33 @@ private:
     std::unique_ptr<Interaction::Execution::FuncTree<bool, JSON*>> modifierFuncTree;
 
     //------------------------------------------
-    // Functions
+    // Functions: Arithmetic Modifiers
 
-    /**
-     * @brief Adds a value to the current JSON value.
-     * @param args Additional arguments, none expected for this modifier.
-     * @param jsonDoc The JSON document to modify.
-     * @return true on success, false on failure.
-     */
     bool add(std::span<std::string const> const& args, JSON* jsonDoc);
-    const std::string addName = "add";
-    const std::string addDesc = "Adds a numeric value to the current JSON value. Usage: |add <number1> <number2> ...";
+    static std::string const addName;
+    static std::string const addDesc;
+
+    bool multiply(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const multiplyName;
+    static std::string const multiplyDesc;
+
+    //------------------------------------------
+    // Type Modifiers
+
+    bool typeAsString(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const typeAsStringName;
+    static std::string const typeAsStringDesc;
+
+    bool typeAsNumber(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const typeAsNumberName;
+    static std::string const typeAsNumberDesc;
+
+    //------------------------------------------
+    // Array Modifiers
+
+    bool length(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const lengthName;
+    static std::string const lengthDesc;
 
 public:
     JsonModifier();
@@ -61,17 +80,8 @@ public:
      * @param name The name of the function
      * @param desc The description of the function
      */
-    void bindModifierFunction(
-        typename Interaction::Execution::FuncTree<bool, JSON*>::template MemberMethod<JsonModifier> func,
-        std::string const& name,
-        std::string const* desc = nullptr
-        ) {
-        modifierFuncTree->bindFunction(
-            this,
-            func,
-            name,
-            desc
-            );
+    void bindModifierFunction(typename Interaction::Execution::FuncTree<bool, JSON*>::template MemberMethod<JsonModifier> func,std::string const& name,std::string const* desc) {
+        modifierFuncTree->bindFunction(this,func,name,desc);
     }
 
     /**

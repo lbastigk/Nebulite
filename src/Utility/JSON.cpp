@@ -270,7 +270,7 @@ void JSON::deserialize(std::string const& serial_or_link){
 JSON::KeyType JSON::memberType(std::string const& key){
     // 1. Check if key is empty -> represents the whole document
     if (key.empty()){
-        return KeyType::document;
+        return KeyType::object;
     }
 
     // For all other cases, lock this object
@@ -294,7 +294,7 @@ JSON::KeyType JSON::memberType(std::string const& key){
         return KeyType::array;
     }
     if(val->IsObject()){
-        return KeyType::document;
+        return KeyType::object;
     }
     if( val->IsNumber() || val->IsString() || val->IsBool()){
         return KeyType::value;
@@ -309,7 +309,7 @@ size_t JSON::memberSize(std::string const& key){
     if(kt == KeyType::null){
         return 0;
     }
-    if(kt == KeyType::value || kt == KeyType::document){
+    if(kt == KeyType::value || kt == KeyType::object){
         return 1;
     }
     // Is array, get size

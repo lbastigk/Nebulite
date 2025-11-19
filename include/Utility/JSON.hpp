@@ -32,6 +32,21 @@
 
 //------------------------------------------
 namespace Nebulite::Utility {
+/**
+ * @class JSON
+ * @brief A wrapper around rapidjson to simplify JSON manipulation in Nebulite.
+ *        Features:
+ *        - caching for fast access to frequently used values,
+ *        - stable double pointers for even faster access in math-heavy scenarios
+ *        - easy to use set/get methods with type conversion
+ *        - serialize/deserialize methods for easy saving/loading
+ *        - member type and size checking
+ *        - usage of parsing commands to modify JSON on load
+ *        - usage of return value modifiers on get (length, type checks, arithmetic operations, etc.)
+ *        - thread-safe access with mutex locking
+ *        - optimized for performance using ordered double pointers and quick cache for unique IDs,
+ *          allowing fast access to numeric values in a sorted manner.
+ */
 NEBULITE_DOMAIN(JSON) {
 public:
     //------------------------------------------
@@ -59,7 +74,7 @@ private:
      *        On flushing, all DIRTY entries become CLEAN again. VIRTUAL entries remain VIRTUAL as they are not flushed.
      */
     enum class EntryState : uint8_t {
-        CLEAN, // Synchronized with RapidJSON document, real value
+        CLEAN, // Synchronized with RapidJSON document, real value. NOTE: This may be invalid at any time if double pointer is used elsewhere! This just marks the last known state.
         DIRTY, // Modified in cache, needs flushing to RapidJSON, real value
         VIRTUAL, // Deleted entry that was re-synced, but may not be the real value due to casting
         DELETED // Deleted entry due to deserialization, inner value is invalid
@@ -158,7 +173,7 @@ private:
      * @brief Super quick double cache based on unique IDs, no hash lookup.
      *        Used for the first few entries. It's recommended to reserve
      *        low value uids for frequently used keys.
-     * @todo Add a reserve-mechanism for ids, so they are low value.
+     * @todo Add a reserve-mechanism in globalspace for ids, so they are low value.
      */
     std::array<double*, uidQuickCacheSize> uidDoubleCache{nullptr};
 
@@ -171,6 +186,10 @@ public:
     //------------------------------------------
     // Constructor/Destructor
 
+    /**
+     * @brief Constructs a new JSON document.
+     * @param name The name of the JSON document. Recommended for debugging purposes.
+     */
     JSON(std::string const& name = "Unnamed JSON Document");
 
     ~JSON() override;
@@ -322,7 +341,7 @@ public:
      */
     enum class KeyType : uint8_t {
         null,
-        document,
+        object,
         value,
         array
     };

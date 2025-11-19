@@ -164,7 +164,7 @@ std::string Nebulite::Interaction::RulesetCompiler::getLogicalArg(Utility::JSON&
 }
 
 bool Nebulite::Interaction::RulesetCompiler::getRuleset(Utility::JSON& doc, Utility::JSON& entry, size_t const& index){
-    if(std::string const key = Constants::keyName.renderObject.invokes + "[" + std::to_string(index) + "]"; doc.memberType(key) == Utility::JSON::KeyType::document){
+    if(std::string const key = Constants::keyName.renderObject.invokes + "[" + std::to_string(index) + "]"; doc.memberType(key) == Utility::JSON::KeyType::object){
         entry = doc.getSubDoc(key);
     }
     else{

@@ -50,7 +50,7 @@ Constants::Error ComplexData::jsonSet(int argc,  char** argv){
     // Depending on the type of docKey, we retrieve the value
 
     // === DOCUMENT ===
-    if(Utility::JSON::KeyType const type = Nebulite::global().getDocCache()->memberType(docKey); type == Utility::JSON::KeyType::document){
+    if(Utility::JSON::KeyType const type = Nebulite::global().getDocCache()->memberType(docKey); type == Utility::JSON::KeyType::object){
         // Retrieve the sub-document
         Utility::JSON subDoc = Nebulite::global().getDocCache()->getSubDoc(docKey);
 

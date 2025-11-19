@@ -60,7 +60,7 @@ Constants::Error SimpleData::move(int argc,  char** argv){
         Nebulite::cerr() << "Error: Source key '" << sourceKey << "' does not exist." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
-    if(domain->memberType(sourceKey) == Utility::JSON::KeyType::document){
+    if(domain->memberType(sourceKey) == Utility::JSON::KeyType::object){
         Utility::JSON subDoc = domain->getSubDoc(sourceKey);
         domain->removeKey(targetKey.c_str());
         domain->setSubDoc(targetKey.c_str(), &subDoc);
@@ -108,7 +108,7 @@ Constants::Error SimpleData::copy(int argc,  char** argv){
         Nebulite::cerr() << "Error: Source key '" << sourceKey << "' does not exist." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
-    if(domain->memberType(sourceKey) == Utility::JSON::KeyType::document){
+    if(domain->memberType(sourceKey) == Utility::JSON::KeyType::object){
         Utility::JSON subDoc = domain->getSubDoc(sourceKey);
         domain->removeKey(targetKey.c_str());
         domain->setSubDoc(targetKey.c_str(), &subDoc);
@@ -317,7 +317,7 @@ Constants::Error SimpleData::push_front(int argc,  char** argv){
     // This feature is yet to be implemented!
     for (size_t i = 0; i < size; ++i){
         std::string itemKey = key + "[" + std::to_string(i) + "]";
-        if (Utility::JSON::KeyType const itemType = domain->memberType(itemKey); itemType == Utility::JSON::KeyType::document){
+        if (Utility::JSON::KeyType const itemType = domain->memberType(itemKey); itemType == Utility::JSON::KeyType::object){
             Nebulite::cerr() << "Error: Cannot push_front into an array containing documents." << Nebulite::endl;
             return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
         }
@@ -371,7 +371,7 @@ Constants::Error SimpleData::pop_front(int argc,  char** argv){
     // if any array item is a document, throw error
     // This feature is yet to be implemented!
     for (size_t i = 0; i < size; ++i){
-        if (domain->memberType(key + "[" + std::to_string(i) + "]") == Utility::JSON::KeyType::document){
+        if (domain->memberType(key + "[" + std::to_string(i) + "]") == Utility::JSON::KeyType::object){
             Nebulite::cerr() << "Error: Cannot push_front into an array containing documents." << Nebulite::endl;
             return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
         }
