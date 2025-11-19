@@ -17,12 +17,34 @@ JSON::JSON(std::string const& name)
     std::scoped_lock const lockGuard(mtx);
     doc.SetObject();
     DomainModule::Initializer::initJSON(this);
+
+    // Initialize FuncTree for modifiers
+    modifierFuncTree = std::make_unique<Interaction::Execution::FuncTree<bool, JSON*>>("__JSON_ModifierFuncTree__", true, false);
+    // TODO: Call an initializer function to bind all modifier functions
 }
 
 JSON::~JSON(){
     std::scoped_lock const lockGuard(mtx);
     doc.SetObject();
     cache.clear();
+}
+
+//------------------------------------------
+// Allow copy/move
+
+JSON& JSON::operator=(JSON&& other) noexcept {
+    if (this != &other) {
+        std::scoped_lock lockGuard(mtx, other.mtx);
+        doc = std::move(other.doc);
+        cache = std::move(other.cache);
+        modifierFuncTree = std::move(other.modifierFuncTree);
+
+        for (size_t idx = 0; idx < uidQuickCacheSize; ++idx) {
+            uidDoubleCache[idx] = other.uidDoubleCache[idx];
+            other.uidDoubleCache[idx] = nullptr;
+        }
+    }
+    return *this;
 }
 
 JSON::JSON(JSON&& other) noexcept
@@ -33,18 +55,6 @@ JSON::JSON(JSON&& other) noexcept
     cache = std::move(other.cache);
 }
 
-JSON& JSON::operator=(JSON&& other) noexcept{
-    if (this != &other){
-        std::scoped_lock lockGuard(mtx, other.mtx);
-        doc = std::move(other.doc);
-        cache = std::move(other.cache);
-        for(size_t idx = 0; idx < uidQuickCacheSize; idx++){
-            uidDoubleCache[idx] = other.uidDoubleCache[idx];
-            other.uidDoubleCache[idx] = nullptr;
-        }
-    }
-    return *this;
-}
 
 //------------------------------------------
 // Private methods
@@ -263,7 +273,7 @@ void JSON::deserialize(std::string const& serial_or_link){
 //------------------------------------------
 // Key Types, Sizes
 
-JSON::KeyType JSON::memberCheck(std::string const& key){
+JSON::KeyType JSON::memberType(std::string const& key){
     // 1. Check if key is empty -> represents the whole document
     if (key.empty()){
         return KeyType::document;
@@ -301,7 +311,7 @@ JSON::KeyType JSON::memberCheck(std::string const& key){
 size_t JSON::memberSize(std::string const& key){
     std::scoped_lock const lockGuard(mtx);
 
-    auto const kt = memberCheck(key);
+    auto const kt = memberType(key);
     if(kt == KeyType::null){
         return 0;
     }
@@ -314,7 +324,7 @@ size_t JSON::memberSize(std::string const& key){
     return val->Size();
 }
 
-void JSON::remove_key(char const* key){
+void JSON::removeKey(char const* key){
     std::scoped_lock const lockGuard(mtx);
 
     // Ensure cache is flushed before removing key
@@ -388,6 +398,20 @@ void JSON::set_concat(std::string const& key, std::string const& valStr){
         *it->second->stable_double_ptr = 0.0;
         it->second->last_double_value = 0.0;
     }
+}
+
+MappedOrderedDoublePointers* JSON::getExpressionRefsAsOther() {
+#if ORDERED_DOUBLE_POINTERS_MAPS == 1
+    return &expressionRefs[0].as_other;
+#else
+    // Each thread gets a unique starting position based on thread ID
+    thread_local const size_t thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
+    thread_local size_t counter = 0;
+
+    // Rotate through pool entries starting from thread's unique offset
+    size_t const idx = (thread_offset + counter++) % ORDERED_DOUBLE_POINTERS_MAPS;
+    return &expressionRefs[idx].as_other;
+#endif
 }
 
 } // namespace Nebulite::Utility
