@@ -12,6 +12,13 @@ void JSON::set(std::string const& key, T const& val){
         return;
     }
 
+    // Check if key contains modifiers
+    if (key.find('|') != std::string::npos){
+        Nebulite::Utility::Capture::cerr() << "Modifiers are not supported in set(): " << key << Nebulite::Utility::Capture::endl;
+        return;
+    }
+
+    // Set value in cache
     if (auto const it = cache.find(key); it != cache.end()){
         // Existing cache value, structure validity guaranteed
 
@@ -49,6 +56,23 @@ void JSON::set(std::string const& key, T const& val){
 template<typename T>
 T JSON::get(std::string const& key, T const& defaultValue){
     std::scoped_lock const lockGuard(mtx);
+
+    // Check if a modifier is present
+    if (key.find('|') != std::string::npos){
+        // Use modifier function tree to resolve the value
+        auto args = StringHandler::split(key, '|');
+        T base = get<T>(args[0], defaultValue);
+        args.erase(args.begin());
+
+        JSON tempJson("Temp JSON for Modifiers");
+        tempJson.set(JsonModifier::valueKey, base);
+        // Apply each modifier in sequence
+        if (!jsonModifier.parse(args, &tempJson)) {
+            return defaultValue;
+        }
+        return tempJson.get<T>(JsonModifier::valueKey, defaultValue);
+    }
+
     // Check cache first
     auto const it = cache.find(key);
     if (it != cache.end() && it->second->state != EntryState::DELETED){

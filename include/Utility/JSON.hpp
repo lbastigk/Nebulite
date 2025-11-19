@@ -192,6 +192,8 @@ public:
      *        - '.'  : Used for nested object traversal.
      *        - '|'  : Used for piping modifiers.
      *        - '"'  : Used for string encapsulation.
+     * @todo Proper API documentation for JSON key naming rules.
+     *       Including a 'why' for each character.
      */
     const static std::string reservedCharacters;
 
@@ -331,6 +333,7 @@ public:
      *        If the key does not exist, the type is considered null.
      * @param key The key to check.
      * @return The type of the key.
+     * @todo Make sure to return the correct type if modifiers are applied.
      */
     KeyType memberType(std::string const& key);
 
