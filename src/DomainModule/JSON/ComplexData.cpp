@@ -55,7 +55,7 @@ Constants::Error ComplexData::jsonSet(int argc,  char** argv){
         Utility::JSON subDoc = Nebulite::global().getDocCache()->getSubDoc(docKey);
 
         // Set the sub-document in the current JSON tree
-        domain->setSubDoc(myKey.c_str(), &subDoc);
+        domain->setSubDoc(myKey.c_str(), subDoc);
     }
     // === VALUE ===
     else if(type == Utility::JSON::KeyType::value){

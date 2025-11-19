@@ -59,7 +59,7 @@ std::string Environment::serialize() {
         // Add the container JSON object to the main document
         Utility::JSON layer;
         layer.deserialize(serializedContainer);
-        doc.setSubDoc(key.c_str(), &layer);
+        doc.setSubDoc(key.c_str(), layer);
     }
     return doc.serialize();
 }

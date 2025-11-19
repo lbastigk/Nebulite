@@ -151,7 +151,7 @@ double* JSON::getStableDoublePointer(std::string const& key){
 //------------------------------------------
 // Set methods
 
-void JSON::setSubDoc(char const* key, JSON* child){
+void JSON::setSubDoc(char const* key, JSON& child){
     std::scoped_lock const lockGuard(mtx);
 
     // Flush own contents
@@ -160,8 +160,8 @@ void JSON::setSubDoc(char const* key, JSON* child){
     // Ensure key path exists
     // Insert child document
     if (rapidjson::Value* keyVal = RjDirectAccess::ensure_path(key, doc, doc.GetAllocator()); keyVal != nullptr){
-        child->flush();
-        RjDirectAccess::ConvertToJSONValue<rapidjson::Document>(child->doc, *keyVal, doc.GetAllocator());
+        child.flush();
+        RjDirectAccess::ConvertToJSONValue<rapidjson::Document>(child.doc, *keyVal, doc.GetAllocator());
         
         // Since we inserted an entire document, we need to invalidate its child keys:
         invalidate_child_keys(key);

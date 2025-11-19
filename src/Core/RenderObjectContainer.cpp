@@ -23,7 +23,7 @@ std::string Nebulite::Core::RenderObjectContainer::serialize() {
 
                 // insert into doc
                 std::string key = "objects[" + std::to_string(i) + "]";
-                doc.setSubDoc(key.c_str(), &obj_serial);
+                doc.setSubDoc(key.c_str(), obj_serial);
                 i++;
             }
         }

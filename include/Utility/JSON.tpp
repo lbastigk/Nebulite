@@ -61,11 +61,37 @@ T JSON::get(std::string const& key, T const& defaultValue){
     if (key.find('|') != std::string::npos){
         // Use modifier function tree to resolve the value
         auto args = StringHandler::split(key, '|');
-        T base = get<T>(args[0], defaultValue);
+        std::string const baseKey = args[0];
         args.erase(args.begin());
 
+        // Prepare temp JSON with base value
         JSON tempJson("Temp JSON for Modifiers");
-        tempJson.set(JsonModifier::valueKey, base);
+        auto type = memberType(baseKey);
+        if(type == KeyType::object){
+            // Cannot use switch here, as we need to initialize sub-document
+            // Now this looks ugly, but it works and is definitely unique
+            // How often do you see an else switch statement?
+            JSON sub = getSubDoc(baseKey);
+            tempJson.setSubDoc(JsonModifier::valueKey.c_str(), sub);
+        } else switch (memberType(baseKey)){
+        case KeyType::array:
+            // Set value one by one into valueKey[i]
+            for (size_t i = 0; i < memberSize(key) ; i++) {
+                tempJson.set<std::string>(JsonModifier::valueKey + "[" + std::to_string(i) + "]",
+                                          get<std::string>(baseKey + "[" + std::to_string(i) + "]", ""));
+            }
+            break;
+        case KeyType::value:
+            // Get the base value into the temp JSON
+            // We use string as universal type for modifiers
+            tempJson.set<std::string>(JsonModifier::valueKey, get<std::string>(baseKey, ""));
+            break;
+        case KeyType::null:
+        default:
+            tempJson.set<std::string>(JsonModifier::valueKey, ""); // Default to empty string for null or unsupported types
+            break;
+        }
+
         // Apply each modifier in sequence
         if (!jsonModifier.parse(args, &tempJson)) {
             return defaultValue;

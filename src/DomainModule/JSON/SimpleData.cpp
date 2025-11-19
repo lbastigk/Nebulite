@@ -63,7 +63,7 @@ Constants::Error SimpleData::move(int argc,  char** argv){
     if(domain->memberType(sourceKey) == Utility::JSON::KeyType::object){
         Utility::JSON subDoc = domain->getSubDoc(sourceKey);
         domain->removeKey(targetKey.c_str());
-        domain->setSubDoc(targetKey.c_str(), &subDoc);
+        domain->setSubDoc(targetKey.c_str(), subDoc);
         domain->removeKey(sourceKey.c_str());
     }
     else if (domain->memberType(sourceKey) == Utility::JSON::KeyType::array){
@@ -111,7 +111,7 @@ Constants::Error SimpleData::copy(int argc,  char** argv){
     if(domain->memberType(sourceKey) == Utility::JSON::KeyType::object){
         Utility::JSON subDoc = domain->getSubDoc(sourceKey);
         domain->removeKey(targetKey.c_str());
-        domain->setSubDoc(targetKey.c_str(), &subDoc);
+        domain->setSubDoc(targetKey.c_str(), subDoc);
     }
     else if (domain->memberType(sourceKey) == Utility::JSON::KeyType::array){
         // Careful handling required:

@@ -19,7 +19,7 @@ Constants::Error Mirror::update(){
         auto const objectDoc = domain->getDoc();
 
         // Mirror to GlobalSpace
-        globalDoc->setSubDoc(mirrorKey.c_str(), objectDoc);
+        globalDoc->setSubDoc(mirrorKey.c_str(), *objectDoc);
 
         // Reset once-flag
         mirrorOnceEnabled = false;

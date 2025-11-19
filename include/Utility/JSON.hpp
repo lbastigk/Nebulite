@@ -254,7 +254,7 @@ public:
      * @param key The key of the sub-document to set.
      * @param child The sub-document to set.
      */
-    void setSubDoc(char const* key, JSON* child);
+    void setSubDoc(char const* key, JSON& child);
 
     /**
      * @brief Sets an empty array in the JSON document.
