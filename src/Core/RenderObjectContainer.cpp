@@ -37,7 +37,7 @@ std::string Nebulite::Core::RenderObjectContainer::serialize() {
 void Nebulite::Core::RenderObjectContainer::deserialize(std::string const &serialOrLink, uint16_t const &dispResX, uint16_t const &dispResY) {
     Utility::JSON layer;
     layer.deserialize(serialOrLink);
-    if (layer.memberCheck("objects") == Utility::JSON::KeyType::array) {
+    if (layer.memberType("objects") == Utility::JSON::KeyType::array) {
         for (uint32_t i = 0; i < layer.memberSize("objects"); i++) {
             std::string key = "objects[" + std::to_string(i) + "]";
 

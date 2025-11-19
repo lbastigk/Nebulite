@@ -23,7 +23,7 @@ Constants::Error Debug::print(int argc,  char** argv){
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     if(argc == 2){
-        auto const memberType = domain->getDoc()->memberCheck(argv[1]);
+        auto const memberType = domain->getDoc()->memberType(argv[1]);
         if(memberType == Utility::JSON::KeyType::null){
             Nebulite::cout() << "{}" << Nebulite::endl;
             return Constants::ErrorTable::NONE();
