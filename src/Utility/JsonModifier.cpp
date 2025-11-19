@@ -9,11 +9,22 @@ namespace Nebulite::Utility {
 
 JsonModifier::JsonModifier() {
     modifierFuncTree = std::make_unique<Interaction::Execution::FuncTree<bool, JSON*>>("JSON Modifier FuncTree", true, false);
+
+    // Bind modifier functions
+    bindModifierFunction(&JsonModifier::add, addName, &addDesc);
 }
 
 bool JsonModifier::parse(std::vector<std::string> const& args, JSON* jsonDoc){
-    // TODO: Implement modifier parsing and application logic
-    return false;
+    if(args.empty()){
+            return false;
+    }
+    for (auto const& modifier : args) {
+        std::string const call = std::string(__FUNCTION__) + " " + modifier;
+        if (!modifierFuncTree->parseStr(call, jsonDoc)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 std::string const JsonModifier::valueKey = "v";

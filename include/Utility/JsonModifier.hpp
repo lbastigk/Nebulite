@@ -49,9 +49,30 @@ private:
      * @return true on success, false on failure.
      */
     bool add(std::span<std::string const> const& args, JSON* jsonDoc);
+    const std::string addName = "add";
+    const std::string addDesc = "Adds a numeric value to the current JSON value. Usage: |add <number1> <number2> ...";
 
 public:
     JsonModifier();
+
+    /**
+     * @brief Binding helper using std::variant and std::
+     * @param func The function to bind
+     * @param name The name of the function
+     * @param desc The description of the function
+     */
+    void bindModifierFunction(
+        typename Interaction::Execution::FuncTree<bool, JSON*>::template MemberMethod<JsonModifier> func,
+        std::string const& name,
+        std::string const* desc = nullptr
+        ) {
+        modifierFuncTree->bindFunction(
+            this,
+            func,
+            name,
+            desc
+            );
+    }
 
     /**
      * @brief The key used to store and retrieve the value being modified.
@@ -72,5 +93,5 @@ public:
     bool parse(std::vector<std::string> const& args, JSON* jsonDoc);
 };
 
-}   // namespace Nebulite::Utility
+} // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_JSON_MODIFIER_HPP
