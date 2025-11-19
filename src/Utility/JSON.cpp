@@ -17,10 +17,6 @@ JSON::JSON(std::string const& name)
     std::scoped_lock const lockGuard(mtx);
     doc.SetObject();
     DomainModule::Initializer::initJSON(this);
-
-    // Initialize FuncTree for modifiers
-    modifierFuncTree = std::make_unique<Interaction::Execution::FuncTree<bool, JSON*>>("__JSON_ModifierFuncTree__", true, false);
-    // TODO: Call an initializer function to bind all modifier functions
 }
 
 JSON::~JSON(){
@@ -37,8 +33,6 @@ JSON& JSON::operator=(JSON&& other) noexcept {
         std::scoped_lock lockGuard(mtx, other.mtx);
         doc = std::move(other.doc);
         cache = std::move(other.cache);
-        modifierFuncTree = std::move(other.modifierFuncTree);
-
         for (size_t idx = 0; idx < uidQuickCacheSize; ++idx) {
             uidDoubleCache[idx] = other.uidDoubleCache[idx];
             other.uidDoubleCache[idx] = nullptr;

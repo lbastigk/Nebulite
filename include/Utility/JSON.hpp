@@ -26,6 +26,7 @@
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Utility/JsonModifier.hpp"
 #include "Utility/OrderedDoublePointers.hpp"
 #include "Utility/RjDirectAccess.hpp"
 
@@ -161,18 +162,10 @@ private:
      */
     std::array<double*, uidQuickCacheSize> uidDoubleCache{nullptr};
 
-    //------------------------------------------
-    // Modifier FuncTree
-
     /**
-     * @brief The modifier tree is used to apply modifications to JSON values during getting
-     *        if the key includes the pipe '|' character, we apply the modifiers in sequence.
-     *        Example: get<int>('MyKey.subKey|strLength|add 1')
-     *                 will get the length of the string at MyKey.subKey and add 1 to it.
-     *        Takes in a JSON* as argument to modify.
-     *        Returns true on success, false on failure.
+     * @brief JSON Modifier instance for applying modifiers on get operations.
      */
-    std::unique_ptr<Interaction::Execution::FuncTree<bool, JSON*>> modifierFuncTree;
+    JsonModifier jsonModifier;
 
 public:
     //------------------------------------------
