@@ -188,6 +188,10 @@ public:
 
     /**
      * @brief A list of reserved characters that cannot be used in key names.
+     *        - '[]' : Used for array indexing.
+     *        - '.'  : Used for nested object traversal.
+     *        - '|'  : Used for piping modifiers.
+     *        - '"'  : Used for string encapsulation.
      */
     const static std::string reservedCharacters;
 
