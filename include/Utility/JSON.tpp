@@ -66,7 +66,7 @@ T JSON::get(std::string const& key, T const& defaultValue){
 
         // Prepare temp JSON with base value
         JSON tempJson("Temp JSON for Modifiers");
-        auto type = memberType(baseKey);
+        auto type = memberType(baseKey);    // TODO: Debug this, might be broken for arrays!
         if(type == KeyType::object){
             // Cannot use switch here, as we need to initialize sub-document
             // Now this looks ugly, but it works and is definitely unique
@@ -76,7 +76,7 @@ T JSON::get(std::string const& key, T const& defaultValue){
         } else switch (memberType(baseKey)){
         case KeyType::array:
             // Set value one by one into valueKey[i]
-            for (size_t i = 0; i < memberSize(key) ; i++) {
+            for (size_t i = 0; i < memberSize(baseKey) ; i++) {
                 tempJson.set<std::string>(JsonModifier::valueKey + "[" + std::to_string(i) + "]",
                                           get<std::string>(baseKey + "[" + std::to_string(i) + "]", ""));
             }
@@ -94,7 +94,7 @@ T JSON::get(std::string const& key, T const& defaultValue){
 
         // Apply each modifier in sequence
         if (!jsonModifier.parse(args, &tempJson)) {
-            return defaultValue;
+            return defaultValue;    // if any modifier fails, return default value
         }
         return tempJson.get<T>(JsonModifier::valueKey, defaultValue);
     }

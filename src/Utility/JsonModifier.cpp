@@ -1,6 +1,7 @@
 //------------------------------------------
 // Includes
 
+#include "Nebulite.hpp"
 #include "Utility/JSON.hpp"
 #include "Utility/JsonModifier.hpp"
 
