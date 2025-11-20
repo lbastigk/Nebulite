@@ -106,6 +106,10 @@ public:
         SpanFnConstRef
     >;
 
+    /**
+     * @todo Allow for the binding of static functions as well!
+     */
+
     // Function pointer with class type
     template<typename ClassType>
     using MemberMethod = std::variant<

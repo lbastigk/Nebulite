@@ -31,14 +31,15 @@ JsonModifier::JsonModifier() {
 }
 
 bool JsonModifier::parse(std::vector<std::string> const& args, JSON* jsonDoc) {
+    static std::string const funcName = __FUNCTION__;
     if (args.empty()) {
         return false;
     }
-    for (auto const& modifier : args) {
-        std::string const call = std::string(__FUNCTION__) + " " + modifier;
-        if (!modifierFuncTree->parseStr(call, jsonDoc)) {
-            return false;
-        }
+    if (!std::ranges::all_of(args, [&](std::string const& modifier) {
+        std::string const call = funcName + " " + modifier;
+        return modifierFuncTree->parseStr(call, jsonDoc);
+    })) {
+        return false;
     }
     return true;
 }
@@ -92,8 +93,8 @@ bool JsonModifier::mod(std::span<std::string const> const& args, JSON* jsonDoc) 
     }
     try {
         double modValue = std::stod(args[1]);
-        double currentValue = jsonDoc->get<double>(valueKey, 0.0);
-        if (modValue == 0.0) {
+        auto currentValue = jsonDoc->get<double>(valueKey, 0.0);
+        if (std::fabs(modValue) < std::numeric_limits<double>::epsilon()) {
             return false; // Modulo by zero is undefined
         }
         double result = std::fmod(currentValue, modValue);
@@ -130,7 +131,7 @@ bool JsonModifier::at(std::span<std::string const> const& args, JSON* jsonDoc) {
         return false;
     }
     try {
-        size_t index = static_cast<size_t>(std::stoul(args[1]));
+        auto index = static_cast<size_t>(std::stoul(args[1]));
         size_t arraySize = jsonDoc->memberSize(valueKey);
         if (index >= arraySize) {
             return false; // Index out of bounds
