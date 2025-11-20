@@ -1,0 +1,16 @@
+[
+  {
+    "command": "task TaskFiles/Tests/Short/jsonModifier.nebs",
+    "expected": {
+      "cout": [
+        "3",
+        "5",
+        "1",
+        "6",
+        "3",
+        "20"
+      ],
+      "cerr": []
+    }
+  }
+]

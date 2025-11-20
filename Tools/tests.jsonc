@@ -21,6 +21,7 @@
         "Tools/Tests/expressions.json",
         "Tools/Tests/json_array.json",
         "Tools/Tests/json_complex.json",
+        "Tools/Tests/jsonModifier.json",
         "Tools/Tests/scenes.json",
         "Tools/Tests/mirror_draft_selection.json"
     ],

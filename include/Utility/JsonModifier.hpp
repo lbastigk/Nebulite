@@ -43,7 +43,7 @@ private:
     std::unique_ptr<Interaction::Execution::FuncTree<bool, JSON*>> modifierFuncTree;
 
     //------------------------------------------
-    // Functions: Arithmetic Modifiers
+    // Functions: Arithmetic
 
     bool add(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string const addName;
@@ -58,18 +58,7 @@ private:
     static std::string const modDesc;
 
     //------------------------------------------
-    // Type Modifiers
-
-    bool typeAsString(std::span<std::string const> const& args, JSON* jsonDoc);
-    static std::string const typeAsStringName;
-    static std::string const typeAsStringDesc;
-
-    bool typeAsNumber(std::span<std::string const> const& args, JSON* jsonDoc);
-    static std::string const typeAsNumberName;
-    static std::string const typeAsNumberDesc;
-
-    //------------------------------------------
-    // Array Modifiers
+    // Functions: Array-related
 
     bool length(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string const lengthName;
@@ -78,6 +67,24 @@ private:
     bool at(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string const atName;
     static std::string const atDesc;
+
+    //------------------------------------------
+    // Functions: Casting
+
+    bool toInt(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const toIntName;
+    static std::string const toIntDesc;
+
+    //------------------------------------------
+    // Functions: Type-related
+
+    bool typeAsString(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const typeAsStringName;
+    static std::string const typeAsStringDesc;
+
+    bool typeAsNumber(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const typeAsNumberName;
+    static std::string const typeAsNumberDesc;
 
 public:
     JsonModifier();

@@ -13,17 +13,21 @@ JsonModifier::JsonModifier() {
     //------------------------------------------
     // Bind modifier functions
 
-    // Arithmetic Modifiers
+    // Functions: Arithmetic
     bindModifierFunction(&JsonModifier::add, addName, &addDesc);
     bindModifierFunction(&JsonModifier::multiply, multiplyName, &multiplyDesc);
     bindModifierFunction(&JsonModifier::mod, modName, &modDesc);
 
-    // Type Modifiers
+    // Functions: Array-related
+    bindModifierFunction(&JsonModifier::at, atName, &atDesc);
+    bindModifierFunction(&JsonModifier::length, lengthName, &lengthDesc);
+
+    // Functions: Casting
+    bindModifierFunction(&JsonModifier::toInt, toIntName, &toIntDesc);
+
+    // Functions: Type-related
     bindModifierFunction(&JsonModifier::typeAsString, typeAsStringName, &typeAsStringDesc);
     bindModifierFunction(&JsonModifier::typeAsNumber, typeAsNumberName, &typeAsNumberDesc);
-
-    // Array Modifiers
-    bindModifierFunction(&JsonModifier::length, lengthName, &lengthDesc);
 }
 
 bool JsonModifier::parse(std::vector<std::string> const& args, JSON* jsonDoc) {
@@ -42,7 +46,7 @@ bool JsonModifier::parse(std::vector<std::string> const& args, JSON* jsonDoc) {
 std::string const JsonModifier::valueKey = "v";
 
 //------------------------------------------
-// Functions: Arithmetic Modifiers
+// Functions: Arithmetic
 
 bool JsonModifier::add(std::span<std::string const> const& args, JSON* jsonDoc) {
     auto numbers = args.subspan(1); // First argument is the modifier name
@@ -106,44 +110,10 @@ std::string const JsonModifier::modName = "mod";
 std::string const JsonModifier::modDesc = "Calculates the modulo of the current JSON value by a numeric value. "
     "Usage: |mod <number> -> {number}";
 
-//------------------------------------------
-// Type Modifiers
-
-bool JsonModifier::typeAsString(std::span<std::string const> const& args, JSON* jsonDoc) {
-    switch (jsonDoc->memberType(valueKey)) {
-    case JSON::KeyType::value:
-        jsonDoc->set<std::string>(valueKey, "value");
-        break;
-    case JSON::KeyType::array:
-        jsonDoc->set<std::string>(valueKey, "array");
-        break;
-    case JSON::KeyType::object:
-        jsonDoc->set<std::string>(valueKey, "object");
-        break;
-    case JSON::KeyType::null:
-    default:
-        jsonDoc->set<std::string>(valueKey, "null");
-        break;
-    }
-    return true;
-}
-
-std::string const JsonModifier::typeAsStringName = "typeAsString";
-std::string const JsonModifier::typeAsStringDesc = "Converts the current JSON value to a string. "
-    "Usage: |typeAsString -> {value,array,object}";
-
-bool JsonModifier::typeAsNumber(std::span<std::string const> const& args, JSON* jsonDoc) {
-    jsonDoc->set<int>(valueKey, static_cast<int>(jsonDoc->memberType(valueKey)));
-    return true;
-}
-
-std::string const JsonModifier::typeAsNumberName = "typeAsNumber";
-std::string const JsonModifier::typeAsNumberDesc = "Converts the current JSON value to a number. "
-    "Usage: |typeAsNumber -> {number}, where the number reflects the enum value JSON::KeyType.";
 
 
 //------------------------------------------
-// Array Modifiers
+// Functions: Array-related
 
 bool JsonModifier::length(std::span<std::string const> const& args, JSON* jsonDoc) {
     size_t len = jsonDoc->memberSize(valueKey);
@@ -179,4 +149,65 @@ bool JsonModifier::at(std::span<std::string const> const& args, JSON* jsonDoc) {
         return false;
     }
 }
+
+std::string const JsonModifier::atName = "at";
+std::string const JsonModifier::atDesc = "Gets the element at the specified index from the array in the current JSON value. "
+    "Usage: |at <index> -> {value}";
+
+//------------------------------------------
+// Functions: Casting
+
+bool JsonModifier::toInt(std::span<std::string const> const& args, JSON* jsonDoc) {
+    try {
+        auto currentValue = jsonDoc->get<double>(valueKey, 0.0);
+        int intValue = static_cast<int>(currentValue);
+        jsonDoc->set<int>(valueKey, intValue);
+        return true;
+    } catch (const std::invalid_argument&) {
+        return false;
+    } catch (const std::out_of_range&) {
+        return false;
+    }
+}
+
+std::string const JsonModifier::toIntName = "toInt";
+std::string const JsonModifier::toIntDesc = "Converts the current JSON value to an integer. "
+    "Usage: |toInt -> {number}";
+
+//------------------------------------------
+// Functions: Type-related
+
+bool JsonModifier::typeAsString(std::span<std::string const> const& args, JSON* jsonDoc) {
+    switch (jsonDoc->memberType(valueKey)) {
+    case JSON::KeyType::value:
+        jsonDoc->set<std::string>(valueKey, "value");
+        break;
+    case JSON::KeyType::array:
+        jsonDoc->set<std::string>(valueKey, "array");
+        break;
+    case JSON::KeyType::object:
+        jsonDoc->set<std::string>(valueKey, "object");
+        break;
+    case JSON::KeyType::null:
+    default:
+        jsonDoc->set<std::string>(valueKey, "null");
+        break;
+    }
+    return true;
+}
+
+std::string const JsonModifier::typeAsStringName = "typeAsString";
+std::string const JsonModifier::typeAsStringDesc = "Converts the current JSON value to a string. "
+    "Usage: |typeAsString -> {value,array,object}";
+
+bool JsonModifier::typeAsNumber(std::span<std::string const> const& args, JSON* jsonDoc) {
+    jsonDoc->set<int>(valueKey, static_cast<int>(jsonDoc->memberType(valueKey)));
+    return true;
+}
+
+std::string const JsonModifier::typeAsNumberName = "typeAsNumber";
+std::string const JsonModifier::typeAsNumberDesc = "Converts the current JSON value to a number. "
+    "Usage: |typeAsNumber -> {number}, where the number reflects the enum value JSON::KeyType.";
+
+
 } // namespace Nebulite::Utility
