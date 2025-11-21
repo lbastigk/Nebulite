@@ -18,7 +18,7 @@ namespace Nebulite::Utility {
 //------------------------------------------
 // Static Public Helper Functions
 
-rapidjson::Value* RjDirectAccess::traverse_path(char const* key, rapidjson::Value const& val){
+rapidjson::Value* RjDirectAccess::traversePath(char const* key, rapidjson::Value const& val){
     rapidjson::Value const* current = &val;
     std::string_view keyView(key);
 
@@ -79,7 +79,7 @@ rapidjson::Value* RjDirectAccess::traverse_path(char const* key, rapidjson::Valu
     return const_cast<rapidjson::Value*>(current);
 }
 
-rapidjson::Value* RjDirectAccess::ensure_path(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator){
+rapidjson::Value* RjDirectAccess::ensurePath(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator){
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
 
@@ -195,7 +195,7 @@ void RjDirectAccess::deserialize(rapidjson::Document& doc, std::string const& se
     std::string jsonString;
 
     // Check if the input is already a serialized JSON string
-    if (is_json_or_jsonc(serialOrLink)){
+    if (isJsonOrJsonc(serialOrLink)){
         jsonString = serialOrLink;
     }
     // If not, treat it as a file path
@@ -298,7 +298,7 @@ std::string RjDirectAccess::stripComments(std::string const& jsonc){
     return result;
 }
 
-rapidjson::Value* RjDirectAccess::traverse_to_parent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex){
+rapidjson::Value* RjDirectAccess::traverseToParent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex){
     std::string const keyStr(fullKey);
     size_t const lastDot = keyStr.find_last_of('.');
     size_t const lastBracket = keyStr.find_last_of('[');
@@ -316,7 +316,7 @@ rapidjson::Value* RjDirectAccess::traverse_to_parent(char const* fullKey, rapidj
                 if (parentPath.empty()){
                     parent = &root;
                 } else {
-                    parent = traverse_path(parentPath.c_str(), root);
+                    parent = traversePath(parentPath.c_str(), root);
                 }
             } catch (...){
                 return nullptr; // Invalid index
@@ -326,12 +326,12 @@ rapidjson::Value* RjDirectAccess::traverse_to_parent(char const* fullKey, rapidj
         // Last access is object member: var.subVar.finalKey
         std::string const parentPath = keyStr.substr(0, lastDot);
         finalKey = keyStr.substr(lastDot + 1);
-        parent = traverse_path(parentPath.c_str(), root);
+        parent = traversePath(parentPath.c_str(), root);
     }
     return const_cast<rapidjson::Value*>(parent);
 }
 
-void RjDirectAccess::remove_member(char const* key, rapidjson::Value& val){
+void RjDirectAccess::removeMember(char const* key, rapidjson::Value& val){
     // Handle simple case: direct member of root document
     if (std::string const keyStr(key); keyStr.find('.') == std::string::npos && keyStr.find('[') == std::string::npos){
         if (val.HasMember(key)){
@@ -350,7 +350,7 @@ void RjDirectAccess::remove_member(char const* key, rapidjson::Value& val){
     // Remove the final key/index from parent
     std::string finalKey;
     int arrayIndex = -1;
-    if (auto* parent = traverse_to_parent(key, val, finalKey, arrayIndex); parent != nullptr){
+    if (auto* parent = traverseToParent(key, val, finalKey, arrayIndex); parent != nullptr){
         if (arrayIndex >= 0){
             // Remove an array element
             if(!finalKey.empty()){
@@ -368,7 +368,7 @@ void RjDirectAccess::remove_member(char const* key, rapidjson::Value& val){
     }
 }
 
-bool RjDirectAccess::is_json_or_jsonc(std::string const& str){
+bool RjDirectAccess::isJsonOrJsonc(std::string const& str){
     // So far, we do a simple check based on starting characters
     bool const check1 = str.starts_with("{") || str.starts_with("//") || str.starts_with("/*") || str.starts_with("\n");
     return check1;
@@ -410,6 +410,7 @@ bool RjDirectAccess::isValidKey(std::string const& key){
     }
     return true;
 }
+
 
 //------------------------------------------
 // Static Private Helper Functions

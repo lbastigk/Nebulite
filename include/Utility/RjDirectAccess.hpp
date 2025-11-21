@@ -43,25 +43,38 @@ public:
      */
     static bool getSimpleValue(simpleValue* value, rapidjson::Value const* val) {
         // Get supported types
+
+        // Integers
         if (val->IsInt()) {
             *value = val->GetInt();
+            return true;
         } else if (val->IsInt64()) {
             *value = val->GetInt64();
+            return true;
         } else if (val->IsUint()) {
             *value = val->GetUint();
+            return true;
         } else if (val->IsUint64()) {
             *value = val->GetUint64();
-        } else if (val->IsDouble()) {
-            *value = val->GetDouble();
-        } else if (val->IsString()) {
-            *value = std::string(val->GetString(), val->GetStringLength());
-        } else if (val->IsBool()) {
-            *value = val->GetBool();
-        } else {
-            // Unsupported type (e.g., Object, Array, Null)
-            return false;
+            return true;
         }
-        return true;
+        // Floating point
+        else if (val->IsDouble()) {
+            *value = val->GetDouble();
+            return true;
+        }
+        // String
+        else if (val->IsString()) {
+            *value = std::string(val->GetString(), val->GetStringLength());
+            return true;
+        }
+        // Boolean
+        else if (val->IsBool()) {
+            *value = val->GetBool();
+            return true;
+        }
+        // Unsupported type (e.g., Object, Array, Null)
+        return false;
     }
 
     //------------------------------------------
@@ -89,6 +102,11 @@ public:
      */
     template <typename T>
     static bool set(char const* key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+
+    //------------------------------------------
+    // Getter for variant
+
+    static std::optional<simpleValue> getVariant(char const* key, rapidjson::Value& val);
 
     //------------------------------------------
     // Conversion
@@ -122,7 +140,7 @@ public:
      * @param val The rapidjson value to search within.
      * @return A pointer to the found rapidjson value, or nullptr if not found.
      */
-    static rapidjson::Value* traverse_path(char const* key, rapidjson::Value const& val);
+    static rapidjson::Value* traversePath(char const* key, rapidjson::Value const& val);
 
     /**
      * @brief Traverses a rapidjson value to find or create a value within identified by its key.
@@ -134,7 +152,7 @@ public:
      *         Note that the returned value may be nullptr if the given key is invalid
      *         (e.g., trying to index into a non-array or using a malformed index).
      */
-    static rapidjson::Value* ensure_path(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+    static rapidjson::Value* ensurePath(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
     /**
      * @brief Traverses a rapidjson value to find the parent of a value identified by its key.
@@ -147,7 +165,7 @@ public:
      * @param arrayIndex The index if the final key is an array index, -1 otherwise.
      * @return A pointer to the parent rapidjson value, or nullptr if not found
      */
-    static rapidjson::Value* traverse_to_parent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex);
+    static rapidjson::Value* traverseToParent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex);
 
     //------------------------------------------
     // Serialization/Deserialization
@@ -196,14 +214,14 @@ public:
      * @param key The key of the member to remove.
      * @param val The rapidjson object to remove the member from.
      */
-    static void remove_member(char const* key, rapidjson::Value& val);
+    static void removeMember(char const* key, rapidjson::Value& val);
 
     /**
      * @brief Checks if a string is in JSON or JSONC format.
      * @param str The string to check.
      * @return true if the string is JSON or JSONC, false otherwise.
      */
-    static bool is_json_or_jsonc(std::string const& str);
+    static bool isJsonOrJsonc(std::string const& str);
 
     /**
      * @brief Validates if a key string is valid for traversal.

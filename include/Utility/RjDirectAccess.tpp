@@ -7,7 +7,7 @@ namespace Nebulite::Utility {
 
 template <typename T>
 T RjDirectAccess::get(char const* key, T const& defaultValue, rapidjson::Value& val) {
-    rapidjson::Value const* keyVal = traverse_path(key, val);
+    rapidjson::Value const* keyVal = traversePath(key, val);
     if (keyVal == nullptr) {
         // Value doesn't exist in doc, return default
         return defaultValue;
@@ -21,7 +21,7 @@ T RjDirectAccess::get(char const* key, T const& defaultValue, rapidjson::Value& 
 template <typename T>
 bool RjDirectAccess::set(char const* key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
     // Ensure key path exists
-    if (rapidjson::Value* keyVal = ensure_path(key, val, allocator); keyVal != nullptr) {
+    if (rapidjson::Value* keyVal = ensurePath(key, val, allocator); keyVal != nullptr) {
         RjDirectAccess::ConvertToJSONValue<T>(value, *keyVal, allocator);
         return true;
     }
