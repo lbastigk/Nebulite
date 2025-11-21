@@ -117,7 +117,6 @@ private:
     template <typename T>
     T jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue);
 
-
     /**
      * @brief Invalidate all child keys of a given parent key.
      *        For example, if parent_key is "config", it will invalidate
@@ -379,6 +378,14 @@ public:
      * @param key The key to check.
      * @return The type of the key.
      * @todo Make sure to return the correct type if modifiers are applied.
+     *       Either we return null if it contains modifiers, or we resolve the modifiers
+     *       to determine the actual type.
+     *       Option 2 seems more useful. The issue is that we cannot just use get,
+     *       as we need to know if it failed due to non-existence or due to type conversion issues.
+     *       One workaround would be to call get(key,defaultval) twice with a different default value
+     *       if the returned value changes, we know there is an issue -> return null.
+     *       Better yet, modify applyModifiers to use an std::optional<T> as return value,
+     *       with return {} on failure.
      */
     KeyType memberType(std::string const& key);
 
