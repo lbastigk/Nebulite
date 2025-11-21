@@ -76,7 +76,7 @@ private:
     enum class EntryState : uint8_t {
         CLEAN, // Synchronized with RapidJSON document, real value. NOTE: This may be invalid at any time if double pointer is used elsewhere! This just marks the last known state.
         DIRTY, // Modified in cache, needs flushing to RapidJSON, real value
-        VIRTUAL, // Deleted entry that was re-synced, but may not be the real value due to casting
+        VIRTUAL, // Deleted entry that was re-synced, but may not be the real value due to casting (TODO: name DERIVED maybe?)
         DELETED // Deleted entry due to deserialization, inner value is invalid
     };
 
@@ -200,7 +200,7 @@ public:
      * @brief Constructs a new JSON document.
      * @param name The name of the JSON document. Recommended for debugging purposes.
      */
-    JSON(std::string const& name = "Unnamed JSON Document");
+    explicit JSON(std::string const& name = "Unnamed JSON Document");
 
     ~JSON() override;
 

@@ -79,6 +79,7 @@ void JSON::flush(){
             entry->value = *entry->stable_double_ptr;
         }
 
+        // Every dirty entry is flushed back to the document and marked clean
         if (entry->state == EntryState::DIRTY){
             (void)RjDirectAccess::set(key.c_str(), entry->value, doc, doc.GetAllocator());
             entry->state = EntryState::CLEAN;
@@ -230,6 +231,7 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
         it->second->last_double_value = *it->second->stable_double_ptr;
     } else {
         // New cache value, structural validity is not guaranteed
+        // so we flush contents into the rapidjson document after inserting
 
         // Remove any child keys to synchronize the structure
         invalidate_child_keys(key);
