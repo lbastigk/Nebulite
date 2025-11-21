@@ -68,10 +68,12 @@ private:
      *        - VIRTUAL: The entry exists for pointer stability but does not have a real value set (defaults to 0).
      *        - DELETED: The entry is marked for deletion but is not removed from the cache to maintain pointer stability.
      *
-     *        The basic idea is: On reloading a full document, all entries become DELETED. If we access a double pointer,
-     *        we mark the entry as VIRTUAL, as it's a resurrected entry, but its potentially not the real value due to casting.
-     *        A value becomes DIRTY if it was previously CLEAN, and we notice a change in its double value.
-     *        On flushing, all DIRTY entries become CLEAN again. VIRTUAL entries remain VIRTUAL as they are not flushed.
+     *        How it works:
+     *        - On reloading a full document, all entries become DELETED.
+     *        - If we access a double pointer, we mark the entry as VIRTUAL, as it's a resurrected entry, but its potentially not the real value due to casting.
+     *        - A value becomes DIRTY if it was previously CLEAN, and we notice a change in its double value.
+     *        - On flushing, all DIRTY entries become CLEAN again. VIRTUAL entries remain VIRTUAL as they are not flushed.
+     * @todo Documentation about state VIRTUAL is likely outdated, needs review.
      */
     enum class EntryState : uint8_t {
         CLEAN, // Synchronized with RapidJSON document, real value. NOTE: This may be invalid at any time if double pointer is used elsewhere! This just marks the last known state.
