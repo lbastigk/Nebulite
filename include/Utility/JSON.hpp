@@ -182,6 +182,16 @@ private:
      */
     JsonModifier jsonModifier;
 
+    /**
+     * @brief Apply modifiers found in the key string and retrieve the modified value.
+     * @tparam T The type of the value to retrieve.
+     * @param key The key string containing modifiers.
+     * @param defaultValue The default value to return if retrieval fails.
+     * @return The modified value of type T.
+     */
+    template<typename T>
+    T getWithModifiers(std::string const& key, T const& defaultValue);
+
 public:
     //------------------------------------------
     // Constructor/Destructor
@@ -229,8 +239,8 @@ public:
      * @param str The string to check.
      * @return true if the string is JSON or JSONC, false otherwise.
      */
-    static bool is_json_or_jsonc(std::string const& str) {
-        return RjDirectAccess::is_json_or_jsonc(str);
+    static bool isJsonOrJsonc(std::string const& str) {
+        return RjDirectAccess::isJsonOrJsonc(str);
     }
 
     //------------------------------------------
@@ -248,6 +258,13 @@ public:
     void set(std::string const& key, T const& val);
 
     /**
+     * @brief Sets a variant value in the JSON document.
+     * @param key The key of the value to set.
+     * @param val The variant value to set.
+     */
+    void setVariant(std::string const& key, RjDirectAccess::simpleValue const& val);
+
+    /**
      * @brief Sets a sub-document in the JSON document.
      *        If the key already exists, the sub-document is updated.
      *        Note that both the child and parent documents' caches are flushed before setting.
@@ -263,7 +280,7 @@ public:
      *        Note that the document is flushed before setting.
      * @param key The key of the array to set.
      */
-    void set_empty_array(char const* key);
+    void setEmptyArray(char const* key);
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
@@ -297,6 +314,15 @@ public:
      */
     template <typename T>
     T get(std::string const& key, T const& defaultValue = T());
+
+    /**
+     * @brief Gets a variant value from the JSON document.
+     *        This function retrieves a variant value from the JSON document.
+     *        If the key does not exist, void is returned.
+     * @param key The key of the value to retrieve.
+     * @return The variant value associated with the key, or void if the key does not exist.
+     */
+    std::optional<RjDirectAccess::simpleValue> getVariant(std::string const& key);
 
     /**
      * @brief Gets a sub-document from the JSON document.

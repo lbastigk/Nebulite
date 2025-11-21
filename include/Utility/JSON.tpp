@@ -4,53 +4,9 @@ namespace Nebulite::Utility {
 
 template<typename T>
 void JSON::set(std::string const& key, T const& val){
+    // Basically the same as setVariant, but for template types
     std::scoped_lock const lockGuard(mtx);
-
-    // Check if key is valid
-    if (!RjDirectAccess::isValidKey(key)){
-        Nebulite::Utility::Capture::cerr() << "Invalid key: " << key << Nebulite::Utility::Capture::endl;
-        return;
-    }
-
-    // Check if key contains modifiers
-    if (key.find('|') != std::string::npos){
-        Nebulite::Utility::Capture::cerr() << "Modifiers are not supported in set(): " << key << Nebulite::Utility::Capture::endl;
-        return;
-    }
-
-    // Set value in cache
-    if (auto const it = cache.find(key); it != cache.end()){
-        // Existing cache value, structure validity guaranteed
-
-        // Update the entry, mark as dirty
-        it->second->value = val;
-        it->second->state = EntryState::DIRTY;
-
-        // Update double pointer value
-        *it->second->stable_double_ptr = convertVariant<double>(val);
-        it->second->last_double_value = *it->second->stable_double_ptr;
-    } else {
-        // New cache value, structural validity is not guaranteed
-
-        // Remove any child keys to synchronize the structure
-        invalidate_child_keys(key);
-
-        // Create new entry directly in DIRTY state
-        auto new_entry = std::make_unique<CacheEntry>();
-
-        // Set entry values
-        new_entry->value = val;
-        // Pointer was created in constructor, no need to redo make_shared
-        *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value, 0.0);
-        new_entry->last_double_value = *new_entry->stable_double_ptr;
-        new_entry->state = EntryState::DIRTY;
-
-        // Insert into cache
-        cache[key] = std::move(new_entry);
-
-        // Flush to RapidJSON document for structural integrity
-        flush();
-    }
+    setVariant(key, RjDirectAccess::simpleValue(val));
 }
 
 template<typename T>
@@ -59,90 +15,57 @@ T JSON::get(std::string const& key, T const& defaultValue){
 
     // Check if a modifier is present
     if (key.find('|') != std::string::npos){
-        // Use modifier function tree to resolve the value
-        auto args = StringHandler::split(key, '|');
-        std::string const baseKey = args[0];
-        args.erase(args.begin());
-
-        // Prepare temp JSON with base value
-        JSON tempJson("Temp JSON for Modifiers");
-        auto type = memberType(baseKey);    // TODO: Debug this, might be broken for arrays!
-        if(type == KeyType::object){
-            // Cannot use switch here, as we need to initialize sub-document
-            // Now this looks ugly, but it works and is definitely unique
-            // How often do you see an else switch statement?
-            JSON sub = getSubDoc(baseKey);
-            tempJson.setSubDoc(JsonModifier::valueKey.c_str(), sub);
-        } else switch (memberType(baseKey)){
-        case KeyType::array:
-            // Set value one by one into valueKey[i]
-            for (size_t i = 0; i < memberSize(baseKey) ; i++) {
-                tempJson.set<std::string>(JsonModifier::valueKey + "[" + std::to_string(i) + "]",
-                                          get<std::string>(baseKey + "[" + std::to_string(i) + "]", ""));
-            }
-            break;
-        case KeyType::value:
-            // Get the base value into the temp JSON
-            // We use string as universal type for modifiers
-            tempJson.set<std::string>(JsonModifier::valueKey, get<std::string>(baseKey, ""));
-            break;
-        case KeyType::null:
-        default:
-            tempJson.set<std::string>(JsonModifier::valueKey, ""); // Default to empty string for null or unsupported types
-            break;
-        }
-
-        // Apply each modifier in sequence
-        if (!jsonModifier.parse(args, &tempJson)) {
-            return defaultValue;    // if any modifier fails, return default value
-        }
-        return tempJson.get<T>(JsonModifier::valueKey, defaultValue);
+        return getWithModifiers<T>(key, defaultValue);
     }
 
-    // Check cache first
-    auto const it = cache.find(key);
-    if (it != cache.end() && it->second->state != EntryState::DELETED){
-        // Entry exists and is not deleted
-
-        // Check its double value for change detection using an epsilon to avoid unsafe direct comparison
-        {
-            if(std::fabs(*it->second->stable_double_ptr - it->second->last_double_value) > DBL_EPSILON){
-                // Value changed since last check
-                // We update the actual value with the new double value
-                // Then we convert the double to the requested type
-                it->second->last_double_value = *it->second->stable_double_ptr;
-                it->second->value = it->second->last_double_value;
-                it->second->state = EntryState::DIRTY; // Mark as dirty to sync back
-                return convertVariant<T>(it->second->value, defaultValue);
-            }
-        }
-        return convertVariant<T>(it->second->value, defaultValue);
+    // Get variant and convert to requested type
+    auto var = getVariant(key);
+    if(var.has_value()){
+        return convertVariant<T>(var.value(), defaultValue);
     }
-
-    // Check document, if not in cache
-    if(rapidjson::Value const* val = RjDirectAccess::traverse_path(key.c_str(), doc); val != nullptr){
-        if(it != cache.end()){
-            // Modify existing entry
-            if(!RjDirectAccess::getSimpleValue(&it->second->value, val)){
-                return defaultValue;
-            }
-
-            // Mark as clean
-            it->second->state = EntryState::CLEAN;
-
-            // Set stable double pointer
-            *it->second->stable_double_ptr = convertVariant<double>(it->second->value, 0.0);
-            it->second->last_double_value = *it->second->stable_double_ptr;
-
-            // Return converted value
-            return convertVariant<T>(it->second->value, defaultValue);
-        }
-        // Create new cache entry
-        return jsonValueToCache<T>(key, val, defaultValue);
-    }
-
-    // Value could not be created, return default
     return defaultValue;
+}
+
+template<typename T>
+T JSON::getWithModifiers(std::string const& key, T const& defaultValue) {
+    // Use modifier function tree to resolve the value
+    auto args = StringHandler::split(key, '|');
+    std::string const baseKey = args[0];
+    args.erase(args.begin());
+
+    // Prepare temp JSON with base value
+    JSON tempJson("Temp JSON for Modifiers");
+    auto type = memberType(baseKey);    // TODO: Debug this, might be broken for arrays!
+    if(type == KeyType::object){
+        // Cannot use switch here, as we need to initialize sub-document
+        // Now this looks ugly, but it works and is definitely unique
+        // How often do you see an else switch statement?
+        JSON sub = getSubDoc(baseKey);
+        tempJson.setSubDoc(JsonModifier::valueKey.c_str(), sub);
+    } else switch (memberType(baseKey)){
+    case KeyType::array:
+        // Set value one by one into valueKey[i]
+        for (size_t i = 0; i < memberSize(baseKey) ; i++) {
+            tempJson.set<std::string>(JsonModifier::valueKey + "[" + std::to_string(i) + "]",
+                                      get<std::string>(baseKey + "[" + std::to_string(i) + "]", ""));
+        }
+        break;
+    case KeyType::value:
+        // Get the base value into the temp JSON
+        // We use string as universal type for modifiers
+        tempJson.set<std::string>(JsonModifier::valueKey, get<std::string>(baseKey, ""));
+        break;
+    case KeyType::null:
+    default:
+        tempJson.set<std::string>(JsonModifier::valueKey, ""); // Default to empty string for null or unsupported types
+        break;
+    }
+
+    // Apply each modifier in sequence
+    if (!jsonModifier.parse(args, &tempJson)) {
+        return defaultValue;    // if any modifier fails, return default value
+    }
+    return tempJson.get<T>(JsonModifier::valueKey, defaultValue);
 }
 
 template<typename T>

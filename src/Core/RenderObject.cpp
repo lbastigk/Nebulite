@@ -35,8 +35,8 @@ RenderObject::RenderObject() : Domain("RenderObject", this, &document), baseText
     document.set(Constants::keyName.renderObject.pixelSizeY, 32);
 
     // Invokes
-    document.set_empty_array(Constants::keyName.renderObject.invokes.c_str());
-    document.set_empty_array(Constants::keyName.renderObject.invokeSubscriptions.c_str());
+    document.setEmptyArray(Constants::keyName.renderObject.invokes.c_str());
+    document.setEmptyArray(Constants::keyName.renderObject.invokeSubscriptions.c_str());
     document.set(Constants::keyName.renderObject.invokeSubscriptions + "[0]", std::string("all"));
 
     // Text
@@ -112,7 +112,7 @@ std::string RenderObject::serialize() {
 
 void RenderObject::deserialize(std::string const &serialOrLink) {
     // Check if argv1 provided is an object
-    if (Utility::JSON::is_json_or_jsonc(serialOrLink)) {
+    if (Utility::JSON::isJsonOrJsonc(serialOrLink)) {
         document.deserialize(serialOrLink);
     } else {
         //------------------------------------------
