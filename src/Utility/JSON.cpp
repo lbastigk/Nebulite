@@ -371,15 +371,9 @@ void JSON::deserialize(std::string const& serial_or_link){
 // Key Types, Sizes
 
 JSON::KeyType JSON::memberType(std::string const& key){
-    // 1. Check if key is empty -> represents the whole document
-    if (key.empty()){
-        return KeyType::object;
-    }
-
-    // For all other cases, lock this object
     std::scoped_lock const lockGuard(mtx);
 
-    // 2. Check cache first
+    // Check cache first
     if (cache.find(key) != cache.end()){
         // Key is cached, return its type
         return KeyType::value;
@@ -388,7 +382,7 @@ JSON::KeyType JSON::memberType(std::string const& key){
     // Not directly in cache, flush before accessing the document
     flush();
 
-    // 4. If not cached, check rapidjson doc
+    // If not cached, check rapidjson doc
     auto const val = RjDirectAccess::traversePath(key.c_str(),doc);
     if(val == nullptr){
         return KeyType::null;

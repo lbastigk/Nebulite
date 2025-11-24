@@ -331,6 +331,7 @@ public:
      *        Note that the cache is flushed into the document.
      * @param key The key of the sub-document to retrieve.
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
+     * @todo Allow the return of basic types as well, not just sub-documents.
      */
     JSON getSubDoc(std::string const& key);
 

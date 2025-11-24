@@ -10,7 +10,7 @@ eval echo {global.test.MyKey|multiply 2|toInt}
 set test.arr[0] 10
 set test.arr[1] 20
 set test.arr[2] 30
-eval echo {global.test.arr|length|toInt}
-eval echo {global.test.arr|at 1|toInt}
+eval echo {global.test.arr|echo Array is:|print|length|toInt}
+eval echo {global.test.arr|echo Array is:|print|at 1|toInt}
 #print test
 exit

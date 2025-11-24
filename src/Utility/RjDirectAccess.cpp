@@ -175,8 +175,11 @@ rapidjson::Value RjDirectAccess::sortRecursive(rapidjson::Value const& value, ra
 
 std::string RjDirectAccess::serialize(rapidjson::Document const& doc){
     if (!doc.IsObject() && !doc.IsArray()){
-        Nebulite::cerr() << "Serialization only supports JSON objects or arrays!" << Nebulite::endl;
-        return "{}";
+        // Get root object and serialize
+        rapidjson::StringBuffer buffer;
+        rapidjson::PrettyWriter writer(buffer);
+        doc.Accept(writer);
+        return buffer.GetString();
     }
 
     rapidjson::Document sortedDoc;

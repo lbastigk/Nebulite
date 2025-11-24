@@ -76,6 +76,17 @@ private:
     static std::string const toIntDesc;
 
     //------------------------------------------
+    // Functions: Debugging
+
+    bool echo(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const echoName;
+    static std::string const echoDesc;
+
+    bool print(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const printName;
+    static std::string const printDesc;
+
+    //------------------------------------------
     // Functions: Type-related
 
     bool typeAsString(std::span<std::string const> const& args, JSON* jsonDoc);

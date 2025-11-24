@@ -26,6 +26,10 @@ JsonModifier::JsonModifier() {
     // Functions: Casting
     bindModifierFunction(&JsonModifier::toInt, toIntName, &toIntDesc);
 
+    // Functions: Debugging
+    bindModifierFunction(&JsonModifier::echo, echoName, &echoDesc);
+    bindModifierFunction(&JsonModifier::print, printName, &printDesc);
+
     // Functions: Type-related
     bindModifierFunction(&JsonModifier::typeAsString, typeAsStringName, &typeAsStringDesc);
     bindModifierFunction(&JsonModifier::typeAsNumber, typeAsNumberName, &typeAsNumberDesc);
@@ -45,7 +49,8 @@ bool JsonModifier::parse(std::vector<std::string> const& args, JSON* jsonDoc) {
     return true;
 }
 
-std::string const JsonModifier::valueKey = "v";
+// TODO: test if using no key "" works as intended in all cases
+std::string const JsonModifier::valueKey = "";
 
 //------------------------------------------
 // Functions: Arithmetic
@@ -112,8 +117,6 @@ std::string const JsonModifier::modName = "mod";
 std::string const JsonModifier::modDesc = "Calculates the modulo of the current JSON value by a numeric value. "
     "Usage: |mod <number> -> {number}";
 
-
-
 //------------------------------------------
 // Functions: Array-related
 
@@ -175,6 +178,41 @@ bool JsonModifier::toInt(std::span<std::string const> const& args, JSON* jsonDoc
 std::string const JsonModifier::toIntName = "toInt";
 std::string const JsonModifier::toIntDesc = "Converts the current JSON value to an integer. "
     "Usage: |toInt -> {number}";
+
+//------------------------------------------
+// Functions: Debugging
+
+bool JsonModifier::echo(std::span<std::string const> const& args, JSON* jsonDoc) {
+    // Echo args to cout
+    for (size_t i = 1; i < args.size(); ++i) {
+        Nebulite::Utility::Capture::cout() << args[i];
+        if (i < args.size() - 1) {
+            Nebulite::Utility::Capture::cout() << " ";
+        }
+    }
+    Nebulite::Utility::Capture::cout() << Nebulite::Utility::Capture::endl;
+    return true;
+}
+
+std::string const JsonModifier::echoName = "echo";
+std::string const JsonModifier::echoDesc = "Echoes the provided arguments to the console, with newline. "
+    "Usage: |echo <arg1> <arg2> ...";
+
+bool JsonModifier::print(std::span<std::string const> const& args, JSON* jsonDoc) {
+    // Print to cout, no modifications
+    if (args.size() > 1) {
+        std::string key = args[1];
+        Nebulite::Utility::Capture::cout() << jsonDoc->serialize(key) << Nebulite::Utility::Capture::endl;
+    }
+    else {
+        Nebulite::Utility::Capture::cout() << jsonDoc->serialize() << Nebulite::Utility::Capture::endl;
+    }
+    return true;
+}
+
+std::string const JsonModifier::printName = "print";
+std::string const JsonModifier::printDesc = "Prints the current JSON value to the console. "
+    "Usage: |print";
 
 //------------------------------------------
 // Functions: Type-related
