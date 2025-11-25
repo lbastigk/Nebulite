@@ -3,46 +3,46 @@
 
 #include "Nebulite.hpp"
 #include "Utility/JSON.hpp"
-#include "Utility/JsonModifier.hpp"
+#include "Utility/JsonRvalueTransformer.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility {
 
-JsonModifier::JsonModifier() {
-    modifierFuncTree = std::make_unique<Interaction::Execution::FuncTree<bool, JSON*>>("JSON Modifier FuncTree", true, false);
+JsonRvalueTransformer::JsonRvalueTransformer() {
+    transformationFuncTree = std::make_unique<Interaction::Execution::FuncTree<bool, JSON*>>("JSON rvalue transformation FuncTree", true, false);
 
     //------------------------------------------
-    // Bind modifier functions
+    // Bind transformation functions
 
     // Functions: Arithmetic
-    bindModifierFunction(&JsonModifier::add, addName, &addDesc);
-    bindModifierFunction(&JsonModifier::multiply, multiplyName, &multiplyDesc);
-    bindModifierFunction(&JsonModifier::mod, modName, &modDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::add, addName, &addDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::multiply, multiplyName, &multiplyDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::mod, modName, &modDesc);
 
     // Functions: Array-related
-    bindModifierFunction(&JsonModifier::at, atName, &atDesc);
-    bindModifierFunction(&JsonModifier::length, lengthName, &lengthDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::at, atName, &atDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::length, lengthName, &lengthDesc);
 
     // Functions: Casting
-    bindModifierFunction(&JsonModifier::toInt, toIntName, &toIntDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::toInt, toIntName, &toIntDesc);
 
     // Functions: Debugging
-    bindModifierFunction(&JsonModifier::echo, echoName, &echoDesc);
-    bindModifierFunction(&JsonModifier::print, printName, &printDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::echo, echoName, &echoDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::print, printName, &printDesc);
 
     // Functions: Type-related
-    bindModifierFunction(&JsonModifier::typeAsString, typeAsStringName, &typeAsStringDesc);
-    bindModifierFunction(&JsonModifier::typeAsNumber, typeAsNumberName, &typeAsNumberDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::typeAsString, typeAsStringName, &typeAsStringDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::typeAsNumber, typeAsNumberName, &typeAsNumberDesc);
 }
 
-bool JsonModifier::parse(std::vector<std::string> const& args, JSON* jsonDoc) {
+bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JSON* jsonDoc) {
     static std::string const funcName = __FUNCTION__;
     if (args.empty()) {
         return false;
     }
-    if (!std::ranges::all_of(args, [&](std::string const& modifier) {
-        std::string const call = funcName + " " + modifier;
-        return modifierFuncTree->parseStr(call, jsonDoc);
+    if (!std::ranges::all_of(args, [&](std::string const& transformation) {
+        std::string const call = funcName + " " + transformation;
+        return transformationFuncTree->parseStr(call, jsonDoc);
     })) {
         return false;
     }
@@ -50,13 +50,13 @@ bool JsonModifier::parse(std::vector<std::string> const& args, JSON* jsonDoc) {
 }
 
 // TODO: test if using no key "" works as intended in all cases
-std::string const JsonModifier::valueKey = "";
+std::string const JsonRvalueTransformer::valueKey = "";
 
 //------------------------------------------
 // Functions: Arithmetic
 
-bool JsonModifier::add(std::span<std::string const> const& args, JSON* jsonDoc) {
-    auto numbers = args.subspan(1); // First argument is the modifier name
+bool JsonRvalueTransformer::add(std::span<std::string const> const& args, JSON* jsonDoc) {
+    auto numbers = args.subspan(1); // First argument is the transformation name
     for (auto const& numStr : numbers) {
         try {
             double num = std::stod(numStr);
@@ -70,12 +70,12 @@ bool JsonModifier::add(std::span<std::string const> const& args, JSON* jsonDoc) 
     return true;
 }
 
-std::string const JsonModifier::addName = "add";
-std::string const JsonModifier::addDesc = "Adds a numeric value to the current JSON value. "
+std::string const JsonRvalueTransformer::addName = "add";
+std::string const JsonRvalueTransformer::addDesc = "Adds a numeric value to the current JSON value. "
     "Usage: |add <number1> <number2> ... -> {number}";
 
-bool JsonModifier::multiply(std::span<std::string const> const& args, JSON* jsonDoc) {
-    auto numbers = args.subspan(1); // First argument is the modifier name
+bool JsonRvalueTransformer::multiply(std::span<std::string const> const& args, JSON* jsonDoc) {
+    auto numbers = args.subspan(1); // First argument is the transformation name
     for (auto const& numStr : numbers) {
         try {
             double num = std::stod(numStr);
@@ -89,11 +89,11 @@ bool JsonModifier::multiply(std::span<std::string const> const& args, JSON* json
     return true;
 }
 
-std::string const JsonModifier::multiplyName = "multiply";
-std::string const JsonModifier::multiplyDesc = "Multiplies the current JSON value by a numeric value. "
+std::string const JsonRvalueTransformer::multiplyName = "multiply";
+std::string const JsonRvalueTransformer::multiplyDesc = "Multiplies the current JSON value by a numeric value. "
     "Usage: |multiply <number1> <number2> ...";
 
-bool JsonModifier::mod(std::span<std::string const> const& args, JSON* jsonDoc) {
+bool JsonRvalueTransformer::mod(std::span<std::string const> const& args, JSON* jsonDoc) {
     if (args.size() < 2) {
         return false;
     }
@@ -113,24 +113,24 @@ bool JsonModifier::mod(std::span<std::string const> const& args, JSON* jsonDoc) 
     }
 }
 
-std::string const JsonModifier::modName = "mod";
-std::string const JsonModifier::modDesc = "Calculates the modulo of the current JSON value by a numeric value. "
+std::string const JsonRvalueTransformer::modName = "mod";
+std::string const JsonRvalueTransformer::modDesc = "Calculates the modulo of the current JSON value by a numeric value. "
     "Usage: |mod <number> -> {number}";
 
 //------------------------------------------
 // Functions: Array-related
 
-bool JsonModifier::length(std::span<std::string const> const& args, JSON* jsonDoc) {
+bool JsonRvalueTransformer::length(std::span<std::string const> const& args, JSON* jsonDoc) {
     size_t len = jsonDoc->memberSize(valueKey);
     jsonDoc->set(valueKey, static_cast<double>(len));
     return true;
 }
 
-std::string const JsonModifier::lengthName = "length";
-std::string const JsonModifier::lengthDesc = "Gets the length of the array in the current JSON value. "
+std::string const JsonRvalueTransformer::lengthName = "length";
+std::string const JsonRvalueTransformer::lengthDesc = "Gets the length of the array in the current JSON value. "
     "Usage: |length -> {number}";
 
-bool JsonModifier::at(std::span<std::string const> const& args, JSON* jsonDoc) {
+bool JsonRvalueTransformer::at(std::span<std::string const> const& args, JSON* jsonDoc) {
     if (args.size() < 2) {
         return false;
     }
@@ -155,14 +155,14 @@ bool JsonModifier::at(std::span<std::string const> const& args, JSON* jsonDoc) {
     }
 }
 
-std::string const JsonModifier::atName = "at";
-std::string const JsonModifier::atDesc = "Gets the element at the specified index from the array in the current JSON value. "
+std::string const JsonRvalueTransformer::atName = "at";
+std::string const JsonRvalueTransformer::atDesc = "Gets the element at the specified index from the array in the current JSON value. "
     "Usage: |at <index> -> {value}";
 
 //------------------------------------------
 // Functions: Casting
 
-bool JsonModifier::toInt(std::span<std::string const> const& args, JSON* jsonDoc) {
+bool JsonRvalueTransformer::toInt(std::span<std::string const> const& args, JSON* jsonDoc) {
     try {
         auto currentValue = jsonDoc->get<double>(valueKey, 0.0);
         int intValue = static_cast<int>(currentValue);
@@ -175,14 +175,14 @@ bool JsonModifier::toInt(std::span<std::string const> const& args, JSON* jsonDoc
     }
 }
 
-std::string const JsonModifier::toIntName = "toInt";
-std::string const JsonModifier::toIntDesc = "Converts the current JSON value to an integer. "
+std::string const JsonRvalueTransformer::toIntName = "toInt";
+std::string const JsonRvalueTransformer::toIntDesc = "Converts the current JSON value to an integer. "
     "Usage: |toInt -> {number}";
 
 //------------------------------------------
 // Functions: Debugging
 
-bool JsonModifier::echo(std::span<std::string const> const& args, JSON* jsonDoc) {
+bool JsonRvalueTransformer::echo(std::span<std::string const> const& args, JSON* jsonDoc) {
     // Echo args to cout
     for (size_t i = 1; i < args.size(); ++i) {
         Nebulite::Utility::Capture::cout() << args[i];
@@ -194,11 +194,11 @@ bool JsonModifier::echo(std::span<std::string const> const& args, JSON* jsonDoc)
     return true;
 }
 
-std::string const JsonModifier::echoName = "echo";
-std::string const JsonModifier::echoDesc = "Echoes the provided arguments to the console, with newline. "
+std::string const JsonRvalueTransformer::echoName = "echo";
+std::string const JsonRvalueTransformer::echoDesc = "Echoes the provided arguments to the console, with newline. "
     "Usage: |echo <arg1> <arg2> ...";
 
-bool JsonModifier::print(std::span<std::string const> const& args, JSON* jsonDoc) {
+bool JsonRvalueTransformer::print(std::span<std::string const> const& args, JSON* jsonDoc) {
     // Print to cout, no modifications
     if (args.size() > 1) {
         std::string key = args[1];
@@ -210,14 +210,14 @@ bool JsonModifier::print(std::span<std::string const> const& args, JSON* jsonDoc
     return true;
 }
 
-std::string const JsonModifier::printName = "print";
-std::string const JsonModifier::printDesc = "Prints the current JSON value to the console. "
+std::string const JsonRvalueTransformer::printName = "print";
+std::string const JsonRvalueTransformer::printDesc = "Prints the current JSON value to the console. "
     "Usage: |print";
 
 //------------------------------------------
 // Functions: Type-related
 
-bool JsonModifier::typeAsString(std::span<std::string const> const& args, JSON* jsonDoc) {
+bool JsonRvalueTransformer::typeAsString(std::span<std::string const> const& args, JSON* jsonDoc) {
     switch (jsonDoc->memberType(valueKey)) {
     case JSON::KeyType::value:
         jsonDoc->set<std::string>(valueKey, "value");
@@ -236,17 +236,17 @@ bool JsonModifier::typeAsString(std::span<std::string const> const& args, JSON* 
     return true;
 }
 
-std::string const JsonModifier::typeAsStringName = "typeAsString";
-std::string const JsonModifier::typeAsStringDesc = "Converts the current JSON value to a string. "
+std::string const JsonRvalueTransformer::typeAsStringName = "typeAsString";
+std::string const JsonRvalueTransformer::typeAsStringDesc = "Converts the current JSON value to a string. "
     "Usage: |typeAsString -> {value,array,object}";
 
-bool JsonModifier::typeAsNumber(std::span<std::string const> const& args, JSON* jsonDoc) {
+bool JsonRvalueTransformer::typeAsNumber(std::span<std::string const> const& args, JSON* jsonDoc) {
     jsonDoc->set<int>(valueKey, static_cast<int>(jsonDoc->memberType(valueKey)));
     return true;
 }
 
-std::string const JsonModifier::typeAsNumberName = "typeAsNumber";
-std::string const JsonModifier::typeAsNumberDesc = "Converts the current JSON value to a number. "
+std::string const JsonRvalueTransformer::typeAsNumberName = "typeAsNumber";
+std::string const JsonRvalueTransformer::typeAsNumberDesc = "Converts the current JSON value to a number. "
     "Usage: |typeAsNumber -> {number}, where the number reflects the enum value JSON::KeyType.";
 
 

@@ -26,7 +26,7 @@
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Interaction/Execution/Domain.hpp"
-#include "Utility/JsonModifier.hpp"
+#include "Utility/JsonRvalueTransformer.hpp"
 #include "Utility/OrderedDoublePointers.hpp"
 #include "Utility/RjDirectAccess.hpp"
 
@@ -42,7 +42,7 @@ namespace Nebulite::Utility {
  *        - serialize/deserialize methods for easy saving/loading
  *        - member type and size checking
  *        - usage of parsing commands to modify JSON on load
- *        - usage of return value modifiers on get (length, type checks, arithmetic operations, etc.)
+ *        - usage of return value transformations on get (length, type checks, arithmetic operations, etc.)
  *        - thread-safe access with mutex locking
  *        - optimized for performance using ordered double pointers and quick cache for unique IDs,
  *          allowing fast access to numeric values in a sorted manner.
@@ -179,19 +179,19 @@ private:
     std::array<double*, uidQuickCacheSize> uidDoubleCache{nullptr};
 
     /**
-     * @brief JSON Modifier instance for applying modifiers on get operations.
+     * @brief Instance for applying transformations on get operations.
      */
-    JsonModifier jsonModifier;
+    JsonRvalueTransformer transformer;
 
     /**
-     * @brief Apply modifiers found in the key string and retrieve the modified value.
+     * @brief Apply transformations found in the key string and retrieve the modified value.
      * @tparam T The type of the value to retrieve.
-     * @param key The key string containing modifiers.
+     * @param key The key string containing transformations.
      * @param defaultValue The default value to return if retrieval fails.
      * @return The modified value of type T.
      */
     template<typename T>
-    T getWithModifiers(std::string const& key, T const& defaultValue);
+    T getWithTransformations(std::string const& key, T const& defaultValue);
 
 public:
     //------------------------------------------
@@ -220,7 +220,7 @@ public:
      * @brief A list of reserved characters that cannot be used in key names.
      *        - '[]' : Used for array indexing.
      *        - '.'  : Used for nested object traversal.
-     *        - '|'  : Used for piping modifiers.
+     *        - '|'  : Used for piping transformations.
      *        - '"'  : Used for string encapsulation.
      * @todo Proper API documentation for JSON key naming rules.
      *       Including a 'why' for each character.
@@ -380,14 +380,14 @@ public:
      *        If the key does not exist, the type is considered null.
      * @param key The key to check.
      * @return The type of the key.
-     * @todo Make sure to return the correct type if modifiers are applied.
-     *       Either we return null if it contains modifiers, or we resolve the modifiers
+     * @todo Make sure to return the correct type if transformations are applied.
+     *       Either we return null if it contains transformations, or we resolve the transformations
      *       to determine the actual type.
      *       Option 2 seems more useful. The issue is that we cannot just use get,
      *       as we need to know if it failed due to non-existence or due to type conversion issues.
      *       One workaround would be to call get(key,defaultval) twice with a different default value
      *       if the returned value changes, we know there is an issue -> return null.
-     *       Better yet, modify applyModifiers to use an std::optional<T> as return value,
+     *       Better yet, modify applyTransformations to use an std::optional<T> as return value,
      *       with return {} on failure.
      */
     KeyType memberType(std::string const& key);
@@ -423,7 +423,7 @@ public:
 
     /**
      * @brief Deserializes a JSON string or loads from a file, with optional modifications.
-     * @param serial_or_link The JSON string to deserialize or the file path to load from + optional functioncall modifiers
+     * @param serial_or_link The JSON string to deserialize or the file path to load from + optional functioncall transformations
      *        Examples:
      *        - `{"key": "value"}` - Deserializes a JSON string
      *        - `file.json` - Loads a JSON file

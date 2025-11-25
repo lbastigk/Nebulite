@@ -212,9 +212,9 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
         return;
     }
 
-    // Check if key contains modifiers
+    // Check if key contains transformations
     if (key.find('|') != std::string::npos){
-        Nebulite::Utility::Capture::cerr() << "Modifiers are not supported in set(): " << key << Nebulite::Utility::Capture::endl;
+        Nebulite::Utility::Capture::cerr() << "Transformations are not supported in set(): " << key << Nebulite::Utility::Capture::endl;
         return;
     }
 
@@ -315,7 +315,7 @@ void JSON::deserialize(std::string const& serial_or_link){
         tokens.push_back(serial_or_link);
     }
     else{
-        // Split based on modifiers, indicated by '|'
+        // Split based on transformations, indicated by '|'
         tokens = StringHandler::split(serial_or_link, '|');
     }
 
@@ -349,19 +349,19 @@ void JSON::deserialize(std::string const& serial_or_link){
 
         // Legacy: Handle key=value pairs
         if (auto const pos = token.find('='); pos != std::string::npos){
-            // Handle modifier (key=value)
+            // Handle transformation (key=value)
             std::string keyAndValue = token;
             if (pos != std::string::npos) keyAndValue[pos] = ' ';
 
             // New implementation through functioncall
             if (std::string const callStr = std::string(__FUNCTION__) + " set " + keyAndValue; parseStr(callStr) != Constants::ErrorTable::NONE()){
-                Nebulite::cerr() << "Failed to apply deserialize modifier: " << callStr << Nebulite::endl;
+                Nebulite::cerr() << "Failed to apply deserialize transformation: " << callStr << Nebulite::endl;
             }
         }
         else{
             // Forward to FunctionTree for resolution
             if (std::string const callStr = std::string(__FUNCTION__) + " " + token; parseStr(callStr) != Constants::ErrorTable::NONE()){
-                Nebulite::cerr() << "Failed to apply deserialize modifier: " << callStr << Nebulite::endl;
+                Nebulite::cerr() << "Failed to apply deserialize transformation: " << callStr << Nebulite::endl;
             }
         }
     }

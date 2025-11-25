@@ -13,9 +13,9 @@ template<typename T>
 T JSON::get(std::string const& key, T const& defaultValue){
     std::scoped_lock const lockGuard(mtx);
 
-    // Check if a modifier is present
+    // Check if a transformation is present
     if (key.find('|') != std::string::npos){
-        return getWithModifiers<T>(key, defaultValue);
+        return getWithTransformations<T>(key, defaultValue);
     }
 
     // Get variant and convert to requested type
@@ -27,45 +27,45 @@ T JSON::get(std::string const& key, T const& defaultValue){
 }
 
 template<typename T>
-T JSON::getWithModifiers(std::string const& key, T const& defaultValue) {
-    // Use modifier function tree to resolve the value
+T JSON::getWithTransformations(std::string const& key, T const& defaultValue) {
+    // Use transformation function tree to resolve the value
     auto args = StringHandler::split(key, '|');
     std::string const baseKey = args[0];
     args.erase(args.begin());
 
     // Prepare temp JSON with base value
-    JSON tempJson("Temp JSON for Modifiers");
+    JSON tempJson("Temp JSON for Transformations");
     auto type = memberType(baseKey);    // TODO: Debug this, might be broken for arrays!
     if(type == KeyType::object){
         // Cannot use switch here, as we need to initialize sub-document
         // Now this looks ugly, but it works and is definitely unique
         // How often do you see an else switch statement?
         JSON sub = getSubDoc(baseKey);
-        tempJson.setSubDoc(JsonModifier::valueKey.c_str(), sub);
+        tempJson.setSubDoc(JsonRvalueTransformer::valueKey.c_str(), sub);
     } else switch (memberType(baseKey)){
     case KeyType::array:
         // Set value one by one into valueKey[i]
         for (size_t i = 0; i < memberSize(baseKey) ; i++) {
-            tempJson.set<std::string>(JsonModifier::valueKey + "[" + std::to_string(i) + "]",
+            tempJson.set<std::string>(JsonRvalueTransformer::valueKey + "[" + std::to_string(i) + "]",
                                       get<std::string>(baseKey + "[" + std::to_string(i) + "]", ""));
         }
         break;
     case KeyType::value:
         // Get the base value into the temp JSON
-        // We use string as universal type for modifiers
-        tempJson.set<std::string>(JsonModifier::valueKey, get<std::string>(baseKey, ""));
+        // We use string as universal type for transformations
+        tempJson.set<std::string>(JsonRvalueTransformer::valueKey, get<std::string>(baseKey, ""));
         break;
     case KeyType::null:
     default:
-        tempJson.set<std::string>(JsonModifier::valueKey, ""); // Default to empty string for null or unsupported types
+        tempJson.set<std::string>(JsonRvalueTransformer::valueKey, ""); // Default to empty string for null or unsupported types
         break;
     }
 
-    // Apply each modifier in sequence
-    if (!jsonModifier.parse(args, &tempJson)) {
-        return defaultValue;    // if any modifier fails, return default value
+    // Apply each transformation in sequence
+    if (!transformer.parse(args, &tempJson)) {
+        return defaultValue;    // if any transformation fails, return default value
     }
-    return tempJson.get<T>(JsonModifier::valueKey, defaultValue);
+    return tempJson.get<T>(JsonRvalueTransformer::valueKey, defaultValue);
 }
 
 template<typename T>

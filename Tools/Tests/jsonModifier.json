@@ -1,6 +1,6 @@
 [
   {
-    "command": "task TaskFiles/Tests/Short/jsonModifier.nebs",
+    "command": "task TaskFiles/Tests/Short/JsonRvalueTransformer.nebs",
     "expected": {
       "cout": [
         "3",
