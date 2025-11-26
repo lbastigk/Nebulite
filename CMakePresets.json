@@ -15,8 +15,6 @@
             "cacheVariables": {
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "SDL2TTF_VENDORED": "ON",
-                "CMAKE_C_COMPILER": "/usr/bin/clang",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
                 "CMAKE_SUPPRESS_DEVELOPER_WARNINGS": "TRUE"
             }
         },
@@ -27,7 +25,9 @@
             "description": "Debug build for Linux",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_CXX_FLAGS": "-mno-avx512f -mno-avx512bw -mno-avx512vl -mno-avx512dq -mno-avx512ifma -mno-avx512vbmi -mno-avx512bf16"
+                "CMAKE_CXX_FLAGS": "-mno-avx512f -mno-avx512bw -mno-avx512vl -mno-avx512dq -mno-avx512ifma -mno-avx512vbmi -mno-avx512bf16",
+                "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
             }
         },
         {
@@ -38,7 +38,9 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_CXX_FLAGS": "-O3 -DNDEBUG",
-                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
+                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
             }
         },
         {
@@ -59,7 +61,10 @@
             "description": "Debug build for Windows (native Windows or cross-compilation via MinGW)",
             "toolchainFile": "${sourceDir}/Tools/CMake/Toolchains/windows-mingw.cmake",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_C_FLAGS": "-Wa,-mbig-obj",
+                "CMAKE_CXX_FLAGS": "-Wa,-mbig-obj",
+                "CMAKE_ASM_FLAGS": "-Wa,-mbig-obj"
             }
         },
         {
