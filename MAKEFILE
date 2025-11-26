@@ -12,37 +12,37 @@
 linux-release:
 	@echo "Building preset: $@"
 	@cmake --preset $@
-	@cmake --build --preset $@
+	@cmake --build --preset $@ -j4
 
 linux-debug:
 	@echo "Building preset: $@"
 	@cmake --preset $@
-	@cmake --build --preset $@
+	@cmake --build --preset $@ -j4
 
 linux-coverage:
 	@echo "Building preset: $@"
 	@cmake --preset $@
-	@cmake --build --preset $@
+	@cmake --build --preset $@ -j4
 
 windows-release:
 	@echo "Building preset: $@"
 	@cmake --preset $@
-	@cmake --build --preset $@
+	@cmake --build --preset $@ -j4
 
 windows-debug:
 	@echo "Building preset: $@"
 	@cmake --preset $@
-	@cmake --build --preset $@
+	@cmake --build --preset $@ -j4
 
 macos-release:
 	@echo "Building preset: $@"
 	@cmake --preset $@
-	@cmake --build --preset $@
+	@cmake --build --preset $@ -j4
 
 macos-debug:
 	@echo "Building preset: $@"
 	@cmake --preset $@
-	@cmake --build --preset $@
+	@cmake --build --preset $@ -j4
 
 ##################################
 # Native and Available Presets
