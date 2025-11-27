@@ -3,8 +3,8 @@
  * @brief Contains the Nebulite::Core::RenderObjectContainer class.
  */
 
-#ifndef NEBULITE_CORE_RENDEROBJECT_CONTAINER_HPP
-#define NEBULITE_CORE_RENDEROBJECT_CONTAINER_HPP
+#ifndef NEBULITE_CORE_RENDER_OBJECT_CONTAINER_HPP
+#define NEBULITE_CORE_RENDER_OBJECT_CONTAINER_HPP
 
 //------------------------------------------
 // Includes
@@ -188,7 +188,7 @@ private:
      * @param dispResY Display resolution height for tile placement.
      * @return The created worker thread.
      */
-    std::thread createBatchWorker(Batch &work, std::pair<uint16_t, uint16_t> pos, uint16_t dispResX, uint16_t dispResY);
+    std::thread createBatchWorker(Batch &work, std::pair<int16_t, int16_t> pos, uint16_t dispResX, uint16_t dispResY);
 
     /**
      * @struct Nebulite::Core::RenderObjectContainer::ReinsertionProcess
@@ -227,4 +227,4 @@ private:
     } deletionProcess;
 };
 } // namespace Nebulite::Core
-#endif // NEBULITE_CORE_RENDEROBJECT_CONTAINER_HPP
+#endif // NEBULITE_CORE_RENDER_OBJECT_CONTAINER_HPP

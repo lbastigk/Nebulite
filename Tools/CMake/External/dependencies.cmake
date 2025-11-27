@@ -20,27 +20,27 @@ set(SDL2_IMAGE_PATH     "${CMAKE_SOURCE_DIR}/external/SDL2_image")
 
 # SDL2 related libraries
 set(SDL2_LINK_LIBS
-    SDL2::SDL2main
-    SDL2::SDL2-static
-    SDL2_ttf
-    SDL2_image
+        SDL2::SDL2main
+        SDL2::SDL2-static
+        SDL2_ttf
+        SDL2_image
 )
 
 # Abseil libraries
 set(ABSL_LINK_LIBS
-    absl::flat_hash_map
+        absl::flat_hash_map
 )
 
 ############################################################
 # Function to configure common dependencies for a target
 function(configure_common_dependencies target_name)
     message(STATUS "Configuring common dependencies for target: ${target_name}")
-    
+
     # Include directories
     target_include_directories(${target_name}
-        PRIVATE
+            PRIVATE
             ${CMAKE_SOURCE_DIR}/include # Nebulite common include directory
-        SYSTEM PRIVATE
+            SYSTEM PRIVATE
             ${RAPIDJSON_PATH}/include
             ${EXPRTK_PATH}
             ${TINYEXPR_PATH}
@@ -49,15 +49,15 @@ function(configure_common_dependencies target_name)
 
     # Link common libraries
     target_link_libraries(${target_name} PRIVATE
-        ${SDL2_LINK_LIBS}
-        ${ABSL_LINK_LIBS}
+            ${SDL2_LINK_LIBS}
+            ${ABSL_LINK_LIBS}
     )
 
     ##########################################################
     # Evil workaround to suppress warnings from third-party headers
     # Feel free to improve this section and send a PR.
     # Please, I beg you.
-    
+
     # If linked external targets export include directories, re-add them as SYSTEM
     # for this target so compiler warnings from third-party headers are suppressed.
     # We iterate the known link lists and, if a target exists, consume its
@@ -65,7 +65,7 @@ function(configure_common_dependencies target_name)
     foreach(_lib ${SDL2_LINK_LIBS})
         if(TARGET ${_lib})
             target_include_directories(${target_name} SYSTEM PRIVATE
-                $<TARGET_PROPERTY:${_lib},INTERFACE_INCLUDE_DIRECTORIES>
+                    $<TARGET_PROPERTY:${_lib},INTERFACE_INCLUDE_DIRECTORIES>
             )
         endif()
     endforeach()
@@ -73,7 +73,7 @@ function(configure_common_dependencies target_name)
     foreach(_lib ${ABSL_LINK_LIBS})
         if(TARGET ${_lib})
             target_include_directories(${target_name} SYSTEM PRIVATE
-                $<TARGET_PROPERTY:${_lib},INTERFACE_INCLUDE_DIRECTORIES>
+                    $<TARGET_PROPERTY:${_lib},INTERFACE_INCLUDE_DIRECTORIES>
             )
         endif()
     endforeach()
@@ -89,10 +89,10 @@ function(configure_common_dependencies target_name)
         # Use COMPILE_OPTIONS with generator expressions so the flags apply only
         # when compiling this C source and are evaluated for the active C compiler.
         set_source_files_properties("${TINYEXPR_PATH}/tinyexpr.c" PROPERTIES
-            COMPILE_OPTIONS "$<$<OR:$<COMPILE_LANG_AND_ID:C,Clang>,$<COMPILE_LANG_AND_ID:C,GNU>>:-w>;$<$<COMPILE_LANG_AND_ID:C,MSVC>:/W0>"
+                COMPILE_OPTIONS "$<$<OR:$<COMPILE_LANG_AND_ID:C,Clang>,$<COMPILE_LANG_AND_ID:C,GNU>>:-w>;$<$<COMPILE_LANG_AND_ID:C,MSVC>:/W0>"
         )
     endif()
-    
+
     message(STATUS "Common dependencies configured for ${target_name}")
 endfunction()
 
@@ -100,7 +100,7 @@ endfunction()
 # Function to setup external subdirectories (call once)
 function(setup_external_subdirectories)
     message(STATUS "Setting up external subdirectories...")
-    
+
     # Add Abseil subdirectory
     add_subdirectory(${ABSEIL_PATH})
 

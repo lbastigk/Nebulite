@@ -1,11 +1,25 @@
 #!/bin/bash
 
+# Make sure script runs as sudo
+if [ "$EUID" -ne 0 ]; then
+    echo "Please run as root (using sudo)"
+    exit 1
+fi
+
+# Make sure the directory is the project root "Nebulite"
+if [ "$(basename "$PWD")" != "Nebulite" ] || { [ ! -f "MAKEFILE" ] && [ ! -f "CMakeLists.txt" ] && [ ! -d ".git" ]; }; then
+  echo "Not in `Nebulite` project root. Run the script from the `Nebulite` directory." >&2
+  exit 1
+fi
+
 set -euo pipefail
 
 # Install system packages
 echo "Installing system dependencies"
 
 # Define package lists for each distro
+# TODO: Verify package names and see if they're actually needed
+# TODO: Check if freetype is needed, project should use the bundled version from the submodule!
 APT_PACKAGES="cmake ninja-build automake build-essential autoconf libtool m4 perl mingw-w64 gcc-mingw-w64 g++-mingw-w64 python3 python3-pip python3-numpy libasound2-dev libpulse-dev cloc"
 DNF_PACKAGES="cmake ninja-build automake @development-tools autoconf libtool m4 perl mingw64-gcc mingw64-gcc-c++ python3 python3-pip python3-numpy alsa-lib-devel pulseaudio-libs-devel cloc"
 YUM_PACKAGES="cmake ninja-build automake @development-tools autoconf libtool m4 perl mingw64-gcc mingw64-gcc-c++ python3 python3-pip python3-numpy alsa-lib-devel pulseaudio-libs-devel cloc"
@@ -33,3 +47,11 @@ else
     echo "  - cloc (for line counting)"
     read -r -p "Press Enter when dependencies are installed, or Ctrl+C to exit..."
 fi
+
+# Reset build directories and external libraries
+rm -rf tmp/
+rm -rf external/
+
+# Initialize and update git submodules, fix permissions if needed
+git submodule update --init --recursive
+chmod -R u+rw external/
