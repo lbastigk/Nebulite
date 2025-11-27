@@ -49,8 +49,8 @@ bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JSON* js
     return true;
 }
 
-// TODO: test if using no key "" works as intended in all cases
-std::string const JsonRvalueTransformer::valueKey = "";
+// Uses an empty string as key, so the entire JSON document is the value used.
+std::string const JsonRvalueTransformer::valueKey;
 
 //------------------------------------------
 // Functions: Arithmetic
@@ -161,15 +161,8 @@ bool JsonRvalueTransformer::at(std::span<std::string const> const& args, JSON* j
         if (index >= arraySize) {
             return false; // Index out of bounds
         }
-        /**
-         * @todo Implement a getVariant method to avoid type issues like this.
-         *       simpleValue getVariant(std::string const& key);    // We need to make sure the value actually exists
-         *       void setVariant(std::string const& key, simpleValue const& val);
-         *       RjDirectAccess::valueType(key); // returns the type of the value stored at key, so we can handle it accordingly
-         *       // So we need a large enum for all possible types that rapidjson can differentiate between with IsX() methods.
-         */
-        auto value = jsonDoc->get<std::string>(valueKey + "[" + std::to_string(index) + "]");
-        jsonDoc->set(valueKey, value);
+        JSON temp = jsonDoc->getSubDoc(valueKey + "[" + std::to_string(index) + "]");
+        jsonDoc->setSubDoc(valueKey.c_str(), temp);
         return true;
     } catch (const std::invalid_argument&) {
         return false;
@@ -186,8 +179,8 @@ std::string const JsonRvalueTransformer::atDesc = "Gets the element at the speci
 bool JsonRvalueTransformer::toInt(std::span<std::string const> const& args, JSON* jsonDoc) {
     try {
         auto currentValue = jsonDoc->get<double>(valueKey, 0.0);
-        int intValue = static_cast<int>(currentValue);
-        jsonDoc->set<int>(valueKey, intValue);
+        auto valueAsInt = static_cast<int>(currentValue);
+        jsonDoc->set<int>(valueKey, valueAsInt);
         return true;
     } catch (const std::invalid_argument&) {
         return false;
@@ -201,8 +194,8 @@ std::string const JsonRvalueTransformer::toIntDesc = "Converts the current JSON 
     "Usage: |toInt -> {number}";
 
 bool JsonRvalueTransformer::toString(std::span<std::string const> const& args, JSON* jsonDoc) {
-    std::string const val = jsonDoc->get<std::string>(valueKey, "");
-    jsonDoc->set<std::string>(valueKey, val);
+    auto const valAsString = jsonDoc->get<std::string>(valueKey, "");
+    jsonDoc->set<std::string>(valueKey, valAsString);
     return true;
 }
 
@@ -233,10 +226,8 @@ std::string const JsonRvalueTransformer::echoDesc = "Echoes the provided argumen
 bool JsonRvalueTransformer::print(std::span<std::string const> const& args, JSON* jsonDoc) {
     // Print to cout, no modifications
     if (args.size() > 1) {
-        std::string key = args[1];
-        Nebulite::Utility::Capture::cout() << jsonDoc->serialize(key) << Nebulite::Utility::Capture::endl;
-    }
-    else {
+        Nebulite::Utility::Capture::cout() << jsonDoc->serialize(args[1]) << Nebulite::Utility::Capture::endl;
+    } else {
         Nebulite::Utility::Capture::cout() << jsonDoc->serialize() << Nebulite::Utility::Capture::endl;
     }
     return true;
