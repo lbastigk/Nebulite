@@ -134,6 +134,15 @@ clean-build-native: clean build-native
 clean-build-available: clean build-available
 
 ##################################
+# Documentation
+##################################
+
+keyword-docs:
+	@echo "Generating documentation for keywords..."
+	@python Scripts/MakeCommandDocumentation.py
+	@python Languages/nebs/nebulite-script-vscode/scripts/extract_keywords.py
+
+##################################
 # Full testing pipelines
 ##################################
 
