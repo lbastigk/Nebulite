@@ -18,6 +18,7 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     bindTransformationFunction(&JsonRvalueTransformer::add, addName, &addDesc);
     bindTransformationFunction(&JsonRvalueTransformer::multiply, multiplyName, &multiplyDesc);
     bindTransformationFunction(&JsonRvalueTransformer::mod, modName, &modDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::pow, powName, &powDesc);
 
     // Functions: Array-related
     bindTransformationFunction(&JsonRvalueTransformer::at, atName, &atDesc);
@@ -40,13 +41,10 @@ bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JSON* js
     if (args.empty()) {
         return false;
     }
-    if (!std::ranges::all_of(args, [&](std::string const& transformation) {
+    return std::ranges::all_of(args, [&](std::string const& transformation) {
         std::string const call = funcName + " " + transformation;
         return transformationFuncTree->parseStr(call, jsonDoc);
-    })) {
-        return false;
-    }
-    return true;
+    });
 }
 
 // Uses an empty string as key, so the entire JSON document is the value used.
@@ -56,14 +54,15 @@ std::string const JsonRvalueTransformer::valueKey;
 // Functions: Arithmetic
 
 bool JsonRvalueTransformer::add(std::span<std::string const> const& args, JSON* jsonDoc) {
+    if (args.size() < 2) {
+        return false;
+    }
     auto numbers = args.subspan(1); // First argument is the transformation name
     for (auto const& numStr : numbers) {
         try {
             double num = std::stod(numStr);
             jsonDoc->set_add(valueKey, num);
-        } catch (const std::invalid_argument&) {
-            return false;
-        } catch (const std::out_of_range&) {
+        } catch (...) {
             return false;
         }
     }
@@ -75,21 +74,22 @@ std::string const JsonRvalueTransformer::addDesc = "Adds a numeric value to the 
     "Usage: |add <number1> <number2> ... -> {number}";
 
 bool JsonRvalueTransformer::multiply(std::span<std::string const> const& args, JSON* jsonDoc) {
+    if (args.size() < 2) {
+        return false;
+    }
     auto numbers = args.subspan(1); // First argument is the transformation name
     for (auto const& numStr : numbers) {
         try {
             double num = std::stod(numStr);
             jsonDoc->set_multiply(valueKey, num);
-        } catch (const std::invalid_argument&) {
-            return false;
-        } catch (const std::out_of_range&) {
+        } catch (...) {
             return false;
         }
     }
     return true;
 }
 
-std::string const JsonRvalueTransformer::multiplyName = "multiply";
+std::string const JsonRvalueTransformer::multiplyName = "mul";
 std::string const JsonRvalueTransformer::multiplyDesc = "Multiplies the current JSON value by a numeric value. "
     "Usage: |multiply <number1> <number2> ...";
 
@@ -106,9 +106,7 @@ bool JsonRvalueTransformer::mod(std::span<std::string const> const& args, JSON* 
         double result = std::fmod(currentValue, modValue);
         jsonDoc->set<double>(valueKey, result);
         return true;
-    } catch (const std::invalid_argument&) {
-        return false;
-    } catch (const std::out_of_range&) {
+    } catch (...) {
         return false;
     }
 }
@@ -127,9 +125,7 @@ bool JsonRvalueTransformer::pow(std::span<std::string const> const& args, JSON* 
         double result = std::pow(currentValue, exponent);
         jsonDoc->set<double>(valueKey, result);
         return true;
-    } catch (const std::invalid_argument&) {
-        return false;
-    } catch (const std::out_of_range&) {
+    } catch (...) {
         return false;
     }
 }
@@ -164,7 +160,7 @@ bool JsonRvalueTransformer::at(std::span<std::string const> const& args, JSON* j
         JSON temp = jsonDoc->getSubDoc(valueKey + "[" + std::to_string(index) + "]");
         jsonDoc->setSubDoc(valueKey.c_str(), temp);
         return true;
-    } catch (const std::invalid_argument&) {
+    } catch (...) {
         return false;
     }
 }
@@ -182,9 +178,7 @@ bool JsonRvalueTransformer::toInt(std::span<std::string const> const& args, JSON
         auto valueAsInt = static_cast<int>(currentValue);
         jsonDoc->set<int>(valueKey, valueAsInt);
         return true;
-    } catch (const std::invalid_argument&) {
-        return false;
-    } catch (const std::out_of_range&) {
+    } catch (...) {
         return false;
     }
 }
@@ -241,9 +235,25 @@ std::string const JsonRvalueTransformer::printDesc = "Prints the current JSON va
 // Functions: Type-related
 
 bool JsonRvalueTransformer::typeAsString(std::span<std::string const> const& args, JSON* jsonDoc) {
+    // TODO: Add a getTypeAsString function to JSON class to avoid code duplication
+    // - array -> "array"
+    // - object -> "object"
+    // - null -> "null"
+    // - string -> "value:string"
+    // - int -> "value:int"
+    // - double -> "value:double"
+    // - bool -> "value:bool"
+    // etc...
+    // Perhaps even with additional depth argument:
+    // <baseType>:<subType>:<moreInfo>
+    // e.g.: "value:int:32" or "value:string" (no more info for string)
     switch (jsonDoc->memberType(valueKey)) {
     case JSON::KeyType::value:
-        jsonDoc->set<std::string>(valueKey, "value");
+        {
+            // General type is "value", but we can be more specific by using getVariant or even better:
+            // TODO: see above comment
+            jsonDoc->set<std::string>(valueKey, "value");
+        }
         break;
     case JSON::KeyType::array:
         jsonDoc->set<std::string>(valueKey, "array");
@@ -271,6 +281,5 @@ bool JsonRvalueTransformer::typeAsNumber(std::span<std::string const> const& arg
 std::string const JsonRvalueTransformer::typeAsNumberName = "typeAsNumber";
 std::string const JsonRvalueTransformer::typeAsNumberDesc = "Converts the current JSON value to a number. "
     "Usage: |typeAsNumber -> {number}, where the number reflects the enum value JSON::KeyType.";
-
 
 } // namespace Nebulite::Utility

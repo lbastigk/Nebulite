@@ -9,7 +9,7 @@
       "eval echo {global.test.MyKey}",
       "eval echo {global.test.MyKey|add 2|toInt}",
       "eval echo {global.test.MyKey|mod 2|toInt}",
-      "eval echo {global.test.MyKey|multiply 2|toInt}",
+      "eval echo {global.test.MyKey|mul 2|toInt}",
       "exit"
     ],
     "expected": {
@@ -18,6 +18,37 @@
         "5",
         "1",
         "6"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Testing non-numeric values in arithmetic transformations",
+      "set-fps 60",
+      "wait 1",
+      "set test.val 3",
+      "wait 1",
+      "eval echo {global.test.val|add 2|toInt}",
+      "eval echo {global.test.val|add a|toInt}",
+      "eval echo {global.test.val|mul 2|toInt}",
+      "eval echo {global.test.val|mul a|toInt}",
+      "eval echo {global.test.val|mod 2|toInt}",
+      "eval echo {global.test.val|mod a|toInt}",
+      "eval echo {global.test.val|pow 2|toInt}",
+      "eval echo {global.test.val|pow a|toInt}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "5",
+        "null",
+        "6",
+        "null",
+        "1",
+        "null",
+        "9",
+        "null"
       ],
       "cerr": []
     }
@@ -46,6 +77,8 @@
   {
     "command": [
       "# Testing malformed transformations",
+      "# - No transformation provided",
+      "# - No arguments for arithmetic transformations",
       "set-fps 60",
       "wait 1",
       "set test.val MyValue",
@@ -53,13 +86,23 @@
       "set test.arr[1] 20",
       "set test.arr[2] 30",
       "wait 1",
-      "eval echo {global.test.val}  # Returns MyValue",
-      "eval echo {global.test.val|} # Empty transformation, returns default value 0",
+      "echo Testing: No transformation provided",
+      "eval echo {global.test.val|} # Empty transformation, returns default value null",
+      "echo Testing: No arguments for arithmetic transformations",
+      "eval echo {global.test.arr[0]|add}",
+      "eval echo {global.test.arr[0]|mul}",
+      "eval echo {global.test.arr[0]|mod}",
+      "eval echo {global.test.arr[0]|pow}",
       "exit"
     ],
     "expected": {
       "cout": [
-        "MyValue",
+        "Testing: No transformation provided",
+        "null",
+        "Testing: No arguments for arithmetic transformations",
+        "null",
+        "null",
+        "null",
         "null"
       ],
       "cerr": []
