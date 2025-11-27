@@ -319,6 +319,11 @@ def validate_test_result(output: Dict[str, Union[List[str], int]], expected: Dic
 def run_single_test(binary: str, test: Dict[str, Any], timeout: int, ignore_lines: Dict[str, List[str]], verbose: bool = False) -> Dict[str, Any]:
     """Run a single test and return the result."""
     cmd = f"{binary} {test['command']}"
+
+    # If command is type Array, join with ';' inbetween
+    if isinstance(test['command'], list):
+        cmd = f"{binary} " + "; ".join(test['command'])
+
     expected = test.get('expected', {})
     
     print(f"Test: {cmd}")

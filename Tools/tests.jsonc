@@ -19,9 +19,9 @@
         "Tools/Tests/binding_collision_detection.json",
         "Tools/Tests/time.json",
         "Tools/Tests/expressions.json",
-        "Tools/Tests/json_array.json",
-        "Tools/Tests/json_complex.json",
-        "Tools/Tests/JsonRvalueTransformer.json",
+        "Tools/Tests/JSON/Array.json",
+        "Tools/Tests/JSON/Complex.json",
+        "Tools/Tests/JSON/RvalueTransformer.json",
         "Tools/Tests/scenes.json",
         "Tools/Tests/mirror_draft_selection.json"
     ],

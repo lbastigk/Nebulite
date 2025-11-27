@@ -34,26 +34,25 @@ T JSON::getWithTransformations(std::string const& key, T const& defaultValue) {
     args.erase(args.begin());
 
     // Prepare temp JSON with base value
-    JSON tempJson("Temp JSON for Transformations");
-    auto type = memberType(baseKey);    // TODO: Debug this, might be broken for arrays!
+    JSON tempDoc("Temp JSON for Transformations");
     switch (memberType(baseKey)){
     case KeyType::object:
         {
             JSON sub = getSubDoc(baseKey);
-            tempJson.setSubDoc(JsonRvalueTransformer::valueKey.c_str(), sub);
+            tempDoc.setSubDoc(JsonRvalueTransformer::valueKey.c_str(), sub);
         }
         break;
     case KeyType::array:
         // Set value one by one into valueKey[i]
         for (size_t i = 0; i < memberSize(baseKey) ; i++) {
-            tempJson.set<std::string>(JsonRvalueTransformer::valueKey + "[" + std::to_string(i) + "]",
+            tempDoc.set<std::string>(JsonRvalueTransformer::valueKey + "[" + std::to_string(i) + "]",
                                       get<std::string>(baseKey + "[" + std::to_string(i) + "]", ""));
         }
         break;
     case KeyType::value:
         // Get the base value into the temp JSON
         // We use string as universal type for transformations
-        tempJson.set<std::string>(JsonRvalueTransformer::valueKey, get<std::string>(baseKey, ""));
+        tempDoc.set<std::string>(JsonRvalueTransformer::valueKey, get<std::string>(baseKey, ""));
         break;
     case KeyType::null:
     default:
@@ -61,11 +60,14 @@ T JSON::getWithTransformations(std::string const& key, T const& defaultValue) {
         break;
     }
 
+    // TODO: New version, should also work:
+    //JSON tempDoc = getSubDoc(baseKey);
+
     // Apply each transformation in sequence
-    if (!transformer.parse(args, &tempJson)) {
+    if (!transformer.parse(args, &tempDoc)) {
         return defaultValue;    // if any transformation fails, return default value
     }
-    return tempJson.get<T>(JsonRvalueTransformer::valueKey, defaultValue);
+    return tempDoc.get<T>(JsonRvalueTransformer::valueKey, defaultValue);
 }
 
 template<typename T>
