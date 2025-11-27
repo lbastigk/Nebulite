@@ -55,6 +55,10 @@ private:
     static std::string const modName;
     static std::string const modDesc;
 
+    bool pow(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const powName;
+    static std::string const powDesc;
+
     //------------------------------------------
     // Functions: Array-related
 
@@ -66,12 +70,19 @@ private:
     static std::string const atName;
     static std::string const atDesc;
 
+    // TODO: push, pop, insert, remove, clear, etc. might be added later
+    //       but first, add these functionalities to JSON class
+
     //------------------------------------------
     // Functions: Casting
 
     bool toInt(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string const toIntName;
     static std::string const toIntDesc;
+
+    bool toString(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const toStringName;
+    static std::string const toStringDesc;
 
     //------------------------------------------
     // Functions: Debugging

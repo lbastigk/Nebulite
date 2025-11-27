@@ -117,6 +117,27 @@ std::string const JsonRvalueTransformer::modName = "mod";
 std::string const JsonRvalueTransformer::modDesc = "Calculates the modulo of the current JSON value by a numeric value. "
     "Usage: |mod <number> -> {number}";
 
+bool JsonRvalueTransformer::pow(std::span<std::string const> const& args, JSON* jsonDoc) {
+    if (args.size() < 2) {
+        return false;
+    }
+    try {
+        double exponent = std::stod(args[1]);
+        auto currentValue = jsonDoc->get<double>(valueKey, 0.0);
+        double result = std::pow(currentValue, exponent);
+        jsonDoc->set<double>(valueKey, result);
+        return true;
+    } catch (const std::invalid_argument&) {
+        return false;
+    } catch (const std::out_of_range&) {
+        return false;
+    }
+}
+
+std::string const JsonRvalueTransformer::powName = "pow";
+std::string const JsonRvalueTransformer::powDesc = "Raises the current JSON value to the power of a numeric value. "
+    "Usage: |pow <exponent> -> {number}";
+
 //------------------------------------------
 // Functions: Array-related
 
@@ -178,6 +199,17 @@ bool JsonRvalueTransformer::toInt(std::span<std::string const> const& args, JSON
 std::string const JsonRvalueTransformer::toIntName = "toInt";
 std::string const JsonRvalueTransformer::toIntDesc = "Converts the current JSON value to an integer. "
     "Usage: |toInt -> {number}";
+
+bool JsonRvalueTransformer::toString(std::span<std::string const> const& args, JSON* jsonDoc) {
+    std::string const val = jsonDoc->get<std::string>(valueKey, "");
+    jsonDoc->set<std::string>(valueKey, val);
+    return true;
+}
+
+std::string const JsonRvalueTransformer::toStringName = "toString";
+std::string const JsonRvalueTransformer::toStringDesc = "Converts the current JSON value to a string. "
+    "doesn't fail, defaults to empty string. "
+    "Usage: |toString -> {string}";
 
 //------------------------------------------
 // Functions: Debugging
