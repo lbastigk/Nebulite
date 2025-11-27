@@ -137,6 +137,10 @@ clean-build-available: clean build-available
 # Full testing pipelines
 ##################################
 
+# Coverage build + report
+
+build-and-coverage-report: build-coverage coverage-report
+
 # Non-clean build + test
 
 build-and-test-native: delete-binaries build-native test
@@ -149,9 +153,7 @@ clean-build-and-test-native: clean-build-native test
 
 clean-build-and-test-available: clean-build-available test
 
-# Coverage build + report
 
-clean-build-and-test-coverage: clean build-coverage coverage-report
 
 ##################################
 # Debug
