@@ -90,7 +90,7 @@ void Nebulite::Core::RenderObjectContainer::append(RenderObject *toAppend, uint1
     ObjectContainer[pos].push_back(std::move(newBatch));
 }
 
-std::thread Nebulite::Core::RenderObjectContainer::createBatchWorker(Batch &work, std::pair<uint16_t, uint16_t> pos, uint16_t dispResX, uint16_t dispResY) {
+std::thread Nebulite::Core::RenderObjectContainer::createBatchWorker(Batch &work, std::pair<int16_t, int16_t> pos, uint16_t dispResX, uint16_t dispResY) {
     return std::thread([&work, pos, this, dispResX, dispResY] {
         // Every batch worker has potential objects to move or delete
         std::vector<RenderObject *> to_move_local;

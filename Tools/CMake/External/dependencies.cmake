@@ -1,7 +1,12 @@
 # Dependencies configuration
-# This file handles external dependency paths and subdirectory inclusion
-
 message(STATUS "Loading dependencies configuration...")
+
+############################################################
+# Options: prefer system packages instead of building vendored copies
+option(USE_SYSTEM_ABSEIL "Use system-installed Abseil instead of vendored ${ABSEIL_PATH}" OFF)
+option(USE_SYSTEM_SDL2 "Use system-installed SDL2 instead of vendored ${SDL2_PATH}" OFF)
+option(USE_SYSTEM_SDL2_TTF "Use system-installed SDL2_ttf instead of vendored ${SDL2_TTF_PATH}" OFF)
+option(USE_SYSTEM_SDL2_IMAGE "Use system-installed SDL2_image instead of vendored ${SDL2_IMAGE_PATH}" OFF)
 
 ############################################################
 # Shortcut paths to external dependencies
@@ -16,83 +21,96 @@ set(SDL2_TTF_PATH       "${CMAKE_SOURCE_DIR}/external/SDL2_ttf")
 set(SDL2_IMAGE_PATH     "${CMAKE_SOURCE_DIR}/external/SDL2_image")
 
 ############################################################
+# Try to prefer system packages (quietly)
+if(USE_SYSTEM_ABSEIL)
+    find_package(absl CONFIG QUIET COMPONENTS container)
+endif()
+
+if(USE_SYSTEM_SDL2)
+    find_package(SDL2 CONFIG QUIET)
+endif()
+
+if(USE_SYSTEM_SDL2_TTF)
+    find_package(SDL2_ttf CONFIG QUIET)
+endif()
+
+if(USE_SYSTEM_SDL2_IMAGE)
+    find_package(SDL2_image CONFIG QUIET)
+endif()
+
+find_package(Freetype QUIET)  # SDL2_ttf/freetype interplay handled by skipping vendored ttf when possible
+
+############################################################
 # Linked libraries from all external dependencies
 
-# SDL2 related libraries
 set(SDL2_LINK_LIBS
-    SDL2::SDL2main
-    SDL2::SDL2-static
-    SDL2_ttf
-    SDL2_image
+        SDL2::SDL2main
+        SDL2::SDL2-static
+        SDL2_ttf
+        SDL2_image
 )
 
-# Abseil libraries
 set(ABSL_LINK_LIBS
-    absl::flat_hash_map
+        absl::flat_hash_map
 )
 
 ############################################################
 # Function to configure common dependencies for a target
 function(configure_common_dependencies target_name)
     message(STATUS "Configuring common dependencies for target: ${target_name}")
-    
-    # Include directories
+
+    # Include directories (always add project include)
     target_include_directories(${target_name}
-        PRIVATE
-            ${CMAKE_SOURCE_DIR}/include # Nebulite common include directory
-        SYSTEM PRIVATE
+            PRIVATE
+            ${CMAKE_SOURCE_DIR}/include
+    )
+
+    # Add third-party include search paths only when not provided by system targets.
+    # RapidJSON/exprtk/tinyexpr are header bundles, keep them as SYSTEM includes.
+    target_include_directories(${target_name} SYSTEM PRIVATE
             ${RAPIDJSON_PATH}/include
             ${EXPRTK_PATH}
             ${TINYEXPR_PATH}
-            ${ABSEIL_PATH}
     )
 
-    # Link common libraries
-    target_link_libraries(${target_name} PRIVATE
-        ${SDL2_LINK_LIBS}
-        ${ABSL_LINK_LIBS}
-    )
+    # Abseil headers: if system absl target is available use its INTERFACE dirs,
+    # otherwise, if vendored path exists add vendored path as include.
+    if(TARGET absl::flat_hash_map)
+        message(VERBOSE "Using Abseil target absl::flat_hash_map")
+        target_include_directories(${target_name} SYSTEM PRIVATE
+                $<TARGET_PROPERTY:absl::flat_hash_map,INTERFACE_INCLUDE_DIRECTORIES>
+        )
+    elseif(EXISTS "${ABSEIL_PATH}")
+        message(VERBOSE "Using vendored Abseil headers from ${ABSEIL_PATH}")
+        target_include_directories(${target_name} SYSTEM PRIVATE "${ABSEIL_PATH}")
+    endif()
 
-    ##########################################################
-    # Evil workaround to suppress warnings from third-party headers
-    # Feel free to improve this section and send a PR.
-    # Please, I beg you.
-    
-    # If linked external targets export include directories, re-add them as SYSTEM
-    # for this target so compiler warnings from third-party headers are suppressed.
-    # We iterate the known link lists and, if a target exists, consume its
-    # INTERFACE_INCLUDE_DIRECTORIES as SYSTEM PRIVATE for our target.
+    # Link common libraries (link only targets that exist)
     foreach(_lib ${SDL2_LINK_LIBS})
         if(TARGET ${_lib})
-            target_include_directories(${target_name} SYSTEM PRIVATE
-                $<TARGET_PROPERTY:${_lib},INTERFACE_INCLUDE_DIRECTORIES>
-            )
+            target_link_libraries(${target_name} PRIVATE ${_lib})
+        else()
+            message(VERBOSE "Link target ${_lib} not available; skipping")
         endif()
     endforeach()
 
     foreach(_lib ${ABSL_LINK_LIBS})
         if(TARGET ${_lib})
-            target_include_directories(${target_name} SYSTEM PRIVATE
-                $<TARGET_PROPERTY:${_lib},INTERFACE_INCLUDE_DIRECTORIES>
-            )
+            target_link_libraries(${target_name} PRIVATE ${_lib})
+        else()
+            message(VERBOSE "Abseil link target ${_lib} not available; assuming header-only or system include-only usage")
         endif()
     endforeach()
 
-    # Some bundled C sources (e.g. tinyexpr) are compiled as part of this target
-    # and can trigger project-wide warnings. Silence targeted warnings for
-    # known third-party C sources by setting per-source compile flags.
+    ##########################################################
+    # Suppress warnings for bundled C sources (tinyexpr)
     if(EXISTS "${TINYEXPR_PATH}/tinyexpr.c")
         message(STATUS "Applying per-source warning suppression for tinyexpr.c")
-        # Disable all warnings for this bundled C source in a portable way.
-        # - For GCC/Clang we pass -w
-        # - For MSVC we pass /W0
-        # Use COMPILE_OPTIONS with generator expressions so the flags apply only
-        # when compiling this C source and are evaluated for the active C compiler.
         set_source_files_properties("${TINYEXPR_PATH}/tinyexpr.c" PROPERTIES
-            COMPILE_OPTIONS "$<$<OR:$<COMPILE_LANG_AND_ID:C,Clang>,$<COMPILE_LANG_AND_ID:C,GNU>>:-w>;$<$<COMPILE_LANG_AND_ID:C,MSVC>:/W0>"
+                COMPILE_OPTIONS "$<$<OR:$<COMPILE_LANG_AND_ID:C,Clang>,$<COMPILE_LANG_AND_ID:C,GNU>>:-w>;$<$<COMPILE_LANG_AND_ID:C,MSVC>:/W0>"
         )
     endif()
-    
+
     message(STATUS "Common dependencies configured for ${target_name}")
 endfunction()
 
@@ -100,17 +118,48 @@ endfunction()
 # Function to setup external subdirectories (call once)
 function(setup_external_subdirectories)
     message(STATUS "Setting up external subdirectories...")
-    
-    # Add Abseil subdirectory
-    add_subdirectory(${ABSEIL_PATH})
 
-    # Include shared SDL2/SDL2_image/SDL2_ttf build settings
+    # Abseil: skip vendored add_subdirectory if system target available
+    if(TARGET absl::flat_hash_map)
+        message(STATUS "Abseil system target present; skipping vendored add_subdirectory")
+    else()
+        if(EXISTS "${ABSEIL_PATH}/CMakeLists.txt")
+            message(STATUS "Adding vendored Abseil from ${ABSEIL_PATH}")
+            add_subdirectory(${ABSEIL_PATH})
+        else()
+            message(VERBOSE "Vendored Abseil not found at ${ABSEIL_PATH}")
+        endif()
+    endif()
+
+    # Setup Environment variables for SDL2 builds
     sdl_setup()
 
-    # Add SDL2 subdirectories in correct order (SDL2 first, then extensions)
-    add_subdirectory(${SDL2_PATH})
-    add_subdirectory(${SDL2_TTF_PATH})
-    add_subdirectory(${SDL2_IMAGE_PATH})
+    # SDL2 and its extensions: prefer system targets if found, otherwise add vendored
+    if(TARGET SDL2::SDL2 OR TARGET SDL2::SDL2-static)
+        message(STATUS "Using system SDL2; skipping vendored ${SDL2_PATH}")
+    else()
+        if(EXISTS "${SDL2_PATH}/CMakeLists.txt")
+            add_subdirectory(${SDL2_PATH})
+        endif()
+    endif()
+
+    # SDL2_ttf: if system SDL2_ttf target exists, skip vendored (avoids building bundled freetype)
+    if(TARGET SDL2_ttf)
+        message(STATUS "Using system SDL2_ttf; skipping vendored ${SDL2_TTF_PATH}")
+    else()
+        if(EXISTS "${SDL2_TTF_PATH}/CMakeLists.txt")
+            add_subdirectory(${SDL2_TTF_PATH})
+        endif()
+    endif()
+
+    # SDL2_image
+    if(TARGET SDL2_image)
+        message(STATUS "Using system SDL2_image; skipping vendored ${SDL2_IMAGE_PATH}")
+    else()
+        if(EXISTS "${SDL2_IMAGE_PATH}/CMakeLists.txt")
+            add_subdirectory(${SDL2_IMAGE_PATH})
+        endif()
+    endif()
 
     message(STATUS "External subdirectories setup complete")
 endfunction()
