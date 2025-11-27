@@ -1,5 +1,9 @@
 #!/bin/bash
 
+###########################################
+# Prerequisites + Settings
+echo "Checking prerequisites..."
+
 # Make sure script runs as sudo
 if [ "$EUID" -ne 0 ]; then
     echo "Please run as root (using sudo)"
@@ -14,8 +18,9 @@ fi
 
 set -euo pipefail
 
+###########################################
 # Install system packages
-echo "Installing system dependencies"
+echo "Installing system dependencies..."
 
 # Define package lists for each distro
 # TODO: Verify package names and see if they're actually needed
@@ -48,10 +53,13 @@ else
     read -r -p "Press Enter when dependencies are installed, or Ctrl+C to exit..."
 fi
 
+###########################################
+# Install git submodules
+echo "Setting up git submodules..."
+
 # Reset build directories and external libraries
 rm -rf tmp/
 rm -rf external/
 
-# Initialize and update git submodules, fix permissions if needed
-git submodule update --init --recursive
-chmod -R u+rw external/
+# Initialize and update git submodules
+sudo -u "$SUDO_USER" git submodule update --init --recursive
