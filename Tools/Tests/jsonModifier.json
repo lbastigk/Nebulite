@@ -12,5 +12,17 @@
       ],
       "cerr": []
     }
+  },
+  {
+    "command": [
+      "set MyValue.arr 10",
+      "eval echo global.MyValue.arr"
+    ],
+    "expected": {
+      "cout": [
+        "10"
+      ],
+      "cerr": []
+    }
   }
 ]

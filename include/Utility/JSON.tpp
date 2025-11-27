@@ -36,13 +36,13 @@ T JSON::getWithTransformations(std::string const& key, T const& defaultValue) {
     // Prepare temp JSON with base value
     JSON tempJson("Temp JSON for Transformations");
     auto type = memberType(baseKey);    // TODO: Debug this, might be broken for arrays!
-    if(type == KeyType::object){
-        // Cannot use switch here, as we need to initialize sub-document
-        // Now this looks ugly, but it works and is definitely unique
-        // How often do you see an else switch statement?
-        JSON sub = getSubDoc(baseKey);
-        tempJson.setSubDoc(JsonRvalueTransformer::valueKey.c_str(), sub);
-    } else switch (memberType(baseKey)){
+    switch (memberType(baseKey)){
+    case KeyType::object:
+        {
+            JSON sub = getSubDoc(baseKey);
+            tempJson.setSubDoc(JsonRvalueTransformer::valueKey.c_str(), sub);
+        }
+        break;
     case KeyType::array:
         // Set value one by one into valueKey[i]
         for (size_t i = 0; i < memberSize(baseKey) ; i++) {
@@ -57,7 +57,7 @@ T JSON::getWithTransformations(std::string const& key, T const& defaultValue) {
         break;
     case KeyType::null:
     default:
-        tempJson.set<std::string>(JsonRvalueTransformer::valueKey, ""); // Default to empty string for null or unsupported types
+        // Do nothing, leave tempJson empty
         break;
     }
 
