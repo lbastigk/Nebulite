@@ -149,6 +149,10 @@ clean-build-and-test-native: clean-build-native test
 
 clean-build-and-test-available: clean-build-available test
 
+# Coverage build + report
+
+clean-build-and-test-coverage: clean build-coverage coverage-report
+
 ##################################
 # Debug
 ##################################

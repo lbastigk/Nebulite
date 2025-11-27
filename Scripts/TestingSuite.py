@@ -322,7 +322,12 @@ def run_single_test(binary: str, test: Dict[str, Any], timeout: int, ignore_line
 
     # If command is type Array, join with ';' inbetween
     if isinstance(test['command'], list):
-        cmd = f"{binary} " + "; ".join(test['command'])
+        # Strip everything after a '#' in each command part (comments)
+        cmd = "; ".join(part.split('#')[0].strip() for part in test['command'])
+        # remove "; " from front
+        cmd = cmd.lstrip("; ")
+        # Add binary in front
+        cmd = f"{binary} {cmd}"
 
     expected = test.get('expected', {})
     

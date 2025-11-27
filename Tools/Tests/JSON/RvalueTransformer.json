@@ -1,26 +1,44 @@
 [
   {
-    "command": "task TaskFiles/Tests/Short/JsonRvalueTransformer.nebs",
+    "command": [
+      "# Testing basic transformations",
+      "set-fps 60",
+      "wait 1",
+      "set test.MyKey 3",
+      "wait 1",
+      "eval echo {global.test.MyKey}",
+      "eval echo {global.test.MyKey|add 2|toInt}",
+      "eval echo {global.test.MyKey|mod 2|toInt}",
+      "eval echo {global.test.MyKey|multiply 2|toInt}",
+      "exit"
+    ],
     "expected": {
       "cout": [
         "3",
         "5",
         "1",
-        "6",
-        "3",
-        "20"
+        "6"
       ],
       "cerr": []
     }
   },
   {
     "command": [
-      "set MyValue.arr 10",
-      "eval echo {global.MyValue.arr}"
+      "# Testing array handling",
+      "set-fps 60",
+      "wait 1",
+      "set test.arr[0] 10",
+      "set test.arr[1] 20",
+      "set test.arr[2] 30",
+      "wait 1",
+      "eval echo {global.test.arr|length|toInt}",
+      "eval echo {global.test.arr|at 1|toInt}",
+      "exit"
     ],
     "expected": {
       "cout": [
-        "10"
+        "3",
+        "20"
       ],
       "cerr": []
     }
