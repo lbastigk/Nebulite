@@ -167,24 +167,22 @@ bool JsonRvalueTransformer::at(std::span<std::string const> const& args, JSON* j
 
 std::string const JsonRvalueTransformer::atName = "at";
 std::string const JsonRvalueTransformer::atDesc = "Gets the element at the specified index from the array in the current JSON value. "
+    "If the index is out of bounds, the transformation fails."
     "Usage: |at <index> -> {value}";
 
 //------------------------------------------
 // Functions: Casting
 
 bool JsonRvalueTransformer::toInt(std::span<std::string const> const& args, JSON* jsonDoc) {
-    try {
-        auto currentValue = jsonDoc->get<double>(valueKey, 0.0);
-        auto valueAsInt = static_cast<int>(currentValue);
-        jsonDoc->set<int>(valueKey, valueAsInt);
-        return true;
-    } catch (...) {
-        return false;
-    }
+    auto currentValue = jsonDoc->get<double>(valueKey, 0.0);
+    auto valueAsInt = static_cast<int>(currentValue);
+    jsonDoc->set<int>(valueKey, valueAsInt);
+    return true;
 }
 
 std::string const JsonRvalueTransformer::toIntName = "toInt";
 std::string const JsonRvalueTransformer::toIntDesc = "Converts the current JSON value to an integer. "
+    "Never fails, defaults to 0 if the provided value is non-numeric."
     "Usage: |toInt -> {number}";
 
 bool JsonRvalueTransformer::toString(std::span<std::string const> const& args, JSON* jsonDoc) {
@@ -195,7 +193,7 @@ bool JsonRvalueTransformer::toString(std::span<std::string const> const& args, J
 
 std::string const JsonRvalueTransformer::toStringName = "toString";
 std::string const JsonRvalueTransformer::toStringDesc = "Converts the current JSON value to a string. "
-    "doesn't fail, defaults to empty string. "
+    "Never fails, defaults to an empty string if no conversion is possible. "
     "Usage: |toString -> {string}";
 
 //------------------------------------------

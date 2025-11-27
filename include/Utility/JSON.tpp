@@ -14,7 +14,7 @@ T JSON::get(std::string const& key, T const& defaultValue){
     std::scoped_lock const lockGuard(mtx);
 
     // Check if a transformation is present
-    if (key.find('|') != std::string::npos){
+    if (key.contains('|')){
         return getWithTransformations<T>(key, defaultValue);
     }
 
@@ -26,6 +26,7 @@ T JSON::get(std::string const& key, T const& defaultValue){
     return defaultValue;
 }
 
+// TODO: same for getSubDocWithTransformations!
 template<typename T>
 T JSON::getWithTransformations(std::string const& key, T const& defaultValue) {
     auto args = StringHandler::split(key, '|');

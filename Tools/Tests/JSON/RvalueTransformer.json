@@ -55,6 +55,61 @@
   },
   {
     "command": [
+      "# Testing no values in arithmetic transformations",
+      "set-fps 60",
+      "wait 1",
+      "set test.val 3",
+      "wait 1",
+      "eval echo {global.test.val|add}",
+      "eval echo {global.test.val|mul}",
+      "eval echo {global.test.val|mod}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "null",
+        "null",
+        "null"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Testing invalid numeric values in arithmetic transformations",
+      "set-fps 60",
+      "wait 1",
+      "set test.val 3",
+      "wait 1",
+      "eval echo {global.test.val|mod 0|toInt}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "null"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Testing invalid numeric casting",
+      "set-fps 60",
+      "wait 1",
+      "set test.val nonNumericValue",
+      "wait 1",
+      "eval echo {global.test.val|toInt}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "0"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
       "# Testing array handling",
       "set-fps 60",
       "wait 1",
@@ -76,34 +131,51 @@
   },
   {
     "command": [
-      "# Testing malformed transformations",
-      "# - No transformation provided",
-      "# - No arguments for arithmetic transformations",
+      "# Testing debug pseudo-transformations",
       "set-fps 60",
       "wait 1",
-      "set test.val MyValue",
-      "set test.arr[0] 10",
-      "set test.arr[1] 20",
-      "set test.arr[2] 30",
+      "set test.val 42",
       "wait 1",
-      "echo Testing: No transformation provided",
-      "eval echo {global.test.val|} # Empty transformation, returns default value null",
-      "echo Testing: No arguments for arithmetic transformations",
-      "eval echo {global.test.arr[0]|add}",
-      "eval echo {global.test.arr[0]|mul}",
-      "eval echo {global.test.arr[0]|mod}",
-      "eval echo {global.test.arr[0]|pow}",
+      "eval echo {global.test.val|print}# Should print the value first with quotes from print, then without quotes from echo",
+      "eval echo {global.test.val|echo Hello, World!}# Should print 'Hello, World!', then 42 from echo",
       "exit"
     ],
     "expected": {
       "cout": [
-        "Testing: No transformation provided",
-        "null",
-        "Testing: No arguments for arithmetic transformations",
-        "null",
-        "null",
-        "null",
+        "\"42\"",
+        "42",
+        "Hello, World!",
+        "42"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Testing an empty transformation chain",
+      "set-fps 60",
+      "wait 1",
+      "set test.val 42",
+      "wait 1",
+      "eval echo {global.test.val|}# Should return null, as we have an invalid empty transformation",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
         "null"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# <template>",
+      "echo Your ad could be here! Contact us for advertising opportunities.",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "Your ad could be here! Contact us for advertising opportunities."
       ],
       "cerr": []
     }
