@@ -28,40 +28,13 @@ T JSON::get(std::string const& key, T const& defaultValue){
 
 template<typename T>
 T JSON::getWithTransformations(std::string const& key, T const& defaultValue) {
-    // Use transformation function tree to resolve the value
     auto args = StringHandler::split(key, '|');
     std::string const baseKey = args[0];
     args.erase(args.begin());
 
-    // Prepare temp JSON with base value
-    JSON tempDoc("Temp JSON for Transformations");
-    switch (memberType(baseKey)){
-    case KeyType::object:
-        {
-            JSON sub = getSubDoc(baseKey);
-            tempDoc.setSubDoc(JsonRvalueTransformer::valueKey.c_str(), sub);
-        }
-        break;
-    case KeyType::array:
-        // Set value one by one into valueKey[i]
-        for (size_t i = 0; i < memberSize(baseKey) ; i++) {
-            tempDoc.set<std::string>(JsonRvalueTransformer::valueKey + "[" + std::to_string(i) + "]",
-                                      get<std::string>(baseKey + "[" + std::to_string(i) + "]", ""));
-        }
-        break;
-    case KeyType::value:
-        // Get the base value into the temp JSON
-        // We use string as universal type for transformations
-        tempDoc.set<std::string>(JsonRvalueTransformer::valueKey, get<std::string>(baseKey, ""));
-        break;
-    case KeyType::null:
-    default:
-        // Do nothing, leave tempJson empty
-        break;
-    }
-
-    // TODO: New version, should also work:
-    //JSON tempDoc = getSubDoc(baseKey);
+    // Using getSubDoc to properly populate the tempDoc with the rapidjson::Value
+    // Slower than a manual copy that handles types, but more secure and less error-prone
+    JSON tempDoc = getSubDoc(baseKey);
 
     // Apply each transformation in sequence
     if (!transformer.parse(args, &tempDoc)) {
