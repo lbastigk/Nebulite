@@ -443,21 +443,21 @@ bool Nebulite::Interaction::Logic::Expression::handleComponentTypeVariable(std::
                 Nebulite::cerr() << "Error: Null self reference in expression: " << key << Nebulite::endl;
                 return false;
             }
-            token = references.self->get<std::string>(key, "0");
+            token = references.self->get<std::string>(key, "null");
             break;
         case Component::From::other:
             if(current_other == nullptr){
                 Nebulite::cerr() << "Error: Null other reference in expression: " << key << Nebulite::endl;
                 return false;
             }
-            token = current_other->get<std::string>(key, "0");
+            token = current_other->get<std::string>(key, "null");
             break;
         case Component::From::global:
-            token = Nebulite::global().getDoc()->get<std::string>(key, "0");
+            token = Nebulite::global().getDoc()->get<std::string>(key, "null");
             break;
         case Component::From::resource:
     default:
-            token = Nebulite::global().getDocCache()->get<std::string>(key, "0");
+            token = Nebulite::global().getDocCache()->get<std::string>(key, "null");
             break;
     }
     return true;
@@ -530,7 +530,7 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Utility::JSON* curren
             //------------------------------------------
             case Component::Type::variable:
                 if(!handleComponentTypeVariable(token, component, current_other, max_recursion_depth)){
-                    return "0";
+                    return "null";
                 }
                 break;
             //------------------------------------------

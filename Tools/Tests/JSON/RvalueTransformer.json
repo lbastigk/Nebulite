@@ -42,5 +42,27 @@
       ],
       "cerr": []
     }
+  },
+  {
+    "command": [
+      "# Testing malformed transformations",
+      "set-fps 60",
+      "wait 1",
+      "set test.val MyValue",
+      "set test.arr[0] 10",
+      "set test.arr[1] 20",
+      "set test.arr[2] 30",
+      "wait 1",
+      "eval echo {global.test.val}  # Returns MyValue",
+      "eval echo {global.test.val|} # Empty transformation, returns default value 0",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "MyValue",
+        "null"
+      ],
+      "cerr": []
+    }
   }
 ]
