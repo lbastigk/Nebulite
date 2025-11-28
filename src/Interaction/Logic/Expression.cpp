@@ -637,6 +637,8 @@ void Nebulite::Interaction::Logic::Expression::updateCaches(Utility::JSON* refer
     //           4.) Ensure that multi-resolve is handled correctly!
     //               There are multiple ways to handle this, easiest one is probably
     //               a one-off expression evaluation for each key that requires it.
+    //               - multi-resolve first, then transformations
+    //               - is there any possibility of another multi-resolve needed after transformations?
 }
 
 //------------------------------------------

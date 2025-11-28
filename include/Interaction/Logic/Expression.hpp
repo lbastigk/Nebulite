@@ -298,13 +298,31 @@ private:
          * @brief Holds all virtual double entries for the resource context.
          */
         vd_list resource;
+
+        /**
+         * @brief Contains virtual doubles that are remanent
+         *        Meaning they can be cached directly from the document
+         */
+        struct RemanentContext {
+            vd_list self;       // Variables from context self without transformations or multi-resolve
+            vd_list global;     // Variables from context global without transformations or multi-resolve
+        }remanent;
+
+        /**
+         * @brief Contains virtual doubles that are non-remanent
+         *        Meaning they need to be updated on each eval
+         */
+        struct NonRemanentContext {
+            vd_list self;       // Variables from context self with transformations or multi-resolve
+            vd_list other;      // Variables from context other with transformations or multi-resolve
+            vd_list global;     // All variables from context global
+            vd_list resource;   // All variables from context resource
+        }nonRemanent;
     } virtualDoubles;
 
     /**
      * @brief A collection of custom functions for TinyExpr
-     * 
-     * Make sure to register all functions with TinyExpr in Nebulite::Interaction::Logic::Expression::reset
-     *
+     *        Make sure to register all functions with TinyExpr in Nebulite::Interaction::Logic::Expression::reset
      * @note Marking the parameters as `const&` does not work with TinyExpr function pointers,
      *       so they are passed by value instead.
      */
