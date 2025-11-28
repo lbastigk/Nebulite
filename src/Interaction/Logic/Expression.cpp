@@ -618,6 +618,25 @@ void Nebulite::Interaction::Logic::Expression::updateCaches(Utility::JSON* refer
     for(auto const& vde : virtualDoubles.resource){
         vde->setUpInternalCache(nullptr);
     }
+
+    //------------------------------------------
+    // 3.) Update any caches from context self/global
+    //     that contain a transformation
+    //     e.g. {global.arr|length}
+    //     since these cannot be directly referenced
+    //     TODO: needs an extra vector to track these specifically
+    //           - virtualDoubles.remanent.self         // already exists
+    //           - virtualDoubles.remanent.global       // already exists
+    //           - virtualDoubles.nonRemanent.self      // new, if any self var has transformations or multi-resolve
+    //           - virtualDoubles.nonRemanent.other     // already exists, see 1.), but needs further tracking if variable has multi-resolve
+    //           - virtualDoubles.nonRemanent.global    // new, if any global var has transformations or multi-resolve
+    //           - virtualDoubles.nonRemanent.resource  // already exists, see 2.), but needs further tracking if variable has multi-resolve
+    //           1.) Add new data structure for remanent/non-remanent tracking
+    //           2.) Update parse functions to track variables with transformations/multi-resolve
+    //           3.) Update those specific virtual doubles from type non-remanent here
+    //           4.) Ensure that multi-resolve is handled correctly!
+    //               There are multiple ways to handle this, easiest one is probably
+    //               a one-off expression evaluation for each key that requires it.
 }
 
 //------------------------------------------
