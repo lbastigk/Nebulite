@@ -41,19 +41,14 @@ struct Assignment{
 
     //------------------------------------------
     // Since assignments are unique to a RenderObject
-    // Disabling copy, allowing move for certain operations
 
-    /**
-     * @todo Using shared_ptr for Assignments so that even move operations are not necessary
-     */
-
-    // Disable copy constructor and assignment
+    // disable copying
     Assignment(Assignment const&) = delete;
     Assignment& operator=(Assignment const&) = delete;
 
-    // Enable move constructor and assignment
-    Assignment(Assignment&& other) noexcept = default;
-    Assignment& operator=(Assignment&& other) noexcept = default;
+    // enable moving
+    Assignment(Assignment&&) noexcept = default;
+    Assignment& operator=(Assignment&&) noexcept = default;
 
     //------------------------------------------
 

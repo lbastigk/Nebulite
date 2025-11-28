@@ -44,11 +44,13 @@ public:
 
     ~Expression();
 
-    // Standard constructors/assignments
-    Expression(Expression const&) = default;
-    Expression(Expression&&) = default;
-    Expression& operator=(Expression const&) = default;
-    Expression& operator=(Expression&&) = default;
+    // disable copying
+    Expression(Expression const&) = delete;
+    Expression& operator=(Expression const&) = delete;
+
+    // enable moving
+    Expression(Expression&&) noexcept = default;
+    Expression& operator=(Expression&&) noexcept = default;
 
     /**
      * @brief Standard maximum recursion depth for nested expression evaluations.
@@ -242,11 +244,11 @@ private:
             te_free(expression);
         }
 
-        // Delete copy constructor/assignment
+        // disable copying
         Component(Component const&) = delete;
         Component& operator=(Component const&) = delete;
 
-        // Move constructor
+        // enable moving
         Component(Component&& other) noexcept
             : type(other.type), from(other.from), cast(other.cast),
             formatter(other.formatter), str(std::move(other.str)), key(std::move(other.key)),
@@ -255,7 +257,6 @@ private:
             other.expression = nullptr;
         }
 
-        // Move assignment
         Component& operator=(Component&& other) noexcept {
             if (this != &other){
                 te_free(expression);

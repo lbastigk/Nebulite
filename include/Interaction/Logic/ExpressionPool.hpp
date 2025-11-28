@@ -95,12 +95,13 @@ public:
      * @param self The JSON object representing the "self" context.
      */
     void parse(std::string const& expr, Utility::JSON* self){
+        static_assert(INVOKE_EXPR_POOL_SIZE > 0, "INVOKE_EXPR_POOL_SIZE must be greater than 0");
+
         fullExpression = expr;
 
-        // Parse the first one, then copy to others
-        pool[0].parse(expr, self);
-        for (size_t i = 1; i < pool.size(); ++i){
-            pool[i] = pool[0];
+        // Parse each entry in the pool
+        for (size_t i = 0; i < INVOKE_EXPR_POOL_SIZE; ++i){
+            pool[i].parse(expr, self);
         }
 
         // Calculate metadata and unique ID from first entry
@@ -115,9 +116,7 @@ public:
 
     /**
      * @brief Evaluates the expression in the context of the given JSON object acting as "other".
-     *
-     * Matches `Nebulite::Interaction::Logic::Expression::eval`, but allows for concurrent evaluation across multiple threads.
-     *
+     *        Matches `Nebulite::Interaction::Logic::Expression::eval`, but allows for concurrent evaluation across multiple threads.
      * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a string.
      */
@@ -125,19 +124,17 @@ public:
         // Each thread gets a unique starting position based on thread ID
         thread_local size_t const thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
         thread_local size_t counter = 0;
-        
+
         // Rotate through pool entries starting from thread's unique offset
         size_t const idx = (thread_offset + counter++) % INVOKE_EXPR_POOL_SIZE;
-        
+
         std::scoped_lock const guard(locks[idx]);
         return pool[idx].eval(current_other);
     }
 
     /**
      * @brief Evaluates the expression as a double in the context of the given JSON object acting as "other".
-     *
-     * Matches `Nebulite::Interaction::Logic::Expression::evalAsDouble`, but allows for concurrent evaluation across multiple threads.
-     *
+     *        Matches `Nebulite::Interaction::Logic::Expression::evalAsDouble`, but allows for concurrent evaluation across multiple threads.
      * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a double.
      */
@@ -155,9 +152,7 @@ public:
 
     /**
      * @brief Gets the full expression string.
-     *
-     * Matches `Nebulite::Interaction::Logic::Expression::getFullExpression`.
-     *
+     *        Matches `Nebulite::Interaction::Logic::Expression::getFullExpression`.
      * @return The full expression as a string.
      */
     [[nodiscard]] std::string const* getFullExpression() const noexcept {
@@ -171,9 +166,7 @@ public:
 
     /**
      * @brief Checks if the expression is returnable as a double.
-     *
-     * Matches `Nebulite::Interaction::Logic::Expression::isReturnableAsDouble`.
-     *
+     *        Matches `Nebulite::Interaction::Logic::Expression::isReturnableAsDouble`.
      * @return True if the expression is returnable as a double, false otherwise.
      */
     [[nodiscard]] bool isReturnableAsDouble() const noexcept {
