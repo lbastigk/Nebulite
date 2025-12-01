@@ -411,20 +411,13 @@ Nebulite::Interaction::Logic::Expression::Expression() {
 
 void Nebulite::Interaction::Logic::Expression::parse(std::string const& expr, Utility::JSON* self) {
     reset();
-
-    // Set references
     references.self = self;
     fullExpression = expr;
-
-    // Parse
+    uniqueId = global().getUniqueId(fullExpression, Core::GlobalSpace::UniqueIdType::expression);
     parseIntoComponents(expr);
-
-    // Now compile all components:
     for (auto& component : components) {
         compileIfExpression(component);
     }
-
-    uniqueId = global().getUniqueId(fullExpression, Core::GlobalSpace::UniqueIdType::expression);
 
     // Calculate optimization flags in-expression only if pools are not used
 #if INVOKE_EXPR_POOL_SIZE == 1
