@@ -154,6 +154,9 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
             break;
         case Component::From::other:
             // Type other is always non-remanent, as other document reference can change
+            // However, we need to distinguish between stable and unstable double pointers
+            // Meaning the ones we can get from an ordered list, and the ones we need to resolve each time
+            // (e.g. with multi-resolve or transformations)
             if (isAvailableAsDoublePtr(key)) {
                 virtualDoubles.nonRemanent.other.push_back(vd);
             }
@@ -167,7 +170,6 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
                 virtualDoubles.remanent.global.push_back(vd);
             }
             else {
-                vd->setUpExternalCache(Nebulite::global().getDoc());
                 virtualDoubles.nonRemanent.global.push_back(vd);
             }
             break;
@@ -321,11 +323,13 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(std::string co
     std::string newString;
     for (auto const& subToken : Utility::StringHandler::splitOnSameDepth(expression, '{')) {
         if (subToken.starts_with('{')) {
-            // 1.) remove {}
-            std::string key;
-            key = Utility::StringHandler::replaceAll(subToken, "{", "");
-            key = Utility::StringHandler::replaceAll(key, "}", "");
-            std::string const te_name = Utility::StringHandler::replaceAll(key, ".", "_");
+            // 1.) remove outer {}
+            std::string key = subToken.substr(1, subToken.length() - 2);
+            std::string te_name = key;
+            te_name = Utility::StringHandler::replaceAll(te_name, ".", "_");        // tinyexpr does not support '.' in variable names
+            te_name = Utility::StringHandler::replaceAll(te_name, "|", "_MOD_");    // tinyexpr does not support '|' in variable names
+            te_name = Utility::StringHandler::replaceAll(te_name, "{", "_LB_");     // tinyexpr does not support '{' in variable names
+            te_name = Utility::StringHandler::replaceAll(te_name, "}", "_RB_");     // tinyexpr does not support '}' in variable names
             // 2.) determine context
             Component::From context = getContext(key);
             key = stripContext(key);
@@ -655,7 +659,8 @@ void Nebulite::Interaction::Logic::Expression::updateCaches(Utility::JSON* refer
         Expression tempExpr;
         tempExpr.parse(vde->getKey(), references.self);
         std::string const evalResult = tempExpr.eval(reference);
-        vde->setDirect(Nebulite::global().getDoc()->get<double>(evalResult, 0.0));
+        auto const val = Nebulite::global().getDoc()->get<double>(evalResult, 0.0);
+        vde->setDirect(val);
     }
 
     // Update resource references
