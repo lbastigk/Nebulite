@@ -30,5 +30,15 @@
             "Expected to be 0.00..., as the value of type string cast to float defaults to 0.",
             "0.000000"
         ], "cerr": [] }
+    },
+    {
+        "command": [
+            "echo Transforming a json value from read-only document.",
+            "eval echo $({./Resources/Renderobjects/standard.jsonc:text.color.A|add 1})"
+        ],
+        "expected": { "cout": [
+            "Transforming a json value from read-only document.",
+            "256.000000"
+        ], "cerr": [] }
     }
 ]

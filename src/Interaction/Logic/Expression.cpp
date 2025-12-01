@@ -315,36 +315,24 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeEval(std::string co
         currentComponent->cast = Component::CastType::none;
     }
 
-    // Current token is evaluation
-    currentComponent->type = Component::Type::eval;
-
     // Register internal variables
-    // And build equivalent expression
-    std::string newString;
+    // And build equivalent expression using new variable names
     for (auto const& subToken : Utility::StringHandler::splitOnSameDepth(expression, '{')) {
         if (subToken.starts_with('{')) {
-            // 1.) remove outer {}
+            std::string te_name = varNameGen.getUniqueName(subToken);
             std::string key = subToken.substr(1, subToken.length() - 2);
-            std::string te_name = key;
-            te_name = Utility::StringHandler::replaceAll(te_name, ".", "_");        // tinyexpr does not support '.' in variable names
-            te_name = Utility::StringHandler::replaceAll(te_name, "|", "_MOD_");    // tinyexpr does not support '|' in variable names
-            te_name = Utility::StringHandler::replaceAll(te_name, "{", "_LB_");     // tinyexpr does not support '{' in variable names
-            te_name = Utility::StringHandler::replaceAll(te_name, "}", "_RB_");     // tinyexpr does not support '}' in variable names
-            // 2.) determine context
             Component::From context = getContext(key);
             key = stripContext(key);
-            // 3.) register variable
             registerVariable(te_name, key, context);
-            // Append
-            newString += te_name;
+            currentComponent->str += te_name;
         } else {
-            newString += subToken;
+            currentComponent->str += subToken;
         }
     }
-    // Determine context
+
+    // Write component data
     currentComponent->type = Component::Type::eval;
-    currentComponent->str = newString; // shouldn't contain any $
-    currentComponent->from = Component::From::None;
+    currentComponent->from = Component::From::None; // None, since this is an eval expression
     currentComponent->key = ""; // No key for eval expressions
 
     // Add to components
@@ -384,8 +372,14 @@ void Nebulite::Interaction::Logic::Expression::parseTokenTypeText(std::string co
 }
 
 void Nebulite::Interaction::Logic::Expression::printCompileError(std::shared_ptr<Component> const& component, int const& error) const {
+    std::string offendingChar;
+    if (error <= 0 || static_cast<size_t>(error) > component->str.size()) {
+        offendingChar = "N/A (error position out of bounds)";
+    } else {
+        offendingChar = std::string(1, component->str[error - 1]);
+    }
     Nebulite::cerr() << "-----------------------------------------------------------------" << Nebulite::endl;
-    Nebulite::cerr() << "Error compiling expression: '" << component->str << "' Error code: " << std::to_string(error) << Nebulite::endl;
+    Nebulite::cerr() << "Error compiling expression: '" << component->str << "' At position: " << std::to_string(error) << ", offending character: " << offendingChar << Nebulite::endl;
     Nebulite::cerr() << "You might see this message multiple times due to expression parallelization." << Nebulite::endl;
     Nebulite::cerr() << Nebulite::endl;
     Nebulite::cerr() << "If you only see the start of your expression, make sure to encompass your expression in quotes" << Nebulite::endl;
@@ -437,6 +431,9 @@ void Nebulite::Interaction::Logic::Expression::parse(std::string const& expr, Ut
     _isReturnableAsDouble = recalculateIsReturnableAsDouble();
     _isAlwaysTrue = recalculateIsAlwaysTrue();
 #endif
+
+    // Reset variable name generator, data is only needed during parsing
+    varNameGen.clear();
 }
 
 bool Nebulite::Interaction::Logic::Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Utility::JSON* current_other, uint16_t const& maximumRecursionDepth) const {
