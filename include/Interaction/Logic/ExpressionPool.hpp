@@ -1,8 +1,6 @@
 /**
  * @file ExpressionPool.hpp
- * @brief Thread-safe pool of Expression instances for concurrent evaluation.
- *
- * This file defines the `ExpressionPool` class.
+ * @brief Defines the ExpressionPool class for managing a pool of Expression instances.
  */
 
 #ifndef NEBULITE_INTERACTION_LOGIC_EXPRESSION_POOL_HPP
@@ -26,35 +24,24 @@ namespace Nebulite::Interaction::Logic {
 /**
  * @class Nebulite::Interaction::Logic::ExpressionPool
  * @brief A thread-safe pool of Expression instances for concurrent evaluation.
- * Manages a fixed-size array of pre-parsed `Expression` objects. 
- * Each instance in the pool is protected by its own mutex, 
- * allowing multiple threads to evaluate expressions in parallel without interfering with one another.
- * 
- * Usage:
- * 
- *  - Call `parse()` once to compile the expression into all pool entries.
+ *        Manages a fixed-size array of pre-parsed `Expression` objects.
+ *        Each instance in the pool is protected by its own mutex,
+ *        allowing multiple threads to evaluate expressions in parallel without interfering with one another.
  *
- *  - Call `eval()` from multiple threads; each call acquires an available instance.
+ *        Usage:
+ *         - Call `parse()` once to compile the expression into all pool entries.
+ *         - Call `eval()` from multiple threads; each call acquires an available instance.
+ *         - If no instance is immediately available, `eval()` will block on a randomly chosen one.
  *
- *  - If no instance is immediately available, `eval()` will block on a randomly chosen one.
+ *        Key Features:
+ *         - Fixed pool size defined by `INVOKE_EXPR_POOL_SIZE` macro defined in `ThreadSettings.hpp`
+ *         - Per-instance locking to avoid a single global mutex bottleneck.
+ *         - Drop-in compatible with Expression public interface (`parse`, `eval`, `getFullExpression`).
  *
- * Key Features:
- * 
- *  - Fixed pool size defined by `INVOKE_EXPR_POOL_SIZE` macro defined in `ThreadSettings.hpp`
- * 
- *  - Per-instance locking to avoid a single global mutex bottleneck.
- * 
- *  - Randomized acquisition order to evenly distribute workload.
- * 
- *  - Drop-in compatible with Expression public interface (`parse`, `eval`, `getFullExpression`).
- *
- * Thread Safety:
- * 
- *  - Internally synchronized with per-instance `std::mutex` locks.
- *
- *  - Multiple threads may safely call `eval()` concurrently.
- *
- *  - The pool stores the same expression in each entry of the pool
+ *        Thread Safety:
+ *         - Internally synchronized with per-instance `std::mutex` locks.
+ *         - Multiple threads may safely call `eval()` concurrently.
+ *         - The pool stores the same expression in each entry of the pool
  */
 class ExpressionPool {
 public:
@@ -88,9 +75,7 @@ public:
 
     /**
      * @brief Parses the given expression and populates the pool with pre-parsed instances.
-     *
-     * Matches Nebulite::Interaction::Logic::Expression::parse, but allows for concurrent evaluation across multiple threads.
-     *
+     *        Matches Nebulite::Interaction::Logic::Expression::parse, but allows for concurrent evaluation across multiple threads.
      * @param expr The expression to parse.
      * @param self The JSON object representing the "self" context.
      */
