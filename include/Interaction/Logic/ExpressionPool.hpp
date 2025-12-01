@@ -121,13 +121,7 @@ public:
      * @return The result of the evaluation as a string.
      */
     std::string eval(Utility::JSON* current_other){
-        // Each thread gets a unique starting position based on thread ID
-        thread_local size_t const thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
-        thread_local size_t counter = 0;
-
-        // Rotate through pool entries starting from thread's unique offset
-        size_t const idx = (thread_offset + counter++) % INVOKE_EXPR_POOL_SIZE;
-
+        thread_local size_t const idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % INVOKE_EXPR_POOL_SIZE;
         std::scoped_lock const guard(locks[idx]);
         return pool[idx].eval(current_other);
     }
@@ -139,13 +133,7 @@ public:
      * @return The result of the evaluation as a double.
      */
     double evalAsDouble(Utility::JSON* current_other){
-        // Each thread gets a unique starting position based on thread ID
-        thread_local size_t const thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
-        thread_local size_t counter = 0;
-
-        // Rotate through pool entries starting from thread's unique offset
-        size_t const idx = (thread_offset + counter++) % INVOKE_EXPR_POOL_SIZE;
-
+        thread_local size_t const idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % INVOKE_EXPR_POOL_SIZE;
         std::scoped_lock const guard(locks[idx]);
         return pool[idx].evalAsDouble(current_other);
     }
