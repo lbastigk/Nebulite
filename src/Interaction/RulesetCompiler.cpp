@@ -83,35 +83,29 @@ bool Nebulite::Interaction::RulesetCompiler::getExpression(Logic::Assignment& as
     }
 
     // Find the operator position in the full expression, set operation, key and value
-    if (size_t pos; (pos = expr.find("+=")) != std::string::npos)
-    {
+    if (size_t pos; (pos = expr.find("+=")) != std::string::npos){
         assignmentExpr.operation = Logic::Assignment::Operation::add;
         assignmentExpr.value = expr.substr(pos + 2);
         assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
     }
-    else if ((pos = expr.find("*=")) != std::string::npos)
-    {
+    else if ((pos = expr.find("*=")) != std::string::npos){
         assignmentExpr.operation = Logic::Assignment::Operation::multiply;
         assignmentExpr.value = expr.substr(pos + 2);
         assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
     }
-    else if ((pos = expr.find("|=")) != std::string::npos)
-    {
+    else if ((pos = expr.find("|=")) != std::string::npos){
         assignmentExpr.operation = Logic::Assignment::Operation::concat;
         assignmentExpr.value = expr.substr(pos + 2);
         assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
     }
-    else if ((pos = expr.find("=")) != std::string::npos)
-    {
+    else if ((pos = expr.find("=")) != std::string::npos){
         assignmentExpr.operation = Logic::Assignment::Operation::set;
         assignmentExpr.value = expr.substr(pos + 1);
         assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
     }
-    else
-    {
+    else{
         return false;
     }
-
     return true;
 }
 
