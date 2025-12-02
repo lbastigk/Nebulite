@@ -25,7 +25,6 @@
 
 /**
  * @namespace Nebulite
- * 
  * @brief Contains all classes, functions, types and variables related to the Nebulite framework.
  */
 namespace Nebulite{
@@ -49,28 +48,24 @@ namespace Nebulite{
         /**
          * @namespace Nebulite::DomainModule::GlobalSpace
          * @brief Contains all classes, functions, types and variables related to the GlobalSpace DomainModules.
-         * See files `GlobalSpace.hpp`, `GSDM.hpp` and `GSDM_*.hpp` for usage.
          */
         namespace GlobalSpace{}
 
         /**
          * @namespace Nebulite::DomainModule::Renderer
          * @brief Contains all classes, functions, types and variables related to the Renderer DomainModules.
-         * See files `Renderer.hpp`, `RRDM.hpp` and `RRDM_*.hpp` for usage.
          */
         namespace Renderer{}
 
         /**
          * @namespace Nebulite::DomainModule::RenderObject
          * @brief Contains all classes, functions, types and variables related to the RenderObject DomainModules.
-         * See files `RenderObject.hpp`, `RODM.hpp` and `RODM_*.hpp` for usage.
          */
         namespace RenderObject{}
 
         /**
          * @namespace Nebulite::DomainModule::JSON
          * @brief Contains all classes, functions, types and variables related to the JSON DomainModules.
-         * See files `JSON.hpp`, `JSDM.hpp` and `JSDM_*.hpp` for usage.
          */
         namespace JSON{}
 
@@ -79,14 +74,10 @@ namespace Nebulite{
     /**
      * @namespace Nebulite::Interaction
      * @brief Contains all classes, functions, types and variables related to the Nebulite interaction system.
-     * 
-     * Separated into 2 sub-namespaces: Execution and Logic.
-     * 
-     * - `Interaction`: main parts of the Interaction system: the Invoke class, their Rulesets and its Compiler.
-     * 
-     * - `Interaction::Execution`: All Domain-related parser, the FuncTree they're based on and its DomainModule wrapper
-     * 
-     * - `Interaction::Logic`: All logic-related classes and functions
+     *        Separated into 2 sub-namespaces: Execution and Logic.
+     *        - `Interaction`: main parts of the Interaction system: the Invoke class, their Rulesets and its Compiler.
+     *        - `Interaction::Execution`: All Domain-related parser, the FuncTree they're based on and its DomainModule wrapper
+     *        - `Interaction::Logic`: All logic-related classes and functions
      */
     namespace Interaction{
         /**

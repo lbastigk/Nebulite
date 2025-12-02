@@ -19,9 +19,12 @@
 #   so that different users can have different debugging setups without
 #   interfering with each other.
 # -----------------------------------------------------------------------------
-echo Starting debug.nebs
+echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-# Fixed dt so the output is always the same
-task TaskFiles/Tests/Long/AutoPong_5k_frames.nebs
+print dne
+eval echo {global.dne|typeAsString}
+exit
 
+# Fixed dt so the output is always the same
+task "TaskFiles/Tests/Long/AutoPong_5k_frames.nebs"

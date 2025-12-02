@@ -134,8 +134,21 @@ clean-build-native: clean build-native
 clean-build-available: clean build-available
 
 ##################################
+# Documentation
+##################################
+
+keyword-docs:
+	@echo "Generating documentation for keywords..."
+	@python Scripts/MakeCommandDocumentation.py
+	@python Languages/nebs/nebulite-script-vscode/scripts/extract_keywords.py
+
+##################################
 # Full testing pipelines
 ##################################
+
+# Coverage build + report
+
+build-and-coverage-report: build-coverage coverage-report
 
 # Non-clean build + test
 
@@ -148,6 +161,8 @@ build-and-test-available: delete-binaries build-available test
 clean-build-and-test-native: clean-build-native test
 
 clean-build-and-test-available: clean-build-available test
+
+
 
 ##################################
 # Debug
@@ -175,12 +190,12 @@ cli-lint:
 
 profiling-small:
 	@echo "Running small profiling suite..."
-	@sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/spawn_constantly.nebs ; hotspot perf.data
+	@sudo -S sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/spawn_constantly.nebs ; hotspot perf.data
 	@echo "Small profiling completed."
 
 profiling-large:
 	@echo "Running large profiling suite..."
-	@sudo sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/gravity_XL.nebs ; hotspot perf.data
+	@sudo -S sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/gravity_XL.nebs ; hotspot perf.data
 	@echo "Large profiling completed."
 
 memory-check-gui:

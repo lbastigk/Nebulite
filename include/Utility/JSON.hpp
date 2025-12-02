@@ -26,12 +26,28 @@
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Utility/JsonRvalueTransformer.hpp"
 #include "Utility/OrderedDoublePointers.hpp"
 #include "Utility/RjDirectAccess.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility {
-NEBULITE_DOMAIN(JSON){
+/**
+ * @class JSON
+ * @brief A wrapper around rapidjson to simplify JSON manipulation in Nebulite.
+ *        Features:
+ *        - caching for fast access to frequently used values,
+ *        - stable double pointers for even faster access in math-heavy scenarios
+ *        - easy to use set/get methods with type conversion
+ *        - serialize/deserialize methods for easy saving/loading
+ *        - member type and size checking
+ *        - usage of parsing commands to modify JSON on load
+ *        - usage of return value transformations on get (length, type checks, arithmetic operations, etc.)
+ *        - thread-safe access with mutex locking
+ *        - optimized for performance using ordered double pointers and quick cache for unique IDs,
+ *          allowing fast access to numeric values in a sorted manner.
+ */
+NEBULITE_DOMAIN(JSON) {
 public:
     //------------------------------------------
     // Unique id Cache size
@@ -42,27 +58,25 @@ public:
      * @brief Size of the unique ID quick cache for double pointers.
      */
     static constexpr size_t uidQuickCacheSize = 30;
+
 private:
     /**
      * @enum EntryState
      * @brief Represents the state of a cached entry in the JSON document.
-     * 
-     * CLEAN: The entry is synchronized with the RapidJSON document and holds a real value.
-     * DIRTY: The entry has been modified in the cache and needs to be flushed to the RapidJSON document.
-     * VIRTUAL: The entry exists for pointer stability but does not have a real value set (defaults to 0).
-     * If we access old pointers to deleted entries, we re-sync them from the document.
-     * DELETED: The entry is marked for deletion but is not removed from the cache to maintain pointer stability.
-     * 
-     * The basic idea is: On reloading a full document, all entries become DELETED. If we access a double pointer,
-     * we mark the entry as VIRTUAL, as it's a resurrected entry, but its potentially not the real value due to casting.
-     * A value becomes DIRTY if it was previously CLEAN, and we notice a change in its double value.
-     * On flushing, all DIRTY entries become CLEAN again. VIRTUAL entries remain VIRTUAL as they are not flushed.
+     *        How it works:
+     *        - On reloading a full document, all entries become DELETED.
+     *        - If we access a double pointer of a deleted/nonexistent value, we mark the entry as VIRTUAL,
+     *          as it's a resurrected entry, but its potentially not the real value due to casting.
+     *        - A value becomes DIRTY if it was previously CLEAN, and we notice a change in its double value.
+     *        - On flushing, all DIRTY entries become CLEAN again. VIRTUAL entries remain VIRTUAL as they are not flushed.
+     *        - Values may be marked DELETED if their parent is modified or deleted.
      */
     enum class EntryState : uint8_t {
-        CLEAN,   // Synchronized with RapidJSON document, real value
-        DIRTY,   // Modified in cache, needs flushing to RapidJSON, real value  
-        VIRTUAL, // Deleted entry that was re-synced, but may not be the real value due to casting
-        DELETED  // Deleted entry due to deserialization, inner value is invalid
+        CLEAN, // Synchronized with RapidJSON document, real value. NOTE: This may be invalid at any time if double pointer is used elsewhere! This just marks the last known state.
+        DIRTY, // Modified in cache, needs flushing to RapidJSON, real value
+        DERIVED, // Deleted/nonexistent entry that was accessed via double pointer
+        DELETED, // Deleted entry due to deserialization, inner value is invalid
+        MALFORMED // A key that is known to be malformed due to transformations. Used in getStableDoublePointer for integrity.
     };
 
     /**
@@ -71,40 +85,42 @@ private:
      */
     struct CacheEntry {
         CacheEntry() = default;
+
         ~CacheEntry() {
             delete stable_double_ptr;
         }
 
+        //------------------------------------------
         // No copying or moving
+
         CacheEntry(CacheEntry const&) = delete;
         CacheEntry& operator=(CacheEntry const&) = delete;
         CacheEntry(CacheEntry&&) = delete;
         CacheEntry& operator=(CacheEntry&&) = delete;
 
-        RjDirectAccess::simpleValue value = 0.0;        // Default virtual entries to 0
-        double last_double_value = 0.0;                 // For change detection
-        double* stable_double_ptr = new double(0.0);    // Never deleted.
+        //------------------------------------------
+        // Data members
 
-        EntryState state = EntryState::DIRTY;           // Default to dirty: each new entry needs flushing
+        RjDirectAccess::simpleValue value = 0.0; // Default virtual entries to 0
+        double last_double_value = 0.0; // For change detection
+        double* stable_double_ptr = new double(0.0); // Stable pointer to double value
+        EntryState state = EntryState::DIRTY; // Default to dirty: each new entry needs flushing
     };
 
     /**
      * @brief Inserts a rapidjson value into the cache, converting it to the appropriate C++ type.
-     * 
      * @param key The key of the value to cache.
      * @param val The rapidjson value to cache.
      * @param defaultValue The default value to use if conversion fails.
      */
-    template<typename T>
+    template <typename T>
     T jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue);
-
 
     /**
      * @brief Invalidate all child keys of a given parent key.
-     * 
-     * For example, if parent_key is "config", it will invalidate
-     * "config.option1", "config.option2.suboption", etc.
-     * as well as "config[0]", "config[1].suboption", etc.
+     *        For example, if parent_key is "config", it will invalidate
+     *        "config.option1", "config.option2.suboption", etc.
+     *        as well as "config[0]", "config[1].suboption", etc.
      */
     void invalidate_child_keys(std::string const& parent_key);
 
@@ -124,46 +140,75 @@ private:
 
     /**
      * @brief Helper function to convert any type from cache into another type.
-     * 
      * @param var The variant value stored in the cache.
      * @param defaultValue The default value to return if conversion fails.
      * @return The converted value of type newType, or defaultValue on failure.
-     * 
      * @todo The if-branches for string "true"/"false" to int/double conversions are currently commented out,
-     * as they cause issues when compiling on macOS. Reason unknown, says it can't convert to the respective type,
-     * even though it is explicitly the correct type. Needs further investigation.
-     * Most likely reason is that the compiler doesn't like the nested if-branch inside the constexpr if?
-     * Even a redundant static_cast to the return didn't help.
+     *       as they cause issues when compiling on macOS. Reason unknown, says it can't convert to the respective type,
+     *       even though it is explicitly the correct type. Needs further investigation.
+     *       Most likely reason is that the compiler doesn't like the nested if-branch inside the constexpr if?
+     *       Even a redundant static_cast to the return didn't help.
      */
-    template<typename newType>
+    template <typename newType>
     newType convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue = newType{});
 
     /**
      * @brief Flush all DIRTY entries in the cache back to the RapidJSON document.
-     * 
-     * This ensures that the RapidJSON document is always structurally valid
-     * and up-to-date with the cached values.
+     *        This ensures that the RapidJSON document is always structurally valid
+     *        and up-to-date with the cached values.
      */
     void flush();
 
     /**
      * @brief Structure to hold multiple maps for expression references.
-     * 
-     * Currently, only reference "other" is used, but later on references like "parent" or "child" could be added.
+     *        Currently, only reference "other" is used, but later on references like "parent" or "child" could be added.
      */
-	struct ExpressionRef {
-		MappedOrderedDoublePointers as_other;
-	} expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
+    struct ExpressionRefs {
+        MappedOrderedDoublePointers as_other;
+    } expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
 
     /**
      * @brief Super quick double cache based on unique IDs, no hash lookup.
+     *        Used for the first few entries. It's recommended to reserve
+     *        low value uids for frequently used keys.
+     * @todo Add a reserve-mechanism in globalspace for ids, so they are low value.
      */
     std::array<double*, uidQuickCacheSize> uidDoubleCache{nullptr};
 
-public:
-    JSON(std::string const& name = "Unnamed JSON Document");
+    /**
+     * @brief Instance for applying transformations on get operations.
+     */
+    JsonRvalueTransformer transformer;
 
-    ~JSON() override ;
+    /**
+     * @brief Apply transformations found in the key string and retrieve the modified value.
+     * @tparam T The type of the value to retrieve.
+     * @param key The key string containing transformations.
+     * @return The modified value of type T, or none on failure.
+     */
+    template <typename T>
+    std::optional<T> getWithTransformations(std::string const& key);
+
+    /**
+     * @brief Apply transformations found in the key string and retrieve the modified document.
+     * @param key The key string containing transformations.
+     * @param outDoc The output JSON document to store the modified result.
+     * @return True on success, false on failure.
+     * @note We use an external outDoc to avoid copying the entire document on return/on optional::getValue().
+     */
+    bool getSubDocWithTransformations(std::string const& key, JSON& outDoc);
+
+public:
+    //------------------------------------------
+    // Constructor/Destructor
+
+    /**
+     * @brief Constructs a new JSON document.
+     * @param name The name of the JSON document. Recommended for debugging purposes.
+     */
+    explicit JSON(std::string const& name = "Unnamed JSON Document");
+
+    ~JSON() override;
 
     //------------------------------------------
     // Overload of assign operators
@@ -173,8 +218,18 @@ public:
     JSON(JSON&& other) noexcept;
     JSON& operator=(JSON&& other) noexcept;
 
+    //------------------------------------------
+    // Static members
+
     /**
      * @brief A list of reserved characters that cannot be used in key names.
+     *        - '[]' : Used for array indexing.
+     *        - '.'  : Used for nested object traversal.
+     *        - '|'  : Used for piping transformations.
+     *        - '"'  : Used for string encapsulation.
+     *        - ':'  : Used for Read-Only docs to separate link and key.
+     * @todo Proper API documentation for JSON key naming rules.
+     *       Including a 'why' for each character.
      */
     const static std::string reservedCharacters;
 
@@ -188,23 +243,20 @@ public:
 
     /**
      * @brief Checks if a string is in JSON or JSONC format.
-     * 
      * @param str The string to check.
      * @return true if the string is JSON or JSONC, false otherwise.
      */
-    static bool is_json_or_jsonc(std::string const& str){
-        return RjDirectAccess::is_json_or_jsonc(str);
+    static bool isJsonOrJsonc(std::string const& str) {
+        return RjDirectAccess::isJsonOrJsonc(str);
     }
 
     //------------------------------------------
     // Set methods
 
     /**
-     * @brief Sets a value in the JSON document.
-     * 
-     * This function sets a value of the specified type in the JSON document.
-     * If the key already exists, the value is updated.
-     * 
+     * @brief Sets a value of the specified type in the JSON document.
+     *        If the key already exists, the value and its stable double pointer
+     *        is updated. Child keys are invalidated.
      * @tparam T The type of the value to set.
      * @param key The key of the value to set.
      * @param val The value to set.
@@ -213,37 +265,36 @@ public:
     void set(std::string const& key, T const& val);
 
     /**
+     * @brief Sets a variant value of supported simple values in the JSON document.
+     *        Stable double pointer of the value is updated as well. Child keys are invalidated.
+     * @param key The key of the value to set.
+     * @param val The variant value to set.
+     */
+    void setVariant(std::string const& key, RjDirectAccess::simpleValue const& val);
+
+    /**
      * @brief Sets a sub-document in the JSON document.
-     * 
-     * This function sets a sub-document in the JSON document.
-     * If the key already exists, the sub-document is updated.
-     * 
-     * Note that both the child and parent documents' caches are flushed before setting.
-     * 
+     *        If the key already exists, the sub-document is updated.
+     *        Note that both the child and parent documents' caches are flushed before setting.
      * @param key The key of the sub-document to set.
      * @param child The sub-document to set.
      */
-    void setSubDoc(char const* key, JSON* child);
+    void setSubDoc(char const* key, JSON& child);
 
     /**
      * @brief Sets an empty array in the JSON document.
-     * 
-     * This function sets an empty array in the JSON document.
-     * If the key already exists, the array is updated.
-     * 
-     * Note that the document is flushed before setting.
-     * 
+     *        This function sets an empty array in the JSON document.
+     *        If the key already exists, the array is updated.
+     *        Note that the document is flushed before setting.
      * @param key The key of the array to set.
      */
-    void set_empty_array(char const* key);
+    void setEmptyArray(char const* key);
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
 
     /**
      * @brief Performs an addition operation on a numeric value in the JSON document.
-     *
-     *
      */
     void set_add(std::string const& key, double const& val);
 
@@ -262,10 +313,8 @@ public:
 
     /**
      * @brief Gets a value from the JSON document.
-     * 
-     * This function retrieves a value of the specified type from the JSON document.
-     * If the key does not exist, the default value is returned.
-     * 
+     *        This function retrieves a value of the specified type from the JSON document.
+     *        If the key does not exist, the default value is returned.
      * @tparam T The type of the value to retrieve.
      * @param key The key of the value to retrieve.
      * @param defaultValue The default value to return if the key does not exist.
@@ -275,13 +324,21 @@ public:
     T get(std::string const& key, T const& defaultValue = T());
 
     /**
+     * @brief Gets a variant value from the JSON document.
+     *        This function retrieves a variant value from the JSON document.
+     *        If the key does not exist, void is returned.
+     * @param key The key of the value to retrieve.
+     * @return The variant value associated with the key, or void if the key does not exist.
+     */
+    std::optional<RjDirectAccess::simpleValue> getVariant(std::string const& key);
+
+    /**
      * @brief Gets a sub-document from the JSON document.
-     * 
-     * This function retrieves a sub-document from the JSON document.
-     * If the key does not exist, an empty JSON object is returned.
-     * 
-     * Note that the document is flushed.
-     * 
+     *        If the key does not exist, an empty JSON object is returned.
+     *        Note that the cache is flushed into the document.
+     *        If the key is a basic type, its value is returned.
+     *        You may use `memberType("")` to check the type stored in the JSON.
+     *        You may use `get<T>("",T())` on the returned sub-document to get the simple value.
      * @param key The key of the sub-document to retrieve.
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
      */
@@ -289,25 +346,25 @@ public:
 
     /**
      * @brief Provides access to the internal mutex for thread-safe operations.
-     * Allowing modules to lock the JSON document.
+     *        Allowing modules to lock the JSON document.
      */
-    std::scoped_lock<std::recursive_mutex> lock(){return std::scoped_lock(mtx);}
+    std::scoped_lock<std::recursive_mutex> lock() { return std::scoped_lock(mtx); }
 
     /**
      * @brief Gets a pointer to a double value pointer in the JSON document.
+     * @return A pointer to the double value associated with the key.
      */
     double* getStableDoublePointer(std::string const& key);
 
     /**
      * @brief Gets a pointer to a double value pointer in the JSON document based on a unique ID.
-     * 
      * @param uid The unique ID of the key, must be smaller than uidQuickCacheSize !
      * @param key The key of the value to retrieve.
      * @return A pointer to the double value associated with the key.
      */
-    double* get_uid_double_ptr(uint64_t const& uid, std::string const& key){
-        if(uidDoubleCache[uid] == nullptr){
-            // Need to create new entry
+    double* getUidDoublePointer(uint64_t const& uid, std::string const& key) {
+        std::scoped_lock const lockGuard(mtx);
+        if (uidDoubleCache[uid] == nullptr) {
             uidDoubleCache[uid] = getStableDoublePointer(key);
         }
         return uidDoubleCache[uid];
@@ -315,38 +372,31 @@ public:
 
     //------------------------------------------
     // Key Types, Sizes
-    
+
     /**
      * @enum KeyType
      * @brief Enum representing the type stored of a key in the JSON document.
      */
     enum class KeyType : uint8_t {
         null,
-        document,
         value,
-        array
+        array,
+        object
     };
 
     /**
      * @brief Checks the type stored of a key in the JSON document.
-     * 
-     * This function checks the type stored of a key in the JSON document.
-     * If the key does not exist, the type is considered null.
-     * 
+     *        This function checks the type stored of a key in the JSON document.
+     *        If the key does not exist, the type is considered null.
      * @param key The key to check.
      * @return The type of the key.
      */
-    KeyType memberCheck(std::string const& key);
+    KeyType memberType(std::string const& key);
 
     /**
      * @brief Checks the size of a key in the JSON document.
-     * 
-     * This function checks the size of a key in the JSON document.
-     * 
-     * If the key does not exist, the size is considered 0.
-     * 
-     * If the key represents a document, the size is considered 1.
-     * 
+     *        If the key does not exist, the size is considered 0.
+     *        If the key represents a document, the size is considered 1.
      * @param key The key to check.
      * @return The size of the key.
      */
@@ -354,22 +404,17 @@ public:
 
     /**
      * @brief Removes a key from the JSON document.
-     * 
-     * This function removes a key from the JSON document.
-     * If the key does not exist, no action is taken.
-     * 
-     * Note that the document is flushed before removing the key.
-     * 
+     *        If the key does not exist, no action is taken.
+     *        Note that the document is flushed before removing the key.
      * @param key The key to remove.
      */
-    void remove_key(char const* key);
+    void removeKey(char const* key);
 
     //------------------------------------------
     // Serialize/Deserialize
 
     /**
      * @brief Serializes the entire document or a portion of the document
-     * 
      * @param key The key to serialize. (Optional: leave empty to serialize entire document)
      * @return The serialized JSON string.
      */
@@ -377,41 +422,24 @@ public:
 
     /**
      * @brief Deserializes a JSON string or loads from a file, with optional modifications.
-     * 
-     * @param serial_or_link The JSON string to deserialize or the file path to load from + optional functioncall modifiers
-     * 
-     * Examples:
-     * 
-     * - `{"key": "value"}` - Deserializes a JSON string
-     * 
-     * - `file.json` - Loads a JSON file
-     * 
-     * - `file.json|set key1.key2[5] 100` - Loads a JSON file and sets a value
-     * 
-     * - `file.json|key1.key2[5]=100` - Legacy feature for setting a value
-     * 
-     * - `file.json|set-from-json key1.key2[5] otherFile.json:key` - Sets key1.key2[5] from the value of key in otherFile.json
-     * 
-     * See `JSDM_*.hpp` files for available functioncalls.
+     * @param serialOrLink The JSON string to deserialize or the file path to load from + optional functioncall transformations
+     *        Examples:
+     *        - `{"key": "value"}` - Deserializes a JSON string
+     *        - `file.json` - Loads a JSON file
+     *        - `file.json|set key1.key2[5] 100` - Loads a JSON file and sets a value
+     *        - `file.json|key1.key2[5]=100` - Legacy feature for setting a value
+     *        - `file.json|set-from-json key1.key2[5] otherFile.json:key` - Sets key1.key2[5] from the value of key in otherFile.json
      */
-    void deserialize(std::string const& serial_or_link);
+    void deserialize(std::string const& serialOrLink);
 
     //------------------------------------------
     // Assorted list of double pointers
 
-	MappedOrderedDoublePointers* getExpressionRefsAsOther(){
-        #if ORDERED_DOUBLE_POINTERS_MAPS == 1
-            return &expressionRefs[0].as_other;
-        #else
-            // Each thread gets a unique starting position based on thread ID
-            thread_local const size_t thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
-            thread_local size_t counter = 0;
-            
-            // Rotate through pool entries starting from thread's unique offset
-            size_t const idx = (thread_offset + counter++) % ORDERED_DOUBLE_POINTERS_MAPS;
-            return &expressionRefs[idx].as_other;
-        #endif
-	}
+    /**
+     * @brief Retrieves the map of ordered double pointers for "other" expression references.
+     * @return A pointer to the map of ordered double pointers for "other" reference.
+     */
+    MappedOrderedDoublePointers* getExpressionRefsAsOther();
 };
 } // namespace Nebulite::Utility
 #include "Utility/JSON.tpp"

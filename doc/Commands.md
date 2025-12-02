@@ -2,7 +2,7 @@
 
 This documentation is automatically generated from the Nebulite executable.
 
-Generated on: Tue Nov 18 10:12:07 CET 2025
+Generated on: Thu Nov 27 22:08:42 CET 2025
 
 ## GlobalSpace Commands
 
@@ -67,8 +67,8 @@ Help for Nebulite
 
 | Variable | Description |
 |----------|-------------|
-| `headless` | Set headless mode (no renderer) |
-| `recover` | Enable recoverable error mode |
+| `--headless` | Set headless mode (no renderer) |
+| `--recover` | Enable recoverable error mode |
 
 #### `add-clock`
 

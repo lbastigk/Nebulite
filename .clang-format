@@ -2,3 +2,8 @@ BasedOnStyle: LLVM
 IndentWidth: 4
 NamespaceIndentation: None
 ColumnLimit: 0
+
+# Ensure references/pointers stick to the type (no space before & or *)
+PointerAlignment: Left
+# Disable auto-derivation so the setting is always applied
+DerivePointerAlignment: false

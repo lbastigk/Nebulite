@@ -25,24 +25,20 @@
         "command": "task TaskFiles/Tests/Short/malformed_key.nebs",
         "expected": { 
             "cout": [
-                "",
                 "Part 1: Basic malformed arrays",
                 "valid_key",
-                "0",
-                "0",
-                "0",
-                "",
+                "null",
+                "null",
+                "null",
                 "Part 2: Getting an array of a non-array value",
                 "some_value",
-                "0",
-                "",
+                "null",
                 "Part 3: Getting an out of bounds array index",
                 "first_value",
                 "second_value",
-                "0",
-                "",
+                "null",
                 "Part 4: Printing an array without indexing",
-                "0"
+                "null"
             ], 
             "cerr": [
                 "Invalid key: arr[1",

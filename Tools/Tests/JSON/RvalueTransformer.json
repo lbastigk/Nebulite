@@ -1,0 +1,305 @@
+[
+  {
+    "command": [
+      "# Testing basic transformations",
+      "set-fps 60",
+      "wait 1",
+      "set test.MyKey 3",
+      "wait 1",
+      "eval echo {global.test.MyKey}",
+      "eval echo {global.test.MyKey|add 2|toInt}",
+      "eval echo {global.test.MyKey|mod 2|toInt}",
+      "eval echo {global.test.MyKey|mul 2|toString}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "3",
+        "5",
+        "1",
+        "6.000000"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Testing non-numeric values in arithmetic transformations",
+      "set-fps 60",
+      "wait 1",
+      "set test.val 3",
+      "wait 1",
+      "eval echo {global.test.val|add 2|toInt}",
+      "eval echo {global.test.val|add a|toInt}",
+      "eval echo {global.test.val|mul 2|toInt}",
+      "eval echo {global.test.val|mul a|toInt}",
+      "eval echo {global.test.val|mod 2|toInt}",
+      "eval echo {global.test.val|mod a|toInt}",
+      "eval echo {global.test.val|pow 2|toInt}",
+      "eval echo {global.test.val|pow a|toInt}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "5",
+        "null",
+        "6",
+        "null",
+        "1",
+        "null",
+        "9",
+        "null"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Testing no values in arithmetic transformations",
+      "set-fps 60",
+      "wait 1",
+      "set test.val 3",
+      "wait 1",
+      "eval echo {global.test.val|add}",
+      "eval echo {global.test.val|mul}",
+      "eval echo {global.test.val|mod}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "null",
+        "null",
+        "null"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Testing invalid numeric values in arithmetic transformations",
+      "set-fps 60",
+      "wait 1",
+      "set test.val 3",
+      "wait 1",
+      "eval echo {global.test.val|mod 0|toInt}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "null"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Testing invalid numeric casting",
+      "set-fps 60",
+      "wait 1",
+      "set test.val nonNumericValue",
+      "wait 1",
+      "eval echo {global.test.val|toInt}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "0"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Testing array handling",
+      "set-fps 60",
+      "wait 1",
+      "set test.arr[0] 10",
+      "set test.arr[1] 20",
+      "set test.arr[2] 30",
+      "wait 1",
+      "eval echo {global.test.arr|length|toInt}",
+      "eval echo {global.test.arr|at 1|toInt}",
+      "eval echo {global.test.arr|at 5}",
+      "eval echo {global.test.arr|at malformedIndex}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "3",
+        "20",
+        "null",
+        "null"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Testing debug pseudo-transformations",
+      "set-fps 60",
+      "wait 1",
+      "set test.val 42",
+      "wait 1",
+      "eval echo {global.test.val|print}# Should print the value first with quotes from print, then without quotes from echo",
+      "eval echo {global.test.val|echo Hello, World!}# Should print 'Hello, World!', then 42 from echo",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "\"42\"",
+        "42",
+        "Hello, World!",
+        "42"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Testing an empty transformation chain",
+      "set-fps 60",
+      "wait 1",
+      "set test.val 42",
+      "wait 1",
+      "eval echo {global.test.val|}# Should return null, as we have an invalid empty transformation",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "null"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Wrong argument count for transformation",
+      "set var 10",
+      "set arr[0] 1",
+      "set arr[1] 2",
+      "set arr[2] 3",
+      "eval echo {global.var|pow 2 3}# pow expects exactly one argument, providing two should result in null",
+      "eval echo {global.arr|at}# at expects exactly one argument, providing none should result in null",
+      "eval echo {global.arr|at 2 3}# at expects exactly one argument, providing two should result in null",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "null",
+        "null",
+        "null"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Type to String transformation + Type to int transformation",
+      "set arr[0] 1",
+      "set arr[1] 2",
+      "set arr[2] 3",
+      "set var 42",
+      "set obj.val 100",
+      "# WARNING: This may be deprecated in the future, if specific type-checking is implemented, e.g.: could return value:int:16 instead of just int\"",
+      "eval echo {global.dne|typeAsString}",
+      "eval echo {global.var|typeAsString}",
+      "eval echo {global.arr|typeAsString}",
+      "eval echo {global.obj|typeAsString}",
+      "# Order is: null=0, value=1, array=2, object=3",
+      "eval echo {global.dne|typeAsNumber}",
+      "eval echo {global.var|typeAsNumber}",
+      "eval echo {global.arr|typeAsNumber}",
+      "eval echo {global.obj|typeAsNumber}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "null",
+        "value",
+        "array",
+        "object",
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Printing a subvalue",
+      "set arr[0] 1",
+      "set arr[1] 2",
+      "set arr[2] 3",
+      "eval echo {global.arr|print [1]|at 2}# Should print the second element of the array with quotes, then the third element",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "\"2\"",
+        "3"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Mapping function",
+      "set val 10",
+      "set arr[0] 1",
+      "set arr[1] 2",
+      "set arr[2] 3",
+      "eval echo {global.val|map add 10|at 0|toInt}",
+      "eval echo {global.arr|map add 10|at 0|toInt}",
+      "eval echo {global.arr|map add 10|at 1|toInt}",
+      "eval echo {global.arr|map add 10|at 2|toInt}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "20",
+        "11",
+        "12",
+        "13"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Reverse function",
+      "set val 10",
+      "set arr[0] 1",
+      "set arr[1] 2",
+      "set arr[2] 3",
+      "eval echo {global.val|reverse|at 0|toInt}",
+      "eval echo {global.arr|reverse|at 0|toInt}",
+      "eval echo {global.arr|reverse|at 1|toInt}",
+      "eval echo {global.arr|reverse|at 2|toInt}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "10",
+        "3",
+        "2",
+        "1"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# <template>",
+      "echo Your ad could be here! Contact us for advertising opportunities.",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "Your ad could be here! Contact us for advertising opportunities."
+      ],
+      "cerr": []
+    }
+  }
+]

@@ -9,13 +9,12 @@
 
 namespace Nebulite::Utility {
 
-std::string const JSON::reservedCharacters = "[]{}.,";
+std::string const JSON::reservedCharacters = "[]{}.|\":";
 
 JSON::JSON(std::string const& name)
 : Domain(name, this, this)
 {
     std::scoped_lock const lockGuard(mtx);
-    doc.SetObject();
     DomainModule::Initializer::initJSON(this);
 }
 
@@ -23,6 +22,22 @@ JSON::~JSON(){
     std::scoped_lock const lockGuard(mtx);
     doc.SetObject();
     cache.clear();
+}
+
+//------------------------------------------
+// Allow copy/move
+
+JSON& JSON::operator=(JSON&& other) noexcept {
+    if (this != &other) {
+        std::scoped_lock lockGuard(mtx, other.mtx);
+        doc = std::move(other.doc);
+        cache = std::move(other.cache);
+        for (size_t idx = 0; idx < uidQuickCacheSize; ++idx) {
+            uidDoubleCache[idx] = other.uidDoubleCache[idx];
+            other.uidDoubleCache[idx] = nullptr;
+        }
+    }
+    return *this;
 }
 
 JSON::JSON(JSON&& other) noexcept
@@ -33,18 +48,6 @@ JSON::JSON(JSON&& other) noexcept
     cache = std::move(other.cache);
 }
 
-JSON& JSON::operator=(JSON&& other) noexcept{
-    if (this != &other){
-        std::scoped_lock lockGuard(mtx, other.mtx);
-        doc = std::move(other.doc);
-        cache = std::move(other.cache);
-        for(size_t idx = 0; idx < uidQuickCacheSize; idx++){
-            uidDoubleCache[idx] = other.uidDoubleCache[idx];
-            other.uidDoubleCache[idx] = nullptr;
-        }
-    }
-    return *this;
-}
 
 //------------------------------------------
 // Private methods
@@ -68,6 +71,11 @@ void JSON::invalidate_child_keys(std::string const& parent_key){
 void JSON::flush(){
     std::scoped_lock const lockGuard(mtx);
     for (auto& [key, entry] : cache){
+        // Skip malformed entries
+        if (entry->state == EntryState::MALFORMED){
+            continue;
+        }
+
         // If double values changed, mark dirty
         if(std::abs(entry->last_double_value - *entry->stable_double_ptr) > DBL_EPSILON){
             entry->state = EntryState::DIRTY;
@@ -75,6 +83,7 @@ void JSON::flush(){
             entry->value = *entry->stable_double_ptr;
         }
 
+        // Every dirty entry is flushed back to the document and marked clean
         if (entry->state == EntryState::DIRTY){
             (void)RjDirectAccess::set(key.c_str(), entry->value, doc, doc.GetAllocator());
             entry->state = EntryState::CLEAN;
@@ -96,10 +105,90 @@ Constants::Error JSON::update(){
 //------------------------------------------
 // Get methods
 
+std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& key){
+    std::scoped_lock const lockGuard(mtx);
+
+    // Check for transformations
+    if (key.contains('|')){
+        JSON tmp;
+        if (getSubDocWithTransformations(key, tmp)) {
+            return tmp.getVariant(JsonRvalueTransformer::valueKey);
+        }
+        return {};
+    }
+
+    // Check cache first
+    auto it = cache.find(key);
+
+    // Checking for malformed shouldn't be necessary, but just in case
+    if (it != cache.end() && it->second->state == EntryState::MALFORMED){
+        Nebulite::cerr() << "Warning: Attempted to access malformed key in getVariant(): " << key << Nebulite::endl;
+        Nebulite::cerr() << "This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!" << Nebulite::endl;
+        return {};
+    }
+
+    if (it != cache.end() && it->second->state != EntryState::DELETED){
+        // Entry exists and is not deleted
+
+        // Check its double value for change detection using an epsilon to avoid unsafe direct comparison
+        if(std::fabs(*it->second->stable_double_ptr - it->second->last_double_value) > DBL_EPSILON){
+            // Value changed since last check
+            // We update the actual value with the new double value
+            // Then we convert the double to the requested type
+            it->second->last_double_value = *it->second->stable_double_ptr;
+            it->second->value = it->second->last_double_value;
+            it->second->state = EntryState::DIRTY; // Mark as dirty to sync back
+        }
+        return it->second->value;
+    }
+
+    // Check document, if not in cache
+    if(rapidjson::Value const* val = RjDirectAccess::traversePath(key.c_str(), doc); val != nullptr){
+        if (it == cache.end()) {
+            // Create new cache entry and insert into cache
+            auto new_entry = std::make_unique<CacheEntry>();
+            cache[key] = std::move(new_entry);
+            it = cache.find(key);
+        }
+
+        if(it != cache.end()){
+            // Modify existing entry
+            if(!RjDirectAccess::getSimpleValue(&it->second->value, val)){
+                return {};
+            }
+
+            // Mark as clean
+            it->second->state = EntryState::CLEAN;
+
+            // Set stable double pointer
+            *it->second->stable_double_ptr = convertVariant<double>(it->second->value, 0.0);
+            it->second->last_double_value = *it->second->stable_double_ptr;
+            return it->second->value;
+        }
+    }
+
+    // Value could not be found, return empty optional
+    return {};
+}
+
 JSON JSON::getSubDoc(std::string const& key){
     std::scoped_lock const lockGuard(mtx);
+
+    // Handle integrity via flushing
+    // Makes sure we don't have to worry about cache and double pointers here
+    // Full access to the rapidjson document after this point
     flush();
-    if(rapidjson::Value const* keyVal = RjDirectAccess::traverse_path(key.c_str(),doc); keyVal != nullptr){
+
+    // Check if a transformation is present
+    if (key.contains('|')){
+        JSON tmp;
+        if (getSubDocWithTransformations(key,tmp)) {
+            return tmp;
+        }
+        return JSON{};
+    }
+
+    if(rapidjson::Value const* keyVal = RjDirectAccess::traversePath(key.c_str(),doc); keyVal != nullptr){
         // turn keyVal to doc
         JSON json;
         json.doc.CopyFrom(*keyVal,json.doc.GetAllocator());
@@ -108,8 +197,37 @@ JSON JSON::getSubDoc(std::string const& key){
     return JSON{};
 }
 
+bool JSON::getSubDocWithTransformations(std::string const& key, JSON& outDoc) {
+    auto args = StringHandler::split(key, '|');
+    std::string const baseKey = args[0];
+    args.erase(args.begin());
+
+    // Using getSubDoc to properly populate the tempDoc with the rapidjson::Value
+    // Slower than a manual copy that handles types, but more secure and less error-prone
+    outDoc = getSubDoc(baseKey);
+
+    // Apply each transformation in sequence
+    if (!transformer.parse(args, &outDoc)) {
+        return false;    // if any transformation fails, return default value
+    }
+    return true;
+}
+
 double* JSON::getStableDoublePointer(std::string const& key){
     std::scoped_lock const lockGuard(mtx);
+
+    // Check for transformations
+    if (key.find('|') != std::string::npos) {
+        Nebulite::Utility::Capture::cerr() << "Transformations are not supported in getStableDoublePointer(): " << key << Nebulite::Utility::Capture::endl;
+        Nebulite::Utility::Capture::cerr() << "For integrity, we will create a cache entry with the malformed key" << Nebulite::Utility::Capture::endl;
+        auto new_entry = std::make_unique<CacheEntry>();
+        new_entry->value = 0.0;
+        *new_entry->stable_double_ptr = 0.0;
+        new_entry->last_double_value = 0.0;
+        new_entry->state = EntryState::MALFORMED;
+        cache[key] = std::move(new_entry);
+        return cache[key]->stable_double_ptr;
+    }
 
     // Check cache first
     auto it = cache.find(key);
@@ -118,13 +236,13 @@ double* JSON::getStableDoublePointer(std::string const& key){
         if(it->second->state == EntryState::DELETED){
             *it->second->stable_double_ptr = get<double>(key, 0.0);
             it->second->last_double_value = *it->second->stable_double_ptr;
-            it->second->state = EntryState::VIRTUAL; // Now it's virtual
+            it->second->state = EntryState::DERIVED;
         }
         return it->second->stable_double_ptr;
     }
 
     // Try loading from document into cache
-    if(rapidjson::Value const* val = RjDirectAccess::traverse_path(key.c_str(), doc); val != nullptr){
+    if(rapidjson::Value const* val = RjDirectAccess::traversePath(key.c_str(), doc); val != nullptr){
         jsonValueToCache<double>(key, val, 0.0);
     }
 
@@ -134,12 +252,12 @@ double* JSON::getStableDoublePointer(std::string const& key){
         return it->second->stable_double_ptr;
     }
 
-    // If loading from document failed, create a new virtual entry
+    // If loading from document failed, create a new derived entry
     auto new_entry = std::make_unique<CacheEntry>();
     new_entry->value = 0.0;
     *new_entry->stable_double_ptr = 0.0;
     new_entry->last_double_value = 0.0;
-    new_entry->state = EntryState::VIRTUAL;
+    new_entry->state = EntryState::DERIVED;
     cache[key] = std::move(new_entry);
     return cache[key]->stable_double_ptr;
 }
@@ -147,7 +265,58 @@ double* JSON::getStableDoublePointer(std::string const& key){
 //------------------------------------------
 // Set methods
 
-void JSON::setSubDoc(char const* key, JSON* child){
+void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const& val) {
+    std::scoped_lock const lockGuard(mtx);
+
+    // Check if key is valid
+    if (!RjDirectAccess::isValidKey(key)){
+        Nebulite::Utility::Capture::cerr() << "Invalid key: " << key << Nebulite::Utility::Capture::endl;
+        return;
+    }
+
+    // Check if key contains transformations
+    if (key.find('|') != std::string::npos){
+        Nebulite::Utility::Capture::cerr() << "Transformations are not supported in set(): " << key << Nebulite::Utility::Capture::endl;
+        return;
+    }
+
+    // Set value in cache
+    if (auto const it = cache.find(key); it != cache.end()){
+        // Existing cache value, structure validity guaranteed
+
+        // Update the entry, mark as dirty
+        it->second->value = val;
+        it->second->state = EntryState::DIRTY;
+
+        // Update double pointer value
+        *it->second->stable_double_ptr = convertVariant<double>(val);
+        it->second->last_double_value = *it->second->stable_double_ptr;
+    } else {
+        // New cache value, structural validity is not guaranteed
+        // so we flush contents into the rapidjson document after inserting
+
+        // Remove any child keys to synchronize the structure
+        invalidate_child_keys(key);
+
+        // Create new entry directly in DIRTY state
+        auto new_entry = std::make_unique<CacheEntry>();
+
+        // Set entry values
+        new_entry->value = val;
+        // Pointer was created in constructor, no need to redo make_shared
+        *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value, 0.0);
+        new_entry->last_double_value = *new_entry->stable_double_ptr;
+        new_entry->state = EntryState::DIRTY;
+
+        // Insert into cache
+        cache[key] = std::move(new_entry);
+
+        // Flush to RapidJSON document for structural integrity
+        flush();
+    }
+}
+
+void JSON::setSubDoc(char const* key, JSON& child){
     std::scoped_lock const lockGuard(mtx);
 
     // Flush own contents
@@ -155,9 +324,9 @@ void JSON::setSubDoc(char const* key, JSON* child){
 
     // Ensure key path exists
     // Insert child document
-    if (rapidjson::Value* keyVal = RjDirectAccess::ensure_path(key, doc, doc.GetAllocator()); keyVal != nullptr){
-        child->flush();
-        RjDirectAccess::ConvertToJSONValue<rapidjson::Document>(child->doc, *keyVal, doc.GetAllocator());
+    if (rapidjson::Value* keyVal = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator()); keyVal != nullptr){
+        child.flush();
+        RjDirectAccess::ConvertToJSONValue<rapidjson::Document>(child.doc, *keyVal, doc.GetAllocator());
         
         // Since we inserted an entire document, we need to invalidate its child keys:
         invalidate_child_keys(key);
@@ -166,10 +335,10 @@ void JSON::setSubDoc(char const* key, JSON* child){
     }
 }
 
-void JSON::set_empty_array(char const* key){
+void JSON::setEmptyArray(char const* key){
     std::scoped_lock const lockGuard(mtx);
     flush();
-    rapidjson::Value* val = RjDirectAccess::ensure_path(key,doc,doc.GetAllocator());
+    rapidjson::Value* val = RjDirectAccess::ensurePath(key,doc,doc.GetAllocator());
     val->SetArray();
 }
 
@@ -187,7 +356,7 @@ std::string JSON::serialize(std::string const& key){
     return sub.serialize();
 }
 
-void JSON::deserialize(std::string const& serial_or_link){
+void JSON::deserialize(std::string const& serialOrLink){
     std::scoped_lock const lockGuard(mtx);
 
     // Reset document and cache
@@ -203,13 +372,13 @@ void JSON::deserialize(std::string const& serial_or_link){
     //------------------------------------------
     // Split the input into tokens
     std::vector<std::string> tokens;
-    if(is_json_or_jsonc(serial_or_link)){
+    if(isJsonOrJsonc(serialOrLink)){
         // Direct JSON string, no splitting
-        tokens.push_back(serial_or_link);
+        tokens.push_back(serialOrLink);
     }
     else{
-        // Split based on modifiers, indicated by '|'
-        tokens = StringHandler::split(serial_or_link, '|');
+        // Split based on transformations, indicated by '|'
+        tokens = StringHandler::split(serialOrLink, '|');
     }
 
     //------------------------------------------
@@ -242,19 +411,19 @@ void JSON::deserialize(std::string const& serial_or_link){
 
         // Legacy: Handle key=value pairs
         if (auto const pos = token.find('='); pos != std::string::npos){
-            // Handle modifier (key=value)
+            // Handle transformation (key=value)
             std::string keyAndValue = token;
             if (pos != std::string::npos) keyAndValue[pos] = ' ';
 
             // New implementation through functioncall
             if (std::string const callStr = std::string(__FUNCTION__) + " set " + keyAndValue; parseStr(callStr) != Constants::ErrorTable::NONE()){
-                Nebulite::cerr() << "Failed to apply deserialize modifier: " << callStr << Nebulite::endl;
+                Nebulite::cerr() << "Failed to apply deserialize transformation: " << callStr << Nebulite::endl;
             }
         }
         else{
             // Forward to FunctionTree for resolution
             if (std::string const callStr = std::string(__FUNCTION__) + " " + token; parseStr(callStr) != Constants::ErrorTable::NONE()){
-                Nebulite::cerr() << "Failed to apply deserialize modifier: " << callStr << Nebulite::endl;
+                Nebulite::cerr() << "Failed to apply deserialize transformation: " << callStr << Nebulite::endl;
             }
         }
     }
@@ -263,16 +432,20 @@ void JSON::deserialize(std::string const& serial_or_link){
 //------------------------------------------
 // Key Types, Sizes
 
-JSON::KeyType JSON::memberCheck(std::string const& key){
-    // 1. Check if key is empty -> represents the whole document
-    if (key.empty()){
-        return KeyType::document;
-    }
-
-    // For all other cases, lock this object
+JSON::KeyType JSON::memberType(std::string const& key){
     std::scoped_lock const lockGuard(mtx);
 
-    // 2. Check cache first
+    // See if transformations are present
+    if (key.contains('|')){
+        // Apply transformations to a temp document
+        JSON tempDoc;
+        if (getSubDocWithTransformations(key, tempDoc)) {
+            return tempDoc.memberType("");
+        }
+        return KeyType::null;
+    }
+
+    // Check cache first
     if (cache.find(key) != cache.end()){
         // Key is cached, return its type
         return KeyType::value;
@@ -281,8 +454,8 @@ JSON::KeyType JSON::memberCheck(std::string const& key){
     // Not directly in cache, flush before accessing the document
     flush();
 
-    // 4. If not cached, check rapidjson doc
-    auto const val = RjDirectAccess::traverse_path(key.c_str(),doc);
+    // If not cached, check rapidjson doc
+    auto const val = RjDirectAccess::traversePath(key.c_str(),doc);
     if(val == nullptr){
         return KeyType::null;
     }
@@ -290,7 +463,7 @@ JSON::KeyType JSON::memberCheck(std::string const& key){
         return KeyType::array;
     }
     if(val->IsObject()){
-        return KeyType::document;
+        return KeyType::object;
     }
     if( val->IsNumber() || val->IsString() || val->IsBool()){
         return KeyType::value;
@@ -301,20 +474,30 @@ JSON::KeyType JSON::memberCheck(std::string const& key){
 size_t JSON::memberSize(std::string const& key){
     std::scoped_lock const lockGuard(mtx);
 
-    auto const kt = memberCheck(key);
+    // See if transformations are present
+    if (key.contains('|')){
+        // Apply transformations to a temp document
+        JSON tempDoc;
+        if (getSubDocWithTransformations(key, tempDoc)) {
+            return tempDoc.memberSize("");
+        }
+        return 0;
+    }
+
+    auto const kt = memberType(key);
     if(kt == KeyType::null){
         return 0;
     }
-    if(kt == KeyType::value || kt == KeyType::document){
+    if(kt == KeyType::value || kt == KeyType::object){
         return 1;
     }
     // Is array, get size
     flush(); // Ensure cache is flushed before accessing doc
-    auto const val = RjDirectAccess::traverse_path(key.c_str(),doc);
+    auto const val = RjDirectAccess::traversePath(key.c_str(),doc);
     return val->Size();
 }
 
-void JSON::remove_key(char const* key){
+void JSON::removeKey(char const* key){
     std::scoped_lock const lockGuard(mtx);
 
     // Ensure cache is flushed before removing key
@@ -325,7 +508,7 @@ void JSON::remove_key(char const* key){
     invalidate_child_keys(key);
 
     // Find in RapidJSON document
-    RjDirectAccess::remove_member(key, doc);
+    RjDirectAccess::removeMember(key, doc);
 }
 
 //------------------------------------------
@@ -388,6 +571,23 @@ void JSON::set_concat(std::string const& key, std::string const& valStr){
         *it->second->stable_double_ptr = 0.0;
         it->second->last_double_value = 0.0;
     }
+}
+
+//------------------------------------------
+// Expression reference pools
+
+MappedOrderedDoublePointers* JSON::getExpressionRefsAsOther() {
+#if ORDERED_DOUBLE_POINTERS_MAPS == 1
+    return &expressionRefs[0].as_other;
+#else
+    // Each thread gets a unique starting position based on thread ID
+    thread_local const size_t thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
+    thread_local size_t counter = 0;
+
+    // Rotate through pool entries starting from thread's unique offset
+    size_t const idx = (thread_offset + counter++) % ORDERED_DOUBLE_POINTERS_MAPS;
+    return &expressionRefs[idx].as_other;
+#endif
 }
 
 } // namespace Nebulite::Utility

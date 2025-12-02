@@ -1,0 +1,44 @@
+[
+    {
+        "command": [
+            "set arr[0] 1",
+            "set arr[1] 2",
+            "eval echo $({global.arr|length})"
+        ],
+        "expected": { "cout": ["2.000000"], "cerr": [] }
+    },
+    {
+        "command": [
+            "echo Still expected to be floating, as expressions auto-cast to float unless specified otherwise.",
+            "set arr[0] 1",
+            "set arr[1] 2",
+            "eval echo $({global.arr|length|toInt})"
+        ],
+        "expected": { "cout": [
+            "Still expected to be floating, as expressions auto-cast to float unless specified otherwise.",
+            "2.000000"
+        ], "cerr": [] }
+    },
+    {
+        "command": [
+            "echo Expected to be 0.00..., as the value of type string cast to float defaults to 0.",
+            "set arr[0] 1",
+            "set arr[1] 2",
+            "eval echo $({global.arr|typeAsString})"
+        ],
+        "expected": { "cout": [
+            "Expected to be 0.00..., as the value of type string cast to float defaults to 0.",
+            "0.000000"
+        ], "cerr": [] }
+    },
+    {
+        "command": [
+            "echo Transforming a json value from read-only document.",
+            "eval echo $({./Resources/Renderobjects/standard.jsonc:text.color.A|add 1})"
+        ],
+        "expected": { "cout": [
+            "Transforming a json value from read-only document.",
+            "256.000000"
+        ], "cerr": [] }
+    }
+]

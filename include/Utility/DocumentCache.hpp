@@ -107,7 +107,7 @@ public:
      * @param doc_key The document and its key to check.
      * @return The type of the key.
      */
-    Nebulite::Utility::JSON::KeyType memberCheck(std::string const& doc_key){
+    Nebulite::Utility::JSON::KeyType memberType(std::string const& doc_key){
         auto [doc, key] = splitDocKey(doc_key);
 
         Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
@@ -118,7 +118,7 @@ public:
         }
 
         // Retrieve the key type from the document
-        Nebulite::Utility::JSON::KeyType const type = docPtr->document.memberCheck(key);
+        Nebulite::Utility::JSON::KeyType const type = docPtr->document.memberType(key);
 
         // Update the cache (unload old documents)
         update();

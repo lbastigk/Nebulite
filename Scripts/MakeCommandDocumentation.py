@@ -88,7 +88,7 @@ class MarkdownFormatter:
                     var_descriptions[match.group(1)] = match.group(2)
         for var in variables:
             desc = var_descriptions.get(var, "No description available")
-            table += f"| `{var}` | {desc} |\n"
+            table += f"| `--{var}` | {desc} |\n"
         return table + "\n"
 
     def get_subcommands(self, subcommands, level, format_section_func):

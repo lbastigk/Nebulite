@@ -27,38 +27,54 @@ namespace Nebulite::Utility {
  * @class RjDirectAccess
  * @brief Provides direct access and manipulation of RapidJSON values.
  */
-class RjDirectAccess{
+class RjDirectAccess {
 public:
+    /**
+     * @brief Definition of a simple value variant type.
+     *        All of these types are supported for direct access.
+     */
     using simpleValue = std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool>;
 
     /**
      * @brief Getting a simple value from a rapidjson value, using the right type stored in the document.
-     * 
      * @param value Pointer to the variant to store the value.
      * @param val Pointer to the rapidjson value to get the value from.
      * @return true if a supported type was found and value was set, false otherwise (e.g. Object, Array, Null)
      */
-    static bool getSimpleValue(simpleValue* value, rapidjson::Value const* val){
+    static bool getSimpleValue(simpleValue* value, rapidjson::Value const* val) {
         // Get supported types
-        if(val->IsInt()){
+
+        // Integers
+        if (val->IsInt()) {
             *value = val->GetInt();
-        } else if(val->IsInt64()){
+            return true;
+        } else if (val->IsInt64()) {
             *value = val->GetInt64();
-        } else if(val->IsUint()){
+            return true;
+        } else if (val->IsUint()) {
             *value = val->GetUint();
-        } else if(val->IsUint64()){
+            return true;
+        } else if (val->IsUint64()) {
             *value = val->GetUint64();
-        } else if(val->IsDouble()){
-            *value = val->GetDouble();
-        } else if(val->IsString()){
-            *value = std::string(val->GetString(), val->GetStringLength());
-        } else if(val->IsBool()){
-            *value = val->GetBool();
-        } else {
-            // Unsupported type (e.g., Object, Array, Null)
-            return false;
+            return true;
         }
-        return true;
+        // Floating point
+        else if (val->IsDouble()) {
+            *value = val->GetDouble();
+            return true;
+        }
+        // String
+        else if (val->IsString()) {
+            *value = std::string(val->GetString(), val->GetStringLength());
+            return true;
+        }
+        // Boolean
+        else if (val->IsBool()) {
+            *value = val->GetBool();
+            return true;
+        }
+        // Unsupported type (e.g., Object, Array, Null)
+        return false;
     }
 
     //------------------------------------------
@@ -66,36 +82,37 @@ public:
 
     /**
      * @brief Fallback to direct rapidjson access for getting values.
-     * 
      * @param key The key of the value to retrieve.
      * @param defaultValue The default value to return if the key is not found.
      * @param val The rapidjson value to search within.
      * @return The retrieved value or the default value.
      */
-    template <typename T> 
+    template <typename T>
     static T get(char const* key, T const& defaultValue, rapidjson::Value& val);
 
     /**
      * @brief Fallback to direct rapidjson access for setting values.
-     * 
-     * This function sets a value in the rapidjson document, ensuring that the key exists.
-     * If the key does not exist, it is created.
-     * 
+     *        This function sets a value in the rapidjson document, ensuring that the key exists.
+     *        If the key does not exist, it is created.
      * @param key The key of the value to set.
      * @param value The value to set.
      * @param val The rapidjson value to modify.
      * @param allocator The allocator to use for creating new rapidjson values.
      * @return true if the value was set successfully, false otherwise.
      */
-    template <typename T> 
+    template <typename T>
     static bool set(char const* key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+
+    //------------------------------------------
+    // Getter for variant
+
+    static std::optional<simpleValue> getVariant(char const* key, rapidjson::Value& val);
 
     //------------------------------------------
     // Conversion
 
     /**
      * @brief Converts a rapidjson value to a C++ type.
-     * 
      * @tparam T The C++ type to convert to.
      * @param jsonValue The rapidjson value to convert.
      * @param result The C++ variable to store the result.
@@ -106,7 +123,6 @@ public:
 
     /**
      * @brief Converts a C++ type to a rapidjson value.
-     * 
      * @tparam T The C++ type to convert from.
      * @param data The C++ variable to convert.
      * @param jsonValue The rapidjson value to store the result.
@@ -120,46 +136,42 @@ public:
 
     /**
      * @brief Traverses rapidjson value to find a value within identified by its key.
-     * 
      * @param key The key to search for.
      * @param val The rapidjson value to search within.
      * @return A pointer to the found rapidjson value, or nullptr if not found.
      */
-    static rapidjson::Value* traverse_path(char const* key, rapidjson::Value const& val);
+    static rapidjson::Value* traversePath(char const* key, rapidjson::Value const& val);
 
     /**
      * @brief Traverses a rapidjson value to find or create a value within identified by its key.
-     * 
+     *
      * @param key The key to search for.
      * @param val The rapidjson value to search within.
      * @param allocator The allocator to use for creating new values.
      * @return A pointer to the found or created rapidjson value.
-     * Note that the returned value may be nullptr if the given key is invalid 
-     * (e.g., trying to index into a non-array or using a malformed index).
+     *         Note that the returned value may be nullptr if the given key is invalid
+     *         (e.g., trying to index into a non-array or using a malformed index).
      */
-    static rapidjson::Value* ensure_path(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+    static rapidjson::Value* ensurePath(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
     /**
      * @brief Traverses a rapidjson value to find the parent of a value identified by its key.
-     * 
-     * - `parent.child`           -> returns `parent`,       finalKey = `child`,   arrayIndex = -1
-     * - `parent.child[index]`    -> returns `parent.child`, finalKey = `child`,   arrayIndex = index
-     * - `parent[index]`          -> returns `parent`,       finalKey = "",        arrayIndex = index
-     * 
+     *        - `parent.child`           -> returns `parent`,       finalKey = `child`,   arrayIndex = -1
+     *        - `parent.child[index]`    -> returns `parent.child`, finalKey = `child`,   arrayIndex = index
+     *        - `parent[index]`          -> returns `parent`,       finalKey = "",        arrayIndex = index
      * @param fullKey The key to search for.
      * @param root The rapidjson value to search within.
      * @param finalKey The final key or index of the value to find the parent of.
      * @param arrayIndex The index if the final key is an array index, -1 otherwise.
      * @return A pointer to the parent rapidjson value, or nullptr if not found
      */
-    static rapidjson::Value* traverse_to_parent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex);
+    static rapidjson::Value* traverseToParent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex);
 
     //------------------------------------------
     // Serialization/Deserialization
 
     /**
      * @brief Serializes a rapidjson document to a string.
-     * 
      * @param doc The rapidjson document to serialize.
      * @return The serialized JSON string.
      */
@@ -167,19 +179,17 @@ public:
 
     /**
      * @brief Deserializes a JSON string into a rapidjson document.
-     * 
      * @param doc The rapidjson document to populate.
      * @param serialOrLink The JSON string to deserialize.
      */
     static void deserialize(rapidjson::Document& doc, std::string const& serialOrLink);
-    
+
 
     //------------------------------------------
     // Helper functions
 
     /**
      * @brief Sorts a rapidjson value, including all its sub-values.
-     * 
      * @param value The rapidjson value to sort.
      * @param allocator The allocator to use for creating new rapidjson values.
      * @return A new rapidjson value representing the sorted input.
@@ -188,7 +198,6 @@ public:
 
     /**
      * @brief Strips comments from a JSONC string for a JSON-compatible output.
-     * 
      * @param jsonc The JSONC string to process.
      * @return The JSON-compatible string.
      */
@@ -196,27 +205,26 @@ public:
 
     /**
      * @brief Empties a rapidjson document.
-     * 
      * @param doc The rapidjson document to empty.
      */
-    static void empty(rapidjson::Document &doc);
+    static void empty(rapidjson::Document& doc);
 
     /**
      * @brief Removes a member from a rapidjson object by key.
+     * @param key The key of the member to remove.
+     * @param val The rapidjson object to remove the member from.
      */
-    static void remove_member(char const* key, rapidjson::Value& val);
+    static void removeMember(char const* key, rapidjson::Value& val);
 
     /**
      * @brief Checks if a string is in JSON or JSONC format.
-     * 
      * @param str The string to check.
      * @return true if the string is JSON or JSONC, false otherwise.
      */
-    static bool is_json_or_jsonc(std::string const& str);
+    static bool isJsonOrJsonc(std::string const& str);
 
     /**
      * @brief Validates if a key string is valid for traversal.
-     * 
      * @param key The key string to validate.
      * @return true if the key is valid, false otherwise.
      */
@@ -225,233 +233,12 @@ public:
 private:
     /**
      * @brief Extracts the next part of a key from a dot/bracket notation key string.
-     * Moves keyView forward past the extracted part.
-     *
+     *        Moves keyView forward past the extracted part.
      * @param keyView Pointer to the key string view to extract from and modify.
      * @return The extracted key part as a std::string.
      */
     static std::string extractKeyPart(std::string_view* keyView);
 };
-
-//------------------------------------------
-// Direct access get/set
-
-template <typename T>
-T RjDirectAccess::get(char const* key, T const& defaultValue, rapidjson::Value& val){
-    rapidjson::Value const* keyVal = traverse_path(key,val);
-    if(keyVal == nullptr){
-        // Value doesn't exist in doc, return default
-        return defaultValue;
-    }
-    // Base case: convert currentVal to T using JSONHandler
-    T tmp;
-    RjDirectAccess::ConvertFromJSONValue<T>(*keyVal, tmp, defaultValue);
-    return tmp;
-}
-
-template <typename T>
-bool RjDirectAccess::set(char const* key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator){
-    // Ensure key path exists
-    if (rapidjson::Value* keyVal = ensure_path(key, val, allocator); keyVal != nullptr){
-        RjDirectAccess::ConvertToJSONValue<T>(value, *keyVal, allocator);
-        return true;
-    }
-    return false;
-}
-
-//------------------------------------------
-// All conversion variants from/to rapidjson values
-
-//------------------------------------------
-// 1.) to JSON value
-//------------------------------------------
-
-// cppcheck-suppress constParameterReference
-template <> inline void RjDirectAccess::ConvertToJSONValue<bool>(bool const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)              {
-    jsonValue.SetBool(data);
-    (void)allocator; // Suppress unused parameter warning
-}
-
-// cppcheck-suppress constParameterReference
-template <> inline void RjDirectAccess::ConvertToJSONValue<int>(int const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)                {
-    jsonValue.SetInt(data);
-    (void)allocator; // Suppress unused parameter warning
-}
-
-// cppcheck-suppress constParameterReference
-template <> inline void RjDirectAccess::ConvertToJSONValue<uint32_t>(uint32_t const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)      {
-    jsonValue.SetUint(data);
-    (void)allocator; // Suppress unused parameter warning
-}
-
-// cppcheck-suppress constParameterReference
-template <> inline void RjDirectAccess::ConvertToJSONValue<uint64_t>(uint64_t const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)      {
-    jsonValue.SetUint64(data);
-    (void)allocator; // Suppress unused parameter warning
-}
-
-// cppcheck-suppress constParameterReference
-template <> inline void RjDirectAccess::ConvertToJSONValue<double>(double const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)          {
-    jsonValue.SetDouble(data);
-    (void)allocator; // Suppress unused parameter warning
-}
-
-// cppcheck-suppress constParameterReference
-template <> inline void RjDirectAccess::ConvertToJSONValue<int64_t>(int64_t const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)    {
-    jsonValue.SetInt64(data);
-    (void)allocator; // Suppress unused parameter warning
-}
-
-template <> inline void RjDirectAccess::ConvertToJSONValue<std::string>(std::string const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
-    jsonValue.SetString(
-        data.c_str(), 
-        static_cast<rapidjson::SizeType>(data.length()), allocator
-    );
-}
-
-template <> inline void RjDirectAccess::ConvertToJSONValue<char const*>(char const* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
-    if (data != nullptr){
-        jsonValue.SetString(data, allocator);
-    } else {
-        jsonValue.SetNull();
-    }
-}
-
-template <> inline void RjDirectAccess::ConvertToJSONValue<char*>(char* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
-    if (data != nullptr){
-        jsonValue.SetString(data, allocator);
-    } else {
-        jsonValue.SetNull();
-    }
-}
-
-template <> inline void RjDirectAccess::ConvertToJSONValue<rapidjson::Value*>(rapidjson::Value* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)         {jsonValue.CopyFrom(*data, allocator);}
-
-template <> inline void RjDirectAccess::ConvertToJSONValue<rapidjson::Document*>(rapidjson::Document* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator)   {jsonValue.CopyFrom(*data, allocator);}
-
-template <> inline void RjDirectAccess::ConvertToJSONValue<rapidjson::Document>(rapidjson::Document const& data,rapidjson::Value& jsonValue,rapidjson::Document::AllocatorType& allocator)       {jsonValue.CopyFrom(data, allocator);}
-
-// Template specialization for std::variant
-// So we don't have to manually call std::visit every time
-template <> inline void RjDirectAccess::ConvertToJSONValue(simpleValue const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator){
-    std::visit([&]<typename T>(T const& value){
-        using Decayed = std::decay_t<T>;
-        ConvertToJSONValue<Decayed>(value, jsonValue, allocator);
-    }, data);
-}
-
-//------------------------------------------
-// 2.) from JSON Value
-//------------------------------------------
-
-template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, bool& result,  bool const& defaultValue){
-    if (jsonValue.IsBool()){
-        result = jsonValue.GetBool();
-    } else {
-        result = defaultValue;
-    }
-}
-
-template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, int& result,  int const& defaultValue){
-    if (jsonValue.IsInt()){
-        result = jsonValue.GetInt();
-    }
-    else if(jsonValue.IsBool()){
-        result = static_cast<int>(jsonValue.GetBool());
-    }
-    else{
-        result = defaultValue;
-    }
-}
-
-template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, uint32_t& result,  uint32_t const& defaultValue){
-    if(jsonValue.IsUint()){
-        result = jsonValue.GetUint();
-    }
-    else if(jsonValue.IsNumber()){
-        if(int const tmp = jsonValue.GetInt(); tmp >= 0){
-            result = static_cast<uint32_t>(tmp);
-        }
-    }
-    else if(jsonValue.IsString()){
-        std::istringstream iss(jsonValue.GetString());
-        iss >> result;
-    }
-    else{
-        result = defaultValue;
-    }
-}
-
-template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, uint64_t& result,  uint64_t const& defaultValue){
-    if (jsonValue.IsString()){
-        std::istringstream iss(jsonValue.GetString());
-        iss >> result;
-    } else if (jsonValue.IsUint64()){
-        result = jsonValue.GetUint64();
-    } else if (jsonValue.IsUint()){
-        result = static_cast<uint64_t>(jsonValue.GetUint());
-    } else if (jsonValue.IsNumber()){
-        if (int64_t const tmp = jsonValue.GetInt64(); tmp >= 0){
-            result = static_cast<uint64_t>(tmp);
-        } else {
-            result = defaultValue;
-        }
-    } else {
-        result = defaultValue;
-    }
-}
-
-template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, double& result, double const& defaultValue){
-    if (jsonValue.IsNumber()){
-        result = jsonValue.GetDouble();
-    }
-    else if(jsonValue.IsString()){
-        if(StringHandler::isNumber(jsonValue.GetString())){
-            result = std::stod(jsonValue.GetString());
-        }
-        else{
-            result = defaultValue;
-        }
-    }
-    else {
-        result = defaultValue;
-    }
-}
-
-template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, std::string& result, std::string const& defaultValue){
-    if (jsonValue.IsBool()){
-        result = jsonValue.GetBool() ? "true" : "false";
-    }
-    else if (jsonValue.IsString()){
-        result = std::string(jsonValue.GetString());
-    }
-    else if (jsonValue.IsInt()){
-        result = std::to_string(jsonValue.GetInt());
-    }
-    else if (jsonValue.IsUint()){
-        result = std::to_string(jsonValue.GetUint());
-    }
-    else if (jsonValue.IsInt64()){
-        result = std::to_string(jsonValue.GetInt64());
-    }
-    else if (jsonValue.IsUint64()){
-        result = std::to_string(jsonValue.GetUint64());
-    }
-    else if (jsonValue.IsDouble()){
-        result = std::to_string(jsonValue.GetDouble());
-    }
-    else if (jsonValue.IsNull()){
-        result = "null";
-    }
-    else if (jsonValue.IsArray()){
-        result = "{Array}";
-    }
-    else if (jsonValue.IsObject()){
-        result = "{Object}";  // Just a placeholder since objects can't easily be converted to a single string
-    }
-    else {
-        result = defaultValue;
-    }
-}
 } // namespace Nebulite::Utility
+#include "Utility/RjDirectAccess.tpp"
 #endif // NEBULITE_UTILITY_RJDIRECTACCESS_HPP

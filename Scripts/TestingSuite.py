@@ -78,11 +78,14 @@ def load_tests_config(path: str) -> Dict[str, Any]:
                         print(f"  Loaded {len(external_tests)} tests from {test_file_path}")
                     else:
                         print(f"  Warning: {test_file_path} does not contain a JSON array of tests")
+                        sys.exit(1)
                         
                 except FileNotFoundError:
                     print(f"  Error: Test file not found: {test_file_path}")
+                    sys.exit(1)
                 except json.JSONDecodeError as e:
                     print(f"  Error: Invalid JSON in test file {test_file_path}: {e}")
+                    sys.exit(1)
             else:
                 # It's a regular test object
                 expanded_tests.append(test_entry)
@@ -319,6 +322,16 @@ def validate_test_result(output: Dict[str, Union[List[str], int]], expected: Dic
 def run_single_test(binary: str, test: Dict[str, Any], timeout: int, ignore_lines: Dict[str, List[str]], verbose: bool = False) -> Dict[str, Any]:
     """Run a single test and return the result."""
     cmd = f"{binary} {test['command']}"
+
+    # If command is type Array, join with ';' inbetween
+    if isinstance(test['command'], list):
+        # Strip everything after a '#' in each command part (comments)
+        cmd = "; ".join(part.split('#')[0].strip() for part in test['command'])
+        # remove "; " from front
+        cmd = cmd.lstrip("; ")
+        # Add binary in front
+        cmd = f"{binary} {cmd}"
+
     expected = test.get('expected', {})
     
     print(f"Test: {cmd}")

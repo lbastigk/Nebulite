@@ -4,95 +4,49 @@ namespace Nebulite::Utility {
 
 template<typename T>
 void JSON::set(std::string const& key, T const& val){
+    // Basically the same as setVariant, but for template types
     std::scoped_lock const lockGuard(mtx);
-
-    // Check if key is valid
-    if (!RjDirectAccess::isValidKey(key)){
-        Nebulite::Utility::Capture::cerr() << "Invalid key: " << key << Nebulite::Utility::Capture::endl;
-        return;
-    }
-
-    if (auto const it = cache.find(key); it != cache.end()){
-        // Existing cache value, structure validity guaranteed
-
-        // Update the entry, mark as dirty
-        it->second->value = val;
-        it->second->state = EntryState::DIRTY;
-
-        // Update double pointer value
-        *it->second->stable_double_ptr = convertVariant<double>(val);
-        it->second->last_double_value = *it->second->stable_double_ptr;
-    } else {
-        // New cache value, structural validity is not guaranteed
-
-        // Remove any child keys to synchronize the structure
-        invalidate_child_keys(key);
-
-        // Create new entry directly in DIRTY state
-        auto new_entry = std::make_unique<CacheEntry>();
-
-        // Set entry values
-        new_entry->value = val;
-        // Pointer was created in constructor, no need to redo make_shared
-        *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value, 0.0);
-        new_entry->last_double_value = *new_entry->stable_double_ptr;
-        new_entry->state = EntryState::DIRTY;
-
-        // Insert into cache
-        cache[key] = std::move(new_entry);
-
-        // Flush to RapidJSON document for structural integrity
-        flush();
-    }
+    setVariant(key, RjDirectAccess::simpleValue(val));
 }
 
 template<typename T>
 T JSON::get(std::string const& key, T const& defaultValue){
     std::scoped_lock const lockGuard(mtx);
-    // Check cache first
-    auto const it = cache.find(key);
-    if (it != cache.end() && it->second->state != EntryState::DELETED){
-        // Entry exists and is not deleted
 
-        // Check its double value for change detection using an epsilon to avoid unsafe direct comparison
-        {
-            if(std::fabs(*it->second->stable_double_ptr - it->second->last_double_value) > DBL_EPSILON){
-                // Value changed since last check
-                // We update the actual value with the new double value
-                // Then we convert the double to the requested type
-                it->second->last_double_value = *it->second->stable_double_ptr;
-                it->second->value = it->second->last_double_value;
-                it->second->state = EntryState::DIRTY; // Mark as dirty to sync back
-                return convertVariant<T>(it->second->value, defaultValue);
-            }
+    // Check if a transformation is present
+    if (key.contains('|')){
+        auto optionalVal = getWithTransformations<T>(key);
+        if (optionalVal.has_value()){
+            return optionalVal.value();
         }
-        return convertVariant<T>(it->second->value, defaultValue);
+        return defaultValue;
     }
 
-    // Check document, if not in cache
-    if(rapidjson::Value const* val = RjDirectAccess::traverse_path(key.c_str(), doc); val != nullptr){
-        if(it != cache.end()){
-            // Modify existing entry
-            if(!RjDirectAccess::getSimpleValue(&it->second->value, val)){
-                return defaultValue;
-            }
-
-            // Mark as clean
-            it->second->state = EntryState::CLEAN;
-
-            // Set stable double pointer
-            *it->second->stable_double_ptr = convertVariant<double>(it->second->value, 0.0);
-            it->second->last_double_value = *it->second->stable_double_ptr;
-
-            // Return converted value
-            return convertVariant<T>(it->second->value, defaultValue);
-        }
-        // Create new cache entry
-        return jsonValueToCache<T>(key, val, defaultValue);
+    // Get variant and convert to requested type
+    auto var = getVariant(key);
+    if(var.has_value()){
+        return convertVariant<T>(var.value(), defaultValue);
     }
-
-    // Value could not be created, return default
     return defaultValue;
+}
+
+// TODO: same for getSubDocWithTransformations!
+template<typename T>
+std::optional<T> JSON::getWithTransformations(std::string const& key) {
+    auto args = StringHandler::split(key, '|');
+    std::string const baseKey = args[0];
+    args.erase(args.begin());
+
+    // Using getSubDoc to properly populate the tempDoc with the rapidjson::Value
+    // Slower than a manual copy that handles types, but more secure and less error-prone
+    JSON tempDoc = getSubDoc(baseKey);
+
+    // Apply each transformation in sequence
+    if (!transformer.parse(args, &tempDoc)) {
+        return {};    // if any transformation fails, return default value
+    }
+    // This should not fail, so we use T() as default value
+    return tempDoc.get<T>(JsonRvalueTransformer::valueKey, T());
 }
 
 template<typename T>

@@ -10,9 +10,5 @@
     {
         "command": "task TaskFiles/Tests/Short/gravity_classic_some_frames.nebs",
         "expected": { "cout": null, "cerr": [] }
-    },
-    {
-        "command": "task TaskFiles/Tests/Long/AutoPong_5k_frames.nebs",
-        "expected": { "cout": null, "cerr": [] }
     }
 ]

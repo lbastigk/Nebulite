@@ -19,7 +19,7 @@ Constants::Error Mirror::update(){
         auto const objectDoc = domain->getDoc();
 
         // Mirror to GlobalSpace
-        globalDoc->setSubDoc(mirrorKey.c_str(), objectDoc);
+        globalDoc->setSubDoc(mirrorKey.c_str(), *objectDoc);
 
         // Reset once-flag
         mirrorOnceEnabled = false;
@@ -78,7 +78,7 @@ Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id
 
 // NOLINTNEXTLINE
 Constants::Error Mirror::mirror_delete(int argc,  char** argv){
-    Nebulite::global().getDoc()->remove_key(mirrorKey.c_str());
+    Nebulite::global().getDoc()->removeKey(mirrorKey.c_str());
     return Constants::ErrorTable::NONE();
 }
 std::string const Mirror::mirror_delete_name = "mirror delete";
@@ -91,7 +91,7 @@ Mirrors are removed from the GlobalSpace document under key "mirror.renderObject
 
 // NOLINTNEXTLINE
 Constants::Error Mirror::mirror_fetch(int argc,  char** argv){
-    if (Nebulite::global().getDoc()->memberCheck(mirrorKey) != Utility::JSON::KeyType::document){
+    if (Nebulite::global().getDoc()->memberType(mirrorKey) != Utility::JSON::KeyType::object){
         return Constants::ErrorTable::addError("Mirror fetch failed: Key '" + mirrorKey + "' not of type document", Constants::Error::NON_CRITICAL);
     }
     domain->deserialize(Nebulite::global().getDoc()->serialize(mirrorKey));

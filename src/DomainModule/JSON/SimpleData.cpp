@@ -56,19 +56,19 @@ Constants::Error SimpleData::move(int argc,  char** argv){
     std::string const sourceKey = argv[1];
     std::string const targetKey = argv[2];
 
-    if(domain->memberCheck(sourceKey) == Utility::JSON::KeyType::null){
+    if(domain->memberType(sourceKey) == Utility::JSON::KeyType::null){
         Nebulite::cerr() << "Error: Source key '" << sourceKey << "' does not exist." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
-    if(domain->memberCheck(sourceKey) == Utility::JSON::KeyType::document){
+    if(domain->memberType(sourceKey) == Utility::JSON::KeyType::object){
         Utility::JSON subDoc = domain->getSubDoc(sourceKey);
-        domain->remove_key(targetKey.c_str());
-        domain->setSubDoc(targetKey.c_str(), &subDoc);
-        domain->remove_key(sourceKey.c_str());
+        domain->removeKey(targetKey.c_str());
+        domain->setSubDoc(targetKey.c_str(), subDoc);
+        domain->removeKey(sourceKey.c_str());
     }
-    else if (domain->memberCheck(sourceKey) == Utility::JSON::KeyType::array){
+    else if (domain->memberType(sourceKey) == Utility::JSON::KeyType::array){
         // Careful handling required:
-        domain->remove_key(targetKey.c_str());
+        domain->removeKey(targetKey.c_str());
 
         size_t const size = domain->memberSize(sourceKey);
         for (size_t i = 0; i < size; ++i){
@@ -81,9 +81,9 @@ Constants::Error SimpleData::move(int argc,  char** argv){
     else {
         // Move the value from sourceKey to targetKey
         auto const value = domain->get<std::string>(sourceKey);
-        domain->remove_key(targetKey.c_str());
+        domain->removeKey(targetKey.c_str());
         domain->set(targetKey, value);
-        domain->remove_key(sourceKey.c_str());
+        domain->removeKey(sourceKey.c_str());
     }
     return Constants::ErrorTable::NONE();
 }
@@ -104,18 +104,18 @@ Constants::Error SimpleData::copy(int argc,  char** argv){
     std::string const sourceKey = argv[1];
     std::string const targetKey = argv[2];
 
-    if(domain->memberCheck(sourceKey) == Utility::JSON::KeyType::null){
+    if(domain->memberType(sourceKey) == Utility::JSON::KeyType::null){
         Nebulite::cerr() << "Error: Source key '" << sourceKey << "' does not exist." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
-    if(domain->memberCheck(sourceKey) == Utility::JSON::KeyType::document){
+    if(domain->memberType(sourceKey) == Utility::JSON::KeyType::object){
         Utility::JSON subDoc = domain->getSubDoc(sourceKey);
-        domain->remove_key(targetKey.c_str());
-        domain->setSubDoc(targetKey.c_str(), &subDoc);
+        domain->removeKey(targetKey.c_str());
+        domain->setSubDoc(targetKey.c_str(), subDoc);
     }
-    else if (domain->memberCheck(sourceKey) == Utility::JSON::KeyType::array){
+    else if (domain->memberType(sourceKey) == Utility::JSON::KeyType::array){
         // Careful handling required:
-        domain->remove_key(targetKey.c_str());
+        domain->removeKey(targetKey.c_str());
 
         size_t const size = domain->memberSize(sourceKey);
         for (size_t i = 0; i < size; ++i){
@@ -128,7 +128,7 @@ Constants::Error SimpleData::copy(int argc,  char** argv){
     else {
         // Move the value from sourceKey to targetKey
         auto const value = domain->get<std::string>(sourceKey);
-        domain->remove_key(targetKey.c_str());
+        domain->removeKey(targetKey.c_str());
         domain->set(targetKey, value);
     }
     return Constants::ErrorTable::NONE();
@@ -147,7 +147,7 @@ Constants::Error SimpleData::keyDelete(int argc,  char** argv){
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     std::string const key = argv[1];
-    domain->remove_key(key.c_str());
+    domain->removeKey(key.c_str());
     return Constants::ErrorTable::NONE();
 }
 std::string const SimpleData::keyDelete_name = "keyDelete";
@@ -173,7 +173,7 @@ Constants::Error SimpleData::ensureArray(int argc,  char** argv){
 
     std::string const key = argv[1];
 
-    Utility::JSON::KeyType keyType = domain->memberCheck(key);
+    Utility::JSON::KeyType keyType = domain->memberType(key);
 
     if (keyType == Utility::JSON::KeyType::array){
         // Already an array, nothing to do
@@ -183,7 +183,7 @@ Constants::Error SimpleData::ensureArray(int argc,  char** argv){
     if(keyType == Utility::JSON::KeyType::value){
         // pop out value
         auto const existingValue = domain->get<std::string>(key);
-        domain->remove_key(key.c_str());
+        domain->removeKey(key.c_str());
 
         // Set as new value
         std::string const arrayKey = key + "[0]";
@@ -220,7 +220,7 @@ Constants::Error SimpleData::push_back(int argc,  char** argv){
         value = argv[2];
     }
 
-    if (domain->memberCheck(key) != Utility::JSON::KeyType::array){
+    if (domain->memberType(key) != Utility::JSON::KeyType::array){
         std::string command = __FUNCTION__;
         command += " " + ensureArray_name;
         command += " " + key;
@@ -254,7 +254,7 @@ Constants::Error SimpleData::pop_back(int argc,  char** argv){
     }
     std::string const key = argv[1];
 
-    if (domain->memberCheck(key) != Utility::JSON::KeyType::array){
+    if (domain->memberType(key) != Utility::JSON::KeyType::array){
         std::string command = __FUNCTION__;
         command += " " + ensureArray_name;
         command += " " + key;
@@ -271,7 +271,7 @@ Constants::Error SimpleData::pop_back(int argc,  char** argv){
     }
 
     std::string const itemKey = key + "[" + std::to_string(size-1) + "]";
-    domain->remove_key(itemKey.c_str());
+    domain->removeKey(itemKey.c_str());
     return Constants::ErrorTable::NONE();
 }
 std::string const SimpleData::pop_back_name = "pop-back";
@@ -299,7 +299,7 @@ Constants::Error SimpleData::push_front(int argc,  char** argv){
     }
 
     
-    if (domain->memberCheck(key) != Utility::JSON::KeyType::array){
+    if (domain->memberType(key) != Utility::JSON::KeyType::array){
         std::string command = __FUNCTION__;
         command += " " + ensureArray_name;
         command += " " + key;
@@ -317,7 +317,7 @@ Constants::Error SimpleData::push_front(int argc,  char** argv){
     // This feature is yet to be implemented!
     for (size_t i = 0; i < size; ++i){
         std::string itemKey = key + "[" + std::to_string(i) + "]";
-        if (Utility::JSON::KeyType const itemType = domain->memberCheck(itemKey); itemType == Utility::JSON::KeyType::document){
+        if (Utility::JSON::KeyType const itemType = domain->memberType(itemKey); itemType == Utility::JSON::KeyType::object){
             Nebulite::cerr() << "Error: Cannot push_front into an array containing documents." << Nebulite::endl;
             return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
         }
@@ -354,7 +354,7 @@ Constants::Error SimpleData::pop_front(int argc,  char** argv){
     }
     std::string const key = argv[1];
 
-    if (domain->memberCheck(key) != Utility::JSON::KeyType::array){
+    if (domain->memberType(key) != Utility::JSON::KeyType::array){
         std::string command = __FUNCTION__;
         command += " " + ensureArray_name;
         command += " " + key;
@@ -371,7 +371,7 @@ Constants::Error SimpleData::pop_front(int argc,  char** argv){
     // if any array item is a document, throw error
     // This feature is yet to be implemented!
     for (size_t i = 0; i < size; ++i){
-        if (domain->memberCheck(key + "[" + std::to_string(i) + "]") == Utility::JSON::KeyType::document){
+        if (domain->memberType(key + "[" + std::to_string(i) + "]") == Utility::JSON::KeyType::object){
             Nebulite::cerr() << "Error: Cannot push_front into an array containing documents." << Nebulite::endl;
             return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
         }
@@ -387,7 +387,7 @@ Constants::Error SimpleData::pop_front(int argc,  char** argv){
     }
     // Remove the last item
     std::string const lastItemKey = key + "[" + std::to_string(size-1) + "]";
-    domain->remove_key(lastItemKey.c_str());
+    domain->removeKey(lastItemKey.c_str());
 
     return Constants::ErrorTable::NONE();
 }

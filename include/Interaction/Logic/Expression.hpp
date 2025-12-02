@@ -1,7 +1,6 @@
 /**
  * @file Expression.hpp
- * 
- * This file contains the definition of the Expression class, which is responsible for parsing and evaluating expressions within the Nebulite engine.
+ * @brief This file contains the definition of the Expression class, which is responsible for parsing and evaluating expressions within the Nebulite engine.
  */
 
 #ifndef NEBULITE_INTERACTION_LOGIC_EXPRESSION_HPP
@@ -28,15 +27,15 @@ namespace Nebulite::Interaction::Logic {
 /**
  * @class Nebulite::Interaction::Logic::Expression
  * @brief The Expression class is responsible for parsing and evaluating expressions.
+ *
+ *        It supports variable registration, expression compilation, and evaluation.
  * 
- * It supports variable registration, expression compilation, and evaluation.
+ *        Expressions can be parsed from a string format and evaluated against JSON documents.
+ *        Expressions are a mix of evaluations, variables and text:
  * 
- * Expressions can be parsed from a string format and evaluated against JSON documents.
- * Expressions are a mix of evaluations, variables and text:
- * 
- * e.g.: 
- * "This script took {global.time.t} Seconds"
- * "The rounded value is: $03.2f( {global.value} )"
+ *        e.g.:
+ *        "This script took {global.time.t} Seconds"
+ *        "The rounded value is: $03.2f( {global.value} )"
  */
 class Expression {
 public:
@@ -44,11 +43,13 @@ public:
 
     ~Expression();
 
-    // Standard constructors/assignments
-    Expression(Expression const&) = default;
-    Expression(Expression&&) = default;
-    Expression& operator=(Expression const&) = default;
-    Expression& operator=(Expression&&) = default;
+    // disable copying
+    Expression(Expression const&) = delete;
+    Expression& operator=(Expression const&) = delete;
+
+    // enable moving
+    Expression(Expression&&) noexcept = default;
+    Expression& operator=(Expression&&) noexcept = default;
 
     /**
      * @brief Standard maximum recursion depth for nested expression evaluations.
@@ -57,7 +58,6 @@ public:
 
     /**
      * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
-     * 
      * @param expr The expression string to parse.
      * @param self The JSON object representing the "self" context.
      */
@@ -65,14 +65,11 @@ public:
 
     /**
      * @brief Checks if the expression can be returned as a double.
-     * 
-     * e.g.:
-     * "1 + 1"   is not returnable as double, as its just text
-     * "$(1+1)"  is returnable as double, as it evaluates to 2
-     * "$i(1+1)" is not returnable as double, due to the casting
-     * 
-     * An expression needs to consist of a single eval component with no cast to be returnable as double.
-     * 
+     *        e.g.:
+     *        "1 + 1"   is not returnable as double, as its just text
+     *        "$(1+1)"  is returnable as double, as it evaluates to 2
+     *        "$i(1+1)" is not returnable as double, due to the casting
+     *        An expression needs to consist of a single eval component with no cast to be returnable as double.
      * @return True if the expression can be returned as a double, false otherwise.
      */
     [[nodiscard]] bool isReturnableAsDouble() const noexcept {
@@ -89,7 +86,6 @@ public:
 
     /**
      * @brief Evaluates the expression as a double.
-     * 
      * @param current_other The JSON object `other` to evaluate against.
      * @return The evaluated double value.
      */
@@ -97,7 +93,6 @@ public:
     
     /**
      * @brief Evaluates the expression as a string.
-     * 
      * @param current_other The JSON object `other` to evaluate against.
      * @param max_recursion_depth The maximum recursion depth to prevent infinite loops in nested evaluations.
      * @return The evaluated string value.
@@ -113,8 +108,8 @@ public:
 
     /**
      * @brief Forcefully sets the unique ID for the expression.
-     * Be careful when using this, as it might lead to issues with virtualDouble tracking!
-     * This is only used when the id was calculated externally, e.g. in ExpressionPool.
+     *        Be careful when using this, as it might lead to issues with virtualDouble tracking!
+     *        This is only used when the id was calculated externally, e.g. in ExpressionPool.
      * @param id The unique ID to set.
      */
     void setUniqueId(uint64_t const id){
@@ -143,11 +138,56 @@ private:
     } references;
 
     /**
+     * @brief Generates unique variable names based on a base name.
+     * @note We may wish to retrieve variable names for debugging purposes later on.
+     *       For now, after the expression is parsed, the mapping is discarded.
+     */
+    struct variableNameGenerator {
+    private:
+        absl::flat_hash_map<std::string, std::string> variableNameToIdMap;
+
+        // Converts a number to a string
+        // 0 -> "a"
+        // 25 -> "z"
+        // 26 -> "za"
+        // etc...
+        static std::string numberToString(uint16_t number) {
+            std::string result;
+            do {
+                char ch = static_cast<char>('a' + (number % 26));
+                result = ch + result;
+                number /= 26;
+                if (number > 0) {
+                    number -= 1; // Adjust for 0-based indexing
+                }
+            } while (number > 0);
+            return result;
+        }
+    public:
+        std::string getUniqueName(std::string const& baseName) {
+            // Check if the base name already exists in the map
+            if (variableNameToIdMap.find(baseName) != variableNameToIdMap.end()) {
+                return variableNameToIdMap[baseName];
+            }
+            else {
+                // Generate a new unique name
+                std::string uniqueName = numberToString(static_cast<uint16_t>(variableNameToIdMap.size()));
+                variableNameToIdMap[baseName] = uniqueName;
+                return uniqueName;
+            }
+        }
+
+        void clear() {
+            variableNameToIdMap.clear();
+        }
+    } varNameGen;
+
+
+    /**
      * @struct Nebulite::Interaction::Logic::Expression::Component
      * @brief Represents a single component in an expression, such as a variable, evaluation, or text.
-     * 
-     * This struct holds information about a specific part of the expression,
-     * including its type, source, and any associated metadata.
+     *        Holds information about a specific part of the expression,
+     *        including its type, source, and any associated metadata.
      */
     struct Component {
         /**
@@ -194,29 +234,23 @@ private:
 
             /**
              * @brief The alignment width of the component.
-             * 
-             * -1 means no formatting.
+             *        -1 means no formatting.
              */
             int alignment = -1;
 
             /**
              * @brief The precision of the component.
-             * 
-             * -1 means no formatting.
+             *        -1 means no formatting.
              */
             int precision = -1;
         } formatter;
 
         /**
          * @brief Holds the string representation of the component.
-         * 
-         * Depending on context Either:
-         * 
-         * - The Expression to evaluate, with formatting specifiers removed
-         * 
-         * - The pure text
-         * 
-         * - The variable key, with no context stripped
+         *        Depending on context Either:
+         *        - The Expression to evaluate, with formatting specifiers removed
+         *        - The pure text
+         *        - The variable key, with no context stripped
          */
         std::string str;
 
@@ -242,11 +276,11 @@ private:
             te_free(expression);
         }
 
-        // Delete copy constructor/assignment
+        // disable copying
         Component(Component const&) = delete;
         Component& operator=(Component const&) = delete;
 
-        // Move constructor
+        // enable moving
         Component(Component&& other) noexcept
             : type(other.type), from(other.from), cast(other.cast),
             formatter(other.formatter), str(std::move(other.str)), key(std::move(other.key)),
@@ -255,7 +289,6 @@ private:
             other.expression = nullptr;
         }
 
-        // Move assignment
         Component& operator=(Component&& other) noexcept {
             if (this != &other){
                 te_free(expression);
@@ -280,31 +313,30 @@ private:
         using vd_list = std::vector<std::shared_ptr<VirtualDouble>>;
 
         /**
-         * @brief Holds all virtual double entries for the self context.
+         * @brief Contains virtual doubles that are remanent
+         *        Meaning they can be cached directly from the document
          */
-        vd_list self;
+        struct RemanentContext {
+            vd_list self;       // Variables from context self without transformations or multi-resolve
+            vd_list global;     // Variables from context global without transformations or multi-resolve
+        }remanent;
 
         /**
-         * @brief Holds all virtual double entries for the other context.
+         * @brief Contains virtual doubles that are non-remanent
+         *        Meaning they need to be updated on each eval
          */
-        vd_list other;
-
-        /**
-         * @brief Holds all virtual double entries for the global context.
-         */
-        vd_list global;
-
-        /**
-         * @brief Holds all virtual double entries for the resource context.
-         */
-        vd_list resource;
+        struct NonRemanentContext {
+            vd_list self;       // Variables from context self with transformations or multi-resolve
+            vd_list other;      // Variables from context other with transformations or multi-resolve
+            vd_list otherUnStable; // Variables from context other that are unstable (with transformations or multi-resolve)
+            vd_list global;     // All variables from context global
+            vd_list resource;   // All variables from context resource
+        }nonRemanent;
     } virtualDoubles;
 
     /**
      * @brief A collection of custom functions for TinyExpr
-     * 
-     * Make sure to register all functions with TinyExpr in Nebulite::Interaction::Logic::Expression::reset
-     *
+     *        Make sure to register all functions with TinyExpr in Nebulite::Interaction::Logic::Expression::reset
      * @note Marking the parameters as `const&` does not work with TinyExpr function pointers,
      *       so they are passed by value instead.
      */
@@ -473,9 +505,7 @@ private:
 
     /**
      * @brief Registers a variable with the given name and key in the context of the component.
-     * 
-     * Makes sure to only register variables that are not already registered.
-     * 
+     *        Makes sure to only register variables that are not already registered.
      * @param te_name The name of the variable as used in TinyExpr.
      * @param key The key in the JSON document that the variable refers to.
      * @param context The context from which the variable is being registered.
@@ -484,45 +514,33 @@ private:
 
     /**
      * @brief used to strip any context prefix from a key
-     * 
-     * Removes the beginning, if applicable:
-     *
-     * - `self.`
-     *
-     * - `other.`
-     *
-     * - `global.`
-     *
-     * Does not remove the beginning context for resource variables, 
-     * as the beginning is needed for the link.
-     * 
+     *        Removes the beginning, if applicable:
+     *        - `self.`
+     *        - `other.`
+     *        - `global.`
+     *        Does not remove the beginning context for resource variables,
+     *        as the beginning is needed for the link.
      * @param key The key to strip the context from.
-     * 
      * @return The key without its context prefix.
      */
     static std::string stripContext(std::string const& key);
 
     /**
      * @brief Gets the context from a key before it's stripped
-     *
-     * If the key doesn't start with `self.`, `other.`, or `global.`, it is considered a resource variable.
-     * 
+     *        If the key doesn't start with `self.`, `other.`, or `global.`, it is considered a resource variable.
      * @param key The key to get the context from.
-     * 
      * @return The context of the key.
      */
     static Component::From getContext(std::string const& key);
 
     /**
      * @brief Parses the given expression into a series of components.
-     * 
      * @param expr The expression string to parse.
      */
     void parseIntoComponents(std::string const& expr);
 
     /**
      * @brief Reads the formatter string from a string and parses it intro the component.
-     * 
      * @param component The component to populate with the parsed formatter.
      * @param formatter The formatter string to parse.
      */
@@ -530,34 +548,25 @@ private:
 
     /**
      * @brief Used to parse a string token of type "eval" into a component.
-     * 
-     * - Parses the token on the assumption that it is of type "eval".
-     * 
-     * - Populates the current component with the parsed information.
-     * 
-     * - Pushes the current component onto the components vector.
-     * 
+     *        - Parses the token on the assumption that it is of type "eval".
+     *        - Populates the current component with the parsed information.
+     *        - Pushes the current component onto the components vector.
      * @param token The token to parse.
      */
     void parseTokenTypeEval(std::string const& token);
 
     /**
      * @brief Used to parse a string token of type "text" into a component.
-     * 
-     * - Parses the token on the assumption that it is of type "text".
-     * 
-     * - Populates the current component with the parsed information.
-     * 
-     * - Pushes the current component onto the components vector.
-     * 
+     *        - Parses the token on the assumption that it is of type "text".
+     *        - Populates the current component with the parsed information.
+     *        - Pushes the current component onto the components vector.
      * @param token The token to parse.
      */
     void parseTokenTypeText(std::string const& token);
 
     /**
      * @brief Prints a compilation error message to cerr
-     * 
-     * Includes tips for fixing the error.
+     *        Includes tips for fixing the error.
      */
     void printCompileError(std::shared_ptr<Component> const& component, int const& error) const;
 
@@ -568,14 +577,11 @@ private:
 
     /**
      * @brief Ensures the existence of an ordered cache list of double pointers for "other" context variables.
-     *
-     * This function checks if the current "other" reference JSON document contains a cached, ordered list of double pointers
-     * corresponding to all variables referenced by this Expression in the "other" context. If the cache entry does not exist,
-     * it is created and populated for fast indexed access during expression evaluation.
-     *
-     * This caching mechanism is critical for Nebulite's high-performance expression system, as it avoids repeated
-     * string lookups and pointer resolutions for variables in other objects, enabling near O(1) access.
-     *
+     *        Checks if the current "other" reference JSON document contains a cached, ordered list of double pointers
+     *        corresponding to all variables referenced by this Expression in the "other" context. If the cache entry does not exist,
+     *        it is created and populated for fast indexed access during expression evaluation.
+     *        This caching mechanism is critical for Nebulite's high-performance expression system, as it avoids repeated
+     *        string lookups and pointer resolutions for variables in other objects, enabling near O(1) access.
      * @param reference The JSON document representing the "other" context for variable resolution.
      * @return A pointer to the ordered vector of double pointers for the referenced "other" variables.
      */
@@ -583,7 +589,6 @@ private:
 
     /**
      * @brief Handles the evaluation of a variable component.
-     * 
      * @param token The string to populate with the evaluated value.
      * @param component The component to evaluate.
      * @param current_other The JSON object `other` to evaluate against.
