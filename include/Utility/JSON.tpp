@@ -15,7 +15,11 @@ T JSON::get(std::string const& key, T const& defaultValue){
 
     // Check if a transformation is present
     if (key.contains('|')){
-        return getWithTransformations<T>(key, defaultValue);
+        auto optionalVal = getWithTransformations<T>(key);
+        if (optionalVal.has_value()){
+            return optionalVal.value();
+        }
+        return defaultValue;
     }
 
     // Get variant and convert to requested type
@@ -28,7 +32,7 @@ T JSON::get(std::string const& key, T const& defaultValue){
 
 // TODO: same for getSubDocWithTransformations!
 template<typename T>
-T JSON::getWithTransformations(std::string const& key, T const& defaultValue) {
+std::optional<T> JSON::getWithTransformations(std::string const& key) {
     auto args = StringHandler::split(key, '|');
     std::string const baseKey = args[0];
     args.erase(args.begin());
@@ -39,9 +43,10 @@ T JSON::getWithTransformations(std::string const& key, T const& defaultValue) {
 
     // Apply each transformation in sequence
     if (!transformer.parse(args, &tempDoc)) {
-        return defaultValue;    // if any transformation fails, return default value
+        return {};    // if any transformation fails, return default value
     }
-    return tempDoc.get<T>(JsonRvalueTransformer::valueKey, defaultValue);
+    // This should not fail, so we use T() as default value
+    return tempDoc.get<T>(JsonRvalueTransformer::valueKey, T());
 }
 
 template<typename T>

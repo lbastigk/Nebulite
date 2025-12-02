@@ -154,6 +154,16 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
 JSON JSON::getSubDoc(std::string const& key){
     std::scoped_lock const lockGuard(mtx);
     flush();
+
+    // Check if a transformation is present
+    if (key.contains('|')){
+        JSON tmp;
+        if (getSubDocWithTransformations(key,tmp)) {
+            return tmp;
+        }
+        return JSON{};
+    }
+
     if(rapidjson::Value const* keyVal = RjDirectAccess::traversePath(key.c_str(),doc); keyVal != nullptr){
         // turn keyVal to doc
         JSON json;
@@ -161,6 +171,22 @@ JSON JSON::getSubDoc(std::string const& key){
         return json;
     }
     return JSON{};
+}
+
+bool JSON::getSubDocWithTransformations(std::string const& key, JSON& outDoc) {
+    auto args = StringHandler::split(key, '|');
+    std::string const baseKey = args[0];
+    args.erase(args.begin());
+
+    // Using getSubDoc to properly populate the tempDoc with the rapidjson::Value
+    // Slower than a manual copy that handles types, but more secure and less error-prone
+    outDoc = getSubDoc(baseKey);
+
+    // Apply each transformation in sequence
+    if (!transformer.parse(args, &outDoc)) {
+        return false;    // if any transformation fails, return default value
+    }
+    return true;
 }
 
 double* JSON::getStableDoublePointer(std::string const& key){
@@ -293,7 +319,7 @@ std::string JSON::serialize(std::string const& key){
     return sub.serialize();
 }
 
-void JSON::deserialize(std::string const& serial_or_link){
+void JSON::deserialize(std::string const& serialOrLink){
     std::scoped_lock const lockGuard(mtx);
 
     // Reset document and cache
@@ -309,13 +335,13 @@ void JSON::deserialize(std::string const& serial_or_link){
     //------------------------------------------
     // Split the input into tokens
     std::vector<std::string> tokens;
-    if(isJsonOrJsonc(serial_or_link)){
+    if(isJsonOrJsonc(serialOrLink)){
         // Direct JSON string, no splitting
-        tokens.push_back(serial_or_link);
+        tokens.push_back(serialOrLink);
     }
     else{
         // Split based on transformations, indicated by '|'
-        tokens = StringHandler::split(serial_or_link, '|');
+        tokens = StringHandler::split(serialOrLink, '|');
     }
 
     //------------------------------------------
@@ -372,6 +398,16 @@ void JSON::deserialize(std::string const& serial_or_link){
 JSON::KeyType JSON::memberType(std::string const& key){
     std::scoped_lock const lockGuard(mtx);
 
+    // See if transformations are present
+    if (key.contains('|')){
+        // Apply transformations to a temp document
+        JSON tempDoc;
+        if (getSubDocWithTransformations(key, tempDoc)) {
+            return tempDoc.memberType("");
+        }
+        return KeyType::null;
+    }
+
     // Check cache first
     if (cache.find(key) != cache.end()){
         // Key is cached, return its type
@@ -400,6 +436,16 @@ JSON::KeyType JSON::memberType(std::string const& key){
 
 size_t JSON::memberSize(std::string const& key){
     std::scoped_lock const lockGuard(mtx);
+
+    // See if transformations are present
+    if (key.contains('|')){
+        // Apply transformations to a temp document
+        JSON tempDoc;
+        if (getSubDocWithTransformations(key, tempDoc)) {
+            return tempDoc.memberSize("");
+        }
+        return 0;
+    }
 
     auto const kt = memberType(key);
     if(kt == KeyType::null){

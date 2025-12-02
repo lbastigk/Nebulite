@@ -187,11 +187,19 @@ private:
      * @brief Apply transformations found in the key string and retrieve the modified value.
      * @tparam T The type of the value to retrieve.
      * @param key The key string containing transformations.
-     * @param defaultValue The default value to return if retrieval fails.
-     * @return The modified value of type T.
+     * @return The modified value of type T, or std::nullopt on failure.
      */
     template<typename T>
-    T getWithTransformations(std::string const& key, T const& defaultValue);
+    std::optional<T> getWithTransformations(std::string const& key);
+
+    /**
+     * @brief Apply transformations found in the key string and retrieve the modified document.
+     * @param key The key string containing transformations.
+     * @param outDoc The output JSON document to store the modified result.
+     * @return True on success, false on failure.
+     * @note We use an external outDoc to avoid copying the entire document on return/on optional::getValue().
+     */
+    bool getSubDocWithTransformations(std::string const& key, JSON& outDoc);
 
 public:
     //------------------------------------------
@@ -331,9 +339,11 @@ public:
      * @brief Gets a sub-document from the JSON document.
      *        If the key does not exist, an empty JSON object is returned.
      *        Note that the cache is flushed into the document.
+     *        If the key is a basic type, its value is returned.
+     *        You may use `memberType("")` to check the type stored in the JSON.
+     *        You may use `get<T>("",T())` on the returned sub-document to get the simple value.
      * @param key The key of the sub-document to retrieve.
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
-     * @todo Allow the return of basic types as well, not just sub-documents.
      */
     JSON getSubDoc(std::string const& key);
 
@@ -356,6 +366,7 @@ public:
      * @return A pointer to the double value associated with the key.
      */
     double* getUidDoublePointer(uint64_t const& uid, std::string const& key) {
+        std::scoped_lock const lockGuard(mtx);
         if (uidDoubleCache[uid] == nullptr) {
             uidDoubleCache[uid] = getStableDoublePointer(key);
         }
@@ -382,21 +393,11 @@ public:
      *        If the key does not exist, the type is considered null.
      * @param key The key to check.
      * @return The type of the key.
-     * @todo Make sure to return the correct type if transformations are applied.
-     *       Either we return null if it contains transformations, or we resolve the transformations
-     *       to determine the actual type.
-     *       Option 2 seems more useful. The issue is that we cannot just use get,
-     *       as we need to know if it failed due to non-existence or due to type conversion issues.
-     *       One workaround would be to call get(key,defaultValue) twice with a different default value
-     *       if the returned value changes, we know there is an issue -> return null.
-     *       Better yet, modify applyTransformations to use an std::optional<T> as return value,
-     *       with return {} on failure.
      */
     KeyType memberType(std::string const& key);
 
     /**
      * @brief Checks the size of a key in the JSON document.
-     *        This function checks the size of a key in the JSON document.
      *        If the key does not exist, the size is considered 0.
      *        If the key represents a document, the size is considered 1.
      * @param key The key to check.
@@ -406,7 +407,6 @@ public:
 
     /**
      * @brief Removes a key from the JSON document.
-     *        This function removes a key from the JSON document.
      *        If the key does not exist, no action is taken.
      *        Note that the document is flushed before removing the key.
      * @param key The key to remove.
@@ -425,7 +425,7 @@ public:
 
     /**
      * @brief Deserializes a JSON string or loads from a file, with optional modifications.
-     * @param serial_or_link The JSON string to deserialize or the file path to load from + optional functioncall transformations
+     * @param serialOrLink The JSON string to deserialize or the file path to load from + optional functioncall transformations
      *        Examples:
      *        - `{"key": "value"}` - Deserializes a JSON string
      *        - `file.json` - Loads a JSON file
@@ -433,7 +433,7 @@ public:
      *        - `file.json|key1.key2[5]=100` - Legacy feature for setting a value
      *        - `file.json|set-from-json key1.key2[5] otherFile.json:key` - Sets key1.key2[5] from the value of key in otherFile.json
      */
-    void deserialize(std::string const& serial_or_link);
+    void deserialize(std::string const& serialOrLink);
 
     //------------------------------------------
     // Assorted list of double pointers
