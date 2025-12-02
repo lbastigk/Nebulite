@@ -373,4 +373,16 @@ This is useful for:
 - Creating complex control flows in scripts.
 )";
 
+// NOLINTNEXTLINE
+Constants::Error General::nop(std::span<std::string const> const& args){
+    // Do nothing
+    return Constants::ErrorTable::NONE();
+}
+std::string const General::nop_name = "nop";
+std::string const General::nop_desc = "No operation. Does nothing."
+    "Usage: nop <blind arguments>"
+    ""
+    "Useful for testing or as a placeholder in scripts where no action is required,"
+    "but a command is syntactically necessary.";
+
 } // namespace Nebulite::DomainModule::GlobalSpace
