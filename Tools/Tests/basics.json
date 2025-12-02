@@ -53,5 +53,28 @@
             ],
             "ignore_exit": true
         }
+    },
+    {
+        "command": [
+            "# ensures that help works properly",
+            "# simply checks if help <foo> returns without error and with an expected output",
+            "help set",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "",
+                "Help for function 'set':",
+                "",
+                "Set a key to a value in the JSON document.",
+                "",
+                "Usage: set <key> <value>",
+                "",
+                "Note: All values are stored as strings.",
+                ""
+            ],
+            "cerr": [],
+            "ignore_exit": true
+        }
     }
 ]

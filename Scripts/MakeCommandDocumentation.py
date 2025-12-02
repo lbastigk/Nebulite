@@ -8,7 +8,8 @@ and outputs comprehensive documentation in markdown format.
 #  - Add documentation for transformations
 #  - Add TOC to Commands.md
 
-
+#####################################
+# Imports
 import subprocess
 import re
 import os
@@ -16,11 +17,20 @@ import sys
 import shutil
 from typing import List, Dict, Tuple, Optional
 
+#####################################
 # Command configurations
+
+# Define the root commands for GlobalSpace and RenderObject
+# We simply need to add "help" to these commands to get the list of available functions/variables
 ROOT_GLOBALSPACE = "./bin/Nebulite"
 ROOT_RENDEROBJECT = "./bin/Nebulite draft parse"
+
+# Output file for the generated documentation
 OUTPUT_FILE = "./doc/Commands.md"
 TIMEOUT_SECONDS = 3  # Timeout for commands that might open renderer windows
+
+#####################################
+# Functions
 
 # Markdown formatting helpers
 class MarkdownFormatter:
@@ -64,7 +74,7 @@ class MarkdownFormatter:
     def get_functions_table(self, functions, help_text):
         if not functions:
             return ""
-        table = "### Available Functions\n\n| Function | Description |\n|----------|-------------|\n"
+        table = "Available Functions\n\n| Function | Description |\n|----------|-------------|\n"
         help_lines = help_text.split('\n') if help_text else []
         func_descriptions = {}
         for line in help_lines:
@@ -79,7 +89,7 @@ class MarkdownFormatter:
     def get_variables_table(self, variables, help_text):
         if not variables:
             return ""
-        table = "### Available Variables\n\n| Variable | Description |\n|----------|-------------|\n"
+        table = "Available Variables\n\n| Variable | Description |\n|----------|-------------|\n"
         help_lines = help_text.split('\n') if help_text else []
         var_descriptions = {}
         in_variables_section = False
@@ -301,7 +311,12 @@ def generate_documentation() -> str:
     markdown = "# Nebulite Command Documentation\n\n"
     markdown += "This documentation is automatically generated from the Nebulite executable.\n\n"
     markdown += f"Generated on: {subprocess.run([f'{date_path}'], capture_output=True, text=True).stdout.strip()}\n\n"
-    
+
+    # Insert a simple manual Table of Contents for the two main sections
+    markdown += "## Table of Contents\n\n"
+    markdown += "- [GlobalSpace Commands](#globalspace-commands)\n"
+    markdown += "- [RenderObject Commands](#renderobject-commands)\n\n"
+
     # Process GlobalSpace commands
     print("Processing GlobalSpace commands...")
     markdown += "## GlobalSpace Commands\n\n"
@@ -369,4 +384,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

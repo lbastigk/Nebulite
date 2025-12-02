@@ -549,7 +549,7 @@ returnType FuncTree<returnType, additionalArgs...>::help(std::span<std::string c
     // Case 1: Detailed help for a specific function, category or variable
     if(args.size() > 1){
         // Call specific help for each argument, except the first one (which is the binary name or last function name)
-        for (auto const& arg : args){
+        for (auto const& arg : args.subspan(1)){
             specificHelp(arg, addArgs...);
         }
         return standardReturn.valDefault;
