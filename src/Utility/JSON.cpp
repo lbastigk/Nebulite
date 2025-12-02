@@ -153,6 +153,10 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
 
 JSON JSON::getSubDoc(std::string const& key){
     std::scoped_lock const lockGuard(mtx);
+
+    // Handle integrity via flushing
+    // Makes sure we don't have to worry about cache and double pointers here
+    // Full access to the rapidjson document after this point
     flush();
 
     // Check if a transformation is present
@@ -199,7 +203,7 @@ double* JSON::getStableDoublePointer(std::string const& key){
         if(it->second->state == EntryState::DELETED){
             *it->second->stable_double_ptr = get<double>(key, 0.0);
             it->second->last_double_value = *it->second->stable_double_ptr;
-            it->second->state = EntryState::VIRTUAL; // Now it's virtual
+            it->second->state = EntryState::DERIVED;
         }
         return it->second->stable_double_ptr;
     }
@@ -215,12 +219,12 @@ double* JSON::getStableDoublePointer(std::string const& key){
         return it->second->stable_double_ptr;
     }
 
-    // If loading from document failed, create a new virtual entry
+    // If loading from document failed, create a new derived entry
     auto new_entry = std::make_unique<CacheEntry>();
     new_entry->value = 0.0;
     *new_entry->stable_double_ptr = 0.0;
     new_entry->last_double_value = 0.0;
-    new_entry->state = EntryState::VIRTUAL;
+    new_entry->state = EntryState::DERIVED;
     cache[key] = std::move(new_entry);
     return cache[key]->stable_double_ptr;
 }

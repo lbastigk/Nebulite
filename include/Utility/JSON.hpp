@@ -63,22 +63,18 @@ private:
     /**
      * @enum EntryState
      * @brief Represents the state of a cached entry in the JSON document.
-     *        - CLEAN: The entry is synchronized with the RapidJSON document and holds a real value.
-     *        - DIRTY: The entry has been modified in the cache and needs to be flushed to the RapidJSON document.
-     *        - VIRTUAL: The entry exists for pointer stability but does not have a real value set (defaults to 0).
-     *        - DELETED: The entry is marked for deletion but is not removed from the cache to maintain pointer stability.
-     *
      *        How it works:
      *        - On reloading a full document, all entries become DELETED.
-     *        - If we access a double pointer, we mark the entry as VIRTUAL, as it's a resurrected entry, but its potentially not the real value due to casting.
+     *        - If we access a double pointer of a deleted/nonexistent value, we mark the entry as VIRTUAL,
+     *          as it's a resurrected entry, but its potentially not the real value due to casting.
      *        - A value becomes DIRTY if it was previously CLEAN, and we notice a change in its double value.
      *        - On flushing, all DIRTY entries become CLEAN again. VIRTUAL entries remain VIRTUAL as they are not flushed.
-     * @todo Documentation about state VIRTUAL is likely outdated, needs review.
+     *        - Values may be marked DELETED if their parent is modified or deleted.
      */
     enum class EntryState : uint8_t {
         CLEAN, // Synchronized with RapidJSON document, real value. NOTE: This may be invalid at any time if double pointer is used elsewhere! This just marks the last known state.
         DIRTY, // Modified in cache, needs flushing to RapidJSON, real value
-        VIRTUAL, // Deleted entry that was re-synced, but may not be the real value due to casting (TODO: name DERIVED maybe?)
+        DERIVED, // Deleted/nonexistent entry that was accessed via double pointer
         DELETED // Deleted entry due to deserialization, inner value is invalid
     };
 
@@ -187,9 +183,9 @@ private:
      * @brief Apply transformations found in the key string and retrieve the modified value.
      * @tparam T The type of the value to retrieve.
      * @param key The key string containing transformations.
-     * @return The modified value of type T, or std::nullopt on failure.
+     * @return The modified value of type T, or none on failure.
      */
-    template<typename T>
+    template <typename T>
     std::optional<T> getWithTransformations(std::string const& key);
 
     /**
