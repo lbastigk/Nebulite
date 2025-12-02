@@ -26,6 +26,7 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
 
     // Functions: Casting
     bindTransformationFunction(&JsonRvalueTransformer::toInt, toIntName, &toIntDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::toString, toStringName, &toStringDesc);
 
     // Functions: Debugging
     bindTransformationFunction(&JsonRvalueTransformer::echo, echoName, &echoDesc);
@@ -116,7 +117,7 @@ std::string const JsonRvalueTransformer::modDesc = "Calculates the modulo of the
     "Usage: |mod <number> -> {number}";
 
 bool JsonRvalueTransformer::pow(std::span<std::string const> const& args, JSON* jsonDoc) {
-    if (args.size() < 2) {
+    if (args.size() != 2) {
         return false;
     }
     try {
@@ -148,7 +149,7 @@ std::string const JsonRvalueTransformer::lengthDesc = "Gets the length of the ar
     "Usage: |length -> {number}";
 
 bool JsonRvalueTransformer::at(std::span<std::string const> const& args, JSON* jsonDoc) {
-    if (args.size() < 2) {
+    if (args.size() != 2) {
         return false;
     }
     try {
@@ -234,17 +235,17 @@ std::string const JsonRvalueTransformer::printDesc = "Prints the current JSON va
 
 bool JsonRvalueTransformer::typeAsString(std::span<std::string const> const& args, JSON* jsonDoc) {
     // TODO: Add a getTypeAsString function to JSON class to avoid code duplication
-    // - array -> "array"
-    // - object -> "object"
-    // - null -> "null"
-    // - string -> "value:string"
-    // - int -> "value:int"
-    // - double -> "value:double"
-    // - bool -> "value:bool"
-    // etc...
-    // Perhaps even with additional depth argument:
-    // <baseType>:<subType>:<moreInfo>
-    // e.g.: "value:int:32" or "value:string" (no more info for string)
+    //       - array -> "array::size"
+    //       - object -> "object::size"
+    //       - null -> "null"
+    //       - string -> "value:string:size"
+    //       - int -> "value:int:bitwidth"
+    //       - double -> "value:double:bitwidth"
+    //       - bool -> "value:bool"
+    //       etc...
+    //       <baseType>:<subType>:<sizeInfo>
+    //       e.g.: "value:int:32" or "value:string:10"
+    //       Perhaps with additional arg to control the format?
     switch (jsonDoc->memberType(valueKey)) {
     case JSON::KeyType::value:
         {

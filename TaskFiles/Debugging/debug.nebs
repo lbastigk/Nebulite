@@ -22,5 +22,9 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+print dne
+eval echo {global.dne|typeAsString}
+exit
+
 # Fixed dt so the output is always the same
 task "TaskFiles/Tests/Long/AutoPong_5k_frames.nebs"

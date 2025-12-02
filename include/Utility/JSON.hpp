@@ -222,6 +222,7 @@ public:
      *        - '.'  : Used for nested object traversal.
      *        - '|'  : Used for piping transformations.
      *        - '"'  : Used for string encapsulation.
+     *        - ':'  : Used for Read-Only docs to separate link and key.
      * @todo Proper API documentation for JSON key naming rules.
      *       Including a 'why' for each character.
      */
@@ -248,9 +249,9 @@ public:
     // Set methods
 
     /**
-     * @brief Sets a value in the JSON document.
-     *        This function sets a value of the specified type in the JSON document.
-     *        If the key already exists, the value is updated.
+     * @brief Sets a value of the specified type in the JSON document.
+     *        If the key already exists, the value and its stable double pointer
+     *        is updated. Child keys are invalidated.
      * @tparam T The type of the value to set.
      * @param key The key of the value to set.
      * @param val The value to set.
@@ -259,7 +260,8 @@ public:
     void set(std::string const& key, T const& val);
 
     /**
-     * @brief Sets a variant value in the JSON document.
+     * @brief Sets a variant value of supported simple values in the JSON document.
+     *        Stable double pointer of the value is updated as well. Child keys are invalidated.
      * @param key The key of the value to set.
      * @param val The variant value to set.
      */
@@ -369,9 +371,9 @@ public:
      */
     enum class KeyType : uint8_t {
         null,
-        object,
         value,
-        array
+        array,
+        object
     };
 
     /**
@@ -385,7 +387,7 @@ public:
      *       to determine the actual type.
      *       Option 2 seems more useful. The issue is that we cannot just use get,
      *       as we need to know if it failed due to non-existence or due to type conversion issues.
-     *       One workaround would be to call get(key,defaultval) twice with a different default value
+     *       One workaround would be to call get(key,defaultValue) twice with a different default value
      *       if the returned value changes, we know there is an issue -> return null.
      *       Better yet, modify applyTransformations to use an std::optional<T> as return value,
      *       with return {} on failure.

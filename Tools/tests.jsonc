@@ -21,7 +21,7 @@
         "Tools/Tests/Expression/transformations.json",
         "Tools/Tests/Functional/bindingCollisionDetection.json",
         "Tools/Tests/JSON/Array.json",
-        "Tools/Tests/JSON/Complex.json",
+        "Tools/Tests/JSON/Retrieval.json",
         "Tools/Tests/JSON/RvalueTransformer.json",
         "Tools/Tests/scenes.json",
         "Tools/Tests/mirror_draft_selection.json"

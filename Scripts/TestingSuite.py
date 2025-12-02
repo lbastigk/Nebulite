@@ -78,11 +78,14 @@ def load_tests_config(path: str) -> Dict[str, Any]:
                         print(f"  Loaded {len(external_tests)} tests from {test_file_path}")
                     else:
                         print(f"  Warning: {test_file_path} does not contain a JSON array of tests")
+                        sys.exit(1)
                         
                 except FileNotFoundError:
                     print(f"  Error: Test file not found: {test_file_path}")
+                    sys.exit(1)
                 except json.JSONDecodeError as e:
                     print(f"  Error: Invalid JSON in test file {test_file_path}: {e}")
+                    sys.exit(1)
             else:
                 # It's a regular test object
                 expanded_tests.append(test_entry)

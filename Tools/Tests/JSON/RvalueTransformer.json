@@ -9,7 +9,7 @@
       "eval echo {global.test.MyKey}",
       "eval echo {global.test.MyKey|add 2|toInt}",
       "eval echo {global.test.MyKey|mod 2|toInt}",
-      "eval echo {global.test.MyKey|mul 2|toInt}",
+      "eval echo {global.test.MyKey|mul 2|toString}",
       "exit"
     ],
     "expected": {
@@ -17,7 +17,7 @@
         "3",
         "5",
         "1",
-        "6"
+        "6.000000"
       ],
       "cerr": []
     }
@@ -119,12 +119,16 @@
       "wait 1",
       "eval echo {global.test.arr|length|toInt}",
       "eval echo {global.test.arr|at 1|toInt}",
+      "eval echo {global.test.arr|at 5}",
+      "eval echo {global.test.arr|at malformedIndex}",
       "exit"
     ],
     "expected": {
       "cout": [
         "3",
-        "20"
+        "20",
+        "null",
+        "null"
       ],
       "cerr": []
     }
@@ -163,6 +167,78 @@
     "expected": {
       "cout": [
         "null"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Wrong argument count for transformation",
+      "set var 10",
+      "set arr[0] 1",
+      "set arr[1] 2",
+      "set arr[2] 3",
+      "eval echo {global.var|pow 2 3}# pow expects exactly one argument, providing two should result in null",
+      "eval echo {global.arr|at}# at expects exactly one argument, providing none should result in null",
+      "eval echo {global.arr|at 2 3}# at expects exactly one argument, providing two should result in null",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "null",
+        "null",
+        "null"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Type to String transformation + Type to int transformation",
+      "set arr[0] 1",
+      "set arr[1] 2",
+      "set arr[2] 3",
+      "set var 42",
+      "set obj.val 100",
+      "# WARNING: This may be deprecated in the future, if specific type-checking is implemented, e.g.: could return value:int:16 instead of just int\"",
+      "eval echo {global.dne|typeAsString}",
+      "eval echo {global.var|typeAsString}",
+      "eval echo {global.arr|typeAsString}",
+      "eval echo {global.obj|typeAsString}",
+      "# Order is: null=0, value=1, array=2, object=3",
+      "eval echo {global.dne|typeAsNumber}",
+      "eval echo {global.var|typeAsNumber}",
+      "eval echo {global.arr|typeAsNumber}",
+      "eval echo {global.obj|typeAsNumber}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "null",
+        "value",
+        "array",
+        "object",
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Printing a subvalue",
+      "set arr[0] 1",
+      "set arr[1] 2",
+      "set arr[2] 3",
+      "eval echo {global.arr|print [1]|at 2}# Should print the second element of the array with quotes, then the third element",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "\"2\"",
+        "3"
       ],
       "cerr": []
     }
