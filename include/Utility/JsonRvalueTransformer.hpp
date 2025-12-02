@@ -74,8 +74,10 @@ private:
     static std::string const reverseName;
     static std::string const reverseDesc;
 
-    // TODO: push, pop, insert, remove, clear, etc. might be added later
+    // TODO: push, pop, insert, remove, clear, etc.
     //       but first, add these functionalities to JSON class
+    // TODO: first, last
+    // TODO: dedupe, subarray, sort, sortby, pick, omit
 
     //------------------------------------------
     // Functions: Casting
@@ -88,11 +90,15 @@ private:
     static std::string const toStringName;
     static std::string const toStringDesc;
 
+    // TODO: toBool, toDouble, fallback (if input is empty, set to provided value), etc.
+    // TODO: complicated casting for string to anything via serialization
+
     //------------------------------------------
     // Functions: Collection
 
-    // TODO: filter might be added later
+    // TODO: filter
     //       glob-patterns would be useful here
+    //       but first, we need to implement object key retrieval in JSON class
     //bool filter(std::span<std::string const> const& args, JSON* jsonDoc);
     //static std::string const filterName;
     //static std::string const filterDesc;
@@ -100,6 +106,8 @@ private:
     bool map(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string const mapName;
     static std::string const mapDesc;
+
+    // TODO: get <key>
 
     //------------------------------------------
     // Functions: Debugging
@@ -113,6 +121,17 @@ private:
     static std::string const printDesc;
 
     //------------------------------------------
+    // Functions: Statistics
+
+    // TODO: total, median, average, stddev, min, max, etc.
+    //       Make sure to allow for non-numeric values if appropriate
+
+    //------------------------------------------
+    // Functions: String
+
+    // TODO: trim, upper, lower, substring, replace, etc.
+
+    //------------------------------------------
     // Functions: Type-related
 
     bool typeAsNumber(std::span<std::string const> const& args, JSON* jsonDoc);
@@ -122,6 +141,8 @@ private:
     bool typeAsString(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string const typeAsStringName;
     static std::string const typeAsStringDesc;
+
+    // TODO: exists, isType <name>
 
 public:
     JsonRvalueTransformer();
