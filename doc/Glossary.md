@@ -100,8 +100,6 @@ Expressions may include variables. Certain conditions must be met for an express
 
 ## P
 
-
-
 ## Q
 
 ## R
@@ -119,6 +117,10 @@ Expressions may include variables. Certain conditions must be met for an express
 **TXDM** - Texture-DomainModule. See also: [DomainModule](#d)
 
 **Texture** - Wrapper Domain for an SDL-Texture. See also: [Domain](#d)
+
+**Transformation** - During JSON variable access, Transformations may be applied to the retrieved value. 
+Example: `{self.var|add 5}` would retrieve `self.var` and apply the `add` transformation to it before returning it. 
+Transformations are applied after all variable resolving is done, including Multiresolve. See also: [Multiresolve](#m)
 
 ## U
 
