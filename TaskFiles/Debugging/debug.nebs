@@ -15,7 +15,7 @@
 #   - You may modify this file to suit your debugging needs
 #
 # TODO: Install per-user, do not track in git
-#   Consider creating this file via `./install.sh` and adding it to `.gitignore`
+#   Consider creating this file via installation and adding it to `.gitignore`
 #   so that different users can have different debugging setups without
 #   interfering with each other.
 # -----------------------------------------------------------------------------
