@@ -75,7 +75,8 @@ private:
         CLEAN, // Synchronized with RapidJSON document, real value. NOTE: This may be invalid at any time if double pointer is used elsewhere! This just marks the last known state.
         DIRTY, // Modified in cache, needs flushing to RapidJSON, real value
         DERIVED, // Deleted/nonexistent entry that was accessed via double pointer
-        DELETED // Deleted entry due to deserialization, inner value is invalid
+        DELETED, // Deleted entry due to deserialization, inner value is invalid
+        MALFORMED // A key that is known to be malformed due to transformations. Used in getStableDoublePointer for integrity.
     };
 
     /**

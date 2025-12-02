@@ -71,6 +71,11 @@ void JSON::invalidate_child_keys(std::string const& parent_key){
 void JSON::flush(){
     std::scoped_lock const lockGuard(mtx);
     for (auto& [key, entry] : cache){
+        // Skip malformed entries
+        if (entry->state == EntryState::MALFORMED){
+            continue;
+        }
+
         // If double values changed, mark dirty
         if(std::abs(entry->last_double_value - *entry->stable_double_ptr) > DBL_EPSILON){
             entry->state = EntryState::DIRTY;
@@ -101,12 +106,27 @@ Constants::Error JSON::update(){
 // Get methods
 
 std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& key){
-    // Todo: Implement logic from get here,
-    //       then just use std::visit in combination with convertVariant to get typed values.
     std::scoped_lock const lockGuard(mtx);
+
+    // Check for transformations
+    if (key.contains('|')){
+        JSON tmp;
+        if (getSubDocWithTransformations(key, tmp)) {
+            return tmp.getVariant(JsonRvalueTransformer::valueKey);
+        }
+        return {};
+    }
 
     // Check cache first
     auto it = cache.find(key);
+
+    // Checking for malformed shouldn't be necessary, but just in case
+    if (it != cache.end() && it->second->state == EntryState::MALFORMED){
+        Nebulite::cerr() << "Warning: Attempted to access malformed key in getVariant(): " << key << Nebulite::endl;
+        Nebulite::cerr() << "This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!" << Nebulite::endl;
+        return {};
+    }
+
     if (it != cache.end() && it->second->state != EntryState::DELETED){
         // Entry exists and is not deleted
 
@@ -195,6 +215,19 @@ bool JSON::getSubDocWithTransformations(std::string const& key, JSON& outDoc) {
 
 double* JSON::getStableDoublePointer(std::string const& key){
     std::scoped_lock const lockGuard(mtx);
+
+    // Check for transformations
+    if (key.find('|') != std::string::npos) {
+        Nebulite::Utility::Capture::cerr() << "Transformations are not supported in getStableDoublePointer(): " << key << Nebulite::Utility::Capture::endl;
+        Nebulite::Utility::Capture::cerr() << "For integrity, we will create a cache entry with the malformed key" << Nebulite::Utility::Capture::endl;
+        auto new_entry = std::make_unique<CacheEntry>();
+        new_entry->value = 0.0;
+        *new_entry->stable_double_ptr = 0.0;
+        new_entry->last_double_value = 0.0;
+        new_entry->state = EntryState::MALFORMED;
+        cache[key] = std::move(new_entry);
+        return cache[key]->stable_double_ptr;
+    }
 
     // Check cache first
     auto it = cache.find(key);
