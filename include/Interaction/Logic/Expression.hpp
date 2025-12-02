@@ -234,15 +234,13 @@ private:
 
             /**
              * @brief The alignment width of the component.
-             * 
-             * -1 means no formatting.
+             *        -1 means no formatting.
              */
             int alignment = -1;
 
             /**
              * @brief The precision of the component.
-             * 
-             * -1 means no formatting.
+             *        -1 means no formatting.
              */
             int precision = -1;
         } formatter;
