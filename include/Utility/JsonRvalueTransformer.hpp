@@ -47,13 +47,13 @@ private:
     static std::string const addName;
     static std::string const addDesc;
 
-    bool multiply(std::span<std::string const> const& args, JSON* jsonDoc);
-    static std::string const multiplyName;
-    static std::string const multiplyDesc;
-
     bool mod(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string const modName;
     static std::string const modDesc;
+
+    bool multiply(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const multiplyName;
+    static std::string const multiplyDesc;
 
     bool pow(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string const powName;
@@ -62,13 +62,17 @@ private:
     //------------------------------------------
     // Functions: Array-related
 
+    bool at(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const atName;
+    static std::string const atDesc;
+
     bool length(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string const lengthName;
     static std::string const lengthDesc;
 
-    bool at(std::span<std::string const> const& args, JSON* jsonDoc);
-    static std::string const atName;
-    static std::string const atDesc;
+    bool reverse(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const reverseName;
+    static std::string const reverseDesc;
 
     // TODO: push, pop, insert, remove, clear, etc. might be added later
     //       but first, add these functionalities to JSON class
@@ -85,6 +89,19 @@ private:
     static std::string const toStringDesc;
 
     //------------------------------------------
+    // Functions: Collection
+
+    // TODO: filter might be added later
+    //       glob-patterns would be useful here
+    //bool filter(std::span<std::string const> const& args, JSON* jsonDoc);
+    //static std::string const filterName;
+    //static std::string const filterDesc;
+
+    bool map(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const mapName;
+    static std::string const mapDesc;
+
+    //------------------------------------------
     // Functions: Debugging
 
     bool echo(std::span<std::string const> const& args, JSON* jsonDoc);
@@ -98,13 +115,13 @@ private:
     //------------------------------------------
     // Functions: Type-related
 
-    bool typeAsString(std::span<std::string const> const& args, JSON* jsonDoc);
-    static std::string const typeAsStringName;
-    static std::string const typeAsStringDesc;
-
     bool typeAsNumber(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string const typeAsNumberName;
     static std::string const typeAsNumberDesc;
+
+    bool typeAsString(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string const typeAsStringName;
+    static std::string const typeAsStringDesc;
 
 public:
     JsonRvalueTransformer();

@@ -245,6 +245,52 @@
   },
   {
     "command": [
+      "# Mapping function",
+      "set val 10",
+      "set arr[0] 1",
+      "set arr[1] 2",
+      "set arr[2] 3",
+      "eval echo {global.val|map add 10|at 0|toInt}",
+      "eval echo {global.arr|map add 10|at 0|toInt}",
+      "eval echo {global.arr|map add 10|at 1|toInt}",
+      "eval echo {global.arr|map add 10|at 2|toInt}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "20",
+        "11",
+        "12",
+        "13"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
+      "# Reverse function",
+      "set val 10",
+      "set arr[0] 1",
+      "set arr[1] 2",
+      "set arr[2] 3",
+      "eval echo {global.val|reverse|at 0|toInt}",
+      "eval echo {global.arr|reverse|at 0|toInt}",
+      "eval echo {global.arr|reverse|at 1|toInt}",
+      "eval echo {global.arr|reverse|at 2|toInt}",
+      "exit"
+    ],
+    "expected": {
+      "cout": [
+        "10",
+        "3",
+        "2",
+        "1"
+      ],
+      "cerr": []
+    }
+  },
+  {
+    "command": [
       "# <template>",
       "echo Your ad could be here! Contact us for advertising opportunities.",
       "exit"
