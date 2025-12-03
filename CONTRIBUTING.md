@@ -1,6 +1,7 @@
 # Contributing to Nebulite
 
-We welcome contributions! Nebulite's modular architecture makes it easy to add features in separate files and barely touching existing ones.
+We welcome contributions! Nebulite's modular architecture makes it easy to add features 
+in separate files and barely touching existing ones.
 
 <!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
 
@@ -32,14 +33,32 @@ We welcome contributions! Nebulite's modular architecture makes it easy to add f
 
 1. Fork the repository
 2. Install (see README.md)
-3. Create feature branch: `git checkout -b feature/my-feature`
+3. Create a feature branch: `git checkout -b feature/my-feature`
 
 <!-- TOC --><a name="testing"></a>
 ## Testing
 
-You can add custom taskfiles to the test suite by extending the `Tools/tests.jsonc`.
-```bash
-./bin/Nebulite task TaskFiles/.../your_test.nebs
+You can add custom taskfiles to the test suite by extending the main test file `Tools/tests.jsonc`.
+However, it is recommended to write the taskfiles inside the test json file itself for better portability:
+```json
+[
+    {
+      "command": [
+        "set-fps 60",
+        "echo 1234",
+        "exit"
+      ],
+      "expected": { "cout": ["1234"], "cerr": [] }
+    }
+]
+```
+
+After adding your test cases in `Tools/Tests/*.json`, add the file to `Tools/tests.jsonc` like so:
+```jsonc
+{
+    // ... existing test files
+    "Tools/Tests/MyNewTestFile.json"
+}
 ```
 
 <!-- TOC --><a name="quick-expression-testing"></a>
@@ -56,14 +75,14 @@ You can quickly verify the correctness of an expression with the command line:
 Nebulite offers clean expansions of its functionality through its DomainModules. 
 Maintainers can create their own module classes and add them to a specific domain.
 
-| Domain: Commands operating on...  | Action                                                            | Info                                                                                      |
-|-----------------------------------|-------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| Global level                      | Extend `Initializer.hpp` by creating GlobalSpace DomainModules    | See `include/Core/GlobalSpace.h` and its modules  `include/DomainModule/GlobalSpace/*.h`  |
-| Renderer                          | Extend `Initializer.hpp` by creating Renderer DomainModules       | See `include/Core/Renderer.h` and its modules     `include/DomainModule/Renderer/*.h`     |
-| Environment                       | Extend `Initializer.hpp` by creating Environment DomainModules    | See `include/Core/Environment.h` and its modules  `include/DomainModule/Environment/*.h`  |
-| Specific RenderObjects            | Extend `Initializer.hpp` by creating RenderObject DomainModules   | See `include/Core/RenderObject.h` and its modules `include/DomainModule/RenderObject/*.h` |
-| Specific JSON-Documents           | Extend `Initializer.hpp` by creating JSON DomainModules           | See `include/Utility/JSON.h` and its modules      `include/DomainModule/JSON/*.h`         |
-| Specific Textures                 | Extend `Initializer.hpp` by creating Texture DomainModules        | See `include/Core/Texture.h` and its modules      `include/DomainModule/Texture/*.h`      |
+| Domain: Commands operating on...  | Action                                                            | Info                                                                                          |
+|-----------------------------------|-------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| Global level                      | Extend `Initializer.hpp` by creating GlobalSpace DomainModules    | See `include/Core/GlobalSpace.hpp` and its modules  `include/DomainModule/GlobalSpace/*.hpp`  |
+| Renderer                          | Extend `Initializer.hpp` by creating Renderer DomainModules       | See `include/Core/Renderer.hpp` and its modules     `include/DomainModule/Renderer/*.hpp`     |
+| Environment                       | Extend `Initializer.hpp` by creating Environment DomainModules    | See `include/Core/Environment.hpp` and its modules  `include/DomainModule/Environment/*.hpp`  |
+| Specific RenderObjects            | Extend `Initializer.hpp` by creating RenderObject DomainModules   | See `include/Core/RenderObject.hpp` and its modules `include/DomainModule/RenderObject/*.hpp` |
+| Specific JSON-Documents           | Extend `Initializer.hpp` by creating JSON DomainModules           | See `include/Utility/JSON.hpp` and its modules      `include/DomainModule/JSON/*.hpp`         |
+| Specific Textures                 | Extend `Initializer.hpp` by creating Texture DomainModules        | See `include/Core/Texture.hpp` and its modules      `include/DomainModule/Texture/*.hpp`      |
 
 
 Each DomainModule has access to a different domain workspace through `domain->...`,
@@ -78,8 +97,10 @@ and more. We then just insert each module into the class and its update function
 ### Function Collision Prevention
 
 Domains follow an inheritance tree structure for their functions:
-- `GlobalSpace` automatically inherits all functions from `JSON`, which act on the global document
+- `GlobalSpace` automatically inherits all functions from `JSON` and `Renderer`, which act on the global document
 - `RenderObject` automatically inherits all functions from `JSON`, which act on the objects document
+- `Renderer` inherits from `Environment`, but not from `JSON`, as it shares the same document as `GlobalSpace`
+- `Texture` does not inherit from any other domain
 
 It is **not allowed** to overwrite already existing functions:
 - If the function `set` was already declared, it is not possible to declare a new `set` function in that same tree
@@ -89,8 +110,8 @@ Furthermore, it is not allowed to overwrite existing `categories` with functions
 
 If a function is bound inside a non-existing `category`, the program will exit:
 ```cpp
-bindCategory("MyModule","<Description>");
-bindFunction(/**/,"MyModule foo","<Description>"); //<-- This would fail without bindCategory being called first
+bindCategory("MyCategory","<Description of MyCategory>");
+bindFunction(/**/,"MyCategory foo","<Description of foo>"); //<-- This would fail without bindCategory being called first
 ```
 
 <!-- TOC --><a name="example-adding-a-new-globalspace-feature"></a>
@@ -102,12 +123,13 @@ bindFunction(/**/,"MyModule foo","<Description>"); //<-- This would fail without
 1. **Create expansion file**
 2. **Inherit from DomainModule base class:** Create class using the `NEBULITE_DOMAINMODULE(Domain,MyDomainModule)` macro
 3. **Implement command methods:** Functions with `Nebulite::Constants::Error (std::span<std::string const> const& args)` signature
-4. **DomainModule init** inside `include/DomainModule/Initializer.hpp`, initialize the DomainModule
+4. **Implement the update method:** Override `Nebulite::Constants::Error update()` for per-frame updates
+5. **DomainModule init** inside `include/DomainModule/Initializer.hpp`, initialize the DomainModule
 
 <!-- TOC --><a name="complete-code-example"></a>
 #### Complete Code Example
 
-**Inside GSDM_MyModule.hpp:**
+**Inside MyModule.hpp:**
 
 ```cpp
 /**
@@ -147,9 +169,6 @@ public:
     // Available Functions
 
     Nebulite::Constants::Error spawnCircle(std::span<std::string const> const& args);
-    
-    //------------------------------------------
-    // Names
     static std::string const spawnCircleName;   // Defined in MyModule.cpp: "spawn geometry circle"
     static std::string const spawnCircleDesc;   // Defined in MyModule.cpp: "<oneline-description>\n<details>"
 
@@ -178,21 +197,25 @@ private:
 <!-- TOC --><a name="implementation-guidelines"></a>
 ### Implementation Guidelines
 
-- It is recommended to implement unfinished functions inside the cpp file with a return of `Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED()`
-- Use the recommended class naming schemes and namespaces for modules: `Nebulite::DomainModule::GlobalSpace::MyModule`
+- It is recommended to implement unfinished functions inside the cpp file with a return of 
+`Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED()`
+- Use the recommended class naming schemes and namespaces for modules: 
+`Nebulite::DomainModule::<Domain>::<ModuleName>`
 
 <!-- TOC --><a name="preview-editing-work-in-progress"></a>
 ## Preview Editing (Work in Progress)
 
-Preview Editing is currently under development. The current plan is to use the headless rendering mode of Nebulite in combination with either a taskfile or a python-script to allow rendering snapshots while editing JSON files.
+Preview Editing is currently under development. The current plan is to use the headless rendering mode of Nebulite 
+in combination with either a taskfile or a python-script to allow rendering snapshots while editing JSON files.
 
 <!-- TOC --><a name="submitting-changes"></a>
 ## Submitting Changes
 
-1. Ensure all tests pass: `./build.sh && python Scripts/TestingSuite.py`
-2. Create a pull request with a clear description of your changes
-3. Include test cases for new functionality
-4. Update documentation as needed
+1. Make sure you cover a wide range of test cases for your new feature. 
+Verify the coverage with `make build-and-coverage-report`.
+2. Ensure all tests pass: `make test`
+3. Update documentation: `make docs` as well as manual updates if necessary
+4. Create a pull request with a clear description of your changes
 
 <!-- TOC --><a name="code-style"></a>
 ## Code Style
