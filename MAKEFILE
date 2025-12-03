@@ -3,9 +3,9 @@
 ##############################################################
 
 
-##################################
+############################################
 # Base CMake Presets Build Targets
-##################################
+############################################
 
 linux-release:
 	@echo "Building preset: $@"
@@ -43,9 +43,9 @@ macos-debug:
 	@cmake --build --preset $@ -j4
 
 
-##################################
+############################################
 # Gather native and available Presets
-##################################
+############################################
 
 # Find native build preset for this machine
 UNAME_S := $(shell uname -s)
@@ -78,9 +78,9 @@ endif
 all: $(AVAILABLE_PRESETS)
 
 
-##################################
+############################################
 # Basic useful targets
-##################################
+############################################
 
 .PHONY: all install-deps resources test run clean $(NATIVE_PRESET)
 
@@ -107,9 +107,9 @@ delete-binaries:
 	@rm -rf bin/* || true
 
 
-##################################
+############################################
 # Build
-##################################
+############################################
 
 # Fast build targets for native and available presets
 
@@ -126,9 +126,9 @@ clean-build-native: clean build-native
 clean-build-available: clean build-available
 
 
-##################################
+############################################
 # Documentation
-##################################
+############################################
 
 keyword-docs:
 	@echo "Generating documentation for keywords..."
@@ -136,9 +136,9 @@ keyword-docs:
 	@python Languages/nebs/nebulite-script-vscode/scripts/extract_keywords.py
 
 
-##################################
+############################################
 # Full testing pipelines
-##################################
+############################################
 
 # Coverage build + report
 
@@ -157,9 +157,9 @@ clean-build-and-test-native: clean-build-native test
 clean-build-and-test-available: clean-build-available test
 
 
-##################################
+############################################
 # Debug
-##################################
+############################################
 
 debug-linux:
 	@echo "Starting non-interactive debugger (prints backtrace on crash)..."
@@ -170,9 +170,9 @@ debug-linux-interactive:
 	@gdb --args ./bin/Nebulite_Debug task TaskFiles/Debugging/debug.nebs
 
 
-##################################
+############################################
 # Profiling, Benchmarking, etc.
-##################################
+############################################
 
 cli-lint:
 	@echo "Running CLI linter..."
@@ -200,9 +200,9 @@ memory-check-cli:
 	@echo "Memory check completed. See valgrind_output.txt for details."
 
 
-##################################
+############################################
 # Release Packaging
-##################################
+############################################
 
 package-release:
 	# TODO: Implement release packaging steps
@@ -219,9 +219,10 @@ package-release:
 	#  -> create_release.sh needs some major rework.
 	@echo "Packaging release... (not yet implemented)"
 
-##################################
+
+############################################
 # Commit testing pipelines
-##################################
+############################################
 
 commit-test-pipeline:
 	@Scripts/commitTestPipeline.sh
