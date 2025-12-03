@@ -2,12 +2,10 @@
 # Makefile for building and testing Nebulite
 ##############################################################
 
+
 ##################################
 # Base CMake Presets Build Targets
 ##################################
-
-# We define presets one by one,
-# otherwise some linters complain about unresolved prerequisites later on
 
 linux-release:
 	@echo "Building preset: $@"
@@ -44,10 +42,10 @@ macos-debug:
 	@cmake --preset $@
 	@cmake --build --preset $@ -j4
 
-##################################
-# Native and Available Presets
-##################################
 
+##################################
+# Gather native and available Presets
+##################################
 
 # Find native build preset for this machine
 UNAME_S := $(shell uname -s)
@@ -81,7 +79,7 @@ all: $(AVAILABLE_PRESETS)
 
 
 ##################################
-# Define other useful targets
+# Basic useful targets
 ##################################
 
 .PHONY: all install-deps resources test run clean $(NATIVE_PRESET)
@@ -108,12 +106,6 @@ coverage-report:
 delete-binaries:
 	@rm -rf bin/* || true
 
-##################################
-# Debugging
-##################################
-
-# TODO: Implement debugging targets from .vscode/launch.json
-
 
 ##################################
 # Build
@@ -133,6 +125,7 @@ clean-build-native: clean build-native
 
 clean-build-available: clean build-available
 
+
 ##################################
 # Documentation
 ##################################
@@ -141,6 +134,7 @@ keyword-docs:
 	@echo "Generating documentation for keywords..."
 	@python Scripts/MakeCommandDocumentation.py
 	@python Languages/nebs/nebulite-script-vscode/scripts/extract_keywords.py
+
 
 ##################################
 # Full testing pipelines
@@ -180,8 +174,6 @@ debug-linux-interactive:
 # Profiling, Benchmarking, etc.
 ##################################
 
-# TODO: Implement profiling and similar targets from .vscode/tasks.json
-
 cli-lint:
 	@echo "Running CLI linter..."
 	@./Scripts/Validation/runClangTidy.sh
@@ -207,41 +199,32 @@ memory-check-cli:
 	@ulimit -n 32768 && valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./bin/Nebulite_Debug task TaskFiles/Debugging/memoryleak.nebs
 	@echo "Memory check completed. See valgrind_output.txt for details."
 
+
+##################################
+# Release Packaging
+##################################
+
+package-release:
+	# TODO: Implement release packaging steps
+	#  - check if no uncommitted changes in git
+	#  - ask for version number
+	#  - run command to compile binaries for all platforms
+	#  - gather resources and documentation
+	#  - commit changes from documentation generation
+	#  - create release archive (zip/tar.gz) with proper naming
+	#  		- license files
+	#       - binaries
+	#       - readme
+	#       - resources?
+	#  -> create_release.sh needs some major rework.
+	@echo "Packaging release... (not yet implemented)"
+
 ##################################
 # Commit testing pipelines
 ##################################
 
-# Checks if there are any changes in the code since the last run
-# If there are, runs the full testing pipeline on native presets
-# 1.) Check sources last modified times against tmp/.lastModified
-# 2.) If any changes, run full testing pipeline on native presets
-# 3.) Update tmp/.lastModified file
-# - Shows last modified file at the end
-
-WATCH_DIRS := src Scripts TaskFiles include
-LAST_MOD_FILE := tmp/.lastModified
-ROOT_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
-
 commit-test-pipeline:
-	@echo "Checking sources for changes in: $(WATCH_DIRS)"
-	@mkdir -p tmp
-	@echo "Finding last modified time..."
-	@find $(WATCH_DIRS) -type f -exec stat -c '%Y %n' {} + | sort -nr | head -n 1 > tmp/.latest
-	@if [ ! -f $(LAST_MOD_FILE) ]; then \
-		echo "No previous timestamp file found. Running full pipeline..."; \
-		cd $(ROOT_DIR) && $(MAKE) -f $(lastword $(MAKEFILE_LIST)) build-and-test-native; \
-	else \
-		latest=$$(cut -d' ' -f1 tmp/.latest); \
-		last=$$(cat $(LAST_MOD_FILE)); \
-		if [ $$latest -gt $$last ]; then \
-			echo "Changes detected. Running full pipeline in $(ROOT_DIR)"; \
-			cd $(ROOT_DIR) && $(MAKE) -f $(lastword $(MAKEFILE_LIST)) build-and-test-native; \
-		else \
-			echo "No changes detected. Skipping tests."; \
-		fi; \
-	fi
-	@cut -d' ' -f2- tmp/.latest | xargs -I{} echo "Last modified file: {}"
-	@cut -d' ' -f1 tmp/.latest > $(LAST_MOD_FILE)
+	@Scripts/commitTestPipeline.sh
 
 
 
