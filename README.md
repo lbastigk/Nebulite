@@ -168,7 +168,7 @@ The expressions given are evaluated in the context of
 - the global engine state (`global`)
 
 Note that the vector `exprs` holds assignments as 
-`<context.key> <assignment-operator> <expression>`, 
+`<context>.<key> <assignment-operator> <expression>`, 
 which modify values in their respective JSON documents.
 Currently, all assignment operators support only numerical or string values.
 Complex types (arrays, objects) cannot be assigned or modified via expressions, 
