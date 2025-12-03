@@ -109,27 +109,35 @@ as well as all JSON-Transformations
 
 <!-- TOC --><a name="expression-system"></a>
 ### Expression System
-Access and manipulate data using variables `{...}` and mathematical expressions `$(...)`:
+Access and manipulate data using variables `{...}` inside and outside mathematical expressions `$(...)`:
 
 **Variable Contexts:**
 - `{self.*}` - the object broadcasting logic
 - `{other.*}` - objects listening to the broadcast
 - `{global.*}` - shared engine state
 - `{file.json:key.path}` - external read-only JSON files
-- `{global.{self.id}}` - nested resolution (multiresolve), works only outside mathematical expressions.
+- `{global.{self.id}}` - nested resolution (multiresolve).
 
 **Mathematical Expressions:**
 - `$(1 + 2 * {self.mass})` - arithmetic with variables
 - `$(gt({self.hp}, 0))` - logical operations (gt, lt, eq, and, or, not)
 - `$i(3.14)` - cast to integer
 
+retrieved values from JSON documents are auto-casted to double for math operations.
+Expressions do not offer the ability to operate on non-double values (strings, arrays, objects).
+
 **Value Transformations:**
-Nebulite offers transformation functions on JSON values on retrieval. They do not modify the stored value, only the returned one.
-- `{self.arr|length}` - get array length
+Nebulite offers transformation functions of JSON values on retrieval. They do not modify the stored value, only the returned one.
+- `{self.arr|length}` - get array length instead of the array
 - `{self.arr|map <function>}` - apply function to each array element
 - `{self.val|add 5}` - add 5 to value on retrieval
 - `{self.val|typeAsString}` - returns the type of the value as string (value, array, object, null)
 - `{self.arr|print|at 1}` - Useful for debugging: prints the array to console and returns the element at index 1
+
+**Examples**
+- `$( {self.health} / {self.maxHealth} * 100 )%` - get health percentage
+- `The player has {self.inventory|length} items.` - get inventory size
+- `The player will have $i({self.inventory|length} + {other.inventory|length}) items after trade.` - sum of two inventories
 
 <!-- TOC --><a name="invoke-system"></a>
 ### Invoke System
@@ -146,6 +154,32 @@ Define object interactions via JSON rulesets:
   "functioncalls_other": [...]   // Commands to parse on domain RenderObject, other
 }
 ```
+Rulesets are either local (topic empty) or global (specific topic name).
+This allows for inter-object communication via broadcasting and inner-object logic handling.
+- hitbox collisions
+- area triggers
+- velocity integration
+- AI decision making
+- custom events
+
+The expressions given are evaluated in the context of 
+- the broadcasting object (`self`) 
+- the listening object (`other`)
+- the global engine state (`global`)
+
+Note that the vector `exprs` holds assignments as 
+`<context.key> <assignment-operator> <expression>`, 
+which modify values in their respective JSON documents.
+Currently, all assignment operators support only numerical or string values.
+Complex types (arrays, objects) cannot be assigned or modified via expressions, 
+only overwritten by numerical or string literals.
+Supported assignment operators:
+- `=`  : direct assignment (cast to either double or string, depending on expression)
+- `+=` : addition assignment (cast to double)
+- `*=` : multiplication assignment (cast to double)
+- `|=` : Concatenation assignment (cast to string)
+
+The function calls are parsed and executed in their respective domains after expression evaluation.
 
 <!-- TOC --><a name="runtime-modes"></a>
 ### Runtime Modes
