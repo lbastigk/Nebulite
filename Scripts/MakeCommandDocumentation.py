@@ -22,8 +22,9 @@ from typing import List, Dict, Tuple, Optional
 
 # Define the root commands for GlobalSpace and RenderObject
 # We simply need to add "help" to these commands to get the list of available functions/variables
-ROOT_GLOBALSPACE = "./bin/Nebulite"
-ROOT_RENDEROBJECT = "./bin/Nebulite draft parse"
+ROOT_GLOBALSPACE = "./bin/Nebulite <arg>"
+ROOT_RENDEROBJECT = "./bin/Nebulite draft parse <arg>"
+ROOT_JSON_TRANSFORMATIONS = "./bin/Nebulite eval nop {global.var|<arg>}"
 
 # Output file for the generated documentation
 OUTPUT_FILE = "./doc/Commands.md"
@@ -207,21 +208,26 @@ def has_subcommands(help_output: str) -> bool:
     return bool(help_output and "Add the entries name to the command for more details:" in help_output)
 
 
-def process_command_recursively(base_command: str, command_name: str = "", 
-                               prefix: str = "", visited: Optional[set] = None) -> Dict:
+def process_command_recursively(base_command: str, command_name: str = "",
+                                prefix: str = "", visited: Optional[set] = None) -> Dict:
     """
     Recursively process a command and its subcommands.
-    Returns a dictionary with command documentation structure.
+    Supports replacing the template token `<arg>` in `base_command` with:
+      - 'help' for listing functions
+      - 'help <function>' when querying a specific function
+
+    If `<arg>` is present the original `base_command` is preserved for recursion
+    so nested substitutions continue to work.
     """
     if visited is None:
         visited = set()
-    
+
     # Avoid infinite recursion
     full_name = f"{prefix}{command_name}".strip()
     if full_name in visited:
         return {}
     visited.add(full_name)
-    
+
     result = {
         'name': command_name or 'root',
         'full_name': full_name,
@@ -230,39 +236,58 @@ def process_command_recursively(base_command: str, command_name: str = "",
         'variables': [],
         'subcommands': {}
     }
-    
-    # Get help for this command
-    help_output = get_command_help(base_command, command_name)
+
+    # Build and run help command, substituting '<arg>' if present
+    help_output = None
+    try:
+        insert = "help" if not command_name else f"help {command_name}"
+        if "<arg>" in base_command:
+            help_cmd = base_command.replace("<arg>", insert)
+            # Ensure termination for interactive commands
+            if not help_cmd.strip().endswith("'; exit'"):
+                help_cmd = help_cmd + " '; exit'"
+            help_output = run_command_with_timeout(help_cmd)
+        else:
+            help_output = get_command_help(base_command, command_name)
+    except Exception as e:
+        print(f"Error building help command: {e}")
+        help_output = None
+
     if not help_output:
         return result
-    
+
     result['help'] = help_output
-    
+
     # Parse functions and variables
     functions, variables = parse_command_list(help_output)
     result['functions'] = functions
     result['variables'] = variables
-    
+
     # Check if this command has subcommands and process them
     if has_subcommands(help_output):
         for func in functions:
             # Skip 'help' function to avoid recursion
             if func == 'help':
                 continue
-            
+
             # For GlobalSpace, avoid exploring "draft parse" subcommands
             if not command_name and func == 'draft' and base_command == ROOT_GLOBALSPACE:
                 continue
-            
-            new_base = f"{base_command} {command_name}".strip() if command_name else base_command
-            new_prefix = f"{prefix}{command_name} ".strip() + " " if command_name else prefix
-            
+
+            # Preserve template base_command if it contains '<arg>', otherwise append the current command_name
+            if "<arg>" in base_command:
+                new_base = base_command
+            else:
+                new_base = f"{base_command} {command_name}".strip() if command_name else base_command
+
+            new_prefix = f"{prefix}{command_name} " if command_name else prefix
+
             subcommand_result = process_command_recursively(
                 new_base, func, new_prefix, visited
             )
             if subcommand_result:
                 result['subcommands'][func] = subcommand_result
-    
+
     return result
 
 
@@ -305,9 +330,8 @@ def generate_documentation() -> str:
 
     # Get full path to date
     date_path = shutil.which("date")
-    
-    
 
+    # Begin markdown document
     markdown = "# Nebulite Command Documentation\n\n"
     markdown += "This documentation is automatically generated from the Nebulite executable.\n\n"
     markdown += f"Generated on: {subprocess.run([f'{date_path}'], capture_output=True, text=True).stdout.strip()}\n\n"
@@ -316,6 +340,7 @@ def generate_documentation() -> str:
     markdown += "## Table of Contents\n\n"
     markdown += "- [GlobalSpace Commands](#globalspace-commands)\n"
     markdown += "- [RenderObject Commands](#renderobject-commands)\n\n"
+    markdown += "- [JSON Transformations Commands](#json-transformations-commands)\n\n"
 
     # Process GlobalSpace commands
     print("Processing GlobalSpace commands...")
@@ -342,6 +367,20 @@ def generate_documentation() -> str:
     else:
         markdown += "Failed to retrieve RenderObject commands.\n\n"
         print("No render data retrieved")
+
+    # Process JSON Transformations commands
+    print("Processing JSON Transformations commands...")
+    markdown += "## JSON Transformations Commands\n\n"
+    markdown += "These commands are available during JSON value retrieval with the transformation operator '|'.\n"
+    markdown += "Example: `{global.var|length}`\n\n"
+
+    json_transform_data = process_command_recursively(ROOT_JSON_TRANSFORMATIONS)
+    if json_transform_data and json_transform_data.get('help'):
+        print(f"Found {len(json_transform_data.get('functions', []))} JSON transformation functions and {len(json_transform_data.get('variables', []))} variables")
+        markdown += format_markdown_section(json_transform_data, level=3)
+    else:
+        markdown += "Failed to retrieve JSON transformation commands.\n\n"
+        print("No JSON transformation data retrieved")
     
     return markdown
 

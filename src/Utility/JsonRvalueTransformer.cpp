@@ -77,7 +77,7 @@ bool JsonRvalueTransformer::add(std::span<std::string const> const& args, JSON* 
 }
 
 std::string const JsonRvalueTransformer::addName = "add";
-std::string const JsonRvalueTransformer::addDesc = "Adds a numeric value to the current JSON value. "
+std::string const JsonRvalueTransformer::addDesc = "Adds a numeric value to the current JSON value.\n"
     "Usage: |add <number1> <number2> ... -> {number}";
 
 // NOLINTNEXTLINE
@@ -98,7 +98,7 @@ bool JsonRvalueTransformer::multiply(std::span<std::string const> const& args, J
 }
 
 std::string const JsonRvalueTransformer::multiplyName = "mul";
-std::string const JsonRvalueTransformer::multiplyDesc = "Multiplies the current JSON value by a numeric value. "
+std::string const JsonRvalueTransformer::multiplyDesc = "Multiplies the current JSON value by a numeric value.\n"
     "Usage: |multiply <number1> <number2> ...";
 
 // NOLINTNEXTLINE
@@ -121,7 +121,7 @@ bool JsonRvalueTransformer::mod(std::span<std::string const> const& args, JSON* 
 }
 
 std::string const JsonRvalueTransformer::modName = "mod";
-std::string const JsonRvalueTransformer::modDesc = "Calculates the modulo of the current JSON value by a numeric value. "
+std::string const JsonRvalueTransformer::modDesc = "Calculates the modulo of the current JSON value by a numeric value.\n"
     "Usage: |mod <number> -> {number}";
 
 // NOLINTNEXTLINE
@@ -141,7 +141,7 @@ bool JsonRvalueTransformer::pow(std::span<std::string const> const& args, JSON* 
 }
 
 std::string const JsonRvalueTransformer::powName = "pow";
-std::string const JsonRvalueTransformer::powDesc = "Raises the current JSON value to the power of a numeric value. "
+std::string const JsonRvalueTransformer::powDesc = "Raises the current JSON value to the power of a numeric value.\n"
     "Usage: |pow <exponent> -> {number}";
 
 //------------------------------------------
@@ -167,8 +167,8 @@ bool JsonRvalueTransformer::at(std::span<std::string const> const& args, JSON* j
 }
 
 std::string const JsonRvalueTransformer::atName = "at";
-std::string const JsonRvalueTransformer::atDesc = "Gets the element at the specified index from the array in the current JSON value. "
-    "If the index is out of bounds, the transformation fails."
+std::string const JsonRvalueTransformer::atDesc = "Gets the element at the specified index from the array in the current JSON value.\n"
+    "If the index is out of bounds, the transformation fails.\n"
     "Usage: |at <index> -> {value}";
 
 // NOLINTNEXTLINE
@@ -179,7 +179,7 @@ bool JsonRvalueTransformer::length(std::span<std::string const> const& args, JSO
 }
 
 std::string const JsonRvalueTransformer::lengthName = "length";
-std::string const JsonRvalueTransformer::lengthDesc = "Gets the length of the array in the current JSON value. "
+std::string const JsonRvalueTransformer::lengthDesc = "Gets the length of the array in the current JSON value.\n"
     "Usage: |length -> {number}";
 
 // NOLINTNEXTLINE
@@ -205,8 +205,8 @@ bool JsonRvalueTransformer::reverse(std::span<std::string const> const& args, JS
 }
 
 std::string const JsonRvalueTransformer::reverseName = "reverse";
-std::string const JsonRvalueTransformer::reverseDesc = "Reverses the array in the current JSON value. "
-    "If the current value is not an array, it is first wrapped into a single-element array."
+std::string const JsonRvalueTransformer::reverseDesc = "Reverses the array in the current JSON value.\n"
+    "If the current value is not an array, it is first wrapped into a single-element array.\n"
     "Usage: |reverse -> {array}";
 
 
@@ -222,8 +222,8 @@ bool JsonRvalueTransformer::toInt(std::span<std::string const> const& args, JSON
 }
 
 std::string const JsonRvalueTransformer::toIntName = "toInt";
-std::string const JsonRvalueTransformer::toIntDesc = "Converts the current JSON value to an integer. "
-    "Never fails, defaults to 0 if the provided value is non-numeric."
+std::string const JsonRvalueTransformer::toIntDesc = "Converts the current JSON value to an integer.\n"
+    "Never fails, defaults to 0 if the provided value is non-numeric.\n"
     "Usage: |toInt -> {number}";
 
 // NOLINTNEXTLINE
@@ -234,8 +234,8 @@ bool JsonRvalueTransformer::toString(std::span<std::string const> const& args, J
 }
 
 std::string const JsonRvalueTransformer::toStringName = "toString";
-std::string const JsonRvalueTransformer::toStringDesc = "Converts the current JSON value to a string. "
-    "Never fails, defaults to an empty string if no conversion is possible. "
+std::string const JsonRvalueTransformer::toStringDesc = "Converts the current JSON value to a string.\n"
+    "Never fails, defaults to an empty string if no conversion is possible.\n"
     "Usage: |toString -> {string}";
 
 //------------------------------------------
@@ -279,8 +279,8 @@ bool JsonRvalueTransformer::map(std::span<std::string const> const& args, JSON* 
 }
 
 std::string const JsonRvalueTransformer::mapName = "map";
-std::string const JsonRvalueTransformer::mapDesc = "Applies a mapping function to each element in the array of the current JSON value. "
-    "If the current value is not an array, it is first wrapped into a single-element array."
+std::string const JsonRvalueTransformer::mapDesc = "Applies a mapping function to each element in the array of the current JSON value.\n"
+    "If the current value is not an array, it is first wrapped into a single-element array.\n"
     "Usage: |map <function> -> {array}";
 
 //------------------------------------------
@@ -300,7 +300,7 @@ bool JsonRvalueTransformer::echo(std::span<std::string const> const& args, JSON*
 }
 
 std::string const JsonRvalueTransformer::echoName = "echo";
-std::string const JsonRvalueTransformer::echoDesc = "Echoes the provided arguments to the console, with newline. "
+std::string const JsonRvalueTransformer::echoDesc = "Echoes the provided arguments to the console, with newline.\n"
     "Usage: |echo <arg1> <arg2> ...";
 
 // NOLINTNEXTLINE
@@ -315,7 +315,7 @@ bool JsonRvalueTransformer::print(std::span<std::string const> const& args, JSON
 }
 
 std::string const JsonRvalueTransformer::printName = "print";
-std::string const JsonRvalueTransformer::printDesc = "Prints the current JSON value to the console. "
+std::string const JsonRvalueTransformer::printDesc = "Prints the current JSON value to the console.\n"
     "Usage: |print";
 
 //------------------------------------------
@@ -328,7 +328,7 @@ bool JsonRvalueTransformer::typeAsNumber(std::span<std::string const> const& arg
 }
 
 std::string const JsonRvalueTransformer::typeAsNumberName = "typeAsNumber";
-std::string const JsonRvalueTransformer::typeAsNumberDesc = "Converts the current JSON value to a number. "
+std::string const JsonRvalueTransformer::typeAsNumberDesc = "Converts the current JSON type value to a number.\n"
     "Usage: |typeAsNumber -> {number}, where the number reflects the enum value JSON::KeyType.";
 
 // NOLINTNEXTLINE
@@ -368,7 +368,7 @@ bool JsonRvalueTransformer::typeAsString(std::span<std::string const> const& arg
 }
 
 std::string const JsonRvalueTransformer::typeAsStringName = "typeAsString";
-std::string const JsonRvalueTransformer::typeAsStringDesc = "Converts the current JSON value to a string. "
+std::string const JsonRvalueTransformer::typeAsStringDesc = "Converts the current JSON type value to a string.\n"
     "Usage: |typeAsString -> {value,array,object}";
 
 } // namespace Nebulite::Utility

@@ -2,12 +2,14 @@
 
 This documentation is automatically generated from the Nebulite executable.
 
-Generated on: Tue Dec  2 18:50:40 CET 2025
+Generated on: Wed Dec  3 10:07:37 CET 2025
 
 ## Table of Contents
 
 - [GlobalSpace Commands](#globalspace-commands)
 - [RenderObject Commands](#renderobject-commands)
+
+- [JSON Transformations Commands](#json-transformations-commands)
 
 ## GlobalSpace Commands
 
@@ -48,6 +50,7 @@ Available Functions
 | `keyDelete` | Delete a key from the JSON document. |
 | `log` | Functions to log various data to files |
 | `move` | Move data from one key to another. |
+| `nop` | No operation. Does nothing. |
 | `pop-back` | Pop a value from the back of an array. |
 | `pop-front` | Pop a value from the front of an array. |
 | `print` | Prints the JSON document to the console for debugging purposes. |
@@ -141,24 +144,19 @@ Available Functions
 ##### `cam move`
 
 ```
-Move camera by a given delta.
+Move data from one key to another.
 
-Usage: cam move <dx> <dy>
-
-<dx> : Delta x to move camera by
-<dy> : Delta y to move camera by
+Usage: move <source_key> <destination_key>
 ```
 
 ##### `cam set`
 
 ```
-Set camera to concrete position.
+Set a key to a value in the JSON document.
 
-Usage: cam set <x> <y> [c]
+Usage: set <key> <value>
 
-<x> : X position to set camera to
-<y> : Y position to set camera to
-[c] : Optional. If provided, sets the camera's center to the given position.
+Note: All values are stored as strings.
 ```
 
 #### `clear`
@@ -184,21 +182,7 @@ Available Functions
 
 ##### `console set-background`
 
-```
-Sets a background image for the console.
-
-Usage: set-background <image_path>
-```
-
 ##### `console zoom`
-
-```
-Reduces or increases the console font size.
-
-Usage: zoom [in/out/+/-]
-- in  / + : Zooms in  (increases font size)
-- out / - : Zooms out (decreases font size)
-```
 
 #### `copy`
 
@@ -243,51 +227,6 @@ Available Functions
 
 ##### `debug collision-detect`
 
-Available Functions
-
-| Function | Description |
-|----------|-------------|
-| `category` | Tests collision detection of categories |
-| `function` | Tests collision detection of functions names |
-| `help` | Show available commands and their descriptions |
-| `variable` | Tests collision detection of variable names |
-
-###### `debug collision-detect category`
-
-```
-Tests collision detection of categories
-
-Tries to bind a category that is already registered in globalspace, expecting a collision error.
-
-Usage: debug collision-detect category [fail/succeed]
-
-Defaults to fail
-```
-
-###### `debug collision-detect function`
-
-```
-Tests collision detection of functions names
-
-Tries to bind a function name to globalspace that is already registered, expecting a collision error.
-
-Usage: debug collision-detect function [fail/succeed]
-
-Defaults to fail
-```
-
-###### `debug collision-detect variable`
-
-```
-Tests collision detection of variable names
-
-Tries to bind a variable name to globalspace that is already registered, expecting a collision error.
-
-Usage: debug collision-detect variable [fail/succeed]
-
-Defaults to fail
-```
-
 #### `echo`
 
 ```
@@ -322,21 +261,7 @@ Available Functions
 
 ##### `env deload`
 
-```
-Deload entire environment, leaving an empty renderer.
-
-Usage: env deload
-```
-
 ##### `env load`
-
-```
-Load an environment/level from a json/jsonc file.
-
-Usage: env load <path/to/file.jsonc>
-
-If no argument is provided, an empty environment is loaded.
-```
 
 #### `error`
 
@@ -403,10 +328,6 @@ Available Functions
 
 ##### `feature-test functree`
 
-```
-Builds a funcTree with extra arguments and tests it
-```
-
 #### `for`
 
 ```
@@ -468,12 +389,11 @@ Available Functions
 ##### `json set`
 
 ```
-Sets a key from a JSON document.
+Set a key to a value in the JSON document.
 
-Usage: json set <key_to_set> <link:key>
+Usage: set <key> <value>
 
-Where <link:key> is a link to a JSON document.
-The document is dynamically loaded and cached for future use.
+Note: All values are stored as strings.
 ```
 
 #### `keyDelete`
@@ -496,25 +416,7 @@ Available Functions
 
 ##### `log global`
 
-```
-Logs the global document to a file.
-
-Usage: log global [<filenames>...]
-
-- <filenames>: Optional. One or more filenames to log the global document to.
-                If no filenames are provided, defaults to 'global.log.jsonc'.
-```
-
 ##### `log state`
-
-```
-Logs the current state of the renderer to a file.
-
-Usage: log state [<filenames>...]
-
-- <filenames>: Optional. One or more filenames to log the renderer state to.
-                If no filenames are provided, defaults to 'state.log.jsonc'.
-```
 
 #### `move`
 
@@ -522,6 +424,16 @@ Usage: log state [<filenames>...]
 Move data from one key to another.
 
 Usage: move <source_key> <destination_key>
+```
+
+#### `nop`
+
+```
+No operation. Does nothing.
+Usage: nop <blind arguments>
+
+Useful for testing or as a placeholder in scripts where no action is required,
+but a command is syntactically necessary.
 ```
 
 #### `pop-back`
@@ -577,8 +489,11 @@ Available Functions
 ##### `query set`
 
 ```
-Sets a key from a SQL query result.
-Not implemented yet.
+Set a key to a value in the JSON document.
+
+Usage: set <key> <value>
+
+Note: All values are stored as strings.
 ```
 
 #### `return`
@@ -611,22 +526,7 @@ Available Functions
 
 ##### `selected-object get`
 
-```
-Get a renderobject by its ID.
-
-Usage: selected-object get <id>
-```
-
 ##### `selected-object parse`
-
-```
-Parse a command on the selected RenderObject.
-
-Usage: selected-object parse <command>
-
-Use 'selected-object get <id>' to select a RenderObject first.
-Use 'selected-object parse help' to see available commands for the selected object.
-```
 
 #### `set`
 
@@ -710,14 +610,6 @@ Available Functions
 
 ##### `standardfile renderobject`
 
-```
-Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
-
-Usage: standardfile renderobject
-
-Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.
-```
-
 #### `task`
 
 ```
@@ -757,52 +649,13 @@ Available Functions
 
 ##### `time halt-once`
 
-```
-Halts time for one frame
-Meaning you can halt time by continuously calling this function.
-
-Usage: time halt-once
-```
-
 ##### `time lock`
-
-```
-Locks time with lock provided, 
-Time can only progress if no locks are present.
-
-Usage: time lock <lock_name>
-
-<lock_name> : Name of the lock to add. Any string without whitespace is valid.
-```
 
 ##### `time master-unlock`
 
-```
-Removes all time locks.
-Time can only progress if no locks are present.
-
-Usage: time master-unlock
-```
-
 ##### `time set-fixed-dt`
 
-```
-Sets a fixed delta time in milliseconds for the simulation time.
-Use 0 to disable fixed dt.
-
-Usage: time set-fixed-dt <dt_ms>
-```
-
 ##### `time unlock`
-
-```
-Removes a time lock.
-Time can only progress if no locks are present.
-
-Usage: time unlock <lock_name>
-
-<lock_name> : Name of the lock to remove. Must match an existing lock.
-```
 
 #### `wait`
 
@@ -887,43 +740,9 @@ Available Functions
 
 ##### `debug print-dst-rect`
 
-```
-Prints debug information about the destination rectangle to console
-
-Usage: debug print-dst-rect
-
-Outputs:
-Destination Rectangle: { x: ..., y: ..., w: ..., h: ... }
-If the RenderObject is not a spritesheet, indicates that instead:
-Destination rectangle is not set.
-```
-
 ##### `debug print-src-rect`
 
-```
-Prints debug information about the source rectangle to console
-
-Usage: debug print-src-rect
-
-Outputs:
-Source Rectangle: { x: ..., y: ..., w: ..., h: ... }
-If the RenderObject is not a spritesheet, indicates that instead:
-This RenderObject is not a spritesheet.
-```
-
 ##### `debug texture-status`
-
-```
-Prints debug information about the texture to console
-
-Usage: debug texture-status
-
-Outputs various details about the texture, including:
- - Texture Key
- - Valid Texture
- - Local Texture
- - SDL Texture Info (Width, Height, Access, Format)
-```
 
 #### `delete`
 
@@ -993,12 +812,11 @@ Available Functions
 ##### `json set`
 
 ```
-Sets a key from a JSON document.
+Set a key to a value in the JSON document.
 
-Usage: json set <key_to_set> <link:key>
+Usage: set <key> <value>
 
-Where <link:key> is a link to a JSON document.
-The document is dynamically loaded and cached for future use.
+Note: All values are stored as strings.
 ```
 
 #### `keyDelete`
@@ -1021,24 +839,7 @@ Available Functions
 
 ##### `log all`
 
-```
-Logs the entire RenderObject to a file.
-
-Usage: log [filename]
-
-Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
-```
-
 ##### `log key`
-
-```
-Logs a specific value from the RenderObject to a file.
-
-Usage: log key <key> [filename]
-
-Logs the value associated with <key> to the specified [filename], 
-or to `RenderObject_id<id>.log.jsonc` if no filename is provided.
-```
 
 #### `mirror`
 
@@ -1056,57 +857,20 @@ Available Functions
 ##### `mirror delete`
 
 ```
-Deletes the GlobalSpace document entry for this RenderObject
+Marks object for deletion
 
-Usage: mirror delete
+Usage: delete
 
-Mirrors are removed from the GlobalSpace document under key "mirror.renderObject.id<id>
+Marks the object for deletion on the next update cycle.
 ```
 
 ##### `mirror fetch`
 
-```
-Deserializes the RenderObject from the GlobalSpace document entry
-
-Usage: mirror fetch
-
-Mirrors are fetched from the GlobalSpace document under key "mirror.renderObject.id<id>
-```
-
 ##### `mirror off`
-
-```
-Disables mirroring to the GlobalSpace document
-
-Usage: mirror off
-
-Constant mirroring is inactive until turned on again with 'mirror on'
-
-Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id<id>
-```
 
 ##### `mirror on`
 
-```
-Enables mirroring to the GlobalSpace document
-
-Usage: mirror on
-
-Constant mirroring is active until turned off with 'mirror off'
-
-Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id<id>
-```
-
 ##### `mirror once`
-
-```
-Mirrors the object to the GlobalSpace document once on next update
-
-Usage: mirror once
-
-Mirroring is only done for one frame.
-Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id<id>
-```
 
 #### `move`
 
@@ -1169,8 +933,11 @@ Available Functions
 ##### `query set`
 
 ```
-Sets a key from a SQL query result.
-Not implemented yet.
+Set a key to a value in the JSON document.
+
+Usage: set <key> <value>
+
+Note: All values are stored as strings.
 ```
 
 #### `reload-texture`
@@ -1207,5 +974,135 @@ Calculate text texture
 Usage: update-text
 
 Triggers a recalculation of the text texture.
+```
+
+## JSON Transformations Commands
+
+These commands are available during JSON value retrieval with the transformation operator '|'.
+Example: `{global.var|length}`
+
+Help for JSON rvalue transformation FuncTree
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `add` | Adds a numeric value to the current JSON value. |
+| `at` | Gets the element at the specified index from the array in the current JSON value. |
+| `echo` | Echoes the provided arguments to the console, with newline. |
+| `help` | Show available commands and their descriptions |
+| `length` | Gets the length of the array in the current JSON value. |
+| `map` | Applies a mapping function to each element in the array of the current JSON value. |
+| `mod` | Calculates the modulo of the current JSON value by a numeric value. |
+| `mul` | Multiplies the current JSON value by a numeric value. |
+| `pow` | Raises the current JSON value to the power of a numeric value. |
+| `print` | Prints the current JSON value to the console. |
+| `reverse` | Reverses the array in the current JSON value. |
+| `toInt` | Converts the current JSON value to an integer. |
+| `toString` | Converts the current JSON value to a string. |
+| `typeAsNumber` | Converts the current JSON type value to a number. |
+| `typeAsString` | Converts the current JSON type value to a string. |
+
+#### `add`
+
+```
+Adds a numeric value to the current JSON value.
+Usage: |add <number1> <number2> ... -> {number}
+```
+
+#### `at`
+
+```
+Gets the element at the specified index from the array in the current JSON value.
+If the index is out of bounds, the transformation fails.
+Usage: |at <index> -> {value}
+```
+
+#### `echo`
+
+```
+Echoes the provided arguments to the console, with newline.
+Usage: |echo <arg1> <arg2> ...
+```
+
+#### `length`
+
+```
+Gets the length of the array in the current JSON value.
+Usage: |length -> {number}
+```
+
+#### `map`
+
+```
+Applies a mapping function to each element in the array of the current JSON value.
+If the current value is not an array, it is first wrapped into a single-element array.
+Usage: |map <function> -> {array}
+```
+
+#### `mod`
+
+```
+Calculates the modulo of the current JSON value by a numeric value.
+Usage: |mod <number> -> {number}
+```
+
+#### `mul`
+
+```
+Multiplies the current JSON value by a numeric value.
+Usage: |multiply <number1> <number2> ...
+```
+
+#### `pow`
+
+```
+Raises the current JSON value to the power of a numeric value.
+Usage: |pow <exponent> -> {number}
+```
+
+#### `print`
+
+```
+Prints the current JSON value to the console.
+Usage: |print
+```
+
+#### `reverse`
+
+```
+Reverses the array in the current JSON value.
+If the current value is not an array, it is first wrapped into a single-element array.
+Usage: |reverse -> {array}
+```
+
+#### `toInt`
+
+```
+Converts the current JSON value to an integer.
+Never fails, defaults to 0 if the provided value is non-numeric.
+Usage: |toInt -> {number}
+```
+
+#### `toString`
+
+```
+Converts the current JSON value to a string.
+Never fails, defaults to an empty string if no conversion is possible.
+Usage: |toString -> {string}
+```
+
+#### `typeAsNumber`
+
+```
+Converts the current JSON type value to a number.
+Usage: |typeAsNumber -> {number}, where the number reflects the enum value JSON::KeyType.
+```
+
+#### `typeAsString`
+
+```
+Converts the current JSON type value to a string.
+Usage: |typeAsString -> {value,array,object}
 ```
 
