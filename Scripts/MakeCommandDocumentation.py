@@ -317,24 +317,16 @@ def format_markdown_section(command_data: Dict, level: int = 1) -> str:
     return markdown
 
 
-def generate_documentation() -> str:
+def generate_documentation(date: str) -> str:
     """
     Generate complete documentation for both GlobalSpace and RenderObject domains.
     """
-    # See if command date exists
-    if not shutil.which("date"):
-        print("date command not found. Please install coreutils package.")
-        print("On Ubuntu/Debian: sudo apt install coreutils")
-        print("On Fedora: sudo dnf install coreutils")
-        sys.exit(1)
 
-    # Get full path to date
-    date_path = shutil.which("date")
 
     # Begin markdown document
     markdown = "# Nebulite Command Documentation\n\n"
     markdown += "This documentation is automatically generated from the Nebulite executable.\n\n"
-    markdown += f"Generated on: {subprocess.run([f'{date_path}'], capture_output=True, text=True).stdout.strip()}\n\n"
+    markdown += f"Generated on: {date}\n\n"
 
     # Insert a simple manual Table of Contents for the two main sections
     markdown += "## Table of Contents\n\n"
@@ -390,6 +382,17 @@ def main():
     Main function to generate and save command documentation.
     """
     print("Starting Nebulite command documentation generation...")
+
+    # See if command date exists
+    if not shutil.which("date"):
+        print("date command not found. Please install coreutils package.")
+        print("On Ubuntu/Debian: sudo apt install coreutils")
+        print("On Fedora: sudo dnf install coreutils")
+        sys.exit(1)
+
+    # Get full path to date
+    date_path = shutil.which("date")
+    date = subprocess.run([f'{date_path}'], capture_output=True, text=True).stdout.strip()
     
     # Check if Nebulite executable exists
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -403,7 +406,7 @@ def main():
     
     try:
         # Generate documentation
-        documentation = generate_documentation()
+        documentation = generate_documentation(date)
         
         # Write to output file
         output_path = os.path.join(project_root, OUTPUT_FILE)
