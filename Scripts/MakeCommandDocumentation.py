@@ -325,7 +325,7 @@ def generate_documentation(date: str) -> str:
 
     # Begin markdown document
     markdown = "# Nebulite Command Documentation\n\n"
-    markdown += "This documentation is automatically generated from the Nebulite executable.\n\n"
+    markdown += "This documentation is automatically generated.\n\n"
     markdown += f"Generated on: {date}\n\n"
 
     # Insert a simple manual Table of Contents for the two main sections

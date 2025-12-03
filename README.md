@@ -11,7 +11,6 @@
 
 <strong>A data‑driven 2D engine + declarative DSL for rapid experimentation with object interactions and emergent mechanics.</strong>
 
-
 <p align="center">
   <img src="doc/images/demo.gif" alt="Conventional gravity test" width="45%">
   <img src="doc/images/walking.gif" alt="Walking animations" width="45%">
@@ -31,7 +30,7 @@
 - [Learn More](#learn-more)
 - [Core Concepts](#core-concepts)
   * [Expression System](#expression-system)
-  * [Invoke System  ](#invoke-system)
+  * [Invoke System](#invoke-system)
   * [Runtime Modes](#runtime-modes)
 - [Platform Support & Dependencies](#platform-support-dependencies)
 - [Testing](#testing)
@@ -46,13 +45,14 @@
 <!-- TOC --><a name="overview"></a>
 ## Overview
 
-**Nebulite** is a C++20 2D game engine with a custom Domain-Specific Language (DSL) expressed in JSON / JSONC. It focuses on:
+**Nebulite** is a C++23 2D game engine with a custom Domain-Specific Language (DSL) as well as JSON/JSONC-defined objects 
+such as Rulesets, RenderObjects and Environments. 
+It focuses on:
 - Declarative composition of rulesets (gravity, AI, triggers) via small JSON fragments
-- Flexible SELF / OTHER / GLOBAL interaction model
+- Flexible SELF / OTHER / GLOBAL context interaction model
 - Fast runtime expression evaluation with caching
 - Seamless headless + interactive execution modes
-
-The goal: quickly prototype and iterate on emergent object logic without rebuilding C++ code.
+- Separation of concerns using Domains and DomainModules
 
 <!-- TOC --><a name="quick-start"></a>
 ## Quick Start
@@ -71,14 +71,16 @@ The goal: quickly prototype and iterate on emergent object logic without rebuild
   cmake --preset linux-debug && cmake --build --preset linux-debug
   cmake --preset linux-release && cmake --build --preset linux-release
   cmake --preset linux-coverage && cmake --build --preset linux-coverage
-
-  # Windows
-  cmake --preset windows-debug && cmake --build --preset windows-debug
-  cmake --preset windows-release && cmake --build --preset windows-release
-
+```
+```bash
   # Mac
   cmake --preset macos-debug && cmake --build --preset macos-debug
   cmake --preset macos-release && cmake --build --preset macos-release
+```
+```bash
+  # Windows
+  cmake --preset windows-debug && cmake --build --preset windows-debug
+  cmake --preset windows-release && cmake --build --preset windows-release
 ```
 3. Download Resources
 ```bash
@@ -86,16 +88,21 @@ The goal: quickly prototype and iterate on emergent object logic without rebuild
 ```
 3. Run any script:
   ```bash
-  ./bin/Nebulite task TaskFiles/Benchmarks/gravity.nebs 
+  ./bin/Nebulite task TaskFiles/Benchmarks/gravity_unlimited.nebs 
   ```
 4. Open console (press `tab`) and type `help` for interactive commands.
 
 <!-- TOC --><a name="learn-more"></a>
 ## Learn More
 
-- **Tutorials & Examples**: [Nebulite_Examples](https://github.com/lbastigk/Nebulite_Examples) - hands-on tutorials and sample projects
-- **Glossary**: [./doc/Glossary.md](./doc/Glossary.md) - definitions of key terms and concepts
-- **Command Reference**: [./doc/Commands.md](./doc/Commands.md) - comprehensive documentation of all available commands for both GlobalSpace and RenderObject domains (automatically generated with Scripts/MakeCommandDocumentation.py)
+- **Tutorials & Examples**: [Nebulite_Examples](https://github.com/lbastigk/Nebulite_Examples) - 
+hands-on tutorials and sample projects
+- **Glossary**: [./doc/Glossary.md](./doc/Glossary.md) - 
+definitions of key terms and concepts
+- **Command Reference**: [./doc/Commands.md](./doc/Commands.md) - 
+comprehensive documentation of all available commands for both GlobalSpace and RenderObject domains 
+as well as all JSON-Transformations
+(automatically generated with Scripts/MakeCommandDocumentation.py)
 
 <!-- TOC --><a name="core-concepts"></a>
 ## Core Concepts
@@ -116,7 +123,13 @@ Access and manipulate data using variables `{...}` and mathematical expressions 
 - `$(gt({self.hp}, 0))` - logical operations (gt, lt, eq, and, or, not)
 - `$i(3.14)` - cast to integer
 
-**Example:** `"other.physics.aY += $({global.physics.G} * {self.physics.mass})"`
+**Value Transformations:**
+Nebulite offers transformation functions on JSON values on retrieval. They do not modify the stored value, only the returned one.
+- `{self.arr|length}` - get array length
+- `{self.arr|map <function>}` - apply function to each array element
+- `{self.val|add 5}` - add 5 to value on retrieval
+- `{self.val|typeAsString}` - returns the type of the value as string (value, array, object, null)
+- `{self.arr|print|at 1}` - Useful for debugging: prints the array to console and returns the element at index 1
 
 <!-- TOC --><a name="invoke-system"></a>
 ### Invoke System
@@ -144,9 +157,15 @@ Define object interactions via JSON rulesets:
 <!-- TOC --><a name="platform-support-dependencies"></a>
 ## Platform Support & Dependencies
 
-**Platforms**: Linux (native), Windows (cross-compiled via MinGW-w64), MacOS
+**Platforms**:
+- Linux (native)
+- Windows (cross-compiled via MinGW-w64)
+- MacOS
 
-**Requirements**: CMake 3.16+, C++23 compiler, Python 3.8+ (for testing and mock asset creation)
+**Requirements**:
+- CMake 3.16+
+- C++23 compiler
+- Python 3.8+ (for testing and mock asset creation)
 
 **Dependencies**
 - SDL2, SDL_ttf, SDL_image - rendering and input
