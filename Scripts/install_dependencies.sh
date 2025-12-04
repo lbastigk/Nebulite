@@ -17,7 +17,7 @@ fi
 
 # Make sure the directory is the project root "Nebulite"
 if [ "$(basename "$PWD")" != "Nebulite" ] || { [ ! -f "MAKEFILE" ] && [ ! -f "CMakeLists.txt" ] && [ ! -d ".git" ]; }; then
-  echo "Not in `Nebulite` project root. Run the script from the `Nebulite` directory." >&2
+  echo "Not in Nebulite project root. Run the script from the Nebulite directory." >&2
   exit 1
 fi
 
@@ -36,16 +36,16 @@ BRW_PACKAGES="cmake ninja automake autoconf libtool python3 numpy mingw-w64 cloc
 if command -v apt-get >/dev/null; then
     echo "Detected APT package manager (Ubuntu/Debian)"
     sudo apt-get update
-    sudo apt-get install -y $APT_PACKAGES
+    sudo apt-get install -y "$APT_PACKAGES"
 elif command -v dnf >/dev/null; then
     echo "Detected DNF package manager (Fedora)"
-    sudo dnf install -y $DNF_PACKAGES
+    sudo dnf install -y "$DNF_PACKAGES"
 elif command -v yum >/dev/null; then
     echo "Detected YUM package manager (CentOS/RHEL)"
-    sudo yum install -y $YUM_PACKAGES
+    sudo yum install -y "$YUM_PACKAGES"
 elif command -v brew >/dev/null; then
     echo "Detected Homebrew (macOS)"
-    brew install $BRW_PACKAGES
+    brew install "$BRW_PACKAGES"
 else
     echo "Unknown package manager. Please install dependencies manually:"
     echo "  - cmake, ninja-build"
