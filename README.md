@@ -140,14 +140,14 @@ Nebulite offers transformation functions of JSON values on retrieval. They do no
 Define object interactions via JSON rulesets:
 ```jsonc
 {
-  "topic": "gravity",            // Broadcast channel
-  "logicalArg": "1",             // Condition to execute
-  "exprs": [                     // Modify values
+  "topic": "gravity",         // Broadcast channel
+  "logicalArg": "1",          // Condition to execute
+  "exprs": [                  // Modify values
     "other.physics.aY += $({global.physics.G} * {self.physics.mass})"
   ],
-  "functioncalls_global": [...], // Commands to parse on domain GlobalSpace
-  "functioncalls_self": [...],   // Commands to parse on domain RenderObject, self
-  "functioncalls_other": [...]   // Commands to parse on domain RenderObject, other
+  "functioncalls_global": [], // Commands to parse on domain GlobalSpace
+  "functioncalls_self": [],   // Commands to parse on domain RenderObject, self
+  "functioncalls_other": []   // Commands to parse on domain RenderObject, other
 }
 ```
 Rulesets are either local (topic empty) or global (specific topic name).
