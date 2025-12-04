@@ -129,9 +129,15 @@ They do not modify the stored value, only the returned one.
 - `{self.arr|print|at 1}` - Useful for debugging: prints the array to console and returns the element at index 1
 
 **Examples**
-- `$( {self.health} / {self.maxHealth} * 100 )%` - get health percentage
-- `The player has {self.inventory|length} items.` - get inventory size
-- `You will have $i({self.inventory|length} + {other.inventory|length}) items after trade.` - sum of two inventories
+
+Health percentage:
+`$3i( {self.health} / {self.maxHealth} * 100 )%`
+
+Inventory size:
+`The player has {self.inventory|length} items.`
+
+Sum of two inventories:
+`You will have $i({self.inventory|length} + {other.inventory|length}) items after trade.`
 
 <!-- TOC --><a name="invoke-system"></a>
 ### Invoke System
@@ -196,10 +202,10 @@ The function calls are parsed and executed in their respective domains after exp
 - Python 3.8+ (for testing and mock asset creation)
 
 **Dependencies**
-- SDL2, SDL_ttf, SDL_image - rendering and input
-- RapidJSON - JSON parsing
-- Abseil - fast hash maps
-- Tinyexpr - expression evaluation
+- `SDL2`, `SDL_ttf`, `SDL_image` - rendering and input
+- `rapidJSON` - JSON parsing
+- `abseil` - fast hash maps
+- `tinyexpr` - expression evaluation
 
 <!-- TOC --><a name="testing"></a>
 ## Testing
