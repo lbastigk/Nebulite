@@ -27,7 +27,6 @@
 
 - [Overview](#overview)
 - [Quick Start](#quick-start)
-- [Learn More](#learn-more)
 - [Core Concepts](#core-concepts)
   * [Expression System](#expression-system)
   * [Invoke System](#invoke-system)
@@ -38,6 +37,7 @@
   * [Nebulite Script](#nebulite-script)
   * [Nebulite Logic](#nebulite-logic)
 - [Contributing](#contributing)
+- [Learn More](#learn-more)
 - [License](#license)
 
 <!-- TOC end -->
@@ -45,8 +45,8 @@
 <!-- TOC --><a name="overview"></a>
 ## Overview
 
-**Nebulite** is a C++23 2D game engine with a custom Domain-Specific Language (DSL) as well as JSON/JSONC-defined objects 
-such as Rulesets, RenderObjects and Environments. 
+**Nebulite** is a C++23 2D game engine with a custom Domain-Specific Language (DSL) as well as JSON/JSONC-defined objects
+such as Rulesets, RenderObjects and Environments.
 It focuses on:
 - Declarative composition of rulesets (gravity, AI, triggers) via small JSON fragments
 - Flexible SELF / OTHER / GLOBAL context interaction model
@@ -88,18 +88,6 @@ It focuses on:
   ```
 6. Open console (press `tab`) and type `help` for interactive commands.
 
-<!-- TOC --><a name="learn-more"></a>
-## Learn More
-
-- **Tutorials & Examples**: [Nebulite_Examples](https://github.com/lbastigk/Nebulite_Examples) - 
-hands-on tutorials and sample projects
-- **Glossary**: [./doc/Glossary.md](./doc/Glossary.md) - 
-definitions of key terms and concepts
-- **Command Reference**: [./doc/Commands.md](./doc/Commands.md) - 
-comprehensive documentation of all available commands for both GlobalSpace and RenderObject domains 
-as well as all JSON-Transformations
-(automatically generated with Scripts/MakeCommandDocumentation.py)
-
 <!-- TOC --><a name="core-concepts"></a>
 ## Core Concepts
 
@@ -108,22 +96,31 @@ as well as all JSON-Transformations
 Access and manipulate data using variables `{...}` inside and outside mathematical expressions `$(...)`:
 
 **Variable Contexts:**
-- `{self.*}` - the object broadcasting logic
-- `{other.*}` - objects listening to the broadcast
-- `{global.*}` - shared engine state
-- `{file.json:key.path}` - external read-only JSON files
-- `{global.{self.id}}` - nested resolution (multiresolve).
+
+| Variable                | Description                        |
+|-------------------------|------------------------------------|
+| `{self.*}`              | the object broadcasting logic      |
+| `{other.*}`             | objects listening to the broadcast |
+| `{global.*}`            | shared engine state                |
+| `{file.json:key.path}`  | external read-only JSON files      |
+| `{global.{self.id}}`    | nested resolution (multiresolve).  |
 
 **Mathematical Expressions:**
-- `$(1 + 2 * {self.mass})` - arithmetic with variables
-- `$(gt({self.hp}, 0))` - logical operations (gt, lt, eq, and, or, not)
-- `$i(3.14)` - cast to integer
 
-retrieved values from JSON documents are auto-casted to double for math operations.
+| Example                  | Description                                   |
+|--------------------------|-----------------------------------------------|
+| `$(1 + 2 * {self.mass})` | arithmetic with variables                     |
+| `$(gt({self.hp}, 0))`    | logical operations (gt, lt, eq, and, or, not) |
+| `$i(3.14)`               | cast to integer                               |
+| `$04i(3.14)`             | cast to integer with formatting               |
+| `$10.5f({self.var})`     | cast to float with formatting                 |
+
+retrieved values from JSON documents inside mathematical expressions are auto-casted to double.
 Expressions do not offer the ability to operate on non-double values (strings, arrays, objects).
 
 **Value Transformations:**
-Nebulite offers transformation functions of JSON values on retrieval. They do not modify the stored value, only the returned one.
+Nebulite offers transformation functions of JSON values on retrieval.
+They do not modify the stored value, only the returned one.
 - `{self.arr|length}` - get array length instead of the array
 - `{self.arr|map <function>}` - apply function to each array element
 - `{self.val|add 5}` - add 5 to value on retrieval
@@ -133,7 +130,7 @@ Nebulite offers transformation functions of JSON values on retrieval. They do no
 **Examples**
 - `$( {self.health} / {self.maxHealth} * 100 )%` - get health percentage
 - `The player has {self.inventory|length} items.` - get inventory size
-- `The player will have $i({self.inventory|length} + {other.inventory|length}) items after trade.` - sum of two inventories
+- `You will have $i({self.inventory|length} + {other.inventory|length}) items after trade.` - sum of two inventories
 
 <!-- TOC --><a name="invoke-system"></a>
 ### Invoke System
@@ -158,16 +155,16 @@ This allows for inter-object communication via broadcasting and inner-object log
 - AI decision-making
 - custom events
 
-The expressions given are evaluated in the context of 
-- the broadcasting object (`self`) 
+The expressions given are evaluated in the context of
+- the broadcasting object (`self`)
 - the listening object (`other`)
 - the global engine state (`global`)
 
-Note that the vector `exprs` holds assignments as 
-`<context>.<key> <assignment-operator> <expression>`, 
+Note that the vector `exprs` holds assignments as
+`<context>.<key> <assignment-operator> <expression>`,
 which modify values in their respective JSON documents.
 Currently, all assignment operators support only numerical or string values.
-Complex types (arrays, objects) cannot be assigned or modified via expressions, 
+Complex types (arrays, objects) cannot be assigned or modified via expressions,
 only overwritten by numerical or string literals.
 Supported assignment operators:
 - `=`  : direct assignment (cast to either double or string, depending on expression)
@@ -245,6 +242,18 @@ Contributions welcome. Quick start:
 4. Open PR referencing related roadmap item or issue
 
 See full details in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+<!-- TOC --><a name="learn-more"></a>
+## Learn More
+
+- **Tutorials & Examples**: [Nebulite_Examples](https://github.com/lbastigk/Nebulite_Examples) -
+  hands-on tutorials and sample projects
+- **Glossary**: [./doc/Glossary.md](./doc/Glossary.md) -
+  definitions of key terms and concepts
+- **Command Reference**: [./doc/Commands.md](./doc/Commands.md) -
+  comprehensive documentation of all available commands for both GlobalSpace and RenderObject domains
+  as well as all JSON-Transformations
+  (automatically generated with Scripts/MakeCommandDocumentation.py)
 
 <!-- TOC --><a name="license"></a>
 ## License
