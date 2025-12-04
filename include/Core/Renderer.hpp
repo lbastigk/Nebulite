@@ -41,15 +41,15 @@ public:
      * @param X Width of the rendering area.
      * @param Y Height of the rendering area.
      */
-    Renderer(Utility::JSON *docRef, bool *flag_headless, unsigned int const &X = 1080, unsigned int const &Y = 1080);
+    Renderer(Utility::JSON* docRef, bool* flag_headless, unsigned int const& X = 1080, unsigned int const& Y = 1080);
 
     //------------------------------------------
     // Disallow copying and moving
 
-    Renderer(Renderer const &) = delete;
-    Renderer &operator=(Renderer const &) = delete;
-    Renderer(Renderer &&) = delete;
-    Renderer &operator=(Renderer &&) = delete;
+    Renderer(Renderer const&) = delete;
+    Renderer& operator=(Renderer const&) = delete;
+    Renderer(Renderer&&) = delete;
+    Renderer& operator=(Renderer&&) = delete;
 
     //------------------------------------------
     // Serialization / Deserialization
@@ -66,7 +66,7 @@ public:
      * @brief Deserializes the Renderer state from a JSON string or link.
      * @param serialOrLink The JSON string or link to deserialize.
      */
-    void deserialize(std::string const &serialOrLink) noexcept {
+    void deserialize(std::string const& serialOrLink) noexcept {
         env.deserialize(
             serialOrLink,
             getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResX, 0),
@@ -114,7 +114,7 @@ public:
      *        - updates the rolling random number generator.
      * @param toAppend Pointer to the RenderObject to append.
      */
-    void append(RenderObject *toAppend);
+    void append(RenderObject* toAppend);
 
     /**
      * @brief Reinserts all objects into the rendering pipeline.
@@ -155,7 +155,7 @@ public:
      * @param rect Optional SDL_Rect defining the area to render the texture.
      * @return True if the texture was successfully attached, false otherwise.
      */
-    bool attachTextureAboveLayer(Environment::Layer const &aboveThisLayer, std::string const &name, SDL_Texture *texture, SDL_Rect *rect = nullptr) {
+    bool attachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name, SDL_Texture* texture, SDL_Rect* rect = nullptr) {
         if (texture == nullptr) {
             return false; // Cannot attach a null texture
         }
@@ -172,7 +172,7 @@ public:
      * @param name The name of the texture to remove.
      * @return True if the texture was successfully removed, false otherwise.
      */
-    bool detachTextureAboveLayer(Environment::Layer const &aboveThisLayer, std::string const &name) {
+    bool detachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name) {
         if (BetweenLayerTextures[aboveThisLayer].contains(name)) {
             BetweenLayerTextures[aboveThisLayer].erase(name);
             return true;
@@ -226,14 +226,14 @@ public:
     /**
      * @brief Toggles the display of the FPS counter.
      */
-    void toggleFps(bool const &show = true) {
+    void toggleFps(bool const& show = true) {
         showFPS = show;
     }
 
     /**
      * @brief Sets the target FPS for the renderer.
      */
-    void setTargetFPS(uint16_t const &targetFps);
+    void setTargetFPS(uint16_t const& targetFps);
 
     /**
      * @brief Sets the camera position.
@@ -242,7 +242,7 @@ public:
      * @param isMiddle If true, the (x,y) coordinates relate to the middle of the screen.
      * If false, they relate to the top left corner.
      */
-    void setCam(int const &X, int const &Y, bool const &isMiddle = false) const;
+    void setCam(int const& X, int const& Y, bool const& isMiddle = false) const;
 
     /**
      * @brief Changes the window size.
@@ -251,14 +251,14 @@ public:
      * @param h The new pixel height of the window.
      * @param scalar The scaling factor to apply.
      */
-    void changeWindowSize(int const &w, int const &h, uint16_t const &scalar);
+    void changeWindowSize(int const& w, int const& h, uint16_t const& scalar);
 
     /**
      * @brief Moves the camera by a certain amount.
      * @param dX The amount to move the camera in the X direction.
      * @param dY The amount to move the camera in the Y direction.
      */
-    void moveCam(int const &dX, int const &dY) const;
+    void moveCam(int const& dX, int const& dY) const;
 
 
     //------------------------------------------
@@ -327,14 +327,14 @@ public:
      *        Allows for access to the underlying SDL renderer for custom rendering operations.
      * @return The SDL_Renderer instance.
      */
-    [[nodiscard]] SDL_Renderer *getSdlRenderer() const { return renderer; }
+    [[nodiscard]] SDL_Renderer* getSdlRenderer() const { return renderer; }
 
     /**
      * @brief Gets the RenderObject from its ID.
      * @param id The ID of the RenderObject to retrieve.
      * @return A pointer to the RenderObject, or nullptr if not found.
      */
-    RenderObject *getObjectFromId(uint32_t const &id) {
+    RenderObject* getObjectFromId(uint32_t const& id) {
         return env.getObjectFromId(id);
     }
 
@@ -343,7 +343,7 @@ public:
      *        Loads the font if it hasn't been loaded yet.
      * @return A pointer to the TTF_Font instance.
      */
-    [[nodiscard]] TTF_Font *getStandardFont() const {
+    [[nodiscard]] TTF_Font* getStandardFont() const {
         // Should always be loaded at this point
         return font;
     }
@@ -352,7 +352,7 @@ public:
      * @brief Gets the current SDL event.
      * @return Vector of all SDL events from the current frame.
      */
-    std::vector<SDL_Event> *getEventHandles() noexcept {
+    std::vector<SDL_Event>* getEventHandles() noexcept {
         return &events;
     }
 
@@ -372,7 +372,7 @@ public:
      * @param link The file path to load the texture from.
      * @return A pointer to the loaded SDL_Texture, or nullptr if loading failed.
      */
-    [[nodiscard]] SDL_Texture *loadTextureToMemory(std::string const &link) const;
+    [[nodiscard]] SDL_Texture* loadTextureToMemory(std::string const& link) const;
 
     //------------------------------------------
     // Status
@@ -403,7 +403,7 @@ private:
     bool quit = false; // Set to true when SDL_QUIT event is received or outside wants to quit
 
     // External Flags
-    bool *headless = nullptr;
+    bool* headless = nullptr;
 
     //------------------------------------------
     // Audio
@@ -418,9 +418,9 @@ private:
         double const duration = 200.0; // 200ms
         double const sampleRate = 44100.0;
         size_t const samples = static_cast<size_t>(sampleRate * duration / 1000.0); // Number of samples
-        std::vector<int16_t> *sineBuffer = nullptr;
-        std::vector<int16_t> *squareBuffer = nullptr;
-        std::vector<int16_t> *triangleBuffer = nullptr;
+        std::vector<int16_t>* sineBuffer = nullptr;
+        std::vector<int16_t>* squareBuffer = nullptr;
+        std::vector<int16_t>* triangleBuffer = nullptr;
     } basicAudioWaveforms;
 
     //------------------------------------------
@@ -447,8 +447,8 @@ private:
 
     // Rendering
     uint16_t WindowScale = 1;
-    SDL_Window *window{};
-    SDL_Renderer *renderer{};
+    SDL_Window* window{};
+    SDL_Renderer* renderer{};
 
     //------------------------------------------
     // Event Handling
@@ -465,7 +465,7 @@ private:
      *
      * Used for RNG seeding.
      */
-    static std::size_t hashString(std::string const &str) { return std::hash<std::string>{}(str); }
+    static std::size_t hashString(std::string const& str) { return std::hash<std::string>{}(str); }
 
     //------------------------------------------
     // Renderer::tick related Functions
@@ -512,7 +512,7 @@ private:
      * @param dispPosY The Y position on the screen to render the object.
      * @return SDL_Error code from SDL_RenderCopy, 0 if successful.
      */
-    int renderObjectToScreen(RenderObject *obj, int const &dispPosX, int const &dispPosY);
+    int renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
 
     //------------------------------------------
     //For FPS Count and Control
@@ -533,7 +533,7 @@ private:
      *        Creates the necessary surface and texture object from a given file path.
      * @param link The file path to load the texture from.
      */
-    void loadTexture(std::string const &link);
+    void loadTexture(std::string const& link);
 
     /**
      * @brief Texture container for the Renderer
@@ -542,7 +542,7 @@ private:
      *
      * `TextureContainer[link] -> SDL_Texture*`
      */
-    absl::flat_hash_map<std::string, SDL_Texture *> TextureContainer;
+    absl::flat_hash_map<std::string, SDL_Texture*> TextureContainer;
 
     /**
      * @brief Contains textures the renderer needs to render between layers
@@ -553,7 +553,7 @@ private:
         Environment::Layer,
         absl::flat_hash_map<
             std::string,
-            std::pair<SDL_Texture *, SDL_Rect *> // Pair of texture and its rectangle
+            std::pair<SDL_Texture*, SDL_Rect*> // Pair of texture and its rectangle
         >
     > BetweenLayerTextures;
 
@@ -564,7 +564,7 @@ private:
     SDL_Color textColor = {255, 255, 255, 255}; // White color
 
     // General font
-    TTF_Font *font{};
+    TTF_Font* font{};
 
     /**
      * @brief Loads fonts for the Renderer.

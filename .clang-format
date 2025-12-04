@@ -7,3 +7,6 @@ ColumnLimit: 0
 PointerAlignment: Left
 # Disable auto-derivation so the setting is always applied
 DerivePointerAlignment: false
+
+# East const placement
+QualifierAlignment: Right
