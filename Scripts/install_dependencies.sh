@@ -31,6 +31,7 @@ echo "Installing system dependencies..."
 APT_PACKAGES="cmake ninja-build automake build-essential autoconf libtool m4 perl mingw-w64 gcc-mingw-w64 g++-mingw-w64 python3 python3-pip python3-numpy libasound2-dev libpulse-dev cloc"
 DNF_PACKAGES="cmake ninja-build automake @development-tools autoconf libtool m4 perl mingw64-gcc mingw64-gcc-c++ python3 python3-pip python3-numpy alsa-lib-devel pulseaudio-libs-devel cloc"
 YUM_PACKAGES="cmake ninja-build automake @development-tools autoconf libtool m4 perl mingw64-gcc mingw64-gcc-c++ python3 python3-pip python3-numpy alsa-lib-devel pulseaudio-libs-devel cloc"
+BRW_PACKAGES="cmake ninja automake autoconf libtool python3 numpy mingw-w64 cloc"
 
 if command -v apt-get >/dev/null; then
     echo "Detected APT package manager (Ubuntu/Debian)"
@@ -44,7 +45,7 @@ elif command -v yum >/dev/null; then
     sudo yum install -y $YUM_PACKAGES
 elif command -v brew >/dev/null; then
     echo "Detected Homebrew (macOS)"
-    brew install cmake ninja automake autoconf libtool python3 numpy mingw-w64 cloc
+    brew install $BRW_PACKAGES
 else
     echo "Unknown package manager. Please install dependencies manually:"
     echo "  - cmake, ninja-build"
