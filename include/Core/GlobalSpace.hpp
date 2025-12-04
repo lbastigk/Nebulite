@@ -81,7 +81,7 @@ public:
     // Constructor itself notices if multiple instances are created
     // and throws an error in that case
 
-    explicit GlobalSpace(std::string const &name = "Unnamed GlobalSpace");
+    explicit GlobalSpace(std::string const& name = "Unnamed GlobalSpace");
 
     ~GlobalSpace() override = default;
 
@@ -89,12 +89,12 @@ public:
     // we disallow copying and moving
 
     // Prevent copying
-    GlobalSpace(GlobalSpace const &) = delete;
-    GlobalSpace &operator=(GlobalSpace const &) = delete;
+    GlobalSpace(GlobalSpace const&) = delete;
+    GlobalSpace& operator=(GlobalSpace const&) = delete;
 
     // Prevent moving
-    GlobalSpace(GlobalSpace &&) = delete;
-    GlobalSpace &operator=(GlobalSpace &&) = delete;
+    GlobalSpace(GlobalSpace&&) = delete;
+    GlobalSpace& operator=(GlobalSpace&&) = delete;
 
     //------------------------------------------
     // Functions
@@ -106,7 +106,7 @@ public:
      * @param argc The number of command line arguments.
      * @param argv The array of command line argument strings.
      */
-    void parseCommandLineArguments(int const &argc, char const **argv);
+    void parseCommandLineArguments(int const& argc, char const** argv);
 
     /**
      * @brief Resolves a task queue by parsing each task and executing it.
@@ -114,7 +114,7 @@ public:
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
      */
-    taskQueueResult resolveTaskQueue(taskQueueWrapper &tq, uint64_t const *waitCounter) const;
+    taskQueueResult resolveTaskQueue(taskQueueWrapper& tq, uint64_t const* waitCounter) const;
 
     /**
      * @brief Parses the task queue for execution.
@@ -145,7 +145,7 @@ public:
      * @param expr The expression to evaluate.
      * @return The evaluated result as a string.
      */
-    std::string eval(std::string const &expr) const {
+    std::string eval(std::string const& expr) const {
         return invoke.evaluateStandaloneExpression(expr);
     }
 
@@ -161,7 +161,7 @@ public:
      * @param context The RenderObject providing context for the evaluation.
      * @return The evaluated result as a string.
      */
-    std::string eval(std::string const &expr, RenderObject const *context) const {
+    std::string eval(std::string const& expr, RenderObject const* context) const {
         return invoke.evaluateStandaloneExpression(expr, context);
     }
 
@@ -174,7 +174,7 @@ public:
      * @param expr The expression to evaluate.
      * @return The evaluated result as a double.
      */
-    double evalAsDouble(std::string const &expr) const {
+    double evalAsDouble(std::string const& expr) const {
         return invoke.evaluateStandaloneExpressionAsDouble(expr);
     }
 
@@ -191,7 +191,7 @@ public:
      * @param context The RenderObject providing context for the evaluation.
      * @return The evaluated result as a double.
      */
-    double evalAsDouble(std::string const &expr, RenderObject const *context) const {
+    double evalAsDouble(std::string const& expr, RenderObject const* context) const {
         return invoke.evaluateStandaloneExpressionAsDouble(expr, context);
     }
 
@@ -203,7 +203,7 @@ public:
      * @param expr The expression to evaluate.
      * @return The evaluated result as a boolean.
      */
-    bool evalAsBool(std::string const &expr) const {
+    bool evalAsBool(std::string const& expr) const {
         return invoke.evaluateStandaloneExpressionAsBool(expr);
     }
 
@@ -218,7 +218,7 @@ public:
      * @param context The RenderObject providing context for the evaluation.
      * @return The evaluated result as a boolean.
      */
-    bool evalAsBool(std::string const &expr, RenderObject const *context) const {
+    bool evalAsBool(std::string const& expr, RenderObject const* context) const {
         return invoke.evaluateStandaloneExpressionAsBool(expr, context);
     }
 
@@ -232,31 +232,31 @@ public:
      *       Returning the correct deque based on task type, etc.
      *       With fallback to a default queue if type is unknown.
      */
-    std::deque<std::string> *getTaskQueue() { return &tasks.script.taskQueue; }
+    std::deque<std::string>* getTaskQueue() { return &tasks.script.taskQueue; }
 
     /**
      * @brief Gets a pointer to the Renderer instance.
      * @return Pointer to the Renderer instance.
      */
-    Renderer *getRenderer() { return &renderer; }
+    Renderer* getRenderer() { return &renderer; }
 
     /**
      * @brief Gets a pointer to the SDL Renderer instance.
      * @return Pointer to the SDL_Renderer instance.
      */
-    SDL_Renderer *getSdlRenderer() const { return renderer.getSdlRenderer(); }
+    SDL_Renderer* getSdlRenderer() const { return renderer.getSdlRenderer(); }
 
     /**
      * @brief Gets a pointer to the Invoke instance.
      * @return Pointer to the Invoke instance.
      */
-    Interaction::Invoke *getInvoke() { return &invoke; }
+    Interaction::Invoke* getInvoke() { return &invoke; }
 
     /**
      * @brief Gets a pointer to the global document cache.
      * @return Pointer to the DocumentCache instance.
      */
-    Utility::DocumentCache *getDocCache() { return &docCache; }
+    Utility::DocumentCache* getDocCache() { return &docCache; }
 
     //------------------------------------------
     // Public Variables
@@ -332,7 +332,7 @@ public:
      * @param type Which rolling counter to use for the unique ID, allowing for separate ID spaces.
      * @return The unique ID corresponding to the hash.
      */
-    uint64_t getUniqueId(std::string const &hash, UniqueIdType type) {
+    uint64_t getUniqueId(std::string const& hash, UniqueIdType type) {
         std::scoped_lock lock(uniqueIdMutex[static_cast<size_t>(type)]);
         if (auto const it = uniqueIdMap[static_cast<size_t>(type)].find(hash); it != uniqueIdMap[static_cast<size_t>(type)].end()) {
             return it->second;

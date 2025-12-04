@@ -33,7 +33,7 @@ public:
      */
     struct Batch {
         // Collection of RenderObjects
-        std::vector<RenderObject *> objects;
+        std::vector<RenderObject*> objects;
 
         // Full estimated cost of the batch
         uint64_t estimatedCost = 0;
@@ -42,20 +42,20 @@ public:
          * @brief Pops the last RenderObject from the batch.
          * @return Pointer to the popped RenderObject, or nullptr if batch is already empty.
          */
-        RenderObject *pop();
+        RenderObject* pop();
 
         /**
          * @brief Pushes a RenderObject into the batch.
          * @param obj Pointer to the RenderObject to push.
          */
-        void push(RenderObject *obj);
+        void push(RenderObject* obj);
 
         /**
          * @brief Removes a RenderObject from the batch.
          * @param obj Pointer to the RenderObject to remove.
          * @return True if the object was removed, false otherwise.
          */
-        bool removeObject(RenderObject *obj);
+        bool removeObject(RenderObject* obj);
     };
 
     //------------------------------------------
@@ -81,7 +81,7 @@ public:
      * @param dispResX Display resolution width for tile initialization.
      * @param dispResY Display resolution height for tile initialization.
      */
-    void deserialize(std::string const &serialOrLink, uint16_t const &dispResX, uint16_t const &dispResY);
+    void deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY);
 
     //------------------------------------------
     // Pipeline
@@ -93,7 +93,7 @@ public:
      * @param dispResX Display resolution width for tile placement.
      * @param dispResY Display resolution height for tile placement.
      */
-    void append(RenderObject *toAppend, uint16_t const &dispResX, uint16_t const &dispResY);
+    void append(RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY);
 
     /**
      * @brief Reinserts all objects into the container.
@@ -102,14 +102,14 @@ public:
      * @param dispResX Display resolution width for tile placement.
      * @param dispResY Display resolution height for tile placement.
      */
-    void reinsertAllObjects(uint16_t const &dispResX, uint16_t const &dispResY);
+    void reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY);
 
     /**
      * @brief Checks if the given tile position is valid; contains objects.
      * @param position The tile position to check: (x, y).
      * @return True if the position contains objects, false otherwise.
      */
-    bool isValidPosition(std::pair<uint16_t, uint16_t> const &position);
+    bool isValidPosition(std::pair<uint16_t, uint16_t> const& position);
 
     // removes all objects
     /**
@@ -135,14 +135,14 @@ public:
      * @param dispResX The display resolution width. Needed for potential re-insertion.
      * @param dispResY The display resolution height. Needed for potential re-insertion.
      */
-    void update(int16_t const &tilePosX, int16_t const &tilePosY, uint16_t const &dispResX, uint16_t const &dispResY);
+    void update(int16_t const& tilePosX, int16_t const& tilePosY, uint16_t const& dispResX, uint16_t const& dispResY);
 
     /**
      * @brief Gets the vector of batches at the specified tile position.
      * @param position The tile position to query: (x, y).
      * @return A reference to the vector of batches at the specified position.
      */
-    std::vector<Batch> &getContainerAt(std::pair<uint16_t, uint16_t> const &position) {
+    std::vector<Batch>& getContainerAt(std::pair<uint16_t, uint16_t> const& position) {
         return ObjectContainer[position];
     }
 
@@ -154,11 +154,11 @@ public:
      * @param id The unique ID of the RenderObject to retrieve.
      * @return Pointer to the RenderObject if found, nullptr otherwise.
      */
-    RenderObject *getObjectFromId(uint32_t const &id) {
+    RenderObject* getObjectFromId(uint32_t const& id) {
         // Go through all batches
-        for (auto &batches : std::views::values(ObjectContainer)) {
-            for (auto &[objects, _] : batches) {
-                for (auto const &object : objects) {
+        for (auto& batches : std::views::values(ObjectContainer)) {
+            for (auto& [objects, _] : batches) {
+                for (auto const& object : objects) {
                     if (object->getDoc()->get<uint32_t>(Constants::keyName.renderObject.id, 0) == id) {
                         return object;
                     }
@@ -188,7 +188,7 @@ private:
      * @param dispResY Display resolution height for tile placement.
      * @return The created worker thread.
      */
-    std::thread createBatchWorker(Batch &work, std::pair<int16_t, int16_t> pos, uint16_t dispResX, uint16_t dispResY);
+    std::thread createBatchWorker(Batch& work, std::pair<int16_t, int16_t> pos, uint16_t dispResX, uint16_t dispResY);
 
     /**
      * @struct Nebulite::Core::RenderObjectContainer::ReinsertionProcess
@@ -200,7 +200,7 @@ private:
      *        - Reinsert into the correct tile and batch
      */
     struct ReinsertionProcess {
-        std::vector<RenderObject *> queue;
+        std::vector<RenderObject*> queue;
         std::mutex reinsertMutex;
     } reinsertionProcess;
 
@@ -221,8 +221,8 @@ private:
      */
     struct DeletionProcess {
         //std::vector<Nebulite::Core::RenderObject*> to_delete;
-        std::vector<RenderObject *> trash; // Moving objects, marking for deletion
-        std::vector<RenderObject *> purgatory; // Deleted each frame
+        std::vector<RenderObject*> trash; // Moving objects, marking for deletion
+        std::vector<RenderObject*> purgatory; // Deleted each frame
         std::mutex deleteMutex; // Threadsafe insertion into trash
     } deletionProcess;
 };

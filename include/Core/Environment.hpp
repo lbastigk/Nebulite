@@ -60,7 +60,7 @@ public:
      * @brief Retrieves all layers in rendering order.
      * @return the vector of all layers.
      */
-    std::vector<Layer> *getAllLayers() {
+    std::vector<Layer>* getAllLayers() {
         return &allLayers;
     }
 
@@ -72,12 +72,12 @@ public:
     //------------------------------------------
     //Constructor
 
-    explicit Environment(Nebulite::Utility::JSON *documentPtr);
+    explicit Environment(Nebulite::Utility::JSON* documentPtr);
 
     // Suppress copy/move operators
-    Environment(Environment &&other) = delete;
-    Environment &operator=(Environment &&other) = delete;
-    Environment &operator=(Environment const &other) = delete;
+    Environment(Environment&& other) = delete;
+    Environment& operator=(Environment&& other) = delete;
+    Environment& operator=(Environment const& other) = delete;
 
     //------------------------------------------
     // Marshalling
@@ -102,7 +102,7 @@ public:
      * @param dispResX Display resolution width. Necessary to position the object correctly in its tile-based container.
      * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
      */
-    void deserialize(std::string const &serialOrLink, uint16_t const &dispResX, uint16_t const &dispResY);
+    void deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY);
 
     //------------------------------------------
     // Object Management
@@ -117,7 +117,7 @@ public:
      * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
      * @param layer Layer index to append the object to (default is 0).
      */
-    void append(RenderObject *toAppend, uint16_t const &dispResX, uint16_t const &dispResY, uint8_t const &layer = 0);
+    void append(RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY, uint8_t const& layer = 0);
 
     /**
      * @brief Updates the environment's state.
@@ -126,7 +126,7 @@ public:
      * @param dispResX display resolution width. Necessary for potential RenderObject reinsertions.
      * @param dispResY display resolution height. Necessary for potential RenderObject reinsertions.
      */
-    void updateObjects(int16_t const &tilePositionX, int16_t const &tilePositionY, uint16_t const &dispResX, uint16_t const &dispResY);
+    void updateObjects(int16_t const& tilePositionX, int16_t const& tilePositionY, uint16_t const& dispResX, uint16_t const& dispResY);
 
     /**
      * @brief Rebuilds the Container structure.
@@ -136,7 +136,7 @@ public:
      * @param dispResX Display resolution width. Necessary for positioning the objects correctly in their tile-based containers.
      * @param dispResY Display resolution height. Necessary for positioning the objects correctly in their tile-based containers.
      */
-    void reinsertAllObjects(uint16_t const &dispResX, uint16_t const &dispResY);
+    void reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY);
 
     /**
      * @brief Retrieves a RenderObject by its ID.
@@ -144,7 +144,7 @@ public:
      * @param id The ID of the RenderObject to retrieve.
      * @return A pointer to the RenderObject if found, nullptr otherwise.
      */
-    RenderObject *getObjectFromId(uint32_t const &id);
+    RenderObject* getObjectFromId(uint32_t const& id);
 
     //------------------------------------------
     // Container Management
@@ -157,7 +157,7 @@ public:
      * @param layer The layer index.
      * @return A reference to the RenderObjectContainer at the specified position and layer: A vector of batched RenderObjects.
      */
-    std::vector<RenderObjectContainer::Batch> &getContainerAt(int16_t x, int16_t y, Layer layer);
+    std::vector<RenderObjectContainer::Batch>& getContainerAt(int16_t x, int16_t y, Layer layer);
 
     /**
      * @brief Checks if the specified position and layer are valid, meaning they are within the bounds of the environment.

@@ -58,9 +58,9 @@ public:
     //------------------------------------------
     // Disable Copying and Moving
 
-    RenderObject(RenderObject const &other) = delete;
-    RenderObject(RenderObject &&other) = delete;
-    RenderObject &operator=(RenderObject &&other) = delete;
+    RenderObject(RenderObject const& other) = delete;
+    RenderObject(RenderObject&& other) = delete;
+    RenderObject& operator=(RenderObject&& other) = delete;
 
     //------------------------------------------
     // Serializing/Deserializing
@@ -75,31 +75,31 @@ public:
      * @brief Deserializes the RenderObject from a JSON string.
      * @param serialOrLink The JSON string to deserialize.
      */
-    void deserialize(std::string const &serialOrLink);
+    void deserialize(std::string const& serialOrLink);
 
     /**
      * @brief Gets a pointer to the SDL_Rect describing the destination of the sprite.
      * @return A pointer to the SDL_Rect describing the destination of the sprite.
      */
-    SDL_Rect *getDstRect();
+    SDL_Rect* getDstRect();
 
     /**
      * @brief Gets a pointer to the SDL_Rect describing the source of the sprite.
      * @return A pointer to the SDL_Rect describing the source of the sprite.
      */
-    SDL_Rect *getSrcRect();
+    SDL_Rect* getSrcRect();
 
     /**
      * @brief Gets a pointer to the SDL_Rect describing the destination of the text.
      * @return A pointer to the SDL_Rect describing the destination of the text.
      */
-    SDL_Rect *getTextRect();
+    SDL_Rect* getTextRect();
 
     /**
      * @brief Gets the texture of the text.
      * @return A pointer to the SDL_Texture representing the text.
      */
-    [[nodiscard]] SDL_Texture *getTextTexture() const;
+    [[nodiscard]] SDL_Texture* getTextTexture() const;
 
     //------------------------------------------
     // Update-Oriented functions
@@ -123,7 +123,7 @@ public:
      * @param renderPositionX The X position of the renderer used for text offset.
      * @param renderPositionY The Y position of the renderer used for text offset.
      */
-    void calculateText(SDL_Renderer *renderer, TTF_Font *font, int const &renderPositionX, int const &renderPositionY);
+    void calculateText(SDL_Renderer* renderer, TTF_Font* font, int const& renderPositionX, int const& renderPositionY);
 
     /**
      * @brief Calculates the destination rectangle for the sprite.
@@ -142,7 +142,7 @@ public:
      * @param onlyInternal If true, only considers internal rulesets. Defaults to true.
      * @return The estimated computational cost.
      */
-    uint64_t estimateComputationalCost(bool const &onlyInternal = true);
+    uint64_t estimateComputationalCost(bool const& onlyInternal = true);
 
     //------------------------------------------
     // Management Flags for Renderer-Interaction
@@ -164,7 +164,7 @@ public:
      * @brief Links an external SDL_Texture to this domain.
      * @param externalTexture Pointer to the external SDL_Texture.
      */
-    void linkExternalTexture(SDL_Texture *externalTexture) {
+    void linkExternalTexture(SDL_Texture* externalTexture) {
         baseTexture.linkExternalTexture(externalTexture);
     }
 
@@ -188,7 +188,7 @@ public:
      * @brief Gets the current SDL_Texture.
      * @return Pointer to the current SDL_Texture.
      */
-    [[nodiscard]] SDL_Texture *getSDLTexture() const {
+    [[nodiscard]] SDL_Texture* getSDLTexture() const {
         return baseTexture.getSDLTexture();
     }
 
@@ -196,7 +196,7 @@ public:
      * @brief Gets the Texture object.
      * @return Pointer to the Texture object.
      */
-    Texture *getTexture() {
+    Texture* getTexture() {
         return &baseTexture;
     }
 
@@ -229,29 +229,29 @@ private:
      */
     struct FrequentRefs {
         // Identity
-        double *id = nullptr;
+        double* id = nullptr;
 
         // Position and Size
-        double *posX = nullptr;
-        double *posY = nullptr;
-        double *pixelSizeX = nullptr;
-        double *pixelSizeY = nullptr;
+        double* posX = nullptr;
+        double* posY = nullptr;
+        double* pixelSizeX = nullptr;
+        double* pixelSizeY = nullptr;
 
         // Spritesheet
-        double *isSpritesheet = nullptr;
-        double *spritesheetOffsetX = nullptr;
-        double *spritesheetOffsetY = nullptr;
-        double *spritesheetSizeX = nullptr;
-        double *spritesheetSizeY = nullptr;
+        double* isSpritesheet = nullptr;
+        double* spritesheetOffsetX = nullptr;
+        double* spritesheetOffsetY = nullptr;
+        double* spritesheetSizeX = nullptr;
+        double* spritesheetSizeY = nullptr;
 
         // Text
-        double *fontSize = nullptr;
-        double *textDx = nullptr;
-        double *textDy = nullptr;
-        double *textColorR = nullptr;
-        double *textColorG = nullptr;
-        double *textColorB = nullptr;
-        double *textColorA = nullptr;
+        double* fontSize = nullptr;
+        double* textDx = nullptr;
+        double* textDy = nullptr;
+        double* textColorR = nullptr;
+        double* textColorG = nullptr;
+        double* textColorB = nullptr;
+        double* textColorA = nullptr;
     } refs = {};
 
     /**
@@ -273,8 +273,8 @@ private:
     SDL_Rect textRect = {0, 0, 0, 0}; // destination of text texture
 
     // Surface and Texture of Text
-    SDL_Surface *textSurface; // Surface for the text
-    SDL_Texture *textTexture; // Texture for the text
+    SDL_Surface* textSurface; // Surface for the text
+    SDL_Texture* textTexture; // Texture for the text
 
     // ==================
 

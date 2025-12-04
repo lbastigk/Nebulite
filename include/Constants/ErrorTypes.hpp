@@ -55,15 +55,15 @@ namespace Nebulite::Constants {
  * @class Error
  * @brief Represents an error with a description and type.
  */
-class Error{
+class Error {
 public:
     /**
      * @enum Type
      * @brief Enumeration for error types.
-     * 
+     *
      * @todo Condense to bool isCritical if no further distinction is necessary.
      */
-    enum Type{
+    enum Type {
         // Perhaps some more distinction is necessary here
         // if not, condense to bool isCritical
         CRITICAL,
@@ -90,19 +90,19 @@ public:
      * @brief Construct an Error referencing an existing description string.
      * The Error does not own the string; the ErrorTable manages lifetime.
      */
-    Error(std::string const* desc, Type const t) : description(desc), type(t){}
+    Error(std::string const* desc, Type const t) : description(desc), type(t) {
+    }
 
     /**
      * @brief Empty Constructor for ERROR struct.
      */
-    Error() : description(nullptr), type(NONE){}
+    Error() : description(nullptr), type(NONE) {
+    }
 
     /**
      * @brief Get the error description.
+     * @return A string view of the error description.
      */
-    // Return a non-owning view of the description. This avoids allocations
-    // and can safely be marked noexcept. The view is valid as long as the
-    // ErrorTable keeps the backing string alive (which it does).
     [[nodiscard]] std::string_view getDescription() const noexcept {
         return description ? std::string_view(*description) : std::string_view();
     }
@@ -131,23 +131,23 @@ private:
 /**
  * @class ErrorTable
  * @brief Singleton class that manages a table of errors and their descriptions.
- * 
+ *
  * This class provides a centralized way to manage error codes and their corresponding
  * descriptions. It ensures that each error is unique and provides methods to add and
  * retrieve errors.
- * 
+ *
  * Usage:
- * 
+ *
  *   - Add errors using the static method `addError`.
- * 
+ *
  *   - Retrieve predefined errors using the nested structs (e.g., `ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED()`).
- * 
+ *
  * @todo Implement short-existing errors that are removed after some time (addError should be private, addShortLivedError public)
  *       However, we need to be careful with dangling pointers in that case.
  *       Perhaps it's best to just keep all errors for the lifetime of the program.
  *       Then, if we have more than UINT16_MAX errors, we can just exit with a message.
  */
-class ErrorTable{
+class ErrorTable {
     /**
      * @brief Holds all errors added to the table.
      */
@@ -155,14 +155,14 @@ class ErrorTable{
 
     /**
      * @brief Holds count of errors added.
-     * 
+     *
      * There isn't necessarily a need to limit the number of errors,
      * but this makes sure that we aren't accidentally writing more and more errors without deleting them,
      * preventing memory leaks.
      */
     uint16_t count;
-    
-    static ErrorTable& getInstance(){
+
+    static ErrorTable& getInstance() {
         static ErrorTable instance;
         return instance;
     }
@@ -171,10 +171,11 @@ class ErrorTable{
      * @brief Holds local copies of error description strings.
      * Uses deque to ensure stable addresses for Error objects.
      */
-    std::deque<std::string> localDescriptions; // To own the strings 
+    std::deque<std::string> localDescriptions; // To own the strings
 
 public:
-    ErrorTable() : count(0){}
+    ErrorTable() : count(0) {
+    }
 
     /**
      * @brief This implementation is not recommended, as users might pass str.c_str()
@@ -191,15 +192,15 @@ public:
      * @param type The type of error (CRITICAL or NON_CRITICAL). Default is NON_CRITICAL.
      * @return The corresponding Error object.
      */
-    static Error addError(std::string const& description, Error::Type const type = Error::NON_CRITICAL){
+    static Error addError(std::string const& description, Error::Type const type = Error::NON_CRITICAL) {
         // Check if we already have this error
         auto const it = std::ranges::find_if(
             getInstance().errors.begin(),
             getInstance().errors.end(),
-            [&](Error const& err){ return err.getDescription() == description; }
-        );
+            [&](Error const& err) { return err.getDescription() == description; }
+            );
 
-        if (it != getInstance().errors.end()){
+        if (it != getInstance().errors.end()) {
             return *it; // Return existing error
         }
 
@@ -209,20 +210,19 @@ public:
         return getInstance().addErrorImpl(description, type);
     }
 
-
 private:
     /**
      * @todo It might be better to not use a local description container, and instead rely on them being stored in the
      * error object itself. Then, when we get pre-declared errors, we use a special constructor that references
      * the description of the already existing error.
-     * Or something along those lines. The current implementation is too complex 
+     * Or something along those lines. The current implementation is too complex
      * and probably tried to circumvent an issue that does not exist.
-     * 
+     *
      * The idea of the localDescriptions was to reduce the exhaustive copying of strings when retrieving existing errors.
      * Since technically, each new Error object would have to copy the string into its own storage otherwise.
      */
-    Error addErrorImpl(std::string const& description, Error::Type type = Error::NON_CRITICAL){
-        if (count == UINT16_MAX){
+    Error addErrorImpl(std::string const& description, Error::Type type = Error::NON_CRITICAL) {
+        if (count == UINT16_MAX) {
             // Too many errors, exit entirely with message
             throw std::runtime_error("ErrorTable has reached its maximum capacity of errors. Make sure that new errors added are removed after some time if they are not needed anymore.");
         }
@@ -242,12 +242,13 @@ public:
      * @struct SDL
      * @brief Struct grouping SDL related errors.
      */
-    struct SDL{
-        static Error CRITICAL_SDL_RENDERER_INIT_FAILED(){
+    struct SDL {
+        static Error CRITICAL_SDL_RENDERER_INIT_FAILED() {
             static Error error = addError("Critical Error: SDL Renderer could not be initialized.", Error::CRITICAL);
             return error;
         }
-        static Error CRITICAL_SDL_RENDERER_TARGET_FAILED(){
+
+        static Error CRITICAL_SDL_RENDERER_TARGET_FAILED() {
             static Error error = addError("Critical Error: SDL Renderer target could not be set.", Error::CRITICAL);
             return error;
         }
@@ -257,16 +258,18 @@ public:
      * @struct RENDERER
      * @brief Struct grouping Nebulite::Core::Renderer related errors.
      */
-    struct RENDERER{
-        static Error CRITICAL_RENDERER_NOT_INITIALIZED(){
+    struct RENDERER {
+        static Error CRITICAL_RENDERER_NOT_INITIALIZED() {
             static Error error = addError("Critical Error: Renderer not initialized.", Error::CRITICAL);
             return error;
         }
-        static Error CRITICAL_RENDERER_SNAPSHOT_FAILED(){
+
+        static Error CRITICAL_RENDERER_SNAPSHOT_FAILED() {
             static Error error = addError("Critical Error: Renderer snapshot failed.", Error::CRITICAL);
             return error;
         }
-        static Error CRITICAL_INVOKE_NULLPTR(){
+
+        static Error CRITICAL_INVOKE_NULLPTR() {
             static Error error = addError("Critical Error: Linked Invoke pointer is nullptr.", Error::CRITICAL);
             return error;
         }
@@ -276,32 +279,38 @@ public:
      * @struct TEXTURE
      * @brief Struct grouping Texture related errors.
      */
-    struct TEXTURE{
-        static Error CRITICAL_TEXTURE_NOT_FOUND(){
+    struct TEXTURE {
+        static Error CRITICAL_TEXTURE_NOT_FOUND() {
             static Error error = addError("Critical Error: Texture not found.", Error::CRITICAL);
             return error;
         }
-        static Error CRITICAL_TEXTURE_COPY_FAILED(){
+
+        static Error CRITICAL_TEXTURE_COPY_FAILED() {
             static Error error = addError("Critical Error: Texture copy failed.", Error::CRITICAL);
             return error;
         }
-        static Error CRITICAL_TEXTURE_COLOR_UNSUPPORTED(){
+
+        static Error CRITICAL_TEXTURE_COLOR_UNSUPPORTED() {
             static Error error = addError("Critical Error: Texture color format unsupported.", Error::CRITICAL);
             return error;
         }
-        static Error CRITICAL_TEXTURE_LOCK_FAILED(){
+
+        static Error CRITICAL_TEXTURE_LOCK_FAILED() {
             static Error error = addError("Critical Error: Texture lock failed.", Error::CRITICAL);
             return error;
         }
-        static Error CRITICAL_TEXTURE_QUERY_FAILED(){
+
+        static Error CRITICAL_TEXTURE_QUERY_FAILED() {
             static Error error = addError("Critical Error: Texture query failed.", Error::CRITICAL);
             return error;
         }
-        static Error CRITICAL_TEXTURE_MODIFICATION_FAILED(){
+
+        static Error CRITICAL_TEXTURE_MODIFICATION_FAILED() {
             static Error error = addError("Critical Error: Texture modification failed.", Error::CRITICAL);
             return error;
         }
-        static Error CRITICAL_TEXTURE_INVALID(){
+
+        static Error CRITICAL_TEXTURE_INVALID() {
             static Error error = addError("Critical Error: Texture is invalid.", Error::CRITICAL);
             return error;
         }
@@ -311,8 +320,8 @@ public:
      * @struct AUDIO
      * @brief Struct grouping Audio related errors.
      */
-    struct AUDIO{
-        static Error CRITICAL_AUDIO_DEVICE_INIT_FAILED(){
+    struct AUDIO {
+        static Error CRITICAL_AUDIO_DEVICE_INIT_FAILED() {
             static Error error = addError("Critical Error: Audio device could not be initialized.", Error::CRITICAL);
             return error;
         }
@@ -322,36 +331,43 @@ public:
      * @struct FUNCTIONAL
      * @brief Struct grouping .nebs function related errors.
      */
-    struct FUNCTIONAL{
-        static Error CRITICAL_FUNCTION_NOT_IMPLEMENTED(){
+    struct FUNCTIONAL {
+        static Error CRITICAL_FUNCTION_NOT_IMPLEMENTED() {
             static Error error = addError("Requested function not implemented.", Error::CRITICAL);
             return error;
         }
-        static Error CRITICAL_FUNCTIONCALL_INVALID(){
+
+        static Error CRITICAL_FUNCTIONCALL_INVALID() {
             static Error error = addError("Requested function call is invalid.", Error::NON_CRITICAL);
             return error;
         }
-        static Error CRITICAL_INVALID_ARGC_ARGV_PARSING(){
+
+        static Error CRITICAL_INVALID_ARGC_ARGV_PARSING() {
             static Error error = addError("argc/argv parsing error.", Error::NON_CRITICAL);
             return error;
         }
-        static Error TOO_MANY_ARGS(){
+
+        static Error TOO_MANY_ARGS() {
             static Error error = addError("Too Many Arguments in function call", Error::NON_CRITICAL);
             return error;
         }
-        static Error TOO_FEW_ARGS(){
+
+        static Error TOO_FEW_ARGS() {
             static Error error = addError("Too Few Arguments in function call", Error::NON_CRITICAL);
             return error;
         }
-        static Error UNKNOWN_ARG(){
+
+        static Error UNKNOWN_ARG() {
             static Error error = addError("Unknown Argument Error", Error::NON_CRITICAL);
             return error;
         }
-        static Error FEATURE_NOT_IMPLEMENTED(){
+
+        static Error FEATURE_NOT_IMPLEMENTED() {
             static Error error = addError("Requested feature of functioncall is not implemented", Error::NON_CRITICAL);
             return error;
         }
-        static Error BINDING_COLLISION(){
+
+        static Error BINDING_COLLISION() {
             static Error error = addError("Binding Collision: Attempted to bind a function or category with a name that is already in use.", Error::NON_CRITICAL);
             return error;
         }
@@ -361,8 +377,8 @@ public:
      * @struct FILE
      * @brief Struct grouping File related errors.
      */
-    struct FILE{
-        static Error CRITICAL_INVALID_FILE(){
+    struct FILE {
+        static Error CRITICAL_INVALID_FILE() {
             static Error error = addError("Requested file is invalid.", Error::CRITICAL);
             return error;
         }
@@ -371,14 +387,15 @@ public:
     //------------------------------------------
     // Non-specific errors
 
-    static Error CRITICAL_GENERAL(){
+    static Error CRITICAL_GENERAL() {
         static Error error = addError("General, critical error. It is recommended to NOT use this error type in production.", Error::CRITICAL);
         return error;
     }
-    static Error NONE(){
+
+    static Error NONE() {
         static Error error = addError("", Error::NONE);
         return error;
-    }   
+    }
 };
 } // namespace Nebulite::Constants
 #endif // NEBULITE_CONSTANTS_ERROR_TYPES_HPP

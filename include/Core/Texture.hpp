@@ -17,7 +17,7 @@
 
 //------------------------------------------
 namespace Nebulite::Core {
-NEBULITE_DOMAIN(Texture){
+NEBULITE_DOMAIN(Texture) {
 public:
     /**
      * @brief Constructs a new Texture domain.
@@ -31,7 +31,7 @@ public:
     ~Texture() override {
         // Only destroy the texture if it was modified
         // And thus a local copy exists
-        if(texture != nullptr && textureStoredLocally){
+        if (texture != nullptr && textureStoredLocally) {
             SDL_DestroyTexture(texture);
         }
     }
@@ -53,7 +53,7 @@ public:
      * @brief Links an external SDL_Texture to this domain.
      * @param externalTexture Pointer to the external SDL_Texture.
      */
-    void linkExternalTexture(SDL_Texture* externalTexture){
+    void linkExternalTexture(SDL_Texture* externalTexture) {
         texture = externalTexture;
         textureStoredLocally = false; // Reset modification flag
     }
@@ -62,9 +62,9 @@ public:
      * @brief Sets a new internal SDL_Texture, marking it as modified.
      * @param newTexture Pointer to the new SDL_Texture.
      */
-    void setInternalTexture(SDL_Texture* newTexture){
+    void setInternalTexture(SDL_Texture* newTexture) {
         // Destroy any old internal texture if it was modified
-        if (texture != nullptr && textureStoredLocally){
+        if (texture != nullptr && textureStoredLocally) {
             SDL_DestroyTexture(texture);
         }
         texture = newTexture;
@@ -96,6 +96,7 @@ public:
     }
 
     void loadTextureFromFile(std::string const& filePath);
+
 private:
     /**
      * @brief The SDL texture managed by this class.
@@ -115,5 +116,5 @@ private:
      */
     bool copyTexture();
 };
-}   // namespace Nebulite::Core
+} // namespace Nebulite::Core
 #endif // NEBULITE_CORE_TEXTURE_HPP

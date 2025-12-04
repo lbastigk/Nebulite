@@ -24,7 +24,7 @@ const struct keyName {
      * @struct renderer
      * @brief Contains all hardcoded key names used within the Nebulite::Core::Renderer class.
      */
-    const struct renderer{
+    const struct renderer {
         std::string _self = "renderer";
         std::string dispResX = "display.resolution.X";
         std::string dispResY = "display.resolution.Y";
@@ -34,26 +34,26 @@ const struct keyName {
         std::string time_t_ms = "time.t_ms";
         std::string time_dt = "time.dt";
         std::string time_dt_ms = "time.dt_ms";
-    }renderer;
+    } renderer;
 
     /**
      * @struct Random
      * @brief Contains all hardcoded key names used for random number generation.
      */
-    const struct RNGs{
+    const struct RNGs {
         std::string A = "random.A";
         std::string B = "random.B";
         std::string C = "random.C";
         std::string D = "random.D";
         std::string min = "random.min";
         std::string max = "random.max";
-    }RNGs;
+    } RNGs;
 
     /**
      * @struct renderObject
      * @brief Contains all hardcoded key names used within the Nebulite::Core::RenderObject class.
      */
-    const struct renderObject{
+    const struct renderObject {
         std::string _self = "renderObject";
         std::string id = "id";
         std::string positionX = "posX";
@@ -77,13 +77,13 @@ const struct keyName {
         std::string textColorA = "text.color.A";
         std::string invokes = "invokes";
         std::string invokeSubscriptions = "invokeSubscriptions";
-    }renderObject;
+    } renderObject;
 
     /**
      * @struct invoke
      * @brief Contains all hardcoded key names used within the Nebulite::Interaction::Invoke class.
      */
-    const struct invoke{
+    const struct invoke {
         std::string _self = "invoke";
         std::string logicalArg = "logicalArg";
         std::string functioncalls_global = "functioncalls.global";
@@ -94,7 +94,7 @@ const struct keyName {
         std::string typeSelf = "self";
         std::string typeOther = "other";
         std::string typeGlobal = "global";
-    }invoke;
+    } invoke;
 
     /**
      * @struct Environment
@@ -102,7 +102,7 @@ const struct keyName {
      */
     const struct Environment {
         std::string renderObjectContainer = "RenderObjectContainer";
-    }environment;
-}keyName;
-}   // namespace Nebulite::Constants
+    } environment;
+} keyName;
+} // namespace Nebulite::Constants
 #endif // NEBULITE_CONSTANTS_KEYNAMES_HPP
