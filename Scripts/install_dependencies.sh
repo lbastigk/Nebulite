@@ -1,6 +1,11 @@
 #!/bin/bash
 
 ###########################################
+# Nebulite Dependency Installer Script
+# This script installs all necessary system and Python
+# dependencies for the Nebulite project.
+
+###########################################
 # Prerequisites + Settings
 echo "Checking prerequisites..."
 
@@ -23,8 +28,6 @@ set -euo pipefail
 echo "Installing system dependencies..."
 
 # Define package lists for each distro
-# TODO: Verify package names and see if they're actually needed
-# TODO: Check if freetype is needed, project should use the bundled version from the submodule!
 APT_PACKAGES="cmake ninja-build automake build-essential autoconf libtool m4 perl mingw-w64 gcc-mingw-w64 g++-mingw-w64 python3 python3-pip python3-numpy libasound2-dev libpulse-dev cloc"
 DNF_PACKAGES="cmake ninja-build automake @development-tools autoconf libtool m4 perl mingw64-gcc mingw64-gcc-c++ python3 python3-pip python3-numpy alsa-lib-devel pulseaudio-libs-devel cloc"
 YUM_PACKAGES="cmake ninja-build automake @development-tools autoconf libtool m4 perl mingw64-gcc mingw64-gcc-c++ python3 python3-pip python3-numpy alsa-lib-devel pulseaudio-libs-devel cloc"
