@@ -29,15 +29,15 @@
 #include "Interaction/Execution/FuncTree.hpp"
 
 //------------------------------------------
-namespace Nebulite::Interaction::Execution{
+namespace Nebulite::Interaction::Execution {
 /**
  * @class Nebulite::Interaction::Execution::DomainModule
  * @brief Wrapper class for binding functions to a specific category in the FuncTree and adding separate update routines.
  *        This allows for cleaner separation of object files for different categories
  *        and reduces boilerplate code when attaching functions to the FuncTree.
  */
-template<typename DomainType>
-class DomainModule{
+template <typename DomainType>
+class DomainModule {
 public:
     /**
      * @brief Constructor for the DomainModule base class.
@@ -48,8 +48,9 @@ public:
         std::string name,
         DomainType* domainPtr,
         std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr
-    )
-    : moduleName(std::move(name)), domain(domainPtr), funcTree(std::move(funcTreePtr)){}
+        )
+        : moduleName(std::move(name)), domain(domainPtr), funcTree(std::move(funcTreePtr)) {
+    }
 
     /**
      * @brief Virtual destructor for DomainModule.
@@ -59,7 +60,7 @@ public:
     /**
      * @brief Virtual update function to be Overwritten by derived classes.
      */
-    virtual Constants::Error update(){ return Constants::ErrorTable::NONE(); }
+    virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
 
     /**
      * @brief Static helper function to bind a member function to a given FuncTree.
@@ -73,17 +74,18 @@ public:
      * @param name Name to associate with the bound function.
      * @param helpDescription Pointer to a string containing the help description for the function.
      */
-    template<typename ClassType, typename FuncTreeType, typename ReturnType, typename... Args>
-    void bindFunctionStatic(FuncTreeType* tree, ClassType* obj, ReturnType (ClassType::*methodPtr)(Args...), std::string const& name, std::string const* helpDescription){
+    template <typename ClassType, typename FuncTreeType, typename ReturnType, typename... Args>
+    void bindFunctionStatic(FuncTreeType* tree, ClassType* obj, ReturnType (ClassType::*methodPtr)(Args...), std::string const& name, std::string const* helpDescription) {
         using MemberVariant = FuncTreeType::template MemberMethod<ClassType>;
         MemberVariant methodVariant{methodPtr}; // Wrap the member function pointer in the variant
-        std::visit([&](auto mpr) {  // Dispatch to the actual funcTree->bindFunction using std::visit
+        std::visit([&](auto mpr) {
+            // Dispatch to the actual funcTree->bindFunction using std::visit
             tree->bindFunction(
                 obj,
                 MemberVariant(mpr),
                 name,
                 helpDescription
-            );
+                );
         }, methodVariant);
     }
 
@@ -99,8 +101,8 @@ public:
      * @param name The name to associate with the bound function.
      * @param helpDescription A pointer to a string containing the help description for the function.
      */
-    template<typename ClassType, typename ReturnType, typename... Args>
-    void bindFunction(ReturnType (ClassType::*methodPtr)(Args...), std::string const& name, std::string const* helpDescription){
+    template <typename ClassType, typename ReturnType, typename... Args>
+    void bindFunction(ReturnType (ClassType::*methodPtr)(Args...), std::string const& name, std::string const* helpDescription) {
         bindFunctionStatic(funcTree.get(), static_cast<ClassType*>(this), methodPtr, name, helpDescription);
     }
 
@@ -145,7 +147,7 @@ protected:
      * @brief Name of the DomainModule, useful for debugging and logging.
      */
     std::string moduleName;
-    
+
     //------------------------------------------
     // Linkages
 
@@ -168,5 +170,5 @@ private:
      */
     std::shared_ptr<FuncTree<Constants::Error>> funcTree;
 };
-}   // namespace Nebulite::Interaction::Execution
+} // namespace Nebulite::Interaction::Execution
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_HPP

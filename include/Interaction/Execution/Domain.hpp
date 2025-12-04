@@ -26,14 +26,14 @@
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite::Utility{
-    // We cannot include JSON directly due to circular dependencies,
-    // as JSON itself is a domain.
-    class JSON;
+namespace Nebulite::Utility {
+// We cannot include JSON directly due to circular dependencies,
+// as JSON itself is a domain.
+class JSON;
 }
 
 //------------------------------------------
-namespace Nebulite::Interaction::Execution{
+namespace Nebulite::Interaction::Execution {
 
 /**
  * @class DomainBase
@@ -44,13 +44,13 @@ namespace Nebulite::Interaction::Execution{
 class DomainBase {
 public:
     DomainBase(std::string const& name, Utility::JSON* documentPtr)
-    : domainName(name), document(documentPtr),
-      funcTree(std::make_shared<FuncTree<Constants::Error>>(
-          name,
-          Constants::ErrorTable::NONE(),
-          Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
-      ))
-    {}
+        : domainName(name), document(documentPtr),
+          funcTree(std::make_shared<FuncTree<Constants::Error>>(
+              name,
+              Constants::ErrorTable::NONE(),
+              Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
+              )) {
+    }
 
     virtual ~DomainBase() = default;
 
@@ -76,7 +76,7 @@ public:
      * @brief Binds all functions from an inherited FuncTree to the main FuncTree for parsing.
      */
     void inherit(DomainBase const* toInheritFrom) const {
-        if(toInheritFrom != nullptr){
+        if (toInheritFrom != nullptr) {
             funcTree->inherit(toInheritFrom->funcTree);
         }
     }
@@ -88,7 +88,7 @@ public:
      * @brief Updates the domain.
      *        On overwriting, make sure to update all subdomains and DomainModules as well.
      */
-    virtual Constants::Error update(){ return Constants::ErrorTable::NONE(); }
+    virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
 
     //------------------------------------------
     // Command parsing
@@ -130,7 +130,7 @@ public:
     /**
      * @brief Necessary operations before parsing commands.
      */
-    virtual Constants::Error preParse(){
+    virtual Constants::Error preParse() {
         return Constants::ErrorTable::NONE();
     }
 
@@ -151,13 +151,13 @@ public:
      *        For others, it's a reference to their JSON document.
      * @return A pointer to the internal JSON document.
      */
-    [[nodiscard]] Utility::JSON* getDoc() const {return document;}
+    [[nodiscard]] Utility::JSON* getDoc() const { return document; }
 
     /**
      * @brief Gets the name of the domain.
      * @return The name of the domain.
      */
-    [[nodiscard]] std::string const& getName() const {return domainName;}
+    [[nodiscard]] std::string const& getName() const { return domainName; }
 
 protected:
     /**
@@ -165,7 +165,7 @@ protected:
      *        Marked as protected, as it's only used to initialize DomainModules.
      * @return A shared pointer to the internal FuncTree.
      */
-    std::shared_ptr<FuncTree<Constants::Error>> getFuncTree(){
+    std::shared_ptr<FuncTree<Constants::Error>> getFuncTree() {
         return funcTree;
     }
 
@@ -201,7 +201,7 @@ private:
  *        - Binding additional features via DomainModules.
  *        - Updating the domain through its DomainModules.
  */
-template<typename DomainType>
+template <typename DomainType>
 class Domain : public DomainBase {
 private:
     /**
@@ -220,8 +220,8 @@ private:
 
 public:
     Domain(std::string const& name, DomainType* domainTypePtr, Utility::JSON* documentPtr)
-    : DomainBase(name, documentPtr), domain(domainTypePtr)
-    {}
+        : DomainBase(name, documentPtr), domain(domainTypePtr) {
+    }
 
     //------------------------------------------
     // Disallow copying and moving
@@ -239,8 +239,8 @@ public:
      * @tparam DomainModuleType The type of module to initialize
      * @param moduleName The name of the module
      */
-    template<typename DomainModuleType>
-    void initModule(std::string moduleName){
+    template <typename DomainModuleType>
+    void initModule(std::string moduleName) {
         auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, getFuncTree());
         modules.push_back(std::move(DomainModule));
     }
@@ -248,12 +248,12 @@ public:
     /**
      * @brief Updates all DomainModules.
      */
-    void updateModules(){
-        for(auto& module : modules){
+    void updateModules() {
+        for (auto& module : modules) {
             module->update();
         }
     }
 
 };
-}   // namespace Nebulite::Interaction::Execution
+} // namespace Nebulite::Interaction::Execution
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP

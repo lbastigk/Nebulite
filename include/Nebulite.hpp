@@ -3,7 +3,7 @@
  *
  * @brief Central file for Nebulite namespace documentation and public singleton accessors.
  *        Offers access to core Nebulite functionality for instances such as DomainModules
- */ 
+ */
 
 #ifndef NEBULITE_HPP
 #define NEBULITE_HPP
@@ -27,80 +27,89 @@
  * @namespace Nebulite
  * @brief Contains all classes, functions, types and variables related to the Nebulite framework.
  */
-namespace Nebulite{
-    /**
-     * @namespace Nebulite::Constants
-     * @brief Contains all constant values used throughout the Nebulite framework.
-     */
-    namespace Constants{}
+namespace Nebulite {
+/**
+ * @namespace Nebulite::Constants
+ * @brief Contains all constant values used throughout the Nebulite framework.
+ */
+namespace Constants {
+}
 
-    /**
-     * @namespace Nebulite::Core
-     * @brief Contains all core classes, functions, types and variables related to the Nebulite framework.
-     */
-    namespace Core{}
+/**
+ * @namespace Nebulite::Core
+ * @brief Contains all core classes, functions, types and variables related to the Nebulite framework.
+ */
+namespace Core {
+}
 
-    /**
-     * @namespace Nebulite::DomainModule
-     * @brief Contains all classes, functions, types and variables related to the Nebulite DomainModule system.
-     */
-    namespace DomainModule{
-        /**
-         * @namespace Nebulite::DomainModule::GlobalSpace
-         * @brief Contains all classes, functions, types and variables related to the GlobalSpace DomainModules.
-         */
-        namespace GlobalSpace{}
+/**
+ * @namespace Nebulite::DomainModule
+ * @brief Contains all classes, functions, types and variables related to the Nebulite DomainModule system.
+ */
+namespace DomainModule {
+/**
+ * @namespace Nebulite::DomainModule::GlobalSpace
+ * @brief Contains all classes, functions, types and variables related to the GlobalSpace DomainModules.
+ */
+namespace GlobalSpace {
+}
 
-        /**
-         * @namespace Nebulite::DomainModule::Renderer
-         * @brief Contains all classes, functions, types and variables related to the Renderer DomainModules.
-         */
-        namespace Renderer{}
+/**
+ * @namespace Nebulite::DomainModule::Renderer
+ * @brief Contains all classes, functions, types and variables related to the Renderer DomainModules.
+ */
+namespace Renderer {
+}
 
-        /**
-         * @namespace Nebulite::DomainModule::RenderObject
-         * @brief Contains all classes, functions, types and variables related to the RenderObject DomainModules.
-         */
-        namespace RenderObject{}
+/**
+ * @namespace Nebulite::DomainModule::RenderObject
+ * @brief Contains all classes, functions, types and variables related to the RenderObject DomainModules.
+ */
+namespace RenderObject {
+}
 
-        /**
-         * @namespace Nebulite::DomainModule::JSON
-         * @brief Contains all classes, functions, types and variables related to the JSON DomainModules.
-         */
-        namespace JSON{}
+/**
+ * @namespace Nebulite::DomainModule::JSON
+ * @brief Contains all classes, functions, types and variables related to the JSON DomainModules.
+ */
+namespace JSON {
+}
 
-    } // namespace DomainModule
+} // namespace DomainModule
 
-    /**
-     * @namespace Nebulite::Interaction
-     * @brief Contains all classes, functions, types and variables related to the Nebulite interaction system.
-     *        Separated into 2 sub-namespaces: Execution and Logic.
-     *        - `Interaction`: main parts of the Interaction system: the Invoke class, their Rulesets and its Compiler.
-     *        - `Interaction::Execution`: All Domain-related parser, the FuncTree they're based on and its DomainModule wrapper
-     *        - `Interaction::Logic`: All logic-related classes and functions
-     */
-    namespace Interaction{
-        /**
-         * @namespace Nebulite::Interaction::Execution
-         * @brief Contains all classes, functions, types and variables related to domain-specific command-processing.
-         */
-        namespace Execution{}
+/**
+ * @namespace Nebulite::Interaction
+ * @brief Contains all classes, functions, types and variables related to the Nebulite interaction system.
+ *        Separated into 2 sub-namespaces: Execution and Logic.
+ *        - `Interaction`: main parts of the Interaction system: the Invoke class, their Rulesets and its Compiler.
+ *        - `Interaction::Execution`: All Domain-related parser, the FuncTree they're based on and its DomainModule wrapper
+ *        - `Interaction::Logic`: All logic-related classes and functions
+ */
+namespace Interaction {
+/**
+ * @namespace Nebulite::Interaction::Execution
+ * @brief Contains all classes, functions, types and variables related to domain-specific command-processing.
+ */
+namespace Execution {
+}
 
-        /**
-         * @namespace Nebulite::Interaction::Logic
-         * @brief Contains all classes, functions, types and variables related to mathematical logic in Nebulites Invoke system.
-         */
-        namespace Logic{}
+/**
+ * @namespace Nebulite::Interaction::Logic
+ * @brief Contains all classes, functions, types and variables related to mathematical logic in Nebulites Invoke system.
+ */
+namespace Logic {
+}
 
-    } // namespace Interaction
+} // namespace Interaction
 
-    /**
-     * @namespace Nebulite::Utility
-     * @brief Contains all utility classes, functions, types and variables related to the Nebulite framework.
-     */
-    namespace Utility{}
+/**
+ * @namespace Nebulite::Utility
+ * @brief Contains all utility classes, functions, types and variables related to the Nebulite framework.
+ */
+namespace Utility {
+}
 
-}   // namespace Nebulite
+} // namespace Nebulite
 
 //------------------------------------------
 // Singleton accessors
@@ -108,29 +117,29 @@ namespace Nebulite{
 /**
  * @todo: add ErrorTable for access via single header file.
  */
-namespace Nebulite{
-    /**
-     * @brief Singleton accessor for the global GlobalSpace object.
-     */
-    Core::GlobalSpace& global();
+namespace Nebulite {
+/**
+ * @brief Singleton accessor for the global GlobalSpace object.
+ */
+Core::GlobalSpace& global();
 
-    /**
-     * @brief Singleton accessor for the cout capture object
-     * @return CaptureStream object for capturing cout output
-     */
-    Nebulite::Utility::CaptureStream& cout();
+/**
+ * @brief Singleton accessor for the cout capture object
+ * @return CaptureStream object for capturing cout output
+ */
+Nebulite::Utility::CaptureStream& cout();
 
-    /**
-     * @brief Singleton accessor for the cerr capture object
-     * @return CaptureStream object for capturing cerr output
-     */
-    Nebulite::Utility::CaptureStream& cerr();
+/**
+ * @brief Singleton accessor for the cerr capture object
+ * @return CaptureStream object for capturing cerr output
+ */
+Nebulite::Utility::CaptureStream& cerr();
 
-    /**
-     * @brief End line string for capturing output
-     *        At the moment, this is just a placeholder for `"\n"`.
-     */
-    static std::string const endl = "\n";
+/**
+ * @brief End line string for capturing output
+ *        At the moment, this is just a placeholder for `"\n"`.
+ */
+static std::string const endl = "\n";
 
-}   // namespace Nebulite
+} // namespace Nebulite
 #endif // NEBULITE_HPP

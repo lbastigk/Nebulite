@@ -16,8 +16,8 @@
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Utility {
-    class JSON;
-}   // namespace Nebulite::Utility
+class JSON;
+} // namespace Nebulite::Utility
 
 //------------------------------------------
 namespace Nebulite::DomainModule::JSON {
@@ -26,7 +26,7 @@ namespace Nebulite::DomainModule::JSON {
  * 
  * DomainModule for complex data operations on domain class Nebulite::Utility::JSON
  */
-NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ComplexData){
+NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ComplexData) {
 public:
     /**
      * @brief Override of update.
@@ -45,7 +45,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Constants::Error querySet(int argc,  char** argv);
+    Constants::Error querySet(int argc, char** argv);
     static std::string const querySet_name;
     static std::string const querySet_desc;
 
@@ -56,7 +56,7 @@ public:
      * @param argv The argument vector: <key> <link:key>
      * @return Potential errors that occurred on command execution.
      */
-    Constants::Error jsonSet(int argc,  char** argv);
+    Constants::Error jsonSet(int argc, char** argv);
     static std::string const jsonSet_name;
     static std::string const jsonSet_desc;
 
@@ -74,7 +74,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, ComplexData){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, ComplexData) {
         // Bind functions specific to complex data handling
 
         // SQL Queries
@@ -83,8 +83,8 @@ public:
 
         // Set from read only jsons
         (void)bindCategory(json_name, &json_desc);
-        bindFunction(&ComplexData::jsonSet,  jsonSet_name,  &jsonSet_desc);
+        bindFunction(&ComplexData::jsonSet, jsonSet_name, &jsonSet_desc);
     }
 };
-}   // namespace Nebulite::JSON::DomainModule
+} // namespace Nebulite::JSON::DomainModule
 #endif // NEBULITE_JSDM_COMPLEX_DATA_HPP

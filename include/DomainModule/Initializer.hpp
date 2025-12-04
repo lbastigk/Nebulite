@@ -46,37 +46,37 @@ public:
      * @brief Initializes DomainModules for the Environment Domain.
      * @param target Pointer to the Environment domain to initialize.
      */
-    static void initEnvironment(Core::GlobalSpace *target);
+    static void initEnvironment(Core::GlobalSpace* target);
 
     /**
      * @brief Initializes DomainModules for the GlobalSpace Domain.
      * @param target Pointer to the GlobalSpace domain to initialize.
      */
-    static void initGlobalSpace(Core::GlobalSpace *target);
+    static void initGlobalSpace(Core::GlobalSpace* target);
 
     /**
      * @brief Initializes DomainModules for the JSON Domain.
      * @param target Pointer to the JSON domain to initialize.
      */
-    static void initJSON(Utility::JSON *target);
+    static void initJSON(Utility::JSON* target);
 
     /**
      * @brief Initializes DomainModules for the RenderObject Domain.
      * @param target Pointer to the RenderObject domain to initialize.
      */
-    static void initRenderObject(Core::RenderObject *target);
+    static void initRenderObject(Core::RenderObject* target);
 
     /**
      * @brief Initializes DomainModules for the Renderer Domain.
      * @param target Pointer to the Renderer domain to initialize.
      */
-    static void initRenderer(Core::Renderer *target);
+    static void initRenderer(Core::Renderer* target);
 
     /**
      * @brief Initializes DomainModules for the Texture Domain.
      * @param target Pointer to the Texture domain to initialize.
      */
-    static void initTexture(Core::Texture *target);
+    static void initTexture(Core::Texture* target);
 };
 } // namespace Nebulite::DomainModule
 #endif // NEBULITE_DOMAINMODULE_INITIALIZER_HPP

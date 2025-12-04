@@ -21,7 +21,7 @@
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Core {
-    class Renderer; // Forward declaration of domain class Renderer
+class Renderer; // Forward declaration of domain class Renderer
 }
 
 //------------------------------------------
@@ -33,7 +33,7 @@ namespace Nebulite::DomainModule::Renderer {
  * Allows for the creation and manipulation of RenderObjects in a draft state.
  * Allowing us to easily create draft object to continuously spawn.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, RenderObjectDraft){
+NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, RenderObjectDraft) {
 public:
     /**
      * @brief Override of update.
@@ -51,7 +51,7 @@ public:
      * 
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error draft_parse(int argc,  char** argv);
+    Constants::Error draft_parse(int argc, char** argv);
     static std::string const draft_parse_name;
     static std::string const draft_parse_desc;
 
@@ -62,7 +62,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error draft_spawn(int argc,  char** argv);
+    Constants::Error draft_spawn(int argc, char** argv);
     static std::string const draft_spawn_name;
     static std::string const draft_spawn_desc;
 
@@ -73,7 +73,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error draft_reset(int argc,  char** argv);
+    Constants::Error draft_reset(int argc, char** argv);
     static std::string const draft_reset_name;
     static std::string const draft_reset_desc;
 
@@ -88,12 +88,12 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RenderObjectDraft){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RenderObjectDraft) {
         // Bind functions
         (void)bindCategory(draft_name, &draft_desc);
-        bindFunction(&RenderObjectDraft::draft_parse,  draft_parse_name,   &draft_parse_desc);
-        bindFunction(&RenderObjectDraft::draft_spawn,  draft_spawn_name,   &draft_spawn_desc);
-        bindFunction(&RenderObjectDraft::draft_reset,  draft_reset_name,   &draft_reset_desc);
+        bindFunction(&RenderObjectDraft::draft_parse, draft_parse_name, &draft_parse_desc);
+        bindFunction(&RenderObjectDraft::draft_spawn, draft_spawn_name, &draft_spawn_desc);
+        bindFunction(&RenderObjectDraft::draft_reset, draft_reset_name, &draft_reset_desc);
     }
 
 private:
@@ -102,13 +102,14 @@ private:
      * @brief Protector struct for draft RenderObject
      * Ensuring the draft is only initialized when accessed through lazy-init
      */
-    class DraftHolder{
+    class DraftHolder {
         std::unique_ptr<Core::RenderObject> ptr;
+
     public:
         DraftHolder() = default;
 
-        std::unique_ptr<Core::RenderObject> & get(){
-            if(!ptr){
+        std::unique_ptr<Core::RenderObject>& get() {
+            if (!ptr) {
                 ptr = std::make_unique<Core::RenderObject>();
             }
             return ptr;
@@ -120,5 +121,5 @@ private:
      */
     DraftHolder draft;
 };
-}   // namespace Nebulite::DomainModule::Renderer
+} // namespace Nebulite::DomainModule::Renderer
 #endif // NEBULITE_RRDM_RENDER_OBJECT_DRAFT_HPP

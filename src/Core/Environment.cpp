@@ -40,7 +40,7 @@ make_roc_array() {
 namespace Nebulite::Core {
 
 
-Environment::Environment(Nebulite::Utility::JSON *documentPtr)
+Environment::Environment(Nebulite::Utility::JSON* documentPtr)
     : Domain<Nebulite::Core::Environment>("Environment", this, documentPtr),
       roc(make_roc_array<LayerCount>()) {
 }
@@ -64,7 +64,7 @@ std::string Environment::serialize() {
     return doc.serialize();
 }
 
-void Environment::deserialize(std::string const &serialOrLink, uint16_t const &dispResX, uint16_t const &dispResY) {
+void Environment::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY) {
     Utility::JSON file;
     file.deserialize(serialOrLink);
 
@@ -87,7 +87,7 @@ void Environment::deserialize(std::string const &serialOrLink, uint16_t const &d
 //------------------------------------------
 // Object Management
 
-void Environment::append(RenderObject *toAppend, uint16_t const &dispResX, uint16_t const &dispResY, uint8_t const &layer) {
+void Environment::append(RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY, uint8_t const& layer) {
     if (layer < LayerCount) {
         roc[layer].append(toAppend, dispResX, dispResY);
     } else {
@@ -95,19 +95,19 @@ void Environment::append(RenderObject *toAppend, uint16_t const &dispResX, uint1
     }
 }
 
-void Environment::updateObjects(int16_t const &tilePositionX, int16_t const &tilePositionY, uint16_t const &dispResX, uint16_t const &dispResY) {
+void Environment::updateObjects(int16_t const& tilePositionX, int16_t const& tilePositionY, uint16_t const& dispResX, uint16_t const& dispResY) {
     for (unsigned int i = 0; i < LayerCount; i++) {
         roc[i].update(tilePositionX, tilePositionY, dispResX, dispResY);
     }
 }
 
-void Environment::reinsertAllObjects(uint16_t const &dispResX, uint16_t const &dispResY) {
+void Environment::reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY) {
     for (unsigned int i = 0; i < LayerCount; i++) {
         roc[i].reinsertAllObjects(dispResX, dispResY);
     }
 }
 
-RenderObject *Environment::getObjectFromId(uint32_t const &id) {
+RenderObject* Environment::getObjectFromId(uint32_t const& id) {
     // Go through all layers
     for (unsigned int i = 0; i < LayerCount; ++i) {
         if (auto const obj = roc[i].getObjectFromId(id); obj != nullptr) {
@@ -120,7 +120,7 @@ RenderObject *Environment::getObjectFromId(uint32_t const &id) {
 //------------------------------------------
 // Container Management
 
-std::vector<RenderObjectContainer::Batch> &Environment::getContainerAt(int16_t x, int16_t y, Layer layer) {
+std::vector<RenderObjectContainer::Batch>& Environment::getContainerAt(int16_t x, int16_t y, Layer layer) {
     auto const pos = std::make_pair(x, y);
     if (static_cast<uint8_t>(layer) < LayerCount) {
         return roc[static_cast<uint8_t>(layer)].getContainerAt(pos);
@@ -146,7 +146,7 @@ void Environment::purgeObjects() {
 size_t Environment::getObjectCount() const {
     return std::accumulate(
         roc.begin(), roc.end(), 0u,
-        [](size_t const acc, RenderObjectContainer const &container) {
+        [](size_t const acc, RenderObjectContainer const& container) {
             return acc + container.getObjectCount();
         }
         );

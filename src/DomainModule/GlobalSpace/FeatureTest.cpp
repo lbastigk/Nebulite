@@ -16,7 +16,7 @@ Constants::Error FeatureTest::update() {
     return Constants::ErrorTable::NONE();
 }
 
-class MathModifier{
+class MathModifier {
 public:
     double add(std::span<std::string const> const& args, double input) {
         double sum = input;
@@ -48,10 +48,11 @@ Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& a
 
     // Call the function
     std::string const funcCall = "<name> add 1.5 2.5 3.0";
-    double const result = testTree.parseStr(funcCall,0.0);
+    double const result = testTree.parseStr(funcCall, 0.0);
     Nebulite::cout() << "FuncTree result for call '" << funcCall << "': " << result << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
+
 std::string const FeatureTest::testFuncTree_name = "feature-test functree";
 std::string const FeatureTest::testFuncTree_desc = "Builds a funcTree with extra arguments and tests it";
 
@@ -60,4 +61,4 @@ std::string const FeatureTest::category_feature_test_name = "feature-test";
 std::string const FeatureTest::category_feature_test_desc = "Functions for testing features in the GlobalSpace";
 
 
-}   // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::DomainModule::GlobalSpace

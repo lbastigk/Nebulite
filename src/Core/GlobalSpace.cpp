@@ -6,30 +6,30 @@
 #include "DomainModule/Initializer.hpp"
 
 //------------------------------------------
-namespace Nebulite::Core{
-    
+namespace Nebulite::Core {
+
 GlobalSpace::GlobalSpace(std::string const& name)
-: Domain("Nebulite", this, &document),
-  document("GlobalSpace Document"),  // JSON
-  renderer(&document, &cmdVars.headless)  // Renderer with reference to GlobalSpace and headless mode boolean
+    : Domain("Nebulite", this, &document),
+      document("GlobalSpace Document"), // JSON
+      renderer(&document, &cmdVars.headless) // Renderer with reference to GlobalSpace and headless mode boolean
 {
     //------------------------------------------
     // There should only be one GlobalSpace
     static bool globalSpaceExists = false;
-    if(globalSpaceExists){
+    if (globalSpaceExists) {
         throw std::runtime_error("GlobalSpace instance already exists! Only one instance is allowed.");
     }
     globalSpaceExists = true;
 
     //------------------------------------------
     // Setup tasks
-    tasks.always.clearAfterResolving = false;       // Always tasks are never cleared
+    tasks.always.clearAfterResolving = false; // Always tasks are never cleared
     invoke.linkTaskQueue(tasks.internal.taskQueue); // Invoke pushes tasks to internal queue
 
     //------------------------------------------
     // General Variables
     names.binary = name;
-    names.state  = "";
+    names.state = "";
 
     //------------------------------------------
     // Domain-Related
@@ -65,9 +65,9 @@ Constants::Error GlobalSpace::updateInnerDomains() const {
     return result;
 }
 
-Constants::Error GlobalSpace::update(){
-    static bool queueParsed = false;   // Indicates if the task queue has been parsed on this frame render
-    static bool criticalStop = false;  // Indicates if a critical stop has occurred
+Constants::Error GlobalSpace::update() {
+    static bool queueParsed = false; // Indicates if the task queue has been parsed on this frame render
+    static bool criticalStop = false; // Indicates if a critical stop has occurred
     Constants::Error lastCriticalResult = Constants::ErrorTable::NONE(); // Last critical error result
 
     //------------------------------------------
@@ -82,7 +82,7 @@ Constants::Error GlobalSpace::update(){
      *       But might break for more complex tasks, so this should be taken into account later on,
      *       e.G. inside the GlobalSpace, checking state of Renderer might be useful
      */
-    if(!queueParsed){
+    if (!queueParsed) {
         lastCriticalResult = parseQueue();
         criticalStop = lastCriticalResult != Constants::ErrorTable::NONE();
         queueParsed = true;
@@ -90,20 +90,21 @@ Constants::Error GlobalSpace::update(){
 
     //------------------------------------------
     // Update and render, only if initialized
-    if (!criticalStop && renderer.isSdlInitialized() && renderer.timeToRender()){
+    if (!criticalStop && renderer.isSdlInitialized() && renderer.timeToRender()) {
         // Update modules first
         updateModules();
 
         // Then, update inner domains
-        if (auto const result = updateInnerDomains(); result.isCritical() && !cmdVars.recover){
+        if (auto const result = updateInnerDomains(); result.isCritical() && !cmdVars.recover) {
             criticalStop = true;
             lastCriticalResult = result;
         }
 
         // Do a Renderer tick and check if an update occurred
         // Reduce script wait counter if not in console mode or other halting states (tick returns false in those cases)
-        if(renderer.tick()){
-            if(scriptWaitCounter > 0) scriptWaitCounter--;
+        if (renderer.tick()) {
+            if (scriptWaitCounter > 0)
+                scriptWaitCounter--;
         }
 
         // Frame was rendered, meaning we potentially have new tasks to process
@@ -120,7 +121,7 @@ Constants::Error GlobalSpace::update(){
      * @note It might be tempting to add the condition that all tasks are done,
      *       but this could cause issues if the user wishes to quit while a task is still running.
      */
-    if(scriptWaitCounter > 0 && !renderer.isSdlInitialized()){
+    if (scriptWaitCounter > 0 && !renderer.isSdlInitialized()) {
         continueLoop = true;
         scriptWaitCounter--;
 
@@ -133,13 +134,14 @@ Constants::Error GlobalSpace::update(){
     return lastCriticalResult;
 }
 
-void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv){
+void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) {
     //------------------------------------------
     // Add main args to taskList, split by ';'
-    if (argc > 1){
+    if (argc > 1) {
         std::ostringstream oss;
-        for (int i = 1; i < argc; ++i){
-            if (i > 1) oss << ' ';
+        for (int i = 1; i < argc; ++i) {
+            if (i > 1)
+                oss << ' ';
             oss << argv[i];
         }
 
@@ -148,16 +150,15 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv){
         std::stringstream ss(argStr);
         std::string command;
 
-        while (std::getline(ss, command, ';')){
+        while (std::getline(ss, command, ';')) {
             // Trim whitespace from each command
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
-            if (!command.empty()){
+            if (!command.empty()) {
                 tasks.script.taskQueue.push_back(command);
             }
         }
-    }
-    else{
+    } else {
         /**
          * @note For now, an empty Renderer is initiated via set-fps 60 if no arguments are provided
          * @todo Later on it might be helpful to insert a task like:
@@ -192,18 +193,20 @@ taskQueueResult GlobalSpace::resolveTaskQueue(taskQueueWrapper& tq, uint64_t con
     taskQueueResult fullResult;
 
     // 1.) Process and pop tasks
-    if (tq.clearAfterResolving){
-        while (!tq.taskQueue.empty()){
+    if (tq.clearAfterResolving) {
+        while (!tq.taskQueue.empty()) {
             // Check stop conditions
-            if (fullResult.encounteredCriticalResult && !cmdVars.recover) break;
-            if (waitCounter != nullptr && *waitCounter > 0) break;
+            if (fullResult.encounteredCriticalResult && !cmdVars.recover)
+                break;
+            if (waitCounter != nullptr && *waitCounter > 0)
+                break;
 
             // Pop front
             std::string argStr = tq.taskQueue.front();
             tq.taskQueue.pop_front();
 
             // Add binary name if missing
-            if (!argStr.starts_with(names.binary + " ")){
+            if (!argStr.starts_with(names.binary + " ")) {
                 argStr.insert(0, names.binary + " ");
             }
 
@@ -211,7 +214,7 @@ taskQueueResult GlobalSpace::resolveTaskQueue(taskQueueWrapper& tq, uint64_t con
             currentResult = parseStr(argStr);
 
             // Check result
-            if (currentResult.isCritical()){
+            if (currentResult.isCritical()) {
                 fullResult.encounteredCriticalResult = true;
             }
             fullResult.errors.push_back(currentResult);
@@ -219,14 +222,16 @@ taskQueueResult GlobalSpace::resolveTaskQueue(taskQueueWrapper& tq, uint64_t con
     }
     // 2.) Process without popping tasks
     else {
-        for (auto const& argStrOrig : tq.taskQueue){
+        for (auto const& argStrOrig : tq.taskQueue) {
             // Check stop conditions
-            if (fullResult.encounteredCriticalResult && !cmdVars.recover) break;
-            if (waitCounter != nullptr && *waitCounter > 0) break;
+            if (fullResult.encounteredCriticalResult && !cmdVars.recover)
+                break;
+            if (waitCounter != nullptr && *waitCounter > 0)
+                break;
 
             // Add binary name if missing
             std::string argStr = argStrOrig;
-            if (!argStr.starts_with(names.binary + " ")){
+            if (!argStr.starts_with(names.binary + " ")) {
                 argStr.insert(0, names.binary + " ");
             }
 
@@ -234,7 +239,7 @@ taskQueueResult GlobalSpace::resolveTaskQueue(taskQueueWrapper& tq, uint64_t con
             currentResult = parseStr(argStr);
 
             // Check result
-            if (currentResult.isCritical()){
+            if (currentResult.isCritical()) {
                 fullResult.encounteredCriticalResult = true;
             }
             fullResult.errors.push_back(currentResult);
@@ -244,7 +249,7 @@ taskQueueResult GlobalSpace::resolveTaskQueue(taskQueueWrapper& tq, uint64_t con
     return fullResult;
 }
 
-Constants::Error GlobalSpace::parseQueue(){
+Constants::Error GlobalSpace::parseQueue() {
     static uint64_t const* noWaitCounter = nullptr;
     Constants::Error lastCriticalResult;
 
@@ -255,21 +260,21 @@ Constants::Error GlobalSpace::parseQueue(){
 
     // 2.) Parse script tasks
     queueResult.script = resolveTaskQueue(tasks.script, &scriptWaitCounter);
-    if(queueResult.script.encounteredCriticalResult && !cmdVars.recover){
+    if (queueResult.script.encounteredCriticalResult && !cmdVars.recover) {
         lastCriticalResult = queueResult.script.errors.back();
         return lastCriticalResult;
     }
 
     // 3.) Parse internal tasks
     queueResult.internal = resolveTaskQueue(tasks.internal, noWaitCounter);
-    if(queueResult.internal.encounteredCriticalResult && !cmdVars.recover){
+    if (queueResult.internal.encounteredCriticalResult && !cmdVars.recover) {
         lastCriticalResult = queueResult.internal.errors.back();
         return lastCriticalResult;
     }
 
     // 4.) Parse always-tasks
     queueResult.always = resolveTaskQueue(tasks.always, noWaitCounter);
-    if(queueResult.always.encounteredCriticalResult && !cmdVars.recover){
+    if (queueResult.always.encounteredCriticalResult && !cmdVars.recover) {
         lastCriticalResult = queueResult.always.errors.back();
         return lastCriticalResult;
     }
@@ -277,7 +282,7 @@ Constants::Error GlobalSpace::parseQueue(){
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error GlobalSpace::preParse(){
+Constants::Error GlobalSpace::preParse() {
     // NOTE: This function is only called once there is a parse-command
     // Meaning its timing is consistent and not dependent on framerate, frame time variations, etc.
     // Meaning everything we do here is, timing wise, deterministic!
@@ -286,14 +291,14 @@ Constants::Error GlobalSpace::preParse(){
     // Disabled if renderer skipped update last frame, active otherwise
     bool RNG_update_enabled = renderer.isSdlInitialized() && renderer.hasSkippedUpdate() == false;
     RNG_update_enabled |= !renderer.isSdlInitialized(); // If renderer is not initialized, we always update RNGs
-    if(RNG_update_enabled){
+    if (RNG_update_enabled) {
         updateRNGs();
     }
 
     return Constants::ErrorTable::NONE();
 }
 
-void GlobalSpace::updateRNGs(){
+void GlobalSpace::updateRNGs() {
     // Set Min and Max values for RNGs in document
     // Always set, so overwrites don't stick around
     document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.min, std::numeric_limits<RngVars::rngSize_t>::min());
@@ -319,4 +324,4 @@ void GlobalSpace::updateRNGs(){
     document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.D, rng.D.get());
 }
 
-}  // namespace Nebulite::Core
+} // namespace Nebulite::Core

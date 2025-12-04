@@ -146,8 +146,7 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
             if (isAvailableAsDoublePtr(key)) {
                 vd->setUpExternalCache(references.self);
                 virtualDoubles.remanent.self.push_back(vd);
-            }
-            else {
+            } else {
                 vd->setUpExternalCache(references.self);
                 virtualDoubles.nonRemanent.self.push_back(vd);
             }
@@ -159,8 +158,7 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
             // (e.g. with multi-resolve or transformations)
             if (isAvailableAsDoublePtr(key)) {
                 virtualDoubles.nonRemanent.other.push_back(vd);
-            }
-            else {
+            } else {
                 virtualDoubles.nonRemanent.otherUnStable.push_back(vd);
             }
             break;
@@ -168,8 +166,7 @@ void Nebulite::Interaction::Logic::Expression::registerVariable(std::string te_n
             if (isAvailableAsDoublePtr(key)) {
                 vd->setUpExternalCache(Nebulite::global().getDoc());
                 virtualDoubles.remanent.global.push_back(vd);
-            }
-            else {
+            } else {
                 virtualDoubles.nonRemanent.global.push_back(vd);
             }
             break;

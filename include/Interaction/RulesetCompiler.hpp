@@ -17,7 +17,7 @@
 #include "Utility/DocumentCache.hpp"
 
 //------------------------------------------
-namespace Nebulite::Interaction{
+namespace Nebulite::Interaction {
 /**
  * @class RulesetCompiler
  * 
@@ -47,7 +47,7 @@ namespace Nebulite::Interaction{
  * turns an `$(overwrites.physics.G)` into `9.81` and 
  * defaults to `{global.physics.G}` if not overwritten.
  */
-class RulesetCompiler{
+class RulesetCompiler {
 public:
     /**
      * @brief Parses a JSON encoded set of Invoke Entries inside a RenderObject into Ruleset objects.
@@ -58,11 +58,11 @@ public:
      * @param docCache The DocumentCache instance to use for parsing expressions.
      */
     static void parse(
-        std::vector<std::shared_ptr<Ruleset>>& entries_global, 
-        std::vector<std::shared_ptr<Ruleset>>& entries_local, 
+        std::vector<std::shared_ptr<Ruleset>>& entries_global,
+        std::vector<std::shared_ptr<Ruleset>>& entries_local,
         Core::RenderObject* self
-    );
-    
+        );
+
 private:
     /**
      * @brief Extracts function calls from a JSON entry document.
@@ -73,9 +73,9 @@ private:
      */
     static void getFunctionCalls(
         Utility::JSON& entryDoc,
-        Ruleset& Ruleset, 
+        Ruleset& Ruleset,
         Core::RenderObject const* self
-    );
+        );
 
     /**
      * @brief Extract a single expression from a JSON entry document
@@ -87,10 +87,10 @@ private:
      * @return True if the expression was successfully extracted, false otherwise.
      */
     static bool getExpression(
-        Logic::Assignment& assignmentExpr, 
-        Utility::JSON& entry, 
+        Logic::Assignment& assignmentExpr,
+        Utility::JSON& entry,
         size_t const& index
-    );
+        );
 
     /**
      * @brief Extracts all expressions from a JSON entry document.
@@ -118,10 +118,10 @@ private:
      * @return True if the Ruleset was successfully extracted, false otherwise.
      */
     static bool getRuleset(
-        Utility::JSON& doc, 
-        Utility::JSON& entry, 
+        Utility::JSON& doc,
+        Utility::JSON& entry,
         size_t const& index
-    );
+        );
 
     /**
      * @brief Optimizes the parsed entries by linking direct target pointers.
@@ -132,9 +132,9 @@ private:
      * @param self The RenderObject instance associated with the entries.
      */
     static void optimizeParsedEntries(
-        std::vector<std::shared_ptr<Ruleset>> const& entries, 
+        std::vector<std::shared_ptr<Ruleset>> const& entries,
         Utility::JSON* self
-    );
+        );
 
     /**
      * @brief List of operations that are considered numeric and thus eligible for direct pointer assignment.

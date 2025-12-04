@@ -15,15 +15,16 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Utility{
-    class JSON;
-}   // namespace Nebulite::Utility
+namespace Nebulite::Utility {
+class JSON;
+} // namespace Nebulite::Utility
 
 
 //------------------------------------------
 namespace Nebulite::DomainModule::JSON {
-NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ForceValue){
-public:
+NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ForceValue) {
+    public
+    :
     /**
      * @brief Override of update.
      */
@@ -39,7 +40,7 @@ public:
      * @param argv The argument vector: <key> <newvalue>
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error force_set(int argc,  char** argv);
+    Constants::Error force_set(int argc, char** argv);
     static std::string const force_set_name;
     static std::string const force_set_desc;
 
@@ -50,7 +51,7 @@ public:
      * @param argv The argument vector: No arguments available
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error force_clear(int argc,  char** argv);
+    Constants::Error force_clear(int argc, char** argv);
     static std::string const force_clear_name;
     static std::string const force_clear_desc;
 
@@ -65,16 +66,17 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, ForceValue){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, ForceValue)
+    {
         // Binding
         (void)bindCategory(force_name, &force_desc);
-        bindFunction(&ForceValue::force_set,      force_set_name,      &force_set_desc);
-        bindFunction(&ForceValue::force_clear,    force_clear_name,    &force_clear_desc);
+        bindFunction(&ForceValue::force_set, force_set_name, &force_set_desc);
+        bindFunction(&ForceValue::force_clear, force_clear_name, &force_clear_desc);
     }
 
-private:
+    private
+    :
     absl::flat_hash_map<std::string, std::string> forced_global_values; // Key-Value pairs to set in global JSON
 };
-}   // namespace Nebulite::DomainModule::JSON
+} // namespace Nebulite::DomainModule::JSON
 #endif // NEBULITE_JSDM_FORCEVALUE_HPP
-

@@ -110,7 +110,7 @@ std::string RenderObject::serialize() {
     return document.serialize();
 }
 
-void RenderObject::deserialize(std::string const &serialOrLink) {
+void RenderObject::deserialize(std::string const& serialOrLink) {
     // Check if argv1 provided is an object
     if (Utility::JSON::isJsonOrJsonc(serialOrLink)) {
         document.deserialize(serialOrLink);
@@ -133,7 +133,7 @@ void RenderObject::deserialize(std::string const &serialOrLink) {
         //------------------------------------------
         // Now apply modifications
         tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
-        for (auto const &token : tokens) {
+        for (auto const& token : tokens) {
             if (token.empty())
                 continue; // Skip empty tokens
 
@@ -177,15 +177,15 @@ void RenderObject::deserialize(std::string const &serialOrLink) {
 //------------------------------------------
 // General functions
 
-SDL_Texture *RenderObject::getTextTexture() const {
+SDL_Texture* RenderObject::getTextTexture() const {
     return textTexture;
 }
 
-SDL_Rect *RenderObject::getTextRect() {
+SDL_Rect* RenderObject::getTextRect() {
     return &textRect;
 }
 
-SDL_Rect *RenderObject::getDstRect() {
+SDL_Rect* RenderObject::getDstRect() {
     return &dstRect;
 }
 
@@ -198,7 +198,7 @@ void RenderObject::calculateDstRect() {
     };
 }
 
-SDL_Rect *RenderObject::getSrcRect() {
+SDL_Rect* RenderObject::getSrcRect() {
     if (*refs.isSpritesheet > DBL_EPSILON) {
         // isSpritesheet is true
         return &srcRect;
@@ -263,13 +263,13 @@ Constants::Error RenderObject::update() {
         //------------------------------------------
         // 1.) Reload invokes if needed
         if (flag.reloadInvokes) {
-            Interaction::RulesetCompiler::parse(entries_global, entries_local,this);
+            Interaction::RulesetCompiler::parse(entries_global, entries_local, this);
             flag.reloadInvokes = false;
         }
 
         //------------------------------------------
         // 2.) Directly solve local invokes (loop)
-        for (auto const &entry : entries_local) {
+        for (auto const& entry : entries_local) {
             if (Interaction::Invoke::checkRulesetLogicalCondition(entry)) {
                 Nebulite::global().getInvoke()->applyRulesets(entry);
             }
@@ -288,7 +288,7 @@ Constants::Error RenderObject::update() {
         //------------------------------------------
         // 4.) Append general invokes from object itself back for global check
         //     This makes sure that no invokes from inactive objects stay in the list
-        for (auto const &entry : entries_global) {
+        for (auto const& entry : entries_global) {
             // add pointer to invoke command to global
             Nebulite::global().getInvoke()->broadcast(entry);
         }
@@ -299,7 +299,7 @@ Constants::Error RenderObject::update() {
     return Constants::ErrorTable::NONE();
 }
 
-uint64_t RenderObject::estimateComputationalCost(bool const &onlyInternal) {
+uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
     //------------------------------------------
     // Reload invokes if needed
     if (flag.reloadInvokes) {
@@ -314,7 +314,7 @@ uint64_t RenderObject::estimateComputationalCost(bool const &onlyInternal) {
     // Local entries
     cost = std::accumulate(
         entries_local.begin(), entries_local.end(), cost,
-        [](uint64_t const acc, std::shared_ptr<Interaction::Ruleset> const &entry) {
+        [](uint64_t const acc, std::shared_ptr<Interaction::Ruleset> const& entry) {
             return acc + entry->estimatedCost;
         }
         );
@@ -323,7 +323,7 @@ uint64_t RenderObject::estimateComputationalCost(bool const &onlyInternal) {
     if (!onlyInternal) {
         cost = std::accumulate(
             entries_global.begin(), entries_global.end(), cost,
-            [](uint64_t const acc, std::shared_ptr<Interaction::Ruleset> const &entry) {
+            [](uint64_t const acc, std::shared_ptr<Interaction::Ruleset> const& entry) {
                 return acc + entry->estimatedCost;
             }
             );
@@ -335,7 +335,7 @@ uint64_t RenderObject::estimateComputationalCost(bool const &onlyInternal) {
 //------------------------------------------
 // Outside communication with Renderer for text calculation
 
-void RenderObject::calculateText(SDL_Renderer *renderer, TTF_Font *font, int const &renderPositionX, int const &renderPositionY) {
+void RenderObject::calculateText(SDL_Renderer* renderer, TTF_Font* font, int const& renderPositionX, int const& renderPositionY) {
     // Set font size if changed
     textRect.x = static_cast<int>(*refs.posX + *refs.textDx - static_cast<double>(renderPositionX));
     textRect.y = static_cast<int>(*refs.posY + *refs.textDy - static_cast<double>(renderPositionY));

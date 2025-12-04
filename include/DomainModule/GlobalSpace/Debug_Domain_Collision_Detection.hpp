@@ -15,9 +15,9 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Core{
-    class GlobalSpace; // Forward declaration of domain class GlobalSpace
-}   // namespace Nebulite::Core
+namespace Nebulite::Core {
+class GlobalSpace; // Forward declaration of domain class GlobalSpace
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {
@@ -25,7 +25,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Debug_Domain_Collision_Detection
  * @brief DomainModule for debugging capabilities within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug_Domain_Collision_Detection){
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug_Domain_Collision_Detection) {
 public:
     /**
      * @brief Override of update.
@@ -82,7 +82,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug_Domain_Collision_Detection){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug_Domain_Collision_Detection) {
         // Bind the categories for the functions
         (void)bindCategory(debug_name, &debug_desc);
         (void)bindCategory(collisionDetect_name, &collisionDetect_desc);
@@ -93,5 +93,5 @@ public:
         bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_variable, debug_collisionDetect_variable_name, &debug_collisionDetect_variable_desc);
     }
 };
-}   // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_GSDM_DEBUG_DOMAIN_COLLISION_DETECTION_HPP

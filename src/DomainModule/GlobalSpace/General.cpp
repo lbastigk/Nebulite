@@ -2,11 +2,11 @@
 
 #include "Nebulite.hpp"
 
-namespace Nebulite::DomainModule::GlobalSpace{
+namespace Nebulite::DomainModule::GlobalSpace {
 
 //------------------------------------------
 // Update
-Constants::Error General::update(){
+Constants::Error General::update() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -17,7 +17,7 @@ Constants::Error General::update(){
 // Domain-Bound Functions
 
 // NOLINTNEXTLINE
-Constants::Error General::eval(int argc,  char** argv){
+Constants::Error General::eval(int argc, char** argv) {
     // argc/argv to string for evaluation
     std::string const args = Utility::StringHandler::recombineArgs(argc, argv);
 
@@ -27,6 +27,7 @@ Constants::Error General::eval(int argc,  char** argv){
     // reparse
     return domain->parseStr(argsEvaluated);
 }
+
 std::string const General::eval_name = "eval";
 std::string const General::eval_desc = R"(Evaluates an expression string and executes it.
 Every argument after eval is concatenated with a whitespace to form the expression to be evaluated and then reparsed.
@@ -47,7 +48,7 @@ where NAME is the current value of the global variable ToSpawn
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::exit(int argc,  char** argv){
+Constants::Error General::exit(int argc, char** argv) {
     // Clear all task queues to prevent further execution
     domain->tasks.script.taskQueue.clear();
     domain->tasks.internal.taskQueue.clear();
@@ -57,6 +58,7 @@ Constants::Error General::exit(int argc,  char** argv){
     domain->quitRenderer();
     return Constants::ErrorTable::NONE();
 }
+
 std::string const General::exit_name = "exit";
 std::string const General::exit_desc = R"(Exits the entire program.
 
@@ -67,17 +69,18 @@ Any queued tasks will be discarded.
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::wait(int argc,  char** argv){
-    if(argc == 2){
+Constants::Error General::wait(int argc, char** argv) {
+    if (argc == 2) {
         std::istringstream iss(argv[1]);
         iss >> domain->scriptWaitCounter;
         return Constants::ErrorTable::NONE();
     }
-    if(argc < 2){
-       return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    if (argc < 2) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
 }
+
 std::string const General::wait_name = "wait";
 std::string const General::wait_desc = R"(Sets the waitCounter to the given value to halt all script tasks for a given amount of frames.
 
@@ -95,30 +98,30 @@ This is useful for:
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::task(int argc,  char** argv){
+Constants::Error General::task(int argc, char** argv) {
     std::string const message = "Loading task list from file: " + (argc > 1 ? std::string(argv[1]) : "none");
     Nebulite::cout() << message << Nebulite::endl;
 
     // Rollback RNG, loading a task file should not change the RNG state
     domain->rngRollback();
 
-    if (argc < 2){
+    if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    if (argc > 2){
+    if (argc > 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     // Warn if file ending is not .nebs
     std::string const filename = argv[1];
-    if (filename.length() < 6 || !filename.ends_with(".nebs")){
+    if (filename.length() < 6 || !filename.ends_with(".nebs")) {
         Nebulite::cerr() << "Warning: unexpected file ending for task file '" << filename << "'. Expected '.nebs'. Trying to load anyway." << Nebulite::endl;
     }
 
     // Using FileManagement to load the .nebs file
     std::string const file = Utility::FileManagement::LoadFile(filename);
-    if (file.empty()){
-        Nebulite::cerr() << "Error: "<< argv[0] <<" Could not open file '" << filename << "'" << Nebulite::endl;
+    if (file.empty()) {
+        Nebulite::cerr() << "Error: " << argv[0] << " Could not open file '" << filename << "'" << Nebulite::endl;
         return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
 
@@ -127,10 +130,10 @@ Constants::Error General::task(int argc,  char** argv){
     // Split std::string file into lines and remove comments
     std::istringstream stream(file);
     std::string line;
-    while (std::getline(stream, line)){
-        line = Utility::StringHandler::untilSpecialChar(line,'#');   // Remove comments.
-        line = Utility::StringHandler::lStrip(line,' ');             // Remove whitespaces at start
-        if(line.empty()){
+    while (std::getline(stream, line)) {
+        line = Utility::StringHandler::untilSpecialChar(line, '#'); // Remove comments.
+        line = Utility::StringHandler::lStrip(line, ' '); // Remove whitespaces at start
+        if (line.empty()) {
             // line is empty
             continue;
         }
@@ -139,11 +142,12 @@ Constants::Error General::task(int argc,  char** argv){
     }
 
     // Now insert all lines into the task queue
-    for (auto const& taskLine : lines){
+    for (auto const& taskLine : lines) {
         domain->tasks.script.taskQueue.push_front(taskLine);
     }
     return Constants::ErrorTable::NONE();
 }
+
 std::string const General::task_name = "task";
 std::string const General::task_desc = R"(Loads tasks from a file into the taskQueue.
 
@@ -167,11 +171,12 @@ Main task:
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::echo(int argc,  char** argv){
+Constants::Error General::echo(int argc, char** argv) {
     std::string const args = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
     Nebulite::cout() << args << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
+
 std::string const General::echo_name = "echo";
 std::string const General::echo_desc = R"(Echoes all arguments as string to the standard output.
 
@@ -185,11 +190,11 @@ Hello World!
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::func_if(int argc,  char** argv){
-    if (argc < 3){
+Constants::Error General::func_if(int argc, char** argv) {
+    if (argc < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    if (!domain->evalAsBool(argv[1])){
+    if (!domain->evalAsBool(argv[1])) {
         // If the condition is false/nan, skip the following commands
         return Constants::ErrorTable::NONE();
     }
@@ -216,24 +221,24 @@ if '$(eq(1+1,2))' echo Condition is true!
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::func_assert(int argc,  char** argv){
-    if (argc < 2){
+Constants::Error General::func_assert(int argc, char** argv) {
+    if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
-    if (argc > 2){
+    if (argc > 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     std::string const condition = argv[1];
 
     // condition must start with $( and end with )
-    if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')'){
+    if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
         return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
 
     // Evaluate condition
-    if(!domain->evalAsBool(condition)){
+    if (!domain->evalAsBool(condition)) {
         return Constants::ErrorTable::addError("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.", Constants::Error::CRITICAL);
     }
 
@@ -255,7 +260,7 @@ Assertion failed: $(eq(1+1,3)) is not true.
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::func_return(int argc,  char** argv){
+Constants::Error General::func_return(int argc, char** argv) {
     return Constants::ErrorTable::addError(Utility::StringHandler::recombineArgs(argc - 1, argv + 1), Constants::Error::CRITICAL);
 }
 
@@ -276,11 +281,12 @@ Critical Error: We did not anticipate this happening, weird.
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::always(int argc,  char** argv){
-    if (argc > 1){
+Constants::Error General::always(int argc, char** argv) {
+    if (argc > 1) {
         std::ostringstream oss;
-        for (int i = 1; i < argc; ++i){
-            if (i > 1) oss << ' ';
+        for (int i = 1; i < argc; ++i) {
+            if (i > 1)
+                oss << ' ';
             oss << argv[i];
         }
 
@@ -289,17 +295,18 @@ Constants::Error General::always(int argc,  char** argv){
         std::stringstream ss(argStr);
         std::string command;
 
-        while (std::getline(ss, command, ';')){
+        while (std::getline(ss, command, ';')) {
             // Trim whitespace from each command
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
-            if (!command.empty()){
+            if (!command.empty()) {
                 domain->tasks.always.taskQueue.push_back(command);
             }
         }
     }
     return Constants::ErrorTable::NONE();
 }
+
 std::string const General::always_name = "always";
 std::string const General::always_desc = R"(Attach a command to the always-taskqueue that is executed on each tick.
 
@@ -311,10 +318,11 @@ This will output "This command runs every frame!" on every frame.
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::alwaysClear(int argc,  char** argv){
+Constants::Error General::alwaysClear(int argc, char** argv) {
     domain->tasks.always.taskQueue.clear();
     return Constants::ErrorTable::NONE();
 }
+
 std::string const General::alwaysClear_name = "always-clear";
 std::string const General::alwaysClear_desc = R"(Clears the entire always-taskqueue.
 
@@ -326,33 +334,33 @@ This will remove all commands from the always-taskqueue.
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::func_for(int argc,  char** argv){
-    if(argc > 4){
+Constants::Error General::func_for(int argc, char** argv) {
+    if (argc > 4) {
         std::string const varName = argv[1];
 
         int const iStart = std::stoi(domain->eval(argv[2]));
-        int const iEnd   = std::stoi(domain->eval(argv[3]));
+        int const iEnd = std::stoi(domain->eval(argv[3]));
 
         std::string args;
-        for (int i = 4; i < argc; ++i){
+        for (int i = 4; i < argc; ++i) {
             args += argv[i];
-            if (i < argc - 1){
+            if (i < argc - 1) {
                 args += " ";
             }
         }
-        for(int i = iStart; i <= iEnd; i++){
+        for (int i = iStart; i <= iEnd; i++) {
             // for + args
             std::string args_replaced = std::string(argv[0]) + " " + Utility::StringHandler::replaceAll(args, '{' + varName + '}', std::to_string(i));
-            if (auto const err = domain->parseStr(args_replaced); err.isCritical()){
+            if (auto const err = domain->parseStr(args_replaced); err.isCritical()) {
                 return err;
-            }
-            else {
+            } else {
                 Nebulite::cout() << err.getDescription() << Nebulite::endl;
             }
         }
     }
     return Constants::ErrorTable::NONE();
 }
+
 std::string const General::func_for_name = "for";
 std::string const General::func_for_desc = R"(Executes a for-loop with a function call.
 
@@ -374,10 +382,11 @@ This is useful for:
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::nop(std::span<std::string const> const& args){
+Constants::Error General::nop(std::span<std::string const> const& args) {
     // Do nothing
     return Constants::ErrorTable::NONE();
 }
+
 std::string const General::nop_name = "nop";
 std::string const General::nop_desc = R"(No operation. Does nothing.
 Usage: nop <blind arguments>

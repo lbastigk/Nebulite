@@ -15,13 +15,13 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Utility{
-    class JSON;
-}   // namespace Nebulite::Utility
+namespace Nebulite::Utility {
+class JSON;
+} // namespace Nebulite::Utility
 
 //------------------------------------------
 namespace Nebulite::DomainModule::JSON {
-NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, Debug){
+NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, Debug) {
 public:
     /**
      * @brief Override of update.
@@ -40,7 +40,7 @@ public:
      * @param argv The argument vector: [key]
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error print(int argc,  char** argv);
+    Constants::Error print(int argc, char** argv);
     static std::string const print_name;
     static std::string const print_desc;
 
@@ -50,7 +50,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, Debug){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, Debug) {
         // Binding
         bindFunction(&Debug::print, print_name, &print_desc);
     }
@@ -58,6 +58,5 @@ public:
 private:
     absl::flat_hash_map<std::string, std::string> forced_global_values; // Key-Value pairs to set in global JSON
 };
-}   // namespace Nebulite::DomainModule::JSON
+} // namespace Nebulite::DomainModule::JSON
 #endif // NEBULITE_JSDM_DEBUG_HPP
-

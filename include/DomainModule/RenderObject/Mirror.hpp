@@ -15,19 +15,19 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Core{
-    class RenderObject;
-}   // namespace Nebulite::Core
+namespace Nebulite::Core {
+class RenderObject;
+} // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::RenderObject{
+namespace Nebulite::DomainModule::RenderObject {
 /**
  * @class Nebulite::DomainModule::RenderObject::Mirror
  * @brief Mirror DomainModule of the RenderObject Domain.
  * 
  * Contains RenderObject-specific Mirror functionality, syncing data with the GlobalSpace document.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Mirror){
+NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Mirror) {
 public:
     /**
      * @brief Override of update.
@@ -44,7 +44,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error mirror_once(int argc,  char** argv);
+    Constants::Error mirror_once(int argc, char** argv);
     static std::string const mirror_once_name;
     static std::string const mirror_once_desc;
 
@@ -55,7 +55,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error mirror_on(int argc,  char** argv);
+    Constants::Error mirror_on(int argc, char** argv);
     static std::string const mirror_on_name;
     static std::string const mirror_on_desc;
 
@@ -66,7 +66,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error mirror_off(int argc,  char** argv);
+    Constants::Error mirror_off(int argc, char** argv);
     static std::string const mirror_off_name;
     static std::string const mirror_off_desc;
 
@@ -77,7 +77,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error mirror_delete(int argc,  char** argv);
+    Constants::Error mirror_delete(int argc, char** argv);
     static std::string const mirror_delete_name;
     static std::string const mirror_delete_desc;
 
@@ -88,7 +88,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error mirror_fetch(int argc,  char** argv);
+    Constants::Error mirror_fetch(int argc, char** argv);
     static std::string const mirror_fetch_name;
     static std::string const mirror_fetch_desc;
 
@@ -103,13 +103,13 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Mirror){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Mirror) {
         (void)bindCategory(mirror_name, &mirror_desc);
-        bindFunction(&Mirror::mirror_once,  mirror_once_name,      &mirror_once_desc);
-        bindFunction(&Mirror::mirror_on,    mirror_on_name,        &mirror_on_desc);
-        bindFunction(&Mirror::mirror_off,   mirror_off_name,       &mirror_off_desc);
-        bindFunction(&Mirror::mirror_delete,mirror_delete_name,    &mirror_delete_desc);
-        bindFunction(&Mirror::mirror_fetch, mirror_fetch_name,     &mirror_fetch_desc);
+        bindFunction(&Mirror::mirror_once, mirror_once_name, &mirror_once_desc);
+        bindFunction(&Mirror::mirror_on, mirror_on_name, &mirror_on_desc);
+        bindFunction(&Mirror::mirror_off, mirror_off_name, &mirror_off_desc);
+        bindFunction(&Mirror::mirror_delete, mirror_delete_name, &mirror_delete_desc);
+        bindFunction(&Mirror::mirror_fetch, mirror_fetch_name, &mirror_fetch_desc);
     }
 
 private:
@@ -139,5 +139,5 @@ private:
      */
     Constants::Error setupMirrorKey();
 };
-}   // namespace Nebulite::DomainModule::RenderObject
+} // namespace Nebulite::DomainModule::RenderObject
 #endif // NEBULITE_RODM_MIRROR_HPP

@@ -47,7 +47,7 @@
 #include "Utility/Capture.hpp"  // Due to circular dependencies, we use Capture for logging instead of Nebulite.hpp
 
 //------------------------------------------
-namespace Nebulite::Interaction::Execution{
+namespace Nebulite::Interaction::Execution {
 /**
  * @class Nebulite::Interaction::Execution::FuncTree
  * @brief Function tree class for managing and executing functions through linguistic commands.
@@ -76,14 +76,14 @@ namespace Nebulite::Interaction::Execution{
  *        funcTree.parseStr(command);  // output: "foo: true"
  *        ```
  */
-template<typename returnValue, typename... additionalArgs>
+template <typename returnValue, typename... additionalArgs>
 class FuncTree {
 public:
     //------------------------------------------
     // Access
 
     // Make sure all FuncTrees are friends
-    template<typename RT, typename... AA>
+    template <typename RT, typename... AA>
     friend class FuncTree;
 
     //------------------------------------------
@@ -110,7 +110,7 @@ public:
      */
 
     // Function pointer with class type
-    template<typename ClassType>
+    template <typename ClassType>
     using MemberMethod = std::variant<
         // Legacy
         returnValue (ClassType::*)(int, char**),
@@ -138,7 +138,7 @@ public:
      * 
      * @param toInherit FuncTree pointer to inherit functions from.
      */
-    void inherit(std::shared_ptr<FuncTree> toInherit){
+    void inherit(std::shared_ptr<FuncTree> toInherit) {
         inheritedTrees.push_back(toInherit);
     }
 
@@ -149,7 +149,7 @@ public:
      * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
      * @param func Function to call before parsing
      */
-    void setPreParse(std::function<returnValue()> func){
+    void setPreParse(std::function<returnValue()> func) {
         preParse = func;
     }
 
@@ -214,7 +214,7 @@ public:
      * @param name Name of the function in the command tree
      * @param helpDescription Help description for the function. First line is shown in the general help, full description in detailed help.
      */
-    template<typename ClassType>
+    template <typename ClassType>
     void bindFunction(ClassType* obj, MemberMethod<ClassType> method, std::string const& name, std::string const* helpDescription);
 
     /**
@@ -234,7 +234,7 @@ private:
     // Function to call before parsing (e.g., for setting up variables or locking resources)
     std::function<returnValue()> preParse = nullptr;
 
-    struct StandardReturnValues{
+    struct StandardReturnValues {
         returnValue valDefault;
         returnValue valFunctionNotFound;
     } standardReturn;
@@ -301,7 +301,7 @@ private:
      * @param nameOrCommand Name of the function or full command string
      */
     bool hasFunction(std::string const& nameOrCommand);
-    
+
     /**
      * @brief Looks up the function by name and calls it with the provided arguments.
      * @param name The name of the function to execute.
@@ -337,7 +337,7 @@ private:
 
     //------------------------------------------
     // Helper functions for better readability
-    
+
     /**
      * @brief Displays detailed help for a specific function, category, or variable.
      */
@@ -379,16 +379,16 @@ private:
      * @param argc Argument count
      * @param argv Argument vector
      */
-    void processVariableArguments(size_t& argc, char**& argv){
-        while(argc > 0){
-            if(std::string arg = argv[0]; arg.length() >= 2 && arg.substr(0, 2) == "--" /*same as arg.starts_with("--"), but C++17 compatible*/){
+    void processVariableArguments(size_t& argc, char**& argv) {
+        while (argc > 0) {
+            if (std::string arg = argv[0]; arg.length() >= 2 && arg.substr(0, 2) == "--" /*same as arg.starts_with("--"), but C++17 compatible*/) {
                 // Extract name
                 std::string name = arg.substr(2);
 
                 // Set variable if attached
                 // TODO: Search in inherited FuncTrees as well
-                if (auto varIt = bindingContainer.variables.find(name); varIt != bindingContainer.variables.end()){
-                    if (auto const& varInfo = varIt->second; varInfo.pointer){
+                if (auto varIt = bindingContainer.variables.find(name); varIt != bindingContainer.variables.end()) {
+                    if (auto const& varInfo = varIt->second; varInfo.pointer) {
                         *varInfo.pointer = true;
                     }
                 } else {
@@ -396,10 +396,9 @@ private:
                 }
 
                 // Remove from argument list
-                argv++;       // Skip the first argument (function name)
-                argc--;       // Reduce the argument count (function name is processed)
-            }
-            else{
+                argv++; // Skip the first argument (function name)
+                argc--; // Reduce the argument count (function name is processed)
+            } else {
                 // no more vars to parse
                 return;
             }
@@ -411,12 +410,12 @@ private:
      * @param funcName Name of the function to find
      * @return Pointer to the FuncTree where the function was found, or nullptr if not found.
      */
-    std::shared_ptr<FuncTree> findInInheritedTrees(std::string const& funcName){
+    std::shared_ptr<FuncTree> findInInheritedTrees(std::string const& funcName) {
         // Prerequisite if an inherited FuncTree is linked
-        if(!inheritedTrees.empty() && !hasFunction(funcName)){
+        if (!inheritedTrees.empty() && !hasFunction(funcName)) {
             // Check if the function is in an inherited tree
-            for(auto& inheritedTree : inheritedTrees){
-                if(inheritedTree != nullptr && inheritedTree->hasFunction(funcName)){
+            for (auto& inheritedTree : inheritedTrees) {
+                if (inheritedTree != nullptr && inheritedTree->hasFunction(funcName)) {
                     // Function is in inherited tree, parse there
                     return inheritedTree;
                 }
@@ -442,7 +441,7 @@ private:
      * @param method The member method to bind
      * @param obj The object instance that holds the member method
      */
-    template<typename ClassType>
+    template <typename ClassType>
     void directBind(std::string const& name, std::string const* helpDescription, MemberMethod<ClassType> method, ClassType* obj);
 };
 } // namespace Nebulite::Interaction::Execution

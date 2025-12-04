@@ -39,7 +39,7 @@ public:
     /**
      * @brief Adds a clock to the global clock list.
      */
-    Constants::Error addClock(int argc, char **argv);
+    Constants::Error addClock(int argc, char** argv);
     static std::string const addClock_name;
     static std::string const addClock_desc;
 
@@ -92,9 +92,9 @@ private:
     struct ClockEntry {
         uint64_t last_trigger_ms; // Last time the clock was triggered
         uint64_t interval_ms; // Trigger interval in milliseconds
-        double *globalReference; // Pointer to the global document entry
+        double* globalReference; // Pointer to the global document entry
 
-        ClockEntry(uint64_t const &interval, Utility::JSON *doc, uint64_t const &current_time);
+        ClockEntry(uint64_t const& interval, Utility::JSON* doc, uint64_t const& current_time);
 
         /**
          * @brief Updates the clock entry, setting the global reference based on the timer.
@@ -102,7 +102,7 @@ private:
          * If dt is greater than or equal to the interval, sets the global reference to 1.0.
          * Otherwise, sets it to 0.0.
          */
-        void update(uint64_t const &current_time);
+        void update(uint64_t const& current_time);
     };
 
     /**
@@ -134,7 +134,7 @@ private:
      * @param interval_ms The clock interval in milliseconds.
      * @return The key string for the clock entry.
      */
-    static std::string intervalToKey(uint64_t const &interval_ms) {
+    static std::string intervalToKey(uint64_t const& interval_ms) {
         static uint16_t padding = 6; // Not enough for uint64_t max value, but reasonable for practical clock intervals
         return "ms" + std::to_string(interval_ms).insert(0, padding - std::to_string(interval_ms).length(), '0');
     }

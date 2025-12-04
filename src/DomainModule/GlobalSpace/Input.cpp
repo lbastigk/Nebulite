@@ -52,17 +52,18 @@ Constants::Error Input::update() {
 void Input::map_key_names() {
     for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++
          scancode) {
-        char const *nameRaw = SDL_GetScancodeName(
+        char const* nameRaw = SDL_GetScancodeName(
             static_cast<SDL_Scancode>(scancode));
 
         if (nameRaw && nameRaw[0] != '\0') {
             std::string keyName = nameRaw;
 
             // Normalize key name: lowercase, spaces to underscores
-            std::ranges::for_each(keyName, [](char &ch) {
+            std::ranges::for_each(keyName, [](char& ch) {
                 auto const uch = static_cast<unsigned char>(ch);
                 ch = static_cast<char>(std::tolower(uch));
-                if (ch == ' ') ch = '_';
+                if (ch == ' ')
+                    ch = '_';
             });
 
             // Don't add if there are special chars in Nebulite::Constants::keyName
@@ -85,13 +86,13 @@ void Input::map_key_names() {
 }
 
 namespace {
-    int calcMouseState(uint32_t const& key, uint32_t const& state) {
-        return !!(key & state);
-    }
+int calcMouseState(uint32_t const& key, uint32_t const& state) {
+    return !!(key & state);
+}
 
-    int calcMouseDelta(uint32_t const& key, uint32_t const& currentState, uint32_t const& lastState) {
-        return !!(key & currentState) - !!(key & lastState);
-    }
+int calcMouseDelta(uint32_t const& key, uint32_t const& currentState, uint32_t const& lastState) {
+    return !!(key & currentState) - !!(key & lastState);
+}
 }
 
 void Input::writeCurrentAndDeltaInputs() {
@@ -114,7 +115,7 @@ void Input::writeCurrentAndDeltaInputs() {
 
     //------------------------------------------
     // Keyboard
-    uint8_t const *keyState = SDL_GetKeyboardState(nullptr);
+    uint8_t const* keyState = SDL_GetKeyboardState(nullptr);
     for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++
          scancode) {
         if (!keyNames[scancode].empty()) {
@@ -131,9 +132,8 @@ void Input::writeCurrentAndDeltaInputs() {
             int delta = 0;
             if (currentPressed && !prevPressed)
                 delta = 1;
-            else
-                if (!currentPressed && prevPressed)
-                    delta = -1;
+            else if (!currentPressed && prevPressed)
+                delta = -1;
 
             // Set current state (true/false as int)
             *currentKey[scancode] = static_cast<double>(currentPressed);

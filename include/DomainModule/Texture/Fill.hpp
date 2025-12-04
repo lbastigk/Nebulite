@@ -16,9 +16,9 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Core{
-    class Texture;
-}   // namespace Nebulite::Core
+namespace Nebulite::Core {
+class Texture;
+} // namespace Nebulite::Core
 
 
 //------------------------------------------
@@ -27,7 +27,7 @@ namespace Nebulite::DomainModule::Texture {
  * @class Nebulite::DomainModule::Texture::Fill
  * @brief DomainModule for fill functions within the Texture.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Fill){
+NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Fill) {
 public:
     Constants::Error update() override;
 
@@ -41,7 +41,7 @@ public:
      * @param argv The argument vector: "fill <color>" or "fill <R> <G> <B>"
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error fill(int argc,  char** argv);
+    Constants::Error fill(int argc, char** argv);
     static std::string const fill_name;
     static std::string const fill_desc;
 
@@ -51,9 +51,9 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Fill){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Fill) {
         bindFunction(&Fill::fill, fill_name, &fill_desc);
     }
 };
-}   // namespace Nebulite::DomainModule::Texture
+} // namespace Nebulite::DomainModule::Texture
 #endif // NEBULITE_TXDM_FILL_HPP

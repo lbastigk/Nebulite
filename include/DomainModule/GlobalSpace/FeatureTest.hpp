@@ -15,9 +15,9 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Core{
-    class GlobalSpace; // Forward declaration of domain class GlobalSpace
-}   // namespace Nebulite::Core
+namespace Nebulite::Core {
+class GlobalSpace; // Forward declaration of domain class GlobalSpace
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {
@@ -53,11 +53,11 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, FeatureTest){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, FeatureTest) {
         //------------------------------------------
         // Binding functions to the FuncTree
         (void)bindCategory(category_feature_test_name, &category_feature_test_desc);
-        bindFunction(&FeatureTest::testFuncTree,    testFuncTree_name,  &testFuncTree_desc);
+        bindFunction(&FeatureTest::testFuncTree, testFuncTree_name, &testFuncTree_desc);
     }
 };
 } // namespace Nebulite::DomainModule::GlobalSpace

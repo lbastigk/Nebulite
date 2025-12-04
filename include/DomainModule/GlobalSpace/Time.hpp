@@ -19,8 +19,8 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Core{
-    class GlobalSpace; // Forward declaration of domain class GlobalSpace
+namespace Nebulite::Core {
+class GlobalSpace; // Forward declaration of domain class GlobalSpace
 }
 
 //------------------------------------------
@@ -29,7 +29,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Time
  * @brief DomainModule for time management within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Time){
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Time) {
 public:
     /**
      * @brief Override of update.
@@ -46,7 +46,7 @@ public:
      * @param argv Argument vector: no arguments available.
      * @return Error code indicating success or failure.
      */
-    Constants::Error time_haltOnce(int argc,  char** argv);
+    Constants::Error time_haltOnce(int argc, char** argv);
     static std::string const time_haltOnce_name;
     static std::string const time_haltOnce_desc;
 
@@ -59,7 +59,7 @@ public:
      * @param argv Argument vector: the locks name.
      * @return Error code indicating success or failure.
      */
-    Constants::Error time_lock(int argc,  char** argv);
+    Constants::Error time_lock(int argc, char** argv);
     static std::string const time_lock_name;
     static std::string const time_lock_desc;
 
@@ -72,7 +72,7 @@ public:
      * @param argv Argument vector: the locks name.
      * @return Error code indicating success or failure.
      */
-    Constants::Error time_unlock(int argc,  char** argv);
+    Constants::Error time_unlock(int argc, char** argv);
     static std::string const time_unlock_name;
     static std::string const time_unlock_desc;
 
@@ -85,7 +85,7 @@ public:
      * @param argv Argument vector: no arguments available.
      * @return Error code indicating success or failure.
      */
-    Constants::Error time_masterUnlock(int argc,  char** argv);
+    Constants::Error time_masterUnlock(int argc, char** argv);
     static std::string const time_masterUnlock_name;
     static std::string const time_masterUnlock_desc;
 
@@ -96,7 +96,7 @@ public:
      * @param argv Argument vector: the fixed delta time in milliseconds.
      * @return Error code indicating success or failure.
      */
-    Constants::Error time_setFixedDeltaTime(int argc,  char** argv);
+    Constants::Error time_setFixedDeltaTime(int argc, char** argv);
     static std::string const time_setFixedDeltaTime_name;
     static std::string const time_setFixedDeltaTime_desc;
 
@@ -125,7 +125,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Time){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Time) {
         //------------------------------------------
         // Start timers
         SimulationTime.start();
@@ -134,11 +134,11 @@ public:
         //------------------------------------------
         // Bind functions
         (void)bindCategory(time_name, &time_desc);
-        bindFunction(&Time::time_haltOnce,           time_haltOnce_name,            &time_haltOnce_desc);
-        bindFunction(&Time::time_lock,               time_lock_name,                &time_lock_desc);
-        bindFunction(&Time::time_unlock,             time_unlock_name,              &time_unlock_desc);
-        bindFunction(&Time::time_masterUnlock,       time_masterUnlock_name,        &time_masterUnlock_desc);
-        bindFunction(&Time::time_setFixedDeltaTime,  time_setFixedDeltaTime_name,   &time_setFixedDeltaTime_desc);
+        bindFunction(&Time::time_haltOnce, time_haltOnce_name, &time_haltOnce_desc);
+        bindFunction(&Time::time_lock, time_lock_name, &time_lock_desc);
+        bindFunction(&Time::time_unlock, time_unlock_name, &time_unlock_desc);
+        bindFunction(&Time::time_masterUnlock, time_masterUnlock_name, &time_masterUnlock_desc);
+        bindFunction(&Time::time_setFixedDeltaTime, time_setFixedDeltaTime_name, &time_setFixedDeltaTime_desc);
     }
 
 private:
@@ -160,12 +160,12 @@ private:
     /**
      * @brief Simulation time, which can be paused/modified.
      */
-	Utility::TimeKeeper SimulationTime;
+    Utility::TimeKeeper SimulationTime;
 
     /**
      * @brief Full application runtime
      */
-	Utility::TimeKeeper RealTime;
+    Utility::TimeKeeper RealTime;
 
     /**
      * @brief Amount of frames rendered

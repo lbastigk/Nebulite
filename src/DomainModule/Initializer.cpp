@@ -45,7 +45,7 @@
 namespace Nebulite::DomainModule {
 
 static std::string const headless_desc = "Set headless mode (no renderer)";
-static std::string const recover_desc  = "Enable recoverable error mode";
+static std::string const recover_desc = "Enable recoverable error mode";
 
 void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     //------------------------------------------
@@ -71,11 +71,11 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     //          thus ignoring the console's halt request being sent to renderer
     target->initModule<Time>("Global Time Functions");
     target->initModule<Clock>("Global Clock Functions"); // Clock relies on time, so init after time
-    
+
     //------------------------------------------
     // Initialize Variable Bindings
     target->bindVariable(&target->cmdVars.headless, "headless", &headless_desc);
-    target->bindVariable(&target->cmdVars.recover,  "recover",  &recover_desc);
+    target->bindVariable(&target->cmdVars.recover, "recover", &recover_desc);
 }
 
 void Initializer::initJSON(Utility::JSON* target) {

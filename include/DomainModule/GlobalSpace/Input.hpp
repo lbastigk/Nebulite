@@ -20,8 +20,8 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Core{
-    class GlobalSpace; // Forward declaration of domain class GlobalSpace
+namespace Nebulite::Core {
+class GlobalSpace; // Forward declaration of domain class GlobalSpace
 }
 
 //------------------------------------------
@@ -30,7 +30,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Input
  * @brief DomainModule for handling input events and states.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Input){
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Input) {
 public:
     /**
      * @brief Updates the input states of mouse and keyboard 
@@ -49,7 +49,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Input){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Input) {
         // Mapping key names
         map_key_names();
     }
@@ -74,7 +74,7 @@ private:
     /**
      * @brief Resets all delta input values to zero.
      */
-    void resetDeltaValues() const ;
+    void resetDeltaValues() const;
 
     //---------------------------------
     // Variables
@@ -121,7 +121,7 @@ private:
      * We do not need to store current key states,
      * as SDL does that for us.
      */
-    bool prevKey[SDL_NUM_SCANCODES] = {false};      // Previous key states
+    bool prevKey[SDL_NUM_SCANCODES] = {false}; // Previous key states
 
     /**
      * @brief Array to store pointers to double values representing the delta states of keys.
@@ -135,5 +135,5 @@ private:
      */
     double* currentKey[SDL_NUM_SCANCODES] = {nullptr}; // Pointers to current key states in global doc
 };
-}   // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_GSDM_INPUT_HPP

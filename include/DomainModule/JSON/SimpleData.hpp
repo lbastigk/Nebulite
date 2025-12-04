@@ -15,9 +15,9 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Utility{
-    class JSON;
-}   // namespace Nebulite::Utility
+namespace Nebulite::Utility {
+class JSON;
+} // namespace Nebulite::Utility
 
 
 //------------------------------------------
@@ -26,7 +26,7 @@ namespace Nebulite::DomainModule::JSON {
  * @class Nebulite::DomainModule::JSON::SimpleData
  * @brief DomainModule for simple data operations on domain class Nebulite::Utility::JSON
  */
-NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, SimpleData){
+NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, SimpleData) {
 public:
     /**
      * @brief Override of update.
@@ -43,7 +43,7 @@ public:
      * @param argv The argument vector: <key> <newvalue>
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error set(int argc,  char** argv);
+    Constants::Error set(int argc, char** argv);
     static std::string const set_name;
     static std::string const set_desc;
 
@@ -54,7 +54,7 @@ public:
      * @param argv The argument vector: <source_key> <destination_key>
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error move(int argc,  char** argv);
+    Constants::Error move(int argc, char** argv);
     static std::string const move_name;
     static std::string const move_desc;
 
@@ -65,7 +65,7 @@ public:
      * @param argv The argument vector: <source_key> <destination_key>
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error copy(int argc,  char** argv);
+    Constants::Error copy(int argc, char** argv);
     static std::string const copy_name;
     static std::string const copy_desc;
 
@@ -76,7 +76,7 @@ public:
      * @param argv The argument vector: <key>
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error keyDelete(int argc,  char** argv);
+    Constants::Error keyDelete(int argc, char** argv);
     static std::string const keyDelete_name;
     static std::string const keyDelete_desc;
 
@@ -87,7 +87,7 @@ public:
      * @param argv The argument vector: <key>
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error ensureArray(int argc,  char** argv);
+    Constants::Error ensureArray(int argc, char** argv);
     static std::string const ensureArray_name;
     static std::string const ensureArray_desc;
 
@@ -98,7 +98,7 @@ public:
      * @param argv The argument vector: <key> <newvalue>
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error push_back(int argc,  char** argv);
+    Constants::Error push_back(int argc, char** argv);
     static std::string const push_back_name;
     static std::string const push_back_desc;
 
@@ -109,7 +109,7 @@ public:
      * @param argv The argument vector: <key>
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error pop_back(int argc,  char** argv);
+    Constants::Error pop_back(int argc, char** argv);
     static std::string const pop_back_name;
     static std::string const pop_back_desc;
 
@@ -120,7 +120,7 @@ public:
      * @param argv The argument vector: <key> <newvalue>
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error push_front(int argc,  char** argv);
+    Constants::Error push_front(int argc, char** argv);
     static std::string const push_front_name;
     static std::string const push_front_desc;
 
@@ -131,7 +131,7 @@ public:
      * @param argv The argument vector: <key>
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error pop_front(int argc,  char** argv);
+    Constants::Error pop_front(int argc, char** argv);
     static std::string const pop_front_name;
     static std::string const pop_front_desc;
 
@@ -141,24 +141,24 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, SimpleData){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, SimpleData) {
         // Bind functions specific to complex data handling
-        bindFunction(&SimpleData::set,          set_name,           &set_desc);
+        bindFunction(&SimpleData::set, set_name, &set_desc);
 
         // Internal move/copy
-        bindFunction(&SimpleData::move,         move_name,          &move_desc);
-        bindFunction(&SimpleData::copy,         copy_name,          &copy_desc);
+        bindFunction(&SimpleData::move, move_name, &move_desc);
+        bindFunction(&SimpleData::copy, copy_name, &copy_desc);
 
         // Internal key deletion
-        bindFunction(&SimpleData::keyDelete,    keyDelete_name,     &keyDelete_desc);
+        bindFunction(&SimpleData::keyDelete, keyDelete_name, &keyDelete_desc);
 
         // Array manipulation
-        bindFunction(&SimpleData::push_back,    push_back_name,     &push_back_desc);
-        bindFunction(&SimpleData::pop_back,     pop_back_name,      &pop_back_desc);
-        bindFunction(&SimpleData::push_front,   push_front_name,    &push_front_desc);
-        bindFunction(&SimpleData::pop_front,    pop_front_name,     &pop_front_desc);
-        bindFunction(&SimpleData::ensureArray,  ensureArray_name,   &ensureArray_desc);
+        bindFunction(&SimpleData::push_back, push_back_name, &push_back_desc);
+        bindFunction(&SimpleData::pop_back, pop_back_name, &pop_back_desc);
+        bindFunction(&SimpleData::push_front, push_front_name, &push_front_desc);
+        bindFunction(&SimpleData::pop_front, pop_front_name, &pop_front_desc);
+        bindFunction(&SimpleData::ensureArray, ensureArray_name, &ensureArray_desc);
     }
 };
-}   // namespace Nebulite::DomainModule::JSON
+} // namespace Nebulite::DomainModule::JSON
 #endif // NEBULITE_JSDM_SIMPLEDATA_HPP

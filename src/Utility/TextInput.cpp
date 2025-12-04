@@ -2,12 +2,12 @@
 
 namespace Nebulite::Utility {
 
-TextInput::TextInput(){
+TextInput::TextInput() {
     consoleInputBuffer = &commandIndexZeroBuffer;
 }
 
-std::string TextInput::submit(){
-    if (!consoleInputBuffer->empty()){
+std::string TextInput::submit() {
+    if (!consoleInputBuffer->empty()) {
         std::string input = *consoleInputBuffer;
         insertLine(input, LineEntry::LineType::INPUT);
 
@@ -24,7 +24,7 @@ std::string TextInput::submit(){
         return input;
     }
     // Use last command if input is empty
-    if(!commandHistory.empty()){
+    if (!commandHistory.empty()) {
         std::string lastCommand = commandHistory.back();
         insertLine(lastCommand, LineEntry::LineType::INPUT);
 
@@ -37,39 +37,38 @@ std::string TextInput::submit(){
     return "";
 }
 
-void TextInput::insertLine(std::string const& line, LineEntry::LineType const& type){
-    switch(type){
-        case LineEntry::LineType::COUT: {
-            LineEntry entry(line, LineEntry::LineType::COUT);
-            consoleOutput.emplace_back(entry);
-            break;
-        }
-        case LineEntry::LineType::CERR: {
-            LineEntry entry(line, LineEntry::LineType::CERR);
-            consoleOutput.emplace_back(entry);
-            break;
-        }
-        case LineEntry::LineType::INPUT: {
-            LineEntry entry(line, LineEntry::LineType::INPUT);
-            commandHistory.emplace_back(line);
-            consoleOutput.emplace_back(entry);
-            break;
-        }
+void TextInput::insertLine(std::string const& line, LineEntry::LineType const& type) {
+    switch (type) {
+    case LineEntry::LineType::COUT: {
+        LineEntry entry(line, LineEntry::LineType::COUT);
+        consoleOutput.emplace_back(entry);
+        break;
+    }
+    case LineEntry::LineType::CERR: {
+        LineEntry entry(line, LineEntry::LineType::CERR);
+        consoleOutput.emplace_back(entry);
+        break;
+    }
+    case LineEntry::LineType::INPUT: {
+        LineEntry entry(line, LineEntry::LineType::INPUT);
+        commandHistory.emplace_back(line);
+        consoleOutput.emplace_back(entry);
+        break;
+    }
     }
 }
 
 void TextInput::backspace() const {
     // We can only backspace if the buffer is not empty
-    if (!consoleInputBuffer->empty()){
+    if (!consoleInputBuffer->empty()) {
         // We can only backspace if the cursor is not at the start
-        if(cursorOffset != consoleInputBuffer->size()){
-            if(cursorOffset > 0){
+        if (cursorOffset != consoleInputBuffer->size()) {
+            if (cursorOffset > 0) {
                 // Remove character before cursor
                 std::string const beforeCursor = consoleInputBuffer->substr(0, consoleInputBuffer->size() - cursorOffset - 1);
                 std::string const afterCursor = consoleInputBuffer->substr(consoleInputBuffer->size() - cursorOffset);
                 *consoleInputBuffer = beforeCursor + afterCursor;
-            }
-            else{
+            } else {
                 // Remove last character
                 consoleInputBuffer->pop_back();
             }
@@ -77,40 +76,40 @@ void TextInput::backspace() const {
     }
 }
 
-void TextInput::history_up(){
+void TextInput::history_up() {
     selectedCommandIndex++;
-    
+
     // Get command from history
-    if(selectedCommandIndex > commandHistory.size()){
+    if (selectedCommandIndex > commandHistory.size()) {
         selectedCommandIndex = commandHistory.size();
     }
-    if(selectedCommandIndex > 0){
+    if (selectedCommandIndex > 0) {
         consoleInputBuffer = &commandHistory[commandHistory.size() - selectedCommandIndex];
     }
 }
 
-void TextInput::history_down(){
-    if(selectedCommandIndex > 0) selectedCommandIndex--;
-    
+void TextInput::history_down() {
+    if (selectedCommandIndex > 0)
+        selectedCommandIndex--;
+
     // Get command from buffer or history
-    if(selectedCommandIndex == 0){
+    if (selectedCommandIndex == 0) {
         consoleInputBuffer = &commandIndexZeroBuffer;
-    }
-    else{
+    } else {
         consoleInputBuffer = &commandHistory[commandHistory.size() - selectedCommandIndex];
     }
 }
 
-void TextInput::moveCursorLeft(){
+void TextInput::moveCursorLeft() {
     // Move cursor left if it's smaller than the input buffer size
-    if(cursorOffset < consoleInputBuffer->size()){
+    if (cursorOffset < consoleInputBuffer->size()) {
         cursorOffset++;
     }
 }
 
-void TextInput::moveCursorRight(){
+void TextInput::moveCursorRight() {
     // Move cursor right if it's greater than 0
-    if(cursorOffset > 0){
+    if (cursorOffset > 0) {
         cursorOffset--;
     }
 }
@@ -118,13 +117,12 @@ void TextInput::moveCursorRight(){
 void TextInput::append(char const* c) const {
     std::string const input(c);
     std::string newBuffer;
-    if(cursorOffset > 0){
+    if (cursorOffset > 0) {
         // Insert character at cursor position
         std::string const string_before_cursor = consoleInputBuffer->substr(0, consoleInputBuffer->size() - cursorOffset);
         std::string const string_after_cursor = consoleInputBuffer->substr(consoleInputBuffer->size() - cursorOffset);
         newBuffer = string_before_cursor + input + string_after_cursor;
-    }
-    else{
+    } else {
         // Append character to the end
         newBuffer = *consoleInputBuffer + input;
     }

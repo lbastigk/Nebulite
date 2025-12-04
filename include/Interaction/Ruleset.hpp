@@ -18,7 +18,7 @@
 // Forward declarations
 
 namespace Nebulite::Core {
-    class RenderObject;
+class RenderObject;
 } // namespace Nebulite::Core
 
 //------------------------------------------
@@ -29,7 +29,7 @@ namespace Nebulite::Interaction {
  * Invokes are parsed into specific structs. Each Renderobject holds its own InvokeEntries.
  * The struct also contains a pointer to the RenderObject that owns this entry (the broadcaster).
  */
-struct Ruleset{
+struct Ruleset {
     /**
      * @struct Nebulite::Interaction::Ruleset
      * @brief The topic of the invoke entry, used for routing and filtering in the broadcast-listen-model of the Invoke class.
@@ -108,13 +108,13 @@ struct Ruleset{
      */
     size_t estimatedCost = 0;
 
-    void estimateComputationalCost(){
+    void estimateComputationalCost() {
         // Count number of $ and { in logicalArg
         std::string const* expr = logicalArg.getFullExpression();
         estimatedCost += static_cast<size_t>(std::ranges::count(expr->begin(), expr->end(), '$'));
 
         // Count number of $ and { in exprs
-        for (auto const& assignment : assignments){
+        for (auto const& assignment : assignments) {
             std::string const* value = assignment.expression.getFullExpression();
             estimatedCost += static_cast<size_t>(std::ranges::count(value->begin(), value->end(), '$'));
             estimatedCost += static_cast<size_t>(std::ranges::count(value->begin(), value->end(), '{'));

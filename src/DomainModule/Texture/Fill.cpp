@@ -3,43 +3,43 @@
 
 #include "Nebulite.hpp"
 
-namespace Nebulite::DomainModule::Texture{
+namespace Nebulite::DomainModule::Texture {
 
-Constants::Error Fill::update(){
+Constants::Error Fill::update() {
     // Nothing to do in update for fill
     return Constants::ErrorTable::NONE();
 }
 
 // NOLINTNEXTLINE
-Constants::Error Fill::fill(int argc,  char** argv){
-    if (argc < 2){
+Constants::Error Fill::fill(int argc, char** argv) {
+    if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
     // Get the SDL_Renderer
-    if (Nebulite::global().getSdlRenderer() == nullptr){
+    if (Nebulite::global().getSdlRenderer() == nullptr) {
         return Constants::ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED();
     }
 
     // Get the texture to fill
     SDL_Texture* texture = domain->getSDLTexture();
-    if (texture == nullptr){
+    if (texture == nullptr) {
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_NOT_FOUND();
     }
 
     // Parse color arguments
     Uint8 r = 0, g = 0, b = 0;
-    if (argc == 2){
-        if (std::string const color = argv[1]; color == "red"){
+    if (argc == 2) {
+        if (std::string const color = argv[1]; color == "red") {
             r = 255;
-        } else if (color == "green"){
+        } else if (color == "green") {
             g = 255;
-        } else if (color == "blue"){
+        } else if (color == "blue") {
             b = 255;
         } else {
             return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_COLOR_UNSUPPORTED();
         }
-    } else if (argc == 4){
+    } else if (argc == 4) {
         r = static_cast<Uint8>(std::stoi(argv[1]));
         g = static_cast<Uint8>(std::stoi(argv[2]));
         b = static_cast<Uint8>(std::stoi(argv[3]));
@@ -50,7 +50,7 @@ Constants::Error Fill::fill(int argc,  char** argv){
     // Lock the texture for pixel manipulation
     void* pixels;
     int pitch;
-    if (SDL_LockTexture(texture, nullptr, &pixels, &pitch) != 0){
+    if (SDL_LockTexture(texture, nullptr, &pixels, &pitch) != 0) {
         Nebulite::cerr() << "Failed to lock texture: " << SDL_GetError() << Nebulite::endl;
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_LOCK_FAILED();
     }
@@ -60,8 +60,8 @@ Constants::Error Fill::fill(int argc,  char** argv){
     int width, height;
     SDL_QueryTexture(texture, nullptr, nullptr, &width, &height);
     Uint32 const color = SDL_MapRGB(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), r, g, b);
-    for (int y = 0; y < height; ++y){
-        for (int x = 0; x < width; ++x){
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
             pixelData[y * (pitch / 4) + x] = color;
         }
     }
@@ -70,12 +70,13 @@ Constants::Error Fill::fill(int argc,  char** argv){
     SDL_UnlockTexture(texture);
 
     Nebulite::cout() << "Texture filled with color: "
-              << " R=" << static_cast<int>(r)
-              << " G=" << static_cast<int>(g)
-              << " B=" << static_cast<int>(b) 
-              << Nebulite::endl;
+        << " R=" << static_cast<int>(r)
+        << " G=" << static_cast<int>(g)
+        << " B=" << static_cast<int>(b)
+        << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
+
 std::string const Fill::fill_name = "fill";
 std::string const Fill::fill_desc = R"(Fill the texture with a color
 
@@ -87,4 +88,3 @@ fill [R] [G] [B]
 )";
 
 } // namespace Nebulite::DomainModule::Texture
-

@@ -17,7 +17,7 @@ std::string const General::env_desc = R"(Environment management functions)";
 
 //------------------------------------------
 // Update
-Constants::Error General::update(){
+Constants::Error General::update() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -28,8 +28,8 @@ Constants::Error General::update(){
 // Domain-Bound Functions
 
 // NOLINTNEXTLINE
-Constants::Error General::env_load(int argc,  char** argv){
-    if(argc > 1){
+Constants::Error General::env_load(int argc, char** argv) {
+    if (argc > 1) {
         domain->deserialize(argv[1]);
         return Constants::ErrorTable::NONE();
     }
@@ -37,6 +37,7 @@ Constants::Error General::env_load(int argc,  char** argv){
     domain->deserialize("{}");
     return Constants::ErrorTable::NONE();
 }
+
 std::string const General::env_load_name = "env load";
 std::string const General::env_load_desc = R"(Load an environment/level from a json/jsonc file.
 
@@ -46,11 +47,12 @@ If no argument is provided, an empty environment is loaded.
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::env_deload(int argc,  char** argv){
+Constants::Error General::env_deload(int argc, char** argv) {
     domain->purgeObjects();
     domain->purgeTextures();
     return Constants::ErrorTable::NONE();
 }
+
 std::string const General::env_deload_name = "env deload";
 std::string const General::env_deload_desc = R"(Deload entire environment, leaving an empty renderer.
 
@@ -58,14 +60,14 @@ Usage: env deload
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::spawn(int argc,  char** argv){
-    if(argc>1){
+Constants::Error General::spawn(int argc, char** argv) {
+    if (argc > 1) {
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun
         std::string linkOrObject = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
 
         // Check if the file exists
-        if(std::string const link = Utility::StringHandler::untilSpecialChar(linkOrObject,'|'); !Utility::FileManagement::fileExists(link)){
+        if (std::string const link = Utility::StringHandler::untilSpecialChar(linkOrObject, '|'); !Utility::FileManagement::fileExists(link)) {
             // Check in standard directories
             static std::vector<std::string> standardDirectories = {
                 "./Resources/Renderobjects/",
@@ -74,8 +76,8 @@ Constants::Error General::spawn(int argc,  char** argv){
 
             // Check all standard directories for the file
             bool found = false;
-            for(auto const& prefix : standardDirectories){
-                if(std::string const testLink = prefix + link; Utility::FileManagement::fileExists(testLink)){
+            for (auto const& prefix : standardDirectories) {
+                if (std::string const testLink = prefix + link; Utility::FileManagement::fileExists(testLink)) {
                     linkOrObject.insert(0, prefix);
                     found = true;
                     break;
@@ -83,7 +85,7 @@ Constants::Error General::spawn(int argc,  char** argv){
             }
 
             // Not found in standard directories either
-            if(!found){
+            if (!found) {
                 return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
             }
         }
@@ -95,13 +97,13 @@ Constants::Error General::spawn(int argc,  char** argv){
         // Append to renderer
         // Renderer manages the RenderObjects lifetime
         domain->append(ro);
-    }
-    else{
+    } else {
         Nebulite::cerr() << "No renderobject name provided!" << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     return Constants::ErrorTable::NONE();
 }
+
 std::string const General::spawn_name = "spawn";
 std::string const General::spawn_desc = R"(Spawn a RenderObject from a json/jsonc file.
 
@@ -117,30 +119,30 @@ Looks for object 'sun.jsonc' in the standard directories
 - './Resources/RenderObjects/Planets/sun.jsonc'
 - './Resources/Renderobjects/Planets/sun.jsonc'
 and spawns the first found object.
-)"; 
+)";
 
 // NOLINTNEXTLINE
-Constants::Error General::setResolution(int argc,  char** argv){
+Constants::Error General::setResolution(int argc, char** argv) {
     int w = 1000;
     int h = 1000;
     uint16_t scalar = 1;
-    if(argc > 1){
+    if (argc > 1) {
         w = std::stoi(argv[1]);
     }
-    if(argc > 2){
+    if (argc > 2) {
         h = std::stoi(argv[2]);
     }
-    if(argc > 3){
-        if(int const signedScalar = std::stoi(argv[3]); signedScalar > 0){
+    if (argc > 3) {
+        if (int const signedScalar = std::stoi(argv[3]); signedScalar > 0) {
             scalar = static_cast<uint16_t>(signedScalar);
-        }
-        else{
+        } else {
             scalar = 1;
         }
     }
-    domain->changeWindowSize(w,h,scalar);
+    domain->changeWindowSize(w, h, scalar);
     return Constants::ErrorTable::NONE();
 }
+
 std::string const General::setResolution_name = "set-res";
 std::string const General::setResolution_desc = R"(Set resolution of renderer.
 
@@ -152,20 +154,23 @@ Defaults to 1     for scale if argument count < 3
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::setFPS(int argc, char** argv){
+Constants::Error General::setFPS(int argc, char** argv) {
     // Standard value for no argument
     uint16_t fps = 60;
-    if(argc == 2){
+    if (argc == 2) {
         int const fpsSigned = std::stoi(argv[1]);
         fps = static_cast<uint16_t>(fpsSigned);
 
         // Constrain fps to reasonable values
-        if(fpsSigned < 1)     fps=1;
-        if(fpsSigned > 10000) fps=10000;
+        if (fpsSigned < 1)
+            fps = 1;
+        if (fpsSigned > 10000)
+            fps = 10000;
     }
     domain->setTargetFPS(fps);
     return Constants::ErrorTable::NONE();
 }
+
 std::string const General::setFPS_name = "set-fps";
 std::string const General::setFPS_desc = R"(Set FPS of renderer.
 
@@ -175,24 +180,22 @@ Defaults to 60 fps if no argument is provided
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::showFPS(int argc,  char** argv){
-    if(argc < 2){
+Constants::Error General::showFPS(int argc, char** argv) {
+    if (argc < 2) {
         domain->toggleFps(true);
-    }
-    else{
-        if(!strcmp(argv[1], "on")){
+    } else {
+        if (!strcmp(argv[1], "on")) {
             domain->toggleFps(true);
-        }
-        else if(!strcmp(argv[1], "off")){
+        } else if (!strcmp(argv[1], "off")) {
             domain->toggleFps(false);
-        }
-        else{
+        } else {
             // unknown arg
             return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
         }
     }
     return Constants::ErrorTable::NONE();
 }
+
 std::string const General::showFPS_name = "show-fps";
 std::string const General::showFPS_desc = R"(Show FPS of renderer.
 
@@ -202,19 +205,20 @@ Defaults to on if no argument is provided
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::cam_move(int argc,  char** argv){
-    if (argc < 3){
+Constants::Error General::cam_move(int argc, char** argv) {
+    if (argc < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    if (argc > 3){
+    if (argc > 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
     int const dx = std::stoi(argv[1]);
     int const dy = std::stoi(argv[2]);
-    domain->moveCam(dx,dy);
+    domain->moveCam(dx, dy);
     return Constants::ErrorTable::NONE();
 }
+
 std::string const General::cam_move_name = "cam move";
 std::string const General::cam_move_desc = R"(Move camera by a given delta.
 
@@ -225,28 +229,29 @@ Usage: cam move <dx> <dy>
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::cam_set(int argc,  char** argv){
-    if(argc == 3){
+Constants::Error General::cam_set(int argc, char** argv) {
+    if (argc == 3) {
         int const x = std::stoi(argv[1]);
         int const y = std::stoi(argv[2]);
-        domain->setCam(x,y);
+        domain->setCam(x, y);
         return Constants::ErrorTable::NONE();
     }
-    if(argc == 4){
-        if(!strcmp(argv[3], "c")){
+    if (argc == 4) {
+        if (!strcmp(argv[3], "c")) {
             int const x = std::stoi(argv[1]);
             int const y = std::stoi(argv[2]);
-            domain->setCam(x,y,true);
+            domain->setCam(x, y, true);
             return Constants::ErrorTable::NONE();
         }
         // unknown arg
         return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
-    if(argc > 4){
+    if (argc > 4) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
 }
+
 std::string const General::cam_set_name = "cam set";
 std::string const General::cam_set_desc = R"(Set camera to concrete position.
 
@@ -258,23 +263,24 @@ Usage: cam set <x> <y> [c]
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::snapshot(int argc,  char** argv){
-    if(argc == 1){
+Constants::Error General::snapshot(int argc, char** argv) {
+    if (argc == 1) {
         // No link provided, use default
-        if (!domain->snapshot("./Resources/Snapshots/snapshot.png")){
+        if (!domain->snapshot("./Resources/Snapshots/snapshot.png")) {
             return Constants::ErrorTable::RENDERER::CRITICAL_RENDERER_SNAPSHOT_FAILED();
         }
         return Constants::ErrorTable::NONE();
     }
-    if(argc == 2){
+    if (argc == 2) {
         // Link provided
-        if (!domain->snapshot(argv[1])){
+        if (!domain->snapshot(argv[1])) {
             return Constants::ErrorTable::RENDERER::CRITICAL_RENDERER_SNAPSHOT_FAILED();
         }
         return Constants::ErrorTable::NONE();
     }
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+    return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
 }
+
 std::string const General::snapshot_name = "snapshot";
 std::string const General::snapshot_desc = R"(Create a snapshot of the current renderer state.
 
@@ -284,11 +290,12 @@ Defaults to "./Resources/Snapshots/snapshot.png" if no argument is provided
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::beep(int argc,  char** argv){
+Constants::Error General::beep(int argc, char** argv) {
     // Beep function for debugging, from SDL
     domain->beep();
     return Constants::ErrorTable::NONE();
 }
+
 std::string const General::beep_name = "beep";
 std::string const General::beep_desc = R"(Make a beep noise.
 
@@ -296,20 +303,21 @@ Usage: beep
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::selectedObject_get(int argc,  char** argv){
-    if (argc != 2){
+Constants::Error General::selectedObject_get(int argc, char** argv) {
+    if (argc != 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
     // Supports only uint32_t ids
     uint32_t const id = static_cast<uint32_t>(std::stoul(argv[1]));
-    if (Core::RenderObject* obj = domain->getObjectFromId(id); obj){
+    if (Core::RenderObject* obj = domain->getObjectFromId(id); obj) {
         selectedRenderObject = obj;
         return Constants::ErrorTable::NONE();
     }
     selectedRenderObject = nullptr;
     return Constants::ErrorTable::addError("No RenderObject with the specified ID found.", Constants::Error::NON_CRITICAL);
 }
+
 std::string const General::selectedObject_get_name = "selected-object get";
 std::string const General::selectedObject_get_desc = R"(Get a renderobject by its ID.
 
@@ -317,17 +325,18 @@ Usage: selected-object get <id>
 )";
 
 // NOLINTNEXTLINE
-Constants::Error General::selectedObject_Parse(int argc,  char** argv){
-    if(argc < 2){
+Constants::Error General::selectedObject_Parse(int argc, char** argv) {
+    if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     std::string const command = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
-    if(selectedRenderObject == nullptr){
+    if (selectedRenderObject == nullptr) {
         return Constants::ErrorTable::addError("No RenderObject selected! Use selectedObject_get <id> to select a valid object.", Constants::Error::NON_CRITICAL);
     }
 
     return selectedRenderObject->parseStr(std::string(__FUNCTION__) + " " + command);
 }
+
 std::string const General::selectedObject_Parse_name = "selected-object parse";
 std::string const General::selectedObject_Parse_desc = R"(Parse a command on the selected RenderObject.
 

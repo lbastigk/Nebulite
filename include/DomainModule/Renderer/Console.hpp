@@ -21,9 +21,9 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Core{
-    class Renderer;
-}   // namespace Nebulite::Core
+namespace Nebulite::Core {
+class Renderer;
+} // namespace Nebulite::Core
 
 
 //------------------------------------------
@@ -33,7 +33,7 @@ namespace Nebulite::DomainModule::Renderer {
  * @brief DomainModule for Console capabilities within the Renderer.
  * @todo: Add functions to open/close the console via commands.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Console){
+NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Console) {
 public:
     /**
      * @brief Override of update.
@@ -49,7 +49,7 @@ public:
      * @param argv Argument values: [in/out/+/-], defaults to in/+.
      * @return Error code.
      */
-    Constants::Error consoleZoom(int argc,  char** argv);
+    Constants::Error consoleZoom(int argc, char** argv);
     static std::string const consoleZoom_name;
     static std::string const consoleZoom_desc;
 
@@ -59,7 +59,7 @@ public:
      * @param argv Argument values: [image_path].
      * @return Error code.
      */
-    Constants::Error consoleSetBackground(int argc,  char** argv);
+    Constants::Error consoleSetBackground(int argc, char** argv);
     static std::string const consoleSetBackground_name;
     static std::string const consoleSetBackground_desc;
 
@@ -73,16 +73,17 @@ public:
     // Setup
 
     /**
-     * @brief Initializes the module, binding functions and variables. 
+     * @brief Initializes the module, binding functions and variables.
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Console){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Console) {
         // we cannot do much here, since renderer might not be initialized yet
         // so we do the actual initialization in update() when needed
         (void)bindCategory(console_name, &console_desc);
-        bindFunction(&Console::consoleZoom,             consoleZoom_name,           &consoleZoom_desc);
-        bindFunction(&Console::consoleSetBackground,    consoleSetBackground_name,  &consoleSetBackground_desc);
+        bindFunction(&Console::consoleZoom, consoleZoom_name, &consoleZoom_desc);
+        bindFunction(&Console::consoleSetBackground, consoleSetBackground_name, &consoleSetBackground_desc);
     }
-private: 
+
+private:
     //------------------------------------------
     // Basic Configuration
 
@@ -92,25 +93,25 @@ private:
     // Font to use
     std::string consoleFontPath = "Resources/Fonts/JetBrainsMono-Medium.ttf";
 
-    struct ConsoleLayout{
-        uint16_t MINIMUM_LINES = 8;     // Minimum number of lines to show, including input line
-        uint16_t LINE_PADDING = 10;     // Padding between lines in pixels
-        uint16_t FONT_MAX_SIZE = 24;    // Maximum font size
-        double heightRatio = 0.75;      // Console takes 75% of the screen height
+    struct ConsoleLayout {
+        uint16_t MINIMUM_LINES = 8; // Minimum number of lines to show, including input line
+        uint16_t LINE_PADDING = 10; // Padding between lines in pixels
+        uint16_t FONT_MAX_SIZE = 24; // Maximum font size
+        double heightRatio = 0.75; // Console takes 75% of the screen height
     } consoleLayout;
 
     /**
      * @struct Colors
      * @brief Struct to hold color definitions for the console.
      */
-    struct Colors{
-        SDL_Color background = { 30,  30, 100, 150};    // Semi-transparent gray-blue
-        SDL_Color input      = {200, 200, 200, 255};    // Light gray
-        SDL_Color highlight  = {100, 100, 100, 255};    // Dark gray
-        SDL_Color cerrStream = {255,  40,  40, 255};    // Light Red
-        SDL_Color coutStream = {255, 255, 255, 255};    // White
-    }color;
-    
+    struct Colors {
+        SDL_Color background = {30, 30, 100, 150}; // Semi-transparent gray-blue
+        SDL_Color input = {200, 200, 200, 255}; // Light gray
+        SDL_Color highlight = {100, 100, 100, 255}; // Dark gray
+        SDL_Color cerrStream = {255, 40, 40, 255}; // Light Red
+        SDL_Color coutStream = {255, 255, 255, 255}; // White
+    } color;
+
     //------------------------------------------
     // State-related variables and functions
 
@@ -146,7 +147,7 @@ private:
     /**
      * @brief Rectangle defining the input text area.
      */
-    SDL_Rect textInputRect = {0,0,0,0};
+    SDL_Rect textInputRect = {0, 0, 0, 0};
 
     /**
      * @brief Texture for the background image.
@@ -156,18 +157,18 @@ private:
     /**
      * @brief Rectangle defining the highlighted text area.
      */
-    SDL_Rect textInputHighlightRect = {0,0,0,0};
+    SDL_Rect textInputHighlightRect = {0, 0, 0, 0};
 
     /**
      * @brief Rectangle used for each output line.
      */
-    SDL_Rect textOutputRect = {0,0,0,0};
+    SDL_Rect textOutputRect = {0, 0, 0, 0};
 
     // Texture for console rendering
-    struct SDL_Texture_Wrapper{
-        SDL_Rect rect = {0,0,0,0};
+    struct SDL_Texture_Wrapper {
+        SDL_Rect rect = {0, 0, 0, 0};
         SDL_Texture* texture_ptr = nullptr;
-    }consoleTexture;
+    } consoleTexture;
 
     // Scale of the window
     unsigned int WindowScale = 1;
@@ -183,10 +184,10 @@ private:
     /**
      * @brief Populates vector line_y_positions with the y positions of each line,
      * and sets font size accordingly.
-     * 
+     *
      * @param rect_height The height of the console rectangle in pixels.
      * @return The calculated line height.
-     * 
+     *
      * @todo Make sure the lines are aligned at the top instead of the bottom to reduce jitter when resizing.
      */
     uint16_t calculateTextAlignment(uint16_t const& rect_height);
@@ -227,12 +228,12 @@ private:
     /**
      * @brief Zooms the console in, if ctrl is held.
      */
-    void keyTriggerZoomIn(SDL_KeyboardEvent const& key) const ;
+    void keyTriggerZoomIn(SDL_KeyboardEvent const& key) const;
 
     /**
      * @brief Zooms the console out, if ctrl is held.
      */
-    void keyTriggerZoomOut(SDL_KeyboardEvent const& key) const ;
+    void keyTriggerZoomOut(SDL_KeyboardEvent const& key) const;
 
     //------------------------------------------
     // RenderConsole helpers
@@ -246,20 +247,20 @@ private:
     /**
      * @brief Draws the background of the console.
      */
-    void drawBackground() const ;
+    void drawBackground() const;
 
     /**
      * @brief Draws the input text.
-     * 
+     *
      * @param lineHeight The height of each line in pixels.
      */
     void drawInput(uint16_t const& lineHeight);
 
     /**
      * @brief Draws the output lines.
-     * 
+     *
      * @param maxLineLength The maximum length of a line before line breaking happens, in characters.
-     * 
+     *
      * @todo Newline handling does not work if a line is split into more than two lines.
      */
     void drawOutput(uint16_t const& maxLineLength);
@@ -268,7 +269,7 @@ private:
     // Mirrored from Renderer
 
     // Whether the console is currently active
-    bool consoleMode = false; 
+    bool consoleMode = false;
 
     // Event for handling input
     std::vector<SDL_Event>* events = nullptr;
@@ -282,5 +283,5 @@ private:
     // Text input handling
     Utility::TextInput textInput;
 };
-}   // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_RRDM_CONSOLE_HPP

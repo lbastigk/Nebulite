@@ -197,9 +197,9 @@ bool JsonRvalueTransformer::reverse(std::span<std::string const> const& args, JS
     size_t arraySize = jsonDoc->memberSize(valueKey);
     JSON tmp = jsonDoc->getSubDoc(valueKey);
     for (size_t i = 0; i < arraySize; ++i) {
-            std::string const key = valueKey + "[" + std::to_string(i) + "]";
-            JSON element = tmp.getSubDoc("[" + std::to_string(arraySize - 1 - i) + "]");
-            jsonDoc->setSubDoc(key.c_str(), element);
+        std::string const key = valueKey + "[" + std::to_string(i) + "]";
+        JSON element = tmp.getSubDoc("[" + std::to_string(arraySize - 1 - i) + "]");
+        jsonDoc->setSubDoc(key.c_str(), element);
     }
     return true;
 }
@@ -346,13 +346,12 @@ bool JsonRvalueTransformer::typeAsString(std::span<std::string const> const& arg
     //       e.g.: "value:int:32" or "value:string:10"
     //       Perhaps with additional arg to control the format?
     switch (jsonDoc->memberType(valueKey)) {
-    case JSON::KeyType::value:
-        {
-            // General type is "value", but we can be more specific by using getVariant or even better:
-            // TODO: see above comment
-            jsonDoc->set<std::string>(valueKey, "value");
-        }
-        break;
+    case JSON::KeyType::value: {
+        // General type is "value", but we can be more specific by using getVariant or even better:
+        // TODO: see above comment
+        jsonDoc->set<std::string>(valueKey, "value");
+    }
+    break;
     case JSON::KeyType::array:
         jsonDoc->set<std::string>(valueKey, "array");
         break;

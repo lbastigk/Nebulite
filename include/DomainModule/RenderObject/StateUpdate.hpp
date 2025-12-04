@@ -16,7 +16,7 @@
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Core {
-    class RenderObject;
+class RenderObject;
 }
 
 //------------------------------------------
@@ -25,7 +25,7 @@ namespace Nebulite::DomainModule::RenderObject {
  * @class Nebulite::DomainModule::RenderObject::StateUpdate
  * @brief State update DomainModule of the RenderObject tree.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, StateUpdate){
+NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, StateUpdate) {
 public:
     /**
      * @brief Override of update.
@@ -42,7 +42,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error func_delete(int argc,  char** argv);
+    Constants::Error func_delete(int argc, char** argv);
     static std::string const func_delete_name;
     static std::string const func_delete_desc;
 
@@ -53,7 +53,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error updateText(int argc,  char** argv);
+    Constants::Error updateText(int argc, char** argv);
     static std::string const updateText_name;
     static std::string const updateText_desc;
 
@@ -69,7 +69,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Constants::Error invoke_reload(int argc,  char** argv);
+    Constants::Error invoke_reload(int argc, char** argv);
     static std::string const invoke_reload_name;
     static std::string const invoke_reload_desc;
 
@@ -82,7 +82,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Constants::Error invoke_add(int argc,  char** argv);
+    Constants::Error invoke_add(int argc, char** argv);
     static std::string const invoke_add_name;
     static std::string const invoke_add_desc;
 
@@ -95,7 +95,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Constants::Error invoke_remove(int argc,  char** argv);
+    Constants::Error invoke_remove(int argc, char** argv);
     static std::string const invoke_remove_name;
     static std::string const invoke_remove_desc;
 
@@ -108,7 +108,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Constants::Error invoke_purge(int argc,  char** argv);
+    Constants::Error invoke_purge(int argc, char** argv);
     static std::string const invoke_purge_name;
     static std::string const invoke_purge_desc;
 
@@ -118,9 +118,9 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, StateUpdate){
-        bindFunction(&StateUpdate::func_delete,         func_delete_name,         &func_delete_desc);
-        bindFunction(&StateUpdate::updateText,          updateText_name,          &updateText_desc);
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, StateUpdate) {
+        bindFunction(&StateUpdate::func_delete, func_delete_name, &func_delete_desc);
+        bindFunction(&StateUpdate::updateText, updateText_name, &updateText_desc);
 
         // TODO: Move to separate Invoke module
         /*
@@ -132,5 +132,5 @@ public:
         */
     }
 };
-}   // namespace Nebulite::DomainModule::RenderObject
+} // namespace Nebulite::DomainModule::RenderObject
 #endif // NEBULITE_RODM_STATEUPDATE_HPP

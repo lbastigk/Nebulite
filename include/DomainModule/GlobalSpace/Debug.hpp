@@ -19,18 +19,18 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Core{
-    class GlobalSpace; // Forward declaration of domain class GlobalSpace
-}   // namespace Nebulite::Core
+namespace Nebulite::Core {
+class GlobalSpace; // Forward declaration of domain class GlobalSpace
+} // namespace Nebulite::Core
 
 
 //------------------------------------------
-namespace Nebulite::DomainModule::GlobalSpace{
+namespace Nebulite::DomainModule::GlobalSpace {
 /**
  * @class Nebulite::DomainModule::GlobalSpace::Debug
  * @brief DomainModule for debugging capabilities within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug){
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug) {
 public:
     /**
      * @brief Override of update.
@@ -53,7 +53,7 @@ public:
      * @todo: errorlog on causes crash with wine
      * wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
      */
-    Constants::Error errorlog(int argc,  char** argv);
+    Constants::Error errorlog(int argc, char** argv);
     static std::string const errorlog_name;
     static std::string const errorlog_desc;
 
@@ -64,7 +64,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error clearConsole(int argc,  char** argv);
+    Constants::Error clearConsole(int argc, char** argv);
     static std::string const clearConsole_name;
     static std::string const clearConsole_desc;
 
@@ -76,7 +76,7 @@ public:
      * Default is "global.log.jsonc" if no name was provided
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error log_global(int argc,  char** argv);
+    Constants::Error log_global(int argc, char** argv);
     static std::string const log_global_name;
     static std::string const log_global_desc;
 
@@ -88,7 +88,7 @@ public:
      * Default is "state.log.jsonc" if no name was provided
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error log_state(int argc,  char** argv);
+    Constants::Error log_state(int argc, char** argv);
     static std::string const log_state_name;
     static std::string const log_state_desc;
 
@@ -101,7 +101,7 @@ public:
      * Default is segfault if no argument was provided
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error crash(int argc,  char** argv);
+    Constants::Error crash(int argc, char** argv);
     static std::string const crash_name;
     static std::string const crash_desc;
 
@@ -112,7 +112,7 @@ public:
      * @param argv The argument vector: <string>
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error error(int argc,  char** argv);
+    Constants::Error error(int argc, char** argv);
     static std::string const error_name;
     static std::string const error_desc;
 
@@ -123,7 +123,7 @@ public:
      * @param argv The argument vector: <string>
      * @return The specified value of Error. 
      */
-    Constants::Error warn(int argc,  char** argv);
+    Constants::Error warn(int argc, char** argv);
     static std::string const warn_name;
     static std::string const warn_desc;
 
@@ -134,7 +134,7 @@ public:
      * @param argv The argument vector: <string>
      * @return The specified value of Error.
      */
-    Constants::Error critical(int argc,  char** argv);
+    Constants::Error critical(int argc, char** argv);
     static std::string const critical_name;
     static std::string const critical_desc;
 
@@ -145,7 +145,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error waitForInput(int argc,  char** argv);
+    Constants::Error waitForInput(int argc, char** argv);
     static std::string const waitForInput_name;
     static std::string const waitForInput_desc;
 
@@ -156,7 +156,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error standardfile_renderobject(int argc,  char** argv);
+    Constants::Error standardfile_renderobject(int argc, char** argv);
     static std::string const standardfile_renderobject_name;
     static std::string const standardfile_renderobject_desc;
 
@@ -174,33 +174,33 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug) {
         //------------------------------------------
         // Show platform info
         setupPlatformInfo();
 
         //------------------------------------------
         // Binding functions to the FuncTree
-        bindFunction(&Debug::errorlog,          errorlog_name,                 &errorlog_desc);
-        bindFunction(&Debug::clearConsole,      clearConsole_name,             &clearConsole_desc);
-        bindFunction(&Debug::error,             error_name,                    &error_desc);
-        bindFunction(&Debug::crash,             crash_name,                    &crash_desc);
-        bindFunction(&Debug::warn,              warn_name,                     &warn_desc);
-        bindFunction(&Debug::critical,          critical_name,                 &critical_desc);
-        bindFunction(&Debug::waitForInput,      waitForInput_name,             &waitForInput_desc);
+        bindFunction(&Debug::errorlog, errorlog_name, &errorlog_desc);
+        bindFunction(&Debug::clearConsole, clearConsole_name, &clearConsole_desc);
+        bindFunction(&Debug::error, error_name, &error_desc);
+        bindFunction(&Debug::crash, crash_name, &crash_desc);
+        bindFunction(&Debug::warn, warn_name, &warn_desc);
+        bindFunction(&Debug::critical, critical_name, &critical_desc);
+        bindFunction(&Debug::waitForInput, waitForInput_name, &waitForInput_desc);
 
         (void)bindCategory(log_name, &log_desc);
-        bindFunction(&Debug::log_global,        log_global_name,               &log_global_desc);
-        bindFunction(&Debug::log_state,         log_state_name,                &log_state_desc);
+        bindFunction(&Debug::log_global, log_global_name, &log_global_desc);
+        bindFunction(&Debug::log_state, log_state_name, &log_state_desc);
 
         (void)bindCategory(standardfile_name, &standardfile_desc);
-        bindFunction(&Debug::standardfile_renderobject,     standardfile_renderobject_name,   &standardfile_renderobject_desc);
+        bindFunction(&Debug::standardfile_renderobject, standardfile_renderobject_name, &standardfile_renderobject_desc);
     }
 
 private:
     std::streambuf* originalCerrBuf = nullptr;
     std::unique_ptr<std::ofstream> errorFile;
-    
+
     // Current status of error logging
     // false : logging to cerr
     // true  : logging to file
@@ -211,5 +211,5 @@ private:
      */
     void setupPlatformInfo();
 };
-}   // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_GSDM_DEBUG_HPP

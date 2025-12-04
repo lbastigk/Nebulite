@@ -6,7 +6,7 @@ namespace Nebulite::DomainModule::Renderer {
 std::string const RenderObjectDraft::draft_name = "draft";
 std::string const RenderObjectDraft::draft_desc = R"(Functions to manipulate and spawn RenderObjects in draft state)";
 
-Constants::Error RenderObjectDraft::update(){ 
+Constants::Error RenderObjectDraft::update() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -14,13 +14,14 @@ Constants::Error RenderObjectDraft::update(){
 }
 
 // NOLINTNEXTLINE
-Constants::Error RenderObjectDraft::draft_parse(int argc,  char** argv){
-    if(argc < 2){
+Constants::Error RenderObjectDraft::draft_parse(int argc, char** argv) {
+    if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     std::string const command = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
     return draft.get()->parseStr(__FUNCTION__ + std::string(" ") + command);
 }
+
 std::string const RenderObjectDraft::draft_parse_name = "draft parse";
 std::string const RenderObjectDraft::draft_parse_desc = R"(Parse Renderobject-specific functions on the draft.
 
@@ -36,8 +37,8 @@ draft parse set posY 200
 )";
 
 // NOLINTNEXTLINE
-Constants::Error RenderObjectDraft::draft_spawn(int argc,  char** argv){
-    if(argc != 1){
+Constants::Error RenderObjectDraft::draft_spawn(int argc, char** argv) {
+    if (argc != 1) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
     // Make a copy of the draft's serialized data
@@ -48,6 +49,7 @@ Constants::Error RenderObjectDraft::draft_spawn(int argc,  char** argv){
     domain->append(newObj);
     return Constants::ErrorTable::NONE();
 }
+
 std::string const RenderObjectDraft::draft_spawn_name = "draft spawn";
 std::string const RenderObjectDraft::draft_spawn_desc = R"(Spawn the created draft object.
 
@@ -55,14 +57,15 @@ Usage: draft spawn
 )";
 
 // NOLINTNEXTLINE
-Constants::Error RenderObjectDraft::draft_reset(int argc,  char** argv){
-    if(argc != 1){
+Constants::Error RenderObjectDraft::draft_reset(int argc, char** argv) {
+    if (argc != 1) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
     }
     Core::RenderObject newDraft;
     draft.get()->deserialize(newDraft.serialize());
     return Constants::ErrorTable::NONE();
 }
+
 std::string const RenderObjectDraft::draft_reset_name = "draft reset";
 std::string const RenderObjectDraft::draft_reset_desc = R"(Reset the draft object.
 

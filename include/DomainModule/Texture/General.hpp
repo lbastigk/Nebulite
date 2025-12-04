@@ -16,7 +16,7 @@
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Core {
-    class Texture;
+class Texture;
 }
 
 //------------------------------------------
@@ -25,7 +25,7 @@ namespace Nebulite::DomainModule::Texture {
  * @class Nebulite::DomainModule::Texture::General
  * @brief DomainModule for general functions within the Texture.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, General){
+NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, General) {
 public:
     Constants::Error update() override;
 
@@ -39,7 +39,7 @@ public:
      * @param argv The argument vector: no arguments required, texture is reloaded from document
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error reloadTexture(int argc,  char** argv);
+    Constants::Error reloadTexture(int argc, char** argv);
     static std::string const reloadTexture_name;
     static std::string const reloadTexture_desc;
 
@@ -49,9 +49,9 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, General){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, General) {
         bindFunction(&General::reloadTexture, reloadTexture_name, &reloadTexture_desc);
     }
 };
-}   // namespace Nebulite::DomainModule::Texture
+} // namespace Nebulite::DomainModule::Texture
 #endif // NEBULITE_TXDM_GENERAL_HPP

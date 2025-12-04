@@ -16,18 +16,18 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Core{
-    class Texture;
-}   // namespace Nebulite::Core
+namespace Nebulite::Core {
+class Texture;
+} // namespace Nebulite::Core
 
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Texture{
+namespace Nebulite::DomainModule::Texture {
 /**
  * @class Nebulite::DomainModule::Texture::Rotation
  * @brief DomainModule for rotation functions within the Texture.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Rotation){
+NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Rotation) {
 public:
     Constants::Error update() override;
 
@@ -41,7 +41,7 @@ public:
      * @param argv The argument vector: rotation angle in degrees
      * @return Potential errors that occurred on command execution
      */
-    Constants::Error rotate(int argc,  char** argv);
+    Constants::Error rotate(int argc, char** argv);
     static std::string const rotate_name;
     static std::string const rotate_desc;
 
@@ -51,9 +51,9 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Rotation){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Rotation) {
         bindFunction(&Rotation::rotate, rotate_name, &rotate_desc);
     }
 };
-}   // namespace Nebulite::DomainModule::Texture
+} // namespace Nebulite::DomainModule::Texture
 #endif // NEBULITE_TXDM_ROTATION_HPP

@@ -23,7 +23,7 @@
 //------------------------------------------
 namespace Nebulite::Core {
 
-Renderer::Renderer(Utility::JSON *docRef, bool *flag_headless, unsigned int const &X, unsigned int const &Y)
+Renderer::Renderer(Utility::JSON* docRef, bool* flag_headless, unsigned int const& X, unsigned int const& Y)
     : Domain("Renderer", this, docRef),
       env(docRef),
       rngA(hashString("Seed for RNG A")),
@@ -260,7 +260,7 @@ bool Renderer::timeToRender() {
     return fps.controlTimer.projected_dt() >= adjustedTarget;
 }
 
-void Renderer::append(RenderObject *toAppend) {
+void Renderer::append(RenderObject* toAppend) {
     // Set ID
     toAppend->getDoc()->set<uint32_t>(Constants::keyName.renderObject.id, renderObjectIdCounter);
     renderObjectIdCounter++;
@@ -313,7 +313,7 @@ bool Renderer::snapshot(std::string link) const {
     }
 
     // Create surface to capture pixels
-    SDL_Surface *surface = SDL_CreateRGBSurface(0, width, height, 32,
+    SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32,
                                                 0x00ff0000, // Red mask
                                                 0x0000ff00, // Green mask
                                                 0x000000ff, // Blue mask
@@ -345,7 +345,7 @@ bool Renderer::snapshot(std::string link) const {
         // Create directory using C++17 filesystem
         try {
             std::filesystem::create_directories(directory);
-        } catch (std::exception const &e) {
+        } catch (std::exception const& e) {
             Nebulite::cerr() << "Warning: Could not create directory " << directory << ": " << e.what() << Nebulite::endl;
             // Continue anyway - maybe directory already exists
         }
@@ -373,7 +373,7 @@ void Renderer::purgeObjects() {
 
 void Renderer::purgeTextures() {
     // Release resources for TextureContainer
-    for (auto const &texture : std::views::values(TextureContainer)) {
+    for (auto const& texture : std::views::values(TextureContainer)) {
         SDL_DestroyTexture(texture);
     }
     TextureContainer.clear(); // Clear the map to release resources
@@ -399,7 +399,7 @@ void Renderer::destroy() {
 //------------------------------------------
 // Manipulation
 
-void Renderer::changeWindowSize(int const &w, int const &h, uint16_t const &scalar) {
+void Renderer::changeWindowSize(int const& w, int const& h, uint16_t const& scalar) {
     WindowScale = scalar;
     if (w < 240 || w > 16384) {
         Nebulite::cerr() << "Selected resolution is not supported:" << w << "x" << h << "x" << Nebulite::endl;
@@ -433,7 +433,7 @@ void Renderer::changeWindowSize(int const &w, int const &h, uint16_t const &scal
     reinsertAllObjects();
 }
 
-void Renderer::moveCam(int const &dX, int const &dY) const {
+void Renderer::moveCam(int const& dX, int const& dY) const {
     getDoc()->set<int>(
         Constants::keyName.renderer.positionX,
         getDoc()->get<int>(Constants::keyName.renderer.positionX, 0) + dX
@@ -444,7 +444,7 @@ void Renderer::moveCam(int const &dX, int const &dY) const {
         );
 }
 
-void Renderer::setCam(int const &X, int const &Y, bool const &isMiddle) const {
+void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle) const {
     if (isMiddle) {
         int const newPosX = X - getDoc()->get<int>(Constants::keyName.renderer.dispResX, 0) / 2;
         int const newPosY = Y - getDoc()->get<int>(Constants::keyName.renderer.dispResY, 0) / 2;
@@ -459,7 +459,7 @@ void Renderer::setCam(int const &X, int const &Y, bool const &isMiddle) const {
 //------------------------------------------
 // Setting
 
-void Renderer::setTargetFPS(uint16_t const &targetFps) {
+void Renderer::setTargetFPS(uint16_t const& targetFps) {
     fps.target = targetFps;
 }
 
@@ -532,11 +532,11 @@ void Renderer::renderFrame() {
         }
 
         // For all tiles to render
-        for (auto const &[tileX, tileY] : tilesToRender) {
+        for (auto const& [tileX, tileY] : tilesToRender) {
             // For all batches inside
-            for (auto const &[objectsInThisBatch, _] : env.getContainerAt(tileX, tileY, layer)) {
+            for (auto const& [objectsInThisBatch, _] : env.getContainerAt(tileX, tileY, layer)) {
                 // For all objects in batch
-                for (auto const &obj : objectsInThisBatch) {
+                for (auto const& obj : objectsInThisBatch) {
                     error = renderObjectToScreen(obj, dispPosX, dispPosY);
                     if (error != 0) {
                         Nebulite::cerr() << "Error rendering object ID " << obj->getDoc()->get<uint32_t>(Constants::keyName.renderObject.id, 0) << ": " << error << Nebulite::endl;
@@ -546,7 +546,7 @@ void Renderer::renderFrame() {
         }
 
         // Render all textures that were attached from outside processes
-        for (auto const &[texture, rect] : std::views::values(BetweenLayerTextures[layer])) {
+        for (auto const& [texture, rect] : std::views::values(BetweenLayerTextures[layer])) {
             if (!texture) {
                 continue; // Skip if texture is null
             }
@@ -555,7 +555,7 @@ void Renderer::renderFrame() {
     }
 }
 
-int Renderer::renderObjectToScreen(RenderObject *obj, int const &dispPosX, int const &dispPosY) {
+int Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY) {
     //------------------------------------------
     // Texture Loading
 
@@ -644,10 +644,10 @@ void Renderer::renderFPS() const {
     SDL_RenderFillRect(renderer, &textRect);
 
     // Create a surface with the text
-    SDL_Surface *textSurface = TTF_RenderText_Solid(font, fpsText.c_str(), textColor);
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, fpsText.c_str(), textColor);
 
     // Create a texture from the text surface
-    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
     // Render the text texture
     SDL_RenderCopy(renderer, textTexture, nullptr, &textRect);
@@ -664,8 +664,8 @@ void Renderer::showFrame() const {
 //------------------------------------------
 // Texture-Related
 
-void Renderer::loadTexture(std::string const &link) {
-    if (SDL_Texture *texture = loadTextureToMemory(link)) {
+void Renderer::loadTexture(std::string const& link) {
+    if (SDL_Texture* texture = loadTextureToMemory(link)) {
         TextureContainer[link] = texture;
     }
 }
@@ -673,7 +673,7 @@ void Renderer::loadTexture(std::string const &link) {
 /**
  * @todo Texture not created with SDL_TEXTUREACCESS_TARGET, so cannot be used with SDL_SetRenderTarget
  */
-SDL_Texture *Renderer::loadTextureToMemory(std::string const &link) const {
+SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
     std::string const path = Utility::FileManagement::CombinePaths(baseDirectory, link);
 
     // Get file extension, based on last dot
@@ -689,7 +689,7 @@ SDL_Texture *Renderer::loadTextureToMemory(std::string const &link) const {
     std::ranges::transform(extension.begin(), extension.end(), extension.begin(), tolower);
 
     // Check for known image formats
-    SDL_Surface *surface = nullptr;
+    SDL_Surface* surface = nullptr;
     if (extension == "bmp") {
         surface = SDL_LoadBMP(path.c_str());
     } else if (extension == "png" || extension == "jpg" || extension == "jpeg" || extension == "tif" || extension == "tiff" || extension == "webp" || extension == "gif") {
@@ -703,7 +703,7 @@ SDL_Texture *Renderer::loadTextureToMemory(std::string const &link) const {
     }
 
     // Create texture from surface
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface); // Free the surface after creating texture
 
     // Check for texture issues
