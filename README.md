@@ -65,7 +65,7 @@ It focuses on:
 ```bash
   make install-deps
 ```
-2. Build binaries
+3. Build binaries
 ```bash
   # Linux
   make linux-debug linux-release linux-coverage
@@ -78,15 +78,15 @@ It focuses on:
   # Windows
   make windows-debug windows-release
 ```
-3. Download Resources
+4. Download Resources
 ```bash
   make resources
 ```
-3. Run any script:
+5. Run any script:
   ```bash
   ./bin/Nebulite task TaskFiles/Benchmarks/gravity_unlimited.nebs 
   ```
-4. Open console (press `tab`) and type `help` for interactive commands.
+6. Open console (press `tab`) and type `help` for interactive commands.
 
 <!-- TOC --><a name="learn-more"></a>
 ## Learn More
@@ -138,7 +138,7 @@ Nebulite offers transformation functions of JSON values on retrieval. They do no
 <!-- TOC --><a name="invoke-system"></a>
 ### Invoke System
 Define object interactions via JSON rulesets:
-```json
+```jsonc
 {
   "topic": "gravity",            // Broadcast channel
   "logicalArg": "1",             // Condition to execute
@@ -155,7 +155,7 @@ This allows for inter-object communication via broadcasting and inner-object log
 - hitbox collisions
 - area triggers
 - velocity integration
-- AI decision making
+- AI decision-making
 - custom events
 
 The expressions given are evaluated in the context of 
@@ -224,7 +224,7 @@ The extension offers proper syntax highlight for:
 - available functions
 - variables
 - comments
-- print-strings (everything after echo/error : meaning its printed to the command line)
+- print-strings (everything after echo/error : meaning it's printed to the command line)
 
 Language extensions for other editors may be added in the future.
 
@@ -233,7 +233,7 @@ Run `build-and-install.sh` inside its directory for installation.
 <!-- TOC --><a name="nebulite-logic"></a>
 ### Nebulite Logic
 
-The `.nebl` *(Nebulite Logic)* language is a work in progress and not yet useable.
+The `.nebl` *(Nebulite Logic)* language is a work in progress and not yet usable.
 
 <!-- TOC --><a name="contributing"></a>
 ## Contributing
