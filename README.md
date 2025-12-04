@@ -49,10 +49,11 @@
 such as Rulesets, RenderObjects and Environments.
 It focuses on:
 - Declarative composition of rulesets (gravity, AI, triggers) via small JSON fragments
-- Flexible SELF / OTHER / GLOBAL context interaction model
-- Fast runtime expression evaluation with caching
-- Seamless headless + interactive execution modes
-- Separation of concerns using Domains and DomainModules
+- Flexible SELF / OTHER / GLOBAL context interaction model with local and broadcasted events
+- Optimized runtime expression evaluation
+- Headless + interactive execution modes
+- Separation of concerns using Domains and DomainModules for encapsulated logic
+- Scriptable commands via Nebulite Script (.nebs) files
 
 <!-- TOC --><a name="quick-start"></a>
 ## Quick Start
