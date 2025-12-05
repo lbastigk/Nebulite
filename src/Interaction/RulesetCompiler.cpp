@@ -86,26 +86,26 @@ bool Nebulite::Interaction::RulesetCompiler::getExpression(Logic::Assignment& as
     if (size_t pos; (pos = expr.find("+=")) != std::string::npos) {
         assignmentExpr.operation = Logic::Assignment::Operation::add;
         assignmentExpr.value = expr.substr(pos + 2);
-        assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
+        assignmentExpr.keyStr = expr.substr(prefix.length(), pos - prefix.length());
     } else if ((pos = expr.find("*=")) != std::string::npos) {
         assignmentExpr.operation = Logic::Assignment::Operation::multiply;
         assignmentExpr.value = expr.substr(pos + 2);
-        assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
+        assignmentExpr.keyStr = expr.substr(prefix.length(), pos - prefix.length());
     } else if ((pos = expr.find("|=")) != std::string::npos) {
         assignmentExpr.operation = Logic::Assignment::Operation::concat;
         assignmentExpr.value = expr.substr(pos + 2);
-        assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
+        assignmentExpr.keyStr = expr.substr(prefix.length(), pos - prefix.length());
     } else if ((pos = expr.find("=")) != std::string::npos) {
         assignmentExpr.operation = Logic::Assignment::Operation::set;
         assignmentExpr.value = expr.substr(pos + 1);
-        assignmentExpr.key = expr.substr(prefix.length(), pos - prefix.length());
+        assignmentExpr.keyStr = expr.substr(prefix.length(), pos - prefix.length());
     } else {
         return false;
     }
     return true;
 }
 
-bool Nebulite::Interaction::RulesetCompiler::getExpressions(std::shared_ptr<Ruleset> const& Ruleset, Data::JSON* entry) {
+bool Nebulite::Interaction::RulesetCompiler::getExpressions(std::shared_ptr<Ruleset> const& Ruleset, Data::JSON* entry, Data::JSON* self) {
     if (entry->memberType(Constants::keyName.invoke.exprVector) == Data::JSON::KeyType::array) {
         size_t const exprSize = entry->memberSize(Constants::keyName.invoke.exprVector);
         for (size_t j = 0; j < exprSize; ++j) {
@@ -113,7 +113,7 @@ bool Nebulite::Interaction::RulesetCompiler::getExpressions(std::shared_ptr<Rule
                 // Successfully parsed expression
 
                 // Remove whitespaces at start and end of key and value
-                assignmentExpr.key = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(assignmentExpr.key));
+                assignmentExpr.key.parse(Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(assignmentExpr.keyStr)), self);
                 assignmentExpr.value = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(assignmentExpr.value));
 
                 // Add assignmentExpr to Ruleset
@@ -185,7 +185,7 @@ void setMetaData(
     std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> const& entries_global
     ) {
     // Set IDs
-    auto const id = self->getDoc()->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id.c_str(), 0);
+    auto const id = self->getDoc()->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id, 0);
     for (auto const& entry : entries_local) {
         entry->id = id;
     }
@@ -256,7 +256,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
         Ruleset->logicalArg.parse(str, self->getDoc());
 
         // Get expressions
-        if (bool const exprSuccess = getExpressions(Ruleset, &entry); !exprSuccess) {
+        if (bool const exprSuccess = getExpressions(Ruleset, &entry, self->getDoc()); !exprSuccess) {
             continue; // Skip this entry if no expressions are found
         }
 
@@ -302,7 +302,7 @@ void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
             if (assignment.onType == Logic::Assignment::Type::Self) {
                 if (std::ranges::find(ops, assignment.operation) != std::ranges::end(ops)) {
                     // Numeric operation on self, try to get a direct pointer
-                    if (double* ptr = self->getStableDoublePointer(assignment.key); ptr != nullptr) {
+                    if (double* ptr = self->getStableDoublePointer(assignment.key.eval(self)); ptr != nullptr) {
                         assignment.targetValuePtr = ptr;
                     }
                 }
@@ -310,7 +310,7 @@ void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
             if (assignment.onType == Logic::Assignment::Type::Global) {
                 if (std::ranges::find(ops, assignment.operation) != std::ranges::end(ops)) {
                     // Numeric operation on global, try to get a direct pointer
-                    if (double* ptr = Nebulite::global().getDoc()->getStableDoublePointer(assignment.key); ptr != nullptr) {
+                    if (double* ptr = Nebulite::global().getDoc()->getStableDoublePointer(assignment.key.eval(self)); ptr != nullptr) {
                         assignment.targetValuePtr = ptr;
                     }
                 }

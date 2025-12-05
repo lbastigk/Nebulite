@@ -258,18 +258,18 @@ void Nebulite::Interaction::Invoke::applyAssignment(Logic::Assignment& assignmen
             // Try to use unique id for quick access
             if (!assignment.targetKeyUniqueIdInitialized) {
                 // Initialize unique id
-                assignment.targetKeyUniqueId = Nebulite::global().getUniqueId(assignment.key, Core::GlobalSpace::UniqueIdType::jsonKey);
+                assignment.targetKeyUniqueId = Nebulite::global().getUniqueId(assignment.key.eval(Obj_other->getDoc()), Core::GlobalSpace::UniqueIdType::jsonKey);
                 assignment.targetKeyUniqueIdInitialized = true;
             }
 
             // Try to use unique id for quick access
             if (assignment.targetKeyUniqueId < Data::JSON::uidQuickCacheSize) {
-                target = targetDocument->getUidDoublePointer(assignment.targetKeyUniqueId, assignment.key);
+                target = targetDocument->getUidDoublePointer(assignment.targetKeyUniqueId, assignment.key.eval(Obj_other->getDoc()));
             }
             // Fallback to normal method via key to double pointer
             else {
                 // Try to get a stable double pointer from the target document
-                target = targetDocument->getStableDoublePointer(assignment.key);
+                target = targetDocument->getStableDoublePointer(assignment.key.eval(Obj_other->getDoc()));
             }
 
             if (target != nullptr) {
@@ -280,14 +280,14 @@ void Nebulite::Interaction::Invoke::applyAssignment(Logic::Assignment& assignmen
                 // Still not possible, fallback to using JSON's internal methods
                 // This is slower, but should work in all cases
                 // No lock needed here, as we use JSON's threadsafe methods
-                setValueOfKey(assignment.operation, assignment.key, resolved, targetDocument);
+                setValueOfKey(assignment.operation, assignment.key.eval(Obj_other->getDoc()), resolved, targetDocument);
             }
         }
     }
     // If not, we resolve as string and update that way
     else {
         std::string const resolved = assignment.expression.eval(Obj_other->getDoc());
-        setValueOfKey(assignment.operation, assignment.key, resolved, targetDocument);
+        setValueOfKey(assignment.operation, assignment.key.eval(Obj_other->getDoc()), resolved, targetDocument);
     }
 }
 

@@ -90,9 +90,10 @@ private:
      * @brief Extracts all expressions from a JSON entry document.
      * @param Ruleset The Ruleset object to populate with expressions.
      * @param entry The JSON entry document to extract expressions from.
+     * @param self The JSON document of context self.
      * @return True if the expressions were successfully extracted, false otherwise.
      */
-    static bool getExpressions(std::shared_ptr<Ruleset> const& Ruleset, Data::JSON* entry);
+    static bool getExpressions(std::shared_ptr<Ruleset> const& Ruleset, Data::JSON* entry, Data::JSON* self);
 
     /**
      * @brief Extracts a logical argument from a JSON entry document.

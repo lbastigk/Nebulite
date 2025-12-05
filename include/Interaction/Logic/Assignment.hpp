@@ -111,7 +111,7 @@ struct Assignment{
      * 
      * Depending on Type, the proper JSON document will be used.
      * 
-     * Initialized as null, which means the assignment is ignored.
+     * Initialized as null, which means the assignment is evaluated at runtime.
      */
     Type onType = Type::null;
 
@@ -120,9 +120,9 @@ struct Assignment{
      * 
      * e.g.: "posX"
      */
-    std::string key;
+    std::string keyStr;
 
-    
+    Expression key;
 
     /**
      * @brief A unique id of the key in the target document
@@ -136,8 +136,6 @@ struct Assignment{
      */
     bool targetKeyUniqueIdInitialized = false;
 
-    
-    
     /**
      * @brief Represents the full assignment as string
      * 
