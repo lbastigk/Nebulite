@@ -569,11 +569,6 @@ double Nebulite::Interaction::Logic::Expression::evalAsDouble(Data::JSON* curren
     return te_eval(components[0]->expression);
 }
 
-Nebulite::Data::odpvec* Nebulite::Interaction::Logic::Expression::ensureOtherOrderedCacheList(Data::JSON* reference) const {
-    auto const cache = reference->getExpressionRefsAsOther();
-    return cache->ensureOrderedCacheList(uniqueId, reference, virtualDoubles.nonRemanent.other);
-}
-
 void Nebulite::Interaction::Logic::Expression::updateCaches(Data::JSON* reference) {
 
     // Update self references that are non-remanent
@@ -590,7 +585,7 @@ void Nebulite::Interaction::Logic::Expression::updateCaches(Data::JSON* referenc
     // Document other stores a list of ordered double pointers for our expression
     // So we only have one query to get all pointers instead of querying each variable individually
     if (!virtualDoubles.nonRemanent.other.empty()) {
-        auto const* listData = ensureOtherOrderedCacheList(reference)->data();
+        auto const* listData = reference->getExpressionRefsAsOther()->ensureOrderedCacheList(uniqueId, reference, virtualDoubles.nonRemanent.other)->data();
         const size_t count = virtualDoubles.nonRemanent.other.size();
         for (size_t i = 0; i < count; ++i) {
             virtualDoubles.nonRemanent.other[i]->setDirect(*listData[i]);

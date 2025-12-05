@@ -576,18 +576,6 @@ private:
     void updateCaches(Data::JSON* reference);
 
     /**
-     * @brief Ensures the existence of an ordered cache list of double pointers for "other" context variables.
-     *        Checks if the current "other" reference JSON document contains a cached, ordered list of double pointers
-     *        corresponding to all variables referenced by this Expression in the "other" context. If the cache entry does not exist,
-     *        it is created and populated for fast indexed access during expression evaluation.
-     *        This caching mechanism is critical for Nebulite's high-performance expression system, as it avoids repeated
-     *        string lookups and pointer resolutions for variables in other objects, enabling near O(1) access.
-     * @param reference The JSON document representing the "other" context for variable resolution.
-     * @return A pointer to the ordered vector of double pointers for the referenced "other" variables.
-     */
-    Data::odpvec* ensureOtherOrderedCacheList(Data::JSON* reference) const ;
-
-    /**
      * @brief Handles the evaluation of a variable component.
      * @param token The string to populate with the evaluated value.
      * @param component The component to evaluate.
