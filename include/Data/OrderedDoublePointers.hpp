@@ -19,6 +19,7 @@
 
 namespace Nebulite::Data {
 /**
+ * @class Nebulite::Data::DynamicFixedArray
  * @brief Dynamic fixed-size array for double pointers.
  * Size is set once at construction and never changes.
  */
@@ -97,9 +98,9 @@ class MappedOrderedDoublePointers{
 public:
     /**
      * @brief Size of the quickcache for ordered double pointers.
+     *
      * This defines how many OrderedDoublePointers can be cached for quick access
      * without needing to look them up in a hashmap.
-     * 
      * see MappedOrderedDoublePointers::quickCache for important considerations.
      */
     static constexpr size_t quickCacheSize = 30;
@@ -120,13 +121,12 @@ public:
      * This array allows for fast access to frequently used entries without the overhead of a hashmap lookup.
      * 
      * @todo In order for this to work in production, we need a global functioncall that generates unique IDs for expressions.
-     * E.g. if we know our engine relies a lot on expression A, but it might not be used first,
-     * its best to then call this function early on to assign it a low unique ID.
-     * 
-     * Idea: DomainModule for performance: GSDM_Performance.hpp that has a function to register frequently used expressions:
-     * registerId <string>
-     * This function assigns a unique integer ID to the string expression, which can then be used to access the quick cache.
-     * This function should be called right at the start of the program for known expressions to ensure they get low IDs.
+     *       E.g. if we know our engine relies a lot on expression A, but it might not be used first,
+     *       its best to then call this function early on to assign it a low unique ID.
+     *       Idea: DomainModule for performance: GSDM_Performance.hpp that has a function to register frequently used expressions:
+     *       registerId <string>
+     *       This function assigns a unique integer ID to the string expression, which can then be used to access the quick cache.
+     *       This function should be called right at the start of the program for known expressions to ensure they get low IDs.
      */
     OrderedDoublePointers quickCache[quickCacheSize];
 };

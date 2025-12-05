@@ -423,12 +423,12 @@ public:
     /**
      * @brief Deserializes a JSON string or loads from a file, with optional modifications.
      * @param serialOrLink The JSON string to deserialize or the file path to load from + optional functioncall transformations
-     *        Examples:
-     *        - `{"key": "value"}` - Deserializes a JSON string
-     *        - `file.json` - Loads a JSON file
-     *        - `file.json|set key1.key2[5] 100` - Loads a JSON file and sets a value
-     *        - `file.json|key1.key2[5]=100` - Legacy feature for setting a value
-     *        - `file.json|set-from-json key1.key2[5] otherFile.json:key` - Sets key1.key2[5] from the value of key in otherFile.json
+     *                     Examples:
+     *                     - `{"key": "value"}` - Deserializes a JSON string
+     *                     - `file.json` - Loads a JSON file
+     *                     - `file.json|set key1.key2[5] 100` - Loads a JSON file and sets a value
+     *                     - `file.json|key1.key2[5]=100` - Legacy feature for setting a value
+     *                     - `file.json|set-from-json key1.key2[5] otherFile.json:key` - Sets key1.key2[5] from the value of key in otherFile.json
      */
     void deserialize(std::string const& serialOrLink);
 

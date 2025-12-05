@@ -144,7 +144,6 @@ newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType con
             return ConverterHelper::stringToDouble(stored, defaultValue);
         }
 
-
         // [ARITHMETIC] -> [STRING]
         if constexpr (std::is_arithmetic_v<StoredT> && std::is_same_v<newType, std::string>){
             return std::to_string(stored);
