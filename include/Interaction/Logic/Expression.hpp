@@ -585,7 +585,7 @@ private:
      * @param reference The JSON document representing the "other" context for variable resolution.
      * @return A pointer to the ordered vector of double pointers for the referenced "other" variables.
      */
-    odpvec* ensureOtherOrderedCacheList(Data::JSON* reference);
+    Data::odpvec* ensureOtherOrderedCacheList(Data::JSON* reference) const ;
 
     /**
      * @brief Handles the evaluation of a variable component.

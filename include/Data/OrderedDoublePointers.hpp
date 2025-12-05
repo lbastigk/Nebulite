@@ -16,6 +16,17 @@
 #include <absl/container/flat_hash_map.h>
 
 //------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Data {
+class JSON;
+}
+
+namespace Nebulite::Interaction::Logic {
+class VirtualDouble;
+}
+
+//------------------------------------------
 
 namespace Nebulite::Data {
 /**
@@ -25,16 +36,18 @@ namespace Nebulite::Data {
  */
 class DynamicFixedArray {
 public:
-    DynamicFixedArray() : data_(nullptr), size_(0), capacity_(0){}
-    
-    explicit DynamicFixedArray(size_t fixed_size) 
-        : data_(fixed_size > 0 ? new double*[fixed_size] : nullptr), 
-          size_(0), 
-          capacity_(fixed_size){}
+    DynamicFixedArray() : data_(nullptr), size_(0), capacity_(0) {
+    }
+
+    explicit DynamicFixedArray(size_t fixed_size)
+        : data_(fixed_size > 0 ? new double*[fixed_size] : nullptr),
+          size_(0),
+          capacity_(fixed_size) {
+    }
 
     // Move constructor
-    DynamicFixedArray(DynamicFixedArray&& other) noexcept 
-        : data_(other.data_), size_(other.size_), capacity_(other.capacity_){
+    DynamicFixedArray(DynamicFixedArray&& other) noexcept
+        : data_(other.data_), size_(other.size_), capacity_(other.capacity_) {
         other.data_ = nullptr;
         other.size_ = 0;
         other.capacity_ = 0;
@@ -42,7 +55,7 @@ public:
 
     // Move assignment
     DynamicFixedArray& operator=(DynamicFixedArray&& other) noexcept {
-        if (this != &other){
+        if (this != &other) {
             delete[] data_;
             data_ = other.data_;
             size_ = other.size_;
@@ -54,7 +67,7 @@ public:
         return *this;
     }
 
-    ~DynamicFixedArray(){
+    ~DynamicFixedArray() {
         delete[] data_;
     }
 
@@ -62,14 +75,14 @@ public:
     DynamicFixedArray(DynamicFixedArray const&) = delete;
     DynamicFixedArray& operator=(DynamicFixedArray const&) = delete;
 
-    void push_back(double* ptr){
-        if (size_ < capacity_){
+    void push_back(double* ptr) {
+        if (size_ < capacity_) {
             data_[size_++] = ptr;
         }
     }
 
     double*& at(size_t index) noexcept { return data_[index]; }
-    
+
     [[nodiscard]] bool empty() const noexcept { return size_ == 0; }
 
     double** data() noexcept { return data_; }
@@ -86,15 +99,21 @@ private:
 class OrderedDoublePointers {
 public:
     OrderedDoublePointers() = default;
-    explicit OrderedDoublePointers(size_t exact_size) : orderedValues(exact_size){}
+
+    explicit OrderedDoublePointers(size_t exact_size) : orderedValues(exact_size) {
+    }
+
     DynamicFixedArray orderedValues;
 };
+
+// Vector alias for easier usage of ordered double pointer vectors
+using odpvec = Nebulite::Data::DynamicFixedArray;
 
 /**
  * @class MappedOrderedDoublePointers
  * @brief A thread-safe map from strings to OrderedDoublePointers objects.
  */
-class MappedOrderedDoublePointers{
+class MappedOrderedDoublePointers {
 public:
     /**
      * @brief Size of the quickcache for ordered double pointers.
@@ -105,6 +124,23 @@ public:
      */
     static constexpr size_t quickCacheSize = 30;
 
+    /**
+     * @brief Ensures the existence of an ordered cache list of double pointers for "other" context variables.
+     *        Checks if the current "other" reference JSON document contains a cached, ordered list of double pointers
+     *        corresponding to all variables referenced by this Expression in the "other" context. If the cache entry does not exist,
+     *        it is created and populated for fast indexed access during expression evaluation.
+     * @param uniqueId The unique ID of the expression.
+     * @param reference The JSON document to reference as context "other" for variable resolution.
+     * @param contextOther The vector of virtual doubles in the "other" context to populate the cache with.
+     * @return A pointer to the ordered vector of double pointers for the referenced "other" variables.
+     */
+    odpvec* ensureOrderedCacheList(
+        uint64_t uniqueId,
+        Nebulite::Data::JSON* reference,
+        std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther
+        );
+
+private:
     /**
      * @brief Map from unique IDs to OrderedDoublePointers objects.
      */
@@ -132,8 +168,4 @@ public:
 };
 } // namespace Nebulite::Data
 
-// Vector alias for easier usage of ordered double pointer vectors
-using odpvec = Nebulite::Data::DynamicFixedArray;
-
 #endif // NEBULITE_DATA_ORDERED_DOUBLE_POINTERS_HPP
-

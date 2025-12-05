@@ -569,43 +569,9 @@ double Nebulite::Interaction::Logic::Expression::evalAsDouble(Data::JSON* curren
     return te_eval(components[0]->expression);
 }
 
-odpvec* Nebulite::Interaction::Logic::Expression::ensureOtherOrderedCacheList(Data::JSON* reference) {
+Nebulite::Data::odpvec* Nebulite::Interaction::Logic::Expression::ensureOtherOrderedCacheList(Data::JSON* reference) const {
     auto const cache = reference->getExpressionRefsAsOther();
-    std::scoped_lock cache_lock(cache->mtx);
-
-    // Check if we can use quickcache, that does not rely on a hashmap lookup
-    if (uniqueId < Data::MappedOrderedDoublePointers::quickCacheSize) {
-        if (cache->quickCache[uniqueId].orderedValues.empty()) {
-            // Not initialized yet, create one with exact size
-            Data::OrderedDoublePointers newCacheList(virtualDoubles.nonRemanent.other.size());
-
-            // Populate list with all virtual doubles from type other
-            for (auto const& vde : virtualDoubles.nonRemanent.other) {
-                double* ptr = reference->getStableDoublePointer(vde->getKey());
-                newCacheList.orderedValues.push_back(ptr);
-            }
-            cache->quickCache[uniqueId] = std::move(newCacheList);
-        }
-        return &cache->quickCache[uniqueId].orderedValues;
-    }
-
-    // If id is too large for quickcache, use hashmap
-    auto it = cache->map.find(uniqueId);
-
-    // If not, create one
-    if (it == cache->map.end()) {
-        Data::OrderedDoublePointers newCacheList(virtualDoubles.nonRemanent.other.size());
-
-        // Populate list with all virtual doubles from type other
-        for (auto const& vde : virtualDoubles.nonRemanent.other) {
-            double* ptr = reference->getStableDoublePointer(vde->getKey());
-            newCacheList.orderedValues.push_back(ptr);
-        }
-
-        cache->map.emplace(uniqueId, std::move(newCacheList));
-        it = cache->map.find(uniqueId);
-    }
-    return &it->second.orderedValues;
+    return cache->ensureOrderedCacheList(uniqueId, reference, virtualDoubles.nonRemanent.other);
 }
 
 void Nebulite::Interaction::Logic::Expression::updateCaches(Data::JSON* reference) {
