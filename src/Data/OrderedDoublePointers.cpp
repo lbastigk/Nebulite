@@ -5,15 +5,19 @@
 namespace Nebulite::Data {
 
 odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, Nebulite::Data::JSON* reference, std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther) {
-    std::scoped_lock cache_lock(mtx);
-
-    // Check if we can use quickcache, that does not rely on a hashmap lookup
+    // Quick-cache path protected by mtxCache
     if (uniqueId < Data::MappedOrderedDoublePointers::quickCacheSize) {
-        if (quickCache[uniqueId].orderedValues.empty()) {
-            // Not initialized yet, create one with exact size
-            Data::OrderedDoublePointers newCacheList(contextOther.size());
+        {
+            std::shared_lock<std::shared_mutex> read_quick(mtxCache);
+            if (!quickCache[uniqueId].orderedValues.empty()) {
+                return &quickCache[uniqueId].orderedValues;
+            }
+        }
 
-            // Populate list with all virtual doubles from type other
+        // upgrade to exclusive to initialize
+        std::unique_lock<std::shared_mutex> write_quick(mtxCache);
+        if (quickCache[uniqueId].orderedValues.empty()) {
+            Data::OrderedDoublePointers newCacheList(contextOther.size());
             for (auto const& vde : contextOther) {
                 double* ptr = reference->getStableDoublePointer(vde->getKey());
                 newCacheList.orderedValues.push_back(ptr);
@@ -23,23 +27,25 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, N
         return &quickCache[uniqueId].orderedValues;
     }
 
-    // If id is too large for quickcache, use hashmap
-    auto it = map.find(uniqueId);
+    // Map path protected by mtxMap
+    {
+        std::shared_lock<std::shared_mutex> read_map(mtxMap);
+        auto it = map.find(uniqueId);
+        if (it != map.end()) {
+            return &it->second.orderedValues;
+        }
+    }
 
-    // If not, create one
-    if (it == map.end()) {
-        Data::OrderedDoublePointers newCacheList(contextOther.size());
-
-        // Populate list with all virtual doubles from type other
+    // upgrade to exclusive to insert into map
+    std::unique_lock<std::shared_mutex> write_map(mtxMap);
+    auto [newIt, inserted] = map.try_emplace(uniqueId, Data::OrderedDoublePointers(contextOther.size()));
+    if (inserted) {
         for (auto const& vde : contextOther) {
             double* ptr = reference->getStableDoublePointer(vde->getKey());
-            newCacheList.orderedValues.push_back(ptr);
+            newIt->second.orderedValues.push_back(ptr);
         }
-
-        map.emplace(uniqueId, std::move(newCacheList));
-        it = map.find(uniqueId);
     }
-    return &it->second.orderedValues;
+    return &newIt->second.orderedValues;
 }
 
 }

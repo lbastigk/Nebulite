@@ -10,7 +10,7 @@
 // Includes
 
 // Standard library
-#include <mutex>
+#include <shared_mutex>
 
 // External
 #include <absl/container/flat_hash_map.h>
@@ -147,9 +147,14 @@ private:
     absl::flat_hash_map<uint64_t, OrderedDoublePointers> map;
 
     /**
+     * @brief Mutex for thread-safe access to the cache.
+     */
+    std::shared_mutex mtxCache;
+
+    /**
      * @brief Mutex for thread-safe access to the map.
      */
-    std::mutex mtx;
+    std::shared_mutex mtxMap;
 
     /**
      * @brief Quick cache for the first few OrderedDoublePointers entries.
