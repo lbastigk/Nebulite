@@ -178,7 +178,7 @@ public:
         }
 
         // Return string of document:
-        std::string serial = docPtr->document.serialize();
+        std::string serial = docPtr->serial;
 
         // Update the cache (unload old documents)
         update();
