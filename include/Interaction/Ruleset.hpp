@@ -115,9 +115,9 @@ struct Ruleset {
 
         // Count number of $ and { in exprs
         for (auto const& assignment : assignments) {
-            std::string const* value = assignment.expression.getFullExpression();
-            estimatedCost += static_cast<size_t>(std::ranges::count(value->begin(), value->end(), '$'));
-            estimatedCost += static_cast<size_t>(std::ranges::count(value->begin(), value->end(), '{'));
+            std::string const& value = assignment.getFullExpression();
+            estimatedCost += static_cast<size_t>(std::ranges::count(value.begin(), value.end(), '$'));
+            estimatedCost += static_cast<size_t>(std::ranges::count(value.begin(), value.end(), '{'));
         }
     }
 

@@ -15,6 +15,16 @@
 #include "Interaction/Logic/ExpressionPool.hpp"
 
 //------------------------------------------
+// Forward declarations
+namespace Nebulite::Core {
+class RenderObject;
+} // namespace Nebulite::Core
+
+namespace Nebulite::Interaction {
+class RulesetCompiler;
+}
+
+//------------------------------------------
 namespace Nebulite::Interaction::Logic {
 /**
  * @struct Nebulite::Interaction::Logic::Assignment
@@ -33,7 +43,8 @@ namespace Nebulite::Interaction::Logic {
  * - The value as parsed expression
  * 
  */
-struct Assignment{
+class Assignment{
+public:
     //------------------------------------------
     // Standard constructor/destructor
     Assignment() = default;
@@ -51,82 +62,62 @@ struct Assignment{
     Assignment& operator=(Assignment&&) noexcept = default;
 
     //------------------------------------------
+    // Allow ruleset compiler to access private members
+    friend class Nebulite::Interaction::RulesetCompiler;
 
-    // Activate threadsafe expression pool only if needed
-    #if INVOKE_EXPR_POOL_SIZE > 1
-        /**
-         * @brief The parsed expression in a thread-friendly Pool-Configuration
-         */
-        ExpressionPool expression;
-    #else
-        /**
-         * @brief The parsed expression
-         */
-        Expression expression;
-    #endif
+    //------------------------------------------
 
     /**
-     * @brief Expression assignment target as double pointer
-     * 
-     * Is only unequal to nullptr if:
-     * - onType is Self
-     * - operation is numeric (add, multiply)
-     * - expression is returnable as double
+     * @brief Applies the assignment to the given target document.
      */
-    double* targetValuePtr = nullptr;
+    void apply(Data::JSON* self, Data::JSON* other);
 
     /**
-     * @brief Type of operation used
+     * @brief Get the unevaluated expression as string
      */
-    enum class Operation : uint8_t {
-        null, 
-        set, 
-        add, 
-        multiply, 
-        concat
-    };
+    [[nodiscard]] std::string const& getFullExpression() const {
+        return value;
+    }
 
-    /**
-     * @brief Type of operation used.
-     * 
-     * Depending on operation, the proper JSON operation helper will be called.
-     * This ensures quick and threadsafe assignment.
-     * 
-     * Initialized as null, which means the assignment is ignored.
-     */
-    Operation operation = Operation::null;
+private:
+    void setValueOfKey(std::string const& keyStr, std::string const& value, Data::JSON* target) const ;
+    void setValueOfKey(std::string const& keyStr, double const& value, Data::JSON* target) const ;
+    void setValueOfKey(double const& value, double* target) const ;
 
     /**
      * @brief Target document type (Self, Other, Global)
      */
     enum class Type : uint8_t {
-        null, 
-        Self, 
-        Other, 
+        null,
+        Self,
+        Other,
         Global
     };
 
     /**
      * @brief Target document type (Self, Other, Global)
-     * 
+     *
      * Depending on Type, the proper JSON document will be used.
-     * 
+     *
      * Initialized as null, which means the assignment is evaluated at runtime.
      */
     Type onType = Type::null;
 
     /**
      * @brief Key of the variable being assigned
-     * 
+     *
      * e.g.: "posX"
      */
     std::string keyStr;
 
+    /**
+     * @brief Parsed expression representing the key
+     */
     Expression key;
 
     /**
      * @brief A unique id of the key in the target document
-     * 
+     *
      * Used for quick access to a target value pointer in the target document.
      */
     uint64_t targetKeyUniqueId = 0;
@@ -138,15 +129,59 @@ struct Assignment{
 
     /**
      * @brief Represents the full assignment as string
-     * 
+     *
      * e.g. "0", "$($(self.posX) + 1)", does not include the assignment operator and target
-     * 
+     *
      * Storing the full value is necessary for:
-     * 
+     *
      * - estimating computational cost based on the amount of evaluations `$` as well as variables `{...}`
      * - parsing the expression later on
      */
     std::string value;
+
+    // Activate threadsafe expression pool only if needed
+#if INVOKE_EXPR_POOL_SIZE > 1
+    /**
+     * @brief The parsed expression in a thread-friendly Pool-Configuration
+     */
+    ExpressionPool expression;
+#else
+    /**
+     * @brief The parsed expression
+     */
+    Expression expression;
+#endif
+
+    /**
+     * @brief Expression assignment target as double pointer
+     *
+     * Is only unequal to nullptr if:
+     * - onType is Self
+     * - operation is numeric (add, multiply)
+     * - expression is returnable as double
+     */
+    double* targetValuePtr = nullptr;
+
+    /**
+     * @brief Type of operation used
+     */
+    enum class Operation : uint8_t {
+        null,
+        set,
+        add,
+        multiply,
+        concat
+    };
+
+    /**
+     * @brief Type of operation used.
+     *
+     * Depending on operation, the proper JSON operation helper will be called.
+     * This ensures quick and threadsafe assignment.
+     *
+     * Initialized as null, which means the assignment is ignored.
+     */
+    Operation operation = Operation::null;
 };
 } // namespace Nebulite::Interaction::Logic
 #endif // NEBULITE_INTERACTION_LOGIC_ASSIGNMENT_HPP

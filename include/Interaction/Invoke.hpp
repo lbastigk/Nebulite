@@ -174,58 +174,6 @@ public:
     void applyRulesets(std::shared_ptr<Ruleset> const& entries_self) const;
 
     /**
-     * @brief Updates the value of a specific key in the document.
-     *
-     * This function applies the specified operation to the given key and value,
-     * updating the document accordingly.
-     *
-     * @param operation The operation to perform (set, multiply, concat, etc.).
-     * @param key The key to update.
-     * @param valStr The new value as a string.
-     * @param target The JSON document to update.
-     */
-    static void setValueOfKey(
-        Logic::Assignment::Operation operation,
-        std::string const& key,
-        std::string const& valStr,
-        Data::JSON* target
-        );
-
-    /**
-     * @brief Updates the value of a specific key in the document.
-     *
-     * This function applies the specified operation to the given key and value,
-     * updating the document accordingly.
-     *
-     * @param operation The operation to perform (set, multiply, concat, etc.).
-     * @param key The key to update.
-     * @param value The new value as a double.
-     * @param target The JSON document to update.
-     */
-    static void setValueOfKey(
-        Logic::Assignment::Operation operation,
-        std::string const& key,
-        double const& value,
-        Data::JSON* target
-        );
-
-    /**
-     * @brief Updates the value of a specific key in the document.
-     *
-     * This function applies the specified operation to the given key and value,
-     * updating the document accordingly.
-     *
-     * @param operation The operation to perform (set, multiply, concat, etc.).
-     * @param value The new value as a double.
-     * @param target The double pointer to update.
-     */
-    static void setValueOfKey(
-        Logic::Assignment::Operation operation,
-        double const& value,
-        double* target
-        );
-
-    /**
      * @brief Evaluates a standalone expression.
      *
      * Returns the result as a string. As this happens inside the invoke class,
