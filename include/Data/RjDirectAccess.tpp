@@ -1,6 +1,6 @@
-#include "RjDirectAccess.hpp"
+#include "Data/RjDirectAccess.hpp"
 
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 
 //------------------------------------------
 // Direct access get/set
@@ -169,7 +169,7 @@ template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value co
     if (jsonValue.IsNumber()) {
         result = jsonValue.GetDouble();
     } else if (jsonValue.IsString()) {
-        if (StringHandler::isNumber(jsonValue.GetString())) {
+        if (Utility::StringHandler::isNumber(jsonValue.GetString())) {
             result = std::stod(jsonValue.GetString());
         } else {
             result = defaultValue;

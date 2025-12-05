@@ -15,14 +15,14 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 class JSON;
-} // namespace Nebulite::Utility
+} // namespace Nebulite::Data
 
 
 //------------------------------------------
 namespace Nebulite::DomainModule::JSON {
-NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ForceValue) {
+NEBULITE_DOMAINMODULE(Nebulite::Data::JSON, ForceValue) {
     public
     :
     /**
@@ -66,7 +66,7 @@ NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ForceValue) {
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, ForceValue)
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JSON, ForceValue)
     {
         // Binding
         (void)bindCategory(force_name, &force_desc);

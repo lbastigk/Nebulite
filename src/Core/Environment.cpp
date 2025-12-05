@@ -12,7 +12,7 @@
 #include "Nebulite.hpp"
 #include "Core/Environment.hpp"
 #include "Core/RenderObjectContainer.hpp"
-#include "Utility/JSON.hpp"
+#include "../../include/Data/JSON.hpp"
 
 //------------------------------------------
 
@@ -40,7 +40,7 @@ make_roc_array() {
 namespace Nebulite::Core {
 
 
-Environment::Environment(Nebulite::Utility::JSON* documentPtr)
+Environment::Environment(Nebulite::Data::JSON* documentPtr)
     : Domain<Nebulite::Core::Environment>("Environment", this, documentPtr),
       roc(make_roc_array<LayerCount>()) {
 }
@@ -49,7 +49,7 @@ Environment::Environment(Nebulite::Utility::JSON* documentPtr)
 // Marshalling
 
 std::string Environment::serialize() {
-    Utility::JSON doc;
+    Data::JSON doc;
 
     // Serialize each container and add to the document
     for (unsigned int i = 0; i < LayerCount; i++) {
@@ -57,7 +57,7 @@ std::string Environment::serialize() {
         std::string serializedContainer = roc[i].serialize();
 
         // Add the container JSON object to the main document
-        Utility::JSON layer;
+        Data::JSON layer;
         layer.deserialize(serializedContainer);
         doc.setSubDoc(key.c_str(), layer);
     }
@@ -65,15 +65,15 @@ std::string Environment::serialize() {
 }
 
 void Environment::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY) {
-    Utility::JSON file;
+    Data::JSON file;
     file.deserialize(serialOrLink);
 
     // Getting all layers
     for (unsigned int i = 0; i < LayerCount; i++) {
         // Check if the key exists in the document
-        if (std::string key = "containerLayer" + std::to_string(i); file.memberType(key) != Utility::JSON::KeyType::null) {
+        if (std::string key = "containerLayer" + std::to_string(i); file.memberType(key) != Data::JSON::KeyType::null) {
             // Extract the value corresponding to the key
-            Utility::JSON layer = file.getSubDoc(key);
+            Data::JSON layer = file.getSubDoc(key);
 
             // Convert the JSON object to a pretty-printed string
             std::string str = layer.serialize();

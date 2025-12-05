@@ -2,8 +2,8 @@
  * @file ReadOnlyDocs.hpp
  * @brief Defines structures for managing read-only documents.
  */
-#ifndef NEBULITE_UTILITY_READ_ONLY_DOCS_HPP
-#define NEBULITE_UTILITY_READ_ONLY_DOCS_HPP
+#ifndef NEBULITE_DATA_READ_ONLY_DOCS_HPP
+#define NEBULITE_DATA_READ_ONLY_DOCS_HPP
 
 //------------------------------------------
 // Includes
@@ -13,21 +13,20 @@
 #include <stdexcept>
 
 // Nebulite
+#include "Data/JSON.hpp"
 #include "Utility/FileManagement.hpp"
-#include "Utility/JSON.hpp"
 #include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 
 /**
  * @struct ReadOnlyDoc
  * @brief Represents a read-only document with its associated metadata.
  */
 struct ReadOnlyDoc {
-    Nebulite::Utility::JSON document; // The actual JSON document
-    Nebulite::Utility::TimeKeeper lastUsed;
-
+    Nebulite::Data::JSON document;          // The actual JSON document
+    Nebulite::Utility::TimeKeeper lastUsed; // TimeKeeper to track last access time
     ReadOnlyDoc() = default;
 };
 
@@ -114,5 +113,5 @@ public:
         return docPtr;
     }
 };
-} // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_READ_ONLY_DOCS_HPP
+} // namespace Nebulite::Data
+#endif // NEBULITE_DATA_READ_ONLY_DOCS_HPP

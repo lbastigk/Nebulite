@@ -3,8 +3,8 @@
  * @brief A wrapper around rapidjson to simplify JSON manipulation in Nebulite.
  */
 
-#ifndef NEBULITE_UTILITY_JSON_HPP
-#define NEBULITE_UTILITY_JSON_HPP
+#ifndef NEBULITE_DATA_JSON_HPP
+#define NEBULITE_DATA_JSON_HPP
 
 //------------------------------------------
 // Includes
@@ -26,12 +26,12 @@
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Interaction/Execution/Domain.hpp"
-#include "Utility/JsonRvalueTransformer.hpp"
-#include "Utility/OrderedDoublePointers.hpp"
-#include "Utility/RjDirectAccess.hpp"
+#include "Data/JsonRvalueTransformer.hpp"
+#include "Data/OrderedDoublePointers.hpp"
+#include "Data/RjDirectAccess.hpp"
 
 //------------------------------------------
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 /**
  * @class JSON
  * @brief A wrapper around rapidjson to simplify JSON manipulation in Nebulite.
@@ -441,6 +441,6 @@ public:
      */
     MappedOrderedDoublePointers* getExpressionRefsAsOther();
 };
-} // namespace Nebulite::Utility
-#include "Utility/JSON.tpp"
-#endif // NEBULITE_UTILITY_JSON_HPP
+} // namespace Nebulite::Data
+#include "JSON.tpp"
+#endif // NEBULITE_DATA_JSON_HPP

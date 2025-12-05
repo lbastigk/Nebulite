@@ -4,8 +4,8 @@
  * Direct access to RapidJSON values
  */
 
-#ifndef NEBULITE_UTILITY_RJDIRECTACCESS_HPP
-#define NEBULITE_UTILITY_RJDIRECTACCESS_HPP
+#ifndef NEBULITE_DATA_RJDIRECTACCESS_HPP
+#define NEBULITE_DATA_RJDIRECTACCESS_HPP
 
 //------------------------------------------
 // Includes
@@ -22,7 +22,7 @@
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 /**
  * @class RjDirectAccess
  * @brief Provides direct access and manipulation of RapidJSON values.
@@ -239,6 +239,6 @@ private:
      */
     static std::string extractKeyPart(std::string_view* keyView);
 };
-} // namespace Nebulite::Utility
-#include "Utility/RjDirectAccess.tpp"
-#endif // NEBULITE_UTILITY_RJDIRECTACCESS_HPP
+} // namespace Nebulite::Data
+#include "RjDirectAccess.tpp"
+#endif // NEBULITE_DATA_RJDIRECTACCESS_HPP

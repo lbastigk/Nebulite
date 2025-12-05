@@ -2,11 +2,11 @@
 // Includes
 
 #include "Nebulite.hpp"
-#include "Utility/JSON.hpp"
-#include "Utility/JsonRvalueTransformer.hpp"
+#include "Data/JSON.hpp"
+#include "Data/JsonRvalueTransformer.hpp"
 
 //------------------------------------------
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 
 JsonRvalueTransformer::JsonRvalueTransformer() {
     transformationFuncTree = std::make_unique<Interaction::Execution::FuncTree<bool, JSON*>>("JSON rvalue transformation FuncTree", true, false);

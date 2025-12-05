@@ -7,7 +7,7 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "DomainModule/GlobalSpace/FeatureTest.hpp"
-#include "Utility/JSON.hpp"
+#include "../../../include/Data/JSON.hpp"
 
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {

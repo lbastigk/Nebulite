@@ -15,19 +15,17 @@
 //------------------------------------------
 // Predeclarations of Domains
 
-namespace Nebulite {
-namespace Core {
+namespace Nebulite::Core {
 class Environment;
 class GlobalSpace;
 class RenderObject;
 class Renderer;
 class Texture;
-}
+} // namespace Nebulite::Core
 
-namespace Utility {
+namespace Nebulite::Data {
 class JSON;
-}
-}
+} // namespace Nebulite::Data
 
 //------------------------------------------
 namespace Nebulite::DomainModule {
@@ -58,7 +56,7 @@ public:
      * @brief Initializes DomainModules for the JSON Domain.
      * @param target Pointer to the JSON domain to initialize.
      */
-    static void initJSON(Utility::JSON* target);
+    static void initJSON(Data::JSON* target);
 
     /**
      * @brief Initializes DomainModules for the RenderObject Domain.

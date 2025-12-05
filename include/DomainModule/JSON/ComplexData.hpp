@@ -1,6 +1,6 @@
 /**
  * @file ComplexData.hpp
- * @brief DomainModule for complex data operations on domain class Nebulite::Utility::JSON
+ * @brief DomainModule for complex data operations on domain class Nebulite::Data::JSON
  */
 
 #ifndef NEBULITE_JSDM_COMPLEX_DATA_HPP
@@ -15,18 +15,18 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 class JSON;
-} // namespace Nebulite::Utility
+} // namespace Nebulite::Data
 
 //------------------------------------------
 namespace Nebulite::DomainModule::JSON {
 /**
  * @class Nebulite::DomainModule::JSON::ComplexData
  * 
- * DomainModule for complex data operations on domain class Nebulite::Utility::JSON
+ * DomainModule for complex data operations on domain class Nebulite::Data::JSON
  */
-NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, ComplexData) {
+NEBULITE_DOMAINMODULE(Nebulite::Data::JSON, ComplexData) {
 public:
     /**
      * @brief Override of update.
@@ -74,7 +74,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, ComplexData) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JSON, ComplexData) {
         // Bind functions specific to complex data handling
 
         // SQL Queries

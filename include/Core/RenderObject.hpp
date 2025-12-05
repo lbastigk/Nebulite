@@ -17,7 +17,7 @@
 #include "Constants/KeyNames.hpp"
 #include "Core/Texture.hpp"
 #include "Interaction/Execution/Domain.hpp"
-#include "Utility/JSON.hpp"
+#include "../Data/JSON.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -205,7 +205,7 @@ private:
     size_t subscription_size = 0;
 
     // Each RenderObject has its own JSON document
-    Utility::JSON document;
+    Data::JSON document;
 
     //------------------------------------------
     // Initialization

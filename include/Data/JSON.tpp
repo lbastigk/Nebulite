@@ -1,6 +1,6 @@
-#include "Utility/JSON.hpp"
+#include "JSON.hpp"
 
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 
 template<typename T>
 void JSON::set(std::string const& key, T const& val){
@@ -33,7 +33,7 @@ T JSON::get(std::string const& key, T const& defaultValue){
 // TODO: same for getSubDocWithTransformations!
 template<typename T>
 std::optional<T> JSON::getWithTransformations(std::string const& key) {
-    auto args = StringHandler::split(key, '|');
+    auto args = Utility::StringHandler::split(key, '|');
     std::string const baseKey = args[0];
     args.erase(args.begin());
 
@@ -77,7 +77,7 @@ T JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T 
 namespace ConverterHelper {
     inline bool stringToBool(std::string const& stored, bool const& defaultValue){
         // Handle numeric strings and "true"
-        if(StringHandler::isNumber(stored)){
+        if(Utility::StringHandler::isNumber(stored)){
             try {
                 return std::stoi(stored) != 0;
             } catch (...){

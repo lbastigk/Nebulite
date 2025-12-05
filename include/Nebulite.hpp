@@ -43,6 +43,13 @@ namespace Core {
 }
 
 /**
+ * @namespace Nebulite::Data
+ * @brief Contains all classes, functions, types and variables related to the Nebulite data system.
+ */
+namespace Data {
+}
+
+/**
  * @namespace Nebulite::DomainModule
  * @brief Contains all classes, functions, types and variables related to the Nebulite DomainModule system.
  */

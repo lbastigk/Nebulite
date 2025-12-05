@@ -10,7 +10,7 @@ std::string Nebulite::Core::RenderObjectContainer::serialize() {
     // Setup
 
     // Initialize RapidJSON document
-    Utility::JSON doc;
+    Data::JSON doc;
 
     //------------------------------------------
     // Get all objects in container
@@ -18,7 +18,7 @@ std::string Nebulite::Core::RenderObjectContainer::serialize() {
     for (auto& currentBatch : std::views::values(ObjectContainer)) {
         for (auto& [objects, _] : currentBatch) {
             for (auto const& obj : objects) {
-                Utility::JSON obj_serial;
+                Data::JSON obj_serial;
                 obj_serial.deserialize(obj->serialize());
 
                 // insert into doc
@@ -35,16 +35,16 @@ std::string Nebulite::Core::RenderObjectContainer::serialize() {
 }
 
 void Nebulite::Core::RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY) {
-    Utility::JSON layer;
+    Data::JSON layer;
     layer.deserialize(serialOrLink);
-    if (layer.memberType("objects") == Utility::JSON::KeyType::array) {
+    if (layer.memberType("objects") == Data::JSON::KeyType::array) {
         for (uint32_t i = 0; i < layer.memberSize("objects"); i++) {
             std::string key = "objects[" + std::to_string(i) + "]";
 
             // Check if serial or not:
             auto ro_serial = layer.get<std::string>(key);
             if (ro_serial == "{Object}") {
-                Utility::JSON tmp;
+                Data::JSON tmp;
                 tmp = layer.getSubDoc(key);
                 ro_serial = tmp.serialize();
             }

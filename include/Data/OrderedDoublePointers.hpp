@@ -3,8 +3,8 @@
  * @brief Defines a list of double pointers for interaction logic.
  */
 
-#ifndef NEBULITE_UTILITY_ORDEREDDOUBLEPOINTERS_HPP
-#define NEBULITE_UTILITY_ORDEREDDOUBLEPOINTERS_HPP
+#ifndef NEBULITE_DATA_ORDERED_DOUBLE_POINTERS_HPP
+#define NEBULITE_DATA_ORDERED_DOUBLE_POINTERS_HPP
 
 //------------------------------------------
 // Includes
@@ -17,7 +17,7 @@
 
 //------------------------------------------
 
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 /**
  * @brief Dynamic fixed-size array for double pointers.
  * Size is set once at construction and never changes.
@@ -69,7 +69,7 @@ public:
 
     double*& at(size_t index) noexcept { return data_[index]; }
     
-    bool empty() const noexcept { return size_ == 0; }
+    [[nodiscard]] bool empty() const noexcept { return size_ == 0; }
 
     double** data() noexcept { return data_; }
 
@@ -78,8 +78,6 @@ private:
     size_t size_;
     size_t capacity_;
 };
-
-
 
 /**
  * @brief Lightweight container for ordered double pointers in expression evaluations.
@@ -132,10 +130,10 @@ public:
      */
     OrderedDoublePointers quickCache[quickCacheSize];
 };
-} // namespace Nebulite::Utility
+} // namespace Nebulite::Data
 
 // Vector alias for easier usage of ordered double pointer vectors
-using odpvec = Nebulite::Utility::DynamicFixedArray;
+using odpvec = Nebulite::Data::DynamicFixedArray;
 
-#endif // NEBULITE_UTILITY_ORDEREDDOUBLEPOINTERS_HPP
+#endif // NEBULITE_DATA_ORDERED_DOUBLE_POINTERS_HPP
 

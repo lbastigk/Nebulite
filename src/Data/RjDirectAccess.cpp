@@ -10,11 +10,11 @@
 
 // Nebulite
 #include "Nebulite.hpp"
-#include "Utility/RjDirectAccess.hpp"
+#include "Data/RjDirectAccess.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 //------------------------------------------
 // Static Public Helper Functions
 
@@ -396,7 +396,7 @@ bool RjDirectAccess::isValidKey(std::string const& key) {
             }
 
             // Extract index string between '[' and ']'
-            if (std::string_view idxStr = keyView.substr(1, closeBracket - 1); !StringHandler::isNumber(std::string(idxStr))) {
+            if (std::string_view idxStr = keyView.substr(1, closeBracket - 1); !Utility::StringHandler::isNumber(std::string(idxStr))) {
                 return false; // invalid number
             }
 
@@ -440,4 +440,4 @@ std::string RjDirectAccess::extractKeyPart(std::string_view* keyView) {
     keyView->remove_prefix(nextSep);
     return result;
 }
-} // namespace Nebulite::Utility
+} // namespace Nebulite::Data

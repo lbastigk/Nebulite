@@ -20,8 +20,8 @@
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
-#include "Utility/DocumentCache.hpp"
-#include "Utility/JSON.hpp"
+#include "Data/DocumentCache.hpp"
+#include "Data/JSON.hpp"
 #include "Interaction/Logic/Assignment.hpp"
 #include "Interaction/Ruleset.hpp"
 
@@ -188,7 +188,7 @@ public:
         Logic::Assignment::Operation operation,
         std::string const& key,
         std::string const& valStr,
-        Utility::JSON* target
+        Data::JSON* target
         );
 
     /**
@@ -206,7 +206,7 @@ public:
         Logic::Assignment::Operation operation,
         std::string const& key,
         double const& value,
-        Utility::JSON* target
+        Data::JSON* target
         );
 
     /**
@@ -290,7 +290,7 @@ private:
     // General Variables
 
     // Documents
-    Utility::JSON* emptyDoc = new Utility::JSON("Empty JSON document for Invoke"); // Linking an empty doc is needed for some functions
+    Data::JSON* emptyDoc = new Data::JSON("Empty JSON document for Invoke"); // Linking an empty doc is needed for some functions
 
     // Task Queue
     struct TaskQueue {

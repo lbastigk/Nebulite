@@ -68,7 +68,7 @@ void Input::map_key_names() {
 
             // Don't add if there are special chars in Nebulite::Constants::keyName
             if (!Utility::StringHandler::containsAnyOf(
-                keyName, Utility::JSON::reservedCharacters)) {
+                keyName, Data::JSON::reservedCharacters)) {
                 keyNames[scancode] = keyName;
 
                 // Paths

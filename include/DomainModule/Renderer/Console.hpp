@@ -16,7 +16,7 @@
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
-#include "Utility/JSON.hpp"
+#include "../../Data/JSON.hpp"
 #include "Utility/TextInput.hpp"
 
 //------------------------------------------
@@ -277,7 +277,7 @@ private:
     //------------------------------------------
     // References
     SDL_Renderer* renderer = nullptr;
-    Utility::JSON* globalDoc = nullptr;
+    Data::JSON* globalDoc = nullptr;
 
     //------------------------------------------
     // Text input handling

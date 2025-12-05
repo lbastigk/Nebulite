@@ -23,7 +23,7 @@ public:
      * @brief Constructs a new Texture domain.
      * @param documentPtr Pointer to the JSON document for this domain.
      */
-    explicit Texture(Utility::JSON* documentPtr);
+    explicit Texture(Data::JSON* documentPtr);
 
     /**
      * @brief Destroys the Texture and frees resources.

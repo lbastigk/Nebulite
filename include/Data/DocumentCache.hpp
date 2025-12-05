@@ -1,11 +1,10 @@
 /**
  * @file DocumentCache.hpp
- * 
  * @brief This file contains the DocumentCache class for managing cached, read-only documents.
  */
 
-#ifndef NEBULITE_UTILITY_DOCUMENTCACHE_HPP
-#define NEBULITE_UTILITY_DOCUMENTCACHE_HPP
+#ifndef NEBULITE_DATA_DOCUMENTCACHE_HPP
+#define NEBULITE_DATA_DOCUMENTCACHE_HPP
 
 //------------------------------------------
 // Includes
@@ -14,13 +13,13 @@
 #include <stdexcept>
 
 // Nebulite
-#include "Utility/ReadOnlyDocs.hpp"
+#include "ReadOnlyDocs.hpp"
 
 //------------------------------------------
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 
 /**
- * @class Nebulite::Utility::DocumentCache
+ * @class Nebulite::Data::DocumentCache
  * @brief Caches documents as read-only for quick access of resources.
  * 
  * This class provides methods to retrieve data from cached documents efficiently.
@@ -64,18 +63,18 @@ public:
      * @param doc_key The link and key of the sub-document to retrieve.
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
      */
-    Nebulite::Utility::JSON getSubDoc(std::string const& doc_key){
+    Nebulite::Data::JSON getSubDoc(std::string const& doc_key){
         auto [doc, key] = splitDocKey(doc_key);
 
-        Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+        Nebulite::Data::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr){
-            return Nebulite::Utility::JSON{}; // Return empty JSON if document loading fails
+            return Nebulite::Data::JSON{}; // Return empty JSON if document loading fails
         }
 
         // Retrieve the sub-document from the document
-        Nebulite::Utility::JSON data = docPtr->document.getSubDoc(key);
+        Nebulite::Data::JSON data = docPtr->document.getSubDoc(key);
 
         // Update the cache (unload old documents)
         update();
@@ -107,18 +106,18 @@ public:
      * @param doc_key The document and its key to check.
      * @return The type of the key.
      */
-    Nebulite::Utility::JSON::KeyType memberType(std::string const& doc_key){
+    Nebulite::Data::JSON::KeyType memberType(std::string const& doc_key){
         auto [doc, key] = splitDocKey(doc_key);
 
-        Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+        Nebulite::Data::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr){
-            return Nebulite::Utility::JSON::KeyType::null; // Return null if document loading fails
+            return Nebulite::Data::JSON::KeyType::null; // Return null if document loading fails
         }
 
         // Retrieve the key type from the document
-        Nebulite::Utility::JSON::KeyType const type = docPtr->document.memberType(key);
+        Nebulite::Data::JSON::KeyType const type = docPtr->document.memberType(key);
 
         // Update the cache (unload old documents)
         update();
@@ -142,7 +141,7 @@ public:
     size_t memberSize(std::string const& doc_key){
         auto [doc, key] = splitDocKey(doc_key);
 
-        Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+        Nebulite::Data::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr){
@@ -168,7 +167,7 @@ public:
     std::string serialize(std::string const& doc_key){
         auto [doc, key] = splitDocKey(doc_key);
 
-        Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+        Nebulite::Data::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr){
@@ -176,7 +175,7 @@ public:
         }
 
         // Retrieve the sub-document from the document
-        Nebulite::Utility::JSON data = docPtr->document.getSubDoc(key);
+        Nebulite::Data::JSON data = docPtr->document.getSubDoc(key);
 
         // Update the cache (unload old documents)
         update();
@@ -192,11 +191,11 @@ public:
      * @return The serialized JSON string of the entire document.
      */
     std::string getDocString(std::string const& link){
-        Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(link);
+        Nebulite::Data::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(link);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr){
-            return Nebulite::Utility::JSON().serialize(); // Return empty JSON if document loading fails
+            return Nebulite::Data::JSON().serialize(); // Return empty JSON if document loading fails
         }
 
         // Return string of document:
@@ -212,7 +211,7 @@ private:
     /**
      * @brief Read-only document cache.
      */
-    Nebulite::Utility::ReadOnlyDocs readOnlyDocs;
+    Nebulite::Data::ReadOnlyDocs readOnlyDocs;
 
     // Default value for double pointers, if the document or key is not found
     /**
@@ -245,16 +244,16 @@ private:
      */
     void update();
 };
-} // namespace Nebulite::Utility 
+} // namespace Nebulite::Data
 
 //------------------------------------------
 // Definitions of template functions
 
 template  <typename T> 
-T Nebulite::Utility::DocumentCache::get(std::string const& doc_key, T const& defaultValue){
+T Nebulite::Data::DocumentCache::get(std::string const& doc_key, T const& defaultValue){
     auto [doc, key] = splitDocKey(doc_key);
 
-    Nebulite::Utility::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+    Nebulite::Data::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
     // Check if the document exists in the cache
     if (docPtr == nullptr){
@@ -271,4 +270,4 @@ T Nebulite::Utility::DocumentCache::get(std::string const& doc_key, T const& def
     return data; // Use the JSON get method to retrieve the value
 }
 
-#endif // NEBULITE_UTILITY_DOCUMENTCACHE_HPP
+#endif // NEBULITE_DATA_DOCUMENTCACHE_HPP

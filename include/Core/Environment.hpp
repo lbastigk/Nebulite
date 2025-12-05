@@ -72,7 +72,7 @@ public:
     //------------------------------------------
     //Constructor
 
-    explicit Environment(Nebulite::Utility::JSON* documentPtr);
+    explicit Environment(Nebulite::Data::JSON* documentPtr);
 
     // Suppress copy/move operators
     Environment(Environment&& other) = delete;
