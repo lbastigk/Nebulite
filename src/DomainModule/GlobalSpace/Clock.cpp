@@ -21,7 +21,7 @@ void Clock::readClocksFromDocument() {
     clockEntries.clear();
 
     // Read all clocks from the document
-    if (domain->getDoc()->memberType(key_arr_active_clocks) != Utility::JSON::KeyType::array) {
+    if (domain->getDoc()->memberType(key_arr_active_clocks) != Data::JSON::KeyType::array) {
         // No clocks found, nothing to do
         return;
     }
@@ -30,7 +30,7 @@ void Clock::readClocksFromDocument() {
 
     for (uint64_t i = 0; i < size; i++) {
         std::string key = key_arr_active_clocks + "[" + std::to_string(i) + "]";
-        if (auto const interval_type = domain->getDoc()->memberType(key); interval_type != Utility::JSON::KeyType::value) {
+        if (auto const interval_type = domain->getDoc()->memberType(key); interval_type != Data::JSON::KeyType::value) {
             // Invalid entry, skip
             continue;
         }
@@ -95,7 +95,7 @@ std::string const Clock::key_doc_status_clocks = "clocks.status";
 //------------------------------------------
 // ClockEntry
 
-Clock::ClockEntry::ClockEntry(uint64_t const& interval, Utility::JSON* doc, uint64_t const& current_time) :
+Clock::ClockEntry::ClockEntry(uint64_t const& interval, Data::JSON* doc, uint64_t const& current_time) :
     last_trigger_ms(current_time),
     interval_ms(interval) {
     // Extract reference to global document entry

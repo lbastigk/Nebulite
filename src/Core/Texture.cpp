@@ -13,7 +13,7 @@
 
 namespace Nebulite::Core {
 
-Texture::Texture(Utility::JSON* documentPtr)
+Texture::Texture(Data::JSON* documentPtr)
     : Domain("Texture", this, documentPtr) {
     // Start with no texture
     texture = nullptr;

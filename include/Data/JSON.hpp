@@ -3,8 +3,8 @@
  * @brief A wrapper around rapidjson to simplify JSON manipulation in Nebulite.
  */
 
-#ifndef NEBULITE_UTILITY_JSON_HPP
-#define NEBULITE_UTILITY_JSON_HPP
+#ifndef NEBULITE_DATA_JSON_HPP
+#define NEBULITE_DATA_JSON_HPP
 
 //------------------------------------------
 // Includes
@@ -26,12 +26,12 @@
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Interaction/Execution/Domain.hpp"
-#include "Utility/JsonRvalueTransformer.hpp"
-#include "Utility/OrderedDoublePointers.hpp"
-#include "Utility/RjDirectAccess.hpp"
+#include "Data/JsonRvalueTransformer.hpp"
+#include "Data/OrderedDoublePointers.hpp"
+#include "Data/RjDirectAccess.hpp"
 
 //------------------------------------------
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 /**
  * @class JSON
  * @brief A wrapper around rapidjson to simplify JSON manipulation in Nebulite.
@@ -423,12 +423,12 @@ public:
     /**
      * @brief Deserializes a JSON string or loads from a file, with optional modifications.
      * @param serialOrLink The JSON string to deserialize or the file path to load from + optional functioncall transformations
-     *        Examples:
-     *        - `{"key": "value"}` - Deserializes a JSON string
-     *        - `file.json` - Loads a JSON file
-     *        - `file.json|set key1.key2[5] 100` - Loads a JSON file and sets a value
-     *        - `file.json|key1.key2[5]=100` - Legacy feature for setting a value
-     *        - `file.json|set-from-json key1.key2[5] otherFile.json:key` - Sets key1.key2[5] from the value of key in otherFile.json
+     *                     Examples:
+     *                     - `{"key": "value"}` - Deserializes a JSON string
+     *                     - `file.json` - Loads a JSON file
+     *                     - `file.json|set key1.key2[5] 100` - Loads a JSON file and sets a value
+     *                     - `file.json|key1.key2[5]=100` - Legacy feature for setting a value
+     *                     - `file.json|set-from-json key1.key2[5] otherFile.json:key` - Sets key1.key2[5] from the value of key in otherFile.json
      */
     void deserialize(std::string const& serialOrLink);
 
@@ -441,6 +441,6 @@ public:
      */
     MappedOrderedDoublePointers* getExpressionRefsAsOther();
 };
-} // namespace Nebulite::Utility
-#include "Utility/JSON.tpp"
-#endif // NEBULITE_UTILITY_JSON_HPP
+} // namespace Nebulite::Data
+#include "JSON.tpp"
+#endif // NEBULITE_DATA_JSON_HPP

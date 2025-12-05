@@ -144,7 +144,7 @@ void Nebulite::Interaction::Invoke::listen(Core::RenderObject* obj, std::string 
 //------------------------------------------
 // Value sets
 
-void Nebulite::Interaction::Invoke::setValueOfKey(Logic::Assignment::Operation operation, std::string const& key, std::string const& valStr, Utility::JSON* target) {
+void Nebulite::Interaction::Invoke::setValueOfKey(Logic::Assignment::Operation operation, std::string const& key, std::string const& valStr, Data::JSON* target) {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Logic::Assignment::Operation::set:
@@ -168,7 +168,7 @@ void Nebulite::Interaction::Invoke::setValueOfKey(Logic::Assignment::Operation o
     }
 }
 
-void Nebulite::Interaction::Invoke::setValueOfKey(Logic::Assignment::Operation operation, std::string const& key, double const& value, Utility::JSON* target) {
+void Nebulite::Interaction::Invoke::setValueOfKey(Logic::Assignment::Operation operation, std::string const& key, double const& value, Data::JSON* target) {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Logic::Assignment::Operation::set:
@@ -223,7 +223,7 @@ void Nebulite::Interaction::Invoke::applyAssignment(Logic::Assignment& assignmen
     //------------------------------------------
     // Check what the target document to apply the ruleset to is
 
-    Utility::JSON* targetDocument = nullptr;
+    Data::JSON* targetDocument = nullptr;
     switch (assignment.onType) {
     case Logic::Assignment::Type::Self:
         targetDocument = Obj_self->getDoc();
@@ -263,7 +263,7 @@ void Nebulite::Interaction::Invoke::applyAssignment(Logic::Assignment& assignmen
             }
 
             // Try to use unique id for quick access
-            if (assignment.targetKeyUniqueId < Utility::JSON::uidQuickCacheSize) {
+            if (assignment.targetKeyUniqueId < Data::JSON::uidQuickCacheSize) {
                 target = targetDocument->getUidDoublePointer(assignment.targetKeyUniqueId, assignment.key);
             }
             // Fallback to normal method via key to double pointer
@@ -365,8 +365,8 @@ void Nebulite::Interaction::Invoke::update() {
 // String evaluation
 
 std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::string const& input) const {
-    Utility::JSON* docSelf = this->emptyDoc; // no self context
-    Utility::JSON* docOther = this->emptyDoc; // no other context
+    Data::JSON* docSelf = this->emptyDoc; // no self context
+    Data::JSON* docOther = this->emptyDoc; // no other context
 
     // Parse string into Expression
     Logic::ExpressionPool expr;
@@ -376,8 +376,8 @@ std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::str
 
 std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::string const& input, Core::RenderObject const* selfAndOther) const {
     // Expression is evaluated within a domain's context, use it as self and other
-    Utility::JSON* docSelf = selfAndOther->getDoc();
-    Utility::JSON* docOther = selfAndOther->getDoc();
+    Data::JSON* docSelf = selfAndOther->getDoc();
+    Data::JSON* docOther = selfAndOther->getDoc();
 
     // Parse string into Expression
     Logic::ExpressionPool expr;
@@ -388,8 +388,8 @@ std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::str
 // Double evaluation
 
 double Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsDouble(std::string const& input) const {
-    Utility::JSON* docSelf = this->emptyDoc; // no self context
-    Utility::JSON* docOther = this->emptyDoc; // no other context
+    Data::JSON* docSelf = this->emptyDoc; // no self context
+    Data::JSON* docOther = this->emptyDoc; // no other context
 
     // Parse string into Expression
     Logic::ExpressionPool expr;
@@ -399,8 +399,8 @@ double Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsDouble(std::
 
 double Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsDouble(std::string const& input, Core::RenderObject const* selfAndOther) const {
     // Expression is evaluated within a domain's context, use it as self and other
-    Utility::JSON* docSelf = selfAndOther->getDoc();
-    Utility::JSON* docOther = selfAndOther->getDoc();
+    Data::JSON* docSelf = selfAndOther->getDoc();
+    Data::JSON* docOther = selfAndOther->getDoc();
 
     // Parse string into Expression
     Logic::ExpressionPool expr;
@@ -411,8 +411,8 @@ double Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsDouble(std::
 // Boolean evaluation
 
 bool Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsBool(std::string const& input) const {
-    Utility::JSON* docSelf = this->emptyDoc; // no self context
-    Utility::JSON* docOther = this->emptyDoc; // no other context
+    Data::JSON* docSelf = this->emptyDoc; // no self context
+    Data::JSON* docOther = this->emptyDoc; // no other context
 
     // Parse string into Expression
     Logic::ExpressionPool expr;
@@ -428,8 +428,8 @@ bool Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsBool(std::stri
 
 bool Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsBool(std::string const& input, Core::RenderObject const* selfAndOther) const {
     // Expression is evaluated within a domain's context, use it as self and other
-    Utility::JSON* docSelf = selfAndOther->getDoc();
-    Utility::JSON* docOther = selfAndOther->getDoc();
+    Data::JSON* docSelf = selfAndOther->getDoc();
+    Data::JSON* docOther = selfAndOther->getDoc();
 
     // Parse string into Expression
     Logic::ExpressionPool expr;

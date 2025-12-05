@@ -15,13 +15,13 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 class JSON;
-} // namespace Nebulite::Utility
+} // namespace Nebulite::Data
 
 //------------------------------------------
 namespace Nebulite::DomainModule::JSON {
-NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, Debug) {
+NEBULITE_DOMAINMODULE(Nebulite::Data::JSON, Debug) {
 public:
     /**
      * @brief Override of update.
@@ -50,7 +50,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, Debug) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JSON, Debug) {
         // Binding
         bindFunction(&Debug::print, print_name, &print_desc);
     }

@@ -406,7 +406,7 @@ Nebulite::Interaction::Logic::Expression::Expression() {
     reset();
 }
 
-void Nebulite::Interaction::Logic::Expression::parse(std::string const& expr, Utility::JSON* self) {
+void Nebulite::Interaction::Logic::Expression::parse(std::string const& expr, Data::JSON* self) {
     reset();
     references.self = self;
     fullExpression = expr;
@@ -426,7 +426,7 @@ void Nebulite::Interaction::Logic::Expression::parse(std::string const& expr, Ut
     varNameGen.clear();
 }
 
-bool Nebulite::Interaction::Logic::Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Utility::JSON* current_other, uint16_t const& maximumRecursionDepth) const {
+bool Nebulite::Interaction::Logic::Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Data::JSON* current_other, uint16_t const& maximumRecursionDepth) const {
     std::string key = component->key;
     Component::From context = component->from;
 
@@ -524,7 +524,7 @@ void Nebulite::Interaction::Logic::Expression::handleComponentTypeEval(std::stri
     }
 }
 
-std::string Nebulite::Interaction::Logic::Expression::eval(Utility::JSON* current_other, uint16_t const& max_recursion_depth) {
+std::string Nebulite::Interaction::Logic::Expression::eval(Data::JSON* current_other, uint16_t const& max_recursion_depth) {
     //------------------------------------------
     // Update caches so that tinyexpr has the correct references
     updateCaches(current_other);
@@ -561,7 +561,7 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Utility::JSON* curren
     return result;
 }
 
-double Nebulite::Interaction::Logic::Expression::evalAsDouble(Utility::JSON* current_other) {
+double Nebulite::Interaction::Logic::Expression::evalAsDouble(Data::JSON* current_other) {
     // Update caches so that tinyexpr has the correct references
     updateCaches(current_other);
 
@@ -569,46 +569,7 @@ double Nebulite::Interaction::Logic::Expression::evalAsDouble(Utility::JSON* cur
     return te_eval(components[0]->expression);
 }
 
-odpvec* Nebulite::Interaction::Logic::Expression::ensureOtherOrderedCacheList(Utility::JSON* reference) {
-    auto const cache = reference->getExpressionRefsAsOther();
-    std::scoped_lock cache_lock(cache->mtx);
-
-    // Check if we can use quickcache, that does not rely on a hashmap lookup
-    if (uniqueId < Utility::MappedOrderedDoublePointers::quickCacheSize) {
-        if (cache->quickCache[uniqueId].orderedValues.empty()) {
-            // Not initialized yet, create one with exact size
-            Utility::OrderedDoublePointers newCacheList(virtualDoubles.nonRemanent.other.size());
-
-            // Populate list with all virtual doubles from type other
-            for (auto const& vde : virtualDoubles.nonRemanent.other) {
-                double* ptr = reference->getStableDoublePointer(vde->getKey());
-                newCacheList.orderedValues.push_back(ptr);
-            }
-            cache->quickCache[uniqueId] = std::move(newCacheList);
-        }
-        return &cache->quickCache[uniqueId].orderedValues;
-    }
-
-    // If id is too large for quickcache, use hashmap
-    auto it = cache->map.find(uniqueId);
-
-    // If not, create one
-    if (it == cache->map.end()) {
-        Utility::OrderedDoublePointers newCacheList(virtualDoubles.nonRemanent.other.size());
-
-        // Populate list with all virtual doubles from type other
-        for (auto const& vde : virtualDoubles.nonRemanent.other) {
-            double* ptr = reference->getStableDoublePointer(vde->getKey());
-            newCacheList.orderedValues.push_back(ptr);
-        }
-
-        cache->map.emplace(uniqueId, std::move(newCacheList));
-        it = cache->map.find(uniqueId);
-    }
-    return &it->second.orderedValues;
-}
-
-void Nebulite::Interaction::Logic::Expression::updateCaches(Utility::JSON* reference) {
+void Nebulite::Interaction::Logic::Expression::updateCaches(Data::JSON* reference) {
 
     // Update self references that are non-remanent
     for (auto const& vde : virtualDoubles.nonRemanent.self) {
@@ -624,7 +585,7 @@ void Nebulite::Interaction::Logic::Expression::updateCaches(Utility::JSON* refer
     // Document other stores a list of ordered double pointers for our expression
     // So we only have one query to get all pointers instead of querying each variable individually
     if (!virtualDoubles.nonRemanent.other.empty()) {
-        auto const* listData = ensureOtherOrderedCacheList(reference)->data();
+        auto const* listData = reference->getExpressionRefsAsOther()->ensureOrderedCacheList(uniqueId, reference, virtualDoubles.nonRemanent.other)->data();
         const size_t count = virtualDoubles.nonRemanent.other.size();
         for (size_t i = 0; i < count; ++i) {
             virtualDoubles.nonRemanent.other[i]->setDirect(*listData[i]);

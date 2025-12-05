@@ -3,7 +3,7 @@
 #include "DomainModule/Initializer.hpp"
 #include "DomainModule/JSON/SimpleData.hpp"
 #include "Interaction/RulesetCompiler.hpp"
-#include "Utility/JSON.hpp"
+#include "../../include/Data/JSON.hpp"
 
 namespace Nebulite::Core {
 
@@ -112,7 +112,7 @@ std::string RenderObject::serialize() {
 
 void RenderObject::deserialize(std::string const& serialOrLink) {
     // Check if argv1 provided is an object
-    if (Utility::JSON::isJsonOrJsonc(serialOrLink)) {
+    if (Data::JSON::isJsonOrJsonc(serialOrLink)) {
         document.deserialize(serialOrLink);
     } else {
         //------------------------------------------

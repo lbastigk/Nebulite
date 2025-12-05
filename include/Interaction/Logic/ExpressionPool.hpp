@@ -79,7 +79,7 @@ public:
      * @param expr The expression to parse.
      * @param self The JSON object representing the "self" context.
      */
-    void parse(std::string const& expr, Utility::JSON* self){
+    void parse(std::string const& expr, Data::JSON* self){
         static_assert(INVOKE_EXPR_POOL_SIZE > 0, "INVOKE_EXPR_POOL_SIZE must be greater than 0");
 
         fullExpression = expr;
@@ -105,7 +105,7 @@ public:
      * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a string.
      */
-    std::string eval(Utility::JSON* current_other){
+    std::string eval(Data::JSON* current_other){
         thread_local size_t const idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % INVOKE_EXPR_POOL_SIZE;
         std::scoped_lock const guard(locks[idx]);
         return pool[idx].eval(current_other);
@@ -117,7 +117,7 @@ public:
      * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a double.
      */
-    double evalAsDouble(Utility::JSON* current_other){
+    double evalAsDouble(Data::JSON* current_other){
         thread_local size_t const idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % INVOKE_EXPR_POOL_SIZE;
         std::scoped_lock const guard(locks[idx]);
         return pool[idx].evalAsDouble(current_other);

@@ -1,5 +1,5 @@
 #include "DomainModule/JSON/ForceValue.hpp"
-#include "Utility/JSON.hpp"
+#include "../../../include/Data/JSON.hpp"
 
 namespace Nebulite::DomainModule::JSON {
 

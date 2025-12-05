@@ -26,7 +26,7 @@
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 // We cannot include JSON directly due to circular dependencies,
 // as JSON itself is a domain.
 class JSON;
@@ -43,7 +43,7 @@ namespace Nebulite::Interaction::Execution {
  */
 class DomainBase {
 public:
-    DomainBase(std::string const& name, Utility::JSON* documentPtr)
+    DomainBase(std::string const& name, Data::JSON* documentPtr)
         : domainName(name), document(documentPtr),
           funcTree(std::make_shared<FuncTree<Constants::Error>>(
               name,
@@ -151,7 +151,7 @@ public:
      *        For others, it's a reference to their JSON document.
      * @return A pointer to the internal JSON document.
      */
-    [[nodiscard]] Utility::JSON* getDoc() const { return document; }
+    [[nodiscard]] Data::JSON* getDoc() const { return document; }
 
     /**
      * @brief Gets the name of the domain.
@@ -180,7 +180,7 @@ private:
      *        We use a pointer here, as the JSON class itself is a domain.
      *        Meaning the internal JSON doc references to itself.
      */
-    Utility::JSON* const document;
+    Data::JSON* const document;
 
     /**
      * @brief Parsing interface for domain-specific commands.
@@ -219,7 +219,7 @@ private:
     DomainType* const domain;
 
 public:
-    Domain(std::string const& name, DomainType* domainTypePtr, Utility::JSON* documentPtr)
+    Domain(std::string const& name, DomainType* domainTypePtr, Data::JSON* documentPtr)
         : DomainBase(name, documentPtr), domain(domainTypePtr) {
     }
 

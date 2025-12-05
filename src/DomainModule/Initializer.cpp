@@ -6,7 +6,7 @@
 #include "Core/Renderer.hpp"
 #include "Core/Texture.hpp"
 #include "Core/RenderObject.hpp"
-#include "Utility/JSON.hpp"
+#include "../../include/Data/JSON.hpp"
 
 //------------------------------------------
 // DomainModules
@@ -78,7 +78,7 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     target->bindVariable(&target->cmdVars.recover, "recover", &recover_desc);
 }
 
-void Initializer::initJSON(Utility::JSON* target) {
+void Initializer::initJSON(Data::JSON* target) {
     // Initialize DomainModules
     using namespace Nebulite::DomainModule::JSON;
     target->initModule<SimpleData>("JSON Simple Data Functions");

@@ -14,8 +14,8 @@
 // Includes
 
 // Nebulite
-#include "Utility/DocumentCache.hpp"
-#include "Utility/JSON.hpp"
+#include "Data/DocumentCache.hpp"
+#include "Data/JSON.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -90,7 +90,7 @@ public:
      * 
      * @param json The JSON document pointer to retrieve the value from. If the pointer is null, we retrieve the value from the document cache.
      */
-    void setUpInternalCache(Utility::JSON* json);
+    void setUpInternalCache(Data::JSON* json);
 
     /**
      * @brief Register the external cache for this VirtualDouble.
@@ -98,7 +98,7 @@ public:
      * This function links the VirtualDouble to an external double pointer of a JSON document, instead of using its internal cache.
      * allowing it to access and modify the value directly.
      */
-    void setUpExternalCache(Utility::JSON* json);
+    void setUpExternalCache(Data::JSON* json);
 
     /**
      * @brief Set the value of the VirtualDouble directly.

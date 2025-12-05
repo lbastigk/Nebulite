@@ -20,7 +20,7 @@
 
 // Nebulite
 #include "Interaction/Logic/VirtualDouble.hpp"
-#include "Utility/DocumentCache.hpp"
+#include "../../Data/DocumentCache.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -61,7 +61,7 @@ public:
      * @param expr The expression string to parse.
      * @param self The JSON object representing the "self" context.
      */
-    void parse(std::string const& expr, Utility::JSON* self);
+    void parse(std::string const& expr, Data::JSON* self);
 
     /**
      * @brief Checks if the expression can be returned as a double.
@@ -89,7 +89,7 @@ public:
      * @param current_other The JSON object `other` to evaluate against.
      * @return The evaluated double value.
      */
-    double evalAsDouble(Utility::JSON* current_other);
+    double evalAsDouble(Data::JSON* current_other);
     
     /**
      * @brief Evaluates the expression as a string.
@@ -97,7 +97,7 @@ public:
      * @param max_recursion_depth The maximum recursion depth to prevent infinite loops in nested evaluations.
      * @return The evaluated string value.
      */
-    std::string eval(Utility::JSON* current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth);
+    std::string eval(Data::JSON* current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth);
 
     /**
      * @brief Gets the full expression string that was parsed.
@@ -134,7 +134,7 @@ public:
 
 private:
     struct References{
-        Utility::JSON* self = nullptr;
+        Data::JSON* self = nullptr;
     } references;
 
     /**
@@ -573,19 +573,7 @@ private:
     /**
      * @brief Updates caches
      */
-    void updateCaches(Utility::JSON* reference);
-
-    /**
-     * @brief Ensures the existence of an ordered cache list of double pointers for "other" context variables.
-     *        Checks if the current "other" reference JSON document contains a cached, ordered list of double pointers
-     *        corresponding to all variables referenced by this Expression in the "other" context. If the cache entry does not exist,
-     *        it is created and populated for fast indexed access during expression evaluation.
-     *        This caching mechanism is critical for Nebulite's high-performance expression system, as it avoids repeated
-     *        string lookups and pointer resolutions for variables in other objects, enabling near O(1) access.
-     * @param reference The JSON document representing the "other" context for variable resolution.
-     * @return A pointer to the ordered vector of double pointers for the referenced "other" variables.
-     */
-    odpvec* ensureOtherOrderedCacheList(Utility::JSON* reference);
+    void updateCaches(Data::JSON* reference);
 
     /**
      * @brief Handles the evaluation of a variable component.
@@ -595,7 +583,7 @@ private:
      * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
      * @return True if the evaluation was successful, false otherwise.
      */
-    bool handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Utility::JSON* current_other, uint16_t const& maximumRecursionDepth) const ;
+    bool handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Data::JSON* current_other, uint16_t const& maximumRecursionDepth) const ;
 
     /**
      * @brief Handles the evaluation of an eval component.

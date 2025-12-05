@@ -1,6 +1,6 @@
 /**
  * @file SimpleData.hpp
- * @brief DomainModule for simple data operations on domain class Nebulite::Utility::JSON
+ * @brief DomainModule for simple data operations on domain class Nebulite::Data::JSON
  */
 
 #ifndef NEBULITE_JSDM_SIMPLEDATA_HPP
@@ -15,18 +15,18 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 class JSON;
-} // namespace Nebulite::Utility
+} // namespace Nebulite::Data
 
 
 //------------------------------------------
 namespace Nebulite::DomainModule::JSON {
 /**
  * @class Nebulite::DomainModule::JSON::SimpleData
- * @brief DomainModule for simple data operations on domain class Nebulite::Utility::JSON
+ * @brief DomainModule for simple data operations on domain class Nebulite::Data::JSON
  */
-NEBULITE_DOMAINMODULE(Nebulite::Utility::JSON, SimpleData) {
+NEBULITE_DOMAINMODULE(Nebulite::Data::JSON, SimpleData) {
 public:
     /**
      * @brief Override of update.
@@ -141,7 +141,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Utility::JSON, SimpleData) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JSON, SimpleData) {
         // Bind functions specific to complex data handling
         bindFunction(&SimpleData::set, set_name, &set_desc);
 

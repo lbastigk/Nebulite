@@ -1,13 +1,11 @@
-#include "Utility/JSON.hpp"
-
 #include <cfloat>
 
+#include "Nebulite.hpp"
 #include "Constants/ErrorTypes.hpp"
+#include "Data/JSON.hpp"
 #include "DomainModule/Initializer.hpp"
 
-#include "Nebulite.hpp"
-
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 
 std::string const JSON::reservedCharacters = "[]{}.|\":";
 
@@ -196,7 +194,7 @@ JSON JSON::getSubDoc(std::string const& key) {
 }
 
 bool JSON::getSubDocWithTransformations(std::string const& key, JSON& outDoc) {
-    auto args = StringHandler::split(key, '|');
+    auto args = Utility::StringHandler::split(key, '|');
     std::string const baseKey = args[0];
     args.erase(args.begin());
 
@@ -375,7 +373,7 @@ void JSON::deserialize(std::string const& serialOrLink) {
         tokens.push_back(serialOrLink);
     } else {
         // Split based on transformations, indicated by '|'
-        tokens = StringHandler::split(serialOrLink, '|');
+        tokens = Utility::StringHandler::split(serialOrLink, '|');
     }
 
     //------------------------------------------

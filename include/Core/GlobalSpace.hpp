@@ -256,7 +256,7 @@ public:
      * @brief Gets a pointer to the global document cache.
      * @return Pointer to the DocumentCache instance.
      */
-    Utility::DocumentCache* getDocCache() { return &docCache; }
+    Data::DocumentCache* getDocCache() { return &docCache; }
 
     //------------------------------------------
     // Public Variables
@@ -350,10 +350,10 @@ private:
     bool continueLoop = true;
 
     // Global JSON Document
-    Utility::JSON document;
+    Data::JSON document;
 
     // DocumentCache for read-only documents
-    Utility::DocumentCache docCache;
+    Data::DocumentCache docCache;
 
     // Renderer
     Renderer renderer;

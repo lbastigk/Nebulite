@@ -1,12 +1,12 @@
 /**
  * @file JsonRvalueTransformer.hpp
- * @brief Utility class for modifying JSON return value keys.
+ * @brief Data class for modifying JSON return value keys.
  *        JSON(key) -> value | transformation on value | transformation on value ... -> new value
  *        This allows for dynamic modification of JSON values during retrieval.
  */
 
-#ifndef NEBULITE_UTILITY_JSON_RVALUE_TRANSFORMER_HPP
-#define NEBULITE_UTILITY_JSON_RVALUE_TRANSFORMER_HPP
+#ifndef NEBULITE_DATA_JSON_RVALUE_TRANSFORMER_HPP
+#define NEBULITE_DATA_JSON_RVALUE_TRANSFORMER_HPP
 
 //------------------------------------------
 // Includes
@@ -22,12 +22,12 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 class JSON;
 }
 
 //------------------------------------------
-namespace Nebulite::Utility {
+namespace Nebulite::Data {
 class JsonRvalueTransformer {
 private:
     /**
@@ -177,5 +177,5 @@ public:
     bool parse(std::vector<std::string> const& args, JSON* jsonDoc);
 };
 
-} // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_JSON_RVALUE_TRANSFORMER_HPP
+} // namespace Nebulite::Data
+#endif // NEBULITE_DATA_JSON_RVALUE_TRANSFORMER_HPP
