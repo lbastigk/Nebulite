@@ -27,6 +27,7 @@ namespace Nebulite::Data {
 struct ReadOnlyDoc {
     Nebulite::Data::JSON document;          // The actual JSON document
     Nebulite::Utility::TimeKeeper lastUsed; // TimeKeeper to track last access time
+    std::string serial;
     ReadOnlyDoc() = default;
 };
 
@@ -106,6 +107,7 @@ public:
                 return nullptr;
             }
             result.first->second.document.deserialize(serial);
+            result.first->second.serial = serial;
             it = result.first;
         }
         ReadOnlyDoc* docPtr = &it->second;

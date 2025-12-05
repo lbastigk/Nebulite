@@ -150,14 +150,18 @@ public:
             return "{}"; // Return empty JSON object if document loading fails
         }
 
-        // Retrieve the sub-document from the document
-        Nebulite::Data::JSON data = docPtr->document.getSubDoc(key);
-
-        // Update the cache (unload old documents)
+        // if key is empty, return entire document
+        std::string data;
+        if (key.empty()) {
+            data = docPtr->serial;
+        }
+        else {
+            // Retrieve the sub-document from the document
+            Nebulite::Data::JSON subDoc = docPtr->document.getSubDoc(key);
+            data = subDoc.serialize();
+        }
         update();
-
-        // Return key:
-        return data.serialize(); // Use the JSON get method to retrieve the value
+        return data;
     }
 
     /**
