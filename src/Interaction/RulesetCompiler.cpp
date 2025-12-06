@@ -226,7 +226,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
     // Get size of entries
     size_t const size = doc->memberSize(Constants::keyName.renderObject.invokes);
     if (size == 0) {
-        // Object has no invokes
+        // Object has no rulesets
         return;
     }
 
@@ -295,7 +295,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
         Ruleset->selfPtr = self; // Set self pointer
         if (Ruleset->topic.empty()) {
             // If topic is empty, it is a local invoke
-            Ruleset->isGlobal = false; // Set isGlobal to false for local invokes
+            Ruleset->isGlobal = false; // Set isGlobal to false for local rulesets
             rulesetsLocal.push_back(Ruleset);
         } else {
             rulesetsGlobal.push_back(Ruleset);
