@@ -1,6 +1,9 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cmath>
+
 // Nebulite
 #include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
@@ -67,7 +70,7 @@ bool Invoke::checkRulesetLogicalCondition(std::shared_ptr<Ruleset> const& cmd, C
         return true;
 
     double const result = cmd->logicalArg.evalAsDouble(otherObj->getDoc());
-    if (isnan(result)) {
+    if (std::isnan(result)) {
         // We consider NaN as false
         return false;
     }
@@ -153,7 +156,14 @@ void Invoke::applyFunctionCalls(std::shared_ptr<Ruleset> const& ruleset, Core::R
     }
 }
 
-void Invoke::applyRulesets(std::shared_ptr<Ruleset> const& entries_self, Core::RenderObject const* Obj_other) const {
+void Invoke::applyRulesets(std::shared_ptr<Ruleset> const& entries_self, Core::RenderObject* Obj_other) const {
+    if (entries_self->staticFunction != nullptr) {
+        // Static function, just call it
+        Nebulite::Interaction::Context context{*entries_self->selfPtr, *Obj_other, Nebulite::global()};
+        entries_self->staticFunction(context);
+        return;
+    }
+
     // References
     Core::RenderObject const* Obj_self = entries_self->selfPtr;
 
@@ -254,7 +264,7 @@ bool Invoke::evaluateStandaloneExpressionAsBool(std::string const& input) const 
     Logic::ExpressionPool expr;
     expr.parse(input, docSelf);
     double const result = expr.evalAsDouble(docOther);
-    if (isnan(result)) {
+    if (std::isnan(result)) {
         // We consider NaN as false
         return false;
     }
@@ -271,7 +281,7 @@ bool Invoke::evaluateStandaloneExpressionAsBool(std::string const& input, Core::
     Logic::ExpressionPool expr;
     expr.parse(input, docSelf);
     double const result = expr.evalAsDouble(docOther);
-    if (isnan(result)) {
+    if (std::isnan(result)) {
         // We consider NaN as false
         return false;
     }

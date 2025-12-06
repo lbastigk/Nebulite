@@ -12,6 +12,7 @@
 // Nebulite
 #include "Interaction/Logic/Assignment.hpp"
 #include "Interaction/Logic/ExpressionPool.hpp"
+#include "Interaction/StaticRulesets.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -42,6 +43,9 @@ struct Ruleset {
      * Due to the large checks needed for `all`, it should only be used when absolutely necessary.
      */
     std::string topic = "all";
+
+    //------------------------------------------
+    // 1.) Fields for basic json-defined rulesets
 
     /**
      * @brief The id of the object that owns this entry; the `self` domain.
@@ -119,6 +123,11 @@ struct Ruleset {
             estimatedCost += static_cast<size_t>(std::ranges::count(value.begin(), value.end(), '{'));
         }
     }
+
+    //------------------------------------------
+    // 2.) Fields for static rulesets
+
+    StaticRulesetFunction staticFunction = nullptr;
 
     //------------------------------------------
     // Make Entry non-copyable and non-movable

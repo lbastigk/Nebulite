@@ -32,7 +32,7 @@ class JSON;
 }
 
 namespace Nebulite::Interaction {
-class Ruleset;
+struct Ruleset;
 }
 
 namespace Nebulite::Interaction::Logic {
@@ -336,7 +336,7 @@ private:
      * @param entries_self The invoke entries for the self domain.
      * @param Obj_other The render object in the other domain to update.
      */
-    void applyRulesets(std::shared_ptr<Ruleset> const& entries_self, Core::RenderObject const* Obj_other) const;
+    void applyRulesets(std::shared_ptr<Ruleset> const& entries_self, Core::RenderObject* Obj_other) const;
 
     /**
      * @brief Applies a single assignment from a ruleset.
