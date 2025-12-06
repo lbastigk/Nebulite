@@ -1,11 +1,4 @@
-
-
-
-namespace Interaction::Rules {
-
+namespace Nebulite::Interaction::Rules {
 class StaticRulesetMap;
-
-void RulesetMapInit(StaticRulesetMap const& container) {
-    // container.bind...
-}
+void rulesetMapInit(StaticRulesetMap* srm);
 }   // namespace Interaction::Rules

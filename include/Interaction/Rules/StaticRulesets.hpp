@@ -9,6 +9,7 @@
 
 //------------------------------------------
 // Includes
+#include <functional>
 
 // Standard library
 
@@ -16,6 +17,8 @@
 #include "absl/container/flat_hash_map.h"
 
 // Nebulite
+#include "Nebulite.hpp"
+#include "Interaction/Rules/RulesetMapInitializer.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -34,13 +37,6 @@ namespace Nebulite::Interaction::Rules {
 //------------------------------------------
 // Defining what a ruleset function looks like
 
-struct CoreContext {
-    Nebulite::Interaction::Execution::DomainBase& self;
-    Nebulite::Interaction::Execution::DomainBase& other;
-    Nebulite::Interaction::Execution::DomainBase& global;
-    // TODO: Parent context?
-};
-
 struct Context {
     Nebulite::Core::RenderObject& self;
     Nebulite::Core::RenderObject& other;
@@ -48,10 +44,7 @@ struct Context {
     // TODO: Parent context?
 };
 
-// Basically: foo(context)
-// Using basic function pointer syntax for maximum compatibility
-using StaticRulesetFunctionCore = void(*)(CoreContext const& context);
-using StaticRulesetFunction = void(*)(Context const& context);
+using StaticRulesetFunction = std::function<void(const Context&)>;
 
 
 //------------------------------------------
@@ -75,8 +68,7 @@ public:
             "",
             nullptr
         };
-        // TODO: Preload any built-in static rulesets here
-        //       like domainModules, using an initializer function
+        rulesetMapInit(this);
     }
 
     /**
@@ -117,7 +109,6 @@ public:
 
 private:
     absl::flat_hash_map<std::string, StaticRuleSetWithMetaData> container;
-
     StaticRuleSetWithMetaData invalidEntry;
 };
 } // namespace Nebulite::Interaction::Rules

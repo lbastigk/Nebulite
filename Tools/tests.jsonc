@@ -24,7 +24,8 @@
         "Tools/Tests/JSON/Retrieval.json",
         "Tools/Tests/JSON/RvalueTransformer.json",
         "Tools/Tests/scenes.json",
-        "Tools/Tests/mirror_draft_selection.json"
+        "Tools/Tests/mirror_draft_selection.json",
+        "Tools/Tests/StaticRulesets/DebugUtils.json"
     ],
     "timeout": 40
 }

@@ -158,8 +158,12 @@ bool RulesetCompiler::getRuleset(Data::JSON& doc, Data::JSON& entry, std::string
         entry = doc.getSubDoc(key);
     } else {
         // Is perhaps link to document
-        auto const link = doc.get<std::string>(key, "");
-        std::string const file = Nebulite::global().getDocCache()->getDocString(link);
+        auto const potentialLink = doc.get<std::string>(key, "");
+        if (potentialLink.starts_with("::")) {
+            // Is a static ruleset, return false
+            return false;
+        }
+        std::string const file = Nebulite::global().getDocCache()->getDocString(potentialLink);
 
         if (file.empty()) {
             return false;
@@ -244,6 +248,7 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
             if (staticRulesetEntry.type != StaticRulesetMap::StaticRuleSetWithMetaData::Type::invalid) {
                 // Create a new Ruleset object
                 auto Ruleset = std::make_shared<Interaction::Rules::Ruleset>();
+                Ruleset->logicalArg.parse("$(1)", self->getDoc()); // Always true logical arg for static rulesets
                 Ruleset->topic = staticRulesetEntry.topic;
                 Ruleset->isGlobal = (staticRulesetEntry.type == StaticRulesetMap::StaticRuleSetWithMetaData::Type::Global);
                 Ruleset->staticFunction = staticRulesetEntry.function;
@@ -259,7 +264,7 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
             }
             // Skip this entry if it cannot be parsed
             // Warn user of invalid entry
-            Nebulite::cerr() << "Warning: could not parse Ruleset entry with key '" << key << "'. Skipping entry." << Nebulite::endl;
+            Nebulite::cerr() << "Warning: could not parse Ruleset entry with string '" << staticFunctionName << "'. Skipping entry." << Nebulite::endl;
             continue;
         }
 
