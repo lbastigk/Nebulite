@@ -255,7 +255,10 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
                 }
                 continue; // Move to next entry
             }
-            continue; // Skip this entry if it cannot be parsed
+            // Skip this entry if it cannot be parsed
+            // Warn user of invalid entry
+            Nebulite::cerr() << "Warning: could not parse Ruleset entry with key '" << key << "'. Skipping entry." << Nebulite::endl;
+            continue;
         }
 
         // Parse into a structure
