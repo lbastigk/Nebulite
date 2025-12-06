@@ -3,10 +3,12 @@
 
 #include "Nebulite.hpp"
 
+namespace Nebulite::Interaction {
+
 //------------------------------------------
 // Constructor / Destructor
 
-Nebulite::Interaction::Invoke::Invoke() {
+Invoke::Invoke() {
     // Initialize synchronization primitives
     threadState.stopFlag = false;
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
@@ -21,40 +23,10 @@ Nebulite::Interaction::Invoke::Invoke() {
                 threadState.individualState[i].condition.wait(lock, [this, i] {
                     return threadState.individualState[i].workReady.load() || threadState.stopFlag.load();
                 });
-
+                // Process
                 if (threadState.stopFlag)
                     break;
-
-                // Process work
-                for (auto& map_other : std::views::values(broadcasted.entriesThisFrame[i].Container)) {
-                    for (auto& [isActive, rulesets] : std::views::values(map_other)) {
-                        if (!isActive)
-                            continue; // Skip if self did not broadcast this frame
-                        for (auto& [entry, listeners] : std::ranges::views::values(rulesets)) {
-                            for (auto it = listeners.begin(); it != listeners.end();) {
-                                if (it->second.active) {
-                                    applyRulesets(it->second.entry, it->second.Obj_other);
-                                    it->second.active = false; // Reset for next frame
-                                    ++it;
-                                } else {
-                                    // Probabilistic cleanup of inactive listeners
-                                    // Use thread_local RNG for better performance
-                                    // Since inactive listeners are rare, this should be fine
-                                    // Sort of self-regulating, as more inactive listeners lead to more frequent cleanups
-                                    if (thread_local std::mt19937 cleanup_rng(std::random_device{}()); cleanup_rng() % 100 == 0) {
-                                        listeners.erase(it++); // Remove inactive entry
-                                    } else {
-                                        it->second.active = false; // Just reset the flag
-                                        ++it;
-                                    }
-                                }
-                            }
-                        }
-                        isActive = false; // Reset for next frame
-                    }
-                }
-
-                // Signal work is finished
+                processWork(broadcasted.entriesThisFrame[i].Container);
                 threadState.individualState[i].workReady = false;
                 threadState.individualState[i].workFinished = true;
             }
@@ -62,11 +34,9 @@ Nebulite::Interaction::Invoke::Invoke() {
     }
 }
 
-Nebulite::Interaction::Invoke::~Invoke() {
-    // Signal threads to stop
+Invoke::~Invoke() {
+    // Signal threads to stop and finish
     threadState.stopFlag = true;
-
-    // Wake up all threads and wait for them to finish
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
         threadState.individualState[i].condition.notify_one();
         if (threadrunners[i].joinable()) {
@@ -78,7 +48,7 @@ Nebulite::Interaction::Invoke::~Invoke() {
 //------------------------------------------
 // Checks
 
-bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Ruleset> const& cmd, Core::RenderObject const* otherObj) {
+bool Invoke::checkRulesetLogicalCondition(std::shared_ptr<Ruleset> const& cmd, Core::RenderObject const* otherObj) {
     // Check if logical arg is as simple as just "1", meaning true
     if (cmd->logicalArg.isAlwaysTrue())
         return true;
@@ -92,7 +62,7 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
     return std::abs(result) > std::numeric_limits<double>::epsilon();
 }
 
-bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr<Ruleset> const& cmd) {
+bool Invoke::checkRulesetLogicalCondition(std::shared_ptr<Ruleset> const& cmd) {
     // Use selfPtr as otherObj
     return checkRulesetLogicalCondition(cmd, cmd->selfPtr);
 }
@@ -100,7 +70,7 @@ bool Nebulite::Interaction::Invoke::checkRulesetLogicalCondition(std::shared_ptr
 //------------------------------------------
 // Interactions
 
-void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Ruleset> const& entry) {
+void Invoke::broadcast(std::shared_ptr<Ruleset> const& entry) {
     // Get index
     uint32_t const id_self = entry->id;
     uint32_t const threadIndex = id_self % THREADRUNNER_COUNT;
@@ -112,7 +82,7 @@ void Nebulite::Interaction::Invoke::broadcast(std::shared_ptr<Ruleset> const& en
     isActive = true;
 }
 
-void Nebulite::Interaction::Invoke::listen(Core::RenderObject* obj, std::string const& topic, uint32_t const& listenerId) {
+void Invoke::listen(Core::RenderObject* obj, std::string const& topic, uint32_t const& listenerId) {
     for (auto& [container, mutex] : std::span(broadcasted.entriesThisFrame, THREADRUNNER_COUNT)) {
         // Lock to safely read from broadcasted.entriesThisFrame
         std::scoped_lock broadcastLock(mutex);
@@ -144,7 +114,7 @@ void Nebulite::Interaction::Invoke::listen(Core::RenderObject* obj, std::string 
 //------------------------------------------
 // Ruleset application
 
-void Nebulite::Interaction::Invoke::applyFunctionCalls(std::shared_ptr<Ruleset> const& ruleset, Core::RenderObject const* Obj_self, Core::RenderObject const* Obj_other) const {
+void Invoke::applyFunctionCalls(std::shared_ptr<Ruleset> const& ruleset, Core::RenderObject const* Obj_self, Core::RenderObject const* Obj_other) const {
     // === Function Calls GLOBAL ===
     for (auto& entry : ruleset->functioncalls_global) {
         // replace vars
@@ -170,7 +140,7 @@ void Nebulite::Interaction::Invoke::applyFunctionCalls(std::shared_ptr<Ruleset> 
     }
 }
 
-void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Ruleset> const& entries_self, Core::RenderObject const* Obj_other) const {
+void Invoke::applyRulesets(std::shared_ptr<Ruleset> const& entries_self, Core::RenderObject const* Obj_other) const {
     // References
     Core::RenderObject const* Obj_self = entries_self->selfPtr;
 
@@ -183,14 +153,14 @@ void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Ruleset> const
     applyFunctionCalls(entries_self, Obj_self, Obj_other);
 }
 
-void Nebulite::Interaction::Invoke::applyRulesets(std::shared_ptr<Ruleset> const& entries_self) const {
+void Invoke::applyRulesets(std::shared_ptr<Ruleset> const& entries_self) const {
     applyRulesets(entries_self, entries_self->selfPtr);
 }
 
 //------------------------------------------
 // Update
 
-void Nebulite::Interaction::Invoke::update() {
+void Invoke::update() {
     // Signal all worker threads to start processing
     for (auto& [condition, workReady, workFinished] : std::span(threadState.individualState, THREADRUNNER_COUNT)) {
         workReady = true;
@@ -217,7 +187,7 @@ void Nebulite::Interaction::Invoke::update() {
 
 // String evaluation
 
-std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::string const& input) const {
+std::string Invoke::evaluateStandaloneExpression(std::string const& input) const {
     Data::JSON* docSelf = this->emptyDoc; // no self context
     Data::JSON* docOther = this->emptyDoc; // no other context
 
@@ -227,7 +197,7 @@ std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::str
     return expr.eval(docOther);
 }
 
-std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::string const& input, Core::RenderObject const* selfAndOther) const {
+std::string Invoke::evaluateStandaloneExpression(std::string const& input, Core::RenderObject const* selfAndOther) const {
     // Expression is evaluated within a domain's context, use it as self and other
     Data::JSON* docSelf = selfAndOther->getDoc();
     Data::JSON* docOther = selfAndOther->getDoc();
@@ -240,7 +210,7 @@ std::string Nebulite::Interaction::Invoke::evaluateStandaloneExpression(std::str
 
 // Double evaluation
 
-double Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsDouble(std::string const& input) const {
+double Invoke::evaluateStandaloneExpressionAsDouble(std::string const& input) const {
     Data::JSON* docSelf = this->emptyDoc; // no self context
     Data::JSON* docOther = this->emptyDoc; // no other context
 
@@ -250,7 +220,7 @@ double Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsDouble(std::
     return expr.evalAsDouble(docOther);
 }
 
-double Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsDouble(std::string const& input, Core::RenderObject const* selfAndOther) const {
+double Invoke::evaluateStandaloneExpressionAsDouble(std::string const& input, Core::RenderObject const* selfAndOther) const {
     // Expression is evaluated within a domain's context, use it as self and other
     Data::JSON* docSelf = selfAndOther->getDoc();
     Data::JSON* docOther = selfAndOther->getDoc();
@@ -263,7 +233,7 @@ double Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsDouble(std::
 
 // Boolean evaluation
 
-bool Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsBool(std::string const& input) const {
+bool Invoke::evaluateStandaloneExpressionAsBool(std::string const& input) const {
     Data::JSON* docSelf = this->emptyDoc; // no self context
     Data::JSON* docOther = this->emptyDoc; // no other context
 
@@ -279,7 +249,7 @@ bool Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsBool(std::stri
     return std::abs(result) > std::numeric_limits<double>::epsilon();
 }
 
-bool Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsBool(std::string const& input, Core::RenderObject const* selfAndOther) const {
+bool Invoke::evaluateStandaloneExpressionAsBool(std::string const& input, Core::RenderObject const* selfAndOther) const {
     // Expression is evaluated within a domain's context, use it as self and other
     Data::JSON* docSelf = selfAndOther->getDoc();
     Data::JSON* docOther = selfAndOther->getDoc();
@@ -295,3 +265,42 @@ bool Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsBool(std::stri
     // Any double-value unequal to 0 is seen as "true"
     return std::abs(result) > std::numeric_limits<double>::epsilon();
 }
+
+//------------------------------------------
+// Work processing
+
+void Invoke::processWork(BroadCastListenContainer& container) {
+    thread_local std::mt19937 cleanup_rng(std::random_device{}());
+    thread_local std::uniform_int_distribution<int> cleanup_dist(0, 99); // uniform, avoids modulo bias
+    for (auto& map_other : std::views::values(container)) {
+        for (auto& [isActive, rulesets] : std::views::values(map_other)) {
+            if (!isActive)
+                continue;
+            for (auto& [entry, listeners] : std::ranges::views::values(rulesets)) {
+                // Process active listeners (single pass, no erases here)
+                for (auto it = listeners.begin(); it != listeners.end(); ++it) {
+                    auto &pair = it->second;
+                    if (pair.active) {
+                        applyRulesets(pair.entry, pair.Obj_other);
+                        pair.active = false;
+                    }
+                }
+                // Probabilistic cleanup performed once per ruleset
+                if (cleanup_dist(cleanup_rng) == 0) {
+                    for (auto it = listeners.begin(); it != listeners.end();) {
+                        if (!it->second.active) {
+                            auto itToErase = it++;
+                            listeners.erase(itToErase); // erase returns void in Abseil
+                        } else {
+                            ++it;
+                        }
+                    }
+                }
+            }
+            // Reset activity flag, must be activated on broadcast
+            isActive = false;
+        }
+    }
+}
+
+} // namespace Nebulite::Interaction
