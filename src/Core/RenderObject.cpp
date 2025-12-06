@@ -7,8 +7,8 @@
 #include "Data/JSON.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "DomainModule/JSON/SimpleData.hpp"
-#include "Interaction/Ruleset.hpp"
-#include "Interaction/RulesetCompiler.hpp"
+#include "Interaction/Rules/Ruleset.hpp"
+#include "Interaction/Rules/RulesetCompiler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -269,7 +269,7 @@ Constants::Error RenderObject::update() {
         //------------------------------------------
         // 1.) Reload invokes if needed
         if (flag.reloadInvokes) {
-            Interaction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, this);
+            Interaction::Rules::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, this);
             flag.reloadInvokes = false;
         }
 
@@ -309,7 +309,7 @@ uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
     //------------------------------------------
     // Reload invokes if needed
     if (flag.reloadInvokes) {
-        Interaction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, this);
+        Interaction::Rules::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, this);
         flag.reloadInvokes = false;
     }
 
@@ -320,7 +320,7 @@ uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
     // Local entries
     cost = std::accumulate(
         rulesetsLocal.begin(), rulesetsLocal.end(), cost,
-        [](uint64_t const acc, std::shared_ptr<Interaction::Ruleset> const& entry) {
+        [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
             return acc + entry->estimatedCost;
         }
         );
@@ -329,7 +329,7 @@ uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
     if (!onlyInternal) {
         cost = std::accumulate(
             rulesetsGlobal.begin(), rulesetsGlobal.end(), cost,
-            [](uint64_t const acc, std::shared_ptr<Interaction::Ruleset> const& entry) {
+            [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
                 return acc + entry->estimatedCost;
             }
             );
@@ -359,7 +359,7 @@ void RenderObject::calculateText(SDL_Renderer* renderer, TTF_Font* font, int con
 
         // Settings influenced by a new text
         double constexpr scalar = 1.0; // Perhaps needed later on for scaling
-        auto const text = document.get<std::string>(Constants::keyName.renderObject.textStr.c_str());
+        auto const text = document.get<std::string>(Constants::keyName.renderObject.textStr);
         textRect.w = static_cast<int>(*refs.fontSize * static_cast<double>(text.length()) * scalar);
         textRect.h = static_cast<int>(*refs.fontSize * 1.5 * scalar);
 

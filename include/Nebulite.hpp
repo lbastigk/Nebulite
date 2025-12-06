@@ -87,10 +87,6 @@ namespace JSON {
 /**
  * @namespace Nebulite::Interaction
  * @brief Contains all classes, functions, types and variables related to the Nebulite interaction system.
- *        Separated into 2 sub-namespaces: Execution and Logic.
- *        - `Interaction`: main parts of the Interaction system: the Invoke class, their Rulesets and its Compiler.
- *        - `Interaction::Execution`: All Domain-related parser, the FuncTree they're based on and its DomainModule wrapper
- *        - `Interaction::Logic`: All logic-related classes and functions
  */
 namespace Interaction {
 /**
@@ -106,6 +102,13 @@ namespace Execution {
  */
 namespace Logic {
 }
+
+/**
+ * @namespace Nebulite::Interaction::Rules
+ * @brief Contains all classes, functions, types and variables related to the rule-based manipulation system in Nebulites Invoke system.
+ */
+namespace Rules {
+} // namespace Rules
 
 } // namespace Interaction
 

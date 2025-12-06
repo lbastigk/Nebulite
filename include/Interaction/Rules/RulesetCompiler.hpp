@@ -13,11 +13,11 @@
 #include "Core/RenderObject.hpp"
 #include "Data/DocumentCache.hpp"
 #include "Data/JSON.hpp"
-#include "Interaction/StaticRulesets.hpp"
 #include "Interaction/Logic/Assignment.hpp"
+#include "Interaction/Rules/StaticRulesets.hpp"
 
 //------------------------------------------
-namespace Nebulite::Interaction {
+namespace Nebulite::Interaction::Rules {
 /**
  * @class RulesetCompiler
  * @brief Responsible for parsing compatible JSON documents into `Ruleset` structs.
@@ -138,5 +138,5 @@ private:
         Logic::Assignment::Operation::multiply
     };
 };
-} // namespace Nebulite::Interaction
+} // namespace Nebulite::Interaction::Rules
 #endif // NEBULITE_RULESET_COMPILER_HPP

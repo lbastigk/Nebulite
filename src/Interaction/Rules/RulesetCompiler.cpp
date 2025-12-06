@@ -1,8 +1,10 @@
-#include "Interaction/RulesetCompiler.hpp"
-#include "Interaction/Ruleset.hpp"
 #include "Nebulite.hpp"
+#include "Interaction/Rules/Ruleset.hpp"
+#include "Interaction/Rules/RulesetCompiler.hpp"
 
-void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
+namespace Nebulite::Interaction::Rules {
+
+void RulesetCompiler::getFunctionCalls(
     Data::JSON& entryDoc,
     Ruleset& Ruleset,
     Core::RenderObject const* self
@@ -59,7 +61,7 @@ void Nebulite::Interaction::RulesetCompiler::getFunctionCalls(
     }
 }
 
-bool Nebulite::Interaction::RulesetCompiler::getExpression(Logic::Assignment& assignmentExpr, Data::JSON& entry, size_t const& index) {
+bool RulesetCompiler::getExpression(Logic::Assignment& assignmentExpr, Data::JSON& entry, size_t const& index) {
     auto const exprKey = Constants::keyName.invoke.exprVector + "[" + std::to_string(index) + "]";
 
     // Get expression
@@ -105,7 +107,7 @@ bool Nebulite::Interaction::RulesetCompiler::getExpression(Logic::Assignment& as
     return true;
 }
 
-bool Nebulite::Interaction::RulesetCompiler::getExpressions(std::shared_ptr<Ruleset> const& Ruleset, Data::JSON* entry, Data::JSON* self) {
+bool RulesetCompiler::getExpressions(std::shared_ptr<Ruleset> const& Ruleset, Data::JSON* entry, Data::JSON* self) {
     if (entry->memberType(Constants::keyName.invoke.exprVector) == Data::JSON::KeyType::array) {
         size_t const exprSize = entry->memberSize(Constants::keyName.invoke.exprVector);
         for (size_t j = 0; j < exprSize; ++j) {
@@ -127,7 +129,7 @@ bool Nebulite::Interaction::RulesetCompiler::getExpressions(std::shared_ptr<Rule
     return true;
 }
 
-std::string Nebulite::Interaction::RulesetCompiler::getLogicalArg(Data::JSON& entry) {
+std::string RulesetCompiler::getLogicalArg(Data::JSON& entry) {
     std::string logicalArg;
     if (entry.memberType("logicalArg") == Data::JSON::KeyType::array) {
         size_t const logicalArgSize = entry.memberSize("logicalArg");
@@ -151,7 +153,7 @@ std::string Nebulite::Interaction::RulesetCompiler::getLogicalArg(Data::JSON& en
     return logicalArg;
 }
 
-bool Nebulite::Interaction::RulesetCompiler::getRuleset(Data::JSON& doc, Data::JSON& entry, std::string const& key) {
+bool RulesetCompiler::getRuleset(Data::JSON& doc, Data::JSON& entry, std::string const& key) {
     if (doc.memberType(key) == Data::JSON::KeyType::object) {
         entry = doc.getSubDoc(key);
     } else {
@@ -181,8 +183,8 @@ namespace {
  */
 void setMetaData(
     Nebulite::Core::RenderObject* self,
-    std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> const& rulesetsLocal,
-    std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> const& rulesetsGlobal
+    std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsLocal,
+    std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsGlobal
     ) {
     // Set IDs
     auto const id = self->getDoc()->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id, 0);
@@ -211,7 +213,7 @@ void setMetaData(
 }
 }
 
-void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal, std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal, Core::RenderObject* self) {
+void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal, std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal, Core::RenderObject* self) {
     // Clean up existing entries - shared pointers will automatically handle cleanup
     rulesetsGlobal.clear();
     rulesetsLocal.clear();
@@ -241,7 +243,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
             auto staticRulesetEntry = StaticRulesetMap::getInstance().getStaticRulesetByName(staticFunctionName);
             if (staticRulesetEntry.type != StaticRulesetMap::StaticRuleSetWithMetaData::Type::invalid) {
                 // Create a new Ruleset object
-                auto Ruleset = std::make_shared<Interaction::Ruleset>();
+                auto Ruleset = std::make_shared<Interaction::Rules::Ruleset>();
                 Ruleset->topic = staticRulesetEntry.topic;
                 Ruleset->isGlobal = (staticRulesetEntry.type == StaticRulesetMap::StaticRuleSetWithMetaData::Type::Global);
                 Ruleset->staticFunction = staticRulesetEntry.function;
@@ -262,7 +264,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
         }
 
         // Parse into a structure
-        auto Ruleset = std::make_shared<Interaction::Ruleset>();
+        auto Ruleset = std::make_shared<Interaction::Rules::Ruleset>();
         Ruleset->topic = entry.get<std::string>(Constants::keyName.invoke.topic, "all");
         Ruleset->logicalArg.parse(getLogicalArg(entry), self->getDoc());
 
@@ -310,7 +312,7 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
     setMetaData(self, rulesetsGlobal, rulesetsLocal);
 }
 
-void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
+void RulesetCompiler::optimizeParsedEntries(
     std::vector<std::shared_ptr<Ruleset>> const& entries,
     Data::JSON* self
     ) {
@@ -346,3 +348,5 @@ void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
         }
     }
 }
+    
+} // namespace Nebulite::Interaction::Rules

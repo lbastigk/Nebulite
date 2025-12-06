@@ -4,8 +4,8 @@
  *        Compared to json-defined rulesets, static rulesets are hardcoded for performance and reliability.
  */
 
-#ifndef NEBULITE_INTERACTION_STATIC_RULESETS_HPP
-#define NEBULITE_INTERACTION_STATIC_RULESETS_HPP
+#ifndef NEBULITE_INTERACTION_RULES_STATIC_RULESETS_HPP
+#define NEBULITE_INTERACTION_RULES_STATIC_RULESETS_HPP
 
 //------------------------------------------
 // Includes
@@ -29,7 +29,7 @@ class DomainBase;
 }   // namespace Nebulite::Interaction::Execution
 
 //------------------------------------------
-namespace Nebulite::Interaction {
+namespace Nebulite::Interaction::Rules {
 
 //------------------------------------------
 // Defining what a ruleset function looks like
@@ -120,5 +120,5 @@ private:
 
     StaticRuleSetWithMetaData invalidEntry;
 };
-} // namespace Nebulite::Interaction
-#endif // NEBULITE_INTERACTION_STATIC_RULESETS_HPP
+} // namespace Nebulite::Interaction::Rules
+#endif // NEBULITE_INTERACTION_RULES_STATIC_RULESETS_HPP

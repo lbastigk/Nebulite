@@ -9,11 +9,9 @@
 #include "Core/RenderObject.hpp"
 #include "Data/DocumentCache.hpp"
 #include "Data/JSON.hpp"
-#include "Interaction/Ruleset.hpp"
-#include "Interaction/Logic/Assignment.hpp"
-
 #include "Interaction/Invoke.hpp"
-
+#include "Interaction/Logic/Assignment.hpp"
+#include "Interaction/Rules/Ruleset.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction {
@@ -81,7 +79,7 @@ bool Invoke::checkRulesetLogicalCondition(Logic::ExpressionPool& expr, Core::Ren
 //------------------------------------------
 // Interactions
 
-void Invoke::broadcast(std::shared_ptr<Ruleset> const& entry) {
+void Invoke::broadcast(std::shared_ptr<Rules::Ruleset> const& entry) {
     // Get index
     uint32_t const id_self = entry->id;
     uint32_t const threadIndex = id_self % THREADRUNNER_COUNT;
@@ -125,7 +123,7 @@ void Invoke::listen(Core::RenderObject* obj, std::string const& topic, uint32_t 
 //------------------------------------------
 // Ruleset application
 
-void Invoke::applyFunctionCalls(std::shared_ptr<Ruleset> const& ruleset, Core::RenderObject const* contextSelf, Core::RenderObject const* contextOther) const {
+void Invoke::applyFunctionCalls(std::shared_ptr<Rules::Ruleset> const& ruleset, Core::RenderObject const* contextSelf, Core::RenderObject const* contextOther) const {
     // === Function Calls GLOBAL ===
     for (auto& entry : ruleset->functioncalls_global) {
         // replace vars
@@ -157,10 +155,10 @@ void Invoke::applyFunctionCalls(std::shared_ptr<Ruleset> const& ruleset, Core::R
 //       But for static functions, that is determined inside the function itself
 //       Another option would be to set logicalArg to always true for static functions?
 //       -> Best compatibility!
-void Invoke::applyRuleset(std::shared_ptr<Ruleset> const& ruleset, Core::RenderObject* contextOther) const {
+void Invoke::applyRuleset(std::shared_ptr<Rules::Ruleset> const& ruleset, Core::RenderObject* contextOther) const {
     if (ruleset->staticFunction != nullptr) {
         // Static function, just call it
-        Nebulite::Interaction::Context context{*ruleset->selfPtr, *contextOther, Nebulite::global()};
+        Nebulite::Interaction::Rules::Context context{*ruleset->selfPtr, *contextOther, Nebulite::global()};
         ruleset->staticFunction(context);
         return;
     }
@@ -177,7 +175,7 @@ void Invoke::applyRuleset(std::shared_ptr<Ruleset> const& ruleset, Core::RenderO
     applyFunctionCalls(ruleset, contextSelf, contextOther);
 }
 
-void Invoke::applyRuleset(std::shared_ptr<Ruleset> const& ruleset) const {
+void Invoke::applyRuleset(std::shared_ptr<Rules::Ruleset> const& ruleset) const {
     applyRuleset(ruleset, ruleset->selfPtr);
 }
 

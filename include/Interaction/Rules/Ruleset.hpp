@@ -3,8 +3,8 @@
  * @brief This file contains the Ruleset struct, representing a single invoke entry of a RenderObject for manipulation.
  */
 
-#ifndef NEBULITE_INTERACTION_RULESET_HPP
-#define NEBULITE_INTERACTION_RULESET_HPP
+#ifndef NEBULITE_INTERACTION_RULES_RULESET_HPP
+#define NEBULITE_INTERACTION_RULES_RULESET_HPP
 
 //------------------------------------------
 // Includes
@@ -12,7 +12,7 @@
 // Nebulite
 #include "Interaction/Logic/Assignment.hpp"
 #include "Interaction/Logic/ExpressionPool.hpp"
-#include "Interaction/StaticRulesets.hpp"
+#include "Interaction/Rules/StaticRulesets.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -22,16 +22,15 @@ class RenderObject;
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::Interaction {
+namespace Nebulite::Interaction::Rules {
 /**
- * @struct Nebulite::Interaction::Ruleset
+ * @struct Nebulite::Interaction::Rules::Ruleset
  * @brief Represents a single invoke entry of a RenderObject for manipulation.
  * Invokes are parsed into specific structs. Each Renderobject holds its own InvokeEntries.
  * The struct also contains a pointer to the RenderObject that owns this entry (the broadcaster).
  */
 struct Ruleset {
     /**
-     * @struct Nebulite::Interaction::Ruleset
      * @brief The topic of the invoke entry, used for routing and filtering in the broadcast-listen-model of the Invoke class.
      * 
      * e.g. `gravity`, `hitbox`, `collision`. `all` is the default value. Any RenderObject should be subscribed to this topic.
@@ -141,5 +140,5 @@ struct Ruleset {
     Ruleset(Ruleset&&) = delete;
     Ruleset& operator=(Ruleset&&) = delete;
 };
-} // namespace Nebulite::Interaction
-#endif // NEBULITE_INTERACTION_RULESET_HPP
+} // namespace Nebulite::Interaction::Rules
+#endif // NEBULITE_INTERACTION_RULES_RULESET_HPP

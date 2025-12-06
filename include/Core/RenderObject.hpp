@@ -16,13 +16,13 @@
 // Nebulite
 #include "Constants/KeyNames.hpp"
 #include "Core/Texture.hpp"
+#include "Data/JSON.hpp"
 #include "Interaction/Execution/Domain.hpp"
-#include "../Data/JSON.hpp"
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Interaction {
-class Invoke;
+
+namespace Nebulite::Interaction::Rules {
 struct Ruleset;
 }
 
@@ -281,8 +281,8 @@ private:
     //------------------------------------------
     // Ruleset Management
 
-    std::vector<std::shared_ptr<Interaction::Ruleset>> rulesetsGlobal; // Global rulesets, intended for self-other-global interaction
-    std::vector<std::shared_ptr<Interaction::Ruleset>> rulesetsLocal; // Internal rulesets, intended for self-global interaction
+    std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsGlobal; // Global rulesets, intended for self-other-global interaction
+    std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsLocal; // Internal rulesets, intended for self-global interaction
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_CORE_RENDEROBJECT_HPP

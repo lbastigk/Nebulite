@@ -19,8 +19,8 @@
 #include <tinyexpr.h>
 
 // Nebulite
+#include "Data/DocumentCache.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
-#include "../../Data/DocumentCache.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {

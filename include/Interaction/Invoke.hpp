@@ -32,7 +32,7 @@ namespace Nebulite::Data {
 class JSON;
 }
 
-namespace Nebulite::Interaction {
+namespace Nebulite::Interaction::Rules {
 struct Ruleset;
 }
 
@@ -106,7 +106,7 @@ public:
      *        that are listening for the entry's topic.
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
-    void broadcast(std::shared_ptr<Ruleset> const& entry);
+    void broadcast(std::shared_ptr<Rules::Ruleset> const& entry);
 
     /**
      * @brief Listens for rulesets on a specific topic.
@@ -155,7 +155,7 @@ public:
      *        Applies any changes or updates as necessary. No broadcast/listening necessary, as no other objects are involved.
      *        Changes happen in domain `self` and `global`.
      */
-    void applyRuleset(std::shared_ptr<Ruleset> const& ruleset) const;
+    void applyRuleset(std::shared_ptr<Rules::Ruleset> const& ruleset) const;
 
     //------------------------------------------
     // Standalone Expression Evaluation
@@ -231,13 +231,13 @@ private:
      * @brief Structure to hold a broadcast-listen pair.
      */
     struct BroadCastListenPair {
-        std::shared_ptr<Ruleset> entry; // The Ruleset that was broadcasted
+        std::shared_ptr<Rules::Ruleset> entry; // The Ruleset that was broadcasted
         Core::RenderObject* contextOther; // The object that listened to the Broadcast
         bool active = true; // If false, this pair is skipped during update
     };
 
     struct ListenersOnRuleset {
-        std::shared_ptr<Ruleset> entry;
+        std::shared_ptr<Rules::Ruleset> entry;
         absl::flat_hash_map<uint32_t, BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
     };
 
@@ -332,7 +332,7 @@ private:
      * @param ruleset The ruleset to apply.
      * @param contextOther The render object in the other domain to update.
      */
-    void applyRuleset(std::shared_ptr<Ruleset> const& ruleset, Core::RenderObject* contextOther) const;
+    void applyRuleset(std::shared_ptr<Rules::Ruleset> const& ruleset, Core::RenderObject* contextOther) const;
 
     /**
      * @brief Applies a single assignment from a ruleset.
@@ -350,7 +350,7 @@ private:
      * @param contextOther The render object as context other
      * @note The full context of self and other as RenderObject may be helpful for static rulesets in the future.
      */
-    void applyFunctionCalls(std::shared_ptr<Ruleset> const& ruleset, Core::RenderObject const* contextSelf, Core::RenderObject const* contextOther) const;
+    void applyFunctionCalls(std::shared_ptr<Rules::Ruleset> const& ruleset, Core::RenderObject const* contextSelf, Core::RenderObject const* contextOther) const;
 };
 } // namespace Nebulite::Interaction
 #endif // NEBULITE_INTERACTION_INVOKE_HPP
