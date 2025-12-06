@@ -151,6 +151,12 @@ void Invoke::applyFunctionCalls(std::shared_ptr<Ruleset> const& ruleset, Core::R
     }
 }
 
+// TODO: if ruleset->staticFunction is not null, we need to always activate it
+//       meaning we cannot check this here, as applyRuleset is only called
+//       if the logical condition is true
+//       But for static functions, that is determined inside the function itself
+//       Another option would be to set logicalArg to always true for static functions?
+//       -> Best compatibility!
 void Invoke::applyRuleset(std::shared_ptr<Ruleset> const& ruleset, Core::RenderObject* contextOther) const {
     if (ruleset->staticFunction != nullptr) {
         // Static function, just call it
