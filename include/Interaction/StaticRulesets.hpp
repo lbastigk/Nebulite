@@ -59,19 +59,55 @@ using StaticRulesetFunction = void(*)(Context const& context);
 
 class StaticRulesetMap {
 public:
+    struct StaticRuleSetWithMetaData {
+        enum Type {
+            Local,
+            Global,
+            invalid
+        } type = invalid;
+        std::string topic;
+        StaticRulesetFunction function = nullptr;
+    };
+
+    StaticRulesetMap() {
+        invalidEntry = StaticRuleSetWithMetaData{
+            StaticRuleSetWithMetaData::Type::invalid,
+            "",
+            nullptr
+        };
+        // TODO: Preload any built-in static rulesets here
+        //       like domainModules, using an initializer function
+    }
+
+    /**
+     * @brief Returns the instance of the StaticRulesetMap.
+     * @return Reference to the StaticRulesetMap instance.
+     */
+    static StaticRulesetMap& getInstance() {
+        static StaticRulesetMap instance;
+        return instance;
+    }
+
     /**
      * @brief Retrieves a static ruleset function by name.
      * @param name The name of the static ruleset.
-     * @return Pointer to the static ruleset function, or nullptr if not found.
+     * @return Pointer to the static ruleset function, with metadata.
+     *         Returns an invalid entry if not found. Its type is `invalid`,
+     *         and function pointer is `nullptr`.
      */
-    static StaticRulesetFunction getStaticRulesetByName(std::string const& name);
+    StaticRuleSetWithMetaData getStaticRulesetByName(std::string const& name) {
+        if (container.contains(name)) {
+            return container[name];
+        }
+        return invalidEntry;
+    }
 
     /**
      * @brief Adds a static ruleset function to the map.
      * @param name The name of the static ruleset.
-     * @param func Pointer to the static ruleset function.
+     * @param func Pointer to the static ruleset function, with metadata.
      */
-    void bindStaticRuleset(std::string const& name, StaticRulesetFunction func) {
+    void bindStaticRuleset(std::string const& name, StaticRuleSetWithMetaData const& func) {
         // Exit program if duplicate
         if (container.contains(name)) {
             throw std::runtime_error("Duplicate static ruleset name: " + name);
@@ -80,7 +116,9 @@ public:
     }
 
 private:
-    absl::flat_hash_map<std::string, StaticRulesetFunction> container;
+    absl::flat_hash_map<std::string, StaticRuleSetWithMetaData> container;
+
+    StaticRuleSetWithMetaData invalidEntry;
 };
 } // namespace Nebulite::Interaction
 #endif // NEBULITE_INTERACTION_STATIC_RULESETS_HPP

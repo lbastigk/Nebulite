@@ -13,6 +13,7 @@
 #include "Core/RenderObject.hpp"
 #include "Data/DocumentCache.hpp"
 #include "Data/JSON.hpp"
+#include "Interaction/StaticRulesets.hpp"
 #include "Interaction/Logic/Assignment.hpp"
 
 //------------------------------------------
@@ -48,18 +49,19 @@ class RulesetCompiler {
 public:
     /**
      * @brief Parses a JSON encoded set of Invoke Entries inside a RenderObject into Ruleset objects.
-     * @param entries_global The global Ruleset objects.
-     * @param entries_local The local Ruleset objects.
+     * @param rulesetsGlobal The global Ruleset objects.
+     * @param rulesetsLocal The local Ruleset objects.
      * @param self The RenderObject instance associated with the entries.
      * @param docCache The DocumentCache instance to use for parsing expressions.
      */
     static void parse(
-        std::vector<std::shared_ptr<Ruleset>>& entries_global,
-        std::vector<std::shared_ptr<Ruleset>>& entries_local,
+        std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal,
+        std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal,
         Core::RenderObject* self
         );
 
 private:
+
     /**
      * @brief Extracts function calls from a JSON entry document.
      * @param entryDoc The JSON document containing the entry.
@@ -106,13 +108,13 @@ private:
      * @brief Extracts an Ruleset object from a JSON entry document.
      * @param doc The JSON document containing the entry.
      * @param entry The JSON document to populate with the entry.
-     * @param index The index of the entry in the document.
+     * @param key The key of the entry in the document.
      * @return True if the Ruleset was successfully extracted, false otherwise.
      */
     static bool getRuleset(
         Data::JSON& doc,
         Data::JSON& entry,
-        size_t const& index
+        std::string const& key
         );
 
     /**

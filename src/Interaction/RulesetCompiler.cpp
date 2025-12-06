@@ -151,11 +151,11 @@ std::string Nebulite::Interaction::RulesetCompiler::getLogicalArg(Data::JSON& en
     return logicalArg;
 }
 
-bool Nebulite::Interaction::RulesetCompiler::getRuleset(Data::JSON& doc, Data::JSON& entry, size_t const& index) {
-    if (std::string const key = Constants::keyName.renderObject.invokes + "[" + std::to_string(index) + "]"; doc.memberType(key) == Data::JSON::KeyType::object) {
+bool Nebulite::Interaction::RulesetCompiler::getRuleset(Data::JSON& doc, Data::JSON& entry, std::string const& key) {
+    if (doc.memberType(key) == Data::JSON::KeyType::object) {
         entry = doc.getSubDoc(key);
     } else {
-        // Is link to document
+        // Is perhaps link to document
         auto const link = doc.get<std::string>(key, "");
         std::string const file = Nebulite::global().getDocCache()->getDocString(link);
 
@@ -176,45 +176,45 @@ namespace {
  * @brief Sets metadata in the object itself and in each Ruleset entry, including IDs, indices, and estimated computational cost.
  *
  * @param self The RenderObject that owns the entries.
- * @param entries_local The local Ruleset objects.
- * @param entries_global The global Ruleset objects.
+ * @param rulesetsLocal The local Ruleset objects.
+ * @param rulesetsGlobal The global Ruleset objects.
  */
 void setMetaData(
     Nebulite::Core::RenderObject* self,
-    std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> const& entries_local,
-    std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> const& entries_global
+    std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> const& rulesetsLocal,
+    std::vector<std::shared_ptr<Nebulite::Interaction::Ruleset>> const& rulesetsGlobal
     ) {
     // Set IDs
     auto const id = self->getDoc()->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id, 0);
-    for (auto const& entry : entries_local) {
+    for (auto const& entry : rulesetsLocal) {
         entry->id = id;
     }
-    for (auto const& entry : entries_global) {
+    for (auto const& entry : rulesetsGlobal) {
         entry->id = id;
     }
 
     // Set indices
-    for (uint32_t i = 0; i < entries_local.size(); ++i) {
-        entries_local[i]->index = i;
+    for (uint32_t i = 0; i < rulesetsLocal.size(); ++i) {
+        rulesetsLocal[i]->index = i;
     }
-    for (uint32_t i = 0; i < entries_global.size(); ++i) {
-        entries_global[i]->index = i;
+    for (uint32_t i = 0; i < rulesetsGlobal.size(); ++i) {
+        rulesetsGlobal[i]->index = i;
     }
 
     // Estimate full cost of each entry
-    for (auto const& entry : entries_local) {
+    for (auto const& entry : rulesetsLocal) {
         entry->estimateComputationalCost();
     }
-    for (auto const& entry : entries_global) {
+    for (auto const& entry : rulesetsGlobal) {
         entry->estimateComputationalCost();
     }
 }
 }
 
-void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& entries_global, std::vector<std::shared_ptr<Ruleset>>& entries_local, Core::RenderObject* self) {
+void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal, std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal, Core::RenderObject* self) {
     // Clean up existing entries - shared pointers will automatically handle cleanup
-    entries_global.clear();
-    entries_local.clear();
+    rulesetsGlobal.clear();
+    rulesetsLocal.clear();
 
     Data::JSON* doc = self->getDoc();
 
@@ -234,8 +234,28 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
     for (size_t idx = 0; idx < size; ++idx) {
         // Parse entry into separate JSON object
         Data::JSON entry;
-        if (!getRuleset(*doc, entry, idx)) {
-            continue; // Skip this entry
+        std::string const key = Constants::keyName.renderObject.invokes + "[" + std::to_string(idx) + "]";
+        if (!getRuleset(*doc, entry, key)) {
+            // See if it's a static ruleset
+            auto staticFunctionName = doc->get<std::string>(key, "");
+            auto staticRulesetEntry = StaticRulesetMap::getInstance().getStaticRulesetByName(staticFunctionName);
+            if (staticRulesetEntry.type != StaticRulesetMap::StaticRuleSetWithMetaData::Type::invalid) {
+                // Create a new Ruleset object
+                auto Ruleset = std::make_shared<Interaction::Ruleset>();
+                Ruleset->topic = staticRulesetEntry.topic;
+                Ruleset->isGlobal = (staticRulesetEntry.type == StaticRulesetMap::StaticRuleSetWithMetaData::Type::Global);
+                Ruleset->staticFunction = staticRulesetEntry.function;
+                Ruleset->selfPtr = self; // Set self pointer, might be helpful even for static rulesets
+
+                // Push into vector
+                if (Ruleset->isGlobal) {
+                    rulesetsGlobal.push_back(Ruleset);
+                } else {
+                    rulesetsLocal.push_back(Ruleset);
+                }
+                continue; // Move to next entry
+            }
+            continue; // Skip this entry if it cannot be parsed
         }
 
         // Parse into a structure
@@ -273,18 +293,18 @@ void Nebulite::Interaction::RulesetCompiler::parse(std::vector<std::shared_ptr<R
         if (Ruleset->topic.empty()) {
             // If topic is empty, it is a local invoke
             Ruleset->isGlobal = false; // Set isGlobal to false for local invokes
-            entries_local.push_back(Ruleset);
+            rulesetsLocal.push_back(Ruleset);
         } else {
-            entries_global.push_back(Ruleset);
+            rulesetsGlobal.push_back(Ruleset);
         }
     }
 
     // See if we can assign a permanent target double pointer for each assignment
-    optimizeParsedEntries(entries_global, self->getDoc());
-    optimizeParsedEntries(entries_local, self->getDoc());
+    optimizeParsedEntries(rulesetsGlobal, self->getDoc());
+    optimizeParsedEntries(rulesetsLocal, self->getDoc());
 
     // Set necessary metadata: IDs, indices, cost estimation
-    setMetaData(self, entries_global, entries_local);
+    setMetaData(self, rulesetsGlobal, rulesetsLocal);
 }
 
 void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
@@ -298,6 +318,11 @@ void Nebulite::Interaction::RulesetCompiler::optimizeParsedEntries(
     // we try to get a direct stable double pointer from the corresponding JSON document
     // If successful, we store the pointer in targetValuePtr of the assignment
     for (auto const& entry : entries) {
+        if (entry->staticFunction == nullptr) {
+            // Only optimize non-static rulesets
+            continue;
+        }
+
         for (auto& assignment : entry->assignments) {
             if (assignment.onType == Logic::Assignment::Type::Self) {
                 if (std::ranges::find(ops, assignment.operation) != std::ranges::end(ops)) {
