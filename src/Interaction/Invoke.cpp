@@ -64,23 +64,18 @@ Invoke::~Invoke() {
 //------------------------------------------
 // Checks
 
-bool Invoke::checkRulesetLogicalCondition(std::shared_ptr<Ruleset> const& cmd, Core::RenderObject const* otherObj) {
+bool Invoke::checkRulesetLogicalCondition(Logic::ExpressionPool& expr, Core::RenderObject const* otherObj) {
     // Check if logical arg is as simple as just "1", meaning true
-    if (cmd->logicalArg.isAlwaysTrue())
+    if (expr.isAlwaysTrue())
         return true;
 
-    double const result = cmd->logicalArg.evalAsDouble(otherObj->getDoc());
+    double const result = expr.evalAsDouble(otherObj->getDoc());
     if (std::isnan(result)) {
         // We consider NaN as false
         return false;
     }
     // Any double-value unequal to 0 is seen as "true"
     return std::abs(result) > std::numeric_limits<double>::epsilon();
-}
-
-bool Invoke::checkRulesetLogicalCondition(std::shared_ptr<Ruleset> const& cmd) {
-    // Use selfPtr as otherObj
-    return checkRulesetLogicalCondition(cmd, cmd->selfPtr);
 }
 
 //------------------------------------------
@@ -120,7 +115,7 @@ void Invoke::listen(Core::RenderObject* obj, std::string const& topic, uint32_t 
 
             // For all rulesets under this broadcaster and topic
             for (auto& [entry, listeners] : std::ranges::views::values(onTopicFromId.rulesets)) {
-                bool const pairStatus = checkRulesetLogicalCondition(entry, obj);
+                bool const pairStatus = checkRulesetLogicalCondition(entry->logicalArg, obj);
                 listeners[listenerId] = BroadCastListenPair{entry, obj, pairStatus};
             }
         }
@@ -220,7 +215,7 @@ std::string Invoke::evaluateStandaloneExpression(std::string const& input) const
     return expr.eval(docOther);
 }
 
-std::string Invoke::evaluateStandaloneExpression(std::string const& input, Core::RenderObject const* selfAndOther) const {
+std::string Invoke::evaluateStandaloneExpression(std::string const& input, Core::RenderObject const* selfAndOther) {
     // Expression is evaluated within a domain's context, use it as self and other
     Data::JSON* docSelf = selfAndOther->getDoc();
     Data::JSON* docOther = selfAndOther->getDoc();
@@ -243,7 +238,7 @@ double Invoke::evaluateStandaloneExpressionAsDouble(std::string const& input) co
     return expr.evalAsDouble(docOther);
 }
 
-double Invoke::evaluateStandaloneExpressionAsDouble(std::string const& input, Core::RenderObject const* selfAndOther) const {
+double Invoke::evaluateStandaloneExpressionAsDouble(std::string const& input, Core::RenderObject const* selfAndOther) {
     // Expression is evaluated within a domain's context, use it as self and other
     Data::JSON* docSelf = selfAndOther->getDoc();
     Data::JSON* docOther = selfAndOther->getDoc();
@@ -272,7 +267,7 @@ bool Invoke::evaluateStandaloneExpressionAsBool(std::string const& input) const 
     return std::abs(result) > std::numeric_limits<double>::epsilon();
 }
 
-bool Invoke::evaluateStandaloneExpressionAsBool(std::string const& input, Core::RenderObject const* selfAndOther) const {
+bool Invoke::evaluateStandaloneExpressionAsBool(std::string const& input, Core::RenderObject const* selfAndOther) {
     // Expression is evaluated within a domain's context, use it as self and other
     Data::JSON* docSelf = selfAndOther->getDoc();
     Data::JSON* docOther = selfAndOther->getDoc();
@@ -301,8 +296,8 @@ void Invoke::processWork(BroadCastListenContainer& container) {
                 continue;
             for (auto& [entry, listeners] : std::ranges::views::values(rulesets)) {
                 // Process active listeners (single pass, no erases here)
-                for (auto it = listeners.begin(); it != listeners.end(); ++it) {
-                    auto &pair = it->second;
+                for (auto & it : listeners) {
+                    auto &pair = it.second;
                     if (pair.active) {
                         applyRuleset(pair.entry, pair.contextOther);
                         pair.active = false;

@@ -19,6 +19,7 @@
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
+#include "Interaction/Logic/ExpressionPool.hpp"
 
 
 //------------------------------------------
@@ -44,6 +45,7 @@ namespace Nebulite::Interaction {
 /**
  * @class Nebulite::Interaction::Invoke
  * @brief The Invoke class manages dynamic object logic in Nebulite.
+ *
  *        This class is responsible for handling the invocation of functions and the
  *        communication between different render objects within the Nebulite engine.
  *        Interactions work on a self-other-global / self-global basis.
@@ -99,6 +101,7 @@ public:
 
     /**
      * @brief Broadcasts a ruleset to other render objects.
+     *
      *        This function sends the specified ruleset to all render objects
      *        that are listening for the entry's topic.
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
@@ -107,6 +110,7 @@ public:
 
     /**
      * @brief Listens for rulesets on a specific topic.
+     *
      *        This function checks the specified render object against all available
      *        rulesets for the given topic. If an entry's logical condition is
      *        satisfied, it is added to the list of pairs for later evaluation.
@@ -124,26 +128,18 @@ public:
 
     /**
      * @brief Checks if the ruleset is true in the context of the other render object.
-     * @param cmd The Ruleset to check.
+     * @param expr The condition to check.
      * @param otherObj The other render object to compare against.
-     * Make sure entry and otherObj are not the same object!
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    static bool checkRulesetLogicalCondition(std::shared_ptr<Ruleset> const& cmd, Core::RenderObject const* otherObj);
-
-    /**
-     * @brief Checks if the ruleset is true, without any context from other render objects.
-     * @param cmd The Ruleset.
-     * @return True if the ruleset is true without any context from other render objects, false otherwise.
-     */
-    static bool checkRulesetLogicalCondition(std::shared_ptr<Ruleset> const& cmd);
-
+    static bool checkRulesetLogicalCondition(Logic::ExpressionPool& expr, Core::RenderObject const* otherObj);
 
     //------------------------------------------
     // Updating
 
     /**
      * @brief Updates all pairs built from RenderObject broadcasting and listening.
+     *
      *        This function iterates through all pairs of rulesets and their associated
      *        render objects, updating their states based on the rulesets.
      *        Example:
@@ -182,7 +178,7 @@ public:
      * @param selfAndOther The RenderObject providing context for `self` and `other`.
      * @return The result of the evaluation.
      */
-    std::string evaluateStandaloneExpression(std::string const& input, Core::RenderObject const* selfAndOther) const;
+    static std::string evaluateStandaloneExpression(std::string const& input, Core::RenderObject const* selfAndOther);
 
     /**
      * @brief Evaluates a standalone expression and returns the result as a double.
@@ -197,7 +193,7 @@ public:
      * @param selfAndOther The RenderObject providing context for `self` and `other`.
      * @return The result of the evaluation as a double.
      */
-    double evaluateStandaloneExpressionAsDouble(std::string const& input, Core::RenderObject const* selfAndOther) const;
+    static double evaluateStandaloneExpressionAsDouble(std::string const& input, Core::RenderObject const* selfAndOther);
 
     /**
      * @brief Evaluates a standalone expression and returns the result as a boolean.
@@ -212,7 +208,7 @@ public:
      * @param selfAndOther The RenderObject providing context for `self` and `other`.
      * @return The result of the evaluation as a boolean.
      */
-    bool evaluateStandaloneExpressionAsBool(std::string const& input, Core::RenderObject const* selfAndOther) const;
+    static bool evaluateStandaloneExpressionAsBool(std::string const& input, Core::RenderObject const* selfAndOther);
 
 private:
     //------------------------------------------

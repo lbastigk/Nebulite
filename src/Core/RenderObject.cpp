@@ -276,7 +276,7 @@ Constants::Error RenderObject::update() {
         //------------------------------------------
         // 2.) Directly solve local invokes (loop)
         for (auto const& entry : rulesetsLocal) {
-            if (Interaction::Invoke::checkRulesetLogicalCondition(entry)) {
+            if (Interaction::Invoke::checkRulesetLogicalCondition(entry->logicalArg, entry->selfPtr)) {
                 Nebulite::global().getInvoke()->applyRuleset(entry);
             }
         }
