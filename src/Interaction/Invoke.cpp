@@ -130,11 +130,11 @@ void Invoke::listen(Core::RenderObject* obj, std::string const& topic, uint32_t 
 //------------------------------------------
 // Ruleset application
 
-void Invoke::applyFunctionCalls(std::shared_ptr<Ruleset> const& ruleset, Core::RenderObject const* Obj_self, Core::RenderObject const* Obj_other) const {
+void Invoke::applyFunctionCalls(std::shared_ptr<Ruleset> const& ruleset, Core::RenderObject const* contextSelf, Core::RenderObject const* contextOther) const {
     // === Function Calls GLOBAL ===
     for (auto& entry : ruleset->functioncalls_global) {
         // replace vars
-        std::string call = entry.eval(Obj_other->getDoc());
+        std::string call = entry.eval(contextOther->getDoc());
 
         // attach to task queue
         std::scoped_lock lock(taskQueue.mutex);
@@ -144,40 +144,40 @@ void Invoke::applyFunctionCalls(std::shared_ptr<Ruleset> const& ruleset, Core::R
     // === Function Calls LOCAL: SELF ===
     for (auto& entry : ruleset->functioncalls_self) {
         // replace vars
-        std::string const call = __FUNCTION__ + entry.eval(Obj_other->getDoc());
-        (void)Obj_self->parseStr(call);
+        std::string const call = __FUNCTION__ + entry.eval(contextOther->getDoc());
+        (void)contextSelf->parseStr(call);
     }
 
     // === Function Calls LOCAL: OTHER ===
     for (auto& entry : ruleset->functioncalls_other) {
         // replace vars
-        std::string const call = __FUNCTION__ + entry.eval(Obj_other->getDoc());
-        (void)Obj_other->parseStr(call);
+        std::string const call = __FUNCTION__ + entry.eval(contextOther->getDoc());
+        (void)contextOther->parseStr(call);
     }
 }
 
-void Invoke::applyRulesets(std::shared_ptr<Ruleset> const& entries_self, Core::RenderObject* Obj_other) const {
-    if (entries_self->staticFunction != nullptr) {
+void Invoke::applyRuleset(std::shared_ptr<Ruleset> const& ruleset, Core::RenderObject* contextOther) const {
+    if (ruleset->staticFunction != nullptr) {
         // Static function, just call it
-        Nebulite::Interaction::Context context{*entries_self->selfPtr, *Obj_other, Nebulite::global()};
-        entries_self->staticFunction(context);
+        Nebulite::Interaction::Context context{*ruleset->selfPtr, *contextOther, Nebulite::global()};
+        ruleset->staticFunction(context);
         return;
     }
 
     // References
-    Core::RenderObject const* Obj_self = entries_self->selfPtr;
+    Core::RenderObject const* contextSelf = ruleset->selfPtr;
 
     // Update self, other and global
-    for (auto& assignment : entries_self->assignments) {
-        assignment.apply(Obj_self->getDoc(), Obj_other->getDoc());
+    for (auto& assignment : ruleset->assignments) {
+        assignment.apply(contextSelf->getDoc(), contextOther->getDoc());
     }
 
     // Apply function calls
-    applyFunctionCalls(entries_self, Obj_self, Obj_other);
+    applyFunctionCalls(ruleset, contextSelf, contextOther);
 }
 
-void Invoke::applyRulesets(std::shared_ptr<Ruleset> const& entries_self) const {
-    applyRulesets(entries_self, entries_self->selfPtr);
+void Invoke::applyRuleset(std::shared_ptr<Ruleset> const& ruleset) const {
+    applyRuleset(ruleset, ruleset->selfPtr);
 }
 
 //------------------------------------------
@@ -304,7 +304,7 @@ void Invoke::processWork(BroadCastListenContainer& container) {
                 for (auto it = listeners.begin(); it != listeners.end(); ++it) {
                     auto &pair = it->second;
                     if (pair.active) {
-                        applyRulesets(pair.entry, pair.Obj_other);
+                        applyRuleset(pair.entry, pair.contextOther);
                         pair.active = false;
                     }
                 }

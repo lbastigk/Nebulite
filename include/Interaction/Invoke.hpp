@@ -47,14 +47,14 @@ namespace Nebulite::Interaction {
  *        This class is responsible for handling the invocation of functions and the
  *        communication between different render objects within the Nebulite engine.
  *        Interactions work on a self-other-global / self-global basis.
- *        Invoke Entries consist of:
+ *        Rulesets consist of:
  *        - a broadcasting topic for the domain 'other' to listen to
  *        - a logical condition necessary to be true
  *        - a list of expressions to evaluate and their corresponding domains 'self', 'other' and 'global'
  *        - a list of function calls to execute on the domains 'self', 'other' and 'global'
  *
  *        Expressions allow for simple value modifications, whereas function calls can encapsulate more complex behavior.
- *        Invoke entries are designed to be lightweight and easily modifiable, allowing for rapid iteration and experimentation.
+ *        rulesets are designed to be lightweight and easily modifiable, allowing for rapid iteration and experimentation.
  *        They are encoded in a JSON format for easy manipulation and storage.
  * @todo Static and typed rulesets
  *       Static invokes point to a predefined function in the engine, e.g. `gravity`, `collision`, `hitbox`.
@@ -106,9 +106,9 @@ public:
     void broadcast(std::shared_ptr<Ruleset> const& entry);
 
     /**
-     * @brief Listens for invoke entries on a specific topic.
+     * @brief Listens for rulesets on a specific topic.
      *        This function checks the specified render object against all available
-     *        invoke entries for the given topic. If an entry's logical condition is
+     *        rulesets for the given topic. If an entry's logical condition is
      *        satisfied, it is added to the list of pairs for later evaluation.
      *
      *        WARNING: This function must not be called concurrently with `update()`,
@@ -144,8 +144,8 @@ public:
 
     /**
      * @brief Updates all pairs built from RenderObject broadcasting and listening.
-     *        This function iterates through all pairs of invoke entries and their associated
-     *        render objects, updating their states based on the Invoke Entries.
+     *        This function iterates through all pairs of rulesets and their associated
+     *        render objects, updating their states based on the rulesets.
      *        Example:
      *        RenderObject1 broadcasts entry on topic1 to manipulate other, if other has mass > 0
      *        RenderObject2 listens on topic1, checks the logical condition and if true, adds the pair to the list for later evaluation.
@@ -159,7 +159,7 @@ public:
      *        Applies any changes or updates as necessary. No broadcast/listening necessary, as no other objects are involved.
      *        Changes happen in domain `self` and `global`.
      */
-    void applyRulesets(std::shared_ptr<Ruleset> const& entries_self) const;
+    void applyRuleset(std::shared_ptr<Ruleset> const& ruleset) const;
 
     //------------------------------------------
     // Standalone Expression Evaluation
@@ -236,7 +236,7 @@ private:
      */
     struct BroadCastListenPair {
         std::shared_ptr<Ruleset> entry; // The Ruleset that was broadcasted
-        Core::RenderObject* Obj_other; // The object that listened to the Broadcast
+        Core::RenderObject* contextOther; // The object that listened to the Broadcast
         bool active = true; // If false, this pair is skipped during update
     };
 
@@ -333,28 +333,28 @@ private:
 
     /**
      * @brief Updates a build pair of ruleset with given domain `other`
-     * @param entries_self The invoke entries for the self domain.
-     * @param Obj_other The render object in the other domain to update.
+     * @param ruleset The ruleset to apply.
+     * @param contextOther The render object in the other domain to update.
      */
-    void applyRulesets(std::shared_ptr<Ruleset> const& entries_self, Core::RenderObject* Obj_other) const;
+    void applyRuleset(std::shared_ptr<Ruleset> const& ruleset, Core::RenderObject* contextOther) const;
 
     /**
      * @brief Applies a single assignment from a ruleset.
      * @param assignment The assignment to apply.
-     * @param Obj_self The render object in the self domain to update.
-     * @param Obj_other The render object in the other domain to update.
+     * @param contextSelf The render object in the self domain to update.
+     * @param contextOther The render object in the other domain to update.
      * @todo Consider simplifying self/other to just "Domain", as we don't need the full RenderObject context for function calls?
      */
-    void applyAssignment(Logic::Assignment& assignment, Core::RenderObject const* Obj_self, Core::RenderObject const* Obj_other) const;
+    void applyAssignment(Logic::Assignment& assignment, Core::RenderObject const* contextSelf, Core::RenderObject const* contextOther) const;
 
     /**
      * @brief Applies all function calls from a Ruleset.
      * @param ruleset The ruleset containing the function calls.
-     * @param Obj_self The render object as context self
-     * @param Obj_other The render object as context other
+     * @param contextSelf The render object as context self
+     * @param contextOther The render object as context other
      * @note The full context of self and other as RenderObject may be helpful for static rulesets in the future.
      */
-    void applyFunctionCalls(std::shared_ptr<Ruleset> const& ruleset, Core::RenderObject const* Obj_self, Core::RenderObject const* Obj_other) const;
+    void applyFunctionCalls(std::shared_ptr<Ruleset> const& ruleset, Core::RenderObject const* contextSelf, Core::RenderObject const* contextOther) const;
 };
 } // namespace Nebulite::Interaction
 #endif // NEBULITE_INTERACTION_INVOKE_HPP

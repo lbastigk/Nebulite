@@ -105,8 +105,8 @@ RenderObject::~RenderObject() {
     }
 
     // Clean up invoke entries - shared pointers will automatically handle cleanup
-    entries_global.clear();
-    entries_local.clear();
+    rulesetsGlobal.clear();
+    rulesetsLocal.clear();
 }
 
 //------------------------------------------
@@ -269,15 +269,15 @@ Constants::Error RenderObject::update() {
         //------------------------------------------
         // 1.) Reload invokes if needed
         if (flag.reloadInvokes) {
-            Interaction::RulesetCompiler::parse(entries_global, entries_local, this);
+            Interaction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, this);
             flag.reloadInvokes = false;
         }
 
         //------------------------------------------
         // 2.) Directly solve local invokes (loop)
-        for (auto const& entry : entries_local) {
+        for (auto const& entry : rulesetsLocal) {
             if (Interaction::Invoke::checkRulesetLogicalCondition(entry)) {
-                Nebulite::global().getInvoke()->applyRulesets(entry);
+                Nebulite::global().getInvoke()->applyRuleset(entry);
             }
         }
 
@@ -294,7 +294,7 @@ Constants::Error RenderObject::update() {
         //------------------------------------------
         // 4.) Append general invokes from object itself back for global check
         //     This makes sure that no invokes from inactive objects stay in the list
-        for (auto const& entry : entries_global) {
+        for (auto const& entry : rulesetsGlobal) {
             // add pointer to invoke command to global
             Nebulite::global().getInvoke()->broadcast(entry);
         }
@@ -309,7 +309,7 @@ uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
     //------------------------------------------
     // Reload invokes if needed
     if (flag.reloadInvokes) {
-        Interaction::RulesetCompiler::parse(entries_global, entries_local, this);
+        Interaction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, this);
         flag.reloadInvokes = false;
     }
 
@@ -319,7 +319,7 @@ uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
 
     // Local entries
     cost = std::accumulate(
-        entries_local.begin(), entries_local.end(), cost,
+        rulesetsLocal.begin(), rulesetsLocal.end(), cost,
         [](uint64_t const acc, std::shared_ptr<Interaction::Ruleset> const& entry) {
             return acc + entry->estimatedCost;
         }
@@ -328,7 +328,7 @@ uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
     // Global entries
     if (!onlyInternal) {
         cost = std::accumulate(
-            entries_global.begin(), entries_global.end(), cost,
+            rulesetsGlobal.begin(), rulesetsGlobal.end(), cost,
             [](uint64_t const acc, std::shared_ptr<Interaction::Ruleset> const& entry) {
                 return acc + entry->estimatedCost;
             }

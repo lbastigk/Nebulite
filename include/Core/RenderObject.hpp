@@ -281,8 +281,8 @@ private:
     //------------------------------------------
     // Ruleset Management
 
-    std::vector<std::shared_ptr<Interaction::Ruleset>> entries_global; // Global rulesets, intended for self-other-global interaction
-    std::vector<std::shared_ptr<Interaction::Ruleset>> entries_local; // Internal rulesets, intended for self-global interaction
+    std::vector<std::shared_ptr<Interaction::Ruleset>> rulesetsGlobal; // Global rulesets, intended for self-other-global interaction
+    std::vector<std::shared_ptr<Interaction::Ruleset>> rulesetsLocal; // Internal rulesets, intended for self-global interaction
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_CORE_RENDEROBJECT_HPP
