@@ -1,7 +1,6 @@
 /**
  * @file Ruleset.hpp
- * 
- * This file contains the Ruleset struct, representing a single invoke entry of a RenderObject for manipulation.
+ * @brief This file contains the Ruleset struct, representing a single invoke entry of a RenderObject for manipulation.
  */
 
 #ifndef NEBULITE_INTERACTION_RULESET_HPP

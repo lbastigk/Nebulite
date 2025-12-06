@@ -1,14 +1,27 @@
-#include "Interaction/Invoke.hpp"
-#include "Core/RenderObject.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
 #include "Nebulite.hpp"
+#include "Core/RenderObject.hpp"
+#include "Data/DocumentCache.hpp"
+#include "Data/JSON.hpp"
+#include "Interaction/Ruleset.hpp"
+#include "Interaction/Logic/Assignment.hpp"
 
+#include "Interaction/Invoke.hpp"
+
+
+//------------------------------------------
 namespace Nebulite::Interaction {
 
 //------------------------------------------
 // Constructor / Destructor
 
 Invoke::Invoke() {
+    // Linking an empty doc is needed for some functions
+    emptyDoc = new Data::JSON("Empty JSON document for Invoke");
+
     // Initialize synchronization primitives
     threadState.stopFlag = false;
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {

@@ -1,10 +1,16 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
+#include "Data/JSON.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "DomainModule/JSON/SimpleData.hpp"
+#include "Interaction/Ruleset.hpp"
 #include "Interaction/RulesetCompiler.hpp"
-#include "../../include/Data/JSON.hpp"
 
+//------------------------------------------
 namespace Nebulite::Core {
 
 //------------------------------------------

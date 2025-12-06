@@ -24,6 +24,7 @@
 // Nebulite
 #include "Core/Renderer.hpp"
 #include "Constants/ErrorTypes.hpp"
+#include "Data/DocumentCache.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Utility/RNG.hpp"
 

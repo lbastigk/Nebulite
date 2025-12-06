@@ -19,16 +19,25 @@
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
-#include "Data/DocumentCache.hpp"
-#include "Data/JSON.hpp"
-#include "Interaction/Logic/Assignment.hpp"
-#include "Interaction/Ruleset.hpp"
+
 
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Core {
 class RenderObject;
 } // namespace Nebulite::Core
+
+namespace Nebulite::Data {
+class JSON;
+}
+
+namespace Nebulite::Interaction {
+class Ruleset;
+}
+
+namespace Nebulite::Interaction::Logic {
+class Assignment;
+}
 
 //------------------------------------------
 namespace Nebulite::Interaction {
@@ -82,8 +91,6 @@ public:
     /**
      * @brief Links the invoke object to a global queue for function calls.
      * @param queue Reference to the global queue.
-     * @todo This shouldn't be necessary anymore, as GlobalSpace is singleton and accessible everywhere.
-     *       Consider something like taskQueue.ptr = &Nebulite::global().getTaskQueue(); in the constructor.
      */
     void linkTaskQueue(std::deque<std::string>& queue) { taskQueue.ptr = &queue; }
 
@@ -212,7 +219,7 @@ private:
     // General Variables
 
     // Documents
-    Data::JSON* emptyDoc = new Data::JSON("Empty JSON document for Invoke"); // Linking an empty doc is needed for some functions
+    Data::JSON* emptyDoc;
 
     // Task Queue
     struct TaskQueue {
