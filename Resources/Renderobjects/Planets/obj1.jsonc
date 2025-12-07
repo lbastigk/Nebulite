@@ -2,10 +2,10 @@
     "id": 0,
     "invokeSubscriptions": [
         "all",
-        "gravity"
+        "::physics::gravity"
     ],
     "invokes": [
-        "./Resources/Invokes/Physics/gravity.jsonc",
+        "::physics::gravity",
         "./Resources/Invokes/Physics/integrate_a.jsonc",
         "./Resources/Invokes/Physics/integrate_v.jsonc",
         "./Resources/Invokes/Physics/reset_a.jsonc"
@@ -42,7 +42,6 @@
         },
         "dx": 0.0,
         "dy": -30.0,
-
         "fontSize": 16,
         "str": "OBJ1"
     }

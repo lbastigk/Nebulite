@@ -22,5 +22,7 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+task TaskFiles/Benchmarks/spawn_constantly.nebs
+
 # Fixed dt so the output is always the same
 task "TaskFiles/Tests/Long/AutoPong_5k_frames.nebs"

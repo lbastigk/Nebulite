@@ -30,12 +30,13 @@ public:
     // Functions
 
     void gravity(Context const& context);
+    static std::string gravityName;
 
     //------------------------------------------
     // Constructor
     Physics() {
         // Bind physics-related static rulesets here
-        bind(RulesetType::Global, "::gravity", &Physics::gravity);
+        bind(RulesetType::Global, gravityName, &Physics::gravity);
     }
 };
 }  // namespace Nebulite::Interaction::Rules::RulesetModules
