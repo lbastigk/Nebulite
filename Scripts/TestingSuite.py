@@ -301,8 +301,8 @@ def validate_test_result(output: Dict[str, Union[List[str], int]], expected: Dic
             passed = False
             if verbose:
                 print(f"  ✗ cout mismatch\n")
-                print(f"    Expected : {expected['cout']}")
-                print(f"    Got      : {output['cout']}")
+                print(f"    Expected : {json.dumps(expected['cout'], ensure_ascii=False)}")
+                print(f"    Got      : {json.dumps(output['cout'], ensure_ascii=False)}")
     
     # Compare expected stderr
     if 'cerr' in expected:
