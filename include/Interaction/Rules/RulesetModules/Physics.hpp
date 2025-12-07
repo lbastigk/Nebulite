@@ -32,6 +32,23 @@ public:
     void gravity(Context const& context);
     static std::string gravityName;
 
+    /**
+     * @todo Both Gravity Rulesets, static and nonstatic, should add forces
+     *       Just like any other ruleset, we should always work backwards and apply a force addition
+     *       Then, we call ::physics::update to apply the accumulated forces to acceleration, velocity, and position
+     *       This way, we can have multiple rulesets adding forces without interfering with each other
+     *       Do the same for elastic collision, may be harder as we have to calculate backwards:
+     *       we know the new v, and need to use dt to calculate the force that caused it
+     */
+
+    //void elasticCollision(Context const& context);
+    //static std::string elasticCollisionName;
+
+    //void update(Context const& context);
+    //static std::string updateName;
+
+
+
     //------------------------------------------
     // Constructor
     Physics() {
