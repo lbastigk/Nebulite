@@ -29,15 +29,20 @@ public:
     //------------------------------------------
     // Functions
 
-    void message(Context const& context); // Provides a simple debug message to cout
-    void error(Context const& context); // Provides a simple debug message to cerr
+    // Provides a simple debug message to cout
+    void message(Context const& context);
+    static constexpr std::string_view messageName = "::message";
+
+    // Provides a simple debug message to cerr
+    void error(Context const& context);
+    static constexpr std::string_view errorName = "::error";
 
     //------------------------------------------
     // Constructor
     Debug() {
         // Bind Debug-related static rulesets here
-        bind(RulesetType::Local, "::message", &Debug::message);
-        bind(RulesetType::Local, "::error", &Debug::error);
+        bind(RulesetType::Local, messageName, &Debug::message);
+        bind(RulesetType::Local, errorName, &Debug::error);
     }
 };
 } // namespace Nebulite::Interaction::Rules::RulesetModules
