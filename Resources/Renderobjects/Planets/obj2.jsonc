@@ -2,13 +2,14 @@
     "id": 0,
     "invokeSubscriptions": [
         "all",
-        // Allow both static and nonstatic gravity rulesets to influence this object
+        // Backwards-compatibility: Allow both static and nonstatic gravity rulesets to influence this object
         "::physics::gravity",
         "gravity"
     ],
     "invokes": [
         // Use the static gravity ruleset for speed
-        "::physics::gravity", //"./Resources/Invokes/Physics/gravity.jsonc",
+        "::physics::gravity",
+        //"./Resources/Invokes/Physics/gravity.jsonc",
         // For now, we use the old integrate and reset rulesets
         "./Resources/Invokes/Physics/integrate_a.jsonc",
         "./Resources/Invokes/Physics/integrate_v.jsonc",
@@ -45,7 +46,6 @@
         },
         "dx": 0.0,
         "dy": -30.0,
-
         "fontSize": 16,
         "str": "OBJ2"
     }

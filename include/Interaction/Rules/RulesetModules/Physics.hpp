@@ -44,10 +44,8 @@ public:
     //void elasticCollision(Context const& context);
     //static constexpr std::string_view elasticCollisionName;
 
-    //void update(Context const& context);
+    //void applyForce(Context const& context);
     //static constexpr std::string_view updateName;
-
-
 
     //------------------------------------------
     // Constructor
@@ -55,6 +53,45 @@ public:
         // Bind physics-related static rulesets here
         bind(RulesetType::Global, gravityName, &Physics::gravity);
     }
+private:
+    static constexpr std::string_view moduleName = "::physics";
+
+    // Unique identifier for caching
+    uint64_t const id = Nebulite::global().getUniqueId(std::string(moduleName), Core::GlobalSpace::UniqueIdType::expression);
+
+    //------------------------------------------
+    // Base values for physics framework
+
+    // 1.) To retrieve from self and other using the ensureOrderedCacheList function
+
+    // Variable context Keys being used for both entities
+    const std::vector<std::string> keys = {
+        "physics.aX",
+        "physics.aY",
+        "physics.mass",
+        "posX",
+        "posY"
+    };
+    enum class Key : std::size_t {
+        physics_aX,
+        physics_aY,
+        physics_mass,
+        posX,
+        posY
+    };
+    double& baseVal(double** v, Key k) noexcept {
+        return *v[static_cast<std::size_t>(k)];
+    };
+
+    double** getBaseList(Nebulite::Core::RenderObject& ctx) {
+        return ensureOrderedCacheList(*ctx.getDoc(), id, keys)->data();
+    }
+
+    // 2.) To retrieve from globalspace
+    struct GlobalVal {
+        double* G = Nebulite::global().getDoc()->getStableDoublePointer("physics.G");
+    } globalVal;
+
 };
 }  // namespace Nebulite::Interaction::Rules::RulesetModules
 #endif // NEBULITE_INTERACTION_RULES_RULESET_MODULES_PHYSICS_HPP
