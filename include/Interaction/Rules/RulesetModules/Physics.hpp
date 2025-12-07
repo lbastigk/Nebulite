@@ -30,7 +30,7 @@ public:
     // Functions
 
     void gravity(Context const& context);
-    static std::string gravityName;
+    static constexpr std::string_view gravityName = "::physics::gravity";
 
     /**
      * @todo Both Gravity Rulesets, static and nonstatic, should add forces
@@ -42,10 +42,10 @@ public:
      */
 
     //void elasticCollision(Context const& context);
-    //static std::string elasticCollisionName;
+    //static constexpr std::string_view elasticCollisionName;
 
     //void update(Context const& context);
-    //static std::string updateName;
+    //static constexpr std::string_view updateName;
 
 
 

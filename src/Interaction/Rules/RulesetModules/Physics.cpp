@@ -8,7 +8,7 @@ void Physics::gravity(Context const& context) {
     // Workspace Setup
 
     // Unique identifier for caching
-    static const uint64_t id = Nebulite::global().getUniqueId(gravityName, Core::GlobalSpace::UniqueIdType::expression);
+    static const uint64_t id = Nebulite::global().getUniqueId(std::string(gravityName), Core::GlobalSpace::UniqueIdType::expression);
 
     // Variable context Keys being used for both entities
     static const std::vector<std::string> keys = {
@@ -53,7 +53,5 @@ void Physics::gravity(Context const& context) {
     val(otr, Key::physics_aX) += *G * val(slf, Key::physics_mass) * distanceX / denominator;
     val(otr, Key::physics_aY) += *G * val(slf, Key::physics_mass) * distanceY / denominator;
 }
-
-std::string Physics::gravityName = "::physics::gravity";
 
 }

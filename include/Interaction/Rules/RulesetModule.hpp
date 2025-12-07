@@ -10,9 +10,9 @@
 // Includes
 
 // Standard library
-#include <vector>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 // External
 
@@ -32,11 +32,14 @@ public:
      * @param func The function implementing the ruleset
      */
     template<typename T>
-    void bind(RulesetType const& type, std::string const& topic, void (T::*func)(Context const&)) {
+    void bind(RulesetType const& type, std::string_view const& topic, void (T::*func)(Context const&)) {
         static_assert(std::is_base_of_v<RulesetModule, T>, "bind(): T must derive from RulesetModule");
+        if (!topic.starts_with("::")) {
+            throw std::invalid_argument("RulesetModule::bind(): topic must start with '::'. Tried to bind: " + std::string(topic));
+        }
         moduleRulesets.push_back({
             type,
-            topic,
+            std::string(topic),
             [this, func](Context const& ctx) { (static_cast<T*>(this)->*func)(ctx); }
         });
     }
@@ -55,7 +58,7 @@ public:
      * @brief Helper function to retrieve an ordered list of stable double pointers
      *        arrays of keys to arrays of values
      *        with a unique identifier for each array of values
-     *        Tip: use the function name itself "::function" as the unique identifier
+     *        Use the function name itself "::<function>" as the unique identifier
      *        hash in globalspace to avoid collisions.
      * @param doc The document in which to retrieve the values
      * @param identifier The unique identifier for the array of values
