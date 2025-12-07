@@ -160,12 +160,9 @@ private:
     void flush();
 
     /**
-     * @brief Structure to hold multiple maps for expression references.
-     *        Currently, only reference "other" is used, but later on references like "parent" or "child" could be added.
+     * @brief Mapped ordered double pointers for expression references.
      */
-    struct ExpressionRefs {
-        MappedOrderedDoublePointers as_other;
-    } expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
+    MappedOrderedDoublePointers expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
 
     /**
      * @brief Super quick double cache based on unique IDs, no hash lookup.
@@ -436,10 +433,17 @@ public:
     // Assorted list of double pointers
 
     /**
-     * @brief Retrieves the map of ordered double pointers for "other" expression references.
-     * @return A pointer to the map of ordered double pointers for "other" reference.
+     * @brief Retrieves the map of ordered double pointers for expression references.
+     * @return A pointer to the map of ordered double pointers for reference.
+     * @note Use a proper unique Identifier!
+     *       - in Expressions, the map is only used for "other" references and uses the expression as hash
+     *       - in Static Rulesets, the map is used for both "self" and "other" references, and uses the function name as hash
+     *       Later on, with more context such as parent, we need to find different hashes for each context.
+     *       perhaps: <context>::<function>
+     *       and for static rulesets, just using ::<function> is enough.
+     *       But we can use multiple retrievals if we desire, specifying different contexts.
      */
-    MappedOrderedDoublePointers* getExpressionRefsAsOther();
+    MappedOrderedDoublePointers* getExpressionRefs();
 };
 } // namespace Nebulite::Data
 #include "JSON.tpp"

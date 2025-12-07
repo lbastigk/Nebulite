@@ -133,11 +133,26 @@ public:
      * @param reference The JSON document to reference as context "other" for variable resolution.
      * @param contextOther The vector of virtual doubles in the "other" context to populate the cache with.
      * @return A pointer to the ordered vector of double pointers for the referenced "other" variables.
+     * @todo Wouldn't reference always be the owner of this object? If so, couldn't we set it up on construction?
      */
     odpvec* ensureOrderedCacheList(
         uint64_t uniqueId,
         Nebulite::Data::JSON* reference,
         std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther
+        );
+
+    /**
+     * @brief Ensures the existence of an ordered cache list of double pointers for a set of keys.
+     * @param uniqueId The unique ID for the ordered cache list.
+     * @param reference The JSON document to reference for key resolution.
+     * @param keys The vector of keys to populate the cache with.
+     * @return A pointer to the ordered vector of double pointers for the specified keys.
+     * @todo Wouldn't reference always be the owner of this object? If so, couldn't we set it up on construction?
+     */
+    odpvec* ensureOrderedCacheList(
+        uint64_t uniqueId,
+        Nebulite::Data::JSON* reference,
+        std::vector<std::string> const& keys
         );
 
 private:

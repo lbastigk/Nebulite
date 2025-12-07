@@ -50,6 +50,22 @@ public:
             container.bindStaticRuleset(ruleset.topic, ruleset);
         }
     }
+
+    /**
+     * @brief Helper function to retrieve an ordered list of stable double pointers
+     *        arrays of keys to arrays of values
+     *        with a unique identifier for each array of values
+     *        Tip: use the function name itself "::function" as the unique identifier
+     *        hash in globalspace to avoid collisions.
+     * @param doc The document in which to retrieve the values
+     * @param identifier The unique identifier for the array of values
+     * @param keys The array of keys to retrieve values for
+     * @return An array of values corresponding to the provided keys
+     */
+    Data::odpvec* ensureOrderedCacheList(Nebulite::Data::JSON& doc, uint64_t const& identifier, std::vector<std::string> const& keys) {
+        auto map = doc.getExpressionRefs();
+        return map->ensureOrderedCacheList(identifier, &doc, keys);
+    }
 private:
     // Vector of all static rulesets from this module
     std::vector<StaticRulesetMap::StaticRuleSetWithMetaData> moduleRulesets;

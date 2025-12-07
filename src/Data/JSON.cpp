@@ -570,17 +570,13 @@ void JSON::set_concat(std::string const& key, std::string const& valStr) {
 //------------------------------------------
 // Expression reference pools
 
-MappedOrderedDoublePointers* JSON::getExpressionRefsAsOther() {
+MappedOrderedDoublePointers* JSON::getExpressionRefs() {
 #if ORDERED_DOUBLE_POINTERS_MAPS == 1
-    return &expressionRefs[0].as_other;
+    return &expressionRefs[0];
 #else
     // Each thread gets a unique starting position based on thread ID
-    thread_local const size_t thread_offset = std::hash<std::thread::id>{}(std::this_thread::get_id());
-    thread_local size_t counter = 0;
-
-    // Rotate through pool entries starting from thread's unique offset
-    size_t const idx = (thread_offset + counter++) % ORDERED_DOUBLE_POINTERS_MAPS;
-    return &expressionRefs[idx].as_other;
+    thread_local const size_t idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % ORDERED_DOUBLE_POINTERS_MAPS;
+    return &expressionRefs[idx];
 #endif
 }
 
