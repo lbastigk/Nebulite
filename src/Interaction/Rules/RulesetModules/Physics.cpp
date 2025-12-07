@@ -21,24 +21,22 @@ void Physics::gravity(Context const& context) {
         posY
     };
     static double* G = Nebulite::global().getDoc()->getStableDoublePointer("physics.G");
+    static double invMaxAccel = 1.0 / 1e4; // To prevent extreme accelerations
 
     // Get ordered cache lists for both entities
-    auto self = ensureOrderedCacheList(*context.self.getDoc(), id, keys)->data();
-    auto othr = ensureOrderedCacheList(*context.other.getDoc(), id, keys)->data();
+    auto slf = ensureOrderedCacheList(*context.self.getDoc(), id, keys)->data();
+    auto otr = ensureOrderedCacheList(*context.other.getDoc(), id, keys)->data();
 
     // Calculate distance components
-    double distanceX = *self[posX] - *othr[posX];
-    double distanceY = *self[posY] - *othr[posY];
-    double denominator = std::pow((distanceX * distanceX + distanceY * distanceY),1.5);
+    double const distanceX = *slf[posX] - *otr[posX];
+    double const distanceY = *slf[posY] - *otr[posY];
 
-    // Avoid division by zero or NaN
-    // denominator is always positive due to squaring
-    if (denominator < std::numeric_limits<double>::epsilon() || std::isnan(denominator))
-        return;
+    // Avoid division by zero by adding a small epsilon
+    double const denominator = std::pow((distanceX * distanceX + distanceY * distanceY),1.5) + invMaxAccel;
 
     // Calculate aX and aY of other
-    *othr[physics_aX] += *G * *self[physics_mass] * distanceX / (denominator);
-    *othr[physics_aY] -= *G * *self[physics_mass] * distanceY / (denominator);
+    *otr[physics_aX] += *G * *slf[physics_mass] * distanceX / denominator;
+    *otr[physics_aY] += *G * *slf[physics_mass] * distanceY / denominator;
 }
 
 }
