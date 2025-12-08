@@ -4,18 +4,7 @@
         "all"
     ],
     "invokes": [
-        {
-            "topic": "",
-            "logicalArg": "1",
-            "exprs": [
-                "self.text.str = '     $06i({global.score.left})        |        $06i({global.score.right})     '"
-            ],
-            "functioncalls_global": [],
-            "functioncalls_self": [
-                "update-text"
-            ],
-            "functioncalls_other": []
-        }
+        "./Resources/Invokes/Pong/showScore.jsonc"
     ],
     "layer": 3,
     "posX": 320,
