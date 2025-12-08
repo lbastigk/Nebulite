@@ -1,20 +1,14 @@
 {
-
     "id": 0,
-
     "invokeSubscriptions": [
         "all",
-        // Gravity influences this object
         "::physics::gravity",
         "gravity",
-        // Object bounces off walls
         "collision"
     ],
     "invokes": [
-        // Object also causes other objects to bounce off of itself
         "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
         "./Resources/Invokes/Physics/elastic_collision_Y.jsonc",
-        // Standard gravity settings
         "::physics::gravity",
         "::physics::applyForce"
     ],

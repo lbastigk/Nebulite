@@ -2,7 +2,6 @@
     "id": 0,
     "invokeSubscriptions": [
         "all",
-        // Using both static and nonstatic gravity rulesets to influence this object
         "::physics::gravity",
         "gravity"
     ],

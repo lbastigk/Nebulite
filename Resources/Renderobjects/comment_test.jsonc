@@ -1,5 +1,4 @@
 {
-    // TEST123
     "id": 0,
     "invokeSubscriptions": [
         "all"
@@ -9,7 +8,6 @@
     "posX": 0,
     "posY": 0,
     "sprite": {
-        // TEST123
         "link": "Resources/Sprites/TEST001P/001.bmp",
         "sizeX": 32,
         "sizeY": 32,

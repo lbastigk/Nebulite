@@ -1,17 +1,14 @@
 {
     "topic": "all",
-    // Controlling the NPC's movement
-    // The NPC moves up and down based on the ball's Y position
-    // It looks for the ball by checking the other object's physics X velocity
-    // As the ball is the only object with a physics X velocity, this is sufficient
-    // Therefore, the NPC can simply follow the ball's Y position
     "logicalArg": "$(neq( {other.physics.vX}, 0))",
     "exprs": [
         "self.go_down = $( gt( {other.posY}, {self.posY} + {self.sprite.sizeY} / 2 ) * leq( {self.posY}, {global.display.resolution.Y} - {self.sprite.sizeY} - 32 ) )",
         "self.go_up =   $( lt( {other.posY}, {self.posY} + {self.sprite.sizeY} / 2 ) * geq({self.posY},32))",
         "self.physics.vY = $( ( {self.go_down} - {self.go_up} ) * {self.physics.vNorm} )"
     ],
-    "functioncalls_global": [],
-    "functioncalls_self": [],
-    "functioncalls_other": []
+    "functioncalls": {
+        "global": [],
+        "self": [],
+        "other": []
+    }
 }

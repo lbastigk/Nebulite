@@ -1,17 +1,12 @@
 {
-
     "id": 0,
-
     "invokeSubscriptions": [
         "all",
-        // Using both static and nonstatic gravity rulesets to influence this object
         "::physics::gravity",
         "gravity",
-        // Object bounces off walls
         "collision"
     ],
     "invokes": [
-        // Standard gravity settings
         "::physics::gravity",
         "::physics::applyForce"
     ],

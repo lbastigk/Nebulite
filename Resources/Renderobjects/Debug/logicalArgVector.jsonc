@@ -5,14 +5,14 @@
     ],
     "invokes": [
         {
-            "topic" : "",
+            "topic": "",
             "logicalArg": [
                 "entry1",
                 "entry2",
                 "entry3",
                 "entry4"
             ],
-            "exprs" : [],
+            "exprs": [],
             "functioncalls_global": [],
             "functioncalls_self": [
                 "delete"
@@ -20,9 +20,9 @@
             "functioncalls_other": []
         },
         {
-            "topic" : "",
+            "topic": "",
             "logicalArg": "1",
-            "exprs" : [],
+            "exprs": [],
             "functioncalls_global": [
                 "echo Works!"
             ],

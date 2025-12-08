@@ -18,7 +18,7 @@
         "aY": 0.0,
         "vX": 0.0,
         "vY": 0.0,
-        "vNorm" : 300.0
+        "vNorm": 300.0
     },
     "sprite": {
         "link": "Resources/Sprites/TEST001P/066.bmp",

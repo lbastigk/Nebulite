@@ -6,7 +6,9 @@
         "self.go_up = $( {global.input.keyboard.current.up} * geq({self.posY},32))",
         "self.physics.vY = $( ( {self.go_down} - {self.go_up} ) * {self.physics.vNorm} )"
     ],
-    "functioncalls_global": [],
-    "functioncalls_self": [],
-    "functioncalls_other": []
+    "functioncalls": {
+        "global": [],
+        "self": [],
+        "other": []
+    }
 }

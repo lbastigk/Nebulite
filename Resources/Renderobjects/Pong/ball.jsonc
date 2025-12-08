@@ -2,18 +2,12 @@
     "id": 0,
     "invokeSubscriptions": [
         "all",
-        "collision" // Collide with paddles
+        "collision"
     ],
     "invokes": [
-        // Ball falls slowly to get curvature effect
-        // Helpful, so that the angle changes over time
         "./Resources/Invokes/Physics/falling.jsonc",
-        // Apply falling force
         "./Resources/Invokes/Physics/applyForce.jsonc",
-        // Ensure minimum velocity in x direction
-        // Otherwise ball might get stuck moving vertically
         "./Resources/Invokes/Pong/ensureVelocityX.jsonc",
-        // Respawn ball if out of bounds
         "./Resources/Invokes/Pong/respawnBallLeft.jsonc",
         "./Resources/Invokes/Pong/respawnBallRight.jsonc"
     ],

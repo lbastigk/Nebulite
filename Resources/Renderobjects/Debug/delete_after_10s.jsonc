@@ -5,9 +5,9 @@
     ],
     "invokes": [
         {
-            "topic" : "",
+            "topic": "",
             "logicalArg": "gt( {global.time.t}, 10)",
-            "exprs" : [],
+            "exprs": [],
             "functioncalls_global": [],
             "functioncalls_self": [
                 "delete"
@@ -15,9 +15,9 @@
             "functioncalls_other": []
         },
         {
-            "topic" : "",
+            "topic": "",
             "logicalArg": "1",
-            "exprs" : [],
+            "exprs": [],
             "functioncalls_global": [
                 "eval echo The time is {global.time.t} s and I am still alive!"
             ],

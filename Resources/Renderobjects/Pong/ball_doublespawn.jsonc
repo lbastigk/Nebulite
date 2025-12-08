@@ -5,13 +5,9 @@
         "collision"
     ],
     "invokes": [
-        // Ball falls slowly
         "./Resources/Invokes/Physics/falling_slow.jsonc",
-        // Apply falling force
         "./Resources/Invokes/Physics/applyForce.jsonc",
-        // Ensure minimum velocity
         "./Resources/Invokes/Pong/ensureVelocity.jsonc",
-        // Respawn ball twice if out of bounds
         "./Resources/Invokes/Pong/respawnBallLeftTwice.jsonc",
         "./Resources/Invokes/Pong/respawnBallRightTwice.jsonc"
     ],
@@ -22,7 +18,7 @@
         "aY": 0.0,
         "vX": 1.0,
         "vY": 1.0,
-        "vNorm" : 300
+        "vNorm": 300
     },
     "posX": 350,
     "posY": 500,

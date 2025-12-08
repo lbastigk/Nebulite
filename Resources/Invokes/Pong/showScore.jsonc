@@ -4,9 +4,11 @@
     "exprs": [
         "self.text.str = '     $06i({global.score.left})        |        $06i({global.score.right})     '"
     ],
-    "functioncalls_global": [],
-    "functioncalls_self": [
-        "update-text"
-    ],
-    "functioncalls_other": []
+    "functioncalls": {
+        "global": [],
+        "self": [
+            "update-text"
+        ],
+        "other": []
+    }
 }
