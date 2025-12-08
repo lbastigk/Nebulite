@@ -1,0 +1,11 @@
+{
+    // Making sure the ball has a certain amount of X-Velocity
+    "topic": "",
+    "logicalArg": "$( lt( abs({self.physics.vX}) ,10) )",
+    "exprs": [
+        "self.physics.vX *= $(sgn({self.physics.vX}) + 10)"
+    ],
+    "functioncalls_global": [],
+    "functioncalls_self": [],
+    "functioncalls_other": []
+}

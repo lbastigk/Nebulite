@@ -2,62 +2,28 @@
     "id": 0,
     "invokeSubscriptions": [
         "all",
-        "collision"
+        "collision" // Collide with paddles
     ],
     "invokes": [
-        "./Resources/Invokes/Physics/falling_slow.jsonc",
-        "./Resources/Invokes/Physics/integrate_a.jsonc",
-        "./Resources/Invokes/Physics/normalize_v_to_physics-vNorm.jsonc",
-        "./Resources/Invokes/Physics/integrate_v.jsonc",
-        "./Resources/Invokes/Physics/reset_a.jsonc",
-        {
-            // Making sure the ball has a certain amount of X-Velocity
-            "topic": "",
-            "logicalArg": "$( lt( abs({self.physics.vX}) ,0.1) )",
-            "exprs": [
-                "self.physics.vX *= $(sgn({self.physics.vX}) + 0.1)"
-            ],
-            "functioncalls_global": [],
-            "functioncalls_self": [],
-            "functioncalls_other": []
-        },
-        {
-            "topic": "",
-            "logicalArg": "$( lt({self.posX},0) )",
-            "exprs": [
-                "global.score.right += 1"
-            ],
-            "functioncalls_global": [
-                "eval spawn ./Resources/Renderobjects/Pong/ball.jsonc|posX=$( {global.display.resolution.X} * 0.5 + ({global.random.A}/32768 - 0.5) * 100)|posY=$( {global.display.resolution.Y} * 0.5 + ({global.random.B}/32768 - 0.5) * 100)|physics.vX=$( ({global.random.A}/32768 + 1) * 100 * (-1)^{global.random.A})|physics.vY=$( ({global.random.B}/32768 - 0.5) * 100 )"
-            ],
-            "functioncalls_self": [
-                "delete"
-            ],
-            "functioncalls_other": []
-        },
-        {
-            "topic": "",
-            "logicalArg": "$( gt({self.posX},{global.display.resolution.X}) )",
-            "exprs": [
-                "global.score.left += 1"
-            ],
-            "functioncalls_global": [
-                "eval spawn ./Resources/Renderobjects/Pong/ball.jsonc|posX=$( {global.display.resolution.X} * 0.5 + ({global.random.A}/32768 - 0.5) * 100)|posY=$( {global.display.resolution.Y} * 0.5 + ({global.random.B}/32768 - 0.5) * 100)|physics.vX=$( ({global.random.A}/32768 + 1) * 100 * (-1)^{global.random.A})|physics.vY=$( ({global.random.B}/32768 - 0.5) * 100 )"
-            ],
-            "functioncalls_self": [
-                "delete"
-            ],
-            "functioncalls_other": []
-        }
+        // Ball falls slowly to get curvature effect
+        // Helpful, so that the angle changes over time
+        "./Resources/Invokes/Physics/falling.jsonc",
+        // Apply falling force
+        "./Resources/Invokes/Physics/applyForce.jsonc",
+        // Ensure minimum velocity in x direction
+        // Otherwise ball might get stuck moving vertically
+        "./Resources/Invokes/Pong/ensureVelocityX.jsonc",
+        // Respawn ball if out of bounds
+        "./Resources/Invokes/Pong/respawnBallLeft.jsonc",
+        "./Resources/Invokes/Pong/respawnBallRight.jsonc"
     ],
     "layer": 0,
     "physics": {
         "mass": 10.0,
         "aX": 0.0,
         "aY": 0.0,
-        "vX": 1.0,
-        "vY": 1.0,
-        "vNorm" : 300
+        "vX": 300.0,
+        "vY": 300.0
     },
     "posX": 350,
     "posY": 500,
