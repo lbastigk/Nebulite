@@ -17,7 +17,7 @@
         "./Resources/Invokes/Movement/movement_wasd_to_v.jsonc",
         "./Resources/Invokes/Physics/normalize_v_to_physics-vNorm.jsonc",
         "./Resources/Invokes/Movement/no_movement_on_attack.jsonc",
-        "./Resources/Invokes/Physics/integrate_v.jsonc",
+        "./Resources/Invokes/Physics/applyForce.jsonc",
         "./Resources/Invokes/General/set_render_position_center.jsonc"
     ],
     "layer": 3,
