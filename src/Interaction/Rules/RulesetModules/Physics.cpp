@@ -14,11 +14,12 @@ void Physics::gravity(Context const& context) {
 
     // Avoid division by zero by adding a small epsilon
     double const denominator = std::pow((distanceX * distanceX + distanceY * distanceY), 1.5) + 1; // +1 to avoid singularity
+    double const coefficient = *globalVal.G * baseVal(slf, Key::physics_mass) * baseVal(otr, Key::physics_mass) / denominator;
 
-    // Calculate aX and aY of other
+    // Apply gravitational force to other entity
     auto otrLock = context.other.getDoc()->lock();
-    baseVal(otr, Key::physics_aX) += *globalVal.G * baseVal(slf, Key::physics_mass) * distanceX / denominator;
-    baseVal(otr, Key::physics_aY) += *globalVal.G * baseVal(slf, Key::physics_mass) * distanceY / denominator;
+    baseVal(otr, Key::physics_FX) += distanceX * coefficient;
+    baseVal(otr, Key::physics_FY) += distanceY * coefficient;
 }
 
 void Physics::applyForce(Context const& context) {
@@ -27,8 +28,12 @@ void Physics::applyForce(Context const& context) {
 
     // Lock and apply all physics calculations
     auto slfLock = context.self.getDoc()->lock();
-    baseVal(slf, Key::physics_aX) += baseVal(slf, Key::physics_FX) / baseVal(slf, Key::physics_mass);
-    baseVal(slf, Key::physics_aY) += baseVal(slf, Key::physics_FY) / baseVal(slf, Key::physics_mass);
+
+    // Acceleration is based on F
+    baseVal(slf, Key::physics_aX) = baseVal(slf, Key::physics_FX) / baseVal(slf, Key::physics_mass);
+    baseVal(slf, Key::physics_aY) = baseVal(slf, Key::physics_FY) / baseVal(slf, Key::physics_mass);
+
+    // Velocity and Position is based on integration of Acceleration over dt
     baseVal(slf, Key::physics_vX) += baseVal(slf, Key::physics_aX) * (*globalVal.dt);
     baseVal(slf, Key::physics_vY) += baseVal(slf, Key::physics_aY) * (*globalVal.dt);
     baseVal(slf, Key::posX) += baseVal(slf, Key::physics_vX) * (*globalVal.dt);
