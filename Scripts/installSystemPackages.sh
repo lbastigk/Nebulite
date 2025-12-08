@@ -39,7 +39,7 @@ if command -v apt-get >/dev/null; then
     sudo apt-get install -y "$APT_PACKAGES"
 elif command -v dnf >/dev/null; then
     echo "Detected DNF package manager (Fedora)"
-    sudo dnf install -y "$DNF_PACKAGES"
+    sudo dnf install -y --skip-unavailable "$DNF_PACKAGES"
 elif command -v yum >/dev/null; then
     echo "Detected YUM package manager (CentOS/RHEL)"
     sudo yum install -y "$YUM_PACKAGES"
@@ -56,28 +56,3 @@ else
     echo "  - cloc (for line counting)"
     read -r -p "Press Enter when dependencies are installed, or Ctrl+C to exit..."
 fi
-
-###########################################
-# Install git submodules
-echo "Setting up git submodules..."
-
-# Reset build directories and external libraries
-rm -rf tmp/
-rm -rf external/
-
-# Initialize and update git submodules
-sudo -u "$SUDO_USER" git submodule update --init --recursive
-
-###########################################
-# Install Python packages
-echo "Installing Python dependencies..."
-
-# Make a new venv directory
-VENV_DIR="$PWD/.venv"
-rm -rf "$VENV_DIR"
-python3 -m venv "$VENV_DIR"
-
-# Activate virtual environment and install packages
-source "$VENV_DIR/bin/activate"
-pip install --upgrade pip
-pip install -r requirements.txt
