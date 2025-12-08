@@ -2,13 +2,12 @@
     "id": 0,
     "invokeSubscriptions": [
         "all",
-        "::physics::gravity"
+        "::physics::gravity",
+        "gravity"
     ],
     "invokes": [
         "::physics::gravity",
-        "./Resources/Invokes/Physics/integrate_a.jsonc",
-        "./Resources/Invokes/Physics/integrate_v.jsonc",
-        "./Resources/Invokes/Physics/reset_a.jsonc"
+        "::physics::applyForce"
     ],
     "layer": 0,
     "physics": {

@@ -4,16 +4,16 @@
 
     "invokeSubscriptions": [
         "all",
+        // Using both static and nonstatic gravity rulesets to influence this object
+        "::physics::gravity",
         "gravity",
         // Object bounces off walls
         "collision"
     ],
     "invokes": [
         // Standard gravity settings
-        "./Resources/Invokes/Physics/gravity.jsonc",
-        "./Resources/Invokes/Physics/integrate_a.jsonc",
-        "./Resources/Invokes/Physics/integrate_v.jsonc",
-        "./Resources/Invokes/Physics/reset_a.jsonc"
+        "::physics::gravity",
+        "::physics::applyForce"
     ],
     "layer": 0,
     "physics": {
