@@ -443,6 +443,15 @@ private:
         }
 
         //----------------------------------
+        // Maximum and Minimum functions
+
+        // NOLINTNEXTLINE
+        static double max(double a, double b){return (a > b) ? a : b;}
+
+        // NOLINTNEXTLINE
+        static double min(double a, double b){return (a < b) ? a : b;}
+
+        //----------------------------------
         // More mathematical functions
 
         // NOLINTNEXTLINE

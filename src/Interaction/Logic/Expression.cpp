@@ -74,6 +74,10 @@ void Nebulite::Interaction::Logic::Expression::reset() {
     te_variables.push_back({"map", reinterpret_cast<void*>(expr_custom::map), TE_FUNCTION5, nullptr});
     te_variables.push_back({"constrain", reinterpret_cast<void*>(expr_custom::constrain), TE_FUNCTION3, nullptr});
 
+    // Maximum and Minimum functions
+    te_variables.push_back({"max", reinterpret_cast<void*>(expr_custom::max), TE_FUNCTION2, nullptr});
+    te_variables.push_back({"min", reinterpret_cast<void*>(expr_custom::min), TE_FUNCTION2, nullptr});
+
     // More mathematical functions
     te_variables.push_back({"sgn", reinterpret_cast<void*>(expr_custom::sgn), TE_FUNCTION1, nullptr});
 }
