@@ -48,8 +48,8 @@ public:
      *       we know the new v, and need to use dt to calculate the force that caused it
      */
 
-    //void elasticCollision(Context const& context);
-    //static constexpr std::string_view elasticCollisionName;
+    void elasticCollision(Context const& context);
+    static constexpr std::string_view elasticCollisionName = "::physics::elasticCollision";
 
     void applyForce(Context const& context);
     static constexpr std::string_view applyForceName = "::physics::applyForce";
@@ -85,7 +85,9 @@ private:
         "physics.FX",
         "physics.FY",
         "posX",
-        "posY"
+        "posY",
+        "sprite.sizeX",
+        "sprite.sizeY"
     };
 
     /**
@@ -102,7 +104,9 @@ private:
         physics_FX,
         physics_FY,
         posX,
-        posY
+        posY,
+        spriteSizeX,
+        spriteSizeY
     };
 
     /**
@@ -134,6 +138,7 @@ private:
     struct GlobalVal {
         double* G = Nebulite::global().getDoc()->getStableDoublePointer("physics.G");   // Gravitational constant
         double* dt = Nebulite::global().getDoc()->getStableDoublePointer("time.dt");    // Simulation delta time
+        double* t  = Nebulite::global().getDoc()->getStableDoublePointer("time.t");     // Simulation time
         /* Add more global variables here as needed */
     } globalVal;
 
