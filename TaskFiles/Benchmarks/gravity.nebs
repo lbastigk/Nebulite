@@ -3,7 +3,7 @@ echo
 echo Rendering with a fixed dt of 10ms
 echo 
 echo 
-set physics.G 10
+set physics.G 6.67 # High value so we actually see some movement. About 1e12x real gravity
 time set-fixed-dt 10
 set-res 1440 1440
 set-fps 10000

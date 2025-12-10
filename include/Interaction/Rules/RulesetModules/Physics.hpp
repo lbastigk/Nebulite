@@ -99,7 +99,7 @@ private:
      *        Used for indexing into the ordered cache list.
      */
     enum class Key : std::size_t {
-        physics_aX,
+        physics_aX = 0,
         physics_aY,
         physics_vX,
         physics_vY,

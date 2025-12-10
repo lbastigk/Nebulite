@@ -1,6 +1,6 @@
 set-fps 1000
 time set-fixed-dt 10
-set physics.G 981
+set physics.g 9.81  # Earth gravity
 set-res 640 360 3
 echo
 echo Bouncing test

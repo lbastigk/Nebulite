@@ -23,6 +23,8 @@ void Physics::gravity(Context const& context) {
 }
 
 void Physics::elasticCollision(Context const& context) {
+    return; // Disabled for now
+
     // Special keys for this function
     static std::string lastCollisionX = "physics.collision.time.lastX";
     static std::string lastCollisionY = "physics.collision.time.lastY";
@@ -142,14 +144,11 @@ void Physics::applyForce(Context const& context) {
 
     // Pre-calculate values before locking
     double const dt  = *globalVal.dt;
-    double const ddt = dt * dt;
     double const invMass = 1.0 / baseVal(slf, Key::physics_mass);
     double const aX = baseVal(slf, Key::physics_FX) * invMass;
     double const aY = baseVal(slf, Key::physics_FY) * invMass;
     double const dvX = aX * dt;
     double const dvY = aY * dt;
-    double const dPosX = aX * ddt;
-    double const dPosY = aY * ddt;
 
     // Lock and apply all physics calculations
     auto slfLock = context.self.getDoc()->lock();
@@ -161,8 +160,8 @@ void Physics::applyForce(Context const& context) {
     // Velocity and Position is based on integration of Acceleration over dt
     baseVal(slf, Key::physics_vX) += dvX;
     baseVal(slf, Key::physics_vY) += dvY;
-    baseVal(slf, Key::posX) += dPosX;
-    baseVal(slf, Key::posY) += dPosY;
+    baseVal(slf, Key::posX) += baseVal(slf, Key::physics_vX) * dt;
+    baseVal(slf, Key::posY) += baseVal(slf, Key::physics_vY) * dt;
 
     // Force reset after application
     baseVal(slf, Key::physics_FX) = 0.0;
