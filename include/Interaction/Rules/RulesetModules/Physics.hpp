@@ -36,33 +36,32 @@ public:
     //------------------------------------------
     // Functions
 
-    void gravity(Context const& context);
-    static constexpr std::string_view gravityName = "::physics::gravity";
-
-    /**
-     * @todo Both Gravity Rulesets, static and nonstatic, should add forces
-     *       Just like any other ruleset, we should always work backwards and apply a force addition
-     *       Then, we call ::physics::update to apply the accumulated forces to acceleration, velocity, and position
-     *       This way, we can have multiple rulesets adding forces without interfering with each other
-     *       Do the same for elastic collision, may be harder as we have to calculate backwards:
-     *       we know the new v, and need to use dt to calculate the force that caused it
-     */
+    // Global rulesets
 
     void elasticCollision(Context const& context);
     static constexpr std::string_view elasticCollisionName = "::physics::elasticCollision";
 
+    void gravity(Context const& context);
+    static constexpr std::string_view gravityName = "::physics::gravity";
+
+    // Local rulesets
+
     void applyForce(Context const& context);
     static constexpr std::string_view applyForceName = "::physics::applyForce";
+
+    void drag(Context const& context);
+    static constexpr std::string_view dragName = "::physics::drag";
 
     //------------------------------------------
     // Constructor
     Physics() {
         // Global rulesets
-        bind(RulesetType::Global, gravityName, &Physics::gravity);
         bind(RulesetType::Global, elasticCollisionName, &Physics::elasticCollision);
+        bind(RulesetType::Global, gravityName, &Physics::gravity);
 
         // Local rulesets
         bind(RulesetType::Local, applyForceName, &Physics::applyForce);
+        bind(RulesetType::Local, dragName, &Physics::drag);
     }
 
 private:

@@ -12,4 +12,4 @@ void Debug::error(Context const& context) {
     Nebulite::cout() << "[DEBUG] Static ruleset '::error' invoked!" << Nebulite::endl;
 }
 
-}
+} // namespace Nebulite::Interaction::Rules::RulesetModules

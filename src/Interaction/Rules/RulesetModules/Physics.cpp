@@ -3,24 +3,7 @@
 
 namespace Nebulite::Interaction::Rules::RulesetModules {
 
-void Physics::gravity(Context const& context) {
-    // Get ordered cache lists for both entities for base values
-    double** slf = getBaseList(context.self);
-    double** otr = getBaseList(context.other);
-
-    // Calculate distance components
-    double const distanceX = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
-    double const distanceY = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
-
-    // Avoid division by zero by adding a small epsilon
-    double const denominator = std::pow((distanceX * distanceX + distanceY * distanceY), 1.5) + 1; // +1 to avoid singularity
-    double const coefficient = *globalVal.G * baseVal(slf, Key::physics_mass) * baseVal(otr, Key::physics_mass) / denominator;
-
-    // Apply gravitational force to other entity
-    auto otrLock = context.other.getDoc()->lock();
-    baseVal(otr, Key::physics_FX) += distanceX * coefficient;
-    baseVal(otr, Key::physics_FY) += distanceY * coefficient;
-}
+// Global rulesets
 
 // TODO: Improve collision detection and response
 //       predictive future collision detection to avoid tunneling
@@ -28,6 +11,7 @@ void Physics::gravity(Context const& context) {
 //       first, call physics::predictCollision to see first future collision time
 //       then, use that info here to properly interpolate position
 //       that happens between now and the predicted next frame-time
+// TODO: Add a repositioning step to resolve overlaps
 void Physics::elasticCollision(Context const& context) {
     // Special keys for this ruleset only
     static std::string lastCollisionX = "physics.collision.time.lastX";
@@ -128,6 +112,27 @@ void Physics::elasticCollision(Context const& context) {
     }
 }
 
+void Physics::gravity(Context const& context) {
+    // Get ordered cache lists for both entities for base values
+    double** slf = getBaseList(context.self);
+    double** otr = getBaseList(context.other);
+
+    // Calculate distance components
+    double const distanceX = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
+    double const distanceY = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
+
+    // Avoid division by zero by adding a small epsilon
+    double const denominator = std::pow((distanceX * distanceX + distanceY * distanceY), 1.5) + 1; // +1 to avoid singularity
+    double const coefficient = *globalVal.G * baseVal(slf, Key::physics_mass) * baseVal(otr, Key::physics_mass) / denominator;
+
+    // Apply gravitational force to other entity
+    auto otrLock = context.other.getDoc()->lock();
+    baseVal(otr, Key::physics_FX) += distanceX * coefficient;
+    baseVal(otr, Key::physics_FY) += distanceY * coefficient;
+}
+
+// Local rulesets
+
 void Physics::applyForce(Context const& context) {
     // Get ordered cache list for self entity for base values
     double** slf = getBaseList(context.self);
@@ -156,6 +161,25 @@ void Physics::applyForce(Context const& context) {
     // Force reset after application
     baseVal(slf, Key::physics_FX) = 0.0;
     baseVal(slf, Key::physics_FY) = 0.0;
+}
+
+void Physics::drag(Context const& context) {
+    // Get ordered cache list for self entity for base values
+    double** slf = getBaseList(context.self);
+
+    // Drag coefficient (tunable parameter)
+    static constexpr double dragCoefficient = 0.1;
+
+    // Pre-calculate drag forces before locking
+    double const vX = baseVal(slf, Key::physics_vX);
+    double const vY = baseVal(slf, Key::physics_vY);
+    double const dragForceX = -dragCoefficient * vX;
+    double const dragForceY = -dragCoefficient * vY;
+
+    // Lock and apply drag forces
+    auto slfLock = context.self.getDoc()->lock();
+    baseVal(slf, Key::physics_FX) += dragForceX;
+    baseVal(slf, Key::physics_FY) += dragForceY;
 }
 
 } // namespace Nebulite::Interaction::Rules::RulesetModules
