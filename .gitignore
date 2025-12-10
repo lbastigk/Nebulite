@@ -42,7 +42,6 @@ build/
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
-Makefile
 
 # ignore python cache files
 __pycache__/
