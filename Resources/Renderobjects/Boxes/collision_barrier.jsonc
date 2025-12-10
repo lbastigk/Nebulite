@@ -1,8 +1,7 @@
 {
     "id": 0,
     "invokes": [
-        "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
-        "./Resources/Invokes/Physics/elastic_collision_Y.jsonc"
+        "::physics::elasticCollision"
     ],
     "layer": 0,
     "physics": {

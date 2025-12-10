@@ -22,38 +22,20 @@ void Physics::gravity(Context const& context) {
     baseVal(otr, Key::physics_FY) += distanceY * coefficient;
 }
 
+// TODO: Improve collision detection and response
+//       predictive future collision detection to avoid tunneling
+//       perhaps better to do so in separate ruleset module
+//       first, call physics::predictCollision to see first future collision time
+//       then, use that info here to properly interpolate position
+//       that happens between now and the predicted next frame-time
 void Physics::elasticCollision(Context const& context) {
-    return; // Disabled for now
-
-    // Special keys for this function
+    // Special keys for this ruleset only
     static std::string lastCollisionX = "physics.collision.time.lastX";
     static std::string lastCollisionY = "physics.collision.time.lastY";
 
     // Get ordered cache lists for both entities for base values
     double** slf = getBaseList(context.self);
     double** otr = getBaseList(context.other);
-
-    // Prerequisites
-    // Objects boundaries would overlap on X-axis or Y-axis next frame
-    // Both objects have non-zero mass
-    // Perhaps some fancy interpolation to set the position
-    // Ignore if velocity in examined axis is zero for this object
-    // -> if no overlap right now, but next frame, then interpolate to the point of contact and set new positions
-    //    dt = dt_before_contact + dt_after_contact
-    //    rContact = r + v * dt_before_contact
-    //    rNew = rContact + v_new * dt_after_contact
-    // Set a flag that collision happened to avoid multiple collision responses in a single frame
-    // This is an issue if the object collides with multiple objects in a single frame
-    // e.g.: A stack of objects, or just corner collisions
-
-    // m1*v1 + m2*v2 = m1*v1new + m2*v2new
-    // Split into v1new and v2new equations
-    // v1new = ( (m1 - m2)*v1 + 2*m2*v2 ) / m
-    // v2new = ( (m2 - m1)*v2 + 2*m1*v1 ) / m
-    // Work backwards to get Forces:
-    // F = m * dv / dt
-    // F1 = m1 * (v1new - v1) / dt
-    // F2 = m2 * (v2new - v2) / dt
 
     //------------------------------------------
     // Base condition check
@@ -63,15 +45,14 @@ void Physics::elasticCollision(Context const& context) {
     double const p1Y = baseVal(slf, Key::posY);
     double const p2X = baseVal(otr, Key::posX);
     double const p2Y = baseVal(otr, Key::posY);
-
     double const size1X = baseVal(slf, Key::spriteSizeX);
     double const size1Y = baseVal(slf, Key::spriteSizeY);
     double const size2X = baseVal(otr, Key::spriteSizeX);
     double const size2Y = baseVal(otr, Key::spriteSizeY);
-
     double const m1 = baseVal(slf, Key::physics_mass);
     double const m2 = baseVal(otr, Key::physics_mass);
 
+    // Base overlap condition
     bool baseCondition = m1 > 0.0 && m2 > 0.0
         && p1X < p2X + size2X  // right side overlap
         && p1Y < p2Y + size2Y  // bottom side overlap
@@ -85,6 +66,15 @@ void Physics::elasticCollision(Context const& context) {
         // Overlap checks for each axis (?)
         bool conditionX = baseCondition && ! (p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y);
         bool conditionY = baseCondition && ! (p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X);
+
+        // m1*v1 + m2*v2 = m1*v1new + m2*v2new
+        // Split into v1new and v2new equations
+        // v1new = ( (m1 - m2)*v1 + 2*m2*v2 ) / m
+        // v2new = ( (m2 - m1)*v2 + 2*m1*v1 ) / m
+        // Work backwards to get Forces:
+        // F = m * dv / dt
+        // F1 = m1 * (v1new - v1) / dt
+        // F2 = m2 * (v2new - v2) / dt
 
         // Lock and write forces to other entity
         // For self to be affected, other needs to broadcast this ruleset as well
@@ -109,7 +99,7 @@ void Physics::elasticCollision(Context const& context) {
             // Lock and write
             auto slfLock = context.self.getDoc()->lock();
             if (*lastColX < *globalVal.t) {
-                baseVal(otr, Key::physics_FX) += dF2X;  // TODO: verify direction
+                baseVal(otr, Key::physics_FX) += dF2X;
                 *lastColX = *globalVal.t;
             }
         }
@@ -131,7 +121,7 @@ void Physics::elasticCollision(Context const& context) {
             // Lock and write
             auto slfLock = context.self.getDoc()->lock();
             if (*lastColY < *globalVal.t) {
-                baseVal(otr, Key::physics_FY) += dF2Y;  // TODO: verify direction
+                baseVal(otr, Key::physics_FY) += dF2Y;
                 *lastColY = *globalVal.t;
             }
         }
