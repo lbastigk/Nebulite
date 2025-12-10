@@ -353,7 +353,7 @@ Constants::Error General::func_for(int argc, char** argv) {
             std::string args_replaced = std::string(argv[0]) + " " + Utility::StringHandler::replaceAll(args, '{' + varName + '}', std::to_string(i));
             if (auto const err = domain->parseStr(args_replaced); err.isCritical()) {
                 return err;
-            } else {
+            } else if (err.isError()) {
                 Nebulite::cout() << err.getDescription() << Nebulite::endl;
             }
         }
