@@ -54,18 +54,18 @@ void Physics::elasticCollision(Context const& context) {
 
     // Base overlap condition
     bool baseCondition = m1 > 0.0 && m2 > 0.0
-        && p1X < p2X + size2X  // right side overlap
-        && p1Y < p2Y + size2Y  // bottom side overlap
-        && p2X < p1X + size1X  // left side overlap
-        && p2Y < p1Y + size1Y; // top side overlap
+                         && p1X < p2X + size2X // right side overlap
+                         && p1Y < p2Y + size2Y // bottom side overlap
+                         && p2X < p1X + size1X // left side overlap
+                         && p2Y < p1Y + size1Y; // top side overlap
 
     //------------------------------------------
     // Potential collision response
 
-    if (baseCondition){
+    if (baseCondition) {
         // Overlap checks for each axis (?)
-        bool conditionX = baseCondition && ! (p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y);
-        bool conditionY = baseCondition && ! (p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X);
+        bool conditionX = baseCondition && !(p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y);
+        bool conditionY = baseCondition && !(p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X);
 
         // m1*v1 + m2*v2 = m1*v1new + m2*v2new
         // Split into v1new and v2new equations
@@ -87,7 +87,7 @@ void Physics::elasticCollision(Context const& context) {
             double const v2X = baseVal(otr, Key::physics_vX);
 
             // Calculate new velocities after collision
-            double const v2newX = ( (m2 - m1)*v2X + 2*m1*v1X ) / (m1 + m2);
+            double const v2newX = ((m2 - m1) * v2X + 2 * m1 * v1X) / (m1 + m2);
 
             // Translate velocity change to forces
             double const dt = *globalVal.dt;
@@ -109,7 +109,7 @@ void Physics::elasticCollision(Context const& context) {
             double const v2Y = baseVal(otr, Key::physics_vY);
 
             // Calculate new velocity after collision
-            double const v2newY = ( (m2 - m1)*v2Y + 2*m1*v1Y ) / (m1 + m2);
+            double const v2newY = ((m2 - m1) * v2Y + 2 * m1 * v1Y) / (m1 + m2);
 
             // Translate velocity change to forces
             double const dt = *globalVal.dt;
@@ -133,7 +133,7 @@ void Physics::applyForce(Context const& context) {
     double** slf = getBaseList(context.self);
 
     // Pre-calculate values before locking
-    double const dt  = *globalVal.dt;
+    double const dt = *globalVal.dt;
     double const invMass = 1.0 / baseVal(slf, Key::physics_mass);
     double const aX = baseVal(slf, Key::physics_FX) * invMass;
     double const aY = baseVal(slf, Key::physics_FY) * invMass;

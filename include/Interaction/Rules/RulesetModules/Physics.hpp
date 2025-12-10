@@ -139,9 +139,9 @@ private:
      * @brief Struct to hold pointers to global variables used in physics calculations.
      */
     struct GlobalVal {
-        double* G = Nebulite::global().getDoc()->getStableDoublePointer("physics.G");   // Gravitational constant
-        double* dt = Nebulite::global().getDoc()->getStableDoublePointer("time.dt");    // Simulation delta time
-        double* t  = Nebulite::global().getDoc()->getStableDoublePointer("time.t");     // Simulation time
+        double* G = Nebulite::global().getDoc()->getStableDoublePointer("physics.G"); // Gravitational constant
+        double* dt = Nebulite::global().getDoc()->getStableDoublePointer("time.dt"); // Simulation delta time
+        double* t = Nebulite::global().getDoc()->getStableDoublePointer("time.t"); // Simulation time
         /* Add more global variables here as needed */
     } globalVal;
 };
