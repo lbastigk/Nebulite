@@ -57,10 +57,12 @@ public:
     //------------------------------------------
     // Constructor
     Physics() {
-        // Bind physics-related static rulesets here
+        // Global rulesets
         bind(RulesetType::Global, gravityName, &Physics::gravity);
-        bind(RulesetType::Local, applyForceName, &Physics::applyForce);
         bind(RulesetType::Global, elasticCollisionName, &Physics::elasticCollision);
+
+        // Local rulesets
+        bind(RulesetType::Local, applyForceName, &Physics::applyForce);
     }
 
 private:
@@ -116,7 +118,7 @@ private:
      * @param k The key corresponding to the desired base value.
      * @return A reference to the base value associated with the specified key.
      */
-    inline double& baseVal(double** v, Key k) noexcept {
+    inline static double& baseVal(double** v, Key k) noexcept {
         return *v[static_cast<std::size_t>(k)];
     }
 
@@ -142,7 +144,6 @@ private:
         double* t  = Nebulite::global().getDoc()->getStableDoublePointer("time.t");     // Simulation time
         /* Add more global variables here as needed */
     } globalVal;
-
 };
 } // namespace Nebulite::Interaction::Rules::RulesetModules
 #endif // NEBULITE_INTERACTION_RULES_RULESET_MODULES_PHYSICS_HPP
