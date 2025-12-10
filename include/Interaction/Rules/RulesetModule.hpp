@@ -69,6 +69,12 @@ public:
         auto map = doc.getExpressionRefs();
         return map->ensureOrderedCacheList(identifier, &doc, keys);
     }
+protected:
+    // TODO: offer an interface for access to common variables here instead of re-implementing in each module
+    //       perhaps making RulesetModule templated, taking its enum as a template parameter?
+    //       template<typename CommonValues> class RulesetModule { ... }
+    //       or just templating the getter function, should be sufficient
+
 private:
     // Vector of all static rulesets from this module
     std::vector<StaticRulesetMap::StaticRuleSetWithMetaData> moduleRulesets;
