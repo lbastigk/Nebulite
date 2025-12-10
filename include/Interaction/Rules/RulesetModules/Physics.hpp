@@ -60,6 +60,7 @@ public:
         // Bind physics-related static rulesets here
         bind(RulesetType::Global, gravityName, &Physics::gravity);
         bind(RulesetType::Local, applyForceName, &Physics::applyForce);
+        bind(RulesetType::Global, elasticCollisionName, &Physics::elasticCollision);
     }
 
 private:

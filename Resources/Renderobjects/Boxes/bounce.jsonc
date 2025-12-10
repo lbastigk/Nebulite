@@ -2,13 +2,12 @@
     "id": 0,
     "invokeSubscriptions": [
         "all",
-        "collision"
+        "::physics::elasticCollision"
     ],
     "invokes": [
         "./Resources/Invokes/Physics/falling.jsonc",
-        "./Resources/Invokes/Physics/integrate_a.jsonc",
-        "./Resources/Invokes/Physics/integrate_v.jsonc",
-        "./Resources/Invokes/Physics/reset_a.jsonc"
+        "::physics::elasticCollision",
+        "::physics::applyForce"
     ],
     "layer": 0,
     "physics": {

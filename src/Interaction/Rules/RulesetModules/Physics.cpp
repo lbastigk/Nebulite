@@ -107,7 +107,7 @@ void Physics::elasticCollision(Context const& context) {
             // Lock and write
             auto slfLock = context.self.getDoc()->lock();
             if (*lastColX < *globalVal.t) {
-                baseVal(slf, Key::physics_FX) -= dF2X;  // TODO: verify direction
+                baseVal(otr, Key::physics_FX) += dF2X;  // TODO: verify direction
                 *lastColX = *globalVal.t;
             }
         }
@@ -129,7 +129,7 @@ void Physics::elasticCollision(Context const& context) {
             // Lock and write
             auto slfLock = context.self.getDoc()->lock();
             if (*lastColY < *globalVal.t) {
-                baseVal(slf, Key::physics_FY) -= dF2Y;  // TODO: verify direction
+                baseVal(otr, Key::physics_FY) += dF2Y;  // TODO: verify direction
                 *lastColY = *globalVal.t;
             }
         }
