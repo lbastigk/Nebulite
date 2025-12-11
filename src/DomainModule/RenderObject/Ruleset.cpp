@@ -1,4 +1,7 @@
+#include "Nebulite.hpp"
 #include "DomainModule/RenderObject/Ruleset.hpp"
+#include "Interaction/Rules/Ruleset.hpp"
+#include "Interaction/Rules/RulesetCompiler.hpp"
 
 namespace Nebulite::DomainModule::RenderObject {
 
@@ -6,8 +9,51 @@ namespace Nebulite::DomainModule::RenderObject {
 // Basics
 
 Constants::Error Ruleset::update() {
-    // No periodic update needed for now
-    // Perhaps later on we wish to verify ruleset integrity or similar tasks
+    //------------------------------------------
+    // Verify id is valid (not zero)
+    if (id == 0) {
+        id = domain->getDoc()->get<uint32_t>(Constants::keyName.renderObject.id,0);
+    }
+
+    //------------------------------------------
+    // Check all Rulesets
+    else if (Nebulite::global().getInvoke() != nullptr) {    // TODO: Nullptr check should not be necessary? Perhaps also change getInvoke to return a reference instead of pointer?
+        //------------------------------------------
+        // 1.) Reload invokes if needed
+        if (reloadRulesets) {
+            auto mtx = domain->getDoc()->lock();
+            Interaction::Rules::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, domain);
+            reloadRulesets = false;
+        }
+
+        //------------------------------------------
+        // 2.) Directly solve local invokes (loop)
+        for (auto const& entry : rulesetsLocal) {
+            if (Interaction::Invoke::checkRulesetLogicalCondition(entry->logicalArg, entry->selfPtr)) {
+                Nebulite::global().getInvoke()->applyRuleset(entry);
+            }
+        }
+
+        //------------------------------------------
+        // 3.) Checks this object against all conventional invokes
+        //	   Manipulation happens at the Invoke::update routine later on
+        //     This just generates pairs that need to be updated
+        for (size_t idx = 0; idx < subscription_size; idx++) {
+            std::string key = Constants::keyName.renderObject.invokeSubscriptions + "[" + std::to_string(idx) + "]";
+            auto const subscription = domain->getDoc()->get<std::string>(key, "");
+            Nebulite::global().getInvoke()->listen(domain, subscription, id);
+        }
+
+        //------------------------------------------
+        // 4.) Append general invokes from object itself back for global check
+        //     This makes sure that no invokes from inactive objects stay in the list
+        for (auto const& entry : rulesetsGlobal) {
+            // add pointer to invoke command to global
+            Nebulite::global().getInvoke()->broadcast(entry);
+        }
+    } else {
+        return Constants::ErrorTable::RENDERER::CRITICAL_INVOKE_NULLPTR();
+    }
     return Constants::ErrorTable::NONE();
 }
 

@@ -2,6 +2,7 @@
     {
         "command": [
             "spawn Resources/Renderobjects/Debug/staticRuleset.jsonc",
+            "wait 1",
             "exit"
         ],
         "expected": { "cout": ["[DEBUG] Static ruleset '::message' invoked!"], "cerr": [] }

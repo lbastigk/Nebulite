@@ -37,12 +37,21 @@ public:
     void error(Context const& context);
     static constexpr std::string_view errorName = "::error";
 
+    // Prints the ids of both contexts
+    void who(Context const& context);
+    static constexpr std::string_view whoName = "::who";
+
     //------------------------------------------
     // Constructor
     Debug() {
         // Bind Debug-related static rulesets here
+
+        // Local
         bind(RulesetType::Local, messageName, &Debug::message);
         bind(RulesetType::Local, errorName, &Debug::error);
+
+        // Global
+        bind(RulesetType::Global, whoName, &Debug::who);
     }
 };
 } // namespace Nebulite::Interaction::Rules::RulesetModules

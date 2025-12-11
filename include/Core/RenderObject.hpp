@@ -201,9 +201,6 @@ public:
     }
 
 private:
-    // Size of subscriptions
-    size_t subscription_size = 0;
-
     // Each RenderObject has its own JSON document
     Data::JSON document;
 
@@ -275,14 +272,6 @@ private:
     // Surface and Texture of Text
     SDL_Surface* textSurface; // Surface for the text
     SDL_Texture* textTexture; // Texture for the text
-
-    // ==================
-
-    //------------------------------------------
-    // Ruleset Management
-
-    std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsGlobal; // Global rulesets, intended for self-other-global interaction
-    std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsLocal; // Internal rulesets, intended for self-global interaction
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_CORE_RENDEROBJECT_HPP

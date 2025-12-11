@@ -32,11 +32,8 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Input) {
 public:
-    /**
-     * @brief Updates the input states of mouse and keyboard 
-     * stored in the global document by polling SDL events.
-     */
     Constants::Error update() override;
+    void reinit() override {}
 
     //------------------------------------------
     // Available Functions

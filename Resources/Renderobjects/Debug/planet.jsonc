@@ -1,0 +1,46 @@
+{
+    "id": 0,
+    "invokeSubscriptions": [
+        "all",
+        "::physics::gravity",
+        "gravity"
+    ],
+    "invokes": [
+        "::physics::gravity",
+        "::physics::applyForce"
+    ],
+    "layer": 0,
+    "physics": {
+        "mass": 50.0,
+        "aX": 0.0,
+        "aY": 0.0,
+        "vX": 0.0,
+        "vY": 0.0
+    },
+    "posX": 350,
+    "posY": 500,
+    "sprite": {
+        "link": "Resources/Sprites/TEST001P/001.bmp",
+        "sizeX": 10,
+        "sizeY": 10,
+        "spritesheet": {
+            "isSpritesheet": false,
+            "offsetX": 0,
+            "offsetY": 0,
+            "sizeX": 0,
+            "sizeY": 0
+        }
+    },
+    "text": {
+        "color": {
+            "A": 255,
+            "B": 255,
+            "G": 128,
+            "R": 128
+        },
+        "dx": 0.0,
+        "dy": -30.0,
+        "fontSize": 16,
+        "str": "OBJ1"
+    }
+}

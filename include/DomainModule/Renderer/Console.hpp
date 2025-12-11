@@ -35,10 +35,8 @@ namespace Nebulite::DomainModule::Renderer {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Console) {
 public:
-    /**
-     * @brief Override of update.
-     */
     Constants::Error update() override;
+    void reinit() override {}
 
     //------------------------------------------
     // Available Functions

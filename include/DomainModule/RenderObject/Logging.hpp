@@ -29,10 +29,8 @@ namespace Nebulite::DomainModule::RenderObject {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Logging) {
 public:
-    /**
-     * @brief Override of update.
-     */
     Constants::Error update() override;
+    void reinit() override {}
 
     //------------------------------------------
     // Available Functions

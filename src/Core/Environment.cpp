@@ -82,6 +82,7 @@ void Environment::deserialize(std::string const& serialOrLink, uint16_t const& d
             roc[i].deserialize(str, dispResX, dispResY);
         }
     }
+    reinitModules();
 }
 
 //------------------------------------------

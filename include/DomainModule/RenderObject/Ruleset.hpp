@@ -27,10 +27,12 @@ namespace Nebulite::DomainModule::RenderObject {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Ruleset) {
 public:
-    /**
-     * @brief Override of update.
-     */
     Constants::Error update() override;
+    void reinit() override {
+        reloadRulesets = true;
+        subscription_size = domain->getDoc()->memberSize(Constants::keyName.renderObject.invokeSubscriptions);
+        id = domain->getDoc()->get<uint32_t>(Constants::keyName.renderObject.id,0);
+    }
 
     //------------------------------------------
     // Available Functions
@@ -56,6 +58,22 @@ public:
         // Bind functions
         bindFunction(&Ruleset::once, once_name,&once_desc);
     }
+
+    // TODO: For some reason, only obj id2 is broadcasting??
+
+private:
+    // Size of subscriptions
+    size_t subscription_size = 0;
+
+    // Check if rulesets need to be reloaded
+    bool reloadRulesets = true;
+
+    // RenderObject id
+    uint32_t id = 0;
+
+    // Rulesets
+    std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsGlobal; // Global rulesets, intended for self-other-global interaction
+    std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsLocal; // Internal rulesets, intended for self-global interaction
 };
 } // namespace Nebulite::DomainModule::RenderObject
 #endif // NEBULITE_RODM_RULESET_HPP

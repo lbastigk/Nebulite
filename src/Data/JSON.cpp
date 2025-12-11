@@ -423,6 +423,7 @@ void JSON::deserialize(std::string const& serialOrLink) {
             }
         }
     }
+    reinitModules();
 }
 
 //------------------------------------------

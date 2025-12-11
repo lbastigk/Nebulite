@@ -65,7 +65,6 @@ RenderObject::RenderObject() : Domain("RenderObject", this, &document), baseText
     flag.deleteFromScene = false;
     flag.calculateText = true; // In order to calculate text texture on first update
     flag.reloadInvokes = true; // In order to reload invokes on first update
-    subscription_size = document.memberSize(Constants::keyName.renderObject.invokeSubscriptions);
 
     //------------------------------------------
     // Initialize Linkages, References and DomainModules and object itself
@@ -103,10 +102,6 @@ RenderObject::~RenderObject() {
         SDL_DestroyTexture(textTexture);
         textTexture = nullptr;
     }
-
-    // Clean up invoke entries - shared pointers will automatically handle cleanup
-    rulesetsGlobal.clear();
-    rulesetsLocal.clear();
 }
 
 //------------------------------------------
@@ -176,8 +171,13 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
     flag.reloadInvokes = true;
     flag.calculateText = true;
 
-    // Update subscription size
-    subscription_size = document.memberSize(Constants::keyName.renderObject.invokeSubscriptions);
+    reinitModules();
+
+    //------------------------------------------
+    // Update once to initialize
+    update();
+    calculateSrcRect();
+    calculateDstRect();
 }
 
 //------------------------------------------
@@ -262,56 +262,14 @@ Constants::Error RenderObject::update() {
     updateModules();
     document.update();
     baseTexture.update();
-
-    //------------------------------------------
-    // Check all invokes
-    if (Nebulite::global().getInvoke() != nullptr) {
-        //------------------------------------------
-        // 1.) Reload invokes if needed
-        if (flag.reloadInvokes) {
-            Interaction::Rules::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, this);
-            flag.reloadInvokes = false;
-        }
-
-        //------------------------------------------
-        // 2.) Directly solve local invokes (loop)
-        for (auto const& entry : rulesetsLocal) {
-            if (Interaction::Invoke::checkRulesetLogicalCondition(entry->logicalArg, entry->selfPtr)) {
-                Nebulite::global().getInvoke()->applyRuleset(entry);
-            }
-        }
-
-        //------------------------------------------
-        // 3.) Checks this object against all conventional invokes
-        //	   Manipulation happens at the Invoke::update routine later on
-        //     This just generates pairs that need to be updated
-        for (size_t idx = 0; idx < subscription_size; idx++) {
-            std::string key = Constants::keyName.renderObject.invokeSubscriptions + "[" + std::to_string(idx) + "]";
-            auto const subscription = document.get<std::string>(key, "");
-            Nebulite::global().getInvoke()->listen(this, subscription, static_cast<uint32_t>(*refs.id));
-        }
-
-        //------------------------------------------
-        // 4.) Append general invokes from object itself back for global check
-        //     This makes sure that no invokes from inactive objects stay in the list
-        for (auto const& entry : rulesetsGlobal) {
-            // add pointer to invoke command to global
-            Nebulite::global().getInvoke()->broadcast(entry);
-        }
-    } else {
-        return Constants::ErrorTable::RENDERER::CRITICAL_INVOKE_NULLPTR();
-    }
-    // No evaluation of domainModules for now, just return NONE
     return Constants::ErrorTable::NONE();
 }
 
+// TODO: Improve estimation by somehow leveraging a generated value from DomainModule Ruleset!
 uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
-    //------------------------------------------
-    // Reload invokes if needed
-    if (flag.reloadInvokes) {
-        Interaction::Rules::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, this);
-        flag.reloadInvokes = false;
-    }
+    std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsGlobal;
+    std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsLocal;
+    Interaction::Rules::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, this);
 
     //------------------------------------------
     // Count number of $ and { in logical Arguments

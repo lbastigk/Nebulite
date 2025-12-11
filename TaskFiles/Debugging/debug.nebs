@@ -22,4 +22,12 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/Simulations/bouncing.nebs
+# TODO: Somehow the global rulesets are broken! Only one object moves...
+set-fps 10000
+set physics.G 1000
+spawn ./Resources/Renderobjects/Debug/planet.jsonc|set posX 100
+spawn ./Resources/Renderobjects/Debug/planet.jsonc|set posX 600
+
+#task TaskFiles/Benchmarks/gravity.nebs # TODO: global rulesets seem broken!
+#spawn Resources/Renderobjects/Debug/debug_tester.jsonc
+#task TaskFiles/Simulations/bouncing.nebs

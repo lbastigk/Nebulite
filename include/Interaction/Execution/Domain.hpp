@@ -242,6 +242,7 @@ public:
     template <typename DomainModuleType>
     void initModule(std::string moduleName) {
         auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, getFuncTree());
+        DomainModule->reinit();
         modules.push_back(std::move(DomainModule));
     }
 
@@ -251,6 +252,15 @@ public:
     void updateModules() {
         for (auto& module : modules) {
             module->update();
+        }
+    }
+
+    /**
+     * @brief Re-initializes all DomainModules.
+     */
+    void reinitModules() {
+        for (auto& module : modules) {
+            module->reinit();
         }
     }
 

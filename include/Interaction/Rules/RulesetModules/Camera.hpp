@@ -118,17 +118,6 @@ private:
     struct position {
         double x = 0.0;
         double y = 0.0;
-
-        // Addition operator
-        position operator+(const position& other) const {
-            return position{x + other.x, y + other.y};
-        };
-
-        position& operator+=(const position& other) {
-            x += other.x;
-            y += other.y;
-            return *this;
-        };
     };
 
     enum class Align {
