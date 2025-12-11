@@ -3,8 +3,10 @@
 
 //------------------------------------------
 // Modules
-#include "Interaction/Rules/RulesetModules/Physics.hpp"
+#include "Interaction/Rules/RulesetModules/Camera.hpp"
 #include "Interaction/Rules/RulesetModules/Debug.hpp"
+#include "Interaction/Rules/RulesetModules/Physics.hpp"
+
 
 //------------------------------------------
 // Shortcut
@@ -17,9 +19,11 @@ void rulesetMapInit(StaticRulesetMap* srm) {
     // Example:
     // Nebulite::Interaction::Rules::RulesetModules::Physics physicsModule;
     // physicsModule.registerModule(srm);
-    static Module::Physics physicsModule;
-    physicsModule.registerModule(*srm);
+    static Module::Camera cameraModule;
+    cameraModule.registerModule(*srm);
     static Module::Debug debugModule;
     debugModule.registerModule(*srm);
+    static Module::Physics physicsModule;
+    physicsModule.registerModule(*srm);
 }
 }

@@ -4,16 +4,7 @@
         "all"
     ],
     "invokes": [
-        {
-            "topic": "",
-            "logicalArg": "1",
-            "exprs": [
-                "self.posX = $({self.posX} + 1)"
-            ],
-            "functioncalls_global": [],
-            "functioncalls_self": [],
-            "functioncalls_other": []
-        }
+        "::camera::align::center"
     ],
     "layer": 0,
     "posX": 0,

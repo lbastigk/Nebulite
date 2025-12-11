@@ -129,17 +129,6 @@ private:
             y += other.y;
             return *this;
         };
-
-        // Subtraction operator
-        position operator-(const position& other) const {
-            return position{x - other.x, y - other.y};
-        };
-
-        position& operator-=(const position& other) {
-            x -= other.x;
-            y -= other.y;
-            return *this;
-        };
     };
 
     enum class Align {
@@ -150,28 +139,28 @@ private:
         Right
     };
 
-    void setCameraPosition(const position& pos, Align align) {
+    void setCameraPosition(const position& pos, Align align) const {
         switch (align) {
             case Align::Center:
-                *globalVal.camPosX = pos.x + (*globalVal.dispResX / 2.0);
-                *globalVal.camPosY = pos.y + (*globalVal.dispResY / 2.0);
+                *globalVal.camPosX = pos.x - (*globalVal.dispResX / 2.0);
+                *globalVal.camPosY = pos.y - (*globalVal.dispResY / 2.0);
                 break;
             case Align::Top:
-                *globalVal.camPosY = pos.y + (*globalVal.dispResY);
+                *globalVal.camPosY = pos.y ;
                 break;
             case Align::Bottom:
-                *globalVal.camPosY = pos.y;
+                *globalVal.camPosY = pos.y - (*globalVal.dispResY);
                 break;
             case Align::Left:
                 *globalVal.camPosX = pos.x;
                 break;
             case Align::Right:
-                *globalVal.camPosX = pos.x + (*globalVal.dispResX);
+                *globalVal.camPosX = pos.x - (*globalVal.dispResX);
                 break;
         }
     }
 
-    position getAdjustedObjectPosition(double** baseValues, Align align) {
+    position getAdjustedObjectPosition(double** baseValues, Align align) const {
         // Adjust based on object size
         position pos;
         switch (align) {
