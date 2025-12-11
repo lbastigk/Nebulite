@@ -79,6 +79,10 @@ private:
      * @brief List of keys for physics-related base values in the ordered cache list.
      */
     const std::vector<std::string> keys = {
+        Nebulite::Constants::keyName.renderObject.positionX,
+        Nebulite::Constants::keyName.renderObject.positionY,
+        Nebulite::Constants::keyName.renderObject.pixelSizeX,
+        Nebulite::Constants::keyName.renderObject.pixelSizeY,
         "physics.aX",
         "physics.aY",
         "physics.vX",
@@ -86,10 +90,7 @@ private:
         "physics.mass", // TODO: rename to physics.m . Renaming all json files keys is necessary.
         "physics.FX",
         "physics.FY",
-        "posX",
-        "posY",
-        "sprite.sizeX",
-        "sprite.sizeY"
+
     };
 
     /**
@@ -98,17 +99,17 @@ private:
      *        Used for indexing into the ordered cache list.
      */
     enum class Key : std::size_t {
+        posX,
+        posY,
+        spriteSizeX,
+        spriteSizeY,
         physics_aX,
         physics_aY,
         physics_vX,
         physics_vY,
         physics_mass,
         physics_FX,
-        physics_FY,
-        posX,
-        posY,
-        spriteSizeX,
-        spriteSizeY
+        physics_FY
     };
 
     /**
@@ -139,8 +140,8 @@ private:
      */
     struct GlobalVal {
         double* G = Nebulite::global().getDoc()->getStableDoublePointer("physics.G"); // Gravitational constant
-        double* dt = Nebulite::global().getDoc()->getStableDoublePointer("time.dt"); // Simulation delta time
-        double* t = Nebulite::global().getDoc()->getStableDoublePointer("time.t"); // Simulation time
+        double* dt = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::keyName.renderer.time_dt); // Simulation delta time
+        double* t = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::keyName.renderer.time_t); // Simulation time
         /* Add more global variables here as needed */
     } globalVal;
 };
