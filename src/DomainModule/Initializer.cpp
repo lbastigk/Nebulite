@@ -6,7 +6,7 @@
 #include "Core/Renderer.hpp"
 #include "Core/Texture.hpp"
 #include "Core/RenderObject.hpp"
-#include "../../include/Data/JSON.hpp"
+#include "Data/JSON.hpp"
 
 //------------------------------------------
 // DomainModules
@@ -28,8 +28,9 @@
 // RenderObject
 #include "DomainModule/RenderObject/Debug.hpp"
 #include "DomainModule/RenderObject/Logging.hpp"
-#include "DomainModule/RenderObject/StateUpdate.hpp"
 #include "DomainModule/RenderObject/Mirror.hpp"
+#include "DomainModule/RenderObject/Ruleset.hpp"
+#include "DomainModule/RenderObject/StateUpdate.hpp"
 
 // Renderer
 #include "DomainModule/Renderer/General.hpp"
@@ -91,8 +92,9 @@ void Initializer::initRenderObject(Core::RenderObject* target) {
     using namespace Nebulite::DomainModule::RenderObject;
     target->initModule<Debug>("RenderObject Debug Functions");
     target->initModule<Logging>("RenderObject Logging Functions");
-    target->initModule<StateUpdate>("RenderObject State Update Functions");
     target->initModule<Mirror>("RenderObject Mirror Functions");
+    target->initModule<Ruleset>("RenderObject Ruleset Functions");
+    target->initModule<StateUpdate>("RenderObject State Update Functions");
 }
 
 void Initializer::initRenderer(Core::Renderer* target) {

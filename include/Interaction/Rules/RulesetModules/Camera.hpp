@@ -160,7 +160,7 @@ private:
         }
     }
 
-    position getAdjustedObjectPosition(double** baseValues, Align align) const {
+    static position getAdjustedObjectPosition(double** baseValues, Align align) {
         // Adjust based on object size
         position pos;
         switch (align) {
