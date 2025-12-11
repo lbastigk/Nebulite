@@ -150,9 +150,6 @@ private:
         Right
     };
 
-    // TODO: consider addition alignment parameter:
-    //       - one for display (currently in use)
-    //       - one for object itself (e.g., align to top-left of object instead of center)
     void setCameraPosition(const position& pos, Align align) {
         switch (align) {
             case Align::Center:
@@ -174,11 +171,31 @@ private:
         }
     }
 
-    position getAdjustedObjectPosition(double** baseValues) {
+    position getAdjustedObjectPosition(double** baseValues, Align align) {
         // Adjust based on object size
         position pos;
-        pos.x = baseVal(baseValues, Key::posX) + (baseVal(baseValues, Key::spriteSizeX) / 2.0);
-        pos.y = baseVal(baseValues, Key::posY) + (baseVal(baseValues, Key::spriteSizeY) / 2.0);
+        switch (align) {
+            case Align::Center:
+                pos.x = baseVal(baseValues, Key::posX) + (baseVal(baseValues, Key::spriteSizeX) / 2.0);
+                pos.y = baseVal(baseValues, Key::posY) + (baseVal(baseValues, Key::spriteSizeY) / 2.0);
+                break;
+            case Align::Top:
+                pos.x = baseVal(baseValues, Key::posX) + (baseVal(baseValues, Key::spriteSizeX) / 2.0);
+                pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY);
+                break;
+            case Align::Bottom:
+                pos.x = baseVal(baseValues, Key::posX) + (baseVal(baseValues, Key::spriteSizeX) / 2.0);
+                pos.y = baseVal(baseValues, Key::posY);
+                break;
+            case Align::Left:
+                pos.x = baseVal(baseValues, Key::posX);
+                pos.y = baseVal(baseValues, Key::posY) + (baseVal(baseValues, Key::spriteSizeY) / 2.0);
+                break;
+            case Align::Right:
+                pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX);
+                pos.y = baseVal(baseValues, Key::posY) + (baseVal(baseValues, Key::spriteSizeY) / 2.0);
+                break;
+        }
         return pos;
     }
 };
