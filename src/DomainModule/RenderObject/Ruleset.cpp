@@ -17,7 +17,7 @@ Constants::Error Ruleset::update() {
 
     //------------------------------------------
     // Check all Rulesets
-    else if (Nebulite::global().getInvoke() != nullptr) {    // TODO: Nullptr check should not be necessary? Perhaps also change getInvoke to return a reference instead of pointer?
+    if (id != 0 && Nebulite::global().getInvoke() != nullptr) {    // TODO: Nullptr check should not be necessary? Perhaps also change getInvoke to return a reference instead of pointer?
         //------------------------------------------
         // 1.) Reload invokes if needed
         if (reloadRulesets) {
