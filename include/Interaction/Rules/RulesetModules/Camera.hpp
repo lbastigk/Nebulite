@@ -68,10 +68,10 @@ private:
     // Base value caching for camera alignment
 
     const std::vector<std::string> keys = {
-        "posX",
-        "posY",
-        "sprite.sizeX",
-        "sprite.sizeY"
+        Nebulite::Constants::keyName.renderObject.positionX,
+        Nebulite::Constants::keyName.renderObject.positionY,
+        Nebulite::Constants::keyName.renderObject.pixelSizeX,
+        Nebulite::Constants::keyName.renderObject.pixelSizeY
     };
 
     enum class Key : std::size_t {
@@ -111,6 +111,76 @@ private:
         double* dispResX = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::keyName.renderer.dispResX);
         double* dispResY = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::keyName.renderer.dispResY);
     } globalVal;
+
+    //------------------------------------------
+    // Position
+
+    struct position {
+        double x = 0.0;
+        double y = 0.0;
+
+        // Addition operator
+        position operator+(const position& other) const {
+            return position{x + other.x, y + other.y};
+        };
+
+        position& operator+=(const position& other) {
+            x += other.x;
+            y += other.y;
+            return *this;
+        };
+
+        // Subtraction operator
+        position operator-(const position& other) const {
+            return position{x - other.x, y - other.y};
+        };
+
+        position& operator-=(const position& other) {
+            x -= other.x;
+            y -= other.y;
+            return *this;
+        };
+    };
+
+    enum class Align {
+        Center,
+        Top,
+        Bottom,
+        Left,
+        Right
+    };
+
+    // TODO: consider addition alignment parameter:
+    //       - one for display (currently in use)
+    //       - one for object itself (e.g., align to top-left of object instead of center)
+    void setCameraPosition(const position& pos, Align align) {
+        switch (align) {
+            case Align::Center:
+                *globalVal.camPosX = pos.x + (*globalVal.dispResX / 2.0);
+                *globalVal.camPosY = pos.y + (*globalVal.dispResY / 2.0);
+                break;
+            case Align::Top:
+                *globalVal.camPosY = pos.y + (*globalVal.dispResY);
+                break;
+            case Align::Bottom:
+                *globalVal.camPosY = pos.y;
+                break;
+            case Align::Left:
+                *globalVal.camPosX = pos.x;
+                break;
+            case Align::Right:
+                *globalVal.camPosX = pos.x + (*globalVal.dispResX);
+                break;
+        }
+    }
+
+    position getAdjustedObjectPosition(double** baseValues) {
+        // Adjust based on object size
+        position pos;
+        pos.x = baseVal(baseValues, Key::posX) + (baseVal(baseValues, Key::spriteSizeX) / 2.0);
+        pos.y = baseVal(baseValues, Key::posY) + (baseVal(baseValues, Key::spriteSizeY) / 2.0);
+        return pos;
+    }
 };
 } // namespace Nebulite::Interaction::Rules::RulesetModules
 #endif // NEBULITE_INTERACTION_RULES_RULESET_MODULES_CAMERA_HPP
