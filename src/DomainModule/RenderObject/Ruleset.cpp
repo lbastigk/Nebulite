@@ -11,7 +11,7 @@ namespace Nebulite::DomainModule::RenderObject {
 Constants::Error Ruleset::update() {
     //------------------------------------------
     // Verify id is valid (not zero)
-    // An id of zero means the RenderObject is outside of the Renderer/RenderObjectContainer scope
+    // An id of zero means the RenderObject is outside the Renderer/RenderObjectContainer scope
     // and should not be updated
     if (id == 0) {
         id = domain->getDoc()->get<uint32_t>(Constants::keyName.renderObject.id,0);
