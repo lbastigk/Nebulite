@@ -33,82 +33,13 @@ public:
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Marks the object for deletion.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: no arguments available
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error func_delete(int argc, char** argv);
     static std::string const func_delete_name;
     static std::string const func_delete_desc;
 
-    /**
-     * @brief Updates the text texture of the object.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: no arguments available
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error updateText(int argc, char** argv);
     static std::string const updateText_name;
     static std::string const updateText_desc;
-
-    //------------------------------------------
-    // TODOs
-
-    /**
-     * @brief Reloads all invokes for the object.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector
-     * @return Potential errors that occurred on command execution
-     * 
-     * @todo Not implemented yet
-     */
-    Constants::Error invoke_reload(int argc, char** argv);
-    static std::string const invoke_reload_name;
-    static std::string const invoke_reload_desc;
-
-    /**
-     * @brief Adds an invoke for the object.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector
-     * @return Potential errors that occurred on command execution
-     * 
-     * @todo Not implemented yet
-     */
-    Constants::Error invoke_add(int argc, char** argv);
-    static std::string const invoke_add_name;
-    static std::string const invoke_add_desc;
-
-    /**
-     * @brief Removes an invoke from the object.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector
-     * @return Potential errors that occurred on command execution
-     * 
-     * @todo Not implemented yet
-     */
-    Constants::Error invoke_remove(int argc, char** argv);
-    static std::string const invoke_remove_name;
-    static std::string const invoke_remove_desc;
-
-    /**
-     * @brief Removes all invokes from the object.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector
-     * @return Potential errors that occurred on command execution
-     * 
-     * @todo Not implemented yet
-     */
-    Constants::Error invoke_purge(int argc, char** argv);
-    static std::string const invoke_purge_name;
-    static std::string const invoke_purge_desc;
 
     //------------------------------------------
     // Setup

@@ -11,6 +11,8 @@ namespace Nebulite::DomainModule::RenderObject {
 Constants::Error Ruleset::update() {
     //------------------------------------------
     // Verify id is valid (not zero)
+    // An id of zero means the RenderObject is outside of the Renderer/RenderObjectContainer scope
+    // and should not be updated
     if (id == 0) {
         id = domain->getDoc()->get<uint32_t>(Constants::keyName.renderObject.id,0);
     }
@@ -77,5 +79,11 @@ Constants::Error Ruleset::once(std::span<std::string const> const& args) {
 std::string const Ruleset::once_name = "once";
 std::string const Ruleset::once_desc = "Executes a ruleset once from a given string input.\nEither a static ruleset name or a link to a json-defined ruleset.";
 
+Constants::Error Ruleset::reload(std::span<std::string const> const& args) {
+    reloadRulesets = true;
+    return Constants::ErrorTable::NONE();
+}
+std::string const Ruleset::reload_name = "reload";
+std::string const Ruleset::reload_desc = "Reloads all rulesets for this RenderObject.";
 
 } // namespace Nebulite::DomainModule::RenderObject
