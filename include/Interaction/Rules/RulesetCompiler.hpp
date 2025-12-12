@@ -127,6 +127,13 @@ private:
         std::string const& key
         );
 
+    /**
+     * @brief Extracts a Ruleset from a JSON document or static ruleset identifier.
+     * @param doc The JSON document containing the entry.
+     * @param key The key of the entry in the document.
+     * @param self The RenderObject instance associated with the entry.
+     * @return An optional shared pointer to the parsed Ruleset object, or std::nullopt if parsing failed.
+     */
     static std::optional<std::shared_ptr<Ruleset>> getRuleset(
         Data::JSON& doc,
         std::string const& key,
