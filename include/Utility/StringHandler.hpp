@@ -121,10 +121,20 @@ public:
 
     /**
      * @brief Recombines argc/argv into a single string with spaces.
-     * 
-     * Ensures that no extra spaces are added if the original arguments contained spaces.
+     *        Ensures that no extra spaces are added if the original arguments contained spaces.
+     * @param argc The number of arguments.
+     * @param argv The array of argument strings.
+     * @return The recombined argument string.
      */
     static std::string recombineArgs(int argc, char* argv[]);
+
+    /**
+     * @brief Recombines a span of strings into a single string with spaces.
+     *        Ensures that no extra spaces are added if the original arguments contained spaces.
+     * @param args The span of argument strings.
+     * @return The recombined argument string.
+     */
+    static std::string recombineArgs(std::span<std::string const> const& args);
 };
 }   // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_STRINGHANDLER_HPP

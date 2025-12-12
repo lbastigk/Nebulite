@@ -2,6 +2,7 @@
 #include "DomainModule/RenderObject/Ruleset.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Interaction/Rules/RulesetCompiler.hpp"
+#include "Utility/StringHandler.hpp"
 
 namespace Nebulite::DomainModule::RenderObject {
 
@@ -14,12 +15,13 @@ Constants::Error Ruleset::update() {
     // An id of zero means the RenderObject is outside the Renderer/RenderObjectContainer scope
     // and should not be updated
     if (id == 0) {
-        id = domain->getDoc()->get<uint32_t>(Constants::keyName.renderObject.id,0);
+        id = domain->getDoc()->get<uint32_t>(Constants::keyName.renderObject.id, 0);
     }
 
     //------------------------------------------
     // Check all Rulesets
-    if (id != 0 && Nebulite::global().getInvoke() != nullptr) {    // TODO: Nullptr check should not be necessary? Perhaps also change getInvoke to return a reference instead of pointer?
+    if (id != 0 && Nebulite::global().getInvoke() != nullptr) {
+        // TODO: Nullptr check should not be necessary? Perhaps also change getInvoke to return a reference instead of pointer?
         //------------------------------------------
         // 1.) Reload invokes if needed
         if (reloadRulesets) {
@@ -66,16 +68,24 @@ std::string const Ruleset::Ruleset_desc = "Ruleset management functions for the 
 // Available Functions
 
 Constants::Error Ruleset::once(std::span<std::string const> const& args) {
-    // For this to work, we need to leverage the RulesetCompiler in a clever way
-    // Use parts of it to turn a string into a ruleset and execute it once
-    // If its global, we need to store it somewhere temporarily
-    // If its local, we can just execute it directly and discard it
-
-    // auto ruleset = RuleSetCompiler::compileFromString(args[0]);
-    // if (ruleset.type == RulesetType::Global) { tmp.appendAndBroadcast(ruleset); }
-    // else if (ruleset.type == RulesetType::Local) { executeLocalRuleset(ruleset); }
-    return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
+    if (args.size() > 1) {
+        std::string arg = Utility::StringHandler::recombineArgs(args.subspan(1));
+        auto rs = Interaction::Rules::RulesetCompiler::parseSingle(args[0], domain);
+        if (rs.has_value()) {
+            if (rs.value()->isGlobal) {
+                Nebulite::global().getInvoke()->broadcast(rs.value());
+            }
+            else {
+                Nebulite::global().getInvoke()->applyRuleset(rs.value());
+            }
+            return Constants::ErrorTable::NONE();
+        }
+        // TODO: Better, custom error for invalid ruleset parsing
+        return Constants::ErrorTable::FUNCTIONAL::CRITICAL_INVALID_ARGC_ARGV_PARSING();
+    }
+    return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
 }
+
 std::string const Ruleset::once_name = "once";
 std::string const Ruleset::once_desc = "Executes a ruleset once from a given string input.\nEither a static ruleset name or a link to a json-defined ruleset.";
 
@@ -83,6 +93,7 @@ Constants::Error Ruleset::reload(std::span<std::string const> const& args) {
     reloadRulesets = true;
     return Constants::ErrorTable::NONE();
 }
+
 std::string const Ruleset::reload_name = "reload";
 std::string const Ruleset::reload_desc = "Reloads all rulesets for this RenderObject.";
 

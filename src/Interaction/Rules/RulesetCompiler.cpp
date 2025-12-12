@@ -353,5 +353,15 @@ void RulesetCompiler::optimizeParsedEntries(
         }
     }
 }
+
+std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string const& identifier, Core::RenderObject const* self) {
+    // TODO: Reusing existing parse function for single entry
+    //       idea: create a temporary JSON document with only the single entry
+    //       then call a parse helper function that parses from a JSON document
+    Data::JSON tempDoc;
+    // ... Then, a miracle happens ...
+    return std::nullopt;
+}
+
     
 } // namespace Nebulite::Interaction::Rules

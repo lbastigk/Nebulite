@@ -60,6 +60,17 @@ public:
         Core::RenderObject* self
         );
 
+    /**
+     * @brief Parses a single Ruleset from a JSON key inside a RenderObject or a static ruleset identifier.
+     * @param identifier The key of the Ruleset entry in the RenderObject's JSON document, or a static ruleset identifier.
+     * @param self The RenderObject instance associated with the entry.
+     * @return An optional shared pointer to the parsed Ruleset object, or std::nullopt if parsing failed.
+     */
+    static std::optional<std::shared_ptr<Ruleset>> parseSingle(
+        std::string const& identifier,
+        Core::RenderObject const* self
+        );
+
 private:
 
     /**
