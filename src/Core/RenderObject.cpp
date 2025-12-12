@@ -17,15 +17,9 @@ namespace Nebulite::Core {
 // Special member Functions
 
 // Helper function to initialize RenderObject in constructor
-
-RenderObject::RenderObject() : Domain("RenderObject", this, &document), baseTexture(&document) {
-    //------------------------------------------
-    // Document Values
-
+void setStandardValues(Data::JSON& document) {
     // General
-
-    // Initialize to 0, Renderer itself sets proper id, which starts at 1
-    document.set(Constants::keyName.renderObject.id, 0);
+    document.set(Constants::keyName.renderObject.id, 0);    // Initialize to 0, Renderer itself sets proper id, which starts at 1
     document.set(Constants::keyName.renderObject.positionX, 0);
     document.set(Constants::keyName.renderObject.positionY, 0);
     document.set(Constants::keyName.renderObject.imageLocation, std::string("Resources/Sprites/TEST001P/001.bmp"));
@@ -54,6 +48,12 @@ RenderObject::RenderObject() : Domain("RenderObject", this, &document), baseText
     document.set(Constants::keyName.renderObject.textColorG, 255);
     document.set(Constants::keyName.renderObject.textColorB, 255);
     document.set(Constants::keyName.renderObject.textColorA, 255);
+}
+
+RenderObject::RenderObject() : Domain("RenderObject", this, &document), baseTexture(&document) {
+    //------------------------------------------
+    // Set standard values
+    setStandardValues(document);
 
     //------------------------------------------
     // Internal Values
@@ -116,6 +116,10 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
     if (Data::JSON::isJsonOrJsonc(serialOrLink)) {
         document.deserialize(serialOrLink);
     } else {
+        //------------------------------------------
+        // TODO: This logic of tokenization and parsing
+        //       should be moved as a feature into domain, if possible
+
         //------------------------------------------
         // Split the input into tokens
         std::vector<std::string> tokens = Utility::StringHandler::split(serialOrLink, '|');
@@ -266,6 +270,7 @@ Constants::Error RenderObject::update() {
 }
 
 // TODO: Improve estimation by somehow leveraging a generated value from DomainModule Ruleset!
+//       Current implementation generates mock Rulesets again here, which is not optimal
 uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
     std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsGlobal;
     std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsLocal;
