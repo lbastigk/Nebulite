@@ -153,7 +153,7 @@ std::string RulesetCompiler::getLogicalArg(Data::JSON& entry) {
     return logicalArg;
 }
 
-bool RulesetCompiler::getRuleset(Data::JSON& doc, Data::JSON& entry, std::string const& key) {
+bool RulesetCompiler::getJsonRuleset(Data::JSON& doc, Data::JSON& entry, std::string const& key) {
     if (doc.memberType(key) == Data::JSON::KeyType::object) {
         entry = doc.getSubDoc(key);
     } else {
@@ -239,73 +239,17 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
     // Iterate through all entries
     for (size_t idx = 0; idx < size; ++idx) {
         // Parse entry into separate JSON object
-        Data::JSON entry;
         std::string const key = Constants::keyName.renderObject.invokes + "[" + std::to_string(idx) + "]";
-        if (!getRuleset(*doc, entry, key)) {
-            // See if it's a static ruleset
-            auto staticFunctionName = doc->get<std::string>(key, "");
-            auto staticRulesetEntry = StaticRulesetMap::getInstance().getStaticRulesetByName(staticFunctionName);
-            if (staticRulesetEntry.type != StaticRulesetMap::StaticRuleSetWithMetaData::Type::invalid) {
-                // Create a new Ruleset object
-                auto Ruleset = std::make_shared<Interaction::Rules::Ruleset>();
-                Ruleset->logicalArg.parse("$(1)", self->getDoc()); // Always true logical arg for static rulesets
-                Ruleset->topic = staticRulesetEntry.topic;
-                Ruleset->isGlobal = (staticRulesetEntry.type == StaticRulesetMap::StaticRuleSetWithMetaData::Type::Global);
-                Ruleset->staticFunction = staticRulesetEntry.function;
-                Ruleset->selfPtr = self; // Set self pointer, might be helpful even for static rulesets
-
-                // Push into vector
-                if (Ruleset->isGlobal) {
-                    rulesetsGlobal.push_back(Ruleset);
-                } else {
-                    rulesetsLocal.push_back(Ruleset);
-                }
-                continue; // Move to next entry
-            }
-            // Skip this entry if it cannot be parsed
-            // Warn user of invalid entry
-            Nebulite::cerr() << "Warning: could not parse Ruleset entry with string '" << staticFunctionName << "'. Skipping entry." << Nebulite::endl;
+        auto Ruleset = getRuleset(*doc, key, self);
+        if (!Ruleset.has_value()) {
+            // Skip invalid entry
             continue;
         }
-
-        // Parse into a structure
-        auto Ruleset = std::make_shared<Interaction::Rules::Ruleset>();
-        Ruleset->topic = entry.get<std::string>(Constants::keyName.invoke.topic, "all");
-        Ruleset->logicalArg.parse(getLogicalArg(entry), self->getDoc());
-
-        // Remove whitespaces at start and end from topic and logicalArg:
-        Ruleset->topic = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(Ruleset->topic));
-
-        // If topic becomes empty after stripping, treat as local-only
-        if (Ruleset->topic.empty()) {
-            Ruleset->topic = ""; // Keep empty for local identification
-        }
-
-        std::string str = *Ruleset->logicalArg.getFullExpression();
-        str = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(str));
-        Ruleset->logicalArg.parse(str, self->getDoc());
-
-        // Get expressions
-        if (bool const exprSuccess = getExpressions(Ruleset, &entry, self->getDoc()); !exprSuccess) {
-            continue; // Skip this entry if no expressions are found
-        }
-
-        // Parse all assignments
-        for (auto& assignment : Ruleset->assignments) {
-            assignment.expression.parse(assignment.value, self->getDoc());
-        }
-
-        // Parse all function calls
-        getFunctionCalls(entry, *Ruleset, self);
-
-        // Push into vector
-        Ruleset->selfPtr = self; // Set self pointer
-        if (Ruleset->topic.empty()) {
+        if (Ruleset.value()->isGlobal) {
             // If topic is empty, it is a local invoke
-            Ruleset->isGlobal = false; // Set isGlobal to false for local rulesets
-            rulesetsLocal.push_back(Ruleset);
+            rulesetsGlobal.push_back(Ruleset.value());
         } else {
-            rulesetsGlobal.push_back(Ruleset);
+            rulesetsLocal.push_back(Ruleset.value());
         }
     }
 
@@ -354,14 +298,72 @@ void RulesetCompiler::optimizeParsedEntries(
     }
 }
 
-std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string const& identifier, Core::RenderObject const* self) {
-    // TODO: Reusing existing parse function for single entry
-    //       idea: create a temporary JSON document with only the single entry
-    //       then call a parse helper function that parses from a JSON document
-    Data::JSON tempDoc;
-    // ... Then, a miracle happens ...
-    return std::nullopt;
+std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::getRuleset(Data::JSON& doc, std::string const& key, Core::RenderObject* self) {
+    Data::JSON entry;
+    if (!getJsonRuleset(doc, entry, key)) {
+        // See if it's a static ruleset
+        auto staticFunctionName = doc.get<std::string>(key, "");
+        auto staticRulesetEntry = StaticRulesetMap::getInstance().getStaticRulesetByName(staticFunctionName);
+        if (staticRulesetEntry.type != StaticRulesetMap::StaticRuleSetWithMetaData::Type::invalid) {
+            // Create a new Ruleset object
+            auto Ruleset = std::make_shared<Interaction::Rules::Ruleset>();
+            Ruleset->logicalArg.parse("$(1)", self->getDoc()); // Always true logical arg for static rulesets
+            Ruleset->topic = staticRulesetEntry.topic;
+            Ruleset->isGlobal = (staticRulesetEntry.type == StaticRulesetMap::StaticRuleSetWithMetaData::Type::Global);
+            Ruleset->staticFunction = staticRulesetEntry.function;
+            Ruleset->selfPtr = self; // Set self pointer, might be helpful even for static rulesets
+            return Ruleset;
+        }
+        // Skip this entry if it cannot be parsed
+        // Warn user of invalid entry
+        Nebulite::cerr() << "Warning: could not parse Ruleset entry with string '" << staticFunctionName << "'. Skipping entry." << Nebulite::endl;
+        return std::nullopt;
+    }
+    // TODO: Improve code
+    // Parse into a structure
+    auto Ruleset = std::make_shared<Interaction::Rules::Ruleset>();
+    Ruleset->topic = entry.get<std::string>(Constants::keyName.invoke.topic, "all");
+    Ruleset->isGlobal = (Ruleset->topic != ""); // If topic is empty, it is a local invoke
+    Ruleset->logicalArg.parse(getLogicalArg(entry), self->getDoc());
+
+    // Remove whitespaces at start and end from topic and logicalArg:
+    Ruleset->topic = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(Ruleset->topic));
+
+    // If topic becomes empty after stripping, treat as local-only
+    if (Ruleset->topic.empty()) {
+        Ruleset->topic = ""; // Keep empty for local identification
+    }
+
+    std::string str = *Ruleset->logicalArg.getFullExpression();
+    str = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(str));
+    Ruleset->logicalArg.parse(str, self->getDoc());
+
+    // Get expressions
+    if (bool const exprSuccess = getExpressions(Ruleset, &entry, self->getDoc()); !exprSuccess) {
+        // Skip this entry if no expressions are found
+        // TODO: This should be fine?
+        return std::nullopt;
+    }
+
+    // Parse all assignments
+    for (auto& assignment : Ruleset->assignments) {
+        assignment.expression.parse(assignment.value, self->getDoc());
+    }
+
+    // Parse all function calls
+    getFunctionCalls(entry, *Ruleset, self);
+
+    // Push into vector
+    Ruleset->selfPtr = self; // Set self pointer
+    return Ruleset;
 }
 
-    
+std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string const& identifier, Core::RenderObject* self) {
+    Data::JSON tempDoc;
+    std::string const key = ""; // Empty should work
+    tempDoc.set(key, identifier);
+    return getRuleset(tempDoc, key, self);
+}
+
+
 } // namespace Nebulite::Interaction::Rules

@@ -68,11 +68,10 @@ public:
      */
     static std::optional<std::shared_ptr<Ruleset>> parseSingle(
         std::string const& identifier,
-        Core::RenderObject const* self
+        Core::RenderObject* self
         );
 
 private:
-
     /**
      * @brief Extracts function calls from a JSON entry document.
      * @param entryDoc The JSON document containing the entry.
@@ -116,16 +115,22 @@ private:
     static std::string getLogicalArg(Data::JSON& entry);
 
     /**
-     * @brief Extracts an Ruleset object from a JSON entry document.
+     * @brief Extracts a Ruleset object from a JSON entry document.
      * @param doc The JSON document containing the entry.
      * @param entry The JSON document to populate with the entry.
      * @param key The key of the entry in the document.
      * @return True if the Ruleset was successfully extracted, false otherwise.
      */
-    static bool getRuleset(
+    static bool getJsonRuleset(
         Data::JSON& doc,
         Data::JSON& entry,
         std::string const& key
+        );
+
+    static std::optional<std::shared_ptr<Ruleset>> getRuleset(
+        Data::JSON& doc,
+        std::string const& key,
+        Core::RenderObject* self
         );
 
     /**
