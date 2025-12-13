@@ -50,7 +50,7 @@ public:
      */
     void registerModule(StaticRulesetMap& container) {
         for (auto const& ruleset : moduleRulesets) {
-            container.bindStaticRuleset(ruleset.topic, ruleset);
+            container.bindStaticRuleset(ruleset);
         }
     }
 

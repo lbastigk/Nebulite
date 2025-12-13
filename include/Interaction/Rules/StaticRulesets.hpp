@@ -96,15 +96,14 @@ public:
 
     /**
      * @brief Adds a static ruleset function to the map.
-     * @param name The name of the static ruleset.
      * @param func Pointer to the static ruleset function, with metadata.
      */
-    void bindStaticRuleset(std::string const& name, StaticRuleSetWithMetaData const& func) {
+    void bindStaticRuleset(StaticRuleSetWithMetaData const& func) {
         // Exit program if duplicate
-        if (container.contains(name)) {
-            throw std::runtime_error("Duplicate static ruleset name: " + name);
+        if (container.contains(func.topic)) {
+            throw std::runtime_error("Duplicate static ruleset name: " + func.topic);
         }
-        container[name] = func;
+        container[func.topic] = func;
     }
 
 private:
