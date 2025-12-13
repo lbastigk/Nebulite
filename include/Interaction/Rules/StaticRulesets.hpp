@@ -87,7 +87,7 @@ public:
      *         Returns an invalid entry if not found. Its type is `invalid`,
      *         and function pointer is `nullptr`.
      */
-    StaticRuleSetWithMetaData getStaticRulesetByName(std::string const& name) {
+    StaticRuleSetWithMetaData& getStaticRulesetByName(std::string const& name) {
         if (container.contains(name)) {
             return container[name];
         }
