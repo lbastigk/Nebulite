@@ -60,13 +60,15 @@ public:
         } type = invalid;
         std::string topic;
         StaticRulesetFunction function = nullptr;
+        std::string description;
     };
 
     StaticRulesetMap() {
         invalidEntry = StaticRuleSetWithMetaData{
             StaticRuleSetWithMetaData::Type::invalid,
             "",
-            nullptr
+            nullptr,
+            ""
         };
         rulesetMapInit(this);
     }
