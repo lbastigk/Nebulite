@@ -15,10 +15,6 @@
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {
 void rulesetMapInit(StaticRulesetMap* srm) {
-    // Register static rulesets from various modules here
-    // Example:
-    // Nebulite::Interaction::Rules::RulesetModules::Physics physicsModule;
-    // physicsModule.registerModule(srm);
     static Module::Camera cameraModule;
     cameraModule.registerModule(*srm);
     static Module::Debug debugModule;
