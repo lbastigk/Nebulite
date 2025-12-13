@@ -247,6 +247,9 @@ private:
     };
 
     // two of these are needed, and we swap between them on each frame
+    // TODO: Break into a chain of nibble-trees for faster access?
+    //       uint32_t -> 8 nibble traversal. vector<vector<vector<vector<OnTopicFromId>>>?
+    //       Should be WAY faster for lookups, easy cleanup as well.
     using BroadCastListenContainer = absl::flat_hash_map<
         std::string, // The topic of the broadcasted entry
         absl::flat_hash_map<
