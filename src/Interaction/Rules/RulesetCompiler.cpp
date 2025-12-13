@@ -323,7 +323,7 @@ std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::getRuleset(Data::JSON& 
     // Parse into a structure
     auto Ruleset = std::make_shared<Interaction::Rules::Ruleset>();
     Ruleset->topic = entry.get<std::string>(Constants::keyName.invoke.topic, "all");
-    Ruleset->isGlobal = (Ruleset->topic != ""); // If topic is empty, it is a local invoke
+    Ruleset->isGlobal = (!Ruleset->topic.empty()); // If topic is empty, it is a local invoke
     Ruleset->logicalArg.parse(getLogicalArg(entry), self->getDoc());
 
     // Remove whitespaces at start and end from topic and logicalArg:
@@ -360,9 +360,8 @@ std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::getRuleset(Data::JSON& 
 
 std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string const& identifier, Core::RenderObject* self) {
     Data::JSON tempDoc;
-    std::string const key = ""; // Empty should work
-    tempDoc.set(key, identifier);
-    return getRuleset(tempDoc, key, self);
+    tempDoc.set("", identifier);
+    return getRuleset(tempDoc, "", self);
 }
 
 

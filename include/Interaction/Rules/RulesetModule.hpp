@@ -65,7 +65,7 @@ public:
      * @param keys The array of keys to retrieve values for
      * @return An array of values corresponding to the provided keys
      */
-    Data::odpvec* ensureOrderedCacheList(Nebulite::Data::JSON& doc, uint64_t const& identifier, std::vector<std::string> const& keys) {
+    static Data::odpvec* ensureOrderedCacheList(Nebulite::Data::JSON& doc, uint64_t const& identifier, std::vector<std::string> const& keys) {
         auto map = doc.getExpressionRefs();
         return map->ensureOrderedCacheList(identifier, &doc, keys);
     }
