@@ -20,13 +20,30 @@
 #include "Interaction/Rules/StaticRulesets.hpp"
 
 //------------------------------------------
+// Helper macro to both check and bind in one line
+#define consteval_bind(type, func, topic, description) \
+    static_assert(Nebulite::Interaction::Rules::RulesetModule::isValidTopic(topic), \
+    "consteval_bind(): topic must start with '::'. Tried to bind variable: " #topic); \
+    bind(type, func, topic, description);
+
+//------------------------------------------
 namespace Nebulite::Interaction::Rules {
 class RulesetModule {
 public:
     using RulesetType = StaticRulesetMap::StaticRuleSetWithMetaData::Type;
 
     /**
+     * @brief Helper consteval function to determine if a string_view starts with '::'
+     * @param str The string_view to check
+     * @return true if str starts with '::', false otherwise
+     */
+    static consteval bool isValidTopic(std::string_view const& str) {
+        return str.starts_with("::");
+    }
+
+    /**
      * @brief helper function to add a static ruleset to this module
+     *        Use the consteval_bind() macro instead to both check and bind in one line
      * @param type The type of the ruleset (Local/Global)
      * @param func The function implementing the ruleset
      * @param topic The topic/name of the ruleset

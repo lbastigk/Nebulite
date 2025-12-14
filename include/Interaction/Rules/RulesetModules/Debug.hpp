@@ -50,11 +50,11 @@ public:
         // Bind Debug-related static rulesets here
 
         // Local
-        bind(RulesetType::Local, &Debug::message, messageName, messageDesc);
-        bind(RulesetType::Local, &Debug::error, errorName, errorDesc);
+        consteval_bind(RulesetType::Local, &Debug::message, messageName, messageDesc);
+        consteval_bind(RulesetType::Local, &Debug::error, errorName, errorDesc);
 
         // Global
-        bind(RulesetType::Global, &Debug::who, whoName, whoDesc);
+        consteval_bind(RulesetType::Global, &Debug::who, whoName, whoDesc);
     }
 };
 } // namespace Nebulite::Interaction::Rules::RulesetModules
