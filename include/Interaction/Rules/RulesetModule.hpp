@@ -28,22 +28,21 @@ public:
     /**
      * @brief helper function to add a static ruleset to this module
      * @param type The type of the ruleset (Local/Global)
-     * @param topic The topic/name of the ruleset
      * @param func The function implementing the ruleset
+     * @param topic The topic/name of the ruleset
      * @param description A brief description of the ruleset's purpose and its used variables
-     * @todo Rework all implementations to make use of the description parameter
      */
     template<typename T>
-    void bind(RulesetType const& type, std::string_view const& topic, void (T::*func)(Context const&), std::string const& description = "") {
+    void bind(RulesetType const& type, void (T::*func)(Context const&), std::string_view const& topic, std::string_view const& description) {
         static_assert(std::is_base_of_v<RulesetModule, T>, "bind(): T must derive from RulesetModule");
         if (!topic.starts_with("::")) {
             throw std::invalid_argument("RulesetModule::bind(): topic must start with '::'. Tried to bind: " + std::string(topic));
         }
         moduleRulesets.push_back({
             type,
-            std::string(topic),
-            [this, func](Context const& ctx) { (static_cast<T*>(this)->*func)(ctx); },
-            description
+            topic,
+            description,
+            [this, func](Context const& ctx) { (static_cast<T*>(this)->*func)(ctx); }
         });
     }
 

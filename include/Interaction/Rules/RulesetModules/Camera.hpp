@@ -34,28 +34,33 @@ public:
 
     void alignCenter(Context const& context);
     static constexpr std::string_view alignCenterName = "::camera::align::center";
+    static constexpr std::string_view alignCenterDesc = "Aligns the camera view center to the center of the render object.";
 
     void alignTop(Context const& context);
     static constexpr std::string_view alignTopName = "::camera::align::top";
+    static constexpr std::string_view alignTopDesc = "Aligns the camera view top edge to the center of the render object.";
 
     void alignBottom(Context const& context);
     static constexpr std::string_view alignBottomName = "::camera::align::bottom";
+    static constexpr std::string_view alignBottomDesc = "Aligns the camera view bottom edge to the center of the render object.";
 
     void alignLeft(Context const& context);
     static constexpr std::string_view alignLeftName = "::camera::align::left";
+    static constexpr std::string_view alignLeftDesc = "Aligns the camera view left edge to the center of the render object.";
 
     void alignRight(Context const& context);
     static constexpr std::string_view alignRightName = "::camera::align::right";
+    static constexpr std::string_view alignRightDesc = "Aligns the camera view right edge to the center of the render object.";
 
     //------------------------------------------
     // Constructor
     Camera() {
         // Bind Camera-related static rulesets here
-        bind(RulesetType::Local, alignCenterName, &Camera::alignCenter);
-        bind(RulesetType::Local, alignTopName, &Camera::alignTop);
-        bind(RulesetType::Local, alignBottomName, &Camera::alignBottom);
-        bind(RulesetType::Local, alignLeftName, &Camera::alignLeft);
-        bind(RulesetType::Local, alignRightName, &Camera::alignRight);
+        bind(RulesetType::Local, &Camera::alignCenter, alignCenterName, alignCenterDesc);
+        bind(RulesetType::Local, &Camera::alignTop, alignTopName, alignTopDesc);
+        bind(RulesetType::Local, &Camera::alignBottom, alignBottomName, alignBottomDesc);
+        bind(RulesetType::Local, &Camera::alignLeft, alignLeftName, alignLeftDesc);
+        bind(RulesetType::Local, &Camera::alignRight, alignRightName, alignRightDesc);
     }
 
 private:

@@ -58,17 +58,17 @@ public:
             Global,
             invalid
         } type = invalid;
-        std::string topic;
+        std::string_view topic;
+        std::string_view description;
         StaticRulesetFunction function = nullptr;
-        std::string description;
     };
 
     StaticRulesetMap() {
         invalidEntry = StaticRuleSetWithMetaData{
             StaticRuleSetWithMetaData::Type::invalid,
             "",
-            nullptr,
-            ""
+            "",
+            nullptr
         };
         rulesetMapInit(this);
     }
@@ -103,7 +103,7 @@ public:
     void bindStaticRuleset(StaticRuleSetWithMetaData const& func) {
         // Exit program if duplicate
         if (container.contains(func.topic)) {
-            throw std::runtime_error("Duplicate static ruleset name: " + func.topic);
+            throw std::runtime_error("Duplicate static ruleset name: " + std::string(func.topic));
         }
         container[func.topic] = func;
     }

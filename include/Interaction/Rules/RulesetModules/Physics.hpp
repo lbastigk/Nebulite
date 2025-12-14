@@ -40,28 +40,32 @@ public:
 
     void elasticCollision(Context const& context);
     static constexpr std::string_view elasticCollisionName = "::physics::elasticCollision";
+    static constexpr std::string_view elasticCollisionDesc = "Applies elastic collision forces between two render objects based on their masses and velocities.";
 
     void gravity(Context const& context);
     static constexpr std::string_view gravityName = "::physics::gravity";
+    static constexpr std::string_view gravityDesc = "Applies gravitational force between two render objects based on their masses and the gravitational constant.";
 
     // Local rulesets
 
     void applyForce(Context const& context);
     static constexpr std::string_view applyForceName = "::physics::applyForce";
+    static constexpr std::string_view applyForceDesc = "Applies accumulated forces to the render object's acceleration, velocity, and position based on its mass and the simulation delta time.";
 
     void drag(Context const& context);
     static constexpr std::string_view dragName = "::physics::drag";
+    static constexpr std::string_view dragDesc = "Applies drag force to the render object, simulating air resistance based on its velocity and a drag coefficient.";
 
     //------------------------------------------
     // Constructor
     Physics() {
         // Global rulesets
-        bind(RulesetType::Global, elasticCollisionName, &Physics::elasticCollision);
-        bind(RulesetType::Global, gravityName, &Physics::gravity);
+        bind(RulesetType::Global, &Physics::elasticCollision, elasticCollisionName, elasticCollisionDesc);
+        bind(RulesetType::Global, &Physics::gravity, gravityName, gravityDesc);
 
         // Local rulesets
-        bind(RulesetType::Local, applyForceName, &Physics::applyForce);
-        bind(RulesetType::Local, dragName, &Physics::drag);
+        bind(RulesetType::Local, &Physics::applyForce, applyForceName, applyForceDesc);
+        bind(RulesetType::Local, &Physics::drag, dragName, dragDesc);
     }
 
 private:

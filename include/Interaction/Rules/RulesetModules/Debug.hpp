@@ -32,14 +32,17 @@ public:
     // Provides a simple debug message to cout
     void message(Context const& context);
     static constexpr std::string_view messageName = "::message";
+    static constexpr std::string_view messageDesc = "Outputs a debug message to the standard output (cout).";
 
     // Provides a simple debug message to cerr
     void error(Context const& context);
     static constexpr std::string_view errorName = "::error";
+    static constexpr std::string_view errorDesc = "Outputs a debug error message to the standard error output (cerr).";
 
     // Prints the ids of both contexts
     void who(Context const& context);
     static constexpr std::string_view whoName = "::who";
+    static constexpr std::string_view whoDesc = "Prints a message with the unique IDs of the self and other render object contexts.";
 
     //------------------------------------------
     // Constructor
@@ -47,11 +50,11 @@ public:
         // Bind Debug-related static rulesets here
 
         // Local
-        bind(RulesetType::Local, messageName, &Debug::message);
-        bind(RulesetType::Local, errorName, &Debug::error);
+        bind(RulesetType::Local, &Debug::message, messageName, messageDesc);
+        bind(RulesetType::Local, &Debug::error, errorName, errorDesc);
 
         // Global
-        bind(RulesetType::Global, whoName, &Debug::who);
+        bind(RulesetType::Global, &Debug::who, whoName, whoDesc);
     }
 };
 } // namespace Nebulite::Interaction::Rules::RulesetModules
