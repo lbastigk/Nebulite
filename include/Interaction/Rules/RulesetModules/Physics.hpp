@@ -60,12 +60,12 @@ public:
     // Constructor
     Physics() {
         // Global rulesets
-        consteval_bind(RulesetType::Global, &Physics::elasticCollision, elasticCollisionName, elasticCollisionDesc);
-        consteval_bind(RulesetType::Global, &Physics::gravity, gravityName, gravityDesc);
+        BIND_STATIC_ASSERT(RulesetType::Global, &Physics::elasticCollision, elasticCollisionName, elasticCollisionDesc);
+        BIND_STATIC_ASSERT(RulesetType::Global, &Physics::gravity, gravityName, gravityDesc);
 
         // Local rulesets
-        consteval_bind(RulesetType::Local, &Physics::applyForce, applyForceName, applyForceDesc);
-        consteval_bind(RulesetType::Local, &Physics::drag, dragName, dragDesc);
+        BIND_STATIC_ASSERT(RulesetType::Local, &Physics::applyForce, applyForceName, applyForceDesc);
+        BIND_STATIC_ASSERT(RulesetType::Local, &Physics::drag, dragName, dragDesc);
     }
 
 private:

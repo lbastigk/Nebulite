@@ -21,7 +21,7 @@
 
 //------------------------------------------
 // Helper macro to both check and bind in one line
-#define consteval_bind(type, func, topic, description) \
+#define BIND_STATIC_ASSERT(type, func, topic, description) \
     static_assert(Nebulite::Interaction::Rules::RulesetModule::isValidTopic(topic), \
     "consteval_bind(): topic must start with '::'. Tried to bind variable: " #topic); \
     bind(type, func, topic, description);
@@ -43,7 +43,7 @@ public:
 
     /**
      * @brief helper function to add a static ruleset to this module
-     *        Use the consteval_bind() macro instead to both check and bind in one line
+     *        Use the BIND_STATIC_ASSERT macro instead to both check and bind in one line
      * @param type The type of the ruleset (Local/Global)
      * @param func The function implementing the ruleset
      * @param topic The topic/name of the ruleset

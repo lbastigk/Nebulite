@@ -56,11 +56,11 @@ public:
     // Constructor
     Camera() {
         // Bind Camera-related static rulesets here
-        consteval_bind(RulesetType::Local, &Camera::alignCenter, alignCenterName, alignCenterDesc);
-        consteval_bind(RulesetType::Local, &Camera::alignTop, alignTopName, alignTopDesc);
-        consteval_bind(RulesetType::Local, &Camera::alignBottom, alignBottomName, alignBottomDesc);
-        consteval_bind(RulesetType::Local, &Camera::alignLeft, alignLeftName, alignLeftDesc);
-        consteval_bind(RulesetType::Local, &Camera::alignRight, alignRightName, alignRightDesc);
+        BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignCenter, alignCenterName, alignCenterDesc);
+        BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignTop, alignTopName, alignTopDesc);
+        BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignBottom, alignBottomName, alignBottomDesc);
+        BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignLeft, alignLeftName, alignLeftDesc);
+        BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignRight, alignRightName, alignRightDesc);
     }
 
 private:

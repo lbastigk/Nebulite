@@ -47,14 +47,12 @@ public:
     //------------------------------------------
     // Constructor
     Debug() {
-        // Bind Debug-related static rulesets here
-
         // Local
-        consteval_bind(RulesetType::Local, &Debug::message, messageName, messageDesc);
-        consteval_bind(RulesetType::Local, &Debug::error, errorName, errorDesc);
+        BIND_STATIC_ASSERT(RulesetType::Local, &Debug::message, messageName, messageDesc);
+        BIND_STATIC_ASSERT(RulesetType::Local, &Debug::error, errorName, errorDesc);
 
         // Global
-        consteval_bind(RulesetType::Global, &Debug::who, whoName, whoDesc);
+        BIND_STATIC_ASSERT(RulesetType::Global, &Debug::who, whoName, whoDesc);
     }
 };
 } // namespace Nebulite::Interaction::Rules::RulesetModules
