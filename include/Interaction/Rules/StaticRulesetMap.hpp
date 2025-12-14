@@ -9,9 +9,9 @@
 
 //------------------------------------------
 // Includes
-#include <functional>
 
 // Standard library
+#include <functional>
 
 // External
 #include "absl/container/flat_hash_map.h"
