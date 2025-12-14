@@ -1,6 +1,6 @@
 #include "Nebulite.hpp"
 #include "Interaction/Rules/RulesetModules/Debug.hpp"
-#include "Interaction/Rules/StaticRulesets.hpp"
+#include "Interaction/Rules/StaticRulesetMap.hpp"
 
 namespace Nebulite::Interaction::Rules::RulesetModules {
 

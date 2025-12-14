@@ -14,7 +14,7 @@
 #include "Data/DocumentCache.hpp"
 #include "Data/JSON.hpp"
 #include "Interaction/Logic/Assignment.hpp"
-#include "Interaction/Rules/StaticRulesets.hpp"
+#include "Interaction/Rules/StaticRulesetMap.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {

@@ -18,7 +18,7 @@
 
 // Nebulite
 #include "Nebulite.hpp"
-#include "Interaction/Rules/RulesetMapInitializer.hpp"
+#include "Interaction/Rules/Initializer.hpp"
 
 //------------------------------------------
 // Forward declarations

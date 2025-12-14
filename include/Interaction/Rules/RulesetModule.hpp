@@ -17,7 +17,7 @@
 // External
 
 // Nebulite
-#include "Interaction/Rules/StaticRulesets.hpp"
+#include "Interaction/Rules/StaticRulesetMap.hpp"
 
 //------------------------------------------
 // Helper macro to both check and bind in one line

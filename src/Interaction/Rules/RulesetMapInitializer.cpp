@@ -1,5 +1,5 @@
-#include "Interaction/Rules/RulesetMapInitializer.hpp"
-#include "Interaction/Rules/StaticRulesets.hpp"
+#include "Interaction/Rules/Initializer.hpp"
+#include "Interaction/Rules/StaticRulesetMap.hpp"
 
 //------------------------------------------
 // Modules

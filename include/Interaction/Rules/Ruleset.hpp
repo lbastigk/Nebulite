@@ -12,7 +12,7 @@
 // Nebulite
 #include "Interaction/Logic/Assignment.hpp"
 #include "Interaction/Logic/ExpressionPool.hpp"
-#include "Interaction/Rules/StaticRulesets.hpp"
+#include "Interaction/Rules/StaticRulesetMap.hpp"
 
 //------------------------------------------
 // Forward declarations
