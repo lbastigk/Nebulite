@@ -25,21 +25,30 @@ class RenderObject;
 namespace Nebulite::Interaction::Rules {
 /**
  * @struct Nebulite::Interaction::Rules::Ruleset
- * @brief Represents a single invoke entry of a RenderObject for manipulation.
- * Invokes are parsed into specific structs. Each Renderobject holds its own InvokeEntries.
- * The struct also contains a pointer to the RenderObject that owns this entry (the broadcaster).
+ * @brief Represents a single ruleset of a RenderObject for manipulation.
+ *        Invokes are parsed into specific structs. Each Renderobject holds its own InvokeEntries.
+ *        The struct also contains a pointer to the RenderObject that owns this entry (the broadcaster).
+ * @todo Turn into a virtual base class with derived classes for static and json-defined rulesets.
+ *       Would need:
+ *       - apply()
+ *       - isTrue()
+ *       - getTopic()
+ *       - getSelfId()
+ *       - getSelfPtr()
+ *       - getCost()
+ *       Rest private, make RulesetCompiler a friend class.
+ *       Should reduce code overhead and memory usage.
  */
 struct Ruleset {
     /**
-     * @brief The topic of the invoke entry, used for routing and filtering in the broadcast-listen-model of the Invoke class.
-     * 
-     * e.g. `gravity`, `hitbox`, `collision`. `all` is the default value. Any RenderObject should be subscribed to this topic.
-     * However, we are allowed to remove the topic listen `all` from any object, though it is not recommended.
-     * As an example, say we wish to implement a console feature to quickly remove any object. 
-     * We can do so by sending an `ambassador` object that finds all other object at location (x,y) and deletes them.
-     * This object would broadcast its invoke to `all`. Removing any objects subscription to `all` makes this impossible.
-     * 
-     * Due to the large checks needed for `all`, it should only be used when absolutely necessary.
+     * @brief The topic of the ruleset, used for routing and filtering in the broadcast-listen-model of the Invoke class.
+     *        e.g. `gravity`, `hitbox`, `collision`. `all` is the default value. Any RenderObject should be subscribed to this topic.
+     *        However, we are allowed to remove the topic listen `all` from any object, though it is not recommended.
+     *        As an example, say we wish to implement a console feature to quickly remove any object.
+     *        We can do so by sending an `ambassador` object that finds all other object at location (x,y) and deletes them.
+     *        This object would broadcast its invoke to `all`. Removing any objects subscription to `all` makes this impossible.
+     *
+     *        Due to the large checks needed for `all`, it should only be used when absolutely necessary.
      */
     std::string topic = "all";
 
@@ -57,51 +66,45 @@ struct Ruleset {
     uint32_t index = 0;
 
     /**
-     * @brief The Logical Argument that determines when the invoke entry is triggered.
-     * 
-     * Logical Arguments are evaluated inside the Invoke class with access to `self`, `other`, and `global` variables.
-     * e.g. "{self.posX} > {other.posY}"
+     * @brief The Logical Argument that determines when the ruleset is triggered.
+     *        Logical Arguments are evaluated inside the Invoke class with access to `self`, `other`, and `global` variables.
+     *        e.g. "{self.posX} > {other.posY}"
      */
     Logic::ExpressionPool logicalArg;
 
     /**
      * @brief The function calls that to be executed on global domain.
-     * 
-     * vector of function calls, e.g. "echo example"
+     *        Vector of function calls, e.g. "echo example"
      */
     std::vector<Logic::ExpressionPool> functioncalls_global;
 
     /**
      * @brief The function calls that to be executed on self domain.
-     * 
-     * vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
+     *        Vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
      */
     std::vector<Logic::ExpressionPool> functioncalls_self;
 
     /**
      * @brief The function calls that to be executed on other domain.
-     * 
-     * vector of function calls, e.g. "add-invoke ./Resources/Invokes/gravity.jsonc"
+     *        Vector of function calls, e.g. "add-invoke ./Resources/Invokes/gravity.jsonc"
      */
     std::vector<Logic::ExpressionPool> functioncalls_other;
 
     /**
-     * @brief Indicates whether the invoke entry is global or local.
-     * 
-     * if true, the Ruleset is global and can be broadcasted to other objects: Same as a nonempty topic
+     * @brief Indicates whether the ruleset is global or local.
+     *        if true, the Ruleset is global and can be broadcasted to other objects: Same as a nonempty topic
      */
     bool isGlobal = true;
 
     /**
-     * @brief Pointer to the RenderObject that owns this invoke entry; the `self` domain.
+     * @brief Pointer to the RenderObject that owns this ruleset; the `self` domain.
      */
     Core::RenderObject* selfPtr = nullptr;
 
     // Expressions
     /**
      * @brief The expressions that are evaluated and applied to the corresponding domains.
-     * 
-     * e.g.: `self.key1 = 0`, `other.key2 *= $( sin({self.key2}) * 2 )`, `global.key3 = 1`
+     *        e.g.: `self.key1 = 0`, `other.key2 *= $( sin({self.key2}) * 2 )`, `global.key3 = 1`
      */
     std::vector<Logic::Assignment> assignments;
 
@@ -130,7 +133,7 @@ struct Ruleset {
 
     //------------------------------------------
     // Make Entry non-copyable and non-movable
-    // All entries should be local to their RenderObject
+    // All entries are local to their RenderObject
 
     Ruleset() = default;
     ~Ruleset() = default;

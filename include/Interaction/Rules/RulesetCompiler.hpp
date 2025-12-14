@@ -89,7 +89,6 @@ private:
      * @param assignmentExpr The assignment expression to populate.
      * @param entry The JSON entry document to extract the expression from.
      * @param index The index of the expression in the entry document.
-     * 
      * @return True if the expression was successfully extracted, false otherwise.
      */
     static bool getExpression(
