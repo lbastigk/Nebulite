@@ -284,7 +284,7 @@ uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
     cost = std::accumulate(
         rulesetsLocal.begin(), rulesetsLocal.end(), cost,
         [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
-            return acc + entry->estimatedCost;
+            return acc + entry->getEstimatedCost();
         }
         );
 
@@ -293,7 +293,7 @@ uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
         cost = std::accumulate(
             rulesetsGlobal.begin(), rulesetsGlobal.end(), cost,
             [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
-                return acc + entry->estimatedCost;
+                return acc + entry->getEstimatedCost();
             }
             );
     }

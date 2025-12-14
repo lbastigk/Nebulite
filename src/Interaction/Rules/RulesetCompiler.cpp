@@ -173,19 +173,7 @@ bool RulesetCompiler::getJsonRuleset(Data::JSON& doc, Data::JSON& entry, std::st
     return true;
 }
 
-// Basic helpers for parsing
-// Some of the functions above are probably better suited in the anonymous namespace as well to reduce the size of the header file.
-// Do so later on if the RulesetCompiler class gets more complex.
-// Especially once pre-compiled rulesets are implemented and need to be linked, which could drastically increase complexity of this class.
-namespace {
-/**
- * @brief Sets metadata in the object itself and in each Ruleset entry, including IDs, indices, and estimated computational cost.
- *
- * @param self The RenderObject that owns the entries.
- * @param rulesetsLocal The local Ruleset objects.
- * @param rulesetsGlobal The global Ruleset objects.
- */
-void setMetaData(
+void RulesetCompiler::setMetaData(
     Nebulite::Core::RenderObject* self,
     std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsLocal,
     std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsGlobal
@@ -214,7 +202,6 @@ void setMetaData(
     for (auto const& entry : rulesetsGlobal) {
         entry->estimateComputationalCost();
     }
-}
 }
 
 void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal, std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal, Core::RenderObject* self) {
@@ -245,7 +232,7 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
             // Skip invalid entry
             continue;
         }
-        if (Ruleset.value()->isGlobal) {
+        if (Ruleset.value()->_isGlobal) {
             // If topic is empty, it is a local invoke
             rulesetsGlobal.push_back(Ruleset.value());
         } else {
@@ -309,7 +296,7 @@ std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::getRuleset(Data::JSON& 
             auto Ruleset = std::make_shared<Interaction::Rules::Ruleset>();
             Ruleset->logicalArg.parse("$(1)", self->getDoc()); // Always true logical arg for static rulesets
             Ruleset->topic = staticRulesetEntry.topic;
-            Ruleset->isGlobal = (staticRulesetEntry.type == StaticRulesetMap::StaticRuleSetWithMetaData::Type::Global);
+            Ruleset->_isGlobal = (staticRulesetEntry.type == StaticRulesetMap::StaticRuleSetWithMetaData::Type::Global);
             Ruleset->staticFunction = staticRulesetEntry.function;
             Ruleset->selfPtr = self; // Set self pointer, might be helpful even for static rulesets
             return Ruleset;
@@ -323,7 +310,7 @@ std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::getRuleset(Data::JSON& 
     // Parse into a structure
     auto Ruleset = std::make_shared<Interaction::Rules::Ruleset>();
     Ruleset->topic = entry.get<std::string>(Constants::keyName.invoke.topic, "all");
-    Ruleset->isGlobal = (!Ruleset->topic.empty()); // If topic is empty, it is a local invoke
+    Ruleset->_isGlobal = (!Ruleset->topic.empty()); // If topic is empty, it is a local invoke
     Ruleset->logicalArg.parse(getLogicalArg(entry), self->getDoc());
 
     // Remove whitespaces at start and end from topic and logicalArg:

@@ -151,6 +151,18 @@ private:
         );
 
     /**
+     * @brief Sets metadata in the object itself and in each Ruleset entry, including IDs, indices, and estimated computational cost.
+     * @param self The RenderObject that owns the entries.
+     * @param rulesetsLocal The local Ruleset objects.
+     * @param rulesetsGlobal The global Ruleset objects.
+     */
+    static void setMetaData(
+        Nebulite::Core::RenderObject* self,
+        std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsLocal,
+        std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsGlobal
+        );
+
+    /**
      * @brief List of operations that are considered numeric and thus eligible for direct pointer assignment.
      * @note Any new numeric operation must be added here to benefit from optimization techniques in the Invoke class.
      */

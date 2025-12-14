@@ -23,7 +23,7 @@
 // Forward declarations
 
 namespace Nebulite::Interaction::Rules {
-struct Ruleset;
+class Ruleset;
 }
 
 namespace Nebulite::Utility {

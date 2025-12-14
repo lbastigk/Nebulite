@@ -33,7 +33,7 @@ class JSON;
 }
 
 namespace Nebulite::Interaction::Rules {
-struct Ruleset;
+class Ruleset;
 }
 
 namespace Nebulite::Interaction::Logic {
@@ -124,17 +124,6 @@ public:
     void listen(Core::RenderObject* obj, std::string const& topic, uint32_t const& listenerId);
 
     //------------------------------------------
-    // Value checks
-
-    /**
-     * @brief Checks if the ruleset is true in the context of the other render object.
-     * @param expr The condition to check.
-     * @param otherObj The other render object to compare against.
-     * @return True if the ruleset is true in the context of the other render object, false otherwise.
-     */
-    static bool checkRulesetLogicalCondition(Logic::ExpressionPool& expr, Core::RenderObject const* otherObj);
-
-    //------------------------------------------
     // Updating
 
     /**
@@ -149,13 +138,6 @@ public:
      *        Changes happen in domain `self`, `other` and `global`.
      */
     void update();
-
-    /**
-     * @brief Updates a RenderObject based on its local entries.
-     *        Applies any changes or updates as necessary. No broadcast/listening necessary, as no other objects are involved.
-     *        Changes happen in domain `self` and `global`.
-     */
-    void applyRuleset(std::shared_ptr<Rules::Ruleset> const& ruleset) const;
 
     //------------------------------------------
     // Standalone Expression Evaluation
@@ -332,13 +314,6 @@ private:
      * @param container The container of broadcast-listen pairs to process.
      */
     void processWork(BroadCastListenContainer& container);
-
-    /**
-     * @brief Updates a build pair of ruleset with given domain `other`
-     * @param ruleset The ruleset to apply.
-     * @param contextOther The render object in the other domain to update.
-     */
-    void applyRuleset(std::shared_ptr<Rules::Ruleset> const& ruleset, Core::RenderObject* contextOther) const;
 
     /**
      * @brief Applies a single assignment from a ruleset.

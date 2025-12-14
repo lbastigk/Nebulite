@@ -33,8 +33,8 @@ Constants::Error Ruleset::update() {
         //------------------------------------------
         // 2.) Directly solve local invokes (loop)
         for (auto const& entry : rulesetsLocal) {
-            if (Interaction::Invoke::checkRulesetLogicalCondition(entry->logicalArg, entry->selfPtr)) {
-                Nebulite::global().getInvoke()->applyRuleset(entry);
+            if (entry->evaluateCondition()) {
+                entry->apply();
             }
         }
 
@@ -72,11 +72,11 @@ Constants::Error Ruleset::once(std::span<std::string const> const& args) {
         std::string arg = Utility::StringHandler::recombineArgs(args.subspan(1));
         auto rs = Interaction::Rules::RulesetCompiler::parseSingle(args[0], domain);
         if (rs.has_value()) {
-            if (rs.value()->isGlobal) {
+            if (rs.value()->isGlobal()) {
                 Nebulite::global().getInvoke()->broadcast(rs.value());
             }
             else {
-                Nebulite::global().getInvoke()->applyRuleset(rs.value());
+                rs.value()->apply();
             }
             return Constants::ErrorTable::NONE();
         }

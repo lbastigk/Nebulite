@@ -39,7 +39,88 @@ namespace Nebulite::Interaction::Rules {
  *       Rest private, make RulesetCompiler a friend class.
  *       Should reduce code overhead and memory usage.
  */
-struct Ruleset {
+class Ruleset {
+public:
+    //------------------------------------------
+    // Make Entry non-copyable and non-movable
+    // All entries are local to their RenderObject
+
+    Ruleset() = default;
+    ~Ruleset() = default;
+
+    Ruleset(Ruleset const&) = delete;
+    Ruleset& operator=(Ruleset const&) = delete;
+    Ruleset(Ruleset&&) = delete;
+    Ruleset& operator=(Ruleset&&) = delete;
+
+    //------------------------------------------
+    // Friend classes
+    friend class RulesetCompiler;
+
+    //------------------------------------------
+    // Methods: Getters
+
+    [[nodiscard]] Logic::ExpressionPool const& getLogicalArg() const { return logicalArg; }
+
+    /**
+     * @brief Gets the id of the ruleset.
+     * @return The id of the ruleset, as const reference.
+     */
+    [[nodiscard]] uint32_t const& getId() const { return id; }
+
+    /**
+     * @brief Gets the index of the ruleset in the owning RenderObject's list of entries.
+     * @return The index of the ruleset, as const reference.
+     */
+    [[nodiscard]] uint32_t const& getIndex() const { return index; }
+
+    /**
+     * @brief Returns the topic of the ruleset.
+     * @return The topic of the ruleset, as const reference.
+     */
+    [[nodiscard]] std::string const& getTopic() const { return topic; }
+
+    /**
+     * @brief Returns the estimated computational cost of the ruleset.
+     * @return The estimated computational cost of the ruleset.
+     */
+    [[nodiscard]] size_t const& getEstimatedCost() const { return estimatedCost; }
+
+    /**
+     * @brief Checks whether the ruleset is global.
+     * @return True if the ruleset is global, false otherwise.
+     */
+    [[nodiscard]] bool const& isGlobal() const { return _isGlobal; }
+
+    //------------------------------------------
+    // Methods: Workflow
+
+    /**
+     * @brief Checks if the ruleset is true in the context of the other render object.
+     * @param expr The condition to check.
+     * @param otherObj The other render object to compare against.
+     * @return True if the ruleset is true in the context of the other render object, false otherwise.
+     */
+    bool evaluateCondition(Core::RenderObject const* otherObj);
+
+    /**
+     * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
+     * @return True if the ruleset is true in the context of its own RenderObject, false otherwise.
+     */
+    bool evaluateCondition(){return evaluateCondition(selfPtr);}
+
+    /**
+     * @brief Applies the ruleset
+     * @param contextOther The render object in the other domain.
+     */
+    void apply(Core::RenderObject* contextOther);
+
+    /**
+     * @brief Applies the ruleset to its own RenderObject as contextOther.
+     */
+    void apply(){apply(selfPtr);}
+private:
+
     /**
      * @brief The topic of the ruleset, used for routing and filtering in the broadcast-listen-model of the Invoke class.
      *        e.g. `gravity`, `hitbox`, `collision`. `all` is the default value. Any RenderObject should be subscribed to this topic.
@@ -94,7 +175,7 @@ struct Ruleset {
      * @brief Indicates whether the ruleset is global or local.
      *        if true, the Ruleset is global and can be broadcasted to other objects: Same as a nonempty topic
      */
-    bool isGlobal = true;
+    bool _isGlobal = true;
 
     /**
      * @brief Pointer to the RenderObject that owns this ruleset; the `self` domain.
@@ -130,18 +211,6 @@ struct Ruleset {
     // 2.) Fields for static rulesets
 
     StaticRulesetFunction staticFunction = nullptr;
-
-    //------------------------------------------
-    // Make Entry non-copyable and non-movable
-    // All entries are local to their RenderObject
-
-    Ruleset() = default;
-    ~Ruleset() = default;
-
-    Ruleset(Ruleset const&) = delete;
-    Ruleset& operator=(Ruleset const&) = delete;
-    Ruleset(Ruleset&&) = delete;
-    Ruleset& operator=(Ruleset&&) = delete;
 };
 } // namespace Nebulite::Interaction::Rules
 #endif // NEBULITE_INTERACTION_RULES_RULESET_HPP

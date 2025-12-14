@@ -60,34 +60,17 @@ Invoke::~Invoke() {
 }
 
 //------------------------------------------
-// Checks
-
-bool Invoke::checkRulesetLogicalCondition(Logic::ExpressionPool& expr, Core::RenderObject const* otherObj) {
-    // Check if logical arg is as simple as just "1", meaning true
-    if (expr.isAlwaysTrue())
-        return true;
-
-    double const result = expr.evalAsDouble(otherObj->getDoc());
-    if (std::isnan(result)) {
-        // We consider NaN as false
-        return false;
-    }
-    // Any double-value unequal to 0 is seen as "true"
-    return std::abs(result) > std::numeric_limits<double>::epsilon();
-}
-
-//------------------------------------------
 // Interactions
 
 void Invoke::broadcast(std::shared_ptr<Rules::Ruleset> const& entry) {
     // Get index
-    uint32_t const id_self = entry->id;
+    uint32_t const id_self = entry->getId();
     uint32_t const threadIndex = id_self % THREADRUNNER_COUNT;
 
     // Insert into next frame's entries
     std::scoped_lock lock(broadcasted.entriesNextFrame[threadIndex].mutex);
-    auto& [isActive, rulesets] = broadcasted.entriesNextFrame[threadIndex].Container[entry->topic][id_self];
-    rulesets[entry->index].entry = entry;
+    auto& [isActive, rulesets] = broadcasted.entriesNextFrame[threadIndex].Container[entry->getTopic()][id_self];
+    rulesets[entry->getIndex()].entry = entry;
     isActive = true;
 }
 
@@ -113,70 +96,10 @@ void Invoke::listen(Core::RenderObject* obj, std::string const& topic, uint32_t 
 
             // For all rulesets under this broadcaster and topic
             for (auto& [entry, listeners] : std::ranges::views::values(onTopicFromId.rulesets)) {
-                bool const pairStatus = checkRulesetLogicalCondition(entry->logicalArg, obj);
-                listeners[listenerId] = BroadCastListenPair{entry, obj, pairStatus};
+                listeners[listenerId] = BroadCastListenPair{entry, obj, entry->evaluateCondition(obj)};
             }
         }
     }
-}
-
-//------------------------------------------
-// Ruleset application
-
-void Invoke::applyFunctionCalls(std::shared_ptr<Rules::Ruleset> const& ruleset, Core::RenderObject const* contextSelf, Core::RenderObject const* contextOther) const {
-    // === Function Calls GLOBAL ===
-    for (auto& entry : ruleset->functioncalls_global) {
-        // replace vars
-        std::string call = entry.eval(contextOther->getDoc());
-
-        // attach to task queue
-        std::scoped_lock lock(taskQueue.mutex);
-        taskQueue.ptr->emplace_back(call);
-    }
-
-    // === Function Calls LOCAL: SELF ===
-    for (auto& entry : ruleset->functioncalls_self) {
-        // replace vars
-        std::string const call = __FUNCTION__ + entry.eval(contextOther->getDoc());
-        (void)contextSelf->parseStr(call);
-    }
-
-    // === Function Calls LOCAL: OTHER ===
-    for (auto& entry : ruleset->functioncalls_other) {
-        // replace vars
-        std::string const call = __FUNCTION__ + entry.eval(contextOther->getDoc());
-        (void)contextOther->parseStr(call);
-    }
-}
-
-// TODO: if ruleset->staticFunction is not null, we need to always activate it
-//       meaning we cannot check this here, as applyRuleset is only called
-//       if the logical condition is true
-//       But for static functions, that is determined inside the function itself
-//       Another option would be to set logicalArg to always true for static functions?
-//       -> Best compatibility!
-void Invoke::applyRuleset(std::shared_ptr<Rules::Ruleset> const& ruleset, Core::RenderObject* contextOther) const {
-    if (ruleset->staticFunction != nullptr) {
-        // Static function, just call it
-        Nebulite::Interaction::Rules::Context context{*ruleset->selfPtr, *contextOther, Nebulite::global()};
-        ruleset->staticFunction(context);
-        return;
-    }
-
-    // References
-    Core::RenderObject const* contextSelf = ruleset->selfPtr;
-
-    // Update self, other and global
-    for (auto& assignment : ruleset->assignments) {
-        assignment.apply(contextSelf->getDoc(), contextOther->getDoc());
-    }
-
-    // Apply function calls
-    applyFunctionCalls(ruleset, contextSelf, contextOther);
-}
-
-void Invoke::applyRuleset(std::shared_ptr<Rules::Ruleset> const& ruleset) const {
-    applyRuleset(ruleset, ruleset->selfPtr);
 }
 
 //------------------------------------------
@@ -303,7 +226,7 @@ void Invoke::processWork(BroadCastListenContainer& container) {
                 for (auto & it : listeners) {
                     auto &pair = it.second;
                     if (pair.active) {
-                        applyRuleset(pair.entry, pair.contextOther);
+                        pair.entry->apply(pair.contextOther);
                         pair.active = false;
                     }
                 }
