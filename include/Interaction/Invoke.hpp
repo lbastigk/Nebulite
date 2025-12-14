@@ -248,8 +248,12 @@ private:
 
     // two of these are needed, and we swap between them on each frame
     // TODO: Break into a chain of nibble-trees for faster access?
-    //       uint32_t -> 8 nibble traversal. vector<vector<vector<vector<OnTopicFromId>>>?
+    //       uint32_t -> 8 nibble traversal. vector<vector<vector<vector<...<OnTopicFromId>...>>>?
     //       Should be WAY faster for lookups, easy cleanup as well.
+    //       Byte-Tree should be fine as well, just 4 levels instead of 8.
+    //       Make both versions with the same interface and benchmark them!
+    //       Should only need an operator[] and an erase() method,
+    //       as well as an iterator?
     using BroadCastListenContainer = absl::flat_hash_map<
         std::string, // The topic of the broadcasted entry
         absl::flat_hash_map<
@@ -265,10 +269,9 @@ private:
 
     /**
      * @struct BroadCasted
-     * @brief Structure to hold broadcasted progression.
+     * @brief Structure to hold broadcasted pairs.
      *        - Entries this frame
      *        - Entries next frame
-     *        - Pairings created from the entries and listeners
      */
     struct BroadCasted {
         /**
