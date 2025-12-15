@@ -44,6 +44,8 @@ struct taskQueueResult {
 /**
  * @struct taskQueueWrapper
  * @brief Represents a queue of tasks to be processed by the engine, including metadata.
+ * @todo Rename to TaskQueue, deque should simply be called 'tasks'
+ * @todo Move to Nebulite::Data::TaskQueue, as it is not specific to GlobalSpace
  * @todo Would it make sense for this to be a class derived from Domain?
  *       That way, each taskQueue would have functions such as clear, wait, always etc.?
  *       Perhaps an idea for the future, for now we simply use separate taskQueueWrappers for each type:
