@@ -40,7 +40,6 @@ namespace Nebulite::Interaction::Rules {
 
 using StaticRulesetFunction = std::function<void(const ContextBase&)>;
 
-
 //------------------------------------------
 // Defining a Ruleset Map where static rulesets can be looked up by name
 
