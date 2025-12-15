@@ -18,6 +18,7 @@
 
 // Nebulite
 #include "Nebulite.hpp"
+#include "Interaction/Context.hpp"
 #include "Interaction/Rules/Initializer.hpp"
 
 //------------------------------------------
@@ -37,14 +38,7 @@ namespace Nebulite::Interaction::Rules {
 //------------------------------------------
 // Defining what a ruleset function looks like
 
-struct Context {
-    Nebulite::Core::RenderObject& self;
-    Nebulite::Core::RenderObject& other;
-    Nebulite::Core::GlobalSpace& global;
-    // TODO: Parent context?
-};
-
-using StaticRulesetFunction = std::function<void(const Context&)>;
+using StaticRulesetFunction = std::function<void(const ContextBase&)>;
 
 
 //------------------------------------------

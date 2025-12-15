@@ -12,7 +12,7 @@ namespace Nebulite::Interaction::Rules::RulesetModules {
 //       then, use that info here to properly interpolate position
 //       that happens between now and the predicted next frame-time
 // TODO: Add a repositioning step to resolve overlaps
-void Physics::elasticCollision(Context const& context) {
+void Physics::elasticCollision(ContextBase const& context) {
     // Special keys for this ruleset only
     static std::string lastCollisionX = "physics.collision.time.lastX";
     static std::string lastCollisionY = "physics.collision.time.lastY";
@@ -112,7 +112,7 @@ void Physics::elasticCollision(Context const& context) {
     }
 }
 
-void Physics::gravity(Context const& context) {
+void Physics::gravity(ContextBase const& context) {
     // Get ordered cache lists for both entities for base values
     double** slf = getBaseList(context.self);
     double** otr = getBaseList(context.other);
@@ -133,7 +133,7 @@ void Physics::gravity(Context const& context) {
 
 // Local rulesets
 
-void Physics::applyForce(Context const& context) {
+void Physics::applyForce(ContextBase const& context) {
     // Get ordered cache list for self entity for base values
     double** slf = getBaseList(context.self);
 
@@ -163,7 +163,7 @@ void Physics::applyForce(Context const& context) {
     baseVal(slf, Key::physics_FY) = 0.0;
 }
 
-void Physics::drag(Context const& context) {
+void Physics::drag(ContextBase const& context) {
     // Get ordered cache list for self entity for base values
     double** slf = getBaseList(context.self);
 

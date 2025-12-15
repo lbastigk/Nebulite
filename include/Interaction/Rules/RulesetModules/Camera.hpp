@@ -32,23 +32,23 @@ public:
 
     // Align camera
 
-    void alignCenter(Context const& context);
+    void alignCenter(ContextBase const& context);
     static constexpr std::string_view alignCenterName = "::camera::align::center";
     static constexpr std::string_view alignCenterDesc = "Aligns the camera view center to the center of the render object.";
 
-    void alignTop(Context const& context);
+    void alignTop(ContextBase const& context);
     static constexpr std::string_view alignTopName = "::camera::align::top";
     static constexpr std::string_view alignTopDesc = "Aligns the camera view top edge to the center of the render object.";
 
-    void alignBottom(Context const& context);
+    void alignBottom(ContextBase const& context);
     static constexpr std::string_view alignBottomName = "::camera::align::bottom";
     static constexpr std::string_view alignBottomDesc = "Aligns the camera view bottom edge to the center of the render object.";
 
-    void alignLeft(Context const& context);
+    void alignLeft(ContextBase const& context);
     static constexpr std::string_view alignLeftName = "::camera::align::left";
     static constexpr std::string_view alignLeftDesc = "Aligns the camera view left edge to the center of the render object.";
 
-    void alignRight(Context const& context);
+    void alignRight(ContextBase const& context);
     static constexpr std::string_view alignRightName = "::camera::align::right";
     static constexpr std::string_view alignRightDesc = "Aligns the camera view right edge to the center of the render object.";
 
@@ -103,7 +103,7 @@ private:
      * @param ctx The render object context from which to retrieve the base values.
      * @return A pointer to an array of double pointers, each pointing to a base value.
      */
-    double** getBaseList(Nebulite::Core::RenderObject& ctx) {
+    double** getBaseList(Interaction::Execution::DomainBase& ctx) {
         return ensureOrderedCacheList(*ctx.getDoc(), id, keys)->data();
     }
 

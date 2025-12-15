@@ -163,7 +163,7 @@ Define object interactions via JSON rulesets:
 or via static rulesets in C++ code:
 ```cpp
 // Called with keyword "::physics:gravity" (both broadcast and listen)
-void Physics::gravity(Context const& context) {
+void Physics::gravity(ContextBase const& context) {
     // Get ordered cache lists for both entities for base values
     double** slf = getBaseList(context.self);
     double** otr = getBaseList(context.other);

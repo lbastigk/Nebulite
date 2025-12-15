@@ -50,7 +50,7 @@ public:
      * @param description A brief description of the ruleset's purpose and its used variables
      */
     template<typename T>
-    void bind(RulesetType const& type, void (T::*func)(Context const&), std::string_view const& topic, std::string_view const& description) {
+    void bind(RulesetType const& type, void (T::*func)(ContextBase const&), std::string_view const& topic, std::string_view const& description) {
         static_assert(std::is_base_of_v<RulesetModule, T>, "bind(): T must derive from RulesetModule");
         if (!topic.starts_with("::")) {
             throw std::invalid_argument("RulesetModule::bind(): topic must start with '::'. Tried to bind: " + std::string(topic));
@@ -59,7 +59,7 @@ public:
             type,
             topic,
             description,
-            [this, func](Context const& ctx) { (static_cast<T*>(this)->*func)(ctx); }
+            [this, func](ContextBase const& ctx) { (static_cast<T*>(this)->*func)(ctx); }
         });
     }
 

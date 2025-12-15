@@ -2,7 +2,7 @@
 #include "Interaction/Rules/Ruleset.hpp"
 
 namespace Nebulite::Interaction::Rules {
-bool Ruleset::evaluateCondition(Core::RenderObject const* otherObj) {
+bool Ruleset::evaluateCondition(Interaction::Execution::DomainBase const* otherObj) {
     // Check if logical arg is as simple as just "1", meaning true
     if (logicalArg.isAlwaysTrue())
         return true;
@@ -16,11 +16,11 @@ bool Ruleset::evaluateCondition(Core::RenderObject const* otherObj) {
     return std::abs(result) > std::numeric_limits<double>::epsilon();
 }
 
-void Ruleset::apply(Core::RenderObject* contextOther) {
+void Ruleset::apply(Interaction::Execution::DomainBase* contextOther) {
     if (staticFunction != nullptr) {
         // Static function, just call it
-        Nebulite::Interaction::Rules::Context context{*selfPtr, *contextOther, Nebulite::global()};
-        staticFunction(context);
+        Nebulite::Interaction::ContextBase contextBase{*selfPtr, *contextOther, Nebulite::global()};
+        staticFunction(contextBase);
         return;
     }
 

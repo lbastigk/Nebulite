@@ -38,21 +38,21 @@ public:
 
     // Global rulesets
 
-    void elasticCollision(Context const& context);
+    void elasticCollision(ContextBase const& context);
     static constexpr std::string_view elasticCollisionName = "::physics::elasticCollision";
     static constexpr std::string_view elasticCollisionDesc = "Applies elastic collision forces between two render objects based on their masses and velocities.";
 
-    void gravity(Context const& context);
+    void gravity(ContextBase const& context);
     static constexpr std::string_view gravityName = "::physics::gravity";
     static constexpr std::string_view gravityDesc = "Applies gravitational force between two render objects based on their masses and the gravitational constant.";
 
     // Local rulesets
 
-    void applyForce(Context const& context);
+    void applyForce(ContextBase const& context);
     static constexpr std::string_view applyForceName = "::physics::applyForce";
     static constexpr std::string_view applyForceDesc = "Applies accumulated forces to the render object's acceleration, velocity, and position based on its mass and the simulation delta time.";
 
-    void drag(Context const& context);
+    void drag(ContextBase const& context);
     static constexpr std::string_view dragName = "::physics::drag";
     static constexpr std::string_view dragDesc = "Applies drag force to the render object, simulating air resistance based on its velocity and a drag coefficient.";
 
@@ -133,7 +133,7 @@ private:
      * @param ctx The render object context from which to retrieve the base values.
      * @return A pointer to an array of double pointers, each pointing to a base value.
      */
-    double** getBaseList(Nebulite::Core::RenderObject& ctx) {
+    double** getBaseList(Interaction::Execution::DomainBase& ctx) {
         return ensureOrderedCacheList(*ctx.getDoc(), id, keys)->data();
     }
 

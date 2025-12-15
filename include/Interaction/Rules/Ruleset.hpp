@@ -17,9 +17,13 @@
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite::Core {
-class RenderObject;
-} // namespace Nebulite::Core
+//namespace Nebulite::Core {
+//class RenderObject;
+//} // namespace Nebulite::Core
+
+namespace Nebulite::Interaction::Execution {
+class DomainBase;
+} // namespace Nebulite::Interaction::Execution
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {
@@ -84,10 +88,10 @@ public:
     /**
      * @brief Checks if the ruleset is true in the context of the other render object.
      * @param expr The condition to check.
-     * @param otherObj The other render object to compare against.
+     * @param otherObj The other domain to use as context 'other'.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    virtual bool evaluateCondition(Core::RenderObject const* otherObj);
+    virtual bool evaluateCondition(Interaction::Execution::DomainBase const* other);
 
     /**
      * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
@@ -114,6 +118,7 @@ protected:
     //       - estimatedCost (estimateComputationalCost should only be necessary for JsonRuleset, for static rulesets we may just write a constant)
     //       - enum for locality (global/local) instead of bool _isGlobal
     //       - selfPtr
+
 };
 
 
@@ -184,7 +189,7 @@ public:
      * @param otherObj The other render object to compare against.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    bool evaluateCondition(Core::RenderObject const* otherObj);
+    bool evaluateCondition(Interaction::Execution::DomainBase const* other);
 
     /**
      * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
@@ -196,7 +201,7 @@ public:
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
      */
-    void apply(Core::RenderObject* contextOther);
+    void apply(Interaction::Execution::DomainBase* contextOther);
 
     /**
      * @brief Applies the ruleset to its own RenderObject as contextOther.
@@ -263,7 +268,7 @@ private:
     /**
      * @brief Pointer to the RenderObject that owns this ruleset; the `self` domain.
      */
-    Core::RenderObject* selfPtr = nullptr;
+    Interaction::Execution::DomainBase* selfPtr = nullptr;
 
     // Expressions
     /**
