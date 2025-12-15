@@ -29,7 +29,7 @@
 - [Quick Start](#quick-start)
 - [Core Concepts](#core-concepts)
   * [Expression System](#expression-system)
-  * [Invoke System](#invoke-system)
+  * [Ruleset System](#ruleset-system)
   * [Runtime Modes](#runtime-modes)
 - [Platform Support & Dependencies](#platform-support-dependencies)
 - [Testing](#testing)
@@ -142,12 +142,12 @@ Inventory size:
 Sum of two inventories:
 `You will have $i({self.inventory|length} + {other.inventory|length}) items after trade.`
 
-<!-- TOC --><a name="invoke-system"></a>
-### Invoke System
+<!-- TOC --><a name="ruleset-system"></a>
+### Ruleset System
 Define object interactions via JSON rulesets:
 ```jsonc
 {
-    "topic": "gravity",     // Broadcast channel
+    "topic": "gravity",     // Broadcast channel (empty = local only)
     "logicalArg": "1",      // Condition to execute
     "exprs": [              // Modify values
         "other.physics.FX += $({global.physics.G} * {self.physics.mass} * {other.physics.mass} * ( {self.posX} - {other.posX}  ) / ( 1 + (({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2)^(1.5)) )",
@@ -183,13 +183,16 @@ void Physics::gravity(Context const& context) {
 }
 ```
 
-Rulesets are either local (topic empty) or global (specific topic name).
-This allows for inter-object communication via broadcasting and inner-object logic handling.
+Rulesets are either local or global.
+This allows for inter-object communication via broadcasting for
 - hitbox collisions
 - area triggers
-- velocity integration
-- AI decision-making
 - custom events
+
+and inner-object logic handling for
+- applying forces
+- state changes
+- animations
   
 Global rulesets are executed first, followed by local rulesets.
 
@@ -276,7 +279,7 @@ The `.nebl` *(Nebulite Logic)* language is a work in progress and not yet usable
 Contributions welcome. Quick start:
 1. Fork & create feature branch (`feature/<short-desc>`)
 2. Run install + build + tests
-3. Add/update invokes or DSL features with tests / demo TaskFile
+3. Add/update rulesets or DSL features with tests / demo TaskFile
 4. Open PR referencing related roadmap item or issue
 
 See full details in [CONTRIBUTING.md](CONTRIBUTING.md).
