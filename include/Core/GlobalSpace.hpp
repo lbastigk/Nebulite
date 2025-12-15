@@ -32,8 +32,24 @@
 namespace Nebulite::Core {
 
 /**
+ * @brief Represents the result of resolving a task queue.
+ *        This structure holds the outcome of processing a task queue, including any errors
+ *        encountered during resolution and whether the process was halted due to a critical error.
+ */
+struct taskQueueResult {
+    bool encounteredCriticalResult = false;
+    std::vector<Constants::Error> errors;
+};
+
+/**
  * @struct taskQueueWrapper
  * @brief Represents a queue of tasks to be processed by the engine, including metadata.
+ * @todo Would it make sense for this to be a class derived from Domain?
+ *       That way, each taskQueue would have functions such as clear, wait, always etc.?
+ *       Perhaps an idea for the future, for now we simply use separate taskQueueWrappers for each type:
+ *       - script
+ *       - always
+ *       - internal
  */
 struct taskQueueWrapper {
     std::deque<std::string> taskQueue; // List of tasks
@@ -53,20 +69,31 @@ struct taskQueueWrapper {
      * @todo Implement waitCounter into each taskQueueWrapper, so each queue can have its own wait counter
      *       Then, have function such as wait, task, etc. modify a specify taskQueue.
      *       calls with "on-queue", e.g. "on-queue <always/wait/etc.> <args>" can modify specific queues.
-     * @todo Add mutex for thread-safe push/pop of tasks
+     * @todo Add mutex for thread-safe append/clear of tasks
      * @todo Add its own resolve function, with param for domain.
      * @todo Add own wait counter, being lowered on each frame update.
      */
-};
+    void append(std::string const& task);
+    void wait(uint64_t const& frames);
+    taskQueueResult resolve();
+    void clear(); // Should also clear buffer?
 
-/**
- * @brief Represents the result of resolving a task queue.
- *        This structure holds the outcome of processing a task queue, including any errors
- *        encountered during resolution and whether the process was halted due to a critical error.
- */
-struct taskQueueResult {
-    bool encounteredCriticalResult = false;
-    std::vector<Constants::Error> errors;
+private:
+    /**
+     * @todo An option to avoid race-conditions when multiple threads append tasks.
+     *       Idea: Store tasks in temporary buffer, insert into main queue alphaphanumerically sorted on resolve.
+     *       This way, multiple threads can append tasks without locking the main queue.
+     *       On resolve, we lock the main queue, merge the temporary buffer into the main queue in sorted order, and then clear the temporary buffer.
+     *       This ensures that tasks are always executed in a consistent order, while minimizing locking overhead during appends.
+     */
+    std::mutex bufferMutex; // Mutex for thread-safe access to the temporary buffer
+    std::mutex queueMutex;  // Mutex for thread-safe access to the task queue
+    uint64_t waitCounter = 0; // Frames to wait before processing tasks
+    std::vector<std::string> tempBuffer; // Temporary buffer for tasks added by multiple threads
+
+    struct Settings {
+        bool clearAfterResolving = true;
+    } settings;
 };
 
 //------------------------------------------
