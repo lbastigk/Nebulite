@@ -56,104 +56,6 @@ public:
      * @brief Gets the id of the ruleset.
      * @return The id of the ruleset, as const reference.
      */
-    [[nodiscard]]virtual uint32_t const& getId() const ;
-
-    /**
-     * @brief Gets the index of the ruleset in the owning RenderObject's list of entries.
-     * @return The index of the ruleset, as const reference.
-     */
-    [[nodiscard]] virtual uint32_t const& getIndex() const ;
-
-    /**
-     * @brief Returns the topic of the ruleset.
-     * @return The topic of the ruleset, as const reference.
-     */
-    [[nodiscard]] virtual std::string const& getTopic() const ;
-
-    /**
-     * @brief Returns the estimated computational cost of the ruleset.
-     * @return The estimated computational cost of the ruleset.
-     */
-    [[nodiscard]] virtual size_t const& getEstimatedCost() const ;
-
-    /**
-     * @brief Checks whether the ruleset is global.
-     * @return True if the ruleset is global, false otherwise.
-     */
-    [[nodiscard]] virtual bool const& isGlobal() const ;
-
-    //------------------------------------------
-    // Methods: Workflow
-
-    /**
-     * @brief Checks if the ruleset is true in the context of the other render object.
-     * @param expr The condition to check.
-     * @param otherObj The other domain to use as context 'other'.
-     * @return True if the ruleset is true in the context of the other render object, false otherwise.
-     */
-    virtual bool evaluateCondition(Interaction::Execution::DomainBase const* other);
-
-    /**
-     * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
-     * @return True if the ruleset is true in the context of its own RenderObject, false otherwise.
-     */
-    virtual bool evaluateCondition();
-
-    /**
-     * @brief Applies the ruleset
-     * @param contextOther The render object in the other domain.
-     */
-    virtual void apply(Core::RenderObject* contextOther);
-
-    /**
-     * @brief Applies the ruleset to its own RenderObject as contextOther.
-     */
-    virtual void apply();
-
-protected:
-    // TODO: Add all necessary protected members and methods here for derived classes
-    //       - topic
-    //       - id
-    //       - index
-    //       - estimatedCost (estimateComputationalCost should only be necessary for JsonRuleset, for static rulesets we may just write a constant)
-    //       - enum for locality (global/local) instead of bool _isGlobal
-    //       - selfPtr
-
-};
-
-
-/**
- * @class Nebulite::Interaction::Rules::Ruleset
- * @brief Represents a single ruleset of a RenderObject for manipulation.
- *        Invokes are parsed into specific structs. Each Renderobject holds its own InvokeEntries.
- *        The struct also contains a pointer to the RenderObject that owns this entry (the broadcaster).
- * @todo Split into StaticRuleset and JsonRuleset subclasses
- */
-class Ruleset {
-public:
-    //------------------------------------------
-    // Make Entry non-copyable and non-movable
-    // All entries are local to their RenderObject
-
-    Ruleset() = default;
-    ~Ruleset() = default;
-
-    Ruleset(Ruleset const&) = delete;
-    Ruleset& operator=(Ruleset const&) = delete;
-    Ruleset(Ruleset&&) = delete;
-    Ruleset& operator=(Ruleset&&) = delete;
-
-    //------------------------------------------
-    // Friend classes
-    friend class RulesetCompiler;
-
-    //------------------------------------------
-    // Methods: Getters
-
-    /**
-     * @brief Gets the id of the ruleset.
-     * @return The id of the ruleset, as const reference.
-     */
     [[nodiscard]] uint32_t const& getId() const { return id; }
 
     /**
@@ -186,28 +88,54 @@ public:
     /**
      * @brief Checks if the ruleset is true in the context of the other render object.
      * @param expr The condition to check.
-     * @param otherObj The other render object to compare against.
+     * @param otherObj The other domain to use as context 'other'.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    bool evaluateCondition(Interaction::Execution::DomainBase const* other);
+    virtual bool evaluateCondition(Interaction::Execution::DomainBase const* other);
 
     /**
      * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
      * @return True if the ruleset is true in the context of its own RenderObject, false otherwise.
      */
-    bool evaluateCondition(){return evaluateCondition(selfPtr);}
+    virtual bool evaluateCondition();
 
     /**
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
      */
-    void apply(Interaction::Execution::DomainBase* contextOther);
+    virtual void apply(Interaction::Execution::DomainBase* contextOther);
 
     /**
      * @brief Applies the ruleset to its own RenderObject as contextOther.
      */
-    void apply(){apply(selfPtr);}
-private:
+    virtual void apply();
+
+protected:
+    /**
+     * @brief The id of the object that owns this entry; the `self` domain.
+     */
+    uint32_t id = 0;
+
+    /**
+     * @brief The index of this entry in the list of entries of the owning RenderObject.
+     */
+    uint32_t index = 0;
+
+    /**
+     * @brief Indicates whether the ruleset is global or local.
+     *        if true, the Ruleset is global and can be broadcasted to other objects: Same as a nonempty topic
+     */
+    bool _isGlobal = true;
+
+    /**
+     * @brief Pointer to the RenderObject that owns this ruleset; the `self` domain.
+     */
+    Interaction::Execution::DomainBase* selfPtr = nullptr;
+
+    /**
+     * @brief Cost of this entry, estimated during parsing.
+     */
+    size_t estimatedCost = 0;
 
     /**
      * @brief The topic of the ruleset, used for routing and filtering in the broadcast-listen-model of the Invoke class.
@@ -220,19 +148,69 @@ private:
      *        Due to the large checks needed for `all`, it should only be used when absolutely necessary.
      */
     std::string topic = "all";
+};
+
+
+/**
+ * @class Nebulite::Interaction::Rules::Ruleset
+ * @brief Represents a single ruleset of a RenderObject for manipulation.
+ *        Invokes are parsed into specific structs. Each Renderobject holds its own InvokeEntries.
+ *        The struct also contains a pointer to the RenderObject that owns this entry (the broadcaster).
+ *        Currently, this class handles both static and json-defined rulesets.
+ * @todo Split into StaticRuleset and JsonRuleset subclasses
+ */
+class Ruleset : public RulesetBase {
+public:
+    //------------------------------------------
+    // Make Entry non-copyable and non-movable
+    // All entries are local to their RenderObject
+
+    Ruleset() = default;
+    ~Ruleset() = default;
+
+    Ruleset(Ruleset const&) = delete;
+    Ruleset& operator=(Ruleset const&) = delete;
+    Ruleset(Ruleset&&) = delete;
+    Ruleset& operator=(Ruleset&&) = delete;
 
     //------------------------------------------
+    // Friend classes
+    friend class RulesetCompiler;
+
+    //------------------------------------------
+    // Methods: Workflow
+
+    /**
+     * @brief Checks if the ruleset is true in the context of the other render object.
+     * @param expr The condition to check.
+     * @param otherObj The other render object to compare against.
+     * @return True if the ruleset is true in the context of the other render object, false otherwise.
+     */
+    bool evaluateCondition(Interaction::Execution::DomainBase const* other) override ;
+
+    /**
+     * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
+     * @return True if the ruleset is true in the context of its own RenderObject, false otherwise.
+     * @todo: Keep same for JsonRuleset, but for StaticRuleset, just return true
+     */
+    bool evaluateCondition() override {return evaluateCondition(selfPtr);}
+
+    /**
+     * @brief Applies the ruleset
+     * @param contextOther The render object in the other domain.
+     * @todo Split into JsonRuleset and StaticRuleset implementations, where JsonRuleset implements (mostly) the current logic,
+     *       and StaticRuleset just calls the static function.
+     */
+    void apply(Interaction::Execution::DomainBase* contextOther) override ;
+
+    /**
+     * @brief Applies the ruleset to its own RenderObject as contextOther.
+     */
+    void apply() override {apply(selfPtr);}
+
+private:
+    //------------------------------------------
     // 1.) Fields for basic json-defined rulesets
-
-    /**
-     * @brief The id of the object that owns this entry; the `self` domain.
-     */
-    uint32_t id = 0;
-
-    /**
-     * @brief The index of this entry in the list of entries of the owning RenderObject.
-     */
-    uint32_t index = 0;
 
     /**
      * @brief The Logical Argument that determines when the ruleset is triggered.
@@ -260,27 +238,10 @@ private:
     std::vector<Logic::ExpressionPool> functioncalls_other;
 
     /**
-     * @brief Indicates whether the ruleset is global or local.
-     *        if true, the Ruleset is global and can be broadcasted to other objects: Same as a nonempty topic
-     */
-    bool _isGlobal = true;
-
-    /**
-     * @brief Pointer to the RenderObject that owns this ruleset; the `self` domain.
-     */
-    Interaction::Execution::DomainBase* selfPtr = nullptr;
-
-    // Expressions
-    /**
      * @brief The expressions that are evaluated and applied to the corresponding domains.
      *        e.g.: `self.key1 = 0`, `other.key2 *= $( sin({self.key2}) * 2 )`, `global.key3 = 1`
      */
     std::vector<Logic::Assignment> assignments;
-
-    /**
-     * @brief Cost of this entry, estimated during parsing.
-     */
-    size_t estimatedCost = 0;
 
     void estimateComputationalCost() {
         // Count number of $ and { in logicalArg

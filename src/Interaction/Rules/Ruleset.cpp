@@ -2,6 +2,29 @@
 #include "Interaction/Rules/Ruleset.hpp"
 
 namespace Nebulite::Interaction::Rules {
+
+//------------------------------------------
+// Base Class Virtual Methods
+
+bool RulesetBase::evaluateCondition(Interaction::Execution::DomainBase const* /*other*/) {
+    return false;
+}
+
+bool RulesetBase::evaluateCondition() {
+    return evaluateCondition(selfPtr);
+}
+
+void RulesetBase::apply(Interaction::Execution::DomainBase* /*contextOther*/) {
+    // default no-op
+}
+
+void RulesetBase::apply() {
+    apply(selfPtr);
+}
+
+//------------------------------------------
+// Derived Class Methods: Ruleset
+
 bool Ruleset::evaluateCondition(Interaction::Execution::DomainBase const* otherObj) {
     // Check if logical arg is as simple as just "1", meaning true
     if (logicalArg.isAlwaysTrue())
