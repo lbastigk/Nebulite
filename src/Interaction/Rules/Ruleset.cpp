@@ -62,7 +62,8 @@ void HybridRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
         std::string call = entry.eval(otherDoc);
 
         // attach to task queue
-        // TODO: needs its own lock!
+        // TODO: needs its own lock!!
+        //       Idea: don't expose task queue publicly, but have a method to add tasks with internal locking
         //std::scoped_lock lock(taskQueue.mutex);
         //Nebulite::global().getTaskQueue()->emplace_back(call);
     }

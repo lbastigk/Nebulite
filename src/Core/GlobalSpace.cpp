@@ -24,7 +24,6 @@ GlobalSpace::GlobalSpace(std::string const& name)
     //------------------------------------------
     // Setup tasks
     tasks.always.clearAfterResolving = false; // Always tasks are never cleared
-    invoke.linkTaskQueue(tasks.internal.taskQueue); // Invoke pushes tasks to internal queue
 
     //------------------------------------------
     // General Variables

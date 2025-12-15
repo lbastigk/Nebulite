@@ -333,5 +333,4 @@ std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string
     return getRuleset(tempDoc, "", self);
 }
 
-
 } // namespace Nebulite::Interaction::Rules

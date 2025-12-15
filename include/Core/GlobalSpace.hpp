@@ -53,6 +53,9 @@ struct taskQueueWrapper {
      * @todo Implement waitCounter into each taskQueueWrapper, so each queue can have its own wait counter
      *       Then, have function such as wait, task, etc. modify a specify taskQueue.
      *       calls with "on-queue", e.g. "on-queue <always/wait/etc.> <args>" can modify specific queues.
+     * @todo Add mutex for thread-safe push/pop of tasks
+     * @todo Add its own resolve function, with param for domain.
+     * @todo Add own wait counter, being lowered on each frame update.
      */
 };
 

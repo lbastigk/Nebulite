@@ -90,12 +90,6 @@ public:
      */
     ~Invoke();
 
-    /**
-     * @brief Links the invoke object to a global queue for function calls.
-     * @param queue Reference to the global queue.
-     */
-    void linkTaskQueue(std::deque<std::string>& queue) { taskQueue.ptr = &queue; }
-
     //------------------------------------------
     // Send/Listen
 
@@ -198,12 +192,6 @@ private:
 
     // Documents
     Data::JSON* emptyDoc;
-
-    // Task Queue
-    struct TaskQueue {
-        std::deque<std::string>* ptr;
-        mutable std::mutex mutex;
-    } taskQueue;
 
     //------------------------------------------
     // Threading Containers

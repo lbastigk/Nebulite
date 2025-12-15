@@ -21,8 +21,8 @@ namespace Nebulite::Interaction::Rules {
 /**
  * @class RulesetCompiler
  * @brief Responsible for parsing compatible JSON documents into `Ruleset` structs.
- *        A `Core::RenderObject` instance is required for context during parsing.
- *        It's field `invokes` holds the relevant invoke information.
+ * @details A `Core::RenderObject` instance is required for context during parsing.
+ *          It's field `invokes` holds the relevant invoke information.
  * @todo Idea for Invoke ruleset overwrites:
  *       In addition, add the field "overwrites" to the JSON doc.
  *       Then, on parsing, the overwrites are applied:
@@ -141,7 +141,7 @@ private:
 
     /**
      * @brief Optimizes a Ruleset by linking direct target pointers.
-     *        Potentially modifying self and global by registering stable double pointers.
+     * @details Potentially modifying self and global by registering stable double pointers.
      * @param entries The Ruleset objects to optimize.
      * @param self The RenderObject instance associated with the entries.
      */
