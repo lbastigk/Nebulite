@@ -28,22 +28,22 @@ class DomainBase;
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {
 /**
- * @class RulesetBase
+ * @class Ruleset
  * @brief Virtual base class for Ruleset types.
  */
-class RulesetBase {
+class Ruleset {
 public:
     //------------------------------------------
     // Make Entry non-copyable and non-movable
     // All entries are local to their RenderObject
 
-    RulesetBase() = default;
-    ~RulesetBase() = default;
+    Ruleset() = default;
+    ~Ruleset() = default;
 
-    RulesetBase(RulesetBase const&) = delete;
-    RulesetBase& operator=(RulesetBase const&) = delete;
-    RulesetBase(RulesetBase&&) = delete;
-    RulesetBase& operator=(RulesetBase&&) = delete;
+    Ruleset(Ruleset const&) = delete;
+    Ruleset& operator=(Ruleset const&) = delete;
+    Ruleset(Ruleset&&) = delete;
+    Ruleset& operator=(Ruleset&&) = delete;
 
     //------------------------------------------
     // Friend classes
@@ -152,26 +152,23 @@ protected:
 
 
 /**
- * @class Nebulite::Interaction::Rules::Ruleset
- * @brief Represents a single ruleset of a RenderObject for manipulation.
- *        Invokes are parsed into specific structs. Each Renderobject holds its own InvokeEntries.
- *        The struct also contains a pointer to the RenderObject that owns this entry (the broadcaster).
- *        Currently, this class handles both static and json-defined rulesets.
+ * @class Nebulite::Interaction::Rules::HybridRuleset
+ * @brief Represents a single ruleset entry for both static and json-defined rulesets.
  * @todo Split into StaticRuleset and JsonRuleset subclasses
  */
-class Ruleset : public RulesetBase {
+class HybridRuleset : public Ruleset {
 public:
     //------------------------------------------
     // Make Entry non-copyable and non-movable
     // All entries are local to their RenderObject
 
-    Ruleset() = default;
-    ~Ruleset() = default;
+    HybridRuleset() = default;
+    ~HybridRuleset() = default;
 
-    Ruleset(Ruleset const&) = delete;
-    Ruleset& operator=(Ruleset const&) = delete;
-    Ruleset(Ruleset&&) = delete;
-    Ruleset& operator=(Ruleset&&) = delete;
+    HybridRuleset(HybridRuleset const&) = delete;
+    HybridRuleset& operator=(HybridRuleset const&) = delete;
+    HybridRuleset(HybridRuleset&&) = delete;
+    HybridRuleset& operator=(HybridRuleset&&) = delete;
 
     //------------------------------------------
     // Friend classes

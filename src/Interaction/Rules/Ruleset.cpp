@@ -6,26 +6,26 @@ namespace Nebulite::Interaction::Rules {
 //------------------------------------------
 // Base Class Virtual Methods
 
-bool RulesetBase::evaluateCondition(Interaction::Execution::DomainBase const* /*other*/) {
+bool Ruleset::evaluateCondition(Interaction::Execution::DomainBase const* /*other*/) {
     return false;
 }
 
-bool RulesetBase::evaluateCondition() {
+bool Ruleset::evaluateCondition() {
     return evaluateCondition(selfPtr);
 }
 
-void RulesetBase::apply(Interaction::Execution::DomainBase* /*contextOther*/) {
+void Ruleset::apply(Interaction::Execution::DomainBase* /*contextOther*/) {
     // default no-op
 }
 
-void RulesetBase::apply() {
+void Ruleset::apply() {
     apply(selfPtr);
 }
 
 //------------------------------------------
-// Derived Class Methods: Ruleset
+// Derived Class Methods: HybridRuleset
 
-bool Ruleset::evaluateCondition(Interaction::Execution::DomainBase const* otherObj) {
+bool HybridRuleset::evaluateCondition(Interaction::Execution::DomainBase const* otherObj) {
     // Check if logical arg is as simple as just "1", meaning true
     if (logicalArg.isAlwaysTrue())
         return true;
@@ -39,7 +39,7 @@ bool Ruleset::evaluateCondition(Interaction::Execution::DomainBase const* otherO
     return std::abs(result) > std::numeric_limits<double>::epsilon();
 }
 
-void Ruleset::apply(Interaction::Execution::DomainBase* contextOther) {
+void HybridRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
     if (staticFunction != nullptr) {
         // Static function, just call it
         Nebulite::Interaction::ContextBase contextBase{*selfPtr, *contextOther, Nebulite::global()};

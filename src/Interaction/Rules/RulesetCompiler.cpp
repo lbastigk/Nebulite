@@ -6,7 +6,7 @@ namespace Nebulite::Interaction::Rules {
 
 void RulesetCompiler::getFunctionCalls(
     Data::JSON& entryDoc,
-    Ruleset& Ruleset,
+    HybridRuleset& Ruleset,
     Core::RenderObject const* self
     ) {
     // Get function calls: GLOBAL, SELF, OTHER
@@ -107,7 +107,7 @@ bool RulesetCompiler::getExpression(Logic::Assignment& assignmentExpr, Data::JSO
     return true;
 }
 
-bool RulesetCompiler::getExpressions(std::shared_ptr<Ruleset> const& Ruleset, Data::JSON* entry, Data::JSON* self) {
+bool RulesetCompiler::getExpressions(std::shared_ptr<HybridRuleset> const& Ruleset, Data::JSON* entry, Data::JSON* self) {
     if (entry->memberType(Constants::keyName.invoke.exprVector) == Data::JSON::KeyType::array) {
         size_t const exprSize = entry->memberSize(Constants::keyName.invoke.exprVector);
         for (size_t j = 0; j < exprSize; ++j) {
@@ -194,14 +194,6 @@ void RulesetCompiler::setMetaData(
     for (uint32_t i = 0; i < rulesetsGlobal.size(); ++i) {
         rulesetsGlobal[i]->index = i;
     }
-
-    // Estimate full cost of each entry
-    for (auto const& entry : rulesetsLocal) {
-        entry->estimateComputationalCost();
-    }
-    for (auto const& entry : rulesetsGlobal) {
-        entry->estimateComputationalCost();
-    }
 }
 
 void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal, std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal, Core::RenderObject* self) {
@@ -232,6 +224,8 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
             // Skip invalid entry
             continue;
         }
+        optimize(Ruleset.value(), self->getDoc());
+        Ruleset.value()->estimateComputationalCost();
         if (Ruleset.value()->_isGlobal) {
             // If topic is empty, it is a local invoke
             rulesetsGlobal.push_back(Ruleset.value());
@@ -240,52 +234,40 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
         }
     }
 
-    // See if we can assign a permanent target double pointer for each assignment
-    optimizeParsedEntries(rulesetsGlobal, self->getDoc());
-    optimizeParsedEntries(rulesetsLocal, self->getDoc());
-
     // Set necessary metadata: IDs, indices, cost estimation
     setMetaData(self, rulesetsGlobal, rulesetsLocal);
 }
 
-void RulesetCompiler::optimizeParsedEntries(
-    std::vector<std::shared_ptr<Ruleset>> const& entries,
-    Data::JSON* self
-    ) {
+void RulesetCompiler::optimize(std::shared_ptr<HybridRuleset> const& entry, Data::JSON* self) {
+    if (entry->staticFunction == nullptr) {
+        // Only optimize non-static rulesets
+        return;
+    }
+
     // Valid operations for direct double pointer assignment
     auto& ops = numeric_operations;
 
-    // Checking all created entries, if any assignment is a numeric operation on self or global
-    // we try to get a direct stable double pointer from the corresponding JSON document
-    // If successful, we store the pointer in targetValuePtr of the assignment
-    for (auto const& entry : entries) {
-        if (entry->staticFunction == nullptr) {
-            // Only optimize non-static rulesets
-            continue;
-        }
-
-        for (auto& assignment : entry->assignments) {
-            if (assignment.onType == Logic::Assignment::Type::Self) {
-                if (std::ranges::find(ops, assignment.operation) != std::ranges::end(ops)) {
-                    // Numeric operation on self, try to get a direct pointer
-                    if (double* ptr = self->getStableDoublePointer(assignment.key.eval(self)); ptr != nullptr) {
-                        assignment.targetValuePtr = ptr;
-                    }
+    for (auto& assignment : entry->assignments) {
+        if (assignment.onType == Logic::Assignment::Type::Self) {
+            if (std::ranges::find(ops, assignment.operation) != std::ranges::end(ops)) {
+                // Numeric operation on self, try to get a direct pointer
+                if (double* ptr = self->getStableDoublePointer(assignment.key.eval(self)); ptr != nullptr) {
+                    assignment.targetValuePtr = ptr;
                 }
             }
-            if (assignment.onType == Logic::Assignment::Type::Global) {
-                if (std::ranges::find(ops, assignment.operation) != std::ranges::end(ops)) {
-                    // Numeric operation on global, try to get a direct pointer
-                    if (double* ptr = Nebulite::global().getDoc()->getStableDoublePointer(assignment.key.eval(self)); ptr != nullptr) {
-                        assignment.targetValuePtr = ptr;
-                    }
+        }
+        if (assignment.onType == Logic::Assignment::Type::Global) {
+            if (std::ranges::find(ops, assignment.operation) != std::ranges::end(ops)) {
+                // Numeric operation on global, try to get a direct pointer
+                if (double* ptr = Nebulite::global().getDoc()->getStableDoublePointer(assignment.key.eval(self)); ptr != nullptr) {
+                    assignment.targetValuePtr = ptr;
                 }
             }
         }
     }
 }
 
-std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::getRuleset(Data::JSON& doc, std::string const& key, Core::RenderObject* self) {
+std::optional<std::shared_ptr<HybridRuleset>> RulesetCompiler::getRuleset(Data::JSON& doc, std::string const& key, Core::RenderObject* self) {
     Data::JSON entry;
     if (!getJsonRuleset(doc, entry, key)) {
         // See if it's a static ruleset
@@ -293,7 +275,7 @@ std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::getRuleset(Data::JSON& 
         auto staticRulesetEntry = StaticRulesetMap::getInstance().getStaticRulesetByName(staticFunctionName);
         if (staticRulesetEntry.type != StaticRulesetMap::StaticRuleSetWithMetaData::Type::invalid) {
             // Create a new Ruleset object
-            auto Ruleset = std::make_shared<Interaction::Rules::Ruleset>();
+            auto Ruleset = std::make_shared<Interaction::Rules::HybridRuleset>();
             Ruleset->logicalArg.parse("$(1)", self->getDoc()); // Always true logical arg for static rulesets
             Ruleset->topic = staticRulesetEntry.topic;
             Ruleset->_isGlobal = (staticRulesetEntry.type == StaticRulesetMap::StaticRuleSetWithMetaData::Type::Global);
@@ -308,7 +290,7 @@ std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::getRuleset(Data::JSON& 
     }
     // TODO: Improve code
     // Parse into a structure
-    auto Ruleset = std::make_shared<Interaction::Rules::Ruleset>();
+    auto Ruleset = std::make_shared<Interaction::Rules::HybridRuleset>();
     Ruleset->topic = entry.get<std::string>(Constants::keyName.invoke.topic, "all");
     Ruleset->_isGlobal = (!Ruleset->topic.empty()); // If topic is empty, it is a local invoke
     Ruleset->logicalArg.parse(getLogicalArg(entry), self->getDoc());

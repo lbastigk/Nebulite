@@ -80,7 +80,7 @@ private:
      */
     static void getFunctionCalls(
         Data::JSON& entryDoc,
-        Ruleset& Ruleset,
+        HybridRuleset& Ruleset,
         Core::RenderObject const* self
         );
 
@@ -104,7 +104,7 @@ private:
      * @param self The JSON document of context self.
      * @return True if the expressions were successfully extracted, false otherwise.
      */
-    static bool getExpressions(std::shared_ptr<Ruleset> const& Ruleset, Data::JSON* entry, Data::JSON* self);
+    static bool getExpressions(std::shared_ptr<HybridRuleset> const& Ruleset, Data::JSON* entry, Data::JSON* self);
 
     /**
      * @brief Extracts a logical argument from a JSON entry document.
@@ -133,22 +133,19 @@ private:
      * @param self The RenderObject instance associated with the entry.
      * @return An optional shared pointer to the parsed Ruleset object, or std::nullopt if parsing failed.
      */
-    static std::optional<std::shared_ptr<Ruleset>> getRuleset(
+    static std::optional<std::shared_ptr<HybridRuleset>> getRuleset(
         Data::JSON& doc,
         std::string const& key,
         Core::RenderObject* self
         );
 
     /**
-     * @brief Optimizes the parsed entries by linking direct target pointers.
+     * @brief Optimizes a Ruleset by linking direct target pointers.
      *        Potentially modifying self and global by registering stable double pointers.
      * @param entries The Ruleset objects to optimize.
      * @param self The RenderObject instance associated with the entries.
      */
-    static void optimizeParsedEntries(
-        std::vector<std::shared_ptr<Ruleset>> const& entries,
-        Data::JSON* self
-        );
+    static void optimize(std::shared_ptr<HybridRuleset> const& entry, Data::JSON* self);
 
     /**
      * @brief Sets metadata in the object itself and in each Ruleset entry, including IDs, indices, and estimated computational cost.
