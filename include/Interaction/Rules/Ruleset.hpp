@@ -24,20 +24,105 @@ class RenderObject;
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {
 /**
- * @struct Nebulite::Interaction::Rules::Ruleset
+ * @class RulesetBase
+ * @brief Virtual base class for Ruleset types.
+ */
+class RulesetBase {
+public:
+    //------------------------------------------
+    // Make Entry non-copyable and non-movable
+    // All entries are local to their RenderObject
+
+    RulesetBase() = default;
+    ~RulesetBase() = default;
+
+    RulesetBase(RulesetBase const&) = delete;
+    RulesetBase& operator=(RulesetBase const&) = delete;
+    RulesetBase(RulesetBase&&) = delete;
+    RulesetBase& operator=(RulesetBase&&) = delete;
+
+    //------------------------------------------
+    // Friend classes
+    friend class RulesetCompiler;
+
+    //------------------------------------------
+    // Methods: Getters
+
+    /**
+     * @brief Gets the id of the ruleset.
+     * @return The id of the ruleset, as const reference.
+     */
+    [[nodiscard]]virtual uint32_t const& getId() const ;
+
+    /**
+     * @brief Gets the index of the ruleset in the owning RenderObject's list of entries.
+     * @return The index of the ruleset, as const reference.
+     */
+    [[nodiscard]] virtual uint32_t const& getIndex() const ;
+
+    /**
+     * @brief Returns the topic of the ruleset.
+     * @return The topic of the ruleset, as const reference.
+     */
+    [[nodiscard]] virtual std::string const& getTopic() const ;
+
+    /**
+     * @brief Returns the estimated computational cost of the ruleset.
+     * @return The estimated computational cost of the ruleset.
+     */
+    [[nodiscard]] virtual size_t const& getEstimatedCost() const ;
+
+    /**
+     * @brief Checks whether the ruleset is global.
+     * @return True if the ruleset is global, false otherwise.
+     */
+    [[nodiscard]] virtual bool const& isGlobal() const ;
+
+    //------------------------------------------
+    // Methods: Workflow
+
+    /**
+     * @brief Checks if the ruleset is true in the context of the other render object.
+     * @param expr The condition to check.
+     * @param otherObj The other render object to compare against.
+     * @return True if the ruleset is true in the context of the other render object, false otherwise.
+     */
+    virtual bool evaluateCondition(Core::RenderObject const* otherObj);
+
+    /**
+     * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
+     * @return True if the ruleset is true in the context of its own RenderObject, false otherwise.
+     */
+    virtual bool evaluateCondition();
+
+    /**
+     * @brief Applies the ruleset
+     * @param contextOther The render object in the other domain.
+     */
+    virtual void apply(Core::RenderObject* contextOther);
+
+    /**
+     * @brief Applies the ruleset to its own RenderObject as contextOther.
+     */
+    virtual void apply();
+
+protected:
+    // TODO: Add all necessary protected members and methods here for derived classes
+    //       - topic
+    //       - id
+    //       - index
+    //       - estimatedCost (estimateComputationalCost should only be necessary for JsonRuleset, for static rulesets we may just write a constant)
+    //       - enum for locality (global/local) instead of bool _isGlobal
+    //       - selfPtr
+};
+
+
+/**
+ * @class Nebulite::Interaction::Rules::Ruleset
  * @brief Represents a single ruleset of a RenderObject for manipulation.
  *        Invokes are parsed into specific structs. Each Renderobject holds its own InvokeEntries.
  *        The struct also contains a pointer to the RenderObject that owns this entry (the broadcaster).
- * @todo Turn into a virtual base class with derived classes for static and json-defined rulesets.
- *       Would need:
- *       - apply()
- *       - isTrue()
- *       - getTopic()
- *       - getSelfId()
- *       - getSelfPtr()
- *       - getCost()
- *       Rest private, make RulesetCompiler a friend class.
- *       Should reduce code overhead and memory usage.
+ * @todo Split into StaticRuleset and JsonRuleset subclasses
  */
 class Ruleset {
 public:
@@ -59,8 +144,6 @@ public:
 
     //------------------------------------------
     // Methods: Getters
-
-    [[nodiscard]] Logic::ExpressionPool const& getLogicalArg() const { return logicalArg; }
 
     /**
      * @brief Gets the id of the ruleset.
