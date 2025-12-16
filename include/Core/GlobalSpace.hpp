@@ -282,6 +282,7 @@ public:
     /**
      * @brief Gets a pointer to the Invoke instance.
      * @return Pointer to the Invoke instance.
+     * @todo Exposing Invoke directly may not be necessary, should be enough to just have a broadcast/listen system in GlobalSpace?
      */
     Interaction::Invoke& getInvoke() { return invoke; }
 
