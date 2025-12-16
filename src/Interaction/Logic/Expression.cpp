@@ -379,25 +379,29 @@ void Nebulite::Interaction::Logic::Expression::printCompileError(std::shared_ptr
     } else {
         offendingChar = std::string(1, component->str[error - 1]);
     }
-    Nebulite::cerr() << "-----------------------------------------------------------------" << Nebulite::endl;
-    Nebulite::cerr() << "Error compiling expression: '" << component->str << "' At position: " << std::to_string(error) << ", offending character: " << offendingChar << Nebulite::endl;
-    Nebulite::cerr() << "You might see this message multiple times due to expression parallelization." << Nebulite::endl;
-    Nebulite::cerr() << Nebulite::endl;
-    Nebulite::cerr() << "If you only see the start of your expression, make sure to encompass your expression in quotes" << Nebulite::endl;
-    Nebulite::cerr() << "Some functions assume that the expression is inside, e.g. argv[1]." << Nebulite::endl;
-    Nebulite::cerr() << "Example: " << Nebulite::endl;
-    Nebulite::cerr() << "if $(1+1)     echo here! # works" << Nebulite::endl;
-    Nebulite::cerr() << "if $(1 + 1)   echo here! # doesnt work!" << Nebulite::endl;
-    Nebulite::cerr() << "if '$(1 + 1)' echo here! # works" << Nebulite::endl;
-    Nebulite::cerr() << Nebulite::endl;
-    Nebulite::cerr() << "Registered functions and variables:\n";
+    std::stringstream ss;
+    ss << "-----------------------------------------------------------------" << Nebulite::endl;
+    ss << "Error compiling expression: '" << component->str << "' At position: " << std::to_string(error) << ", offending character: " << offendingChar << Nebulite::endl;
+    ss << "You might see this message multiple times due to expression parallelization." << Nebulite::endl;
+    ss << Nebulite::endl;
+    ss << "If you only see the start of your expression, make sure to encompass your expression in quotes" << Nebulite::endl;
+    ss << "Some functions assume that the expression is inside, e.g. argv[1]." << Nebulite::endl;
+    ss << "Example: " << Nebulite::endl;
+    ss << "if $(1+1)     echo here! # works" << Nebulite::endl;
+    ss << "if $(1 + 1)   echo here! # doesnt work!" << Nebulite::endl;
+    ss << "if '$(1 + 1)' echo here! # works" << Nebulite::endl;
+    ss << Nebulite::endl;
+    ss << "Registered functions and variables:\n";
     for (auto const& var : te_variables) {
-        Nebulite::cerr() << "\t'" << var.name << "'\n";
+        ss << "\t'" << var.name << "'\n";
     }
-    Nebulite::cerr() << Nebulite::endl;
-    Nebulite::cerr() << "Resetting expression to always yield 'nan'" << Nebulite::endl;
-    Nebulite::cerr() << Nebulite::endl;
-    Nebulite::cerr() << Nebulite::endl;
+    ss << Nebulite::endl;
+    ss << "Resetting expression to always yield 'nan'" << Nebulite::endl;
+    ss << Nebulite::endl;
+    ss << Nebulite::endl;
+
+    // Send whole message to cerr
+    Nebulite::cerr() << ss.str();
 }
 
 //------------------------------------------
@@ -431,7 +435,7 @@ void Nebulite::Interaction::Logic::Expression::parse(std::string const& expr, Da
 }
 
 bool Nebulite::Interaction::Logic::Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Data::JSON* current_other, uint16_t const& maximumRecursionDepth) const {
-    std::string key = component->key;
+    std::string strippedKey = component->key;
     Component::From context = component->from;
 
     // See if the variable contains an inner expression
@@ -443,35 +447,35 @@ bool Nebulite::Interaction::Logic::Expression::handleComponentTypeVariable(std::
         // Create a temporary expression to evaluate the inner expression
         Expression tempExpr;
         tempExpr.parse(component->str, references.self);
-        key = tempExpr.eval(current_other, maximumRecursionDepth - 1);
+        strippedKey = tempExpr.eval(current_other, maximumRecursionDepth - 1);
 
         // Redetermine context and strip it from key
-        context = getContext(key);
-        key = stripContext(key);
+        context = getContext(strippedKey);
+        strippedKey = stripContext(strippedKey);
     }
 
     // Now, use the key to get the value from the correct document
     switch (context) {
     case Component::From::self:
         if (references.self == nullptr) {
-            Nebulite::cerr() << "Error: Null self reference in expression: " << key << Nebulite::endl;
+            Nebulite::cerr() << "Error: Null self reference in expression: " << strippedKey << Nebulite::endl;
             return false;
         }
-        token = references.self->get<std::string>(key, "null");
+        token = references.self->get<std::string>(strippedKey, "null");
         break;
     case Component::From::other:
         if (current_other == nullptr) {
-            Nebulite::cerr() << "Error: Null other reference in expression: " << key << Nebulite::endl;
+            Nebulite::cerr() << "Error: Null other reference in expression: " << strippedKey << Nebulite::endl;
             return false;
         }
-        token = current_other->get<std::string>(key, "null");
+        token = current_other->get<std::string>(strippedKey, "null");
         break;
     case Component::From::global:
-        token = Nebulite::global().getDoc()->get<std::string>(key, "null");
+        token = Nebulite::global().getDoc()->get<std::string>(strippedKey, "null");
         break;
     case Component::From::resource:
     default:
-        token = Nebulite::global().getDocCache()->get<std::string>(key, "null");
+        token = Nebulite::global().getDocCache()->get<std::string>(strippedKey, "null");
         break;
     }
     return true;
@@ -535,8 +539,9 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Data::JSON* current_o
 
     //------------------------------------------
     // Evaluate expression
-
     // Concatenate results of each component
+    // TODO: Best to have both result and token be part of the class?
+    //       Set to empty should not be needed, as any previous data is overwritten?
     std::string result;
     for (auto const& component : components) {
         std::string token;
@@ -561,20 +566,15 @@ std::string Nebulite::Interaction::Logic::Expression::eval(Data::JSON* current_o
         }
         result += token;
     }
-
     return result;
 }
 
 double Nebulite::Interaction::Logic::Expression::evalAsDouble(Data::JSON* current_other) {
-    // Update caches so that tinyexpr has the correct references
     updateCaches(current_other);
-
-    // Evaluate expression
     return te_eval(components[0]->expression);
 }
 
 void Nebulite::Interaction::Logic::Expression::updateCaches(Data::JSON* reference) {
-
     // Update self references that are non-remanent
     for (auto const& vde : virtualDoubles.nonRemanent.self) {
         // One-time handle of multi-resolve and transformations
@@ -632,6 +632,8 @@ void Nebulite::Interaction::Logic::Expression::updateCaches(Data::JSON* referenc
 //------------------------------------------
 // Static one-time evaluation
 
+// With context
+
 std::string Nebulite::Interaction::Logic::Expression::eval(std::string const& input, Interaction::ContextBase const& context) {
     Expression expr;
     expr.parse(input, context.self.getDoc());
@@ -645,13 +647,11 @@ double Nebulite::Interaction::Logic::Expression::evalAsDouble(std::string const&
 }
 
 bool Nebulite::Interaction::Logic::Expression::evalAsBool(std::string const& input, Interaction::ContextBase const& context) {
-    Expression expr;
-    expr.parse(input, context.self.getDoc());
-    double const result = expr.evalAsDouble(context.other.getDoc());
+    double const result = evalAsDouble(input, context);
     return std::fabs(result) > DBL_EPSILON;
 }
 
-// Global-only evaluation helpers
+// Global-only as context
 
 std::string Nebulite::Interaction::Logic::Expression::eval(std::string const& input) {
     Data::JSON emptyDoc;
@@ -674,7 +674,6 @@ bool Nebulite::Interaction::Logic::Expression::evalAsBool(std::string const& inp
 //------------------------------------------
 // Recalculation helpers:
 
-
 bool Nebulite::Interaction::Logic::Expression::recalculateIsReturnableAsDouble() const {
     return components.size() == 1
            && components[0]->type == Component::Type::eval
@@ -682,5 +681,5 @@ bool Nebulite::Interaction::Logic::Expression::recalculateIsReturnableAsDouble()
 }
 
 bool Nebulite::Interaction::Logic::Expression::recalculateIsAlwaysTrue() const {
-    return fullExpression == "1";
+    return fullExpression == "1" || fullExpression == "$(1)";
 }
