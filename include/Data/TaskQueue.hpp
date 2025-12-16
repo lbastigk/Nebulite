@@ -1,3 +1,11 @@
+/**
+ * @file TaskQueue.hpp
+ * @brief Definition of TaskQueue and TaskQueueResult structures for managing task queues in Nebulite.
+ */
+
+#ifndef NEBULITE_DATA_TASKQUEUE_HPP
+#define NEBULITE_DATA_TASKQUEUE_HPP
+
 //------------------------------------------
 // Includes
 
@@ -11,6 +19,7 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
+#include "Interaction/Context.hpp"
 
 //------------------------------------------
 
@@ -21,8 +30,8 @@ namespace Nebulite::Data {
  *        encountered during resolution and whether the process was halted due to a critical error.
  */
 struct TaskQueueResult {
-    bool encounteredCriticalResult = false;
-    std::vector<Constants::Error> errors;
+    bool encounteredCriticalResult = false; // Indicates if a critical error was encountered during task resolution
+    std::vector<Constants::Error> errors;   // List of errors encountered during task resolution
 };
 
 /**
@@ -39,7 +48,7 @@ struct TaskQueueResult {
  */
 struct TaskQueue {
 public:
-    std::deque<std::string> tasks; // List of tasks
+    std::deque<std::string> tasks; // List of tasks. TODO: std::vector should be enough?
     bool clearAfterResolving = true; // Whether to clear the task list after resolving
     /**
      * @note Add more metadata as needed, for resolveTaskQueue() to use
@@ -60,10 +69,10 @@ public:
      * @todo Add its own resolve function, with param for domain.
      * @todo Add own wait counter, being lowered on each frame update.
      */
-    void append(std::string const& task);
-    void wait(uint64_t const& frames);
-    TaskQueueResult resolve();
-    void clear(); // Should also clear buffer?
+    void append(std::string const& task);                               // TODO: Thread-safe append to back of buffer
+    void wait(uint64_t const& frames);                                  // TODO: Add to wait counter
+    TaskQueueResult resolve(Interaction::ContextBase const& context);   // TODO: Sort buffer, append to main queue, resolve if waitCounter == 0, decrease waitCounter otherwise
+    void clear();                                                       // TODO: Should also clear buffer?
 
 //private:  // Make private later on
     /**
@@ -75,6 +84,7 @@ public:
      */
     std::mutex bufferMutex; // Mutex for thread-safe access to the temporary buffer
     std::mutex queueMutex;  // Mutex for thread-safe access to the task queue
+
     uint64_t waitCounter = 0; // Frames to wait before processing tasks
     std::vector<std::string> tempBuffer; // Temporary buffer for tasks added by multiple threads
 
@@ -83,3 +93,4 @@ public:
     } settings;
 };
 } // namespace Nebulite::Data
+#endif // NEBULITE_DATA_TASKQUEUE_HPP

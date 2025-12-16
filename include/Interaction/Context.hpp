@@ -1,3 +1,11 @@
+/**
+ * @file Context.hpp
+ * @brief Defines context structures for interaction of rulesets and functions
+ *        within the Nebulite engine.
+ */
+#ifndef NEBULITE_INTERACTION_CONTEXT_HPP
+#define NEBULITE_INTERACTION_CONTEXT_HPP
+
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Core {
@@ -39,3 +47,4 @@ struct Context {
 */
 
 } // namespace Nebulite::Interaction
+#endif // NEBULITE_INTERACTION_CONTEXT_HPP
