@@ -44,6 +44,7 @@ public:
     // TODO: Additional ruleset management for push/pop, enable/disable, list, etc.
     //       perhaps just an option to reload is enough?
     //       any push/pop could be done via json manipulation directly
+
     Constants::Error reload(std::span<std::string const> const& args);
     static std::string const reload_name;
     static std::string const reload_desc;

@@ -1,6 +1,8 @@
 /**
  * @file StateUpdate.hpp
  * @brief Contains the RenderObject DomainModule for updating the state of render objects.
+ * @todo If more flags are not added, we may merge them into a General DomainModule.
+ *       Later on, the text update function should be moved to the texture domain once that works properly.
  */
 
 #ifndef NEBULITE_RODM_STATEUPDATE_HPP
@@ -50,15 +52,6 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, StateUpdate) {
         bindFunction(&StateUpdate::func_delete, func_delete_name, &func_delete_desc);
         bindFunction(&StateUpdate::updateText, updateText_name, &updateText_desc);
-
-        // TODO: Move to separate Invoke module
-        /*
-        bindCategory("invoke", "Functions for managing invokes");
-        bindFunction(&StateUpdate::invoke_reload,       "reload-invokes",       "Reload all invokes");
-        bindFunction(&StateUpdate::invoke_add,          "add-invoke",           "Add an invoke from a file");
-        bindFunction(&StateUpdate::invoke_remove,       "remove-invoke",        "Remove an invoke by name");
-        bindFunction(&StateUpdate::invoke_purge,        "remove-all-invokes",   "Remove all invokes");
-        */
     }
 };
 } // namespace Nebulite::DomainModule::RenderObject

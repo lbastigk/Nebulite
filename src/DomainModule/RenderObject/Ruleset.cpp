@@ -95,6 +95,6 @@ Constants::Error Ruleset::reload(std::span<std::string const> const& args) {
 }
 
 std::string const Ruleset::reload_name = "reload";
-std::string const Ruleset::reload_desc = "Reloads all rulesets for this RenderObject.";
+std::string const Ruleset::reload_desc = "Reloads all rulesets for this RenderObject on the next update.";
 
 } // namespace Nebulite::DomainModule::RenderObject
