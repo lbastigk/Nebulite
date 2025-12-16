@@ -38,7 +38,7 @@ public:
     // All entries are local to their RenderObject
 
     Ruleset() = default;
-    ~Ruleset() = default;
+    virtual ~Ruleset() = default;
 
     Ruleset(Ruleset const&) = delete;
     Ruleset& operator=(Ruleset const&) = delete;
@@ -123,7 +123,7 @@ protected:
 
     /**
      * @brief Indicates whether the ruleset is global or local.
-     *        if true, the Ruleset is global and can be broadcasted to other objects: Same as a nonempty topic
+     * @details if true, the Ruleset is global and can be broadcasted to other objects: Same as a nonempty topic
      */
     bool _isGlobal = true;
 
@@ -139,13 +139,13 @@ protected:
 
     /**
      * @brief The topic of the ruleset, used for routing and filtering in the broadcast-listen-model of the Invoke class.
-     *        e.g. `gravity`, `hitbox`, `collision`. `all` is the default value. Any RenderObject should be subscribed to this topic.
-     *        However, we are allowed to remove the topic listen `all` from any object, though it is not recommended.
-     *        As an example, say we wish to implement a console feature to quickly remove any object.
-     *        We can do so by sending an `ambassador` object that finds all other object at location (x,y) and deletes them.
-     *        This object would broadcast its invoke to `all`. Removing any objects subscription to `all` makes this impossible.
+     * @details e.g. `gravity`, `hitbox`, `collision`. `all` is the default value. Any RenderObject should be subscribed to this topic.
+     *          However, we are allowed to remove the topic listen `all` from any object, though it is not recommended.
+     *          As an example, say we wish to implement a console feature to quickly remove any object.
+     *          We can do so by sending an `ambassador` object that finds all other object at location (x,y) and deletes them.
+     *          This object would broadcast its invoke to `all`. Removing any objects subscription to `all` makes this impossible.
      *
-     *        Due to the large checks needed for `all`, it should only be used when absolutely necessary.
+     *          Due to the large checks needed for `all`, it should only be used when absolutely necessary.
      */
     std::string topic = "all";
 };
@@ -161,7 +161,7 @@ public:
     // All entries are local to their RenderObject
 
     StaticRuleset() = default;
-    ~StaticRuleset() = default;
+    ~StaticRuleset() override = default;
 
     StaticRuleset(StaticRuleset const&) = delete;
     StaticRuleset& operator=(StaticRuleset const&) = delete;
@@ -181,7 +181,7 @@ public:
      * @param otherObj The other render object to compare against.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    bool evaluateCondition(Interaction::Execution::DomainBase const* other) override {return true;};
+    bool evaluateCondition(Interaction::Execution::DomainBase const* other) override {return true;}
 
     /**
      * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
@@ -197,7 +197,7 @@ public:
     void apply(Interaction::Execution::DomainBase* contextOther) override {
         Nebulite::Interaction::ContextBase contextBase{*selfPtr, *contextOther, Nebulite::global()};
         staticFunction(contextBase);
-    };
+    }
 
     /**
      * @brief Applies the ruleset to its own RenderObject as contextOther.
@@ -219,7 +219,7 @@ public:
     // All entries are local to their RenderObject
 
     JsonRuleset() = default;
-    ~JsonRuleset() = default;
+    ~JsonRuleset() override = default;
 
     JsonRuleset(JsonRuleset const&) = delete;
     JsonRuleset& operator=(JsonRuleset const&) = delete;
@@ -263,32 +263,32 @@ private:
 
     /**
      * @brief The Logical Argument that determines when the ruleset is triggered.
-     *        Logical Arguments are evaluated inside the Invoke class with access to `self`, `other`, and `global` variables.
-     *        e.g. "{self.posX} > {other.posY}"
+     * @details Logical Arguments are evaluated inside the Invoke class with access to `self`, `other`, and `global` variables.
+     *          e.g. "{self.posX} > {other.posY}"
      */
     Logic::ExpressionPool logicalArg;
 
     /**
      * @brief The function calls that to be executed on global domain.
-     *        Vector of function calls, e.g. "echo example"
+     * @details Vector of function calls, e.g. "echo example"
      */
     std::vector<Logic::ExpressionPool> functioncalls_global;
 
     /**
      * @brief The function calls that to be executed on self domain.
-     *        Vector of function calls, e.g. "add_invoke ./Resources/Invokes/gravity.jsonc"
+     * @details Vector of function calls, e.g. "mirror on"
      */
     std::vector<Logic::ExpressionPool> functioncalls_self;
 
     /**
      * @brief The function calls that to be executed on other domain.
-     *        Vector of function calls, e.g. "add-invoke ./Resources/Invokes/gravity.jsonc"
+     * @details Vector of function calls, e.g. "mirror on"
      */
     std::vector<Logic::ExpressionPool> functioncalls_other;
 
     /**
      * @brief The expressions that are evaluated and applied to the corresponding domains.
-     *        e.g.: `self.key1 = 0`, `other.key2 *= $( sin({self.key2}) * 2 )`, `global.key3 = 1`
+     * @details e.g.: `self.key1 = 0`, `other.key2 *= $( sin({self.key2}) * 2 )`, `global.key3 = 1`
      */
     std::vector<Logic::Assignment> assignments;
 
