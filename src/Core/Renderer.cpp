@@ -479,7 +479,7 @@ void Renderer::updateState() {
     }
 
     // Update invoke pairs, getting broadcast-listen-pairs from last env update
-    Nebulite::global().getInvoke()->update();
+    Nebulite::global().getInvoke().update();
 
     // Update environment
     auto const dispResX = getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResX, 0);

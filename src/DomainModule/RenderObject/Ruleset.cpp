@@ -20,40 +20,32 @@ Constants::Error Ruleset::update() {
 
     //------------------------------------------
     // Check all Rulesets
-    if (id != 0 && Nebulite::global().getInvoke() != nullptr) {
-        // TODO: Nullptr check should not be necessary? Perhaps also change getInvoke to return a reference instead of pointer?
-        //------------------------------------------
-        // 1.) Reload invokes if needed
+    if (id != 0) {
+        // Reload rulesets if needed
         if (reloadRulesets) {
             auto mtx = domain->getDoc()->lock();
             Interaction::Rules::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, domain);
             reloadRulesets = false;
         }
 
-        //------------------------------------------
-        // 2.) Directly solve local invokes (loop)
+        // Directly apply local rulesets
         for (auto const& entry : rulesetsLocal) {
             if (entry->evaluateCondition()) {
                 entry->apply();
             }
         }
 
-        //------------------------------------------
-        // 3.) Checks this object against all conventional invokes
-        //	   Manipulation happens at the Invoke::update routine later on
-        //     This just generates pairs that need to be updated
+        // Listen to broadcasts from subscribed topics
         for (size_t idx = 0; idx < subscription_size; idx++) {
             std::string key = Constants::keyName.renderObject.invokeSubscriptions + "[" + std::to_string(idx) + "]";
             auto const subscription = domain->getDoc()->get<std::string>(key, "");
-            Nebulite::global().getInvoke()->listen(domain, subscription, id);
+            Nebulite::global().getInvoke().listen(domain, subscription, id);
         }
 
-        //------------------------------------------
-        // 4.) Append general invokes from object itself back for global check
-        //     This makes sure that no invokes from inactive objects stay in the list
+        // Broadcast global rulesets
         for (auto const& entry : rulesetsGlobal) {
             // add pointer to invoke command to global
-            Nebulite::global().getInvoke()->broadcast(entry);
+            Nebulite::global().getInvoke().broadcast(entry);
         }
     } else {
         return Constants::ErrorTable::RENDERER::CRITICAL_INVOKE_NULLPTR();
@@ -73,7 +65,7 @@ Constants::Error Ruleset::once(std::span<std::string const> const& args) {
         auto rs = Interaction::Rules::RulesetCompiler::parseSingle(args[0], domain);
         if (rs.has_value()) {
             if (rs.value()->isGlobal()) {
-                Nebulite::global().getInvoke()->broadcast(rs.value());
+                Nebulite::global().getInvoke().broadcast(rs.value());
             }
             else {
                 rs.value()->apply();

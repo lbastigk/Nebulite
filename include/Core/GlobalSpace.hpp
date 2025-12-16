@@ -283,7 +283,7 @@ public:
      * @brief Gets a pointer to the Invoke instance.
      * @return Pointer to the Invoke instance.
      */
-    Interaction::Invoke* getInvoke() { return &invoke; }
+    Interaction::Invoke& getInvoke() { return invoke; }
 
     /**
      * @brief Gets a pointer to the global document cache.
