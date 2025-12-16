@@ -181,14 +181,14 @@ public:
      * @param otherObj The other render object to compare against.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    bool evaluateCondition(Interaction::Execution::DomainBase const* other) override {return true;}
+    bool evaluateCondition(Interaction::Execution::DomainBase const* other) override { return true; }
 
     /**
      * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
      * @details For StaticRuleset, this always returns true.
      * @return True if the ruleset is true in the context of its own RenderObject, false otherwise.
      */
-    bool evaluateCondition() override {return evaluateCondition(selfPtr);}
+    bool evaluateCondition() override { return evaluateCondition(selfPtr); }
 
     /**
      * @brief Applies the ruleset
@@ -202,7 +202,7 @@ public:
     /**
      * @brief Applies the ruleset to its own RenderObject as contextOther.
      */
-    void apply() override {apply(selfPtr);}
+    void apply() override { apply(selfPtr); }
 
 private:
     StaticRulesetFunction staticFunction = nullptr;
@@ -238,24 +238,24 @@ public:
      * @param otherObj The other render object to compare against.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    bool evaluateCondition(Interaction::Execution::DomainBase const* other) override ;
+    bool evaluateCondition(Interaction::Execution::DomainBase const* other) override;
 
     /**
      * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
      * @return True if the ruleset is true in the context of its own RenderObject, false otherwise.
      */
-    bool evaluateCondition() override {return evaluateCondition(selfPtr);}
+    bool evaluateCondition() override { return evaluateCondition(selfPtr); }
 
     /**
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
      */
-    void apply(Interaction::Execution::DomainBase* contextOther) override ;
+    void apply(Interaction::Execution::DomainBase* contextOther) override;
 
     /**
      * @brief Applies the ruleset to its own RenderObject as contextOther.
      */
-    void apply() override {apply(selfPtr);}
+    void apply() override { apply(selfPtr); }
 
 private:
     //------------------------------------------

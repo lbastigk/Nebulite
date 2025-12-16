@@ -4,7 +4,7 @@
 
 namespace Nebulite::Interaction::Rules {
 
-void RulesetCompiler::getFunctionCalls(Data::JSON& entryDoc,JsonRuleset& Ruleset,Core::RenderObject const* self) {
+void RulesetCompiler::getFunctionCalls(Data::JSON& entryDoc, JsonRuleset& Ruleset, Core::RenderObject const* self) {
     // Get function calls: GLOBAL, SELF, OTHER
     if (entryDoc.memberType(Constants::keyName.invoke.functioncalls_global) == Data::JSON::KeyType::array) {
         size_t const funcSize = entryDoc.memberSize(Constants::keyName.invoke.functioncalls_global);
@@ -333,10 +333,10 @@ std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string
     tempDoc.set("", identifier);
     auto rs = getRuleset(tempDoc, "", self);
     if (std::holds_alternative<std::shared_ptr<StaticRuleset>>(rs)) {
-            return std::get<std::shared_ptr<StaticRuleset>>(rs);
+        return std::get<std::shared_ptr<StaticRuleset>>(rs);
     }
     if (std::holds_alternative<std::shared_ptr<JsonRuleset>>(rs)) {
-            return std::get<std::shared_ptr<JsonRuleset>>(rs);
+        return std::get<std::shared_ptr<JsonRuleset>>(rs);
     }
     return std::nullopt;
 }
