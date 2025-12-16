@@ -50,9 +50,9 @@ where NAME is the current value of the global variable ToSpawn
 // NOLINTNEXTLINE
 Constants::Error General::exit(int argc, char** argv) {
     // Clear all task queues to prevent further execution
-    domain->tasks.script.taskQueue.clear();
-    domain->tasks.internal.taskQueue.clear();
-    domain->tasks.always.taskQueue.clear();
+    domain->tasks.script.tasks.clear();
+    domain->tasks.internal.tasks.clear();
+    domain->tasks.always.tasks.clear();
 
     // Set the renderer to quit
     domain->quitRenderer();
@@ -143,7 +143,7 @@ Constants::Error General::task(int argc, char** argv) {
 
     // Now insert all lines into the task queue
     for (auto const& taskLine : lines) {
-        domain->tasks.script.taskQueue.push_front(taskLine);
+        domain->tasks.script.tasks.push_front(taskLine);
     }
     return Constants::ErrorTable::NONE();
 }
@@ -300,7 +300,7 @@ Constants::Error General::always(int argc, char** argv) {
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                domain->tasks.always.taskQueue.push_back(command);
+                domain->tasks.always.tasks.push_back(command);
             }
         }
     }
@@ -319,7 +319,7 @@ This will output "This command runs every frame!" on every frame.
 
 // NOLINTNEXTLINE
 Constants::Error General::alwaysClear(int argc, char** argv) {
-    domain->tasks.always.taskQueue.clear();
+    domain->tasks.always.tasks.clear();
     return Constants::ErrorTable::NONE();
 }
 

@@ -25,78 +25,12 @@
 #include "Core/Renderer.hpp"
 #include "Constants/ErrorTypes.hpp"
 #include "Data/DocumentCache.hpp"
+#include "Data/TaskQueue.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Utility/RNG.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
-
-/**
- * @brief Represents the result of resolving a task queue.
- *        This structure holds the outcome of processing a task queue, including any errors
- *        encountered during resolution and whether the process was halted due to a critical error.
- */
-struct taskQueueResult {
-    bool encounteredCriticalResult = false;
-    std::vector<Constants::Error> errors;
-};
-
-/**
- * @struct taskQueueWrapper
- * @brief Represents a queue of tasks to be processed by the engine, including metadata.
- * @todo Rename to TaskQueue, deque should simply be called 'tasks'
- * @todo Move to Nebulite::Data::TaskQueue, as it is not specific to GlobalSpace
- * @todo Would it make sense for this to be a class derived from Domain?
- *       That way, each taskQueue would have functions such as clear, wait, always etc.?
- *       Perhaps an idea for the future, for now we simply use separate taskQueueWrappers for each type:
- *       - script
- *       - always
- *       - internal
- */
-struct taskQueueWrapper {
-    std::deque<std::string> taskQueue; // List of tasks
-    bool clearAfterResolving = true; // Whether to clear the task list after resolving
-    /**
-     * @note Add more metadata as needed, for resolveTaskQueue() to use
-     *       in case new task types are added in the future.
-     *       Perhaps even a hashmap of string to variant around this wrapper for
-     *       maximum flexibility.
-     *       map string -> taskQueueWrapper{taskQueue, <metadata>}
-     *       This way, each task could be sorted into different queues based on type,
-     *       so we can simply call <task> for normal tasks,
-     *       and specify "on-queue <type> <task>" for specific task types
-     *       that we wish to execute in a different manner.
-     *       This could allow us to auto-sort tasks into e.g. always-tasks etc.
-     *       or even manage tasks with calls such as "modify-task <identifier> <modification>"
-     * @todo Implement waitCounter into each taskQueueWrapper, so each queue can have its own wait counter
-     *       Then, have function such as wait, task, etc. modify a specify taskQueue.
-     *       calls with "on-queue", e.g. "on-queue <always/wait/etc.> <args>" can modify specific queues.
-     * @todo Add mutex for thread-safe append/clear of tasks
-     * @todo Add its own resolve function, with param for domain.
-     * @todo Add own wait counter, being lowered on each frame update.
-     */
-    void append(std::string const& task);
-    void wait(uint64_t const& frames);
-    taskQueueResult resolve();
-    void clear(); // Should also clear buffer?
-
-private:
-    /**
-     * @todo An option to avoid race-conditions when multiple threads append tasks.
-     *       Idea: Store tasks in temporary buffer, insert into main queue alphaphanumerically sorted on resolve.
-     *       This way, multiple threads can append tasks without locking the main queue.
-     *       On resolve, we lock the main queue, merge the temporary buffer into the main queue in sorted order, and then clear the temporary buffer.
-     *       This ensures that tasks are always executed in a consistent order, while minimizing locking overhead during appends.
-     */
-    std::mutex bufferMutex; // Mutex for thread-safe access to the temporary buffer
-    std::mutex queueMutex;  // Mutex for thread-safe access to the task queue
-    uint64_t waitCounter = 0; // Frames to wait before processing tasks
-    std::vector<std::string> tempBuffer; // Temporary buffer for tasks added by multiple threads
-
-    struct Settings {
-        bool clearAfterResolving = true;
-    } settings;
-};
 
 //------------------------------------------
 // Global Space object
@@ -147,7 +81,7 @@ public:
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
      */
-    taskQueueResult resolveTaskQueue(taskQueueWrapper& tq, uint64_t const* waitCounter) const;
+    Data::TaskQueueResult resolveTaskQueue(Data::TaskQueue& tq, uint64_t const* waitCounter) const;
 
     /**
      * @brief Parses the task queue for execution.
@@ -194,8 +128,8 @@ public:
      * @param context The RenderObject providing context for the evaluation.
      * @return The evaluated result as a string.
      */
-    std::string eval(std::string const& expr, RenderObject const* context) const {
-        return invoke.evaluateStandaloneExpression(expr, context);
+    static std::string eval(std::string const& expr, RenderObject const* context) {
+        return Nebulite::Interaction::Invoke::evaluateStandaloneExpression(expr, context);
     }
 
     /**
@@ -224,8 +158,8 @@ public:
      * @param context The RenderObject providing context for the evaluation.
      * @return The evaluated result as a double.
      */
-    double evalAsDouble(std::string const& expr, RenderObject const* context) const {
-        return invoke.evaluateStandaloneExpressionAsDouble(expr, context);
+    static double evalAsDouble(std::string const& expr, RenderObject const* context) {
+        return Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsDouble(expr, context);
     }
 
     /**
@@ -251,8 +185,8 @@ public:
      * @param context The RenderObject providing context for the evaluation.
      * @return The evaluated result as a boolean.
      */
-    bool evalAsBool(std::string const& expr, RenderObject const* context) const {
-        return invoke.evaluateStandaloneExpressionAsBool(expr, context);
+    static bool evalAsBool(std::string const& expr, RenderObject const* context) {
+        return Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsBool(expr, context);
     }
 
     //------------------------------------------
@@ -265,7 +199,7 @@ public:
      *       Returning the correct deque based on task type, etc.
      *       With fallback to a default queue if type is unknown.
      */
-    std::deque<std::string>* getTaskQueue() { return &tasks.script.taskQueue; }
+    std::deque<std::string>* getTaskQueue() { return &tasks.script.tasks; }
 
     /**
      * @brief Gets a pointer to the Renderer instance.
@@ -302,9 +236,9 @@ public:
      *       (should be internal task queue)
      */
     struct Tasks {
-        taskQueueWrapper script; // Task queue for script files loaded with "task"
-        taskQueueWrapper internal; // Internal task queue from renderObjects, console, etc.
-        taskQueueWrapper always; // Always-tasks added with the prefix "always "
+        Data::TaskQueue script; // Task queue for script files loaded with "task"
+        Data::TaskQueue internal; // Internal task queue from renderObjects, console, etc.
+        Data::TaskQueue always; // Always-tasks added with the prefix "always "
     } tasks;
 
     // Wait counter for script tasks
@@ -408,9 +342,9 @@ private:
      * @brief Holds the results of resolving different task queues.
      */
     struct QueueResult {
-        taskQueueResult script; // Result of script-tasks
-        taskQueueResult internal; // Result of internal-tasks
-        taskQueueResult always; // Result of always-tasks
+        Data::TaskQueueResult script; // Result of script-tasks
+        Data::TaskQueueResult internal; // Result of internal-tasks
+        Data::TaskQueueResult always; // Result of always-tasks
     } queueResult;
 
     /**
