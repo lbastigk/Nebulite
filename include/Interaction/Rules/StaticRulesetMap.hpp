@@ -19,7 +19,7 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Interaction/Context.hpp"
-#include "Interaction/Rules/Initializer.hpp"
+#include "Construction/Initializer.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -63,7 +63,7 @@ public:
             "",
             nullptr
         };
-        rulesetMapInit(this);
+        Construction::rulesetMapInit(this);
     }
 
     /**

@@ -17,10 +17,6 @@
 //------------------------------------------
 // Forward declarations
 
-//namespace Nebulite::Core {
-//class RenderObject;
-//} // namespace Nebulite::Core
-
 namespace Nebulite::Interaction::Execution {
 class DomainBase;
 } // namespace Nebulite::Interaction::Execution
@@ -47,7 +43,7 @@ public:
 
     //------------------------------------------
     // Friend classes
-    friend class RulesetCompiler;
+    friend class Construction::RulesetCompiler;
 
     //------------------------------------------
     // Methods: Getters
@@ -170,7 +166,7 @@ public:
 
     //------------------------------------------
     // Friend classes
-    friend class RulesetCompiler;
+    friend class Construction::RulesetCompiler;
 
     //------------------------------------------
     // Methods: Workflow
@@ -228,7 +224,7 @@ public:
 
     //------------------------------------------
     // Friend classes
-    friend class RulesetCompiler;
+    friend class Construction::RulesetCompiler;
 
     //------------------------------------------
     // Methods: Workflow

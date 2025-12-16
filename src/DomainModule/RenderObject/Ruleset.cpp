@@ -1,7 +1,7 @@
 #include "Nebulite.hpp"
 #include "DomainModule/RenderObject/Ruleset.hpp"
+#include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
-#include "Interaction/Rules/RulesetCompiler.hpp"
 #include "Utility/StringHandler.hpp"
 
 namespace Nebulite::DomainModule::RenderObject {
@@ -24,7 +24,7 @@ Constants::Error Ruleset::update() {
         // Reload rulesets if needed
         if (reloadRulesets) {
             auto mtx = domain->getDoc()->lock();
-            Interaction::Rules::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, domain);
+            Interaction::Rules::Construction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, domain);
             reloadRulesets = false;
         }
 
@@ -62,7 +62,7 @@ std::string const Ruleset::Ruleset_desc = "Ruleset management functions for the 
 Constants::Error Ruleset::once(std::span<std::string const> const& args) {
     if (args.size() > 1) {
         std::string arg = Utility::StringHandler::recombineArgs(args.subspan(1));
-        auto rs = Interaction::Rules::RulesetCompiler::parseSingle(args[0], domain);
+        auto rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(args[0], domain);
         if (rs.has_value()) {
             if (rs.value()->isGlobal()) {
                 Nebulite::global().getInvoke().broadcast(rs.value());

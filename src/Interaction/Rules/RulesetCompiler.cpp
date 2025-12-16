@@ -1,8 +1,8 @@
 #include "Nebulite.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
-#include "Interaction/Rules/RulesetCompiler.hpp"
+#include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 
-namespace Nebulite::Interaction::Rules {
+namespace Nebulite::Interaction::Rules::Construction {
 
 void RulesetCompiler::getFunctionCalls(Data::JSON& entryDoc, JsonRuleset& Ruleset, Core::RenderObject const* self) {
     // Get function calls: GLOBAL, SELF, OTHER

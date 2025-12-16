@@ -8,7 +8,7 @@
 #include "DomainModule/Initializer.hpp"
 #include "DomainModule/JSON/SimpleData.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
-#include "Interaction/Rules/RulesetCompiler.hpp"
+#include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -274,7 +274,7 @@ Constants::Error RenderObject::update() {
 uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
     std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsGlobal;
     std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsLocal;
-    Interaction::Rules::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, this);
+    Interaction::Rules::Construction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, this);
 
     //------------------------------------------
     // Count number of $ and { in logical Arguments

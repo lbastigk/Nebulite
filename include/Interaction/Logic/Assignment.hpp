@@ -20,9 +20,9 @@ namespace Nebulite::Core {
 class RenderObject;
 } // namespace Nebulite::Core
 
-namespace Nebulite::Interaction::Rules {
+namespace Nebulite::Interaction::Rules::Construction {
 class RulesetCompiler;
-}
+} // namespace Nebulite::Interaction::Rules::Construction
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -63,7 +63,7 @@ public:
 
     //------------------------------------------
     // Allow ruleset compiler to access private members
-    friend class Nebulite::Interaction::Rules::RulesetCompiler;
+    friend class Nebulite::Interaction::Rules::Construction::RulesetCompiler;
 
     //------------------------------------------
 

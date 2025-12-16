@@ -14,7 +14,7 @@
 
 // Nebulite
 #include "Core/RenderObject.hpp"
-#include "../Data/JSON.hpp"
+#include "Data/JSON.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {

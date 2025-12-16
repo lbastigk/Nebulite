@@ -1,5 +1,6 @@
 #include "Nebulite.hpp"
-
+#include "Core/GlobalSpace.hpp"
+#include "Utility/Capture.hpp"
 
 namespace Nebulite {
 

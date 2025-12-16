@@ -1,4 +1,4 @@
-#include "Interaction/Rules/Initializer.hpp"
+#include "Interaction/Rules/Construction/Initializer.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 
 //------------------------------------------
@@ -13,7 +13,7 @@
 #define Module Nebulite::Interaction::Rules::RulesetModules
 
 //------------------------------------------
-namespace Nebulite::Interaction::Rules {
+namespace Nebulite::Interaction::Rules::Construction {
 void rulesetMapInit(StaticRulesetMap* srm) {
     static Module::Camera cameraModule;
     cameraModule.registerModule(*srm);
@@ -22,4 +22,4 @@ void rulesetMapInit(StaticRulesetMap* srm) {
     static Module::Physics physicsModule;
     physicsModule.registerModule(*srm);
 }
-}
+} // namespace Nebulite::Interaction::Rules::Construction

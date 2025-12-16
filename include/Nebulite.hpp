@@ -12,9 +12,6 @@
 // Includes
 
 // Standard library
-#include <cstddef>
-#include <deque>
-#include <string>
 
 // Nebulite
 #include "Core/GlobalSpace.hpp"
@@ -33,21 +30,21 @@ namespace Nebulite {
  * @brief Contains all constant values used throughout the Nebulite framework.
  */
 namespace Constants {
-}
+} // namespace Constants
 
 /**
  * @namespace Nebulite::Core
  * @brief Contains all core classes, functions, types and variables related to the Nebulite framework.
  */
 namespace Core {
-}
+} // namespace Core
 
 /**
  * @namespace Nebulite::Data
  * @brief Contains all classes, functions, types and variables related to the Nebulite data system.
  */
 namespace Data {
-}
+} // namespace Data
 
 /**
  * @namespace Nebulite::DomainModule
@@ -59,29 +56,28 @@ namespace DomainModule {
  * @brief Contains all classes, functions, types and variables related to the GlobalSpace DomainModules.
  */
 namespace GlobalSpace {
-}
+} // namespace GlobalSpace
 
 /**
  * @namespace Nebulite::DomainModule::Renderer
  * @brief Contains all classes, functions, types and variables related to the Renderer DomainModules.
  */
 namespace Renderer {
-}
+} // namespace Renderer
 
 /**
  * @namespace Nebulite::DomainModule::RenderObject
  * @brief Contains all classes, functions, types and variables related to the RenderObject DomainModules.
  */
 namespace RenderObject {
-}
+} // namespace RenderObject
 
 /**
  * @namespace Nebulite::DomainModule::JSON
  * @brief Contains all classes, functions, types and variables related to the JSON DomainModules.
  */
 namespace JSON {
-}
-
+} // namespace JSON
 } // namespace DomainModule
 
 /**
@@ -94,22 +90,35 @@ namespace Interaction {
  * @brief Contains all classes, functions, types and variables related to domain-specific command-processing.
  */
 namespace Execution {
-}
+} // namespace Execution
 
 /**
  * @namespace Nebulite::Interaction::Logic
  * @brief Contains all classes, functions, types and variables related to mathematical logic in Nebulites Invoke system.
  */
 namespace Logic {
-}
+} // namespace Logic
 
 /**
  * @namespace Nebulite::Interaction::Rules
  * @brief Contains all classes, functions, types and variables related to the rule-based manipulation system in Nebulites Invoke system.
  */
 namespace Rules {
-} // namespace Rules
+/**
+ * @namespace Nebulite::Interaction::Rules::Construction
+ * @brief Contains all classes, functions, types and variables related to the construction and initialization
+ *        of Rulesets/RulesetModules.
+ */
+namespace Construction {
+} // namespace Construction
 
+/**
+ * @namespace Nebulite::Interaction::Rules::RulesetModules
+ * @brief Contains all classes, functions, types and variables related to specific static Rulesets.
+ */
+namespace RulesetModules {
+} // namespace RulesetModules
+} // namespace Rules
 } // namespace Interaction
 
 /**
@@ -117,8 +126,7 @@ namespace Rules {
  * @brief Contains all utility classes, functions, types and variables related to the Nebulite framework.
  */
 namespace Utility {
-}
-
+} // namespace Utility
 } // namespace Nebulite
 
 //------------------------------------------
@@ -149,7 +157,7 @@ Nebulite::Utility::CaptureStream& cerr();
  * @brief End line string for capturing output
  *        At the moment, this is just a placeholder for `"\n"`.
  */
-static std::string const endl = "\n";
+inline constexpr const char* endl = "\n";
 
 } // namespace Nebulite
 #endif // NEBULITE_HPP
