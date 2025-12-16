@@ -11,11 +11,11 @@
 namespace Nebulite::Core {
 class RenderObject;
 class GlobalSpace;
-}   // namespace Nebulite::Core
+} // namespace Nebulite::Core
 
 namespace Nebulite::Interaction::Execution {
 class DomainBase;
-}   // namespace Nebulite::Interaction::Execution
+} // namespace Nebulite::Interaction::Execution
 
 namespace Nebulite::Interaction {
 

@@ -26,6 +26,7 @@
 #include "Constants/ErrorTypes.hpp"
 #include "Data/DocumentCache.hpp"
 #include "Data/TaskQueue.hpp"
+#include "Interaction/Context.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Utility/RNG.hpp"
 
@@ -101,92 +102,6 @@ public:
      */
     void quitRenderer() {
         renderer.setQuit();
-    }
-
-    /**
-     * @brief Evaluates a string.
-     *        Example: "$i(2 + 2)" -> "4"
-     *        Allowed context:
-     *        - global (GlobalSpace)
-     *        - resources (Read only documents)
-     * @param expr The expression to evaluate.
-     * @return The evaluated result as a string.
-     */
-    std::string eval(std::string const& expr) const {
-        return invoke.evaluateStandaloneExpression(expr);
-    }
-
-    /**
-     * @brief Evaluates a string with a RenderObject as context "self" and "other".
-     *        Example: "My Value is: {other.positionX}" -> "My Value is: 100"
-     *        Allowed context:
-     *        - self (RenderObject)
-     *        - other (RenderObject)
-     *        - global (GlobalSpace)
-     *        - resources (Read only documents)
-     * @param expr The expression to evaluate.
-     * @param context The RenderObject providing context for the evaluation.
-     * @return The evaluated result as a string.
-     */
-    static std::string eval(std::string const& expr, RenderObject const* context) {
-        return Nebulite::Interaction::Invoke::evaluateStandaloneExpression(expr, context);
-    }
-
-    /**
-     * @brief Evaluates a string and returns the result as a double.
-     *        Example: "$(2 + 2)" -> 4.0
-     *        Allowed context:
-     *        - global (GlobalSpace)
-     *        - resources (Read only documents)
-     * @param expr The expression to evaluate.
-     * @return The evaluated result as a double.
-     */
-    double evalAsDouble(std::string const& expr) const {
-        return invoke.evaluateStandaloneExpressionAsDouble(expr);
-    }
-
-    /**
-     * @brief Evaluates a string with context of a RenderObject "self" and "other"
-     *        and returns the result as a double.
-     *        Example: "$({global.time.dt} * {self.physics.vX})" -> 1.168
-     *        Allowed context:
-     *        - self (RenderObject)
-     *        - other (RenderObject)
-     *        - global (GlobalSpace)
-     *        - resources (Read only documents)
-     * @param expr The expression to evaluate.
-     * @param context The RenderObject providing context for the evaluation.
-     * @return The evaluated result as a double.
-     */
-    static double evalAsDouble(std::string const& expr, RenderObject const* context) {
-        return Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsDouble(expr, context);
-    }
-
-    /**
-     * @brief Evaluates a string and returns the result as a boolean.
-     *        Allowed context:
-     *        - global (GlobalSpace)
-     *        - resources (Read only documents)
-     * @param expr The expression to evaluate.
-     * @return The evaluated result as a boolean.
-     */
-    bool evalAsBool(std::string const& expr) const {
-        return invoke.evaluateStandaloneExpressionAsBool(expr);
-    }
-
-    /**
-     * @brief Evaluates a string with context of a RenderObject and returns the result as a boolean.
-     *        Allowed context:
-     *        - self (RenderObject)
-     *        - other (RenderObject)
-     *        - global (GlobalSpace)
-     *        - resources (Read only documents)
-     * @param expr The expression to evaluate.
-     * @param context The RenderObject providing context for the evaluation.
-     * @return The evaluated result as a boolean.
-     */
-    static bool evalAsBool(std::string const& expr, RenderObject const* context) {
-        return Nebulite::Interaction::Invoke::evaluateStandaloneExpressionAsBool(expr, context);
     }
 
     //------------------------------------------

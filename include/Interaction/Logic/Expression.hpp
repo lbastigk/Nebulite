@@ -20,6 +20,7 @@
 
 // Nebulite
 #include "Data/DocumentCache.hpp"
+#include "Interaction/Context.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
 
 //------------------------------------------
@@ -90,7 +91,7 @@ public:
      * @return The evaluated double value.
      */
     double evalAsDouble(Data::JSON* current_other);
-    
+
     /**
      * @brief Evaluates the expression as a string.
      * @param current_other The JSON object `other` to evaluate against.
@@ -101,10 +102,10 @@ public:
 
     /**
      * @brief Gets the full expression string that was parsed.
-     * 
+     *
      * @return The full expression string.
      */
-    [[nodiscard]] std::string const* getFullExpression() const noexcept {return &fullExpression;}
+    [[nodiscard]] std::string const* getFullExpression() const noexcept { return &fullExpression; }
 
     /**
      * @brief Forcefully sets the unique ID for the expression.
@@ -112,7 +113,7 @@ public:
      *        This is only used when the id was calculated externally, e.g. in ExpressionPool.
      * @param id The unique ID to set.
      */
-    void setUniqueId(uint64_t const id){
+    void setUniqueId(uint64_t const id) {
         uniqueId = id;
     }
 
@@ -124,16 +125,70 @@ public:
      * @brief Recalculates whether the expression is returnable as a double.
      * @return True if the expression can be returned as a double, false otherwise.
      */
-    [[nodiscard]] bool recalculateIsReturnableAsDouble() const ;
+    [[nodiscard]] bool recalculateIsReturnableAsDouble() const;
 
     /**
      * @brief Recalculates whether the expression is always true (i.e., "1").
      * @return True if the expression is always true, false otherwise.
      */
-    [[nodiscard]] bool recalculateIsAlwaysTrue() const ;
+    [[nodiscard]] bool recalculateIsAlwaysTrue() const;
+
+    //------------------------------------------
+    // Static one-time evaluation
+
+    // With context evaluation
+
+    /**
+     * @brief Evaluates a given expression string with a constant reference to the context.
+     * @param input The expression string to evaluate.
+     * @param context The context containing the self, other, and global JSON objects.
+     * @return The evaluated string value.
+     */
+    static std::string eval(std::string const& input, Interaction::ContextBase const& context);
+
+    /**
+     * @brief Evaluates a given expression string as a double with a constant reference to the context.
+     * @param input The expression string to evaluate.
+     * @param context The context containing the self, other, and global JSON objects.
+     * @return The evaluated double value.
+     */
+    static double evalAsDouble(std::string const& input, Interaction::ContextBase const& context);
+
+    /**
+     * @brief Evaluates a given expression string as a boolean with a constant reference to the context.
+     * @param input The expression string to evaluate.
+     * @param context The context containing the self, other, and global JSON objects.
+     * @return The evaluated boolean value.
+     */
+    static bool evalAsBool(std::string const& input, Interaction::ContextBase const& context);
+
+    // Global-only evaluation (both self and other context are empty documents)
+
+    /**
+     * @brief Evaluates a given expression string with global context only.
+     * @param input The expression string to evaluate.
+     * @return The evaluated string value.
+     */
+    static std::string eval(std::string const& input);
+
+    /**
+     * @brief Evaluates a given expression string as a double with global context only.
+     * @param input The expression string to evaluate.
+     * @return The evaluated double value.
+     */
+    static double evalAsDouble(std::string const& input);
+
+    /**
+     * @brief Evaluates a given expression string as a boolean with global context only.
+     * @param input The expression string to evaluate.
+     * @return The evaluated boolean value.
+     */
+    static bool evalAsBool(std::string const& input);
 
 private:
-    struct References{
+    // The reference for context self stays the same throughout the expression's lifetime
+    // This allows us to cache variables from self directly, not reloading needed.
+    struct References {
         Data::JSON* self = nullptr;
     } references;
 
@@ -163,13 +218,13 @@ private:
             } while (number > 0);
             return result;
         }
+
     public:
         std::string getUniqueName(std::string const& baseName) {
             // Check if the base name already exists in the map
             if (variableNameToIdMap.find(baseName) != variableNameToIdMap.end()) {
                 return variableNameToIdMap[baseName];
-            }
-            else {
+            } else {
                 // Generate a new unique name
                 std::string uniqueName = numberToString(static_cast<uint16_t>(variableNameToIdMap.size()));
                 variableNameToIdMap[baseName] = uniqueName;
@@ -195,9 +250,9 @@ private:
          * @brief Each component can be of type variable, eval or text that differ in how they are evaluated.
          */
         enum class Type : uint8_t {
-            variable,   // outside $<cast>(...), Starts with self, other, global or a dot for link, represents a variable reference, outside an evaluatable context
-            eval,       // inside $<cast>(...), represents an evaluatable expression
-            text        // outside of a $<cast>(...), not a variable reference, Represents a plain text string
+            variable, // outside $<cast>(...), Starts with self, other, global or a dot for link, represents a variable reference, outside an evaluatable context
+            eval, // inside $<cast>(...), represents an evaluatable expression
+            text // outside of a $<cast>(...), not a variable reference, Represents a plain text string
         } type = Type::text;
 
         /**
@@ -205,11 +260,11 @@ private:
          * @brief Represents the source of a variable reference.
          */
         enum class From : uint8_t {
-            self,       // Using the "self" document for expression evaluation
-            other,      // Using the "other" document for expression evaluation
-            global,     // Using the "global" document for expression evaluation
-            resource,   // Using a document from the document cache for expression evaluation
-            None        // No context given for evaluation 
+            self, // Using the "self" document for expression evaluation
+            other, // Using the "other" document for expression evaluation
+            global, // Using the "global" document for expression evaluation
+            resource, // Using a document from the document cache for expression evaluation
+            None // No context given for evaluation
         } from = From::None; // Default to None
 
         /**
@@ -217,9 +272,9 @@ private:
          * @brief Represents the type of cast to apply to an expression component.
          */
         enum class CastType : uint8_t {
-            none,       // No cast -> using pure string
-            to_int,     // Cast to integer
-            to_double   // Cast to double
+            none, // No cast -> using pure string
+            to_int, // Cast to integer
+            to_double // Cast to double
         } cast = CastType::none; // Default to none
 
         /**
@@ -272,7 +327,7 @@ private:
         /**
          * @brief Destructor to clean up allocated resources.
          */
-        ~Component(){
+        ~Component() {
             te_free(expression);
         }
 
@@ -283,14 +338,13 @@ private:
         // enable moving
         Component(Component&& other) noexcept
             : type(other.type), from(other.from), cast(other.cast),
-            formatter(other.formatter), str(std::move(other.str)), key(std::move(other.key)),
-            expression(other.expression)
-        {
+              formatter(other.formatter), str(std::move(other.str)), key(std::move(other.key)),
+              expression(other.expression) {
             other.expression = nullptr;
         }
 
         Component& operator=(Component&& other) noexcept {
-            if (this != &other){
+            if (this != &other) {
                 te_free(expression);
                 type = other.type;
                 from = other.from;
@@ -317,21 +371,21 @@ private:
          *        Meaning they can be cached directly from the document
          */
         struct RemanentContext {
-            vd_list self;       // Variables from context self without transformations or multi-resolve
-            vd_list global;     // Variables from context global without transformations or multi-resolve
-        }remanent;
+            vd_list self; // Variables from context self without transformations or multi-resolve
+            vd_list global; // Variables from context global without transformations or multi-resolve
+        } remanent;
 
         /**
          * @brief Contains virtual doubles that are non-remanent
          *        Meaning they need to be updated on each eval
          */
         struct NonRemanentContext {
-            vd_list self;       // Variables from context self with transformations or multi-resolve
-            vd_list other;      // Variables from context other with transformations or multi-resolve
+            vd_list self; // Variables from context self with transformations or multi-resolve
+            vd_list other; // Variables from context other with transformations or multi-resolve
             vd_list otherUnStable; // Variables from context other that are unstable (with transformations or multi-resolve)
-            vd_list global;     // All variables from context global
-            vd_list resource;   // All variables from context resource
-        }nonRemanent;
+            vd_list global; // All variables from context global
+            vd_list resource; // All variables from context resource
+        } nonRemanent;
     } virtualDoubles;
 
     /**
@@ -340,30 +394,30 @@ private:
      * @note Marking the parameters as `const&` does not work with TinyExpr function pointers,
      *       so they are passed by value instead.
      */
-    class expr_custom{
+    class expr_custom {
     public:
         //----------------------------------
         // Logical comparison functions
 
         // NOLINTNEXTLINE
-        static double gt(double a, double b) {return a > b; }
+        static double gt(double a, double b) { return a > b; }
 
         // NOLINTNEXTLINE
-        static double lt(double a, double b) {return a < b; }
+        static double lt(double a, double b) { return a < b; }
 
         // NOLINTNEXTLINE
-        static double geq(double a, double b){return a >= b;}
+        static double geq(double a, double b) { return a >= b; }
 
         // NOLINTNEXTLINE
-        static double leq(double a, double b){return a <= b;}
+        static double leq(double a, double b) { return a <= b; }
 
         // NOLINTNEXTLINE
-        static double eq(double a, double b){
+        static double eq(double a, double b) {
             return std::fabs(a - b) < DBL_EPSILON;
         }
 
         // NOLINTNEXTLINE
-        static double neq(double a, double b){
+        static double neq(double a, double b) {
             return std::fabs(a - b) > DBL_EPSILON;
         }
 
@@ -371,47 +425,47 @@ private:
         // Logical gate functions
 
         // NOLINTNEXTLINE
-        static double logical_not(double a){
+        static double logical_not(double a) {
             return !(std::fabs(a) > DBL_EPSILON);
         }
 
         // NOLINTNEXTLINE
-        static double logical_and(double a, double b){
+        static double logical_and(double a, double b) {
             bool const aLogical = std::fabs(a) > DBL_EPSILON;
             bool const bLogical = std::fabs(b) > DBL_EPSILON;
             return aLogical && bLogical;
         }
 
         // NOLINTNEXTLINE
-        static double logical_or(double a, double b){
+        static double logical_or(double a, double b) {
             bool const aLogical = std::fabs(a) > DBL_EPSILON;
             bool const bLogical = std::fabs(b) > DBL_EPSILON;
             return aLogical || bLogical;
         }
 
         // NOLINTNEXTLINE
-        static double logical_xor(double a, double b){
+        static double logical_xor(double a, double b) {
             bool const aLogical = std::fabs(a) > DBL_EPSILON;
             bool const bLogical = std::fabs(b) > DBL_EPSILON;
             return aLogical != bLogical;
         }
 
         // NOLINTNEXTLINE
-        static double logical_nand(double a, double b){
+        static double logical_nand(double a, double b) {
             bool const aLogical = std::fabs(a) > DBL_EPSILON;
             bool const bLogical = std::fabs(b) > DBL_EPSILON;
             return !(aLogical && bLogical);
         }
 
         // NOLINTNEXTLINE
-        static double logical_nor(double a, double b){
+        static double logical_nor(double a, double b) {
             bool const aLogical = std::fabs(a) > DBL_EPSILON;
             bool const bLogical = std::fabs(b) > DBL_EPSILON;
             return !(aLogical || bLogical);
         }
 
         // NOLINTNEXTLINE
-        static double logical_xnor(double a, double b){
+        static double logical_xnor(double a, double b) {
             bool const aLogical = std::fabs(a) > DBL_EPSILON;
             bool const bLogical = std::fabs(b) > DBL_EPSILON;
             return aLogical == bLogical;
@@ -420,7 +474,7 @@ private:
         // Other logical functions
 
         // NOLINTNEXTLINE
-        static double to_bipolar(double a){
+        static double to_bipolar(double a) {
             return std::fabs(a) > DBL_EPSILON ? 1 : -1;
         }
 
@@ -428,17 +482,17 @@ private:
         // Mapping functions
 
         // NOLINTNEXTLINE
-        static double map(double value, double in_min, double in_max, double out_min, double out_max){
-            if(std::fabs(in_max - in_min) < DBL_EPSILON) { return out_min; } // Prevent division by zero
-            if(value < in_min) { return out_min; }
-            if(value > in_max) { return out_max; }
+        static double map(double value, double in_min, double in_max, double out_min, double out_max) {
+            if (std::fabs(in_max - in_min) < DBL_EPSILON) { return out_min; } // Prevent division by zero
+            if (value < in_min) { return out_min; }
+            if (value > in_max) { return out_max; }
             return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
         }
 
         // NOLINTNEXTLINE
-        static double constrain(double value, double min, double max){
-            if(value < min) { return min; }
-            if(value > max) { return max; }
+        static double constrain(double value, double min, double max) {
+            if (value < min) { return min; }
+            if (value > max) { return max; }
             return value;
         }
 
@@ -446,16 +500,16 @@ private:
         // Maximum and Minimum functions
 
         // NOLINTNEXTLINE
-        static double max(double a, double b){return (a > b) ? a : b;}
+        static double max(double a, double b) { return (a > b) ? a : b; }
 
         // NOLINTNEXTLINE
-        static double min(double a, double b){return (a < b) ? a : b;}
+        static double min(double a, double b) { return (a < b) ? a : b; }
 
         //----------------------------------
         // More mathematical functions
 
         // NOLINTNEXTLINE
-        static double sgn(double a){return std::copysign(1.0, a);}
+        static double sgn(double a) { return std::copysign(1.0, a); }
     };
 
     /**
@@ -470,7 +524,7 @@ private:
 
     /**
      * @brief Resets the expression to its initial state.
-     * 
+     *
      * - Clears all components
      * - Clears all variables and re-registers standard functions
      * - Clears all virtual double entries
@@ -490,12 +544,12 @@ private:
     /**
      * @brief Collection of all variable names
      */
-    std::vector<std::shared_ptr<std::string>> te_names;      // Names of variables for TinyExpr evaluation
+    std::vector<std::shared_ptr<std::string>> te_names; // Names of variables for TinyExpr evaluation
 
     /**
      * @brief Collection of all registered variables and functions
      */
-    std::vector<te_variable> te_variables;   // Variables for TinyExpr evaluation
+    std::vector<te_variable> te_variables; // Variables for TinyExpr evaluation
 
     /**
      * @brief The unique ID from globalspace for this expression string
@@ -507,10 +561,10 @@ private:
 
     /**
      * @brief Compiles a component, if its of type Expression
-     * 
+     *
      * @param component The component to potentially compile
      */
-    void compileIfExpression(std::shared_ptr<Component> const& component) const ;
+    void compileIfExpression(std::shared_ptr<Component> const& component) const;
 
     /**
      * @brief Registers a variable with the given name and key in the context of the component.
@@ -592,7 +646,7 @@ private:
      * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
      * @return True if the evaluation was successful, false otherwise.
      */
-    bool handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Data::JSON* current_other, uint16_t const& maximumRecursionDepth) const ;
+    bool handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Data::JSON* current_other, uint16_t const& maximumRecursionDepth) const;
 
     /**
      * @brief Handles the evaluation of an eval component.

@@ -21,8 +21,10 @@ Constants::Error General::eval(int argc, char** argv) {
     // argc/argv to string for evaluation
     std::string const args = Utility::StringHandler::recombineArgs(argc, argv);
 
-    // eval all $(...)
-    std::string const argsEvaluated = domain->eval(args);
+    // Evaluate expression
+    Data::JSON emptyDoc;
+    Interaction::ContextBase context{emptyDoc,emptyDoc,Nebulite::global()};
+    std::string const argsEvaluated = Interaction::Logic::Expression::eval(args,context);
 
     // reparse
     return domain->parseStr(argsEvaluated);
@@ -194,7 +196,8 @@ Constants::Error General::func_if(int argc, char** argv) {
     if (argc < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    if (!domain->evalAsBool(argv[1])) {
+
+    if (!Interaction::Logic::Expression::evalAsBool(argv[1])) {
         // If the condition is false/nan, skip the following commands
         return Constants::ErrorTable::NONE();
     }
@@ -238,7 +241,7 @@ Constants::Error General::func_assert(int argc, char** argv) {
     }
 
     // Evaluate condition
-    if (!domain->evalAsBool(condition)) {
+    if (!Interaction::Logic::Expression::evalAsBool(condition)) {
         return Constants::ErrorTable::addError("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.", Constants::Error::CRITICAL);
     }
 
@@ -338,8 +341,8 @@ Constants::Error General::func_for(int argc, char** argv) {
     if (argc > 4) {
         std::string const varName = argv[1];
 
-        int const iStart = std::stoi(domain->eval(argv[2]));
-        int const iEnd = std::stoi(domain->eval(argv[3]));
+        int const iStart = std::stoi(Interaction::Logic::Expression::eval(argv[2]));
+        int const iEnd = std::stoi(Interaction::Logic::Expression::eval(argv[3]));
 
         std::string args;
         for (int i = 4; i < argc; ++i) {

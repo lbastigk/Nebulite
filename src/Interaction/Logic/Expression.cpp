@@ -630,6 +630,48 @@ void Nebulite::Interaction::Logic::Expression::updateCaches(Data::JSON* referenc
 }
 
 //------------------------------------------
+// Static one-time evaluation
+
+std::string Nebulite::Interaction::Logic::Expression::eval(std::string const& input, Interaction::ContextBase const& context) {
+    Expression expr;
+    expr.parse(input, context.self.getDoc());
+    return expr.eval(context.other.getDoc());
+}
+
+double Nebulite::Interaction::Logic::Expression::evalAsDouble(std::string const& input, Interaction::ContextBase const& context) {
+    Expression expr;
+    expr.parse(input, context.self.getDoc());
+    return expr.evalAsDouble(context.other.getDoc());
+}
+
+bool Nebulite::Interaction::Logic::Expression::evalAsBool(std::string const& input, Interaction::ContextBase const& context) {
+    Expression expr;
+    expr.parse(input, context.self.getDoc());
+    double const result = expr.evalAsDouble(context.other.getDoc());
+    return std::fabs(result) > DBL_EPSILON;
+}
+
+// Global-only evaluation helpers
+
+std::string Nebulite::Interaction::Logic::Expression::eval(std::string const& input) {
+    Data::JSON emptyDoc;
+    Interaction::ContextBase context{emptyDoc, emptyDoc, Nebulite::global()};
+    return eval(input, context);
+}
+
+double Nebulite::Interaction::Logic::Expression::evalAsDouble(std::string const& input) {
+    Data::JSON emptyDoc;
+    Interaction::ContextBase context{emptyDoc, emptyDoc, Nebulite::global()};
+    return evalAsDouble(input, context);
+}
+
+bool Nebulite::Interaction::Logic::Expression::evalAsBool(std::string const& input) {
+    Data::JSON emptyDoc;
+    Interaction::ContextBase context{emptyDoc, emptyDoc, Nebulite::global()};
+    return evalAsBool(input, context);
+}
+
+//------------------------------------------
 // Recalculation helpers:
 
 
