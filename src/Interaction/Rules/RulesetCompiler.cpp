@@ -4,11 +4,7 @@
 
 namespace Nebulite::Interaction::Rules {
 
-void RulesetCompiler::getFunctionCalls(
-    Data::JSON& entryDoc,
-    HybridRuleset& Ruleset,
-    Core::RenderObject const* self
-    ) {
+void RulesetCompiler::getFunctionCalls(Data::JSON& entryDoc,JsonRuleset& Ruleset,Core::RenderObject const* self) {
     // Get function calls: GLOBAL, SELF, OTHER
     if (entryDoc.memberType(Constants::keyName.invoke.functioncalls_global) == Data::JSON::KeyType::array) {
         size_t const funcSize = entryDoc.memberSize(Constants::keyName.invoke.functioncalls_global);
@@ -107,7 +103,7 @@ bool RulesetCompiler::getExpression(Logic::Assignment& assignmentExpr, Data::JSO
     return true;
 }
 
-bool RulesetCompiler::getExpressions(std::shared_ptr<HybridRuleset> const& Ruleset, Data::JSON* entry, Data::JSON* self) {
+bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JSON* entry, Data::JSON* self) {
     if (entry->memberType(Constants::keyName.invoke.exprVector) == Data::JSON::KeyType::array) {
         size_t const exprSize = entry->memberSize(Constants::keyName.invoke.exprVector);
         for (size_t j = 0; j < exprSize; ++j) {
@@ -220,30 +216,43 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
         // Parse entry into separate JSON object
         std::string const key = Constants::keyName.renderObject.invokes + "[" + std::to_string(idx) + "]";
         auto Ruleset = getRuleset(*doc, key, self);
-        if (!Ruleset.has_value()) {
+
+        if (std::holds_alternative<std::monostate>(Ruleset)) {
             // Skip invalid entry
             continue;
         }
-        optimize(Ruleset.value(), self->getDoc());
-        Ruleset.value()->estimateComputationalCost();
-        if (Ruleset.value()->_isGlobal) {
-            // If topic is empty, it is a local invoke
-            rulesetsGlobal.push_back(Ruleset.value());
-        } else {
-            rulesetsLocal.push_back(Ruleset.value());
+
+        if (std::holds_alternative<std::shared_ptr<StaticRuleset>>(Ruleset)) {
+            // Static ruleset, push directly
+            auto staticRulesetPtr = std::get<std::shared_ptr<StaticRuleset>>(Ruleset);
+            staticRulesetPtr->estimatedCost = 1; // Static rulesets have minimal cost
+            if (staticRulesetPtr->_isGlobal) {
+                rulesetsGlobal.push_back(staticRulesetPtr);
+            } else {
+                rulesetsLocal.push_back(staticRulesetPtr);
+            }
+            continue;
+        }
+
+        if (std::holds_alternative<std::shared_ptr<JsonRuleset>>(Ruleset)) {
+            // Optimize json-defined ruleset and push
+            auto jsonRulesetPtr = std::get<std::shared_ptr<JsonRuleset>>(Ruleset);
+            optimize(jsonRulesetPtr, self->getDoc());
+            jsonRulesetPtr->estimateComputationalCost();
+            if (jsonRulesetPtr->_isGlobal) {
+                // If topic is empty, it is a local invoke
+                rulesetsGlobal.push_back(jsonRulesetPtr);
+            } else {
+                rulesetsLocal.push_back(jsonRulesetPtr);
+            }
         }
     }
 
-    // Set necessary metadata: IDs, indices, cost estimation
+    // Set necessary metadata: IDs, indices
     setMetaData(self, rulesetsGlobal, rulesetsLocal);
 }
 
-void RulesetCompiler::optimize(std::shared_ptr<HybridRuleset> const& entry, Data::JSON* self) {
-    if (entry->staticFunction == nullptr) {
-        // Only optimize non-static rulesets
-        return;
-    }
-
+void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JSON* self) {
     // Valid operations for direct double pointer assignment
     auto& ops = numeric_operations;
 
@@ -267,16 +276,15 @@ void RulesetCompiler::optimize(std::shared_ptr<HybridRuleset> const& entry, Data
     }
 }
 
-std::optional<std::shared_ptr<HybridRuleset>> RulesetCompiler::getRuleset(Data::JSON& doc, std::string const& key, Core::RenderObject* self) {
+RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JSON& doc, std::string const& key, Core::RenderObject* self) {
     Data::JSON entry;
     if (!getJsonRuleset(doc, entry, key)) {
         // See if it's a static ruleset
         auto staticFunctionName = doc.get<std::string>(key, "");
         auto staticRulesetEntry = StaticRulesetMap::getInstance().getStaticRulesetByName(staticFunctionName);
         if (staticRulesetEntry.type != StaticRulesetMap::StaticRuleSetWithMetaData::Type::invalid) {
-            // Create a new Ruleset object
-            auto Ruleset = std::make_shared<Interaction::Rules::HybridRuleset>();
-            Ruleset->logicalArg.parse("$(1)", self->getDoc()); // Always true logical arg for static rulesets
+            // Is a valid static ruleset
+            auto Ruleset = std::make_shared<Interaction::Rules::StaticRuleset>();
             Ruleset->topic = staticRulesetEntry.topic;
             Ruleset->_isGlobal = (staticRulesetEntry.type == StaticRulesetMap::StaticRuleSetWithMetaData::Type::Global);
             Ruleset->staticFunction = staticRulesetEntry.function;
@@ -286,11 +294,10 @@ std::optional<std::shared_ptr<HybridRuleset>> RulesetCompiler::getRuleset(Data::
         // Skip this entry if it cannot be parsed
         // Warn user of invalid entry
         Nebulite::cerr() << "Warning: could not parse Ruleset entry with string '" << staticFunctionName << "'. Skipping entry." << Nebulite::endl;
-        return std::nullopt;
+        return std::monostate{};
     }
-    // TODO: Improve code
-    // Parse into a structure
-    auto Ruleset = std::make_shared<Interaction::Rules::HybridRuleset>();
+    // Is a valid JSON-defined ruleset
+    auto Ruleset = std::make_shared<Interaction::Rules::JsonRuleset>();
     Ruleset->topic = entry.get<std::string>(Constants::keyName.invoke.topic, "all");
     Ruleset->_isGlobal = (!Ruleset->topic.empty()); // If topic is empty, it is a local invoke
     Ruleset->logicalArg.parse(getLogicalArg(entry), self->getDoc());
@@ -307,14 +314,8 @@ std::optional<std::shared_ptr<HybridRuleset>> RulesetCompiler::getRuleset(Data::
     str = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(str));
     Ruleset->logicalArg.parse(str, self->getDoc());
 
-    // Get expressions
-    if (bool const exprSuccess = getExpressions(Ruleset, &entry, self->getDoc()); !exprSuccess) {
-        // Skip this entry if no expressions are found
-        // TODO: This should be fine?
-        return std::nullopt;
-    }
-
-    // Parse all assignments
+    // Get and parse all assignments
+    getExpressions(Ruleset, &entry, self->getDoc());
     for (auto& assignment : Ruleset->assignments) {
         assignment.expression.parse(assignment.value, self->getDoc());
     }
@@ -330,7 +331,14 @@ std::optional<std::shared_ptr<HybridRuleset>> RulesetCompiler::getRuleset(Data::
 std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string const& identifier, Core::RenderObject* self) {
     Data::JSON tempDoc;
     tempDoc.set("", identifier);
-    return getRuleset(tempDoc, "", self);
+    auto rs = getRuleset(tempDoc, "", self);
+    if (std::holds_alternative<std::shared_ptr<StaticRuleset>>(rs)) {
+            return std::get<std::shared_ptr<StaticRuleset>>(rs);
+    }
+    if (std::holds_alternative<std::shared_ptr<JsonRuleset>>(rs)) {
+            return std::get<std::shared_ptr<JsonRuleset>>(rs);
+    }
+    return std::nullopt;
 }
 
 } // namespace Nebulite::Interaction::Rules

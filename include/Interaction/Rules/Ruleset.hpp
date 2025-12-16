@@ -150,25 +150,23 @@ protected:
     std::string topic = "all";
 };
 
-
 /**
- * @class Nebulite::Interaction::Rules::HybridRuleset
- * @brief Represents a single ruleset entry for both static and json-defined rulesets.
- * @todo Split into StaticRuleset and JsonRuleset subclasses
+ * @class Nebulite::Interaction::Rules::StaticRuleset
+ * @brief Represents a single ruleset entry for static rulesets.
  */
-class HybridRuleset : public Ruleset {
+class StaticRuleset : public Ruleset {
 public:
     //------------------------------------------
     // Make Entry non-copyable and non-movable
     // All entries are local to their RenderObject
 
-    HybridRuleset() = default;
-    ~HybridRuleset() = default;
+    StaticRuleset() = default;
+    ~StaticRuleset() = default;
 
-    HybridRuleset(HybridRuleset const&) = delete;
-    HybridRuleset& operator=(HybridRuleset const&) = delete;
-    HybridRuleset(HybridRuleset&&) = delete;
-    HybridRuleset& operator=(HybridRuleset&&) = delete;
+    StaticRuleset(StaticRuleset const&) = delete;
+    StaticRuleset& operator=(StaticRuleset const&) = delete;
+    StaticRuleset(StaticRuleset&&) = delete;
+    StaticRuleset& operator=(StaticRuleset&&) = delete;
 
     //------------------------------------------
     // Friend classes
@@ -179,7 +177,64 @@ public:
 
     /**
      * @brief Checks if the ruleset is true in the context of the other render object.
-     * @param expr The condition to check.
+     * @details For StaticRuleset, this always returns true.
+     * @param otherObj The other render object to compare against.
+     * @return True if the ruleset is true in the context of the other render object, false otherwise.
+     */
+    bool evaluateCondition(Interaction::Execution::DomainBase const* other) override {return true;};
+
+    /**
+     * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
+     * @details For StaticRuleset, this always returns true.
+     * @return True if the ruleset is true in the context of its own RenderObject, false otherwise.
+     */
+    bool evaluateCondition() override {return evaluateCondition(selfPtr);}
+
+    /**
+     * @brief Applies the ruleset
+     * @param contextOther The render object in the other domain.
+     */
+    void apply(Interaction::Execution::DomainBase* contextOther) override {
+        Nebulite::Interaction::ContextBase contextBase{*selfPtr, *contextOther, Nebulite::global()};
+        staticFunction(contextBase);
+    };
+
+    /**
+     * @brief Applies the ruleset to its own RenderObject as contextOther.
+     */
+    void apply() override {apply(selfPtr);}
+
+private:
+    StaticRulesetFunction staticFunction = nullptr;
+};
+
+/**
+ * @class Nebulite::Interaction::Rules::JsonRuleset
+ * @brief Represents a single ruleset entry for json-defined rulesets.
+ */
+class JsonRuleset : public Ruleset {
+public:
+    //------------------------------------------
+    // Make Entry non-copyable and non-movable
+    // All entries are local to their RenderObject
+
+    JsonRuleset() = default;
+    ~JsonRuleset() = default;
+
+    JsonRuleset(JsonRuleset const&) = delete;
+    JsonRuleset& operator=(JsonRuleset const&) = delete;
+    JsonRuleset(JsonRuleset&&) = delete;
+    JsonRuleset& operator=(JsonRuleset&&) = delete;
+
+    //------------------------------------------
+    // Friend classes
+    friend class RulesetCompiler;
+
+    //------------------------------------------
+    // Methods: Workflow
+
+    /**
+     * @brief Checks if the ruleset is true in the context of the other render object.
      * @param otherObj The other render object to compare against.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
@@ -188,15 +243,12 @@ public:
     /**
      * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
      * @return True if the ruleset is true in the context of its own RenderObject, false otherwise.
-     * @todo: Keep same for JsonRuleset, but for StaticRuleset, just return true
      */
     bool evaluateCondition() override {return evaluateCondition(selfPtr);}
 
     /**
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
-     * @todo Split into JsonRuleset and StaticRuleset implementations, where JsonRuleset implements (mostly) the current logic,
-     *       and StaticRuleset just calls the static function.
      */
     void apply(Interaction::Execution::DomainBase* contextOther) override ;
 
@@ -240,6 +292,9 @@ private:
      */
     std::vector<Logic::Assignment> assignments;
 
+    /**
+     * @brief Estimates the computational cost of this ruleset based on the number of variable references in its expressions.
+     */
     void estimateComputationalCost() {
         // Count number of $ and { in logicalArg
         std::string const* expr = logicalArg.getFullExpression();
@@ -252,11 +307,6 @@ private:
             estimatedCost += static_cast<size_t>(std::ranges::count(value.begin(), value.end(), '{'));
         }
     }
-
-    //------------------------------------------
-    // 2.) Fields for static rulesets
-
-    StaticRulesetFunction staticFunction = nullptr;
 };
 } // namespace Nebulite::Interaction::Rules
 #endif // NEBULITE_INTERACTION_RULES_RULESET_HPP

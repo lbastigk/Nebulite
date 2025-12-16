@@ -47,6 +47,9 @@ namespace Nebulite::Interaction::Rules {
  */
 class RulesetCompiler {
 public:
+    // A wrapper for all ruleset types, or none
+    using AnyRuleset = std::variant<std::monostate, std::shared_ptr<StaticRuleset>, std::shared_ptr<JsonRuleset>>;
+
     /**
      * @brief Parses a JSON encoded set of Invoke Entries inside a RenderObject into Ruleset objects.
      * @param rulesetsGlobal The global Ruleset objects.
@@ -80,7 +83,7 @@ private:
      */
     static void getFunctionCalls(
         Data::JSON& entryDoc,
-        HybridRuleset& Ruleset,
+        JsonRuleset& Ruleset,
         Core::RenderObject const* self
         );
 
@@ -104,7 +107,7 @@ private:
      * @param self The JSON document of context self.
      * @return True if the expressions were successfully extracted, false otherwise.
      */
-    static bool getExpressions(std::shared_ptr<HybridRuleset> const& Ruleset, Data::JSON* entry, Data::JSON* self);
+    static bool getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JSON* entry, Data::JSON* self);
 
     /**
      * @brief Extracts a logical argument from a JSON entry document.
@@ -131,9 +134,9 @@ private:
      * @param doc The JSON document containing the entry.
      * @param key The key of the entry in the document.
      * @param self The RenderObject instance associated with the entry.
-     * @return An optional shared pointer to the parsed Ruleset object, or std::nullopt if parsing failed.
+     * @return An optional shared pointer to the parsed Ruleset object, or std::monostate if parsing failed.
      */
-    static std::optional<std::shared_ptr<HybridRuleset>> getRuleset(
+    static AnyRuleset getRuleset(
         Data::JSON& doc,
         std::string const& key,
         Core::RenderObject* self
@@ -145,7 +148,7 @@ private:
      * @param entries The Ruleset objects to optimize.
      * @param self The RenderObject instance associated with the entries.
      */
-    static void optimize(std::shared_ptr<HybridRuleset> const& entry, Data::JSON* self);
+    static void optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JSON* self);
 
     /**
      * @brief Sets metadata in the object itself and in each Ruleset entry, including IDs, indices, and estimated computational cost.

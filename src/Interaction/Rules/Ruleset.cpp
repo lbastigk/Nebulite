@@ -23,9 +23,9 @@ void Ruleset::apply() {
 }
 
 //------------------------------------------
-// Derived Class Methods: HybridRuleset
+// Derived Class Methods: JsonRuleset
 
-bool HybridRuleset::evaluateCondition(Interaction::Execution::DomainBase const* otherObj) {
+bool JsonRuleset::evaluateCondition(Interaction::Execution::DomainBase const* otherObj) {
     // Check if logical arg is as simple as just "1", meaning true
     if (logicalArg.isAlwaysTrue())
         return true;
@@ -39,14 +39,7 @@ bool HybridRuleset::evaluateCondition(Interaction::Execution::DomainBase const* 
     return std::abs(result) > std::numeric_limits<double>::epsilon();
 }
 
-void HybridRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
-    if (staticFunction != nullptr) {
-        // Static function, just call it
-        Nebulite::Interaction::ContextBase contextBase{*selfPtr, *contextOther, Nebulite::global()};
-        staticFunction(contextBase);
-        return;
-    }
-
+void JsonRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
     auto selfDoc = selfPtr->getDoc();
     auto otherDoc = contextOther->getDoc();
 
