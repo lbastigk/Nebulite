@@ -33,6 +33,7 @@
 #include "DomainModule/RenderObject/StateUpdate.hpp"
 
 // Renderer
+#include "DomainModule/Renderer/Debug.hpp"
 #include "DomainModule/Renderer/General.hpp"
 #include "DomainModule/Renderer/Console.hpp"
 #include "DomainModule/Renderer/RenderObjectDraft.hpp"
@@ -47,6 +48,10 @@ namespace Nebulite::DomainModule {
 
 static std::string const headless_desc = "Set headless mode (no renderer)";
 static std::string const recover_desc = "Enable recoverable error mode";
+
+void Initializer::initEnvironment(Core::GlobalSpace* target) {
+    // Currently no DomainModules for Environment
+}
 
 void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     //------------------------------------------
@@ -100,6 +105,7 @@ void Initializer::initRenderObject(Core::RenderObject* target) {
 void Initializer::initRenderer(Core::Renderer* target) {
     // Initialize DomainModules
     using namespace Nebulite::DomainModule::Renderer;
+    target->initModule<Debug>("Renderer Debug Functions");
     target->initModule<General>("Renderer General Functions");
     target->initModule<Console>("Renderer Console Functions");
     target->initModule<RenderObjectDraft>("Renderer RenderObjectDraft Functions");
