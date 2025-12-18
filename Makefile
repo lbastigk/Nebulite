@@ -92,6 +92,8 @@ install-deps:
 resources:
 	@./Scripts/AssetCreation/create_resources_directory.sh
 
+install: clean install-deps resources build-available
+
 test:
 	@python3 Scripts/TestingSuite.py --stop --verbose
 
