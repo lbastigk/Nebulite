@@ -22,25 +22,12 @@ namespace Nebulite::Interaction {
 Invoke::Invoke() {
     // Initialize synchronization primitives
     threadState.stopFlag = false;
-    for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
-        threadState.individualState[i].workReady = false;
-        threadState.individualState[i].workFinished = false;
 
-        // Start worker threads
-        threadrunners[i] = std::thread([this, i] {
-            while (!threadState.stopFlag) {
-                // Wait for work to be ready
-                std::unique_lock lock(broadcasted.entriesThisFrame[i].mutex);
-                threadState.individualState[i].condition.wait(lock, [this, i] {
-                    return threadState.individualState[i].workReady.load() || threadState.stopFlag.load();
-                });
-                // Process
-                if (threadState.stopFlag)
-                    break;
-                broadcasted.entriesThisFrame[i].process();
-                threadState.individualState[i].workReady = false;
-                threadState.individualState[i].workFinished = true;
-            }
+    // Create and start threads
+    for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
+        w.pairContainer = std::make_unique<Data::BroadCastListenPairs>(threadState.stopFlag);
+        w.workerThread = std::thread([&pairContainer = w.pairContainer] {
+            pairContainer->process();
         });
     }
 }
@@ -48,10 +35,10 @@ Invoke::Invoke() {
 Invoke::~Invoke() {
     // Signal threads to stop and finish
     threadState.stopFlag = true;
-    for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
-        threadState.individualState[i].condition.notify_one();
-        if (threadrunners[i].joinable()) {
-            threadrunners[i].join();
+    for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
+        w.pairContainer->join();
+        if (w.workerThread.joinable()) {
+            w.workerThread.join();
         }
     }
 }
@@ -61,41 +48,13 @@ Invoke::~Invoke() {
 
 void Invoke::broadcast(std::shared_ptr<Rules::Ruleset> const& entry) {
     // Get index
-    uint32_t const id_self = entry->getId();
-    uint32_t const threadIndex = id_self % THREADRUNNER_COUNT;
-
-    // Insert into next frame's entries
-    std::scoped_lock lock(broadcasted.entriesNextFrame[threadIndex].mutex);
-    auto& [isActive, rulesets] = broadcasted.entriesNextFrame[threadIndex].container[entry->getTopic()][id_self];
-    rulesets[entry->getIndex()].entry = entry;
-    isActive = true;
+    uint32_t const threadIndex = entry->getId() % THREADRUNNER_COUNT;
+    worker[threadIndex].pairContainer->broadcast(entry);
 }
 
 void Invoke::listen(Core::RenderObject* obj, std::string const& topic, uint32_t const& listenerId) {
-    for (auto& [container, mutex] : std::span(broadcasted.entriesThisFrame, THREADRUNNER_COUNT)) {
-        // Lock to safely read from broadcasted.entriesThisFrame
-        std::scoped_lock broadcastLock(mutex);
-
-        // Check if any object has broadcasted on this topic
-        auto topicIt = container.find(topic);
-        if (topicIt == container.end()) {
-            continue; // No entries for this topic in this thread
-        }
-
-        for (auto& [id_self, onTopicFromId] : topicIt->second) {
-            // Skip if broadcaster and listener are the same object
-            if (id_self == listenerId)
-                continue;
-
-            // Skip if inactive
-            if (!onTopicFromId.active)
-                continue;
-
-            // For all rulesets under this broadcaster and topic
-            for (auto& [entry, listeners] : std::ranges::views::values(onTopicFromId.rulesets)) {
-                listeners[listenerId] = Data::BroadCastListenPair{entry, obj, entry->evaluateCondition(obj)};
-            }
-        }
+    for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
+        w.pairContainer->listen(obj, topic, listenerId);
     }
 }
 
@@ -104,23 +63,18 @@ void Invoke::listen(Core::RenderObject* obj, std::string const& topic, uint32_t 
 
 void Invoke::update() {
     // Signal all worker threads to start processing
-    for (auto& [condition, workReady, workFinished] : std::span(threadState.individualState, THREADRUNNER_COUNT)) {
-        workReady = true;
-        workFinished = false;
-        condition.notify_one();
+    for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
+        w.pairContainer->startWork();
     }
 
     // Wait for all threads to finish processing
-    for (auto& [condition, workReady, workFinished] : std::span(threadState.individualState, THREADRUNNER_COUNT)) {
-        while (!workFinished.load()) {
-            std::this_thread::yield(); // Yield to avoid busy waiting
-        }
+    for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
+        w.pairContainer->waitForWorkFinished();
     }
 
     // Swap the containers, preparing for the next frame
-    for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
-        // No workers active -> no mutex lock needed
-        std::swap(broadcasted.entriesThisFrame[i].container, broadcasted.entriesNextFrame[i].container);
+    for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
+        w.pairContainer->swap();
     }
 }
 

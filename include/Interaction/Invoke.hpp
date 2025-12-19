@@ -11,8 +11,6 @@
 // Includes 
 
 // Standard library
-#include <atomic>
-#include <condition_variable>
 #include <deque>
 #include <string>
 #include <thread>
@@ -21,7 +19,6 @@
 #include "Constants/ThreadSettings.hpp"
 #include "Data/RulesetPairings.hpp"
 #include "Interaction/Logic/ExpressionPool.hpp"
-
 
 //------------------------------------------
 // Forward declarations
@@ -191,56 +188,18 @@ private:
     //------------------------------------------
     // Threading Containers
 
-    /**
-     * @struct BroadCasted
-     * @brief Structure to hold broadcasted pairs.
-     *        - Entries this frame
-     *        - Entries next frame
-     */
-    struct BroadCasted {
-        /**
-         * @brief Container of broadcasted entries for each thread runner.
-         *        Populated during the listen phase
-         */
-        Data::BroadCastListenPairs entriesThisFrame[THREADRUNNER_COUNT];
-
-        /**
-         * @brief Container of broadcasted entries for the next frame for each thread runner.
-         *        Populated during the broadcast phase and swapped in at the update phase.
-         */
-        Data::BroadCastListenPairs entriesNextFrame[THREADRUNNER_COUNT];
-    } broadcasted;
+    struct Worker {
+        std::unique_ptr<Data::BroadCastListenPairs> pairContainer;
+        std::thread workerThread;
+    } worker[THREADRUNNER_COUNT];
 
     //------------------------------------------
     // Threading variables
 
     /**
-     * @brief Array of thread runners for processing broadcast-listen pairs.
-     *        Each thread runner processes pairs assigned to it based on the self ID modulo THREADRUNNER_COUNT.
-     */
-    std::thread threadrunners[THREADRUNNER_COUNT];
-
-    /**
      * @brief Structure to hold threading state.
      */
     struct ThreadState {
-        struct IndividualState {
-            /**
-             * @brief Condition variables for thread synchronization.
-             */
-            std::condition_variable condition;
-
-            /**
-             * @brief Flags to indicate when work is ready for each thread.
-             */
-            std::atomic<bool> workReady = false;
-
-            /**
-             * @brief Flags to indicate when work is finished for each thread.
-             */
-            std::atomic<bool> workFinished = false;
-        } individualState[THREADRUNNER_COUNT];
-
         /**
          * @brief Flag to signal threads to stop.
          */

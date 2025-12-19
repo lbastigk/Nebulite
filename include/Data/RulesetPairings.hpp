@@ -11,6 +11,11 @@
 // Includes
 
 // Standard library
+#include <atomic>
+#include <condition_variable>
+
+// External
+#include "absl/container/flat_hash_map.h"
 
 // Nebulite
 #include "Interaction/Rules/Ruleset.hpp"
@@ -42,64 +47,82 @@ struct OnTopicFromId {
 //       uint32_t -> 8 nibble traversal. vector<vector<vector<vector<...<OnTopicFromId>...>>>?
 //       Should be WAY faster for lookups, easy cleanup as well.
 //       Byte-Tree should be fine as well, just 4 levels instead of 8.
-//       Make both versions with the same interface and benchmark them!
-//       Should only need an operator[] and an erase() method,
-//       as well as an iterator?
+//       Another option would be to insert all pairs into a flat vector and iterate through that.
+//       Meaning we store generated pairs, and insert into a vector if listening was successful.
 class BroadCastListenPairs {
 public:
-    // TODO: Move thread states into here for better encapsulation?
-    //       - explicit constructor with stopFlag reference
-    //       - workRead and workFinished per thread, inside class
-    //       - condition variable inside class
-    //       - proper destructor so we dont forget to join threads
-    //       Make members private, only expose:
-    //       - process() method
-    //       - broadcast()/listen() methods that lock the mutex internally
-    //       Modify process so it includes all necessary locking and condition variable handling
-    //       Essentially moving all code from Invoke into here
 
-    void process() {
-        thread_local std::mt19937 cleanup_rng(std::random_device{}());
-        thread_local std::uniform_int_distribution<int> cleanup_dist(0, 99); // uniform, avoids modulo bias
-        for (auto& map_other : std::views::values(container)) {
-            for (auto& [isActive, rulesets] : std::views::values(map_other)) {
-                if (!isActive)
-                    continue;
-                for (auto& [entry, listeners] : std::ranges::views::values(rulesets)) {
-                    // Process active listeners (single pass, no erases here)
-                    for (auto & it : listeners) {
-                        auto &pair = it.second;
-                        if (pair.active) {
-                            pair.entry->apply(pair.contextOther);
-                            pair.active = false;
-                        }
-                    }
-                    // Probabilistic cleanup performed once per ruleset
-                    if (cleanup_dist(cleanup_rng) == 0) {
-                        for (auto it = listeners.begin(); it != listeners.end();) {
-                            if (!it->second.active) {
-                                auto itToErase = it++;
-                                listeners.erase(itToErase); // erase returns void in Abseil
-                            } else {
-                                ++it;
-                            }
-                        }
-                    }
-                }
-                // Reset activity flag, must be activated on broadcast
-                isActive = false;
-            }
+    BroadCastListenPairs(std::atomic<bool>& stopFlag) : threadState{ .stopFlag = stopFlag } {};
+
+    void process();
+
+    void listen(Core::RenderObject* obj, std::string const& topic, uint32_t const& listenerId);
+
+    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
+
+    void swap() {
+        std::scoped_lock lock(mutexThisFrame, mutexNextFrame);
+        std::swap(thisFrame, nextFrame);
+    }
+
+    /**
+     * @brief Waits for the worker thread to finish.
+     */
+    void join() {
+        // Signal thread to stop
+        threadState.stopFlag = true;
+        threadState.condition.notify_one();
+    }
+
+    void startWork() {
+        threadState.workReady = true;
+        threadState.workFinished = false;
+        threadState.condition.notify_one();
+    }
+
+    void waitForWorkFinished() {
+        while (!threadState.workFinished.load()) {
+            std::this_thread::yield();
         }
     }
 
-    absl::flat_hash_map<
+private:
+    using PairingContainer = absl::flat_hash_map<
         std::string,            // The topic of the broadcasted entry
         absl::flat_hash_map<
             uint32_t,           // The ID of self.
             OnTopicFromId       // The struct containing active flag and rulesets
         >
-    > container;
-    mutable std::mutex mutex; // for read/write access to the container
+    >;
+
+    PairingContainer thisFrame;
+    PairingContainer nextFrame;
+
+    mutable std::mutex mutexThisFrame; // for read/write access to the container
+    mutable std::mutex mutexNextFrame; // for read/write access to the container
+
+    // Threading variables
+    struct ThreadState {
+        /**
+         * @brief Condition variables for thread synchronization.
+         */
+        std::condition_variable condition;
+
+        /**
+         * @brief Flags to indicate when work is ready for each thread.
+         */
+        std::atomic<bool> workReady = false;
+
+        /**
+         * @brief Flags to indicate when work is finished for each thread.
+         */
+        std::atomic<bool> workFinished = false;
+
+        /**
+         * @brief Flag to signal threads to stop.
+         */
+        std::atomic<bool>& stopFlag;
+    } threadState;
 };
 
 } // namespace Nebulite::Data
