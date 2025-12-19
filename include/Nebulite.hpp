@@ -146,6 +146,7 @@ Core::GlobalSpace& global();
  * @return CaptureStream object for capturing cout output
  * @todo This is an outdated usage, move to std::print based wrapper later on
  *       -> Nebulite::Log::println(args...);
+ *          use recursive variadic templates for that, so that we can have multiple args
  */
 Nebulite::Utility::CaptureStream& cout();
 
@@ -154,6 +155,7 @@ Nebulite::Utility::CaptureStream& cout();
  * @return CaptureStream object for capturing cerr output
  * @todo This is an outdated usage, move to std::print based wrapper later on
  *       -> Nebulite::Error::println(args...);
+ *          use recursive variadic templates for that, so that we can have multiple args
  */
 Nebulite::Utility::CaptureStream& cerr();
 
