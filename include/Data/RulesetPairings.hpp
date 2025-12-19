@@ -52,7 +52,7 @@ struct OnTopicFromId {
 class BroadCastListenPairs {
 public:
 
-    BroadCastListenPairs(std::atomic<bool>& stopFlag) : threadState{ .stopFlag = stopFlag } {};
+    BroadCastListenPairs(std::atomic<bool>& stopFlag) : threadState{ .stopFlag = stopFlag } {}
 
     void process();
 
@@ -106,7 +106,7 @@ private:
         /**
          * @brief Condition variables for thread synchronization.
          */
-        std::condition_variable condition;
+        std::condition_variable condition = {};
 
         /**
          * @brief Flags to indicate when work is ready for each thread.
