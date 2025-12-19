@@ -190,10 +190,7 @@ public:
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
      */
-    void apply(Interaction::Execution::DomainBase* contextOther) override {
-        Nebulite::Interaction::ContextBase contextBase{*selfPtr, *contextOther, Nebulite::global()};
-        staticFunction(contextBase);
-    }
+    void apply(Interaction::Execution::DomainBase* contextOther) override ;
 
     /**
      * @brief Applies the ruleset to its own RenderObject as contextOther.

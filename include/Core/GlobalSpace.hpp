@@ -27,6 +27,7 @@
 #include "Data/DocumentCache.hpp"
 #include "Data/TaskQueue.hpp"
 #include "Interaction/Context.hpp"
+#include "Interaction/Invoke.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Utility/RNG.hpp"
 

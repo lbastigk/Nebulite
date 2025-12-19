@@ -23,6 +23,14 @@ void Ruleset::apply() {
 }
 
 //------------------------------------------
+// Derived Class Methods: StaticRuleset
+
+void StaticRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
+    Nebulite::Interaction::ContextBase contextBase{*selfPtr, *contextOther, Nebulite::global()};
+    staticFunction(contextBase);
+}
+
+//------------------------------------------
 // Derived Class Methods: JsonRuleset
 
 bool JsonRuleset::evaluateCondition(Interaction::Execution::DomainBase const* otherObj) {
@@ -71,5 +79,7 @@ void JsonRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
         (void)contextOther->parseStr(call);
     }
 }
+
+
 
 } // namespace Nebulite::Interaction::Rules

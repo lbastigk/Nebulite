@@ -1,7 +1,24 @@
+#include "Nebulite.hpp"
 #include "Interaction/Rules/RulesetModules/Physics.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 
 namespace Nebulite::Interaction::Rules::RulesetModules {
+
+Physics::Physics() :
+id(Nebulite::global().getUniqueId(std::string(moduleName), Core::GlobalSpace::UniqueIdType::expression)){
+    // Global rulesets
+    BIND_STATIC_ASSERT(RulesetType::Global, &Physics::elasticCollision, elasticCollisionName, elasticCollisionDesc);
+    BIND_STATIC_ASSERT(RulesetType::Global, &Physics::gravity, gravityName, gravityDesc);
+
+    // Local rulesets
+    BIND_STATIC_ASSERT(RulesetType::Local, &Physics::applyForce, applyForceName, applyForceDesc);
+    BIND_STATIC_ASSERT(RulesetType::Local, &Physics::drag, dragName, dragDesc);
+
+    // Global Variables
+    globalVal.G = Nebulite::global().getDoc()->getStableDoublePointer("physics.G"); // Gravitational constant
+    globalVal.dt = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::keyName.renderer.time_dt); // Simulation delta time
+    globalVal.t = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::keyName.renderer.time_t); // Simulation time
+}
 
 // Global rulesets
 

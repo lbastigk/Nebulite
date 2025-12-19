@@ -58,21 +58,13 @@ public:
 
     //------------------------------------------
     // Constructor
-    Physics() {
-        // Global rulesets
-        BIND_STATIC_ASSERT(RulesetType::Global, &Physics::elasticCollision, elasticCollisionName, elasticCollisionDesc);
-        BIND_STATIC_ASSERT(RulesetType::Global, &Physics::gravity, gravityName, gravityDesc);
-
-        // Local rulesets
-        BIND_STATIC_ASSERT(RulesetType::Local, &Physics::applyForce, applyForceName, applyForceDesc);
-        BIND_STATIC_ASSERT(RulesetType::Local, &Physics::drag, dragName, dragDesc);
-    }
+    Physics();
 
 private:
     static constexpr std::string_view moduleName = "::physics";
 
     // Unique identifier for caching
-    uint64_t const id = Nebulite::global().getUniqueId(std::string(moduleName), Core::GlobalSpace::UniqueIdType::expression);
+    uint64_t const id;
 
     //------------------------------------------
     // Base values for physics framework
@@ -143,9 +135,9 @@ private:
      * @brief Struct to hold pointers to global variables used in physics calculations.
      */
     struct GlobalVal {
-        double* G = Nebulite::global().getDoc()->getStableDoublePointer("physics.G"); // Gravitational constant
-        double* dt = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::keyName.renderer.time_dt); // Simulation delta time
-        double* t = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::keyName.renderer.time_t); // Simulation time
+        double* G; // Gravitational constant
+        double* dt; // Simulation delta time
+        double* t; // Simulation time
         /* Add more global variables here as needed */
     } globalVal;
 };

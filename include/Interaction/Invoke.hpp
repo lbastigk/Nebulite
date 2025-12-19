@@ -19,6 +19,7 @@
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
+#include "Data/RulesetPairings.hpp"
 #include "Interaction/Logic/ExpressionPool.hpp"
 
 
@@ -197,47 +198,6 @@ private:
     // Threading Containers
 
     /**
-     * @struct BroadCastListenPair
-     * @brief Structure to hold a broadcast-listen pair.
-     */
-    struct BroadCastListenPair {
-        std::shared_ptr<Rules::Ruleset> entry; // The Ruleset that was broadcasted
-        Core::RenderObject* contextOther; // The object that listened to the Broadcast
-        bool active = true; // If false, this pair is skipped during update
-    };
-
-    struct ListenersOnRuleset {
-        std::shared_ptr<Rules::Ruleset> entry;
-        absl::flat_hash_map<uint32_t, BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
-    };
-
-    struct OnTopicFromId {
-        bool active = false; // If false, this is skipped during update
-        absl::flat_hash_map<uint32_t, ListenersOnRuleset> rulesets; // idx_ruleset -> ListenersOnRuleset
-    };
-
-    // two of these are needed, and we swap between them on each frame
-    // TODO: Break into a chain of nibble-trees for faster access?
-    //       uint32_t -> 8 nibble traversal. vector<vector<vector<vector<...<OnTopicFromId>...>>>?
-    //       Should be WAY faster for lookups, easy cleanup as well.
-    //       Byte-Tree should be fine as well, just 4 levels instead of 8.
-    //       Make both versions with the same interface and benchmark them!
-    //       Should only need an operator[] and an erase() method,
-    //       as well as an iterator?
-    using BroadCastListenContainer = absl::flat_hash_map<
-        std::string, // The topic of the broadcasted entry
-        absl::flat_hash_map<
-            uint32_t, // The ID of self.
-            OnTopicFromId // The struct containing active flag and rulesets
-        >
-    >;
-
-    struct MutableBroadCastListenContainer {
-        BroadCastListenContainer Container;
-        mutable std::mutex mutex; // for read/write access to the container
-    };
-
-    /**
      * @struct BroadCasted
      * @brief Structure to hold broadcasted pairs.
      *        - Entries this frame
@@ -248,13 +208,13 @@ private:
          * @brief Container of broadcasted entries for each thread runner.
          *        Populated during the listen phase
          */
-        MutableBroadCastListenContainer entriesThisFrame[THREADRUNNER_COUNT];
+        Data::BroadCastListenPairs entriesThisFrame[THREADRUNNER_COUNT];
 
         /**
          * @brief Container of broadcasted entries for the next frame for each thread runner.
          *        Populated during the broadcast phase and swapped in at the update phase.
          */
-        MutableBroadCastListenContainer entriesNextFrame[THREADRUNNER_COUNT];
+        Data::BroadCastListenPairs entriesNextFrame[THREADRUNNER_COUNT];
     } broadcasted;
 
     //------------------------------------------
@@ -301,7 +261,7 @@ private:
      *        The container is not locked inside this function, make sure to lock it before calling!
      * @param container The container of broadcast-listen pairs to process.
      */
-    void processWork(BroadCastListenContainer& container);
+    static void processWork(Data::BroadCastListenPairs& pairs);
 
     /**
      * @brief Applies a single assignment from a ruleset.

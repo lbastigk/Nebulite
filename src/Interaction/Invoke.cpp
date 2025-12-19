@@ -40,7 +40,7 @@ Invoke::Invoke() {
                 // Process
                 if (threadState.stopFlag)
                     break;
-                processWork(broadcasted.entriesThisFrame[i].Container);
+                processWork(broadcasted.entriesThisFrame[i]);
                 threadState.individualState[i].workReady = false;
                 threadState.individualState[i].workFinished = true;
             }
@@ -69,7 +69,7 @@ void Invoke::broadcast(std::shared_ptr<Rules::Ruleset> const& entry) {
 
     // Insert into next frame's entries
     std::scoped_lock lock(broadcasted.entriesNextFrame[threadIndex].mutex);
-    auto& [isActive, rulesets] = broadcasted.entriesNextFrame[threadIndex].Container[entry->getTopic()][id_self];
+    auto& [isActive, rulesets] = broadcasted.entriesNextFrame[threadIndex].container[entry->getTopic()][id_self];
     rulesets[entry->getIndex()].entry = entry;
     isActive = true;
 }
@@ -96,7 +96,7 @@ void Invoke::listen(Core::RenderObject* obj, std::string const& topic, uint32_t 
 
             // For all rulesets under this broadcaster and topic
             for (auto& [entry, listeners] : std::ranges::views::values(onTopicFromId.rulesets)) {
-                listeners[listenerId] = BroadCastListenPair{entry, obj, entry->evaluateCondition(obj)};
+                listeners[listenerId] = Data::BroadCastListenPair{entry, obj, entry->evaluateCondition(obj)};
             }
         }
     }
@@ -123,17 +123,17 @@ void Invoke::update() {
     // Swap the containers, preparing for the next frame
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
         // No workers active -> no mutex lock needed
-        std::swap(broadcasted.entriesThisFrame[i].Container, broadcasted.entriesNextFrame[i].Container);
+        std::swap(broadcasted.entriesThisFrame[i].container, broadcasted.entriesNextFrame[i].container);
     }
 }
 
 //------------------------------------------
 // Work processing
 
-void Invoke::processWork(BroadCastListenContainer& container) {
+void Invoke::processWork(Data::BroadCastListenPairs& pairs) {
     thread_local std::mt19937 cleanup_rng(std::random_device{}());
     thread_local std::uniform_int_distribution<int> cleanup_dist(0, 99); // uniform, avoids modulo bias
-    for (auto& map_other : std::views::values(container)) {
+    for (auto& map_other : std::views::values(pairs.container)) {
         for (auto& [isActive, rulesets] : std::views::values(map_other)) {
             if (!isActive)
                 continue;

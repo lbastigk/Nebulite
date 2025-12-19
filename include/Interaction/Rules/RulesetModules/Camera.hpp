@@ -54,20 +54,13 @@ public:
 
     //------------------------------------------
     // Constructor
-    Camera() {
-        // Bind Camera-related static rulesets here
-        BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignCenter, alignCenterName, alignCenterDesc);
-        BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignTop, alignTopName, alignTopDesc);
-        BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignBottom, alignBottomName, alignBottomDesc);
-        BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignLeft, alignLeftName, alignLeftDesc);
-        BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignRight, alignRightName, alignRightDesc);
-    }
+    Camera();
 
 private:
     static constexpr std::string_view moduleName = "::camera";
 
     // Unique identifier for ordered cache list
-    uint64_t const id = Nebulite::global().getUniqueId(std::string(moduleName), Core::GlobalSpace::UniqueIdType::expression);
+    uint64_t const id;
 
     //------------------------------------------
     // Base value caching for camera alignment
@@ -111,10 +104,10 @@ private:
     // Global values
 
     struct GlobalVal {
-        double* camPosX = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::keyName.renderer.positionX);
-        double* camPosY = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::keyName.renderer.positionY);
-        double* dispResX = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::keyName.renderer.dispResX);
-        double* dispResY = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::keyName.renderer.dispResY);
+        double* camPosX;
+        double* camPosY;
+        double* dispResX;
+        double* dispResY;
     } globalVal;
 
     //------------------------------------------

@@ -17,7 +17,6 @@
 #include "absl/container/flat_hash_map.h"
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Interaction/Context.hpp"
 #include "Construction/Initializer.hpp"
 
