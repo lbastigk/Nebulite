@@ -4,10 +4,6 @@ It extracts command information from both GlobalSpace and RenderObject domains
 and outputs comprehensive documentation in markdown format.
 """
 
-# TODO:
-#  - Add documentation for transformations
-#  - Add TOC to Commands.md
-
 #####################################
 # Imports
 import subprocess
