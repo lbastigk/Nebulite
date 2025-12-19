@@ -145,7 +145,7 @@ Core::GlobalSpace& global();
  * @brief Singleton accessor for the cout capture object
  * @return CaptureStream object for capturing cout output
  * @todo This is an outdated usage, move to std::print based wrapper later on
- *       -> Nebulite::logln(args...);
+ *       -> Nebulite::Log::println(args...);
  */
 Nebulite::Utility::CaptureStream& cout();
 
@@ -153,7 +153,7 @@ Nebulite::Utility::CaptureStream& cout();
  * @brief Singleton accessor for the cerr capture object
  * @return CaptureStream object for capturing cerr output
  * @todo This is an outdated usage, move to std::print based wrapper later on
- *       -> Nebulite::errln(args...);
+ *       -> Nebulite::Error::println(args...);
  */
 Nebulite::Utility::CaptureStream& cerr();
 
