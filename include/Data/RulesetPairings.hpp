@@ -45,7 +45,53 @@ struct OnTopicFromId {
 //       Make both versions with the same interface and benchmark them!
 //       Should only need an operator[] and an erase() method,
 //       as well as an iterator?
-struct BroadCastListenPairs {
+class BroadCastListenPairs {
+public:
+    // TODO: Move thread states into here for better encapsulation?
+    //       - explicit constructor with stopFlag reference
+    //       - workRead and workFinished per thread, inside class
+    //       - condition variable inside class
+    //       - proper destructor so we dont forget to join threads
+    //       Make members private, only expose:
+    //       - process() method
+    //       - broadcast()/listen() methods that lock the mutex internally
+    //       Modify process so it includes all necessary locking and condition variable handling
+    //       Essentially moving all code from Invoke into here
+
+    void process() {
+        thread_local std::mt19937 cleanup_rng(std::random_device{}());
+        thread_local std::uniform_int_distribution<int> cleanup_dist(0, 99); // uniform, avoids modulo bias
+        for (auto& map_other : std::views::values(container)) {
+            for (auto& [isActive, rulesets] : std::views::values(map_other)) {
+                if (!isActive)
+                    continue;
+                for (auto& [entry, listeners] : std::ranges::views::values(rulesets)) {
+                    // Process active listeners (single pass, no erases here)
+                    for (auto & it : listeners) {
+                        auto &pair = it.second;
+                        if (pair.active) {
+                            pair.entry->apply(pair.contextOther);
+                            pair.active = false;
+                        }
+                    }
+                    // Probabilistic cleanup performed once per ruleset
+                    if (cleanup_dist(cleanup_rng) == 0) {
+                        for (auto it = listeners.begin(); it != listeners.end();) {
+                            if (!it->second.active) {
+                                auto itToErase = it++;
+                                listeners.erase(itToErase); // erase returns void in Abseil
+                            } else {
+                                ++it;
+                            }
+                        }
+                    }
+                }
+                // Reset activity flag, must be activated on broadcast
+                isActive = false;
+            }
+        }
+    }
+
     absl::flat_hash_map<
         std::string,            // The topic of the broadcasted entry
         absl::flat_hash_map<

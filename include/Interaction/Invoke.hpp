@@ -189,12 +189,6 @@ public:
 
 private:
     //------------------------------------------
-    // General Variables
-
-    // Documents
-    Data::JSON* emptyDoc;
-
-    //------------------------------------------
     // Threading Containers
 
     /**
@@ -255,13 +249,6 @@ private:
 
     //------------------------------------------
     // Private methods
-
-    /**
-     * @brief Helper function to process work for a specific thread runner.
-     *        The container is not locked inside this function, make sure to lock it before calling!
-     * @param container The container of broadcast-listen pairs to process.
-     */
-    static void processWork(Data::BroadCastListenPairs& pairs);
 
     /**
      * @brief Applies a single assignment from a ruleset.

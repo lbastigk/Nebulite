@@ -20,9 +20,6 @@ namespace Nebulite::Interaction {
 // Constructor / Destructor
 
 Invoke::Invoke() {
-    // Linking an empty doc is needed for some functions
-    emptyDoc = new Data::JSON("Empty JSON document for Invoke");
-
     // Initialize synchronization primitives
     threadState.stopFlag = false;
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
@@ -40,7 +37,7 @@ Invoke::Invoke() {
                 // Process
                 if (threadState.stopFlag)
                     break;
-                processWork(broadcasted.entriesThisFrame[i]);
+                broadcasted.entriesThisFrame[i].process();
                 threadState.individualState[i].workReady = false;
                 threadState.individualState[i].workFinished = true;
             }
@@ -124,43 +121,6 @@ void Invoke::update() {
     for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
         // No workers active -> no mutex lock needed
         std::swap(broadcasted.entriesThisFrame[i].container, broadcasted.entriesNextFrame[i].container);
-    }
-}
-
-//------------------------------------------
-// Work processing
-
-void Invoke::processWork(Data::BroadCastListenPairs& pairs) {
-    thread_local std::mt19937 cleanup_rng(std::random_device{}());
-    thread_local std::uniform_int_distribution<int> cleanup_dist(0, 99); // uniform, avoids modulo bias
-    for (auto& map_other : std::views::values(pairs.container)) {
-        for (auto& [isActive, rulesets] : std::views::values(map_other)) {
-            if (!isActive)
-                continue;
-            for (auto& [entry, listeners] : std::ranges::views::values(rulesets)) {
-                // Process active listeners (single pass, no erases here)
-                for (auto & it : listeners) {
-                    auto &pair = it.second;
-                    if (pair.active) {
-                        pair.entry->apply(pair.contextOther);
-                        pair.active = false;
-                    }
-                }
-                // Probabilistic cleanup performed once per ruleset
-                if (cleanup_dist(cleanup_rng) == 0) {
-                    for (auto it = listeners.begin(); it != listeners.end();) {
-                        if (!it->second.active) {
-                            auto itToErase = it++;
-                            listeners.erase(itToErase); // erase returns void in Abseil
-                        } else {
-                            ++it;
-                        }
-                    }
-                }
-            }
-            // Reset activity flag, must be activated on broadcast
-            isActive = false;
-        }
     }
 }
 
