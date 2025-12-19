@@ -7,11 +7,11 @@ message(STATUS "[COMPILER] Loading compiler warnings configuration...")
 function(configure_warnings target_name)
     message(STATUS "[COMPILER] Configuring warnings for target: ${target_name}")
 
-    # Only show warnings in non-release builds
-    if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-        message(STATUS "[COMPILER] Release build detected, skipping warning configuration for target: ${target_name}")
-        return()
-    endif()
+    # Uncomment to only show warnings in non-release builds
+    #if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    #    message(STATUS "[COMPILER] Release build detected, skipping warning configuration for target: ${target_name}")
+    #    return()
+    #endif()
 
     # Common base (both compilers)
     set(BASE_WARNINGS
