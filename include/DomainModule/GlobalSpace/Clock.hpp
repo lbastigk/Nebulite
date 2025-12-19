@@ -10,8 +10,8 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
+#include "Data/JSON.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
-#include "../../Data/JSON.hpp"
 
 //------------------------------------------
 // Forward declarations
