@@ -52,34 +52,56 @@ struct OnTopicFromId {
 class BroadCastListenPairs {
 public:
 
-    BroadCastListenPairs(std::atomic<bool>& stopFlag) : threadState{ .stopFlag = stopFlag } {}
+    BroadCastListenPairs(std::atomic<bool>& stopFlag) : threadState{ .stopFlag = stopFlag } {
+        // Start worker thread
+        workerThread = std::thread([this] {
+            this->process();
+        });
+    }
 
-    void process();
+    ~BroadCastListenPairs() {
+        // Signal thread to stop
+        threadState.stopFlag = true;
+        threadState.condition.notify_one();
+        if (workerThread.joinable()) {
+            workerThread.join();
+        }
+    }
 
+    /**
+     * @brief Listens for rulesets on a specific topic.
+     * @param obj The render object to check.
+     * @param topic The topic to listen for.
+     * @param listenerId The unique ID of the listener render object.
+     */
     void listen(Core::RenderObject* obj, std::string const& topic, uint32_t const& listenerId);
 
+    /**
+     * @brief Broadcasts a ruleset to all listeners on its topic.
+     * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
+     */
     void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
 
-    void swap() {
+    /**
+     * @brief Prepares for the next frame by swapping the current and next frame containers.
+     */
+    void prepare() {
         std::scoped_lock lock(mutexThisFrame, mutexNextFrame);
         std::swap(thisFrame, nextFrame);
     }
 
     /**
-     * @brief Waits for the worker thread to finish.
+     * @brief Notifies the worker thread to start processing.
      */
-    void join() {
-        // Signal thread to stop
-        threadState.stopFlag = true;
-        threadState.condition.notify_one();
-    }
-
     void startWork() {
         threadState.workReady = true;
         threadState.workFinished = false;
         threadState.condition.notify_one();
     }
 
+    /**
+     * @brief Waits for the worker thread to finish processing.
+     */
     void waitForWorkFinished() {
         while (!threadState.workFinished.load()) {
             std::this_thread::yield();
@@ -123,6 +145,13 @@ private:
          */
         std::atomic<bool>& stopFlag;
     } threadState;
+
+    std::thread workerThread;
+
+    /**
+     * @brief Processes all broadcast-listen pairs.
+     */
+    void process();
 };
 
 } // namespace Nebulite::Data

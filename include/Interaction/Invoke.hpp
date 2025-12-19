@@ -188,10 +188,7 @@ private:
     //------------------------------------------
     // Threading Containers
 
-    struct Worker {
-        std::unique_ptr<Data::BroadCastListenPairs> pairContainer;
-        std::thread workerThread;
-    } worker[THREADRUNNER_COUNT];
+    std::unique_ptr<Data::BroadCastListenPairs> worker[THREADRUNNER_COUNT];
 
     //------------------------------------------
     // Threading variables

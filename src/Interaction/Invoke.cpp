@@ -25,22 +25,14 @@ Invoke::Invoke() {
 
     // Create and start threads
     for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
-        w.pairContainer = std::make_unique<Data::BroadCastListenPairs>(threadState.stopFlag);
-        w.workerThread = std::thread([&pairContainer = w.pairContainer] {
-            pairContainer->process();
-        });
+        w = std::make_unique<Data::BroadCastListenPairs>(threadState.stopFlag);
     }
 }
 
 Invoke::~Invoke() {
     // Signal threads to stop and finish
+    // Stopping is handled in BroadCastListenPairs destructor
     threadState.stopFlag = true;
-    for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
-        w.pairContainer->join();
-        if (w.workerThread.joinable()) {
-            w.workerThread.join();
-        }
-    }
 }
 
 //------------------------------------------
@@ -49,12 +41,12 @@ Invoke::~Invoke() {
 void Invoke::broadcast(std::shared_ptr<Rules::Ruleset> const& entry) {
     // Get index
     uint32_t const threadIndex = entry->getId() % THREADRUNNER_COUNT;
-    worker[threadIndex].pairContainer->broadcast(entry);
+    worker[threadIndex]->broadcast(entry);
 }
 
 void Invoke::listen(Core::RenderObject* obj, std::string const& topic, uint32_t const& listenerId) {
     for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
-        w.pairContainer->listen(obj, topic, listenerId);
+        w->listen(obj, topic, listenerId);
     }
 }
 
@@ -64,17 +56,17 @@ void Invoke::listen(Core::RenderObject* obj, std::string const& topic, uint32_t 
 void Invoke::update() {
     // Signal all worker threads to start processing
     for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
-        w.pairContainer->startWork();
+        w->startWork();
     }
 
     // Wait for all threads to finish processing
     for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
-        w.pairContainer->waitForWorkFinished();
+        w->waitForWorkFinished();
     }
 
-    // Swap the containers, preparing for the next frame
+    // Prepare work for the next frame
     for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
-        w.pairContainer->swap();
+        w->prepare();
     }
 }
 
