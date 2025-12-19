@@ -23,26 +23,6 @@
 //------------------------------------------
 namespace Nebulite::Data{
 
-/**
- * @struct BroadCastListenPair
- * @brief Structure to hold a broadcast-listen pair.
- */
-struct BroadCastListenPair {
-    std::shared_ptr<Interaction::Rules::Ruleset> entry; // The Ruleset that was broadcasted
-    Core::RenderObject* contextOther; // The object that listened to the Broadcast
-    bool active = true; // If false, this pair is skipped during update
-};
-
-struct ListenersOnRuleset {
-    std::shared_ptr<Interaction::Rules::Ruleset> entry;
-    absl::flat_hash_map<uint32_t, BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
-};
-
-struct OnTopicFromId {
-    bool active = false; // If false, this is skipped during update
-    absl::flat_hash_map<uint32_t, ListenersOnRuleset> rulesets; // idx_ruleset -> ListenersOnRuleset
-};
-
 // TODO: Break into a chain of nibble-trees for faster access?
 //       uint32_t -> 8 nibble traversal. vector<vector<vector<vector<...<OnTopicFromId>...>>>?
 //       Should be WAY faster for lookups, easy cleanup as well.
@@ -109,6 +89,26 @@ public:
     }
 
 private:
+    /**
+     * @struct BroadCastListenPair
+     * @brief Structure to hold a broadcast-listen pair.
+     */
+    struct BroadCastListenPair {
+        std::shared_ptr<Interaction::Rules::Ruleset> entry; // The Ruleset that was broadcasted
+        Core::RenderObject* contextOther; // The object that listened to the Broadcast
+        bool active = true; // If false, this pair is skipped during update
+    };
+
+    struct ListenersOnRuleset {
+        std::shared_ptr<Interaction::Rules::Ruleset> entry;
+        absl::flat_hash_map<uint32_t, BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
+    };
+
+    struct OnTopicFromId {
+        bool active = false; // If false, this is skipped during update
+        absl::flat_hash_map<uint32_t, ListenersOnRuleset> rulesets; // idx_ruleset -> ListenersOnRuleset
+    };
+
     using PairingContainer = absl::flat_hash_map<
         std::string,            // The topic of the broadcasted entry
         absl::flat_hash_map<

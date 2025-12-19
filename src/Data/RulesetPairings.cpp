@@ -33,7 +33,7 @@ void BroadCastListenPairs::listen(Core::RenderObject* obj, std::string const& to
 
         // For all rulesets under this broadcaster and topic
         for (auto& [entry, listeners] : std::ranges::views::values(onTopicFromId.rulesets)) {
-            listeners[listenerId] = Data::BroadCastListenPair{entry, obj, entry->evaluateCondition(obj)};
+            listeners[listenerId] = BroadCastListenPair{entry, obj, entry->evaluateCondition(obj)};
         }
     }
 }
