@@ -365,6 +365,9 @@ public:
      * @param uid The unique ID of the key, must be smaller than uidQuickCacheSize !
      * @param key The key of the value to retrieve.
      * @return A pointer to the double value associated with the key.
+     * @todo Implement uid generation for the map here instead of in the globalspace
+     *       Perhaps its a good idea to have the uid be its own type so its never confused with other uids.
+     *       Then we can wrap the container in a class, just like MappedOrderedDoublePointers and have the uid generation there.
      */
     double* getUidDoublePointer(uint64_t const& uid, std::string const& key) {
         std::scoped_lock const lockGuard(mtx);
@@ -385,6 +388,7 @@ public:
      *       perhaps: <context>::<function>
      *       and for static rulesets, just using ::<function> is enough.
      *       But we can use multiple retrievals if we desire, specifying different contexts.
+     * @todo Implement uid generation for the map here instead of in the globalspace
      */
     MappedOrderedDoublePointers* getOrderedCacheListMap();
 
