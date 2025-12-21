@@ -89,7 +89,7 @@ public:
      * @return An array of values corresponding to the provided keys
      */
     Data::odpvec* ensureOrderedCacheList(Nebulite::Data::JSON& doc, std::vector<std::string> const& keys) const {
-        return doc.getExpressionRefs()->ensureOrderedCacheList(id, &doc, keys);
+        return doc.getOrderedCacheListMap()->ensureOrderedCacheList(id, &doc, keys);
     }
 
 protected:

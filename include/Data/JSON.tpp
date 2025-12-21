@@ -60,7 +60,7 @@ T JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T 
     }
 
     // Mark as clean
-    new_entry->state = EntryState::CLEAN;
+    new_entry->state = CacheEntry::EntryState::CLEAN;
 
     // Set stable double pointer
     *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value, 0.0);
