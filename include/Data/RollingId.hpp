@@ -29,6 +29,11 @@ public:
      */
     RollingId() = default;
 
+    /**
+     * @brief Generates or retrieves a unique rolling ID for the given key.
+     * @param key The key for which to generate/retrieve the ID.
+     * @return A unique rolling ID associated with the key.
+     */
     uint32_t getId(std::string const& key) {
         if (counter > UINT32_MAX - 1) {
             // Throw an error or handle overflow as needed
@@ -55,3 +60,4 @@ private:
     uint32_t counter = 1;
 };
 } // namespace Nebulite::Data
+#endif // NEBULITE_DATA_ROLLING_ID_HPP
