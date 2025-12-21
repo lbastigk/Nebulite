@@ -127,7 +127,7 @@ public:
      * @brief Gets a pointer to the SDL Renderer instance.
      * @return Pointer to the SDL_Renderer instance.
      */
-    SDL_Renderer* getSdlRenderer() const { return renderer.getSdlRenderer(); }
+    [[nodiscard]] SDL_Renderer* getSdlRenderer() const { return renderer.getSdlRenderer(); }
 
     /**
      * @brief Gets a pointer to the Invoke instance.
@@ -190,7 +190,7 @@ public:
      * @brief Checks if the main loop should continue running.
      * @return True if the main loop should continue, false otherwise.
      */
-    bool shouldContinueLoop() const { return continueLoop; }
+    [[nodiscard]] bool shouldContinueLoop() const { return continueLoop; }
 
     /**
      * @enum UniqueIdType
@@ -199,9 +199,9 @@ public:
      *        are all in their own container.
      */
     enum class UniqueIdType {
-        expression, // Each expression gets a unique ID
-        jsonKey, // Each JSON key gets a unique ID
-        NONE // Keep this as last entry
+        expression, // Each expression gets a unique ID to match to a list of double pointers
+        jsonKey,    // Each JSON key gets a unique ID   to match to a single double pointer
+        NONE        // Keep this as last entry
     };
 
     /**
@@ -215,6 +215,7 @@ public:
      * @param hash The hash string to get the unique ID for.
      * @param type Which rolling counter to use for the unique ID, allowing for separate ID spaces.
      * @return The unique ID corresponding to the hash.
+     * @todo Implement in-class instead of here, using the new uniqueId generator class!
      */
     uint64_t getUniqueId(std::string const& hash, UniqueIdType type) {
         std::scoped_lock lock(uniqueIdMutex[static_cast<size_t>(type)]);
@@ -305,7 +306,7 @@ private:
      * @brief Updates all inner domains.
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    Constants::Error updateInnerDomains() const;
+    [[nodiscard]] Constants::Error updateInnerDomains() const;
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_CORE_GLOBALSPACE_HPP

@@ -119,6 +119,7 @@ void Assignment::apply(Data::JSON* self, Data::JSON* other) {
             double* target = nullptr;
 
             // Try to use unique id for quick access
+            // TODO: Initialize during compiling?
             if (!targetKeyUniqueIdInitialized) {
                 // Initialize unique id
                 targetKeyUniqueId = Nebulite::global().getUniqueId(key.eval(other), Core::GlobalSpace::UniqueIdType::jsonKey);
