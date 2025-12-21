@@ -4,7 +4,7 @@
 
 namespace Nebulite::Interaction::Rules::RulesetModules {
 
-Camera::Camera() : id(Nebulite::global().getUniqueId(std::string(moduleName), Core::GlobalSpace::UniqueIdType::expression)) {
+Camera::Camera() : RulesetModule(moduleName) {
     // Bind Camera-related static rulesets here
     BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignCenter, alignCenterName, alignCenterDesc);
     BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignTop, alignTopName, alignTopDesc);

@@ -46,7 +46,7 @@ public:
 
     //------------------------------------------
     // Constructor
-    Debug() {
+    Debug() : RulesetModule(moduleName) {
         // Local
         BIND_STATIC_ASSERT(RulesetType::Local, &Debug::message, messageName, messageDesc);
         BIND_STATIC_ASSERT(RulesetType::Local, &Debug::error, errorName, errorDesc);
@@ -54,6 +54,8 @@ public:
         // Global
         BIND_STATIC_ASSERT(RulesetType::Global, &Debug::who, whoName, whoDesc);
     }
+private:
+    static constexpr std::string_view moduleName = "::debug";
 };
 } // namespace Nebulite::Interaction::Rules::RulesetModules
 #endif // NEBULITE_INTERACTION_RULES_RULESET_MODULES_DEBUG_HPP

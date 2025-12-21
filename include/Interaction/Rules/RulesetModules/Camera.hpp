@@ -59,9 +59,6 @@ public:
 private:
     static constexpr std::string_view moduleName = "::camera";
 
-    // Unique identifier for ordered cache list
-    uint64_t const id;
-
     //------------------------------------------
     // Base value caching for camera alignment
 
@@ -97,7 +94,7 @@ private:
      * @return A pointer to an array of double pointers, each pointing to a base value.
      */
     double** getBaseList(Interaction::Execution::DomainBase& ctx) {
-        return ensureOrderedCacheList(*ctx.getDoc(), id, keys)->data();
+        return ensureOrderedCacheList(*ctx.getDoc(), keys)->data();
     }
 
     //------------------------------------------
@@ -108,7 +105,7 @@ private:
         double* camPosY;
         double* dispResX;
         double* dispResY;
-    } globalVal;
+    } globalVal = {};
 
     //------------------------------------------
     // Position

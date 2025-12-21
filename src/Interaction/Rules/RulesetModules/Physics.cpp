@@ -4,8 +4,7 @@
 
 namespace Nebulite::Interaction::Rules::RulesetModules {
 
-Physics::Physics() :
-id(Nebulite::global().getUniqueId(std::string(moduleName), Core::GlobalSpace::UniqueIdType::expression)){
+Physics::Physics() : RulesetModule(moduleName) {
     // Global rulesets
     BIND_STATIC_ASSERT(RulesetType::Global, &Physics::elasticCollision, elasticCollisionName, elasticCollisionDesc);
     BIND_STATIC_ASSERT(RulesetType::Global, &Physics::gravity, gravityName, gravityDesc);

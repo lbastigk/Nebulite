@@ -34,6 +34,8 @@ class RulesetModule {
 public:
     using RulesetType = StaticRulesetMap::StaticRuleSetWithMetaData::Type;
 
+    RulesetModule(std::string_view const& moduleName);
+
     /**
      * @brief Helper consteval function to determine if a string_view starts with '::'
      * @param str The string_view to check
@@ -86,10 +88,10 @@ public:
      * @param keys The array of keys to retrieve values for
      * @return An array of values corresponding to the provided keys
      */
-    static Data::odpvec* ensureOrderedCacheList(Nebulite::Data::JSON& doc, uint64_t const& identifier, std::vector<std::string> const& keys) {
-        auto map = doc.getExpressionRefs();
-        return map->ensureOrderedCacheList(identifier, &doc, keys);
+    Data::odpvec* ensureOrderedCacheList(Nebulite::Data::JSON& doc, std::vector<std::string> const& keys) const {
+        return doc.getExpressionRefs()->ensureOrderedCacheList(id, &doc, keys);
     }
+
 protected:
     // TODO: offer an interface for access to common variables here instead of re-implementing in each module
     //       perhaps making RulesetModule templated, taking its enum as a template parameter?
@@ -99,6 +101,9 @@ protected:
 private:
     // Vector of all static rulesets from this module
     std::vector<StaticRulesetMap::StaticRuleSetWithMetaData> moduleRulesets;
+
+    // Unique identifier for caching
+    uint64_t const id;
 };
 }
 #endif // NEBULITE_INTERACTION_RULES_RULESET_MODULE_HPP

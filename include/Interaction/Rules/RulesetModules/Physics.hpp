@@ -63,9 +63,6 @@ public:
 private:
     static constexpr std::string_view moduleName = "::physics";
 
-    // Unique identifier for caching
-    uint64_t const id;
-
     //------------------------------------------
     // Base values for physics framework
 
@@ -126,7 +123,7 @@ private:
      * @return A pointer to an array of double pointers, each pointing to a base value.
      */
     double** getBaseList(Interaction::Execution::DomainBase& ctx) {
-        return ensureOrderedCacheList(*ctx.getDoc(), id, keys)->data();
+        return ensureOrderedCacheList(*ctx.getDoc(), keys)->data();
     }
 
     // 2.) To retrieve from globalspace
@@ -139,7 +136,7 @@ private:
         double* dt; // Simulation delta time
         double* t; // Simulation time
         /* Add more global variables here as needed */
-    } globalVal;
+    } globalVal = {};
 };
 } // namespace Nebulite::Interaction::Rules::RulesetModules
 #endif // NEBULITE_INTERACTION_RULES_RULESET_MODULES_PHYSICS_HPP
