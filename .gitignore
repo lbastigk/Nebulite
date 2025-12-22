@@ -1,10 +1,5 @@
-# Ignore created data
-*.data.old
-*.data
-*.o
-*.out
-tmp/
-tmp/**
+############################################
+# Resources
 
 # Ignore game resources and error logs
 Resources/Sprites/
@@ -16,42 +11,44 @@ Resources/Snapshots/**
 *.jpeg
 *.zip
 *.ttf
+
+############################################
+# Binaries
+bin/
+
+############################################
+# IDE Files
+
+# Clion / JetBrains
+.idea/
+
+# VSCode
+.vscode/
+
+# Visual Studio
+.vs/
+
+############################################
+# Cache Files
+
+# Python
+__pycache__/
+*.pyc
+
+# Nebulite tmp
+tmp/
+
+# Profiling
+*.data.old
+*.data
+
+# Logs
 *.log
 *.log.txt
 *.log.json
 
-# Ignore binaries
-bin/
-
-# Ignore IDE project files
-.idea/
-
-# Ignore dlls
-*.dll
-
-# Ignore vs files
-.vs/
-
-# Ignore all executable files
-*.exe
-**/build/
-**/bin/
-build/
-
-# ignore cmake cache files
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-
-# ignore python cache files
-__pycache__/
-*.pyc
+############################################
+# Un-ignore
 
 # Do not ignore any files in ./doc/
 !/doc/ !/doc/**
-
-# Ignore MAKEFILE pipeline temp files
-tmp/.lastModified
-
-# Linkage to correct compile_commands.json
-compile_commands.json
