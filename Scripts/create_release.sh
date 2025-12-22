@@ -54,7 +54,12 @@ make all
 # Generate documentation and merge
 make docs
 git add doc/
-gut add Languages/
+git add Languages/
+if [ -n "$(git status --porcelain)" ]; then
+    echo -e "\033[0;33mWarning: There are uncommitted changes after building documentation. Please review them.\033[0m"
+    git status
+    exit 1
+fi
 git commit -m "Update documentation for release ${VERSION}" || echo "No changes in documentation to commit."
 git push origin main
 
