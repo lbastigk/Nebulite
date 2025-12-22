@@ -101,7 +101,8 @@ Constants::Error GlobalSpace::update() {
 
         // Do a Renderer tick and check if an update occurred
         // Reduce script wait counter if not in console mode or other halting states (tick returns false in those cases)
-        if (renderer.tick()) {
+        renderer.update();
+        if (!renderer.hasSkippedUpdate()) {
             if (scriptWaitCounter > 0)
                 scriptWaitCounter--;
         }
