@@ -119,6 +119,19 @@ FuncTree<returnType, additionalArgs...>::FuncTree(std::string treeName, returnTy
             &help_desc
         }
         );
+
+    // Add __complete__ function for command completion
+    bindingContainer.functions.emplace(
+        "__complete__",
+        FunctionInfo{
+            std::function<returnType(std::span<std::string const> const&, additionalArgs...)>(
+                [this](std::span<std::string const> const& args, additionalArgs... rest) {
+                    return this->complete(args, std::forward<additionalArgs>(rest)...);
+                }
+                ),
+            &complete_desc
+        }
+        );
 }
 
 //------------------------------------------
@@ -166,11 +179,10 @@ void FuncTree<returnType, additionalArgs...>::bindFunction(
         return;
     }
 
-    // Check for name conflicts
-    conflictCheck(name);
-
-    // Bind to this tree directly
-    directBind(name, helpDescription, method, obj);
+    // Check for name conflicts, then bind directly
+    if (conflictCheck(name)) {
+        directBind(name, helpDescription, method, obj);
+    }
 }
 
 template <typename returnType, typename... additionalArgs>
@@ -239,25 +251,36 @@ void FuncTree<returnType, additionalArgs...>::bindVariable(bool* varPtr, std::st
 // Binding helper functions
 
 template <typename returnType, typename... additionalArgs>
-void FuncTree<returnType, additionalArgs...>::conflictCheck(std::string const& name) {
+bool FuncTree<returnType, additionalArgs...>::conflictCheck(std::string const& name) {
     for (auto const& [categoryName, _] : bindingContainer.categories) {
         if (categoryName == name) {
             bindErrorMessage::FunctionShadowsCategory(name);
         }
     }
+
+    if (name == "help" || name == "__complete__") {
+        if (bindingContainer.functions.find(name) != bindingContainer.functions.end()) {
+            // Special function already exists
+            return false;
+        }
+    }
+
     auto conflictIt = std::find_if(
         inheritedTrees.begin(), inheritedTrees.end(),
         [&](auto const& inheritedTree) {
-            return inheritedTree && name != "help" && inheritedTree->hasFunction(name);
+            return inheritedTree && inheritedTree->hasFunction(name);
         }
         );
     if (conflictIt != inheritedTrees.end()) {
         auto conflictTree = *conflictIt;
         bindErrorMessage::FunctionExistsInInheritedTree(TreeName, conflictTree->TreeName, name);
+        return false;
     }
     if (hasFunction(name)) {
         bindErrorMessage::FunctionExists(TreeName, name);
+        return false;
     }
+    return true;
 }
 
 template <typename returnType, typename... additionalArgs>
@@ -665,6 +688,122 @@ FuncTree<returnType, additionalArgs...>::find(std::string const& name) {
 
     result.any = result.category || result.function || result.variable;
     return result;
+}
+
+template <typename returnValue, typename ... additionalArgs>
+returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::string const> const& args, additionalArgs... addArgs){
+    std::string prefix;
+    auto argsSpan = args.subspan(1); // Skip binary name or last function name
+    FuncTree<returnValue, additionalArgs...>* ftree = this;
+    while (argsSpan.size() > 1) {
+        // Traverse functree categories
+        std::string const& categoryName = argsSpan.front();
+        prefix += categoryName + " ";
+        if (traverseIntoCategory(categoryName, ftree)) {
+            argsSpan = argsSpan.subspan(1); // Remove processed category
+            continue; // Successfully traversed into category
+        } else {
+            ftree = nullptr; // Failed to traverse
+            break;
+        }
+
+    }
+
+    // Return if traversal failed
+    if (ftree == nullptr) {
+        return standardReturn.valDefault;
+    }
+
+    // Now we check the ftree for completions
+    std::string pattern;
+    if (argsSpan.empty()) {
+        // No pattern provided
+        pattern = "";
+    }
+    else {
+        pattern = argsSpan.front();
+    }
+    auto completions = ftree->findCompletions(pattern, prefix);
+
+    // If there is only one completion, it might be a category, so we traverse into it
+    bool lastWordIsLikelyCategory = completions.size() == 1 && completions.front() == prefix + pattern;
+    if (lastWordIsLikelyCategory) {
+        if (traverseIntoCategory(pattern, ftree)) {
+            completions = ftree->findCompletions("", prefix + pattern + " ");
+        }
+    }
+
+    for (auto const& completion : completions) {
+        Nebulite::Utility::Capture::cout() << completion << Nebulite::Utility::Capture::endl;
+    }
+    return standardReturn.valDefault;
+}
+
+template <typename returnValue, typename ... additionalArgs>
+bool FuncTree<returnValue, additionalArgs...>::traverseIntoCategory(std::string const& categoryName, FuncTree<returnValue, additionalArgs...>* ftree) {
+    bool foundDirect = false;
+    bool foundInherited = false;
+
+    // Check direct categories first
+    if (auto catIt = ftree->bindingContainer.categories.find(categoryName); catIt != ftree->bindingContainer.categories.end()) {
+        foundDirect = true;
+        ftree = catIt->second.tree.get();
+    } else {
+        // Category not found, check inherited trees
+        for (auto const& inheritedTree : ftree->inheritedTrees) {
+            if (inheritedTree) {
+                auto inheritedCatIt = inheritedTree->bindingContainer.categories.find(categoryName);
+                if (inheritedCatIt != inheritedTree->bindingContainer.categories.end()) {
+                    foundInherited = true;
+                    ftree = inheritedCatIt->second.tree.get();
+                    break;
+                }
+            }
+        }
+    }
+
+    // Break if category not found
+    if (!foundDirect && !foundInherited) {
+        return false;
+    }
+    return true;
+}
+
+template <typename returnValue, typename ... additionalArgs>
+std::vector<std::string> FuncTree<returnValue, additionalArgs...>::findCompletions(std::string const& pattern, std::string const& prefix) {
+    std::vector<std::string> completions;
+    for (auto const& [name, _] : bindingContainer.functions) {
+        if (name.starts_with(pattern)) {
+            // Found a completion, store it
+            completions.push_back(prefix + name);
+        }
+    }
+    for (auto const& [name, _] : bindingContainer.categories) {
+        if (name.starts_with(pattern)) {
+            // Found a completion, store it
+            completions.push_back(prefix + name);
+        }
+    }
+    for (auto const& [name, _] : bindingContainer.variables) {
+        std::string const fullVarName = "--" + name;
+        if (fullVarName.starts_with(pattern)) {
+            // Found a completion, store it
+            completions.push_back(prefix + name);
+        }
+    }
+
+    // Check in inherited trees
+    for (auto const& inheritedTree : inheritedTrees) {
+        if (inheritedTree) {
+            auto inheritedCompletions = inheritedTree->findCompletions(pattern, prefix);
+            completions.insert(completions.end(), inheritedCompletions.begin(), inheritedCompletions.end());
+        }
+    }
+    // Sort and remove duplicates, filter out __complete__ from completions
+    std::ranges::sort(completions);
+    completions.erase(std::unique(completions.begin(), completions.end()), completions.end());
+    completions.erase(std::remove(completions.begin(), completions.end(), prefix + "__complete__"), completions.end());
+    return completions;
 }
 
 

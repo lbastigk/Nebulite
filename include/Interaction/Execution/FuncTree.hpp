@@ -284,11 +284,8 @@ private:
         absl::flat_hash_map<std::string, VariableInfo> variables;
     } bindingContainer;
 
-    ////////////////////////////////////////////
-    // Functions
-
     //------------------------------------------
-    // Basic Functionality
+    // Functions: basic functionality
 
     /**
      * @brief Checks if a function with the given name or from a full command exists.
@@ -334,6 +331,11 @@ private:
      * @brief Help description for the help function.
      */
     std::string const help_desc = R"(Show available commands and their descriptions)";
+
+    /**
+     * @brief Help description for the complete function.
+     */
+    std::string const complete_desc = R"(Provide command completion suggestions based on the current arguments)";
 
     //------------------------------------------
     // Helper functions for better readability
@@ -428,10 +430,13 @@ private:
     // Binding Helper functions
 
     /**
-     * @brief Checks if there is a binding conflict with the given function name. Prints an error message and exits if a conflict is found.
+     * @brief Checks if there is a binding conflict with the given function name.
+     * @details Prints an error message and exits if a bad conflict is found, such as overshadowing or overwriting existing functions.
+     *          Returns false if a special conflict (help or __complete__ exists).
+     *          Returns true if no conflicts are found.
      * @param name The name of the function to check for conflicts.
      */
-    void conflictCheck(std::string const& name);
+    bool conflictCheck(std::string const& name);
 
     /**
      * @brief Binds a function directly to this FuncTree without checking for categories or conflicts.
@@ -443,6 +448,31 @@ private:
      */
     template <typename ClassType>
     void directBind(std::string const& name, std::string const* helpDescription, MemberMethod<ClassType> method, ClassType* obj);
+
+    //------------------------------------------
+    // Completion function
+
+    /**
+     * @brief Provides command completion suggestions based on the current arguments.
+     * @details Prints possible completions to stdout.
+     * @param args A list of arguments to complete
+     * @param addArgs Additional arguments
+     * @return A returnValue containing completion suggestions
+     */
+    returnValue complete(std::span<std::string const> const& args, additionalArgs... addArgs);
+
+    /**
+     * @brief Finds possible completions for a given pattern and prefix in the current FuncTree.
+     * @param pattern
+     * @param prefix
+     * @return
+     */
+    std::vector<std::string> findCompletions(std::string const& pattern, std::string const& prefix);
+
+    /**
+     * @brief Traverses into a category based on the provided name.
+     */
+    bool traverseIntoCategory(std::string const& categoryName, FuncTree* ftree);
 };
 } // namespace Nebulite::Interaction::Execution
 
