@@ -1,25 +1,25 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
+#include "Data/JSON.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "DomainModule/JSON/SimpleData.hpp"
-#include "Interaction/RulesetCompiler.hpp"
-#include "../../include/Data/JSON.hpp"
+#include "Interaction/Rules/Ruleset.hpp"
+#include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 
+//------------------------------------------
 namespace Nebulite::Core {
 
 //------------------------------------------
 // Special member Functions
 
 // Helper function to initialize RenderObject in constructor
-
-RenderObject::RenderObject() : Domain("RenderObject", this, &document), baseTexture(&document) {
-    //------------------------------------------
-    // Document Values
-
+void setStandardValues(Data::JSON& document) {
     // General
-
-    // Initialize to 0, Renderer itself sets proper id, which starts at 1
-    document.set(Constants::keyName.renderObject.id, 0);
+    document.set(Constants::keyName.renderObject.id, 0);    // Initialize to 0, Renderer itself sets proper id, which starts at 1
     document.set(Constants::keyName.renderObject.positionX, 0);
     document.set(Constants::keyName.renderObject.positionY, 0);
     document.set(Constants::keyName.renderObject.imageLocation, std::string("Resources/Sprites/TEST001P/001.bmp"));
@@ -48,6 +48,12 @@ RenderObject::RenderObject() : Domain("RenderObject", this, &document), baseText
     document.set(Constants::keyName.renderObject.textColorG, 255);
     document.set(Constants::keyName.renderObject.textColorB, 255);
     document.set(Constants::keyName.renderObject.textColorA, 255);
+}
+
+RenderObject::RenderObject() : Domain("RenderObject", this, &document), baseTexture(&document) {
+    //------------------------------------------
+    // Set standard values
+    setStandardValues(document);
 
     //------------------------------------------
     // Internal Values
@@ -59,7 +65,6 @@ RenderObject::RenderObject() : Domain("RenderObject", this, &document), baseText
     flag.deleteFromScene = false;
     flag.calculateText = true; // In order to calculate text texture on first update
     flag.reloadInvokes = true; // In order to reload invokes on first update
-    subscription_size = document.memberSize(Constants::keyName.renderObject.invokeSubscriptions);
 
     //------------------------------------------
     // Initialize Linkages, References and DomainModules and object itself
@@ -97,10 +102,6 @@ RenderObject::~RenderObject() {
         SDL_DestroyTexture(textTexture);
         textTexture = nullptr;
     }
-
-    // Clean up invoke entries - shared pointers will automatically handle cleanup
-    entries_global.clear();
-    entries_local.clear();
 }
 
 //------------------------------------------
@@ -115,6 +116,10 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
     if (Data::JSON::isJsonOrJsonc(serialOrLink)) {
         document.deserialize(serialOrLink);
     } else {
+        //------------------------------------------
+        // TODO: This logic of tokenization and parsing
+        //       should be moved as a feature into domain, if possible
+
         //------------------------------------------
         // Split the input into tokens
         std::vector<std::string> tokens = Utility::StringHandler::split(serialOrLink, '|');
@@ -170,8 +175,13 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
     flag.reloadInvokes = true;
     flag.calculateText = true;
 
-    // Update subscription size
-    subscription_size = document.memberSize(Constants::keyName.renderObject.invokeSubscriptions);
+    reinitModules();
+
+    //------------------------------------------
+    // Update once to initialize
+    update();
+    calculateSrcRect();
+    calculateDstRect();
 }
 
 //------------------------------------------
@@ -256,56 +266,15 @@ Constants::Error RenderObject::update() {
     updateModules();
     document.update();
     baseTexture.update();
-
-    //------------------------------------------
-    // Check all invokes
-    if (Nebulite::global().getInvoke() != nullptr) {
-        //------------------------------------------
-        // 1.) Reload invokes if needed
-        if (flag.reloadInvokes) {
-            Interaction::RulesetCompiler::parse(entries_global, entries_local, this);
-            flag.reloadInvokes = false;
-        }
-
-        //------------------------------------------
-        // 2.) Directly solve local invokes (loop)
-        for (auto const& entry : entries_local) {
-            if (Interaction::Invoke::checkRulesetLogicalCondition(entry)) {
-                Nebulite::global().getInvoke()->applyRulesets(entry);
-            }
-        }
-
-        //------------------------------------------
-        // 3.) Checks this object against all conventional invokes
-        //	   Manipulation happens at the Invoke::update routine later on
-        //     This just generates pairs that need to be updated
-        for (size_t idx = 0; idx < subscription_size; idx++) {
-            std::string key = Constants::keyName.renderObject.invokeSubscriptions + "[" + std::to_string(idx) + "]";
-            auto const subscription = document.get<std::string>(key, "");
-            Nebulite::global().getInvoke()->listen(this, subscription, static_cast<uint32_t>(*refs.id));
-        }
-
-        //------------------------------------------
-        // 4.) Append general invokes from object itself back for global check
-        //     This makes sure that no invokes from inactive objects stay in the list
-        for (auto const& entry : entries_global) {
-            // add pointer to invoke command to global
-            Nebulite::global().getInvoke()->broadcast(entry);
-        }
-    } else {
-        return Constants::ErrorTable::RENDERER::CRITICAL_INVOKE_NULLPTR();
-    }
-    // No evaluation of domainModules for now, just return NONE
     return Constants::ErrorTable::NONE();
 }
 
+// TODO: Improve estimation by somehow leveraging a generated value from DomainModule Ruleset!
+//       Current implementation generates mock Rulesets again here, which is not optimal
 uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
-    //------------------------------------------
-    // Reload invokes if needed
-    if (flag.reloadInvokes) {
-        Interaction::RulesetCompiler::parse(entries_global, entries_local, this);
-        flag.reloadInvokes = false;
-    }
+    std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsGlobal;
+    std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsLocal;
+    Interaction::Rules::Construction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, this);
 
     //------------------------------------------
     // Count number of $ and { in logical Arguments
@@ -313,18 +282,18 @@ uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
 
     // Local entries
     cost = std::accumulate(
-        entries_local.begin(), entries_local.end(), cost,
-        [](uint64_t const acc, std::shared_ptr<Interaction::Ruleset> const& entry) {
-            return acc + entry->estimatedCost;
+        rulesetsLocal.begin(), rulesetsLocal.end(), cost,
+        [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+            return acc + entry->getEstimatedCost();
         }
         );
 
     // Global entries
     if (!onlyInternal) {
         cost = std::accumulate(
-            entries_global.begin(), entries_global.end(), cost,
-            [](uint64_t const acc, std::shared_ptr<Interaction::Ruleset> const& entry) {
-                return acc + entry->estimatedCost;
+            rulesetsGlobal.begin(), rulesetsGlobal.end(), cost,
+            [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+                return acc + entry->getEstimatedCost();
             }
             );
     }
@@ -353,7 +322,7 @@ void RenderObject::calculateText(SDL_Renderer* renderer, TTF_Font* font, int con
 
         // Settings influenced by a new text
         double constexpr scalar = 1.0; // Perhaps needed later on for scaling
-        auto const text = document.get<std::string>(Constants::keyName.renderObject.textStr.c_str());
+        auto const text = document.get<std::string>(Constants::keyName.renderObject.textStr);
         textRect.w = static_cast<int>(*refs.fontSize * static_cast<double>(text.length()) * scalar);
         textRect.h = static_cast<int>(*refs.fontSize * 1.5 * scalar);
 

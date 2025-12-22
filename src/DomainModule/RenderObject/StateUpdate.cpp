@@ -43,36 +43,4 @@ Usage: update-text
 Triggers a recalculation of the text texture.
 )";
 
-// NOLINTNEXTLINE
-Constants::Error StateUpdate::invoke_reload(int argc, char** argv) {
-    return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
-}
-
-std::string const StateUpdate::invoke_reload_name = "reload-invokes";
-std::string const StateUpdate::invoke_reload_desc = R"(TODO: Not implemented yet)";
-
-// NOLINTNEXTLINE
-Constants::Error StateUpdate::invoke_add(int argc, char** argv) {
-    return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
-}
-
-std::string const StateUpdate::invoke_add_name = "add-invoke";
-std::string const StateUpdate::invoke_add_desc = R"(TODO: Not implemented yet)";
-
-// NOLINTNEXTLINE
-Constants::Error StateUpdate::invoke_remove(int argc, char** argv) {
-    return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
-}
-
-std::string const StateUpdate::invoke_remove_name = "remove-invoke";
-std::string const StateUpdate::invoke_remove_desc = R"(TODO: Not implemented yet)";
-
-// NOLINTNEXTLINE
-Constants::Error StateUpdate::invoke_purge(int argc, char** argv) {
-    return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
-}
-
-std::string const StateUpdate::invoke_purge_name = "remove-all-invokes";
-std::string const StateUpdate::invoke_purge_desc = R"(TODO: Not implemented yet)";
-
 } // namespace Nebulite::DomainModule::RenderObject

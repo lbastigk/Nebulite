@@ -21,8 +21,10 @@ Constants::Error General::eval(int argc, char** argv) {
     // argc/argv to string for evaluation
     std::string const args = Utility::StringHandler::recombineArgs(argc, argv);
 
-    // eval all $(...)
-    std::string const argsEvaluated = domain->eval(args);
+    // Evaluate expression
+    Data::JSON emptyDoc;
+    Interaction::ContextBase context{emptyDoc,emptyDoc,Nebulite::global()};
+    std::string const argsEvaluated = Interaction::Logic::Expression::eval(args,context);
 
     // reparse
     return domain->parseStr(argsEvaluated);
@@ -50,9 +52,9 @@ where NAME is the current value of the global variable ToSpawn
 // NOLINTNEXTLINE
 Constants::Error General::exit(int argc, char** argv) {
     // Clear all task queues to prevent further execution
-    domain->tasks.script.taskQueue.clear();
-    domain->tasks.internal.taskQueue.clear();
-    domain->tasks.always.taskQueue.clear();
+    domain->tasks.script.tasks.clear();
+    domain->tasks.internal.tasks.clear();
+    domain->tasks.always.tasks.clear();
 
     // Set the renderer to quit
     domain->quitRenderer();
@@ -143,7 +145,7 @@ Constants::Error General::task(int argc, char** argv) {
 
     // Now insert all lines into the task queue
     for (auto const& taskLine : lines) {
-        domain->tasks.script.taskQueue.push_front(taskLine);
+        domain->tasks.script.tasks.push_front(taskLine);
     }
     return Constants::ErrorTable::NONE();
 }
@@ -194,7 +196,8 @@ Constants::Error General::func_if(int argc, char** argv) {
     if (argc < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    if (!domain->evalAsBool(argv[1])) {
+
+    if (!Interaction::Logic::Expression::evalAsBool(argv[1])) {
         // If the condition is false/nan, skip the following commands
         return Constants::ErrorTable::NONE();
     }
@@ -238,7 +241,7 @@ Constants::Error General::func_assert(int argc, char** argv) {
     }
 
     // Evaluate condition
-    if (!domain->evalAsBool(condition)) {
+    if (!Interaction::Logic::Expression::evalAsBool(condition)) {
         return Constants::ErrorTable::addError("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.", Constants::Error::CRITICAL);
     }
 
@@ -300,7 +303,7 @@ Constants::Error General::always(int argc, char** argv) {
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                domain->tasks.always.taskQueue.push_back(command);
+                domain->tasks.always.tasks.push_back(command);
             }
         }
     }
@@ -319,7 +322,7 @@ This will output "This command runs every frame!" on every frame.
 
 // NOLINTNEXTLINE
 Constants::Error General::alwaysClear(int argc, char** argv) {
-    domain->tasks.always.taskQueue.clear();
+    domain->tasks.always.tasks.clear();
     return Constants::ErrorTable::NONE();
 }
 
@@ -338,8 +341,8 @@ Constants::Error General::func_for(int argc, char** argv) {
     if (argc > 4) {
         std::string const varName = argv[1];
 
-        int const iStart = std::stoi(domain->eval(argv[2]));
-        int const iEnd = std::stoi(domain->eval(argv[3]));
+        int const iStart = std::stoi(Interaction::Logic::Expression::eval(argv[2]));
+        int const iEnd = std::stoi(Interaction::Logic::Expression::eval(argv[3]));
 
         std::string args;
         for (int i = 4; i < argc; ++i) {
@@ -353,7 +356,7 @@ Constants::Error General::func_for(int argc, char** argv) {
             std::string args_replaced = std::string(argv[0]) + " " + Utility::StringHandler::replaceAll(args, '{' + varName + '}', std::to_string(i));
             if (auto const err = domain->parseStr(args_replaced); err.isCritical()) {
                 return err;
-            } else {
+            } else if (err.isError()) {
                 Nebulite::cout() << err.getDescription() << Nebulite::endl;
             }
         }

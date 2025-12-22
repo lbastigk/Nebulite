@@ -1,19 +1,14 @@
 {
-
     "id": 0,
-
     "invokeSubscriptions": [
         "all",
+        "::physics::gravity",
         "gravity",
-        // Object bounces off walls
-        "collision"
+        "::physics::elasticCollision"
     ],
     "invokes": [
-        // Standard gravity settings
-        "./Resources/Invokes/Physics/gravity.jsonc",
-        "./Resources/Invokes/Physics/integrate_a.jsonc",
-        "./Resources/Invokes/Physics/integrate_v.jsonc",
-        "./Resources/Invokes/Physics/reset_a.jsonc"
+        "::physics::gravity",
+        "::physics::applyForce"
     ],
     "layer": 0,
     "physics": {

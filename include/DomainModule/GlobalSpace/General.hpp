@@ -28,6 +28,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, General) {
 public:
     Constants::Error update() override;
+    void reinit() override {}
 
     //------------------------------------------
     // Available Functions

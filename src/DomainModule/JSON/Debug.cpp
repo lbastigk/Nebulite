@@ -1,5 +1,5 @@
 #include "DomainModule/JSON/Debug.hpp"
-#include "../../../include/Data/JSON.hpp"
+#include "Data/JSON.hpp"
 
 #include "Nebulite.hpp"
 

@@ -24,7 +24,6 @@ GlobalSpace::GlobalSpace(std::string const& name)
     //------------------------------------------
     // Setup tasks
     tasks.always.clearAfterResolving = false; // Always tasks are never cleared
-    invoke.linkTaskQueue(tasks.internal.taskQueue); // Invoke pushes tasks to internal queue
 
     //------------------------------------------
     // General Variables
@@ -33,9 +32,6 @@ GlobalSpace::GlobalSpace(std::string const& name)
 
     //------------------------------------------
     // Domain-Related
-
-    // Set preParse function
-    setPreParse([this] { return preParse(); });
 
     // Link inherited Domains
     inherit(&document);
@@ -102,7 +98,8 @@ Constants::Error GlobalSpace::update() {
 
         // Do a Renderer tick and check if an update occurred
         // Reduce script wait counter if not in console mode or other halting states (tick returns false in those cases)
-        if (renderer.tick()) {
+        renderer.update();
+        if (!renderer.hasSkippedUpdate()) {
             if (scriptWaitCounter > 0)
                 scriptWaitCounter--;
         }
@@ -155,7 +152,7 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                tasks.script.taskQueue.push_back(command);
+                tasks.script.tasks.push_back(command);
             }
         }
     } else {
@@ -184,17 +181,17 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
          *       So later on, we might consider always calling entrypoint as first task AFTER the command line arguments are parsed
          *       This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
          */
-        tasks.script.taskQueue.emplace_back("set-fps 60");
+        tasks.script.tasks.emplace_back("set-fps 60");
     }
 }
 
-taskQueueResult GlobalSpace::resolveTaskQueue(taskQueueWrapper& tq, uint64_t const* waitCounter) const {
+Data::TaskQueueResult GlobalSpace::resolveTaskQueue(Data::TaskQueue& tq, uint64_t const* waitCounter) const {
     Constants::Error currentResult;
-    taskQueueResult fullResult;
+    Data::TaskQueueResult fullResult;
 
     // 1.) Process and pop tasks
     if (tq.clearAfterResolving) {
-        while (!tq.taskQueue.empty()) {
+        while (!tq.tasks.empty()) {
             // Check stop conditions
             if (fullResult.encounteredCriticalResult && !cmdVars.recover)
                 break;
@@ -202,8 +199,8 @@ taskQueueResult GlobalSpace::resolveTaskQueue(taskQueueWrapper& tq, uint64_t con
                 break;
 
             // Pop front
-            std::string argStr = tq.taskQueue.front();
-            tq.taskQueue.pop_front();
+            std::string argStr = tq.tasks.front();
+            tq.tasks.pop_front();
 
             // Add binary name if missing
             if (!argStr.starts_with(names.binary + " ")) {
@@ -222,7 +219,7 @@ taskQueueResult GlobalSpace::resolveTaskQueue(taskQueueWrapper& tq, uint64_t con
     }
     // 2.) Process without popping tasks
     else {
-        for (auto const& argStrOrig : tq.taskQueue) {
+        for (auto const& argStrOrig : tq.tasks) {
             // Check stop conditions
             if (fullResult.encounteredCriticalResult && !cmdVars.recover)
                 break;

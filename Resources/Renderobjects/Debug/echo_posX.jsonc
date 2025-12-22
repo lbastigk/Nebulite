@@ -5,9 +5,9 @@
     ],
     "invokes": [
         {
-            "topic" : "",
+            "topic": "",
             "logicalArg": "1",
-            "exprs" : [],
+            "exprs": [],
             "functioncalls_global": [
                 "echo {self.posX}"
             ],

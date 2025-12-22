@@ -29,7 +29,7 @@
 - [Quick Start](#quick-start)
 - [Core Concepts](#core-concepts)
   * [Expression System](#expression-system)
-  * [Invoke System](#invoke-system)
+  * [Ruleset System](#ruleset-system)
   * [Runtime Modes](#runtime-modes)
 - [Platform Support & Dependencies](#platform-support-dependencies)
 - [Testing](#testing)
@@ -98,13 +98,14 @@ Access and manipulate data using variables `{...}` inside and outside mathematic
 
 **Variable Contexts:**
 
-| Variable                | Description                        |
-|-------------------------|------------------------------------|
-| `{self.*}`              | the object broadcasting logic      |
-| `{other.*}`             | objects listening to the broadcast |
-| `{global.*}`            | shared engine state                |
-| `{file.json:key.path}`  | external read-only JSON files      |
-| `{global.{self.id}}`    | nested resolution (multiresolve).  |
+| Variable               | Description                        |
+|------------------------|------------------------------------|
+| `{self.*}`             | the object broadcasting logic      |
+| `{other.*}`            | objects listening to the broadcast |
+| `{global.*}`           | shared engine state                |
+| `{file.json:key.path}` | external read-only JSON files      |
+| `{global.{self.id}}`   | nested resolution (multiresolve).  |
+| `{self.arr\|length}`   | return value transformations       |
 
 **Mathematical Expressions:**
 
@@ -118,20 +119,22 @@ Access and manipulate data using variables `{...}` inside and outside mathematic
 
 retrieved values from JSON documents inside mathematical expressions are auto-casted to double.
 Expressions do not offer the ability to operate on non-double values (strings, arrays, objects).
+If the stored value is non-numerical, it is treated as `0.0`.
 
-**Value Transformations:**
+**Return Value Transformations:**
 Nebulite offers transformation functions of JSON values on retrieval.
 They do not modify the stored value, only the returned one.
 - `{self.arr|length}` - get array length instead of the array
 - `{self.arr|map <function>}` - apply function to each array element
 - `{self.val|add 5}` - add 5 to value on retrieval
 - `{self.val|typeAsString}` - returns the type of the value as string (value, array, object, null)
-- `{self.arr|print|at 1}` - Useful for debugging: prints the array to console and returns the element at index 1
+- `{self.arr|print|at 1}` - Useful for debugging: prints the array to console (no modification of its value) 
+and returns the element at index 1
 
 **Examples**
 
 Health percentage:
-`$3i( {self.health} / {self.maxHealth} * 100 )%`
+`$3i( {self.health} / max(1,{self.maxHealth}) * 100 )%`
 
 Inventory size:
 `The player has {self.inventory|length} items.`
@@ -139,28 +142,59 @@ Inventory size:
 Sum of two inventories:
 `You will have $i({self.inventory|length} + {other.inventory|length}) items after trade.`
 
-<!-- TOC --><a name="invoke-system"></a>
-### Invoke System
+<!-- TOC --><a name="ruleset-system"></a>
+### Ruleset System
 Define object interactions via JSON rulesets:
 ```jsonc
 {
-  "topic": "gravity",         // Broadcast channel
-  "logicalArg": "1",          // Condition to execute
-  "exprs": [                  // Modify values
-    "other.physics.aY += $({global.physics.G} * {self.physics.mass})"
-  ],
-  "functioncalls_global": [], // Commands to parse on domain GlobalSpace
-  "functioncalls_self": [],   // Commands to parse on domain RenderObject, self
-  "functioncalls_other": []   // Commands to parse on domain RenderObject, other
+    "topic": "gravity",     // Broadcast channel (empty = local only)
+    "logicalArg": "1",      // Condition to execute
+    "exprs": [              // Modify values
+        "other.physics.FX += $({global.physics.G} * {self.physics.mass} * {other.physics.mass} * ( {self.posX} - {other.posX}  ) / ( 1 + (({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2)^(1.5)) )",
+        "other.physics.FY += $({global.physics.G} * {self.physics.mass} * {other.physics.mass} * ( {self.posY} - {other.posY}  ) / ( 1 + (({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2)^(1.5)) )"
+    ],
+    "functioncalls": {  // Commands to parse ...
+        "global": [],   // ...on domain GlobalSpace
+        "self": [],     // ...on domain RenderObject, self
+        "other": []     // ...on domain RenderObject, other
+    }
 }
 ```
-Rulesets are either local (topic empty) or global (specific topic name).
-This allows for inter-object communication via broadcasting and inner-object logic handling.
+or via static rulesets in C++ code:
+```cpp
+// Called with keyword "::physics:gravity" (both broadcast and listen)
+void Physics::gravity(ContextBase const& context) {
+    // Get ordered cache lists for both entities for base values
+    double** slf = getBaseList(context.self);
+    double** otr = getBaseList(context.other);
+
+    // Calculate distance components
+    double const distanceX = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
+    double const distanceY = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
+
+    // Avoid division by zero by adding a small epsilon
+    double const denominator = std::pow((distanceX * distanceX + distanceY * distanceY), 1.5) + 1; // +1 to avoid singularity
+    double const coefficient = *globalVal.G * baseVal(slf, Key::physics_mass) * baseVal(otr, Key::physics_mass) / denominator;
+
+    // Apply gravitational force to other entity
+    auto otrLock = context.other.getDoc()->lock();
+    baseVal(otr, Key::physics_FX) += distanceX * coefficient;
+    baseVal(otr, Key::physics_FY) += distanceY * coefficient;
+}
+```
+
+Rulesets are either local or global.
+This allows for inter-object communication via broadcasting for
 - hitbox collisions
 - area triggers
-- velocity integration
-- AI decision-making
 - custom events
+
+and inner-object logic handling for
+- applying forces
+- state changes
+- animations
+  
+Global rulesets are executed first, followed by local rulesets.
 
 The expressions given are evaluated in the context of
 - the broadcasting object (`self`)
@@ -245,7 +279,7 @@ The `.nebl` *(Nebulite Logic)* language is a work in progress and not yet usable
 Contributions welcome. Quick start:
 1. Fork & create feature branch (`feature/<short-desc>`)
 2. Run install + build + tests
-3. Add/update invokes or DSL features with tests / demo TaskFile
+3. Add/update rulesets or DSL features with tests / demo TaskFile
 4. Open PR referencing related roadmap item or issue
 
 See full details in [CONTRIBUTING.md](CONTRIBUTING.md).

@@ -30,6 +30,7 @@ namespace Nebulite::DomainModule::Texture {
 NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Rotation) {
 public:
     Constants::Error update() override;
+    void reinit() override {}
 
     //------------------------------------------
     // Available Functions

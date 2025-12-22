@@ -63,6 +63,11 @@ public:
     virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
 
     /**
+     * @brief Virtual re-initialization function to be Overwritten by derived classes.
+     */
+    virtual void reinit() {}
+
+    /**
      * @brief Static helper function to bind a member function to a given FuncTree.
      * @tparam ClassType The type of the class containing the member function.
      * @tparam FuncTreeType The type of the FuncTree to bind the function to.

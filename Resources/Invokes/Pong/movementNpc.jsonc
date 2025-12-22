@@ -1,0 +1,14 @@
+{
+    "topic": "all",
+    "logicalArg": "$(neq( {other.physics.vX}, 0))",
+    "exprs": [
+        "self.go_down = $( gt( {other.posY}, {self.posY} + {self.sprite.sizeY} / 2 ) * leq( {self.posY}, {global.display.resolution.Y} - {self.sprite.sizeY} - 32 ) )",
+        "self.go_up =   $( lt( {other.posY}, {self.posY} + {self.sprite.sizeY} / 2 ) * geq({self.posY},32))",
+        "self.physics.vY = $( ( {self.go_down} - {self.go_up} ) * {self.physics.vNorm} )"
+    ],
+    "functioncalls": {
+        "global": [],
+        "self": [],
+        "other": []
+    }
+}

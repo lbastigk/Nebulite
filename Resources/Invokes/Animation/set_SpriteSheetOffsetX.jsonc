@@ -1,8 +1,6 @@
 {
     "topic": "",
     "logicalArg": "$( {self.animation.xRolling.active} * gt({global.time.t_ms},{self.animation.xRolling.next}) )",
-    //This causes an animation from left to right of the spritesheet
-    //Assume no more keypress.
     "exprs": [
         "self.sprite.spritesheet.offsetX = $( ({self.sprite.spritesheet.offsetX} + 16) % {self.animation.xRolling.mod} )",
         "self.animation.xRolling.next = $({global.time.t_ms}+150)",

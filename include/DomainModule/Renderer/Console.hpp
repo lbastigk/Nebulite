@@ -15,8 +15,8 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
+#include "Data/JSON.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
-#include "../../Data/JSON.hpp"
 #include "Utility/TextInput.hpp"
 
 //------------------------------------------
@@ -35,10 +35,8 @@ namespace Nebulite::DomainModule::Renderer {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Console) {
 public:
-    /**
-     * @brief Override of update.
-     */
     Constants::Error update() override;
+    void reinit() override {}
 
     //------------------------------------------
     // Available Functions

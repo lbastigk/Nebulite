@@ -1,7 +1,6 @@
 {
     "topic": "",
     "logicalArg": "1",
-    // Depending on direction and status of Attack
     "exprs": [
         "self.sprite.spritesheet.offsetY = $( {self.anmimation.Direction} + {self.animation.attack} * 16 * 4 )"
     ],

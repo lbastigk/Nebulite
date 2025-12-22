@@ -1,4 +1,5 @@
 {
+    "todo": "Apply force instead of directly setting velocity",
     "topic": "collision",
     "logicalArg": [
         "neq({global.time.t}, {other.collision.time.lastX})",

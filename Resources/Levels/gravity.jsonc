@@ -1,6 +1,6 @@
 {
     "global": {
-        "physics" : {
+        "physics": {
             "G": 10.0
         }
     },

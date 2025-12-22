@@ -1,12 +1,10 @@
 {
     "id": 0,
     "invokes": [
-        "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
-        "./Resources/Invokes/Physics/elastic_collision_Y.jsonc"
+        "::physics::elasticCollision"
     ],
     "layer": 0,
     "physics": {
-        // High mass for best result of static. inf possible?
         "mass": 500000.0,
         "isGrav": 0.0,
         "aX": 0.0,

@@ -1,7 +1,8 @@
 {
+    "todo": "Apply force instead of directly setting velocity",
     "topic": "collision",
     "logicalArg": [
-        "neq({global.time.t}, {other.collision.time.lastX})",
+        "neq({global.time.t}, {other.physics.collision.time.lastX})",
         "{other.physics.mass}",
         " lt({self.posX},        {other.posX} + {other.sprite.sizeX})",
         " lt({self.posY},        {other.posY} + {other.sprite.sizeY})",
@@ -13,7 +14,7 @@
         "other.physics.vX = $(0.99*({other.physics.vX} - (2 * {self.physics.mass} / ({other.physics.mass} + {self.physics.mass})) * ({other.physics.vX} - {self.physics.vX})))",
         "other.physics.aX = $(0)",
         "other.physics.aY = $(0)",
-        "other.collision.time.lastX = $({global.time.t})"
+        "other.physics.collision.time.lastX = $({global.time.t})"
     ],
     "functioncalls": {
         "global": [],

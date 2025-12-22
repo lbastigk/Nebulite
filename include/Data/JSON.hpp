@@ -61,34 +61,32 @@ public:
 
 private:
     /**
-     * @enum EntryState
-     * @brief Represents the state of a cached entry in the JSON document.
-     *        How it works:
-     *        - On reloading a full document, all entries become DELETED.
-     *        - If we access a double pointer of a deleted/nonexistent value, we mark the entry as VIRTUAL,
-     *          as it's a resurrected entry, but its potentially not the real value due to casting.
-     *        - A value becomes DIRTY if it was previously CLEAN, and we notice a change in its double value.
-     *        - On flushing, all DIRTY entries become CLEAN again. VIRTUAL entries remain VIRTUAL as they are not flushed.
-     *        - Values may be marked DELETED if their parent is modified or deleted.
-     */
-    enum class EntryState : uint8_t {
-        CLEAN, // Synchronized with RapidJSON document, real value. NOTE: This may be invalid at any time if double pointer is used elsewhere! This just marks the last known state.
-        DIRTY, // Modified in cache, needs flushing to RapidJSON, real value
-        DERIVED, // Deleted/nonexistent entry that was accessed via double pointer
-        DELETED, // Deleted entry due to deserialization, inner value is invalid
-        MALFORMED // A key that is known to be malformed due to transformations. Used in getStableDoublePointer for integrity.
-    };
-
-    /**
      * @struct CacheEntry
      * @brief Represents a cached entry in the JSON document, including its value, state, and stable pointer for double values.
      */
     struct CacheEntry {
+        /**
+         * @enum EntryState
+         * @brief Represents the state of a cached entry in the JSON document.
+         *        How it works:
+         *        - On reloading a full document, all entries become DELETED.
+         *        - If we access a double pointer of a deleted/nonexistent value, we mark the entry as VIRTUAL,
+         *          as it's a resurrected entry, but its potentially not the real value due to casting.
+         *        - A value becomes DIRTY if it was previously CLEAN, and we notice a change in its double value.
+         *        - On flushing, all DIRTY entries become CLEAN again. VIRTUAL entries remain VIRTUAL as they are not flushed.
+         *        - Values may be marked DELETED if their parent is modified or deleted.
+         */
+        enum class EntryState : uint8_t {
+            CLEAN, // Synchronized with RapidJSON document, real value. NOTE: This may be invalid at any time if double pointer is used elsewhere! This just marks the last known state.
+            DIRTY, // Modified in cache, needs flushing to RapidJSON, real value
+            DERIVED, // Deleted/nonexistent entry that was accessed via double pointer
+            DELETED, // Deleted entry due to deserialization, inner value is invalid
+            MALFORMED // A key that is known to be malformed due to transformations. Used in getStableDoublePointer for integrity.
+        };
+
         CacheEntry() = default;
 
-        ~CacheEntry() {
-            delete stable_double_ptr;
-        }
+        ~CacheEntry() {delete stable_double_ptr;}
 
         //------------------------------------------
         // No copying or moving
@@ -159,13 +157,13 @@ private:
      */
     void flush();
 
+    //------------------------------------------
+    // Ordered double pointers system
+
     /**
-     * @brief Structure to hold multiple maps for expression references.
-     *        Currently, only reference "other" is used, but later on references like "parent" or "child" could be added.
+     * @brief Mapped ordered double pointers for expression references.
      */
-    struct ExpressionRefs {
-        MappedOrderedDoublePointers as_other;
-    } expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
+    MappedOrderedDoublePointers expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
 
     /**
      * @brief Super quick double cache based on unique IDs, no hash lookup.
@@ -174,6 +172,9 @@ private:
      * @todo Add a reserve-mechanism in globalspace for ids, so they are low value.
      */
     std::array<double*, uidQuickCacheSize> uidDoubleCache{nullptr};
+
+    //------------------------------------------
+    // Return Value Transformation system
 
     /**
      * @brief Instance for applying transformations on get operations.
@@ -345,30 +346,34 @@ public:
     JSON getSubDoc(std::string const& key);
 
     /**
-     * @brief Provides access to the internal mutex for thread-safe operations.
-     *        Allowing modules to lock the JSON document.
-     */
-    std::scoped_lock<std::recursive_mutex> lock() { return std::scoped_lock(mtx); }
-
-    /**
      * @brief Gets a pointer to a double value pointer in the JSON document.
      * @return A pointer to the double value associated with the key.
      */
     double* getStableDoublePointer(std::string const& key);
 
     /**
-     * @brief Gets a pointer to a double value pointer in the JSON document based on a unique ID.
-     * @param uid The unique ID of the key, must be smaller than uidQuickCacheSize !
-     * @param key The key of the value to retrieve.
-     * @return A pointer to the double value associated with the key.
+     * @brief Provides access to the internal mutex for thread-safe operations.
+     *        Allowing modules to lock the JSON document.
      */
-    double* getUidDoublePointer(uint64_t const& uid, std::string const& key) {
-        std::scoped_lock const lockGuard(mtx);
-        if (uidDoubleCache[uid] == nullptr) {
-            uidDoubleCache[uid] = getStableDoublePointer(key);
-        }
-        return uidDoubleCache[uid];
-    }
+    std::scoped_lock<std::recursive_mutex> lock() { return std::scoped_lock(mtx); }
+
+    //------------------------------------------
+    // Getters: Unique id based retrieval
+
+    /**
+     * @brief Retrieves the map of ordered double pointers for expression references.
+     * @return A pointer to the map of ordered double pointers for reference.
+     * @note Use a proper unique Identifier!
+     *       - in Expressions, the map is only used for "other" references and uses the expression as hash
+     *       - in Static Rulesets, the map is used for both "self" and "other" references, and uses the function name as hash
+     *
+     *       Later on, with more context such as parent, we need to find different hashes for each context.
+     *       perhaps: <context>::<function>
+     *       and for static rulesets, just using ::<function> is enough.
+     *       But we can use multiple retrievals if we desire, specifying different contexts.
+     * @todo Implement uid generation for the map here instead of in the globalspace
+     */
+    MappedOrderedDoublePointers* getOrderedCacheListMap();
 
     //------------------------------------------
     // Key Types, Sizes
@@ -431,15 +436,6 @@ public:
      *                     - `file.json|set-from-json key1.key2[5] otherFile.json:key` - Sets key1.key2[5] from the value of key in otherFile.json
      */
     void deserialize(std::string const& serialOrLink);
-
-    //------------------------------------------
-    // Assorted list of double pointers
-
-    /**
-     * @brief Retrieves the map of ordered double pointers for "other" expression references.
-     * @return A pointer to the map of ordered double pointers for "other" reference.
-     */
-    MappedOrderedDoublePointers* getExpressionRefsAsOther();
 };
 } // namespace Nebulite::Data
 #include "JSON.tpp"

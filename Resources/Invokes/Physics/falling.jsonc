@@ -2,7 +2,7 @@
     "topic": "",
     "logicalArg": "1",
     "exprs": [
-        "self.physics.aY += $(981)"
+        "self.physics.FY += $({global.physics.g} * {self.physics.mass})"
     ],
     "functioncalls": {
         "global": [],

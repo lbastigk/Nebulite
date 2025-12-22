@@ -289,4 +289,19 @@ std::string StringHandler::recombineArgs(int const argc, char* argv[]) {
     return result;
 }
 
+std::string StringHandler::recombineArgs(std::span<std::string const> const& args) {
+    std::string result;
+    for (size_t i = 0; i < args.size(); ++i) {
+        result += args[i];
+        // Don't add a whitespace if it's the last argument
+        if (i < args.size() - 1) {
+            // Important: don't add a whitespace if the argument already is a whitespace!
+            // This is due to how parseQuotedArguments handles multiple spaces. They are treated as one arg per space.
+            if (!args[i].empty() && args[i][0] != ' ')
+                result += " ";
+        }
+    }
+    return result;
+}
+
 } // namespace Nebulite::Utility

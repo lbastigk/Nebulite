@@ -12,7 +12,7 @@
 #include "Nebulite.hpp"
 #include "Core/Environment.hpp"
 #include "Core/RenderObjectContainer.hpp"
-#include "../../include/Data/JSON.hpp"
+#include "Data/JSON.hpp"
 
 //------------------------------------------
 
@@ -82,6 +82,7 @@ void Environment::deserialize(std::string const& serialOrLink, uint16_t const& d
             roc[i].deserialize(str, dispResX, dispResY);
         }
     }
+    reinitModules();
 }
 
 //------------------------------------------

@@ -4,13 +4,12 @@
         "all",
         "collision"
     ],
-    "invokes" : [
+    "invokes": [
         "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
         "./Resources/Invokes/Physics/elastic_collision_Y.jsonc"
     ],
     "layer": 0,
     "physics": {
-        // High mass for best result of static. inf possible?
         "mass": 500000.0,
         "aX": 0.0,
         "aY": 0.0,

@@ -1,8 +1,8 @@
 {
     "topic": "",
-    "logicalArg": "1",
+    "logicalArg": "$( lt( abs({self.physics.vX}) ,10) )",
     "exprs": [
-        "self.physics.aY += $(9.81)"
+        "self.physics.vX *= $(sgn({self.physics.vX}) + 10)"
     ],
     "functioncalls": {
         "global": [],

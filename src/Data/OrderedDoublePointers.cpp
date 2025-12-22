@@ -48,4 +48,48 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, N
     return &newIt->second.orderedValues;
 }
 
+odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, Nebulite::Data::JSON* reference, std::vector<std::string> const& keys) {
+    // Quick-cache path protected by mtxCache
+    if (uniqueId < Data::MappedOrderedDoublePointers::quickCacheSize) {
+        {
+            std::shared_lock<std::shared_mutex> read_quick(mtxCache);
+            if (!quickCache[uniqueId].orderedValues.empty()) {
+                return &quickCache[uniqueId].orderedValues;
+            }
+        }
+
+        // upgrade to exclusive to initialize
+        std::unique_lock<std::shared_mutex> write_quick(mtxCache);
+        if (quickCache[uniqueId].orderedValues.empty()) {
+            Data::OrderedDoublePointers newCacheList(keys.size());
+            for (auto const& key : keys) {
+                double* ptr = reference->getStableDoublePointer(key);
+                newCacheList.orderedValues.push_back(ptr);
+            }
+            quickCache[uniqueId] = std::move(newCacheList);
+        }
+        return &quickCache[uniqueId].orderedValues;
+    }
+
+    // Map path protected by mtxMap
+    {
+        std::shared_lock<std::shared_mutex> read_map(mtxMap);
+        auto it = map.find(uniqueId);
+        if (it != map.end()) {
+            return &it->second.orderedValues;
+        }
+    }
+
+    // upgrade to exclusive to insert into map
+    std::unique_lock<std::shared_mutex> write_map(mtxMap);
+    auto [newIt, inserted] = map.try_emplace(uniqueId, Data::OrderedDoublePointers(keys.size()));
+    if (inserted) {
+        for (auto const& key : keys) {
+            double* ptr = reference->getStableDoublePointer(key);
+            newIt->second.orderedValues.push_back(ptr);
+        }
+    }
+    return &newIt->second.orderedValues;
+}
+
 }

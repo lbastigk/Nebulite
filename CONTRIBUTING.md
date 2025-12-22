@@ -97,10 +97,14 @@ and more. We then just insert each module into the class and its update function
 ### Function Collision Prevention
 
 Domains follow an inheritance tree structure for their functions:
-- `GlobalSpace` automatically inherits all functions from `JSON` and `Renderer`, which act on the global document
-- `RenderObject` automatically inherits all functions from `JSON`, which act on the objects document
+- `GlobalSpace` automatically inherits all functions from `JSON` and `Renderer`
 - `Renderer` inherits from `Environment`, but not from `JSON`, as it shares the same document as `GlobalSpace`
-- `Texture` does not inherit from any other domain
+- `RenderObject` automatically inherits all functions from `JSON` and `Texture`
+- `Texture` does not inherit from any other domain, but shares the same document as `RenderObject`
+
+The difference between inheritance and shared documents is that functions parsed in the Domain 
+are only redirected to another Domain if they inherit from it. Shared documents only allow access to the same variables
+or manual function calls.
 
 It is **not allowed** to overwrite already existing functions:
 - If the function `set` was already declared, it is not possible to declare a new `set` function in that same tree

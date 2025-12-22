@@ -17,7 +17,6 @@
 #include <cstdint>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Utility/Time.hpp"
 
 //------------------------------------------

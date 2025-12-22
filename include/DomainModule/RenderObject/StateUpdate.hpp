@@ -1,6 +1,8 @@
 /**
  * @file StateUpdate.hpp
  * @brief Contains the RenderObject DomainModule for updating the state of render objects.
+ * @todo If more flags are not added, we may merge them into a General DomainModule.
+ *       Later on, the text update function should be moved to the texture domain once that works properly.
  */
 
 #ifndef NEBULITE_RODM_STATEUPDATE_HPP
@@ -27,90 +29,19 @@ namespace Nebulite::DomainModule::RenderObject {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, StateUpdate) {
 public:
-    /**
-     * @brief Override of update.
-     */
     Constants::Error update() override;
+    void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Marks the object for deletion.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: no arguments available
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error func_delete(int argc, char** argv);
     static std::string const func_delete_name;
     static std::string const func_delete_desc;
 
-    /**
-     * @brief Updates the text texture of the object.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: no arguments available
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error updateText(int argc, char** argv);
     static std::string const updateText_name;
     static std::string const updateText_desc;
-
-    //------------------------------------------
-    // TODOs
-
-    /**
-     * @brief Reloads all invokes for the object.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector
-     * @return Potential errors that occurred on command execution
-     * 
-     * @todo Not implemented yet
-     */
-    Constants::Error invoke_reload(int argc, char** argv);
-    static std::string const invoke_reload_name;
-    static std::string const invoke_reload_desc;
-
-    /**
-     * @brief Adds an invoke for the object.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector
-     * @return Potential errors that occurred on command execution
-     * 
-     * @todo Not implemented yet
-     */
-    Constants::Error invoke_add(int argc, char** argv);
-    static std::string const invoke_add_name;
-    static std::string const invoke_add_desc;
-
-    /**
-     * @brief Removes an invoke from the object.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector
-     * @return Potential errors that occurred on command execution
-     * 
-     * @todo Not implemented yet
-     */
-    Constants::Error invoke_remove(int argc, char** argv);
-    static std::string const invoke_remove_name;
-    static std::string const invoke_remove_desc;
-
-    /**
-     * @brief Removes all invokes from the object.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector
-     * @return Potential errors that occurred on command execution
-     * 
-     * @todo Not implemented yet
-     */
-    Constants::Error invoke_purge(int argc, char** argv);
-    static std::string const invoke_purge_name;
-    static std::string const invoke_purge_desc;
 
     //------------------------------------------
     // Setup
@@ -121,15 +52,6 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, StateUpdate) {
         bindFunction(&StateUpdate::func_delete, func_delete_name, &func_delete_desc);
         bindFunction(&StateUpdate::updateText, updateText_name, &updateText_desc);
-
-        // TODO: Move to separate Invoke module
-        /*
-        bindCategory("invoke", "Functions for managing invokes");
-        bindFunction(&StateUpdate::invoke_reload,       "reload-invokes",       "Reload all invokes");
-        bindFunction(&StateUpdate::invoke_add,          "add-invoke",           "Add an invoke from a file");
-        bindFunction(&StateUpdate::invoke_remove,       "remove-invoke",        "Remove an invoke by name");
-        bindFunction(&StateUpdate::invoke_purge,        "remove-all-invokes",   "Remove all invokes");
-        */
     }
 };
 } // namespace Nebulite::DomainModule::RenderObject

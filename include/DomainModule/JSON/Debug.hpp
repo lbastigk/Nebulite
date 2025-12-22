@@ -23,10 +23,8 @@ class JSON;
 namespace Nebulite::DomainModule::JSON {
 NEBULITE_DOMAINMODULE(Nebulite::Data::JSON, Debug) {
 public:
-    /**
-     * @brief Override of update.
-     */
     Constants::Error update() override;
+    void reinit() override {}
 
     //------------------------------------------
     // Available Functions

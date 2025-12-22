@@ -1,10 +1,10 @@
 {
-    "animation" : {
-        "xRolling" : {
-            "mod" : 80
+    "animation": {
+        "xRolling": {
+            "mod": 80
         },
-        "attack" : 0,
-        "Direction" : 0
+        "attack": 0,
+        "Direction": 0
     },
     "id": 0,
     "invokes": [
@@ -29,7 +29,7 @@
         "aY": 0.0,
         "vX": 0.0,
         "vY": 0.0,
-        "vNorm" : 50
+        "vNorm": 50
     },
     "posX": 0,
     "posY": 0,

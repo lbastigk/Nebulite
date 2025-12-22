@@ -1,15 +1,13 @@
 {
-
     "id": 0,
-
     "invokeSubscriptions": [
         "all"
     ],
     "invokes": [
         {
-            "topic" : "",
+            "topic": "",
             "logicalArg": "1",
-            "exprs" : [],
+            "exprs": [],
             "functioncalls_global": [],
             "functioncalls_self": [
                 "delete"
@@ -41,7 +39,6 @@
         },
         "dx": 0.0,
         "dy": 0.0,
-
         "fontSize": 0,
         "str": ""
     }

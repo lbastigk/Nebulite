@@ -3,10 +3,11 @@ echo
 echo Rendering with a fixed dt of 10ms
 echo 
 echo 
-set physics.G 10
+set physics.G 6.67 # High value so we actually see some movement. About 1e12x real gravity
 time set-fixed-dt 10
 set-res 1440 1440
 set-fps 10000
+cam set -180 -180
 print
 echo
 echo
@@ -45,7 +46,7 @@ spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=512|posY=1024|physics.vX
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=640|posY=128|physics.vX=-1|physics.vY=2|physics.mass=5000|text.str=obj033|imgLocation=./Resources/Sprites/TEST100P/033.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=640|posY=256|physics.vX=-8|physics.vY=-1|physics.mass=5000|text.str=obj034|imgLocation=./Resources/Sprites/TEST100P/034.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=640|posY=384|physics.vX=6|physics.vY=-6|physics.mass=5000|text.str=obj035|imgLocation=./Resources/Sprites/TEST100P/035.bmp
-spawn ./Resources/Renderobjects/Planets/obj_center.jsonc|posX=640|posY=512|physics.vX=3|physics.vY=2|physics.mass=5000|text.str=obj036|imgLocation=./Resources/Sprites/TEST100P/036.bmp
+spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=640|posY=512|physics.vX=3|physics.vY=2|physics.mass=5000|text.str=obj036|imgLocation=./Resources/Sprites/TEST100P/036.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=640|posY=640|physics.vX=-3|physics.vY=7|physics.mass=5000|text.str=obj037|imgLocation=./Resources/Sprites/TEST100P/037.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=640|posY=768|physics.vX=-8|physics.vY=-1|physics.mass=5000|text.str=obj038|imgLocation=./Resources/Sprites/TEST100P/038.bmp
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc|posX=640|posY=896|physics.vX=5|physics.vY=-3|physics.mass=5000|text.str=obj039|imgLocation=./Resources/Sprites/TEST100P/039.bmp

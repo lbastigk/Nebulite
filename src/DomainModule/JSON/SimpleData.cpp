@@ -1,7 +1,6 @@
-#include "DomainModule/JSON/SimpleData.hpp"
-#include "../../../include/Data/JSON.hpp"
-
 #include "Nebulite.hpp"
+#include "Data/JSON.hpp"
+#include "DomainModule/JSON/SimpleData.hpp"
 
 namespace Nebulite::DomainModule::JSON {
 

@@ -23,8 +23,9 @@ Constants::Error Debug::update() {
 // NOLINTNEXTLINE
 Constants::Error Debug::eval(int argc, char** argv) {
     std::string const args = Utility::StringHandler::recombineArgs(argc, argv);
-    std::string const evaluatedArgs = Nebulite::global().eval(args, domain);
-    return domain->parseStr(evaluatedArgs);
+    Interaction::ContextBase context{*domain, *domain, Nebulite::global()};    // Both self and other are this RenderObject?
+    std::string const argsEvaluated = Interaction::Logic::Expression::eval(args, context);
+    return domain->parseStr(argsEvaluated);
 }
 
 std::string const Debug::eval_name = "eval";

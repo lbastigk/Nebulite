@@ -1,6 +1,5 @@
 /**
  * @file GlobalSpace.hpp
- * 
  * @brief Contains the Nebulite::Core::GlobalSpace class declaration 
  *        for the Nebulite Engine for core functionality
  *        and structures in Nebulite::Core namespace.
@@ -24,46 +23,15 @@
 // Nebulite
 #include "Core/Renderer.hpp"
 #include "Constants/ErrorTypes.hpp"
+#include "Data/DocumentCache.hpp"
+#include "Data/TaskQueue.hpp"
+#include "Interaction/Context.hpp"
+#include "Interaction/Invoke.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Utility/RNG.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
-
-/**
- * @struct taskQueueWrapper
- * @brief Represents a queue of tasks to be processed by the engine, including metadata.
- */
-struct taskQueueWrapper {
-    std::deque<std::string> taskQueue; // List of tasks
-    bool clearAfterResolving = true; // Whether to clear the task list after resolving
-    /**
-     * @note Add more metadata as needed, for resolveTaskQueue() to use
-     *       in case new task types are added in the future.
-     *       Perhaps even a hashmap of string to variant around this wrapper for
-     *       maximum flexibility.
-     *       map string -> taskQueueWrapper{taskQueue, <metadata>}
-     *       This way, each task could be sorted into different queues based on type,
-     *       so we can simply call <task> for normal tasks,
-     *       and specify "on-queue <type> <task>" for specific task types
-     *       that we wish to execute in a different manner.
-     *       This could allow us to auto-sort tasks into e.g. always-tasks etc.
-     *       or even manage tasks with calls such as "modify-task <identifier> <modification>"
-     * @todo Implement waitCounter into each taskQueueWrapper, so each queue can have its own wait counter
-     *       Then, have function such as wait, task, etc. modify a specify taskQueue.
-     *       calls with "on-queue", e.g. "on-queue <always/wait/etc.> <args>" can modify specific queues.
-     */
-};
-
-/**
- * @brief Represents the result of resolving a task queue.
- *        This structure holds the outcome of processing a task queue, including any errors
- *        encountered during resolution and whether the process was halted due to a critical error.
- */
-struct taskQueueResult {
-    bool encounteredCriticalResult = false;
-    std::vector<Constants::Error> errors;
-};
 
 //------------------------------------------
 // Global Space object
@@ -114,7 +82,7 @@ public:
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
      */
-    taskQueueResult resolveTaskQueue(taskQueueWrapper& tq, uint64_t const* waitCounter) const;
+    Data::TaskQueueResult resolveTaskQueue(Data::TaskQueue& tq, uint64_t const* waitCounter) const;
 
     /**
      * @brief Parses the task queue for execution.
@@ -136,92 +104,6 @@ public:
         renderer.setQuit();
     }
 
-    /**
-     * @brief Evaluates a string.
-     *        Example: "$i(2 + 2)" -> "4"
-     *        Allowed context:
-     *        - global (GlobalSpace)
-     *        - resources (Read only documents)
-     * @param expr The expression to evaluate.
-     * @return The evaluated result as a string.
-     */
-    std::string eval(std::string const& expr) const {
-        return invoke.evaluateStandaloneExpression(expr);
-    }
-
-    /**
-     * @brief Evaluates a string with a RenderObject as context "self" and "other".
-     *        Example: "My Value is: {other.positionX}" -> "My Value is: 100"
-     *        Allowed context:
-     *        - self (RenderObject)
-     *        - other (RenderObject)
-     *        - global (GlobalSpace)
-     *        - resources (Read only documents)
-     * @param expr The expression to evaluate.
-     * @param context The RenderObject providing context for the evaluation.
-     * @return The evaluated result as a string.
-     */
-    std::string eval(std::string const& expr, RenderObject const* context) const {
-        return invoke.evaluateStandaloneExpression(expr, context);
-    }
-
-    /**
-     * @brief Evaluates a string and returns the result as a double.
-     *        Example: "$(2 + 2)" -> 4.0
-     *        Allowed context:
-     *        - global (GlobalSpace)
-     *        - resources (Read only documents)
-     * @param expr The expression to evaluate.
-     * @return The evaluated result as a double.
-     */
-    double evalAsDouble(std::string const& expr) const {
-        return invoke.evaluateStandaloneExpressionAsDouble(expr);
-    }
-
-    /**
-     * @brief Evaluates a string with context of a RenderObject "self" and "other"
-     *        and returns the result as a double.
-     *        Example: "$({global.time.dt} * {self.physics.vX})" -> 1.168
-     *        Allowed context:
-     *        - self (RenderObject)
-     *        - other (RenderObject)
-     *        - global (GlobalSpace)
-     *        - resources (Read only documents)
-     * @param expr The expression to evaluate.
-     * @param context The RenderObject providing context for the evaluation.
-     * @return The evaluated result as a double.
-     */
-    double evalAsDouble(std::string const& expr, RenderObject const* context) const {
-        return invoke.evaluateStandaloneExpressionAsDouble(expr, context);
-    }
-
-    /**
-     * @brief Evaluates a string and returns the result as a boolean.
-     *        Allowed context:
-     *        - global (GlobalSpace)
-     *        - resources (Read only documents)
-     * @param expr The expression to evaluate.
-     * @return The evaluated result as a boolean.
-     */
-    bool evalAsBool(std::string const& expr) const {
-        return invoke.evaluateStandaloneExpressionAsBool(expr);
-    }
-
-    /**
-     * @brief Evaluates a string with context of a RenderObject and returns the result as a boolean.
-     *        Allowed context:
-     *        - self (RenderObject)
-     *        - other (RenderObject)
-     *        - global (GlobalSpace)
-     *        - resources (Read only documents)
-     * @param expr The expression to evaluate.
-     * @param context The RenderObject providing context for the evaluation.
-     * @return The evaluated result as a boolean.
-     */
-    bool evalAsBool(std::string const& expr, RenderObject const* context) const {
-        return invoke.evaluateStandaloneExpressionAsBool(expr, context);
-    }
-
     //------------------------------------------
     // Getters
 
@@ -232,7 +114,7 @@ public:
      *       Returning the correct deque based on task type, etc.
      *       With fallback to a default queue if type is unknown.
      */
-    std::deque<std::string>* getTaskQueue() { return &tasks.script.taskQueue; }
+    std::deque<std::string>* getTaskQueue() { return &tasks.script.tasks; }
 
     /**
      * @brief Gets a pointer to the Renderer instance.
@@ -244,13 +126,14 @@ public:
      * @brief Gets a pointer to the SDL Renderer instance.
      * @return Pointer to the SDL_Renderer instance.
      */
-    SDL_Renderer* getSdlRenderer() const { return renderer.getSdlRenderer(); }
+    [[nodiscard]] SDL_Renderer* getSdlRenderer() const { return renderer.getSdlRenderer(); }
 
     /**
      * @brief Gets a pointer to the Invoke instance.
      * @return Pointer to the Invoke instance.
+     * @todo Exposing Invoke directly may not be necessary, should be enough to just have a broadcast/listen system in GlobalSpace?
      */
-    Interaction::Invoke* getInvoke() { return &invoke; }
+    Interaction::Invoke& getInvoke() { return invoke; }
 
     /**
      * @brief Gets a pointer to the global document cache.
@@ -268,9 +151,9 @@ public:
      *       (should be internal task queue)
      */
     struct Tasks {
-        taskQueueWrapper script; // Task queue for script files loaded with "task"
-        taskQueueWrapper internal; // Internal task queue from renderObjects, console, etc.
-        taskQueueWrapper always; // Always-tasks added with the prefix "always "
+        Data::TaskQueue script; // Task queue for script files loaded with "task"
+        Data::TaskQueue internal; // Internal task queue from renderObjects, console, etc.
+        Data::TaskQueue always; // Always-tasks added with the prefix "always "
     } tasks;
 
     // Wait counter for script tasks
@@ -306,41 +189,7 @@ public:
      * @brief Checks if the main loop should continue running.
      * @return True if the main loop should continue, false otherwise.
      */
-    bool shouldContinueLoop() const { return continueLoop; }
-
-    /**
-     * @enum UniqueIdType
-     * @brief Types of unique ID spaces.
-     *        We allow for multiple unique ID spaces so that different systems
-     *        are all in their own container.
-     */
-    enum class UniqueIdType {
-        expression, // Each expression gets a unique ID
-        jsonKey, // Each JSON key gets a unique ID
-        NONE // Keep this as last entry
-    };
-
-    /**
-     * @brief Amount of different UniqueIdTypes.
-     */
-    static constexpr size_t UniqueIdTypeSize = static_cast<size_t>(UniqueIdType::NONE) + 1;
-
-    /**
-     * @brief Gets a unique ID based on a hash string.
-     *        Threadsafe. Uses a mutex-lock per UniqueIdType.
-     * @param hash The hash string to get the unique ID for.
-     * @param type Which rolling counter to use for the unique ID, allowing for separate ID spaces.
-     * @return The unique ID corresponding to the hash.
-     */
-    uint64_t getUniqueId(std::string const& hash, UniqueIdType type) {
-        std::scoped_lock lock(uniqueIdMutex[static_cast<size_t>(type)]);
-        if (auto const it = uniqueIdMap[static_cast<size_t>(type)].find(hash); it != uniqueIdMap[static_cast<size_t>(type)].end()) {
-            return it->second;
-        }
-        uint64_t const newId = uniqueIdCounter[static_cast<size_t>(type)]++;
-        uniqueIdMap[static_cast<size_t>(type)][hash] = newId;
-        return newId;
-    }
+    [[nodiscard]] bool shouldContinueLoop() const { return continueLoop; }
 
 private:
     //------------------------------------------
@@ -361,11 +210,6 @@ private:
     // Invoke Object for parsing expressions etc.
     Interaction::Invoke invoke;
 
-    // Unique ID map
-    uint64_t uniqueIdCounter[UniqueIdTypeSize] = {0, 0};
-    absl::flat_hash_map<std::string, uint64_t> uniqueIdMap[UniqueIdTypeSize];
-    std::mutex uniqueIdMutex[UniqueIdTypeSize];
-
     //------------------------------------------
     // Structs
 
@@ -374,9 +218,9 @@ private:
      * @brief Holds the results of resolving different task queues.
      */
     struct QueueResult {
-        taskQueueResult script; // Result of script-tasks
-        taskQueueResult internal; // Result of internal-tasks
-        taskQueueResult always; // Result of always-tasks
+        Data::TaskQueueResult script; // Result of script-tasks
+        Data::TaskQueueResult internal; // Result of internal-tasks
+        Data::TaskQueueResult always; // Result of always-tasks
     } queueResult;
 
     /**
@@ -391,6 +235,9 @@ private:
     /**
      * @struct RngVars
      * @brief Contains RNG instances used in the global space.
+     * @todo Consider a hashmap of RNGs for more versatility in the future.
+     *       std::string -> Utility::RNG<rngSize_t>
+     *       Simplifies the rng rollback and update functions as well.
      */
     struct RngVars {
         using rngSize_t = uint16_t; // Modify this to change the size of the RNGs
@@ -404,9 +251,8 @@ private:
     // Methods
 
     /**
-     * @brief Sets the pre-parse function for the domain,
-     *        which is called before parsing any command.
-     *        It is used here to properly handle RNG
+     * @brief Called before any command parsing.
+     * @details Updates RNGs before parsing commands.
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         an error code otherwise.
      */
@@ -421,7 +267,7 @@ private:
      * @brief Updates all inner domains.
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    Constants::Error updateInnerDomains() const;
+    [[nodiscard]] Constants::Error updateInnerDomains() const;
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_CORE_GLOBALSPACE_HPP

@@ -10,8 +10,8 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
+#include "Data/JSON.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
-#include "../../Data/JSON.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -28,10 +28,8 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Clock) {
 public:
-    /**
-     * @brief Override of update.
-     */
     Constants::Error update() override;
+    void reinit() override {}
 
     //------------------------------------------
     // Available Functions

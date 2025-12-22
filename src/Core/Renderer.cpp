@@ -94,10 +94,6 @@ Renderer::Renderer(Data::JSON* docRef, bool* flag_headless, unsigned int const& 
     fps.renderTimer.start();
 
     //------------------------------------------
-    // Pre-parse initialization
-    setPreParse([this] { return preParse(); });
-
-    //------------------------------------------
     // Domain Modules
     DomainModule::Initializer::initRenderer(this);
 }
@@ -211,7 +207,7 @@ void Renderer::loadFonts() {
 
 // For quick and dirty debugging, in case the rendering pipeline breaks somewhere
 //# define debug_on_each_step 1
-bool Renderer::tick() {
+Constants::Error Renderer::update() {
     //------------------------------------------
     // Do all the steps of the rendering pipeline
     clear(); // 1.) Clear screen FIRST, so that functions like snapshot have access to the latest frame
@@ -242,7 +238,8 @@ bool Renderer::tick() {
     // Update modules
     updateModules();
 
-    return !skippedUpdateLastFrame;
+    // Always return no critical error
+    return Constants::ErrorTable::NONE();
 }
 
 bool Renderer::timeToRender() {
@@ -479,7 +476,7 @@ void Renderer::updateState() {
     }
 
     // Update invoke pairs, getting broadcast-listen-pairs from last env update
-    Nebulite::global().getInvoke()->update();
+    Nebulite::global().getInvoke().update();
 
     // Update environment
     auto const dispResX = getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResX, 0);

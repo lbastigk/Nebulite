@@ -18,9 +18,6 @@ Texture::Texture(Data::JSON* documentPtr)
     // Start with no texture
     texture = nullptr;
 
-    // Set preParse function
-    setPreParse([this] { return preParse(); });
-
     // Initialize all DomainModules
     DomainModule::Initializer::initTexture(this);
 }

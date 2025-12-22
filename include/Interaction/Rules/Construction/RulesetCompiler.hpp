@@ -14,14 +14,16 @@
 #include "Data/DocumentCache.hpp"
 #include "Data/JSON.hpp"
 #include "Interaction/Logic/Assignment.hpp"
+#include "Interaction/Rules/Ruleset.hpp"
+#include "Interaction/Rules/StaticRulesetMap.hpp"
 
 //------------------------------------------
-namespace Nebulite::Interaction {
+namespace Nebulite::Interaction::Rules::Construction {
 /**
  * @class RulesetCompiler
  * @brief Responsible for parsing compatible JSON documents into `Ruleset` structs.
- *        A `Core::RenderObject` instance is required for context during parsing.
- *        It's field `invokes` holds the relevant invoke information.
+ * @details A `Core::RenderObject` instance is required for context during parsing.
+ *          It's field `invokes` holds the relevant invoke information.
  * @todo Idea for Invoke ruleset overwrites:
  *       In addition, add the field "overwrites" to the JSON doc.
  *       Then, on parsing, the overwrites are applied:
@@ -46,16 +48,30 @@ namespace Nebulite::Interaction {
  */
 class RulesetCompiler {
 public:
+    // A wrapper for all ruleset types, or none
+    using AnyRuleset = std::variant<std::monostate, std::shared_ptr<StaticRuleset>, std::shared_ptr<JsonRuleset>>;
+
     /**
      * @brief Parses a JSON encoded set of Invoke Entries inside a RenderObject into Ruleset objects.
-     * @param entries_global The global Ruleset objects.
-     * @param entries_local The local Ruleset objects.
+     * @param rulesetsGlobal The global Ruleset objects.
+     * @param rulesetsLocal The local Ruleset objects.
      * @param self The RenderObject instance associated with the entries.
      * @param docCache The DocumentCache instance to use for parsing expressions.
      */
     static void parse(
-        std::vector<std::shared_ptr<Ruleset>>& entries_global,
-        std::vector<std::shared_ptr<Ruleset>>& entries_local,
+        std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal,
+        std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal,
+        Core::RenderObject* self
+        );
+
+    /**
+     * @brief Parses a single Ruleset from a JSON key inside a RenderObject or a static ruleset identifier.
+     * @param identifier The key of the Ruleset entry in the RenderObject's JSON document, or a static ruleset identifier.
+     * @param self The RenderObject instance associated with the entry.
+     * @return An optional shared pointer to the parsed Ruleset object, or std::nullopt if parsing failed.
+     */
+    static std::optional<std::shared_ptr<Ruleset>> parseSingle(
+        std::string const& identifier,
         Core::RenderObject* self
         );
 
@@ -68,7 +84,7 @@ private:
      */
     static void getFunctionCalls(
         Data::JSON& entryDoc,
-        Ruleset& Ruleset,
+        JsonRuleset& Ruleset,
         Core::RenderObject const* self
         );
 
@@ -77,7 +93,6 @@ private:
      * @param assignmentExpr The assignment expression to populate.
      * @param entry The JSON entry document to extract the expression from.
      * @param index The index of the expression in the entry document.
-     * 
      * @return True if the expression was successfully extracted, false otherwise.
      */
     static bool getExpression(
@@ -90,9 +105,10 @@ private:
      * @brief Extracts all expressions from a JSON entry document.
      * @param Ruleset The Ruleset object to populate with expressions.
      * @param entry The JSON entry document to extract expressions from.
+     * @param self The JSON document of context self.
      * @return True if the expressions were successfully extracted, false otherwise.
      */
-    static bool getExpressions(std::shared_ptr<Ruleset> const& Ruleset, Data::JSON* entry);
+    static bool getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JSON* entry, Data::JSON* self);
 
     /**
      * @brief Extracts a logical argument from a JSON entry document.
@@ -102,27 +118,49 @@ private:
     static std::string getLogicalArg(Data::JSON& entry);
 
     /**
-     * @brief Extracts an Ruleset object from a JSON entry document.
+     * @brief Extracts a Ruleset object from a JSON entry document.
      * @param doc The JSON document containing the entry.
      * @param entry The JSON document to populate with the entry.
-     * @param index The index of the entry in the document.
+     * @param key The key of the entry in the document.
      * @return True if the Ruleset was successfully extracted, false otherwise.
      */
-    static bool getRuleset(
+    static bool getJsonRuleset(
         Data::JSON& doc,
         Data::JSON& entry,
-        size_t const& index
+        std::string const& key
         );
 
     /**
-     * @brief Optimizes the parsed entries by linking direct target pointers.
-     *        Potentially modifying self and global by registering stable double pointers.
+     * @brief Extracts a Ruleset from a JSON document or static ruleset identifier.
+     * @param doc The JSON document containing the entry.
+     * @param key The key of the entry in the document.
+     * @param self The RenderObject instance associated with the entry.
+     * @return An optional shared pointer to the parsed Ruleset object, or std::monostate if parsing failed.
+     */
+    static AnyRuleset getRuleset(
+        Data::JSON& doc,
+        std::string const& key,
+        Core::RenderObject* self
+        );
+
+    /**
+     * @brief Optimizes a Ruleset by linking direct target pointers.
+     * @details Potentially modifying self and global by registering stable double pointers.
      * @param entries The Ruleset objects to optimize.
      * @param self The RenderObject instance associated with the entries.
      */
-    static void optimizeParsedEntries(
-        std::vector<std::shared_ptr<Ruleset>> const& entries,
-        Data::JSON* self
+    static void optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JSON* self);
+
+    /**
+     * @brief Sets metadata in the object itself and in each Ruleset entry, including IDs, indices, and estimated computational cost.
+     * @param self The RenderObject that owns the entries.
+     * @param rulesetsLocal The local Ruleset objects.
+     * @param rulesetsGlobal The global Ruleset objects.
+     */
+    static void setMetaData(
+        Nebulite::Core::RenderObject* self,
+        std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsLocal,
+        std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsGlobal
         );
 
     /**
@@ -135,5 +173,5 @@ private:
         Logic::Assignment::Operation::multiply
     };
 };
-} // namespace Nebulite::Interaction
+} // namespace Nebulite::Interaction::Rules::Construction
 #endif // NEBULITE_RULESET_COMPILER_HPP
