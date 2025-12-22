@@ -116,25 +116,9 @@ void Assignment::apply(Data::JSON* self, Data::JSON* other) {
         } else {
             // Target is not associated with a direct double pointer
             // Likely because the target is in document other
-            double* target = nullptr;
 
-            // Try to use unique id for quick access
-            // TODO: Initialize during compiling?
-            if (!targetKeyUniqueIdInitialized) {
-                // Initialize unique id
-                targetKeyUniqueId = Nebulite::global().getUniqueId(key.eval(other), Core::GlobalSpace::UniqueIdType::jsonKey);
-                targetKeyUniqueIdInitialized = true;
-            }
-
-            // Try to use unique id for quick access
-            if (targetKeyUniqueId < Data::JSON::uidQuickCacheSize) {
-                target = targetDocument->getUidDoublePointer(targetKeyUniqueId, key.eval(other));
-            }
-            // Fallback to normal method via key to double pointer
-            else {
-                // Try to get a stable double pointer from the target document
-                target = targetDocument->getStableDoublePointer(key.eval(other));
-            }
+            // Try to get a stable double pointer from the target document
+            double* target = targetDocument->getStableDoublePointer(key.eval(other));
 
             if (target != nullptr) {
                 // Lock is needed here, otherwise we have race conditions, and the engine is no longer deterministic!

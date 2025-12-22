@@ -29,19 +29,7 @@ namespace Nebulite::Interaction::Logic {
 /**
  * @struct Nebulite::Interaction::Logic::Assignment
  * @brief Representing a variable assignment in the Nebulite scripting language.
- * 
- * Contains:
- * 
- * - Type of operation used
- * 
- * - Target document type (`self`, `other`, `global`)
- * 
- * - Key of the variable being assigned
- * 
- * - Value of the variable being assigned
- * 
- * - The value as parsed expression
- * 
+ * @details <target> <operation> <value>
  */
 class Assignment{
 public:
@@ -96,10 +84,8 @@ private:
 
     /**
      * @brief Target document type (Self, Other, Global)
-     *
-     * Depending on Type, the proper JSON document will be used.
-     *
-     * Initialized as null, which means the assignment is evaluated at runtime.
+     * @dteils Depending on Type, the proper JSON document will be used.
+     *         Initialized as null, which means the assignment is evaluated at runtime.
      */
     Type onType = Type::null;
 
@@ -116,26 +102,11 @@ private:
     Expression key;
 
     /**
-     * @brief A unique id of the key in the target document
-     *
-     * Used for quick access to a target value pointer in the target document.
-     */
-    uint64_t targetKeyUniqueId = 0;
-
-    /**
-     * @brief if the unique id was already initialized
-     */
-    bool targetKeyUniqueIdInitialized = false;
-
-    /**
      * @brief Represents the full assignment as string
-     *
-     * e.g. "0", "$($(self.posX) + 1)", does not include the assignment operator and target
-     *
-     * Storing the full value is necessary for:
-     *
-     * - estimating computational cost based on the amount of evaluations `$` as well as variables `{...}`
-     * - parsing the expression later on
+     * @details e.g. "0", "$($(self.posX) + 1)", does not include the assignment operator and target
+     *          Storing the full value is necessary for:
+     *          - estimating computational cost based on the amount of evaluations `$` as well as variables `{...}`
+     *          - parsing the expression later on
      */
     std::string value;
 

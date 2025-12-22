@@ -361,23 +361,6 @@ public:
     // Getters: Unique id based retrieval
 
     /**
-     * @brief Gets a pointer to a double value pointer in the JSON document based on a unique ID.
-     * @param uid The unique ID of the key, must be smaller than uidQuickCacheSize !
-     * @param key The key of the value to retrieve.
-     * @return A pointer to the double value associated with the key.
-     * @todo Implement uid generation for the map here instead of in the globalspace
-     *       Perhaps its a good idea to have the uid be its own type so its never confused with other uids.
-     *       Then we can wrap the container in a class, just like MappedOrderedDoublePointers and have the uid generation there.
-     */
-    double* getUidDoublePointer(uint64_t const& uid, std::string const& key) {
-        std::scoped_lock const lockGuard(mtx);
-        if (uidDoubleCache[uid] == nullptr) {
-            uidDoubleCache[uid] = getStableDoublePointer(key);
-        }
-        return uidDoubleCache[uid];
-    }
-
-    /**
      * @brief Retrieves the map of ordered double pointers for expression references.
      * @return A pointer to the map of ordered double pointers for reference.
      * @note Use a proper unique Identifier!
