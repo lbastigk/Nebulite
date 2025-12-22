@@ -105,27 +105,6 @@ private:
         physics_FY
     };
 
-    /**
-     * @brief Retrieves a base value from the ordered cache list for the given key.
-     * @param v The ordered cache list of base values.
-     * @param k The key corresponding to the desired base value.
-     * @return A reference to the base value associated with the specified key.
-     */
-    inline static double& baseVal(double** v, Key k) noexcept {
-        return *v[static_cast<std::size_t>(k)];
-    }
-
-    /**
-     * @brief Retrieves the ordered cache list of base values for the given render object context.
-     *        Instead of retrieving each value individually, this function fetches all required values in a single call.
-     *        This reduces lookup overhead and improves performance when accessing multiple base values.
-     * @param ctx The render object context from which to retrieve the base values.
-     * @return A pointer to an array of double pointers, each pointing to a base value.
-     */
-    double** getBaseList(Interaction::Execution::DomainBase& ctx) {
-        return ensureOrderedCacheList(*ctx.getDoc(), keys)->data();
-    }
-
     // 2.) To retrieve from globalspace
     /**
      * @struct GlobalVal

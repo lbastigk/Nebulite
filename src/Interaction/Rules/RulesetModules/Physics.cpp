@@ -34,8 +34,8 @@ void Physics::elasticCollision(ContextBase const& context) {
     static std::string lastCollisionY = "physics.collision.time.lastY";
 
     // Get ordered cache lists for both entities for base values
-    double** slf = getBaseList(context.self);
-    double** otr = getBaseList(context.other);
+    double** slf = getBaseList(context.self, keys);
+    double** otr = getBaseList(context.other, keys);
 
     //------------------------------------------
     // Base condition check
@@ -130,8 +130,8 @@ void Physics::elasticCollision(ContextBase const& context) {
 
 void Physics::gravity(ContextBase const& context) {
     // Get ordered cache lists for both entities for base values
-    double** slf = getBaseList(context.self);
-    double** otr = getBaseList(context.other);
+    double** slf = getBaseList(context.self, keys);
+    double** otr = getBaseList(context.other, keys);
 
     // Calculate distance components
     double const distanceX = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
@@ -151,7 +151,7 @@ void Physics::gravity(ContextBase const& context) {
 
 void Physics::applyForce(ContextBase const& context) {
     // Get ordered cache list for self entity for base values
-    double** slf = getBaseList(context.self);
+    double** slf = getBaseList(context.self, keys);
 
     // Pre-calculate values before locking
     double const dt = *globalVal.dt;
@@ -181,7 +181,7 @@ void Physics::applyForce(ContextBase const& context) {
 
 void Physics::drag(ContextBase const& context) {
     // Get ordered cache list for self entity for base values
-    double** slf = getBaseList(context.self);
+    double** slf = getBaseList(context.self, keys);
 
     // Drag coefficient (tunable parameter)
     static constexpr double dragCoefficient = 0.1;

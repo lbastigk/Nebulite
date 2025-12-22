@@ -37,6 +37,17 @@ public:
     RulesetModule(std::string_view const& moduleName);
 
     /**
+     * @brief Registers all static rulesets from this module into the given container
+     * @param container The StaticRulesetMap to register into
+     */
+    void registerModule(StaticRulesetMap& container) {
+        for (auto const& ruleset : moduleRulesets) {
+            container.bindStaticRuleset(ruleset);
+        }
+    }
+
+protected:
+    /**
      * @brief Helper consteval function to determine if a string_view starts with '::'
      * @param str The string_view to check
      * @return true if str starts with '::', false otherwise
@@ -67,15 +78,39 @@ public:
         });
     }
 
+    //------------------------------------------
+    // Ordered cache list retrieval for base values
+
     /**
-     * @brief Registers all static rulesets from this module into the given container
-     * @param container The StaticRulesetMap to register into
+     * @brief Retrieves a base value from the ordered cache list for the given key.
+     * @param v The ordered cache list of base values.
+     * @param k The key corresponding to the desired base value.
+     * @return A reference to the base value associated with the specified key.
+     * @tparam keyEnum An enumeration type representing the keys for base values.
      */
-    void registerModule(StaticRulesetMap& container) {
-        for (auto const& ruleset : moduleRulesets) {
-            container.bindStaticRuleset(ruleset);
-        }
+    template<typename keyEnum>
+    inline static double& baseVal(double** v, keyEnum k) noexcept {
+        return *v[static_cast<std::size_t>(k)];
     }
+
+    /**
+     * @brief Retrieves the ordered cache list of base values for the given render object context.
+     *        Instead of retrieving each value individually, this function fetches all required values in a single call.
+     *        This reduces lookup overhead and improves performance when accessing multiple base values.
+     * @param ctx The render object context from which to retrieve the base values.
+     * @param keys The array of keys to retrieve values for.
+     * @return A pointer to an array of double pointers, each pointing to a base value.
+     */
+    double** getBaseList(Interaction::Execution::DomainBase& ctx, std::vector<std::string> const& keys) {
+        return ensureOrderedCacheList(*ctx.getDoc(), keys)->data();
+    }
+
+private:
+    // Vector of all static rulesets from this module
+    std::vector<StaticRulesetMap::StaticRuleSetWithMetaData> moduleRulesets;
+
+    // Unique identifier for caching
+    uint64_t const id;
 
     /**
      * @brief Helper function to retrieve an ordered list of stable double pointers
@@ -91,19 +126,6 @@ public:
     Data::odpvec* ensureOrderedCacheList(Nebulite::Data::JSON& doc, std::vector<std::string> const& keys) const {
         return doc.getOrderedCacheListMap()->ensureOrderedCacheList(id, &doc, keys);
     }
-
-protected:
-    // TODO: offer an interface for access to common variables here instead of re-implementing in each module
-    //       perhaps making RulesetModule templated, taking its enum as a template parameter?
-    //       template<typename CommonValues> class RulesetModule { ... }
-    //       or just templating the getter function, should be sufficient
-
-private:
-    // Vector of all static rulesets from this module
-    std::vector<StaticRulesetMap::StaticRuleSetWithMetaData> moduleRulesets;
-
-    // Unique identifier for caching
-    uint64_t const id;
 };
 }
 #endif // NEBULITE_INTERACTION_RULES_RULESET_MODULE_HPP
