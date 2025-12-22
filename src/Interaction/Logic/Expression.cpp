@@ -418,7 +418,8 @@ void Nebulite::Interaction::Logic::Expression::parse(std::string const& expr, Da
     reset();
     references.self = self;
     fullExpression = expr;
-    uniqueId = global().getUniqueId(fullExpression, Core::GlobalSpace::UniqueIdType::expression);
+    //uniqueId = global().getUniqueId(fullExpression, Core::GlobalSpace::UniqueIdType::expression);
+    uniqueId = generateUniqueId(fullExpression);
     parseIntoComponents(expr);
     for (auto& component : components) {
         compileIfExpression(component);
