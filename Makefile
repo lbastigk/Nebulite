@@ -160,19 +160,6 @@ clean-build-and-test-available: clean-build-available test
 
 
 ############################################
-# Debug
-############################################
-
-debug-linux:
-	@echo "Starting non-interactive debugger (prints backtrace on crash)..."
-	@ulimit -c unlimited && gdb -batch -ex "set pagination 0" -ex "run" -ex "bt full" --args ./bin/Nebulite_Debug task TaskFiles/Debugging/debug.nebs
-
-debug-linux-interactive:
-	@echo "Starting interactive debugger for native preset..."
-	@gdb --args ./bin/Nebulite_Debug task TaskFiles/Debugging/debug.nebs
-
-
-############################################
 # Profiling, Benchmarking, etc.
 ############################################
 
