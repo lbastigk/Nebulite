@@ -2,6 +2,12 @@
 This script generates documentation for command functions in the Nebulite project.
 It extracts command information from both GlobalSpace and RenderObject domains
 and outputs comprehensive documentation in markdown format.
+
+Instead of __command__, we use the help function to list available functions and variables.
+This enables us to document commands and their descriptions automatically.
+
+While __command__ would be faster, it does not provide descriptions for functions and variables,
+and is not available for json transformations.
 """
 
 #####################################
