@@ -19,7 +19,7 @@ Camera::Camera() : RulesetModule(moduleName) {
     globalVal.dispResY = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::keyName.renderer.dispResY);
 }
 
-// TODO: Additional functions for alignment to object edges
+// TODO: Add another namespace for camera following rulesets using a PT1 controller for smooth movement
 
 void Camera::alignCenter(ContextBase const& context) {
     double** slf = getBaseList(context.self, keys);

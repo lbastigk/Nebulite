@@ -102,6 +102,9 @@ private:
         Right
     };
 
+    // TODO: Second align parameter for object edge alignment
+    //       Each camera align needs to know what part of the object to align to what part of the camera view
+    //       e.g.: ::camera::align::right-top would align the camera's right edge to the object's top edge
     void setCameraPosition(const position& pos, Align align) const {
         switch (align) {
             case Align::Center:
