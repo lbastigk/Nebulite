@@ -53,7 +53,8 @@ make all
 
 # Generate documentation and merge
 make docs
-git add Docs/
+git add doc/
+gut add Languages/
 git commit -m "Update documentation for release ${VERSION}" || echo "No changes in documentation to commit."
 git push origin main
 
