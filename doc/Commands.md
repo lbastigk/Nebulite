@@ -1,8 +1,8 @@
 # Nebulite Command Documentation
 
-This documentation is automatically generated from the Nebulite executable.
+This documentation is automatically generated.
 
-Generated on: Wed Dec  3 10:12:17 CET 2025
+Generated on: Mon Dec 22 09:34:40 CET 2025
 
 ## Table of Contents
 
@@ -642,7 +642,7 @@ Available Functions
 |----------|-------------|
 | `halt-once` | Halts time for one frame |
 | `help` | Show available commands and their descriptions |
-| `lock` | Locks time with lock provided,  |
+| `lock` | Locks time with lock provided, |
 | `master-unlock` | Removes all time locks. |
 | `set-fixed-dt` | Sets a fixed delta time in milliseconds for the simulation time. |
 | `unlock` | Removes a time lock. |
@@ -700,7 +700,7 @@ Available Functions
 | `delete` | Marks object for deletion |
 | `echo` | Echoes all arguments as string to the standard output. |
 | `ensure-array` | Ensure that a key is an array, converting a value to an array if necessary. |
-| `eval` | Evaluate an expression and execute the result.  |
+| `eval` | Evaluate an expression and execute the result. |
 | `fill` | Fill the texture with a color |
 | `help` | Show available commands and their descriptions |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
@@ -708,6 +708,7 @@ Available Functions
 | `log` | Logging utilities |
 | `mirror` | Mirror utilities for RenderObject to GlobalSpace synchronization |
 | `move` | Move data from one key to another. |
+| `once` | Executes a ruleset once from a given string input. |
 | `pop-back` | Pop a value from the back of an array. |
 | `pop-front` | Pop a value from the front of an array. |
 | `print` | Prints the JSON document to the console for debugging purposes. |
@@ -779,11 +780,11 @@ Usage: ensure-array <key>
 #### `eval`
 
 ```
-Evaluate an expression and execute the result. 
+Evaluate an expression and execute the result.
 Example: eval echo $(1+1)
 
 Examples:
-     
+
 eval echo $(1+1)    outputs:    2.000000
 eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
 ```
@@ -872,12 +873,24 @@ Marks the object for deletion on the next update cycle.
 
 ##### `mirror once`
 
+```
+Executes a ruleset once from a given string input.
+Either a static ruleset name or a link to a json-defined ruleset.
+```
+
 #### `move`
 
 ```
 Move data from one key to another.
 
 Usage: move <source_key> <destination_key>
+```
+
+#### `once`
+
+```
+Executes a ruleset once from a given string input.
+Either a static ruleset name or a link to a json-defined ruleset.
 ```
 
 #### `pop-back`
