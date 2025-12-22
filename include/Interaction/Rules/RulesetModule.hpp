@@ -22,7 +22,14 @@
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 
 //------------------------------------------
-// Helper macro to both check and bind in one line
+
+/**
+ * @brief Macro to bind a static ruleset with a compile-time assertion on the topic format
+ * @param type The type of the ruleset (Local/Global)
+ * @param func The function implementing the ruleset
+ * @param topic The topic/name of the ruleset
+ * @param description A brief description of the ruleset's purpose and its used variables
+ */
 #define BIND_STATIC_ASSERT(type, func, topic, description) \
     static_assert(Nebulite::Interaction::Rules::RulesetModule::isValidTopic(topic), \
     "BIND_STATIC_ASSERT(): A static rulesets topic must start with '::'. Tried to bind variable: " #topic); \
