@@ -207,19 +207,7 @@ memory-check-cli:
 ############################################
 
 package-release:
-	# TODO: Implement release packaging steps
-	#  - check if no uncommitted changes in git
-	#  - ask for version number
-	#  - run command to compile binaries for all platforms
-	#  - gather resources and documentation
-	#  - commit changes from documentation generation
-	#  - create release archive (zip/tar.gz) with proper naming
-	#  		- license files
-	#       - binaries
-	#       - readme
-	#       - resources?
-	#  -> create_release.sh needs some major rework.
-	@echo "Packaging release... (not yet implemented)"
+	@Scripts/create_release.sh
 
 
 ############################################

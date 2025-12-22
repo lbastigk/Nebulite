@@ -2,18 +2,54 @@
 
 # Nebulite Release Archive Creator
 # Creates platform-specific archives for GitHub releases
-
 set -e
+
+#############################################
+# Prerequisites:
+
+# Check if there are uncommitted changes
+if [ -n "$(git status --porcelain)" ]; then
+    echo -e "\033[0;31mError: You have uncommitted changes. Please commit or stash them before creating a release.\033[0m"
+    exit 1
+fi
+
+# Check if the branch is main
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$CURRENT_BRANCH" != "main" ]; then
+    echo -e "\033[0;31mError: You must be on the 'main' branch to create a release. Current branch: $CURRENT_BRANCH\033[0m"
+    exit 1
+fi
 
 # Check for version argument
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <version>"
     echo "Example: $0 1.0.0"
+    # Ask for release version
+    echo -n "Enter release version: "
+    read VERSION
+else
+    VERSION="$1"
+fi
+
+# Confirm version
+echo -n "Creating release for version ${VERSION}. Confirm? (y/n): "
+read CONFIRM
+if [ "$CONFIRM" != "y" ]; then
+    echo "Release creation aborted."
     exit 1
 fi
 
+# Compile binaries
+make all
+
+# Generate documentation and merge
+make docs
+git add Docs/
+git commit -m "Update documentation for release ${VERSION}" || echo "No changes in documentation to commit."
+git push origin main
+
+
 # Configuration
-VERSION="${1}"
 BUILD_DIR="release_build"
 WINDOWS_ARCHIVE="Nebulite-${VERSION}-windows.zip"
 LINUX_ARCHIVE="Nebulite-${VERSION}-linux.tar.gz"
