@@ -83,11 +83,15 @@ It focuses on:
 ```bash
   make resources
 ```
-5. Run any script:
+5. Add the completion scripts to your shell
+```bash
+  source Scripts/Other/nebuliteCompletion.sh # for bash
+```
+6. Run any script:
   ```bash
   ./bin/Nebulite task TaskFiles/Benchmarks/gravity_unlimited.nebs 
   ```
-6. Open console (press `tab`) and type `help` for interactive commands.
+7. Open console (press `tab`) and type `help` for interactive commands.
 
 <!-- TOC --><a name="core-concepts"></a>
 ## Core Concepts
