@@ -263,7 +263,6 @@ public:
             module->reinit();
         }
     }
-
 };
 } // namespace Nebulite::Interaction::Execution
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
