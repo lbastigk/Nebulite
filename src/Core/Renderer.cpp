@@ -94,10 +94,6 @@ Renderer::Renderer(Data::JSON* docRef, bool* flag_headless, unsigned int const& 
     fps.renderTimer.start();
 
     //------------------------------------------
-    // Pre-parse initialization
-    setPreParse([this] { return preParse(); });
-
-    //------------------------------------------
     // Domain Modules
     DomainModule::Initializer::initRenderer(this);
 }

@@ -33,9 +33,6 @@ GlobalSpace::GlobalSpace(std::string const& name)
     //------------------------------------------
     // Domain-Related
 
-    // Set preParse function
-    setPreParse([this] { return preParse(); });
-
     // Link inherited Domains
     inherit(&document);
     inherit(&renderer);

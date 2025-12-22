@@ -1,6 +1,5 @@
 /**
  * @file GlobalSpace.hpp
- * 
  * @brief Contains the Nebulite::Core::GlobalSpace class declaration 
  *        for the Nebulite Engine for core functionality
  *        and structures in Nebulite::Core namespace.
@@ -236,6 +235,9 @@ private:
     /**
      * @struct RngVars
      * @brief Contains RNG instances used in the global space.
+     * @todo Consider a hashmap of RNGs for more versatility in the future.
+     *       std::string -> Utility::RNG<rngSize_t>
+     *       Simplifies the rng rollback and update functions as well.
      */
     struct RngVars {
         using rngSize_t = uint16_t; // Modify this to change the size of the RNGs
@@ -249,9 +251,8 @@ private:
     // Methods
 
     /**
-     * @brief Sets the pre-parse function for the domain,
-     *        which is called before parsing any command.
-     *        It is used here to properly handle RNG
+     * @brief Called before any command parsing.
+     * @details Updates RNGs before parsing commands.
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         an error code otherwise.
      */

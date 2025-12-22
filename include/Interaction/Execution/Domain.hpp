@@ -50,6 +50,8 @@ public:
               Constants::ErrorTable::NONE(),
               Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
               )) {
+        // Set default preParse to DomainBase::preParse
+        funcTree->setPreParse([this] { return preParse(); });
     }
 
     virtual ~DomainBase() = default;
@@ -95,50 +97,33 @@ public:
 
     /**
      * @brief Parses a string into a Nebulite command and prints potential errors to stderr.
-     *        Make sure the first arg is a name and not the function itself!
-     *        - `parseStr("set text Hello World")` -> does not work!
-     *        - `parseStr("<someName> set text Hello World")` -> works
-     *        The first argument is reserved for debugging and should be used as a way to tell the parser from where it was called:
-     *        ```cpp
-     *        void myFunction(){
-     *            parseStr("myFunction set text Hello World");
-     *        }
-     *        ```
-     *        If set fails, we can use the first argument `argv[0]` to identify the source of the command.
-     *
+     * @details Make sure the first arg is a name and not the function itself!
+     *          - `parseStr("set text Hello World")` -> does not work!
+     *          - `parseStr("<someName> set text Hello World")` -> works
+     *          The first argument is reserved for debugging and should be used as a way to tell the parser from where it was called:
+     *          ```cpp
+     *          void myFunction(){
+     *              parseStr("myFunction set text Hello World");
+     *          }
+     *          ```
+     *          If set fails, we can use the first argument `argv[0]` to identify the source of the command.
+     *          The function is marked as `[[nodiscard]]` to ensure that the caller handles potential errors.
+     *          The errors are not printed to stderr by default to allow the caller to handle them as needed.
      * @param str The string to parse.
      * @return Potential errors that occurred on command execution
-     *
-     * @todo Disable printing errors if the domain is inside another domain without inheritance.
-     *       This needs to be done, otherwise each error is printed twice:
-     *       - Parent domain gets parse string, redirects parts to child
-     *       - child parses string, fails, prints error
-     *       - child returns error to parent
-     *       - parent prints error again
-     *       Idea: Add a flag to either constructor or a new method to tell each domain what kind of error handling to do.
-     *       Another idea would be to not print in parse, but escalate as far as possible, and only print in main.
-     *       To better understand the difference:
-     *       - If we inherit from another domain, we parse once, no double printing
-     *       - If we add a domain, for instance, in a DomainModule, we have a parse within a parse, leading to double printing
      */
     [[nodiscard]] Constants::Error parseStr(std::string const& str) const {
-        Constants::Error const err = funcTree->parseStr(str);
-        //err.print();  // Disabled for now, but needs proper treatment later
-        return err;
+        return funcTree->parseStr(str);
     }
 
     /**
      * @brief Necessary operations before parsing commands.
+     * @details Override this function to implement domain-specific pre-parse logic.
+     * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
+     *         an error code otherwise.
      */
     virtual Constants::Error preParse() {
         return Constants::ErrorTable::NONE();
-    }
-
-    /**
-     * @brief Sets a function to call before parsing commands.
-     */
-    void setPreParse(std::function<Constants::Error()> const& func) const {
-        funcTree->setPreParse(func);
     }
 
     //------------------------------------------
