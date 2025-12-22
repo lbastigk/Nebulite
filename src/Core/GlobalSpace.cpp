@@ -23,7 +23,9 @@ GlobalSpace::GlobalSpace(std::string const& name)
 
     //------------------------------------------
     // Setup tasks
-    tasks.always.clearAfterResolving = false; // Always tasks are never cleared
+    tasks["always"] = std::make_unique<Data::TaskQueue>("tasks::always", false);
+    tasks["internal"] = std::make_unique<Data::TaskQueue>("tasks::internal", true);
+    tasks["script"] = std::make_unique<Data::TaskQueue>("tasks::script", true); // "script" is hardcoded, do not change name!
 
     //------------------------------------------
     // General Variables
@@ -100,8 +102,9 @@ Constants::Error GlobalSpace::update() {
         // Reduce script wait counter if not in console mode or other halting states (tick returns false in those cases)
         renderer.update();
         if (!renderer.hasSkippedUpdate()) {
-            if (scriptWaitCounter > 0)
-                scriptWaitCounter--;
+            for (auto const& t : tasks) {
+                t.second->decrementWaitCounter();
+            }
         }
 
         // Frame was rendered, meaning we potentially have new tasks to process
@@ -118,9 +121,9 @@ Constants::Error GlobalSpace::update() {
      * @note It might be tempting to add the condition that all tasks are done,
      *       but this could cause issues if the user wishes to quit while a task is still running.
      */
-    if (scriptWaitCounter > 0 && !renderer.isSdlInitialized()) {
+    if (tasks["script"]->isWaiting() && !renderer.isSdlInitialized()) {
         continueLoop = true;
-        scriptWaitCounter--;
+        tasks["script"]->decrementWaitCounter();
 
         // Parse new tasks on next loop
         queueParsed = false;
@@ -152,7 +155,7 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                tasks.script.tasks.push_back(command);
+                tasks["script"]->append(command);
             }
         }
     } else {
@@ -181,101 +184,21 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
          *       So later on, we might consider always calling entrypoint as first task AFTER the command line arguments are parsed
          *       This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
          */
-        tasks.script.tasks.emplace_back("set-fps 60");
+        tasks["script"]->append("set-fps 60");
     }
-}
-
-Data::TaskQueueResult GlobalSpace::resolveTaskQueue(Data::TaskQueue& tq, uint64_t const* waitCounter) const {
-    Constants::Error currentResult;
-    Data::TaskQueueResult fullResult;
-
-    // 1.) Process and pop tasks
-    if (tq.clearAfterResolving) {
-        while (!tq.tasks.empty()) {
-            // Check stop conditions
-            if (fullResult.encounteredCriticalResult && !cmdVars.recover)
-                break;
-            if (waitCounter != nullptr && *waitCounter > 0)
-                break;
-
-            // Pop front
-            std::string argStr = tq.tasks.front();
-            tq.tasks.pop_front();
-
-            // Add binary name if missing
-            if (!argStr.starts_with(names.binary + " ")) {
-                argStr.insert(0, names.binary + " ");
-            }
-
-            // Parse
-            currentResult = parseStr(argStr);
-
-            // Check result
-            if (currentResult.isCritical()) {
-                fullResult.encounteredCriticalResult = true;
-            }
-            fullResult.errors.push_back(currentResult);
-        }
-    }
-    // 2.) Process without popping tasks
-    else {
-        for (auto const& argStrOrig : tq.tasks) {
-            // Check stop conditions
-            if (fullResult.encounteredCriticalResult && !cmdVars.recover)
-                break;
-            if (waitCounter != nullptr && *waitCounter > 0)
-                break;
-
-            // Add binary name if missing
-            std::string argStr = argStrOrig;
-            if (!argStr.starts_with(names.binary + " ")) {
-                argStr.insert(0, names.binary + " ");
-            }
-
-            // Parse
-            currentResult = parseStr(argStr);
-
-            // Check result
-            if (currentResult.isCritical()) {
-                fullResult.encounteredCriticalResult = true;
-            }
-            fullResult.errors.push_back(currentResult);
-        }
-    }
-
-    return fullResult;
 }
 
 Constants::Error GlobalSpace::parseQueue() {
     static uint64_t const* noWaitCounter = nullptr;
     Constants::Error lastCriticalResult;
-
-    // 1.) Clear errors from last loop
-    queueResult.script.errors.clear();
-    queueResult.internal.errors.clear();
-    queueResult.always.errors.clear();
-
-    // 2.) Parse script tasks
-    queueResult.script = resolveTaskQueue(tasks.script, &scriptWaitCounter);
-    if (queueResult.script.encounteredCriticalResult && !cmdVars.recover) {
-        lastCriticalResult = queueResult.script.errors.back();
-        return lastCriticalResult;
+    queueResult.clear();
+    for (auto const& t : tasks) {
+        queueResult[t.first] = t.second->resolve(*this);
+        if (queueResult[t.first].encounteredCriticalResult && !cmdVars.recover) {
+            lastCriticalResult = queueResult[t.first].errors.back();
+            return lastCriticalResult;
+        }
     }
-
-    // 3.) Parse internal tasks
-    queueResult.internal = resolveTaskQueue(tasks.internal, noWaitCounter);
-    if (queueResult.internal.encounteredCriticalResult && !cmdVars.recover) {
-        lastCriticalResult = queueResult.internal.errors.back();
-        return lastCriticalResult;
-    }
-
-    // 4.) Parse always-tasks
-    queueResult.always = resolveTaskQueue(tasks.always, noWaitCounter);
-    if (queueResult.always.encounteredCriticalResult && !cmdVars.recover) {
-        lastCriticalResult = queueResult.always.errors.back();
-        return lastCriticalResult;
-    }
-
     return Constants::ErrorTable::NONE();
 }
 

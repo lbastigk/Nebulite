@@ -35,10 +35,8 @@ struct TaskQueueResult {
 };
 
 /**
- * @struct taskQueueWrapper
+ * @struct Nebulite::Data::TaskQueue
  * @brief Represents a queue of tasks to be processed by the engine, including metadata.
- * @todo Rename to TaskQueue, deque should simply be called 'tasks'
- * @todo Move to Nebulite::Data::TaskQueue, as it is not specific to GlobalSpace
  * @todo Would it make sense for this to be a class derived from Domain?
  *       That way, each taskQueue would have functions such as clear, wait, always etc.?
  *       Perhaps an idea for the future, for now we simply use separate taskQueueWrappers for each type:
@@ -48,8 +46,15 @@ struct TaskQueueResult {
  */
 struct TaskQueue {
 public:
-    std::deque<std::string> tasks; // List of tasks. TODO: std::vector should be enough?
-    bool clearAfterResolving = true; // Whether to clear the task list after resolving
+
+    /**
+     * @brief Constructs a TaskQueue with specified settings.
+     * @param clearAfterResolving If true, the task queue is cleared after resolving tasks.
+     * @param callbackName The name used as arg[0] when parsing tasks from this queue.
+     */
+    explicit TaskQueue(std::string const& callbackName, bool const& clearAfterResolving = true)
+        : settings{callbackName, clearAfterResolving} {}
+
     /**
      * @note Add more metadata as needed, for resolveTaskQueue() to use
      *       in case new task types are added in the future.
@@ -71,10 +76,20 @@ public:
      */
     void append(std::string const& task);                               // TODO: Thread-safe append to back of buffer
     void wait(uint64_t const& frames);                                  // TODO: Add to wait counter
-    TaskQueueResult resolve(Interaction::ContextBase const& context);   // TODO: Sort buffer, append to main queue, resolve if waitCounter == 0, decrease waitCounter otherwise
-    void clear();                                                       // TODO: Should also clear buffer?
+    TaskQueueResult resolve(Interaction::Execution::DomainBase& context);   // TODO: Sort buffer, append to main queue, resolve if waitCounter == 0, decrease waitCounter otherwise
+    void clear();   // TODO: Should also clear buffer?
 
-//private:  // Make private later on
+    void decrementWaitCounter() {
+        if (state.waitCounter > 0) {
+            --state.waitCounter;
+        }
+    }
+
+    bool isWaiting() const {
+        return state.waitCounter > 0;
+    }
+
+private:
     /**
      * @todo An option to avoid race-conditions when multiple threads append tasks.
      *       Idea: Store tasks in temporary buffer, insert into main queue alphanumerically sorted on resolve.
@@ -82,15 +97,22 @@ public:
      *       On resolve, we lock the main queue, merge the temporary buffer into the main queue in sorted order, and then clear the temporary buffer.
      *       This ensures that tasks are always executed in a consistent order, while minimizing locking overhead during appends.
      */
-    std::mutex bufferMutex; // Mutex for thread-safe access to the temporary buffer
-    std::mutex queueMutex;  // Mutex for thread-safe access to the task queue
+    struct threadsafeTasks {
+        std::deque<std::string> list; // List of tasks.
+        std::mutex mutex;  // Mutex for thread-safe access to the task queue
+    };
 
-    uint64_t waitCounter = 0; // Frames to wait before processing tasks
-    std::vector<std::string> tempBuffer; // Temporary buffer for tasks added by multiple threads
+    threadsafeTasks tasks; // Thread-safe task queue
+    threadsafeTasks buffer; // Temporary buffer for tasks added by multiple threads
 
     struct Settings {
+        std::string callbackName; // Name used as arg[0] when parsing tasks from this queue
         bool clearAfterResolving = true;
     } settings;
+
+    struct State {
+        uint64_t waitCounter = 0; // Internal wait counter
+    } state;
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_TASKQUEUE_HPP

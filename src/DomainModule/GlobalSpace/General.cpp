@@ -52,9 +52,7 @@ where NAME is the current value of the global variable ToSpawn
 // NOLINTNEXTLINE
 Constants::Error General::exit(int argc, char** argv) {
     // Clear all task queues to prevent further execution
-    domain->tasks.script.tasks.clear();
-    domain->tasks.internal.tasks.clear();
-    domain->tasks.always.tasks.clear();
+    domain->clearAllTaskQueues();
 
     // Set the renderer to quit
     domain->quitRenderer();
