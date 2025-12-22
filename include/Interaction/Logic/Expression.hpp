@@ -20,6 +20,7 @@
 
 // Nebulite
 #include "Data/DocumentCache.hpp"
+#include "Data/RollingId.hpp"
 #include "Interaction/Context.hpp"
 #include "Interaction/Logic/VariableNameGenerator.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
@@ -185,6 +186,16 @@ public:
      * @return The evaluated boolean value.
      */
     static bool evalAsBool(std::string const& input);
+
+    /**
+     * @brief Generates a unique ID for a given expression string.
+     * @param expression The expression string to generate an ID for.
+     * @return The generated unique ID.
+     */
+    static uint64_t generateUniqueId(std::string const& expression) {
+        static Data::RollingId idGenerator;
+        return idGenerator.getId(expression);
+    }
 
 private:
     // The reference for context self stays the same throughout the expression's lifetime
@@ -484,10 +495,10 @@ private:
 
     /**
      * @brief Resets the expression to its initial state.
-     *
-     * - Clears all components
-     * - Clears all variables and re-registers standard functions
-     * - Clears all virtual double entries
+     * @details This function:
+     *          - Clears all components
+     *          - Clears all variables and re-registers standard functions
+     *          - Clears all virtual double entries
      */
     void reset();
 

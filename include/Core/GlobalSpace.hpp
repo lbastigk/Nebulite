@@ -192,41 +192,6 @@ public:
      */
     [[nodiscard]] bool shouldContinueLoop() const { return continueLoop; }
 
-    /**
-     * @enum UniqueIdType
-     * @brief Types of unique ID spaces.
-     *        We allow for multiple unique ID spaces so that different systems
-     *        are all in their own container.
-     */
-    enum class UniqueIdType {
-        expression, // Each expression gets a unique ID to match to a list of double pointers
-        jsonKey,    // Each JSON key gets a unique ID   to match to a single double pointer
-        NONE        // Keep this as last entry
-    };
-
-    /**
-     * @brief Amount of different UniqueIdTypes.
-     */
-    static constexpr size_t UniqueIdTypeSize = static_cast<size_t>(UniqueIdType::NONE) + 1;
-
-    /**
-     * @brief Gets a unique ID based on a hash string.
-     *        Threadsafe. Uses a mutex-lock per UniqueIdType.
-     * @param hash The hash string to get the unique ID for.
-     * @param type Which rolling counter to use for the unique ID, allowing for separate ID spaces.
-     * @return The unique ID corresponding to the hash.
-     * @todo Implement in-class instead of here, using the new uniqueId generator class!
-     */
-    uint64_t getUniqueId(std::string const& hash, UniqueIdType type) {
-        std::scoped_lock lock(uniqueIdMutex[static_cast<size_t>(type)]);
-        if (auto const it = uniqueIdMap[static_cast<size_t>(type)].find(hash); it != uniqueIdMap[static_cast<size_t>(type)].end()) {
-            return it->second;
-        }
-        uint64_t const newId = uniqueIdCounter[static_cast<size_t>(type)]++;
-        uniqueIdMap[static_cast<size_t>(type)][hash] = newId;
-        return newId;
-    }
-
 private:
     //------------------------------------------
     // General Variables
@@ -245,11 +210,6 @@ private:
 
     // Invoke Object for parsing expressions etc.
     Interaction::Invoke invoke;
-
-    // Unique ID map
-    uint64_t uniqueIdCounter[UniqueIdTypeSize] = {0, 0};
-    absl::flat_hash_map<std::string, uint64_t> uniqueIdMap[UniqueIdTypeSize];
-    std::mutex uniqueIdMutex[UniqueIdTypeSize];
 
     //------------------------------------------
     // Structs
