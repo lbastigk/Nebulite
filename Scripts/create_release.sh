@@ -39,6 +39,10 @@ if [ "$CONFIRM" != "y" ]; then
     exit 1
 fi
 
+# Run tests first for now, as the wine tests may fail due to threading issues
+# Only run native tests
+make clean-build-and-test-native
+
 # Compile binaries
 make all
 
