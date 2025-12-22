@@ -51,15 +51,25 @@ make clean-build-and-test-native
 # Compile binaries
 make all
 
-# Generate documentation and merge
+# Generate documentation, commit and push
 make docs
 git add doc/
 git add Languages/
-if [ -n "$(git status --porcelain)" ]; then
-    echo -e "\033[0;33mWarning: There are uncommitted changes after building documentation. Please review them.\033[0m"
+
+# Check for unstaged tracked changes
+git diff --quiet || {
+    echo -e "\033[0;33mWarning: There are unstaged changes after building documentation.\033[0m"
+    git status
+    exit 1
+}
+
+# Check for untracked files
+if [ -n "$(git ls-files --others --exclude-standard)" ]; then
+    echo -e "\033[0;33mWarning: There are untracked files after building documentation.\033[0m"
     git status
     exit 1
 fi
+
 git commit -m "Update documentation for release ${VERSION}" || echo "No changes in documentation to commit."
 git push origin main
 
