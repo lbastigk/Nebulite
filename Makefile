@@ -85,9 +85,9 @@ all: $(AVAILABLE_PRESETS)
 .PHONY: all install-deps resources test run clean $(NATIVE_PRESET)
 
 install-deps:
-	@sudo -S ./Scripts/installSystemPackages.sh
-	@./Scripts/installExternals.sh
-	@./Scripts/installPythonPackages.sh
+	@sudo -S ./Scripts/Installation/systemPackages.sh
+	@./Scripts/Installation/externals.sh
+	@./Scripts/Installation/pythonPackages.sh
 
 resources:
 	@./Scripts/AssetCreation/create_resources_directory.sh
@@ -194,7 +194,7 @@ memory-check-cli:
 ############################################
 
 package-release:
-	@Scripts/create_release.sh
+	@Scripts/createRelease.sh
 
 
 ############################################
