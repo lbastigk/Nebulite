@@ -467,12 +467,15 @@ private:
      * @param prefix
      * @return
      */
-    std::vector<std::string> findCompletions(std::string const& pattern, std::string const& prefix);
+    std::vector<std::string> findCompletions(std::string const& pattern);
 
     /**
      * @brief Traverses into a category based on the provided name.
+     * @param categoryName Name of the category to traverse into
+     * @param ftree Pointer to the current FuncTree
+     * @return Pointer to the FuncTree of the category, or nullptr if not found.
      */
-    bool traverseIntoCategory(std::string const& categoryName, FuncTree* ftree);
+    FuncTree<returnValue, additionalArgs...>* traverseIntoCategory(std::string const& categoryName, FuncTree* ftree);
 };
 } // namespace Nebulite::Interaction::Execution
 
