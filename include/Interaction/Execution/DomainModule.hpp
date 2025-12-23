@@ -1,8 +1,7 @@
 /**
  * @file DomainModule.hpp
- * 
- * This file defines the DomainModule class, which extends the functionality of the FuncTree
- * class to support category-based function bindings.
+ * @brief This file defines the DomainModule class, which extends the functionality of the FuncTree
+ *        class to support category-based function bindings.
  */
 
 #ifndef NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_HPP
@@ -33,16 +32,16 @@ namespace Nebulite::Interaction::Execution {
 /**
  * @class Nebulite::Interaction::Execution::DomainModule
  * @brief Wrapper class for binding functions to a specific category in the FuncTree and adding separate update routines.
- *        This allows for cleaner separation of object files for different categories
- *        and reduces boilerplate code when attaching functions to the FuncTree.
+ * @details Allows for cleaner separation of object files for different categories
+ *          and reduces boilerplate code when attaching functions to the FuncTree.
  */
 template <typename DomainType>
 class DomainModule {
 public:
     /**
      * @brief Constructor for the DomainModule base class.
-     *        The constructor initializes the DomainModule with a reference to the domain and
-     *        the FuncTree.
+     * @details The constructor initializes the DomainModule with a reference to the domain and
+     *          the FuncTree.
      */
     DomainModule(
         std::string name,
@@ -95,10 +94,10 @@ public:
     }
 
     /**
-    * @brief Binds a member function to the FuncTree.
-     *       This function template allows for binding member functions of any class type
-     *       to the FuncTree, automatically handling the necessary type conversions.
-     *       This function is a wrapper around the static bindFunctionStatic helper for methods inside the DomainModule.
+     * @brief Binds a member function to the FuncTree.
+     * @details This function template allows for binding member functions of any class type
+     *          to the FuncTree, automatically handling the necessary type conversions.
+     *          This function is a wrapper around the static bindFunctionStatic helper for methods inside the DomainModule.
      * @tparam ClassType The type of the class containing the member function.
      * @tparam ReturnType The return type of the member function.
      * @tparam Args The argument types of the member function.
@@ -115,9 +114,7 @@ public:
 
     /**
      * @brief Binds a category to the FuncTree.
-     * 
-     * A category acts as a "function bundler" to the main tree.
-     * 
+     * @details A category acts as a "function bundler" to the main tree.
      * @param name Name of the category
      * @param helpDescription Description of the category, shown in the help command. First line is shown in the general help, full description in detailed help
      * @return true if the category was created successfully, false if a category with the same name already exists
@@ -128,12 +125,11 @@ public:
 
     /**
      * @brief Binds a variable to the command tree.
-     * 
-     * Make sure the variable is of type std::string*.
-     * 
-     * Once bound, it can be set via command line arguments: --varName=value (Must be before the function name!)
-     * 
-     * A simple argument of '--varName' will set the value to "true"
+     * @param variablePtr Pointer to the variable to bind.
+     * @param name Name of the variable in the command tree.
+     * @param helpDescription Description of the variable, shown in the help command.
+     * @details Once bound, it can be set via command line arguments: --varName=value (Must be before the function name!)
+     *          A simple argument of '--varName' will set the value to "true"
      */
     void bindVariable(bool* variablePtr, std::string const& name, std::string const* helpDescription) const {
         // Bind a variable to the FuncTree
@@ -166,14 +162,11 @@ protected:
 private:
     /**
      * @brief Pointer to the internal FuncTree for binding functions and variables.
-     * 
-     * We need a pointer here to avoid circular dependencies that are hard to resolve,
-     * as both Domain and DomainModule are templated classes
-     * 
-     * FuncTree, however, is fully defined at this point, so we can use it directly.
-     * 
-     * Instead of making a mess by untangling the templates, we simply use a pointer
-     * to the non-templated interface.
+     * @details We need a pointer here to avoid circular dependencies that are hard to resolve,
+     *          as both Domain and DomainModule are templated classes
+     *          FuncTree, however, is fully defined at this point, so we can use it directly.
+     *          Instead of making a mess by untangling the templates, we simply use a pointer
+     *          to the non-templated interface.
      */
     std::shared_ptr<FuncTree<Constants::Error>> funcTree;
 };
