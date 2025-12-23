@@ -153,7 +153,7 @@ std::string getTextureInfoString(SDL_Texture* texture) {
     }
     return info;
 }
-}
+} // unnamed namespace
 
 // NOLINTNEXTLINE
 Constants::Error Debug::textureStatus(int argc, char** argv) {
