@@ -24,7 +24,7 @@
 // Binding error messages
 
 namespace bindErrorMessage {
-inline void MissingCategory(std::string const& tree, std::string const& category, std::string const& function) {
+[[noreturn]] inline void MissingCategory(std::string const& tree, std::string const& category, std::string const& function) {
     Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------" << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "A Nebulite FuncTree binding failed!" << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "Error: Category '" << category << "' does not exist when trying to bind function '" << function << "'." << Nebulite::Utility::Capture::endl;
@@ -33,14 +33,14 @@ inline void MissingCategory(std::string const& tree, std::string const& category
     throw std::runtime_error("FuncTree binding failed due to missing category.");
 }
 
-inline void FunctionShadowsCategory(std::string const& function) {
+[[noreturn]] inline void FunctionShadowsCategory(std::string const& function) {
     Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------" << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "A Nebulite FuncTree binding failed!" << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "Error: Cannot bind function '" << function << "' because a category with the same name already exists." << Nebulite::Utility::Capture::endl;
     throw std::runtime_error("FuncTree binding failed due to function shadowing category.");
 }
 
-inline void FunctionExistsInInheritedTree(std::string const& tree, std::string const& inheritedTree, std::string const& function) {
+[[noreturn]] inline void FunctionExistsInInheritedTree(std::string const& tree, std::string const& inheritedTree, std::string const& function) {
     Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
     Nebulite::Utility::Capture::cerr() << "A Nebulite FuncTree initialization failed!\n";
     Nebulite::Utility::Capture::cerr() << "Error: A bound Function already exists in the inherited FuncTree.\n";
@@ -52,20 +52,20 @@ inline void FunctionExistsInInheritedTree(std::string const& tree, std::string c
     throw std::runtime_error("FuncTree binding failed due to function existing in inherited tree.");
 }
 
-inline void ParentCategoryDoesNotExists(std::string const& name, std::string const& currentCategoryName) {
+[[noreturn]] inline void ParentCategoryDoesNotExists(std::string const& name, std::string const& currentCategoryName) {
     Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
     Nebulite::Utility::Capture::cerr() << "Error: Cannot create category '" << name << "' because parent category '" << currentCategoryName << "' does not exist." << Nebulite::Utility::Capture::endl;
     throw std::runtime_error("FuncTree binding failed due to missing parent category.");
 }
 
-inline void CategoryExists(std::string const& name) {
+[[noreturn]] inline void CategoryExists(std::string const& name) {
     Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
     Nebulite::Utility::Capture::cerr() << "A Nebulite FuncTree initialization failed!\n";
     Nebulite::Utility::Capture::cerr() << "Error: Cannot create category '" << name << "' because it already exists." << Nebulite::Utility::Capture::endl;
     throw std::runtime_error("FuncTree binding failed due to category already existing.");
 }
 
-inline void FunctionExists(std::string const& tree, std::string const& function) {
+[[noreturn]] inline void FunctionExists(std::string const& tree, std::string const& function) {
     Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
     Nebulite::Utility::Capture::cerr() << "Nebulite FuncTree initialization failed!\n";
     Nebulite::Utility::Capture::cerr() << "Error: A bound Function already exists in this tree.\n";
@@ -76,7 +76,7 @@ inline void FunctionExists(std::string const& tree, std::string const& function)
     throw std::runtime_error("FuncTree binding failed due to function already existing.");
 }
 
-inline void UnknownMethodPointerType(std::string const& tree, std::string const& function) {
+[[noreturn]] inline void UnknownMethodPointerType(std::string const& tree, std::string const& function) {
     Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
     Nebulite::Utility::Capture::cerr() << "Nebulite FuncTree initialization failed!\n";
     Nebulite::Utility::Capture::cerr() << "Error: Unknown method pointer type for function '" << function << "' in FuncTree '" << tree << "'.\n";

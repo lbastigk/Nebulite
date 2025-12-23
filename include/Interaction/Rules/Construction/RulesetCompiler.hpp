@@ -56,7 +56,6 @@ public:
      * @param rulesetsGlobal The global Ruleset objects.
      * @param rulesetsLocal The local Ruleset objects.
      * @param self The RenderObject instance associated with the entries.
-     * @param docCache The DocumentCache instance to use for parsing expressions.
      */
     static void parse(
         std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal,
