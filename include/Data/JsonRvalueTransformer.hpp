@@ -170,7 +170,7 @@ public:
      *        Input document: {"value": 10}
      *        After applying the transformation, the document will be: {"value": 30}
      * @param args A list of arguments representing the transformations to apply.
-     * @param jsonDoc The JSON document to modify. Should hold the value from the get operation
+     * @param jsonDoc The JSON document to modify. Should hold the value from the get-operation
      *                in a specified key. On success, the modified value will be stored back in the same key.
      * @return true if the transformations were successfully applied, false otherwise.
      */

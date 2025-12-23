@@ -82,7 +82,7 @@ public:
     /**
      * @brief Waits for the worker thread to finish processing.
      */
-    void waitForWorkFinished() {
+    void waitForWorkFinished() const {
         while (!threadState.workFinished.load()) {
             std::this_thread::yield();
         }
