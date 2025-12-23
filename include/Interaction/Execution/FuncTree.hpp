@@ -463,9 +463,8 @@ private:
 
     /**
      * @brief Finds possible completions for a given pattern and prefix in the current FuncTree.
-     * @param pattern
-     * @param prefix
-     * @return
+     * @param pattern The pattern to match for completions
+     * @return A vector of possible completions
      */
     std::vector<std::string> findCompletions(std::string const& pattern);
 

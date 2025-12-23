@@ -24,27 +24,23 @@ namespace Nebulite::Core {
 /**
  * @class Nebulite::Core::Environment
  * @brief Represents the container of all render objects loaded in memory.
- *
- * This class is responsible for containing all RenderObject instances.
- * Lifecycle management is handled inside the RenderObjectContainer.
- * The environment is split into multiple layers, each containing a grid of render objects.
- * The grid size depends on the display resolution:
- * `<display_resolution_x> * <display_resolution_y>`
+ * @details This class is responsible for containing all RenderObject instances.
+ *          Lifecycle management is handled inside the RenderObjectContainer.
+ *          The environment is split into multiple layers, each containing a grid of render objects.
+ *          The grid size depends on the display resolution:
+ *          `<display_resolution_x> * <display_resolution_y>`
  */
 NEBULITE_DOMAIN(Environment) {
 public:
     /**
      * @enum Nebulite::Core::Environment::Layer
      * @brief Enum representing the different rendering layers.
-     *
-     * Each layer is technically responsible for a specific type of rendering.
-     * However, there is no real distinction in how the layers are processed.
-     * The only difference is the order in which they are rendered.
-     * Each layer can be thought of as a separate "pass" over the render objects.
-     * Starting with the lowest layer (background) and ending with the highest layer (menu).
-     *
-     * *IMPORTANT:* New layers must be added to private variable `allLayers` in the correct order.
-     *
+     * @details Each layer is technically responsible for a specific type of rendering.
+     *          However, there is no real distinction in how the layers are processed.
+     *          The only difference is the order in which they are rendered.
+     *          Each layer can be thought of as a separate "pass" over the render objects.
+     *          Starting with the lowest layer (background) and ending with the highest layer (menu).
+     *          *IMPORTANT:* New layers must be added to private variable `allLayers` in the correct order.
      * @todo Once GUI DomainModule and renderer texture queuing is properly implemented,
      *       the layer size may be reduced and layer names reworked.
      */
@@ -84,20 +80,16 @@ public:
 
     /**
      * @brief Serializes the Environment to a JSON string.
-     *
-     * The serialized JSON string consists of n many arrays, one for each layer.
-     * Each array contains the serialized representation of the RenderObjects in that layer.
-     *
+     * @details The serialized JSON string consists of n many arrays, one for each layer.
+     *          Each array contains the serialized representation of the RenderObjects in that layer.
      * @return A JSON string representation of the Environment.
      */
     std::string serialize();
 
     /**
      * @brief Deserializes the Environment from a JSON string.
-     *
-     * The deserialized JSON string is expected to have the same structure as the serialized format.
-     * See `serialize()` for more details.
-     *
+     * @details The deserialized JSON string is expected to have the same structure as the serialized format.
+     *          See `serialize()` for more details.
      * @param serialOrLink The JSON string to deserialize or a link to the JSON file.
      * @param dispResX Display resolution width. Necessary to position the object correctly in its tile-based container.
      * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
@@ -108,10 +100,7 @@ public:
     // Object Management
 
     /**
-     * @brief Appends a RenderObject to the environment.
-     *
-     * This function adds a new RenderObject to the specified layer of the environment.
-     *
+     * @brief Appends a new RenderObject to the specified layer of the environment.
      * @param toAppend Pointer to the RenderObject to append.
      * @param dispResX Display resolution width. Necessary to position the object correctly in its tile-based container.
      * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
@@ -130,9 +119,7 @@ public:
 
     /**
      * @brief Rebuilds the Container structure.
-     *
-     * This function is responsible for reinserting all render objects into their respective containers.
-     *
+     * @details Responsible for reinserting all render objects into their respective containers.
      * @param dispResX Display resolution width. Necessary for positioning the objects correctly in their tile-based containers.
      * @param dispResY Display resolution height. Necessary for positioning the objects correctly in their tile-based containers.
      */
@@ -140,7 +127,6 @@ public:
 
     /**
      * @brief Retrieves a RenderObject by its ID.
-     *
      * @param id The ID of the RenderObject to retrieve.
      * @return A pointer to the RenderObject if found, nullptr otherwise.
      */
@@ -151,7 +137,6 @@ public:
 
     /**
      * @brief Retrieves the RenderObjectContainer at the specified position and layer.
-     *
      * @param x The X coordinate of the tile.
      * @param y The Y coordinate of the tile.
      * @param layer The layer index.
@@ -161,7 +146,6 @@ public:
 
     /**
      * @brief Checks if the specified position and layer are valid, meaning they are within the bounds of the environment.
-     *
      * @param x The X coordinate of the tile.
      * @param y The Y coordinate of the tile.
      * @param layer The layer index.
@@ -176,7 +160,6 @@ public:
 
     /**
      * @brief Retrieves the total number of render objects in the environment.
-     *
      * @return The total number of render objects in the environment.
      */
     [[nodiscard]] size_t getObjectCount() const;
