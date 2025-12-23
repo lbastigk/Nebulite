@@ -434,11 +434,11 @@ returnType FuncTree<returnType, additionalArgs...>::parseStr(std::string const& 
     auto inheritedTree = findInInheritedTrees(funcName);
     if (inheritedTree != nullptr) {
         // Function is in inherited tree, parse there
-        return inheritedTree->executeFunction(funcName, argc, argv, tokensSpan, addArgs...);
+        return inheritedTree->executeFunction(funcName, static_cast<int>(argc), argv, tokensSpan, addArgs...);
     }
 
     // Not found in inherited trees, execute the function the main tree
-    return executeFunction(funcName, argc, argv, tokensSpan, addArgs...);
+    return executeFunction(funcName, static_cast<int>(argc), argv, tokensSpan, addArgs...);
 }
 
 template <typename returnType, typename... additionalArgs>
