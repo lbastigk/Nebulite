@@ -7,15 +7,15 @@ TaskQueueResult TaskQueue::resolve(Interaction::Execution::DomainBase& context, 
     Constants::Error currentResult;
     Data::TaskQueueResult fullResult;
 
-    if (state.waitCounter > 0)
-        return fullResult;
-
     // 1.) Process and pop tasks
     if (settings.clearAfterResolving) {
         while (!tasks.list.empty()) {
-            // Check stop conditions
+            // Check stop conditions on each iteration,
+            // as they might have changed during parsing
             if (fullResult.encounteredCriticalResult && !recover)
                 break;
+            if (state.waitCounter > 0)
+                return fullResult;
 
             // Pop front
             std::string argStr = tasks.list.front();
@@ -39,9 +39,12 @@ TaskQueueResult TaskQueue::resolve(Interaction::Execution::DomainBase& context, 
     // 2.) Process without popping tasks
     else {
         for (auto const& argStrOrig : tasks.list) {
-            // Check stop conditions
+            // Check stop conditions on each iteration,
+            // as they might have changed during parsing
             if (fullResult.encounteredCriticalResult && !recover)
                 break;
+            if (state.waitCounter > 0)
+                return fullResult;
 
             // Add binary name if missing
             std::string argStr = argStrOrig;
