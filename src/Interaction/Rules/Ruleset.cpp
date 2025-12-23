@@ -52,7 +52,6 @@ void JsonRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
     auto otherDoc = contextOther->getDoc();
 
     // 1.) Assignments
-    // TODO: getDoc before the loop!
     for (auto& assignment : assignments) {
         assignment.apply(selfDoc, otherDoc);
     }
@@ -63,10 +62,8 @@ void JsonRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
         std::string call = entry.eval(otherDoc);
 
         // attach to task queue
-        // TODO: needs its own lock!!
-        //       Idea: don't expose task queue publicly, but have a method to add tasks with internal locking
-        //std::scoped_lock lock(taskQueue.mutex);
-        //Nebulite::global().getTaskQueue()->emplace_back(call);
+        Nebulite::global().getTaskQueue(Nebulite::global().standardTasks.internal)->pushBack(call);
+
     }
     for (auto& entry : functioncalls_self) {
         // replace vars

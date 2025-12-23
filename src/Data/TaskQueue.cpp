@@ -7,13 +7,14 @@ TaskQueueResult TaskQueue::resolve(Interaction::Execution::DomainBase& context, 
     Constants::Error currentResult;
     Data::TaskQueueResult fullResult;
 
+    if (state.waitCounter > 0)
+        return fullResult;
+
     // 1.) Process and pop tasks
     if (settings.clearAfterResolving) {
         while (!tasks.list.empty()) {
             // Check stop conditions
             if (fullResult.encounteredCriticalResult && !recover)
-                break;
-            if (state.waitCounter > 0)
                 break;
 
             // Pop front
@@ -41,8 +42,6 @@ TaskQueueResult TaskQueue::resolve(Interaction::Execution::DomainBase& context, 
             // Check stop conditions
             if (fullResult.encounteredCriticalResult && !recover)
                 break;
-            if (state.waitCounter > 0)
-                break;
 
             // Add binary name if missing
             std::string argStr = argStrOrig;
@@ -61,6 +60,41 @@ TaskQueueResult TaskQueue::resolve(Interaction::Execution::DomainBase& context, 
         }
     }
     return fullResult;
+}
+
+void TaskQueue::pushBack(std::string const& task) {
+    std::lock_guard<std::mutex> lock(tasks.mutex);
+    tasks.list.push_back(task);
+}
+
+void TaskQueue::pushFront(std::string const& task) {
+    std::lock_guard<std::mutex> lock(tasks.mutex);
+    tasks.list.push_front(task);
+}
+
+void TaskQueue::wait(uint64_t const& frames) {
+    state.waitCounter += frames;
+}
+
+void TaskQueue::clear() {
+    tasks.list.clear();
+    state.waitCounter = 0;
+}
+
+void TaskQueue::incrementWaitCounter(uint64_t const& increment) {
+    state.waitCounter += increment;
+}
+
+void TaskQueue::decrementWaitCounter(uint64_t const& decrement) {
+    if (state.waitCounter >= decrement) {
+        state.waitCounter -= decrement;
+    } else {
+        state.waitCounter = 0;
+    }
+}
+
+bool TaskQueue::isWaiting() const {
+    return state.waitCounter > 0;
 }
 
 } // namespace Nebulite::Data

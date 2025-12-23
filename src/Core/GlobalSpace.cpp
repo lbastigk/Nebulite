@@ -23,9 +23,9 @@ GlobalSpace::GlobalSpace(std::string const& name)
 
     //------------------------------------------
     // Setup tasks
-    tasks["always"] = std::make_unique<Data::TaskQueue>("tasks::always", false);
-    tasks["internal"] = std::make_unique<Data::TaskQueue>("tasks::internal", true);
-    tasks["script"] = std::make_unique<Data::TaskQueue>("tasks::script", true); // "script" is hardcoded, do not change name!
+    tasks[standardTasks.always] = std::make_shared<Data::TaskQueue>(standardTasks.always, false);
+    tasks[standardTasks.internal] = std::make_shared<Data::TaskQueue>(standardTasks.internal, true);
+    tasks[standardTasks.script] = std::make_shared<Data::TaskQueue>(standardTasks.script, true);
 
     //------------------------------------------
     // General Variables
@@ -121,9 +121,9 @@ Constants::Error GlobalSpace::update() {
      * @note It might be tempting to add the condition that all tasks are done,
      *       but this could cause issues if the user wishes to quit while a task is still running.
      */
-    if (tasks["script"]->isWaiting() && !renderer.isSdlInitialized()) {
+    if (tasks[standardTasks.script]->isWaiting() && !renderer.isSdlInitialized()) {
         continueLoop = true;
-        tasks["script"]->decrementWaitCounter();
+        tasks[standardTasks.script]->decrementWaitCounter();
 
         // Parse new tasks on next loop
         queueParsed = false;
@@ -155,7 +155,7 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                tasks["script"]->append(command);
+                tasks[standardTasks.script]->pushBack(command);
             }
         }
     } else {
@@ -184,16 +184,15 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
          *       So later on, we might consider always calling entrypoint as first task AFTER the command line arguments are parsed
          *       This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
          */
-        tasks["script"]->append("set-fps 60");
+        tasks[standardTasks.script]->pushBack("set-fps 60");
     }
 }
 
 Constants::Error GlobalSpace::parseQueue() {
-    static uint64_t const* noWaitCounter = nullptr;
     Constants::Error lastCriticalResult;
     queueResult.clear();
     for (auto const& t : tasks) {
-        queueResult[t.first] = t.second->resolve(*this);
+        queueResult[t.first] = t.second->resolve(*this, cmdVars.recover);
         if (queueResult[t.first].encounteredCriticalResult && !cmdVars.recover) {
             lastCriticalResult = queueResult[t.first].errors.back();
             return lastCriticalResult;

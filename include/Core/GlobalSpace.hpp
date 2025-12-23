@@ -167,6 +167,10 @@ public:
      */
     [[nodiscard]] bool shouldContinueLoop() const { return continueLoop; }
 
+
+    //------------------------------------------
+    // Task Queue Management
+
     /**
      * @brief Clears all task queues.
      */
@@ -175,6 +179,30 @@ public:
             t.second->clear();
         }
     }
+
+    /**
+     * @brief Gets a specific task queue by name.
+     * @param name The name of the task queue.
+     * @return Pointer to the TaskQueue instance, or nullptr if not found.
+     */
+    std::shared_ptr<Data::TaskQueue> getTaskQueue(std::string const& name) {
+        auto it = tasks.find(name);
+        if (it != tasks.end()) {
+            return it->second;
+        }
+        return nullptr;
+    }
+
+    /**
+     * @struct StandardTasks
+     * @brief Contains standard task queue names used in the GlobalSpace.
+     */
+    static struct StandardTasks {
+        // Standard task names
+        static constexpr std::string always = "tasks::always";
+        static constexpr std::string internal = "tasks::internal";
+        static constexpr std::string script = "tasks::script";
+    } const standardTasks;
 
 private:
     //------------------------------------------
@@ -201,7 +229,7 @@ private:
     /**
      * @brief Contains task queues for different types of tasks.
      */
-    absl::flat_hash_map<std::string,std::unique_ptr<Data::TaskQueue>> tasks; // Custom task queues added at runtime
+    absl::flat_hash_map<std::string,std::shared_ptr<Data::TaskQueue>> tasks; // Custom task queues added at runtime
 
     /**
      * @brief Contains results of the last task queue resolutions.

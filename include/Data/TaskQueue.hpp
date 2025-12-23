@@ -44,7 +44,7 @@ struct TaskQueueResult {
  *       - always
  *       - internal
  */
-struct TaskQueue {
+class TaskQueue {
 public:
 
     /**
@@ -56,54 +56,61 @@ public:
         : settings{callbackName, clearAfterResolving} {}
 
     /**
-     * @note Add more metadata as needed, for resolveTaskQueue() to use
-     *       in case new task types are added in the future.
-     *       Perhaps even a hashmap of string to variant around this wrapper for
-     *       maximum flexibility.
-     *       map string -> taskQueueWrapper{taskQueue, <metadata>}
-     *       This way, each task could be sorted into different queues based on type,
-     *       so we can simply call <task> for normal tasks,
-     *       and specify "on-queue <type> <task>" for specific task types
-     *       that we wish to execute in a different manner.
-     *       This could allow us to auto-sort tasks into e.g. always-tasks etc.
-     *       or even manage tasks with calls such as "modify-task <identifier> <modification>"
-     * @todo Implement waitCounter into each taskQueueWrapper, so each queue can have its own wait counter
-     *       Then, have function such as wait, task, etc. modify a specify taskQueue.
-     *       calls with "on-queue", e.g. "on-queue <always/wait/etc.> <args>" can modify specific queues.
-     * @todo Add mutex for thread-safe append/clear of tasks
-     * @todo Add its own resolve function, with param for domain.
-     * @todo Add own wait counter, being lowered on each frame update.
+     * @brief Resolves the task queue by parsing and executing each task in the context of the provided domain.
+     * @details skips tasks if the internal wait counter is greater than zero.
+     * @param context The domain context in which to resolve the tasks.
+     * @return The result of the task queue resolution.
      */
-    void append(std::string const& task);                               // TODO: Thread-safe append to back of buffer
-    void wait(uint64_t const& frames);                                  // TODO: Add to wait counter
-    TaskQueueResult resolve(Interaction::Execution::DomainBase& context);   // TODO: Sort buffer, append to main queue, resolve if waitCounter == 0, decrease waitCounter otherwise
-    void clear();   // TODO: Should also clear buffer?
+    TaskQueueResult resolve(Interaction::Execution::DomainBase& context, bool const& recover);
 
-    void decrementWaitCounter() {
-        if (state.waitCounter > 0) {
-            --state.waitCounter;
-        }
-    }
+    /**
+     * @brief Appends a task to the task queue.
+     * @param task The task string to append.
+     */
+    void pushBack(std::string const& task);
 
-    bool isWaiting() const {
-        return state.waitCounter > 0;
-    }
+    /**
+     * @brief Pushes a task to the front of the task queue.
+     * @param task The task string to push.
+     */
+    void pushFront(std::string const& task);
+
+    /**
+     * @brief Increases the internal wait counter by the specified number of frames.
+     * @param frames The number of frames to wait.
+     */
+    void wait(uint64_t const& frames);
+
+    /**
+     * @brief Clears all tasks from the task queue.
+     */
+    void clear();
+
+    /**
+     * @brief Increments the internal wait counter by a specified value.
+     * @param increment The value to increment the wait counter by. Default is 1.
+     */
+    void incrementWaitCounter(uint64_t const& increment = 1);
+
+    /**
+     * @brief Decrements the internal wait counter by 1, ensuring it does not go below zero.
+     * @param decrement The value to decrement the wait counter by. Default is 1.
+     */
+    void decrementWaitCounter(uint64_t const& decrement = 1);
+
+    /**
+     * @brief Checks if the task queue is currently waiting.
+     * @return True if the wait counter is greater than zero, false otherwise.
+     */
+    [[nodiscard]] bool isWaiting() const ;
 
 private:
-    /**
-     * @todo An option to avoid race-conditions when multiple threads append tasks.
-     *       Idea: Store tasks in temporary buffer, insert into main queue alphanumerically sorted on resolve.
-     *       This way, multiple threads can append tasks without locking the main queue.
-     *       On resolve, we lock the main queue, merge the temporary buffer into the main queue in sorted order, and then clear the temporary buffer.
-     *       This ensures that tasks are always executed in a consistent order, while minimizing locking overhead during appends.
-     */
     struct threadsafeTasks {
         std::deque<std::string> list; // List of tasks.
         std::mutex mutex;  // Mutex for thread-safe access to the task queue
     };
 
     threadsafeTasks tasks; // Thread-safe task queue
-    threadsafeTasks buffer; // Temporary buffer for tasks added by multiple threads
 
     struct Settings {
         std::string callbackName; // Name used as arg[0] when parsing tasks from this queue
