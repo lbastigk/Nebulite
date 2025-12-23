@@ -23,9 +23,9 @@ GlobalSpace::GlobalSpace(std::string const& name)
 
     //------------------------------------------
     // Setup tasks
-    tasks[standardTasks.always] = std::make_shared<Data::TaskQueue>(standardTasks.always, false);
-    tasks[standardTasks.internal] = std::make_shared<Data::TaskQueue>(standardTasks.internal, true);
-    tasks[standardTasks.script] = std::make_shared<Data::TaskQueue>(standardTasks.script, true);
+    tasks[StandardTasks::always] = std::make_shared<Data::TaskQueue>(StandardTasks::always, false);
+    tasks[StandardTasks::internal] = std::make_shared<Data::TaskQueue>(StandardTasks::internal, true);
+    tasks[StandardTasks::script] = std::make_shared<Data::TaskQueue>(StandardTasks::script, true);
 
     //------------------------------------------
     // General Variables
@@ -121,9 +121,9 @@ Constants::Error GlobalSpace::update() {
      * @note It might be tempting to add the condition that all tasks are done,
      *       but this could cause issues if the user wishes to quit while a task is still running.
      */
-    if (tasks[standardTasks.script]->isWaiting() && !renderer.isSdlInitialized()) {
+    if (tasks[StandardTasks::script]->isWaiting() && !renderer.isSdlInitialized()) {
         continueLoop = true;
-        tasks[standardTasks.script]->decrementWaitCounter();
+        tasks[StandardTasks::script]->decrementWaitCounter();
 
         // Parse new tasks on next loop
         queueParsed = false;
@@ -155,7 +155,7 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                tasks[standardTasks.script]->pushBack(command);
+                tasks[StandardTasks::script]->pushBack(command);
             }
         }
     } else {
@@ -184,7 +184,7 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
          *       So later on, we might consider always calling entrypoint as first task AFTER the command line arguments are parsed
          *       This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
          */
-        tasks[standardTasks.script]->pushBack("set-fps 60");
+        tasks[StandardTasks::script]->pushBack("set-fps 60");
     }
 }
 

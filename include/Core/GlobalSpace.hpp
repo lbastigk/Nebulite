@@ -197,12 +197,11 @@ public:
      * @struct StandardTasks
      * @brief Contains standard task queue names used in the GlobalSpace.
      */
-    static struct StandardTasks {
-        // Standard task names
-        static constexpr std::string always = "tasks::always";
-        static constexpr std::string internal = "tasks::internal";
-        static constexpr std::string script = "tasks::script";
-    } const standardTasks;
+    struct StandardTasks {
+        inline static constexpr const char* always = "tasks::always";
+        inline static constexpr const char* internal = "tasks::internal";
+        inline static constexpr const char* script = "tasks::script";
+    } standardTasks;
 
 private:
     //------------------------------------------
