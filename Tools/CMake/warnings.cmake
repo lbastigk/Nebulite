@@ -77,6 +77,7 @@ function(configure_warnings target_name)
                 -Wno-ctad-maybe-unsupported
                 -Wno-padded
                 -Wno-exit-time-destructors
+                -Wno-unused-parameter # Too many false positives due to funcTree bindings. FuncTree needs ability to bind functions with no arg parameters.
         )
 
         # Suppress unsafe-buffer-usage warnings coming from some external headers (clang)
