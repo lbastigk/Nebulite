@@ -54,7 +54,7 @@ public:
         funcTree->setPreParse([this] { return preParse(); });
     }
 
-    virtual ~DomainBase() = default;
+    virtual ~DomainBase();
 
     //------------------------------------------
     // Disallow copying and moving

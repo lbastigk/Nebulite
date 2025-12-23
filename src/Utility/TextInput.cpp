@@ -55,6 +55,8 @@ void TextInput::insertLine(std::string const& line, LineEntry::LineType const& t
         consoleOutput.emplace_back(entry);
         break;
     }
+    default:
+        break;
     }
 }
 

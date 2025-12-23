@@ -145,7 +145,7 @@ private:
     /**
      * @brief Optimizes a Ruleset by linking direct target pointers.
      * @details Potentially modifying self and global by registering stable double pointers.
-     * @param entries The Ruleset objects to optimize.
+     * @param entry The Ruleset object to optimize.
      * @param self The RenderObject instance associated with the entries.
      */
     static void optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JSON* self);

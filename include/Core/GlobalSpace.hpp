@@ -195,7 +195,7 @@ public:
         inline static constexpr const char* always = "tasks::always";
         inline static constexpr const char* internal = "tasks::internal";
         inline static constexpr const char* script = "tasks::script";
-    } standardTasks;
+    };
 
 private:
     //------------------------------------------

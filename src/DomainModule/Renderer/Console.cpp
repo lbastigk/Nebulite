@@ -48,6 +48,10 @@ Constants::Error Console::update() {
         case Utility::OutputLine::Type::CERR:
             type = Utility::TextInput::LineEntry::LineType::CERR;
             break;
+        default:
+            Nebulite::cerr() << "[ERROR] Unknown OutputLine type encountered in " << std::string(__FUNCTION__) << ". Please fix!" << Nebulite::endl;
+            type = Utility::TextInput::LineEntry::LineType::CERR;
+            break;
         }
         for (auto const& line : lines) {
             if (!line.empty()) {

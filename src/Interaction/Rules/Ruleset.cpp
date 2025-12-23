@@ -62,7 +62,7 @@ void JsonRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
         std::string call = entry.eval(otherDoc);
 
         // attach to task queue
-        Nebulite::global().getTaskQueue(Nebulite::global().standardTasks.internal)->pushBack(call);
+        Nebulite::global().getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
 
     }
     for (auto& entry : functioncalls_self) {
@@ -76,7 +76,5 @@ void JsonRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
         (void)contextOther->parseStr(call);
     }
 }
-
-
 
 } // namespace Nebulite::Interaction::Rules

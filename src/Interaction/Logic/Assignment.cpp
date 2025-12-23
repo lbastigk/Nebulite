@@ -138,4 +138,4 @@ void Assignment::apply(Data::JSON* self, Data::JSON* other) {
         setValueOfKey(key.eval(other), resolved, targetDocument);
     }
 }
-}
+} // namespace Nebulite::Interaction::Logic

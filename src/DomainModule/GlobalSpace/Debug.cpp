@@ -435,5 +435,4 @@ void Debug::setupPlatformInfo() {
 #endif
 }
 
-
 } // namespace Nebulite::DomainModule::GlobalSpace
