@@ -1,8 +1,7 @@
 /**
  * @file Renderer.hpp
- *
- * This file contains the declaration of the Nebulite::Core::Renderer class, which is responsible for rendering
- * the game objects and managing the rendering pipeline.
+ * @brief This file contains the declaration of the Nebulite::Core::Renderer class, which is responsible for rendering
+ *        the game objects and managing the rendering pipeline.
  */
 
 #ifndef NEBULITE_CORE_RENDERER_HPP
@@ -89,13 +88,14 @@ public:
 
     /**
      * @brief Updates the renderer for the next frame.
-     *        - clears the screen
-     *        - calls the state update function
-     *        - renders frame
-     *        - renders fps, if enabled
-     *        - presents the frame
-     *        - manages SDL events
-     *        - manages state for next frame
+     * @details Tasks performed:
+     *          - clears the screen
+     *          - calls the state update function
+     *          - renders frame
+     *          - renders fps, if enabled
+     *          - presents the frame
+     *          - manages SDL events
+     *          - manages state for next frame
      * @return Currently, always returns `Constants::ErrorTable::NONE()`.
      */
     Constants::Error update() override;
@@ -107,11 +107,12 @@ public:
 
     /**
      * @brief Appends a RenderObject to the Renderer to the rendering pipeline.
-     *        - Sets id of the RenderObject.
-     *        - Increases the id counter.
-     *        - Appends the RenderObject to the environment.
-     *        - Loads its texture
-     *        - updates the rolling random number generator.
+     * @details Tasks performed:
+     *          - Sets id of the RenderObject.
+     *          - Increases the id counter.
+     *          - Appends the RenderObject to the environment.
+     *          - Loads its texture
+     *          - updates the rolling random number generator.
      * @param toAppend Pointer to the RenderObject to append.
      */
     void append(RenderObject* toAppend);
@@ -226,9 +227,7 @@ public:
     /**
      * @brief Toggles the display of the FPS counter.
      */
-    void toggleFps(bool const& show = true) {
-        showFPS = show;
-    }
+    void toggleFps(bool const& show = true) { showFPS = show; }
 
     /**
      * @brief Sets the target FPS for the renderer.
@@ -366,9 +365,9 @@ public:
 
     /**
      * @brief Loads a texture from a file into memory without adding it to the TextureContainer.
-     *        Creates the necessary surface and texture object from a given file path,
-     *        but does not store it in the TextureContainer. It is useful for temporary textures or
-     *        textures that are managed externally.
+     * @details Creates the necessary surface and texture object from a given file path,
+     *          but does not store it in the TextureContainer. It is useful for temporary textures or
+     *          textures that are managed externally.
      * @param link The file path to load the texture from.
      * @return A pointer to the loaded SDL_Texture, or nullptr if loading failed.
      */
@@ -378,12 +377,14 @@ public:
     // Status
 
     /**
-     * @brief Checks if the Renderer is initialized
+     * @brief Checks if the SDL Renderer is initialized
+     * @return True if the SDL Renderer is initialized, false otherwise.
      */
     [[nodiscard]] bool isSdlInitialized() const noexcept { return SDL_initialized; }
 
     /**
      * @brief Checks if the Renderer is set to quit
+     * @return True if the Renderer is set to quit, false otherwise.
      */
     [[nodiscard]] bool shouldQuit() const noexcept { return quit; }
 
@@ -395,6 +396,9 @@ public:
 private:
     //------------------------------------------
     // Boolean Status Variables
+
+    // TODO: Move to struct Status
+
     bool audioInitialized = false;
     bool showFPS = true; // Set default to false later on
     bool skipUpdate = false;
@@ -407,6 +411,7 @@ private:
 
     //------------------------------------------
     // Audio
+
     struct Audio {
         SDL_AudioDeviceID device = 0;
         SDL_AudioSpec desired = {};
@@ -434,7 +439,7 @@ private:
 
     /**
      * @brief Counter for assigning unique IDs to RenderObjects.
-     *        Easier to debug if it starts at 1, as 0 might come up in overflows, and negative values may not be valid
+     * @note Easier to debug if it starts at 1, as 0 might come up in overflows, and negative values may not be valid
      */
     uint32_t renderObjectIdCounter = 1;
 
@@ -455,13 +460,6 @@ private:
 
     std::vector<SDL_Event> events;
 
-    /**
-     * @brief Hashes a string to produce a size_t value.
-     *
-     * Used for RNG seeding.
-     */
-    static std::size_t hashString(std::string const& str) { return std::hash<std::string>{}(str); }
-
     //------------------------------------------
     // Renderer::tick related Functions
 
@@ -473,13 +471,13 @@ private:
 
     /**
      * @brief Updates the Renderer state.
-     * @details Tasks:
-     *        - updates timer
-     *        - polls SDL events
-     *        - polls mouse and keyboard state
-     *        - sets global values
-     *        - updates the invoke instance
-     *        - updates the environment
+     * @details Tasks performed:
+     *          - updates timer
+     *          - polls SDL events
+     *          - polls mouse and keyboard state
+     *          - sets global values
+     *          - updates the invoke instance
+     *          - updates the environment
      */
     void updateState();
 
@@ -532,17 +530,14 @@ private:
 
     /**
      * @brief Texture container for the Renderer
-     *
-     * This container holds all loaded textures from RenderObject sprites for the renderer, allowing for easy access and management.
-     *
-     * `TextureContainer[link] -> SDL_Texture*`
+     * @details Holds all loaded textures from RenderObject sprites for the renderer, allowing for easy access and management.
+     *          `TextureContainer[link] -> SDL_Texture*`
      */
     absl::flat_hash_map<std::string, SDL_Texture*> TextureContainer;
 
     /**
      * @brief Contains textures the renderer needs to render between layers
-     *
-     * `BetweenLayerTextures[layer][link] -> SDL_Texture*`
+     * @details `BetweenLayerTextures[layer][link] -> SDL_Texture*`
      */
     absl::flat_hash_map<
         Environment::Layer,
