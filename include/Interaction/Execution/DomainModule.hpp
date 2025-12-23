@@ -105,6 +105,8 @@ public:
      * @param methodPtr A pointer to the member function to bind.
      * @param name The name to associate with the bound function.
      * @param helpDescription A pointer to a string containing the help description for the function.
+     * @todo Use string_view instead of string for name and helpDescription to avoid unnecessary copies.
+     *       Do the same for FuncTree bindFunction methods.
      */
     template <typename ClassType, typename ReturnType, typename... Args>
     void bindFunction(ReturnType (ClassType::*methodPtr)(Args...), std::string const& name, std::string const* helpDescription) {
