@@ -14,6 +14,7 @@
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules::Construction {
+
 void rulesetMapInit(StaticRulesetMap* srm) {
     static Module::Camera cameraModule;
     cameraModule.registerModule(*srm);
@@ -22,4 +23,5 @@ void rulesetMapInit(StaticRulesetMap* srm) {
     static Module::Physics physicsModule;
     physicsModule.registerModule(*srm);
 }
+
 } // namespace Nebulite::Interaction::Rules::Construction

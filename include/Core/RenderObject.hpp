@@ -24,11 +24,7 @@
 
 namespace Nebulite::Interaction::Rules {
 class Ruleset;
-}
-
-namespace Nebulite::Utility {
-class JSON;
-}
+} // namespace Nebulite::Interaction::Rules
 
 //------------------------------------------
 namespace Nebulite::Core {

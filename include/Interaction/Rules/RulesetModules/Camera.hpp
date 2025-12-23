@@ -107,10 +107,7 @@ private:
     //       e.g.: ::camera::align::right-top would align the camera's right edge to the object's top edge
     void setCameraPosition(const position& pos, Align align) const {
         switch (align) {
-            case Align::Center:
-                *globalVal.camPosX = pos.x - (*globalVal.dispResX / 2.0);
-                *globalVal.camPosY = pos.y - (*globalVal.dispResY / 2.0);
-                break;
+
             case Align::Top:
                 *globalVal.camPosY = pos.y ;
                 break;
@@ -123,6 +120,11 @@ private:
             case Align::Right:
                 *globalVal.camPosX = pos.x - (*globalVal.dispResX);
                 break;
+            case Align::Center:
+            default: // Fallback to center
+                *globalVal.camPosX = pos.x - (*globalVal.dispResX / 2.0);
+                *globalVal.camPosY = pos.y - (*globalVal.dispResY / 2.0);
+                break;
         }
     }
 
@@ -130,10 +132,6 @@ private:
         // Adjust based on object size
         position pos;
         switch (align) {
-            case Align::Center:
-                pos.x = baseVal(baseValues, Key::posX) + (baseVal(baseValues, Key::spriteSizeX) / 2.0);
-                pos.y = baseVal(baseValues, Key::posY) + (baseVal(baseValues, Key::spriteSizeY) / 2.0);
-                break;
             case Align::Top:
                 pos.x = baseVal(baseValues, Key::posX) + (baseVal(baseValues, Key::spriteSizeX) / 2.0);
                 pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY);
@@ -148,6 +146,11 @@ private:
                 break;
             case Align::Right:
                 pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX);
+                pos.y = baseVal(baseValues, Key::posY) + (baseVal(baseValues, Key::spriteSizeY) / 2.0);
+                break;
+            case Align::Center:
+            default: // Fallback to center
+                pos.x = baseVal(baseValues, Key::posX) + (baseVal(baseValues, Key::spriteSizeX) / 2.0);
                 pos.y = baseVal(baseValues, Key::posY) + (baseVal(baseValues, Key::spriteSizeY) / 2.0);
                 break;
         }
