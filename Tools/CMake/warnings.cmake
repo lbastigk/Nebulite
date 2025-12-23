@@ -76,6 +76,7 @@ function(configure_warnings target_name)
                 -Wno-c++98-compat-pedantic
                 -Wno-ctad-maybe-unsupported
                 -Wno-padded
+                -Wno-exit-time-destructors
         )
 
         # Suppress unsafe-buffer-usage warnings coming from some external headers (clang)
