@@ -1,103 +1,118 @@
 # Compiler warnings configuration
-# This file contains compiler-specific warning configurations
-
 message(STATUS "[COMPILER] Loading compiler warnings configuration...")
 
-# Function to configure warnings for a target
 function(configure_warnings target_name)
     message(STATUS "[COMPILER] Configuring warnings for target: ${target_name}")
 
-    # Uncomment to only show warnings in non-release builds
-    #if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    #    message(STATUS "[COMPILER] Release build detected, skipping warning configuration for target: ${target_name}")
-    #    return()
-    #endif()
-
-    # Common base (both compilers)
-    set(BASE_WARNINGS
-        -Wall
-        -Wextra
-        -Wpedantic
-        -Wno-unused-parameter
-        -Wcast-align
-        -Wmissing-field-initializers
-        -Wformat=2
-        -Wundef
-    )
-
-    # Find source files under ./src and ./include (adjust extensions as needed)
+    # Find source files under ./src and ./include
     file(GLOB_RECURSE _restricted_sources CONFIGURE_DEPENDS
-            ${CMAKE_SOURCE_DIR}/src/*.c
-            ${CMAKE_SOURCE_DIR}/src/*.cc
-            ${CMAKE_SOURCE_DIR}/src/*.cpp
-            ${CMAKE_SOURCE_DIR}/src/*.cxx
-            ${CMAKE_SOURCE_DIR}/include/*.c
-            ${CMAKE_SOURCE_DIR}/include/*.cc
-            ${CMAKE_SOURCE_DIR}/include/*.cpp
-            ${CMAKE_SOURCE_DIR}/include/*.cxx
+        ${CMAKE_SOURCE_DIR}/src/*.c
+        ${CMAKE_SOURCE_DIR}/src/*.cc
+        ${CMAKE_SOURCE_DIR}/src/*.cpp
+        ${CMAKE_SOURCE_DIR}/src/*.cxx
+        ${CMAKE_SOURCE_DIR}/include/*.c
+        ${CMAKE_SOURCE_DIR}/include/*.cc
+        ${CMAKE_SOURCE_DIR}/include/*.cpp
+        ${CMAKE_SOURCE_DIR}/include/*.cxx
     )
-    
+
+    # Collect external include directories and prepare -isystem flags so headers under external are treated as system headers.
+    file(GLOB _external_include_dirs CONFIGURE_DEPENDS
+        ${CMAKE_SOURCE_DIR}/external/*/include
+    )
+    set(_external_include_flags "")
+    if(_external_include_dirs)
+        foreach(_inc IN LISTS _external_include_dirs)
+            # Use absolute path, prefix with -isystem
+            list(APPEND _external_include_flags "-isystem${_inc}")
+        endforeach()
+    endif()
+
     ########################################
     # GCC
     if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        target_compile_options(${target_name} PRIVATE ${BASE_WARNINGS}
+        set(SRC_COMPILE_OPTIONS
+            -Wall
+            -Wextra
+            -Wpedantic
+            -Wno-unused-parameter
+            -Wcast-align
+            -Wmissing-field-initializers
+            -Wformat=2
+            -Wundef
             -Wnull-dereference
             -Wdouble-promotion
             -Wfloat-equal
             -Wshadow
-        )
-        message(STATUS "[COMPILER] Applied GCC-specific warnings")
-    ########################################
-    # Clang
-    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        target_compile_options(${target_name} PRIVATE ${BASE_WARNINGS}
-            # Clang-only checks
-            -Wnull-dereference
-            -Wdouble-promotion
-            -Wfloat-equal
-            -Wextra-semi
-            -Wshadow
-            -Wsign-conversion
-            -Wimplicit-fallthrough
-            -Wcomma
-            -Wdocumentation-unknown-command
-            -Weverything
         )
 
-        # TODO: Make sure this doesn't flag any stdlib or external code issues
-        option(ENABLE_CLANG_TIDY "Run clang-tidy as part of build when using Clang (can be slow)" OFF)
-        if(ENABLE_CLANG_TIDY)
-            find_program(CLANG_TIDY_EXE NAMES clang-tidy clang-tidy-14 clang-tidy-15)
-            if(CLANG_TIDY_EXE)
-                # Attach clang-tidy per-target so every target that calls
-                # configure_warnings gets the tidy invocation.
-                set_target_properties(${target_name} PROPERTIES
-                    CXX_CLANG_TIDY
-                    "${CLANG_TIDY_EXE};-checks=*,-llvmlibc-*;-header-filter=^${CMAKE_SOURCE_DIR}/(src|include)"
-                )
-                # Print the property so it's easy to confirm during configure
-                get_target_property(_ct_prop ${target_name} CXX_CLANG_TIDY)
-                message(STATUS "[COMPILER] CXX_CLANG_TIDY for ${target_name}: ${_ct_prop}")
+        # Append external include flags if any
+        if(_external_include_flags)
+            list(APPEND SRC_COMPILE_OPTIONS ${_external_include_flags})
+        endif()
+
+        list(LENGTH _restricted_sources _src_count)
+        list(LENGTH SRC_COMPILE_OPTIONS _opt_count)
+        if(_src_count GREATER 0 AND _opt_count GREATER 0)
+            # Apply per-file to avoid set_source_files_properties being called with an empty/invalid file list.
+            foreach(_src IN LISTS _restricted_sources)
+                set_source_files_properties(${_src} PROPERTIES COMPILE_OPTIONS "${SRC_COMPILE_OPTIONS}")
+            endforeach()
+            message(STATUS "[COMPILER] Applied GCC-specific warnings to ${CMAKE_SOURCE_DIR}/src and ${CMAKE_SOURCE_DIR}/include")
+        else()
+            if(NOT _src_count GREATER 0)
+                message(STATUS "[COMPILER] No sources found to apply GCC warnings")
             else()
-                message(WARNING "[COMPILER] ENABLE_CLANG_TIDY is ON but clang-tidy executable not found.")
+                message(STATUS "[COMPILER] No GCC compile options configured, skipping per-file apply")
             endif()
         endif()
 
-        message(STATUS "[COMPILER] Applied Clang warnings")
+    ########################################
+    # Clang
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        set(SRC_COMPILE_OPTIONS
+                -Weverything
+                -Wno-c++98-compat
+                -Wno-c++98-compat-pedantic
+                -Wno-ctad-maybe-unsupported
+                -Wno-padded
+        )
+
+        # Suppress unsafe-buffer-usage warnings coming from some external headers (clang)
+        list(APPEND SRC_COMPILE_OPTIONS -Wno-unsafe-buffer-usage)
+
+        # Append external include flags so external headers are system headers
+        if(_external_include_flags)
+            list(APPEND SRC_COMPILE_OPTIONS ${_external_include_flags})
+        endif()
+
+        list(LENGTH _restricted_sources _src_count)
+        list(LENGTH SRC_COMPILE_OPTIONS _opt_count)
+        if(_src_count GREATER 0 AND _opt_count GREATER 0)
+            # Apply per-file to avoid set_source_files_properties being called with an empty/invalid file list.
+            foreach(_src IN LISTS _restricted_sources)
+                set_source_files_properties(${_src} PROPERTIES COMPILE_OPTIONS "${SRC_COMPILE_OPTIONS}")
+            endforeach()
+            message(STATUS "[COMPILER] Applied Clang warnings to ${CMAKE_SOURCE_DIR}/src and ${CMAKE_SOURCE_DIR}/include")
+        else()
+            if(NOT _src_count GREATER 0)
+                message(STATUS "[COMPILER] No sources found to apply Clang warnings")
+            else()
+                message(STATUS "[COMPILER] No Clang compile options configured, skipping per-file apply")
+            endif()
+        endif()
+
     ########################################
     # MSVC
     elseif(MSVC)
-        # MSVC-specific warnings
         target_compile_options(${target_name} PRIVATE
-            /W4                        # High warning level
-            /WX-                       # Don't treat warnings as errors (can be changed)
+            /W4
+            /WX-
         )
-        message(STATUS "Applied MSVC warnings")
-    ########################################
-    # Unknown compiler
+        message(STATUS "[COMPILER] Applied MSVC warnings to target: ${target_name}")
     else()
         message(STATUS "[COMPILER] Unknown compiler, no specific warnings applied")
     endif()
 endfunction()
 
-message(STATUS "[COMPILER] Compiler warnings configuration loaded successfully")
+
