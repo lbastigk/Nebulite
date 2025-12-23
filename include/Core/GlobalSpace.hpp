@@ -133,12 +133,6 @@ public:
     Data::DocumentCache* getDocCache() { return &docCache; }
 
     //------------------------------------------
-    // Public Variables
-
-    // Error Table for error descriptions
-    Constants::ErrorTable errorTable;
-
-    //------------------------------------------
     // DomainModule variables
 
     struct commandLineVariables {

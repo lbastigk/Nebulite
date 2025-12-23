@@ -148,6 +148,19 @@ private:
  *       Then, if we have more than UINT16_MAX errors, we can just exit with a message.
  */
 class ErrorTable {
+private:
+    /**
+     * @todo It might be better to not use a local description container, and instead rely on them being stored in the
+     * error object itself. Then, when we get pre-declared errors, we use a special constructor that references
+     * the description of the already existing error.
+     * Or something along those lines. The current implementation is too complex
+     * and probably tried to circumvent an issue that does not exist.
+     *
+     * The idea of the localDescriptions was to reduce the exhaustive copying of strings when retrieving existing errors.
+     * Since technically, each new Error object would have to copy the string into its own storage otherwise.
+     */
+    Error addErrorImpl(std::string const& description, Error::Type type = Error::NON_CRITICAL);
+
     /**
      * @brief Holds all errors added to the table.
      */
@@ -161,11 +174,6 @@ class ErrorTable {
      * preventing memory leaks.
      */
     uint16_t count;
-
-    static ErrorTable& getInstance() {
-        static ErrorTable instance;
-        return instance;
-    }
 
     /**
      * @brief Holds local copies of error description strings.
@@ -210,29 +218,13 @@ public:
         return getInstance().addErrorImpl(description, type);
     }
 
-private:
     /**
-     * @todo It might be better to not use a local description container, and instead rely on them being stored in the
-     * error object itself. Then, when we get pre-declared errors, we use a special constructor that references
-     * the description of the already existing error.
-     * Or something along those lines. The current implementation is too complex
-     * and probably tried to circumvent an issue that does not exist.
-     *
-     * The idea of the localDescriptions was to reduce the exhaustive copying of strings when retrieving existing errors.
-     * Since technically, each new Error object would have to copy the string into its own storage otherwise.
+     * @brief Gets the singleton instance of the ErrorTable.
+     * @return Reference to the singleton ErrorTable instance.
      */
-    Error addErrorImpl(std::string const& description, Error::Type type = Error::NON_CRITICAL) {
-        if (count == UINT16_MAX) {
-            // Too many errors, exit entirely with message
-            throw std::runtime_error("ErrorTable has reached its maximum capacity of errors. Make sure that new errors added are removed after some time if they are not needed anymore.");
-        }
-        // Store the description in the owned container and reference it from
-        // the Error object. Use deque to guarantee stable element addresses.
-        localDescriptions.push_back(description);
-        errors.emplace_back(&localDescriptions.back(), type);
-        count++;
-        return errors.back();
-    }
+    static ErrorTable& getInstance();
+
+
 
 public:
     //------------------------------------------
