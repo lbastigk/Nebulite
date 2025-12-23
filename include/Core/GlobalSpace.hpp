@@ -108,15 +108,6 @@ public:
     // Getters
 
     /**
-     * @brief Gets the global queue for function calls.
-     * @return Pointer to the task queue deque for script tasks.
-     * @todo Consider more versatile task queue management in the future.
-     *       Returning the correct deque based on task type, etc.
-     *       With fallback to a default queue if type is unknown.
-     */
-    std::deque<std::string>* getTaskQueue() { return &tasks.script.tasks; }
-
-    /**
      * @brief Gets a pointer to the Renderer instance.
      * @return Pointer to the Renderer instance.
      */
@@ -143,21 +134,6 @@ public:
 
     //------------------------------------------
     // Public Variables
-
-    /**
-     * @struct Tasks
-     * @brief Contains task queues for different types of tasks.
-     * @todo Use a hashmap instead, with a default task queue for unknown types.
-     *       (should be internal task queue)
-     */
-    struct Tasks {
-        Data::TaskQueue script; // Task queue for script files loaded with "task"
-        Data::TaskQueue internal; // Internal task queue from renderObjects, console, etc.
-        Data::TaskQueue always; // Always-tasks added with the prefix "always "
-    } tasks;
-
-    // Wait counter for script tasks
-    uint64_t scriptWaitCounter = 0;
 
     // Error Table for error descriptions
     Constants::ErrorTable errorTable;
@@ -191,6 +167,43 @@ public:
      */
     [[nodiscard]] bool shouldContinueLoop() const { return continueLoop; }
 
+
+    //------------------------------------------
+    // Task Queue Management
+
+    /**
+     * @brief Clears all task queues.
+     */
+    void clearAllTaskQueues() {
+        for (auto& t : tasks) {
+            t.second->clear();
+        }
+    }
+
+    /**
+     * @brief Gets a specific task queue by name.
+     * @param name The name of the task queue.
+     * @return Pointer to the TaskQueue instance, or nullptr if not found.
+     */
+    std::shared_ptr<Data::TaskQueue> getTaskQueue(std::string const& name) {
+        auto it = tasks.find(name);
+        if (it != tasks.end()) {
+            return it->second;
+        }
+        return nullptr;
+    }
+
+    /**
+     * @struct StandardTasks
+     * @brief Contains standard task queue names used in the GlobalSpace.
+     */
+    static struct StandardTasks {
+        // Standard task names
+        static constexpr std::string always = "tasks::always";
+        static constexpr std::string internal = "tasks::internal";
+        static constexpr std::string script = "tasks::script";
+    } const standardTasks;
+
 private:
     //------------------------------------------
     // General Variables
@@ -214,14 +227,14 @@ private:
     // Structs
 
     /**
-     * @struct QueueResult
-     * @brief Holds the results of resolving different task queues.
+     * @brief Contains task queues for different types of tasks.
      */
-    struct QueueResult {
-        Data::TaskQueueResult script; // Result of script-tasks
-        Data::TaskQueueResult internal; // Result of internal-tasks
-        Data::TaskQueueResult always; // Result of always-tasks
-    } queueResult;
+    absl::flat_hash_map<std::string,std::shared_ptr<Data::TaskQueue>> tasks; // Custom task queues added at runtime
+
+    /**
+     * @brief Contains results of the last task queue resolutions.
+     */
+    absl::flat_hash_map<std::string, Data::TaskQueueResult> queueResult;
 
     /**
      * @struct names
