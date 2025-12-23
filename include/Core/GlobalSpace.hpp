@@ -244,6 +244,9 @@ private:
      * @todo Consider a hashmap of RNGs for more versatility in the future.
      *       std::string -> Utility::RNG<rngSize_t>
      *       Simplifies the rng rollback and update functions as well.
+     * @note Having the RNG-Generation in a DomainModule would be better,
+     *       but then we would have to somehow ensure that its updated before command parsing,
+     *       which is currently only possible in GlobalSpace::preParse.
      */
     struct RngVars {
         using rngSize_t = uint16_t; // Modify this to change the size of the RNGs

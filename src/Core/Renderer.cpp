@@ -248,7 +248,9 @@ bool Renderer::timeToRender() {
     // set target to 16, remainder = 0.67
     // so do 16 for 67% of the time, and 17 for 33% of the time
     static std::uniform_real_distribution<double> distribution(0.0, 1.0);
+    static std::hash<std::string> hashString;
     static std::mt19937 randNum(hashString("RNG for FPS control"));
+
     double const target = 1000.0 / static_cast<double>(fps.target);
     double const remainder = target - static_cast<double>(static_cast<uint32_t>(target)); // between 0.0 and 1.0
     uint32_t const adjustedTarget = static_cast<uint32_t>(target) + (distribution(randNum) < remainder ? 1 : 0);
