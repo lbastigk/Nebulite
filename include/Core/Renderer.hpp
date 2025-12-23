@@ -124,15 +124,15 @@ public:
 
     /**
      * @brief Skips updating the next frame.
-     *        This can be useful to avoid rendering a frame when the application is not in focus,
-     *        or when the rendering load is too high.
+     * @details This can be useful to avoid rendering a frame when the application is not in focus,
+     *          or when the rendering load is too high.
      */
     void skipUpdateNextFrame() { skipUpdate = true; }
 
     /**
      * @brief Checks if the next frame update is being skipped.
-     *        After a renderer tick, this is reset to false
-     *        so new blocking processes have to call `skipUpdateNextFrame()` each frame.
+     * @details After a renderer tick, this is reset to false
+     *          so new blocking processes have to call `skipUpdateNextFrame()` each frame.
      * @return True if the next frame update is being skipped, false otherwise.
      */
     [[nodiscard]] bool isSkippingUpdate() const noexcept { return skipUpdate; }
@@ -240,7 +240,7 @@ public:
      * @param X The new X position of the camera.
      * @param Y The new Y position of the camera.
      * @param isMiddle If true, the (x,y) coordinates relate to the middle of the screen.
-     * If false, they relate to the top left corner.
+     *                 If false, they relate to the top left corner.
      */
     void setCam(int const& X, int const& Y, bool const& isMiddle = false) const;
 
@@ -455,11 +455,6 @@ private:
 
     std::vector<SDL_Event> events;
 
-    //------------------------------------------
-    // RNG
-    std::mt19937 rngA;
-    std::mt19937 rngB;
-
     /**
      * @brief Hashes a string to produce a size_t value.
      *
@@ -478,6 +473,7 @@ private:
 
     /**
      * @brief Updates the Renderer state.
+     * @details Tasks:
      *        - updates timer
      *        - polls SDL events
      *        - polls mouse and keyboard state
@@ -489,9 +485,9 @@ private:
 
     /**
      * @brief Renders the current frame.
-     *        Takes all RenderObjects potentially visible in the current frame and renders them.
-     *        See the Environment and RenderObjectContainer class for more details on how objects
-     *        are managed in the tile-based-container
+     * @details Takes all RenderObjects potentially visible in the current frame and renders them.
+     *          See the Environment and RenderObjectContainer class for more details on how objects
+     *          are managed in the tile-based-container
      */
     void renderFrame();
 
@@ -519,7 +515,6 @@ private:
     struct FpsControl {
         Utility::TimeKeeper controlTimer;
         Utility::TimeKeeper renderTimer;
-
         uint16_t target = 500; // Target framerate (e.g., 60 FPS)
         uint16_t realCounter = 0; // Counts fps in a 1-second-interval; reset every second
         uint16_t real = 0; // Actual fps this past second. Stores the last value of realCounter every second

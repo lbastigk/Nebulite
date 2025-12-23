@@ -25,9 +25,7 @@ namespace Nebulite::Core {
 
 Renderer::Renderer(Data::JSON* docRef, bool* flag_headless, unsigned int const& X, unsigned int const& Y)
     : Domain("Renderer", this, docRef),
-      env(docRef),
-      rngA(hashString("Seed for RNG A")),
-      rngB(hashString("Seed for RNG B")) {
+      env(docRef){
 
     //------------------------------------------
     // Initialize internal variables
