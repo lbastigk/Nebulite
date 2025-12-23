@@ -84,8 +84,8 @@ private:
 
     /**
      * @brief Target document type (Self, Other, Global)
-     * @dteils Depending on Type, the proper JSON document will be used.
-     *         Initialized as null, which means the assignment is evaluated at runtime.
+     * @details Depending on Type, the proper JSON document will be used.
+     *          Initialized as null, which means the assignment is evaluated at runtime.
      */
     Type onType = Type::null;
 

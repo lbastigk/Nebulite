@@ -24,6 +24,18 @@ function(configure_warnings target_name)
         -Wformat=2
         -Wundef
     )
+
+    # Find source files under ./src and ./include (adjust extensions as needed)
+    file(GLOB_RECURSE _restricted_sources CONFIGURE_DEPENDS
+            ${CMAKE_SOURCE_DIR}/src/*.c
+            ${CMAKE_SOURCE_DIR}/src/*.cc
+            ${CMAKE_SOURCE_DIR}/src/*.cpp
+            ${CMAKE_SOURCE_DIR}/src/*.cxx
+            ${CMAKE_SOURCE_DIR}/include/*.c
+            ${CMAKE_SOURCE_DIR}/include/*.cc
+            ${CMAKE_SOURCE_DIR}/include/*.cpp
+            ${CMAKE_SOURCE_DIR}/include/*.cxx
+    )
     
     ########################################
     # GCC
@@ -45,6 +57,11 @@ function(configure_warnings target_name)
             -Wfloat-equal
             -Wextra-semi
             -Wshadow
+            -Wsign-conversion
+            -Wimplicit-fallthrough
+            -Wcomma
+            -Wdocumentation-unknown-command
+            -Weverything
         )
 
         # TODO: Make sure this doesn't flag any stdlib or external code issues
