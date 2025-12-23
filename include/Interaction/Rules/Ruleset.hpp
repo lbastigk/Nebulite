@@ -83,8 +83,7 @@ public:
 
     /**
      * @brief Checks if the ruleset is true in the context of the other render object.
-     * @param expr The condition to check.
-     * @param otherObj The other domain to use as context 'other'.
+     * @param other The other domain to use as context 'other'.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
     virtual bool evaluateCondition(Interaction::Execution::DomainBase const* other);
@@ -174,10 +173,10 @@ public:
     /**
      * @brief Checks if the ruleset is true in the context of the other render object.
      * @details For StaticRuleset, this always returns true.
-     * @param otherObj The other render object to compare against.
+     * @param other The other render object to compare against.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    bool evaluateCondition(Interaction::Execution::DomainBase const* other) override { return true; }
+    bool evaluateCondition(Interaction::Execution::DomainBase const* other) override { (void)other ; return true; }
 
     /**
      * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
